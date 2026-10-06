@@ -1,0 +1,5 @@
+# Context is projects/: send only what the API image compiles.
+*/build*
+**/__pycache__
+**/*.egg-info
+topologie

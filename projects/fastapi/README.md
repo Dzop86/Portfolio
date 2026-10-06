@@ -20,14 +20,22 @@ MESHLIB_PATH=../lib-c/build-shared/libmesh.so uvicorn meshapi.app:app   # mesh.d
 curl --data-binary @../lib-c/tests/data/cube.stl http://127.0.0.1:8000/v1/mesh/stats
 ```
 
+## Docker
+```sh
+docker compose up --build api          # depuis la racine du dépôt, API sur http://localhost:8000
+docker build -f projects/fastapi/Dockerfile -t meshapi projects && projects/fastapi/scripts/smoke.sh meshapi
+```
+Image multi-étapes : lib-c est compilée dans la première, la seconde ne contient ni compilateur ni code source ; utilisateur non root (uid 10001), système de fichiers en lecture seule dans `compose.yaml`, contrôle de santé intégré.
+
 ## Tests
 - **Unitaires** (`tests/test_libmesh.py`) : liaison ctypes, formats, erreurs avec leur ligne, 500 lectures sans fuite ni plantage.
 - **Intégration** (`tests/test_api.py`) : l'API par le client de test de FastAPI, codes 200, 413 et 422, schéma OpenAPI.
 - **CI** (`.github/workflows/fastapi.yml`) : Linux, Windows et macOS, Python 3.12 et 3.13, avertissements traités en erreurs ; relancée quand lib-c change.
+- **Docker** : `scripts/smoke.sh` vérifie l'utilisateur, `/health`, une requête valide et une invalide, puis l'état « healthy » ; lancé en CI avec `docker compose up`.
 - Vérifié à la main avec uvicorn et curl : un STL de 350 000 triangles répond en 0,3 s.
 
 ## Limites
-- Le service n'est pas encore conteneurisé ni déployé (sprint suivant : Docker et `compose.yaml`).
+- Le service est conteneurisé mais pas déployé en ligne : GitHub Pages ne sert que du statique.
 - Pas d'authentification ni de limitation de débit : à ajouter avant toute exposition publique.
 
 Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md).

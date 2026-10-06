@@ -38,3 +38,17 @@ jobs:
       - name: Test
         working-directory: projects/fastapi
         run: python -m pytest -q -W error
+
+  docker:
+    name: Python API (Docker image)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -f projects/fastapi/Dockerfile -t meshapi projects
+      - run: projects/fastapi/scripts/smoke.sh meshapi
+      - name: compose.yaml builds and serves the API
+        run: |
+          docker compose up -d --build api
+          for i in $(seq 1 30); do curl -fsS http://localhost:8000/health && break; sleep 1; done
+          curl -fsS http://localhost:8000/health | grep -q loaded
+          docker compose down

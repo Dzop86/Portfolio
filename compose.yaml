@@ -4,3 +4,12 @@ services:
     build: .
     ports:
       - "8080:80"
+  api:
+    build:
+      context: ./projects
+      dockerfile: fastapi/Dockerfile
+    ports:
+      - "8000:8000"
+    read_only: true
+    tmpfs:
+      - /tmp

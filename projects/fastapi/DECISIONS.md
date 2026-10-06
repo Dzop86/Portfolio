@@ -10,3 +10,8 @@
 **Choix :** `POST /v1/mesh/stats` lit le corps brut (`curl --data-binary`), en flux, et refuse au-delà de 32 Mio ; l'appel à lib-c passe par `run_in_threadpool`.
 **Pourquoi :** pas de dépendance `python-multipart` ; un gros maillage (1 s) ne bloque pas les autres requêtes.
 **Limite :** pas de formulaire HTML d'envoi (multipart) pour l'instant.
+
+## F3. Image multi-étapes, non root, contexte `projects/`
+**Choix :** le contexte de build est `projects/` pour compiler lib-c depuis ses sources ; `Dockerfile.dockerignore` n'envoie que lib-c et fastapi. L'étape finale (`python:3.13-slim`) ne reçoit que la roue de l'API et `libmesh.so`, tourne sous un utilisateur dédié, et `compose.yaml` monte son système de fichiers en lecture seule.
+**Pourquoi :** image sans compilateur (213 Mo) ; un défaut dans le lecteur C exposé sur le réseau ne donne ni droits root ni écriture disque.
+**Limite :** les versions de FastAPI et uvicorn ne sont fixées que par des intervalles ; un fichier de verrouillage serait nécessaire pour des images reproductibles.

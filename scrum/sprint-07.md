@@ -4,8 +4,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, je lance l'API (fastapi) avec `docker compose up` : image multi-étapes, utilisateur non root, test de fumée en CI. | 2 | En cours |
-| En tant que chercheur, j'obtiens par HTTP (fastapi) les invariants topologiques et la courbure totale d'un maillage, calculés par la bibliothèque C++ de topologie. | 3 | À faire |
+| En tant que développeur, je lance l'API (fastapi) avec `docker compose up` : image multi-étapes, utilisateur non root, test de fumée en CI. | 2 | Fait |
+| En tant que chercheur, j'obtiens par HTTP (fastapi) les invariants topologiques et la courbure totale d'un maillage, calculés par la bibliothèque C++ de topologie. | 3 | En cours |
 
 **Décision de Charles (6 octobre) :** le projet ML utilisera GitHub Actions, sans GitLab CI.
 

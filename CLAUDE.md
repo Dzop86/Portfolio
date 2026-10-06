@@ -10,7 +10,7 @@ Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté 
 - `npm test` : tests unitaires et d'intégration (`node:test`), dont le scan de données privées.
 - `npm run test:e2e` : Playwright, desktop (Chromium, Firefox, WebKit) et mobile (Pixel 7, iPhone 14), avec axe pour l'accessibilité.
 - `npm run serve` : sert `dist/` sur http://localhost:4173.
-- `docker compose up --build` : sert le site sur http://localhost:8080.
+- `docker compose up --build` : sert le site sur http://localhost:8080 et l'API (fastapi) sur http://localhost:8000.
 
 ## Règles non négociables
 1. **Tests d'abord.** Toute fonctionnalité arrive avec ses tests unitaires et au moins un test d'intégration. Pas de merge si la CI est rouge.
