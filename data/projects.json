@@ -82,9 +82,10 @@
     "pitch": { "fr": "Éditeur façon Overleaf : un article qui présente ce portfolio, rendu en direct.", "en": "Overleaf-style editor: an article introducing this portfolio, rendered live." },
     "stack": ["TypeScript", "KaTeX", "LaTeX"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/latex" } },
-  { "id": "gcartes", "sprint": "S15", "points": 5, "status": "planned", "group": "science",
+  { "id": "gcartes", "sprint": "S15", "points": 5, "status": "in-progress", "group": "science",
     "name": { "fr": "Mini-cours G-cartes", "en": "G-maps mini-course" },
     "pitch": { "fr": "Brins, involutions et orbites, avec un cube interactif et un quiz.", "en": "Darts, involutions and orbits, with an interactive cube and a quiz." },
     "stack": ["JavaScript", "SVG"],
-    "teaching": { "fr": "Pédagogie et sujet de thèse", "en": "Teaching and PhD topic" } }
+    "teaching": { "fr": "Pédagogie et sujet de thèse", "en": "Teaching and PhD topic" },
+    "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/gcartes" } }
 ]
