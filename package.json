@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "node src/build.mjs",
-    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test": "node --test \"tests/unit/*.test.mjs\" \"projects/gcartes/tests/*.test.mjs\"",
     "test:e2e": "playwright test",
     "serve": "node scripts/serve.mjs",
     "check": "npm run build && npm test",
