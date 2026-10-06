@@ -77,7 +77,7 @@
     "name": { "fr": "Migration Bootstrap", "en": "Bootstrap migration" },
     "pitch": { "fr": "Page legacy jQuery puis refonte Bootstrap responsive, en avant/après.", "en": "Legacy jQuery page then responsive Bootstrap redesign, shown before and after." },
     "stack": ["Bootstrap", "jQuery", "Playwright"] },
-  { "id": "latex", "sprint": "S13-S14", "points": 8, "status": "in-progress", "group": "web", "widget": "latex-editor",
+  { "id": "latex", "sprint": "S13-S14", "points": 8, "status": "done", "group": "web", "widget": "latex-editor",
     "name": { "fr": "Éditeur LaTeX", "en": "LaTeX editor" },
     "pitch": { "fr": "Éditeur façon Overleaf : un article qui présente ce portfolio, rendu en direct.", "en": "Overleaf-style editor: an article introducing this portfolio, rendered live." },
     "stack": ["TypeScript", "KaTeX", "LaTeX"],

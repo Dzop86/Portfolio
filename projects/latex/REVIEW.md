@@ -7,10 +7,10 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/parse.ts` : reprise sur erreur, positions, commentaires et espaces après les commandes.
 - [x] `src/render.ts` : numérotation et renvois, échappement, liens.
 - [x] La liste des commandes et environnements pris en charge suffit-elle pour l'article ?
-- [ ] `article/portfolio.fr.tex` et `portfolio.en.tex` : le contenu de l'article me convient-il ?
-- [ ] `../../src/latexeditor/editor.js` : éditeur, diagnostics et plan.
+- [x] `article/portfolio.fr.tex` et `portfolio.en.tex` : le contenu de l'article me convient-il ?
+- [x] `../../src/latexeditor/editor.js` : éditeur, diagnostics et plan.
 
-> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« confirme la review »). Le projet reste en cours : l'éditeur et l'article arrivent au sprint 14.
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« confirme la review »). Cases du sprint 14 (article, éditeur) cochées le même jour, à sa demande (« review validés »).
 
 ## Constats
 
