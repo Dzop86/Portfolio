@@ -49,7 +49,18 @@ mesh_status mesh_read_obj_file(const char *path, mesh *out, size_t *error_line);
  * properties and elements are skipped. `error_line` is the header or ASCII body line, 0 in a binary body. */
 mesh_status mesh_read_ply(const char *data, size_t size, mesh *out, size_t *error_line);
 
-/* Reads PLY if the data starts with the line "ply", OBJ otherwise. `data` need not be NUL-terminated. */
+/* Parses an STL mesh, binary (recognised by its exact size) or ASCII. Identical corners are welded into
+ * shared vertices and facets left degenerate are dropped; polygon_count counts the facets kept.
+ * `error_line` is the ASCII line, 0 for a binary file. */
+mesh_status mesh_read_stl(const char *data, size_t size, mesh *out, size_t *error_line);
+
+typedef enum { MESH_FORMAT_OBJ = 0, MESH_FORMAT_PLY, MESH_FORMAT_STL } mesh_format;
+
+/* PLY if the data starts with the line "ply"; STL if it has the exact size of a binary STL or starts with
+ * the keyword "solid"; OBJ otherwise. */
+mesh_format mesh_detect_format(const char *data, size_t size);
+
+/* Reads the data in the format given by mesh_detect_format. `data` need not be NUL-terminated. */
 mesh_status mesh_read_buffer(const char *data, size_t size, mesh *out, size_t *error_line);
 
 /* Reads a whole file and detects its format like mesh_read_buffer. */

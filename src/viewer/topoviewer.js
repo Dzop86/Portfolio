@@ -5,7 +5,7 @@ import {
   MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { curvatureScale, interiorCurvature, loadTopo, readTopology, turns } from '../assets/topo-api.js';
+import { interiorCurvature, loadTopo, quantileScale, readTopology, turns } from '../assets/topo-api.js';
 
 const root = document.querySelector('[data-topo-viewer]');
 if (root) start(root);
@@ -61,20 +61,20 @@ function start(root) {
   // Diverging scale from the charter tokens: saddle (K < 0), flat, dome (K > 0).
   const token = (name) => new Color(getComputedStyle(root).getPropertyValue(name).trim());
 
-  // Symmetric scale clamped at the 95th percentile of interior vertices, so that a few sharp corners
-  // and the turning of the boundary do not wash out the rest.
+  // Diverging scale by quantiles of |K| over interior vertices (see quantileScale): readable on smooth
+  // samples and on sculpted models whose creases reach 1000 times the median curvature.
   function colours(r) {
     const values = interiorCurvature(r.curvature, r.boundary, r.indices);
-    const kmax = curvatureScale(r.curvature, r.boundary);
+    const scale = quantileScale(r.curvature, r.boundary);
     const [neg, zero, pos] = ['--curv-neg', '--curv-zero', '--curv-pos'].map(token);
     const out = new Float32Array(3 * values.length);
     const c = new Color();
     values.forEach((k, i) => {
-      const t = Math.max(-1, Math.min(1, k / kmax));
+      const t = scale.t(k);
       c.copy(zero).lerp(t < 0 ? neg : pos, Math.abs(t));
       out.set([c.r, c.g, c.b], 3 * i);
     });
-    return { out, kmax };
+    return { out, ticks: scale.ticks };
   }
 
   function show(r, name) {
@@ -87,14 +87,19 @@ function start(root) {
     geometry.setAttribute('position', new BufferAttribute(r.positions, 3));
     geometry.setIndex(new BufferAttribute(r.indices, 1));
     geometry.computeVertexNormals();
-    const { out, kmax } = colours(r);
+    const { out, ticks } = colours(r);
     geometry.setAttribute('color', new BufferAttribute(out, 3));
     shape = new Mesh(geometry, new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: 0.7 }));
     shape.userData = r;
     scene.add(shape);
     canvas.setAttribute('aria-label', fill(labels.canvas, { name }));
-    legend.querySelector('[data-legend-min]').textContent = `−${num(kmax, 2)}`;
-    legend.querySelector('[data-legend-max]').textContent = `+${num(kmax, 2)}`;
+    // Ticks sit at their quantile on each side of the centre: 50 % -> 25 % / 75 % of the bar, 90 % -> 5 % / 95 %.
+    for (const el of legend.querySelectorAll('[data-tick]')) {
+      const { at, value } = ticks[Number(el.dataset.tick)];
+      const side = Number(el.dataset.side);
+      el.textContent = `${side < 0 ? '−' : '+'}${value.toLocaleString(lang, { maximumSignificantDigits: 2 })}`;
+      el.style.left = `${50 + side * at * 50}%`;
+    }
     legend.hidden = false;
     render();
   }

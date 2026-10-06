@@ -5,15 +5,20 @@
 static mesh current;
 static mesh_topology topo;
 static size_t error_line;
+static mesh_format format;
 
 /* Returns a mesh_status; on success the getters below describe the mesh. */
 int meshjs_read(const char *data, size_t size) {
     mesh_free(&current);
+    format = mesh_detect_format(data, size);
     mesh_status st = mesh_read_buffer(data, size, &current, &error_line);
     if (st == MESH_OK) st = mesh_compute_topology(&current, &topo);
     if (st != MESH_OK) mesh_free(&current);
     return (int)st;
 }
+
+/* Format of the last buffer read: 0 OBJ, 1 PLY, 2 STL. */
+int meshjs_format(void) { return (int)format; }
 
 const char *meshjs_status_string(int status) { return mesh_status_string((mesh_status)status); }
 double meshjs_error_line(void) { return (double)error_line; }

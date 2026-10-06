@@ -131,6 +131,11 @@ a:hover { text-decoration-thickness: 2px; }
 .viewer .btn[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-text); border-color: var(--pressed-bg); }
 .legend { margin: var(--space-3) 0; }
 .legend-bar { height: 10px; border-radius: 999px; background: linear-gradient(to right, var(--curv-neg), var(--curv-zero), var(--curv-pos)); }
+.legend-ticks { position: relative; height: 1.4em; font-size: 0.8rem; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
+.legend-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.legend-ticks span:first-child { transform: none; }
+.legend-ticks span:last-child { transform: translateX(-100%); }
+.legend-note { margin: var(--space-1) 0 0; }
 .legend-scale { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
 @media (max-width: 720px) { .viewer-grid { grid-template-columns: 1fr; } }
 

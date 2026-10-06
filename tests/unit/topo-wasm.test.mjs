@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from '../../src/lib.mjs';
-import { loadTopo, readTopology, interiorCurvature, curvatureScale, turns } from '../../src/assets/topo-api.js';
+import { loadTopo, readTopology, interiorCurvature, quantileScale, turns } from '../../src/assets/topo-api.js';
 
 const lib = await loadTopo((await import('../../src/assets/wasm/topo.js')).default);
 const sample = (name) => readFileSync(join(ROOT, 'projects/lib-c/tests/data', name));
@@ -75,10 +75,22 @@ test('boundary vertices are flagged and take the curvature of their interior nei
   assert.equal(values[centre], r.curvature[centre]);
 });
 
-test('the colour scale ignores boundary vertices and a few sharp corners', () => {
+test('the colour scale ranks |K| by quantile, keeps the sign and ignores the boundary', () => {
+  const k = new Float32Array([-8, -1, 0, 1, 2, 4, 1000]);
+  const boundary = new Uint8Array([0, 0, 0, 0, 0, 0, 0]);
+  const scale = quantileScale(k, boundary);
+  assert.equal(scale.t(0), 0);
+  assert.equal(scale.t(1000), 1, 'the largest |K| gets full colour');
+  assert.ok(scale.t(-8) < 0 && Math.abs(scale.t(-8)) > Math.abs(scale.t(-1)), 'negative values keep their sign, ordered by |K|');
+  assert.ok(scale.t(2) > 0.3, 'a heavy tail does not wash out ordinary values');
+  for (let i = 1; i < 50; i++) assert.ok(scale.t(i) >= scale.t(i - 1), 'monotonic');
+  assert.deepEqual(scale.ticks.map((t) => t.at), [0.5, 0.9]);
+  assert.equal(scale.ticks[0].value, 2, 'median of |K|');
+
   const saddle = readTopology(lib, topoSample('saddle.obj'));
-  assert.ok(curvatureScale(saddle.curvature, saddle.boundary) < 10, 'boundary turning does not stretch the scale');
-  assert.equal(curvatureScale(new Float32Array([0, 0]), new Uint8Array(2)), 1, 'flat meshes get a unit scale');
+  const s2 = quantileScale(saddle.curvature, saddle.boundary);
+  assert.ok(s2.ticks[1].value < 10, 'boundary turning does not enter the scale');
+  assert.equal(quantileScale(new Float32Array([0, 0]), new Uint8Array(2)).t(0), 0, 'flat meshes stay neutral');
 });
 
 test('the total curvature is shown in turns, rounded, never as -0', () => {

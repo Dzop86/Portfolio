@@ -88,7 +88,7 @@
   "progress.note": "Bandeau temporaire, recalculé à chaque build depuis les fichiers de sprint ; il disparaîtra quand les 17 projets seront terminés.",
   "demo.title": "Essayer lib-c dans le navigateur",
   "demo.lead": "Le fichier est lu par la bibliothèque C compilée en WebAssembly : il ne quitte pas votre navigateur.",
-  "demo.choose": "Choisir un fichier OBJ ou PLY",
+  "demo.choose": "Choisir un fichier OBJ, PLY ou STL",
   "demo.drop": "ou le déposer ici",
   "demo.samples": "Exemples :",
   "demo.sample.cube": "Cube (OBJ)",
@@ -139,5 +139,6 @@
   "topo.label.legend.pos": "dôme (K > 0)",
   "topo.label.error.invalid": "maillage invalide (triangle dégénéré ou indice hors bornes).",
   "topo.label.tip.boundary": "bord : il tourne de {d}°",
-  "topo.note.boundary": "Au bord, le défaut angulaire mesure la courbure du bord lui-même : les sommets du bord prennent la couleur de leurs voisins intérieurs."
+  "topo.note.boundary": "Au bord, le défaut angulaire mesure la courbure du bord lui-même : les sommets du bord prennent la couleur de leurs voisins intérieurs.",
+  "topo.legend.quantiles": "Échelle par quantiles : la moitié des sommets ont une courbure plus faible que la graduation du milieu de chaque côté, 90 % plus faible que celle de l'extrémité."
 }

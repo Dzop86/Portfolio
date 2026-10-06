@@ -104,7 +104,7 @@ TEST(HalfEdgeLoad, ReportsLibCErrorsWithTheirLine) {
 
 // Integration: same edge count as lib-c's own topology, on every sample.
 TEST(HalfEdgeLoad, EdgeCountMatchesLibC) {
-    for (const char* name : {"cube.obj", "tetrahedron.ply", "torus.obj"}) {
+    for (const char* name : {"cube.obj", "cube.stl", "tetrahedron.ply", "torus.obj"}) {
         const std::string path = kData + "/" + name;
         const Mesh m = Mesh::load(path);
         expect_consistent(m);

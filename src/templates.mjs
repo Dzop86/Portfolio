@@ -398,7 +398,7 @@ function meshDemo(t) {
   <h2 id="h-demo">${esc(t('demo.title'))}</h2>
   <p>${esc(t('demo.lead'))}</p>
   <div class="drop" data-drop>
-    <label class="btn btn-primary file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply" class="visually-hidden"></label>
+    <label class="btn btn-primary file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply,.stl" class="visually-hidden"></label>
     <span class="muted">${esc(t('demo.drop'))}</span>
   </div>
   <div class="actions" role="group" aria-label="${esc(t('demo.samples'))}"><span class="muted demo-samples">${esc(t('demo.samples'))}</span>${samples}</div>
@@ -425,7 +425,7 @@ function topoViewer(t) {
   <h2 id="h-viewer">${esc(t('topo.title'))}</h2>
   <p>${esc(t('topo.lead'))}</p>
   <div class="actions" role="group" aria-label="${esc(t('demo.samples'))}"><span class="muted demo-samples">${esc(t('demo.samples'))}</span>${samples}
-    <label class="btn btn-ghost file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply" class="visually-hidden"></label>
+    <label class="btn btn-ghost file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply,.stl" class="visually-hidden"></label>
   </div>
   <p class="notice demo-error" data-error role="alert" hidden></p>
   <div class="viewer-grid">
@@ -437,8 +437,9 @@ function topoViewer(t) {
       <dl class="demo-stats viewer-stats" data-result aria-live="polite"></dl>
       <div class="legend" data-legend hidden>
         <div class="legend-bar"></div>
-        <div class="legend-scale"><span data-legend-min></span><span>0</span><span data-legend-max></span></div>
+        <div class="legend-ticks"><span data-tick="1" data-side="-1"></span><span data-tick="0" data-side="-1"></span><span style="left:50%">0</span><span data-tick="0" data-side="1"></span><span data-tick="1" data-side="1"></span></div>
         <div class="legend-scale muted"><span>${esc(t('topo.label.legend.neg'))}</span><span>${esc(t('topo.label.legend.pos'))}</span></div>
+        <p class="meta legend-note">${esc(t('topo.legend.quantiles'))}</p>
       </div>
       <p class="meta">${esc(t('topo.help'))}</p>
       <p class="meta">${esc(t('topo.note.boundary'))}</p>

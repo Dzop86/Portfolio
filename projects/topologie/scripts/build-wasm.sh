@@ -14,10 +14,10 @@ _topojs_index_count,_topojs_positions,_topojs_indices,_topojs_curvature,_topojs_
 
 docker run --rm -u "$(id -u):$(id -g)" -e EM_CACHE=/tmp/em-cache \
   -v "$projects:/p:ro" -v "$out:/out" -w /tmp "$EMSDK_IMAGE" sh -c "
-    emcc -O2 -std=c11 -I/p/lib-c/include -c /p/lib-c/src/mesh.c /p/lib-c/src/obj.c /p/lib-c/src/ply.c /p/lib-c/src/topology.c &&
+    emcc -O2 -std=c11 -I/p/lib-c/include -c /p/lib-c/src/mesh.c /p/lib-c/src/obj.c /p/lib-c/src/ply.c /p/lib-c/src/stl.c /p/lib-c/src/topology.c &&
     em++ -O2 -std=c++20 -fwasm-exceptions -Wall -Wextra -Werror -I/p/topologie/include -I/p/lib-c/include \
       /p/topologie/src/mesh.cpp /p/topologie/src/invariants.cpp /p/topologie/src/curvature.cpp \
-      /p/topologie/tools/wasm_api.cpp mesh.o obj.o ply.o topology.o \
+      /p/topologie/tools/wasm_api.cpp mesh.o obj.o ply.o stl.o topology.o \
       -o /out/topo.js -fwasm-exceptions \
       -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createTopo -sENVIRONMENT=web,node \
       -sFILESYSTEM=0 -sALLOW_MEMORY_GROWTH=1 -sMAXIMUM_MEMORY=1GB \

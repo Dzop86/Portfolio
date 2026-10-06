@@ -84,12 +84,31 @@ export function interiorCurvature(curvature, boundary, indices) {
   return values;
 }
 
-/** Half-width of the symmetric colour scale: 95th percentile of |K| over interior vertices, 1 if flat. */
-export function curvatureScale(curvature, boundary) {
-  const magnitudes = [];
-  curvature.forEach((k, v) => { if (!boundary[v]) magnitudes.push(Math.abs(k)); });
-  magnitudes.sort((a, b) => a - b);
-  return magnitudes[Math.floor(0.95 * (magnitudes.length - 1))] || 1;
+/**
+ * Colour scale by quantiles: t(k) is the share of interior vertices whose |K| is at most |k|, signed like k,
+ * in [-1, 1]. Curvature of real meshes is heavy-tailed (sharp creases reach 1000 times the median), so a
+ * linear scale would leave almost everything neutral. `ticks` gives the |K| shown at 50 % and 90 % of the
+ * legend. Boundary vertices are left out (their defect measures the turning of the boundary).
+ */
+export function quantileScale(curvature, boundary) {
+  const sorted = [];
+  curvature.forEach((k, v) => { if (!boundary[v]) sorted.push(Math.abs(k)); });
+  sorted.sort((a, b) => a - b);
+  const n = sorted.length;
+  const rank = (x) => { // number of values <= x
+    let lo = 0;
+    let hi = n;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (sorted[mid] <= x) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo;
+  };
+  return {
+    t: (k) => (k === 0 || n === 0 ? 0 : Math.sign(k) * (rank(Math.abs(k)) / n)),
+    ticks: [0.5, 0.9].map((at) => ({ at, value: n ? sorted[Math.floor(at * (n - 1))] : 0 })),
+  };
 }
 
 /** Total curvature in turns (multiples of 2 pi), rounded to 3 decimals; adding 0 turns -0 into 0. */

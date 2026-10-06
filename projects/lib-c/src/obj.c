@@ -108,6 +108,11 @@ static mesh_status parse_line(builder *b, char *line) {
 mesh_status mesh__read_obj(const char *text, size_t len, mesh *out, size_t *error_line) {
     mesh_free(out);
     if (error_line) *error_line = 0;
+    /* Some exporters (ZBrush) pad the file with NUL bytes after the last line: ignore trailing NULs and
+     * blank space, a NUL anywhere else is still a syntax error. */
+    while (len > 0 && (text[len - 1] == '\0' || text[len - 1] == '\n' || text[len - 1] == '\r' ||
+                       text[len - 1] == ' ' || text[len - 1] == '\t'))
+        len--;
 
     builder b;
     mesh_init(&b.m);

@@ -37,3 +37,13 @@
 **Choix :** chaque arête devient une clé 64 bits (petit indice en poids fort), les 3T clés sont triées par `qsort` ; clés distinctes = arêtes, clés uniques = arêtes de bord. F = nombre de triangles.
 **Alternatives :** table de hachage (O(T) mais plus de code et de mémoire à justifier), structure demi-arête (prévue pour le projet Topologie 3D).
 **Limite :** O(T log T) ; χ porte sur la triangulation, ce qui ne change rien pour une surface (la triangulation en éventail ajoute autant d'arêtes que de faces).
+
+## C9. STL : soudure exacte des sommets, ordre du fichier conservé
+**Choix :** le STL binaire est reconnu à sa taille exacte (84 + 50 × facettes), pas à son en-tête, car certains exportateurs commencent l'en-tête binaire par `solid`. Les coins sont soudés par égalité exacte des coordonnées (tri, −0 confondu avec 0), puis numérotés dans l'ordre de leur première apparition ; les facettes devenues dégénérées sont écartées.
+**Pourquoi :** sans soudure, un STL donne autant de composantes que de triangles et une caractéristique d'Euler sans sens. Les exportateurs écrivent les mêmes flottants pour un même sommet, l'égalité exacte suffit.
+**Alternatives :** soudure à tolérance (fusionnerait des sommets voisins mais distincts, et change la topologie selon le réglage).
+**Limite :** deux sommets distants d'un ulp restent distincts ; `polygon_count` compte les facettes gardées, pas celles du fichier.
+
+## C10. Octets NUL de fin de fichier tolérés en OBJ
+**Choix :** les octets NUL et blancs en fin de fichier OBJ sont ignorés ; un NUL ailleurs reste une erreur de syntaxe.
+**Pourquoi :** un export ZBrush réel se termine par un octet NUL ; le refuser rendait le fichier illisible pour une raison sans effet sur le maillage.

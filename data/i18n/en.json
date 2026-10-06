@@ -88,7 +88,7 @@
   "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 17 projects are done.",
   "demo.title": "Try lib-c in your browser",
   "demo.lead": "The file is read by the C library compiled to WebAssembly: it never leaves your browser.",
-  "demo.choose": "Choose an OBJ or PLY file",
+  "demo.choose": "Choose an OBJ, PLY or STL file",
   "demo.drop": "or drop it here",
   "demo.samples": "Samples:",
   "demo.sample.cube": "Cube (OBJ)",
@@ -139,5 +139,6 @@
   "topo.label.legend.pos": "dome (K > 0)",
   "topo.label.error.invalid": "invalid mesh (degenerate triangle or index out of range).",
   "topo.label.tip.boundary": "boundary: it turns by {d}°",
-  "topo.note.boundary": "On the boundary the angle defect measures how the boundary itself bends: boundary vertices take the colour of their interior neighbours."
+  "topo.note.boundary": "On the boundary the angle defect measures how the boundary itself bends: boundary vertices take the colour of their interior neighbours.",
+  "topo.legend.quantiles": "Quantile scale: half of the vertices have a smaller curvature than the middle tick on each side, 90 % smaller than the outer one."
 }

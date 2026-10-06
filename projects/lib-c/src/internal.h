@@ -17,4 +17,7 @@ mesh_status mesh__load_file(const char *path, char **data, size_t *size);
 /* OBJ reader over `len` bytes, which need not be NUL-terminated; a NUL byte is a syntax error. */
 mesh_status mesh__read_obj(const char *text, size_t len, mesh *out, size_t *error_line);
 
+/* True for a binary STL (by size) or an ASCII one (starts with the keyword "solid"). */
+int mesh__looks_like_stl(const char *data, size_t size);
+
 #endif

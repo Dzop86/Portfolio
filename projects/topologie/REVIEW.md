@@ -19,4 +19,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Vu sur capture d'écran : les bords de la selle apparaissaient en rouge (dômes) et l'échelle montait à ±25, car le défaut angulaire au bord mesure le virage du bord | Drapeau `boundary` exporté par le C++ ; sommets du bord colorés d'après leurs voisins, exclus de l'échelle |
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Vu sur capture d'écran : la somme des défauts du tore s'affichait « −0 × 2π » | `turns()` arrondit et normalise −0 |
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit : « ResizeObserver loop », le redimensionnement modifiait la taille de l'élément observé | Taille fixée en CSS (`aspect-ratio`), le script ne fait que la lire |
+| 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Vu en chargeant les modèles de Charles en local : sur un maillage sculpté, l'échelle linéaire laissait presque tout gris (queue de |K| 1 000 fois la médiane) | Échelle par quantiles, légende graduée (D18 du site) |
 | | | | |

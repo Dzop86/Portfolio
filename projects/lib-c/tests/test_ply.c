@@ -237,6 +237,13 @@ static void test_read_buffer_rejects_a_nul_byte_inside_obj_text(void) {
     TEST_ASSERT_EQUAL_size_t(2, line);
 }
 
+/* Seen in a ZBrush export: the file ends with NUL padding after its last line. */
+static void test_read_buffer_accepts_nul_padding_at_the_end_of_obj_text(void) {
+    const char obj[] = "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n\n\0\n\0\0";
+    TEST_ASSERT_EQUAL(MESH_OK, mesh_read_buffer(obj, sizeof obj - 1, &m, &line));
+    TEST_ASSERT_EQUAL_size_t(1, m.triangle_count);
+}
+
 static void test_read_file_detects_the_format_from_the_content(void) {
     TEST_ASSERT_EQUAL(MESH_OK, mesh_read_file(MESH_TEST_DATA "/tetrahedron.ply", &m, &line));
     TEST_ASSERT_EQUAL_size_t(4, m.vertex_count);
@@ -265,6 +272,7 @@ int main(void) {
     RUN_TEST(test_a_header_without_elements_gives_an_empty_mesh);
     RUN_TEST(test_read_buffer_detects_ply_and_obj);
     RUN_TEST(test_read_buffer_rejects_a_nul_byte_inside_obj_text);
+    RUN_TEST(test_read_buffer_accepts_nul_padding_at_the_end_of_obj_text);
     RUN_TEST(test_read_file_detects_the_format_from_the_content);
     return UNITY_END();
 }

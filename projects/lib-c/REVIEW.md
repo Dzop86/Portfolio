@@ -22,4 +22,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `src/ply.c` | (Claude) Trouvé par le fuzzer : un élément sans propriété annoncé avec 10 milliards d'items échappait au contrôle de taille et bouclait plusieurs minutes | Élément non vide sans propriété refusé, test |
 | 2026-10-06 | `src/ply.c` | (Claude) Trouvé par le fuzzer (UBSan) : un compte de liste négatif (type `char` ou `int`) était converti en `size_t`, comportement indéfini | Compte négatif refusé, test ; `float-cast-overflow` ajouté à `MESH_SANITIZE`, car GCC ne l'active pas avec `undefined` |
 | 2026-10-06 | `src/ply.c` | (Claude) Un octet NUL dans une ligne d'en-tête la tronquait silencieusement | Refusé comme erreur de syntaxe, test |
+| 2026-10-06 | `src/stl.c` | (Claude) Détecté par LeakSanitizer : sur une ligne contenant un NUL, le tampon renvoyé par `realloc` était perdu avant la sortie de boucle | Le tampon est conservé avant tout autre test |
+| 2026-10-06 | `src/stl.c` | (Claude) Détecté par un test : après soudure, les sommets sortaient dans l'ordre du tri et non du fichier | Numérotation par première apparition |
+| 2026-10-06 | `src/obj.c` | (Claude) Un export ZBrush réel (Pikachu de Charles, gardé en local) était refusé à cause d'un octet NUL final | NUL et blancs de fin ignorés, test (C10) |
 | | | | |

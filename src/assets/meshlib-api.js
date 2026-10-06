@@ -1,6 +1,6 @@
 // Thin wrapper over the WebAssembly build of lib-c (projects/lib-c), shared by the demo and the tests.
 
-/** Files above this size are refused before reaching WebAssembly. */
+/** Files above this size are refused before reaching WebAssembly (binary STL models of 20 MB fit). */
 export const MAX_BYTES = 32 * 1024 * 1024;
 
 /** Instantiates the Emscripten module produced by projects/lib-c/scripts/build-wasm.sh. */
@@ -8,7 +8,7 @@ export function loadMeshLib(createMeshLib, options = {}) {
   return createMeshLib(options);
 }
 
-const startsWithPly = (bytes) => bytes[0] === 0x70 && bytes[1] === 0x6c && bytes[2] === 0x79 && (bytes[3] === 0x0a || bytes[3] === 0x0d);
+const FORMATS = ['OBJ', 'PLY', 'STL']; // mesh_format in lib-c
 
 /**
  * Reads an OBJ or PLY file given as bytes. Returns the figures, or { ok: false, status, message, line }.
@@ -27,7 +27,7 @@ export function readMesh(lib, bytes) {
     const axis = (corner) => [0, 1, 2].map((a) => lib._meshjs_bbox(corner, a));
     return {
       ok: true,
-      format: startsWithPly(bytes) ? 'PLY' : 'OBJ',
+      format: FORMATS[lib._meshjs_format()],
       vertices: lib._meshjs_vertex_count(),
       polygons: lib._meshjs_polygon_count(),
       triangles: lib._meshjs_triangle_count(),

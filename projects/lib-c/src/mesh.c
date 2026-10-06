@@ -91,8 +91,18 @@ static int looks_like_ply(const char *data, size_t size) {
     return size >= 4 && memcmp(data, "ply", 3) == 0 && (data[3] == '\n' || data[3] == '\r');
 }
 
+mesh_format mesh_detect_format(const char *data, size_t size) {
+    if (looks_like_ply(data, size)) return MESH_FORMAT_PLY;
+    if (mesh__looks_like_stl(data, size)) return MESH_FORMAT_STL;
+    return MESH_FORMAT_OBJ;
+}
+
 mesh_status mesh_read_buffer(const char *data, size_t size, mesh *out, size_t *error_line) {
-    if (looks_like_ply(data, size)) return mesh_read_ply(data, size, out, error_line);
+    switch (mesh_detect_format(data, size)) {
+    case MESH_FORMAT_PLY: return mesh_read_ply(data, size, out, error_line);
+    case MESH_FORMAT_STL: return mesh_read_stl(data, size, out, error_line);
+    case MESH_FORMAT_OBJ: break;
+    }
     return mesh__read_obj(data, size, out, error_line);
 }
 

@@ -24,6 +24,11 @@ test('the WebAssembly build reads a PLY tetrahedron', () => {
   assert.deepEqual([r.ok, r.format, r.vertices, r.triangles, r.euler], [true, 'PLY', 4, 4, 2]);
 });
 
+test('the WebAssembly build reads an ASCII STL cube, welding its corners', () => {
+  const r = readMesh(lib, sample('cube.stl'));
+  assert.deepEqual([r.ok, r.format, r.vertices, r.triangles, r.edges, r.euler], [true, 'STL', 8, 12, 18, 2]);
+});
+
 test('errors come back with their status and line', () => {
   const r = readMesh(lib, new TextEncoder().encode('v 0 0 0\nv 1 0 0\nf 1 2 3\n'));
   assert.deepEqual(r, { ok: false, status: 4, message: 'index out of range', line: 3 });
