@@ -120,6 +120,7 @@
 **Pourquoi :** les leçons et la figure se lisent sans JavaScript et sont indexables ; la figure et les comptes affichés viennent du même code que celui testé, ils ne peuvent pas diverger.
 **Alternatives :** un cube 3D (three.js) où les brins se chevauchent, des images figées.
 **Limite :** les brins de la figure se choisissent à la souris ; au clavier, on s'y déplace avec les boutons α depuis le brin 0.
+**Révision (remarque de Charles) :** la première version, en couleurs du thème sombre, était illisible. Les figures sont désormais dessinées comme dans un manuel, sur fond blanc dans les deux thèmes (couleurs `--gm-*` de `tokens.css`) : faces blanches, brins noirs, α0 en noir, α1 en rouge, α2 en bleu, toutes les liaisons dessinées en permanence (α2 seulement entre carrés voisins dans le patron, les autres à la sélection). Une seconde figure décompose deux carrés en G-carte en quatre étapes : l'objet, puis les coupes selon α2, α1 et α0 (`src/decompose.js`, testée).
 
 ## D25. Périmètre réduit : Spring et ASP.NET retirés
 **Choix (décision de Charles, 6 octobre 2026) :** les projets « Microservices Spring » et « API ASP.NET » sont retirés des données, du plan, de la roadmap et des textes ; il reste 15 projets et 130 points sur 24 sprints. La visionneuse Qt/OpenGL est gardée, en S17-S18, juste après la suite du ML (S16) ; les projets suivants avancent de trois sprints.

@@ -41,6 +41,17 @@
   --risk-medium-text: #f8dd96;
   --risk-low: rgba(190, 243, 116, 0.16);
   --risk-low-text: #d4f5a4;
+  /* G-map figures (D24): drawn like a textbook figure, on white in both themes; alpha0 black,
+     alpha1 red, alpha2 blue, the orbit shown in bamboo green and the current dart in orange. */
+  --gm-paper: #ffffff;
+  --gm-face-stroke: #9d9d9d;
+  --gm-label: #5f5f5f;
+  --gm-ink: #1f1f1f;
+  --gm-a0: #1f1f1f;
+  --gm-a1: #c62828;
+  --gm-a2: #1565c0;
+  --gm-orbit: #4d7a1c;
+  --gm-current: #e65100;
   /* Diverging curvature scale (D17): blue <-> red around a gray light enough to show the lighting. */
   --curv-neg: #3987e5;
   --curv-zero: #a3a39f;

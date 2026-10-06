@@ -74,6 +74,19 @@ if (figure) {
   }
 }
 
+// Decomposition of two squares: one step shown at a time (all of them without JavaScript).
+const decompose = document.querySelector('[data-decompose]');
+if (decompose) {
+  const steps = [...decompose.querySelectorAll('[data-step]')];
+  const buttons = [...decompose.querySelectorAll('[data-goto-step]')];
+  const show = (k) => {
+    steps.forEach((el) => { el.hidden = Number(el.dataset.step) !== k; });
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.gotoStep) === k)));
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => show(Number(b.dataset.gotoStep))));
+  show(0);
+}
+
 const quiz = document.querySelector('[data-gmap-course] [data-quiz]');
 if (quiz) {
   const labels = JSON.parse(document.querySelector('[data-gmap-figure]').dataset.labels);

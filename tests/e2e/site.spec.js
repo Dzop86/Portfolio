@@ -277,6 +277,16 @@ test('the generalized maps course: darts, alpha moves, orbits and the quiz', asy
   const status = figure.locator('[data-status]');
   await expect(figure.locator('[data-counts]')).toHaveText('Counted as orbits: 48 darts, 8 vertices, 12 edges, 6 faces, χ = 2.');
 
+  // The decomposition shows one step at a time; the last one has the 16 darts of two squares.
+  const decompose = page.locator('[data-decompose]');
+  await expect(decompose.locator('[data-step]:visible')).toHaveCount(1);
+  await expect(decompose.locator('[data-step="0"]')).toBeVisible();
+  await decompose.getByRole('button', { name: '3. Cut by α0' }).click();
+  await expect(decompose.locator('[data-step="3"]')).toBeVisible();
+  await expect(decompose.locator('[data-step="0"]')).toBeHidden();
+  await expect(decompose.locator('[data-step="3"] .gm-dart-line')).toHaveCount(16);
+  await expect(decompose.getByRole('button', { name: '3. Cut by α0' })).toHaveAttribute('aria-pressed', 'true');
+
   await figure.locator('[data-dart="0"]').click();
   await expect(status).toHaveText('Dart 0: face Top, vertex e.');
   await expect(figure.locator('.gm-link')).toHaveCount(3);

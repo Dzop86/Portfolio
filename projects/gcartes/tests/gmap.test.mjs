@@ -109,3 +109,34 @@ test('the course\'s cube net is a valid cube: every edge on two squares, chi = 2
     for (const [x, y] of [g.start, g.end]) assert.ok(x > col * 100 && x < col * 100 + 100 && y > row * 100 && y < row * 100 + 100);
   });
 });
+
+test('the decomposition of two squares: each cut adds the links of its alpha', async () => {
+  const { decompositionStep } = await import('../src/decompose.js');
+  const count = (step, alpha) => step.links.filter((l) => l.alpha === alpha).length;
+  const steps = [0, 1, 2, 3].map((k) => decompositionStep(k));
+  // Step 0: the object (2 faces, 6 vertices); no links yet.
+  assert.deepEqual([steps[0].faces.length, steps[0].dots.length, steps[0].links.length], [2, 6, 0]);
+  // Cut by alpha2: one link for the shared edge.
+  assert.deepEqual([count(steps[1], 0), count(steps[1], 1), count(steps[1], 2)], [0, 0, 1]);
+  // Cut by alpha1: 8 corners, each a red link; the shared edge now has a link at each end.
+  assert.deepEqual([count(steps[2], 0), count(steps[2], 1), count(steps[2], 2)], [0, 8, 2]);
+  // Cut by alpha0: 16 darts, 8 black links (one per side), and the links of the G-map itself.
+  assert.equal(steps[3].darts.length, 16);
+  assert.deepEqual([count(steps[3], 0), count(steps[3], 1), count(steps[3], 2)], [8, 8, 2]);
+  // The pieces move apart at each cut: faces no longer touch once alpha2 has cut them.
+  const xs = (step, f) => step.faces[f]?.map((p) => p[0]);
+  assert.equal(Math.max(...xs(steps[0], 0)), Math.min(...xs(steps[0], 1)));
+  assert.ok(steps[1].sides.every(([a, b]) => Math.hypot(a[0] - b[0], a[1] - b[1]) > 0.7));
+  for (const [inner, end] of steps[3].darts) assert.ok(Math.hypot(inner[0] - end[0], inner[1] - end[1]) > 0.2);
+});
+
+test('in the cube figure, alpha1 links are long enough to see, and alpha0 leaves a gap between halves', async () => {
+  const { cubeNetMap, dartGeometry } = await import('../src/net.js');
+  const { map, darts } = cubeNetMap();
+  const g = dartGeometry(darts);
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  for (let d = 0; d < map.size; d++) {
+    assert.ok(dist(g[d].end, g[map.alpha[1][d]].end) >= 10, `alpha1 at dart ${d}`);
+    assert.ok(dist(g[d].start, g[map.alpha[0][d]].start) >= 10, `alpha0 at dart ${d}`);
+  }
+});
