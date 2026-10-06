@@ -7,7 +7,7 @@
 | En tant que recruteur, j'ouvre la fiche détaillée d'un projet (stack, état, liens, Definition of Done) en français et en anglais. | 2 | Fait |
 | En tant que Charles, je démarre `projects/lib-c/` : CMake, lecteur OBJ, tests Unity, CI Linux, Windows et macOS. | 3 | Fait |
 
-**Tests :** site 93 unitaires et d'intégration, 180 end-to-end (5 navigateurs, deux thèmes) ; lib-c 15 tests Unity et 3 tests CLI sous Linux, Windows, macOS et ASan + UBSan.
+**Tests :** site 96 unitaires et d'intégration, 180 end-to-end (5 navigateurs, deux thèmes) ; lib-c 15 tests Unity et 3 tests CLI sous Linux, Windows, macOS et ASan + UBSan.
 
 **Report au sprint 3 :** PLY, Valgrind, WebAssembly et miroir GitLab de lib-c.
 
