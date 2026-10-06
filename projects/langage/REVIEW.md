@@ -20,4 +20,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `interp/lib/types.ml` | (Claude) Variables de type nommées à l'envers (`'b -> 'a`) : OCaml évalue les opérandes de `^` de droite à gauche | Gauche évaluée d'abord dans un `let` |
 | 2026-10-06 | `interp/test/test_maille.ml` | (Claude) Positions des arbres de test données par un compteur, faussées par l'ordre d'évaluation d'OCaml | Positions vérifiées par la chaîne complète sur des S-expressions écrites à la main |
 | 2026-10-06 | `parser/` (local) | (Claude) LeakSanitizer plante (boucle de `DEADLYSIGNAL`) sur certaines entrées dans le conteneur Docker sous WSL, au hasard selon les adresses ; Valgrind ne trouve ni fuite ni erreur sur les mêmes entrées | Laissé à la CI : ASan avec détection de fuites et Valgrind sous Linux standard |
+| 2026-10-06 | `.github/workflows/langage.yml` | (Claude) Première CI : la chaîne complète échouait sur les trois systèmes avant de démarrer ; `ls` sur le motif Windows absent renvoyait 2, fatal sous `bash -o pipefail` | `find` à la place ; l'analyseur (3 OS, ASan avec détection de fuites, Valgrind) et `dune test` passaient déjà |
 | | | | |

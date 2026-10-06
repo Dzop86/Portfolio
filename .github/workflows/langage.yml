@@ -100,6 +100,9 @@ jobs:
         working-directory: projects/langage
         shell: bash
         run: |
-          bin=$(ls "$GITHUB_WORKSPACE"/maillec-bin/maillec* "$GITHUB_WORKSPACE"/maillec-bin/Release/maillec* 2>/dev/null | head -1)
+          # maillec (Linux, macOS) or Release/maillec.exe (Windows); find, unlike ls on a missing pattern,
+          # does not fail under bash -o pipefail.
+          bin=$(find "$GITHUB_WORKSPACE/maillec-bin" -type f -name 'maillec*')
+          echo "parser: $bin"
           chmod +x "$bin"
           MAILLEC="$bin" opam exec -- dune build @integration
