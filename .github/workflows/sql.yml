@@ -1,0 +1,60 @@
+name: sql
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/sql/**', 'src/assets/wasm/**', 'src/assets/meshlib-api.js', 'src/assets/topo-api.js', '.github/workflows/sql.yml']
+  pull_request:
+    paths: ['projects/sql/**', 'src/assets/wasm/**', 'src/assets/meshlib-api.js', 'src/assets/topo-api.js', '.github/workflows/sql.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bench:
+    # The benchmark script is plain Node on the committed WebAssembly: it runs the same on the three systems.
+    name: Benchmark script (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Unit and integration tests
+        run: node --test "projects/sql/tests/node/*.test.mjs"
+      - name: Quick campaign
+        run: node projects/sql/bench/run.mjs --quick --out quick.csv
+
+  database:
+    name: PostgreSQL (pgTAP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the image (schema, data, pgTAP)
+        run: docker build -t bench-db projects/sql
+      - name: Start PostgreSQL and load the campaign
+        run: |
+          docker run -d --name bench-db -e POSTGRES_PASSWORD=ci bench-db
+          # The image restarts the server once the init scripts are done; wait for that final start.
+          for i in $(seq 60); do
+            docker logs bench-db 2>&1 | grep -q 'PostgreSQL init process complete' \
+              && docker exec bench-db pg_isready -U postgres -d bench -q && break
+            sleep 1
+          done
+          docker exec bench-db psql -U postgres -d bench -v ON_ERROR_STOP=1 -c 'SELECT count(*) AS measurements FROM measurement'
+      - name: pgTAP tests
+        run: docker exec bench-db pg_prove -U postgres -d bench --ext .sql -r /bench/tests/
+      - name: Example queries
+        run: docker exec -i bench-db psql -U postgres -d bench -v ON_ERROR_STOP=1 < projects/sql/queries/examples.sql
+      - name: Server log on failure
+        if: failure()
+        run: docker logs bench-db
