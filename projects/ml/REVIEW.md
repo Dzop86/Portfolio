@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/shapeml/shapes.py` : les classes sont-elles assez variées, et pas trop faciles ?
-- [ ] `src/shapeml/pointnet.py` : invariance par permutation (max sur les points), augmentation par rotation.
-- [ ] `src/shapeml/dataset.py` : tirage uniforme sur la surface (racine carrée sur la coordonnée barycentrique).
+- [x] `src/shapeml/shapes.py` : les classes sont-elles assez variées, et pas trop faciles ?
+- [x] `src/shapeml/pointnet.py` : invariance par permutation (max sur les points), augmentation par rotation.
+- [x] `src/shapeml/dataset.py` : tirage uniforme sur la surface (racine carrée sur la coordonnée barycentrique).
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« accepte les reviews »).
 
 ## Constats
 

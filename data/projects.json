@@ -26,7 +26,7 @@
     "pitch": { "fr": "API FastAPI qui expose les calculs topologiques, conteneurisée avec Docker.", "en": "FastAPI service exposing the topology computations, containerised with Docker." },
     "stack": ["Python", "FastAPI", "pytest", "Docker"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/fastapi" } },
-  { "id": "ml", "sprint": "S8+S16", "points": 13, "status": "in-progress", "group": "science", "widget": "ml-results",
+  { "id": "ml", "sprint": "S8+S16", "points": 13, "status": "done", "group": "science", "widget": "ml-results",
     "name": { "fr": "ML et MLOps", "en": "ML and MLOps" },
     "pitch": { "fr": "Classifieur de formes 3D, avec versionnage des données, suivi d'expériences et déploiement contrôlé par la CI.", "en": "3D shape classifier with data versioning, experiment tracking and CI-gated deployment." },
     "stack": ["PyTorch", "scikit-learn", "DVC", "MLflow", "ONNX", "GitHub Actions"],

@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/board.c` : directions et masques de bord, passe, fin de partie.
-- [ ] `src/ai.c` : évaluation, alpha-bêta, départage.
-- [ ] Le jeu ressemble-t-il à celui de mes études ?
+- [x] `src/board.c` : directions et masques de bord, passe, fin de partie.
+- [x] `src/ai.c` : évaluation, alpha-bêta, départage.
+- [x] Le jeu ressemble-t-il à celui de mes études ?
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« accepte les reviews »). Le projet reste en cours : le plateau jouable arrive au sprint 18.
 
 ## Constats
 
