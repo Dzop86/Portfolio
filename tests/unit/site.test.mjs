@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, loadData, pick, projectPage, esc, progress } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -271,5 +271,21 @@ test('the generalized maps course has its lessons, the 48 darts of the cube net 
     assert.equal((html.match(/<fieldset class="gm-question"/g) ?? []).length, 6, `${lang}: six questions`);
     assert.match(html, /<code>α0 α2 α0 α2<\/code>/, `${lang}: code spans rendered`);
     assert.doesNotMatch(html, /`/, `${lang}: no backquote left`);
+  }
+});
+
+test('the ML page shows the measured results: accuracies, threshold, both confusion matrices', () => {
+  const read = (f) => JSON.parse(readFileSync(join(ROOT_DIR, 'projects/ml', f), 'utf8'));
+  const metrics = read('metrics.json');
+  const confusion = read('confusion.json');
+  for (const lang of LANGS) {
+    const html = page(lang, projectPage('ml'));
+    const pct = (x) => `${(100 * x).toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+    assert.ok(html.includes(pct(metrics.baseline.accuracy)) && html.includes(pct(metrics.pointnet.accuracy)), lang);
+    assert.ok(html.includes(lang === 'fr' ? 'passe sous 90,0 %' : 'drops below 90.0 %'), `${lang}: threshold`);
+    assert.equal((html.match(/<table class="confusion">/g) ?? []).length, 2);
+    // Every count of the matrices is on the page, the diagonal marked.
+    const diag = confusion.pointnet.map((row, i) => row[i]);
+    assert.equal((html.match(/cm cm-diag/g) ?? []).length, 2 * diag.length);
   }
 });

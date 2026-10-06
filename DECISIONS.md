@@ -131,3 +131,8 @@
 **Choix (décision de Charles, 6 octobre 2026) :** quatre jeux programmés pendant ses études (Othello en C, bataille navale en Java/JavaFX, aventure textuelle en Java, bataille en Ada) deviennent quatre projets du groupe `games`, affichés dans leur propre section de la page Projets, après la suite du ML (S17 à S21). Ils sont réécrits avec l'IA et suivent les mêmes règles que les autres projets (tests, CI multi-OS, relecture) ; l'Othello sera jouable sur le site (moteur C en WebAssembly).
 **Pourquoi réécrire :** le code d'origine du jeu textuel (« Robert Bizarre Adventure », retrouvé dans une archive) a deux auteurs ; le réécrire évite de publier le travail d'un camarade sans son accord, et montre la méthode du portfolio sur un sujet connu.
 **Conséquences :** 19 projets, 151 points, 29 sprints ; Qt/OpenGL en S22-S23, calcul parallèle, React, Angular et Bootstrap décalés de cinq sprints.
+
+## D27. Résultats du ML lus au build dans les sorties du pipeline
+**Choix :** la fiche du projet ml affiche les précisions (référence, PointNet, PointNet exporté), le seuil de la CI et les deux matrices de confusion, lus au build dans `metrics.json`, `confusion.json`, `export/pointnet.json` et `params.yaml`.
+**Pourquoi :** ce sont les fichiers que le pipeline DVC écrit et que la CI vérifie : la page ne peut pas afficher un chiffre que le modèle n'a pas obtenu.
+**Limite :** les cases des matrices ne sont pas teintées selon leur effectif : une teinte forte sous un texte clair échouait au contraste (axe, thème sombre). Bonnes réponses en vert, erreurs en rouge, zéros discrets, avec les couleurs déjà validées des scores de risque.

@@ -21,6 +21,9 @@ Classification de formes 3D (sphère, tore, boîte, cylindre, cône, gélule) à
 - **Seuil** : l'étape `check` échoue si la meilleure précision passe sous `check.min_accuracy` (0,90), ce qui fait échouer la CI.
 - **DVC** : `dvc.yaml` décrit le pipeline, `params.yaml` ses paramètres, `dvc.lock` les empreintes des données produites. Les données (13,6 Mo) restent dans le cache DVC, hors de git.
 
+## Sur le site
+La [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-ml.html) affiche ces résultats (précisions, seuil, matrices de confusion), lus au build dans les fichiers du pipeline (D27 du site). Le modèle exporté sert l'endpoint `POST /v1/mesh/classify` de l'[API](../fastapi/).
+
 ## Export ONNX (sprint 16)
 - L'étape DVC `export` (`src/shapeml/export.py`) exporte le PointNet en ONNX (`export/pointnet.onnx`, 300 Ko, gardé dans git) et vérifie l'export : sur les 600 nuages de test, les logits d'ONNX Runtime ne s'écartent de ceux de PyTorch que de 1,8·10⁻⁵ au plus (seuil 10⁻⁴, sinon l'étape échoue), et la précision mesurée par ONNX Runtime, 95,17 %, est celle de PyTorch. `export/pointnet.json` garde les classes, le nombre de points, cette précision et l'empreinte SHA-256 du modèle.
 - L'étape `check` applique aussi le seuil de précision au modèle exporté, celui que sert l'API.

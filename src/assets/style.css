@@ -247,6 +247,15 @@ a:hover { text-decoration-thickness: 2px; }
 .gm-feedback[data-state="ko"] { color: var(--risk-high-text); }
 .gm-score { font-weight: 600; color: var(--text-strong); }
 
+/* ML results (D27): confusion matrices with the risk badge colours (already contrast-checked):
+   right answers in green, errors in red, zeros muted. */
+.confusion caption { text-align: left; font-weight: 600; color: var(--text-strong); padding-bottom: var(--space-2); }
+.confusion th, .confusion td { padding: 6px 8px; font-size: 0.85rem; }
+.confusion td.cm { color: var(--muted); }
+.confusion td.cm-diag { background: var(--risk-low); color: var(--risk-low-text); font-weight: 700; }
+.confusion td.cm-off { background: var(--risk-high); color: var(--risk-high-text); font-weight: 700; }
+.ml-confusions { margin-top: var(--space-4); }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

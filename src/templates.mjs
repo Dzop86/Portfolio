@@ -424,6 +424,7 @@ ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
 ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
 ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
+${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -726,6 +727,42 @@ function gmapCourse(t, lang) {
   </section>
   <noscript><p class="notice">${esc(t('gcartes.noscript'))}</p></noscript>
   <script type="module" src="../assets/gcourse.js"></script>
+</section>`;
+}
+
+// Results of the ML project (D27), read at build time from what its DVC pipeline wrote.
+function mlResults(t, lang) {
+  const read = (f) => readFileSync(join(ROOT, 'projects/ml', f), 'utf8');
+  const metrics = JSON.parse(read('metrics.json'));
+  const confusion = JSON.parse(read('confusion.json'));
+  const exported = JSON.parse(read('export/pointnet.json'));
+  const threshold = Number(read('params.yaml').match(/min_accuracy:\s*([\d.]+)/)[1]);
+  const pct = (x) => `${(100 * x).toLocaleString(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+  const num = (x, d) => x.toLocaleString(lang, { minimumFractionDigits: d, maximumFractionDigits: d });
+  const rows = [
+    [t('ml.model.baseline'), metrics.baseline.accuracy, num(metrics.baseline.f1_macro, 3), `${num(metrics.baseline.seconds, 0)} s`],
+    [t('ml.model.pointnet'), metrics.pointnet.accuracy, num(metrics.pointnet.f1_macro, 3), `${num(metrics.pointnet.seconds, 0)} s`],
+    [t('ml.model.onnx'), exported.test_accuracy, '–', '–'],
+  ].map(([name, acc, f1, secs]) => `<tr><th scope="row">${esc(name)}</th><td class="num">${pct(acc)}</td><td class="num">${f1}</td><td class="num">${secs}</td></tr>`).join('');
+  const label = (c) => t(`ml.class.${c}`);
+  const matrix = (key) => {
+    const m = confusion[key];
+    const head = confusion.classes.map((c) => `<th scope="col">${esc(label(c))}</th>`).join('');
+    const body = m.map((row, i) => `<tr><th scope="row">${esc(label(confusion.classes[i]))}</th>${row.map((n, j) =>
+      `<td class="num cm${i === j ? ' cm-diag' : n ? ' cm-off' : ''}">${n}</td>`).join('')}</tr>`).join('');
+    return `<div class="table-wrap" tabindex="0" role="region" aria-label="${esc(t(`ml.confusion.${key}`))}"><table class="confusion">
+      <caption>${esc(t(`ml.confusion.${key}`))}</caption>
+      <thead><tr><th scope="col">${esc(t('ml.confusion.corner'))}</th>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+  };
+  return `<section class="block panel" aria-labelledby="h-ml">
+  <h2 id="h-ml">${esc(t('ml.title'))}</h2>
+  <p>${esc(t('ml.lead'))}</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-ml"><table data-ml-metrics>
+    <thead><tr><th scope="col">${esc(t('ml.col.model'))}</th><th scope="col" class="num">${esc(t('ml.col.accuracy'))}</th><th scope="col" class="num">${esc(t('ml.col.f1'))}</th><th scope="col" class="num">${esc(t('ml.col.time'))}</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+  <p class="notice">${esc(fill(t('ml.threshold'), { threshold: pct(threshold) }))}</p>
+  <div class="split ml-confusions">${matrix('baseline')}${matrix('pointnet')}</div>
+  <p class="meta">${esc(t('ml.confusion.help'))}</p>
 </section>`;
 }
 
