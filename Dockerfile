@@ -3,6 +3,7 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 # Dev dependencies are build tools here (esbuild, three.js, sql.js); only dist/ reaches the final image.
+# Every file the build reads must be copied below: tests/unit/docker-context.test.mjs builds from this list.
 RUN npm ci --ignore-scripts
 COPY src ./src
 COPY data ./data
@@ -20,6 +21,9 @@ COPY projects/latex/src ./projects/latex/src
 COPY projects/latex/article ./projects/latex/article
 COPY projects/gcartes/src ./projects/gcartes/src
 COPY projects/gcartes/course.json ./projects/gcartes/
+# ML results page: what the DVC pipeline wrote.
+COPY projects/ml/metrics.json projects/ml/confusion.json projects/ml/params.yaml ./projects/ml/
+COPY projects/ml/export/pointnet.json ./projects/ml/export/
 RUN npm run build
 
 # Stage 2: serve it with nginx.
