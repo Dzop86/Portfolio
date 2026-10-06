@@ -338,5 +338,14 @@
   "aventure.send": "Send",
   "aventure.quick": "Common commands",
   "aventure.restart": "New game",
-  "aventure.error": "The game could not be loaded. Reload the page to try again."
+  "aventure.error": "The game could not be loaded. Reload the page to try again.",
+  "bataille.title": "What 100,000 games say",
+  "bataille.lead": "The Ada program played the {games} games of seeds 1 to 100,000, up to 10,000 plies each; the figures come from its output file, recomputed by CI.",
+  "bataille.endless": "of the games never end ({n} games)",
+  "bataille.plies": "plies on average when the game ends",
+  "bataille.wars": "wars per game, on average",
+  "bataille.first": "of the finished games won by the first player",
+  "bataille.range": "plies from the shortest to the longest",
+  "bataille.why": "Why so many endless games? Here the winner of a trick always picks the cards up in the same order: the game becomes deterministic and can cycle. Between real players the order changes from trick to trick and the game nearly always ends.",
+  "bataille.longest": "the longest game that ends, in {plies} plies"
 }

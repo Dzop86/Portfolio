@@ -1,0 +1,14 @@
+{
+  "games": 100000,
+  "first_wins": 30490,
+  "second_wins": 27164,
+  "draws": 0,
+  "endless": 42346,
+  "first_wins_percent": 30.49,
+  "endless_percent": 42.35,
+  "plies_mean": 1688.90,
+  "plies_shortest": 20,
+  "plies_longest": 9994,
+  "longest_seed": 44276,
+  "wars_mean": 39.18
+}

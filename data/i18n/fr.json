@@ -338,5 +338,14 @@
   "aventure.send": "Envoyer",
   "aventure.quick": "Commandes courantes",
   "aventure.restart": "Nouvelle partie",
-  "aventure.error": "Le jeu n'a pas pu être chargé. Rechargez la page pour réessayer."
+  "aventure.error": "Le jeu n'a pas pu être chargé. Rechargez la page pour réessayer.",
+  "bataille.title": "Ce que disent 100 000 parties",
+  "bataille.lead": "Le programme Ada a joué les {games} parties des graines 1 à 100 000, jusqu'à 10 000 plis chacune ; les chiffres viennent de son fichier de sortie, recalculé par la CI.",
+  "bataille.endless": "des parties ne finissent jamais ({n} parties)",
+  "bataille.plies": "plis en moyenne quand la partie finit",
+  "bataille.wars": "batailles par partie, en moyenne",
+  "bataille.first": "des parties finies gagnées par le premier joueur",
+  "bataille.range": "plis de la plus courte à la plus longue",
+  "bataille.why": "Pourquoi tant de parties sans fin ? Ici, le gagnant d'un pli ramasse toujours les cartes dans le même ordre : le jeu redevient déterministe et peut tourner en rond. Entre de vrais joueurs, l'ordre change d'un pli à l'autre et la partie finit presque toujours.",
+  "bataille.longest": "la plus longue partie qui finit, en {plies} plis"
 }

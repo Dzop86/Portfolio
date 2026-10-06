@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure', 'project-bataille'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {

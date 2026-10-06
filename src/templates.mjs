@@ -428,6 +428,7 @@ ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
+${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -818,7 +819,7 @@ function navalScreenshot(t, lang) {
     <img src="../assets/images/naval-${lang}.png" width="716" height="538" loading="lazy" alt="${esc(t('naval.alt'))}">
     <figcaption class="meta">${esc(t('naval.caption'))}</figcaption>
   </figure>
-  <pre class="naval-run"><code>cd projects/naval
+  <pre class="naval-run" tabindex="0"><code>cd projects/naval
 mvn javafx:run</code></pre>
 </section>`;
 }
@@ -840,6 +841,28 @@ function adventureTerminal(t, lang) {
   <div class="actions" role="group" aria-label="${esc(t('aventure.quick'))}">${quick}<button type="button" class="btn btn-ghost" data-restart>${esc(t('aventure.restart'))}</button></div>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/aventureplay.js"></script>
+</section>`;
+}
+
+// War (D33): what 100 000 games played by the Ada program say, read from its committed output.
+function warStats(t, lang) {
+  const s = JSON.parse(readFileSync(join(ROOT, 'projects/bataille/data/stats.json'), 'utf8'));
+  const n = (x, d = 0) => Number(x).toLocaleString(lang, { minimumFractionDigits: d, maximumFractionDigits: d });
+  const ended = s.games - s.endless;
+  const tiles = [
+    [`${n(s.endless_percent, 1)} %`, fill(t('bataille.endless'), { n: n(s.endless) })],
+    [n(s.plies_mean, 0), t('bataille.plies')],
+    [n(s.wars_mean, 1), t('bataille.wars')],
+    [`${n((100 * s.first_wins) / ended, 1)} %`, t('bataille.first')],
+    [`${n(s.plies_shortest)} – ${n(s.plies_longest)}`, t('bataille.range')],
+  ].map(([value, label]) => `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('');
+  return `<section class="block panel" aria-labelledby="h-war">
+  <h2 id="h-war">${esc(t('bataille.title'))}</h2>
+  <p>${esc(fill(t('bataille.lead'), { games: n(s.games) }))}</p>
+  <dl class="demo-stats war-stats">${tiles}</dl>
+  <p class="notice">${esc(t('bataille.why'))}</p>
+  <pre class="naval-run" tabindex="0"><code>bataille --seed ${s.longest_seed}   # ${esc(fill(t('bataille.longest'), { plies: n(s.plies_longest) }))}
+bataille --stats 100000</code></pre>
 </section>`;
 }
 

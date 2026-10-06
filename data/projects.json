@@ -93,7 +93,7 @@
     "pitch": { "fr": "Réécriture d'un jeu de mes études : aventure en mode texte (lieux, objets, combats), en Java.", "en": "Rewrite of a game from my studies: a text adventure (places, items, fights), in Java." },
     "stack": ["Java", "Maven", "JUnit", "TeaVM"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/aventure" } },
-  { "id": "bataille", "sprint": "S21", "points": 3, "status": "in-progress", "group": "games",
+  { "id": "bataille", "sprint": "S21", "points": 3, "status": "in-progress", "group": "games", "widget": "war-stats",
     "name": { "fr": "Bataille (jeu de cartes)", "en": "War (card game)" },
     "pitch": { "fr": "Réécriture d'un jeu de mes études : la bataille, jeu de cartes, en Ada.", "en": "Rewrite of a game from my studies: War, the card game, in Ada." },
     "stack": ["Ada", "Alire", "AUnit"],

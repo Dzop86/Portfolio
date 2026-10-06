@@ -291,6 +291,8 @@ a:hover { text-decoration-thickness: 2px; }
 .naval-shot { margin: var(--space-4) 0; }
 .naval-shot img { display: block; width: 100%; max-width: 716px; height: auto; border: 1px solid var(--border-strong); border-radius: var(--radius); }
 .naval-run { overflow-x: auto; background: var(--surface-2); padding: var(--space-3); border-radius: var(--radius); }
+/* A code block may scroll sideways on a phone: it takes the focus so the keyboard can scroll it too. */
+.naval-run:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
 
 /* Text adventure (D30): a terminal-like log and a command line. */
 .adv-log { height: 22rem; overflow-y: auto; padding: var(--space-3); background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius);

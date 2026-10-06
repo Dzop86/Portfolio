@@ -24,6 +24,8 @@ COPY projects/gcartes/course.json ./projects/gcartes/
 # ML results page: what the DVC pipeline wrote.
 COPY projects/ml/metrics.json projects/ml/confusion.json projects/ml/params.yaml ./projects/ml/
 COPY projects/ml/export/pointnet.json ./projects/ml/export/
+# War statistics computed by the Ada program.
+COPY projects/bataille/data/stats.json ./projects/bataille/data/
 RUN npm run build
 
 # Stage 2: serve it with nginx.
