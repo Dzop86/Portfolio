@@ -11,7 +11,7 @@
 
 **Tests :** ml 17 tests pytest sur 3 OS, pipeline DVC complet et seuil en CI.
 
-**Prévu au sprint 9 :** export ONNX du modèle, point d'accès de classification dans l'API, page de résultats sur le site.
+**Reporté (décision de Charles, 6 octobre) :** export ONNX du modèle, classification dans l'API et page de résultats, après les projets Ada, SQL, mini-langage, LaTeX et G-cartes.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

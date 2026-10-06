@@ -41,6 +41,10 @@ Total : 151 points sur 26 sprints de deux semaines.
 - Docker : un Dockerfile multi-stage par service, `compose.yaml` global, images sur GHCR.
 - MLOps : DVC (données et modèle), MLflow (expériences), entraînement et évaluation en CI avec seuil de précision bloquant, déploiement du modèle dans le conteneur FastAPI.
 
+## Ordre de réalisation (décision de Charles, 6 octobre 2026)
+Faits : vitrine (en continu), bibliothèque C, topologie 3D, API Python, ML (jeu de données et modèles).
+Ensuite, dans cet ordre : Ada, base SQL, mini-langage, éditeur LaTeX, mini-cours G-cartes. La suite du ML (export ONNX, classification dans l'API, page de résultats) est reportée après eux. Les sprints S1-S26 du tableau restent le planning de référence illustratif.
+
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
 - Registre des risques : `data/scrum.json`, affiché sur la page Méthode, revu à chaque rétro.
