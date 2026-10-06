@@ -1,0 +1,5 @@
+generate:
+  seed: 2026
+  train_per_class: 300
+  test_per_class: 100
+  points: 512

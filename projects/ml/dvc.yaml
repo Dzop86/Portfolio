@@ -1,0 +1,11 @@
+stages:
+  generate:
+    cmd: python -m shapeml.generate --params params.yaml --out data/shapes.npz
+    deps:
+      - src/shapeml/shapes.py
+      - src/shapeml/dataset.py
+      - src/shapeml/generate.py
+    params:
+      - generate
+    outs:
+      - data/shapes.npz

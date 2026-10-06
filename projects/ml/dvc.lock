@@ -1,0 +1,29 @@
+schema: '2.0'
+stages:
+  generate:
+    cmd: python -m shapeml.generate --params params.yaml --out data/shapes.npz
+    deps:
+    - path: src/shapeml/dataset.py
+      hash: md5
+      md5: cf7e2587f430ac90595db3d7f96cbc46
+      size: 1601
+    - path: src/shapeml/generate.py
+      hash: md5
+      md5: 95d5b553331fbd274f6dd11868fe5a5d
+      size: 1187
+    - path: src/shapeml/shapes.py
+      hash: md5
+      md5: 5438c607ba62168444428ed2ac5ff707
+      size: 4643
+    params:
+      params.yaml:
+        generate:
+          seed: 2026
+          train_per_class: 300
+          test_per_class: 100
+          points: 512
+    outs:
+    - path: data/shapes.npz
+      hash: md5
+      md5: 4743c03f65d9556a9a88881a277071ee
+      size: 13656039
