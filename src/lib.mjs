@@ -5,8 +5,8 @@ import { dirname, join } from 'node:path';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const LANGS = ['fr', 'en'];
 export const PAGES = ['index', 'projects', 'research', 'method', 'contact'];
-// Set automatically in CI from the GitHub repository; the default is a placeholder.
-export const REPO_URL = process.env.REPO_URL || 'https://github.com/charles-lepaire/portfolio';
+// Set automatically in CI from the GitHub repository; the default is the public repo.
+export const REPO_URL = process.env.REPO_URL || 'https://github.com/Dzop86/Portfolio';
 
 const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
 

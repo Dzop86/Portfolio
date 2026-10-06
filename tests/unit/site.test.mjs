@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, loadData } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, loadData } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -62,6 +62,15 @@ test('no raw i18n key leaks into the HTML', () => {
       for (const key of Object.keys(i18n[lang])) {
         assert.ok(!html.includes(`>${key}<`) && !html.includes(`"${key}"`), `${lang}/${p}: raw key ${key}`);
       }
+    }
+  }
+});
+
+test('the footer links to the source repository on every page', () => {
+  assert.match(REPO_URL, /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/);
+  for (const lang of LANGS) {
+    for (const p of PAGES) {
+      assert.ok(page(lang, p).includes(`href="${REPO_URL}"`), `${lang}/${p}`);
     }
   }
 });
