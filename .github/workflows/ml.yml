@@ -32,19 +32,34 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - run: python -m pip install ".[test]"
+      # CPU-only PyTorch (the default Linux wheel pulls CUDA, several GB).
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install ".[train,test]"
       - run: python -m pytest -q -W error
 
   pipeline:
-    name: ML (DVC pipeline)
+    name: ML (DVC pipeline, training and accuracy gate)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - run: python -m pip install ".[dvc]"
-      - name: Rebuild the pipeline from scratch
-        run: dvc repro --force
-      # Same seed, same data: the hashes recorded in dvc.lock must not change.
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install ".[train,dvc]"
+      - name: Regenerate the data from scratch
+        run: dvc repro --force --single-item generate
+      # Same seed, same data: the data hash recorded in dvc.lock must not change. (Model weights are not
+      # bit-for-bit reproducible across machines, so the train stage is not compared.)
       - run: git diff --exit-code dvc.lock
+      - name: Train, evaluate and check the accuracy threshold
+        run: dvc repro
+      - name: Metrics of this run
+        run: cat metrics.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ml-run
+          path: |
+            projects/ml/metrics.json
+            projects/ml/confusion.json
+            projects/ml/mlflow.db

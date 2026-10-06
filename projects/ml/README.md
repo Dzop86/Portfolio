@@ -8,18 +8,31 @@ Classification de formes 3D (sphère, tore, boîte, cylindre, cône, gélule) à
 
 ## État (sprint 8)
 - **Jeu de données** (`src/shapeml/`) : six classes de maillages fermés aux dimensions, résolutions, rotations et bruits aléatoires ; 512 points tirés uniformément sur la surface, centrés et ramenés dans la sphère unité. 300 nuages par classe pour l'entraînement, 100 pour le test, avec des graines différentes.
+- **Modèles** : un modèle de référence (scikit-learn, `HistGradientBoostingClassifier` sur des descripteurs invariants par rotation : distribution des distances entre points D2, distances au centre, valeurs propres de la covariance) et un PointNet réduit (PyTorch, 40 époques sur CPU, rotations aléatoires en augmentation).
+- **Résultats** (600 nuages de test, `metrics.json`) :
+
+  | Modèle | Précision | F1 macro | Entraînement (CPU) |
+  |---|---|---|---|
+  | Référence (descripteurs + boosting) | 97,2 % | 0,971 | 33 s |
+  | PointNet | 95,2 % | 0,951 | 4 min 20 |
+
+  Sur ces formes simples, des descripteurs invariants bien choisis battent le réseau. Les erreurs viennent presque toutes de la confusion boîte / cylindre (une boîte plate vue sous certains angles ressemble à un cylindre court) ; sphère, tore, cône et gélule sont reconnus à 100 %.
+- **MLflow** : paramètres, métriques, courbe de perte de chaque entraînement dans `mlflow.db` (`mlflow ui --backend-store-uri sqlite:///mlflow.db`) ; la CI joint la base à chaque exécution.
+- **Seuil** : l'étape `check` échoue si la meilleure précision passe sous `check.min_accuracy` (0,90), ce qui fait échouer la CI.
 - **DVC** : `dvc.yaml` décrit le pipeline, `params.yaml` ses paramètres, `dvc.lock` les empreintes des données produites. Les données (13,6 Mo) restent dans le cache DVC, hors de git.
 
 ## Lancer
 ```sh
-python -m pip install ".[test,dvc]"
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install ".[train,test,dvc]"
 python -m pytest
-dvc repro            # régénère data/shapes.npz si le code ou les paramètres ont changé
+dvc repro            # données, entraînement, évaluation et seuil, selon ce qui a changé
 ```
 
 ## Tests
 - **Unitaires** (`tests/test_shapes.py`) : chaque classe donne un maillage valide, de caractéristique d'Euler 2 (0 pour le tore), comme le vérifie le projet Topologie 3D ; les formes varient vraiment.
 - **Échantillonnage** (`tests/test_dataset.py`) : points sur la surface, tirage proportionnel à l'aire, normalisation, déterminisme par la graine, classes équilibrées, test disjoint de l'entraînement.
-- **CI** (`.github/workflows/ml.yml`) : tests sur Linux, Windows et macOS ; pipeline DVC reconstruit de zéro, et `dvc.lock` ne doit pas changer.
+- **Modèles** (`tests/test_models.py`) : descripteurs invariants par rotation et par ordre des points, PointNet invariant par permutation des points, apprentissage sur un petit jeu, seuil de précision.
+- **CI** (`.github/workflows/ml.yml`) : tests sur Linux, Windows et macOS ; données régénérées de zéro avec la même empreinte que `dvc.lock` ; entraînement complet et seuil de précision à chaque modification du projet.
 
 Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md).

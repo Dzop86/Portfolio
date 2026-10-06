@@ -27,3 +27,56 @@ stages:
       hash: md5
       md5: 4743c03f65d9556a9a88881a277071ee
       size: 13656039
+  train:
+    cmd: python -m shapeml.train --params params.yaml --data data/shapes.npz
+    deps:
+    - path: data/shapes.npz
+      hash: md5
+      md5: 4743c03f65d9556a9a88881a277071ee
+      size: 13656039
+    - path: src/shapeml/features.py
+      hash: md5
+      md5: b47b4f7258c3829439340b31b29814f3
+      size: 1100
+    - path: src/shapeml/pointnet.py
+      hash: md5
+      md5: 72e02e83fe0c674b023ddfedd33e2164
+      size: 3185
+    - path: src/shapeml/train.py
+      hash: md5
+      md5: 8792f2f2bd970a4967564d6f211a2e61
+      size: 3206
+    params:
+      params.yaml:
+        train:
+          seed: 0
+          epochs: 40
+          batch_size: 32
+          lr: 0.001
+          threads: 4
+          baseline_iterations: 300
+    outs:
+    - path: confusion.json
+      hash: md5
+      md5: e327030fc271f02fd009d3674fb52940
+      size: 957
+    - path: metrics.json
+      hash: md5
+      md5: 188f068867466733398485c0caf0f4ce
+      size: 255
+    - path: models
+      hash: md5
+      md5: a7051626a6b4d7e71dbe2d0efa55e68b.dir
+      size: 2355085
+      nfiles: 2
+  check:
+    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml
+    deps:
+    - path: metrics.json
+      hash: md5
+      md5: 188f068867466733398485c0caf0f4ce
+      size: 255
+    params:
+      params.yaml:
+        check:
+          min_accuracy: 0.9

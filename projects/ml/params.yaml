@@ -3,3 +3,15 @@ generate:
   train_per_class: 300
   test_per_class: 100
   points: 512
+train:
+  seed: 0
+  epochs: 40
+  batch_size: 32
+  lr: 0.001
+  threads: 4
+  baseline_iterations: 300
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment: shapeml
+check:
+  min_accuracy: 0.9

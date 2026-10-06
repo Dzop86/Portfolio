@@ -9,3 +9,25 @@ stages:
       - generate
     outs:
       - data/shapes.npz
+  train:
+    cmd: python -m shapeml.train --params params.yaml --data data/shapes.npz
+    deps:
+      - data/shapes.npz
+      - src/shapeml/features.py
+      - src/shapeml/pointnet.py
+      - src/shapeml/train.py
+    params:
+      - train
+    outs:
+      - models
+      - confusion.json:
+          cache: false
+    metrics:
+      - metrics.json:
+          cache: false
+  check:
+    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml
+    deps:
+      - metrics.json
+    params:
+      - check

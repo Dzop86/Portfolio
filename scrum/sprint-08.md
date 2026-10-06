@@ -5,7 +5,11 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que chercheur, je génère un jeu de formes 3D synthétiques (ml) : six classes, paramètres et bruit aléatoires, graine fixée, pipeline DVC, tests pytest. | 3 | Fait |
-| En tant que chercheur, j'entraîne et compare un modèle de référence et un PointNet (ml), suivis dans MLflow ; la CI échoue sous le seuil de précision. | 3 | En cours |
+| En tant que chercheur, j'entraîne et compare un modèle de référence et un PointNet (ml), suivis dans MLflow ; la CI échoue sous le seuil de précision. | 3 | Fait |
+
+**Résultats :** référence 97,2 %, PointNet 95,2 % sur 600 nuages de test ; confusion surtout entre boîte et cylindre.
+
+**Tests :** ml 17 tests pytest sur 3 OS, pipeline DVC complet et seuil en CI.
 
 **Prévu au sprint 9 :** export ONNX du modèle, point d'accès de classification dans l'API, page de résultats sur le site.
 
