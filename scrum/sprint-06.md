@@ -7,7 +7,7 @@
 | En tant que Charles, je dépose un fichier STL (binaire ou ASCII) dans les démos : lib-c le lit, soude les sommets identiques et écarte les facettes dégénérées. | 2 | Fait |
 | En tant que développeur, j'interroge lib-c par HTTP : squelette du projet fastapi (FastAPI, pytest, CI Linux, Windows et macOS) avec un point d'accès qui renvoie les statistiques d'un maillage envoyé. | 3 | Fait |
 
-**Tests :** lib-c 11 tests STL de plus (et 15 millions d'entrées fuzzées), fastapi 14 tests pytest sur 3 OS × 2 versions de Python, site 161 + 210 end-to-end.
+**Tests :** lib-c 11 tests STL de plus (et 15 millions d'entrées fuzzées), fastapi 14 tests pytest sur 3 OS × 2 versions de Python, site 171 + 210 end-to-end.
 
 **Décisions de Charles (6 octobre) :** pas de miroir GitLab ; les modèles Pokémon restent hors du dépôt (droits de Nintendo), montrés en local par glisser-déposer ; le modèle « chocolat » attend sa source et sa licence.
 
