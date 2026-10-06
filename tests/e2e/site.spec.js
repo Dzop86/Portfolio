@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -109,6 +109,66 @@ test('the topology viewer shows invariants of the samples and of a dropped file'
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('the SQL playground runs the examples, a typed query, and survives errors, changes and endless queries', async ({ page }) => {
+  // Three loads of the database and a deliberate 5 s timeout: more than the default 30 s on slower engines.
+  test.setTimeout(60000);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-sql.html');
+  const root = page.locator('[data-sql-playground]');
+  const status = root.locator('[data-status]');
+  const error = root.locator('[data-error]');
+  await root.scrollIntoViewIfNeeded();
+  // The first example runs on its own once the playground is in view.
+  await expect(status).toHaveText(/^18 rows · /, { timeout: 15000 });
+  await expect(root.locator('tbody tr')).toHaveCount(18);
+  await expect(root.locator('thead th').first()).toHaveText('implementation');
+
+  await root.getByRole('button', { name: 'Measured complexity' }).click();
+  await expect(status).toHaveText(/^6 rows · /);
+  await expect(root.getByRole('button', { name: 'Measured complexity' })).toHaveAttribute('aria-pressed', 'true');
+
+  const editor = root.getByLabel('SQL query (SQLite dialect)');
+  await editor.fill('SELECT count(*) AS n FROM measurement');
+  await editor.press('Control+Enter');
+  await expect(root.locator('tbody td')).toHaveText('630');
+
+  await editor.fill('SELECT * FROM measurement');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status).toHaveText(/^first 200 rows of 630 · /);
+
+  await editor.fill('SELECT * FROM nowhere');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(error).toHaveText(/SQL error: no such table: nowhere/);
+
+  await editor.fill('DELETE FROM measurement');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(status).toHaveText(/^Query done, 630 rows changed/);
+  await expect(error).toBeHidden();
+
+  await root.getByRole('button', { name: 'Reload the database' }).click();
+  await editor.fill('SELECT count(*) FROM measurement');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(root.locator('tbody td')).toHaveText('630');
+
+  // An endless query is stopped by terminating the worker; the next query reloads the database.
+  await editor.fill('WITH RECURSIVE r(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM r) SELECT count(*) FROM r');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(error).toHaveText(/Query stopped after 5 s/, { timeout: 15000 });
+  await editor.fill('SELECT count(*) FROM file');
+  await root.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(root.locator('tbody td')).toHaveText('45');
+
+  await root.locator('summary').click();
+  await expect(root.locator('[data-schema] li')).toHaveCount(11);
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
 

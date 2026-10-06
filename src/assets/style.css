@@ -122,6 +122,20 @@ a:hover { text-decoration-thickness: 2px; }
 .demo-stats div:has([data-field="bbox"]) { grid-column: 1 / -1; }
 .demo [data-result] { margin-top: var(--space-4); }
 
+/* SQL playground (D20) */
+.sql-label { display: block; margin-top: var(--space-4); font-weight: 600; color: var(--text-strong); }
+.sql-editor { display: block; box-sizing: border-box; width: 100%; min-height: 10rem; margin-top: var(--space-2); padding: var(--space-3); resize: vertical;
+  font: 0.95rem/1.5 var(--font-mono); color: var(--text-strong); background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+.sql-editor:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.sqlplay [data-result] .table-wrap { max-height: 28rem; overflow: auto; }
+.sqlplay [data-result] .table-wrap:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.sqlplay td { white-space: nowrap; font-family: var(--font-mono); font-size: 0.85rem; padding: 6px 12px; }
+.sqlplay td.num { text-align: right; }
+.sqlplay thead th { position: sticky; top: 0; padding: 6px 12px; font-size: 0.85rem; }
+.sql-schema { margin-top: var(--space-4); }
+.sql-schema summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; }
+.sql-schema li { overflow-wrap: anywhere; margin-bottom: var(--space-1); }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

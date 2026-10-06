@@ -34,6 +34,9 @@ Ce que dit la campagne (`queries/examples.sql`) :
 ## Index (`schema/03_indexes.sql`)
 La clé primaire de `measurement` commence par la campagne. L'historique d'un fichier d'une campagne à l'autre (ce que lit `regressions`) a son propre index, `measurement_file_history`. Sur les 630 lignes réelles, PostgreSQL préfère à juste titre lire toute la table ; le test `tests/pgtap/04_indexes.sql` ajoute donc 126 000 mesures fictives, vérifie que le plan passe par l'index, puis qu'il redevient un parcours complet sans lui (le tout annulé en fin de test).
 
+## Dans le navigateur
+La [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-sql.html) contient une copie SQLite de la base, interrogeable avec sql.js : mêmes tables et contraintes, mêmes vues réécrites dans le dialecte SQLite (`sqlite/schema.sql`), requêtes d'exemple dans `sqlite/examples.sql`. La requête tourne dans un web worker, arrêté après 5 s ; le visiteur peut modifier ou vider sa copie, la base se recharge. Choix et limites : D20 dans le [`DECISIONS.md` du site](../../DECISIONS.md).
+
 ## Lancer
 ```sh
 node projects/sql/bench/run.mjs            # nouvelle campagne (environ 3 min), réécrit data/measurements.csv
@@ -46,11 +49,12 @@ docker exec -i bench-db psql -U postgres -d bench < projects/sql/queries/example
 ## Tests
 - **Node** (`tests/node/bench.test.mjs`, 10 tests) : nombres de sommets et de triangles de chaque famille, indices valides, encodages déterministes et de la bonne taille, CSV relu à l'identique, invariants retrouvés par les deux bibliothèques dans les trois formats, vérification qui détecte une mauvaise réponse, campagne rapide complète.
 - **pgTAP** (`tests/pgtap/`, 46 vérifications) : structure et clés, chaque contrainte et le déclencheur, cohérence des données chargées, chaque vue sur des mesures fabriquées à la main dont la réponse est connue, plan d'exécution avec et sans index. Vérifié en cassant le code : médiane remplacée par la moyenne, déclencheur supprimé, `regressions` qui compare à la campagne suivante, chaque fois des tests échouent.
+- **Bac à sable** (`tests/unit/sqlplay.test.mjs` du site, 11 tests) : la copie SQLite contient toutes les mesures, ses médianes et exposants égalent ceux calculés en JavaScript, elle garde les contraintes, chaque exemple tourne ; Playwright l'utilise dans 5 navigateurs (exemples, requête tapée, erreur, suppression puis rechargement, requête sans fin arrêtée).
 - **CI** (`.github/workflows/sql.yml`) : script de mesure et tests Node sur Linux, Windows et macOS ; image PostgreSQL, tests pgTAP et requêtes d'exemple sous Linux.
 
 ## Limites
 - Une seule machine, une seule campagne : la fonction `regressions` est testée sur des campagnes fabriquées, pas encore sur deux vraies.
 - Mesures en WebAssembly sous Node, pas en natif : elles décrivent ce que vit la démo du site, pas les bibliothèques compilées en C et C++.
-- La base PostgreSQL n'est pas en ligne ; la fiche du projet en proposera une copie SQLite interrogeable dans le navigateur (sprint 10, deuxième story).
+- La base PostgreSQL n'est pas en ligne : le navigateur interroge une copie SQLite, dont le dialecte diffère (pas de `percentile_cont` ni de fonction stockée).
 
 Maillages générés par le code, aucune donnée de laboratoire. Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md).

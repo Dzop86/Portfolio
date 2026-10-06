@@ -16,6 +16,22 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   }
   // The topology viewer shows the synthetic meshes of projects/topologie, in their own folder.
   cpSync(join(ROOT, 'projects/topologie/samples'), join(outDir, 'assets/samples/topologie'), { recursive: true });
+  // SQL playground (D20): schema and campaign of projects/sql, SQLite compiled by sql.js, and the worker
+  // that owns the database, bundled with sql.js into one module.
+  mkdirSync(join(outDir, 'assets/samples/sql'), { recursive: true });
+  cpSync(join(ROOT, 'projects/sql/sqlite/schema.sql'), join(outDir, 'assets/samples/sql/schema.sql'));
+  cpSync(join(ROOT, 'projects/sql/data/measurements.csv'), join(outDir, 'assets/samples/sql/measurements.csv'));
+  cpSync(join(ROOT, 'node_modules/sql.js/dist/sql-wasm-browser.wasm'), join(outDir, 'assets/wasm/sql-wasm.wasm'));
+  buildSync({
+    entryPoints: [join(ROOT, 'src/sqlplay/worker.js')],
+    outfile: join(outDir, 'assets/sqlworker.js'),
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    legalComments: 'inline',
+    logLevel: 'error',
+  });
   // three.js and the viewer, bundled and minified into one module (D17); WebAssembly stays a separate file.
   buildSync({
     entryPoints: [join(ROOT, 'src/viewer/topoviewer.js')],

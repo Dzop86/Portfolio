@@ -1,4 +1,7 @@
-import { esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parseExamples } from './sqlplay/core.js';
+import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -367,6 +370,7 @@ ${teaching}
 ${linkBlock}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
 ${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
+${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -443,6 +447,38 @@ function topoViewer(t) {
   </div>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/topoviewer.js"></script>
+</section>`;
+}
+
+const SQL_LABELS = ['running', 'rows', 'row', 'truncated', 'changes', 'ms', 'caption', 'error', 'error.load', 'timeout',
+  'reset', 'schema.table', 'schema.view'];
+
+// SQLite copy of the benchmark database in a web worker (sql.js, D20). Examples come from projects/sql.
+function sqlPlayground(t) {
+  const labels = Object.fromEntries(SQL_LABELS.map((k) => [k, t(`sql.label.${k}`)]));
+  const examples = parseExamples(readFileSync(join(ROOT, 'projects/sql/sqlite/examples.sql'), 'utf8'))
+    .map(({ key, sql }) => `<button type="button" class="btn btn-ghost" aria-pressed="false" data-example="${esc(key)}" data-sql="${esc(sql)}">${esc(t(`sql.example.${key}`))}</button>`)
+    .join('');
+  return `<section class="block panel demo sqlplay" aria-labelledby="h-sql" data-sql-playground data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-sql">${esc(t('sql.title'))}</h2>
+  <p>${esc(t('sql.lead'))}</p>
+  <div class="actions" role="group" aria-label="${esc(t('sql.examples'))}"><span class="muted demo-samples">${esc(t('sql.examples'))}</span>${examples}</div>
+  <label class="sql-label" for="sql-editor">${esc(t('sql.query'))}</label>
+  <textarea id="sql-editor" class="sql-editor" rows="8" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="sql-help"></textarea>
+  <p class="meta" id="sql-help">${esc(t('sql.help'))}</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" data-run>${esc(t('sql.run'))}</button>
+    <button type="button" class="btn btn-ghost" data-reset>${esc(t('sql.reset'))}</button>
+  </div>
+  <p class="meta" data-status aria-live="polite"></p>
+  <p class="notice demo-error" data-error role="alert" hidden></p>
+  <div data-result></div>
+  <details class="sql-schema">
+    <summary>${esc(t('sql.schema'))}</summary>
+    <ul data-schema><li class="muted">${esc(t('sql.schema.pending'))}</li></ul>
+  </details>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/sqlplay.js"></script>
 </section>`;
 }
 

@@ -19,6 +19,7 @@
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
     "esbuild": "^0.28.2",
+    "sql.js": "^1.14.2",
     "three": "^0.186.1"
   }
 }
