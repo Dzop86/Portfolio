@@ -74,3 +74,13 @@ test('the footer links to the source repository on every page', () => {
     }
   }
 });
+
+test('the 404 page resolves its assets and links from the site root', () => {
+  const pagesDist = build(mkdtempSync(join(tmpdir(), 'portfolio-')), { basePath: '/Portfolio' });
+  const html = readFileSync(join(pagesDist, '404.html'), 'utf8');
+  assert.match(html, /<base href="\/Portfolio\/">/);
+  const refs = [...html.matchAll(/(?:href|src)="(\.\/[^"#]+)"/g)].map((m) => m[1]);
+  assert.ok(refs.length >= 4, 'stylesheets and home links');
+  for (const ref of refs) assert.ok(existsSync(join(pagesDist, ref)), `broken link ${ref}`);
+  assert.match(readFileSync(join(dist, '404.html'), 'utf8'), /<base href="\/">/);
+});

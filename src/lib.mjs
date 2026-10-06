@@ -8,6 +8,15 @@ export const PAGES = ['index', 'projects', 'research', 'method', 'contact'];
 // Set automatically in CI from the GitHub repository; the default is the public repo.
 export const REPO_URL = process.env.REPO_URL || 'https://github.com/Dzop86/Portfolio';
 
+/** Normalises a site base path to the "/path/" form used by <base href>. */
+export function normalizeBase(value) {
+  const trimmed = String(value ?? '').trim().replace(/^\/+|\/+$/g, '');
+  return trimmed ? `/${trimmed}/` : '/';
+}
+
+// Path the site is served from: "/" locally and in Docker, "/<repo>/" on GitHub Pages (set by the deploy workflow).
+export const BASE_PATH = normalizeBase(process.env.BASE_PATH);
+
 const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
 
 export function loadData() {

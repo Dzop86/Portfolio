@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, pick, makeT, teachingTotals, riskLevel, monthOffset, i18nParity, loadData } from '../../src/lib.mjs';
+import { esc, pick, makeT, teachingTotals, riskLevel, monthOffset, i18nParity, loadData, normalizeBase } from '../../src/lib.mjs';
 
 test('esc neutralises HTML special characters', () => {
   assert.equal(esc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
@@ -39,4 +39,13 @@ test('monthOffset counts across years', () => {
 test('French and English dictionaries have the same keys', () => {
   const { i18n } = loadData();
   assert.deepEqual(i18nParity(i18n), { missingInEn: [], missingInFr: [] });
+});
+
+test('normalizeBase always returns a "/path/" form', () => {
+  assert.equal(normalizeBase(undefined), '/');
+  assert.equal(normalizeBase(''), '/');
+  assert.equal(normalizeBase('/'), '/');
+  assert.equal(normalizeBase('/Portfolio'), '/Portfolio/');
+  assert.equal(normalizeBase('Portfolio/'), '/Portfolio/');
+  assert.equal(normalizeBase(' //a/b// '), '/a/b/');
 });

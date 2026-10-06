@@ -65,6 +65,8 @@ jobs:
       - name: Smoke test
         run: |
           docker run -d --name portfolio -p 8080:80 portfolio
-          for i in $(seq 1 10); do curl -fsS http://localhost:8080/fr/index.html >/dev/null && exit 0; sleep 1; done
-          docker logs portfolio
-          exit 1
+          for i in $(seq 1 10); do curl -fsS http://localhost:8080/fr/index.html >/dev/null && break; sleep 1; done
+          curl -fsS http://localhost:8080/fr/index.html >/dev/null || { docker logs portfolio; exit 1; }
+          # Unknown URLs get the site's own 404 page, with a 404 status.
+          test "$(curl -s -o /tmp/404.html -w '%{http_code}' http://localhost:8080/fr/missing/page.html)" = 404
+          grep -q '<base href="/">' /tmp/404.html

@@ -1,9 +1,9 @@
 import { mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, LANGS, PAGES, loadData, makeT } from './lib.mjs';
+import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc } from './lib.mjs';
 import { renderPage } from './templates.mjs';
 
-export function build(outDir = join(ROOT, 'dist')) {
+export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}) {
   const data = loadData();
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
@@ -26,8 +26,10 @@ export function build(outDir = join(ROOT, 'dist')) {
 </head><body><a href="./fr/index.html">Français</a> · <a href="./en/index.html">English</a></body></html>
 `);
 
+  // Served at whatever URL was missed (e.g. /Portfolio/a/b), so relative links resolve from <base> instead.
   writeFileSync(join(outDir, '404.html'), `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="${esc(normalizeBase(basePath))}">
 <title>404 · Charles Lepaire</title><link rel="stylesheet" href="./assets/tokens.css"><link rel="stylesheet" href="./assets/style.css"></head>
 <body><main class="wrap page-head"><h1>404</h1><p class="lead">Page introuvable · Page not found</p>
 <p class="actions"><a class="btn btn-primary" href="./fr/index.html">Accueil</a><a class="btn btn-ghost" href="./en/index.html">Home</a></p></main></body></html>

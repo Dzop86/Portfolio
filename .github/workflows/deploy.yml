@@ -31,8 +31,11 @@ jobs:
       - run: npm test
         env:
           PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
+      - id: pages
+        uses: actions/configure-pages@v5
       - run: npm run build
-      - uses: actions/configure-pages@v5
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

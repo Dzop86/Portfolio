@@ -59,3 +59,16 @@ test('teaching filter updates the totals', async ({ page }) => {
   // L1: 32 + 44 + 36 + 24 = 136 hours.
   await expect(page.locator('[data-total="all"]')).toHaveText('136');
 });
+
+test('a deep unknown URL shows a styled 404 with working links', async ({ page }) => {
+  const response = await page.goto('/fr/missing/deeper/page.html');
+  expect(response.status()).toBe(404);
+  await expect(page.locator('h1')).toHaveText('404');
+  const sheetsLoaded = await page.evaluate(() => {
+    const sheets = [...document.styleSheets];
+    return sheets.length >= 2 && sheets.every((s) => s.cssRules.length > 0);
+  });
+  expect(sheetsLoaded).toBe(true);
+  await page.getByRole('link', { name: 'Accueil' }).click();
+  await expect(page).toHaveURL(/\/fr\/index\.html$/);
+});
