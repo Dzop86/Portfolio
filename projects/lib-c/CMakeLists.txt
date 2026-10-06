@@ -7,6 +7,7 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 option(MESH_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (GCC, Clang)" OFF)
 option(MESH_BUILD_TESTS "Build the Unity test suite" ON)
+option(MESH_FUZZ "Build the libFuzzer target (Clang only)" OFF)
 
 # Strict warnings, treated as errors, on every compiler of the CI matrix.
 function(mesh_warnings target)
@@ -19,11 +20,17 @@ function(mesh_warnings target)
 endfunction()
 
 if(MESH_SANITIZE AND NOT MSVC)
-  add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
+  add_compile_options(-fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -fno-sanitize-recover=all)
+  add_link_options(-fsanitize=address,undefined,float-cast-overflow)
+endif()
+
+# Fuzzing instruments every target, so it is set before they are declared.
+if(MESH_FUZZ)
+  add_compile_options(-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer)
   add_link_options(-fsanitize=address,undefined)
 endif()
 
-add_library(mesh src/mesh.c src/obj.c)
+add_library(mesh src/mesh.c src/obj.c src/ply.c)
 target_include_directories(mesh PUBLIC include)
 mesh_warnings(mesh)
 if(NOT MSVC)
@@ -33,6 +40,12 @@ endif()
 add_executable(meshinfo tools/meshinfo.c)
 target_link_libraries(meshinfo PRIVATE mesh)
 mesh_warnings(meshinfo)
+
+if(MESH_FUZZ)
+  add_executable(fuzz_read tests/fuzz/fuzz_read.c)
+  target_link_libraries(fuzz_read PRIVATE mesh)
+  target_link_options(fuzz_read PRIVATE -fsanitize=fuzzer)
+endif()
 
 if(MESH_BUILD_TESTS)
   enable_testing()
@@ -50,10 +63,19 @@ if(MESH_BUILD_TESTS)
   mesh_warnings(test_obj)
   add_test(NAME unit.obj COMMAND test_obj)
 
+  add_executable(test_ply tests/test_ply.c)
+  target_link_libraries(test_ply PRIVATE mesh unity)
+  target_compile_definitions(test_ply PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/tests/data")
+  mesh_warnings(test_ply)
+  add_test(NAME unit.ply COMMAND test_ply)
+
   # Integration: the CLI on a real file, then its error paths.
   add_test(NAME cli.cube COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/cube.obj)
   set_tests_properties(cli.cube PROPERTIES
     PASS_REGULAR_EXPRESSION "vertices: 8[\r\n]+polygons: 6[\r\n]+triangles: 12")
+  add_test(NAME cli.ply COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/tetrahedron.ply)
+  set_tests_properties(cli.ply PROPERTIES
+    PASS_REGULAR_EXPRESSION "vertices: 4[\r\n]+polygons: 4[\r\n]+triangles: 4")
   add_test(NAME cli.missing COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/missing.obj)
   set_tests_properties(cli.missing PROPERTIES WILL_FAIL TRUE)
   add_test(NAME cli.usage COMMAND meshinfo)

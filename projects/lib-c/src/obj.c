@@ -1,10 +1,9 @@
 /* OBJ reader: `v x y z [w]` and `f i[/t][/n] ...`, everything else ignored.
  * Each line is copied into a NUL-terminated buffer so that strtod and strtol never read past it. */
-#include "mesh/mesh.h"
+#include "internal.h"
 
 #include <errno.h>
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,21 +12,6 @@ typedef struct {
     size_t vertex_capacity;
     size_t triangle_capacity;
 } builder;
-
-/* Returns `items` grown to hold at least `needed` elements of `size` bytes, or NULL on failure
- * (`items` is then left untouched and still owned by the caller). */
-static void *reserve(void *items, size_t *capacity, size_t needed, size_t size) {
-    if (needed <= *capacity) return items;
-    size_t next = *capacity ? *capacity : 64;
-    while (next < needed) {
-        if (next > SIZE_MAX / 2) return NULL;
-        next *= 2;
-    }
-    if (next > SIZE_MAX / size) return NULL;
-    void *grown = realloc(items, next * size);
-    if (grown) *capacity = next;
-    return grown;
-}
 
 static int is_space(char c) { return c == ' ' || c == '\t' || c == '\r' || c == '\v' || c == '\f'; }
 
@@ -57,7 +41,7 @@ static mesh_status parse_vertex(builder *b, char *s) {
         if (end == s || *skip_spaces(end) != '\0') return MESH_ERR_SYNTAX;
     }
     if (b->m.vertex_count >= UINT32_MAX) return MESH_ERR_MEMORY;
-    mesh_vec3 *grown = reserve(b->m.vertices, &b->vertex_capacity, b->m.vertex_count + 1, sizeof *grown);
+    mesh_vec3 *grown = mesh__reserve(b->m.vertices, &b->vertex_capacity, b->m.vertex_count + 1, sizeof *grown);
     if (!grown) return MESH_ERR_MEMORY;
     b->m.vertices = grown;
     b->m.vertices[b->m.vertex_count++] = (mesh_vec3){xyz[0], xyz[1], xyz[2]};
@@ -96,14 +80,8 @@ static mesh_status parse_face(builder *b, char *s) {
         if (corners == 0) {
             first = index;
         } else if (corners >= 2) { /* fan: (first, previous, current) */
-            uint32_t(*grown)[3] = reserve(b->m.triangles, &b->triangle_capacity, b->m.triangle_count + 1,
-                                          sizeof *grown);
-            if (!grown) return MESH_ERR_MEMORY;
-            b->m.triangles = grown;
-            uint32_t *t = b->m.triangles[b->m.triangle_count++];
-            t[0] = first;
-            t[1] = previous;
-            t[2] = index;
+            if (mesh__add_triangle(&b->m, &b->triangle_capacity, first, previous, index) != MESH_OK)
+                return MESH_ERR_MEMORY;
         }
         previous = index;
         corners++;
@@ -127,7 +105,7 @@ static mesh_status parse_line(builder *b, char *line) {
     return MESH_ERR_SYNTAX;
 }
 
-mesh_status mesh_read_obj_string(const char *text, mesh *out, size_t *error_line) {
+mesh_status mesh__read_obj(const char *text, size_t len, mesh *out, size_t *error_line) {
     mesh_free(out);
     if (error_line) *error_line = 0;
 
@@ -140,21 +118,25 @@ mesh_status mesh_read_obj_string(const char *text, mesh *out, size_t *error_line
     size_t line_number = 0;
     mesh_status st = MESH_OK;
 
-    for (const char *p = text; *p != '\0' && st == MESH_OK;) {
-        const char *eol = strchr(p, '\n');
-        size_t len = eol ? (size_t)(eol - p) : strlen(p);
+    for (const char *p = text, *end = text + len; p < end && st == MESH_OK;) {
+        const char *eol = memchr(p, '\n', (size_t)(end - p));
+        size_t n = eol ? (size_t)(eol - p) : (size_t)(end - p);
         line_number++;
-        char *grown = reserve(line, &line_capacity, len + 1, 1);
+        if (memchr(p, '\0', n)) {
+            st = MESH_ERR_SYNTAX;
+            break;
+        }
+        char *grown = mesh__reserve(line, &line_capacity, n + 1, 1);
         if (!grown) {
             st = MESH_ERR_MEMORY;
             line_number = 0;
             break;
         }
         line = grown;
-        memcpy(line, p, len);
-        line[len] = '\0';
+        memcpy(line, p, n);
+        line[n] = '\0';
         st = parse_line(&b, line);
-        p = eol ? eol + 1 : p + len;
+        p = eol ? eol + 1 : end;
     }
     free(line);
 
@@ -165,36 +147,4 @@ mesh_status mesh_read_obj_string(const char *text, mesh *out, size_t *error_line
     }
     *out = b.m;
     return MESH_OK;
-}
-
-mesh_status mesh_read_obj_file(const char *path, mesh *out, size_t *error_line) {
-    mesh_free(out);
-    if (error_line) *error_line = 0;
-
-    FILE *f = fopen(path, "rb");
-    if (!f) return MESH_ERR_IO;
-    char *text = NULL;
-    size_t size = 0, capacity = 0;
-    mesh_status st = MESH_OK;
-    for (;;) {
-        char *grown = reserve(text, &capacity, size + 4096 + 1, 1);
-        if (!grown) {
-            st = MESH_ERR_MEMORY;
-            break;
-        }
-        text = grown;
-        size_t n = fread(text + size, 1, capacity - size - 1, f);
-        size += n;
-        if (n == 0) {
-            if (ferror(f)) st = MESH_ERR_IO;
-            break;
-        }
-    }
-    fclose(f);
-    if (st == MESH_OK) {
-        text[size] = '\0';
-        st = mesh_read_obj_string(text, out, error_line);
-    }
-    free(text);
-    return st;
 }

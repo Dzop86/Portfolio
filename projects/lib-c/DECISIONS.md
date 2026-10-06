@@ -22,3 +22,13 @@
 **Choix :** `mesh_read_obj_file` charge tout le fichier puis appelle `mesh_read_obj_string`.
 **Pourquoi :** les tests n'ont pas besoin de fichiers temporaires, et `fmemopen` n'existe pas sous Windows. Le même point d'entrée servira à la démo WebAssembly.
 **Limite :** le fichier entier tient en mémoire en plus du maillage.
+
+## C6. PLY : en-tête borné, comptes vérifiés avant toute allocation
+**Choix :** l'en-tête est décrit par des tableaux de taille fixe (16 éléments, 32 propriétés) ; avant de lire le corps, chaque compte d'élément est comparé au nombre minimal d'octets qu'il occupe (taille binaire des propriétés, ou 1 octet par valeur en ASCII). Un élément non vide sans propriété est refusé.
+**Pourquoi :** le lecteur servira dans le navigateur sur des fichiers déposés par n'importe qui ; un en-tête annonçant 4 milliards de sommets ne doit ni allouer ni boucler.
+**Limite :** des fichiers PLY exotiques (plus de 16 éléments) sont refusés.
+
+## C7. Fuzzing des lecteurs avec libFuzzer
+**Choix :** `tests/fuzz/fuzz_read.c` passe chaque entrée à `mesh_read_buffer` (OBJ ou PLY) sous ASan et UBSan, et vérifie que les indices produits restent dans les bornes. La CI fuzz 60 s par push ; les entrées trouvées deviennent des tests Unity.
+**Pourquoi :** les tests écrits à la main n'avaient trouvé aucun des trois défauts que le fuzzer a révélés en quelques minutes (voir `REVIEW.md`).
+**Limite :** 60 s en CI ne remplacent pas une campagne longue ; le corpus n'est pas conservé entre deux exécutions.

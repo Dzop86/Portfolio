@@ -49,3 +49,18 @@ jobs:
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
       - run: cmake --build build --parallel
       - run: scripts/valgrind.sh build
+
+  fuzz:
+    name: C library (libFuzzer, 60 s)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: CC=clang cmake -S . -B fuzz -DMESH_FUZZ=ON -DMESH_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Debug
+      - run: cmake --build fuzz --parallel
+      - run: mkdir corpus && cp tests/data/* corpus/
+      - run: fuzz/fuzz_read corpus -max_total_time=60 -max_len=4096 -timeout=5
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fuzz-findings
+          path: projects/lib-c/crash-*

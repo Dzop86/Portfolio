@@ -44,6 +44,17 @@ mesh_status mesh_read_obj_string(const char *text, mesh *out, size_t *error_line
 /* Same as mesh_read_obj_string, reading the whole file first. */
 mesh_status mesh_read_obj_file(const char *path, mesh *out, size_t *error_line);
 
+/* Parses a PLY mesh (ascii, binary_little_endian or binary_big_endian 1.0) of `size` bytes. Uses the
+ * x, y, z properties of `vertex` and the `vertex_indices` (or `vertex_index`) list of `face`; other
+ * properties and elements are skipped. `error_line` is the header or ASCII body line, 0 in a binary body. */
+mesh_status mesh_read_ply(const char *data, size_t size, mesh *out, size_t *error_line);
+
+/* Reads PLY if the data starts with the line "ply", OBJ otherwise. `data` need not be NUL-terminated. */
+mesh_status mesh_read_buffer(const char *data, size_t size, mesh *out, size_t *error_line);
+
+/* Reads a whole file and detects its format like mesh_read_buffer. */
+mesh_status mesh_read_file(const char *path, mesh *out, size_t *error_line);
+
 /* Short English description of a status, never NULL. */
 const char *mesh_status_string(mesh_status status);
 

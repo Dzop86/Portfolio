@@ -20,6 +20,8 @@ check() {
 }
 
 check 0 "$build/test_obj"
+check 0 "$build/test_ply"
+check 0 "$build/meshinfo" "$data/tetrahedron.ply"
 check 0 "$build/meshinfo" "$data/cube.obj"
 check 1 "$build/meshinfo" "$data/missing.obj"
 check 2 "$build/meshinfo"

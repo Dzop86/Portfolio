@@ -1,17 +1,17 @@
-/* meshinfo: prints the size of an OBJ mesh. Exit codes: 0 ok, 1 unreadable mesh, 2 usage. */
+/* meshinfo: prints the size of an OBJ or PLY mesh. Exit codes: 0 ok, 1 unreadable mesh, 2 usage. */
 #include "mesh/mesh.h"
 
 #include <stdio.h>
 
 int main(int argc, char **argv) {
     if (argc != 2) {
-        fprintf(stderr, "usage: meshinfo FILE.obj\n");
+        fprintf(stderr, "usage: meshinfo FILE.obj|FILE.ply\n");
         return 2;
     }
     mesh m;
     mesh_init(&m);
     size_t line = 0;
-    mesh_status st = mesh_read_obj_file(argv[1], &m, &line);
+    mesh_status st = mesh_read_file(argv[1], &m, &line);
     if (st != MESH_OK) {
         if (line)
             fprintf(stderr, "%s:%zu: %s\n", argv[1], line, mesh_status_string(st));
