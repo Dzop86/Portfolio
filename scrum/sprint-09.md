@@ -9,7 +9,7 @@
 
 **Tests :** 7 tests AUnit sur 3 OS ; preuve SPARK de 14 vérifications (erreurs à l'exécution, contrats, sûreté).
 
-**Ordre décidé par Charles (6 octobre) :** Ada, SQL, mini-langage, LaTeX, G-cartes ; la suite du ML est reportée.
+**Ordre décidé par Charles (6 octobre) :** Ada (S9), SQL (S10), mini-langage (S11-S12), LaTeX (S13-S14), G-cartes (S15), suite du ML (S16), puis Spring et ASP.NET (S17-S19) et les autres projets. Les numéros de sprint des fiches projets suivent cet ordre.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

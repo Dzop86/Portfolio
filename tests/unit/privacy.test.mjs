@@ -3,7 +3,8 @@
 // Extra terms can be supplied through the PRIVATE_TERMS secret (comma-separated).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build } from '../../src/build.mjs';
@@ -29,15 +30,16 @@ function files(dir) {
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const published = files(dist).filter((f) => /\.(html|js|css|json|webmanifest|svg)$/.test(f));
-// Technical projects are scanned too: sources, tests, data and docs, but not their build output.
-const projectFiles = existsSync(join(ROOT, 'projects'))
-  ? files(join(ROOT, 'projects')).filter((f) => !/[\\/](build[^\\/]*|_deps|node_modules|__pycache__|[^\\/]+\.egg-info)[\\/]/.test(f))
-  : [];
+// Technical projects are scanned too: every file git tracks under projects/ (sources, tests, data, docs).
+// Local build output (build*/, bin/, obj/, alire/...) is ignored by git, so it is left out by construction.
+const projectFiles = execFileSync('git', ['ls-files', '-z', 'projects'], { cwd: ROOT, encoding: 'utf8' })
+  .split('\0').filter(Boolean).map((f) => join(ROOT, f));
 const sources = [join(ROOT, 'data/cv.json'), join(ROOT, 'data/projects.json'), ...projectFiles];
 
 test('the scan covers the technical projects', () => {
   assert.ok(sources.some((f) => f.endsWith(join('lib-c', 'src', 'obj.c'))), 'projects/lib-c sources');
-  assert.ok(!sources.some((f) => /[\\/]build[^\\/]*[\\/]/.test(f)), 'build output excluded (build/, build-shared/...)');
+  assert.ok(!sources.some((f) => /[\\/](build[^\\/]*|bin|obj)[\\/]/.test(f)), 'build output excluded');
+  assert.ok(sources.some((f) => f.endsWith(join('ada', 'src', 'traffic.adb'))), 'projects/ada sources');
 });
 
 for (const file of [...published, ...sources]) {

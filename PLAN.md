@@ -14,25 +14,25 @@ Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S4 | 5 |
-| 2 | Topologie 3D | C++, Three.js | S5-S8 | 13 |
-| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S5-S8 | 8 |
-| 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S5-S8 | 13 |
-| 5 | API Python | FastAPI, pytest, Docker | S9-S12 | 8 |
-| 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow, ONNX | S9-S12 | 13 |
-| 7 | Base SQL des benchmarks | PostgreSQL, sql.js | S9-S12 | 5 |
-| 8 | Microservices Spring | Java, Spring Boot, Testcontainers, Jenkins | S13-S16 | 13 |
-| 9 | API ASP.NET | C#, EF Core, xUnit | S13-S16 | 8 |
-| 10 | Mini-langage | Flex, Bison, OCaml | S17-S20 | 8 |
-| 11 | Carrefour en Ada | Ada, AUnit | S17-S20 | 5 |
-| 12 | Calcul parallèle | OpenMP, CUDA, OpenCL | S17-S20 | 13 |
-| 13 | Dashboard React | React, TypeScript, Vite | S21-S22 | 13 |
-| 14 | Dashboard Angular | Angular, Jest, Cypress | S21-S22 | 8 |
-| 15 | Migration Bootstrap | jQuery, Bootstrap | S23-S26 | 5 |
-| 16 | Éditeur LaTeX | TypeScript, KaTeX | S23-S26 | 8 |
-| 17 | Mini-cours G-cartes | JS, SVG | S23-S26 | 5 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9 | 5 |
+| 2 | Topologie 3D | C++, Three.js | S4-S5 | 13 |
+| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
+| 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S20-S21 | 13 |
+| 5 | API Python | FastAPI, pytest, Docker | S6-S7 | 8 |
+| 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow, ONNX | S8+S16 | 13 |
+| 7 | Base SQL des benchmarks | PostgreSQL, sql.js | S10 | 5 |
+| 8 | Microservices Spring | Java, Spring Boot, Testcontainers, Jenkins | S17-S18 | 13 |
+| 9 | API ASP.NET | C#, EF Core, xUnit | S19 | 8 |
+| 10 | Mini-langage | Flex, Bison, OCaml | S11-S12 | 8 |
+| 11 | Carrefour en Ada | Ada, AUnit | S9 | 5 |
+| 12 | Calcul parallèle | OpenMP, CUDA, OpenCL | S22-S23 | 13 |
+| 13 | Dashboard React | React, TypeScript, Vite | S24-S25 | 13 |
+| 14 | Dashboard Angular | Angular, Jest, Cypress | S26 | 8 |
+| 15 | Migration Bootstrap | jQuery, Bootstrap | S27 | 5 |
+| 16 | Éditeur LaTeX | TypeScript, KaTeX | S13-S14 | 8 |
+| 17 | Mini-cours G-cartes | JS, SVG | S15 | 5 |
 
-Total : 151 points sur 26 sprints de deux semaines.
+Total : 151 points sur 27 sprints de deux semaines (numéros réels jusqu'au sprint 9, prévisionnels ensuite).
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
