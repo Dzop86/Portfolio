@@ -84,3 +84,11 @@ test('the 404 page resolves its assets and links from the site root', () => {
   for (const ref of refs) assert.ok(existsSync(join(pagesDist, ref)), `broken link ${ref}`);
   assert.match(readFileSync(join(dist, '404.html'), 'utf8'), /<base href="\/">/);
 });
+
+test('the contact page links to ORCID and to the HAL publications of the author', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, 'contact');
+    assert.ok(html.includes('href="https://orcid.org/0009-0008-9314-8237"'), `${lang} ORCID`);
+    assert.ok(html.includes('href="https://hal.science/search/index/?q=authIdHal_s:charles-lepaire"'), `${lang} HAL`);
+  }
+});
