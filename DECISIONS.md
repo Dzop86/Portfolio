@@ -146,3 +146,8 @@
 **Choix :** la fiche du projet naval montre une capture de partie (en français ou en anglais selon la page), produite sans écran par les tests de l'application (JavaFX avec Monocle), et la commande pour lancer le jeu.
 **Pourquoi :** une application JavaFX ne tourne pas dans un navigateur ; une capture faite par le code testé, à partir d'une partie reproductible, montre l'interface réelle.
 **Limite :** l'image est commitée (`src/assets/images/naval-*.png`) ; elle se régénère à la main (`mvn test -Dnaval.screenshots=...`) quand l'interface change.
+
+## D30. L'aventure textuelle dans la page : Java compilé par TeaVM
+**Choix :** le moteur Java de `projects/aventure` est compilé en module JavaScript par TeaVM (`mvn -Pweb package`, 150 Ko) et commité dans `src/assets/wasm/aventure.js` ; la CI vérifie qu'il correspond aux sources. La fiche l'affiche dans un petit terminal : journal lu par les lecteurs d'écran (`role="log"`), ligne de commande avec historique aux flèches, raccourcis pour les commandes courantes.
+**Pourquoi :** le visiteur joue avec le vrai moteur Java testé, sans machine virtuelle Java dans le navigateur.
+**Limite :** le moteur doit rester dans ce que TeaVM sait compiler (pas de `String.format`, de `ResourceBundle` ni d'expressions régulières) ; une nouvelle partie à chaque visite, avec une graine au hasard.

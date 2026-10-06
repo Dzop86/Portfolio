@@ -427,6 +427,7 @@ ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
+${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -819,6 +820,26 @@ function navalScreenshot(t, lang) {
   </figure>
   <pre class="naval-run"><code>cd projects/naval
 mvn javafx:run</code></pre>
+</section>`;
+}
+
+// "The lab at night" (D30): the Java engine compiled to JavaScript by TeaVM, behind a small terminal.
+function adventureTerminal(t, lang) {
+  const quick = (lang === 'fr' ? ['regarder', 'sac', 'parler', 'aide'] : ['look', 'bag', 'talk', 'help'])
+    .map((c) => `<button type="button" class="btn btn-ghost" data-command="${c}">${c}</button>`).join('');
+  return `<section class="block panel adventure" aria-labelledby="h-adv" data-adventure data-error="${esc(t('aventure.error'))}">
+  <h2 id="h-adv">${esc(t('aventure.title'))}</h2>
+  <p>${esc(t('aventure.lead'))}</p>
+  <div class="adv-log" data-log role="log" aria-live="polite" aria-label="${esc(t('aventure.log'))}" tabindex="0"></div>
+  <form class="adv-form">
+    <label for="adv-input" class="visually-hidden">${esc(t('aventure.input'))}</label>
+    <span class="adv-prompt" aria-hidden="true">&gt;</span>
+    <input id="adv-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" disabled placeholder="${esc(t('aventure.placeholder'))}">
+    <button type="submit" class="btn btn-primary">${esc(t('aventure.send'))}</button>
+  </form>
+  <div class="actions" role="group" aria-label="${esc(t('aventure.quick'))}">${quick}<button type="button" class="btn btn-ghost" data-restart>${esc(t('aventure.restart'))}</button></div>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/aventureplay.js"></script>
 </section>`;
 }
 

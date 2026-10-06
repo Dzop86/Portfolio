@@ -6,6 +6,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 ## Points à relire en priorité
 - [ ] `Game.java` : commandes, sorties, combat.
 - [ ] `Texts.java` : l'histoire et le ton me conviennent-ils, en français et en anglais ?
+- [ ] `src/web/java/.../WebGame.java` et `../../src/assets/aventureplay.js` : la version navigateur.
 
 ## Constats
 

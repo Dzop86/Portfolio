@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -376,6 +376,48 @@ test('Othello: play a move, the AI answers, keyboard, undo, and playing white', 
   await root.getByRole('button', { name: 'New game' }).click();
   await expect(status).toHaveText(/^The AI played (d3|c4|f5|e6)\. Your turn\.$/);
   await expect(root.locator('[data-score]')).toHaveText('Black 4, white 1');
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('the text adventure plays in the page: commands, quick buttons, history, a won game', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-aventure.html');
+  const root = page.locator('[data-adventure]');
+  const log = root.locator('[data-log]');
+  const input = root.getByLabel('Your command');
+  await expect(log).toContainText('The lab at night');
+  await expect(input).toBeEnabled();
+
+  await root.getByRole('button', { name: 'talk' }).click();
+  await expect(log).toContainText('> talk');
+  await expect(log).toContainText('umbrella');
+
+  for (const c of ['n', 'e', 'take badge', 'w', 'n', 'take umbrella', 's', 'up']) {
+    await input.fill(c);
+    await input.press('Enter');
+  }
+  await expect(log).toContainText('You swipe your badge');
+  for (let i = 0; i < 10 && !(await log.textContent()).includes('shuts down'); i++) {
+    await input.fill('attack');
+    await input.press('Enter');
+  }
+  for (const c of ['take key', 'down', 's', 's']) {
+    await input.fill(c);
+    await input.press('Enter');
+  }
+  await expect(log).toContainText('You win!');
+
+  // Arrow up brings back the last command.
+  await input.press('ArrowUp');
+  await expect(input).toHaveValue('s');
+  await root.getByRole('button', { name: 'New game' }).click();
+  await expect(log).not.toContainText('You win!');
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

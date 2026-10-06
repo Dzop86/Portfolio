@@ -56,4 +56,62 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- mvn -Pweb package: the engine compiled to JavaScript by TeaVM, for the project page (D30). -->
+    <profile>
+      <id>web</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.teavm</groupId>
+          <artifactId>teavm-jso</artifactId>
+          <version>0.16.0</version>
+        </dependency>
+        <!-- TeaVM's own Java class library (java.lang, java.util...), used at compile time only. -->
+        <dependency>
+          <groupId>org.teavm</groupId>
+          <artifactId>teavm-classlib</artifactId>
+          <version>0.16.0</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+              <execution>
+                <id>web-sources</id>
+                <phase>generate-sources</phase>
+                <goals><goal>add-source</goal></goals>
+                <configuration>
+                  <sources><source>src/web/java</source></sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-maven-plugin</artifactId>
+            <version>0.16.0</version>
+            <executions>
+              <execution>
+                <goals><goal>compile</goal></goals>
+                <configuration>
+                  <mainClass>portfolio.aventure.web.WebGame</mainClass>
+                  <targetDirectory>${project.build.directory}/web</targetDirectory>
+                  <targetFileName>aventure.js</targetFileName>
+                  <jsModuleType>ES2015</jsModuleType>
+                  <optimizationLevel>ADVANCED</optimizationLevel>
+                  <minifying>true</minifying>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

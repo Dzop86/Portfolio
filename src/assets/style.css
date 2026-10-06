@@ -292,6 +292,19 @@ a:hover { text-decoration-thickness: 2px; }
 .naval-shot img { display: block; width: 100%; max-width: 716px; height: auto; border: 1px solid var(--border-strong); border-radius: var(--radius); }
 .naval-run { overflow-x: auto; background: var(--surface-2); padding: var(--space-3); border-radius: var(--radius); }
 
+/* Text adventure (D30): a terminal-like log and a command line. */
+.adv-log { height: 22rem; overflow-y: auto; padding: var(--space-3); background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius);
+  font: 0.9rem/1.5 var(--font-mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.adv-log:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.adv-log p { margin: 0 0 var(--space-2); max-width: none; }
+.adv-command { color: var(--accent); font-weight: 600; }
+.adv-error { color: var(--risk-high-text); }
+.adv-form { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3); }
+.adv-prompt { font: 600 1rem var(--font-mono); color: var(--accent); }
+.adv-form input { flex: 1; min-width: 0; min-height: 44px; padding: 0 var(--space-3); font: 0.95rem var(--font-mono); color: var(--text-strong);
+  background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+.adv-form input:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

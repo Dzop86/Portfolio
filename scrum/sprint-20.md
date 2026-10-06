@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je joue à l'aventure (aventure) dans le terminal : lieux et sorties (certaines verrouillées), objets à prendre, poser et utiliser, un gardien qui donne des indices, un combat, victoire et défaite ; commandes en français et en anglais ; tests JUnit 5 (dont une partie complète scriptée dans chaque langue), CI sur trois systèmes. | 3 | À faire |
-| En tant que visiteur, je joue à l'aventure (aventure) sur la fiche du projet : le moteur Java compilé en JavaScript par TeaVM, un terminal dans la page ; tests Node et Playwright. | 2 | À faire |
+| En tant que joueur, je joue à l'aventure (aventure) dans le terminal : lieux et sorties (certaines verrouillées), objets à prendre, poser et utiliser, un gardien qui donne des indices, un combat, victoire et défaite ; commandes en français et en anglais ; tests JUnit 5 (dont une partie complète scriptée dans chaque langue), CI sur trois systèmes. | 3 | Fait |
+| En tant que visiteur, je joue à l'aventure (aventure) sur la fiche du projet : le moteur Java compilé en JavaScript par TeaVM, un terminal dans la page ; tests Node et Playwright. | 2 | Fait |
+
+**Tests :** 10 tests JUnit (dont 200 combats et deux parties complètes), 4 tests Node sur le JavaScript compilé par TeaVM, un scénario Playwright dans 5 navigateurs.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :
