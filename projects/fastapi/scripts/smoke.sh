@@ -16,6 +16,9 @@ uid=$(docker exec "$name" id -u)
 
 curl -fsS --data-binary @"$data/cube.stl" http://localhost:8000/v1/mesh/stats | grep -q '"euler_characteristic":2' \
   || { echo "FAIL: /v1/mesh/stats"; exit 1; }
+curl -fsS --data-binary @"$data/torus.obj" http://localhost:8000/v1/mesh/topology | grep -q '"genus":1' \
+  || { echo "FAIL: /v1/mesh/topology"; exit 1; }
+curl -fsS http://localhost:8000/health | grep -q '"libtopo":"loaded"' || { echo "FAIL: libtopo not loaded"; exit 1; }
 code=$(printf 'v 0 0 0\nf 1 2 3\n' | curl -s -o /dev/null -w '%{http_code}' --data-binary @- http://localhost:8000/v1/mesh/stats)
 [ "$code" = 422 ] || { echo "FAIL: broken mesh gave $code"; exit 1; }
 

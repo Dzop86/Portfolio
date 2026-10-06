@@ -15,3 +15,8 @@
 **Choix :** le contexte de build est `projects/` pour compiler lib-c depuis ses sources ; `Dockerfile.dockerignore` n'envoie que lib-c et fastapi. L'étape finale (`python:3.13-slim`) ne reçoit que la roue de l'API et `libmesh.so`, tourne sous un utilisateur dédié, et `compose.yaml` monte son système de fichiers en lecture seule.
 **Pourquoi :** image sans compilateur (213 Mo) ; un défaut dans le lecteur C exposé sur le réseau ne donne ni droits root ni écriture disque.
 **Limite :** les versions de FastAPI et uvicorn ne sont fixées que par des intervalles ; un fichier de verrouillage serait nécessaire pour des images reproductibles.
+
+## F4. Topologie par la même API C que le navigateur, sous verrou
+**Choix :** `/v1/mesh/topology` appelle `libtopoc` (API C de la bibliothèque C++) par ctypes ; un `threading.Lock` sérialise les appels, car l'API garde un état global.
+**Alternatives :** API C à poignées (réentrante), pool de processus.
+**Limite :** les calculs de topologie passent un par un ; suffisant pour une démonstration, à revoir pour une charge réelle.

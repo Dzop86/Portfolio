@@ -3,9 +3,9 @@ name: fastapi
 on:
   push:
     branches: [main]
-    paths: ['projects/fastapi/**', 'projects/lib-c/**', '.github/workflows/fastapi.yml']
+    paths: ['projects/fastapi/**', 'projects/lib-c/**', 'projects/topologie/**', '.github/workflows/fastapi.yml']
   pull_request:
-    paths: ['projects/fastapi/**', 'projects/lib-c/**', '.github/workflows/fastapi.yml']
+    paths: ['projects/fastapi/**', 'projects/lib-c/**', 'projects/topologie/**', '.github/workflows/fastapi.yml']
   workflow_dispatch:
 
 permissions:
@@ -29,11 +29,15 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
-      # lib-c as a shared library, found by tests/conftest.py under projects/lib-c/build*.
+      # Shared libraries, found by tests/conftest.py under projects/<project>/build*.
       - name: Build lib-c (shared)
         run: |
           cmake -S projects/lib-c -B projects/lib-c/build-shared -DBUILD_SHARED_LIBS=ON -DMESH_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
           cmake --build projects/lib-c/build-shared --config Release --parallel
+      - name: Build the topology C API (shared)
+        run: |
+          cmake -S projects/topologie -B projects/topologie/build-shared -DTOPO_C_API=ON -DTOPO_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake --build projects/topologie/build-shared --config Release --target topoc --parallel
       - run: python -m pip install "./projects/fastapi[test]"
       - name: Test
         working-directory: projects/fastapi

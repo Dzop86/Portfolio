@@ -6,6 +6,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 ## Points à relire en priorité
 - [ ] `src/meshapi/libmesh.py` : structures ctypes conformes à `mesh/mesh.h`, libération du maillage sur tous les chemins.
 - [ ] `src/meshapi/app.py` : limite de taille avant lecture complète du corps.
+- [ ] `src/meshapi/libtopo.py` : tout est-il copié avant de relâcher le verrou ?
 
 ## Constats
 

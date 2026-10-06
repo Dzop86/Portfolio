@@ -17,7 +17,7 @@ npm run serve            # http://localhost:4173
 npm test                 # unit and integration tests
 npx playwright install   # once
 npm run test:e2e         # desktop and mobile, 3 browser engines
-docker compose up --build  # http://localhost:8080
+docker compose up --build  # site sur http://localhost:8080, API sur http://localhost:8000
 ```
 Fonctionne sous Linux, macOS et Windows (Node 22 ou plus récent).
 

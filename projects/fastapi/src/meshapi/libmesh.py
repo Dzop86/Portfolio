@@ -41,10 +41,12 @@ _FORMATS = ("OBJ", "PLY", "STL")  # mesh_format
 class MeshError(ValueError):
     """lib-c could not read the mesh. `line` is 0 when the error has no line (binary data)."""
 
-    def __init__(self, status: str, line: int):
-        super().__init__(f"{status} (line {line})" if line else status)
+    def __init__(self, status: str, line: int, detail: str = ""):
+        message = f"{status} (line {line})" if line else status
+        super().__init__(f"{message}: {detail}" if detail else message)
         self.status = status
         self.line = line
+        self.detail = detail
 
 
 @dataclass(frozen=True)
