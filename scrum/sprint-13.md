@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, j'analyse un document LaTeX (latex) en arbre situé : commandes, groupes, environnements, mathématiques, commentaires ; accolades et environnements mal fermés signalés à leur ligne et colonne ; tests node:test, typage strict, CI Linux, Windows et macOS. | 3 | À faire |
-| En tant que lecteur, je vois le document (latex) rendu en HTML : sections numérotées et table des matières, KaTeX, équations numérotées, `\ref` et `\cite`, listes, tableaux, notes ; texte échappé, diagnostics pour l'inconnu ; tests. | 2 | À faire |
+| En tant que développeur, j'analyse un document LaTeX (latex) en arbre situé : commandes, groupes, environnements, mathématiques, commentaires ; accolades et environnements mal fermés signalés à leur ligne et colonne ; tests node:test, typage strict, CI Linux, Windows et macOS. | 3 | Fait |
+| En tant que lecteur, je vois le document (latex) rendu en HTML : sections numérotées et table des matières, KaTeX, équations numérotées, `\ref` et `\cite`, listes, tableaux, notes ; texte échappé, diagnostics pour l'inconnu ; tests. | 2 | Fait |
+
+**Tests :** 24 tests node:test (analyseur et rendu) sur les sources TypeScript, `tsc` strict ; CI sur 3 OS et 2 versions de Node.
 
 **Prévu au sprint 14 (3 points) :** l'éditeur en direct sur la fiche du projet (texte et rendu côte à côte, diagnostics cliquables, plan du document), et l'article qui présente le portfolio, en français et en anglais.
 
