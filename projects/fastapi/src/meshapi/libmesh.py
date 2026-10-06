@@ -128,3 +128,30 @@ def read_stats(data: bytes) -> MeshStats:
         )
     finally:
         lib.mesh_free(ctypes.byref(mesh))
+
+
+def read_arrays(data: bytes):
+    """Reads a mesh and returns (vertices, triangles) as numpy arrays of shapes (V, 3) float64 and (T, 3)
+    uint32, copied out of lib-c before the mesh is freed. Raises MeshError."""
+    import numpy as np  # only this entry point needs numpy
+
+    _check_bytes(data)
+    data = bytes(data)
+    lib = _lib()
+    mesh = _Mesh()
+    lib.mesh_init(ctypes.byref(mesh))
+    line = ctypes.c_size_t(0)
+    try:
+        status = lib.mesh_read_buffer(data, len(data), ctypes.byref(mesh), ctypes.byref(line))
+        if status != 0:
+            raise MeshError(lib.mesh_status_string(status).decode(), line.value)
+        v, t = mesh.vertex_count, mesh.triangle_count
+        vertices = np.empty((v, 3), dtype=np.float64)
+        triangles = np.empty((t, 3), dtype=np.uint32)
+        if v:
+            ctypes.memmove(vertices.ctypes.data, mesh.vertices, vertices.nbytes)
+        if t:
+            ctypes.memmove(triangles.ctypes.data, mesh.triangles, triangles.nbytes)
+        return vertices, triangles
+    finally:
+        lib.mesh_free(ctypes.byref(mesh))

@@ -20,3 +20,8 @@
 **Choix :** `/v1/mesh/topology` appelle `libtopoc` (API C de la bibliothèque C++) par ctypes ; un `threading.Lock` sérialise les appels, car l'API garde un état global.
 **Alternatives :** API C à poignées (réentrante), pool de processus.
 **Limite :** les calculs de topologie passent un par un ; suffisant pour une démonstration, à revoir pour une charge réelle.
+
+## F5. Classification par le code d'inférence du projet ML, sans PyTorch
+**Choix :** l'API installe le paquet local `shapeml` avec son option `serve` (numpy, onnxruntime) et appelle `shapeml.infer` ; le modèle ONNX est copié dans l'image (`MODEL_PATH`). lib-c lit le maillage et rend ses sommets et triangles en tableaux numpy (`read_arrays`).
+**Pourquoi :** le prétraitement (échantillonnage, centrage, échelle) est le même code qu'à l'entraînement, il ne peut pas diverger ; sans PyTorch, l'image reste à environ 410 Mo.
+**Limite :** `shapeml` n'est pas déclaré dans les dépendances de `meshapi` (pip le chercherait sur PyPI, où un autre paquet pourrait porter ce nom) : il s'installe à part, depuis `projects/ml`. Sans lui, l'endpoint répond 503.

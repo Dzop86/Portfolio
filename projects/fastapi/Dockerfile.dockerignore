@@ -4,3 +4,9 @@
 **/*.egg-info
 topologie/samples
 topologie/tests
+# The ML project only contributes its inference code and the exported model.
+ml/data
+ml/models
+ml/mlflow.db
+ml/mlruns
+ml/tests

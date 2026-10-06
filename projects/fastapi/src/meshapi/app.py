@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import math
+import os
+from functools import cache
 
 from fastapi import FastAPI, HTTPException, Request
 from starlette.concurrency import run_in_threadpool
@@ -53,12 +55,45 @@ class Health(BaseModel):
     status: str
     libmesh: str
     libtopo: str
+    model: str = Field(description="the ONNX shape classifier: loaded or missing")
+
+
+class ModelInfo(BaseModel):
+    name: str
+    test_accuracy: float = Field(description="accuracy on the 600 test clouds, measured with ONNX Runtime")
+    sha256: str
+
+
+class Classification(BaseModel):
+    label: str = Field(description="sphere, torus, box, cylinder, cone or capsule")
+    probabilities: dict[str, float]
+    model: ModelInfo
+
+
+@cache
+def _classifier():
+    """The exported PointNet (projects/ml), from MODEL_PATH. Needs the shapeml package with onnxruntime."""
+    path = os.environ.get("MODEL_PATH")
+    if not path:
+        raise RuntimeError("MODEL_PATH must point to the exported model (projects/ml/export/pointnet.onnx)")
+    from shapeml.infer import OnnxClassifier
+
+    return OnnxClassifier(path)
+
+
+def _model_loaded() -> bool:
+    try:
+        _classifier()
+        return True
+    except (ImportError, OSError, RuntimeError, ValueError):
+        return False
 
 
 @app.get("/health", response_model=Health)
 def health() -> Health:
     state = lambda ok: "loaded" if ok else "missing"  # noqa: E731
-    return Health(status="ok", libmesh=state(libmesh.loaded()), libtopo=state(libtopo.loaded()))
+    return Health(status="ok", libmesh=state(libmesh.loaded()), libtopo=state(libtopo.loaded()),
+                  model=state(_model_loaded()))
 
 
 async def _read_body(request: Request) -> bytes:
@@ -106,4 +141,25 @@ async def mesh_topology(request: Request) -> Topology:
     return Topology(
         **{k: getattr(t, k) for k in libtopo.Topology.__dataclass_fields__},
         total_curvature_turns=round(t.total_curvature / (2 * math.pi), 6) + 0.0,
+    )
+
+
+@app.post("/v1/mesh/classify", response_model=Classification,
+          responses=ERRORS | {503: {"description": "The classifier is not installed"}})
+async def mesh_classify(request: Request) -> Classification:
+    """Shape of the mesh among six classes, by the PointNet of the ML project exported to ONNX: 512 points
+    sampled on the surface (fixed seed, so the same mesh always gets the same answer), then ONNX Runtime."""
+    data = await _read_body(request)
+    if not _model_loaded():
+        raise HTTPException(503, "the shape classifier is not installed")
+    vertices, triangles = await _call(libmesh.read_arrays, data)
+    classifier = _classifier()
+    try:
+        p = await run_in_threadpool(classifier.classify, vertices, triangles)
+    except ValueError as e:  # no triangle, or no surface area
+        raise HTTPException(422, {"status": "cannot classify", "message": str(e)}) from e
+    meta = classifier.meta
+    return Classification(
+        label=p.label, probabilities={k: round(v, 6) for k, v in p.probabilities.items()},
+        model=ModelInfo(name=meta["model"], test_accuracy=meta["test_accuracy"], sha256=meta["onnx_sha256"]),
     )

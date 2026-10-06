@@ -8,7 +8,9 @@ version = "0.1.0"
 description = "HTTP API over lib-c, the C mesh library of Charles Lepaire's portfolio"
 requires-python = ">=3.12"
 license = "MIT"
-dependencies = ["fastapi>=0.142,<1", "uvicorn>=0.54,<1"]
+# The classifier also needs the local shapeml package with onnxruntime: pip install "../ml[serve]".
+# It is not listed here, so pip never looks for a "shapeml" on PyPI.
+dependencies = ["fastapi>=0.142,<1", "uvicorn>=0.54,<1", "numpy>=2.2"]
 
 [project.optional-dependencies]
 test = ["pytest>=9", "httpx2>=2.13"]

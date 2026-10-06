@@ -9,7 +9,7 @@ client = TestClient(app)
 def test_health_reports_the_library():
     r = client.get("/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "libmesh": "loaded", "libtopo": "loaded"}
+    assert r.json() == {"status": "ok", "libmesh": "loaded", "libtopo": "loaded", "model": "loaded"}
 
 
 def test_stats_of_an_uploaded_cube(sample):

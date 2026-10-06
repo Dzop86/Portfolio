@@ -26,6 +26,8 @@ def _find_library(project: str, names: tuple[str, ...]) -> str:
 for variable, (project, names) in LIBRARIES.items():
     if variable not in os.environ:
         os.environ[variable] = _find_library(project, names)
+# The shape classifier exported by the ML project, committed in git.
+os.environ.setdefault("MODEL_PATH", str(ROOT / "ml" / "export" / "pointnet.onnx"))
 
 
 @pytest.fixture
