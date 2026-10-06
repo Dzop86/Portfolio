@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure', 'project-bataille'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure', 'project-bataille', 'project-morpion'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -381,6 +381,66 @@ test('Othello: play a move, the AI answers, keyboard, undo, and playing white', 
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('tic-tac-toe: play against the AI from the move book, keyboard, a whole game, and playing O', async ({ page }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-morpion.html');
+  const root = page.locator('[data-morpion]');
+  const status = root.locator('[data-status]');
+  const cell = (i) => root.locator(`[data-cell="${i}"]`);
+  await root.scrollIntoViewIfNeeded();
+  await expect(status).toHaveText('Your turn.');
+  await expect(root.locator('.ttt-cell.is-legal')).toHaveCount(9);
+  await expect(cell(4)).toHaveAttribute('aria-label', 'row 2, column 2, empty');
+
+  // Touch targets of at least 44 px, also at 375 px without horizontal scroll.
+  expect(await cell(0).evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+  if (info.project.name === 'desktop-chromium') {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: 375, height: 800 });
+    expect(await cell(0).evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+    await page.setViewportSize(size);
+  }
+
+  // A corner: the only answer that does not lose is the centre, so the book makes the AI take it.
+  await cell(0).click();
+  await expect(cell(0)).toHaveAttribute('data-mark', 'X');
+  await expect(status).toHaveText('The AI played row 2, column 2. Your turn.');
+  await expect(cell(4)).toHaveAttribute('data-mark', 'O');
+  await expect(cell(4)).toHaveAttribute('aria-label', 'row 2, column 2, O, last move');
+  await cell(4).click(); // taken: nothing happens
+  await expect(root.locator('[data-mark="X"]')).toHaveCount(1);
+
+  // Keyboard: one tab stop, the arrows move it, Enter plays.
+  await cell(0).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(cell(1)).toBeFocused();
+  await expect(cell(1)).toHaveAttribute('tabindex', '0');
+
+  // Play the first free square until the end: the unbeatable AI wins or draws, never loses.
+  for (let turn = 0; turn < 5; turn++) {
+    const text = await status.textContent();
+    if (text.includes('Game over')) break;
+    const free = root.locator('.ttt-cell.is-legal').first();
+    await free.focus();
+    await page.keyboard.press('Enter');
+    await expect(status).toHaveText(/(Your turn|Game over)/);
+  }
+  await expect(status).toHaveText(/Game over: (the AI wins|a draw)\.$/);
+  await expect(root.locator('.ttt-cell.is-legal')).toHaveCount(0);
+
+  // Playing O: the AI opens.
+  await root.getByRole('radio', { name: 'O', exact: true }).check();
+  await root.getByRole('button', { name: 'New game' }).click();
+  await expect(status).toHaveText(/^The AI played row [1-3], column [1-3]\. Your turn\.$/);
+  await expect(root.locator('[data-mark="X"]')).toHaveCount(1);
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   expect(errors).toEqual([]);
 });
 

@@ -14,4 +14,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 |---|---|---|---|
 | 2026-10-07 | `tests/*.py` | (Claude) Détecté par mypy strict : 31 fonctions de test sans annotations de type | `-> None`, fixtures pytest et `**kwargs` annotés |
 | 2026-10-07 | `.gitignore` | (Claude) L'environnement virtuel `.venv/` n'était pas ignoré | Ajouté |
+| 2026-10-07 | `../../src/assets/morpionplay.js` | (Claude) Détecté par Playwright : les flèches partaient de la dernière case cliquée, pas de celle qui avait le focus | Le focus suit la case active (`focusin`) |
 | | | | |

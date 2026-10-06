@@ -26,6 +26,8 @@ COPY projects/ml/metrics.json projects/ml/confusion.json projects/ml/params.yaml
 COPY projects/ml/export/pointnet.json ./projects/ml/export/
 # War statistics computed by the Ada program.
 COPY projects/bataille/data/stats.json ./projects/bataille/data/
+# Tic-tac-toe move book computed by the Python program.
+COPY projects/morpion/data/book.json ./projects/morpion/data/
 RUN npm run build
 
 # Stage 2: serve it with nginx.

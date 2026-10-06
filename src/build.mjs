@@ -16,6 +16,8 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   }
   // The topology viewer shows the synthetic meshes of projects/topologie, in their own folder.
   cpSync(join(ROOT, 'projects/topologie/samples'), join(outDir, 'assets/samples/topologie'), { recursive: true });
+  // Tic-tac-toe (D34): the move book computed by the Python program of projects/morpion.
+  cpSync(join(ROOT, 'projects/morpion/data/book.json'), join(outDir, 'assets/samples/morpion/book.json'));
   // SQL playground (D20): schema and campaign of projects/sql, SQLite compiled by sql.js, and the worker
   // that owns the database, bundled with sql.js into one module.
   mkdirSync(join(outDir, 'assets/samples/sql'), { recursive: true });

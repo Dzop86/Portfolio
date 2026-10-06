@@ -429,6 +429,7 @@ ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
+${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -807,6 +808,39 @@ function othelloBoard(t) {
   <p class="meta" id="oth-help">${esc(t('othello.help'))}</p>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/othelloplay.js"></script>
+</section>`;
+}
+
+const MORPION_LABELS = ['square', 'empty', 'last', 'your-turn', 'ai-thinking', 'ai-played', 'you-played', 'over-win', 'over-lose',
+  'over-draw', 'loading', 'error.load'];
+
+// Tic-tac-toe against the AI (D34): moves read from the book computed in Python, a board of 9 buttons with a
+// roving tab stop.
+function tictactoeBoard(t) {
+  const labels = Object.fromEntries(MORPION_LABELS.map((k) => [k, t(`morpion.label.${k}`)]));
+  const cells = Array.from({ length: 9 }, (_, i) =>
+    `<button type="button" class="ttt-cell" data-cell="${i}" tabindex="${i === 4 ? 0 : -1}"></button>`).join('');
+  return `<section class="block panel demo morpion" aria-labelledby="h-ttt" data-morpion data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-ttt">${esc(t('morpion.title'))}</h2>
+  <p>${esc(t('morpion.lead'))}</p>
+  <div class="oth-controls">
+    <fieldset class="oth-colour"><legend>${esc(t('morpion.mark'))}</legend>
+      <label><input type="radio" name="ttt-mark" value="X" checked> ${esc(t('morpion.mark.x'))}</label>
+      <label><input type="radio" name="ttt-mark" value="O"> ${esc(t('morpion.mark.o'))}</label>
+    </fieldset>
+    <label class="oth-level">${esc(t('morpion.level'))} <select data-level>
+      <option value="unbeatable" selected>${esc(t('morpion.level.unbeatable'))}</option>
+      <option value="beginner">${esc(t('morpion.level.beginner'))}</option>
+    </select></label>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" data-new>${esc(t('morpion.new'))}</button>
+    </div>
+  </div>
+  <p class="oth-status" data-status aria-live="polite">${esc(t('morpion.label.loading'))}</p>
+  <div class="ttt-board" role="group" aria-label="${esc(t('morpion.board'))}" aria-describedby="ttt-help" data-board>${cells}</div>
+  <p class="meta" id="ttt-help">${esc(t('morpion.help'))}</p>
+  <noscript><p class="notice">${esc(t('morpion.noscript'))}</p></noscript>
+  <script type="module" src="../assets/morpionplay.js"></script>
 </section>`;
 }
 

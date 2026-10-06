@@ -5,7 +5,9 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je joue au morpion (morpion) dans le terminal contre l'IA, avec les croix ou les ronds, au niveau débutant ou imbattable ; règles et minimax en Python typé ; tests pytest (nombre de positions et de parties connus, IA jamais battue sur toutes les parties possibles), CI Linux, Windows et macOS. | 2 | Fait |
-| En tant que visiteur, je joue au morpion (morpion) sur la fiche du projet : les coups de l'IA viennent d'un livre de coups calculé par le programme Python, commité et vérifié par la CI ; tests Node et Playwright. | 1 | À faire |
+| En tant que visiteur, je joue au morpion (morpion) sur la fiche du projet : les coups de l'IA viennent d'un livre de coups calculé par le programme Python, commité et vérifié par la CI ; tests Node et Playwright. | 1 | Fait |
+
+**Tests :** 36 tests pytest (dont toutes les parties possibles contre l'IA, en X et en O), mypy strict ; 5 tests Node sur les règles JavaScript et le livre de coups ; un scénario Playwright (partie complète au clavier, axe). **Trouvé par Playwright :** les flèches partaient de la dernière case cliquée, pas de celle qui avait le focus.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

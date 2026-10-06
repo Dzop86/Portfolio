@@ -165,3 +165,8 @@
 **Choix :** la fiche du projet bataille affiche ce que disent 100 000 parties jouées par le programme Ada (parties sans fin, durée, batailles, avantage du premier joueur), lues dans `projects/bataille/data/stats.json` ; la CI recalcule ce fichier et échoue s'il change.
 **Pourquoi :** compiler Ada pour le navigateur demanderait une chaîne de compilation de plus pour un jeu qui se regarde plus qu'il ne se joue ; les statistiques montrent un résultat réel (42 % de parties sans fin avec un ramassage dans un ordre fixe).
 **Limite :** les blocs de commandes, qui peuvent défiler sur mobile, sont focalisables pour rester utilisables au clavier (constaté par axe).
+
+## D34. Le morpion dans la page : un livre de coups calculé en Python
+**Choix :** la fiche du projet morpion se joue contre l'IA dans la page. Les règles, une vingtaine de lignes, sont réécrites en JavaScript (`src/assets/morpion-api.js`) ; les coups de l'IA viennent de `projects/morpion/data/book.json`, la valeur et les meilleurs coups des 5 478 positions, calculés par le programme Python et copiés dans le site au build. pytest vérifie que le fichier commité correspond au programme ; les tests Node, que les règles JavaScript voient les mêmes positions et que l'IA jouée depuis le livre ne perd aucune partie possible.
+**Pourquoi :** une seule IA, celle qui est testée en Python, sans faire tourner Python dans le navigateur (Pyodide pèse plusieurs mégaoctets) ; le livre pèse 124 Ko.
+**Limite :** les règles existent en deux langages ; les tests Node les comparent position par position.

@@ -287,6 +287,18 @@ a:hover { text-decoration-thickness: 2px; }
   .oth-inner { grid-template-columns: 1fr; }
 }
 
+/* Tic-tac-toe (D34): reuses the Othello controls; a 3 x 3 grid of buttons, X in the text colour and O in the
+   link colour (pistachio on dark, bamboo on light), the winning line underlined by the link colour. */
+.ttt-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: min(300px, 100%); aspect-ratio: 1; margin-top: var(--space-3); }
+.ttt-cell { min-width: 44px; min-height: 44px; padding: 0; font: 700 clamp(2rem, 9vw, 3rem)/1 var(--font-display); color: var(--text-strong);
+  background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); cursor: default; }
+.ttt-cell.is-legal { cursor: pointer; }
+.ttt-cell.is-legal:hover { border-color: var(--link); }
+.ttt-cell[data-mark="O"] { color: var(--link); }
+.ttt-cell.is-last { box-shadow: inset 0 0 0 2px var(--border-strong); }
+.ttt-cell.is-win { box-shadow: inset 0 0 0 3px var(--link); }
+.ttt-cell:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+
 /* Battleship screenshot (D29): scales down with the page. */
 .naval-shot { margin: var(--space-4) 0; }
 .naval-shot img { display: block; width: 100%; max-width: 716px; height: auto; border: 1px solid var(--border-strong); border-radius: var(--radius); }
