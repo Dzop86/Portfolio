@@ -206,6 +206,38 @@ a:hover { text-decoration-thickness: 2px; }
 .tex-notes { border-top: 1px solid var(--border-strong); margin-top: var(--space-5); padding-top: var(--space-3); font-size: 0.9rem; }
 .tex-bib ol { padding-left: var(--space-5); }
 
+/* Generalized maps course (D24): the cube net and the quiz. */
+.gm-lesson h3 { margin-top: var(--space-5); }
+.gm-lesson code, .gm-course legend code { font-family: var(--font-mono); }
+.gm-figure { margin: var(--space-5) 0; }
+.gm-net { display: block; width: 100%; max-width: 720px; height: auto; margin: 0 auto; }
+.gm-square rect { fill: var(--surface-2); stroke: var(--border-strong); stroke-width: 1; }
+.gm-face { fill: var(--muted); font: 600 11px var(--font-body); pointer-events: none; }
+.gm-letter { fill: var(--text-strong); font: 600 10px var(--font-mono); pointer-events: none; }
+.gm-dart { cursor: pointer; }
+.gm-dart line { stroke: var(--text); stroke-width: 2.2; stroke-linecap: round; }
+.gm-dart circle { fill: var(--text); }
+.gm-dart .gm-hit { stroke: transparent; stroke-width: 12; }
+.gm-dart.in-orbit line:not(.gm-hit), .gm-dart.in-orbit circle { stroke: var(--accent); fill: var(--accent); }
+.gm-dart.is-current line:not(.gm-hit) { stroke-width: 4; }
+.gm-dart.is-current circle { r: 4; }
+.gm-link { stroke-width: 1.6; stroke-dasharray: 4 3; }
+.gm-l0, .gm-a0 { --gm: var(--curv-neg); }
+.gm-l1, .gm-a1 { --gm: var(--chocolat-clair); }
+.gm-l2, .gm-a2 { --gm: var(--accent); }
+.gm-link { stroke: var(--gm); }
+.gm-alpha { border-left: 4px solid var(--gm); }
+.gm-status { min-height: 1.5em; font-weight: 600; color: var(--text-strong); }
+.gm-quiz { margin-top: var(--space-6); }
+.gm-question { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-3); }
+.gm-question legend { font-weight: 600; color: var(--text-strong); padding: 0 var(--space-1); }
+.gm-option { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; cursor: pointer; }
+.gm-option input { width: 20px; height: 20px; accent-color: var(--accent); }
+.gm-feedback { font-weight: 600; margin: var(--space-2) 0 0; }
+.gm-feedback[data-state="ok"] { color: var(--risk-low-text); }
+.gm-feedback[data-state="ko"] { color: var(--risk-high-text); }
+.gm-score { font-weight: 600; color: var(--text-strong); }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

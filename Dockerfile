@@ -15,6 +15,11 @@ COPY projects/sql/data/measurements.csv ./projects/sql/data/
 COPY projects/sql/bench/csv.mjs ./projects/sql/bench/
 # Maille playground: the examples shown on the project page.
 COPY projects/langage/examples ./projects/langage/examples
+# LaTeX editor and generalized maps course: their sources are bundled by the build.
+COPY projects/latex/src ./projects/latex/src
+COPY projects/latex/article ./projects/latex/article
+COPY projects/gcartes/src ./projects/gcartes/src
+COPY projects/gcartes/course.json ./projects/gcartes/
 RUN npm run build
 
 # Stage 2: serve it with nginx.

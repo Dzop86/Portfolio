@@ -1,0 +1,263 @@
+{
+  "_comment": "Text of the course shown on the project page. Backquotes mark code-like spans. Written from the published definitions, no laboratory material.",
+  "lessons": [
+    {
+      "id": "darts",
+      "title": {
+        "fr": "1. Des brins plutôt que des sommets",
+        "en": "1. Darts rather than vertices"
+      },
+      "body": {
+        "fr": [
+          "Un maillage classique stocke des sommets, des arêtes et des faces. Une carte généralisée (G-carte) stocke autre chose : des brins. On découpe chaque face en ses côtés, puis chaque côté en deux moitiés, une à chaque extrémité : chaque moitié est un brin.",
+          "Un carré a 4 côtés, donc 8 brins. Le cube a 6 faces carrées : sa G-carte compte 6 × 8 = 48 brins. Ce sont les petits segments de la figure ci-dessous ; le point marque l'extrémité, c'est-à-dire le sommet, auquel appartient le brin."
+        ],
+        "en": [
+          "A classic mesh stores vertices, edges and faces. A generalized map (G-map) stores something else: darts. Each face is cut into its sides, then each side into two halves, one at each end: each half is a dart.",
+          "A square has 4 sides, so 8 darts. The cube has 6 square faces: its G-map has 6 × 8 = 48 darts. They are the short segments in the figure below; the dot marks the end, that is the vertex, the dart belongs to."
+        ]
+      }
+    },
+    {
+      "id": "involutions",
+      "title": {
+        "fr": "2. Trois liaisons, α0, α1 et α2",
+        "en": "2. Three links, α0, α1 and α2"
+      },
+      "body": {
+        "fr": [
+          "Les brins sont reliés deux à deux, et chaque liaison change une seule chose. `α0` relie les deux brins d'un même côté : même face, même arête, autre sommet. `α1` relie, en un sommet, les brins de deux côtés consécutifs : même face, même sommet, autre arête. `α2` relie les brins de deux faces voisines : même arête, même sommet, autre face.",
+          "Chaque `αi` est une involution : l'appliquer deux fois ramène au brin de départ, `αi(αi(d)) = d`. Un brin sans partenaire pour `α2` est relié à lui-même : il est « 2-libre », et il marque un bord de la surface. Le cube est fermé : aucun de ses brins n'est libre."
+        ],
+        "en": [
+          "Darts are linked in pairs, and each link changes exactly one thing. `α0` links the two darts of a side: same face, same edge, other vertex. `α1` links, at a vertex, the darts of two consecutive sides: same face, same vertex, other edge. `α2` links the darts of two neighbouring faces: same edge, same vertex, other face.",
+          "Each `αi` is an involution: applying it twice gives the starting dart back, `αi(αi(d)) = d`. A dart without an `α2` partner is linked to itself: it is \"2-free\", and it marks a boundary of the surface. The cube is closed: none of its darts is free."
+        ]
+      }
+    },
+    {
+      "id": "constraint",
+      "title": {
+        "fr": "3. Une contrainte de cohérence",
+        "en": "3. A consistency constraint"
+      },
+      "body": {
+        "fr": [
+          "Les liaisons ne se posent pas au hasard. Quand deux faces sont cousues par `α2` le long d'une arête, les deux extrémités de l'arête doivent l'être aussi, dans le même sens : `α0 α2` est encore une involution, autrement dit le cycle `α0 α2 α0 α2` revient toujours au brin de départ.",
+          "La bibliothèque du projet vérifie ces contraintes pour chaque brin ; une carte qui les viole n'est pas une G-carte."
+        ],
+        "en": [
+          "Links are not placed at random. When two faces are sewn by `α2` along an edge, both ends of the edge must be sewn too, the same way round: `α0 α2` is an involution as well, in other words the cycle `α0 α2 α0 α2` always comes back to the starting dart.",
+          "The project's library checks these constraints on every dart; a map that breaks them is not a G-map."
+        ]
+      }
+    },
+    {
+      "id": "orbits",
+      "title": {
+        "fr": "4. Les cellules sont des orbites",
+        "en": "4. Cells are orbits"
+      },
+      "body": {
+        "fr": [
+          "Sommets, arêtes et faces ne sont pas stockés : on les retrouve en suivant certaines liaisons. L'orbite `⟨α1, α2⟩` d'un brin, tous les brins atteints en n'utilisant que `α1` et `α2`, est un sommet. L'orbite `⟨α0, α2⟩` est une arête, l'orbite `⟨α0, α1⟩` une face, et `⟨α0, α1, α2⟩` toute la composante connexe.",
+          "Dans le cube, un sommet regroupe 6 brins (3 faces s'y rejoignent, 2 brins chacune), une arête 4, une face 8. Choisissez un brin dans la figure et affichez ses orbites."
+        ],
+        "en": [
+          "Vertices, edges and faces are not stored: they are found by following some of the links. The `⟨α1, α2⟩` orbit of a dart, every dart reached using only `α1` and `α2`, is a vertex. The `⟨α0, α2⟩` orbit is an edge, the `⟨α0, α1⟩` orbit a face, and `⟨α0, α1, α2⟩` the whole connected component.",
+          "In the cube, a vertex gathers 6 darts (3 faces meet there, 2 darts each), an edge 4, a face 8. Pick a dart in the figure and show its orbits."
+        ]
+      }
+    },
+    {
+      "id": "counting",
+      "title": {
+        "fr": "5. Compter pour comprendre la forme",
+        "en": "5. Counting to understand the shape"
+      },
+      "body": {
+        "fr": [
+          "Compter les orbites donne la caractéristique d'Euler : `χ = S − A + F`. Pour le cube, `8 − 12 + 6 = 2`, comme pour toute surface sans trou ; un tore donne 0. Avec le nombre de composantes et de bords, on en déduit le genre, le nombre de « trous ».",
+          "Les G-cartes représentent aussi les surfaces non orientables. Une surface est orientable si l'on peut colorier ses brins en deux couleurs de sorte que chaque liaison relie deux couleurs différentes. Sur le ruban de Möbius, c'est impossible : un tour du ruban ramène à la couleur de départ."
+        ],
+        "en": [
+          "Counting orbits gives the Euler characteristic: `χ = V − E + F`. For the cube, `8 − 12 + 6 = 2`, as for any surface without holes; a torus gives 0. With the number of components and boundaries, it gives the genus, the number of \"holes\".",
+          "G-maps also represent non-orientable surfaces. A surface is orientable when its darts can be coloured in two colours so that every link joins two different colours. On the Moebius strip it cannot be done: going once round the strip comes back to the starting colour."
+        ]
+      }
+    },
+    {
+      "id": "why",
+      "title": {
+        "fr": "6. Pourquoi c'est utile",
+        "en": "6. Why it is useful"
+      },
+      "body": {
+        "fr": [
+          "Chaque brin connaît ses voisins directs : beaucoup de calculs topologiques se font localement, brin par brin, donc en parallèle. Les G-cartes s'étendent sans changer de principe à la dimension 3 (avec `α3`, pour des volumes) et au-delà.",
+          "Dans ma thèse, ce formalisme a servi à analyser la topologie de maillages de l'arbre vasculaire cérébral, à partir d'informations locales calculées en parallèle."
+        ],
+        "en": [
+          "Each dart knows its direct neighbours: many topological computations are local, dart by dart, hence parallel. G-maps extend to dimension 3 (with `α3`, for volumes) and beyond without changing their principle.",
+          "In my thesis, this formalism was used to analyse the topology of meshes of the cerebral vascular tree, from local information computed in parallel."
+        ]
+      }
+    }
+  ],
+  "quiz": [
+    {
+      "question": {
+        "fr": "Combien de brins compte la G-carte du cube ?",
+        "en": "How many darts does the cube's G-map have?"
+      },
+      "options": [
+        {
+          "fr": "8",
+          "en": "8"
+        },
+        {
+          "fr": "24",
+          "en": "24"
+        },
+        {
+          "fr": "48",
+          "en": "48"
+        },
+        {
+          "fr": "12",
+          "en": "12"
+        }
+      ],
+      "answer": 2,
+      "explain": {
+        "fr": "6 faces × 4 côtés × 2 brins par côté = 48.",
+        "en": "6 faces × 4 sides × 2 darts per side = 48."
+      }
+    },
+    {
+      "question": {
+        "fr": "Quelle orbite représente un sommet en dimension 2 ?",
+        "en": "Which orbit is a vertex in dimension 2?"
+      },
+      "options": [
+        {
+          "fr": "⟨α1, α2⟩",
+          "en": "⟨α1, α2⟩"
+        },
+        {
+          "fr": "⟨α0, α1⟩",
+          "en": "⟨α0, α1⟩"
+        },
+        {
+          "fr": "⟨α0, α2⟩",
+          "en": "⟨α0, α2⟩"
+        }
+      ],
+      "answer": 0,
+      "explain": {
+        "fr": "Autour d'un sommet, on change de côté (α1) et de face (α2), jamais d'extrémité (α0).",
+        "en": "Around a vertex you change side (α1) and face (α2), never end (α0)."
+      }
+    },
+    {
+      "question": {
+        "fr": "Un brin d tel que α2(d) = d signifie…",
+        "en": "A dart d with α2(d) = d means…"
+      },
+      "options": [
+        {
+          "fr": "une erreur dans la carte",
+          "en": "a mistake in the map"
+        },
+        {
+          "fr": "un sommet isolé",
+          "en": "an isolated vertex"
+        },
+        {
+          "fr": "un bord de la surface",
+          "en": "a boundary of the surface"
+        }
+      ],
+      "answer": 2,
+      "explain": {
+        "fr": "Aucune face voisine le long de cette arête : le brin est 2-libre, c'est un bord.",
+        "en": "No neighbouring face along that edge: the dart is 2-free, it is a boundary."
+      }
+    },
+    {
+      "question": {
+        "fr": "Quelle composition doit aussi être une involution ?",
+        "en": "Which composition must be an involution too?"
+      },
+      "options": [
+        {
+          "fr": "α0 α1",
+          "en": "α0 α1"
+        },
+        {
+          "fr": "α0 α2",
+          "en": "α0 α2"
+        },
+        {
+          "fr": "α1 α2",
+          "en": "α1 α2"
+        }
+      ],
+      "answer": 1,
+      "explain": {
+        "fr": "Coudre deux faces par α2 coud les deux extrémités de l'arête : α0 α2 α0 α2 revient au départ. α0 α1 fait le tour d'une face, ce n'est pas une involution.",
+        "en": "Sewing two faces by α2 sews both ends of the edge: α0 α2 α0 α2 comes back to the start. α0 α1 goes round a face, it is not an involution."
+      }
+    },
+    {
+      "question": {
+        "fr": "Quelle est la caractéristique d'Euler d'un tore ?",
+        "en": "What is the Euler characteristic of a torus?"
+      },
+      "options": [
+        {
+          "fr": "2",
+          "en": "2"
+        },
+        {
+          "fr": "1",
+          "en": "1"
+        },
+        {
+          "fr": "0",
+          "en": "0"
+        },
+        {
+          "fr": "−2",
+          "en": "−2"
+        }
+      ],
+      "answer": 2,
+      "explain": {
+        "fr": "χ = 2 − 2g, et le tore a un trou (g = 1) : χ = 0.",
+        "en": "χ = 2 − 2g, and the torus has one hole (g = 1): χ = 0."
+      }
+    },
+    {
+      "question": {
+        "fr": "Le ruban de Möbius est-il orientable ?",
+        "en": "Is the Moebius strip orientable?"
+      },
+      "options": [
+        {
+          "fr": "Oui",
+          "en": "Yes"
+        },
+        {
+          "fr": "Non",
+          "en": "No"
+        }
+      ],
+      "answer": 1,
+      "explain": {
+        "fr": "Impossible de colorier ses brins en deux couleurs alternées : un tour du ruban inverse la couleur.",
+        "en": "Its darts cannot be coloured in two alternating colours: going once round the strip flips the colour."
+      }
+    }
+  ]
+}

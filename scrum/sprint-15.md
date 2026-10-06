@@ -5,7 +5,9 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que chercheur, je construis des G-cartes de dimension 2 (gcartes) à partir de faces, je vérifie leurs contraintes, et j'en calcule orbites, cellules, caractéristique d'Euler, bords et orientabilité ; tests node:test sur le cube, le tore et le ruban de Möbius, CI sur trois systèmes. | 3 | Fait |
-| En tant qu'étudiant, je suis le mini-cours (gcartes) : leçons en français et en anglais, cube déplié interactif (brins, α0, α1, α2, orbites, comptage des cellules), quiz corrigé ; tests Playwright, clavier et mobile compris. | 2 | À faire |
+| En tant qu'étudiant, je suis le mini-cours (gcartes) : leçons en français et en anglais, cube déplié interactif (brins, α0, α1, α2, orbites, comptage des cellules), quiz corrigé ; tests Playwright, clavier et mobile compris. | 2 | Fait |
+
+**Tests :** bibliothèque, 10 tests node:test (cube, tores, cylindres, Möbius, patron du cours) dans `npm test` sur 3 OS ; cours, test de site et Playwright dans 5 navigateurs (axe compris).
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

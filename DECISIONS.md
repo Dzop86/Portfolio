@@ -114,3 +114,9 @@
 **Pourquoi :** une zone de texte native fonctionne au clavier, au lecteur d'écran et sur mobile sans dépendance ; le rendu complet d'un article prend quelques millisecondes, inutile de le mettre dans un worker.
 **Alternatives :** CodeMirror ou Monaco (coloration et numéros de ligne, mais plusieurs centaines de Ko de plus et une accessibilité à vérifier), rendu à chaque frappe sans délai.
 **Limite :** pas de coloration syntaxique ni de numéros de ligne dans la source ; un `.tex` sans `\begin{document}` est rendu comme un fragment.
+
+## D24. Mini-cours G-cartes : figure dessinée au build, interactivité en plus
+**Choix :** la fiche du projet gcartes affiche six leçons (`projects/gcartes/course.json`, en français et en anglais), le patron du cube en SVG avec ses 48 brins, généré au build depuis la bibliothèque (`net.js`), puis un quiz. `assets/gcourse.js`, empaqueté avec la bibliothèque, ajoute le choix d'un brin, les déplacements par α0, α1, α2 (boutons utilisables au clavier), le tracé des liaisons du brin courant, les orbites mises en évidence et la correction du quiz.
+**Pourquoi :** les leçons et la figure se lisent sans JavaScript et sont indexables ; la figure et les comptes affichés viennent du même code que celui testé, ils ne peuvent pas diverger.
+**Alternatives :** un cube 3D (three.js) où les brins se chevauchent, des images figées.
+**Limite :** les brins de la figure se choisissent à la souris ; au clavier, on s'y déplace avec les boutons α depuis le brin 0.

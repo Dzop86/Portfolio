@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -259,6 +259,57 @@ test('the LaTeX editor renders the article live, and its diagnostics and outline
   const download = page.waitForEvent('download');
   await root.getByRole('button', { name: 'Download the .tex' }).click();
   expect((await download).suggestedFilename()).toBe('portfolio.fr.tex');
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('the generalized maps course: darts, alpha moves, orbits and the quiz', async ({ page }) => {
+  // About 13 s alone in Firefox (axe on a page with 48 SVG darts); more under the load of 5 browsers.
+  test.setTimeout(60000);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-gcartes.html');
+  const figure = page.locator('[data-gmap-figure]');
+  const status = figure.locator('[data-status]');
+  await expect(figure.locator('[data-counts]')).toHaveText('Counted as orbits: 48 darts, 8 vertices, 12 edges, 6 faces, χ = 2.');
+
+  await figure.locator('[data-dart="0"]').click();
+  await expect(status).toHaveText('Dart 0: face Top, vertex e.');
+  await expect(figure.locator('.gm-link')).toHaveCount(3);
+  // alpha0 changes vertex, alpha1 and alpha2 keep it.
+  await figure.getByRole('button', { name: 'Apply α0' }).click();
+  await expect(status).toContainText('vertex f');
+  await figure.getByRole('button', { name: 'Apply α1' }).click();
+  await expect(status).toContainText('vertex f');
+  await figure.getByRole('button', { name: 'Apply α2' }).click();
+  await expect(status).toContainText('vertex f');
+  await expect(status).not.toContainText('face Top');
+
+  await figure.getByRole('button', { name: 'Vertex ⟨α1, α2⟩' }).click();
+  await expect(figure.locator('.gm-dart.in-orbit')).toHaveCount(6);
+  await figure.getByRole('button', { name: 'Edge ⟨α0, α2⟩' }).click();
+  await expect(figure.locator('.gm-dart.in-orbit')).toHaveCount(4);
+  await figure.getByRole('button', { name: 'Face ⟨α0, α1⟩' }).click();
+  await expect(figure.locator('.gm-dart.in-orbit')).toHaveCount(8);
+  await figure.getByRole('button', { name: 'All ⟨α0, α1, α2⟩' }).click();
+  await expect(figure.locator('.gm-dart.in-orbit')).toHaveCount(48);
+  await figure.getByRole('button', { name: 'All ⟨α0, α1, α2⟩' }).click();
+  await expect(figure.locator('.gm-dart.in-orbit')).toHaveCount(0);
+
+  const quiz = page.locator('[data-quiz]');
+  await quiz.getByRole('radio', { name: '48' }).check();
+  await quiz.getByRole('radio', { name: '⟨α1, α2⟩' }).check();
+  await quiz.getByRole('radio', { name: 'an isolated vertex' }).check();
+  await quiz.getByRole('button', { name: 'Check my answers' }).click();
+  await expect(quiz.locator('[data-score]')).toHaveText('2 right answer(s) out of 6.');
+  await expect(quiz.locator('[data-feedback]').nth(0)).toHaveText('Right.');
+  await expect(quiz.locator('[data-feedback]').nth(2)).toHaveText('Not quite.');
+  await expect(quiz.locator('[data-feedback]').nth(3)).toHaveText('No answer.');
+  await expect(quiz.locator('[data-explain]').nth(0)).toBeVisible();
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

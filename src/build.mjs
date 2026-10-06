@@ -46,6 +46,17 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     legalComments: 'inline',
     logLevel: 'error',
   });
+  // Generalized maps course (D24): its script bundled with the projects/gcartes library.
+  buildSync({
+    entryPoints: [join(ROOT, 'src/gcourse/course.js')],
+    outfile: join(outDir, 'assets/gcourse.js'),
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    legalComments: 'inline',
+    logLevel: 'error',
+  });
   // three.js and the viewer, bundled and minified into one module (D17); WebAssembly stays a separate file.
   buildSync({
     entryPoints: [join(ROOT, 'src/viewer/topoviewer.js')],

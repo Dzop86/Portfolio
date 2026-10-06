@@ -90,3 +90,22 @@ test('linking refuses a dart already linked, and a side shared by three faces is
   assert.throws(() => fromFaces([[0, 1, 2], [1, 0, 3], [0, 1, 4]]), /shared by 3 faces/);
   assert.throws(() => fromFaces([[0, 1]]), /fewer than 3/);
 });
+
+test('the course\'s cube net is a valid cube: every edge on two squares, chi = 2', async () => {
+  const { cubeNetMap, dartGeometry } = await import('../src/net.js');
+  const { map, darts } = cubeNetMap();
+  assert.deepEqual(map.check(), []);
+  assert.deepEqual(pick(map.invariants(), ['darts', 'vertices', 'edges', 'faces', 'euler', 'boundaryLoops']),
+    { darts: 48, vertices: 8, edges: 12, faces: 6, euler: 2, boundaryLoops: 0 });
+  // Linked darts sit at the same vertex for alpha1 and alpha2, at the two ends of a side for alpha0.
+  for (let d = 0; d < map.size; d++) {
+    assert.equal(darts[map.alpha[1][d]].letter, darts[d].letter);
+    assert.equal(darts[map.alpha[2][d]].letter, darts[d].letter);
+    assert.notEqual(darts[map.alpha[0][d]].letter, darts[d].letter);
+  }
+  // Every dart is drawn inside its square.
+  dartGeometry(darts).forEach((g, d) => {
+    const { col, row } = darts[d].square;
+    for (const [x, y] of [g.start, g.end]) assert.ok(x > col * 100 && x < col * 100 + 100 && y > row * 100 && y < row * 100 + 100);
+  });
+});

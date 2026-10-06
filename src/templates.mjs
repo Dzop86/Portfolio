@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
+import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
@@ -414,6 +415,7 @@ ${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
 ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
 ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
+${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -598,6 +600,72 @@ function latexEditor(t, lang) {
   </div>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/latexeditor.js"></script>
+</section>`;
+}
+
+const GMAP_LABELS = ['dart', 'highlight', 'face.top', 'face.left', 'face.front', 'face.right', 'face.back', 'face.bottom',
+  'correct', 'wrong', 'score', 'unanswered', 'counts'];
+
+// Text with `code` spans: escaped, then the spans wrapped in <code>.
+const withCode = (text) => esc(text).replace(/`([^`]+)`/g, '<code>$1</code>');
+
+/** The cube net with its 48 darts, drawn at build time (D24); assets/gcourse.js makes it interactive. */
+function cubeNetSvg(t) {
+  const { darts } = cubeNetMap();
+  const geometry = dartGeometry(darts);
+  const squares = CUBE_NET.map((sq) => {
+    const x = sq.col * 100;
+    const y = sq.row * 100;
+    const corners = [[x, y], [x + 100, y], [x + 100, y + 100], [x, y + 100]];
+    const letters = sq.corners.map((c, k) => {
+      const [cx, cy] = corners[k];
+      return `<text class="gm-letter" x="${cx + (k === 1 || k === 2 ? -4 : 4)}" y="${cy + (k >= 2 ? -4 : 11)}" text-anchor="${k === 1 || k === 2 ? 'end' : 'start'}">${c}</text>`;
+    }).join('');
+    return `<g class="gm-square"><rect x="${x}" y="${y}" width="100" height="100"/><text class="gm-face" x="${x + 50}" y="${y + 54}" text-anchor="middle">${esc(t(`gcartes.label.face.${sq.key}`))}</text>${letters}</g>`;
+  }).join('');
+  const dartsSvg = geometry.map((g, d) =>
+    `<g class="gm-dart" data-dart="${d}"><line x1="${g.start[0].toFixed(1)}" y1="${g.start[1].toFixed(1)}" x2="${g.end[0].toFixed(1)}" y2="${g.end[1].toFixed(1)}"/><circle cx="${g.end[0].toFixed(1)}" cy="${g.end[1].toFixed(1)}" r="2.6"/><line class="gm-hit" x1="${g.start[0].toFixed(1)}" y1="${g.start[1].toFixed(1)}" x2="${g.end[0].toFixed(1)}" y2="${g.end[1].toFixed(1)}"/></g>`).join('');
+  return `<svg class="gm-net" viewBox="-6 -6 412 312" role="img" aria-labelledby="gm-net-title"><title id="gm-net-title">${esc(t('gcartes.figure.alt'))}</title>${squares}<g data-links></g>${dartsSvg}</svg>`;
+}
+
+// Course on generalized maps (D24): lessons from projects/gcartes/course.json, the cube net, a quiz.
+function gmapCourse(t, lang) {
+  const course = JSON.parse(readFileSync(join(ROOT, 'projects/gcartes/course.json'), 'utf8'));
+  const labels = Object.fromEntries(GMAP_LABELS.map((k) => [k, t(`gcartes.label.${k}`)]));
+  const lesson = (l) => `<section class="gm-lesson" aria-labelledby="gm-${l.id}"><h3 id="gm-${l.id}">${esc(pick(l.title, lang))}</h3>${pick(l.body, lang).map((p) => `<p>${withCode(p)}</p>`).join('')}</section>`;
+  const orbit = (key) => `<button type="button" class="btn btn-ghost" aria-pressed="false" data-orbit="${key}">${esc(t(`gcartes.orbit.${key}`))}</button>`;
+  const figure = `<figure class="gm-figure" data-gmap-figure data-labels="${esc(JSON.stringify(labels))}">
+    ${cubeNetSvg(t)}
+    <figcaption class="meta">${esc(t('gcartes.figure.caption'))}</figcaption>
+    <p class="gm-status" data-status aria-live="polite">${esc(t('gcartes.figure.start'))}</p>
+    <div class="actions" role="group" aria-label="${esc(t('gcartes.move'))}">
+      ${[0, 1, 2].map((i) => `<button type="button" class="btn btn-ghost gm-alpha gm-a${i}" data-alpha="${i}">${esc(t('gcartes.apply'))} α${i}</button>`).join('')}
+    </div>
+    <div class="actions" role="group" aria-label="${esc(t('gcartes.orbits'))}">${['vertex', 'edge', 'face', 'component'].map(orbit).join('')}</div>
+    <p class="meta" data-counts></p>
+  </figure>`;
+  const quiz = course.quiz.map((q, k) => `<fieldset class="gm-question" data-answer="${q.answer}">
+      <legend>${k + 1}. ${esc(pick(q.question, lang))}</legend>
+      ${q.options.map((o, j) => `<label class="gm-option"><input type="radio" name="gm-q${k}" value="${j}"> ${esc(pick(o, lang))}</label>`).join('')}
+      <p class="gm-feedback" data-feedback hidden></p>
+      <p class="meta gm-explain" data-explain hidden>${esc(pick(q.explain, lang))}</p>
+    </fieldset>`).join('');
+  const [l1, l2, ...rest] = course.lessons;
+  return `<section class="block panel gm-course" aria-labelledby="h-gm" data-gmap-course>
+  <h2 id="h-gm">${esc(t('gcartes.title'))}</h2>
+  <p>${esc(t('gcartes.lead'))}</p>
+  ${lesson(l1)}${lesson(l2)}
+  ${figure}
+  ${rest.map(lesson).join('')}
+  <section class="gm-quiz" aria-labelledby="h-gm-quiz">
+    <h3 id="h-gm-quiz">${esc(t('gcartes.quiz'))}</h3>
+    <form data-quiz>${quiz}
+      <div class="actions"><button type="submit" class="btn btn-primary">${esc(t('gcartes.check'))}</button></div>
+      <p class="gm-score" data-score aria-live="polite"></p>
+    </form>
+  </section>
+  <noscript><p class="notice">${esc(t('gcartes.noscript'))}</p></noscript>
+  <script type="module" src="../assets/gcourse.js"></script>
 </section>`;
 }
 
