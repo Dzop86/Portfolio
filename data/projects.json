@@ -5,7 +5,7 @@
     "stack": ["HTML", "CSS", "JavaScript", "Node.js", "Playwright", "GitHub Actions"],
     "links": { "code": "https://github.com/Dzop86/Portfolio", "demo": "https://dzop86.github.io/Portfolio/" },
     "teaching": { "fr": "Enseigné en M1 (interaction homme-machine)", "en": "Taught in M1 (human-computer interaction)" } },
-  { "id": "topologie", "sprint": "S5-S8", "points": 13, "status": "planned", "group": "science",
+  { "id": "topologie", "sprint": "S5-S8", "points": 13, "status": "in-progress", "group": "science",
     "name": { "fr": "Topologie 3D", "en": "3D topology" },
     "pitch": { "fr": "Courbure, caractéristique d'Euler et genre de maillages, visibles dans un viewer 3D.", "en": "Curvature, Euler characteristic and genus of meshes, shown in a 3D viewer." },
     "stack": ["C++", "Three.js", "GoogleTest"],
