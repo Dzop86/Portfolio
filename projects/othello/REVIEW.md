@@ -7,9 +7,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/board.c` : directions et masques de bord, passe, fin de partie.
 - [x] `src/ai.c` : évaluation, alpha-bêta, départage.
 - [x] Le jeu ressemble-t-il à celui de mes études ?
-- [ ] `../../src/assets/othelloplay.js` : déroulé d'une partie, passes, annulation.
+- [x] `../../src/assets/othelloplay.js` : déroulé d'une partie, passes, annulation.
 
-> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« accepte les reviews »). Le projet reste en cours : le plateau jouable arrive au sprint 18.
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« accepte les reviews »). Case du sprint 18 (script de la partie) cochée le même jour, à sa demande (« valide les reviews »).
 
 ## Constats
 

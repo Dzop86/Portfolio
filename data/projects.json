@@ -78,7 +78,7 @@
     "stack": ["JavaScript", "SVG"],
     "teaching": { "fr": "Pédagogie et sujet de thèse", "en": "Teaching and PhD topic" },
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/gcartes" } },
-  { "id": "othello", "sprint": "S17-S18", "points": 8, "status": "in-progress", "group": "games", "widget": "othello-board",
+  { "id": "othello", "sprint": "S17-S18", "points": 8, "status": "done", "group": "games", "widget": "othello-board",
     "name": { "fr": "Othello", "en": "Othello" },
     "pitch": { "fr": "Réécriture d'un jeu de mes études : moteur en C (règles, IA minimax alpha-bêta), jouable dans le navigateur en WebAssembly.", "en": "Rewrite of a game from my studies: C engine (rules, minimax alpha-beta AI), playable in the browser through WebAssembly." },
     "stack": ["C", "CMake", "Emscripten", "Unity"],
