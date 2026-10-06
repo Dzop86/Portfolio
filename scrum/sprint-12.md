@@ -4,7 +4,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, je construis des maillages en Maille (langage) et j'en calcule les invariants (sommets, arêtes, faces, caractéristique d'Euler, bords, genre) ; tests dune vérifiés contre les formules connues. | 1 | À faire |
+| En tant que développeur, je construis des maillages en Maille (langage) et j'en calcule les invariants (sommets, arêtes, faces, caractéristique d'Euler, bords, genre) ; tests dune vérifiés contre les formules connues. | 1 | Fait |
 | En tant que visiteur, j'exécute un programme Maille (langage) dans le navigateur : analyseur C en WebAssembly, interpréteur OCaml en JavaScript (js_of_ocaml), arbre syntaxique affiché ; tests Node et Playwright, mobile compris. | 2 | À faire |
 
 ## Rétro (à compléter par Charles)

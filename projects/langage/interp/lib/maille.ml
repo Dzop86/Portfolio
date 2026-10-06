@@ -5,6 +5,7 @@ module Sexp = Sexp
 module Ast = Ast
 module Types = Types
 module Eval = Eval
+module Mesh = Mesh
 
 type outcome = Ok of string | Error of string
 

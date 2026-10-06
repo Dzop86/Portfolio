@@ -7,6 +7,7 @@ type ty =
   | TFloat
   | TBool
   | TString
+  | TMesh
   | TArrow of ty * ty
   | TVar of tvar ref
   | TGen of int  (** quantified variable of a type scheme *)
@@ -41,6 +42,7 @@ let to_string ?(names = Hashtbl.create 8) t =
     | TFloat -> "float"
     | TBool -> "bool"
     | TString -> "string"
+    | TMesh -> "mesh"
     | TVar { contents = Unbound (id, _) } -> name_of (`Var id)
     | TVar { contents = Link _ } -> assert false
     | TGen i -> name_of (`Gen i)
@@ -70,7 +72,7 @@ exception Infinite
 
 let rec unify a b =
   match (repr a, repr b) with
-  | TInt, TInt | TFloat, TFloat | TBool, TBool | TString, TString -> ()
+  | TInt, TInt | TFloat, TFloat | TBool, TBool | TString, TString | TMesh, TMesh -> ()
   | TVar r1, TVar r2 when r1 == r2 -> ()
   | TVar ({ contents = Unbound (id, lvl) } as r), t | t, TVar ({ contents = Unbound (id, lvl) } as r) ->
       if occurs id lvl t then raise Infinite;
@@ -128,6 +130,17 @@ let builtins =
     ("string_of_int", TArrow (TInt, TString));
     ("string_of_float", TArrow (TFloat, TString));
     ("string_length", TArrow (TString, TInt));
+    ("torus", TArrow (TInt, TMesh));
+    ("sphere", TArrow (TInt, TMesh));
+    ("cylinder", TArrow (TInt, TMesh));
+    ("union", TArrow (TMesh, TArrow (TMesh, TMesh)));
+    ("vertices", TArrow (TMesh, TInt));
+    ("edges", TArrow (TMesh, TInt));
+    ("faces", TArrow (TMesh, TInt));
+    ("euler", TArrow (TMesh, TInt));
+    ("boundary_loops", TArrow (TMesh, TInt));
+    ("components", TArrow (TMesh, TInt));
+    ("genus", TArrow (TMesh, TInt));
   ]
 
 let initial_env = List.fold_left (fun env (x, t) -> Env.add x t env) Env.empty builtins

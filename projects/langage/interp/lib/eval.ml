@@ -7,12 +7,16 @@ type value =
   | VFloat of float
   | VBool of bool
   | VString of string
+  | VMesh of Mesh.t * Mesh.invariants Lazy.t  (** invariants computed once, on first use *)
   | VClosure of string * Ast.expr * env ref
   | VBuiltin of string * (value -> value)
 
 and env = value Types.Env.t
 
 exception Error of Ast.loc * string
+
+(* Raised by a built-in function; the call site turns it into an Error at its location. *)
+exception Builtin_error of string
 
 type limits = { max_steps : int; max_depth : int }
 
@@ -34,9 +38,40 @@ let float_to_string f =
     let s = go 15 in
     if String.exists (fun c -> c = '.' || c = 'e') s then s else s ^ ".0"
 
+let mesh m = VMesh (m, lazy (Mesh.invariants m))
+
+let make name build = function
+  | VInt k when k < Mesh.min_resolution || k > Mesh.max_resolution ->
+      raise (Builtin_error (Printf.sprintf "%s: resolution must be between %d and %d, got %d" name Mesh.min_resolution Mesh.max_resolution k))
+  | VInt k -> mesh (build k)
+  | _ -> assert false
+
+let invariant f = function VMesh (_, inv) -> VInt (f (Lazy.force inv)) | _ -> assert false
+
 let builtins =
   let num f = function VFloat x -> f x | _ -> assert false in
   [
+    ("torus", make "torus" Mesh.torus);
+    ("sphere", make "sphere" Mesh.sphere);
+    ("cylinder", make "cylinder" Mesh.cylinder);
+    ( "union",
+      function
+      | VMesh (a, _) ->
+          VBuiltin
+            ( "union",
+              function
+              | VMesh (b, _) when Mesh.vertex_count a + Mesh.vertex_count b > 4 * Mesh.max_resolution * Mesh.max_resolution ->
+                  raise (Builtin_error "union: the result would be too large")
+              | VMesh (b, _) -> mesh (Mesh.union a b)
+              | _ -> assert false )
+      | _ -> assert false );
+    ("vertices", invariant (fun i -> i.Mesh.vertices));
+    ("edges", invariant (fun i -> i.Mesh.edges));
+    ("faces", invariant (fun i -> i.Mesh.faces));
+    ("euler", invariant (fun i -> i.Mesh.euler));
+    ("boundary_loops", invariant (fun i -> i.Mesh.boundary_loops));
+    ("components", invariant (fun i -> i.Mesh.components));
+    ("genus", invariant (fun i -> i.Mesh.genus));
     ("sqrt", num (fun x -> VFloat (Float.sqrt x)));
     ("float_of_int", function VInt i -> VFloat (float_of_int i) | _ -> assert false);
     ("int_of_float", num (fun x -> VInt (int_of_float x)));
@@ -55,6 +90,7 @@ let rec compare_values loc a b =
   | VFloat x, VFloat y -> compare x y
   | VBool x, VBool y -> compare x y
   | VString x, VString y -> compare x y
+  | VMesh _, _ -> error loc "meshes cannot be compared (compare their invariants)"
   | (VClosure _ | VBuiltin _), _ -> error loc "functions cannot be compared"
   | _ -> ignore (compare_values loc b a); assert false
 
@@ -88,7 +124,7 @@ let run ?(limits = default_limits) (program : Ast.expr) : value =
         if depth >= limits.max_depth then error e.loc "recursion deeper than %d calls" limits.max_depth;
         match fv with
         | VClosure (x, body, cell) -> eval (Types.Env.add x av !cell) (depth + 1) body
-        | VBuiltin (_, prim) -> prim av
+        | VBuiltin (_, prim) -> ( try prim av with Builtin_error m -> error e.loc "%s" m)
         | _ -> error e.loc "not a function")
     | If (c, t, f) -> (
         match eval env depth c with
@@ -131,4 +167,5 @@ let to_string = function
   | VFloat f -> float_to_string f
   | VBool b -> string_of_bool b
   | VString s -> Printf.sprintf "%S" s
+  | VMesh (m, _) -> Mesh.to_string m
   | VClosure _ | VBuiltin _ -> "<fun>"

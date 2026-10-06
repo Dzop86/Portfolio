@@ -1,0 +1,5 @@
+# Total genus of two tori and a sphere: each torus has one hole, the sphere none.
+let t = torus 16 in
+let s = sphere 16 in
+let scene = union t (union t s) in
+genus scene

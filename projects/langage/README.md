@@ -20,7 +20,8 @@ twice (twice (fun s -> s ^ "!")) "maille"
 - `let x = e in e`, `let f x y = e in e`, `let rec f n = e in e`, `fun x y -> e`, `if c then a else b`, application par juxtaposition `f x y`, commentaires `# ...`.
 - Opérateurs, du moins au plus prioritaire : `||`, `&&`, comparaisons `== != < <= > >=` (non associatives, polymorphes), `^` (concaténation, à droite), `+ -` et `+. -.`, `* / %` et `*. /.`, `-` et `not` préfixes, application. Comme en OCaml, les flottants ont leurs propres opérateurs.
 - Fonctions prédéfinies : `sqrt`, `float_of_int`, `int_of_float`, `string_of_int`, `string_of_float`, `string_length`.
-- Exemples commentés dans `examples/` : factorielle, Collatz, composition, polymorphisme, Newton, et une erreur de chaque sorte.
+- **Maillages** (type `mesh`) : `torus k`, `sphere k`, `cylinder k` (4k² triangles, k de 3 à 256, mêmes familles que le [benchmark SQL](../sql/)), `union a b` ; invariants `vertices`, `edges`, `faces`, `euler`, `boundary_loops`, `components`, `genus` (χ = 2c − 2g − b), calculés une fois au premier usage.
+- Exemples commentés dans `examples/` : factorielle, Collatz, composition, polymorphisme, Newton, genre d'une scène, formule d'Euler, et une erreur de chaque sorte.
 
 ## L'analyseur (C, Flex, Bison)
 - Lexer et parser réentrants (aucune variable globale), lisant un tampon en mémoire : prêts pour le WebAssembly du sprint 12.
@@ -47,12 +48,13 @@ Sous Windows, `choco install winflexbison3` fournit Flex et Bison ; sous macOS, 
 
 ## Tests
 - **C** (`parser/tests/test_parser.c`) : littéraux, priorités et associativités, désucrage, erreurs et leur position, limites de profondeur ; **cas de référence** (`parser/tests/cases/`) comparés par CTest, arbre ou erreur.
-- **OCaml** (`interp/test/test_maille.ml`) : lecteur de S-expressions, inférence (polymorphisme, composition, récursion, paramètre monomorphe, test d'occurrence), évaluation, budgets, affichage des flottants. Vérifié en cassant le code : sans généralisation du `let` ou sans test d'occurrence, les tests échouent.
+- **OCaml** (`interp/test/test_maille.ml`) : lecteur de S-expressions, inférence (polymorphisme, composition, récursion, paramètre monomorphe, test d'occurrence), évaluation, budgets, affichage des flottants ; invariants de chaque famille comparés aux formules (V, E, F, χ, bords, composantes, genre) à plusieurs résolutions, orientation cohérente. Vérifié en cassant le code : sans généralisation du `let` ou sans test d'occurrence, les tests échouent.
 - **Chaîne complète** (`interp/test/integration.ml`) : `maillec` puis l'interpréteur sur chaque `examples/*.maille`, résultat comparé à `*.out`.
 - **CI** (`.github/workflows/langage.yml`) : analyseur sur Linux (GCC), Windows (MSVC, winflexbison) et macOS (Clang, Bison de Homebrew) ; ASan + UBSan et Valgrind sous Linux ; interpréteur et chaîne complète sur les trois systèmes, avec l'analyseur compilé sur chacun.
 
 ## Limites
-- Pas de n-uplets, de listes ni de types définis par l'utilisateur ; les maillages arrivent au sprint 12.
+- Pas de n-uplets, de listes ni de types définis par l'utilisateur.
+- Le genre suppose une surface orientable (vrai pour les trois familles et leurs unions).
 - Les entiers débordent comme en OCaml (arithmétique modulo 2⁶³), sans erreur.
 - `-x` ne s'applique qu'aux entiers ; pour un flottant, `0.0 -. x`.
 - `1 + if c then 1 else 2` demande des parenthèses : `let`, `fun` et `if` ne se placent qu'en tête d'expression.

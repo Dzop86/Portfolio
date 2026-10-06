@@ -1,0 +1,3 @@
+# Euler's formula V - E + F, computed by hand, agrees with the built-in characteristic.
+let check m = vertices m - edges m + faces m == euler m in
+check (torus 12) && check (sphere 12) && check (cylinder 12) && euler (sphere 12) == 2

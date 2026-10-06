@@ -128,7 +128,57 @@ let pipeline () =
   check_eq "type error on the argument" "3:4: type error: this expression has type string but an expression was expected of type float"
     (match Maille.run {|(app 3:1 (var 3:1 sqrt) (str 3:4 "x"))|} with Ok s -> s | Error e -> e)
 
+(* Invariants of each family against the formulas they must satisfy, at several resolutions. *)
+let meshes () =
+  let inv m = Mesh.invariants m in
+  let row (i : Mesh.invariants) =
+    Printf.sprintf "V=%d E=%d F=%d chi=%d b=%d c=%d g=%d" i.vertices i.edges i.faces i.euler i.boundary_loops i.components i.genus
+  in
+  List.iter
+    (fun k ->
+      let k2 = k * k in
+      check_eq (Printf.sprintf "torus %d" k)
+        (Printf.sprintf "V=%d E=%d F=%d chi=0 b=0 c=1 g=1" (2 * k2) (6 * k2) (4 * k2)) (row (inv (Mesh.torus k)));
+      check_eq (Printf.sprintf "cylinder %d" k)
+        (Printf.sprintf "V=%d E=%d F=%d chi=0 b=2 c=1 g=0" (2 * k * (k + 1)) ((6 * k2) + (2 * k)) (4 * k2))
+        (row (inv (Mesh.cylinder k)));
+      check_eq (Printf.sprintf "sphere %d" k)
+        (Printf.sprintf "V=%d E=%d F=%d chi=2 b=0 c=1 g=0" ((2 * k2) + 2) (6 * k2) (4 * k2)) (row (inv (Mesh.sphere k))))
+    [ 3; 5; 16 ];
+  let two_tori = inv (Mesh.union (Mesh.torus 4) (Mesh.torus 6)) in
+  check_eq "two tori: two components, total genus 2" "chi=0 c=2 g=2"
+    (Printf.sprintf "chi=%d c=%d g=%d" two_tori.euler two_tori.components two_tori.genus);
+  let mixed = inv (Mesh.union (Mesh.sphere 4) (Mesh.cylinder 4)) in
+  check_eq "sphere and cylinder" "chi=2 b=2 c=2 g=0"
+    (Printf.sprintf "chi=%d b=%d c=%d g=%d" mixed.euler mixed.boundary_loops mixed.components mixed.genus);
+  (* Every triangle edge is shared by two triangles in opposite directions on the closed families. *)
+  let oriented m =
+    let seen = Hashtbl.create 64 in
+    let ok = ref true in
+    for t = 0 to Mesh.triangle_count m - 1 do
+      for c = 0 to 2 do
+        let a = m.Mesh.triangles.((3 * t) + c) and b = m.Mesh.triangles.((3 * t) + ((c + 1) mod 3)) in
+        if Hashtbl.mem seen (a, b) then ok := false;
+        Hashtbl.add seen (a, b) ()
+      done
+    done;
+    !ok
+  in
+  check "torus consistently oriented" (oriented (Mesh.torus 7));
+  check "sphere consistently oriented" (oriented (Mesh.sphere 7));
+  (* Through the language: types, values, the resolution check. *)
+  check_eq "type of torus" "int -> mesh" (type_of (v "torus"));
+  check_eq "genus in the language" "1" (value (v "genus" @@@ (v "torus" @@@ i 8)));
+  check_eq "mesh value" "<mesh: 128 vertices, 256 triangles>" (value (v "torus" @@@ i 8));
+  check_eq "union is curried" "mesh -> mesh" (type_of (v "union" @@@ (v "sphere" @@@ i 3)));
+  check_eq "resolution too small" "torus: resolution must be between 3 and 256, got 2" (runtime_error (v "torus" @@@ i 2));
+  check_eq "meshes are not comparable" "meshes cannot be compared (compare their invariants)"
+    (runtime_error (op "==" (v "sphere" @@@ i 3) (v "sphere" @@@ i 3)));
+  check_eq "a mesh is not an int" "this expression has type mesh but an expression was expected of type int"
+    (type_error (op "+" (v "torus" @@@ i 3) (i 1)))
+
 let () =
+  meshes ();
   sexp ();
   tree_of_sexp ();
   inference ();
