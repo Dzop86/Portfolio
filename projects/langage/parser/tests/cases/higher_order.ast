@@ -1,0 +1,1 @@
+(let 1:1 compose (fun 1:13 f (fun 1:15 g (fun 1:17 x (app 1:21 (var 1:21 f) (app 1:24 (var 1:24 g) (var 1:26 x)))))) (let 2:1 twice (fun 2:11 f (app 2:15 (app 2:15 (var 2:15 compose) (var 2:23 f)) (var 2:25 f))) (app 3:1 (app 3:1 (var 3:1 twice) (fun 3:12 s (binop 3:19 ^ (var 3:17 s) (str 3:21 "!")))) (str 3:26 "maille"))))

@@ -1,0 +1,1 @@
+(letrec 1:1 fact (fun 1:14 n (if 2:3 (binop 2:8 <= (var 2:6 n) (int 2:11 1)) (int 2:18 1) (binop 2:27 * (var 2:25 n) (app 2:29 (var 2:29 fact) (binop 2:37 - (var 2:35 n) (int 2:39 1)))))) (app 4:1 (var 4:1 fact) (int 4:6 10)))

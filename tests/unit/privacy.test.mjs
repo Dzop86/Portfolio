@@ -38,7 +38,9 @@ const sources = [join(ROOT, 'data/cv.json'), join(ROOT, 'data/projects.json'), .
 
 test('the scan covers the technical projects', () => {
   assert.ok(sources.some((f) => f.endsWith(join('lib-c', 'src', 'obj.c'))), 'projects/lib-c sources');
-  assert.ok(!sources.some((f) => /[\\/](build[^\\/]*|bin|obj)[\\/]/.test(f)), 'build output excluded');
+  // Build output: CMake's build*/, dune's _build/, Alire's bin/ and obj/ for Ada. A dune bin/ holds sources.
+  assert.ok(!sources.some((f) => /[\\/](build[^\\/]*|_build)[\\/]|[\\/]ada[\\/](bin|obj)[\\/]/.test(f)), 'build output excluded');
+  assert.ok(sources.some((f) => f.endsWith(join('langage', 'interp', 'bin', 'main.ml'))), 'projects/langage sources');
   assert.ok(sources.some((f) => f.endsWith(join('ada', 'src', 'traffic.adb'))), 'projects/ada sources');
 });
 
