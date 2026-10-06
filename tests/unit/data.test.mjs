@@ -28,7 +28,7 @@ test('the portfolio covers the required technologies', () => {
   const stack = new Set(projects.flatMap((p) => p.stack));
   const required = ['HTML', 'CSS', 'JavaScript', 'Java', 'Spring Boot', 'C', 'C++', 'Qt', 'Python', 'PyTorch', 'SQL',
     'Flex', 'Bison', 'OCaml', 'Ada', 'React', 'Angular', 'Bootstrap', 'C#', 'ASP.NET', 'Docker', 'Jenkins',
-    'GitLab CI', 'MLflow', 'LaTeX', 'TypeScript', 'OpenMP', 'CUDA'];
+    'DVC', 'MLflow', 'LaTeX', 'TypeScript', 'OpenMP', 'CUDA'];
   const missing = required.filter((r) => !stack.has(r));
   assert.deepEqual(missing, []);
 });

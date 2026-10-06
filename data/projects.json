@@ -29,7 +29,7 @@
   { "id": "ml", "sprint": "S9-S12", "points": 13, "status": "planned", "group": "science",
     "name": { "fr": "ML et MLOps", "en": "ML and MLOps" },
     "pitch": { "fr": "Classifieur de formes 3D, avec versionnage des données, suivi d'expériences et déploiement contrôlé par la CI.", "en": "3D shape classifier with data versioning, experiment tracking and CI-gated deployment." },
-    "stack": ["PyTorch", "scikit-learn", "DVC", "MLflow", "Docker", "GitLab CI"],
+    "stack": ["PyTorch", "scikit-learn", "DVC", "MLflow", "ONNX", "GitHub Actions"],
     "teaching": { "fr": "Prolonge le CNN 3D de ma thèse", "en": "Extends the 3D CNN from my PhD" } },
   { "id": "sql", "sprint": "S9-S12", "points": 5, "status": "planned", "group": "back",
     "name": { "fr": "Base SQL des benchmarks", "en": "SQL benchmark database" },

@@ -19,7 +19,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S5-S8 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S5-S8 | 13 |
 | 5 | API Python | FastAPI, pytest, Docker | S9-S12 | 8 |
-| 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow | S9-S12 | 13 |
+| 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow, ONNX | S9-S12 | 13 |
 | 7 | Base SQL des benchmarks | PostgreSQL, sql.js | S9-S12 | 5 |
 | 8 | Microservices Spring | Java, Spring Boot, Testcontainers, Jenkins | S13-S16 | 13 |
 | 9 | API ASP.NET | C#, EF Core, xUnit | S13-S16 | 8 |
@@ -37,7 +37,7 @@ Total : 151 points sur 26 sprints de deux semaines.
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
 - Jenkins : `projects/spring/Jenkinsfile`.
-- GitLab CI : `.gitlab-ci.yml` prévu pour le ML uniquement (le miroir de lib-c est abandonné le 6 octobre).
+- GitLab CI : abandonné le 6 octobre (pas de compte GitLab) ; tous les projets, ML compris, passent par GitHub Actions.
 - Docker : un Dockerfile multi-stage par service, `compose.yaml` global, images sur GHCR.
 - MLOps : DVC (données et modèle), MLflow (expériences), entraînement et évaluation en CI avec seuil de précision bloquant, déploiement du modèle dans le conteneur FastAPI.
 
