@@ -155,3 +155,8 @@
 ## D31. Deux jeux de plus : un morpion en Python, un roguelike 2D en C#
 **Choix (décision de Charles, 7 octobre 2026) :** deux autres jeux de ses études rejoignent la section Jeux, réécrits avec l'IA comme les autres : un morpion en Python (S22, 3 points) et un roguelike 2D en C# (S23-S24, 8 points), juste après la bataille en Ada.
 **Conséquences :** 21 projets, 162 points, 32 sprints ; Qt/OpenGL en S25-S26, puis calcul parallèle, React, Angular et Bootstrap décalés de trois sprints. Le C# revient dans la pile annoncée (il avait disparu avec l'API ASP.NET, D25).
+
+## D32. Le roguelike : Godot 4 en C# sur le bureau, et une API qui rejoue les parties
+**Choix (décision de Charles, 7 octobre 2026) :** client Godot 4 en C# (builds Windows, Linux et macOS par la CI), règles du jeu dans une bibliothèque C# partagée (donjon généré à partir d'une graine, combats au tour par tour, déterministe), API ASP.NET Core de scores avec comptes (JWT), EF Core et PostgreSQL, documentée par Swagger/OpenAPI, en Docker, testée en CI. L'API ne croit pas un score sur parole : le client envoie la graine et la liste des actions, le serveur rejoue la partie avec la même bibliothèque et calcule lui-même le score.
+**Pourquoi :** la pile demandée par Charles ; elle ramène ASP.NET Core et EF Core retirés avec l'ancien projet (D25), dans un usage concret. Le rejeu côté serveur règle la question de la triche sans confiance dans le client.
+**Limite :** Godot 4 ne sait pas exporter un projet C# vers le web (documentation officielle de Godot, octobre 2026) : pas de partie dans le navigateur, la fiche montrera des captures ou une courte vidéo. Estimation portée de 8 à 13 points (S23-S25) ; Qt/OpenGL passe en S26-S27, la roadmap compte 33 sprints.
