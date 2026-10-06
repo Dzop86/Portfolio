@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je joue à l'Othello (othello) dans le terminal : coups légaux, retournements, passes, fin de partie et score ; moteur en bitboards validé par perft (nombres de positions connus), tests Unity, CI Linux, Windows et macOS, ASan et UBSan. | 3 | À faire |
-| En tant que joueur, j'affronte une IA (othello) : minimax alpha-bêta à profondeur réglable, évaluation par coins, mobilité et positions ; tests : alpha-bêta donne la valeur du minimax, l'IA bat un joueur aléatoire. | 2 | À faire |
+| En tant que joueur, je joue à l'Othello (othello) dans le terminal : coups légaux, retournements, passes, fin de partie et score ; moteur en bitboards validé par perft (nombres de positions connus), tests Unity, CI Linux, Windows et macOS, ASan et UBSan. | 3 | Fait |
+| En tant que joueur, j'affronte une IA (othello) : minimax alpha-bêta à profondeur réglable, évaluation par coins, mobilité et positions ; tests : alpha-bêta donne la valeur du minimax, l'IA bat un joueur aléatoire. | 2 | Fait |
+
+**Tests :** 8 tests du plateau (perft jusqu'à 8 coups), 6 tests de l'IA, 3 tests de la partie en terminal ; ASan et UBSan.
 
 **Prévu au sprint 18 (3 points) :** moteur et IA en WebAssembly, plateau jouable sur la fiche du projet (clavier et tactile), tests Node et Playwright.
 

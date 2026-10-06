@@ -1,0 +1,41 @@
+name: othello
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/othello/**', '.github/workflows/othello.yml']
+  pull_request:
+    paths: ['projects/othello/**', '.github/workflows/othello.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: othello-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/othello
+
+jobs:
+  test:
+    name: Othello (${{ matrix.os }}${{ matrix.sanitize == 'ON' && ', ASan + UBSan' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sanitize: ['OFF']
+        include:
+          - os: ubuntu-latest
+            sanitize: 'ON'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DOTH_SANITIZE=${{ matrix.sanitize }}
+      - name: Build (warnings are errors)
+        run: cmake --build build --config Debug --parallel
+      - name: Tests (unit, perft, AI, terminal game)
+        run: ctest --test-dir build -C Debug --output-on-failure
