@@ -9,7 +9,7 @@
 
 **Tests :** lib-c 11 tests STL de plus (et 15 millions d'entrées fuzzées), fastapi 14 tests pytest sur 3 OS × 2 versions de Python, site 171 + 210 end-to-end.
 
-**Décisions de Charles (6 octobre) :** pas de miroir GitLab ; les modèles Pokémon restent hors du dépôt (droits de Nintendo), montrés en local par glisser-déposer ; le modèle « chocolat » attend sa source et sa licence.
+**Décisions de Charles (6 octobre) :** pas de miroir GitLab ; les modèles Pokémon restent hors du dépôt (droits de Nintendo), montrés en local par glisser-déposer ; le modèle « chocolat » n'est pas publié (source et licence inconnues, décision du 6 octobre).
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :
