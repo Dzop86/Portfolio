@@ -1,0 +1,15 @@
+{
+  "model": "pointnet",
+  "classes": [
+    "sphere",
+    "torus",
+    "box",
+    "cylinder",
+    "cone",
+    "capsule"
+  ],
+  "points": 512,
+  "test_accuracy": 0.9516666666666667,
+  "max_logit_gap": 1.811981201171875e-05,
+  "onnx_sha256": "48e9b3d024c55b69fb494ed8224229648fa8c1d0637a3c7c3908016ca2d0af4f"
+}

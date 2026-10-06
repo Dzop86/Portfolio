@@ -13,6 +13,8 @@ dependencies = ["numpy>=2.2", "pyyaml>=6"]
 [project.optional-dependencies]
 train = ["scikit-learn>=1.6", "torch>=2.6", "mlflow>=3.0", "onnx>=1.17", "onnxruntime>=1.20"]
 test = ["pytest>=9"]
+# What the API needs to serve the exported model: no PyTorch.
+serve = ["onnxruntime>=1.20"]
 dvc = ["dvc>=3.50"]
 
 [tool.setuptools.packages.find]

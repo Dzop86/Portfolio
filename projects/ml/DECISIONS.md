@@ -18,3 +18,8 @@
 ## M4. MLflow en base SQLite locale
 **Choix :** suivi des expériences dans `mlflow.db` (SQLite), hors de git, joint comme artefact à chaque exécution de la CI.
 **Alternatives :** serveur MLflow hébergé (compte et secrets), stockage fichiers (déconseillé par MLflow 3).
+
+## M5. Le PointNet exporté en ONNX, vérifié par l'étape qui l'exporte
+**Choix :** c'est le PointNet qui est exporté (et non le modèle de référence, plus précis) ; l'export se vérifie lui-même (écart des logits sur tout le jeu de test, précision mesurée par ONNX Runtime) et le fichier ONNX, petit, est gardé dans git (`cache: false`) pour que l'API et sa CI l'aient sans DVC.
+**Pourquoi :** le modèle de référence demande les descripteurs de `features.py` et scikit-learn à l'inférence ; le PointNet ne demande qu'un nuage de points, et ONNX Runtime suffit (pas de PyTorch dans l'image de l'API). L'écart de précision (95,2 % contre 97,2 %) est assumé et affiché.
+**Limite :** l'exporteur TorchScript est l'ancien depuis PyTorch 2.9 ; le nouveau (dynamo) demanderait onnxscript. Ses avertissements de dépréciation sont ignorés autour de l'appel d'export seulement.

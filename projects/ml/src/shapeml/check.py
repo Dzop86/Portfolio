@@ -14,6 +14,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--metrics", default="metrics.json")
     parser.add_argument("--params", default="params.yaml")
     parser.add_argument("--min-accuracy", type=float, help="overrides check.min_accuracy in params.yaml")
+    parser.add_argument("--export", default="export/pointnet.json",
+                        help="metadata of the exported ONNX model, checked too when present")
     args = parser.parse_args(argv)
     threshold = args.min_accuracy
     if threshold is None:
@@ -25,6 +27,13 @@ def main(argv: list[str] | None = None) -> int:
     if best < threshold:
         print(f"FAIL: best accuracy {best:.4f} is below the threshold {threshold:.4f}")
         return 1
+    exported = pathlib.Path(args.export)
+    if exported.exists():
+        onnx_accuracy = json.loads(exported.read_text())["test_accuracy"]
+        print(f"onnx       accuracy {onnx_accuracy:.4f} (the model the API serves)")
+        if onnx_accuracy < threshold:
+            print(f"FAIL: the exported model's accuracy {onnx_accuracy:.4f} is below the threshold {threshold:.4f}")
+            return 1
     print(f"OK: best accuracy {best:.4f} >= {threshold:.4f}")
     return 0
 

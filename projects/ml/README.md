@@ -21,6 +21,11 @@ Classification de formes 3D (sphère, tore, boîte, cylindre, cône, gélule) à
 - **Seuil** : l'étape `check` échoue si la meilleure précision passe sous `check.min_accuracy` (0,90), ce qui fait échouer la CI.
 - **DVC** : `dvc.yaml` décrit le pipeline, `params.yaml` ses paramètres, `dvc.lock` les empreintes des données produites. Les données (13,6 Mo) restent dans le cache DVC, hors de git.
 
+## Export ONNX (sprint 16)
+- L'étape DVC `export` (`src/shapeml/export.py`) exporte le PointNet en ONNX (`export/pointnet.onnx`, 300 Ko, gardé dans git) et vérifie l'export : sur les 600 nuages de test, les logits d'ONNX Runtime ne s'écartent de ceux de PyTorch que de 1,8·10⁻⁵ au plus (seuil 10⁻⁴, sinon l'étape échoue), et la précision mesurée par ONNX Runtime, 95,17 %, est celle de PyTorch. `export/pointnet.json` garde les classes, le nombre de points, cette précision et l'empreinte SHA-256 du modèle.
+- L'étape `check` applique aussi le seuil de précision au modèle exporté, celui que sert l'API.
+- `src/shapeml/infer.py` fait l'inférence sur un maillage avec le même prétraitement qu'à l'entraînement (échantillonnage pondéré par l'aire, centrage, sphère unité, graine fixe) ; il ne dépend que de numpy et d'onnxruntime (`pip install ".[serve]"`), pas de PyTorch.
+
 ## Lancer
 ```sh
 python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
@@ -33,6 +38,7 @@ dvc repro            # données, entraînement, évaluation et seuil, selon ce q
 - **Unitaires** (`tests/test_shapes.py`) : chaque classe donne un maillage valide, de caractéristique d'Euler 2 (0 pour le tore), comme le vérifie le projet Topologie 3D ; les formes varient vraiment.
 - **Échantillonnage** (`tests/test_dataset.py`) : points sur la surface, tirage proportionnel à l'aire, normalisation, déterminisme par la graine, classes équilibrées, test disjoint de l'entraînement.
 - **Modèles** (`tests/test_models.py`) : descripteurs invariants par rotation et par ordre des points, PointNet invariant par permutation des points, apprentissage sur un petit jeu, seuil de précision.
+- **Export** (`tests/test_export.py`) : parité PyTorch / ONNX Runtime sur un petit modèle entraîné dans le test, lots de toute taille, probabilités, prétraitement déterministe et identique à l'entraînement, maillages sans surface refusés ; le modèle commité correspond à son empreinte et reconnaît au moins 90 % de 120 nuages neufs. Vérifié en cassant le code : sans normalisation à l'inférence, un test échoue.
 - **CI** (`.github/workflows/ml.yml`) : tests sur Linux, Windows et macOS ; données régénérées de zéro avec la même empreinte que `dvc.lock` ; entraînement complet et seuil de précision à chaque modification du projet.
 
 Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md).

@@ -70,8 +70,13 @@ stages:
       size: 2355085
       nfiles: 2
   check:
-    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml
+    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml 
+      --export export/pointnet.json
     deps:
+    - path: export/pointnet.json
+      hash: md5
+      md5: 14966cae3137e4dc8417810d2bf83e29
+      size: 309
     - path: metrics.json
       hash: md5
       md5: 188f068867466733398485c0caf0f4ce
@@ -80,3 +85,40 @@ stages:
       params.yaml:
         check:
           min_accuracy: 0.9
+  export:
+    cmd: python -m shapeml.export --params params.yaml --data data/shapes.npz 
+      --model models/pointnet.pt --out export/pointnet.onnx
+    deps:
+    - path: data/shapes.npz
+      hash: md5
+      md5: 4743c03f65d9556a9a88881a277071ee
+      size: 13656039
+    - path: models
+      hash: md5
+      md5: a7051626a6b4d7e71dbe2d0efa55e68b.dir
+      size: 2355085
+      nfiles: 2
+    - path: src/shapeml/export.py
+      hash: md5
+      md5: d4f3e2efb2ec30c8afc4ae021189318c
+      size: 3369
+    - path: src/shapeml/infer.py
+      hash: md5
+      md5: 71be798920184f8395e6f78b74250b4d
+      size: 2598
+    - path: src/shapeml/pointnet.py
+      hash: md5
+      md5: 72e02e83fe0c674b023ddfedd33e2164
+      size: 3185
+    params:
+      params.yaml:
+        generate.points: 512
+    outs:
+    - path: export/pointnet.json
+      hash: md5
+      md5: 14966cae3137e4dc8417810d2bf83e29
+      size: 309
+    - path: export/pointnet.onnx
+      hash: md5
+      md5: 4e191f2ce579244879b960fcc7711d59
+      size: 305351

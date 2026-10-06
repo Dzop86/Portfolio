@@ -25,9 +25,26 @@ stages:
     metrics:
       - metrics.json:
           cache: false
+  export:
+    cmd: python -m shapeml.export --params params.yaml --data data/shapes.npz --model models/pointnet.pt --out export/pointnet.onnx
+    deps:
+      - data/shapes.npz
+      - models
+      - src/shapeml/export.py
+      - src/shapeml/infer.py
+      - src/shapeml/pointnet.py
+    params:
+      - generate.points
+    outs:
+      # Small (a few hundred KB) and served by the API: kept in git, not in the DVC cache.
+      - export/pointnet.onnx:
+          cache: false
+      - export/pointnet.json:
+          cache: false
   check:
-    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml
+    cmd: python -m shapeml.check --metrics metrics.json --params params.yaml --export export/pointnet.json
     deps:
       - metrics.json
+      - export/pointnet.json
     params:
       - check
