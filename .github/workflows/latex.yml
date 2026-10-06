@@ -1,0 +1,35 @@
+name: latex
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/latex/**', 'package.json', 'package-lock.json', '.github/workflows/latex.yml']
+  pull_request:
+    paths: ['projects/latex/**', 'package.json', 'package-lock.json', '.github/workflows/latex.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: latex-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: LaTeX library (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      # Strict type check (tsc), then the tests run straight from TypeScript (Node strips the types).
+      - run: npm run test:latex
