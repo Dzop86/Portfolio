@@ -1,0 +1,12 @@
+name = "carrefour"
+description = "Crossroads traffic lights where dangerous states cannot be written"
+version = "0.1.0"
+authors = ["Charles Lepaire"]
+licenses = "MIT"
+executables = ["carrefour"]
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_version = "Ada2022"
+"*".compile_checks = "Errors"
+"*".runtime_checks = "Default"

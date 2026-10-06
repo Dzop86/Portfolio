@@ -1,0 +1,38 @@
+name: ada
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/ada/**', '.github/workflows/ada.yml']
+  pull_request:
+    paths: ['projects/ada/**', '.github/workflows/ada.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ada-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Ada (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      # Alire installs the same GNAT toolchain on the three systems.
+      - uses: alire-project/setup-alire@v6
+      - name: Build (warnings are errors)
+        working-directory: projects/ada
+        run: alr -n build
+      - name: Unit tests (AUnit)
+        working-directory: projects/ada/tests
+        run: alr -n run
+      - name: Simulation
+        working-directory: projects/ada
+        run: alr -n run --args="20 4"

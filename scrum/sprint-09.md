@@ -4,8 +4,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, je simule un carrefour (ada) dont l'état est une phase du cycle : deux axes au vert ne peuvent pas s'écrire ; tests AUnit, CI Linux, Windows et macOS. | 3 | En cours |
-| En tant que développeur, je prouve avec SPARK (ada) l'absence d'erreurs à l'exécution et les contrats du contrôleur (jaune toujours suivi du rouge intégral). | 2 | À faire |
+| En tant que développeur, je simule un carrefour (ada) dont l'état est une phase du cycle : deux axes au vert ne peuvent pas s'écrire ; tests AUnit, CI Linux, Windows et macOS. | 3 | Fait |
+| En tant que développeur, je prouve avec SPARK (ada) l'absence d'erreurs à l'exécution et les contrats du contrôleur (jaune toujours suivi du rouge intégral). | 2 | En cours |
 
 **Ordre décidé par Charles (6 octobre) :** Ada, SQL, mini-langage, LaTeX, G-cartes ; la suite du ML est reportée.
 

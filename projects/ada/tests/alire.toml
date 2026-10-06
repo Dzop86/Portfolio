@@ -1,0 +1,16 @@
+name = "carrefour_tests"
+description = "AUnit tests of the carrefour crate"
+version = "0.1.0"
+licenses = "MIT"
+executables = ["test_main"]
+
+[[depends-on]]
+aunit = "*"
+carrefour = "*"
+
+[[pins]]
+carrefour = { path = ".." }
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_version = "Ada2022"
