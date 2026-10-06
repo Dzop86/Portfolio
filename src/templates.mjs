@@ -120,7 +120,7 @@ function progressBar(id, label, detail, value, soft = value) {
   </div>`;
 }
 
-// Temporary: remove this panel (and its call in home) once the 15 projects are done (D14).
+// Temporary: remove this panel (and its call in home) once the 19 projects are done (D14).
 function progressPanel({ lang, t, data }) {
   const p = progress(data.projects, data.sprints);
   const { done, inProgress, total } = p.portfolio;
@@ -163,9 +163,16 @@ function projects({ lang, t, data }) {
   const filters = [`<button type="button" class="chip" aria-pressed="true" data-filter="all">${esc(t('projects.filter.all'))}</button>`]
     .concat(groups.map((g) => `<button type="button" class="chip" aria-pressed="false" data-filter="${g}">${esc(t(`projects.group.${g}`))}</button>`))
     .join('');
+  // The games from Charles's studies get their own section after the other projects (D26).
+  const games = data.projects.filter((p) => p.group === 'games');
   return `${pageHead(t('projects.title'), t('projects.lead'))}
 <div class="chips" role="group" aria-label="${esc(t('projects.title'))}">${filters}</div>
-<div class="cards" data-filterable>${data.projects.map((p) => projectCard(p, lang, t)).join('')}</div>`;
+<div class="cards" data-filterable>${data.projects.filter((p) => p.group !== 'games').map((p) => projectCard(p, lang, t)).join('')}</div>
+<section class="block" aria-labelledby="h-games" data-games>
+  <h2 id="h-games">${esc(t('projects.games.title'))}</h2>
+  <p class="lead">${esc(t('projects.games.lead'))}</p>
+  <div class="cards">${games.map((p) => projectCard(p, lang, t)).join('')}</div>
+</section>`;
 }
 
 function research({ lang, t, data }) {

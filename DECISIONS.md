@@ -126,3 +126,8 @@
 **Choix (décision de Charles, 6 octobre 2026) :** les projets « Microservices Spring » et « API ASP.NET » sont retirés des données, du plan, de la roadmap et des textes ; il reste 15 projets et 130 points sur 24 sprints. La visionneuse Qt/OpenGL est gardée, en S17-S18, juste après la suite du ML (S16) ; les projets suivants avancent de trois sprints.
 **Conséquences :** plus de Java, de C#, de Jenkins ni de Testcontainers dans la pile annoncée (le C# reste dans l'enseignement du CV) ; l'accueil ne parle plus d'API Java et C# ; le risque R2 note le retrait. Les fichiers de sprint passés gardent leur texte d'origine (historique).
 **Limite :** la priorisation MoSCoW gagne une catégorie « Won't » pour garder trace des deux projets.
+
+## D26. Une section « Jeux de mes études », réécrits de zéro
+**Choix (décision de Charles, 6 octobre 2026) :** quatre jeux programmés pendant ses études (Othello en C, bataille navale en Java/JavaFX, aventure textuelle en Java, bataille en Ada) deviennent quatre projets du groupe `games`, affichés dans leur propre section de la page Projets, après la suite du ML (S17 à S21). Ils sont réécrits avec l'IA et suivent les mêmes règles que les autres projets (tests, CI multi-OS, relecture) ; l'Othello sera jouable sur le site (moteur C en WebAssembly).
+**Pourquoi réécrire :** le code d'origine du jeu textuel (« Robert Bizarre Adventure », retrouvé dans une archive) a deux auteurs ; le réécrire évite de publier le travail d'un camarade sans son accord, et montre la méthode du portfolio sur un sujet connu.
+**Conséquences :** 19 projets, 151 points, 29 sprints ; Qt/OpenGL en S22-S23, calcul parallèle, React, Angular et Bootstrap décalés de cinq sprints.

@@ -1,6 +1,6 @@
 # CLAUDE.md, instructions pour Claude Code
 
-Lis aussi `PLAN.md` (vision, 15 projets, roadmap) avant toute tâche.
+Lis aussi `PLAN.md` (vision, 19 projets, roadmap) avant toute tâche.
 
 ## Contexte
 Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté : « je sais faire générer du code par l'IA dans beaucoup de langages, puis le relire, le tester et le livrer proprement ». Fil rouge : les maillages 3D et leur topologie.

@@ -85,7 +85,7 @@
   "progress.sprint": "Current sprint ({n})",
   "progress.project": "Project in progress: {name}",
   "progress.points": "{done} of {total} points",
-  "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 15 projects are done.",
+  "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 19 projects are done.",
   "demo.title": "Try lib-c in your browser",
   "demo.lead": "The file is read by the C library compiled to WebAssembly: it never leaves your browser.",
   "demo.choose": "Choose an OBJ, PLY or STL file",
@@ -269,5 +269,8 @@
   "gcartes.step.2.title": "Cut by α1.",
   "gcartes.step.2.text": "Each face falls into its sides; α1 links (red) remember the corners. The shared edge is now sewn at each of its ends.",
   "gcartes.step.3.title": "Cut by α0.",
-  "gcartes.step.3.text": "Each side splits into two darts; an α0 link (black) joins the two halves. 16 darts and their links remain: that is the G-map."
+  "gcartes.step.3.text": "Each side splits into two darts; an α0 link (black) joins the two halves. 16 darts and their links remain: that is the G-map.",
+  "projects.group.games": "Games",
+  "projects.games.title": "Games from my studies",
+  "projects.games.lead": "Games I programmed during my studies, rewritten today with AI, tested and playable where possible."
 }

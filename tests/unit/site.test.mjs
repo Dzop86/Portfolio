@@ -227,8 +227,12 @@ test('the thesis links to its theses.fr record', () => {
 test('the projects page lists the projects in sprint order', () => {
   const html = page('en', 'projects');
   const ids = [...html.matchAll(/href="\.\/project-([\w-]+)\.html"/g)].map((m) => m[1]);
-  const order = loadData().projects.map((p) => p.id);
+  const all = loadData().projects;
+  // Each grid in sprint order; the games of Charles's studies in their own section, after the rest (D26).
+  const order = [...all.filter((p) => p.group !== 'games'), ...all.filter((p) => p.group === 'games')].map((p) => p.id);
   assert.deepEqual([...new Set(ids)], order);
+  const games = html.slice(html.indexOf('data-games'));
+  for (const id of ['othello', 'naval', 'aventure', 'bataille']) assert.ok(games.includes(`project-${id}.html`), id);
   assert.deepEqual(order.slice(0, 7), ['vitrine', 'lib-c', 'topologie', 'fastapi', 'ml', 'ada', 'sql']);
 });
 
