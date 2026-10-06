@@ -112,6 +112,33 @@ test('the topology viewer shows invariants of the samples and of a dropped file'
   expect(errors).toEqual([]);
 });
 
+test('roadmap sprint numbers sit above their columns, on every screen', async ({ page }) => {
+  await page.goto('/fr/method.html');
+  // Every visible sprint number is centred over the column of that sprint, as the bars are.
+  const offsets = await page.evaluate(() => {
+    const track = document.querySelector('.gantt-head .gantt-track').getBoundingClientRect();
+    const count = Number(getComputedStyle(document.querySelector('.gantt-head .gantt-track')).getPropertyValue('--sprints'));
+    const column = track.width / count;
+    return [...document.querySelectorAll('.gantt-head .gantt-track span')]
+      .filter((s) => getComputedStyle(s).visibility !== 'hidden')
+      .map((s) => {
+        const r = s.getBoundingClientRect();
+        const expected = track.left + (Number(s.textContent) - 0.5) * column;
+        return Math.abs(r.left + r.width / 2 - expected) / column;
+      });
+  });
+  expect(offsets.length).toBeGreaterThan(4);
+  for (const off of offsets) expect(off).toBeLessThan(0.3);
+  // And a bar spans exactly its sprints: S10 starts where column 10 starts.
+  const [bar, track] = await page.evaluate(() => {
+    const row = [...document.querySelectorAll('.gantt-row')].find((r) => r.textContent.trim().startsWith('S10 '));
+    const b = row.querySelector('.gantt-bar').getBoundingClientRect();
+    const t = row.querySelector('.gantt-track').getBoundingClientRect();
+    return [[b.left, b.width], [t.left, t.width]];
+  });
+  expect(Math.abs(bar[0] - (track[0] + (9 * track[1]) / 27))).toBeLessThan(2);
+});
+
 test('project filter shows only the chosen group', async ({ page }) => {
   await page.goto('/fr/projects.html');
   await page.getByRole('button', { name: 'Web' }).click();

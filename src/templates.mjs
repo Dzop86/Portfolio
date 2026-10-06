@@ -268,7 +268,9 @@ function method({ lang, t, data }) {
   const { scrum } = data;
   const count = scrum.sprintCount;
   const state = roadmapState(data.sprints);
-  const header = Array.from({ length: count }, (_, i) => `<span>${i + 1}</span>`).join('');
+  // Sprint numbers; on narrow screens only the "major" ones (1, 5, 10...) stay visible.
+  const header = Array.from({ length: count }, (_, i) =>
+    `<span${i === 0 || (i + 1) % 5 === 0 ? ' data-major' : ''}>${i + 1}</span>`).join('');
 
   const rows = scrum.phases.map((ph) => {
     const [a, b] = sprintRange(ph.sprints);

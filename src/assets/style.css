@@ -177,9 +177,10 @@ tr[hidden] { display: none; }
 .gantt-row { display: grid; grid-template-columns: minmax(180px, 34%) 1fr; gap: var(--space-3); align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border); }
 .gantt-row:last-child { border-bottom: none; }
 .gantt-label { font-size: 0.92rem; }
-.gantt-track { display: grid; grid-template-columns: repeat(var(--sprints), 1fr); height: 18px; }
+/* minmax(0, 1fr): a column never widens to fit its number, so header and bars share the same grid. */
+.gantt-track { display: grid; grid-template-columns: repeat(var(--sprints), minmax(0, 1fr)); height: 18px; }
 .gantt-track.months { height: auto; font-size: 0.72rem; color: var(--muted); }
-.gantt-track.months span { text-align: center; }
+.gantt-track.months span { display: flex; justify-content: center; overflow: visible; white-space: nowrap; }
 .gantt-bar { border-radius: 6px; height: 18px; }
 .kind-setup { background: var(--muted); }
 .kind-build { background: var(--gantt-build); }
@@ -212,7 +213,7 @@ tr[hidden] { display: none; }
   .gantt-row { grid-template-columns: 1fr; gap: var(--space-1); }
   .gantt-head .gantt-label { display: none; }
   .brand span { font-size: 1rem; }
-  .gantt-track.months span:nth-child(even) { visibility: hidden; }
+  .gantt-track.months span:not([data-major]) { visibility: hidden; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
