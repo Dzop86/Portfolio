@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/morpion/ai.py` : le minimax et la valeur d'une victoire.
-- [ ] `src/morpion/board.py` : règles et positions atteignables.
-- [ ] Le jeu ressemble-t-il à celui de mes études ?
+- [x] `src/morpion/ai.py` : le minimax et la valeur d'une victoire.
+- [x] `src/morpion/board.py` : règles et positions atteignables.
+- [x] Le jeu ressemble-t-il à celui de mes études ?
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« je valide, envoie »).
 
 ## Constats
 
