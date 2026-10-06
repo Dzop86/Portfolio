@@ -7,6 +7,8 @@ Portfolio bilingue (français, anglais) : 17 projets autour des maillages 3D, un
 
 Bilingual portfolio (French, English): 17 projects around 3D meshes, an academic CV and project management. The code is generated with Claude Code, then reviewed, tested and documented by me (see `REVIEW.md`).
 
+Site en ligne : https://dzop86.github.io/Portfolio/
+
 ## Lancer en local
 ```bash
 npm ci
@@ -17,12 +19,13 @@ npx playwright install   # once
 npm run test:e2e         # desktop and mobile, 3 browser engines
 docker compose up --build  # http://localhost:8080
 ```
-Fonctionne sous Linux, macOS et Windows (Node 20 ou plus récent).
+Fonctionne sous Linux, macOS et Windows (Node 22 ou plus récent).
 
 ## Structure
 - `data/` : contenu (CV, projets, Scrum, traductions)
 - `src/` : générateur statique et assets (charte dans `src/assets/tokens.css`)
 - `tests/` : tests unitaires, d'intégration et end-to-end
+- `.github/workflows/` : CI (Linux, Windows, macOS, Playwright, Docker) et déploiement GitHub Pages
 - `PLAN.md`, `CLAUDE.md`, `DECISIONS.md`, `REVIEW.md`, `scrum/` : pilotage du projet
 
 ## Licence
