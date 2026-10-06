@@ -4,10 +4,12 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `schema/02_views.sql` : les vues répondent-elles aux questions annoncées (médiane, rang, exposant, régressions) ?
-- [ ] `bench/run.mjs` : la mesure est-elle honnête (chauffe, répétitions, vérification avant enregistrement) ?
-- [ ] `tests/pgtap/04_indexes.sql` : le test de plan est-il robuste ?
-- [ ] `../../src/assets/sqlplay.js` : arrêt d'une requête trop longue, rechargement, messages d'erreur.
+- [x] `schema/02_views.sql` : les vues répondent-elles aux questions annoncées (médiane, rang, exposant, régressions) ?
+- [x] `bench/run.mjs` : la mesure est-elle honnête (chauffe, répétitions, vérification avant enregistrement) ?
+- [x] `tests/pgtap/04_indexes.sql` : le test de plan est-il robuste ?
+- [x] `../../src/assets/sqlplay.js` : arrêt d'une requête trop longue, rechargement, messages d'erreur.
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide le sprint 10 du sql, review ok »).
 
 ## Constats
 

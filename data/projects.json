@@ -32,7 +32,7 @@
     "stack": ["PyTorch", "scikit-learn", "DVC", "MLflow", "ONNX", "GitHub Actions"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/ml" },
     "teaching": { "fr": "Prolonge le CNN 3D de ma thèse", "en": "Extends the 3D CNN from my PhD" } },
-  { "id": "sql", "sprint": "S10", "points": 5, "status": "in-progress", "group": "back", "widget": "sql-playground",
+  { "id": "sql", "sprint": "S10", "points": 5, "status": "done", "group": "back", "widget": "sql-playground",
     "name": { "fr": "Base SQL des benchmarks", "en": "SQL benchmark database" },
     "pitch": { "fr": "Schéma, vues, fonctions de fenêtrage et index, avec un bac à sable SQL dans le navigateur.", "en": "Schema, views, window functions and indexes, with an in-browser SQL playground." },
     "stack": ["PostgreSQL", "SQL", "sql.js", "pgTAP"],
