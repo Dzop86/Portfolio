@@ -5,7 +5,7 @@
   "description": "Portfolio bilingue de Charles Lepaire, généré avec Claude Code et relu à la main.",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22" },
   "scripts": {
     "build": "node src/build.mjs",
     "test": "node --test \"tests/unit/*.test.mjs\"",
