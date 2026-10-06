@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage[french]{babel}
+\title{Un portfolio généré par l'IA, relu et livré proprement}
+\author{Charles Lepaire}
+\date{Octobre 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Ce portfolio montre qu'un docteur en informatique graphique sait faire générer du code par l'IA dans
+une quinzaine de langages, puis le relire, le tester et le livrer. Le fil rouge est celui de ma thèse :
+les maillages 3D et leur topologie. Ce document est lui-même rendu par l'un des projets, une
+bibliothèque \LaTeX{} écrite en TypeScript.
+\end{abstract}
+
+\tableofcontents
+
+\section{Objectif}\label{sec:objectif}
+Un recruteur voit souvent une liste de technologies sans preuve. Ici, chaque projet arrive avec ses
+tests unitaires et d'intégration, une intégration continue verte sur Linux, Windows et macOS quand il
+est compilé, une démonstration en ligne et deux fichiers de suivi : \texttt{DECISIONS.md} pour les
+choix d'architecture, \texttt{REVIEW.md} pour la relecture humaine du code généré.
+
+\section{Méthode}\label{sec:methode}
+Le travail suit Scrum, par sprints de deux semaines. À chaque étape :
+\begin{enumerate}
+\item une spécification et un plan d'architecture, relus ;
+\item les tests d'abord, puis la génération par petites étapes ;
+\item la vérification qu'un test échoue quand on casse le code\footnote{Par exemple, sans le test
+d'occurrence de l'inférence de types du mini-langage, les tests unitaires tombent.} ;
+\item la relecture de chaque différence, et chaque défaut noté avec sa correction.
+\end{enumerate}
+Les défauts trouvés ainsi sont réels : des entiers de 32 bits sous js\_of\_ocaml, des exposants à
+trois chiffres sous Windows, une pile JavaScript trop petite sous macOS.
+
+\section{Le fil rouge : les maillages}\label{sec:maillages}
+Les projets forment une chaîne. Une bibliothèque C lit les fichiers OBJ, PLY et STL ; une bibliothèque
+C++ en construit la structure demi-arête et en calcule les invariants. Le premier est la
+caractéristique d'Euler d'une surface à $V$ sommets, $E$ arêtes et $F$ faces :
+\begin{equation}
+\chi = V - E + F. \label{eq:euler}
+\end{equation}
+Pour une surface orientable à $c$ composantes et $b$ boucles de bord, elle donne le genre $g$, le
+nombre de « trous » :
+\begin{equation}
+\chi = 2c - 2g - b. \label{eq:genre}
+\end{equation}
+La courbure de Gauss discrète en un sommet intérieur est le défaut angulaire
+$K_v = 2\pi - \sum_i \theta_i$, et le théorème de Gauss-Bonnet relie la géométrie à la topologie :
+\begin{equation}
+\sum_v K_v = 2\pi\chi. \label{eq:gauss-bonnet}
+\end{equation}
+Les tests vérifient \eqref{eq:gauss-bonnet} à $10^{-9}$ près sur des tores déformés au hasard, et le
+mini-langage Maille calcule \eqref{eq:genre} sur des scènes : \texttt{genus (union t (union t s))}
+vaut 2 pour deux tores et une sphère. Ces notions viennent de ma thèse~\cite{these}, sur les
+cartes généralisées et l'arbre vasculaire cérébral~\cite{wscg}.
+
+\section{Les projets}\label{sec:projets}
+\begin{tabular}{lll}
+\hline
+\textbf{Projet} & \textbf{Langages} & \textbf{Ce qui est prouvé} \\
+\hline
+Bibliothèque de maillages & C, WebAssembly & fuzzing, Valgrind, 3 systèmes \\
+Topologie 3D & C++, three.js & Gauss-Bonnet, viewer en ligne \\
+API & Python, FastAPI & Docker, invariants par HTTP \\
+Apprentissage & PyTorch, MLflow & seuil de précision bloquant \\
+Carrefour & Ada, SPARK & absence d'erreur prouvée \\
+Base de mesures & SQL, PostgreSQL & pgTAP, plan d'exécution \\
+Mini-langage & C, Bison, OCaml & types inférés \\
+Cet éditeur & TypeScript, KaTeX & diagnostics situés \\
+\hline
+\end{tabular}
+
+\noindent La liste complète, avec l'état de chaque projet, est sur la page Projets. La section
+\ref{sec:methode} décrit comment chacun est relu.
+
+\section{Ce que montre ce document}
+Il est analysé et rendu dans votre navigateur. Modifiez une formule ou supprimez une accolade :
+l'aperçu se met à jour et les diagnostics indiquent la ligne et la colonne du problème.
+
+\begin{thebibliography}{9}
+\bibitem{these} C. Lepaire. \emph{Extraction par analyse topologique sur les G-cartes de
+caractéristiques pour les systèmes d'apprentissage supervisé appliqués à l'arbre vasculaire
+cérébral}. Thèse de doctorat, Université de Poitiers, 2025.
+\url{https://theses.fr/s342053}
+\bibitem{wscg} C. Lepaire, H. Belhaouari, R. Pascual, P. Meseure. Exploitation of local adjacencies
+for parallel construction of a Reeb graph variant: cerebral vascular tree case. \emph{Journal of
+WSCG}, 2024. \url{https://doi.org/10.24132/JWSCG.2024.9}
+\end{thebibliography}
+
+\end{document}
