@@ -30,6 +30,8 @@ if(MESH_FUZZ)
   add_link_options(-fsanitize=address,undefined)
 endif()
 
+# BUILD_SHARED_LIBS=ON builds libmesh.so / .dylib / mesh.dll for the Python API (projects/fastapi).
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 add_library(mesh src/mesh.c src/obj.c src/ply.c src/stl.c src/topology.c)
 target_include_directories(mesh PUBLIC include)
 mesh_warnings(mesh)

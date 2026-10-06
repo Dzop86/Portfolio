@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meshapi"
+version = "0.1.0"
+description = "HTTP API over lib-c, the C mesh library of Charles Lepaire's portfolio"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = ["fastapi>=0.142,<1", "uvicorn>=0.54,<1"]
+
+[project.optional-dependencies]
+test = ["pytest>=9", "httpx2>=2.13"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

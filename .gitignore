@@ -23,3 +23,9 @@ Thumbs.db
 
 # C/C++ project builds
 projects/*/build/
+
+# Python
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
