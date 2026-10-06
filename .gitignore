@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Environment and secrets
+.env
+.env.*
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
