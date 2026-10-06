@@ -1,6 +1,6 @@
 # CLAUDE.md, instructions pour Claude Code
 
-Lis aussi `PLAN.md` (vision, 17 projets, roadmap) avant toute tâche.
+Lis aussi `PLAN.md` (vision, 15 projets, roadmap) avant toute tâche.
 
 ## Contexte
 Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté : « je sais faire générer du code par l'IA dans beaucoup de langages, puis le relire, le tester et le livrer proprement ». Fil rouge : les maillages 3D et leur topologie.
@@ -31,4 +31,4 @@ Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté 
 - `data/` : contenu (CV, projets, Scrum, traductions). Ajouter un projet = une entrée dans `projects.json`.
 - `src/` : générateur (`build.mjs`, `templates.mjs`, `lib.mjs`) et assets.
 - `tests/unit/`, `tests/e2e/` : tests.
-- Les projets techniques (C, Spring, ML...) vivent dans `projects/<id>/`, chacun avec son README, son `REVIEW.md`, ses tests et son job CI.
+- Les projets techniques (C, Ada, ML...) vivent dans `projects/<id>/`, chacun avec son README, son `REVIEW.md`, ses tests et son job CI.

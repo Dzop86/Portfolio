@@ -137,7 +137,7 @@ test('a detail page shows the stack, the Definition of Done and the neighbours',
 test('project links are shown only when the project has them', () => {
   const { links } = loadData().projects.find((p) => p.id === 'vitrine');
   assert.ok(page('fr', projectPage('vitrine')).includes(`href="${links.code}" data-link="code"`));
-  const planned = page('fr', projectPage('spring'));
+  const planned = page('fr', projectPage('qt'));
   assert.ok(!planned.includes('data-link='));
   assert.ok(planned.includes('data-no-links'));
 });
@@ -177,7 +177,7 @@ test('the lib-c page embeds the WebAssembly demo with its samples, and only that
       assert.ok(labels[key], `${lang}: label ${key}`);
     }
   }
-  assert.ok(!page('fr', projectPage('spring')).includes('data-mesh-demo'));
+  assert.ok(!page('fr', projectPage('qt')).includes('data-mesh-demo'));
   assert.ok(existsSync(join(dist, 'assets/wasm/meshlib.wasm')));
 });
 

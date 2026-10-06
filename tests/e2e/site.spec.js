@@ -377,10 +377,13 @@ test('roadmap sprint numbers sit above their columns, on every screen', async ({
   const [bar, track] = await page.evaluate(() => {
     const row = [...document.querySelectorAll('.gantt-row')].find((r) => r.textContent.trim().startsWith('S10 '));
     const b = row.querySelector('.gantt-bar').getBoundingClientRect();
-    const t = row.querySelector('.gantt-track').getBoundingClientRect();
-    return [[b.left, b.width], [t.left, t.width]];
+    const trackEl = row.querySelector('.gantt-track');
+    const t = trackEl.getBoundingClientRect();
+    return [[b.left, b.width], [t.left, t.width, Number(getComputedStyle(trackEl).getPropertyValue('--sprints'))]];
   });
-  expect(Math.abs(bar[0] - (track[0] + (9 * track[1]) / 27))).toBeLessThan(2);
+  // The number of sprints comes from the page (24 since D25), not from the test.
+  expect(track[2]).toBeGreaterThan(10);
+  expect(Math.abs(bar[0] - (track[0] + (9 * track[1]) / track[2]))).toBeLessThan(2);
 });
 
 test('project filter shows only the chosen group', async ({ page }) => {

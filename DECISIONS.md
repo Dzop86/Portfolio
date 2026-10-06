@@ -88,7 +88,7 @@
 **Limite :** les écarts de couleur ne sont plus proportionnels aux écarts de courbure ; la valeur exacte reste lisible au survol.
 
 ## D19. Roadmap par sprints, état calculé depuis les fichiers de sprint
-**Choix :** la page Méthode montre les sprints S1 à S27 au lieu d'un calendrier de septembre 2025 à octobre 2026. Chaque phase de `data/scrum.json` est « faite », « en cours » ou « prévue » selon `scrum/sprint-NN.md` (un sprint est clos quand toutes ses stories sont « Fait » ou « Abandonné »). Le registre des risques ajoute R9 (droits sur les modèles 3D) et le workflow GenAI l'étape « vérifier qu'un test échoue quand on casse le code ».
+**Choix :** la page Méthode montre les sprints S1 à S27 (S24 depuis D25) au lieu d'un calendrier de septembre 2025 à octobre 2026. Chaque phase de `data/scrum.json` est « faite », « en cours » ou « prévue » selon `scrum/sprint-NN.md` (un sprint est clos quand toutes ses stories sont « Fait » ou « Abandonné »). Le registre des risques ajoute R9 (droits sur les modèles 3D) et le workflow GenAI l'étape « vérifier qu'un test échoue quand on casse le code ».
 **Pourquoi :** le calendrier illustratif ne correspondait plus à rien après la réorganisation du 6 octobre ; l'état calculé ne peut pas diverger des fichiers de sprint.
 **Limite :** la durée réelle d'un sprint n'est pas affichée ; elle se lit dans les dates des commits.
 
@@ -120,3 +120,8 @@
 **Pourquoi :** les leçons et la figure se lisent sans JavaScript et sont indexables ; la figure et les comptes affichés viennent du même code que celui testé, ils ne peuvent pas diverger.
 **Alternatives :** un cube 3D (three.js) où les brins se chevauchent, des images figées.
 **Limite :** les brins de la figure se choisissent à la souris ; au clavier, on s'y déplace avec les boutons α depuis le brin 0.
+
+## D25. Périmètre réduit : Spring et ASP.NET retirés
+**Choix (décision de Charles, 6 octobre 2026) :** les projets « Microservices Spring » et « API ASP.NET » sont retirés des données, du plan, de la roadmap et des textes ; il reste 15 projets et 130 points sur 24 sprints. La visionneuse Qt/OpenGL est gardée, en S17-S18, juste après la suite du ML (S16) ; les projets suivants avancent de trois sprints.
+**Conséquences :** plus de Java, de C#, de Jenkins ni de Testcontainers dans la pile annoncée (le C# reste dans l'enseignement du CV) ; l'accueil ne parle plus d'API Java et C# ; le risque R2 note le retrait. Les fichiers de sprint passés gardent leur texte d'origine (historique).
+**Limite :** la priorisation MoSCoW gagne une catégorie « Won't » pour garder trace des deux projets.

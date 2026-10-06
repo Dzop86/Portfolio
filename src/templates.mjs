@@ -72,7 +72,7 @@ function pageHead(title, lead, kicker = '') {
 function home({ lang, t, data }) {
   const { cv, projects } = data;
   const hours = teachingTotals(cv.teaching).total;
-  const featured = projects.filter((p) => ['topologie', 'ml', 'spring', 'langage'].includes(p.id));
+  const featured = projects.filter((p) => ['topologie', 'ml', 'langage', 'latex'].includes(p.id));
   return `<section class="hero">
   <p class="kicker">${esc(t('home.kicker'))}</p>
   <h1>Charles Lepaire</h1>
@@ -119,7 +119,7 @@ function progressBar(id, label, detail, value, soft = value) {
   </div>`;
 }
 
-// Temporary: remove this panel (and its call in home) once the 17 projects are done (D14).
+// Temporary: remove this panel (and its call in home) once the 15 projects are done (D14).
 function progressPanel({ lang, t, data }) {
   const p = progress(data.projects, data.sprints);
   const { done, inProgress, total } = p.portfolio;

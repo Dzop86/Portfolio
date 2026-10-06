@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 27,
+  "sprintCount": 24,
   "phases": [
     {
       "sprints": "S1",
@@ -91,15 +91,7 @@
       }
     },
     {
-      "sprints": "S17-S19",
-      "kind": "build",
-      "label": {
-        "fr": "Spring + Jenkins, ASP.NET",
-        "en": "Spring + Jenkins, ASP.NET"
-      }
-    },
-    {
-      "sprints": "S20-S21",
+      "sprints": "S17-S18",
       "kind": "build",
       "label": {
         "fr": "Visionneuse Qt/OpenGL",
@@ -107,7 +99,7 @@
       }
     },
     {
-      "sprints": "S22-S23",
+      "sprints": "S19-S20",
       "kind": "build",
       "label": {
         "fr": "Calcul parallèle",
@@ -115,7 +107,7 @@
       }
     },
     {
-      "sprints": "S24-S27",
+      "sprints": "S21-S24",
       "kind": "front",
       "label": {
         "fr": "React, Angular, Bootstrap, version finale",
@@ -146,8 +138,8 @@
         "en": "Scope creep"
       },
       "mitigation": {
-        "fr": "Priorisation MoSCoW, ordre des projets revu avec Charles (6 octobre), projets « Could » sacrifiables",
-        "en": "MoSCoW prioritisation, project order revised with Charles (6 October), \"Could\" projects can be dropped"
+        "fr": "Priorisation MoSCoW, ordre des projets revu avec Charles (6 octobre), Spring et ASP.NET retirés du périmètre, projets « Could » sacrifiables",
+        "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
       }
     },
     {

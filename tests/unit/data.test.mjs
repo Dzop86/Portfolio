@@ -26,8 +26,8 @@ test('project ids are unique and every project is translated', () => {
 
 test('the portfolio covers the required technologies', () => {
   const stack = new Set(projects.flatMap((p) => p.stack));
-  const required = ['HTML', 'CSS', 'JavaScript', 'Java', 'Spring Boot', 'C', 'C++', 'Qt', 'Python', 'PyTorch', 'SQL',
-    'Flex', 'Bison', 'OCaml', 'Ada', 'React', 'Angular', 'Bootstrap', 'C#', 'ASP.NET', 'Docker', 'Jenkins',
+  const required = ['HTML', 'CSS', 'JavaScript', 'C', 'C++', 'Qt', 'Python', 'PyTorch', 'SQL',
+    'Flex', 'Bison', 'OCaml', 'Ada', 'React', 'Angular', 'Bootstrap', 'Docker',
     'DVC', 'MLflow', 'LaTeX', 'TypeScript', 'OpenMP', 'CUDA'];
   const missing = required.filter((r) => !stack.has(r));
   assert.deepEqual(missing, []);
@@ -71,5 +71,6 @@ test('sprint labels are well formed and follow the order decided on 6 October 20
   for (const p of projects) assert.match(p.sprint, /^S\d+(-S\d+)?(\+S\d+)?$/, p.id);
   const order = ['ada', 'sql', 'langage', 'latex', 'gcartes'];
   for (let i = 1; i < order.length; i++) assert.ok(first(order[i - 1]) < first(order[i]), `${order[i - 1]} before ${order[i]}`);
-  assert.ok(first('gcartes') < first('aspnet') && first('gcartes') < first('spring'), 'the .NET and Spring APIs come after');
+  assert.ok(first('gcartes') < first('qt'), 'the Qt viewer comes after the G-maps course');
+  assert.ok(!projects.some((p) => p.id === 'spring' || p.id === 'aspnet'), 'Spring and ASP.NET dropped (D25)');
 });

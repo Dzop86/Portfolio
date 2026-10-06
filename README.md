@@ -3,9 +3,9 @@
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 [![Deploy](../../actions/workflows/deploy.yml/badge.svg)](../../actions/workflows/deploy.yml)
 
-Portfolio bilingue (français, anglais) : 17 projets autour des maillages 3D, un CV analytique et la gestion de projet. Le code est généré avec Claude Code, puis relu, testé et documenté par moi (voir `REVIEW.md`).
+Portfolio bilingue (français, anglais) : 15 projets autour des maillages 3D, un CV analytique et la gestion de projet. Le code est généré avec Claude Code, puis relu, testé et documenté par moi (voir `REVIEW.md`).
 
-Bilingual portfolio (French, English): 17 projects around 3D meshes, an academic CV and project management. The code is generated with Claude Code, then reviewed, tested and documented by me (see `REVIEW.md`).
+Bilingual portfolio (French, English): 15 projects around 3D meshes, an academic CV and project management. The code is generated with Claude Code, then reviewed, tested and documented by me (see `REVIEW.md`).
 
 Site en ligne : https://dzop86.github.io/Portfolio/
 
