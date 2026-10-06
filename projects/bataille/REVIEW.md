@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/war.adb` : règles du pli et de la bataille, fin de partie.
-- [ ] `src/cards.ads` : types et contrats des paquets.
-- [ ] Les règles sont-elles celles du jeu de mes études ?
+- [x] `src/war.adb` : règles du pli et de la bataille, fin de partie.
+- [x] `src/cards.ads` : types et contrats des paquets.
+- [x] Les règles sont-elles celles du jeu de mes études ?
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« valide relecture, review »).
 
 ## Constats
 
