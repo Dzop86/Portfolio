@@ -1,0 +1,90 @@
+/* Charte « pistache et chocolat ». Source unique des couleurs, réutilisée par tous les projets web. */
+:root {
+  --pistache: #bef374;
+  --pistache-pale: #e6f8c9;
+  --chocolat: #5a3a22;
+  --bambou: #4d7a1c;
+  --encre: #2b1d14;
+  --creme: #fbf7ee;
+
+  --bg: var(--creme);
+  --surface: #fffdf7;
+  --surface-2: #f3ecdc;
+  --text: var(--chocolat);
+  --text-strong: var(--encre);
+  --muted: #74553d;
+  --border: rgba(90, 58, 34, 0.18);
+  --border-strong: rgba(90, 58, 34, 0.4);
+  --link: var(--bambou);
+  --accent: var(--pistache);
+  --on-accent: var(--chocolat);
+  --tag-bg: var(--pistache-pale);
+  --tag-text: var(--chocolat);
+  --bar: var(--pistache);
+  --risk-high: #f2c4b4;
+  --risk-high-text: #7a2410;
+  --risk-medium: #f6e2a6;
+  --risk-medium-text: #6b4a05;
+  --risk-low: var(--pistache-pale);
+  --risk-low-text: #2f5210;
+
+  --font-display: "Zen Maru Gothic", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --space-7: 64px;
+  --maxw: 1080px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--encre);
+    --surface: #36261a;
+    --surface-2: #402e20;
+    --text: #f3ead9;
+    --text-strong: #fffdf7;
+    --muted: #cdbba2;
+    --border: rgba(251, 247, 238, 0.14);
+    --border-strong: rgba(251, 247, 238, 0.35);
+    --link: var(--pistache);
+    --tag-bg: rgba(190, 243, 116, 0.14);
+    --tag-text: #e6f8c9;
+    --risk-high: rgba(242, 140, 110, 0.22);
+    --risk-high-text: #ffc7b5;
+    --risk-medium: rgba(246, 210, 110, 0.2);
+    --risk-medium-text: #f8dd96;
+    --risk-low: rgba(190, 243, 116, 0.16);
+    --risk-low-text: #d4f5a4;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--encre);
+  --surface: #36261a;
+  --surface-2: #402e20;
+  --text: #f3ead9;
+  --text-strong: #fffdf7;
+  --muted: #cdbba2;
+  --border: rgba(251, 247, 238, 0.14);
+  --border-strong: rgba(251, 247, 238, 0.35);
+  --link: var(--pistache);
+  --tag-bg: rgba(190, 243, 116, 0.14);
+  --tag-text: #e6f8c9;
+  --risk-high: rgba(242, 140, 110, 0.22);
+  --risk-high-text: #ffc7b5;
+  --risk-medium: rgba(246, 210, 110, 0.2);
+  --risk-medium-text: #f8dd96;
+  --risk-low: rgba(190, 243, 116, 0.16);
+  --risk-low-text: #d4f5a4;
+  color-scheme: dark;
+}

@@ -1,0 +1,20 @@
+{
+  "name": "charles-lepaire-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portfolio bilingue de Charles Lepaire, généré avec Claude Code et relu à la main.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node src/build.mjs",
+    "test": "node --test \"tests/unit/*.test.mjs\"",
+    "test:e2e": "playwright test",
+    "serve": "node scripts/serve.mjs",
+    "check": "npm run build && npm test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@axe-core/playwright": "^4.10.0"
+  }
+}

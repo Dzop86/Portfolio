@@ -1,0 +1,118 @@
+{
+  "_comment": "Données PUBLIQUES uniquement. Interdit ici : adresse, téléphone, e-mail, date de naissance. Un test CI le vérifie.",
+  "person": {
+    "name": "Charles Lepaire",
+    "title": { "fr": "Docteur en informatique graphique", "en": "PhD in Computer Graphics" },
+    "linkedin": "https://www.linkedin.com/in/charles-lepaire-4591a8161",
+    "orcid": "https://orcid.org/0009-0008-9314-8237",
+    "hal": "https://cv.hal.science/charles-lepaire"
+  },
+  "summary": {
+    "fr": "6 publications en informatique, dont 1 revue internationale (meilleurs papiers WSCG 2024) et 1 conférence internationale. 376 heures d'enseignement en informatique, de la L1 au M2.",
+    "en": "6 computer science publications, including 1 international journal paper (WSCG 2024 best papers) and 1 international conference paper. 376 hours of computer science teaching, from first-year undergraduate to Master's level."
+  },
+  "education": [
+    {
+      "period": "2025 – 2026",
+      "title": { "fr": "ATER en informatique (section 27)", "en": "Temporary lecturer and researcher (ATER), computer science" },
+      "place": { "fr": "Université de Poitiers, laboratoire XLIM", "en": "University of Poitiers, XLIM laboratory" },
+      "detail": { "fr": "Service complet d'enseignement (192 h) et recherche au laboratoire XLIM.", "en": "Full teaching load (192 h) and research at the XLIM laboratory." }
+    },
+    {
+      "period": "2022 – 2025",
+      "title": { "fr": "Doctorat en informatique", "en": "PhD in Computer Science" },
+      "place": { "fr": "Équipe IG, XLIM, CNRS, Université de Poitiers, laboratoire commun I3M", "en": "IG team, XLIM, CNRS, University of Poitiers, I3M joint laboratory" },
+      "detail": { "fr": "Soutenue le 19 juin 2025. Direction : Philippe Meseure ; codirection : Hakim Belhaouari.", "en": "Defended on 19 June 2025. Supervisor: Philippe Meseure; co-supervisor: Hakim Belhaouari." }
+    },
+    {
+      "period": "2019 – 2021",
+      "title": { "fr": "Master informatique, parcours Conception logicielle", "en": "Master's in Computer Science, Software Design track" },
+      "place": { "fr": "Université de Poitiers", "en": "University of Poitiers" },
+      "detail": { "fr": "Mention bien, classé 1er. Stage M2 au laboratoire XLIM : algorithmes de points dominants.", "en": "With honours, ranked 1st. Master's internship at XLIM: dominant point algorithms." }
+    },
+    {
+      "period": "2015 – 2019",
+      "title": { "fr": "Licence informatique", "en": "Bachelor's in Computer Science" },
+      "place": { "fr": "Université de Poitiers", "en": "University of Poitiers" },
+      "detail": { "fr": "Stage L3 chez Emandarine : création de plugins WordPress.", "en": "Internship at Emandarine: WordPress plugin development." }
+    }
+  ],
+  "thesis": {
+    "title": { "fr": "Extraction par analyse topologique sur les G-cartes de caractéristiques pour les systèmes d'apprentissage supervisé appliqués à l'arbre vasculaire cérébral", "en": "Topological feature extraction on generalized maps for supervised learning systems applied to the cerebral vascular tree" },
+    "abstract": {
+      "fr": "Les maillages reconstruits de l'arbre vasculaire cérébral sont volumineux, bruités et contiennent des erreurs de reconstruction, ce qui complique leur recalage entre plusieurs acquisitions. La thèse propose une simplification qui conserve les caractéristiques topologiques essentielles (cavités, tunnels) et un minimum de géométrie. Elle introduit une nouvelle classification des points de selle et une variante du graphe de Reeb, le Local to Global Reeb Graph (LGRG), tous deux calculés en parallèle à partir d'informations locales grâce au formalisme des cartes généralisées. Ces caractéristiques alimentent ensuite un réseau de neurones convolutifs 3D pour le recalage.",
+      "en": "Reconstructed meshes of the cerebral vascular tree are large, noisy and contain reconstruction errors, which makes registering several acquisitions difficult. The thesis proposes a simplification that keeps the essential topological features (cavities, tunnels) and minimal geometry. It introduces a new saddle point classification and a Reeb graph variant, the Local to Global Reeb Graph (LGRG), both computed in parallel from local information thanks to the generalized map formalism. These features then feed a 3D convolutional neural network for registration."
+    },
+    "keywords": ["TDA", "G-maps", "Reeb graph", "LGRG", "Critical points", "Parallel computing", "3D CNN", "Registration"],
+    "jury": [
+      { "name": "Jean-Luc Mari", "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "Aix-Marseille Université, LIS" },
+      { "name": "Julien Tierny", "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "CNRS, LIP6" },
+      { "name": "David Cazier", "role": { "fr": "Examinateur", "en": "Examiner" }, "affiliation": "Université de Strasbourg, ICube" },
+      { "name": "Romain Pascual", "role": { "fr": "Examinateur", "en": "Examiner" }, "affiliation": "Université Paris-Saclay, MICS" },
+      { "name": "Philippe Meseure", "role": { "fr": "Directeur", "en": "Supervisor" }, "affiliation": "Université de Poitiers, XLIM" },
+      { "name": "Hakim Belhaouari", "role": { "fr": "Codirecteur", "en": "Co-supervisor" }, "affiliation": "Université de Poitiers, XLIM" }
+    ]
+  },
+  "publications": [
+    {
+      "year": 2024, "type": "journal",
+      "authors": "C. Lepaire, H. Belhaouari, R. Pascual, P. Meseure",
+      "title": "Exploitation of local adjacencies for parallel construction of a Reeb graph variant: cerebral vascular tree case",
+      "venue": "Journal of WSCG (WSCG 2024), Pilsen",
+      "doi": "10.24132/JWSCG.2024.9",
+      "note": { "fr": "Meilleurs papiers, taux d'acceptation 20 %", "en": "Best papers, 20% acceptance rate" }
+    },
+    {
+      "year": 2024, "type": "international",
+      "authors": "J.-F. Rainaud, V. Gauthier, L. Untereiner, H. Belhaouari, C. Lepaire, A. Arnould, M. Perrin",
+      "title": "Driving Collaboration between OSDU/Energistics Business Activity Services by a Cloud-Native Geoscientific Workflow Platform",
+      "venue": "85th EAGE Annual Conference & Exhibition, Workshop Programme",
+      "doi": "10.3997/2214-4609.202410801"
+    },
+    {
+      "year": 2024, "type": "national",
+      "authors": "C. Lepaire, H. Belhaouari, R. Pascual, P. Meseure",
+      "title": "Recalage d'arbres vasculaires cérébraux par apprentissage supervisé et analyse topologique",
+      "venue": "Journées Françaises d'Informatique Graphique (JFIG)"
+    },
+    {
+      "year": 2024, "type": "national",
+      "authors": "C. Lepaire, H. Belhaouari, R. Pascual, P. Meseure",
+      "title": "Exploitation des adjacences locales pour la construction parallèle d'une variante du graphe de Reeb : cas de l'arbre vasculaire cérébral",
+      "venue": "41e colloque de la Société Francophone de Biologie Théorique (SFBT)"
+    },
+    {
+      "year": 2023, "type": "national",
+      "authors": "C. Lepaire, H. Belhaouari, R. Pascual, P. Meseure",
+      "title": "Exploitation des cartes généralisées pour l'analyse topologique appliquée à l'arbre vasculaire cérébral",
+      "venue": "Journées du GTMG, Strasbourg"
+    },
+    {
+      "year": 2022, "type": "national",
+      "authors": "C. Lepaire, L. Fuchs, L. Garnier, J.-P. Bécar",
+      "title": "Algorithmes de calcul de points dominants",
+      "venue": "Journées du GTMG, Dijon"
+    }
+  ],
+  "teaching": [
+    { "course": { "fr": "Interaction homme-machine (HTML, CSS, JS, React, en anglais)", "en": "Human-computer interaction (HTML, CSS, JS, React, taught in English)" }, "years": "2025/2026", "level": "M1", "td": 0, "tp": 16, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Compléments de programmation", "en": "Programming complements" }, "years": "2025/2026", "level": "L1", "td": 32, "tp": 44, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Bases de données 1 (SQL)", "en": "Databases 1 (SQL)" }, "years": "2025/2026", "level": "L2", "td": 24, "tp": 0, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Algorithmique et programmation 1 (C#)", "en": "Algorithms and programming 1 (C#)" }, "years": "2025/2026", "level": "L1", "td": 36, "tp": 24, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Programmation avancée en C", "en": "Advanced C programming" }, "years": "2024/2025, 2025/2026", "level": "L3", "td": 0, "tp": 64, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Algorithmique et programmation 3", "en": "Algorithms and programming 3" }, "years": "2023/2024, 2024/2025", "level": "L3", "td": 18, "tp": 26, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Programmation orientée objet (Java)", "en": "Object-oriented programming (Java)" }, "years": "2023/2024, 2024/2025", "level": "L3", "td": 0, "tp": 22, "institution": "Université de Poitiers" },
+    { "course": { "fr": "Théorie des langages (Flex, Bison)", "en": "Formal language theory (Flex, Bison)" }, "years": "2023/2024", "level": "L2", "td": 26, "tp": 20, "institution": "Université de Poitiers" },
+    { "course": { "fr": "AI4Industry, use case Serli", "en": "AI4Industry, Serli use case" }, "years": "2023", "level": "M2", "td": 4, "tp": 20, "institution": "Université de Bordeaux" }
+  ],
+  "supervision": [
+    { "period": "2023 – 2024", "level": "M1 EUR", "topic": { "fr": "Arbres de fusion sur cartes généralisées", "en": "Merge trees on generalized maps" } },
+    { "period": "2023", "level": "M2 EUR", "topic": { "fr": "Augmentation de données topologique pour l'arbre vasculaire", "en": "Topological data augmentation for the vascular tree" } },
+    { "period": "2023", "level": "M2", "topic": { "fr": "AI4Industry : lecture d'étiquettes de bouteilles (entreprise Serli)", "en": "AI4Industry: bottle label reading (Serli company)" } }
+  ],
+  "responsibilities": [
+    { "period": "2022 – 2024", "title": { "fr": "Président de l'ADIIS (association des doctorants, deux mandats)", "en": "President of ADIIS (PhD students' association, two terms)" } },
+    { "period": "2024", "title": { "fr": "Représentant des doctorants au conseil de l'équipe IG", "en": "PhD student representative on the IG team council" } },
+    { "period": "2025", "title": { "fr": "Co-organisation du GTMG 2025, Poitiers", "en": "Co-organiser of GTMG 2025, Poitiers" } }
+  ]
+}

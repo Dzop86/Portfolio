@@ -1,0 +1,6 @@
+# Global stack. Each new project adds its service here (API, database, ML...).
+services:
+  vitrine:
+    build: .
+    ports:
+      - "8080:80"

@@ -1,0 +1,319 @@
+import { esc, pick, teachingTotals, riskLevel, monthOffset, PAGES, REPO_URL } from './lib.mjs';
+
+const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
+
+const ICON_SUN = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`;
+
+function layout({ lang, page, t, title, body }) {
+  const other = lang === 'fr' ? 'en' : 'fr';
+  const nav = PAGES.map((p) => {
+    const key = p === 'index' ? 'home' : p;
+    const current = p === page ? ' aria-current="page"' : '';
+    return `<a href="./${p}.html"${current}>${esc(t(`nav.${key}`))}</a>`;
+  }).join('');
+
+  return `<!doctype html>
+<html lang="${lang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)} · Charles Lepaire</title>
+<meta name="description" content="${esc(t('home.kicker'))}">
+<link rel="alternate" hreflang="${other}" href="../${other}/${page}.html">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#5a3a22">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="../assets/tokens.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var s=localStorage.getItem('theme');if(s)document.documentElement.dataset.theme=s}catch(e){}</script>
+</head>
+<body data-page="${page}">
+<a class="skip" href="#main">${esc(t('nav.skip'))}</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="./index.html">${SEAL}<span>Charles Lepaire</span></a>
+    <div class="header-tools">
+      <a class="lang" href="../${other}/${page}.html" hreflang="${other}" lang="${other}">${esc(t('lang.switch'))}</a>
+      <button class="theme-toggle" type="button" aria-label="${esc(t('theme.toggle'))}" title="${esc(t('theme.toggle'))}">${ICON_SUN}</button>
+    </div>
+  </div>
+  <nav class="wrap site-nav" aria-label="Navigation">${nav}</nav>
+</header>
+<main id="main" class="wrap">
+${body}
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span>${esc(t('footer.made'))}</span>
+    <a href="${REPO_URL}">${esc(t('footer.source'))}</a>
+  </div>
+</footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
+`;
+}
+
+function pageHead(title, lead, kicker = '') {
+  return `<section class="page-head">
+  ${kicker ? `<p class="kicker">${esc(kicker)}</p>` : ''}
+  <h1>${esc(title)}</h1>
+  <p class="lead">${esc(lead)}</p>
+</section>`;
+}
+
+function home({ lang, t, data }) {
+  const { cv, projects } = data;
+  const hours = teachingTotals(cv.teaching).total;
+  const featured = projects.filter((p) => ['topologie', 'ml', 'spring', 'langage'].includes(p.id));
+  return `<section class="hero">
+  <p class="kicker">${esc(t('home.kicker'))}</p>
+  <h1>Charles Lepaire</h1>
+  <p class="lead">${esc(t('home.lead'))}</p>
+  <div class="actions">
+    <a class="btn btn-primary" href="./projects.html">${esc(t('home.cta.projects'))}</a>
+    <a class="btn btn-ghost" href="./research.html">${esc(t('home.cta.research'))}</a>
+  </div>
+</section>
+<section class="stats" aria-label="Chiffres clés">
+  <div class="stat"><strong data-stat="projects">${projects.length}</strong><span>${esc(t('home.stats.projects'))}</span></div>
+  <div class="stat"><strong data-stat="publications">${cv.publications.length}</strong><span>${esc(t('home.stats.publications'))}</span></div>
+  <div class="stat"><strong data-stat="hours">${hours}</strong><span>${esc(t('home.stats.hours'))}</span></div>
+</section>
+<section class="split">
+  <article class="panel">
+    <h2>${esc(t('home.thread.title'))}</h2>
+    <p>${esc(t('home.thread.text'))}</p>
+  </article>
+  <article class="panel panel-accent">
+    <h2>${esc(t('home.genai.title'))}</h2>
+    <p>${esc(t('home.genai.text'))}</p>
+  </article>
+</section>
+<section>
+  <div class="cards">${featured.map((p) => projectCard(p, lang, t)).join('')}</div>
+</section>`;
+}
+
+function projectCard(p, lang, t) {
+  const teaching = p.teaching ? `<p class="card-note">${esc(pick(p.teaching, lang))}</p>` : '';
+  return `<article class="card" data-group="${esc(p.group)}" id="${esc(p.id)}">
+  <div class="card-top">
+    <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
+    <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
+  </div>
+  <h3>${esc(pick(p.name, lang))}</h3>
+  <p>${esc(pick(p.pitch, lang))}</p>
+  ${teaching}
+  <ul class="tags">${p.stack.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>
+</article>`;
+}
+
+function projects({ lang, t, data }) {
+  const groups = ['web', 'back', 'systems', 'science'];
+  const filters = [`<button type="button" class="chip" aria-pressed="true" data-filter="all">${esc(t('projects.filter.all'))}</button>`]
+    .concat(groups.map((g) => `<button type="button" class="chip" aria-pressed="false" data-filter="${g}">${esc(t(`projects.group.${g}`))}</button>`))
+    .join('');
+  return `${pageHead(t('projects.title'), t('projects.lead'))}
+<div class="chips" role="group" aria-label="${esc(t('projects.title'))}">${filters}</div>
+<div class="cards" data-filterable>${data.projects.map((p) => projectCard(p, lang, t)).join('')}</div>`;
+}
+
+function research({ lang, t, data }) {
+  const { cv } = data;
+  const totals = teachingTotals(cv.teaching);
+  const max = Math.max(...cv.teaching.map((r) => r.td + r.tp));
+  const levels = [...new Set(cv.teaching.map((r) => r.level))].sort();
+
+  const education = cv.education.map((e) => `<li>
+    <span class="tl-period">${esc(e.period)}</span>
+    <div><h3>${esc(pick(e.title, lang))}</h3><p class="muted">${esc(pick(e.place, lang))}</p><p>${esc(pick(e.detail, lang))}</p></div>
+  </li>`).join('');
+
+  const jury = cv.thesis.jury.map((j) => `<li><strong>${esc(j.name)}</strong>, ${esc(pick(j.role, lang))} <span class="muted">(${esc(j.affiliation)})</span></li>`).join('');
+
+  const pubs = cv.publications.map((p) => {
+    const doi = p.doi ? ` <a href="https://doi.org/${esc(p.doi)}">DOI</a>` : '';
+    const note = p.note ? ` <span class="badge badge-done">${esc(pick(p.note, lang))}</span>` : '';
+    return `<li>
+      <span class="pub-type">${esc(t(`research.pubtype.${p.type}`))} · ${p.year}</span>
+      <p class="pub-title">${esc(p.title)}</p>
+      <p class="muted">${esc(p.authors)}. ${esc(p.venue)}.${doi}${note}</p>
+    </li>`;
+  }).join('');
+
+  const rows = cv.teaching.map((r) => {
+    const sum = r.td + r.tp;
+    return `<tr data-level="${esc(r.level)}" data-td="${r.td}" data-tp="${r.tp}">
+      <th scope="row">${esc(pick(r.course, lang))}<span class="muted cell-sub">${esc(r.institution)}</span></th>
+      <td>${esc(r.years)}</td>
+      <td>${esc(r.level)}</td>
+      <td class="num">${r.td || '–'}</td>
+      <td class="num">${r.tp || '–'}</td>
+      <td class="num"><span class="bar" style="--w:${Math.round((sum / max) * 100)}%"></span>${sum}</td>
+    </tr>`;
+  }).join('');
+
+  const levelChips = [`<button type="button" class="chip" aria-pressed="true" data-level="all">${esc(t('projects.filter.all'))}</button>`]
+    .concat(levels.map((l) => `<button type="button" class="chip" aria-pressed="false" data-level="${esc(l)}">${esc(l)}</button>`))
+    .join('');
+
+  const sup = cv.supervision.map((s) => `<li><span class="tl-period">${esc(s.period)}</span><div><strong>${esc(s.level)}</strong> · ${esc(pick(s.topic, lang))}</div></li>`).join('');
+  const resp = cv.responsibilities.map((r) => `<li><span class="tl-period">${esc(r.period)}</span><div>${esc(pick(r.title, lang))}</div></li>`).join('');
+
+  return `${pageHead(t('research.title'), t('research.lead'), pick(cv.person.title, lang))}
+<p class="summary">${esc(pick(cv.summary, lang))}</p>
+
+<section class="block" aria-labelledby="h-edu">
+  <h2 id="h-edu">${esc(t('research.education'))}</h2>
+  <ol class="timeline">${education}</ol>
+</section>
+
+<section class="block" aria-labelledby="h-thesis">
+  <h2 id="h-thesis">${esc(t('research.thesis'))}</h2>
+  <article class="panel">
+    <h3 class="thesis-title">${esc(pick(cv.thesis.title, lang))}</h3>
+    <p>${esc(pick(cv.thesis.abstract, lang))}</p>
+    <p class="label">${esc(t('research.keywords'))}</p>
+    <ul class="tags">${cv.thesis.keywords.map((k) => `<li>${esc(k)}</li>`).join('')}</ul>
+    <p class="label">${esc(t('research.jury'))}</p>
+    <ul class="plain">${jury}</ul>
+  </article>
+</section>
+
+<section class="block" aria-labelledby="h-pubs">
+  <h2 id="h-pubs">${esc(t('research.publications'))}</h2>
+  <ol class="pubs">${pubs}</ol>
+</section>
+
+<section class="block" aria-labelledby="h-teach">
+  <h2 id="h-teach">${esc(t('research.teaching'))}</h2>
+  <div class="chips" role="group" aria-label="${esc(t('research.teaching.filter'))}">${levelChips}</div>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-teach">
+    <table class="teaching" data-teaching>
+      <thead><tr>
+        <th scope="col">${esc(t('research.teaching.course'))}</th>
+        <th scope="col">${esc(t('research.teaching.years'))}</th>
+        <th scope="col">${esc(t('research.teaching.level'))}</th>
+        <th scope="col" class="num">${esc(t('research.teaching.td'))}</th>
+        <th scope="col" class="num">${esc(t('research.teaching.tp'))}</th>
+        <th scope="col" class="num">${esc(t('research.teaching.total'))}</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <th scope="row" colspan="3">${esc(t('research.teaching.total'))}</th>
+        <td class="num" data-total="td">${totals.td}</td>
+        <td class="num" data-total="tp">${totals.tp}</td>
+        <td class="num" data-total="all">${totals.total}</td>
+      </tr></tfoot>
+    </table>
+  </div>
+</section>
+
+<section class="split block">
+  <div>
+    <h2>${esc(t('research.supervision'))}</h2>
+    <ol class="timeline compact">${sup}</ol>
+  </div>
+  <div>
+    <h2>${esc(t('research.responsibilities'))}</h2>
+    <ol class="timeline compact">${resp}</ol>
+  </div>
+</section>`;
+}
+
+function method({ lang, t, data }) {
+  const { scrum } = data;
+  const startYm = scrum.start.slice(0, 7);
+  const months = monthOffset(startYm, scrum.end.slice(0, 7)) + 1;
+  const monthNames = lang === 'fr'
+    ? ['jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const header = Array.from({ length: months }, (_, i) => {
+    const m = (Number(startYm.slice(5)) - 1 + i) % 12;
+    return `<span>${monthNames[m]}</span>`;
+  }).join('');
+
+  const rows = scrum.phases.map((ph) => {
+    const a = monthOffset(startYm, ph.from) + 1;
+    const b = monthOffset(startYm, ph.to) + 2;
+    return `<li class="gantt-row">
+      <span class="gantt-label"><strong>${esc(ph.sprints)}</strong> ${esc(pick(ph.label, lang))}</span>
+      <span class="gantt-track" style="--months:${months}"><span class="gantt-bar kind-${esc(ph.kind)}" style="grid-column:${a} / ${b}"></span></span>
+    </li>`;
+  }).join('');
+
+  const risks = [...scrum.risks]
+    .sort((x, y) => y.p * y.i - x.p * x.i)
+    .map((r) => {
+      const score = r.p * r.i;
+      return `<tr>
+        <th scope="row"><span class="muted">${esc(r.id)}</span> ${esc(pick(r.label, lang))}</th>
+        <td class="num">${r.p}</td><td class="num">${r.i}</td>
+        <td class="num"><span class="score score-${riskLevel(score)}">${score}</span></td>
+        <td>${esc(pick(r.mitigation, lang))}</td>
+      </tr>`;
+    }).join('');
+
+  const steps = t('method.genai.steps').split('|').map((s) => `<li>${esc(s)}</li>`).join('');
+  const dod = scrum.dod[lang].map((d) => `<li>${esc(d)}</li>`).join('');
+
+  return `${pageHead(t('method.title'), t('method.lead'))}
+<p class="notice">${esc(t('method.disclaimer'))}</p>
+
+<section class="block" aria-labelledby="h-roadmap">
+  <h2 id="h-roadmap">${esc(t('method.roadmap'))}</h2>
+  <div class="gantt">
+    <div class="gantt-row gantt-head"><span class="gantt-label">2025 – 2026</span><span class="gantt-track months" style="--months:${months}">${header}</span></div>
+    <ol class="plain">${rows}</ol>
+  </div>
+</section>
+
+<section class="block" aria-labelledby="h-risks">
+  <h2 id="h-risks">${esc(t('method.risks'))}</h2>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-risks">
+    <table>
+      <thead><tr>
+        <th scope="col">${esc(t('method.risk'))}</th>
+        <th scope="col" class="num">${esc(t('method.probability'))}</th>
+        <th scope="col" class="num">${esc(t('method.impact'))}</th>
+        <th scope="col" class="num">${esc(t('method.score'))}</th>
+        <th scope="col">${esc(t('method.mitigation'))}</th>
+      </tr></thead>
+      <tbody>${risks}</tbody>
+    </table>
+  </div>
+</section>
+
+<section class="split block">
+  <article class="panel">
+    <h2>${esc(t('method.genai'))}</h2>
+    <ol class="steps">${steps}</ol>
+  </article>
+  <article class="panel">
+    <h2>${esc(t('method.dod'))}</h2>
+    <ul class="checks">${dod}</ul>
+  </article>
+</section>`;
+}
+
+function contact({ t, data }) {
+  const { person } = data.cv;
+  return `${pageHead(t('contact.title'), t('contact.lead'))}
+<div class="actions">
+  <a class="btn btn-primary" href="${esc(person.linkedin)}" rel="me">${esc(t('contact.linkedin'))}</a>
+  <a class="btn btn-ghost" href="${esc(person.orcid)}" rel="me">${esc(t('contact.orcid'))}</a>
+  <a class="btn btn-ghost" href="${esc(person.hal)}">${esc(t('contact.hal'))}</a>
+</div>`;
+}
+
+const RENDERERS = { index: home, projects, research, method, contact };
+const TITLES = { index: 'home.title', projects: 'projects.title', research: 'research.title', method: 'method.title', contact: 'contact.title' };
+
+export function renderPage(page, ctx) {
+  const body = RENDERERS[page](ctx);
+  return layout({ ...ctx, page, title: ctx.t(TITLES[page]), body });
+}
