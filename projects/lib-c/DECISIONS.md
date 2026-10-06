@@ -32,3 +32,8 @@
 **Choix :** `tests/fuzz/fuzz_read.c` passe chaque entrée à `mesh_read_buffer` (OBJ ou PLY) sous ASan et UBSan, et vérifie que les indices produits restent dans les bornes. La CI fuzz 60 s par push ; les entrées trouvées deviennent des tests Unity.
 **Pourquoi :** les tests écrits à la main n'avaient trouvé aucun des trois défauts que le fuzzer a révélés en quelques minutes (voir `REVIEW.md`).
 **Limite :** 60 s en CI ne remplacent pas une campagne longue ; le corpus n'est pas conservé entre deux exécutions.
+
+## C8. Topologie par tri des arêtes
+**Choix :** chaque arête devient une clé 64 bits (petit indice en poids fort), les 3T clés sont triées par `qsort` ; clés distinctes = arêtes, clés uniques = arêtes de bord. F = nombre de triangles.
+**Alternatives :** table de hachage (O(T) mais plus de code et de mémoire à justifier), structure demi-arête (prévue pour le projet Topologie 3D).
+**Limite :** O(T log T) ; χ porte sur la triangulation, ce qui ne change rien pour une surface (la triangulation en éventail ajoute autant d'arêtes que de faces).

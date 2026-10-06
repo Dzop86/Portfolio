@@ -30,7 +30,7 @@ if(MESH_FUZZ)
   add_link_options(-fsanitize=address,undefined)
 endif()
 
-add_library(mesh src/mesh.c src/obj.c src/ply.c)
+add_library(mesh src/mesh.c src/obj.c src/ply.c src/topology.c)
 target_include_directories(mesh PUBLIC include)
 mesh_warnings(mesh)
 if(NOT MSVC)
@@ -63,6 +63,12 @@ if(MESH_BUILD_TESTS)
   mesh_warnings(test_obj)
   add_test(NAME unit.obj COMMAND test_obj)
 
+  add_executable(test_topology tests/test_topology.c)
+  target_link_libraries(test_topology PRIVATE mesh unity)
+  target_compile_definitions(test_topology PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/tests/data")
+  mesh_warnings(test_topology)
+  add_test(NAME unit.topology COMMAND test_topology)
+
   add_executable(test_ply tests/test_ply.c)
   target_link_libraries(test_ply PRIVATE mesh unity)
   target_compile_definitions(test_ply PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/tests/data")
@@ -72,10 +78,13 @@ if(MESH_BUILD_TESTS)
   # Integration: the CLI on a real file, then its error paths.
   add_test(NAME cli.cube COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/cube.obj)
   set_tests_properties(cli.cube PROPERTIES
-    PASS_REGULAR_EXPRESSION "vertices: 8[\r\n]+polygons: 6[\r\n]+triangles: 12")
+    PASS_REGULAR_EXPRESSION "vertices: 8[\r\n]+polygons: 6[\r\n]+triangles: 12[\r\n]+edges: 18[\r\n]+boundary edges: 0[\r\n]+euler characteristic: 2")
   add_test(NAME cli.ply COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/tetrahedron.ply)
   set_tests_properties(cli.ply PROPERTIES
     PASS_REGULAR_EXPRESSION "vertices: 4[\r\n]+polygons: 4[\r\n]+triangles: 4")
+  add_test(NAME cli.torus COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/torus.obj)
+  set_tests_properties(cli.torus PROPERTIES
+    PASS_REGULAR_EXPRESSION "triangles: 96[\r\n]+edges: 144[\r\n]+boundary edges: 0[\r\n]+euler characteristic: 0")
   add_test(NAME cli.missing COMMAND meshinfo ${CMAKE_CURRENT_SOURCE_DIR}/tests/data/missing.obj)
   set_tests_properties(cli.missing PROPERTIES WILL_FAIL TRUE)
   add_test(NAME cli.usage COMMAND meshinfo)

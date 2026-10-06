@@ -14,6 +14,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         for (size_t i = 0; i < m.triangle_count; i++)
             for (int k = 0; k < 3; k++)
                 if (m.triangles[i][k] >= m.vertex_count) __builtin_trap(); /* index invariant */
+        mesh_topology topo;
+        if (mesh_compute_topology(&m, &topo) == MESH_OK && topo.boundary_edge_count > topo.edge_count)
+            __builtin_trap();
     }
     mesh_free(&m);
     return 0;

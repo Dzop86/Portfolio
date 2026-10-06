@@ -9,10 +9,12 @@ Bibliothèque C11 qui lit des maillages aux formats OBJ et PLY, avec un outil en
 ## État (sprint 3)
 - Lecture OBJ : sommets `v`, faces `f` avec références de texture et de normale (`1/2/3`, `1//3`), indices négatifs, polygones triangulés en éventail, fins de ligne Windows.
 - Lecture PLY : ASCII, binaire little-endian et big-endian, propriétés et éléments supplémentaires ignorés, format détecté par `mesh_read_file` et `mesh_read_buffer`.
+- Topologie : arêtes, arêtes de bord, caractéristique d'Euler χ = V − E + F et boîte englobante (`mesh_compute_topology`).
+- WebAssembly : `scripts/build-wasm.sh` (Emscripten 6.0.11 dans Docker) produit la démo de la [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-lib-c.html).
 - Erreurs typées (`MESH_ERR_SYNTAX`, `MESH_ERR_INDEX`...) avec numéro de ligne.
 - Valgrind sans fuite ni accès invalide sur les tests et la CLI (`scripts/valgrind.sh`).
 - Lecteurs fuzzés avec libFuzzer (ASan + UBSan) : 30 millions d'entrées sans erreur en local, 60 s à chaque push en CI.
-- À venir : écriture, WebAssembly (Emscripten) pour une démo dans le navigateur, miroir GitLab CI.
+- À venir : écriture OBJ et PLY, miroir GitLab CI.
 
 ## Compiler et tester
 ```sh
@@ -20,7 +22,8 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --config Debug
 ctest --test-dir build -C Debug --output-on-failure
 ./build/meshinfo tests/data/cube.obj         # vertices: 8, polygons: 6, triangles: 12
-./build/meshinfo tests/data/tetrahedron.ply  # vertices: 4, polygons: 4, triangles: 4
+./build/meshinfo tests/data/tetrahedron.ply  # vertices: 4, polygons: 4, triangles: 4, ...
+./build/meshinfo tests/data/torus.obj        # ... edges: 144, boundary edges: 0, euler characteristic: 0
 ```
 Options : `-DMESH_SANITIZE=ON` (ASan et UBSan, GCC ou Clang), `-DMESH_FUZZ=ON` (cible libFuzzer `fuzz_read`, Clang), `-DMESH_BUILD_TESTS=OFF`.
 Prérequis : CMake 3.20+, un compilateur C11 (GCC, Clang ou MSVC 2019+), Git et un accès réseau au premier `cmake` (Unity est téléchargé).
@@ -37,10 +40,11 @@ mesh_free(&m);
 ```
 
 ## Tests
-- **Unitaires** (Unity) : `tests/test_obj.c` (15 cas) et `tests/test_ply.c` (18 cas), dont les erreurs de syntaxe, les indices hors bornes, les fins de ligne CRLF, et les 3 entrées trouvées par le fuzzer.
-- **Intégration** (CTest) : `meshinfo` sur un cube OBJ, un tétraèdre PLY, un fichier absent et sans argument.
+- **Unitaires** (Unity) : `tests/test_obj.c` (15 cas), `tests/test_ply.c` (18 cas) et `tests/test_topology.c` (5 cas, dont un tore généré), dont les erreurs de syntaxe, les indices hors bornes, les fins de ligne CRLF, et les 3 entrées trouvées par le fuzzer.
+- **Intégration** (CTest) : `meshinfo` sur un cube OBJ, un tétraèdre PLY, un tore OBJ, un fichier absent et sans argument.
 - **Fuzzing** (`tests/fuzz/fuzz_read.c`) : toute entrée doit donner un maillage valide (indices dans les bornes) ou une erreur.
-- **CI** (`.github/workflows/lib-c.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan, un passage Valgrind et 60 s de fuzzing sous Linux.
+- **CI** (`.github/workflows/lib-c.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan, un passage Valgrind, 60 s de fuzzing, et la vérification que le WebAssembly commité correspond aux sources.
+- **Site** : `tests/unit/wasm.test.mjs` charge le WebAssembly dans Node, et Playwright teste la démo dans 5 navigateurs.
 
 ## Limites
 - Les faces ne peuvent référencer que des sommets déjà lus (cas de tous les exportateurs courants).

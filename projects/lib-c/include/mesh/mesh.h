@@ -55,6 +55,16 @@ mesh_status mesh_read_buffer(const char *data, size_t size, mesh *out, size_t *e
 /* Reads a whole file and detects its format like mesh_read_buffer. */
 mesh_status mesh_read_file(const char *path, mesh *out, size_t *error_line);
 
+typedef struct {
+    size_t edge_count;            /* distinct edges of the triangles */
+    size_t boundary_edge_count;   /* edges used by a single triangle (0 for a closed surface) */
+    int64_t euler_characteristic; /* V - E + F, with F the number of triangles */
+    mesh_vec3 min, max;           /* bounding box, zero for an empty mesh */
+} mesh_topology;
+
+/* Counts edges and computes the Euler characteristic and the bounding box. O(T log T). */
+mesh_status mesh_compute_topology(const mesh *m, mesh_topology *out);
+
 /* Short English description of a status, never NULL. */
 const char *mesh_status_string(mesh_status status);
 

@@ -20,6 +20,10 @@ int main(int argc, char **argv) {
         return 1;
     }
     printf("vertices: %zu\npolygons: %zu\ntriangles: %zu\n", m.vertex_count, m.polygon_count, m.triangle_count);
+    mesh_topology topo;
+    if (mesh_compute_topology(&m, &topo) == MESH_OK)
+        printf("edges: %zu\nboundary edges: %zu\neuler characteristic: %lld\n", topo.edge_count,
+               topo.boundary_edge_count, (long long)topo.euler_characteristic);
     mesh_free(&m);
     return 0;
 }
