@@ -4,10 +4,12 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/mesh.cpp`, constructeur : appariement des jumelles, cas des arêtes partagées par 3 faces.
-- [ ] `src/invariants.cpp` : formule du genre et traitement des sommets isolés.
-- [ ] `src/curvature.cpp` : défaut au bord (π − Σθ) et sommets non-variété.
-- [ ] `tests/test_halfedge.cpp`, `expect_consistent` : les invariants vérifiés sont-ils les bons ?
+- [x] `src/mesh.cpp`, constructeur : appariement des jumelles, cas des arêtes partagées par 3 faces.
+- [x] `src/invariants.cpp` : formule du genre et traitement des sommets isolés.
+- [x] `src/curvature.cpp` : défaut au bord (π − Σθ) et sommets non-variété.
+- [x] `tests/test_halfedge.cpp`, `expect_consistent` : les invariants vérifiés sont-ils les bons ?
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
 ## Constats
 

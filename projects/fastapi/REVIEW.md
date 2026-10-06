@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/meshapi/libmesh.py` : structures ctypes conformes à `mesh/mesh.h`, libération du maillage sur tous les chemins.
-- [ ] `src/meshapi/app.py` : limite de taille avant lecture complète du corps.
-- [ ] `src/meshapi/libtopo.py` : tout est-il copié avant de relâcher le verrou ?
+- [x] `src/meshapi/libmesh.py` : structures ctypes conformes à `mesh/mesh.h`, libération du maillage sur tous les chemins.
+- [x] `src/meshapi/app.py` : limite de taille avant lecture complète du corps.
+- [x] `src/meshapi/libtopo.py` : tout est-il copié avant de relâcher le verrou ?
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
 ## Constats
 

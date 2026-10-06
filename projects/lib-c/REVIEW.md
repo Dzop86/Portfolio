@@ -4,11 +4,13 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/obj.c`, `reserve` : débordements de `capacity * size`, comportement quand `realloc` échoue.
-- [ ] `src/obj.c`, `parse_corner` : indices négatifs, indice 0, très grands nombres.
-- [ ] `src/obj.c` : la mémoire est-elle libérée sur tous les chemins d'erreur ? (ASan tourne en CI.)
-- [ ] `src/ply.c`, `mesh_read_ply` : contrôle des comptes avant allocation, conversions `double` vers entiers.
-- [ ] `tests/test_obj.c` : manque-t-il un cas OBJ courant (lignes `l`, faces de plus de 3 sommets avec textures) ?
+- [x] `src/obj.c`, `reserve` : débordements de `capacity * size`, comportement quand `realloc` échoue.
+- [x] `src/obj.c`, `parse_corner` : indices négatifs, indice 0, très grands nombres.
+- [x] `src/obj.c` : la mémoire est-elle libérée sur tous les chemins d'erreur ? (ASan tourne en CI.)
+- [x] `src/ply.c`, `mesh_read_ply` : contrôle des comptes avant allocation, conversions `double` vers entiers.
+- [x] `tests/test_obj.c` : manque-t-il un cas OBJ courant (lignes `l`, faces de plus de 3 sommets avec textures) ?
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
 ## Constats
 

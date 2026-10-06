@@ -4,10 +4,12 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et ce que j'ai corrigé 
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Sprint 1 : points à relire en priorité
-- [ ] `tests/unit/privacy.test.mjs` : les motifs couvrent-ils tous les cas ? Ajouter mes termes privés au secret `PRIVATE_TERMS`.
-- [ ] `data/cv.json` : textes, dates et statut (ATER 2025-2026 ou autre ?).
-- [ ] `src/templates.mjs` : échappement HTML (`esc`) appliqué partout ?
-- [ ] Traductions anglaises.
+- [x] `tests/unit/privacy.test.mjs` : les motifs couvrent-ils tous les cas ? Ajouter mes termes privés au secret `PRIVATE_TERMS`.
+- [x] `data/cv.json` : textes, dates et statut (ATER 2025-2026 ou autre ?).
+- [x] `src/templates.mjs` : échappement HTML (`esc`) appliqué partout ?
+- [x] Traductions anglaises.
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
 ## Constats
 
