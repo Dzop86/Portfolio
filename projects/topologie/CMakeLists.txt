@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TOPO_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (GCC, Clang)" OFF)
 option(TOPO_BUILD_TESTS "Build the GoogleTest suite" ON)
+option(TOPO_C_API "Build the C API (tools/c_api.cpp) as a shared library, for the Python API" OFF)
 
 if(TOPO_SANITIZE AND NOT MSVC)
   add_compile_options(-fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer -fno-sanitize-recover=all)
@@ -17,13 +18,26 @@ endif()
 set(MESH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(../lib-c lib-c EXCLUDE_FROM_ALL)
 
+function(topo_warnings target)
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
+  else()
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror)
+  endif()
+endfunction()
+
 add_library(topo src/mesh.cpp src/invariants.cpp src/curvature.cpp)
 target_include_directories(topo PUBLIC include)
 target_link_libraries(topo PRIVATE mesh)
-if(MSVC)
-  target_compile_options(topo PRIVATE /W4 /WX /permissive-)
-else()
-  target_compile_options(topo PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror)
+topo_warnings(topo)
+
+# Shared library with the C entry points (libtopoc.so / .dylib / topoc.dll), lib-c linked in statically.
+if(TOPO_C_API)
+  set_target_properties(mesh topo PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  add_library(topoc SHARED tools/c_api.cpp)
+  target_link_libraries(topoc PRIVATE topo mesh)
+  topo_warnings(topoc)
+  set_target_properties(topoc PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 if(TOPO_BUILD_TESTS)

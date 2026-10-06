@@ -1,5 +1,6 @@
-// Entry points for the WebAssembly build used by the portfolio viewer. One mesh at a time: read a
-// buffer, then fetch a JSON summary and pointers to the arrays (valid until the next read).
+// C API of the topology library, compiled to WebAssembly for the portfolio viewer and as a shared library
+// (TOPO_C_API) for the Python API. One mesh at a time: read a buffer, then fetch a JSON summary and pointers
+// to the arrays (valid until the next read). Not thread-safe: callers serialise their calls.
 #include "topo/curvature.hpp"
 #include "topo/invariants.hpp"
 #include "topo/mesh.hpp"
@@ -88,7 +89,7 @@ void fill(const topo::Mesh& m) {
 
 extern "C" {
 
-int topojs_read(const char* data, std::size_t size) {
+int topoc_read(const char* data, std::size_t size) {
     state = State{};
     try {
         fill(topo::Mesh::parse(std::string_view(data, size)));
@@ -103,15 +104,15 @@ int topojs_read(const char* data, std::size_t size) {
     }
 }
 
-const char* topojs_error() { return state.error.c_str(); }
-double topojs_error_line() { return static_cast<double>(state.line); }
-const char* topojs_summary() { return state.summary.c_str(); }
-uint32_t topojs_vertex_count() { return static_cast<uint32_t>(state.defect.size()); }
-uint32_t topojs_index_count() { return static_cast<uint32_t>(state.indices.size()); }
-const float* topojs_positions() { return state.positions.data(); }
-const uint32_t* topojs_indices() { return state.indices.data(); }
-const float* topojs_curvature() { return state.curvature.data(); }
-const float* topojs_defect() { return state.defect.data(); }
-const uint8_t* topojs_boundary() { return state.boundary.data(); }
+const char* topoc_error() { return state.error.c_str(); }
+double topoc_error_line() { return static_cast<double>(state.line); }
+const char* topoc_summary() { return state.summary.c_str(); }
+uint32_t topoc_vertex_count() { return static_cast<uint32_t>(state.defect.size()); }
+uint32_t topoc_index_count() { return static_cast<uint32_t>(state.indices.size()); }
+const float* topoc_positions() { return state.positions.data(); }
+const uint32_t* topoc_indices() { return state.indices.data(); }
+const float* topoc_curvature() { return state.curvature.data(); }
+const float* topoc_defect() { return state.defect.data(); }
+const uint8_t* topoc_boundary() { return state.boundary.data(); }
 
 }  // extern "C"

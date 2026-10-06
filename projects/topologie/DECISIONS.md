@@ -23,3 +23,8 @@
 **Pourquoi :** le théorème de Gauss-Bonnet discret est exact : la somme des défauts vaut 2πχ pour toute géométrie, ce qui donne un oracle de test indépendant de l'implémentation. `atan2` reste précis près de 0 et π, contrairement à `acos`.
 **Historique :** l'aire barycentrique du sprint 4 donnait K ≈ 1,15 au lieu de 1 aux 12 sommets de valence 5 d'une icosphère (12 taches visibles dans le viewer) ; l'aire de Voronoï mixte ramène l'écart sous 2 %, vérifié par `tests/test_samples.cpp`.
 **Limite :** la densité K est une estimation qui dépend de la qualité du maillage ; seule la somme est exacte.
+
+## T6. Une seule API C pour le navigateur et Python
+**Choix :** `tools/c_api.cpp` (ex-`wasm_api.cpp`, fonctions `topoc_*`) sert au WebAssembly et à la bibliothèque partagée `topoc` (option `TOPO_C_API`, lib-c liée statiquement, code indépendant de la position).
+**Pourquoi :** le même résumé JSON et les mêmes codes d'erreur côté navigateur et côté serveur.
+**Limite :** l'API garde un seul maillage en état global : elle n'est pas réentrante, l'appelant sérialise ses appels (verrou côté Python, testé par 90 appels concurrents).

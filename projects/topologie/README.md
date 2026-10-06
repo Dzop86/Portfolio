@@ -12,6 +12,7 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 - Courbure de Gauss discrète (`topo::gaussian_curvature`) : défaut angulaire par sommet (π − Σθ au bord), aire de Voronoï mixte, densité K ≈ défaut / aire (à 2 % près sur une icosphère).
 - Chargement OBJ et PLY par lib-c (`add_subdirectory`), erreurs remontées en `topo::LoadError` avec leur ligne.
 
+- API C (`tools/c_api.cpp`, préfixe `topoc_`) : compilée en WebAssembly pour le viewer, et en bibliothèque partagée (`-DTOPO_C_API=ON`, `libtopoc.so`) pour l'API Python.
 - WebAssembly : `scripts/build-wasm.sh` (Emscripten 6.0.11 dans Docker), testé dans Node par `tests/unit/topo-wasm.test.mjs` du site.
 
 - Viewer sur la [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-topologie.html) : tore, sphère, ruban de Möbius, selle ou fichier du visiteur, colorés par courbure (three.js), invariants affichés (D17 du site).

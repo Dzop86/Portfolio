@@ -23,6 +23,7 @@ Thumbs.db
 
 # C/C++ project builds
 projects/*/build/
+projects/*/build-*/
 
 # Python
 __pycache__/

@@ -20,29 +20,29 @@ export function readTopology(lib, bytes) {
   if (!ptr) return { ok: false, status: 'too-large' };
   try {
     lib.HEAPU8.set(bytes, ptr);
-    const status = lib._topojs_read(ptr, bytes.byteLength);
+    const status = lib._topoc_read(ptr, bytes.byteLength);
     if (status !== 0) {
       return {
         ok: false,
         status: status === INVALID_MESH ? 'invalid' : status,
-        message: lib.UTF8ToString(lib._topojs_error()),
-        line: lib._topojs_error_line(),
+        message: lib.UTF8ToString(lib._topoc_error()),
+        line: lib._topoc_error_line(),
       };
     }
-    const nv = lib._topojs_vertex_count();
-    const ni = lib._topojs_index_count();
+    const nv = lib._topoc_vertex_count();
+    const ni = lib._topoc_index_count();
     // Views are taken after every call that may grow memory, then copied out.
     const f32 = (p, n) => lib.HEAPF32.slice(p / 4, p / 4 + n);
-    const { totalCurvature, ...invariants } = JSON.parse(lib.UTF8ToString(lib._topojs_summary()));
+    const { totalCurvature, ...invariants } = JSON.parse(lib.UTF8ToString(lib._topoc_summary()));
     return {
       ok: true,
       invariants,
       totalCurvature,
-      positions: f32(lib._topojs_positions(), 3 * nv),
-      indices: lib.HEAPU32.slice(lib._topojs_indices() / 4, lib._topojs_indices() / 4 + ni),
-      curvature: f32(lib._topojs_curvature(), nv),
-      defect: f32(lib._topojs_defect(), nv),
-      boundary: lib.HEAPU8.slice(lib._topojs_boundary(), lib._topojs_boundary() + nv),
+      positions: f32(lib._topoc_positions(), 3 * nv),
+      indices: lib.HEAPU32.slice(lib._topoc_indices() / 4, lib._topoc_indices() / 4 + ni),
+      curvature: f32(lib._topoc_curvature(), nv),
+      defect: f32(lib._topoc_defect(), nv),
+      boundary: lib.HEAPU8.slice(lib._topoc_boundary(), lib._topoc_boundary() + nv),
     };
   } finally {
     lib._free(ptr);
