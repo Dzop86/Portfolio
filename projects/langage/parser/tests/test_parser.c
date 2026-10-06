@@ -46,11 +46,13 @@ static void literals(void) {
     tree("2.5", "(float 1:1 2.5)");
     tree("2.", "(float 1:1 2.0)");
     tree("1e3", "(float 1:1 1000.0)");
+    tree("1e20", "(float 1:1 1e+20)");
+    tree("2.5e-7", "(float 1:1 2.5e-07)");
     tree("0.1", "(float 1:1 0.1)");
     tree("true", "(bool 1:1 true)");
     tree("\"a\\\"b\\n\\\\\"", "(str 1:1 \"a\\\"b\\n\\\\\")");
     tree("x_1'", "(var 1:1 x_1')");
-    tree("4611686018427387903", "(int 1:1 4611686018427387903)");
+    tree("9223372036854775807", "(int 1:1 9223372036854775807)");
 }
 
 static void precedence(void) {
@@ -91,7 +93,7 @@ static void errors(void) {
     ERROR_AT("\"abc", 1, 1, "unterminated string");
     ERROR_AT("\"a\nb\"", 1, 1, "unterminated string");
     ERROR_AT("\"a\\qb\"", 1, 3, "unknown escape \\q");
-    ERROR_AT("4611686018427387904", 1, 1, "too large");
+    ERROR_AT("9223372036854775808", 1, 1, "too large");
     ERROR_AT("1e999", 1, 1, "out of range");
     ERROR_AT("1 +\n\n  )", 3, 3, "unexpected )");
     /* Columns count characters: "é" is two bytes but one column. */

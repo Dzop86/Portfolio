@@ -3,7 +3,7 @@
    visitor's browser): a number of evaluation steps and a depth of nested calls. *)
 
 type value =
-  | VInt of int
+  | VInt of int64
   | VFloat of float
   | VBool of bool
   | VString of string
@@ -26,6 +26,16 @@ let error loc fmt = Printf.ksprintf (fun s -> raise (Error (loc, s))) fmt
 
 (* Shortest of %.15g, %.16g, %.17g that reads back as the same float, with ".0" for whole numbers:
    the same spelling as maillec's. *)
+(* Windows' C library writes three exponent digits (1e+020): keep at least two, like everywhere else. *)
+let normalize_exponent s =
+  match String.index_opt s 'e' with
+  | None -> s
+  | Some i ->
+      let sign = s.[i + 1] in
+      let digits = String.sub s (i + 2) (String.length s - i - 2) in
+      let rec strip d = if String.length d > 2 && d.[0] = '0' then strip (String.sub d 1 (String.length d - 1)) else d in
+      String.sub s 0 (i + 1) ^ String.make 1 sign ^ strip digits
+
 let float_to_string f =
   if Float.is_nan f then "nan"
   else if Float.is_integer f && Float.abs f < 1e16 then Printf.sprintf "%.1f" f
@@ -35,18 +45,18 @@ let float_to_string f =
       let s = Printf.sprintf "%.*g" d f in
       if d >= 17 || float_of_string s = f then s else go (d + 1)
     in
-    let s = go 15 in
+    let s = normalize_exponent (go 15) in
     if String.exists (fun c -> c = '.' || c = 'e') s then s else s ^ ".0"
 
 let mesh m = VMesh (m, lazy (Mesh.invariants m))
 
 let make name build = function
-  | VInt k when k < Mesh.min_resolution || k > Mesh.max_resolution ->
-      raise (Builtin_error (Printf.sprintf "%s: resolution must be between %d and %d, got %d" name Mesh.min_resolution Mesh.max_resolution k))
-  | VInt k -> mesh (build k)
+  | VInt k when k < Int64.of_int Mesh.min_resolution || k > Int64.of_int Mesh.max_resolution ->
+      raise (Builtin_error (Printf.sprintf "%s: resolution must be between %d and %d, got %Ld" name Mesh.min_resolution Mesh.max_resolution k))
+  | VInt k -> mesh (build (Int64.to_int k))
   | _ -> assert false
 
-let invariant f = function VMesh (_, inv) -> VInt (f (Lazy.force inv)) | _ -> assert false
+let invariant f = function VMesh (_, inv) -> VInt (Int64.of_int (f (Lazy.force inv))) | _ -> assert false
 
 let builtins =
   let num f = function VFloat x -> f x | _ -> assert false in
@@ -73,11 +83,11 @@ let builtins =
     ("components", invariant (fun i -> i.Mesh.components));
     ("genus", invariant (fun i -> i.Mesh.genus));
     ("sqrt", num (fun x -> VFloat (Float.sqrt x)));
-    ("float_of_int", function VInt i -> VFloat (float_of_int i) | _ -> assert false);
-    ("int_of_float", num (fun x -> VInt (int_of_float x)));
-    ("string_of_int", function VInt i -> VString (string_of_int i) | _ -> assert false);
+    ("float_of_int", function VInt i -> VFloat (Int64.to_float i) | _ -> assert false);
+    ("int_of_float", num (fun x -> VInt (Int64.of_float x)));
+    ("string_of_int", function VInt i -> VString (Int64.to_string i) | _ -> assert false);
     ("string_of_float", num (fun x -> VString (float_to_string x)));
-    ("string_length", function VString s -> VInt (String.length s) | _ -> assert false);
+    ("string_length", function VString s -> VInt (Int64.of_int (String.length s)) | _ -> assert false);
   ]
 
 let initial_env =
@@ -86,7 +96,7 @@ let initial_env =
 (* Structural comparison of two values of the same type (the type checker guarantees it). *)
 let rec compare_values loc a b =
   match (a, b) with
-  | VInt x, VInt y -> compare x y
+  | VInt x, VInt y -> Int64.compare x y
   | VFloat x, VFloat y -> compare x y
   | VBool x, VBool y -> compare x y
   | VString x, VString y -> compare x y
@@ -136,17 +146,17 @@ let run ?(limits = default_limits) (program : Ast.expr) : value =
     | Binop ("||", a, b) -> (
         match eval env depth a with VBool true -> VBool true | _ -> eval env depth b)
     | Binop (op, a, b) -> binop e.loc op (eval env depth a) (eval env depth b)
-    | Unop ("-", a) -> (match eval env depth a with VInt i -> VInt (-i) | _ -> error e.loc "not an integer")
+    | Unop ("-", a) -> (match eval env depth a with VInt i -> VInt (Int64.neg i) | _ -> error e.loc "not an integer")
     | Unop ("not", a) -> (match eval env depth a with VBool x -> VBool (not x) | _ -> error e.loc "not a boolean")
     | Unop (op, _) -> error e.loc "unknown operator %s" op
   and binop loc op a b =
     match (op, a, b) with
-    | "+", VInt x, VInt y -> VInt (x + y)
-    | "-", VInt x, VInt y -> VInt (x - y)
-    | "*", VInt x, VInt y -> VInt (x * y)
-    | ("/" | "%"), VInt _, VInt 0 -> error loc "division by zero"
-    | "/", VInt x, VInt y -> VInt (x / y)
-    | "%", VInt x, VInt y -> VInt (x mod y)
+    | "+", VInt x, VInt y -> VInt (Int64.add x y)
+    | "-", VInt x, VInt y -> VInt (Int64.sub x y)
+    | "*", VInt x, VInt y -> VInt (Int64.mul x y)
+    | ("/" | "%"), VInt _, VInt 0L -> error loc "division by zero"
+    | "/", VInt x, VInt y -> VInt (Int64.div x y)
+    | "%", VInt x, VInt y -> VInt (Int64.rem x y)
     | "+.", VFloat x, VFloat y -> VFloat (x +. y)
     | "-.", VFloat x, VFloat y -> VFloat (x -. y)
     | "*.", VFloat x, VFloat y -> VFloat (x *. y)
@@ -163,7 +173,7 @@ let run ?(limits = default_limits) (program : Ast.expr) : value =
   eval initial_env 0 program
 
 let to_string = function
-  | VInt i -> string_of_int i
+  | VInt i -> Int64.to_string i
   | VFloat f -> float_to_string f
   | VBool b -> string_of_bool b
   | VString s -> Printf.sprintf "%S" s

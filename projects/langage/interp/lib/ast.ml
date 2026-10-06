@@ -5,7 +5,7 @@ type loc = { line : int; column : int }
 type expr = { loc : loc; desc : desc }
 
 and desc =
-  | Int of int
+  | Int of int64  (** 64 bits everywhere: OCaml's int has 63 bits natively but 32 under js_of_ocaml *)
   | Float of float
   | String of string
   | Bool of bool
@@ -38,7 +38,7 @@ let rec of_sexp (s : Sexp.t) : expr =
       let mk desc = { loc; desc } in
       match (kind, args) with
       | "int", [ Atom v ] -> (
-          match int_of_string_opt v with Some i -> mk (Int i) | None -> malformed "bad integer %S" v)
+          match Int64.of_string_opt v with Some i -> mk (Int i) | None -> malformed "bad integer %S" v)
       | "float", [ Atom v ] -> (
           match float_of_string_opt v with Some f -> mk (Float f) | None -> malformed "bad float %S" v)
       | "str", [ Str v ] -> mk (String v)

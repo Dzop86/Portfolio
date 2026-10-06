@@ -82,6 +82,12 @@ void node_print(FILE *out, const node *n) {
             snprintf(buf, sizeof buf, "%.*g", digits, n->float_value);
             if (strtod(buf, NULL) == n->float_value) break;
         }
+        /* Some C libraries on Windows write three exponent digits (1e+020): keep two, as elsewhere. */
+        char *e = strchr(buf, 'e');
+        if (e && (e[1] == '+' || e[1] == '-')) {
+            char *d = e + 2;
+            while (d[0] == '0' && strlen(d) > 2) memmove(d, d + 1, strlen(d));
+        }
         fprintf(out, " %s%s", buf, strpbrk(buf, ".eEn") ? "" : ".0");
         break;
     }

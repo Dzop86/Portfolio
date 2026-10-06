@@ -86,8 +86,8 @@ IDENT   [a-z_][A-Za-z0-9_']*
 {DIGIT}+ {
     errno = 0;
     long long v = strtoll(yytext, NULL, 10);
-    /* 2^62 - 1 at most: OCaml's native int has 63 bits. */
-    if (errno == ERANGE || v > 4611686018427387903LL) LEX_ERROR("integer literal too large: %s", yytext);
+    /* 2^63 - 1 at most: the interpreter's integers are 64-bit (Int64), in native code and in JavaScript. */
+    if (errno == ERANGE) LEX_ERROR("integer literal too large: %s", yytext);
     yylval->ival = v;
     return INT;
 }

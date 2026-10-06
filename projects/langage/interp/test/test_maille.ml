@@ -18,7 +18,7 @@ let check_eq name expected got =
 (* Tree builders. Every node sits at 1:1: locations are checked through Maille.run on S-expressions
    written by hand (see pipeline), since OCaml evaluates constructor arguments in no fixed order. *)
 let mk desc = { Ast.loc = { line = 1; column = 1 }; desc }
-let i n = mk (Ast.Int n)
+let i n = mk (Ast.Int (Int64.of_int n))
 let f x = mk (Ast.Float x)
 let s x = mk (Ast.String x)
 let b x = mk (Ast.Bool x)
@@ -94,6 +94,10 @@ let fib = letrec "fib" (fn "n" (if_ (op "<" (v "n") (i 2)) (v "n") (op "+" (v "f
 let evaluation () =
   check_eq "arithmetic" "7" (value (op "+" (i 1) (op "*" (i 2) (i 3))));
   check_eq "integer division rounds toward zero" "-2" (value (op "/" (mk (Ast.Unop ("-", i 7))) (i 3)));
+  check_eq "integers have 64 bits, and wrap" "-9223372036854775808"
+    (value (op "+" (mk (Ast.Int Int64.max_int)) (i 1)));
+  check_eq "20! fits in 64 bits" "2432902008176640000"
+    (value (letrec "f" (fn "n" (if_ (op "<=" (v "n") (i 1)) (i 1) (op "*" (v "n") (v "f" @@@ op "-" (v "n") (i 1))))) (v "f" @@@ i 20)));
   check_eq "fib 20" "6765" (value (fib (v "fib" @@@ i 20)));
   check_eq "closures capture their definition" "2"
     (value (let_ "x" (i 1) (let_ "f" (fn "y" (op "+" (v "x") (v "y"))) (let_ "x" (i 10) (v "f" @@@ i 1)))));
