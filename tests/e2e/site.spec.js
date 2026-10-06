@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -320,6 +320,62 @@ test('the generalized maps course: darts, alpha moves, orbits and the quiz', asy
   await expect(quiz.locator('[data-feedback]').nth(2)).toHaveText('Not quite.');
   await expect(quiz.locator('[data-feedback]').nth(3)).toHaveText('No answer.');
   await expect(quiz.locator('[data-explain]').nth(0)).toBeVisible();
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('Othello: play a move, the AI answers, keyboard, undo, and playing white', async ({ page }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-othello.html');
+  const root = page.locator('[data-othello]');
+  const status = root.locator('[data-status]');
+  const cell = (name) => root.locator(`[data-sq="${'abcdefgh'.indexOf(name[0]) + 8 * (Number(name[1]) - 1)}"]`);
+  await root.scrollIntoViewIfNeeded();
+  await expect(status).toHaveText('Your turn.');
+  await expect(root.locator('[data-score]')).toHaveText('Black 2, white 2');
+  await expect(root.locator('.oth-cell.is-legal')).toHaveCount(4);
+  await expect(cell('d3')).toHaveAttribute('aria-label', 'd3, empty, possible move');
+
+  // Touch targets: every square at least 44 px wide, whatever the screen.
+  const width = await cell('a1').evaluate((e) => e.getBoundingClientRect().width);
+  expect(width).toBeGreaterThanOrEqual(44);
+  // And at 375 px, the narrowest screen the site supports, without horizontal scroll.
+  if (info.project.name === 'desktop-chromium') {
+    const size = page.viewportSize();
+    await page.setViewportSize({ width: 375, height: 800 });
+    expect(await cell('a1').evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
+    await page.setViewportSize(size);
+  }
+
+  await cell('a1').click(); // not a legal move: nothing happens
+  await expect(root.locator('[data-score]')).toHaveText('Black 2, white 2');
+  await cell('d3').click();
+  await expect(cell('d3')).toHaveAttribute('data-disc', 'black');
+  await expect(status).toHaveText(/^The AI played [a-h][1-8]\. Your turn\.$/);
+  await expect(root.locator('.oth-cell.is-last')).toHaveCount(1);
+
+  // Keyboard: the board has one tab stop, the arrows move it.
+  await cell('d3').focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(cell('d4')).toBeFocused();
+  await expect(cell('d4')).toHaveAttribute('tabindex', '0');
+
+  await root.getByRole('button', { name: 'Undo my move' }).click();
+  await expect(root.locator('[data-score]')).toHaveText('Black 2, white 2');
+  await expect(status).toHaveText('Your turn.');
+  await expect(root.getByRole('button', { name: 'Undo my move' })).toBeDisabled();
+
+  // Playing white: the AI opens.
+  await root.getByRole('radio', { name: 'white', exact: true }).check();
+  await root.getByRole('button', { name: 'New game' }).click();
+  await expect(status).toHaveText(/^The AI played (d3|c4|f5|e6)\. Your turn\.$/);
+  await expect(root.locator('[data-score]')).toHaveText('Black 4, white 1');
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

@@ -2,7 +2,7 @@
 
 [![othello](https://github.com/Dzop86/Portfolio/actions/workflows/othello.yml/badge.svg)](https://github.com/Dzop86/Portfolio/actions/workflows/othello.yml)
 
-Réécriture d'un jeu programmé pendant mes études : un moteur d'Othello en C11, exact et rapide, une IA minimax alpha-bêta et une partie dans le terminal. Le sprint 18 le rendra jouable dans le navigateur (WebAssembly).
+Réécriture d'un jeu programmé pendant mes études : un moteur d'Othello en C11, exact et rapide, une IA minimax alpha-bêta et une partie dans le terminal. Il est jouable sur la [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-othello.html), compilé en WebAssembly.
 
 *Othello in C11: bitboard engine checked by perft against the published counts, alpha-beta AI, terminal game; Unity tests on Linux, Windows and macOS, with ASan and UBSan.*
 
@@ -16,6 +16,9 @@ Réécriture d'un jeu programmé pendant mes études : un moteur d'Othello en C1
 - Évaluation : valeur des cases (coins précieux, cases voisines des coins dangereuses), mobilité, coins acquis ; une partie finie vaut la différence de pions, plus que toute heuristique.
 - Déterministe : à valeur égale, la case la plus petite l'emporte.
 
+## Dans le navigateur
+`scripts/build-wasm.sh` compile moteur et IA en WebAssembly (Emscripten 6.0.11 dans Docker, 4,5 Ko) avec l'API de `tools/wasm_api.c` (partie et historique pour annuler) ; la CI vérifie que le build commité correspond aux sources. La page propose la couleur, le niveau (profondeur 1 à 6), l'annulation, montre les coups possibles et le dernier coup, annonce les passes ; elle se joue à la souris, au toucher et au clavier. Choix : D28 dans le [`DECISIONS.md` du site](../../DECISIONS.md).
+
 ## Jouer
 ```sh
 cmake -S . -B build && cmake --build build
@@ -28,6 +31,8 @@ printf 'd3\nc5\n' | ./build/othello          # coups lus sur l'entrée standard
 - **Plateau** (`tests/test_board.c`) : position de départ et ses quatre coups, retournements dans chaque direction, coups illégaux refusés sans rien changer, pas de débordement d'un bord à l'autre, passe et fin de partie, notation, perft jusqu'à 8.
 - **IA** (`tests/test_ai.c`) : sur 40 positions et 4 profondeurs, alpha-bêta donne exactement la valeur du minimax en visitant moins de la moitié des positions ; coup légal et déterministe ; évaluation symétrique ; à un coup de profondeur, le coin libre est pris ; l'IA à profondeur 3 bat un joueur aléatoire au moins 18 fois sur 20.
 - **Partie en terminal** (CTest) : deux IA jouent une partie complète ; une personne scriptée joue, se voit refuser un coup illégal, et l'entrée qui s'arrête avant la fin donne le code 1 ; un mauvais argument donne une erreur.
-- **CI** (`.github/workflows/othello.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan.
+- **WebAssembly** (`tests/unit/othello-wasm.test.mjs` du site) : perft jusqu'à 7 et une partie complète entre deux IA, identiques au natif ; coup illégal refusé, annulation.
+- **Page** (Playwright, 5 navigateurs, et 375 px) : coup du joueur et réponse de l'IA, clavier, annulation, partie avec les blancs, cases de 44 px au moins, accessibilité (axe) dans les deux thèmes.
+- **CI** (`.github/workflows/othello.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan, et la vérification du build WebAssembly.
 
 Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md).

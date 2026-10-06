@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, je compile le moteur et l'IA (othello) en WebAssembly avec une API pour le navigateur (coups, IA, annulation) ; build commité vérifié par la CI, test Node (perft et partie complète identiques au natif). | 1 | À faire |
-| En tant que visiteur, je joue à l'Othello (othello) sur la fiche : couleur et niveau au choix, coups possibles montrés, passes annoncées, annulation, score ; clavier (flèches, Entrée) et tactile ; tests Playwright, mobile et axe compris. | 2 | À faire |
+| En tant que développeur, je compile le moteur et l'IA (othello) en WebAssembly avec une API pour le navigateur (coups, IA, annulation) ; build commité vérifié par la CI, test Node (perft et partie complète identiques au natif). | 1 | Fait |
+| En tant que visiteur, je joue à l'Othello (othello) sur la fiche : couleur et niveau au choix, coups possibles montrés, passes annoncées, annulation, score ; clavier (flèches, Entrée) et tactile ; tests Playwright, mobile et axe compris. | 2 | Fait |
+
+**Tests :** 5 tests Node sur le WebAssembly, scénario Playwright dans 5 navigateurs et à 375 px, axe dans les deux thèmes. **Trouvé :** cases de 43,1 px sur un écran de 390 px.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

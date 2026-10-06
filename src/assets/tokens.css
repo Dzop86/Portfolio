@@ -41,6 +41,15 @@
   --risk-medium-text: #f8dd96;
   --risk-low: rgba(190, 243, 116, 0.16);
   --risk-low-text: #d4f5a4;
+  /* Othello board (D28): green felt, black and white discs, the same in both themes. */
+  --oth-felt: #2e7d32;
+  --oth-line: #1b5e20;
+  --oth-black: #111111;
+  --oth-white: #f5f5f5;
+  --oth-hint: #c8e6c9;
+  --oth-last: #ffb300;
+  --oth-black-shade: rgba(255, 255, 255, 0.15);
+  --oth-white-shade: rgba(0, 0, 0, 0.2);
   /* G-map figures (D24): drawn like a textbook figure, on white in both themes; alpha0 black,
      alpha1 red, alpha2 blue, the orbit shown in bamboo green and the current dart in orange. */
   --gm-paper: #ffffff;

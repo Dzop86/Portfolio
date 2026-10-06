@@ -425,6 +425,7 @@ ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
 ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
+${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -763,6 +764,46 @@ function mlResults(t, lang) {
   <p class="notice">${esc(fill(t('ml.threshold'), { threshold: pct(threshold) }))}</p>
   <div class="split ml-confusions">${matrix('baseline')}${matrix('pointnet')}</div>
   <p class="meta">${esc(t('ml.confusion.help'))}</p>
+</section>`;
+}
+
+const OTHELLO_LABELS = ['empty', 'black', 'white', 'legal', 'your-turn', 'ai-thinking', 'ai-played', 'you-played', 'pass-you',
+  'pass-ai', 'over-win', 'over-lose', 'over-draw', 'score', 'loading', 'error.load', 'last'];
+
+// Othello against the AI (D28): the C engine in WebAssembly, a board of 64 buttons with a roving tab stop.
+function othelloBoard(t) {
+  const labels = Object.fromEntries(OTHELLO_LABELS.map((k) => [k, t(`othello.label.${k}`)]));
+  const cells = Array.from({ length: 64 }, (_, sq) =>
+    `<button type="button" class="oth-cell" data-sq="${sq}" tabindex="${sq === 19 ? 0 : -1}" aria-label="${'abcdefgh'[sq % 8]}${Math.floor(sq / 8) + 1}"></button>`).join('');
+  const files = [...'abcdefgh'].map((c) => `<span>${c}</span>`).join('');
+  const ranks = [1, 2, 3, 4, 5, 6, 7, 8].map((r) => `<span>${r}</span>`).join('');
+  const levels = [1, 2, 3, 4, 5, 6].map((d) => `<option value="${d}"${d === 3 ? ' selected' : ''}>${esc(t(`othello.level.${d}`))}</option>`).join('');
+  return `<section class="block panel demo othello" aria-labelledby="h-oth" data-othello data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-oth">${esc(t('othello.title'))}</h2>
+  <p>${esc(t('othello.lead'))}</p>
+  <div class="oth-controls">
+    <fieldset class="oth-colour"><legend>${esc(t('othello.colour'))}</legend>
+      <label><input type="radio" name="oth-colour" value="0" checked> ${esc(t('othello.colour.black'))}</label>
+      <label><input type="radio" name="oth-colour" value="1"> ${esc(t('othello.colour.white'))}</label>
+    </fieldset>
+    <label class="oth-level">${esc(t('othello.level'))} <select data-level>${levels}</select></label>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" data-new>${esc(t('othello.new'))}</button>
+      <button type="button" class="btn btn-ghost" data-undo>${esc(t('othello.undo'))}</button>
+    </div>
+  </div>
+  <p class="oth-status" data-status aria-live="polite">${esc(t('othello.label.loading'))}</p>
+  <p class="meta oth-score" data-score></p>
+  <div class="oth-wrap">
+    <div class="oth-files" aria-hidden="true">${files}</div>
+    <div class="oth-inner">
+      <div class="oth-ranks" aria-hidden="true">${ranks}</div>
+      <div class="oth-board" role="group" aria-label="${esc(t('othello.board'))}" aria-describedby="oth-help" data-board>${cells}</div>
+    </div>
+  </div>
+  <p class="meta" id="oth-help">${esc(t('othello.help'))}</p>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/othelloplay.js"></script>
 </section>`;
 }
 

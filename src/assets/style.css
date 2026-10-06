@@ -256,6 +256,37 @@ a:hover { text-decoration-thickness: 2px; }
 .confusion td.cm-off { background: var(--risk-high); color: var(--risk-high-text); font-weight: 700; }
 .ml-confusions { margin-top: var(--space-4); }
 
+/* Othello (D28): a green felt board. Below 560 px the coordinates are hidden (each square's label still
+   names it) and the board takes the viewport width minus 8 px, centred on the viewport: at 375 px a
+   square is 44.5 px wide. */
+.oth-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3) var(--space-5); }
+.oth-colour { border: 0; padding: 0; margin: 0; }
+.oth-colour legend { font-weight: 600; color: var(--text-strong); padding: 0; }
+.oth-colour label { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 44px; margin-right: var(--space-3); cursor: pointer; }
+.oth-colour input { width: 20px; height: 20px; accent-color: var(--accent); }
+.oth-level { display: flex; flex-direction: column; gap: var(--space-1); font-weight: 600; color: var(--text-strong); }
+.oth-level select { min-height: 44px; padding: 0 var(--space-2); font: inherit; color: var(--text-strong); background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+.oth-status { min-height: 1.5em; font-weight: 600; color: var(--text-strong); margin-top: var(--space-3); }
+.oth-wrap { --oth-size: min(480px, calc(100vw - 8px)); width: var(--oth-size); position: relative; left: 50%; transform: translateX(-50%); }
+.oth-files { display: grid; grid-template-columns: 18px repeat(8, 1fr); font: 600 0.8rem var(--font-mono); color: var(--muted); text-align: center; }
+.oth-files::before { content: ""; }
+.oth-inner { display: grid; grid-template-columns: 18px 1fr; }
+.oth-ranks { display: grid; grid-template-rows: repeat(8, 1fr); font: 600 0.8rem var(--font-mono); color: var(--muted); align-items: center; }
+.oth-board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; background: var(--oth-line); border: 2px solid var(--oth-line); gap: 1px; border-radius: 4px; }
+.oth-cell { position: relative; min-width: 0; min-height: 0; padding: 0; border: 0; background: var(--oth-felt); cursor: default; }
+.oth-cell.is-legal { cursor: pointer; }
+.oth-cell::after { content: ""; position: absolute; inset: 12%; border-radius: 50%; }
+.oth-cell[data-disc="black"]::after { background: var(--oth-black); box-shadow: inset 0 -3px 0 var(--oth-black-shade); }
+.oth-cell[data-disc="white"]::after { background: var(--oth-white); box-shadow: inset 0 -3px 0 var(--oth-white-shade); }
+.oth-cell.is-legal::after { inset: 40%; background: var(--oth-hint); }
+.oth-cell.is-last { box-shadow: inset 0 0 0 3px var(--oth-last); }
+.oth-cell:focus-visible { outline: 3px solid var(--link); outline-offset: -3px; z-index: 1; }
+.othello .oth-wrap + .meta { margin-top: var(--space-3); }
+@media (max-width: 560px) {
+  .oth-files, .oth-ranks { display: none; }
+  .oth-inner { grid-template-columns: 1fr; }
+}
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

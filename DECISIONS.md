@@ -136,3 +136,8 @@
 **Choix :** la fiche du projet ml affiche les précisions (référence, PointNet, PointNet exporté), le seuil de la CI et les deux matrices de confusion, lus au build dans `metrics.json`, `confusion.json`, `export/pointnet.json` et `params.yaml`.
 **Pourquoi :** ce sont les fichiers que le pipeline DVC écrit et que la CI vérifie : la page ne peut pas afficher un chiffre que le modèle n'a pas obtenu.
 **Limite :** les cases des matrices ne sont pas teintées selon leur effectif : une teinte forte sous un texte clair échouait au contraste (axe, thème sombre). Bonnes réponses en vert, erreurs en rouge, zéros discrets, avec les couleurs déjà validées des scores de risque.
+
+## D28. Othello jouable : le moteur C en WebAssembly, un plateau de boutons
+**Choix :** le moteur et l'IA en C (`projects/othello`) sont compilés par Emscripten 6.0.11 (`scripts/build-wasm.sh`, 4,5 Ko), avec une petite API qui garde la partie et son historique (annulation) ; le build est commité et vérifié par la CI, comme lib-c (D15). La page dessine 64 boutons avec un seul arrêt de tabulation (les flèches le déplacent, Entrée ou Espace joue), chacun nommé pour les lecteurs d'écran (« d3, vide, coup possible »).
+**Pourquoi :** le visiteur joue contre le vrai code testé par perft ; des boutons natifs fonctionnent à la souris, au toucher et au clavier sans canevas.
+**Limite :** sous 560 px, les coordonnées autour du plateau sont masquées pour garder des cases de 44 px au moins (à 375 px, le plateau prend la largeur de l'écran moins 8 px) ; chaque case garde son nom dans son libellé.
