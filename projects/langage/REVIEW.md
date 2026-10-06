@@ -4,12 +4,14 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `parser/src/parser.y` : priorités, désucrage de `let f x y`, gestion mémoire sur erreur (`CHECK`, `%destructor`).
-- [ ] `parser/src/lexer.l` : positions (colonnes en caractères), chaînes et échappements.
-- [ ] `interp/lib/types.ml` : généralisation, test d'occurrence, messages d'erreur.
-- [ ] `interp/lib/eval.ml` : fermetures de `let rec`, budgets.
-- [ ] `interp/lib/mesh.ml` : invariants (bords, composantes, genre).
-- [ ] `../../src/assets/mailleplay.js` : démo, arbre, positions dans l'éditeur.
+- [x] `parser/src/parser.y` : priorités, désucrage de `let f x y`, gestion mémoire sur erreur (`CHECK`, `%destructor`).
+- [x] `parser/src/lexer.l` : positions (colonnes en caractères), chaînes et échappements.
+- [x] `interp/lib/types.ml` : généralisation, test d'occurrence, messages d'erreur.
+- [x] `interp/lib/eval.ml` : fermetures de `let rec`, budgets.
+- [x] `interp/lib/mesh.ml` : invariants (bords, composantes, genre).
+- [x] `../../src/assets/mailleplay.js` : démo, arbre, positions dans l'éditeur.
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide la »).
 
 ## Constats
 
