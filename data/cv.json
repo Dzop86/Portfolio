@@ -13,6 +13,12 @@
   },
   "education": [
     {
+      "period": "2026",
+      "title": { "fr": "Qualification aux fonctions de maître de conférences, section 27", "en": "Qualification for associate professor positions, section 27" },
+      "place": { "fr": "Conseil national des universités (CNU), informatique", "en": "French National Council of Universities (CNU), computer science" },
+      "detail": { "fr": "", "en": "" }
+    },
+    {
       "period": "2022 – 2025",
       "title": { "fr": "Doctorat en informatique", "en": "PhD in Computer Science" },
       "place": { "fr": "Équipe IG, XLIM, CNRS, Université de Poitiers, laboratoire commun I3M", "en": "IG team, XLIM, CNRS, University of Poitiers, I3M joint laboratory" },
@@ -40,7 +46,7 @@
     },
     {
       "period": "2022 – 2025",
-      "title": { "fr": "Doctorant chercheur", "en": "PhD researcher" },
+      "title": { "fr": "Ingénieur R&D logiciel et IA (doctorat)", "en": "R&D software and AI engineer (PhD)" },
       "place": { "fr": "Équipe IG, XLIM, CNRS, Université de Poitiers, laboratoire commun I3M", "en": "IG team, XLIM, CNRS, University of Poitiers, I3M joint laboratory" },
       "detail": { "fr": "Analyse topologique sur les G-cartes, calcul parallèle, apprentissage profond 3D ; enseignement en parallèle.", "en": "Topological analysis on G-maps, parallel computing, 3D deep learning; teaching alongside." }
     },
@@ -66,12 +72,12 @@
     },
     "keywords": ["TDA", "G-maps", "Reeb graph", "LGRG", "Critical points", "Parallel computing", "3D CNN", "Registration"],
     "jury": [
-      { "name": "Jean-Luc Mari", "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "Aix-Marseille Université, LIS" },
-      { "name": "Julien Tierny", "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "CNRS, LIP6" },
-      { "name": "David Cazier", "role": { "fr": "Examinateur", "en": "Examiner" }, "affiliation": "Université de Strasbourg, ICube" },
-      { "name": "Romain Pascual", "role": { "fr": "Examinateur", "en": "Examiner" }, "affiliation": "Université Paris-Saclay, MICS" },
-      { "name": "Philippe Meseure", "role": { "fr": "Directeur", "en": "Supervisor" }, "affiliation": "Université de Poitiers, XLIM" },
-      { "name": "Hakim Belhaouari", "role": { "fr": "Codirecteur", "en": "Co-supervisor" }, "affiliation": "Université de Poitiers, XLIM" }
+      { "name": "David Cazier", "grade": { "fr": "Professeur", "en": "Professor" }, "role": { "fr": "Président du jury", "en": "Chair" }, "affiliation": "Université de Strasbourg, ICube" },
+      { "name": "Jean-Luc Mari", "grade": { "fr": "Professeur", "en": "Professor" }, "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "Aix-Marseille Université, LIS" },
+      { "name": "Julien Tierny", "grade": { "fr": "Directeur de recherche", "en": "Research director" }, "role": { "fr": "Rapporteur", "en": "Reviewer" }, "affiliation": "CNRS, LIP6" },
+      { "name": "Romain Pascual", "grade": { "fr": "Maître de conférences", "en": "Associate professor" }, "role": { "fr": "Examinateur", "en": "Examiner" }, "affiliation": "Université Paris-Saclay, MICS" },
+      { "name": "Philippe Meseure", "grade": { "fr": "Professeur", "en": "Professor" }, "role": { "fr": "Directeur de thèse", "en": "Supervisor" }, "affiliation": "Université de Poitiers, XLIM" },
+      { "name": "Hakim Belhaouari", "grade": { "fr": "Maître de conférences", "en": "Associate professor" }, "role": { "fr": "Codirecteur de thèse", "en": "Co-supervisor" }, "affiliation": "Université de Poitiers, XLIM" }
     ]
   },
   "publications": [

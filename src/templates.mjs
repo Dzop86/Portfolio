@@ -179,7 +179,8 @@ function research({ lang, t, data }) {
   </li>`;
   }).join('');
 
-  const jury = cv.thesis.jury.map((j) => `<li><strong>${esc(j.name)}</strong>, ${esc(pick(j.role, lang))} <span class="muted">(${esc(j.affiliation)})</span></li>`).join('');
+  const jury = cv.thesis.jury.map((j) =>
+    `<li><strong>${esc(j.name)}</strong>, ${esc(pick(j.grade, lang))} <span class="muted">(${esc(j.affiliation)})</span> · ${esc(pick(j.role, lang))}</li>`).join('');
 
   const pubs = cv.publications.map((p) => {
     const doi = p.doi ? ` <a href="https://doi.org/${esc(p.doi)}">DOI</a>` : '';

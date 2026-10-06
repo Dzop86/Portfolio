@@ -208,7 +208,7 @@ test('the research page shows professional experience and education side by side
     const block = (name) => html.match(new RegExp(`data-timeline="${name}">([\\s\\S]*?)</ol>`))[1];
     const periods = (name) => [...block(name).matchAll(/tl-period">([^<]+)/g)].map((m) => m[1]);
     assert.deepEqual(periods('experience'), ['2025 – 2026', '2022 – 2025', '2021', '2019'], lang);
-    assert.deepEqual(periods('education'), ['2022 – 2025', '2019 – 2021', '2015 – 2019'], lang);
+    assert.deepEqual(periods('education'), ['2026', '2022 – 2025', '2019 – 2021', '2015 – 2019'], lang);
     assert.ok(block('experience').includes('ATER') && !block('education').includes('ATER'), 'ATER is a job, not a degree');
     assert.ok(html.indexOf('data-timeline="experience"') < html.indexOf('data-timeline="education"'));
   }
@@ -243,4 +243,14 @@ test('the risk register lists R1 to R9 in order, each with a matrix marking its 
     assert.match(cells, new RegExp(`aria-label="Probability ${p}, impact ${i}: score ${score}`));
   }
   for (const key of ['id', 'p', 'i', 'score']) assert.ok(html.includes(`data-sort="${key}"`), key);
+});
+
+test('the jury gives each member a grade and a role, chair first', () => {
+  const { cv } = loadData();
+  for (const j of cv.thesis.jury) for (const lang of LANGS) assert.ok(pick(j.grade, lang) && pick(j.role, lang), j.name);
+  assert.equal(cv.thesis.jury[0].name, 'David Cazier');
+  const html = page('fr', 'research');
+  assert.ok(html.includes('<strong>Hakim Belhaouari</strong>, Maître de conférences'));
+  assert.ok(html.includes('<strong>Julien Tierny</strong>, Directeur de recherche'));
+  assert.ok(html.includes('Président du jury'));
 });
