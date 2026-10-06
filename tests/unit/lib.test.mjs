@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, pick, makeT, teachingTotals, riskLevel, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress, sprintRange, roadmapState } from '../../src/lib.mjs';
+import { esc, pick, makeT, teachingTotals, riskLevel, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress, sprintRange, roadmapState, periodYears, newestFirst, bySprint } from '../../src/lib.mjs';
 
 test('esc neutralises HTML special characters', () => {
   assert.equal(esc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
@@ -111,4 +111,36 @@ test('roadmapState: closed sprints and the current one, abandoned stories counti
 test('parseSprint marks abandoned stories as closed but not done', () => {
   const md = '# Sprint 3 : t\n\n| Story | Points | État |\n|---|---|---|\n| a | 1 | Fait |\n| b | 1 | Abandonné (décision) |\n| c | 2 | En cours |\n';
   assert.deepEqual(parseSprint(md, 'x.md').stories.map((s) => [s.done, s.closed]), [[true, true], [false, true], [false, false]]);
+});
+
+test('periodYears reads single years, ranges and academic years', () => {
+  assert.deepEqual(periodYears('2025'), [2025, 2025]);
+  assert.deepEqual(periodYears('2022 – 2024'), [2024, 2022]);
+  assert.deepEqual(periodYears('2023/2024, 2024/2025'), [2025, 2023]);
+  assert.throws(() => periodYears('soon'), /No year/);
+});
+
+test('newestFirst sorts by last year, then by the later start, and keeps ties in place', () => {
+  const list = ['2022 – 2024', '2025', '2024', '2019 – 2021', '2024'].map((period, n) => ({ period, n }));
+  assert.deepEqual(newestFirst(list).map((x) => x.n), [1, 2, 4, 0, 3]);
+});
+
+test('bySprint orders projects by first sprint, then last, labels like S8+S16 included', () => {
+  const ids = bySprint([{ id: 'c', sprint: 'S9' }, { id: 'a', sprint: 'S1-S9' }, { id: 'b', sprint: 'S8+S16' }, { id: 'd', sprint: 'S2-S6' }])
+    .map((p) => p.id);
+  assert.deepEqual(ids, ['a', 'd', 'b', 'c']);
+});
+
+test('loadData gives the projects in sprint order and every dated CV list newest first', () => {
+  const { projects, cv } = loadData();
+  const starts = projects.map((p) => Number(p.sprint.match(/\d+/)[0]));
+  assert.deepEqual(starts, [...starts].sort((a, b) => a - b));
+  assert.ok(projects.findIndex((p) => p.id === 'ada') < projects.findIndex((p) => p.id === 'sql'), 'ada (S9) before sql (S10)');
+  for (const key of ['education', 'experience', 'supervision', 'responsibilities']) {
+    const ends = cv[key].map((x) => periodYears(x.period)[0]);
+    assert.deepEqual(ends, [...ends].sort((a, b) => b - a), key);
+  }
+  assert.deepEqual(cv.responsibilities.map((r) => r.period), ['2025', '2024', '2022 – 2024']);
+  const years = cv.publications.map((p) => p.year);
+  assert.deepEqual(years, [...years].sort((a, b) => b - a));
 });

@@ -13,12 +13,6 @@
   },
   "education": [
     {
-      "period": "2025 – 2026",
-      "title": { "fr": "ATER en informatique (section 27)", "en": "Temporary lecturer and researcher (ATER), computer science" },
-      "place": { "fr": "Université de Poitiers, laboratoire XLIM", "en": "University of Poitiers, XLIM laboratory" },
-      "detail": { "fr": "Service complet d'enseignement (192 h) et recherche au laboratoire XLIM.", "en": "Full teaching load (192 h) and research at the XLIM laboratory." }
-    },
-    {
       "period": "2022 – 2025",
       "title": { "fr": "Doctorat en informatique", "en": "PhD in Computer Science" },
       "place": { "fr": "Équipe IG, XLIM, CNRS, Université de Poitiers, laboratoire commun I3M", "en": "IG team, XLIM, CNRS, University of Poitiers, I3M joint laboratory" },
@@ -28,16 +22,43 @@
       "period": "2019 – 2021",
       "title": { "fr": "Master informatique, parcours Conception logicielle", "en": "Master's in Computer Science, Software Design track" },
       "place": { "fr": "Université de Poitiers", "en": "University of Poitiers" },
-      "detail": { "fr": "Mention bien, classé 1er. Stage M2 au laboratoire XLIM : algorithmes de points dominants.", "en": "With honours, ranked 1st. Master's internship at XLIM: dominant point algorithms." }
+      "detail": { "fr": "Mention bien, classé 1er.", "en": "With honours, ranked 1st." }
     },
     {
       "period": "2015 – 2019",
       "title": { "fr": "Licence informatique", "en": "Bachelor's in Computer Science" },
       "place": { "fr": "Université de Poitiers", "en": "University of Poitiers" },
-      "detail": { "fr": "Stage L3 chez Emandarine : création de plugins WordPress.", "en": "Internship at Emandarine: WordPress plugin development." }
+      "detail": { "fr": "", "en": "" }
+    }
+  ],
+  "experience": [
+    {
+      "period": "2025 – 2026",
+      "title": { "fr": "ATER en informatique (section 27)", "en": "Temporary lecturer and researcher (ATER), computer science" },
+      "place": { "fr": "Université de Poitiers, laboratoire XLIM", "en": "University of Poitiers, XLIM laboratory" },
+      "detail": { "fr": "Service complet d'enseignement (192 h) et recherche au laboratoire XLIM.", "en": "Full teaching load (192 h) and research at the XLIM laboratory." }
+    },
+    {
+      "period": "2022 – 2025",
+      "title": { "fr": "Doctorant chercheur", "en": "PhD researcher" },
+      "place": { "fr": "Équipe IG, XLIM, CNRS, Université de Poitiers, laboratoire commun I3M", "en": "IG team, XLIM, CNRS, University of Poitiers, I3M joint laboratory" },
+      "detail": { "fr": "Analyse topologique sur les G-cartes, calcul parallèle, apprentissage profond 3D ; enseignement en parallèle.", "en": "Topological analysis on G-maps, parallel computing, 3D deep learning; teaching alongside." }
+    },
+    {
+      "period": "2021",
+      "title": { "fr": "Stage de Master 2", "en": "Master's internship" },
+      "place": { "fr": "Laboratoire XLIM, Université de Poitiers", "en": "XLIM laboratory, University of Poitiers" },
+      "detail": { "fr": "Algorithmes de calcul de points dominants.", "en": "Dominant point algorithms." }
+    },
+    {
+      "period": "2019",
+      "title": { "fr": "Stage de Licence 3", "en": "Bachelor's internship" },
+      "place": { "fr": "Emandarine", "en": "Emandarine" },
+      "detail": { "fr": "Création de plugins WordPress.", "en": "WordPress plugin development." }
     }
   ],
   "thesis": {
+    "url": "https://theses.fr/s342053",
     "title": { "fr": "Extraction par analyse topologique sur les G-cartes de caractéristiques pour les systèmes d'apprentissage supervisé appliqués à l'arbre vasculaire cérébral", "en": "Topological feature extraction on generalized maps for supervised learning systems applied to the cerebral vascular tree" },
     "abstract": {
       "fr": "Les maillages reconstruits de l'arbre vasculaire cérébral sont volumineux, bruités et contiennent des erreurs de reconstruction, ce qui complique leur recalage entre plusieurs acquisitions. La thèse propose une simplification qui conserve les caractéristiques topologiques essentielles (cavités, tunnels) et un minimum de géométrie. Elle introduit une nouvelle classification des points de selle et une variante du graphe de Reeb, le Local to Global Reeb Graph (LGRG), tous deux calculés en parallèle à partir d'informations locales grâce au formalisme des cartes généralisées. Ces caractéristiques alimentent ensuite un réseau de neurones convolutifs 3D pour le recalage.",

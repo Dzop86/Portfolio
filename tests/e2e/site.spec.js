@@ -59,8 +59,9 @@ test('a project card opens its detail page, which links to the next project', as
   await page.getByRole('link', { name: 'C mesh library' }).click();
   await expect(page).toHaveURL(/\/en\/project-lib-c\.html$/);
   await expect(page.locator('h1')).toHaveText('C mesh library');
-  await page.getByRole('link', { name: /Qt\/OpenGL viewer/ }).click();
-  await expect(page.locator('h1')).toHaveText('Qt/OpenGL viewer');
+  // Projects follow their sprints: topology (S4) comes after the C library (S2).
+  await page.getByRole('link', { name: /3D topology/ }).click();
+  await expect(page.locator('h1')).toHaveText('3D topology');
 });
 
 test('the lib-c demo reads a sample and a dropped file in the browser', async ({ page }) => {
@@ -170,6 +171,44 @@ test('the SQL playground runs the examples, a typed query, and survives errors, 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
+});
+
+test('the risk register sorts by number, probability, impact and score, and back', async ({ page }) => {
+  await page.goto('/en/method.html');
+  const table = page.locator('[data-risks]');
+  const ids = () => table.locator('tbody tr').evaluateAll((rows) => rows.map((r) => r.cells[0].textContent.trim()));
+  const column = (key) => table.locator('tbody tr').evaluateAll((rows, k) => rows.map((r) => Number(r.dataset[k])), key);
+  expect(await ids()).toEqual(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9']);
+
+  for (const [key, name] of [['score', 'Score'], ['p', 'Probability'], ['i', 'Impact']]) {
+    await table.getByRole('button', { name }).click();
+    const values = await column(key);
+    expect(values).toEqual([...values].sort((a, b) => b - a));
+    await expect(table.locator(`th:has([data-sort="${key}"])`)).toHaveAttribute('aria-sort', 'descending');
+    await table.getByRole('button', { name }).click();
+    expect(await column(key)).toEqual([...values].sort((a, b) => a - b));
+    await expect(table.locator(`th:has([data-sort="${key}"])`)).toHaveAttribute('aria-sort', 'ascending');
+  }
+  // Highest score first, ties in the order of their numbers.
+  await table.getByRole('button', { name: 'Score' }).click();
+  expect((await ids()).slice(0, 3)).toEqual(['R2', 'R3', 'R1']);
+
+  await table.getByRole('button', { name: 'No.' }).click();
+  expect(await ids()).toEqual(['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9']);
+  await table.getByRole('button', { name: 'No.' }).click();
+  expect((await ids())[0]).toBe('R9');
+  await expect(table.getByRole('img', { name: 'Probability 3, impact 3: score 9, high risk' })).toHaveCount(2);
+});
+
+test('the research page shows experience and education side by side on a wide screen', async ({ page }, info) => {
+  await page.goto('/en/research.html');
+  const exp = page.locator('[data-timeline="experience"]');
+  const edu = page.locator('[data-timeline="education"]');
+  await expect(exp.locator('li')).toHaveCount(4);
+  await expect(page.getByRole('link', { name: 'The thesis on theses.fr' })).toHaveAttribute('href', /theses\.fr/);
+  const [a, b] = [await exp.boundingBox(), await edu.boundingBox()];
+  if (info.project.name.startsWith('desktop')) expect(Math.abs(a.y - b.y)).toBeLessThan(2);
+  else expect(b.y).toBeGreaterThan(a.y + a.height - 1);
 });
 
 test('roadmap sprint numbers sit above their columns, on every screen', async ({ page }) => {

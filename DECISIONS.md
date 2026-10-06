@@ -97,3 +97,8 @@
 **Pourquoi :** le CSV reste la seule source des données (pas de fichier `.sqlite` binaire commité qui pourrait diverger) ; un worker permet d'arrêter une requête sans fin (CTE récursive) sans figer la page, ce que sql.js ne permet pas dans le fil principal.
 **Alternatives :** base `.sqlite` générée au build (le build est synchrone et sql.js ne l'est pas), PostgreSQL compilé en WebAssembly (PGlite, environ 3 Mo contre 0,7), interrogation de l'API PostgreSQL (un serveur à héberger).
 **Limite :** dialecte SQLite et non PostgreSQL : la médiane est réécrite avec des fonctions de fenêtrage, la régression avec les sommes des moindres carrés, `ln` et `sqrt` sont fournies par JavaScript, et `regressions(seuil)` devient la vue `campaign_change`. Un test Node vérifie que les médianes et les exposants de SQLite égalent ceux calculés indépendamment en JavaScript.
+
+## D21. Ordres d'affichage calculés, pas hérités des fichiers
+**Choix :** `loadData` trie les projets par sprint (`bySprint`) et chaque liste datée du CV du plus récent au plus ancien (`newestFirst` : dernière année, puis la période qui commence le plus tard). Le registre des risques s'affiche dans l'ordre des numéros, et des boutons en en-tête le retrient par probabilité, impact ou score (`app.js`, avec `aria-sort`). Chaque risque a sa matrice probabilité × impact de 3 × 3.
+**Pourquoi :** l'ordre des fichiers dérivait dès qu'un projet changeait de sprint ; trié par le code, l'affichage suit les données sans retouche à la main, et un test le vérifie.
+**Limite :** à période égale, l'ordre du fichier départage. Le parcours professionnel ne reprend que ce que contient `cv.json`.

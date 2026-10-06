@@ -170,10 +170,14 @@ function research({ lang, t, data }) {
   const max = Math.max(...cv.teaching.map((r) => r.td + r.tp));
   const levels = [...new Set(cv.teaching.map((r) => r.level))].sort();
 
-  const education = cv.education.map((e) => `<li>
+  // Lists come newest first from loadData (sortCv).
+  const timeline = (list) => list.map((e) => {
+    const detail = pick(e.detail, lang);
+    return `<li>
     <span class="tl-period">${esc(e.period)}</span>
-    <div><h3>${esc(pick(e.title, lang))}</h3><p class="muted">${esc(pick(e.place, lang))}</p><p>${esc(pick(e.detail, lang))}</p></div>
-  </li>`).join('');
+    <div><h3>${esc(pick(e.title, lang))}</h3><p class="muted">${esc(pick(e.place, lang))}</p>${detail ? `<p>${esc(detail)}</p>` : ''}</div>
+  </li>`;
+  }).join('');
 
   const jury = cv.thesis.jury.map((j) => `<li><strong>${esc(j.name)}</strong>, ${esc(pick(j.role, lang))} <span class="muted">(${esc(j.affiliation)})</span></li>`).join('');
 
@@ -209,9 +213,15 @@ function research({ lang, t, data }) {
   return `${pageHead(t('research.title'), t('research.lead'), pick(cv.person.title, lang))}
 <p class="summary">${esc(pick(cv.summary, lang))}</p>
 
-<section class="block" aria-labelledby="h-edu">
-  <h2 id="h-edu">${esc(t('research.education'))}</h2>
-  <ol class="timeline">${education}</ol>
+<section class="split block paths">
+  <div aria-labelledby="h-exp" role="region">
+    <h2 id="h-exp">${esc(t('research.experience'))}</h2>
+    <ol class="timeline" data-timeline="experience">${timeline(cv.experience)}</ol>
+  </div>
+  <div aria-labelledby="h-edu" role="region">
+    <h2 id="h-edu">${esc(t('research.education'))}</h2>
+    <ol class="timeline" data-timeline="education">${timeline(cv.education)}</ol>
+  </div>
 </section>
 
 <section class="block" aria-labelledby="h-thesis">
@@ -223,6 +233,7 @@ function research({ lang, t, data }) {
     <ul class="tags">${cv.thesis.keywords.map((k) => `<li>${esc(k)}</li>`).join('')}</ul>
     <p class="label">${esc(t('research.jury'))}</p>
     <ul class="plain">${jury}</ul>
+    <p class="actions"><a class="btn btn-ghost" href="${esc(cv.thesis.url)}" data-link="theses">${esc(t('research.thesis.link'))}</a></p>
   </article>
 </section>
 
@@ -267,6 +278,21 @@ function research({ lang, t, data }) {
 </section>`;
 }
 
+/**
+ * 3 x 3 probability-impact matrix of one risk: probability across, impact up, each cell coloured by the
+ * level of its score, the risk's own cell marked. Read by screen readers as one labelled image.
+ */
+function riskMatrix(p, i, label) {
+  const cells = [];
+  for (let impact = 3; impact >= 1; impact--) {
+    for (let prob = 1; prob <= 3; prob++) {
+      const own = prob === p && impact === i ? ' is-risk' : '';
+      cells.push(`<span class="cell score-${riskLevel(prob * impact)}${own}"></span>`);
+    }
+  }
+  return `<span class="risk-matrix" role="img" aria-label="${esc(label)}">${cells.join('')}</span>`;
+}
+
 function method({ lang, t, data }) {
   const { scrum } = data;
   const count = scrum.sprintCount;
@@ -284,17 +310,25 @@ function method({ lang, t, data }) {
     </li>`;
   }).join('');
 
+  // Register in the order of the ids (R1, R2...); the column buttons re-sort it in the browser (app.js).
   const risks = [...scrum.risks]
-    .sort((x, y) => y.p * y.i - x.p * x.i)
+    .sort((x, y) => Number(x.id.slice(1)) - Number(y.id.slice(1)))
     .map((r) => {
       const score = r.p * r.i;
-      return `<tr>
-        <th scope="row"><span class="muted">${esc(r.id)}</span> ${esc(pick(r.label, lang))}</th>
-        <td class="num">${r.p}</td><td class="num">${r.i}</td>
-        <td class="num"><span class="score score-${riskLevel(score)}">${score}</span></td>
-        <td>${esc(pick(r.mitigation, lang))}</td>
+      const level = riskLevel(score);
+      // data-label names the value when a narrow screen shows each risk as a card (style.css).
+      return `<tr data-id="${Number(r.id.slice(1))}" data-p="${r.p}" data-i="${r.i}" data-score="${score}">
+        <td class="muted c-id">${esc(r.id)}</td>
+        <th scope="row" class="c-label">${esc(pick(r.label, lang))}</th>
+        <td class="num c-val" data-label="${esc(t('method.probability'))}">${r.p}</td>
+        <td class="num c-val" data-label="${esc(t('method.impact'))}">${r.i}</td>
+        <td class="num c-val" data-label="${esc(t('method.score'))}"><span class="score score-${level}">${score}</span></td>
+        <td class="c-matrix">${riskMatrix(r.p, r.i, fill(t('method.matrix.label'), { p: r.p, i: r.i, score, level: t(`method.level.${level}`) }))}</td>
+        <td class="c-mitigation">${esc(pick(r.mitigation, lang))}</td>
       </tr>`;
     }).join('');
+  const sortable = (key, label, num = true) => `<th scope="col"${num ? ' class="num"' : ''}${key === 'id' ? ' aria-sort="ascending"' : ''}>
+          <button type="button" class="sort" data-sort="${key}">${esc(label)}<span class="sort-mark" aria-hidden="true"></span></button></th>`;
 
   const steps = t('method.genai.steps').split('|').map((s) => `<li>${esc(s)}</li>`).join('');
   const dod = scrum.dod[lang].map((d) => `<li>${esc(d)}</li>`).join('');
@@ -313,17 +347,21 @@ function method({ lang, t, data }) {
 <section class="block" aria-labelledby="h-risks">
   <h2 id="h-risks">${esc(t('method.risks'))}</h2>
   <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-risks">
-    <table>
+    <table class="risks" data-risks>
+      <caption class="visually-hidden">${esc(t('method.sort.help'))}</caption>
       <thead><tr>
+        ${sortable('id', t('method.id'), false)}
         <th scope="col">${esc(t('method.risk'))}</th>
-        <th scope="col" class="num">${esc(t('method.probability'))}</th>
-        <th scope="col" class="num">${esc(t('method.impact'))}</th>
-        <th scope="col" class="num">${esc(t('method.score'))}</th>
+        ${sortable('p', t('method.probability'))}
+        ${sortable('i', t('method.impact'))}
+        ${sortable('score', t('method.score'))}
+        <th scope="col">${esc(t('method.matrix'))}</th>
         <th scope="col">${esc(t('method.mitigation'))}</th>
       </tr></thead>
       <tbody>${risks}</tbody>
     </table>
   </div>
+  <p class="meta">${esc(t('method.matrix.help'))}</p>
 </section>
 
 <section class="split block">

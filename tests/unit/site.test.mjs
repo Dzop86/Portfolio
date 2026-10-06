@@ -129,8 +129,9 @@ test('a detail page shows the stack, the Definition of Done and the neighbours',
   const html = page('en', projectPage('lib-c'));
   for (const tech of ['CMake', 'Unity', 'Valgrind']) assert.ok(html.includes(`<li>${tech}</li>`), tech);
   assert.ok(html.includes('Unit and integration tests green'));
-  assert.ok(html.includes(`href="./${projectPage('topologie')}.html"`), 'previous project');
-  assert.ok(html.includes(`href="./${projectPage('qt')}.html"`), 'next project');
+  // Neighbours follow the sprints: vitrine (S1) before lib-c (S2), topologie (S4) after it.
+  assert.ok(html.includes(`rel="prev" href="./${projectPage('vitrine')}.html"`), 'previous project');
+  assert.ok(html.includes(`rel="next" href="./${projectPage('topologie')}.html"`), 'next project');
 });
 
 test('project links are shown only when the project has them', () => {
@@ -199,4 +200,47 @@ test('the viewer bundle includes three.js, keeps its licence and stays under 700
   assert.match(bundle, /Copyright 2010-\d{4} Three\.js Authors/);
   assert.ok(bundle.length < 700_000, `${bundle.length} bytes`);
   assert.ok(!existsSync(join(dist, 'assets/viewer')), 'viewer sources are not published as is');
+});
+
+test('the research page shows professional experience and education side by side, newest first', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, 'research');
+    const block = (name) => html.match(new RegExp(`data-timeline="${name}">([\\s\\S]*?)</ol>`))[1];
+    const periods = (name) => [...block(name).matchAll(/tl-period">([^<]+)/g)].map((m) => m[1]);
+    assert.deepEqual(periods('experience'), ['2025 – 2026', '2022 – 2025', '2021', '2019'], lang);
+    assert.deepEqual(periods('education'), ['2022 – 2025', '2019 – 2021', '2015 – 2019'], lang);
+    assert.ok(block('experience').includes('ATER') && !block('education').includes('ATER'), 'ATER is a job, not a degree');
+    assert.ok(html.indexOf('data-timeline="experience"') < html.indexOf('data-timeline="education"'));
+  }
+});
+
+test('the thesis links to its theses.fr record', () => {
+  const { cv } = loadData();
+  assert.match(cv.thesis.url, /^https:\/\/theses\.fr\/\w+$/);
+  assert.ok(page('fr', 'research').includes(`href="${cv.thesis.url}" data-link="theses"`));
+});
+
+test('the projects page lists the projects in sprint order', () => {
+  const html = page('en', 'projects');
+  const ids = [...html.matchAll(/href="\.\/project-([\w-]+)\.html"/g)].map((m) => m[1]);
+  const order = loadData().projects.map((p) => p.id);
+  assert.deepEqual([...new Set(ids)], order);
+  assert.deepEqual(order.slice(0, 7), ['vitrine', 'lib-c', 'topologie', 'fastapi', 'ml', 'ada', 'sql']);
+});
+
+test('the risk register lists R1 to R9 in order, each with a matrix marking its own cell', () => {
+  const { scrum } = loadData();
+  const html = page('en', 'method');
+  const rows = [...html.matchAll(/<tr data-id="(\d+)" data-p="(\d)" data-i="(\d)" data-score="(\d)">([\s\S]*?)<\/tr>/g)];
+  assert.deepEqual(rows.map((r) => Number(r[1])), scrum.risks.map((_, k) => k + 1));
+  for (const [, id, p, i, score, cells] of rows) {
+    assert.equal(Number(score), p * i, `R${id} score`);
+    const marks = [...cells.matchAll(/class="cell score-(\w+)( is-risk)?"/g)];
+    assert.equal(marks.length, 9, `R${id} has 9 cells`);
+    const own = marks.findIndex((m) => m[2]);
+    // Rows run from impact 3 down to 1, columns from probability 1 to 3.
+    assert.equal(own, (3 - i) * 3 + (p - 1), `R${id} marks probability ${p}, impact ${i}`);
+    assert.match(cells, new RegExp(`aria-label="Probability ${p}, impact ${i}: score ${score}`));
+  }
+  for (const key of ['id', 'p', 'i', 'score']) assert.ok(html.includes(`data-sort="${key}"`), key);
 });

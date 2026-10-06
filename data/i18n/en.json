@@ -34,7 +34,7 @@
   "projects.points": "points",
   "research.title": "Research and teaching",
   "research.lead": "My academic CV: background, PhD, publications, teaching and responsibilities.",
-  "research.education": "Background",
+  "research.education": "Education",
   "research.thesis": "PhD thesis",
   "research.jury": "Committee",
   "research.keywords": "Keywords",
@@ -172,5 +172,15 @@
   "sql.label.timeout": "Query stopped after {s} s. The database will reload on the next run.",
   "sql.label.reset": "Database reloaded: your changes are gone.",
   "sql.label.schema.table": "(table)",
-  "sql.label.schema.view": "(view)"
+  "sql.label.schema.view": "(view)",
+  "research.experience": "Professional experience",
+  "research.thesis.link": "The thesis on theses.fr",
+  "method.id": "No.",
+  "method.matrix": "Matrix",
+  "method.matrix.label": "Probability {p}, impact {i}: score {score}, {level} risk",
+  "method.matrix.help": "Matrix: probability from left to right, impact from bottom to top; the circled cell is the risk's. Click a header (No., probability, impact, score) to sort, again to reverse.",
+  "method.sort.help": "Risk register, sortable by number, probability, impact or score",
+  "method.level.high": "high",
+  "method.level.medium": "medium",
+  "method.level.low": "low"
 }

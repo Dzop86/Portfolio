@@ -160,6 +160,9 @@ a:hover { text-decoration-thickness: 2px; }
 .timeline h3 { margin-bottom: var(--space-1); }
 .timeline p { margin-bottom: var(--space-1); }
 .timeline.compact > li { padding-bottom: var(--space-3); }
+/* Research page: professional experience and education side by side, each on its own line (period above). */
+.paths .timeline > li { grid-template-columns: 1fr; gap: var(--space-1); }
+.paths [data-timeline="experience"] { border-left-color: var(--gantt-build); }
 .tl-period { font-weight: 600; color: var(--text-strong); font-variant-numeric: tabular-nums; }
 .thesis-title { font-size: 1.2rem; }
 
@@ -182,6 +185,22 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: none; color: var(--text-st
 tr[hidden] { display: none; }
 .bar { display: inline-block; vertical-align: middle; height: 8px; width: calc(var(--w) * 0.6); max-width: 60px; background: var(--bar); border-radius: 4px; margin-right: 8px; }
 .score { display: inline-block; min-width: 28px; text-align: center; font-weight: 700; border-radius: 6px; padding: 1px 6px; }
+/* Risk register (method page): sortable headers and the probability-impact matrix of each risk. */
+.risks th .sort { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0; border: 0; background: none;
+  font: inherit; color: inherit; cursor: pointer; white-space: nowrap; }
+.risks th .sort:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.risks th.num .sort { margin-left: auto; }
+.sort-mark::after { content: "↕"; color: var(--muted); }
+th[aria-sort="ascending"] .sort-mark::after { content: "▲"; color: inherit; }
+th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
+.risk-matrix { display: inline-grid; grid-template-columns: repeat(3, 14px); gap: 2px; padding: 3px; border-left: 2px solid var(--border-strong); border-bottom: 2px solid var(--border-strong); vertical-align: middle; }
+.risk-matrix .cell { width: 14px; height: 14px; border-radius: 2px; opacity: 0.45; }
+.risk-matrix .cell.score-high { background: var(--risk-high-text); }
+.risk-matrix .cell.score-medium { background: var(--risk-medium-text); }
+.risk-matrix .cell.score-low { background: var(--risk-low-text); }
+.risk-matrix .cell.is-risk { opacity: 1; }
+.risk-matrix .cell.is-risk { box-shadow: 0 0 0 2px var(--text-strong); position: relative; }
+.risk-matrix .cell.is-risk::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--text-strong); }
 .score-high { background: var(--risk-high); color: var(--risk-high-text); }
 .score-medium { background: var(--risk-medium); color: var(--risk-medium-text); }
 .score-low { background: var(--risk-low); color: var(--risk-low-text); }
@@ -228,6 +247,22 @@ tr[hidden] { display: none; }
   .gantt-head .gantt-label { display: none; }
   .brand span { font-size: 1rem; }
   .gantt-track.months span:not([data-major]) { visibility: hidden; }
+}
+
+/* Risk register on a narrow screen: the header keeps only its sort buttons, each risk becomes a card
+   (number and name, then probability, impact, score and matrix, then the mitigation). */
+@media (max-width: 720px) {
+  .risks, .risks tbody { display: block; }
+  .risks thead tr { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); padding: var(--space-1) var(--space-3); background: var(--surface-2); }
+  .risks thead th { padding: 0; border: 0; background: none; }
+  .risks thead th:not(:has(.sort)) { display: none; }
+  .risks tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3); border-bottom: 1px solid var(--border); }
+  .risks tbody td, .risks tbody th { padding: 0; border: 0; }
+  .risks .c-id { flex: 0 0 2.5rem; }
+  .risks .c-label { flex: 1 1 calc(100% - 3.5rem); }
+  .risks .c-val { text-align: left; white-space: nowrap; }
+  .risks .c-val::before { content: attr(data-label) " "; color: var(--muted); font-size: 0.85rem; }
+  .risks .c-mitigation { flex: 1 1 100%; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

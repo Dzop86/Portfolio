@@ -47,4 +47,24 @@
       table.querySelector('[data-total="all"]').textContent = td + tp;
     });
   }
+
+  // Risk register: each header button sorts by its column; numbers start with the highest, ids with R1.
+  // A second click on the same column reverses the order; ties keep the order of the ids.
+  const risks = document.querySelector('[data-risks]');
+  if (risks) {
+    const body = risks.tBodies[0];
+    risks.querySelectorAll('[data-sort]').forEach((button) => button.addEventListener('click', () => {
+      const key = button.dataset.sort;
+      const th = button.closest('th');
+      const current = th.getAttribute('aria-sort');
+      const first = key === 'id' ? 'ascending' : 'descending';
+      const order = current ? (current === 'ascending' ? 'descending' : 'ascending') : first;
+      const sign = order === 'ascending' ? 1 : -1;
+      const rows = [...body.rows].sort((a, b) =>
+        sign * (Number(a.dataset[key]) - Number(b.dataset[key])) || Number(a.dataset.id) - Number(b.dataset.id));
+      body.append(...rows);
+      risks.querySelectorAll('th[aria-sort]').forEach((h) => h.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', order);
+    }));
+  }
 })();

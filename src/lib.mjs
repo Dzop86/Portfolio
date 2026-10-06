@@ -19,10 +19,24 @@ export const BASE_PATH = normalizeBase(process.env.BASE_PATH);
 
 const readJson = (p) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
 
+// Every dated list of the CV, newest first, whatever the order in the file.
+function sortCv(cv) {
+  return {
+    ...cv,
+    education: newestFirst(cv.education),
+    experience: newestFirst(cv.experience),
+    publications: newestFirst(cv.publications, (p) => String(p.year)),
+    teaching: newestFirst(cv.teaching, (r) => r.years),
+    supervision: newestFirst(cv.supervision),
+    responsibilities: newestFirst(cv.responsibilities),
+  };
+}
+
 export function loadData() {
   return {
-    cv: readJson('data/cv.json'),
-    projects: readJson('data/projects.json'),
+    cv: sortCv(readJson('data/cv.json')),
+    // Projects in the order of their sprints, everywhere (cards, previous and next links).
+    projects: bySprint(readJson('data/projects.json')),
     scrum: readJson('data/scrum.json'),
     sprints: readdirSync(join(ROOT, 'scrum'))
       .filter((f) => /^sprint-\d+\.md$/.test(f))
@@ -68,6 +82,33 @@ export function riskLevel(score) {
   if (score >= 6) return 'high';
   if (score >= 3) return 'medium';
   return 'low';
+}
+
+/**
+ * Years of a period such as "2025", "2022 – 2024" or "2023/2024, 2024/2025": [last year, first year].
+ * Academic years count by the year they end in.
+ */
+export function periodYears(period) {
+  const years = String(period).match(/\d{4}/g)?.map(Number);
+  if (!years) throw new Error(`No year in period "${period}"`);
+  return [Math.max(...years), Math.min(...years)];
+}
+
+/** Newest first: by last year, then by first year (a shorter, later-starting period is more recent). Stable. */
+export function newestFirst(list, period = (x) => x.period) {
+  return list
+    .map((x, i) => [x, periodYears(period(x)), i])
+    .sort(([, [ea, sa], ia], [, [eb, sb], ib]) => eb - ea || sb - sa || ia - ib)
+    .map(([x]) => x);
+}
+
+/** Projects in the order they are built: by first sprint, then last sprint (labels like "S8+S16" too). */
+export function bySprint(projects) {
+  const key = (p) => String(p.sprint).match(/\d+/g).map(Number);
+  return projects
+    .map((p, i) => [p, key(p), i])
+    .sort(([, a, ia], [, b, ib]) => a[0] - b[0] || a.at(-1) - b.at(-1) || ia - ib)
+    .map(([p]) => p);
 }
 
 /** First and last sprint of a label such as "S9" or "S11-S12". */

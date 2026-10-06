@@ -34,7 +34,7 @@
   "projects.points": "points",
   "research.title": "Recherche et enseignement",
   "research.lead": "Mon CV analytique : parcours, thèse, publications, enseignements et responsabilités.",
-  "research.education": "Parcours",
+  "research.education": "Formation",
   "research.thesis": "Thèse",
   "research.jury": "Jury",
   "research.keywords": "Mots-clés",
@@ -172,5 +172,15 @@
   "sql.label.timeout": "Requête arrêtée après {s} s. La base sera rechargée à la prochaine exécution.",
   "sql.label.reset": "Base rechargée : vos modifications sont effacées.",
   "sql.label.schema.table": "(table)",
-  "sql.label.schema.view": "(vue)"
+  "sql.label.schema.view": "(vue)",
+  "research.experience": "Parcours professionnel",
+  "research.thesis.link": "La thèse sur theses.fr",
+  "method.id": "N°",
+  "method.matrix": "Matrice",
+  "method.matrix.label": "Probabilité {p}, impact {i} : score {score}, risque {level}",
+  "method.matrix.help": "Matrice : probabilité de gauche à droite, impact de bas en haut ; la case cerclée est celle du risque. Cliquez sur un en-tête (N°, probabilité, impact, score) pour trier, une seconde fois pour inverser.",
+  "method.sort.help": "Registre des risques, triable par numéro, probabilité, impact ou score",
+  "method.level.high": "élevé",
+  "method.level.medium": "moyen",
+  "method.level.low": "faible"
 }
