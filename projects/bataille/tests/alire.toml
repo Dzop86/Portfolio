@@ -1,0 +1,17 @@
+name = "bataille_tests"
+description = "AUnit tests of the bataille crate"
+version = "0.1.0"
+licenses = "MIT"
+executables = ["test_main"]
+
+[[depends-on]]
+aunit = "*"
+bataille = "*"
+
+[[pins]]
+bataille = { path = ".." }
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_version = "Ada2022"
+"*".contracts = "Yes"

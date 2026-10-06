@@ -1,0 +1,13 @@
+name = "bataille"
+description = "War, the card game, with typed cards and contract-checked piles"
+version = "0.1.0"
+authors = ["Charles Lepaire"]
+licenses = "MIT"
+executables = ["bataille"]
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_version = "Ada2022"
+"*".compile_checks = "Errors"
+"*".runtime_checks = "Default"
+"*".contracts = "Yes"

@@ -1,0 +1,52 @@
+name: bataille
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/bataille/**', '.github/workflows/bataille.yml']
+  pull_request:
+    paths: ['projects/bataille/**', '.github/workflows/bataille.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bataille-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: War, Ada (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      # Alire installs the same GNAT toolchain on the three systems.
+      - uses: alire-project/setup-alire@v6
+      - name: Build (warnings are errors)
+        working-directory: projects/bataille
+        run: alr -n build
+      - name: Unit tests (AUnit)
+        working-directory: projects/bataille/tests
+        run: alr -n run
+      - name: A whole game
+        working-directory: projects/bataille
+        run: alr -n run --args="--seed 1"
+
+  stats:
+    name: War (committed statistics are up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: alire-project/setup-alire@v6
+      # The project page shows data/stats.json: it must be what the program computes today.
+      - name: Recompute 100 000 games and compare
+        working-directory: projects/bataille
+        run: |
+          alr -n build
+          ./bin/bataille --stats 100000 > "$RUNNER_TEMP/stats.json"
+          diff data/stats.json "$RUNNER_TEMP/stats.json"
