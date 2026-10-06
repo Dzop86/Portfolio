@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc } from './lib.mjs';
-import { renderPage } from './templates.mjs';
+import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc, projectPage } from './lib.mjs';
+import { renderPage, renderProjectPage } from './templates.mjs';
 
 export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}) {
   const data = loadData();
@@ -14,6 +14,9 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     mkdirSync(join(outDir, lang), { recursive: true });
     for (const page of PAGES) {
       writeFileSync(join(outDir, lang, `${page}.html`), renderPage(page, { lang, t, data }));
+    }
+    for (const project of data.projects) {
+      writeFileSync(join(outDir, lang, `${projectPage(project.id)}.html`), renderProjectPage(project, { lang, t, data }));
     }
   }
 

@@ -3,6 +3,7 @@
     "name": { "fr": "Vitrine du portfolio", "en": "Portfolio showcase" },
     "pitch": { "fr": "Ce site : multi-pages, bilingue, responsive, mode sombre, sans framework.", "en": "This site: multi-page, bilingual, responsive, dark mode, no framework." },
     "stack": ["HTML", "CSS", "JavaScript", "Node.js", "Playwright", "GitHub Actions"],
+    "links": { "code": "https://github.com/Dzop86/Portfolio", "demo": "https://dzop86.github.io/Portfolio/" },
     "teaching": { "fr": "Enseigné en M1 (interaction homme-machine)", "en": "Taught in M1 (human-computer interaction)" } },
   { "id": "topologie", "sprint": "S5-S8", "points": 13, "status": "planned", "group": "science",
     "name": { "fr": "Topologie 3D", "en": "3D topology" },

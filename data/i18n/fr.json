@@ -71,5 +71,12 @@
   "contact.orcid": "Profil ORCID",
   "contact.hal": "Publications sur HAL",
   "footer.made": "Généré avec Claude Code, relu par Charles Lepaire.",
-  "footer.source": "Code source"
+  "footer.source": "Code source",
+  "project.back": "Tous les projets",
+  "project.stack": "Technologies",
+  "project.dod": "Definition of Done",
+  "project.link.code": "Code source",
+  "project.link.demo": "Démo en ligne",
+  "project.nolinks": "Pas encore de code ni de démo : ce projet est prévu aux sprints",
+  "project.pager": "Projet précédent et suivant"
 }

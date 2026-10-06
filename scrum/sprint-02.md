@@ -4,7 +4,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que recruteur, j'ouvre la fiche détaillée d'un projet (stack, état, liens, Definition of Done) en français et en anglais. | 2 | En cours |
+| En tant que recruteur, j'ouvre la fiche détaillée d'un projet (stack, état, liens, Definition of Done) en français et en anglais. | 2 | Fait |
 | En tant que Charles, je démarre `projects/lib-c/` : CMake, lecteur OBJ, tests Unity, CI Linux, Windows et macOS. | 3 | À faire |
 
 **Report du sprint 1 :** néant. Thème gris façon VS Code et lien HAL livrés en début de sprint (D11).

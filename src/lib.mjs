@@ -73,6 +73,18 @@ export function monthOffset(start, ym) {
   return (y - sy) * 12 + (m - sm);
 }
 
+/** Name of a project's detail page, e.g. "project-lib-c" (served as <lang>/project-lib-c.html). */
+export function projectPage(id) {
+  return `project-${id}`;
+}
+
+/** Previous and next items around `id` in a list, null at both ends. */
+export function neighbours(list, id) {
+  const i = list.findIndex((item) => item.id === id);
+  if (i < 0) throw new Error(`Unknown id "${id}"`);
+  return { prev: list[i - 1] ?? null, next: list[i + 1] ?? null };
+}
+
 export function i18nParity(i18n) {
   const fr = Object.keys(i18n.fr);
   const en = Object.keys(i18n.en);

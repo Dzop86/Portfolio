@@ -1,14 +1,14 @@
-import { esc, pick, teachingTotals, riskLevel, monthOffset, PAGES, REPO_URL } from './lib.mjs';
+import { esc, pick, teachingTotals, riskLevel, monthOffset, projectPage, neighbours, PAGES, REPO_URL } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
 const ICON_SUN = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`;
 
-function layout({ lang, page, t, title, body }) {
+function layout({ lang, page, navPage = page, t, title, body }) {
   const other = lang === 'fr' ? 'en' : 'fr';
   const nav = PAGES.map((p) => {
     const key = p === 'index' ? 'home' : p;
-    const current = p === page ? ' aria-current="page"' : '';
+    const current = p === navPage ? ' aria-current="page"' : '';
     return `<a href="./${p}.html"${current}>${esc(t(`nav.${key}`))}</a>`;
   }).join('');
 
@@ -105,7 +105,7 @@ function projectCard(p, lang, t) {
     <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
     <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
   </div>
-  <h3>${esc(pick(p.name, lang))}</h3>
+  <h3><a href="./${projectPage(p.id)}.html">${esc(pick(p.name, lang))}</a></h3>
   <p>${esc(pick(p.pitch, lang))}</p>
   ${teaching}
   <ul class="tags">${p.stack.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>
@@ -308,6 +308,45 @@ function contact({ t, data }) {
   <a class="btn btn-ghost" href="${esc(person.orcid)}" rel="me">${esc(t('contact.orcid'))}</a>
   <a class="btn btn-ghost" href="${esc(person.hal)}">${esc(t('contact.hal'))}</a>
 </div>`;
+}
+
+function projectDetail(p, { lang, t, data }) {
+  const { prev, next } = neighbours(data.projects, p.id);
+  const links = Object.entries(p.links ?? {});
+  const linkBlock = links.length
+    ? `<div class="actions">${links.map(([kind, url], i) => `<a class="btn ${i ? 'btn-ghost' : 'btn-primary'}" href="${esc(url)}" data-link="${esc(kind)}">${esc(t(`project.link.${kind}`))}</a>`).join('')}</div>`
+    : `<p class="notice" data-no-links>${esc(t('project.nolinks'))} ${esc(p.sprint)}.</p>`;
+  const teaching = p.teaching ? `<p class="card-note">${esc(pick(p.teaching, lang))}</p>` : '';
+  const pager = [
+    prev ? `<a class="btn btn-ghost" rel="prev" href="./${projectPage(prev.id)}.html">← ${esc(pick(prev.name, lang))}</a>` : '',
+    next ? `<a class="btn btn-ghost" rel="next" href="./${projectPage(next.id)}.html">${esc(pick(next.name, lang))} →</a>` : '',
+  ].join('');
+
+  return `<p class="crumb"><a href="./projects.html">← ${esc(t('project.back'))}</a></p>
+${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}`))}
+<div class="card-top project-meta">
+  <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
+  <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
+</div>
+${teaching}
+${linkBlock}
+<section class="split">
+  <article class="panel">
+    <h2>${esc(t('project.stack'))}</h2>
+    <ul class="tags">${p.stack.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>
+  </article>
+  <article class="panel panel-accent">
+    <h2>${esc(t('project.dod'))}</h2>
+    <ul class="checks">${pick(data.scrum.dod, lang).map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
+  </article>
+</section>
+<nav class="actions pager" aria-label="${esc(t('project.pager'))}">${pager}</nav>`;
+}
+
+/** Detail page of one project, highlighted as "projects" in the navigation. */
+export function renderProjectPage(p, ctx) {
+  const body = projectDetail(p, ctx);
+  return layout({ ...ctx, page: projectPage(p.id), navPage: 'projects', title: pick(p.name, ctx.lang), body });
 }
 
 const RENDERERS = { index: home, projects, research, method, contact };

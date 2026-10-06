@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, pick, makeT, teachingTotals, riskLevel, monthOffset, i18nParity, loadData, normalizeBase } from '../../src/lib.mjs';
+import { esc, pick, makeT, teachingTotals, riskLevel, monthOffset, i18nParity, loadData, normalizeBase, projectPage, neighbours } from '../../src/lib.mjs';
 
 test('esc neutralises HTML special characters', () => {
   assert.equal(esc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
@@ -48,4 +48,16 @@ test('normalizeBase always returns a "/path/" form', () => {
   assert.equal(normalizeBase('/Portfolio'), '/Portfolio/');
   assert.equal(normalizeBase('Portfolio/'), '/Portfolio/');
   assert.equal(normalizeBase(' //a/b// '), '/a/b/');
+});
+
+test('projectPage names the detail page after the project id', () => {
+  assert.equal(projectPage('lib-c'), 'project-lib-c');
+});
+
+test('neighbours returns the previous and next items, null at both ends', () => {
+  const list = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  assert.deepEqual(neighbours(list, 'b'), { prev: list[0], next: list[2] });
+  assert.deepEqual(neighbours(list, 'a'), { prev: null, next: list[1] });
+  assert.deepEqual(neighbours(list, 'c'), { prev: list[1], next: null });
+  assert.throws(() => neighbours(list, 'z'), /Unknown id "z"/);
 });

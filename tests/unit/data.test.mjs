@@ -43,3 +43,13 @@ test('roadmap phases are contiguous from September 2025 to October 2026', () => 
   assert.equal(scrum.phases[0].from, '2025-09');
   assert.equal(scrum.phases.at(-1).to, '2026-10');
 });
+
+test('project ids are URL-safe slugs and project links are absolute https URLs', () => {
+  for (const p of projects) {
+    assert.match(p.id, /^[a-z0-9]+(-[a-z0-9]+)*$/, p.id);
+    for (const [kind, url] of Object.entries(p.links ?? {})) {
+      assert.ok(['code', 'demo'].includes(kind), `${p.id}: unknown link kind ${kind}`);
+      assert.match(url, /^https:\/\//, `${p.id}: ${kind}`);
+    }
+  }
+});

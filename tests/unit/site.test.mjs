@@ -1,11 +1,11 @@
 // Integration test: builds the whole site and checks the generated pages.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, loadData } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, loadData, pick, projectPage, esc } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -20,11 +20,11 @@ test('every page exists in both languages with the right lang attribute', () => 
 
 test('every internal link and asset resolves to a file', () => {
   for (const lang of LANGS) {
-    for (const p of PAGES) {
-      const from = join(dist, lang, `${p}.html`);
-      const refs = [...page(lang, p).matchAll(/(?:href|src)="(\.{1,2}\/[^"#]+)"/g)].map((m) => m[1]);
+    for (const file of readdirSync(join(dist, lang))) {
+      const from = join(dist, lang, file);
+      const refs = [...readFileSync(from, 'utf8').matchAll(/(?:href|src)="(\.{1,2}\/[^"#]+)"/g)].map((m) => m[1]);
       for (const ref of refs) {
-        assert.ok(existsSync(resolve(dirname(from), ref)), `${lang}/${p}: broken link ${ref}`);
+        assert.ok(existsSync(resolve(dirname(from), ref)), `${lang}/${file}: broken link ${ref}`);
       }
     }
   }
@@ -101,4 +101,36 @@ test('browser chrome uses the dark grey of the theme', () => {
   const manifest = JSON.parse(readFileSync(join(dist, 'manifest.webmanifest'), 'utf8'));
   assert.equal(manifest.theme_color, '#181818');
   assert.equal(manifest.background_color, '#1f1f1f');
+});
+
+test('every project has a detail page in both languages, linked from its card', () => {
+  const { projects } = loadData();
+  for (const lang of LANGS) {
+    const list = page(lang, 'projects');
+    for (const p of projects) {
+      const name = projectPage(p.id);
+      const html = page(lang, name);
+      assert.match(html, new RegExp(`<html lang="${lang}">`), `${lang}/${name}`);
+      assert.ok(html.includes(`<h1>${esc(pick(p.name, lang))}</h1>`), `${lang}/${name}: title`);
+      assert.ok(html.includes(`href="../${lang === 'fr' ? 'en' : 'fr'}/${name}.html"`), `${lang}/${name}: language switch`);
+      assert.ok(html.includes('href="./projects.html" aria-current="page"'), `${lang}/${name}: nav`);
+      assert.ok(list.includes(`href="./${name}.html"`), `${lang}: card link to ${name}`);
+    }
+  }
+});
+
+test('a detail page shows the stack, the Definition of Done and the neighbours', () => {
+  const html = page('en', projectPage('lib-c'));
+  for (const tech of ['CMake', 'Unity', 'Valgrind']) assert.ok(html.includes(`<li>${tech}</li>`), tech);
+  assert.ok(html.includes('Unit and integration tests green'));
+  assert.ok(html.includes(`href="./${projectPage('topologie')}.html"`), 'previous project');
+  assert.ok(html.includes(`href="./${projectPage('qt')}.html"`), 'next project');
+});
+
+test('project links are shown only when the project has them', () => {
+  const { links } = loadData().projects.find((p) => p.id === 'vitrine');
+  assert.ok(page('fr', projectPage('vitrine')).includes(`href="${links.code}" data-link="code"`));
+  const planned = page('fr', projectPage('spring'));
+  assert.ok(!planned.includes('data-link='));
+  assert.ok(planned.includes('data-no-links'));
 });
