@@ -209,5 +209,6 @@
   "maille.label.more": "… {n} more nodes",
   "maille.label.node": "Go to line {line}, column {column}",
   "maille.label.too-large": "Program too long (64 KB at most).",
-  "maille.label.message": "{kind} ({where}): {message}"
+  "maille.label.message": "{kind} ({where}): {message}",
+  "progress.sprint.done": "Sprint {n} finished"
 }

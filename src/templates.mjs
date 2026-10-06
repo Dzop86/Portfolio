@@ -125,7 +125,9 @@ function progressPanel({ lang, t, data }) {
   const bars = [
     progressBar('portfolio', t('progress.portfolio'), fill(t('progress.portfolio.detail'), { done, inProgress, total }),
       percent(done, total), percent(done + inProgress, total)),
-    progressBar('sprint', fill(t('progress.sprint'), { n: p.sprint.number }), fill(t('progress.points'), p.sprint),
+    // Once all its stories are closed, the latest sprint reads as finished rather than in progress.
+    progressBar('sprint', fill(t(p.sprint.done === p.sprint.total ? 'progress.sprint.done' : 'progress.sprint'), { n: p.sprint.number }),
+      fill(t('progress.points'), p.sprint),
       percent(p.sprint.done, p.sprint.total)),
     ...p.projects.map((pr) => {
       const name = pick(data.projects.find((x) => x.id === pr.id).name, lang);

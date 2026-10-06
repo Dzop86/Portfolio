@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/parse.ts` : reprise sur erreur, positions, commentaires et espaces après les commandes.
-- [ ] `src/render.ts` : numérotation et renvois, échappement, liens.
-- [ ] La liste des commandes et environnements pris en charge suffit-elle pour l'article ?
+- [x] `src/parse.ts` : reprise sur erreur, positions, commentaires et espaces après les commandes.
+- [x] `src/render.ts` : numérotation et renvois, échappement, liens.
+- [x] La liste des commandes et environnements pris en charge suffit-elle pour l'article ?
+
+> Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« confirme la review »). Le projet reste en cours : l'éditeur et l'article arrivent au sprint 14.
 
 ## Constats
 

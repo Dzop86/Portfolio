@@ -157,6 +157,10 @@ test('the home page shows the temporary progress bars, computed from the data', 
     }
     const sprintBar = bars.find((a) => a.includes('data-progress="sprint"'));
     assert.ok(sprintBar.includes(`aria-valuenow="${Math.round((100 * p.sprint.done) / p.sprint.total)}"`));
+    // A sprint whose stories are all closed reads as finished, not in progress.
+    const finished = p.sprint.done === p.sprint.total;
+    const label = { fr: finished ? 'Sprint %n terminé' : 'Sprint en cours (%n)', en: finished ? 'Sprint %n finished' : 'Current sprint (%n)' }[lang];
+    assert.ok(html.includes(label.replace('%n', p.sprint.number)), `${lang}: ${label}`);
   }
 });
 

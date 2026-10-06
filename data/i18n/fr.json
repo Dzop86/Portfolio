@@ -209,5 +209,6 @@
   "maille.label.more": "… {n} nœuds de plus",
   "maille.label.node": "Aller à la ligne {line}, colonne {column}",
   "maille.label.too-large": "Programme trop long (64 Ko au plus).",
-  "maille.label.message": "{kind} ({where}) : {message}"
+  "maille.label.message": "{kind} ({where}) : {message}",
+  "progress.sprint.done": "Sprint {n} terminé"
 }
