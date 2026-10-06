@@ -9,7 +9,8 @@ Bibliothèque C11 qui lit des maillages au format OBJ, avec un outil en ligne de
 ## État (sprint 2)
 - Lecture OBJ : sommets `v`, faces `f` avec références de texture et de normale (`1/2/3`, `1//3`), indices négatifs, polygones triangulés en éventail, fins de ligne Windows.
 - Erreurs typées (`MESH_ERR_SYNTAX`, `MESH_ERR_INDEX`...) avec numéro de ligne.
-- À venir : PLY, écriture, Valgrind, WebAssembly (Emscripten) pour une démo dans le navigateur, miroir GitLab CI.
+- Valgrind sans fuite ni accès invalide sur les tests et la CLI (`scripts/valgrind.sh`).
+- À venir : PLY, WebAssembly (Emscripten) pour une démo dans le navigateur, miroir GitLab CI.
 
 ## Compiler et tester
 ```sh
@@ -35,7 +36,7 @@ mesh_free(&m);
 ## Tests
 - **Unitaires** (`tests/test_obj.c`, Unity) : 15 cas, dont les erreurs de syntaxe, les indices hors bornes, les fins de ligne CRLF.
 - **Intégration** (CTest) : `meshinfo` sur un cube, sur un fichier absent et sans argument.
-- **CI** (`.github/workflows/lib-c.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan sous Linux.
+- **CI** (`.github/workflows/lib-c.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs, plus une compilation ASan + UBSan et un passage Valgrind sous Linux.
 
 ## Limites
 - Les faces ne peuvent référencer que des sommets déjà lus (cas de tous les exportateurs courants).

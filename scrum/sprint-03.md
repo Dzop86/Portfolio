@@ -4,7 +4,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Charles, je prouve l'absence de fuite : Valgrind passe en CI sur les tests et la CLI. | 1 | En cours |
+| En tant que Charles, je prouve l'absence de fuite : Valgrind passe en CI sur les tests et la CLI. | 1 | Fait |
 | En tant qu'utilisateur de lib-c, je lis un maillage PLY (ASCII et binaire little-endian). | 2 | À faire |
 | En tant que recruteur, j'essaie lib-c dans le navigateur : je dépose un OBJ ou un PLY et j'obtiens ses statistiques. | 2 | À faire |
 | En tant que Charles, lib-c est aussi testée par GitLab CI sur un miroir. | 1 | Bloqué : compte GitLab et jeton à créer par Charles |
