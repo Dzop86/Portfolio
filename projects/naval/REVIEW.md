@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `model/Board.java` : règles de placement, tirs.
-- [ ] `model/Computer.java` : chasse et cible.
-- [ ] Le jeu ressemble-t-il à celui de mes études (règle de non-contact, taille de la flotte) ?
+- [x] `model/Board.java` : règles de placement, tirs.
+- [x] `model/Computer.java` : chasse et cible.
+- [x] Le jeu ressemble-t-il à celui de mes études (règle de non-contact, taille de la flotte) ?
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« relecture ok, review ok »).
 
 ## Constats
 
