@@ -63,6 +63,7 @@ GaussianCurvature gaussian_curvature(const Mesh& m) {
         if (std::ranges::binary_search(m.non_manifold_edges(), std::array<uint32_t, 2>{a, b})) continue;
         boundary[he[h].origin] = boundary[m.target(h)] = true;
     }
+    k.boundary = boundary;
     for (std::size_t v = 0; v < nv; ++v) {
         if (boundary[v]) k.angle_defect[v] -= pi;
         if (k.area[v] > 0) k.gaussian[v] = k.angle_defect[v] / k.area[v];

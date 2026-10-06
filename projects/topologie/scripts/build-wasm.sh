@@ -10,7 +10,7 @@ out=$(cd "$out" && pwd)
 EMSDK_IMAGE=emscripten/emsdk:6.0.11
 
 exports=_malloc,_free,_topojs_read,_topojs_error,_topojs_error_line,_topojs_summary,_topojs_vertex_count,\
-_topojs_index_count,_topojs_positions,_topojs_indices,_topojs_curvature,_topojs_defect
+_topojs_index_count,_topojs_positions,_topojs_indices,_topojs_curvature,_topojs_defect,_topojs_boundary
 
 docker run --rm -u "$(id -u):$(id -g)" -e EM_CACHE=/tmp/em-cache \
   -v "$projects:/p:ro" -v "$out:/out" -w /tmp "$EMSDK_IMAGE" sh -c "

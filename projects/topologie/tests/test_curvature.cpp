@@ -77,6 +77,8 @@ TEST(Curvature, FlatInteriorVertexHasNoCurvature) {
     EXPECT_NEAR(k.gaussian[0], 0.0, 1e-12);
     // Boundary vertices: pi minus their two 60 degree angles.
     EXPECT_NEAR(k.angle_defect[1], kPi / 3, 1e-12);
+    EXPECT_FALSE(k.boundary[0]);
+    for (std::size_t v = 1; v < 7; ++v) EXPECT_TRUE(k.boundary[v]) << v;
 }
 
 TEST(Curvature, IsolatedVertexCarriesAFullTurnAndNoDensity) {

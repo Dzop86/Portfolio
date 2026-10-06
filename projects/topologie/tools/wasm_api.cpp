@@ -20,6 +20,7 @@ struct State {
     std::vector<uint32_t> indices;
     std::vector<float> curvature;  // Gaussian curvature density, in the scaled units
     std::vector<float> defect;     // angle defect (scale-free)
+    std::vector<uint8_t> boundary; // 1 for boundary vertices
     std::string summary;           // JSON with the invariants
     std::string error;
     std::size_t line = 0;
@@ -74,9 +75,11 @@ void fill(const topo::Mesh& m) {
     const auto k = topo::gaussian_curvature(m);
     state.curvature.clear();
     state.defect.clear();
+    state.boundary.clear();
     for (std::size_t v = 0; v < k.angle_defect.size(); ++v) {
         state.curvature.push_back(static_cast<float>(k.gaussian[v] / (scale * scale)));  // density scales as 1/length^2
         state.defect.push_back(static_cast<float>(k.angle_defect[v]));
+        state.boundary.push_back(k.boundary[v] ? 1 : 0);
     }
     state.summary = json(topo::analyze(m), k.total);
 }
@@ -109,5 +112,6 @@ const float* topojs_positions() { return state.positions.data(); }
 const uint32_t* topojs_indices() { return state.indices.data(); }
 const float* topojs_curvature() { return state.curvature.data(); }
 const float* topojs_defect() { return state.defect.data(); }
+const uint8_t* topojs_boundary() { return state.boundary.data(); }
 
 }  // extern "C"

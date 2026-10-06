@@ -6,7 +6,7 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 
 *C++20 half-edge mesh built on lib-c's reader: topological invariants and discrete curvature, tested with GoogleTest on Linux, Windows and macOS.*
 
-## État (sprint 4)
+## État (sprint 5)
 - Structure demi-arête : jumelles, arêtes de bord, arêtes non-variété (partagées par 3 faces ou plus), orientations incohérentes repérées.
 - Invariants (`topo::analyze`) : composantes connexes, sommets isolés, boucles de bord, arêtes et sommets non-variété, orientabilité, caractéristique d'Euler, genre total d'une surface orientable.
 - Courbure de Gauss discrète (`topo::gaussian_curvature`) : défaut angulaire par sommet (π − Σθ au bord), aire de Voronoï mixte, densité K ≈ défaut / aire (à 2 % près sur une icosphère).
@@ -14,8 +14,7 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 
 - WebAssembly : `scripts/build-wasm.sh` (Emscripten 6.0.11 dans Docker), testé dans Node par `tests/unit/topo-wasm.test.mjs` du site.
 
-## À venir (sprint 5)
-Viewer Three.js sur la fiche du projet : maillages colorés par courbure, invariants affichés, calcul en WebAssembly.
+- Viewer sur la [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-topologie.html) : tore, sphère, ruban de Möbius, selle ou fichier du visiteur, colorés par courbure (three.js), invariants affichés (D17 du site).
 
 ## Compiler et tester
 ```sh

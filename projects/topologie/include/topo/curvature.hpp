@@ -14,6 +14,9 @@ struct GaussianCurvature {
     std::vector<double> area;
     // Per vertex: angle_defect / area, an estimate of K; 0 where the area is 0.
     std::vector<double> gaussian;
+    // Per vertex: on the boundary. There the defect measures how much the boundary turns (geodesic
+    // curvature), not the Gaussian curvature of the surface.
+    std::vector<bool> boundary;
     // Sum of the defects: 2 pi chi on any triangulated surface (discrete Gauss-Bonnet).
     double total = 0;
 };
