@@ -24,6 +24,8 @@ export interface Options {
   today?: string;
   /** Prefix of every id, so two rendered documents can share a page. */
   idPrefix?: string;
+  /** Heading level of the document title (1 to 3): sections are one level below, and so on. */
+  headingLevel?: 1 | 2 | 3;
 }
 
 const WORDS = {
@@ -86,6 +88,7 @@ export function render(doc: Document, options: Options = {}): Rendered {
   const lang = options.lang ?? 'en';
   const words = WORDS[lang];
   const prefix = options.idPrefix ?? 'tex-';
+  const top = options.headingLevel ?? 1;
   const diagnostics: Diagnostic[] = [...doc.diagnostics];
   const warn = (message: string, pos: Pos) => diagnostics.push({ severity: 'warning', message, pos });
 
@@ -266,14 +269,14 @@ export function render(doc: Document, options: Options = {}): Rendered {
       const level = LEVELS[n.name];
       if (level) {
         const num = numbers.get(n);
-        const tag = `h${level + 1}`;
+        const tag = `h${top + level}`;
         const id = num ? ` id="${escapeHtml(num.id)}"` : '';
         const numberHtml = num ? `<span class="tex-num">${num.number}</span> ` : '';
         return `<${tag}${id}>${numberHtml}${inline(n.args[0] ?? [])}</${tag}>`;
       }
       if (n.name === 'maketitle') {
         const part = (cls: string, nodes: Node[] | null) => (nodes ? `<p class="${cls}">${inline(nodes)}</p>` : '');
-        return `<header class="tex-title">${doc.meta.title ? `<h1>${inline(doc.meta.title)}</h1>` : ''}${part('tex-author', doc.meta.author)}${part('tex-date', doc.meta.date)}</header>`;
+        return `<header class="tex-title">${doc.meta.title ? `<h${top}>${inline(doc.meta.title)}</h${top}>` : ''}${part('tex-author', doc.meta.author)}${part('tex-date', doc.meta.date)}</header>`;
       }
       if (n.name === 'tableofcontents') {
         const entries = outline.map((e) => `<li class="tex-toc-${e.level}"><a href="#${escapeHtml(e.id)}"><span class="tex-num">${e.number}</span> ${escapeHtml(e.title)}</a></li>`).join('');
@@ -304,7 +307,7 @@ export function render(doc: Document, options: Options = {}): Rendered {
       case 'thebibliography': {
         const entries = items(n.children.map((c) => (isCommand(c, 'bibitem') ? { ...c, name: 'item' } : c)));
         let k = 0;
-        return `<section class="tex-bib"><h2>${words.references}</h2><ol>${entries.map((it) => `<li id="${prefix}bib-${++k}">${block(it.nodes)}</li>`).join('')}</ol></section>`;
+        return `<section class="tex-bib"><h${top + 1}>${words.references}</h${top + 1}><ol>${entries.map((it) => `<li id="${prefix}bib-${++k}">${block(it.nodes)}</li>`).join('')}</ol></section>`;
       }
       case 'document': return block(n.children);
       default:

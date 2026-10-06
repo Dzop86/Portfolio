@@ -413,6 +413,7 @@ ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
 ${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
 ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
 ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
+${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -554,6 +555,49 @@ function maillePlayground(t) {
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script src="../assets/wasm/maille-interp.js" defer></script>
   <script type="module" src="../assets/mailleplay.js"></script>
+</section>`;
+}
+
+const LATEX_LABELS = ['count', 'none', 'diag', 'error', 'warning'];
+
+// Live LaTeX editor (D23) on the article of projects/latex, in the page's language first.
+function latexEditor(t, lang) {
+  const labels = Object.fromEntries(LATEX_LABELS.map((k) => [k, t(`latex.label.${k}`)]));
+  const article = (l) => readFileSync(join(ROOT, `projects/latex/article/portfolio.${l}.tex`), 'utf8');
+  const articles = ['fr', 'en'].map((l) =>
+    `<button type="button" class="btn btn-ghost" aria-pressed="${l === lang}" data-article="${l}" data-source="${esc(article(l))}">${esc(t(`latex.article.${l}`))}</button>`).join('');
+  return `<section class="block panel demo latexed" aria-labelledby="h-latex" data-latex-editor data-view="preview" data-labels="${esc(JSON.stringify(labels))}">
+  <link rel="stylesheet" href="../assets/katex/katex.min.css">
+  <h2 id="h-latex">${esc(t('latex.title'))}</h2>
+  <p>${esc(t('latex.lead'))}</p>
+  <div class="actions">${articles}<button type="button" class="btn btn-ghost" data-download>${esc(t('latex.download'))}</button></div>
+  <div class="actions latex-tabs" role="group" aria-label="${esc(t('latex.tabs'))}">
+    <button type="button" class="btn btn-ghost" data-tab="source" aria-pressed="false">${esc(t('latex.tab.source'))}</button>
+    <button type="button" class="btn btn-ghost" data-tab="preview" aria-pressed="true">${esc(t('latex.tab.preview'))}</button>
+  </div>
+  <div class="latex-grid">
+    <div class="latex-pane latex-source">
+      <label class="sql-label" for="latex-source">${esc(t('latex.source'))}</label>
+      <textarea id="latex-source" class="sql-editor" spellcheck="false" autocapitalize="off" autocomplete="off">${esc(article(lang))}</textarea>
+    </div>
+    <div class="latex-pane latex-preview-pane">
+      <p class="sql-label" id="latex-preview-label">${esc(t('latex.preview'))}</p>
+      <div class="latex-preview" data-preview role="region" aria-labelledby="latex-preview-label" tabindex="0"></div>
+    </div>
+  </div>
+  <div class="split latex-side">
+    <div>
+      <h3>${esc(t('latex.diagnostics'))}</h3>
+      <p class="meta" data-status aria-live="polite"></p>
+      <ul class="plain latex-diags" data-diagnostics></ul>
+    </div>
+    <div>
+      <h3>${esc(t('latex.outline'))}</h3>
+      <ol class="plain latex-outline" data-outline></ol>
+    </div>
+  </div>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/latexeditor.js"></script>
 </section>`;
 }
 

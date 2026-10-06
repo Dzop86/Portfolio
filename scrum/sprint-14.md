@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que visiteur, j'édite un document (latex) et je vois son rendu en direct : texte et aperçu côte à côte (onglets sur mobile), diagnostics et plan cliquables, téléchargement du .tex ; tests Playwright, mobile compris. | 2 | À faire |
-| En tant que recruteur, je lis l'article (latex) qui présente le portfolio, en français et en anglais : objectif, méthode, fil rouge des maillages avec ses formules, projets, références ; rendu sans aucun diagnostic, vérifié par un test. | 1 | À faire |
+| En tant que visiteur, j'édite un document (latex) et je vois son rendu en direct : texte et aperçu côte à côte (onglets sur mobile), diagnostics et plan cliquables, téléchargement du .tex ; tests Playwright, mobile compris. | 2 | Fait |
+| En tant que recruteur, je lis l'article (latex) qui présente le portfolio, en français et en anglais : objectif, méthode, fil rouge des maillages avec ses formules, projets, références ; rendu sans aucun diagnostic, vérifié par un test. | 1 | Fait |
+
+**Tests :** article sans diagnostic dans les deux langues (node:test) ; éditeur dans 5 navigateurs (Playwright, axe dans les deux thèmes). **Trouvé par les tests :** un second `h1` dans la page, un contraste de 4,31:1 en thème clair.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

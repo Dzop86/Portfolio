@@ -152,6 +152,60 @@ a:hover { text-decoration-thickness: 2px; }
 .ast-kind { color: var(--text-strong); font-weight: 600; }
 .ast-node code { background: var(--tag-bg); color: var(--tag-text); padding: 0 4px; border-radius: 3px; }
 
+/* Live LaTeX editor (D23): source and preview side by side, one at a time on a narrow screen. */
+.latex-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); margin-top: var(--space-3); }
+.latex-pane { display: flex; flex-direction: column; min-width: 0; }
+.latex-pane .sql-label { margin-top: 0; }
+.latex-source .sql-editor { flex: 1; height: 70vh; min-height: 20rem; resize: none; font-size: 0.85rem; }
+.latex-preview { position: relative; height: 70vh; min-height: 20rem; overflow: auto; margin-top: var(--space-2); padding: var(--space-4); border: 1px solid var(--border-strong);
+  border-radius: var(--radius); background: var(--bg); color: var(--text); overflow-wrap: anywhere; }
+.latex-preview:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.latex-tabs { display: none; }
+.latex-side { margin-top: var(--space-4); margin-bottom: 0; }
+.latex-side h3 { margin-bottom: var(--space-2); }
+[data-status][data-state="error"] { color: var(--risk-high-text); }
+.latex-diags li, .latex-outline li { margin: 0; }
+.diag, .outline-link { display: block; width: 100%; min-height: 44px; padding: 6px 8px; border: 0; border-radius: var(--radius); background: none;
+  color: var(--text); font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.diag:hover, .outline-link:hover { background: var(--surface-2); }
+.diag:focus-visible, .outline-link:focus-visible { outline: 3px solid var(--link); outline-offset: 1px; }
+.diag-kind { font-weight: 600; }
+.diag-error .diag-kind { color: var(--risk-high-text); }
+.diag-warning .diag-kind { color: var(--risk-medium-text); }
+.outline-2 .outline-link { padding-left: var(--space-5); }
+.outline-3 .outline-link { padding-left: calc(2 * var(--space-5)); }
+@media (max-width: 900px) {
+  .latex-tabs { display: flex; }
+  .latex-grid { grid-template-columns: minmax(0, 1fr); }
+  .latexed[data-view="preview"] .latex-source, .latexed[data-view="source"] .latex-preview-pane { display: none; }
+}
+/* The rendered article. */
+.latex-preview .tex-title h3 { font-size: 1.5rem; margin: 0 0 var(--space-2); }
+.latex-preview h4 { font-size: 1.25rem; margin: var(--space-5) 0 var(--space-2); }
+.latex-preview h5 { font-size: 1.1rem; margin: var(--space-4) 0 var(--space-2); }
+.latex-preview h6 { font-size: 1rem; margin: var(--space-3) 0 var(--space-2); }
+.latex-preview p { margin: 0 0 var(--space-3); max-width: none; }
+.tex-num { color: var(--muted); margin-right: 0.3em; }
+.tex-title { text-align: center; margin-bottom: var(--space-4); }
+.tex-author, .tex-date { margin: 0; color: var(--muted); }
+.tex-abstract { margin: 0 var(--space-4) var(--space-4); font-size: 0.95rem; }
+.tex-abstract-title, .tex-toc-title, .tex-notes-title { font-weight: 600; color: var(--text-strong); text-align: center; margin-bottom: var(--space-2); }
+.tex-toc ol { list-style: none; padding: 0; }
+.tex-toc-2 { padding-left: var(--space-4); }
+.tex-toc-3 { padding-left: calc(2 * var(--space-4)); }
+.tex-display { overflow-x: auto; overflow-y: hidden; margin: var(--space-3) 0; }
+.tex-table { overflow-x: auto; margin: var(--space-3) 0; }
+.tex-table table { width: auto; font-size: 0.9rem; }
+.tex-table td { padding: 4px 10px; border: 0; }
+.tex-table tr.tex-rule td { border-top: 1px solid var(--border-strong); }
+.tex-logo { font-family: serif; }
+.tex-logo .tex-a { font-size: 0.75em; vertical-align: 0.25em; margin: 0 -0.3em 0 -0.35em; }
+.tex-logo .tex-e { vertical-align: -0.5ex; margin: 0 -0.1em 0 -0.15em; }
+.tex-sc { font-variant: small-caps; }
+.tex-undefined, .tex-unknown, .tex-error { color: var(--risk-high-text); }
+.tex-notes { border-top: 1px solid var(--border-strong); margin-top: var(--space-5); padding-top: var(--space-3); font-size: 0.9rem; }
+.tex-bib ol { padding-left: var(--space-5); }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

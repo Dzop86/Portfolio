@@ -210,5 +210,22 @@
   "maille.label.node": "Go to line {line}, column {column}",
   "maille.label.too-large": "Program too long (64 KB at most).",
   "maille.label.message": "{kind} ({where}): {message}",
-  "progress.sprint.done": "Sprint {n} finished"
+  "progress.sprint.done": "Sprint {n} finished",
+  "latex.title": "Edit the article live",
+  "latex.lead": "This article introduces the portfolio. It is parsed and rendered in your browser by the project's TypeScript library, formulas by KaTeX: edit it, the preview follows.",
+  "latex.article.fr": "Article in French",
+  "latex.article.en": "Article in English",
+  "latex.download": "Download the .tex",
+  "latex.tabs": "Show",
+  "latex.tab.source": "Source",
+  "latex.tab.preview": "Preview",
+  "latex.source": "LaTeX source",
+  "latex.preview": "Preview",
+  "latex.diagnostics": "Diagnostics",
+  "latex.outline": "Outline",
+  "latex.label.count": "{errors} error(s), {warnings} warning(s): click to go to the line.",
+  "latex.label.none": "No diagnostics.",
+  "latex.label.diag": "line {line}, column {column}: {message}",
+  "latex.label.error": "Error",
+  "latex.label.warning": "Warning"
 }

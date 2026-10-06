@@ -32,6 +32,20 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     legalComments: 'inline',
     logLevel: 'error',
   });
+  // LaTeX editor (D23): the TypeScript library and KaTeX bundled into one module, KaTeX's stylesheet and
+  // fonts next to it.
+  cpSync(join(ROOT, 'node_modules/katex/dist/katex.min.css'), join(outDir, 'assets/katex/katex.min.css'));
+  cpSync(join(ROOT, 'node_modules/katex/dist/fonts'), join(outDir, 'assets/katex/fonts'), { recursive: true });
+  buildSync({
+    entryPoints: [join(ROOT, 'src/latexeditor/editor.js')],
+    outfile: join(outDir, 'assets/latexeditor.js'),
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    legalComments: 'inline',
+    logLevel: 'error',
+  });
   // three.js and the viewer, bundled and minified into one module (D17); WebAssembly stays a separate file.
   buildSync({
     entryPoints: [join(ROOT, 'src/viewer/topoviewer.js')],

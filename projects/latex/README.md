@@ -11,6 +11,9 @@ import { renderLatex } from './src/index.ts';
 const { html, outline, diagnostics } = renderLatex('\\section{Topologie}\nUn tore a pour genre $g = 1$.', { lang: 'fr' });
 ```
 
+## Dans le navigateur
+La [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-latex.html) contient un éditeur en direct, façon Overleaf, sur l'article qui présente le portfolio (`article/portfolio.fr.tex` et `portfolio.en.tex`) : source et aperçu côte à côte (onglets sur mobile), aperçu redessiné pendant la frappe, diagnostics qui mènent à la ligne et à la colonne, plan qui fait défiler l'aperçu, téléchargement du `.tex`. Choix : D23 dans le [`DECISIONS.md` du site](../../DECISIONS.md).
+
 ## Ce qui est lu
 - **Structure** : préambule (`\documentclass`, `\usepackage`, `\title`, `\author`, `\date`) et `\begin{document}`, ou un simple fragment ; `\maketitle`, `\tableofcontents`, `\section`, `\subsection`, `\subsubsection` (et leurs versions étoilées, non numérotées), `abstract`.
 - **Texte** : `\emph`, `\textbf`, `\textit`, `\texttt`, `\textsc`, `\underline`, `\url`, `\href`, `\footnote`, `\\`, `~`, guillemets ``` `` '' ```, tirets `--` et `---`, caractères échappés (`\%`, `\&`, `\_`...), `\LaTeX`, `\today`.
@@ -35,6 +38,8 @@ Node exécute directement le TypeScript (`--experimental-strip-types`) : les sou
 ## Tests
 - **Analyseur** (`tests/parse.test.ts`) : forme de l'arbre, arguments optionnels et obligatoires, commentaires et paragraphes, mathématiques, environnements, préambule, positions (UTF-8 et emoji compris), chaque erreur et son emplacement, profondeur bornée, 2 000 entrées aléatoires sans exception.
 - **Rendu** (`tests/render.test.ts`) : paragraphes et typographie, sections et table des matières, renvois vers l'avant, KaTeX et numéros, erreur KaTeX située, listes, tableaux, citations, notes, titre et langue, échappement et liens, diagnostics triés. Vérifié en cassant le code : sans filtre des liens ou sans échappement, les tests échouent.
+- **Article** (`tests/article.test.ts`) : les deux versions se rendent sans aucun diagnostic, avec leurs trois équations numérotées et le même plan.
+- **Éditeur** (Playwright, 5 navigateurs, mobile compris) : article rendu, mise à jour pendant la frappe, diagnostic qui place le curseur, plan qui fait défiler l'aperçu, changement de langue, téléchargement, accessibilité (axe) dans les deux thèmes.
 - **CI** (`.github/workflows/latex.yml`) : Linux, Windows et macOS, Node 22 et 24.
 
 ## Limites

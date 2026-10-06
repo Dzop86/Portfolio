@@ -101,6 +101,15 @@ test('diagnostics: undefined references and citations, unknown environments and 
   assert.deepEqual(messages('\\href{ftp://x}{y}'), ['warning: link "ftp://x" ignored: only http, https and mailto links are kept']);
 });
 
+test('headings start at the requested level, so the document fits inside a page', () => {
+  const out = renderLatex('\\title{T}\\maketitle\\section{S}\\subsection{U}\\begin{thebibliography}{9}\\end{thebibliography}', { headingLevel: 3 }).html;
+  assert.match(out, /<h3>T<\/h3>/);
+  assert.match(out, /<h4 id="tex-sec-1">/);
+  assert.match(out, /<h5 id="tex-sec-1.1">/);
+  assert.match(out, /<h4>References<\/h4>/);
+  assert.doesNotMatch(out, /<h[12][ >]/);
+});
+
 test('diagnostics come sorted by position', () => {
   const lines = renderLatex('\\ref{b}\n$\\frac$\n\\ref{a}').diagnostics.map((d) => d.pos.line);
   assert.deepEqual(lines, [1, 2, 3]);
