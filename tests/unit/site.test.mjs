@@ -207,8 +207,8 @@ test('the research page shows professional experience and education side by side
     const html = page(lang, 'research');
     const block = (name) => html.match(new RegExp(`data-timeline="${name}">([\\s\\S]*?)</ol>`))[1];
     const periods = (name) => [...block(name).matchAll(/tl-period">([^<]+)/g)].map((m) => m[1]);
-    assert.deepEqual(periods('experience'), ['2025 – 2026', '2022 – 2025', '2021', '2019'], lang);
-    assert.deepEqual(periods('education'), ['2026', '2022 – 2025', '2019 – 2021', '2015 – 2019'], lang);
+    assert.deepEqual(periods('experience'), ['2025 – 2026', '2022 – 2025', '2021', '2020 – 2021', '2016 – 2020', '2019', '2015'], lang);
+    assert.deepEqual(periods('education'), ['2026', '2022 – 2025', '2019 – 2021', '2015 – 2019', '2012 – 2015'], lang);
     assert.ok(block('experience').includes('ATER') && !block('education').includes('ATER'), 'ATER is a job, not a degree');
     assert.ok(html.indexOf('data-timeline="experience"') < html.indexOf('data-timeline="education"'));
   }

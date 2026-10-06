@@ -34,7 +34,13 @@
       "period": "2015 – 2019",
       "title": { "fr": "Licence informatique", "en": "Bachelor's in Computer Science" },
       "place": { "fr": "Université de Poitiers", "en": "University of Poitiers" },
-      "detail": { "fr": "", "en": "" }
+      "detail": { "fr": "Mention assez bien.", "en": "With honours (assez bien)." }
+    },
+    {
+      "period": "2012 – 2015",
+      "title": { "fr": "Baccalauréat scientifique", "en": "Scientific baccalaureate" },
+      "place": { "fr": "Cité scolaire Jean Moulin, Montmorillon", "en": "Cité scolaire Jean Moulin, Montmorillon" },
+      "detail": { "fr": "Mention assez bien.", "en": "With honours (assez bien)." }
     }
   ],
   "experience": [
@@ -54,13 +60,31 @@
       "period": "2021",
       "title": { "fr": "Stage de Master 2", "en": "Master's internship" },
       "place": { "fr": "Laboratoire XLIM, Université de Poitiers", "en": "XLIM laboratory, University of Poitiers" },
-      "detail": { "fr": "Algorithmes de calcul de points dominants.", "en": "Dominant point algorithms." }
+      "detail": { "fr": "Modélisation de l'écriture manuscrite : algorithmes de points dominants.", "en": "Handwriting modelling: dominant point algorithms." }
     },
     {
       "period": "2019",
       "title": { "fr": "Stage de Licence 3", "en": "Bachelor's internship" },
       "place": { "fr": "Emandarine", "en": "Emandarine" },
-      "detail": { "fr": "Création de plugins WordPress.", "en": "WordPress plugin development." }
+      "detail": { "fr": "Création de plugins WordPress, découverte du développement de sites marchands.", "en": "WordPress plugin development, first steps in e-commerce development." }
+    },
+    {
+      "period": "2020 – 2021",
+      "title": { "fr": "Animateur scientifique", "en": "Science outreach facilitator" },
+      "place": { "fr": "Espace Mendès France, Poitiers", "en": "Espace Mendès France science centre, Poitiers" },
+      "detail": { "fr": "Vulgarisation scientifique pour des publics de tout âge et de tout niveau.", "en": "Science outreach for audiences of all ages and backgrounds." }
+    },
+    {
+      "period": "2016 – 2020",
+      "title": { "fr": "Opérateur des activités physiques et sportives (APS)", "en": "Pool lifeguard and sports operator" },
+      "place": { "fr": "Communauté de communes Vienne et Gartempe, Montmorillon", "en": "Vienne et Gartempe community of communes, Montmorillon" },
+      "detail": { "fr": "Surveillance des bassins et secourisme, analyse de l'eau, gestion de l'infirmerie, organisation d'une journée de prévention.", "en": "Pool supervision and first aid, water testing, first-aid room management, organisation of a prevention day." }
+    },
+    {
+      "period": "2015",
+      "title": { "fr": "Ouvrier agricole", "en": "Farm worker" },
+      "place": { "fr": "Groupement foncier agricole des Groies, Saint-Savin", "en": "Groupement foncier agricole des Groies, Saint-Savin" },
+      "detail": { "fr": "Castration du maïs.", "en": "Maize detasseling." }
     }
   ],
   "thesis": {

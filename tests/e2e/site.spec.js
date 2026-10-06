@@ -204,7 +204,7 @@ test('the research page shows experience and education side by side on a wide sc
   await page.goto('/en/research.html');
   const exp = page.locator('[data-timeline="experience"]');
   const edu = page.locator('[data-timeline="education"]');
-  await expect(exp.locator('li')).toHaveCount(4);
+  await expect(exp.locator('li')).toHaveCount(7);
   await expect(page.getByRole('link', { name: 'The thesis on theses.fr' })).toHaveAttribute('href', /theses\.fr/);
   const [a, b] = [await exp.boundingBox(), await edu.boundingBox()];
   if (info.project.name.startsWith('desktop')) expect(Math.abs(a.y - b.y)).toBeLessThan(2);
