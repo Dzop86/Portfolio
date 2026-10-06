@@ -1,0 +1,13 @@
+/* Sea blue grid, grey ships, white misses, red hits, dark red sunk ships. */
+.naval { -fx-background-color: #f4f7fb; -fx-font-family: "System"; -fx-font-size: 13px; }
+.title { -fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #12324a; }
+.status { -fx-font-size: 14px; -fx-text-fill: #1f1f1f; -fx-min-height: 40px; -fx-max-width: 700px; }
+.caption { -fx-font-weight: bold; -fx-text-fill: #12324a; }
+.header { -fx-text-fill: #4a5a6a; -fx-font-size: 11px; }
+.grid .button { -fx-background-radius: 0; -fx-border-color: #0d3b5e; -fx-border-width: 0.5; -fx-padding: 0; -fx-font-size: 14px; -fx-font-weight: bold; }
+.water { -fx-background-color: #2f7fc1; }
+.water:hover { -fx-background-color: #4a96d6; }
+.ship { -fx-background-color: #7d8791; }
+.miss { -fx-background-color: #dce9f5; -fx-text-fill: #2f5f8a; }
+.hit { -fx-background-color: #e53935; -fx-text-fill: white; }
+.sunk { -fx-background-color: #7f1d1d; -fx-text-fill: white; }

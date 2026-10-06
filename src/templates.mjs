@@ -426,6 +426,7 @@ ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
 ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
+${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -804,6 +805,20 @@ function othelloBoard(t) {
   <p class="meta" id="oth-help">${esc(t('othello.help'))}</p>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/othelloplay.js"></script>
+</section>`;
+}
+
+// Battleship (D29): a JavaFX application cannot run in the page; its screenshot is made headless by its tests.
+function navalScreenshot(t, lang) {
+  return `<section class="block panel" aria-labelledby="h-naval">
+  <h2 id="h-naval">${esc(t('naval.title'))}</h2>
+  <p>${esc(t('naval.lead'))}</p>
+  <figure class="naval-shot">
+    <img src="../assets/images/naval-${lang}.png" width="716" height="538" loading="lazy" alt="${esc(t('naval.alt'))}">
+    <figcaption class="meta">${esc(t('naval.caption'))}</figcaption>
+  </figure>
+  <pre class="naval-run"><code>cd projects/naval
+mvn javafx:run</code></pre>
 </section>`;
 }
 

@@ -141,3 +141,8 @@
 **Choix :** le moteur et l'IA en C (`projects/othello`) sont compilés par Emscripten 6.0.11 (`scripts/build-wasm.sh`, 4,5 Ko), avec une petite API qui garde la partie et son historique (annulation) ; le build est commité et vérifié par la CI, comme lib-c (D15). La page dessine 64 boutons avec un seul arrêt de tabulation (les flèches le déplacent, Entrée ou Espace joue), chacun nommé pour les lecteurs d'écran (« d3, vide, coup possible »).
 **Pourquoi :** le visiteur joue contre le vrai code testé par perft ; des boutons natifs fonctionnent à la souris, au toucher et au clavier sans canevas.
 **Limite :** sous 560 px, les coordonnées autour du plateau sont masquées pour garder des cases de 44 px au moins (à 375 px, le plateau prend la largeur de l'écran moins 8 px) ; chaque case garde son nom dans son libellé.
+
+## D29. Bataille navale : une capture plutôt qu'une démo
+**Choix :** la fiche du projet naval montre une capture de partie (en français ou en anglais selon la page), produite sans écran par les tests de l'application (JavaFX avec Monocle), et la commande pour lancer le jeu.
+**Pourquoi :** une application JavaFX ne tourne pas dans un navigateur ; une capture faite par le code testé, à partir d'une partie reproductible, montre l'interface réelle.
+**Limite :** l'image est commitée (`src/assets/images/naval-*.png`) ; elle se régénère à la main (`mvn test -Dnaval.screenshots=...`) quand l'interface change.

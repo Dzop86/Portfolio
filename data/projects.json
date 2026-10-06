@@ -83,7 +83,7 @@
     "pitch": { "fr": "Réécriture d'un jeu de mes études : moteur en C (règles, IA minimax alpha-bêta), jouable dans le navigateur en WebAssembly.", "en": "Rewrite of a game from my studies: C engine (rules, minimax alpha-beta AI), playable in the browser through WebAssembly." },
     "stack": ["C", "CMake", "Emscripten", "Unity"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/othello" } },
-  { "id": "naval", "sprint": "S19", "points": 5, "status": "in-progress", "group": "games",
+  { "id": "naval", "sprint": "S19", "points": 5, "status": "in-progress", "group": "games", "widget": "naval-screenshot",
     "name": { "fr": "Bataille navale", "en": "Battleship" },
     "pitch": { "fr": "Réécriture d'un jeu de mes études : bataille navale contre l'ordinateur, application JavaFX.", "en": "Rewrite of a game from my studies: battleship against the computer, as a JavaFX application." },
     "stack": ["Java", "JavaFX", "Maven", "JUnit"],

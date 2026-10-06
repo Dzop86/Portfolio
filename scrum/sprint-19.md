@@ -4,8 +4,10 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affronte l'ordinateur à la bataille navale (naval) : grille de 10 × 10, flotte de 5 navires placée au hasard sans contact, tirs, touché, coulé, fin de partie ; IA qui chasse puis cible ; tests JUnit 5, CI Linux, Windows et macOS. | 3 | À faire |
-| En tant que joueur, je joue dans une fenêtre JavaFX (naval) : mes navires et les tirs adverses, la grille ennemie où je clique, messages de partie ; captures d'écran générées sans écran pour la fiche du projet ; build Maven sur les trois systèmes. | 2 | À faire |
+| En tant que joueur, j'affronte l'ordinateur à la bataille navale (naval) : grille de 10 × 10, flotte de 5 navires placée au hasard sans contact, tirs, touché, coulé, fin de partie ; IA qui chasse puis cible ; tests JUnit 5, CI Linux, Windows et macOS. | 3 | Fait |
+| En tant que joueur, je joue dans une fenêtre JavaFX (naval) : mes navires et les tirs adverses, la grille ennemie où je clique, messages de partie ; captures d'écran générées sans écran pour la fiche du projet ; build Maven sur les trois systèmes. | 2 | Fait |
+
+**Tests :** modèle 8 tests JUnit (dont 2 000 flottes et 300 parties de l'ordinateur, moins de 60 tirs en moyenne), interface 3 tests sans écran ; fiche vérifiée par axe.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

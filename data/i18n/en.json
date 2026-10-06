@@ -325,5 +325,9 @@
   "othello.label.over-draw": "Game over: a draw.",
   "othello.label.score": "Black {black}, white {white}",
   "othello.label.loading": "Loading the engine…",
-  "othello.label.error.load": "The engine could not be loaded. Reload the page to try again."
+  "othello.label.error.load": "The engine could not be loaded. Reload the page to try again.",
+  "naval.title": "A game in progress",
+  "naval.lead": "A JavaFX application does not run in a browser: here is a game in progress, then the command to start it on your machine (Java 21 and Maven).",
+  "naval.alt": "Battleship window: on the left your fleet in grey with the shots received, on the right the enemy grid with your misses in white and your hits in red.",
+  "naval.caption": "Screenshot made headless by the application's tests (JavaFX with Monocle), from a reproducible game."
 }

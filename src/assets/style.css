@@ -287,6 +287,11 @@ a:hover { text-decoration-thickness: 2px; }
   .oth-inner { grid-template-columns: 1fr; }
 }
 
+/* Battleship screenshot (D29): scales down with the page. */
+.naval-shot { margin: var(--space-4) 0; }
+.naval-shot img { display: block; width: 100%; max-width: 716px; height: auto; border: 1px solid var(--border-strong); border-radius: var(--radius); }
+.naval-run { overflow-x: auto; background: var(--surface-2); padding: var(--space-3); border-radius: var(--radius); }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

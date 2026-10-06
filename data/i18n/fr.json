@@ -325,5 +325,9 @@
   "othello.label.over-draw": "Partie terminée : égalité.",
   "othello.label.score": "Noirs {black}, blancs {white}",
   "othello.label.loading": "Chargement du moteur…",
-  "othello.label.error.load": "Le moteur n'a pas pu être chargé. Rechargez la page pour réessayer."
+  "othello.label.error.load": "Le moteur n'a pas pu être chargé. Rechargez la page pour réessayer.",
+  "naval.title": "Aperçu de la partie",
+  "naval.lead": "Une application JavaFX ne tourne pas dans un navigateur : voici une partie en cours, puis la commande pour la lancer chez vous (Java 21 et Maven).",
+  "naval.alt": "Fenêtre de la bataille navale : à gauche votre flotte en gris avec les tirs reçus, à droite la grille ennemie avec vos tirs à l'eau en blanc et vos touches en rouge.",
+  "naval.caption": "Capture générée sans écran par les tests de l'application (JavaFX avec Monocle), à partir d'une partie reproductible."
 }
