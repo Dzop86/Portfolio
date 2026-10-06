@@ -28,4 +28,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `interp/lib/eval.ml` | (Claude) CI Windows : `printf` y écrit trois chiffres d'exposant (`1e+020`) | Exposant normalisé à deux chiffres, ici et dans l'analyseur C ; tests |
 | 2026-10-06 | `interp/lib/eval.ml` | (Claude) Détecté par le test de la version web : sous js_of_ocaml, l'`int` d'OCaml a 32 bits, `fact 20` donnait −2102132736 | Entiers `Int64` partout (littéraux, arithmétique, invariants) ; littéraux jusqu'à 2⁶³ − 1 (D22) |
 | 2026-10-06 | `../../tests/unit/privacy.test.mjs` | (Claude) Le scan prenait la chaîne `"0123456789abcdef"` du runtime de js_of_ocaml pour un numéro de téléphone | Liste d'exceptions exacte (`0123456789`), testée : un vrai numéro à côté est toujours détecté |
+| 2026-10-06 | `interp/js/maille_js.ml` | (Claude) CI macOS, Node 22 : 5 000 appels imbriqués débordaient la pile JavaScript avant le budget ; et mon test de « boucle plate » s'empilait en réalité | Budget du navigateur à 1 000 appels, débordement rattrapé dans `maille-api.js` ; budget d'étapes testé par `fib 30` (large, peu profond) |
+| 2026-10-06 | `../../Dockerfile` | (Claude) L'image du site ne copiait pas `projects/langage/examples`, lus par le build | `COPY` ajouté |
 | | | | |

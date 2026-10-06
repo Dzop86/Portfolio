@@ -57,12 +57,19 @@ test('type and runtime errors keep the tree for display', () => {
   assert.deepEqual([t.stage, t.column, t.tree.kind], ['type error', 5, 'binop']);
   const loop = runProgram(lib, interp, 'let rec f x = f x in f 0');
   assert.equal(loop.stage, 'runtime error');
-  assert.match(loop.message, /recursion deeper than 5000 calls/);
+  assert.match(loop.message, /recursion deeper than 1000 calls/);
 });
 
-test('an endless loop that does not nest stops on the step budget', () => {
-  const r = runProgram(lib, interp, 'let rec count n = if n == 0 then 0 else count (n - 1) + 0 * 0 in count 3000000');
-  assert.equal(r.stage, 'runtime error');
+test('a wide but shallow computation stops on the step budget', () => {
+  // fib 30 makes 1.6 million calls, never more than 30 deep.
+  const r = runProgram(lib, interp, 'let rec fib n = if n < 2 then n else fib (n - 1) + fib (n - 2) in fib 30');
+  assert.deepEqual([r.stage, r.message], ['runtime error', 'evaluation stopped after 2000000 steps']);
+});
+
+test('a deep recursion stops on the depth budget, well before the JavaScript stack', () => {
+  const r = runProgram(lib, interp, 'let rec down n = if n == 0 then 0 else 1 + down (n - 1) in down 100000');
+  assert.deepEqual([r.stage, r.message], ['runtime error', 'recursion deeper than 1000 calls']);
+  assert.equal(runProgram(lib, interp, 'let rec down n = if n == 0 then 0 else 1 + down (n - 1) in down 900').value, '900');
 });
 
 test('a program over the size limit is refused before WebAssembly', () => {

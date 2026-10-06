@@ -1,10 +1,11 @@
 (* Browser entry point: sets globalThis.MailleInterp.run(sexp), which returns
    { ok: true, type, value } or { ok: false, kind, line, column, message }. The budgets are smaller
-   than on the command line, since the program runs in the visitor's page. *)
+   than on the command line: the program runs in the visitor's page, and each Maille call takes several
+   JavaScript frames (5 000 nested calls overflowed the stack of Node 22 on macOS). *)
 
 open Js_of_ocaml
 
-let limits = { Maille.Eval.max_steps = 2_000_000; max_depth = 5_000 }
+let limits = { Maille.Eval.max_steps = 2_000_000; max_depth = 1_000 }
 
 let obj fields = Js.Unsafe.obj (Array.of_list fields)
 let str s = Js.Unsafe.inject (Js.string s)

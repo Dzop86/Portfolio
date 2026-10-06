@@ -207,7 +207,7 @@ test('the Maille playground runs examples, shows the tree, and locates errors in
 
   await editor.fill('let rec f x = f x in f 0');
   await editor.press('Control+Enter');
-  await expect(error).toContainText('recursion deeper than 5000 calls');
+  await expect(error).toContainText('recursion deeper than 1000 calls');
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

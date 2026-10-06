@@ -13,6 +13,8 @@ COPY projects/topologie/samples ./projects/topologie/samples
 COPY projects/sql/sqlite ./projects/sql/sqlite
 COPY projects/sql/data/measurements.csv ./projects/sql/data/
 COPY projects/sql/bench/csv.mjs ./projects/sql/bench/
+# Maille playground: the examples shown on the project page.
+COPY projects/langage/examples ./projects/langage/examples
 RUN npm run build
 
 # Stage 2: serve it with nginx.

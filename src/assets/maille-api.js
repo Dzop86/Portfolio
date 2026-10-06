@@ -76,7 +76,14 @@ export function readTree(sexp) {
 export function runProgram(lib, interp, source) {
   const parsed = parse(lib, source);
   if (!parsed.ok) return { stage: 'syntax', line: parsed.line, column: parsed.column, message: parsed.message };
-  const r = interp.run(parsed.sexp);
+  let r;
+  try {
+    r = interp.run(parsed.sexp);
+  } catch (e) {
+    // The budgets should stop a program first; a JavaScript stack overflow is reported the same way.
+    if (!(e instanceof RangeError)) throw e;
+    r = { ok: false, kind: 'runtime error', line: 1, column: 1, message: 'recursion too deep for the browser' };
+  }
   const tree = readTree(parsed.sexp);
   if (r.ok) return { stage: 'value', type: r.type, value: r.value, tree, sexp: parsed.sexp };
   return { stage: r.kind, line: r.line, column: r.column, message: r.message, tree, sexp: parsed.sexp };
