@@ -177,7 +177,7 @@ tr[hidden] { display: none; }
 .gantt-row { display: grid; grid-template-columns: minmax(180px, 34%) 1fr; gap: var(--space-3); align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--border); }
 .gantt-row:last-child { border-bottom: none; }
 .gantt-label { font-size: 0.92rem; }
-.gantt-track { display: grid; grid-template-columns: repeat(var(--months), 1fr); height: 18px; }
+.gantt-track { display: grid; grid-template-columns: repeat(var(--sprints), 1fr); height: 18px; }
 .gantt-track.months { height: auto; font-size: 0.72rem; color: var(--muted); }
 .gantt-track.months span { text-align: center; }
 .gantt-bar { border-radius: 6px; height: 18px; }
@@ -185,6 +185,10 @@ tr[hidden] { display: none; }
 .kind-build { background: var(--gantt-build); }
 .kind-front { background: var(--pistache); }
 .gantt-head { border-bottom: 1px solid var(--border); }
+.gantt-state { font-size: 0.78rem; color: var(--muted); margin-left: var(--space-1); }
+.gantt-row[data-state="planned"] .gantt-bar { opacity: 0.4; }
+.gantt-row[data-state="current"] .gantt-bar { outline: 2px solid var(--text-strong); outline-offset: 1px; }
+.gantt-row[data-state="current"] .gantt-state { color: var(--text-strong); font-weight: 600; }
 
 /* Lists */
 .steps, .checks { margin: 0; padding-left: 1.3rem; }

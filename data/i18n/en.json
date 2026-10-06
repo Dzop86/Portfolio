@@ -54,7 +54,7 @@
   "research.responsibilities": "Responsibilities",
   "method.title": "Method",
   "method.lead": "How this portfolio is run: Scrum, risk management and the GenAI workflow.",
-  "method.disclaimer": "Illustrative reference plan (September 2025 to October 2026), built as a case study. The real dates are those of the commits.",
+  "method.disclaimer": "Sprints 1 to {done} done; the rest is a forecast, in the order agreed with Charles on 6 October 2026. Two-week sprints in the plan; actual dates are those of the commits.",
   "method.roadmap": "Roadmap",
   "method.risks": "Risk register",
   "method.risk": "Risk",
@@ -64,7 +64,7 @@
   "method.mitigation": "Mitigation",
   "method.dod": "Definition of Done",
   "method.genai": "GenAI workflow",
-  "method.genai.steps": "Specification|Reviewed architecture plan|Small generation steps, tests first|Review of every diff|Green CI before merge|REVIEW.md updated",
+  "method.genai.steps": "Specification|Reviewed architecture plan|Tests first, generation in small steps|Check that a test fails when the code is broken|Review of every diff|Green CI on Linux, Windows and macOS before merge|REVIEW.md and DECISIONS.md updated",
   "contact.title": "Contact",
   "contact.lead": "The easiest way to reach me: LinkedIn.",
   "contact.linkedin": "Contact me on LinkedIn",
@@ -140,5 +140,9 @@
   "topo.label.error.invalid": "invalid mesh (degenerate triangle or index out of range).",
   "topo.label.tip.boundary": "boundary: it turns by {d}°",
   "topo.note.boundary": "On the boundary the angle defect measures how the boundary itself bends: boundary vertices take the colour of their interior neighbours.",
-  "topo.legend.quantiles": "Quantile scale: half of the vertices have a smaller curvature than the middle tick on each side, 90 % smaller than the outer one."
+  "topo.legend.quantiles": "Quantile scale: half of the vertices have a smaller curvature than the middle tick on each side, 90 % smaller than the outer one.",
+  "method.sprints": "Sprints",
+  "method.state.done": "done",
+  "method.state.current": "in progress",
+  "method.state.planned": "planned"
 }

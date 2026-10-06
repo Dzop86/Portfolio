@@ -86,3 +86,8 @@
 **Pourquoi :** sur des modèles sculptés réels, |K| a une queue très lourde (99ᵉ centile = 1 000 fois la médiane) : avec une échelle linéaire bornée au 95ᵉ centile, presque tout restait gris. Sur les exemples lisses, le rendu change peu.
 **Alternatives :** échelle logarithmique (paramètre arbitraire), lissage de la courbure sur un voisinage (modifie les valeurs affichées au survol).
 **Limite :** les écarts de couleur ne sont plus proportionnels aux écarts de courbure ; la valeur exacte reste lisible au survol.
+
+## D19. Roadmap par sprints, état calculé depuis les fichiers de sprint
+**Choix :** la page Méthode montre les sprints S1 à S27 au lieu d'un calendrier de septembre 2025 à octobre 2026. Chaque phase de `data/scrum.json` est « faite », « en cours » ou « prévue » selon `scrum/sprint-NN.md` (un sprint est clos quand toutes ses stories sont « Fait » ou « Abandonné »). Le registre des risques ajoute R9 (droits sur les modèles 3D) et le workflow GenAI l'étape « vérifier qu'un test échoue quand on casse le code ».
+**Pourquoi :** le calendrier illustratif ne correspondait plus à rien après la réorganisation du 6 octobre ; l'état calculé ne peut pas diverger des fichiers de sprint.
+**Limite :** la durée réelle d'un sprint n'est pas affichée ; elle se lit dans les dates des commits.

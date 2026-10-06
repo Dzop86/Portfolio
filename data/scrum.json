@@ -1,51 +1,263 @@
 {
-  "start": "2025-09-01",
-  "end": "2026-10-31",
   "sprintLengthWeeks": 2,
+  "sprintCount": 27,
   "phases": [
-    { "sprints": "S1-S4", "from": "2025-09", "to": "2025-10", "kind": "setup",
-      "label": { "fr": "Cadrage, vitrine, CI, Docker de base", "en": "Kick-off, showcase, CI, Docker basics" } },
-    { "sprints": "S5-S8", "from": "2025-11", "to": "2025-12", "kind": "build",
-      "label": { "fr": "Bibliothèque C, topologie, Qt/OpenGL", "en": "C library, topology, Qt/OpenGL" } },
-    { "sprints": "S9-S12", "from": "2026-01", "to": "2026-02", "kind": "build",
-      "label": { "fr": "FastAPI, ML + MLOps, SQL", "en": "FastAPI, ML + MLOps, SQL" } },
-    { "sprints": "S13-S16", "from": "2026-03", "to": "2026-04", "kind": "build",
-      "label": { "fr": "Spring + Jenkins, ASP.NET, GitLab CI", "en": "Spring + Jenkins, ASP.NET, GitLab CI" } },
-    { "sprints": "S17-S20", "from": "2026-05", "to": "2026-06", "kind": "build",
-      "label": { "fr": "Flex/Bison + OCaml, Ada, calcul parallèle", "en": "Flex/Bison + OCaml, Ada, parallel computing" } },
-    { "sprints": "S21-S22", "from": "2026-07", "to": "2026-08", "kind": "front",
-      "label": { "fr": "React, Angular", "en": "React, Angular" } },
-    { "sprints": "S23-S26", "from": "2026-09", "to": "2026-10", "kind": "front",
-      "label": { "fr": "Bootstrap, LaTeX, G-cartes, release", "en": "Bootstrap, LaTeX, G-maps, release" } }
+    {
+      "sprints": "S1",
+      "kind": "setup",
+      "label": {
+        "fr": "Cadrage, vitrine, CI multi-OS, Docker",
+        "en": "Kick-off, showcase, multi-OS CI, Docker"
+      }
+    },
+    {
+      "sprints": "S2-S3",
+      "kind": "build",
+      "label": {
+        "fr": "Bibliothèque C, fiches projets, WebAssembly",
+        "en": "C library, project pages, WebAssembly"
+      }
+    },
+    {
+      "sprints": "S4-S5",
+      "kind": "build",
+      "label": {
+        "fr": "Topologie en C++, viewer Three.js",
+        "en": "C++ topology, Three.js viewer"
+      }
+    },
+    {
+      "sprints": "S6-S7",
+      "kind": "build",
+      "label": {
+        "fr": "STL, API FastAPI, Docker",
+        "en": "STL, FastAPI service, Docker"
+      }
+    },
+    {
+      "sprints": "S8",
+      "kind": "build",
+      "label": {
+        "fr": "ML : données, modèles, MLflow, DVC",
+        "en": "ML: data, models, MLflow, DVC"
+      }
+    },
+    {
+      "sprints": "S9",
+      "kind": "build",
+      "label": {
+        "fr": "Ada et preuve SPARK",
+        "en": "Ada and SPARK proof"
+      }
+    },
+    {
+      "sprints": "S10",
+      "kind": "build",
+      "label": {
+        "fr": "Base SQL des benchmarks",
+        "en": "SQL benchmark database"
+      }
+    },
+    {
+      "sprints": "S11-S12",
+      "kind": "build",
+      "label": {
+        "fr": "Mini-langage : Flex/Bison, OCaml",
+        "en": "Toy language: Flex/Bison, OCaml"
+      }
+    },
+    {
+      "sprints": "S13-S14",
+      "kind": "front",
+      "label": {
+        "fr": "Éditeur LaTeX",
+        "en": "LaTeX editor"
+      }
+    },
+    {
+      "sprints": "S15",
+      "kind": "front",
+      "label": {
+        "fr": "Mini-cours G-cartes",
+        "en": "G-maps mini-course"
+      }
+    },
+    {
+      "sprints": "S16",
+      "kind": "build",
+      "label": {
+        "fr": "ML : ONNX, classification dans l'API",
+        "en": "ML: ONNX, classification in the API"
+      }
+    },
+    {
+      "sprints": "S17-S19",
+      "kind": "build",
+      "label": {
+        "fr": "Spring + Jenkins, ASP.NET",
+        "en": "Spring + Jenkins, ASP.NET"
+      }
+    },
+    {
+      "sprints": "S20-S21",
+      "kind": "build",
+      "label": {
+        "fr": "Visionneuse Qt/OpenGL",
+        "en": "Qt/OpenGL viewer"
+      }
+    },
+    {
+      "sprints": "S22-S23",
+      "kind": "build",
+      "label": {
+        "fr": "Calcul parallèle",
+        "en": "Parallel computing"
+      }
+    },
+    {
+      "sprints": "S24-S27",
+      "kind": "front",
+      "label": {
+        "fr": "React, Angular, Bootstrap, version finale",
+        "en": "React, Angular, Bootstrap, final release"
+      }
+    }
   ],
   "risks": [
-    { "id": "R1", "p": 3, "i": 2,
-      "label": { "fr": "Quota Claude insuffisant", "en": "Claude quota too low" },
-      "mitigation": { "fr": "Sessions courtes, CLAUDE.md précis, passage temporaire à Max", "en": "Short sessions, precise CLAUDE.md, temporary upgrade to Max" } },
-    { "id": "R2", "p": 3, "i": 3,
-      "label": { "fr": "Dérive du périmètre", "en": "Scope creep" },
-      "mitigation": { "fr": "Priorisation MoSCoW, projets « Could » sacrifiables", "en": "MoSCoW prioritisation, \"Could\" projects can be dropped" } },
-    { "id": "R3", "p": 3, "i": 3,
-      "label": { "fr": "Code IA incorrect ou dangereux", "en": "Incorrect or unsafe AI code" },
-      "mitigation": { "fr": "Relecture de chaque diff, tests d'abord, CI bloquante, REVIEW.md", "en": "Review every diff, tests first, blocking CI, REVIEW.md" } },
-    { "id": "R4", "p": 2, "i": 2,
-      "label": { "fr": "GPU indisponible", "en": "No GPU available" },
-      "mitigation": { "fr": "Versions OpenCL et CPU, résultats pré-calculés", "en": "OpenCL and CPU versions, precomputed results" } },
-    { "id": "R5", "p": 2, "i": 2,
-      "label": { "fr": "Offres d'hébergement gratuites modifiées", "en": "Free hosting offers change" },
-      "mitigation": { "fr": "Démos statiques, backends optionnels", "en": "Static demos, optional back ends" } },
-    { "id": "R6", "p": 1, "i": 3,
-      "label": { "fr": "Données personnelles ou secrets publiés", "en": "Personal data or secrets published" },
-      "mitigation": { "fr": "Scan automatique en CI, variables d'environnement", "en": "Automatic CI scan, environment variables" } },
-    { "id": "R7", "p": 2, "i": 2,
-      "label": { "fr": "Échec de build sur un OS", "en": "Build failure on one OS" },
-      "mitigation": { "fr": "Matrice CI Linux, Windows, macOS dès le premier commit", "en": "Linux, Windows, macOS CI matrix from the first commit" } },
-    { "id": "R8", "p": 2, "i": 3,
-      "label": { "fr": "Manque de temps ou épuisement", "en": "Lack of time or burnout" },
-      "mitigation": { "fr": "Deux sprints de marge, un seul projet en cours à la fois", "en": "Two buffer sprints, one project in progress at a time" } }
+    {
+      "id": "R1",
+      "p": 3,
+      "i": 2,
+      "label": {
+        "fr": "Quota Claude insuffisant",
+        "en": "Claude quota too low"
+      },
+      "mitigation": {
+        "fr": "Sessions courtes, CLAUDE.md précis, passage temporaire à Max",
+        "en": "Short sessions, precise CLAUDE.md, temporary upgrade to Max"
+      }
+    },
+    {
+      "id": "R2",
+      "p": 3,
+      "i": 3,
+      "label": {
+        "fr": "Dérive du périmètre",
+        "en": "Scope creep"
+      },
+      "mitigation": {
+        "fr": "Priorisation MoSCoW, ordre des projets revu avec Charles (6 octobre), projets « Could » sacrifiables",
+        "en": "MoSCoW prioritisation, project order revised with Charles (6 October), \"Could\" projects can be dropped"
+      }
+    },
+    {
+      "id": "R3",
+      "p": 3,
+      "i": 3,
+      "label": {
+        "fr": "Code IA incorrect ou dangereux",
+        "en": "Incorrect or unsafe AI code"
+      },
+      "mitigation": {
+        "fr": "Tests d'abord, vérifier qu'un test échoue quand on casse le code, fuzzing, preuve SPARK, CI bloquante, REVIEW.md",
+        "en": "Tests first, check that a test fails when the code is broken, fuzzing, SPARK proof, blocking CI, REVIEW.md"
+      }
+    },
+    {
+      "id": "R4",
+      "p": 2,
+      "i": 2,
+      "label": {
+        "fr": "GPU indisponible",
+        "en": "No GPU available"
+      },
+      "mitigation": {
+        "fr": "Versions OpenCL et CPU, résultats pré-calculés",
+        "en": "OpenCL and CPU versions, precomputed results"
+      }
+    },
+    {
+      "id": "R5",
+      "p": 2,
+      "i": 2,
+      "label": {
+        "fr": "Offres d'hébergement gratuites modifiées",
+        "en": "Free hosting offers change"
+      },
+      "mitigation": {
+        "fr": "Démos statiques, backends optionnels",
+        "en": "Static demos, optional back ends"
+      }
+    },
+    {
+      "id": "R6",
+      "p": 1,
+      "i": 3,
+      "label": {
+        "fr": "Données personnelles ou secrets publiés",
+        "en": "Personal data or secrets published"
+      },
+      "mitigation": {
+        "fr": "Scan automatique en CI, variables d'environnement",
+        "en": "Automatic CI scan, environment variables"
+      }
+    },
+    {
+      "id": "R7",
+      "p": 2,
+      "i": 2,
+      "label": {
+        "fr": "Échec de build sur un OS",
+        "en": "Build failure on one OS"
+      },
+      "mitigation": {
+        "fr": "Matrice CI Linux, Windows, macOS dès le premier commit",
+        "en": "Linux, Windows, macOS CI matrix from the first commit"
+      }
+    },
+    {
+      "id": "R8",
+      "p": 2,
+      "i": 3,
+      "label": {
+        "fr": "Manque de temps ou épuisement",
+        "en": "Lack of time or burnout"
+      },
+      "mitigation": {
+        "fr": "Deux sprints de marge, un seul projet en cours à la fois",
+        "en": "Two buffer sprints, one project in progress at a time"
+      }
+    },
+    {
+      "id": "R9",
+      "p": 2,
+      "i": 3,
+      "label": {
+        "fr": "Modèles 3D sans droits de diffusion",
+        "en": "3D models without distribution rights"
+      },
+      "mitigation": {
+        "fr": "Maillages synthétiques générés par le code ; modèles tiers montrés en local seulement",
+        "en": "Synthetic meshes generated by code; third-party models shown locally only"
+      }
+    }
   ],
   "dod": {
-    "fr": ["Code relu, diff par diff", "Tests unitaires et d'intégration verts", "CI verte sur Linux, Windows et macOS si compilé", "README, REVIEW.md et DECISIONS.md à jour", "Textes en français et en anglais", "Démo déployée et testée sur mobile"],
-    "en": ["Code reviewed, diff by diff", "Unit and integration tests green", "Green CI on Linux, Windows and macOS when compiled", "README, REVIEW.md and DECISIONS.md up to date", "Texts in French and English", "Demo deployed and tested on mobile"]
+    "fr": [
+      "Code relu, diff par diff",
+      "Tests unitaires et d'intégration verts",
+      "CI verte sur Linux, Windows et macOS si compilé",
+      "README, REVIEW.md et DECISIONS.md à jour",
+      "Textes en français et en anglais",
+      "Démo déployée et testée sur mobile"
+    ],
+    "en": [
+      "Code reviewed, diff by diff",
+      "Unit and integration tests green",
+      "Green CI on Linux, Windows and macOS when compiled",
+      "README, REVIEW.md and DECISIONS.md up to date",
+      "Texts in French and English",
+      "Demo deployed and tested on mobile"
+    ]
   }
 }

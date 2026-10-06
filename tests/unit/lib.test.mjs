@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, pick, makeT, teachingTotals, riskLevel, monthOffset, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress } from '../../src/lib.mjs';
+import { esc, pick, makeT, teachingTotals, riskLevel, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress, sprintRange, roadmapState } from '../../src/lib.mjs';
 
 test('esc neutralises HTML special characters', () => {
   assert.equal(esc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
@@ -30,12 +30,11 @@ test('riskLevel thresholds', () => {
   assert.equal(riskLevel(2), 'low');
 });
 
-test('monthOffset counts across years', () => {
-  assert.equal(monthOffset('2025-09', '2025-09'), 0);
-  assert.equal(monthOffset('2025-09', '2026-01'), 4);
-  assert.equal(monthOffset('2025-09', '2026-10'), 13);
+test('sprintRange reads single sprints and ranges', () => {
+  assert.deepEqual(sprintRange('S9'), [9, 9]);
+  assert.deepEqual(sprintRange('S11-S12'), [11, 12]);
+  assert.throws(() => sprintRange('Sprint 3'), /Bad sprint label/);
 });
-
 test('French and English dictionaries have the same keys', () => {
   const { i18n } = loadData();
   assert.deepEqual(i18nParity(i18n), { missingInEn: [], missingInFr: [] });
@@ -101,4 +100,15 @@ test('progress counts projects, sprint points and story points per project', () 
   assert.deepEqual(p.sprint, { number: 7, title: 'un titre', done: 3, total: 8 });
   // lib-c: 2 × 3 done points over max(8, 2 × 6 planned) = 12; "SQL" in capitals does not count as sql.
   assert.deepEqual(p.projects, [{ id: 'lib-c', done: 6, total: 12 }]);
+});
+
+test('roadmapState: closed sprints and the current one, abandoned stories counting as closed', () => {
+  const sprint = (number, ...states) => ({ number, stories: states.map((st) => ({ points: 1, done: st === 'Fait', closed: st !== 'À faire' })) });
+  assert.deepEqual(roadmapState([sprint(1, 'Fait'), sprint(2, 'Fait', 'Abandonné')]), { done: 2, current: 3 });
+  assert.deepEqual(roadmapState([sprint(1, 'Fait'), sprint(2, 'Fait', 'À faire')]), { done: 1, current: 2 });
+});
+
+test('parseSprint marks abandoned stories as closed but not done', () => {
+  const md = '# Sprint 3 : t\n\n| Story | Points | État |\n|---|---|---|\n| a | 1 | Fait |\n| b | 1 | Abandonné (décision) |\n| c | 2 | En cours |\n';
+  assert.deepEqual(parseSprint(md, 'x.md').stories.map((s) => [s.done, s.closed]), [[true, true], [false, true], [false, false]]);
 });

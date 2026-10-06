@@ -70,12 +70,24 @@ export function riskLevel(score) {
   return 'low';
 }
 
-/** Month index (0-based) from the start month, e.g. "2025-11" relative to "2025-09" is 2. */
-export function monthOffset(start, ym) {
-  const [sy, sm] = start.split('-').map(Number);
-  const [y, m] = ym.split('-').map(Number);
-  return (y - sy) * 12 + (m - sm);
+/** First and last sprint of a label such as "S9" or "S11-S12". */
+export function sprintRange(label) {
+  const m = String(label).match(/^S(\d+)(?:-S(\d+))?$/);
+  if (!m) throw new Error(`Bad sprint label "${label}"`);
+  return [Number(m[1]), Number(m[2] ?? m[1])];
 }
+
+/** Last sprint whose stories are all closed (done or abandoned), and the sprint in progress after it. */
+export function roadmapState(sprints) {
+  const sorted = [...sprints].sort((a, b) => a.number - b.number);
+  let done = 0;
+  for (const sp of sorted) {
+    if (sp.number === done + 1 && sp.stories.every((st) => st.closed)) done = sp.number;
+    else break;
+  }
+  return { done, current: done + 1 };
+}
+
 
 /** Name of a project's detail page, e.g. "project-lib-c" (served as <lang>/project-lib-c.html). */
 export function projectPage(id) {
@@ -91,7 +103,8 @@ export function neighbours(list, id) {
 
 /**
  * Reads a scrum/sprint-NN.md file: number and title from "# Sprint N : title", stories from the
- * first table whose header starts with "Story" (columns: story, points, state; "Fait" means done).
+ * first table whose header starts with "Story" (columns: story, points, state; "Fait" means done, and
+ * "Abandonné" closes a story without doing it).
  */
 export function parseSprint(md, file) {
   const heading = md.match(/^# Sprint (\d+)\s*:\s*(.+)$/m);
@@ -103,7 +116,8 @@ export function parseSprint(md, file) {
   for (const line of lines.slice(start + 2)) {
     if (!line.startsWith('|')) break;
     const [text, points, state] = line.split('|').slice(1, -1).map((c) => c.trim());
-    stories.push({ text, points: Number(points), done: /^Fait\b/.test(state) });
+    // No \b after "Abandonné": JavaScript's \b is ASCII-only and never matches after « é ».
+    stories.push({ text, points: Number(points), done: /^Fait\b/.test(state), closed: /^(Fait\b|Abandonné)/.test(state) });
   }
   return { number: Number(heading[1]), title: heading[2].trim(), stories };
 }

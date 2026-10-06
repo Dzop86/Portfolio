@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadData, teachingTotals, LANGS } from '../../src/lib.mjs';
+import { loadData, teachingTotals, sprintRange, LANGS } from '../../src/lib.mjs';
 
 const { cv, projects, scrum, sprints } = loadData();
 
@@ -39,9 +39,13 @@ test('risk scores stay within a 3 x 3 matrix', () => {
   }
 });
 
-test('roadmap phases are contiguous from September 2025 to October 2026', () => {
-  assert.equal(scrum.phases[0].from, '2025-09');
-  assert.equal(scrum.phases.at(-1).to, '2026-10');
+test('roadmap phases cover every sprint once, up to the last sprint of the projects', () => {
+  const ranges = scrum.phases.map((ph) => sprintRange(ph.sprints));
+  assert.equal(ranges[0][0], 1);
+  for (let i = 1; i < ranges.length; i++) assert.equal(ranges[i][0], ranges[i - 1][1] + 1, scrum.phases[i].sprints);
+  assert.equal(ranges.at(-1)[1], scrum.sprintCount);
+  const lastProjectSprint = Math.max(...projects.flatMap((p) => p.sprint.match(/\d+/g).map(Number)));
+  assert.equal(scrum.sprintCount, lastProjectSprint);
 });
 
 test('project ids are URL-safe slugs and project links are absolute https URLs', () => {

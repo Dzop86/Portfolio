@@ -49,11 +49,17 @@ test('the research page shows the teaching totals and the 6 publications', () =>
   assert.equal((html.match(/class="pub-title"/g) || []).length, 6);
 });
 
-test('the method page flags the reference plan as illustrative', () => {
-  assert.match(page('fr', 'method'), /illustratif/);
-  assert.match(page('en', 'method'), /[Ii]llustrative/);
+test('the method page shows the roadmap by sprint, with done, current and planned phases', () => {
+  const { scrum, sprints } = loadData();
+  const html = page('fr', 'method');
+  assert.match(html, new RegExp(`--sprints:${scrum.sprintCount}`));
+  assert.match(html, /data-state="done"[^>]*>[\s\S]*?S9/);
+  assert.match(html, /data-state="current"/);
+  assert.match(html, /data-state="planned"/);
+  const closed = sprints.filter((sp) => sp.stories.every((st) => st.closed)).length;
+  assert.ok(html.includes(`Sprints 1 à ${closed} terminés`), 'the notice says how far the project is');
+  assert.match(page('en', 'method'), /forecast/);
 });
-
 test('no raw i18n key leaks into the HTML', () => {
   const { i18n } = loadData();
   for (const lang of LANGS) {

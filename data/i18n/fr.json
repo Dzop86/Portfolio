@@ -54,7 +54,7 @@
   "research.responsibilities": "Responsabilités",
   "method.title": "Méthode",
   "method.lead": "Comment ce portfolio est piloté : Scrum, gestion des risques et workflow GenAI.",
-  "method.disclaimer": "Planning de référence illustratif (septembre 2025 à octobre 2026), construit pour l'étude de cas. Les dates réelles sont celles des commits.",
+  "method.disclaimer": "Sprints 1 à {done} terminés ; la suite est prévisionnelle, dans l'ordre décidé avec Charles le 6 octobre 2026. Sprints de deux semaines dans le plan ; les dates réelles sont celles des commits.",
   "method.roadmap": "Roadmap",
   "method.risks": "Registre des risques",
   "method.risk": "Risque",
@@ -64,7 +64,7 @@
   "method.mitigation": "Mitigation",
   "method.dod": "Definition of Done",
   "method.genai": "Workflow GenAI",
-  "method.genai.steps": "Spécification|Plan d'architecture relu|Génération par petites étapes, tests d'abord|Relecture de chaque diff|CI verte avant merge|REVIEW.md mis à jour",
+  "method.genai.steps": "Spécification|Plan d'architecture relu|Tests d'abord, génération par petites étapes|Vérifier qu'un test échoue quand on casse le code|Relecture de chaque diff|CI verte sur Linux, Windows et macOS avant merge|REVIEW.md et DECISIONS.md mis à jour",
   "contact.title": "Contact",
   "contact.lead": "Le plus simple pour me joindre : LinkedIn.",
   "contact.linkedin": "Me contacter sur LinkedIn",
@@ -140,5 +140,9 @@
   "topo.label.error.invalid": "maillage invalide (triangle dégénéré ou indice hors bornes).",
   "topo.label.tip.boundary": "bord : il tourne de {d}°",
   "topo.note.boundary": "Au bord, le défaut angulaire mesure la courbure du bord lui-même : les sommets du bord prennent la couleur de leurs voisins intérieurs.",
-  "topo.legend.quantiles": "Échelle par quantiles : la moitié des sommets ont une courbure plus faible que la graduation du milieu de chaque côté, 90 % plus faible que celle de l'extrémité."
+  "topo.legend.quantiles": "Échelle par quantiles : la moitié des sommets ont une courbure plus faible que la graduation du milieu de chaque côté, 90 % plus faible que celle de l'extrémité.",
+  "method.sprints": "Sprints",
+  "method.state.done": "fait",
+  "method.state.current": "en cours",
+  "method.state.planned": "prévu"
 }

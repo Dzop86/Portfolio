@@ -1,4 +1,4 @@
-import { esc, pick, teachingTotals, riskLevel, monthOffset, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
+import { esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -266,22 +266,16 @@ function research({ lang, t, data }) {
 
 function method({ lang, t, data }) {
   const { scrum } = data;
-  const startYm = scrum.start.slice(0, 7);
-  const months = monthOffset(startYm, scrum.end.slice(0, 7)) + 1;
-  const monthNames = lang === 'fr'
-    ? ['jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc']
-    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const header = Array.from({ length: months }, (_, i) => {
-    const m = (Number(startYm.slice(5)) - 1 + i) % 12;
-    return `<span>${monthNames[m]}</span>`;
-  }).join('');
+  const count = scrum.sprintCount;
+  const state = roadmapState(data.sprints);
+  const header = Array.from({ length: count }, (_, i) => `<span>${i + 1}</span>`).join('');
 
   const rows = scrum.phases.map((ph) => {
-    const a = monthOffset(startYm, ph.from) + 1;
-    const b = monthOffset(startYm, ph.to) + 2;
-    return `<li class="gantt-row">
-      <span class="gantt-label"><strong>${esc(ph.sprints)}</strong> ${esc(pick(ph.label, lang))}</span>
-      <span class="gantt-track" style="--months:${months}"><span class="gantt-bar kind-${esc(ph.kind)}" style="grid-column:${a} / ${b}"></span></span>
+    const [a, b] = sprintRange(ph.sprints);
+    const status = b <= state.done ? 'done' : a <= state.current ? 'current' : 'planned';
+    return `<li class="gantt-row" data-state="${status}">
+      <span class="gantt-label"><strong>${esc(ph.sprints)}</strong> ${esc(pick(ph.label, lang))} <span class="gantt-state">${esc(t(`method.state.${status}`))}</span></span>
+      <span class="gantt-track" style="--sprints:${count}"><span class="gantt-bar kind-${esc(ph.kind)}" style="grid-column:${a} / ${b + 1}"></span></span>
     </li>`;
   }).join('');
 
@@ -301,12 +295,12 @@ function method({ lang, t, data }) {
   const dod = scrum.dod[lang].map((d) => `<li>${esc(d)}</li>`).join('');
 
   return `${pageHead(t('method.title'), t('method.lead'))}
-<p class="notice">${esc(t('method.disclaimer'))}</p>
+<p class="notice">${esc(fill(t('method.disclaimer'), { done: state.done }))}</p>
 
 <section class="block" aria-labelledby="h-roadmap">
   <h2 id="h-roadmap">${esc(t('method.roadmap'))}</h2>
   <div class="gantt">
-    <div class="gantt-row gantt-head"><span class="gantt-label">2025 – 2026</span><span class="gantt-track months" style="--months:${months}">${header}</span></div>
+    <div class="gantt-row gantt-head"><span class="gantt-label">${esc(t('method.sprints'))}</span><span class="gantt-track months" style="--sprints:${count}">${header}</span></div>
     <ol class="plain">${rows}</ol>
   </div>
 </section>
