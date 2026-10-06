@@ -31,13 +31,17 @@ struct HalfEdge {
     bool flipped;
 };
 
-// Thrown when lib-c cannot read a mesh; line() is 0 when the error has no line (I/O, binary PLY).
+// Thrown when lib-c cannot read a mesh. status() is lib-c's mesh_status (1 I/O, 2 memory, 3 syntax,
+// 4 index); line() is 0 when the error has no line (I/O, binary PLY).
 class LoadError : public std::runtime_error {
 public:
-    LoadError(const std::string& message, std::size_t line) : std::runtime_error(message), line_(line) {}
+    LoadError(const std::string& message, int status, std::size_t line)
+        : std::runtime_error(message), status_(status), line_(line) {}
+    [[nodiscard]] int status() const noexcept { return status_; }
     [[nodiscard]] std::size_t line() const noexcept { return line_; }
 
 private:
+    int status_;
     std::size_t line_;
 };
 

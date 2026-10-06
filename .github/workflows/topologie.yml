@@ -3,9 +3,9 @@ name: topologie
 on:
   push:
     branches: [main]
-    paths: ['projects/topologie/**', 'projects/lib-c/**', '.github/workflows/topologie.yml']
+    paths: ['projects/topologie/**', 'projects/lib-c/**', 'src/assets/wasm/**', '.github/workflows/topologie.yml']
   pull_request:
-    paths: ['projects/topologie/**', 'projects/lib-c/**', '.github/workflows/topologie.yml']
+    paths: ['projects/topologie/**', 'projects/lib-c/**', 'src/assets/wasm/**', '.github/workflows/topologie.yml']
   workflow_dispatch:
 
 permissions:
@@ -39,3 +39,14 @@ jobs:
         run: cmake --build build --config Debug --parallel
       - name: Test
         run: ctest --test-dir build -C Debug --output-on-failure
+
+  wasm:
+    name: Topology (WebAssembly build is up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/build-wasm.sh "$RUNNER_TEMP/wasm"
+      # The viewer serves the committed build: it must match what the sources (lib-c included) produce today.
+      - run: |
+          cmp "$RUNNER_TEMP/wasm/topo.wasm" ../../src/assets/wasm/topo.wasm
+          cmp "$RUNNER_TEMP/wasm/topo.js" ../../src/assets/wasm/topo.js

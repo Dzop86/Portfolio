@@ -28,7 +28,7 @@ Mesh from_c(const mesh& m) {
 }
 
 void check(mesh_status status, std::size_t line) {
-    if (status != MESH_OK) throw LoadError(mesh_status_string(status), line);
+    if (status != MESH_OK) throw LoadError(mesh_status_string(status), static_cast<int>(status), line);
 }
 
 }  // namespace

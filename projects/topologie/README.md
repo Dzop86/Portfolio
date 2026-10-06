@@ -12,6 +12,8 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 - Courbure de Gauss discrète (`topo::gaussian_curvature`) : défaut angulaire par sommet (π − Σθ au bord), aire barycentrique, densité K ≈ défaut / aire.
 - Chargement OBJ et PLY par lib-c (`add_subdirectory`), erreurs remontées en `topo::LoadError` avec leur ligne.
 
+- WebAssembly : `scripts/build-wasm.sh` (Emscripten 6.0.11 dans Docker), testé dans Node par `tests/unit/topo-wasm.test.mjs` du site.
+
 ## À venir (sprint 5)
 Viewer Three.js sur la fiche du projet : maillages colorés par courbure, invariants affichés, calcul en WebAssembly.
 

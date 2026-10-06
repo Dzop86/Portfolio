@@ -89,6 +89,7 @@ TEST(HalfEdgeLoad, ReportsLibCErrorsWithTheirLine) {
         FAIL() << "expected LoadError";
     } catch (const topo::LoadError& e) {
         EXPECT_EQ(e.line(), 0u);
+        EXPECT_EQ(e.status(), MESH_ERR_IO);
         EXPECT_STREQ(e.what(), "cannot read file");
     }
     const std::string broken = "v 0 0 0\nv 1 0 0\nf 1 2 3\n";
@@ -97,6 +98,7 @@ TEST(HalfEdgeLoad, ReportsLibCErrorsWithTheirLine) {
         FAIL() << "expected LoadError";
     } catch (const topo::LoadError& e) {
         EXPECT_EQ(e.line(), 3u);
+        EXPECT_EQ(e.status(), MESH_ERR_INDEX);
     }
 }
 
