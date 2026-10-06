@@ -1,0 +1,7 @@
+# Square root of 2 by Newton's method, compared with the built-in sqrt: one ulp apart (2^-52),
+# because the iteration rounds at every step.
+let rec newton x guess n =
+  if n == 0 then guess
+  else newton x ((guess +. x /. guess) /. 2.0) (n - 1)
+in
+newton 2.0 1.0 6 -. sqrt 2.0

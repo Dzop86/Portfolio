@@ -1,0 +1,20 @@
+(test
+ (name test_maille)
+ (modules test_maille)
+ (libraries maille))
+
+; Whole chain on examples/*.maille: needs the C parser, given by MAILLEC (path to maillec).
+;   MAILLEC=$PWD/parser/build/maillec dune build @integration (from projects/langage)
+(rule
+ (alias integration)
+ (deps
+  integration.exe
+  (glob_files %{project_root}/examples/*)
+  (env_var MAILLEC))
+ (action
+  (run %{exe:integration.exe} %{project_root}/examples)))
+
+(executable
+ (name integration)
+ (modules integration)
+ (libraries maille unix))

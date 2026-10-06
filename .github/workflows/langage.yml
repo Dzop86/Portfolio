@@ -1,0 +1,105 @@
+name: langage
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/langage/**', '.github/workflows/langage.yml']
+  pull_request:
+    paths: ['projects/langage/**', '.github/workflows/langage.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: langage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  parser:
+    name: Parser, C + Flex/Bison (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Flex and Bison (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y flex bison
+      # macOS ships Bison 2.3; Homebrew's is keg-only, so it goes first on the PATH.
+      - name: Flex and Bison (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install bison flex
+          echo "$(brew --prefix bison)/bin" >> "$GITHUB_PATH"
+          echo "$(brew --prefix flex)/bin" >> "$GITHUB_PATH"
+      - name: Flex and Bison (Windows, winflexbison)
+        if: runner.os == 'Windows'
+        run: choco install winflexbison3 --no-progress
+      - name: Build (warnings are errors)
+        run: |
+          cmake -S projects/langage/parser -B projects/langage/parser/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build projects/langage/parser/build --config Release --parallel
+      - name: Unit and reference tests
+        run: ctest --test-dir projects/langage/parser/build -C Release --output-on-failure
+      - uses: actions/upload-artifact@v7
+        with:
+          name: maillec-${{ matrix.os }}
+          path: |
+            projects/langage/parser/build/maillec
+            projects/langage/parser/build/Release/maillec.exe
+          if-no-files-found: error
+
+  sanitizers:
+    name: Parser (ASan + UBSan, Valgrind)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y flex bison valgrind
+      - name: ASan + UBSan (leaks included)
+        run: |
+          cmake -S projects/langage/parser -B build-asan -DMAILLE_SANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-asan --parallel
+          ctest --test-dir build-asan --output-on-failure
+      - name: Valgrind
+        run: |
+          cmake -S projects/langage/parser -B build-vg -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-vg --parallel
+          valgrind --leak-check=full --errors-for-leak-kinds=all --error-exitcode=1 build-vg/test_parser
+          for f in projects/langage/parser/tests/cases/*.maille projects/langage/examples/*.maille; do
+            # maillec exits with 1 on the error examples; only valgrind's own code (9) fails the job.
+            code=0
+            valgrind -q --leak-check=full --errors-for-leak-kinds=all --error-exitcode=9 build-vg/maillec "$f" > /dev/null 2>&1 || code=$?
+            if [ "$code" -eq 9 ]; then echo "valgrind error on $f"; exit 1; fi
+          done
+
+  interpreter:
+    name: Interpreter, OCaml (${{ matrix.os }})
+    needs: parser
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5
+      - run: opam install dune --yes
+      - name: Unit tests
+        working-directory: projects/langage
+        run: opam exec -- dune test
+      - uses: actions/download-artifact@v8
+        with:
+          name: maillec-${{ matrix.os }}
+          path: maillec-bin
+      - name: Whole chain on the examples (C parser, then OCaml)
+        working-directory: projects/langage
+        shell: bash
+        run: |
+          bin=$(ls "$GITHUB_WORKSPACE"/maillec-bin/maillec* "$GITHUB_WORKSPACE"/maillec-bin/Release/maillec* 2>/dev/null | head -1)
+          chmod +x "$bin"
+          MAILLEC="$bin" opam exec -- dune build @integration

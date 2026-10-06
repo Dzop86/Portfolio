@@ -1,0 +1,7 @@
+# Number of Collatz steps from 27 down to 1.
+let rec steps n =
+  if n == 1 then 0
+  else if n % 2 == 0 then 1 + steps (n / 2)
+  else 1 + steps (3 * n + 1)
+in
+steps 27

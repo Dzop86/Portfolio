@@ -1,0 +1,2 @@
+; dune only looks at the interpreter and the examples (the C parser is built by CMake).
+(dirs interp examples)

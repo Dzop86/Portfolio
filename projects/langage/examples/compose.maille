@@ -1,0 +1,4 @@
+# Higher-order functions: the inferred type of compose is ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b.
+let compose f g x = f (g x) in
+let twice f = compose f f in
+twice (twice (fun s -> s ^ "!")) "maille"

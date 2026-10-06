@@ -1,0 +1,3 @@
+# One identity function, used at two types: let-polymorphism.
+let id x = x in
+if id true then id 42 else 0

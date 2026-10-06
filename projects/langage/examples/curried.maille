@@ -1,0 +1,3 @@
+# A function waiting for its last argument is a value too.
+let add x y = x + y in
+add 1
