@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -165,6 +165,49 @@ test('the SQL playground runs the examples, a typed query, and survives errors, 
 
   await root.locator('summary').click();
   await expect(root.locator('[data-schema] li')).toHaveCount(11);
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});
+
+test('the Maille playground runs examples, shows the tree, and locates errors in the editor', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-langage.html');
+  const root = page.locator('[data-maille-playground]');
+  const result = root.locator('[data-result]');
+  const error = root.locator('[data-error]');
+  await root.scrollIntoViewIfNeeded();
+  // The first example (genus of a scene) runs on its own.
+  await expect(result).toHaveText('- : int = 2', { timeout: 15000 });
+  await expect(root.locator('.ast > li > .ast-node .ast-kind')).toHaveText('let');
+
+  await root.getByRole('button', { name: 'Polymorphism' }).click();
+  await expect(result).toHaveText('- : int = 42');
+
+  const editor = root.getByLabel('Maille program');
+  await editor.fill('let f x = x + 1 in\nf 41');
+  await editor.press('Control+Enter');
+  await expect(result).toHaveText('- : int = 42');
+  // A tree node puts the cursor at its position: "x + 1" starts at line 1, column 11.
+  await root.getByRole('button', { name: /^binop \+/ }).click();
+  expect(await editor.evaluate((e) => e.selectionStart)).toBe(12);
+
+  await root.getByRole('button', { name: 'Type error' }).click();
+  await expect(error).toContainText('Type error (line 2, column 8): this expression has type string');
+  await error.getByRole('button', { name: 'Go to the error' }).click();
+  expect(await editor.evaluate((e) => e.value.slice(e.selectionStart, e.selectionStart + 5))).toBe('"two"');
+
+  await root.getByRole('button', { name: 'Syntax error' }).click();
+  await expect(error).toContainText('Syntax error (line 1, column 9)');
+  await expect(root.locator('[data-tree] li')).toHaveCount(0);
+
+  await editor.fill('let rec f x = f x in f 0');
+  await editor.press('Control+Enter');
+  await expect(error).toContainText('recursion deeper than 5000 calls');
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);

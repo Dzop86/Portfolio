@@ -48,7 +48,7 @@
     "pitch": { "fr": "API C# avec Entity Framework Core, qui alimente les dashboards.", "en": "C# API with Entity Framework Core, feeding the dashboards." },
     "stack": ["C#", ".NET", "ASP.NET", "EF Core", "xUnit", "Docker"],
     "teaching": { "fr": "Enseigné en L1 (algorithmique en C#)", "en": "Taught in L1 (algorithms in C#)" } },
-  { "id": "langage", "sprint": "S11-S12", "points": 8, "status": "in-progress", "group": "systems",
+  { "id": "langage", "sprint": "S11-S12", "points": 8, "status": "in-progress", "group": "systems", "widget": "maille-playground",
     "name": { "fr": "Mini-langage", "en": "Toy language" },
     "pitch": { "fr": "Analyse avec Flex/Bison, évaluation en OCaml, arbre syntaxique affiché.", "en": "Parsed with Flex/Bison, evaluated in OCaml, syntax tree displayed." },
     "stack": ["Flex", "Bison", "OCaml", "C"],

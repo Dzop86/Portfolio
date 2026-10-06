@@ -136,6 +136,22 @@ a:hover { text-decoration-thickness: 2px; }
 .sql-schema summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; }
 .sql-schema li { overflow-wrap: anywhere; margin-bottom: var(--space-1); }
 
+/* Maille playground (D22): result line and syntax tree as nested lists. */
+.maille-result { font: 600 1rem var(--font-mono); color: var(--text-strong); overflow-wrap: anywhere; min-height: 1.5em; }
+.mailleplay .demo-error .btn { margin-top: var(--space-2); }
+.maille-tree { margin-top: var(--space-4); }
+.maille-tree summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 600; }
+.mailleplay [data-tree] { max-height: 32rem; overflow: auto; }
+.ast, .ast ul { list-style: none; margin: 0; padding-left: var(--space-4); }
+.ast { padding-left: 0; }
+.ast ul { border-left: 1px solid var(--border-strong); margin-left: 6px; }
+.ast-node { display: inline-flex; align-items: baseline; gap: 6px; min-height: 32px; padding: 2px 6px; border: 0; border-radius: var(--radius);
+  background: none; color: var(--text); font: 0.9rem var(--font-mono); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.ast-node:hover { background: var(--surface-2); }
+.ast-node:focus-visible { outline: 3px solid var(--link); outline-offset: 1px; }
+.ast-kind { color: var(--text-strong); font-weight: 600; }
+.ast-node code { background: var(--tag-bg); color: var(--tag-text); padding: 0 4px; border-radius: 3px; }
+
 /* Topology viewer (D17) */
 .viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
 .viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }

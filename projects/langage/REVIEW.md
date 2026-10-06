@@ -8,6 +8,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] `parser/src/lexer.l` : positions (colonnes en caractères), chaînes et échappements.
 - [ ] `interp/lib/types.ml` : généralisation, test d'occurrence, messages d'erreur.
 - [ ] `interp/lib/eval.ml` : fermetures de `let rec`, budgets.
+- [ ] `interp/lib/mesh.ml` : invariants (bords, composantes, genre).
+- [ ] `../../src/assets/mailleplay.js` : démo, arbre, positions dans l'éditeur.
 
 ## Constats
 
@@ -21,4 +23,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `interp/test/test_maille.ml` | (Claude) Positions des arbres de test données par un compteur, faussées par l'ordre d'évaluation d'OCaml | Positions vérifiées par la chaîne complète sur des S-expressions écrites à la main |
 | 2026-10-06 | `parser/` (local) | (Claude) LeakSanitizer plante (boucle de `DEADLYSIGNAL`) sur certaines entrées dans le conteneur Docker sous WSL, au hasard selon les adresses ; Valgrind ne trouve ni fuite ni erreur sur les mêmes entrées | Laissé à la CI : ASan avec détection de fuites et Valgrind sous Linux standard |
 | 2026-10-06 | `.github/workflows/langage.yml` | (Claude) Première CI : la chaîne complète échouait sur les trois systèmes avant de démarrer ; `ls` sur le motif Windows absent renvoyait 2, fatal sous `bash -o pipefail` | `find` à la place ; l'analyseur (3 OS, ASan avec détection de fuites, Valgrind) et `dune test` passaient déjà |
+| 2026-10-06 | `interp/lib/eval.ml` | (Claude) CI Windows : `printf` y écrit trois chiffres d'exposant (`1e+020`) | Exposant normalisé à deux chiffres, ici et dans l'analyseur C ; tests |
+| 2026-10-06 | `interp/lib/eval.ml` | (Claude) Détecté par le test de la version web : sous js_of_ocaml, l'`int` d'OCaml a 32 bits, `fact 20` donnait −2102132736 | Entiers `Int64` partout (littéraux, arithmétique, invariants) ; littéraux jusqu'à 2⁶³ − 1 (D22) |
+| 2026-10-06 | `../../tests/unit/privacy.test.mjs` | (Claude) Le scan prenait la chaîne `"0123456789abcdef"` du runtime de js_of_ocaml pour un numéro de téléphone | Liste d'exceptions exacte (`0123456789`), testée : un vrai numéro à côté est toujours détecté |
 | | | | |

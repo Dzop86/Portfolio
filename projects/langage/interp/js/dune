@@ -1,0 +1,6 @@
+; Interpreter compiled to JavaScript for the site's demo (scripts/build-web.sh). Not part of dune test,
+; so the native CI needs no js_of_ocaml.
+(executable
+ (name maille_js)
+ (modes js)
+ (libraries maille js_of_ocaml))

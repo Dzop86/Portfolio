@@ -19,6 +19,10 @@ const PATTERNS = [
   { name: 'flat number', re: /\b(?:appartement|app\.)\s*\d+/i },
 ];
 
+// Exact matches that are not private data: the digit string of number formatting code (js_of_ocaml's
+// runtime has "0123456789abcdef"), which looks like a phone number. Anything else still fails.
+const ALLOWED = ['0123456789'];
+
 const extraTerms = (process.env.PRIVATE_TERMS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 function files(dir) {
@@ -48,8 +52,8 @@ for (const file of [...published, ...sources]) {
   test(`no private data in ${file.replace(ROOT, '').replace(dist, 'dist')}`, () => {
     const text = readFileSync(file, 'utf8');
     for (const { name, re } of PATTERNS) {
-      const m = text.match(re);
-      assert.equal(m, null, `${name} found: "${m?.[0]}"`);
+      const m = [...text.matchAll(new RegExp(re.source, `${re.flags}g`))].find((x) => !ALLOWED.includes(x[0]));
+      assert.equal(m, undefined, `${name} found: "${m?.[0]}"`);
     }
     const lower = text.toLowerCase();
     for (const term of extraTerms) {
@@ -57,6 +61,13 @@ for (const file of [...published, ...sources]) {
     }
   });
 }
+
+test('the allow list is exact: a phone number next to it is still caught', () => {
+  const phone = PATTERNS[0].re;
+  const hits = [...'h="0123456789abcdef"; tel 01 23 45 67 89'.matchAll(new RegExp(phone.source, 'g'))]
+    .map((x) => x[0]).filter((x) => !ALLOWED.includes(x));
+  assert.deepEqual(hits, ['01 23 45 67 89']);
+});
 
 test('the patterns do catch private data', () => {
   const sample = 'Tél. 01.23.45.67.89, mail jean@exemple.fr, né le 01/02/1990, 12 rue des Lilas, app. 4';

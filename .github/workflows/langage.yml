@@ -3,9 +3,9 @@ name: langage
 on:
   push:
     branches: [main]
-    paths: ['projects/langage/**', '.github/workflows/langage.yml']
+    paths: ['projects/langage/**', 'src/assets/wasm/maille*', '.github/workflows/langage.yml']
   pull_request:
-    paths: ['projects/langage/**', '.github/workflows/langage.yml']
+    paths: ['projects/langage/**', 'src/assets/wasm/maille*', '.github/workflows/langage.yml']
   workflow_dispatch:
 
 permissions:
@@ -106,3 +106,15 @@ jobs:
           echo "parser: $bin"
           chmod +x "$bin"
           MAILLEC="$bin" opam exec -- dune build @integration
+
+  web:
+    name: Web build is up to date (WebAssembly parser, js_of_ocaml interpreter)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: projects/langage/scripts/build-web.sh "$RUNNER_TEMP/web"
+      # The site serves the committed build: it must match what the sources produce today.
+      - run: |
+          for f in maillec.js maillec.wasm maille-interp.js; do
+            cmp "$RUNNER_TEMP/web/$f" "src/assets/wasm/$f"
+          done

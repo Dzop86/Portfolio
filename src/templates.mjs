@@ -410,6 +410,7 @@ ${linkBlock}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
 ${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
 ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
+${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -518,6 +519,39 @@ function sqlPlayground(t) {
   </details>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/sqlplay.js"></script>
+</section>`;
+}
+
+const MAILLE_LABELS = ['loading', 'running', 'error.load', 'syntax', 'type error', 'runtime error', 'at', 'goto', 'more',
+  'node', 'too-large', 'message'];
+// Examples shown on the page, in this order; their source comes from projects/langage/examples.
+const MAILLE_EXAMPLES = ['genus', 'euler', 'polymorphism', 'compose', 'factorial', 'type_error', 'syntax_error'];
+
+// Maille in the browser (D22): C parser in WebAssembly, OCaml interpreter through js_of_ocaml.
+function maillePlayground(t) {
+  const labels = Object.fromEntries(MAILLE_LABELS.map((k) => [k, t(`maille.label.${k}`)]));
+  const examples = MAILLE_EXAMPLES.map((key) => {
+    const source = readFileSync(join(ROOT, `projects/langage/examples/${key}.maille`), 'utf8');
+    return `<button type="button" class="btn btn-ghost" aria-pressed="false" data-example="${esc(key)}" data-source="${esc(source)}">${esc(t(`maille.example.${key}`))}</button>`;
+  }).join('');
+  return `<section class="block panel demo mailleplay" aria-labelledby="h-maille" data-maille-playground data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-maille">${esc(t('maille.title'))}</h2>
+  <p>${esc(t('maille.lead'))}</p>
+  <div class="actions" role="group" aria-label="${esc(t('maille.examples'))}"><span class="muted demo-samples">${esc(t('maille.examples'))}</span>${examples}</div>
+  <label class="sql-label" for="maille-editor">${esc(t('maille.program'))}</label>
+  <textarea id="maille-editor" class="sql-editor" rows="8" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="maille-help"></textarea>
+  <p class="meta" id="maille-help">${esc(t('maille.help'))}</p>
+  <div class="actions"><button type="button" class="btn btn-primary" data-run>${esc(t('maille.run'))}</button></div>
+  <p class="maille-result" data-result aria-live="polite"></p>
+  <div class="notice demo-error" data-error role="alert" hidden></div>
+  <details class="maille-tree" open>
+    <summary>${esc(t('maille.tree'))}</summary>
+    <p class="meta">${esc(t('maille.tree.help'))}</p>
+    <div data-tree></div>
+  </details>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script src="../assets/wasm/maille-interp.js" defer></script>
+  <script type="module" src="../assets/mailleplay.js"></script>
 </section>`;
 }
 

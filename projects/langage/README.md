@@ -16,7 +16,7 @@ twice (twice (fun s -> s ^ "!")) "maille"
 ```
 
 ## Le langage
-- Valeurs : entiers (63 bits), flottants, booléens, chaînes ; fonctions de première classe, curryfiées.
+- Valeurs : entiers (64 bits), flottants, booléens, chaînes ; fonctions de première classe, curryfiées.
 - `let x = e in e`, `let f x y = e in e`, `let rec f n = e in e`, `fun x y -> e`, `if c then a else b`, application par juxtaposition `f x y`, commentaires `# ...`.
 - Opérateurs, du moins au plus prioritaire : `||`, `&&`, comparaisons `== != < <= > >=` (non associatives, polymorphes), `^` (concaténation, à droite), `+ -` et `+. -.`, `* / %` et `*. /.`, `-` et `not` préfixes, application. Comme en OCaml, les flottants ont leurs propres opérateurs.
 - Fonctions prédéfinies : `sqrt`, `float_of_int`, `int_of_float`, `string_of_int`, `string_of_float`, `string_length`.
@@ -36,6 +36,9 @@ twice (twice (fun s -> s ^ "!")) "maille"
 - Évaluation par valeur, fermetures, `&&` et `||` paresseux. Deux budgets arrêtent un programme qui s'emballe : 10 millions d'étapes et 10 000 appels imbriqués. Division par zéro et comparaison de fonctions sont des erreurs d'exécution situées.
 - Les flottants s'affichent avec le moins de chiffres qui les relisent à l'identique, comme dans l'analyseur.
 
+## Dans le navigateur
+La [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-langage.html) exécute Maille chez le visiteur : l'analyseur C compilé en WebAssembly (Emscripten) et l'interpréteur OCaml compilé en JavaScript (js_of_ocaml), avec l'arbre syntaxique affiché ; cliquer sur un nœud place le curseur à sa position. `scripts/build-web.sh` produit les deux dans des images Docker aux versions figées (`docker/Dockerfile`) ; la CI vérifie que la version commitée est identique à une reconstruction. Choix : D22 dans le [`DECISIONS.md` du site](../../DECISIONS.md).
+
 ## Lancer
 ```sh
 cmake -S parser -B parser/build && cmake --build parser/build      # Flex et Bison 3.6+
@@ -50,12 +53,13 @@ Sous Windows, `choco install winflexbison3` fournit Flex et Bison ; sous macOS, 
 - **C** (`parser/tests/test_parser.c`) : littéraux, priorités et associativités, désucrage, erreurs et leur position, limites de profondeur ; **cas de référence** (`parser/tests/cases/`) comparés par CTest, arbre ou erreur.
 - **OCaml** (`interp/test/test_maille.ml`) : lecteur de S-expressions, inférence (polymorphisme, composition, récursion, paramètre monomorphe, test d'occurrence), évaluation, budgets, affichage des flottants ; invariants de chaque famille comparés aux formules (V, E, F, χ, bords, composantes, genre) à plusieurs résolutions, orientation cohérente. Vérifié en cassant le code : sans généralisation du `let` ou sans test d'occurrence, les tests échouent.
 - **Chaîne complète** (`interp/test/integration.ml`) : `maillec` puis l'interpréteur sur chaque `examples/*.maille`, résultat comparé à `*.out`.
+- **Version web** (`tests/unit/maille-web.test.mjs` du site) : chaque exemple passe par le WebAssembly et le JavaScript, et doit donner le résultat de la chaîne native ; Playwright utilise la démo dans 5 navigateurs, mobile compris.
 - **CI** (`.github/workflows/langage.yml`) : analyseur sur Linux (GCC), Windows (MSVC, winflexbison) et macOS (Clang, Bison de Homebrew) ; ASan + UBSan et Valgrind sous Linux ; interpréteur et chaîne complète sur les trois systèmes, avec l'analyseur compilé sur chacun.
 
 ## Limites
 - Pas de n-uplets, de listes ni de types définis par l'utilisateur.
 - Le genre suppose une surface orientable (vrai pour les trois familles et leurs unions).
-- Les entiers débordent comme en OCaml (arithmétique modulo 2⁶³), sans erreur.
+- Les entiers ont 64 bits partout (`Int64`, y compris dans le navigateur) et débordent sans erreur, modulo 2⁶⁴.
 - `-x` ne s'applique qu'aux entiers ; pour un flottant, `0.0 -. x`.
 - `1 + if c then 1 else 2` demande des parenthèses : `let`, `fun` et `if` ne se placent qu'en tête d'expression.
 
