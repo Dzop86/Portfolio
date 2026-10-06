@@ -1,32 +1,46 @@
-/* Charte « pistache et chocolat ». Source unique des couleurs, réutilisée par tous les projets web. */
+/* Charte : gris sombre façon VS Code, pistache en accent, chocolat en touches.
+   Source unique des couleurs, réutilisée par tous les projets web.
+   Thème sombre par défaut ; [data-theme="light"] bascule en clair. */
 :root {
   --pistache: #bef374;
   --pistache-pale: #e6f8c9;
   --chocolat: #5a3a22;
+  --chocolat-clair: #c9a27f;
   --bambou: #4d7a1c;
-  --encre: #2b1d14;
-  --creme: #fbf7ee;
+  --gris-titre: #181818;
+  --gris-fond: #1f1f1f;
+  --gris-panneau: #252526;
+  --gris-survol: #2d2d2d;
+  --gris-texte: #cccccc;
+  --gris-discret: #9d9d9d;
 
-  --bg: var(--creme);
-  --surface: #fffdf7;
-  --surface-2: #f3ecdc;
-  --text: var(--chocolat);
-  --text-strong: var(--encre);
-  --muted: #74553d;
-  --border: rgba(90, 58, 34, 0.18);
-  --border-strong: rgba(90, 58, 34, 0.4);
-  --link: var(--bambou);
+  --bg: var(--gris-fond);
+  --header-bg: var(--gris-titre);
+  --surface: var(--gris-panneau);
+  --surface-2: var(--gris-survol);
+  --text: var(--gris-texte);
+  --text-strong: #ffffff;
+  --muted: var(--gris-discret);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.24);
+  --link: var(--pistache);
   --accent: var(--pistache);
   --on-accent: var(--chocolat);
-  --tag-bg: var(--pistache-pale);
-  --tag-text: var(--chocolat);
+  --pressed-bg: var(--pistache);
+  --pressed-text: var(--chocolat);
+  --seal-bg: var(--pistache);
+  --seal-text: var(--chocolat);
+  --dot: var(--chocolat-clair);
+  --gantt-build: var(--chocolat-clair);
+  --tag-bg: rgba(190, 243, 116, 0.12);
+  --tag-text: var(--pistache-pale);
   --bar: var(--pistache);
-  --risk-high: #f2c4b4;
-  --risk-high-text: #7a2410;
-  --risk-medium: #f6e2a6;
-  --risk-medium-text: #6b4a05;
-  --risk-low: var(--pistache-pale);
-  --risk-low-text: #2f5210;
+  --risk-high: rgba(242, 140, 110, 0.22);
+  --risk-high-text: #ffc7b5;
+  --risk-medium: rgba(246, 210, 110, 0.2);
+  --risk-medium-text: #f8dd96;
+  --risk-low: rgba(190, 243, 116, 0.16);
+  --risk-low-text: #d4f5a4;
 
   --font-display: "Zen Maru Gothic", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -42,49 +56,34 @@
   --space-6: 40px;
   --space-7: 64px;
   --maxw: 1080px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: var(--encre);
-    --surface: #36261a;
-    --surface-2: #402e20;
-    --text: #f3ead9;
-    --text-strong: #fffdf7;
-    --muted: #cdbba2;
-    --border: rgba(251, 247, 238, 0.14);
-    --border-strong: rgba(251, 247, 238, 0.35);
-    --link: var(--pistache);
-    --tag-bg: rgba(190, 243, 116, 0.14);
-    --tag-text: #e6f8c9;
-    --risk-high: rgba(242, 140, 110, 0.22);
-    --risk-high-text: #ffc7b5;
-    --risk-medium: rgba(246, 210, 110, 0.2);
-    --risk-medium-text: #f8dd96;
-    --risk-low: rgba(190, 243, 116, 0.16);
-    --risk-low-text: #d4f5a4;
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
-  --bg: var(--encre);
-  --surface: #36261a;
-  --surface-2: #402e20;
-  --text: #f3ead9;
-  --text-strong: #fffdf7;
-  --muted: #cdbba2;
-  --border: rgba(251, 247, 238, 0.14);
-  --border-strong: rgba(251, 247, 238, 0.35);
-  --link: var(--pistache);
-  --tag-bg: rgba(190, 243, 116, 0.14);
-  --tag-text: #e6f8c9;
-  --risk-high: rgba(242, 140, 110, 0.22);
-  --risk-high-text: #ffc7b5;
-  --risk-medium: rgba(246, 210, 110, 0.2);
-  --risk-medium-text: #f8dd96;
-  --risk-low: rgba(190, 243, 116, 0.16);
-  --risk-low-text: #d4f5a4;
   color-scheme: dark;
+}
+
+/* Clair façon VS Code Light : jamais de pistache en texte sur ce fond. */
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --header-bg: #f8f8f8;
+  --surface: #f8f8f8;
+  --surface-2: #ececec;
+  --text: #3b3b3b;
+  --text-strong: #1f1f1f;
+  --muted: #616161;
+  --border: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.3);
+  --link: var(--bambou);
+  --pressed-bg: var(--chocolat);
+  --pressed-text: #ffffff;
+  --seal-bg: var(--chocolat);
+  --seal-text: var(--pistache);
+  --dot: var(--chocolat);
+  --gantt-build: var(--chocolat);
+  --tag-bg: var(--pistache-pale);
+  --tag-text: var(--chocolat);
+  --risk-high: #f2c4b4;
+  --risk-high-text: #7a2410;
+  --risk-medium: #f6e2a6;
+  --risk-medium-text: #6b4a05;
+  --risk-low: var(--pistache-pale);
+  --risk-low-text: #2f5210;
+  color-scheme: light;
 }

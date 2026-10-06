@@ -18,7 +18,7 @@ Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté 
 3. **Confidentialité.** Publics : nom, prénom, LinkedIn, ORCID, HAL. Interdits partout (code, données, commits) : adresse, téléphone, e-mail, date de naissance. Aucun code ni aucune donnée du laboratoire XLIM ou du projet ARTERIA, aucune donnée médicale : tout s'écrit de zéro, avec des maillages synthétiques ou sous licence libre.
 4. **Multi-OS.** Les projets compilés passent une matrice CI `ubuntu-latest`, `windows-latest`, `macos-latest`. Documente honnêtement les limites (CUDA indisponible sur macOS, applis non signées).
 5. **Mobile.** Pas de défilement horizontal de page à 375 px, cibles tactiles de 44 px minimum.
-6. **Charte.** Couleurs uniquement via `src/assets/tokens.css` (pistache `#bef374`, chocolat `#5a3a22`). Jamais de pistache en texte sur fond clair.
+6. **Charte.** Couleurs uniquement via `src/assets/tokens.css` : gris sombre façon VS Code par défaut (`#1f1f1f`), pistache `#bef374` en accent, chocolat `#5a3a22` en touches. Jamais de pistache en texte sur fond clair.
 7. **Pas de secrets.** Variables d'environnement et secrets GitHub uniquement. Jamais de clé dans le dépôt.
 8. **Petits pas.** Une story à la fois, un commit par étape logique, messages en anglais au format Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `ci:`).
 

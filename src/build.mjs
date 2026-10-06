@@ -40,8 +40,8 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     short_name: 'C. Lepaire',
     start_url: './',
     display: 'standalone',
-    background_color: '#fbf7ee',
-    theme_color: '#5a3a22',
+    background_color: '#1f1f1f',
+    theme_color: '#181818',
     icons: [{ src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
   }, null, 2));
 

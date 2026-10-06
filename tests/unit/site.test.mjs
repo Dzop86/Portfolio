@@ -92,3 +92,13 @@ test('the contact page links to ORCID and to the HAL publications of the author'
     assert.ok(html.includes('href="https://hal.science/search/index/?q=authIdHal_s:charles-lepaire"'), `${lang} HAL`);
   }
 });
+
+test('browser chrome uses the dark grey of the theme', () => {
+  const tokens = readFileSync(resolve('src/assets/tokens.css'), 'utf8');
+  assert.match(tokens, /--gris-titre: #181818;/);
+  assert.match(tokens, /--gris-fond: #1f1f1f;/);
+  assert.ok(page('fr', 'index').includes('<meta name="theme-color" content="#181818">'));
+  const manifest = JSON.parse(readFileSync(join(dist, 'manifest.webmanifest'), 'utf8'));
+  assert.equal(manifest.theme_color, '#181818');
+  assert.equal(manifest.background_color, '#1f1f1f');
+});

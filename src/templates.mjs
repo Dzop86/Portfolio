@@ -22,7 +22,7 @@ function layout({ lang, page, t, title, body }) {
 <link rel="alternate" hreflang="${other}" href="../${other}/${page}.html">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="../manifest.webmanifest">
-<meta name="theme-color" content="#5a3a22">
+<meta name="theme-color" content="#181818">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Zen+Maru+Gothic:wght@500;700&display=swap">

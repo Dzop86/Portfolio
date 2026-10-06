@@ -3,22 +3,26 @@ import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = ['index', 'projects', 'research', 'method', 'contact'];
 
-for (const lang of ['fr', 'en']) {
-  for (const page of PAGES) {
-    test(`${lang}/${page}: loads, is accessible and has no horizontal scroll`, async ({ page: p }) => {
-      const errors = [];
-      p.on('pageerror', (e) => errors.push(e.message));
-      await p.goto(`/${lang}/${page}.html`);
-      await expect(p.locator('h1')).toBeVisible();
-      await expect(p.locator('html')).toHaveAttribute('lang', lang);
+// Every page, in both languages and both themes: axe also checks colour contrast.
+for (const theme of ['dark', 'light']) {
+  for (const lang of ['fr', 'en']) {
+    for (const page of PAGES) {
+      test(`${lang}/${page} (${theme}): loads, is accessible and has no horizontal scroll`, async ({ page: p }) => {
+        const errors = [];
+        p.on('pageerror', (e) => errors.push(e.message));
+        await p.addInitScript((t) => localStorage.setItem('theme', t), theme);
+        await p.goto(`/${lang}/${page}.html`);
+        await expect(p.locator('h1')).toBeVisible();
+        await expect(p.locator('html')).toHaveAttribute('lang', lang);
 
-      const overflow = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-      expect(overflow).toBeLessThanOrEqual(1);
+        const overflow = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+        expect(overflow).toBeLessThanOrEqual(1);
 
-      const a11y = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa']).analyze();
-      expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
-      expect(errors).toEqual([]);
-    });
+        const a11y = await new AxeBuilder({ page: p }).withTags(['wcag2a', 'wcag2aa']).analyze();
+        expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+        expect(errors).toEqual([]);
+      });
+    }
   }
 }
 
@@ -34,12 +38,20 @@ test('language switch keeps the current page', async ({ page }) => {
   await expect(page.locator('h1')).toHaveText('Research and teaching');
 });
 
-test('theme toggle switches between light and dark', async ({ page }) => {
+test('the site is dark grey by default, even when the OS prefers light', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/fr/index.html');
-  const before = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(bg).toBe('rgb(31, 31, 31)');
+});
+
+test('theme toggle switches to light and remembers it', async ({ page }) => {
+  await page.goto('/fr/index.html');
   await page.getByRole('button', { name: 'Changer de thème' }).click();
-  const after = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(after).not.toBe(before);
+  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  expect(await bg()).toBe('rgb(255, 255, 255)');
+  await page.reload();
+  expect(await bg()).toBe('rgb(255, 255, 255)');
 });
 
 test('project filter shows only the chosen group', async ({ page }) => {

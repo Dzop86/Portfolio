@@ -5,10 +5,8 @@
   const toggle = document.querySelector('.theme-toggle');
   if (toggle) {
     toggle.addEventListener('click', () => {
-      const dark = root.dataset.theme
-        ? root.dataset.theme === 'dark'
-        : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const next = dark ? 'light' : 'dark';
+      // Dark grey is the default whatever the OS preference (D11).
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
       root.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable */ }
     });
