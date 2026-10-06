@@ -1,0 +1,41 @@
+name: topologie
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/topologie/**', 'projects/lib-c/**', '.github/workflows/topologie.yml']
+  pull_request:
+    paths: ['projects/topologie/**', 'projects/lib-c/**', '.github/workflows/topologie.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: topologie-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/topologie
+
+jobs:
+  test:
+    name: Topology (${{ matrix.os }}${{ matrix.sanitize == 'ON' && ', ASan + UBSan' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sanitize: ['OFF']
+        include:
+          - os: ubuntu-latest
+            sanitize: 'ON'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DTOPO_SANITIZE=${{ matrix.sanitize }}
+      - name: Build
+        run: cmake --build build --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build -C Debug --output-on-failure
