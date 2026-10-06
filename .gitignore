@@ -20,3 +20,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# C/C++ project builds
+projects/*/build/

@@ -1,0 +1,41 @@
+name: lib-c
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/lib-c/**', '.github/workflows/lib-c.yml']
+  pull_request:
+    paths: ['projects/lib-c/**', '.github/workflows/lib-c.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lib-c-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/lib-c
+
+jobs:
+  test:
+    name: C library (${{ matrix.os }}${{ matrix.sanitize == 'ON' && ', ASan + UBSan' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sanitize: ['OFF']
+        include:
+          - os: ubuntu-latest
+            sanitize: 'ON'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DMESH_SANITIZE=${{ matrix.sanitize }}
+      - name: Build
+        run: cmake --build build --config Debug --parallel
+      - name: Test
+        run: ctest --test-dir build -C Debug --output-on-failure
