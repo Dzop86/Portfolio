@@ -159,7 +159,7 @@ function projectCard(p, lang, t) {
 }
 
 function projects({ lang, t, data }) {
-  const groups = ['web', 'back', 'systems', 'science'];
+  const groups = ['web', 'back', 'systems', 'science', 'games'];
   const filters = [`<button type="button" class="chip" aria-pressed="true" data-filter="all">${esc(t('projects.filter.all'))}</button>`]
     .concat(groups.map((g) => `<button type="button" class="chip" aria-pressed="false" data-filter="${g}">${esc(t(`projects.group.${g}`))}</button>`))
     .join('');
@@ -171,7 +171,7 @@ function projects({ lang, t, data }) {
 <section class="block" aria-labelledby="h-games" data-games>
   <h2 id="h-games">${esc(t('projects.games.title'))}</h2>
   <p class="lead">${esc(t('projects.games.lead'))}</p>
-  <div class="cards">${games.map((p) => projectCard(p, lang, t)).join('')}</div>
+  <div class="cards" data-filterable>${games.map((p) => projectCard(p, lang, t)).join('')}</div>
 </section>`;
 }
 

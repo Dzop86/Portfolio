@@ -21,11 +21,13 @@
     }));
   }
 
-  // Projects filter.
+  // Projects filter. The games have their own section, shown for "all" and "games" only.
   chipGroup('[data-filter]', 'data-filter', (group) => {
     document.querySelectorAll('[data-filterable] .card').forEach((card) => {
       card.hidden = group !== 'all' && card.dataset.group !== group;
     });
+    const games = document.querySelector('[data-games]');
+    if (games) games.hidden = group !== 'all' && group !== 'games';
   });
 
   // Teaching filter, with live totals.

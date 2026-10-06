@@ -231,6 +231,8 @@ test('the projects page lists the projects in sprint order', () => {
   // Each grid in sprint order; the games of Charles's studies in their own section, after the rest (D26).
   const order = [...all.filter((p) => p.group !== 'games'), ...all.filter((p) => p.group === 'games')].map((p) => p.id);
   assert.deepEqual([...new Set(ids)], order);
+  assert.ok(html.includes('data-filter="games">Games</button>'), 'a Games filter');
+  assert.ok(page('fr', 'projects').includes('data-filter="games">Jeux</button>'), 'un filtre Jeux');
   const games = html.slice(html.indexOf('data-games'));
   for (const id of ['othello', 'naval', 'aventure', 'bataille']) assert.ok(games.includes(`project-${id}.html`), id);
   assert.deepEqual(order.slice(0, 7), ['vitrine', 'lib-c', 'topologie', 'fastapi', 'ml', 'ada', 'sql']);
