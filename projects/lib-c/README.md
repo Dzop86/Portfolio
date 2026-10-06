@@ -14,7 +14,7 @@ Bibliothèque C11 qui lit des maillages aux formats OBJ et PLY, avec un outil en
 - Erreurs typées (`MESH_ERR_SYNTAX`, `MESH_ERR_INDEX`...) avec numéro de ligne.
 - Valgrind sans fuite ni accès invalide sur les tests et la CLI (`scripts/valgrind.sh`).
 - Lecteurs fuzzés avec libFuzzer (ASan + UBSan) : 30 millions d'entrées sans erreur en local, 60 s à chaque push en CI.
-- À venir : écriture OBJ et PLY, miroir GitLab CI.
+- À venir : écriture OBJ et PLY.
 
 ## Compiler et tester
 ```sh

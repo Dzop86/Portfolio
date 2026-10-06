@@ -16,7 +16,7 @@ Source de vérité : `data/projects.json`. Résumé :
 |---|---|---|---|---|
 | 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S4 | 5 |
 | 2 | Topologie 3D | C++, Three.js | S5-S8 | 13 |
-| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, GitLab CI | S5-S8 | 8 |
+| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S5-S8 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S5-S8 | 13 |
 | 5 | API Python | FastAPI, pytest, Docker | S9-S12 | 8 |
 | 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow | S9-S12 | 13 |
@@ -37,7 +37,7 @@ Total : 151 points sur 26 sprints de deux semaines.
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
 - Jenkins : `projects/spring/Jenkinsfile`.
-- GitLab CI : miroir GitLab, `.gitlab-ci.yml` pour la bibliothèque C et le ML.
+- GitLab CI : `.gitlab-ci.yml` prévu pour le ML uniquement (le miroir de lib-c est abandonné le 6 octobre).
 - Docker : un Dockerfile multi-stage par service, `compose.yaml` global, images sur GHCR.
 - MLOps : DVC (données et modèle), MLflow (expériences), entraînement et évaluation en CI avec seuil de précision bloquant, déploiement du modèle dans le conteneur FastAPI.
 

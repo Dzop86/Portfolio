@@ -12,7 +12,6 @@
 
 **Reporté au sprint 5 :** viewer Three.js de la topologie.
 
-**Reporté du sprint 3 :** miroir GitLab de lib-c, en attente du compte et du jeton de Charles.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

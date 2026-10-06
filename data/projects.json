@@ -14,7 +14,7 @@
   { "id": "lib-c", "sprint": "S5-S8", "points": 8, "status": "in-progress", "group": "systems", "widget": "mesh-reader",
     "name": { "fr": "Bibliothèque C de maillages", "en": "C mesh library" },
     "pitch": { "fr": "Lecture et écriture OBJ/PLY, CLI, compilée en WebAssembly pour une démo dans le navigateur.", "en": "OBJ/PLY reading and writing, CLI, compiled to WebAssembly for an in-browser demo." },
-    "stack": ["C", "CMake", "Emscripten", "Unity", "Valgrind", "GitLab CI"],
+    "stack": ["C", "CMake", "Emscripten", "Unity", "Valgrind", "libFuzzer"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/lib-c" },
     "teaching": { "fr": "Enseigné en L3 (programmation avancée en C)", "en": "Taught in L3 (advanced C programming)" } },
   { "id": "qt", "sprint": "S5-S8", "points": 13, "status": "planned", "group": "systems",

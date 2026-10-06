@@ -9,7 +9,6 @@
 
 **Tests :** site 157 unitaires et d'intégration, 210 end-to-end (5 navigateurs, deux thèmes, viewer compris, sans WebGL sous Firefox) ; topologie 27 tests GoogleTest.
 
-**Reporté du sprint 3 :** miroir GitLab de lib-c, en attente du compte et du jeton de Charles.
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :
