@@ -109,6 +109,13 @@ static void test_does_not_read_numbers_from_the_next_line(void) {
     TEST_ASSERT_EQUAL_size_t(1, line);
 }
 
+static void test_rejects_infinite_coordinates_but_accepts_tiny_ones(void) {
+    TEST_ASSERT_EQUAL(MESH_ERR_SYNTAX, mesh_read_obj_string("v inf 0 0\n", &m, &line));
+    TEST_ASSERT_EQUAL(MESH_ERR_SYNTAX, mesh_read_obj_string("v 0 nan 0\n", &m, &line));
+    TEST_ASSERT_EQUAL(MESH_ERR_SYNTAX, mesh_read_obj_string("v 0 0 1e999\n", &m, &line));
+    TEST_ASSERT_EQUAL(MESH_OK, mesh_read_obj_string("v 1e-320 0 0\n", &m, &line));
+}
+
 static void test_accepts_an_optional_w_and_a_missing_final_newline(void) {
     TEST_ASSERT_EQUAL(MESH_OK, mesh_read_obj_string("v 0 0 0 1\nv 1 0 0\nv 0 1 0\nf 1 2 3", &m, &line));
     TEST_ASSERT_EQUAL_size_t(1, m.triangle_count);
@@ -150,6 +157,7 @@ int main(void) {
     RUN_TEST(test_rejects_index_zero_and_too_negative_indices);
     RUN_TEST(test_reports_syntax_errors_with_their_line);
     RUN_TEST(test_does_not_read_numbers_from_the_next_line);
+    RUN_TEST(test_rejects_infinite_coordinates_but_accepts_tiny_ones);
     RUN_TEST(test_accepts_an_optional_w_and_a_missing_final_newline);
     RUN_TEST(test_empty_input_gives_an_empty_mesh);
     RUN_TEST(test_error_line_pointer_is_optional);
