@@ -98,7 +98,8 @@ class ViewTest {
     @Test
     void screenshotsForTheProjectPage() throws Exception {
         String dir = System.getProperty("naval.screenshots");
-        if (dir == null) return; // only on request: mvn test -Dnaval.screenshots=...
+        // Only on request (mvn test -Dnaval.screenshots=DIR); Maven passes "" when the property is not given.
+        if (dir == null || dir.isBlank() || dir.startsWith("${")) return;
         for (Locale locale : new Locale[] { Locale.FRENCH, Locale.ENGLISH }) {
             WritableImage image = fx(() -> {
                 NavalView v = new NavalView(locale, 2026);

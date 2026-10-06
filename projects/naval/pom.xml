@@ -14,6 +14,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javafx.version>21.0.6</javafx.version>
     <junit.version>5.11.4</junit.version>
+    <!-- Folder for the project page's screenshots; empty: no screenshots (see ViewTest). -->
+    <naval.screenshots></naval.screenshots>
   </properties>
 
   <dependencies>
