@@ -13,3 +13,7 @@
 ## T3. Orientation incohérente conservée
 **Choix :** deux faces qui parcourent une arête commune dans le même sens sont quand même jumelées, avec `flipped = true`.
 **Pourquoi :** l'orientabilité (sprint 4, story 2) se décide justement en propageant ces parités ; refuser le maillage perdrait l'information.
+
+## T4. Genre déduit de χ, par union-find
+**Choix :** composantes, boucles de bord (composantes du graphe des arêtes de bord) et éventails autour de chaque sommet sont comptés par union-find ; l'orientabilité par parcours en largeur des faces avec un signe propagé à travers les arêtes `flipped`. Le genre total vient de χ = 2c − 2g − b, sommets isolés retirés (un point a χ = 1 mais n'est pas une surface).
+**Limite :** deux boucles de bord qui se touchent en un sommet comptent pour une seule ; le genre n'est donné que pour une variété orientable (pour une surface non orientable, on pourrait donner le genre non orientable 2c − b − χ).

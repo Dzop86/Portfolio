@@ -8,6 +8,7 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 
 ## État (sprint 4)
 - Structure demi-arête : jumelles, arêtes de bord, arêtes non-variété (partagées par 3 faces ou plus), orientations incohérentes repérées.
+- Invariants (`topo::analyze`) : composantes connexes, sommets isolés, boucles de bord, arêtes et sommets non-variété, orientabilité, caractéristique d'Euler, genre total d'une surface orientable.
 - Chargement OBJ et PLY par lib-c (`add_subdirectory`), erreurs remontées en `topo::LoadError` avec leur ligne.
 
 ## Compiler et tester
@@ -20,6 +21,7 @@ Options : `-DTOPO_SANITIZE=ON` (ASan et UBSan), `-DTOPO_BUILD_TESTS=OFF`. Google
 
 ## Tests
 - **Unitaires** (GoogleTest) : invariants de la structure (`next` d'ordre 3, `twin` involutive), bords, arête non-variété, orientations incohérentes, entrées invalides.
+- **Surfaces de référence** (`tests/shapes.hpp`) : tore, cylindre et ruban de Möbius générés sur une grille, union de deux tores ; leurs invariants sont connus d'avance.
 - **Intégration** : chargement des fichiers de lib-c, nombre d'arêtes identique à celui calculé par lib-c.
 - **CI** (`.github/workflows/topologie.yml`) : Linux, Windows et macOS, plus ASan + UBSan ; relancée aussi quand lib-c change.
 

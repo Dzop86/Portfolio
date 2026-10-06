@@ -4,9 +4,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur, je construis une structure demi-arête (topologie) à partir d'un maillage lu par lib-c, testée avec GoogleTest sur Linux, Windows et macOS. | 3 | En cours |
-| En tant que chercheur, j'obtiens les invariants topologiques d'un maillage (topologie) : composantes connexes, boucles de bord, orientabilité, variété ou non, genre. | 3 | À faire |
-| En tant que chercheur, j'obtiens la courbure de Gauss discrète (topologie) par défaut angulaire, vérifiée par le théorème de Gauss-Bonnet. | 2 | À faire |
+| En tant que développeur, je construis une structure demi-arête (topologie) à partir d'un maillage lu par lib-c, testée avec GoogleTest sur Linux, Windows et macOS. | 3 | Fait |
+| En tant que chercheur, j'obtiens les invariants topologiques d'un maillage (topologie) : composantes connexes, boucles de bord, orientabilité, variété ou non, genre. | 3 | Fait |
+| En tant que chercheur, j'obtiens la courbure de Gauss discrète (topologie) par défaut angulaire, vérifiée par le théorème de Gauss-Bonnet. | 2 | En cours |
 
 **Reporté du sprint 3 :** miroir GitLab de lib-c, en attente du compte et du jeton de Charles.
 
