@@ -10,7 +10,7 @@ namespace topo {
 struct GaussianCurvature {
     // Per vertex: 2 pi - sum of the angles around it, or pi - sum on the boundary (concentrated curvature).
     std::vector<double> angle_defect;
-    // Per vertex: one third of the area of its triangles (barycentric area).
+    // Per vertex: mixed Voronoi area (Meyer et al. 2003); the areas sum to the surface area.
     std::vector<double> area;
     // Per vertex: angle_defect / area, an estimate of K; 0 where the area is 0.
     std::vector<double> gaussian;

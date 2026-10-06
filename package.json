@@ -5,7 +5,9 @@
   "description": "Portfolio bilingue de Charles Lepaire, généré avec Claude Code et relu à la main.",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node src/build.mjs",
     "test": "node --test \"tests/unit/*.test.mjs\"",
@@ -14,7 +16,9 @@
     "check": "npm run build && npm test"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
-    "@axe-core/playwright": "^4.10.0"
+    "esbuild": "^0.28.2",
+    "three": "^0.186.1"
   }
 }

@@ -19,7 +19,7 @@
 **Limite :** deux boucles de bord qui se touchent en un sommet comptent pour une seule ; le genre n'est donné que pour une variété orientable (pour une surface non orientable, on pourrait donner le genre non orientable 2c − b − χ).
 
 ## T5. Courbure par défaut angulaire, oracle de Gauss-Bonnet
-**Choix :** défaut angulaire 2π − Σθ (π − Σθ au bord), angles par `atan2(|u × v|, u · v)`, aire barycentrique (un tiers des triangles incidents).
+**Choix :** défaut angulaire 2π − Σθ (π − Σθ au bord), angles par `atan2(|u × v|, u · v)`, aire de Voronoï mixte (Meyer et al. 2003) depuis le sprint 5.
 **Pourquoi :** le théorème de Gauss-Bonnet discret est exact : la somme des défauts vaut 2πχ pour toute géométrie, ce qui donne un oracle de test indépendant de l'implémentation. `atan2` reste précis près de 0 et π, contrairement à `acos`.
-**Alternatives :** aire de Voronoï mixte (Meyer et al. 2003), plus juste pour la densité sur des triangles obtus ; à envisager si le viewer montre des artefacts.
+**Historique :** l'aire barycentrique du sprint 4 donnait K ≈ 1,15 au lieu de 1 aux 12 sommets de valence 5 d'une icosphère (12 taches visibles dans le viewer) ; l'aire de Voronoï mixte ramène l'écart sous 2 %, vérifié par `tests/test_samples.cpp`.
 **Limite :** la densité K est une estimation qui dépend de la qualité du maillage ; seule la somme est exacte.

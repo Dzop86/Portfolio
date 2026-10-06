@@ -33,11 +33,26 @@ GaussianCurvature gaussian_curvature(const Mesh& m) {
     k.gaussian.assign(nv, 0.0);
 
     for (const Triangle& t : m.triangles()) {
-        const double third = norm(cross(p[t[1]] - p[t[0]], p[t[2]] - p[t[0]])) / 6;  // area / 3
+        const double area = norm(cross(p[t[1]] - p[t[0]], p[t[2]] - p[t[0]])) / 2;
+        double theta[3];
         for (std::size_t c = 0; c < 3; ++c) {
             const uint32_t v = t[c], a = t[(c + 1) % 3], b = t[(c + 2) % 3];
-            k.angle_defect[v] -= angle(p[a] - p[v], p[b] - p[v]);
-            k.area[v] += third;
+            theta[c] = angle(p[a] - p[v], p[b] - p[v]);
+            k.angle_defect[v] -= theta[c];
+        }
+        // Mixed Voronoi area (Meyer et al. 2003): Voronoi cell inside a non-obtuse triangle, otherwise half
+        // of the triangle to its obtuse corner and a quarter to each other corner. Sums to the triangle area.
+        const std::size_t obtuse = theta[0] > pi / 2 ? 0 : theta[1] > pi / 2 ? 1 : theta[2] > pi / 2 ? 2 : 3;
+        for (std::size_t c = 0; c < 3; ++c) {
+            const uint32_t v = t[c], a = t[(c + 1) % 3], b = t[(c + 2) % 3];
+            if (obtuse < 3) {
+                k.area[v] += c == obtuse ? area / 2 : area / 4;
+            } else {
+                // |va|^2 cot(angle at b) + |vb|^2 cot(angle at a), over 8.
+                const V3 va = p[a] - p[v], vb = p[b] - p[v];
+                const double cot_b = 1 / std::tan(theta[(c + 2) % 3]), cot_a = 1 / std::tan(theta[(c + 1) % 3]);
+                k.area[v] += (dot(va, va) * cot_b + dot(vb, vb) * cot_a) / 8;
+            }
         }
     }
     // On the boundary the reference is a half turn: remove the other half once per boundary vertex.

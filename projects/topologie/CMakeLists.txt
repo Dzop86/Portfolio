@@ -38,8 +38,9 @@ if(TOPO_BUILD_TESTS)
   FetchContent_MakeAvailable(googletest)
   include(GoogleTest)
 
-  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp)
+  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp tests/test_samples.cpp)
   target_link_libraries(topo_tests PRIVATE topo mesh GTest::gtest_main)
-  target_compile_definitions(topo_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data")
+  target_compile_definitions(topo_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data"
+                                                TOPO_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/samples")
   gtest_discover_tests(topo_tests)
 endif()
