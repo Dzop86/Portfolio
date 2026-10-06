@@ -6,6 +6,7 @@ RUN npm ci --omit=dev --ignore-scripts
 COPY src ./src
 COPY data ./data
 COPY scrum ./scrum
+COPY projects/lib-c/tests/data ./projects/lib-c/tests/data
 RUN npm run build
 
 # Stage 2: serve it with nginx.

@@ -44,7 +44,7 @@ a:hover { text-decoration-thickness: 2px; }
 .kicker { color: var(--muted); font-weight: 500; letter-spacing: 0.02em; margin-bottom: var(--space-2); }
 .lead { font-size: 1.15rem; max-width: 62ch; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-4); }
-.btn { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border-radius: var(--radius); font-weight: 500; text-decoration: none; }
+.btn { font: inherit; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; min-height: 44px; padding: 10px 18px; border-radius: var(--radius); font-weight: 500; text-decoration: none; }
 .btn-primary { background: var(--accent); color: var(--on-accent); }
 .btn-primary:hover { filter: brightness(0.95); }
 .btn-ghost { border: 1px solid var(--border-strong); color: var(--text); }
@@ -106,6 +106,21 @@ a:hover { text-decoration-thickness: 2px; }
 .project-meta { justify-content: flex-start; margin-bottom: var(--space-4); }
 .pager { justify-content: space-between; margin-bottom: var(--space-6); }
 .pager [rel="next"] { margin-left: auto; }
+
+/* lib-c demo (D15) */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.file-pick { cursor: pointer; }
+.file-pick:focus-within { outline: 3px solid var(--link); outline-offset: 2px; }
+.drop { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); border: 2px dashed var(--border-strong); border-radius: var(--radius-lg); }
+.drop.is-over { border-color: var(--accent); background: var(--tag-bg); }
+.demo .actions { align-items: center; }
+.demo-samples { margin-right: var(--space-1); }
+.demo-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-2) var(--space-4); margin: var(--space-3) 0; }
+.demo-stats div { background: var(--surface-2); border-radius: var(--radius); padding: var(--space-2) var(--space-3); }
+.demo-stats dt { color: var(--muted); font-size: 0.85rem; }
+.demo-stats dd { margin: 0; font: 600 1.1rem var(--font-mono); color: var(--text-strong); overflow-wrap: anywhere; }
+.demo-stats div:has([data-field="bbox"]) { grid-column: 1 / -1; }
+.demo [data-result] { margin-top: var(--space-4); }
 
 /* Timelines */
 .timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--accent); }

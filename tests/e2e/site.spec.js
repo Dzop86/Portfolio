@@ -63,6 +63,25 @@ test('a project card opens its detail page, which links to the next project', as
   await expect(page.locator('h1')).toHaveText('Qt/OpenGL viewer');
 });
 
+test('the lib-c demo reads a sample and a dropped file in the browser', async ({ page }) => {
+  await page.goto('/en/project-lib-c.html');
+  const result = page.locator('[data-mesh-demo] [data-result]');
+  await page.getByRole('button', { name: 'Torus (OBJ)' }).click();
+  await expect(result).toContainText('Euler characteristic');
+  await expect(result.locator('[data-field="euler"]')).toHaveText('0');
+  await expect(result.locator('[data-field="edges"]')).toHaveText('144');
+  await expect(result).toContainText('genus g = 1');
+
+  await page.locator('[data-mesh-demo] input[type=file]').setInputFiles({
+    name: 'broken.obj', mimeType: 'text/plain', buffer: Buffer.from('v 0 0 0\nv 1 0 0\nf 1 2 3\n'),
+  });
+  await expect(result).toContainText('line 3');
+  await expect(result).toContainText('missing vertex');
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+});
+
 test('project filter shows only the chosen group', async ({ page }) => {
   await page.goto('/fr/projects.html');
   await page.getByRole('button', { name: 'Web' }).click();

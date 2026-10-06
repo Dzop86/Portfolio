@@ -369,6 +369,7 @@ ${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}
 </div>
 ${teaching}
 ${linkBlock}
+${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -380,6 +381,30 @@ ${linkBlock}
   </article>
 </section>
 <nav class="actions pager" aria-label="${esc(t('project.pager'))}">${pager}</nav>`;
+}
+
+const DEMO_LABELS = ['format', 'vertices', 'polygons', 'triangles', 'edges', 'boundary', 'euler', 'bbox', 'genus',
+  'open', 'closed.other', 'loading', 'atline', 'error', 'error.1', 'error.2', 'error.3', 'error.4', 'error.too-large',
+  'error.load'];
+const DEMO_SAMPLES = [['cube', 'cube.obj'], ['tetrahedron', 'tetrahedron.ply'], ['torus', 'torus.obj']];
+
+// lib-c compiled to WebAssembly (D15); labels go to the script as JSON so it needs no i18n of its own.
+function meshDemo(t) {
+  const labels = Object.fromEntries(DEMO_LABELS.map((k) => [k, t(`demo.label.${k}`)]));
+  const samples = DEMO_SAMPLES.map(([key, file]) =>
+    `<button type="button" class="btn btn-ghost" data-sample="../assets/samples/${file}">${esc(t(`demo.sample.${key}`))}</button>`).join('');
+  return `<section class="block panel demo" aria-labelledby="h-demo" data-mesh-demo data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-demo">${esc(t('demo.title'))}</h2>
+  <p>${esc(t('demo.lead'))}</p>
+  <div class="drop" data-drop>
+    <label class="btn btn-primary file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply" class="visually-hidden"></label>
+    <span class="muted">${esc(t('demo.drop'))}</span>
+  </div>
+  <div class="actions" role="group" aria-label="${esc(t('demo.samples'))}"><span class="muted demo-samples">${esc(t('demo.samples'))}</span>${samples}</div>
+  <div data-result aria-live="polite"></div>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/meshdemo.js"></script>
+</section>`;
 }
 
 /** Detail page of one project, highlighted as "projects" in the navigation. */

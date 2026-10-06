@@ -152,3 +152,20 @@ test('the home page shows the temporary progress bars, computed from the data', 
     assert.ok(sprintBar.includes(`aria-valuenow="${Math.round((100 * p.sprint.done) / p.sprint.total)}"`));
   }
 });
+
+test('the lib-c page embeds the WebAssembly demo with its samples, and only that page does', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, projectPage('lib-c'));
+    assert.ok(html.includes('data-mesh-demo'), `${lang}: demo section`);
+    assert.ok(html.includes('<script type="module" src="../assets/meshdemo.js"></script>'));
+    const samples = [...html.matchAll(/data-sample="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(samples.map((s) => s.split('/').pop()), ['cube.obj', 'tetrahedron.ply', 'torus.obj']);
+    for (const s of samples) assert.ok(existsSync(resolve(join(dist, lang), s)), `${lang}: sample ${s}`);
+    const labels = JSON.parse(html.match(/data-labels="([^"]+)"/)[1].replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&amp;', '&'));
+    for (const key of ['vertices', 'edges', 'euler', 'genus', 'error.3', 'error.4', 'error.too-large']) {
+      assert.ok(labels[key], `${lang}: label ${key}`);
+    }
+  }
+  assert.ok(!page('fr', projectPage('spring')).includes('data-mesh-demo'));
+  assert.ok(existsSync(join(dist, 'assets/wasm/meshlib.wasm')));
+});

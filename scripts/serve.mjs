@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const DIST = join(fileURLToPath(new URL('..', import.meta.url)), 'dist');
 const PORT = Number(process.env.PORT || 4173);
 const TYPES = {
-  '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript',
+  '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.wasm': 'application/wasm', '.obj': 'text/plain', '.ply': 'application/octet-stream',
   '.svg': 'image/svg+xml', '.json': 'application/json', '.webmanifest': 'application/manifest+json',
 };
 

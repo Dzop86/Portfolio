@@ -8,6 +8,11 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
   cpSync(join(ROOT, 'src/assets'), join(outDir, 'assets'), { recursive: true });
+  // Sample meshes of the lib-c demo come straight from the library's test data.
+  mkdirSync(join(outDir, 'assets/samples'), { recursive: true });
+  for (const file of ['cube.obj', 'tetrahedron.ply', 'torus.obj']) {
+    cpSync(join(ROOT, 'projects/lib-c/tests/data', file), join(outDir, 'assets/samples', file));
+  }
 
   for (const lang of LANGS) {
     const t = makeT(data.i18n[lang], lang);
