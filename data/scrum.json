@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 29,
+  "sprintCount": 32,
   "phases": [
     {
       "sprints": "S1",
@@ -91,15 +91,15 @@
       }
     },
     {
-      "sprints": "S17-S21",
+      "sprints": "S17-S24",
       "kind": "build",
       "label": {
-        "fr": "Jeux : Othello, bataille navale, aventure textuelle, bataille",
-        "en": "Games: Othello, battleship, text adventure, War"
+        "fr": "Jeux : Othello, bataille navale, aventure, bataille, morpion, roguelike",
+        "en": "Games: Othello, battleship, adventure, War, tic-tac-toe, roguelike"
       }
     },
     {
-      "sprints": "S22-S23",
+      "sprints": "S25-S26",
       "kind": "build",
       "label": {
         "fr": "Visionneuse Qt/OpenGL",
@@ -107,7 +107,7 @@
       }
     },
     {
-      "sprints": "S24-S25",
+      "sprints": "S27-S28",
       "kind": "build",
       "label": {
         "fr": "Calcul parallèle",
@@ -115,7 +115,7 @@
       }
     },
     {
-      "sprints": "S26-S29",
+      "sprints": "S29-S32",
       "kind": "front",
       "label": {
         "fr": "React, Angular, Bootstrap, version finale",

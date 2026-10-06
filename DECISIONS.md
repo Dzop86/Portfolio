@@ -151,3 +151,7 @@
 **Choix :** le moteur Java de `projects/aventure` est compilé en module JavaScript par TeaVM (`mvn -Pweb package`, 150 Ko) et commité dans `src/assets/wasm/aventure.js` ; la CI vérifie qu'il correspond aux sources. La fiche l'affiche dans un petit terminal : journal lu par les lecteurs d'écran (`role="log"`), ligne de commande avec historique aux flèches, raccourcis pour les commandes courantes.
 **Pourquoi :** le visiteur joue avec le vrai moteur Java testé, sans machine virtuelle Java dans le navigateur.
 **Limite :** le moteur doit rester dans ce que TeaVM sait compiler (pas de `String.format`, de `ResourceBundle` ni d'expressions régulières) ; une nouvelle partie à chaque visite, avec une graine au hasard.
+
+## D31. Deux jeux de plus : un morpion en Python, un roguelike 2D en C#
+**Choix (décision de Charles, 7 octobre 2026) :** deux autres jeux de ses études rejoignent la section Jeux, réécrits avec l'IA comme les autres : un morpion en Python (S22, 3 points) et un roguelike 2D en C# (S23-S24, 8 points), juste après la bataille en Ada.
+**Conséquences :** 21 projets, 162 points, 32 sprints ; Qt/OpenGL en S25-S26, puis calcul parallèle, React, Angular et Bootstrap décalés de trois sprints. Le C# revient dans la pile annoncée (il avait disparu avec l'API ASP.NET, D25).

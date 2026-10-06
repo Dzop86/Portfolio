@@ -234,7 +234,7 @@ test('the projects page lists the projects in sprint order', () => {
   assert.ok(html.includes('data-filter="games">Games</button>'), 'a Games filter');
   assert.ok(page('fr', 'projects').includes('data-filter="games">Jeux</button>'), 'un filtre Jeux');
   const games = html.slice(html.indexOf('data-games'));
-  for (const id of ['othello', 'naval', 'aventure', 'bataille']) assert.ok(games.includes(`project-${id}.html`), id);
+  for (const id of ['othello', 'naval', 'aventure', 'bataille', 'morpion', 'rogue']) assert.ok(games.includes(`project-${id}.html`), id);
   assert.deepEqual(order.slice(0, 7), ['vitrine', 'lib-c', 'topologie', 'fastapi', 'ml', 'ada', 'sql']);
 });
 

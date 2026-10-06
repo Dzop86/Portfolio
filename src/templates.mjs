@@ -120,7 +120,7 @@ function progressBar(id, label, detail, value, soft = value) {
   </div>`;
 }
 
-// Temporary: remove this panel (and its call in home) once the 19 projects are done (D14).
+// Temporary: remove this panel (and its call in home) once the 21 projects are done (D14).
 function progressPanel({ lang, t, data }) {
   const p = progress(data.projects, data.sprints);
   const { done, inProgress, total } = p.portfolio;

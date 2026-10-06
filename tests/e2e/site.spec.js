@@ -503,10 +503,10 @@ test('project filter shows only the chosen group', async ({ page }) => {
     expect(group).toBe('web');
   }
   await expect(page.locator('[data-games]')).toBeHidden();
-  // "Jeux" shows the four games and their section, nothing else.
+  // "Jeux" shows the six games and their section, nothing else.
   await page.getByRole('button', { name: 'Jeux' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();
-  await expect(visible).toHaveCount(4);
+  await expect(visible).toHaveCount(6);
   expect(new Set(await visible.evaluateAll((els) => els.map((e) => e.dataset.group)))).toEqual(new Set(['games']));
   await page.getByRole('button', { name: 'Tous' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();

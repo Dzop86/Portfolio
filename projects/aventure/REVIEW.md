@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `Game.java` : commandes, sorties, combat.
-- [ ] `Texts.java` : l'histoire et le ton me conviennent-ils, en français et en anglais ?
-- [ ] `src/web/java/.../WebGame.java` et `../../src/assets/aventureplay.js` : la version navigateur.
+- [x] `Game.java` : commandes, sorties, combat.
+- [x] `Texts.java` : l'histoire et le ton me conviennent-ils, en français et en anglais ?
+- [x] `src/web/java/.../WebGame.java` et `../../src/assets/aventureplay.js` : la version navigateur.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« relecture ok »).
 
 ## Constats
 
