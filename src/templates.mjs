@@ -370,6 +370,7 @@ ${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}
 ${teaching}
 ${linkBlock}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
+${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -404,6 +405,47 @@ function meshDemo(t) {
   <div data-result aria-live="polite"></div>
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/meshdemo.js"></script>
+</section>`;
+}
+
+const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
+  'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid'];
+const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
+
+// C++ topology compiled to WebAssembly, drawn with three.js (D16, D17). Error labels are shared with the lib-c demo.
+function topoViewer(t) {
+  const labels = {
+    ...Object.fromEntries(TOPO_LABELS.map((k) => [k, t(`topo.label.${k}`)])),
+    ...Object.fromEntries(['atline', 'error', 'error.1', 'error.2', 'error.3', 'error.4', 'error.too-large', 'error.load']
+      .map((k) => [k, t(`demo.label.${k}`)])),
+  };
+  const samples = TOPO_SAMPLES.map((key) =>
+    `<button type="button" class="btn btn-ghost" aria-pressed="false" data-sample="../assets/samples/topologie/${key}.obj">${esc(t(`topo.sample.${key}`))}</button>`).join('');
+  return `<section class="block panel viewer" aria-labelledby="h-viewer" data-topo-viewer data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-viewer">${esc(t('topo.title'))}</h2>
+  <p>${esc(t('topo.lead'))}</p>
+  <div class="actions" role="group" aria-label="${esc(t('demo.samples'))}"><span class="muted demo-samples">${esc(t('demo.samples'))}</span>${samples}
+    <label class="btn btn-ghost file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply" class="visually-hidden"></label>
+  </div>
+  <p class="notice demo-error" data-error role="alert" hidden></p>
+  <div class="viewer-grid">
+    <div class="viewer-stage">
+      <canvas role="img" aria-label="${esc(t('topo.label.loading'))}"></canvas>
+      <div class="viewer-tip" aria-hidden="true" hidden></div>
+    </div>
+    <div>
+      <dl class="demo-stats viewer-stats" data-result aria-live="polite"></dl>
+      <div class="legend" data-legend hidden>
+        <div class="legend-bar"></div>
+        <div class="legend-scale"><span data-legend-min></span><span>0</span><span data-legend-max></span></div>
+        <div class="legend-scale muted"><span>${esc(t('topo.label.legend.neg'))}</span><span>${esc(t('topo.label.legend.pos'))}</span></div>
+      </div>
+      <p class="meta">${esc(t('topo.help'))}</p>
+      <p class="meta">${esc(t('topo.note.boundary'))}</p>
+    </div>
+  </div>
+  <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
+  <script type="module" src="../assets/topoviewer.js"></script>
 </section>`;
 }
 

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from '../../src/lib.mjs';
-import { loadTopo, readTopology } from '../../src/assets/topo-api.js';
+import { loadTopo, readTopology, interiorCurvature, curvatureScale, turns } from '../../src/assets/topo-api.js';
 
 const lib = await loadTopo((await import('../../src/assets/wasm/topo.js')).default);
 const sample = (name) => readFileSync(join(ROOT, 'projects/lib-c/tests/data', name));
@@ -61,4 +61,28 @@ test('the library keeps working after an error and frees its memory', () => {
     assert.equal(readTopology(lib, bytes).ok, true);
   }
   assert.equal(lib.HEAPU8.length, before);
+});
+
+const topoSample = (name) => readFileSync(join(ROOT, 'projects/topologie/samples', name));
+
+test('boundary vertices are flagged and take the curvature of their interior neighbours', () => {
+  const r = readTopology(lib, topoSample('saddle.obj'));
+  assert.equal(r.boundary.reduce((a, b) => a + b, 0), 4 * 24, 'the 25 x 25 grid has 96 boundary vertices');
+  const values = interiorCurvature(r.curvature, r.boundary, r.indices);
+  for (let v = 0; v < values.length; v++) assert.ok(values[v] < 0, `saddle vertex ${v} reads as a saddle`);
+  // Interior vertices keep their own value.
+  const centre = 12 * 25 + 12;
+  assert.equal(values[centre], r.curvature[centre]);
+});
+
+test('the colour scale ignores boundary vertices and a few sharp corners', () => {
+  const saddle = readTopology(lib, topoSample('saddle.obj'));
+  assert.ok(curvatureScale(saddle.curvature, saddle.boundary) < 10, 'boundary turning does not stretch the scale');
+  assert.equal(curvatureScale(new Float32Array([0, 0]), new Uint8Array(2)), 1, 'flat meshes get a unit scale');
+});
+
+test('the total curvature is shown in turns, rounded, never as -0', () => {
+  assert.ok(Object.is(turns(-1e-15), 0));
+  assert.equal(turns(4 * Math.PI), 2);
+  assert.equal(turns(2 * Math.PI * 0.12345), 0.123);
 });

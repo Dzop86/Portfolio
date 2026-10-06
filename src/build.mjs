@@ -1,5 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
 import { join } from 'node:path';
+import { buildSync } from 'esbuild';
 import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc, projectPage } from './lib.mjs';
 import { renderPage, renderProjectPage } from './templates.mjs';
 
@@ -13,6 +14,19 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   for (const file of ['cube.obj', 'tetrahedron.ply', 'torus.obj']) {
     cpSync(join(ROOT, 'projects/lib-c/tests/data', file), join(outDir, 'assets/samples', file));
   }
+  // The topology viewer shows the synthetic meshes of projects/topologie, in their own folder.
+  cpSync(join(ROOT, 'projects/topologie/samples'), join(outDir, 'assets/samples/topologie'), { recursive: true });
+  // three.js and the viewer, bundled and minified into one module (D17); WebAssembly stays a separate file.
+  buildSync({
+    entryPoints: [join(ROOT, 'src/viewer/topoviewer.js')],
+    outfile: join(outDir, 'assets/topoviewer.js'),
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    legalComments: 'inline',
+    logLevel: 'error',
+  });
 
   for (const lang of LANGS) {
     const t = makeT(data.i18n[lang], lang);

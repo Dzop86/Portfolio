@@ -42,8 +42,57 @@ export function readTopology(lib, bytes) {
       indices: lib.HEAPU32.slice(lib._topojs_indices() / 4, lib._topojs_indices() / 4 + ni),
       curvature: f32(lib._topojs_curvature(), nv),
       defect: f32(lib._topojs_defect(), nv),
+      boundary: lib.HEAPU8.slice(lib._topojs_boundary(), lib._topojs_boundary() + nv),
     };
   } finally {
     lib._free(ptr);
   }
+}
+
+/**
+ * Curvature to colour each vertex with. On the boundary the angle defect measures how much the boundary
+ * turns, not the Gaussian curvature, so boundary vertices take the mean of their already known neighbours
+ * (through shared triangles): interior ones first, then, pass after pass, boundary ones filled before them
+ * (a corner may touch no interior vertex). Vertices that never get a value read as 0.
+ */
+export function interiorCurvature(curvature, boundary, indices) {
+  const values = Float32Array.from(curvature);
+  const known = Uint8Array.from(boundary, (b) => (b ? 0 : 1));
+  for (let progress = true; progress;) {
+    progress = false;
+    const sum = new Float64Array(values.length);
+    const count = new Uint32Array(values.length);
+    for (let i = 0; i < indices.length; i += 3) {
+      const tri = [indices[i], indices[i + 1], indices[i + 2]];
+      for (const v of tri) {
+        if (known[v]) continue;
+        for (const w of tri) {
+          if (!known[w]) continue;
+          sum[v] += values[w];
+          count[v] += 1;
+        }
+      }
+    }
+    count.forEach((n, v) => {
+      if (n === 0) return;
+      values[v] = sum[v] / n;
+      known[v] = 1;
+      progress = true;
+    });
+  }
+  known.forEach((k, v) => { if (!k) values[v] = 0; });
+  return values;
+}
+
+/** Half-width of the symmetric colour scale: 95th percentile of |K| over interior vertices, 1 if flat. */
+export function curvatureScale(curvature, boundary) {
+  const magnitudes = [];
+  curvature.forEach((k, v) => { if (!boundary[v]) magnitudes.push(Math.abs(k)); });
+  magnitudes.sort((a, b) => a - b);
+  return magnitudes[Math.floor(0.95 * (magnitudes.length - 1))] || 1;
+}
+
+/** Total curvature in turns (multiples of 2 pi), rounded to 3 decimals; adding 0 turns -0 into 0. */
+export function turns(total) {
+  return Math.round((total / (2 * Math.PI)) * 1000) / 1000 + 0;
 }

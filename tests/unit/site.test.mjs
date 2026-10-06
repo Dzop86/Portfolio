@@ -169,3 +169,28 @@ test('the lib-c page embeds the WebAssembly demo with its samples, and only that
   assert.ok(!page('fr', projectPage('spring')).includes('data-mesh-demo'));
   assert.ok(existsSync(join(dist, 'assets/wasm/meshlib.wasm')));
 });
+
+test('the topology page embeds the viewer, its bundle, samples and labels', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, projectPage('topologie'));
+    assert.ok(html.includes('data-topo-viewer'), `${lang}: viewer section`);
+    assert.ok(html.includes('<script type="module" src="../assets/topoviewer.js"></script>'));
+    assert.match(html, /<canvas[^>]*role="img"[^>]*aria-label="[^"]+"/);
+    const samples = [...html.matchAll(/data-sample="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(samples.map((s) => s.split('/').pop()), ['torus.obj', 'sphere.obj', 'mobius.obj', 'saddle.obj']);
+    for (const s of samples) assert.ok(existsSync(resolve(join(dist, lang), s)), `${lang}: sample ${s}`);
+    const labels = JSON.parse(html.match(/data-labels="([^"]+)"/)[1].replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&amp;', '&'));
+    for (const key of ['genus', 'orientable', 'yes', 'no', 'legend.neg', 'legend.pos', 'nowebgl', 'error.invalid', 'error.4']) {
+      assert.ok(labels[key], `${lang}: label ${key}`);
+    }
+  }
+  assert.ok(!page('fr', projectPage('lib-c')).includes('data-topo-viewer'));
+});
+
+test('the viewer bundle includes three.js, keeps its licence and stays under 700 KB', () => {
+  const bundle = readFileSync(join(dist, 'assets/topoviewer.js'), 'utf8');
+  assert.ok(!/from\s*["']three/.test(bundle), 'three.js is bundled, not imported bare');
+  assert.match(bundle, /Copyright 2010-\d{4} Three\.js Authors/);
+  assert.ok(bundle.length < 700_000, `${bundle.length} bytes`);
+  assert.ok(!existsSync(join(dist, 'assets/viewer')), 'viewer sources are not published as is');
+});

@@ -2,11 +2,13 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+# Dev dependencies are build tools here (esbuild, three.js); only dist/ reaches the final image.
+RUN npm ci --ignore-scripts
 COPY src ./src
 COPY data ./data
 COPY scrum ./scrum
 COPY projects/lib-c/tests/data ./projects/lib-c/tests/data
+COPY projects/topologie/samples ./projects/topologie/samples
 RUN npm run build
 
 # Stage 2: serve it with nginx.

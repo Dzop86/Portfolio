@@ -122,6 +122,18 @@ a:hover { text-decoration-thickness: 2px; }
 .demo-stats div:has([data-field="bbox"]) { grid-column: 1 / -1; }
 .demo [data-result] { margin-top: var(--space-4); }
 
+/* Topology viewer (D17) */
+.viewer-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--space-4); margin-top: var(--space-4); }
+.viewer-stage { position: relative; min-width: 0; border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }
+.viewer-stage canvas { display: block; width: 100%; aspect-ratio: 4 / 3; max-height: 520px; touch-action: none; cursor: grab; }
+.viewer-tip { position: absolute; pointer-events: none; background: var(--bg); color: var(--text-strong); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 2px 8px; font: 500 0.85rem var(--font-mono); white-space: nowrap; }
+.viewer-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; }
+.viewer .btn[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-text); border-color: var(--pressed-bg); }
+.legend { margin: var(--space-3) 0; }
+.legend-bar { height: 10px; border-radius: 999px; background: linear-gradient(to right, var(--curv-neg), var(--curv-zero), var(--curv-pos)); }
+.legend-scale { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) { .viewer-grid { grid-template-columns: 1fr; } }
+
 /* Timelines */
 .timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--accent); }
 .timeline > li { display: grid; grid-template-columns: 120px 1fr; gap: var(--space-4); padding: 0 0 var(--space-5) var(--space-4); position: relative; }

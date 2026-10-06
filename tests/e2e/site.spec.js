@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -80,6 +80,36 @@ test('the lib-c demo reads a sample and a dropped file in the browser', async ({
 
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+});
+
+test('the topology viewer shows invariants of the samples and of a dropped file', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const result = page.locator('[data-topo-viewer] [data-result]');
+  // The torus is loaded by default.
+  await expect(result.locator('[data-field="genus"]')).toHaveText('1');
+  await expect(result.locator('[data-field="euler"]')).toHaveText('0');
+
+  await page.getByRole('button', { name: 'Möbius strip' }).click();
+  await expect(result.locator('[data-field="orientable"]')).toHaveText('no');
+  await expect(result.locator('[data-field="boundary"]')).toHaveText('1');
+
+  await page.getByRole('button', { name: 'Sphere' }).click();
+  await expect(result.locator('[data-field="genus"]')).toHaveText('0');
+  // Without WebGL (headless Firefox here) the canvas gives way to a notice; the invariants above still work.
+  const canvas = page.locator('[data-topo-viewer] canvas');
+  if (await canvas.count()) await expect(canvas).toHaveAttribute('aria-label', /Sphere/);
+  else await expect(page.locator('[data-topo-viewer] .viewer-stage')).toContainText('WebGL');
+
+  await page.locator('[data-topo-viewer] input[type=file]').setInputFiles({
+    name: 'broken.obj', mimeType: 'text/plain', buffer: Buffer.from('v 0 0 0\nv 1 0 0\nf 1 2 3\n'),
+  });
+  await expect(page.locator('[data-topo-viewer] [data-error]')).toContainText('line 3');
+
+  const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test('project filter shows only the chosen group', async ({ page }) => {
