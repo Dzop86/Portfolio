@@ -21,4 +21,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `src/assets/style.css` | (Claude) Détecté par axe : les boutons d'exemple de la démo, de vrais `<button>`, gardaient le fond gris du navigateur sous `.btn-ghost` (contraste 3,3:1) | `.btn` remet à zéro fond, bordure et police des boutons natifs |
 | 2026-10-06 | `src/assets/wasm/` | (Claude) nginx ne connaît pas l'extension `.mjs` : le module aurait été servi en `application/octet-stream` et refusé par le navigateur dans Docker | Sortie Emscripten en `.js` (le dépôt est en `"type": "module"`) |
 | 2026-10-06 | `tests/unit/wasm.test.mjs` | (Claude) Le test de libération mémoire lisait un petit cube 2000 fois : une fuite serait restée sous les 16 Mo initiaux, le test ne pouvait pas échouer | Fichier de 1 Mo lu 64 fois ; vérifié qu'il échoue sans `_free` |
+| 2026-10-06 | `tests/unit/privacy.test.mjs` | (Claude) Le scan de confidentialité ne filtrait que `build/` : il parcourait aussi les dossiers locaux `build-shared/` (87 fichiers de plus, sans risque de fuite mais lent et trompeur) | Filtre sur `build*`, `__pycache__` et `*.egg-info`, test renforcé |
 | | | | |

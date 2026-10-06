@@ -31,13 +31,13 @@ const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const published = files(dist).filter((f) => /\.(html|js|css|json|webmanifest|svg)$/.test(f));
 // Technical projects are scanned too: sources, tests, data and docs, but not their build output.
 const projectFiles = existsSync(join(ROOT, 'projects'))
-  ? files(join(ROOT, 'projects')).filter((f) => !/[\\/](build|_deps|node_modules)[\\/]/.test(f))
+  ? files(join(ROOT, 'projects')).filter((f) => !/[\\/](build[^\\/]*|_deps|node_modules|__pycache__|[^\\/]+\.egg-info)[\\/]/.test(f))
   : [];
 const sources = [join(ROOT, 'data/cv.json'), join(ROOT, 'data/projects.json'), ...projectFiles];
 
 test('the scan covers the technical projects', () => {
   assert.ok(sources.some((f) => f.endsWith(join('lib-c', 'src', 'obj.c'))), 'projects/lib-c sources');
-  assert.ok(!sources.some((f) => /[\\/]build[\\/]/.test(f)), 'build output excluded');
+  assert.ok(!sources.some((f) => /[\\/]build[^\\/]*[\\/]/.test(f)), 'build output excluded (build/, build-shared/...)');
 });
 
 for (const file of [...published, ...sources]) {
