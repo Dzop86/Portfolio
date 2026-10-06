@@ -24,7 +24,7 @@ Portfolio de Charles Lepaire, docteur en informatique graphique. Message porté 
 
 ## Traçabilité
 - `DECISIONS.md` : tu y notes chaque choix d'architecture, ses alternatives et ses limites.
-- `REVIEW.md` : réservé à Charles. Tu n'y écris pas. Tu peux lui signaler ce qui mérite relecture.
+- `REVIEW.md` : la relecture de Charles. Tu y ajoutes au fur et à mesure chaque problème trouvé et sa correction, préfixé « (Claude) ». Tu ne coches pas ses cases et ne modifies pas ses propres constats.
 - `scrum/sprint-NN.md` : objectif, stories, points, ce qui est fait, rétro.
 
 ## Structure
