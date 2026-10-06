@@ -10,8 +10,20 @@ package Traffic with SPARK_Mode is
    function Other (A : Axis) return Axis is (if A = North_South then East_West else North_South);
 
    --  Colour of axis A during phase P.
-   function Light (P : Phase; A : Axis) return Color with
-     Post => (if Light'Result /= Red then Light (P, Other (A)) = Red);
+   function Light (P : Phase; A : Axis) return Color is
+     (case P is
+        when NS_Green  => (if A = North_South then Green else Red),
+        when NS_Yellow => (if A = North_South then Yellow else Red),
+        when EW_Green  => (if A = East_West then Green else Red),
+        when EW_Yellow => (if A = East_West then Yellow else Red),
+        when Red_Before_EW | Red_Before_NS => Red);
+
+   --  Safety, proved by gnatprove for every phase: at least one axis is red, so the two axes never move
+   --  together. Ghost code: it exists for the proof and is not compiled into the program.
+   procedure Lemma_One_Axis_Is_Red (P : Phase) with
+     Ghost,
+     Global => null,
+     Post   => Light (P, North_South) = Red or else Light (P, East_West) = Red;
 
    --  The phase after P; the cycle loops.
    function Next (P : Phase) return Phase is (if P = Phase'Last then Phase'First else Phase'Succ (P));

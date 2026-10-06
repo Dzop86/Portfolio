@@ -1,12 +1,6 @@
 package body Traffic with SPARK_Mode is
 
-   function Light (P : Phase; A : Axis) return Color is
-     (case P is
-        when NS_Green  => (if A = North_South then Green else Red),
-        when NS_Yellow => (if A = North_South then Yellow else Red),
-        when EW_Green  => (if A = East_West then Green else Red),
-        when EW_Yellow => (if A = East_West then Yellow else Red),
-        when Red_Before_EW | Red_Before_NS => Red);
+   procedure Lemma_One_Axis_Is_Red (P : Phase) is null;
 
    function Start (T : Timing) return Controller is
      ((Timings => T, Phase => NS_Green, Elapsed => 0, Waiting => [others => False]));

@@ -13,4 +13,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 |---|---|---|---|
 | 2026-10-06 | `alire.toml` | (Claude) Alire exige un e-mail dans `maintainers`, interdit dans le dépôt (règle de confidentialité) | Champ omis (A2) |
 | 2026-10-06 | `tests/src/traffic_tests.adb` | (Claude) Une réécriture du test des durées hors bornes le faisait passer même sans exception | Assertion d'échec dans le bloc ; vérifié en élargissant l'intervalle : le test échoue |
+| 2026-10-06 | `src/traffic.ads` | (Claude) Détecté par `gnatprove` : la postcondition de `Light` appelait `Light`, terminaison non prouvable | Sûreté énoncée par un lemme fantôme prouvé (A3) |
 | | | | |
