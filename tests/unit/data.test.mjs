@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadData, teachingTotals, LANGS } from '../../src/lib.mjs';
 
-const { cv, projects, scrum } = loadData();
+const { cv, projects, scrum, sprints } = loadData();
 
 test('teaching hours match the academic CV (140 h TD, 236 h TP)', () => {
   assert.deepEqual(teachingTotals(cv.teaching), { td: 140, tp: 236, total: 376 });
@@ -52,4 +52,12 @@ test('project ids are URL-safe slugs and project links are absolute https URLs',
       assert.match(url, /^https:\/\//, `${p.id}: ${kind}`);
     }
   }
+});
+
+test('every sprint file has a numbered story table with points', () => {
+  assert.ok(sprints.length >= 3);
+  sprints.forEach((sprint, i) => {
+    assert.equal(sprint.number, i + 1, 'sprints are numbered from 1 without gaps');
+    for (const story of sprint.stories) assert.ok(story.points > 0, `sprint ${sprint.number}: ${story.text}`);
+  });
 });

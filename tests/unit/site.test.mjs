@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, loadData, pick, projectPage, esc } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, loadData, pick, projectPage, esc, progress } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -133,4 +133,22 @@ test('project links are shown only when the project has them', () => {
   const planned = page('fr', projectPage('spring'));
   assert.ok(!planned.includes('data-link='));
   assert.ok(planned.includes('data-no-links'));
+});
+
+test('the home page shows the temporary progress bars, computed from the data', () => {
+  const { projects, sprints } = loadData();
+  const p = progress(projects, sprints);
+  for (const lang of LANGS) {
+    const html = page(lang, 'index');
+    const bars = [...html.matchAll(/<div class="progress-bar" role="progressbar"([^>]*)>/g)].map((m) => m[1]);
+    assert.equal(bars.length, 2 + p.projects.length, `${lang}: one bar each for portfolio, sprint and project`);
+    for (const attrs of bars) {
+      assert.match(attrs, /aria-labelledby="[\w-]+"/);
+      assert.match(attrs, /aria-valuemin="0"/);
+      assert.match(attrs, /aria-valuemax="100"/);
+      assert.match(attrs, /aria-valuenow="\d+"/);
+    }
+    const sprintBar = bars.find((a) => a.includes('data-progress="sprint"'));
+    assert.ok(sprintBar.includes(`aria-valuenow="${Math.round((100 * p.sprint.done) / p.sprint.total)}"`));
+  }
 });

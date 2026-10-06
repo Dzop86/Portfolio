@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 COPY src ./src
 COPY data ./data
+COPY scrum ./scrum
 RUN npm run build
 
 # Stage 2: serve it with nginx.

@@ -1,4 +1,4 @@
-import { esc, pick, teachingTotals, riskLevel, monthOffset, projectPage, neighbours, PAGES, REPO_URL } from './lib.mjs';
+import { esc, pick, teachingTotals, riskLevel, monthOffset, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -78,6 +78,7 @@ function home({ lang, t, data }) {
     <a class="btn btn-ghost" href="./research.html">${esc(t('home.cta.research'))}</a>
   </div>
 </section>
+${progressPanel({ lang, t, data })}
 <section class="stats" aria-label="Chiffres clés">
   <div class="stat"><strong data-stat="projects">${projects.length}</strong><span>${esc(t('home.stats.projects'))}</span></div>
   <div class="stat"><strong data-stat="publications">${cv.publications.length}</strong><span>${esc(t('home.stats.publications'))}</span></div>
@@ -95,6 +96,44 @@ function home({ lang, t, data }) {
 </section>
 <section>
   <div class="cards">${featured.map((p) => projectCard(p, lang, t)).join('')}</div>
+</section>`;
+}
+
+/** Replaces {name} placeholders in a translated string. */
+function fill(text, vars) {
+  return text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
+}
+
+const percent = (part, total) => (total ? Math.round((100 * part) / total) : 0);
+
+function progressBar(id, label, detail, value, soft = value) {
+  return `<div class="progress-row">
+    <div class="progress-head"><span id="pg-${id}">${esc(label)}</span><span class="meta">${esc(detail)}</span></div>
+    <div class="progress-bar" role="progressbar" aria-labelledby="pg-${id}" data-progress="${id}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}" aria-valuetext="${esc(detail)}">
+      <span class="progress-fill progress-soft" style="--w:${soft}%"></span><span class="progress-fill" style="--w:${value}%"></span>
+    </div>
+  </div>`;
+}
+
+// Temporary: remove this panel (and its call in home) once the 17 projects are done (D14).
+function progressPanel({ lang, t, data }) {
+  const p = progress(data.projects, data.sprints);
+  const { done, inProgress, total } = p.portfolio;
+  const bars = [
+    progressBar('portfolio', t('progress.portfolio'), fill(t('progress.portfolio.detail'), { done, inProgress, total }),
+      percent(done, total), percent(done + inProgress, total)),
+    progressBar('sprint', fill(t('progress.sprint'), { n: p.sprint.number }), fill(t('progress.points'), p.sprint),
+      percent(p.sprint.done, p.sprint.total)),
+    ...p.projects.map((pr) => {
+      const name = pick(data.projects.find((x) => x.id === pr.id).name, lang);
+      return progressBar(`project-${pr.id}`, fill(t('progress.project'), { name }), fill(t('progress.points'), pr),
+        percent(pr.done, pr.total));
+    }),
+  ];
+  return `<section class="panel progress-panel" aria-labelledby="h-progress">
+  <h2 id="h-progress">${esc(t('progress.title'))}</h2>
+  ${bars.join('\n  ')}
+  <p class="meta">${esc(t('progress.note'))}</p>
 </section>`;
 }
 

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -24,6 +24,10 @@ export function loadData() {
     cv: readJson('data/cv.json'),
     projects: readJson('data/projects.json'),
     scrum: readJson('data/scrum.json'),
+    sprints: readdirSync(join(ROOT, 'scrum'))
+      .filter((f) => /^sprint-\d+\.md$/.test(f))
+      .map((f) => parseSprint(readFileSync(join(ROOT, 'scrum', f), 'utf8'), f))
+      .sort((a, b) => a.number - b.number),
     i18n: { fr: readJson('data/i18n/fr.json'), en: readJson('data/i18n/en.json') },
   };
 }
@@ -83,6 +87,50 @@ export function neighbours(list, id) {
   const i = list.findIndex((item) => item.id === id);
   if (i < 0) throw new Error(`Unknown id "${id}"`);
   return { prev: list[i - 1] ?? null, next: list[i + 1] ?? null };
+}
+
+/**
+ * Reads a scrum/sprint-NN.md file: number and title from "# Sprint N : title", stories from the
+ * first table whose header starts with "Story" (columns: story, points, state; "Fait" means done).
+ */
+export function parseSprint(md, file) {
+  const heading = md.match(/^# Sprint (\d+)\s*:\s*(.+)$/m);
+  if (!heading) throw new Error(`No "# Sprint N : title" heading in ${file}`);
+  const lines = md.split(/\r?\n/);
+  const start = lines.findIndex((l) => /^\|\s*Story\s*\|/.test(l));
+  if (start < 0) throw new Error(`No story table in ${file}`);
+  const stories = [];
+  for (const line of lines.slice(start + 2)) {
+    if (!line.startsWith('|')) break;
+    const [text, points, state] = line.split('|').slice(1, -1).map((c) => c.trim());
+    stories.push({ text, points: Number(points), done: /^Fait\b/.test(state) });
+  }
+  return { number: Number(heading[1]), title: heading[2].trim(), stories };
+}
+
+/**
+ * Temporary progress figures for the home page: projects done or in progress, points done in the
+ * latest sprint, and for each project in progress the done points of the stories that name it
+ * (its id as a whole word), over its estimate or the planned story points if larger.
+ */
+export function progress(projects, sprints) {
+  const stories = sprints.flatMap((s) => s.stories);
+  const current = sprints.reduce((a, b) => (b.number > a.number ? b : a));
+  const sum = (list) => list.reduce((acc, s) => acc + s.points, 0);
+  const names = (id) => new RegExp(`(?<![\\w-])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-])`);
+  return {
+    portfolio: {
+      done: projects.filter((p) => p.status === 'done').length,
+      inProgress: projects.filter((p) => p.status === 'in-progress').length,
+      total: projects.length,
+    },
+    sprint: { number: current.number, title: current.title, done: sum(current.stories.filter((s) => s.done)), total: sum(current.stories) },
+    projects: projects
+      .filter((p) => p.status === 'in-progress')
+      .map((p) => ({ p, own: stories.filter((s) => names(p.id).test(s.text)) }))
+      .filter(({ own }) => own.length > 0)
+      .map(({ p, own }) => ({ id: p.id, done: sum(own.filter((s) => s.done)), total: Math.max(p.points, sum(own)) })),
+  };
 }
 
 export function i18nParity(i18n) {

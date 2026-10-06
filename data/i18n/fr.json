@@ -78,5 +78,12 @@
   "project.link.code": "Code source",
   "project.link.demo": "Démo en ligne",
   "project.nolinks": "Pas encore de code ni de démo : ce projet est prévu aux sprints",
-  "project.pager": "Projet précédent et suivant"
+  "project.pager": "Projet précédent et suivant",
+  "progress.title": "Où en est le portfolio",
+  "progress.portfolio": "Portfolio",
+  "progress.portfolio.detail": "{done} terminés, {inProgress} en cours, sur {total} projets",
+  "progress.sprint": "Sprint en cours ({n})",
+  "progress.project": "Projet en cours : {name}",
+  "progress.points": "{done} points sur {total}",
+  "progress.note": "Bandeau temporaire, recalculé à chaque build depuis les fichiers de sprint ; il disparaîtra quand les 17 projets seront terminés."
 }

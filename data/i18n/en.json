@@ -78,5 +78,12 @@
   "project.link.code": "Source code",
   "project.link.demo": "Live demo",
   "project.nolinks": "No code or demo yet: this project is planned for sprints",
-  "project.pager": "Previous and next project"
+  "project.pager": "Previous and next project",
+  "progress.title": "Where the portfolio stands",
+  "progress.portfolio": "Portfolio",
+  "progress.portfolio.detail": "{done} done, {inProgress} in progress, out of {total} projects",
+  "progress.sprint": "Current sprint ({n})",
+  "progress.project": "Project in progress: {name}",
+  "progress.points": "{done} of {total} points",
+  "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 17 projects are done."
 }
