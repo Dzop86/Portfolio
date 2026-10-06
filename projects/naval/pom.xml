@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>portfolio</groupId>
+  <artifactId>naval</artifactId>
+  <version>0.1.0</version>
+  <name>naval</name>
+  <description>Battleship against the computer, Java model and JavaFX interface (Charles Lepaire's portfolio)</description>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <javafx.version>21.0.6</javafx.version>
+    <junit.version>5.11.4</junit.version>
+  </properties>
+
+  <dependencies>
+    <!-- The OpenJFX artifacts pick the classifier of the system they are built on (Linux, Windows, macOS). -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Headless JavaFX for the screenshots and the interface test (no display needed). -->
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>openjfx-monocle</artifactId>
+      <version>21.0.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <compilerArgs>
+            <arg>-Xlint:all</arg>
+            <arg>-Werror</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.2</version>
+        <configuration>
+          <!-- JavaFX without a display: Monocle's headless platform, software rendering. -->
+          <argLine>-Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw -Dprism.text=t2k -Djava.awt.headless=true</argLine>
+          <systemPropertyVariables>
+            <naval.screenshots>${naval.screenshots}</naval.screenshots>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>portfolio.naval.ui.Launcher</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
