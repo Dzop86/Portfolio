@@ -3,9 +3,9 @@ name: othello
 on:
   push:
     branches: [main]
-    paths: ['projects/othello/**', '.github/workflows/othello.yml']
+    paths: ['projects/othello/**', 'src/assets/wasm/othello.*', '.github/workflows/othello.yml']
   pull_request:
-    paths: ['projects/othello/**', '.github/workflows/othello.yml']
+    paths: ['projects/othello/**', 'src/assets/wasm/othello.*', '.github/workflows/othello.yml']
   workflow_dispatch:
 
 permissions:
@@ -39,3 +39,14 @@ jobs:
         run: cmake --build build --config Debug --parallel
       - name: Tests (unit, perft, AI, terminal game)
         run: ctest --test-dir build -C Debug --output-on-failure
+
+  wasm:
+    name: Othello (WebAssembly build is up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/build-wasm.sh "$RUNNER_TEMP/wasm"
+      # The site serves the committed build: it must match what the sources produce today.
+      - run: |
+          cmp "$RUNNER_TEMP/wasm/othello.wasm" ../../src/assets/wasm/othello.wasm
+          cmp "$RUNNER_TEMP/wasm/othello.js" ../../src/assets/wasm/othello.js
