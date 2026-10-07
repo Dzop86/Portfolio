@@ -59,9 +59,11 @@ jobs:
         env:
           QT_LOGGING_RULES: qt.qpa.gl*=true
         run: |
-          ls build/Release build 2>/dev/null | grep -i -E "dll|test_render" || true
-          test_render=$(ls build/Release/test_render.exe build/test_render 2>/dev/null | head -1)
-          "$test_render" -v2 || echo "exit code $?"
+          if [ -f build/Release/test_render.exe ]; then test_render=build/Release/test_render.exe; else test_render=build/test_render; fi
+          status=0
+          "$test_render" -v2 -o "$RUNNER_TEMP/render.txt,txt" || status=$?
+          echo "exit code $status"
+          cat "$RUNNER_TEMP/render.txt" || true
       - name: The French translation follows the code
         if: runner.os == 'Linux'
         run: |
