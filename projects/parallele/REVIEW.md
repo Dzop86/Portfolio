@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/kernels.hpp` : les deux passes, et leur équivalence avec `topologie/src/curvature.cpp`.
-- [ ] `src/curvature.cpp` : la région OpenMP (pas d'écriture partagée, barrière entre les passes).
-- [ ] `src/opencl.cpp` : les noyaux, le choix de l'appareil, la gestion des erreurs.
+- [x] `src/kernels.hpp` : les deux passes, et leur équivalence avec `topologie/src/curvature.cpp`.
+- [x] `src/curvature.cpp` : la région OpenMP (pas d'écriture partagée, barrière entre les passes).
+- [x] `src/opencl.cpp` : les noyaux, le choix de l'appareil, la gestion des erreurs.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, push and go »), pour le volet du sprint 28 (OpenMP et OpenCL).
 
 ## Constats
 
