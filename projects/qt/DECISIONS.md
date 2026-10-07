@@ -23,3 +23,14 @@
 ## Q5. Une échelle de couleurs robuste
 **Choix :** la couleur de courbure va de −s à +s, où s est le 95ᵉ centile de |K| sur les sommets intérieurs ; palette divergente RdBu de ColorBrewer.
 **Pourquoi :** quelques sommets très courbés (pointes, coins) écraseraient sinon toute la surface vers le blanc ; RdBu reste lisible pour la plupart des daltoniens.
+
+## Q6. La sélection par lancer de rayon sur le processeur
+**Choix :** un rayon à travers le pixel cliqué, intersecté avec tous les triangles (Möller-Trumbore) ; le sommet de la face touchée le plus proche du curseur, à 8 pixels près, sinon la face.
+**Pourquoi :** testable sans contexte OpenGL (projection et rayon se vérifient l'un l'autre), exact, indépendant du rendu.
+**Alternatives :** relire un tampon d'identifiants dessiné hors écran (rapide quelle que soit la taille, mais lié au contexte et au pilote), une hiérarchie de boîtes englobantes (à ajouter si les maillages grossissent).
+**Limite :** linéaire en nombre de triangles à chaque clic.
+
+## Q7. Emballer avec les outils de Qt et linuxdeploy
+**Choix :** `cmake --install` avec le script de déploiement de Qt (windeployqt, macdeployqt) sous Windows et macOS, `InstallRequiredSystemLibraries` pour le runtime Visual C++ ; sous Linux, une AppImage par linuxdeploy et son greffon Qt, en versions épinglées. Signature ad hoc sous macOS (indispensable sur Apple Silicon après macdeployqt). Chaque paquet est lancé une fois en CI.
+**Pourquoi :** les outils officiels ou standard de chaque système, pilotés par le même CMake ; un paquet qui ne démarre pas fait échouer la CI.
+**Limite :** pas de certificat de signature (payant chez Apple et Microsoft) ; artefacts gardés 30 jours.

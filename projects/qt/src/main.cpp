@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QIcon>
 #include <QSurfaceFormat>
 #include <QTimer>
 
@@ -15,6 +16,9 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("qtviewer"));
     QApplication::setApplicationVersion(QStringLiteral("0.1.0"));
+    QApplication::setWindowIcon(QIcon(QStringLiteral(":/qtviewer.png")));
+    // Linux desktops match the window to its .desktop file (icon, name in the task bar).
+    QGuiApplication::setDesktopFileName(QStringLiteral("qtviewer"));
 
     QCommandLineParser parser;
     parser.addHelpOption();

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Mesh viewer icon: a torus seen from above, in the portfolio's colours. -->
+  <rect width="256" height="256" rx="48" fill="#1f1f1f"/>
+  <ellipse cx="128" cy="136" rx="92" ry="64" fill="none" stroke="#bef374" stroke-width="34"/>
+  <ellipse cx="128" cy="136" rx="92" ry="64" fill="none" stroke="#1f1f1f" stroke-width="3" stroke-dasharray="10 12"/>
+  <path d="M 52 112 Q 128 64 204 112" fill="none" stroke="#5a3a22" stroke-width="6" stroke-linecap="round"/>
+</svg>

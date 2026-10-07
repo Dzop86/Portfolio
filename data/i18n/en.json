@@ -337,6 +337,8 @@
   "qt.run": "To run it at home (Qt 6.5 or later, CMake, a C++20 compiler):",
   "qt.sample": "a built-in example, coloured by curvature with the C key",
   "qt.file": "an OBJ, PLY or STL file",
+  "qt.download": "Ready-to-run programs (Windows folder, macOS disk image, Linux AppImage, unsigned), built and launched once by the CI, kept for 30 days:",
+  "qt.downloadLink": "artifacts of the qt workflow",
   "rogue.title": "A game in progress",
   "rogue.lead": "Godot 4 cannot export a C# game to the web: the roguelike runs on the desktop (Windows, Linux, macOS), in a Godot window or in the terminal. Here is a game in progress in the Godot client.",
   "rogue.alt": "The roguelike's window: at the top the player's state (floor 3 of 5, hit points, level, potions, gold, score), in the middle the floor plan, grey rooms with chocolate walls, the player @ in pistachio green near an orc o, at the bottom the last messages of the fight and the keys.",

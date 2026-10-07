@@ -84,3 +84,77 @@ jobs:
           test -s "$RUNNER_TEMP/torus.png"
           echo "f 1 2 3" > "$RUNNER_TEMP/bad.obj"
           if xvfb-run -a build/qtviewer --screenshot "$RUNNER_TEMP/bad.png" "$RUNNER_TEMP/bad.obj"; then exit 1; fi
+
+  package:
+    name: Package (${{ matrix.os }})
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.10.3
+          cache: true
+      - name: OpenGL and X11 libraries (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgl-dev libegl-dev libgl1-mesa-dri libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 xvfb
+      - name: Build (Release, without the tests)
+        run: |
+          cmake -S projects/qt -B build -DCMAKE_BUILD_TYPE=Release -DVIEWER_BUILD_TESTS=OFF
+          cmake --build build --config Release --parallel
+
+      # Windows: the program, its Qt libraries (windeployqt) and the Visual C++ runtime in a folder.
+      - name: Windows folder, launched once
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cmake --install build --config Release --prefix dist/qtviewer
+          # The launch test runs a copy with Mesa's OpenGL in place of Qt's (the runner has no GPU);
+          # the shipped folder keeps Qt's own software fallback, opengl32sw.dll.
+          cp -r dist/qtviewer "$RUNNER_TEMP/try"
+          curl -fsSL -o "$RUNNER_TEMP/mesa.7z" https://github.com/pal1000/mesa-dist-win/releases/download/26.2.4/mesa3d-26.2.4-release-msvc.7z
+          7z x -y -o"$RUNNER_TEMP/mesa" "$RUNNER_TEMP/mesa.7z" > /dev/null
+          cp "$RUNNER_TEMP"/mesa/x64/*.dll "$RUNNER_TEMP/try/bin/"
+          mv -f "$RUNNER_TEMP/try/bin/opengl32.dll" "$RUNNER_TEMP/try/bin/opengl32sw.dll"
+          QT_OPENGL=software PATH=/usr/bin "$RUNNER_TEMP/try/bin/qtviewer.exe" --screenshot "$RUNNER_TEMP/windows.png" sample:torus
+          test -s "$RUNNER_TEMP/windows.png"
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Windows'
+        with:
+          name: qtviewer-windows-x64
+          path: dist/qtviewer
+          retention-days: 30
+
+      # macOS: the application bundle (macdeployqt), signed ad hoc for Apple Silicon, in a disk image.
+      - name: macOS disk image, launched once
+        if: runner.os == 'macOS'
+        run: |
+          cmake --install build --config Release --prefix dist
+          codesign --force --deep --sign - dist/qtviewer.app
+          dist/qtviewer.app/Contents/MacOS/qtviewer --screenshot "$RUNNER_TEMP/macos.png" sample:torus
+          test -s "$RUNNER_TEMP/macos.png"
+          hdiutil create -volname "Mesh viewer" -srcfolder dist/qtviewer.app -ov -format UDZO qtviewer-macos.dmg
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'macOS'
+        with:
+          name: qtviewer-macos
+          path: qtviewer-macos.dmg
+          retention-days: 30
+
+      # Linux: an AppImage (linuxdeploy), launched once under a virtual screen.
+      - name: Linux AppImage, launched once
+        if: runner.os == 'Linux'
+        run: |
+          projects/qt/packaging/appimage.sh build dist
+          APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a dist/Mesh_viewer-x86_64.AppImage --screenshot "$RUNNER_TEMP/linux.png" sample:torus
+          test -s "$RUNNER_TEMP/linux.png"
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Linux'
+        with:
+          name: qtviewer-linux-x86_64
+          path: dist/Mesh_viewer-x86_64.AppImage
+          retention-days: 30

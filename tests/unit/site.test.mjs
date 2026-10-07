@@ -319,5 +319,6 @@ test('the Qt viewer page shows the application in each language, with the comman
     assert.ok(img[3].length > 80, 'a descriptive alt text');
     assert.match(html, /cmake -S \. -B build/);
     assert.match(html, /qtviewer --lang (fr|en) sample:torus/);
+    assert.match(html, /href="https:\/\/github\.com\/Dzop86\/Portfolio\/actions\/workflows\/qt\.yml"/);
   }
 });

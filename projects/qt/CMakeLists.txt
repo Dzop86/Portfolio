@@ -43,6 +43,9 @@ qt_add_resources(viewer samples
   FILES ../topologie/samples/torus.obj ../topologie/samples/sphere.obj
         ../topologie/samples/mobius.obj ../topologie/samples/saddle.obj)
 
+# The window icon (also the Linux desktop icon).
+qt_add_resources(viewer icon PREFIX / BASE packaging FILES packaging/qtviewer.png)
+
 # English source strings, French translation (i18n/qtviewer_fr.ts), built into the binary.
 qt_add_translations(viewer TS_FILES i18n/qtviewer_fr.ts RESOURCE_PREFIX /i18n LUPDATE_OPTIONS -no-obsolete -locations none)
 
@@ -52,6 +55,25 @@ viewer_warnings(qtviewer)
 set_target_properties(qtviewer PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER io.github.dzop86.qtviewer
   MACOSX_BUNDLE_BUNDLE_NAME "Mesh viewer")
+
+# Installation, the base of the packages made by the CI (see README): `cmake --install`.
+include(GNUInstallDirs)
+install(TARGETS qtviewer BUNDLE DESTINATION . RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(WIN32 OR APPLE)
+  # windeployqt or macdeployqt: the Qt libraries and plugins next to the program.
+  qt_generate_deploy_app_script(TARGET qtviewer OUTPUT_SCRIPT deploy_script NO_TRANSLATIONS)
+  install(SCRIPT ${deploy_script})
+endif()
+if(WIN32)
+  # The Visual C++ runtime, so that the archive runs on a fresh Windows.
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})
+  include(InstallRequiredSystemLibraries)
+endif()
+if(UNIX AND NOT APPLE)
+  # linuxdeploy turns this tree into an AppImage.
+  install(FILES packaging/qtviewer.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+  install(FILES packaging/qtviewer.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps)
+endif()
 
 if(VIEWER_BUILD_TESTS)
   enable_testing()

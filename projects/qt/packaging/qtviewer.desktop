@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Mesh viewer
+Name[fr]=Visionneuse de maillages
+Comment=Open and inspect triangle meshes: topology and curvature
+Comment[fr]=Ouvrir et inspecter des maillages triangulés : topologie et courbure
+Exec=qtviewer %f
+Icon=qtviewer
+Terminal=false
+Categories=Graphics;3DGraphics;Science;
+MimeType=model/obj;model/stl;

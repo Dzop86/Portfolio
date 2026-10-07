@@ -891,6 +891,7 @@ function qtScreenshot(t, lang) {
 cmake -S . -B build && cmake --build build
 ./build/qtviewer --lang ${lang} sample:torus        # ${esc(t('qt.sample'))}
 ./build/qtviewer ../lib-c/tests/data/cube.obj      # ${esc(t('qt.file'))}</code></pre>
+  <p>${esc(t('qt.download'))} <a href="https://github.com/Dzop86/Portfolio/actions/workflows/qt.yml">${esc(t('qt.downloadLink'))}</a></p>
 </section>`;
 }
 

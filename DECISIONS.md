@@ -187,4 +187,5 @@
 
 ## D38. La visionneuse Qt/OpenGL au bout du fil rouge
 **Choix :** application de bureau Qt 6 en C++20 (`projects/qt`) : lecture par lib-c, analyse par topologie (intégrés par CMake, comme topologie intègre lib-c), dessin OpenGL 3.3 core, interface Qt Widgets en français et en anglais (Qt Linguist). Tests Qt Test, dont un rendu hors écran relu pixel par pixel ; CI Linux, Windows et macOS avec OpenGL logiciel. La fiche du projet montre une capture faite par l'application (`--screenshot`).
-**Limite :** les exécutables à installer (windeployqt, macdeployqt, AppImage) et la sélection d'éléments viennent au sprint 27.
+**Suite (sprint 27) :** sélection d'un sommet ou d'une face par lancer de rayon, vue enregistrée en image ; exécutables Windows (windeployqt), macOS (macdeployqt, image disque) et Linux (AppImage) produits et lancés une fois par la CI, liés depuis la fiche.
+**Limite :** exécutables non signés par un certificat, gardés 30 jours dans les artefacts de la CI.
