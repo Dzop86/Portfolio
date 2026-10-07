@@ -1,4 +1,5 @@
-import { mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { buildSync } from 'esbuild';
 import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc, projectPage } from './lib.mjs';
@@ -71,14 +72,24 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     logLevel: 'error',
   });
 
+  // Every stylesheet and script link carries a fingerprint of the file (style.css?v=1a2b3c4d): GitHub
+  // Pages lets browsers keep assets for ten minutes, and a new page with an old style.css drew the
+  // charts all black (remark of Charles). A changed file now has a new address.
+  const fingerprints = new Map();
+  const versioned = (html) => html.replace(/(href|src)="((?:\.\.?\/)assets\/([^"?#]+\.(?:css|js)))"/g, (_, attr, url, file) => {
+    if (!fingerprints.has(file)) fingerprints.set(file, createHash('sha256').update(readFileSync(join(outDir, 'assets', file))).digest('hex').slice(0, 10));
+    return `${attr}="${url}?v=${fingerprints.get(file)}"`;
+  });
+  const writePage = (path, html) => writeFileSync(path, versioned(html));
+
   for (const lang of LANGS) {
     const t = makeT(data.i18n[lang], lang);
     mkdirSync(join(outDir, lang), { recursive: true });
     for (const page of PAGES) {
-      writeFileSync(join(outDir, lang, `${page}.html`), renderPage(page, { lang, t, data }));
+      writePage(join(outDir, lang, `${page}.html`), renderPage(page, { lang, t, data }));
     }
     for (const project of data.projects) {
-      writeFileSync(join(outDir, lang, `${projectPage(project.id)}.html`), renderProjectPage(project, { lang, t, data }));
+      writePage(join(outDir, lang, `${projectPage(project.id)}.html`), renderProjectPage(project, { lang, t, data }));
     }
   }
 
@@ -92,7 +103,7 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
 `);
 
   // Served at whatever URL was missed (e.g. /Portfolio/a/b), so relative links resolve from <base> instead.
-  writeFileSync(join(outDir, '404.html'), `<!doctype html>
+  writePage(join(outDir, '404.html'), `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="${esc(normalizeBase(basePath))}">
 <title>404 · Charles Lepaire</title><link rel="stylesheet" href="./assets/tokens.css"><link rel="stylesheet" href="./assets/style.css"></head>

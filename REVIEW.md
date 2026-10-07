@@ -36,4 +36,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `src/assets/style.css` | (Claude) Vu en ajoutant le filtre par langage : les boutons de filtre faisaient 38 px de haut, sous les 44 px de la règle 5 | 44 px |
 | 2026-10-07 | `data/i18n/*.json` | Signalé par Charles : l'accueil annonçait encore « dix-sept projets » | (Claude) Nombres de projets et de langages calculés depuis les données, test |
 | 2026-10-07 | `src/assets/style.css` | (Claude) Vu sur une capture à 375 px : avec les nouveaux libellés, l'onglet « Gestion de projet » était coupé (menu défilant à barre cachée), et les liens du menu faisaient 33 px de haut | Menu sur deux lignes sous 600 px, liens de 44 px |
+| 2026-10-07 | `src/build.mjs` | Signalé par Charles : graphiques de la page Gestion de projet tout noirs, filtre par langage sans effet. (Claude) Cause : la nouvelle page était servie avec l'ancien `style.css` et l'ancien `app.js`, gardés en cache dix minutes (GitHub Pages, `max-age=600`) | Empreinte du contenu sur chaque lien CSS et JS (D41), test qui la vérifie |
+| 2026-10-07 | `data/projects.json` | Signalé par Charles : « langage » ne convient pas pour HTML/CSS | Filtre « Techno », champ `techs`, accroche en « technologies » |
 | | | | |

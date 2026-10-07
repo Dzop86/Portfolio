@@ -3,9 +3,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { createHash } from 'node:crypto';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, languagesOf } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -22,9 +23,24 @@ test('every internal link and asset resolves to a file', () => {
   for (const lang of LANGS) {
     for (const file of readdirSync(join(dist, lang))) {
       const from = join(dist, lang, file);
-      const refs = [...readFileSync(from, 'utf8').matchAll(/(?:href|src)="(\.{1,2}\/[^"#]+)"/g)].map((m) => m[1]);
+      // Without the fingerprint query (style.css?v=...), which only changes the address.
+      const refs = [...readFileSync(from, 'utf8').matchAll(/(?:href|src)="(\.{1,2}\/[^"#?]+)/g)].map((m) => m[1]);
       for (const ref of refs) {
         assert.ok(existsSync(resolve(dirname(from), ref)), `${lang}/${file}: broken link ${ref}`);
+      }
+    }
+  }
+});
+
+test('every stylesheet and script carries the fingerprint of its current content', () => {
+  for (const lang of LANGS) {
+    for (const file of readdirSync(join(dist, lang))) {
+      const html = readFileSync(join(dist, lang, file), 'utf8');
+      const links = [...html.matchAll(/(?:href|src)="\.\.\/assets\/([^"?]+\.(?:css|js))(\?v=([0-9a-f]+))?"/g)];
+      assert.ok(links.length >= 3, `${lang}/${file}: tokens.css, style.css and app.js at least`);
+      for (const [, asset, , version] of links) {
+        const hash = createHash('sha256').update(readFileSync(join(dist, 'assets', asset))).digest('hex').slice(0, 10);
+        assert.equal(version, hash, `${lang}/${file}: ${asset}`);
       }
     }
   }
@@ -85,7 +101,7 @@ test('the 404 page resolves its assets and links from the site root', () => {
   const pagesDist = build(mkdtempSync(join(tmpdir(), 'portfolio-')), { basePath: '/Portfolio' });
   const html = readFileSync(join(pagesDist, '404.html'), 'utf8');
   assert.match(html, /<base href="\/Portfolio\/">/);
-  const refs = [...html.matchAll(/(?:href|src)="(\.\/[^"#]+)"/g)].map((m) => m[1]);
+  const refs = [...html.matchAll(/(?:href|src)="(\.\/[^"#?]+)/g)].map((m) => m[1]);
   assert.ok(refs.length >= 4, 'stylesheets and home links');
   for (const ref of refs) assert.ok(existsSync(join(pagesDist, ref)), `broken link ${ref}`);
   assert.match(readFileSync(join(dist, '404.html'), 'utf8'), /<base href="\/">/);
@@ -180,13 +196,13 @@ test('the progress figures tell a running sprint from a finished one', () => {
   assert.equal(finished.sprint.done, finished.sprint.total);
 });
 
-test('the home page counts the projects and their languages from the data', () => {
+test('the home page counts the projects and their technologies from the data', () => {
   const { projects } = loadData();
   for (const lang of LANGS) {
     const html = page(lang, 'index');
     const lead = html.match(/<p class="lead">([^<]+)<\/p>/)[1];
     assert.ok(lead.startsWith(`${projects.length} `), lead);
-    assert.ok(lead.includes(` ${languagesOf(projects).length} `), lead);
+    assert.ok(lead.includes(` ${techsOf(projects).length} `), lead);
     // The menu already links to the projects and the CV: no buttons for them, no project cards either.
     assert.ok(!html.includes('class="btn btn-primary" href="./projects.html"'));
     assert.ok(!/<article class="card"/.test(html), `${lang}: no project cards on the home page`);
@@ -197,7 +213,7 @@ test('the lib-c page embeds the WebAssembly demo with its samples, and only that
   for (const lang of LANGS) {
     const html = page(lang, projectPage('lib-c'));
     assert.ok(html.includes('data-mesh-demo'), `${lang}: demo section`);
-    assert.ok(html.includes('<script type="module" src="../assets/meshdemo.js"></script>'));
+    assert.match(html, /<script type="module" src="\.\.\/assets\/meshdemo\.js\?v=[0-9a-f]{10}"><\/script>/);
     const samples = [...html.matchAll(/data-sample="([^"]+)"/g)].map((m) => m[1]);
     assert.deepEqual(samples.map((s) => s.split('/').pop()), ['cube.obj', 'tetrahedron.ply', 'torus.obj']);
     for (const s of samples) assert.ok(existsSync(resolve(join(dist, lang), s)), `${lang}: sample ${s}`);
@@ -214,7 +230,7 @@ test('the topology page embeds the viewer, its bundle, samples and labels', () =
   for (const lang of LANGS) {
     const html = page(lang, projectPage('topologie'));
     assert.ok(html.includes('data-topo-viewer'), `${lang}: viewer section`);
-    assert.ok(html.includes('<script type="module" src="../assets/topoviewer.js"></script>'));
+    assert.match(html, /<script type="module" src="\.\.\/assets\/topoviewer\.js\?v=[0-9a-f]{10}"><\/script>/);
     assert.match(html, /<canvas[^>]*role="img"[^>]*aria-label="[^"]+"/);
     const samples = [...html.matchAll(/data-sample="([^"]+)"/g)].map((m) => m[1]);
     assert.deepEqual(samples.map((s) => s.split('/').pop()), ['torus.obj', 'sphere.obj', 'mobius.obj', 'saddle.obj']);
@@ -349,13 +365,13 @@ test('the Qt viewer page shows the application in each language, with the comman
   }
 });
 
-test('the projects page filters by category and by language', () => {
+test('the projects page filters by category and by technology', () => {
   const { projects } = loadData();
   for (const lang of LANGS) {
     const html = page(lang, 'projects');
-    const chips = [...html.matchAll(/data-language="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(chips, ['all', ...languagesOf(projects)]);
-    for (const p of projects) assert.ok(html.includes(`data-languages="${esc(p.languages.join('|'))}" id="${p.id}"`), p.id);
+    const chips = [...html.matchAll(/data-tech="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(chips, ['all', ...techsOf(projects)]);
+    for (const p of projects) assert.ok(html.includes(`data-techs="${esc(p.techs.join('|'))}" id="${p.id}"`), p.id);
     assert.ok(html.includes('data-filter-empty hidden'));
   }
 });

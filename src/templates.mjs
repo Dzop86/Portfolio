@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { decompositionStep } from '../projects/gcartes/src/decompose.js';
-import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, languagesOf, velocity, burndown } from './lib.mjs';
+import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, techsOf, velocity, burndown } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -74,7 +74,7 @@ function home({ lang, t, data }) {
   const { cv, projects } = data;
   const hours = teachingTotals(cv.teaching).total;
   // Counted from the data: the text cannot fall behind when a project is added.
-  const lead = fill(t('home.lead'), { projects: projects.length, languages: languagesOf(projects).length });
+  const lead = fill(t('home.lead'), { projects: projects.length, techs: techsOf(projects).length });
   return `<section class="hero">
   <p class="kicker">${esc(t('home.kicker'))}</p>
   <h1>Charles Lepaire</h1>
@@ -141,7 +141,7 @@ function progressPanel({ lang, t, data }) {
 
 function projectCard(p, lang, t) {
   const teaching = p.teaching ? `<p class="card-note">${esc(pick(p.teaching, lang))}</p>` : '';
-  return `<article class="card" data-group="${esc(p.group)}" data-languages="${esc(p.languages.join('|'))}" id="${esc(p.id)}">
+  return `<article class="card" data-group="${esc(p.group)}" data-techs="${esc(p.techs.join('|'))}" id="${esc(p.id)}">
   <div class="card-top">
     <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
     <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
@@ -159,16 +159,16 @@ function projects({ lang, t, data }) {
     `<button type="button" class="chip" aria-pressed="${pressed}" data-${attr}="${esc(value)}">${esc(label)}</button>`;
   const groupChips = [chip('filter', 'all', t('projects.filter.all'), true)]
     .concat(groups.map((g) => chip('filter', g, t(`projects.group.${g}`)))).join('');
-  const languageChips = [chip('language', 'all', t('projects.filter.all'), true)]
-    .concat(languagesOf(data.projects).map((l) => chip('language', l, l))).join('');
+  const techChips = [chip('tech', 'all', t('projects.filter.all'), true)]
+    .concat(techsOf(data.projects).map((l) => chip('tech', l, l))).join('');
   // The games from Charles's studies get their own section after the other projects (D26).
   const games = data.projects.filter((p) => p.group === 'games');
   return `${pageHead(t('projects.title'), t('projects.lead'))}
 <div class="filters">
   <div class="filter-row"><span class="filter-label" id="f-groups">${esc(t('projects.filter.groups'))}</span>
     <div class="chips" role="group" aria-labelledby="f-groups">${groupChips}</div></div>
-  <div class="filter-row"><span class="filter-label" id="f-languages">${esc(t('projects.filter.languages'))}</span>
-    <div class="chips" role="group" aria-labelledby="f-languages">${languageChips}</div></div>
+  <div class="filter-row"><span class="filter-label" id="f-techs">${esc(t('projects.filter.techs'))}</span>
+    <div class="chips" role="group" aria-labelledby="f-techs">${techChips}</div></div>
 </div>
 <p class="notice" data-filter-empty hidden>${esc(t('projects.filter.none'))}</p>
 <div class="cards" data-filterable>${data.projects.filter((p) => p.group !== 'games').map((p) => projectCard(p, lang, t)).join('')}</div>

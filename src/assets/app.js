@@ -21,14 +21,14 @@
     }));
   }
 
-  // Projects filters: a category and a language, both applied. The games have their own section,
+  // Projects filters: a category and a technology, both applied. The games have their own section,
   // hidden when none of its cards is shown; a notice says when nothing matches at all.
-  const filter = { group: 'all', language: 'all' };
+  const filter = { group: 'all', tech: 'all' };
   function applyProjectFilters() {
     const cards = document.querySelectorAll('[data-filterable] .card');
     cards.forEach((card) => {
       card.hidden = (filter.group !== 'all' && card.dataset.group !== filter.group)
-        || (filter.language !== 'all' && !card.dataset.languages.split('|').includes(filter.language));
+        || (filter.tech !== 'all' && !card.dataset.techs.split('|').includes(filter.tech));
     });
     const games = document.querySelector('[data-games]');
     if (games) games.hidden = ![...games.querySelectorAll('.card')].some((card) => !card.hidden);
@@ -36,7 +36,7 @@
     if (empty) empty.hidden = [...cards].some((card) => !card.hidden);
   }
   chipGroup('[data-filter]', 'data-filter', (group) => { filter.group = group; applyProjectFilters(); });
-  chipGroup('[data-language]', 'data-language', (language) => { filter.language = language; applyProjectFilters(); });
+  chipGroup('[data-tech]', 'data-tech', (tech) => { filter.tech = tech; applyProjectFilters(); });
 
   // Teaching filter, with live totals.
   const table = document.querySelector('[data-teaching]');

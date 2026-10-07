@@ -218,15 +218,15 @@ export function progress(projects, sprints) {
 }
 
 /**
- * Programming languages of the projects (their "languages" field), in a fixed order: the compiled
- * languages first, as recruiters read them, then the others. A language missing here fails the tests.
+ * Main technologies of the projects (their "techs" field: languages, and HTML/CSS), in a fixed order:
+ * the compiled languages first, as recruiters read them, then the others. One missing here fails the tests.
  */
-export const LANGUAGES = ['C', 'C++', 'C#', 'Java', 'Python', 'Ada', 'OCaml', 'SQL', 'JavaScript', 'TypeScript', 'LaTeX', 'HTML/CSS'];
+export const TECHS = ['C', 'C++', 'C#', 'Java', 'Python', 'Ada', 'OCaml', 'SQL', 'JavaScript', 'TypeScript', 'LaTeX', 'HTML/CSS'];
 
-/** The languages used by at least one project, in the order of LANGUAGES. */
-export function languagesOf(projects) {
-  const used = new Set(projects.flatMap((p) => p.languages));
-  return LANGUAGES.filter((l) => used.has(l));
+/** The technologies used by at least one project, in the order of TECHS. */
+export function techsOf(projects) {
+  const used = new Set(projects.flatMap((p) => p.techs));
+  return TECHS.filter((l) => used.has(l));
 }
 
 export function i18nParity(i18n) {

@@ -554,10 +554,10 @@ test('roadmap sprint numbers sit above their columns, on every screen', async ({
   expect(Math.abs(bar[0] - (track[0] + (9 * track[1]) / track[2]))).toBeLessThan(2);
 });
 
-test('project filters show the chosen category and language', async ({ page }) => {
+test('project filters show the chosen category and technology', async ({ page }) => {
   await page.goto('/fr/projects.html');
   const groups = page.getByRole('group', { name: 'Catégorie' });
-  const languages = page.getByRole('group', { name: 'Langage' });
+  const techs = page.getByRole('group', { name: 'Techno' });
   const visible = page.locator('[data-filterable] .card:visible');
   const shown = (key) => visible.evaluateAll((els, k) => els.map((e) => e.dataset[k]), key);
 
@@ -572,19 +572,19 @@ test('project filters show the chosen category and language', async ({ page }) =
   expect(new Set(await shown('group'))).toEqual(new Set(['games']));
 
   // Both filters apply: the games written in Java.
-  await languages.getByRole('button', { name: 'Java', exact: true }).click();
+  await techs.getByRole('button', { name: 'Java', exact: true }).click();
   await expect(visible).toHaveCount(2);
-  for (const l of await shown('languages')) expect(l.split('|')).toContain('Java');
-  // A language alone, over every category: C++ (topology, Qt viewer, parallel computing).
+  for (const l of await shown('techs')) expect(l.split('|')).toContain('Java');
+  // A technology alone, over every category: C++ (topology, Qt viewer, parallel computing).
   await groups.getByRole('button', { name: 'Tous' }).click();
-  await languages.getByRole('button', { name: 'C++', exact: true }).click();
-  for (const l of await shown('languages')) expect(l.split('|')).toContain('C++');
+  await techs.getByRole('button', { name: 'C++', exact: true }).click();
+  for (const l of await shown('techs')) expect(l.split('|')).toContain('C++');
   await expect(page.locator('[data-games]')).toBeHidden();
   // No project at all: a notice says so.
   await groups.getByRole('button', { name: 'Jeux' }).click();
   await expect(visible).toHaveCount(0);
   await expect(page.locator('[data-filter-empty]')).toBeVisible();
-  await languages.getByRole('button', { name: 'Tous' }).click();
+  await techs.getByRole('button', { name: 'Tous' }).click();
   await groups.getByRole('button', { name: 'Tous' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();
   await expect(page.locator('[data-filter-empty]')).toBeHidden();
