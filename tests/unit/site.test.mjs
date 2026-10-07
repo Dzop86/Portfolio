@@ -71,8 +71,10 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   assert.match(html, new RegExp(`--sprints:${scrum.sprintCount}`));
   assert.match(html, /data-state="done"[^>]*>[\s\S]*?S9/);
   assert.match(html, /data-state="current"/);
-  assert.match(html, /data-state="planned"/);
   const closed = sprints.filter((sp) => sp.stories.every((st) => st.closed)).length;
+  // A phase is planned only while it starts after the next sprint (none once the last phase has begun).
+  const later = scrum.phases.filter((ph) => Number(ph.sprints.match(/\d+/)[0]) > closed + 1).length;
+  assert.equal((html.match(/data-state="planned"/g) || []).length, later);
   assert.ok(html.includes(`Sprints 1 à ${closed} terminés`), 'the notice says how far the project is');
   assert.match(page('en', 'method'), /forecast/);
 });
@@ -400,5 +402,35 @@ test('the project management page shows the backlog, the sprint log and the metr
     assert.equal((burn.match(/class="chart-target"/g) || []).length, sprints.length + 1);
     assert.ok(html.includes(`>${scrum.sprintCount}</text>`), 'the burndown runs to the last planned sprint');
     for (const id of ['h-backlog', 'h-sprintlog', 'h-metrics', 'h-estimation', 'h-retro', 'h-risks']) assert.ok(html.includes(`id="${id}"`), id);
+  }
+});
+
+test('the parallel computing benchmarks are complete, exact where they must be, and shown as measured', async () => {
+  const { readBench } = await import('../../src/templates.mjs');
+  const { bench, sizes, backends, at } = readBench();
+  assert.ok(sizes.length >= 3, 'several sizes');
+  assert.ok(backends.includes('sequential') && backends.includes('openmp'));
+  for (const size of sizes) {
+    for (const b of backends) {
+      const r = at(b, size);
+      assert.ok(r, `${b} at ${size}`);
+      assert.ok(r.ms > 0 && r.vertices > 0);
+      // Sequential and OpenMP are exact; OpenCL and CUDA in double within 1e-12; float is only measured.
+      if (b === 'sequential' || b === 'openmp') assert.equal(r.max_defect_error, 0, `${b} at ${size}`);
+      if (b === 'opencl' || b === 'cuda-double') assert.ok(r.max_defect_error <= 1e-12, `${b} at ${size}`);
+      if (b.startsWith('cuda')) {
+        for (const k of ['upload_ms', 'kernels_ms', 'download_ms']) assert.ok(r[k] > 0, `${b} ${k}`);
+        // The page shows the rest of the wall time as work on the processor: it cannot be negative.
+        assert.ok(r.ms >= r.upload_ms + r.kernels_ms + r.download_ms, `${b} at ${size}: wall time covers the card's`);
+      }
+    }
+  }
+  assert.ok(bench.machine.cpu && bench.machine.openmp_threads > 0 && bench.runs >= 3);
+  for (const lang of LANGS) {
+    const html = page(lang, 'project-parallele');
+    const chart = html.slice(html.indexOf('data-chart="bench"'), html.indexOf('</svg>', html.indexOf('data-chart="bench"')));
+    assert.equal((chart.match(/class="chart-bar"/g) || []).length, backends.length);
+    const table = html.slice(html.indexOf('data-bench'), html.indexOf('</table>', html.indexOf('data-bench')));
+    assert.equal((table.match(/<tr>/g) || []).length, sizes.length + 1);
   }
 });

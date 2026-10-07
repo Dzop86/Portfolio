@@ -606,6 +606,7 @@ ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
 ${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
+${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
 <section class="split">
   <article class="panel">
@@ -1109,6 +1110,81 @@ function warStats(t, lang) {
   <p class="notice">${esc(t('bataille.why'))}</p>
   <pre class="naval-run" tabindex="0"><code>bataille --seed ${s.longest_seed}   # ${esc(fill(t('bataille.longest'), { plies: n(s.plies_longest) }))}
 bataille --stats 100000</code></pre>
+</section>`;
+}
+
+// Parallel curvature (D42): benchmarks measured by parbench on Charles's machine, read from the committed
+// JSON. Bars at the largest size, one hue (the speed-up is in the labels), and every size in a table.
+const BENCH_ORDER = ['sequential', 'openmp', 'opencl', 'cuda-double', 'cuda-float'];
+
+export function readBench() {
+  const bench = JSON.parse(readFileSync(join(ROOT, 'projects/parallele/data/bench.json'), 'utf8'));
+  const sizes = [...new Set(bench.results.map((r) => r.triangles))].sort((a, b) => a - b);
+  const backends = BENCH_ORDER.filter((b) => bench.results.some((r) => r.backend === b));
+  const at = (backend, triangles) => bench.results.find((r) => r.backend === backend && r.triangles === triangles);
+  return { bench, sizes, backends, at };
+}
+
+function parallelBench(t, lang) {
+  const { bench, sizes, backends, at } = readBench();
+  const n = (x, d = 0) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const ms = (x) => (x < 10 ? n(x, 2) : x < 100 ? n(x, 1) : n(x, 0));
+  const m = bench.machine;
+  const label = (b) => fill(t(`parbench.backend.${b}`), { threads: m.openmp_threads, gpu: m.cuda, cl: m.opencl });
+  const largest = sizes.at(-1);
+  const base = at('sequential', largest).ms;
+
+  // Horizontal bars: one row per version, the label on the left, time and speed-up at the bar's end.
+  const W = 720, left = 230, right = 150, row = 38, top = 8;
+  const H = top * 2 + row * backends.length;
+  const max = Math.max(...backends.map((b) => at(b, largest).ms));
+  const bars = backends.map((b, i) => {
+    const r = at(b, largest);
+    const w = Math.max(2, ((W - left - right) * r.ms) / max);
+    const y = top + i * row;
+    const text = fill(t('parbench.bar'), { ms: ms(r.ms), speedup: n(base / r.ms, 1) });
+    return `<g class="chart-hit"><title>${esc(`${label(b)} : ${text}`)}</title>
+      <rect class="chart-target" x="0" y="${y}" width="${W}" height="${row}"/>
+      <text class="chart-tick" x="${left - 10}" y="${y + row / 2 + 4}" text-anchor="end">${esc(label(b))}</text>
+      <path class="chart-bar" d="M${left},${y + 9} H${left + w - Math.min(4, w / 2)} Q${left + w},${y + 9} ${left + w},${y + 13} V${y + row - 13} Q${left + w},${y + row - 9} ${left + w - Math.min(4, w / 2)},${y + row - 9} H${left} Z"/>
+      <text class="chart-label" x="${left + w + 8}" y="${y + row / 2 + 4}">${esc(text)}</text>
+    </g>`;
+  }).join('');
+  const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="h-bench-chart" data-chart="bench">${bars}</svg>`;
+
+  const head = `<tr><th scope="col">${esc(t('parbench.size'))}</th>${backends.map((b) => `<th scope="col" class="num">${esc(label(b))}</th>`).join('')}</tr>`;
+  const rows = sizes.map((size) => `<tr><th scope="row">${n(size)}</th>${backends.map((b) => {
+    const r = at(b, size);
+    return `<td class="num">${ms(r.ms)} ms <span class="muted">×${n(at('sequential', size).ms / r.ms, 1)}</span></td>`;
+  }).join('')}</tr>`).join('');
+
+  const gpu = backends.filter((b) => b.startsWith('cuda'));
+  const cd = at('cuda-double', largest);
+  const transfers = gpu.length ? `<p>${esc(fill(t('parbench.transfers'), {
+    upload: ms(cd.upload_ms), kernels: ms(cd.kernels_ms), download: ms(cd.download_ms),
+    host: ms(cd.ms - cd.upload_ms - cd.kernels_ms - cd.download_ms), floatKernels: backends.includes('cuda-float') ? ms(at('cuda-float', largest).kernels_ms) : '–',
+  }))}</p>` : '';
+  const precision = backends.includes('cuda-float')
+    ? `<p>${esc(fill(t('parbench.float'), { error: at('cuda-float', largest).max_defect_error.toExponential(1) }))}</p>` : '';
+  const machine = fill(t('parbench.machine'), { cpu: m.cpu, threads: m.openmp_threads, logical: m.logical_processors, gpu: m.cuda || '–', runs: bench.runs });
+
+  return `<section class="block panel" aria-labelledby="h-bench">
+  <h2 id="h-bench">${esc(t('parbench.title'))}</h2>
+  <p>${esc(t('parbench.lead'))}</p>
+  <p class="meta">${esc(machine)}</p>
+  <figure class="chart-figure">
+    <h3 id="h-bench-chart">${esc(fill(t('parbench.chart'), { size: n(largest) }))}</h3>
+    <div class="chart-wrap" tabindex="0" role="region" aria-labelledby="h-bench-chart">${svg}</div>
+  </figure>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-bench">
+    <table class="bench" data-bench><thead>${head}</thead><tbody>${rows}</tbody></table>
+  </div>
+  ${transfers}
+  ${precision}
+  <p class="notice">${esc(t('parbench.memory'))}</p>
+  <pre class="naval-run" tabindex="0"><code>cd projects/parallele
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build
+./build/parbench --threads ${m.openmp_threads} --out data/bench.json</code></pre>
 </section>`;
 }
 

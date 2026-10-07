@@ -50,7 +50,7 @@
     "pitch": { "fr": "Simulateur de feux où les états dangereux sont interdits par le typage.", "en": "Traffic light simulator where dangerous states are ruled out by typing." },
     "stack": ["Ada", "SPARK", "GNAT", "AUnit", "Alire"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/ada" } },
-  { "id": "parallele", "sprint": "S28-S29", "points": 13, "status": "in-progress", "group": "science", "techs": ["C++"],
+  { "id": "parallele", "sprint": "S28-S29", "points": 13, "status": "in-progress", "group": "science", "widget": "parallel-bench", "techs": ["C++"],
     "name": { "fr": "Calcul parallèle CPU/GPU", "en": "CPU/GPU parallel computing" },
     "pitch": { "fr": "Courbure calculée en OpenMP, CUDA et OpenCL, avec benchmarks comparés.", "en": "Curvature computed with OpenMP, CUDA and OpenCL, with compared benchmarks." },
     "stack": ["C++", "OpenMP", "CUDA", "OpenCL"],

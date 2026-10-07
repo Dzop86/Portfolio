@@ -28,6 +28,7 @@ COPY projects/ml/export/pointnet.json ./projects/ml/export/
 COPY projects/bataille/data/stats.json ./projects/bataille/data/
 # Tic-tac-toe move book computed by the Python program.
 COPY projects/morpion/data/book.json ./projects/morpion/data/
+COPY projects/parallele/data/bench.json ./projects/parallele/data/
 RUN npm run build
 
 # Stage 2: serve it with nginx.
