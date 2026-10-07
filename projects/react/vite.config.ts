@@ -24,7 +24,8 @@ function siteApi(): Plugin {
 export default defineConfig({
   base: './',
   plugins: [react(), siteApi()],
-  build: { outDir: 'dist', emptyOutDir: true, target: 'es2022' },
+  // The 3D view's chunk is three.js (560 kB), loaded only with that view; the rest stays near 250 kB.
+  build: { outDir: 'dist', emptyOutDir: true, target: 'es2022', chunkSizeWarningLimit: 600 },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],

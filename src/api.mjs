@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, burndown, projectPage, techsOf, velocity, roadmapState } from './lib.mjs';
+import { TOPO_SAMPLES } from './templates.mjs';
 
 export const API_VERSION = 'v1';
 
@@ -80,6 +81,15 @@ export function buildApi(data) {
     'mesh-io.json': meshIo(read('projects/sql/data/measurements.csv')),
     'ml.json': (({ model, classes, points, test_accuracy: testAccuracy, max_logit_gap: maxLogitGap }) =>
       ({ model, classes, points, test_accuracy: testAccuracy, onnx_max_logit_gap: maxLogitGap }))(JSON.parse(read('projects/ml/export/pointnet.json'))),
+  };
+  // The meshes of the topology viewer and the WebAssembly build of projects/topologie that reads them,
+  // both published by the site (paths relative to its root).
+  files['meshes.json'] = {
+    wasm: 'assets/wasm/topo.js',
+    samples: TOPO_SAMPLES.map((id) => ({
+      id, file: `assets/samples/topologie/${id}.obj`,
+      name: { fr: data.i18n.fr[`topo.sample.${id}`], en: data.i18n.en[`topo.sample.${id}`] },
+    })),
   };
   files['index.json'] = { version: API_VERSION, files: Object.keys(files).sort() };
   return files;

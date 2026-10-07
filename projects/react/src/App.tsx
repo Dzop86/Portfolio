@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { ApiError, loadApi, type Api, type Lang } from './api';
 import { makeT } from './i18n';
 import { ProjectsView } from './views/ProjectsView';
 import { ResultsView } from './views/ResultsView';
 import { SprintsView } from './views/SprintsView';
+import type { MakeRenderer } from './views/ViewerView';
+import type { Reader } from './viewer/topology';
 
-export const VIEWS = ['projects', 'sprints', 'results'] as const;
+// three.js (half a megabyte) comes only with the 3D view.
+const ViewerView = lazy(() => import('./views/ViewerView').then((m) => ({ default: m.ViewerView })));
+
+export const VIEWS = ['projects', 'sprints', 'results', 'viewer'] as const;
 export type View = (typeof VIEWS)[number];
 
 /** The view named by the URL's fragment (#sprints), the projects otherwise. */
@@ -57,7 +62,16 @@ function useTheme(): [Theme, () => void] {
   return [theme, toggle];
 }
 
-export function App({ lang, apiBase, siteRoot = '../' }: { lang: Lang; apiBase?: string; siteRoot?: string }) {
+interface AppProps {
+  lang: Lang;
+  apiBase?: string;
+  siteRoot?: string;
+  /** For the tests: how the viewer reads meshes and draws them. */
+  read?: Reader;
+  makeRenderer?: MakeRenderer;
+}
+
+export function App({ lang, apiBase, siteRoot = '../', read, makeRenderer }: AppProps) {
   const t = useMemo(() => makeT(lang), [lang]);
   const [view, setView] = useState<View>(() => viewFromHash(window.location.hash));
   const [load, retry] = useApi(apiBase);
@@ -118,6 +132,25 @@ export function App({ lang, apiBase, siteRoot = '../' }: { lang: Lang; apiBase?:
         {load.state === 'ready' && view === 'projects' && <ProjectsView data={load.api.projects} lang={lang} t={t} siteRoot={siteRoot} />}
         {load.state === 'ready' && view === 'sprints' && <SprintsView data={load.api.sprints} lang={lang} t={t} />}
         {load.state === 'ready' && view === 'results' && <ResultsView data={load.api} lang={lang} t={t} />}
+        {load.state === 'ready' && view === 'viewer' && (
+          <Suspense
+            fallback={
+              <p role="status" className="muted">
+                {t('loading')}
+              </p>
+            }
+          >
+            <ViewerView
+            meshes={load.api.meshes}
+            lang={lang}
+            t={t}
+            siteRoot={siteRoot}
+            theme={theme}
+            {...(read ? { read } : {})}
+              {...(makeRenderer ? { makeRenderer } : {})}
+            />
+          </Suspense>
+        )}
       </main>
     </>
   );

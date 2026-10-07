@@ -75,8 +75,14 @@ export interface MlFile {
   onnx_max_logit_gap: number;
 }
 
+export interface MeshesFile {
+  wasm: string;
+  samples: { id: string; file: string; name: Text }[];
+}
+
 export interface Api {
   projects: ProjectsFile;
+  meshes: MeshesFile;
   sprints: SprintsFile;
   parallelBench: ParallelBenchFile;
   meshIo: MeshIoFile;
@@ -111,12 +117,13 @@ async function fetchJson<T>(url: string, signal?: AbortSignal): Promise<T> {
 /** Every file of the API, fetched in parallel; the first failure rejects the whole load. */
 export async function loadApi(base = API_BASE, signal?: AbortSignal): Promise<Api> {
   const get = <T,>(file: string) => fetchJson<T>(`${base}${file}`, signal);
-  const [projects, sprints, parallelBench, meshIo, ml] = await Promise.all([
+  const [projects, sprints, parallelBench, meshIo, ml, meshes] = await Promise.all([
     get<ProjectsFile>('projects.json'),
     get<SprintsFile>('sprints.json'),
     get<ParallelBenchFile>('parallel-bench.json'),
     get<MeshIoFile>('mesh-io.json'),
     get<MlFile>('ml.json'),
+    get<MeshesFile>('meshes.json'),
   ]);
-  return { projects, sprints, parallelBench, meshIo, ml };
+  return { projects, sprints, parallelBench, meshIo, ml, meshes };
 }

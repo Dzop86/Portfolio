@@ -110,3 +110,21 @@ thead th { color: var(--text-strong); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* 3D viewer: the canvas keeps its shape, the tip follows the pointer. */
+.viewer-controls { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-4) 0; }
+.btn[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-text); border-color: var(--pressed-bg); }
+.btn.file { position: relative; }
+.btn.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.btn.file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.viewer-stage { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.viewer-stage canvas { display: block; width: 100%; aspect-ratio: 4 / 3; max-height: 70vh; touch-action: none; }
+.viewer-stage .notice { margin: 0; border: 0; }
+.viewer-tip { position: absolute; pointer-events: none; background: var(--header-bg); color: var(--text-strong); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 2px var(--space-2); font-size: 0.85rem; white-space: nowrap; }
+.legend { margin: var(--space-4) 0; }
+.legend-bar { height: 12px; border-radius: 6px; background: linear-gradient(to right, var(--curv-neg), var(--curv-zero), var(--curv-pos)); }
+.legend-ticks { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); font-size: 0.85rem; margin-top: var(--space-1); }
+.invariants { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: var(--space-2) var(--space-4); }
+.invariants div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-2) var(--space-3); }
+.invariants dt { color: var(--muted); font-size: 0.85rem; }
+.invariants dd { margin: 0; color: var(--text-strong); font-weight: 600; font-variant-numeric: tabular-nums; }

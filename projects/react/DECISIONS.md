@@ -18,3 +18,13 @@
 ## R4. Le sprint en cours n'est pas tracé comme un sprint qui ne livre rien
 **Choix :** dans la vélocité, les points livrés ne couvrent que les sprints terminés ; le tableau marque le sprint ouvert « en cours ».
 **Pourquoi :** vu sur les captures : la courbe plongeait à 0 au dernier sprint, comme une panne, alors qu'il venait de commencer.
+
+## R5. three.js directement, pas react-three-fiber
+**Choix :** la visionneuse crée sa scène three.js dans un `useEffect` et la libère au démontage (rendu, contrôles, géométrie, matériau, observateur) ; React ne tient que ce qui est autour (mesh lu, invariants, erreur, infobulle).
+**Pourquoi :** une seule forme, sans scène déclarative à décrire ; react-three-fiber ajouterait une dépendance et un moteur de rendu React de plus pour un seul objet ; la vitrine fait la même scène à la main, et le cycle de vie (créer, mettre à jour, libérer) est ce qu'il faut savoir maîtriser.
+**Limite :** une scène plus riche (plusieurs objets, sélection, animations) gagnerait à passer à react-three-fiber.
+
+## R6. Le WebAssembly de topologie est celui du site, pas une copie
+**Choix :** la visionneuse importe `topo-api.js` de la vitrine (compilé dans le dashboard) et charge à l'exécution le module `assets/wasm/topo.js` que le site publie, à l'adresse donnée par l'API (`meshes.json`).
+**Pourquoi :** une seule version du code C++ compilé et de sa lecture : un correctif de topologie arrive dans la vitrine et le dashboard en même temps ; le dashboard n'embarque pas une seconde copie du module (100 ko) déjà servi.
+**Limite :** le dashboard dépend des chemins du site ; l'API les publie, et un test vérifie qu'ils existent dans le site construit.

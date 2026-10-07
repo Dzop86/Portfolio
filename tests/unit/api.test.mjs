@@ -42,7 +42,7 @@ test('meshIo: a missing column is named', () => {
 test('the API is complete, bilingual where it is shown, and drawn from the same files as the pages', () => {
   const data = loadData();
   const api = buildApi(data);
-  assert.deepEqual(api['index.json'], { version: 'v1', files: ['mesh-io.json', 'ml.json', 'parallel-bench.json', 'projects.json', 'sprints.json'] });
+  assert.deepEqual(api['index.json'], { version: 'v1', files: ['mesh-io.json', 'meshes.json', 'ml.json', 'parallel-bench.json', 'projects.json', 'sprints.json'] });
 
   const { projects, techs } = api['projects.json'];
   assert.equal(projects.length, data.projects.length);
@@ -67,6 +67,13 @@ test('the API is complete, bilingual where it is shown, and drawn from the same 
   assert.ok(io.results.every((r) => r.repetitions === 7 && r.median_ms > 0));
 
   assert.ok(api['parallel-bench.json'].results.length > 0);
+  // Every mesh named in both languages, and published by the site (with the WebAssembly reader).
+  const meshes = api['meshes.json'];
+  assert.deepEqual(meshes.samples.map((m) => m.id), ['torus', 'sphere', 'mobius', 'saddle']);
+  for (const m of meshes.samples) {
+    assert.ok(m.name.fr && m.name.en, m.id);
+    assert.ok(existsSync(join(import.meta.dirname, '../../projects/topologie/samples', `${m.id}.obj`)), m.file);
+  }
   const ml = api['ml.json'];
   assert.ok(ml.test_accuracy > 0.9 && ml.classes.length === 6);
 });
@@ -77,14 +84,24 @@ test('integration: the build writes the API under api/v1, as valid JSON identica
   const api = buildApi(loadData());
   assert.deepEqual(readdirSync(dir).sort(), Object.keys(api).sort());
   for (const [file, body] of Object.entries(api)) assert.deepEqual(JSON.parse(readFileSync(join(dir, file), 'utf8')), body, file);
+  // The files meshes.json points to exist in the built site.
+  const { wasm, samples } = api['meshes.json'];
+  for (const path of [wasm, ...samples.map((m) => m.file)]) assert.ok(existsSync(join(out, path)), path);
   // The dashboard is copied only once built; without it the site still builds.
   assert.equal(existsSync(join(out, 'dashboard')), existsSync(join(import.meta.dirname, '../../projects/react/dist')));
 });
 
-test('the React project page links to the dashboard in its own language', () => {
+test('the React project page links to the dashboard in its own language and shows it', () => {
   const out = build(mkdtempSync(join(tmpdir(), 'react-page-')));
   for (const lang of ['fr', 'en']) {
     const html = readFileSync(join(out, lang, 'project-react.html'), 'utf8');
     assert.match(html, new RegExp(`href="\\.\\./dashboard/\\?lang=${lang}" data-link="demo"`));
+    // The dashboard block: its link, and both screenshots in the page's language, with their text.
+    assert.match(html, new RegExp(`href="\\.\\./dashboard/\\?lang=${lang}" data-dashboard`));
+    for (const name of ['results', 'viewer']) {
+      const img = `react-${name}-${lang}.png`;
+      assert.ok(html.includes(`src="../assets/images/${img}"`), img);
+      assert.ok(existsSync(join(out, 'assets/images', img)), img);
+    }
   }
 });

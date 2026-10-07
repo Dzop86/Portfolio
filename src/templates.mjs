@@ -605,6 +605,7 @@ ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
 ${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
+${p.widget === 'react-dashboard' ? reactDashboard(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
@@ -648,7 +649,7 @@ function meshDemo(t) {
 
 const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
   'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid'];
-const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
+export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 
 // C++ topology compiled to WebAssembly, drawn with three.js (D16, D17). Error labels are shared with the lib-c demo.
 function topoViewer(t) {
@@ -1051,6 +1052,21 @@ function rogueScreenshot(t, lang) {
 dotnet run --project src/Rogue.Cli -- --lang ${lang}     # ${esc(t('rogue.terminal'))}
 docker compose up --build rogue-api                # ${esc(t('rogue.api'))}
 godot --path godot                                 # ${esc(t('rogue.godot'))}</code></pre>
+</section>`;
+}
+
+// The React dashboard (D43): a link to it, and screenshots refreshed by projects/react/scripts/screenshots.mjs.
+function reactDashboard(t, lang) {
+  const shot = (name) => `<figure class="naval-shot">
+    <img src="../assets/images/react-${name}-${lang}.png" width="1280" height="800" loading="lazy" alt="${esc(t(`reactdash.${name}.alt`))}">
+    <figcaption class="meta">${esc(t(`reactdash.${name}.caption`))}</figcaption>
+  </figure>`;
+  return `<section class="block panel" aria-labelledby="h-reactdash">
+  <h2 id="h-reactdash">${esc(t('reactdash.title'))}</h2>
+  <p>${esc(t('reactdash.lead'))}</p>
+  <p class="actions"><a class="btn btn-primary" href="../dashboard/?lang=${lang}" data-dashboard>${esc(t('reactdash.open'))}</a></p>
+  ${shot('results')}
+  ${shot('viewer')}
 </section>`;
 }
 

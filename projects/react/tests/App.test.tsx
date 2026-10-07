@@ -37,25 +37,26 @@ afterEach(() => {
 });
 
 describe('viewFromHash', () => {
-  it('knows the three views and falls back to the projects', () => {
+  it('knows the four views and falls back to the projects', () => {
     expect(viewFromHash('#sprints')).toBe('sprints');
     expect(viewFromHash('#results')).toBe('results');
+    expect(viewFromHash('#viewer')).toBe('viewer');
     expect(viewFromHash('#nope')).toBe('projects');
     expect(viewFromHash('')).toBe('projects');
   });
 });
 
 describe('the dashboard', () => {
-  it('loads the five API files, then lists every project with a link to its page', async () => {
+  it('loads the six API files, then lists every project with a link to its page', async () => {
     const fetch = serve();
     render(<App lang="fr" apiBase="../api/v1/" />);
     expect(screen.getByRole('status')).toHaveTextContent('Chargement');
     const cards = await screen.findAllByRole('listitem');
     const api = files['projects.json'] as { projects: { id: string }[] };
     expect(cards).toHaveLength(api.projects.length);
-    expect(fetch).toHaveBeenCalledTimes(5);
+    expect(fetch).toHaveBeenCalledTimes(6);
     expect(fetch.mock.calls.map(([u]) => u).sort()).toEqual(
-      ['mesh-io.json', 'ml.json', 'parallel-bench.json', 'projects.json', 'sprints.json'].map((f) => `../api/v1/${f}`),
+      ['mesh-io.json', 'meshes.json', 'ml.json', 'parallel-bench.json', 'projects.json', 'sprints.json'].map((f) => `../api/v1/${f}`),
     );
     const parallele = cards.find((c) => c.dataset.project === 'parallele')!;
     expect(within(parallele).getByRole('link', { name: 'Fiche du projet' })).toHaveAttribute('href', '../fr/project-parallele.html');
