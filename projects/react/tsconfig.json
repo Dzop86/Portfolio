@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "allowJs": true,
     "checkJs": false,
-    "types": ["vite/client", "@testing-library/jest-dom/vitest"]
+    "types": ["node", "vite/client", "@testing-library/jest-dom/vitest"]
   },
   "include": ["src", "tests", "vite.config.ts"]
 }

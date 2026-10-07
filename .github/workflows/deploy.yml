@@ -27,13 +27,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Never publish a site whose tests fail, privacy scan included.
-      - run: npm test
-        env:
-          PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
       # The React dashboard (D43): its tests, then its bundle, which the site's build copies to dashboard/.
       - run: npm ci && npm test && npm run build
         working-directory: projects/react
+      # Never publish a site whose tests fail, privacy scan included; the dashboard's link must resolve.
+      - run: npm test
+        env:
+          PRIVATE_TERMS: ${{ secrets.PRIVATE_TERMS }}
+          REQUIRE_DASHBOARD: 1
       - id: pages
         uses: actions/configure-pages@v6
       - run: npm run build
