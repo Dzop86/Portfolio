@@ -147,6 +147,46 @@ export function criticalCounts(critical) {
 }
 
 /**
+ * Persistence diagram of the last elevation (C++ topo::persistence, D48): Betti numbers over Z/2 and the
+ * pairs, each with its dimension (0 component, 1 loop, 2 cavity), the vertices where it is born and dies
+ * (deathVertex null for an essential class) and their heights in the viewer's units (death Infinity).
+ * Above the library's limit of triangles, { tooLarge: true, limit } instead.
+ */
+export function persistence(lib, { height }) {
+  const status = lib._topoc_persistence();
+  if (status === 13) return { tooLarge: true, limit: lib._topoc_persistence_limit() };
+  if (status !== 0) throw new Error('persistence: compute the elevation first');
+  const { betti, pairs } = JSON.parse(lib.UTF8ToString(lib._topoc_pairs()));
+  return {
+    betti,
+    pairs: pairs.map(([dimension, b, d]) => ({
+      dimension, birthVertex: b, deathVertex: d < 0 ? null : d, birth: height[b], death: d < 0 ? Infinity : height[d],
+    })),
+  };
+}
+
+/**
+ * What the diagram shows above a persistence threshold `tau`: the pairs that live longer than `tau` (essential
+ * classes always; at 0, everything but the zero-length pairs of plateau ties, made by tie-breaking), at most `max` of them drawn (the most persistent first) and how many are not, the counts
+ * of kept finite pairs and essential classes per dimension, and the vertices of the kept pairs (the critical
+ * points worth marking).
+ */
+export function diagram(pairs, tau, max = 2000) {
+  const kept = pairs.filter((p) => p.death - p.birth > tau);
+  const finite = [0, 0, 0], essential = [0, 0, 0];
+  const vertices = new Set();
+  for (const p of kept) {
+    (p.deathVertex === null ? essential : finite)[p.dimension] += 1;
+    vertices.add(p.birthVertex);
+    if (p.deathVertex !== null) vertices.add(p.deathVertex);
+  }
+  // Compared, not subtracted: two essential classes both live Infinity, and Infinity - Infinity is NaN.
+  const life = (p) => p.death - p.birth;
+  const drawn = [...kept].sort((a, b) => (life(a) !== life(b) ? (life(b) > life(a) ? 1 : -1) : a.birth - b.birth)).slice(0, max);
+  return { kept, drawn, hidden: kept.length - drawn.length, finite, essential, vertices };
+}
+
+/**
  * The lower-star filtration for drawing: triangles sorted by their highest vertex, so that the sublevel set
  * up to rank r is the first `faces(r)` triangles; and the rank of the last vertex at or below a height.
  */

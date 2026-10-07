@@ -673,8 +673,12 @@ function meshDemo(t) {
 
 const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
   'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid', 'height.value', 'height.counts',
-  'height.check', 'height.sum', 'tip.height', 'sublevel'];
+  'height.check', 'height.sum', 'tip.height', 'sublevel', 'pers.summary', 'pers.hidden', 'pers.toolarge', 'pers.dim.0',
+  'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
+// Persistence diagram marks, centred on 0 (D48): a disc for components, a triangle for loops, a square for
+// cavities, so that the dimension does not rest on colour alone. Shared with the viewer through data-shapes.
+export const PERS_SHAPES = ['M-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0', 'M0,-4.6L4.6,3.6H-4.6Z', 'M-3.6,-3.6H3.6V3.6H-3.6Z'];
 
 // C++ topology compiled to WebAssembly, drawn with three.js (D16, D17). Error labels are shared with the lib-c demo.
 function topoViewer(t) {
@@ -685,7 +689,7 @@ function topoViewer(t) {
   };
   const samples = TOPO_SAMPLES.map((key) =>
     `<button type="button" class="btn btn-ghost" aria-pressed="false" data-sample="../assets/samples/topologie/${key}.obj">${esc(t(`topo.sample.${key}`))}</button>`).join('');
-  return `<section class="block panel viewer" aria-labelledby="h-viewer" data-topo-viewer data-labels="${esc(JSON.stringify(labels))}">
+  return `<section class="block panel viewer" aria-labelledby="h-viewer" data-topo-viewer data-labels="${esc(JSON.stringify(labels))}" data-shapes="${esc(JSON.stringify(PERS_SHAPES))}">
   <h2 id="h-viewer">${esc(t('topo.title'))}</h2>
   <p>${esc(t('topo.lead'))}</p>
   <div class="actions" role="group" aria-label="${esc(t('demo.samples'))}"><span class="muted demo-samples">${esc(t('demo.samples'))}</span>${samples}
@@ -718,6 +722,18 @@ function topoViewer(t) {
         <ul class="topo-keys" aria-hidden="true">${['min', 'saddle', 'max'].map((k) => `<li><span class="topo-key is-${k}"></span>${esc(t(`topo.critical.${k}`))}</li>`).join('')}</ul>
         <svg class="topo-chi" viewBox="0 0 300 120" role="img" aria-labelledby="topo-chi-title" data-chi><title id="topo-chi-title">${esc(t('topo.chi.title'))}</title></svg>
         <p class="meta">${esc(t('topo.height.note'))}</p>
+        <figure class="topo-pers" data-persistence>
+          <figcaption><strong>${esc(t('topo.pers.title'))}</strong></figcaption>
+          <div class="rt-slider"><label for="topo-tau">${esc(t('topo.pers.tau'))}</label><input id="topo-tau" type="range" min="0" max="1000" step="1" value="0" data-tau><output for="topo-tau" data-tau-value></output></div>
+          <p data-pers-summary aria-live="polite"></p>
+          <ul class="topo-keys" aria-hidden="true">${[0, 1, 2].map((d) => `<li><svg class="pers-key" viewBox="-6 -6 12 12"><path class="pers-shape is-h${d}" d="${PERS_SHAPES[d]}"/></svg>${esc(t(`topo.label.pers.dim.${d}`))}</li>`).join('')}</ul>
+          <svg class="topo-diagram" viewBox="0 0 300 300" role="img" aria-labelledby="topo-pers-desc" data-diagram><desc id="topo-pers-desc">${esc(t('topo.pers.desc'))}</desc></svg>
+          <p class="meta" data-pers-hidden hidden></p>
+          <details class="chart-data"><summary>${esc(t('topo.pers.table'))}</summary><div class="table-wrap" tabindex="0" role="region" aria-label="${esc(t('topo.pers.title'))}"><table data-pers-table>
+            <thead><tr><th scope="col">${esc(t('topo.pers.col.dim'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.birth'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.death'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.life'))}</th></tr></thead>
+            <tbody></tbody></table></div></details>
+          <p class="meta">${esc(t('topo.pers.note'))}</p>
+        </figure>
       </div>
       <p class="meta">${esc(t('topo.help'))}</p>
       <p class="meta">${esc(t('topo.note.boundary'))}</p>

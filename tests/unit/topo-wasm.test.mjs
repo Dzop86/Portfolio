@@ -123,3 +123,53 @@ test('the height and its critical points come from the C++ code: a standing toru
   readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'torus.obj')));
   assert.throws(() => elevation(lib, [0, 0, 0]), /zero direction/);
 });
+
+test('the persistence diagram comes from the C++ code: Betti numbers, births at the critical points', async () => {
+  const { elevation, persistence, AXES } = await import('../../src/assets/topo-api.js');
+  const betti = { torus: [1, 2, 1], sphere: [1, 0, 1], mobius: [1, 1, 0], saddle: [1, 0, 0] };
+  for (const [name, expected] of Object.entries(betti)) {
+    readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', `${name}.obj`)));
+    for (const axis of ['x', 'y', 'z']) {
+      const e = elevation(lib, AXES[axis]);
+      const p = persistence(lib, e);
+      assert.deepEqual(p.betti, expected, `${name} ${axis}`);
+      assert.equal(p.pairs.filter((x) => x.deathVertex === null).length, expected[0] + expected[1] + expected[2]);
+      // Every vertex is the end of as many pairs as its Morse multiplicity.
+      const events = new Map();
+      for (const x of p.pairs) for (const v of [x.birthVertex, x.deathVertex]) if (v !== null) events.set(v, (events.get(v) ?? 0) + 1);
+      const multiplicity = new Map(e.critical.map((c) => [c.vertex, Math.abs(c.index)]));
+      assert.deepEqual([...events].sort(), [...multiplicity].sort(), `${name} ${axis}`);
+      // Heights in the viewer's units: a pair dies no lower than it was born.
+      for (const x of p.pairs) {
+        assert.equal(x.birth, e.height[x.birthVertex]);
+        assert.ok(x.death >= x.birth);
+      }
+    }
+  }
+  // The standing torus: its two loops are born at its two saddles.
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'torus.obj')));
+  const e = elevation(lib, AXES.y);
+  const loops = persistence(lib, e).pairs.filter((x) => x.dimension === 1);
+  assert.deepEqual(loops.map((x) => x.birthVertex), e.critical.filter((c) => c.kind === 'saddle').map((c) => c.vertex));
+});
+
+test('the persistence needs an elevation, and refuses meshes above its limit', async () => {
+  const { elevation, persistence, AXES } = await import('../../src/assets/topo-api.js');
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'sphere.obj')));
+  assert.throws(() => persistence(lib, { height: [] }), /elevation/);
+  // A flat grid just above the limit of triangles.
+  const limit = lib._topoc_persistence_limit();
+  const n = Math.ceil(Math.sqrt(limit / 2)) + 1;
+  const lines = [];
+  for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) lines.push(`v ${i} ${(i * j) % 7} ${j}`);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const a = i * (n + 1) + j + 1, b = a + n + 1;
+      lines.push(`f ${a} ${b} ${b + 1}`, `f ${a} ${b + 1} ${a + 1}`);
+    }
+  }
+  const r = readTopology(lib, new TextEncoder().encode(lines.join('\n')));
+  assert.equal(r.ok, true);
+  assert.ok(r.indices.length / 3 > limit);
+  assert.deepEqual(persistence(lib, elevation(lib, AXES.y)), { tooLarge: true, limit });
+});

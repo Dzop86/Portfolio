@@ -159,6 +159,75 @@ test('the topology viewer filters by height and counts the critical points (spri
   expect(errors).toEqual([]);
 });
 
+// A square terrain, flat at 0 but for four pits of known depth (cones): each pit is a component that dies
+// when the water reaches the plain, so it lives exactly as long as it is deep (as in test_persistence.cpp).
+function terrain() {
+  const n = 40, pits = [[8, 8, 3], [30, 10, 1.5], [12, 30, 0.75], [30, 30, 2.25]];
+  const lines = [];
+  for (let i = 0; i <= n; i++) {
+    for (let j = 0; j <= n; j++) {
+      const h = Math.min(0, ...pits.map(([x, z, d]) => -d * Math.max(0, 1 - Math.hypot(i - x, j - z) / 5)));
+      lines.push(`v ${i} ${h} ${j}`);
+    }
+  }
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const a = i * (n + 1) + j + 1, b = a + n + 1;
+      lines.push(`f ${a} ${b} ${b + 1}`, `f ${a} ${b + 1} ${a + 1}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+test('the topology viewer shows the persistence diagram and filters the noise (sprint 37)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  const summary = viewer.locator('[data-pers-summary]');
+  const points = viewer.locator('[data-diagram] .pers-point');
+
+  // The torus: its four classes never die, the Betti numbers 1, 2, 1; nothing else.
+  await expect(summary).toHaveText('Above the threshold: 0 component(s), 0 loop(s) and 0 cavity(ies) that die; classes that never die (Betti numbers): 1, 2, 1.');
+  await expect(points).toHaveCount(4);
+  await expect(viewer.locator('[data-diagram] .pers-point.is-essential')).toHaveCount(4);
+  await page.getByRole('button', { name: 'Möbius strip' }).click();
+  await expect(summary).toContainText('(Betti numbers): 1, 1, 0.');
+  await page.getByRole('button', { name: 'Sphere' }).click();
+  await expect(summary).toContainText('(Betti numbers): 1, 0, 1.');
+
+  // A terrain with four pits: three die (the deepest one never does).
+  await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
+  await expect(summary).toHaveText('Above the threshold: 3 component(s), 0 loop(s) and 0 cavity(ies) that die; classes that never die (Betti numbers): 1, 0, 0.');
+  await expect(points).toHaveCount(4);
+  // The pits live 0.75, 1.5 and 2.25 out of a range of 3: a threshold of 40 % keeps the two deepest.
+  const tau = page.getByRole('slider', { name: 'Minimum persistence' });
+  await tau.fill('400');
+  await expect(summary).toContainText('Above the threshold: 2 component(s)');
+  await expect(viewer.locator('[data-diagram] .pers-point.is-noise')).toHaveCount(1);
+  // The table lists the kept pairs, the most persistent first.
+  await viewer.getByText('Show the pairs').click();
+  const rows = viewer.locator('[data-pers-table] tbody tr');
+  await expect(rows).toHaveCount(3);
+  await expect(rows.first()).toContainText('never');
+  // With the keyboard, to the end: only the class that never dies.
+  await tau.focus();
+  await page.keyboard.press('End');
+  await expect(summary).toContainText('Above the threshold: 0 component(s)');
+  await expect(rows).toHaveCount(1);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  // On a phone too, the slider keeps a usable track (its label goes on a row of its own).
+  expect(await tau.evaluate((el) => el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(120);
+  expect(await tau.evaluate((el) => el.closest('.rt-slider').querySelector('output').scrollWidth - el.closest('.rt-slider').querySelector('output').clientWidth)).toBeLessThanOrEqual(0);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the SQL playground runs the examples, a typed query, and survives errors, changes and endless queries', async ({ page }) => {
   // Three loads of the database and a deliberate 5 s timeout: more than the default 30 s on slower engines.
   test.setTimeout(60000);

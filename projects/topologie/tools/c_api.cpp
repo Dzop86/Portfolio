@@ -5,6 +5,7 @@
 #include "topo/invariants.hpp"
 #include "topo/mesh.hpp"
 #include "topo/morse.hpp"
+#include "topo/persistence.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -29,6 +30,8 @@ struct State {
     std::vector<uint32_t> order;     // vertices from lowest to highest
     std::vector<int32_t> euler;      // chi of the sublevel set after each vertex of `order`
     std::string critical;            // JSON: [[vertex, kind, index], ...] in the order of the filtration
+    std::vector<double> elevation;   // the heights topo::elevation ordered (mesh units), for the persistence
+    std::string pairs;               // JSON: {"betti": [b0, b1, b2], "pairs": [[dim, birth vertex, death vertex or -1], ...]}
     std::string error;
     std::size_t line = 0;
 };
@@ -137,6 +140,8 @@ int topoc_elevation(double dx, double dy, double dz) {
             state.height.push_back(static_cast<float>((p[0] * dx + p[1] * dy + p[2] * dz) / n));
         }
         state.order = e.order;
+        state.elevation = e.height;
+        state.pairs.clear();
         state.euler.assign(e.euler.begin(), e.euler.end());
         state.critical = "[";
         for (const auto& c : e.critical) {
@@ -155,5 +160,33 @@ const float* topoc_height() { return state.height.data(); }
 const uint32_t* topoc_order() { return state.order.data(); }
 const int32_t* topoc_sublevel_euler() { return state.euler.data(); }
 const char* topoc_critical() { return state.critical.c_str(); }
+
+// Persistence diagram of the last elevation (same heights, same order of the ties). 0; 12 without an
+// elevation; 13 when the mesh has more than kPersistenceFaces triangles (half a second in WebAssembly at
+// the limit, measured in D48). Pairs give vertices only: their heights are those of topoc_height, in the viewer's units.
+constexpr uint32_t kPersistenceFaces = 300000;
+
+int topoc_persistence() {
+    if (!state.mesh || state.elevation.size() != state.mesh->vertex_count()) return 12;
+    if (state.mesh->face_count() > kPersistenceFaces) return 13;
+    try {
+        const auto p = topo::persistence(*state.mesh, state.elevation);
+        std::string s = "{\"betti\":[" + std::to_string(p.betti[0]) + "," + std::to_string(p.betti[1]) + "," +
+                        std::to_string(p.betti[2]) + "],\"pairs\":[";
+        for (std::size_t k = 0; k < p.pairs.size(); ++k) {
+            const auto& x = p.pairs[k];
+            if (k > 0) s += ",";
+            s += "[" + std::to_string(x.dimension) + "," + std::to_string(x.birth_vertex) + "," +
+                 (x.essential() ? std::string("-1") : std::to_string(x.death_vertex)) + "]";
+        }
+        state.pairs = s + "]}";
+        return 0;
+    } catch (const std::exception&) {
+        return 12;
+    }
+}
+
+const char* topoc_pairs() { return state.pairs.c_str(); }
+uint32_t topoc_persistence_limit() { return kPersistenceFaces; }
 
 }  // extern "C"

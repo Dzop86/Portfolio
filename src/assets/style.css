@@ -340,7 +340,8 @@ a:hover { text-decoration-thickness: 2px; }
 .legend-ticks span:last-child { transform: translateX(-100%); }
 .legend-note { margin: var(--space-1) 0 0; }
 .legend-scale { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
-@media (max-width: 720px) { .viewer-grid { grid-template-columns: 1fr; } }
+/* minmax(0, ...): a wide child (the table of persistence pairs) scrolls in its frame instead of widening the page. */
+@media (max-width: 720px) { .viewer-grid { grid-template-columns: minmax(0, 1fr); } }
 
 /* Timelines */
 .timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--accent); }
@@ -533,7 +534,7 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .topo-mode { border: 0; padding: 0; margin: var(--space-3) 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
 .topo-mode legend { font-weight: 600; color: var(--text-strong); margin-bottom: var(--space-1); }
 .topo-mode label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; }
-.topo-height { display: grid; gap: var(--space-2); }
+.topo-height { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
 .topo-height[hidden] { display: none; }
 /* "1,41 sur 1,41": wider than the ray tracer's values. */
 .topo-height .rt-slider { grid-template-columns: auto minmax(0, 1fr) 7em; }
@@ -547,3 +548,26 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .topo-chi .chi-axis { stroke: var(--chart-grid); }
 .topo-chi .chi-level { stroke: var(--chart-ref); stroke-dasharray: 4 3; }
 .topo-chi text { fill: var(--muted); font: 11px var(--font-body); }
+
+/* Persistence diagram (sprint 37): a mark per dimension, in the colours of the critical points that give birth
+   to it (minimum, saddle, maximum); the noise under the threshold is greyed. */
+/* minmax(0, 1fr): an implicit `auto` column would take the width of the table of pairs. */
+.topo-pers { margin: var(--space-3) 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+/* "Minimum persistence" takes its own row: beside it and its value, the track had no room in the viewer's
+   narrow column (on a phone, the threshold's label does the same). */
+.topo-pers .rt-slider { grid-template-columns: minmax(0, 1fr) 7em; }
+.topo-pers .rt-slider label { grid-column: 1 / -1; }
+@media (max-width: 480px) { .topo-height .rt-slider label { grid-column: 1 / -1; } .topo-height .rt-slider { grid-template-columns: minmax(0, 1fr) 7em; } }
+.topo-diagram { width: 100%; height: auto; max-width: 360px; }
+/* The browser's [hidden] rule does not reach SVG elements. */
+.topo-diagram[hidden] { display: none; }
+.topo-diagram .pers-axis { stroke: var(--chart-grid); }
+.topo-diagram .pers-diagonal { stroke: var(--chart-grid); stroke-width: 1.5; }
+.topo-diagram .pers-band { fill: var(--chart-grid); opacity: 0.35; }
+.topo-diagram .pers-infinity { stroke: var(--chart-ref); stroke-dasharray: 4 3; }
+.topo-diagram text { fill: var(--muted); font: 11px var(--font-body); }
+.pers-shape.is-h0 { fill: var(--crit-min); }
+.pers-shape.is-h1 { fill: var(--crit-saddle); }
+.pers-shape.is-h2 { fill: var(--crit-max); }
+.pers-point.is-noise .pers-shape { fill: var(--muted); opacity: 0.45; }
+.pers-key { width: 12px; height: 12px; margin-right: var(--space-1); vertical-align: middle; }

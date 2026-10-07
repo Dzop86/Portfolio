@@ -13,6 +13,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] Sprint 36 : `src/morse.cpp` (lien inférieur, indice, départage des égalités) et ses tests ; le mode hauteur de `src/viewer/topoviewer.js` (filtration, marqueurs, courbe de χ).
 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« j'ai relu, c'est top »), pour le sprint 36.
+- [ ] Sprint 37 : `src/persistence.cpp` (ordre de la filtration, réduction et « clearing », paires d'un même sommet écartées) et ses tests (oracle bottleneck) ; `topoc_persistence` ; le diagramme de `src/viewer/topoviewer.js` (seuil, marqueurs, tableau).
 
 ## Constats
 
@@ -28,4 +29,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `src/morse.cpp`, `tests/test_morse.cpp` | (Claude) Vu en compilant avec `-Wsign-conversion` (que Clang active avec `-Wconversion`, pas GCC) : un `int` indexait un `std::array` ; la CI macOS aurait échoué. Dans le test, un `int64_t` rangé dans un `int` et un `EXPECT` sans accolades | Indice `std::size_t`, `auto`, accolades |
 | 2026-10-07 | `src/viewer/topoviewer.js` | (Claude) Relecture : une sphère et un matériau créés par point critique, à chaque maillage et à chaque changement d'axe, jamais libérés (mémoire de la carte graphique) | Une sphère et un matériau par sorte, partagés |
 | 2026-10-07 | `src/viewer/topoviewer.js` | (Claude) Relecture : `Math.max(...euler)` sur un tableau d'une valeur par sommet dépasse le nombre d'arguments d'un appel sur un gros fichier déposé ; le chemin de la courbe avait un segment par sommet | Bornes par une boucle ; le chemin ne garde que les sauts de χ |
+| 2026-10-08 | `tests/test_persistence.cpp` | (Claude) Le test de stabilité passait, mais sa fonction « rugueuse » n'avait que 2 paires : il ne testait presque rien | Bruit plus fort, grille plus grande, et le test exige au moins 10 paires avant de mesurer |
+| 2026-10-08 | `tests/test_persistence.cpp` | (Claude) Le test de l'ordre des paires passait même en cassant le tri : sur un tore lisse, il n'y a aucune paire finie à ordonner | Hauteur bruitée, plus de 10 paires exigées ; la mutation est maintenant attrapée |
+| 2026-10-08 | `src/persistence.cpp` | (Claude) Mutation survivante, et c'est normal : mettre les faces avant leurs arêtes au sein d'un même sommet ne change pas les paires entre sommets (elles ne dépendent que des rangs des blocs de la matrice de bord, un bloc par sommet) | Rien à corriger ; noté pour la relecture |
+| 2026-10-08 | `src/persistence.cpp` | (Claude) Vu en compilant avec Clang 19 : `std::stable_sort` appelle une fonction marquée obsolète de la bibliothèque de GCC 12, et `-Werror` refuse | `std::sort` sur un ordre total (les sommets départagent), sortie déterministe |
+| 2026-10-08 | `src/assets/topo-api.js` | (Claude) Relecture : le tri du diagramme soustrayait les persistances ; pour deux classes sans fin, Infinity − Infinity = NaN, et l'ordre ne tenait que par chance | Comparaison explicite |
 | | | | |

@@ -1,5 +1,5 @@
 // Topology viewer: a mesh coloured by Gaussian curvature, or by its height with the height filtration and
-// its critical points (sprint 36), with its invariants, all computed by the C++ library of
+// its critical points (sprint 36) and its persistence diagram (sprint 37), with its invariants, all computed by the C++ library of
 // projects/topologie compiled to WebAssembly. Bundled with three.js at build time (D17).
 import {
   AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, DoubleSide, Group, Mesh,
@@ -7,7 +7,7 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, criticalCounts, elevation, filtration, interiorCurvature, loadTopo, quantileScale, readTopology, turns,
+  AXES, criticalCounts, diagram, elevation, filtration, interiorCurvature, loadTopo, persistence, quantileScale, readTopology, turns,
 } from '../assets/topo-api.js';
 
 const root = document.querySelector('[data-topo-viewer]');
@@ -30,6 +30,14 @@ function start(root) {
   const sublevel = root.querySelector('[data-sublevel]');
   const criticalText = root.querySelector('[data-critical]');
   const chi = root.querySelector('[data-chi]');
+  const tau = root.querySelector('[data-tau]');
+  const tauValue = root.querySelector('[data-tau-value]');
+  const persSummary = root.querySelector('[data-pers-summary]');
+  const persHidden = root.querySelector('[data-pers-hidden]');
+  const persPlot = root.querySelector('[data-diagram]');
+  const persRows = root.querySelector('[data-pers-table] tbody');
+  const persDetails = persRows.closest('details');
+  const shapes = JSON.parse(root.dataset.shapes);
   const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
   const num = (n, digits = 3) => n.toLocaleString(lang, { maximumFractionDigits: digits });
 
@@ -112,6 +120,7 @@ function start(root) {
     r.filtration = filtration(r.indices, r.elevation);
     r.heightColours = heightColours(r.elevation);
     r.counts = criticalCounts(r.elevation.critical);
+    r.persistence = persistence(r.lib, r.elevation);
   }
 
   // One sphere and one material per kind, shared by every marker and every mesh: clearing the group frees
@@ -126,6 +135,7 @@ function start(root) {
       const m = new Mesh(ball, markerMaterial[p.kind]);
       m.position.set(r.positions[3 * p.vertex], r.positions[3 * p.vertex + 1], r.positions[3 * p.vertex + 2]);
       m.userData.rank = r.filtration.rank[p.vertex];
+      m.userData.vertex = p.vertex;
       markers.add(m);
     }
   }
@@ -169,11 +179,78 @@ function start(root) {
     const faces = rank < 0 ? 0 : r.filtration.faces(rank);
     shape.geometry.setDrawRange(0, 3 * faces);
     markers.visible = true;
-    for (const m of markers.children) m.visible = m.userData.rank <= rank;
+    // Under the level, and not only the end of pairs shorter than the persistence threshold.
+    const kept = r.persistence.tooLarge ? null : diagram(r.persistence.pairs, persistenceThreshold(r)).vertices;
+    for (const m of markers.children) m.visible = m.userData.rank <= rank && (!kept || kept.has(m.userData.vertex));
     levelValue.textContent = fill(labels['height.value'], { h: num(h - lo, 2), max: num(hi - lo, 2) });
     sublevel.textContent = fill(labels.sublevel, { faces: num(faces), total: num(r.indices.length / 3), chi: rank < 0 ? 0 : euler[rank] });
     drawChi(r, h);
     render();
+  }
+
+  // --- persistence diagram (sprint 37) ----------------------------------------------------------
+  // The threshold is a share of the height range, like the level: 0 to 1000 thousandths.
+  function persistenceThreshold(r) {
+    const { height, order } = r.elevation;
+    return (Number(tau.value) / 1000) * (height[order[order.length - 1]] - height[order[0]]);
+  }
+
+  const TABLE_ROWS = 100;
+
+  function drawPersistence() {
+    if (!shape) return;
+    const r = shape.userData;
+    const p = r.persistence;
+    const parts = [persPlot, tau.closest('.rt-slider'), persDetails];
+    parts.forEach((el) => el.toggleAttribute('hidden', Boolean(p.tooLarge)));
+    if (p.tooLarge) {
+      persSummary.textContent = fill(labels['pers.toolarge'], { limit: num(p.limit) });
+      persHidden.hidden = true;
+      return;
+    }
+    const { height, order } = r.elevation;
+    const lo = height[order[0]], hi = height[order[order.length - 1]];
+    const t = persistenceThreshold(r);
+    const kept = diagram(p.pairs, t);
+    const all = diagram(p.pairs, 0);
+    tauValue.textContent = fill(labels['height.value'], { h: num(t, 2), max: num(hi - lo, 2) });
+    persSummary.textContent = fill(labels['pers.summary'], {
+      h0: kept.finite[0], h1: kept.finite[1], h2: kept.finite[2], b0: p.betti[0], b1: p.betti[1], b2: p.betti[2],
+    });
+    persHidden.hidden = all.hidden === 0;
+    persHidden.textContent = fill(labels['pers.hidden'], { n: num(all.hidden) });
+
+    // Birth across, death up, both from the lowest to the highest vertex; the essential classes on the ∞ line.
+    const span = hi > lo ? hi - lo : 1;
+    const x = (v) => 40 + ((v - lo) / span) * 245;
+    const y = (v) => (v === Infinity ? 14 : 285 - ((v - lo) / span) * 245);
+    const dimName = (d) => labels[`pers.dim.${d}`];
+    const value = (v) => (v === Infinity ? labels['pers.never'] : num(v - lo, 2));
+    const marks = all.drawn.map((q) => {
+      const noise = q.death - q.birth <= t;
+      const title = fill(labels['pers.point'], { dim: dimName(q.dimension), birth: value(q.birth), death: value(q.death) });
+      return `<g class="pers-point${q.deathVertex === null ? ' is-essential' : ''}${noise ? ' is-noise' : ''}" transform="translate(${x(q.birth).toFixed(1)} ${y(q.death).toFixed(1)})">`
+        + `<title>${escapeXml(title)}</title><path class="pers-shape is-h${q.dimension}" d="${shapes[q.dimension]}"/></g>`;
+    }).join('');
+    // The noise band: points under the dashed line live less than the threshold.
+    // Between the diagonal and the line death = birth + threshold.
+    const tt = Math.min(t, span);
+    const band = t > 0 ? `<path class="pers-band" d="M${x(lo)},${y(lo)} L${x(hi)},${y(hi)} L${x(hi - tt)},${y(hi)} L${x(lo)},${y(lo + tt)} Z"/>` : '';
+    persPlot.innerHTML = `${persPlot.querySelector('desc').outerHTML}`
+      + `<line class="pers-axis" x1="40" x2="285" y1="285" y2="285"/><line class="pers-axis" x1="40" x2="40" y1="40" y2="285"/>`
+      + `<line class="pers-infinity" x1="40" x2="285" y1="14" y2="14"/><text x="4" y="18">∞</text>`
+      + `<text x="4" y="289">0</text><text x="285" y="299" text-anchor="end">${num(hi - lo, 2)}</text>`
+      + band + `<line class="pers-diagonal" x1="${x(lo)}" y1="${y(lo)}" x2="${x(hi)}" y2="${y(hi)}"/>${marks}`;
+
+    // The table, for screen readers and for reading values: the kept pairs, the most persistent first.
+    persRows.innerHTML = kept.drawn.slice(0, TABLE_ROWS).map((q) => `<tr><th scope="row">${escapeXml(dimName(q.dimension))}</th>`
+      + `<td class="num">${value(q.birth)}</td><td class="num">${value(q.death)}</td>`
+      + `<td class="num">${q.deathVertex === null ? '∞' : num(q.death - q.birth, 2)}</td></tr>`).join('')
+      + (kept.kept.length > TABLE_ROWS ? `<tr><td colspan="4">${escapeXml(fill(labels['pers.more'], { n: num(kept.kept.length - TABLE_ROWS) }))}</td></tr>` : '');
+  }
+
+  function escapeXml(text) {
+    return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   }
 
   function describeCritical(r) {
@@ -189,11 +266,16 @@ function start(root) {
     heightPanel.hidden = !height;
     legend.hidden = height;
     shape.geometry.setAttribute('color', new BufferAttribute(height ? r.heightColours : r.curvatureColours, 3));
+    if (height) drawPersistence();
     applyLevel();
   }
 
   modes.forEach((m) => m.addEventListener('change', applyMode));
   level.addEventListener('input', applyLevel);
+  tau.addEventListener('input', () => {
+    drawPersistence();
+    applyLevel();
+  });
   axisSelect.addEventListener('change', () => {
     if (!shape) return;
     const r = shape.userData;
