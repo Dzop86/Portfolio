@@ -11,9 +11,11 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, go »), pour le volet du sprint 30 (API et dashboard).
 
 Sprint 31 (visionneuse 3D et fiche) :
-- [ ] `src/views/ViewerView.tsx` : création et libération de la scène three.js, survol, erreurs.
-- [ ] `src/viewer/topology.ts` : lecture par le WebAssembly du site, couleurs.
-- [ ] La fiche : captures et textes alternatifs, script `scripts/screenshots.mjs`.
+- [x] `src/views/ViewerView.tsx` : création et libération de la scène three.js, survol, erreurs.
+- [x] `src/viewer/topology.ts` : lecture par le WebAssembly du site, couleurs.
+- [x] La fiche : captures et textes alternatifs, script `scripts/screenshots.mjs`.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok »), pour le volet du sprint 31 (visionneuse 3D et fiche).
 
 ## Constats
 

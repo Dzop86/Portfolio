@@ -56,7 +56,7 @@
     "stack": ["C++", "OpenMP", "CUDA", "OpenCL"],
     "teaching": { "fr": "Calcul parallèle développé pendant ma thèse", "en": "Parallel computing developed during my PhD" },
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/parallele" } },
-  { "id": "react", "sprint": "S30-S31", "points": 13, "status": "in-progress", "group": "web", "widget": "react-dashboard", "techs": ["TypeScript"],
+  { "id": "react", "sprint": "S30-S31", "points": 13, "status": "done", "group": "web", "widget": "react-dashboard", "techs": ["TypeScript"],
     "name": { "fr": "Dashboard React", "en": "React dashboard" },
     "pitch": { "fr": "Résultats des projets, benchmarks et viewer 3D intégré.", "en": "Project results, benchmarks and embedded 3D viewer." },
     "stack": ["React", "TypeScript", "Vite", "Vitest", "Playwright"],
