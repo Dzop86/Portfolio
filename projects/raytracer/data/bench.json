@@ -1,0 +1,32 @@
+{
+  "image": "480 x 270",
+  "scene": "spheres",
+  "passes": 8,
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i5-10400F CPU @ 2.90GHz",
+    "cores": 12,
+    "node": "v22.23.3"
+  },
+  "rows": [
+    {
+      "workers": 1,
+      "msPerPass": 46.8,
+      "speedup": 1
+    },
+    {
+      "workers": 2,
+      "msPerPass": 25.1,
+      "speedup": 1.86
+    },
+    {
+      "workers": 4,
+      "msPerPass": 14.5,
+      "speedup": 3.23
+    },
+    {
+      "workers": 8,
+      "msPerPass": 11.6,
+      "speedup": 4.03
+    }
+  ]
+}

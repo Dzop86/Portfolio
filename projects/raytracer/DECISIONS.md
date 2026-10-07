@@ -18,11 +18,12 @@
 **Choix :** même lecteur que topologie (OBJ, PLY, STL) ; calculs en `double`.
 **Pourquoi :** fil rouge ; en WebAssembly, `double` coûte à peine plus que `float`, et les tests de BVH comparent des distances exactes.
 
-## R5. Un web worker, des bandes, une génération par demande
-**Choix :** le module tourne dans un seul web worker qui calcule des bandes de 24 lignes et rend la main entre deux (`setTimeout(0)`), poste l'image après chaque passe complète et s'arrête à 256 passes. Chaque changement de scène ou de vue porte un numéro de génération que le worker renvoie avec ses images ; la page ignore celles d'une génération plus ancienne.
-**Pourquoi :** la page reste fluide pendant le calcul ; une bande dure quelques millisecondes, un nouveau réglage est donc pris en compte presque aussitôt ; sans la génération, une image de l'ancienne scène déjà en route remplaçait le compteur remis à zéro (vu en relecture, voir REVIEW).
-**Alternatives :** plusieurs workers (SharedArrayBuffer exige des en-têtes COOP/COEP que GitHub Pages n'envoie pas, et des copies d'images sinon) ; WebGPU (un autre moteur, sans lien avec le C++ testé).
-**Limite :** un seul cœur utilisé.
+## R5. Des web workers qui possèdent leurs bandes, une génération par demande
+**Choix :** l'image est découpée en bandes de 8 lignes, distribuées tour à tour entre 1 et 8 workers (par défaut le nombre de cœurs moins un, pour laisser la page fluide ; le visiteur peut le changer). Chaque worker a son propre module WebAssembly, garde les échantillons de ses lignes, rend ses bandes passe après passe, en rendant la main entre deux (`setTimeout(0)`), et envoie les lignes de chaque bande ; la page les assemble et affiche le plus petit nombre de passes des bandes. Chaque changement de scène ou de vue porte un numéro de génération que les workers renvoient ; la page ignore les bandes d'une génération plus ancienne. Le compteur de passes change au moment où l'image est dessinée, pas à la réception d'une bande.
+**Pourquoi :** le générateur par pixel (R2) donne la même image quel que soit le worker qui calcule une ligne (test Node octet pour octet avec trois modules) ; la distribution tour à tour équilibre le ciel, le sol et l'objet entre les workers ; une bande dure quelques millisecondes, un nouveau réglage est donc pris en compte presque aussitôt. Aucune mémoire partagée : pas besoin de SharedArrayBuffer, que GitHub Pages ne permet pas (en-têtes COOP et COEP).
+**Mesure :** `scripts/bench-workers.mjs` rend l'image de la page avec 1, 2, 4 et 8 threads Node (même module, mêmes bandes) et écrit `data/bench.json`, affiché sur la fiche : sur un i5-10400F (6 cœurs, 12 threads), × 1,86 à 2, × 3,23 à 4, × 4,03 à 8.
+**Alternatives :** un seul worker (sprint 33) ; des bandes distribuées à la demande au premier worker libre (meilleur équilibre, mais une ligne changerait de worker et perdrait ses échantillons) ; WebGPU (un autre moteur, sans lien avec le C++ testé).
+**Limites :** chaque worker charge son module et sa copie du maillage (jusqu'à 8 × 32 Mo pour un gros fichier) ; le texte qui commente la mesure parle de ce processeur-là, à revoir si la mesure est refaite ailleurs.
 
 ## R6. Build WebAssembly commité, vérifié par la CI
 **Choix :** comme topologie (D15, D16) : `scripts/build-wasm.sh` compile dans l'image `emscripten/emsdk:6.0.11`, la sortie est commitée et un job de CI la recompile et la compare octet pour octet. Exceptions WebAssembly natives (`-fwasm-exceptions`), pour garder les `LoadError` de lib-c.

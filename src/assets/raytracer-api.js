@@ -60,3 +60,10 @@ export function pixels(lib) {
   const p = lib._rtc_pixels();
   return lib.HEAPU8.slice(p, p + n);
 }
+
+/** A copy of the RGBA rows [y0, y1), the band a worker sends to the page. */
+export function rows(lib, y0, y1) {
+  const stride = lib._rtc_width() * 4;
+  const p = lib._rtc_pixels();
+  return lib.HEAPU8.slice(p + y0 * stride, p + y1 * stride);
+}

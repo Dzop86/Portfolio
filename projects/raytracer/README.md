@@ -31,28 +31,31 @@ build/rt_render --scene mesh --mesh ../topologie/samples/torus.obj --finish glas
 Options de `rt_render` : `--scene spheres|mesh`, `--mesh FICHIER`, `--finish diffuse|metal|glass`, `--size LxH`, `--spp N`, `--yaw`, `--pitch`, `--distance`, `--brute-force` (sans BVH), `-o FICHIER.ppm`.
 
 ## En ligne
-Sur la fiche du projet, `src/assets/raytracer-worker.js` charge le module dans un web worker et calcule passe après passe, par bandes de 24 lignes (pour répondre vite à un changement de scène ou de caméra), jusqu'à 256 passes ; `src/assets/raytracerplay.js` affiche chaque passe dans un canevas de 480 × 270. Choix de la scène (trois sphères ou un des quatre maillages de topologie) et de la matière, orbite au clavier par les curseurs ou en faisant glisser l'image, pause, vue par défaut ; textes en français et en anglais, annonces pour les lecteurs d'écran.
+Sur la fiche du projet, l'image de 480 × 270 est découpée en bandes de 8 lignes distribuées tour à tour entre plusieurs web workers (`src/assets/raytracer-bands.js`, 1 à 8, par défaut les cœurs moins un) ; chacun (`src/assets/raytracer-worker.js`) charge son module, rend ses bandes passe après passe jusqu'à 256 et envoie leurs lignes ; `src/assets/raytracerplay.js` les assemble dans un canevas. Choix de la scène (trois sphères ou un des quatre maillages de topologie), de la matière et du nombre de workers, orbite au clavier par les curseurs ou en faisant glisser l'image, pause, vue par défaut ; textes en français et en anglais, annonces pour les lecteurs d'écran.
 
 ```sh
-scripts/build-wasm.sh          # régénère src/assets/wasm/raytracer.{js,wasm}
+scripts/build-wasm.sh                 # régénère src/assets/wasm/raytracer.{js,wasm}
+node scripts/bench-workers.mjs        # mesure 1, 2, 4 et 8 workers, écrit data/bench.json (affiché sur la fiche)
 ```
 
-## Tests (32 GoogleTest, 5 Node, 15 Playwright)
+Gain mesuré sur un i5-10400F (6 cœurs, 12 threads) : 46,8 ms par passe avec 1 worker, 25,1 avec 2 (× 1,86), 14,5 avec 4 (× 3,23), 11,6 avec 8 (× 4,03).
+
+## Tests (32 GoogleTest, 9 Node, 15 Playwright)
 - **Optique et hasard :** réflexion, loi de Snell à plusieurs angles, réflexion totale au-delà de l'angle critique, Schlick de 4 % à 100 %, base orthonormée, générateur reproductible et uniforme.
 - **Intersections :** sphère de l'extérieur et de l'intérieur, petite sphère à un million d'unités, plan parallèle, triangle (barycentriques, deux faces), boîte avec un rayon posé sur une face (0 × ∞).
 - **Maillages et BVH :** erreurs de lib-c avec leur ligne, normales de la sphère vers l'extérieur, normales du ruban de Möbius, mise à l'échelle ; même distance que la force brute sur 3 000 rayons par maillage et sur 2 000 triangles au hasard ; arbre valide (chaque triangle une fois, boîtes englobantes) ; triangles tous superposés.
 - **Physique :** fournaise blanche (une sphère diffuse d'albédo 0,5 sous un ciel blanc uniforme renvoie exactement 0,5, le métal son albédo, le verre 1) ; sol sous une lumière sphérique égal à la valeur analytique albédo × Le × (r/d)² à 1 % ; ombre complète derrière un bloqueur ; la lumière vue directement n'est pas comptée deux fois.
 - **Images :** bandes dans n'importe quel ordre = image entière, BVH = force brute pixel pour pixel, deux images de référence (PSNR au-dessus de 45 dB, pour absorber les derniers bits de `sin`, `cos` et `tan` qui diffèrent entre les bibliothèques standard). `RT_UPDATE_REFERENCE=1` les réécrit.
 
-- **WebAssembly** (`tests/unit/raytracer-wasm.test.mjs`) : le module du site rend les deux images de référence du build natif (plus de 45 dB), bandes dans le désordre = passes entières, vue par défaut et remise à zéro, erreurs de lib-c avec leur ligne ; `tests/unit/raytracer-page.test.mjs` : la fiche, ses contrôles et ses textes dans les deux langues.
-- **Playwright** (`tests/e2e/raytracer.spec.js`, 5 navigateurs) : l'image se construit, l'image change avec la scène, curseurs au clavier, pause, accessibilité (axe), pas de défilement horizontal.
+- **WebAssembly** (`tests/unit/raytracer-wasm.test.mjs`) : le module du site rend les deux images de référence du build natif (plus de 45 dB), bandes dans le désordre = passes entières, vue par défaut et remise à zéro, erreurs de lib-c avec leur ligne ; `tests/unit/raytracer-page.test.mjs` : la fiche, ses contrôles et ses textes dans les deux langues. `tests/unit/raytracer-bands.test.mjs` : répartition des bandes (chaque ligne une fois), compteur de passes, et trois modules qui rendent chacun leurs bandes = l'image d'un seul, octet pour octet.
+- **Playwright** (`tests/e2e/raytracer.spec.js`, 5 navigateurs) : l'image se construit, l'image change avec la scène, la caméra reste en place quand on change de matière ou de nombre de workers, curseurs au clavier, pause, accessibilité (axe), pas de défilement horizontal.
 
 **CI** (`.github/workflows/raytracer.yml`) : Linux, Windows et macOS, plus ASan et UBSan sous Linux ; avertissements en erreurs, contraction des multiplications-additions coupée (`-ffp-contract=off`) pour la même image partout. Un job recompile le WebAssembly et le compare octet pour octet au build commité.
 
 ## Limites
 - Pas de caustiques : un chemin qui atteint la lumière à travers le verre ou un miroir après un rebond diffus n'est pas compté (rare et très lumineux, il laisserait des pixels blancs isolés pendant des centaines de passes). L'ombre d'une sphère de verre est donc sombre.
 - Une seule lumière, sphérique ; pas de textures ; sol infini (le damier crénèle au loin).
-- Un seul fil de calcul, natif comme en ligne (un seul web worker) : le générateur par pixel permettrait de répartir les bandes sur plusieurs workers sans changer l'image.
+- Un seul fil de calcul en natif ; en ligne, 8 workers au plus, chacun avec sa copie du module et du maillage.
 - Rendu en ligne en 480 × 270 : vers 90 ms par passe dans Chromium sur un ordinateur de bureau (mesuré), davantage sur un téléphone.
 
 Relecture : [`REVIEW.md`](REVIEW.md), choix : [`DECISIONS.md`](DECISIONS.md) et D45 dans le [`DECISIONS.md` du site](../../DECISIONS.md).

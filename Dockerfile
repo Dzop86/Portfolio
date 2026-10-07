@@ -51,6 +51,8 @@ COPY projects/bataille/data/stats.json ./projects/bataille/data/
 # Tic-tac-toe move book computed by the Python program.
 COPY projects/morpion/data/book.json ./projects/morpion/data/
 COPY projects/parallele/data/bench.json ./projects/parallele/data/
+# Ray tracer: the gain of several workers, measured by its script.
+COPY projects/raytracer/data/bench.json ./projects/raytracer/data/
 # React and Angular dashboards compared (D44).
 COPY projects/angular/data/comparison.json ./projects/angular/data/
 COPY --from=dashboard /app/projects/react/dist ./projects/react/dist

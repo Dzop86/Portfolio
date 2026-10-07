@@ -611,7 +611,7 @@ ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
-${p.widget === 'raytracer-view' ? raytracerView(t) : ''}
+${p.widget === 'raytracer-view' ? raytracerView(t, lang) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -1101,8 +1101,25 @@ const RT_LABELS = ['unsupported', 'pause', 'resume', 'loading', 'rendering', 'ca
 const RT_SCENES = [['spheres', null], ['torus', 'torus.obj'], ['sphere', 'sphere.obj'], ['mobius', 'mobius.obj'], ['saddle', 'saddle.obj']];
 const RT_VIEW = [['yaw', -180, 180, 1], ['pitch', 2, 60, 1], ['distance', 3, 12, 0.1]];
 
-// The ray tracer (D45): the C++ engine in WebAssembly, rendering pass after pass in a web worker.
-function raytracerView(t) {
+// Time per pass of the page's image with 1 to 8 workers, measured by projects/raytracer/scripts/bench-workers.mjs.
+export function readRaytracerBench() {
+  return JSON.parse(readFileSync(join(ROOT, 'projects/raytracer/data/bench.json'), 'utf8'));
+}
+
+function raytracerBench(t, lang) {
+  const bench = readRaytracerBench();
+  const n = (x, d) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const rows = bench.rows.map((r) => `<tr><th scope="row">${r.workers}</th><td class="num">${n(r.msPerPass, 1)}</td><td class="num">× ${n(r.speedup, 2)}</td></tr>`).join('');
+  return `<h3 id="h-rt-bench">${esc(t('rt.bench.title'))}</h3>
+  <p class="meta">${esc(fill(t('rt.bench.lead'), { image: bench.image, passes: bench.passes, cpu: bench.machine.cpu, cores: bench.machine.cores }))}</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-rt-bench">
+    <table data-rt-bench><thead><tr><th scope="col">${esc(t('rt.bench.workers'))}</th><th scope="col" class="num">${esc(t('rt.bench.ms'))}</th><th scope="col" class="num">${esc(t('rt.bench.speedup'))}</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  <p class="meta">${esc(t('rt.bench.note'))}</p>`;
+}
+
+// The ray tracer (D45): the C++ engine in WebAssembly, rendering pass after pass in web workers.
+function raytracerView(t, lang) {
   const labels = Object.fromEntries(RT_LABELS.map((k) => [k, t(`rt.label.${k}`)]));
   const scenes = RT_SCENES.map(([key, file]) =>
     `<option value="${key}"${file ? ` data-mesh="../assets/samples/topologie/${file}"` : ''}>${esc(t(`rt.scene.${key}`))}</option>`).join('');
@@ -1118,6 +1135,7 @@ function raytracerView(t) {
   <div class="rt-controls">
     <div class="rt-field"><label for="rt-scene">${esc(t('rt.sceneLabel'))}</label><select id="rt-scene" data-scene>${scenes}</select></div>
     <div class="rt-field"><label for="rt-finish">${esc(t('rt.finishLabel'))}</label><select id="rt-finish" data-finish>${finishes}</select></div>
+    <div class="rt-field"><label for="rt-workers">${esc(t('rt.workersLabel'))}</label><select id="rt-workers" data-workers><option>1</option></select></div>
   </div>
   <div class="rt-stage"><canvas width="480" height="270" role="img" aria-label="${esc(t('rt.title'))}"></canvas></div>
   <p class="meta rt-progress" data-progress></p>
@@ -1125,6 +1143,7 @@ function raytracerView(t) {
   <p class="actions"><button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('rt.label.pause'))}</button><button type="button" class="btn btn-ghost" data-reset>${esc(t('rt.reset'))}</button></p>
   <p class="visually-hidden" data-live aria-live="polite"></p>
   <p class="meta">${esc(t('rt.note'))}</p>
+  ${raytracerBench(t, lang)}
   <noscript><p class="notice">${esc(t('rt.noscript'))}</p></noscript>
   <script type="module" src="../assets/raytracerplay.js"></script>
 </section>`;

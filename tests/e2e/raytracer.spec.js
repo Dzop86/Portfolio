@@ -53,6 +53,16 @@ test('raytracer: a mesh scene in glass, orbited with the keyboard, then paused',
   await expect(page.locator('[data-view-value="yaw"]')).toHaveText(`${await yaw.inputValue()}°`);
   await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
 
+  // Another number of workers, or another finish, keeps the camera where it is and starts again.
+  const turned = await yaw.inputValue();
+  await page.getByLabel('Workers (CPU cores)').selectOption('1');
+  await expect(page.locator('[data-progress]')).toContainText('· 1 worker(s)', { timeout: 30_000 });
+  await expect(yaw).toHaveValue(turned);
+  await page.getByLabel('Mesh material').selectOption('metal');
+  await expect(page.locator('[data-raytracer] canvas')).toHaveAttribute('aria-label', /Torus, metal/, { timeout: 30_000 });
+  await expect(yaw).toHaveValue(turned);
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+
   const pause = page.getByRole('button', { name: 'Pause' });
   await pause.click();
   await expect(page.getByRole('button', { name: 'Resume' })).toHaveAttribute('aria-pressed', 'true');
