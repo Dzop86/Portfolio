@@ -62,7 +62,7 @@
     "stack": ["React", "TypeScript", "Vite", "Vitest", "Playwright"],
     "teaching": { "fr": "Enseigné en M1 (React)", "en": "Taught in M1 (React)" },
     "links": { "demo": "../dashboard/?lang={lang}", "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/react" } },
-  { "id": "angular", "sprint": "S32", "points": 8, "status": "in-progress", "group": "web", "widget": "angular-compare", "techs": ["TypeScript"],
+  { "id": "angular", "sprint": "S32", "points": 8, "status": "done", "group": "web", "widget": "angular-compare", "techs": ["TypeScript"],
     "name": { "fr": "Dashboard Angular", "en": "Angular dashboard" },
     "pitch": { "fr": "Deux vues du dashboard, comparées à la version React.", "en": "Two dashboard views, compared with the React version." },
     "stack": ["Angular", "TypeScript", "Jest", "Cypress"],

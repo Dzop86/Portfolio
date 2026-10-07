@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/app/pages/` : signaux, `httpResource`, menus, erreurs.
-- [ ] `tests/` et `cypress/` : ce que les tests vérifient vraiment.
-- [ ] La fiche : la comparaison, ses mesures et ses réserves (`scripts/compare.mjs`).
+- [x] `src/app/pages/` : signaux, `httpResource`, menus, erreurs.
+- [x] `tests/` et `cypress/` : ce que les tests vérifient vraiment.
+- [x] La fiche : la comparaison, ses mesures et ses réserves (`scripts/compare.mjs`).
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, go »), pour le sprint 32 (dashboard Angular et comparaison).
 
 ## Constats
 
