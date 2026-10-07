@@ -463,7 +463,7 @@ function metricsSection({ lang, t, data }) {
 </section>
 <section class="block" aria-labelledby="h-estimation">
   <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
-  <p>${esc(fill(t('method.estimation.text'), {
+  <p>${esc(fill(t(bd.remaining === 0 ? 'method.estimation.complete' : bd.last >= bd.count ? 'method.estimation.review' : 'method.estimation.text'), {
     mean: number(vel.mean, lang), min: Math.min(...v.map((x) => x.done)), max: Math.max(...v.map((x) => x.done)),
     delivered, committed, remaining: bd.remaining, next: bd.last + 1, last: bd.count,
   }))}</p>
@@ -515,7 +515,7 @@ function method({ lang, t, data }) {
   const dod = scrum.dod[lang].map((d) => `<li>${esc(d)}</li>`).join('');
 
   return `${pageHead(t('method.title'), t('method.lead'))}
-<p class="notice">${esc(fill(t('method.disclaimer'), { done: state.done }))}</p>
+<p class="notice">${esc(fill(t(state.done < count ? 'method.disclaimer' : 'method.disclaimer.complete'), { done: state.done, count }))}</p>
 
 <section class="block" aria-labelledby="h-roadmap">
   <h2 id="h-roadmap">${esc(t('method.roadmap'))}</h2>

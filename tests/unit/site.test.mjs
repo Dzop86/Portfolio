@@ -76,13 +76,24 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   const html = page('fr', 'method');
   assert.match(html, new RegExp(`--sprints:${scrum.sprintCount}`));
   assert.match(html, /data-state="done"[^>]*>[\s\S]*?S9/);
-  assert.match(html, /data-state="current"/);
   const closed = sprints.filter((sp) => sp.stories.every((st) => st.closed)).length;
+  const finished = closed === scrum.sprintCount;
+  // A phase is current while one of its sprints is open: none once every sprint is closed.
+  assert.equal(/data-state="current"/.test(html), !finished);
   // A phase is planned only while it starts after the next sprint (none once the last phase has begun).
   const later = scrum.phases.filter((ph) => Number(ph.sprints.match(/\d+/)[0]) > closed + 1).length;
   assert.equal((html.match(/data-state="planned"/g) || []).length, later);
-  assert.ok(html.includes(`Sprints 1 à ${closed} terminés`), 'the notice says how far the project is');
-  assert.match(page('en', 'method'), /forecast/);
+  // The notice says how far the project is; once it is finished, nothing is a forecast any more.
+  if (finished) {
+    assert.ok(html.includes(`Les ${closed} sprints sont terminés`));
+    assert.doesNotMatch(page('en', 'method'), /forecast/);
+    // Points may still wait for Charles's review; no sprint is left to place them in.
+    assert.ok(html.includes('Tous les points prévus ont été livrés.') || html.includes('pas encore validés (état'));
+    assert.doesNotMatch(html, new RegExp(`sprints ${closed + 1} à`));
+  } else {
+    assert.ok(html.includes(`Sprints 1 à ${closed} terminés`));
+    assert.match(page('en', 'method'), /forecast/);
+  }
 });
 test('no raw i18n key leaks into the HTML', () => {
   const { i18n } = loadData();
