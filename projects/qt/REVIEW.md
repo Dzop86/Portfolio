@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/renderer.cpp` : buffers, shaders, ordre de dessin (faces décalées, arêtes par-dessus).
-- [ ] `src/meshmodel.cpp` : normales, arêtes de bord, échelle de courbure.
-- [ ] La visionneuse chez moi : ouvrir mes propres maillages, la lisibilité des invariants et des couleurs.
+- [x] `src/renderer.cpp` : buffers, shaders, ordre de dessin (faces décalées, arêtes par-dessus).
+- [x] `src/meshmodel.cpp` : normales, arêtes de bord, échelle de courbure.
+- [x] La visionneuse chez moi : ouvrir mes propres maillages, la lisibilité des invariants et des couleurs.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« valide la review, pousse ça »), pour le volet du sprint 26.
 
 ## Constats
 
