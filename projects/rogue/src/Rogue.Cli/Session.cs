@@ -1,3 +1,4 @@
+using Rogue.Client;
 using Rogue.Core;
 
 namespace Rogue.Cli;

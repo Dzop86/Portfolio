@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Rogue.Api/Rogue.Api.csproj" />
+    <ProjectReference Include="../../src/Rogue.Client/Rogue.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

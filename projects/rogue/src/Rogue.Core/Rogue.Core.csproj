@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- net8.0: the version Godot 4 C# projects target, so the Godot client can reference this library. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Rogue.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>

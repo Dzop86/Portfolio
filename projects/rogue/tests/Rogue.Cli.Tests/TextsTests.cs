@@ -1,3 +1,4 @@
+using Rogue.Client;
 using Rogue.Core;
 
 namespace Rogue.Cli.Tests;
@@ -63,14 +64,14 @@ public class TextsTests
     [InlineData(' ', GameAction.Wait)]
     [InlineData('>', GameAction.Descend)]
     [InlineData('p', GameAction.Drink)]
-    public void Keys_MapToActions(char key, GameAction expected) => Assert.Equal(new Command(expected), KeyMap.FromChar(key));
+    public void Keys_MapToActions(char key, GameAction expected) => Assert.Equal(new Command(expected), Keys.FromChar(key));
 
     [Fact]
     public void ArrowsMove_AndEscapeQuits()
     {
         Assert.Equal(new Command(GameAction.West), KeyMap.FromKey(new ConsoleKeyInfo('\0', ConsoleKey.LeftArrow, false, false, false)));
         Assert.True(KeyMap.FromKey(new ConsoleKeyInfo('\u001b', ConsoleKey.Escape, false, false, false)).Quit);
-        Assert.True(KeyMap.FromChar('x').Quit);
-        Assert.Equal(Command.Ignored, KeyMap.FromChar('?'));
+        Assert.True(Keys.FromChar('x').Quit);
+        Assert.Equal(Command.Ignored, Keys.FromChar('?'));
     }
 }

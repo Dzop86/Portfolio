@@ -6,7 +6,7 @@
     <RootNamespace>Rogue.Cli</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../Rogue.Core/Rogue.Core.csproj" />
+    <ProjectReference Include="../Rogue.Client/Rogue.Client.csproj" />
     <InternalsVisibleTo Include="Rogue.Cli.Tests" />
   </ItemGroup>
 </Project>

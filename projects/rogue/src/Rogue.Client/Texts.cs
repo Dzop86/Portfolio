@@ -1,6 +1,6 @@
 using Rogue.Core;
 
-namespace Rogue.Cli;
+namespace Rogue.Client;
 
 public enum Language
 {
@@ -8,8 +8,8 @@ public enum Language
     English,
 }
 
-/// <summary>Every sentence the terminal shows, in French and in English.</summary>
-internal sealed class Texts(Language language)
+/// <summary>Every sentence the clients show (terminal and Godot), in French and in English.</summary>
+public sealed class Texts(Language language)
 {
     private bool Fr => language == Language.French;
 
@@ -164,4 +164,82 @@ internal sealed class Texts(Language language)
     public string BadOption(string detail) => (Fr ? "Option invalide : " : "Invalid option: ") + detail;
 
     public string CannotRead(string path, string reason) => Fr ? $"Lecture impossible de {path} : {reason}" : $"Cannot read {path}: {reason}";
+
+    public string Problem(ScoresException e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        return ((int)e.Status, Fr) switch
+        {
+            (401, true) => "Nom inconnu ou mauvais mot de passe.",
+            (401, false) => "Unknown name or wrong password.",
+            (409, true) => e.Error == ScoresClient.NameTaken ? "Ce nom est déjà pris." : "Cette partie a déjà été envoyée.",
+            (409, false) => e.Error == ScoresClient.NameTaken ? "This name is already taken." : "This run has already been submitted.",
+            (410, true) => "La partie a expiré (24 heures).",
+            (410, false) => "The run has expired (24 hours).",
+            (429, true) => "Trop d'essais : réessayez dans une minute.",
+            (429, false) => "Too many attempts: try again in a minute.",
+            (400, true) => "Nom de 3 à 20 lettres, chiffres, - ou _ ; mot de passe de 10 caractères au moins.",
+            (400, false) => "Name of 3 to 20 letters, digits, - or _; password of at least 10 characters.",
+            (422, true) => "Le serveur refuse la partie" + (e.Error is null ? "." : $" ({e.Error}" + (e.ActionIndex is int i ? $", action n° {i + 1})." : ").")),
+            (422, false) => "The server refuses the run" + (e.Error is null ? "." : $" ({e.Error}" + (e.ActionIndex is int j ? $", action #{j + 1})." : ").")),
+            (_, true) => $"Erreur du serveur ({(int)e.Status}).",
+            (_, false) => $"Server error ({(int)e.Status}).",
+        };
+    }
+
+    public string Unreachable => Fr ? "Serveur injoignable." : "Server unreachable.";
+
+    public string Verdict(RunVerdict v)
+    {
+        ArgumentNullException.ThrowIfNull(v);
+        return Fr ? $"Partie classée validée par le serveur : score {v.Score}." : $"Ranked run accepted by the server: score {v.Score}.";
+    }
+
+    public string ScoreLine(ScoreLine line)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        return Fr
+            ? $"{line.Rank,2}. {line.Player,-20} {line.Score,6}  étage {line.Depth}, {line.Turns} tours"
+            : $"{line.Rank,2}. {line.Player,-20} {line.Score,6}  floor {line.Depth}, {line.Turns} turns";
+    }
+
+    // The Godot client's menus and forms.
+    public string NewGame => Fr ? "Nouvelle partie" : "New game";
+
+    public string RankedGame => Fr ? "Partie classée" : "Ranked game";
+
+    public string WatchAutopilot => Fr ? "Regarder le pilote automatique" : "Watch the autopilot";
+
+    /// <summary>The button that switches to the other language, written in that language.</summary>
+    public string OtherLanguage => Fr ? "English" : "Français";
+
+    public string QuitGame => Fr ? "Quitter" : "Quit";
+
+    public string Server => Fr ? "Serveur" : "Server";
+
+    public string Name => Fr ? "Nom" : "Name";
+
+    public string Password => Fr ? "Mot de passe" : "Password";
+
+    public string SignIn => Fr ? "Se connecter et jouer" : "Sign in and play";
+
+    public string SignUp => Fr ? "Créer le compte" : "Create the account";
+
+    public string AccountCreated => Fr ? "Compte créé : connectez-vous." : "Account created: sign in.";
+
+    public string Back => Fr ? "Retour" : "Back";
+
+    public string Menu => Fr ? "Menu" : "Menu";
+
+    public string Ranked => Fr ? "Partie classée" : "Ranked run";
+
+    public string Watching => Fr ? "Pilote automatique" : "Autopilot";
+
+    public string Submitting => Fr ? "Envoi de la partie au serveur…" : "Sending the run to the server…";
+
+    public string Leaderboard => Fr ? "Classement" : "Leaderboard";
+
+    public string WindowKeys => Fr
+        ? "Flèches, zqsd ou wasd : bouger ou attaquer   Espace : attendre   > ou Entrée : descendre   p : potion   Échap : menu"
+        : "Arrows, wasd or zqsd: move or attack   Space: wait   > or Enter: go down   p: potion   Esc: menu";
 }

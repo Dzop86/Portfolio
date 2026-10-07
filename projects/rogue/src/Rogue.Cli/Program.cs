@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Rogue.Cli;
+using Rogue.Client;
 using Rogue.Core;
 
 Console.OutputEncoding = Encoding.UTF8;
