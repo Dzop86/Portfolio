@@ -71,6 +71,8 @@ if(PAR_CUDA AND CMAKE_CUDA_COMPILER)
   enable_language(CUDA)
   set(CMAKE_CUDA_STANDARD 20)
   target_sources(par PRIVATE src/cuda.cu)
+  # par was created before CMAKE_CUDA_ARCHITECTURES was set: without this its property stays empty.
+  set_target_properties(par PROPERTIES CUDA_ARCHITECTURES "${CMAKE_CUDA_ARCHITECTURES}")
   # --fmad=false: no fused multiply-add, the same roundings as the C++ code; warnings are errors.
   target_compile_options(par PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--fmad=false -Werror=all-warnings>)
   target_compile_definitions(par PUBLIC PAR_HAVE_CUDA)

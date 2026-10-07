@@ -30,4 +30,5 @@ Sprint 29 (CUDA et benchmarks) :
 | 2026-10-07 | `tools/parbench.cpp` | (Claude) Le nombre de processeurs logiques venait d'OpenMP, donc faux si `OMP_NUM_THREADS` est posé | `std::thread::hardware_concurrency()` |
 | 2026-10-07 | `data/i18n/*.json` | (Claude) Relu face aux mesures : le texte des transferts taisait 34 ms passées côté processeur et n'expliquait pas l'écart de 16 entre double et float | Temps processeur affiché (calculé, test qui le veut positif) ; rapport de 32 des unités double/simple de la carte expliqué |
 | 2026-10-07 | `src/curvature.cpp` | (Claude) `openmp_threads()` était dans un second bloc `namespace par` | Rangée dans le bloc existant |
+| 2026-10-07 | `CMakeLists.txt` | (Claude) Détecté par la CI : « CUDA_ARCHITECTURES is empty for target par » ; la cible était créée avant que l'architecture par défaut soit posée, et mes compilations locales passaient l'architecture à la main, ce qui masquait l'erreur | Propriété posée sur la cible ; recompilé en local sans option, exactement comme la CI |
 | | | | |
