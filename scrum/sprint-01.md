@@ -2,6 +2,8 @@
 
 **Objectif :** le portfolio est en ligne, bilingue, testé et déployé automatiquement.
 
+**Goal:** the portfolio is online, bilingual, tested and deployed automatically.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que visiteur, je navigue entre 5 pages en français et en anglais. | 2 | Fait |

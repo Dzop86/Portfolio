@@ -2,6 +2,8 @@
 
 **Objectif :** le projet latex lit un sous-ensemble utile de LaTeX (structure, listes, tableaux, mathématiques, renvois, citations, notes) en un arbre dont chaque nœud connaît sa ligne et sa colonne, et le rend en HTML sûr, les formules par KaTeX ; les erreurs deviennent des diagnostics situés plutôt qu'un échec.
 
+**Goal:** the latex project reads a useful subset of LaTeX (structure, lists, tables, mathematics, references, citations, notes) into a tree whose every node knows its line and column, and renders it as safe HTML, formulas by KaTeX; errors become located diagnostics rather than a failure.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, j'analyse un document LaTeX (latex) en arbre situé : commandes, groupes, environnements, mathématiques, commentaires ; accolades et environnements mal fermés signalés à leur ligne et colonne ; tests node:test, typage strict, CI Linux, Windows et macOS. | 3 | Fait |

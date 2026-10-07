@@ -2,6 +2,8 @@
 
 **Objectif :** le projet morpion réécrit un jeu de mes études : le morpion contre une IA qui ne perd jamais (minimax), en Python, jouable dans le terminal puis sur la fiche du projet ; les tests prouvent que l'IA est imbattable en essayant toutes les parties possibles.
 
+**Goal:** the morpion project rewrites a game from my studies: tic-tac-toe against an AI that never loses (minimax), in Python, playable in the terminal then on the project page; the tests prove the AI unbeatable by trying every possible game.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je joue au morpion (morpion) dans le terminal contre l'IA, avec les croix ou les ronds, au niveau débutant ou imbattable ; règles et minimax en Python typé ; tests pytest (nombre de positions et de parties connus, IA jamais battue sur toutes les parties possibles), CI Linux, Windows et macOS. | 2 | Fait |

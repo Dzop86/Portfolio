@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { decompositionStep } from '../projects/gcartes/src/decompose.js';
-import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, languagesOf } from './lib.mjs';
+import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, languagesOf, velocity, burndown } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -309,6 +309,171 @@ function riskMatrix(p, i, label) {
   return `<span class="risk-matrix" role="img" aria-label="${esc(label)}">${cells.join('')}</span>`;
 }
 
+
+// ---- Project management: backlog, sprint log, metrics (remarks of Charles, 7 October 2026, D40) ----
+
+const number = (x, lang, digits = 1) => x.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { maximumFractionDigits: digits });
+
+/** Escapes a sprint goal and turns its `code` spans into <code>. */
+const inlineCode = (text) => esc(text).replace(/`([^`]+)`/g, '<code>$1</code>');
+
+function backlogSection({ lang, t, data }) {
+  const open = data.projects.filter((p) => p.status !== 'done');
+  const { total } = burndown(data.projects, 0);
+  const remaining = open.reduce((acc, p) => acc + p.points, 0);
+  const rows = open.map((p) => `<tr>
+      <th scope="row"><a href="./${projectPage(p.id)}.html">${esc(pick(p.name, lang))}</a></th>
+      <td class="num">${p.points}</td>
+      <td>${esc(p.sprint)}</td>
+      <td><span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span></td>
+    </tr>`).join('');
+  return `<section class="block" aria-labelledby="h-backlog">
+  <h2 id="h-backlog">${esc(t('method.backlog'))}</h2>
+  <p>${esc(t('method.backlog.lead'))}</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-backlog">
+    <table class="backlog" data-backlog>
+      <thead><tr><th scope="col">${esc(t('method.backlog.project'))}</th><th scope="col" class="num">${esc(t('method.backlog.estimate'))}</th><th scope="col">${esc(t('method.backlog.sprints'))}</th><th scope="col">${esc(t('method.backlog.state'))}</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <p class="meta">${esc(fill(t('method.backlog.total'), { remaining, total }))}</p>
+</section>`;
+}
+
+function sprintLogSection({ lang, t, data }) {
+  const v = new Map(velocity(data.sprints).map((x) => [x.number, x]));
+  const item = (s) => `<li class="sprint-item">
+      <div class="sprint-head"><strong>${esc(t('method.sprint'))} ${s.number}</strong>
+        <span class="meta">${esc(fill(t('method.sprintlog.points'), v.get(s.number)))}</span></div>
+      <p class="sprint-goal">${inlineCode(pick(s.goal, lang))}</p>
+      <a href="${REPO_URL}/blob/main/scrum/sprint-${String(s.number).padStart(2, '0')}.md">${esc(fill(t('method.sprintlog.report'), { n: s.number }))}</a>
+    </li>`;
+  // Newest first; the five latest sprints open, the others folded.
+  const sprints = [...data.sprints].sort((a, b) => b.number - a.number);
+  const recent = sprints.slice(0, 5);
+  const older = sprints.slice(5);
+  const folded = older.length ? `<details class="sprint-older">
+    <summary>${esc(fill(t('method.sprintlog.older'), { from: older.at(-1).number, to: older[0].number }))}</summary>
+    <ol class="plain sprint-log">${older.map(item).join('')}</ol>
+  </details>` : '';
+  return `<section class="block" aria-labelledby="h-sprintlog">
+  <h2 id="h-sprintlog">${esc(t('method.sprintlog'))}</h2>
+  <p>${esc(t('method.sprintlog.lead'))}</p>
+  <ol class="plain sprint-log" data-sprint-log>${recent.map(item).join('')}</ol>
+  ${folded}
+</section>`;
+}
+
+// Charts drawn at build time in SVG: one data series each (no legend box for velocity), a muted dashed
+// reference, native tooltips (<title>) on generous hit targets, and the same figures in a table.
+const CHART = { w: 720, h: 260, left: 40, right: 72, top: 16, bottom: 32 };
+
+function axisY(max, step, y) {
+  const ticks = [];
+  for (let v = 0; v <= max; v += step) ticks.push(`<line class="chart-grid" x1="${CHART.left}" x2="${CHART.w - CHART.right}" y1="${y(v)}" y2="${y(v)}"/>
+    <text class="chart-tick" x="${CHART.left - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
+  return ticks.join('');
+}
+
+function velocityChart({ lang, t, data }) {
+  const v = velocity(data.sprints);
+  const mean = v.reduce((acc, x) => acc + x.done, 0) / v.length;
+  const max = 10;
+  const plotW = CHART.w - CHART.left - CHART.right;
+  const plotH = CHART.h - CHART.top - CHART.bottom;
+  const slot = plotW / v.length;
+  const barW = Math.min(16, slot * 0.6);
+  const y = (val) => CHART.top + plotH - (val / max) * plotH;
+  const bars = v.map((x, i) => {
+    const cx = CHART.left + slot * (i + 0.5);
+    const top = y(x.done);
+    const r = Math.min(4, (CHART.top + plotH - top) / 2);
+    const x0 = cx - barW / 2;
+    const base = CHART.top + plotH;
+    const label = fill(t('method.velocity.bar'), { n: x.number, done: x.done, committed: x.committed });
+    // Rounded at the data end, square at the baseline.
+    return `<g class="chart-hit"><title>${esc(label)}</title>
+      <rect class="chart-target" x="${cx - slot / 2}" y="${CHART.top}" width="${slot}" height="${plotH}"/>
+      <path class="chart-bar" d="M${x0},${base} V${top + r} Q${x0},${top} ${x0 + r},${top} H${x0 + barW - r} Q${x0 + barW},${top} ${x0 + barW},${top + r} V${base} Z"/>
+    </g>`;
+  }).join('');
+  const ticksX = v.filter((x) => x.number === 1 || x.number % 5 === 0 || x.number === v.length)
+    .map((x) => `<text class="chart-tick" x="${CHART.left + slot * (x.number - 0.5)}" y="${CHART.h - 10}" text-anchor="middle">${x.number}</text>`).join('');
+  const meanLabel = fill(t('method.velocity.mean'), { mean: number(mean, lang) });
+  const svg = `<svg class="chart" viewBox="0 0 ${CHART.w} ${CHART.h}" role="img" aria-labelledby="h-velocity" data-chart="velocity">
+    ${axisY(max, 2, y)}
+    ${bars}
+    <line class="chart-ref" x1="${CHART.left}" x2="${CHART.w - CHART.right}" y1="${y(mean)}" y2="${y(mean)}"/>
+    <text class="chart-label" x="${CHART.w - CHART.right + 6}" y="${y(mean) + 4}">${esc(meanLabel)}</text>
+    ${ticksX}
+  </svg>`;
+  const rows = v.map((x) => `<tr><th scope="row">${x.number}</th><td class="num">${x.committed}</td><td class="num">${x.done}</td></tr>`).join('');
+  return { mean, svg, table: `<table><thead><tr><th scope="col">${esc(t('method.sprint'))}</th><th scope="col" class="num">${esc(t('method.committed'))}</th><th scope="col" class="num">${esc(t('method.delivered'))}</th></tr></thead><tbody>${rows}</tbody></table>` };
+}
+
+function burndownChart({ lang, t, data }) {
+  const count = data.scrum.sprintCount;
+  const last = Math.max(...data.sprints.map((s) => s.number));
+  const { total, remaining } = burndown(data.projects, last);
+  const plotW = CHART.w - CHART.left - CHART.right;
+  const plotH = CHART.h - CHART.top - CHART.bottom;
+  const max = Math.ceil(total / 50) * 50;
+  const x = (k) => CHART.left + (k / count) * plotW;
+  const y = (val) => CHART.top + plotH - (val / max) * plotH;
+  const line = remaining.map((left, k) => `${x(k)},${y(left)}`).join(' ');
+  const points = remaining.map((left, k) => `<g class="chart-hit"><title>${esc(fill(t('method.burndown.point'), { n: k, left }))}</title>
+      <circle class="chart-target" cx="${x(k)}" cy="${y(left)}" r="9"/></g>`).join('');
+  const end = remaining.at(-1);
+  const ticksX = Array.from({ length: count + 1 }, (_, k) => k).filter((k) => k % 5 === 0 || k === count)
+    .map((k) => `<text class="chart-tick" x="${x(k)}" y="${CHART.h - 10}" text-anchor="middle">${k}</text>`).join('');
+  const svg = `<svg class="chart" viewBox="0 0 ${CHART.w} ${CHART.h}" role="img" aria-labelledby="h-burndown" data-chart="burndown">
+    ${axisY(max, 50, y)}
+    <line class="chart-ref" x1="${x(0)}" y1="${y(total)}" x2="${x(count)}" y2="${y(0)}"/>
+    <polyline class="chart-line" points="${line}"/>
+    <circle class="chart-dot" cx="${x(last)}" cy="${y(end)}" r="4"/>
+    <text class="chart-label" x="${x(last) + 10}" y="${y(end) - 8}">${esc(fill(t('method.burndown.end'), { left: end }))}</text>
+    ${points}
+    ${ticksX}
+  </svg>`;
+  const legend = `<ul class="chart-legend plain">
+    <li><span class="key key-line" aria-hidden="true"></span>${esc(t('method.burndown.actual'))}</li>
+    <li><span class="key key-ref" aria-hidden="true"></span>${esc(t('method.burndown.ideal'))}</li>
+  </ul>`;
+  const rows = remaining.map((left, k) => `<tr><th scope="row">${k}</th><td class="num">${left}</td></tr>`).join('');
+  return { total, remaining: end, last, count, svg, legend, table: `<table><thead><tr><th scope="col">${esc(t('method.sprint'))}</th><th scope="col" class="num">${esc(t('method.left'))}</th></tr></thead><tbody>${rows}</tbody></table>` };
+}
+
+function metricsSection({ lang, t, data }) {
+  const vel = velocityChart({ lang, t, data });
+  const bd = burndownChart({ lang, t, data });
+  const v = velocity(data.sprints);
+  const committed = v.reduce((acc, x) => acc + x.committed, 0);
+  const delivered = v.reduce((acc, x) => acc + x.done, 0);
+  const figure = (id, title, lead, chart, extra = '') => `<figure class="chart-figure">
+    <h3 id="h-${id}">${esc(title)}</h3>
+    <p class="meta">${esc(lead)}</p>
+    ${extra}
+    <div class="chart-wrap" tabindex="0" role="region" aria-labelledby="h-${id}">${chart.svg}</div>
+    <details class="chart-data"><summary>${esc(t('method.data'))}</summary><div class="table-wrap">${chart.table}</div></details>
+  </figure>`;
+  return `<section class="block" aria-labelledby="h-metrics">
+  <h2 id="h-metrics">${esc(t('method.metrics'))}</h2>
+  ${figure('velocity', t('method.velocity'), t('method.velocity.lead'), vel)}
+  ${figure('burndown', t('method.burndown'), fill(t('method.burndown.lead'), { count: bd.count }), bd, bd.legend)}
+</section>
+<section class="block" aria-labelledby="h-estimation">
+  <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
+  <p>${esc(fill(t('method.estimation.text'), {
+    mean: number(vel.mean, lang), min: Math.min(...v.map((x) => x.done)), max: Math.max(...v.map((x) => x.done)),
+    delivered, committed, remaining: bd.remaining, next: bd.last + 1, last: bd.count,
+  }))}</p>
+</section>
+<section class="block" aria-labelledby="h-retro">
+  <h2 id="h-retro">${esc(t('method.retro'))}</h2>
+  <p>${esc(t('method.retro.text'))} <a href="${REPO_URL}/tree/main/scrum">${esc(t('method.retro.link'))}</a></p>
+</section>`;
+}
+
 function method({ lang, t, data }) {
   const { scrum } = data;
   const count = scrum.sprintCount;
@@ -359,6 +524,12 @@ function method({ lang, t, data }) {
     <ol class="plain">${rows}</ol>
   </div>
 </section>
+
+${backlogSection({ lang, t, data })}
+
+${sprintLogSection({ lang, t, data })}
+
+${metricsSection({ lang, t, data })}
 
 <section class="block" aria-labelledby="h-risks">
   <h2 id="h-risks">${esc(t('method.risks'))}</h2>

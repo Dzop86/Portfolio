@@ -2,6 +2,8 @@
 
 **Objectif :** un recruteur ouvre la fiche de n'importe quel projet ; la bibliothèque C a son squelette testé sur trois OS.
 
+**Goal:** a recruiter opens the page of any project; the C library has its skeleton tested on three operating systems.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que recruteur, j'ouvre la fiche détaillée d'un projet (stack, état, liens, Definition of Done) en français et en anglais. | 2 | Fait |

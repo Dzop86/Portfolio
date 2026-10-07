@@ -2,6 +2,8 @@
 
 **Objectif :** sur la fiche du projet othello, le visiteur joue contre l'IA : le moteur et l'IA en C du sprint 17, compilés en WebAssembly, derrière un plateau utilisable à la souris, au toucher et au clavier.
 
+**Goal:** on the othello project page, the visitor plays against the AI: the C engine and AI of sprint 17, compiled to WebAssembly, behind a board usable with the mouse, touch and keyboard.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, je compile le moteur et l'IA (othello) en WebAssembly avec une API pour le navigateur (coups, IA, annulation) ; build commité vérifié par la CI, test Node (perft et partie complète identiques au natif). | 1 | Fait |

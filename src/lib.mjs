@@ -160,7 +160,36 @@ export function parseSprint(md, file) {
     // No \b after "Abandonné": JavaScript's \b is ASCII-only and never matches after « é ».
     stories.push({ text, points: Number(points), done: /^Fait\b/.test(state), closed: /^(Fait\b|Abandonné)/.test(state) });
   }
-  return { number: Number(heading[1]), title: heading[2].trim(), stories };
+  // The sprint goal, in French and in English (a missing language fails the build, as for the texts).
+  const fr = md.match(/^\*\*Objectif :\*\* (.+)$/m);
+  const en = md.match(/^\*\*Goal:\*\* (.+)$/m);
+  if (!fr || !en) throw new Error(`${file} needs both "**Objectif :**" and "**Goal:**" lines`);
+  return { number: Number(heading[1]), title: heading[2].trim(), goal: { fr: fr[1].trim(), en: en[1].trim() }, stories };
+}
+
+/** Story points committed (all stories) and delivered (done stories) in each sprint, in order. */
+export function velocity(sprints) {
+  const sum = (list) => list.reduce((acc, s) => acc + s.points, 0);
+  return [...sprints].sort((a, b) => a.number - b.number)
+    .map((s) => ({ number: s.number, committed: sum(s.stories), done: sum(s.stories.filter((x) => x.done)) }));
+}
+
+/** Last sprint of a project ("S23-S25" -> 25, "S8+S16" -> 16). */
+export function lastSprint(label) {
+  return Math.max(...label.match(/\d+/g).map(Number));
+}
+
+/**
+ * Release burndown in project points: the estimate of the projects not yet done after each sprint,
+ * from sprint 0 (nothing done) to `upTo`. A project counts as done at its last sprint once its status
+ * is "done"; the showcase, built all along, stays in the remaining work until the end.
+ */
+export function burndown(projects, upTo) {
+  const total = projects.reduce((acc, p) => acc + p.points, 0);
+  const remaining = Array.from({ length: upTo + 1 }, (_, k) => total - projects
+    .filter((p) => p.status === 'done' && lastSprint(p.sprint) <= k)
+    .reduce((acc, p) => acc + p.points, 0));
+  return { total, remaining };
 }
 
 /**

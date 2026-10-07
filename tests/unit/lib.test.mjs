@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { esc, pick, makeT, teachingTotals, riskLevel, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress, sprintRange, roadmapState, periodYears, newestFirst, bySprint } from '../../src/lib.mjs';
+import { esc, pick, makeT, teachingTotals, riskLevel, i18nParity, loadData, normalizeBase, projectPage, neighbours, parseSprint, progress, sprintRange, roadmapState, periodYears, newestFirst, bySprint, velocity, burndown, lastSprint } from '../../src/lib.mjs';
 
 test('esc neutralises HTML special characters', () => {
   assert.equal(esc('<a href="x">\'&'), '&lt;a href=&quot;x&quot;&gt;&#39;&amp;');
@@ -63,7 +63,9 @@ test('neighbours returns the previous and next items, null at both ends', () => 
 
 const SPRINT_MD = `# Sprint 7 : un titre
 
-**Objectif :** peu importe.
+**Objectif :** livrer \`la démo\`.
+
+**Goal:** ship \`the demo\`.
 
 | Story | Points | État |
 |---|---|---|
@@ -78,6 +80,7 @@ const SPRINT_MD = `# Sprint 7 : un titre
 
 test('parseSprint reads the number, the title and the story table', () => {
   const sprint = parseSprint(SPRINT_MD, 'sprint-07.md');
+  assert.deepEqual(sprint.goal, { fr: 'livrer `la démo`.', en: 'ship `the demo`.' });
   assert.equal(sprint.number, 7);
   assert.equal(sprint.title, 'un titre');
   assert.equal(sprint.stories.length, 4);
@@ -109,7 +112,7 @@ test('roadmapState: closed sprints and the current one, abandoned stories counti
 });
 
 test('parseSprint marks abandoned stories as closed but not done', () => {
-  const md = '# Sprint 3 : t\n\n| Story | Points | État |\n|---|---|---|\n| a | 1 | Fait |\n| b | 1 | Abandonné (décision) |\n| c | 2 | En cours |\n';
+  const md = '# Sprint 3 : t\n\n**Objectif :** o\n\n**Goal:** g\n\n| Story | Points | État |\n|---|---|---|\n| a | 1 | Fait |\n| b | 1 | Abandonné (décision) |\n| c | 2 | En cours |\n';
   assert.deepEqual(parseSprint(md, 'x.md').stories.map((s) => [s.done, s.closed]), [[true, true], [false, true], [false, false]]);
 });
 
@@ -143,4 +146,24 @@ test('loadData gives the projects in sprint order and every dated CV list newest
   assert.deepEqual(cv.responsibilities.map((r) => r.period), ['2025', '2024', '2022 – 2024']);
   const years = cv.publications.map((p) => p.year);
   assert.deepEqual(years, [...years].sort((a, b) => b - a));
+});
+
+test('parseSprint needs the goal in both languages', () => {
+  const md = SPRINT_MD.replace(/^\*\*Goal:\*\*.*$/m, '');
+  assert.throws(() => parseSprint(md, 'sprint-07.md'), /sprint-07\.md needs both/);
+});
+
+test('velocity and burndown follow the sprints and the done projects', () => {
+  const story = (points, done) => ({ text: 's', points, done, closed: done });
+  const v = velocity([{ number: 2, stories: [story(3, true), story(2, false)] }, { number: 1, stories: [story(4, true)] }]);
+  assert.deepEqual(v, [{ number: 1, committed: 4, done: 4 }, { number: 2, committed: 5, done: 3 }]);
+  const projects = [
+    { status: 'done', sprint: 'S1', points: 5 },
+    { status: 'done', sprint: 'S2-S3', points: 8 },
+    { status: 'done', sprint: 'S1+S3', points: 3 },
+    { status: 'in-progress', sprint: 'S1-S9', points: 5 },
+  ];
+  assert.equal(lastSprint('S23-S25'), 25);
+  assert.equal(lastSprint('S8+S16'), 16);
+  assert.deepEqual(burndown(projects, 3), { total: 21, remaining: [21, 16, 16, 5] });
 });

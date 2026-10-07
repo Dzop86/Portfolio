@@ -2,6 +2,8 @@
 
 **Objectif :** le projet sql range dans PostgreSQL des mesures réelles de performance des bibliothèques du portfolio (lib-c et topologie, en WebAssembly), les analyse avec des vues, des fonctions de fenêtrage et des index justifiés, et la même base s'interroge dans le navigateur.
 
+**Goal:** the sql project stores in PostgreSQL real performance measurements of the portfolio's libraries (lib-c and topologie, in WebAssembly), analyses them with views, window functions and justified indexes, and the same database can be queried in the browser.
+
 | Story | Points | État |
 |---|---|---|
 | En tant qu'ingénieur, je range dans PostgreSQL (sql) des mesures réelles de lib-c et topologie : schéma contraint, vues, fonctions de fenêtrage, index justifiés par `EXPLAIN` ; tests pgTAP en CI. | 3 | Fait |

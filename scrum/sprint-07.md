@@ -2,6 +2,8 @@
 
 **Objectif :** le projet fastapi tourne dans Docker à côté du site (`docker compose up`) et renvoie aussi les invariants topologiques calculés par le C++.
 
+**Goal:** the fastapi project runs in Docker next to the site (`docker compose up`) and also returns the topological invariants computed in C++.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, je lance l'API (fastapi) avec `docker compose up` : image multi-étapes, utilisateur non root, test de fumée en CI. | 2 | Fait |

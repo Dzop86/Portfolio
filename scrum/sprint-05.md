@@ -2,6 +2,8 @@
 
 **Objectif :** sur la fiche Topologie 3D, un visiteur fait tourner un maillage coloré par sa courbure et lit ses invariants, calculés par le code C++ compilé en WebAssembly.
 
+**Goal:** on the 3D topology page, a visitor turns a mesh coloured by its curvature and reads its invariants, computed by the C++ code compiled to WebAssembly.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, j'appelle la bibliothèque C++ de topologie depuis JavaScript : build WebAssembly vérifié en CI, testé dans Node. | 2 | Fait |

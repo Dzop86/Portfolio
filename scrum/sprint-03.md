@@ -2,6 +2,8 @@
 
 **Objectif :** lib-c lit OBJ et PLY sans fuite mémoire, et un visiteur l'essaie sur la fiche du projet, compilée en WebAssembly.
 
+**Goal:** lib-c reads OBJ and PLY without memory leaks, and a visitor tries it on the project page, compiled to WebAssembly.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que Charles, je prouve l'absence de fuite de lib-c : Valgrind passe en CI sur les tests et la CLI. | 1 | Fait |

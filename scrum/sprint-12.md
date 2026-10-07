@@ -2,6 +2,8 @@
 
 **Objectif :** Maille manipule des maillages (tore, sphère, cylindre) et calcule leurs invariants topologiques ; sur la fiche du projet, le visiteur écrit un programme, voit son arbre syntaxique, son type et sa valeur, calculés dans son navigateur.
 
+**Goal:** Maille handles meshes (torus, sphere, cylinder) and computes their topological invariants; on the project page, the visitor writes a program and sees its syntax tree, type and value, computed in the browser.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, je construis des maillages en Maille (langage) et j'en calcule les invariants (sommets, arêtes, faces, caractéristique d'Euler, bords, genre) ; tests dune vérifiés contre les formules connues. | 1 | Fait |

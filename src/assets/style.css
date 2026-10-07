@@ -34,7 +34,9 @@ a:hover { text-decoration-thickness: 2px; }
 .theme-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .site-nav { display: flex; gap: var(--space-1); overflow-x: auto; padding-bottom: var(--space-2); scrollbar-width: none; }
 .site-nav::-webkit-scrollbar { display: none; }
-.site-nav a { white-space: nowrap; padding: 6px 12px; border-radius: 999px; text-decoration: none; color: var(--text); font-size: 0.95rem; }
+/* On a phone the five tabs wrap onto two lines rather than hide behind a scroll (remark of Charles). */
+@media (max-width: 600px) { .site-nav { flex-wrap: wrap; overflow: visible; row-gap: 0; } }
+.site-nav a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; padding: 6px 12px; border-radius: 999px; text-decoration: none; color: var(--text); font-size: 0.95rem; }
 .site-nav a:hover { background: var(--surface-2); }
 .site-nav a[aria-current="page"] { background: var(--accent); color: var(--on-accent); font-weight: 500; }
 
@@ -456,3 +458,32 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
   .card { transition: transform 0.15s ease, border-color 0.15s ease; }
   .card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
 }
+
+/* Project management page: sprint log and charts (D40). */
+.sprint-log { display: grid; gap: var(--space-3); }
+.sprint-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3) var(--space-4); }
+.sprint-item p { margin: var(--space-2) 0; }
+.sprint-goal::first-letter { text-transform: uppercase; }
+.sprint-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); }
+.sprint-older { margin-top: var(--space-3); }
+.sprint-older summary, .chart-data summary { cursor: pointer; padding: 10px 0; font-weight: 600; }
+.sprint-older .sprint-log { margin-top: var(--space-3); }
+.chart-figure { margin: var(--space-5) 0; max-width: 760px; }
+.chart-figure h3 { margin-bottom: var(--space-1); }
+.chart-wrap { overflow-x: auto; }
+.chart-wrap:focus-visible { outline: 3px solid var(--link); outline-offset: 2px; }
+.chart { display: block; width: 100%; min-width: 560px; height: auto; }
+.chart-grid { stroke: var(--chart-grid); stroke-width: 1; }
+.chart-tick, .chart-label { fill: var(--muted); font: 12px var(--font-body); }
+.chart-label { fill: var(--text); }
+.chart-bar { fill: var(--chart-series); }
+.chart-line { fill: none; stroke: var(--chart-series); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart-dot { fill: var(--chart-series); stroke: var(--surface); stroke-width: 2; }
+.chart-ref { stroke: var(--chart-ref); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.chart-target { fill: transparent; }
+.chart-hit:hover .chart-bar { opacity: 0.8; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: var(--space-2) 0; color: var(--text); }
+.chart-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.key { display: inline-block; width: 22px; height: 0; border-top: 2px solid var(--chart-series); }
+.key-ref { border-top: 2px dashed var(--chart-ref); }
+.chart-data table { margin-top: var(--space-2); }

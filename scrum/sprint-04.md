@@ -2,6 +2,8 @@
 
 **Objectif :** `projects/topologie/` calcule en C++ les invariants d'un maillage (composantes, bords, orientabilité, genre) et sa courbure discrète, en réutilisant le lecteur de lib-c.
 
+**Goal:** `projects/topologie/` computes in C++ the invariants of a mesh (components, boundaries, orientability, genus) and its discrete curvature, reusing lib-c's reader.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, je construis une structure demi-arête (topologie) à partir d'un maillage lu par lib-c, testée avec GoogleTest sur Linux, Windows et macOS. | 3 | Fait |

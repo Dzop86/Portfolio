@@ -2,6 +2,8 @@
 
 **Objectif :** dernier des trois sprints du roguelike (D32) : le jeu dans une fenêtre Godot 4 en C#, sur la même bibliothèque de règles, avec des parties classées sur l'API de scores ; builds Windows, Linux et macOS par la CI, captures sur la fiche du projet.
 
+**Goal:** last of the three roguelike sprints (D32): the game in a Godot 4 window in C#, on the same rules library, with ranked runs on the score API; Windows, Linux and macOS builds by the CI, screenshots on the project page.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je joue au roguelike (rogue) dans une fenêtre Godot 4 : carte dessinée, cases hors de vue assombries, panneau d'état et messages en français ou en anglais, clavier (flèches, zqsd, wasd), menu, pilote automatique à regarder ; scripts C# minces sur Rogue.Core ; test sans écran du client sur Linux, Windows et macOS ; exécutables Windows, Linux et macOS produits par la CI ; captures sur la fiche du projet. | 2 | Fait |

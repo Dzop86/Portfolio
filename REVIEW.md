@@ -35,4 +35,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `Dockerfile` | (Claude) Signalé par la CI, deuxième fois : depuis le sprint 16, l'image du site ne copiait pas les résultats du ML lus par la fiche ; je n'avais pas suivi la CI du push concerné jusqu'au bout | Fichiers copiés ; nouveau test `tests/unit/docker-context.test.mjs` qui construit le site à partir des seuls fichiers copiés par le `Dockerfile` (il reproduisait l'échec avant la correction) |
 | 2026-10-07 | `src/assets/style.css` | (Claude) Vu en ajoutant le filtre par langage : les boutons de filtre faisaient 38 px de haut, sous les 44 px de la règle 5 | 44 px |
 | 2026-10-07 | `data/i18n/*.json` | Signalé par Charles : l'accueil annonçait encore « dix-sept projets » | (Claude) Nombres de projets et de langages calculés depuis les données, test |
+| 2026-10-07 | `src/assets/style.css` | (Claude) Vu sur une capture à 375 px : avec les nouveaux libellés, l'onglet « Gestion de projet » était coupé (menu défilant à barre cachée), et les liens du menu faisaient 33 px de haut | Menu sur deux lignes sous 600 px, liens de 44 px |
 | | | | |

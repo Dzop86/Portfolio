@@ -2,6 +2,8 @@
 
 **Objectif :** le PointNet du projet ml quitte l'entraînement : exporté en ONNX et vérifié identique au modèle PyTorch, il classe les maillages envoyés à l'API (`POST /v1/mesh/classify`, sans PyTorch dans l'image), et ses résultats sont présentés sur la fiche du projet.
 
+**Goal:** the ml project's PointNet leaves training: exported to ONNX and checked identical to the PyTorch model, it classifies the meshes sent to the API (`POST /v1/mesh/classify`, without PyTorch in the image), and its results are shown on the project page.
+
 | Story | Points | État |
 |---|---|---|
 | En tant qu'ingénieur ML, j'exporte le PointNet en ONNX (ml) dans une étape DVC : sorties ONNX Runtime égales à celles de PyTorch sur tout le jeu de test, précision mesurée par ONNX Runtime et reportée avec le modèle ; tests pytest, CI. | 3 | Fait |

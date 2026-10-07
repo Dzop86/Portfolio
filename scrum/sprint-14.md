@@ -2,6 +2,8 @@
 
 **Objectif :** sur la fiche du projet latex, le visiteur édite un article qui présente ce portfolio et voit le rendu se mettre à jour pendant qu'il tape, façon Overleaf ; les diagnostics et le plan le mènent à la bonne ligne.
 
+**Goal:** on the latex project page, the visitor edits an article presenting this portfolio and sees the rendering update while typing, as in Overleaf; diagnostics and the outline lead to the right line.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que visiteur, j'édite un document (latex) et je vois son rendu en direct : texte et aperçu côte à côte (onglets sur mobile), diagnostics et plan cliquables, téléchargement du .tex ; tests Playwright, mobile compris. | 2 | Fait |

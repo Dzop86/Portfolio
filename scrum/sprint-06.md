@@ -2,6 +2,8 @@
 
 **Objectif :** lib-c lit le STL, ce qui permet de déposer des modèles d'impression 3D dans les démos ; le projet fastapi démarre et expose lib-c par HTTP.
 
+**Goal:** lib-c reads STL, so that 3D-printing models can be dropped into the demos; the fastapi project starts and serves lib-c over HTTP.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que Charles, je dépose un fichier STL (binaire ou ASCII) dans les démos : lib-c le lit, soude les sommets identiques et écarte les facettes dégénérées. | 2 | Fait |

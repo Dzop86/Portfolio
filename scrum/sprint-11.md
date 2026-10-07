@@ -2,6 +2,8 @@
 
 **Objectif :** le projet langage définit « Maille », un petit langage fonctionnel : un analyseur Flex/Bison en C produit l'arbre syntaxique, un interpréteur OCaml en infère les types (Hindley-Milner) et l'évalue. Les maillages entreront dans le langage au sprint 12, avec la démo sur le site.
 
+**Goal:** the langage project defines “Maille”, a small functional language: a Flex/Bison parser in C produces the syntax tree, an OCaml interpreter infers its types (Hindley-Milner) and evaluates it. Meshes enter the language in sprint 12, with the demo on the site.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, j'analyse un programme Maille (langage) avec Flex et Bison en C : priorités, erreurs situées (ligne, colonne), arbre syntaxique en S-expression ; tests de référence CTest, CI Linux, Windows et macOS. | 3 | Fait |

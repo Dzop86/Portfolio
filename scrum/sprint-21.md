@@ -2,6 +2,8 @@
 
 **Objectif :** le projet bataille réécrit un jeu de mes études : le jeu de cartes de la bataille, en Ada, avec des types qui excluent les cartes impossibles et des paquets à contrats ; la fiche du projet montre ce qu'en disent 100 000 parties simulées.
 
+**Goal:** the bataille project rewrites a game from my studies: the card game War, in Ada, with types that rule out impossible cards and contract-checked piles; the project page shows what 100,000 simulated games say.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je regarde une partie de bataille (bataille) se jouer dans le terminal : 52 cartes mélangées de façon reproductible, plis, batailles en chaîne, fin de partie (y compris les parties qui ne finissent jamais) ; paquets en file circulaire à contrats ; tests AUnit, CI Linux, Windows et macOS. | 2 | Fait |

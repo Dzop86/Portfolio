@@ -2,6 +2,8 @@
 
 **Objectif :** le projet ada simule un carrefour à feux dont les états dangereux ne peuvent pas s'écrire : le typage les exclut, les contrats et la preuve SPARK garantissent le reste.
 
+**Goal:** the ada project simulates a traffic-light crossroads whose dangerous states cannot be written: typing rules them out, contracts and the SPARK proof guarantee the rest.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que développeur, je simule un carrefour (ada) dont l'état est une phase du cycle : deux axes au vert ne peuvent pas s'écrire ; tests AUnit, CI Linux, Windows et macOS. | 3 | Fait |

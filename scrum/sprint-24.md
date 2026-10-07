@@ -2,6 +2,8 @@
 
 **Objectif :** deuxième des trois sprints du roguelike (D32) : une API ASP.NET Core de scores, avec comptes et jetons JWT, EF Core et PostgreSQL, qui impose la graine de chaque partie classée (R6) et calcule elle-même le score en rejouant la partie avec la bibliothèque de règles.
 
+**Goal:** second of the three roguelike sprints (D32): an ASP.NET Core score API, with accounts and JWT tokens, EF Core and PostgreSQL, which draws the seed of each ranked run (R6) and computes the score itself by replaying the run with the rules library.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je crée un compte, je me connecte (JWT), je demande une partie classée (graine tirée par le serveur, valable 24 heures, une seule fois) et j'envoie ma partie : l'API la rejoue avec Rogue.Core et enregistre le score qu'elle a calculé, ou refuse la partie en disant pourquoi ; EF Core et PostgreSQL avec migrations, mots de passe hachés (PBKDF2) ; tests d'intégration sur une vraie base PostgreSQL. | 3 | Fait |

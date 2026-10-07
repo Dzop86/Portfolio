@@ -359,3 +359,30 @@ test('the projects page filters by category and by language', () => {
     assert.ok(html.includes('data-filter-empty hidden'));
   }
 });
+
+test('the project management page shows the backlog, the sprint log and the metrics from the data', () => {
+  const { projects, sprints, scrum } = loadData();
+  const open = projects.filter((p) => p.status !== 'done');
+  for (const lang of LANGS) {
+    const html = page(lang, 'method');
+    const backlog = html.slice(html.indexOf('data-backlog'), html.indexOf('</table>', html.indexOf('data-backlog')));
+    assert.equal((backlog.match(/<tr>/g) || []).length - 1, open.length, `${lang}: one row per open project`);
+    // Every sprint, newest first, with its goal in the page's language and a link to its report.
+    const items = [...html.matchAll(/<li class="sprint-item">[\s\S]*?<\/li>/g)].map((m) => m[0]);
+    assert.equal(items.length, sprints.length);
+    assert.ok(items[0].includes(`<strong>Sprint ${Math.max(...sprints.map((s) => s.number))}</strong>`));
+    for (const s of sprints) {
+      const item = items.find((i) => i.includes(`/scrum/sprint-${String(s.number).padStart(2, '0')}.md"`));
+      assert.ok(item, `${lang}: sprint ${s.number}`);
+      const goal = esc(s.goal[lang]).replace(/`([^`]+)`/g, '<code>$1</code>');
+      assert.ok(item.includes(`<p class="sprint-goal">${goal}</p>`), `${lang}: goal of sprint ${s.number}`);
+    }
+    // One bar per sprint in the velocity chart; one point per sprint, from sprint 0, in the burndown.
+    const velocityChart = html.slice(html.indexOf('data-chart="velocity"'), html.indexOf('</svg>', html.indexOf('data-chart="velocity"')));
+    assert.equal((velocityChart.match(/class="chart-bar"/g) || []).length, sprints.length);
+    const burn = html.slice(html.indexOf('data-chart="burndown"'), html.indexOf('</svg>', html.indexOf('data-chart="burndown"')));
+    assert.equal((burn.match(/class="chart-target"/g) || []).length, sprints.length + 1);
+    assert.ok(html.includes(`>${scrum.sprintCount}</text>`), 'the burndown runs to the last planned sprint');
+    for (const id of ['h-backlog', 'h-sprintlog', 'h-metrics', 'h-estimation', 'h-retro', 'h-risks']) assert.ok(html.includes(`id="${id}"`), id);
+  }
+});

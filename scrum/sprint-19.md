@@ -2,6 +2,8 @@
 
 **Objectif :** le projet naval réécrit un jeu de mes études : une bataille navale contre l'ordinateur, dont le modèle est en Java pur et testé, et l'interface en JavaFX ; la fiche du projet en montre des captures, générées sans écran par l'application elle-même.
 
+**Goal:** the naval project rewrites a game from my studies: battleship against the computer, with its model in plain, tested Java and its interface in JavaFX; the project page shows screenshots, made headless by the application itself.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, j'affronte l'ordinateur à la bataille navale (naval) : grille de 10 × 10, flotte de 5 navires placée au hasard sans contact, tirs, touché, coulé, fin de partie ; IA qui chasse puis cible ; tests JUnit 5, CI Linux, Windows et macOS. | 3 | Fait |

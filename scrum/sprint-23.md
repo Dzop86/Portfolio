@@ -2,6 +2,8 @@
 
 **Objectif :** premier des trois sprints du roguelike (D32) : les règles du jeu dans une bibliothèque C# déterministe, partagée plus tard par le client Godot et l'API de scores, jouable dès maintenant dans le terminal ; une partie s'enregistre (graine et actions) et se rejoue à l'identique, base de la vérification des scores au sprint 24.
 
+**Goal:** first of the three roguelike sprints (D32): the game rules in a deterministic C# library, later shared by the Godot client and the score API, playable now in the terminal; a run is recorded (seed and actions) and replays identically, the basis of score checking in sprint 24.
+
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, je joue au roguelike (rogue) dans le terminal : donjon de cinq étages généré à partir d'une graine (salles reliées par des couloirs, toutes atteignables), champ de vision, déplacements et combats au tour par tour, monstres qui poursuivent le joueur, potions, or, escalier, score ; règles dans une bibliothèque C# sans dépendance, en français ou en anglais côté client ; tests xUnit, CI Linux, Windows et macOS. | 3 | Fait |

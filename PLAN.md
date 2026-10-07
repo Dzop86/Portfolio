@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S33), affichée sur la page Méthode : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S33), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -59,7 +59,7 @@ Un morpion en Python (S22) et un roguelike 2D rejoignent les jeux, juste après 
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
-- Registre des risques : `data/scrum.json`, affiché sur la page Méthode, revu à chaque rétro.
+- Registre des risques : `data/scrum.json`, affiché sur la page Gestion de projet, revu à chaque rétro.
 - Priorisation MoSCoW : Must = vitrine, topologie, C, ML, SQL, Qt. Should = les six jeux. Could = Angular, Bootstrap. Won't (retirés le 6 octobre) = microservices Spring, API ASP.NET.
 
 ## Reporté

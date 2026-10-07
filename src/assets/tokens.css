@@ -35,6 +35,10 @@
   --tag-bg: rgba(190, 243, 116, 0.12);
   --tag-text: var(--pistache-pale);
   --bar: var(--pistache);
+  /* Charts (project management page): one data hue per theme, a muted reference, hairline grid. */
+  --chart-series: var(--pistache);
+  --chart-ref: var(--gris-discret);
+  --chart-grid: rgba(255, 255, 255, 0.1);
   --risk-high: rgba(242, 140, 110, 0.22);
   --risk-high-text: #ffc7b5;
   --risk-medium: rgba(246, 210, 110, 0.2);
@@ -85,6 +89,9 @@
 
 /* Clair façon VS Code Light : jamais de pistache en texte sur ce fond. */
 :root[data-theme="light"] {
+  --chart-series: var(--bambou);
+  --chart-ref: #616161;
+  --chart-grid: rgba(0, 0, 0, 0.1);
   --bg: #ffffff;
   --header-bg: #f8f8f8;
   --surface: #f8f8f8;

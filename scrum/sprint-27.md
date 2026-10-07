@@ -2,6 +2,8 @@
 
 **Objectif :** second sprint de la visionneuse (projet qt) : désigner un sommet ou une face pour en lire les propriétés locales, enregistrer la vue en image, et livrer l'application prête à installer sur Windows, Linux et macOS.
 
+**Goal:** second sprint of the viewer (qt project): pick a vertex or a face to read its local properties, save the view as an image, and ship the application ready to install on Windows, Linux and macOS.
+
 | Story | Points | État |
 |---|---|---|
 | En tant qu'ingénieur, je clique sur le maillage pour sélectionner le sommet ou la face sous le curseur : élément mis en évidence, panneau de ses propriétés (indice, position, valence, courbure de Gauss et défaut angulaire, bord ; aire et normale d'une face) ; sélection au clavier aussi ; lancer de rayon testé sans OpenGL ; j'enregistre la vue en image PNG. | 4 | Fait |
