@@ -54,7 +54,13 @@ int main(int argc, char** argv) {
                 else if (v == "glass") finish = rt::MaterialKind::Glass;
                 else usage();
             } else if (a == "--size") {
-                if (std::sscanf(value().c_str(), "%ux%u", &width, &height) != 2 || width == 0 || height == 0) usage();
+                // WxH, read with strtoul (MSVC refuses sscanf without _CRT_SECURE_NO_WARNINGS).
+                const std::string v = value();
+                char* end = nullptr;
+                width = static_cast<unsigned>(std::strtoul(v.c_str(), &end, 10));
+                if (*end != 'x') usage();
+                height = static_cast<unsigned>(std::strtoul(end + 1, &end, 10));
+                if (*end != '\0' || width == 0 || height == 0) usage();
             } else if (a == "--spp") {
                 spp = static_cast<unsigned>(std::strtoul(value().c_str(), nullptr, 10));
             } else if (a == "--yaw") {

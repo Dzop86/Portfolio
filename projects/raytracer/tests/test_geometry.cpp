@@ -3,6 +3,11 @@
 
 #include <gtest/gtest.h>
 
+// Axis-parallel rays divide by zero on purpose: 1 / 0 is the infinity the slab test expects (C4723).
+#ifdef _MSC_VER
+#pragma warning(disable : 4723)
+#endif
+
 namespace {
 
 using rt::Ray;

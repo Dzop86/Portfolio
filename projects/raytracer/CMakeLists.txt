@@ -52,5 +52,9 @@ if(RT_BUILD_TESTS)
   target_compile_definitions(rt_tests PRIVATE RT_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/../topologie/samples"
                                               RT_REFERENCE="${CMAKE_CURRENT_SOURCE_DIR}/tests/reference")
   rt_warnings(rt_tests)
+  # RT_UPDATE_REFERENCE is read with std::getenv, which MSVC deprecates in favour of _dupenv_s.
+  if(MSVC)
+    target_compile_definitions(rt_tests PRIVATE _CRT_SECURE_NO_WARNINGS)
+  endif()
   gtest_discover_tests(rt_tests)
 endif()
