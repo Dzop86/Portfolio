@@ -4,9 +4,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { ROOT } from '../../src/lib.mjs';
 
 /** COPY instructions of the build stage: [[sources...], destination]. */
@@ -41,4 +41,29 @@ test('the site builds from exactly what the Dockerfile copies', () => {
     const reason = String(e.stderr).split('\n').find((l) => /ENOENT|Error/.test(l)) ?? String(e.stderr).slice(0, 300);
     assert.fail(`the build needs a file the Dockerfile does not copy: ${reason}`);
   }
+});
+
+test('the dashboard stage copies every file of the site that the dashboard imports', () => {
+  const dockerfile = readFileSync(join(ROOT, 'Dockerfile'), 'utf8');
+  const stage = dockerfile.split(/^FROM /m).find((s) => /\bAS dashboard\b/.test(s.split('\n')[0]));
+  assert.ok(stage, 'a dashboard stage');
+  const copied = [...stage.matchAll(/^COPY\s+(?!--from)(.+)$/gm)].flatMap((m) => m[1].trim().split(/\s+/).slice(0, -1));
+  // Imports that leave projects/react for the site's src/ (tokens.css, topo-api.js...), and theirs in turn.
+  const wanted = new Set();
+  const visit = (file) => {
+    for (const [, spec] of readFileSync(file, 'utf8').matchAll(/(?:import|from)\s*['"]([^'"]+)['"]/g)) {
+      if (!spec.startsWith('.')) continue;
+      const target = join(dirname(file), spec);
+      const rel = relative(ROOT, target).split(sep).join('/');
+      if (rel.startsWith('src/') && !wanted.has(rel)) {
+        wanted.add(rel);
+        if (rel.endsWith('.js')) visit(target);
+      }
+    }
+  };
+  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).forEach((e) =>
+    e.isDirectory() ? walk(join(dir, e.name)) : /\.(ts|tsx)$/.test(e.name) && visit(join(dir, e.name)));
+  walk(join(ROOT, 'projects/react/src'));
+  assert.ok(wanted.has('src/assets/tokens.css'));
+  for (const file of wanted) assert.ok(copied.includes(file), `the dashboard stage does not copy ${file}`);
 });

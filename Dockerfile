@@ -5,8 +5,8 @@ COPY projects/react/package.json projects/react/package-lock.json ./
 RUN npm ci --ignore-scripts
 COPY projects/react/index.html projects/react/vite.config.ts projects/react/tsconfig.json projects/react/tsconfig.app.json ./
 COPY projects/react/src ./src
-# The site's colours, imported by the dashboard (rule 6).
-COPY src/assets/tokens.css /app/src/assets/
+# What the dashboard imports from the site: its colours (rule 6) and the WebAssembly topology reader.
+COPY src/assets/tokens.css src/assets/topo-api.js src/assets/meshlib-api.js /app/src/assets/
 RUN npm run build
 
 # Stage 2: build the static site.
