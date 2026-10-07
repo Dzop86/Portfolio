@@ -7,10 +7,10 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/Rogue.Core/Game.cs` : déroulé d'un tour, combat, poursuite des monstres, niveaux.
 - [x] `src/Rogue.Core/Replay.cs` : format de partie et refus des parties invalides (base de la vérification des scores).
 - [x] Le jeu ressemble-t-il à celui de mes études ? Difficulté (le pilote automatique sort du donjon une fois sur quatre) ?
-- [ ] `src/Rogue.Api/Endpoints/RunEndpoints.cs` : délivrance des graines et vérification des parties (sprint 24).
-- [ ] `src/Rogue.Api/Endpoints/AccountEndpoints.cs` et `Tokens.cs` : comptes, mots de passe, jetons JWT (sprint 24).
+- [x] `src/Rogue.Api/Endpoints/RunEndpoints.cs` : délivrance des graines et vérification des parties (sprint 24).
+- [x] `src/Rogue.Api/Endpoints/AccountEndpoints.cs` et `Tokens.cs` : comptes, mots de passe, jetons JWT (sprint 24).
 
-> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, pousse »), pour le volet du sprint 23 (règles et terminal).
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, pousse »), pour le volet du sprint 23 (règles et terminal) ; puis, pour le sprint 24 (API de scores), à sa demande explicite (« review validée, push »).
 
 ## Constats
 
