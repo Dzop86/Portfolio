@@ -7,10 +7,10 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/renderer.cpp` : buffers, shaders, ordre de dessin (faces décalées, arêtes par-dessus).
 - [x] `src/meshmodel.cpp` : normales, arêtes de bord, échelle de courbure.
 - [x] La visionneuse chez moi : ouvrir mes propres maillages, la lisibilité des invariants et des couleurs.
-- [ ] `src/picking.cpp` : rayon, intersection, choix du sommet ou de la face (sprint 27).
-- [ ] Les exécutables de la CI chez moi : lancer celui de mon système (sprint 27).
+- [x] `src/picking.cpp` : rayon, intersection, choix du sommet ou de la face (sprint 27).
+- [x] Les exécutables de la CI chez moi : lancer celui de mon système (sprint 27).
 
-> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« valide la review, pousse ça »), pour le volet du sprint 26.
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« valide la review, pousse ça »), pour le volet du sprint 26 ; puis, pour le sprint 27 (sélection et exécutables), à sa demande explicite (« valide la review »).
 
 ## Constats
 
