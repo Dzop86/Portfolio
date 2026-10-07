@@ -11,9 +11,11 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, push and go »), pour le volet du sprint 28 (OpenMP et OpenCL).
 
 Sprint 29 (CUDA et benchmarks) :
-- [ ] `src/cuda.cu` : les noyaux (comparés à `kernels.hpp`), le découpage de π en float, la libération de la mémoire sur tous les chemins.
-- [ ] `src/opencl.cpp` : le cache du contexte et du programme compilé (verrou, jamais libéré).
-- [ ] `tools/parbench.cpp` et la fiche : la méthode de mesure, et les textes face aux chiffres de `data/bench.json`.
+- [x] `src/cuda.cu` : les noyaux (comparés à `kernels.hpp`), le découpage de π en float, la libération de la mémoire sur tous les chemins.
+- [x] `src/opencl.cpp` : le cache du contexte et du programme compilé (verrou, jamais libéré).
+- [x] `tools/parbench.cpp` et la fiche : la méthode de mesure, et les textes face aux chiffres de `data/bench.json`.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, go suite »), pour le volet du sprint 29 (CUDA et benchmarks).
 
 ## Constats
 
