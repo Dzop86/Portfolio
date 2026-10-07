@@ -1,0 +1,57 @@
+name: rogue
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/rogue/**', '.github/workflows/rogue.yml']
+  pull_request:
+    paths: ['projects/rogue/**', '.github/workflows/rogue.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rogue-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/rogue
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  test:
+    name: Roguelike, C# (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rogue/global.json
+      - name: Format (dotnet format)
+        run: dotnet format Rogue.slnx --verify-no-changes
+      # Analyzers at the recommended level, warnings are errors (Directory.Build.props).
+      - name: Build
+        run: dotnet build Rogue.slnx -c Release
+      # Includes the known runs: the same seed must give the same score on every system.
+      - name: Unit and integration tests (xUnit)
+        run: dotnet test --solution Rogue.slnx -c Release --no-build
+      - name: Replay the committed runs
+        shell: bash
+        run: |
+          dotnet run --project src/Rogue.Cli -c Release --no-build -- --replay samples/escaped.json --lang en | tee "$RUNNER_TEMP/escaped.txt"
+          grep -q "escaped from the dungeon, floor 5, 1496 turns, .* score 2071\." "$RUNNER_TEMP/escaped.txt"
+          dotnet run --project src/Rogue.Cli -c Release --no-build -- --replay samples/died.json --lang en
+      - name: A piped game, saved then replayed
+        shell: bash
+        run: |
+          printf 'ddsssllkkjj.x' | dotnet run --project src/Rogue.Cli -c Release --no-build -- --seed 42 --save "$RUNNER_TEMP/run.json"
+          dotnet run --project src/Rogue.Cli -c Release --no-build -- --replay "$RUNNER_TEMP/run.json"

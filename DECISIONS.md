@@ -170,3 +170,8 @@
 **Choix :** la fiche du projet morpion se joue contre l'IA dans la page. Les règles, une vingtaine de lignes, sont réécrites en JavaScript (`src/assets/morpion-api.js`) ; les coups de l'IA viennent de `projects/morpion/data/book.json`, la valeur et les meilleurs coups des 5 478 positions, calculés par le programme Python et copiés dans le site au build. pytest vérifie que le fichier commité correspond au programme ; les tests Node, que les règles JavaScript voient les mêmes positions et que l'IA jouée depuis le livre ne perd aucune partie possible.
 **Pourquoi :** une seule IA, celle qui est testée en Python, sans faire tourner Python dans le navigateur (Pyodide pèse plusieurs mégaoctets) ; le livre pèse 124 Ko.
 **Limite :** les règles existent en deux langages ; les tests Node les comparent position par position.
+
+## D35. Le roguelike, premier volet : des règles déterministes et des parties rejouables
+**Choix :** les règles du roguelike (D32) vivent dans une bibliothèque C# sans dépendance (`projects/rogue/src/Rogue.Core`, net8.0 pour Godot 4), avec son propre générateur aléatoire (SplitMix64) ; une partie s'enregistre sous la forme graine + actions (JSON versionné) et se rejoue au même score. Le jeu se joue d'abord dans le terminal (net10.0). Tests xUnit v3 sur Microsoft.Testing.Platform, analyseurs .NET au niveau recommandé, CI Linux, Windows et macOS, dont des parties de référence (même graine, même score sur les trois systèmes).
+**Pourquoi :** c'est ce que l'API du sprint 24 rejouera pour calculer elle-même les scores ; le terminal permet de jouer et de tester les règles sans attendre le client Godot.
+**Limite :** la fiche du projet n'a pas encore de démonstration : des captures du client Godot viendront au sprint 25 (D32).
