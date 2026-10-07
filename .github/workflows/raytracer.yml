@@ -1,0 +1,49 @@
+name: raytracer
+
+on:
+  push:
+    branches: [main]
+    # The ray tracer reads meshes with lib-c and renders the topologie samples.
+    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', '.github/workflows/raytracer.yml']
+  pull_request:
+    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', '.github/workflows/raytracer.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: raytracer-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/raytracer
+
+jobs:
+  test:
+    name: Ray tracer (${{ matrix.os }}${{ matrix.sanitize == 'ON' && ', ASan + UBSan' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sanitize: ['OFF']
+        include:
+          - os: ubuntu-latest
+            sanitize: 'ON'
+    steps:
+      - uses: actions/checkout@v7
+      # Release: the reference images take 16 samples of two scenes, slow without optimisation.
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.sanitize == 'ON' && 'Debug' || 'Release' }} -DRT_SANITIZE=${{ matrix.sanitize }}
+      - name: Build
+        run: cmake --build build --config ${{ matrix.sanitize == 'ON' && 'Debug' || 'Release' }} --parallel
+      - name: Test
+        run: ctest --test-dir build -C ${{ matrix.sanitize == 'ON' && 'Debug' || 'Release' }} --output-on-failure
+      - name: Render an image with the command line
+        shell: bash
+        run: |
+          exe=$(find build -name 'rt_render' -o -name 'rt_render.exe' | head -1)
+          "$exe" --scene mesh --mesh ../topologie/samples/torus.obj --finish glass --size 160x90 --spp 4 -o torus.ppm
+          test -s torus.ppm
