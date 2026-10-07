@@ -54,8 +54,8 @@ test('project ids are URL-safe slugs and project links are absolute https URLs o
     assert.match(p.id, /^[a-z0-9]+(-[a-z0-9]+)*$/, p.id);
     for (const [kind, url] of Object.entries(p.links ?? {})) {
       assert.ok(['code', 'demo'].includes(kind), `${p.id}: unknown link kind ${kind}`);
-      // A folder of the published site (the dashboard, D43) stays relative: it then works in Docker too.
-      assert.match(url, /^(https:\/\/|\.\.\/dashboard\/)/, `${p.id}: ${kind}`);
+      // A folder of the published site (the dashboards, D43, D44) stays relative: it then works in Docker too.
+      assert.match(url, /^(https:\/\/|\.\.\/(dashboard|angular)\/)/, `${p.id}: ${kind}`);
     }
   }
 });

@@ -9,7 +9,18 @@ COPY projects/react/src ./src
 COPY src/assets/tokens.css src/assets/topo-api.js src/assets/meshlib-api.js /app/src/assets/
 RUN npm run build
 
-# Stage 2: build the static site.
+# Stage 2: the Angular dashboard (D44), which shares the React one's types, computations, texts and styles.
+FROM node:22-alpine AS angular
+WORKDIR /app/projects/angular
+COPY projects/angular/package.json projects/angular/package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY projects/angular/angular.json projects/angular/tsconfig.json projects/angular/tsconfig.app.json ./
+COPY projects/angular/src ./src
+COPY projects/react/src /app/projects/react/src
+COPY src/assets/tokens.css /app/src/assets/
+RUN npm run build
+
+# Stage 3: build the static site.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -41,9 +52,10 @@ COPY projects/bataille/data/stats.json ./projects/bataille/data/
 COPY projects/morpion/data/book.json ./projects/morpion/data/
 COPY projects/parallele/data/bench.json ./projects/parallele/data/
 COPY --from=dashboard /app/projects/react/dist ./projects/react/dist
+COPY --from=angular /app/projects/angular/dist ./projects/angular/dist
 RUN npm run build
 
-# Stage 3: serve it with nginx.
+# Stage 4: serve it with nginx.
 FROM nginx:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

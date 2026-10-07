@@ -1,6 +1,8 @@
 node_modules
 **/node_modules
 projects/react/dist
+projects/angular/dist
+projects/angular/.angular
 dist
 test-results
 playwright-report

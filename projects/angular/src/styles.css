@@ -1,0 +1,3 @@
+/* The Angular dashboard: the site's colours (rule 6) and the React dashboard's styles, shared as they are. */
+@import '../../../src/assets/tokens.css';
+@import '../../react/src/styles.css';

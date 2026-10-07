@@ -21,6 +21,9 @@ describe('makeT', () => {
     expect(t('projects.points', { n: 5 })).toBe('5 points');
     expect(t('projects.points')).toBe('{n} points');
   });
+  it('shows a key missing from the dictionary as itself instead of failing', () => {
+    expect(makeT('fr')('family.klein-bottle' as Parameters<ReturnType<typeof makeT>>[0])).toBe('family.klein-bottle');
+  });
 });
 
 describe('pickLang', () => {

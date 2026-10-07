@@ -30,6 +30,9 @@ jobs:
       # The React dashboard (D43): its tests, then its bundle, which the site's build copies to dashboard/.
       - run: npm ci && npm test && npm run build
         working-directory: projects/react
+      # The Angular dashboard (D44), likewise, copied to angular/.
+      - run: npm ci && npm test && npm run build
+        working-directory: projects/angular
       # Never publish a site whose tests fail, privacy scan included; the dashboard's link must resolve.
       - run: npm test
         env:

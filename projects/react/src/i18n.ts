@@ -5,6 +5,9 @@ const fr = {
   title: 'Dashboard du portfolio',
   lead: 'Les données du site, lues dans son API JSON statique : avancement des projets, sprints et résultats mesurés.',
   'nav.label': 'Vues du dashboard',
+  'angular.title': 'Dashboard Angular',
+  'angular.lead': 'Deux vues du dashboard React, refaites en Angular sur la même API JSON statique, avec les mêmes calculs et les mêmes textes : seul le framework change.',
+  'angular.react': 'Le dashboard React',
   'nav.projects': 'Projets',
   'nav.sprints': 'Sprints',
   'nav.results': 'Résultats',
@@ -121,6 +124,9 @@ const en: Record<Key, string> = {
   title: 'Portfolio dashboard',
   lead: 'The site’s data, read from its static JSON API: project progress, sprints and measured results.',
   'nav.label': 'Dashboard views',
+  'angular.title': 'Angular dashboard',
+  'angular.lead': 'Two views of the React dashboard, rebuilt in Angular on the same static JSON API, with the same computations and texts: only the framework changes.',
+  'angular.react': 'The React dashboard',
   'nav.projects': 'Projects',
   'nav.sprints': 'Sprints',
   'nav.results': 'Results',
@@ -235,10 +241,13 @@ export const DICTIONARY: Record<Lang, Record<Key, string>> = { fr, en };
 
 export type T = (key: Key, values?: Record<string, string | number>) => string;
 
-/** The translation function of a language: {name} placeholders filled, an unknown one left visible. */
+/**
+ * The translation function of a language: {name} placeholders filled, an unknown one left visible. A key
+ * built from the data (a new mesh family, a new model class) and missing here shows as itself.
+ */
 export function makeT(lang: Lang): T {
   return (key, values = {}) =>
-    DICTIONARY[lang][key].replace(/\{(\w+)\}/g, (whole, name: string) => (name in values ? String(values[name]) : whole));
+    (DICTIONARY[lang][key] ?? key).replace(/\{(\w+)\}/g, (whole, name: string) => (name in values ? String(values[name]) : whole));
 }
 
 /** ?lang=fr|en first, then the browser's language, French by default (as the site's root page). */

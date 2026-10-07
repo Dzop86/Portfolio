@@ -50,6 +50,8 @@ jobs:
       # The React dashboard (D43) is tested end to end with the site: built first, copied by the site's build.
       - run: npm ci && npm run build
         working-directory: projects/react
+      - run: npm ci && npm run build
+        working-directory: projects/angular
       - run: npx playwright install --with-deps
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v7
@@ -75,4 +77,5 @@ jobs:
           grep -q '<base href="/">' /tmp/404.html
           # The dashboard and the API it reads (D43).
           curl -fsS http://localhost:8080/dashboard/ | grep -q 'id="root"'
+          curl -fsS http://localhost:8080/angular/ | grep -q '<app-root'
           curl -fsS http://localhost:8080/api/v1/index.json | grep -q '"version": "v1"'

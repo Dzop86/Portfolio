@@ -1,0 +1,38 @@
+{
+  "name": "portfolio-angular-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deux vues du dashboard en Angular, sur la même API JSON statique que le dashboard React (D44).",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.22.3 || >=24.15.0"
+  },
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "jest",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.spec.json"
+  },
+  "dependencies": {
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.2",
+    "@angular/cli": "^22.2.2",
+    "@angular/compiler-cli": "^22.2.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.0",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
+    "jest-preset-angular": "^17.0.2",
+    "jsdom": "^30.1.2",
+    "typescript": "~6.0.2"
+  }
+}

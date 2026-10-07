@@ -1,0 +1,42 @@
+name: angular
+
+on:
+  push:
+    branches: [main]
+    # The Angular dashboard shares the React one's types, computations and texts, and reads the site's API.
+    paths: ['projects/angular/**', 'projects/react/src/**', 'src/api.mjs', 'src/lib.mjs', 'src/templates.mjs', 'src/assets/tokens.css', 'data/**', 'scrum/**', 'projects/parallele/data/**', 'projects/sql/data/**', 'projects/ml/export/**', '.github/workflows/angular.yml']
+  pull_request:
+    paths: ['projects/angular/**', 'projects/react/src/**', 'src/api.mjs', 'src/lib.mjs', 'src/templates.mjs', 'src/assets/tokens.css', 'data/**', 'scrum/**', 'projects/parallele/data/**', 'projects/sql/data/**', 'projects/ml/export/**', '.github/workflows/angular.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: angular-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Angular dashboard (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: projects/angular
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: projects/angular/package-lock.json
+      - run: npm ci
+      # Strict types (templates included, at build), Jest (unit and integration on the real API), the bundle.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

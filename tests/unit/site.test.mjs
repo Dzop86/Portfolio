@@ -20,17 +20,17 @@ test('every page exists in both languages with the right lang attribute', () => 
 });
 
 test('every internal link and asset resolves to a file', () => {
-  // The React dashboard is built apart (projects/react, D43): where it is not built (the unit job), its
-  // link is the one excused; the deployment sets REQUIRE_DASHBOARD and builds it first.
-  const dashboardBuilt = existsSync(join(dist, 'dashboard', 'index.html'));
-  assert.ok(dashboardBuilt || !process.env.REQUIRE_DASHBOARD, 'REQUIRE_DASHBOARD is set but the dashboard is not built');
+  // The dashboards are built apart (projects/react and projects/angular, D43, D44): where one is not built
+  // (the unit job), its links are the ones excused; the deployment sets REQUIRE_DASHBOARD and builds both.
+  const unbuilt = ['dashboard', 'angular'].filter((folder) => !existsSync(join(dist, folder, 'index.html')));
+  assert.ok(unbuilt.length === 0 || !process.env.REQUIRE_DASHBOARD, `REQUIRE_DASHBOARD is set but not built: ${unbuilt}`);
   for (const lang of LANGS) {
     for (const file of readdirSync(join(dist, lang))) {
       const from = join(dist, lang, file);
       // Without the fingerprint query (style.css?v=...), which only changes the address.
       const refs = [...readFileSync(from, 'utf8').matchAll(/(?:href|src)="(\.{1,2}\/[^"#?]+)/g)].map((m) => m[1]);
       for (const ref of refs) {
-        if (!dashboardBuilt && ref.startsWith('../dashboard/')) continue;
+        if (unbuilt.some((folder) => ref.startsWith(`../${folder}/`))) continue;
         assert.ok(existsSync(resolve(dirname(from), ref)), `${lang}/${file}: broken link ${ref}`);
       }
     }

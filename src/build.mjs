@@ -127,9 +127,11 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   for (const [file, body] of Object.entries(buildApi(data))) {
     writeFileSync(join(outDir, 'api', API_VERSION, file), `${JSON.stringify(body, null, 2)}\n`);
   }
-  // The React dashboard (D43), when it has been built (projects/react: npm run build).
-  const dashboard = join(ROOT, 'projects/react/dist');
-  if (existsSync(dashboard)) cpSync(dashboard, join(outDir, 'dashboard'), { recursive: true });
+  // The dashboards, when they have been built (npm run build in each): React (D43), Angular (D44).
+  for (const [project, folder] of [['react', 'dashboard'], ['angular', 'angular']]) {
+    const built = join(ROOT, 'projects', project, 'dist');
+    if (existsSync(built)) cpSync(built, join(outDir, folder), { recursive: true });
+  }
 
   writeFileSync(join(outDir, '.nojekyll'), '');
   return outDir;

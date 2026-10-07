@@ -1,0 +1,4 @@
+{
+  "/api": { "target": "http://localhost:4173", "secure": false },
+  "/assets": { "target": "http://localhost:4173", "secure": false }
+}
