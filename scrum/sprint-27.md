@@ -4,7 +4,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant qu'ingénieur, je clique sur le maillage pour sélectionner le sommet ou la face sous le curseur : élément mis en évidence, panneau de ses propriétés (indice, position, valence, courbure de Gauss et défaut angulaire, bord ; aire et normale d'une face) ; sélection au clavier aussi ; lancer de rayon testé sans OpenGL ; j'enregistre la vue en image PNG. | 4 | À faire |
+| En tant qu'ingénieur, je clique sur le maillage pour sélectionner le sommet ou la face sous le curseur : élément mis en évidence, panneau de ses propriétés (indice, position, valence, courbure de Gauss et défaut angulaire, bord ; aire et normale d'une face) ; sélection au clavier aussi ; lancer de rayon testé sans OpenGL ; j'enregistre la vue en image PNG. | 4 | Fait |
 | En tant qu'utilisateur, je télécharge la visionneuse prête à lancer : archive Windows (windeployqt), image disque macOS (macdeployqt), AppImage Linux, produites par la CI, chacune lancée une fois après emballage pour vérifier qu'elle démarre ; limites (applications non signées) documentées. | 3 | À faire |
 
 ## Rétro (à compléter par Charles)

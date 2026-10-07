@@ -47,6 +47,11 @@ public:
     // Edges shared by three faces or more.
     [[nodiscard]] const std::vector<Edge>& nonManifoldEdges() const { return mesh_.non_manifold_edges(); }
     [[nodiscard]] const Bounds& bounds() const { return bounds_; }
+    // Number of edges at each vertex.
+    [[nodiscard]] const std::vector<uint32_t>& valence() const { return valence_; }
+    // Area and unit normal of a face (its vertices in the file's order).
+    [[nodiscard]] double faceArea(uint32_t face) const;
+    [[nodiscard]] QVector3D faceNormal(uint32_t face) const;
 
     // The colour scale runs from -scale to +scale: the 95th percentile of |K| over the interior
     // vertices, so that a few sharp vertices do not wash out the rest.
@@ -64,6 +69,7 @@ private:
     std::vector<QVector3D> normals_;
     std::vector<Edge> edges_;
     std::vector<Edge> boundary_edges_;
+    std::vector<uint32_t> valence_;
     Bounds bounds_;
     double curvature_scale_ = 1.0;
 };

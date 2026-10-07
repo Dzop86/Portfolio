@@ -70,6 +70,12 @@ MeshModel::MeshModel(topo::Mesh mesh)
         i = j;
     }
 
+    valence_.assign(positions_.size(), 0);
+    for (const Edge& e : edges_) {
+        ++valence_[e[0]];
+        ++valence_[e[1]];
+    }
+
     std::vector<double> magnitudes;
     for (std::size_t v = 0; v < curvature_.gaussian.size(); ++v)
         if (!curvature_.boundary[v] && curvature_.area[v] > 0)
@@ -98,4 +104,19 @@ QColor MeshModel::curvatureColor(double k, double scale)
 double MeshModel::gaussBonnetRatio() const
 {
     return curvature_.total / (2 * std::numbers::pi);
+}
+
+double MeshModel::faceArea(uint32_t face) const
+{
+    const topo::Triangle& t = mesh_.triangles().at(face);
+    const auto& p = mesh_.positions();
+    const double ux = p[t[1]].x - p[t[0]].x, uy = p[t[1]].y - p[t[0]].y, uz = p[t[1]].z - p[t[0]].z;
+    const double vx = p[t[2]].x - p[t[0]].x, vy = p[t[2]].y - p[t[0]].y, vz = p[t[2]].z - p[t[0]].z;
+    return std::hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2;
+}
+
+QVector3D MeshModel::faceNormal(uint32_t face) const
+{
+    const topo::Triangle& t = mesh_.triangles().at(face);
+    return QVector3D::crossProduct(positions_[t[1]] - positions_[t[0]], positions_[t[2]] - positions_[t[0]]).normalized();
 }

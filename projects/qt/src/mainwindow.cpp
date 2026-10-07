@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
         }
         refreshPanel();
     });
+    connect(viewer_, &ViewerWidget::selectionChanged, this, [this] { refreshSelection(); });
     connect(viewer_, &ViewerWidget::graphicsError, this, [this](const QString& message) {
         fail(tr("OpenGL 3.3 is not available: %1").arg(message));
     });
@@ -73,6 +74,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     column->addSpacing(12);
     column->addWidget(legend_title_);
     column->addWidget(legend_);
+    // What the click (or the keyboard) selected: one block of text, selectable and read by screen readers.
+    selection_title_ = new QLabel(panel);
+    selection_ = new QLabel(panel);
+    selection_->setObjectName(QStringLiteral("selection"));
+    selection_->setWordWrap(true);
+    selection_->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    selection_title_->setBuddy(selection_);
+    column->addSpacing(12);
+    column->addWidget(selection_title_);
+    column->addWidget(selection_);
     column->addStretch();
     dock_->setWidget(panel);
     addDockWidget(Qt::RightDockWidgetArea, dock_);
@@ -83,6 +94,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
         const QString path = QFileDialog::getOpenFileName(this, tr("Open a mesh"), {}, tr("Meshes (*.obj *.ply *.stl);;All files (*)"));
         if (!path.isEmpty())
             open(path);
+    });
+    save_image_ = new QAction(this);
+    save_image_->setShortcut(QKeySequence::Save);
+    connect(save_image_, &QAction::triggered, this, [this] {
+        const QString path = QFileDialog::getSaveFileName(this, tr("Save the view"), QStringLiteral("view.png"), tr("Images (*.png *.jpg)"));
+        if (!path.isEmpty())
+            saveImage(path);
     });
     quit_ = new QAction(this);
     quit_->setShortcut(QKeySequence::Quit);
@@ -121,8 +139,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     controls_->setShortcut(QKeySequence::HelpContents);
     connect(controls_, &QAction::triggered, this, [this] {
         QMessageBox::information(this, tr("Controls"),
-            tr("Mouse: left button turns the mesh, right or middle button moves it, the wheel zooms.\n"
-               "Keyboard (click the view first): arrows turn, Shift+arrows move, + and - zoom, F frames the mesh.\n"
+            tr("Mouse: left button turns the mesh, right or middle button moves it, the wheel zooms, a click selects.\n"
+               "Keyboard (click the view first): arrows turn, Shift+arrows move, + and - zoom, F frames the mesh, "
+               "Space selects at the centre, ] and [ go from vertex to vertex, Escape clears the selection.\n"
                "W: edges, C: curvature colours, B: boundary and non-manifold edges."));
     });
     about_ = new QAction(this);
@@ -140,6 +159,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
         connect(action, &QAction::triggered, this, [this, sample] { openSample(sample); });
         sample_actions_.insert(sample, action);
     }
+    file_menu_->addAction(save_image_);
     file_menu_->addSeparator();
     file_menu_->addAction(quit_);
     view_menu_ = menuBar()->addMenu(QString());
@@ -231,6 +251,7 @@ void MainWindow::retranslate()
 {
     file_menu_->setTitle(tr("&File"));
     open_->setText(tr("&Open…"));
+    save_image_->setText(tr("&Save the view as an image…"));
     samples_menu_->setTitle(tr("&Examples"));
     for (const QString& sample : kSamples)
         sample_actions_.value(sample)->setText(sampleTitle(sample));
@@ -251,11 +272,13 @@ void MainWindow::retranslate()
     for (qsizetype i = 0; i < kFields.size(); ++i)
         names_.value(kFields[i])->setText(labels[i]);
     legend_title_->setText(tr("Gaussian curvature"));
+    selection_title_->setText(tr("Selection"));
     refreshPanel();
 }
 
 void MainWindow::refreshPanel()
 {
+    refreshSelection();
     const bool showLegend = model_ != nullptr && curvature_->isChecked();
     legend_title_->setVisible(showLegend);
     legend_->setVisible(showLegend);
@@ -286,6 +309,48 @@ void MainWindow::refreshPanel()
     legend_->setScale(model_->curvatureScale());
     setWindowTitle(tr("%1 – Mesh viewer").arg(meshName()));
     statusBar()->showMessage(tr("%1: %2 vertices, %3 faces, read in %4 ms").arg(meshName(), count(mesh.vertex_count()), count(mesh.face_count()), count(load_ms_)));
+}
+
+void MainWindow::refreshSelection()
+{
+    const Selection& s = viewer_->selection();
+    selection_->setEnabled(model_ != nullptr);
+    if (model_ == nullptr || s.kind == Selection::Kind::None) {
+        selection_->setText(tr("Click the mesh (or press Space) to select a vertex or a face."));
+        return;
+    }
+    const QLocale locale;
+    auto number = [&locale](double x) { return locale.toString(x, 'g', 4); };
+    auto vector = [&number](const QVector3D& v) {
+        return QStringLiteral("(%1 ; %2 ; %3)").arg(number(v.x()), number(v.y()), number(v.z()));
+    };
+    QStringList lines;
+    if (s.kind == Selection::Kind::Vertex) {
+        const topo::GaussianCurvature& k = model_->curvature();
+        lines << tr("Vertex %1").arg(locale.toString(s.index))
+              << tr("Position: %1").arg(vector(model_->positions()[s.index]))
+              << tr("Valence: %1").arg(locale.toString(model_->valence()[s.index]))
+              << tr("Gaussian curvature: %1").arg(number(k.gaussian[s.index]))
+              << tr("Angle defect: %1 rad").arg(number(k.angle_defect[s.index]))
+              << tr("On the boundary: %1").arg(k.boundary[s.index] ? tr("yes") : tr("no"));
+    } else {
+        const topo::Triangle& t = model_->mesh().triangles()[s.index];
+        lines << tr("Face %1").arg(locale.toString(s.index))
+              << tr("Vertices: %1, %2, %3").arg(locale.toString(t[0]), locale.toString(t[1]), locale.toString(t[2]))
+              << tr("Area: %1").arg(number(model_->faceArea(s.index)))
+              << tr("Normal: %1").arg(vector(model_->faceNormal(s.index)));
+    }
+    selection_->setText(lines.join(QLatin1Char('\n')));
+}
+
+bool MainWindow::saveImage(const QString& path)
+{
+    if (!viewer_->grabFramebuffer().save(path)) {
+        fail(tr("Cannot save %1").arg(QFileInfo(path).fileName()));
+        return false;
+    }
+    statusBar()->showMessage(tr("View saved to %1").arg(QFileInfo(path).fileName()));
+    return true;
 }
 
 QString MainWindow::meshName() const

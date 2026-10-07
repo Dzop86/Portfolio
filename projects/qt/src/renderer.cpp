@@ -36,7 +36,11 @@ void main() {
 constexpr const char* kLinesVertex = R"(#version 330 core
 layout(location = 0) in vec3 position;
 uniform mat4 mvp;
-void main() { gl_Position = mvp * vec4(position, 1.0); }
+uniform float pointSize;
+void main() {
+    gl_Position = mvp * vec4(position, 1.0);
+    gl_PointSize = pointSize;
+}
 )";
 
 constexpr const char* kLinesFragment = R"(#version 330 core
@@ -55,6 +59,8 @@ const QColor Renderer::kSurface(0xb8, 0xb8, 0xb8);
 const QColor Renderer::kWire(0x2a, 0x2a, 0x2a);
 const QColor Renderer::kBoundary(0xbe, 0xf3, 0x74);
 const QColor Renderer::kNonManifold(0xff, 0x5c, 0x5c);
+// Chocolate, the charter's touch colour: dark on the grey surface and on the curvature colours.
+const QColor Renderer::kSelection(0x5a, 0x3a, 0x22);
 
 QSurfaceFormat Renderer::surfaceFormat()
 {
@@ -86,7 +92,7 @@ bool Renderer::initialize()
     faces_vao_.create();
     vertices_.create();
     faces_.create();
-    for (Lines* l : {&wire_, &boundary_, &non_manifold_}) {
+    for (Lines* l : {&wire_, &boundary_, &non_manifold_, &selection_}) {
         l->vao.create();
         l->indices.create();
     }
@@ -99,7 +105,9 @@ void Renderer::upload(const MeshModel* model)
     if (!ready_)
         return;
     face_indices_ = 0;
-    wire_.count = boundary_.count = non_manifold_.count = 0;
+    wire_.count = boundary_.count = non_manifold_.count = selection_.count = 0;
+    model_ = model;
+    selected_ = {};
     if (model == nullptr)
         return;
 
@@ -154,6 +162,29 @@ void Renderer::uploadLines(Lines& lines, const std::vector<Edge>& edges)
     lines.vao.release();
 }
 
+void Renderer::setSelection(const Selection& selection)
+{
+    selected_ = selection;
+    selection_.count = 0;
+    if (!ready_ || model_ == nullptr || selection.kind == Selection::Kind::None)
+        return;
+    std::vector<uint32_t> indices;
+    if (selection.kind == Selection::Kind::Vertex)
+        indices = {selection.index};
+    else {
+        const topo::Triangle& t = model_->mesh().triangles().at(selection.index);
+        indices.assign(t.begin(), t.end());
+    }
+    selection_.count = static_cast<int>(indices.size());
+    selection_.vao.bind();
+    vertices_.bind();
+    selection_.indices.bind();
+    selection_.indices.allocate(indices.data(), static_cast<int>(indices.size() * sizeof(uint32_t)));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), nullptr);
+    selection_.vao.release();
+}
+
 void Renderer::render(const Camera& camera, const RenderOptions& options, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -185,6 +216,18 @@ void Renderer::render(const Camera& camera, const RenderOptions& options, int wi
         drawLines(boundary_, kBoundary);
         drawLines(non_manifold_, kNonManifold);
     }
+    // The selection last, on top of the edges: a filled face or a large point.
+    if (selection_.count > 0) {
+        glEnable(GL_PROGRAM_POINT_SIZE);
+        lines_->bind();
+        lines_->setUniformValue("mvp", mvp_);
+        lines_->setUniformValue("lineColour", rgb(kSelection));
+        lines_->setUniformValue("pointSize", kPointSize);
+        selection_.vao.bind();
+        glDrawElements(selected_.kind == Selection::Kind::Vertex ? GL_POINTS : GL_TRIANGLES, selection_.count, GL_UNSIGNED_INT, nullptr);
+        selection_.vao.release();
+        lines_->release();
+    }
 }
 
 void Renderer::drawLines(Lines& lines, const QColor& colour)
@@ -194,6 +237,7 @@ void Renderer::drawLines(Lines& lines, const QColor& colour)
     lines_->bind();
     lines_->setUniformValue("mvp", mvp_);
     lines_->setUniformValue("lineColour", rgb(colour));
+    lines_->setUniformValue("pointSize", 1.0f);
     lines.vao.bind();
     glDrawElements(GL_LINES, lines.count, GL_UNSIGNED_INT, nullptr);
     lines.vao.release();

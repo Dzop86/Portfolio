@@ -35,6 +35,8 @@ public:
     // What a drag and drop brings: the first URL, when it is a local file.
     [[nodiscard]] static bool canOpen(const QMimeData* mime);
     bool openDropped(const QMimeData* mime);
+    // The 3D view as a PNG (or any format Qt writes, from the file's extension).
+    bool saveImage(const QString& path);
     // "fr" or "en": menus, panel and numbers switch at once.
     void setLanguage(const QString& code);
     [[nodiscard]] QString language() const { return language_; }
@@ -56,6 +58,7 @@ private:
     void fail(const QString& message);
     void retranslate();
     void refreshPanel();
+    void refreshSelection();
     [[nodiscard]] QString sampleTitle(const QString& name) const;
 
     std::unique_ptr<MeshModel> model_;
@@ -71,6 +74,8 @@ private:
     QDockWidget* dock_ = nullptr;
     LegendWidget* legend_ = nullptr;
     QLabel* legend_title_ = nullptr;
+    QLabel* selection_title_ = nullptr;
+    QLabel* selection_ = nullptr;
     QHash<QString, QLabel*> names_;
     QHash<QString, QLabel*> values_;
     QMenu* file_menu_ = nullptr;
@@ -79,6 +84,7 @@ private:
     QMenu* language_menu_ = nullptr;
     QMenu* help_menu_ = nullptr;
     QAction* open_ = nullptr;
+    QAction* save_image_ = nullptr;
     QAction* quit_ = nullptr;
     QAction* wireframe_ = nullptr;
     QAction* curvature_ = nullptr;

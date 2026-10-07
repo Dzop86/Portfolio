@@ -45,7 +45,7 @@ private:
     QOpenGLContext context_;
     static constexpr int kSize = 200;
 
-    QImage draw(const MeshModel* model, const RenderOptions& options)
+    QImage draw(const MeshModel* model, const RenderOptions& options, const Selection& selection = {})
     {
         Camera camera;
         if (model != nullptr)
@@ -56,6 +56,7 @@ private:
         if (!renderer.initialize())
             qFatal("%s", qPrintable(renderer.error()));
         renderer.upload(model);
+        renderer.setSelection(selection);
         renderer.render(camera, options, kSize, kSize);
         QImage image = fbo.toImage();
         fbo.release();
@@ -136,6 +137,23 @@ private slots:
         // A closed surface has no boundary to highlight.
         const MeshModel sphere = sample("sphere");
         QCOMPARE(count(draw(&sphere, {}), pistachio), 0);
+    }
+
+    void theSelectionIsDrawnInChocolate()
+    {
+        const MeshModel sphere = sample("sphere");
+        auto chocolate = [](QRgb p) { return near(p, Renderer::kSelection, 6); };
+        QCOMPARE(count(draw(&sphere, {}), chocolate), 0);
+        // The face and the vertex in the middle of the picture, found by the same picking as a click.
+        Camera camera;
+        camera.fit(sphere.bounds());
+        const Selection face = picking::select(sphere, camera, QPointF(kSize / 2.0, kSize / 2.0), QSize(kSize, kSize), 0.5);
+        QCOMPARE(face.kind, Selection::Kind::Face);
+        QVERIFY(count(draw(&sphere, {}, face), chocolate) > 20);
+        const uint32_t corner = sphere.mesh().triangles()[face.index][0];
+        const int point = count(draw(&sphere, {}, {Selection::Kind::Vertex, corner}), chocolate);
+        // A 10-pixel point: about 100 pixels.
+        QVERIFY2(point > 50 && point < 150, qPrintable(QString::number(point)));
     }
 
     void cleanupTestCase() { context_.doneCurrent(); }

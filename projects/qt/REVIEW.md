@@ -7,6 +7,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/renderer.cpp` : buffers, shaders, ordre de dessin (faces décalées, arêtes par-dessus).
 - [x] `src/meshmodel.cpp` : normales, arêtes de bord, échelle de courbure.
 - [x] La visionneuse chez moi : ouvrir mes propres maillages, la lisibilité des invariants et des couleurs.
+- [ ] `src/picking.cpp` : rayon, intersection, choix du sommet ou de la face (sprint 27).
+- [ ] Les exécutables de la CI chez moi : lancer celui de mon système (sprint 27).
 
 > Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« valide la review, pousse ça »), pour le volet du sprint 26.
 
@@ -23,4 +25,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `src/mainwindow.cpp` | (Claude) Signalé par la CI macOS : Clang refuse une capture `this` inutile dans un lambda (`-Wunused-lambda-capture`), avertissement que GCC ne donne pas | Capture retirée ; compilation locale avec Clang ajoutée à ma routine avant de pousser |
 | 2026-10-07 | `.github/workflows/qt.yml` | (Claude) Signalé par la CI Windows : aqtinstall ne lit pas le dépôt Windows de Qt 6.11 (somme de contrôle introuvable, reproduit en local) | CI en Qt 6.10.3 sur les trois systèmes |
 | 2026-10-07 | `.github/workflows/qt.yml` | (Claude) Signalé par la CI Windows : MSVC compile sans avertissement, mais le test de rendu échoue. Le rapport (journaux `qt.qpa.gl`) montre que Qt choisit de lui-même son vieux `opengl32sw` (Mesa avec LLVM 3.6, OpenGL 3.0) face au pilote de base de la machine | Mesa 26 (llvmpipe) de mesa-dist-win copié à côté des programmes sous le nom `opengl32sw.dll`, avec `QT_OPENGL=software` (avec `desktop`, Qt ne charge `opengl32.dll` que depuis System32 : OpenGL 1.1) ; rapport du test affiché en cas d'échec |
+| 2026-10-07 | `tests/test_window.cpp` | (Claude) Mon test d'enregistrement d'image vérifiait le pixel central d'un tore, qui tombe dans le trou | Test fait sur la sphère |
 | | | | |

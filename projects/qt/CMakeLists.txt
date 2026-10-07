@@ -27,6 +27,7 @@ endfunction()
 qt_add_library(viewer STATIC
   src/meshmodel.h src/meshmodel.cpp
   src/camera.h src/camera.cpp
+  src/picking.h src/picking.cpp
   src/renderer.h src/renderer.cpp
   src/viewerwidget.h src/viewerwidget.cpp
   src/legendwidget.h src/legendwidget.cpp
@@ -55,7 +56,7 @@ set_target_properties(qtviewer PROPERTIES
 if(VIEWER_BUILD_TESTS)
   enable_testing()
   find_package(Qt6 REQUIRED COMPONENTS Test)
-  foreach(name meshmodel camera render window translations)
+  foreach(name meshmodel camera picking render window translations)
     qt_add_executable(test_${name} tests/test_${name}.cpp)
     target_link_libraries(test_${name} PRIVATE viewer Qt6::Test)
     target_compile_definitions(test_${name} PRIVATE

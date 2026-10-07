@@ -4,6 +4,7 @@
 
 #include "camera.h"
 #include "meshmodel.h"
+#include "picking.h"
 
 #include <QColor>
 #include <QOpenGLBuffer>
@@ -27,6 +28,8 @@ public:
     static const QColor kWire;
     static const QColor kBoundary;
     static const QColor kNonManifold;
+    static const QColor kSelection;
+    static constexpr float kPointSize = 10.0f;
 
     // OpenGL 3.3 core with a depth buffer and 4x multisampling: to set before creating the application.
     [[nodiscard]] static QSurfaceFormat surfaceFormat();
@@ -40,6 +43,8 @@ public:
     bool initialize();
     // With the context current. Replaces the buffers with those of the model (nullptr clears them).
     void upload(const MeshModel* model);
+    // With the context current, after upload: the face filled, or the vertex as a large point.
+    void setSelection(const Selection& selection);
     // With the context current, into the bound framebuffer of the given size in pixels.
     void render(const Camera& camera, const RenderOptions& options, int width, int height);
 
@@ -64,6 +69,9 @@ private:
     Lines wire_;
     Lines boundary_;
     Lines non_manifold_;
+    Lines selection_;
+    Selection selected_;
+    const MeshModel* model_ = nullptr;
     QMatrix4x4 mvp_;
     QString error_;
     QString version_;

@@ -24,7 +24,25 @@ void ViewerWidget::setModel(const MeshModel* model)
 {
     model_ = model;
     uploaded_ = false;
+    selection_ = {};
+    emit selectionChanged(selection_);
     fit();
+}
+
+void ViewerWidget::setSelection(const Selection& selection)
+{
+    const uint32_t count = model_ == nullptr ? 0
+        : selection.kind == Selection::Kind::Vertex ? model_->mesh().vertex_count() : model_->mesh().face_count();
+    selection_ = selection.kind != Selection::Kind::None && selection.index < count ? selection : Selection{};
+    selection_dirty_ = true;
+    emit selectionChanged(selection_);
+    update();
+}
+
+void ViewerWidget::selectAt(QPointF position)
+{
+    if (model_ != nullptr)
+        setSelection(picking::select(*model_, camera_, position, size()));
 }
 
 void ViewerWidget::setOptions(const RenderOptions& options)
@@ -53,6 +71,11 @@ void ViewerWidget::paintGL()
     if (!uploaded_) {
         renderer_.upload(model_);
         uploaded_ = true;
+        selection_dirty_ = true;
+    }
+    if (selection_dirty_) {
+        renderer_.setSelection(selection_);
+        selection_dirty_ = false;
     }
     const qreal ratio = devicePixelRatioF();
     renderer_.render(camera_, options_, static_cast<int>(std::lround(width() * ratio)), static_cast<int>(std::lround(height() * ratio)));
@@ -60,7 +83,14 @@ void ViewerWidget::paintGL()
 
 void ViewerWidget::mousePressEvent(QMouseEvent* event)
 {
-    last_ = event->position().toPoint();
+    last_ = pressed_ = event->position().toPoint();
+}
+
+// A left click that did not drag selects what lies under the cursor.
+void ViewerWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton && (event->position().toPoint() - pressed_).manhattanLength() <= 3)
+        selectAt(event->position());
 }
 
 // Left button turns the mesh, right or middle button moves it.
@@ -82,7 +112,8 @@ void ViewerWidget::wheelEvent(QWheelEvent* event)
     update();
 }
 
-// The keyboard does everything the mouse does: arrows turn, Shift+arrows move, + and - zoom.
+// The keyboard does everything the mouse does: arrows turn, Shift+arrows move, + and - zoom,
+// Space selects, ] and [ walk the vertices, Escape clears the selection.
 void ViewerWidget::keyPressEvent(QKeyEvent* event)
 {
     const bool shift = event->modifiers() & Qt::ShiftModifier;
@@ -94,6 +125,19 @@ void ViewerWidget::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Plus:
     case Qt::Key_Equal: camera_.zoom(0.9f); break;
     case Qt::Key_Minus: camera_.zoom(1 / 0.9f); break;
+    // Selection from the keyboard: what lies at the centre of the view, then vertex after vertex.
+    case Qt::Key_Space: selectAt(QPointF(width() / 2.0, height() / 2.0)); return;
+    case Qt::Key_BracketRight:
+    case Qt::Key_BracketLeft: {
+        if (model_ == nullptr || model_->mesh().vertex_count() == 0)
+            return;
+        const uint32_t count = model_->mesh().vertex_count();
+        const uint32_t current = selection_.kind == Selection::Kind::Vertex ? selection_.index : 0;
+        const uint32_t next = event->key() == Qt::Key_BracketRight ? (current + 1) % count : (current + count - 1) % count;
+        setSelection({Selection::Kind::Vertex, selection_.kind == Selection::Kind::Vertex ? next : 0});
+        return;
+    }
+    case Qt::Key_Escape: setSelection({}); return;
     default: QOpenGLWidget::keyPressEvent(event); return;
     }
     update();
