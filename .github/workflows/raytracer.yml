@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     # The ray tracer reads meshes with lib-c and renders the topologie samples.
-    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', '.github/workflows/raytracer.yml']
+    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', 'src/assets/wasm/raytracer.*', '.github/workflows/raytracer.yml']
   pull_request:
-    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', '.github/workflows/raytracer.yml']
+    paths: ['projects/raytracer/**', 'projects/lib-c/**', 'projects/topologie/samples/**', 'src/assets/wasm/raytracer.*', '.github/workflows/raytracer.yml']
   workflow_dispatch:
 
 permissions:
@@ -47,3 +47,14 @@ jobs:
           exe=$(find build -name 'rt_render' -o -name 'rt_render.exe' | head -1)
           "$exe" --scene mesh --mesh ../topologie/samples/torus.obj --finish glass --size 160x90 --spp 4 -o torus.ppm
           test -s torus.ppm
+
+  wasm:
+    name: Ray tracer (WebAssembly build is up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/build-wasm.sh "$RUNNER_TEMP/wasm"
+      # The project page serves the committed build: it must match what the sources (lib-c included) produce today.
+      - run: |
+          cmp "$RUNNER_TEMP/wasm/raytracer.wasm" ../../src/assets/wasm/raytracer.wasm
+          cmp "$RUNNER_TEMP/wasm/raytracer.js" ../../src/assets/wasm/raytracer.js
