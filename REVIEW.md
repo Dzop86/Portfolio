@@ -38,4 +38,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `src/assets/style.css` | (Claude) Vu sur une capture à 375 px : avec les nouveaux libellés, l'onglet « Gestion de projet » était coupé (menu défilant à barre cachée), et les liens du menu faisaient 33 px de haut | Menu sur deux lignes sous 600 px, liens de 44 px |
 | 2026-10-07 | `src/build.mjs` | Signalé par Charles : graphiques de la page Gestion de projet tout noirs, filtre par langage sans effet. (Claude) Cause : la nouvelle page était servie avec l'ancien `style.css` et l'ancien `app.js`, gardés en cache dix minutes (GitHub Pages, `max-age=600`) | Empreinte du contenu sur chaque lien CSS et JS (D41), test qui la vérifie |
 | 2026-10-07 | `data/projects.json` | Signalé par Charles : « langage » ne convient pas pour HTML/CSS | Filtre « Techno », champ `techs`, accroche en « technologies » |
+| 2026-10-07 | site | Modifications de l'accueil, des onglets, du filtre par techno et de la page Gestion de projet (D39, D40, D41) | Validées par Charles le 7 octobre 2026 (« valide la review ») |
 | | | | |
