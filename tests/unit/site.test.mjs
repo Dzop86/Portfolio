@@ -135,9 +135,12 @@ test('a detail page shows the stack, the Definition of Done and the neighbours',
 });
 
 test('project links are shown only when the project has them', () => {
-  const { links } = loadData().projects.find((p) => p.id === 'vitrine');
+  const { projects } = loadData();
+  const { links } = projects.find((p) => p.id === 'vitrine');
   assert.ok(page('fr', projectPage('vitrine')).includes(`href="${links.code}" data-link="code"`));
-  const planned = page('fr', projectPage('qt'));
+  const unlinked = projects.find((p) => !p.links);
+  assert.ok(unlinked, 'a planned project without links');
+  const planned = page('fr', projectPage(unlinked.id));
   assert.ok(!planned.includes('data-link='));
   assert.ok(planned.includes('data-no-links'));
 });
