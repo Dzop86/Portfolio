@@ -115,3 +115,66 @@ export function quantileScale(curvature, boundary) {
 export function turns(total) {
   return Math.round((total / (2 * Math.PI)) * 1000) / 1000 + 0;
 }
+
+const CRITICAL_KINDS = ['min', 'saddle', 'max', 'other'];
+export const AXES = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
+
+/**
+ * Height along `direction` of the mesh read last, and its critical points (C++ topo::elevation): height
+ * per vertex (viewer units), vertices from lowest to highest, Euler characteristic of the sublevel set
+ * after each of them, and the critical points in the order of the filtration, each with its index
+ * (+1 minimum or maximum, 1 - k for a saddle whose lower link has k pieces).
+ */
+export function elevation(lib, direction = AXES.y) {
+  if (lib._topoc_elevation(...direction) !== 0) throw new Error('elevation: no mesh read, or a zero direction');
+  const n = lib._topoc_vertex_count();
+  const height = lib.HEAPF32.slice(lib._topoc_height() / 4, lib._topoc_height() / 4 + n);
+  const order = lib.HEAPU32.slice(lib._topoc_order() / 4, lib._topoc_order() / 4 + n);
+  const euler = lib.HEAP32.slice(lib._topoc_sublevel_euler() / 4, lib._topoc_sublevel_euler() / 4 + n);
+  const critical = JSON.parse(lib.UTF8ToString(lib._topoc_critical()))
+    .map(([vertex, kind, index]) => ({ vertex, kind: CRITICAL_KINDS[kind], index }));
+  return { height, order, euler, critical };
+}
+
+/** Counts of the critical points, saddles with their multiplicity, and the sum of the indices (= chi). */
+export function criticalCounts(critical) {
+  const c = { min: 0, saddle: 0, max: 0, other: 0, sum: 0 };
+  for (const p of critical) {
+    c[p.kind] += p.kind === 'saddle' ? -p.index : 1;
+    c.sum += p.index;
+  }
+  return c;
+}
+
+/**
+ * The lower-star filtration for drawing: triangles sorted by their highest vertex, so that the sublevel set
+ * up to rank r is the first `faces(r)` triangles; and the rank of the last vertex at or below a height.
+ */
+export function filtration(indices, { height, order }) {
+  const n = order.length;
+  const rank = new Uint32Array(n);
+  order.forEach((v, r) => { rank[v] = r; });
+  const t = indices.length / 3;
+  const top = new Uint32Array(t);
+  for (let f = 0; f < t; f++) top[f] = Math.max(rank[indices[3 * f]], rank[indices[3 * f + 1]], rank[indices[3 * f + 2]]);
+  const sorted = Array.from({ length: t }, (_, f) => f).sort((a, b) => top[a] - top[b] || a - b);
+  const reordered = new Uint32Array(indices.length);
+  sorted.forEach((f, k) => reordered.set(indices.subarray(3 * f, 3 * f + 3), 3 * k));
+  const tops = Uint32Array.from(sorted, (f) => top[f]);
+  return {
+    indices: reordered,
+    rank,
+    // Triangles whose highest vertex has rank <= r: they come first in `indices`.
+    faces(r) {
+      let lo = 0, hi = tops.length;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (tops[mid] <= r) lo = mid + 1; else hi = mid; }
+      return lo;
+    },
+    // Rank of the highest vertex at or below height h, or -1 if none.
+    rankAt(h) {
+      let lo = 0, hi = n;
+      while (lo < hi) { const mid = (lo + hi) >> 1; if (height[order[mid]] <= h) lo = mid + 1; else hi = mid; }
+      return lo - 1;
+    },
+  };
+}

@@ -4,6 +4,7 @@
 #include "topo/curvature.hpp"
 #include "topo/invariants.hpp"
 #include "topo/mesh.hpp"
+#include "topo/morse.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -23,6 +24,11 @@ struct State {
     std::vector<float> defect;     // angle defect (scale-free)
     std::vector<uint8_t> boundary; // 1 for boundary vertices
     std::string summary;           // JSON with the invariants
+    std::optional<topo::Mesh> mesh;  // kept for the elevation, computed on demand
+    std::vector<float> height;       // height of each vertex along the last direction, in the scaled units
+    std::vector<uint32_t> order;     // vertices from lowest to highest
+    std::vector<int32_t> euler;      // chi of the sublevel set after each vertex of `order`
+    std::string critical;            // JSON: [[vertex, kind, index], ...] in the order of the filtration
     std::string error;
     std::size_t line = 0;
 };
@@ -92,7 +98,8 @@ extern "C" {
 int topoc_read(const char* data, std::size_t size) {
     state = State{};
     try {
-        fill(topo::Mesh::parse(std::string_view(data, size)));
+        state.mesh = topo::Mesh::parse(std::string_view(data, size));
+        fill(*state.mesh);
         return 0;
     } catch (const topo::LoadError& e) {
         state.error = e.what();
@@ -114,5 +121,39 @@ const uint32_t* topoc_indices() { return state.indices.data(); }
 const float* topoc_curvature() { return state.curvature.data(); }
 const float* topoc_defect() { return state.defect.data(); }
 const uint8_t* topoc_boundary() { return state.boundary.data(); }
+
+// Height along (dx, dy, dz) and its critical points, for the mesh read last. 0, or 12 without a mesh or
+// with a zero direction. Heights are in the viewer's units (centred, scaled into the unit sphere); the
+// order and the critical points do not depend on the scale.
+int topoc_elevation(double dx, double dy, double dz) {
+    if (!state.mesh) return 12;
+    try {
+        const auto e = topo::elevation(*state.mesh, {dx, dy, dz});
+        // Positions are centred and scaled: the height of a stored position along the unit direction.
+        const double n = std::sqrt(dx * dx + dy * dy + dz * dz);
+        state.height.clear();
+        for (std::size_t v = 0; v < e.height.size(); ++v) {
+            const float* p = &state.positions[3 * v];
+            state.height.push_back(static_cast<float>((p[0] * dx + p[1] * dy + p[2] * dz) / n));
+        }
+        state.order = e.order;
+        state.euler.assign(e.euler.begin(), e.euler.end());
+        state.critical = "[";
+        for (const auto& c : e.critical) {
+            if (state.critical.size() > 1) state.critical += ",";
+            state.critical += "[" + std::to_string(c.vertex) + "," + std::to_string(static_cast<int>(c.kind)) + "," +
+                              std::to_string(c.index) + "]";
+        }
+        state.critical += "]";
+        return 0;
+    } catch (const std::exception&) {
+        return 12;
+    }
+}
+
+const float* topoc_height() { return state.height.data(); }
+const uint32_t* topoc_order() { return state.order.data(); }
+const int32_t* topoc_sublevel_euler() { return state.euler.data(); }
+const char* topoc_critical() { return state.critical.c_str(); }
 
 }  // extern "C"

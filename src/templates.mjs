@@ -662,7 +662,8 @@ function meshDemo(t) {
 }
 
 const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
-  'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid'];
+  'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid', 'height.value', 'height.counts',
+  'height.check', 'height.sum', 'tip.height', 'sublevel'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 
 // C++ topology compiled to WebAssembly, drawn with three.js (D16, D17). Error labels are shared with the lib-c demo.
@@ -693,6 +694,20 @@ function topoViewer(t) {
         <div class="legend-ticks"><span data-tick="1" data-side="-1"></span><span data-tick="0" data-side="-1"></span><span style="left:50%">0</span><span data-tick="0" data-side="1"></span><span data-tick="1" data-side="1"></span></div>
         <div class="legend-scale muted"><span>${esc(t('topo.label.legend.neg'))}</span><span>${esc(t('topo.label.legend.pos'))}</span></div>
         <p class="meta legend-note">${esc(t('topo.legend.quantiles'))}</p>
+      </div>
+      <fieldset class="topo-mode">
+        <legend>${esc(t('topo.mode'))}</legend>
+        <label><input type="radio" name="topo-mode" value="curvature" checked data-mode> ${esc(t('topo.mode.curvature'))}</label>
+        <label><input type="radio" name="topo-mode" value="height" data-mode> ${esc(t('topo.mode.height'))}</label>
+      </fieldset>
+      <div class="topo-height" data-height hidden>
+        <div class="rt-field"><label for="topo-axis">${esc(t('topo.axis'))}</label><select id="topo-axis" data-axis>${['y', 'x', 'z'].map((a) => `<option value="${a}">${esc(t(`topo.axis.${a}`))}</option>`).join('')}</select></div>
+        <div class="rt-slider"><label for="topo-level">${esc(t('topo.level'))}</label><input id="topo-level" type="range" min="0" max="1000" step="1" value="1000" data-level><output for="topo-level" data-level-value></output></div>
+        <p class="meta" data-sublevel aria-live="polite"></p>
+        <p data-critical></p>
+        <ul class="topo-keys" aria-hidden="true">${['min', 'saddle', 'max'].map((k) => `<li><span class="topo-key is-${k}"></span>${esc(t(`topo.critical.${k}`))}</li>`).join('')}</ul>
+        <svg class="topo-chi" viewBox="0 0 300 120" role="img" aria-labelledby="topo-chi-title" data-chi><title id="topo-chi-title">${esc(t('topo.chi.title'))}</title></svg>
+        <p class="meta">${esc(t('topo.height.note'))}</p>
       </div>
       <p class="meta">${esc(t('topo.help'))}</p>
       <p class="meta">${esc(t('topo.note.boundary'))}</p>

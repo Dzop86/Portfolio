@@ -10,6 +10,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `tests/test_halfedge.cpp`, `expect_consistent` : les invariants vérifiés sont-ils les bons ?
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
+- [ ] Sprint 36 : `src/morse.cpp` (lien inférieur, indice, départage des égalités) et ses tests ; le mode hauteur de `src/viewer/topoviewer.js` (filtration, marqueurs, courbe de χ).
 
 ## Constats
 
@@ -22,4 +23,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Vu sur capture d'écran : la somme des défauts du tore s'affichait « −0 × 2π » | `turns()` arrondit et normalise −0 |
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit : « ResizeObserver loop », le redimensionnement modifiait la taille de l'élément observé | Taille fixée en CSS (`aspect-ratio`), le script ne fait que la lire |
 | 2026-10-06 | `src/viewer/topoviewer.js` | (Claude) Vu en chargeant les modèles de Charles en local : sur un maillage sculpté, l'échelle linéaire laissait presque tout gris (queue de |K| 1 000 fois la médiane) | Échelle par quantiles, légende graduée (D18 du site) |
+| 2026-10-07 | `src/morse.cpp`, `tests/test_morse.cpp` | (Claude) Vu en compilant avec `-Wsign-conversion` (que Clang active avec `-Wconversion`, pas GCC) : un `int` indexait un `std::array` ; la CI macOS aurait échoué. Dans le test, un `int64_t` rangé dans un `int` et un `EXPECT` sans accolades | Indice `std::size_t`, `auto`, accolades |
+| 2026-10-07 | `src/viewer/topoviewer.js` | (Claude) Relecture : une sphère et un matériau créés par point critique, à chaque maillage et à chaque changement d'axe, jamais libérés (mémoire de la carte graphique) | Une sphère et un matériau par sorte, partagés |
+| 2026-10-07 | `src/viewer/topoviewer.js` | (Claude) Relecture : `Math.max(...euler)` sur un tableau d'une valeur par sommet dépasse le nombre d'arguments d'un appel sur un gros fichier déposé ; le chemin de la courbe avait un segment par sommet | Bornes par une boucle ; le chemin ne garde que les sauts de χ |
 | | | | |

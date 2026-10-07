@@ -98,3 +98,28 @@ test('the total curvature is shown in turns, rounded, never as -0', () => {
   assert.equal(turns(4 * Math.PI), 2);
   assert.equal(turns(2 * Math.PI * 0.12345), 0.123);
 });
+
+test('the height and its critical points come from the C++ code: a standing torus, a sphere, chi everywhere', async () => {
+  const { elevation, criticalCounts, filtration, AXES } = await import('../../src/assets/topo-api.js');
+  const counts = {};
+  for (const name of ['torus', 'sphere', 'mobius', 'saddle']) {
+    const r = readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', `${name}.obj`)));
+    assert.equal(r.ok, true, name);
+    for (const axis of ['x', 'y', 'z']) {
+      const e = elevation(lib, AXES[axis]);
+      const c = criticalCounts(e.critical);
+      // Morse: the indices sum to chi, and so does the last sublevel set.
+      assert.equal(c.sum, r.invariants.euler, `${name} ${axis}`);
+      assert.equal(e.euler.at(-1), r.invariants.euler, `${name} ${axis}`);
+      // Heights in the viewer's units, sorted by the filtration order.
+      for (let k = 1; k < e.order.length; k++) assert.ok(e.height[e.order[k]] >= e.height[e.order[k - 1]], `${name} ${axis} order`);
+      // The whole mesh is the last sublevel set.
+      assert.equal(filtration(r.indices, e).faces(e.order.length - 1), r.indices.length / 3);
+      if (axis === 'y') counts[name] = c;
+    }
+  }
+  assert.deepEqual(counts.torus, { min: 1, saddle: 2, max: 1, other: 0, sum: 0 });
+  assert.deepEqual(counts.sphere, { min: 1, saddle: 0, max: 1, other: 0, sum: 2 });
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'torus.obj')));
+  assert.throws(() => elevation(lib, [0, 0, 0]), /zero direction/);
+});

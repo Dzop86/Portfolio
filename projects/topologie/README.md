@@ -10,6 +10,7 @@ Bibliothèque C++20 qui construit une structure demi-arête à partir d'un maill
 - Structure demi-arête : jumelles, arêtes de bord, arêtes non-variété (partagées par 3 faces ou plus), orientations incohérentes repérées.
 - Invariants (`topo::analyze`) : composantes connexes, sommets isolés, boucles de bord, arêtes et sommets non-variété, orientabilité, caractéristique d'Euler, genre total d'une surface orientable.
 - Courbure de Gauss discrète (`topo::gaussian_curvature`) : défaut angulaire par sommet (π − Σθ au bord), aire de Voronoï mixte, densité K ≈ défaut / aire (à 2 % près sur une icosphère).
+- Hauteur et points critiques (`topo::elevation`, sprint 36) : hauteur de chaque sommet selon une direction, ordre de la filtration (égalités départagées par l'indice du sommet), indice de chaque sommet 1 − χ(lien inférieur) selon la théorie de Morse discrète (Banchoff) : minimum (aucun voisin plus bas), maximum intérieur, selle de multiplicité k − 1 quand le lien inférieur a k morceaux ; caractéristique d'Euler du sous-niveau après chaque sommet. Les indices somment à χ sur tout maillage, bords et surfaces non orientables compris. Sur la fiche : coloration par la hauteur, seuil qui ne garde que le sous-niveau (comme les filtres Elevation et Threshold de ParaView), points critiques marqués, courbe de χ.
 - Chargement OBJ et PLY par lib-c (`add_subdirectory`), erreurs remontées en `topo::LoadError` avec leur ligne.
 
 - API C (`tools/c_api.cpp`, préfixe `topoc_`) : compilée en WebAssembly pour le viewer, et en bibliothèque partagée (`-DTOPO_C_API=ON`, `libtopoc.so`) pour l'API Python.
@@ -30,6 +31,7 @@ Options : `-DTOPO_SANITIZE=ON` (ASan et UBSan), `-DTOPO_BUILD_TESTS=OFF`. Google
 - **Surfaces de référence** (`tests/shapes.hpp`) : tore, cylindre et ruban de Möbius générés sur une grille, union de deux tores ; leurs invariants sont connus d'avance.
 - **Gauss-Bonnet** : sur chaque surface, la somme des défauts vaut 2πχ à 10⁻⁹ près, y compris sur 20 tores déformés au hasard (la somme ne dépend que de la topologie).
 - **Exemples du viewer** (`samples/`, générés par `scripts/make_samples.py`) : invariants et signe de la courbure vérifiés (sphère K ≈ 1, tore positif dehors et négatif dedans, selle négative).
+- **Points critiques** (`tests/test_morse.cpp`) : sphère convexe (un minimum, un maximum, quelle que soit la direction), tore debout (un minimum, deux selles, un maximum, dans cet ordre), selle de singe (une selle comptée deux fois), somme des indices égale à χ sur les exemples, un cylindre et deux tores, dans quatre directions ; χ du sous-niveau recompté à la main, constant entre deux points critiques ; sommet de bord le plus haut non critique. Vérifié en cassant le code : oublier les arêtes du lien inférieur ou inverser le départage des égalités fait échouer les tests.
 - **Intégration** : chargement des fichiers de lib-c, nombre d'arêtes identique à celui calculé par lib-c.
 - **CI** (`.github/workflows/topologie.yml`) : Linux, Windows et macOS, plus ASan + UBSan ; relancée aussi quand lib-c change.
 

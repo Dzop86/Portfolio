@@ -528,3 +528,22 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .roles dt { font-weight: 600; color: var(--text-strong); }
 .roles dd { margin: 0; }
 @media (max-width: 480px) { .roles { grid-template-columns: minmax(0, 1fr); } .roles dd { margin-bottom: var(--space-2); } }
+
+/* Topology viewer: height filtration and critical points (sprint 36). */
+.topo-mode { border: 0; padding: 0; margin: var(--space-3) 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
+.topo-mode legend { font-weight: 600; color: var(--text-strong); margin-bottom: var(--space-1); }
+.topo-mode label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; }
+.topo-height { display: grid; gap: var(--space-2); }
+.topo-height[hidden] { display: none; }
+/* "1,41 sur 1,41": wider than the ray tracer's values. */
+.topo-height .rt-slider { grid-template-columns: auto minmax(0, 1fr) 7em; }
+.topo-keys { display: flex; flex-wrap: wrap; gap: var(--space-3); list-style: none; padding: 0; margin: 0; }
+.topo-key { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: var(--space-1); vertical-align: middle; }
+.topo-key.is-min { background: var(--crit-min); }
+.topo-key.is-saddle { background: var(--crit-saddle); }
+.topo-key.is-max { background: var(--crit-max); }
+.topo-chi { width: 100%; height: auto; max-width: 360px; }
+.topo-chi .chi-line { fill: none; stroke: var(--chart-series); stroke-width: 2; }
+.topo-chi .chi-axis { stroke: var(--chart-grid); }
+.topo-chi .chi-level { stroke: var(--chart-ref); stroke-dasharray: 4 3; }
+.topo-chi text { fill: var(--muted); font: 11px var(--font-body); }

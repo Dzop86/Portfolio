@@ -113,6 +113,52 @@ test('the topology viewer shows invariants of the samples and of a dropped file'
   expect(errors).toEqual([]);
 });
 
+test('the topology viewer filters by height and counts the critical points (sprint 36)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await expect(viewer.locator('[data-height]')).toBeHidden();
+
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  await expect(viewer.locator('[data-height]')).toBeVisible();
+  await expect(viewer.locator('[data-legend]')).toBeHidden();
+  // The standing torus: the textbook count, and Morse's check.
+  await expect(viewer.locator('[data-critical]')).toHaveText('1 minimum(s), 2 saddle(s), 1 maximum(s). Morse theory: minima − saddles + maxima = 0 = χ.');
+  await expect(viewer.locator('[data-sublevel]')).toContainText('χ = 0');
+
+  // The threshold, with the keyboard: at the bottom, one vertex, no triangle, chi = 1.
+  // By role: the title of the chi curve also mentions the threshold.
+  const level = page.getByRole('slider', { name: 'Threshold' });
+  await level.focus();
+  await page.keyboard.press('Home');
+  await expect(viewer.locator('[data-sublevel]')).toHaveText(/^Sublevel set: 0 of [\d,]+ triangles, χ = 1\.$/);
+  // At the top, the whole torus again.
+  await page.keyboard.press('End');
+  await expect(viewer.locator('[data-sublevel]')).toContainText('χ = 0');
+  await expect(viewer.locator('[data-chi] path')).toHaveCount(1);
+
+  // Another axis: the torus lying flat along z, still summing to chi.
+  await page.getByLabel('Height axis').selectOption('z');
+  await expect(viewer.locator('[data-critical]')).toContainText('= 0 = χ');
+  // The sphere has no saddle.
+  await page.getByLabel('Height axis').selectOption('y');
+  await page.getByRole('button', { name: 'Sphere' }).click();
+  await expect(viewer.locator('[data-critical]')).toHaveText('1 minimum(s), 0 saddle(s), 1 maximum(s). Morse theory: minima − saddles + maxima = 2 = χ.');
+  // The saddle's range has decimals ("0.76 of 1.41"): the value still fits its column.
+  await page.getByRole('button', { name: 'Saddle' }).click();
+  await level.fill('537');
+  await expect(viewer.locator('[data-level-value]')).toHaveText(/^[\d.]+ of 1\.41$/);
+  expect(await viewer.locator('[data-level-value]').evaluate((o) => o.scrollWidth - o.clientWidth)).toBeLessThanOrEqual(0);
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the SQL playground runs the examples, a typed query, and survives errors, changes and endless queries', async ({ page }) => {
   // Three loads of the database and a deliberate 5 s timeout: more than the default 30 s on slower engines.
   test.setTimeout(60000);

@@ -69,6 +69,13 @@
   --curv-neg: #3987e5;
   --curv-zero: #a3a39f;
   --curv-pos: #e66767;
+  /* Height filtration (sprint 36): chocolate at the bottom, pistachio at the top; critical points in the
+     curvature scale's blue and red, saddles in amber. */
+  --elev-low: #5a3a22;
+  --elev-high: #bef374;
+  --crit-min: #3987e5;
+  --crit-saddle: #ffb300;
+  --crit-max: #e66767;
   /* Traffic lights of the Ada crossroads (D46): lamps lit or off, the road and its markings; the same in
      both themes, like a real crossroads. */
   --tl-red: #e53935;

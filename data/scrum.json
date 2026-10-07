@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 35,
+  "sprintCount": 36,
   "phases": [
     {
       "sprints": "S1",
@@ -136,6 +136,14 @@
       "label": {
         "fr": "Finitions : interface Ada, bilan",
         "en": "Finishing touches: Ada interface, review"
+      }
+    },
+    {
+      "sprints": "S36",
+      "kind": "build",
+      "label": {
+        "fr": "Topologie : hauteur et points critiques",
+        "en": "Topology: height and critical points"
       }
     }
   ],
