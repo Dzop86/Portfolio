@@ -439,7 +439,7 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 }
 
 /* Risk register on a narrow screen: the header keeps only its sort buttons, each risk becomes a card
-   (number and name, then probability, impact, score and matrix, then the mitigation). */
+   (number and name, then probability, impact, score and matrix, then the mitigation and the outcome). */
 @media (max-width: 720px) {
   .risks, .risks tbody { display: block; }
   .risks thead tr { display: flex; flex-wrap: wrap; gap: 0 var(--space-3); padding: var(--space-1) var(--space-3); background: var(--surface-2); }
@@ -451,7 +451,8 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
   .risks .c-label { flex: 1 1 calc(100% - 3.5rem); }
   .risks .c-val { text-align: left; white-space: nowrap; }
   .risks .c-val::before { content: attr(data-label) " "; color: var(--muted); font-size: 0.85rem; }
-  .risks .c-mitigation { flex: 1 1 100%; }
+  .risks .c-mitigation, .risks .c-outcome { flex: 1 1 100%; }
+  .risks .c-outcome::before { content: attr(data-label) " "; color: var(--muted); font-size: 0.85rem; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -502,3 +503,28 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .rt-slider { display: grid; grid-template-columns: auto minmax(0, 1fr) 4.5em; align-items: center; gap: var(--space-2); }
 .rt-slider input { min-height: 44px; width: 100%; accent-color: var(--accent); }
 .rt-slider output { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Ada crossroads (D46) */
+.cross-grid { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: var(--space-4); align-items: start; }
+@media (max-width: 640px) { .cross-grid { grid-template-columns: minmax(0, 1fr); } }
+.cross-map { display: block; width: 100%; max-width: 260px; height: auto; background: var(--surface-2); border-radius: var(--radius); }
+.cross-road { fill: var(--tl-road); }
+.cross-marking { stroke: var(--tl-marking); stroke-width: 2; stroke-dasharray: 8 8; }
+.cross-housing { fill: var(--tl-housing); }
+.cross-lamp { fill: var(--tl-off); }
+.cross-lamp.is-on[data-lamp="R"], .cross-bar.is-R { fill: var(--tl-red); }
+.cross-lamp.is-on[data-lamp="Y"], .cross-bar.is-Y { fill: var(--tl-amber); }
+.cross-lamp.is-on[data-lamp="G"], .cross-bar.is-G { fill: var(--tl-green); }
+.cross-car { fill: var(--tl-car); }
+/* The browser's [hidden] rule does not reach SVG elements. */
+.cross-car[hidden] { display: none; }
+.cross-axis, .cross-chart-label { fill: var(--text); font: 12px var(--font-body); }
+.cross-clock { font-variant-numeric: tabular-nums; min-height: 1.5em; }
+.cross-speed { max-width: 12rem; }
+.cross-chart { display: block; width: 100%; height: auto; }
+
+/* What each technology does in a project (its role), under the stack's tags. */
+.roles { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-3); margin: 0; }
+.roles dt { font-weight: 600; color: var(--text-strong); }
+.roles dd { margin: 0; }
+@media (max-width: 480px) { .roles { grid-template-columns: minmax(0, 1fr); } .roles dd { margin-bottom: var(--space-2); } }

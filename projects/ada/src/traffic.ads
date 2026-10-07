@@ -47,6 +47,8 @@ package Traffic with SPARK_Mode is
 
    function Current (C : Controller) return Phase;
    function Elapsed (C : Controller) return Seconds;
+   --  A request on axis A waits to be served (shown by the project page).
+   function Pending (C : Controller; A : Axis) return Boolean;
 
    --  How long phase P lasts in C, a pending request included.
    function Duration_Of (C : Controller; P : Phase) return Seconds;
@@ -75,5 +77,6 @@ private
 
    function Current (C : Controller) return Phase is (C.Phase);
    function Elapsed (C : Controller) return Seconds is (C.Elapsed);
+   function Pending (C : Controller; A : Axis) return Boolean is (C.Waiting (A));
 
 end Traffic;

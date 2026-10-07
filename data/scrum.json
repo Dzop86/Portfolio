@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 34,
+  "sprintCount": 35,
   "phases": [
     {
       "sprints": "S1",
@@ -129,6 +129,14 @@
         "fr": "Lancer de rayons, version finale",
         "en": "Ray tracer, final release"
       }
+    },
+    {
+      "sprints": "S35",
+      "kind": "build",
+      "label": {
+        "fr": "Finitions : interface Ada, bilan",
+        "en": "Finishing touches: Ada interface, review"
+      }
     }
   ],
   "risks": [
@@ -143,6 +151,10 @@
       "mitigation": {
         "fr": "Sessions courtes, CLAUDE.md précis, passage temporaire à Max",
         "en": "Short sessions, precise CLAUDE.md, temporary upgrade to Max"
+      },
+      "outcome": {
+        "fr": "Ne s'est pas produit au point de bloquer : les sprints sont livrés ; chaque session reprend grâce aux fichiers de sprint et de décisions.",
+        "en": "Did not happen badly enough to block: every sprint was delivered; each session resumes from the sprint and decision files."
       }
     },
     {
@@ -156,6 +168,10 @@
       "mitigation": {
         "fr": "Priorisation MoSCoW, ordre des projets revu avec Charles (6 octobre), Spring et ASP.NET retirés du périmètre, projets « Could » sacrifiables",
         "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
+      },
+      "outcome": {
+        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), chaque fois avec Charles.",
+        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), each time with Charles."
       }
     },
     {
@@ -169,6 +185,10 @@
       "mitigation": {
         "fr": "Tests d'abord, vérifier qu'un test échoue quand on casse le code, fuzzing, preuve SPARK, CI bloquante, REVIEW.md",
         "en": "Tests first, check that a test fails when the code is broken, fuzzing, SPARK proof, blocking CI, REVIEW.md"
+      },
+      "outcome": {
+        "fr": "S'est produit à chaque sprint, sans arriver en ligne : les défauts trouvés par les tests et les relectures sont dans les REVIEW.md, avec leur correction.",
+        "en": "Happened in every sprint, without reaching the site: the defects found by tests and reviews are in the REVIEW.md files, with their fixes."
       }
     },
     {
@@ -182,6 +202,10 @@
       "mitigation": {
         "fr": "Versions OpenCL et CPU, résultats pré-calculés",
         "en": "OpenCL and CPU versions, precomputed results"
+      },
+      "outcome": {
+        "fr": "S'est produit en partie : pas d'OpenCL NVIDIA sous WSL (PoCL à la place), CUDA par Docker sur la GTX 1660, mesures commitées pour la CI sans carte graphique.",
+        "en": "Partly happened: no NVIDIA OpenCL under WSL (PoCL instead), CUDA through Docker on the GTX 1660, measurements committed for the GPU-less CI."
       }
     },
     {
@@ -195,6 +219,10 @@
       "mitigation": {
         "fr": "Démos statiques, backends optionnels",
         "en": "Static demos, optional back ends"
+      },
+      "outcome": {
+        "fr": "Ne s'est pas produit : le site est statique sur GitHub Pages ; les API ne tournent qu'en local avec Docker Compose.",
+        "en": "Did not happen: the site is static on GitHub Pages; the APIs only run locally with Docker Compose."
       }
     },
     {
@@ -208,6 +236,10 @@
       "mitigation": {
         "fr": "Scan automatique en CI, variables d'environnement",
         "en": "Automatic CI scan, environment variables"
+      },
+      "outcome": {
+        "fr": "Le scan a bloqué un déploiement pour une adresse e-mail publique de mainteneur npm dans un package-lock ; aucune donnée privée publiée.",
+        "en": "The scan blocked a deployment over a public npm maintainer's address in a package-lock; no private data was published."
       }
     },
     {
@@ -221,6 +253,10 @@
       "mitigation": {
         "fr": "Matrice CI Linux, Windows, macOS dès le premier commit",
         "en": "Linux, Windows, macOS CI matrix from the first commit"
+      },
+      "outcome": {
+        "fr": "S'est produit plusieurs fois (MSVC, Qt sous Windows, Clang sous macOS), toujours vu par la matrice avant la mise en ligne.",
+        "en": "Happened several times (MSVC, Qt on Windows, Clang on macOS), always caught by the matrix before going live."
       }
     },
     {
@@ -234,6 +270,10 @@
       "mitigation": {
         "fr": "Deux sprints de marge, un seul projet en cours à la fois",
         "en": "Two buffer sprints, one project in progress at a time"
+      },
+      "outcome": {
+        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi.",
+        "en": "Did not happen: the two spare sprints were not needed."
       }
     },
     {
@@ -247,6 +287,10 @@
       "mitigation": {
         "fr": "Maillages synthétiques générés par le code ; modèles tiers montrés en local seulement",
         "en": "Synthetic meshes generated by code; third-party models shown locally only"
+      },
+      "outcome": {
+        "fr": "Évité : seuls des maillages générés par le code sont publiés ; les modèles trouvés en ligne restent en démonstration locale.",
+        "en": "Avoided: only meshes generated by code are published; models found online stay in local demos."
       }
     }
   ],

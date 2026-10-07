@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { renderProjectPage } from '../../src/templates.mjs';
+import { renderPage, renderProjectPage } from '../../src/templates.mjs';
 import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
@@ -142,6 +142,30 @@ test('browser chrome uses the dark grey of the theme', () => {
   const manifest = JSON.parse(readFileSync(join(dist, 'manifest.webmanifest'), 'utf8'));
   assert.equal(manifest.theme_color, '#181818');
   assert.equal(manifest.background_color, '#1f1f1f');
+});
+
+test('an element rendered hidden stays hidden: its class gets a [hidden] rule when the stylesheet would show it', () => {
+  // A class with a display rule beats the browser's [hidden] rule, and that rule does not reach SVG elements:
+  // both left the sprint 35 car and the sprint 36 height panel visible.
+  const css = readFileSync(resolve('src/assets/style.css'), 'utf8');
+  const shown = new Set();
+  for (const [, selectors, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/display:\s*(?!none)/.test(body)) continue;
+    for (const s of selectors.split(',')) if (/^\.[\w-]+$/.test(s.trim())) shown.add(s.trim().slice(1));
+  }
+  const svg = new Set(['rect', 'circle', 'path', 'g', 'text', 'line', 'polyline', 'polygon', 'ellipse']);
+  const missing = new Set();
+  for (const lang of LANGS) {
+    for (const file of readdirSync(join(dist, lang)).filter((f) => f.endsWith('.html'))) {
+      for (const [, tag, attrs] of readFileSync(join(dist, lang, file), 'utf8').matchAll(/<([a-z][\w-]*)\s([^>]*)>/g)) {
+        if (!/(?:^|\s)hidden(?=[\s/=]|$)/.test(attrs)) continue;
+        const cls = attrs.match(/class="([\w-]+)/)?.[1];
+        if (!cls || !(shown.has(cls) || svg.has(tag))) continue;
+        if (!css.includes(`.${cls}[hidden]`)) missing.add(`${tag}.${cls} (${lang}/${file})`);
+      }
+    }
+  }
+  assert.deepEqual([...missing], []);
 });
 
 test('every project has a detail page in both languages, linked from its card', () => {
@@ -320,6 +344,40 @@ test('the risk register lists R1 to R9 in order, each with a matrix marking its 
   for (const key of ['id', 'p', 'i', 'score']) assert.ok(html.includes(`data-sort="${key}"`), key);
 });
 
+test('each project page says what each technology does in the project', () => {
+  const { projects } = loadData();
+  for (const lang of LANGS) {
+    for (const p of projects) {
+      const html = page(lang, projectPage(p.id));
+      const block = html.slice(html.indexOf('data-roles'), html.indexOf('</dl>', html.indexOf('data-roles')));
+      const terms = [...block.matchAll(/<dt>([^<]+)<\/dt><dd>([^<]+)<\/dd>/g)];
+      assert.deepEqual(terms.map((m) => m[1]), p.stack.map(esc), `${lang} ${p.id}`);
+      terms.forEach((m, k) => assert.equal(m[2], esc(pick(p.roles[p.stack[k]], lang))));
+    }
+  }
+});
+
+test('every risk has its outcome in both languages, shown in its own column', () => {
+  const { scrum } = loadData();
+  for (const lang of LANGS) {
+    const html = page(lang, 'method');
+    const outcomes = [...html.matchAll(/<td class="c-outcome" data-label="[^"]+">([^<]+)<\/td>/g)].map((m) => m[1]);
+    assert.equal(outcomes.length, scrum.risks.length, lang);
+    scrum.risks.forEach((r, k) => assert.equal(outcomes[k], esc(pick(r.outcome, lang)), `${lang} ${r.id}`));
+  }
+});
+
+test('an empty backlog says every project is delivered instead of showing an empty table', () => {
+  const data = loadData();
+  const done = { ...data, projects: data.projects.map((p) => ({ ...p, status: 'done' })) };
+  const t = makeT(data.i18n.fr, 'fr');
+  const html = renderPage('method', { lang: 'fr', t, data: done });
+  assert.ok(html.includes('data-backlog-empty'));
+  assert.ok(!html.includes('data-backlog>'));
+  const total = data.projects.reduce((acc, p) => acc + p.points, 0);
+  assert.ok(html.includes(`les ${data.projects.length} projets sont livrés, ${total} points sur ${total}`));
+});
+
 test('the jury gives each member a grade and a role, chair first', () => {
   const { cv } = loadData();
   for (const j of cv.thesis.jury) for (const lang of LANGS) assert.ok(pick(j.grade, lang) && pick(j.role, lang), j.name);
@@ -401,8 +459,12 @@ test('the project management page shows the backlog, the sprint log and the metr
   const open = projects.filter((p) => p.status !== 'done');
   for (const lang of LANGS) {
     const html = page(lang, 'method');
-    const backlog = html.slice(html.indexOf('data-backlog'), html.indexOf('</table>', html.indexOf('data-backlog')));
-    assert.equal((backlog.match(/<tr>/g) || []).length - 1, open.length, `${lang}: one row per open project`);
+    if (open.length === 0) {
+      assert.ok(html.includes('data-backlog-empty') && !html.includes('data-backlog>'), `${lang}: the empty backlog says so`);
+    } else {
+      const backlog = html.slice(html.indexOf('data-backlog>'), html.indexOf('</table>', html.indexOf('data-backlog>')));
+      assert.equal((backlog.match(/<tr>/g) || []).length - 1, open.length, `${lang}: one row per open project`);
+    }
     // Every sprint, newest first, with its goal in the page's language and a link to its report.
     const items = [...html.matchAll(/<li class="sprint-item">[\s\S]*?<\/li>/g)].map((m) => m[0]);
     assert.equal(items.length, sprints.length);

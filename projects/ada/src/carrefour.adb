@@ -1,15 +1,22 @@
 --  Command-line simulation: prints the lights second by second.
 --    carrefour [SECONDS] [EW_REQUEST_TIME]
+--    carrefour --automaton   (every reachable state as JSON, for the project page)
 with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Text_IO;      use Ada.Text_IO;
+with Automaton;
 with Traffic;          use Traffic;
 
 procedure Carrefour is
    Symbol : constant array (Color) of Character := [Red => 'R', Yellow => 'Y', Green => 'G'];
-   C : Controller := Start ((NS_Green => 30, EW_Green => 20));
+   Timings : constant Timing := (NS_Green => 30, EW_Green => 20);
+   C : Controller := Start (Timings);
    Length  : Natural := 70;
    Request : Integer := -1;
 begin
+   if Argument_Count = 1 and then Argument (1) = "--automaton" then
+      Automaton.Put_Json (Timings);
+      return;
+   end if;
    if Argument_Count >= 1 then
       Length := Natural'Value (Argument (1));
    end if;

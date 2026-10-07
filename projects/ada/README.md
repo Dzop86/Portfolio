@@ -21,6 +21,15 @@ cd tests && alr run        # tests AUnit
 alr exec -- gnatprove -P ../carrefour.gpr --level=2 --checks-as-errors=on   # preuve, depuis tests/
 ```
 
+## Sur le site (sprint 35)
+La [fiche du projet](https://dzop86.github.io/Portfolio/fr/project-ada.html) fait fonctionner le carrefour en direct, sans réécrire le contrôleur en JavaScript : `carrefour --automaton` (`src/automaton.adb`) explore tous les états que le contrôleur peut atteindre depuis `Start` (durées de vert 30 s et 20 s), avec l'état après une seconde (`Tick`) et après une demande sur chaque axe (`Request_Crossing`), et les écrit en JSON (`data/automaton.json`). La page ne fait que suivre ces transitions : feux, voiture qui attend, demandes de passage, pause, seconde par seconde, vitesse, chronogramme des 60 dernières secondes.
+```sh
+alr build
+./bin/carrefour --automaton > data/automaton.json      # l'automate de la fiche
+./bin/carrefour 120 4 > data/simulation-120-4.txt      # la simulation que le test Node rejoue
+```
+Le job `automaton` de la CI régénère les deux fichiers et échoue s'ils diffèrent de ceux commités ; un test AUnit vérifie que l'automate est fermé (toute transition y reste) et sûr (un axe au rouge dans chaque état), un test Node que le rejeu redonne la simulation du programme ligne pour ligne.
+
 ## Tests
 - **AUnit** (`tests/src/traffic_tests.adb`) : aucune phase ne laisse passer les deux axes, cycle complet, orange toujours suivi du rouge intégral et d'une durée exacte (2 000 s simulées avec des demandes), demande qui écourte le vert sans passer sous le minimum, demande servie une seule fois, durées hors bornes refusées (le test échoue si l'on élargit l'intervalle, vérifié).
 - **CI** (`.github/workflows/ada.yml`) : Alire installe la même chaîne GNAT sur Linux, Windows et macOS ; compilation avec avertissements traités en erreurs, tests, simulation ; preuve SPARK sous Linux.

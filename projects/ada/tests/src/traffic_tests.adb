@@ -1,4 +1,5 @@
 with AUnit.Assertions; use AUnit.Assertions;
+with Automaton;
 with Traffic;          use Traffic;
 
 package body Traffic_Tests is
@@ -131,6 +132,33 @@ package body Traffic_Tests is
       when Constraint_Error => null;  --  expected
    end Test_Green_Times_Out_Of_Range_Are_Rejected;
 
+   --  The automaton the project page replays (D46): every reachable state is safe, every transition stays
+   --  inside it, and it starts where the controller starts.
+   procedure Test_The_Automaton_Is_Closed_And_Safe (T : in out AUnit.Test_Cases.Test_Case'Class) is
+      pragma Unreferenced (T);
+      use Automaton.Controllers;
+      States : constant Vector := Automaton.Explore (Default);
+   begin
+      Assert (States (0) = Start (Default), "state 0 is Start");
+      --  Six phases, at most 30 s in one, two requests: far fewer than 6 * 31 * 4 states.
+      Assert (Natural (States.Length) in 10 .. 6 * 31 * 4, "size:" & States.Length'Image);
+      for C of States loop
+         Assert (Light (Current (C), North_South) = Red or else Light (Current (C), East_West) = Red,
+                 "a reachable state lets both axes move");
+         declare
+            After : Controller := C;
+            NS, EW : Controller := C;
+         begin
+            Tick (After);
+            Request_Crossing (NS, North_South);
+            Request_Crossing (EW, East_West);
+            Assert (Automaton.Index_Of (States, After) <= States.Last_Index, "tick");
+            Assert (Automaton.Index_Of (States, NS) <= States.Last_Index, "request north-south");
+            Assert (Automaton.Index_Of (States, EW) <= States.Last_Index, "request east-west");
+         end;
+      end loop;
+   end Test_The_Automaton_Is_Closed_And_Safe;
+
    overriding procedure Register_Tests (T : in out Test) is
    begin
       Register_Routine (T, Test_No_Phase_Lets_Both_Axes_Move'Access, "no phase lets both axes move");
@@ -140,6 +168,7 @@ package body Traffic_Tests is
       Register_Routine (T, Test_A_Request_On_The_Green_Axis_Changes_Nothing'Access, "a request on the green axis changes nothing");
       Register_Routine (T, Test_A_Request_Is_Served_Once'Access, "a request is served once");
       Register_Routine (T, Test_Green_Times_Out_Of_Range_Are_Rejected'Access, "green times out of range are rejected");
+      Register_Routine (T, Test_The_Automaton_Is_Closed_And_Safe'Access, "the automaton is closed and safe");
    end Register_Tests;
 
    overriding function Name (T : Test) return AUnit.Message_String is

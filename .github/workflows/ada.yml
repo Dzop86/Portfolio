@@ -49,3 +49,20 @@ jobs:
         run: |
           alr -n build
           alr -n exec -- gnatprove -P ../carrefour.gpr -j0 --level=2 --checks-as-errors=on --warnings=error --report=fail
+
+  automaton:
+    name: Ada (committed automaton is up to date)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: alire-project/setup-alire@v6
+      # The project page replays data/automaton.json, and a Node test checks the replay against
+      # data/simulation-120-4.txt: both must be what the program produces today.
+      - name: Export the automaton and a simulation, and compare
+        working-directory: projects/ada
+        run: |
+          alr -n build
+          ./bin/carrefour --automaton > "$RUNNER_TEMP/automaton.json"
+          diff data/automaton.json "$RUNNER_TEMP/automaton.json"
+          ./bin/carrefour 120 4 > "$RUNNER_TEMP/simulation.txt"
+          diff data/simulation-120-4.txt "$RUNNER_TEMP/simulation.txt"

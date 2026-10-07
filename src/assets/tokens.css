@@ -69,6 +69,16 @@
   --curv-neg: #3987e5;
   --curv-zero: #a3a39f;
   --curv-pos: #e66767;
+  /* Traffic lights of the Ada crossroads (D46): lamps lit or off, the road and its markings; the same in
+     both themes, like a real crossroads. */
+  --tl-red: #e53935;
+  --tl-amber: #ffb300;
+  --tl-green: #43a047;
+  --tl-off: #3a3a3a;
+  --tl-housing: #111111;
+  --tl-road: #4a4a4a;
+  --tl-marking: #e0e0e0;
+  --tl-car: #c9a27f;
 
   --font-display: "Zen Maru Gothic", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;

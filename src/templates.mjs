@@ -327,6 +327,13 @@ function backlogSection({ lang, t, data }) {
       <td>${esc(p.sprint)}</td>
       <td><span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span></td>
     </tr>`).join('');
+  // Once every project is delivered, the backlog says so instead of showing an empty table.
+  if (open.length === 0) {
+    return `<section class="block" aria-labelledby="h-backlog">
+  <h2 id="h-backlog">${esc(t('method.backlog'))}</h2>
+  <p data-backlog-empty>${esc(fill(t('method.backlog.empty'), { count: data.projects.length, total }))}</p>
+</section>`;
+  }
   return `<section class="block" aria-labelledby="h-backlog">
   <h2 id="h-backlog">${esc(t('method.backlog'))}</h2>
   <p>${esc(t('method.backlog.lead'))}</p>
@@ -506,6 +513,7 @@ function method({ lang, t, data }) {
         <td class="num c-val" data-label="${esc(t('method.score'))}"><span class="score score-${level}">${score}</span></td>
         <td class="c-matrix">${riskMatrix(r.p, r.i, fill(t('method.matrix.label'), { p: r.p, i: r.i, score, level: t(`method.level.${level}`) }))}</td>
         <td class="c-mitigation">${esc(pick(r.mitigation, lang))}</td>
+        <td class="c-outcome" data-label="${esc(t('method.outcome.label'))}">${esc(pick(r.outcome, lang))}</td>
       </tr>`;
     }).join('');
   const sortable = (key, label, num = true) => `<th scope="col"${num ? ' class="num"' : ''}${key === 'id' ? ' aria-sort="ascending"' : ''}>
@@ -544,6 +552,7 @@ ${metricsSection({ lang, t, data })}
         ${sortable('score', t('method.score'))}
         <th scope="col">${esc(t('method.matrix'))}</th>
         <th scope="col">${esc(t('method.mitigation'))}</th>
+        <th scope="col">${esc(t('method.outcome'))}</th>
       </tr></thead>
       <tbody>${risks}</tbody>
     </table>
@@ -612,10 +621,13 @@ ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
 ${p.widget === 'raytracer-view' ? raytracerView(t, lang) : ''}
+${p.widget === 'ada-crossroads' ? adaCrossroads(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
     <ul class="tags">${p.stack.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>
+    <h3>${esc(t('project.roles'))}</h3>
+    <dl class="roles" data-roles>${p.stack.map((s) => `<dt>${esc(s)}</dt><dd>${esc(pick(p.roles[s], lang))}</dd>`).join('')}</dl>
   </article>
   <article class="panel panel-accent">
     <h2>${esc(t('project.dod'))}</h2>
@@ -995,6 +1007,66 @@ function othelloBoard(t) {
 
 const MORPION_LABELS = ['square', 'empty', 'last', 'your-turn', 'ai-thinking', 'ai-played', 'you-played', 'over-win', 'over-lose',
   'over-draw', 'loading', 'error.load'];
+
+// The Ada crossroads (D46): the automaton computed by the Ada program, replayed second by second in an SVG
+// crossroads, with requests on each axis and a timing diagram.
+const CROSS_LABELS = ['loading', 'error', 'pause', 'resume', 'svg', 'phase.NS_GREEN', 'phase.NS_YELLOW', 'phase.RED_BEFORE_EW',
+  'phase.EW_GREEN', 'phase.EW_YELLOW', 'phase.RED_BEFORE_NS', 'color.R', 'color.Y', 'color.G', 'status', 'pending', 'green', 'chart', 'states'];
+
+function adaCrossroads(t) {
+  const labels = Object.fromEntries(CROSS_LABELS.map((k) => [k, t(`cross.label.${k}`)]));
+  // One light: three lamps, the lit one chosen by the script (data-lamp).
+  const light = (axis, x, y) => `<g class="cross-light" data-light="${axis}" transform="translate(${x} ${y})">
+      <rect class="cross-housing" width="22" height="58" rx="5"/>
+      <circle class="cross-lamp" data-lamp="R" cx="11" cy="11" r="7"/>
+      <circle class="cross-lamp" data-lamp="Y" cx="11" cy="29" r="7"/>
+      <circle class="cross-lamp" data-lamp="G" cx="11" cy="47" r="7"/>
+    </g>`;
+  const speeds = [1, 5, 20].map((v) => `<option value="${v}">× ${v}</option>`).join('');
+  return `<section class="block panel cross" aria-labelledby="h-cross" data-crossroads="../assets/samples/ada/automaton.json" data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-cross">${esc(t('cross.title'))}</h2>
+  <p>${esc(t('cross.lead'))}</p>
+  <div class="cross-grid">
+    <svg class="cross-map" viewBox="0 0 240 240" role="img" aria-label="${esc(t('cross.label.loading'))}" data-map>
+      <rect class="cross-road" x="95" y="0" width="50" height="240"/>
+      <rect class="cross-road" x="0" y="95" width="240" height="50"/>
+      <line class="cross-marking" x1="120" y1="0" x2="120" y2="90" />
+      <line class="cross-marking" x1="120" y1="150" x2="120" y2="240" />
+      <line class="cross-marking" x1="0" y1="120" x2="90" y2="120" />
+      <line class="cross-marking" x1="150" y1="120" x2="240" y2="120" />
+      <rect class="cross-car" data-car="ns" x="124" y="40" width="16" height="26" rx="4" hidden/>
+      <rect class="cross-car" data-car="ew" x="174" y="124" width="26" height="16" rx="4" hidden/>
+      ${light('ns', 62, 30)}
+      ${light('ew', 156, 152)}
+      <text class="cross-axis" x="62" y="22">${esc(t('cross.axis.ns'))}</text>
+      <text class="cross-axis" x="156" y="226">${esc(t('cross.axis.ew'))}</text>
+    </svg>
+    <div>
+      <p class="cross-clock" data-clock aria-hidden="true"></p>
+      <p class="actions" role="group" aria-label="${esc(t('cross.requests'))}">
+        <button type="button" class="btn btn-primary" data-request="ns" aria-pressed="false">${esc(t('cross.request.ns'))}</button>
+        <button type="button" class="btn btn-primary" data-request="ew" aria-pressed="false">${esc(t('cross.request.ew'))}</button>
+      </p>
+      <p class="actions">
+        <button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('cross.label.pause'))}</button>
+        <button type="button" class="btn btn-ghost" data-step>${esc(t('cross.step'))}</button>
+        <button type="button" class="btn btn-ghost" data-restart>${esc(t('cross.restart'))}</button>
+      </p>
+      <div class="rt-field cross-speed"><label for="cross-speed">${esc(t('cross.speed'))}</label><select id="cross-speed" data-speed>${speeds}</select></div>
+    </div>
+  </div>
+  <h3 id="h-cross-chart">${esc(t('cross.chart'))}</h3>
+  <svg class="cross-chart" viewBox="0 0 640 70" role="img" aria-labelledby="h-cross-chart" data-chart>
+    <text class="cross-chart-label" x="0" y="24">${esc(t('cross.axis.ns'))}</text>
+    <text class="cross-chart-label" x="0" y="54">${esc(t('cross.axis.ew'))}</text>
+    <g data-bars></g>
+  </svg>
+  <p class="visually-hidden" data-live aria-live="polite"></p>
+  <p class="meta" data-note>${esc(t('cross.note'))}</p>
+  <noscript><p class="notice">${esc(t('cross.noscript'))}</p></noscript>
+  <script type="module" src="../assets/adaplay.js"></script>
+</section>`;
+}
 
 // Tic-tac-toe against the AI (D34): moves read from the book computed in Python, a board of 9 buttons with a
 // roving tab stop.

@@ -50,6 +50,8 @@ COPY projects/ml/export/pointnet.json ./projects/ml/export/
 COPY projects/bataille/data/stats.json ./projects/bataille/data/
 # Tic-tac-toe move book computed by the Python program.
 COPY projects/morpion/data/book.json ./projects/morpion/data/
+# Ada crossroads: the controller's automaton, exported by the Ada program.
+COPY projects/ada/data/automaton.json ./projects/ada/data/
 COPY projects/parallele/data/bench.json ./projects/parallele/data/
 # Ray tracer: the gain of several workers, measured by its script.
 COPY projects/raytracer/data/bench.json ./projects/raytracer/data/

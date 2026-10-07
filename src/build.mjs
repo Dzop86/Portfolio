@@ -20,6 +20,8 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
   cpSync(join(ROOT, 'projects/topologie/samples'), join(outDir, 'assets/samples/topologie'), { recursive: true });
   // Tic-tac-toe (D34): the move book computed by the Python program of projects/morpion.
   cpSync(join(ROOT, 'projects/morpion/data/book.json'), join(outDir, 'assets/samples/morpion/book.json'));
+  // Ada crossroads (D46): the controller's automaton, computed by the Ada program of projects/ada.
+  cpSync(join(ROOT, 'projects/ada/data/automaton.json'), join(outDir, 'assets/samples/ada/automaton.json'));
   // SQL playground (D20): schema and campaign of projects/sql, SQLite compiled by sql.js, and the worker
   // that owns the database, bundled with sql.js into one module.
   mkdirSync(join(outDir, 'assets/samples/sql'), { recursive: true });

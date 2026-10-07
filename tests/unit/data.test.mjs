@@ -88,3 +88,13 @@ test('every project names its main technologies, all of them known', () => {
   // C, C++, C# and Java come first, as asked by Charles.
   assert.deepEqual(techsOf(projects).slice(0, 4), ['C', 'C++', 'C#', 'Java']);
 });
+
+test('every technology of every project says what it does there, in both languages', () => {
+  const { projects } = loadData();
+  for (const p of projects) {
+    assert.deepEqual(Object.keys(p.roles ?? {}), p.stack, `${p.id}: one role per technology, in the order of the stack`);
+    for (const [tech, role] of Object.entries(p.roles)) {
+      for (const lang of ['fr', 'en']) assert.ok(role[lang]?.length > 20, `${p.id} ${tech} ${lang}`);
+    }
+  }
+});
