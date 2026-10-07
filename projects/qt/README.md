@@ -41,7 +41,7 @@ Qt Test, cinq programmes (CTest) :
 - `test_translations` : chaque texte est traduit, garde ses `%1` et son raccourci `&`, et la traduction compilée est intégrée au programme.
 - Vérifié en cassant le code : sans l'alignement des normales, le test du ruban de Möbius échoue.
 
-**CI** (`.github/workflows/qt.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs ; OpenGL logiciel de Mesa (llvmpipe) sous Linux (écran virtuel) et Windows (DLL de mesa-dist-win copiées à côté des programmes) ; sous Linux, le `.ts` doit correspondre au code (`lupdate`), une capture est faite en ligne de commande et un fichier invalide doit faire échouer le programme. Relancée quand lib-c ou topologie changent.
+**CI** (`.github/workflows/qt.yml`) : Linux (GCC), Windows (MSVC) et macOS (Clang), avertissements traités en erreurs ; OpenGL logiciel de Mesa (llvmpipe) sous Linux (écran virtuel) et Windows (Mesa de mesa-dist-win copié à côté des programmes sous le nom `opengl32sw.dll`) ; sous Linux, le `.ts` doit correspondre au code (`lupdate`), une capture est faite en ligne de commande et un fichier invalide doit faire échouer le programme. Relancée quand lib-c ou topologie changent.
 
 ## Limites
 - Pas encore de sélection d'un sommet ou d'une face, ni d'exécutables prêts à installer : c'est le sprint 27.

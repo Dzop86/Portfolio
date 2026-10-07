@@ -47,22 +47,24 @@ jobs:
           curl -fsSL -o "$RUNNER_TEMP/mesa.7z" https://github.com/pal1000/mesa-dist-win/releases/download/26.2.4/mesa3d-26.2.4-release-msvc.7z
           7z x -y -o"$RUNNER_TEMP/mesa" "$RUNNER_TEMP/mesa.7z" > /dev/null
           cp "$RUNNER_TEMP"/mesa/x64/*.dll build/Release/
+          # Qt loads opengl32.dll only from System32 (OpenGL 1.1 there); its software renderer,
+          # opengl32sw.dll, is found in the programs' folder first: Mesa takes its name.
+          mv build/Release/opengl32.dll build/Release/opengl32sw.dll
       - name: Tests (Qt Test), Linux under a virtual screen
         if: runner.os == 'Linux'
         run: xvfb-run -a ctest --test-dir build -C Release --output-on-failure
-      # On Windows, Qt would pick its own old software OpenGL (opengl32sw, OpenGL 3.0) for the
-      # runner's basic display driver: "desktop" makes it load opengl32.dll, Mesa's, from the
-      # programs' folder.
+      # On Windows, "software" makes Qt load opengl32sw.dll: Mesa 26's, next to the programs,
+      # rather than the old one shipped with Qt (OpenGL 3.0).
       - name: Tests (Qt Test)
         if: runner.os != 'Linux'
         env:
-          QT_OPENGL: desktop
+          QT_OPENGL: software
         run: ctest --test-dir build -C Release --output-on-failure
       - name: OpenGL diagnostics, after a failure
         if: failure()
         shell: bash
         env:
-          QT_OPENGL: desktop
+          QT_OPENGL: software
           QT_LOGGING_RULES: qt.qpa.gl*=true
         run: |
           if [ -f build/Release/test_render.exe ]; then test_render=build/Release/test_render.exe; else test_render=build/test_render; fi
