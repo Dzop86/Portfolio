@@ -1,0 +1,60 @@
+name: qt
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/qt/**', 'projects/topologie/**', 'projects/lib-c/**', '.github/workflows/qt.yml']
+  pull_request:
+    paths: ['projects/qt/**', 'projects/topologie/**', 'projects/lib-c/**', '.github/workflows/qt.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qt-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Qt/OpenGL viewer (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      # Windows runners have no graphics card: Qt's software OpenGL (Mesa llvmpipe, opengl32sw.dll)
+      # gives the tests an OpenGL 3.3 context. Linux uses Mesa under a virtual screen.
+      QT_OPENGL: software
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.11.3
+          cache: true
+      - name: OpenGL and X11 libraries (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libgl-dev libegl-dev libgl1-mesa-dri libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 xvfb
+      - name: Configure (warnings are errors)
+        run: cmake -S projects/qt -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Tests (Qt Test), Linux under a virtual screen
+        if: runner.os == 'Linux'
+        run: xvfb-run -a ctest --test-dir build -C Release --output-on-failure
+      - name: Tests (Qt Test)
+        if: runner.os != 'Linux'
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: The French translation follows the code
+        if: runner.os == 'Linux'
+        run: |
+          cmake --build build --target update_translations
+          git diff --exit-code projects/qt/i18n
+      - name: A screenshot from the command line, and a refused file
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a build/qtviewer --lang fr --curvature --screenshot "$RUNNER_TEMP/torus.png" sample:torus
+          test -s "$RUNNER_TEMP/torus.png"
+          echo "f 1 2 3" > "$RUNNER_TEMP/bad.obj"
+          if xvfb-run -a build/qtviewer --screenshot "$RUNNER_TEMP/bad.png" "$RUNNER_TEMP/bad.obj"; then exit 1; fi
