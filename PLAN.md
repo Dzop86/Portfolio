@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S33), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S34), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -26,7 +26,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 10 | Calcul parallèle | OpenMP, CUDA, OpenCL | S28-S29 | 13 |
 | 11 | Dashboard React | React, TypeScript, Vite | S30-S31 | 13 |
 | 12 | Dashboard Angular | Angular, Jest, Cypress | S32 | 8 |
-| 13 | Migration Bootstrap | jQuery, Bootstrap | S33 | 5 |
+| 13 | Lancer de rayons | C++, WebAssembly | S33-S34 | 8 |
 | 14 | Éditeur LaTeX | TypeScript, KaTeX | S13-S14 | 8 |
 | 15 | Mini-cours G-cartes | JS, SVG | S15 | 5 |
 | 16 | Jeu : Othello | C, WebAssembly | S17-S18 | 8 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 167 points sur 33 sprints de deux semaines (numéros réels jusqu'au sprint 15, prévisionnels ensuite).
+Total : 170 points sur 34 sprints de deux semaines (numéros réels jusqu'au sprint 15, prévisionnels ensuite).
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -57,10 +57,13 @@ Une section « Jeux de mes études » s'ajoute à la page Projets : quatre jeux 
 ## Deux jeux de plus (décision de Charles, 7 octobre 2026, D31)
 Un morpion en Python (S22) et un roguelike 2D rejoignent les jeux, juste après la bataille. Le roguelike (D32, 13 points, S23-S25) : client Godot 4 en C# pour le bureau (Godot 4 n'exporte pas le C# vers le web), règles partagées en C#, API ASP.NET Core de scores avec comptes JWT, EF Core, PostgreSQL, Swagger, Docker et GitHub Actions ; l'API vérifie chaque score en rejouant la partie. Qt/OpenGL passe en S26-S27 et la suite est décalée d'autant.
 
+## Un lancer de rayons à la place de Bootstrap (décision de Charles, 7 octobre 2026, D45)
+La migration Bootstrap (jQuery puis Bootstrap) est retirée. À sa place, un lancer de rayons en C++ compilé en WebAssembly, utilisable en ligne sur sa fiche (S33-S34, 8 points) : sphères, plans et maillages OBJ du fil rouge accélérés par une BVH, matériaux diffus, métal et verre, ombres, anticrénelage, rendu progressif, choix de la scène et de la caméra, image de référence testée.
+
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
 - Registre des risques : `data/scrum.json`, affiché sur la page Gestion de projet, revu à chaque rétro.
-- Priorisation MoSCoW : Must = vitrine, topologie, C, ML, SQL, Qt. Should = les six jeux. Could = Angular, Bootstrap. Won't (retirés le 6 octobre) = microservices Spring, API ASP.NET.
+- Priorisation MoSCoW : Must = vitrine, topologie, C, ML, SQL, Qt. Should = les six jeux. Could = Angular, lancer de rayons. Won't = microservices Spring, API ASP.NET (retirés le 6 octobre), migration Bootstrap (retirée le 7 octobre).
 
 ## Reporté
 - Agent conversationnel.

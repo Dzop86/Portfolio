@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 33,
+  "sprintCount": 34,
   "phases": [
     {
       "sprints": "S1",
@@ -115,11 +115,19 @@
       }
     },
     {
-      "sprints": "S30-S33",
+      "sprints": "S30-S32",
       "kind": "front",
       "label": {
-        "fr": "React, Angular, Bootstrap, version finale",
-        "en": "React, Angular, Bootstrap, final release"
+        "fr": "React et Angular",
+        "en": "React and Angular"
+      }
+    },
+    {
+      "sprints": "S33-S34",
+      "kind": "build",
+      "label": {
+        "fr": "Lancer de rayons, version finale",
+        "en": "Ray tracer, final release"
       }
     }
   ],

@@ -406,7 +406,7 @@
   "angcmp.row.tests": "Tests unitaires et d'intégration",
   "angcmp.row.packages": "Paquets npm installés, outillage compris",
   "angcmp.notes": "Mesuré par projects/angular/scripts/compare.mjs le {date} sur {cpu}. Code partagé, compté à part : {shared} lignes. Le chargement React couvre aussi la vue Sprints, sans la visionneuse 3D (chargée à la demande) ; ses tests couvrent ses quatre vues ; les paquets Angular comprennent Jest et Cypress. Les builds vérifient les types dans les deux cas.",
-  "angcmp.projects.alt": "Vue Projets du dashboard Angular en thème sombre : 18 projets terminés sur 21 et 149 points livrés sur 167, une barre d'avancement pistache, les menus État et Technologie, puis les cartes des projets avec leur état, leur sprint, leurs points et leurs technologies.",
+  "angcmp.projects.alt": "Vue Projets du dashboard Angular en thème sombre : 19 projets terminés sur 21 et 157 points livrés sur 170, une barre d'avancement pistache, les menus État et Technologie, puis les cartes des projets avec leur état, leur sprint, leurs points et leurs technologies.",
   "angcmp.projects.caption": "Vue Projets, thème sombre : les filtres sont des signaux, la liste un computed.",
   "angcmp.results.alt": "Vue Résultats du dashboard Angular en thème clair : barres horizontales vertes des temps de calcul de la courbure sur 3,2 millions de triangles, de 531 ms en C++ séquentiel à 85,5 ms en CUDA simple précision, puis le tableau des temps, accélérations et écarts.",
   "angcmp.results.caption": "Vue Résultats, thème clair : mêmes données, mêmes échelles que le dashboard React, rendues par des composants Angular.",
