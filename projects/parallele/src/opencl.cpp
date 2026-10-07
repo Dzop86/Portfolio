@@ -7,7 +7,9 @@
 #include <CL/cl.h>
 #endif
 
+#include <map>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 
@@ -154,6 +156,39 @@ using Program = Handle<cl_program, clReleaseProgram>;
 using Kernel = Handle<cl_kernel, clReleaseKernel>;
 using Buffer = Handle<cl_mem, clReleaseMemObject>;
 
+// The context and the compiled kernels of a device, built on first use and kept: PoCL takes some 45 ms
+// to compile them, which every call paid before, and which the benchmarks then measured instead of the
+// computation. Never freed: at exit the OpenCL library may already be unloaded.
+struct Compiled {
+    Context context;
+    Program program;
+};
+
+const Compiled& compiled(cl_device_id device)
+{
+    static std::mutex mutex;
+    static auto* cache = new std::map<cl_device_id, std::unique_ptr<Compiled>>;
+    const std::lock_guard lock(mutex);
+    std::unique_ptr<Compiled>& slot = (*cache)[device];
+    if (slot)
+        return *slot;
+    cl_int status = CL_SUCCESS;
+    Context context(clCreateContext(nullptr, 1, &device, nullptr, nullptr, &status));
+    check(status, "clCreateContext");
+    const char* source = kSource;
+    Program program(clCreateProgramWithSource(context.value, 1, &source, nullptr, &status));
+    check(status, "clCreateProgramWithSource");
+    if (clBuildProgram(program.value, 1, &device, "", nullptr, nullptr) != CL_SUCCESS) {
+        size_t size = 0;
+        clGetProgramBuildInfo(program.value, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &size);
+        std::string log(size, '\0');
+        clGetProgramBuildInfo(program.value, device, CL_PROGRAM_BUILD_LOG, size, log.data(), nullptr);
+        throw std::runtime_error("OpenCL: the kernels do not build:\n" + log);
+    }
+    slot = std::make_unique<Compiled>(Compiled{std::move(context), std::move(program)});
+    return *slot;
+}
+
 }  // namespace
 
 std::vector<OpenCLDevice> opencl_devices()
@@ -183,21 +218,12 @@ Curvature curvature_opencl(const Mesh& mesh, const Adjacency& adjacency, std::si
         return k;
     }
 
+    const Compiled& c = compiled(device);
+    const Context& context = c.context;
+    const Program& program = c.program;
     cl_int status = CL_SUCCESS;
-    Context context(clCreateContext(nullptr, 1, &device, nullptr, nullptr, &status));
-    check(status, "clCreateContext");
     Queue queue(clCreateCommandQueue(context.value, device, 0, &status));
     check(status, "clCreateCommandQueue");
-    const char* source = kSource;
-    Program program(clCreateProgramWithSource(context.value, 1, &source, nullptr, &status));
-    check(status, "clCreateProgramWithSource");
-    if (clBuildProgram(program.value, 1, &device, "", nullptr, nullptr) != CL_SUCCESS) {
-        size_t size = 0;
-        clGetProgramBuildInfo(program.value, device, CL_PROGRAM_BUILD_LOG, 0, nullptr, &size);
-        std::string log(size, '\0');
-        clGetProgramBuildInfo(program.value, device, CL_PROGRAM_BUILD_LOG, size, log.data(), nullptr);
-        throw std::runtime_error("OpenCL: the kernels do not build:\n" + log);
-    }
 
     auto input = [&](const auto& v) {
         Buffer b(clCreateBuffer(context.value, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, v.size() * sizeof(v[0]),

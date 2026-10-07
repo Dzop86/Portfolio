@@ -2,6 +2,8 @@
 
 #include "kernels.hpp"
 
+#include <memory>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -33,19 +35,25 @@ double total(const std::vector<double>& defect)
 
 Curvature curvature_sequential(const Mesh& mesh, const Adjacency& adjacency)
 {
-    std::vector<double> angle(mesh.tri.size()), share(mesh.tri.size());
+    // Not zero-filled, as in the OpenMP version: both are timed on the same work.
+    const auto angle = std::make_unique_for_overwrite<double[]>(mesh.tri.size());
+    const auto share = std::make_unique_for_overwrite<double[]>(mesh.tri.size());
     for (uint32_t f = 0; f < mesh.face_count(); ++f)
-        detail::face_pass(mesh, f, angle.data(), share.data());
+        detail::face_pass(mesh, f, angle.get(), share.get());
     Curvature k = allocate(mesh);
     for (uint32_t v = 0; v < mesh.vertex_count(); ++v)
-        detail::vertex_pass(adjacency, v, angle.data(), share.data(), k.defect.data(), k.area.data(), k.gaussian.data());
+        detail::vertex_pass(adjacency, v, angle.get(), share.get(), k.defect.data(), k.area.data(), k.gaussian.data());
     k.total = total(k.defect);
     return k;
 }
 
 Curvature curvature_openmp(const Mesh& mesh, const Adjacency& adjacency, [[maybe_unused]] int threads)
 {
-    std::vector<double> angle(mesh.tri.size()), share(mesh.tri.size());
+    // Not zero-filled: a std::vector would clear 48 bytes per triangle on one thread before the parallel
+    // loops (77 MB for 1.6 million triangles), and that serial part capped the speed-up near 2. The
+    // pages are touched first by the threads that compute them.
+    const auto angle = std::make_unique_for_overwrite<double[]>(mesh.tri.size());
+    const auto share = std::make_unique_for_overwrite<double[]>(mesh.tri.size());
     Curvature k = allocate(mesh);
     // OpenMP 2.0 (MSVC) wants a signed loop variable.
     const auto nf = static_cast<long long>(mesh.face_count());
@@ -60,13 +68,13 @@ Curvature curvature_openmp(const Mesh& mesh, const Adjacency& adjacency, [[maybe
 #pragma omp for schedule(static)
 #endif
         for (long long f = 0; f < nf; ++f)
-            detail::face_pass(mesh, static_cast<uint32_t>(f), angle.data(), share.data());
+            detail::face_pass(mesh, static_cast<uint32_t>(f), angle.get(), share.get());
         // The implicit barrier of the first loop: every corner is ready before any vertex sums them.
 #ifdef _OPENMP
 #pragma omp for schedule(static)
 #endif
         for (long long v = 0; v < nv; ++v)
-            detail::vertex_pass(adjacency, static_cast<uint32_t>(v), angle.data(), share.data(), k.defect.data(), k.area.data(),
+            detail::vertex_pass(adjacency, static_cast<uint32_t>(v), angle.get(), share.get(), k.defect.data(), k.area.data(),
                                 k.gaussian.data());
     }
     k.total = total(k.defect);
@@ -79,6 +87,15 @@ bool openmp_available()
     return true;
 #else
     return false;
+#endif
+}
+
+int openmp_threads()
+{
+#ifdef _OPENMP
+    return omp_get_max_threads();
+#else
+    return 1;
 #endif
 }
 

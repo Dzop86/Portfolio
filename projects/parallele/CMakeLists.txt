@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(PAR_BUILD_TESTS "Build the GoogleTest suite" ON)
 option(PAR_OPENCL "Build the OpenCL version when OpenCL is found" ON)
+option(PAR_CUDA "Build the CUDA version when a CUDA compiler is found" ON)
 option(PAR_SANITIZE "Build with AddressSanitizer and UndefinedBehaviorSanitizer (GCC, Clang)" OFF)
 
 if(PAR_SANITIZE AND NOT MSVC)
@@ -18,11 +19,12 @@ endif()
 set(TOPO_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(../topologie topologie EXCLUDE_FROM_ALL)
 
+# Warnings are errors for the C++ sources; nvcc gets its own flags (see the CUDA block).
 function(par_warnings target)
   if(MSVC)
-    target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
+    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W4 /WX /permissive->)
   else()
-    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror)
+    target_compile_options(${target} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror>)
   endif()
 endfunction()
 
@@ -57,9 +59,32 @@ else()
   target_sources(par PRIVATE src/opencl_stub.cpp)
 endif()
 
+if(PAR_CUDA)
+  include(CheckLanguage)
+  check_language(CUDA)
+endif()
+if(PAR_CUDA AND CMAKE_CUDA_COMPILER)
+  # Turing (GeForce 16 and 20 series) and later, plus PTX for the cards to come.
+  if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 75-real 86-real 89)
+  endif()
+  enable_language(CUDA)
+  set(CMAKE_CUDA_STANDARD 20)
+  target_sources(par PRIVATE src/cuda.cu)
+  # --fmad=false: no fused multiply-add, the same roundings as the C++ code; warnings are errors.
+  target_compile_options(par PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--fmad=false -Werror=all-warnings>)
+  target_compile_definitions(par PUBLIC PAR_HAVE_CUDA)
+else()
+  target_sources(par PRIVATE src/cuda_stub.cpp)
+endif()
+
 add_executable(parcurv tools/parcurv.cpp)
 target_link_libraries(parcurv PRIVATE par)
 par_warnings(parcurv)
+
+add_executable(parbench tools/parbench.cpp)
+target_link_libraries(parbench PRIVATE par)
+par_warnings(parbench)
 
 if(PAR_BUILD_TESTS)
   enable_testing()
@@ -73,7 +98,7 @@ if(PAR_BUILD_TESTS)
   FetchContent_MakeAvailable(googletest)
   include(GoogleTest)
 
-  add_executable(par_tests tests/test_adjacency.cpp tests/test_curvature.cpp tests/test_opencl.cpp)
+  add_executable(par_tests tests/test_adjacency.cpp tests/test_curvature.cpp tests/test_opencl.cpp tests/test_cuda.cpp)
   target_link_libraries(par_tests PRIVATE par topo GTest::gtest_main)
   target_compile_definitions(par_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data"
                                                 TOPO_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/../topologie/samples")

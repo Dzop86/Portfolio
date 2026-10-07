@@ -26,4 +26,7 @@ struct Curvature {
 // Whether this build has OpenMP (a compiler without it runs the OpenMP version on one thread).
 [[nodiscard]] bool openmp_available();
 
+// The threads the OpenMP version uses by default (1 without OpenMP).
+[[nodiscard]] int openmp_threads();
+
 }  // namespace par

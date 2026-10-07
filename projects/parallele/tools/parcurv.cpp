@@ -1,6 +1,7 @@
 // parcurv: Gaussian curvature of a mesh with each version, timed.
-//   parcurv FILE|torus:RINGS:SEGMENTS [--backend seq|omp|opencl|all] [--threads N] [--runs N]
+//   parcurv FILE|torus:RINGS:SEGMENTS [--backend seq|omp|opencl|cuda|cuda-float|all] [--threads N] [--runs N]
 //   parcurv --devices
+#include "par/cuda.hpp"
 #include "par/curvature.hpp"
 #include "par/io.hpp"
 #include "par/opencl.hpp"
@@ -20,7 +21,7 @@ namespace {
 
 int usage()
 {
-    std::fputs("usage: parcurv FILE|torus:RINGS:SEGMENTS [--backend seq|omp|opencl|all] [--threads N] [--runs N]\n"
+    std::fputs("usage: parcurv FILE|torus:RINGS:SEGMENTS [--backend seq|omp|opencl|cuda|cuda-float|all] [--threads N] [--runs N]\n"
                "       parcurv --devices\n",
                stderr);
     return 2;
@@ -58,9 +59,18 @@ int main(int argc, char** argv)
     if (args.size() == 1 && args[0] == "--devices") {
         const auto devices = par::opencl_devices();
         if (devices.empty())
-            std::puts("no OpenCL device with double precision");
+            std::puts("OpenCL: no device with double precision");
         for (std::size_t i = 0; i < devices.size(); ++i)
-            std::printf("%zu: %s / %s (%s)\n", i, devices[i].platform.c_str(), devices[i].name.c_str(), devices[i].gpu ? "GPU" : "CPU");
+            std::printf("OpenCL %zu: %s / %s (%s)\n", i, devices[i].platform.c_str(), devices[i].name.c_str(), devices[i].gpu ? "GPU" : "CPU");
+#ifdef PAR_HAVE_CUDA
+        const auto cuda = par::cuda_devices();
+        if (cuda.empty())
+            std::puts("CUDA: built in, no device");
+        for (std::size_t i = 0; i < cuda.size(); ++i)
+            std::printf("CUDA %zu: %s (compute %d.%d)\n", i, cuda[i].name.c_str(), cuda[i].major, cuda[i].minor);
+#else
+        std::puts("CUDA: not built in");
+#endif
         return 0;
     }
     if (args.empty() || args[0].rfind("--", 0) == 0)
@@ -79,7 +89,7 @@ int main(int argc, char** argv)
         else
             return usage();
     }
-    if (backend != "all" && backend != "seq" && backend != "omp" && backend != "opencl")
+    if (backend != "all" && backend != "seq" && backend != "omp" && backend != "opencl" && backend != "cuda" && backend != "cuda-float")
         return usage();
 
     try {
@@ -100,6 +110,11 @@ int main(int argc, char** argv)
             report("omp", time(runs, [&] { return par::curvature_openmp(mesh, adjacency, threads); }, k), k);
         if (backend == "opencl" || (backend == "all" && !par::opencl_devices().empty()))
             report("opencl", time(runs, [&] { return par::curvature_opencl(mesh, adjacency); }, k), k);
+        const bool cuda = backend == "all" && !par::cuda_devices().empty();
+        if (backend == "cuda" || cuda)
+            report("cuda", time(runs, [&] { return par::curvature_cuda(mesh, adjacency); }, k), k);
+        if (backend == "cuda-float" || cuda)
+            report("cuda-f", time(runs, [&] { return par::curvature_cuda_float(mesh, adjacency); }, k), k);
     } catch (const std::exception& e) {
         std::fprintf(stderr, "parcurv: %s\n", e.what());
         return 1;

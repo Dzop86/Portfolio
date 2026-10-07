@@ -64,3 +64,23 @@ jobs:
           cmake -S projects/parallele -B build -DCMAKE_BUILD_TYPE=Debug -DPAR_SANITIZE=ON -DPAR_OPENCL=OFF
           cmake --build build --parallel
       - run: ctest --test-dir build --output-on-failure
+
+  cuda:
+    name: Parallel curvature, CUDA build (no graphics card on the runner)
+    runs-on: ubuntu-latest
+    # NVIDIA's image: the CUDA 13 compiler for Turing (sm_75) and later.
+    container: nvidia/cuda:13.0.1-devel-ubuntu24.04
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends cmake ninja-build git ca-certificates
+      - uses: actions/checkout@v7
+      - name: Build with CUDA (warnings are errors, also in the kernels)
+        run: |
+          cmake -S projects/parallele -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DPAR_OPENCL=OFF
+          cmake --build build
+      # Without a card the CUDA tests are skipped (they run on Charles's GeForce GTX 1660): this job checks
+      # that the kernels compile and that the program says so.
+      - name: Tests, and the CUDA version is built in
+        run: |
+          ctest --test-dir build --output-on-failure
+          build/parcurv --devices | tee devices.txt
+          grep -q "CUDA: built in" devices.txt
