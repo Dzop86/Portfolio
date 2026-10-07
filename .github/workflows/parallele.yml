@@ -1,0 +1,66 @@
+name: parallele
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/parallele/**', 'projects/topologie/**', 'projects/lib-c/**', '.github/workflows/parallele.yml']
+  pull_request:
+    paths: ['projects/parallele/**', 'projects/topologie/**', 'projects/lib-c/**', '.github/workflows/parallele.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parallele-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Parallel curvature (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      # Linux: OpenCL on the processor (PoCL), required by the tests rather than skipped.
+      - name: OpenCL on the processor (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update && sudo apt-get install -y ocl-icd-opencl-dev opencl-headers pocl-opencl-icd clinfo
+          clinfo -l
+          echo "PAR_REQUIRE_OPENCL=1" >> "$GITHUB_ENV"
+      # macOS: Apple's Clang has no OpenMP runtime; Homebrew's libomp provides it.
+      - name: OpenMP runtime (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install libomp
+          echo "OpenMP_ROOT=$(brew --prefix libomp)" >> "$GITHUB_ENV"
+      - name: Configure (warnings are errors)
+        run: cmake -S projects/parallele -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      # Includes: sequential identical to topologie bit for bit, OpenMP identical to sequential on
+      # 1 to 16 threads, OpenCL within 1e-12 (Linux).
+      - name: Tests (GoogleTest)
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: The command line
+        shell: bash
+        run: |
+          exe=build/parcurv; [ -f build/Release/parcurv.exe ] && exe=build/Release/parcurv.exe
+          "$exe" --devices
+          "$exe" torus:400:300 --runs 3
+          "$exe" projects/lib-c/tests/data/cube.obj --backend seq | grep -q "sum of defects / 2 pi = 2.000000000"
+
+  sanitizers:
+    name: Parallel curvature (ASan + UBSan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build with the sanitizers (without OpenCL, whose drivers are not instrumented)
+        run: |
+          cmake -S projects/parallele -B build -DCMAKE_BUILD_TYPE=Debug -DPAR_SANITIZE=ON -DPAR_OPENCL=OFF
+          cmake --build build --parallel
+      - run: ctest --test-dir build --output-on-failure

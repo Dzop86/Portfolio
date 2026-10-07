@@ -203,3 +203,7 @@
 **Choix :** le build ajoute à chaque lien CSS et JS des pages une empreinte de son contenu (`style.css?v=` suivie de 10 caractères de son SHA-256) ; un test vérifie qu'elle correspond au fichier.
 **Pourquoi :** GitHub Pages autorise les navigateurs à garder les fichiers dix minutes ; juste après un déploiement, Charles a vu la nouvelle page Gestion de projet avec l'ancien `style.css` (graphiques tout noirs) et l'ancien `app.js` (filtre par techno sans effet). Un fichier modifié change désormais d'adresse.
 **Limite :** les modules importés par d'autres scripts (`import './othello-api.js'`) n'ont pas d'empreinte ; ils changent rarement sans le script qui les importe, dont l'empreinte change aussi, mais le navigateur peut encore garder l'ancien module dix minutes.
+
+## D42. Le calcul parallèle sur la courbure du fil rouge
+**Choix :** le projet parallele (`projects/parallele`) calcule la courbure de Gauss de topologie en deux passes indépendantes (par face, puis par sommet sur un voisinage compressé rangé dans l'ordre des faces), en C++ séquentiel, OpenMP et OpenCL (double précision), CUDA au sprint 29. Les résultats séquentiels et OpenMP sont identiques au bit à ceux de topologie ; OpenCL est à 1e-12. La CI exécute OpenCL sur le processeur (PoCL) sous Linux.
+**Limite :** pas de carte graphique en CI ; sous WSL, OpenCL n'atteint pas la carte NVIDIA (CUDA si). Les benchmarks et la fiche du projet viennent au sprint 29.
