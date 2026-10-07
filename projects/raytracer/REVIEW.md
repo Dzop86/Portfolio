@@ -4,11 +4,13 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/render.cpp` : tracé de chemins, échantillonnage de la lumière (pdf du cône), matériaux, roulette russe.
-- [ ] `src/bvh.cpp` : coût SAH, partition, parcours (pile bornée).
-- [ ] `tests/test_render.cpp` : les tests de physique vérifient-ils vraiment la bonne chose ?
-- [ ] `src/assets/raytracer-worker.js`, `src/assets/raytracerplay.js` : bandes, générations, pause, glisser sur l'image (sprint 33, story 2).
-- [ ] Sprint 34 : `src/assets/raytracer-bands.js` (bandes par worker), `src/scenes.cpp` (corps noir, `apply_settings`), fichier du visiteur et ses erreurs dans `raytracerplay.js`.
+- [x] `src/render.cpp` : tracé de chemins, échantillonnage de la lumière (pdf du cône), matériaux, roulette russe.
+- [x] `src/bvh.cpp` : coût SAH, partition, parcours (pile bornée).
+- [x] `tests/test_render.cpp` : les tests de physique vérifient-ils vraiment la bonne chose ?
+- [x] `src/assets/raytracer-worker.js`, `src/assets/raytracerplay.js` : bandes, générations, pause, glisser sur l'image (sprint 33, story 2).
+- [x] Sprint 34 : `src/assets/raytracer-bands.js` (bandes par worker), `src/scenes.cpp` (corps noir, `apply_settings`), fichier du visiteur et ses erreurs dans `raytracerplay.js`.
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok »), pour les sprints 33 et 34 (moteur, WebAssembly, workers, fichier du visiteur, réglages).
 
 ## Constats
 

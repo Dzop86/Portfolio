@@ -87,8 +87,8 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   if (finished) {
     assert.ok(html.includes(`Les ${closed} sprints sont terminés`));
     assert.doesNotMatch(page('en', 'method'), /forecast/);
-    // Points may still wait for Charles's review; no sprint is left to place them in.
-    assert.ok(html.includes('Tous les points prévus ont été livrés.') || html.includes('pas encore validés (état'));
+    // Projects may still be in progress (the showcase keeps evolving); no sprint is left to place them in.
+    assert.ok(html.includes('Tous les points prévus ont été livrés.') || html.includes('qui évolue en continu'));
     assert.doesNotMatch(html, new RegExp(`sprints ${closed + 1} à`));
   } else {
     assert.ok(html.includes(`Sprints 1 à ${closed} terminés`));

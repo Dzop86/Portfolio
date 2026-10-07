@@ -67,7 +67,7 @@
     "pitch": { "fr": "Deux vues du dashboard, comparées à la version React.", "en": "Two dashboard views, compared with the React version." },
     "stack": ["Angular", "TypeScript", "Jest", "Cypress"],
     "links": { "demo": "../angular/?lang={lang}", "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/angular" } },
-  { "id": "raytracer", "sprint": "S33-S34", "points": 8, "status": "in-progress", "group": "science", "techs": ["C++"], "widget": "raytracer-view",
+  { "id": "raytracer", "sprint": "S33-S34", "points": 8, "status": "done", "group": "science", "techs": ["C++"], "widget": "raytracer-view",
     "name": { "fr": "Lancer de rayons", "en": "Ray tracer" },
     "pitch": { "fr": "Rendu par lancer de rayons des maillages du fil rouge, en C++ compilé en WebAssembly, utilisable en ligne.", "en": "Ray-traced rendering of the common-thread meshes, in C++ compiled to WebAssembly, usable online." },
     "stack": ["C++", "WebAssembly", "Emscripten", "CMake", "GoogleTest"],
