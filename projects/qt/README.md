@@ -21,7 +21,7 @@ Application de bureau Qt 6 en C++20 qui ouvre un maillage OBJ, PLY ou STL, l'aff
 - `src/viewerwidget.*`, `src/legendwidget.*`, `src/mainwindow.*`, `src/main.cpp` : l'interface.
 
 ## Compiler et lancer
-Qt 6.5 ou plus (la CI utilise Qt 6.11.3), CMake 3.21, un compilateur C++20 :
+Qt 6.5 ou plus (la CI utilise Qt 6.10.3, développée avec Qt 6.11.3), CMake 3.21, un compilateur C++20 :
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release

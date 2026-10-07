@@ -29,9 +29,11 @@ jobs:
       QT_OPENGL: software
     steps:
       - uses: actions/checkout@v7
+      # Qt 6.10.3: aqtinstall cannot read the Windows repository of Qt 6.11 (missing checksum,
+      # October 2026); one version on the three systems.
       - uses: jurplel/install-qt-action@v4
         with:
-          version: 6.11.3
+          version: 6.10.3
           cache: true
       - name: OpenGL and X11 libraries (Linux)
         if: runner.os == 'Linux'

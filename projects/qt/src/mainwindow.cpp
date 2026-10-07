@@ -268,7 +268,7 @@ void MainWindow::refreshPanel()
     const topo::Invariants& inv = model_->invariants();
     const topo::Mesh& mesh = model_->mesh();
     auto count = [&locale](auto n) { return locale.toString(static_cast<qulonglong>(n)); };
-    auto yesNo = [this](bool b) { return b ? tr("yes") : tr("no"); };
+    auto yesNo = [](bool b) { return b ? tr("yes") : tr("no"); };
     values_.value(QStringLiteral("vertices"))->setText(count(mesh.vertex_count()));
     values_.value(QStringLiteral("edges"))->setText(count(mesh.edge_count()));
     values_.value(QStringLiteral("faces"))->setText(count(mesh.face_count()));
