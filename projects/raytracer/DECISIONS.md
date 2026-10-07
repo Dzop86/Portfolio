@@ -17,3 +17,14 @@
 ## R4. lib-c pour lire, `double` partout
 **Choix :** même lecteur que topologie (OBJ, PLY, STL) ; calculs en `double`.
 **Pourquoi :** fil rouge ; en WebAssembly, `double` coûte à peine plus que `float`, et les tests de BVH comparent des distances exactes.
+
+## R5. Un web worker, des bandes, une génération par demande
+**Choix :** le module tourne dans un seul web worker qui calcule des bandes de 24 lignes et rend la main entre deux (`setTimeout(0)`), poste l'image après chaque passe complète et s'arrête à 256 passes. Chaque changement de scène ou de vue porte un numéro de génération que le worker renvoie avec ses images ; la page ignore celles d'une génération plus ancienne.
+**Pourquoi :** la page reste fluide pendant le calcul ; une bande dure quelques millisecondes, un nouveau réglage est donc pris en compte presque aussitôt ; sans la génération, une image de l'ancienne scène déjà en route remplaçait le compteur remis à zéro (vu en relecture, voir REVIEW).
+**Alternatives :** plusieurs workers (SharedArrayBuffer exige des en-têtes COOP/COEP que GitHub Pages n'envoie pas, et des copies d'images sinon) ; WebGPU (un autre moteur, sans lien avec le C++ testé).
+**Limite :** un seul cœur utilisé.
+
+## R6. Build WebAssembly commité, vérifié par la CI
+**Choix :** comme topologie (D15, D16) : `scripts/build-wasm.sh` compile dans l'image `emscripten/emsdk:6.0.11`, la sortie est commitée et un job de CI la recompile et la compare octet pour octet. Exceptions WebAssembly natives (`-fwasm-exceptions`), pour garder les `LoadError` de lib-c.
+**Pourquoi :** le site se construit sans Emscripten ; la CI garantit que ce qui est servi correspond aux sources testées.
+**Limite :** les exceptions WebAssembly natives demandent un navigateur de 2022 ou plus récent.
