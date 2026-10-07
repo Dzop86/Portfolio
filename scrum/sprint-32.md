@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que développeur front, je refais deux vues du dashboard en Angular (angular) : Angular 22, composants autonomes à signaux, sans zone.js ; API chargée par un service injecté ; routeur ; Projets (filtres par état et technologie) et Résultats (calcul parallèle, lecture de maillages, modèle ML) ; FR/EN, thèmes de la charte ; Jest (unitaires, et intégration sur la vraie API) ; publié sous `/angular/` ; CI Linux, Windows et macOS. | 5 | En cours |
-| En tant que recruteur, je compare les deux dashboards sur la fiche du projet (angular) : tests Cypress de bout en bout (vues, langues, thèmes, accessibilité avec axe, 375 px) ; tableau comparatif mesuré par un script (taille des paquets, temps de build, lignes de code, nombre de tests), en français et en anglais ; captures. | 3 | À faire |
+| En tant que développeur front, je refais deux vues du dashboard en Angular (angular) : Angular 22, composants autonomes à signaux, sans zone.js ; API chargée par un service injecté ; routeur ; Projets (filtres par état et technologie) et Résultats (calcul parallèle, lecture de maillages, modèle ML) ; FR/EN, thèmes de la charte ; Jest (unitaires, et intégration sur la vraie API) ; publié sous `/angular/` ; CI Linux, Windows et macOS. | 5 | Fait |
+| En tant que recruteur, je compare les deux dashboards sur la fiche du projet (angular) : tests Cypress de bout en bout (vues, langues, thèmes, accessibilité avec axe, 375 px) ; tableau comparatif mesuré par un script (taille des paquets, temps de build, lignes de code, nombre de tests), en français et en anglais ; captures. | 3 | En cours |
 
 ## Rétro (à compléter par Charles)
 - Ce qui a marché :

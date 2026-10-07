@@ -1,0 +1,53 @@
+{
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i5-10400F CPU @ 2.90GHz",
+    "node": "v22.23.3",
+    "date": "2026-10-07"
+  },
+  "react": {
+    "version": "19.3.0",
+    "buildMs": 1400,
+    "bundle": {
+      "total": {
+        "raw": 816510,
+        "gzip": 217845
+      },
+      "initial": {
+        "raw": 257779,
+        "gzip": 79725
+      },
+      "files": 3
+    },
+    "lines": 499,
+    "tests": 40,
+    "packages": 157
+  },
+  "angular": {
+    "version": "22.2.1",
+    "buildMs": 5236,
+    "bundle": {
+      "total": {
+        "raw": 308105,
+        "gzip": 97183
+      },
+      "initial": {
+        "raw": 290670,
+        "gzip": 90630
+      },
+      "files": 5
+    },
+    "lines": 546,
+    "tests": 11,
+    "packages": 936
+  },
+  "shared": {
+    "lines": 582,
+    "files": [
+      "projects/react/src/api.ts",
+      "projects/react/src/model.ts",
+      "projects/react/src/charts/scale.ts",
+      "projects/react/src/i18n.ts",
+      "projects/react/src/styles.css"
+    ]
+  }
+}

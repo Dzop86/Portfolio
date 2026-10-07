@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "types": ["cypress", "node"],
+    "isolatedModules": false
+  },
+  "include": ["**/*.ts"]
+}

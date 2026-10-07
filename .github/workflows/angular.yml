@@ -40,3 +40,36 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  e2e:
+    name: Angular dashboard, Cypress end to end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            projects/react/package-lock.json
+            projects/angular/package-lock.json
+      # The site as published: its API, the React dashboard it links to, and this one.
+      - run: npm ci
+      - run: npm ci && npm run build
+        working-directory: projects/react
+      - run: npm ci && npm run build
+        working-directory: projects/angular
+      - run: npm run build
+      - name: Serve the site
+        run: |
+          npm run serve &
+          for i in $(seq 1 30); do curl -fsS http://localhost:4173/angular/ >/dev/null && break; sleep 1; done
+      - run: npm run e2e
+        working-directory: projects/angular
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: projects/angular/cypress/screenshots/
+          retention-days: 7

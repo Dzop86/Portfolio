@@ -606,6 +606,7 @@ ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
 ${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
 ${p.widget === 'react-dashboard' ? reactDashboard(t, lang) : ''}
+${p.widget === 'angular-compare' ? angularCompare(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
@@ -1052,6 +1053,39 @@ function rogueScreenshot(t, lang) {
 dotnet run --project src/Rogue.Cli -- --lang ${lang}     # ${esc(t('rogue.terminal'))}
 docker compose up --build rogue-api                # ${esc(t('rogue.api'))}
 godot --path godot                                 # ${esc(t('rogue.godot'))}</code></pre>
+</section>`;
+}
+
+// The Angular dashboard (D44): a link to it, and its comparison with the React one, measured by
+// projects/angular/scripts/compare.mjs (data/comparison.json).
+export function readComparison() {
+  return JSON.parse(readFileSync(join(ROOT, 'projects/angular/data/comparison.json'), 'utf8'));
+}
+
+function angularCompare(t, lang) {
+  const c = readComparison();
+  const n = (x, d = 0) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const kb = (bytes) => `${n(bytes / 1000, 1)} ${t('angcmp.kb')}`;
+  const s = (ms) => `${n(ms / 1000, 1)} s`;
+  const rows = [
+    ['version', `React ${c.react.version}`, `Angular ${c.angular.version}`],
+    ['initial', kb(c.react.bundle.initial.gzip), kb(c.angular.bundle.initial.gzip)],
+    ['build', s(c.react.buildMs), s(c.angular.buildMs)],
+    ['lines', n(c.react.lines), n(c.angular.lines)],
+    ['tests', n(c.react.tests), n(c.angular.tests)],
+    ['packages', n(c.react.packages), n(c.angular.packages)],
+  ].map(([key, r, a]) => `<tr data-row="${key}"><th scope="row">${esc(t(`angcmp.row.${key}`))}</th><td class="num">${esc(r)}</td><td class="num">${esc(a)}</td></tr>`).join('');
+  const notes = ['state', 'data', 'routing', 'tests'].map((k) => `<li>${esc(t(`angcmp.diff.${k}`))}</li>`).join('');
+  return `<section class="block panel" aria-labelledby="h-angcmp">
+  <h2 id="h-angcmp">${esc(t('angcmp.title'))}</h2>
+  <p>${esc(t('angcmp.lead'))}</p>
+  <p class="actions"><a class="btn btn-primary" href="../angular/?lang=${lang}" data-dashboard="angular">${esc(t('angcmp.open'))}</a><a class="btn btn-ghost" href="../dashboard/?lang=${lang}">${esc(t('angcmp.openReact'))}</a></p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-angcmp">
+    <table data-compare><thead><tr><th scope="col">${esc(t('angcmp.measure'))}</th><th scope="col" class="num">React</th><th scope="col" class="num">Angular</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  <p class="meta">${esc(fill(t('angcmp.notes'), { shared: n(c.shared.lines), cpu: c.machine.cpu, date: c.machine.date }))}</p>
+  <h3>${esc(t('angcmp.diffTitle'))}</h3>
+  <ul>${notes}</ul>
 </section>`;
 }
 
