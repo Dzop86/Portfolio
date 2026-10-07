@@ -42,8 +42,11 @@ jobs:
       - name: Build
         run: dotnet build Rogue.slnx -c Release
       # Includes the known runs: the same seed must give the same score on every system.
+      # The API's tests need PostgreSQL: they run in the api job below.
       - name: Unit and integration tests (xUnit)
-        run: dotnet test --solution Rogue.slnx -c Release --no-build
+        run: |
+          dotnet test --project tests/Rogue.Core.Tests -c Release --no-build
+          dotnet test --project tests/Rogue.Cli.Tests -c Release --no-build
       - name: Replay the committed runs
         shell: bash
         run: |
@@ -55,3 +58,30 @@ jobs:
         run: |
           printf 'ddsssllkkjj.x' | dotnet run --project src/Rogue.Cli -c Release --no-build -- --seed 42 --save "$RUNNER_TEMP/run.json"
           dotnet run --project src/Rogue.Cli -c Release --no-build -- --replay "$RUNNER_TEMP/run.json"
+
+  api:
+    name: Score API, ASP.NET Core and PostgreSQL
+    runs-on: ubuntu-latest
+    # GitHub's Windows and macOS runners cannot run Linux containers: the API is built on the three
+    # systems above, and tested against PostgreSQL here.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          # A throwaway database on the runner, reachable only from this job.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
+    env:
+      ROGUE_TEST_DB: Host=localhost;Username=postgres
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rogue/global.json
+      - run: dotnet tool restore
+      - name: Migrations match the model
+        run: dotnet ef migrations has-pending-model-changes --project src/Rogue.Api
+      - name: Integration tests (WebApplicationFactory, real PostgreSQL)
+        run: dotnet test --project tests/Rogue.Api.Tests -c Release

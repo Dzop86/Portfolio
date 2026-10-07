@@ -80,19 +80,32 @@ public sealed record RunRecord(ulong Seed, string Actions)
                         throw new RunFormatException(ReplayError.BadFormat, $"Unexpected or repeated property \"{property.Name}\".");
                 }
             }
-            if (format != FormatName)
-                throw new RunFormatException(ReplayError.BadFormat, $"The format must be \"{FormatName}\".");
-            if (version != CurrentVersion)
-                throw new RunFormatException(ReplayError.UnsupportedVersion, $"Only version {CurrentVersion} is supported.");
-            // Digits only: no sign, spaces or leading zeros, so that a seed has a single spelling.
-            if (seed is null || seed.Length == 0 || seed.Length > 20 || !seed.All(char.IsAsciiDigit)
-                || (seed.Length > 1 && seed[0] == '0')
-                || !ulong.TryParse(seed, NumberStyles.None, CultureInfo.InvariantCulture, out ulong parsed))
-                throw new RunFormatException(ReplayError.BadSeed, "The seed must be an unsigned 64-bit integer written in decimal.");
-            if (actions is null)
-                throw new RunFormatException(ReplayError.BadFormat, "The actions are missing.");
-            return new RunRecord(parsed, actions);
+            return FromParts(format, version, seed, actions);
         }
+    }
+
+    /// <summary>Checks the four fields of a run, read from JSON by the caller (the score API binds them itself).</summary>
+    /// <exception cref="RunFormatException">Not a run of a version this library knows.</exception>
+    public static RunRecord FromParts(string? format, int? version, string? seed, string? actions)
+    {
+        if (format != FormatName)
+            throw new RunFormatException(ReplayError.BadFormat, $"The format must be \"{FormatName}\".");
+        if (version != CurrentVersion)
+            throw new RunFormatException(ReplayError.UnsupportedVersion, $"Only version {CurrentVersion} is supported.");
+        if (!TryParseSeed(seed, out ulong parsed))
+            throw new RunFormatException(ReplayError.BadSeed, "The seed must be an unsigned 64-bit integer written in decimal.");
+        if (actions is null)
+            throw new RunFormatException(ReplayError.BadFormat, "The actions are missing.");
+        return new RunRecord(parsed, actions);
+    }
+
+    /// <summary>Digits only: no sign, spaces or leading zeros, so that a seed has a single spelling.</summary>
+    public static bool TryParseSeed(string? text, out ulong seed)
+    {
+        seed = 0;
+        return text is { Length: > 0 and <= 20 } && text.All(char.IsAsciiDigit)
+            && (text.Length == 1 || text[0] != '0')
+            && ulong.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out seed);
     }
 }
 

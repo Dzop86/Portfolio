@@ -1,10 +1,12 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Rogue.Core/Rogue.Core.csproj" />
+    <Project Path="src/Rogue.Api/Rogue.Api.csproj" />
     <Project Path="src/Rogue.Cli/Rogue.Cli.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Rogue.Core.Tests/Rogue.Core.Tests.csproj" />
+    <Project Path="tests/Rogue.Api.Tests/Rogue.Api.Tests.csproj" />
     <Project Path="tests/Rogue.Cli.Tests/Rogue.Cli.Tests.csproj" />
   </Folder>
 </Solution>
