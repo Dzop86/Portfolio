@@ -1076,10 +1076,16 @@ function angularCompare(t, lang) {
     ['packages', n(c.react.packages), n(c.angular.packages)],
   ].map(([key, r, a]) => `<tr data-row="${key}"><th scope="row">${esc(t(`angcmp.row.${key}`))}</th><td class="num">${esc(r)}</td><td class="num">${esc(a)}</td></tr>`).join('');
   const notes = ['state', 'data', 'routing', 'tests'].map((k) => `<li>${esc(t(`angcmp.diff.${k}`))}</li>`).join('');
+  const shot = (name) => `<figure class="naval-shot">
+    <img src="../assets/images/angular-${name}-${lang}.png" width="1280" height="800" loading="lazy" alt="${esc(t(`angcmp.${name}.alt`))}">
+    <figcaption class="meta">${esc(t(`angcmp.${name}.caption`))}</figcaption>
+  </figure>`;
   return `<section class="block panel" aria-labelledby="h-angcmp">
   <h2 id="h-angcmp">${esc(t('angcmp.title'))}</h2>
   <p>${esc(t('angcmp.lead'))}</p>
   <p class="actions"><a class="btn btn-primary" href="../angular/?lang=${lang}" data-dashboard="angular">${esc(t('angcmp.open'))}</a><a class="btn btn-ghost" href="../dashboard/?lang=${lang}">${esc(t('angcmp.openReact'))}</a></p>
+  ${shot('projects')}
+  ${shot('results')}
   <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-angcmp">
     <table data-compare><thead><tr><th scope="col">${esc(t('angcmp.measure'))}</th><th scope="col" class="num">React</th><th scope="col" class="num">Angular</th></tr></thead><tbody>${rows}</tbody></table>
   </div>

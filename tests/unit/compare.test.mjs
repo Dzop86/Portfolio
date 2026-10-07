@@ -1,7 +1,7 @@
 // The comparison of the React and Angular dashboards (D44), as measured and as shown on the project page.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build } from '../../src/build.mjs';
@@ -27,5 +27,11 @@ test('the Angular project page shows the measures and links to both dashboards, 
     assert.ok(html.includes(`href="../angular/?lang=${lang}" data-dashboard="angular"`));
     assert.ok(html.includes(`href="../dashboard/?lang=${lang}"`));
     assert.ok(html.includes(`href="../angular/?lang=${lang}" data-link="demo"`));
+    // Both screenshots of the Angular dashboard, in the page's language, with a description.
+    for (const name of ['projects', 'results']) {
+      const img = `angular-${name}-${lang}.png`;
+      assert.match(html, new RegExp(`<img src="\\.\\./assets/images/${img}" width="1280" height="800" loading="lazy" alt="[^"]{40,}">`), img);
+      assert.ok(existsSync(join(out, 'assets/images', img)), img);
+    }
   }
 });

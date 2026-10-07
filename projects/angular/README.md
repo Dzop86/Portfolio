@@ -13,6 +13,7 @@ Deux vues du [dashboard React](../react/) (Projets et Résultats) refaites en **
 - `src/app/pages/` : Projets et Résultats, un `httpResource` par fichier de l'API (chargement, erreur, rechargement), état en signaux (`signal`, `computed`, `linkedSignal`) ; `load-state.ts` : chargement et erreur.
 - `src/app/charts/` : barres et courbes en SVG, mêmes échelles et même dessin que le React.
 - `scripts/compare.mjs` : mesures React contre Angular, écrites dans `data/comparison.json` et lues par la fiche.
+- `scripts/screenshots.mjs` : captures de la fiche (Projets en thème sombre, Résultats en thème clair, en français et en anglais), prises par Playwright sur le site servi.
 
 ## Lancer
 Node 22.22.3 ou plus récent (Angular 22). TypeScript 6.0 ici : Angular 22 n'accepte pas encore TypeScript 7, que prennent le site et le dashboard React.
@@ -23,6 +24,7 @@ npm run build                   # dist/, copié dans angular/ par le build du si
 npm start                       # http://localhost:4200/?lang=fr, l'API relayée vers le site servi sur :4173
 npm run e2e                     # Cypress, sur le site servi (npm run build et npm run serve à la racine)
 node scripts/compare.mjs        # depuis la racine du dépôt : refait data/comparison.json
+node scripts/screenshots.mjs    # depuis la racine, site servi : refait les captures de la fiche
 ```
 
 ## Tests
