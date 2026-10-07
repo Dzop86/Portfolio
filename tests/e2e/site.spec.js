@@ -35,7 +35,7 @@ test('language switch keeps the current page', async ({ page }) => {
   await page.goto('/fr/research.html');
   await page.getByRole('link', { name: 'English' }).click();
   await expect(page).toHaveURL(/\/en\/research\.html$/);
-  await expect(page.locator('h1')).toHaveText('Research and teaching');
+  await expect(page.locator('h1')).toHaveText('CV and experience');
 });
 
 test('the site is dark grey by default, even when the OS prefers light', async ({ page }) => {
@@ -554,22 +554,40 @@ test('roadmap sprint numbers sit above their columns, on every screen', async ({
   expect(Math.abs(bar[0] - (track[0] + (9 * track[1]) / track[2]))).toBeLessThan(2);
 });
 
-test('project filter shows only the chosen group', async ({ page }) => {
+test('project filters show the chosen category and language', async ({ page }) => {
   await page.goto('/fr/projects.html');
-  await page.getByRole('button', { name: 'Web' }).click();
+  const groups = page.getByRole('group', { name: 'Catégorie' });
+  const languages = page.getByRole('group', { name: 'Langage' });
   const visible = page.locator('[data-filterable] .card:visible');
+  const shown = (key) => visible.evaluateAll((els, k) => els.map((e) => e.dataset[k]), key);
+
+  await groups.getByRole('button', { name: 'Web' }).click();
   await expect(visible.first()).toBeVisible();
-  for (const group of await visible.evaluateAll((els) => els.map((e) => e.dataset.group))) {
-    expect(group).toBe('web');
-  }
+  for (const group of await shown('group')) expect(group).toBe('web');
   await expect(page.locator('[data-games]')).toBeHidden();
   // "Jeux" shows the six games and their section, nothing else.
-  await page.getByRole('button', { name: 'Jeux' }).click();
+  await groups.getByRole('button', { name: 'Jeux' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();
   await expect(visible).toHaveCount(6);
-  expect(new Set(await visible.evaluateAll((els) => els.map((e) => e.dataset.group)))).toEqual(new Set(['games']));
-  await page.getByRole('button', { name: 'Tous' }).click();
+  expect(new Set(await shown('group'))).toEqual(new Set(['games']));
+
+  // Both filters apply: the games written in Java.
+  await languages.getByRole('button', { name: 'Java', exact: true }).click();
+  await expect(visible).toHaveCount(2);
+  for (const l of await shown('languages')) expect(l.split('|')).toContain('Java');
+  // A language alone, over every category: C++ (topology, Qt viewer, parallel computing).
+  await groups.getByRole('button', { name: 'Tous' }).click();
+  await languages.getByRole('button', { name: 'C++', exact: true }).click();
+  for (const l of await shown('languages')) expect(l.split('|')).toContain('C++');
+  await expect(page.locator('[data-games]')).toBeHidden();
+  // No project at all: a notice says so.
+  await groups.getByRole('button', { name: 'Jeux' }).click();
+  await expect(visible).toHaveCount(0);
+  await expect(page.locator('[data-filter-empty]')).toBeVisible();
+  await languages.getByRole('button', { name: 'Tous' }).click();
+  await groups.getByRole('button', { name: 'Tous' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();
+  await expect(page.locator('[data-filter-empty]')).toBeHidden();
 });
 
 test('teaching filter updates the totals', async ({ page }) => {

@@ -188,6 +188,18 @@ export function progress(projects, sprints) {
   };
 }
 
+/**
+ * Programming languages of the projects (their "languages" field), in a fixed order: the compiled
+ * languages first, as recruiters read them, then the others. A language missing here fails the tests.
+ */
+export const LANGUAGES = ['C', 'C++', 'C#', 'Java', 'Python', 'Ada', 'OCaml', 'SQL', 'JavaScript', 'TypeScript', 'LaTeX', 'HTML/CSS'];
+
+/** The languages used by at least one project, in the order of LANGUAGES. */
+export function languagesOf(projects) {
+  const used = new Set(projects.flatMap((p) => p.languages));
+  return LANGUAGES.filter((l) => used.has(l));
+}
+
 export function i18nParity(i18n) {
   const fr = Object.keys(i18n.fr);
   const en = Object.keys(i18n.en);

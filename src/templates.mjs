@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { decompositionStep } from '../projects/gcartes/src/decompose.js';
-import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL } from './lib.mjs';
+import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, languagesOf } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -73,15 +73,12 @@ function pageHead(title, lead, kicker = '') {
 function home({ lang, t, data }) {
   const { cv, projects } = data;
   const hours = teachingTotals(cv.teaching).total;
-  const featured = projects.filter((p) => ['topologie', 'ml', 'langage', 'latex'].includes(p.id));
+  // Counted from the data: the text cannot fall behind when a project is added.
+  const lead = fill(t('home.lead'), { projects: projects.length, languages: languagesOf(projects).length });
   return `<section class="hero">
   <p class="kicker">${esc(t('home.kicker'))}</p>
   <h1>Charles Lepaire</h1>
-  <p class="lead">${esc(t('home.lead'))}</p>
-  <div class="actions">
-    <a class="btn btn-primary" href="./projects.html">${esc(t('home.cta.projects'))}</a>
-    <a class="btn btn-ghost" href="./research.html">${esc(t('home.cta.research'))}</a>
-  </div>
+  <p class="lead">${esc(lead)}</p>
 </section>
 ${progressPanel({ lang, t, data })}
 <section class="stats" aria-label="Chiffres clés">
@@ -98,9 +95,6 @@ ${progressPanel({ lang, t, data })}
     <h2>${esc(t('home.genai.title'))}</h2>
     <p>${esc(t('home.genai.text'))}</p>
   </article>
-</section>
-<section>
-  <div class="cards">${featured.map((p) => projectCard(p, lang, t)).join('')}</div>
 </section>`;
 }
 
@@ -127,10 +121,11 @@ function progressPanel({ lang, t, data }) {
   const bars = [
     progressBar('portfolio', t('progress.portfolio'), fill(t('progress.portfolio.detail'), { done, inProgress, total }),
       percent(done, total), percent(done + inProgress, total)),
-    // Once all its stories are closed, the latest sprint reads as finished rather than in progress.
-    progressBar('sprint', fill(t(p.sprint.done === p.sprint.total ? 'progress.sprint.done' : 'progress.sprint'), { n: p.sprint.number }),
-      fill(t('progress.points'), p.sprint),
-      percent(p.sprint.done, p.sprint.total)),
+    // Only a sprint in progress has a bar: a finished sprint leaves the panel (remark of Charles).
+    ...(p.sprint.done < p.sprint.total
+      ? [progressBar('sprint', fill(t('progress.sprint'), { n: p.sprint.number }), fill(t('progress.points'), p.sprint),
+        percent(p.sprint.done, p.sprint.total))]
+      : []),
     ...p.projects.map((pr) => {
       const name = pick(data.projects.find((x) => x.id === pr.id).name, lang);
       return progressBar(`project-${pr.id}`, fill(t('progress.project'), { name }), fill(t('progress.points'), pr),
@@ -146,7 +141,7 @@ function progressPanel({ lang, t, data }) {
 
 function projectCard(p, lang, t) {
   const teaching = p.teaching ? `<p class="card-note">${esc(pick(p.teaching, lang))}</p>` : '';
-  return `<article class="card" data-group="${esc(p.group)}" id="${esc(p.id)}">
+  return `<article class="card" data-group="${esc(p.group)}" data-languages="${esc(p.languages.join('|'))}" id="${esc(p.id)}">
   <div class="card-top">
     <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
     <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
@@ -160,13 +155,22 @@ function projectCard(p, lang, t) {
 
 function projects({ lang, t, data }) {
   const groups = ['web', 'back', 'systems', 'science', 'games'];
-  const filters = [`<button type="button" class="chip" aria-pressed="true" data-filter="all">${esc(t('projects.filter.all'))}</button>`]
-    .concat(groups.map((g) => `<button type="button" class="chip" aria-pressed="false" data-filter="${g}">${esc(t(`projects.group.${g}`))}</button>`))
-    .join('');
+  const chip = (attr, value, label, pressed = false) =>
+    `<button type="button" class="chip" aria-pressed="${pressed}" data-${attr}="${esc(value)}">${esc(label)}</button>`;
+  const groupChips = [chip('filter', 'all', t('projects.filter.all'), true)]
+    .concat(groups.map((g) => chip('filter', g, t(`projects.group.${g}`)))).join('');
+  const languageChips = [chip('language', 'all', t('projects.filter.all'), true)]
+    .concat(languagesOf(data.projects).map((l) => chip('language', l, l))).join('');
   // The games from Charles's studies get their own section after the other projects (D26).
   const games = data.projects.filter((p) => p.group === 'games');
   return `${pageHead(t('projects.title'), t('projects.lead'))}
-<div class="chips" role="group" aria-label="${esc(t('projects.title'))}">${filters}</div>
+<div class="filters">
+  <div class="filter-row"><span class="filter-label" id="f-groups">${esc(t('projects.filter.groups'))}</span>
+    <div class="chips" role="group" aria-labelledby="f-groups">${groupChips}</div></div>
+  <div class="filter-row"><span class="filter-label" id="f-languages">${esc(t('projects.filter.languages'))}</span>
+    <div class="chips" role="group" aria-labelledby="f-languages">${languageChips}</div></div>
+</div>
+<p class="notice" data-filter-empty hidden>${esc(t('projects.filter.none'))}</p>
 <div class="cards" data-filterable>${data.projects.filter((p) => p.group !== 'games').map((p) => projectCard(p, lang, t)).join('')}</div>
 <section class="block" aria-labelledby="h-games" data-games>
   <h2 id="h-games">${esc(t('projects.games.title'))}</h2>

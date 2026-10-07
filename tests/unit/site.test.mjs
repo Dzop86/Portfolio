@@ -5,7 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, languagesOf } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -151,7 +151,9 @@ test('the home page shows the temporary progress bars, computed from the data', 
   for (const lang of LANGS) {
     const html = page(lang, 'index');
     const bars = [...html.matchAll(/<div class="progress-bar" role="progressbar"([^>]*)>/g)].map((m) => m[1]);
-    assert.equal(bars.length, 2 + p.projects.length, `${lang}: one bar each for portfolio, sprint and project`);
+    // A finished sprint leaves the panel: its bar shows only while some of its stories are open.
+    const running = p.sprint.done < p.sprint.total;
+    assert.equal(bars.length, 1 + (running ? 1 : 0) + p.projects.length, `${lang}: one bar each for portfolio, running sprint and project`);
     for (const attrs of bars) {
       assert.match(attrs, /aria-labelledby="[\w-]+"/);
       assert.match(attrs, /aria-valuemin="0"/);
@@ -159,11 +161,35 @@ test('the home page shows the temporary progress bars, computed from the data', 
       assert.match(attrs, /aria-valuenow="\d+"/);
     }
     const sprintBar = bars.find((a) => a.includes('data-progress="sprint"'));
-    assert.ok(sprintBar.includes(`aria-valuenow="${Math.round((100 * p.sprint.done) / p.sprint.total)}"`));
-    // A sprint whose stories are all closed reads as finished, not in progress.
-    const finished = p.sprint.done === p.sprint.total;
-    const label = { fr: finished ? 'Sprint %n terminé' : 'Sprint en cours (%n)', en: finished ? 'Sprint %n finished' : 'Current sprint (%n)' }[lang];
-    assert.ok(html.includes(label.replace('%n', p.sprint.number)), `${lang}: ${label}`);
+    assert.equal(Boolean(sprintBar), running);
+    if (running) {
+      assert.ok(sprintBar.includes(`aria-valuenow="${Math.round((100 * p.sprint.done) / p.sprint.total)}"`));
+      const label = { fr: 'Sprint en cours (%n)', en: 'Current sprint (%n)' }[lang];
+      assert.ok(html.includes(label.replace('%n', p.sprint.number)), `${lang}: ${label}`);
+    }
+    assert.ok(!/Sprint \d+ (terminé|finished)/.test(html), `${lang}: no finished sprint on the home page`);
+  }
+});
+
+test('the progress figures tell a running sprint from a finished one', () => {
+  const projects = [{ id: 'demo', status: 'in-progress', points: 3 }];
+  const sprint = (states) => ({ number: 7, title: 't', stories: states.map((done, k) => ({ text: `story ${k} (demo)`, points: 1, done, closed: done })) });
+  const running = progress(projects, [sprint([true, false])]);
+  assert.deepEqual([running.sprint.done, running.sprint.total], [1, 2]);
+  const finished = progress(projects, [sprint([true, true])]);
+  assert.equal(finished.sprint.done, finished.sprint.total);
+});
+
+test('the home page counts the projects and their languages from the data', () => {
+  const { projects } = loadData();
+  for (const lang of LANGS) {
+    const html = page(lang, 'index');
+    const lead = html.match(/<p class="lead">([^<]+)<\/p>/)[1];
+    assert.ok(lead.startsWith(`${projects.length} `), lead);
+    assert.ok(lead.includes(` ${languagesOf(projects).length} `), lead);
+    // The menu already links to the projects and the CV: no buttons for them, no project cards either.
+    assert.ok(!html.includes('class="btn btn-primary" href="./projects.html"'));
+    assert.ok(!/<article class="card"/.test(html), `${lang}: no project cards on the home page`);
   }
 });
 
@@ -320,5 +346,16 @@ test('the Qt viewer page shows the application in each language, with the comman
     assert.match(html, /cmake -S \. -B build/);
     assert.match(html, /qtviewer --lang (fr|en) sample:torus/);
     assert.match(html, /href="https:\/\/github\.com\/Dzop86\/Portfolio\/actions\/workflows\/qt\.yml"/);
+  }
+});
+
+test('the projects page filters by category and by language', () => {
+  const { projects } = loadData();
+  for (const lang of LANGS) {
+    const html = page(lang, 'projects');
+    const chips = [...html.matchAll(/data-language="([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(chips, ['all', ...languagesOf(projects)]);
+    for (const p of projects) assert.ok(html.includes(`data-languages="${esc(p.languages.join('|'))}" id="${p.id}"`), p.id);
+    assert.ok(html.includes('data-filter-empty hidden'));
   }
 });

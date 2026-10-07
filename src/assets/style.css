@@ -78,7 +78,11 @@ a:hover { text-decoration-thickness: 2px; }
 
 /* Cards */
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
-.chip { min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: var(--text); font: 500 0.9rem var(--font-body); cursor: pointer; }
+.filters { margin-bottom: var(--space-4); }
+.filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.filter-row .chips { margin-bottom: var(--space-2); }
+.filter-label { min-width: 6.5rem; font-weight: 600; color: var(--muted); margin-bottom: var(--space-2); }
+.chip { min-height: 44px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border-strong); background: transparent; color: var(--text); font: 500 0.9rem var(--font-body); cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--pressed-bg); color: var(--pressed-text); border-color: var(--pressed-bg); }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-5); display: flex; flex-direction: column; }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { loadData, teachingTotals, sprintRange, LANGS } from '../../src/lib.mjs';
+import { loadData, teachingTotals, sprintRange, LANGS, LANGUAGES, languagesOf } from '../../src/lib.mjs';
 
 const { cv, projects, scrum, sprints } = loadData();
 
@@ -77,4 +77,13 @@ test('sprint labels are well formed and follow the order decided on 6 October 20
     assert.ok(first('ml') < first(game) && first(game) < first('qt'), `${game}: after the ML follow-up, before Qt (D26)`);
   }
   assert.ok(!projects.some((p) => p.id === 'spring' || p.id === 'aspnet'), 'Spring and ASP.NET dropped (D25)');
+});
+
+test('every project names its programming languages, all of them known', () => {
+  for (const p of projects) {
+    assert.ok(Array.isArray(p.languages) && p.languages.length > 0, p.id);
+    for (const l of p.languages) assert.ok(LANGUAGES.includes(l), `${p.id}: unknown language ${l}`);
+  }
+  // C, C++, C# and Java come first, as asked by Charles.
+  assert.deepEqual(languagesOf(projects).slice(0, 4), ['C', 'C++', 'C#', 'Java']);
 });
