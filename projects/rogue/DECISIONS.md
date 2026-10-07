@@ -29,3 +29,17 @@
 **Choix (proposition validée par Charles le 7 octobre 2026) :** une partie classée commence par une demande au serveur, qui tire la graine, la garde avec le compte et une date d'expiration ; le score n'est accepté que pour cette graine, une seule fois.
 **Pourquoi :** sans cela, un joueur pourrait essayer hors ligne des milliers de graines et d'actions avant d'envoyer la meilleure partie.
 **Limite :** un joueur peut encore s'aider d'un programme pendant sa partie (le pilote automatique en est un) ; aucune vérification côté serveur ne distingue un humain d'un programme qui joue des coups légaux.
+
+## R7. Une API minimale, sans ASP.NET Core Identity complet
+**Choix :** API minimale (`MapGroup`, `TypedResults`), deux tables (joueurs, parties) ; seul le `PasswordHasher` d'Identity est repris pour les mots de passe (PBKDF2) ; jetons JWT signés en HMAC-SHA256 par l'API elle-même.
+**Pourquoi :** le besoin se limite à un nom et un mot de passe ; Identity complet apporterait rôles, confirmation d'adresse, verrouillage et une dizaine de tables inutiles ici. Les réponses typées alimentent le document OpenAPI.
+**Limite :** pas de jeton de rafraîchissement ni de révocation : un jeton reste valable 12 heures ; pas de changement de mot de passe.
+
+## R8. Le classement en SQL PostgreSQL
+**Choix :** la meilleure partie de chaque joueur est choisie par `SELECT DISTINCT ON ("PlayerId")`, sur laquelle EF Core compose le tri, la limite et le nom du joueur.
+**Pourquoi :** EF Core 10 ne sait pas traduire `GroupBy` suivi de `First` avec une projection (erreur 500 trouvée par les tests) ; charger toutes les parties en mémoire ne passerait pas à l'échelle.
+**Limite :** la requête est propre à PostgreSQL.
+
+## R9. Une erreur du client ne ferme pas la partie
+**Choix :** un corps mal formé, une autre graine ou une partie inachevée sont refusés sans fermer la partie ; une partie que les règles refusent (action impossible) la ferme, comme une partie marquée.
+**Pourquoi :** un client défectueux ne doit pas faire perdre une partie ; un tricheur ne doit pas pouvoir essayer plusieurs suites d'actions sur la même graine.

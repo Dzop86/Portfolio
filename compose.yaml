@@ -13,3 +13,35 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+  # Roguelike score API (projects/rogue) and its database.
+  rogue-api:
+    build: ./projects/rogue
+    ports:
+      - "8001:8080"
+    environment:
+      ConnectionStrings__Scores: Host=rogue-db;Username=rogue;Database=rogue
+      # Signing key of the access tokens: set ROGUE_JWT_KEY (base64, 32 bytes) to keep tokens across
+      # restarts; left empty, the API draws a random key at start-up.
+      Jwt__Key: ${ROGUE_JWT_KEY:-}
+    depends_on:
+      rogue-db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+  rogue-db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: rogue
+      # No password, and no published port: only the services of this file reach the database.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "rogue"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    volumes:
+      - rogue-db:/var/lib/postgresql
+
+volumes:
+  rogue-db:

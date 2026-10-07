@@ -80,8 +80,35 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: projects/rogue/global.json
-      - run: dotnet tool restore
+      # dotnet ef does not restore packages itself.
+      - run: |
+          dotnet tool restore
+          dotnet restore Rogue.slnx
       - name: Migrations match the model
         run: dotnet ef migrations has-pending-model-changes --project src/Rogue.Api
       - name: Integration tests (WebApplicationFactory, real PostgreSQL)
         run: dotnet test --project tests/Rogue.Api.Tests -c Release
+
+  docker:
+    name: Score API (Docker image, compose, end to end)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rogue/global.json
+      # The smoke test lets the terminal client's autopilot play the seed the server draws.
+      - run: dotnet build src/Rogue.Cli -c Release
+      - name: compose.yaml builds and serves the API and its database
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker compose up -d --build rogue-api
+          for i in $(seq 1 60); do curl -fsS http://localhost:8001/health && break; sleep 1; done
+      - name: End to end (sign up, draw a seed, play, submit, leaderboard, 413)
+        run: ROGUE_CLI="dotnet run --project src/Rogue.Cli -c Release --no-build --" scripts/smoke.sh http://localhost:8001
+      - name: API logs
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker compose logs rogue-api rogue-db
+          docker compose down -v
