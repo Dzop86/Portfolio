@@ -6,7 +6,8 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
-import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf } from '../../src/lib.mjs';
+import { renderProjectPage } from '../../src/templates.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -161,9 +162,10 @@ test('project links are shown only when the project has them', () => {
   const { projects } = loadData();
   const { links } = projects.find((p) => p.id === 'vitrine');
   assert.ok(page('fr', projectPage('vitrine')).includes(`href="${links.code}" data-link="code"`));
-  const unlinked = projects.find((p) => !p.links);
-  assert.ok(unlinked, 'a planned project without links');
-  const planned = page('fr', projectPage(unlinked.id));
+  // Every project has links once it starts: the case is checked on a copy of one, with its links removed.
+  const data = loadData();
+  const { links: _, ...unlinked } = data.projects[0];
+  const planned = renderProjectPage(unlinked, { lang: 'fr', t: makeT(data.i18n.fr, 'fr'), data });
   assert.ok(!planned.includes('data-link='));
   assert.ok(planned.includes('data-no-links'));
 });

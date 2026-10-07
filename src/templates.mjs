@@ -611,6 +611,7 @@ ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
+${p.widget === 'raytracer-view' ? raytracerView(t) : ''}
 <section class="split">
   <article class="panel">
     <h2>${esc(t('project.stack'))}</h2>
@@ -1092,6 +1093,40 @@ function angularCompare(t, lang) {
   <p class="meta">${esc(fill(t('angcmp.notes'), { shared: n(c.shared.lines), cpu: c.machine.cpu, date: c.machine.date }))}</p>
   <h3>${esc(t('angcmp.diffTitle'))}</h3>
   <ul>${notes}</ul>
+</section>`;
+}
+
+const RT_LABELS = ['unsupported', 'pause', 'resume', 'loading', 'rendering', 'canvas', 'progress', 'done', 'error',
+  'unit.yaw', 'unit.pitch', 'unit.distance'];
+const RT_SCENES = [['spheres', null], ['torus', 'torus.obj'], ['sphere', 'sphere.obj'], ['mobius', 'mobius.obj'], ['saddle', 'saddle.obj']];
+const RT_VIEW = [['yaw', -180, 180, 1], ['pitch', 2, 60, 1], ['distance', 3, 12, 0.1]];
+
+// The ray tracer (D45): the C++ engine in WebAssembly, rendering pass after pass in a web worker.
+function raytracerView(t) {
+  const labels = Object.fromEntries(RT_LABELS.map((k) => [k, t(`rt.label.${k}`)]));
+  const scenes = RT_SCENES.map(([key, file]) =>
+    `<option value="${key}"${file ? ` data-mesh="../assets/samples/topologie/${file}"` : ''}>${esc(t(`rt.scene.${key}`))}</option>`).join('');
+  const finishes = ['diffuse', 'metal', 'glass'].map((k) => `<option value="${k}">${esc(t(`rt.finish.${k}`))}</option>`).join('');
+  const sliders = RT_VIEW.map(([key, min, max, step]) => `<div class="rt-slider">
+      <label for="rt-${key}">${esc(t(`rt.view.${key}`))}</label>
+      <input id="rt-${key}" type="range" min="${min}" max="${max}" step="${step}" data-view="${key}">
+      <output for="rt-${key}" data-view-value="${key}"></output>
+    </div>`).join('');
+  return `<section class="block panel rt" aria-labelledby="h-rt" data-raytracer data-labels="${esc(JSON.stringify(labels))}">
+  <h2 id="h-rt">${esc(t('rt.title'))}</h2>
+  <p>${esc(t('rt.lead'))}</p>
+  <div class="rt-controls">
+    <div class="rt-field"><label for="rt-scene">${esc(t('rt.sceneLabel'))}</label><select id="rt-scene" data-scene>${scenes}</select></div>
+    <div class="rt-field"><label for="rt-finish">${esc(t('rt.finishLabel'))}</label><select id="rt-finish" data-finish>${finishes}</select></div>
+  </div>
+  <div class="rt-stage"><canvas width="480" height="270" role="img" aria-label="${esc(t('rt.title'))}"></canvas></div>
+  <p class="meta rt-progress" data-progress></p>
+  <div class="rt-view" role="group" aria-label="${esc(t('rt.viewLabel'))}">${sliders}</div>
+  <p class="actions"><button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('rt.label.pause'))}</button><button type="button" class="btn btn-ghost" data-reset>${esc(t('rt.reset'))}</button></p>
+  <p class="visually-hidden" data-live aria-live="polite"></p>
+  <p class="meta">${esc(t('rt.note'))}</p>
+  <noscript><p class="notice">${esc(t('rt.noscript'))}</p></noscript>
+  <script type="module" src="../assets/raytracerplay.js"></script>
 </section>`;
 }
 
