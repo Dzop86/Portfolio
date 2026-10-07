@@ -29,5 +29,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.{ts,tsx}'],
+    // A cold Windows runner took 5.2 s for the first number formatted in French (Node 22, its locale
+    // data loaded on first use): the 5 s default failed a test that is otherwise instant.
+    testTimeout: 20_000,
   },
 });
