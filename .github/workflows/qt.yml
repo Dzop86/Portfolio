@@ -112,7 +112,8 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          cmake --install build --config Release --prefix dist/qtviewer
+          # Qt's deployment script wants an absolute prefix.
+          cmake --install build --config Release --prefix "$PWD/dist/qtviewer"
           # The launch test runs a copy with Mesa's OpenGL in place of Qt's (the runner has no GPU);
           # the shipped folder keeps Qt's own software fallback, opengl32sw.dll.
           cp -r dist/qtviewer "$RUNNER_TEMP/try"
@@ -120,7 +121,8 @@ jobs:
           7z x -y -o"$RUNNER_TEMP/mesa" "$RUNNER_TEMP/mesa.7z" > /dev/null
           cp "$RUNNER_TEMP"/mesa/x64/*.dll "$RUNNER_TEMP/try/bin/"
           mv -f "$RUNNER_TEMP/try/bin/opengl32.dll" "$RUNNER_TEMP/try/bin/opengl32sw.dll"
-          QT_OPENGL=software PATH=/usr/bin "$RUNNER_TEMP/try/bin/qtviewer.exe" --screenshot "$RUNNER_TEMP/windows.png" sample:torus
+          # Without the Qt of the runner (PATH, QT_PLUGIN_PATH): what is missing from the folder shows.
+          env -u QT_PLUGIN_PATH -u QML2_IMPORT_PATH QT_OPENGL=software PATH=/usr/bin "$RUNNER_TEMP/try/bin/qtviewer.exe" --screenshot "$RUNNER_TEMP/windows.png" sample:torus
           test -s "$RUNNER_TEMP/windows.png"
       - uses: actions/upload-artifact@v7
         if: runner.os == 'Windows'
@@ -133,9 +135,9 @@ jobs:
       - name: macOS disk image, launched once
         if: runner.os == 'macOS'
         run: |
-          cmake --install build --config Release --prefix dist
+          cmake --install build --config Release --prefix "$PWD/dist"
           codesign --force --deep --sign - dist/qtviewer.app
-          dist/qtviewer.app/Contents/MacOS/qtviewer --screenshot "$RUNNER_TEMP/macos.png" sample:torus
+          env -u QT_PLUGIN_PATH -u QML2_IMPORT_PATH dist/qtviewer.app/Contents/MacOS/qtviewer --screenshot "$RUNNER_TEMP/macos.png" sample:torus
           test -s "$RUNNER_TEMP/macos.png"
           hdiutil create -volname "Mesh viewer" -srcfolder dist/qtviewer.app -ov -format UDZO qtviewer-macos.dmg
       - uses: actions/upload-artifact@v7
@@ -150,7 +152,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           projects/qt/packaging/appimage.sh build dist
-          APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a dist/Mesh_viewer-x86_64.AppImage --screenshot "$RUNNER_TEMP/linux.png" sample:torus
+          APPIMAGE_EXTRACT_AND_RUN=1 env -u QT_PLUGIN_PATH -u QML2_IMPORT_PATH xvfb-run -a dist/Mesh_viewer-x86_64.AppImage --screenshot "$RUNNER_TEMP/linux.png" sample:torus
           test -s "$RUNNER_TEMP/linux.png"
       - uses: actions/upload-artifact@v7
         if: runner.os == 'Linux'
