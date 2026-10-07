@@ -20,8 +20,10 @@ const PATTERNS = [
 ];
 
 // Exact matches that are not private data: the digit string of number formatting code (js_of_ocaml's
-// runtime has "0123456789abcdef"), which looks like a phone number. Anything else still fails.
-const ALLOWED = ['0123456789'];
+// runtime has "0123456789abcdef"), which looks like a phone number; the public address of a package
+// maintainer that npm copies into package-lock.json with a deprecation notice (glob 10, pulled by the
+// Angular tools). Anything else still fails.
+const ALLOWED = ['0123456789', 'i@izs.me'];
 
 const extraTerms = (process.env.PRIVATE_TERMS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 

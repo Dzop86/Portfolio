@@ -40,4 +40,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `data/projects.json` | Signalé par Charles : « langage » ne convient pas pour HTML/CSS | Filtre « Techno », champ `techs`, accroche en « technologies » |
 | 2026-10-07 | site | Modifications de l'accueil, des onglets, du filtre par techno et de la page Gestion de projet (D39, D40, D41) | Validées par Charles le 7 octobre 2026 (« valide la review ») |
 | 2026-10-07 | `tests/unit/site.test.mjs` | (Claude) Le test de la feuille de route exigeait toujours une phase « prévue » ; une fois S29 fini, la dernière phase (S30-S33) est en cours et le test échouait à tort | Le nombre de phases prévues est déduit des sprints clos |
+| 2026-10-07 | `tests/unit/privacy.test.mjs` | (Claude) Détecté par le déploiement : le scan a trouvé une adresse e-mail dans `projects/angular/package-lock.json`, celle d'un mainteneur npm dans un avis d'obsolescence (glob 10) ; en local, le scan était passé car lancé avant `git add` (il ne lit que les fichiers suivis) | Cette adresse exacte autorisée, raison en commentaire ; leçon : relancer les tests après `git add` d'un nouveau projet |
 | | | | |
