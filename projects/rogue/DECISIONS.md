@@ -9,7 +9,7 @@
 **Choix :** une partie enregistrée ne contient que la graine et les actions, une lettre chacune ; le rejeu recalcule tout le reste et refuse la première action non permise, avec sa position. Aucune propriété en plus n'est acceptée (un champ `score` est refusé).
 **Pourquoi :** le serveur ne fait confiance à rien de ce que dit le client ; une partie de 1 500 tours pèse 1,5 Ko.
 **Alternatives :** envoyer le score signé par le client (la clé serait dans le client), envoyer l'état final (invérifiable).
-**Limite :** rien n'empêche un joueur de chercher hors ligne la meilleure suite d'actions pour une graine : le serveur devra imposer la graine (sprint 24).
+**Limite :** rien n'empêche un joueur de chercher hors ligne la meilleure suite d'actions pour une graine choisie : d'où R6.
 
 ## R3. La bibliothèque en net8.0, le reste en net10.0
 **Choix :** `Rogue.Core` cible net8.0, la version des projets C# de Godot 4 ; le terminal et les tests ciblent net10.0 (LTS).
@@ -24,3 +24,8 @@
 **Choix :** `Autopilot` joue des parties entières à partir de ce que voit le joueur.
 **Pourquoi :** il fournit aux tests des parties complètes et variées (rejeu, parties de référence), il mesure l'équilibrage (`--stats`), et servira de démonstration au client Godot.
 **Limite :** il joue mal (il combat tout ce qu'il voit) : son taux de sortie (27,6 %) est une mesure de difficulté, pas une borne.
+
+## R6. Le serveur impose la graine des parties classées
+**Choix (proposition validée par Charles le 7 octobre 2026) :** une partie classée commence par une demande au serveur, qui tire la graine, la garde avec le compte et une date d'expiration ; le score n'est accepté que pour cette graine, une seule fois.
+**Pourquoi :** sans cela, un joueur pourrait essayer hors ligne des milliers de graines et d'actions avant d'envoyer la meilleure partie.
+**Limite :** un joueur peut encore s'aider d'un programme pendant sa partie (le pilote automatique en est un) ; aucune vérification côté serveur ne distingue un humain d'un programme qui joue des coups légaux.

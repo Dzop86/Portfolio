@@ -4,9 +4,11 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] `src/Rogue.Core/Game.cs` : déroulé d'un tour, combat, poursuite des monstres, niveaux.
-- [ ] `src/Rogue.Core/Replay.cs` : format de partie et refus des parties invalides (base de la vérification des scores).
-- [ ] Le jeu ressemble-t-il à celui de mes études ? Difficulté (le pilote automatique sort du donjon une fois sur quatre) ?
+- [x] `src/Rogue.Core/Game.cs` : déroulé d'un tour, combat, poursuite des monstres, niveaux.
+- [x] `src/Rogue.Core/Replay.cs` : format de partie et refus des parties invalides (base de la vérification des scores).
+- [x] Le jeu ressemble-t-il à celui de mes études ? Difficulté (le pilote automatique sort du donjon une fois sur quatre) ?
+
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, pousse »), pour le volet du sprint 23 (règles et terminal).
 
 ## Constats
 
