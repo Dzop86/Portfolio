@@ -3,15 +3,16 @@
 // band at a time so that a new scene or view is taken into account quickly, and posts each band's rows.
 //
 // Messages in:
-//   { type: 'scene', generation, mesh, finish, width, height, bands, view } where mesh is null (spheres),
-//     { url } (a sample) or { key, bytes } (the visitor's file; bytes may be left out once sent) and view
-//     is null for the scene's default view;
-//   { type: 'view', generation, view }, { type: 'pause' }, { type: 'resume' }.
-// Messages out: 'loaded'; 'ready' (generation, defaultView, triangles); 'band' (generation, y0, y1, pixels,
+//   { type: 'scene', generation, mesh, finish, width, height, bands, view, settings } where mesh is null
+//     (spheres), { url } (a sample) or { key, bytes } (the visitor's file; bytes may be left out once sent),
+//     view is null for the scene's default view and settings null for the engine's defaults;
+//   { type: 'view', generation, view }, { type: 'settings', generation, settings }, { type: 'pause' },
+//   { type: 'resume' }.
+// Messages out: 'loaded'; 'ready' (generation, defaultView, defaultSettings, triangles); 'band' (generation, y0, y1, pixels,
 // samples); 'done' (generation); 'error' (generation, status, line, message). Each carries the generation
 // of the scene or view it belongs to, so that the page can drop those of an older one.
 import createRaytracer from './wasm/raytracer.js';
-import { loadRaytracer, loadMesh, setScene, setView, resize, renderRows, rows } from './raytracer-api.js';
+import { loadRaytracer, loadMesh, setScene, setView, setSettings, defaultSettings, resize, renderRows, rows } from './raytracer-api.js';
 import { MAX_SAMPLES } from './raytracer-bands.js';
 
 const lib = await loadRaytracer(createRaytracer);
@@ -86,14 +87,19 @@ onmessage = async ({ data }) => {
         if (!result.ok) throw new MeshError(result);
       }
       resize(lib, data.width, data.height);
+      setSettings(lib, data.settings ?? defaultSettings(lib));
       const defaultView = setScene(lib, data.mesh ? 'mesh' : 'spheres', data.finish);
       if (data.view) setView(lib, data.view);
       bands = data.bands;
-      postMessage({ type: 'ready', generation, defaultView, triangles: data.mesh ? lib._rtc_triangles() : 0 });
+      postMessage({ type: 'ready', generation, defaultView, defaultSettings: defaultSettings(lib), triangles: data.mesh ? lib._rtc_triangles() : 0 });
       restart();
     } else if (data.type === 'view') {
       generation = data.generation;
       setView(lib, data.view);
+      restart();
+    } else if (data.type === 'settings') {
+      generation = data.generation;
+      setSettings(lib, data.settings);
       restart();
     } else if (data.type === 'pause') {
       paused = true;

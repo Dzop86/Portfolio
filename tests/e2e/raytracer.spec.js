@@ -22,6 +22,10 @@ for (const lang of ['fr', 'en']) {
     expect(await colours(page)).toBeGreaterThan(20);
     await expect(page.locator('[data-progress]')).toContainText(lang === 'fr' ? 'passes sur 256' : 'of 256 passes');
     await expect(page.locator('#rt-finish')).toBeDisabled(); // the spheres have their own materials
+    // Decimals in the page's language, no thousands separator.
+    await expect(page.locator('[data-setting-value="fuzz"]')).toHaveText(lang === 'fr' ? '0,06' : '0.06');
+    await expect(page.locator('[data-view-value="distance"]')).toHaveText(lang === 'fr' ? '6,2' : '6.2');
+    await expect(page.locator('[data-setting-value="kelvin"]')).toHaveText('5800 K');
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(1);
@@ -113,4 +117,39 @@ test('raytracer: a mesh dropped on the image is rendered', async ({ page }) => {
   await expect(page.getByLabel('Scène')).toHaveValue('own');
   await expect(page.locator('[data-raytracer] canvas')).toHaveAttribute('aria-label', /Votre fichier : cube\.obj/, { timeout: 30_000 });
   await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+});
+
+test('raytracer: the light and the glass are set with the keyboard, and the image is saved as PNG', async ({ page }) => {
+  await page.goto('/en/project-raytracer.html');
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(2);
+  const kelvin = page.getByLabel('Light colour');
+  await expect(kelvin).toHaveValue('5800');
+  await expect(page.locator('[data-setting-value="kelvin"]')).toHaveText('5800 K');
+
+  const before = await page.locator('[data-raytracer] canvas').evaluate((c) => c.toDataURL());
+  await kelvin.focus();
+  await page.keyboard.press('Home'); // the warmest light
+  await expect(page.locator('[data-setting-value="kelvin"]')).toHaveText('2000 K');
+  const ior = page.getByLabel('Glass index');
+  await ior.focus();
+  await page.keyboard.press('End');
+  await expect(page.locator('[data-setting-value="ior"]')).toHaveText('2.5');
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(2);
+  expect(await page.locator('[data-raytracer] canvas').evaluate((c) => c.toDataURL())).not.toBe(before);
+
+  // The settings stay with another scene.
+  await page.getByLabel('Scene').selectOption('torus');
+  await expect(page.getByLabel('Mesh material')).toBeEnabled({ timeout: 30_000 });
+  await expect(kelvin).toHaveValue('2000');
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save the image (PNG)' }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^raytracer-torus-\d+\.png$/);
+  const bytes = readFileSync(await file.path());
+  expect([...bytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+
+  await page.getByRole('button', { name: 'Default light and materials' }).click();
+  await expect(kelvin).toHaveValue('5800');
+  await expect(ior).toHaveValue('1.5');
 });

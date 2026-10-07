@@ -17,6 +17,7 @@ struct State {
     std::optional<rt::TriangleMesh> mesh;
     rt::Scene scene = rt::make_scene(rt::SceneKind::Spheres);
     rt::SceneKind kind = rt::SceneKind::Spheres;
+    rt::Settings settings;  // kept when the scene changes
     double yaw = 0, pitch = 0, distance = 0;
     std::unique_ptr<rt::Renderer> renderer = std::make_unique<rt::Renderer>(320, 180);
     std::optional<rt::Camera> camera;
@@ -67,7 +68,7 @@ int rtc_set_scene(int kind, int finish) {
     const auto k = static_cast<rt::SceneKind>(kind);
     if (k == rt::SceneKind::Mesh && !state.mesh) return kNoMesh;
     const rt::MaterialKind f = finish == 0 ? rt::MaterialKind::Diffuse : finish == 1 ? rt::MaterialKind::Metal : rt::MaterialKind::Glass;
-    state.scene = rt::make_scene(k, state.mesh ? &*state.mesh : nullptr, f);
+    state.scene = rt::make_scene(k, state.mesh ? &*state.mesh : nullptr, f, state.settings);
     state.kind = k;
     const rt::View v = rt::default_view(k);
     state.yaw = v.yaw, state.pitch = v.pitch, state.distance = v.distance;
@@ -83,6 +84,24 @@ double rtc_default_distance() { return rt::default_view(state.kind).distance; }
 void rtc_set_view(double yaw, double pitch, double distance) {
     state.yaw = yaw, state.pitch = pitch, state.distance = distance;
     update_camera();
+}
+
+// The light (azimuth and elevation in degrees, colour temperature in kelvins), the metal's fuzz and the
+// glass's index, for every scene from now on; forgets the samples. 0, or 12 if a value is out of range.
+int rtc_set_settings(double azimuth, double elevation, double kelvin, double fuzz, double ior) {
+    const rt::Settings s{.light_azimuth = azimuth, .light_elevation = elevation, .light_kelvin = kelvin, .fuzz = fuzz, .ior = ior};
+    if (!s.valid()) return kBadArgument;
+    state.settings = s;
+    rt::apply_settings(state.scene, s);
+    state.renderer->reset();
+    return 0;
+}
+
+// The default settings, in the order of rtc_set_settings's arguments (0 to 4), for the page's controls.
+double rtc_default_setting(int i) {
+    const rt::Settings d;
+    const double values[] = {d.light_azimuth, d.light_elevation, d.light_kelvin, d.fuzz, d.ior};
+    return i >= 0 && i < 5 ? values[i] : 0;
 }
 
 int rtc_resize(uint32_t width, uint32_t height) {

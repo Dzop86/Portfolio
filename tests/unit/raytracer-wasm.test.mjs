@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT } from '../../src/lib.mjs';
-import { loadRaytracer, loadMesh, setScene, setView, resize, renderRows, pixels } from '../../src/assets/raytracer-api.js';
+import { loadRaytracer, loadMesh, setScene, setView, resize, renderRows, pixels, defaultSettings, setSettings } from '../../src/assets/raytracer-api.js';
 
 const create = (await import('../../src/assets/wasm/raytracer.js')).default;
 const sample = (name) => readFileSync(join(ROOT, 'projects/topologie/samples', name));
@@ -104,5 +104,45 @@ test('a visitor\'s mesh in each format lib-c reads is rendered in place of the s
     setScene(lib, 'mesh', 'diffuse');
     renderRows(lib, 0, 18);
     assert.notDeepEqual(pixels(lib), spheres, name);
+  }
+});
+
+test('the light and the materials can be set, are checked, and stay when the scene changes', async () => {
+  const lib = await loadRaytracer(create);
+  resize(lib, 32, 18);
+  setScene(lib, 'spheres');
+  const defaults = defaultSettings(lib);
+  assert.deepEqual(defaults, { azimuth: 135, elevation: 55, kelvin: 5800, fuzz: 0.06, ior: 1.5 });
+  renderRows(lib, 0, 18);
+  const before = pixels(lib);
+
+  setSettings(lib, { ...defaults, azimuth: -45, kelvin: 3000 });
+  assert.equal(lib._rtc_samples(), 0);
+  renderRows(lib, 0, 18);
+  assert.notDeepEqual(pixels(lib), before);
+  // The settings stay for the next scene; set back to the defaults, the image is the first one again.
+  setScene(lib, 'spheres');
+  renderRows(lib, 0, 18);
+  const kept = pixels(lib);
+  assert.notDeepEqual(kept, before);
+  setSettings(lib, defaults);
+  renderRows(lib, 0, 18);
+  assert.deepEqual(pixels(lib), before);
+
+  for (const bad of [{ azimuth: 200 }, { elevation: 5 }, { kelvin: 20000 }, { fuzz: -1 }, { ior: 3 }, { ior: Number.NaN }, { ior: undefined }]) {
+    assert.throws(() => setSettings(lib, { ...defaults, ...bad }), /out of range/, JSON.stringify(bad));
+  }
+});
+
+test('the page\'s sliders span exactly what the engine accepts, and its defaults sit on their steps', async () => {
+  const { RT_SETTINGS } = await import('../../src/templates.mjs');
+  const lib = await loadRaytracer(create);
+  const defaults = defaultSettings(lib);
+  assert.deepEqual(RT_SETTINGS.map(([key]) => key), Object.keys(defaults));
+  for (const [key, min, max, step] of RT_SETTINGS) {
+    for (const v of [min, max]) setSettings(lib, { ...defaults, [key]: v });
+    for (const v of [min - step, max + step]) assert.throws(() => setSettings(lib, { ...defaults, [key]: v }), /out of range/, `${key} ${v}`);
+    const steps = (defaults[key] - min) / step;
+    assert.ok(Math.abs(steps - Math.round(steps)) < 1e-9, `${key}: ${defaults[key]} is not on a step of ${step}`);
   }
 });

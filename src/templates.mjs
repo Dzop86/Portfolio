@@ -1097,9 +1097,13 @@ function angularCompare(t, lang) {
 }
 
 const RT_LABELS = ['unsupported', 'pause', 'resume', 'loading', 'rendering', 'canvas', 'progress', 'done', 'error',
-  'unit.yaw', 'unit.pitch', 'unit.distance', 'own'];
+  'unit.yaw', 'unit.pitch', 'unit.distance', 'own', 'unit.azimuth', 'unit.elevation', 'unit.kelvin', 'unit.fuzz', 'unit.ior'];
 const RT_SCENES = [['spheres', null], ['torus', 'torus.obj'], ['sphere', 'sphere.obj'], ['mobius', 'mobius.obj'], ['saddle', 'saddle.obj']];
 const RT_VIEW = [['yaw', -180, 180, 1], ['pitch', 2, 60, 1], ['distance', 3, 12, 0.1]];
+// The ranges of rt::Settings::valid (projects/raytracer/src/scenes.cpp); a test checks them against the engine.
+export const RT_SETTINGS = [['azimuth', -180, 180, 1], ['elevation', 10, 85, 1], ['kelvin', 2000, 10000, 100],
+  ['fuzz', 0, 0.5, 0.01], ['ior', 1, 2.5, 0.01]];
+const RT_SHOTS = ['spheres', 'torus-glass', 'mobius-metal', 'saddle-sunset'];
 
 // Time per pass of the page's image with 1 to 8 workers, measured by projects/raytracer/scripts/bench-workers.mjs.
 export function readRaytracerBench() {
@@ -1129,11 +1133,18 @@ function raytracerView(t, lang) {
   const scenes = RT_SCENES.map(([key, file]) =>
     `<option value="${key}"${file ? ` data-mesh="../assets/samples/topologie/${file}"` : ''}>${esc(t(`rt.scene.${key}`))}</option>`).join('');
   const finishes = ['diffuse', 'metal', 'glass'].map((k) => `<option value="${k}">${esc(t(`rt.finish.${k}`))}</option>`).join('');
-  const sliders = RT_VIEW.map(([key, min, max, step]) => `<div class="rt-slider">
-      <label for="rt-${key}">${esc(t(`rt.view.${key}`))}</label>
-      <input id="rt-${key}" type="range" min="${min}" max="${max}" step="${step}" data-view="${key}">
-      <output for="rt-${key}" data-view-value="${key}"></output>
-    </div>`).join('');
+  // data-view or data-setting names the slider; data-*-value its output.
+  const slider = (kind, label) => ([key, min, max, step]) => `<div class="rt-slider">
+      <label for="rt-${key}">${esc(t(`${label}.${key}`))}</label>
+      <input id="rt-${key}" type="range" min="${min}" max="${max}" step="${step}" data-${kind}="${key}">
+      <output for="rt-${key}" data-${kind}-value="${key}"></output>
+    </div>`;
+  const sliders = RT_VIEW.map(slider('view', 'rt.view')).join('');
+  const settings = RT_SETTINGS.map(slider('setting', 'rt.setting')).join('');
+  const shots = RT_SHOTS.map((name) => `<figure class="naval-shot">
+    <img src="../assets/images/raytracer-${name}.png" width="640" height="360" loading="lazy" alt="${esc(t(`rt.shot.${name}`))}">
+    <figcaption class="meta">${esc(t(`rt.shot.${name}`))}</figcaption>
+  </figure>`).join('');
   return `<section class="block panel rt" aria-labelledby="h-rt" data-raytracer data-labels="${esc(JSON.stringify(labels))}">
   <h2 id="h-rt">${esc(t('rt.title'))}</h2>
   <p>${esc(t('rt.lead'))}</p>
@@ -1147,10 +1158,16 @@ function raytracerView(t, lang) {
   <div class="rt-stage" data-drop><canvas width="480" height="270" role="img" aria-label="${esc(t('rt.title'))}"></canvas></div>
   <p class="meta rt-progress" data-progress></p>
   <div class="rt-view" role="group" aria-label="${esc(t('rt.viewLabel'))}">${sliders}</div>
-  <p class="actions"><button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('rt.label.pause'))}</button><button type="button" class="btn btn-ghost" data-reset>${esc(t('rt.reset'))}</button></p>
+  <p class="actions"><button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('rt.label.pause'))}</button><button type="button" class="btn btn-ghost" data-reset>${esc(t('rt.reset'))}</button><button type="button" class="btn btn-primary" data-save>${esc(t('rt.save'))}</button></p>
+  <h3 id="h-rt-settings">${esc(t('rt.settingsLabel'))}</h3>
+  <div class="rt-view" role="group" aria-labelledby="h-rt-settings">${settings}</div>
+  <p class="actions"><button type="button" class="btn btn-ghost" data-reset-settings>${esc(t('rt.resetSettings'))}</button></p>
   <p class="visually-hidden" data-live aria-live="polite"></p>
   <p class="meta">${esc(t('rt.note'))}</p>
   ${raytracerBench(t, lang)}
+  <h3>${esc(t('rt.shots.title'))}</h3>
+  <p class="meta">${esc(t('rt.shots.lead'))}</p>
+  ${shots}
   <noscript><p class="notice">${esc(t('rt.noscript'))}</p></noscript>
   <script type="module" src="../assets/raytracerplay.js"></script>
 </section>`;

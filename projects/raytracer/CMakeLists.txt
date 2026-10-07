@@ -47,7 +47,7 @@ if(RT_BUILD_TESTS)
   FetchContent_MakeAvailable(googletest)
   include(GoogleTest)
 
-  add_executable(rt_tests tests/test_math.cpp tests/test_geometry.cpp tests/test_mesh_bvh.cpp tests/test_render.cpp)
+  add_executable(rt_tests tests/test_math.cpp tests/test_geometry.cpp tests/test_mesh_bvh.cpp tests/test_render.cpp tests/test_scenes.cpp)
   target_link_libraries(rt_tests PRIVATE rt GTest::gtest_main)
   target_compile_definitions(rt_tests PRIVATE RT_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/../topologie/samples"
                                               RT_REFERENCE="${CMAKE_CURRENT_SOURCE_DIR}/tests/reference")

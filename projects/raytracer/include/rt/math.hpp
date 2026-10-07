@@ -12,6 +12,7 @@ struct Vec3 {
     constexpr Vec3 operator-() const { return {-x, -y, -z}; }
     constexpr Vec3& operator+=(const Vec3& o) { x += o.x, y += o.y, z += o.z; return *this; }
     constexpr Vec3& operator*=(double s) { x *= s, y *= s, z *= s; return *this; }
+    constexpr bool operator==(const Vec3&) const = default;  // exact, for tests
     [[nodiscard]] constexpr double operator[](int i) const { return i == 0 ? x : i == 1 ? y : z; }
 };
 

@@ -27,6 +27,15 @@ test('the ray tracer page has its scenes, finishes, sliders and every label, in 
       assert.ok(html.includes(`<input id="rt-${key}" type="range"`), key);
       assert.ok(html.includes(`data-view-value="${key}"`), key);
     }
+    // Light and materials: five sliders, a button back to the defaults; the image can be saved.
+    for (const key of ['azimuth', 'elevation', 'kelvin', 'fuzz', 'ior']) {
+      assert.ok(html.includes(`<label for="rt-${key}">`) && html.includes(`data-setting="${key}"`) && html.includes(`data-setting-value="${key}"`), key);
+    }
+    assert.ok(html.includes('data-reset-settings') && html.includes('data-save'), lang);
+    // The high-definition captures, each with its text.
+    const shots = [...html.matchAll(/<img src="\.\.\/(assets\/images\/raytracer-[\w-]+\.png)" width="640" height="360" loading="lazy" alt="([^"]+)">/g)];
+    assert.equal(shots.length, 4, lang);
+    for (const [, src] of shots) assert.ok(existsSync(join(out, src)), src);
     const labels = JSON.parse(html.match(/data-labels="([^"]+)" ?>/)[1].replaceAll('&quot;', '"').replaceAll('&amp;', '&'));
     for (const [key, text] of Object.entries(labels)) assert.ok(text && !text.startsWith('rt.'), `${lang}: ${key}`);
     // The visitor's file: chosen or dropped, refused with lib-c's reason and line.

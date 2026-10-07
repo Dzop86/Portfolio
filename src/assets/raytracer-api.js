@@ -67,3 +67,17 @@ export function rows(lib, y0, y1) {
   const p = lib._rtc_pixels();
   return lib.HEAPU8.slice(p + y0 * stride, p + y1 * stride);
 }
+
+/** The settings, in the order of the C API: light azimuth and elevation (degrees), colour (K), metal fuzz, glass index. */
+export const SETTINGS = ['azimuth', 'elevation', 'kelvin', 'fuzz', 'ior'];
+
+/** The engine's default settings, for the page's controls. */
+export function defaultSettings(lib) {
+  return Object.fromEntries(SETTINGS.map((key, i) => [key, lib._rtc_default_setting(i)]));
+}
+
+/** Sets the light and the materials of every scene from now on, and forgets the samples. */
+export function setSettings(lib, settings) {
+  const values = SETTINGS.map((key) => Number(settings[key]));
+  if (lib._rtc_set_settings(...values) !== 0) throw new Error(`settings out of range: ${JSON.stringify(settings)}`);
+}

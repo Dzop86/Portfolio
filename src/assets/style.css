@@ -499,6 +499,6 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .rt-stage canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; touch-action: pan-y; cursor: grab; }
 .rt-progress { font-variant-numeric: tabular-nums; min-height: 1.5em; }
 .rt-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3); }
-.rt-slider { display: grid; grid-template-columns: auto minmax(0, 1fr) 3.5em; align-items: center; gap: var(--space-2); }
+.rt-slider { display: grid; grid-template-columns: auto minmax(0, 1fr) 4.5em; align-items: center; gap: var(--space-2); }
 .rt-slider input { min-height: 44px; width: 100%; accent-color: var(--accent); }
-.rt-slider output { font-variant-numeric: tabular-nums; text-align: right; }
+.rt-slider output { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }

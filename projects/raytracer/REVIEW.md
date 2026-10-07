@@ -8,6 +8,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] `src/bvh.cpp` : coût SAH, partition, parcours (pile bornée).
 - [ ] `tests/test_render.cpp` : les tests de physique vérifient-ils vraiment la bonne chose ?
 - [ ] `src/assets/raytracer-worker.js`, `src/assets/raytracerplay.js` : bandes, générations, pause, glisser sur l'image (sprint 33, story 2).
+- [ ] Sprint 34 : `src/assets/raytracer-bands.js` (bandes par worker), `src/scenes.cpp` (corps noir, `apply_settings`), fichier du visiteur et ses erreurs dans `raytracerplay.js`.
 
 ## Constats
 
@@ -24,4 +25,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `DECISIONS.md` (R5) | (Claude) J'avais écarté plusieurs workers au sprint 33 en invoquant SharedArrayBuffer : faux, chaque worker garde ses propres lignes et n'a besoin d'aucune mémoire partagée | R5 réécrite avec la vraie raison et la mesure |
 | 2026-10-07 | `src/assets/raytracerplay.js` | (Claude) Vu par Playwright sous WebKit : le compteur de passes avançait à la réception des bandes, avant que l'image soit dessinée (au prochain `requestAnimationFrame`) ; le test lisait un canevas encore vide | Le compteur et la progression changent au moment du dessin |
 | 2026-10-07 | `src/templates.mjs` | (Claude) En réutilisant les libellés d'erreur de la démo lib-c, la clé `error` (« Erreur : ») écrasait celle du raytracer (« Le rendu a échoué : {message} ») dans le même objet | Libellés de lib-c rangés sous `mesh.` |
+| 2026-10-07 | `include/rt/scenes.hpp` | (Claude) Détecté par un test : la couleur par défaut choisie à 5500 K s'écartait de 3 de la lampe d'origine (55,2 au lieu de 52 en rouge) | 5800 K, la plus proche (calculée de 5500 à 6600 K) |
+| 2026-10-07 | `scripts/captures.mjs` | (Claude) Vu sur la capture « coucher de soleil » : la lampe basse (azimut −150°) tombait dans le champ, grand disque blanc près du sol | Lumière du côté de la caméra (60°, 18°), légende corrigée (« ombres longues » ne se voyait pas) |
+| 2026-10-07 | `src/assets/raytracerplay.js`, `style.css` | (Claude) Vu sur une capture mobile : « 5800 K » passait à la ligne, et les décimales s'affichaient avec un point en français (0.06, 6.2) | Colonne des valeurs élargie et sans retour à la ligne ; valeurs formatées dans la langue de la page ; test Playwright sur « 0,06 » et « 6,2 » |
 | | | | |

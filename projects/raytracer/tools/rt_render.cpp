@@ -1,6 +1,7 @@
 // Renders a scene to a PPM file and prints how long it took.
 //   rt_render [--scene spheres|mesh] [--mesh FILE] [--finish diffuse|metal|glass] [--size WxH] [--spp N]
-//             [--yaw DEG] [--pitch DEG] [--distance D] [--brute-force] [-o FILE]
+//             [--yaw DEG] [--pitch DEG] [--distance D] [--light-azimuth DEG] [--light-elevation DEG]
+//             [--kelvin K] [--fuzz F] [--ior N] [--brute-force] [-o FILE]
 #include "rt/image.hpp"
 #include "rt/render.hpp"
 #include "rt/scenes.hpp"
@@ -18,6 +19,7 @@ namespace {
 [[noreturn]] void usage() {
     std::fputs("usage: rt_render [--scene spheres|mesh] [--mesh FILE] [--finish diffuse|metal|glass]\n"
                "                 [--size WxH] [--spp N] [--yaw DEG] [--pitch DEG] [--distance D]\n"
+               "                 [--light-azimuth DEG] [--light-elevation DEG] [--kelvin K] [--fuzz F] [--ior N]\n"
                "                 [--brute-force] [-o FILE]\n",
                stderr);
     std::exit(2);
@@ -32,6 +34,7 @@ int main(int argc, char** argv) {
         std::optional<rt::TriangleMesh> mesh;
         unsigned width = 480, height = 270, spp = 64;
         std::optional<double> yaw, pitch, distance;
+        rt::Settings settings;
         bool brute = false;
         std::string out = "render.ppm";
         for (int i = 1; i < argc; ++i) {
@@ -69,6 +72,16 @@ int main(int argc, char** argv) {
                 pitch = std::strtod(value().c_str(), nullptr);
             } else if (a == "--distance") {
                 distance = std::strtod(value().c_str(), nullptr);
+            } else if (a == "--light-azimuth") {
+                settings.light_azimuth = std::strtod(value().c_str(), nullptr);
+            } else if (a == "--light-elevation") {
+                settings.light_elevation = std::strtod(value().c_str(), nullptr);
+            } else if (a == "--kelvin") {
+                settings.light_kelvin = std::strtod(value().c_str(), nullptr);
+            } else if (a == "--fuzz") {
+                settings.fuzz = std::strtod(value().c_str(), nullptr);
+            } else if (a == "--ior") {
+                settings.ior = std::strtod(value().c_str(), nullptr);
             } else if (a == "--brute-force") {
                 brute = true;
             } else if (a == "-o") {
@@ -77,7 +90,11 @@ int main(int argc, char** argv) {
                 usage();
             }
         }
-        rt::Scene scene = rt::make_scene(kind, mesh ? &*mesh : nullptr, finish);
+        if (!settings.valid()) {
+            std::fputs("rt_render: light azimuth -180..180, elevation 10..85, kelvin 2000..10000, fuzz 0..0.5, ior 1..2.5\n", stderr);
+            return 2;
+        }
+        rt::Scene scene = rt::make_scene(kind, mesh ? &*mesh : nullptr, finish, settings);
         scene.use_bvh = !brute;
         const rt::View v = rt::default_view(kind);
         const auto camera = rt::Camera::orbit(v.target, yaw.value_or(v.yaw), pitch.value_or(v.pitch),

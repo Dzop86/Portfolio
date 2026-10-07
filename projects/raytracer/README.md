@@ -10,6 +10,7 @@ Un moteur de rendu par lancer de rayons (tracé de chemins) écrit en C++20, qui
 - **Géométrie :** sphères (racines sans annulation, précises loin de l'origine), plans, triangles (Möller-Trumbore, deux faces).
 - **Maillages :** OBJ, PLY ou STL lus par lib-c, normales lissées pondérées par l'aire, qui tiennent aussi sur une surface non orientable (ruban de Möbius) ; posés sur le sol et ramenés dans une sphère de rayon 1.
 - **BVH :** découpe selon l'heuristique de surface (SAH) sur 12 compartiments, feuilles de 4 triangles au plus, parcours itératif du plus proche au plus lointain ; vérifiée contre le test de tous les triangles un par un.
+- **Réglages :** direction et hauteur de la lumière, sa couleur en kelvins (corps noir, approximation de Tanner Helland, à luminance constante : la couleur change, pas la puissance), rugosité du métal, indice du verre ; appliqués à la scène sur place, sans reconstruire la BVH.
 - **Lumière :** tracé de chemins ; à chaque rebond diffus, la lumière sphérique est échantillonnée directement dans le cône qu'elle occupe (ombres douces), puis le chemin rebondit selon le cosinus ; roulette russe après 3 rebonds.
 - **Matériaux :** diffus (damier pour le sol), métal (flou réglable), verre (Snell, réflexion totale, Fresnel par Schlick).
 - **Image :** anticrénelage par un point tiré au hasard dans chaque pixel à chaque passe, courbe filmique ACES puis gamma 2.
@@ -28,7 +29,7 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 build/rt_render --scene mesh --mesh ../topologie/samples/torus.obj --finish glass --size 640x360 --spp 128 -o tore.ppm
 ```
-Options de `rt_render` : `--scene spheres|mesh`, `--mesh FICHIER`, `--finish diffuse|metal|glass`, `--size LxH`, `--spp N`, `--yaw`, `--pitch`, `--distance`, `--brute-force` (sans BVH), `-o FICHIER.ppm`.
+Options de `rt_render` : `--scene spheres|mesh`, `--mesh FICHIER`, `--finish diffuse|metal|glass`, `--size LxH`, `--spp N`, `--yaw`, `--pitch`, `--distance`, `--light-azimuth`, `--light-elevation`, `--kelvin`, `--fuzz`, `--ior`, `--brute-force` (sans BVH), `-o FICHIER.ppm`.
 
 ## En ligne
 Sur la fiche du projet, l'image de 480 × 270 est découpée en bandes de 8 lignes distribuées tour à tour entre plusieurs web workers (`src/assets/raytracer-bands.js`, 1 à 8, par défaut les cœurs moins un) ; chacun (`src/assets/raytracer-worker.js`) charge son module, rend ses bandes passe après passe jusqu'à 256 et envoie leurs lignes ; `src/assets/raytracerplay.js` les assemble dans un canevas. Choix de la scène (trois sphères, un des quatre maillages de topologie, ou un fichier OBJ, PLY ou STL du visiteur, choisi ou déposé sur l'image, 32 Mo au plus, lu par lib-c dans chaque worker ; s'il est refusé, la raison et la ligne s'affichent et la scène précédente revient), de la matière et du nombre de workers, orbite au clavier par les curseurs ou en faisant glisser l'image, pause, vue par défaut ; textes en français et en anglais, annonces pour les lecteurs d'écran.
@@ -36,19 +37,23 @@ Sur la fiche du projet, l'image de 480 × 270 est découpée en bandes de 8 lign
 ```sh
 scripts/build-wasm.sh                 # régénère src/assets/wasm/raytracer.{js,wasm}
 node scripts/bench-workers.mjs        # mesure 1, 2, 4 et 8 workers, écrit data/bench.json (affiché sur la fiche)
+node scripts/captures.mjs             # captures 640 × 360, 256 passes, par le moteur natif (build/rt_render), en PNG
 ```
+
+Les curseurs « Lumière et matières » règlent la lumière et les matières de toutes les scènes (ils restent quand la scène change) ; « Enregistrer l'image » télécharge l'image affichée en PNG. Quatre captures en haute définition, rendues par le moteur natif, sont affichées sous le rendu en ligne ; le PNG est écrit par le script lui-même (zlib de Node, sans dépendance).
 
 Gain mesuré sur un i5-10400F (6 cœurs, 12 threads) : 46,8 ms par passe avec 1 worker, 25,1 avec 2 (× 1,86), 14,5 avec 4 (× 3,23), 11,6 avec 8 (× 4,03).
 
-## Tests (32 GoogleTest, 10 Node, 25 Playwright)
+## Tests (39 GoogleTest, 12 Node, 35 Playwright)
 - **Optique et hasard :** réflexion, loi de Snell à plusieurs angles, réflexion totale au-delà de l'angle critique, Schlick de 4 % à 100 %, base orthonormée, générateur reproductible et uniforme.
 - **Intersections :** sphère de l'extérieur et de l'intérieur, petite sphère à un million d'unités, plan parallèle, triangle (barycentriques, deux faces), boîte avec un rayon posé sur une face (0 × ∞).
 - **Maillages et BVH :** erreurs de lib-c avec leur ligne, normales de la sphère vers l'extérieur, normales du ruban de Möbius, mise à l'échelle ; même distance que la force brute sur 3 000 rayons par maillage et sur 2 000 triangles au hasard ; arbre valide (chaque triangle une fois, boîtes englobantes) ; triangles tous superposés.
 - **Physique :** fournaise blanche (une sphère diffuse d'albédo 0,5 sous un ciel blanc uniforme renvoie exactement 0,5, le métal son albédo, le verre 1) ; sol sous une lumière sphérique égal à la valeur analytique albédo × Le × (r/d)² à 1 % ; ombre complète derrière un bloqueur ; la lumière vue directement n'est pas comptée deux fois.
+- **Réglages** (`tests/test_scenes.cpp`) : position de la lumière (distance, angles), corps noir du rouge au bleu et blanc vers 6500 K, luminance constante, valeurs hors bornes ou NaN refusées, réglages appliqués sur place = scène construite avec eux, la lumière déplacée change l'image.
 - **Images :** bandes dans n'importe quel ordre = image entière, BVH = force brute pixel pour pixel, deux images de référence (PSNR au-dessus de 45 dB, pour absorber les derniers bits de `sin`, `cos` et `tan` qui diffèrent entre les bibliothèques standard). `RT_UPDATE_REFERENCE=1` les réécrit.
 
-- **WebAssembly** (`tests/unit/raytracer-wasm.test.mjs`) : le module du site rend les deux images de référence du build natif (plus de 45 dB), bandes dans le désordre = passes entières, vue par défaut et remise à zéro, erreurs de lib-c avec leur ligne, un maillage dans chaque format (OBJ, PLY, STL texte et binaire) ; `tests/unit/raytracer-page.test.mjs` : la fiche, ses contrôles et ses textes dans les deux langues. `tests/unit/raytracer-bands.test.mjs` : répartition des bandes (chaque ligne une fois), compteur de passes, et trois modules qui rendent chacun leurs bandes = l'image d'un seul, octet pour octet.
-- **Playwright** (`tests/e2e/raytracer.spec.js`, 5 navigateurs) : l'image se construit, l'image change avec la scène, la caméra reste en place quand on change de matière ou de nombre de workers, fichier du visiteur choisi ou déposé, fichier fautif refusé avec sa ligne, curseurs au clavier, pause, accessibilité (axe), pas de défilement horizontal.
+- **WebAssembly** (`tests/unit/raytracer-wasm.test.mjs`) : le module du site rend les deux images de référence du build natif (plus de 45 dB), bandes dans le désordre = passes entières, vue par défaut et remise à zéro, erreurs de lib-c avec leur ligne, un maillage dans chaque format (OBJ, PLY, STL texte et binaire), réglages vérifiés et gardés d'une scène à l'autre, bornes des curseurs de la page = bornes du moteur ; `tests/unit/raytracer-page.test.mjs` : la fiche, ses contrôles et ses textes dans les deux langues. `tests/unit/raytracer-bands.test.mjs` : répartition des bandes (chaque ligne une fois), compteur de passes, et trois modules qui rendent chacun leurs bandes = l'image d'un seul, octet pour octet.
+- **Playwright** (`tests/e2e/raytracer.spec.js`, 5 navigateurs) : l'image se construit, l'image change avec la scène, la caméra reste en place quand on change de matière ou de nombre de workers, fichier du visiteur choisi ou déposé, fichier fautif refusé avec sa ligne, réglages au clavier, gardés d'une scène à l'autre et remis par défaut, image enregistrée en PNG, décimales à la française, curseurs au clavier, pause, accessibilité (axe), pas de défilement horizontal.
 
 **CI** (`.github/workflows/raytracer.yml`) : Linux, Windows et macOS, plus ASan et UBSan sous Linux ; avertissements en erreurs, contraction des multiplications-additions coupée (`-ffp-contract=off`) pour la même image partout. Un job recompile le WebAssembly et le compare octet pour octet au build commité.
 

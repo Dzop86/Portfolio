@@ -11,7 +11,7 @@ EMSDK_IMAGE=emscripten/emsdk:6.0.11
 
 exports=_malloc,_free,_rtc_load_mesh,_rtc_error,_rtc_error_line,_rtc_set_scene,_rtc_default_yaw,\
 _rtc_default_pitch,_rtc_default_distance,_rtc_set_view,_rtc_resize,_rtc_render,_rtc_pixels,_rtc_samples,\
-_rtc_width,_rtc_height,_rtc_triangles
+_rtc_width,_rtc_height,_rtc_triangles,_rtc_set_settings,_rtc_default_setting
 
 docker run --rm -u "$(id -u):$(id -g)" -e EM_CACHE=/tmp/em-cache \
   -v "$projects:/p:ro" -v "$out:/out" -w /tmp "$EMSDK_IMAGE" sh -c "

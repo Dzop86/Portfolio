@@ -29,3 +29,15 @@
 **Choix :** comme topologie (D15, D16) : `scripts/build-wasm.sh` compile dans l'image `emscripten/emsdk:6.0.11`, la sortie est commitée et un job de CI la recompile et la compare octet pour octet. Exceptions WebAssembly natives (`-fwasm-exceptions`), pour garder les `LoadError` de lib-c.
 **Pourquoi :** le site se construit sans Emscripten ; la CI garantit que ce qui est servi correspond aux sources testées.
 **Limite :** les exceptions WebAssembly natives demandent un navigateur de 2022 ou plus récent.
+
+## R7. Réglages de la lumière et des matières, appliqués sur place
+**Choix :** `rt::Settings` (azimut et hauteur de la lumière en degrés, température de couleur, rugosité du métal, indice du verre), avec ses bornes dans `valid()`, que les curseurs de la page reprennent (un test Node les compare au module). La couleur vient d'un corps noir (approximation de Tanner Helland), ramené à la luminance de l'ancienne lampe. `apply_settings` modifie la scène existante (lampe, matériaux) au lieu de la reconstruire.
+**Pourquoi :** une température est un seul curseur compréhensible (bougie, soleil, ciel couvert) et garde la puissance constante ; reconstruire la scène copierait le maillage et sa BVH à chaque mouvement de curseur, dans chaque worker.
+**Conséquence :** la lampe d'origine ({52, 48, 42} en (−3, 6, 3)) devient 5800 K à 135° et 55° : la plus proche (écart de 1,3 sur la couleur, de quelques centièmes sur la position). Les images de référence ont été régénérées (`RT_UPDATE_REFERENCE=1`) et relues.
+**Limite :** approximation du corps noir bonne à quelques pour cent entre 2000 et 10000 K, pas une colorimétrie exacte.
+
+## R8. Captures par le moteur natif, PNG écrit sans dépendance
+**Choix :** `scripts/captures.mjs` lance `rt_render` (640 × 360, 256 passes) et écrit les PNG avec `zlib` de Node (en-tête, IHDR, IDAT, IEND, CRC).
+**Pourquoi :** le moteur natif est plus rapide que le navigateur pour 256 passes et c'est le même code ; pas de paquet d'images à ajouter pour quatre fichiers.
+**Limite :** PNG sans filtre de ligne, un peu plus lourd (270 à 330 Ko par capture, chargées à la demande).
+

@@ -1,7 +1,8 @@
 // Ray tracer on its project page: the C++ engine in WebAssembly runs in several web workers
 // (assets/raytracer-worker.js), each rendering its own bands of rows (raytracer-bands.js); the page puts the
 // bands together in a canvas. Controls: scene (a sample or the visitor's file, chosen or dropped on the
-// image), finish, number of workers, orbit (sliders, or dragging the image), pause, default view.
+// image), finish, number of workers, orbit (sliders, or dragging the image), pause, default view, light and
+// materials (sliders), image saved as PNG.
 import { bandsFor, defaultWorkers, MAX_WORKERS, MAX_SAMPLES, PassCounter } from './raytracer-bands.js';
 import { MAX_BYTES } from './meshlib-api.js';
 
@@ -11,6 +12,8 @@ if (root) start(root);
 function start(root) {
   const labels = JSON.parse(root.dataset.labels);
   const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, k) => values[k]);
+  // Slider values in the page's language: 0,06 in French; no thousands separator (5800 K).
+  const number = (v) => Number(v).toLocaleString(document.documentElement.lang, { useGrouping: false, maximumFractionDigits: 2 });
   const canvas = root.querySelector('canvas');
   const ctx = canvas.getContext('2d');
   const sceneSelect = root.querySelector('[data-scene]');
@@ -18,6 +21,10 @@ function start(root) {
   const workersSelect = root.querySelector('[data-workers]');
   const sliders = Object.fromEntries([...root.querySelectorAll('[data-view]')].map((s) => [s.dataset.view, s]));
   const outputs = Object.fromEntries([...root.querySelectorAll('[data-view-value]')].map((o) => [o.dataset.viewValue, o]));
+  const knobs = Object.fromEntries([...root.querySelectorAll('[data-setting]')].map((s) => [s.dataset.setting, s]));
+  const knobOutputs = Object.fromEntries([...root.querySelectorAll('[data-setting-value]')].map((o) => [o.dataset.settingValue, o]));
+  const resetSettings = root.querySelector('[data-reset-settings]');
+  const save = root.querySelector('[data-save]');
   const pause = root.querySelector('[data-pause]');
   const reset = root.querySelector('[data-reset]');
   const progress = root.querySelector('[data-progress]');
@@ -25,7 +32,8 @@ function start(root) {
   const fileInput = root.querySelector('[data-file]');
   const errorBox = root.querySelector('[data-error]');
   const stage = root.querySelector('[data-drop]');
-  const controls = [sceneSelect, finishSelect, workersSelect, fileInput, ...Object.values(sliders), pause, reset];
+  const controls = [sceneSelect, finishSelect, workersSelect, fileInput, ...Object.values(sliders), ...Object.values(knobs),
+    pause, reset, resetSettings, save];
   const { width, height } = canvas;
   let defaultView = null;
   let paused = false;
@@ -34,6 +42,8 @@ function start(root) {
   let readies = 0, dones = 0, errorShown = false, passStart = 0, drawn = true;
   let showDefault = true; // a new scene shows its default view once ready
   let shown = { samples: 0, ms: 0 }; // the passes of the image drawn, and the time of the last one
+  let defaultSettings = null;
+  let settingsChanged = false; // until the visitor moves a setting, new workers take the engine's defaults
   let own = null;          // the visitor's file: { key, name, bytes }
   let files = 0;           // numbers the files, so that a worker knows whether it already has the bytes
   let previous = 0;        // the scene to come back to if the visitor's file cannot be read
@@ -84,9 +94,16 @@ function start(root) {
   const showView = (view) => {
     for (const [key, slider] of Object.entries(sliders)) {
       slider.value = String(Math.round(view[key] * 10) / 10);
-      outputs[key].textContent = fill(labels[`unit.${key}`], { v: slider.value });
+      outputs[key].textContent = fill(labels[`unit.${key}`], { v: number(slider.value) });
     }
   };
+  const showSettings = (settings) => {
+    for (const [key, knob] of Object.entries(knobs)) {
+      knob.value = String(settings[key]);
+      knobOutputs[key].textContent = fill(labels[`unit.${key}`], { v: number(knob.value) });
+    }
+  };
+  const currentSettings = () => Object.fromEntries(Object.entries(knobs).map(([k, s]) => [k, Number(s.value)]));
   const currentView = () => Object.fromEntries(Object.entries(sliders).map(([k, s]) => [k, Number(s.value)]));
 
   // A new scene or view starts again from no pass: the count must not show the previous image's.
@@ -119,6 +136,7 @@ function start(root) {
     workers.forEach((worker, k) => worker.postMessage({
       type: 'scene', generation, mesh: meshFor(option, worker), finish: finishSelect.value, width, height,
       bands: bandsFor(height, workers.length, k), view: showDefault ? null : currentView(),
+      settings: settingsChanged ? currentSettings() : null,
     }));
   }
 
@@ -166,6 +184,17 @@ function start(root) {
   }
 
   // The count and the progress change with the image drawn, not with the bands received.
+  function sendSettings() {
+    const settings = currentSettings();
+    showSettings(settings);
+    restart();
+    pause.disabled = false;
+    for (const worker of active()) {
+      worker.postMessage({ type: 'resume' });
+      worker.postMessage({ type: 'settings', settings, generation });
+    }
+  }
+
   function draw() {
     drawn = true;
     ctx.putImageData(image, 0, 0);
@@ -181,6 +210,7 @@ function start(root) {
       if (++readies < workers) return;
       defaultView = data.defaultView;
       if (showDefault) showView(defaultView);
+      if (!defaultSettings) showSettings((defaultSettings = data.defaultSettings));
       enable(true);
       canvas.setAttribute('aria-label', fill(labels.canvas, { scene: describe() }));
     } else if (data.type === 'band') {
@@ -238,6 +268,28 @@ function start(root) {
     if (!defaultView) return;
     showView(defaultView);
     sendView();
+  });
+  for (const knob of Object.values(knobs)) {
+    knob.addEventListener('input', () => {
+      settingsChanged = true;
+      sendSettings();
+    });
+  }
+  resetSettings.addEventListener('click', () => {
+    if (!defaultSettings) return;
+    showSettings(defaultSettings);
+    sendSettings();
+  });
+  // The image as shown, with as many passes as it has; the name says the scene and the passes.
+  save.addEventListener('click', () => {
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `raytracer-${sceneSelect.value}-${root.dataset.samples}.png`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }, 'image/png');
   });
   pause.addEventListener('click', () => {
     paused = !paused;
