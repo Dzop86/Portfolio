@@ -98,3 +98,28 @@ test('every technology of every project says what it does there, in both languag
     }
   }
 });
+
+test('PLAN.md follows the data: one row per project with its sprints and points, the total and the sprint count', async () => {
+  // Remark of Charles (7 October 2026): work added later must update the weights, the risks and the time too.
+  const { readFileSync } = await import('node:fs');
+  const plan = readFileSync(new URL('../../PLAN.md', import.meta.url), 'utf8');
+  const rows = [...plan.matchAll(/^\| \d+ \| [^|]+ \| [^|]+ \| (S[^|]+?) \| (\d+) \|$/gm)].map((m) => `${m[1]} ${m[2]}`);
+  assert.deepEqual(rows.sort(), projects.map((p) => `${p.sprint} ${p.points}`).sort());
+  const total = projects.reduce((acc, p) => acc + p.points, 0);
+  assert.match(plan, new RegExp(`Total : ${total} points sur ${scrum.sprintCount} sprints`));
+  assert.match(plan, new RegExp(`\\(S1 à S${scrum.sprintCount}\\)`));
+});
+
+test('every decision that changed the scope is in the outcome of the scope creep risk', () => {
+  assert.ok(scrum.scopeDecisions.length > 0);
+  const r2 = scrum.risks.find((r) => r.id === 'R2');
+  for (const d of scrum.scopeDecisions) {
+    for (const lang of LANGS) assert.ok(r2.outcome[lang].includes(d), `R2 ${lang}: ${d}`);
+  }
+});
+
+test('the sprints added after the plan are justified in the outcome of the time risk', () => {
+  const r8 = scrum.risks.find((r) => r.id === 'R8');
+  const last = Math.max(...sprints.map((s) => s.number));
+  for (const lang of LANGS) assert.ok(r8.outcome[lang].includes(String(last)), `R8 ${lang} mentions sprint ${last}`);
+});

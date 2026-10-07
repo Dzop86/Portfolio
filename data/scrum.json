@@ -1,6 +1,7 @@
 {
   "sprintLengthWeeks": 2,
   "sprintCount": 36,
+  "scopeDecisions": ["D25", "D31", "D32", "D45", "D46", "D47"],
   "phases": [
     {
       "sprints": "S1",
@@ -178,8 +179,8 @@
         "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
       },
       "outcome": {
-        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), chaque fois avec Charles.",
-        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), each time with Charles."
+        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), chaque fois avec Charles et dans des sprints à part, sans rien décaler.",
+        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), each time with Charles and in sprints of their own, delaying nothing."
       }
     },
     {
@@ -280,8 +281,8 @@
         "en": "Two buffer sprints, one project in progress at a time"
       },
       "outcome": {
-        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi.",
-        "en": "Did not happen: the two spare sprints were not needed."
+        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 et 36 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47).",
+        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 and 36 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47)."
       }
     },
     {

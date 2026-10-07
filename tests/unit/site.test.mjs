@@ -87,8 +87,12 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   if (finished) {
     assert.ok(html.includes(`Les ${closed} sprints sont terminés`));
     assert.doesNotMatch(page('en', 'method'), /forecast/);
-    // Projects may still be in progress (the showcase keeps evolving); no sprint is left to place them in.
-    assert.ok(html.includes('Tous les points prévus ont été livrés.') || html.includes('qui évolue en continu'));
+    // Projects may still be in progress (awaiting review); no sprint is left to place them in, and the page
+    // names them from the data rather than from a fixed example.
+    const open = loadData().projects.filter((p) => p.status !== 'done');
+    if (open.length === 0) assert.ok(html.includes('Tous les points prévus ont été livrés.'));
+    for (const p of open) assert.ok(html.includes(esc(p.name.fr)), `names ${p.id}`);
+    assert.doesNotMatch(html, /comme la vitrine/);
     assert.doesNotMatch(html, new RegExp(`sprints ${closed + 1} à`));
   } else {
     assert.ok(html.includes(`Sprints 1 à ${closed} terminés`));
@@ -481,6 +485,11 @@ test('the project management page shows the backlog, the sprint log and the metr
     const burn = html.slice(html.indexOf('data-chart="burndown"'), html.indexOf('</svg>', html.indexOf('data-chart="burndown"')));
     assert.equal((burn.match(/class="chart-target"/g) || []).length, sprints.length + 1);
     assert.ok(html.includes(`>${scrum.sprintCount}</text>`), 'the burndown runs to the last planned sprint');
+    // The burndown starts from today's scope: it says so, and which decisions changed it.
+    const total = loadData().projects.reduce((acc, p) => acc + p.points, 0);
+    const lead = html.slice(html.indexOf('id="h-burndown"'), html.indexOf('data-chart="burndown"'));
+    assert.ok(lead.includes(String(total)), `${lang}: burndown lead gives the scope`);
+    for (const d of scrum.scopeDecisions) assert.ok(lead.includes(d), `${lang}: burndown lead cites ${d}`);
     for (const id of ['h-backlog', 'h-sprintlog', 'h-metrics', 'h-estimation', 'h-retro', 'h-risks']) assert.ok(html.includes(`id="${id}"`), id);
   }
 });

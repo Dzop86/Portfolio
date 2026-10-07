@@ -14,7 +14,7 @@ Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9 | 5 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35 | 7 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36 | 17 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 177 points sur 36 sprints de deux semaines.
+Total : 179 points sur 36 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -61,7 +61,7 @@ Un morpion en Python (S22) et un roguelike 2D rejoignent les jeux, juste après 
 La migration Bootstrap (jQuery puis Bootstrap) est retirée. À sa place, un lancer de rayons en C++ compilé en WebAssembly, utilisable en ligne sur sa fiche (S33-S34, 8 points) : sphères, plans et maillages OBJ du fil rouge accélérés par une BVH, matériaux diffus, métal et verre, ombres, anticrénelage, rendu progressif, choix de la scène et de la caméra, image de référence testée.
 
 ## Finitions (demande de Charles, 7 octobre 2026, D46)
-Après le sprint 34, un sprint 35 de finitions (4 points) : une interface pour le carrefour en Ada (3 points de plus pour ce projet, qui passe à 8), dont la logique reste celle du programme Ada (il exporte son automate, la fiche le rejoue), et une gestion de projet à jour (vitrine terminée, backlog vide, bilan des risques).
+Après le sprint 34, un sprint 35 de finitions (5 points) : une interface pour le carrefour en Ada (3 points de plus pour ce projet, qui passe à 8), dont la logique reste celle du programme Ada (il exporte son automate, la fiche le rejoue), le rôle de chaque technologie sur chaque fiche et une gestion de projet à jour (vitrine terminée, backlog vide, bilan des risques) : 2 points de plus pour la vitrine, qui passe à 7. Règle depuis (remarque de Charles) : tout ajout met à jour la gestion de projet, poids, risques et calendrier, et des tests le vérifient.
 
 ## Hauteur et points critiques (demande de Charles, 7 octobre 2026, D47)
 Sprint 36 (4 points, topologie passe de 13 à 17) : sur la visionneuse de topologie, une filtration par la hauteur comme le filtre Elevation de ParaView, et les points critiques de la hauteur (minimums, selles, maximums) par la théorie de Morse discrète, calculés en C++.

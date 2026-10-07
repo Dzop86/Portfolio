@@ -466,13 +466,14 @@ function metricsSection({ lang, t, data }) {
   return `<section class="block" aria-labelledby="h-metrics">
   <h2 id="h-metrics">${esc(t('method.metrics'))}</h2>
   ${figure('velocity', t('method.velocity'), t('method.velocity.lead'), vel)}
-  ${figure('burndown', t('method.burndown'), fill(t('method.burndown.lead'), { count: bd.count }), bd, bd.legend)}
+  ${figure('burndown', t('method.burndown'), fill(t('method.burndown.lead'), { count: bd.count, total: bd.total, decisions: data.scrum.scopeDecisions.join(', ') }), bd, bd.legend)}
 </section>
 <section class="block" aria-labelledby="h-estimation">
   <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
   <p>${esc(fill(t(bd.remaining === 0 ? 'method.estimation.complete' : bd.last >= bd.count ? 'method.estimation.review' : 'method.estimation.text'), {
     mean: number(vel.mean, lang), min: Math.min(...v.map((x) => x.done)), max: Math.max(...v.map((x) => x.done)),
     delivered, committed, remaining: bd.remaining, next: bd.last + 1, last: bd.count,
+    projects: data.projects.filter((p) => p.status !== 'done').map((p) => pick(p.name, lang)).join(', '),
   }))}</p>
 </section>
 <section class="block" aria-labelledby="h-retro">
