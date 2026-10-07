@@ -12,7 +12,8 @@ import { ROOT } from '../../src/lib.mjs';
 /** COPY instructions of the build stage: [[sources...], destination]. */
 function copies() {
   const dockerfile = readFileSync(join(ROOT, 'Dockerfile'), 'utf8');
-  const buildStage = dockerfile.split(/^FROM /m)[1];
+  // The stage named build (the dashboard has its own stage before it, D43).
+  const buildStage = dockerfile.split(/^FROM /m).find((stage) => /\bAS build\b/.test(stage.split('\n')[0]));
   return [...buildStage.matchAll(/^COPY\s+(?!--from)(.+)$/gm)].map((m) => {
     const parts = m[1].trim().split(/\s+/);
     return [parts.slice(0, -1), parts.at(-1)];

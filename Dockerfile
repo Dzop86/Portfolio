@@ -1,4 +1,15 @@
-# Stage 1: build the static site.
+# Stage 1: the React dashboard (D43), built with its own dependencies; the site copies its dist/.
+FROM node:22-alpine AS dashboard
+WORKDIR /app/projects/react
+COPY projects/react/package.json projects/react/package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY projects/react/index.html projects/react/vite.config.ts projects/react/tsconfig.json projects/react/tsconfig.app.json ./
+COPY projects/react/src ./src
+# The site's colours, imported by the dashboard (rule 6).
+COPY src/assets/tokens.css /app/src/assets/
+RUN npm run build
+
+# Stage 2: build the static site.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -29,9 +40,10 @@ COPY projects/bataille/data/stats.json ./projects/bataille/data/
 # Tic-tac-toe move book computed by the Python program.
 COPY projects/morpion/data/book.json ./projects/morpion/data/
 COPY projects/parallele/data/bench.json ./projects/parallele/data/
+COPY --from=dashboard /app/projects/react/dist ./projects/react/dist
 RUN npm run build
 
-# Stage 2: serve it with nginx.
+# Stage 3: serve it with nginx.
 FROM nginx:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -1,0 +1,42 @@
+name: react
+
+on:
+  push:
+    branches: [main]
+    # The integration tests render the dashboard on the API the site builds from data/ and scrum/.
+    paths: ['projects/react/**', 'src/api.mjs', 'src/lib.mjs', 'src/assets/tokens.css', 'data/**', 'scrum/**', 'projects/parallele/data/**', 'projects/sql/data/**', 'projects/ml/export/**', '.github/workflows/react.yml']
+  pull_request:
+    paths: ['projects/react/**', 'src/api.mjs', 'src/lib.mjs', 'src/assets/tokens.css', 'data/**', 'scrum/**', 'projects/parallele/data/**', 'projects/sql/data/**', 'projects/ml/export/**', '.github/workflows/react.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: react-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: React dashboard (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: projects/react
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: projects/react/package-lock.json
+      - run: npm ci
+      # Strict types on the sources and the tests, then Vitest (unit and integration), then the bundle.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

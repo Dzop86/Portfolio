@@ -1,9 +1,10 @@
-import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { buildSync } from 'esbuild';
 import { ROOT, LANGS, PAGES, BASE_PATH, loadData, makeT, normalizeBase, esc, projectPage } from './lib.mjs';
 import { renderPage, renderProjectPage } from './templates.mjs';
+import { API_VERSION, buildApi } from './api.mjs';
 
 export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}) {
   const data = loadData();
@@ -120,6 +121,15 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     theme_color: '#181818',
     icons: [{ src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' }],
   }, null, 2));
+
+  // Static JSON API for the dashboards (D43).
+  mkdirSync(join(outDir, 'api', API_VERSION), { recursive: true });
+  for (const [file, body] of Object.entries(buildApi(data))) {
+    writeFileSync(join(outDir, 'api', API_VERSION, file), `${JSON.stringify(body, null, 2)}\n`);
+  }
+  // The React dashboard (D43), when it has been built (projects/react: npm run build).
+  const dashboard = join(ROOT, 'projects/react/dist');
+  if (existsSync(dashboard)) cpSync(dashboard, join(outDir, 'dashboard'), { recursive: true });
 
   writeFileSync(join(outDir, '.nojekyll'), '');
   return outDir;

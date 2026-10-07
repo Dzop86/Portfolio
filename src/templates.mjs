@@ -575,7 +575,8 @@ function contact({ t, data }) {
 
 function projectDetail(p, { lang, t, data }) {
   const { prev, next } = neighbours(data.projects, p.id);
-  const links = Object.entries(p.links ?? {});
+  // A link may name the page's language: "../dashboard/?lang={lang}".
+  const links = Object.entries(p.links ?? {}).map(([kind, url]) => [kind, url.replaceAll('{lang}', lang)]);
   const linkBlock = links.length
     ? `<div class="actions">${links.map(([kind, url], i) => `<a class="btn ${i ? 'btn-ghost' : 'btn-primary'}" href="${esc(url)}" data-link="${esc(kind)}">${esc(t(`project.link.${kind}`))}</a>`).join('')}</div>`
     : `<p class="notice" data-no-links>${esc(t('project.nolinks'))} ${esc(p.sprint)}.</p>`;
