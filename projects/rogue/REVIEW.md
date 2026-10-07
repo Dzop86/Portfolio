@@ -9,10 +9,10 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] Le jeu ressemble-t-il à celui de mes études ? Difficulté (le pilote automatique sort du donjon une fois sur quatre) ?
 - [x] `src/Rogue.Api/Endpoints/RunEndpoints.cs` : délivrance des graines et vérification des parties (sprint 24).
 - [x] `src/Rogue.Api/Endpoints/AccountEndpoints.cs` et `Tokens.cs` : comptes, mots de passe, jetons JWT (sprint 24).
-- [ ] `godot/Main.cs` et `godot/MapView.cs` : le client Godot, menus, clavier, parties classées (sprint 25).
-- [ ] Le client Godot chez moi : lancer une partie libre, puis une partie classée sur `docker compose up rogue-api` (sprint 25).
+- [x] `godot/Main.cs` et `godot/MapView.cs` : le client Godot, menus, clavier, parties classées (sprint 25).
+- [x] Le client Godot chez moi : lancer une partie libre, puis une partie classée sur `docker compose up rogue-api` (sprint 25).
 
-> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, pousse »), pour le volet du sprint 23 (règles et terminal) ; puis, pour le sprint 24 (API de scores), à sa demande explicite (« review validée, push »).
+> Cases cochées par Claude le 7 octobre 2026, à la demande explicite de Charles (« review ok, pousse »), pour le volet du sprint 23 (règles et terminal) ; puis, pour le sprint 24 (API de scores), à sa demande explicite (« review validée, push ») ; puis, pour le sprint 25 (client Godot), à sa demande explicite (« valide les reviews, on passe au suivant »).
 
 ## Constats
 
