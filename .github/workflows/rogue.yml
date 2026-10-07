@@ -59,6 +59,82 @@ jobs:
           printf 'ddsssllkkjj.x' | dotnet run --project src/Rogue.Cli -c Release --no-build -- --seed 42 --save "$RUNNER_TEMP/run.json"
           dotnet run --project src/Rogue.Cli -c Release --no-build -- --replay "$RUNNER_TEMP/run.json"
 
+  godot:
+    name: Godot client, without a screen (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rogue/global.json
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: true
+          include-templates: false
+      - name: Build the C# scripts
+        run: dotnet build godot/Rogue.Godot.csproj
+      - name: Import the project
+        run: godot --headless --path godot --import
+      # The client plays a whole run through the keyboard's code path, then checks it by replay.
+      - name: A whole run in the client
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --selftest --seed 9 --report "$RUNNER_TEMP/selftest.txt"
+          cat "$RUNNER_TEMP/selftest.txt"
+          grep -q "SELFTEST OK seed 9: Escaped, floor 5, 1083 turns, score 1926" "$RUNNER_TEMP/selftest.txt"
+
+  exports:
+    name: Godot exports (Windows, Linux, macOS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rogue/global.json
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: true
+          include-templates: true
+      - run: godot --headless --path godot --import
+      - name: Export the three desktop builds
+        run: |
+          mkdir -p godot/build/linux godot/build/windows godot/build/macos
+          for preset in Linux Windows macOS; do
+            godot --headless --path godot --export-release "$preset" 2>&1 | tee -a "$RUNNER_TEMP/export.log"
+          done
+          # Godot exits with 0 even when it could not export the C# part: check that it is there.
+          if grep -q "ERROR" "$RUNNER_TEMP/export.log"; then exit 1; fi
+          test -f godot/build/linux/data_Rogue.Godot_linuxbsd_x86_64/Rogue.Godot.dll
+          test -f godot/build/windows/data_Rogue.Godot_windows_x86_64/Rogue.Godot.dll
+          unzip -l godot/build/macos/rogue.zip | grep -q "data_Rogue.Godot_macos_arm64/Rogue.Godot.dll"
+      - name: The exported Linux build plays a whole run
+        timeout-minutes: 5
+        run: |
+          godot/build/linux/rogue.x86_64 --headless -- --selftest --seed 9 --report "$RUNNER_TEMP/selftest.txt"
+          grep -q "SELFTEST OK seed 9: Escaped" "$RUNNER_TEMP/selftest.txt"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rogue-linux
+          path: projects/rogue/godot/build/linux
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rogue-windows
+          path: projects/rogue/godot/build/windows
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rogue-macos
+          path: projects/rogue/godot/build/macos
+          retention-days: 14
+
   api:
     name: Score API, ASP.NET Core and PostgreSQL
     runs-on: ubuntu-latest

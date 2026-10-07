@@ -2,9 +2,9 @@
 
 [![rogue](https://github.com/Dzop86/Portfolio/actions/workflows/rogue.yml/badge.svg)](https://github.com/Dzop86/Portfolio/actions/workflows/rogue.yml)
 
-Réécriture d'un jeu de mes études : un roguelike au tour par tour, en C#. Les règles vivent dans une bibliothèque déterministe (sprint 23), jouable dans le terminal ; une partie s'enregistre (graine et actions) et se rejoue à l'identique. L'API de scores (sprint 24) s'en sert : elle tire la graine de chaque partie classée, rejoue la partie envoyée et calcule elle-même le score. Le client Godot 4 viendra au sprint 25.
+Réécriture d'un jeu de mes études : un roguelike au tour par tour, en C#. Les règles vivent dans une bibliothèque déterministe (sprint 23), jouable dans le terminal ; une partie s'enregistre (graine et actions) et se rejoue à l'identique. L'API de scores (sprint 24) s'en sert : elle tire la graine de chaque partie classée, rejoue la partie envoyée et calcule elle-même le score. Le client Godot 4 (sprint 25) joue dans une fenêtre, en partie libre ou classée.
 
-*A turn-based roguelike in C#: deterministic rules library (seeded dungeons, field of view, fights, five floors), a terminal client in French and English, an autopilot, and recorded runs that replay to the same score on Linux, Windows and macOS. An ASP.NET Core score API (JWT accounts, EF Core, PostgreSQL, OpenAPI, Docker) draws each ranked run's seed and computes the score by replaying the run. Next: a Godot 4 client.*
+*A turn-based roguelike in C#: deterministic rules library (seeded dungeons, field of view, fights, five floors), a terminal client in French and English, an autopilot, and recorded runs that replay to the same score on Linux, Windows and macOS. An ASP.NET Core score API (JWT accounts, EF Core, PostgreSQL, OpenAPI, Docker) draws each ranked run's seed and computes the score by replaying the run. A Godot 4 desktop client (Windows, Linux, macOS builds from the CI) plays free or ranked runs.*
 
 ## Le jeu
 Cinq étages à traverser, du premier escalier à la sortie. On se déplace dans les quatre directions ; marcher sur un monstre l'attaque. Rats et gobelins aux premiers étages, orques et trolls plus bas. Potions (12 PV), or, expérience et niveaux. Score : l'or, la valeur des monstres tués, 100 points par étage atteint après le premier, 500 points pour la sortie.
@@ -23,7 +23,7 @@ Cinq étages à traverser, du premier escalier à la sortie. On se déplace dans
 ```
 
 ## Organisation
-- **`src/Rogue.Core`** (net8.0, sans dépendance ; la version que cible Godot 4) :
+- **`src/Rogue.Core`** (net10.0, sans dépendance) :
   - `Rng.cs` : SplitMix64, identique sur toutes les plateformes et toutes les versions de .NET (ce que `System.Random` ne garantit pas), tirages sans biais de modulo.
   - `Level.cs` : génération d'un étage à partir de la graine : jusqu'à neuf salles sans chevauchement, triées de gauche à droite et reliées dans cet ordre par des couloirs en L, donc toutes atteignables ; monstres selon la profondeur, potions, or.
   - `FieldOfView.cs` : vision dans un rayon de 6 cases, lignes de Bresenham arrêtées par les murs ; les cases vues restent en mémoire.
@@ -31,7 +31,9 @@ Cinq étages à traverser, du premier escalier à la sortie. On se déplace dans
   - `Replay.cs` : format de partie versionné, `{"format":"rogue-run","version":1,"seed":"42","actions":"ees>"}` (une lettre par action, graine en chaîne car un entier de 64 bits ne tient pas dans un nombre JavaScript), et rejeu qui recalcule l'issue et le score en refusant toute action non permise à ce moment-là, avec sa position.
   - `Autopilot.cs` : un joueur automatique simple (boit quand il est mal en point, combat, se repose, ramasse, explore, descend), qui ne se sert que de ce que le joueur peut savoir.
 - **`src/Rogue.Cli`** (net10.0) : le jeu dans le terminal, en français ou en anglais ; les cases hors de vue sont en gris foncé.
+- **`src/Rogue.Client`** (net10.0) : ce que partagent les deux clients : textes français et anglais, touches, client HTTP de l'API (`ScoresClient`).
 - **`src/Rogue.Api`** (net10.0) : l'API de scores, décrite plus bas.
+- **`godot/`** : le client Godot 4.7 en C# (net10.0), décrit plus bas.
 - **`samples/`** : deux parties du pilote automatique (une sortie du donjon, une mort), rejouées par la CI.
 
 ## Lancer
@@ -69,23 +71,41 @@ scripts/smoke.sh http://localhost:8001        # de bout en bout : compte, graine
 ```
 La clé de signature des jetons se donne par la variable `ROGUE_JWT_KEY` (base64, 32 octets) ; sans elle, l'API en tire une au démarrage et les jetons ne survivent pas à un redémarrage.
 
+## Le client Godot
+![Une partie en cours dans le client Godot](../../src/assets/images/rogue-fr.png)
+
+Godot 4.7 .NET, moteur de rendu « compatibilité » (OpenGL 3). Deux scripts minces : `MapView.cs` dessine l'étage aux couleurs du portfolio (cases hors de vue assombries, monstres seulement en vue), `Main.cs` relie le menu, le clavier, le pilote automatique et les parties classées aux bibliothèques. Toute l'interface se pilote au clavier.
+
+- **Partie classée** : nom, mot de passe et adresse du serveur (`http://localhost:8001/` par défaut, celle de `compose.yaml`) ; création de compte ; la graine vient du serveur ; à la fin, la partie est envoyée, et le client affiche le verdict du serveur et le classement.
+- **Options de ligne de commande** (après `--`) : `--lang fr|en`, `--seed N`, `--selftest [--report FICHIER]` (joue une partie entière sans écran par le même chemin que le clavier, la vérifie par rejeu, vérifie le panneau de fin et le changement de langue), `--screenshot FICHIER --turns N` (capture après N tours du pilote automatique, dès qu'un monstre est en vue).
+
+```sh
+dotnet build godot/Rogue.Godot.csproj && godot --path godot                 # jouer (Godot 4.7 .NET)
+godot --headless --path godot -- --selftest --seed 9                         # le test sans écran de la CI
+xvfb-run godot --path godot --rendering-driver opengl3 -- --screenshot ../../src/assets/images/rogue-fr.png --seed 7 --turns 600 --lang fr
+```
+Les exécutables Windows, Linux et macOS sont produits par la CI (job « Godot exports », artefacts gardés 14 jours) ; ils ne sont pas signés : SmartScreen et Gatekeeper avertissent au premier lancement.
+
 ## Équilibrage
 Sur 1 000 parties (graines 0 à 999), le pilote automatique sort du donjon 276 fois (27,6 %), score moyen 1 316, 1 155 tours en moyenne ; il meurt surtout aux étages 4 (388) et 5 (279). La première version était trop facile : il gagnait les 200 parties d'essai, avec un soin complet à chaque niveau.
 
 ## Tests
-- **xUnit v3** sur Microsoft.Testing.Platform, 725 tests :
+- **xUnit v3** sur Microsoft.Testing.Platform, 727 tests :
   - générateur aléatoire (valeurs de référence de SplitMix64, bornes, répartition) ;
   - 500 étages générés (100 graines × 5 profondeurs) : salles disjointes, murs tout autour, toutes les cases atteignables depuis le départ, escalier unique, monstres et objets sur des cases libres ; plus de monstres forts en profondeur ;
   - règles sur de petits étages dessinés à la main : murs, escalier, potions, or, combat, expérience, poursuite par le plus court chemin, monstres endormis, mort, régénération, vision ;
   - rejeu de 100 parties complètes au même score, parties de référence (graine → issue, tours et score exacts, vérifiées sur les trois systèmes), 13 formats invalides, action inconnue, impossible ou après la fin, partie trop longue, partie copiée sur une autre graine ;
   - client : options, partie jouée au clavier puis enregistrée et rejouée, messages des deux langues pour chaque événement (trouvés par réflexion), touches, écran ;
-  - API (32 tests d'intégration, `WebApplicationFactory`, une base PostgreSQL neuve par classe de tests, horloge simulée) : comptes, noms uniques sans tenir compte de la casse, mots de passe hachés, jetons expirés ou forgés, limitation du débit, partie jouée sur la graine du serveur et marquée au même score que dans le client, envoi unique même simultané, partie d'un autre joueur, expiration, autre graine, partie inachevée, refusée par les règles, mal formée ou trop longue, classement, document OpenAPI.
+  - API (32 tests d'intégration, `WebApplicationFactory`, une base PostgreSQL neuve par classe de tests, horloge simulée) : comptes, noms uniques sans tenir compte de la casse, mots de passe hachés, jetons expirés ou forgés, limitation du débit, partie jouée sur la graine du serveur et marquée au même score que dans le client, envoi unique même simultané, partie d'un autre joueur, expiration, autre graine, partie inachevée, refusée par les règles, mal formée ou trop longue, classement, document OpenAPI ; le client HTTP des jeux (`ScoresClient`) contre la vraie API, de l'inscription au classement, et ses refus.
 - **Vérifié en cassant le code** : sans le premier couloir, 453 tests échouent ; sans le contrôle des actions après la fin, ou sans le filtre sur le propriétaire d'une partie dans l'API, le test correspondant échoue.
 - **Analyseurs .NET** au niveau recommandé, avertissements traités en erreurs, `dotnet format` vérifié.
-- **CI** (`.github/workflows/rogue.yml`) : Linux, Windows et macOS (compilation de tout, tests des règles et du terminal, rejeu des parties de `samples/`, partie jouée au clavier puis rejouée) ; tests de l'API avec un service PostgreSQL et contrôle que les migrations suivent le modèle ; image Docker construite par `compose.yaml` et testée de bout en bout par `scripts/smoke.sh` (dont le refus d'un corps de 300 Ko).
+- **Client Godot** : test sans écran (`--selftest`) sur Linux, Windows et macOS ; l'exécutable Linux exporté le repasse ; la fiche du projet est vérifiée par Playwright et axe.
+- **CI** (`.github/workflows/rogue.yml`) : Linux, Windows et macOS (compilation de tout, client Godot compris, tests des règles et du terminal, rejeu des parties de `samples/`, partie jouée au clavier puis rejouée, test sans écran du client Godot) ; exports Godot des trois systèmes, dont la présence du code C# est vérifiée (Godot réussit l'export sans lui quand il manque le fichier `.sln`) ; tests de l'API avec un service PostgreSQL et contrôle que les migrations suivent le modèle ; image Docker construite par `compose.yaml` et testée de bout en bout par `scripts/smoke.sh` (dont le refus d'un corps de 300 Ko).
 
 ## Limites
-- Pas encore d'interface graphique : le client Godot 4 arrive au sprint 25 (Godot 4 n'exporte pas le C# vers le web : client de bureau seulement). L'API n'est pas hébergée en ligne (le portfolio est un site statique) : elle se lance avec Docker.
+- Godot 4 n'exporte pas le C# vers le Web : pas de partie dans le navigateur, la fiche du projet montre une capture. L'API n'est pas hébergée en ligne (le portfolio est un site statique) : elle se lance avec Docker.
+- Les exécutables ne sont pas signés ; ils restent 14 jours dans les artefacts de la CI (pas de page de téléchargement).
+- Le client Godot n'a pas de tests unitaires propres : sa logique est dans les bibliothèques testées, et son test sans écran parcourt le chemin du clavier, mais pas les formulaires de connexion (couverts par les tests de `ScoresClient`).
 - Les tests de l'API tournent sous Linux seulement : les machines Windows et macOS de GitHub n'exécutent pas de conteneurs Linux ; l'API y est compilée.
 - Dans `compose.yaml`, PostgreSQL accepte les connexions sans mot de passe : la base n'est joignable que par les services du fichier (aucun port publié). Un déploiement réel passerait un mot de passe par un secret.
 - Les monstres ne se déplacent pas en diagonale et ne s'enfuient pas.

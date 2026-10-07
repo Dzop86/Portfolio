@@ -291,3 +291,17 @@ test('the ML page shows the measured results: accuracies, threshold, both confus
     assert.equal((html.match(/cm cm-diag/g) ?? []).length, 2 * diag.length);
   }
 });
+
+test('the roguelike page shows the Godot client in each language, with the commands to play', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, 'project-rogue');
+    const img = html.match(/<img src="\.\.\/assets\/images\/(rogue-(\w+)\.png)" width="1280" height="720" loading="lazy" alt="([^"]+)">/);
+    assert.ok(img, lang);
+    assert.equal(img[2], lang);
+    assert.ok(existsSync(join(ROOT_DIR, 'src/assets/images', img[1])), img[1]);
+    assert.ok(img[3].length > 80, 'a descriptive alt text');
+    assert.match(html, /dotnet run --project src\/Rogue\.Cli/);
+    assert.match(html, /docker compose up --build rogue-api/);
+    assert.match(html, /godot --path godot/);
+  }
+});

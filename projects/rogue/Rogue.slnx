@@ -5,6 +5,9 @@
     <Project Path="src/Rogue.Cli/Rogue.Cli.csproj" />
     <Project Path="src/Rogue.Client/Rogue.Client.csproj" />
   </Folder>
+  <Folder Name="/godot/">
+    <Project Path="godot/Rogue.Godot.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Rogue.Core.Tests/Rogue.Core.Tests.csproj" />
     <Project Path="tests/Rogue.Api.Tests/Rogue.Api.Tests.csproj" />

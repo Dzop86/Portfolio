@@ -427,6 +427,7 @@ ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
+${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
@@ -855,6 +856,23 @@ function navalScreenshot(t, lang) {
   </figure>
   <pre class="naval-run" tabindex="0"><code>cd projects/naval
 mvn javafx:run</code></pre>
+</section>`;
+}
+
+// The roguelike (D32): Godot 4 does not export C# to the web; the screenshot comes from the client itself.
+function rogueScreenshot(t, lang) {
+  return `<section class="block panel" aria-labelledby="h-rogue">
+  <h2 id="h-rogue">${esc(t('rogue.title'))}</h2>
+  <p>${esc(t('rogue.lead'))}</p>
+  <figure class="naval-shot rogue-shot">
+    <img src="../assets/images/rogue-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t('rogue.alt'))}">
+    <figcaption class="meta">${esc(t('rogue.caption'))}</figcaption>
+  </figure>
+  <p>${esc(t('rogue.run'))}</p>
+  <pre class="naval-run" tabindex="0"><code>cd projects/rogue
+dotnet run --project src/Rogue.Cli -- --lang ${lang}     # ${esc(t('rogue.terminal'))}
+docker compose up --build rogue-api                # ${esc(t('rogue.api'))}
+godot --path godot                                 # ${esc(t('rogue.godot'))}</code></pre>
 </section>`;
 }
 

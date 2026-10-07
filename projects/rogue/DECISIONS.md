@@ -11,9 +11,9 @@
 **Alternatives :** envoyer le score signé par le client (la clé serait dans le client), envoyer l'état final (invérifiable).
 **Limite :** rien n'empêche un joueur de chercher hors ligne la meilleure suite d'actions pour une graine choisie : d'où R6.
 
-## R3. La bibliothèque en net8.0, le reste en net10.0
-**Choix :** `Rogue.Core` cible net8.0, la version des projets C# de Godot 4 ; le terminal et les tests ciblent net10.0 (LTS).
-**Limite :** .NET 8 n'est plus supporté après novembre 2026 ; la cible suivra celle de Godot.
+## R3. Tout en net10.0
+**Choix :** les bibliothèques, le terminal, l'API, les tests et le client Godot ciblent net10.0 (LTS, jusqu'en novembre 2028).
+**Révision (sprint 25) :** la bibliothèque de règles ciblait d'abord net8.0, la version des projets C# de Godot 4 ; Godot 4.7 fait tourner un projet en net10.0 (vérifié), et .NET 8 n'est plus supporté après novembre 2026.
 
 ## R4. Des étages simples, toujours connexes
 **Choix :** salles rectangulaires triées de gauche à droite, chacune reliée à la suivante par un couloir en L.
@@ -43,3 +43,13 @@
 ## R9. Une erreur du client ne ferme pas la partie
 **Choix :** un corps mal formé, une autre graine ou une partie inachevée sont refusés sans fermer la partie ; une partie que les règles refusent (action impossible) la ferme, comme une partie marquée.
 **Pourquoi :** un client défectueux ne doit pas faire perdre une partie ; un tricheur ne doit pas pouvoir essayer plusieurs suites d'actions sur la même graine.
+
+## R10. Un client Godot mince
+**Choix :** deux scripts C# (`Main.cs`, `MapView.cs`) construisent l'interface en code (une scène d'un seul nœud) et délèguent tout aux bibliothèques : règles et pilote automatique (`Rogue.Core`), textes, touches et client HTTP (`Rogue.Client`, partagée avec le terminal).
+**Pourquoi :** ce qui est testé par xUnit est ce que joue la fenêtre ; une scène construite en code se relit et se compare dans git, contrairement à un long `.tscn`.
+**Limite :** pas d'éditeur visuel pour retoucher la mise en page ; dessin simple (rectangles et lettres), sans sprites.
+
+## R11. Le client se teste lui-même
+**Choix :** le client a deux modes en ligne de commande : `--selftest` joue une partie entière par le chemin du clavier (y compris une vraie touche simulée) et la vérifie par rejeu ; `--screenshot` enregistre la fenêtre (captures de la fiche, faites dans un écran virtuel Xvfb).
+**Pourquoi :** Godot n'a pas de cadre de test intégré en C# ; ces modes tournent sans écran sur les trois systèmes de la CI, et sur l'exécutable exporté.
+**Limite :** les formulaires de connexion ne sont pas parcourus par le test sans écran.

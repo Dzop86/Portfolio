@@ -103,7 +103,7 @@
     "pitch": { "fr": "Réécriture d'un jeu de mes études : le morpion contre une IA imbattable (minimax), en Python.", "en": "Rewrite of a game from my studies: tic-tac-toe against an unbeatable AI (minimax), in Python." },
     "stack": ["Python", "pytest", "mypy"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/morpion" } },
-  { "id": "rogue", "sprint": "S23-S25", "points": 13, "status": "in-progress", "group": "games",
+  { "id": "rogue", "sprint": "S23-S25", "points": 13, "status": "in-progress", "group": "games", "widget": "rogue-screenshot",
     "name": { "fr": "Roguelike 2D", "en": "2D roguelike" },
     "pitch": { "fr": "Réécriture d'un jeu de mes études : un roguelike 2D sous Godot 4 en C#, et une API ASP.NET Core de scores (comptes JWT, PostgreSQL) qui vérifie chaque partie en la rejouant.", "en": "Rewrite of a game from my studies: a 2D roguelike in Godot 4 with C#, and an ASP.NET Core score API (JWT accounts, PostgreSQL) that checks every run by replaying it." },
     "stack": ["Godot 4", "C#", ".NET", "ASP.NET Core", "EF Core", "PostgreSQL", "JWT", "OpenAPI", "xUnit", "Docker"],
