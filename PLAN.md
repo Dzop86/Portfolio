@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S36), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S38), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -15,7 +15,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
 | 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35 | 7 |
-| 2 | Topologie 3D | C++, Three.js | S4-S5+S36 | 17 |
+| 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S38 | 25 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
 | 5 | API Python | FastAPI, pytest, Docker | S6-S7 | 8 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 179 points sur 36 sprints de deux semaines.
+Total : 187 points sur 38 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -65,6 +65,9 @@ Après le sprint 34, un sprint 35 de finitions (5 points) : une interface pour l
 
 ## Hauteur et points critiques (demande de Charles, 7 octobre 2026, D47)
 Sprint 36 (4 points, topologie passe de 13 à 17) : sur la visionneuse de topologie, une filtration par la hauteur comme le filtre Elevation de ParaView, et les points critiques de la hauteur (minimums, selles, maximums) par la théorie de Morse discrète, calculés en C++.
+
+## Persistance et graphe de Reeb (demande de Charles, 8 octobre 2026, D48)
+Deux sprints de 4 points, topologie passe de 17 à 25. Sprint 37 : diagrammes de persistance de la hauteur (paires naissance-mort en dimensions 0, 1 et 2, classes sans fin égales aux nombres de Betti), calculés en C++ par réduction de la matrice de bord, affichés sur la fiche avec un seuil qui sépare le bruit des vraies formes. Sprint 38 : graphe de Reeb de la hauteur (composantes des lignes de niveau entre deux valeurs critiques), autant de boucles que le genre, dessiné sur le maillage.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.

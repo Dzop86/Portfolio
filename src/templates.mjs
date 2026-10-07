@@ -382,9 +382,18 @@ function axisY(max, step, y) {
   return ticks.join('');
 }
 
+// Velocity of the closed sprints (every story done or abandoned), or of every sprint before the first closes.
+function closedVelocity(sprints) {
+  const { done } = roadmapState(sprints);
+  const closed = velocity(sprints).filter((x) => x.number <= done);
+  return closed.length > 0 ? closed : velocity(sprints);
+}
+
 function velocityChart({ lang, t, data }) {
   const v = velocity(data.sprints);
-  const mean = v.reduce((acc, x) => acc + x.done, 0) / v.length;
+  // The mean is the capacity: closed sprints only, an open sprint is not a slow one.
+  const closed = closedVelocity(data.sprints);
+  const mean = closed.reduce((acc, x) => acc + x.done, 0) / closed.length;
   const max = 10;
   const plotW = CHART.w - CHART.left - CHART.right;
   const plotH = CHART.h - CHART.top - CHART.bottom;
@@ -453,7 +462,7 @@ function burndownChart({ lang, t, data }) {
 function metricsSection({ lang, t, data }) {
   const vel = velocityChart({ lang, t, data });
   const bd = burndownChart({ lang, t, data });
-  const v = velocity(data.sprints);
+  const v = closedVelocity(data.sprints);
   const committed = v.reduce((acc, x) => acc + x.committed, 0);
   const delivered = v.reduce((acc, x) => acc + x.done, 0);
   const figure = (id, title, lead, chart, extra = '') => `<figure class="chart-figure">
@@ -472,7 +481,7 @@ function metricsSection({ lang, t, data }) {
   <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
   <p>${esc(fill(t(bd.remaining === 0 ? 'method.estimation.complete' : bd.last >= bd.count ? 'method.estimation.review' : 'method.estimation.text'), {
     mean: number(vel.mean, lang), min: Math.min(...v.map((x) => x.done)), max: Math.max(...v.map((x) => x.done)),
-    delivered, committed, remaining: bd.remaining, next: bd.last + 1, last: bd.count,
+    delivered, committed, remaining: bd.remaining, next: roadmapState(data.sprints).current, last: bd.count,
     projects: data.projects.filter((p) => p.status !== 'done').map((p) => pick(p.name, lang)).join(', '),
   }))}</p>
 </section>

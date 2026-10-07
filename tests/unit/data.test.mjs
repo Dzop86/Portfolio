@@ -70,7 +70,7 @@ test('every sprint file has a numbered story table with points', () => {
 
 test('sprint labels are well formed and follow the order decided on 6 October 2026', () => {
   const first = (id) => Number(projects.find((p) => p.id === id).sprint.match(/^S(\d+)/)[1]);
-  for (const p of projects) assert.match(p.sprint, /^S\d+(-S\d+)?(\+S\d+)?$/, p.id);
+  for (const p of projects) assert.match(p.sprint, /^S\d+(-S\d+)?(\+S\d+(-S\d+)?)?$/, p.id);
   const order = ['ada', 'sql', 'langage', 'latex', 'gcartes'];
   for (let i = 1; i < order.length; i++) assert.ok(first(order[i - 1]) < first(order[i]), `${order[i - 1]} before ${order[i]}`);
   assert.ok(first('gcartes') < first('qt'), 'the Qt viewer comes after the G-maps course');
@@ -120,6 +120,6 @@ test('every decision that changed the scope is in the outcome of the scope creep
 
 test('the sprints added after the plan are justified in the outcome of the time risk', () => {
   const r8 = scrum.risks.find((r) => r.id === 'R8');
-  const last = Math.max(...sprints.map((s) => s.number));
-  for (const lang of LANGS) assert.ok(r8.outcome[lang].includes(String(last)), `R8 ${lang} mentions sprint ${last}`);
+  // The last planned sprint, not the last sprint file: a sprint is planned before its file is opened.
+  for (const lang of LANGS) assert.ok(r8.outcome[lang].includes(String(scrum.sprintCount)), `R8 ${lang} mentions sprint ${scrum.sprintCount}`);
 });

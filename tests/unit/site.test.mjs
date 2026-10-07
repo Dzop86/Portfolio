@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
 import { renderPage, renderProjectPage } from '../../src/templates.mjs';
-import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT, velocity } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -97,6 +97,11 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   } else {
     assert.ok(html.includes(`Sprints 1 à ${closed} terminés`));
     assert.match(page('en', 'method'), /forecast/);
+    // The capacity counts closed sprints only (an open sprint is not a slow one), and the forecast starts
+    // at the sprint in progress.
+    const done = velocity(sprints).filter((x) => x.number <= closed).map((x) => x.done);
+    assert.ok(html.includes(`de ${Math.min(...done)} à ${Math.max(...done)} ;`), 'capacity range of the closed sprints');
+    assert.ok(html.includes(`dans les sprints ${closed + 1} à ${scrum.sprintCount}.`), 'forecast from the sprint in progress');
   }
 });
 test('no raw i18n key leaks into the HTML', () => {
