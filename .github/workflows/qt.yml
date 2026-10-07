@@ -23,10 +23,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    env:
-      # Windows runners have no graphics card: Qt's software OpenGL (Mesa llvmpipe, opengl32sw.dll)
-      # gives the tests an OpenGL 3.3 context. Linux uses Mesa under a virtual screen.
-      QT_OPENGL: software
     steps:
       - uses: actions/checkout@v7
       # Qt 6.10.3: aqtinstall cannot read the Windows repository of Qt 6.11 (missing checksum,
@@ -42,12 +38,30 @@ jobs:
         run: cmake -S projects/qt -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
         run: cmake --build build --config Release --parallel
+      # Windows runners have no graphics card: Mesa's software OpenGL (llvmpipe), placed next to the
+      # programs, gives the tests an OpenGL 3.3 context. Linux uses Mesa under a virtual screen.
+      - name: Mesa's software OpenGL (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/mesa.7z" https://github.com/pal1000/mesa-dist-win/releases/download/26.2.4/mesa3d-26.2.4-release-msvc.7z
+          7z x -y -o"$RUNNER_TEMP/mesa" "$RUNNER_TEMP/mesa.7z" > /dev/null
+          cp "$RUNNER_TEMP"/mesa/x64/*.dll build/Release/
       - name: Tests (Qt Test), Linux under a virtual screen
         if: runner.os == 'Linux'
         run: xvfb-run -a ctest --test-dir build -C Release --output-on-failure
       - name: Tests (Qt Test)
         if: runner.os != 'Linux'
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: OpenGL diagnostics, after a failure
+        if: failure()
+        shell: bash
+        env:
+          QT_LOGGING_RULES: qt.qpa.gl*=true
+        run: |
+          ls build/Release build 2>/dev/null | grep -i -E "dll|test_render" || true
+          test_render=$(ls build/Release/test_render.exe build/test_render 2>/dev/null | head -1)
+          "$test_render" -v2 || echo "exit code $?"
       - name: The French translation follows the code
         if: runner.os == 'Linux'
         run: |

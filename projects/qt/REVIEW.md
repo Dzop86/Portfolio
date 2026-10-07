@@ -20,4 +20,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-07 | `CMakeLists.txt` | (Claude) La traduction compilée était attachée à l'exécutable : ni les tests ni la bibliothèque n'y avaient accès | Traductions attachées à la bibliothèque `viewer` |
 | 2026-10-07 | `src/mainwindow.cpp` | (Claude) Signalé par la CI macOS : Clang refuse une capture `this` inutile dans un lambda (`-Wunused-lambda-capture`), avertissement que GCC ne donne pas | Capture retirée ; compilation locale avec Clang ajoutée à ma routine avant de pousser |
 | 2026-10-07 | `.github/workflows/qt.yml` | (Claude) Signalé par la CI Windows : aqtinstall ne lit pas le dépôt Windows de Qt 6.11 (somme de contrôle introuvable, reproduit en local) | CI en Qt 6.10.3 sur les trois systèmes |
+| 2026-10-07 | `.github/workflows/qt.yml` | (Claude) Signalé par la CI Windows : MSVC compile sans avertissement, mais le test de rendu s'arrête sans rien écrire avec l'OpenGL logiciel livré par Qt (`opengl32sw.dll`) | Mesa 26 (llvmpipe) de mesa-dist-win copié à côté des programmes ; diagnostic OpenGL affiché en cas d'échec |
 | | | | |

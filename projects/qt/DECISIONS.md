@@ -8,7 +8,7 @@
 ## Q2. La logique hors d'OpenGL, le dessin partagé
 **Choix :** `MeshModel` et `Camera` ne dépendent pas d'OpenGL ; `Renderer` dessine dans le framebuffer courant, qu'il soit celui de la fenêtre, d'un test hors écran ou de `--screenshot`.
 **Pourquoi :** l'essentiel se teste sans contexte graphique ; le rendu se teste en relisant une image dessinée par le même code que la fenêtre.
-**Limite :** le test de rendu demande un contexte OpenGL 3.3 : rendu logiciel en CI (Mesa sous Linux, `opengl32sw.dll` de Qt sous Windows).
+**Limite :** le test de rendu demande un contexte OpenGL 3.3 : rendu logiciel en CI (Mesa llvmpipe sous Linux et Windows).
 
 ## Q3. Les normales alignées par sommet
 **Choix :** chaque normale de face est retournée vers la somme déjà accumulée au sommet avant d'y être ajoutée ; l'éclairage vient de l'œil et éclaire les deux faces.
