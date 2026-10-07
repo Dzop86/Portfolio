@@ -1,8 +1,9 @@
 // Ray tracer on its project page: the C++ engine in WebAssembly runs in several web workers
 // (assets/raytracer-worker.js), each rendering its own bands of rows (raytracer-bands.js); the page puts the
-// bands together in a canvas. Controls: scene, finish, number of workers, orbit (sliders, or dragging the
-// image), pause, default view.
+// bands together in a canvas. Controls: scene (a sample or the visitor's file, chosen or dropped on the
+// image), finish, number of workers, orbit (sliders, or dragging the image), pause, default view.
 import { bandsFor, defaultWorkers, MAX_WORKERS, MAX_SAMPLES, PassCounter } from './raytracer-bands.js';
+import { MAX_BYTES } from './meshlib-api.js';
 
 const root = document.querySelector('[data-raytracer]');
 if (root) start(root);
@@ -21,7 +22,10 @@ function start(root) {
   const reset = root.querySelector('[data-reset]');
   const progress = root.querySelector('[data-progress]');
   const live = root.querySelector('[data-live]');
-  const controls = [sceneSelect, finishSelect, workersSelect, ...Object.values(sliders), pause, reset];
+  const fileInput = root.querySelector('[data-file]');
+  const errorBox = root.querySelector('[data-error]');
+  const stage = root.querySelector('[data-drop]');
+  const controls = [sceneSelect, finishSelect, workersSelect, fileInput, ...Object.values(sliders), pause, reset];
   const { width, height } = canvas;
   let defaultView = null;
   let paused = false;
@@ -30,6 +34,10 @@ function start(root) {
   let readies = 0, dones = 0, errorShown = false, passStart = 0, drawn = true;
   let showDefault = true; // a new scene shows its default view once ready
   let shown = { samples: 0, ms: 0 }; // the passes of the image drawn, and the time of the last one
+  let own = null;          // the visitor's file: { key, name, bytes }
+  let files = 0;           // numbers the files, so that a worker knows whether it already has the bytes
+  let previous = 0;        // the scene to come back to if the visitor's file cannot be read
+  const sent = new WeakMap(); // worker -> keys of the files it already has
   const image = new ImageData(width, height);
 
   if (typeof Worker === 'undefined') {
@@ -107,12 +115,43 @@ function start(root) {
     await grow(Number(workersSelect.value));
     if (mine !== generation) return;
     const option = sceneSelect.selectedOptions[0];
-    const mesh = option.dataset.mesh ? { url: new URL(option.dataset.mesh, document.baseURI).href } : null;
     const workers = active();
     workers.forEach((worker, k) => worker.postMessage({
-      type: 'scene', generation, mesh, finish: finishSelect.value, width, height,
+      type: 'scene', generation, mesh: meshFor(option, worker), finish: finishSelect.value, width, height,
       bands: bandsFor(height, workers.length, k), view: showDefault ? null : currentView(),
     }));
+  }
+
+  // A sample is fetched by the worker; the visitor's file goes to each worker once (a copy each).
+  function meshFor(option, worker) {
+    if (option.value === 'own') {
+      if (!sent.has(worker)) sent.set(worker, new Set());
+      const has = sent.get(worker).has(own.key);
+      sent.get(worker).add(own.key);
+      return has ? { key: own.key } : { key: own.key, bytes: own.bytes };
+    }
+    return option.dataset.mesh ? { url: new URL(option.dataset.mesh, document.baseURI).href } : null;
+  }
+
+  const showError = (status, line) => {
+    const what = labels[`mesh.error.${status}`] ?? '';
+    errorBox.textContent = `${line > 0 ? fill(labels['mesh.atline'], { line }) : labels['mesh.error']} ${what}`;
+    errorBox.hidden = false;
+  };
+  const hideError = () => { errorBox.hidden = true; };
+
+  async function openFile(file) {
+    if (!file) return;
+    hideError();
+    if (file.size > MAX_BYTES) return showError('too-large', 0);
+    const bytes = await file.arrayBuffer();
+    own = { key: `file-${++files}`, name: file.name, bytes };
+    let option = sceneSelect.querySelector('option[value="own"]');
+    if (!option) sceneSelect.append((option = new Option('', 'own')));
+    option.textContent = fill(labels.own, { name: file.name });
+    if (sceneSelect.value !== 'own') previous = sceneSelect.selectedIndex;
+    sceneSelect.value = 'own';
+    sendScene(false);
   }
 
   function sendView() {
@@ -162,12 +201,36 @@ function start(root) {
     } else if (data.type === 'error') {
       if (errorShown) return;
       errorShown = true;
+      if (sceneSelect.value === 'own' && data.status !== 'engine') {
+        // lib-c refused the file: say why, at which line, and come back to the scene shown before.
+        showError(data.status, data.line);
+        sceneSelect.querySelector('option[value="own"]').remove();
+        own = null;
+        sceneSelect.selectedIndex = previous;
+        sendScene(false);
+        return;
+      }
       live.textContent = fill(labels.error, { message: data.message });
       enable(true);
     }
   }
 
-  sceneSelect.addEventListener('change', () => sendScene(false));
+  sceneSelect.addEventListener('change', () => {
+    hideError();
+    if (sceneSelect.value !== 'own') previous = sceneSelect.selectedIndex;
+    sendScene(false);
+  });
+  fileInput.addEventListener('change', () => {
+    openFile(fileInput.files[0]);
+    fileInput.value = ''; // the same file chosen again is a new choice
+  });
+  stage.addEventListener('dragover', (e) => { e.preventDefault(); stage.classList.add('is-over'); });
+  stage.addEventListener('dragleave', () => stage.classList.remove('is-over'));
+  stage.addEventListener('drop', (e) => {
+    e.preventDefault();
+    stage.classList.remove('is-over');
+    if (!fileInput.disabled) openFile(e.dataTransfer.files[0]);
+  });
   finishSelect.addEventListener('change', () => sendScene(true));
   workersSelect.addEventListener('change', () => sendScene(true));
   for (const slider of Object.values(sliders)) slider.addEventListener('input', sendView);

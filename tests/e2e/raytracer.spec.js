@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
 
 // The ray tracer on its project page (D45): the C++ engine in WebAssembly, in a web worker.
 const samples = (page) => page.locator('[data-raytracer]').getAttribute('data-samples').then((s) => Number(s ?? 0));
@@ -73,4 +74,43 @@ test('raytracer: a mesh scene in glass, orbited with the keyboard, then paused',
 
   await page.getByRole('button', { name: 'Default view' }).click();
   await expect(page.getByRole('button', { name: 'Pause' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('raytracer: the visitor\'s own mesh is rendered, a broken one is refused with its line', async ({ page }) => {
+  await page.goto('/en/project-raytracer.html');
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+  const scene = page.getByLabel('Scene');
+  const file = page.locator('[data-raytracer] [data-file]');
+
+  await file.setInputFiles({ name: 'tetrahedron.ply', mimeType: 'application/octet-stream', buffer: readFileSync('projects/lib-c/tests/data/tetrahedron.ply') });
+  await expect(scene.locator('option:checked')).toHaveText('Your file: tetrahedron.ply');
+  await expect(page.getByLabel('Mesh material')).toBeEnabled({ timeout: 30_000 });
+  await expect(page.locator('[data-raytracer] canvas')).toHaveAttribute('aria-label', /Your file: tetrahedron\.ply, matte/);
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+  await expect(page.locator('[data-raytracer] [data-error]')).toBeHidden();
+
+  // A face that names a vertex the file does not have: lib-c's reason and line, and the previous scene back.
+  await file.setInputFiles({ name: 'broken.obj', mimeType: 'text/plain', buffer: Buffer.from('v 0 0 0\nv 1 0 0\nf 1 2 9\n') });
+  const alert = page.getByRole('alert');
+  await expect(alert).toBeVisible({ timeout: 30_000 });
+  await expect(alert).toHaveText('Error on line 3: a face refers to a missing vertex.');
+  await expect(scene).toHaveValue('spheres');
+  await expect(scene.locator('option[value="own"]')).toHaveCount(0);
+  await expect(page.locator('#rt-finish')).toBeDisabled({ timeout: 30_000 });
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+});
+
+test('raytracer: a mesh dropped on the image is rendered', async ({ page }) => {
+  await page.goto('/fr/project-raytracer.html');
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+  const text = readFileSync('projects/lib-c/tests/data/cube.obj', 'utf8');
+  await page.locator('[data-raytracer] [data-drop]').evaluate((stage, obj) => {
+    const data = new DataTransfer();
+    data.items.add(new File([obj], 'cube.obj', { type: 'text/plain' }));
+    stage.dispatchEvent(new DragEvent('dragover', { dataTransfer: data, bubbles: true, cancelable: true }));
+    stage.dispatchEvent(new DragEvent('drop', { dataTransfer: data, bubbles: true, cancelable: true }));
+  }, text);
+  await expect(page.getByLabel('Scène')).toHaveValue('own');
+  await expect(page.locator('[data-raytracer] canvas')).toHaveAttribute('aria-label', /Votre fichier : cube\.obj/, { timeout: 30_000 });
+  await expect.poll(() => samples(page), { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
 });

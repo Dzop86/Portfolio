@@ -466,7 +466,7 @@
   "morpion.label.loading": "Loading the move book…",
   "morpion.label.error.load": "The move book could not be loaded. Reload the page to try again.",
   "rt.title": "Ray tracing in the browser",
-  "rt.lead": "This project's C++ engine, compiled to WebAssembly, computes the image in web workers, one per CPU core: each pass adds one ray per pixel and the picture sharpens as you watch (soft shadows, reflections, refraction through glass). Pick a scene and a material, then orbit by dragging the image or with the sliders.",
+  "rt.lead": "This project's C++ engine, compiled to WebAssembly, computes the image in web workers, one per CPU core: each pass adds one ray per pixel and the picture sharpens as you watch (soft shadows, reflections, refraction through glass). Pick a scene or your own mesh, a material, then orbit by dragging the image or with the sliders.",
   "rt.sceneLabel": "Scene",
   "rt.finishLabel": "Mesh material",
   "rt.workersLabel": "Workers (CPU cores)",
@@ -502,5 +502,7 @@
   "rt.bench.workers": "Workers",
   "rt.bench.ms": "Time per pass (ms)",
   "rt.bench.speedup": "Speed-up",
-  "rt.bench.note": "Beyond 4 workers the gain slows down: this processor has only 6 physical cores, the other threads share their execution units. In your browser, the time per pass shows under the image; change the number of workers to compare."
+  "rt.bench.note": "Beyond 4 workers the gain slows down: this processor has only 6 physical cores, the other threads share their execution units. In your browser, the time per pass shows under the image; change the number of workers to compare.",
+  "rt.drop": "or drop it on the image: it stays in your browser.",
+  "rt.label.own": "Your file: {name}"
 }

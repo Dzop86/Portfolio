@@ -1097,7 +1097,7 @@ function angularCompare(t, lang) {
 }
 
 const RT_LABELS = ['unsupported', 'pause', 'resume', 'loading', 'rendering', 'canvas', 'progress', 'done', 'error',
-  'unit.yaw', 'unit.pitch', 'unit.distance'];
+  'unit.yaw', 'unit.pitch', 'unit.distance', 'own'];
 const RT_SCENES = [['spheres', null], ['torus', 'torus.obj'], ['sphere', 'sphere.obj'], ['mobius', 'mobius.obj'], ['saddle', 'saddle.obj']];
 const RT_VIEW = [['yaw', -180, 180, 1], ['pitch', 2, 60, 1], ['distance', 3, 12, 0.1]];
 
@@ -1120,7 +1120,12 @@ function raytracerBench(t, lang) {
 
 // The ray tracer (D45): the C++ engine in WebAssembly, rendering pass after pass in web workers.
 function raytracerView(t, lang) {
-  const labels = Object.fromEntries(RT_LABELS.map((k) => [k, t(`rt.label.${k}`)]));
+  // Mesh errors: the lib-c demo's labels, and the topology viewer's for a mesh without a triangle.
+  const labels = {
+    ...Object.fromEntries(RT_LABELS.map((k) => [k, t(`rt.label.${k}`)])),
+    ...Object.fromEntries(['atline', 'error', 'error.1', 'error.2', 'error.3', 'error.4', 'error.too-large'].map((k) => [`mesh.${k}`, t(`demo.label.${k}`)])),
+    'mesh.error.invalid': t('topo.label.error.invalid'),
+  };
   const scenes = RT_SCENES.map(([key, file]) =>
     `<option value="${key}"${file ? ` data-mesh="../assets/samples/topologie/${file}"` : ''}>${esc(t(`rt.scene.${key}`))}</option>`).join('');
   const finishes = ['diffuse', 'metal', 'glass'].map((k) => `<option value="${k}">${esc(t(`rt.finish.${k}`))}</option>`).join('');
@@ -1137,7 +1142,9 @@ function raytracerView(t, lang) {
     <div class="rt-field"><label for="rt-finish">${esc(t('rt.finishLabel'))}</label><select id="rt-finish" data-finish>${finishes}</select></div>
     <div class="rt-field"><label for="rt-workers">${esc(t('rt.workersLabel'))}</label><select id="rt-workers" data-workers><option>1</option></select></div>
   </div>
-  <div class="rt-stage"><canvas width="480" height="270" role="img" aria-label="${esc(t('rt.title'))}"></canvas></div>
+  <div class="actions rt-file"><label class="btn btn-ghost file-pick">${esc(t('demo.choose'))}<input type="file" accept=".obj,.ply,.stl" class="visually-hidden" data-file></label><span class="muted">${esc(t('rt.drop'))}</span></div>
+  <p class="notice demo-error" data-error role="alert" hidden></p>
+  <div class="rt-stage" data-drop><canvas width="480" height="270" role="img" aria-label="${esc(t('rt.title'))}"></canvas></div>
   <p class="meta rt-progress" data-progress></p>
   <div class="rt-view" role="group" aria-label="${esc(t('rt.viewLabel'))}">${sliders}</div>
   <p class="actions"><button type="button" class="btn btn-ghost" data-pause aria-pressed="false">${esc(t('rt.label.pause'))}</button><button type="button" class="btn btn-ghost" data-reset>${esc(t('rt.reset'))}</button></p>

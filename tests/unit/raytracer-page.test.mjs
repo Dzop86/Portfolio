@@ -29,6 +29,14 @@ test('the ray tracer page has its scenes, finishes, sliders and every label, in 
     }
     const labels = JSON.parse(html.match(/data-labels="([^"]+)" ?>/)[1].replaceAll('&quot;', '"').replaceAll('&amp;', '&'));
     for (const [key, text] of Object.entries(labels)) assert.ok(text && !text.startsWith('rt.'), `${lang}: ${key}`);
+    // The visitor's file: chosen or dropped, refused with lib-c's reason and line.
+    assert.ok(html.includes('<input type="file" accept=".obj,.ply,.stl" class="visually-hidden" data-file>'), lang);
+    assert.ok(html.includes('data-error role="alert" hidden'), lang);
+    for (const k of ['own', 'mesh.atline', 'mesh.error', 'mesh.error.1', 'mesh.error.2', 'mesh.error.3', 'mesh.error.4', 'mesh.error.too-large', 'mesh.error.invalid']) {
+      assert.ok(labels[k], `${lang}: ${k}`);
+    }
+    assert.match(labels.own, /\{name\}/);
+    assert.match(labels['mesh.atline'], /\{line\}/);
     assert.match(labels.progress, /\{n\}.*\{max\}.*\{ms\}.*\{workers\}/);
     assert.ok(html.includes('<script type="module" src="../assets/raytracerplay.js'));
   }

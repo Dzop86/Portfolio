@@ -79,3 +79,30 @@ test('mesh errors come back with lib-c\'s status and line; the mesh scene needs 
   assert.throws(() => setScene(lib, 'mesh', 'velvet'), /unknown/);
   assert.throws(() => resize(lib, 0, 10), /bad image size/);
 });
+
+/** A binary STL of one tetrahedron: 80-byte header, triangle count, then 50 bytes per triangle. */
+function binaryStl() {
+  const v = [[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  const faces = [[0, 2, 1], [0, 1, 3], [0, 3, 2], [1, 2, 3]];
+  const view = new DataView(new ArrayBuffer(84 + 50 * faces.length));
+  view.setUint32(80, faces.length, true);
+  faces.forEach((f, i) => f.forEach((vi, j) => v[vi].forEach((x, k) => view.setFloat32(84 + 50 * i + 12 + 12 * j + 4 * k, x, true))));
+  return new Uint8Array(view.buffer);
+}
+
+test('a visitor\'s mesh in each format lib-c reads is rendered in place of the sample', async () => {
+  const lib = await loadRaytracer(create);
+  resize(lib, 32, 18);
+  setScene(lib, 'spheres');
+  renderRows(lib, 0, 18);
+  const spheres = pixels(lib);
+  const data = (name) => readFileSync(join(ROOT, 'projects/lib-c/tests/data', name));
+  for (const [name, bytes, triangles] of [['cube.obj', data('cube.obj'), 12], ['cube.stl', data('cube.stl'), 12],
+    ['tetrahedron.ply', data('tetrahedron.ply'), 4], ['binary.stl', binaryStl(), 4]]) {
+    const result = loadMesh(lib, bytes);
+    assert.deepEqual(result, { ok: true, triangles }, name);
+    setScene(lib, 'mesh', 'diffuse');
+    renderRows(lib, 0, 18);
+    assert.notDeepEqual(pixels(lib), spheres, name);
+  }
+});

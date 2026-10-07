@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que visiteur, je rends mon propre maillage (raytracer) : fichier OBJ, PLY ou STL déposé ou choisi (32 Mo au plus, comme la visionneuse de topologie), lu par lib-c dans le worker ; erreurs affichées avec leur ligne, en français et en anglais ; Node (erreurs, maillage déposé) et Playwright. | 1 | À faire |
+| En tant que visiteur, je rends mon propre maillage (raytracer) : fichier OBJ, PLY ou STL déposé ou choisi (32 Mo au plus, comme la visionneuse de topologie), lu par lib-c dans le worker ; erreurs affichées avec leur ligne, en français et en anglais ; Node (erreurs, maillage déposé) et Playwright. | 1 | Fait |
 | En tant que visiteur, je profite de tous les cœurs (raytracer) : bandes réparties sur plusieurs web workers (selon `navigator.hardwareConcurrency`), même image octet pour octet qu'avec un seul grâce au générateur par pixel ; gain mesuré et affiché sur la fiche ; Node (répartition) et Playwright. | 1 | Fait |
 | En tant que visiteur, je règle la scène et j'enregistre l'image (raytracer) : position et couleur de la lumière, rugosité du métal, indice du verre, en curseurs accessibles ; bouton « Enregistrer l'image » (PNG) ; captures haute définition rendues par le moteur natif sur la fiche ; GoogleTest (paramètres), Node et Playwright. | 1 | À faire |
 

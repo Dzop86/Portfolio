@@ -493,6 +493,8 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .rt-field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .rt-field select { min-height: 44px; padding: 0 var(--space-2); font: inherit; color: var(--text-strong); background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); }
 .rt-stage { border-radius: var(--radius-lg); background: var(--surface-2); overflow: hidden; }
+.rt-stage.is-over { outline: 3px dashed var(--accent); outline-offset: 2px; }
+.rt-file { align-items: center; }
 /* Vertical swipes still scroll the page on touch screens; horizontal ones orbit. */
 .rt-stage canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; touch-action: pan-y; cursor: grab; }
 .rt-progress { font-variant-numeric: tabular-nums; min-height: 1.5em; }

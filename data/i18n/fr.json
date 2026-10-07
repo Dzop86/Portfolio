@@ -466,7 +466,7 @@
   "morpion.label.loading": "Chargement du livre de coups…",
   "morpion.label.error.load": "Le livre de coups n'a pas pu être chargé. Rechargez la page pour réessayer.",
   "rt.title": "Lancer de rayons dans le navigateur",
-  "rt.lead": "Le moteur C++ de ce projet, compilé en WebAssembly, calcule l'image dans des web workers, un par cœur de calcul : chaque passe ajoute un rayon par pixel, l'image se précise sous vos yeux (ombres douces, reflets, réfraction du verre). Choisissez une scène, une matière, puis tournez autour en faisant glisser l'image ou avec les curseurs.",
+  "rt.lead": "Le moteur C++ de ce projet, compilé en WebAssembly, calcule l'image dans des web workers, un par cœur de calcul : chaque passe ajoute un rayon par pixel, l'image se précise sous vos yeux (ombres douces, reflets, réfraction du verre). Choisissez une scène ou votre propre maillage, une matière, puis tournez autour en faisant glisser l'image ou avec les curseurs.",
   "rt.sceneLabel": "Scène",
   "rt.finishLabel": "Matière du maillage",
   "rt.workersLabel": "Workers (cœurs de calcul)",
@@ -502,5 +502,7 @@
   "rt.bench.workers": "Workers",
   "rt.bench.ms": "Temps par passe (ms)",
   "rt.bench.speedup": "Accélération",
-  "rt.bench.note": "Au-delà de 4 workers, le gain ralentit : ce processeur n'a que 6 cœurs physiques, les autres threads partagent leurs unités de calcul. Dans votre navigateur, le temps par passe s'affiche sous l'image ; changez le nombre de workers pour comparer."
+  "rt.bench.note": "Au-delà de 4 workers, le gain ralentit : ce processeur n'a que 6 cœurs physiques, les autres threads partagent leurs unités de calcul. Dans votre navigateur, le temps par passe s'affiche sous l'image ; changez le nombre de workers pour comparer.",
+  "rt.drop": "ou le déposer sur l'image : il reste dans votre navigateur.",
+  "rt.label.own": "Votre fichier : {name}"
 }
