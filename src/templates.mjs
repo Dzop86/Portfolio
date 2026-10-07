@@ -428,6 +428,7 @@ ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
+${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'tictactoe-board' ? tictactoeBoard(t) : ''}
@@ -873,6 +874,23 @@ function rogueScreenshot(t, lang) {
 dotnet run --project src/Rogue.Cli -- --lang ${lang}     # ${esc(t('rogue.terminal'))}
 docker compose up --build rogue-api                # ${esc(t('rogue.api'))}
 godot --path godot                                 # ${esc(t('rogue.godot'))}</code></pre>
+</section>`;
+}
+
+// The Qt/OpenGL viewer: a desktop application; the screenshot is taken by the application itself.
+function qtScreenshot(t, lang) {
+  return `<section class="block panel" aria-labelledby="h-qt">
+  <h2 id="h-qt">${esc(t('qt.title'))}</h2>
+  <p>${esc(t('qt.lead'))}</p>
+  <figure class="naval-shot rogue-shot">
+    <img src="../assets/images/qt-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t('qt.alt'))}">
+    <figcaption class="meta">${esc(t('qt.caption'))}</figcaption>
+  </figure>
+  <p>${esc(t('qt.run'))}</p>
+  <pre class="naval-run" tabindex="0"><code>cd projects/qt
+cmake -S . -B build && cmake --build build
+./build/qtviewer --lang ${lang} sample:torus        # ${esc(t('qt.sample'))}
+./build/qtviewer ../lib-c/tests/data/cube.obj      # ${esc(t('qt.file'))}</code></pre>
 </section>`;
 }
 

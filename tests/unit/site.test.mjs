@@ -308,3 +308,16 @@ test('the roguelike page shows the Godot client in each language, with the comma
     assert.match(html, /godot --path godot/);
   }
 });
+
+test('the Qt viewer page shows the application in each language, with the commands to build it', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, 'project-qt');
+    const img = html.match(/<img src="\.\.\/assets\/images\/(qt-(\w+)\.png)" width="1280" height="720" loading="lazy" alt="([^"]+)">/);
+    assert.ok(img, lang);
+    assert.equal(img[2], lang);
+    assert.ok(existsSync(join(ROOT_DIR, 'src/assets/images', img[1])), img[1]);
+    assert.ok(img[3].length > 80, 'a descriptive alt text');
+    assert.match(html, /cmake -S \. -B build/);
+    assert.match(html, /qtviewer --lang (fr|en) sample:torus/);
+  }
+});

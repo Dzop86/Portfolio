@@ -17,7 +17,7 @@
     "stack": ["C", "CMake", "Emscripten", "Unity", "Valgrind", "libFuzzer"],
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/lib-c" },
     "teaching": { "fr": "Enseigné en L3 (programmation avancée en C)", "en": "Taught in L3 (advanced C programming)" } },
-  { "id": "qt", "sprint": "S26-S27", "points": 13, "status": "in-progress", "group": "systems",
+  { "id": "qt", "sprint": "S26-S27", "points": 13, "status": "in-progress", "group": "systems", "widget": "qt-screenshot",
     "name": { "fr": "Visionneuse Qt/OpenGL", "en": "Qt/OpenGL viewer" },
     "pitch": { "fr": "Application desktop Windows, Linux et macOS pour charger et inspecter des maillages.", "en": "Windows, Linux and macOS desktop app to load and inspect meshes." },
     "stack": ["C++", "Qt", "OpenGL", "Qt Test"],
