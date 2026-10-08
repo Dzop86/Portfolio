@@ -28,7 +28,7 @@ export function cubeNetMap() {
  * Where to draw each dart in a net of squares of the given size: a short segment along its side,
  * from 20 % to 44 % of the side starting at its vertex, moved inside the square; `end` is the vertex
  * end (drawn with a dot). The two darts of a corner end 10 px apart, so the alpha1 link between them
- * shows as a short diagonal.
+ * shows as a short arc; `corner` is where the lines of those two darts cross, which that arc turns around.
  */
 export function dartGeometry(darts, size = 100, inset = 10) {
   return darts.map((d) => {
@@ -45,6 +45,7 @@ export function dartGeometry(darts, size = 100, inset = 10) {
     const len = Math.hypot(centre[0] - mid[0], centre[1] - mid[1]);
     const n = [((centre[0] - mid[0]) / len) * inset, ((centre[1] - mid[1]) / len) * inset];
     const shift = ([x, y]) => [x + n[0], y + n[1]];
-    return { end: shift(along(0.2)), start: shift(along(0.44)) };
+    // The corner moved inside like the darts: where the lines of the two darts of a corner cross.
+    return { end: shift(along(0.2)), start: shift(along(0.44)), corner: shift(along(inset / size)) };
   });
 }

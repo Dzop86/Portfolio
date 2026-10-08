@@ -110,24 +110,68 @@ test('the course\'s cube net is a valid cube: every edge on two squares, chi = 2
   });
 });
 
-test('the decomposition of two squares: each cut adds the links of its alpha', async () => {
-  const { decompositionStep } = await import('../src/decompose.js');
+test('the decomposition of two squares goes up the dimensions: object, alpha0, alpha1, alpha2, G-map', async () => {
+  const { decompositionStep, STEPS } = await import('../src/decompose.js');
+  const { fromFaces } = await import('../src/gmap.js');
   const count = (step, alpha) => step.links.filter((l) => l.alpha === alpha).length;
-  const steps = [0, 1, 2, 3].map((k) => decompositionStep(k));
-  // Step 0: the object (2 faces, 6 vertices); no links yet.
-  assert.deepEqual([steps[0].faces.length, steps[0].dots.length, steps[0].links.length], [2, 6, 0]);
-  // Cut by alpha2: one link for the shared edge.
-  assert.deepEqual([count(steps[1], 0), count(steps[1], 1), count(steps[1], 2)], [0, 0, 1]);
-  // Cut by alpha1: 8 corners, each a red link; the shared edge now has a link at each end.
-  assert.deepEqual([count(steps[2], 0), count(steps[2], 1), count(steps[2], 2)], [0, 8, 2]);
-  // Cut by alpha0: 16 darts, 8 black links (one per side), and the links of the G-map itself.
-  assert.equal(steps[3].darts.length, 16);
+  assert.equal(STEPS, 5);
+  const steps = [0, 1, 2, 3, 4].map((k) => decompositionStep(k));
+  // Step 0: the object (2 faces, 6 vertices); no darts, no links yet.
+  assert.deepEqual([steps[0].faces.length, steps[0].dots.length, steps[0].darts.length, steps[0].links.length], [2, 6, 0, 0]);
+  // alpha0: each of the 8 sides of the faces becomes two darts, joined by one alpha0 link.
+  assert.equal(steps[1].darts.length, 16);
+  assert.deepEqual([count(steps[1], 0), count(steps[1], 1), count(steps[1], 2)], [8, 0, 0]);
+  // alpha1: the 8 corners of the faces.
+  assert.deepEqual([count(steps[2], 0), count(steps[2], 1), count(steps[2], 2)], [8, 8, 0]);
+  // alpha2: the shared edge sewn, one link at each of its ends; then the G-map, its faces back.
   assert.deepEqual([count(steps[3], 0), count(steps[3], 1), count(steps[3], 2)], [8, 8, 2]);
-  // The pieces move apart at each cut: faces no longer touch once alpha2 has cut them.
-  const xs = (step, f) => step.faces[f]?.map((p) => p[0]);
+  assert.deepEqual([count(steps[4], 0), count(steps[4], 1), count(steps[4], 2)], [8, 8, 2]);
+  assert.equal(steps[4].faces.length, 2);
+  // Each link joins the right darts, at the right place on them.
+  const { map } = fromFaces([[0, 1, 4, 5], [1, 2, 3, 4]]);
+  const same = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-12;
+  for (const step of steps.slice(1)) {
+    for (const l of step.links) {
+      const [d, e] = l.darts;
+      assert.equal(map.alpha[l.alpha][d], e, `alpha${l.alpha} ${d}`);
+      const [innerD, endD] = step.darts[d];
+      const [innerE, endE] = step.darts[e];
+      if (l.alpha === 0) assert.ok(same(l.from, innerD) && same(l.to, innerE));
+      if (l.alpha === 1) assert.ok(same(l.from, endD) && same(l.to, endE));
+      if (l.alpha === 2) assert.ok(same(l.from, [(innerD[0] + endD[0]) / 2, (innerD[1] + endD[1]) / 2]));
+    }
+  }
+  // Without being mistaken for a dart: alpha0 strokes are shorter than half a dart, alpha1 arcs turn around a corner
+  // the two darts share, alpha2 strokes cross the darts instead of running along them.
+  const len = ([a, b]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const dart = len(steps[3].darts[0]);
+  for (const l of steps[3].links) {
+    if (l.alpha === 0) assert.ok(len([l.from, l.to]) < dart / 2, 'alpha0 short');
+    if (l.alpha === 1) assert.ok(l.corner && len([l.corner, l.from]) < dart && len([l.corner, l.to]) < dart, 'alpha1 at a corner');
+    if (l.alpha === 2) {
+      const [inner, end] = steps[3].darts[l.darts[0]];
+      const u = [end[0] - inner[0], end[1] - inner[1]], v = [l.to[0] - l.from[0], l.to[1] - l.from[1]];
+      const cos = Math.abs(u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v));
+      assert.ok(cos < 0.1, 'alpha2 across the darts');
+    }
+  }
+  // The faces come apart once cut into darts, and touch again in the G-map less than in the cut steps.
+  const xs = (step, f) => step.faces[f].map((p) => p[0]);
   assert.equal(Math.max(...xs(steps[0], 0)), Math.min(...xs(steps[0], 1)));
-  assert.ok(steps[1].sides.every(([a, b]) => Math.hypot(a[0] - b[0], a[1] - b[1]) > 0.7));
-  for (const [inner, end] of steps[3].darts) assert.ok(Math.hypot(inner[0] - end[0], inner[1] - end[1]) > 0.2);
+  assert.ok(Math.min(...xs(steps[4], 1)) - Math.max(...xs(steps[4], 0)) > 0);
+  for (const [inner, end] of steps[1].darts) assert.ok(len([inner, end]) > 0.2);
+});
+
+test('links are drawn as in textbooks: a stroke, an arc, a double stroke', async () => {
+  const { linkPath, DOUBLE_GAP } = await import('../src/links.js');
+  assert.equal(linkPath(0, [0, 0], [10, 0]), 'M0.0,0.0 L10.0,0.0');
+  // alpha1: a quadratic arc from one dart to the other, controlled by their corner.
+  assert.equal(linkPath(1, [10, 0], [0, 10], [0, 0]), 'M10.0,0.0 Q0.0,0.0 0.0,10.0');
+  // alpha2: two parallel strokes, DOUBLE_GAP apart, on each side of the line between the darts.
+  const d = linkPath(2, [0, 0], [10, 0]);
+  const nums = d.match(/-?\d+\.\d/g).map(Number);
+  assert.equal(d.split('M').length - 1, 2);
+  assert.deepEqual(nums, [0, DOUBLE_GAP / 2, 10, DOUBLE_GAP / 2, 0, -DOUBLE_GAP / 2, 10, -DOUBLE_GAP / 2].map((x) => Math.round(x * 10) / 10));
 });
 
 test('in the cube figure, alpha1 links are long enough to see, and alpha0 leaves a gap between halves', async () => {
@@ -138,5 +182,7 @@ test('in the cube figure, alpha1 links are long enough to see, and alpha0 leaves
   for (let d = 0; d < map.size; d++) {
     assert.ok(dist(g[d].end, g[map.alpha[1][d]].end) >= 10, `alpha1 at dart ${d}`);
     assert.ok(dist(g[d].start, g[map.alpha[0][d]].start) >= 10, `alpha0 at dart ${d}`);
+    // The two darts of an alpha1 link share the corner their arc turns around.
+    assert.deepEqual(g[d].corner, g[map.alpha[1][d]].corner, `corner at dart ${d}`);
   }
 });

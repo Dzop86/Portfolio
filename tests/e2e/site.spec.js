@@ -579,15 +579,25 @@ test('the generalized maps course: darts, alpha moves, orbits and the quiz', asy
   const status = figure.locator('[data-status]');
   await expect(figure.locator('[data-counts]')).toHaveText('Counted as orbits: 48 darts, 8 vertices, 12 edges, 6 faces, χ = 2.');
 
-  // The decomposition shows one step at a time; the last one has the 16 darts of two squares.
+  // The decomposition goes up the dimensions (sprint 40), one step at a time: alpha0 cuts the sides into 16 darts,
+  // alpha1 links the corners, alpha2 sews the faces; then the G-map.
   const decompose = page.locator('[data-decompose]');
   await expect(decompose.locator('[data-step]:visible')).toHaveCount(1);
   await expect(decompose.locator('[data-step="0"]')).toBeVisible();
-  await decompose.getByRole('button', { name: '3. Cut by α0' }).click();
-  await expect(decompose.locator('[data-step="3"]')).toBeVisible();
+  await expect(decompose.getByRole('button')).toHaveText(['0. The object', '1. α0: the edges', '2. α1: the faces', '3. α2: the sewing', '4. The G-map']);
+  await decompose.getByRole('button', { name: '1. α0: the edges' }).click();
+  await expect(decompose.locator('[data-step="1"]')).toBeVisible();
   await expect(decompose.locator('[data-step="0"]')).toBeHidden();
-  await expect(decompose.locator('[data-step="3"] .gm-dart-line')).toHaveCount(16);
-  await expect(decompose.getByRole('button', { name: '3. Cut by α0' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(decompose.locator('[data-step="1"] .gm-dart-line')).toHaveCount(16);
+  await expect(decompose.locator('[data-step="1"] [data-link]')).toHaveCount(8);
+  await decompose.getByRole('button', { name: '2. α1: the faces' }).click();
+  await expect(decompose.locator('[data-step="2"] [data-link="1"]')).toHaveCount(8);
+  // alpha1 as an arc, alpha2 as a double stroke.
+  await expect(decompose.locator('[data-step="2"] [data-link="1"]').first()).toHaveAttribute('d', / Q/);
+  await decompose.getByRole('button', { name: '4. The G-map' }).click();
+  await expect(decompose.locator('[data-step="4"] [data-link="2"]')).toHaveCount(2);
+  await expect(decompose.locator('[data-step="4"] [data-link="2"]').first()).toHaveAttribute('d', /^M[^M]+M[^M]+$/);
+  await expect(decompose.getByRole('button', { name: '4. The G-map' })).toHaveAttribute('aria-pressed', 'true');
 
   await figure.locator('[data-dart="0"]').click();
   await expect(status).toHaveText('Dart 0: face Top, vertex e.');

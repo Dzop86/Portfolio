@@ -233,8 +233,8 @@ a:hover { text-decoration-thickness: 2px; }
 .gm-dart.in-orbit circle { fill: var(--gm-orbit); }
 .gm-dart.is-current line:not(.gm-hit) { stroke: var(--gm-current); stroke-width: 4; }
 .gm-dart.is-current circle { fill: var(--gm-current); r: 4; }
-.gm-static { stroke-width: 1.4; stroke-linecap: round; }
-.gm-link { stroke-width: 2.4; stroke-dasharray: 5 3; stroke-linecap: round; }
+.gm-static { stroke-width: 1.4; stroke-linecap: round; fill: none; }
+.gm-link { stroke-width: 2.4; stroke-dasharray: 5 3; stroke-linecap: round; fill: none; }
 .gm-l0, .gm-a0 { --gm: var(--gm-a0); }
 .gm-l1, .gm-a1 { --gm: var(--gm-a1); }
 .gm-l2, .gm-a2 { --gm: var(--gm-a2); }

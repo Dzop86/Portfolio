@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
-import { decompositionStep } from '../projects/gcartes/src/decompose.js';
+import { decompositionStep, STEPS } from '../projects/gcartes/src/decompose.js';
+import { linkPath } from '../projects/gcartes/src/links.js';
 import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, techsOf, velocity, burndown } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
@@ -932,9 +933,9 @@ function cubeNetSvg(t) {
   }).join('');
   const dartsSvg = geometry.map((g, d) =>
     `<g class="gm-dart" data-dart="${d}"><line x1="${g.start[0].toFixed(1)}" y1="${g.start[1].toFixed(1)}" x2="${g.end[0].toFixed(1)}" y2="${g.end[1].toFixed(1)}"/><circle cx="${g.end[0].toFixed(1)}" cy="${g.end[1].toFixed(1)}" r="2.6"/><line class="gm-hit" x1="${g.start[0].toFixed(1)}" y1="${g.start[1].toFixed(1)}" x2="${g.end[0].toFixed(1)}" y2="${g.end[1].toFixed(1)}"/></g>`).join('');
-  // Every link drawn, as in a textbook figure: alpha0 between the two halves of a side, alpha1 at a
-  // corner, alpha2 across a side shared by two squares next to each other in the net (the folded ones
-  // show when a dart is selected).
+  // Every link drawn, as in a textbook figure (links.js): alpha0 a short stroke between the two halves of a side,
+  // alpha1 an arc around a corner, alpha2 a double stroke across a side shared by two squares next to each other in
+  // the net (the folded ones show when a dart is selected).
   const { map } = cubeNetMap();
   const mid = (g) => [(g.start[0] + g.end[0]) / 2, (g.start[1] + g.end[1]) / 2];
   const ends = { 0: (g) => g.start, 1: (g) => g.end, 2: mid };
@@ -945,13 +946,14 @@ function cubeNetSvg(t) {
       if (e <= d) continue;
       const [a, b] = [ends[i](geometry[d]), ends[i](geometry[e])];
       if (i === 2 && Math.hypot(a[0] - b[0], a[1] - b[1]) > 45) continue;
-      staticLinks += `<line class="gm-static gm-l${i}" x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`;
+      staticLinks += `<path class="gm-static gm-l${i}" d="${linkPath(i, a, b, geometry[d].corner)}"/>`;
     }
   }
   return `<svg class="gm-net gm-paper" viewBox="-6 -6 412 312" role="img" aria-labelledby="gm-net-title"><title id="gm-net-title">${esc(t('gcartes.figure.alt'))}</title><rect class="gm-bg" x="-6" y="-6" width="412" height="312" rx="8"/>${squares}<g>${staticLinks}</g><g data-links></g>${dartsSvg}</svg>`;
 }
 
-/** Two squares cut into a G-map in four steps, one SVG per step, drawn at build time (D24). */
+/** The G-map of two squares built by increasing dimension (object, alpha0, alpha1, alpha2, G-map), one SVG per step,
+ drawn at build time (D24, sprint 40). */
 function decompositionFigure(t) {
   const S = 110;
   const xy = ([x, y]) => [(20 + x * S).toFixed(1), (20 + (1 - y) * S).toFixed(1)];
@@ -960,7 +962,7 @@ function decompositionFigure(t) {
     const [x2, y2] = xy(b);
     return `<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
   };
-  const steps = [0, 1, 2, 3].map((k) => {
+  const steps = Array.from({ length: STEPS }, (_, k) => k).map((k) => {
     const st = decompositionStep(k);
     const faces = st.faces.map((pts) => `<polygon class="gm-face-fill" points="${pts.map((p) => xy(p).join(',')).join(' ')}"/>`).join('');
     const sides = st.sides.map(([a, b]) => line(a, b, 'gm-side')).join('');
@@ -972,13 +974,14 @@ function decompositionFigure(t) {
       const [cx, cy] = xy(p);
       return `<circle class="gm-vertex" cx="${cx}" cy="${cy}" r="4"/>`;
     }).join('');
-    const links = st.links.map((l) => line(l.from, l.to, `gm-static gm-l${l.alpha}`)).join('');
+    const screen = (p) => xy(p).map(Number);
+    const links = st.links.map((l) => `<path class="gm-static gm-l${l.alpha}" data-link="${l.alpha}" d="${linkPath(l.alpha, screen(l.from), screen(l.to), l.corner && screen(l.corner))}"/>`).join('');
     return `<div class="gm-step" data-step="${k}">
       <svg class="gm-paper gm-step-svg" viewBox="0 0 260 150" role="img" aria-labelledby="gm-step-${k}"><title id="gm-step-${k}">${esc(t(`gcartes.step.${k}.title`))}</title><rect class="gm-bg" width="260" height="150" rx="8"/>${faces}${sides}${links}${darts}${dots}</svg>
       <p class="gm-step-caption"><strong>${esc(t(`gcartes.step.${k}.title`))}</strong> ${esc(t(`gcartes.step.${k}.text`))}</p>
     </div>`;
   }).join('');
-  const buttons = [0, 1, 2, 3].map((k) => `<button type="button" class="btn btn-ghost" aria-pressed="${k === 0}" data-goto-step="${k}">${esc(t(`gcartes.step.${k}.button`))}</button>`).join('');
+  const buttons = Array.from({ length: STEPS }, (_, k) => k).map((k) => `<button type="button" class="btn btn-ghost" aria-pressed="${k === 0}" data-goto-step="${k}">${esc(t(`gcartes.step.${k}.button`))}</button>`).join('');
   return `<figure class="gm-figure gm-decompose" data-decompose>
     <div class="actions" role="group" aria-label="${esc(t('gcartes.steps'))}">${buttons}</div>
     ${steps}

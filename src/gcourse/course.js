@@ -3,6 +3,7 @@
 // Bundled by esbuild with projects/gcartes into assets/gcourse.js.
 import { ORBITS } from '../../projects/gcartes/src/gmap.js';
 import { cubeNetMap, dartGeometry } from '../../projects/gcartes/src/net.js';
+import { linkPath } from '../../projects/gcartes/src/links.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
@@ -38,11 +39,11 @@ if (figure) {
       for (let i = 0; i <= 2; i++) {
         const other = map.alpha[i][current];
         if (other === current) continue;
-        const [x1, y1] = middle(current);
-        const [x2, y2] = middle(other);
-        const line = document.createElementNS(SVG, 'line');
-        Object.entries({ x1, y1, x2, y2, class: `gm-link gm-l${i}` }).forEach(([k, v]) => line.setAttribute(k, v));
-        links.append(line);
+        // Drawn like the static links (links.js), thicker: an arc for alpha1, a double stroke for alpha2.
+        const path = document.createElementNS(SVG, 'path');
+        path.setAttribute('d', linkPath(i, middle(current), middle(other), geometry[current].corner));
+        path.setAttribute('class', `gm-link gm-l${i}`);
+        links.append(path);
       }
       const d = darts[current];
       let text = fill(labels.dart, { d: current, face: labels[`face.${d.square.key}`], letter: d.letter });
