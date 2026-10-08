@@ -173,3 +173,50 @@ test('the persistence needs an elevation, and refuses meshes above its limit', a
   assert.ok(r.indices.length / 3 > limit);
   assert.deepEqual(persistence(lib, elevation(lib, AXES.y)), { tooLarge: true, limit });
 });
+
+test('the Reeb graph comes from the C++ code: one loop on the torus, none on the sphere, monotone arcs', async () => {
+  const { elevation, reeb, AXES } = await import('../../src/assets/topo-api.js');
+  const loops = {};
+  for (const name of ['torus', 'sphere', 'mobius', 'saddle']) {
+    readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', `${name}.obj`)));
+    for (const axis of ['x', 'y', 'z']) {
+      const e = elevation(lib, AXES[axis]);
+      const g = reeb(lib, 16);
+      assert.equal(g.components, 1, `${name} ${axis}`);
+      assert.equal(g.loops, g.arcs.length - g.nodes.length + g.components);
+      // Each arc rises: its path's heights (viewer units) lie between its nodes', increasing.
+      for (const a of g.arcs) {
+        let last = e.height[g.nodes[a.lower].vertex];
+        for (let k = 0; k < a.path.length; k += 3) {
+          const h = a.path[k] * AXES[axis][0] + a.path[k + 1] * AXES[axis][1] + a.path[k + 2] * AXES[axis][2];
+          assert.ok(h >= last - 1e-4, `${name} ${axis}`);
+          last = h;
+        }
+        assert.ok(last <= e.height[g.nodes[a.upper].vertex] + 1e-4);
+      }
+      if (axis === 'y') loops[name] = g.loops;
+    }
+  }
+  assert.equal(loops.torus, 1);
+  assert.equal(loops.sphere, 0);
+});
+
+test('the Reeb graph needs an elevation, and refuses a height with too many nodes', async () => {
+  const { elevation, reeb, AXES } = await import('../../src/assets/topo-api.js');
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'sphere.obj')));
+  assert.throws(() => reeb(lib), /elevation/);
+  // A grid of random heights: thousands of critical points.
+  const n = 120, lines = [];
+  let seed = 7;
+  const random = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  for (let i = 0; i <= n; i++) for (let j = 0; j <= n; j++) lines.push(`v ${i} ${random()} ${j}`);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const a = i * (n + 1) + j + 1, b = a + n + 1;
+      lines.push(`f ${a} ${b} ${b + 1}`, `f ${a} ${b + 1} ${a + 1}`);
+    }
+  }
+  readTopology(lib, new TextEncoder().encode(lines.join('\n')));
+  elevation(lib, AXES.y);
+  assert.deepEqual(reeb(lib), { tooLarge: 'nodes', limit: lib._topoc_reeb_limit() });
+});

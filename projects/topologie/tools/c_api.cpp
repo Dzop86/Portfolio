@@ -6,6 +6,7 @@
 #include "topo/mesh.hpp"
 #include "topo/morse.hpp"
 #include "topo/persistence.hpp"
+#include "topo/reeb.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -31,6 +32,9 @@ struct State {
     std::vector<int32_t> euler;      // chi of the sublevel set after each vertex of `order`
     std::string critical;            // JSON: [[vertex, kind, index], ...] in the order of the filtration
     std::vector<double> elevation;   // the heights topo::elevation ordered (mesh units), for the persistence
+    std::string reeb;                // JSON: {"loops", "components", "nodes": [[vertex, down, up]], "arcs": [[lower, upper, [x, y, z, ...]]]}
+    double centre[3] = {0, 0, 0};    // the viewer's units: (p - centre) * scale
+    double scale = 1;
     std::string pairs;               // JSON: {"betti": [b0, b1, b2], "pairs": [[dim, birth vertex, death vertex or -1], ...]}
     std::string error;
     std::size_t line = 0;
@@ -72,6 +76,8 @@ void fill(const topo::Mesh& m) {
     double radius = 0;
     for (const auto& v : p) radius = std::max(radius, std::hypot(v.x - centre[0], v.y - centre[1], v.z - centre[2]));
     const double scale = radius > 0 ? 1 / radius : 1;
+    std::copy(centre, centre + 3, state.centre);
+    state.scale = scale;
 
     state.positions.clear();
     for (const auto& v : p) {
@@ -142,6 +148,7 @@ int topoc_elevation(double dx, double dy, double dz) {
         state.order = e.order;
         state.elevation = e.height;
         state.pairs.clear();
+        state.reeb.clear();
         state.euler.assign(e.euler.begin(), e.euler.end());
         state.critical = "[";
         for (const auto& c : e.critical) {
@@ -187,6 +194,51 @@ int topoc_persistence() {
 }
 
 const char* topoc_pairs() { return state.pairs.c_str(); }
+
+// Reeb graph of the last elevation, with `samples` regular heights for the drawing. 0; 12 without an
+// elevation; 13 above kPersistenceFaces triangles; 14 above kReebNodes nodes (a noisy height: thousands of
+// arcs, unreadable, and seconds of computing, measured in D48). Arc paths are in the viewer's units.
+constexpr uint32_t kReebNodes = 2000;
+
+int topoc_reeb(uint32_t samples) {
+    if (!state.mesh || state.elevation.size() != state.mesh->vertex_count()) return 12;
+    if (state.mesh->face_count() > kPersistenceFaces) return 13;
+    try {
+        topo::Elevation e;
+        e.height = state.elevation;
+        e.order = state.order;
+        e.rank.resize(e.order.size());
+        for (uint32_t r = 0; r < e.order.size(); ++r) e.rank[e.order[r]] = r;
+        const auto g = topo::reeb_graph(*state.mesh, e, samples, kReebNodes);
+        std::string s = "{\"loops\":" + std::to_string(g.loops()) + ",\"components\":" + std::to_string(g.components) + ",\"nodes\":[";
+        for (std::size_t k = 0; k < g.nodes.size(); ++k) {
+            const auto& n = g.nodes[k];
+            s += (k > 0 ? ",[" : "[") + std::to_string(n.vertex) + "," + std::to_string(n.down) + "," + std::to_string(n.up) + "]";
+        }
+        s += "],\"arcs\":[";
+        char buf[64];
+        for (std::size_t k = 0; k < g.arcs.size(); ++k) {
+            const auto& a = g.arcs[k];
+            s += (k > 0 ? ",[" : "[") + std::to_string(a.lower) + "," + std::to_string(a.upper) + ",[";
+            for (std::size_t i = 0; i < a.path.size(); ++i) {
+                const auto& p = a.path[i];
+                std::snprintf(buf, sizeof buf, "%s%.5g,%.5g,%.5g", i > 0 ? "," : "", (p.x - state.centre[0]) * state.scale,
+                              (p.y - state.centre[1]) * state.scale, (p.z - state.centre[2]) * state.scale);
+                s += buf;
+            }
+            s += "]]";
+        }
+        state.reeb = s + "]}";
+        return 0;
+    } catch (const std::length_error&) {
+        return 14;
+    } catch (const std::exception&) {
+        return 12;
+    }
+}
+
+const char* topoc_reeb_graph() { return state.reeb.c_str(); }
+uint32_t topoc_reeb_limit() { return kReebNodes; }
 uint32_t topoc_persistence_limit() { return kPersistenceFaces; }
 
 }  // extern "C"

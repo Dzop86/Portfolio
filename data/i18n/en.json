@@ -599,5 +599,14 @@
   "topo.label.pers.never": "never",
   "topo.label.pers.point": "{dim}: born at {birth}, dies at {death}",
   "topo.label.pers.more": "… and {n} more pairs, less persistent.",
+  "topo.reeb.title": "Reeb graph",
+  "topo.reeb.show": "Show the graph inside the mesh",
+  "topo.reeb.desc": "Reeb graph seen from the front, height upwards: each arc follows a component of a level set from one node to the next; the dashed line is the height threshold.",
+  "topo.reeb.note": "Each component of each level set is shrunk to a point: nodes are where they appear, split, merge or vanish, and each arc follows one of them, drawn through the centres of the level sets. On a closed orientable surface, the graph has as many loops as the genus, whatever the direction. Computed by the topology C++ code, in WebAssembly; inside the mesh, made transparent, it is cut at the height threshold.",
+  "topo.label.reeb.summary": "{nodes} node(s), {arcs} arc(s), {loops} loop(s).",
+  "topo.label.reeb.genus": "A closed orientable surface: as many loops as its genus ({genus}).",
+  "topo.label.reeb.bound": "A surface with a boundary or not orientable: at most b1 = {b1} loop(s).",
+  "topo.label.reeb.nodes": "Too many nodes to draw the Reeb graph (more than {limit}): a noisy height has thousands.",
+  "topo.label.reeb.triangles": "Mesh too large for the Reeb graph in the browser (more than {limit} triangles).",
   "cross.label.green": "{axis}: this axis is already green, the request changes nothing."
 }

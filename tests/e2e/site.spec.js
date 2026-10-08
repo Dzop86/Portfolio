@@ -228,6 +228,48 @@ test('the topology viewer shows the persistence diagram and filters the noise (s
   expect(errors).toEqual([]);
 });
 
+test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  const summary = viewer.locator('[data-reeb-summary]');
+  const flat = viewer.locator('[data-reeb-flat]');
+
+  // The standing torus: minimum, two saddles, maximum; the saddles joined by the two arms of the ring.
+  await expect(summary).toHaveText('4 node(s), 4 arc(s), 1 loop(s). A closed orientable surface: as many loops as its genus (1).');
+  await expect(flat.locator('.reeb-node')).toHaveCount(4);
+  await expect(flat.locator('.reeb-node.is-saddle')).toHaveCount(2);
+  await expect(flat.locator('.reeb-arc')).toHaveCount(4);
+  // The sphere: one arc, no loop.
+  await page.getByRole('button', { name: 'Sphere' }).click();
+  await expect(summary).toHaveText('2 node(s), 1 arc(s), 0 loop(s). A closed orientable surface: as many loops as its genus (0).');
+  // The Möbius strip has a boundary: at most b1 loops.
+  await page.getByRole('button', { name: 'Möbius strip' }).click();
+  await expect(summary).toContainText('A surface with a boundary or not orientable: at most b1 = 1 loop(s).');
+
+  // In the mesh, with the keyboard; the flat view keeps the threshold as a dashed line.
+  await page.getByRole('button', { name: 'Torus' }).click();
+  await expect(summary).toContainText('4 node(s)');
+  const show = page.getByRole('checkbox', { name: 'Show the graph inside the mesh' });
+  await show.focus();
+  await page.keyboard.press('Space');
+  await expect(show).toBeChecked();
+  const level = page.getByRole('slider', { name: 'Threshold' });
+  await level.focus();
+  await page.keyboard.press('Home');
+  await expect(flat.locator('[data-reeb-level]')).toHaveAttribute('y1', /\d/);
+  await page.keyboard.press('End');
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the SQL playground runs the examples, a typed query, and survives errors, changes and endless queries', async ({ page }) => {
   // Three loads of the database and a deliberate 5 s timeout: more than the default 30 s on slower engines.
   test.setTimeout(60000);

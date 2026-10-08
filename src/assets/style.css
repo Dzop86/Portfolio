@@ -571,3 +571,15 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .pers-shape.is-h2 { fill: var(--crit-max); }
 .pers-point.is-noise .pers-shape { fill: var(--muted); opacity: 0.45; }
 .pers-key { width: 12px; height: 12px; margin-right: var(--space-1); vertical-align: middle; }
+
+/* Reeb graph (sprint 38): arcs in the text colour, nodes in the colours of the critical points. */
+.topo-reeb { margin: var(--space-3) 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+.topo-check { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; }
+.topo-reeb-flat { width: 100%; height: auto; max-width: 360px; }
+.topo-reeb-flat[hidden] { display: none; }
+.topo-reeb-flat .reeb-arc { fill: none; stroke: var(--text-strong); stroke-width: 1.5; }
+.topo-reeb-flat .reeb-level { stroke: var(--chart-ref); stroke-dasharray: 4 3; }
+.reeb-node { stroke: var(--surface); stroke-width: 1; }
+.reeb-node.is-min { fill: var(--crit-min); }
+.reeb-node.is-saddle, .reeb-node.is-other { fill: var(--crit-saddle); }
+.reeb-node.is-max { fill: var(--crit-max); }

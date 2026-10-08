@@ -674,7 +674,8 @@ function meshDemo(t) {
 const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
   'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid', 'height.value', 'height.counts',
   'height.check', 'height.sum', 'tip.height', 'sublevel', 'pers.summary', 'pers.hidden', 'pers.toolarge', 'pers.dim.0',
-  'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more'];
+  'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more', 'reeb.summary', 'reeb.genus', 'reeb.bound',
+  'reeb.nodes', 'reeb.triangles'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 // Persistence diagram marks, centred on 0 (D48): a disc for components, a triangle for loops, a square for
 // cavities, so that the dimension does not rest on colour alone. Shared with the viewer through data-shapes.
@@ -733,6 +734,13 @@ function topoViewer(t) {
             <thead><tr><th scope="col">${esc(t('topo.pers.col.dim'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.birth'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.death'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.life'))}</th></tr></thead>
             <tbody></tbody></table></div></details>
           <p class="meta">${esc(t('topo.pers.note'))}</p>
+        </figure>
+        <figure class="topo-reeb" data-reeb>
+          <figcaption><strong>${esc(t('topo.reeb.title'))}</strong></figcaption>
+          <label class="topo-check"><input type="checkbox" data-reeb-show> ${esc(t('topo.reeb.show'))}</label>
+          <p data-reeb-summary aria-live="polite"></p>
+          <svg class="topo-reeb-flat" viewBox="0 0 300 300" role="img" aria-labelledby="topo-reeb-desc" data-reeb-flat><desc id="topo-reeb-desc">${esc(t('topo.reeb.desc'))}</desc></svg>
+          <p class="meta">${esc(t('topo.reeb.note'))}</p>
         </figure>
       </div>
       <p class="meta">${esc(t('topo.help'))}</p>

@@ -1,13 +1,14 @@
 // Topology viewer: a mesh coloured by Gaussian curvature, or by its height with the height filtration and
-// its critical points (sprint 36) and its persistence diagram (sprint 37), with its invariants, all computed by the C++ library of
+// its critical points (sprint 36), its persistence diagram (sprint 37) and its Reeb graph (sprint 38), with its invariants, all computed by the C++ library of
 // projects/topologie compiled to WebAssembly. Bundled with three.js at build time (D17).
 import {
-  AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, DoubleSide, Group, Mesh,
+  AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh,
   MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, criticalCounts, diagram, elevation, filtration, interiorCurvature, loadTopo, persistence, quantileScale, readTopology, turns,
+  AXES, clipArcs, criticalCounts, diagram, elevation, filtration, interiorCurvature, loadTopo, nodeKind, persistence, quantileScale,
+  readTopology, reeb, turns,
 } from '../assets/topo-api.js';
 
 const root = document.querySelector('[data-topo-viewer]');
@@ -38,6 +39,9 @@ function start(root) {
   const persRows = root.querySelector('[data-pers-table] tbody');
   const persDetails = persRows.closest('details');
   const shapes = JSON.parse(root.dataset.shapes);
+  const reebShow = root.querySelector('[data-reeb-show]');
+  const reebSummary = root.querySelector('[data-reeb-summary]');
+  const reebFlat = root.querySelector('[data-reeb-flat]');
   const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
   const num = (n, digits = 3) => n.toLocaleString(lang, { maximumFractionDigits: digits });
 
@@ -121,6 +125,7 @@ function start(root) {
     r.heightColours = heightColours(r.elevation);
     r.counts = criticalCounts(r.elevation.critical);
     r.persistence = persistence(r.lib, r.elevation);
+    r.reeb = reeb(r.lib);
   }
 
   // One sphere and one material per kind, shared by every marker and every mesh: clearing the group frees
@@ -169,6 +174,8 @@ function start(root) {
     if (mode() !== 'height') {
       shape.geometry.setDrawRange(0, Infinity);
       markers.visible = false;
+      reebLines.visible = false;
+      Object.assign(shape.material, { transparent: false, opacity: 1, depthWrite: true, needsUpdate: true });
       render();
       return;
     }
@@ -182,6 +189,13 @@ function start(root) {
     // Under the level, and not only the end of pairs shorter than the persistence threshold.
     const kept = r.persistence.tooLarge ? null : diagram(r.persistence.pairs, persistenceThreshold(r)).vertices;
     for (const m of markers.children) m.visible = m.userData.rank <= rank && (!kept || kept.has(m.userData.vertex));
+    drawReebLines(r, h);
+    const y = reebFlat.querySelector('[data-reeb-level]');
+    if (y && r.flat) {
+      const at = r.flat.y(h).toFixed(1);
+      y.setAttribute('y1', at);
+      y.setAttribute('y2', at);
+    }
     levelValue.textContent = fill(labels['height.value'], { h: num(h - lo, 2), max: num(hi - lo, 2) });
     sublevel.textContent = fill(labels.sublevel, { faces: num(faces), total: num(r.indices.length / 3), chi: rank < 0 ? 0 : euler[rank] });
     drawChi(r, h);
@@ -253,6 +267,73 @@ function start(root) {
     return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   }
 
+  // --- Reeb graph (sprint 38) ------------------------------------------------------------------
+  // Inside the mesh: the arcs below the threshold, drawn over everything (they run inside the volume), the mesh
+  // made transparent while they show. One geometry, rebuilt when the threshold moves.
+  const reebLines = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ color: token('--text-strong'), depthTest: false, transparent: true }));
+  reebLines.renderOrder = 2;
+  scene.add(reebLines);
+
+  function drawReebLines(r, h) {
+    const on = reebShow.checked && !r.reeb.tooLarge;
+    reebLines.visible = on;
+    shape.material.transparent = on;
+    shape.material.opacity = on ? 0.35 : 1;
+    shape.material.depthWrite = !on;
+    shape.material.needsUpdate = true;
+    if (!on) return;
+    const segments = [];
+    for (const line of clipArcs(r.reeb, r.positions, r.elevation.height, AXES[axisSelect.value], h)) {
+      for (let k = 3; k < line.length; k += 3) segments.push(...line.slice(k - 3, k + 3));
+    }
+    reebLines.geometry.dispose();
+    reebLines.geometry = new BufferGeometry();
+    reebLines.geometry.setAttribute('position', new BufferAttribute(new Float32Array(segments), 3));
+  }
+
+  // Flat, seen from the front: height up, across it the axis of the mesh that the height does not use.
+  const ACROSS = { y: 0, x: 2, z: 0 };
+
+  function drawReeb(r) {
+    const g = r.reeb;
+    reebFlat.toggleAttribute('hidden', Boolean(g.tooLarge));
+    if (g.tooLarge) {
+      reebSummary.textContent = fill(labels[`reeb.${g.tooLarge}`], { limit: num(g.limit) });
+      r.flat = null;
+      return;
+    }
+    const inv = r.invariants;
+    const closed = inv.genus !== null && inv.boundaryLoops === 0;
+    const check = closed ? fill(labels['reeb.genus'], { genus: inv.genus })
+      : r.persistence.tooLarge ? '' : fill(labels['reeb.bound'], { b1: r.persistence.betti[1] });
+    reebSummary.textContent = `${fill(labels['reeb.summary'], { nodes: num(g.nodes.length), arcs: num(g.arcs.length), loops: num(g.loops) })} ${check}`.trim();
+
+    const { height, order } = r.elevation;
+    const across = ACROSS[axisSelect.value];
+    const p = r.positions;
+    let left = Infinity, right = -Infinity;
+    for (let k = across; k < p.length; k += 3) { left = Math.min(left, p[k]); right = Math.max(right, p[k]); }
+    const lo = height[order[0]], hi = height[order[order.length - 1]];
+    // Same scale both ways, so that the graph keeps the mesh's proportions.
+    const span = Math.max(right - left, hi - lo, 1e-9);
+    const x = (u) => 150 + ((u - (left + right) / 2) / span) * 260;
+    const y = (h) => 150 - ((h - (lo + hi) / 2) / span) * 260;
+    r.flat = { y };
+    const dir = AXES[axisSelect.value];
+    const arcs = g.arcs.map((a) => {
+      const from = g.nodes[a.lower].vertex, to = g.nodes[a.upper].vertex;
+      const pts = [[p[3 * from + across], height[from]]];
+      for (let k = 0; k < a.path.length; k += 3) {
+        pts.push([a.path[k + across], a.path[k] * dir[0] + a.path[k + 1] * dir[1] + a.path[k + 2] * dir[2]]);
+      }
+      pts.push([p[3 * to + across], height[to]]);
+      return `<polyline class="reeb-arc" points="${pts.map(([u, h]) => `${x(u).toFixed(1)},${y(h).toFixed(1)}`).join(' ')}"/>`;
+    }).join('');
+    const nodes = g.nodes.map((n) => `<circle class="reeb-node is-${nodeKind(n)}" cx="${x(p[3 * n.vertex + across]).toFixed(1)}" cy="${y(height[n.vertex]).toFixed(1)}" r="4"/>`).join('');
+    reebFlat.innerHTML = `${reebFlat.querySelector('desc').outerHTML}`
+      + `<line class="reeb-level" data-reeb-level x1="10" x2="290" y1="${y(hi).toFixed(1)}" y2="${y(hi).toFixed(1)}"/>${arcs}${nodes}`;
+  }
+
   function describeCritical(r) {
     const c = r.counts;
     const check = c.other === 0 ? fill(labels['height.check'], { sum: c.sum }) : fill(labels['height.sum'], { sum: c.sum });
@@ -266,12 +347,16 @@ function start(root) {
     heightPanel.hidden = !height;
     legend.hidden = height;
     shape.geometry.setAttribute('color', new BufferAttribute(height ? r.heightColours : r.curvatureColours, 3));
-    if (height) drawPersistence();
+    if (height) {
+      drawPersistence();
+      drawReeb(r);
+    }
     applyLevel();
   }
 
   modes.forEach((m) => m.addEventListener('change', applyMode));
   level.addEventListener('input', applyLevel);
+  reebShow.addEventListener('change', applyLevel);
   tau.addEventListener('input', () => {
     drawPersistence();
     applyLevel();

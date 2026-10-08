@@ -187,6 +187,64 @@ export function diagram(pairs, tau, max = 2000) {
 }
 
 /**
+ * Reeb graph of the last elevation (C++ topo::reeb_graph, D48): nodes (vertex, arcs down, arcs up) in the order
+ * of the filtration, arcs from a lower to an upper node with the level set centroids in between (flat x, y, z
+ * in the viewer's units), loops and components. Above the library's limits, { tooLarge: 'triangles' | 'nodes',
+ * limit } instead.
+ */
+export function reeb(lib, samples = 32) {
+  const status = lib._topoc_reeb(samples);
+  if (status === 13) return { tooLarge: 'triangles', limit: lib._topoc_persistence_limit() };
+  if (status === 14) return { tooLarge: 'nodes', limit: lib._topoc_reeb_limit() };
+  if (status !== 0) throw new Error('reeb: compute the elevation first');
+  const { loops, components, nodes, arcs } = JSON.parse(lib.UTF8ToString(lib._topoc_reeb_graph()));
+  return {
+    loops,
+    components,
+    nodes: nodes.map(([vertex, down, up]) => ({ vertex, down, up })),
+    arcs: arcs.map(([lower, upper, path]) => ({ lower, upper, path })),
+  };
+}
+
+/** Kind of a Reeb graph node, for its colour: nothing below a minimum, nothing above a maximum. */
+export function nodeKind({ down, up }) {
+  if (down === 0 && up === 0) return 'other';
+  if (down === 0) return 'min';
+  if (up === 0) return 'max';
+  return 'saddle';
+}
+
+/**
+ * The arcs as polylines (flat x, y, z) from their lower node, cut where they rise above height `h` along the unit
+ * `direction`; an arc whose lower node is above `h` is left out.
+ */
+export function clipArcs(graph, positions, height, direction, h) {
+  const at = (v) => [positions[3 * v], positions[3 * v + 1], positions[3 * v + 2]];
+  const lines = [];
+  for (const a of graph.arcs) {
+    const lo = graph.nodes[a.lower].vertex, hi = graph.nodes[a.upper].vertex;
+    if (height[lo] > h) continue;
+    const points = [at(lo)];
+    for (let k = 0; k < a.path.length; k += 3) points.push(a.path.slice(k, k + 3));
+    points.push(at(hi));
+    const heights = points.map((p, k) => (k === 0 ? height[lo] : k === points.length - 1 ? height[hi]
+      : p[0] * direction[0] + p[1] * direction[1] + p[2] * direction[2]));
+    const line = [...points[0]];
+    for (let k = 1; k < points.length; k++) {
+      if (heights[k] <= h) {
+        line.push(...points[k]);
+        continue;
+      }
+      const s = (h - heights[k - 1]) / (heights[k] - heights[k - 1]);
+      line.push(...points[k - 1].map((c, i) => c + s * (points[k][i] - c)));
+      break;
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+
+/**
  * The lower-star filtration for drawing: triangles sorted by their highest vertex, so that the sublevel set
  * up to rank r is the first `faces(r)` triangles; and the rank of the last vertex at or below a height.
  */

@@ -599,5 +599,14 @@
   "topo.label.pers.never": "jamais",
   "topo.label.pers.point": "{dim} : née à {birth}, morte à {death}",
   "topo.label.pers.more": "… et {n} autres paires, moins persistantes.",
+  "topo.reeb.title": "Graphe de Reeb",
+  "topo.reeb.show": "Montrer le graphe dans le maillage",
+  "topo.reeb.desc": "Graphe de Reeb vu de face, la hauteur en ordonnée : chaque arc suit une composante d'une ligne de niveau d'un nœud au suivant ; la ligne en pointillés est le seuil de hauteur.",
+  "topo.reeb.note": "Chaque composante de chaque ligne de niveau est réduite à un point : les nœuds sont là où elles naissent, se séparent, se rejoignent ou meurent, et chaque arc en suit une, tracé par les centres des lignes de niveau. Sur une surface fermée orientable, le graphe a autant de boucles que le genre, quelle que soit la direction. Calculé par le C++ de topologie, en WebAssembly ; dans le maillage, rendu transparent, il est coupé au seuil de hauteur.",
+  "topo.label.reeb.summary": "{nodes} nœud(s), {arcs} arc(s), {loops} boucle(s).",
+  "topo.label.reeb.genus": "Surface fermée orientable : autant de boucles que son genre ({genus}).",
+  "topo.label.reeb.bound": "Surface à bord ou non orientable : au plus b1 = {b1} boucle(s).",
+  "topo.label.reeb.nodes": "Trop de nœuds pour dessiner le graphe de Reeb (plus de {limit}) : une hauteur bruitée en a des milliers.",
+  "topo.label.reeb.triangles": "Maillage trop grand pour le graphe de Reeb dans le navigateur (plus de {limit} triangles).",
   "cross.label.green": "{axis} : cet axe est déjà au vert, la demande ne change rien."
 }
