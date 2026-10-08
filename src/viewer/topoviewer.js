@@ -4,11 +4,12 @@
 // projects/topologie compiled to WebAssembly. Bundled with three.js at build time (D17).
 import {
   AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh,
-  MeshBasicMaterial, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, SphereGeometry, Vector2, WebGLRenderer,
+  CanvasTexture, ConeGeometry, CylinderGeometry, MeshBasicMaterial, MeshStandardMaterial, OrthographicCamera, PerspectiveCamera, Raycaster,
+  Scene, SphereGeometry, Sprite, SpriteMaterial, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, aliveAt, barcode, clipArcs, closeEssentials, criticalCounts, diagram, duration, elevation, extendedPersistence, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
+  AXES, aliveAt, barcode, gizmoSize, clipArcs, closeEssentials, criticalCounts, diagram, duration, elevation, extendedPersistence, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
   persistence, quantileScale, readTopology, reeb, timed, tour, turns,
 } from '../assets/topo-api.js';
 
@@ -79,7 +80,11 @@ function start(root) {
   light.position.set(1, 1, 2);
   scene.add(camera, new AmbientLight(0xffffff, 0.9));
   const controls = renderer ? new OrbitControls(camera, canvas) : null;
-  const render = () => renderer?.render(scene, camera);
+  const render = () => {
+    if (!renderer) return;
+    renderer.render(scene, camera);
+    drawGizmo();
+  };
   controls?.addEventListener('change', render);
   let shape = null;
 
@@ -100,6 +105,66 @@ function start(root) {
 
   // Diverging scale from the charter tokens: saddle (K < 0), flat, dome (K > 0).
   const token = (name) => new Color(getComputedStyle(root).getPropertyValue(name).trim());
+
+  // --- orientation gizmo (sprint 43, D52) ----------------------------------------------------------
+  // x red, y green, z blue, with their letters, in a small view of the bottom-left corner of the same canvas that
+  // looks at the axes from where the camera looks at the mesh.
+  const GIZMO_MARGIN = 8;
+  const gizmoScene = new Scene();
+  const gizmoCamera = new OrthographicCamera(-1.5, 1.5, 1.5, -1.5, 0.1, 10);
+  const shaft = new CylinderGeometry(0.05, 0.05, 0.8, 8);
+  const head = new ConeGeometry(0.13, 0.3, 12);
+  function letter(text, colour) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const g = c.getContext('2d');
+    g.font = 'bold 44px system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.lineWidth = 6;
+    g.strokeStyle = '#000';
+    g.strokeText(text, 32, 34);
+    g.fillStyle = `#${colour.getHexString()}`;
+    g.fillText(text, 32, 34);
+    const sprite = new Sprite(new SpriteMaterial({ map: new CanvasTexture(c), depthTest: false }));
+    sprite.scale.set(0.55, 0.55, 1);
+    return sprite;
+  }
+  for (const [name, dir] of Object.entries(AXES)) {
+    const colour = token(`--axis-${name}`);
+    const material = new MeshBasicMaterial({ color: colour });
+    const axis = new Group();
+    const body = new Mesh(shaft, material);
+    body.position.y = 0.4;
+    const tip = new Mesh(head, material);
+    tip.position.y = 0.95;
+    axis.add(body, tip);
+    // The model points up (y); turn it onto its axis.
+    axis.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(...dir));
+    const label = letter(name, colour);
+    label.position.set(...dir.map((c) => c * 1.3));
+    gizmoScene.add(axis, label);
+  }
+  const towards = new Vector3();
+  function drawGizmo() {
+    const { clientWidth: width, clientHeight: height } = canvas;
+    if (!width || !height) return;
+    const size = gizmoSize(width, height);
+    // Same direction and up as the main camera, around the gizmo's origin.
+    towards.copy(camera.position).sub(controls?.target ?? new Vector3()).normalize().multiplyScalar(4);
+    gizmoCamera.position.copy(towards);
+    gizmoCamera.up.copy(camera.up);
+    gizmoCamera.lookAt(0, 0, 0);
+    renderer.autoClear = false;
+    renderer.clearDepth();
+    renderer.setScissorTest(true);
+    renderer.setScissor(GIZMO_MARGIN, GIZMO_MARGIN, size, size);
+    renderer.setViewport(GIZMO_MARGIN, GIZMO_MARGIN, size, size);
+    renderer.render(gizmoScene, gizmoCamera);
+    renderer.setScissorTest(false);
+    renderer.setViewport(0, 0, width, height);
+    renderer.autoClear = true;
+  }
 
   // Diverging scale by quantiles of |K| over interior vertices (see quantileScale): readable on smooth
   // samples and on sculpted models whose creases reach 1000 times the median curvature.

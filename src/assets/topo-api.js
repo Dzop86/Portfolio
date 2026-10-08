@@ -393,3 +393,11 @@ export function duration(ms, lang) {
   if (ms < 1000) return `${n(Math.round(ms), 0)} ms`;
   return `${n(ms / 1000, 2)} s`;
 }
+
+/**
+ * Side of the orientation gizmo in CSS pixels (sprint 43): a fifth of the canvas's smaller side, between 56 px (the
+ * letters stay readable) and 110 px (it never hides the mesh). Drawn in the bottom-left corner, `margin` px inside.
+ */
+export function gizmoSize(width, height) {
+  return Math.round(Math.min(110, Math.max(56, 0.2 * Math.min(width, height))));
+}

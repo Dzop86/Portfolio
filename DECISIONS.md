@@ -264,3 +264,9 @@ Le burndown comptait par projet entier, brûlé à son dernier sprint : réouvri
 **Alternatives :** une table de hachage (linéaire aussi, mais accès aléatoires et taille à prévoir, plus de code à tester) ; garder `qsort` (le plus simple, mais lib-c restait plus lente que topologie, qui fait pourtant plus).
 **Limites :** un tampon de la taille des clés en plus (24 octets par triangle pendant le comptage).
 
+## D52. Repère d'orientation dans la visionneuse
+**Choix (demande de Charles, 8 octobre 2026) :** sprint 43, 1 point (204 en tout, 43 sprints) ; topologie passe de 35 à 36. Un repère x rouge, y vert, z bleu (la convention des logiciels 3D), dessiné par three.js dans un coin du même canvas, dans une petite vue qui reprend l'orientation de la caméra (comme ParaView ou Blender). Les lettres accompagnent les couleurs, qui viennent de jetons de la charte.
+**Pourquoi :** la hauteur se choisit selon x, y ou z ; sans repère, le visiteur ne sait pas lequel est lequel une fois le maillage tourné.
+**Alternatives :** un `AxesHelper` au centre du maillage (caché par lui, et à l'échelle du maillage) ; un repère en HTML par-dessus le canvas (une projection à recalculer à chaque image, en double de three.js).
+**Limites :** sans WebGL (Firefox en CI), pas de repère, comme pas de maillage.
+

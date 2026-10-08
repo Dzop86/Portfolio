@@ -2,7 +2,8 @@
 // the barcode, the classes alive at a height and the guided explanation (sprint 39), without WebAssembly.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aliveAt, barcode, closeEssentials, diagram, levelAt, levelBetween, tour } from '../../src/assets/topo-api.js';
+import { aliveAt, barcode, closeEssentials, diagram, gizmoSize, levelAt, levelBetween, tour } from '../../src/assets/topo-api.js';
+import { readFileSync } from 'node:fs';
 
 const pair = (dimension, birthVertex, deathVertex, birth, death) => ({ dimension, birthVertex, deathVertex, birth, death });
 const pairs = [
@@ -117,4 +118,20 @@ test('the classes that never die going up are closed where the way down kills th
   assert.deepEqual(aliveAt(closed, 1), aliveAt(pairs, 1));
   // An essential class without its extended pair is a mistake.
   assert.throws(() => closeEssentials(pairs, extended.slice(1)), /0:0/);
+});
+
+test('the orientation gizmo keeps a readable size, and its colours are charter tokens (sprint 43)', () => {
+  assert.equal(gizmoSize(800, 600), 110);
+  assert.equal(gizmoSize(400, 300), 60);
+  assert.equal(gizmoSize(200, 150), 56);
+  assert.equal(gizmoSize(343, 257), 56);
+  assert.equal(gizmoSize(500, 450), 90);
+  // x red, y green, z blue, defined once for both themes.
+  const tokens = readFileSync(new URL('../../src/assets/tokens.css', import.meta.url), 'utf8');
+  for (const [axis, hue] of [['x', 0], ['y', 1], ['z', 2]]) {
+    const m = tokens.match(new RegExp(`--axis-${axis}: #([0-9a-f]{6});`));
+    assert.ok(m, axis);
+    const rgb = [0, 2, 4].map((k) => parseInt(m[1].slice(k, k + 2), 16));
+    assert.equal(rgb.indexOf(Math.max(...rgb)), hue, `${axis} is dominated by its channel`);
+  }
 });

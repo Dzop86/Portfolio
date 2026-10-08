@@ -152,7 +152,7 @@
   "demo.label.error.load": "la bibliothèque WebAssembly n'a pas pu être chargée.",
   "topo.title": "Faire tourner un maillage",
   "topo.lead": "La couleur montre la courbure de Gauss en chaque sommet. Invariants et courbure sont calculés par le code C++ du projet, compilé en WebAssembly, dans votre navigateur.",
-  "topo.help": "Glisser pour tourner, molette ou pincement pour zoomer ; survoler un point pour lire sa courbure.",
+  "topo.help": "Glisser pour tourner, molette ou pincement pour zoomer ; survoler un point pour lire sa courbure. Le repère en bas à gauche suit la caméra : x en rouge, y en vert, z en bleu.",
   "topo.sample.torus": "Tore",
   "topo.sample.sphere": "Sphère",
   "topo.sample.mobius": "Ruban de Möbius",

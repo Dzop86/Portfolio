@@ -27,6 +27,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« j'ai review, c'est ok »), pour le sprint 41.
 
+- [ ] Sprint 43 : le repère d'orientation de `src/viewer/topoviewer.js` (petite vue orthographique dans le coin, dans la direction de la caméra) et son test par les pixels du coin. Taille et place te conviennent-elles ?
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |

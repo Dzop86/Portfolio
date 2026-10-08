@@ -445,6 +445,59 @@ test('the topology viewer closes every class by extended persistence, nothing to
   expect(errors).toEqual([]);
 });
 
+// Counts the red, green and blue pixels of the charter's axis tokens in a screenshot of a page area, decoded in the page.
+async function axisPixels(page, clip) {
+  const png = await page.screenshot({ clip });
+  return page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = Object.assign(document.createElement('canvas'), { width: img.width, height: img.height });
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data;
+    const count = { x: 0, y: 0, z: 0 };
+    let signature = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const [r, gr, b] = [d[i], d[i + 1], d[i + 2]];
+      if (r > 180 && gr < 90 && b < 90) count.x++;
+      if (gr > 120 && r < 110 && b < 110) count.y++;
+      if (b > 180 && r < 80 && gr < 170) count.z++;
+      signature = (signature * 31 + r + 3 * gr + 7 * b) % 1000000007;
+    }
+    return { count, signature };
+  }, png.toString('base64'));
+}
+
+test('the topology viewer shows an orientation gizmo that turns with the camera (sprint 43)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await expect(viewer).toContainText('x in red, y in green, z in blue');
+  const canvas = viewer.locator('canvas');
+  // Without WebGL (Firefox in CI), no 3D and no gizmo: the notice says so.
+  test.skip(await canvas.count() === 0, 'no WebGL');
+  await canvas.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const box = await canvas.boundingBox();
+  const side = Math.min(130, box.height);
+  const clip = { x: box.x, y: box.y + box.height - side, width: side, height: side };
+  const before = await axisPixels(page, clip);
+  for (const axis of ['x', 'y', 'z']) expect(before.count[axis], axis).toBeGreaterThan(15);
+  // Turn the mesh: the gizmo turns with it.
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 120, box.y + box.height / 2 + 50, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  const after = await axisPixels(page, clip);
+  expect(after.signature).not.toBe(before.signature);
+  for (const axis of ['x', 'z']) expect(after.count[axis], axis).toBeGreaterThan(15);
+  expect(errors).toEqual([]);
+});
+
 test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

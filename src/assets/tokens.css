@@ -76,6 +76,11 @@
   --crit-min: #3987e5;
   --crit-saddle: #ffb300;
   --crit-max: #e66767;
+  /* Orientation gizmo of the topology viewer (sprint 43): x red, y green, z blue, the convention of 3D software; the
+     same in both themes, each letter outlined in black. */
+  --axis-x: #e53935;
+  --axis-y: #43a047;
+  --axis-z: #1e88e5;
   /* Traffic lights of the Ada crossroads (D46): lamps lit or off, the road and its markings; the same in
      both themes, like a real crossroads. */
   --tl-red: #e53935;

@@ -152,7 +152,7 @@
   "demo.label.error.load": "the WebAssembly library could not be loaded.",
   "topo.title": "Spin a mesh",
   "topo.lead": "Colour shows the Gaussian curvature at each vertex. Invariants and curvature are computed by the project's C++ code, compiled to WebAssembly, in your browser.",
-  "topo.help": "Drag to rotate, scroll or pinch to zoom; hover a point to read its curvature.",
+  "topo.help": "Drag to rotate, scroll or pinch to zoom; hover a point to read its curvature. The gizmo at the bottom left follows the camera: x in red, y in green, z in blue.",
   "topo.sample.torus": "Torus",
   "topo.sample.sphere": "Sphere",
   "topo.sample.mobius": "Möbius strip",
