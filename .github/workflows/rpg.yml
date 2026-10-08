@@ -1,0 +1,57 @@
+name: rpg
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/rpg/**', '.github/workflows/rpg.yml']
+  pull_request:
+    paths: ['projects/rpg/**', '.github/workflows/rpg.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rpg-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: projects/rpg
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  rules:
+    name: Tactical RPG, rules in C# (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rpg/global.json
+      - name: Format (dotnet format)
+        run: dotnet format Rpg.slnx --verify-no-changes
+      # Analyzers at the recommended level, warnings are errors (Directory.Build.props).
+      - name: Build
+        run: dotnet build Rpg.slnx -c Release
+      - name: Unit and integration tests (xUnit)
+        run: |
+          dotnet test --project tests/Rpg.Core.Tests -c Release --no-build
+          dotnet test --project tests/Rpg.Sim.Tests -c Release --no-build
+      # The same record must give the same fight, roll for roll, on every system.
+      - name: Replay the committed fights
+        shell: bash
+        run: |
+          dotnet run --project src/Rpg.Sim -c Release --no-build -- --replay samples/training-7.json | tee "$RUNNER_TEMP/training.txt"
+          grep -qF "Training, seed 7: team A wins in round 6, after 41 actions." "$RUNNER_TEMP/training.txt"
+          dotnet run --project src/Rpg.Sim -c Release --no-build -- --replay samples/duel-3.json | tee "$RUNNER_TEMP/duel.txt"
+          grep -qF "Duel, seed 3: team B wins in round 4, after 22 actions." "$RUNNER_TEMP/duel.txt"
+      - name: A thousand AI fights
+        run: dotnet run --project src/Rpg.Sim -c Release --no-build -- --simulate 1000 --scenario duel
