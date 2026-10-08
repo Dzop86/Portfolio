@@ -12,7 +12,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
 ## Sprint 44 : à relire
-- [ ] Les 21 résumés « En bref, sans jargon » (`data/projects.json`, champ `plain`) : justes, à ton goût, et à la première personne (« j'ai enseigné à l'université », « mon cœur de métier ») ? L'encart en haut des fiches (fermé par défaut) te paraît-il le bon choix ?
+- [x] Les 21 résumés « En bref, sans jargon » (`data/projects.json`, champ `plain`) : justes, à ton goût, et à la première personne (« j'ai enseigné à l'université », « mon cœur de métier ») ? L'encart en haut des fiches (fermé par défaut) te paraît-il le bon choix ?
+
+> Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« review ok »).
 
 ## Constats
 

@@ -11,6 +11,6 @@
 **Tests :** 2 tests Node (`tests/unit/plain.test.mjs` : les trois phrases de chaque projet dans les deux langues, de 30 à 260 caractères, sans une liste de 32 mots techniques, vérifiée sur « API » et « rapide » ; l'encart en haut de chaque fiche, fermé, avant les liens) ; 1 test Playwright (5 navigateurs : ouverture au clic, au clavier par Entrée et Espace, cible de 44 px, pas de défilement horizontal, axe dans les deux thèmes, en français et en anglais). **Fait :** l'encart « En bref, sans jargon » en haut des 21 fiches, et les 42 résumés. **Trouvé en route :** le bloc inséré d'abord dans la carte de la liste des projets (même ligne repère que la fiche) ; un test Firefox hors délai une fois sur trois passages, cinq navigateurs en parallèle (60 s comme les autres tests lourds).
 
 ## Rétro (Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+- Ce qui a marché : Les 21 projets se lisent en trente secondes sans être informaticien ; un test refuse le jargon, la troisième personne et un résumé manquant dans une langue.
+- Ce que l'IA a mal fait : Des résumés d'abord écrits à la troisième personne, une accroche de la topologie trop technique et un encart qui ne semblait pas cliquable : trois retours de ma part pour une story de 2 points.
+- À changer au prochain sprint : Pour un texte destiné à un non-informaticien, me montrer deux ou trois exemples avant de les écrire tous ; regarder une capture de chaque nouvel élément d'interface avant de me le soumettre.
