@@ -1,8 +1,8 @@
 namespace Rpg.Core;
 
 /// <summary>
-/// A cell of the board. The board is a square grid drawn as diamonds (isometric view, see
-/// <see cref="Iso"/>): moving goes to one of the four cells sharing a side, and every distance
+/// A cell of the board. The board is a square grid, drawn as diamonds by the client's isometric
+/// camera: moving goes to one of the four cells sharing a side, and every distance
 /// is counted in such steps (Manhattan distance), so a range draws a diamond around the caster.
 /// </summary>
 public readonly record struct Cell(int X, int Y)

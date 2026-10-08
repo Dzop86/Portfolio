@@ -14,35 +14,6 @@ public class GeometryTests
     }
 
     [Fact]
-    public void Iso_CentreOfEveryCell_ComesBackToTheCell()
-    {
-        for (int x = -12; x <= 12; x++)
-        {
-            for (int y = -12; y <= 12; y++)
-            {
-                (double sx, double sy) = Iso.ToScreen(new Cell(x, y), 64, 32);
-                Assert.Equal(new Cell(x, y), Iso.FromScreen(sx, sy, 64, 32));
-            }
-        }
-    }
-
-    [Fact]
-    public void Iso_PointsJustInsideTheDiamond_StayInTheCell_JustOutside_GoToTheNeighbour()
-    {
-        var c = new Cell(3, 5);
-        (double x, double y) = Iso.ToScreen(c, 64, 32);
-        // The diamond's corners are 32 px left and right, 16 px up and down from the centre.
-        Assert.Equal(c, Iso.FromScreen(x + 31.5, y, 64, 32));
-        Assert.Equal(c, Iso.FromScreen(x, y - 15.8, 64, 32));
-        Assert.Equal(c, Iso.FromScreen(x + 15, y + 7, 64, 32));
-        // Right of the right corner: cell (x + 1, y - 1); below the lower corner: (x + 1, y + 1).
-        Assert.Equal(new Cell(4, 4), Iso.FromScreen(x + 32.5, y, 64, 32));
-        Assert.Equal(new Cell(4, 6), Iso.FromScreen(x, y + 16.5, 64, 32));
-        // Across the lower right side: the neighbour (x + 1, y).
-        Assert.Equal(new Cell(4, 5), Iso.FromScreen(x + 17, y + 8, 64, 32));
-    }
-
-    [Fact]
     public void Board_ReadsTerrainAndStartsInReadingOrder()
     {
         Board b = Board.Parse(["B.#", "A~A"]);

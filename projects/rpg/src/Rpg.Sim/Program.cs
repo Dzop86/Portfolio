@@ -9,7 +9,7 @@ namespace Rpg.Sim;
 ///   rpg-sim --simulate 500 --scenario training [--seed 1]
 ///   rpg-sim --record fight.json --scenario duel --seed 7
 ///   rpg-sim --replay fight.json [--show]
-/// Options: --data (folder, default "data"), --lang fr|en (default en).
+/// Options: --data (a data folder; by default the data built into Rpg.Core), --lang fr|en (default en).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -28,7 +28,7 @@ public static class Program
             error.WriteLine(e.Message);
             return 2;
         }
-        GameData data = GameData.Load(options.Data);
+        GameData data = options.Data is null ? GameData.Embedded : GameData.Load(options.Data);
         var text = new Texts(options.Lang);
         try
         {
@@ -102,11 +102,11 @@ public static class Program
         return sb.ToString();
     }
 
-    private sealed record Options(string Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show)
     {
         public static Options Parse(string[] args)
         {
-            var o = new Options("data", "en", "training", 1, 0, null, null, false);
+            var o = new Options(null, "en", "training", 1, 0, null, null, false);
             for (int i = 0; i < args.Length; i++)
             {
                 string Value() => i + 1 < args.Length ? args[++i] : throw new ArgumentException($"{args[i]} needs a value.");

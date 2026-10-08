@@ -28,9 +28,13 @@ public sealed record Spell(
     public double AverageDamage => (DamageMin + DamageMax) / 2.0;
 }
 
-/// <summary>A fighter of a scenario: its team (0 or 1), its characteristics and the index of its starting cell.</summary>
+/// <summary>
+/// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team
+/// (0 or 1), its characteristics and the index of its starting cell.
+/// </summary>
 public sealed record FighterSpec(
     LocalizedText Name,
+    string Look,
     int Team,
     int Hp,
     int Ap,
@@ -88,6 +92,30 @@ public sealed class GameData
             ReadAll<Scenario>("scenarios"));
     }
 
+    /// <summary>
+    /// The data files built into this library (<c>data/</c> of the project, see Rpg.Core.csproj): what
+    /// the game, the server and the tests read, whatever folder they run from.
+    /// </summary>
+    public static GameData Embedded { get; } = LoadEmbedded();
+
+    private static GameData LoadEmbedded()
+    {
+        var assembly = typeof(GameData).Assembly;
+        var files = assembly.GetManifestResourceNames()
+            .Where(n => n.StartsWith("data/", StringComparison.Ordinal))
+            .Order(StringComparer.Ordinal)
+            .ToDictionary(n => n, n =>
+            {
+                using var reader = new StreamReader(assembly.GetManifestResourceStream(n)!);
+                return reader.ReadToEnd();
+            });
+        T Parse<T>(string name, string json) =>
+            JsonSerializer.Deserialize<T>(json, Json) ?? throw new InvalidDataException($"{name} is empty.");
+        IEnumerable<T> All<T>(string prefix) =>
+            files.Where(f => f.Key.StartsWith(prefix, StringComparison.Ordinal)).Select(f => Parse<T>(f.Key, f.Value));
+        return new GameData(Parse<List<Spell>>("spells.json", files["data/spells.json"]), All<MapSpec>("data/maps/"), All<Scenario>("data/scenarios/"));
+    }
+
     public Board Board(string mapId) =>
         Maps.TryGetValue(mapId, out MapSpec? map)
             ? Core.Board.Parse(map.Rows)
@@ -120,6 +148,8 @@ public sealed class GameData
             string who = $"Scenario '{s.Id}', fighter '{f.Name.En}'";
             if (f.Team is not (0 or 1))
                 throw new InvalidDataException($"{who}: team must be 0 or 1.");
+            if (string.IsNullOrWhiteSpace(f.Look))
+                throw new InvalidDataException($"{who}: no look.");
             if (f.Hp < 1 || f.Ap < 0 || f.Mp < 0)
                 throw new InvalidDataException($"{who}: hit points, action or movement points out of bounds.");
             if (f.Start < 0 || f.Start >= board.Starts[f.Team].Count || !used.Add((f.Team, f.Start)))

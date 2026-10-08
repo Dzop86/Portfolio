@@ -14,14 +14,14 @@ internal static class Arena
     public static readonly Spell[] Spells = [Strike, Bow, Spear, Lob, Sacrifice];
 
     public static FighterSpec Spec(int team, int start = 0, int hp = 50, int ap = 6, int mp = 3, int initiative = 100, params string[] spells) =>
-        new(new LocalizedText($"f{team}{start}", $"f{team}{start}"), team, hp, ap, mp, initiative, start, spells);
+        new(new LocalizedText($"f{team}{start}", $"f{team}{start}"), "male-a", team, hp, ap, mp, initiative, start, spells);
 
     public static GameData Data(string[] rows, params FighterSpec[] fighters) =>
         new(Spells, [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)]);
 
     public static Fight Fight(string[] rows, params FighterSpec[] fighters) => new(Data(rows, fighters), "s", 1);
 
-    public static GameData Real { get; } = GameData.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+    public static GameData Real => GameData.Embedded;
 
     /// <summary>Everything observable about a fight, to compare two fights.</summary>
     public static string Fingerprint(Fight f) =>

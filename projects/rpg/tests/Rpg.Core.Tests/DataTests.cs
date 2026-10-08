@@ -8,7 +8,7 @@ public class DataTests
     [Fact]
     public void TheGamesData_LoadsAndIsConsistent()
     {
-        Assert.Equal(["arrow", "bite", "spear", "spit", "strike"], Real.Spells.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["arrow", "club", "sling", "spear", "strike"], Real.Spells.Keys.Order(StringComparer.Ordinal));
         Assert.Equal(["duel", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
         foreach (Spell s in Real.Spells.Values)
             Assert.False(string.IsNullOrWhiteSpace(s.Name.Fr) || string.IsNullOrWhiteSpace(s.Name.En), s.Id);
@@ -21,6 +21,15 @@ public class DataTests
     }
 
     [Fact]
+    public void TheBuiltInData_IsTheDataFolder()
+    {
+        GameData files = GameData.Load(Path.Combine(AppContext.BaseDirectory, "data"));
+        Assert.Equal(files.Spells, GameData.Embedded.Spells);
+        Assert.Equal(files.Maps.Keys, GameData.Embedded.Maps.Keys);
+        Assert.Equal(files.Scenarios.Keys, GameData.Embedded.Scenarios.Keys);
+    }
+
+    [Fact]
     public void InconsistentData_IsRefused()
     {
         string[] rows = ["AB"];
@@ -29,6 +38,7 @@ public class DataTests
         Assert.Throws<InvalidDataException>(() => Data(["AAB"], Spec(0), Spec(0), Spec(1)));
         Assert.Throws<InvalidDataException>(() => Data(rows, Spec(0), Spec(0, start: 0) with { Team = 2 }));
         Assert.Throws<InvalidDataException>(() => Data(rows, Spec(0), Spec(1, hp: 0)));
+        Assert.Throws<InvalidDataException>(() => Data(rows, Spec(0), Spec(1) with { Look = " " }));
         Assert.Throws<InvalidDataException>(() => Data(rows, Spec(0)));
         Assert.Throws<InvalidDataException>(() => new GameData([Strike, Strike], [], []));
         Assert.Throws<InvalidDataException>(() => new GameData([Strike with { MinRange = 3 }], [], []));
