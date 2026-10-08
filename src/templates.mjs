@@ -710,9 +710,9 @@ function topoBench(t, lang) {
   const cell = (step, r) => (r.wasm[step] === null ? fill(t('topo.bench.refused'), { native: d(r.native[step]) })
     : fill(t('topo.bench.pair'), { native: d(r.native[step]), wasm: d(r.wasm[step]) }));
   const rows = bench.rows.map((r) => `<tr><th scope="row" class="num">${n(r.triangles)}</th><td class="num">${mb(r.bytes)} ${lang === 'fr' ? 'Mo' : 'MB'}</td>`
-    + `<td class="num">${d(r.wasm.read)}</td>${['elevation', 'persistence', 'reeb'].map((s) => `<td class="num">${esc(cell(s, r))}</td>`).join('')}</tr>`).join('');
+    + `<td class="num">${d(r.wasm.read)}</td>${['elevation', 'persistence', 'reeb', 'extended'].map((s) => `<td class="num">${esc(cell(s, r))}</td>`).join('')}</tr>`).join('');
   const last = bench.rows.at(-1);
-  const head = ['triangles', 'size', 'read', 'elevation', 'persistence', 'reeb'].map((k, i) => `<th scope="col"${i ? ' class="num"' : ''}>${esc(t(`topo.bench.${k}`))}</th>`).join('');
+  const head = ['triangles', 'size', 'read', 'elevation', 'persistence', 'reeb', 'extended'].map((k, i) => `<th scope="col"${i ? ' class="num"' : ''}>${esc(t(`topo.bench.${k}`))}</th>`).join('');
   return `<h3 id="h-topo-bench">${esc(t('topo.bench.title'))}</h3>
   <p class="meta">${esc(fill(t('topo.bench.lead'), { runs: bench.runs, cpu: bench.machine.cpu }))}</p>
   <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-topo-bench">

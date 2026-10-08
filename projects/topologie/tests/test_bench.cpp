@@ -22,6 +22,9 @@ TEST(Bench, MeasuresTheStepsOnTheirResults) {
     EXPECT_GE(t.elevation_ms, 0.0);
     EXPECT_GE(t.persistence_ms, 0.0);
     EXPECT_GE(t.reeb_ms, 0.0);
+    EXPECT_GE(t.extended_ms, 0.0);
+    // Extended persistence pairs the four essential classes of the torus.
+    EXPECT_EQ(t.extended_pairs, 4u);
     EXPECT_LT(t.persistence_ms, 1e300);  // every step ran
 }
 

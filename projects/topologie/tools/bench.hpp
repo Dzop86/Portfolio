@@ -1,7 +1,8 @@
-// Computing times of the height, its persistence and its Reeb graph on a standing torus of a given size, shared by
+// Computing times of the height, its persistence, its Reeb graph and its extended persistence (D50) on a standing torus of a given size, shared by
 // tools/topo_bench.cpp and its test (sprint 40). The JavaScript twin is scripts/bench.mjs, for WebAssembly.
 #pragma once
 
+#include "topo/extended.hpp"
 #include "topo/mesh.hpp"
 #include "topo/morse.hpp"
 #include "topo/persistence.hpp"
@@ -40,9 +41,10 @@ inline topo::Mesh torus(uint32_t n, uint32_t m) {
 }
 
 struct Timing {
-    double elevation_ms = 0, persistence_ms = 0, reeb_ms = 0;  // best of the runs
+    double elevation_ms = 0, persistence_ms = 0, reeb_ms = 0, extended_ms = 0;  // best of the runs
     std::array<int, 3> betti{};
     std::size_t loops = 0;
+    std::size_t extended_pairs = 0;  // the essential classes, paired: as many as b0 + b1 + b2
 };
 
 // Best time of `runs` runs of each step, on one thread, with the height along y.
@@ -50,7 +52,7 @@ inline Timing measure(const topo::Mesh& mesh, int runs = 3) {
     using clock = std::chrono::steady_clock;
     const auto ms = [](clock::time_point a, clock::time_point b) { return std::chrono::duration<double, std::milli>(b - a).count(); };
     Timing t;
-    t.elevation_ms = t.persistence_ms = t.reeb_ms = 1e300;
+    t.elevation_ms = t.persistence_ms = t.reeb_ms = t.extended_ms = 1e300;
     for (int r = 0; r < runs; ++r) {
         const auto t0 = clock::now();
         const auto e = topo::elevation(mesh, {0, 1, 0});
@@ -59,9 +61,13 @@ inline Timing measure(const topo::Mesh& mesh, int runs = 3) {
         const auto t2 = clock::now();
         const auto g = topo::reeb_graph(mesh, e);
         const auto t3 = clock::now();
+        const auto x = topo::extended_persistence(mesh, e.height);
+        const auto t4 = clock::now();
         t.elevation_ms = std::min(t.elevation_ms, ms(t0, t1));
         t.persistence_ms = std::min(t.persistence_ms, ms(t1, t2));
         t.reeb_ms = std::min(t.reeb_ms, ms(t2, t3));
+        t.extended_ms = std::min(t.extended_ms, ms(t3, t4));
+        t.extended_pairs = x.extended.size();
         t.betti = p.betti;
         t.loops = g.loops();
     }

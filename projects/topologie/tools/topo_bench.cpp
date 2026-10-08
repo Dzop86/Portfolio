@@ -12,8 +12,8 @@ int main(int argc, char** argv) {
         const auto [n, m] = bench::kSizes[k];
         const auto mesh = bench::torus(n, m);
         const auto t = bench::measure(mesh, runs);
-        std::printf("  {\"triangles\": %zu, \"elevation\": %.2f, \"persistence\": %.2f, \"reeb\": %.2f, \"betti\": [%d, %d, %d], \"loops\": %zu}%s\n",
-                    std::size_t{mesh.face_count()}, t.elevation_ms, t.persistence_ms, t.reeb_ms, t.betti[0], t.betti[1], t.betti[2], t.loops,
+        std::printf("  {\"triangles\": %zu, \"elevation\": %.2f, \"persistence\": %.2f, \"reeb\": %.2f, \"extended\": %.2f, \"betti\": [%d, %d, %d], \"loops\": %zu}%s\n",
+                    std::size_t{mesh.face_count()}, t.elevation_ms, t.persistence_ms, t.reeb_ms, t.extended_ms, t.betti[0], t.betti[1], t.betti[2], t.loops,
                     k + 1 < bench::kSizes.size() ? "," : "");
         std::fflush(stdout);
     }

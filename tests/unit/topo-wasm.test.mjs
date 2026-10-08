@@ -220,3 +220,36 @@ test('the Reeb graph needs an elevation, and refuses a height with too many node
   elevation(lib, AXES.y);
   assert.deepEqual(reeb(lib), { tooLarge: 'nodes', limit: lib._topoc_reeb_limit() });
 });
+
+test('the extended persistence comes from the C++ code: the torus pairs its loops saddle to saddle (D50)', async () => {
+  const { elevation, persistence, extendedPersistence, reeb, AXES } = await import('../../src/assets/topo-api.js');
+  for (const name of ['torus', 'sphere', 'mobius', 'saddle']) {
+    readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', `${name}.obj`)));
+    for (const axis of ['x', 'y', 'z']) {
+      const e = elevation(lib, AXES[axis]);
+      const p = persistence(lib, e);
+      const x = extendedPersistence(lib, e);
+      // The classes ordinary persistence leaves essential are exactly the extended pairs, dimension by dimension.
+      for (const d of [0, 1, 2]) assert.equal(x.extended.filter((q) => q.dimension === d).length, p.betti[d], `${name} ${axis} ${d}`);
+      // Its ordinary pairs are the finite ones of the persistence.
+      const finite = p.pairs.filter((q) => q.deathVertex !== null).map((q) => `${q.dimension}:${q.birthVertex}:${q.deathVertex}`).sort();
+      assert.deepEqual(x.ordinary.map((q) => `${q.dimension}:${q.birthVertex}:${q.deathVertex}`).sort(), finite, `${name} ${axis}`);
+      for (const q of [...x.ordinary, ...x.extended, ...x.relative]) {
+        assert.equal(q.birth, e.height[q.birthVertex]);
+        assert.equal(q.death, e.height[q.deathVertex]);
+      }
+    }
+  }
+  // The standing torus: one loop goes up from the lower saddle to the upper one, the Reeb graph's loop.
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'torus.obj')));
+  const e = elevation(lib, AXES.y);
+  const g = reeb(lib);
+  const loops = extendedPersistence(lib, e).extended.filter((q) => q.dimension === 1);
+  const up = loops.filter((q) => q.death > q.birth);
+  assert.equal(loops.length, 2);
+  assert.equal(up.length, g.loops);
+  assert.deepEqual([up[0].birthVertex, up[0].deathVertex], [g.nodes[1].vertex, g.nodes[2].vertex]);
+  // A new mesh read, no elevation yet: refused.
+  readTopology(lib, readFileSync(join(ROOT, 'projects/topologie/samples', 'sphere.obj')));
+  assert.throws(() => extendedPersistence(lib, { height: [] }), /elevation/);
+});

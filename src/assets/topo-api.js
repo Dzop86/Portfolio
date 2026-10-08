@@ -167,6 +167,21 @@ export function persistence(lib, { height }) {
 }
 
 /**
+ * Extended persistence of the last elevation (C++ topo::extended_persistence, D50): the ordinary pairs (born and dead
+ * going up), the extended ones (the classes that never die, paired going down: as many as the Betti numbers) and the
+ * relative ones (born and dead going down), each { dimension, birthVertex, deathVertex, birth, death } in the viewer's
+ * units. Above the library's limit of triangles, { tooLarge: true, limit } instead.
+ */
+export function extendedPersistence(lib, { height }) {
+  const status = lib._topoc_extended();
+  if (status === 13) return { tooLarge: true, limit: lib._topoc_persistence_limit() };
+  if (status !== 0) throw new Error('extended persistence: compute the elevation first');
+  const json = JSON.parse(lib.UTF8ToString(lib._topoc_extended_pairs()));
+  const pairs = (list) => list.map(([dimension, b, d]) => ({ dimension, birthVertex: b, deathVertex: d, birth: height[b], death: height[d] }));
+  return { ordinary: pairs(json.ordinary), extended: pairs(json.extended), relative: pairs(json.relative) };
+}
+
+/**
  * What the diagram shows above a persistence threshold `tau`: the pairs that live longer than `tau` (essential
  * classes always; at 0, everything but the zero-length pairs of plateau ties, made by tie-breaking), at most `max` of them drawn (the most persistent first) and how many are not, the counts
  * of kept finite pairs and essential classes per dimension, and the vertices of the kept pairs (the critical

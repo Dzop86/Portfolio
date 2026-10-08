@@ -23,6 +23,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide la review »), pour les sprints 39 et 40.
 
+- [ ] Sprint 41 : `src/extended.cpp` (cône sur les sur-niveaux, union-find des dimensions 2 et 3 en cohomologie, classement ordinaires, étendues, relatives) et `tests/test_extended.cpp` (dualités comme oracle) ; `topoc_extended` ; l'affichage sur la fiche. La paire selle-selle du tore correspond-elle à ce que tu attendais ?
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
@@ -52,4 +54,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-08 | `scripts/bench.mjs` | (Claude) Constat de mesure : en WebAssembly, lire l'OBJ coûte plus que tout le reste (2,5 s pour 37 Mo, contre 0,24 s pour la hauteur) ; c'est elle qui justifie la limite de 32 Mo, pas la persistance | Chiffre repris dans la note de la fiche |
 | 2026-10-08 | `src/viewer/topoviewer.js` | Signalé par Charles : le nuage de points ne se lit pas, les paires devraient apparaître où elles naissent et meurent. Les positions étaient justes (x = naissance, y = mort), mais sur le terrain à cuvettes les trois paires meurent au sommet et leurs points s'alignaient contre la ligne ∞, sans rien pour montrer leur durée | (Claude) Chaque paire est aussi une barre verticale, de la diagonale à sa hauteur de naissance jusqu'au point de sa mort (en tireté jusqu'à ∞ pour une classe sans fin), graduation du haut de l'axe des morts ; texte du diagramme réécrit ; Playwright vérifie les barres |
 | 2026-10-08 | `scripts/bench.mjs` | (Claude) CI rouge sous Windows seulement : le test qui importe le banc échouait, `import()` d'un chemin absolu (`D:\...`) est refusé par Node, qui veut une URL `file://` ; le script du raytracer avait le même défaut, jamais lancé sous Windows | `pathToFileURL` dans les deux scripts |
+| 2026-10-08 | `src/viewer/topoviewer.js` (diagramme de persistance) | Signalé par Charles : sur le tore debout, la boucle devrait naître à une selle et mourir à l'autre, comme dans le graphe de Reeb | (Claude) Pas un défaut du calcul : la persistance ordinaire regarde les sous-niveaux, où la seconde selle ajoute une anse au lieu de refermer la boucle (b1 = 2, deux classes sans fin). La paire selle-selle existe en persistance étendue : sprint 41 (D50) |
+| 2026-10-08 | `src/extended.cpp` | (Claude) Mesuré : la première version, en réduction de colonnes, prenait 65 s pour 300 000 triangles (les colonnes du cône sur les triangles atteignaient 30 000 entrées) | Dimensions 2 et 3 par cohomologie : chaque colonne a au plus deux entrées, union-find ; 0,95 s, mêmes paires (les dualités et les autres tests passent toujours) |
+| 2026-10-08 | `src/extended.cpp` | (Claude) Mutants survivants, équivalents : retirer l'apex du bord du cône sur un sommet (sur Z/2, la colonne se réduit jusqu'au minimum, mêmes paires) ; classer en ordinaire toute paire morte dans le maillage (elle y est forcément née) ; prendre la racine comme tueur dans l'union-find (la racine est toujours le nœud le plus ancien) | Code mort retiré (la branche « apex pivot » et le tableau des plus anciens) ; rien d'autre à corriger |
 | | | | |

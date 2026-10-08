@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que géomètre, j'obtiens la persistance étendue de la hauteur (topologie) : filtration montante des sous-niveaux, puis descendante des sur-niveaux (cône), paires ordinaires, étendues et relatives ; GoogleTest (sphère et tore debout : paires étendues min-max, selle-selle dans les deux sens, max-min ; dualités de Poincaré et de Lefschetz sur des surfaces bruitées : ordinaires et relatives, étendues de dimensions p et 2 − p, symétriques ; autant de paires étendues de dimension 1 au-dessus de la diagonale que de boucles du graphe de Reeb) ; vérifié en cassant le code ; mesuré ; API C et WebAssembly. | 3 | À faire |
+| En tant que géomètre, j'obtiens la persistance étendue de la hauteur (topologie) : filtration montante des sous-niveaux, puis descendante des sur-niveaux (cône), paires ordinaires, étendues et relatives ; GoogleTest (sphère et tore debout : paires étendues min-max, selle-selle dans les deux sens, max-min ; dualités de Poincaré et de Lefschetz sur des surfaces bruitées : ordinaires et relatives, étendues de dimensions p et 2 − p, symétriques ; autant de paires étendues de dimension 1 au-dessus de la diagonale que de boucles du graphe de Reeb) ; vérifié en cassant le code ; mesuré ; API C et WebAssembly. | 3 | Fait |
 | En tant que visiteur, je comprends pourquoi le tore garde deux boucles sans fin et où se ferme celle du graphe de Reeb (topologie) : diagramme étendu sur la fiche (ordinaires, étendues, relatives), la paire selle-selle reliée à la boucle du graphe de Reeb et à ses deux sommets sur le maillage, une note qui distingue sous-niveaux et lignes de niveau ; FR/EN, clavier, mobile ; Node et Playwright. | 2 | À faire |
 
 ## Rétro (à compléter par Charles)

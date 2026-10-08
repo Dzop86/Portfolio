@@ -1,4 +1,4 @@
-// Computing times of the project page's table (sprint 40): the native C++ (tools/topo_bench, built in Release) and
+// Computing times of the project page's table (sprint 40, extended persistence since sprint 41): the native C++ (tools/topo_bench, built in Release) and
 // the committed WebAssembly build through the viewer's wrapper, in Node, on the same standing tori of 10 000 to
 // 1 000 000 triangles. WebAssembly also times the reading of the OBJ file (its size is in the table: the page refuses
 // files over 32 MB); above the page's limit of triangles, persistence and Reeb graph are refused (null).
@@ -49,7 +49,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const rows = [];
   for (const [k, [n, m]] of SIZES.entries()) {
     const bytes = new TextEncoder().encode(torusObj(n, m));
-    const best = { read: Infinity, elevation: Infinity, persistence: Infinity, reeb: Infinity };
+    const best = { read: Infinity, elevation: Infinity, persistence: Infinity, reeb: Infinity, extended: Infinity };
     let refused = false;
     for (let r = 0; r < runs; r++) {
       // A fresh module per run: memory grown by the largest mesh does not help the next one.
@@ -59,23 +59,26 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const e = api.timed(() => api.elevation(lib));
       const p = api.timed(() => api.persistence(lib, e.value));
       const g = api.timed(() => api.reeb(lib));
+      const x = api.timed(() => api.extendedPersistence(lib, e.value));
       refused = Boolean(p.value.tooLarge);
       best.read = Math.min(best.read, read.ms);
       best.elevation = Math.min(best.elevation, e.ms);
       best.persistence = Math.min(best.persistence, p.ms);
       best.reeb = Math.min(best.reeb, g.ms);
-      if (!refused && (p.value.betti.join() !== '1,2,1' || g.value.loops !== 1)) throw new Error(`torus ${n} x ${m}: wrong results`);
+      best.extended = Math.min(best.extended, x.ms);
+      if (!refused && (p.value.betti.join() !== '1,2,1' || g.value.loops !== 1 || x.value.extended.length !== 4)) throw new Error(`torus ${n} x ${m}: wrong results`);
     }
     const round = (x) => Math.round(x * 100) / 100;
     rows.push({
       triangles: 2 * n * m,
       bytes: bytes.byteLength,
-      native: { elevation: native[k].elevation, persistence: native[k].persistence, reeb: native[k].reeb },
+      native: { elevation: native[k].elevation, persistence: native[k].persistence, reeb: native[k].reeb, extended: native[k].extended },
       wasm: {
         read: round(best.read),
         elevation: round(best.elevation),
         persistence: refused ? null : round(best.persistence),
         reeb: refused ? null : round(best.reeb),
+        extended: refused ? null : round(best.extended),
       },
     });
     console.log(rows.at(-1));

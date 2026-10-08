@@ -2,6 +2,7 @@
 // (TOPO_C_API) for the Python API. One mesh at a time: read a buffer, then fetch a JSON summary and pointers
 // to the arrays (valid until the next read). Not thread-safe: callers serialise their calls.
 #include "topo/curvature.hpp"
+#include "topo/extended.hpp"
 #include "topo/invariants.hpp"
 #include "topo/mesh.hpp"
 #include "topo/morse.hpp"
@@ -36,6 +37,7 @@ struct State {
     double centre[3] = {0, 0, 0};    // the viewer's units: (p - centre) * scale
     double scale = 1;
     std::string pairs;               // JSON: {"betti": [b0, b1, b2], "pairs": [[dim, birth vertex, death vertex or -1], ...]}
+    std::string extended;            // JSON: {"ordinary": [[dim, birth vertex, death vertex]], "extended": [...], "relative": [...]}
     std::string error;
     std::size_t line = 0;
 };
@@ -148,6 +150,7 @@ int topoc_elevation(double dx, double dy, double dz) {
         state.order = e.order;
         state.elevation = e.height;
         state.pairs.clear();
+        state.extended.clear();
         state.reeb.clear();
         state.euler.assign(e.euler.begin(), e.euler.end());
         state.critical = "[";
@@ -194,6 +197,30 @@ int topoc_persistence() {
 }
 
 const char* topoc_pairs() { return state.pairs.c_str(); }
+
+// Extended persistence of the last elevation (D50): sublevel sets going up, then the cone over the superlevel sets
+// going down. 0; 12 without an elevation; 13 above kPersistenceFaces triangles, as the persistence.
+int topoc_extended() {
+    if (!state.mesh || state.elevation.size() != state.mesh->vertex_count()) return 12;
+    if (state.mesh->face_count() > kPersistenceFaces) return 13;
+    try {
+        const auto x = topo::extended_persistence(*state.mesh, state.elevation);
+        auto list = [](const std::vector<topo::ExtendedPair>& pairs) {
+            std::string s = "[";
+            for (std::size_t k = 0; k < pairs.size(); ++k) {
+                const auto& p = pairs[k];
+                s += (k > 0 ? ",[" : "[") + std::to_string(p.dimension) + "," + std::to_string(p.birth_vertex) + "," + std::to_string(p.death_vertex) + "]";
+            }
+            return s + "]";
+        };
+        state.extended = "{\"ordinary\":" + list(x.ordinary) + ",\"extended\":" + list(x.extended) + ",\"relative\":" + list(x.relative) + "}";
+        return 0;
+    } catch (const std::exception&) {
+        return 12;
+    }
+}
+
+const char* topoc_extended_pairs() { return state.extended.c_str(); }
 
 // Reeb graph of the last elevation, with `samples` regular heights for the drawing. 0; 12 without an
 // elevation; 13 above kPersistenceFaces triangles; 14 above kReebNodes nodes (a noisy height: thousands of

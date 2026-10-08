@@ -14,75 +14,85 @@
       "triangles": 10000,
       "bytes": 315708,
       "native": {
-        "elevation": 1.56,
-        "persistence": 7.13,
-        "reeb": 4.37
+        "elevation": 1.6,
+        "persistence": 7.99,
+        "reeb": 4.61,
+        "extended": 15.23
       },
       "wasm": {
-        "read": 23.42,
-        "elevation": 1.85,
-        "persistence": 9.29,
-        "reeb": 5.71
+        "read": 24.09,
+        "elevation": 1.93,
+        "persistence": 9.75,
+        "reeb": 6.1,
+        "extended": 16.87
       }
     },
     {
       "triangles": 30000,
       "bytes": 990689,
       "native": {
-        "elevation": 4.96,
-        "persistence": 24.36,
-        "reeb": 13.36
+        "elevation": 5.05,
+        "persistence": 25.6,
+        "reeb": 14.37,
+        "extended": 56.56
       },
       "wasm": {
-        "read": 71.36,
-        "elevation": 5.64,
-        "persistence": 31.51,
-        "reeb": 16.72
+        "read": 75.49,
+        "elevation": 6.42,
+        "persistence": 37.32,
+        "reeb": 18.73,
+        "extended": 59.7
       }
     },
     {
       "triangles": 100000,
       "bytes": 3457764,
       "native": {
-        "elevation": 19.77,
-        "persistence": 108.32,
-        "reeb": 49.67
+        "elevation": 23.92,
+        "persistence": 116.21,
+        "reeb": 55.94,
+        "extended": 230.53
       },
       "wasm": {
-        "read": 238.08,
-        "elevation": 21.13,
-        "persistence": 140.68,
-        "reeb": 60.58
+        "read": 251.36,
+        "elevation": 24.23,
+        "persistence": 173.8,
+        "reeb": 67.54,
+        "extended": 247.67
       }
     },
     {
       "triangles": 300000,
       "bytes": 10807420,
       "native": {
-        "elevation": 68.46,
-        "persistence": 443.76,
-        "reeb": 161.73
+        "elevation": 76.37,
+        "persistence": 501.77,
+        "reeb": 177.6,
+        "extended": 945.26
       },
       "wasm": {
-        "read": 732.88,
-        "elevation": 69.11,
-        "persistence": 597.32,
-        "reeb": 189.48
+        "read": 787.52,
+        "elevation": 75.55,
+        "persistence": 736.1,
+        "reeb": 204.2,
+        "extended": 967.66
       }
     },
     {
       "triangles": 1000000,
       "bytes": 37581870,
       "native": {
-        "elevation": 255.17,
-        "persistence": 2171.72,
-        "reeb": 587.84
+        "elevation": 281.3,
+        "persistence": 2379.51,
+        "reeb": 647.65,
+        "extended": 4322.08
       },
       "wasm": {
-        "read": 2508.6,
-        "elevation": 244.07,
+        "read": 2719.45,
+        "elevation": 280.24,
         "persistence": null,
-        "reeb": null
+        "reeb": null,
+        "extended": null
       }
     }
   ]

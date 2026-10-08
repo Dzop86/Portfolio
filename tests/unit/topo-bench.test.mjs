@@ -43,11 +43,12 @@ test('the measured table: every size natively, WebAssembly refused above the pag
   assert.equal(bench.limits.bytes, MAX_BYTES);
   assert.deepEqual(bench.rows.map((r) => r.triangles), SIZES.map(([n, m]) => 2 * n * m));
   for (const r of bench.rows) {
-    for (const step of ['elevation', 'persistence', 'reeb']) assert.ok(r.native[step] > 0, `${r.triangles} ${step}`);
+    for (const step of ['elevation', 'persistence', 'reeb', 'extended']) assert.ok(r.native[step] > 0, `${r.triangles} ${step}`);
     assert.ok(r.wasm.read > 0 && r.wasm.elevation > 0);
     const refused = r.triangles > bench.limits.triangles;
     assert.equal(r.wasm.persistence === null, refused, `${r.triangles}`);
     assert.equal(r.wasm.reeb === null, refused, `${r.triangles}`);
+    assert.equal(r.wasm.extended === null, refused, `${r.triangles}`);
   }
   // The largest file is over the page's 32 MB: the reason for the note.
   assert.ok(bench.rows.at(-1).bytes > MAX_BYTES);
