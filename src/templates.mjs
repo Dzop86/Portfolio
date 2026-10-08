@@ -479,7 +479,7 @@ function metricsSection({ lang, t, data }) {
 </section>
 <section class="block" aria-labelledby="h-estimation">
   <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
-  <p>${esc(fill(t(bd.remaining === 0 ? 'method.estimation.complete' : bd.last >= bd.count ? 'method.estimation.review' : 'method.estimation.text'), {
+  <p>${esc(fill(t(bd.remaining === 0 ? 'method.estimation.complete' : roadmapState(data.sprints).done >= bd.count ? 'method.estimation.review' : 'method.estimation.text'), {
     mean: number(vel.mean, lang), min: Math.min(...v.map((x) => x.done)), max: Math.max(...v.map((x) => x.done)),
     delivered, committed, remaining: bd.remaining, next: roadmapState(data.sprints).current, last: bd.count,
     projects: data.projects.filter((p) => p.status !== 'done').map((p) => pick(p.name, lang)).join(', '),
