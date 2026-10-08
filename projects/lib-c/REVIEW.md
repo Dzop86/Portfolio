@@ -12,7 +12,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
-- [ ] Sprint 42 : `src/topology.c`, `mesh__sort_keys` (tri par base stable, histogrammes en une lecture, passes sautées) et les clés compactées ; `tests/test_topology.c`. Le tampon de la taille des clés te convient-il ?
+- [x] Sprint 42 : `src/topology.c`, `mesh__sort_keys` (tri par base stable, histogrammes en une lecture, passes sautées) et les clés compactées ; `tests/test_topology.c`. Le tampon de la taille des clés te convient-il ?
+
+> Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« j'ai review le sprint 42, c'est ok »).
 
 ## Constats
 
