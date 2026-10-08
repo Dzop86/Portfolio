@@ -1,5 +1,5 @@
 [
-  { "id": "vitrine", "sprint": "S1-S9+S35", "points": 7, "status": "done", "group": "web", "techs": ["JavaScript", "HTML/CSS"],
+  { "id": "vitrine", "sprint": "S1-S9+S35+S40", "points": 8, "status": "in-progress", "group": "web", "techs": ["JavaScript", "HTML/CSS"],
     "name": { "fr": "Vitrine du portfolio", "en": "Portfolio showcase" },
     "pitch": { "fr": "Ce site : multi-pages, bilingue, responsive, mode sombre, sans framework.", "en": "This site: multi-page, bilingual, responsive, dark mode, no framework." },
     "stack": ["HTML", "CSS", "JavaScript", "Node.js", "Playwright", "GitHub Actions"],
@@ -13,7 +13,7 @@
     },
     "links": { "code": "https://github.com/Dzop86/Portfolio", "demo": "https://dzop86.github.io/Portfolio/" },
     "teaching": { "fr": "Enseigné en M1 (interaction homme-machine)", "en": "Taught in M1 (human-computer interaction)" } },
-  { "id": "topologie", "sprint": "S4-S5+S36-S38", "points": 25, "status": "done", "group": "science", "techs": ["C++", "JavaScript"], "widget": "topology-viewer",
+  { "id": "topologie", "sprint": "S4-S5+S36-S40", "points": 30, "status": "in-progress", "group": "science", "techs": ["C++", "JavaScript"], "widget": "topology-viewer",
     "name": { "fr": "Topologie 3D", "en": "3D topology" },
     "pitch": { "fr": "Courbure, caractéristique d'Euler et genre de maillages, visibles dans un viewer 3D.", "en": "Curvature, Euler characteristic and genus of meshes, shown in a 3D viewer." },
     "stack": ["C++", "Three.js", "GoogleTest"],
@@ -168,7 +168,7 @@
       "LaTeX": { "fr": "Le langage lu (structure, listes, tableaux, mathématiques, renvois) et l'article qui présente le portfolio.", "en": "The language read (structure, lists, tables, mathematics, references) and the article introducing the portfolio." }
     },
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/latex" } },
-  { "id": "gcartes", "sprint": "S15", "points": 5, "status": "done", "group": "science", "techs": ["JavaScript"], "widget": "gmap-course",
+  { "id": "gcartes", "sprint": "S15+S40", "points": 7, "status": "in-progress", "group": "science", "techs": ["JavaScript"], "widget": "gmap-course",
     "name": { "fr": "Mini-cours G-cartes", "en": "G-maps mini-course" },
     "pitch": { "fr": "Brins, involutions et orbites, avec un cube interactif et un quiz.", "en": "Darts, involutions and orbits, with an interactive cube and a quiz." },
     "stack": ["JavaScript", "SVG"],

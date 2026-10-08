@@ -7,15 +7,15 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S38), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S40), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35 | 7 |
-| 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S38 | 25 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40 | 8 |
+| 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S40 | 30 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
 | 5 | API Python | FastAPI, pytest, Docker | S6-S7 | 8 |
@@ -28,7 +28,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 12 | Dashboard Angular | Angular, Jest, Cypress | S32 | 8 |
 | 13 | Lancer de rayons | C++, WebAssembly | S33-S34 | 8 |
 | 14 | Éditeur LaTeX | TypeScript, KaTeX | S13-S14 | 8 |
-| 15 | Mini-cours G-cartes | JS, SVG | S15 | 5 |
+| 15 | Mini-cours G-cartes | JS, SVG | S15+S40 | 7 |
 | 16 | Jeu : Othello | C, WebAssembly | S17-S18 | 8 |
 | 17 | Jeu : bataille navale | Java, JavaFX | S19 | 5 |
 | 18 | Jeu : aventure textuelle | Java | S20 | 5 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 187 points sur 38 sprints de deux semaines.
+Total : 195 points sur 40 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -68,6 +68,9 @@ Sprint 36 (4 points, topologie passe de 13 à 17) : sur la visionneuse de topolo
 
 ## Persistance et graphe de Reeb (demande de Charles, 8 octobre 2026, D48)
 Deux sprints de 4 points, topologie passe de 17 à 25. Sprint 37 : diagrammes de persistance de la hauteur (paires naissance-mort en dimensions 0, 1 et 2, classes sans fin égales aux nombres de Betti), calculés en C++ par réduction de la matrice de bord, affichés sur la fiche avec un seuil qui sépare le bruit des vraies formes. Sprint 38 : graphe de Reeb de la hauteur (composantes des lignes de niveau entre deux valeurs critiques), autant de boucles que le genre, dessiné sur le maillage.
+
+## Relecture de la persistance, temps de calcul, G-cartes (demande de Charles, 8 octobre 2026, D49)
+Huit points, deux sprints. Sprint 39 (3 points, topologie) : le diagramme de persistance, jugé peu clair à la relecture, est repensé : code-barres à côté du nuage, chaque paire reliée à ses deux sommets sur le maillage, explication guidée qui suit le seuil de hauteur. Sprint 40 (5 points) : temps de calcul mesurés de la persistance et du graphe de Reeb, affichés sur la fiche, avec ce qu'apporterait un GPU, et la limite de 32 Mo des fichiers expliquée (topologie, 2 points, qui passe à 30) ; le cours G-cartes corrigé : décomposition d'un objet par dimensions croissantes, α0, α1, α2, et liaisons αi redessinées (G-cartes, 2 points, qui passe à 7) ; le nombre de projets et de points à jour partout, captures des tableaux de bord comprises (vitrine, 1 point, qui passe à 8).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.

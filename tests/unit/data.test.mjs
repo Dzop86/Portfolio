@@ -70,7 +70,7 @@ test('every sprint file has a numbered story table with points', () => {
 
 test('sprint labels are well formed and follow the order decided on 6 October 2026', () => {
   const first = (id) => Number(projects.find((p) => p.id === id).sprint.match(/^S(\d+)/)[1]);
-  for (const p of projects) assert.match(p.sprint, /^S\d+(-S\d+)?(\+S\d+(-S\d+)?)?$/, p.id);
+  for (const p of projects) assert.match(p.sprint, /^S\d+(-S\d+)?(\+S\d+(-S\d+)?)*$/, p.id);  // work added later: +S35+S40
   const order = ['ada', 'sql', 'langage', 'latex', 'gcartes'];
   for (let i = 1; i < order.length; i++) assert.ok(first(order[i - 1]) < first(order[i]), `${order[i - 1]} before ${order[i]}`);
   assert.ok(first('gcartes') < first('qt'), 'the Qt viewer comes after the G-maps course');
