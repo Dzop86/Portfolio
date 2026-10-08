@@ -26,6 +26,8 @@ test('every project has its three plain sentences in each language, short and wi
         assert.ok(text.length >= 30 && text.length <= 260, `${p.id} ${lang} ${key}: ${text.length} characters`);
         const words = text.toLowerCase();
         for (const j of JARGON) assert.ok(!new RegExp(`(^|[^\\p{L}])${j}`, 'u').test(words), `${p.id} ${lang} ${key}: "${j}"`);
+        // In the first person, as the rest of the site (Charles's review): "mon cœur de métier", not "celui de Charles".
+        assert.ok(!/Charles|\bses études|\bsa thèse|\bhis\b|\bhe\b/i.test(text), `${p.id} ${lang} ${key}: first person`);
       }
     }
   }
