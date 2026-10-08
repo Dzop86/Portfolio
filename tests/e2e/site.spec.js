@@ -190,7 +190,7 @@ test('the topology viewer shows the persistence diagram and filters the noise (s
   const points = viewer.locator('[data-diagram] .pers-point');
 
   // The torus: its four classes never die, the Betti numbers 1, 2, 1; nothing else.
-  await expect(summary).toHaveText('Above the threshold: 0 component(s), 0 loop(s) and 0 cavity(ies) that die; classes that never die (Betti numbers): 1, 2, 1.');
+  await expect(summary).toHaveText('Above the threshold: 0 component(s), 0 loop(s) and 0 cavity(ies) that die going up; closed only on the way down (Betti numbers): 1, 2, 1.');
   await expect(points).toHaveCount(4);
   await expect(viewer.locator('[data-diagram] .pers-point.is-essential')).toHaveCount(4);
   await page.getByRole('button', { name: 'Möbius strip' }).click();
@@ -200,7 +200,7 @@ test('the topology viewer shows the persistence diagram and filters the noise (s
 
   // A terrain with four pits: three die (the deepest one never does).
   await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
-  await expect(summary).toHaveText('Above the threshold: 3 component(s), 0 loop(s) and 0 cavity(ies) that die; classes that never die (Betti numbers): 1, 0, 0.');
+  await expect(summary).toHaveText('Above the threshold: 3 component(s), 0 loop(s) and 0 cavity(ies) that die going up; closed only on the way down (Betti numbers): 1, 0, 0.');
   await expect(points).toHaveCount(4);
   // The pits live 0.75, 1.5 and 2.25 out of a range of 3: a threshold of 40 % keeps the two deepest.
   const tau = page.getByRole('slider', { name: 'Minimum persistence' });
@@ -211,7 +211,7 @@ test('the topology viewer shows the persistence diagram and filters the noise (s
   await viewer.getByText('Show the pairs').click();
   const rows = viewer.locator('[data-pers-table] tbody tr');
   await expect(rows).toHaveCount(3);
-  await expect(rows.first()).toContainText('never');
+  await expect(rows.first()).toContainText('on the way down');
   // With the keyboard, to the end: only the class that never dies.
   await tau.focus();
   await page.keyboard.press('End');
@@ -255,7 +255,7 @@ test('the topology viewer reads the persistence as a barcode tied to the mesh (s
   await expect(second).toBeFocused();
   await expect(second).toHaveAttribute('aria-selected', 'true');
   const pick = viewer.locator('[data-pick]');
-  await expect(pick).toHaveText(/^loop \(H1\): born at vertex #\d+ at height [\d.]+, it never dies\./);
+  await expect(pick).toHaveText(/^loop \(H1\): born at vertex #\d+ at height [\d.]+; it never dies going up, the way down closes it at vertex #\d+ at height [\d.]+\./);
   // The threshold moved above its birth: the loop is alive, its bar is opaque.
   await expect(second).toHaveClass(/is-alive/);
   expect(Number(await level.inputValue())).toBeGreaterThan(0);
@@ -380,37 +380,62 @@ test('the topology viewer shows how long each step takes, and the measured table
   expect(errors).toEqual([]);
 });
 
-test('the topology viewer pairs the torus loops saddle to saddle by extended persistence (sprint 41)', async ({ page }) => {
+test('the topology viewer closes every class by extended persistence, nothing to infinity (sprint 41)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('/en/project-topologie.html');
   const viewer = page.locator('[data-topo-viewer]');
   await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
   await page.getByRole('radio', { name: 'Height (filtration)' }).check();
-  const ext = page.getByRole('listbox', { name: 'Extended persistence' });
-  // The standing torus: its four classes that never die going up are paired coming down.
-  await expect(viewer.locator('[data-ext-summary]')).toHaveText('0 ordinary pair(s), 4 extended and 0 relative.');
-  await expect(ext.getByRole('option')).toHaveCount(4);
-  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText('1 extended pair(s) of dimension 1 go up');
-  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText('the Reeb graph has 1 loop(s)');
+  // Hovering the mesh gives the height of the nearest vertex (it threw on every hover from sprint 36 to 41): a few
+  // points across the canvas, the torus's hole in the middle.
+  const canvas = viewer.locator('canvas');
+  if (await canvas.count()) {
+    await canvas.scrollIntoViewIfNeeded();
+    const c = await canvas.boundingBox();
+    const tip = viewer.locator('.viewer-tip');
+    for (const fx of [0.3, 0.35, 0.4, 0.6, 0.65, 0.7]) {
+      await page.mouse.move(c.x + c.width * fx, c.y + c.height * 0.5, { steps: 3 });
+      if (await tip.isVisible()) break;
+    }
+    await expect(tip).toHaveText(/^height \d+(\.\d+)?$/);
+  }
+  const cloud = page.getByRole('listbox', { name: 'The same diagram as a scatter plot' });
+  // The standing torus (Charles's review): no ∞ line, the four classes closed on the way down; one loop closes
+  // higher than it is born (the Reeb graph's loop), the other loop and the cavity lower, dashed under the diagonal.
+  await expect(cloud.locator('.pers-infinity')).toHaveCount(0);
+  await expect(cloud.locator('.pers-point.is-essential')).toHaveCount(4);
+  await expect(cloud.locator('.pers-point.is-essential.is-down')).toHaveCount(2);
+  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText("1 loop(s) closed on the way down higher than where it is born");
+  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText('The Reeb graph has 1 loop(s).');
   await expect(viewer.locator('[data-time="extended"]')).toHaveText(/^Computed in /);
   // The Reeb graph's loop: from the lower saddle up to the upper one, drawn in the mesh, the threshold between.
   await page.getByRole('button', { name: "Show the Reeb graph's loop" }).click();
   await expect(page.getByRole('checkbox', { name: 'Show the graph inside the mesh' })).toBeChecked();
   const pick = viewer.locator('[data-pick]');
-  await expect(pick).toHaveText(/^loop \(H1\), extended pair: born at vertex #\d+ at height [\d.]+, dies at vertex #\d+ at height [\d.]+\./);
-  const [, birth, death] = (await pick.textContent()).match(/height (\d+(?:\.\d+)?), dies at vertex #\d+ at height (\d+(?:\.\d+)?)/);
-  expect(Number(death)).toBeGreaterThan(Number(birth));
-  await expect(ext.locator('[aria-selected=true]')).toHaveCount(1);
-  // With the keyboard, from pair to pair; the one coming down is born higher than it dies.
-  await ext.getByRole('option').first().focus();
-  await page.keyboard.press('End');
-  await expect(ext.getByRole('option').last()).toHaveAttribute('aria-selected', 'true');
-  await expect(pick).toContainText('extended pair');
+  await expect(pick).toHaveText(/^loop \(H1\): born at vertex #\d+ at height \d+(\.\d+)?; it never dies going up, the way down closes it at vertex #\d+ at height \d+(\.\d+)?\./);
+  const [, birth, close] = (await pick.textContent()).match(/height (\d+(?:\.\d+)?);.* at height (\d+(?:\.\d+)?)\./);
+  expect(Number(close)).toBeGreaterThan(Number(birth));
+  await expect(cloud.locator('[aria-selected=true]')).toHaveCount(1);
+  await expect(page.getByRole('listbox', { name: 'Persistence barcode' }).locator('.bar.is-picked')).toHaveCount(1);
+  // The table gives where each class closes on the way down.
+  await viewer.getByText('Show the pairs').click();
+  await expect(viewer.locator('[data-pers-table] tbody tr')).toHaveCount(4);
+  await expect(viewer.locator('[data-pers-table] tbody')).not.toContainText('∞');
 
-  // The pits: a disc, its one component paired from the bottom to the top, the pits ordinary, relative pairs going down.
+  // On a wide screen, the mesh stays in sight while the diagrams scroll by, under the site header.
+  if ((page.viewportSize()?.width ?? 0) > 720) {
+    await cloud.scrollIntoViewIfNeeded();
+    const header = await page.locator('.site-header').evaluate((e) => e.getBoundingClientRect().bottom);
+    // The stage, not the canvas: without WebGL (Firefox in CI), it holds a notice instead.
+    const box = await viewer.locator('.viewer-stage').evaluate((e) => e.getBoundingClientRect().toJSON());
+    expect(box.top).toBeGreaterThanOrEqual(header - 1);
+    expect(box.bottom).toBeLessThanOrEqual(await page.evaluate(() => window.innerHeight) + 1);
+  }
+
+  // The pits: a disc, nothing to infinity either; no loop, no button.
   await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
-  await expect(viewer.locator('[data-ext-summary]')).toHaveText(/^3 ordinary pair\(s\), 1 extended and \d+ relative\.$/);
+  await expect(cloud.locator('.pers-point.is-essential')).toHaveCount(1);
   await expect(viewer.locator('[data-ext-reeb]')).toBeHidden();
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

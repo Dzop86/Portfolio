@@ -683,10 +683,9 @@ function meshDemo(t) {
 const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orientable', 'manifold', 'total', 'yes', 'no',
   'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid', 'height.value', 'height.counts',
   'height.check', 'height.sum', 'tip.height', 'sublevel', 'pers.summary', 'pers.hidden', 'pers.toolarge', 'pers.dim.0',
-  'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more', 'reeb.summary', 'reeb.genus', 'reeb.bound',
-  'reeb.nodes', 'reeb.triangles', 'bars.alive', 'bars.hidden', 'pick.dies', 'pick.never', 'tour.step', 'tour.first',
-  'tour.second', 'tour.merge', 'tour.loop', 'tour.fill', 'tour.cavity', 'tour.end', 'time', 'time.read', 'ext.summary', 'ext.reeb',
-  'ext.point', 'pick.ext', 'ext.kind.ordinary', 'ext.kind.extended', 'ext.kind.relative'];
+  'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.point.closed', 'pers.down', 'pers.more', 'reeb.summary', 'reeb.genus', 'reeb.bound',
+  'reeb.nodes', 'reeb.triangles', 'bars.alive', 'bars.hidden', 'pick.dies', 'pick.closed', 'tour.step', 'tour.first',
+  'tour.second', 'tour.merge', 'tour.loop', 'tour.fill', 'tour.cavity', 'tour.end', 'time', 'time.read', 'ext.reeb'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 // Persistence diagram marks, centred on 0 (D48): a disc for components, a triangle for loops, a square for
 // cavities, so that the dimension does not rest on colour alone. Shared with the viewer through data-shapes.
@@ -788,6 +787,10 @@ function topoViewer(t, lang) {
           <p><strong id="topo-cloud-title">${esc(t('topo.pers.cloud'))}</strong></p>
           <svg class="topo-diagram" viewBox="0 0 300 318" role="listbox" aria-labelledby="topo-cloud-title" aria-describedby="topo-pers-desc" data-diagram><desc id="topo-pers-desc">${esc(t('topo.pers.desc'))}</desc></svg>
           <p class="meta" data-pers-hidden hidden></p>
+          <p class="meta" data-time="extended"></p>
+          <p data-ext-reeb-text></p>
+          <div class="actions"><button type="button" class="btn btn-ghost" data-ext-reeb>${esc(t('topo.ext.show'))}</button></div>
+          <p class="meta">${esc(t('topo.ext.lead'))}</p>
           <details class="chart-data"><summary>${esc(t('topo.pers.table'))}</summary><div class="table-wrap" tabindex="0" role="region" aria-label="${esc(t('topo.pers.title'))}"><table data-pers-table>
             <thead><tr><th scope="col">${esc(t('topo.pers.col.dim'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.birth'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.death'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.life'))}</th></tr></thead>
             <tbody></tbody></table></div></details>
@@ -800,17 +803,6 @@ function topoViewer(t, lang) {
           <p class="meta" data-time="reeb"></p>
           <svg class="topo-reeb-flat" viewBox="0 0 300 300" role="img" aria-labelledby="topo-reeb-desc" data-reeb-flat><desc id="topo-reeb-desc">${esc(t('topo.reeb.desc'))}</desc></svg>
           <p class="meta">${esc(t('topo.reeb.note'))}</p>
-        </figure>
-        <figure class="topo-pers topo-ext" data-ext-figure>
-          <figcaption><strong id="topo-ext-title">${esc(t('topo.ext.title'))}</strong></figcaption>
-          <p>${esc(t('topo.ext.lead'))}</p>
-          <p data-ext-summary aria-live="polite"></p>
-          <p class="meta" data-time="extended"></p>
-          <p data-ext-reeb-text></p>
-          <div class="actions"><button type="button" class="btn btn-ghost" data-ext-reeb>${esc(t('topo.ext.show'))}</button></div>
-          <ul class="topo-keys" aria-hidden="true">${['ordinary', 'extended', 'relative'].map((k) => `<li><svg class="pers-key" viewBox="-6 -6 12 12"><g class="pers-point is-${k}"><path class="pers-shape is-h0" d="${PERS_SHAPES[0]}"/></g></svg>${esc(t(`topo.label.ext.kind.${k}`))}</li>`).join('')}</ul>
-          <svg class="topo-diagram" viewBox="0 0 300 318" role="listbox" aria-labelledby="topo-ext-title" aria-describedby="topo-ext-desc" data-ext><desc id="topo-ext-desc">${esc(t('topo.ext.desc'))}</desc></svg>
-          <p class="meta">${esc(t('topo.ext.note'))}</p>
         </figure>
       </div>
       <p class="meta">${esc(t('topo.help'))}</p>

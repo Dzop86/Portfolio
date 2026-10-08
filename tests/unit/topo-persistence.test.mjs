@@ -2,7 +2,7 @@
 // the barcode, the classes alive at a height and the guided explanation (sprint 39), without WebAssembly.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aliveAt, barcode, diagram, levelAt, levelBetween, tour } from '../../src/assets/topo-api.js';
+import { aliveAt, barcode, closeEssentials, diagram, levelAt, levelBetween, tour } from '../../src/assets/topo-api.js';
 
 const pair = (dimension, birthVertex, deathVertex, birth, death) => ({ dimension, birthVertex, deathVertex, birth, death });
 const pairs = [
@@ -95,4 +95,26 @@ test('a sphere tells a component, a cavity and the end; a lone vertex only the e
   const sphere = [pair(0, 0, null, -1, Infinity), pair(2, 1, null, 1, Infinity)];
   assert.deepEqual(tour(sphere, -1, 1).map((s) => s.key), ['first', 'cavity', 'end']);
   assert.deepEqual(tour([], 0, 0).map((s) => s.key), ['end']);
+});
+
+test('the classes that never die going up are closed where the way down kills them (D50)', () => {
+  // The extended pairs of the three essential classes (0, 8, 9), the loop closing above its birth, the cavity below.
+  const extended = [
+    { dimension: 0, birthVertex: 0, deathVertex: 9, birth: -1, death: 1 },
+    { dimension: 1, birthVertex: 8, deathVertex: 6, birth: 0.3, death: 0.6 },
+    { dimension: 2, birthVertex: 9, deathVertex: 0, birth: 1, death: -1 },
+  ];
+  const closed = closeEssentials(pairs, extended);
+  assert.equal(closed.length, pairs.length);
+  // Finite pairs untouched; essential ones keep death = Infinity (alive going up) and get where they close.
+  assert.equal(closed[1], pairs[1]);
+  const byVertex = Object.fromEntries(closed.filter((q) => q.deathVertex === null).map((q) => [q.birthVertex, q]));
+  assert.deepEqual([byVertex[0].closeVertex, byVertex[0].close, byVertex[0].death], [9, 1, Infinity]);
+  assert.deepEqual([byVertex[8].closeVertex, byVertex[8].close], [6, 0.6]);
+  assert.deepEqual([byVertex[9].closeVertex, byVertex[9].close], [0, -1]);
+  // The originals are not changed, and the classes alive at a height do not move.
+  assert.equal(pairs[4].close, undefined);
+  assert.deepEqual(aliveAt(closed, 1), aliveAt(pairs, 1));
+  // An essential class without its extended pair is a mistake.
+  assert.throws(() => closeEssentials(pairs, extended.slice(1)), /0:0/);
 });

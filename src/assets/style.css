@@ -342,6 +342,13 @@ a:hover { text-decoration-thickness: 2px; }
 .legend-scale { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: var(--space-1); font-variant-numeric: tabular-nums; }
 /* minmax(0, ...): a wide child (the table of persistence pairs) scrolls in its frame instead of widening the page. */
 @media (max-width: 720px) { .viewer-grid { grid-template-columns: minmax(0, 1fr); } }
+/* Topology viewer (Charles's review): the mesh stays in sight, on the left, while the diagrams scroll by on the right.
+   The stage no longer stretches to the column's height (a tall empty panel), and sticks under the site header. */
+@media (min-width: 721px) {
+  [data-topo-viewer] .viewer-grid { align-items: start; }
+  [data-topo-viewer] .viewer-stage { position: sticky; top: calc(var(--header-h, 64px) + var(--space-3)); }
+  [data-topo-viewer] .viewer-stage canvas { max-height: calc(100vh - var(--header-h, 64px) - 2 * var(--space-4)); }
+}
 
 /* Timelines */
 .timeline { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--accent); }
@@ -567,7 +574,6 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .topo-diagram .pers-axis { stroke: var(--chart-grid); }
 .topo-diagram .pers-diagonal { stroke: var(--chart-grid); stroke-width: 1.5; }
 .topo-diagram .pers-band { fill: var(--chart-grid); opacity: 0.35; }
-.topo-diagram .pers-infinity { stroke: var(--chart-ref); stroke-dasharray: 4 3; }
 .topo-diagram text { fill: var(--muted); font: 11px var(--font-body); }
 .pers-shape.is-h0 { fill: var(--crit-min); }
 .pers-shape.is-h1 { fill: var(--crit-saddle); }
@@ -578,15 +584,13 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .pers-stem.is-h0, .pers-foot.is-h0 { stroke: var(--crit-min); fill: var(--crit-min); }
 .pers-stem.is-h1, .pers-foot.is-h1 { stroke: var(--crit-saddle); fill: var(--crit-saddle); }
 .pers-stem.is-h2, .pers-foot.is-h2 { stroke: var(--crit-max); fill: var(--crit-max); }
-.pers-point.is-essential .pers-stem { stroke-dasharray: 4 3; }
-/* Extended persistence (sprint 41): ordinary pairs filled, extended ones ringed in the text colour, relative ones
-   hollow; the dimension keeps its shape and colour. */
-.pers-shape.is-h0 { stroke: var(--crit-min); }
-.pers-shape.is-h1 { stroke: var(--crit-saddle); }
-.pers-shape.is-h2 { stroke: var(--crit-max); }
-.pers-point.is-extended .pers-shape { stroke: var(--text-strong); stroke-width: 1.5; }
-.pers-point.is-relative .pers-shape { fill: var(--surface); stroke-width: 1.5; }
-.topo-ext [hidden] { display: none; }
+/* A class that never dies going up (Charles's review, D50): closed on the way down, its mark ringed in the text
+   colour; dashed when it closes below its birth (under the diagonal, a bar read backwards). */
+.pers-point.is-essential .pers-shape { stroke: var(--text-strong); stroke-width: 1.5; }
+.pers-point.is-down .pers-stem { stroke-dasharray: 4 3; }
+.bar.is-essential .bar-line { stroke: var(--text-strong); stroke-width: 0.8; }
+.bar.is-down .bar-line { fill-opacity: 0.35; stroke-dasharray: 3 2; }
+[data-ext-reeb][hidden], [data-ext-reeb-text][hidden] { display: none; }
 .pers-point.is-noise .pers-stem, .pers-point.is-noise .pers-foot { stroke: var(--muted); fill: var(--muted); opacity: 0.45; }
 .pers-key { width: 12px; height: 12px; margin-right: var(--space-1); vertical-align: middle; }
 

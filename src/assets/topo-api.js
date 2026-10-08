@@ -182,6 +182,23 @@ export function extendedPersistence(lib, { height }) {
 }
 
 /**
+ * The classes that never die going up, closed where extended persistence kills them on the way down (D50, Charles's
+ * review: no bar to infinity). Each essential pair gets `closeVertex` and `close` from the extended pair born at the
+ * same vertex in the same dimension (the same positive simplex in both reductions); `death` stays Infinity, for the
+ * classes alive at a height and chi. Pairs are copied; the finite ones are unchanged.
+ */
+export function closeEssentials(pairs, extended) {
+  const key = (q) => `${q.dimension}:${q.birthVertex}`;
+  const closing = new Map(extended.map((q) => [key(q), q]));
+  return pairs.map((q) => {
+    if (q.deathVertex !== null) return q;
+    const x = closing.get(key(q));
+    if (!x) throw new Error(`closeEssentials: no extended pair for ${key(q)}`);
+    return { ...q, closeVertex: x.deathVertex, close: x.death };
+  });
+}
+
+/**
  * What the diagram shows above a persistence threshold `tau`: the pairs that live longer than `tau` (essential
  * classes always; at 0, everything but the zero-length pairs of plateau ties, made by tie-breaking), at most `max` of them drawn (the most persistent first) and how many are not, the counts
  * of kept finite pairs and essential classes per dimension, and the vertices of the kept pairs (the critical
