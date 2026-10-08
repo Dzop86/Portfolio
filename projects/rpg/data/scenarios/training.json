@@ -1,0 +1,10 @@
+{
+  "id": "training",
+  "name": { "fr": "Entraînement", "en": "Training" },
+  "map": "arena",
+  "fighters": [
+    { "name": { "fr": "Héros", "en": "Hero" }, "team": 0, "hp": 60, "ap": 6, "mp": 3, "initiative": 120, "start": 1, "spells": ["strike", "arrow", "spear"] },
+    { "name": { "fr": "Sanglier", "en": "Boar" }, "team": 1, "hp": 40, "ap": 6, "mp": 3, "initiative": 80, "start": 0, "spells": ["bite"] },
+    { "name": { "fr": "Crapaud", "en": "Toad" }, "team": 1, "hp": 30, "ap": 6, "mp": 4, "initiative": 90, "start": 2, "spells": ["spit", "bite"] }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "duel",
+  "name": { "fr": "Duel", "en": "Duel" },
+  "map": "arena",
+  "fighters": [
+    { "name": { "fr": "Rouge", "en": "Red" }, "team": 0, "hp": 50, "ap": 6, "mp": 3, "initiative": 100, "start": 1, "spells": ["strike", "arrow", "spear"] },
+    { "name": { "fr": "Bleu", "en": "Blue" }, "team": 1, "hp": 50, "ap": 6, "mp": 3, "initiative": 100, "start": 1, "spells": ["strike", "arrow", "spear"] }
+  ]
+}

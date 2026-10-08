@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Rpg.Core/Rpg.Core.csproj" />
+    <Project Path="src/Rpg.Sim/Rpg.Sim.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Rpg.Core.Tests/Rpg.Core.Tests.csproj" />
+    <Project Path="tests/Rpg.Sim.Tests/Rpg.Sim.Tests.csproj" />
+  </Folder>
+</Solution>

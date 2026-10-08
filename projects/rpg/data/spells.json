@@ -1,0 +1,7 @@
+[
+  { "id": "strike", "name": { "fr": "Frappe", "en": "Strike" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 8, "damageMax": 12, "perTurn": 2 },
+  { "id": "arrow", "name": { "fr": "Flèche", "en": "Arrow" }, "apCost": 4, "minRange": 2, "maxRange": 6, "lineOfSight": true, "inLine": false, "damageMin": 6, "damageMax": 10, "perTurn": 2 },
+  { "id": "spear", "name": { "fr": "Lance", "en": "Spear" }, "apCost": 3, "minRange": 1, "maxRange": 3, "lineOfSight": true, "inLine": true, "damageMin": 7, "damageMax": 9, "perTurn": 2 },
+  { "id": "bite", "name": { "fr": "Morsure", "en": "Bite" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 5, "damageMax": 9, "perTurn": 3 },
+  { "id": "spit", "name": { "fr": "Crachat", "en": "Spit" }, "apCost": 3, "minRange": 1, "maxRange": 4, "lineOfSight": false, "inLine": false, "damageMin": 3, "damageMax": 6, "perTurn": 1 }
+]
