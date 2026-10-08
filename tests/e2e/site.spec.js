@@ -1038,16 +1038,20 @@ test('project filters show the chosen category and technology', async ({ page })
   await expect(visible.first()).toBeVisible();
   for (const group of await shown('group')) expect(group).toBe('web');
   await expect(page.locator('[data-games]')).toBeHidden();
-  // "Jeux" shows the six games and their section, nothing else.
+  // "Jeux" shows the seven games and their section, nothing else.
   await groups.getByRole('button', { name: 'Jeux' }).click();
   await expect(page.locator('[data-games]')).toBeVisible();
-  await expect(visible).toHaveCount(6);
+  await expect(visible).toHaveCount(7);
   expect(new Set(await shown('group'))).toEqual(new Set(['games']));
 
   // Both filters apply: the games written in Java.
   await techs.getByRole('button', { name: 'Java', exact: true }).click();
   await expect(visible).toHaveCount(2);
   for (const l of await shown('techs')) expect(l.split('|')).toContain('Java');
+  // Rust: the tactical RPG's launcher (D54).
+  await techs.getByRole('button', { name: 'Rust', exact: true }).click();
+  await expect(visible).toHaveCount(1);
+  expect(await visible.evaluateAll((els) => els.map((e) => e.id))).toEqual(['rpg']);
   // A technology alone, over every category: C++ (topology, Qt viewer, parallel computing).
   await groups.getByRole('button', { name: 'Tous' }).click();
   await techs.getByRole('button', { name: 'C++', exact: true }).click();

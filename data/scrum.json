@@ -1,7 +1,7 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 44,
-  "scopeDecisions": ["D25", "D31", "D32", "D45", "D46", "D47", "D48", "D49", "D50", "D51", "D52", "D53"],
+  "sprintCount": 50,
+  "scopeDecisions": ["D25", "D31", "D32", "D45", "D46", "D47", "D48", "D49", "D50", "D51", "D52", "D53", "D54"],
   "scopeSteps": [
     { "after": 34, "sprints": [35, 36], "decisions": ["D46", "D47"] },
     { "after": 36, "sprints": [37, 38], "decisions": ["D48"] },
@@ -9,7 +9,8 @@
     { "after": 40, "sprints": [41], "decisions": ["D50"] },
     { "after": 41, "sprints": [42], "decisions": ["D51"] },
     { "after": 42, "sprints": [43], "decisions": ["D52"] },
-    { "after": 43, "sprints": [44], "decisions": ["D53"] }
+    { "after": 43, "sprints": [44], "decisions": ["D53"] },
+    { "after": 44, "sprints": [45, 46, 47, 48, 49, 50], "decisions": ["D54"] }
   ],
   "phases": [
     {
@@ -219,6 +220,54 @@
         "fr": "Vitrine : chaque projet expliqué sans jargon",
         "en": "Showcase: each project in plain words"
       }
+    },
+    {
+      "sprints": "S45",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : règles du combat en C#",
+        "en": "Tactical RPG: combat rules in C#"
+      }
+    },
+    {
+      "sprints": "S46",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : combat isométrique dans Godot",
+        "en": "Tactical RPG: isometric combat in Godot"
+      }
+    },
+    {
+      "sprints": "S47",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : comptes et personnages (ASP.NET Core)",
+        "en": "Tactical RPG: accounts and characters (ASP.NET Core)"
+      }
+    },
+    {
+      "sprints": "S48",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : création de personnage",
+        "en": "Tactical RPG: character creation"
+      }
+    },
+    {
+      "sprints": "S49",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : ville d'accueil et PNJ",
+        "en": "Tactical RPG: starting town and NPCs"
+      }
+    },
+    {
+      "sprints": "S50",
+      "kind": "build",
+      "label": {
+        "fr": "RPG tactique : launcher Rust et exécutables",
+        "en": "Tactical RPG: Rust launcher and executables"
+      }
     }
   ],
   "risks": [
@@ -252,8 +301,8 @@
         "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
       },
       "outcome": {
-        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), chaque fois avec Charles et dans des sprints à part, sans rien décaler.",
-        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), each time with Charles and in sprints of their own, delaying nothing."
+        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), puis un RPG tactique à la manière de Dofus (D54 : 26 points de plus, 232 en tout, six sprints, d'autres extensions annoncées ensuite), chaque fois avec Charles et dans des sprints à part, sans rien décaler.",
+        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), then a tactical RPG in the style of Dofus (D54: 26 more points, 232 in all, six sprints, more extensions announced afterwards), each time with Charles and in sprints of their own, delaying nothing."
       }
     },
     {
@@ -354,8 +403,8 @@
         "en": "Two buffer sprints, one project in progress at a time"
       },
       "outcome": {
-        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 44 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53).",
-        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 44 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53)."
+        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 50 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53, D54).",
+        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 50 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53, D54)."
       }
     },
     {

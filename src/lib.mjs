@@ -268,7 +268,7 @@ export function progress(projects, sprints) {
  * Main technologies of the projects (their "techs" field: languages, and HTML/CSS), in a fixed order:
  * the compiled languages first, as recruiters read them, then the others. One missing here fails the tests.
  */
-export const TECHS = ['C', 'C++', 'C#', 'Java', 'Python', 'Ada', 'OCaml', 'SQL', 'JavaScript', 'TypeScript', 'LaTeX', 'HTML/CSS'];
+export const TECHS = ['C', 'C++', 'C#', 'Java', 'Python', 'Ada', 'OCaml', 'SQL', 'JavaScript', 'TypeScript', 'Rust', 'LaTeX', 'HTML/CSS'];
 
 /** The technologies used by at least one project, in the order of TECHS. */
 export function techsOf(projects) {

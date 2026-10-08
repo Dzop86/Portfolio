@@ -7,9 +7,9 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S44), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S50), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
-## Les 21 projets
+## Les 22 projets
 Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
@@ -35,8 +35,9 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
+| 22 | Jeu : RPG tactique | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S50 | 26 |
 
-Total : 206 points sur 44 sprints de deux semaines.
+Total : 232 points sur 50 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -84,10 +85,13 @@ Un sprint de 1 point, topologie passe de 35 à 36. Sprint 43 : un petit repère 
 ## Chaque projet expliqué sans jargon (demande de Charles, 8 octobre 2026, D53)
 Un sprint de 2 points, la vitrine passe de 9 à 11. Sprint 44 : en haut de chaque fiche, un encart dépliable « En bref, sans jargon » pour une personne qui n'est pas informaticienne : ce qu'est le projet, à quoi il sert, ce qu'il montre des compétences de Charles.
 
+## Un RPG tactique à la manière de Dofus (décision de Charles, 9 octobre 2026, D54)
+Six sprints, 26 points. Un jeu à télécharger, écrit de zéro (aucun code, nom ni image d'Ankama), avec des sprites libres (Kenney, CC0) : S45 les règles du combat dans une bibliothèque C# partagée (grille isométrique, points d'action et de mouvement, ligne de vue, sorts, IA) ; S46 le combat isométrique jouable dans Godot 4 ; S47 le serveur ASP.NET Core de comptes et de personnages ; S48 la création de personnage personnalisable ; S49 la ville d'accueil sans monstre, avec trois PNJ ; S50 le launcher en Rust (Tauri) et les exécutables pour les trois systèmes. Solo d'abord, multijoueur plus tard ; caractéristiques, monstres, paysages et décor viendront en sprints de plus. Pas de démo web : captures, vidéo et explication sur la fiche.
+
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
 - Registre des risques : `data/scrum.json`, affiché sur la page Gestion de projet, revu à chaque rétro.
-- Priorisation MoSCoW : Must = vitrine, topologie, C, ML, SQL, Qt. Should = les six jeux. Could = Angular, lancer de rayons. Won't = microservices Spring, API ASP.NET (retirés le 6 octobre), migration Bootstrap (retirée le 7 octobre).
+- Priorisation MoSCoW : Must = vitrine, topologie, C, ML, SQL, Qt. Should = les sept jeux. Could = Angular, lancer de rayons. Won't = microservices Spring, API ASP.NET (retirés le 6 octobre), migration Bootstrap (retirée le 7 octobre).
 
 ## Reporté
 - Agent conversationnel.
