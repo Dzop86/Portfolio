@@ -18,8 +18,10 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide »), pour les sprints 37 et 38.
 
-- [ ] Sprint 39 : `barcode`, `aliveAt`, `levelBetween` et `tour` de `src/assets/topo-api.js` et leurs tests ; dans `src/viewer/topoviewer.js`, le code-barres, la paire choisie (halos, seuil, listes à tabulation mobile) et l'explication guidée. Le diagramme se lit-il maintenant sans connaître la persistance ?
-- [ ] Sprint 40 : `tools/bench.hpp`, `tools/topo_bench.cpp`, `scripts/bench.mjs` (même tore en C++ et en JavaScript, meilleur de 3) et `data/bench.json` ; les temps affichés par la visionneuse ; les notes GPU et 32 Mo de la fiche.
+- [x] Sprint 39 : `barcode`, `aliveAt`, `levelBetween` et `tour` de `src/assets/topo-api.js` et leurs tests ; dans `src/viewer/topoviewer.js`, le code-barres, la paire choisie (halos, seuil, listes à tabulation mobile) et l'explication guidée. Le diagramme se lit-il maintenant sans connaître la persistance ?
+- [x] Sprint 40 : `tools/bench.hpp`, `tools/topo_bench.cpp`, `scripts/bench.mjs` (même tore en C++ et en JavaScript, meilleur de 3) et `data/bench.json` ; les temps affichés par la visionneuse ; les notes GPU et 32 Mo de la fiche.
+
+> Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide la review »), pour les sprints 39 et 40.
 
 ## Constats
 

@@ -10,7 +10,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide la review »).
 
-- [ ] Sprint 40 : `src/decompose.js` (objet, α0, α1, α2, G-carte, dans l'ordre des dimensions) et `src/links.js` (α0 trait court, α1 arc au coin, α2 double trait) : est-ce bien la convention de tes manuels ? Textes des cinq étapes (`gcartes.step.*` dans `data/i18n`).
+- [x] Sprint 40 : `src/decompose.js` (objet, α0, α1, α2, G-carte, dans l'ordre des dimensions) et `src/links.js` (α0 trait court, α1 arc au coin, α2 double trait) : est-ce bien la convention de tes manuels ? Textes des cinq étapes (`gcartes.step.*` dans `data/i18n`).
+
+> Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide la review »), pour le sprint 40.
 
 ## Constats
 
