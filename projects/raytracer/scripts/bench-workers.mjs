@@ -4,17 +4,19 @@
 import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { cpus } from 'node:os';
 import { writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-const api = await import(join(ROOT, 'src/assets/raytracer-api.js'));
-const { bandsFor } = await import(join(ROOT, 'src/assets/raytracer-bands.js'));
+// As file:// URLs: on Windows, import() refuses an absolute path (seen in CI with the topology benchmark).
+const load = (path) => import(pathToFileURL(join(ROOT, path)).href);
+const api = await load('src/assets/raytracer-api.js');
+const { bandsFor } = await load('src/assets/raytracer-bands.js');
 const [WIDTH, HEIGHT] = [480, 270];
 
 if (!isMainThread) {
   // One worker: load the module, wait for the start signal, render its bands for every pass.
-  const lib = await api.loadRaytracer((await import(join(ROOT, 'src/assets/wasm/raytracer.js'))).default);
+  const lib = await api.loadRaytracer((await load('src/assets/wasm/raytracer.js')).default);
   api.resize(lib, WIDTH, HEIGHT);
   api.setScene(lib, 'spheres');
   const bands = bandsFor(HEIGHT, workerData.workers, workerData.k);

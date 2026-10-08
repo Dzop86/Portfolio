@@ -7,11 +7,13 @@
 import { execFileSync } from 'node:child_process';
 import { cpus } from 'node:os';
 import { writeFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
-const api = await import(join(ROOT, 'src/assets/topo-api.js'));
+// As file:// URLs: on Windows, import() refuses an absolute path ("D:\..."), seen in CI.
+const load = (path) => import(pathToFileURL(join(ROOT, path)).href);
+const api = await load('src/assets/topo-api.js');
 
 /** The OBJ text of bench::torus(n, m) (tools/bench.hpp): same vertices, same triangles, six decimals. */
 export function torusObj(n, m) {
@@ -43,7 +45,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const out = arg('--out', join(ROOT, 'projects/topologie/data/bench.json'));
   const native = JSON.parse(execFileSync(arg('--native', join(ROOT, 'projects/topologie/build-bench/topo_bench')), [String(runs)], { encoding: 'utf8' }));
 
-  const createTopo = (await import(join(ROOT, 'src/assets/wasm/topo.js'))).default;
+  const createTopo = (await load('src/assets/wasm/topo.js')).default;
   const rows = [];
   for (const [k, [n, m]] of SIZES.entries()) {
     const bytes = new TextEncoder().encode(torusObj(n, m));
@@ -82,7 +84,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     mesh: 'standing torus',
     runs,
     machine: { cpu: cpus()[0].model.trim(), node: process.version },
-    limits: { bytes: (await import(join(ROOT, 'src/assets/meshlib-api.js'))).MAX_BYTES, triangles: (await api.loadTopo(createTopo))._topoc_persistence_limit() },
+    limits: { bytes: (await load('src/assets/meshlib-api.js')).MAX_BYTES, triangles: (await api.loadTopo(createTopo))._topoc_persistence_limit() },
     rows,
   };
   writeFileSync(out, `${JSON.stringify(bench, null, 2)}\n`);
