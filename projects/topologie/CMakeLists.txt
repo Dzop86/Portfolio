@@ -26,7 +26,7 @@ function(topo_warnings target)
   endif()
 endfunction()
 
-add_library(topo src/mesh.cpp src/invariants.cpp src/curvature.cpp src/morse.cpp src/persistence.cpp)
+add_library(topo src/mesh.cpp src/invariants.cpp src/curvature.cpp src/morse.cpp src/persistence.cpp src/reeb.cpp)
 target_include_directories(topo PUBLIC include)
 target_link_libraries(topo PRIVATE mesh)
 topo_warnings(topo)
@@ -52,7 +52,7 @@ if(TOPO_BUILD_TESTS)
   FetchContent_MakeAvailable(googletest)
   include(GoogleTest)
 
-  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp tests/test_samples.cpp tests/test_morse.cpp tests/test_persistence.cpp)
+  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp tests/test_samples.cpp tests/test_morse.cpp tests/test_persistence.cpp tests/test_reeb.cpp)
   target_link_libraries(topo_tests PRIVATE topo mesh GTest::gtest_main)
   target_compile_definitions(topo_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data"
                                                 TOPO_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/samples")

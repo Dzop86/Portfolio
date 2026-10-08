@@ -14,6 +14,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« j'ai relu, c'est top »), pour le sprint 36.
 - [ ] Sprint 37 : `src/persistence.cpp` (ordre de la filtration, réduction et « clearing », paires d'un même sommet écartées) et ses tests (oracle bottleneck) ; `topoc_persistence` ; le diagramme de `src/viewer/topoviewer.js` (seuil, marqueurs, tableau).
+- [ ] Sprint 38 : `src/reeb.cpp` (nœuds par le lien, tranches et recollement, barycentres des lignes de niveau) et ses tests ; `topoc_reeb` ; le graphe de Reeb de `src/viewer/topoviewer.js` (dans le maillage et à plat).
 
 ## Constats
 
