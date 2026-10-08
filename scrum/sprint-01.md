@@ -16,10 +16,10 @@
 
 **Tests :** 41 tests unitaires et d'intégration, 30 tests end-to-end sur Chromium desktop et mobile (Firefox, WebKit et iPhone tournent en CI).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Le site est en ligne dès le premier sprint, bilingue, testé sur trois OS et déployé à chaque push ; le scan des données privées tourne dans les tests.
+- Ce que l'IA a mal fait : Rien de bloquant ; Firefox, WebKit et iPhone n'étaient testés qu'en CI, pas en local.
+- À changer au prochain sprint : Pages de détail par projet, et le premier projet technique (lib-c) avec sa CI multi-OS.
 
 ## Sprint 2 (proposé)
 - Pages détail par projet, générées depuis `projects.json`.

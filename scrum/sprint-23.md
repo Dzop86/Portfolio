@@ -13,7 +13,7 @@
 
 **Tests :** 693 tests xUnit (500 étages générés, règles sur des étages dessinés à la main, rejeu de 100 parties complètes, parties de référence identiques sur Linux, Windows et macOS, 13 formats invalides, client en deux langues) ; analyseurs .NET, `dotnet format`. **Trouvé par les tests :** le jeu était trop facile (le pilote automatique gagnait toutes les parties d'essai), `>` était échappé dans le JSON, une option `--lang` invalide masquait la suivante.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Règles déterministes en C#, 693 tests, parties rejouées à l'identique sur trois OS.
+- Ce que l'IA a mal fait : Le jeu était trop facile, `>` était échappé dans le JSON, une option invalide en masquait une autre.
+- À changer au prochain sprint : Mesurer l'équilibre du jeu par simulation dès le départ.

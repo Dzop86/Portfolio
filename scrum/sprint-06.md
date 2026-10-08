@@ -13,7 +13,7 @@
 
 **Décisions de Charles (6 octobre) :** pas de miroir GitLab ; les modèles Pokémon restent hors du dépôt (droits de Nintendo), montrés en local par glisser-déposer ; le modèle « chocolat » n'est pas publié (source et licence inconnues, décision du 6 octobre).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Le STL est lu (soudure des sommets, facettes dégénérées écartées) et 15 millions d'entrées fuzzées ; l'API Python démarre sur 3 OS × 2 Python.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : Mettre l'API dans Docker et y brancher la topologie.

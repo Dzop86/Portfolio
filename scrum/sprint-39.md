@@ -12,7 +12,7 @@
 
 **Tests :** 5 tests Node (`tests/unit/topo-persistence.test.mjs` : barres groupées par dimension et plafonnées, classes vivantes à une hauteur, seuil placé entre une naissance et une mort, étapes de l'explication guidée sur des paires connues, une sphère, un maillage vide) ; 2 tests Playwright (5 navigateurs : code-barres du tore et du terrain à cuvettes, classes vivantes dont la somme alternée égale le χ du sous-niveau calculé par le C++, barre atteinte au clavier par Tab et flèches, ligne du tableau touchée, point du nuage survolé, explication guidée pas à pas au clavier sur les cuvettes et le tore, axes nommés, mobile, accessibilité). **Fait :** le code-barres (une barre par paire, groupée par dimension, flèche pour les classes sans fin, seuil de hauteur en travers, barres vivantes opaques, bruit grisé) ; la paire choisie dans le code-barres, le nuage ou le tableau entourée sur le maillage (halos visibles à travers lui) avec le seuil placé entre ses deux sommets et une phrase pour les lecteurs d'écran ; l'explication guidée calculée sur les paires du maillage affiché (premier minimum, deuxième composante et sa fusion, boucle née à une selle et bouchée, cavité au maximum, nombres de Betti) ; axes et colonnes nommés « hauteur où elle naît », « hauteur où elle meurt ». **Trouvé en route :** sur capture, le halo pistache disparaissait sur le haut du maillage (pistache en haut de l'échelle de hauteur) et les titres de groupe touchaient la première barre.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Code-barres, paires reliées au maillage et explication guidée.
+- Ce que l'IA a mal fait : Deux pièges WebKit (pas de `focusin` sur SVG, `pointermove` synthétique) ; surtout, le diagramme gardait ses classes à l'infini, ce que Charles a dû redemander.
+- À changer au prochain sprint : Reformuler la demande de Charles avant de coder quand elle touche aux mathématiques.

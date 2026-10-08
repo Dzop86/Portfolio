@@ -11,7 +11,7 @@
 
 **Tests :** invariants des trois familles contre les formules ; version web comparée à la chaîne native sur 11 exemples (18 tests Node) ; démo testée dans 5 navigateurs. **Trouvé :** entiers de 32 bits sous js_of_ocaml, exposants à trois chiffres sous Windows.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : La version web (C en WebAssembly, OCaml en JavaScript) donne les mêmes résultats que la chaîne native sur 11 exemples.
+- Ce que l'IA a mal fait : Deux pièges vus seulement par les tests : entiers de 32 bits sous js_of_ocaml, exposants à trois chiffres sous Windows.
+- À changer au prochain sprint : Comparer systématiquement la version web à la version native.

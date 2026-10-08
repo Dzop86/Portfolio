@@ -17,7 +17,7 @@
 
 **Report :** écriture OBJ et PLY. Le miroir GitLab est abandonné.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : lib-c lit OBJ et PLY sans fuite (Valgrind), le fuzzing tourne 60 s en CI, et la démo WebAssembly marche dans le navigateur.
+- Ce que l'IA a mal fait : Le miroir GitLab a coûté du temps avant d'être abandonné.
+- À changer au prochain sprint : Poser plus tôt les questions d'outillage à Charles (miroir, CI) plutôt que de les commencer.

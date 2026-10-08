@@ -15,7 +15,7 @@
 **Reporté au sprint 5 :** viewer Three.js de la topologie.
 
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : La structure demi-arête et les invariants sont vérifiés par Gauss-Bonnet sur 20 tores déformés au hasard.
+- Ce que l'IA a mal fait : La ligne d'erreur de lib-c était lue avant l'appel (ordre d'évaluation non spécifié en C++), et la courbure par aire barycentrique faisait des taches : attrapés par les tests.
+- À changer au prochain sprint : Garder un théorème comme oracle pour chaque calcul géométrique.

@@ -11,7 +11,7 @@
 
 **Tests :** 6 tests GoogleTest (`tests/test_reeb.cpp` : sphère, tore debout, boucles égales au genre ou au plus b1 sur les exemples et des surfaces synthétiques dans quatre directions, degrés sur un tore bruité, haut d'un bord, refus), vérifiés en cassant le code (neuf mutations attrapées, dont une par plantage sous ASan) ; ASan et UBSan ; Clang 19 sans avertissement ; 4 tests Node (2 sur `topo-api.js` : sorte des nœuds, arcs coupés au seuil ; 2 sur le module WebAssembly : une boucle sur le tore, aucune sur la sphère, arcs monotones dans trois directions, refus d'une hauteur bruitée) ; 1 test Playwright (5 navigateurs : nœuds et boucles des exemples, case au clavier, seuil, mobile, accessibilité). Mesuré : 0,23 s pour 360 000 triangles en natif, 0,22 s pour 300 000 en WebAssembly. **Trouvé en route :** la page Gestion de projet annonçait « Tous les sprints sont faits » dès l'ouverture du dernier sprint prévu ; Chromium et WebKit ne démarraient plus sous WSL (bibliothèques système manquantes) : Playwright lancé dans l'image officielle `mcr.microsoft.com/playwright:v1.63.0-noble`. Suite complète dans cette image : 698 verts, 3 sautés, 4 délais dépassés par le raytracer sous WebKit à six processus de test (rendu logiciel), verts une fois relancés seuls.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Graphe de Reeb avec autant de boucles que le genre, dans quatre directions.
+- Ce que l'IA a mal fait : La page annonçait « Tous les sprints sont faits » dès l'ouverture du dernier sprint.
+- À changer au prochain sprint : Lancer Playwright dans l'image officielle, l'environnement local ayant cassé.

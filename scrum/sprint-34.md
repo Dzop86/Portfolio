@@ -12,7 +12,7 @@
 
 **Tests :** 7 tests GoogleTest de plus (39 : position et couleur de la lumière, bornes, réglages appliqués sur place) ; 12 tests Node du module (répartition des bandes, trois modules = un seul octet pour octet, maillage dans chaque format, réglages et bornes des curseurs) et la fiche ; 35 tests Playwright (5 navigateurs : fichier choisi ou déposé, fichier fautif, workers, réglages au clavier, PNG, décimales). Gain mesuré : × 4,03 avec 8 workers sur un i5-10400F (6 cœurs). **Trouvé en route :** une décision du sprint 33 justifiée à tort (SharedArrayBuffer) ; le compteur de passes annoncé avant le dessin (WebKit) ; une collision de libellés `error` ; une couleur par défaut trop rouge ; la lampe dans le champ d'une capture ; « 5800 K » coupé et des décimales à l'anglaise sur mobile.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Fichier du visiteur, 8 workers (× 4,03), réglages et PNG.
+- Ce que l'IA a mal fait : Une décision du sprint 33 justifiée à tort, un compteur annoncé avant le dessin, une couleur par défaut trop rouge.
+- À changer au prochain sprint : Vérifier chaque justification écrite dans DECISIONS.md.

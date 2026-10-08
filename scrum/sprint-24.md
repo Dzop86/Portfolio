@@ -11,7 +11,7 @@
 
 **Tests :** 32 tests d'intégration de l'API sur un vrai PostgreSQL (une base neuve par classe de tests, horloge simulée), 725 tests en tout ; test de fumée de bout en bout sur l'image Docker (le pilote automatique du terminal joue la graine tirée par le serveur, qui trouve le même score). **Trouvé par les tests et la CI :** le classement que EF Core ne savait pas traduire, un JSON invalide qui donnait 500, une limite de taille absente du serveur de test, un conflit de versions d'EF Core, `dotnet ef` qui ne restaure pas les paquets.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : API de scores qui impose la graine et rejoue chaque partie, testée sur un vrai PostgreSQL.
+- Ce que l'IA a mal fait : Un classement qu'EF Core ne savait pas traduire, un JSON invalide qui donnait 500, une limite de taille absente, un conflit de versions.
+- À changer au prochain sprint : Tester les erreurs de l'API autant que ses succès.

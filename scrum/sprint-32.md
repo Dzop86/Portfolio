@@ -11,7 +11,7 @@
 
 **Tests :** 11 tests Jest (dont l'intégration sur l'API que construit le site), 20 tests Cypress (vues, langues, thèmes, axe, 375 px), tests unitaires du site sur les mesures et la fiche (tableau, liens, captures) ; captures refaites par script. **Trouvé en route :** le projet généré sans `strict` ; `<base href>` qui perdait la langue ; un menu lié avant ses options (« cylindre » affiché, tore tracé) ; `makeT` qui plantait sur une clé absente, dans les deux dashboards ; une première comparaison qui comptait three.js côté React.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Deux vues Angular sur la même API, comparaison mesurée des deux frameworks.
+- Ce que l'IA a mal fait : Projet généré sans `strict`, `<base href>` qui perdait la langue, un menu lié avant ses options, une comparaison qui comptait three.js côté React.
+- À changer au prochain sprint : Comparer à périmètre égal.

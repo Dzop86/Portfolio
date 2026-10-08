@@ -11,7 +11,7 @@
 
 **Tests :** 5 tests Node sur le WebAssembly, scénario Playwright dans 5 navigateurs et à 375 px, axe dans les deux thèmes. **Trouvé :** cases de 43,1 px sur un écran de 390 px.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Othello jouable à la souris, au toucher et au clavier, WebAssembly vérifié.
+- Ce que l'IA a mal fait : Des cases de 43,1 px sur un écran de 390 px, sous les 44 px de la règle.
+- À changer au prochain sprint : Tester les cibles tactiles à 375 et 390 px.

@@ -11,7 +11,7 @@
 
 **Tests :** 10 tests JUnit (dont 200 combats et deux parties complètes), 4 tests Node sur le JavaScript compilé par TeaVM, un scénario Playwright dans 5 navigateurs.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Aventure réécrite de zéro, jouable en terminal et sur la fiche grâce à TeaVM.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : La bataille en Ada.

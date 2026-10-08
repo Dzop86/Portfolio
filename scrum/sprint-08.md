@@ -15,7 +15,7 @@
 
 **Reporté (décision de Charles, 6 octobre) :** export ONNX du modèle, classification dans l'API et page de résultats, après les projets Ada, SQL, mini-langage, LaTeX et G-cartes.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Référence 97,2 % et PointNet 95,2 % sur des formes générées, suivis dans MLflow, reproductibles avec DVC, seuil de précision en CI.
+- Ce que l'IA a mal fait : Rien de bloquant ; l'export ONNX a été reporté par choix.
+- À changer au prochain sprint : Traiter les projets Ada, SQL, langage, LaTeX et G-cartes avant la suite du ML (ordre de Charles).

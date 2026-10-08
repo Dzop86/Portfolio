@@ -12,7 +12,7 @@
 
 **Tests :** 1 test AUnit de plus (8 : l'automate est fermé et sûr, jamais deux axes ouverts) et la preuve SPARK inchangée (15 vérifications) ; job CI qui recalcule l'automate et la simulation et les compare aux fichiers commités ; 5 tests Node du rejeu (crossroads-core.js redonne la simulation du programme Ada seconde par seconde, fichier invalide refusé) ; 4 tests Node de la vitrine (un rôle par technologie dans les deux langues, affiché sur chaque fiche ; bilan de chaque risque ; backlog vide) ; 15 tests Playwright (5 navigateurs : feux, demande de passage au clavier pas à pas, accessibilité, pas de défilement horizontal). **Trouvé en route :** la voiture en attente toujours visible puis jamais (`hidden` ne s'applique pas aux éléments SVG, ni comme règle du navigateur ni comme propriété JavaScript) ; deux tests du backlog qui confondaient deux tableaux.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : L'interface du carrefour rejoue exactement l'automate calculé par Ada ; chaque technologie a son rôle sur chaque fiche.
+- Ce que l'IA a mal fait : `hidden` sans effet sur les éléments SVG ; deux tests qui confondaient deux tableaux.
+- À changer au prochain sprint : Ne pas compter sur `hidden` hors du HTML.

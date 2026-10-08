@@ -11,7 +11,7 @@
 
 **Tests :** article sans diagnostic dans les deux langues (node:test) ; éditeur dans 5 navigateurs (Playwright, axe dans les deux thèmes). **Trouvé par les tests :** un second `h1` dans la page, un contraste de 4,31:1 en thème clair.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : L'éditeur rend en direct et l'article est sans diagnostic dans les deux langues.
+- Ce que l'IA a mal fait : Un second `h1` dans la page et un contraste de 4,31:1 en thème clair, attrapés par axe.
+- À changer au prochain sprint : Passer axe dans les deux thèmes avant de livrer.

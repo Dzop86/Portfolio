@@ -11,7 +11,7 @@
 
 **Tests :** 14 tests GoogleTest : séquentiel identique au bit à topologie sur 7 maillages, OpenMP identique au bit au séquentiel de 1 à 16 threads, OpenCL (PoCL) à 1e-12 ; ASan + UBSan ; Clang en local. **Trouvé en route :** une tolérance sur K mal posée (l'écart est celui du défaut divisé par l'aire), et OpenCL indisponible pour la carte NVIDIA sous WSL.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Séquentiel identique au bit à topologie, OpenMP au séquentiel, OpenCL à 1e-12.
+- Ce que l'IA a mal fait : Une tolérance sur K mal posée (l'écart est celui du défaut divisé par l'aire).
+- À changer au prochain sprint : Dériver chaque tolérance de la formule, pas d'un essai.

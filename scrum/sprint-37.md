@@ -11,7 +11,7 @@
 
 **Tests :** 9 tests GoogleTest (`tests/test_persistence.cpp` : sphère, tore debout, terrain à cuvettes, nombres de Betti sur six surfaces et quatre directions, sommets critiques, ordre, stabilité en distance bottleneck avec son oracle), vérifiés en cassant le code (cinq mutations attrapées, une équivalente expliquée) ; ASan et UBSan ; Clang 19 sans avertissement ; 4 tests Node (2 sur le diagramme de `topo-api.js`, 2 sur le module WebAssembly : nombres de Betti, multiplicités, plafond de 300 000 triangles) ; 5 tests Playwright (5 navigateurs : nombres de Betti des exemples, terrain déposé, seuil à la souris et au clavier, tableau, mobile, accessibilité). Mesuré : 0,5 s en WebAssembly à 300 000 triangles. **Trouvé en route :** deux tests qui passaient sans rien tester (diagramme presque vide, tri sans paire à trier) ; `stable_sort` refusé par Clang ; NaN dans le tri des classes sans fin ; le tableau qui élargissait la page sur iPhone ; le curseur sans piste ; le cadre du tableau inaccessible au clavier.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Persistance testée par la stabilité en distance bottleneck, avec son oracle.
+- Ce que l'IA a mal fait : Deux tests qui passaient sans rien tester, NaN dans un tri, un tableau qui élargissait la page sur iPhone.
+- À changer au prochain sprint : Exiger qu'un test ait de la matière (assez de paires) avant qu'il conclue.

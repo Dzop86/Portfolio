@@ -11,7 +11,7 @@
 
 **Tests :** bibliothèque, 10 tests node:test (cube, tores, cylindres, Möbius, patron du cours) dans `npm test` sur 3 OS ; cours, test de site et Playwright dans 5 navigateurs (axe compris).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Bibliothèque de G-cartes testée (cube, tores, Möbius) et cours interactif avec quiz.
+- Ce que l'IA a mal fait : Le patron du cube était illisible en thème sombre (signalé par Charles) et les liaisons α1 mesuraient 1 px.
+- À changer au prochain sprint : Mettre les figures techniques sur fond fixe et tester leurs distances minimales.

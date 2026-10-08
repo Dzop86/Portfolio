@@ -11,7 +11,7 @@
 
 **Tests :** 36 tests pytest (dont toutes les parties possibles contre l'IA, en X et en O), mypy strict ; 5 tests Node sur les règles JavaScript et le livre de coups ; un scénario Playwright (partie complète au clavier, axe). **Trouvé par Playwright :** les flèches partaient de la dernière case cliquée, pas de celle qui avait le focus.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : IA du morpion prouvée imbattable en essayant toutes les parties ; mypy strict.
+- Ce que l'IA a mal fait : Les flèches du clavier partaient de la dernière case cliquée, pas de celle qui avait le focus.
+- À changer au prochain sprint : Tester la navigation au clavier après un clic.

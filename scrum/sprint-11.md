@@ -13,7 +13,7 @@
 
 **Prévu au sprint 12 (3 points) :** les maillages dans le langage (tore, sphère, invariants), analyseur en WebAssembly et interpréteur en JavaScript (js_of_ocaml), arbre syntaxique affiché sur la fiche du projet.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Maille a son analyseur Flex/Bison en C et son interpréteur OCaml à inférence de types, sur trois OS.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : Brancher les maillages dans le langage et le mettre dans le navigateur.

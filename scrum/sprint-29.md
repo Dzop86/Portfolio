@@ -11,7 +11,7 @@
 
 **Tests :** 18 tests GoogleTest, tous passés sur la GTX 1660 (dont 4 CUDA) ; compilation sans CUDA avec Clang, et avec GCC sous ASan + UBSan ; 651 tests unitaires du site (dont la cohérence des mesures), 520 tests Playwright. **Trouvé en route :** en simple précision, `float(π)` biaisait chaque défaut (Gauss-Bonnet à 0,023 au lieu de 0), corrigé en découpant π en partie haute et reste ; OpenCL recompilait son noyau à chaque appel (45 ms), et le banc mesurait donc la compilation ; CUDA en double recopiait inutilement positions et résultats (30 ms).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : CUDA testé sur la vraie GTX 1660, bancs complets affichés sur la fiche.
+- Ce que l'IA a mal fait : `float(π)` biaisait la simple précision, OpenCL recompilait son noyau à chaque appel (le banc mesurait la compilation), CUDA recopiait inutilement.
+- À changer au prochain sprint : Vérifier ce que mesure un banc avant d'en publier les chiffres.

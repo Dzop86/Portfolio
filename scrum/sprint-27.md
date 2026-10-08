@@ -11,7 +11,7 @@
 
 **Tests :** six programmes Qt Test (dont le lancer de rayon, sans OpenGL, et la sélection dessinée en chocolat) ; chaque paquet lancé une fois par la CI ; l'AppImage lancée en plus sur une Ubuntu 24.04 vierge. **Trouvé en route :** linuxdeploy ne trouvait pas un Qt installé hors du système ; mon test d'image visait le trou du tore.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Sélection par lancer de rayon et paquets prêts à lancer sur Windows, macOS et Linux.
+- Ce que l'IA a mal fait : linuxdeploy ne trouvait pas Qt, et un test d'image visait le trou du tore.
+- À changer au prochain sprint : Viser une zone pleine dans les tests d'image.

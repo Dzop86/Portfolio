@@ -13,7 +13,7 @@
 
 **Prévu au sprint 14 (3 points) :** l'éditeur en direct sur la fiche du projet (texte et rendu côte à côte, diagnostics cliquables, plan du document), et l'article qui présente le portfolio, en français et en anglais.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Analyseur et rendu LaTeX en TypeScript strict, chaque nœud situé, erreurs en diagnostics.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : L'éditeur en direct et l'article du portfolio.

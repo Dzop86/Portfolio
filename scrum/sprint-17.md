@@ -13,7 +13,7 @@
 
 **Prévu au sprint 18 (3 points) :** moteur et IA en WebAssembly, plateau jouable sur la fiche du projet (clavier et tactile), tests Node et Playwright.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Moteur d'Othello en bitboards validé par perft jusqu'à 8 coups, IA alpha-bêta testée.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : Le mettre dans le navigateur.

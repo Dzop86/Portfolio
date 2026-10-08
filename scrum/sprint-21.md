@@ -13,7 +13,7 @@
 
 **Tests :** 6 groupes AUnit (dont 200 parties et la conservation des 52 cartes à chaque pli) ; fiche vérifiée par axe. **Trouvé par Ada à l'exécution :** une conversion vers `Positive` et un débordement sur 32 bits.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Types Ada qui excluent les cartes impossibles ; 100 000 parties simulées et leurs chiffres sur la fiche.
+- Ce que l'IA a mal fait : Une conversion vers `Positive` et un débordement sur 32 bits, attrapés par Ada à l'exécution.
+- À changer au prochain sprint : Choisir les plages de types en pensant aux sommes cumulées.

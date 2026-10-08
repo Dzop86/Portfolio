@@ -13,7 +13,7 @@
 
 **Après relecture de Charles :** le diagramme principal n'a plus d'infini (la figure étendue à part y est fondue), et le maillage reste visible à gauche quand on descend. En route, un bug du sprint 36 : survoler le maillage levait une erreur (variable `e` masquée), l'infobulle ne marchait plus ; corrigé, avec un test de survol qui échoue sur l'ancien code.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Persistance étendue validée par les dualités de Poincaré et de Lefschetz, 68 fois plus rapide grâce à la cohomologie.
+- Ce que l'IA a mal fait : La première version mettait 65 s, et la demande « pas d'infini » avait été prise pour une figure de plus au lieu du diagramme principal.
+- À changer au prochain sprint : Montrer une capture de l'idée à Charles avant de l'implémenter quand la demande est visuelle.

@@ -11,7 +11,7 @@
 
 **Tests :** 39 tests Vitest, dont la visionneuse sur le vrai module WebAssembly de topologie (invariants du tore, de la sphère et du ruban de Möbius, erreur de lib-c avec sa ligne) et en composant sans WebGL ; Playwright sur 5 navigateurs, dont la courbure lue au survol là où WebGL existe ; captures refaites par script. **Trouvé en route :** les erreurs de lib-c réduites à « format non reconnu » ; three.js chargé pour toutes les vues (désormais à la demande) ; un test de survol qui visait hors du tore sur un canevas large.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Visionneuse 3D dans React sur le vrai WebAssembly, three.js chargé à la demande.
+- Ce que l'IA a mal fait : Les erreurs de lib-c réduites à « format non reconnu » ; un test de survol qui visait hors du tore.
+- À changer au prochain sprint : Garder le message d'erreur d'origine à travers les couches.

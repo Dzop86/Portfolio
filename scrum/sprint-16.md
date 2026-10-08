@@ -14,7 +14,7 @@
 
 **Tests :** ml 24 tests pytest, API 33 tests pytest et test de fumée Docker, site (test des résultats, axe dans les deux thèmes).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Export ONNX identique à PyTorch, classification dans l'API sans PyTorch, résultats sur la fiche.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : Retour aux jeux : Othello.

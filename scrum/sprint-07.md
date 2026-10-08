@@ -13,7 +13,7 @@
 
 **Décision de Charles (6 octobre) :** le projet ML utilisera GitHub Actions, sans GitLab CI.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : L'API tourne en conteneur (multi-étapes, non root, test de fumée) et appelle le C++ de topologie.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : Démarrer le ML sur GitHub Actions, sans GitLab CI (décision de Charles).

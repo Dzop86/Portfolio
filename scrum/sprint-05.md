@@ -12,7 +12,7 @@
 **Tests :** site 157 unitaires et d'intégration, 210 end-to-end (5 navigateurs, deux thèmes, viewer compris, sans WebGL sous Firefox) ; topologie 27 tests GoogleTest.
 
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Le C++ tourne dans le navigateur, testé dans Node, et la visionneuse three.js montre la courbure.
+- Ce que l'IA a mal fait : Les bords de la selle apparaissaient en rouge, l'échelle de couleurs était inutilisable sur les modèles sculptés : vus sur capture, pas par les tests.
+- À changer au prochain sprint : Regarder chaque figure sur capture avant de livrer.

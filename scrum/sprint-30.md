@@ -11,7 +11,7 @@
 
 **Tests :** 28 tests Vitest (échelles, traductions, calculs, et le dashboard entier rendu sur l'API que le site construit vraiment) ; 6 tests de l'API côté site ; 75 tests Playwright du dashboard (3 vues, 2 langues, 2 thèmes, 5 navigateurs, axe, 375 px, cibles de 44 px) ; image Docker vérifiée. **Trouvé en route :** une série plate faisait boucler les graduations sans fin ; la vélocité plongeait à 0 au sprint ouvert ; les classes du modèle ML restaient en anglais en français ; le contexte Docker aurait embarqué les `node_modules` du dashboard.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Dashboard React sur une API JSON produite par le build, 75 tests Playwright.
+- Ce que l'IA a mal fait : Graduations qui bouclaient sur une série plate, vélocité à 0 au sprint ouvert, classes ML en anglais, `node_modules` dans le contexte Docker.
+- À changer au prochain sprint : Tester les cas limites des graphiques (série plate, sprint en cours).

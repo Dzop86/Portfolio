@@ -13,7 +13,7 @@
 
 **Tests :** 3 GoogleTest (`tests/test_bench.cpp` : le tore du banc a la taille demandée et le genre 1, la mesure rend les bons nombres de Betti et la bonne boucle, tailles de 10 000 à un million) ; Node : 5 tests sur les temps (chronomètre, durées, tore identique en JavaScript, tableau mesuré, fiche), 2 sur le cours G-cartes (liaisons ajoutées dimension par dimension, chacune entre les bons brins et au bon endroit, sans se confondre avec un brin ; tracé trait, arc, double trait), 6 sur les chiffres (`tests/unit/counts.test.mjs`, vérifié en cassant le README et le plan), 1 sur le burndown (marche à l'ajout, passé inchangé, reste égal aux stories ouvertes, erreurs de données) et ceux de la page Gestion de projet et de l'API mis à jour ; Playwright : temps affichés et tableau (5 navigateurs), cinq étapes du cours. Vitest du tableau de bord React : 40 verts. **Fait :** temps mesurés dans le navigateur sous chaque résultat, tableau natif et WebAssembly (`projects/topologie/data/bench.json`), notes GPU et 32 Mo ; cours G-cartes construit par dimensions croissantes avec les liaisons des manuels ; texte alternatif de la capture Angular calculé, captures régénérées ; burndown en points de stories avec une marche par ajout (D46-D47, D48, D49), backlog égal aux stories ouvertes. **Trouvé en route :** en WebAssembly, lire l'OBJ coûte plus que tous les calculs (2,5 s pour 37 Mo) ; le Dockerfile ne copiait pas le nouveau tableau des temps (attrapé par son test) ; sur le patron du cube, les arcs α1 sortaient des carrés ; les étiquettes des marches du burndown se chevauchaient (deux sprints d'écart), remplacées par des repères et une légende. Les points de stories (203) ne sont pas les estimations des projets (196) : le burndown le dit.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Temps de calcul affichés, cours G-cartes par dimensions croissantes, chiffres à jour partout, burndown juste.
+- Ce que l'IA a mal fait : Le Dockerfile ne copiait pas le nouveau tableau, et l'import d'un chemin absolu cassait la CI sous Windows.
+- À changer au prochain sprint : Écrire les chemins des scripts en URL `file://` dès le départ.

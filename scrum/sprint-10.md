@@ -13,7 +13,7 @@
 
 **Trouvé par les mesures :** le comptage d'arêtes de lib-c (`qsort`) coûte deux fois la lecture ; topologie, qui fait plus de travail, va plus vite en WebAssembly. Correction à décider par Charles.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : La base PostgreSQL range de vraies mesures, interrogeable dans le navigateur ; les mesures ont révélé un vrai goulot dans lib-c.
+- Ce que l'IA a mal fait : Le goulot (`qsort` de lib-c) est resté sans suite jusqu'au sprint 42.
+- À changer au prochain sprint : Transformer chaque constat de mesure en décision datée, pas en note.

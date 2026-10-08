@@ -11,7 +11,7 @@
 
 **Tests :** modèle 8 tests JUnit (dont 2 000 flottes et 300 parties de l'ordinateur, moins de 60 tirs en moyenne), interface 3 tests sans écran ; fiche vérifiée par axe.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Bataille navale testée sur 2 000 flottes et 300 parties, captures générées sans écran.
+- Ce que l'IA a mal fait : Rien de notable.
+- À changer au prochain sprint : L'aventure en Java, jouable aussi dans le navigateur.

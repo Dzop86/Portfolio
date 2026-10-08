@@ -11,7 +11,7 @@
 
 **Tests :** 32 tests GoogleTest (optique, intersections, BVH contre force brute, fournaise blanche, irradiance analytique, deux images de référence) sur Linux, Windows et macOS, plus ASan et UBSan ; 4 tests Node du module WebAssembly (mêmes images de référence que le build natif, bandes dans le désordre, erreurs de lib-c) et 1 test de la fiche ; 15 tests Playwright (5 navigateurs : rendu progressif, changement de scène, clavier, pause, axe, 375 px) ; job de CI qui recompile le WebAssembly et le compare octet pour octet. **Trouvé en route :** la ligne d'erreur de lib-c lue avant l'appel (même erreur que dans topologie) ; deux tests de physique mal posés ; des caustiques en pixels blancs ; `-Wsign-conversion` vu seulement par Clang ; MSVC qui refuse `sscanf`, `getenv` et une division par zéro voulue ; le compteur de passes qui gardait la valeur de l'ancienne scène (le test Playwright passait sur la mauvaise image).
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Moteur de rendu testé contre des images de référence, WebAssembly vérifié octet pour octet.
+- Ce que l'IA a mal fait : Ligne d'erreur lue avant l'appel (même erreur qu'au sprint 4), tests de physique mal posés, compteur de passes resté sur l'ancienne scène.
+- À changer au prochain sprint : Relire les erreurs déjà faites dans le portfolio avant d'écrire le même genre de code.

@@ -11,7 +11,7 @@
 
 **Tests :** test sans écran du client Godot sur Linux, Windows et macOS (partie entière par le chemin du clavier, vérifiée par rejeu ; même issue que la partie de référence de la graine 9) ; exécutable Linux exporté relancé ; `ScoresClient` testé contre la vraie API ; fiche vérifiée par Playwright et axe dans cinq navigateurs ; 727 tests .NET. **Trouvé en route :** sans fichier `.sln`, Godot exporte sans le code C# en annonçant un succès ; le sol des cases déjà vues était invisible sur la première capture.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Client Godot 4 testé sans écran sur trois OS, parties classées de bout en bout.
+- Ce que l'IA a mal fait : Sans `.sln`, Godot exportait sans le C# en annonçant un succès ; le sol des cases vues était invisible sur la capture.
+- À changer au prochain sprint : Relancer chaque export produit au lieu de croire le code de retour.

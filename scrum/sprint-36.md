@@ -11,7 +11,7 @@
 
 **Tests :** 7 tests GoogleTest (`tests/test_morse.cpp` : sphère, tore debout, selle de singe, somme des indices égale à χ dans quatre directions, χ du sous-niveau recompté à la main, sommet de bord), vérifiés en cassant le code ; 4 tests Node (3 sur la filtration de `topo-api.js`, 1 sur le module WebAssembly : le tore debout, la sphère, χ partout) ; 5 tests Playwright (5 navigateurs : mode hauteur, seuil au clavier, changement d'axe, valeur du seuil qui tient sur mobile, accessibilité). **Trouvé en route :** un `int` qui indexait un `std::array` (Clang l'aurait refusé sur macOS) ; des sphères et des matériaux jamais libérés ; `Math.max(...)` sur un tableau par sommet ; le panneau de hauteur visible malgré `hidden` (`display: grid`) ; la valeur du seuil qui dépassait sa colonne à 375 px.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Hauteur et points critiques testés par la théorie de Morse (somme des indices = χ).
+- Ce que l'IA a mal fait : Un `int` qui indexait un `std::array`, des matériaux jamais libérés, `Math.max(...)` sur un grand tableau, et, vu seulement au sprint 41, une variable masquée qui cassait le survol du maillage.
+- À changer au prochain sprint : Tester les interactions à la souris sur le canvas, pas seulement les contrôles.

@@ -11,7 +11,7 @@
 
 **Tests :** cinq programmes Qt Test (modèle, caméra, rendu hors écran relu pixel par pixel, fenêtre, traduction) ; fiche vérifiée par Playwright et axe dans cinq navigateurs. **Trouvé en route :** une bande sombre à la torsion du ruban de Möbius (normales opposées qui s'annulaient), un titre resté dans l'ancienne langue, une légende cachée quand la courbure venait de la ligne de commande.
 
-## Rétro (à compléter par Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+## Rétro (Charles)
+- Ce qui a marché : Visionneuse Qt 6 testée jusqu'au pixel (rendu hors écran relu) sur trois OS.
+- Ce que l'IA a mal fait : Une bande sombre sur le ruban de Möbius, un titre resté dans l'ancienne langue, une légende cachée.
+- À changer au prochain sprint : Changer de langue et d'entrée (fichier, ligne de commande) dans chaque test d'interface.
