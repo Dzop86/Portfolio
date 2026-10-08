@@ -47,14 +47,23 @@ public sealed class Fight
     private readonly Rng _rng;
     private int _current;
 
-    public Fight(GameData data, string scenarioId, ulong seed)
+    /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
+    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.Scenarios.TryGetValue(scenarioId, out Scenario? s) ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
+        if (hero?.Problem() is string problem)
+            throw new ArgumentException(problem, nameof(hero));
+        Hero = hero;
         Board = data.Board(Scenario.Map);
         Seed = seed;
         _rng = new Rng(seed);
-        Fighters = [.. Scenario.Fighters.Select((f, i) => new Fighter(i, f, Board.Starts[f.Team][f.Start], [.. f.Spells.Select(id => data.Spells[id])]))];
+        int heroIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 0);
+        Fighters = [.. Scenario.Fighters.Select((f, i) =>
+        {
+            FighterSpec spec = hero is not null && i == heroIndex ? f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look } : f;
+            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], [.. f.Spells.Select(id => data.Spells[id])]);
+        })];
         // Highest initiative first; equal initiatives keep the scenario's order.
         _order = [.. Fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
         Round = 1;
@@ -62,6 +71,7 @@ public sealed class Fight
     }
 
     public Scenario Scenario { get; }
+    public Hero? Hero { get; }
     public Board Board { get; }
     public ulong Seed { get; }
 
