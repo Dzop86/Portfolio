@@ -663,5 +663,17 @@
   "topo.bench.refused": "{native} natif · refusé par la page",
   "topo.bench.gpu": "Et un GPU ? Il accélérerait ce qui se fait sommet par sommet ou triangle par triangle, sans dépendance : la hauteur (un produit scalaire par sommet), le tri des sommets (tri parallèle), le lien inférieur de chaque sommet, et la persistance H0 par fusions en parallèle. La réduction de la matrice de bord, elle, traite les colonnes l’une après l’autre (chacune dépend des précédentes), et le graphe de Reeb repose, comme la persistance H0, sur des union-find aux accès imprévisibles : un GPU y passerait son temps à se synchroniser. Or la persistance domine ({p} pour un million de triangles en natif) et c’est elle qui s’y prête le moins : pas de version GPU (D49).",
   "topo.bench.limit": "Pourquoi 32 Mo ? Avant tout calcul, lire un OBJ de {mb} Mo (un million de triangles) prend {read} en WebAssembly, sur le fil de la page, qui reste figée pendant ce temps ; la mémoire WebAssembly monte vers 190 Mo (750 Mo pour 4 millions de triangles), plafonnée à 1 Go par la compilation et à 4 Go en wasm32, et un téléphone en a moins. La limite garde l’attente sous deux secondes et demie ; la lever demanderait une lecture en flux dans un Web Worker et plus de mémoire (D49). Au-delà de {limit} triangles, la page refuse aussi la persistance, sa version étendue et le graphe de Reeb : une demi-seconde à ce plafond, une seconde pour la persistance étendue.",
-  "cross.label.green": "{axis} : cet axe est déjà au vert, la demande ne change rien."
+  "cross.label.green": "{axis} : cet axe est déjà au vert, la demande ne change rien.",
+  "rpg.title": "Aperçu du combat",
+  "rpg.lead": "Le client de bureau, en Godot 4 et C# : un plateau en losanges vu de biais, des personnages animés (modèles 3D libres de Kenney), et les règles du sprint 45, sans une ligne de règle en plus dans le client.",
+  "rpg.altMove": "Plateau isométrique en herbe, en damier, avec des arbres, des rochers et deux mares ; l'héroïne en haut à gauche, un orque et un braconnier entourés de rouge à droite et en bas. Les cases que l'héroïne peut atteindre sont en bleu clair, le chemin vers la case survolée en jaune. En haut, « Tour 1 · À vous de jouer » et l'ordre de jeu avec les points de vie ; en bas, PV 60/60, PA 6, PM 3, les trois sorts et le bouton « Fin du tour ».",
+  "rpg.altSpell": "Le même plateau au tour 2 : la Flèche est choisie ; les cases à sa portée sont marquées, en bleu celles qu'elle peut toucher, et l'orque, visé, est sur une case rouge. Une case derrière un arbre reste claire : l'arbre coupe la ligne de vue. À gauche, le journal du combat.",
+  "rpg.captionMove": "Se déplacer : les cases atteignables et le chemin.",
+  "rpg.captionSpell": "Viser : la portée du sort, la ligne de vue, la cible.",
+  "rpg.made": "Captures faites par le jeu lui-même (option --screenshot), dans un écran virtuel, avec le rendu OpenGL logiciel de Mesa.",
+  "rpg.run": "Pour le lancer chez vous (SDK .NET 10 et Godot 4.7 .NET) :",
+  "rpg.sim": "des combats de l'IA, dans le terminal",
+  "rpg.godot": "le jeu, contre l'IA",
+  "rpg.download": "Exécutables prêts à lancer (Windows, macOS, Linux, non signés), produits par la CI, qui y joue un combat entier, gardés 14 jours :",
+  "rpg.downloadLink": "artefacts du workflow rpg"
 }

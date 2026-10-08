@@ -663,5 +663,17 @@
   "topo.bench.refused": "{native} native · refused by the page",
   "topo.bench.gpu": "What about a GPU? It would speed up what is done vertex by vertex or triangle by triangle, independently: the height (one dot product per vertex), sorting the vertices (parallel sort), the lower link of each vertex, and H0 persistence by parallel merges. The boundary matrix reduction, though, handles the columns one after the other (each depends on the previous ones), and the Reeb graph relies, like H0 persistence, on union-finds with unpredictable accesses: a GPU would spend its time synchronising. Yet persistence dominates ({p} for a million triangles natively) and it is the part that suits a GPU least: no GPU version (D49).",
   "topo.bench.limit": "Why 32 MB? Before any computing, reading an OBJ of {mb} MB (a million triangles) takes {read} in WebAssembly, on the page’s thread, which stays frozen meanwhile; WebAssembly memory climbs to about 190 MB (750 MB for 4 million triangles), capped at 1 GB by the build and at 4 GB in wasm32, and a phone has less. The limit keeps the wait under two and a half seconds; lifting it would take streamed reading in a Web Worker and more memory (D49). Above {limit} triangles, the page also refuses persistence, its extended version and the Reeb graph: half a second at that cap, one second for extended persistence.",
-  "cross.label.green": "{axis}: this axis is already green, the request changes nothing."
+  "cross.label.green": "{axis}: this axis is already green, the request changes nothing.",
+  "rpg.title": "A look at the fight",
+  "rpg.lead": "The desktop client, in Godot 4 and C#: a diamond board seen at an angle, animated characters (Kenney's free 3D models), and the rules of sprint 45, without a single extra rule in the client.",
+  "rpg.altMove": "Isometric grass board, in a checkerboard, with trees, rocks and two ponds; the heroine at the top left, an orc and a poacher ringed in red on the right and at the bottom. The cells the heroine can reach are light blue, the path to the hovered cell yellow. At the top, \"Round 1 · Your turn\" and the turn order with hit points; at the bottom, HP 60/60, AP 6, MP 3, the three spells and the \"End turn\" button.",
+  "rpg.altSpell": "The same board in round 2: the Arrow is chosen; the cells within its range are marked, in blue those it can hit, and the orc, aimed at, stands on a red cell. A cell behind a tree stays pale: the tree blocks the line of sight. On the left, the fight log.",
+  "rpg.captionMove": "Moving: the reachable cells and the path.",
+  "rpg.captionSpell": "Aiming: the spell's range, the line of sight, the target.",
+  "rpg.made": "Pictures taken by the game itself (option --screenshot), in a virtual screen, with Mesa's software OpenGL renderer.",
+  "rpg.run": "To run it at home (.NET 10 SDK and Godot 4.7 .NET):",
+  "rpg.sim": "AI fights, in the terminal",
+  "rpg.godot": "the game, against the AI",
+  "rpg.download": "Ready-to-run builds (Windows, macOS, Linux, unsigned), made by the CI, which plays a whole fight in them, kept 14 days:",
+  "rpg.downloadLink": "artifacts of the rpg workflow"
 }

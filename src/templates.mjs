@@ -641,6 +641,7 @@ ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
+${p.widget === 'rpg-screenshots' ? rpgScreenshots(t, lang) : ''}
 ${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
 ${p.widget === 'react-dashboard' ? reactDashboard(t, lang) : ''}
 ${p.widget === 'angular-compare' ? angularCompare(t, lang, data.projects) : ''}
@@ -1249,6 +1250,27 @@ function rogueScreenshot(t, lang) {
 dotnet run --project src/Rogue.Cli -- --lang ${lang}     # ${esc(t('rogue.terminal'))}
 docker compose up --build rogue-api                # ${esc(t('rogue.api'))}
 godot --path godot                                 # ${esc(t('rogue.godot'))}</code></pre>
+</section>`;
+}
+
+// The tactical RPG (D54): two pictures taken by the Godot client itself, how to run it, where to download it.
+function rpgScreenshots(t, lang) {
+  const shot = (name, alt, caption) => `<figure class="naval-shot rogue-shot">
+    <img src="../assets/images/rpg-${name}-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t(alt))}">
+    <figcaption class="meta">${esc(t(caption))}</figcaption>
+  </figure>`;
+  return `<section class="block panel" aria-labelledby="h-rpg">
+  <h2 id="h-rpg">${esc(t('rpg.title'))}</h2>
+  <p>${esc(t('rpg.lead'))}</p>
+  ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
+  ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
+  <p class="meta">${esc(t('rpg.made'))}</p>
+  <p>${esc(t('rpg.run'))}</p>
+  <pre class="naval-run" tabindex="0"><code>cd projects/rpg
+dotnet run --project src/Rpg.Sim -- --simulate 100 --lang ${lang}   # ${esc(t('rpg.sim'))}
+dotnet build godot/Rpg.Godot.csproj
+godot --path godot -- --lang ${lang}                                # ${esc(t('rpg.godot'))}</code></pre>
+  <p>${esc(t('rpg.download'))} <a href="https://github.com/Dzop86/Portfolio/actions/workflows/rpg.yml">${esc(t('rpg.downloadLink'))}</a></p>
 </section>`;
 }
 

@@ -430,6 +430,21 @@ test('the ML page shows the measured results: accuracies, threshold, both confus
   }
 });
 
+test('the tactical RPG page shows two pictures of the Godot client in each language, and where to get it', () => {
+  for (const lang of LANGS) {
+    const html = page(lang, 'project-rpg');
+    for (const shot of ['move', 'spell']) {
+      const img = html.match(new RegExp(`<img src="\\.\\./assets/images/(rpg-${shot}-(\\w+)\\.png)" width="1280" height="720" loading="lazy" alt="([^"]+)">`));
+      assert.ok(img, `${lang} ${shot}`);
+      assert.equal(img[2], lang);
+      assert.ok(existsSync(join(ROOT_DIR, 'src/assets/images', img[1])), img[1]);
+      assert.ok(img[3].length > 120, 'a descriptive alt text');
+    }
+    assert.match(html, /href="https:\/\/github\.com\/Dzop86\/Portfolio\/actions\/workflows\/rpg\.yml"/);
+    assert.ok(html.includes(`--lang ${lang}`));
+  }
+});
+
 test('the roguelike page shows the Godot client in each language, with the commands to play', () => {
   for (const lang of LANGS) {
     const html = page(lang, 'project-rogue');
