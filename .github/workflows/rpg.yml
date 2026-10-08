@@ -45,6 +45,7 @@ jobs:
         run: |
           dotnet test --project tests/Rpg.Core.Tests -c Release --no-build
           dotnet test --project tests/Rpg.Sim.Tests -c Release --no-build
+          dotnet test --project tests/Rpg.Client.Tests -c Release --no-build
       # The same record must give the same fight, roll for roll, on every system.
       - name: Replay the committed fights
         shell: bash
@@ -55,3 +56,79 @@ jobs:
           grep -qF "Duel, seed 3: team B wins in round 4, after 22 actions." "$RUNNER_TEMP/duel.txt"
       - name: A thousand AI fights
         run: dotnet run --project src/Rpg.Sim -c Release --no-build -- --simulate 1000 --scenario duel
+
+  godot:
+    name: Godot client, without a screen (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rpg/global.json
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: true
+          include-templates: false
+      - name: Build the C# scripts
+        run: dotnet build godot/Rpg.Godot.csproj
+      - name: Import the project
+        run: godot --headless --path godot --import
+      # A whole fight through the player's controls, every event through the views, checked by replay.
+      - name: A whole fight in the client
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --selftest --seed 9 --report "$RUNNER_TEMP/selftest.txt"
+          cat "$RUNNER_TEMP/selftest.txt"
+          grep -q "SELFTEST OK seed 9: team A wins in round 6, after 42 actions. Views checked" "$RUNNER_TEMP/selftest.txt"
+
+  exports:
+    name: Godot exports (Windows, Linux, macOS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rpg/global.json
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: true
+          include-templates: true
+      - run: godot --headless --path godot --import
+      - name: Export the three desktop builds
+        run: |
+          mkdir -p godot/build/linux godot/build/windows godot/build/macos
+          for preset in Linux Windows macOS; do
+            godot --headless --path godot --export-release "$preset" 2>&1 | tee -a "$RUNNER_TEMP/export.log"
+          done
+          # Godot exits with 0 even when it could not export the C# part: check that it is there.
+          if grep -q "ERROR" "$RUNNER_TEMP/export.log"; then exit 1; fi
+          test -f godot/build/linux/data_Rpg.Godot_linuxbsd_x86_64/Rpg.Godot.dll
+          test -f godot/build/windows/data_Rpg.Godot_windows_x86_64/Rpg.Godot.dll
+          unzip -l godot/build/macos/rpg.zip | grep -q "data_Rpg.Godot_macos_arm64/Rpg.Godot.dll"
+      - name: The exported Linux build plays a whole fight
+        timeout-minutes: 5
+        run: |
+          godot/build/linux/rpg.x86_64 --headless -- --selftest --seed 9 --report "$RUNNER_TEMP/selftest.txt"
+          grep -q "SELFTEST OK seed 9" "$RUNNER_TEMP/selftest.txt"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpg-linux
+          path: projects/rpg/godot/build/linux
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpg-windows
+          path: projects/rpg/godot/build/windows
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpg-macos
+          path: projects/rpg/godot/build/macos
+          retention-days: 14
