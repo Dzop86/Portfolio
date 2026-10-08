@@ -56,5 +56,7 @@ if(TOPO_BUILD_TESTS)
   target_link_libraries(topo_tests PRIVATE topo mesh GTest::gtest_main)
   target_compile_definitions(topo_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data"
                                                 TOPO_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/samples")
-  gtest_discover_tests(topo_tests)
+  # Listing the tests is quick, but a fresh Debug executable can take longer than the default 5 s to start on
+  # the Windows runner (seen in CI, sprint 38).
+  gtest_discover_tests(topo_tests DISCOVERY_TIMEOUT 60)
 endif()
