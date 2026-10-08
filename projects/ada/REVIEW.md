@@ -8,7 +8,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [x] `src/traffic.ads` : les postconditions disent-elles tout ce qui compte pour la sûreté ?
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide juste la review ada »).
-- [ ] Sprint 35 : `src/automaton.adb` (exploration des états atteignables, JSON) et l'interface de la fiche (`src/assets/crossroads-core.js`, `adaplay.js`).
+- [x] Sprint 35 : `src/automaton.adb` (exploration des états atteignables, JSON) et l'interface de la fiche (`src/assets/crossroads-core.js`, `adaplay.js`).
+
+> Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« c'est tout bon »), pour le sprint 35.
 
 ## Constats
 
