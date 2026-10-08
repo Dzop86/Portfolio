@@ -587,7 +587,7 @@
   "topo.label.sublevel": "Sublevel set: {faces} of {total} triangles, χ = {chi}.",
   "topo.pers.title": "Persistence diagram",
   "topo.pers.tau": "Minimum persistence",
-  "topo.pers.desc": "Persistence diagram of the height: each point is a component, a loop or a cavity of the sublevel sets, placed at the height where it is born (across) and the height where it dies (up). Far from the diagonal, a real feature; close to it, noise. On the ∞ line at the top, the classes that never die.",
+  "topo.pers.desc": "Persistence diagram of the height: each component, loop or cavity of the sublevel sets is an upright bar rising from the diagonal at the height where it is born (across) up to the height where it dies (the point, up). A long bar, far from the diagonal, is a real feature; a short one, noise. The classes that never die rise, dashed, up to the ∞ line.",
   "topo.pers.table": "Show the pairs",
   "topo.pers.col.dim": "Dimension",
   "topo.pers.col.birth": "Height where it is born",

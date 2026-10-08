@@ -273,8 +273,15 @@ test('the topology viewer reads the persistence as a barcode tied to the mesh (s
   await expect(pick).toHaveText(/^component \(H0\): born at vertex #\d+ at height 0(\.\d+)?, dies at vertex #\d+ at height [\d.]+\. Both vertices/);
   await expect(bars.locator('.bar.is-picked')).toHaveCount(1);
   await expect(bars.locator('.bar.is-picked')).toHaveClass(/is-alive/);
-  // Hovering a point of the scatter plot picks it too.
+  // In the scatter plot too, each pair is a bar: from the diagonal where it is born up to where it dies (the three
+  // pits all die at the top, the deepest never: dashed up to the ∞ line).
   const cloud = page.getByRole('listbox', { name: 'The same diagram as a scatter plot' });
+  await expect(cloud.locator('.pers-stem')).toHaveCount(4);
+  await expect(cloud.locator('.pers-point.is-essential .pers-stem')).toHaveCount(1);
+  for (const stem of await cloud.locator('.pers-point:not(.is-essential) .pers-stem').all()) {
+    expect(Number(await stem.getAttribute('y1'))).toBeGreaterThan(20);
+  }
+  // Hovering a point of the scatter plot picks it too.
   await cloud.getByRole('option').last().hover();
   await expect(cloud.getByRole('option').last()).toHaveAttribute('aria-selected', 'true');
 

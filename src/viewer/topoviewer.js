@@ -277,9 +277,13 @@ function start(root) {
     const y = (v) => (v === Infinity ? 14 : 285 - ((v - lo) / span) * 245);
     const dimName = (d) => labels[`pers.dim.${d}`];
     const value = (v) => (v === Infinity ? labels['pers.never'] : num(v - lo, 2));
+    // Each pair is also a bar, as in the barcode but upright: from the diagonal at the height where it is born up to
+    // the height where it dies, the point (Charles's review: points alone, all dying at the top, said nothing).
     const marks = all.drawn.map((q) => {
       const noise = q.death - q.birth <= t;
+      const rise = (y(q.birth) - y(q.death)).toFixed(1);
       return `<g ${option(r, q)} class="pers-point${q.deathVertex === null ? ' is-essential' : ''}${noise ? ' is-noise' : ''}" transform="translate(${x(q.birth).toFixed(1)} ${y(q.death).toFixed(1)})">`
+        + `<line class="pers-stem is-h${q.dimension}" x1="0" y1="${rise}" x2="0" y2="0"/><circle class="pers-foot is-h${q.dimension}" cx="0" cy="${rise}" r="2"/>`
         + `<circle class="pers-ring" r="7"/><path class="pers-shape is-h${q.dimension}" d="${shapes[q.dimension]}"/></g>`;
     }).join('');
     // The noise band: points under the dashed line live less than the threshold.
@@ -290,7 +294,7 @@ function start(root) {
     persPlot.innerHTML = `${persPlot.querySelector('desc').outerHTML}<g aria-hidden="true">`
       + `<line class="pers-axis" x1="40" x2="285" y1="285" y2="285"/><line class="pers-axis" x1="40" x2="40" y1="40" y2="285"/>`
       + `<line class="pers-infinity" x1="40" x2="285" y1="14" y2="14"/><text x="4" y="18">∞</text>`
-      + `<text x="4" y="289">0</text><text x="285" y="299" text-anchor="end">${num(hi - lo, 2)}</text>`
+      + `<text x="4" y="289">0</text><text x="285" y="299" text-anchor="end">${num(hi - lo, 2)}</text><text x="4" y="44">${num(hi - lo, 2)}</text>`
       + `<text x="162" y="314" text-anchor="middle">${escapeXml(labels['pers.axis.birth'])}</text>`
       + `<text transform="translate(30 162) rotate(-90)" text-anchor="middle">${escapeXml(labels['pers.axis.death'])}</text>`
       + band + `<line class="pers-diagonal" x1="${x(lo)}" y1="${y(lo)}" x2="${x(hi)}" y2="${y(hi)}"/></g>${marks}`;

@@ -587,7 +587,7 @@
   "topo.label.sublevel": "Sous-niveau : {faces} triangles sur {total}, χ = {chi}.",
   "topo.pers.title": "Diagramme de persistance",
   "topo.pers.tau": "Persistance minimale",
-  "topo.pers.desc": "Diagramme de persistance de la hauteur : chaque point est une composante, une boucle ou une cavité des sous-niveaux, placé à la hauteur où elle naît (en abscisse) et à celle où elle meurt (en ordonnée). Loin de la diagonale, une vraie forme ; tout près, du bruit. Sur la ligne ∞ du haut, les classes qui ne meurent jamais.",
+  "topo.pers.desc": "Diagramme de persistance de la hauteur : chaque composante, boucle ou cavité des sous-niveaux est une barre verticale qui part de la diagonale à la hauteur où elle naît (en abscisse) et monte jusqu'à celle où elle meurt (le point, en ordonnée). Une longue barre, loin de la diagonale, est une vraie forme ; une barre courte, du bruit. Les classes qui ne meurent jamais montent en tireté jusqu'à la ligne ∞.",
   "topo.pers.table": "Voir les paires",
   "topo.pers.col.dim": "Dimension",
   "topo.pers.col.birth": "Hauteur où elle naît",

@@ -573,6 +573,13 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .pers-shape.is-h1 { fill: var(--crit-saddle); }
 .pers-shape.is-h2 { fill: var(--crit-max); }
 .pers-point.is-noise .pers-shape { fill: var(--muted); opacity: 0.45; }
+/* The pair as an upright bar: from the diagonal (its birth) to the point (its death); dashed up to the ∞ line. */
+.pers-stem { stroke-width: 2; }
+.pers-stem.is-h0, .pers-foot.is-h0 { stroke: var(--crit-min); fill: var(--crit-min); }
+.pers-stem.is-h1, .pers-foot.is-h1 { stroke: var(--crit-saddle); fill: var(--crit-saddle); }
+.pers-stem.is-h2, .pers-foot.is-h2 { stroke: var(--crit-max); fill: var(--crit-max); }
+.pers-point.is-essential .pers-stem { stroke-dasharray: 4 3; }
+.pers-point.is-noise .pers-stem, .pers-point.is-noise .pers-foot { stroke: var(--muted); fill: var(--muted); opacity: 0.45; }
 .pers-key { width: 12px; height: 12px; margin-right: var(--space-1); vertical-align: middle; }
 
 /* Barcode and picked pair (sprint 39): a bar per pair in the colour of its dimension, the dashed height threshold
