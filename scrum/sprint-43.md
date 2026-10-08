@@ -11,6 +11,6 @@
 **Tests :** 1 test Node (taille du repère entre 56 et 110 px ; jetons `--axis-x`, `--axis-y`, `--axis-z` dominés par leur canal rouge, vert, bleu) ; 1 test Playwright (4 navigateurs à WebGL, Firefox sauté faute de WebGL en CI) : les pixels rouges, verts et bleus du coin, lus dans la capture, puis un coin différent après une rotation à la souris ; vérifié en retirant le dessin du repère (0 pixel). **Fait :** repère dessiné par three.js dans une petite vue orthographique du coin bas-gauche, dans la direction de la caméra, flèches et lettres cerclées de noir, lisible dans les deux thèmes ; aide de la fiche complétée.
 
 ## Rétro (Charles)
-- Ce qui a marché :
-- Ce que l'IA a mal fait :
-- À changer au prochain sprint :
+- Ce qui a marché : Repère dessiné dans le même canvas, qui suit la caméra, lisible dans les deux thèmes ; testé par les pixels de la capture, avant et après rotation.
+- Ce que l'IA a mal fait : Rien de notable ; le test ne peut pas tourner sous Firefox en CI, faute de WebGL.
+- À changer au prochain sprint : Rien de prévu : tous les projets sont terminés, la vitrine continue au fil des demandes.
