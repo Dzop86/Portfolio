@@ -23,7 +23,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide la review »), pour les sprints 39 et 40.
 
-- [ ] Sprint 41 : `src/extended.cpp` (cône sur les sur-niveaux, union-find des dimensions 2 et 3 en cohomologie, classement ordinaires, étendues, relatives) et `tests/test_extended.cpp` (dualités comme oracle) ; `topoc_extended` ; l'affichage sur la fiche. La paire selle-selle du tore correspond-elle à ce que tu attendais ?
+- [x] Sprint 41 : `src/extended.cpp` (cône sur les sur-niveaux, union-find des dimensions 2 et 3 en cohomologie, classement ordinaires, étendues, relatives) et `tests/test_extended.cpp` (dualités comme oracle) ; `topoc_extended` ; l'affichage sur la fiche. La paire selle-selle du tore correspond-elle à ce que tu attendais ?
+
+> Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« j'ai review, c'est ok »), pour le sprint 41.
 
 ## Constats
 
