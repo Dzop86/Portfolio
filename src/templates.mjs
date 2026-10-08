@@ -605,6 +605,12 @@ function contact({ t, data }) {
 
 function projectDetail(p, { lang, t, data }) {
   const { prev, next } = neighbours(data.projects, p.id);
+  // In plain words, for someone who is not a developer (D53): closed by default, opens without JavaScript.
+  const plain = pick(p.plain, lang);
+  const plainBlock = `<details class="plain" data-plain>
+  <summary><span class="plain-title">${esc(t('project.plain.title'))}</span> <span class="plain-hint">${esc(t('project.plain.hint'))}</span></summary>
+  <dl>${['what', 'why', 'shows'].map((k) => `<div><dt>${esc(t('project.plain.' + k))}</dt><dd>${esc(plain[k])}</dd></div>`).join('')}</dl>
+</details>`;
   // A link may name the page's language: "../dashboard/?lang={lang}".
   const links = Object.entries(p.links ?? {}).map(([kind, url]) => [kind, url.replaceAll('{lang}', lang)]);
   const linkBlock = links.length
@@ -622,6 +628,7 @@ ${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}
   <span class="badge badge-${esc(p.status)}">${esc(t(`projects.status.${p.status}`))}</span>
   <span class="meta">${esc(t('projects.sprint'))} ${esc(p.sprint)} · ${p.points} ${esc(t('projects.points'))}</span>
 </div>
+${plainBlock}
 ${teaching}
 ${linkBlock}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}

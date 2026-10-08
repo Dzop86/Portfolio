@@ -639,3 +639,12 @@ tr.is-picked { background: var(--surface-2); }
 .reeb-node.is-min { fill: var(--crit-min); }
 .reeb-node.is-saddle, .reeb-node.is-other { fill: var(--crit-saddle); }
 .reeb-node.is-max { fill: var(--crit-max); }
+
+/* In plain words (D53): a box at the top of each project page, closed by default; the summary row is a 44 px target. */
+.plain { margin: var(--space-4) 0; border: 1px solid var(--border-strong); border-left: 4px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
+.plain summary { cursor: pointer; min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); }
+.plain .plain-title { font-weight: 600; color: var(--text-strong); }
+.plain .plain-hint { color: var(--muted); font-size: 0.9rem; }
+.plain dl { margin: 0; padding: 0 var(--space-4) var(--space-4); display: grid; gap: var(--space-3); }
+.plain dt { font-weight: 600; color: var(--text-strong); }
+.plain dd { margin: var(--space-1) 0 0; max-width: 70ch; }

@@ -498,6 +498,38 @@ test('the topology viewer shows an orientation gizmo that turns with the camera 
   expect(errors).toEqual([]);
 });
 
+test('each project page explains the project in plain words, in a box that opens and closes (sprint 44)', async ({ page }) => {
+  // Two languages and four axe runs: more than the default 30 s for Firefox when five browsers run at once.
+  test.setTimeout(60000);
+  for (const [lang, title, what] of [['en', 'In short, no jargon', 'What it is'], ['fr', 'En bref, sans jargon', "Ce que c'est"]]) {
+    await page.goto(`/${lang}/project-ada.html`);
+    const box = page.locator('[data-plain]');
+    const summary = box.locator('summary');
+    const first = box.locator('dt').first();
+    await expect(summary).toContainText(title);
+    // Closed at first: the three sentences are hidden.
+    await expect(first).toBeHidden();
+    await summary.click();
+    await expect(first).toBeVisible();
+    await expect(first).toHaveText(what);
+    await expect(box.locator('dd')).toHaveCount(3);
+    // With the keyboard too.
+    await summary.focus();
+    await page.keyboard.press('Enter');
+    await expect(first).toBeHidden();
+    await page.keyboard.press('Space');
+    await expect(first).toBeVisible();
+    expect(await summary.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate((th) => document.documentElement.setAttribute('data-theme', th), theme);
+      const a11y = await new AxeBuilder({ page }).include('[data-plain]').withTags(['wcag2a', 'wcag2aa']).analyze();
+      expect(a11y.violations.map((v) => `${theme} ${v.id}: ${v.nodes.length}`)).toEqual([]);
+    }
+  }
+});
+
 test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

@@ -7,14 +7,14 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S43), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S44), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40 | 9 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40+S44 | 11 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S41+S43 | 36 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6+S42 | 10 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 204 points sur 43 sprints de deux semaines.
+Total : 206 points sur 44 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -80,6 +80,9 @@ Un sprint de 2 points, lib-c passe de 8 à 10. Sprint 42 : les mesures du projet
 
 ## Repère d'orientation (demande de Charles, 8 octobre 2026, D52)
 Un sprint de 1 point, topologie passe de 35 à 36. Sprint 43 : un petit repère x rouge, y vert, z bleu dans un coin de la visionneuse, qui tourne avec la caméra.
+
+## Chaque projet expliqué sans jargon (demande de Charles, 8 octobre 2026, D53)
+Un sprint de 2 points, la vitrine passe de 9 à 11. Sprint 44 : en haut de chaque fiche, un encart dépliable « En bref, sans jargon » pour une personne qui n'est pas informaticienne : ce qu'est le projet, à quoi il sert, ce qu'il montre des compétences de Charles.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.

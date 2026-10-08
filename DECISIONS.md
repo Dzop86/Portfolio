@@ -270,3 +270,9 @@ Le burndown comptait par projet entier, brûlé à son dernier sprint : réouvri
 **Alternatives :** un `AxesHelper` au centre du maillage (caché par lui, et à l'échelle du maillage) ; un repère en HTML par-dessus le canvas (une projection à recalculer à chaque image, en double de three.js).
 **Limites :** sans WebGL (Firefox en CI), pas de repère, comme pas de maillage.
 
+## D53. Chaque projet expliqué sans jargon
+**Choix (demande de Charles, 8 octobre 2026) :** sprint 44, 2 points (206 en tout, 44 sprints) ; la vitrine passe de 9 à 11. En haut de chaque fiche, sous le titre, un encart `<details>` « En bref, sans jargon », fermé par défaut : trois phrases (ce que c'est, à quoi ça sert, ce que ça montre des compétences de Charles), rangées dans `data/projects.json` (champ `plain`), en français et en anglais.
+**Pourquoi :** une personne des ressources humaines lit d'abord la fiche ; le résumé technique (`pitch`) parle aux informaticiens. `<details>` s'ouvre au clic, au clavier et au doigt sans JavaScript, se lit par les lecteurs d'écran et ne cache rien sur mobile.
+**Alternatives :** une fenêtre modale (bouton et `<dialog>`) : plus voyante, mais il faut du JavaScript, gérer le focus et la fermeture sur téléphone, pour le même contenu ; un encart toujours ouvert : il repousse la démonstration pour les visiteurs techniques.
+**Limites :** un test refuse une liste de mots techniques dans les résumés ; il ne garantit pas qu'un texte soit clair, seulement qu'il évite le jargon le plus courant.
+

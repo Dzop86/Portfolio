@@ -11,6 +11,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
+## Sprint 44 : à relire
+- [ ] Les 21 résumés « En bref, sans jargon » (`data/projects.json`, champ `plain`) : justes, à ton goût, et ce qu'ils disent de toi (« Charles a enseigné à l'université », « le cœur du métier de Charles ») te convient-il ? L'encart en haut des fiches (fermé par défaut) te paraît-il le bon choix ?
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
@@ -58,4 +61,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-08 | `src/lib.mjs` (`burndown`), `data/scrum.json` (`scopeSteps`) | (Claude) Réalisé (D49, sprint 40) : le reste se compte en points de stories, une story comptant au sprint dont le fichier la contient ; les ajouts D46-D47, D48 et D49 sont des marches après les sprints 34, 36 et 38, le passé ne bouge plus. Le backlog dit maintenant « 0 point de stories restant sur 203 » (1 avant cette story) au lieu de « 45 sur 196 » | Testé sur un exemple (marche, passé inchangé, reste = stories ouvertes) et sur les vraies données |
 | 2026-10-08 | page Gestion de projet | (Claude) Vu sur capture : les étiquettes « +9 (D46, D47) » des marches se chevauchaient, deux sprints seulement les séparent | Un repère par marche (info-bulle) et une ligne de légende chacune |
 | 2026-10-08 | `src/lib.mjs` (`progress`), `data/projects.json`, accueil | Signalé par Charles : l'accueil affichait « Projet en cours : Vitrine du portfolio, 4 points sur 9 » alors que tout était livré | (Claude) La vitrine, rouverte par les stories du sprint 40 (D49), n'avait jamais été repassée à « terminé » ; « en continu, par principe » était une formule de Claude, jamais une décision de Charles. Le calcul comptait les seules stories qui nomment le projet (4 points) contre toute son estimation (9) : il compare maintenant les stories du projet entre elles et ne montre un projet que s'il en reste d'ouvertes. Vitrine terminée (21 sur 21) ; le bandeau temporaire quitte l'accueil quand tout est terminé et qu'aucun sprint n'est en cours, comme prévu par D14 ; tests unitaires mis à jour |
+| 2026-10-08 | `tests/e2e/site.spec.js` | (Claude) Le test de l'encart sans jargon a dépassé une fois les 30 s sous Firefox, cinq navigateurs en parallèle (deux langues, quatre passages d'axe) ; non reproduit en 27 passages | Délai de 60 s, comme les autres tests lourds |
 | | | | |
