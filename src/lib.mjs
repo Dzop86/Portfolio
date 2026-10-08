@@ -195,12 +195,46 @@ export function lastSprint(label) {
  * from sprint 0 (nothing done) to `upTo`. A project counts as done at its last sprint once its status
  * is "done"; the showcase, built all along, stays in the remaining work until the end.
  */
-export function burndown(projects, upTo) {
-  const total = projects.reduce((acc, p) => acc + p.points, 0);
-  const remaining = Array.from({ length: upTo + 1 }, (_, k) => total - projects
-    .filter((p) => p.status === 'done' && lastSprint(p.sprint) <= k)
-    .reduce((acc, p) => acc + p.points, 0));
-  return { total, remaining };
+/**
+ * Burndown in story points (D49, sprint 40): after each sprint, the points of the planned stories not yet delivered,
+ * from the sprint files. A story counts for the sprint whose file holds it, so the past never moves; an abandoned
+ * one is no scope. `steps` are the scope added along the way ({ after, sprints, decisions }): the stories of
+ * `sprints` join the scope after sprint `after`, a vertical step in `path` there. Returns today's scope (`total`),
+ * the scope at the start, the points of the open stories, what is left after each sprint up to the last one that
+ * delivered something (`remaining`, steps included), the path to draw and the size of each step.
+ */
+export function burndown(sprints, steps = []) {
+  const numbers = new Set(sprints.map((s) => s.number));
+  const addedAfter = new Map();
+  for (const step of steps) {
+    for (const n of step.sprints) {
+      if (!numbers.has(n) || addedAfter.has(n)) throw new Error(`burndown: sprint ${n} is missing or in two scope steps`);
+      addedAfter.set(n, step.after);
+    }
+  }
+  const scope = (s) => s.stories.filter((x) => x.done || !x.closed).reduce((acc, x) => acc + x.points, 0);
+  const delivered = (s) => s.stories.filter((x) => x.done).reduce((acc, x) => acc + x.points, 0);
+  const plannedBy = (k, strict) => sprints.filter((s) => !addedAfter.has(s.number) || (strict ? addedAfter.get(s.number) < k : addedAfter.get(s.number) <= k))
+    .reduce((acc, s) => acc + scope(s), 0);
+  const doneBy = (k) => sprints.filter((s) => s.number <= k).reduce((acc, s) => acc + delivered(s), 0);
+  const last = Math.max(0, ...sprints.filter((s) => delivered(s) > 0).map((s) => s.number));
+  const remaining = [];
+  const path = [];
+  for (let k = 0; k <= last; k++) {
+    const before = plannedBy(k, true) - doneBy(k);
+    const after = plannedBy(k, false) - doneBy(k);
+    if (before !== after) path.push([k, before]);
+    path.push([k, after]);
+    remaining.push(after);
+  }
+  return {
+    total: sprints.reduce((acc, s) => acc + scope(s), 0),
+    start: plannedBy(0, true),
+    open: sprints.flatMap((s) => s.stories).filter((x) => !x.closed).reduce((acc, x) => acc + x.points, 0),
+    remaining,
+    path,
+    steps: steps.map((st) => ({ after: st.after, decisions: st.decisions, points: sprints.filter((s) => st.sprints.includes(s.number)).reduce((acc, s) => acc + scope(s), 0) })),
+  };
 }
 
 /**

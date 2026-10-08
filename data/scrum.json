@@ -2,6 +2,11 @@
   "sprintLengthWeeks": 2,
   "sprintCount": 40,
   "scopeDecisions": ["D25", "D31", "D32", "D45", "D46", "D47", "D48", "D49"],
+  "scopeSteps": [
+    { "after": 34, "sprints": [35, 36], "decisions": ["D46", "D47"] },
+    { "after": 36, "sprints": [37, 38], "decisions": ["D48"] },
+    { "after": 38, "sprints": [39, 40], "decisions": ["D49"] }
+  ],
   "phases": [
     {
       "sprints": "S1",

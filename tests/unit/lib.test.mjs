@@ -153,17 +153,38 @@ test('parseSprint needs the goal in both languages', () => {
   assert.throws(() => parseSprint(md, 'sprint-07.md'), /sprint-07\.md needs both/);
 });
 
-test('velocity and burndown follow the sprints and the done projects', () => {
+test('velocity follows the sprints', () => {
   const story = (points, done) => ({ text: 's', points, done, closed: done });
   const v = velocity([{ number: 2, stories: [story(3, true), story(2, false)] }, { number: 1, stories: [story(4, true)] }]);
   assert.deepEqual(v, [{ number: 1, committed: 4, done: 4 }, { number: 2, committed: 5, done: 3 }]);
-  const projects = [
-    { status: 'done', sprint: 'S1', points: 5 },
-    { status: 'done', sprint: 'S2-S3', points: 8 },
-    { status: 'done', sprint: 'S1+S3', points: 3 },
-    { status: 'in-progress', sprint: 'S1-S9', points: 5 },
-  ];
   assert.equal(lastSprint('S23-S25'), 25);
   assert.equal(lastSprint('S8+S16'), 16);
-  assert.deepEqual(burndown(projects, 3), { total: 21, remaining: [21, 16, 16, 5] });
+});
+
+test('the burndown counts delivered story points, and a scope added later is a step where it arrives (D49)', () => {
+  const story = (points, state) => ({ text: 's', points, done: state === 'done', closed: state !== 'open' });
+  const sprints = [
+    { number: 1, stories: [story(3, 'done'), story(2, 'done'), story(1, 'dropped')] },
+    { number: 2, stories: [story(4, 'done')] },
+    // Added after sprint 2: a step of 5 points there, the past untouched.
+    { number: 3, stories: [story(2, 'done'), story(3, 'open')] },
+  ];
+  const steps = [{ after: 2, sprints: [3], decisions: ['D9'] }];
+  const b = burndown(sprints, steps);
+  // A dropped story is no scope; today's scope is 14 points, 9 at the start.
+  assert.equal(b.total, 14);
+  assert.equal(b.start, 9);
+  assert.deepEqual(b.remaining, [9, 4, 5, 3]);
+  // The path draws the step as a vertical segment at sprint 2.
+  assert.deepEqual(b.path, [[0, 9], [1, 4], [2, 0], [2, 5], [3, 3]]);
+  assert.deepEqual(b.steps, [{ after: 2, decisions: ['D9'], points: 5 }]);
+  // What is left is exactly the open stories.
+  assert.equal(b.open, 3);
+  assert.equal(b.remaining.at(-1), b.open);
+  // Adding a step later changes nothing before it.
+  const before = burndown(sprints.slice(0, 2), []);
+  assert.deepEqual(b.remaining.slice(0, 2), before.remaining.slice(0, 2));
+  // A sprint in two steps, or a step on a sprint that does not exist, is a mistake in the data.
+  assert.throws(() => burndown(sprints, [...steps, { after: 1, sprints: [3], decisions: ['D8'] }]), /sprint 3/);
+  assert.throws(() => burndown(sprints, [{ after: 2, sprints: [7], decisions: ['D9'] }]), /sprint 7/);
 });

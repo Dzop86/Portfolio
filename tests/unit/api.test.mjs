@@ -58,7 +58,9 @@ test('the API is complete, bilingual where it is shown, and drawn from the same 
   assert.ok(sp.sprints.every((s) => s.goal.fr && s.goal.en));
   // No French-only text: the stories carry their points and state, not their wording.
   assert.ok(sp.sprints.every((s) => s.stories.every((st) => Object.keys(st).join() === 'points,done,closed')));
-  assert.equal(sp.burndown.remaining[0], sp.burndown.total);
+  // In story points from the first scope; what is left at the end is the open stories (D49).
+  assert.equal(sp.burndown.remaining[0], sp.burndown.start);
+  assert.equal(sp.burndown.remaining.at(-1), sp.burndown.open);
   assert.equal(sp.velocity.length, sp.sprints.length);
 
   // The campaign of projects/sql: 2 libraries x 3 families x 5 resolutions x 3 formats, 7 runs each.

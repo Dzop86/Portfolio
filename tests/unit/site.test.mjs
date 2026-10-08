@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { join, dirname, resolve } from 'node:path';
 import { build } from '../../src/build.mjs';
 import { renderPage, renderProjectPage } from '../../src/templates.mjs';
-import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT, velocity } from '../../src/lib.mjs';
+import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT, velocity, burndown } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
 const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
@@ -488,13 +488,17 @@ test('the project management page shows the backlog, the sprint log and the metr
     const velocityChart = html.slice(html.indexOf('data-chart="velocity"'), html.indexOf('</svg>', html.indexOf('data-chart="velocity"')));
     assert.equal((velocityChart.match(/class="chart-bar"/g) || []).length, sprints.length);
     const burn = html.slice(html.indexOf('data-chart="burndown"'), html.indexOf('</svg>', html.indexOf('data-chart="burndown"')));
-    assert.equal((burn.match(/class="chart-target"/g) || []).length, sprints.length + 1);
+    // In story points (D49): one point per sprint up to the last one that delivered, a labelled step per scope added.
+    const bd = burndown(sprints, scrum.scopeSteps);
+    assert.equal((burn.match(/class="chart-target"/g) || []).length, bd.remaining.length);
     assert.ok(html.includes(`>${scrum.sprintCount}</text>`), 'the burndown runs to the last planned sprint');
-    // The burndown starts from today's scope: it says so, and which decisions changed it.
-    const total = loadData().projects.reduce((acc, p) => acc + p.points, 0);
+    for (const st of bd.steps) assert.ok(burn.includes(`data-step="${st.after}"`) && html.includes(`data-step-key="${st.after}"`) && html.includes(`+${st.points} `), `${lang}: step after ${st.after}`);
+    // The lead gives the first scope and today's, and every decision that changed it.
     const lead = html.slice(html.indexOf('id="h-burndown"'), html.indexOf('data-chart="burndown"'));
-    assert.ok(lead.includes(String(total)), `${lang}: burndown lead gives the scope`);
+    assert.ok(lead.includes(String(bd.start)) && lead.includes(String(bd.total)), `${lang}: burndown lead gives the scope`);
     for (const d of scrum.scopeDecisions) assert.ok(lead.includes(d), `${lang}: burndown lead cites ${d}`);
+    // What the backlog says is left is the open stories, not the estimate of every reopened project.
+    if (open.length > 0) assert.match(html, new RegExp(`data-backlog-total>[^<]*\\b${bd.open}\\b[^<]*\\b${bd.total}\\b`), `${lang}: open stories`);
     for (const id of ['h-backlog', 'h-sprintlog', 'h-metrics', 'h-estimation', 'h-retro', 'h-risks']) assert.ok(html.includes(`id="${id}"`), id);
   }
 });

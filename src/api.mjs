@@ -74,8 +74,8 @@ export function buildApi(data) {
         stories: s.stories.map((st) => ({ points: st.points, done: st.done, closed: st.closed })),
       })),
       velocity: velocity(sprints),
-      // Up to the latest sprint opened, as on the project management page.
-      burndown: burndown(projects, Math.max(...sprints.map((s) => s.number))),
+      // In story points, the scope added along the way as steps (D49), as on the project management page.
+      burndown: burndown(sprints, scrum.scopeSteps),
     },
     'parallel-bench.json': JSON.parse(read('projects/parallele/data/bench.json')),
     'mesh-io.json': meshIo(read('projects/sql/data/measurements.csv')),

@@ -320,8 +320,8 @@ const inlineCode = (text) => esc(text).replace(/`([^`]+)`/g, '<code>$1</code>');
 
 function backlogSection({ lang, t, data }) {
   const open = data.projects.filter((p) => p.status !== 'done');
-  const { total } = burndown(data.projects, 0);
-  const remaining = open.reduce((acc, p) => acc + p.points, 0);
+  // What is left is the open stories, in story points (D49): not the whole estimate of every reopened project.
+  const { total, open: remaining } = burndown(data.sprints, data.scrum.scopeSteps);
   const rows = open.map((p) => `<tr>
       <th scope="row"><a href="./${projectPage(p.id)}.html">${esc(pick(p.name, lang))}</a></th>
       <td class="num">${p.points}</td>
@@ -332,7 +332,7 @@ function backlogSection({ lang, t, data }) {
   if (open.length === 0) {
     return `<section class="block" aria-labelledby="h-backlog">
   <h2 id="h-backlog">${esc(t('method.backlog'))}</h2>
-  <p data-backlog-empty>${esc(fill(t('method.backlog.empty'), { count: data.projects.length, total }))}</p>
+  <p data-backlog-empty>${esc(fill(t('method.backlog.empty'), { count: data.projects.length, total: data.projects.reduce((acc, p) => acc + p.points, 0) }))}</p>
 </section>`;
   }
   return `<section class="block" aria-labelledby="h-backlog">
@@ -344,7 +344,7 @@ function backlogSection({ lang, t, data }) {
       <tbody>${rows}</tbody>
     </table>
   </div>
-  <p class="meta">${esc(fill(t('method.backlog.total'), { remaining, total }))}</p>
+  <p class="meta" data-backlog-total>${esc(fill(t('method.backlog.total'), { remaining, total }))}</p>
 </section>`;
 }
 
@@ -430,14 +430,20 @@ function velocityChart({ lang, t, data }) {
 
 function burndownChart({ lang, t, data }) {
   const count = data.scrum.sprintCount;
-  const last = Math.max(...data.sprints.map((s) => s.number));
-  const { total, remaining } = burndown(data.projects, last);
+  const { total, start, remaining, path, steps } = burndown(data.sprints, data.scrum.scopeSteps);
+  const last = remaining.length - 1;
+  // The pace planned at the start: the first scope, down to 0 at the last sprint planned then.
+  const planned = Math.min(...steps.map((s) => s.after), count);
   const plotW = CHART.w - CHART.left - CHART.right;
   const plotH = CHART.h - CHART.top - CHART.bottom;
-  const max = Math.ceil(total / 50) * 50;
+  const max = Math.ceil(Math.max(...path.map(([, left]) => left)) / 50) * 50;
   const x = (k) => CHART.left + (k / count) * plotW;
   const y = (val) => CHART.top + plotH - (val / max) * plotH;
-  const line = remaining.map((left, k) => `${x(k)},${y(left)}`).join(' ');
+  const line = path.map(([k, left]) => `${x(k)},${y(left)}`).join(' ');
+  // Each scope added along the way: a mark at the top of its step (steps two sprints apart leave no room for text),
+  // named in its tooltip and in the legend.
+  const stepText = (st) => fill(t('method.burndown.step'), { points: st.points, after: st.after, decisions: st.decisions.join(', ') });
+  const stepLabels = steps.map((st) => `<g class="chart-hit" data-step="${st.after}"><title>${esc(stepText(st))}</title><circle class="chart-step" cx="${x(st.after)}" cy="${y(remaining[st.after])}" r="3.5"/></g>`).join('');
   const points = remaining.map((left, k) => `<g class="chart-hit"><title>${esc(fill(t('method.burndown.point'), { n: k, left }))}</title>
       <circle class="chart-target" cx="${x(k)}" cy="${y(left)}" r="9"/></g>`).join('');
   const end = remaining.at(-1);
@@ -445,8 +451,9 @@ function burndownChart({ lang, t, data }) {
     .map((k) => `<text class="chart-tick" x="${x(k)}" y="${CHART.h - 10}" text-anchor="middle">${k}</text>`).join('');
   const svg = `<svg class="chart" viewBox="0 0 ${CHART.w} ${CHART.h}" role="img" aria-labelledby="h-burndown" data-chart="burndown">
     ${axisY(max, 50, y)}
-    <line class="chart-ref" x1="${x(0)}" y1="${y(total)}" x2="${x(count)}" y2="${y(0)}"/>
+    <line class="chart-ref" x1="${x(0)}" y1="${y(start)}" x2="${x(planned)}" y2="${y(0)}"/>
     <polyline class="chart-line" points="${line}"/>
+    ${stepLabels}
     <circle class="chart-dot" cx="${x(last)}" cy="${y(end)}" r="4"/>
     <text class="chart-label" x="${x(last) + 10}" y="${y(end) - 8}">${esc(fill(t('method.burndown.end'), { left: end }))}</text>
     ${points}
@@ -455,9 +462,10 @@ function burndownChart({ lang, t, data }) {
   const legend = `<ul class="chart-legend plain">
     <li><span class="key key-line" aria-hidden="true"></span>${esc(t('method.burndown.actual'))}</li>
     <li><span class="key key-ref" aria-hidden="true"></span>${esc(t('method.burndown.ideal'))}</li>
+    ${steps.map((st) => `<li data-step-key="${st.after}"><span class="key key-step" aria-hidden="true"></span>${esc(stepText(st))}</li>`).join('')}
   </ul>`;
   const rows = remaining.map((left, k) => `<tr><th scope="row">${k}</th><td class="num">${left}</td></tr>`).join('');
-  return { total, remaining: end, last, count, svg, legend, table: `<table><thead><tr><th scope="col">${esc(t('method.sprint'))}</th><th scope="col" class="num">${esc(t('method.left'))}</th></tr></thead><tbody>${rows}</tbody></table>` };
+  return { total, start, remaining: end, last, count, svg, legend, table: `<table><thead><tr><th scope="col">${esc(t('method.sprint'))}</th><th scope="col" class="num">${esc(t('method.left'))}</th></tr></thead><tbody>${rows}</tbody></table>` };
 }
 
 function metricsSection({ lang, t, data }) {
@@ -476,7 +484,7 @@ function metricsSection({ lang, t, data }) {
   return `<section class="block" aria-labelledby="h-metrics">
   <h2 id="h-metrics">${esc(t('method.metrics'))}</h2>
   ${figure('velocity', t('method.velocity'), t('method.velocity.lead'), vel)}
-  ${figure('burndown', t('method.burndown'), fill(t('method.burndown.lead'), { count: bd.count, total: bd.total, decisions: data.scrum.scopeDecisions.join(', ') }), bd, bd.legend)}
+  ${figure('burndown', t('method.burndown'), fill(t('method.burndown.lead'), { start: bd.start, total: bd.total, steps: data.scrum.scopeSteps.flatMap((s) => s.decisions).join(', '), decisions: data.scrum.scopeDecisions.join(', ') }), bd, bd.legend)}
 </section>
 <section class="block" aria-labelledby="h-estimation">
   <h2 id="h-estimation">${esc(t('method.estimation'))}</h2>
