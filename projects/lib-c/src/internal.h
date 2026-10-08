@@ -17,6 +17,10 @@ mesh_status mesh__load_file(const char *path, char **data, size_t *size);
 /* OBJ reader over `len` bytes, which need not be NUL-terminated; a NUL byte is a syntax error. */
 mesh_status mesh__read_obj(const char *text, size_t len, mesh *out, size_t *error_line);
 
+/* Sorts `n` keys in increasing order by radix (LSD, 11-bit digits, only the passes the largest key needs), in
+ * linear time (D51: qsort took twice as long as reading the file). MESH_ERR_MEMORY if its buffer cannot be had. */
+mesh_status mesh__sort_keys(uint64_t *keys, size_t n);
+
 /* True for a binary STL (by size) or an ASCII one (starts with the keyword "solid"). */
 int mesh__looks_like_stl(const char *data, size_t size);
 

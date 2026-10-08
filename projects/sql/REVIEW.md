@@ -23,4 +23,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `sqlite/schema.sql` | (Claude) Médiane fausse dans la copie SQLite : `count(*) OVER` avec un `ORDER BY` compte de façon cumulée (cadre par défaut), donc « la ligne du milieu » glissait ; vu en comparant aux médianes de PostgreSQL (458,6 contre 474,9 ms) | Fenêtre sans `ORDER BY` pour le compte ; test qui compare chaque médiane à celle calculée en JavaScript (il échoue si l'on remet le bogue, vérifié) |
 | 2026-10-06 | `../../Dockerfile` | (Claude) L'image du site ne copiait pas les fichiers de `projects/sql` dont le build a besoin | Trois `COPY` ajoutés ; image construite et fichiers servis vérifiés |
 | 2026-10-06 | `../../tests/e2e/site.spec.js` | (Claude) Le test du bac à sable dépassait 30 s sous Firefox (trois chargements de la base et 5 s d'attente voulue) | Délai du test porté à 60 s |
+| 2026-10-08 | `../lib-c/src/topology.c` | (Claude) Suite du constat du 6 octobre : décision de Charles (D51), sprint 42 | Tri par base ; les chiffres de la campagne (`mesh-io`) datent d'avant et n'ont pas été remesurés, le README le dit |
 | | | | |

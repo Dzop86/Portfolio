@@ -12,6 +12,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide les relectures »).
 
+- [ ] Sprint 42 : `src/topology.c`, `mesh__sort_keys` (tri par base stable, histogrammes en une lecture, passes sautées) et les clés compactées ; `tests/test_topology.c`. Le tampon de la taille des clés te convient-il ?
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
@@ -27,4 +29,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-06 | `src/stl.c` | (Claude) Détecté par LeakSanitizer : sur une ligne contenant un NUL, le tampon renvoyé par `realloc` était perdu avant la sortie de boucle | Le tampon est conservé avant tout autre test |
 | 2026-10-06 | `src/stl.c` | (Claude) Détecté par un test : après soudure, les sommets sortaient dans l'ordre du tri et non du fichier | Numérotation par première apparition |
 | 2026-10-06 | `src/obj.c` | (Claude) Un export ZBrush réel (Pikachu de Charles, gardé en local) était refusé à cause d'un octet NUL final | NUL et blancs de fin ignorés, test (C10) |
+| 2026-10-08 | `src/topology.c` | (Claude) Constat du sprint 10 (`projects/sql/REVIEW.md`), décidé par Charles (D51) : `qsort` des clés d'arêtes coûtait deux fois la lecture | Tri par base : 1,7 à 1,9 fois plus rapide en natif sur tout le comptage, 1,6 fois sur la lecture complète en WebAssembly ; les 11 bits par chiffre gardés après essai de 8, 13 et 16 (mesures à ±10 %) |
+| 2026-10-08 | `src/topology.c` | (Claude) Détecté en compilant le WebAssembly : `size_t` y fait 32 bits, la comparaison du nombre de sommets avec 2^32 est toujours fausse, et Clang la refuse en `-Werror` (rien en natif) | Comparaison en 64 bits |
+| 2026-10-08 | `src/topology.c` | (Claude) Mutations : tri non stable, une passe en moins, mauvais saut de passe, copie finale oubliée, toutes attrapées. Survit, équivalente : une base de V − 1 au lieu de V (le petit sommet venant en premier, a·(V−1) + b reste injectif) | Rien à corriger |
 | | | | |
