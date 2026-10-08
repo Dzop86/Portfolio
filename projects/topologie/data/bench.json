@@ -1,0 +1,89 @@
+{
+  "mesh": "standing torus",
+  "runs": 3,
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i5-10400F CPU @ 2.90GHz",
+    "node": "v22.23.3"
+  },
+  "limits": {
+    "bytes": 33554432,
+    "triangles": 300000
+  },
+  "rows": [
+    {
+      "triangles": 10000,
+      "bytes": 315708,
+      "native": {
+        "elevation": 1.56,
+        "persistence": 7.13,
+        "reeb": 4.37
+      },
+      "wasm": {
+        "read": 23.42,
+        "elevation": 1.85,
+        "persistence": 9.29,
+        "reeb": 5.71
+      }
+    },
+    {
+      "triangles": 30000,
+      "bytes": 990689,
+      "native": {
+        "elevation": 4.96,
+        "persistence": 24.36,
+        "reeb": 13.36
+      },
+      "wasm": {
+        "read": 71.36,
+        "elevation": 5.64,
+        "persistence": 31.51,
+        "reeb": 16.72
+      }
+    },
+    {
+      "triangles": 100000,
+      "bytes": 3457764,
+      "native": {
+        "elevation": 19.77,
+        "persistence": 108.32,
+        "reeb": 49.67
+      },
+      "wasm": {
+        "read": 238.08,
+        "elevation": 21.13,
+        "persistence": 140.68,
+        "reeb": 60.58
+      }
+    },
+    {
+      "triangles": 300000,
+      "bytes": 10807420,
+      "native": {
+        "elevation": 68.46,
+        "persistence": 443.76,
+        "reeb": 161.73
+      },
+      "wasm": {
+        "read": 732.88,
+        "elevation": 69.11,
+        "persistence": 597.32,
+        "reeb": 189.48
+      }
+    },
+    {
+      "triangles": 1000000,
+      "bytes": 37581870,
+      "native": {
+        "elevation": 255.17,
+        "persistence": 2171.72,
+        "reeb": 587.84
+      },
+      "wasm": {
+        "read": 2508.6,
+        "elevation": 244.07,
+        "persistence": null,
+        "reeb": null
+      }
+    }
+  ]
+}

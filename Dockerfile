@@ -55,6 +55,8 @@ COPY projects/ada/data/automaton.json ./projects/ada/data/
 COPY projects/parallele/data/bench.json ./projects/parallele/data/
 # Ray tracer: the gain of several workers, measured by its script.
 COPY projects/raytracer/data/bench.json ./projects/raytracer/data/
+# Topology: native and WebAssembly computing times, measured by its script (sprint 40).
+COPY projects/topologie/data/bench.json ./projects/topologie/data/
 # React and Angular dashboards compared (D44).
 COPY projects/angular/data/comparison.json ./projects/angular/data/
 COPY --from=dashboard /app/projects/react/dist ./projects/react/dist

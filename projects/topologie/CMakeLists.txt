@@ -40,6 +40,11 @@ if(TOPO_C_API)
   set_target_properties(topoc PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
+# Computing times for the project page (sprint 40), read by scripts/bench.mjs; measure in Release.
+add_executable(topo_bench tools/topo_bench.cpp)
+target_link_libraries(topo_bench PRIVATE topo)
+topo_warnings(topo_bench)
+
 if(TOPO_BUILD_TESTS)
   enable_testing()
   include(FetchContent)
@@ -52,7 +57,7 @@ if(TOPO_BUILD_TESTS)
   FetchContent_MakeAvailable(googletest)
   include(GoogleTest)
 
-  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp tests/test_samples.cpp tests/test_morse.cpp tests/test_persistence.cpp tests/test_reeb.cpp)
+  add_executable(topo_tests tests/test_halfedge.cpp tests/test_invariants.cpp tests/test_curvature.cpp tests/test_samples.cpp tests/test_morse.cpp tests/test_persistence.cpp tests/test_reeb.cpp tests/test_bench.cpp)
   target_link_libraries(topo_tests PRIVATE topo mesh GTest::gtest_main)
   target_compile_definitions(topo_tests PRIVATE MESH_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/../lib-c/tests/data"
                                                 TOPO_SAMPLES="${CMAKE_CURRENT_SOURCE_DIR}/samples")

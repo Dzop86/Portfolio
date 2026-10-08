@@ -614,7 +614,7 @@ ${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}
 ${teaching}
 ${linkBlock}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
-${p.widget === 'topology-viewer' ? topoViewer(t) : ''}
+${p.widget === 'topology-viewer' ? topoViewer(t, lang) : ''}
 ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
 ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
@@ -676,14 +676,45 @@ const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orie
   'height.check', 'height.sum', 'tip.height', 'sublevel', 'pers.summary', 'pers.hidden', 'pers.toolarge', 'pers.dim.0',
   'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more', 'reeb.summary', 'reeb.genus', 'reeb.bound',
   'reeb.nodes', 'reeb.triangles', 'bars.alive', 'bars.hidden', 'pick.dies', 'pick.never', 'tour.step', 'tour.first',
-  'tour.second', 'tour.merge', 'tour.loop', 'tour.fill', 'tour.cavity', 'tour.end'];
+  'tour.second', 'tour.merge', 'tour.loop', 'tour.fill', 'tour.cavity', 'tour.end', 'time', 'time.read'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 // Persistence diagram marks, centred on 0 (D48): a disc for components, a triangle for loops, a square for
 // cavities, so that the dimension does not rest on colour alone. Shared with the viewer through data-shapes.
 export const PERS_SHAPES = ['M-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0', 'M0,-4.6L4.6,3.6H-4.6Z', 'M-3.6,-3.6H3.6V3.6H-3.6Z'];
 
+// Native and WebAssembly computing times of the viewer's steps, measured by projects/topologie/scripts/bench.mjs (sprint 40).
+export function readTopoBench() {
+  return JSON.parse(readFileSync(join(ROOT, 'projects/topologie/data/bench.json'), 'utf8'));
+}
+
+/** A duration in the table: whole milliseconds under a second, then seconds with two decimals. */
+export function benchDuration(ms, lang) {
+  const n = (x, d) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  return ms < 1000 ? `${n(Math.round(ms), 0)} ms` : `${n(ms / 1000, 2)} s`;
+}
+
+function topoBench(t, lang) {
+  const bench = readTopoBench();
+  const d = (ms) => benchDuration(ms, lang);
+  const n = (x, digits = 0) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  const mb = (bytes) => n(bytes / 1e6, 1);
+  const cell = (step, r) => (r.wasm[step] === null ? fill(t('topo.bench.refused'), { native: d(r.native[step]) })
+    : fill(t('topo.bench.pair'), { native: d(r.native[step]), wasm: d(r.wasm[step]) }));
+  const rows = bench.rows.map((r) => `<tr><th scope="row" class="num">${n(r.triangles)}</th><td class="num">${mb(r.bytes)} ${lang === 'fr' ? 'Mo' : 'MB'}</td>`
+    + `<td class="num">${d(r.wasm.read)}</td>${['elevation', 'persistence', 'reeb'].map((s) => `<td class="num">${esc(cell(s, r))}</td>`).join('')}</tr>`).join('');
+  const last = bench.rows.at(-1);
+  const head = ['triangles', 'size', 'read', 'elevation', 'persistence', 'reeb'].map((k, i) => `<th scope="col"${i ? ' class="num"' : ''}>${esc(t(`topo.bench.${k}`))}</th>`).join('');
+  return `<h3 id="h-topo-bench">${esc(t('topo.bench.title'))}</h3>
+  <p class="meta">${esc(fill(t('topo.bench.lead'), { runs: bench.runs, cpu: bench.machine.cpu }))}</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-topo-bench">
+    <table data-topo-bench><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  <p class="meta" data-topo-gpu>${esc(fill(t('topo.bench.gpu'), { p: d(last.native.persistence) }))}</p>
+  <p class="meta" data-topo-limit>${esc(fill(t('topo.bench.limit'), { mb: mb(last.bytes), read: d(last.wasm.read), limit: n(bench.limits.triangles) }))}</p>`;
+}
+
 // C++ topology compiled to WebAssembly, drawn with three.js (D16, D17). Error labels are shared with the lib-c demo.
-function topoViewer(t) {
+function topoViewer(t, lang) {
   const labels = {
     ...Object.fromEntries(TOPO_LABELS.map((k) => [k, t(`topo.label.${k}`)])),
     ...Object.fromEntries(['pers.axis.birth', 'pers.axis.death', 'bars.axis', 'tour.start', 'tour.next'].map((k) => [k, t(`topo.${k}`)])),
@@ -706,6 +737,7 @@ function topoViewer(t) {
     </div>
     <div>
       <dl class="demo-stats viewer-stats" data-result aria-live="polite"></dl>
+      <p class="meta" data-time="read"></p>
       <div class="legend" data-legend hidden>
         <div class="legend-bar"></div>
         <div class="legend-ticks"><span data-tick="1" data-side="-1"></span><span data-tick="0" data-side="-1"></span><span style="left:50%">0</span><span data-tick="0" data-side="1"></span><span data-tick="1" data-side="1"></span></div>
@@ -722,6 +754,7 @@ function topoViewer(t) {
         <div class="rt-slider"><label for="topo-level">${esc(t('topo.level'))}</label><input id="topo-level" type="range" min="0" max="1000" step="1" value="1000" data-level><output for="topo-level" data-level-value></output></div>
         <p class="meta" data-sublevel aria-live="polite"></p>
         <p data-critical></p>
+        <p class="meta" data-time="height"></p>
         <ul class="topo-keys" aria-hidden="true">${['min', 'saddle', 'max'].map((k) => `<li><span class="topo-key is-${k}"></span>${esc(t(`topo.critical.${k}`))}</li>`).join('')}</ul>
         <svg class="topo-chi" viewBox="0 0 300 120" role="img" aria-labelledby="topo-chi-title" data-chi><title id="topo-chi-title">${esc(t('topo.chi.title'))}</title></svg>
         <p class="meta">${esc(t('topo.height.note'))}</p>
@@ -729,6 +762,7 @@ function topoViewer(t) {
           <figcaption><strong>${esc(t('topo.pers.title'))}</strong></figcaption>
           <div class="rt-slider"><label for="topo-tau">${esc(t('topo.pers.tau'))}</label><input id="topo-tau" type="range" min="0" max="1000" step="1" value="0" data-tau><output for="topo-tau" data-tau-value></output></div>
           <p data-pers-summary aria-live="polite"></p>
+          <p class="meta" data-time="persistence"></p>
           <div class="topo-tour" data-tour>
             <p><strong>${esc(t('topo.tour.title'))}</strong> <span class="meta" data-tour-step></span></p>
             <p data-tour-text aria-live="polite">${esc(t('topo.tour.lead'))}</p>
@@ -753,6 +787,7 @@ function topoViewer(t) {
           <figcaption><strong>${esc(t('topo.reeb.title'))}</strong></figcaption>
           <label class="topo-check"><input type="checkbox" data-reeb-show> ${esc(t('topo.reeb.show'))}</label>
           <p data-reeb-summary aria-live="polite"></p>
+          <p class="meta" data-time="reeb"></p>
           <svg class="topo-reeb-flat" viewBox="0 0 300 300" role="img" aria-labelledby="topo-reeb-desc" data-reeb-flat><desc id="topo-reeb-desc">${esc(t('topo.reeb.desc'))}</desc></svg>
           <p class="meta">${esc(t('topo.reeb.note'))}</p>
         </figure>
@@ -761,6 +796,7 @@ function topoViewer(t) {
       <p class="meta">${esc(t('topo.note.boundary'))}</p>
     </div>
   </div>
+  ${topoBench(t, lang)}
   <noscript><p class="notice">${esc(t('demo.noscript'))}</p></noscript>
   <script type="module" src="../assets/topoviewer.js"></script>
 </section>`;

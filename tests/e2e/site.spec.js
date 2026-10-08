@@ -346,6 +346,33 @@ test('the topology viewer guides through the persistence step by step (sprint 39
   expect(errors).toEqual([]);
 });
 
+test('the topology viewer shows how long each step takes, and the measured table (sprint 40)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  // Measured in the browser, under each result.
+  await expect(viewer.locator('[data-time="read"]')).toHaveText(/^Read and analysed in (< 1 ms|[\d,]+ ms|[\d.]+ s) in your browser/);
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  for (const step of ['height', 'persistence', 'reeb']) {
+    await expect(viewer.locator(`[data-time="${step}"]`)).toHaveText(/^Computed in (< 1 ms|[\d,]+ ms|[\d.]+ s) in your browser \(WebAssembly/);
+  }
+  // Measured natively and in WebAssembly, from 10,000 to a million triangles; a million is refused by the page.
+  const rows = page.locator('[data-topo-bench] tbody tr');
+  await expect(rows).toHaveCount(5);
+  await expect(rows.first().locator('th')).toHaveText('10,000');
+  await expect(rows.last()).toContainText('refused by the page');
+  await expect(page.locator('[data-topo-gpu]')).toContainText('no GPU version');
+  await expect(page.locator('[data-topo-limit]')).toContainText('Why 32 MB?');
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

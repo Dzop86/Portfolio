@@ -12,10 +12,11 @@ const INVALID_MESH = 10;
 /**
  * Reads an OBJ or PLY file given as bytes. On success returns the invariants and copies of the arrays
  * (positions centred in the unit sphere, triangle indices, curvature density and angle defect per vertex);
- * otherwise { ok: false, status, message, line } with status 1..4 from lib-c, 'invalid' or 'too-large'.
+ * otherwise { ok: false, status, message, line } with status 1..4 from lib-c, 'invalid' or 'too-large'. The page keeps
+ * the limit of MAX_BYTES; the benchmark (projects/topologie/scripts/bench.mjs) lifts it to measure beyond.
  */
-export function readTopology(lib, bytes) {
-  if (bytes.byteLength > MAX_BYTES) return { ok: false, status: 'too-large' };
+export function readTopology(lib, bytes, maxBytes = MAX_BYTES) {
+  if (bytes.byteLength > maxBytes) return { ok: false, status: 'too-large' };
   const ptr = lib._malloc(Math.max(bytes.byteLength, 1));
   if (!ptr) return { ok: false, status: 'too-large' };
   try {
@@ -344,4 +345,19 @@ export function tour(pairs, lo, hi, noise = 0.02) {
   steps.push({ key: 'end', pair: null, level: 1000 });
   // In the order the level reaches them (a loop may be born before a second minimum).
   return steps.sort((a, b) => a.level - b.level);
+}
+
+/** Runs `fn` and returns its value with the time it took in milliseconds (sprint 40). */
+export function timed(fn, now = () => performance.now()) {
+  const start = now();
+  const value = fn();
+  return { value, ms: now() - start };
+}
+
+/** A duration for the page: "< 1 ms", whole milliseconds under a second, then seconds with two decimals. */
+export function duration(ms, lang) {
+  const n = (x, d) => x.toLocaleString(lang, { minimumFractionDigits: d, maximumFractionDigits: d });
+  if (ms < 1) return '< 1 ms';
+  if (ms < 1000) return `${n(Math.round(ms), 0)} ms`;
+  return `${n(ms / 1000, 2)} s`;
 }

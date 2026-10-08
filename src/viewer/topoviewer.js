@@ -8,8 +8,8 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, aliveAt, barcode, clipArcs, criticalCounts, diagram, elevation, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
-  persistence, quantileScale, readTopology, reeb, tour, turns,
+  AXES, aliveAt, barcode, clipArcs, criticalCounts, diagram, duration, elevation, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
+  persistence, quantileScale, readTopology, reeb, timed, tour, turns,
 } from '../assets/topo-api.js';
 
 const root = document.querySelector('[data-topo-viewer]');
@@ -49,6 +49,7 @@ function start(root) {
   const tourPrev = root.querySelector('[data-tour-prev]');
   const tourNext = root.querySelector('[data-tour-next]');
   const tourLead = tourText.textContent;
+  const times = Object.fromEntries([...root.querySelectorAll('[data-time]')].map((el) => [el.dataset.time, el]));
   const shapes = JSON.parse(root.dataset.shapes);
   const reebShow = root.querySelector('[data-reeb-show]');
   const reebSummary = root.querySelector('[data-reeb-summary]');
@@ -131,19 +132,31 @@ function start(root) {
 
   // The elevation of the mesh shown, along the chosen axis; recomputed by the C++ code when the axis changes.
   function computeHeight(r) {
-    r.elevation = elevation(r.lib, AXES[axisSelect.value]);
+    // Each step of the C++ code timed as the visitor waits for it (sprint 40).
+    const e = timed(() => elevation(r.lib, AXES[axisSelect.value]));
+    r.elevation = e.value;
     r.filtration = filtration(r.indices, r.elevation);
     r.heightColours = heightColours(r.elevation);
     r.counts = criticalCounts(r.elevation.critical);
-    r.persistence = persistence(r.lib, r.elevation);
+    const p = timed(() => persistence(r.lib, r.elevation));
+    r.persistence = p.value;
     r.pairIndex = new Map((r.persistence.pairs ?? []).map((q, i) => [q, i]));
-    r.reeb = reeb(r.lib);
+    const g = timed(() => reeb(r.lib));
+    r.reeb = g.value;
+    showTime('height', e.ms);
+    showTime('persistence', r.persistence.tooLarge ? null : p.ms);
+    showTime('reeb', r.reeb.tooLarge ? null : g.ms);
     const { height, order } = r.elevation;
     r.lo = height[order[0]];
     r.hi = height[order[order.length - 1]];
     r.tour = r.persistence.tooLarge ? [] : tour(r.persistence.pairs, r.lo, r.hi);
     r.tourAt = -1;
     r.picked = null;
+  }
+
+  function showTime(step, ms) {
+    times[step].hidden = ms === null;
+    if (ms !== null) times[step].textContent = fill(labels[step === 'read' ? 'time.read' : 'time'], { t: duration(ms, lang) });
   }
 
   // One sphere and one material per kind, shared by every marker and every mesh: clearing the group frees
@@ -639,8 +652,10 @@ function start(root) {
     errorBox.hidden = true;
     try {
       const l = await topo();
-      const r = readTopology(l, new Uint8Array(await bytes));
+      const data = new Uint8Array(await bytes);
+      const { value: r, ms } = timed(() => readTopology(l, data));
       if (!r.ok) return error(r);
+      showTime('read', ms);
       r.lib = l;
       invariants(r);
       show(r, name);

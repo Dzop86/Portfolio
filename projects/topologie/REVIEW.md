@@ -19,6 +19,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide »), pour les sprints 37 et 38.
 
 - [ ] Sprint 39 : `barcode`, `aliveAt`, `levelBetween` et `tour` de `src/assets/topo-api.js` et leurs tests ; dans `src/viewer/topoviewer.js`, le code-barres, la paire choisie (halos, seuil, listes à tabulation mobile) et l'explication guidée. Le diagramme se lit-il maintenant sans connaître la persistance ?
+- [ ] Sprint 40 : `tools/bench.hpp`, `tools/topo_bench.cpp`, `scripts/bench.mjs` (même tore en C++ et en JavaScript, meilleur de 3) et `data/bench.json` ; les temps affichés par la visionneuse ; les notes GPU et 32 Mo de la fiche.
 
 ## Constats
 
@@ -45,4 +46,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Limite assumée : les barres (10 unités de haut) et les points du nuage ne font pas 44 px au doigt ; au toucher, le chemin conforme passe par les boutons du tableau des paires (44 px), noté dans D49 | Rien à corriger ; signalé pour la relecture |
 | 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit : `focusin` n'arrive pas des éléments SVG, une barre atteinte au clavier n'était pas choisie | Écouteur `focus` en phase de capture, et les flèches choisissent la barre elles-mêmes |
 | 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit, instrumenté : choisir une paire affiche une phrase qui décale la page, et WebKit envoie alors un `pointerover` puis un `pointermove` immobile pour la barre glissée sous le pointeur, qui reprenait la place de la barre choisie au clavier ; `movementX` ne distingue rien (0 aussi pour un vrai mouvement) | Survol par `pointermove` seulement, retenu si la position diffère de la précédente (suivie sur toute la page) |
+| 2026-10-08 | `Dockerfile` | (Claude) Détecté par `docker-context.test.mjs` : le tableau des temps (`projects/topologie/data/bench.json`) n'était pas copié dans l'image, la construction du site dans Docker aurait échoué | Ligne `COPY` ajoutée |
+| 2026-10-08 | `scripts/bench.mjs` | (Claude) Constat de mesure : en WebAssembly, lire l'OBJ coûte plus que tout le reste (2,5 s pour 37 Mo, contre 0,24 s pour la hauteur) ; c'est elle qui justifie la limite de 32 Mo, pas la persistance | Chiffre repris dans la note de la fiche |
 | | | | |
