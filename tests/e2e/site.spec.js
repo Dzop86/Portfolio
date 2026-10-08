@@ -380,6 +380,46 @@ test('the topology viewer shows how long each step takes, and the measured table
   expect(errors).toEqual([]);
 });
 
+test('the topology viewer pairs the torus loops saddle to saddle by extended persistence (sprint 41)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  const ext = page.getByRole('listbox', { name: 'Extended persistence' });
+  // The standing torus: its four classes that never die going up are paired coming down.
+  await expect(viewer.locator('[data-ext-summary]')).toHaveText('0 ordinary pair(s), 4 extended and 0 relative.');
+  await expect(ext.getByRole('option')).toHaveCount(4);
+  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText('1 extended pair(s) of dimension 1 go up');
+  await expect(viewer.locator('[data-ext-reeb-text]')).toContainText('the Reeb graph has 1 loop(s)');
+  await expect(viewer.locator('[data-time="extended"]')).toHaveText(/^Computed in /);
+  // The Reeb graph's loop: from the lower saddle up to the upper one, drawn in the mesh, the threshold between.
+  await page.getByRole('button', { name: "Show the Reeb graph's loop" }).click();
+  await expect(page.getByRole('checkbox', { name: 'Show the graph inside the mesh' })).toBeChecked();
+  const pick = viewer.locator('[data-pick]');
+  await expect(pick).toHaveText(/^loop \(H1\), extended pair: born at vertex #\d+ at height [\d.]+, dies at vertex #\d+ at height [\d.]+\./);
+  const [, birth, death] = (await pick.textContent()).match(/height (\d+(?:\.\d+)?), dies at vertex #\d+ at height (\d+(?:\.\d+)?)/);
+  expect(Number(death)).toBeGreaterThan(Number(birth));
+  await expect(ext.locator('[aria-selected=true]')).toHaveCount(1);
+  // With the keyboard, from pair to pair; the one coming down is born higher than it dies.
+  await ext.getByRole('option').first().focus();
+  await page.keyboard.press('End');
+  await expect(ext.getByRole('option').last()).toHaveAttribute('aria-selected', 'true');
+  await expect(pick).toContainText('extended pair');
+
+  // The pits: a disc, its one component paired from the bottom to the top, the pits ordinary, relative pairs going down.
+  await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
+  await expect(viewer.locator('[data-ext-summary]')).toHaveText(/^3 ordinary pair\(s\), 1 extended and \d+ relative\.$/);
+  await expect(viewer.locator('[data-ext-reeb]')).toBeHidden();
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

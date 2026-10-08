@@ -8,7 +8,7 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, aliveAt, barcode, clipArcs, criticalCounts, diagram, duration, elevation, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
+  AXES, aliveAt, barcode, clipArcs, criticalCounts, diagram, duration, elevation, extendedPersistence, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
   persistence, quantileScale, readTopology, reeb, timed, tour, turns,
 } from '../assets/topo-api.js';
 
@@ -49,6 +49,11 @@ function start(root) {
   const tourPrev = root.querySelector('[data-tour-prev]');
   const tourNext = root.querySelector('[data-tour-next]');
   const tourLead = tourText.textContent;
+  const extFigure = root.querySelector('[data-ext-figure]');
+  const extPlot = root.querySelector('[data-ext]');
+  const extSummary = root.querySelector('[data-ext-summary]');
+  const extReebText = root.querySelector('[data-ext-reeb-text]');
+  const extReeb = root.querySelector('[data-ext-reeb]');
   const times = Object.fromEntries([...root.querySelectorAll('[data-time]')].map((el) => [el.dataset.time, el]));
   const shapes = JSON.parse(root.dataset.shapes);
   const reebShow = root.querySelector('[data-reeb-show]');
@@ -140,9 +145,15 @@ function start(root) {
     r.counts = criticalCounts(r.elevation.critical);
     const p = timed(() => persistence(r.lib, r.elevation));
     r.persistence = p.value;
-    r.pairIndex = new Map((r.persistence.pairs ?? []).map((q, i) => [q, i]));
     const g = timed(() => reeb(r.lib));
     r.reeb = g.value;
+    // Extended persistence (D50): its pairs, tagged with their kind, can be picked like the ordinary ones.
+    const x = timed(() => extendedPersistence(r.lib, r.elevation));
+    r.extended = x.value;
+    const tagged = r.extended.tooLarge ? [] : ['ordinary', 'extended', 'relative'].flatMap((kind) => r.extended[kind].map((q) => ({ ...q, kind })));
+    r.pickables = [...(r.persistence.pairs ?? []), ...tagged];
+    r.pairIndex = new Map(r.pickables.map((q, i) => [q, i]));
+    showTime('extended', r.extended.tooLarge ? null : x.ms);
     showTime('height', e.ms);
     showTime('persistence', r.persistence.tooLarge ? null : p.ms);
     showTime('reeb', r.reeb.tooLarge ? null : g.ms);
@@ -313,7 +324,8 @@ function start(root) {
   // Bars and points are options of two listboxes, reached with Tab then the arrows (roving tabindex); their index in
   // the pairs is shared with the table, so that a pair picked anywhere is marked everywhere.
   function option(r, q) {
-    const label = fill(labels['pers.point'], { dim: labels[`pers.dim.${q.dimension}`], birth: value(r, q.birth), death: value(r, q.death) });
+    const vars = { dim: labels[`pers.dim.${q.dimension}`], birth: value(r, q.birth), death: value(r, q.death), kind: labels[`ext.kind.${q.kind}`] };
+    const label = fill(labels[q.kind ? 'ext.point' : 'pers.point'], vars);
     return `role="option" tabindex="-1" aria-selected="false" aria-label="${escapeXml(label)}" data-pair="${r.pairIndex.get(q)}"`;
   }
 
@@ -387,7 +399,7 @@ function start(root) {
       if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(on));
     }
     // Roving tabindex: the picked option, or the first one, is the listbox's tab stop.
-    for (const list of [bars, persPlot]) {
+    for (const list of [bars, persPlot, extPlot]) {
       const options = [...list.querySelectorAll('[role=option]')];
       const stop = options.find((o) => o.classList.contains('is-picked')) ?? options[0];
       options.forEach((o) => o.setAttribute('tabindex', o === stop ? '0' : '-1'));
@@ -408,7 +420,7 @@ function start(root) {
       render();
       return;
     }
-    const q = r.persistence.pairs[index];
+    const q = r.pickables[index];
     for (const v of [q.birthVertex, q.deathVertex]) {
       if (v === null) continue;
       const m = new Mesh(haloBall, haloMaterial);
@@ -416,12 +428,14 @@ function start(root) {
       m.position.set(r.positions[3 * v], r.positions[3 * v + 1], r.positions[3 * v + 2]);
       halos.add(m);
     }
-    pickText.textContent = fill(labels[q.deathVertex === null ? 'pick.never' : 'pick.dies'], {
+    pickText.textContent = fill(labels[q.kind ? 'pick.ext' : q.deathVertex === null ? 'pick.never' : 'pick.dies'], {
       dim: labels[`pers.dim.${q.dimension}`], bv: q.birthVertex, dv: q.deathVertex, birth: value(r, q.birth), death: value(r, q.death),
+      kind: labels[`ext.kind.${q.kind}`],
     });
     pickText.hidden = false;
     if (move) {
-      level.value = String(levelBetween(q, r.lo, r.hi));
+      // A pair born going down is born higher than it dies: the threshold goes between its two heights all the same.
+      level.value = String(levelBetween({ birth: Math.min(q.birth, q.death), death: Math.max(q.birth, q.death) }, r.lo, r.hi));
       applyLevel();
     } else render();
   }
@@ -437,7 +451,7 @@ function start(root) {
     const el = pairOf(e.target);
     if (e.pointerType === 'mouse' && el && Number(el.dataset.pair) !== shape?.userData.picked) pick(Number(el.dataset.pair));
   }
-  for (const list of [bars, persPlot]) {
+  for (const list of [bars, persPlot, extPlot]) {
     list.addEventListener('pointermove', hover);
     list.addEventListener('click', (e) => { const el = pairOf(e.target); if (el) pick(Number(el.dataset.pair)); });
     // `focus` in the capture phase: WebKit sends no `focusin` for SVG elements.
@@ -483,6 +497,55 @@ function start(root) {
 
   tourNext.addEventListener('click', () => { if (shape) { shape.userData.tourAt += 1; showTour(); } });
   tourPrev.addEventListener('click', () => { if (shape) { shape.userData.tourAt -= 1; showTour(); } });
+
+  // --- extended persistence (sprint 41, D50) ---------------------------------------------------------
+  // Same square as the scatter plot, without the ∞ line (every class dies), each pair an upright bar from the diagonal
+  // at its birth to its death, up or down; the kind shows in the mark (filled, ringed, hollow).
+  function drawExtended(r) {
+    const x = r.extended;
+    extFigure.querySelectorAll('[data-ext], [data-ext-reeb], [data-ext-reeb-text]').forEach((el) => el.toggleAttribute('hidden', Boolean(x.tooLarge)));
+    if (x.tooLarge) {
+      extSummary.textContent = fill(labels['pers.toolarge'], { limit: num(x.limit) });
+      return;
+    }
+    const { lo, hi } = r;
+    const t = persistenceThreshold(r);
+    const span = hi > lo ? hi - lo : 1;
+    const px = (v) => 40 + ((v - lo) / span) * 245;
+    const py = (v) => 285 - ((v - lo) / span) * 245;
+    // Zero-length pairs (plateau ties, made by tie-breaking) are left out, as in the ordinary diagram.
+    const all = r.pickables.filter((q) => q.kind && (q.kind === 'extended' || q.death !== q.birth));
+    // The extended pairs first (a handful, the point of this figure), then the longest others, at most 2000 drawn.
+    const life = (q) => Math.abs(q.death - q.birth);
+    const drawn = [...all].sort((a, b) => (a.kind === 'extended') !== (b.kind === 'extended') ? (a.kind === 'extended' ? -1 : 1) : life(b) - life(a)).slice(0, 2000);
+    const marks = drawn.map((q) => {
+      const rise = (py(q.birth) - py(q.death)).toFixed(1);
+      return `<g ${option(r, q)} class="pers-point is-${q.kind}${q.kind !== 'extended' && life(q) <= t ? ' is-noise' : ''}" transform="translate(${px(q.birth).toFixed(1)} ${py(q.death).toFixed(1)})">`
+        + `<line class="pers-stem is-h${q.dimension}" x1="0" y1="${rise}" x2="0" y2="0"/><circle class="pers-foot is-h${q.dimension}" cx="0" cy="${rise}" r="2"/>`
+        + `<circle class="pers-ring" r="7"/><path class="pers-shape is-h${q.dimension}" d="${shapes[q.dimension]}"/></g>`;
+    }).join('');
+    extPlot.innerHTML = `${extPlot.querySelector('desc').outerHTML}<g aria-hidden="true">`
+      + `<line class="pers-axis" x1="40" x2="285" y1="285" y2="285"/><line class="pers-axis" x1="40" x2="40" y1="40" y2="285"/>`
+      + `<text x="4" y="289">0</text><text x="285" y="299" text-anchor="end">${num(hi - lo, 2)}</text><text x="4" y="44">${num(hi - lo, 2)}</text>`
+      + `<text x="162" y="314" text-anchor="middle">${escapeXml(labels['pers.axis.birth'])}</text>`
+      + `<text transform="translate(30 162) rotate(-90)" text-anchor="middle">${escapeXml(labels['pers.axis.death'])}</text>`
+      + `<line class="pers-diagonal" x1="${px(lo)}" y1="${py(lo)}" x2="${px(hi)}" y2="${py(hi)}"/></g>${marks}`;
+    const count = (kind) => num(all.filter((q) => q.kind === kind).length);
+    extSummary.textContent = fill(labels['ext.summary'], { ord: count('ordinary'), ext: count('extended'), rel: count('relative') });
+    const up = all.filter((q) => q.kind === 'extended' && q.dimension === 1 && q.death > q.birth);
+    extReebText.textContent = fill(labels['ext.reeb'], { up: up.length, loops: r.reeb.tooLarge ? '—' : r.reeb.loops });
+    extReeb.hidden = up.length === 0;
+    r.reebLoopPair = up.length ? r.pairIndex.get(up[0]) : null;
+    markPicked(r);
+  }
+
+  // The pair of the Reeb graph's loop: its two saddles circled, the graph drawn in the mesh, the threshold between.
+  extReeb.addEventListener('click', () => {
+    const r = shape?.userData;
+    if (!r || r.reebLoopPair === null) return;
+    reebShow.checked = true;
+    pick(r.reebLoopPair);
+  });
 
   function escapeXml(text) {
     return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -571,6 +634,7 @@ function start(root) {
     if (height) {
       drawPersistence();
       drawReeb(r);
+      drawExtended(r);
       showTour();
     }
     applyLevel();
@@ -581,6 +645,7 @@ function start(root) {
   reebShow.addEventListener('change', applyLevel);
   tau.addEventListener('input', () => {
     drawPersistence();
+    if (shape) drawExtended(shape.userData);
     applyLevel();
   });
   axisSelect.addEventListener('change', () => {
