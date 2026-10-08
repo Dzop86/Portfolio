@@ -32,3 +32,20 @@ Le choix du projet et de sa pile (Godot 4 en C#, règles partagées, ASP.NET Cor
 ## T6. Fin de combat garantie
 **Choix :** match nul après 50 tours.
 **Pourquoi :** deux combattants qui ne peuvent pas s'atteindre (un trou entre eux) ne doivent pas faire tourner un combat sans fin ; les tests et le serveur ont besoin d'une borne.
+
+## T7. Des modèles 3D vus en caméra isométrique (choix de Charles, sprint 46)
+**Choix :** les petits modèles 3D de Kenney (Mini Characters, Mini Dungeon, Nature Kit, CC0) sous une caméra orthographique inclinée à 30 degrés (chaque case est un losange deux fois plus large que haut), plutôt que ses sprites 2D isométriques.
+**Pourquoi :** comparés sur une même scène (captures montrées à Charles) : le pack 2D, plus fini tel quel, n'a qu'un personnage, sans animation d'attaque ni de mort ; les modèles 3D donnent 12 personnages et un orc, chacun avec plus de vingt animations (marche, attaque, tir, mort), se recolorent et s'équipent pour la création de personnage (sprint 48), et les kits donnent les décors. C'est aussi le choix de Dofus 3.
+**Alternatives :** sprites 2D (un seul personnage, à compléter par des dessins faits à la main) ; rendre les modèles 3D en sprites (plus de travail pour le même résultat).
+**Limites :** style « low poly » simple ; Kenney n'a ni sanglier ni crapaud : les monstres de l'entraînement deviennent un orque et un braconnier, leurs sorts une massue et une fronde (mêmes valeurs, mêmes combats). La projection 2D du sprint 45 (`Iso.cs`) ne sert plus, la case sous la souris se trouve par un rayon de la caméra : retirée avec ses tests.
+
+## T8. Le côté joueur hors du moteur, et un auto-test par les commandes
+**Choix :** `Rpg.Client`, une bibliothèque sans Godot, porte tout ce qu'un joueur peut faire (choisir un sort, survoler, cliquer, finir son tour) et ce qu'il voit (aperçu, textes) ; le client Godot ne fait que dessiner. Option `--selftest` : un combat entier joué par ces commandes, chaque événement passé aux vues, puis vérifié par rejeu et contre l'état des vues.
+**Pourquoi :** tester des clics dans un moteur est lent et fragile ; ici, xUnit vérifie 200 combats joués par les commandes, et la CI vérifie sur trois systèmes, et dans l'exécutable exporté, que l'affichage suit le combat. Même principe que le client Godot du roguelike.
+**Alternatives :** GdUnit4 (tests dans le moteur : plus près du rendu, mais une dépendance de plus et des tests plus lents) ; des tests par captures d'écran (fragiles d'un pilote graphique à l'autre).
+**Limites :** l'auto-test ne voit pas l'image : une couleur mal choisie ou un panneau mal placé ne se voit que sur les captures (relues à chaque changement).
+
+## T9. Les données dans la bibliothèque, et l'apparence dans les données
+**Choix :** les fichiers de `data/` sont intégrés à `Rpg.Core` (ressources) ; chaque combattant y a un `look`, le nom de son modèle 3D, que les règles ignorent.
+**Pourquoi :** le jeu exporté n'a pas le dossier du dépôt ; le serveur (sprint 47) lira les mêmes données. Un nouveau monstre reste une modification de données, apparence comprise.
+**Limites :** changer les données demande de recompiler ; le simulateur garde `--data` pour essayer un dossier modifié.

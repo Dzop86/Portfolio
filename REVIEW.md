@@ -19,6 +19,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 ## Sprint 45 : à relire
 - [ ] Les règles du RPG tactique : les trois points de `projects/rpg/REVIEW.md` (déroulé du combat, règle des coins de la ligne de vue, format des données).
 
+## Sprint 46 : à relire
+- [ ] Le client Godot du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le jeu chez toi, contrôleur et enchaînement).
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
