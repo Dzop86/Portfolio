@@ -501,16 +501,20 @@ test('the topology viewer shows an orientation gizmo that turns with the camera 
 test('each project page explains the project in plain words, in a box that opens and closes (sprint 44)', async ({ page }) => {
   // Two languages and four axe runs: more than the default 30 s for Firefox when five browsers run at once.
   test.setTimeout(60000);
-  for (const [lang, title, what] of [['en', 'In short, no jargon', 'What it is'], ['fr', 'En bref, sans jargon', "Ce que c'est"]]) {
+  for (const [lang, title, what, open, close] of [['en', 'In short, no jargon', 'What it is', 'Read the summary', 'Close'], ['fr', 'En bref, sans jargon', "Ce que c'est", 'Lire le résumé', 'Refermer']]) {
     await page.goto(`/${lang}/project-ada.html`);
     const box = page.locator('[data-plain]');
     const summary = box.locator('summary');
     const first = box.locator('dt').first();
     await expect(summary).toContainText(title);
-    // Closed at first: the three sentences are hidden.
+    // Closed at first: the three sentences are hidden, and it says it can be opened (Charles's review).
     await expect(first).toBeHidden();
+    await expect(summary.getByText(open)).toBeVisible();
+    await expect(summary.getByText(close)).toBeHidden();
     await summary.click();
     await expect(first).toBeVisible();
+    await expect(summary.getByText(close)).toBeVisible();
+    await expect(summary.getByText(open)).toBeHidden();
     await expect(first).toHaveText(what);
     await expect(box.locator('dd')).toHaveCount(3);
     // With the keyboard too.

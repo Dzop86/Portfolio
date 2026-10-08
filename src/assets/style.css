@@ -645,6 +645,18 @@ tr.is-picked { background: var(--surface-2); }
 .plain summary { cursor: pointer; min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); }
 .plain .plain-title { font-weight: 600; color: var(--text-strong); }
 .plain .plain-hint { color: var(--muted); font-size: 0.9rem; }
+/* It must look clickable (Charles's review): display: flex hides the browser's own triangle, so a chevron that turns,
+   an explicit "Read the summary" / "Close" on the right, and a hover state. */
+.plain summary { list-style: none; }
+.plain summary::-webkit-details-marker { display: none; }
+.plain summary:hover { background: var(--surface-2); }
+.plain summary:hover .plain-action { text-decoration: underline; }
+.plain-chevron { width: 0.6em; height: 0.6em; border-right: 2px solid var(--text-strong); border-bottom: 2px solid var(--text-strong); transform: rotate(-45deg); transition: transform 0.15s; flex: none; margin-right: var(--space-1); }
+.plain[open] .plain-chevron { transform: rotate(45deg); }
+.plain-action { margin-left: auto; font-weight: 600; color: var(--text-strong); white-space: nowrap; }
+.plain .plain-close, .plain[open] .plain-open { display: none; }
+.plain[open] .plain-close { display: inline; }
+@media (prefers-reduced-motion: reduce) { .plain-chevron { transition: none; } }
 .plain dl { margin: 0; padding: 0 var(--space-4) var(--space-4); display: grid; gap: var(--space-3); }
 .plain dt { font-weight: 600; color: var(--text-strong); }
 .plain dd { margin: var(--space-1) 0 0; max-width: 70ch; }

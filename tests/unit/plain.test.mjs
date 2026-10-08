@@ -36,12 +36,17 @@ test('every project has its three plain sentences in each language, short and wi
 test('the plain box sits at the top of every project page, closed, in the page language', () => {
   const out = build(mkdtempSync(join(tmpdir(), 'plain-')));
   const labels = { fr: 'En bref, sans jargon', en: 'In short, no jargon' };
+  const actions = { fr: ['Lire le résumé', 'Refermer'], en: ['Read the summary', 'Close'] };
   for (const lang of LANGS) {
     for (const p of projects) {
       const html = readFileSync(join(out, lang, `${projectPage(p.id)}.html`), 'utf8');
       const box = html.match(/<details class="plain" data-plain>([\s\S]*?)<\/details>/);
       assert.ok(box, `${lang} ${p.id}`);
       assert.ok(box[1].includes(labels[lang]), `${lang} ${p.id}: title`);
+      // It says it opens, and how to close it (Charles's review: it did not look clickable).
+      const summary = box[1].match(/<summary>([\s\S]*?)<\/summary>/)[1];
+      assert.ok(summary.includes('plain-chevron'), `${lang} ${p.id}: chevron`);
+      for (const a of actions[lang]) assert.ok(summary.includes(esc(a)), `${lang} ${p.id}: ${a}`);
       for (const key of ['what', 'why', 'shows']) assert.ok(box[1].includes(esc(p.plain[lang][key])), `${lang} ${p.id}: ${key}`);
       // Before the demonstrations and the links: right under the title and the status.
       assert.ok(html.indexOf('data-plain') < html.indexOf('class="actions'), `${lang} ${p.id}: before the links`);

@@ -608,7 +608,7 @@ function projectDetail(p, { lang, t, data }) {
   // In plain words, for someone who is not a developer (D53): closed by default, opens without JavaScript.
   const plain = pick(p.plain, lang);
   const plainBlock = `<details class="plain" data-plain>
-  <summary><span class="plain-title">${esc(t('project.plain.title'))}</span> <span class="plain-hint">${esc(t('project.plain.hint'))}</span></summary>
+  <summary><span class="plain-chevron" aria-hidden="true"></span><span class="plain-title">${esc(t('project.plain.title'))}</span> <span class="plain-hint">${esc(t('project.plain.hint'))}</span><span class="plain-action"><span class="plain-open">${esc(t('project.plain.open'))}</span><span class="plain-close">${esc(t('project.plain.close'))}</span></span></summary>
   <dl>${['what', 'why', 'shows'].map((k) => `<div><dt>${esc(t('project.plain.' + k))}</dt><dd>${esc(plain[k])}</dd></div>`).join('')}</dl>
 </details>`;
   // A link may name the page's language: "../dashboard/?lang={lang}".

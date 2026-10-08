@@ -110,6 +110,8 @@
   "project.back": "All projects",
   "project.plain.title": "In short, no jargon",
   "project.plain.hint": "for non-developers",
+  "project.plain.open": "Read the summary",
+  "project.plain.close": "Close",
   "project.plain.what": "What it is",
   "project.plain.why": "What it is for",
   "project.plain.shows": "What it shows",
