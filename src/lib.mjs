@@ -257,8 +257,10 @@ export function progress(projects, sprints) {
     projects: projects
       .filter((p) => p.status === 'in-progress')
       .map((p) => ({ p, own: stories.filter((s) => names(p.id).test(s.text)) }))
-      .filter(({ own }) => own.length > 0)
-      .map(({ p, own }) => ({ id: p.id, done: sum(own.filter((s) => s.done)), total: Math.max(p.points, sum(own)) })),
+      // Only a project with stories still open is under way; its points are those of the stories that name it (its
+      // estimate also covers early stories that never did: the showcase showed "4 points of 9" with nothing open).
+      .filter(({ own }) => own.some((s) => !s.closed))
+      .map(({ p, own }) => ({ id: p.id, done: sum(own.filter((s) => s.done)), total: sum(own) })),
   };
 }
 

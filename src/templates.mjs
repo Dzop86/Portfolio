@@ -115,10 +115,12 @@ function progressBar(id, label, detail, value, soft = value) {
   </div>`;
 }
 
-// Temporary: remove this panel (and its call in home) once the 21 projects are done (D14).
+// Temporary (D14): the panel leaves the home page once every project is done and no sprint is under way, and comes
+// back by itself if work is added.
 function progressPanel({ lang, t, data }) {
   const p = progress(data.projects, data.sprints);
   const { done, inProgress, total } = p.portfolio;
+  if (done === total && p.sprint.done >= p.sprint.total) return '';
   const bars = [
     progressBar('portfolio', t('progress.portfolio'), fill(t('progress.portfolio.detail'), { done, inProgress, total }),
       percent(done, total), percent(done + inProgress, total)),

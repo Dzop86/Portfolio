@@ -101,8 +101,20 @@ test('progress counts projects, sprint points and story points per project', () 
   const p = progress(projects, sprints);
   assert.deepEqual(p.portfolio, { done: 1, inProgress: 1, total: 3 });
   assert.deepEqual(p.sprint, { number: 7, title: 'un titre', done: 3, total: 8 });
-  // lib-c: 2 × 3 done points over max(8, 2 × 6 planned) = 12; "SQL" in capitals does not count as sql.
+  // lib-c: 2 × 3 done points over its 2 × 6 points of stories; "SQL" in capitals does not count as sql.
   assert.deepEqual(p.projects, [{ id: 'lib-c', done: 6, total: 12 }]);
+  // A project left in progress whose stories are all delivered is not shown as under way (the showcase, "4 points
+  // of 9": its estimate counted stories of sprints 1 to 9 that never named it).
+  const story = (text, points, done) => ({ text, points, done, closed: done });
+  const delivered = progress([{ id: 'vitrine', status: 'in-progress', points: 9 }], [
+    { number: 35, title: 't', stories: [story('x (vitrine)', 1, true), story('y (vitrine)', 1, true)] },
+    { number: 40, title: 't', stories: [story('z (vitrine)', 2, true)] },
+  ]);
+  assert.deepEqual(delivered.projects, []);
+  const open = progress([{ id: 'vitrine', status: 'in-progress', points: 9 }], [
+    { number: 40, title: 't', stories: [story('z (vitrine)', 2, true), story('w (vitrine)', 1, false)] },
+  ]);
+  assert.deepEqual(open.projects, [{ id: 'vitrine', done: 2, total: 3 }]);
 });
 
 test('roadmapState: closed sprints and the current one, abandoned stories counting as closed', () => {

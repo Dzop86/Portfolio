@@ -222,6 +222,12 @@ test('the home page shows the temporary progress bars, computed from the data', 
     const bars = [...html.matchAll(/<div class="progress-bar" role="progressbar"([^>]*)>/g)].map((m) => m[1]);
     // A finished sprint leaves the panel: its bar shows only while some of its stories are open.
     const running = p.sprint.done < p.sprint.total;
+    // Every project done and no sprint under way: the temporary panel has left the home page (D14).
+    if (p.portfolio.done === p.portfolio.total && !running) {
+      assert.equal(bars.length, 0, `${lang}: no progress panel once everything is done`);
+      assert.ok(!html.includes('id="h-progress"'), lang);
+      continue;
+    }
     assert.equal(bars.length, 1 + (running ? 1 : 0) + p.projects.length, `${lang}: one bar each for portfolio, running sprint and project`);
     for (const attrs of bars) {
       assert.match(attrs, /aria-labelledby="[\w-]+"/);

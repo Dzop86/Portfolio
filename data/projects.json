@@ -1,5 +1,5 @@
 [
-  { "id": "vitrine", "sprint": "S1-S9+S35+S40", "points": 9, "status": "in-progress", "group": "web", "techs": ["JavaScript", "HTML/CSS"],
+  { "id": "vitrine", "sprint": "S1-S9+S35+S40", "points": 9, "status": "done", "group": "web", "techs": ["JavaScript", "HTML/CSS"],
     "name": { "fr": "Vitrine du portfolio", "en": "Portfolio showcase" },
     "pitch": { "fr": "Ce site : multi-pages, bilingue, responsive, mode sombre, sans framework.", "en": "This site: multi-page, bilingual, responsive, dark mode, no framework." },
     "stack": ["HTML", "CSS", "JavaScript", "Node.js", "Playwright", "GitHub Actions"],
