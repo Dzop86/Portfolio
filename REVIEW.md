@@ -16,6 +16,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« review ok »).
 
+## Sprint 45 : à relire
+- [ ] Les règles du RPG tactique : les trois points de `projects/rpg/REVIEW.md` (déroulé du combat, règle des coins de la ligne de vue, format des données).
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
