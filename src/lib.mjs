@@ -131,6 +131,17 @@ export function roadmapState(sprints) {
 
 
 /** Name of a project's detail page, e.g. "project-lib-c" (served as <lang>/project-lib-c.html). */
+/**
+ * Counts shown by the dashboards (projects/react/src/model.ts): projects in all, done and in progress, points in all
+ * and points of the done projects. The captures' texts and the test of stale counts use it too (sprint 40).
+ */
+export function projectSummary(projects) {
+  const count = (s) => projects.filter((p) => p.status === s).length;
+  const points = projects.reduce((acc, p) => acc + p.points, 0);
+  const pointsDone = projects.filter((p) => p.status === 'done').reduce((acc, p) => acc + p.points, 0);
+  return { total: projects.length, done: count('done'), inProgress: count('in-progress'), points, pointsDone };
+}
+
 export function projectPage(id) {
   return `project-${id}`;
 }

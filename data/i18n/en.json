@@ -409,7 +409,7 @@
   "angcmp.row.tests": "Unit and integration tests",
   "angcmp.row.packages": "npm packages installed, tooling included",
   "angcmp.notes": "Measured by projects/angular/scripts/compare.mjs on {date} on {cpu}. Shared code, counted apart: {shared} lines. The React load also covers the Sprints view, without the 3D viewer (loaded on demand); its tests cover its four views; the Angular packages include Jest and Cypress. Both builds check types.",
-  "angcmp.projects.alt": "Projects view of the Angular dashboard in dark theme: 19 of 21 projects done and 157 of 170 points delivered, a pistachio progress bar, the Status and Technology menus, then the project cards with their status, sprint, points and technologies.",
+  "angcmp.projects.alt": "Projects view of the Angular dashboard in dark theme: {done} of {total} projects done and {pointsDone} of {points} points delivered, a pistachio progress bar, the Status and Technology menus, then the project cards with their status, sprint, points and technologies.",
   "angcmp.projects.caption": "Projects view, dark theme: the filters are signals, the list a computed.",
   "angcmp.results.alt": "Results view of the Angular dashboard in light theme: green horizontal bars of the curvature computing times on 3.2 million triangles, from 531 ms in sequential C++ to 85.5 ms in single-precision CUDA, then the table of times, speed-ups and errors.",
   "angcmp.results.caption": "Results view, light theme: same data and scales as the React dashboard, rendered by Angular components.",

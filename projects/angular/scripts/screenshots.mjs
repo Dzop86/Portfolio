@@ -3,6 +3,7 @@
 // Needs the site served with this dashboard built (npm run build here and at the root, then npm run serve):
 //   node projects/angular/scripts/screenshots.mjs [http://localhost:4173]
 // Playwright comes from the site's own dependencies, as for projects/react/scripts/screenshots.mjs.
+import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from '@playwright/test';
 
@@ -29,3 +30,9 @@ for (const lang of ['fr', 'en']) {
   }
 }
 await browser.close();
+// The counts the projects capture shows, from the API the dashboard read: the page's text says the same counts, and a
+// unit test refuses a capture taken with other ones (sprint 40).
+const { projects } = await (await fetch(`${base}/api/v1/projects.json`)).json();
+const { projectSummary } = await import('../../../src/lib.mjs');
+writeFileSync(join(import.meta.dirname, '../data/screenshots.json'), `${JSON.stringify({ projects: projectSummary(projects) }, null, 2)}\n`);
+console.log('data/screenshots.json');

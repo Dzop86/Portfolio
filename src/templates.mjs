@@ -4,7 +4,7 @@ import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { decompositionStep, STEPS } from '../projects/gcartes/src/decompose.js';
 import { linkPath } from '../projects/gcartes/src/links.js';
-import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, techsOf, velocity, burndown } from './lib.mjs';
+import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, techsOf, velocity, burndown, projectSummary } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
 
@@ -626,7 +626,7 @@ ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
 ${p.widget === 'qt-screenshot' ? qtScreenshot(t, lang) : ''}
 ${p.widget === 'react-dashboard' ? reactDashboard(t, lang) : ''}
-${p.widget === 'angular-compare' ? angularCompare(t, lang) : ''}
+${p.widget === 'angular-compare' ? angularCompare(t, lang, data.projects) : ''}
 ${p.widget === 'adventure-terminal' ? adventureTerminal(t, lang) : ''}
 ${p.widget === 'war-stats' ? warStats(t, lang) : ''}
 ${p.widget === 'parallel-bench' ? parallelBench(t, lang) : ''}
@@ -1237,8 +1237,11 @@ export function readComparison() {
   return JSON.parse(readFileSync(join(ROOT, 'projects/angular/data/comparison.json'), 'utf8'));
 }
 
-function angularCompare(t, lang) {
+function angularCompare(t, lang, projects) {
   const c = readComparison();
+  // The projects capture shows the dashboard's counts: its text says them from the data, and a test checks that the
+  // capture was taken with these very counts (projects/angular/data/screenshots.json).
+  const summary = projectSummary(projects);
   const n = (x, d = 0) => Number(x).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
   const kb = (bytes) => `${n(bytes / 1000, 1)} ${t('angcmp.kb')}`;
   const s = (ms) => `${n(ms / 1000, 1)} s`;
@@ -1252,7 +1255,7 @@ function angularCompare(t, lang) {
   ].map(([key, r, a]) => `<tr data-row="${key}"><th scope="row">${esc(t(`angcmp.row.${key}`))}</th><td class="num">${esc(r)}</td><td class="num">${esc(a)}</td></tr>`).join('');
   const notes = ['state', 'data', 'routing', 'tests'].map((k) => `<li>${esc(t(`angcmp.diff.${k}`))}</li>`).join('');
   const shot = (name) => `<figure class="naval-shot">
-    <img src="../assets/images/angular-${name}-${lang}.png" width="1280" height="800" loading="lazy" alt="${esc(t(`angcmp.${name}.alt`))}">
+    <img src="../assets/images/angular-${name}-${lang}.png" width="1280" height="800" loading="lazy" alt="${esc(fill(t(`angcmp.${name}.alt`), summary))}">
     <figcaption class="meta">${esc(t(`angcmp.${name}.caption`))}</figcaption>
   </figure>`;
   return `<section class="block panel" aria-labelledby="h-angcmp">
