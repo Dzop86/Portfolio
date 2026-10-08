@@ -257,3 +257,10 @@ Le burndown comptait par projet entier, brûlé à son dernier sprint : réouvri
 **Alternatives :** une note seulement, sous le diagramme (proposée, plus petite) : Charles a choisi le calcul.
 **Limites :** le calcul double la filtration (cône sur le maillage) ; même plafond de triangles que la persistance ordinaire dans le navigateur.
 **Après relecture (8 octobre 2026) :** Charles demandait un diagramme principal sans infini, pas une figure de plus. Le code-barres, le nuage et le tableau ferment donc chaque classe sans fin à sa mort en redescendant, et la figure étendue à part est retirée ; les paires relatives restent calculées (API C, tests de dualité) mais ne sont plus dessinées, car elles ne font que refléter les ordinaires sur une surface fermée. Alternative écartée : garder l'infini et une figure à part (première version du sprint 41), refusée par Charles.
+
+## D51. Comptage d'arêtes de lib-c par tri radix
+**Choix (décision de Charles, 8 octobre 2026) :** sprint 42, 2 points (203 en tout, 42 sprints) ; lib-c passe de 8 à 10. Le goulot trouvé au sprint 10 par les mesures du projet SQL (noté dans `projects/sql/REVIEW.md`, en attente depuis) : `qsort` sur trois clés de 64 bits par triangle, un appel indirect par comparaison, coûte deux fois la lecture du fichier. Remplacé par un tri par base (LSD, chiffres de 11 bits) sur des clés compactées (petit sommet × nombre de sommets + grand sommet), qui ne fait que les passes utiles.
+**Pourquoi :** linéaire et sans appel indirect ; le comptage se fait toujours sur des clés triées, donc mêmes résultats, faciles à comparer à l'ancienne version.
+**Alternatives :** une table de hachage (linéaire aussi, mais accès aléatoires et taille à prévoir, plus de code à tester) ; garder `qsort` (le plus simple, mais lib-c restait plus lente que topologie, qui fait pourtant plus).
+**Limites :** un tampon de la taille des clés en plus (24 octets par triangle pendant le comptage).
+

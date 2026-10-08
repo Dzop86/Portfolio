@@ -24,7 +24,7 @@
     },
     "links": { "code": "https://github.com/Dzop86/Portfolio/tree/main/projects/topologie" },
     "teaching": { "fr": "Sujet de ma thèse", "en": "My PhD topic" } },
-  { "id": "lib-c", "sprint": "S2-S6", "points": 8, "status": "done", "group": "systems", "techs": ["C"], "widget": "mesh-reader",
+  { "id": "lib-c", "sprint": "S2-S6+S42", "points": 10, "status": "in-progress", "group": "systems", "techs": ["C"], "widget": "mesh-reader",
     "name": { "fr": "Bibliothèque C de maillages", "en": "C mesh library" },
     "pitch": { "fr": "Lecture et écriture OBJ/PLY, CLI, compilée en WebAssembly pour une démo dans le navigateur.", "en": "OBJ/PLY reading and writing, CLI, compiled to WebAssembly for an in-browser demo." },
     "stack": ["C", "CMake", "Emscripten", "Unity", "Valgrind", "libFuzzer"],

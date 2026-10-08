@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S41), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S42), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 21 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -16,7 +16,7 @@ Source de vérité : `data/projects.json`. Résumé :
 |---|---|---|---|---|
 | 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40 | 9 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S41 | 35 |
-| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
+| 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6+S42 | 10 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
 | 5 | API Python | FastAPI, pytest, Docker | S6-S7 | 8 |
 | 6 | ML et MLOps | PyTorch, scikit-learn, DVC, MLflow, ONNX | S8+S16 | 13 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 201 points sur 41 sprints de deux semaines.
+Total : 203 points sur 42 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -74,6 +74,9 @@ Neuf points, deux sprints. Sprint 39 (3 points, topologie) : le diagramme de per
 
 ## Persistance étendue (demande de Charles, 8 octobre 2026, D50)
 Un sprint de 5 points, topologie passe de 30 à 35. Sprint 41 : à la relecture, Charles attendait que la boucle du tore naisse à une selle et meure à l'autre, comme celle du graphe de Reeb ; la persistance ordinaire (des sous-niveaux) la garde jusqu'à l'infini, à raison. La persistance étendue (filtration des sous-niveaux puis des sur-niveaux) apparie aussi les classes sans fin : calculée en C++, testée par les dualités de Poincaré et de Lefschetz, affichée sur la fiche avec la paire selle-selle reliée à la boucle du graphe de Reeb.
+
+## Comptage d'arêtes de lib-c (décision de Charles, 8 octobre 2026, D51)
+Un sprint de 2 points, lib-c passe de 8 à 10. Sprint 42 : les mesures du projet SQL ont montré que lib-c trie ses clés d'arêtes avec `qsort` plus longtemps qu'elle ne lit le fichier ; un tri par base en temps linéaire les remplace, mesuré avant et après, résultats inchangés.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
