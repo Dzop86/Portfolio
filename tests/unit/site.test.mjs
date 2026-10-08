@@ -409,7 +409,7 @@ test('the generalized maps course has its lessons, the 48 darts of the cube net 
     assert.equal((html.match(/<section class="gm-lesson"/g) ?? []).length, 6, `${lang}: six lessons`);
     assert.equal((html.match(/data-dart="\d+"/g) ?? []).length, 48, `${lang}: 48 darts drawn`);
     assert.equal((html.match(/<fieldset class="gm-question"/g) ?? []).length, 6, `${lang}: six questions`);
-    assert.match(html, /<code>α0 α2 α0 α2<\/code>/, `${lang}: code spans rendered`);
+    assert.match(html, /<code>α2 α0 = α0 α2<\/code>/, `${lang}: code spans rendered`);
     assert.doesNotMatch(html, /`/, `${lang}: no backquote left`);
   }
 });

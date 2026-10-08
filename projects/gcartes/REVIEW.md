@@ -11,6 +11,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 6 octobre 2026, à la demande explicite de Charles (« valide la review »).
 
 - [x] Sprint 40 : `src/decompose.js` (objet, α0, α1, α2, G-carte, dans l'ordre des dimensions) et `src/links.js` (α0 trait court, α1 arc au coin, α2 double trait) : est-ce bien la convention de tes manuels ? Textes des cinq étapes (`gcartes.step.*` dans `data/i18n`).
+- [ ] Leçon 3 et question 4 du quiz (`course.json`) : la démonstration de l'involution `α0 α2` (commutation, réciproque, arête cousue par un seul bout, `α0 α1` et `α1 α2`) te convainc-elle ?
 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide la review »), pour le sprint 40.
 
@@ -25,4 +26,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-08 | `src/decompose.js` | Signalé par Charles (D49) : la décomposition coupait dans l'ordre α2, α1, α0, l'inverse de la définition, et les liaisons ne suivaient pas la convention des manuels | (Claude) Construction par dimensions croissantes (objet, α0, α1, α2, G-carte) ; `src/links.js` partagé par les étapes, le patron du cube et la liaison du brin choisi ; tests de chaque liaison (bons brins, bon endroit, sans se confondre avec un brin) |
 | 2026-10-08 | `src/net.js` | (Claude) Vu sur capture : sur le patron, les arcs α1 sortaient du carré, car leur point de contrôle était le vrai coin alors que les brins sont décalés de 10 px vers l'intérieur | Point de contrôle au croisement des deux brins (`corner`), testé identique pour les deux brins d'une liaison α1 |
 | 2026-10-08 | `src/decompose.js` | (Claude) Vu sur capture : l'écart α0 entre les deux moitiés d'une arête se voyait à peine ; un test exige maintenant qu'il reste plus court qu'un demi-brin | Écart porté de 15 à 18 % de la demi-arête (la limite du test est 20 %) |
+| 2026-10-09 | `course.json` (leçon 3, question 4) | Signalé par Charles : la démonstration que `α0 α2` est une involution n'en était pas une, elle l'affirmait (« les deux extrémités doivent l'être aussi ») | (Claude) Démonstration : une arête cousue d'un seul tenant donne `α2 α0 = α0 α2`, d'où `α0 α2 α0 α2 = α0 α0 α2 α2 = id`, et la réciproque ; ce que la règle interdit (arête cousue par un seul bout), pourquoi un bord reste permis, pourquoi `α0 α1` (4 pas sur un carré) et `α1 α2` (3 sur le cube) n'en sont pas. Deux tests vérifient chaque affirmation, sur le cube et sur une arête cousue à moitié |
 | | | | |

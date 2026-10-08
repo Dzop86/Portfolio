@@ -43,11 +43,15 @@
       },
       "body": {
         "fr": [
-          "Les liaisons ne se posent pas au hasard. Quand deux faces sont cousues par `α2` le long d'une arête, les deux extrémités de l'arête doivent l'être aussi, dans le même sens : `α0 α2` est encore une involution, autrement dit le cycle `α0 α2 α0 α2` revient toujours au brin de départ.",
+          "Les liaisons ne se posent pas au hasard. Prenons une arête de la face A, qui va du sommet v au sommet w, et un brin d de A en v ; son voisin `α0(d)` est en w. Si `α2` coud d au brin d' de la face B, l'arête doit être cousue d'un seul tenant : l'autre bout aussi, `α2(α0(d)) = α0(d')`. Comme `d' = α2(d)`, cela s'écrit `α2 α0 = α0 α2` : aller au bout de l'arête puis changer de face, ou changer de face puis aller au bout, mène au même brin.",
+          "De là vient l'involution. En remplaçant `α2 α0` par `α0 α2` au milieu, `α0 α2 α0 α2 = α0 α0 α2 α2`, et chaque `αi` appliqué deux fois s'annule : le cycle revient au brin de départ. À l'inverse, si `α0 α2` est une involution, il est son propre inverse, `α2 α0` : les deux énoncés sont équivalents. Ce qu'ils interdisent, c'est une arête cousue à B par un bout et à une autre face, ou à rien, par l'autre. Un bord reste permis, à condition d'être libre aux deux bouts.",
+          "Cette règle ne vaut que pour `α0` et `α2`, qui ne se suivent pas. `α0 α1` avance d'un sommet autour d'une face : sur un carré, il faut quatre pas, pas deux, pour revenir au départ. `α1 α2` tourne autour d'un sommet : trois pas sur le cube.",
           "La bibliothèque du projet vérifie ces contraintes pour chaque brin ; une carte qui les viole n'est pas une G-carte."
         ],
         "en": [
-          "Links are not placed at random. When two faces are sewn by `α2` along an edge, both ends of the edge must be sewn too, the same way round: `α0 α2` is an involution as well, in other words the cycle `α0 α2 α0 α2` always comes back to the starting dart.",
+          "Links are not placed at random. Take an edge of face A, from vertex v to vertex w, and a dart d of A at v; its neighbour `α0(d)` is at w. If `α2` sews d to the dart d' of face B, the edge must be sewn in one piece: the other end too, `α2(α0(d)) = α0(d')`. Since `d' = α2(d)`, this reads `α2 α0 = α0 α2`: going to the end of the edge then changing face, or changing face then going to the end, leads to the same dart.",
+          "The involution follows. Replacing `α2 α0` with `α0 α2` in the middle, `α0 α2 α0 α2 = α0 α0 α2 α2`, and each `αi` applied twice cancels out: the cycle comes back to the starting dart. Conversely, if `α0 α2` is an involution, it is its own inverse, `α2 α0`: the two statements are equivalent. What they forbid is an edge sewn to B at one end and to another face, or to nothing, at the other. A boundary is still allowed, as long as it is free at both ends.",
+          "The rule only holds for `α0` and `α2`, which are not consecutive. `α0 α1` moves one vertex round a face: on a square it takes four steps, not two, to come back. `α1 α2` turns round a vertex: three steps on the cube.",
           "The project's library checks these constraints on every dart; a map that breaks them is not a G-map."
         ]
       }
@@ -205,8 +209,8 @@
       ],
       "answer": 1,
       "explain": {
-        "fr": "Coudre deux faces par α2 coud les deux extrémités de l'arête : α0 α2 α0 α2 revient au départ. α0 α1 fait le tour d'une face, ce n'est pas une involution.",
-        "en": "Sewing two faces by α2 sews both ends of the edge: α0 α2 α0 α2 comes back to the start. α0 α1 goes round a face, it is not an involution."
+        "fr": "Une arête se coud d'un seul tenant : si α2 coud le côté de la face A à celui de B en un bout, il les coud aussi à l'autre bout. Aller au bout puis changer de face, ou l'inverse, mène donc au même brin : α2 α0 = α0 α2. Alors α0 α2 α0 α2 = α0 α0 α2 α2, qui revient au départ. α0 α1 n'en est pas une : il avance d'un sommet autour de la face, et un carré demande quatre pas, pas deux.",
+        "en": "An edge is sewn in one piece: if α2 sews the side of face A to that of B at one end, it sews them at the other end too. Going to the end then changing face, or the reverse, leads to the same dart: α2 α0 = α0 α2. Then α0 α2 α0 α2 = α0 α0 α2 α2, which comes back to the start. α0 α1 is not one: it moves one vertex round the face, and a square takes four steps, not two."
       }
     },
     {

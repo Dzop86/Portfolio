@@ -38,6 +38,31 @@ test('every alpha is an involution, alpha0 alpha2 too, and no dart of a closed s
   }
 });
 
+// The claims of lesson 3 and of the quiz, on the cube: alpha0 and alpha2 commute; alpha0 alpha1 needs 4 steps
+// round a square, alpha1 alpha2 3 steps round a vertex, so neither is an involution.
+test('alpha0 and alpha2 commute; alpha0 alpha1 and alpha1 alpha2 are not involutions on the cube', () => {
+  const { map } = fromFaces(CUBE_FACES);
+  const [a0, a1, a2] = map.alpha;
+  const order = (f, d) => { let k = 1; for (let e = f(d); e !== d; e = f(e)) k++; return k; };
+  for (let d = 0; d < map.size; d++) {
+    assert.equal(a2[a0[d]], a0[a2[d]], `dart ${d}`);
+    assert.equal(order((e) => a0[a1[e]], d), 4, `dart ${d}: round a square`);
+    assert.equal(order((e) => a1[a2[e]], d), 3, `dart ${d}: round a vertex`);
+  }
+});
+
+test('an edge sewn at one end only breaks the constraint, a boundary free at both ends does not', () => {
+  const half = new GMap();
+  for (let k = 0; k < 4; k++) half.addDart();
+  half.link(0, 0, 1); // side of A: 0 at v, 1 at w
+  half.link(0, 2, 3); // side of B: 2 at v, 3 at w
+  half.link(2, 0, 2); // sewn at v only
+  assert.ok(half.check().some((p) => /does not close/.test(p)));
+  half.link(2, 1, 3); // and at w: the edge is sewn in one piece
+  assert.deepEqual(half.check(), []);
+  assert.deepEqual(fromFaces([[0, 1, 2, 3]]).map.check(), []); // a lone square: every side free at both ends
+});
+
 test('tori of several sizes: chi = 0, genus 1; cylinders: two boundary loops', () => {
   for (const [n, m] of [[3, 3], [4, 6], [10, 7]]) {
     const t = inv(gridFaces(n, m, true));
