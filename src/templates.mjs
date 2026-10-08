@@ -675,7 +675,8 @@ const TOPO_LABELS = ['canvas', 'components', 'boundary', 'euler', 'genus', 'orie
   'tip', 'tip.boundary', 'nowebgl', 'legend.neg', 'legend.pos', 'error.invalid', 'height.value', 'height.counts',
   'height.check', 'height.sum', 'tip.height', 'sublevel', 'pers.summary', 'pers.hidden', 'pers.toolarge', 'pers.dim.0',
   'pers.dim.1', 'pers.dim.2', 'pers.never', 'pers.point', 'pers.more', 'reeb.summary', 'reeb.genus', 'reeb.bound',
-  'reeb.nodes', 'reeb.triangles'];
+  'reeb.nodes', 'reeb.triangles', 'bars.alive', 'bars.hidden', 'pick.dies', 'pick.never', 'tour.step', 'tour.first',
+  'tour.second', 'tour.merge', 'tour.loop', 'tour.fill', 'tour.cavity', 'tour.end'];
 export const TOPO_SAMPLES = ['torus', 'sphere', 'mobius', 'saddle'];
 // Persistence diagram marks, centred on 0 (D48): a disc for components, a triangle for loops, a square for
 // cavities, so that the dimension does not rest on colour alone. Shared with the viewer through data-shapes.
@@ -685,6 +686,7 @@ export const PERS_SHAPES = ['M-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0', 'M0,-4.6L4.6,3
 function topoViewer(t) {
   const labels = {
     ...Object.fromEntries(TOPO_LABELS.map((k) => [k, t(`topo.label.${k}`)])),
+    ...Object.fromEntries(['pers.axis.birth', 'pers.axis.death', 'bars.axis', 'tour.start', 'tour.next'].map((k) => [k, t(`topo.${k}`)])),
     ...Object.fromEntries(['atline', 'error', 'error.1', 'error.2', 'error.3', 'error.4', 'error.too-large', 'error.load']
       .map((k) => [k, t(`demo.label.${k}`)])),
   };
@@ -727,8 +729,20 @@ function topoViewer(t) {
           <figcaption><strong>${esc(t('topo.pers.title'))}</strong></figcaption>
           <div class="rt-slider"><label for="topo-tau">${esc(t('topo.pers.tau'))}</label><input id="topo-tau" type="range" min="0" max="1000" step="1" value="0" data-tau><output for="topo-tau" data-tau-value></output></div>
           <p data-pers-summary aria-live="polite"></p>
+          <div class="topo-tour" data-tour>
+            <p><strong>${esc(t('topo.tour.title'))}</strong> <span class="meta" data-tour-step></span></p>
+            <p data-tour-text aria-live="polite">${esc(t('topo.tour.lead'))}</p>
+            <div class="actions"><button type="button" class="btn btn-ghost" data-tour-prev disabled>${esc(t('topo.tour.prev'))}</button><button type="button" class="btn btn-primary" data-tour-next>${esc(t('topo.tour.start'))}</button></div>
+          </div>
+          <p class="meta">${esc(t('topo.pers.pick.help'))}</p>
+          <p class="topo-pick" data-pick aria-live="polite" hidden></p>
           <ul class="topo-keys" aria-hidden="true">${[0, 1, 2].map((d) => `<li><svg class="pers-key" viewBox="-6 -6 12 12"><path class="pers-shape is-h${d}" d="${PERS_SHAPES[d]}"/></svg>${esc(t(`topo.label.pers.dim.${d}`))}</li>`).join('')}</ul>
-          <svg class="topo-diagram" viewBox="0 0 300 300" role="img" aria-labelledby="topo-pers-desc" data-diagram><desc id="topo-pers-desc">${esc(t('topo.pers.desc'))}</desc></svg>
+          <p><strong id="topo-bars-title">${esc(t('topo.bars.title'))}</strong></p>
+          <svg class="topo-bars" viewBox="0 0 300 60" role="listbox" aria-labelledby="topo-bars-title" aria-describedby="topo-bars-desc" data-bars><desc id="topo-bars-desc">${esc(t('topo.bars.desc'))}</desc></svg>
+          <p data-bars-alive></p>
+          <p class="meta" data-bars-hidden hidden></p>
+          <p><strong id="topo-cloud-title">${esc(t('topo.pers.cloud'))}</strong></p>
+          <svg class="topo-diagram" viewBox="0 0 300 318" role="listbox" aria-labelledby="topo-cloud-title" aria-describedby="topo-pers-desc" data-diagram><desc id="topo-pers-desc">${esc(t('topo.pers.desc'))}</desc></svg>
           <p class="meta" data-pers-hidden hidden></p>
           <details class="chart-data"><summary>${esc(t('topo.pers.table'))}</summary><div class="table-wrap" tabindex="0" role="region" aria-label="${esc(t('topo.pers.title'))}"><table data-pers-table>
             <thead><tr><th scope="col">${esc(t('topo.pers.col.dim'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.birth'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.death'))}</th><th scope="col" class="num">${esc(t('topo.pers.col.life'))}</th></tr></thead>

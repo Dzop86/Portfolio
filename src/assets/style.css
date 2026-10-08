@@ -572,6 +572,40 @@ th[aria-sort="descending"] .sort-mark::after { content: "▼"; color: inherit; }
 .pers-point.is-noise .pers-shape { fill: var(--muted); opacity: 0.45; }
 .pers-key { width: 12px; height: 12px; margin-right: var(--space-1); vertical-align: middle; }
 
+/* Barcode and picked pair (sprint 39): a bar per pair in the colour of its dimension, the dashed height threshold
+   across; the bars it crosses (alive at that level) are opaque, the others faded, the noise greyed. The picked
+   pair is outlined in the text colour wherever it shows (bar, point, row). */
+.topo-bars { width: 100%; height: auto; max-width: 360px; }
+.topo-bars[hidden] { display: none; }
+.topo-bars text { fill: var(--muted); font: 11px var(--font-body); }
+.topo-bars .bars-group { fill: var(--text-strong); font-weight: 600; }
+.topo-bars .pers-axis { stroke: var(--chart-grid); }
+.topo-bars .bars-level { stroke: var(--chart-ref); stroke-dasharray: 4 3; stroke-width: 1.5; }
+.bar { cursor: pointer; }
+.bar .bar-hit { fill: transparent; }
+.bar .bar-line { opacity: 0.4; }
+.bar.is-alive .bar-line { opacity: 1; }
+.bar.is-noise .bar-line { fill: var(--muted); }
+.bar-line.is-h0 { fill: var(--crit-min); }
+.bar-line.is-h1 { fill: var(--crit-saddle); }
+.bar-line.is-h2 { fill: var(--crit-max); }
+.bar.is-picked .bar-hit { fill: var(--chart-grid); }
+.bar.is-picked .bar-line { opacity: 1; stroke: var(--text-strong); stroke-width: 1; }
+.pers-point { cursor: pointer; }
+.pers-point .pers-ring { fill: transparent; stroke: none; }
+.pers-point.is-picked .pers-ring { stroke: var(--text-strong); stroke-width: 1.5; }
+.topo-bars [role=option]:focus, .topo-diagram [role=option]:focus { outline: none; }
+.topo-bars [role=option]:focus-visible .bar-hit { stroke: var(--text-strong); stroke-width: 1; }
+.topo-diagram [role=option]:focus-visible .pers-ring { stroke: var(--text-strong); stroke-width: 1.5; stroke-dasharray: 2 2; }
+.pers-pick { min-height: 44px; padding: 0 var(--space-2); background: none; border: 1px solid var(--border-strong); border-radius: var(--radius); color: var(--text); font: inherit; cursor: pointer; text-align: left; }
+.pers-pick[aria-pressed=true] { border-color: var(--text-strong); color: var(--text-strong); font-weight: 600; }
+tr.is-picked { background: var(--surface-2); }
+.topo-pick { border-left: 3px solid var(--border-strong); padding-left: var(--space-2); }
+.topo-pick[hidden] { display: none; }
+.topo-tour { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-3); display: grid; gap: var(--space-2); }
+.topo-tour[hidden] { display: none; }
+.topo-tour p { margin: 0; }
+
 /* Reeb graph (sprint 38): arcs in the text colour, nodes in the colours of the critical points. */
 .topo-reeb { margin: var(--space-3) 0 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
 .topo-check { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; }

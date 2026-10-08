@@ -18,6 +18,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 8 octobre 2026, à la demande explicite de Charles (« valide »), pour les sprints 37 et 38.
 
+- [ ] Sprint 39 : `barcode`, `aliveAt`, `levelBetween` et `tour` de `src/assets/topo-api.js` et leurs tests ; dans `src/viewer/topoviewer.js`, le code-barres, la paire choisie (halos, seuil, listes à tabulation mobile) et l'explication guidée. Le diagramme se lit-il maintenant sans connaître la persistance ?
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
@@ -38,4 +40,9 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-08 | `src/persistence.cpp` | (Claude) Vu en compilant avec Clang 19 : `std::stable_sort` appelle une fonction marquée obsolète de la bibliothèque de GCC 12, et `-Werror` refuse | `std::sort` sur un ordre total (les sommets départagent), sortie déterministe |
 | 2026-10-08 | `src/assets/topo-api.js` | (Claude) Relecture : le tri du diagramme soustrayait les persistances ; pour deux classes sans fin, Infinity − Infinity = NaN, et l'ordre ne tenait que par chance | Comparaison explicite |
 | 2026-10-08 | `CMakeLists.txt` | (Claude) CI rouge sur Windows seulement après le sprint 38 : `gtest_discover_tests` n'a pas obtenu la liste des tests dans le délai par défaut de 5 s (sortie vide, aucun test lancé) ; un exécutable Debug fraîchement compilé démarre lentement sur le runner | `DISCOVERY_TIMEOUT 60` |
+| 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Vu sur capture : le halo d'une paire choisie, en pistache, disparaissait sur le haut du maillage, pistache lui aussi en mode hauteur | Halo dans la couleur du texte |
+| 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Vu sur capture : dans le code-barres, le titre de chaque groupe touchait sa première barre | Interligne du titre agrandi |
+| 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Limite assumée : les barres (10 unités de haut) et les points du nuage ne font pas 44 px au doigt ; au toucher, le chemin conforme passe par les boutons du tableau des paires (44 px), noté dans D49 | Rien à corriger ; signalé pour la relecture |
+| 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit : `focusin` n'arrive pas des éléments SVG, une barre atteinte au clavier n'était pas choisie | Écouteur `focus` en phase de capture, et les flèches choisissent la barre elles-mêmes |
+| 2026-10-08 | `src/viewer/topoviewer.js` | (Claude) Détecté par Playwright sous WebKit, instrumenté : choisir une paire affiche une phrase qui décale la page, et WebKit envoie alors un `pointerover` puis un `pointermove` immobile pour la barre glissée sous le pointeur, qui reprenait la place de la barre choisie au clavier ; `movementX` ne distingue rien (0 aussi pour un vrai mouvement) | Survol par `pointermove` seulement, retenu si la position diffère de la précédente (suivie sur toute la page) |
 | | | | |

@@ -228,6 +228,124 @@ test('the topology viewer shows the persistence diagram and filters the noise (s
   expect(errors).toEqual([]);
 });
 
+test('the topology viewer reads the persistence as a barcode tied to the mesh (sprint 39)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  const bars = page.getByRole('listbox', { name: 'Persistence barcode' });
+  const alive = viewer.locator('[data-bars-alive]');
+  const level = page.getByRole('slider', { name: 'Threshold' });
+
+  // The torus: four bars that never die; at the top, all four alive, and their count is chi.
+  await expect(bars.getByRole('option')).toHaveCount(4);
+  await expect(alive).toHaveText('At the threshold: 1 component(s), 2 loop(s) and 1 cavity(ies) alive; 1 − 2 + 1 = χ = 0.');
+  await level.focus();
+  await page.keyboard.press('Home');
+  await expect(alive).toHaveText('At the threshold: 1 component(s), 0 loop(s) and 0 cavity(ies) alive; 1 − 0 + 0 = χ = 1.');
+  await expect(bars.locator('.bar.is-alive')).toHaveCount(1);
+
+  // With the keyboard: the barcode is one tab stop, the arrows go from bar to bar.
+  await expect(bars.getByRole('option').first()).toHaveAttribute('tabindex', '0');
+  await bars.getByRole('option').first().focus();
+  await page.keyboard.press('ArrowDown');
+  const second = bars.getByRole('option').nth(1);
+  await expect(second).toBeFocused();
+  await expect(second).toHaveAttribute('aria-selected', 'true');
+  const pick = viewer.locator('[data-pick]');
+  await expect(pick).toHaveText(/^loop \(H1\): born at vertex #\d+ at height [\d.]+, it never dies\./);
+  // The threshold moved above its birth: the loop is alive, its bar is opaque.
+  await expect(second).toHaveClass(/is-alive/);
+  expect(Number(await level.inputValue())).toBeGreaterThan(0);
+  // The same pair is marked in the scatter plot.
+  await expect(page.getByRole('listbox', { name: 'The same diagram as a scatter plot' }).locator('[aria-selected=true]')).toHaveCount(1);
+
+  // A terrain with four pits: three die where they merge with the deepest one.
+  await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
+  await expect(bars.getByRole('option')).toHaveCount(4);
+  // A row of the table, by touch or click: its two vertices, the threshold between them.
+  await viewer.getByText('Show the pairs').click();
+  const row = viewer.locator('[data-pers-table] tbody tr').nth(1).getByRole('button');
+  await row.click();
+  await expect(row).toHaveAttribute('aria-pressed', 'true');
+  await expect(pick).toHaveText(/^component \(H0\): born at vertex #\d+ at height 0(\.\d+)?, dies at vertex #\d+ at height [\d.]+\. Both vertices/);
+  await expect(bars.locator('.bar.is-picked')).toHaveCount(1);
+  await expect(bars.locator('.bar.is-picked')).toHaveClass(/is-alive/);
+  // Hovering a point of the scatter plot picks it too.
+  const cloud = page.getByRole('listbox', { name: 'The same diagram as a scatter plot' });
+  await cloud.getByRole('option').last().hover();
+  await expect(cloud.getByRole('option').last()).toHaveAttribute('aria-selected', 'true');
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  expect(await row.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test('the topology viewer guides through the persistence step by step (sprint 39)', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/en/project-topologie.html');
+  const viewer = page.locator('[data-topo-viewer]');
+  await expect(viewer.locator('[data-result] [data-field="genus"]')).toHaveText('1');
+  await page.getByRole('radio', { name: 'Height (filtration)' }).check();
+  const step = viewer.locator('[data-tour-step]');
+  const text = viewer.locator('[data-tour-text]');
+  const level = page.getByRole('slider', { name: 'Threshold' });
+  const prev = page.getByRole('button', { name: 'Previous step' });
+
+  // The pits: the first component, a second one, their merge, the end.
+  await viewer.locator('input[type=file]').setInputFiles({ name: 'pits.obj', mimeType: 'text/plain', buffer: Buffer.from(terrain()) });
+  await expect(viewer.locator('[data-bars] [role=option]')).toHaveCount(4);
+  await expect(prev).toBeDisabled();
+  await page.getByRole('button', { name: 'Follow the explanation' }).click();
+  await expect(step).toHaveText('Step 1 of 4');
+  await expect(text).toContainText('a component is born');
+  await expect(level).toHaveValue('0');
+  const next = page.getByRole('button', { name: 'Next step' });
+  // With the keyboard.
+  await next.focus();
+  await page.keyboard.press('Enter');
+  await expect(step).toHaveText('Step 2 of 4');
+  await expect(text).toContainText('another minimum');
+  // The deepest of the other pits, 2.25 deep, is born at 0.75 above the bottom (of 3): a quarter of the range.
+  await expect(level).toHaveValue('250');
+  await expect(viewer.locator('[data-bars] .bar.is-picked')).toHaveCount(1);
+  await page.keyboard.press('Enter');
+  await expect(step).toHaveText('Step 3 of 4');
+  await expect(text).toContainText('they merge and the younger one dies');
+  await expect(level).toHaveValue('1000');
+  await page.keyboard.press('Enter');
+  await expect(step).toHaveText('Step 4 of 4');
+  await expect(text).toContainText('the Betti numbers: 1 component(s), 0 loop(s), 0 cavity(ies)');
+  await expect(next).toBeDisabled();
+  await prev.click();
+  await expect(step).toHaveText('Step 3 of 4');
+
+  // The standing torus: a component, a loop at a saddle, the cavity at the top, the end.
+  await page.getByRole('button', { name: 'Torus' }).click();
+  await expect(viewer.locator('[data-bars] [role=option]')).toHaveCount(4);
+  await page.getByRole('button', { name: 'Follow the explanation' }).click();
+  await expect(step).toHaveText('Step 1 of 4');
+  await page.getByRole('button', { name: 'Next step' }).click();
+  await expect(text).toContainText('a loop is born');
+  await page.getByRole('button', { name: 'Next step' }).click();
+  await expect(text).toContainText('a cavity is born');
+
+  // The axes say what they show.
+  await expect(viewer.locator('[data-diagram]')).toContainText('height where it is born');
+  await expect(viewer.locator('[data-diagram]')).toContainText('height where it dies');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  const a11y = await new AxeBuilder({ page }).include('[data-topo-viewer]').withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('the topology viewer draws the Reeb graph, with as many loops as the genus (sprint 38)', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

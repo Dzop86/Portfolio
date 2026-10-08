@@ -1,5 +1,6 @@
 // Topology viewer: a mesh coloured by Gaussian curvature, or by its height with the height filtration and
-// its critical points (sprint 36), its persistence diagram (sprint 37) and its Reeb graph (sprint 38), with its invariants, all computed by the C++ library of
+// its critical points (sprint 36), its persistence diagram (sprint 37), barcode and guided explanation (sprint 39) and
+// its Reeb graph (sprint 38), with its invariants, all computed by the C++ library of
 // projects/topologie compiled to WebAssembly. Bundled with three.js at build time (D17).
 import {
   AmbientLight, BufferAttribute, BufferGeometry, Color, DirectionalLight, DoubleSide, Group, LineBasicMaterial, LineSegments, Mesh,
@@ -7,8 +8,8 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  AXES, clipArcs, criticalCounts, diagram, elevation, filtration, interiorCurvature, loadTopo, nodeKind, persistence, quantileScale,
-  readTopology, reeb, turns,
+  AXES, aliveAt, barcode, clipArcs, criticalCounts, diagram, elevation, filtration, interiorCurvature, levelBetween, loadTopo, nodeKind,
+  persistence, quantileScale, readTopology, reeb, tour, turns,
 } from '../assets/topo-api.js';
 
 const root = document.querySelector('[data-topo-viewer]');
@@ -38,6 +39,16 @@ function start(root) {
   const persPlot = root.querySelector('[data-diagram]');
   const persRows = root.querySelector('[data-pers-table] tbody');
   const persDetails = persRows.closest('details');
+  const bars = root.querySelector('[data-bars]');
+  const barsAlive = root.querySelector('[data-bars-alive]');
+  const barsHidden = root.querySelector('[data-bars-hidden]');
+  const pickText = root.querySelector('[data-pick]');
+  const tourBox = root.querySelector('[data-tour]');
+  const tourStep = root.querySelector('[data-tour-step]');
+  const tourText = root.querySelector('[data-tour-text]');
+  const tourPrev = root.querySelector('[data-tour-prev]');
+  const tourNext = root.querySelector('[data-tour-next]');
+  const tourLead = tourText.textContent;
   const shapes = JSON.parse(root.dataset.shapes);
   const reebShow = root.querySelector('[data-reeb-show]');
   const reebSummary = root.querySelector('[data-reeb-summary]');
@@ -125,7 +136,14 @@ function start(root) {
     r.heightColours = heightColours(r.elevation);
     r.counts = criticalCounts(r.elevation.critical);
     r.persistence = persistence(r.lib, r.elevation);
+    r.pairIndex = new Map((r.persistence.pairs ?? []).map((q, i) => [q, i]));
     r.reeb = reeb(r.lib);
+    const { height, order } = r.elevation;
+    r.lo = height[order[0]];
+    r.hi = height[order[order.length - 1]];
+    r.tour = r.persistence.tooLarge ? [] : tour(r.persistence.pairs, r.lo, r.hi);
+    r.tourAt = -1;
+    r.picked = null;
   }
 
   // One sphere and one material per kind, shared by every marker and every mesh: clearing the group frees
@@ -136,6 +154,8 @@ function start(root) {
 
   function placeMarkers(r) {
     markers.clear();
+    halos.clear();
+    pickText.hidden = true;
     for (const p of r.elevation.critical) {
       const m = new Mesh(ball, markerMaterial[p.kind]);
       m.position.set(r.positions[3 * p.vertex], r.positions[3 * p.vertex + 1], r.positions[3 * p.vertex + 2]);
@@ -174,6 +194,7 @@ function start(root) {
     if (mode() !== 'height') {
       shape.geometry.setDrawRange(0, Infinity);
       markers.visible = false;
+      halos.visible = false;
       reebLines.visible = false;
       Object.assign(shape.material, { transparent: false, opacity: 1, depthWrite: true, needsUpdate: true });
       render();
@@ -186,6 +207,7 @@ function start(root) {
     const faces = rank < 0 ? 0 : r.filtration.faces(rank);
     shape.geometry.setDrawRange(0, 3 * faces);
     markers.visible = true;
+    halos.visible = true;
     // Under the level, and not only the end of pairs shorter than the persistence threshold.
     const kept = r.persistence.tooLarge ? null : diagram(r.persistence.pairs, persistenceThreshold(r)).vertices;
     for (const m of markers.children) m.visible = m.userData.rank <= rank && (!kept || kept.has(m.userData.vertex));
@@ -199,6 +221,7 @@ function start(root) {
     levelValue.textContent = fill(labels['height.value'], { h: num(h - lo, 2), max: num(hi - lo, 2) });
     sublevel.textContent = fill(labels.sublevel, { faces: num(faces), total: num(r.indices.length / 3), chi: rank < 0 ? 0 : euler[rank] });
     drawChi(r, h);
+    levelOnBars(r, h, rank < 0 ? 0 : euler[rank]);
     render();
   }
 
@@ -215,11 +238,12 @@ function start(root) {
     if (!shape) return;
     const r = shape.userData;
     const p = r.persistence;
-    const parts = [persPlot, tau.closest('.rt-slider'), persDetails];
+    const parts = [persPlot, tau.closest('.rt-slider'), persDetails, bars, barsAlive, tourBox];
     parts.forEach((el) => el.toggleAttribute('hidden', Boolean(p.tooLarge)));
     if (p.tooLarge) {
       persSummary.textContent = fill(labels['pers.toolarge'], { limit: num(p.limit) });
       persHidden.hidden = true;
+      barsHidden.hidden = true;
       return;
     }
     const { height, order } = r.elevation;
@@ -242,26 +266,206 @@ function start(root) {
     const value = (v) => (v === Infinity ? labels['pers.never'] : num(v - lo, 2));
     const marks = all.drawn.map((q) => {
       const noise = q.death - q.birth <= t;
-      const title = fill(labels['pers.point'], { dim: dimName(q.dimension), birth: value(q.birth), death: value(q.death) });
-      return `<g class="pers-point${q.deathVertex === null ? ' is-essential' : ''}${noise ? ' is-noise' : ''}" transform="translate(${x(q.birth).toFixed(1)} ${y(q.death).toFixed(1)})">`
-        + `<title>${escapeXml(title)}</title><path class="pers-shape is-h${q.dimension}" d="${shapes[q.dimension]}"/></g>`;
+      return `<g ${option(r, q)} class="pers-point${q.deathVertex === null ? ' is-essential' : ''}${noise ? ' is-noise' : ''}" transform="translate(${x(q.birth).toFixed(1)} ${y(q.death).toFixed(1)})">`
+        + `<circle class="pers-ring" r="7"/><path class="pers-shape is-h${q.dimension}" d="${shapes[q.dimension]}"/></g>`;
     }).join('');
     // The noise band: points under the dashed line live less than the threshold.
     // Between the diagonal and the line death = birth + threshold.
     const tt = Math.min(t, span);
     const band = t > 0 ? `<path class="pers-band" d="M${x(lo)},${y(lo)} L${x(hi)},${y(hi)} L${x(hi - tt)},${y(hi)} L${x(lo)},${y(lo + tt)} Z"/>` : '';
-    persPlot.innerHTML = `${persPlot.querySelector('desc').outerHTML}`
+    // Axes and labels are drawing only: inside the listbox, screen readers meet the pairs alone.
+    persPlot.innerHTML = `${persPlot.querySelector('desc').outerHTML}<g aria-hidden="true">`
       + `<line class="pers-axis" x1="40" x2="285" y1="285" y2="285"/><line class="pers-axis" x1="40" x2="40" y1="40" y2="285"/>`
       + `<line class="pers-infinity" x1="40" x2="285" y1="14" y2="14"/><text x="4" y="18">∞</text>`
       + `<text x="4" y="289">0</text><text x="285" y="299" text-anchor="end">${num(hi - lo, 2)}</text>`
-      + band + `<line class="pers-diagonal" x1="${x(lo)}" y1="${y(lo)}" x2="${x(hi)}" y2="${y(hi)}"/>${marks}`;
+      + `<text x="162" y="314" text-anchor="middle">${escapeXml(labels['pers.axis.birth'])}</text>`
+      + `<text transform="translate(30 162) rotate(-90)" text-anchor="middle">${escapeXml(labels['pers.axis.death'])}</text>`
+      + band + `<line class="pers-diagonal" x1="${x(lo)}" y1="${y(lo)}" x2="${x(hi)}" y2="${y(hi)}"/></g>${marks}`;
+    drawBars(r, t);
 
     // The table, for screen readers and for reading values: the kept pairs, the most persistent first.
-    persRows.innerHTML = kept.drawn.slice(0, TABLE_ROWS).map((q) => `<tr><th scope="row">${escapeXml(dimName(q.dimension))}</th>`
+    persRows.innerHTML = kept.drawn.slice(0, TABLE_ROWS).map((q) => `<tr data-pair="${r.pairIndex.get(q)}"><th scope="row">`
+      + `<button type="button" class="pers-pick" data-pair="${r.pairIndex.get(q)}" aria-pressed="false">${escapeXml(dimName(q.dimension))}</button></th>`
       + `<td class="num">${value(q.birth)}</td><td class="num">${value(q.death)}</td>`
       + `<td class="num">${q.deathVertex === null ? '∞' : num(q.death - q.birth, 2)}</td></tr>`).join('')
       + (kept.kept.length > TABLE_ROWS ? `<tr><td colspan="4">${escapeXml(fill(labels['pers.more'], { n: num(kept.kept.length - TABLE_ROWS) }))}</td></tr>` : '');
+    markPicked(r);
   }
+
+  // --- barcode and picked pair (sprint 39) --------------------------------------------------------
+  // Bars and points are options of two listboxes, reached with Tab then the arrows (roving tabindex); their index in
+  // the pairs is shared with the table, so that a pair picked anywhere is marked everywhere.
+  function option(r, q) {
+    const label = fill(labels['pers.point'], { dim: labels[`pers.dim.${q.dimension}`], birth: value(r, q.birth), death: value(r, q.death) });
+    return `role="option" tabindex="-1" aria-selected="false" aria-label="${escapeXml(label)}" data-pair="${r.pairIndex.get(q)}"`;
+  }
+
+  function value(r, v) {
+    return v === Infinity ? labels['pers.never'] : num(v - r.lo, 2);
+  }
+
+  const BAR_STEP = 10;
+
+  function drawBars(r, t) {
+    const { lo, hi } = r;
+    const span = hi > lo ? hi - lo : 1;
+    const x = (v) => 40 + ((Math.min(v, hi) - lo) / span) * 245;
+    const { groups, hidden } = barcode(r.persistence.pairs);
+    let top = 4;
+    let drawing = '', options = '';
+    groups.forEach((group, d) => {
+      if (group.length === 0) return;
+      drawing += `<text class="bars-group" x="4" y="${top + 9}">${escapeXml(labels[`pers.dim.${d}`])}</text>`;
+      top += 15;
+      for (const q of group) {
+        const essential = q.death === Infinity;
+        const x0 = x(q.birth), x1 = essential ? 291 : Math.max(x(q.death), x0 + 1.5);
+        const arrow = essential ? `<path class="bar-line is-h${d}" d="M291,${top + 0.5} l6,4 l-6,4Z"/>` : '';
+        options += `<g ${option(r, q)} class="bar${q.death - q.birth <= t ? ' is-noise' : ''}">`
+          + `<rect class="bar-hit" x="0" y="${top}" width="300" height="${BAR_STEP}"/>`
+          + `<rect class="bar-line is-h${d}" x="${x0.toFixed(1)}" y="${top + 2}" width="${(x1 - x0).toFixed(1)}" height="5"/>${arrow}</g>`;
+        top += BAR_STEP;
+      }
+    });
+    const axis = top + 4;
+    bars.setAttribute('viewBox', `0 0 300 ${axis + 26}`);
+    bars.innerHTML = `${bars.querySelector('desc').outerHTML}<g aria-hidden="true">${drawing}`
+      + `<line class="pers-axis" x1="40" x2="291" y1="${axis}" y2="${axis}"/>`
+      + `<text x="40" y="${axis + 12}" text-anchor="middle">0</text><text x="285" y="${axis + 12}" text-anchor="end">${num(hi - lo, 2)}</text>`
+      + `<text x="162" y="${axis + 24}" text-anchor="middle">${escapeXml(labels['bars.axis'])}</text>`
+      + `<line class="bars-level" data-bars-level x1="40" x2="40" y1="0" y2="${axis}"/></g>${options}`;
+    barsHidden.hidden = hidden === 0;
+    barsHidden.textContent = fill(labels['bars.hidden'], { n: num(hidden) });
+  }
+
+  // The threshold across the bars: those it crosses are alive at that level (their count is chi).
+  function levelOnBars(r, h, chiAt) {
+    if (r.persistence.tooLarge) return;
+    const line = bars.querySelector('[data-bars-level]');
+    const at = (40 + ((h - r.lo) / (r.hi > r.lo ? r.hi - r.lo : 1)) * 245).toFixed(1);
+    line.setAttribute('x1', at);
+    line.setAttribute('x2', at);
+    const { pairs } = r.persistence;
+    for (const el of bars.querySelectorAll('.bar')) {
+      const q = pairs[Number(el.dataset.pair)];
+      el.classList.toggle('is-alive', q.birth <= h && h < q.death);
+    }
+    const [h0, h1, h2] = aliveAt(pairs, h);
+    barsAlive.textContent = fill(labels['bars.alive'], { h0, h1, h2, chi: chiAt });
+  }
+
+  // Halos around the vertices of the picked pair, seen through the mesh.
+  const halos = new Group();
+  halos.renderOrder = 3;
+  scene.add(halos);
+  const haloBall = new SphereGeometry(0.065, 16, 12);
+  // In the text colour: pistachio, the top of the height scale, would vanish on the highest vertices.
+  const haloMaterial = new MeshBasicMaterial({ color: token('--text-strong'), transparent: true, opacity: 0.6, depthTest: false });
+
+  function markPicked(r) {
+    for (const el of root.querySelectorAll('[data-pair]')) {
+      const on = Number(el.dataset.pair) === r.picked;
+      el.classList.toggle('is-picked', on);
+      if (el.getAttribute('role') === 'option') el.setAttribute('aria-selected', String(on));
+      if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(on));
+    }
+    // Roving tabindex: the picked option, or the first one, is the listbox's tab stop.
+    for (const list of [bars, persPlot]) {
+      const options = [...list.querySelectorAll('[role=option]')];
+      const stop = options.find((o) => o.classList.contains('is-picked')) ?? options[0];
+      options.forEach((o) => o.setAttribute('tabindex', o === stop ? '0' : '-1'));
+    }
+  }
+
+  // Picks a pair (its index in the pairs, or null): marks it everywhere, circles its vertices and, with `move`, puts
+  // the height threshold between its birth and its death.
+  function pick(index, { move = true } = {}) {
+    if (!shape) return;
+    const r = shape.userData;
+    if (index === r.picked && !move) return;
+    r.picked = index;
+    halos.clear();
+    markPicked(r);
+    if (index === null) {
+      pickText.hidden = true;
+      render();
+      return;
+    }
+    const q = r.persistence.pairs[index];
+    for (const v of [q.birthVertex, q.deathVertex]) {
+      if (v === null) continue;
+      const m = new Mesh(haloBall, haloMaterial);
+      m.renderOrder = 3;
+      m.position.set(r.positions[3 * v], r.positions[3 * v + 1], r.positions[3 * v + 2]);
+      halos.add(m);
+    }
+    pickText.textContent = fill(labels[q.deathVertex === null ? 'pick.never' : 'pick.dies'], {
+      dim: labels[`pers.dim.${q.dimension}`], bv: q.birthVertex, dv: q.deathVertex, birth: value(r, q.birth), death: value(r, q.death),
+    });
+    pickText.hidden = false;
+    if (move) {
+      level.value = String(levelBetween(q, r.lo, r.hi));
+      applyLevel();
+    } else render();
+  }
+
+  const pairOf = (el) => el?.closest('[data-pair]');
+  // A real move of a mouse: picking shows a sentence that shifts the page, and WebKit then sends a `pointermove` where the
+  // pointer already was, for whatever slid under it (`movementX` does not tell: WebKit leaves it at 0 for real moves
+  // too). The previous position is kept for the whole page; before any move, nothing is a hover. A finger picks by `click`.
+  let before = null, now = null;
+  document.addEventListener('pointermove', (e) => { before = now; now = `${e.clientX},${e.clientY}`; }, true);
+  function hover(e) {
+    if (before === null || before === now) return;
+    const el = pairOf(e.target);
+    if (e.pointerType === 'mouse' && el && Number(el.dataset.pair) !== shape?.userData.picked) pick(Number(el.dataset.pair));
+  }
+  for (const list of [bars, persPlot]) {
+    list.addEventListener('pointermove', hover);
+    list.addEventListener('click', (e) => { const el = pairOf(e.target); if (el) pick(Number(el.dataset.pair)); });
+    // `focus` in the capture phase: WebKit sends no `focusin` for SVG elements.
+    list.addEventListener('focus', (e) => { const el = pairOf(e.target); if (el && Number(el.dataset.pair) !== shape?.userData.picked) pick(Number(el.dataset.pair)); }, true);
+    list.addEventListener('keydown', (e) => {
+      const options = [...list.querySelectorAll('[role=option]')];
+      const k = options.indexOf(document.activeElement);
+      const to = { ArrowDown: k + 1, ArrowRight: k + 1, ArrowUp: k - 1, ArrowLeft: k - 1, Home: 0, End: options.length - 1 }[e.key];
+      if (to === undefined || options.length === 0) return;
+      e.preventDefault();
+      const target = options[Math.max(0, Math.min(options.length - 1, to))];
+      target.focus();
+      if (Number(target.dataset.pair) !== shape?.userData.picked) pick(Number(target.dataset.pair));
+    });
+  }
+  persRows.addEventListener('click', (e) => { const el = e.target.closest('button[data-pair]'); if (el) pick(Number(el.dataset.pair)); });
+  persRows.addEventListener('pointermove', hover);
+
+  // --- guided explanation (sprint 39) ----------------------------------------------------------------
+  function showTour() {
+    const r = shape?.userData;
+    if (!r) return;
+    const steps = r.tour;
+    const k = r.tourAt;
+    tourPrev.disabled = k <= 0;
+    tourNext.disabled = k >= steps.length - 1;
+    tourNext.textContent = k < 0 ? labels['tour.start'] : labels['tour.next'];
+    if (k < 0) {
+      tourStep.textContent = '';
+      tourText.textContent = tourLead;
+      return;
+    }
+    const step = steps[k];
+    const q = step.pair;
+    const h = q === null ? r.hi : ['merge', 'fill'].includes(step.key) ? q.death : q.birth;
+    tourStep.textContent = fill(labels['tour.step'], { k: k + 1, n: steps.length });
+    const [b0, b1, b2] = r.persistence.betti;
+    tourText.textContent = fill(labels[`tour.${step.key}`], { h: num(h - r.lo, 2), b0, b1, b2 });
+    level.value = String(step.level);
+    applyLevel();
+    pick(q === null ? null : r.pairIndex.get(q), { move: false });
+  }
+
+  tourNext.addEventListener('click', () => { if (shape) { shape.userData.tourAt += 1; showTour(); } });
+  tourPrev.addEventListener('click', () => { if (shape) { shape.userData.tourAt -= 1; showTour(); } });
 
   function escapeXml(text) {
     return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -350,6 +554,7 @@ function start(root) {
     if (height) {
       drawPersistence();
       drawReeb(r);
+      showTour();
     }
     applyLevel();
   }

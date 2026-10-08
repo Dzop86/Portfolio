@@ -276,3 +276,72 @@ export function filtration(indices, { height, order }) {
     },
   };
 }
+
+/**
+ * The barcode (sprint 39): the `max` most persistent pairs with a positive persistence, one bar each, grouped by
+ * dimension and, inside a group, from the earliest birth (the longest first on ties), and how many are not drawn.
+ */
+export function barcode(pairs, max = 60) {
+  const { drawn, hidden } = diagram(pairs, 0, max);
+  const order = (a, b) => (a.birth !== b.birth ? a.birth - b.birth : a.death === b.death ? 0 : a.death > b.death ? -1 : 1);
+  return { groups: [0, 1, 2].map((d) => drawn.filter((p) => p.dimension === d).sort(order)), hidden };
+}
+
+/**
+ * Classes alive in the sublevel set at height `h`, per dimension: born at or below it and not yet dead
+ * (birth <= h < death). They are the Betti numbers of that sublevel set, so b0 - b1 + b2 is its chi.
+ */
+export function aliveAt(pairs, h) {
+  const alive = [0, 0, 0];
+  for (const p of pairs) if (p.birth <= h && h < p.death) alive[p.dimension] += 1;
+  return alive;
+}
+
+/**
+ * Position of the height slider (0 to 1000 thousandths of [lo, hi]) where the pair is alive, halfway between its
+ * birth and its death (the top for a class that never dies); at its birth if it is too short to fall between two
+ * positions.
+ */
+export function levelBetween(pair, lo, hi) {
+  const span = hi > lo ? hi - lo : 1;
+  const born = Math.min(1000, Math.max(0, Math.ceil(((pair.birth - lo) / span) * 1000)));
+  // The first position where it is dead.
+  const dead = pair.death === Infinity ? 1001 : Math.ceil(((pair.death - lo) / span) * 1000);
+  return dead > born ? Math.floor((born + dead - 1) / 2) : born;
+}
+
+/** The first slider position at or above a height (thousandths of [lo, hi]). */
+export function levelAt(h, lo, hi) {
+  const span = hi > lo ? hi - lo : 1;
+  return Math.min(1000, Math.max(0, Math.ceil(((h - lo) / span) * 1000)));
+}
+
+/**
+ * Steps of the guided explanation (sprint 39) for these pairs: the level rises from the lowest vertex, each step
+ * puts the slider at a birth or a death (thousandths) and points at the pair concerned. Pairs shorter than
+ * `noise` (a share of the height range) are left out; only the most persistent pair of each kind is told.
+ */
+export function tour(pairs, lo, hi, noise = 0.02) {
+  const span = hi > lo ? hi - lo : 1;
+  const life = (p) => p.death - p.birth;
+  const real = pairs.filter((p) => life(p) > noise * span);
+  const longest = (list) => list.reduce((a, b) => (a === null || life(b) > life(a) ? b : a), null);
+  const steps = [];
+  const first = longest(real.filter((p) => p.dimension === 0 && p.death === Infinity));
+  if (first) steps.push({ key: 'first', pair: first, level: levelAt(first.birth, lo, hi) });
+  const second = longest(real.filter((p) => p.dimension === 0 && p.death !== Infinity));
+  if (second) {
+    steps.push({ key: 'second', pair: second, level: levelAt(second.birth, lo, hi) });
+    steps.push({ key: 'merge', pair: second, level: levelAt(second.death, lo, hi) });
+  }
+  const loop = longest(real.filter((p) => p.dimension === 1));
+  if (loop) {
+    steps.push({ key: 'loop', pair: loop, level: levelAt(loop.birth, lo, hi) });
+    if (loop.death !== Infinity) steps.push({ key: 'fill', pair: loop, level: levelAt(loop.death, lo, hi) });
+  }
+  const cavity = longest(real.filter((p) => p.dimension === 2));
+  if (cavity) steps.push({ key: 'cavity', pair: cavity, level: levelAt(cavity.birth, lo, hi) });
+  steps.push({ key: 'end', pair: null, level: 1000 });
+  // In the order the level reaches them (a loop may be born before a second minimum).
+  return steps.sort((a, b) => a.level - b.level);
+}
