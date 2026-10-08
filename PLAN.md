@@ -14,7 +14,7 @@ Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40 | 8 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40 | 9 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S40 | 30 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6 | 8 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
@@ -36,7 +36,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 
-Total : 195 points sur 40 sprints de deux semaines.
+Total : 196 points sur 40 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -70,7 +70,7 @@ Sprint 36 (4 points, topologie passe de 13 à 17) : sur la visionneuse de topolo
 Deux sprints de 4 points, topologie passe de 17 à 25. Sprint 37 : diagrammes de persistance de la hauteur (paires naissance-mort en dimensions 0, 1 et 2, classes sans fin égales aux nombres de Betti), calculés en C++ par réduction de la matrice de bord, affichés sur la fiche avec un seuil qui sépare le bruit des vraies formes. Sprint 38 : graphe de Reeb de la hauteur (composantes des lignes de niveau entre deux valeurs critiques), autant de boucles que le genre, dessiné sur le maillage.
 
 ## Relecture de la persistance, temps de calcul, G-cartes (demande de Charles, 8 octobre 2026, D49)
-Huit points, deux sprints. Sprint 39 (3 points, topologie) : le diagramme de persistance, jugé peu clair à la relecture, est repensé : code-barres à côté du nuage, chaque paire reliée à ses deux sommets sur le maillage, explication guidée qui suit le seuil de hauteur. Sprint 40 (5 points) : temps de calcul mesurés de la persistance et du graphe de Reeb, affichés sur la fiche, avec ce qu'apporterait un GPU, et la limite de 32 Mo des fichiers expliquée (topologie, 2 points, qui passe à 30) ; le cours G-cartes corrigé : décomposition d'un objet par dimensions croissantes, α0, α1, α2, et liaisons αi redessinées (G-cartes, 2 points, qui passe à 7) ; le nombre de projets et de points à jour partout, captures des tableaux de bord comprises (vitrine, 1 point, qui passe à 8).
+Neuf points, deux sprints. Sprint 39 (3 points, topologie) : le diagramme de persistance, jugé peu clair à la relecture, est repensé : code-barres à côté du nuage, chaque paire reliée à ses deux sommets sur le maillage, explication guidée qui suit le seuil de hauteur. Sprint 40 (6 points) : temps de calcul mesurés de la persistance et du graphe de Reeb, affichés sur la fiche, avec ce qu'apporterait un GPU, et la limite de 32 Mo des fichiers expliquée (topologie, 2 points, qui passe à 30) ; le cours G-cartes corrigé : décomposition d'un objet par dimensions croissantes, α0, α1, α2, et liaisons αi redessinées (G-cartes, 2 points, qui passe à 7) ; le nombre de projets et de points à jour partout, captures des tableaux de bord comprises (vitrine, 1 point) ; le burndown compté en stories livrées, chaque ajout de périmètre visible au sprint où il arrive (vitrine, 1 point, qui passe à 9).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
