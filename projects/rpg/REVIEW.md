@@ -19,6 +19,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Cases cochées par Claude le 9 octobre 2026, à la demande explicite de Charles (« tout marche, tu peux valider »), pour les sprints 45 à 50 (règles, client Godot, serveur, création de personnage, village, launcher et fiche), après son essai du launcher et du jeu sous Windows.
 
 - [ ] Sprint 51 : le launcher chez toi (paquet de la CI) : connexion, inscription, cases « mémoriser » (le mot de passe revient-il au lancement suivant ?), mise à jour automatique ; et `launcher/core/src/account.rs` (ce qui est mémorisé, où, et ce qui est oublié).
+- [ ] Sprint 52 : l'ouverture du jeu par le launcher (le serveur Osméria passé d'office, les cartes des personnages, « Jouer », la suppression confirmée) ; sans le launcher, le message et « Jouer hors ligne ».
 
 ## Constats
 
@@ -62,4 +63,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `launcher/ui/style.css` | (Claude) Vu sur la capture : le champ « Confirmer le mot de passe » s'affichait en mode connexion (`display: grid` des libellés l'emportait sur `hidden`), et la fenêtre coupait la barre de mise à jour | `[hidden] { display: none !important }`, fenêtre de 720 px ; Playwright vérifie les deux |
 | 2026-10-09 | `launcher/ui/main.js` | (Claude) Tailles affichées « 3.0 Mo » en français | Virgule décimale en français, testée |
 | 2026-10-09 | `launcher/ui` | (Claude) La page du launcher n'avait aucun test : sa logique (ordre mise à jour, connexion, lancement) n'était vérifiée nulle part | Playwright avec un faux `window.__TAURI__`, sur les cinq navigateurs |
+| 2026-10-09 | `godot/Portrait.cs` | (Claude) « Node not inside tree » : la caméra du portrait était orientée par `LookAt` avant d'entrer dans la scène | Orientation calculée (`Transform3D.LookingAt`) |
+| 2026-10-09 | `src/Rpg.Client/Texts.cs` | (Claude) Le bouton du personnage disait « Combattre » alors qu'il mène au village | « Jouer » |
+| 2026-10-09 | `src/Rpg.Api/Data/Migrations` | (Claude) Migration générée avec le serveur « origine » avant que Charles ne choisisse « Osméria » | Migration non commitée retirée à la main et régénérée (`ef migrations remove` voulait une base) |
 | | | | |
