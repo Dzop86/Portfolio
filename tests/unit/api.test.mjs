@@ -96,7 +96,7 @@ test('integration: the build writes the API under api/v1, as valid JSON identica
 test('the React project page links to the dashboard in its own language and shows it', () => {
   const out = build(mkdtempSync(join(tmpdir(), 'react-page-')));
   for (const lang of ['fr', 'en']) {
-    const html = readFileSync(join(out, lang, 'project-react.html'), 'utf8');
+    const html = readFileSync(join(out, lang, 'project-react.html'), 'utf8').replace(/(\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))\?v=[0-9a-f]{10}"/g, '$1"');
     assert.match(html, new RegExp(`href="\\.\\./dashboard/\\?lang=${lang}" data-link="demo"`));
     // The dashboard block: its link, and both screenshots in the page's language, with their text.
     assert.match(html, new RegExp(`href="\\.\\./dashboard/\\?lang=${lang}" data-dashboard`));

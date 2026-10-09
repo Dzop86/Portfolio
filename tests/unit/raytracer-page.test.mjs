@@ -11,7 +11,7 @@ const out = build(mkdtempSync(join(tmpdir(), 'raytracer-')));
 
 test('the ray tracer page has its scenes, finishes, sliders and every label, in each language', () => {
   for (const lang of ['fr', 'en']) {
-    const html = readFileSync(join(out, lang, 'project-raytracer.html'), 'utf8');
+    const html = readFileSync(join(out, lang, 'project-raytracer.html'), 'utf8').replace(/(\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))\?v=[0-9a-f]{10}"/g, '$1"');
     assert.ok(html.includes('data-raytracer'), lang);
     assert.match(html, /<canvas width="480" height="270" role="img" aria-label="[^"]+">/);
     // Five scenes: the spheres, then the four meshes of the topology project, which the site publishes.
@@ -55,7 +55,7 @@ test('the ray tracer page has its scenes, finishes, sliders and every label, in 
   assert.equal(bench.rows[0].speedup, 1);
   for (const r of bench.rows) assert.ok(r.msPerPass > 0 && Math.abs(r.speedup - bench.rows[0].msPerPass / r.msPerPass) < 0.01, `${r.workers}`);
   for (const lang of ['fr', 'en']) {
-    const html = readFileSync(join(out, lang, 'project-raytracer.html'), 'utf8');
+    const html = readFileSync(join(out, lang, 'project-raytracer.html'), 'utf8').replace(/(\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))\?v=[0-9a-f]{10}"/g, '$1"');
     assert.equal((html.match(/<tr><th scope="row">\d+<\/th>/g) || []).length, bench.rows.length, lang);
     assert.ok(html.includes(bench.machine.cpu), lang);
   }

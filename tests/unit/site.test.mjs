@@ -10,7 +10,8 @@ import { renderPage, renderProjectPage } from '../../src/templates.mjs';
 import { LANGS, PAGES, REPO_URL, ROOT as ROOT_DIR, loadData, pick, projectPage, esc, progress, techsOf, makeT, velocity, burndown } from '../../src/lib.mjs';
 
 const dist = build(mkdtempSync(join(tmpdir(), 'portfolio-')));
-const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8');
+// Without the fingerprints of pictures and videos (?v=...), which only change the address: their own test checks them.
+const page = (lang, p) => readFileSync(join(dist, lang, `${p}.html`), 'utf8').replace(/(\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))\?v=[0-9a-f]{10}"/g, '$1"');
 
 test('every page exists in both languages with the right lang attribute', () => {
   for (const lang of LANGS) {
@@ -50,6 +51,22 @@ test('every stylesheet and script carries the fingerprint of its current content
       }
     }
   }
+});
+
+test('every picture and video carries the fingerprint of its current content', () => {
+  // A capture redone under the same name (Margaux renamed Ondine) stayed in browsers for ten minutes or more.
+  let count = 0;
+  for (const lang of LANGS) {
+    for (const file of readdirSync(join(dist, lang))) {
+      const html = readFileSync(join(dist, lang, file), 'utf8');
+      for (const [, asset, , version] of html.matchAll(/(?:href|src|poster)="\.\.\/assets\/([^"?]+\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))(\?v=([0-9a-f]+))?"/g)) {
+        const hash = createHash('sha256').update(readFileSync(join(dist, 'assets', asset))).digest('hex').slice(0, 10);
+        assert.equal(version, hash, `${lang}/${file}: ${asset}`);
+        count++;
+      }
+    }
+  }
+  assert.ok(count > 0, 'no picture found');
 });
 
 test('the language switch points to the same page in the other language', () => {

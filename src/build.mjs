@@ -75,11 +75,12 @@ export function build(outDir = join(ROOT, 'dist'), { basePath = BASE_PATH } = {}
     logLevel: 'error',
   });
 
-  // Every stylesheet and script link carries a fingerprint of the file (style.css?v=1a2b3c4d): GitHub
-  // Pages lets browsers keep assets for ten minutes, and a new page with an old style.css drew the
-  // charts all black (remark of Charles). A changed file now has a new address.
+  // Every stylesheet, script, picture and video link carries a fingerprint of the file
+  // (style.css?v=1a2b3c4d): GitHub Pages lets browsers keep assets for ten minutes, and a new page
+  // with an old style.css drew the charts all black, then a redone capture showed its old version
+  // (remarks of Charles). A changed file now has a new address.
   const fingerprints = new Map();
-  const versioned = (html) => html.replace(/(href|src)="((?:\.\.?\/)assets\/([^"?#]+\.(?:css|js)))"/g, (_, attr, url, file) => {
+  const versioned = (html) => html.replace(/(href|src|poster)="((?:\.\.?\/)assets\/([^"?#]+\.(?:css|js|png|jpe?g|webp|avif|gif|svg|mp4|webm)))"/g, (_, attr, url, file) => {
     if (!fingerprints.has(file)) fingerprints.set(file, createHash('sha256').update(readFileSync(join(outDir, 'assets', file))).digest('hex').slice(0, 10));
     return `${attr}="${url}?v=${fingerprints.get(file)}"`;
   });

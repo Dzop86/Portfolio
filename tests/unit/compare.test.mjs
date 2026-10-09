@@ -21,7 +21,7 @@ test('the comparison has every measure for both frameworks', () => {
 test('the Angular project page shows the measures and links to both dashboards, in each language', () => {
   const out = build(mkdtempSync(join(tmpdir(), 'compare-')));
   for (const lang of ['fr', 'en']) {
-    const html = readFileSync(join(out, lang, 'project-angular.html'), 'utf8');
+    const html = readFileSync(join(out, lang, 'project-angular.html'), 'utf8').replace(/(\.(?:png|jpe?g|webp|avif|gif|svg|mp4|webm))\?v=[0-9a-f]{10}"/g, '$1"');
     const table = html.slice(html.indexOf('data-compare'), html.indexOf('</table>', html.indexOf('data-compare')));
     assert.equal((table.match(/<tr data-row=/g) || []).length, 6);
     assert.ok(html.includes(`href="../angular/?lang=${lang}" data-dashboard="angular"`));
