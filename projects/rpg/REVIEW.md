@@ -24,6 +24,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 54 : `src/Rpg.Core/Fight.cs` (`Cast`, `Shove`, `Hurt`, décompte des états dans `NextTurn`) et `src/Rpg.Core/Effects.cs` : les règles des effets te conviennent-elles (dégâts de zone sur les alliés, 4 PV par collision, décompte à la fin du tour de celui qui porte l'état) ?
 - [ ] Sprint 55 : les formules (caractéristiques en pourcentage, soins et Intelligence) et les invocations jouées par l'IA, même dans ton équipe : te conviennent-elles ?
 - [ ] Sprint 56 : les 60 sorts des trois classes (`data/spells.json`, rôles et éléments), la règle de dégâts par PA (T27), la relance et l'érosion ; l'écran de création qui liste les sorts. **À trancher :** l'équilibre n'est atteint qu'au niveau 1 (T27, limites) ; je propose de refaire le haut niveau au sprint 58, avec les rangs et les caractéristiques.
+- [ ] Sprint 57 : le combat (survol d'un combattant, d'un sort visé, infobulle des sorts, frise en haut à droite, couleurs des éléments, traits et éclats) : est-ce lisible ? La couleur de chaque élément te va-t-elle (Terre ocre, Feu orange, Eau bleu, Air violet) ?
 
 ## Constats
 
@@ -95,3 +96,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `src/Rpg.Core/Ai.cs` | (Claude) Un réglage temporaire lu dans une variable d'environnement (`RPG_GAIN`) pendant les mesures | Retiré avant le commit : constante `StepAwayGain` |
 | 2026-10-09 | `samples/training-7.json`, `.github/workflows/rpg.yml` | (Claude) Le combat enregistré ne se rejouait plus (l'héroïne à 35 PV meurt plus tôt) | Réenregistré ; phrase attendue par la CI mise à jour |
 | 2026-10-09 | `godot/LobbyView.cs` | (Claude) Vu sur la capture : la liste des sorts repoussait le nom et les boutons « Créer » et « Annuler » sous le bas de l'écran en 1280 × 720 | Hauteurs minimales vides retirées, espacement resserré ; captures fr et en refaites, texte alternatif mis à jour |
+| 2026-10-09 | `godot/Hud.cs` | (Claude) Vu en préparant la frise : depuis le sprint 56, une classe de haut niveau a 20 sorts, et vingt boutons de 150 px sortaient de la barre | Au-delà de cinq sorts, boutons plus étroits avec le nom seul, la fiche complète en infobulle |
+| 2026-10-09 | `godot/Portrait.cs` | (Claude) Vu sur la capture : le portrait repeignait tous les modèles, alors que le plateau ne repeint que le héros du joueur | Repeint seulement pour le héros ; les autres gardent les couleurs de leur modèle |
+| 2026-10-09 | `godot/Main.cs` | (Claude) Le survol ne marchait qu'au tour du joueur | Panneau de survol à chaque tour, y compris celui de l'IA ; les aperçus de déplacement et de visée restent au tour du joueur |
