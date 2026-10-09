@@ -1,11 +1,11 @@
 [
-  { "id": "strike", "name": { "fr": "Frappe", "en": "Strike" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 8, "damageMax": 12, "perTurn": 2 },
-  { "id": "arrow", "name": { "fr": "Flèche", "en": "Arrow" }, "apCost": 4, "minRange": 2, "maxRange": 6, "lineOfSight": true, "inLine": false, "damageMin": 6, "damageMax": 10, "perTurn": 2 },
-  { "id": "spear", "name": { "fr": "Lance", "en": "Spear" }, "apCost": 3, "minRange": 1, "maxRange": 3, "lineOfSight": true, "inLine": true, "damageMin": 7, "damageMax": 9, "perTurn": 2 },
-  { "id": "club", "name": { "fr": "Massue", "en": "Club" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 5, "damageMax": 9, "perTurn": 3 },
-  { "id": "sling", "name": { "fr": "Fronde", "en": "Sling" }, "apCost": 3, "minRange": 1, "maxRange": 4, "lineOfSight": false, "inLine": false, "damageMin": 3, "damageMax": 6, "perTurn": 1 },
-  { "id": "axe", "name": { "fr": "Hache", "en": "Axe" }, "apCost": 4, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 9, "damageMax": 12, "perTurn": 1 },
-  { "id": "staff", "name": { "fr": "Bâton", "en": "Staff" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 5, "damageMax": 8, "perTurn": 2 },
-  { "id": "spark", "name": { "fr": "Étincelle", "en": "Spark" }, "apCost": 2, "minRange": 1, "maxRange": 4, "lineOfSight": false, "inLine": false, "damageMin": 4, "damageMax": 6, "perTurn": 2 },
-  { "id": "fireball", "name": { "fr": "Boule de feu", "en": "Fireball" }, "apCost": 4, "minRange": 2, "maxRange": 5, "lineOfSight": true, "inLine": false, "damageMin": 9, "damageMax": 13, "perTurn": 1 }
+  { "id": "strike", "name": { "fr": "Frappe", "en": "Strike" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 8, "damageMax": 12, "perTurn": 2, "element": "Earth" },
+  { "id": "arrow", "name": { "fr": "Flèche", "en": "Arrow" }, "apCost": 4, "minRange": 2, "maxRange": 6, "lineOfSight": true, "inLine": false, "damageMin": 6, "damageMax": 10, "perTurn": 2, "element": "Air" },
+  { "id": "spear", "name": { "fr": "Lance", "en": "Spear" }, "apCost": 3, "minRange": 1, "maxRange": 3, "lineOfSight": true, "inLine": true, "damageMin": 7, "damageMax": 9, "perTurn": 2, "element": "Earth" },
+  { "id": "club", "name": { "fr": "Massue", "en": "Club" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 5, "damageMax": 9, "perTurn": 3, "element": "Earth" },
+  { "id": "sling", "name": { "fr": "Fronde", "en": "Sling" }, "apCost": 3, "minRange": 1, "maxRange": 4, "lineOfSight": false, "inLine": false, "damageMin": 3, "damageMax": 6, "perTurn": 1, "element": "Air" },
+  { "id": "axe", "name": { "fr": "Hache", "en": "Axe" }, "apCost": 4, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 9, "damageMax": 12, "perTurn": 1, "element": "Earth" },
+  { "id": "staff", "name": { "fr": "Bâton", "en": "Staff" }, "apCost": 3, "minRange": 1, "maxRange": 1, "lineOfSight": true, "inLine": false, "damageMin": 5, "damageMax": 8, "perTurn": 2, "element": "Fire" },
+  { "id": "spark", "name": { "fr": "Étincelle", "en": "Spark" }, "apCost": 2, "minRange": 1, "maxRange": 4, "lineOfSight": false, "inLine": false, "damageMin": 4, "damageMax": 6, "perTurn": 2, "element": "Fire" },
+  { "id": "fireball", "name": { "fr": "Boule de feu", "en": "Fireball" }, "apCost": 4, "minRange": 2, "maxRange": 5, "lineOfSight": true, "inLine": false, "damageMin": 9, "damageMax": 13, "perTurn": 1, "element": "Fire" }
 ]

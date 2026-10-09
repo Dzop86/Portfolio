@@ -28,6 +28,22 @@ public sealed class Fighter
     public IReadOnlyList<Spell> Spells { get; }
     public bool IsAlive => Hp > 0;
 
+    internal readonly List<Status> StatusList = [];
+    internal readonly List<(int Amount, int TurnsLeft)> Shields = [];
+
+    /// <summary>The statuses on the fighter, oldest first.</summary>
+    public IReadOnlyList<Status> Statuses => StatusList;
+
+    /// <summary>Damage the shields will absorb before the hit points.</summary>
+    public int Shield => Shields.Sum(s => s.Amount);
+
+    /// <summary>Resistance to an element now, in percent: the fighter's own and its statuses', at most 90.</summary>
+    public int Resistance(Element element) => element == Element.Neutral ? 0
+        : Math.Min(90, Spec.Resistance(element) + StatusList.Where(s => s.Stat == Stat.Resistance && (s.Element == element || s.Element == Element.Neutral)).Sum(s => s.Value));
+
+    /// <summary>Extra damage the fighter deals now, in percent (statuses), at least -100.</summary>
+    public int DamageBonus => Math.Max(-100, StatusList.Where(s => s.Stat == Stat.Damage).Sum(s => s.Value));
+
     public int CastsLeft(Spell spell) => spell.PerTurn - CastsThisTurn.GetValueOrDefault(spell.Id);
 }
 
@@ -40,6 +56,9 @@ public sealed class Fight
 {
     /// <summary>After this many rounds the fight is a draw, so that it always ends.</summary>
     public const int RoundLimit = 50;
+
+    /// <summary>Damage per cell a pushed fighter could not travel, against whatever stopped it.</summary>
+    public const int CollisionDamage = 4;
 
     private readonly List<Fighter> _order;
     private readonly List<FightAction> _history = [];
@@ -191,20 +210,138 @@ public sealed class Fight
         return ActionError.None;
     }
 
+    /// <summary>
+    /// The damage a hit of <paramref name="roll"/> does: more with the caster's damage bonus, less with
+    /// the target's resistance to the element; a neutral hit without bonus is the roll itself.
+    /// </summary>
+    public static int Damage(int roll, Fighter caster, Fighter target, Element element)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(target);
+        long scaled = (long)roll * (100 + caster.DamageBonus) * (100 - target.Resistance(element));
+        return (int)Math.Max(0, scaled / 10_000);
+    }
+
+    /// <summary>The living fighters on the cells of a spell's area, in the area's order, each once.</summary>
+    public IReadOnlyList<Fighter> InArea(Spell spell, Cell from, Cell target)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        var seen = new List<Fighter>();
+        foreach (Cell c in spell.Zone.Cells(from, target))
+        {
+            if (Board.Contains(c) && At(c) is Fighter f && !seen.Contains(f))
+                seen.Add(f);
+        }
+        return seen;
+    }
+
+    private static bool Touches(Affects affects, Fighter caster, Fighter other) => affects switch
+    {
+        Affects.Enemies => other.Team != caster.Team,
+        Affects.Allies => other.Team == caster.Team,
+        Affects.Caster => other == caster,
+        _ => true,
+    };
+
     private void Cast(Fighter me, Spell spell, Cell target)
     {
         me.Ap -= spell.ApCost;
         me.CastsThisTurn[spell.Id] = me.CastsThisTurn.GetValueOrDefault(spell.Id) + 1;
         _events.Add(new SpellCast(me.Id, spell.Id, target));
         // The roll is drawn even on an empty cell: the sequence of draws depends only on the actions.
-        int damage = _rng.Next(spell.DamageMin, spell.DamageMax);
-        if (At(target) is not Fighter hit)
+        int roll = _rng.Next(spell.DamageMin, spell.DamageMax);
+        IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
+        if (spell.DamageMax > 0)
+        {
+            foreach (Fighter hit in area)
+            {
+                if (hit.IsAlive)
+                    Hurt(hit, Damage(roll, me, hit, spell.Element));
+            }
+        }
+        foreach (SpellEffect effect in spell.AllEffects)
+        {
+            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) : 0;
+            IEnumerable<Fighter> touched = effect.Affects == Affects.Caster ? [me] : area.Where(f => Touches(effect.Affects, me, f));
+            foreach (Fighter f in touched.ToList())
+            {
+                if (IsOver || !f.IsAlive)
+                    continue;
+                switch (effect)
+                {
+                    case HealEffect:
+                        int healed = Math.Min(effectRoll, f.Spec.Hp - f.Hp);
+                        f.Hp += healed;
+                        _events.Add(new Healed(f.Id, healed, f.Hp));
+                        break;
+                    case ShieldEffect shield:
+                        f.Shields.Add((shield.Amount, shield.Turns));
+                        _events.Add(new Shielded(f.Id, shield.Amount, shield.Turns));
+                        break;
+                    case PushEffect push:
+                        Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true);
+                        break;
+                    case PullEffect pull:
+                        Shove(f, Cell.Direction(f.Cell, me.Cell), Math.Min(pull.Cells, f.Cell.DistanceTo(me.Cell) - 1), collide: false);
+                        break;
+                    case StatusEffect status:
+                        f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
+                        _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
+                        break;
+                }
+            }
+        }
+        // A fighter who dies during its own turn hands over at once.
+        if (!IsOver && !me.IsAlive)
+            NextTurn();
+    }
+
+    /// <summary>Moves a fighter cell by cell; what stops a push hurts, per cell left.</summary>
+    private void Shove(Fighter f, Cell direction, int cells, bool collide)
+    {
+        if (direction == new Cell(0, 0) || cells <= 0)
+            return;
+        var path = new List<Cell>();
+        Cell at = f.Cell;
+        for (int i = 0; i < cells; i++)
+        {
+            Cell next = at + direction;
+            if (!IsFree(next))
+                break;
+            path.Add(next);
+            at = next;
+        }
+        int blocked = collide ? cells - path.Count : 0;
+        f.Cell = at;
+        _events.Add(new Pushed(f.Id, path, blocked));
+        if (blocked > 0)
+            Hurt(f, blocked * CollisionDamage);
+    }
+
+    /// <summary>Damage through the shields first, then the hit points; a death may end the fight.</summary>
+    private void Hurt(Fighter hit, int damage)
+    {
+        int absorbed = 0;
+        for (int i = 0; i < hit.Shields.Count && damage > 0; i++)
+        {
+            (int amount, int turns) = hit.Shields[i];
+            int take = Math.Min(amount, damage);
+            hit.Shields[i] = (amount - take, turns);
+            damage -= take;
+            absorbed += take;
+        }
+        hit.Shields.RemoveAll(s => s.Amount == 0);
+        if (absorbed > 0)
+            _events.Add(new ShieldAbsorbed(hit.Id, absorbed, hit.Shield));
+        if (damage == 0 && absorbed > 0)
             return;
         hit.Hp = Math.Max(0, hit.Hp - damage);
         _events.Add(new Damaged(hit.Id, damage, hit.Hp));
         if (hit.IsAlive)
             return;
         _events.Add(new Died(hit.Id));
+        hit.StatusList.Clear();
+        hit.Shields.Clear();
         for (int team = 0; team < 2; team++)
         {
             if (!Fighters.Any(f => f.Team == team && f.IsAlive))
@@ -213,13 +350,20 @@ public sealed class Fight
                 return;
             }
         }
-        // A fighter who dies during its own turn hands over at once.
-        if (!me.IsAlive)
-            NextTurn();
     }
 
     private void NextTurn()
     {
+        // The statuses and shields of the fighter whose turn ends count one turn less.
+        Fighter ending = Current;
+        foreach (Status st in ending.StatusList.Where(st => st.TurnsLeft <= 1).ToList())
+            _events.Add(new StatusEnded(ending.Id, st.Stat));
+        for (int i = 0; i < ending.StatusList.Count; i++)
+            ending.StatusList[i] = ending.StatusList[i] with { TurnsLeft = ending.StatusList[i].TurnsLeft - 1 };
+        ending.StatusList.RemoveAll(st => st.TurnsLeft <= 0);
+        for (int i = 0; i < ending.Shields.Count; i++)
+            ending.Shields[i] = (ending.Shields[i].Amount, ending.Shields[i].TurnsLeft - 1);
+        ending.Shields.RemoveAll(sh => sh.TurnsLeft <= 0);
         do
         {
             _current++;
@@ -237,10 +381,20 @@ public sealed class Fight
             return;
         }
         Fighter next = Current;
-        next.Ap = next.Spec.Ap;
-        next.Mp = next.Spec.Mp;
+        next.Ap = Math.Max(0, next.Spec.Ap + next.StatusList.Where(st => st.Stat == Stat.Ap).Sum(st => st.Value));
+        next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value));
         next.CastsThisTurn.Clear();
         _events.Add(new TurnStarted(next.Id, Round));
+        // Poisons strike at the start of the turn, in their element, against the resistances.
+        foreach (Status poison in next.StatusList.Where(st => st.Stat == Stat.Poison).ToList())
+        {
+            if (IsOver || !next.IsAlive)
+                break;
+            long damage = (long)poison.Value * (100 - next.Resistance(poison.Element)) / 100;
+            Hurt(next, (int)Math.Max(0, damage));
+        }
+        if (!IsOver && !next.IsAlive)
+            NextTurn();
     }
 
     private void End(int? winningTeam)

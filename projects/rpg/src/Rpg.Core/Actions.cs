@@ -49,5 +49,19 @@ public sealed record Damaged(int Fighter, int Amount, int HpLeft) : FightEvent;
 
 public sealed record Died(int Fighter) : FightEvent;
 
+public sealed record Healed(int Fighter, int Amount, int HpLeft) : FightEvent;
+
+public sealed record Shielded(int Fighter, int Amount, int Turns) : FightEvent;
+
+/// <summary>Damage a shield took instead of the fighter's hit points.</summary>
+public sealed record ShieldAbsorbed(int Fighter, int Amount, int ShieldLeft) : FightEvent;
+
+/// <summary>Pushed or pulled along <see cref="Path"/>; <see cref="Blocked"/> cells it could not travel (collision).</summary>
+public sealed record Pushed(int Fighter, IReadOnlyList<Cell> Path, int Blocked) : FightEvent;
+
+public sealed record StatusAdded(int Fighter, Stat Stat, int Value, int Turns, Element Element) : FightEvent;
+
+public sealed record StatusEnded(int Fighter, Stat Stat) : FightEvent;
+
 /// <summary>The end of the fight; <see cref="WinningTeam"/> is null for a draw at the round limit.</summary>
 public sealed record FightEnded(int? WinningTeam) : FightEvent;

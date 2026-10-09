@@ -337,6 +337,14 @@ public partial class Main : Node3D
             case Died d:
                 _views[d.Fighter].Die(animate: !instant);
                 return Task.CompletedTask;
+            case Pushed p when p.Path.Count > 0:
+                return _views[p.Fighter].Walk(p.Path, instant ? 0 : 0.12);
+            case Healed h:
+                _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(0.55f, 0.95f, 0.45f), instant ? 0 : 0.9);
+                return Task.CompletedTask;
+            case ShieldAbsorbed a:
+                _views[a.Fighter].ShowNumber($"-{a.Amount}", new Color(0.55f, 0.75f, 1f), instant ? 0 : 0.9);
+                return Task.CompletedTask;
             default:
                 RefreshViews();
                 return Task.CompletedTask;

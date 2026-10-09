@@ -64,33 +64,82 @@ public static class Ai
     }
 
     /// <summary>
-    /// The best spell and enemy target from <paramref name="from"/>: the most damage on average,
-    /// capped at the target's hit points (a sure kill beats overkill), then the weakest target,
-    /// then the lowest fighter id, then the spell listed first.
+    /// The best spell and target cell from <paramref name="from"/>, aiming at a fighter's cell: the
+    /// highest <see cref="Value"/>, then the weakest target, then the lowest fighter id, then the
+    /// spell listed first. Null when nothing is worth casting.
     /// </summary>
     internal static (Spell Spell, Cell Target, double Value)? BestCast(Fight fight, Fighter me, Cell from)
     {
         (Spell, Cell, double)? best = null;
         (double Value, int Hp, int Id) bestKey = (0, int.MaxValue, int.MaxValue);
-        foreach (Fighter enemy in fight.Fighters)
+        foreach (Fighter aim in fight.Fighters)
         {
-            if (!enemy.IsAlive || enemy.Team == me.Team)
+            if (!aim.IsAlive)
                 continue;
             foreach (Spell spell in me.Spells)
             {
-                if (spell.DamageMax == 0 || fight.CheckCast(me, spell, from, enemy.Cell) != ActionError.None)
+                if (fight.CheckCast(me, spell, from, aim.Cell) != ActionError.None)
                     continue;
-                double value = Math.Min(spell.AverageDamage, enemy.Hp);
+                double value = Value(fight, me, spell, from, aim.Cell);
                 bool better = value > bestKey.Value
-                    || (value == bestKey.Value && (enemy.Hp < bestKey.Hp || (enemy.Hp == bestKey.Hp && enemy.Id < bestKey.Id)));
+                    || (value == bestKey.Value && (aim.Hp < bestKey.Hp || (aim.Hp == bestKey.Hp && aim.Id < bestKey.Id)));
                 if (better)
                 {
-                    best = (spell, enemy.Cell, value);
-                    bestKey = (value, enemy.Hp, enemy.Id);
+                    best = (spell, aim.Cell, value);
+                    bestKey = (value, aim.Hp, aim.Id);
                 }
             }
         }
         return best;
+    }
+
+    /// <summary>
+    /// What a cast is worth: average damage to enemies, capped at their hit points (a sure kill beats
+    /// overkill), minus one and a half times the damage to allies; healing that fills missing hit
+    /// points; a little for shields, statuses and pushes. A single-target damage spell is worth its
+    /// average damage capped at the target's hit points, as before effects existed.
+    /// </summary>
+    internal static double Value(Fight fight, Fighter me, Spell spell, Cell from, Cell target)
+    {
+        IReadOnlyList<Fighter> area = fight.InArea(spell, from, target);
+        double value = 0;
+        if (spell.DamageMax > 0)
+        {
+            foreach (Fighter f in area)
+            {
+                double hit = Math.Min(spell.AverageDamage * (100 + me.DamageBonus) * (100 - f.Resistance(spell.Element)) / 10_000, f.Hp + f.Shield);
+                value += f.Team == me.Team ? -1.5 * hit : hit;
+            }
+        }
+        foreach (SpellEffect effect in spell.AllEffects)
+        {
+            IEnumerable<Fighter> touched = effect.Affects switch
+            {
+                Affects.Caster => [me],
+                Affects.Enemies => area.Where(f => f.Team != me.Team),
+                Affects.Allies => area.Where(f => f.Team == me.Team),
+                _ => area,
+            };
+            foreach (Fighter f in touched)
+            {
+                double sign = f.Team == me.Team ? 1 : -1;
+                value += effect switch
+                {
+                    HealEffect h => sign * Math.Min((h.Min + h.Max) / 2.0, f.Spec.Hp - f.Hp),
+                    // Shields and statuses pay off later: worth a part of what they hold.
+                    ShieldEffect sh => sign * 0.3 * sh.Amount,
+                    StatusEffect st => st.Stat switch
+                    {
+                        Stat.Poison => -sign * 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
+                        Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
+                        _ => sign * 0.05 * st.Value * st.Turns,
+                    },
+                    PushEffect or PullEffect => -sign * 1.0,
+                    _ => 0,
+                };
+            }
+        }
+        return value;
     }
 
     /// <summary>Reachable cells, nearest first, then in reading order: the AI's choices never depend on hashing.</summary>

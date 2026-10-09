@@ -17,6 +17,18 @@ public readonly record struct Cell(int X, int Y)
     /// <summary>True when both cells are on the same row or column ("cast in line").</summary>
     public bool IsInLineWith(Cell other) => X == other.X || Y == other.Y;
 
+    /// <summary>
+    /// One step from <paramref name="from"/> towards <paramref name="to"/> along the longer axis
+    /// (the horizontal one on a tie); no step when they are the same cell.
+    /// </summary>
+    public static Cell Direction(Cell from, Cell to)
+    {
+        int dx = to.X - from.X, dy = to.Y - from.Y;
+        if (dx == 0 && dy == 0)
+            return new Cell(0, 0);
+        return Math.Abs(dx) >= Math.Abs(dy) ? new Cell(Math.Sign(dx), 0) : new Cell(0, Math.Sign(dy));
+    }
+
     public IEnumerable<Cell> Neighbours()
     {
         foreach (Cell step in Steps)

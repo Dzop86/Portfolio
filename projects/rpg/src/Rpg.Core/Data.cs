@@ -11,7 +11,9 @@ public sealed record LocalizedText(string Fr, string En)
 
 /// <summary>
 /// A spell, as described in <c>data/spells.json</c>. Ranges count steps (see <see cref="Cell"/>);
-/// a spell may be cast on an empty cell, it then hits nobody.
+/// a spell may be cast on an empty cell, it then hits nobody. Its damage strikes the enemies in its
+/// <see cref="Area"/> (one cell by default) in its <see cref="Element"/>; its other
+/// <see cref="Effects"/> follow, in order.
 /// </summary>
 public sealed record Spell(
     string Id,
@@ -23,9 +25,16 @@ public sealed record Spell(
     bool InLine,
     int DamageMin,
     int DamageMax,
-    int PerTurn)
+    int PerTurn,
+    Element Element = Element.Neutral,
+    Area? Area = null,
+    IReadOnlyList<SpellEffect>? Effects = null)
 {
     public double AverageDamage => (DamageMin + DamageMax) / 2.0;
+
+    public Area Zone => Area ?? Core.Area.One;
+
+    public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
 }
 
 /// <summary>
@@ -41,7 +50,12 @@ public sealed record FighterSpec(
     int Mp,
     int Initiative,
     int Start,
-    IReadOnlyList<string> Spells);
+    IReadOnlyList<string> Spells,
+    IReadOnlyDictionary<Element, int>? Resistances = null)
+{
+    /// <summary>The fighter's resistance to an element, in percent (neutral damage ignores resistances).</summary>
+    public int Resistance(Element element) => element == Element.Neutral ? 0 : Resistances?.GetValueOrDefault(element) ?? 0;
+}
 
 /// <summary>
 /// A class the player can choose for their hero, as described in <c>data/classes.json</c>: its
@@ -174,6 +188,22 @@ public sealed class GameData
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
             || s.DamageMax < s.DamageMin || s.PerTurn < 1)
             throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage or casts per turn out of bounds.");
+        if (s.Zone.Radius is < 0 or > 5 || (s.Zone.Shape == AreaShape.Point && s.Zone.Radius != 0))
+            throw new InvalidDataException($"Spell '{s.Id}': an area's radius is 1 to 5 (0 for a single cell).");
+        foreach (SpellEffect e in s.AllEffects)
+        {
+            bool ok = e switch
+            {
+                HealEffect h => h.Min >= 0 && h.Max >= h.Min && h.Max > 0,
+                ShieldEffect sh => sh.Amount > 0 && sh.Turns is >= 1 and <= 10,
+                PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
+                PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
+                StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat != Stat.Poison || st.Value > 0),
+                _ => false,
+            };
+            if (!ok)
+                throw new InvalidDataException($"Spell '{s.Id}': effect {e} out of bounds.");
+        }
     }
 
     private void Check(HeroClass c)
@@ -301,6 +331,8 @@ public sealed class GameData
                 throw new InvalidDataException($"{who}: no look.");
             if (f.Hp < 1 || f.Ap < 0 || f.Mp < 0)
                 throw new InvalidDataException($"{who}: hit points, action or movement points out of bounds.");
+            if (f.Resistances is not null && f.Resistances.Any(r => r.Key == Element.Neutral || r.Value is < -100 or > 90))
+                throw new InvalidDataException($"{who}: resistances are per element, from -100 to 90 percent.");
             if (f.Start < 0 || f.Start >= board.Starts[f.Team].Count || !used.Add((f.Team, f.Start)))
                 throw new InvalidDataException($"{who}: no free starting cell {f.Start} for team {f.Team}.");
             foreach (string spell in f.Spells)

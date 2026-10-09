@@ -25,6 +25,23 @@ public sealed class Texts
         ["log.cast"] = "{0} lance {1}.",
         ["log.damage"] = "{0} perd {1} PV.",
         ["log.died"] = "{0} est vaincu(e).",
+        ["log.heal"] = "{0} récupère {1} PV.",
+        ["log.shield"] = "{0} gagne un bouclier de {1}.",
+        ["log.absorbed"] = "Le bouclier de {0} absorbe {1}.",
+        ["log.pushed"] = "{0} est déplacé(e) de {1} case(s).",
+        ["log.blocked"] = "{0} heurte un obstacle.",
+        ["log.status"] = "{0} : {1} pendant {2} tour(s).",
+        ["log.status-ended"] = "{0} : fin de l'effet {1}.",
+        ["stat.Poison"] = "poison {0}{1}",
+        ["stat.Ap"] = "{0} PA",
+        ["stat.Mp"] = "{0} PM",
+        ["stat.Damage"] = "{0} % de dégâts",
+        ["stat.Resistance"] = "{0} % de résistance{1}",
+        ["element.Neutral"] = "neutre",
+        ["element.Earth"] = "Terre",
+        ["element.Fire"] = "Feu",
+        ["element.Water"] = "Eau",
+        ["element.Air"] = "Air",
         ["error.NotEnoughMp"] = "Pas assez de PM.",
         ["error.NotEnoughAp"] = "Pas assez de PA.",
         ["error.CastLimit"] = "Sort déjà lancé le nombre de fois permis ce tour-ci.",
@@ -113,6 +130,23 @@ public sealed class Texts
         ["log.cast"] = "{0} casts {1}.",
         ["log.damage"] = "{0} loses {1} HP.",
         ["log.died"] = "{0} is defeated.",
+        ["log.heal"] = "{0} recovers {1} HP.",
+        ["log.shield"] = "{0} gets a shield of {1}.",
+        ["log.absorbed"] = "{0}'s shield absorbs {1}.",
+        ["log.pushed"] = "{0} is moved {1} cell(s).",
+        ["log.blocked"] = "{0} hits an obstacle.",
+        ["log.status"] = "{0}: {1} for {2} turn(s).",
+        ["log.status-ended"] = "{0}: {1} wears off.",
+        ["stat.Poison"] = "poison {0}{1}",
+        ["stat.Ap"] = "{0} AP",
+        ["stat.Mp"] = "{0} MP",
+        ["stat.Damage"] = "{0}% damage",
+        ["stat.Resistance"] = "{0}% resistance{1}",
+        ["element.Neutral"] = "neutral",
+        ["element.Earth"] = "Earth",
+        ["element.Fire"] = "Fire",
+        ["element.Water"] = "Water",
+        ["element.Air"] = "Air",
         ["error.NotEnoughMp"] = "Not enough MP.",
         ["error.NotEnoughAp"] = "Not enough AP.",
         ["error.CastLimit"] = "Spell already cast as often as allowed this turn.",
@@ -218,6 +252,14 @@ public sealed class Texts
     public string Spell(Spell s) =>
         this["spell", (s ?? throw new ArgumentNullException(nameof(s))).Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange];
 
+    /// <summary>A status as the log shows it: "-2 PA", "+50 % de dégâts", "poison 6 (Eau)".</summary>
+    public string Status(Stat stat, int value, Element element)
+    {
+        string signed = stat == Stat.Poison ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
+        string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
+        return this["stat." + stat, signed, elem];
+    }
+
     /// <summary>A line of the fight log for an event, or null for those the log does not show.</summary>
     public string? Describe(FightEvent e, Fight fight)
     {
@@ -228,6 +270,13 @@ public sealed class Texts
             SpellCast c => this["log.cast", Name(fight.Fighters[c.Fighter]), fight.Fighters[c.Fighter].Spells.First(s => s.Id == c.Spell).Name.In(Lang)],
             Damaged d => this["log.damage", Name(fight.Fighters[d.Fighter]), d.Amount],
             Died d => this["log.died", Name(fight.Fighters[d.Fighter])],
+            Healed h => this["log.heal", Name(fight.Fighters[h.Fighter]), h.Amount],
+            Shielded s => this["log.shield", Name(fight.Fighters[s.Fighter]), s.Amount],
+            ShieldAbsorbed a => this["log.absorbed", Name(fight.Fighters[a.Fighter]), a.Amount],
+            Pushed { Blocked: > 0 } p when p.Path.Count == 0 => this["log.blocked", Name(fight.Fighters[p.Fighter])],
+            Pushed p => this["log.pushed", Name(fight.Fighters[p.Fighter]), p.Path.Count],
+            StatusAdded st => this["log.status", Name(fight.Fighters[st.Fighter]), Status(st.Stat, st.Value, st.Element), st.Turns],
+            StatusEnded st => this["log.status-ended", Name(fight.Fighters[st.Fighter]), this["stat." + st.Stat, "", ""].Trim()],
             _ => null,
         };
     }

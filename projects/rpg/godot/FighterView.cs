@@ -100,20 +100,23 @@ public partial class FighterView : Node3D
     }
 
     /// <summary>The damage rises and fades above the fighter.</summary>
-    public void ShowDamage(int amount, double duration)
+    public void ShowDamage(int amount, double duration) => ShowNumber($"-{amount}", new Color(1f, 0.35f, 0.25f), duration);
+
+    /// <summary>A number that rises and fades above the fighter: damage in red, healing in green, a shield in blue.</summary>
+    public void ShowNumber(string text, Color colour, double duration)
     {
         Refresh();
         if (duration <= 0)
             return;
         var label = new Label3D
         {
-            Text = $"-{amount}",
+            Text = text,
             Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
             NoDepthTest = true,
             FontSize = 56,
             OutlineSize = 12,
             PixelSize = 0.006f,
-            Modulate = new Color(1f, 0.35f, 0.25f),
+            Modulate = colour,
             Position = new Vector3(0, 1.3f, 0),
         };
         AddChild(label);
