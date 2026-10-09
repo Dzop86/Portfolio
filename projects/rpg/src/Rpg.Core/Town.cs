@@ -6,12 +6,21 @@ public sealed record Npc(string Id, LocalizedText Name, string Look, int Colour,
 /// <summary>A cell of a town that leads to a fight (the town gate, the training ground).</summary>
 public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 
+/// <summary>A cell of a zone that leads to another zone (<see cref="To"/>), where the player arrives on <see cref="Arrival"/>.</summary>
+public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText Name);
+
 /// <summary>
-/// A town, as described in <c>data/towns/*.json</c>: no monsters, one walks there and talks. Its rows
-/// say what stands on each cell (see <see cref="Decor"/>); the player arrives on <see cref="Spawn"/>.
+/// A zone of the world, as described in <c>data/towns/*.json</c> (a town is one): one walks there and
+/// talks; fights start from its exits. Its rows say what stands on each cell (see <see cref="Decor"/>);
+/// the player arrives on <see cref="Spawn"/>. Its <see cref="Links"/> lead to the zones around it,
+/// its <see cref="Level"/> says what level it is meant for, and <see cref="MapAt"/> places it on the
+/// world map (sprint 60).
 /// </summary>
-public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits)
+public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
+    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default)
 {
+    public ZoneLink? LinkAt(Cell c) => (Links ?? []).FirstOrDefault(l => l.At == c);
+
     /// <summary>
     /// What a character of the rows stands for. Walkable: '.' grass, '=' road. Not walkable: 'H' a house
     /// (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2, 'f'), 'T' a

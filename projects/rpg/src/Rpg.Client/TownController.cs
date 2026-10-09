@@ -29,8 +29,8 @@ public sealed class Conversation(Npc npc, Dialogue dialogue)
     }
 }
 
-/// <summary>What a click did in town: the cells to walk, then a talk or a way out, or neither.</summary>
-public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit);
+/// <summary>What a click did in town: the cells to walk, then a talk, a way to a fight or to another zone, or neither.</summary>
+public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null);
 
 /// <summary>
 /// The player in a town, without an engine: a click walks the shortest way, a click on someone walks
@@ -60,13 +60,19 @@ public sealed class TownController
     /// <summary>The scenario to fight, once an exit or an answer chose one.</summary>
     public string? Fight { get; private set; }
 
+    /// <summary>The way to another zone the player walked onto, if any (sprint 60).</summary>
+    public ZoneLink? Travel { get; private set; }
+
+    /// <summary>The zone the way leads to, the player on its arrival cell.</summary>
+    public TownController Enter(ZoneLink link) => new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival);
+
     /// <summary>A free cell the player can walk to from the arrival (exits included).</summary>
     public bool CanStand(Cell c) => Town.CanStand(c);
 
     /// <summary>The cells a click on <paramref name="target"/> would walk, for the hover preview; null if it does nothing.</summary>
     public IReadOnlyList<Cell>? PathTo(Cell target)
     {
-        if (Talk is not null || Fight is not null)
+        if (Talk is not null || Fight is not null || Travel is not null)
             return null;
         if (Town.NpcAt(target) is not null)
         {
@@ -89,11 +95,14 @@ public sealed class TownController
             Position = path[^1];
         Npc? npc = Town.NpcAt(target);
         TownExit? exit = Town.ExitAt(Position);
+        ZoneLink? link = Town.LinkAt(Position);
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
         else if (exit is not null && Position == target)
             Fight = exit.Scenario;
-        return new TownStep(path, npc, npc is null && Position == target ? exit : null);
+        else if (link is not null && Position == target)
+            Travel = link;
+        return new TownStep(path, npc, npc is null && Position == target ? exit : null, npc is null && Position == target ? link : null);
     }
 
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>
@@ -116,6 +125,31 @@ public sealed class TownController
 /// </summary>
 public static class TownTour
 {
+    /// <summary>
+    /// Goes through the whole world by its ways, from <paramref name="start"/>: each zone entered
+    /// once, each way walked (there, then back when it has a way back). Returns the zones visited.
+    /// </summary>
+    public static IReadOnlyList<string> World(TownController start, Action<TownController, TownStep>? afterClick = null)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        var visited = new List<string> { start.Town.Id };
+        void Visit(TownController here)
+        {
+            foreach (ZoneLink link in here.Town.Links ?? [])
+            {
+                if (visited.Contains(link.To))
+                    continue;
+                TownStep step = here.Click(link.At) ?? throw new InvalidOperationException($"Cannot walk to the way to {link.To}.");
+                afterClick?.Invoke(here, step);
+                TownController there = here.Enter(here.Travel!);
+                visited.Add(there.Town.Id);
+                Visit(there);
+            }
+        }
+        Visit(start);
+        return visited;
+    }
+
     /// <returns>The number of lines read.</returns>
     public static int Run(TownController town, Action<TownStep>? afterClick = null, Action<Conversation>? afterLine = null)
     {

@@ -1,0 +1,86 @@
+{
+  "id": "clairval-woods",
+  "name": {
+    "fr": "Bois de Clairval",
+    "en": "Clairval Woods"
+  },
+  "level": 3,
+  "mapAt": {
+    "x": 1,
+    "y": 1
+  },
+  "rows": [
+    "TTTTTTTTTTTTTTT=TTTTTTTTTTTTTT",
+    "T.....~........=........RR...T",
+    "T.....~.~......=...TT........T",
+    "T.....~.~...====.....T.......T",
+    "T.R.........=......TTTT..T...T",
+    "T..R...T....=..........T.T...T",
+    "T.......=============.TT.T.T.T",
+    "T.......=...........=....T...T",
+    "T.......=...........=.....TT.T",
+    "T.......=.........T.=.....T.TT",
+    "T.......=.TTT.......=........T",
+    "T.......=..T....TTT.==========",
+    "T.......=.T.....TTT.=........T",
+    "T.......=........TT.=...TT...T",
+    "T.....T.=.........T.=........T",
+    "TR......=...........=.......RT",
+    "T..R....=============........T",
+    "T....................T.T..R..T",
+    "T.......TTTT.T...T~~.T.T..RR.T",
+    "T..~....T.T......TRTTT...R..RT",
+    "T..~~~....T........TTT.......T",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+  ],
+  "spawn": {
+    "x": 28,
+    "y": 11
+  },
+  "npcs": [],
+  "exits": [
+    {
+      "at": {
+        "x": 8,
+        "y": 6
+      },
+      "scenario": "training",
+      "name": {
+        "fr": "Clairière : entraînement",
+        "en": "Glade: training"
+      }
+    }
+  ],
+  "links": [
+    {
+      "at": {
+        "x": 29,
+        "y": 11
+      },
+      "to": "clairval",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      },
+      "name": {
+        "fr": "Est : Clairval",
+        "en": "East: Clairval"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 0
+      },
+      "to": "misty-heath",
+      "arrival": {
+        "x": 15,
+        "y": 24
+      },
+      "name": {
+        "fr": "Nord : Lande des Brumes",
+        "en": "North: Misty Heath"
+      }
+    }
+  ]
+}

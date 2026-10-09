@@ -426,6 +426,15 @@ public sealed class GameData
             if (!Scenarios.ContainsKey(e.Scenario))
                 throw new InvalidDataException($"{who}: the exit at {e.At} leads to an unknown scenario '{e.Scenario}'.");
         }
+        if (t.Level is < 1 or > Hero.MaxLevel)
+            throw new InvalidDataException($"{who}: a level of 1 to {Hero.MaxLevel}.");
+        foreach (ZoneLink l in t.Links ?? [])
+        {
+            if (!reach.Contains(l.At) || !cells.Add(l.At))
+                throw new InvalidDataException($"{who}: the way to {l.To} at {l.At} cannot be reached.");
+            if (!Towns.TryGetValue(l.To, out Town? to) || !to.CanStand(l.Arrival))
+                throw new InvalidDataException($"{who}: the way at {l.At} leads to an unknown zone or a cell nobody can stand on.");
+        }
     }
 
     private void Check(Scenario s)

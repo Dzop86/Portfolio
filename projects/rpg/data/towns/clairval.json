@@ -1,13 +1,15 @@
 {
   "id": "clairval",
   "name": { "fr": "Clairval", "en": "Clairval" },
+  "level": 1,
+  "mapAt": { "x": 2, "y": 1 },
   "rows": [
     "TT..Hh....Hh.TTT",
     "T...hhL...hh...T",
     ".....======..S..",
     ".Hh..=....=.....",
-    ".hh..=.Ff.=..C..",
-    "L.====.ff.======",
+    "Lhh..=.Ff.=..C..",
+    "=.====.ff.======",
     ".....=....=.....",
     "..R..======..Hh.",
     "T......=.....hh.",
@@ -20,6 +22,9 @@
     { "id": "aubin", "name": { "fr": "Aubin", "en": "Aubin" }, "look": "male-a", "colour": 0, "at": { "x": 8, "y": 9 }, "dialogue": "guide" },
     { "id": "rose", "name": { "fr": "Rose", "en": "Rose" }, "look": "female-b", "colour": 3, "at": { "x": 13, "y": 3 }, "dialogue": "merchant" },
     { "id": "garance", "name": { "fr": "Garance", "en": "Garance" }, "look": "female-f", "colour": 5, "at": { "x": 15, "y": 4 }, "dialogue": "trainer" }
+  ],
+  "links": [
+    { "at": { "x": 0, "y": 5 }, "to": "clairval-woods", "arrival": { "x": 28, "y": 11 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } }
   ],
   "exits": [
     { "at": { "x": 15, "y": 5 }, "scenario": "training", "name": { "fr": "Porte est : entraînement", "en": "East gate: training" } }
