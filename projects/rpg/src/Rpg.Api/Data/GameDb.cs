@@ -8,6 +8,8 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
 
     public DbSet<Character> Characters => Set<Character>();
 
+    public DbSet<PendingFight> PendingFights => Set<PendingFight>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(account =>
@@ -31,6 +33,18 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             character.Property(c => c.Level).HasDefaultValue(1);
             character.HasIndex(c => c.NormalizedName).IsUnique();
             character.HasOne(c => c.Account).WithMany(a => a.Characters).HasForeignKey(c => c.AccountId).OnDelete(DeleteBehavior.Cascade);
+            character.Property(c => c.Ranks).HasMaxLength(2000).HasDefaultValue("");
+            character.Property(c => c.Quests).HasMaxLength(2000).HasDefaultValue("");
+            character.Ignore(c => c.Stats);
+            character.Ignore(c => c.RankList);
+            character.Ignore(c => c.QuestList);
+            character.Ignore(c => c.Hero);
+        });
+        modelBuilder.Entity<PendingFight>(fight =>
+        {
+            fight.ToTable("pending_fights");
+            fight.Property(f => f.Scenario).HasMaxLength(40);
+            fight.HasOne(f => f.Character).WithMany().HasForeignKey(f => f.CharacterId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

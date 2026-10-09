@@ -16,6 +16,11 @@ public static class CharacterEndpoints
         group.MapPost("", Create).WithSummary($"Creates a character (at most {Accounts.MaxCharacters} per account, a name unique on the server).");
         group.MapDelete("/{id:guid}", Delete).WithSummary("Deletes one of the signed-in player's characters.");
         group.MapPut("/{id:guid}/place", SavePlace).WithSummary("Saves where one of the player's characters stands in a town (a cell they can walk to).");
+        group.MapPost("/{id:guid}/fights", StartFight).WithSummary("Draws the seed of a fight one of the player's characters is about to play.");
+        group.MapPost("/{id:guid}/fights/{fight:guid}", ReportFight)
+            .Accepts<FightRecord>("application/json")
+            .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
+        group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
 
     /// <summary>The account in the token; tokens of a deleted account no longer match any.</summary>
@@ -100,8 +105,88 @@ public static class CharacterEndpoints
         return saved == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
+    internal static async Task<Results<Ok<FightTicket>, NotFound, ValidationProblem>> StartFight(
+        Guid id, NewFight request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+    {
+        if (request?.Scenario is not string scenario || !GameData.Embedded.Scenarios.ContainsKey(scenario))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = [$"One of: {string.Join(", ", GameData.Embedded.Scenarios.Keys)}."] });
+        Guid account = AccountId(user);
+        if (!await db.Characters.AnyAsync(c => c.Id == id && c.AccountId == account, cancel))
+            return TypedResults.NotFound();
+        // The server draws the seed: the player cannot pick the rolls.
+        var pending = new PendingFight { CharacterId = id, Scenario = scenario, Seed = BitConverter.ToInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), CreatedAt = clock.GetUtcNow() };
+        db.PendingFights.Add(pending);
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(new FightTicket(pending.Id, scenario, unchecked((ulong)pending.Seed)));
+    }
+
+    internal static async Task<Results<Ok<FightResult>, NotFound, ValidationProblem>> ReportFight(
+        Guid id, Guid fight, HttpRequest request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        PendingFight? pending = character is null ? null : await db.PendingFights.FirstOrDefaultAsync(f => f.Id == fight && f.CharacterId == id, cancel);
+        if (character is null || pending is null)
+            return TypedResults.NotFound();
+        // A ticket serves once, whatever the record says.
+        db.PendingFights.Remove(pending);
+        await db.SaveChangesAsync(cancel);
+        using var reader = new StreamReader(request.Body);
+        string? problem;
+        Fight? played = null;
+        try
+        {
+            FightRecord record = FightRecord.FromJson(await reader.ReadToEndAsync(cancel));
+            problem = record.Scenario != pending.Scenario || record.Seed != unchecked((ulong)pending.Seed) ? "Not the fight the server started."
+                : record.Hero != character.Hero || record.Rival is not null ? "Not this character's fight."
+                : null;
+            if (problem is null)
+            {
+                played = record.Replay(GameData.Embedded);
+                problem = played.IsOver ? null : "The fight is not over.";
+            }
+        }
+        catch (InvalidFightRecordException e)
+        {
+            problem = e.Message;
+        }
+        if (problem is not null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["record"] = [problem] });
+        long xp = Progression.FightXp(played!);
+        Quest? quest = played!.WinningTeam == 0
+            ? GameData.Embedded.Quests.Values.FirstOrDefault(q => q.Scenario == pending.Scenario && !character.QuestList.Contains(q.Id))
+            : null;
+        if (quest is not null)
+        {
+            xp += quest.Xp;
+            character.Quests = string.Join(',', character.QuestList.Append(quest.Id));
+        }
+        character.Xp += xp;
+        character.Level = Progression.LevelFor(character.Xp);
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id));
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SavePoints(
+        Guid id, Points points, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        Characteristics stats = points?.Stats ?? Characteristics.None;
+        var ranks = new Dictionary<string, int>(points?.Ranks ?? new Dictionary<string, int>(), StringComparer.Ordinal);
+        // The rules decide: within the level's points, ranks of the class's unlocked spells.
+        if ((character.Hero with { Stats = stats, Ranks = ranks }).Problem(GameData.Embedded) is string problem)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
+        (character.Vitality, character.Strength, character.Intelligence, character.Chance, character.Agility) = (stats.Vitality, stats.Strength, stats.Intelligence, stats.Chance, stats.Agility);
+        character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

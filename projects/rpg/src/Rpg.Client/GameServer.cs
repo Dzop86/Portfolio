@@ -72,6 +72,32 @@ public sealed class GameServer(HttpClient http)
     public async Task SavePlace(Guid id, Place place, CancellationToken cancel = default) =>
         await Check(await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel);
 
+    /// <summary>Asks the server for a fight: it draws the seed, and only that fight will earn experience.</summary>
+    public async Task<FightTicket> StartFight(Guid id, string scenario, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Http.PostAsJsonAsync(new Uri($"api/characters/{id}/fights", UriKind.Relative), new NewFight(scenario), Json, cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<FightTicket>(Json, cancel))!;
+    }
+
+    /// <summary>Hands the server the record of a fight it started; it replays it and says what it earned.</summary>
+    public async Task<FightResult> ReportFight(Guid id, Guid fight, FightRecord record, CancellationToken cancel = default)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+        using var content = new StringContent(record.ToJson(), System.Text.Encoding.UTF8, "application/json");
+        HttpResponseMessage response = await Http.PostAsync(new Uri($"api/characters/{id}/fights/{fight}", UriKind.Relative), content, cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<FightResult>(Json, cancel))!;
+    }
+
+    /// <summary>Spends a character's points; the server checks them against its level.</summary>
+    public async Task<CharacterSummary> SavePoints(Guid id, Points points, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/points", UriKind.Relative), points, Json, cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     public async Task DeleteCharacter(Guid id, CancellationToken cancel = default) =>
         await Check(await Http.DeleteAsync(new Uri($"api/characters/{id}", UriKind.Relative), cancel), cancel);
 

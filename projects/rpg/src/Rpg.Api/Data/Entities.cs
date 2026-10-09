@@ -47,4 +47,44 @@ public sealed class Character
     public int? X { get; set; }
     public int? Y { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Experience, earned only from fights the server replayed; the level follows it.</summary>
+    public long Xp { get; set; }
+
+    /// <summary>The characteristic points spent (sprint 58).</summary>
+    public int Vitality { get; set; }
+    public int Strength { get; set; }
+    public int Intelligence { get; set; }
+    public int Chance { get; set; }
+    public int Agility { get; set; }
+
+    /// <summary>The ranks of the spells above 1, as "spell:rank" separated by commas.</summary>
+    public string Ranks { get; set; } = "";
+
+    /// <summary>The quests done, their ids separated by commas.</summary>
+    public string Quests { get; set; } = "";
+
+    public Characteristics Stats => new(Vitality, Strength, Intelligence, Chance, Agility);
+
+    public Dictionary<string, int> RankList => Ranks.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(r => r.Split(':')).ToDictionary(r => r[0], r => int.Parse(r[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);
+
+    public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    /// <summary>The character as the rules see it.</summary>
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList);
+}
+
+/// <summary>
+/// A fight the server allowed a character to play: the scenario and the seed it drew. Its record
+/// comes back once, is replayed, and the ticket is gone: the same fight cannot earn twice.
+/// </summary>
+public sealed class PendingFight
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid CharacterId { get; set; }
+    public Character? Character { get; set; }
+    public required string Scenario { get; set; }
+    public long Seed { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 }
