@@ -42,12 +42,12 @@ public class HeroTests
     [Fact]
     public void TheRecord_KeepsTheHero_AndRefusesAnInvalidOne()
     {
-        var f = new Fight(Real, "duel", 2, new Hero("Margaux", "female-a"));
+        var f = new Fight(Real, "duel", 2, new Hero("Ondine", "female-a"));
         Ai.PlayOut(f);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(f).ToJson());
-        Assert.Equal(new Hero("Margaux", "female-a"), r.Hero);
-        Assert.Equal("Margaux", r.Replay(Real).Fighters[0].Name.Fr);
-        var cheat = r with { Hero = new Hero("Margaux", "orc") };
+        Assert.Equal(new Hero("Ondine", "female-a"), r.Hero);
+        Assert.Equal("Ondine", r.Replay(Real).Fighters[0].Name.Fr);
+        var cheat = r with { Hero = new Hero("Ondine", "orc") };
         Assert.Throws<InvalidFightRecordException>(() => cheat.Replay(Real));
         // Without a hero, nothing is written: the records of sprint 45 are unchanged.
         var plain = new Fight(Real, "duel", 2);
@@ -80,10 +80,10 @@ public class HeroTests
     [Fact]
     public void TheRecord_KeepsTheClassAndColour_AndReplaysTheSameFight()
     {
-        var f = new Fight(Real, "training", 8, new Hero("Margaux", "female-e", "guard", 5));
+        var f = new Fight(Real, "training", 8, new Hero("Ondine", "female-e", "guard", 5));
         Ai.PlayOut(f);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(f).ToJson());
-        Assert.Equal(new Hero("Margaux", "female-e", "guard", 5), r.Hero);
+        Assert.Equal(new Hero("Ondine", "female-e", "guard", 5), r.Hero);
         Assert.Equal(Fingerprint(f), Fingerprint(r.Replay(Real)));
         // Another class does not accept the same actions: the axe is the guard's.
         Assert.Throws<InvalidFightRecordException>(() => (r with { Hero = r.Hero! with { Class = "mage" } }).Replay(Real));

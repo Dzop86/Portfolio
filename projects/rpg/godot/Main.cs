@@ -532,7 +532,7 @@ public partial class Main : Node3D
     {
         LobbyView view = _lobbyView!;
         await _lobby!.SignIn("capture_" + Guid.NewGuid().ToString("N")[..8], "screenshot password", create: true);
-        foreach (Hero h in new[] { new Hero("Margaux", "female-e", "sentinel", 0, 3, 0, 0, 0), new Hero("Élise", "female-c", "mage", 4, 7, 1, -1, 0), new Hero("Bastien", "male-c", "guard", 2, 1, 4, 2, 2) })
+        foreach (Hero h in new[] { new Hero("Ondine", "female-e", "sentinel", 0, 3, 0, 0, 0), new Hero("Élise", "female-c", "mage", 4, 7, 1, -1, 0), new Hero("Bastien", "male-c", "guard", 2, 1, 4, 2, 2) })
         {
             view.OpenCreate();
             view.CharacterField.Text = h.Name;

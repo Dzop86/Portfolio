@@ -127,7 +127,7 @@ public partial class LobbyTests
         await two.SignIn("ada", "correct horse battery", create: false, Cancel);
         Assert.Null(two.ChosenServer);
         Assert.Empty(two.Here);
-        Assert.False(await two.Create("Margaux", "female-e", "sentinel", cancel: Cancel));
+        Assert.False(await two.Create("Ondine", "female-e", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.choose-server", two.Problem);
         two.ChooseServer("brume");
         Assert.Equal("Jean-Luc", Assert.Single(two.Here).Name);

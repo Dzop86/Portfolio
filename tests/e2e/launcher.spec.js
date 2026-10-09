@@ -81,7 +81,7 @@ test('the launcher creates an account, then comes back to the sign-in form; Engl
   await expect(page.getByLabel('Remember the account name')).not.toBeChecked();
   await page.getByRole('button', { name: 'No account yet? Create one' }).click();
   await expect(page.getByLabel('Confirm the password')).toBeVisible();
-  await page.getByLabel('Account name', { exact: true }).fill('margaux');
+  await page.getByLabel('Account name', { exact: true }).fill('ondine');
   await page.getByLabel('Password', { exact: true }).fill('short');
   await page.getByRole('button', { name: 'Create the account' }).click();
   await expect(page.locator('#message')).toHaveText('A password has at least 10 characters.');
@@ -94,12 +94,12 @@ test('the launcher creates an account, then comes back to the sign-in form; Engl
   // Created: back to the sign-in form, the name kept, the game not started.
   await page.getByLabel('Confirm the password').fill('a long new password');
   await page.getByRole('button', { name: 'Create the account' }).click();
-  await expect(page.locator('#notice')).toHaveText('Account margaux created: sign in.');
+  await expect(page.locator('#notice')).toHaveText('Account ondine created: sign in.');
   await expect(page.getByLabel('Confirm the password')).toBeHidden();
-  await expect(page.getByLabel('Account name', { exact: true })).toHaveValue('margaux');
+  await expect(page.getByLabel('Account name', { exact: true })).toHaveValue('ondine');
   await expect(page.getByLabel('Password', { exact: true })).toHaveValue('');
   const created = await page.evaluate(() => window.calls.find(([c]) => c === 'create_account')[1]);
-  expect(created).toEqual({ name: 'margaux', password: 'a long new password' });
+  expect(created).toEqual({ name: 'ondine', password: 'a long new password' });
   expect(await commands(page)).not.toContain('play');
 
   // Then the usual sign-in starts the game.

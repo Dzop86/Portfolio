@@ -35,7 +35,7 @@ public class ServerTests
         };
         GameServer player = await api.SignedIn();
         Assert.Equal(["Osméria", "Brume"], (await player.Servers(Cancel)).Select(s => s.Name));
-        Assert.Equal("brume", (await player.CreateCharacter("Margaux", "female-e", "guard", server: "brume", cancel: Cancel)).Server);
+        Assert.Equal("brume", (await player.CreateCharacter("Ondine", "female-e", "guard", server: "brume", cancel: Cancel)).Server);
         var e = await Assert.ThrowsAsync<ServerException>(() => player.CreateCharacter("Elsa", "female-a", "guard", server: "atlantis", cancel: Cancel));
         Assert.Equal(HttpStatusCode.BadRequest, e.Status);
         Assert.Contains("server:", e.Message, StringComparison.Ordinal);

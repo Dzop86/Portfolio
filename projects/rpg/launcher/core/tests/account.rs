@@ -186,22 +186,22 @@ fn signing_up_creates_the_account_then_the_player_signs_in() {
     let (url, _) = common::serve(BTreeMap::new());
     let dir = folder(&url);
     let secrets = Memory::default();
-    account::sign_up(dir.path(), "margaux", "a long new password").unwrap();
+    account::sign_up(dir.path(), "ondine", "a long new password").unwrap();
     // Signing up remembers nothing and signs nobody in: the form comes back.
     assert_eq!(account::remembered(dir.path(), &secrets), (None, false));
     assert_eq!(
         account::sign_in(
             dir.path(),
             &secrets,
-            &login("margaux", "a long new password", true, false)
+            &login("ondine", "a long new password", true, false)
         )
         .unwrap()
         .0,
-        "jwt.for.margaux"
+        "jwt.for.ondine"
     );
     assert_eq!(
         account::remembered(dir.path(), &secrets),
-        (Some("margaux".into()), false)
+        (Some("ondine".into()), false)
     );
     assert!(matches!(
         server::sign_up(&url, "taken", "a long new password").unwrap_err(),

@@ -87,7 +87,7 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Margaux", "female-e", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-e", "sentinel", cancel: Cancel);
         var fight = new Fight(GameData.Embedded, "training", 11, (await server.Characters(Cancel)).Single().Hero);
         Ai.PlayOut(fight);
         Fight again = FightRecord.FromJson(FightRecord.Of(fight).ToJson()).Replay(GameData.Embedded);
@@ -118,7 +118,7 @@ public class CharacterTests
         // The insert of sprint 47, which did not know the columns.
         api.WithDb(db => db.Database.ExecuteSql($"""
             INSERT INTO characters ("Id", "AccountId", "Name", "NormalizedName", "Look", "CreatedAt")
-            VALUES ({Guid.NewGuid()}, {account}, 'Margaux', 'MARGAUX', 'female-e', now())
+            VALUES ({Guid.NewGuid()}, {account}, 'Ondine', 'ONDINE', 'female-e', now())
             """));
         CharacterSummary old = Assert.Single(await server.Characters(Cancel));
         Assert.Equal(("sentinel", 0, "osmeria", 1), (old.Class, old.Colour, old.Server, old.Level));
