@@ -22,6 +22,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 52 : l'ouverture du jeu par le launcher (le serveur Osméria passé d'office, les cartes des personnages, « Jouer », la suppression confirmée) ; sans le launcher, le message et « Jouer hors ligne ».
 - [ ] Sprint 53 : l'écran de création (les couleurs de cheveux et de peau sur chaque apparence, la taille et la carrure, la lisibilité) ; les personnages ainsi créés au village et en combat.
 - [ ] Sprint 54 : `src/Rpg.Core/Fight.cs` (`Cast`, `Shove`, `Hurt`, décompte des états dans `NextTurn`) et `src/Rpg.Core/Effects.cs` : les règles des effets te conviennent-elles (dégâts de zone sur les alliés, 4 PV par collision, décompte à la fin du tour de celui qui porte l'état) ?
+- [ ] Sprint 55 : les formules (caractéristiques en pourcentage, soins et Intelligence) et les invocations jouées par l'IA, même dans ton équipe : te conviennent-elles ?
 
 ## Constats
 
@@ -80,4 +81,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/assets/ui/village.jpg` | (Claude) Vu sur la capture : le fond montrait encore les noms, Godot ayant importé l'image avant que je la régénère | Import relancé, fond assombri à 80 % ; captures refaites |
 | 2026-10-09 | `tests/Rpg.Core.Tests/EffectsTests.cs` | (Claude) Relu avant la première exécution : des arènes écrites avec des « a » minuscules, que le plateau ne connaît pas, et une fin de test sans rapport avec son nom | Arènes corrigées (les alliés s'écrivent aussi « A »), fin de test réécrite |
 | 2026-10-09 | `src/Rpg.Core/Fight.cs` | (Claude) Trouvé en cassant le code : rien ne vérifiait qu'une poussée s'arrête contre un autre combattant (le test l'annonçait sans le faire), ni le plafond de résistance à 90 % | Deux tests ajoutés, les deux mutations attrapées |
+| 2026-10-09 | `src/Rpg.Core/Ai.cs` | (Claude) Vu en écrivant le test de rejeu : l'IA ne visait que des cases occupées, alors qu'une invocation demande une case libre, et comptait son intérêt par combattant de la zone (zéro sur une case vide) : elle n'invoquait jamais | Cases libres voisines essayées pour les invocations, intérêt compté une fois par lancer |
+| 2026-10-09 | `src/Rpg.Core/Fight.cs` | (Claude) Mutation survivante : « une équipe sans plus que des invocations a perdu » ne servait à rien, les invocations mourant avec leur invocateur | Condition retirée, commentaire corrigé |
 | | | | |
