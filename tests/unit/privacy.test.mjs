@@ -23,8 +23,13 @@ const PATTERNS = [
 // runtime has "0123456789abcdef"), which looks like a phone number; the public address of a package
 // maintainer that npm copies into package-lock.json with a deprecation notice (glob 10, pulled by the
 // Angular tools); the creation date and hour of Kenney's Fantasy Town Kit in its licence
-// ("03-08-2025 13:56", projects/rpg). Anything else still fails.
-const ALLOWED = ['0123456789', 'i@izs.me', '03-08-2025 13'];
+// ("03-08-2025 13:56", projects/rpg); the name Tauri gives its double-size icon, which looks like an
+// e-mail address. Anything else still fails.
+const ALLOWED = ['0123456789', 'i@izs.me', '03-08-2025 13', '128x128@2x.png'];
+
+// Cargo.lock is written by Cargo and holds only crate names, versions and SHA-256 checksums, whose
+// digits look like phone numbers at every update. Nothing else is left out.
+const GENERATED = /[\\/]Cargo\.lock$/;
 
 const extraTerms = (process.env.PRIVATE_TERMS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 
@@ -40,10 +45,12 @@ const published = files(dist).filter((f) => /\.(html|js|css|json|webmanifest|svg
 // Technical projects are scanned too: every file git tracks under projects/ (sources, tests, data, docs).
 // Local build output (build*/, bin/, obj/, alire/...) is ignored by git, so it is left out by construction.
 const projectFiles = execFileSync('git', ['ls-files', '-z', 'projects'], { cwd: ROOT, encoding: 'utf8' })
-  .split('\0').filter(Boolean).map((f) => join(ROOT, f));
+  .split('\0').filter(Boolean).map((f) => join(ROOT, f)).filter((f) => !GENERATED.test(f));
 const sources = [join(ROOT, 'data/cv.json'), join(ROOT, 'data/projects.json'), ...projectFiles];
 
 test('the scan covers the technical projects', () => {
+  assert.ok(sources.some((f) => f.endsWith(join('launcher', 'core', 'src', 'update.rs'))), 'the launcher sources');
+  assert.ok(!sources.some((f) => f.endsWith('Cargo.lock')), 'Cargo.lock left out');
   assert.ok(sources.some((f) => f.endsWith(join('lib-c', 'src', 'obj.c'))), 'projects/lib-c sources');
   // Build output: CMake's build*/, dune's _build/, Alire's bin/ and obj/ for Ada. A dune bin/ holds sources.
   assert.ok(!sources.some((f) => /[\\/](build[^\\/]*|_build)[\\/]|[\\/]ada[\\/](bin|obj)[\\/]/.test(f)), 'build output excluded');
