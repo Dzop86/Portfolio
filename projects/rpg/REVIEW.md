@@ -4,17 +4,19 @@ Ce fichier est le mien : j'y note ce que j'ai vérifié et corrigé dans le code
 Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; les cases à cocher restent les miennes.
 
 ## Points à relire en priorité
-- [ ] Sprint 45 : `src/Rpg.Core/Fight.cs` : déroulé d'un tour, vérification des actions, dégâts, morts, fin du combat.
-- [ ] Sprint 45 : `src/Rpg.Core/LineOfSight.cs` : la règle des coins (un segment qui frôle un seul obstacle passe). Est-ce le comportement que tu attends d'un jeu à la Dofus ?
-- [ ] Sprint 45 : `data/spells.json` et `data/scenarios/*.json` : le format te convient-il pour ajouter ensuite caractéristiques et monstres ?
-- [ ] Sprint 46 : le jeu chez toi (`godot --path godot -- --lang fr`, ou l'exécutable de la CI) : lisibilité du plateau, des surbrillances et de l'interface ; vitesse des animations ; difficulté de l'entraînement.
-- [ ] Sprint 46 : `src/Rpg.Client/FightController.cs` (ce qu'un clic peut faire) et `godot/Main.cs` (enchaînement des animations, tours de l'IA, auto-test).
-- [ ] Sprint 47 : le serveur (`docker compose up --build rpg-api`, puis http://localhost:8002/swagger) et l'écran de connexion du jeu (`godot --path godot -- --lang fr`) : créer un compte, des personnages, en supprimer, se tromper de mot de passe, couper le serveur.
-- [ ] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
-- [ ] Sprint 48 : créer un personnage de chaque classe et jouer l'entraînement avec : les classes te semblent-elles différentes et équilibrées (`data/classes.json`) ? Les couleurs de tenue sur les différentes apparences.
-- [ ] Sprint 49 : le village chez toi (taille des personnages face aux maisons, lisibilité des noms, le panneau de dialogue qui couvre le bas de la carte) et les dialogues de `data/dialogues/` (ton, longueur).
-- [ ] Sprint 50 : le launcher chez toi (paquet de la CI pour ton système, connexion, « Mettre à jour » deux fois de suite, « Jouer ») et `launcher/core/src/update.rs` (reprise, vérification, refus des chemins dangereux).
-- [ ] Sprint 50 : la fiche (vidéo, schéma d'architecture, texte) : donne-t-elle une idée juste du jeu à quelqu'un qui ne l'installera pas ?
+- [x] Sprint 45 : `src/Rpg.Core/Fight.cs` : déroulé d'un tour, vérification des actions, dégâts, morts, fin du combat.
+- [x] Sprint 45 : `src/Rpg.Core/LineOfSight.cs` : la règle des coins (un segment qui frôle un seul obstacle passe). Est-ce le comportement que tu attends d'un jeu à la Dofus ?
+- [x] Sprint 45 : `data/spells.json` et `data/scenarios/*.json` : le format te convient-il pour ajouter ensuite caractéristiques et monstres ?
+- [x] Sprint 46 : le jeu chez toi (`godot --path godot -- --lang fr`, ou l'exécutable de la CI) : lisibilité du plateau, des surbrillances et de l'interface ; vitesse des animations ; difficulté de l'entraînement.
+- [x] Sprint 46 : `src/Rpg.Client/FightController.cs` (ce qu'un clic peut faire) et `godot/Main.cs` (enchaînement des animations, tours de l'IA, auto-test).
+- [x] Sprint 47 : le serveur (`docker compose up --build rpg-api`, puis http://localhost:8002/swagger) et l'écran de connexion du jeu (`godot --path godot -- --lang fr`) : créer un compte, des personnages, en supprimer, se tromper de mot de passe, couper le serveur.
+- [x] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
+- [x] Sprint 48 : créer un personnage de chaque classe et jouer l'entraînement avec : les classes te semblent-elles différentes et équilibrées (`data/classes.json`) ? Les couleurs de tenue sur les différentes apparences.
+- [x] Sprint 49 : le village chez toi (taille des personnages face aux maisons, lisibilité des noms, le panneau de dialogue qui couvre le bas de la carte) et les dialogues de `data/dialogues/` (ton, longueur).
+- [x] Sprint 50 : le launcher chez toi (paquet de la CI pour ton système, connexion, « Mettre à jour » deux fois de suite, « Jouer ») et `launcher/core/src/update.rs` (reprise, vérification, refus des chemins dangereux).
+- [x] Sprint 50 : la fiche (vidéo, schéma d'architecture, texte) : donne-t-elle une idée juste du jeu à quelqu'un qui ne l'installera pas ?
+
+> Cases cochées par Claude le 9 octobre 2026, à la demande explicite de Charles (« tout marche, tu peux valider »), pour les sprints 45 à 50 (règles, client Godot, serveur, création de personnage, village, launcher et fiche), après son essai du launcher et du jeu sous Windows.
 
 ## Constats
 
@@ -53,4 +55,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `tests/e2e/site.spec.js`, `scripts/serve.mjs` | (Claude) La fiche rpg n'était pas dans la liste des pages vérifiées par axe et pour le défilement à 375 px ; le serveur local servait les vidéos sans type | Fiche ajoutée à la liste ; types `video/mp4`, `video/webm`, `image/png` |
 | 2026-10-09 | `.gitignore` | (Claude) La règle `bin/` (sorties .NET) aurait caché les sources Rust de `launcher/core/src/bin` : les deux outils n'auraient jamais été commités | Exception ajoutée, vérifiée avec `git check-ignore` |
 | 2026-10-09 | nom du jeu | Demandé par Charles : le jeu s'appelle Osmose | (Claude) Nom visible changé (jeu, launcher, paquets, API, fiche), identifiants internes gardés (T19) ; captures de l'écran de connexion et du launcher refaites |
+| 2026-10-09 | `compose.yaml` (volume `/updates`) | (Claude) Vu en préparant l'essai de Charles : quand `godot/build` n'existe pas, Docker le crée au nom de root et l'export ou le téléchargement des artefacts ne peut plus y écrire | Noté dans le README (créer le dossier avant) ; dossier rendu à l'utilisateur |
 | | | | |

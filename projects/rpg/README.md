@@ -36,6 +36,7 @@ Le jeu s'ouvre sur l'écran de connexion : créer un compte ou se connecter, pui
 godot --headless --path godot --export-release Linux               # dans godot/build/linux
 cargo run --manifest-path launcher/Cargo.toml -p rpg-launcher-core --bin rpg-manifest -- godot/build/linux 1.0.0
 docker compose up --build rpg-api                                  # sert godot/build sous /updates
+# godot/build doit exister avant : sinon Docker le crée au nom de root, et l'export ne peut plus y écrire.
 cargo run --manifest-path launcher/Cargo.toml -p rpg-launcher-core --bin rpg-update -- http://localhost:8002 ./jeu linux
 cd launcher/app && npx @tauri-apps/cli@2.5.0 dev                   # la fenêtre du launcher
 ```

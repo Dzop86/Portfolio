@@ -17,14 +17,14 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 > Case cochée par Claude le 8 octobre 2026, à la demande explicite de Charles (« review ok »).
 
 ## Sprint 45 : à relire
-- [ ] Les règles du RPG tactique : les trois points de `projects/rpg/REVIEW.md` (déroulé du combat, règle des coins de la ligne de vue, format des données).
+- [x] Les règles du RPG tactique : les trois points de `projects/rpg/REVIEW.md` (déroulé du combat, règle des coins de la ligne de vue, format des données).
 
 ## Sprint 46 : à relire
-- [ ] Le client Godot du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le jeu chez toi, contrôleur et enchaînement).
-- [ ] Le serveur des comptes et l'écran de connexion du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le serveur et l'écran chez toi, ce que vérifie le serveur et ce que voit le joueur).
-- [ ] La création de personnage du RPG tactique : le point de `projects/rpg/REVIEW.md` (classes, équilibre, couleurs).
-- [ ] Le village du RPG tactique : le point de `projects/rpg/REVIEW.md` (le village chez toi, les dialogues).
-- [ ] Le launcher et la fiche du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le launcher chez toi, la fiche).
+- [x] Le client Godot du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le jeu chez toi, contrôleur et enchaînement).
+- [x] Le serveur des comptes et l'écran de connexion du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le serveur et l'écran chez toi, ce que vérifie le serveur et ce que voit le joueur).
+- [x] La création de personnage du RPG tactique : le point de `projects/rpg/REVIEW.md` (classes, équilibre, couleurs).
+- [x] Le village du RPG tactique : le point de `projects/rpg/REVIEW.md` (le village chez toi, les dialogues).
+- [x] Le launcher et la fiche du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le launcher chez toi, la fiche).
 
 ## Constats
 
