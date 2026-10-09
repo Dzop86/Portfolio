@@ -6,10 +6,24 @@ namespace Rpg.Core;
 /// The player's character as the rules see it: it takes the place of the scenario's first fighter of
 /// team A. Its class (<c>data/classes.json</c>) gives its characteristics and spells; without one, it
 /// keeps the scenario's. Its name and appearance (look, outfit colour, hair colour, skin tone,
-/// height, build) only change what is shown.
+/// height, build) only change what is shown. With its level come points (<see cref="Progression"/>):
+/// the characteristics it was given (<see cref="Stats"/>) and the ranks of its spells
+/// (<see cref="Ranks"/>, rank 1 when not listed).
 /// </summary>
-public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1)
+public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1,
+    Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null)
 {
+    /// <summary>The same hero: the ranks compare by content, not by dictionary.</summary>
+    public bool Equals(Hero? other) =>
+        other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
+        && RanksGiven.SequenceEqual(other.RanksGiven);
+
+    public override int GetHashCode() => HashCode.Combine(Name, Look, Class, Colour, Level, Stats ?? Characteristics.None);
+
+    /// <summary>The ranks above 1, by spell id in order.</summary>
+    public IEnumerable<KeyValuePair<string, int>> RanksGiven =>
+        (Ranks ?? new Dictionary<string, int>()).Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal);
+
     /// <summary>The outfit colours: the client turns the models' palette by 0 to 6 steps.</summary>
     public const int Colours = 7;
 
@@ -47,6 +61,28 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             : Math.Abs(Height) > Shape || Math.Abs(Build) > Shape ? $"Height and build are -{Shape} to {Shape}."
             : Level is < 1 or > MaxLevel ? $"The level is 1 to {MaxLevel}."
             : Class is not null && data.Class(Class) is null ? $"Unknown class '{Class}'."
+            : PointsProblem(data);
+    }
+
+    /// <summary>Characteristic and spell points within what the level gives; ranks of unlocked spells of the class.</summary>
+    private string? PointsProblem(GameData data)
+    {
+        Characteristics st = Stats ?? Characteristics.None;
+        int[] values = [st.Vitality, st.Strength, st.Intelligence, st.Chance, st.Agility];
+        if (values.Any(v => v < 0) || values.Sum() > Progression.CharacteristicPoints(Level))
+            return $"At most {Progression.CharacteristicPoints(Level)} characteristic points at level {Level}, none below zero.";
+        if (Ranks is null || Ranks.Count == 0)
+            return null;
+        HeroClass? c = Class is null ? null : data.Class(Class);
+        foreach ((string spell, int rank) in Ranks)
+        {
+            if (c is null || !c.Spells.Contains(spell) || data.Spells[spell].Level > Level)
+                return $"The spell '{spell}' is not one this hero has.";
+            if (rank < 1 || rank > data.Spells[spell].MaxRank)
+                return $"The spell '{spell}' has ranks 1 to {data.Spells[spell].MaxRank}.";
+        }
+        return Ranks.Values.Sum(Progression.RankCost) > Progression.SpellPoints(Level)
+            ? $"At most {Progression.SpellPoints(Level)} spell points at level {Level}."
             : null;
     }
 }

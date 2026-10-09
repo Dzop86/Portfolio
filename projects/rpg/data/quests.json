@@ -1,0 +1,3 @@
+[
+  { "id": "first-lesson", "name": { "fr": "Première leçon", "en": "First lesson" }, "xp": 150, "scenario": "training" }
+]

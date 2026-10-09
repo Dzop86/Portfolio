@@ -138,7 +138,7 @@ public sealed class Fight
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         return data.Class(hero.Class) is not HeroClass c ? spec
-            : spec with { Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)] };
+            : spec with { Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)], Stats = hero.Stats, SpellRanks = hero.Ranks, Level = hero.Level };
     }
 
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>

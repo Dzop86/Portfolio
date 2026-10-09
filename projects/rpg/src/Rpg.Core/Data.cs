@@ -82,6 +82,12 @@ public sealed record Characteristics(int Vitality = 0, int Strength = 0, int Int
     };
 }
 
+/// <summary>
+/// A quest, as described in <c>data/quests.json</c>: done the first time the hero wins a fight of
+/// its <see cref="Scenario"/>, which the server checks by replaying that fight; worth <see cref="Xp"/>, once.
+/// </summary>
+public sealed record Quest(string Id, LocalizedText Name, long Xp, string Scenario);
+
 /// <summary>A creature a spell can summon, as described in <c>data/summons.json</c>.</summary>
 public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells);
 
@@ -101,7 +107,8 @@ public sealed record FighterSpec(
     IReadOnlyList<string> Spells,
     IReadOnlyDictionary<Element, int>? Resistances = null,
     Characteristics? Stats = null,
-    IReadOnlyDictionary<string, int>? SpellRanks = null)
+    IReadOnlyDictionary<string, int>? SpellRanks = null,
+    int Level = 1)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -156,9 +163,10 @@ public sealed class GameData
     public IReadOnlyDictionary<string, Town> Towns { get; }
     public IReadOnlyDictionary<string, Dialogue> Dialogues { get; }
     public IReadOnlyDictionary<string, SummonSpec> Summons { get; }
+    public IReadOnlyDictionary<string, Quest> Quests { get; }
 
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
-        IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null)
+        IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null)
     {
         Spells = Index(spells, s => s.Id, "spell");
         Maps = Index(maps, m => m.Id, "map");
@@ -189,6 +197,12 @@ public sealed class GameData
             Check(d);
         foreach (Town t in Towns.Values)
             Check(t);
+        Quests = Index(quests ?? [], q => q.Id, "quest");
+        foreach (Quest q in Quests.Values)
+        {
+            if (q.Xp < 1 || !Scenarios.ContainsKey(q.Scenario))
+                throw new InvalidDataException($"Quest '{q.Id}': no experience, or an unknown scenario '{q.Scenario}'.");
+        }
     }
 
     public HeroClass? Class(string? id) => Classes.FirstOrDefault(c => c.Id == id);
@@ -208,7 +222,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "classes.json")) ? Read<List<HeroClass>>(Path.Combine(folder, "classes.json")) : null,
             Directory.Exists(Path.Combine(folder, "towns")) ? ReadAll<Town>("towns") : null,
             Directory.Exists(Path.Combine(folder, "dialogues")) ? ReadAll<Dialogue>("dialogues") : null,
-            File.Exists(Path.Combine(folder, "summons.json")) ? Read<List<SummonSpec>>(Path.Combine(folder, "summons.json")) : null);
+            File.Exists(Path.Combine(folder, "summons.json")) ? Read<List<SummonSpec>>(Path.Combine(folder, "summons.json")) : null,
+            File.Exists(Path.Combine(folder, "quests.json")) ? Read<List<Quest>>(Path.Combine(folder, "quests.json")) : null);
     }
 
     /// <summary>
@@ -234,7 +249,8 @@ public sealed class GameData
             files.Where(f => f.Key.StartsWith(prefix, StringComparison.Ordinal)).Select(f => Parse<T>(f.Key, f.Value));
         return new GameData(Parse<List<Spell>>("spells.json", files["data/spells.json"]), All<MapSpec>("data/maps/"), All<Scenario>("data/scenarios/"),
             Parse<List<HeroClass>>("classes.json", files["data/classes.json"]), All<Town>("data/towns/"), All<Dialogue>("data/dialogues/"),
-            files.TryGetValue("data/summons.json", out string? summons) ? Parse<List<SummonSpec>>("summons.json", summons) : null);
+            files.TryGetValue("data/summons.json", out string? summons) ? Parse<List<SummonSpec>>("summons.json", summons) : null,
+            files.TryGetValue("data/quests.json", out string? quests) ? Parse<List<Quest>>("quests.json", quests) : null);
     }
 
     public Board Board(string mapId) =>
@@ -403,8 +419,8 @@ public sealed class GameData
                 throw new InvalidDataException($"{who}: team must be 0 or 1.");
             if (string.IsNullOrWhiteSpace(f.Look))
                 throw new InvalidDataException($"{who}: no look.");
-            if (f.Hp < 1 || f.Ap < 0 || f.Mp < 0)
-                throw new InvalidDataException($"{who}: hit points, action or movement points out of bounds.");
+            if (f.Hp < 1 || f.Ap < 0 || f.Mp < 0 || f.Level is < 1 or > Hero.MaxLevel)
+                throw new InvalidDataException($"{who}: hit points, action or movement points or level out of bounds.");
             if (f.Resistances is not null && f.Resistances.Any(r => r.Key == Element.Neutral || r.Value is < -100 or > 90))
                 throw new InvalidDataException($"{who}: resistances are per element, from -100 to 90 percent.");
             if (f.Start < 0 || f.Start >= board.Starts[f.Team].Count || !used.Add((f.Team, f.Start)))

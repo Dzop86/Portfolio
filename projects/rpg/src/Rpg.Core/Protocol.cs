@@ -31,14 +31,37 @@ public sealed record Place(string Town, int X, int Y)
 
 /// <summary>
 /// One of the player's characters, on one server; <see cref="Place"/> is null until they first walk
-/// in a town. The level is 1 until the progression comes (experience, characteristics).
+/// in a town. Its level follows its experience; its points are spent as <see cref="Stats"/> and
+/// <see cref="Ranks"/> say (sprint 58); <see cref="Quests"/> are the ids of the quests it has done.
 /// </summary>
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
-    int Hair = 0, int Skin = 0, int Height = 0, int Build = 0)
+    int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null)
 {
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks);
+
+    /// <summary>The same summary: ranks and quests compare by content.</summary>
+    public bool Equals(CharacterSummary? other) =>
+        other is not null && (Id, CreatedAt, Place, Server, Xp) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp)
+        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []);
+
+    public override int GetHashCode() => HashCode.Combine(Id, Hero, Xp);
 }
+
+/// <summary>A fight the player is about to play, on the server's word: its scenario and the seed the server drew.</summary>
+public sealed record FightTicket(Guid Id, string Scenario, [property: JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)] ulong Seed);
+
+/// <summary>A fight to start: one of the scenarios of the rules.</summary>
+public sealed record NewFight(string? Scenario);
+
+/// <summary>
+/// What the server gave for a fight it replayed: the experience earned (the fight's and a quest's),
+/// the new total and level, and the quest done, if any.
+/// </summary>
+public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null);
+
+/// <summary>How a character spends its points: characteristics, and the ranks of its spells (rank 1 when not listed).</summary>
+public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks);
 
 public static class Servers
 {
