@@ -116,7 +116,7 @@ jobs:
         run: |
           godot --headless --path godot -- --lobby-selftest --server http://localhost:8002 --seed 9 --report "$RUNNER_TEMP/lobby.txt"
           cat "$RUNNER_TEMP/lobby.txt"
-          grep -q "SELFTEST OK seed 9: .* made on the server and chosen on the login screen. Town: 3 people, 8 lines, place (15, 5) saved on the server, views checked." "$RUNNER_TEMP/lobby.txt"
+          grep -q "SELFTEST OK seed 9: .* made on server Osméria, shown on its card and chosen. Town: 3 people, 8 lines, place (15, 5) saved on the server, views checked." "$RUNNER_TEMP/lobby.txt"
       - name: API logs
         if: always()
         working-directory: ${{ github.workspace }}

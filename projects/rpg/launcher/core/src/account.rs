@@ -61,9 +61,11 @@ pub trait Secrets {
     fn delete(&self, name: &str) -> Result<()>;
 }
 
-/// The system's credential store, through the keyring crate.
+/// The system's credential store, through the keyring crate (feature `system-secrets`).
+#[cfg(feature = "system-secrets")]
 pub struct SystemSecrets;
 
+#[cfg(feature = "system-secrets")]
 impl Secrets for SystemSecrets {
     fn get(&self, name: &str) -> Option<String> {
         keyring::Entry::new(SERVICE, name).ok()?.get_password().ok()
