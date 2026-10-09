@@ -24,10 +24,11 @@ auth=(-H "Authorization: Bearer $token")
 # Character names are letters only, unique on the server.
 hero=Smoke
 for _ in 1 2 3 4 5 6 7 8 9 10; do hero+=$(printf "\\x$(printf %x $((97 + RANDOM % 26)))"); done
-id=$(json "${auth[@]}" -d "$(jq -nc --arg n "$hero" '{name: $n, look: "female-c"}')" "$base/api/characters" | jq -r .id)
-json "${auth[@]}" "$base/api/characters" | jq -e --arg n "$hero" 'length == 1 and .[0].name == $n and .[0].look == "female-c"' > /dev/null \
+id=$(json "${auth[@]}" -d "$(jq -nc --arg n "$hero" '{name: $n, look: "female-c", class: "mage", colour: 3}')" "$base/api/characters" | jq -r .id)
+json "${auth[@]}" "$base/api/characters" | jq -e --arg n "$hero" 'length == 1 and .[0].name == $n and .[0].look == "female-c" and .[0].class == "mage" and .[0].colour == 3' > /dev/null \
   || fail "character list"
-[[ $(status "${auth[@]}" -d '{"name": "R2D2", "look": "female-c"}' "$base/api/characters") == 400 ]] || fail "invalid name"
+[[ $(status "${auth[@]}" -d '{"name": "R2D2", "look": "female-c", "class": "mage"}' "$base/api/characters") == 400 ]] || fail "invalid name"
+[[ $(status "${auth[@]}" -d '{"name": "Valide", "look": "female-c", "class": "dragon"}' "$base/api/characters") == 400 ]] || fail "unknown class"
 [[ $(status -X DELETE "${auth[@]}" "$base/api/characters/$id") == 204 ]] || fail "delete"
 json "${auth[@]}" "$base/api/characters" | jq -e 'length == 0' > /dev/null || fail "list after delete"
 
