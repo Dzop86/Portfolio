@@ -27,14 +27,14 @@ public static class CharacterEndpoints
         Guid account = AccountId(user);
         var list = await db.Characters.Where(c => c.AccountId == account)
             .OrderBy(c => c.CreatedAt).ThenBy(c => c.Name)
-            .Select(c => new { c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, c.Town, c.X, c.Y })
+            .Select(c => new { c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, c.Town, c.X, c.Y, c.Server, c.Level })
             .ToArrayAsync(cancel);
         return TypedResults.Ok(list.Select(c => new CharacterSummary(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt,
-            c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null)).ToArray());
+            c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null, c.Server, c.Level)).ToArray());
     }
 
     internal static async Task<Results<Created<CharacterSummary>, ValidationProblem, ProblemHttpResult>> Create(
-        NewCharacter request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        NewCharacter request, ClaimsPrincipal user, GameDb db, GameServers servers, TimeProvider clock, CancellationToken cancel)
     {
         var errors = new Dictionary<string, string[]>();
         if (!Hero.IsValidName(request.Name))
@@ -46,6 +46,9 @@ public static class CharacterEndpoints
             errors["class"] = [$"One of: {string.Join(", ", GameData.Embedded.Classes.Select(c => c.Id))}."];
         if (request.Colour is < 0 or >= Hero.Colours)
             errors["colour"] = [$"0 to {Hero.Colours - 1}."];
+        string server = request.Server ?? servers.All[0].Id;
+        if (!servers.Exists(server))
+            errors["server"] = [$"One of: {string.Join(", ", servers.All.Select(s => s.Id))}."];
         if (errors.Count > 0)
             return TypedResults.ValidationProblem(errors);
 
@@ -57,7 +60,7 @@ public static class CharacterEndpoints
         string normalized = request.Name!.ToUpperInvariant();
         if (await db.Characters.AnyAsync(c => c.NormalizedName == normalized, cancel))
             return NameTaken();
-        var character = new Character { AccountId = account, Name = request.Name, NormalizedName = normalized, Look = request.Look!, Class = request.Class!, Colour = request.Colour, CreatedAt = clock.GetUtcNow() };
+        var character = new Character { AccountId = account, Name = request.Name, NormalizedName = normalized, Look = request.Look!, Class = request.Class!, Colour = request.Colour, Server = server, CreatedAt = clock.GetUtcNow() };
         db.Characters.Add(character);
         try
         {
@@ -68,7 +71,7 @@ public static class CharacterEndpoints
             // The same name taken at the same moment by someone else: the unique index decides.
             return NameTaken();
         }
-        return TypedResults.Created($"/api/characters/{character.Id}", new CharacterSummary(character.Id, character.Name, character.Look, character.Class, character.Colour, character.CreatedAt));
+        return TypedResults.Created($"/api/characters/{character.Id}", new CharacterSummary(character.Id, character.Name, character.Look, character.Class, character.Colour, character.CreatedAt, null, character.Server, character.Level));
     }
 
     internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)

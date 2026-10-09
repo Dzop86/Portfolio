@@ -19,6 +19,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public int AccountsPerMinute { get; init; } = 10_000;
 
+    /// <summary>More configuration (servers...), as an environment would give it.</summary>
+    public IReadOnlyDictionary<string, string> Settings { get; init; } = new Dictionary<string, string>();
+
     /// <summary>A folder served under /updates, as for the launcher; none by default.</summary>
     public string? UpdatesRoot { get; init; }
 
@@ -29,6 +32,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         builder.UseSetting("ConnectionStrings:Game", $"{DatabaseServer};Database={_database}");
         builder.UseSetting("RateLimit:AccountsPerMinute", AccountsPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        foreach ((string key, string value) in Settings)
+            builder.UseSetting(key, value);
         if (UpdatesRoot is not null)
             builder.UseSetting("Updates:Root", UpdatesRoot);
         builder.UseSetting("Jwt:Key", Convert.ToBase64String(Enumerable.Range(1, 32).Select(i => (byte)i).ToArray()));

@@ -1,3 +1,5 @@
+using Rpg.Core;
+
 namespace Rpg.Api.Data;
 
 /// <summary>A player's account: a name, a password hash (PBKDF2, ASP.NET Core Identity's hasher), its characters.</summary>
@@ -28,6 +30,11 @@ public sealed class Character
     public required string Look { get; set; }
     public required string Class { get; set; }
     public int Colour { get; set; }
+
+    /// <summary>The game server the character lives on.</summary>
+    public string Server { get; set; } = Servers.Default;
+
+    public int Level { get; set; } = 1;
 
     /// <summary>Where the character stands: a town and a cell, or nothing before their first walk.</summary>
     public string? Town { get; set; }

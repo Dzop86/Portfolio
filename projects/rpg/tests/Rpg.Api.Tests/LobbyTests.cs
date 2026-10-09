@@ -76,7 +76,7 @@ public class LobbyTests
     {
         await using var api = new ApiFactory();
         GameServer launcher = await api.SignedIn();
-        await launcher.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        await launcher.CreateCharacter("Élise", "female-c", "mage", 3, cancel: Cancel);
         string token = launcher.Http.DefaultRequestHeaders.Authorization!.Parameter!;
 
         var game = new Lobby(new GameServer(api.CreateClient()));

@@ -12,8 +12,14 @@ public sealed record AccountCreated(string Name);
 /// <summary>A signed access token (JWT) and the moment it stops working.</summary>
 public sealed record AccessToken(string Token, DateTimeOffset ExpiresAt);
 
-/// <summary>A character to create: its name, look, class (<c>data/classes.json</c>) and outfit colour (0 to 6).</summary>
-public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0);
+/// <summary>
+/// A character to create: its name, look, class (<c>data/classes.json</c>), outfit colour (0 to 6)
+/// and server (null: the first one).
+/// </summary>
+public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0, string? Server = null);
+
+/// <summary>A game server the player can choose before their characters, as in the games of the genre.</summary>
+public sealed record ServerInfo(string Id, string Name);
 
 /// <summary>One of the player's characters.</summary>
 /// <summary>Where a character stands in a town; the game brings them back there.</summary>
@@ -23,11 +29,20 @@ public sealed record Place(string Town, int X, int Y)
     public Cell Cell => new(X, Y);
 }
 
-/// <summary>One of the player's characters; <see cref="Place"/> is null until they first walk in a town.</summary>
-public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null)
+/// <summary>
+/// One of the player's characters, on one server; <see cref="Place"/> is null until they first walk
+/// in a town. The level is 1 until the progression comes (experience, characteristics).
+/// </summary>
+public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1)
 {
     [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour);
+}
+
+public static class Servers
+{
+    /// <summary>The first server, and the one of the characters made before servers.</summary>
+    public const string Default = "osmeria";
 }
 
 public static class Accounts

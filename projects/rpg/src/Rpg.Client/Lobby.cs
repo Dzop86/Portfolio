@@ -4,8 +4,9 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>
-/// What the login and character screen can do, without an engine: sign in (or up), list, create and
-/// delete characters, choose one to fight, or play offline. Every refusal becomes a key of
+/// What the screens before the game can do, without an engine: sign in (or up; the launcher usually
+/// does it and hands a token), choose a server (at once when there is only one), list, create and
+/// delete the characters, choose one, or play offline. Every refusal becomes a key of
 /// <see cref="Texts"/> (<c>lobby.*</c>) in <see cref="Problem"/>, so the screen shows it in the
 /// player's language; the checks the server makes are made here first, to answer at once.
 /// </summary>
@@ -13,7 +14,16 @@ public sealed class Lobby(GameServer server)
 {
     public GameServer Server { get; } = server ?? throw new ArgumentNullException(nameof(server));
 
+    /// <summary>All the account's characters, on every server.</summary>
     public IReadOnlyList<CharacterSummary> Characters { get; private set; } = [];
+
+    public IReadOnlyList<ServerInfo> Servers { get; private set; } = [];
+
+    /// <summary>The server chosen; set at once when there is only one.</summary>
+    public ServerInfo? ChosenServer { get; private set; }
+
+    /// <summary>The characters of the chosen server, oldest first.</summary>
+    public IReadOnlyList<CharacterSummary> Here => [.. Characters.Where(c => c.Server == ChosenServer?.Id)];
 
     /// <summary>The <c>lobby.*</c> key of the last refusal, or null after a success.</summary>
     public string? Problem { get; private set; }
@@ -34,7 +44,7 @@ public sealed class Lobby(GameServer server)
             if (create)
                 await Server.SignUp(name, password, cancel);
             await Server.SignIn(name, password, cancel);
-            Characters = await Server.Characters(cancel);
+            await LoadAccount(cancel);
         }, status => status switch
         {
             HttpStatusCode.BadRequest => "lobby.account-invalid",
@@ -48,8 +58,18 @@ public sealed class Lobby(GameServer server)
     public async Task<bool> UseToken(string token, CancellationToken cancel = default)
     {
         Server.UseToken(token);
-        return await Call(async () => Characters = await Server.Characters(cancel), _ => null);
+        return await Call(() => LoadAccount(cancel), _ => null);
     }
+
+    /// <summary>The servers and the characters; a single server is chosen at once.</summary>
+    private async Task LoadAccount(CancellationToken cancel)
+    {
+        Servers = await Server.Servers(cancel);
+        Characters = await Server.Characters(cancel);
+        ChosenServer = Servers.Count == 1 ? Servers[0] : null;
+    }
+
+    public void ChooseServer(string? id) => ChosenServer = Servers.FirstOrDefault(s => s.Id == id);
 
     public async Task<bool> Create(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default)
     {
@@ -59,9 +79,11 @@ public sealed class Lobby(GameServer server)
             return Fail("lobby.class-invalid");
         if (!CanCreate)
             return Fail("lobby.too-many-characters");
+        if (ChosenServer is null)
+            return Fail("lobby.choose-server");
         return await Call(async () =>
         {
-            await Server.CreateCharacter(name, look, heroClass, colour, cancel);
+            await Server.CreateCharacter(name, look, heroClass, colour, ChosenServer?.Id, cancel);
             Characters = await Server.Characters(cancel);
         }, status => status switch
         {
@@ -82,6 +104,8 @@ public sealed class Lobby(GameServer server)
     {
         Server.SignOut();
         Characters = [];
+        Servers = [];
+        ChosenServer = null;
         Problem = null;
     }
 

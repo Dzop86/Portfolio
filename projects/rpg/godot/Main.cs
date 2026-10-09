@@ -32,7 +32,6 @@ public partial class Main : Node3D
     private static Hero? _hero;
     private static string? _scenario;
     private static string? _launcherToken;
-    private string _serverUrl = "";
 
     private readonly Dictionary<int, FighterView> _views = [];
     private FightController _controller = null!;
@@ -44,7 +43,6 @@ public partial class Main : Node3D
     private int _seen;
     private bool _busy;
     private LobbyView? _lobbyView;
-    private Node3D? _stage;
     private string? _selfTestNote;
 
     public override void _Ready()
@@ -59,7 +57,6 @@ public partial class Main : Node3D
             _lobby = new Lobby(new GameServer(new System.Net.Http.HttpClient { BaseAddress = new Uri(server), Timeout = TimeSpan.FromSeconds(10) }));
             _launcherToken = System.Environment.GetEnvironmentVariable("RPG_TOKEN");
         }
-        _serverUrl = server;
         AddEnvironment();
         if (_options.SelfTest || _options.Demo || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
             StartFight(_hero, _options.Scenario);
@@ -84,7 +81,6 @@ public partial class Main : Node3D
             child.QueueFree();
         }
         _lobbyView = null;
-        _stage = null;
         _townView = null;
         _talkPanel = null;
         AddEnvironment();
@@ -92,12 +88,9 @@ public partial class Main : Node3D
 
     private void ShowLobby()
     {
-        _camera = new Camera3D { Fov = 40, HOffset = -0.75f };
+        _camera = new Camera3D();
         AddChild(_camera);
-        _camera.Position = new Vector3(0, 1.1f, 3.0f);
-        _camera.LookAt(new Vector3(0, 0.4f, 0));
         _lobbyView = new LobbyView();
-        _lobbyView.PreviewShown += ShowModel;
         _lobbyView.Chosen += character =>
         {
             _character = character;
@@ -107,10 +100,10 @@ public partial class Main : Node3D
             ShowTown();
         };
         AddChild(_lobbyView);
-        _lobbyView.Build(_lobby!, _serverUrl, new Texts(_options.Lang));
+        _lobbyView.Build(_lobby!, new Texts(_options.Lang));
         if (_launcherToken is string token && !_lobby!.SignedIn && !_options.LobbySelfTest)
         {
-            // Used once: after signing out, the form is the way back in.
+            // Used once: a token run out sends back to the launcher.
             _launcherToken = null;
             _ = UseLauncherToken(token);
         }
@@ -124,28 +117,6 @@ public partial class Main : Node3D
     {
         await _lobby!.UseToken(token);
         _lobbyView?.Refresh();
-    }
-
-    /// <summary>The model of a look, turning on a patch of grass next to the form.</summary>
-    private void ShowModel(string look, int colour)
-    {
-        _stage?.QueueFree();
-        _stage = new Node3D();
-        AddChild(_stage);
-        _stage.AddChild(new MeshInstance3D
-        {
-            Mesh = new CylinderMesh { TopRadius = 0.7f, BottomRadius = 0.7f, Height = 0.06f, RadialSegments = 48 },
-            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("37602a"), Roughness = 1 },
-            Position = new Vector3(0, -0.03f, 0),
-        });
-        var model = Looks.Fighter(look).Instantiate<Node3D>();
-        Looks.Paint(model, colour);
-        _stage.AddChild(model);
-        if (model.FindChild("AnimationPlayer", true, false) is AnimationPlayer anim && anim.HasAnimation("idle"))
-        {
-            anim.GetAnimation("idle").LoopMode = Animation.LoopModeEnum.Linear;
-            anim.Play("idle");
-        }
     }
 
     private void StartFight(Hero? hero, string scenario)
@@ -165,8 +136,6 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
-        if (_stage is not null)
-            _stage.RotateY((float)delta * 0.6f);
         if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)
             return;
         if (_controller.Fight.IsOver)
@@ -497,51 +466,55 @@ public partial class Main : Node3D
     {
         LobbyView view = _lobbyView!;
         string suffix = Guid.NewGuid().ToString("N")[..8];
-        view.NameField.Text = "selftest_" + suffix;
-        view.PasswordField.Text = "selftest password";
-        await view.SignIn(create: true);
+        // The launcher signs up and in; here the lobby does it, then the screens take over.
+        await _lobby!.SignIn("selftest_" + suffix, "selftest password", create: true);
+        view.Refresh();
         // Letters only: the hex digits of the suffix become letters a to p.
         string hero = "Essai" + string.Concat(suffix.Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))));
-        view.CharacterField.Text = hero;
-        view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-b"));
-        view.ClassChoice.Select(GameData.Embedded.Classes.ToList().FindIndex(c => c.Id == "mage"));
-        view.ChooseColour(3);
-        await view.Create();
-        if (_lobby!.Characters.Count != 1 || _lobby.Characters[0].Name != hero)
+        string? problem = _lobby.ChosenServer is null ? $"no server chosen among {_lobby.Servers.Count}" : null;
+        if (problem is null)
         {
-            string report = $"SELFTEST FAILED lobby: {view.MessageText} ({_lobby.Problem})";
+            view.OpenCreate();
+            view.CharacterField.Text = hero;
+            view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-b"));
+            view.ClassChoice.Select(GameData.Embedded.Classes.ToList().FindIndex(c => c.Id == "mage"));
+            view.ChooseColour(3);
+            await view.Create();
+            string expected = $"{hero} · {GameData.Embedded.Class("mage")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
+            problem = view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
+                : !view.CardTexts.SequenceEqual([expected]) ? $"the cards show {string.Join(" | ", view.CardTexts)}, not {expected}"
+                : view.PlayButton.Disabled ? "the new character is not chosen"
+                : null;
+        }
+        if (problem is not null)
+        {
+            string report = $"SELFTEST FAILED lobby: {problem} ({_lobby.Problem})";
             GD.Print(report);
             if (_options.Report is string path)
                 File.WriteAllText(path, report + "\n");
             GetTree().Quit(1);
             return;
         }
-        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3) made on the server and chosen on the login screen.";
-        // The character's "fight" button, pressed like a click.
-        Button play = view.FindChildren("*", nameof(Button), true, false).OfType<Button>().Single(b => b.Text == view.Texts["lobby.play"]);
-        play.EmitSignal(BaseButton.SignalName.Pressed);
+        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
+        view.PlayButton.EmitSignal(BaseButton.SignalName.Pressed);
     }
 
-    /// <summary>The character screen for the project page: signs up, creates two characters if the names are free.</summary>
+    /// <summary>The characters screen for the project page: signs up, creates three characters if the names are free.</summary>
     private async Task LobbyScreenshot()
     {
         LobbyView view = _lobbyView!;
-        view.NameField.Text = "capture_" + Guid.NewGuid().ToString("N")[..8];
-        view.PasswordField.Text = "screenshot password";
-        await view.SignIn(create: true);
+        await _lobby!.SignIn("capture_" + Guid.NewGuid().ToString("N")[..8], "screenshot password", create: true);
         List<HeroClass> classes = [.. GameData.Embedded.Classes];
-        foreach ((string name, string look, string heroClass, int colour) in new[] { ("Margaux", "female-e", "sentinel", 0), ("Élise", "female-c", "mage", 4) })
+        foreach ((string name, string look, string heroClass, int colour) in new[] { ("Margaux", "female-e", "sentinel", 0), ("Élise", "female-c", "mage", 4), ("Bastien", "male-c", "guard", 2) })
         {
+            view.OpenCreate();
             view.CharacterField.Text = name;
             view.LookChoice.Select(Hero.Looks.ToList().IndexOf(look));
             view.ClassChoice.Select(classes.FindIndex(c => c.Id == heroClass));
             view.ChooseColour(colour);
             await view.Create();
         }
-        view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-c"));
-        view.ClassChoice.Select(classes.FindIndex(c => c.Id == "guard"));
-        view.Refresh();
-        view.ChooseColour(2);
+        view.Select(_lobby.Here[1].Id);
         for (int i = 0; i < 30; i++)
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         Error saved = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);

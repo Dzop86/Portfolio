@@ -39,7 +39,7 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(name, look, heroClass, colour, Cancel));
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(name, look, heroClass, colour, cancel: Cancel));
         Assert.Equal(HttpStatusCode.BadRequest, e.Status);
         Assert.Contains(field + ":", e.Message, StringComparison.Ordinal);
     }
@@ -100,7 +100,7 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary made = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        CharacterSummary made = await server.CreateCharacter("Élise", "female-c", "mage", 3, cancel: Cancel);
         CharacterSummary listed = Assert.Single(await server.Characters(Cancel));
         Assert.Equal(made, listed);
         Assert.Equal(new Hero("Élise", "female-c", "mage", 3), listed.Hero);
@@ -121,7 +121,7 @@ public class CharacterTests
             VALUES ({Guid.NewGuid()}, {account}, 'Margaux', 'MARGAUX', 'female-e', now())
             """));
         CharacterSummary old = Assert.Single(await server.Characters(Cancel));
-        Assert.Equal(("sentinel", 0), (old.Class, old.Colour));
+        Assert.Equal(("sentinel", 0, "osmeria", 1), (old.Class, old.Colour, old.Server, old.Level));
         Assert.Null(old.Hero.Problem(GameData.Embedded));
     }
 
@@ -130,7 +130,7 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, cancel: Cancel);
         Assert.Null(c.Place);
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         Assert.Equal(new Place("clairval", 1, 6), Assert.Single(await server.Characters(Cancel)).Place);
@@ -152,11 +152,11 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, cancel: Cancel);
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         using JsonDocument list = JsonDocument.Parse(await server.Http.GetStringAsync(new Uri("api/characters", UriKind.Relative), Cancel));
         JsonElement only = list.RootElement.EnumerateArray().Single();
-        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place"], only.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place", "server", "level"], only.EnumerateObject().Select(p => p.Name));
         Assert.Equal(["town", "x", "y"], only.GetProperty("place").EnumerateObject().Select(p => p.Name));
     }
 }

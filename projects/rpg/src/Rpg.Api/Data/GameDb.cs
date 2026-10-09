@@ -26,6 +26,9 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             // Characters made before classes (sprint 47) became sentinels: the hero they already were.
             character.Property(c => c.Class).HasMaxLength(20).HasDefaultValue("sentinel");
             character.Property(c => c.Town).HasMaxLength(20);
+            // Characters made before servers live on the first one.
+            character.Property(c => c.Server).HasMaxLength(20).HasDefaultValue(Rpg.Core.Servers.Default);
+            character.Property(c => c.Level).HasDefaultValue(1);
             character.HasIndex(c => c.NormalizedName).IsUnique();
             character.HasOne(c => c.Account).WithMany(a => a.Characters).HasForeignKey(c => c.AccountId).OnDelete(DeleteBehavior.Cascade);
         });

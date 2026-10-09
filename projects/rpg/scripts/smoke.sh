@@ -12,6 +12,7 @@ status() { curl -sS -o /dev/null -w '%{http_code}' -H 'Content-Type: application
 curl -fsS "$base/health" | grep -q '"ok"' || fail "health"
 curl -fsS "$base/openapi/v1.json" | jq -e '.paths["/api/characters/{id}"]' > /dev/null || fail "OpenAPI document"
 curl -fsS -o /dev/null "$base/swagger/index.html" || fail "Swagger UI"
+curl -fsS "$base/api/servers" | jq -e 'length >= 1 and .[0].id == "osmeria"' > /dev/null || fail "servers"
 
 name="smoke_$RANDOM$RANDOM"
 credentials=$(jq -nc --arg n "$name" '{name: $n, password: "smoke test password"}')

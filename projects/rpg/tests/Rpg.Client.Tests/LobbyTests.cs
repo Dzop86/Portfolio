@@ -30,10 +30,13 @@ public partial class LobbyTests
     private static HttpResponseMessage Json(HttpStatusCode status, string body) =>
         new(status) { Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json") };
 
-    private static HttpResponseMessage SignedInWithCharacters(HttpRequestMessage request, string characters = "[]") =>
-        request.RequestUri!.AbsolutePath == "/api/tokens"
-            ? Json(HttpStatusCode.OK, """{"token":"t","expiresAt":"2026-10-10T00:00:00Z"}""")
-            : Json(HttpStatusCode.OK, characters);
+    private static HttpResponseMessage SignedInWithCharacters(HttpRequestMessage request, string characters = "[]", string servers = """[{"id":"osmeria","name":"Osméria"}]""") =>
+        request.RequestUri!.AbsolutePath switch
+        {
+            "/api/tokens" => Json(HttpStatusCode.OK, """{"token":"t","expiresAt":"2026-10-10T00:00:00Z"}"""),
+            "/api/servers" => Json(HttpStatusCode.OK, servers),
+            _ => Json(HttpStatusCode.OK, characters),
+        };
 
     [Fact]
     public async Task AServerThatDoesNotAnswer_LeavesThePlayerOffline()
@@ -65,7 +68,7 @@ public partial class LobbyTests
         Assert.True(await lobby.SignIn("ada", "correct horse battery", create: false, Cancel));
         Assert.Null(lobby.Problem);
         Assert.Equal("Élise", Assert.Single(lobby.Characters).Name);
-        Assert.Equal(["POST /api/tokens", "GET /api/characters"], server.Requests);
+        Assert.Equal(["POST /api/tokens", "GET /api/servers", "GET /api/characters"], server.Requests);
     }
 
     [Fact]
@@ -95,7 +98,7 @@ public partial class LobbyTests
         await lobby.SignIn("ada", "correct horse battery", create: false, Cancel);
         Assert.False(await lobby.Create("R2D2", "female-c", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.name-invalid", lobby.Problem);
-        Assert.Equal(2, server.Requests.Count);
+        Assert.Equal(3, server.Requests.Count);
     }
 
     [Theory]
@@ -108,7 +111,28 @@ public partial class LobbyTests
         await lobby.SignIn("ada", "correct horse battery", create: false, Cancel);
         Assert.False(await lobby.Create("Élise", "female-c", heroClass!, colour, Cancel));
         Assert.Equal("lobby.class-invalid", lobby.Problem);
-        Assert.Equal(2, server.Requests.Count);
+        Assert.Equal(3, server.Requests.Count);
+    }
+
+    [Fact]
+    public async Task OneServer_IsChosenAtOnce_SeveralWaitForTheChoice()
+    {
+        const string characters = """[{"id":"6f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Élise","look":"female-c","class":"mage","colour":3,"createdAt":"2026-10-09T12:00:00Z","server":"osmeria","level":1},{"id":"7f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Jean-Luc","look":"male-a","class":"guard","colour":0,"createdAt":"2026-10-09T12:00:00Z","server":"brume","level":1}]""";
+        (Lobby one, _) = Make(r => SignedInWithCharacters(r, characters));
+        await one.SignIn("ada", "correct horse battery", create: false, Cancel);
+        Assert.Equal("osmeria", one.ChosenServer!.Id);
+        Assert.Equal("Élise", Assert.Single(one.Here).Name);
+
+        (Lobby two, StandIn server) = Make(r => SignedInWithCharacters(r, characters, """[{"id":"osmeria","name":"Osméria"},{"id":"brume","name":"Brume"}]"""));
+        await two.SignIn("ada", "correct horse battery", create: false, Cancel);
+        Assert.Null(two.ChosenServer);
+        Assert.Empty(two.Here);
+        Assert.False(await two.Create("Margaux", "female-e", "sentinel", cancel: Cancel));
+        Assert.Equal("lobby.choose-server", two.Problem);
+        two.ChooseServer("brume");
+        Assert.Equal("Jean-Luc", Assert.Single(two.Here).Name);
+        Assert.Equal(1, Assert.Single(two.Here).Level);
+        Assert.Equal(3, server.Requests.Count);
     }
 
     [Fact]
