@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S50), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S53), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 22 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,9 +35,9 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : RPG tactique | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S50 | 26 |
+| 22 | Jeu : Osmose, RPG tactique | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S53 | 35 |
 
-Total : 232 points sur 50 sprints de deux semaines.
+Total : 241 points sur 53 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -87,6 +87,9 @@ Un sprint de 2 points, la vitrine passe de 9 à 11. Sprint 44 : en haut de chaqu
 
 ## Un RPG tactique à la manière de Dofus (décision de Charles, 9 octobre 2026, D54)
 Six sprints, 26 points. Un jeu à télécharger, écrit de zéro (aucun code, nom ni image d'Ankama), avec des sprites libres (Kenney, CC0) : S45 les règles du combat dans une bibliothèque C# partagée (grille isométrique, points d'action et de mouvement, ligne de vue, sorts, IA) ; S46 le combat isométrique jouable dans Godot 4 ; S47 le serveur ASP.NET Core de comptes et de personnages ; S48 la création de personnage personnalisable ; S49 la ville d'accueil sans monstre, avec trois PNJ ; S50 le launcher en Rust (Tauri) et les exécutables pour les trois systèmes. Solo d'abord, multijoueur plus tard ; caractéristiques, monstres, paysages et décor viendront en sprints de plus. Pas de démo web : captures, vidéo et explication sur la fiche.
+
+## Osmose : le launcher, le serveur et la création refaits (décision de Charles, 9 octobre 2026, D55)
+Trois sprints, 9 points, après l'essai du jeu par Charles sous Windows et un questionnaire. S51 le launcher refait : nom de compte, mot de passe et « Se connecter » seulement (la connexion met à jour puis lance le jeu), mémoriser le nom et le mot de passe (gestionnaire d'identifiants du système), inscription, mise à jour automatique à l'ouverture, serveur caché, une présentation moins austère. S52 dans le jeu, comme Dofus : choix du serveur (direct tant qu'il n'y en a qu'un), puis liste visuelle des personnages (pseudo, classe, niveau, icône) et création s'il y en a moins de cinq. S53 un écran de création à part, plein écran : plusieurs couleurs (tenue, cheveux, peau), taille et carrure, et le choix sur pièces d'un pack libre de modèles à pièces détachables (cheveux, yeux, vêtements, accessoires). Ensuite, après un nouveau questionnaire : les classes retravaillées (quatre éléments, effets, sorts de classe débloqués par niveau, lisibilité et animations du combat), la progression (expérience, caractéristiques, sorts à monter, équipement), puis le monde (cartes reliées, caméra).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
