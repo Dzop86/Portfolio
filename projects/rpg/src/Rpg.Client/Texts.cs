@@ -21,6 +21,34 @@ public sealed class Texts
         ["again"] = "Rejouer",
         ["help"] = "Clic : se déplacer · 1, 2, 3 : choisir un sort · Échap : annuler · Espace : fin du tour",
         ["spell"] = "{0} ({1} PA, portée {2}-{3})",
+        ["card.fighter"] = "{0} · {1}/{2} PV · {3} PA · {4} PM",
+        ["card.shield"] = " · bouclier {0}",
+        ["card.resist"] = "Résistances : {0}",
+        ["card.resist-one"] = "{0} {1} %",
+        ["card.effects"] = "Effets : {0}",
+        ["card.turns"] = "{0} ({1} tour(s))",
+        ["card.spell"] = "{0} · {1} PA · portée {2}-{3}",
+        ["card.in-line"] = ", en ligne",
+        ["card.no-sight"] = ", sans ligne de vue",
+        ["card.per-turn"] = " · {0} fois par tour",
+        ["card.cooldown"] = " · relance {0} tour(s)",
+        ["card.damage"] = "{0} à {1} dégâts, {2}",
+        ["card.area"] = "zone : {0} de {1}",
+        ["area.Cross"] = "croix",
+        ["area.Circle"] = "cercle",
+        ["area.Line"] = "ligne",
+        ["effect.heal"] = "soin {0} à {1}",
+        ["effect.shield"] = "bouclier {0} ({1} tour(s))",
+        ["effect.push"] = "poussée de {0}",
+        ["effect.pull"] = "attirance de {0}",
+        ["effect.summon"] = "invoque {0}",
+        ["affects.Caster"] = " sur soi",
+        ["affects.Allies"] = " aux alliés",
+        ["affects.All"] = " à tous",
+        ["affects.Enemies"] = "",
+        ["forecast.damage"] = "{0} : {1} à {2} dégâts",
+        ["forecast.heal"] = "{0} : +{1} à {2} PV",
+        ["forecast.kill"] = " (mortel)",
         ["log.move"] = "{0} se déplace de {1} case(s).",
         ["log.cast"] = "{0} lance {1}.",
         ["log.damage"] = "{0} perd {1} PV.",
@@ -131,6 +159,34 @@ public sealed class Texts
         ["again"] = "Play again",
         ["help"] = "Click: move · 1, 2, 3: choose a spell · Esc: cancel · Space: end turn",
         ["spell"] = "{0} ({1} AP, range {2}-{3})",
+        ["card.fighter"] = "{0} · {1}/{2} HP · {3} AP · {4} MP",
+        ["card.shield"] = " · shield {0}",
+        ["card.resist"] = "Resistances: {0}",
+        ["card.resist-one"] = "{0} {1}%",
+        ["card.effects"] = "Effects: {0}",
+        ["card.turns"] = "{0} ({1} turn(s))",
+        ["card.spell"] = "{0} · {1} AP · range {2}-{3}",
+        ["card.in-line"] = ", in line",
+        ["card.no-sight"] = ", no line of sight",
+        ["card.per-turn"] = " · {0} per turn",
+        ["card.cooldown"] = " · cooldown {0} turn(s)",
+        ["card.damage"] = "{0} to {1} damage, {2}",
+        ["card.area"] = "area: {0} of {1}",
+        ["area.Cross"] = "cross",
+        ["area.Circle"] = "circle",
+        ["area.Line"] = "line",
+        ["effect.heal"] = "heal {0} to {1}",
+        ["effect.shield"] = "shield {0} ({1} turn(s))",
+        ["effect.push"] = "push by {0}",
+        ["effect.pull"] = "pull by {0}",
+        ["effect.summon"] = "summons {0}",
+        ["affects.Caster"] = " on self",
+        ["affects.Allies"] = " on allies",
+        ["affects.All"] = " on everyone",
+        ["affects.Enemies"] = "",
+        ["forecast.damage"] = "{0}: {1} to {2} damage",
+        ["forecast.heal"] = "{0}: +{1} to {2} HP",
+        ["forecast.kill"] = " (lethal)",
         ["log.move"] = "{0} moves {1} cell(s).",
         ["log.cast"] = "{0} casts {1}.",
         ["log.damage"] = "{0} loses {1} HP.",
@@ -270,6 +326,65 @@ public sealed class Texts
         c.Spells.Select(id => GameData.Embedded.Spells.GetValueOrDefault(id)).OfType<Spell>();
 
     public string Error(ActionError error) => this["error." + error];
+
+    /// <summary>
+    /// What hovering a fighter tells: name, hit points, points (what is left for the one playing),
+    /// shield; resistances other than zero; the statuses running and their turns.
+    /// </summary>
+    public string FighterCard(Fighter f, Fight fight)
+    {
+        ArgumentNullException.ThrowIfNull(f);
+        ArgumentNullException.ThrowIfNull(fight);
+        bool playing = !fight.IsOver && fight.Current == f;
+        var lines = new List<string> { this["card.fighter", Name(f), f.Hp, f.MaxHp, playing ? f.Ap : f.Spec.Ap, playing ? f.Mp : f.Spec.Mp] + (f.Shield > 0 ? this["card.shield", f.Shield] : "") };
+        string[] resist = [.. new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }
+            .Where(e => f.Resistance(e) != 0).Select(e => this["card.resist-one", this["element." + e], f.Resistance(e)])];
+        if (resist.Length > 0)
+            lines.Add(this["card.resist", string.Join(", ", resist)]);
+        if (f.Statuses.Count > 0)
+            lines.Add(this["card.effects", string.Join(", ", f.Statuses.Select(st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.TurnsLeft]))]);
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>What hovering a spell tells: cost, range and its limits; damage, area and effects.</summary>
+    public string SpellCard(Spell s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+        string head = this["card.spell", s.Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange]
+            + (s.InLine ? this["card.in-line"] : "") + (s.LineOfSight ? "" : this["card.no-sight"])
+            + this["card.per-turn", s.PerTurn] + (s.Cooldown > 0 ? this["card.cooldown", s.Cooldown] : "");
+        var parts = new List<string>();
+        if (s.DamageMax > 0)
+            parts.Add(this["card.damage", s.DamageMin, s.DamageMax, this["element." + s.Element]]);
+        if (s.Area is Area area && area.Shape != AreaShape.Point)
+            parts.Add(this["card.area", this["area." + area.Shape], area.Radius]);
+        foreach (SpellEffect e in s.AllEffects)
+        {
+            string text = e switch
+            {
+                HealEffect h => this["effect.heal", h.Min, h.Max],
+                ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
+                PushEffect p => this["effect.push", p.Cells],
+                PullEffect p => this["effect.pull", p.Cells],
+                SummonEffect m => this["effect.summon", GameData.Embedded.Summons.TryGetValue(m.Summon, out SummonSpec? spec) ? spec.Name.In(Lang) : m.Summon],
+                StatusEffect st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.Turns],
+                _ => "",
+            };
+            parts.Add(text + (e is SummonEffect ? "" : this["affects." + e.Affects]));
+        }
+        return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
+    }
+
+    /// <summary>What a cast would do, one line per fighter of its area (<see cref="Fight.Foresee"/>).</summary>
+    public string Forecast(IEnumerable<Forecast> forecasts)
+    {
+        ArgumentNullException.ThrowIfNull(forecasts);
+        return string.Join('\n', forecasts.SelectMany(fc => new[]
+        {
+            fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.SureKill ? this["forecast.kill"] : "") : null,
+            fc.HealMax > 0 ? this["forecast.heal", Name(fc.Fighter), fc.HealMin, fc.HealMax] : null,
+        }).OfType<string>());
+    }
 
     public string Spell(Spell s) =>
         this["spell", (s ?? throw new ArgumentNullException(nameof(s))).Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange];

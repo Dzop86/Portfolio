@@ -42,11 +42,14 @@ public partial class Portrait : SubViewportContainer
         return portrait;
     }
 
-    /// <summary>Shows a character as its appearance says, facing the viewer, idle.</summary>
-    public void Show(Hero hero)
+    /// <summary>
+    /// Shows a character as its appearance says, facing the viewer, idle; without
+    /// <paramref name="paint"/>, in the model's own colours (monsters, people of the scenarios).
+    /// </summary>
+    public void Show(Hero hero, bool paint = true)
     {
         ArgumentNullException.ThrowIfNull(hero);
-        Hero shown = hero with { Name = "" };
+        Hero shown = hero with { Name = paint ? "" : "unpainted" };
         if (shown == _shown && _model is not null)
             return;
         _shown = shown;
@@ -54,7 +57,8 @@ public partial class Portrait : SubViewportContainer
         Colour = hero.Colour;
         _model?.QueueFree();
         _model = Looks.Fighter(hero.Look).Instantiate<Node3D>();
-        Looks.Paint(_model, hero);
+        if (paint)
+            Looks.Paint(_model, hero);
         _model.RotationDegrees = new Vector3(0, 20, 0);
         _viewport.AddChild(_model);
         if (_model.FindChild("AnimationPlayer", true, false) is AnimationPlayer anim && anim.HasAnimation("idle"))

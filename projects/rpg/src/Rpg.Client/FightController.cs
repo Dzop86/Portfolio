@@ -101,6 +101,23 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
     }
 
     /// <summary>
+    /// The hover panel for <paramref name="hovered"/>: with a spell aimed there, what it would do to
+    /// each fighter of its area; then the card of the fighter standing there. Null when nothing is there.
+    /// </summary>
+    public string? Info(Cell? hovered, Texts texts)
+    {
+        ArgumentNullException.ThrowIfNull(texts);
+        if (hovered is not Cell cell)
+            return null;
+        var parts = new List<string>();
+        if (SelectedSpell is Spell spell && Hover(cell).Target is Cell target && Fight.Foresee(spell, target) is { Count: > 0 } forecasts)
+            parts.Add(texts.Forecast(forecasts));
+        if (Fight.Board.Contains(cell) && Fight.At(cell) is Fighter f)
+            parts.Add(texts.FighterCard(f, Fight));
+        return parts.Count == 0 ? null : string.Join("\n\n", parts);
+    }
+
+    /// <summary>
     /// A click on a cell: casts the chosen spell there, or walks there. Returns the action played,
     /// or null (and <see cref="LastError"/>) when the click does nothing.
     /// </summary>

@@ -5,12 +5,20 @@ using Rpg.Core;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// The screen around the board: round and whose turn it is, the turn order with hit points, the
-/// player's points and spells, the end-turn button, a message line, the fight log, the end screen.
+/// The screen around the board: round and whose turn it is, the timeline of the next turns in
+/// portraits, the hover panel (a fighter's card, a spell's forecast), the player's points and
+/// spells, the end-turn button, a message line, the fight log, the end screen.
 /// </summary>
 public partial class Hud : CanvasLayer
 {
+    /// <summary>Turns shown on the timeline.</summary>
+    public const int TimelineLength = 8;
+
     private readonly List<Button> _spells = [];
+    private readonly List<string> _spellNames = [];
+    private readonly List<(PanelContainer Card, Portrait Face, Label Name, ProgressBar Hp)> _timeline = [];
+    private PanelContainer _info = null!;
+    private Label _infoText = null!;
     private readonly Queue<string> _log = new();
     private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!;
     private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
@@ -34,9 +42,36 @@ public partial class Hud : CanvasLayer
         root.MouseFilter = Control.MouseFilterEnum.Ignore;
         AddChild(root);
 
-        _turn = Text(root, 22, 0, 0, 20, 14, 700, 32);
-        _order = Text(root, 17, 1, 0, -320, 14, 300, 160);
-        _order.HorizontalAlignment = HorizontalAlignment.Right;
+        _turn = Text(root, 22, 0, 0, 20, 14, 600, 32);
+        var timeline = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        timeline.AddThemeConstantOverride("separation", 6);
+        Anchor(timeline, 1, 0, -8 - TimelineLength * 78, 10, TimelineLength * 78, 100);
+        timeline.Alignment = BoxContainer.AlignmentMode.End;
+        root.AddChild(timeline);
+        for (int i = 0; i < TimelineLength; i++)
+        {
+            var card = new PanelContainer { CustomMinimumSize = new Vector2(72, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+            var box = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+            box.AddThemeConstantOverride("separation", 2);
+            card.AddChild(box);
+            Portrait face = Portrait.Make(new Vector2(68, 56), turning: false, distance: 1.7f);
+            box.AddChild(face);
+            var name = new Label { HorizontalAlignment = HorizontalAlignment.Center, ClipText = true, CustomMinimumSize = new Vector2(68, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+            name.AddThemeFontSizeOverride("font_size", 12);
+            box.AddChild(name);
+            var hp = new ProgressBar { ShowPercentage = false, CustomMinimumSize = new Vector2(68, 6), MouseFilter = Control.MouseFilterEnum.Ignore };
+            box.AddChild(hp);
+            timeline.AddChild(card);
+            _timeline.Add((card, face, name, hp));
+        }
+        _order = Text(root, 1, 1, 0, 0, 0, 1, 1);
+        _order.Visible = false;
+        _info = new PanelContainer { Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+        Anchor(_info, 1, 0, -340, 124, 330, 0);
+        root.AddChild(_info);
+        _infoText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(310, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+        _infoText.AddThemeFontSizeOverride("font_size", 15);
+        _info.AddChild(_infoText);
         _logLabel = Text(root, 15, 0, 1, 20, -270, 520, 170);
         _logLabel.VerticalAlignment = VerticalAlignment.Bottom;
         _message = Text(root, 18, 0.5f, 1, -300, -136, 600, 26);
@@ -103,25 +138,62 @@ public partial class Hud : CanvasLayer
         Fighter current = fight.Current;
         Fighter me = _controller.IsPlayerTurn ? current : fight.Fighters.First(f => f.Team == _controller.PlayerTeam);
         _turn.Text = $"{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
-        _order.Text = string.Join('\n', fight.TurnOrder.Where(f => f.IsAlive).Select(f => $"{(f == current ? "▶ " : "")}{Texts.Name(f)}  {f.Hp}/{f.MaxHp}"));
+        IReadOnlyList<Fighter> next = fight.NextTurns(TimelineLength);
+        for (int i = 0; i < _timeline.Count; i++)
+        {
+            (PanelContainer card, Portrait face, Label name, ProgressBar hp) = _timeline[i];
+            card.Visible = i < next.Count;
+            if (i >= next.Count)
+                continue;
+            Fighter f = next[i];
+            // The player's hero in its own colours, the others as they come.
+            bool hero = fight.Hero is Hero h && f.Team == _controller.PlayerTeam && !f.IsSummon && f.Name.Fr == h.Name;
+            face.Show(hero ? fight.Hero! : new Hero(Texts.Name(f), f.Spec.Look), paint: hero);
+            name.Text = Texts.Name(f);
+            hp.MaxValue = Math.Max(1, f.MaxHp);
+            hp.Value = f.Hp;
+            Color team = f.Team == _controller.PlayerTeam ? FighterView.PlayerColour : FighterView.EnemyColour;
+            hp.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = team });
+            // The one playing now is outlined in its team's colour.
+            card.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+            {
+                BgColor = new Color(0.12f, 0.12f, 0.12f, 0.85f),
+                BorderColor = team,
+                BorderWidthBottom = i == 0 ? 3 : 1,
+                BorderWidthTop = i == 0 ? 3 : 1,
+                BorderWidthLeft = i == 0 ? 3 : 1,
+                BorderWidthRight = i == 0 ? 3 : 1,
+                ContentMarginLeft = 2,
+                ContentMarginRight = 2,
+                ContentMarginTop = 2,
+                ContentMarginBottom = 2,
+            });
+        }
+        _order.Text = string.Join('\n', next.Select(f => Texts.Name(f)));
         _stats.Text = $"{Texts["hp"]} {me.Hp}/{me.MaxHp}   {Texts["ap"]} {me.Ap}   {Texts["mp"]} {me.Mp}";
         _message.Text = _controller.LastError is ActionError e ? Texts.Error(e) : "";
         _help.Text = Texts["help"];
         _logLabel.Text = string.Join('\n', _log);
         bool canAct = _controller.IsPlayerTurn && !busy;
+        // Up to five spells show their names; more (a class has twenty) are narrower, the card on hover.
+        bool narrow = me.Spells.Count > 5;
         while (_spells.Count < me.Spells.Count)
         {
             int index = _spells.Count;
-            var b = new Button { CustomMinimumSize = new Vector2(150, 48), ToggleMode = true };
+            var b = new Button { CustomMinimumSize = new Vector2(44, 48), ToggleMode = true, ClipText = true };
             b.Pressed += () => SpellChosen?.Invoke(index);
             _spellBar.AddChild(b);
             _spells.Add(b);
         }
+        _spellNames.Clear();
+        float width = narrow ? Math.Max(44, 560f / me.Spells.Count) : 150;
         for (int i = 0; i < me.Spells.Count; i++)
         {
             Spell s = me.Spells[i];
-            _spells[i].Text = $"{i + 1}. {s.Name.In(Texts.Lang)} · {s.ApCost} {Texts["ap"]}";
-            _spells[i].TooltipText = Texts.Spell(s);
+            _spellNames.Add(s.Name.In(Texts.Lang));
+            _spells[i].CustomMinimumSize = new Vector2(width, 48);
+            _spells[i].Text = narrow ? $"{(i < 9 ? $"{i + 1}. " : "")}{s.Name.In(Texts.Lang)}" : $"{i + 1}. {s.Name.In(Texts.Lang)} · {s.ApCost} {Texts["ap"]}";
+            _spells[i].TooltipText = Texts.SpellCard(s);
             _spells[i].Disabled = !canAct || !_controller.CanUse(s);
             _spells[i].SetPressedNoSignal(_controller.SelectedSpell == s);
         }
@@ -141,8 +213,26 @@ public partial class Hud : CanvasLayer
     public string StatsText => _stats.Text;
     public string OrderText => _order.Text;
 
+    /// <summary>The names on the timeline, the one playing first.</summary>
+    public IEnumerable<string> TimelineText => _timeline.Where(t => t.Card.Visible).Select(t => t.Name.Text);
+
+    /// <summary>The looks drawn on the timeline's portraits.</summary>
+    public IEnumerable<string> TimelineLooks => _timeline.Where(t => t.Card.Visible).Select(t => t.Face.Look);
+
+    /// <summary>The hover panel's text, or null when it is hidden.</summary>
+    public string? InfoText => _info.Visible ? _infoText.Text : null;
+
+    /// <summary>Shows the hover panel with this text, or hides it (null).</summary>
+    public void ShowInfo(string? text)
+    {
+        _info.Visible = text is not null;
+        _infoText.Text = text ?? "";
+        // The panel grows with its text from the top.
+        _info.ResetSize();
+    }
+
     /// <summary>The spells' names on the bar, in order.</summary>
-    public IEnumerable<string> SpellsText => _controller.Fight.Fighters.First(f => f.Team == _controller.PlayerTeam).Spells.Select((s, i) => _spells[i].Text.Split(". ", 2)[1].Split(" · ")[0]);
+    public IEnumerable<string> SpellsText => _spellNames;
     public bool EndShown => _end.Visible;
 
     /// <summary>A label whose box is offset from an anchor point of the screen (0 to 1 on each axis).</summary>

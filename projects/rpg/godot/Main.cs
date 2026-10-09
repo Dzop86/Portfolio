@@ -160,14 +160,22 @@ public partial class Main : Node3D
             TownInput(@event);
             return;
         }
-        if (_lobbyView is not null || _controller is null || _busy || !_controller.IsPlayerTurn)
+        if (_lobbyView is not null || _controller is null)
+            return;
+        // The hover panel works on every turn, the AI's included.
+        if (@event is InputEventMouseMotion motion)
+        {
+            _hovered = BoardView.Pick(_camera, motion.Position);
+            if (_busy || !_controller.IsPlayerTurn)
+                _hud.ShowInfo(_controller.Info(_hovered, _hud.Texts));
+            else
+                ShowPreview();
+            return;
+        }
+        if (_busy || !_controller.IsPlayerTurn)
             return;
         switch (@event)
         {
-            case InputEventMouseMotion motion:
-                _hovered = BoardView.Pick(_camera, motion.Position);
-                ShowPreview();
-                break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click:
                 if (BoardView.Pick(_camera, click.Position) is Cell cell)
                     Act(_controller.Click(cell));
@@ -269,6 +277,7 @@ public partial class Main : Node3D
     {
         _board.Show(_controller.Hover(_hovered));
         _hud.Refresh();
+        _hud.ShowInfo(_controller.Info(_hovered, _hud.Texts));
     }
 
     private void Act(FightAction? action)
@@ -329,10 +338,9 @@ public partial class Main : Node3D
             case Moved m:
                 return _views[m.Fighter].Walk(m.Path, instant ? 0 : 0.22);
             case SpellCast c:
-                Spell spell = _controller.Fight.Fighters[c.Fighter].Spells.First(s => s.Id == c.Spell);
-                return _views[c.Fighter].Attack(c.Target, spell.MaxRange <= 1, instant ? 0 : 0.55);
+                return Cast(c, instant);
             case Damaged d:
-                _views[d.Fighter].ShowDamage(d.Amount, instant ? 0 : 0.9);
+                _views[d.Fighter].ShowDamage(d.Amount, d.Element, instant ? 0 : 0.9);
                 return Task.CompletedTask;
             case Died d:
                 _views[d.Fighter].Die(animate: !instant);
@@ -347,15 +355,64 @@ public partial class Main : Node3D
             case Pushed p when p.Path.Count > 0:
                 return _views[p.Fighter].Walk(p.Path, instant ? 0 : 0.12);
             case Healed h:
-                _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(0.55f, 0.95f, 0.45f), instant ? 0 : 0.9);
+                _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(ElementStyle.Heal), instant ? 0 : 0.9);
                 return Task.CompletedTask;
             case ShieldAbsorbed a:
-                _views[a.Fighter].ShowNumber($"-{a.Amount}", new Color(0.55f, 0.75f, 1f), instant ? 0 : 0.9);
+                _views[a.Fighter].ShowNumber($"-{a.Amount}", new Color(ElementStyle.Shield), instant ? 0 : 0.9);
                 return Task.CompletedTask;
             default:
                 RefreshViews();
                 return Task.CompletedTask;
         }
+    }
+
+    /// <summary>
+    /// A cast: the caster strikes or throws; at range, a bolt of the element's colour flies to the
+    /// target; then every cell of the area flashes in that colour.
+    /// </summary>
+    private async Task Cast(SpellCast c, bool instant)
+    {
+        Fighter caster = _controller.Fight.Fighters[c.Fighter];
+        Spell spell = caster.Spells.First(s => s.Id == c.Spell);
+        Task attack = _views[c.Fighter].Attack(c.Target, spell.MaxRange <= 1, instant ? 0 : 0.55);
+        if (instant)
+        {
+            await attack;
+            return;
+        }
+        var colour = new Color(ElementStyle.Colour(spell.Element));
+        // The fight is ahead of the animation: the caster stands where its view is drawn.
+        Vector3 at = _views[c.Fighter].Position;
+        var casterCell = new Cell((int)Math.Round(at.X), (int)Math.Round(at.Z));
+        var glow = new StandardMaterial3D { AlbedoColor = colour, EmissionEnabled = true, Emission = colour, EmissionEnergyMultiplier = 2, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+        Vector3 from = _views[c.Fighter].Position + new Vector3(0, 0.7f, 0);
+        Vector3 to = BoardView.ToWorld(c.Target) + new Vector3(0, 0.45f, 0);
+        await ToSignal(GetTree().CreateTimer(0.2), SceneTreeTimer.SignalName.Timeout);
+        if (spell.MaxRange > 1 && c.Target != casterCell)
+        {
+            var bolt = new MeshInstance3D { Mesh = new SphereMesh { Radius = 0.11f, Height = 0.22f }, MaterialOverride = glow, Position = from };
+            AddChild(bolt);
+            Tween fly = CreateTween();
+            fly.TweenProperty(bolt, "position", to, 0.08 * Math.Max(2, from.DistanceTo(to)));
+            await ToSignal(fly, Tween.SignalName.Finished);
+            bolt.QueueFree();
+        }
+        foreach (Cell cell in spell.Zone.Cells(casterCell, c.Target).Where(_controller.Fight.Board.Contains))
+        {
+            var flash = new MeshInstance3D
+            {
+                Mesh = new CylinderMesh { TopRadius = 0.45f, BottomRadius = 0.45f, Height = 0.03f },
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = colour with { A = 0.75f }, Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                Position = BoardView.ToWorld(cell) + new Vector3(0, 0.06f, 0),
+                Scale = new Vector3(0.3f, 1, 0.3f),
+            };
+            AddChild(flash);
+            Tween burst = CreateTween();
+            burst.TweenProperty(flash, "scale", new Vector3(1.1f, 1, 1.1f), 0.3);
+            burst.Parallel().TweenProperty(flash, "transparency", 1f, 0.3);
+            burst.TweenCallback(Callable.From(flash.QueueFree));
+        }
+        await attack;
     }
 
     private void RefreshViews()
@@ -385,6 +442,7 @@ public partial class Main : Node3D
                 && !_hud.SpellsText.SequenceEqual(c.Spells.Select(id => GameData.Embedded.Spells[id]).Where(sp => sp.Level <= hero.Level).Select(sp => sp.Name.In(_hud.Texts.Lang))))
                 problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s spells of level {hero.Level}");
         }
+        int seenNumbers = 0;
         SelfPlay.Run(_controller, _ =>
         {
             Task played = Play(instant: true);
@@ -399,6 +457,7 @@ public partial class Main : Node3D
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
                 checks++;
             }
+            CheckReadability(problems, ref seenNumbers);
             if (_controller.IsPlayerTurn)
             {
                 Preview preview = _controller.Hover(null);
@@ -424,6 +483,74 @@ public partial class Main : Node3D
         if (_options.Report is string path)
             File.WriteAllText(path, report + "\n");
         GetTree().Quit(report.StartsWith("SELFTEST OK", StringComparison.Ordinal) ? 0 : 1);
+    }
+
+    /// <summary>
+    /// The self-test of sprint 57: the timeline shows the next turns; hovering each fighter shows its
+    /// card, and aiming a spell at an enemy its forecast; every number shown above a fighter since
+    /// the last check has its colour (the last one per fighter is compared).
+    /// </summary>
+    private void CheckReadability(List<string> problems, ref int seenNumbers)
+    {
+        Fight fight = _controller.Fight;
+        Texts texts = _hud.Texts;
+        if (!_hud.TimelineText.SequenceEqual(fight.NextTurns(Hud.TimelineLength).Select(texts.Name)))
+            problems.Add($"the timeline shows {string.Join(", ", _hud.TimelineText)}");
+        if (!_hud.TimelineLooks.SequenceEqual(fight.NextTurns(Hud.TimelineLength).Select(f => f.Spec.Look)))
+            problems.Add("the timeline's portraits are not the fighters'");
+        var last = new Dictionary<int, Color>();
+        IReadOnlyList<FightEvent> events = fight.Events;
+        for (; seenNumbers < events.Count; seenNumbers++)
+        {
+            switch (events[seenNumbers])
+            {
+                case Damaged d:
+                    last[d.Fighter] = new Color(ElementStyle.Colour(d.Element));
+                    break;
+                case Healed h:
+                    last[h.Fighter] = new Color(ElementStyle.Heal);
+                    break;
+                case ShieldAbsorbed a:
+                    last[a.Fighter] = new Color(ElementStyle.Shield);
+                    break;
+            }
+        }
+        foreach ((int id, Color colour) in last)
+        {
+            if (_views[id].LastNumber?.Colour != colour)
+                problems.Add($"the last number above {fight.Fighters[id].Name.En} is not in its colour");
+        }
+        foreach (Fighter f in fight.Fighters.Where(x => x.IsAlive))
+        {
+            _hovered = f.Cell;
+            _hud.ShowInfo(_controller.Info(_hovered, texts));
+            if (_hud.InfoText?.EndsWith(texts.FighterCard(f, fight), StringComparison.Ordinal) != true)
+                problems.Add($"hovering {f.Name.En} shows '{_hud.InfoText}'");
+        }
+        if (_controller.IsPlayerTurn && _controller.SelectedSpell is null)
+        {
+            Fighter me = fight.Current;
+            for (int i = 0; i < me.Spells.Count; i++)
+            {
+                if (me.Spells[i].DamageMax == 0 || !_controller.CanUse(me.Spells[i]))
+                    continue;
+                _controller.SelectSpell(i);
+                Fighter? aim = fight.Fighters.FirstOrDefault(x => x.IsAlive && x.Team != me.Team && _controller.Hover(x.Cell).Target == x.Cell);
+                if (aim is not null)
+                {
+                    _hovered = aim.Cell;
+                    ShowPreview();
+                    string forecast = texts.Forecast(fight.Foresee(me.Spells[i], aim.Cell));
+                    if (forecast.Length == 0 || _hud.InfoText?.StartsWith(forecast, StringComparison.Ordinal) != true)
+                        problems.Add($"aiming {me.Spells[i].Id} at {aim.Name.En} shows '{_hud.InfoText}'");
+                }
+                _controller.CancelSpell();
+                if (aim is not null)
+                    break;
+            }
+        }
+        _hovered = null;
+        _hud.ShowInfo(null);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using Godot;
+using Rpg.Client;
 using Rpg.Core;
 
 namespace Rpg.Desktop;
@@ -99,13 +100,17 @@ public partial class FighterView : Node3D
         Play("idle");
     }
 
-    /// <summary>The damage rises and fades above the fighter.</summary>
-    public void ShowDamage(int amount, double duration) => ShowNumber($"-{amount}", new Color(1f, 0.35f, 0.25f), duration);
+    /// <summary>The damage rises and fades above the fighter, in the colour of its element.</summary>
+    public void ShowDamage(int amount, Element element, double duration) => ShowNumber($"-{amount}", new Color(ElementStyle.Colour(element)), duration);
 
-    /// <summary>A number that rises and fades above the fighter: damage in red, healing in green, a shield in blue.</summary>
+    /// <summary>The last number shown above the fighter and its colour (the self-test reads it).</summary>
+    public (string Text, Color Colour)? LastNumber { get; private set; }
+
+    /// <summary>A number that rises and fades above the fighter: damage in its element's colour, healing, a shield.</summary>
     public void ShowNumber(string text, Color colour, double duration)
     {
         Refresh();
+        LastNumber = (text, colour);
         if (duration <= 0)
             return;
         var label = new Label3D
