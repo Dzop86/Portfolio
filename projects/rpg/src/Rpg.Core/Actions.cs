@@ -37,6 +37,9 @@ public enum ActionError
 
     /// <summary>A summon needs a free cell, and the caster has as many of these creatures as allowed.</summary>
     TooManySummons,
+
+    /// <summary>The spell was cast too recently: its cooldown is not over.</summary>
+    Cooldown,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>

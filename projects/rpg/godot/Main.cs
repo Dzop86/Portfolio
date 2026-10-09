@@ -380,8 +380,10 @@ public partial class Main : Node3D
             FighterView heroView = _views.Values.Single(v => v.Fighter.Name.Fr == hero.Name);
             if (heroView.Painted != hero.Colour)
                 problems.Add($"the hero is painted {heroView.Painted?.ToString(CultureInfo.InvariantCulture) ?? "not at all"}, not {hero.Colour}");
-            if (GameData.Embedded.Class(hero.Class) is HeroClass c && !_hud.SpellsText.SequenceEqual(c.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(_hud.Texts.Lang))))
-                problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s spells");
+            // The class's spells that the hero's level has unlocked, in order.
+            if (GameData.Embedded.Class(hero.Class) is HeroClass c
+                && !_hud.SpellsText.SequenceEqual(c.Spells.Select(id => GameData.Embedded.Spells[id]).Where(sp => sp.Level <= hero.Level).Select(sp => sp.Name.In(_hud.Texts.Lang))))
+                problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s spells of level {hero.Level}");
         }
         SelfPlay.Run(_controller, _ =>
         {
@@ -493,13 +495,17 @@ public partial class Main : Node3D
             view.CharacterField.Text = hero;
             view.SelectLook("male-b");
             view.SelectClass("mage");
+            // The creation screen lists the class's twenty spells, by level.
+            string[] missing = [.. GameData.Embedded.Class("mage")!.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(view.Texts.Lang)).Where(n => !view.SpellsText.Contains(n, StringComparison.Ordinal))];
+            if (missing.Length > 0)
+                problem = $"the creation screen does not list {string.Join(", ", missing)}";
             view.ChooseColour(3);
             view.ChooseHair(4);
             view.ChooseSkin(2);
             view.SetShape(1, -1);
             await view.Create();
             string expected = $"{hero} · {GameData.Embedded.Class("mage")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
-            problem = view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
+            problem ??= view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
                 : !view.CardTexts.SequenceEqual([expected]) ? $"the cards show {string.Join(" | ", view.CardTexts)}, not {expected}"
                 : view.PlayButton.Disabled ? "the new character is not chosen"
                 : null;

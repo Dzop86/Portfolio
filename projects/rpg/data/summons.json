@@ -1,0 +1,32 @@
+[
+  {
+    "id": "hawk",
+    "name": {
+      "fr": "Faucon",
+      "en": "Hawk"
+    },
+    "look": "female-a",
+    "hp": 30,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 130,
+    "spells": [
+      "peck"
+    ]
+  },
+  {
+    "id": "ember",
+    "name": {
+      "fr": "Braise",
+      "en": "Ember"
+    },
+    "look": "male-e",
+    "hp": 30,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 90,
+    "spells": [
+      "ember-bolt"
+    ]
+  }
+]

@@ -8,7 +8,8 @@ public class DataTests
     [Fact]
     public void TheGamesData_LoadsAndIsConsistent()
     {
-        Assert.Equal(["arrow", "axe", "club", "fireball", "sling", "spark", "spear", "staff", "strike"], Real.Spells.Keys.Order(StringComparer.Ordinal));
+        // The nine spells of the first sprints, still there for the monsters and the recorded fights.
+        Assert.Subset(Real.Spells.Keys.ToHashSet(), new HashSet<string>(["arrow", "axe", "club", "fireball", "sling", "spark", "spear", "staff", "strike"]));
         Assert.Equal(["sentinel", "guard", "mage"], Real.Classes.Select(c => c.Id));
         foreach (HeroClass c in Real.Classes)
             Assert.False(string.IsNullOrWhiteSpace(c.Description.Fr) || string.IsNullOrWhiteSpace(c.Description.En), c.Id);
@@ -27,10 +28,30 @@ public class DataTests
     public void TheBuiltInData_IsTheDataFolder()
     {
         GameData files = GameData.Load(Path.Combine(AppContext.BaseDirectory, "data"));
-        Assert.Equal(files.Spells, GameData.Embedded.Spells);
+        // Spells hold lists (ranks, effects): compared by what they write.
+        Assert.Equal(System.Text.Json.JsonSerializer.Serialize(files.Spells), System.Text.Json.JsonSerializer.Serialize(GameData.Embedded.Spells));
         Assert.Equal(files.Maps.Keys, GameData.Embedded.Maps.Keys);
         Assert.Equal(files.Scenarios.Keys, GameData.Embedded.Scenarios.Keys);
         Assert.Equal(files.Classes.Select(c => c.Id), GameData.Embedded.Classes.Select(c => c.Id));
+    }
+
+    [Fact]
+    public void EveryClass_HasTwentySpells_OnTwoElementsAtLeast_UnlockedFromLevel1To100()
+    {
+        string[] shared = ["strike", "arrow", "spear", "axe", "staff", "spark", "fireball"];
+        foreach (HeroClass c in Real.Classes)
+        {
+            Spell[] spells = [.. c.Spells.Select(id => Real.Spells[id])];
+            Assert.Equal(20, spells.Length);
+            Assert.True(spells.Where(s => s.DamageMax > 0).Select(s => s.Element).Distinct().Count() >= 2, c.Id);
+            // A spell of its own from level 1, the last one at level 100, in the order they unlock.
+            Assert.Contains(spells, s => s.Level == 1 && !shared.Contains(s.Id));
+            Assert.Equal(100, spells.Max(s => s.Level));
+            Assert.Equal(spells.Select(s => s.Level).Order(), spells.Select(s => s.Level));
+        }
+        // No spell of a class belongs to another: the shared ones are the first sprints'.
+        string[][] own = [.. Real.Classes.Select(c => c.Spells.Except(shared).ToArray())];
+        Assert.Equal(own.Sum(o => o.Length), own.SelectMany(o => o).Distinct().Count());
     }
 
     [Fact]
@@ -67,8 +88,9 @@ public class DataTests
         Assert.Equal(["a", "b"], Classes(Class("a", "strike"), Class("b", "bow")).Classes.Select(c => c.Id));
         Assert.Throws<InvalidDataException>(() => Classes(Class("a", "nothing")));
         Assert.Throws<InvalidDataException>(() => Classes(Class("a")));
-        Assert.Throws<InvalidDataException>(() => Classes(Class("a", [.. Enumerable.Repeat("strike", 10)])));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", [.. Enumerable.Repeat("strike", 31)])));
         Assert.Throws<InvalidDataException>(() => Classes(Class("a", "strike"), Class("a", "bow")));
         Assert.Throws<InvalidDataException>(() => Classes(Class("a", "strike") with { Hp = 0 }));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", "strike") with { HpPerLevel = -1 }));
     }
 }

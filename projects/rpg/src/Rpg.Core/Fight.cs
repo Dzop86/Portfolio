@@ -30,8 +30,11 @@ public sealed class Fighter
     public IReadOnlyList<Spell> Spells { get; }
     public bool IsAlive => Hp > 0;
 
-    /// <summary>Hit points at most: the description's, plus Vitality.</summary>
-    public int MaxHp => Spec.Hp + Spec.Characteristics.Vitality;
+    /// <summary>Hit points at most: the description's, plus Vitality, minus the erosion.</summary>
+    public int MaxHp => Spec.Hp + Spec.Characteristics.Vitality - Eroded;
+
+    /// <summary>Maximum hit points lost for the rest of the fight (<see cref="Fight.Erosion"/>).</summary>
+    public int Eroded { get; internal set; }
 
     /// <summary>The fighter who summoned this one, if it is a summon.</summary>
     public int? Summoner { get; }
@@ -58,6 +61,14 @@ public sealed class Fighter
     public int DamageBonus => Math.Max(-100, StatusList.Where(s => s.Stat == Stat.Damage).Sum(s => s.Value));
 
     public int CastsLeft(Spell spell) => spell.PerTurn - CastsThisTurn.GetValueOrDefault(spell.Id);
+
+    internal readonly Dictionary<string, int> Cooldowns = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The fighter's turn starts before it may cast the spell again (see <see cref="Spell.Cooldown"/>):
+    /// 0 when it may cast it now.
+    /// </summary>
+    public int CooldownLeft(Spell spell) => Cooldowns.GetValueOrDefault(spell.Id);
 }
 
 /// <summary>
@@ -70,8 +81,17 @@ public sealed class Fight
     /// <summary>After this many rounds the fight is a draw, so that it always ends.</summary>
     public const int RoundLimit = 50;
 
+    /// <summary>Hit points a hero gains with each level, unless its class says otherwise (<see cref="HeroClass.HpPerLevel"/>).</summary>
+    public const int HpPerLevel = 3;
+
     /// <summary>Damage per cell a pushed fighter could not travel, against whatever stopped it.</summary>
     public const int CollisionDamage = 4;
+
+    /// <summary>
+    /// Percent of the damage to hit points that is also lost from the maximum, for the rest of the
+    /// fight: heals cannot give it back, so that healing never outlasts damage forever.
+    /// </summary>
+    public const int Erosion = 10;
 
     private readonly List<Fighter> _order;
     private readonly List<FightAction> _history = [];
@@ -80,20 +100,27 @@ public sealed class Fight
     private int _current;
 
     /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
-    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null)
+    /// <param name="rival">Another hero, in place of the scenario's first fighter of team B (class duels).</param>
+    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.Scenarios.TryGetValue(scenarioId, out Scenario? s) ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
         if (hero?.Problem(data) is string problem)
             throw new ArgumentException(problem, nameof(hero));
+        if (rival?.Problem(data) is string rivalProblem)
+            throw new ArgumentException(rivalProblem, nameof(rival));
         Hero = hero;
+        Rival = rival;
         Board = data.Board(Scenario.Map);
         Seed = seed;
         _rng = new Rng(seed);
         int heroIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 0);
+        int rivalIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 1);
         _fighters = [.. Scenario.Fighters.Select((f, i) =>
         {
-            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data) : f;
+            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data)
+                : rival is not null && i == rivalIndex ? AsHero(f, rival, data)
+                : f;
             return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data));
         })];
         _data = data;
@@ -111,7 +138,7 @@ public sealed class Fight
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         return data.Class(hero.Class) is not HeroClass c ? spec
-            : spec with { Hp = c.Hp, Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)] };
+            : spec with { Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)] };
     }
 
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>
@@ -120,6 +147,9 @@ public sealed class Fight
 
     public Scenario Scenario { get; }
     public Hero? Hero { get; }
+
+    /// <summary>The hero playing team B's first fighter, if any.</summary>
+    public Hero? Rival { get; }
     public Board Board { get; }
     public ulong Seed { get; }
 
@@ -165,6 +195,8 @@ public sealed class Fight
             return ActionError.NotEnoughAp;
         if (caster.CastsLeft(spell) <= 0)
             return ActionError.CastLimit;
+        if (caster.CooldownLeft(spell) > 0)
+            return ActionError.Cooldown;
         if (!Board.Contains(target))
             return ActionError.OffBoard;
         if (!Board.IsFloor(target))
@@ -279,6 +311,9 @@ public sealed class Fight
     {
         me.Ap -= spell.ApCost;
         me.CastsThisTurn[spell.Id] = me.CastsThisTurn.GetValueOrDefault(spell.Id) + 1;
+        // Counted down at the start of each of the caster's turns, so one more than the turns to skip.
+        if (spell.Cooldown > 0)
+            me.Cooldowns[spell.Id] = spell.Cooldown + 1;
         _events.Add(new SpellCast(me.Id, spell.Id, target));
         // The roll is drawn even on an empty cell: the sequence of draws depends only on the actions.
         int roll = _rng.Next(spell.DamageMin, spell.DamageMax);
@@ -323,6 +358,8 @@ public sealed class Fight
                         Shove(f, Cell.Direction(f.Cell, me.Cell), Math.Min(pull.Cells, f.Cell.DistanceTo(me.Cell) - 1), collide: false);
                         break;
                     case StatusEffect status:
+                        // The same status from the same caster is renewed, not stacked.
+                        f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id);
                         f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
                         _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
                         break;
@@ -386,6 +423,7 @@ public sealed class Fight
         if (damage == 0 && absorbed > 0)
             return;
         hit.Hp = Math.Max(0, hit.Hp - damage);
+        hit.Eroded += damage * Erosion / 100;
         _events.Add(new Damaged(hit.Id, damage, hit.Hp));
         if (hit.IsAlive)
             return;
@@ -441,6 +479,11 @@ public sealed class Fight
         next.Ap = Math.Max(0, next.Spec.Ap + next.StatusList.Where(st => st.Stat == Stat.Ap).Sum(st => st.Value));
         next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value));
         next.CastsThisTurn.Clear();
+        foreach (string id in next.Cooldowns.Keys.ToList())
+        {
+            if (--next.Cooldowns[id] == 0)
+                next.Cooldowns.Remove(id);
+        }
         _events.Add(new TurnStarted(next.Id, Round));
         // Poisons strike at the start of the turn, in their element, against the resistances.
         foreach (Status poison in next.StatusList.Where(st => st.Stat == Stat.Poison).ToList())

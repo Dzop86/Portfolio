@@ -13,7 +13,8 @@ public sealed record LocalizedText(string Fr, string En)
 /// A spell, as described in <c>data/spells.json</c>. Ranges count steps (see <see cref="Cell"/>);
 /// a spell may be cast on an empty cell, it then hits nobody. Its damage strikes the enemies in its
 /// <see cref="Area"/> (one cell by default) in its <see cref="Element"/>; its other
-/// <see cref="Effects"/> follow, in order.
+/// <see cref="Effects"/> follow, in order. After a cast, the caster waits <see cref="Cooldown"/> of
+/// its turns before casting it again (0: no wait, only the limit per turn).
 /// </summary>
 public sealed record Spell(
     string Id,
@@ -30,7 +31,8 @@ public sealed record Spell(
     Area? Area = null,
     IReadOnlyList<SpellEffect>? Effects = null,
     int Level = 1,
-    IReadOnlyList<SpellRank>? Ranks = null)
+    IReadOnlyList<SpellRank>? Ranks = null,
+    int Cooldown = 0)
 {
     /// <summary>The highest rank: 1 plus the ranks listed.</summary>
     public int MaxRank => 1 + (Ranks?.Count ?? 0);
@@ -109,7 +111,8 @@ public sealed record FighterSpec(
 
 /// <summary>
 /// A class the player can choose for their hero, as described in <c>data/classes.json</c>: its
-/// characteristics and spells replace those of the scenario's hero.
+/// characteristics and spells replace those of the scenario's hero; the hero gains
+/// <see cref="HpPerLevel"/> hit points with each level and gets the spells its level has unlocked.
 /// </summary>
 public sealed record HeroClass(
     string Id,
@@ -119,7 +122,8 @@ public sealed record HeroClass(
     int Ap,
     int Mp,
     int Initiative,
-    IReadOnlyList<string> Spells);
+    IReadOnlyList<string> Spells,
+    int HpPerLevel = Fight.HpPerLevel);
 
 /// <summary>A board, as described in <c>data/maps/*.json</c>.</summary>
 public sealed record MapSpec(string Id, LocalizedText Name, IReadOnlyList<string> Rows);
@@ -252,7 +256,7 @@ public sealed class GameData
     private static void Check(Spell s)
     {
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
-            || s.DamageMax < s.DamageMin || s.PerTurn < 1)
+            || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0)
             throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage or casts per turn out of bounds.");
         if (s.Level is < 1 or > 100 || (s.Ranks?.Count ?? 0) > 4
             || (s.Ranks ?? []).Any(r => r.DamageMin < 0 || r.DamageMax < r.DamageMin || r.ApCost < 1 || r.MaxRange < s.MinRange || r.PerTurn < 1))
@@ -279,10 +283,10 @@ public sealed class GameData
     private void Check(HeroClass c)
     {
         string who = $"Class '{c.Id}'";
-        if (c.Hp < 1 || c.Ap < 0 || c.Mp < 0)
+        if (c.Hp < 1 || c.Ap < 0 || c.Mp < 0 || c.HpPerLevel < 0)
             throw new InvalidDataException($"{who}: hit points, action or movement points out of bounds.");
-        if (c.Spells.Count is < 1 or > 9)
-            throw new InvalidDataException($"{who}: 1 to 9 spells (the keys 1 to 9 choose them).");
+        if (c.Spells.Count is < 1 or > 30)
+            throw new InvalidDataException($"{who}: 1 to 30 spells (the keys 1 to 9 choose the first nine of the bar).");
         foreach (string spell in c.Spells)
         {
             if (!Spells.ContainsKey(spell))

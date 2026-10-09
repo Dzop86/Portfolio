@@ -1,23 +1,116 @@
 [
   {
     "id": "sentinel",
-    "name": { "fr": "Sentinelle", "en": "Sentinel" },
-    "description": { "fr": "Tire de loin à l'arc, achève à la lance.", "en": "Shoots from afar with a bow, finishes with a spear." },
-    "hp": 60, "ap": 6, "mp": 3, "initiative": 120,
-    "spells": ["strike", "arrow", "spear"]
+    "name": {
+      "fr": "Sentinelle",
+      "en": "Sentinel"
+    },
+    "description": {
+      "fr": "Tire de loin, repousse et entrave ; mobile, elle garde ses distances.",
+      "en": "Shoots from afar, pushes back and hinders; mobile, she keeps her distance."
+    },
+    "hp": 62,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 120,
+    "spells": [
+      "strike",
+      "arrow",
+      "spear",
+      "recoil-shot",
+      "frost-arrow",
+      "volley",
+      "hawk",
+      "piercing-arrow",
+      "snare",
+      "arrow-rain",
+      "focus",
+      "venom-arrow",
+      "grapple",
+      "precise-shot",
+      "tide-arrow",
+      "sidestep",
+      "storm",
+      "crippling-shot",
+      "deluge",
+      "skyfall"
+    ],
+    "hpPerLevel": 5
   },
   {
     "id": "guard",
-    "name": { "fr": "Garde", "en": "Guard" },
-    "description": { "fr": "Encaisse et frappe fort au corps à corps.", "en": "Takes the blows and hits hard up close." },
-    "hp": 80, "ap": 7, "mp": 3, "initiative": 100,
-    "spells": ["strike", "axe", "spear"]
+    "name": {
+      "fr": "Garde",
+      "en": "Guard"
+    },
+    "description": {
+      "fr": "Attire, bloque et frappe fort au corps à corps ; se protège elle-même.",
+      "en": "Pulls, holds and hits hard up close; shields herself."
+    },
+    "hp": 70,
+    "ap": 7,
+    "mp": 3,
+    "initiative": 100,
+    "spells": [
+      "strike",
+      "axe",
+      "spear",
+      "shield-bash",
+      "bulwark",
+      "taunt",
+      "cleave",
+      "burning-blade",
+      "stone-skin",
+      "quake",
+      "war-cry",
+      "fire-lunge",
+      "iron-grip",
+      "second-wind",
+      "smite",
+      "shockwave",
+      "aegis",
+      "inferno-blade",
+      "rampart-breaker",
+      "titan-blow"
+    ],
+    "hpPerLevel": 3
   },
   {
     "id": "mage",
-    "name": { "fr": "Mage", "en": "Mage" },
-    "description": { "fr": "Fragile, mais ses étincelles passent par-dessus les obstacles.", "en": "Frail, but their sparks fly over obstacles." },
-    "hp": 55, "ap": 8, "mp": 3, "initiative": 110,
-    "spells": ["staff", "spark", "fireball"]
+    "name": {
+      "fr": "Mage",
+      "en": "Mage"
+    },
+    "description": {
+      "fr": "Fragile, mais frappe en zone, soigne ses alliés et invoque une braise.",
+      "en": "Frail, but strikes in areas, heals allies and summons an ember."
+    },
+    "hp": 62,
+    "ap": 8,
+    "mp": 3,
+    "initiative": 110,
+    "spells": [
+      "staff",
+      "spark",
+      "fireball",
+      "ice-shard",
+      "mend",
+      "frost-ward",
+      "elemental",
+      "burn",
+      "tidal-wave",
+      "meteor",
+      "renewal",
+      "freeze",
+      "ignite",
+      "mana-surge",
+      "maelstrom",
+      "sanctuary",
+      "pyre",
+      "glacier",
+      "rebirth",
+      "cataclysm"
+    ],
+    "hpPerLevel": 3
   }
 ]

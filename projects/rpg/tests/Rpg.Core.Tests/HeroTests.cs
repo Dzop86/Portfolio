@@ -61,7 +61,8 @@ public class HeroTests
         var f = new Fight(Real, "training", 4, new Hero("Élise", "female-c", "mage", 3));
         Fighter h = f.Fighters.First(x => x.Team == 0);
         Assert.Equal((mage.Hp, mage.Ap, mage.Mp, mage.Initiative), (h.Spec.Hp, h.Spec.Ap, h.Spec.Mp, h.Spec.Initiative));
-        Assert.Equal(mage.Spells, h.Spells.Select(s => s.Id));
+        // A first-level hero has the spells of level 1 only.
+        Assert.Equal(mage.Spells.Where(id => Real.Spells[id].Level == 1), h.Spells.Select(s => s.Id));
         Assert.Equal(("Élise", "female-c"), (h.Name.Fr, h.Spec.Look));
         // The monsters do not change.
         var plain = new Fight(Real, "training", 4);

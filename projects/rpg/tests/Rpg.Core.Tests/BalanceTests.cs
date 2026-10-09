@@ -8,12 +8,12 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class BalanceTests
 {
-    private static int[] Results(string scenario, int fights, Hero? hero = null)
+    private static int[] Results(string scenario, int fights, Hero? hero = null, Hero? rival = null)
     {
         int[] r = new int[3];
         for (ulong seed = 0; seed < (ulong)fights; seed++)
         {
-            var f = new Fight(Real, scenario, seed, hero);
+            var f = new Fight(Real, scenario, seed, hero, rival);
             Ai.PlayOut(f);
             r[f.WinningTeam ?? 2]++;
         }
@@ -23,7 +23,8 @@ public class BalanceTests
     [Fact]
     public void Training_TheHeroPlayedByTheAi_WinsMostFights_ButNotAll()
     {
-        // 69 % over 5,000 fights when it was tuned; a human player chooses better than the AI.
+        // 71 % over 5,000 fights when it was tuned (sprint 56, the AI planning its turns: the heroine
+        // went from 60 to 35 hit points); a human player chooses better than the AI.
         int[] r = Results("training", 1000);
         Assert.InRange(r[0], 600, 780);
         Assert.Equal(0, r[2]);
@@ -32,9 +33,9 @@ public class BalanceTests
     [Fact]
     public void Duel_NeitherSideAlwaysWins()
     {
-        // The second to play wins about two fights in three (README, limits).
+        // About one in two since the AI plans its turns (sprint 56); the second to play won two in three before.
         int[] r = Results("duel", 1000);
-        Assert.InRange(r[0], 250, 450);
+        Assert.InRange(r[0], 400, 600);
         Assert.Equal(0, r[2]);
     }
 
@@ -44,9 +45,35 @@ public class BalanceTests
     [InlineData("mage")]
     public void Training_EveryClass_WinsMostFights_ButNotAll(string id)
     {
-        // Tuned on 5,000 fights: sentinel 69 %, guard 73 %, mage 74 % (README, limits).
+        // Measured on 1,000 fights (sprint 56): sentinel 83 %, guard 70 %, mage 84 % (README, limits).
         int[] r = Results("training", 1000, new Hero("Essai", "female-d", id));
-        Assert.InRange(r[0], 600, 800);
+        Assert.InRange(r[0], 600, 870);
         Assert.Equal(0, r[2]);
+    }
+
+    [Theory]
+    [InlineData("sentinel", "guard")]
+    [InlineData("sentinel", "mage")]
+    [InlineData("guard", "mage")]
+    public void AtLevel1_EveryClassDuel_IsWonByEitherSide(string a, string b)
+    {
+        // Both orders of play, 300 fights each; measured on 400 (sprint 56): 52 %, 38 %, 54 %.
+        int[] ab = Results("duel", 300, new Hero("Alpha", "female-a", a), new Hero("Bravo", "male-a", b));
+        int[] ba = Results("duel", 300, new Hero("Alpha", "female-a", b), new Hero("Bravo", "male-a", a));
+        Assert.InRange((ab[0] + ba[1]) / 6.0, 30, 70);
+    }
+
+    [Theory]
+    [InlineData(50)]
+    [InlineData(100)]
+    public void AtHighLevels_ClassDuels_AlwaysEnd_HealingNeverOutlastsDamage(int level)
+    {
+        // Erosion takes back a tenth of each blow from the maximum: no duel reaches the round limit.
+        string[] classes = ["sentinel", "guard", "mage"];
+        foreach (string a in classes)
+        {
+            foreach (string b in classes.Where(c => c != a))
+                Assert.Equal(0, Results("duel", 20, new Hero("Alpha", "female-a", a, Level: level), new Hero("Bravo", "male-a", b, Level: level))[2]);
+        }
     }
 }

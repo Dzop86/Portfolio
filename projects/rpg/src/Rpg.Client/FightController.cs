@@ -40,7 +40,7 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
     public bool CanUse(Spell spell)
     {
         ArgumentNullException.ThrowIfNull(spell);
-        return Fight.Current.Ap >= spell.ApCost && Fight.Current.CastsLeft(spell) > 0;
+        return Fight.Current.Ap >= spell.ApCost && Fight.Current.CastsLeft(spell) > 0 && Fight.Current.CooldownLeft(spell) == 0;
     }
 
     /// <summary>
@@ -60,6 +60,7 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
         }
         LastError = Fight.Current.Ap < spell.ApCost ? ActionError.NotEnoughAp
             : Fight.Current.CastsLeft(spell) <= 0 ? ActionError.CastLimit
+            : Fight.Current.CooldownLeft(spell) > 0 ? ActionError.Cooldown
             : null;
         SelectedSpell = LastError is null ? spell : null;
     }

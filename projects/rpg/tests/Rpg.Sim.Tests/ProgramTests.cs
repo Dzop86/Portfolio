@@ -42,6 +42,29 @@ public class ProgramTests
     }
 
     [Fact]
+    public void ARival_PlaysTeamB_AtTheLevelAsked_AndTheRecordKeepsIt()
+    {
+        string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
+        try
+        {
+            (int code, _, _) = Run("--record", file, "--scenario", "duel", "--class", "guard", "--rival", "mage", "--level", "50");
+            Assert.Equal(0, code);
+            string json = File.ReadAllText(file);
+            Assert.Contains("\"class\":\"guard\",", json, StringComparison.Ordinal);
+            Assert.Contains("\"rival\":{\"name\":\"Mage\",\"look\":\"male-d\",\"class\":\"mage\"", json, StringComparison.Ordinal);
+            Assert.Contains("\"level\":50", json, StringComparison.Ordinal);
+            Assert.Equal(0, Run("--replay", file).Code);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+        (int unknown, _, string error) = Run("--simulate", "5", "--rival", "dragon");
+        Assert.Equal((2, "Unknown class 'dragon'."), (unknown, error.Trim()));
+        Assert.Equal(2, Run("--simulate", "5", "--class", "mage", "--level", "101").Code);
+    }
+
+    [Fact]
     public void ARecordedFight_ReplaysToTheSameSummary_InBothLanguages()
     {
         string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");

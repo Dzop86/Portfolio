@@ -10,7 +10,8 @@ namespace Rpg.Sim;
 ///   rpg-sim --record fight.json --scenario duel --seed 7
 ///   rpg-sim --replay fight.json [--show]
 /// Options: --data (a data folder; by default the data built into Rpg.Core), --lang fr|en (default en),
-/// --class ID (the hero of team A plays that class of data/classes.json).
+/// --class ID (the hero of team A plays that class of data/classes.json), --rival ID (team B's first
+/// fighter too, for class duels), --level N (both heroes' level, 1 by default).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -46,25 +47,31 @@ public static class Program
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
             }
-            Hero? hero = null;
-            if (options.Class is string classId)
+            Hero? hero = null, rival = null;
+            foreach ((string? id, bool isRival) in new[] { (options.Class, false), (options.Rival, true) })
             {
-                if (data.Class(classId) is not HeroClass c)
+                if (id is null)
+                    continue;
+                if (data.Class(id) is not HeroClass c)
                 {
-                    error.WriteLine($"Unknown class '{classId}'.");
+                    error.WriteLine($"Unknown class '{id}'.");
                     return 2;
                 }
-                hero = new Hero(c.Name.In(options.Lang), "female-d", c.Id);
+                var h = new Hero(c.Name.In(options.Lang), isRival ? "male-d" : "female-d", c.Id, Level: options.Level);
+                if (isRival)
+                    rival = h;
+                else
+                    hero = h;
             }
             if (options.Record is string recordPath)
             {
-                var fight = new Fight(data, options.Scenario, options.Seed, hero);
+                var fight = new Fight(data, options.Scenario, options.Seed, hero, rival);
                 Ai.PlayOut(fight);
                 File.WriteAllText(recordPath, FightRecord.Of(fight).ToJson());
                 output.WriteLine(text.Summary(fight));
                 return 0;
             }
-            Simulate(data, options, hero, text, output);
+            Simulate(data, options, hero, rival, text, output);
             return 0;
         }
         catch (InvalidFightRecordException e)
@@ -74,14 +81,14 @@ public static class Program
         }
     }
 
-    private static void Simulate(GameData data, Options options, Hero? hero, Texts text, TextWriter output)
+    private static void Simulate(GameData data, Options options, Hero? hero, Hero? rival, Texts text, TextWriter output)
     {
         int[] wins = new int[2];
         int draws = 0;
         long rounds = 0, actions = 0;
         for (int i = 0; i < options.Simulate; i++)
         {
-            var fight = new Fight(data, options.Scenario, options.Seed + (ulong)i, hero);
+            var fight = new Fight(data, options.Scenario, options.Seed + (ulong)i, hero, rival);
             actions += Ai.PlayOut(fight);
             rounds += fight.Round;
             if (fight.WinningTeam is int team)
@@ -113,7 +120,7 @@ public static class Program
         return sb.ToString();
     }
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1)
     {
         public static Options Parse(string[] args)
         {
@@ -132,6 +139,8 @@ public static class Program
                     "--replay" => o with { Replay = Value() },
                     "--show" => o with { Show = true },
                     "--class" => o with { Class = Value() },
+                    "--rival" => o with { Rival = Value() },
+                    "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100.") },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }

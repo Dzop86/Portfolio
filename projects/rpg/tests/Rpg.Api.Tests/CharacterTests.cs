@@ -105,7 +105,7 @@ public class CharacterTests
         Assert.Equal(made, listed);
         Assert.Equal(new Hero("Élise", "female-c", "mage", 3), listed.Hero);
         var fight = new Fight(GameData.Embedded, "training", 5, listed.Hero);
-        Assert.Equal(GameData.Embedded.Class("mage")!.Spells, fight.Fighters.First(f => f.Team == 0).Spells.Select(s => s.Id));
+        Assert.Equal(GameData.Embedded.Class("mage")!.Spells.Where(id => GameData.Embedded.Spells[id].Level == 1), fight.Fighters.First(f => f.Team == 0).Spells.Select(s => s.Id));
     }
 
     /// <summary>A database of sprint 47 moves on: its characters, written without a class, become sentinels.</summary>

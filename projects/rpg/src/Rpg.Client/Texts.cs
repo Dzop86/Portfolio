@@ -56,6 +56,7 @@ public sealed class Texts
         ["error.UnknownSpell"] = "Sort inconnu.",
         ["error.FightOver"] = "Le combat est fini.",
         ["error.TooManySummons"] = "Déjà autant d'invocations que permis.",
+        ["error.Cooldown"] = "Sort encore en relance.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Nom de compte",
         ["lobby.password"] = "Mot de passe",
@@ -85,6 +86,7 @@ public sealed class Texts
         ["look.female"] = "Femme {0}",
         ["lobby.colour"] = "Tenue",
         ["lobby.class"] = "Classe",
+        ["lobby.spells"] = "Ses sorts, du niveau 1 au niveau 100",
         ["lobby.hair"] = "Cheveux",
         ["lobby.female"] = "Femme",
         ["lobby.male"] = "Homme",
@@ -97,6 +99,7 @@ public sealed class Texts
         ["town.saved"] = "Position enregistrée sur le serveur.",
         ["lobby.colour-n"] = "Couleur {0}",
         ["class"] = "{0} {1} PV · {2} PA · {3} PM · {4}",
+        ["class.level"] = "Niv. {0} : {1}",
         ["look.male"] = "Homme {0}",
         ["lobby.fill-in"] = "Indiquez un nom et un mot de passe.",
         ["lobby.password-short"] = "Le mot de passe compte au moins 10 caractères.",
@@ -163,6 +166,7 @@ public sealed class Texts
         ["error.UnknownSpell"] = "Unknown spell.",
         ["error.FightOver"] = "The fight is over.",
         ["error.TooManySummons"] = "Already as many summons as allowed.",
+        ["error.Cooldown"] = "Spell still on cooldown.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Account name",
         ["lobby.password"] = "Password",
@@ -192,6 +196,7 @@ public sealed class Texts
         ["look.female"] = "Woman {0}",
         ["lobby.colour"] = "Outfit",
         ["lobby.class"] = "Class",
+        ["lobby.spells"] = "Its spells, from level 1 to level 100",
         ["lobby.hair"] = "Hair",
         ["lobby.female"] = "Woman",
         ["lobby.male"] = "Man",
@@ -204,6 +209,7 @@ public sealed class Texts
         ["town.saved"] = "Position saved on the server.",
         ["lobby.colour-n"] = "Colour {0}",
         ["class"] = "{0} {1} HP · {2} AP · {3} MP · {4}",
+        ["class.level"] = "Lv {0}: {1}",
         ["look.male"] = "Man {0}",
         ["lobby.fill-in"] = "Enter a name and a password.",
         ["lobby.password-short"] = "A password has at least 10 characters.",
@@ -243,13 +249,25 @@ public sealed class Texts
         return dash < 0 ? look : this["look." + look[..dash], look[(dash + 1)..].ToUpperInvariant()];
     }
 
-    /// <summary>A class as the creation screen describes it: what it does, its points and its spells.</summary>
+    /// <summary>A class as the creation screen describes it: what it does, its points at level 1 and the elements it hits in.</summary>
     public string Class(HeroClass c)
     {
         ArgumentNullException.ThrowIfNull(c);
-        string spells = string.Join(", ", c.Spells.Select(id => GameData.Embedded.Spells.TryGetValue(id, out Spell? s) ? s.Name.In(Lang) : id));
-        return this["class", c.Description.In(Lang), c.Hp, c.Ap, c.Mp, spells];
+        string elements = string.Join(", ", SpellsOf(c).Where(s => s.DamageMax > 0 && s.Element != Element.Neutral)
+            .Select(s => s.Element).Distinct().Select(e => this["element." + e]));
+        return this["class", c.Description.In(Lang), c.Hp, c.Ap, c.Mp, elements];
     }
+
+    /// <summary>A class's spells by the level that unlocks them: "Niv. 1 : Frappe, Flèche · Niv. 6 : Flèche de givre".</summary>
+    public string ClassSpells(HeroClass c)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        return string.Join(" · ", SpellsOf(c).GroupBy(s => s.Level)
+            .Select(g => this["class.level", g.Key, string.Join(", ", g.Select(s => s.Name.In(Lang)))]));
+    }
+
+    private static IEnumerable<Spell> SpellsOf(HeroClass c) =>
+        c.Spells.Select(id => GameData.Embedded.Spells.GetValueOrDefault(id)).OfType<Spell>();
 
     public string Error(ActionError error) => this["error." + error];
 

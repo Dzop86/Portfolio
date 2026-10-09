@@ -17,7 +17,7 @@ public partial class LobbyView : CanvasLayer
     private Lobby _lobby = null!;
     private VBoxContainer _signedOut = null!, _serverScreen = null!, _serverList = null!, _characterScreen = null!;
     private HBoxContainer _cardRow = null!;
-    private Label _title = null!, _launcherText = null!, _serversTitle = null!, _serverName = null!, _message = null!, _classText = null!;
+    private Label _title = null!, _launcherText = null!, _serversTitle = null!, _serverName = null!, _message = null!, _classText = null!, _spellsLabel = null!, _spellsText = null!;
     private Label _createTitle = null!, _lookName = null!, _classLabel = null!, _colourLabel = null!, _hairLabel = null!, _skinLabel = null!, _heightLabel = null!, _buildLabel = null!, _nameLabel = null!;
     private HSlider _height = null!, _build = null!;
     private int _look, _class, _hair, _skin;
@@ -45,6 +45,9 @@ public partial class LobbyView : CanvasLayer
     public string Look => Hero.Looks[_look];
 
     public HeroClass Class => GameData.Embedded.Classes[_class];
+
+    /// <summary>The spells the creation screen lists for the chosen class.</summary>
+    public string SpellsText => _spellsText.Text;
 
     public string MessageText => _message.Text;
 
@@ -203,7 +206,7 @@ public partial class LobbyView : CanvasLayer
         left.AddChild(_lookName);
 
         var form = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        form.AddThemeConstantOverride("separation", 6);
+        form.AddThemeConstantOverride("separation", 3);
         row.AddChild(form);
         _createTitle = new Label();
         _createTitle.AddThemeFontSizeOverride("font_size", 28);
@@ -219,9 +222,13 @@ public partial class LobbyView : CanvasLayer
             b.CustomMinimumSize = new Vector2(150, 44);
             _classButtons.Add(b);
         }
-        _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(0, 40) };
+        _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _classText.AddThemeFontSizeOverride("font_size", 14);
         form.AddChild(_classText);
+        _spellsLabel = Caption(form);
+        _spellsText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _spellsText.AddThemeFontSizeOverride("font_size", 12);
+        form.AddChild(_spellsText);
         _colourLabel = Caption(form);
         Swatches(form, _swatches, Hero.Colours, ChooseColour);
         _hairLabel = Caption(form);
@@ -450,6 +457,8 @@ public partial class LobbyView : CanvasLayer
             _classButtons[i].SetPressedNoSignal(i == _class);
         }
         _classText.Text = Texts.Class(Class);
+        _spellsLabel.Text = Texts["lobby.spells"];
+        _spellsText.Text = Texts.ClassSpells(Class);
         _colourLabel.Text = Texts["lobby.colour"];
         _hairLabel.Text = Texts["lobby.hair"];
         _skinLabel.Text = Texts["lobby.skin"];
