@@ -161,6 +161,55 @@ public sealed class Fight
 
     /// <summary>The fighters in the order they play.</summary>
     public IReadOnlyList<Fighter> TurnOrder => _order;
+
+    /// <summary>
+    /// The next <paramref name="count"/> turns, the current one first: the living fighters in the
+    /// order of play, round after round (the turn order's timeline).
+    /// </summary>
+    public IReadOnlyList<Fighter> NextTurns(int count)
+    {
+        var turns = new List<Fighter>();
+        if (IsOver)
+            return turns;
+        for (int i = 0; turns.Count < count && i < count * _order.Count; i++)
+        {
+            Fighter f = _order[(_current + i) % _order.Count];
+            if (f.IsAlive)
+                turns.Add(f);
+        }
+        return turns;
+    }
+
+    /// <summary>
+    /// What the current fighter casting <paramref name="spell"/> on <paramref name="target"/> would do
+    /// to each fighter of the area, before shields: the damage of the lowest and highest rolls, and
+    /// the healing, capped at the hit points missing. Nothing is drawn: the fight does not change.
+    /// </summary>
+    public IReadOnlyList<Forecast> Foresee(Spell spell, Cell target)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        Fighter me = Current;
+        var forecasts = new List<Forecast>();
+        IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
+        HealEffect[] heals = [.. spell.AllEffects.OfType<HealEffect>()];
+        foreach (Fighter f in area.Concat(heals.Any(h => h.Affects == Affects.Caster) && !area.Contains(me) ? [me] : []))
+        {
+            bool hit = spell.DamageMax > 0 && area.Contains(f);
+            int healMin = 0, healMax = 0;
+            foreach (HealEffect h in heals.Where(h => h.Affects == Affects.Caster ? f == me : area.Contains(f) && Touches(h.Affects, me, f)))
+            {
+                healMin += h.Min * (100 + me.Spec.Characteristics.Intelligence) / 100;
+                healMax += h.Max * (100 + me.Spec.Characteristics.Intelligence) / 100;
+            }
+            int missing = f.MaxHp - f.Hp;
+            if (hit || healMax > 0)
+            {
+                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element) : 0,
+                    Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element));
+            }
+        }
+        return forecasts;
+    }
     public Fighter Current => _order[_current];
     public int Round { get; private set; }
     public bool IsOver { get; private set; }
@@ -323,7 +372,7 @@ public sealed class Fight
             foreach (Fighter hit in area)
             {
                 if (hit.IsAlive)
-                    Hurt(hit, Damage(roll, me, hit, spell.Element));
+                    Hurt(hit, Damage(roll, me, hit, spell.Element), spell.Element);
             }
         }
         foreach (SpellEffect effect in spell.AllEffects)
@@ -406,7 +455,7 @@ public sealed class Fight
     }
 
     /// <summary>Damage through the shields first, then the hit points; a death may end the fight.</summary>
-    private void Hurt(Fighter hit, int damage)
+    private void Hurt(Fighter hit, int damage, Element element = Element.Neutral)
     {
         int absorbed = 0;
         for (int i = 0; i < hit.Shields.Count && damage > 0; i++)
@@ -424,7 +473,7 @@ public sealed class Fight
             return;
         hit.Hp = Math.Max(0, hit.Hp - damage);
         hit.Eroded += damage * Erosion / 100;
-        _events.Add(new Damaged(hit.Id, damage, hit.Hp));
+        _events.Add(new Damaged(hit.Id, damage, hit.Hp, element));
         if (hit.IsAlive)
             return;
         _events.Add(new Died(hit.Id));
@@ -491,7 +540,7 @@ public sealed class Fight
             if (IsOver || !next.IsAlive)
                 break;
             long damage = (long)poison.Value * (100 - next.Resistance(poison.Element)) / 100;
-            Hurt(next, (int)Math.Max(0, damage));
+            Hurt(next, (int)Math.Max(0, damage), poison.Element);
         }
         if (!IsOver && !next.IsAlive)
             NextTurn();

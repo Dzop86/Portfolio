@@ -51,7 +51,18 @@ public sealed record Moved(int Fighter, IReadOnlyList<Cell> Path) : FightEvent;
 
 public sealed record SpellCast(int Fighter, string Spell, Cell Target) : FightEvent;
 
-public sealed record Damaged(int Fighter, int Amount, int HpLeft) : FightEvent;
+/// <summary>
+/// What a cast would do to one fighter (<see cref="Fight.Foresee"/>): damage before shields, from
+/// the lowest to the highest roll, and healing.
+/// </summary>
+public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element)
+{
+    /// <summary>Even the lowest roll kills, through the shields.</summary>
+    public bool SureKill => DamageMax > 0 && DamageMin >= Fighter.Hp + Fighter.Shield;
+}
+
+/// <summary>Hit points lost, in the element of what hit (neutral for a collision).</summary>
+public sealed record Damaged(int Fighter, int Amount, int HpLeft, Element Element = Element.Neutral) : FightEvent;
 
 public sealed record Died(int Fighter) : FightEvent;
 
