@@ -13,7 +13,7 @@ public partial class TalkPanel : CanvasLayer
 {
     private readonly List<Button> _answers = [];
     private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!;
-    private Button _lang = null!, _characters = null!, _points = null!;
+    private Button _lang = null!, _characters = null!, _points = null!, _inventory = null!;
     private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
     private VBoxContainer _answerBox = null!;
@@ -24,6 +24,7 @@ public partial class TalkPanel : CanvasLayer
     public event Action<int>? Answered;
     public event Action? CharactersPressed;
     public event Action? PointsPressed;
+    public event Action? InventoryPressed;
     public event Action? LanguageChanged;
 
     public void Build(TownController town, Texts texts, bool signedIn)
@@ -38,9 +39,12 @@ public partial class TalkPanel : CanvasLayer
         _help.Modulate = new Color(1, 1, 1, 0.75f);
         _message = Text(root, 16, 20, 78, 900, 24);
 
-        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -520, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
+        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -680, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 10);
         root.AddChild(buttons);
+        _inventory = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
+        _inventory.Pressed += () => InventoryPressed?.Invoke();
+        buttons.AddChild(_inventory);
         _points = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
         _points.Pressed += () => PointsPressed?.Invoke();
         buttons.AddChild(_points);
@@ -117,6 +121,8 @@ public partial class TalkPanel : CanvasLayer
         _characters.Text = Texts["lobby.back"];
         _points.Text = Texts["points.button"];
         _points.Visible = _progress is not null;
+        _inventory.Text = Texts["inventory.button"];
+        _inventory.Visible = _progress is not null;
         _xp.Text = _progress is (int level, long xp) ? Texts.XpLine(level, xp) : "";
         _talk.Visible = _town.Talk is not null;
         if (_town.Talk is not Conversation talk)

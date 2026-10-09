@@ -550,6 +550,12 @@ public partial class Main : Node3D
             if (_hud.ResultText != shown || !shown.StartsWith(_hud.Texts["result.xp", earned], StringComparison.Ordinal))
                 problems.Add($"the end screen says '{_hud.ResultText}'");
             progress = $"Experience: +{earned} kept by the server, level {_character.Level}.";
+            // The loot and the quest's items are in the inventory the server keeps.
+            var loot = Equipment.Loot(_controller.Fight).Concat(firstWin ? GameData.Embedded.Quests["first-lesson"].Items! : []).ToList();
+            if (loot.Any(l => (_character.Inventory ?? []).FirstOrDefault(i => i.Item == l.Item)?.Count < l.Count || !(_character.Inventory ?? []).Any(i => i.Item == l.Item)))
+                problems.Add($"the inventory lacks the loot {_hud.Texts.Items(loot)}");
+            else if (loot.Count > 0)
+                progress += $" Loot: {loot.Count} kind(s) of item.";
         }
         string report = SelfPlay.Report(_controller.Fight);
         report += problems.Count == 0

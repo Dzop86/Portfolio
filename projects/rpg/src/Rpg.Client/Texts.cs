@@ -21,6 +21,38 @@ public sealed class Texts
         ["again"] = "Rejouer",
         ["help"] = "Clic : se déplacer · 1, 2, 3 : choisir un sort · Échap : annuler · Espace : fin du tour",
         ["spell"] = "{0} ({1} PA, portée {2}-{3})",
+        ["inventory.button"] = "Inventaire",
+        ["inventory.title"] = "Inventaire et équipement",
+        ["inventory.empty"] = "Rien ici.",
+        ["inventory.free"] = "{0} libre(s)",
+        ["inventory.saved"] = "Équipement enregistré.",
+        ["inventory.level"] = "niveau {0}",
+        ["inventory.set"] = "{0} : {1}",
+        ["inventory.pieces"] = "{0} pièces {1}",
+        ["result.loot"] = "Butin : {0}",
+        ["page.All"] = "Tout",
+        ["page.Equipment"] = "Équipement",
+        ["page.Consumable"] = "Consommables",
+        ["page.Resource"] = "Ressources",
+        ["page.Quest"] = "Objets de quête",
+        ["kind.Consumable"] = "consommable",
+        ["kind.Resource"] = "ressource",
+        ["kind.Quest"] = "objet de quête",
+        ["slot.Ring1"] = "Anneau 1",
+        ["slot.Ring2"] = "Anneau 2",
+        ["slot.Amulet"] = "Amulette",
+        ["slot.Belt"] = "Ceinture",
+        ["slot.Cape"] = "Cape",
+        ["slot.Hat"] = "Coiffe",
+        ["slot.Chest"] = "Plastron",
+        ["slot.Shoulders"] = "Épaulettes",
+        ["slot.OneHanded"] = "Arme à une main",
+        ["slot.TwoHanded"] = "Arme à deux mains",
+        ["slot.Shield"] = "Bouclier",
+        ["slot.Pet"] = "Familier",
+        ["slot.Mount"] = "Monture",
+        ["slot.Boots"] = "Bottes",
+        ["slot.Ring"] = "Anneau",
         ["points.button"] = "Personnage",
         ["points.title"] = "Caractéristiques et sorts",
         ["points.characteristics"] = "Caractéristiques : {0} point(s) à répartir",
@@ -187,6 +219,38 @@ public sealed class Texts
         ["again"] = "Play again",
         ["help"] = "Click: move · 1, 2, 3: choose a spell · Esc: cancel · Space: end turn",
         ["spell"] = "{0} ({1} AP, range {2}-{3})",
+        ["inventory.button"] = "Inventory",
+        ["inventory.title"] = "Inventory and equipment",
+        ["inventory.empty"] = "Nothing here.",
+        ["inventory.free"] = "{0} free",
+        ["inventory.saved"] = "Equipment saved.",
+        ["inventory.level"] = "level {0}",
+        ["inventory.set"] = "{0}: {1}",
+        ["inventory.pieces"] = "{0} pieces {1}",
+        ["result.loot"] = "Loot: {0}",
+        ["page.All"] = "All",
+        ["page.Equipment"] = "Equipment",
+        ["page.Consumable"] = "Consumables",
+        ["page.Resource"] = "Resources",
+        ["page.Quest"] = "Quest items",
+        ["kind.Consumable"] = "consumable",
+        ["kind.Resource"] = "resource",
+        ["kind.Quest"] = "quest item",
+        ["slot.Ring1"] = "Ring 1",
+        ["slot.Ring2"] = "Ring 2",
+        ["slot.Amulet"] = "Amulet",
+        ["slot.Belt"] = "Belt",
+        ["slot.Cape"] = "Cape",
+        ["slot.Hat"] = "Hat",
+        ["slot.Chest"] = "Breastplate",
+        ["slot.Shoulders"] = "Pauldrons",
+        ["slot.OneHanded"] = "One-handed weapon",
+        ["slot.TwoHanded"] = "Two-handed weapon",
+        ["slot.Shield"] = "Shield",
+        ["slot.Pet"] = "Pet",
+        ["slot.Mount"] = "Mount",
+        ["slot.Boots"] = "Boots",
+        ["slot.Ring"] = "Ring",
         ["points.button"] = "Character",
         ["points.title"] = "Characteristics and spells",
         ["points.characteristics"] = "Characteristics: {0} point(s) to spend",
@@ -444,7 +508,40 @@ public sealed class Texts
             parts.Add(this["result.quest", quest.Name.In(Lang)]);
         if (result.Level > levelBefore)
             parts.Add(this["result.level", result.Level]);
-        return string.Join(" · ", parts);
+        string text = string.Join(" · ", parts);
+        return result.Loot is { Count: > 0 } loot ? text + "\n" + this["result.loot", Items(loot)] : text;
+    }
+
+    /// <summary>Some items as a list: "Croc d'orque ×2, Pain".</summary>
+    public string Items(IEnumerable<ItemCount> items)
+    {
+        ArgumentNullException.ThrowIfNull(items);
+        return string.Join(", ", items.Select(i => (GameData.Embedded.Items.TryGetValue(i.Item, out Item? item) ? item.Name.In(Lang) : i.Item) + (i.Count > 1 ? $" ×{i.Count}" : "")));
+    }
+
+    /// <summary>
+    /// An item as its card says it: name, slot or kind, the level it needs; what it gives; its set's
+    /// bonuses: "Cape du braconnier · Cape · niveau 1\n+6 Agilité\nPanoplie du braconnier : 2 pièces +10 Agilité ; 3 pièces +20 Agilité, +1 PM".
+    /// </summary>
+    public string ItemCard(Item item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        string what = item.Slot is ItemSlot slot ? this["slot." + slot] : this["kind." + item.Kind];
+        var lines = new List<string> { $"{item.Name.In(Lang)} · {what}" + (item.Kind == ItemKind.Equipment ? " · " + this["inventory.level", item.Level] : "") };
+        string gives = Gives(item.Stats, item.Ap, item.Mp);
+        if (gives.Length > 0)
+            lines.Add(gives);
+        if (item.Set is string id && GameData.Embedded.Sets.TryGetValue(id, out ItemSet? set))
+            lines.Add(this["inventory.set", set.Name.In(Lang), string.Join(" ; ", set.Bonuses.Select(b => this["inventory.pieces", b.Pieces, Gives(b.Stats, b.Ap, b.Mp)]))]);
+        return string.Join('\n', lines);
+    }
+
+    /// <summary>"+5 Vitalité, +1 PM": the characteristics, action and movement points given.</summary>
+    private string Gives(Characteristics? stats, int ap, int mp)
+    {
+        Characteristics st = stats ?? Characteristics.None;
+        var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Strength, this["char.Strength"]), (st.Intelligence, this["char.Intelligence"]), (st.Chance, this["char.Chance"]), (st.Agility, this["char.Agility"]), (ap, this["ap"]), (mp, this["mp"]) };
+        return string.Join(", ", parts.Where(p => p.Value != 0).Select(p => $"{p.Value.ToString("+0;-0", CultureInfo.InvariantCulture)} {p.Name}"));
     }
 
     /// <summary>What a cast would do, one line per fighter of its area (<see cref="Fight.Foresee"/>).</summary>

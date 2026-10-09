@@ -143,9 +143,14 @@ public sealed class Fight
         (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
         return spec with
         {
-            Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap + ap, Mp = c.Mp + mp, Initiative = c.Initiative,
+            Hp = c.Hp + c.HpPerLevel * (hero.Level - 1),
+            Ap = c.Ap + ap,
+            Mp = c.Mp + mp,
+            Initiative = c.Initiative,
             Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)],
-            Stats = Equipment.Add(hero.Stats ?? Characteristics.None, worn), SpellRanks = hero.Ranks, Level = hero.Level,
+            Stats = Equipment.Add(hero.Stats ?? Characteristics.None, worn),
+            SpellRanks = hero.Ranks,
+            Level = hero.Level,
         };
     }
 

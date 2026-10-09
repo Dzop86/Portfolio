@@ -16,6 +16,7 @@ public partial class Main
     private TownView? _townView;
     private TalkPanel? _talkPanel;
     private PointsPanel? _pointsPanel;
+    private InventoryPanel? _inventoryPanel;
     private bool _walking;
 
     private void ShowTown()
@@ -35,6 +36,7 @@ public partial class Main
         _talkPanel.Build(_town, new Texts(_options.Lang), _lobby?.SignedIn == true && _character is not null);
         _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
         _talkPanel.PointsPressed += OpenPoints;
+        _talkPanel.InventoryPressed += () => OpenInventory(_character?.Inventory ?? []);
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () => _townView.SetLanguage(_talkPanel.Texts.Lang);
         _talkPanel.CharactersPressed += () =>
@@ -44,13 +46,13 @@ public partial class Main
         };
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner")
+        else if (_options.Shot is "town" or "banner" or "inventory")
             _ = TownScreenshot();
     }
 
     private void TownInput(InputEvent @event)
     {
-        if (_town is null || _townView is null || _walking || _pointsPanel is not null)
+        if (_town is null || _townView is null || _walking || _pointsPanel is not null || _inventoryPanel is not null)
             return;
         switch (@event)
         {
@@ -95,6 +97,48 @@ public partial class Main
             _pointsPanel.QueueFree();
             _pointsPanel = null;
         };
+    }
+
+    /// <summary>The inventory and equipment screen, over the town.</summary>
+    private void OpenInventory(IReadOnlyList<ItemCount> owned)
+    {
+        if (_inventoryPanel is not null || _hero is null)
+            return;
+        _inventoryPanel = new InventoryPanel();
+        AddChild(_inventoryPanel);
+        _inventoryPanel.Build(new InventoryEditor(_hero, owned, GameData.Embedded), _talkPanel!.Texts);
+        _inventoryPanel.SavePressed += worn => _ = SaveEquipment(worn);
+        _inventoryPanel.ClosePressed += () =>
+        {
+            _inventoryPanel.QueueFree();
+            _inventoryPanel = null;
+        };
+    }
+
+    /// <summary>Saves what the hero wears on the server (which checks it owns it); offline, for this game only.</summary>
+    private async Task SaveEquipment(IReadOnlyDictionary<Slot, string> worn)
+    {
+        InventoryPanel panel = _inventoryPanel!;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _hero = panel.Editor.Draft;
+            panel.Saved(_hero, panel.Editor.Owned, panel.Texts["points.offline"]);
+            return;
+        }
+        try
+        {
+            _character = await _lobby.Server.SaveEquipment(_character.Id, worn);
+            _hero = _character.Hero;
+            panel.Saved(_hero, _character.Inventory ?? [], panel.Texts["inventory.saved"]);
+        }
+        catch (ServerException e)
+        {
+            panel.ShowMessage(e.Message);
+        }
+        catch (HttpRequestException)
+        {
+            panel.ShowMessage(panel.Texts["lobby.unreachable"]);
+        }
     }
 
     /// <summary>Saves the points on the server (which checks them); offline, for this game only.</summary>
@@ -210,6 +254,20 @@ public partial class Main
                 problems.Add("a first-level hero has points to spend");
             _pointsPanel.QueueFree();
             _pointsPanel = null;
+            // The inventory screen: fourteen slots, what is worn in them, the items of each page.
+            OpenInventory(_character?.Inventory ?? []);
+            InventoryPanel inv = _inventoryPanel!;
+            if (inv.SlotsText.Count() != 14 || inv.SlotsText.Zip(Enum.GetValues<Slot>()).Any(z => !z.First.StartsWith(inv.Texts["slot." + z.Second], StringComparison.Ordinal)))
+                problems.Add("the equipment screen does not show the fourteen slots");
+            foreach (InventoryPage page in Enum.GetValues<InventoryPage>())
+            {
+                inv.ShowPage(page);
+                int listed = inv.Editor.Page(page).Count;
+                if (inv.ListText.Count() != listed)
+                    problems.Add($"the {page} page lists {inv.ListText.Count()} items, not {listed}");
+            }
+            inv.QueueFree();
+            _inventoryPanel = null;
         }
         string note = $"Town: {talks} people, {lines} lines";
         if (_lobby?.SignedIn == true && _character is not null)
@@ -241,6 +299,24 @@ public partial class Main
     /// </summary>
     private async Task TownScreenshot()
     {
+        if (_options.Shot == "inventory")
+        {
+            // A showcase for the project page: a tenth-level guard with what training fights leave.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
+            _talkPanel!.SetProgress(10, 5_000);
+            ItemCount[] bag = [new("copper-ring", 2), new("pebble-amulet", 1), new("poacher-hat", 1), new("poacher-cape", 1), new("poacher-boots", 1), new("dagger", 1), new("wooden-shield", 1), new("orc-club", 1), new("kitten", 1), new("bread", 3), new("healing-potion", 2), new("orc-fang", 5), new("leather", 4), new("garance-badge", 1)];
+            OpenInventory(bag);
+            foreach (string id in new[] { "copper-ring", "copper-ring", "pebble-amulet", "poacher-hat", "poacher-cape", "poacher-boots", "dagger", "wooden-shield", "kitten" })
+                _inventoryPanel!.Editor.Put(GameData.Embedded.Items[id]);
+            _inventoryPanel!.ShowPage(InventoryPage.All);
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error shot = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {shot} {_options.Screenshot}");
+            GetTree().Quit(shot == Error.Ok ? 0 : 1);
+            return;
+        }
         Npc aubin = _town!.Town.Npcs[0];
         await _townView!.Walk(_town.Click(aubin.At)!, 0);
         if (_options.Shot == "banner")

@@ -1278,6 +1278,7 @@ function rpgScreenshots(t, lang) {
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
   ${shot('create', 'rpg.altCreate', 'rpg.captionCreate')}
   ${shot('town', 'rpg.altTown', 'rpg.captionTown')}
+  ${shot('inventory', 'rpg.altInventory', 'rpg.captionInventory')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
   <p class="meta">${esc(t('rpg.made'))}</p>

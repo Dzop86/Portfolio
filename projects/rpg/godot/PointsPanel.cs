@@ -27,6 +27,7 @@ public partial class PointsPanel : CanvasLayer
         Editor = editor;
         Texts = texts;
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -430, OffsetRight = 430, OffsetTop = -300, OffsetBottom = 300 };
+        panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
         var margin = new MarginContainer();
         foreach (string side in new[] { "left", "right", "top", "bottom" })
