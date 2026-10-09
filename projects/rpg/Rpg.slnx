@@ -3,10 +3,12 @@
     <Project Path="src/Rpg.Core/Rpg.Core.csproj" />
     <Project Path="src/Rpg.Sim/Rpg.Sim.csproj" />
     <Project Path="src/Rpg.Client/Rpg.Client.csproj" />
+    <Project Path="src/Rpg.Api/Rpg.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Rpg.Core.Tests/Rpg.Core.Tests.csproj" />
     <Project Path="tests/Rpg.Sim.Tests/Rpg.Sim.Tests.csproj" />
     <Project Path="tests/Rpg.Client.Tests/Rpg.Client.Tests.csproj" />
+    <Project Path="tests/Rpg.Api.Tests/Rpg.Api.Tests.csproj" />
   </Folder>
 </Solution>

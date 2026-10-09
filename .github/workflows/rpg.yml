@@ -3,9 +3,9 @@ name: rpg
 on:
   push:
     branches: [main]
-    paths: ['projects/rpg/**', '.github/workflows/rpg.yml']
+    paths: ['projects/rpg/**', '.github/workflows/rpg.yml', 'compose.yaml']
   pull_request:
-    paths: ['projects/rpg/**', '.github/workflows/rpg.yml']
+    paths: ['projects/rpg/**', '.github/workflows/rpg.yml', 'compose.yaml']
   workflow_dispatch:
 
 permissions:
@@ -56,6 +56,55 @@ jobs:
           grep -qF "Duel, seed 3: team B wins in round 4, after 22 actions." "$RUNNER_TEMP/duel.txt"
       - name: A thousand AI fights
         run: dotnet run --project src/Rpg.Sim -c Release --no-build -- --simulate 1000 --scenario duel
+
+  api:
+    name: Accounts and characters API, ASP.NET Core and PostgreSQL
+    runs-on: ubuntu-latest
+    # GitHub's Windows and macOS runners cannot run Linux containers: the API is built on the three
+    # systems above, and tested against PostgreSQL here.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          # A throwaway database on the runner, reachable only from this job.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 15
+    env:
+      RPG_TEST_DB: Host=localhost;Username=postgres
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rpg/global.json
+      # dotnet ef does not restore packages itself.
+      - run: |
+          dotnet tool restore
+          dotnet restore Rpg.slnx
+      - name: Migrations match the model
+        run: dotnet ef migrations has-pending-model-changes --project src/Rpg.Api
+      - name: Integration tests (WebApplicationFactory, real PostgreSQL, the game's client)
+        run: dotnet test --project tests/Rpg.Api.Tests -c Release
+
+  docker:
+    name: Accounts and characters API (Docker image, compose, end to end)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: compose.yaml builds and serves the API and its database
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker compose up -d --build rpg-api
+          for i in $(seq 1 60); do curl -fsS http://localhost:8002/health && break; sleep 1; done
+      - name: End to end (sign up, sign in, characters, refusals, 413)
+        run: scripts/smoke.sh http://localhost:8002
+      - name: API logs
+        if: always()
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker compose logs rpg-api rpg-db
+          docker compose down -v
 
   godot:
     name: Godot client, without a screen (${{ matrix.os }})

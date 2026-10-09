@@ -43,5 +43,37 @@ services:
     volumes:
       - rogue-db:/var/lib/postgresql
 
+  # Tactical RPG accounts and characters API (projects/rpg) and its database.
+  rpg-api:
+    build: ./projects/rpg
+    ports:
+      - "8002:8080"
+    environment:
+      ConnectionStrings__Game: Host=rpg-db;Username=rpg;Database=rpg
+      # Signing key of the access tokens: set RPG_JWT_KEY (base64, 32 bytes) to keep tokens across
+      # restarts; left empty, the API draws a random key at start-up.
+      Jwt__Key: ${RPG_JWT_KEY:-}
+    depends_on:
+      rpg-db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+  rpg-db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: rpg
+      # No password, and no published port: only the services of this file reach the database.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "rpg"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    volumes:
+      - rpg-db:/var/lib/postgresql
+
+
 volumes:
   rogue-db:
+  rpg-db:

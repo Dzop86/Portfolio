@@ -1,0 +1,91 @@
+using System.Net;
+using Rpg.Client;
+using Rpg.Core;
+
+namespace Rpg.Api.Tests;
+
+public class CharacterTests
+{
+    private static CancellationToken Cancel => TestContext.Current.CancellationToken;
+
+    [Fact]
+    public async Task APlayerCreatesListsAndDeletesCharacters()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary elise = await server.CreateCharacter("Élise", "female-c", Cancel);
+        api.Clock.Advance(TimeSpan.FromMinutes(1));
+        CharacterSummary jean = await server.CreateCharacter("Jean-Luc", "male-a", Cancel);
+        Assert.Equal([elise, jean], await server.Characters(Cancel));
+        Assert.Equal(new Hero("Élise", "female-c"), elise.Hero);
+        await server.DeleteCharacter(elise.Id, Cancel);
+        Assert.Equal([jean], await server.Characters(Cancel));
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.DeleteCharacter(elise.Id, Cancel));
+        Assert.Equal(HttpStatusCode.NotFound, e.Status);
+    }
+
+    [Theory]
+    [InlineData("Él", "female-a", "name")]
+    [InlineData("R2D2", "female-a", "name")]
+    [InlineData("Élise", "orc", "look")]
+    [InlineData("Élise", "", "look")]
+    public async Task InvalidCharacters_AreRefused_WithTheFieldAtFault(string name, string look, string field)
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(name, look, Cancel));
+        Assert.Equal(HttpStatusCode.BadRequest, e.Status);
+        Assert.Contains(field + ":", e.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task ACharacterNameIsUniqueOnTheServer_WhateverItsCase()
+    {
+        await using var api = new ApiFactory();
+        GameServer first = await api.SignedIn("a");
+        GameServer second = await api.SignedIn("b");
+        await first.CreateCharacter("Élise", "female-c", Cancel);
+        var e = await Assert.ThrowsAsync<ServerException>(() => second.CreateCharacter("ÉLISE", "male-b", Cancel));
+        Assert.Equal(HttpStatusCode.Conflict, e.Status);
+    }
+
+    [Fact]
+    public async Task AnAccountHasAtMostFiveCharacters()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        string[] names = ["Anne", "Bruno", "Chloé", "Damien", "Elsa"];
+        foreach (string n in names)
+            await server.CreateCharacter(n, "male-d", Cancel);
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter("Fanny", "male-d", Cancel));
+        Assert.Equal(HttpStatusCode.Conflict, e.Status);
+        Assert.Equal(Accounts.MaxCharacters, (await server.Characters(Cancel)).Count);
+    }
+
+    [Fact]
+    public async Task APlayerSeesAndDeletesOnlyTheirOwnCharacters()
+    {
+        await using var api = new ApiFactory();
+        GameServer alice = await api.SignedIn("a");
+        GameServer bob = await api.SignedIn("b");
+        CharacterSummary hers = await alice.CreateCharacter("Alice", "female-b", Cancel);
+        Assert.Empty(await bob.Characters(Cancel));
+        var e = await Assert.ThrowsAsync<ServerException>(() => bob.DeleteCharacter(hers.Id, Cancel));
+        Assert.Equal(HttpStatusCode.NotFound, e.Status);
+        Assert.Single(await alice.Characters(Cancel));
+    }
+
+    /// <summary>End to end: the character made on the server fights in the rules, and its record replays.</summary>
+    [Fact]
+    public async Task ACharacterFromTheServer_FightsAsTheHero()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary c = await server.CreateCharacter("Margaux", "female-e", Cancel);
+        var fight = new Fight(GameData.Embedded, "training", 11, (await server.Characters(Cancel)).Single().Hero);
+        Ai.PlayOut(fight);
+        Fight again = FightRecord.FromJson(FightRecord.Of(fight).ToJson()).Replay(GameData.Embedded);
+        Assert.Equal(c.Name, again.Fighters.First(f => f.Team == 0).Name.Fr);
+        Assert.Equal(fight.WinningTeam, again.WinningTeam);
+    }
+}

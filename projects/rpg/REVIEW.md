@@ -26,4 +26,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/Main.cs` (`--screenshot`) | (Claude) Vu sur la capture « sort » : aucune visée ; le mode capture choisissait le sort une seconde fois, ce qui l'annule | Ne le choisit que s'il ne l'est pas |
 | 2026-10-09 | `src/Rpg.Core/Iso.cs` | (Claude) Devenu du code mort avec le choix de la 3D | Retiré avec ses tests (T7) |
 | 2026-10-09 | `.github/workflows/rpg.yml` | (Claude) CI rouge sous Windows seulement : l'import Godot durait 0,5 s, PowerShell rendant la main sans attendre Godot ; les modèles .glb n'étaient pas importés et l'auto-test restait bloqué jusqu'au délai de 5 min | Import lancé par bash, qui attend Godot |
+| 2026-10-09 | `tests/Rpg.Api.Tests` | (Claude) 32 appels écrits sans le jeton d'annulation du test (xUnit1051, erreur puisque les avertissements bloquent) : un test arrêté aurait laissé ses requêtes HTTP et SQL tourner | `TestContext.Current.CancellationToken` passé à chaque appel, comme dans les tests du roguelike |
+| 2026-10-09 | `src/Rpg.Api` | (Claude) Vérifié en cassant le code : limite de 5 personnages, suppression du personnage d'un autre, liste des personnages d'un autre, nom insensible à la casse | 4 mutations sur 4 attrapées par les tests d'intégration |
+| 2026-10-09 | `scripts/smoke.sh` | (Claude) Premier essai arrêté net (code 141) : `tr < /dev/urandom \| head` reçoit SIGPIPE, fatal avec `pipefail` | Nom tiré avec `$RANDOM`, essai vert contre l'image Docker |
 | | | | |
