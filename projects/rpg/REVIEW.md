@@ -21,6 +21,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 51 : le launcher chez toi (paquet de la CI) : connexion, inscription, cases « mémoriser » (le mot de passe revient-il au lancement suivant ?), mise à jour automatique ; et `launcher/core/src/account.rs` (ce qui est mémorisé, où, et ce qui est oublié).
 - [ ] Sprint 52 : l'ouverture du jeu par le launcher (le serveur Osméria passé d'office, les cartes des personnages, « Jouer », la suppression confirmée) ; sans le launcher, le message et « Jouer hors ligne ».
 - [ ] Sprint 53 : l'écran de création (les couleurs de cheveux et de peau sur chaque apparence, la taille et la carrure, la lisibilité) ; les personnages ainsi créés au village et en combat.
+- [ ] Sprint 54 : `src/Rpg.Core/Fight.cs` (`Cast`, `Shove`, `Hurt`, décompte des états dans `NextTurn`) et `src/Rpg.Core/Effects.cs` : les règles des effets te conviennent-elles (dégâts de zone sur les alliés, 4 PV par collision, décompte à la fin du tour de celui qui porte l'état) ?
 
 ## Constats
 
@@ -77,4 +78,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/LobbyView.cs` | Signalé par Charles : ne pas faire défiler les apparences, mais choisir femme ou homme et voir les apparences correspondantes ; une image de fond pour la sélection des personnages | (Claude) Boutons « Femme » / « Homme » et six vignettes 3D ; village de Clairval assombri en fond des écrans de serveur, de personnages et de création |
 | 2026-10-09 | `godot/TownView.cs` | Signalé par Charles : ne pas afficher le nom des habitants, sauf à 3 cases ou moins | (Claude) Noms visibles à 3 pas ou moins (distance de Manhattan), mis à jour à chaque pas ; l'auto-test du village le vérifie après chaque déplacement |
 | 2026-10-09 | `godot/assets/ui/village.jpg` | (Claude) Vu sur la capture : le fond montrait encore les noms, Godot ayant importé l'image avant que je la régénère | Import relancé, fond assombri à 80 % ; captures refaites |
+| 2026-10-09 | `tests/Rpg.Core.Tests/EffectsTests.cs` | (Claude) Relu avant la première exécution : des arènes écrites avec des « a » minuscules, que le plateau ne connaît pas, et une fin de test sans rapport avec son nom | Arènes corrigées (les alliés s'écrivent aussi « A »), fin de test réécrite |
+| 2026-10-09 | `src/Rpg.Core/Fight.cs` | (Claude) Trouvé en cassant le code : rien ne vérifiait qu'une poussée s'arrête contre un autre combattant (le test l'annonçait sans le faire), ni le plafond de résistance à 90 % | Deux tests ajoutés, les deux mutations attrapées |
 | | | | |
