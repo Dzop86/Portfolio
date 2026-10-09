@@ -21,6 +21,27 @@ public class ProgramTests
     }
 
     [Fact]
+    public void AClass_PlaysTheHero_AndAnUnknownOneIsRefused()
+    {
+        string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
+        try
+        {
+            (int code, _, _) = Run("--record", file, "--scenario", "training", "--seed", "3", "--class", "mage", "--lang", "fr");
+            Assert.Equal(0, code);
+            Assert.Contains("\"hero\":{\"name\":\"Mage\",\"look\":\"female-d\",\"class\":\"mage\"", File.ReadAllText(file), StringComparison.Ordinal);
+            (code, string shown, _) = Run("--replay", file, "--show", "--lang", "fr");
+            Assert.Equal(0, code);
+            Assert.Contains(" Mage ", shown, StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+        (int unknown, _, string error) = Run("--simulate", "5", "--class", "dragon");
+        Assert.Equal((2, "Unknown class 'dragon'."), (unknown, error.Trim()));
+    }
+
+    [Fact]
     public void ARecordedFight_ReplaysToTheSameSummary_InBothLanguages()
     {
         string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");

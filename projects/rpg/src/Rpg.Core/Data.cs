@@ -43,6 +43,20 @@ public sealed record FighterSpec(
     int Start,
     IReadOnlyList<string> Spells);
 
+/// <summary>
+/// A class the player can choose for their hero, as described in <c>data/classes.json</c>: its
+/// characteristics and spells replace those of the scenario's hero.
+/// </summary>
+public sealed record HeroClass(
+    string Id,
+    LocalizedText Name,
+    LocalizedText Description,
+    int Hp,
+    int Ap,
+    int Mp,
+    int Initiative,
+    IReadOnlyList<string> Spells);
+
 /// <summary>A board, as described in <c>data/maps/*.json</c>.</summary>
 public sealed record MapSpec(string Id, LocalizedText Name, IReadOnlyList<string> Rows);
 
@@ -50,8 +64,8 @@ public sealed record MapSpec(string Id, LocalizedText Name, IReadOnlyList<string
 public sealed record Scenario(string Id, LocalizedText Name, string Map, IReadOnlyList<FighterSpec> Fighters);
 
 /// <summary>
-/// Everything the rules read from the data folder: spells, maps and scenarios. Adding a spell, a map
-/// or a monster is a change of data, not of code; <see cref="Load"/> refuses inconsistent data.
+/// Everything the rules read from the data folder: spells, maps, scenarios and the heroes' classes.
+/// Adding a spell, a map, a monster or a class is a change of data, not of code; <see cref="Load"/> refuses inconsistent data.
 /// </summary>
 public sealed class GameData
 {
@@ -67,18 +81,26 @@ public sealed class GameData
     public IReadOnlyDictionary<string, MapSpec> Maps { get; }
     public IReadOnlyDictionary<string, Scenario> Scenarios { get; }
 
-    public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios)
+    /// <summary>The classes, in the order of the data file (the order the creation screen shows).</summary>
+    public IReadOnlyList<HeroClass> Classes { get; }
+
+    public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null)
     {
         Spells = Index(spells, s => s.Id, "spell");
         Maps = Index(maps, m => m.Id, "map");
         Scenarios = Index(scenarios, s => s.Id, "scenario");
+        Classes = [.. Index(classes ?? [], c => c.Id, "class").Values];
         foreach (Spell s in Spells.Values)
             Check(s);
         foreach (Scenario s in Scenarios.Values)
             Check(s);
+        foreach (HeroClass c in Classes)
+            Check(c);
     }
 
-    /// <summary>Reads <c>spells.json</c>, <c>maps/*.json</c> and <c>scenarios/*.json</c> from a folder.</summary>
+    public HeroClass? Class(string? id) => Classes.FirstOrDefault(c => c.Id == id);
+
+    /// <summary>Reads <c>spells.json</c>, <c>classes.json</c> (if there is one), <c>maps/*.json</c> and <c>scenarios/*.json</c> from a folder.</summary>
     public static GameData Load(string folder)
     {
         T Read<T>(string path) =>
@@ -89,7 +111,8 @@ public sealed class GameData
         return new GameData(
             Read<List<Spell>>(Path.Combine(folder, "spells.json")),
             ReadAll<MapSpec>("maps"),
-            ReadAll<Scenario>("scenarios"));
+            ReadAll<Scenario>("scenarios"),
+            File.Exists(Path.Combine(folder, "classes.json")) ? Read<List<HeroClass>>(Path.Combine(folder, "classes.json")) : null);
     }
 
     /// <summary>
@@ -113,7 +136,8 @@ public sealed class GameData
             JsonSerializer.Deserialize<T>(json, Json) ?? throw new InvalidDataException($"{name} is empty.");
         IEnumerable<T> All<T>(string prefix) =>
             files.Where(f => f.Key.StartsWith(prefix, StringComparison.Ordinal)).Select(f => Parse<T>(f.Key, f.Value));
-        return new GameData(Parse<List<Spell>>("spells.json", files["data/spells.json"]), All<MapSpec>("data/maps/"), All<Scenario>("data/scenarios/"));
+        return new GameData(Parse<List<Spell>>("spells.json", files["data/spells.json"]), All<MapSpec>("data/maps/"), All<Scenario>("data/scenarios/"),
+            Parse<List<HeroClass>>("classes.json", files["data/classes.json"]));
     }
 
     public Board Board(string mapId) =>
@@ -137,6 +161,20 @@ public sealed class GameData
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
             || s.DamageMax < s.DamageMin || s.PerTurn < 1)
             throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage or casts per turn out of bounds.");
+    }
+
+    private void Check(HeroClass c)
+    {
+        string who = $"Class '{c.Id}'";
+        if (c.Hp < 1 || c.Ap < 0 || c.Mp < 0)
+            throw new InvalidDataException($"{who}: hit points, action or movement points out of bounds.");
+        if (c.Spells.Count is < 1 or > 9)
+            throw new InvalidDataException($"{who}: 1 to 9 spells (the keys 1 to 9 choose them).");
+        foreach (string spell in c.Spells)
+        {
+            if (!Spells.ContainsKey(spell))
+                throw new InvalidDataException($"{who}: unknown spell '{spell}'.");
+        }
     }
 
     private void Check(Scenario s)

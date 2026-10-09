@@ -1,0 +1,23 @@
+[
+  {
+    "id": "sentinel",
+    "name": { "fr": "Sentinelle", "en": "Sentinel" },
+    "description": { "fr": "Tire de loin à l'arc, achève à la lance.", "en": "Shoots from afar with a bow, finishes with a spear." },
+    "hp": 60, "ap": 6, "mp": 3, "initiative": 120,
+    "spells": ["strike", "arrow", "spear"]
+  },
+  {
+    "id": "guard",
+    "name": { "fr": "Garde", "en": "Guard" },
+    "description": { "fr": "Encaisse et frappe fort au corps à corps.", "en": "Takes the blows and hits hard up close." },
+    "hp": 80, "ap": 7, "mp": 3, "initiative": 100,
+    "spells": ["strike", "axe", "spear"]
+  },
+  {
+    "id": "mage",
+    "name": { "fr": "Mage", "en": "Mage" },
+    "description": { "fr": "Fragile, mais ses étincelles passent par-dessus les obstacles.", "en": "Frail, but their sparks fly over obstacles." },
+    "hp": 55, "ap": 8, "mp": 3, "initiative": 110,
+    "spells": ["staff", "spark", "fireball"]
+  }
+]

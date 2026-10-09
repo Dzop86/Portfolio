@@ -52,7 +52,7 @@ public sealed record FightRecord(
             throw new InvalidFightRecordException($"Unknown record version {Version}.");
         if (!data.Scenarios.ContainsKey(Scenario))
             throw new InvalidFightRecordException($"Unknown scenario '{Scenario}'.");
-        if (Hero?.Problem() is string problem)
+        if (Hero?.Problem(data) is string problem)
             throw new InvalidFightRecordException($"Invalid hero: {problem}");
         var fight = new Fight(data, Scenario, Seed, Hero);
         for (int i = 0; i < Actions.Count; i++)

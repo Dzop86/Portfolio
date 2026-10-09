@@ -8,12 +8,12 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class BalanceTests
 {
-    private static int[] Results(string scenario, int fights)
+    private static int[] Results(string scenario, int fights, Hero? hero = null)
     {
         int[] r = new int[3];
         for (ulong seed = 0; seed < (ulong)fights; seed++)
         {
-            var f = new Fight(Real, scenario, seed);
+            var f = new Fight(Real, scenario, seed, hero);
             Ai.PlayOut(f);
             r[f.WinningTeam ?? 2]++;
         }
@@ -35,6 +35,18 @@ public class BalanceTests
         // The second to play wins about two fights in three (README, limits).
         int[] r = Results("duel", 1000);
         Assert.InRange(r[0], 250, 450);
+        Assert.Equal(0, r[2]);
+    }
+
+    [Theory]
+    [InlineData("sentinel")]
+    [InlineData("guard")]
+    [InlineData("mage")]
+    public void Training_EveryClass_WinsMostFights_ButNotAll(string id)
+    {
+        // Tuned on 5,000 fights: sentinel 69 %, guard 73 %, mage 74 % (README, limits).
+        int[] r = Results("training", 1000, new Hero("Essai", "female-d", id));
+        Assert.InRange(r[0], 600, 800);
         Assert.Equal(0, r[2]);
     }
 }

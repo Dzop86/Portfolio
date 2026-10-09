@@ -52,7 +52,7 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.Scenarios.TryGetValue(scenarioId, out Scenario? s) ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
-        if (hero?.Problem() is string problem)
+        if (hero?.Problem(data) is string problem)
             throw new ArgumentException(problem, nameof(hero));
         Hero = hero;
         Board = data.Board(Scenario.Map);
@@ -61,13 +61,20 @@ public sealed class Fight
         int heroIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 0);
         Fighters = [.. Scenario.Fighters.Select((f, i) =>
         {
-            FighterSpec spec = hero is not null && i == heroIndex ? f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look } : f;
-            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], [.. f.Spells.Select(id => data.Spells[id])]);
+            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data.Class(hero.Class)) : f;
+            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], [.. spec.Spells.Select(id => data.Spells[id])]);
         })];
         // Highest initiative first; equal initiatives keep the scenario's order.
         _order = [.. Fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
         Round = 1;
         _events.Add(new TurnStarted(Current.Id, Round));
+    }
+
+    /// <summary>The scenario's fighter, played by the hero: its name and look, its class's characteristics and spells.</summary>
+    private static FighterSpec AsHero(FighterSpec f, Hero hero, HeroClass? c)
+    {
+        FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
+        return c is null ? spec : spec with { Hp = c.Hp, Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = c.Spells };
     }
 
     public Scenario Scenario { get; }

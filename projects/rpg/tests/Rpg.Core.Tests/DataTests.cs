@@ -8,7 +8,10 @@ public class DataTests
     [Fact]
     public void TheGamesData_LoadsAndIsConsistent()
     {
-        Assert.Equal(["arrow", "club", "sling", "spear", "strike"], Real.Spells.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["arrow", "axe", "club", "fireball", "sling", "spark", "spear", "staff", "strike"], Real.Spells.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["sentinel", "guard", "mage"], Real.Classes.Select(c => c.Id));
+        foreach (HeroClass c in Real.Classes)
+            Assert.False(string.IsNullOrWhiteSpace(c.Description.Fr) || string.IsNullOrWhiteSpace(c.Description.En), c.Id);
         Assert.Equal(["duel", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
         foreach (Spell s in Real.Spells.Values)
             Assert.False(string.IsNullOrWhiteSpace(s.Name.Fr) || string.IsNullOrWhiteSpace(s.Name.En), s.Id);
@@ -27,6 +30,7 @@ public class DataTests
         Assert.Equal(files.Spells, GameData.Embedded.Spells);
         Assert.Equal(files.Maps.Keys, GameData.Embedded.Maps.Keys);
         Assert.Equal(files.Scenarios.Keys, GameData.Embedded.Scenarios.Keys);
+        Assert.Equal(files.Classes.Select(c => c.Id), GameData.Embedded.Classes.Select(c => c.Id));
     }
 
     [Fact]
@@ -52,4 +56,19 @@ public class DataTests
     [InlineData("""{"id":null,"name":{"fr":"a","en":"b"},"apCost":3,"minRange":1,"maxRange":1,"lineOfSight":true,"inLine":false,"damageMin":1,"damageMax":2,"perTurn":1}""")]
     public void ASpellWithAMissingUnknownOrNullField_IsRefused(string json) =>
         Assert.ThrowsAny<JsonException>(() => JsonSerializer.Deserialize<Spell>(json, GameData.Json));
+
+    private static HeroClass Class(string id, params string[] spells) => new(id, Text, Text, 50, 6, 3, 100, spells);
+
+    [Fact]
+    public void InconsistentClasses_AreRefused()
+    {
+        GameData Classes(params HeroClass[] classes) =>
+            new(Spells, [new MapSpec("m", Text, ["AB"])], [new Scenario("s", Text, "m", [Spec(0), Spec(1)])], classes);
+        Assert.Equal(["a", "b"], Classes(Class("a", "strike"), Class("b", "bow")).Classes.Select(c => c.Id));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", "nothing")));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a")));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", [.. Enumerable.Repeat("strike", 10)])));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", "strike"), Class("a", "bow")));
+        Assert.Throws<InvalidDataException>(() => Classes(Class("a", "strike") with { Hp = 0 }));
+    }
 }
