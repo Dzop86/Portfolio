@@ -53,7 +53,7 @@ public partial class Main : Node3D
         _camera.Position = new Vector3(0, 1.1f, 3.0f);
         _camera.LookAt(new Vector3(0, 0.4f, 0));
         _lobbyView = new LobbyView();
-        _lobbyView.LookShown += ShowModel;
+        _lobbyView.PreviewShown += ShowModel;
         _lobbyView.Chosen += hero =>
         {
             _hero = hero;
@@ -78,7 +78,7 @@ public partial class Main : Node3D
     }
 
     /// <summary>The model of a look, turning on a patch of grass next to the form.</summary>
-    private void ShowModel(string look)
+    private void ShowModel(string look, int colour)
     {
         _stage?.QueueFree();
         _stage = new Node3D();
@@ -90,6 +90,7 @@ public partial class Main : Node3D
             Position = new Vector3(0, -0.03f, 0),
         });
         var model = Looks.Fighter(look).Instantiate<Node3D>();
+        Looks.Paint(model, colour);
         _stage.AddChild(model);
         if (model.FindChild("AnimationPlayer", true, false) is AnimationPlayer anim && anim.HasAnimation("idle"))
         {
@@ -187,6 +188,8 @@ public partial class Main : Node3D
             var view = new FighterView();
             AddChild(view);
             view.Setup(f, f.Team == _controller.PlayerTeam);
+            if (fight.Hero is Hero hero && f.Name.Fr == hero.Name)
+                view.Paint(hero.Colour);
             _views[f.Id] = view;
         }
         _hud = new Hud();
@@ -305,8 +308,16 @@ public partial class Main : Node3D
     {
         var problems = new List<string>();
         int checks = 0;
-        if (_controller.Fight.Hero is Hero hero && !_hud.OrderText.Contains(hero.Name, StringComparison.Ordinal))
-            problems.Add($"the turn order does not show the hero {hero.Name}");
+        if (_controller.Fight.Hero is Hero hero)
+        {
+            if (!_hud.OrderText.Contains(hero.Name, StringComparison.Ordinal))
+                problems.Add($"the turn order does not show the hero {hero.Name}");
+            FighterView heroView = _views.Values.Single(v => v.Fighter.Name.Fr == hero.Name);
+            if (heroView.Painted != hero.Colour)
+                problems.Add($"the hero is painted {heroView.Painted?.ToString(CultureInfo.InvariantCulture) ?? "not at all"}, not {hero.Colour}");
+            if (GameData.Embedded.Class(hero.Class) is HeroClass c && !_hud.SpellsText.SequenceEqual(c.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(_hud.Texts.Lang))))
+                problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s spells");
+        }
         SelfPlay.Run(_controller, _ =>
         {
             Task played = Play(instant: true);
@@ -412,6 +423,8 @@ public partial class Main : Node3D
         string hero = "Essai" + string.Concat(suffix.Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))));
         view.CharacterField.Text = hero;
         view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-b"));
+        view.ClassChoice.Select(GameData.Embedded.Classes.ToList().FindIndex(c => c.Id == "mage"));
+        view.ChooseColour(3);
         await view.Create();
         if (_lobby!.Characters.Count != 1 || _lobby.Characters[0].Name != hero)
         {
@@ -422,7 +435,7 @@ public partial class Main : Node3D
             GetTree().Quit(1);
             return;
         }
-        _selfTestNote = $"Hero {hero} (male-b) made on the server and chosen on the login screen.";
+        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3) made on the server and chosen on the login screen.";
         // The character's "fight" button, pressed like a click.
         Button play = view.FindChildren("*", nameof(Button), true, false).OfType<Button>().Single(b => b.Text == view.Texts["lobby.play"]);
         play.EmitSignal(BaseButton.SignalName.Pressed);
@@ -435,14 +448,19 @@ public partial class Main : Node3D
         view.NameField.Text = "capture_" + Guid.NewGuid().ToString("N")[..8];
         view.PasswordField.Text = "screenshot password";
         await view.SignIn(create: true);
-        foreach ((string name, string look) in new[] { ("Margaux", "female-e"), ("Élise", "female-c") })
+        List<HeroClass> classes = [.. GameData.Embedded.Classes];
+        foreach ((string name, string look, string heroClass, int colour) in new[] { ("Margaux", "female-e", "sentinel", 0), ("Élise", "female-c", "mage", 4) })
         {
             view.CharacterField.Text = name;
             view.LookChoice.Select(Hero.Looks.ToList().IndexOf(look));
+            view.ClassChoice.Select(classes.FindIndex(c => c.Id == heroClass));
+            view.ChooseColour(colour);
             await view.Create();
         }
         view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-c"));
-        ShowModel("male-c");
+        view.ClassChoice.Select(classes.FindIndex(c => c.Id == "guard"));
+        view.Refresh();
+        view.ChooseColour(2);
         for (int i = 0; i < 30; i++)
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         Error saved = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);

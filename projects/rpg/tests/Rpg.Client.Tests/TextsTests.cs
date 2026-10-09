@@ -54,4 +54,12 @@ public partial class TextsTests
             Assert.DoesNotContain("-", new Texts("en").Look(look), StringComparison.Ordinal);
         }
     }
+
+    [Fact]
+    public void AClass_IsDescribedWithItsPointsAndSpells()
+    {
+        HeroClass mage = GameData.Embedded.Class("mage")!;
+        Assert.Equal("Fragile, mais ses étincelles passent par-dessus les obstacles. 55 PV · 8 PA · 3 PM · Bâton, Étincelle, Boule de feu", new Texts("fr").Class(mage));
+        Assert.EndsWith("80 HP · 7 AP · 3 MP · Strike, Axe, Spear", new Texts("en").Class(GameData.Embedded.Class("guard")!), StringComparison.Ordinal);
+    }
 }

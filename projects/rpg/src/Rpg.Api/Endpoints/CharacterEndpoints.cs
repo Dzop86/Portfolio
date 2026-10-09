@@ -26,7 +26,7 @@ public static class CharacterEndpoints
         Guid account = AccountId(user);
         CharacterSummary[] list = await db.Characters.Where(c => c.AccountId == account)
             .OrderBy(c => c.CreatedAt).ThenBy(c => c.Name)
-            .Select(c => new CharacterSummary(c.Id, c.Name, c.Look, c.CreatedAt))
+            .Select(c => new CharacterSummary(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt))
             .ToArrayAsync(cancel);
         return TypedResults.Ok(list);
     }
@@ -39,6 +39,11 @@ public static class CharacterEndpoints
             errors["name"] = ["3 to 20 letters, with single hyphens or apostrophes inside."];
         if (request.Look is null || !Hero.Looks.Contains(request.Look))
             errors["look"] = [$"One of: {string.Join(", ", Hero.Looks)}."];
+        // Every new character has a class; the classes come from the rules' own data.
+        if (GameData.Embedded.Class(request.Class) is null)
+            errors["class"] = [$"One of: {string.Join(", ", GameData.Embedded.Classes.Select(c => c.Id))}."];
+        if (request.Colour is < 0 or >= Hero.Colours)
+            errors["colour"] = [$"0 to {Hero.Colours - 1}."];
         if (errors.Count > 0)
             return TypedResults.ValidationProblem(errors);
 
@@ -50,7 +55,7 @@ public static class CharacterEndpoints
         string normalized = request.Name!.ToUpperInvariant();
         if (await db.Characters.AnyAsync(c => c.NormalizedName == normalized, cancel))
             return NameTaken();
-        var character = new Character { AccountId = account, Name = request.Name, NormalizedName = normalized, Look = request.Look!, CreatedAt = clock.GetUtcNow() };
+        var character = new Character { AccountId = account, Name = request.Name, NormalizedName = normalized, Look = request.Look!, Class = request.Class!, Colour = request.Colour, CreatedAt = clock.GetUtcNow() };
         db.Characters.Add(character);
         try
         {
@@ -61,7 +66,7 @@ public static class CharacterEndpoints
             // The same name taken at the same moment by someone else: the unique index decides.
             return NameTaken();
         }
-        return TypedResults.Created($"/api/characters/{character.Id}", new CharacterSummary(character.Id, character.Name, character.Look, character.CreatedAt));
+        return TypedResults.Created($"/api/characters/{character.Id}", new CharacterSummary(character.Id, character.Name, character.Look, character.Class, character.Colour, character.CreatedAt));
     }
 
     internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)

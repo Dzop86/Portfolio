@@ -44,9 +44,9 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary[]>(Json, cancel))!;
     }
 
-    public async Task<CharacterSummary> CreateCharacter(string name, string look, CancellationToken cancel = default)
+    public async Task<CharacterSummary> CreateCharacter(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PostAsJsonAsync("api/characters", new NewCharacter(name, look), Json, cancel);
+        HttpResponseMessage response = await Http.PostAsJsonAsync("api/characters", new NewCharacter(name, look, heroClass, colour), Json, cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }

@@ -52,6 +52,11 @@ public partial class FighterView : Node3D
         Play("idle");
     }
 
+    /// <summary>The player's outfit colour (see <see cref="Looks.Paint"/>).</summary>
+    public void Paint(int colour) => Looks.Paint(_model, colour);
+
+    public int? Painted => Looks.PaintedWith(_model);
+
     /// <summary>Hit points and the ring of the fighter whose turn it is.</summary>
     public void Refresh(bool current = false)
     {

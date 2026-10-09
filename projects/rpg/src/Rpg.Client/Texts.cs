@@ -54,6 +54,9 @@ public sealed class Texts
         ["lobby.wait"] = "Un instant…",
         ["lobby.back"] = "Personnages",
         ["look.female"] = "Femme {0}",
+        ["lobby.colour"] = "Tenue",
+        ["lobby.colour-n"] = "Couleur {0}",
+        ["class"] = "{0} {1} PV · {2} PA · {3} PM · {4}",
         ["look.male"] = "Homme {0}",
         ["lobby.fill-in"] = "Indiquez un nom et un mot de passe.",
         ["lobby.password-short"] = "Le mot de passe compte au moins 10 caractères.",
@@ -62,6 +65,7 @@ public sealed class Texts
         ["lobby.wrong-password"] = "Nom inconnu ou mot de passe faux.",
         ["lobby.name-invalid"] = "Nom du personnage : 3 à 20 lettres, avec des traits d'union ou des apostrophes à l'intérieur.",
         ["lobby.name-taken"] = "Ce nom de personnage est déjà pris sur le serveur.",
+        ["lobby.class-invalid"] = "Choisissez une classe, une apparence et une couleur.",
         ["lobby.too-many-characters"] = "Cinq personnages au plus par compte.",
         ["lobby.session-expired"] = "Session expirée : reconnectez-vous.",
         ["lobby.too-many-tries"] = "Trop d'essais : attendez une minute.",
@@ -117,6 +121,9 @@ public sealed class Texts
         ["lobby.wait"] = "One moment…",
         ["lobby.back"] = "Characters",
         ["look.female"] = "Woman {0}",
+        ["lobby.colour"] = "Outfit",
+        ["lobby.colour-n"] = "Colour {0}",
+        ["class"] = "{0} {1} HP · {2} AP · {3} MP · {4}",
         ["look.male"] = "Man {0}",
         ["lobby.fill-in"] = "Enter a name and a password.",
         ["lobby.password-short"] = "A password has at least 10 characters.",
@@ -125,6 +132,7 @@ public sealed class Texts
         ["lobby.wrong-password"] = "Unknown name or wrong password.",
         ["lobby.name-invalid"] = "Character name: 3 to 20 letters, with hyphens or apostrophes inside.",
         ["lobby.name-taken"] = "This character name is already taken on the server.",
+        ["lobby.class-invalid"] = "Choose a class, a look and a colour.",
         ["lobby.too-many-characters"] = "At most five characters per account.",
         ["lobby.session-expired"] = "Session expired: sign in again.",
         ["lobby.too-many-tries"] = "Too many tries: wait a minute.",
@@ -153,6 +161,14 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(look);
         int dash = look.LastIndexOf('-');
         return dash < 0 ? look : this["look." + look[..dash], look[(dash + 1)..].ToUpperInvariant()];
+    }
+
+    /// <summary>A class as the creation screen describes it: what it does, its points and its spells.</summary>
+    public string Class(HeroClass c)
+    {
+        ArgumentNullException.ThrowIfNull(c);
+        string spells = string.Join(", ", c.Spells.Select(id => GameData.Embedded.Spells.TryGetValue(id, out Spell? s) ? s.Name.In(Lang) : id));
+        return this["class", c.Description.In(Lang), c.Hp, c.Ap, c.Mp, spells];
     }
 
     public string Error(ActionError error) => this["error." + error];

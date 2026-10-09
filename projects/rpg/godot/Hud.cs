@@ -140,6 +140,9 @@ public partial class Hud : CanvasLayer
     public string TurnText => _turn.Text;
     public string StatsText => _stats.Text;
     public string OrderText => _order.Text;
+
+    /// <summary>The spells' names on the bar, in order.</summary>
+    public IEnumerable<string> SpellsText => _controller.Fight.Fighters.First(f => f.Team == _controller.PlayerTeam).Spells.Select((s, i) => _spells[i].Text.Split(". ", 2)[1].Split(" · ")[0]);
     public bool EndShown => _end.Visible;
 
     /// <summary>A label whose box is offset from an anchor point of the screen (0 to 1 on each axis).</summary>

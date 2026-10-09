@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Rpg.Client;
 using Rpg.Core;
@@ -13,11 +14,11 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary elise = await server.CreateCharacter("Élise", "female-c", Cancel);
+        CharacterSummary elise = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
         api.Clock.Advance(TimeSpan.FromMinutes(1));
-        CharacterSummary jean = await server.CreateCharacter("Jean-Luc", "male-a", Cancel);
+        CharacterSummary jean = await server.CreateCharacter("Jean-Luc", "male-a", "sentinel", cancel: Cancel);
         Assert.Equal([elise, jean], await server.Characters(Cancel));
-        Assert.Equal(new Hero("Élise", "female-c"), elise.Hero);
+        Assert.Equal(new Hero("Élise", "female-c", "sentinel"), elise.Hero);
         await server.DeleteCharacter(elise.Id, Cancel);
         Assert.Equal([jean], await server.Characters(Cancel));
         var e = await Assert.ThrowsAsync<ServerException>(() => server.DeleteCharacter(elise.Id, Cancel));
@@ -25,15 +26,19 @@ public class CharacterTests
     }
 
     [Theory]
-    [InlineData("Él", "female-a", "name")]
-    [InlineData("R2D2", "female-a", "name")]
-    [InlineData("Élise", "orc", "look")]
-    [InlineData("Élise", "", "look")]
-    public async Task InvalidCharacters_AreRefused_WithTheFieldAtFault(string name, string look, string field)
+    [InlineData("Él", "female-a", "sentinel", 0, "name")]
+    [InlineData("R2D2", "female-a", "sentinel", 0, "name")]
+    [InlineData("Élise", "orc", "sentinel", 0, "look")]
+    [InlineData("Élise", "", "sentinel", 0, "look")]
+    [InlineData("Élise", "female-a", "dragon", 0, "class")]
+    [InlineData("Élise", "female-a", "", 0, "class")]
+    [InlineData("Élise", "female-a", "mage", 7, "colour")]
+    [InlineData("Élise", "female-a", "mage", -1, "colour")]
+    public async Task InvalidCharacters_AreRefused_WithTheFieldAtFault(string name, string look, string heroClass, int colour, string field)
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(name, look, Cancel));
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(name, look, heroClass, colour, Cancel));
         Assert.Equal(HttpStatusCode.BadRequest, e.Status);
         Assert.Contains(field + ":", e.Message, StringComparison.Ordinal);
     }
@@ -44,8 +49,8 @@ public class CharacterTests
         await using var api = new ApiFactory();
         GameServer first = await api.SignedIn("a");
         GameServer second = await api.SignedIn("b");
-        await first.CreateCharacter("Élise", "female-c", Cancel);
-        var e = await Assert.ThrowsAsync<ServerException>(() => second.CreateCharacter("ÉLISE", "male-b", Cancel));
+        await first.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
+        var e = await Assert.ThrowsAsync<ServerException>(() => second.CreateCharacter("ÉLISE", "male-b", "sentinel", cancel: Cancel));
         Assert.Equal(HttpStatusCode.Conflict, e.Status);
     }
 
@@ -56,8 +61,8 @@ public class CharacterTests
         GameServer server = await api.SignedIn();
         string[] names = ["Anne", "Bruno", "Chloé", "Damien", "Elsa"];
         foreach (string n in names)
-            await server.CreateCharacter(n, "male-d", Cancel);
-        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter("Fanny", "male-d", Cancel));
+            await server.CreateCharacter(n, "male-d", "sentinel", cancel: Cancel);
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter("Fanny", "male-d", "sentinel", cancel: Cancel));
         Assert.Equal(HttpStatusCode.Conflict, e.Status);
         Assert.Equal(Accounts.MaxCharacters, (await server.Characters(Cancel)).Count);
     }
@@ -68,7 +73,7 @@ public class CharacterTests
         await using var api = new ApiFactory();
         GameServer alice = await api.SignedIn("a");
         GameServer bob = await api.SignedIn("b");
-        CharacterSummary hers = await alice.CreateCharacter("Alice", "female-b", Cancel);
+        CharacterSummary hers = await alice.CreateCharacter("Alice", "female-b", "sentinel", cancel: Cancel);
         Assert.Empty(await bob.Characters(Cancel));
         var e = await Assert.ThrowsAsync<ServerException>(() => bob.DeleteCharacter(hers.Id, Cancel));
         Assert.Equal(HttpStatusCode.NotFound, e.Status);
@@ -81,11 +86,41 @@ public class CharacterTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Margaux", "female-e", Cancel);
+        CharacterSummary c = await server.CreateCharacter("Margaux", "female-e", "sentinel", cancel: Cancel);
         var fight = new Fight(GameData.Embedded, "training", 11, (await server.Characters(Cancel)).Single().Hero);
         Ai.PlayOut(fight);
         Fight again = FightRecord.FromJson(FightRecord.Of(fight).ToJson()).Replay(GameData.Embedded);
         Assert.Equal(c.Name, again.Fighters.First(f => f.Team == 0).Name.Fr);
         Assert.Equal(fight.WinningTeam, again.WinningTeam);
+    }
+
+    [Fact]
+    public async Task TheClassAndColour_AreKept_AndTheHeroFightsWithTheClassesSpells()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary made = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        CharacterSummary listed = Assert.Single(await server.Characters(Cancel));
+        Assert.Equal(made, listed);
+        Assert.Equal(new Hero("Élise", "female-c", "mage", 3), listed.Hero);
+        var fight = new Fight(GameData.Embedded, "training", 5, listed.Hero);
+        Assert.Equal(GameData.Embedded.Class("mage")!.Spells, fight.Fighters.First(f => f.Team == 0).Spells.Select(s => s.Id));
+    }
+
+    /// <summary>A database of sprint 47 moves on: its characters, written without a class, become sentinels.</summary>
+    [Fact]
+    public async Task CharactersMadeBeforeClasses_BecomeSentinels()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        Guid account = api.WithDb(db => db.Accounts.Single().Id);
+        // The insert of sprint 47, which did not know the columns.
+        api.WithDb(db => db.Database.ExecuteSql($"""
+            INSERT INTO characters ("Id", "AccountId", "Name", "NormalizedName", "Look", "CreatedAt")
+            VALUES ({Guid.NewGuid()}, {account}, 'Margaux', 'MARGAUX', 'female-e', now())
+            """));
+        CharacterSummary old = Assert.Single(await server.Characters(Cancel));
+        Assert.Equal(("sentinel", 0), (old.Class, old.Colour));
+        Assert.Null(old.Hero.Problem(GameData.Embedded));
     }
 }

@@ -83,7 +83,7 @@ public partial class LobbyTests
         (Lobby lobby, _) = Make(r => expired ? Json(HttpStatusCode.Unauthorized, "{}") : SignedInWithCharacters(r));
         Assert.True(await lobby.SignIn("ada", "correct horse battery", create: false, Cancel));
         expired = true;
-        Assert.False(await lobby.Create("Élise", "female-c", Cancel));
+        Assert.False(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.session-expired", lobby.Problem);
         Assert.False(lobby.SignedIn);
     }
@@ -93,8 +93,21 @@ public partial class LobbyTests
     {
         (Lobby lobby, StandIn server) = Make(r => SignedInWithCharacters(r));
         await lobby.SignIn("ada", "correct horse battery", create: false, Cancel);
-        Assert.False(await lobby.Create("R2D2", "female-c", Cancel));
+        Assert.False(await lobby.Create("R2D2", "female-c", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.name-invalid", lobby.Problem);
+        Assert.Equal(2, server.Requests.Count);
+    }
+
+    [Theory]
+    [InlineData("dragon", 0)]
+    [InlineData("mage", 7)]
+    [InlineData(null, 0)]
+    public async Task AnUnknownClassOrColour_IsRefusedAtOnce(string? heroClass, int colour)
+    {
+        (Lobby lobby, StandIn server) = Make(r => SignedInWithCharacters(r));
+        await lobby.SignIn("ada", "correct horse battery", create: false, Cancel);
+        Assert.False(await lobby.Create("Élise", "female-c", heroClass!, colour, Cancel));
+        Assert.Equal("lobby.class-invalid", lobby.Problem);
         Assert.Equal(2, server.Requests.Count);
     }
 

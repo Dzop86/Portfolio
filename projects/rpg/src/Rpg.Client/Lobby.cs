@@ -44,15 +44,17 @@ public sealed class Lobby(GameServer server)
         });
     }
 
-    public async Task<bool> Create(string name, string look, CancellationToken cancel = default)
+    public async Task<bool> Create(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default)
     {
         if (!Hero.IsValidName(name))
             return Fail("lobby.name-invalid");
+        if (new Hero(name, look, heroClass, colour).Problem(GameData.Embedded) is not null || heroClass is null)
+            return Fail("lobby.class-invalid");
         if (!CanCreate)
             return Fail("lobby.too-many-characters");
         return await Call(async () =>
         {
-            await Server.CreateCharacter(name, look, cancel);
+            await Server.CreateCharacter(name, look, heroClass, colour, cancel);
             Characters = await Server.Characters(cancel);
         }, status => status switch
         {

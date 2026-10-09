@@ -10,13 +10,13 @@ public sealed record AccountCreated(string Name);
 /// <summary>A signed access token (JWT) and the moment it stops working.</summary>
 public sealed record AccessToken(string Token, DateTimeOffset ExpiresAt);
 
-/// <summary>A character to create.</summary>
-public sealed record NewCharacter(string? Name, string? Look);
+/// <summary>A character to create: its name, look, class (<c>data/classes.json</c>) and outfit colour (0 to 6).</summary>
+public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0);
 
 /// <summary>One of the player's characters.</summary>
-public sealed record CharacterSummary(Guid Id, string Name, string Look, DateTimeOffset CreatedAt)
+public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt)
 {
-    public Hero Hero => new(Name, Look);
+    public Hero Hero => new(Name, Look, Class, Colour);
 }
 
 public static class Accounts

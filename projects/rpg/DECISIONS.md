@@ -66,3 +66,15 @@ Le choix du projet et de sa pile (Godot 4 en C#, règles partagées, ASP.NET Cor
 **Pourquoi :** même principe que T8 : la logique se teste en xUnit (contre un faux serveur pour les pannes, contre le vrai pour les refus), et le seul test dans le moteur passe par le chemin d'un joueur.
 **Alternatives :** tester l'écran par des clics simulés à des coordonnées (fragile au moindre déplacement d'un bouton) ; ne tester que l'API (rien ne garantirait que le jeu sait s'en servir).
 **Limites :** l'auto-test contre le serveur ne tourne que sous Linux (le service Docker) ; ailleurs, la CI joue le combat hors ligne. L'adresse du serveur se donne par `--server` (par défaut `http://localhost:8002/`) : le launcher du sprint 50 la fournira.
+
+## T13. Les classes en données, réglées par simulation
+**Choix :** `data/classes.json` décrit chaque classe (nom et description dans les deux langues, PV, PA, PM, initiative, sorts) ; le héros prend celle de sa classe à la place des caractéristiques du scénario. Trois classes aux noms épicènes en français (Sentinelle, Garde, Mage). Le serveur refuse une classe inconnue en lisant les mêmes données ; les personnages créés avant les classes deviennent Sentinelles (valeur par défaut de la migration), le héros qu'ils étaient déjà.
+**Pourquoi :** une classe de plus est une modification de données, comme un monstre (T9) ; l'équilibre se mesure avec `rpg-sim --class` et un test le garde entre 60 et 80 % de victoires à l'entraînement pour chaque classe (leçon du roguelike).
+**Alternatives :** des classes codées (plus libres, mais chaque ajout touche les règles) ; des points de caractéristiques à répartir (prévu plus tard, avec la progression).
+**Limites :** des sorts de dégâts seulement ; l'équilibre est mesuré avec l'IA à la place du joueur, sur un seul scénario.
+
+## T14. La couleur de tenue par un shader de palette
+**Choix :** sept couleurs de tenue (0 à 6). Les modèles de Kenney n'ont qu'une texture, une palette de cases : un shader décale les sept colonnes colorées de la palette, ce qui change vêtements et accessoires ensemble sans toucher à la peau ni aux cheveux. Une pastille montre ce que devient la couleur dominante du modèle choisi, lue dans les coordonnées de texture de son maillage.
+**Pourquoi :** aucun dessin à faire, aucune texture à dupliquer, et une seule valeur entière à stocker sur le serveur et dans les combats enregistrés.
+**Alternatives :** teinter tout le modèle (la peau change aussi) ; peindre des textures par couleur (12 apparences × 7 couleurs de fichiers) ; coiffures et accessoires séparés (les modèles de Kenney n'en ont pas de détachables).
+**Limites :** la couleur dépend de la palette de Kenney : un autre pack demandera un autre shader. Le shader ne se teste que sur les captures et par l'auto-test (qui vérifie la valeur donnée au modèle, pas l'image).

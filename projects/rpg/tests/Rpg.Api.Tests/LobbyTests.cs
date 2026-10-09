@@ -15,7 +15,7 @@ public class LobbyTests
         var lobby = new Lobby(new GameServer(api.CreateClient()));
         Assert.True(await lobby.SignIn("ada_lovelace", "correct horse battery", create: true, Cancel));
         Assert.Empty(lobby.Characters);
-        Assert.True(await lobby.Create("Élise", "female-c", Cancel));
+        Assert.True(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
         CharacterSummary elise = Assert.Single(lobby.Characters);
 
         var fight = new Fight(GameData.Embedded, "training", 3, elise.Hero);
@@ -31,7 +31,7 @@ public class LobbyTests
         await using var api = new ApiFactory();
         var first = new Lobby(new GameServer(api.CreateClient()));
         Assert.True(await first.SignIn("ada_lovelace", "correct horse battery", create: true, Cancel));
-        Assert.True(await first.Create("Élise", "female-c", Cancel));
+        Assert.True(await first.Create("Élise", "female-c", "sentinel", cancel: Cancel));
 
         var second = new Lobby(new GameServer(api.CreateClient()));
         Assert.False(await second.SignIn("Ada_Lovelace", "another long password", create: true, Cancel));
@@ -42,7 +42,7 @@ public class LobbyTests
         Assert.Equal("lobby.account-invalid", second.Problem);
 
         Assert.True(await second.SignIn("grace_hopper", "correct horse battery", create: true, Cancel));
-        Assert.False(await second.Create("ÉLISE", "male-a", Cancel));
+        Assert.False(await second.Create("ÉLISE", "male-a", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.name-taken", second.Problem);
     }
 
@@ -53,9 +53,9 @@ public class LobbyTests
         var lobby = new Lobby(new GameServer(api.CreateClient()));
         await lobby.SignIn("ada_lovelace", "correct horse battery", create: true, Cancel);
         foreach (string name in new[] { "Anne", "Bruno", "Chloé", "Damien", "Elsa" })
-            Assert.True(await lobby.Create(name, "male-d", Cancel), lobby.Problem);
+            Assert.True(await lobby.Create(name, "male-d", "sentinel", cancel: Cancel), lobby.Problem);
         Assert.False(lobby.CanCreate);
-        Assert.False(await lobby.Create("Fanny", "male-d", Cancel));
+        Assert.False(await lobby.Create("Fanny", "male-d", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.too-many-characters", lobby.Problem);
     }
 
@@ -66,7 +66,7 @@ public class LobbyTests
         var lobby = new Lobby(new GameServer(api.CreateClient()));
         await lobby.SignIn("ada_lovelace", "correct horse battery", create: true, Cancel);
         api.Clock.Advance(TimeSpan.FromHours(13));
-        Assert.False(await lobby.Create("Élise", "female-c", Cancel));
+        Assert.False(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
         Assert.Equal("lobby.session-expired", lobby.Problem);
         Assert.False(lobby.SignedIn);
     }

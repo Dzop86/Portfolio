@@ -14,7 +14,10 @@ public sealed class Account
     public List<Character> Characters { get; } = [];
 }
 
-/// <summary>A character: unique name over the whole server (case aside), a look among the playable ones.</summary>
+/// <summary>
+/// A character: unique name over the whole server (case aside), a look among the playable ones, a
+/// class of <c>data/classes.json</c> and an outfit colour.
+/// </summary>
 public sealed class Character
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -23,5 +26,7 @@ public sealed class Character
     public required string Name { get; set; }
     public required string NormalizedName { get; set; }
     public required string Look { get; set; }
+    public required string Class { get; set; }
+    public int Colour { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

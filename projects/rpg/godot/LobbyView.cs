@@ -14,7 +14,8 @@ public partial class LobbyView : CanvasLayer
     private Lobby _lobby = null!;
     private string _serverUrl = "";
     private VBoxContainer _signInForm = null!, _charactersForm = null!, _list = null!;
-    private Label _title = null!, _server = null!, _message = null!, _listTitle = null!;
+    private Label _title = null!, _server = null!, _message = null!, _listTitle = null!, _classText = null!, _colourLabel = null!;
+    private readonly List<Button> _swatches = [];
     private Button _signIn = null!, _signUp = null!, _offline = null!, _create = null!, _signOut = null!, _lang = null!;
     private bool _busy;
 
@@ -24,11 +25,23 @@ public partial class LobbyView : CanvasLayer
     public LineEdit PasswordField { get; private set; } = null!;
     public LineEdit CharacterField { get; private set; } = null!;
     public OptionButton LookChoice { get; private set; } = null!;
+    public OptionButton ClassChoice { get; private set; } = null!;
+
+    /// <summary>The outfit colour chosen (0 to 6): see <see cref="Looks.Paint"/>.</summary>
+    public int Colour { get; private set; }
 
     public event Action<Hero?>? Chosen;
-    public event Action<string>? LookShown;
+
+    /// <summary>The model to show next to the form: a look and an outfit colour.</summary>
+    public event Action<string, int>? PreviewShown;
 
     public string Look => Hero.Looks[Math.Max(0, LookChoice.Selected)];
+
+    public HeroClass Class => GameData.Embedded.Classes[Math.Max(0, ClassChoice.Selected)];
+
+    /// <summary>The palette's coloured columns, green to purple: a swatch shows what the look's main colour becomes.</summary>
+    private static readonly Color[] SwatchColours =
+        [new("5fc98a"), new("ffbf45"), new("ff7f45"), new("cc5252"), new("6496d8"), new("cfe4ff"), new("a876e0")];
 
     public string MessageText => _message.Text;
 
@@ -42,8 +55,8 @@ public partial class LobbyView : CanvasLayer
         panel.AnchorTop = panel.AnchorBottom = 0.5f;
         panel.OffsetLeft = -560;
         panel.OffsetRight = -40;
-        panel.OffsetTop = -300;
-        panel.OffsetBottom = 300;
+        panel.OffsetTop = -345;
+        panel.OffsetBottom = 345;
         AddChild(panel);
         var margin = new MarginContainer();
         foreach (string side in new[] { "left", "right", "top", "bottom" })
@@ -91,6 +104,7 @@ public partial class LobbyView : CanvasLayer
         _list = new VBoxContainer();
         _list.AddThemeConstantOverride("separation", 6);
         _charactersForm.AddChild(_list);
+        // The new character: name and look, class, outfit colour.
         var create = new HBoxContainer();
         create.AddThemeConstantOverride("separation", 10);
         _charactersForm.AddChild(create);
@@ -101,9 +115,42 @@ public partial class LobbyView : CanvasLayer
         foreach (string look in Hero.Looks)
             LookChoice.AddItem(look);
         LookChoice.Select(0);
-        LookChoice.ItemSelected += _ => LookShown?.Invoke(Look);
+        LookChoice.ItemSelected += _ => ShowPreview();
         create.AddChild(LookChoice);
-        _create = Button(create, () => _ = Create());
+        var classRow = new HBoxContainer();
+        classRow.AddThemeConstantOverride("separation", 10);
+        _charactersForm.AddChild(classRow);
+        ClassChoice = new OptionButton { CustomMinimumSize = new Vector2(150, 44) };
+        foreach (HeroClass c in GameData.Embedded.Classes)
+            ClassChoice.AddItem(c.Id);
+        ClassChoice.Select(0);
+        ClassChoice.ItemSelected += _ => Refresh();
+        classRow.AddChild(ClassChoice);
+        _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, VerticalAlignment = VerticalAlignment.Center };
+        _classText.AddThemeFontSizeOverride("font_size", 14);
+        classRow.AddChild(_classText);
+        var colourRow = new HBoxContainer();
+        colourRow.AddThemeConstantOverride("separation", 6);
+        _charactersForm.AddChild(colourRow);
+        _colourLabel = new Label { VerticalAlignment = VerticalAlignment.Center };
+        colourRow.AddChild(_colourLabel);
+        for (int i = 0; i < Hero.Colours; i++)
+        {
+            int colour = i;
+            var swatch = new Button { CustomMinimumSize = new Vector2(44, 44), ToggleMode = true };
+            var box = new StyleBoxFlat { BgColor = SwatchColours[i], CornerRadiusTopLeft = 6, CornerRadiusTopRight = 6, CornerRadiusBottomLeft = 6, CornerRadiusBottomRight = 6 };
+            var chosen = (StyleBoxFlat)box.Duplicate();
+            chosen.BorderColor = Colors.White;
+            chosen.SetBorderWidthAll(4);
+            swatch.AddThemeStyleboxOverride("normal", box);
+            swatch.AddThemeStyleboxOverride("hover", box);
+            swatch.AddThemeStyleboxOverride("pressed", chosen);
+            swatch.Pressed += () => ChooseColour(colour);
+            colourRow.AddChild(swatch);
+            _swatches.Add(swatch);
+        }
+        colourRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        _create = Button(colourRow, () => _ = Create());
         _signOut = Button(_charactersForm, () =>
         {
             _lobby.SignOut();
@@ -114,7 +161,27 @@ public partial class LobbyView : CanvasLayer
         _message.AddThemeColorOverride("font_color", new Color("ffb4a2"));
         column.AddChild(_message);
         Refresh();
-        LookShown?.Invoke(Look);
+        ShowPreview();
+    }
+
+    public void ChooseColour(int colour)
+    {
+        Colour = colour;
+        for (int i = 0; i < _swatches.Count; i++)
+            _swatches[i].SetPressedNoSignal(i == colour);
+        ShowPreview();
+    }
+
+    private void ShowPreview()
+    {
+        int main = Looks.MainColumn(Look);
+        for (int i = 0; i < _swatches.Count; i++)
+        {
+            Color colour = SwatchColours[(main - 1 + i) % Hero.Colours];
+            foreach (string state in new[] { "normal", "hover", "pressed" })
+                ((StyleBoxFlat)_swatches[i].GetThemeStylebox(state)).BgColor = colour;
+        }
+        PreviewShown?.Invoke(Look, Colour);
     }
 
     /// <summary>The sign-in (or sign-up) button.</summary>
@@ -132,7 +199,7 @@ public partial class LobbyView : CanvasLayer
     {
         if (_busy)
             return;
-        if (await Busy(() => _lobby.Create(CharacterField.Text.Trim(), Look)))
+        if (await Busy(() => _lobby.Create(CharacterField.Text.Trim(), Look, Class.Id, Colour)))
             CharacterField.Text = "";
     }
 
@@ -173,6 +240,15 @@ public partial class LobbyView : CanvasLayer
         _signOut.Text = Texts["lobby.sign-out"];
         for (int i = 0; i < Hero.Looks.Count; i++)
             LookChoice.SetItemText(i, Texts.Look(Hero.Looks[i]));
+        for (int i = 0; i < GameData.Embedded.Classes.Count; i++)
+            ClassChoice.SetItemText(i, GameData.Embedded.Classes[i].Name.In(Texts.Lang));
+        _classText.Text = Texts.Class(Class);
+        _colourLabel.Text = Texts["lobby.colour"];
+        for (int i = 0; i < _swatches.Count; i++)
+        {
+            _swatches[i].TooltipText = Texts["lobby.colour-n", i + 1];
+            _swatches[i].SetPressedNoSignal(i == Colour);
+        }
         _message.Text = _lobby.Problem is string key ? Texts[key] : "";
         _signInForm.Visible = !_lobby.SignedIn;
         _charactersForm.Visible = _lobby.SignedIn;
@@ -189,9 +265,10 @@ public partial class LobbyView : CanvasLayer
             var row = new HBoxContainer();
             row.AddThemeConstantOverride("separation", 10);
             _list.AddChild(row);
-            var name = new Button { Text = $"{c.Name}  ·  {Texts.Look(c.Look)}", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 44) };
-            name.MouseEntered += () => LookShown?.Invoke(c.Look);
-            name.MouseExited += () => LookShown?.Invoke(Look);
+            string className = GameData.Embedded.Class(c.Class)?.Name.In(Texts.Lang) ?? c.Class;
+            var name = new Button { Text = $"{c.Name}  ·  {className}  ·  {Texts.Look(c.Look)}", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(0, 44) };
+            name.MouseEntered += () => PreviewShown?.Invoke(c.Look, c.Colour);
+            name.MouseExited += ShowPreview;
             row.AddChild(name);
             Button(row, () => Chosen?.Invoke(c.Hero)).Text = Texts["lobby.play"];
             Button(row, async () =>

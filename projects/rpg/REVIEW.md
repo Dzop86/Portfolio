@@ -11,6 +11,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 46 : `src/Rpg.Client/FightController.cs` (ce qu'un clic peut faire) et `godot/Main.cs` (enchaînement des animations, tours de l'IA, auto-test).
 - [ ] Sprint 47 : le serveur (`docker compose up --build rpg-api`, puis http://localhost:8002/swagger) et l'écran de connexion du jeu (`godot --path godot -- --lang fr`) : créer un compte, des personnages, en supprimer, se tromper de mot de passe, couper le serveur.
 - [ ] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
+- [ ] Sprint 48 : créer un personnage de chaque classe et jouer l'entraînement avec : les classes te semblent-elles différentes et équilibrées (`data/classes.json`) ? Les couleurs de tenue sur les différentes apparences.
 
 ## Constats
 
@@ -33,4 +34,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `scripts/smoke.sh` | (Claude) Premier essai arrêté net (code 141) : `tr < /dev/urandom \| head` reçoit SIGPIPE, fatal avec `pipefail` | Nom tiré avec `$RANDOM`, essai vert contre l'image Docker |
 | 2026-10-09 | `godot/Main.cs` (`--shot lobby`) | (Claude) Vu sur la première capture de l'écran de connexion : modèle 3D trop gros qui débordait de son socle, tuile d'herbe décalée, apparences affichées par leur identifiant (« female-e ») | Modèle à l'échelle du plateau, disque d'herbe centré, `Texts.Look` (« Femme E », « Woman E ») et son test |
 | 2026-10-09 | `godot/LobbyView.cs`, `godot/Main.cs` | (Claude) Première compilation : `_ => _ = SignIn(...)` assignait la tâche au paramètre `_` au lieu de l'ignorer, et `HttpClient` était ambigu avec celui de Godot | Paramètre nommé, `System.Net.Http.HttpClient` écrit en entier |
+| 2026-10-09 | `data/classes.json` | (Claude) Mesuré par simulation avant d'écrire les tests : la Garde telle que je l'avais imaginée perdait 2 000 combats d'entraînement sur 2 000, la Mage en gagnait 8 | Garde 7 PA et Hache 9-12, Mage 55 PV, 8 PA, Étincelle 4-6 deux fois par tour : 73 et 74 % sur 5 000 combats ; test d'équilibre par classe |
+| 2026-10-09 | `godot/LobbyView.cs` | (Claude) Vu sur la capture : les pastilles montraient les colonnes de la palette, pas le résultat (pastille orange, tenue violette) | `Looks.MainColumn` lit la couleur dominante du modèle ; chaque pastille montre ce qu'elle devient |
+| 2026-10-09 | `tests/Rpg.Api.Tests/CharacterTests.cs` | (Claude) Mon premier test de migration relisait la valeur par défaut qu'il venait lui-même d'écrire : il ne prouvait rien | Remplacé par une ligne insérée sans classe, comme au sprint 47, relue par l'API |
+| 2026-10-09 | mutations | (Claude) Deux de mes trois premières mutations ne compilaient pas (code inaccessible, nullabilité) : elles ne testaient rien | Réécrites pour compiler : 3 sur 3 attrapées |
 | | | | |
