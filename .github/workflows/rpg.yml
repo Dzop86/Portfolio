@@ -88,7 +88,7 @@ jobs:
         run: dotnet test --project tests/Rpg.Api.Tests -c Release
 
   docker:
-    name: Accounts and characters API (Docker image, compose, end to end)
+    name: Accounts and characters API (Docker image, compose, end to end with the game)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -99,6 +99,24 @@ jobs:
           for i in $(seq 1 60); do curl -fsS http://localhost:8002/health && break; sleep 1; done
       - name: End to end (sign up, sign in, characters, refusals, 413)
         run: scripts/smoke.sh http://localhost:8002
+      # The Godot client against the same server: sign-up, a character made and chosen on the login
+      # screen through its own fields and buttons, then a whole fight with that hero.
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: projects/rpg/global.json
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: true
+          include-templates: false
+      - run: dotnet build godot/Rpg.Godot.csproj
+      - run: godot --headless --path godot --import
+      - name: The game's login screen against the server
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --lobby-selftest --server http://localhost:8002 --seed 9 --report "$RUNNER_TEMP/lobby.txt"
+          cat "$RUNNER_TEMP/lobby.txt"
+          grep -q "SELFTEST OK seed 9: .* made on the server and chosen on the login screen." "$RUNNER_TEMP/lobby.txt"
       - name: API logs
         if: always()
         working-directory: ${{ github.workspace }}

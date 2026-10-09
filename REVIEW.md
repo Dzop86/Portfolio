@@ -21,6 +21,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 ## Sprint 46 : à relire
 - [ ] Le client Godot du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le jeu chez toi, contrôleur et enchaînement).
+- [ ] Le serveur des comptes et l'écran de connexion du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le serveur et l'écran chez toi, ce que vérifie le serveur et ce que voit le joueur).
 
 ## Constats
 

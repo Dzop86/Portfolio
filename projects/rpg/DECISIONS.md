@@ -49,3 +49,20 @@ Le choix du projet et de sa pile (Godot 4 en C#, règles partagées, ASP.NET Cor
 **Choix :** les fichiers de `data/` sont intégrés à `Rpg.Core` (ressources) ; chaque combattant y a un `look`, le nom de son modèle 3D, que les règles ignorent.
 **Pourquoi :** le jeu exporté n'a pas le dossier du dépôt ; le serveur (sprint 47) lira les mêmes données. Un nouveau monstre reste une modification de données, apparence comprise.
 **Limites :** changer les données demande de recompiler ; le simulateur garde `--data` pour essayer un dossier modifié.
+
+## T10. Un serveur calqué sur celui du roguelike
+**Choix :** API minimale ASP.NET Core, jetons JWT signés HMAC-SHA256 (12 heures, clé par variable d'environnement), mots de passe hachés par le `PasswordHasher` d'ASP.NET Core Identity (PBKDF2), EF Core 10 et PostgreSQL, migrations `dotnet ef`, limite d'essais par adresse sur l'inscription et la connexion, OpenAPI et Swagger UI ; image Docker « chiseled » et service compose `rpg-api` sur le port 8002. Noms uniques sans tenir compte de la casse par un index unique sur le nom en majuscules.
+**Pourquoi :** la même pile que l'API de scores du roguelike (sprint 24), déjà relue et testée : le portfolio montre une façon de faire qui se répète, pas une nouvelle à chaque projet. L'index unique tranche entre deux créations simultanées, ce qu'une vérification préalable ne fait pas.
+**Alternatives :** ASP.NET Core Identity complet (tables, confirmation d'e-mail, réinitialisation : beaucoup plus que nécessaire, et un e-mail que le jeu n'a aucune raison de demander) ; un fournisseur externe (OpenID Connect : une dépendance et un compte de plus pour le joueur) ; SQLite (plus simple, mais pas ce que le multijoueur demandera).
+**Limites :** pas de jeton de rafraîchissement, de changement de mot de passe ni de suppression de compte ; la limite de cinq personnages se vérifie avant l'insertion (deux créations simultanées sur un compte pourraient passer) ; HTTP seulement, un proxy HTTPS sera nécessaire en ligne.
+
+## T11. Deux noms : le compte et le personnage
+**Choix :** le nom de compte (3 à 20 lettres sans accent, chiffres, `-`, `_`) sert à se connecter et ne s'affiche pas ; le nom de personnage (3 à 20 lettres, accents compris, traits d'union et apostrophes à l'intérieur, `Hero.IsValidName` de `Rpg.Core`) est celui qu'on voit en combat, unique sur tout le serveur.
+**Pourquoi :** comme dans Dofus, un joueur a plusieurs personnages ; le serveur et le jeu valident le nom de personnage avec la même fonction, et un nom de connexion en ASCII évite les surprises de normalisation Unicode à la saisie.
+**Limites :** pas de liste de noms interdits (insultes, noms de PNJ) : à ajouter avec la ville (sprint 49).
+
+## T12. L'écran de connexion hors du moteur, et un auto-test contre le serveur
+**Choix :** `Lobby` (dans `Rpg.Client`, sans Godot) porte ce que l'écran peut faire et transforme chaque refus du serveur en une clé de texte traduite ; `LobbyView` ne fait que le dessiner. `--lobby-selftest` remplit les vrais champs, appuie sur les vrais boutons (inscription, création, « Combattre »), puis enchaîne l'auto-test du combat avec ce héros ; la CI le lance contre l'image Docker servie par compose. Sans serveur, « Jouer hors ligne » garde le combat du sprint 46.
+**Pourquoi :** même principe que T8 : la logique se teste en xUnit (contre un faux serveur pour les pannes, contre le vrai pour les refus), et le seul test dans le moteur passe par le chemin d'un joueur.
+**Alternatives :** tester l'écran par des clics simulés à des coordonnées (fragile au moindre déplacement d'un bouton) ; ne tester que l'API (rien ne garantirait que le jeu sait s'en servir).
+**Limites :** l'auto-test contre le serveur ne tourne que sous Linux (le service Docker) ; ailleurs, la CI joue le combat hors ligne. L'adresse du serveur se donne par `--server` (par défaut `http://localhost:8002/`) : le launcher du sprint 50 la fournira.

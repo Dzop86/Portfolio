@@ -1253,7 +1253,7 @@ godot --path godot                                 # ${esc(t('rogue.godot'))}</c
 </section>`;
 }
 
-// The tactical RPG (D54): two pictures taken by the Godot client itself, how to run it, where to download it.
+// The tactical RPG (D54): pictures taken by the Godot client itself (login screen, fight), how to run it, where to download it.
 function rpgScreenshots(t, lang) {
   const shot = (name, alt, caption) => `<figure class="naval-shot rogue-shot">
     <img src="../assets/images/rpg-${name}-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t(alt))}">
@@ -1262,12 +1262,14 @@ function rpgScreenshots(t, lang) {
   return `<section class="block panel" aria-labelledby="h-rpg">
   <h2 id="h-rpg">${esc(t('rpg.title'))}</h2>
   <p>${esc(t('rpg.lead'))}</p>
+  ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
   <p class="meta">${esc(t('rpg.made'))}</p>
   <p>${esc(t('rpg.run'))}</p>
   <pre class="naval-run" tabindex="0"><code>cd projects/rpg
 dotnet run --project src/Rpg.Sim -- --simulate 100 --lang ${lang}   # ${esc(t('rpg.sim'))}
+docker compose up --build rpg-api                                   # ${esc(t('rpg.api'))}
 dotnet build godot/Rpg.Godot.csproj
 godot --path godot -- --lang ${lang}                                # ${esc(t('rpg.godot'))}</code></pre>
   <p>${esc(t('rpg.download'))} <a href="https://github.com/Dzop86/Portfolio/actions/workflows/rpg.yml">${esc(t('rpg.downloadLink'))}</a></p>

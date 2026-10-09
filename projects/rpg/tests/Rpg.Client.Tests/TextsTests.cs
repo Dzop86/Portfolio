@@ -42,4 +42,16 @@ public partial class TextsTests
         Assert.Equal("Flèche (4 PA, portée 2-6)", fr.Spell(GameData.Embedded.Spells["arrow"]));
         Assert.Equal("en", new Texts("de").Lang);
     }
+
+    [Fact]
+    public void EveryPlayableLook_HasAName_InBothLanguages()
+    {
+        Assert.Equal("Femme C", new Texts("fr").Look("female-c"));
+        Assert.Equal("Man F", new Texts("en").Look("male-f"));
+        foreach (string look in Hero.Looks)
+        {
+            Assert.DoesNotContain("-", new Texts("fr").Look(look), StringComparison.Ordinal);
+            Assert.DoesNotContain("-", new Texts("en").Look(look), StringComparison.Ordinal);
+        }
+    }
 }

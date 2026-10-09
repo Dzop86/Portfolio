@@ -37,6 +37,36 @@ public sealed class Texts
         ["error.OffBoard"] = "Hors du plateau.",
         ["error.UnknownSpell"] = "Sort inconnu.",
         ["error.FightOver"] = "Le combat est fini.",
+        ["lobby.title"] = "RPG tactique",
+        ["lobby.name"] = "Nom de compte",
+        ["lobby.password"] = "Mot de passe",
+        ["lobby.sign-in"] = "Se connecter",
+        ["lobby.sign-up"] = "Créer le compte",
+        ["lobby.offline"] = "Jouer hors ligne",
+        ["lobby.server"] = "Serveur : {0}",
+        ["lobby.characters"] = "Vos personnages ({0}/{1})",
+        ["lobby.none"] = "Aucun personnage : créez-en un.",
+        ["lobby.character-name"] = "Nom du personnage",
+        ["lobby.create"] = "Créer",
+        ["lobby.play"] = "Combattre",
+        ["lobby.delete"] = "Supprimer",
+        ["lobby.sign-out"] = "Se déconnecter",
+        ["lobby.wait"] = "Un instant…",
+        ["lobby.back"] = "Personnages",
+        ["look.female"] = "Femme {0}",
+        ["look.male"] = "Homme {0}",
+        ["lobby.fill-in"] = "Indiquez un nom et un mot de passe.",
+        ["lobby.password-short"] = "Le mot de passe compte au moins 10 caractères.",
+        ["lobby.account-invalid"] = "Nom de compte : 3 à 20 lettres sans accent, chiffres, « - » ou « _ ».",
+        ["lobby.account-taken"] = "Ce nom de compte est déjà pris.",
+        ["lobby.wrong-password"] = "Nom inconnu ou mot de passe faux.",
+        ["lobby.name-invalid"] = "Nom du personnage : 3 à 20 lettres, avec des traits d'union ou des apostrophes à l'intérieur.",
+        ["lobby.name-taken"] = "Ce nom de personnage est déjà pris sur le serveur.",
+        ["lobby.too-many-characters"] = "Cinq personnages au plus par compte.",
+        ["lobby.session-expired"] = "Session expirée : reconnectez-vous.",
+        ["lobby.too-many-tries"] = "Trop d'essais : attendez une minute.",
+        ["lobby.server-error"] = "Le serveur a rencontré une erreur.",
+        ["lobby.unreachable"] = "Serveur injoignable : vous pouvez jouer hors ligne.",
     };
 
     internal static readonly IReadOnlyDictionary<string, string> En = new Dictionary<string, string>
@@ -70,6 +100,36 @@ public sealed class Texts
         ["error.OffBoard"] = "Off the board.",
         ["error.UnknownSpell"] = "Unknown spell.",
         ["error.FightOver"] = "The fight is over.",
+        ["lobby.title"] = "Tactical RPG",
+        ["lobby.name"] = "Account name",
+        ["lobby.password"] = "Password",
+        ["lobby.sign-in"] = "Sign in",
+        ["lobby.sign-up"] = "Create the account",
+        ["lobby.offline"] = "Play offline",
+        ["lobby.server"] = "Server: {0}",
+        ["lobby.characters"] = "Your characters ({0}/{1})",
+        ["lobby.none"] = "No character yet: create one.",
+        ["lobby.character-name"] = "Character name",
+        ["lobby.create"] = "Create",
+        ["lobby.play"] = "Fight",
+        ["lobby.delete"] = "Delete",
+        ["lobby.sign-out"] = "Sign out",
+        ["lobby.wait"] = "One moment…",
+        ["lobby.back"] = "Characters",
+        ["look.female"] = "Woman {0}",
+        ["look.male"] = "Man {0}",
+        ["lobby.fill-in"] = "Enter a name and a password.",
+        ["lobby.password-short"] = "A password has at least 10 characters.",
+        ["lobby.account-invalid"] = "Account name: 3 to 20 unaccented letters, digits, '-' or '_'.",
+        ["lobby.account-taken"] = "This account name is already taken.",
+        ["lobby.wrong-password"] = "Unknown name or wrong password.",
+        ["lobby.name-invalid"] = "Character name: 3 to 20 letters, with hyphens or apostrophes inside.",
+        ["lobby.name-taken"] = "This character name is already taken on the server.",
+        ["lobby.too-many-characters"] = "At most five characters per account.",
+        ["lobby.session-expired"] = "Session expired: sign in again.",
+        ["lobby.too-many-tries"] = "Too many tries: wait a minute.",
+        ["lobby.server-error"] = "The server ran into an error.",
+        ["lobby.unreachable"] = "Server unreachable: you can play offline.",
     };
 
     private readonly IReadOnlyDictionary<string, string> _table;
@@ -86,6 +146,14 @@ public sealed class Texts
         string.Format(CultureInfo.InvariantCulture, _table[key], args);
 
     public string Name(Fighter f) => (f ?? throw new ArgumentNullException(nameof(f))).Name.In(Lang);
+
+    /// <summary>A playable look as the player reads it: "female-c" is "Femme C" or "Woman C".</summary>
+    public string Look(string look)
+    {
+        ArgumentNullException.ThrowIfNull(look);
+        int dash = look.LastIndexOf('-');
+        return dash < 0 ? look : this["look." + look[..dash], look[(dash + 1)..].ToUpperInvariant()];
+    }
 
     public string Error(ActionError error) => this["error." + error];
 

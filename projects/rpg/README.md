@@ -4,7 +4,7 @@
 
 Un RPG tactique au tour par tour, dans l'esprit de Dofus et de Wakfu, écrit de zéro : aucun code, aucun nom, aucune image d'Ankama (D54). Six sprints : les règles du combat (sprint 45, ce dossier), le combat isométrique dans Godot 4 (46), le serveur de comptes et de personnages (47), la création de personnage (48), la ville d'accueil et ses PNJ (49), le launcher en Rust et les exécutables (50). Solo d'abord ; le multijoueur viendra plus tard, sur ces mêmes règles.
 
-*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 46: a Godot 4 C# desktop client (isometric 3D board, Kenney's free animated models, mouse and keyboard play against the AI, a self-test that plays a whole fight through the controls, builds for Windows, macOS and Linux). Sprint 45: the combat rules in a deterministic C# library (isometric grid, action and movement points, A* paths, exact line of sight, spells, initiative, an AI), described by data files, recorded fights that replay roll for roll on Linux, Windows and macOS, and a terminal simulator.*
+*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 47: an ASP.NET Core server for accounts and characters (JWT, PBKDF2 password hashes, rate limit, EF Core and PostgreSQL, OpenAPI, Docker), and the game's login and character screen, tested end to end against it, with an offline mode. Sprint 46: a Godot 4 C# desktop client (isometric 3D board, Kenney's free animated models, mouse and keyboard play against the AI, a self-test that plays a whole fight through the controls, builds for Windows, macOS and Linux). Sprint 45: the combat rules in a deterministic C# library (isometric grid, action and movement points, A* paths, exact line of sight, spells, initiative, an AI), described by data files, recorded fights that replay roll for roll on Linux, Windows and macOS, and a terminal simulator.*
 
 ## Les règles
 - **Le plateau** est une grille de cases dessinées en losanges (vue isométrique). On se déplace vers l'une des quatre cases qui partagent un côté ; toutes les distances se comptent en pas, donc une portée dessine un losange autour du lanceur. Trois terrains : le sol, les obstacles (ni passage ni vue) et les trous (pas de passage, mais les sorts passent au-dessus).
@@ -25,13 +25,15 @@ Un RPG tactique au tour par tour, dans l'esprit de Dofus et de Wakfu, écrit de 
 Avec le SDK .NET 10 et Godot 4.7 (version .NET) :
 ```sh
 dotnet build godot/Rpg.Godot.csproj
-godot --path godot -- --lang fr            # options : --scenario duel, --seed 7
+docker compose up --build rpg-api          # depuis la racine du dépôt : le serveur, sur le port 8002
+godot --path godot -- --lang fr            # options : --server URL, --offline, --scenario duel, --seed 7
 ```
-Ou sans rien installer : les exécutables Windows, macOS et Linux produits par la CI (artefacts du workflow `rpg`, non signés : Windows et macOS avertissent au premier lancement).
+Le jeu s'ouvre sur l'écran de connexion : créer un compte ou se connecter, puis créer un personnage (un nom et l'une des 12 apparences, dont le modèle tourne à côté du formulaire) et le choisir pour combattre ; à la fin du combat, « Personnages » ramène à la liste. Sans serveur, « Jouer hors ligne » lance le combat avec l'héroïne du scénario. Ou sans rien installer : les exécutables Windows, macOS et Linux produits par la CI (artefacts du workflow `rpg`, non signés : Windows et macOS avertissent au premier lancement).
 
 - **Souris** : survoler une case montre le chemin (jaune) parmi les cases atteignables (bleu clair) ; cliquer s'y rend. Avec un sort choisi, sa portée est marquée, les cases qu'il peut toucher en bleu, la cible en rouge ; clic droit pour annuler.
 - **Clavier** : 1, 2, 3 choisissent un sort, Échap annule, Espace finit le tour. Le bouton FR/EN change de langue.
 
+![Connexion](../../src/assets/images/rpg-lobby-fr.png)
 ![Combat](../../src/assets/images/rpg-spell-fr.png)
 
 ## Organisation
@@ -45,8 +47,14 @@ Ou sans rien installer : les exécutables Windows, macOS et Linux produits par l
   - `FightRecord.cs` : un combat enregistré (scénario, graine, actions) et son rejeu.
   - `Data.cs` : sorts, cartes et scénarios lus depuis `data/`, refusés s'ils sont incohérents.
 - **`src/Rpg.Sim`** : le simulateur en ligne de commande.
+- **`src/Rpg.Api`** (ASP.NET Core, API minimale) : le serveur des comptes et des personnages.
+  - `POST /api/accounts` (créer un compte), `POST /api/tokens` (se connecter : un jeton JWT valable 12 heures), `GET`, `POST /api/characters` et `DELETE /api/characters/{id}` (avec le jeton) ; description OpenAPI sur `/openapi/v1.json`, Swagger UI sur `/swagger`.
+  - Mots de passe hachés par PBKDF2 (le `PasswordHasher` d'ASP.NET Core Identity) ; un nom inconnu coûte autant qu'un mauvais mot de passe, et la réponse est la même. Inscription et connexion limitées à 10 essais par minute et par adresse.
+  - Noms de compte uniques, noms de personnage uniques sur tout le serveur, sans tenir compte de la casse (index unique sur le nom en majuscules : deux créations simultanées ne passent pas toutes les deux) ; cinq personnages au plus par compte ; le personnage d'un autre se comporte comme un personnage absent (404).
+  - EF Core 10 et PostgreSQL (Npgsql), migrations par `dotnet ef` (outil épinglé dans `.config/dotnet-tools.json`), appliquées au démarrage. Image Docker « chiseled » (sans shell, utilisateur non root), service `rpg-api` de `compose.yaml` avec sa base `rpg-db`, qui n'est pas exposée.
+- **`src/Rpg.Client`** : en plus du combat, `GameServer` (les appels HTTP du jeu, partagés avec les tests) et `Lobby` (ce que l'écran de connexion peut faire : chaque refus devient un message des deux langues, les vérifications du serveur sont faites d'abord sur place, un serveur injoignable propose le jeu hors ligne).
 - **`src/Rpg.Client`** (sans Godot) : le côté joueur d'un combat, testé sans moteur : sort choisi, aperçu au survol (`Hover`), clic (`Click`), fin de tour, tours de l'IA, textes français et anglais, et `SelfPlay`, qui joue un combat entier en passant par ces commandes.
-- **`godot/`** : le client Godot 4.7 en C#. Il ne fait que dessiner : `BoardView` (plateau 3D, surbrillances, case sous la souris par un rayon de la caméra), `FighterView` (modèle animé, anneau d'équipe, PV, dégâts), `Hud` (tour, ordre de jeu, sorts, journal, fin), `Main` (enchaîne les animations, fait jouer l'IA, options `--selftest` et `--screenshot`). Modèles 3D de Kenney (CC0, licences dans `godot/assets/kenney/`).
+- **`godot/`** : le client Godot 4.7 en C#. Il ne fait que dessiner : `BoardView` (plateau 3D, surbrillances, case sous la souris par un rayon de la caméra), `FighterView` (modèle animé, anneau d'équipe, PV, dégâts), `Hud` (tour, ordre de jeu, sorts, journal, fin), `LobbyView` (l'écran de connexion et des personnages), `Main` (l'écran de connexion puis le combat, enchaîne les animations, fait jouer l'IA, options `--selftest`, `--lobby-selftest` et `--screenshot`). Modèles 3D de Kenney (CC0, licences dans `godot/assets/kenney/`).
 - **`data/`** : `spells.json`, `maps/*.json`, `scenarios/*.json` (chaque combattant y a un `look`, le modèle 3D qui le montre). Ajouter un sort, une carte ou un monstre se fait ici, sans toucher au code ; les fichiers sont intégrés à `Rpg.Core`, donc le jeu exporté, le serveur et les tests lisent les mêmes.
 - **`samples/`** : deux combats de l'IA, rejoués par la CI sur les trois systèmes.
 
@@ -58,13 +66,24 @@ dotnet run --project src/Rpg.Sim -- --simulate 1000 --scenario duel
 dotnet run --project src/Rpg.Sim -- --record combat.json --scenario training --seed 7 --lang fr
 dotnet run --project src/Rpg.Sim -- --replay combat.json --show --lang fr
 ```
+Le serveur et ses tests demandent PostgreSQL :
+```sh
+docker run -d --name rpg-pg -p 5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:18-alpine
+RPG_TEST_DB="Host=localhost;Username=postgres" dotnet test --project tests/Rpg.Api.Tests
+ConnectionStrings__Game="Host=localhost;Username=postgres;Database=rpg" dotnet run --project src/Rpg.Api
+scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscription au refus d'une requête trop grosse
+```
+La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
+Sprint 47 : 22 tests d'intégration (`tests/Rpg.Api.Tests`, `WebApplicationFactory` sur une vraie base PostgreSQL créée pour chaque test puis supprimée), écrits avec le client du jeu (`GameServer`, `Lobby`) : inscription, connexion, jeton expiré (horloge avancée de 13 heures), limite d'essais, noms pris quelle que soit la casse, cinq personnages au plus, personnages d'un autre joueur invisibles et intouchables, personnage du serveur qui combat et dont le combat se rejoue. 11 tests de plus dans `Rpg.Client` (l'écran sans serveur, serveur injoignable, session expirée, textes des deux langues pour chaque refus). Dans la CI : migrations à jour du modèle, image Docker construite et servie par `compose.yaml`, `scripts/smoke.sh` contre elle, puis le client Godot contre ce même serveur (`--lobby-selftest`) : inscription, création et choix d'un personnage par les champs et les boutons de l'écran, puis un combat entier avec ce héros. Vérifiés en cassant le code : 4 mutations du serveur, 4 attrapées.
+
 Sprint 46 : 10 tests de `Rpg.Client` (aperçu, clics, choix de sort, tour de l'IA, 200 combats joués par les commandes identiques à ceux de l'IA seule, textes des deux langues) ; dans la CI, sur les trois systèmes, le client Godot joue un combat entier par ses commandes (`--selftest`) en vérifiant après chaque action que les personnages, leurs PV, les cases montrées et les points affichés suivent le combat ; l'exécutable Linux exporté rejoue ce test.
 
 Sprint 45 : 57 tests xUnit des règles (`tests/Rpg.Core.Tests`) et 10 du simulateur. Parmi eux : les chemins d'A* comparés à un parcours en largeur sur 200 plateaux tirés au hasard ; la ligne de vue identique dans les deux sens sur 3 000 paires et comparée au segment échantillonné ; 600 combats de l'IA qui se terminent sans une action refusée ; 400 combats enregistrés, passés en JSON et rejoués à l'identique ; l'équilibre mesuré sur 2 000 combats, dans une fourchette (leçon du sprint 23 du roguelike). Vérifiés en cassant le code : 13 mutations, 12 attrapées, la dernière équivalente (voir `REVIEW.md`).
 
 ## Limites
+- Le serveur se teste sous Linux seulement : les machines Windows et macOS de GitHub ne lancent pas de conteneurs Linux (il y est compilé). Il parle HTTP : en ligne, il faudra un proxy HTTPS devant. Pas encore de suppression de compte, de changement de mot de passe ni de jeton de rafraîchissement : après 12 heures, on se reconnecte. La limite de cinq personnages se vérifie avant l'insertion : deux créations simultanées sur un même compte pourraient en donner six (l'unicité des noms, elle, est garantie par la base).
 - Le client se joue à la souris et au clavier, pas encore à la manette ni au toucher. Les captures se font avec le rendu logiciel de Mesa ; sur une vraie carte graphique, ombres et anticrénelage sont plus nets.
 - Équilibre mesuré par simulation : à l'entraînement, le héros joué par l'IA gagne 69 % des combats (il les gagnait tous avant le réglage des points de vie des monstres) ; un joueur fera mieux. Dans le duel symétrique, celui qui joue en second gagne deux fois sur trois : celui qui s'approche le premier se met à portée et encaisse le premier coup. Le réglage fin attendra que le combat soit jouable.
 - L'IA ne voit qu'un coup d'avance : elle ne fuit pas, ne protège pas ses alliés et ne garde pas ses PM.

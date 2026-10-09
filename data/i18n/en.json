@@ -666,14 +666,17 @@
   "cross.label.green": "{axis}: this axis is already green, the request changes nothing.",
   "rpg.title": "A look at the fight",
   "rpg.lead": "The desktop client, in Godot 4 and C#: a diamond board seen at an angle, animated characters (Kenney's free 3D models), and the rules of sprint 45, without a single extra rule in the client.",
+  "rpg.altLobby": "The game's start screen, connected to the server http://localhost:8002: on the left, \"Your characters (2/5)\", Margaux (Woman E) and Élise (Woman C), each with a \"Fight\" and a \"Delete\" button; below, a \"Character name\" field, the look chosen, \"Man C\", the \"Create\" button and \"Sign out\". On the right, the 3D model of the chosen look turns on a disc of grass.",
   "rpg.altMove": "Isometric grass board, in a checkerboard, with trees, rocks and two ponds; the heroine at the top left, an orc and a poacher ringed in red on the right and at the bottom. The cells the heroine can reach are light blue, the path to the hovered cell yellow. At the top, \"Round 1 · Your turn\" and the turn order with hit points; at the bottom, HP 60/60, AP 6, MP 3, the three spells and the \"End turn\" button.",
   "rpg.altSpell": "The same board in round 2: the Arrow is chosen; the cells within its range are marked, in blue those it can hit, and the orc, aimed at, stands on a red cell. A cell behind a tree stays pale: the tree blocks the line of sight. On the left, the fight log.",
+  "rpg.captionLobby": "Signing in, choosing or creating a character: accounts and characters live on the server (ASP.NET Core, PostgreSQL), which checks the names and the limit of five.",
   "rpg.captionMove": "Moving: the reachable cells and the path.",
   "rpg.captionSpell": "Aiming: the spell's range, the line of sight, the target.",
   "rpg.made": "Pictures taken by the game itself (option --screenshot), in a virtual screen, with Mesa's software OpenGL renderer.",
   "rpg.run": "To run it at home (.NET 10 SDK and Godot 4.7 .NET):",
   "rpg.sim": "AI fights, in the terminal",
-  "rpg.godot": "the game, against the AI",
+  "rpg.api": "the accounts and characters server, on port 8002",
+  "rpg.godot": "the game (\"Play offline\" without a server)",
   "rpg.download": "Ready-to-run builds (Windows, macOS, Linux, unsigned), made by the CI, which plays a whole fight in them, kept 14 days:",
   "rpg.downloadLink": "artifacts of the rpg workflow"
 }

@@ -666,14 +666,17 @@
   "cross.label.green": "{axis} : cet axe est déjà au vert, la demande ne change rien.",
   "rpg.title": "Aperçu du combat",
   "rpg.lead": "Le client de bureau, en Godot 4 et C# : un plateau en losanges vu de biais, des personnages animés (modèles 3D libres de Kenney), et les règles du sprint 45, sans une ligne de règle en plus dans le client.",
+  "rpg.altLobby": "L'écran d'accueil du jeu, connecté au serveur http://localhost:8002 : à gauche, « Vos personnages (2/5) », Margaux (Femme E) et Élise (Femme C), chacune avec un bouton « Combattre » et un bouton « Supprimer » ; dessous, un champ « Nom du personnage », le choix de l'apparence « Homme C », le bouton « Créer » et « Se déconnecter ». À droite, le modèle 3D de l'apparence choisie tourne sur un disque d'herbe.",
   "rpg.altMove": "Plateau isométrique en herbe, en damier, avec des arbres, des rochers et deux mares ; l'héroïne en haut à gauche, un orque et un braconnier entourés de rouge à droite et en bas. Les cases que l'héroïne peut atteindre sont en bleu clair, le chemin vers la case survolée en jaune. En haut, « Tour 1 · À vous de jouer » et l'ordre de jeu avec les points de vie ; en bas, PV 60/60, PA 6, PM 3, les trois sorts et le bouton « Fin du tour ».",
   "rpg.altSpell": "Le même plateau au tour 2 : la Flèche est choisie ; les cases à sa portée sont marquées, en bleu celles qu'elle peut toucher, et l'orque, visé, est sur une case rouge. Une case derrière un arbre reste claire : l'arbre coupe la ligne de vue. À gauche, le journal du combat.",
+  "rpg.captionLobby": "Se connecter, choisir ou créer son personnage : comptes et personnages vivent sur le serveur (ASP.NET Core, PostgreSQL), qui vérifie les noms et la limite de cinq.",
   "rpg.captionMove": "Se déplacer : les cases atteignables et le chemin.",
   "rpg.captionSpell": "Viser : la portée du sort, la ligne de vue, la cible.",
   "rpg.made": "Captures faites par le jeu lui-même (option --screenshot), dans un écran virtuel, avec le rendu OpenGL logiciel de Mesa.",
   "rpg.run": "Pour le lancer chez vous (SDK .NET 10 et Godot 4.7 .NET) :",
   "rpg.sim": "des combats de l'IA, dans le terminal",
-  "rpg.godot": "le jeu, contre l'IA",
+  "rpg.api": "le serveur des comptes et des personnages, sur le port 8002",
+  "rpg.godot": "le jeu (« Jouer hors ligne » sans serveur)",
   "rpg.download": "Exécutables prêts à lancer (Windows, macOS, Linux, non signés), produits par la CI, qui y joue un combat entier, gardés 14 jours :",
   "rpg.downloadLink": "artefacts du workflow rpg"
 }

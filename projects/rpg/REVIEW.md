@@ -9,6 +9,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 45 : `data/spells.json` et `data/scenarios/*.json` : le format te convient-il pour ajouter ensuite caractéristiques et monstres ?
 - [ ] Sprint 46 : le jeu chez toi (`godot --path godot -- --lang fr`, ou l'exécutable de la CI) : lisibilité du plateau, des surbrillances et de l'interface ; vitesse des animations ; difficulté de l'entraînement.
 - [ ] Sprint 46 : `src/Rpg.Client/FightController.cs` (ce qu'un clic peut faire) et `godot/Main.cs` (enchaînement des animations, tours de l'IA, auto-test).
+- [ ] Sprint 47 : le serveur (`docker compose up --build rpg-api`, puis http://localhost:8002/swagger) et l'écran de connexion du jeu (`godot --path godot -- --lang fr`) : créer un compte, des personnages, en supprimer, se tromper de mot de passe, couper le serveur.
+- [ ] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
 
 ## Constats
 
@@ -29,4 +31,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `tests/Rpg.Api.Tests` | (Claude) 32 appels écrits sans le jeton d'annulation du test (xUnit1051, erreur puisque les avertissements bloquent) : un test arrêté aurait laissé ses requêtes HTTP et SQL tourner | `TestContext.Current.CancellationToken` passé à chaque appel, comme dans les tests du roguelike |
 | 2026-10-09 | `src/Rpg.Api` | (Claude) Vérifié en cassant le code : limite de 5 personnages, suppression du personnage d'un autre, liste des personnages d'un autre, nom insensible à la casse | 4 mutations sur 4 attrapées par les tests d'intégration |
 | 2026-10-09 | `scripts/smoke.sh` | (Claude) Premier essai arrêté net (code 141) : `tr < /dev/urandom \| head` reçoit SIGPIPE, fatal avec `pipefail` | Nom tiré avec `$RANDOM`, essai vert contre l'image Docker |
+| 2026-10-09 | `godot/Main.cs` (`--shot lobby`) | (Claude) Vu sur la première capture de l'écran de connexion : modèle 3D trop gros qui débordait de son socle, tuile d'herbe décalée, apparences affichées par leur identifiant (« female-e ») | Modèle à l'échelle du plateau, disque d'herbe centré, `Texts.Look` (« Femme E », « Woman E ») et son test |
+| 2026-10-09 | `godot/LobbyView.cs`, `godot/Main.cs` | (Claude) Première compilation : `_ => _ = SignIn(...)` assignait la tâche au paramètre `_` au lieu de l'ignorer, et `HttpClient` était ambigu avec celui de Godot | Paramètre nommé, `System.Net.Http.HttpClient` écrit en entier |
 | | | | |

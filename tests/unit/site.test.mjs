@@ -430,10 +430,10 @@ test('the ML page shows the measured results: accuracies, threshold, both confus
   }
 });
 
-test('the tactical RPG page shows two pictures of the Godot client in each language, and where to get it', () => {
+test('the tactical RPG page shows three pictures of the Godot client in each language, how to run it and where to get it', () => {
   for (const lang of LANGS) {
     const html = page(lang, 'project-rpg');
-    for (const shot of ['move', 'spell']) {
+    for (const shot of ['lobby', 'move', 'spell']) {
       const img = html.match(new RegExp(`<img src="\\.\\./assets/images/(rpg-${shot}-(\\w+)\\.png)" width="1280" height="720" loading="lazy" alt="([^"]+)">`));
       assert.ok(img, `${lang} ${shot}`);
       assert.equal(img[2], lang);
@@ -442,6 +442,7 @@ test('the tactical RPG page shows two pictures of the Godot client in each langu
     }
     assert.match(html, /href="https:\/\/github\.com\/Dzop86\/Portfolio\/actions\/workflows\/rpg\.yml"/);
     assert.ok(html.includes(`--lang ${lang}`));
+    assert.match(html, /docker compose up --build rpg-api/);
   }
 });
 

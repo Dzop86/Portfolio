@@ -13,7 +13,7 @@ public partial class Hud : CanvasLayer
     private readonly List<Button> _spells = [];
     private readonly Queue<string> _log = new();
     private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!;
-    private Button _endTurn = null!, _again = null!, _lang = null!;
+    private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
     private HBoxContainer _spellBar = null!;
     private PanelContainer _end = null!;
     private FightController _controller = null!;
@@ -23,6 +23,7 @@ public partial class Hud : CanvasLayer
     public event Action<int>? SpellChosen;
     public event Action? EndTurnPressed;
     public event Action? AgainPressed;
+    public event Action? BackPressed;
 
     public void Build(FightController controller, Texts texts)
     {
@@ -69,7 +70,7 @@ public partial class Hud : CanvasLayer
         row.AddChild(_lang);
 
         _end = new PanelContainer { Visible = false };
-        Anchor(_end, 0.5f, 0.5f, -180, -90, 360, 180);
+        Anchor(_end, 0.5f, 0.5f, -180, -120, 360, 240);
         root.AddChild(_end);
         var endBox = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
         endBox.AddThemeConstantOverride("separation", 20);
@@ -80,6 +81,9 @@ public partial class Hud : CanvasLayer
         _again = new Button { CustomMinimumSize = new Vector2(200, 48), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
         _again.Pressed += () => AgainPressed?.Invoke();
         endBox.AddChild(_again);
+        _back = new Button { CustomMinimumSize = new Vector2(200, 48), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, Visible = false };
+        _back.Pressed += () => BackPressed?.Invoke();
+        endBox.AddChild(_back);
         Refresh();
     }
 
@@ -127,10 +131,15 @@ public partial class Hud : CanvasLayer
         _end.Visible = fight.IsOver;
         _endTitle.Text = fight.WinningTeam is null ? Texts["draw"] : fight.WinningTeam == _controller.PlayerTeam ? Texts["victory"] : Texts["defeat"];
         _again.Text = Texts["again"];
+        _back.Text = Texts["lobby.back"];
     }
+
+    /// <summary>The end screen's way back to the characters, for a player signed in.</summary>
+    public void SetBackShown(bool shown) => _back.Visible = shown;
 
     public string TurnText => _turn.Text;
     public string StatsText => _stats.Text;
+    public string OrderText => _order.Text;
     public bool EndShown => _end.Visible;
 
     /// <summary>A label whose box is offset from an anchor point of the screen (0 to 1 on each axis).</summary>
