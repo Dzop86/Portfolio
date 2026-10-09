@@ -16,7 +16,7 @@ public sealed record AccessToken(string Token, DateTimeOffset ExpiresAt);
 /// A character to create: its name, look, class (<c>data/classes.json</c>), outfit colour (0 to 6)
 /// and server (null: the first one).
 /// </summary>
-public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0, string? Server = null);
+public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0, string? Server = null, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0);
 
 /// <summary>A game server the player can choose before their characters, as in the games of the genre.</summary>
 public sealed record ServerInfo(string Id, string Name);
@@ -33,10 +33,11 @@ public sealed record Place(string Town, int X, int Y)
 /// One of the player's characters, on one server; <see cref="Place"/> is null until they first walk
 /// in a town. The level is 1 until the progression comes (experience, characteristics).
 /// </summary>
-public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1)
+public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
+    int Hair = 0, int Skin = 0, int Height = 0, int Build = 0)
 {
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build);
 }
 
 public static class Servers

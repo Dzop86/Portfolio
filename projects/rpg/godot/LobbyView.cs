@@ -12,18 +12,17 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class LobbyView : CanvasLayer
 {
-    /// <summary>The palette's coloured columns, green to purple: a swatch shows what the look's main colour becomes.</summary>
-    private static readonly Color[] SwatchColours =
-        [new("5fc98a"), new("ffbf45"), new("ff7f45"), new("cc5252"), new("6496d8"), new("cfe4ff"), new("a876e0")];
-
-    private readonly List<Button> _swatches = [];
+    private readonly List<Button> _swatches = [], _hairSwatches = [], _skinSwatches = [], _classButtons = [];
     private readonly List<Button> _cards = [];
     private Lobby _lobby = null!;
     private VBoxContainer _signedOut = null!, _serverScreen = null!, _serverList = null!, _characterScreen = null!;
     private HBoxContainer _cardRow = null!;
-    private Label _title = null!, _launcherText = null!, _serversTitle = null!, _serverName = null!, _message = null!, _classText = null!, _colourLabel = null!;
+    private Label _title = null!, _launcherText = null!, _serversTitle = null!, _serverName = null!, _message = null!, _classText = null!;
+    private Label _createTitle = null!, _lookName = null!, _classLabel = null!, _colourLabel = null!, _hairLabel = null!, _skinLabel = null!, _heightLabel = null!, _buildLabel = null!, _nameLabel = null!;
+    private HSlider _height = null!, _build = null!;
+    private int _look, _class, _hair, _skin;
     private Button _lang = null!, _offline = null!, _changeServer = null!, _delete = null!, _create = null!, _close = null!;
-    private PanelContainer _createPanel = null!;
+    private Control _createPanel = null!;
     private Portrait _preview = null!;
     private ConfirmationDialog _confirm = null!;
     private Guid? _selected;
@@ -33,18 +32,19 @@ public partial class LobbyView : CanvasLayer
 
     public Button PlayButton { get; private set; } = null!;
     public LineEdit CharacterField { get; private set; } = null!;
-    public OptionButton LookChoice { get; private set; } = null!;
-    public OptionButton ClassChoice { get; private set; } = null!;
 
     /// <summary>The outfit colour chosen (0 to 6): see <see cref="Looks.Paint"/>.</summary>
     public int Colour { get; private set; }
 
+    /// <summary>The character being created, as the screen shows it.</summary>
+    public Hero Appearance => new(CharacterField.Text.Trim(), Look, Class.Id, Colour, _hair, _skin, (int)_height.Value, (int)_build.Value);
+
     /// <summary>The character to play (null: offline, the scenario's own hero).</summary>
     public event Action<CharacterSummary?>? Chosen;
 
-    public string Look => Hero.Looks[Math.Max(0, LookChoice.Selected)];
+    public string Look => Hero.Looks[_look];
 
-    public HeroClass Class => GameData.Embedded.Classes[Math.Max(0, ClassChoice.Selected)];
+    public HeroClass Class => GameData.Embedded.Classes[_class];
 
     public string MessageText => _message.Text;
 
@@ -137,73 +137,155 @@ public partial class LobbyView : CanvasLayer
         Refresh();
     }
 
-    /// <summary>The creation panel (until its own screen): a turning preview, name, look, class, colour.</summary>
+    /// <summary>
+    /// The creation screen, full screen: the model turning on the left with the look's arrows; on the
+    /// right the class, the colours of outfit, hair and skin, height and build, the name.
+    /// </summary>
     private void BuildCreatePanel(Control root)
     {
-        _createPanel = new PanelContainer { Visible = false };
-        _createPanel.SetAnchorsPreset(Control.LayoutPreset.Center);
-        _createPanel.GrowHorizontal = Control.GrowDirection.Both;
-        _createPanel.GrowVertical = Control.GrowDirection.Both;
+        _createPanel = new Control { Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _createPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         root.AddChild(_createPanel);
-        var margin = new MarginContainer();
-        foreach (string side in new[] { "left", "right", "top", "bottom" })
-            margin.AddThemeConstantOverride("margin_" + side, 20);
-        _createPanel.AddChild(margin);
-        var row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 20);
-        margin.AddChild(row);
-        _preview = Portrait.Make(new Vector2(260, 330), turning: true);
-        row.AddChild(_preview);
-        var form = new VBoxContainer { CustomMinimumSize = new Vector2(480, 0) };
-        form.AddThemeConstantOverride("separation", 12);
+        var row = new HBoxContainer { AnchorRight = 1, AnchorBottom = 1, OffsetLeft = 32, OffsetTop = 84, OffsetRight = -32, OffsetBottom = -24 };
+        row.AddThemeConstantOverride("separation", 28);
+        _createPanel.AddChild(row);
+
+        var left = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        left.AddThemeConstantOverride("separation", 10);
+        row.AddChild(left);
+        _preview = Portrait.Make(new Vector2(420, 520), turning: true, distance: 2.9f);
+        left.AddChild(_preview);
+        var looks = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        looks.AddThemeConstantOverride("separation", 12);
+        left.AddChild(looks);
+        Button(looks, () => SelectLook(Hero.Looks[(_look + Hero.Looks.Count - 1) % Hero.Looks.Count])).Text = "◀";
+        _lookName = new Label { CustomMinimumSize = new Vector2(160, 0), HorizontalAlignment = HorizontalAlignment.Center };
+        _lookName.AddThemeFontSizeOverride("font_size", 20);
+        looks.AddChild(_lookName);
+        Button(looks, () => SelectLook(Hero.Looks[(_look + 1) % Hero.Looks.Count])).Text = "▶";
+
+        var form = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        form.AddThemeConstantOverride("separation", 6);
         row.AddChild(form);
-        CharacterField = new LineEdit { MaxLength = 20, CustomMinimumSize = new Vector2(0, 44) };
-        CharacterField.TextSubmitted += text => _ = Create();
-        form.AddChild(CharacterField);
-        LookChoice = new OptionButton { CustomMinimumSize = new Vector2(0, 44) };
-        foreach (string look in Hero.Looks)
-            LookChoice.AddItem(look);
-        LookChoice.Select(0);
-        LookChoice.ItemSelected += _ => ShowPreview();
-        form.AddChild(LookChoice);
-        ClassChoice = new OptionButton { CustomMinimumSize = new Vector2(0, 44) };
+        _createTitle = new Label();
+        _createTitle.AddThemeFontSizeOverride("font_size", 28);
+        form.AddChild(_createTitle);
+        _classLabel = Caption(form);
+        var classes = new HBoxContainer();
+        classes.AddThemeConstantOverride("separation", 8);
+        form.AddChild(classes);
         foreach (HeroClass c in GameData.Embedded.Classes)
-            ClassChoice.AddItem(c.Id);
-        ClassChoice.Select(0);
-        ClassChoice.ItemSelected += _ => Refresh();
-        form.AddChild(ClassChoice);
-        _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        {
+            Button b = Button(classes, () => SelectClass(c.Id));
+            b.ToggleMode = true;
+            b.CustomMinimumSize = new Vector2(150, 44);
+            _classButtons.Add(b);
+        }
+        _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(0, 40) };
         _classText.AddThemeFontSizeOverride("font_size", 14);
         form.AddChild(_classText);
-        var colourRow = new HBoxContainer();
-        colourRow.AddThemeConstantOverride("separation", 6);
-        form.AddChild(colourRow);
-        _colourLabel = new Label { VerticalAlignment = VerticalAlignment.Center };
-        colourRow.AddChild(_colourLabel);
-        for (int i = 0; i < Hero.Colours; i++)
+        _colourLabel = Caption(form);
+        Swatches(form, _swatches, Hero.Colours, ChooseColour);
+        _hairLabel = Caption(form);
+        Swatches(form, _hairSwatches, Hero.HairColours, ChooseHair);
+        _skinLabel = Caption(form);
+        Swatches(form, _skinSwatches, Hero.SkinTones, ChooseSkin);
+        var shape = new HBoxContainer();
+        shape.AddThemeConstantOverride("separation", 24);
+        form.AddChild(shape);
+        var heightBox = new VBoxContainer();
+        shape.AddChild(heightBox);
+        _heightLabel = Caption(heightBox);
+        _height = Slider(heightBox);
+        var buildBox = new VBoxContainer();
+        shape.AddChild(buildBox);
+        _buildLabel = Caption(buildBox);
+        _build = Slider(buildBox);
+        _nameLabel = Caption(form);
+        var buttons = new HBoxContainer();
+        buttons.AddThemeConstantOverride("separation", 12);
+        form.AddChild(buttons);
+        CharacterField = new LineEdit { MaxLength = 20, CustomMinimumSize = new Vector2(260, 48) };
+        CharacterField.TextSubmitted += text => _ = Create();
+        buttons.AddChild(CharacterField);
+        _create = Button(buttons, () => _ = Create());
+        _create.CustomMinimumSize = new Vector2(160, 48);
+        _close = Button(buttons, () =>
         {
-            int colour = i;
+            _createPanel.Visible = false;
+            Refresh();
+        });
+    }
+
+    private static Label Caption(Container parent)
+    {
+        var label = new Label();
+        label.AddThemeFontSizeOverride("font_size", 15);
+        label.Modulate = new Color(1, 1, 1, 0.8f);
+        parent.AddChild(label);
+        return label;
+    }
+
+    private HSlider Slider(Container parent)
+    {
+        var slider = new HSlider { MinValue = -Hero.Shape, MaxValue = Hero.Shape, Step = 1, TickCount = 2 * Hero.Shape + 1, TicksOnBorders = true, CustomMinimumSize = new Vector2(240, 28), SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        slider.ValueChanged += _ => ShowPreview();
+        parent.AddChild(slider);
+        return slider;
+    }
+
+    private static void Swatches(Container parent, List<Button> list, int count, Action<int> choose)
+    {
+        var line = new HBoxContainer();
+        line.AddThemeConstantOverride("separation", 6);
+        parent.AddChild(line);
+        for (int i = 0; i < count; i++)
+        {
+            int index = i;
             var swatch = new Button { CustomMinimumSize = new Vector2(44, 44), ToggleMode = true };
-            var box = new StyleBoxFlat { BgColor = SwatchColours[i], CornerRadiusTopLeft = 6, CornerRadiusTopRight = 6, CornerRadiusBottomLeft = 6, CornerRadiusBottomRight = 6 };
+            var box = new StyleBoxFlat();
+            box.SetCornerRadiusAll(6);
             var chosen = (StyleBoxFlat)box.Duplicate();
             chosen.BorderColor = Colors.White;
             chosen.SetBorderWidthAll(4);
             swatch.AddThemeStyleboxOverride("normal", box);
             swatch.AddThemeStyleboxOverride("hover", box);
             swatch.AddThemeStyleboxOverride("pressed", chosen);
-            swatch.Pressed += () => ChooseColour(colour);
-            colourRow.AddChild(swatch);
-            _swatches.Add(swatch);
+            swatch.Pressed += () => choose(index);
+            line.AddChild(swatch);
+            list.Add(swatch);
         }
-        var buttons = new HBoxContainer();
-        buttons.AddThemeConstantOverride("separation", 12);
-        form.AddChild(buttons);
-        _create = Button(buttons, () => _ = Create());
-        _close = Button(buttons, () =>
-        {
-            _createPanel.Visible = false;
-            Refresh();
-        });
+    }
+
+    public void SelectLook(string look)
+    {
+        _look = Math.Max(0, Hero.Looks.ToList().IndexOf(look));
+        ShowPreview();
+    }
+
+    public void SelectClass(string id)
+    {
+        _class = Math.Max(0, GameData.Embedded.Classes.ToList().FindIndex(c => c.Id == id));
+        Refresh();
+    }
+
+    public void ChooseHair(int hair)
+    {
+        _hair = hair;
+        ShowPreview();
+    }
+
+    public void ChooseSkin(int skin)
+    {
+        _skin = skin;
+        ShowPreview();
+    }
+
+    public void SetShape(int height, int build)
+    {
+        _height.Value = height;
+        _build.Value = build;
+        ShowPreview();
     }
 
     public void OpenCreate()
@@ -218,21 +300,29 @@ public partial class LobbyView : CanvasLayer
     public void ChooseColour(int colour)
     {
         Colour = colour;
-        for (int i = 0; i < _swatches.Count; i++)
-            _swatches[i].SetPressedNoSignal(i == colour);
         ShowPreview();
     }
 
+    /// <summary>The model as the choices say, and each swatch the colour it gives this look.</summary>
     private void ShowPreview()
     {
         int main = Looks.MainColumn(Look);
+        (Vector2 hair, Vector2 skin) = Looks.CellsOf(Look);
         for (int i = 0; i < _swatches.Count; i++)
-        {
-            Color colour = SwatchColours[(main - 1 + i) % Hero.Colours];
-            foreach (string state in new[] { "normal", "hover", "pressed" })
-                ((StyleBoxFlat)_swatches[i].GetThemeStylebox(state)).BgColor = colour;
-        }
-        _preview.Show(Look, Colour);
+            Paint(_swatches[i], Looks.CellColour(new Vector2(1 + (main - 1 + i) % Hero.Colours, 2)), i == Colour);
+        for (int i = 0; i < _hairSwatches.Count; i++)
+            Paint(_hairSwatches[i], Looks.CellColour(i == 0 ? hair : Looks.HairCells[i]), i == _hair);
+        for (int i = 0; i < _skinSwatches.Count; i++)
+            Paint(_skinSwatches[i], Looks.CellColour(i == 0 ? skin : Looks.SkinCells[i]), i == _skin);
+        _lookName.Text = Texts.Look(Look);
+        _preview.Show(Appearance);
+    }
+
+    private static void Paint(Button swatch, Color colour, bool chosen)
+    {
+        foreach (string state in new[] { "normal", "hover", "pressed" })
+            ((StyleBoxFlat)swatch.GetThemeStylebox(state)).BgColor = colour;
+        swatch.SetPressedNoSignal(chosen);
     }
 
     /// <summary>The create button: a character with the name typed and the look shown, then chosen.</summary>
@@ -241,7 +331,7 @@ public partial class LobbyView : CanvasLayer
         if (_busy)
             return;
         string name = CharacterField.Text.Trim();
-        if (await Busy(() => _lobby.Create(name, Look, Class.Id, Colour)))
+        if (await Busy(() => _lobby.Create(Appearance)))
         {
             _createPanel.Visible = false;
             _selected = _lobby.Here.FirstOrDefault(c => c.Name == name)?.Id;
@@ -300,21 +390,25 @@ public partial class LobbyView : CanvasLayer
         _confirm.CancelButtonText = Texts["lobby.cancel"];
         _confirm.Title = Texts["lobby.title"];
 
-        CharacterField.PlaceholderText = Texts["lobby.character-name"];
-        for (int i = 0; i < Hero.Looks.Count; i++)
-            LookChoice.SetItemText(i, Texts.Look(Hero.Looks[i]));
-        for (int i = 0; i < GameData.Embedded.Classes.Count; i++)
-            ClassChoice.SetItemText(i, GameData.Embedded.Classes[i].Name.In(Texts.Lang));
+        _createTitle.Text = Texts["lobby.new"];
+        _classLabel.Text = Texts["lobby.class"];
+        for (int i = 0; i < _classButtons.Count; i++)
+        {
+            _classButtons[i].Text = GameData.Embedded.Classes[i].Name.In(Texts.Lang);
+            _classButtons[i].SetPressedNoSignal(i == _class);
+        }
         _classText.Text = Texts.Class(Class);
         _colourLabel.Text = Texts["lobby.colour"];
-        for (int i = 0; i < _swatches.Count; i++)
-        {
-            _swatches[i].TooltipText = Texts["lobby.colour-n", i + 1];
-            _swatches[i].SetPressedNoSignal(i == Colour);
-        }
+        _hairLabel.Text = Texts["lobby.hair"];
+        _skinLabel.Text = Texts["lobby.skin"];
+        _heightLabel.Text = Texts["lobby.height"];
+        _buildLabel.Text = Texts["lobby.build"];
+        _nameLabel.Text = Texts["lobby.character-name"];
+        _lookName.Text = Texts.Look(Look);
+        CharacterField.PlaceholderText = Texts["lobby.character-name"];
         _create.Text = Texts["lobby.create"];
         _create.Disabled = _busy;
-        _close.Text = Texts["lobby.close"];
+        _close.Text = Texts["lobby.cancel"];
         _message.Text = _busy ? Texts["lobby.wait"] : _lobby.Problem is string key ? Texts[key] : "";
     }
 
@@ -393,7 +487,7 @@ public partial class LobbyView : CanvasLayer
         Portrait portrait = Portrait.Make(new Vector2(150, 180), turning: false);
         portrait.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
         column.AddChild(portrait);
-        portrait.Show(c.Look, c.Colour);
+        portrait.Show(c.Hero);
         foreach (int size in new[] { 18, 14, 14 })
         {
             var label = new Label { HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };

@@ -53,7 +53,7 @@ public partial class FighterView : Node3D
     }
 
     /// <summary>The player's outfit colour (see <see cref="Looks.Paint"/>).</summary>
-    public void Paint(int colour) => Looks.Paint(_model, colour);
+    public void Paint(Hero hero) => Looks.Paint(_model, hero);
 
     public int? Painted => Looks.PaintedWith(_model);
 

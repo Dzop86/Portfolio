@@ -71,11 +71,16 @@ public sealed class Lobby(GameServer server)
 
     public void ChooseServer(string? id) => ChosenServer = Servers.FirstOrDefault(s => s.Id == id);
 
-    public async Task<bool> Create(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default)
+    public Task<bool> Create(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default) =>
+        Create(new Hero(name, look, heroClass, colour), cancel);
+
+    /// <summary>Creates a character with the whole appearance of <paramref name="hero"/> on the chosen server.</summary>
+    public async Task<bool> Create(Hero hero, CancellationToken cancel = default)
     {
-        if (!Hero.IsValidName(name))
+        ArgumentNullException.ThrowIfNull(hero);
+        if (!Hero.IsValidName(hero.Name))
             return Fail("lobby.name-invalid");
-        if (new Hero(name, look, heroClass, colour).Problem(GameData.Embedded) is not null || heroClass is null)
+        if (hero.Problem(GameData.Embedded) is not null || hero.Class is null)
             return Fail("lobby.class-invalid");
         if (!CanCreate)
             return Fail("lobby.too-many-characters");
@@ -83,7 +88,7 @@ public sealed class Lobby(GameServer server)
             return Fail("lobby.choose-server");
         return await Call(async () =>
         {
-            await Server.CreateCharacter(name, look, heroClass, colour, ChosenServer?.Id, cancel);
+            await Server.CreateCharacter(hero, ChosenServer?.Id, cancel);
             Characters = await Server.Characters(cancel);
         }, status => status switch
         {

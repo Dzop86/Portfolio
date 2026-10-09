@@ -89,4 +89,19 @@ public class HeroTests
         Assert.Throws<InvalidFightRecordException>(() => (r with { Hero = r.Hero! with { Class = "mage" } }).Replay(Real));
         Assert.Throws<InvalidFightRecordException>(() => (r with { Hero = r.Hero! with { Class = "dragon" } }).Replay(Real));
     }
+
+    [Fact]
+    public void TheAppearance_IsChecked_AndDoesNotChangeTheFight()
+    {
+        var full = new Hero("Élise", "female-c", "mage", 3, Hair: Hero.HairColours - 1, Skin: Hero.SkinTones - 1, Height: Hero.Shape, Build: -Hero.Shape);
+        Assert.Null(full.Problem(Real));
+        foreach (Hero wrong in new[] { full with { Hair = Hero.HairColours }, full with { Skin = -1 }, full with { Height = Hero.Shape + 1 }, full with { Build = -Hero.Shape - 1 } })
+            Assert.NotNull(wrong.Problem(Real));
+        var plain = new Fight(Real, "training", 6, full with { Hair = 0, Skin = 0, Height = 0, Build = 0 });
+        var dressed = new Fight(Real, "training", 6, full);
+        Ai.PlayOut(plain);
+        Ai.PlayOut(dressed);
+        Assert.Equal(plain.History, dressed.History);
+        Assert.Equal(full, FightRecord.FromJson(FightRecord.Of(dressed).ToJson()).Hero);
+    }
 }

@@ -156,7 +156,23 @@ public class CharacterTests
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         using JsonDocument list = JsonDocument.Parse(await server.Http.GetStringAsync(new Uri("api/characters", UriKind.Relative), Cancel));
         JsonElement only = list.RootElement.EnumerateArray().Single();
-        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place", "server", "level"], only.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place", "server", "level", "hair", "skin", "height", "build"], only.EnumerateObject().Select(p => p.Name));
         Assert.Equal(["town", "x", "y"], only.GetProperty("place").EnumerateObject().Select(p => p.Name));
+    }
+
+    [Fact]
+    public async Task TheWholeAppearance_IsKept_AndCheckedFieldByField()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        var hero = new Hero("Élise", "female-c", "mage", 3, Hair: 5, Skin: 2, Height: 1, Build: -2);
+        await server.CreateCharacter(hero, cancel: Cancel);
+        Assert.Equal(hero, Assert.Single(await server.Characters(Cancel)).Hero);
+        foreach ((Hero wrong, string field) in new[] { (hero with { Name = "Anne", Hair = 8 }, "hair"), (hero with { Name = "Anne", Skin = 5 }, "skin"), (hero with { Name = "Anne", Height = 3 }, "height"), (hero with { Name = "Anne", Build = -3 }, "build") })
+        {
+            var e = await Assert.ThrowsAsync<ServerException>(() => server.CreateCharacter(wrong, cancel: Cancel));
+            Assert.Equal(HttpStatusCode.BadRequest, e.Status);
+            Assert.Contains(field + ":", e.Message, StringComparison.Ordinal);
+        }
     }
 }

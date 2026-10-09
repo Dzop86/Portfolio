@@ -62,7 +62,7 @@ public partial class Main : Node3D
             StartFight(_hero, _options.Scenario);
         else if (_options.TownSelfTest || _options.Shot is "town" or "banner")
             ShowTown();
-        else if (_options.LobbySelfTest || _options.Shot == "lobby")
+        else if (_options.LobbySelfTest || _options.Shot is "lobby" or "create")
             ShowLobby();
         else if (_screen == Screen.Fight)
             StartFight(_hero, _scenario ?? _options.Scenario);
@@ -109,7 +109,7 @@ public partial class Main : Node3D
         }
         if (_options.LobbySelfTest)
             _ = RunLobbySelfTest();
-        else if (_options.Shot == "lobby")
+        else if (_options.Shot is "lobby" or "create")
             _ = LobbyScreenshot();
     }
 
@@ -225,7 +225,7 @@ public partial class Main : Node3D
             AddChild(view);
             view.Setup(f, f.Team == _controller.PlayerTeam);
             if (fight.Hero is Hero hero && f.Name.Fr == hero.Name)
-                view.Paint(hero.Colour);
+                view.Paint(hero);
             _views[f.Id] = view;
         }
         _hud = new Hud();
@@ -476,9 +476,12 @@ public partial class Main : Node3D
         {
             view.OpenCreate();
             view.CharacterField.Text = hero;
-            view.LookChoice.Select(Hero.Looks.ToList().IndexOf("male-b"));
-            view.ClassChoice.Select(GameData.Embedded.Classes.ToList().FindIndex(c => c.Id == "mage"));
+            view.SelectLook("male-b");
+            view.SelectClass("mage");
             view.ChooseColour(3);
+            view.ChooseHair(4);
+            view.ChooseSkin(2);
+            view.SetShape(1, -1);
             await view.Create();
             string expected = $"{hero} · {GameData.Embedded.Class("mage")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
             problem = view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
@@ -495,7 +498,17 @@ public partial class Main : Node3D
             GetTree().Quit(1);
             return;
         }
-        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
+        Hero kept = _lobby.Here.Single().Hero;
+        if (kept != new Hero(hero, "male-b", "mage", 3, 4, 2, 1, -1))
+        {
+            string report = $"SELFTEST FAILED lobby: the server keeps {kept}";
+            GD.Print(report);
+            if (_options.Report is string path)
+                File.WriteAllText(path, report + "\n");
+            GetTree().Quit(1);
+            return;
+        }
+        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3, hair 4, skin 2, height 1, build -1) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
         view.PlayButton.EmitSignal(BaseButton.SignalName.Pressed);
     }
 
@@ -504,17 +517,31 @@ public partial class Main : Node3D
     {
         LobbyView view = _lobbyView!;
         await _lobby!.SignIn("capture_" + Guid.NewGuid().ToString("N")[..8], "screenshot password", create: true);
-        List<HeroClass> classes = [.. GameData.Embedded.Classes];
-        foreach ((string name, string look, string heroClass, int colour) in new[] { ("Margaux", "female-e", "sentinel", 0), ("Élise", "female-c", "mage", 4), ("Bastien", "male-c", "guard", 2) })
+        foreach (Hero h in new[] { new Hero("Margaux", "female-e", "sentinel", 0, 3, 0, 0, 0), new Hero("Élise", "female-c", "mage", 4, 7, 1, -1, 0), new Hero("Bastien", "male-c", "guard", 2, 1, 4, 2, 2) })
         {
             view.OpenCreate();
-            view.CharacterField.Text = name;
-            view.LookChoice.Select(Hero.Looks.ToList().IndexOf(look));
-            view.ClassChoice.Select(classes.FindIndex(c => c.Id == heroClass));
-            view.ChooseColour(colour);
+            view.CharacterField.Text = h.Name;
+            view.SelectLook(h.Look);
+            view.SelectClass(h.Class!);
+            view.ChooseColour(h.Colour);
+            view.ChooseHair(h.Hair);
+            view.ChooseSkin(h.Skin);
+            view.SetShape(h.Height, h.Build);
             await view.Create();
         }
         view.Select(_lobby.Here[1].Id);
+        if (_options.Shot == "create")
+        {
+            // The creation screen itself, half filled.
+            view.OpenCreate();
+            view.CharacterField.Text = "Aubépine";
+            view.SelectLook("female-b");
+            view.SelectClass("guard");
+            view.ChooseColour(5);
+            view.ChooseHair(5);
+            view.ChooseSkin(4);
+            view.SetShape(-1, 1);
+        }
         for (int i = 0; i < 30; i++)
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         Error saved = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);

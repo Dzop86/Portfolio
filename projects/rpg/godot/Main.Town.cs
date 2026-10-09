@@ -24,7 +24,7 @@ public partial class Main
         _town = new TownController(GameData.Embedded, Village, at);
         _townView = new TownView();
         AddChild(_townView);
-        _townView.Build(_town, _options.Lang, _hero?.Look ?? "female-d", _hero?.Colour ?? 0);
+        _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         var centre = new Vector3((_town.Board.Width - 1) / 2f, 0, (_town.Board.Height - 1) / 2f);
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 13.5f, RotationDegrees = new Vector3(-30, 45, 0) };
         AddChild(_camera);

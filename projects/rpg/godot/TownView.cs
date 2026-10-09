@@ -23,7 +23,7 @@ public partial class TownView : Node3D
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
 
-    public void Build(TownController controller, string lang, string look, int colour)
+    public void Build(TownController controller, string lang, Hero player)
     {
         Controller = controller;
         Town town = controller.Town;
@@ -45,7 +45,7 @@ public partial class TownView : Node3D
         }
         foreach (Npc npc in town.Npcs)
         {
-            Node3D person = Person(npc.Look, npc.Colour, npc.Name.In(lang));
+            Node3D person = Person(new Hero("", npc.Look, null, npc.Colour), npc.Name.In(lang));
             person.Position = BoardView.ToWorld(npc.At);
             AddChild(person);
             People[npc.Id] = person;
@@ -63,7 +63,7 @@ public partial class TownView : Node3D
             AddChild(label);
             _exitLabels.Add((label, exit.Name));
         }
-        Player = Person(look, colour, null);
+        Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         Player.Position = BoardView.ToWorld(controller.Position);
         AddChild(Player);
@@ -116,12 +116,12 @@ public partial class TownView : Node3D
     private static Node3D Model(string path) => GD.Load<PackedScene>(path).Instantiate<Node3D>();
 
     /// <summary>A character model facing the viewer, idle, its outfit painted, a name above it (or none).</summary>
-    private static Node3D Person(string look, int colour, string? name)
+    private static Node3D Person(Hero appearance, string? name)
     {
         // A little larger than on the fighting board, next to houses two cells wide.
         var root = new Node3D { Scale = new Vector3(1.5f, 1.5f, 1.5f) };
-        Node3D model = Looks.Fighter(look).Instantiate<Node3D>();
-        Looks.Paint(model, colour);
+        Node3D model = Looks.Fighter(appearance.Look).Instantiate<Node3D>();
+        Looks.Paint(model, appearance);
         model.RotationDegrees = new Vector3(0, 45, 0);
         root.AddChild(model);
         if (model.FindChild("AnimationPlayer", true, false) is AnimationPlayer anim && anim.HasAnimation("idle"))

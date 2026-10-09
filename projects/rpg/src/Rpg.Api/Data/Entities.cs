@@ -36,6 +36,12 @@ public sealed class Character
 
     public int Level { get; set; } = 1;
 
+    /// <summary>The appearance beyond look and colour: hair colour, skin tone, height, build (0: as drawn).</summary>
+    public int Hair { get; set; }
+    public int Skin { get; set; }
+    public int Height { get; set; }
+    public int Build { get; set; }
+
     /// <summary>Where the character stands: a town and a cell, or nothing before their first walk.</summary>
     public string? Town { get; set; }
     public int? X { get; set; }
