@@ -1,0 +1,14 @@
+# Sprint 61 : Osmose, les premiers monstres
+
+**Objectif :** Une première famille de monstres (DPS mêlée, DPS distance, tank, support, boss) en groupes visibles sur la carte.
+
+**Goal:** A first family of monsters (melee and ranged damage, tank, support, boss) in groups visible on the map.
+
+| Story | Points | État |
+|---|---|---|
+| En tant que joueur, je combats les monstres de la zone (rpg) : une famille de cinq monstres (DPS mêlée, DPS distance, tank, support soin ou bouclier, boss), groupes visibles qui errent, clic pour combattre, réapparition ; XP et butin ; équilibre par simulation ; auto-test, captures. | 3 | À faire |
+
+## Rétro (Charles)
+- Ce qui a marché :
+- Ce que l'IA a mal fait :
+- À changer au prochain sprint :
