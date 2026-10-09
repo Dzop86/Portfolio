@@ -7,14 +7,14 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S61), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S62), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 22 projets
 Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40+S44 | 11 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40+S44+S62 | 16 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S41+S43 | 36 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6+S42 | 10 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
@@ -37,7 +37,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
 | 22 | Jeu : Osmose, RPG tactique | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S61 | 59 |
 
-Total : 265 points sur 61 sprints de deux semaines.
+Total : 270 points sur 62 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -93,6 +93,9 @@ Trois sprints, 9 points, après l'essai du jeu par Charles sous Windows et un qu
 
 ## Osmose : éléments, classes, progression et monde (décision de Charles, 9 octobre 2026, D56)
 Huit sprints, 24 points, après un second questionnaire. S54 les quatre éléments (une caractéristique chacun, résistances) et les effets (soin, bouclier, poussée et attirance, effets dans la durée, zones) ; S55 les invocations, les sorts à rangs débloqués par niveau, les caractéristiques dans les dégâts ; S56 les trois classes refaites, une vingtaine de sorts chacune ; S57 un combat lisible (survol, frise de l'ordre de jeu, effets visuels) ; S58 l'expérience et les niveaux 1 à 100, 10 points de caractéristique et 1 point de sort par niveau ; S59 les 14 emplacements d'équipement, les panoplies, l'inventaire en pages ; S60 de grandes zones avec une caméra qui suit le joueur, la carte du monde ; S61 une première famille de monstres en groupes visibles. Ensuite, après un nouveau questionnaire : donjons, quêtes, groupes, guildes, métiers, succès, bestiaire, cosmétiques, tutoriel.
+
+## Un schéma d'architecture sur chaque fiche (demande de Charles, 9 octobre 2026, D57)
+Un sprint de 5 points, la vitrine passe de 11 à 16. Sprint 62, après Osmose : sur chaque fiche qui a au moins trois morceaux qui se parlent, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose (boîtes, technologies, flèches nommées), décrit en données, dessiné en SVG par le générateur, en français et en anglais, lisible à 375 px et dans les deux thèmes.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
