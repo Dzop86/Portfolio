@@ -72,10 +72,10 @@ test('the launcher updates at once, signs in, waits for the update, then starts 
   await expect(page.locator('#status')).toHaveText('Le jeu démarre. Bonne partie !');
   expect(await commands(page)).toEqual(['start', 'update_game', 'connect', 'connect', 'play']);
   const connect = await page.evaluate(() => window.calls.filter(([c]) => c === 'connect').at(-1)[1]);
-  expect(connect).toEqual({ name: 'ada', password: '', rememberName: true, rememberPassword: true, signUp: false });
+  expect(connect).toEqual({ name: 'ada', password: '', rememberName: true, rememberPassword: true });
 });
 
-test('the launcher creates an account, checks the password on the page first, and speaks English (sprint 51)', async ({ page }) => {
+test('the launcher creates an account, then comes back to the sign-in form; English is kept for next time (sprint 51)', async ({ page }) => {
   await open(page, { start: { lang: 'en', name: null, passwordSaved: false, installed: '1.0.11' } });
   await expect(page.getByLabel('Account name', { exact: true })).toBeFocused();
   await expect(page.getByLabel('Remember the account name')).not.toBeChecked();
@@ -83,23 +83,32 @@ test('the launcher creates an account, checks the password on the page first, an
   await expect(page.getByLabel('Confirm the password')).toBeVisible();
   await page.getByLabel('Account name', { exact: true }).fill('margaux');
   await page.getByLabel('Password', { exact: true }).fill('short');
-  await page.getByRole('button', { name: 'Create the account and play' }).click();
+  await page.getByRole('button', { name: 'Create the account' }).click();
   await expect(page.locator('#message')).toHaveText('A password has at least 10 characters.');
   await page.getByLabel('Password', { exact: true }).fill('a long new password');
   await page.getByLabel('Confirm the password').fill('another one');
-  await page.getByRole('button', { name: 'Create the account and play' }).click();
+  await page.getByRole('button', { name: 'Create the account' }).click();
   await expect(page.locator('#message')).toHaveText('The two passwords differ.');
   expect(await commands(page)).toEqual(['start', 'update_game']);
 
+  // Created: back to the sign-in form, the name kept, the game not started.
   await page.getByLabel('Confirm the password').fill('a long new password');
-  await page.getByLabel('Remember the account name').check();
+  await page.getByRole('button', { name: 'Create the account' }).click();
+  await expect(page.locator('#notice')).toHaveText('Account margaux created: sign in.');
+  await expect(page.getByLabel('Confirm the password')).toBeHidden();
+  await expect(page.getByLabel('Account name', { exact: true })).toHaveValue('margaux');
+  await expect(page.getByLabel('Password', { exact: true })).toHaveValue('');
+  const created = await page.evaluate(() => window.calls.find(([c]) => c === 'create_account')[1]);
+  expect(created).toEqual({ name: 'margaux', password: 'a long new password' });
+  expect(await commands(page)).not.toContain('play');
+
+  // Then the usual sign-in starts the game.
   await page.evaluate(() => window.releaseUpdate());
-  await expect(page.locator('#status')).toHaveText('Game updated (version 1.0.12, 6.0 MB).');
-  await page.getByRole('button', { name: 'Create the account and play' }).click();
+  await page.getByLabel('Password', { exact: true }).fill('a long new password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.locator('#status')).toHaveText('The game is starting. Have fun!');
-  const connect = await page.evaluate(() => window.calls.find(([c]) => c === 'connect')[1]);
-  expect(connect).toEqual({ name: 'margaux', password: 'a long new password', rememberName: true, rememberPassword: false, signUp: true });
-  // Back to French with one button.
+  // French by default otherwise; the choice is kept by the launcher.
   await page.getByRole('button', { name: 'Français / English' }).click();
-  await expect(page.getByRole('button', { name: "J'ai déjà un compte" })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Se connecter' })).toBeVisible();
+  expect(await page.evaluate(() => window.calls.find(([c]) => c === 'set_lang')[1])).toEqual({ lang: 'fr' });
 });

@@ -135,6 +135,11 @@ public partial class Main
                 problems.Add($"the player is drawn at {_townView.Player.Position}, stands on {_town.Position}");
             if (step.TalkTo is not null)
                 talks++;
+            foreach (Npc npc in _town.Town.Npcs)
+            {
+                if (_townView.NameShown(npc.Id) != npc.At.DistanceTo(_town.Position) <= TownView.NameDistance)
+                    problems.Add($"{npc.Id}'s name is {(_townView.NameShown(npc.Id) ? "shown" : "hidden")} {npc.At.DistanceTo(_town.Position)} steps away");
+            }
         }, talk =>
         {
             _talkPanel!.Refresh();
@@ -179,6 +184,7 @@ public partial class Main
         {
             _talkPanel!.Visible = false;
             _townView.HideExitLabels();
+            _townView.HideNames();
         }
         else
         {

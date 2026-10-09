@@ -23,6 +23,9 @@ public partial class TownView : Node3D
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
 
+    /// <summary>An inhabitant's name shows only within this many steps of the player.</summary>
+    public const int NameDistance = 3;
+
     public void Build(TownController controller, string lang, Hero player)
     {
         Controller = controller;
@@ -66,6 +69,7 @@ public partial class TownView : Node3D
         Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         Player.Position = BoardView.ToWorld(controller.Position);
+        ShowNamesNear(controller.Position);
         AddChild(Player);
         _pathMaterial = new StandardMaterial3D { AlbedoColor = new Color(1f, 0.9f, 0.35f, 0.8f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
     }
@@ -149,6 +153,31 @@ public partial class TownView : Node3D
         Position = at,
     };
 
+    /// <summary>Shows the names of the inhabitants close to <paramref name="player"/> (Manhattan distance), hides the others.</summary>
+    public void ShowNamesNear(Cell player)
+    {
+        foreach (Npc npc in Controller.Town.Npcs)
+        {
+            if (People.TryGetValue(npc.Id, out Node3D? person))
+            {
+                foreach (Label3D label in person.FindChildren("*", nameof(Label3D), true, false).OfType<Label3D>())
+                    label.Visible = !_namesHidden && npc.At.DistanceTo(player) <= NameDistance;
+            }
+        }
+    }
+
+    /// <summary>Whether an inhabitant's name is shown (for the self-test).</summary>
+    public bool NameShown(string npc) => People[npc].FindChildren("*", nameof(Label3D), true, false).OfType<Label3D>().Any(l => l.Visible);
+
+    private bool _namesHidden;
+
+    /// <summary>Hides every name (the launcher's banner, a picture without text).</summary>
+    public void HideNames()
+    {
+        _namesHidden = true;
+        ShowNamesNear(Controller.Position);
+    }
+
     /// <summary>Hides the gates' names (a picture without text, for the launcher's banner).</summary>
     public void HideExitLabels()
     {
@@ -192,10 +221,12 @@ public partial class TownView : Node3D
                 if (step <= 0)
                 {
                     Player.Position = to;
+                    ShowNamesNear(c);
                     continue;
                 }
                 Tween tween = CreateTween();
                 tween.TweenProperty(Player, "position", to, step);
+                ShowNamesNear(c);
                 await ToSignal(tween, Tween.SignalName.Finished);
             }
             _anim?.Play("idle");

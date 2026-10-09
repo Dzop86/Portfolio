@@ -74,6 +74,8 @@ button.link { background: none; border: none; color: var(--accent); text-decorat
 button:disabled { opacity: 0.5; cursor: default; }
 
 #message { color: var(--error); min-height: 1.5em; margin: 8px 0 0; }
+#notice { color: var(--accent); margin: 8px 0 0; }
+#notice:empty { display: none; }
 footer { padding: 8px 32px 16px; }
 progress { width: 100%; height: 8px; accent-color: var(--accent); }
 #status { color: var(--muted); font-size: 13px; margin: 4px 0 0; min-height: 1.5em; }

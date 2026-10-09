@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class LobbyView : CanvasLayer
 {
-    private readonly List<Button> _swatches = [], _hairSwatches = [], _skinSwatches = [], _classButtons = [];
+    private readonly List<Button> _swatches = [], _hairSwatches = [], _skinSwatches = [], _classButtons = [], _genderButtons = [], _thumbs = [];
     private readonly List<Button> _cards = [];
     private Lobby _lobby = null!;
     private VBoxContainer _signedOut = null!, _serverScreen = null!, _serverList = null!, _characterScreen = null!;
@@ -62,6 +62,19 @@ public partial class LobbyView : CanvasLayer
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
         root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         AddChild(root);
+        // The village of Clairval behind the screens, darkened so the texts stay readable.
+        var background = new TextureRect
+        {
+            Texture = GD.Load<Texture2D>("res://assets/ui/village.jpg"),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        };
+        background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        root.AddChild(background);
+        var shade = new ColorRect { Color = new Color(0.12f, 0.12f, 0.12f, 0.8f), MouseFilter = Control.MouseFilterEnum.Ignore };
+        shade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        root.AddChild(shade);
         _title = new Label { Position = new Vector2(32, 18) };
         _title.AddThemeFontSizeOverride("font_size", 40);
         root.AddChild(_title);
@@ -153,16 +166,41 @@ public partial class LobbyView : CanvasLayer
         var left = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
         left.AddThemeConstantOverride("separation", 10);
         row.AddChild(left);
-        _preview = Portrait.Make(new Vector2(420, 520), turning: true, distance: 2.9f);
+        _preview = Portrait.Make(new Vector2(420, 420), turning: true, distance: 2.9f);
         left.AddChild(_preview);
+        // Woman or man first, then the six looks of that choice, as small portraits.
+        var genders = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        genders.AddThemeConstantOverride("separation", 10);
+        left.AddChild(genders);
+        foreach (string gender in new[] { "female", "male" })
+        {
+            Button b = Button(genders, () => ChooseGender(gender));
+            b.ToggleMode = true;
+            b.SetMeta("gender", gender);
+            _genderButtons.Add(b);
+        }
         var looks = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-        looks.AddThemeConstantOverride("separation", 12);
+        looks.AddThemeConstantOverride("separation", 4);
         left.AddChild(looks);
-        Button(looks, () => SelectLook(Hero.Looks[(_look + Hero.Looks.Count - 1) % Hero.Looks.Count])).Text = "◀";
-        _lookName = new Label { CustomMinimumSize = new Vector2(160, 0), HorizontalAlignment = HorizontalAlignment.Center };
-        _lookName.AddThemeFontSizeOverride("font_size", 20);
-        looks.AddChild(_lookName);
-        Button(looks, () => SelectLook(Hero.Looks[(_look + 1) % Hero.Looks.Count])).Text = "▶";
+        for (int i = 0; i < 6; i++)
+        {
+            int index = i;
+            var thumb = new Button { CustomMinimumSize = new Vector2(66, 82), ToggleMode = true };
+            var chosen = new StyleBoxFlat { BgColor = new Color(0.75f, 0.95f, 0.45f, 0.18f), BorderColor = FighterView.PlayerColour };
+            chosen.SetBorderWidthAll(3);
+            chosen.SetCornerRadiusAll(6);
+            thumb.AddThemeStyleboxOverride("pressed", chosen);
+            Portrait portrait = Portrait.Make(new Vector2(62, 78), turning: false, distance: 2.4f);
+            portrait.SetAnchorsPreset(Control.LayoutPreset.Center);
+            portrait.GrowHorizontal = Control.GrowDirection.Both;
+            portrait.GrowVertical = Control.GrowDirection.Both;
+            thumb.AddChild(portrait);
+            thumb.Pressed += () => SelectLook($"{Gender}-{(char)('a' + index)}");
+            looks.AddChild(thumb);
+            _thumbs.Add(thumb);
+        }
+        _lookName = new Label { HorizontalAlignment = HorizontalAlignment.Center };
+        left.AddChild(_lookName);
 
         var form = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         form.AddThemeConstantOverride("separation", 6);
@@ -257,11 +295,17 @@ public partial class LobbyView : CanvasLayer
         }
     }
 
+    /// <summary>"female" or "male": the first half of the look's name.</summary>
+    public string Gender => Look[..Look.IndexOf('-', StringComparison.Ordinal)];
+
     public void SelectLook(string look)
     {
         _look = Math.Max(0, Hero.Looks.ToList().IndexOf(look));
         ShowPreview();
     }
+
+    /// <summary>Woman or man: the thumbnails show that choice's looks; the same letter stays chosen.</summary>
+    public void ChooseGender(string gender) => SelectLook($"{gender}{Look[Look.IndexOf('-', StringComparison.Ordinal)..]}");
 
     public void SelectClass(string id)
     {
@@ -315,6 +359,14 @@ public partial class LobbyView : CanvasLayer
         for (int i = 0; i < _skinSwatches.Count; i++)
             Paint(_skinSwatches[i], Looks.CellColour(i == 0 ? skin : Looks.SkinCells[i]), i == _skin);
         _lookName.Text = Texts.Look(Look);
+        foreach (Button b in _genderButtons)
+            b.SetPressedNoSignal((string)b.GetMeta("gender") == Gender);
+        for (int i = 0; i < _thumbs.Count; i++)
+        {
+            string look = $"{Gender}-{(char)('a' + i)}";
+            _thumbs[i].GetChild<Portrait>(0).Show(Appearance with { Look = look, Height = 0, Build = 0 });
+            _thumbs[i].SetPressedNoSignal(look == Look);
+        }
         _preview.Show(Appearance);
     }
 
@@ -405,6 +457,8 @@ public partial class LobbyView : CanvasLayer
         _buildLabel.Text = Texts["lobby.build"];
         _nameLabel.Text = Texts["lobby.character-name"];
         _lookName.Text = Texts.Look(Look);
+        foreach (Button b in _genderButtons)
+            b.Text = Texts["lobby." + (string)b.GetMeta("gender")];
         CharacterField.PlaceholderText = Texts["lobby.character-name"];
         _create.Text = Texts["lobby.create"];
         _create.Disabled = _busy;

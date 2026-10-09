@@ -24,6 +24,9 @@ pub struct Settings {
     pub server: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// The page's language, "fr" (the default) or "en", as the player last chose it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lang: Option<String>,
 }
 
 impl Settings {
@@ -93,11 +96,14 @@ pub struct Login<'a> {
     pub password: &'a str,
     pub remember_name: bool,
     pub remember_password: bool,
-    /// Create the account first.
-    pub sign_up: bool,
 }
 
-/// Signs in (after signing up, if asked), then remembers what the player chose to remember and
+/// Creates an account on the launcher's server; the player then signs in, as with any account.
+pub fn sign_up(dir: &Path, name: &str, password: &str) -> Result<()> {
+    server::sign_up(&Settings::load(dir).server(), name, password)
+}
+
+/// Signs in, then remembers what the player chose to remember and
 /// forgets the rest. A credential store that refuses does not stop the sign-in: the token comes
 /// back with the store's complaint, for the window to show.
 pub fn sign_in(
@@ -108,15 +114,12 @@ pub fn sign_in(
     let mut settings = Settings::load(dir);
     let server = settings.server();
     let saved;
-    let password = if login.password.is_empty() && !login.sign_up {
+    let password = if login.password.is_empty() {
         saved = secrets.get(login.name).ok_or(Error::MissingPassword)?;
         saved.as_str()
     } else {
         login.password
     };
-    if login.sign_up {
-        server::sign_up(&server, login.name, password)?;
-    }
     let token = server::sign_in(&server, login.name, password)?;
 
     // Another account remembered before: its password goes, whatever happens to this one.

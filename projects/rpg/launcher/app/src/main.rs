@@ -83,27 +83,43 @@ struct Start {
 
 #[tauri::command]
 fn start(app: tauri::AppHandle) -> Start {
-    let (name, password_saved) = account::remembered(&config_folder(&app), &SystemSecrets);
+    let folder = config_folder(&app);
+    let (name, password_saved) = account::remembered(&folder, &SystemSecrets);
+    // French by default, as the player last chose otherwise.
+    let lang = if Settings::load(&folder).lang.as_deref() == Some("en") {
+        "en"
+    } else {
+        "fr"
+    };
     Start {
-        lang: system_lang(),
+        lang,
         name,
         password_saved,
         installed: manifest::installed(&game_folder(&app)).map(|m| m.version),
     }
 }
 
-/// "fr" when the system speaks French (LC_ALL, LC_MESSAGES, LANG, LANGUAGE), else "en".
-fn system_lang() -> &'static str {
-    let french = ["LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"]
-        .iter()
-        .filter_map(|v| std::env::var(v).ok())
-        .find(|v| !v.is_empty())
-        .is_some_and(|v| v.starts_with("fr"));
-    if french {
-        "fr"
-    } else {
-        "en"
-    }
+/// Keeps the language the player chose, for the next launch.
+#[tauri::command]
+fn set_lang(app: tauri::AppHandle, lang: String) -> Result<(), Problem> {
+    let folder = config_folder(&app);
+    let mut settings = Settings::load(&folder);
+    settings.lang = Some(if lang == "en" { "en" } else { "fr" }.to_owned());
+    settings.save(&folder).map_err(Problem::from)
+}
+
+/// Creates an account; the page then comes back to the sign-in form.
+#[tauri::command]
+async fn create_account(
+    app: tauri::AppHandle,
+    name: String,
+    password: String,
+) -> Result<(), Problem> {
+    let folder = config_folder(&app);
+    tauri::async_runtime::spawn_blocking(move || account::sign_up(&folder, &name, &password))
+        .await
+        .map_err(joined)??;
+    Ok(())
 }
 
 #[derive(Serialize)]
@@ -136,10 +152,9 @@ async fn update_game(app: tauri::AppHandle) -> Result<Updated, Problem> {
     })
 }
 
-/// Signs in (after signing up, if asked) and remembers what the player ticked; the answer says
+/// Signs in and remembers what the player ticked; the answer says
 /// whether the credential store refused to keep the password.
 #[tauri::command]
-#[allow(clippy::too_many_arguments)]
 async fn connect(
     app: tauri::AppHandle,
     session: State<'_, Session>,
@@ -147,7 +162,6 @@ async fn connect(
     password: String,
     remember_name: bool,
     remember_password: bool,
-    sign_up: bool,
 ) -> Result<Option<&'static str>, Problem> {
     let folder = config_folder(&app);
     let (token, complaint) = tauri::async_runtime::spawn_blocking(move || {
@@ -159,7 +173,6 @@ async fn connect(
                 password: &password,
                 remember_name,
                 remember_password,
-                sign_up,
             },
         )
     })
@@ -196,7 +209,14 @@ fn play(app: tauri::AppHandle, session: State<'_, Session>, lang: String) -> Res
 fn main() {
     tauri::Builder::default()
         .manage(Session::default())
-        .invoke_handler(tauri::generate_handler![start, update_game, connect, play])
+        .invoke_handler(tauri::generate_handler![
+            start,
+            set_lang,
+            create_account,
+            update_game,
+            connect,
+            play
+        ])
         .run(tauri::generate_context!())
         .expect("the launcher's window could not open");
 }

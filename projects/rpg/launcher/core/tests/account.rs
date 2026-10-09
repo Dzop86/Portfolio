@@ -44,7 +44,7 @@ fn folder(url: &str) -> tempfile::TempDir {
     let dir = tempfile::tempdir().unwrap();
     Settings {
         server: Some(url.into()),
-        name: None,
+        ..Settings::default()
     }
     .save(dir.path())
     .unwrap();
@@ -62,7 +62,6 @@ fn login<'a>(
         password,
         remember_name,
         remember_password,
-        sign_up: false,
     }
 }
 
@@ -134,11 +133,13 @@ fn unticking_forgets_the_password_and_another_account_forgets_the_first() {
         &login("ada", "correct horse battery", true, true),
     )
     .unwrap();
-    let grace = Login {
-        sign_up: true,
-        ..login("grace", "another long password", true, true)
-    };
-    account::sign_in(dir.path(), &secrets, &grace).unwrap();
+    account::sign_up(dir.path(), "grace", "another long password").unwrap();
+    account::sign_in(
+        dir.path(),
+        &secrets,
+        &login("grace", "another long password", true, true),
+    )
+    .unwrap();
     assert_eq!(
         secrets.kept.lock().unwrap().keys().collect::<Vec<_>>(),
         ["grace"]
@@ -181,16 +182,21 @@ fn a_locked_credential_store_does_not_stop_the_game() {
 }
 
 #[test]
-fn signing_up_creates_the_account_and_signs_in() {
+fn signing_up_creates_the_account_then_the_player_signs_in() {
     let (url, _) = common::serve(BTreeMap::new());
     let dir = folder(&url);
     let secrets = Memory::default();
-    let new = Login {
-        sign_up: true,
-        ..login("margaux", "a long new password", true, false)
-    };
+    account::sign_up(dir.path(), "margaux", "a long new password").unwrap();
+    // Signing up remembers nothing and signs nobody in: the form comes back.
+    assert_eq!(account::remembered(dir.path(), &secrets), (None, false));
     assert_eq!(
-        account::sign_in(dir.path(), &secrets, &new).unwrap().0,
+        account::sign_in(
+            dir.path(),
+            &secrets,
+            &login("margaux", "a long new password", true, false)
+        )
+        .unwrap()
+        .0,
         "jwt.for.margaux"
     );
     assert_eq!(
@@ -219,7 +225,7 @@ fn the_server_is_the_environments_then_the_files_then_the_local_one() {
     assert_eq!(Settings::load(dir.path()), Settings::default());
     Settings {
         server: Some("http://osmose.example".into()),
-        name: None,
+        ..Settings::default()
     }
     .save(dir.path())
     .unwrap();

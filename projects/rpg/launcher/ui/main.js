@@ -9,6 +9,7 @@ let signUp = false;
 let passwordSaved = false;
 let status = null; // [key, ...args] of the line under the bar
 let message = null; // the last refusal's key
+let notice = null; // [key, ...args] of the last good news (an account created)
 let updating = null; // the update going on, or done: resolves to true when the game is ready
 
 const t = (key, ...args) => (window.TEXTS[lang][key] ?? key).replace(/\{(\d)\}/g, (_, i) => args[i]);
@@ -29,6 +30,7 @@ function draw() {
   $('password').autocomplete = signUp ? 'new-password' : 'current-password';
   $('status').textContent = status ? t(...status) : '';
   $('message').textContent = message ? t(`error.${message}`) : '';
+  $('notice').textContent = notice ? t(...notice) : '';
 }
 
 /** Updates the game (once, or again after a failure); resolves to whether it is ready. */
@@ -53,11 +55,13 @@ function update() {
 $('lang').addEventListener('click', () => {
   lang = lang === 'fr' ? 'en' : 'fr';
   draw();
+  invoke('set_lang', { lang }).catch(() => {});
 });
 
 $('mode').addEventListener('click', () => {
   signUp = !signUp;
   message = null;
+  notice = null;
   draw();
 });
 
@@ -79,8 +83,21 @@ $('form').addEventListener('submit', async (event) => {
   if (message) return;
   for (const b of document.querySelectorAll('form button')) b.disabled = true;
   try {
+    if (signUp) {
+      // The account is created, then the player signs in like with any account.
+      await invoke('create_account', { name, password });
+      signUp = false;
+      passwordSaved = false;
+      $('password').value = '';
+      $('confirm').value = '';
+      message = null;
+      notice = ['created', name];
+      $('password').focus();
+      return;
+    }
+    notice = null;
     const complaint = await invoke('connect', {
-      name, password, rememberName: $('remember-name').checked, rememberPassword: $('remember-password').checked, signUp,
+      name, password, rememberName: $('remember-name').checked, rememberPassword: $('remember-password').checked,
     });
     $('password').value = '';
     $('confirm').value = '';
