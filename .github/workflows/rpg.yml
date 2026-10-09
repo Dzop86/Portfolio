@@ -76,7 +76,9 @@ jobs:
           include-templates: false
       - name: Build the C# scripts
         run: dotnet build godot/Rpg.Godot.csproj
+      # Through bash: PowerShell does not wait for Godot on Windows, which then skipped the import of the models.
       - name: Import the project
+        shell: bash
         run: godot --headless --path godot --import
       # A whole fight through the player's controls, every event through the views, checked by replay.
       - name: A whole fight in the client

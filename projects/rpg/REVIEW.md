@@ -25,4 +25,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/BoardView.cs`, `godot/Main.cs` | (Claude) Vu sur les captures : herbe délavée puis fluo, cases impossibles à compter, cases ciblables de la même teinte que le chemin | Deux verts en damier, lumière baissée, cases ciblables en bleu |
 | 2026-10-09 | `godot/Main.cs` (`--screenshot`) | (Claude) Vu sur la capture « sort » : aucune visée ; le mode capture choisissait le sort une seconde fois, ce qui l'annule | Ne le choisit que s'il ne l'est pas |
 | 2026-10-09 | `src/Rpg.Core/Iso.cs` | (Claude) Devenu du code mort avec le choix de la 3D | Retiré avec ses tests (T7) |
+| 2026-10-09 | `.github/workflows/rpg.yml` | (Claude) CI rouge sous Windows seulement : l'import Godot durait 0,5 s, PowerShell rendant la main sans attendre Godot ; les modèles .glb n'étaient pas importés et l'auto-test restait bloqué jusqu'au délai de 5 min | Import lancé par bash, qui attend Godot |
 | | | | |
