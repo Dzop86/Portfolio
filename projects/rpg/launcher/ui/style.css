@@ -11,33 +11,51 @@
 }
 
 * { box-sizing: border-box; }
+/* `hidden` wins over the display of labels and forms. */
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--text);
   font: 15px/1.5 system-ui, sans-serif;
 }
 
-main { padding: 20px 24px; max-width: 520px; margin: auto; }
-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--chocolate); }
-h1 { font-size: 26px; margin: 8px 0; }
-h2 { font-size: 18px; margin: 18px 0 4px; }
-.meta { color: var(--muted); font-size: 13px; }
+/* The village of Clairval behind the game's name, fading into the page. */
+.banner { position: relative; height: 200px; overflow: hidden; border-bottom: 3px solid var(--chocolate); }
+.banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, var(--bg)); }
+.banner h1 {
+  position: absolute;
+  left: 24px;
+  bottom: 6px;
+  z-index: 1;
+  margin: 0;
+  font-size: 40px;
+  letter-spacing: 1px;
+  color: #fff;
+  text-shadow: 0 2px 6px #000;
+}
+.banner #lang { position: absolute; right: 16px; top: 16px; z-index: 1; }
 
-form { display: grid; gap: 10px; background: var(--panel); padding: 14px; border-radius: 8px; }
+main { flex: 1; padding: 16px 32px 8px; }
+form { display: grid; gap: 10px; }
 label { display: grid; gap: 4px; }
-input {
+label.check { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+label.check input { width: 22px; height: 22px; accent-color: var(--accent); }
+input:not([type="checkbox"]) {
   min-height: 44px;
   padding: 8px 10px;
   border: 1px solid #555;
   border-radius: 6px;
-  background: var(--bg);
+  background: var(--panel);
   color: var(--text);
   font: inherit;
 }
-.server { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
-#server { flex: 1; }
+input::placeholder { color: var(--muted); }
 input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 button {
@@ -46,15 +64,16 @@ button {
   padding: 8px 16px;
   border: 1px solid #555;
   border-radius: 6px;
-  background: #383838;
+  background: rgba(31, 31, 31, 0.85);
   color: var(--text);
   font: inherit;
   cursor: pointer;
 }
-button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+button.primary { margin-top: 6px; background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 700; font-size: 17px; }
+button.link { background: none; border: none; color: var(--accent); text-decoration: underline; }
 button:disabled { opacity: 0.5; cursor: default; }
-.row { display: flex; gap: 10px; }
-.row button { flex: 1; }
-progress { width: 100%; height: 12px; accent-color: var(--accent); }
-#message { color: var(--error); min-height: 1.5em; }
-#signed-in { color: var(--accent); }
+
+#message { color: var(--error); min-height: 1.5em; margin: 8px 0 0; }
+footer { padding: 8px 32px 16px; }
+progress { width: 100%; height: 8px; accent-color: var(--accent); }
+#status { color: var(--muted); font-size: 13px; margin: 4px 0 0; min-height: 1.5em; }

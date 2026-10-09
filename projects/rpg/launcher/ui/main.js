@@ -1,47 +1,53 @@
-// The launcher's page: Tauri's commands (src/main.rs) do the work; this draws it.
+// Osmose's launcher page: Tauri's commands (src/main.rs) do the work; this draws it.
+// At start the game updates by itself; "Sign in" signs in (or up), waits for the update, then plays.
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 const $ = (id) => document.getElementById(id);
 
-let lang = navigator.language.startsWith('fr') ? 'fr' : 'en';
-let installed = null;
-let signedInAs = null;
-let status = null; // [key, ...args] of the last message under the bar
+let lang = 'fr';
+let signUp = false;
+let passwordSaved = false;
+let status = null; // [key, ...args] of the line under the bar
+let message = null; // the last refusal's key
+let updating = null; // the update going on, or done: resolves to true when the game is ready
 
 const t = (key, ...args) => (window.TEXTS[lang][key] ?? key).replace(/\{(\d)\}/g, (_, i) => args[i]);
 const size = (bytes) => {
   const [kilo, mega] = lang === 'fr' ? ['ko', 'Mo'] : ['kB', 'MB'];
-  return bytes < 1e6 ? `${(bytes / 1e3).toFixed(0)} ${kilo}` : `${(bytes / 1e6).toFixed(1)} ${mega}`;
+  const number = bytes < 1e6 ? (bytes / 1e3).toFixed(0) : (bytes / 1e6).toFixed(1);
+  return `${lang === 'fr' ? number.replace('.', ',') : number} ${bytes < 1e6 ? kilo : mega}`;
 };
 
 function draw() {
   document.documentElement.lang = lang;
   for (const el of document.querySelectorAll('[data-t]')) el.textContent = t(el.dataset.t);
   $('lang').textContent = lang === 'fr' ? 'EN' : 'FR';
-  $('version').textContent = installed ? t('installed', installed) : t('not-installed');
-  $('play').disabled = !installed;
-  $('sign-in').hidden = signedInAs !== null;
-  $('signed-in').hidden = signedInAs === null;
-  if (signedInAs) $('signed-in').textContent = t('signed-in', signedInAs);
-  if (status) $('progress').textContent = t(...status);
+  $('submit').textContent = t(signUp ? 'sign-up' : 'sign-in');
+  $('mode').textContent = t(signUp ? 'to-sign-in' : 'to-sign-up');
+  $('confirm-row').hidden = !signUp;
+  $('password').placeholder = passwordSaved && !signUp ? t('password-saved') : '';
+  $('password').autocomplete = signUp ? 'new-password' : 'current-password';
+  $('status').textContent = status ? t(...status) : '';
+  $('message').textContent = message ? t(`error.${message}`) : '';
 }
 
-function fail(problem) {
-  $('message').textContent = t(`error.${problem.code}`);
-  console.warn(problem.detail);
-}
-
-async function busy(action) {
-  for (const b of document.querySelectorAll('button:not(#lang)')) b.disabled = true;
-  $('message').textContent = '';
-  try {
-    await action();
-  } catch (problem) {
-    fail(problem);
-  } finally {
-    for (const b of document.querySelectorAll('button:not(#lang)')) b.disabled = false;
+/** Updates the game (once, or again after a failure); resolves to whether it is ready. */
+function update() {
+  status = ['checking'];
+  draw();
+  updating = invoke('update_game').then((report) => {
+    status = report.downloaded === 0 ? ['up-to-date', report.version] : ['updated', report.version, size(report.received)];
+    $('bar').value = $('bar').max;
     draw();
-  }
+    return true;
+  }, (problem) => {
+    status = null;
+    message = problem.code;
+    draw();
+    updating = null;
+    return false;
+  });
+  return updating;
 }
 
 $('lang').addEventListener('click', () => {
@@ -49,43 +55,68 @@ $('lang').addEventListener('click', () => {
   draw();
 });
 
-$('sign-in').addEventListener('submit', (event) => {
-  event.preventDefault();
-  busy(async () => {
-    await invoke('sign_in', { server: $('server').value, name: $('name').value, password: $('password').value });
-    signedInAs = $('name').value;
-    $('password').value = '';
-  });
+$('mode').addEventListener('click', () => {
+  signUp = !signUp;
+  message = null;
+  draw();
 });
 
-$('update').addEventListener('click', () => busy(async () => {
-  status = ['checking'];
-  $('bar').hidden = false;
+$('name').addEventListener('input', () => {
+  // A remembered password belongs to the remembered name only.
+  passwordSaved = false;
   draw();
-  const report = await invoke('update_game', { server: $('server').value });
-  installed = report.version;
-  status = report.downloaded === 0 && report.removed === 0
-    ? ['up-to-date', report.version]
-    : ['updated', report.version, report.downloaded, size(report.received), report.removed];
-  $('bar').hidden = true;
-}));
+});
 
-$('play').addEventListener('click', () => busy(async () => {
-  await invoke('play', { server: $('server').value, lang });
-  status = ['started'];
-}));
+$('form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const name = $('name').value.trim();
+  const password = $('password').value;
+  message = !name || (!password && (signUp || !passwordSaved)) ? 'fill-in'
+    : signUp && password.length < 10 ? 'short'
+    : signUp && password !== $('confirm').value ? 'mismatch'
+    : null;
+  draw();
+  if (message) return;
+  for (const b of document.querySelectorAll('form button')) b.disabled = true;
+  try {
+    const complaint = await invoke('connect', {
+      name, password, rememberName: $('remember-name').checked, rememberPassword: $('remember-password').checked, signUp,
+    });
+    $('password').value = '';
+    $('confirm').value = '';
+    message = complaint;
+    status = ['waiting'];
+    draw();
+    if (!(await (updating ?? update()))) {
+      message = message ?? 'unreachable';
+      status = ['not-installed'];
+      return;
+    }
+    await invoke('play', { lang });
+    status = ['started'];
+  } catch (problem) {
+    message = problem.code;
+    console.warn(problem.detail);
+  } finally {
+    for (const b of document.querySelectorAll('form button')) b.disabled = false;
+    draw();
+  }
+});
 
 listen('progress', ({ payload: [done, total, file, files] }) => {
   $('bar').max = Math.max(total, 1);
   $('bar').value = done;
-  status = ['progress', file, files, size(done), size(total)];
+  if (files > 0) status = ['progress', file, files, size(done), size(total)];
   draw();
 });
 
-invoke('settings').then((s) => {
-  $('server').value = s.server;
-  // The system's language, when the web view does not say it (Windows and macOS read it the same way).
-  if (!navigator.language || navigator.language === 'en-US') lang = s.lang;
-  installed = s.installed;
+invoke('start').then((s) => {
+  lang = s.lang;
+  passwordSaved = s.passwordSaved;
+  $('name').value = s.name ?? '';
+  $('remember-name').checked = s.name !== null;
+  $('remember-password').checked = s.passwordSaved;
   draw();
+  ($('name').value ? $('password') : $('name')).focus();
+  update();
 });

@@ -3,80 +3,13 @@
 
 use std::collections::BTreeMap;
 use std::fs;
-use std::sync::{Arc, Mutex};
-use std::thread;
 
 use rpg_launcher_core::manifest::{self, Manifest};
 use rpg_launcher_core::update::{self, HttpSource};
 use rpg_launcher_core::{launch, server, Error};
-use tiny_http::{Header, Response, Server};
 
-/// Serves `files` under `/updates/linux/`, honouring `Range: bytes=N-` (206), and signs in
-/// "ada"/"correct horse battery"; "busy" is always refused with 429. Records the Range headers seen.
-fn serve(files: BTreeMap<String, Vec<u8>>) -> (String, Arc<Mutex<Vec<String>>>) {
-    let server = Server::http("127.0.0.1:0").unwrap();
-    let url = format!("http://{}", server.server_addr().to_ip().unwrap());
-    let ranges = Arc::new(Mutex::new(Vec::new()));
-    let seen = Arc::clone(&ranges);
-    thread::spawn(move || {
-        for mut request in server.incoming_requests() {
-            let path = request.url().trim_start_matches('/').to_owned();
-            if path == "api/tokens" {
-                let mut body = String::new();
-                request.as_reader().read_to_string(&mut body).unwrap();
-                let response = if body.contains("\"busy\"") {
-                    Response::from_string("{}").with_status_code(429)
-                } else if body.contains("\"ada\"") && body.contains("correct horse battery") {
-                    Response::from_string(
-                        r#"{"token":"jwt.for.ada","expiresAt":"2026-10-10T00:00:00Z"}"#,
-                    )
-                } else {
-                    Response::from_string(r#"{"title":"Unknown name or wrong password."}"#)
-                        .with_status_code(401)
-                };
-                request.respond(response).unwrap();
-                continue;
-            }
-            let Some(name) = path.strip_prefix("updates/linux/") else {
-                request.respond(Response::empty(404)).unwrap();
-                continue;
-            };
-            let name = name.replace("%20", " ");
-            let Some(bytes) = files.get(&name) else {
-                request.respond(Response::empty(404)).unwrap();
-                continue;
-            };
-            let from = request
-                .headers()
-                .iter()
-                .find(|h| h.field.equiv("Range"))
-                .map(|h| h.value.as_str().to_owned());
-            match from
-                .as_deref()
-                .and_then(|r| r.strip_prefix("bytes="))
-                .and_then(|r| r.trim_end_matches('-').parse::<usize>().ok())
-            {
-                Some(start) => {
-                    seen.lock().unwrap().push(format!("{name} from {start}"));
-                    let range = Header::from_bytes(
-                        "Content-Range",
-                        format!("bytes {start}-{}/{}", bytes.len() - 1, bytes.len()),
-                    )
-                    .unwrap();
-                    request
-                        .respond(
-                            Response::from_data(bytes[start..].to_vec())
-                                .with_status_code(206)
-                                .with_header(range),
-                        )
-                        .unwrap();
-                }
-                None => request.respond(Response::from_data(bytes.clone())).unwrap(),
-            }
-        }
-    });
-    (url, ranges)
-}
+mod common;
+use common::serve;
 
 fn published(game: &[(&str, &[u8])]) -> BTreeMap<String, Vec<u8>> {
     let dir = tempfile::tempdir().unwrap();

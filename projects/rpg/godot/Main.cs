@@ -11,7 +11,7 @@ namespace Rpg.Desktop;
 /// to the town); --selftest [--report FILE] plays a whole fight through the controls and checks the
 /// views; --town-selftest walks the town and talks to everyone first; --lobby-selftest signs up,
 /// creates and chooses a character on the login screen against the server, then does both;
-/// --screenshot FILE [--shot move|spell|lobby|town] saves a picture; --demo lets the AI play the
+/// --screenshot FILE [--shot move|spell|lobby|town|banner] saves a picture; --demo lets the AI play the
 /// hero too, animations and all, and quits after the fight (for the video of the project page).
 /// </summary>
 public partial class Main : Node3D
@@ -63,7 +63,7 @@ public partial class Main : Node3D
         AddEnvironment();
         if (_options.SelfTest || _options.Demo || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
             StartFight(_hero, _options.Scenario);
-        else if (_options.TownSelfTest || _options.Shot == "town")
+        else if (_options.TownSelfTest || _options.Shot is "town" or "banner")
             ShowTown();
         else if (_options.LobbySelfTest || _options.Shot == "lobby")
             ShowLobby();

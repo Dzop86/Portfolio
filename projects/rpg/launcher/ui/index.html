@@ -9,32 +9,26 @@
   <script src="main.js" defer></script>
 </head>
 <body>
+  <header class="banner">
+    <img src="banner.jpg" alt="" width="1040" height="416">
+    <h1>Osmose</h1>
+    <button type="button" id="lang" class="small" aria-label="Français / English"></button>
+  </header>
   <main>
-    <header>
-      <h1 data-t="title"></h1>
-      <button type="button" id="lang" class="small" aria-label="Français / English"></button>
-    </header>
-    <label class="meta server"><span data-t="server"></span><input id="server" spellcheck="false"></label>
-
-    <form id="sign-in">
+    <form id="form" novalidate>
       <label><span data-t="name"></span><input id="name" autocomplete="username" maxlength="20" required></label>
-      <label><span data-t="password"></span><input id="password" type="password" autocomplete="current-password" maxlength="128" required></label>
-      <button type="submit" data-t="sign-in"></button>
+      <label><span data-t="password"></span><input id="password" type="password" autocomplete="current-password" maxlength="128"></label>
+      <label id="confirm-row" hidden><span data-t="confirm"></span><input id="confirm" type="password" autocomplete="new-password" maxlength="128"></label>
+      <label class="check"><input type="checkbox" id="remember-name"><span data-t="remember-name"></span></label>
+      <label class="check"><input type="checkbox" id="remember-password"><span data-t="remember-password"></span></label>
+      <button type="submit" id="submit" class="primary"></button>
+      <button type="button" id="mode" class="link"></button>
     </form>
-    <p id="signed-in" hidden></p>
-
-    <section aria-labelledby="game-title">
-      <h2 id="game-title" data-t="game"></h2>
-      <p id="version" class="meta"></p>
-      <progress id="bar" max="1" value="0" hidden></progress>
-      <p id="progress" class="meta" aria-live="polite"></p>
-      <div class="row">
-        <button type="button" id="update" data-t="update"></button>
-        <button type="button" id="play" class="primary" data-t="play" disabled></button>
-      </div>
-    </section>
     <p id="message" role="alert"></p>
-    <p class="meta" data-t="note"></p>
   </main>
+  <footer>
+    <progress id="bar" max="1" value="0"></progress>
+    <p id="status" aria-live="polite"></p>
+  </footer>
 </body>
 </html>

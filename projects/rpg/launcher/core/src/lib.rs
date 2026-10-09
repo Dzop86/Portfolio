@@ -1,8 +1,10 @@
-//! The tactical RPG's launcher, without a window: it signs in to the server ([`server`]), compares
+//! Osmose's launcher, without a window: it signs in or signs up ([`server`]), remembers the account
+//! ([`account`]: the name in a settings file, the password in the system's credential store), compares
 //! the installed game with the server's manifest ([`manifest`]), downloads only the files that
 //! changed, resuming a cut download and checking each file's SHA-256 ([`update`]), then starts the
 //! game with the player's token ([`launch`]). The Tauri window (`launcher/app`) only draws it.
 
+pub mod account;
 pub mod launch;
 pub mod manifest;
 pub mod server;
@@ -15,6 +17,14 @@ pub enum Error {
     Unreachable(String),
     #[error("unknown name or wrong password")]
     WrongPassword,
+    #[error("this account name is already taken")]
+    NameTaken,
+    #[error("refused by the server: {0}")]
+    Invalid(String),
+    #[error("no password given, and none remembered for this account")]
+    MissingPassword,
+    #[error("the system's credential store: {0}")]
+    Secrets(String),
     #[error("too many tries: wait a minute")]
     TooManyTries,
     #[error("the server answered {0}")]

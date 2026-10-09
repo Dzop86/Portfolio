@@ -9,6 +9,8 @@ description = "Signs in to the tactical RPG's server, updates the game file by f
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
+# The system's credential store: Windows Credential Manager, macOS Keychain, Secret Service on Linux.
+keyring = { version = "3.6.2", features = ["apple-native", "windows-native", "sync-secret-service", "crypto-rust"] }
 sha2 = "0.10.9"
 thiserror = "2.0.12"
 ureq = { version = "2.12.1", features = ["json"] }

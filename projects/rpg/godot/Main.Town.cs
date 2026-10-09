@@ -41,7 +41,7 @@ public partial class Main
         };
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot == "town")
+        else if (_options.Shot is "town" or "banner")
             _ = TownScreenshot();
     }
 
@@ -167,13 +167,24 @@ public partial class Main
         EnterFight(scenario);
     }
 
-    /// <summary>The town for the project page: the player has walked up to Aubin, who talks.</summary>
+    /// <summary>
+    /// The town for the project page: the player has walked up to Aubin, who talks; or, for the
+    /// launcher's banner, the village alone, without the screen's texts.
+    /// </summary>
     private async Task TownScreenshot()
     {
         Npc aubin = _town!.Town.Npcs[0];
         await _townView!.Walk(_town.Click(aubin.At)!, 0);
-        _town.Answer(0);
-        _talkPanel!.Refresh();
+        if (_options.Shot == "banner")
+        {
+            _talkPanel!.Visible = false;
+            _townView.HideExitLabels();
+        }
+        else
+        {
+            _town.Answer(0);
+            _talkPanel!.Refresh();
+        }
         _townView.ShowPath(null);
         for (int i = 0; i < 30; i++)
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);

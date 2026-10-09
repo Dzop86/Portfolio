@@ -1,12 +1,13 @@
-//! The launcher's window (Tauri): the page in `launcher/ui` calls these commands. Signing in,
-//! updating and starting the game are `rpg-launcher-core`'s; the token stays on this side and is
-//! handed to the game through its environment.
+//! Osmose's launcher window (Tauri): the page in `launcher/ui` calls these commands. At start it
+//! updates the game by itself; "Sign in" signs in (or up), waits for the update, then starts the
+//! game. The work is `rpg-launcher-core`'s; the token and the password stay on this side.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use rpg_launcher_core::{launch, manifest, server, update, Error};
+use rpg_launcher_core::account::{self, Login, Settings, SystemSecrets};
+use rpg_launcher_core::{launch, manifest, update, Error};
 use serde::Serialize;
 use tauri::{Emitter, Manager, State};
 
@@ -23,35 +24,40 @@ struct Problem {
     detail: String,
 }
 
+fn code(e: &Error) -> &'static str {
+    match e {
+        Error::Unreachable(_) => "unreachable",
+        Error::WrongPassword => "wrong-password",
+        Error::NameTaken => "name-taken",
+        Error::Invalid(_) => "invalid",
+        Error::MissingPassword => "missing-password",
+        Error::Secrets(_) => "secrets",
+        Error::TooManyTries => "too-many-tries",
+        Error::Server(_) => "server",
+        Error::Unreadable(_) => "unreadable",
+        Error::Corrupt(_) => "corrupt",
+        Error::UnsafePath(_) => "unsafe-path",
+        Error::Io(_) => "io",
+    }
+}
+
 impl From<Error> for Problem {
     fn from(e: Error) -> Self {
-        let code = match e {
-            Error::Unreachable(_) => "unreachable",
-            Error::WrongPassword => "wrong-password",
-            Error::TooManyTries => "too-many-tries",
-            Error::Server(_) => "server",
-            Error::Unreadable(_) => "unreadable",
-            Error::Corrupt(_) => "corrupt",
-            Error::UnsafePath(_) => "unsafe-path",
-            Error::Io(_) => "io",
-        };
         Problem {
-            code,
+            code: code(&e),
             detail: e.to_string(),
         }
     }
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct Settings {
-    server: String,
-    folder: String,
-    installed: Option<String>,
-    /// "fr" when the system speaks French (LANG, LC_ALL), else "en".
-    lang: &'static str,
+fn joined(e: tauri::Error) -> Problem {
+    Problem {
+        code: "io",
+        detail: e.to_string(),
+    }
 }
 
+/// Where the game is installed.
 fn game_folder(app: &tauri::AppHandle) -> PathBuf {
     app.path()
         .app_local_data_dir()
@@ -59,17 +65,34 @@ fn game_folder(app: &tauri::AppHandle) -> PathBuf {
         .join("game")
 }
 
+/// Where the launcher keeps its settings (server, name to fill in).
+fn config_folder(app: &tauri::AppHandle) -> PathBuf {
+    app.path()
+        .app_config_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Start {
+    lang: &'static str,
+    name: Option<String>,
+    password_saved: bool,
+    installed: Option<String>,
+}
+
 #[tauri::command]
-fn settings(app: tauri::AppHandle) -> Settings {
-    let folder = game_folder(&app);
-    Settings {
-        server: std::env::var("RPG_SERVER").unwrap_or_else(|_| "http://localhost:8002".into()),
-        installed: manifest::installed(&folder).map(|m| m.version),
-        folder: folder.display().to_string(),
+fn start(app: tauri::AppHandle) -> Start {
+    let (name, password_saved) = account::remembered(&config_folder(&app), &SystemSecrets);
+    Start {
         lang: system_lang(),
+        name,
+        password_saved,
+        installed: manifest::installed(&game_folder(&app)).map(|m| m.version),
     }
 }
 
+/// "fr" when the system speaks French (LC_ALL, LC_MESSAGES, LANG, LANGUAGE), else "en".
 fn system_lang() -> &'static str {
     let french = ["LC_ALL", "LC_MESSAGES", "LANG", "LANGUAGE"]
         .iter()
@@ -83,40 +106,19 @@ fn system_lang() -> &'static str {
     }
 }
 
-#[tauri::command]
-async fn sign_in(
-    session: State<'_, Session>,
-    server: String,
-    name: String,
-    password: String,
-) -> Result<(), Problem> {
-    let token =
-        tauri::async_runtime::spawn_blocking(move || server::sign_in(&server, &name, &password))
-            .await
-            .map_err(|e| Problem {
-                code: "io",
-                detail: e.to_string(),
-            })??;
-    *session
-        .token
-        .lock()
-        .expect("the session lock is never poisoned") = Some(token);
-    Ok(())
-}
-
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Updated {
     version: String,
     downloaded: usize,
-    removed: usize,
     received: u64,
 }
 
 /// Brings the game folder to the server's version; "progress" events feed the page's bar.
 #[tauri::command]
-async fn update_game(app: tauri::AppHandle, server: String) -> Result<Updated, Problem> {
+async fn update_game(app: tauri::AppHandle) -> Result<Updated, Problem> {
     let folder = game_folder(&app);
+    let server = Settings::load(&config_folder(&app)).server();
     let window = app.clone();
     let report = tauri::async_runtime::spawn_blocking(move || {
         let source = update::HttpSource::new(&server, update::platform());
@@ -126,31 +128,59 @@ async fn update_game(app: tauri::AppHandle, server: String) -> Result<Updated, P
         })
     })
     .await
-    .map_err(|e| Problem {
-        code: "io",
-        detail: e.to_string(),
-    })??;
+    .map_err(joined)??;
     Ok(Updated {
         version: report.version,
         downloaded: report.downloaded.len(),
-        removed: report.removed.len(),
         received: report.received,
     })
 }
 
-/// Starts the game signed in (or offline before any sign-in), in the page's language.
+/// Signs in (after signing up, if asked) and remembers what the player ticked; the answer says
+/// whether the credential store refused to keep the password.
 #[tauri::command]
-fn play(
+#[allow(clippy::too_many_arguments)]
+async fn connect(
     app: tauri::AppHandle,
     session: State<'_, Session>,
-    server: String,
-    lang: String,
-) -> Result<(), Problem> {
+    name: String,
+    password: String,
+    remember_name: bool,
+    remember_password: bool,
+    sign_up: bool,
+) -> Result<Option<&'static str>, Problem> {
+    let folder = config_folder(&app);
+    let (token, complaint) = tauri::async_runtime::spawn_blocking(move || {
+        account::sign_in(
+            &folder,
+            &SystemSecrets,
+            &Login {
+                name: &name,
+                password: &password,
+                remember_name,
+                remember_password,
+                sign_up,
+            },
+        )
+    })
+    .await
+    .map_err(joined)??;
+    *session
+        .token
+        .lock()
+        .expect("the session lock is never poisoned") = Some(token);
+    Ok(complaint.as_ref().map(code))
+}
+
+/// Starts the game signed in, in the page's language.
+#[tauri::command]
+fn play(app: tauri::AppHandle, session: State<'_, Session>, lang: String) -> Result<(), Problem> {
     let token = session
         .token
         .lock()
         .expect("the session lock is never poisoned")
         .clone();
+    let server = Settings::load(&config_folder(&app)).server();
     launch::command(
         &game_folder(&app),
         update::platform(),
@@ -166,12 +196,7 @@ fn play(
 fn main() {
     tauri::Builder::default()
         .manage(Session::default())
-        .invoke_handler(tauri::generate_handler![
-            settings,
-            sign_in,
-            update_game,
-            play
-        ])
+        .invoke_handler(tauri::generate_handler![start, update_game, connect, play])
         .run(tauri::generate_context!())
         .expect("the launcher's window could not open");
 }

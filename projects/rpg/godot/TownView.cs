@@ -149,6 +149,13 @@ public partial class TownView : Node3D
         Position = at,
     };
 
+    /// <summary>Hides the gates' names (a picture without text, for the launcher's banner).</summary>
+    public void HideExitLabels()
+    {
+        foreach ((Label3D label, _) in _exitLabels)
+            label.Visible = false;
+    }
+
     public void SetLanguage(string lang)
     {
         foreach ((Label3D label, LocalizedText text) in _exitLabels)
