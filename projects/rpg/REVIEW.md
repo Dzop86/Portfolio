@@ -20,6 +20,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 - [ ] Sprint 51 : le launcher chez toi (paquet de la CI) : connexion, inscription, cases « mémoriser » (le mot de passe revient-il au lancement suivant ?), mise à jour automatique ; et `launcher/core/src/account.rs` (ce qui est mémorisé, où, et ce qui est oublié).
 - [ ] Sprint 52 : l'ouverture du jeu par le launcher (le serveur Osméria passé d'office, les cartes des personnages, « Jouer », la suppression confirmée) ; sans le launcher, le message et « Jouer hors ligne ».
+- [ ] Sprint 53 : l'écran de création (les couleurs de cheveux et de peau sur chaque apparence, la taille et la carrure, la lisibilité) ; les personnages ainsi créés au village et en combat.
 
 ## Constats
 
@@ -66,4 +67,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/Portrait.cs` | (Claude) « Node not inside tree » : la caméra du portrait était orientée par `LookAt` avant d'entrer dans la scène | Orientation calculée (`Transform3D.LookingAt`) |
 | 2026-10-09 | `src/Rpg.Client/Texts.cs` | (Claude) Le bouton du personnage disait « Combattre » alors qu'il mène au village | « Jouer » |
 | 2026-10-09 | `src/Rpg.Api/Data/Migrations` | (Claude) Migration générée avec le serveur « origine » avant que Charles ne choisisse « Osméria » | Migration non commitée retirée à la main et régénérée (`ef migrations remove` voulait une base) |
+| 2026-10-09 | `godot/LobbyView.cs` | (Claude) Vu sur la première capture de l'écran de création : les boutons « Créer » et « Annuler » sortaient de l'écran, l'aperçu était cadré trop serré | Taille et carrure côte à côte, nom et boutons sur une ligne ; caméra de l'aperçu reculée |
+| 2026-10-09 | `godot/Looks.cs` (`MainColumn`) | (Claude) Vu sur la capture : la pastille de tenue choisie (bleue) ne correspondait pas à la tenue (violette) ; la couleur « principale » était celle qui avait le plus de sommets, pas la plus grande surface | Couleur principale pondérée par l'aire des triangles ; pastille et tenue concordent |
+| 2026-10-09 | pack de personnages | (Claude) Kenney, KayKit et Quaternius comparés (scène de comparaison temporaire, rendus officiels) ; Charles a choisi Quaternius puis gardé Kenney | Décision T22 réécrite ; KayKit retiré du projet, outil de comparaison supprimé |
 | | | | |

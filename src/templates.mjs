@@ -1276,6 +1276,7 @@ function rpgScreenshots(t, lang) {
     <figcaption class="meta">${esc(t('rpg.captionLauncher'))}</figcaption>
   </figure>
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
+  ${shot('create', 'rpg.altCreate', 'rpg.captionCreate')}
   ${shot('town', 'rpg.altTown', 'rpg.captionTown')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
