@@ -103,8 +103,8 @@ public partial class Hud : CanvasLayer
         Fighter current = fight.Current;
         Fighter me = _controller.IsPlayerTurn ? current : fight.Fighters.First(f => f.Team == _controller.PlayerTeam);
         _turn.Text = $"{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
-        _order.Text = string.Join('\n', fight.TurnOrder.Where(f => f.IsAlive).Select(f => $"{(f == current ? "▶ " : "")}{Texts.Name(f)}  {f.Hp}/{f.Spec.Hp}"));
-        _stats.Text = $"{Texts["hp"]} {me.Hp}/{me.Spec.Hp}   {Texts["ap"]} {me.Ap}   {Texts["mp"]} {me.Mp}";
+        _order.Text = string.Join('\n', fight.TurnOrder.Where(f => f.IsAlive).Select(f => $"{(f == current ? "▶ " : "")}{Texts.Name(f)}  {f.Hp}/{f.MaxHp}"));
+        _stats.Text = $"{Texts["hp"]} {me.Hp}/{me.MaxHp}   {Texts["ap"]} {me.Ap}   {Texts["mp"]} {me.Mp}";
         _message.Text = _controller.LastError is ActionError e ? Texts.Error(e) : "";
         _help.Text = Texts["help"];
         _logLabel.Text = string.Join('\n', _log);

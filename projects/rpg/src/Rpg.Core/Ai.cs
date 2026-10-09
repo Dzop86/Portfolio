@@ -90,6 +90,21 @@ public static class Ai
                 }
             }
         }
+        // Summons need a free cell: the free cells next to the caster, in a fixed order.
+        foreach (Spell spell in me.Spells.Where(sp => sp.AllEffects.Any(e => e is SummonEffect)))
+        {
+            foreach (Cell cell in from.Neighbours())
+            {
+                if (!fight.IsFree(cell) || fight.CheckCast(me, spell, from, cell) != ActionError.None)
+                    continue;
+                double value = Value(fight, me, spell, from, cell);
+                if (value > bestKey.Value)
+                {
+                    best = (spell, cell, value);
+                    bestKey = (value, int.MaxValue, int.MaxValue);
+                }
+            }
+        }
         return best;
     }
 
@@ -113,6 +128,12 @@ public static class Ai
         }
         foreach (SpellEffect effect in spell.AllEffects)
         {
+            // A creature on our side is worth a few hits, once, whoever stands nearby.
+            if (effect is SummonEffect)
+            {
+                value += 8;
+                continue;
+            }
             IEnumerable<Fighter> touched = effect.Affects switch
             {
                 Affects.Caster => [me],
@@ -125,7 +146,7 @@ public static class Ai
                 double sign = f.Team == me.Team ? 1 : -1;
                 value += effect switch
                 {
-                    HealEffect h => sign * Math.Min((h.Min + h.Max) / 2.0, f.Spec.Hp - f.Hp),
+                    HealEffect h => sign * Math.Min((h.Min + h.Max) / 2.0, f.MaxHp - f.Hp),
                     // Shields and statuses pay off later: worth a part of what they hold.
                     ShieldEffect sh => sign * 0.3 * sh.Amount,
                     StatusEffect st => st.Stat switch

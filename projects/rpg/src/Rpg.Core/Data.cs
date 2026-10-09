@@ -28,14 +28,60 @@ public sealed record Spell(
     int PerTurn,
     Element Element = Element.Neutral,
     Area? Area = null,
-    IReadOnlyList<SpellEffect>? Effects = null)
+    IReadOnlyList<SpellEffect>? Effects = null,
+    int Level = 1,
+    IReadOnlyList<SpellRank>? Ranks = null)
 {
+    /// <summary>The highest rank: 1 plus the ranks listed.</summary>
+    public int MaxRank => 1 + (Ranks?.Count ?? 0);
+
+    /// <summary>The spell at a rank (1 is as described; above, the rank's numbers replace the base ones).</summary>
+    public Spell AtRank(int rank)
+    {
+        if (rank <= 1 || Ranks is null)
+            return this;
+        SpellRank r = Ranks[Math.Min(rank, MaxRank) - 2];
+        return this with
+        {
+            DamageMin = r.DamageMin,
+            DamageMax = r.DamageMax,
+            ApCost = r.ApCost ?? ApCost,
+            MaxRange = r.MaxRange ?? MaxRange,
+            PerTurn = r.PerTurn ?? PerTurn,
+        };
+    }
+
     public double AverageDamage => (DamageMin + DamageMax) / 2.0;
 
     public Area Zone => Area ?? Core.Area.One;
 
     public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
 }
+
+/// <summary>What a spell's rank 2 to 5 changes: its damage, and if given its cost, range and casts per turn.</summary>
+public sealed record SpellRank(int DamageMin, int DamageMax, int? ApCost = null, int? MaxRange = null, int? PerTurn = null);
+
+/// <summary>
+/// The five characteristics: Vitality adds hit points, each other one adds 1 % of damage per point
+/// in its element (Strength: earth and neutral; Intelligence: fire, and healing; Chance: water;
+/// Agility: air).
+/// </summary>
+public sealed record Characteristics(int Vitality = 0, int Strength = 0, int Intelligence = 0, int Chance = 0, int Agility = 0)
+{
+    public static readonly Characteristics None = new();
+
+    /// <summary>The characteristic that strengthens an element's damage.</summary>
+    public int For(Element element) => element switch
+    {
+        Element.Fire => Intelligence,
+        Element.Water => Chance,
+        Element.Air => Agility,
+        _ => Strength,
+    };
+}
+
+/// <summary>A creature a spell can summon, as described in <c>data/summons.json</c>.</summary>
+public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells);
 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team
@@ -51,8 +97,12 @@ public sealed record FighterSpec(
     int Initiative,
     int Start,
     IReadOnlyList<string> Spells,
-    IReadOnlyDictionary<Element, int>? Resistances = null)
+    IReadOnlyDictionary<Element, int>? Resistances = null,
+    Characteristics? Stats = null,
+    IReadOnlyDictionary<string, int>? SpellRanks = null)
 {
+    public Characteristics Characteristics => Stats ?? Characteristics.None;
+
     /// <summary>The fighter's resistance to an element, in percent (neutral damage ignores resistances).</summary>
     public int Resistance(Element element) => element == Element.Neutral ? 0 : Resistances?.GetValueOrDefault(element) ?? 0;
 }
@@ -101,16 +151,30 @@ public sealed class GameData
 
     public IReadOnlyDictionary<string, Town> Towns { get; }
     public IReadOnlyDictionary<string, Dialogue> Dialogues { get; }
+    public IReadOnlyDictionary<string, SummonSpec> Summons { get; }
 
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
-        IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null)
+        IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null)
     {
         Spells = Index(spells, s => s.Id, "spell");
         Maps = Index(maps, m => m.Id, "map");
         Scenarios = Index(scenarios, s => s.Id, "scenario");
         Classes = [.. Index(classes ?? [], c => c.Id, "class").Values];
+        Summons = Index(summons ?? [], s => s.Id, "summon");
         foreach (Spell s in Spells.Values)
+        {
             Check(s);
+            foreach (SummonEffect summon in s.AllEffects.OfType<SummonEffect>())
+            {
+                if (!Summons.ContainsKey(summon.Summon))
+                    throw new InvalidDataException($"Spell '{s.Id}': unknown summon '{summon.Summon}'.");
+            }
+        }
+        foreach (SummonSpec m in Summons.Values)
+        {
+            if (m.Hp < 1 || m.Ap < 0 || m.Mp < 0 || m.Spells.Any(id => !Spells.ContainsKey(id)))
+                throw new InvalidDataException($"Summon '{m.Id}': hit points, points or spells out of bounds.");
+        }
         foreach (Scenario s in Scenarios.Values)
             Check(s);
         foreach (HeroClass c in Classes)
@@ -139,7 +203,8 @@ public sealed class GameData
             ReadAll<Scenario>("scenarios"),
             File.Exists(Path.Combine(folder, "classes.json")) ? Read<List<HeroClass>>(Path.Combine(folder, "classes.json")) : null,
             Directory.Exists(Path.Combine(folder, "towns")) ? ReadAll<Town>("towns") : null,
-            Directory.Exists(Path.Combine(folder, "dialogues")) ? ReadAll<Dialogue>("dialogues") : null);
+            Directory.Exists(Path.Combine(folder, "dialogues")) ? ReadAll<Dialogue>("dialogues") : null,
+            File.Exists(Path.Combine(folder, "summons.json")) ? Read<List<SummonSpec>>(Path.Combine(folder, "summons.json")) : null);
     }
 
     /// <summary>
@@ -164,7 +229,8 @@ public sealed class GameData
         IEnumerable<T> All<T>(string prefix) =>
             files.Where(f => f.Key.StartsWith(prefix, StringComparison.Ordinal)).Select(f => Parse<T>(f.Key, f.Value));
         return new GameData(Parse<List<Spell>>("spells.json", files["data/spells.json"]), All<MapSpec>("data/maps/"), All<Scenario>("data/scenarios/"),
-            Parse<List<HeroClass>>("classes.json", files["data/classes.json"]), All<Town>("data/towns/"), All<Dialogue>("data/dialogues/"));
+            Parse<List<HeroClass>>("classes.json", files["data/classes.json"]), All<Town>("data/towns/"), All<Dialogue>("data/dialogues/"),
+            files.TryGetValue("data/summons.json", out string? summons) ? Parse<List<SummonSpec>>("summons.json", summons) : null);
     }
 
     public Board Board(string mapId) =>
@@ -188,6 +254,9 @@ public sealed class GameData
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
             || s.DamageMax < s.DamageMin || s.PerTurn < 1)
             throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage or casts per turn out of bounds.");
+        if (s.Level is < 1 or > 100 || (s.Ranks?.Count ?? 0) > 4
+            || (s.Ranks ?? []).Any(r => r.DamageMin < 0 || r.DamageMax < r.DamageMin || r.ApCost < 1 || r.MaxRange < s.MinRange || r.PerTurn < 1))
+            throw new InvalidDataException($"Spell '{s.Id}': level 1 to 100, at most 5 ranks, each consistent.");
         if (s.Zone.Radius is < 0 or > 5 || (s.Zone.Shape == AreaShape.Point && s.Zone.Radius != 0))
             throw new InvalidDataException($"Spell '{s.Id}': an area's radius is 1 to 5 (0 for a single cell).");
         foreach (SpellEffect e in s.AllEffects)
@@ -199,6 +268,7 @@ public sealed class GameData
                 PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
                 PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
                 StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat != Stat.Poison || st.Value > 0),
+                SummonEffect sm => sm.Max is >= 1 and <= 4,
                 _ => false,
             };
             if (!ok)

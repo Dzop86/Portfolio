@@ -37,7 +37,7 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0)
 {
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level);
 }
 
 public static class Servers

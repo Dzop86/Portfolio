@@ -34,6 +34,9 @@ public enum ActionError
     OutOfRange,
     NotInLine,
     NoLineOfSight,
+
+    /// <summary>A summon needs a free cell, and the caster has as many of these creatures as allowed.</summary>
+    TooManySummons,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -62,6 +65,9 @@ public sealed record Pushed(int Fighter, IReadOnlyList<Cell> Path, int Blocked) 
 public sealed record StatusAdded(int Fighter, Stat Stat, int Value, int Turns, Element Element) : FightEvent;
 
 public sealed record StatusEnded(int Fighter, Stat Stat) : FightEvent;
+
+/// <summary>A creature summoned by <see cref="Summoner"/> appears; it is <c>Fighters[Fighter]</c>.</summary>
+public sealed record Summoned(int Fighter, int Summoner, Cell Cell) : FightEvent;
 
 /// <summary>The end of the fight; <see cref="WinningTeam"/> is null for a draw at the round limit.</summary>
 public sealed record FightEnded(int? WinningTeam) : FightEvent;

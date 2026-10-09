@@ -112,6 +112,7 @@ public enum Stat
 [JsonDerivedType(typeof(PushEffect), "push")]
 [JsonDerivedType(typeof(PullEffect), "pull")]
 [JsonDerivedType(typeof(StatusEffect), "status")]
+[JsonDerivedType(typeof(SummonEffect), "summon")]
 public abstract record SpellEffect(Affects Affects);
 
 /// <summary>Gives back hit points, never above the maximum.</summary>
@@ -131,6 +132,12 @@ public sealed record PullEffect(Affects Affects, int Cells) : SpellEffect(Affect
 
 /// <summary>A status for some of the fighter's turns: poison, or more (or fewer) AP, MP, damage, resistance.</summary>
 public sealed record StatusEffect(Affects Affects, Stat Stat, int Value, int Turns, Element Element = Element.Neutral) : SpellEffect(Affects);
+
+/// <summary>
+/// Summons a creature of <c>data/summons.json</c> on the target cell, which must be free: it joins the
+/// caster's team, plays right after the caster, and dies with it; at most <see cref="Max"/> at once.
+/// </summary>
+public sealed record SummonEffect(Affects Affects, string Summon, int Max = 1) : SpellEffect(Affects);
 
 /// <summary>A status on a fighter during a fight.</summary>
 public sealed record Status(Stat Stat, int Value, int TurnsLeft, Element Element, int Source);

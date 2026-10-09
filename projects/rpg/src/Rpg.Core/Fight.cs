@@ -5,11 +5,13 @@ public sealed class Fighter
 {
     internal readonly Dictionary<string, int> CastsThisTurn = new(StringComparer.Ordinal);
 
-    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells)
+    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells, int? summoner = null, string? summonKind = null)
     {
         Id = id;
         Spec = spec;
-        Hp = spec.Hp;
+        Summoner = summoner;
+        SummonKind = summonKind;
+        Hp = spec.Hp + spec.Characteristics.Vitality;
         Ap = spec.Ap;
         Mp = spec.Mp;
         Cell = cell;
@@ -27,6 +29,17 @@ public sealed class Fighter
     public Cell Cell { get; internal set; }
     public IReadOnlyList<Spell> Spells { get; }
     public bool IsAlive => Hp > 0;
+
+    /// <summary>Hit points at most: the description's, plus Vitality.</summary>
+    public int MaxHp => Spec.Hp + Spec.Characteristics.Vitality;
+
+    /// <summary>The fighter who summoned this one, if it is a summon.</summary>
+    public int? Summoner { get; }
+
+    public bool IsSummon => Summoner is not null;
+
+    /// <summary>The summon's id in <c>data/summons.json</c>, if it is a summon.</summary>
+    public string? SummonKind { get; }
 
     internal readonly List<Status> StatusList = [];
     internal readonly List<(int Amount, int TurnsLeft)> Shields = [];
@@ -78,31 +91,43 @@ public sealed class Fight
         Seed = seed;
         _rng = new Rng(seed);
         int heroIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 0);
-        Fighters = [.. Scenario.Fighters.Select((f, i) =>
+        _fighters = [.. Scenario.Fighters.Select((f, i) =>
         {
-            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data.Class(hero.Class)) : f;
-            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], [.. spec.Spells.Select(id => data.Spells[id])]);
+            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data) : f;
+            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data));
         })];
+        _data = data;
         // Highest initiative first; equal initiatives keep the scenario's order.
-        _order = [.. Fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
+        _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
         Round = 1;
         _events.Add(new TurnStarted(Current.Id, Round));
     }
 
-    /// <summary>The scenario's fighter, played by the hero: its name and look, its class's characteristics and spells.</summary>
-    private static FighterSpec AsHero(FighterSpec f, Hero hero, HeroClass? c)
+    /// <summary>
+    /// The scenario's fighter, played by the hero: its name and look, its class's characteristics and
+    /// the class's spells its level has unlocked.
+    /// </summary>
+    private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data)
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
-        return c is null ? spec : spec with { Hp = c.Hp, Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = c.Spells };
+        return data.Class(hero.Class) is not HeroClass c ? spec
+            : spec with { Hp = c.Hp, Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)] };
     }
+
+    /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>
+    private static List<Spell> SpellsOf(FighterSpec spec, GameData data) =>
+        [.. spec.Spells.Select(id => data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1))];
 
     public Scenario Scenario { get; }
     public Hero? Hero { get; }
     public Board Board { get; }
     public ulong Seed { get; }
 
-    /// <summary>All fighters, by <see cref="Fighter.Id"/>.</summary>
-    public IReadOnlyList<Fighter> Fighters { get; }
+    /// <summary>All fighters, by <see cref="Fighter.Id"/>; summons are added at the end as they appear.</summary>
+    public IReadOnlyList<Fighter> Fighters => _fighters;
+
+    private readonly List<Fighter> _fighters;
+    private readonly GameData _data;
 
     /// <summary>The fighters in the order they play.</summary>
     public IReadOnlyList<Fighter> TurnOrder => _order;
@@ -151,6 +176,13 @@ public sealed class Fight
             return ActionError.NotInLine;
         if (spell.LineOfSight && !LineOfSight.IsClear(from, target, c => c != caster.Cell && BlocksSight(c)))
             return ActionError.NoLineOfSight;
+        foreach (SummonEffect summon in spell.AllEffects.OfType<SummonEffect>())
+        {
+            if (At(target) is not null && At(target) != caster)
+                return ActionError.Occupied;
+            if (Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id && f.SummonKind == summon.Summon) >= summon.Max)
+                return ActionError.TooManySummons;
+        }
         return ActionError.None;
     }
 
@@ -218,7 +250,7 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        long scaled = (long)roll * (100 + caster.DamageBonus) * (100 - target.Resistance(element));
+        long scaled = (long)roll * (100 + caster.Spec.Characteristics.For(element) + caster.DamageBonus) * (100 - target.Resistance(element));
         return (int)Math.Max(0, scaled / 10_000);
     }
 
@@ -261,7 +293,13 @@ public sealed class Fight
         }
         foreach (SpellEffect effect in spell.AllEffects)
         {
-            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) : 0;
+            // Healing grows with Intelligence, 1 % a point.
+            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) * (100 + me.Spec.Characteristics.Intelligence) / 100 : 0;
+            if (effect is SummonEffect summon)
+            {
+                Summon(me, _data.Summons[summon.Summon], target);
+                continue;
+            }
             IEnumerable<Fighter> touched = effect.Affects == Affects.Caster ? [me] : area.Where(f => Touches(effect.Affects, me, f));
             foreach (Fighter f in touched.ToList())
             {
@@ -270,7 +308,7 @@ public sealed class Fight
                 switch (effect)
                 {
                     case HealEffect:
-                        int healed = Math.Min(effectRoll, f.Spec.Hp - f.Hp);
+                        int healed = Math.Min(effectRoll, f.MaxHp - f.Hp);
                         f.Hp += healed;
                         _events.Add(new Healed(f.Id, healed, f.Hp));
                         break;
@@ -294,6 +332,18 @@ public sealed class Fight
         // A fighter who dies during its own turn hands over at once.
         if (!IsOver && !me.IsAlive)
             NextTurn();
+    }
+
+    /// <summary>A creature on a free cell, in the caster's team, playing right after it.</summary>
+    private void Summon(Fighter me, SummonSpec m, Cell cell)
+    {
+        if (!IsFree(cell))
+            return;
+        var spec = new FighterSpec(m.Name, m.Look, me.Team, m.Hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells);
+        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), me.Id, m.Id);
+        _fighters.Add(summoned);
+        _order.Insert(_current + 1, summoned);
+        _events.Add(new Summoned(summoned.Id, me.Id, cell));
     }
 
     /// <summary>Moves a fighter cell by cell; what stops a push hurts, per cell left.</summary>
@@ -342,6 +392,13 @@ public sealed class Fight
         _events.Add(new Died(hit.Id));
         hit.StatusList.Clear();
         hit.Shields.Clear();
+        // Summons die with their summoner.
+        foreach (Fighter summon in Fighters.Where(f => f.Summoner == hit.Id && f.IsAlive).ToList())
+        {
+            summon.Hp = 0;
+            _events.Add(new Died(summon.Id));
+        }
+        // A team with nobody left has lost (summons never outlive their summoner).
         for (int team = 0; team < 2; team++)
         {
             if (!Fighters.Any(f => f.Team == team && f.IsAlive))

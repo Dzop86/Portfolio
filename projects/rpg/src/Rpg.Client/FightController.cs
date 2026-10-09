@@ -33,7 +33,8 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
     /// <summary>Why the last click or spell choice did nothing, for the message line; null when it worked.</summary>
     public ActionError? LastError { get; private set; }
 
-    public bool IsPlayerTurn => !Fight.IsOver && Fight.Current.Team == PlayerTeam;
+    /// <summary>The player plays their team's fighters; summons are left to the AI.</summary>
+    public bool IsPlayerTurn => !Fight.IsOver && Fight.Current.Team == PlayerTeam && !Fight.Current.IsSummon;
 
     /// <summary>Whether the current fighter could cast the spell somewhere this turn (enough AP, casts left).</summary>
     public bool CanUse(Spell spell)

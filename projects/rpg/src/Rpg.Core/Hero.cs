@@ -8,7 +8,7 @@ namespace Rpg.Core;
 /// keeps the scenario's. Its name and appearance (look, outfit colour, hair colour, skin tone,
 /// height, build) only change what is shown.
 /// </summary>
-public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0)
+public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1)
 {
     /// <summary>The outfit colours: the client turns the models' palette by 0 to 6 steps.</summary>
     public const int Colours = 7;
@@ -21,6 +21,9 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
 
     /// <summary>Height and build go from -<see cref="Shape"/> (smaller, slimmer) to +<see cref="Shape"/>.</summary>
     public const int Shape = 2;
+
+    /// <summary>The highest level, for now.</summary>
+    public const int MaxLevel = 100;
 
     /// <summary>The looks a player may choose (Kenney's Mini Characters); monsters use others.</summary>
     public static readonly IReadOnlyList<string> Looks =
@@ -42,6 +45,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             : Hair is < 0 or >= HairColours ? $"The hair colour is 0 to {HairColours - 1}."
             : Skin is < 0 or >= SkinTones ? $"The skin tone is 0 to {SkinTones - 1}."
             : Math.Abs(Height) > Shape || Math.Abs(Build) > Shape ? $"Height and build are -{Shape} to {Shape}."
+            : Level is < 1 or > MaxLevel ? $"The level is 1 to {MaxLevel}."
             : Class is not null && data.Class(Class) is null ? $"Unknown class '{Class}'."
             : null;
     }

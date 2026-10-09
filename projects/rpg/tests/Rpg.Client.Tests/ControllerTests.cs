@@ -119,4 +119,20 @@ public class ControllerTests
             }
         }
     }
+
+    [Fact]
+    public void ASummonOfThePlayersTeam_IsPlayedByTheAi()
+    {
+        var call = new Spell("call", T, 3, 1, 3, false, false, 0, 0, 9, Element.Neutral, null, [new SummonEffect(Affects.All, "wolf")]);
+        var wolf = new SummonSpec("wolf", T, "male-d", 20, 6, 3, 50, ["strike"]);
+        var data = new GameData([Strike, Bow, call], [new MapSpec("m", T, ["A...B"])],
+            [new Scenario("s", T, "m", [new FighterSpec(T, "male-a", 0, 50, 6, 0, 999, 0, ["call"]), new FighterSpec(T, "male-a", 1, 50, 6, 3, 10, 0, ["strike"])])], null, null, null, [wolf]);
+        var c = new FightController(new Fight(data, "s", 1));
+        c.SelectSpell(0);
+        Assert.NotNull(c.Click(new Cell(1, 0)));
+        Assert.NotNull(c.EndTurn());
+        Assert.True(c.Fight.Current.IsSummon);
+        Assert.False(c.IsPlayerTurn);
+        Assert.NotNull(c.PlayAiStep());
+    }
 }

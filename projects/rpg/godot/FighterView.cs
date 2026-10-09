@@ -60,7 +60,7 @@ public partial class FighterView : Node3D
     /// <summary>Hit points and the ring of the fighter whose turn it is.</summary>
     public void Refresh(bool current = false)
     {
-        _hp.Text = $"{Fighter.Hp}/{Fighter.Spec.Hp}";
+        _hp.Text = $"{Fighter.Hp}/{Fighter.MaxHp}";
         _hp.Visible = Fighter.IsAlive;
         _ring.Visible = Fighter.IsAlive;
         _ring.Scale = current ? new Vector3(1.25f, 0.2f, 1.25f) : new Vector3(1, 0.15f, 1);

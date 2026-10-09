@@ -337,6 +337,13 @@ public partial class Main : Node3D
             case Died d:
                 _views[d.Fighter].Die(animate: !instant);
                 return Task.CompletedTask;
+            case Summoned m:
+                Fighter summoned = _controller.Fight.Fighters[m.Fighter];
+                var view = new FighterView();
+                AddChild(view);
+                view.Setup(summoned, summoned.Team == _controller.PlayerTeam);
+                _views[summoned.Id] = view;
+                return Task.CompletedTask;
             case Pushed p when p.Path.Count > 0:
                 return _views[p.Fighter].Walk(p.Path, instant ? 0 : 0.12);
             case Healed h:
@@ -386,7 +393,7 @@ public partial class Main : Node3D
                 Fighter f = v.Fighter;
                 if (f.IsAlive && v.Position != BoardView.ToWorld(f.Cell))
                     problems.Add($"{f.Name.En} drawn at {v.Position}, standing on {f.Cell}");
-                if (v.HpText != $"{f.Hp}/{f.Spec.Hp}")
+                if (v.HpText != $"{f.Hp}/{f.MaxHp}")
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
                 checks++;
             }

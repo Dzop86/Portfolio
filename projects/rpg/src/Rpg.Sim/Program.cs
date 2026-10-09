@@ -109,7 +109,7 @@ public static class Program
             sb.Append('\n');
         }
         foreach (Fighter f in fight.Fighters)
-            sb.Append(CultureInfo.InvariantCulture, $"{(char)((f.Team == 0 ? 'a' : 'A') + f.Id)} {f.Name.In(lang)} {f.Hp}/{f.Spec.Hp}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"{(char)((f.Team == 0 ? 'a' : 'A') + f.Id)} {f.Name.In(lang)} {f.Hp}/{f.MaxHp}\n");
         return sb.ToString();
     }
 
