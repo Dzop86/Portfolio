@@ -6,19 +6,30 @@ using Rpg.Core;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// The login and character screen, then the fight. Options after "--": --lang fr|en, --scenario ID,
-/// --seed N, --server URL (default http://localhost:8002/), --offline (straight to the fight);
-/// --selftest [--report FILE] plays a whole fight through the controls and checks the views;
-/// --lobby-selftest does the same after signing up, creating a character and choosing it on the
-/// login screen, against the server; --screenshot FILE [--shot move|spell|lobby] saves a picture.
+/// The login and character screen, the town (Main.Town.cs), the fights. Options after "--": --lang
+/// fr|en, --scenario ID, --seed N, --server URL (default http://localhost:8002/), --offline (straight
+/// to the town); --selftest [--report FILE] plays a whole fight through the controls and checks the
+/// views; --town-selftest walks the town and talks to everyone first; --lobby-selftest signs up,
+/// creates and chooses a character on the login screen against the server, then does both;
+/// --screenshot FILE [--shot move|spell|lobby|town] saves a picture.
 /// </summary>
 public partial class Main : Node3D
 {
-    // Kept across "play again" (the scene reloads): the seed, the session and the hero chosen.
+    private enum Screen
+    {
+        Lobby,
+        Town,
+        Fight,
+    }
+
+    // Kept when the scene reloads ("play again", "back to town"): where the player is, the seed, the
+    // session, the character chosen (null offline) and its hero, the fight's scenario.
+    private static Screen _screen = Screen.Lobby;
     private static ulong? _nextSeed;
     private static Lobby? _lobby;
+    private static CharacterSummary? _character;
     private static Hero? _hero;
-    private static bool _fighting;
+    private static string? _scenario;
 
     private readonly Dictionary<int, FighterView> _views = [];
     private FightController _controller = null!;
@@ -38,12 +49,33 @@ public partial class Main : Node3D
         _options = Options.Parse(OS.GetCmdlineUserArgs(), OS.GetLocaleLanguage());
         _lobby ??= new Lobby(new GameServer(new System.Net.Http.HttpClient { BaseAddress = new Uri(_options.Server), Timeout = TimeSpan.FromSeconds(10) }));
         AddEnvironment();
-        bool lobbyFirst = _options.LobbySelfTest || _options.Shot == "lobby"
-            || (!_fighting && !_options.Offline && !_options.SelfTest && _options.Screenshot is null);
-        if (lobbyFirst)
+        if (_options.SelfTest || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
+            StartFight(_hero, _options.Scenario);
+        else if (_options.TownSelfTest || _options.Shot == "town")
+            ShowTown();
+        else if (_options.LobbySelfTest || _options.Shot == "lobby")
             ShowLobby();
+        else if (_screen == Screen.Fight)
+            StartFight(_hero, _scenario ?? _options.Scenario);
+        else if (_screen == Screen.Town || _options.Offline)
+            ShowTown();
         else
-            StartFight(_hero);
+            ShowLobby();
+    }
+
+    /// <summary>Empties the scene for the next screen, without reloading it (the self-tests go on).</summary>
+    private void ClearScene()
+    {
+        foreach (Node child in GetChildren())
+        {
+            RemoveChild(child);
+            child.QueueFree();
+        }
+        _lobbyView = null;
+        _stage = null;
+        _townView = null;
+        _talkPanel = null;
+        AddEnvironment();
     }
 
     private void ShowLobby()
@@ -54,20 +86,13 @@ public partial class Main : Node3D
         _camera.LookAt(new Vector3(0, 0.4f, 0));
         _lobbyView = new LobbyView();
         _lobbyView.PreviewShown += ShowModel;
-        _lobbyView.Chosen += hero =>
+        _lobbyView.Chosen += character =>
         {
-            _hero = hero;
-            _fighting = true;
-            RemoveChild(_lobbyView);
-            _lobbyView.QueueFree();
-            _lobbyView = null;
-            foreach (Node3D n in new Node3D?[] { _stage, _camera }.OfType<Node3D>())
-            {
-                RemoveChild(n);
-                n.QueueFree();
-            }
-            _stage = null;
-            StartFight(hero);
+            _character = character;
+            _hero = character?.Hero;
+            _place = null;
+            ClearScene();
+            ShowTown();
         };
         AddChild(_lobbyView);
         _lobbyView.Build(_lobby!, _options.Server, new Texts(_options.Lang));
@@ -99,12 +124,14 @@ public partial class Main : Node3D
         }
     }
 
-    private void StartFight(Hero? hero)
+    private void StartFight(Hero? hero, string scenario)
     {
+        _screen = Screen.Fight;
+        _scenario = scenario;
         ulong seed = _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
-        _controller = new FightController(new Fight(GameData.Embedded, _options.Scenario, seed, hero));
+        _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero));
         BuildWorld();
-        if (_options.SelfTest || _options.LobbySelfTest)
+        if (_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest)
             CallDeferred(MethodName.RunSelfTest);
         else if (_options.Screenshot is not null)
             _ = Screenshot();
@@ -116,7 +143,7 @@ public partial class Main : Node3D
     {
         if (_stage is not null)
             _stage.RotateY((float)delta * 0.6f);
-        if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.Screenshot is not null || _controller.Fight.IsOver || _controller.IsPlayerTurn)
+        if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null || _controller.Fight.IsOver || _controller.IsPlayerTurn)
             return;
         _busy = true;
         _ = AiStep();
@@ -124,6 +151,11 @@ public partial class Main : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        if (_town is not null && _townView is not null)
+        {
+            TownInput(@event);
+            return;
+        }
         if (_lobbyView is not null || _controller is null || _busy || !_controller.IsPlayerTurn)
             return;
         switch (@event)
@@ -206,11 +238,11 @@ public partial class Main : Node3D
             _nextSeed = _controller.Fight.Seed + 1;
             GetTree().ReloadCurrentScene();
         };
-        // Back to the characters, when signed in: the session is kept, the next fight starts after a choice.
-        _hud.SetBackShown(_lobby?.SignedIn == true);
+        // Back to town, where the player stood before the fight.
+        _hud.SetBackShown(true);
         _hud.BackPressed += () =>
         {
-            _fighting = false;
+            _screen = Screen.Town;
             _nextSeed = null;
             GetTree().ReloadCurrentScene();
         };
@@ -468,7 +500,7 @@ public partial class Main : Node3D
         GetTree().Quit(saved == Error.Ok ? 0 : 1);
     }
 
-    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest)
+    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false)
     {
         public static Options Parse(string[] args, string locale)
         {
@@ -488,6 +520,7 @@ public partial class Main : Node3D
                     "--server" => o with { Server = Next().TrimEnd('/') + "/" },
                     "--offline" => o with { Offline = true },
                     "--lobby-selftest" => o with { LobbySelfTest = true },
+                    "--town-selftest" => o with { TownSelfTest = true },
                     _ => o,
                 };
             }

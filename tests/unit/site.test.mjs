@@ -430,10 +430,10 @@ test('the ML page shows the measured results: accuracies, threshold, both confus
   }
 });
 
-test('the tactical RPG page shows three pictures of the Godot client in each language, how to run it and where to get it', () => {
+test('the tactical RPG page shows four pictures of the Godot client in each language, how to run it and where to get it', () => {
   for (const lang of LANGS) {
     const html = page(lang, 'project-rpg');
-    for (const shot of ['lobby', 'move', 'spell']) {
+    for (const shot of ['lobby', 'town', 'move', 'spell']) {
       const img = html.match(new RegExp(`<img src="\\.\\./assets/images/(rpg-${shot}-(\\w+)\\.png)" width="1280" height="720" loading="lazy" alt="([^"]+)">`));
       assert.ok(img, `${lang} ${shot}`);
       assert.equal(img[2], lang);

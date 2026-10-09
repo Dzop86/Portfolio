@@ -131,10 +131,10 @@ public partial class Hud : CanvasLayer
         _end.Visible = fight.IsOver;
         _endTitle.Text = fight.WinningTeam is null ? Texts["draw"] : fight.WinningTeam == _controller.PlayerTeam ? Texts["victory"] : Texts["defeat"];
         _again.Text = Texts["again"];
-        _back.Text = Texts["lobby.back"];
+        _back.Text = Texts["town.back"];
     }
 
-    /// <summary>The end screen's way back to the characters, for a player signed in.</summary>
+    /// <summary>The end screen's way back to town.</summary>
     public void SetBackShown(bool shown) => _back.Visible = shown;
 
     public string TurnText => _turn.Text;

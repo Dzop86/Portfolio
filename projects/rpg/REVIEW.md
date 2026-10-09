@@ -12,6 +12,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 47 : le serveur (`docker compose up --build rpg-api`, puis http://localhost:8002/swagger) et l'écran de connexion du jeu (`godot --path godot -- --lang fr`) : créer un compte, des personnages, en supprimer, se tromper de mot de passe, couper le serveur.
 - [ ] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
 - [ ] Sprint 48 : créer un personnage de chaque classe et jouer l'entraînement avec : les classes te semblent-elles différentes et équilibrées (`data/classes.json`) ? Les couleurs de tenue sur les différentes apparences.
+- [ ] Sprint 49 : le village chez toi (taille des personnages face aux maisons, lisibilité des noms, le panneau de dialogue qui couvre le bas de la carte) et les dialogues de `data/dialogues/` (ton, longueur).
 
 ## Constats
 
@@ -39,4 +40,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `tests/Rpg.Api.Tests/CharacterTests.cs` | (Claude) Mon premier test de migration relisait la valeur par défaut qu'il venait lui-même d'écrire : il ne prouvait rien | Remplacé par une ligne insérée sans classe, comme au sprint 47, relue par l'API |
 | 2026-10-09 | mutations | (Claude) Deux de mes trois premières mutations ne compilaient pas (code inaccessible, nullabilité) : elles ne testaient rien | Réécrites pour compiler : 3 sur 3 attrapées |
 | 2026-10-09 | `scripts/smoke.sh` | (Claude) CI du sprint 48 rouge (job docker) : l'essai de bout en bout créait encore un personnage sans classe, refusé depuis que la classe est obligatoire ; je n'avais relancé que les tests .NET, pas ce script | Classe et couleur dans l'essai, plus le refus d'une classe inconnue ; vérifié contre l'image Docker avant de pousser |
+| 2026-10-09 | `src/Rpg.Core/Protocol.cs` | (Claude) Vu en déboguant l'essai de bout en bout : la liste des personnages envoyait aussi `hero` (depuis le sprint 47) et `place.cell`, des propriétés calculées, en double | `[JsonIgnore]` ; un test vérifie les champs exacts de la réponse |
+| 2026-10-09 | `godot/TownView.cs`, `godot/TalkPanel.cs` | (Claude) Vu sur la première capture du village : personnages minuscules face aux maisons, noms illisibles, panneau de dialogue deux fois trop haut qui cachait la porte et Garance | Personnages à l'échelle 1,5, étiquettes plus grandes, panneau qui prend la hauteur de son contenu |
+| 2026-10-09 | `data/towns/clairval.json` | (Claude) Vu sur la capture : Garance, derrière la maison du bas, était invisible de la caméra | Placée une case plus haut, à côté de la porte |
+| 2026-10-09 | `src/Rpg.Client/TownController.cs` | (Claude) Trouvé en cassant le code : rien ne vérifiait qu'on marche jusqu'au côté le plus proche d'un habitant (la mutation « le plus loin » survivait) | Test `TheWalkUpToSomeone_EndsOnTheirNearestSide`, mutation attrapée |
 | | | | |

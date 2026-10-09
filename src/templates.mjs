@@ -1253,7 +1253,7 @@ godot --path godot                                 # ${esc(t('rogue.godot'))}</c
 </section>`;
 }
 
-// The tactical RPG (D54): pictures taken by the Godot client itself (login screen, fight), how to run it, where to download it.
+// The tactical RPG (D54): pictures taken by the Godot client itself (login screen, town, fight), how to run it, where to download it.
 function rpgScreenshots(t, lang) {
   const shot = (name, alt, caption) => `<figure class="naval-shot rogue-shot">
     <img src="../assets/images/rpg-${name}-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t(alt))}">
@@ -1263,6 +1263,7 @@ function rpgScreenshots(t, lang) {
   <h2 id="h-rpg">${esc(t('rpg.title'))}</h2>
   <p>${esc(t('rpg.lead'))}</p>
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
+  ${shot('town', 'rpg.altTown', 'rpg.captionTown')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
   <p class="meta">${esc(t('rpg.made'))}</p>

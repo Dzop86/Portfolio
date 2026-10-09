@@ -88,7 +88,7 @@ public partial class BoardView : Node3D
         AddChild(prop);
     }
 
-    private static void Paint(Node node, Material material)
+    public static void Paint(Node node, Material material)
     {
         if (node is MeshInstance3D mesh)
             mesh.MaterialOverride = material;

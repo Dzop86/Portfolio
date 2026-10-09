@@ -78,3 +78,14 @@ Le choix du projet et de sa pile (Godot 4 en C#, règles partagées, ASP.NET Cor
 **Pourquoi :** aucun dessin à faire, aucune texture à dupliquer, et une seule valeur entière à stocker sur le serveur et dans les combats enregistrés.
 **Alternatives :** teinter tout le modèle (la peau change aussi) ; peindre des textures par couleur (12 apparences × 7 couleurs de fichiers) ; coiffures et accessoires séparés (les modèles de Kenney n'en ont pas de détachables).
 **Limites :** la couleur dépend de la palette de Kenney : un autre pack demandera un autre shader. Le shader ne se teste que sur les captures et par l'auto-test (qui vérifie la valeur donnée au modèle, pas l'image).
+
+## T15. La ville et les dialogues en données
+**Choix :** une ville est une carte en lignes de caractères (comme les plateaux de combat), une arrivée, des habitants et des portes ; un dialogue est un graphe de répliques dont chaque réponse mène à une autre réplique, à la fin, ou à un combat. Le chargement refuse une maison incomplète, un habitant ou une porte qu'on ne peut pas atteindre à pied, une réplique inatteignable ou une conversation qui ne peut pas finir. Les maisons sont montées dans le client à partir des murs et des toits du Fantasy Town Kit de Kenney (2 × 2 cases).
+**Pourquoi :** comme les sorts, les monstres et les classes, un village, un habitant ou une réplique s'ajoutent sans toucher au code, et une erreur de données se voit au chargement (dans les tests), pas en jeu.
+**Alternatives :** un éditeur de scènes Godot (les cartes ne seraient plus lisibles par le serveur ni testables sans moteur) ; un format de dialogue existant (Ink, Yarn : plus riche, mais une dépendance et un langage de plus pour trois habitants).
+**Limites :** pas de conditions ni de variables dans les dialogues (quêtes, objets) ; maisons d'un seul modèle.
+
+## T16. La position gardée par le serveur, vérifiée par les mêmes règles
+**Choix :** `PUT /api/characters/{id}/place` à la fin de chaque marche ; le serveur refuse une case où l'on ne peut pas marcher depuis l'arrivée (`Town.CanStand` de `Rpg.Core`, la règle du jeu). Hors ligne, la position ne vit qu'en mémoire.
+**Pourquoi :** on revient là où l'on était, d'une session à l'autre ; et un client modifié ne peut pas placer un personnage dans une maison.
+**Limites :** le serveur ne vérifie pas le chemin parcouru (vitesse, téléportation d'un bout à l'autre du village) : en solo cela n'a pas d'effet ; en multijoueur, il faudra que le serveur reçoive les déplacements, pas seulement leur arrivée.

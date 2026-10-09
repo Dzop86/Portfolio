@@ -30,7 +30,8 @@ public partial class LobbyView : CanvasLayer
     /// <summary>The outfit colour chosen (0 to 6): see <see cref="Looks.Paint"/>.</summary>
     public int Colour { get; private set; }
 
-    public event Action<Hero?>? Chosen;
+    /// <summary>The character to play (null: offline, the scenario's own hero).</summary>
+    public event Action<CharacterSummary?>? Chosen;
 
     /// <summary>The model to show next to the form: a look and an outfit colour.</summary>
     public event Action<string, int>? PreviewShown;
@@ -270,7 +271,7 @@ public partial class LobbyView : CanvasLayer
             name.MouseEntered += () => PreviewShown?.Invoke(c.Look, c.Colour);
             name.MouseExited += ShowPreview;
             row.AddChild(name);
-            Button(row, () => Chosen?.Invoke(c.Hero)).Text = Texts["lobby.play"];
+            Button(row, () => Chosen?.Invoke(c)).Text = Texts["lobby.play"];
             Button(row, async () =>
             {
                 if (!_busy)

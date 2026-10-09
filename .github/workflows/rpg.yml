@@ -116,7 +116,7 @@ jobs:
         run: |
           godot --headless --path godot -- --lobby-selftest --server http://localhost:8002 --seed 9 --report "$RUNNER_TEMP/lobby.txt"
           cat "$RUNNER_TEMP/lobby.txt"
-          grep -q "SELFTEST OK seed 9: .* made on the server and chosen on the login screen." "$RUNNER_TEMP/lobby.txt"
+          grep -q "SELFTEST OK seed 9: .* made on the server and chosen on the login screen. Town: 3 people, 8 lines, place (15, 5) saved on the server, views checked." "$RUNNER_TEMP/lobby.txt"
       - name: API logs
         if: always()
         working-directory: ${{ github.workspace }}
@@ -155,6 +155,14 @@ jobs:
           godot --headless --path godot -- --selftest --seed 9 --report "$RUNNER_TEMP/selftest.txt"
           cat "$RUNNER_TEMP/selftest.txt"
           grep -q "SELFTEST OK seed 9: team A wins in round 6, after 42 actions. Views checked" "$RUNNER_TEMP/selftest.txt"
+      # The town first: up to every inhabitant, every line of their talk on screen, then through the gate.
+      - name: The town, then the gate's fight
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --town-selftest --seed 9 --report "$RUNNER_TEMP/town.txt"
+          cat "$RUNNER_TEMP/town.txt"
+          grep -q "SELFTEST OK seed 9: .* Town: 3 people, 8 lines, views checked." "$RUNNER_TEMP/town.txt"
 
   exports:
     name: Godot exports (Windows, Linux, macOS)
