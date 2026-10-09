@@ -18,6 +18,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 
 > Cases cochées par Claude le 9 octobre 2026, à la demande explicite de Charles (« tout marche, tu peux valider »), pour les sprints 45 à 50 (règles, client Godot, serveur, création de personnage, village, launcher et fiche), après son essai du launcher et du jeu sous Windows.
 
+- [ ] Sprint 51 : le launcher chez toi (paquet de la CI) : connexion, inscription, cases « mémoriser » (le mot de passe revient-il au lancement suivant ?), mise à jour automatique ; et `launcher/core/src/account.rs` (ce qui est mémorisé, où, et ce qui est oublié).
+
 ## Constats
 
 | Date | Fichier | Problème trouvé | Correction |
@@ -57,4 +59,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | nom du jeu | Demandé par Charles : le jeu s'appelle Osmose | (Claude) Nom visible changé (jeu, launcher, paquets, API, fiche), identifiants internes gardés (T19) ; captures de l'écran de connexion et du launcher refaites |
 | 2026-10-09 | `compose.yaml` (volume `/updates`) | (Claude) Vu en préparant l'essai de Charles : quand `godot/build` n'existe pas, Docker le crée au nom de root et l'export ou le téléchargement des artefacts ne peut plus y écrire | Noté dans le README (créer le dossier avant) ; dossier rendu à l'utilisateur |
 | 2026-10-09 | éditeur | Demandé par Charles : signer « au nom de Osmose Team » | (Claude) Pas de vraie signature sans certificat d'une identité vérifiée ; sur son choix, « Osmose Team » comme éditeur et copyright du launcher et des exécutables du jeu (T19), les avertissements de premier lancement restent documentés |
+| 2026-10-09 | `launcher/ui/style.css` | (Claude) Vu sur la capture : le champ « Confirmer le mot de passe » s'affichait en mode connexion (`display: grid` des libellés l'emportait sur `hidden`), et la fenêtre coupait la barre de mise à jour | `[hidden] { display: none !important }`, fenêtre de 720 px ; Playwright vérifie les deux |
+| 2026-10-09 | `launcher/ui/main.js` | (Claude) Tailles affichées « 3.0 Mo » en français | Virgule décimale en français, testée |
+| 2026-10-09 | `launcher/ui` | (Claude) La page du launcher n'avait aucun test : sa logique (ordre mise à jour, connexion, lancement) n'était vérifiée nulle part | Playwright avec un faux `window.__TAURI__`, sur les cinq navigateurs |
 | | | | |

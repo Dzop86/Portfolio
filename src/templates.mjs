@@ -1272,7 +1272,7 @@ function rpgScreenshots(t, lang) {
   </figure>
   ${rpgArchitecture(t)}
   <figure class="naval-shot rpg-launcher">
-    <img src="../assets/images/rpg-launcher-${lang}.png" width="520" height="660" loading="lazy" alt="${esc(t('rpg.altLauncher'))}">
+    <img src="../assets/images/rpg-launcher-${lang}.png" width="520" height="720" loading="lazy" alt="${esc(t('rpg.altLauncher'))}">
     <figcaption class="meta">${esc(t('rpg.captionLauncher'))}</figcaption>
   </figure>
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
