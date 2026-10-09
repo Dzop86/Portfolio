@@ -1,0 +1,22 @@
+[
+  { "id": "copper-ring", "name": { "fr": "Anneau de cuivre", "en": "Copper Ring" }, "kind": "Equipment", "slot": "Ring", "stats": { "vitality": 5 } },
+  { "id": "ember-ring", "name": { "fr": "Anneau de braise", "en": "Ember Ring" }, "kind": "Equipment", "slot": "Ring", "level": 10, "stats": { "intelligence": 8 } },
+  { "id": "pebble-amulet", "name": { "fr": "Amulette de galet", "en": "Pebble Amulet" }, "kind": "Equipment", "slot": "Amulet", "stats": { "strength": 5 } },
+  { "id": "leather-belt", "name": { "fr": "Ceinture de cuir", "en": "Leather Belt" }, "kind": "Equipment", "slot": "Belt", "stats": { "vitality": 10 } },
+  { "id": "poacher-cape", "name": { "fr": "Cape du braconnier", "en": "Poacher's Cape" }, "kind": "Equipment", "slot": "Cape", "stats": { "agility": 6 }, "set": "poacher" },
+  { "id": "poacher-hat", "name": { "fr": "Chapeau du braconnier", "en": "Poacher's Hat" }, "kind": "Equipment", "slot": "Hat", "stats": { "vitality": 8 }, "set": "poacher" },
+  { "id": "orc-breastplate", "name": { "fr": "Plastron d'orque", "en": "Orc Breastplate" }, "kind": "Equipment", "slot": "Chest", "level": 5, "stats": { "vitality": 15, "strength": 5 } },
+  { "id": "orc-pauldrons", "name": { "fr": "Épaulettes d'orque", "en": "Orc Pauldrons" }, "kind": "Equipment", "slot": "Shoulders", "level": 5, "stats": { "strength": 6 } },
+  { "id": "dagger", "name": { "fr": "Dague", "en": "Dagger" }, "kind": "Equipment", "slot": "OneHanded", "stats": { "agility": 5 } },
+  { "id": "orc-club", "name": { "fr": "Massue d'orque", "en": "Orc Club" }, "kind": "Equipment", "slot": "TwoHanded", "level": 8, "stats": { "strength": 15 } },
+  { "id": "wooden-shield", "name": { "fr": "Bouclier de bois", "en": "Wooden Shield" }, "kind": "Equipment", "slot": "Shield", "stats": { "vitality": 12 } },
+  { "id": "kitten", "name": { "fr": "Chaton", "en": "Kitten" }, "kind": "Equipment", "slot": "Pet", "stats": { "chance": 4 } },
+  { "id": "donkey", "name": { "fr": "Âne", "en": "Donkey" }, "kind": "Equipment", "slot": "Mount", "level": 20, "mp": 1 },
+  { "id": "poacher-boots", "name": { "fr": "Bottes du braconnier", "en": "Poacher's Boots" }, "kind": "Equipment", "slot": "Boots", "stats": { "agility": 4 }, "set": "poacher" },
+  { "id": "bread", "name": { "fr": "Pain", "en": "Bread" }, "kind": "Consumable" },
+  { "id": "healing-potion", "name": { "fr": "Potion de soin", "en": "Healing Potion" }, "kind": "Consumable" },
+  { "id": "leather", "name": { "fr": "Cuir", "en": "Leather" }, "kind": "Resource" },
+  { "id": "orc-fang", "name": { "fr": "Croc d'orque", "en": "Orc Fang" }, "kind": "Resource" },
+  { "id": "feather", "name": { "fr": "Plume", "en": "Feather" }, "kind": "Resource" },
+  { "id": "garance-badge", "name": { "fr": "Insigne de Garance", "en": "Garance's Badge" }, "kind": "Quest" }
+]

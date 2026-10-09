@@ -1,0 +1,24 @@
+[
+  {
+    "id": "poacher",
+    "name": {
+      "fr": "Panoplie du braconnier",
+      "en": "Poacher's set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "agility": 10
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "agility": 20
+        },
+        "mp": 1
+      }
+    ]
+  }
+]

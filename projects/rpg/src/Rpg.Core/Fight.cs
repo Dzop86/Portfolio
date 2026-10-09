@@ -137,8 +137,16 @@ public sealed class Fight
     private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data)
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
-        return data.Class(hero.Class) is not HeroClass c ? spec
-            : spec with { Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap, Mp = c.Mp, Initiative = c.Initiative, Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)], Stats = hero.Stats, SpellRanks = hero.Ranks, Level = hero.Level };
+        if (data.Class(hero.Class) is not HeroClass c)
+            return spec;
+        // What the hero wears adds up with its own points; its action and movement points too.
+        (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
+        return spec with
+        {
+            Hp = c.Hp + c.HpPerLevel * (hero.Level - 1), Ap = c.Ap + ap, Mp = c.Mp + mp, Initiative = c.Initiative,
+            Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)],
+            Stats = Equipment.Add(hero.Stats ?? Characteristics.None, worn), SpellRanks = hero.Ranks, Level = hero.Level,
+        };
     }
 
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>

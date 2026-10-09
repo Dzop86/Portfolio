@@ -1,3 +1,9 @@
 [
-  { "id": "first-lesson", "name": { "fr": "Première leçon", "en": "First lesson" }, "xp": 150, "scenario": "training" }
+  {
+    "id": "first-lesson",
+    "name": { "fr": "Première leçon", "en": "First lesson" },
+    "xp": 150,
+    "scenario": "training",
+    "items": [{ "item": "garance-badge", "count": 1 }, { "item": "copper-ring", "count": 1 }]
+  }
 ]
