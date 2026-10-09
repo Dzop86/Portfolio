@@ -1,0 +1,16 @@
+# The tactical RPG's launcher: a library that signs in and updates the game (core), and its Tauri
+# window (app).
+[workspace]
+members = ["core", "app"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+rust-version = "1.85"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }

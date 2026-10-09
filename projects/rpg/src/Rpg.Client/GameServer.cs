@@ -37,6 +37,9 @@ public sealed class GameServer(HttpClient http)
 
     public void SignOut() => Http.DefaultRequestHeaders.Authorization = null;
 
+    /// <summary>Signed in by someone else: the launcher hands the game a token it got itself.</summary>
+    public void UseToken(string token) => Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
     public async Task<IReadOnlyList<CharacterSummary>> Characters(CancellationToken cancel = default)
     {
         HttpResponseMessage response = await Http.GetAsync(new Uri("api/characters", UriKind.Relative), cancel);

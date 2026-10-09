@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Osmose</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="texts.js" defer></script>
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 data-t="title"></h1>
+      <button type="button" id="lang" class="small" aria-label="Français / English"></button>
+    </header>
+    <label class="meta server"><span data-t="server"></span><input id="server" spellcheck="false"></label>
+
+    <form id="sign-in">
+      <label><span data-t="name"></span><input id="name" autocomplete="username" maxlength="20" required></label>
+      <label><span data-t="password"></span><input id="password" type="password" autocomplete="current-password" maxlength="128" required></label>
+      <button type="submit" data-t="sign-in"></button>
+    </form>
+    <p id="signed-in" hidden></p>
+
+    <section aria-labelledby="game-title">
+      <h2 id="game-title" data-t="game"></h2>
+      <p id="version" class="meta"></p>
+      <progress id="bar" max="1" value="0" hidden></progress>
+      <p id="progress" class="meta" aria-live="polite"></p>
+      <div class="row">
+        <button type="button" id="update" data-t="update"></button>
+        <button type="button" id="play" class="primary" data-t="play" disabled></button>
+      </div>
+    </section>
+    <p id="message" role="alert"></p>
+    <p class="meta" data-t="note"></p>
+  </main>
+</body>
+</html>

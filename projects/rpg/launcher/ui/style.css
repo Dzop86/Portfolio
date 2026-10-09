@@ -1,0 +1,60 @@
+/* The site's colours (src/assets/tokens.css): dark grey, pistachio accent, chocolate touches. */
+:root {
+  --bg: #1f1f1f;
+  --panel: #2a2a2a;
+  --text: #ececec;
+  --muted: #a8a8a8;
+  --accent: #bef374;
+  --on-accent: #1f1f1f;
+  --chocolate: #5a3a22;
+  --error: #ffb4a2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 system-ui, sans-serif;
+}
+
+main { padding: 20px 24px; max-width: 520px; margin: auto; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--chocolate); }
+h1 { font-size: 26px; margin: 8px 0; }
+h2 { font-size: 18px; margin: 18px 0 4px; }
+.meta { color: var(--muted); font-size: 13px; }
+
+form { display: grid; gap: 10px; background: var(--panel); padding: 14px; border-radius: 8px; }
+label { display: grid; gap: 4px; }
+input {
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.server { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
+#server { flex: 1; }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #383838;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: 0.5; cursor: default; }
+.row { display: flex; gap: 10px; }
+.row button { flex: 1; }
+progress { width: 100%; height: 12px; accent-color: var(--accent); }
+#message { color: var(--error); min-height: 1.5em; }
+#signed-in { color: var(--accent); }

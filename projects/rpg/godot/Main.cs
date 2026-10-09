@@ -11,7 +11,8 @@ namespace Rpg.Desktop;
 /// to the town); --selftest [--report FILE] plays a whole fight through the controls and checks the
 /// views; --town-selftest walks the town and talks to everyone first; --lobby-selftest signs up,
 /// creates and chooses a character on the login screen against the server, then does both;
-/// --screenshot FILE [--shot move|spell|lobby|town] saves a picture.
+/// --screenshot FILE [--shot move|spell|lobby|town] saves a picture; --demo lets the AI play the
+/// hero too, animations and all, and quits after the fight (for the video of the project page).
 /// </summary>
 public partial class Main : Node3D
 {
@@ -30,6 +31,8 @@ public partial class Main : Node3D
     private static CharacterSummary? _character;
     private static Hero? _hero;
     private static string? _scenario;
+    private static string? _launcherToken;
+    private string _serverUrl = "";
 
     private readonly Dictionary<int, FighterView> _views = [];
     private FightController _controller = null!;
@@ -47,9 +50,18 @@ public partial class Main : Node3D
     public override void _Ready()
     {
         _options = Options.Parse(OS.GetCmdlineUserArgs(), OS.GetLocaleLanguage());
-        _lobby ??= new Lobby(new GameServer(new System.Net.Http.HttpClient { BaseAddress = new Uri(_options.Server), Timeout = TimeSpan.FromSeconds(10) }));
+        // The launcher passes the server and the player's token in the environment (RPG_SERVER, RPG_TOKEN).
+        string server = System.Environment.GetEnvironmentVariable("RPG_SERVER") is { Length: > 0 } fromLauncher && !_options.ServerGiven
+            ? fromLauncher.TrimEnd('/') + "/"
+            : _options.Server;
+        if (_lobby is null)
+        {
+            _lobby = new Lobby(new GameServer(new System.Net.Http.HttpClient { BaseAddress = new Uri(server), Timeout = TimeSpan.FromSeconds(10) }));
+            _launcherToken = System.Environment.GetEnvironmentVariable("RPG_TOKEN");
+        }
+        _serverUrl = server;
         AddEnvironment();
-        if (_options.SelfTest || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
+        if (_options.SelfTest || _options.Demo || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
             StartFight(_hero, _options.Scenario);
         else if (_options.TownSelfTest || _options.Shot == "town")
             ShowTown();
@@ -95,11 +107,23 @@ public partial class Main : Node3D
             ShowTown();
         };
         AddChild(_lobbyView);
-        _lobbyView.Build(_lobby!, _options.Server, new Texts(_options.Lang));
+        _lobbyView.Build(_lobby!, _serverUrl, new Texts(_options.Lang));
+        if (_launcherToken is string token && !_lobby!.SignedIn && !_options.LobbySelfTest)
+        {
+            // Used once: after signing out, the form is the way back in.
+            _launcherToken = null;
+            _ = UseLauncherToken(token);
+        }
         if (_options.LobbySelfTest)
             _ = RunLobbySelfTest();
         else if (_options.Shot == "lobby")
             _ = LobbyScreenshot();
+    }
+
+    private async Task UseLauncherToken(string token)
+    {
+        await _lobby!.UseToken(token);
+        _lobbyView?.Refresh();
     }
 
     /// <summary>The model of a look, turning on a patch of grass next to the form.</summary>
@@ -143,10 +167,21 @@ public partial class Main : Node3D
     {
         if (_stage is not null)
             _stage.RotateY((float)delta * 0.6f);
-        if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null || _controller.Fight.IsOver || _controller.IsPlayerTurn)
+        if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)
+            return;
+        if (_controller.Fight.IsOver)
+        {
+            if (_options.Demo)
+            {
+                _busy = true;
+                _ = QuitSoon();
+            }
+            return;
+        }
+        if (_controller.IsPlayerTurn && !_options.Demo)
             return;
         _busy = true;
-        _ = AiStep();
+        _ = _controller.IsPlayerTurn ? DemoStep() : AiStep();
     }
 
     public override void _UnhandledInput(InputEvent @event)
@@ -276,6 +311,20 @@ public partial class Main : Node3D
         }
         _busy = true;
         _ = Play(instant: false);
+    }
+
+    /// <summary>The demo: the AI chooses the hero's action, shown like the player's.</summary>
+    private async Task DemoStep()
+    {
+        await ToSignal(GetTree().CreateTimer(0.5), SceneTreeTimer.SignalName.Timeout);
+        _controller.Fight.Apply(Ai.Decide(_controller.Fight));
+        await Play(instant: false);
+    }
+
+    private async Task QuitSoon()
+    {
+        await ToSignal(GetTree().CreateTimer(2.5), SceneTreeTimer.SignalName.Timeout);
+        GetTree().Quit();
     }
 
     private async Task AiStep()
@@ -500,7 +549,7 @@ public partial class Main : Node3D
         GetTree().Quit(saved == Error.Ok ? 0 : 1);
     }
 
-    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false)
+    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false, bool ServerGiven = false, bool Demo = false)
     {
         public static Options Parse(string[] args, string locale)
         {
@@ -517,10 +566,11 @@ public partial class Main : Node3D
                     "--report" => o with { Report = Next() },
                     "--screenshot" => o with { Screenshot = Next() },
                     "--shot" => o with { Shot = Next() },
-                    "--server" => o with { Server = Next().TrimEnd('/') + "/" },
+                    "--server" => o with { Server = Next().TrimEnd('/') + "/", ServerGiven = true },
                     "--offline" => o with { Offline = true },
                     "--lobby-selftest" => o with { LobbySelfTest = true },
                     "--town-selftest" => o with { TownSelfTest = true },
+                    "--demo" => o with { Demo = true },
                     _ => o,
                 };
             }

@@ -19,6 +19,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public int AccountsPerMinute { get; init; } = 10_000;
 
+    /// <summary>A folder served under /updates, as for the launcher; none by default.</summary>
+    public string? UpdatesRoot { get; init; }
+
     public static string DatabaseServer => Environment.GetEnvironmentVariable("RPG_TEST_DB")
         ?? throw new InvalidOperationException("Set RPG_TEST_DB to a PostgreSQL connection string (Host=...;Username=...) to run the API tests.");
 
@@ -26,6 +29,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         builder.UseSetting("ConnectionStrings:Game", $"{DatabaseServer};Database={_database}");
         builder.UseSetting("RateLimit:AccountsPerMinute", AccountsPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (UpdatesRoot is not null)
+            builder.UseSetting("Updates:Root", UpdatesRoot);
         builder.UseSetting("Jwt:Key", Convert.ToBase64String(Enumerable.Range(1, 32).Select(i => (byte)i).ToArray()));
         builder.ConfigureServices(services =>
         {

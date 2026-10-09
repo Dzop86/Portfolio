@@ -53,6 +53,10 @@ services:
       # Signing key of the access tokens: set RPG_JWT_KEY (base64, 32 bytes) to keep tokens across
       # restarts; left empty, the API draws a random key at start-up.
       Jwt__Key: ${RPG_JWT_KEY:-}
+      # The game's exports and their manifest.json, one folder per platform, for the launcher.
+      Updates__Root: /updates
+    volumes:
+      - ./projects/rpg/godot/build:/updates:ro
     depends_on:
       rpg-db:
         condition: service_healthy

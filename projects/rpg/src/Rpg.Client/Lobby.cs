@@ -44,6 +44,13 @@ public sealed class Lobby(GameServer server)
         });
     }
 
+    /// <summary>Signed in by the launcher: its token, then the characters (a token run out sends back to the form).</summary>
+    public async Task<bool> UseToken(string token, CancellationToken cancel = default)
+    {
+        Server.UseToken(token);
+        return await Call(async () => Characters = await Server.Characters(cancel), _ => null);
+    }
+
     public async Task<bool> Create(string name, string look, string heroClass, int colour = 0, CancellationToken cancel = default)
     {
         if (!Hero.IsValidName(name))

@@ -1,0 +1,21 @@
+[package]
+name = "rpg-launcher-core"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Signs in to the tactical RPG's server, updates the game file by file, starts it."
+
+[dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+sha2 = "0.10.9"
+thiserror = "2.0.12"
+ureq = { version = "2.12.1", features = ["json"] }
+
+[dev-dependencies]
+tempfile = "3.20.0"
+tiny_http = "0.12.0"
+
+[lints]
+workspace = true

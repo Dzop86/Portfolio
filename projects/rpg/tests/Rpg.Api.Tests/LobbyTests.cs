@@ -70,4 +70,24 @@ public class LobbyTests
         Assert.Equal("lobby.session-expired", lobby.Problem);
         Assert.False(lobby.SignedIn);
     }
+
+    [Fact]
+    public async Task TheLaunchersToken_OpensTheCharacters_AndAStaleOneTheForm()
+    {
+        await using var api = new ApiFactory();
+        GameServer launcher = await api.SignedIn();
+        await launcher.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        string token = launcher.Http.DefaultRequestHeaders.Authorization!.Parameter!;
+
+        var game = new Lobby(new GameServer(api.CreateClient()));
+        Assert.True(await game.UseToken(token, Cancel));
+        Assert.True(game.SignedIn);
+        Assert.Equal("Élise", Assert.Single(game.Characters).Name);
+
+        var late = new Lobby(new GameServer(api.CreateClient()));
+        api.Clock.Advance(TimeSpan.FromHours(13));
+        Assert.False(await late.UseToken(token, Cancel));
+        Assert.Equal("lobby.session-expired", late.Problem);
+        Assert.False(late.SignedIn);
+    }
 }

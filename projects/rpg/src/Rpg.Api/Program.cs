@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi;
 using Rpg.Api;
 using Rpg.Api.Data;
@@ -49,8 +50,8 @@ builder.Services.AddOpenApi(openApi =>
 {
     openApi.AddDocumentTransformer((document, _, _) =>
     {
-        document.Info.Title = "Tactical RPG API";
-        document.Info.Description = "Accounts and characters of the tactical RPG. The rules come from the same library as the game's (Rpg.Core).";
+        document.Info.Title = "Osmose API";
+        document.Info.Description = "Accounts and characters of Osmose, a tactical RPG. The rules come from the same library as the game's (Rpg.Core).";
         document.Components ??= new OpenApiComponents();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
@@ -83,6 +84,18 @@ if (app.Configuration.GetValue("Database:Migrate", true))
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+// The game's files for the launcher, one folder per platform with its manifest.json, when a folder
+// is configured (Updates__Root). Static files answer Range requests: a cut download resumes.
+if (app.Configuration["Updates:Root"] is string updates && Directory.Exists(updates))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(Path.GetFullPath(updates)),
+        RequestPath = "/updates",
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/octet-stream",
+    });
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
@@ -90,7 +103,7 @@ app.UseRateLimiter();
 app.MapOpenApi();
 app.UseSwaggerUI(ui =>
 {
-    ui.SwaggerEndpoint("/openapi/v1.json", "Tactical RPG API");
+    ui.SwaggerEndpoint("/openapi/v1.json", "Osmose API");
     ui.RoutePrefix = "swagger";
 });
 app.MapGet("/health", async (GameDb db, CancellationToken cancel) =>
