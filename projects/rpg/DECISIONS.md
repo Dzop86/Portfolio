@@ -89,3 +89,18 @@ Le choix du projet et de sa pile (Godot 4 en C#, règles partagées, ASP.NET Cor
 **Choix :** `PUT /api/characters/{id}/place` à la fin de chaque marche ; le serveur refuse une case où l'on ne peut pas marcher depuis l'arrivée (`Town.CanStand` de `Rpg.Core`, la règle du jeu). Hors ligne, la position ne vit qu'en mémoire.
 **Pourquoi :** on revient là où l'on était, d'une session à l'autre ; et un client modifié ne peut pas placer un personnage dans une maison.
 **Limites :** le serveur ne vérifie pas le chemin parcouru (vitesse, téléportation d'un bout à l'autre du village) : en solo cela n'a pas d'effet ; en multijoueur, il faudra que le serveur reçoive les déplacements, pas seulement leur arrivée.
+
+## T17. Le launcher : une bibliothèque Rust testée, une fenêtre Tauri par-dessus
+**Choix :** `launcher/core` fait tout sans fenêtre (connexion, manifeste, mise à jour, lancement) et se teste par `cargo test`, contre une source en mémoire (coupures, serveur qui ignore la reprise, fichier falsifié) et contre un vrai serveur HTTP ; `launcher/app` (Tauri 2) ne fait que l'afficher. Un manifeste par plateforme liste chaque fichier, sa taille et son SHA-256 ; seuls les fichiers absents ou différents sont téléchargés, dans un `.part` repris par `Range`, vérifié, puis renommé ; le manifeste local est écrit en dernier. Le serveur ASP.NET Core sert les exports sous `/updates` (fichiers statiques, qui gèrent `Range`). Le jeton passe au jeu par l'environnement, pas par la ligne de commande. Les exports Linux et Windows gardent le `.pck` à part, pour qu'une mise à jour du contenu ne retélécharge pas l'exécutable.
+**Pourquoi :** même principe que `Rpg.Client` (T8, T12) : la logique se teste sans interface. Tauri plutôt qu'une interface native : une page web légère, un exécutable de quelques mégaoctets, la même sur les trois systèmes.
+**Alternatives :** Avalonia (C#, la même langue que le reste, mais le portfolio voulait du Rust) ; un correctif binaire (bsdiff : moins de données, beaucoup plus de complexité) ; un protocole existant (TUF, Omaha : solides, mais lourds pour un projet de cette taille).
+**Limites :** pas de signature (ni du manifeste, ni des paquets) ; le launcher ne se met pas à jour lui-même ; un fichier modifié est retéléchargé en entier.
+
+## T18. Une vidéo enregistrée par le jeu, et l'architecture sur la fiche
+**Choix :** l'option `--demo` laisse l'IA jouer aussi l'héroïne ; le Movie Maker de Godot enregistre le combat image par image (30 images par seconde, hors temps réel, dans un écran virtuel), ffmpeg le convertit en MP4 (H.264) et WebM (VP9), 0,7 à 1,1 Mo. Le schéma d'architecture est un SVG écrit dans le générateur, ses textes dans les deux langues, ses couleurs par les variables de la charte, doublé d'une liste qui dit la même chose (lisible sur téléphone et par un lecteur d'écran).
+**Pourquoi :** pas de démo web (D54) : la vidéo montre le jeu en mouvement sans l'installer, et elle se refait d'une commande quand le jeu change.
+**Limites :** pas de son ; rendu logiciel de Mesa (moins net qu'une vraie carte graphique).
+
+## T19. Le jeu s'appelle Osmose (choix de Charles)
+**Choix :** « Osmose » est le nom visible partout : titre de l'écran de connexion, fenêtre et paquets du launcher, application Godot (fenêtre, `.app` sur macOS), API (OpenAPI), fiche du portfolio (« Osmose, RPG tactique »). Les identifiants internes ne changent pas (dossier `projects/rpg`, `Rpg.Core`, exécutables `rpg.x86_64` et `rpg.exe`, routes de l'API).
+**Pourquoi :** renommer les identifiants casserait les chemins, les workflows et les enregistrements de combats sans rien apporter au joueur.

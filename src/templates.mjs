@@ -1253,7 +1253,8 @@ godot --path godot                                 # ${esc(t('rogue.godot'))}</c
 </section>`;
 }
 
-// The tactical RPG (D54): pictures taken by the Godot client itself (login screen, town, fight), how to run it, where to download it.
+// The tactical RPG (D54): a video and pictures made by the Godot client itself (login screen, town,
+// fight), the architecture of its parts, how to run it, where to download it.
 function rpgScreenshots(t, lang) {
   const shot = (name, alt, caption) => `<figure class="naval-shot rogue-shot">
     <img src="../assets/images/rpg-${name}-${lang}.png" width="1280" height="720" loading="lazy" alt="${esc(t(alt))}">
@@ -1262,6 +1263,18 @@ function rpgScreenshots(t, lang) {
   return `<section class="block panel" aria-labelledby="h-rpg">
   <h2 id="h-rpg">${esc(t('rpg.title'))}</h2>
   <p>${esc(t('rpg.lead'))}</p>
+  <figure class="naval-shot rogue-shot rpg-video">
+    <video controls muted playsinline preload="none" width="1280" height="720" poster="../assets/images/rpg-spell-${lang}.png" aria-describedby="rpg-video-text">
+      <source src="../assets/video/rpg-fight-${lang}.mp4" type="video/mp4">
+      <source src="../assets/video/rpg-fight-${lang}.webm" type="video/webm">
+    </video>
+    <figcaption class="meta" id="rpg-video-text">${esc(t('rpg.videoText'))}</figcaption>
+  </figure>
+  ${rpgArchitecture(t)}
+  <figure class="naval-shot rpg-launcher">
+    <img src="../assets/images/rpg-launcher-${lang}.png" width="520" height="660" loading="lazy" alt="${esc(t('rpg.altLauncher'))}">
+    <figcaption class="meta">${esc(t('rpg.captionLauncher'))}</figcaption>
+  </figure>
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
   ${shot('town', 'rpg.altTown', 'rpg.captionTown')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
@@ -1275,6 +1288,43 @@ dotnet build godot/Rpg.Godot.csproj
 godot --path godot -- --lang ${lang}                                # ${esc(t('rpg.godot'))}</code></pre>
   <p>${esc(t('rpg.download'))} <a href="https://github.com/Dzop86/Portfolio/actions/workflows/rpg.yml">${esc(t('rpg.downloadLink'))}</a></p>
 </section>`;
+}
+
+// The parts of the tactical RPG and what goes between them: a drawing (its text in the language of the
+// page, colours from the tokens) and the same in words, which also reads well on a phone.
+function rpgArchitecture(t) {
+  const box = (x, y, name, tech, core = false) => `<g class="arch-box${core ? ' arch-core' : ''}">
+      <rect x="${x}" y="${y}" width="200" height="64" rx="8"></rect>
+      <text x="${x + 100}" y="${y + 27}" class="arch-name">${esc(t(name))}</text>
+      <text x="${x + 100}" y="${y + 48}" class="arch-tech">${esc(t(tech))}</text>
+    </g>`;
+  const arrow = (x1, y1, x2, y2, label, lx, ly, anchor = 'middle') => `<g class="arch-link">
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#arch-arrow)"></line>
+      ${label ? `<text x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(t(label))}</text>` : ''}
+    </g>`;
+  return `<h3>${esc(t('rpg.arch.title'))}</h3>
+  <figure class="rpg-arch">
+    <svg viewBox="0 0 720 390" role="img" aria-labelledby="rpg-arch-title">
+      <title id="rpg-arch-title">${esc(t('rpg.arch.alt'))}</title>
+      <defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker></defs>
+      ${arrow(220, 52, 520, 158, 'rpg.arch.updates', 390, 88)}
+      ${arrow(120, 84, 120, 158, 'rpg.arch.starts', 130, 126, 'start')}
+      ${arrow(120, 224, 120, 298, '', 0, 0)}
+      ${arrow(210, 300, 512, 226, 'rpg.arch.http', 330, 248)}
+      ${arrow(220, 332, 258, 332, '', 0, 0)}
+      ${arrow(560, 224, 420, 298, 'rpg.arch.same', 520, 276, 'start')}
+      ${arrow(640, 224, 640, 298, 'rpg.arch.ef', 650, 266, 'start')}
+      ${box(20, 20, 'rpg.arch.launcher', 'rpg.arch.launcherTech')}
+      ${box(20, 160, 'rpg.arch.game', 'rpg.arch.gameTech')}
+      ${box(500, 160, 'rpg.arch.server', 'rpg.arch.serverTech')}
+      ${box(20, 300, 'rpg.arch.client', 'rpg.arch.clientTech')}
+      ${box(260, 300, 'rpg.arch.core', 'rpg.arch.coreTech', true)}
+      ${box(500, 300, 'rpg.arch.db', 'rpg.arch.dbTech')}
+    </svg>
+  </figure>
+  <ul class="rpg-arch-list">
+    ${['launcher', 'game', 'core', 'server', 'sim'].map((k) => `<li>${esc(t(`rpg.arch.${k}Text`))}</li>`).join('\n    ')}
+  </ul>`;
 }
 
 // The Angular dashboard (D44): a link to it, and its comparison with the React one, measured by

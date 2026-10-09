@@ -660,3 +660,17 @@ tr.is-picked { background: var(--surface-2); }
 .plain dl { margin: 0; padding: 0 var(--space-4) var(--space-4); display: grid; gap: var(--space-3); }
 .plain dt { font-weight: 600; color: var(--text-strong); }
 .plain dd { margin: var(--space-1) 0 0; max-width: 70ch; }
+
+/* The tactical RPG's page: the video and the drawing of its parts (colours from the tokens). */
+.rpg-video video { display: block; width: 100%; max-width: 716px; height: auto; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface-2); }
+.rpg-arch { margin: var(--space-3) 0; }
+.rpg-arch svg { display: block; width: 100%; max-width: 716px; height: auto; }
+.rpg-arch .arch-box rect { fill: var(--surface-2); stroke: var(--border-strong); stroke-width: 1.5; }
+.rpg-arch .arch-core rect { stroke: var(--accent); stroke-width: 3; }
+.rpg-arch .arch-name { fill: var(--text-strong); font-size: 17px; font-weight: 600; text-anchor: middle; }
+.rpg-arch .arch-tech { fill: var(--muted); font-size: 13px; text-anchor: middle; }
+.rpg-arch .arch-link line { stroke: var(--chocolat-clair); stroke-width: 2; }
+.rpg-arch .arch-link text { fill: var(--text); font-size: 13px; }
+.rpg-arch marker path { fill: var(--chocolat-clair); }
+.rpg-arch-list li { margin-bottom: var(--space-2); }
+.rpg-launcher img { max-width: 360px; }

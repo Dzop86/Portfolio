@@ -13,6 +13,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 47 : `src/Rpg.Api/Endpoints/` (ce que le serveur vérifie et ce qu'il répond) et `src/Rpg.Client/Lobby.cs` (le message que chaque refus donne au joueur).
 - [ ] Sprint 48 : créer un personnage de chaque classe et jouer l'entraînement avec : les classes te semblent-elles différentes et équilibrées (`data/classes.json`) ? Les couleurs de tenue sur les différentes apparences.
 - [ ] Sprint 49 : le village chez toi (taille des personnages face aux maisons, lisibilité des noms, le panneau de dialogue qui couvre le bas de la carte) et les dialogues de `data/dialogues/` (ton, longueur).
+- [ ] Sprint 50 : le launcher chez toi (paquet de la CI pour ton système, connexion, « Mettre à jour » deux fois de suite, « Jouer ») et `launcher/core/src/update.rs` (reprise, vérification, refus des chemins dangereux).
+- [ ] Sprint 50 : la fiche (vidéo, schéma d'architecture, texte) : donne-t-elle une idée juste du jeu à quelqu'un qui ne l'installera pas ?
 
 ## Constats
 
@@ -44,4 +46,11 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-09 | `godot/TownView.cs`, `godot/TalkPanel.cs` | (Claude) Vu sur la première capture du village : personnages minuscules face aux maisons, noms illisibles, panneau de dialogue deux fois trop haut qui cachait la porte et Garance | Personnages à l'échelle 1,5, étiquettes plus grandes, panneau qui prend la hauteur de son contenu |
 | 2026-10-09 | `data/towns/clairval.json` | (Claude) Vu sur la capture : Garance, derrière la maison du bas, était invisible de la caméra | Placée une case plus haut, à côté de la porte |
 | 2026-10-09 | `src/Rpg.Client/TownController.cs` | (Claude) Trouvé en cassant le code : rien ne vérifiait qu'on marche jusqu'au côté le plus proche d'un habitant (la mutation « le plus loin » survivait) | Test `TheWalkUpToSomeone_EndsOnTheirNearestSide`, mutation attrapée |
+| 2026-10-09 | `godot/export_presets.cfg` | (Claude) Le `.pck` était embarqué dans l'exécutable : la moindre image changée aurait fait retélécharger tout le jeu par le launcher | `.pck` à part pour Linux et Windows, vérifié dans la CI |
+| 2026-10-09 | `launcher/core/src/launch.rs` | (Claude) Chemin de l'exécutable macOS deviné (`rpg.app/Contents/MacOS/rpg`), alors que l'export le nomme d'après le projet | Cherché dans le dossier installé (premier `.app`, son programme), avec un test |
+| 2026-10-09 | `data/i18n/*.json` (`rpg.videoText`) | (Claude) Description de la vidéo écrite avant de la regarder : « tire à l'arc depuis l'abri des arbres », « 40 secondes » ; vu sur les images extraites : corps à corps, victoire à 6 PV, 36 secondes | Texte refait d'après les images |
+| 2026-10-09 | `launcher/app`, `launcher/ui` | (Claude) Vu sur la capture : le launcher restait en anglais sur un système français, WebKitGTK ne donnant pas la langue | Langue lue par Rust dans `LANG` / `LC_ALL`, capture refaite |
+| 2026-10-09 | `tests/e2e/site.spec.js`, `scripts/serve.mjs` | (Claude) La fiche rpg n'était pas dans la liste des pages vérifiées par axe et pour le défilement à 375 px ; le serveur local servait les vidéos sans type | Fiche ajoutée à la liste ; types `video/mp4`, `video/webm`, `image/png` |
+| 2026-10-09 | `.gitignore` | (Claude) La règle `bin/` (sorties .NET) aurait caché les sources Rust de `launcher/core/src/bin` : les deux outils n'auraient jamais été commités | Exception ajoutée, vérifiée avec `git check-ignore` |
+| 2026-10-09 | nom du jeu | Demandé par Charles : le jeu s'appelle Osmose | (Claude) Nom visible changé (jeu, launcher, paquets, API, fiche), identifiants internes gardés (T19) ; captures de l'écran de connexion et du launcher refaites |
 | | | | |

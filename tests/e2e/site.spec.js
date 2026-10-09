@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure', 'project-bataille', 'project-morpion', 'project-rogue', 'project-qt', 'project-parallele', 'project-react'];
+const PAGES = ['index', 'projects', 'research', 'method', 'contact', 'project-vitrine', 'project-lib-c', 'project-topologie', 'project-sql', 'project-langage', 'project-latex', 'project-gcartes', 'project-ml', 'project-othello', 'project-naval', 'project-aventure', 'project-bataille', 'project-morpion', 'project-rogue', 'project-qt', 'project-parallele', 'project-react', 'project-rpg'];
 
 // Every page, in both languages and both themes: axe also checks colour contrast.
 for (const theme of ['dark', 'light']) {
@@ -957,6 +957,28 @@ test('the text adventure plays in the page: commands, quick buttons, history, a 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
+});
+
+test('the tactical RPG page shows its video and how its parts fit together, in both languages (sprint 50)', async ({ page, request }) => {
+  for (const [lang, launcher, core] of [['fr', 'Launcher', 'règles partagées'], ['en', 'Launcher', 'shared rules']]) {
+    await page.goto(`/${lang}/project-rpg.html`);
+    const video = page.locator('.rpg-video video');
+    await expect(video).toBeVisible();
+    // Both formats exist and are videos; the poster is one of the page's pictures.
+    for (const source of await video.locator('source').all()) {
+      const response = await request.get(new URL(await source.getAttribute('src'), page.url()).href);
+      expect(response.ok()).toBe(true);
+      expect(response.headers()['content-type']).toMatch(/^video\//);
+    }
+    expect((await request.get(new URL(await video.getAttribute('poster'), page.url()).href)).ok()).toBe(true);
+    await expect(page.locator('#rpg-video-text')).toContainText(lang === 'fr' ? 'enregistrée par le jeu' : 'recorded by the game');
+    // The drawing has a text alternative, its boxes the page's language, and the same in words below.
+    const drawing = page.getByRole('img', { name: lang === 'fr' ? /^Schéma : le launcher/ : /^Diagram: the launcher/ });
+    await expect(drawing).toBeVisible();
+    await expect(drawing.locator('text', { hasText: launcher }).first()).toBeAttached();
+    await expect(drawing.locator('text', { hasText: core })).toBeAttached();
+    await expect(page.locator('.rpg-arch-list li')).toHaveCount(5);
+  }
 });
 
 test('the risk register sorts by number, probability, impact and score, and back', async ({ page }) => {

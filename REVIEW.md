@@ -24,6 +24,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Le serveur des comptes et l'écran de connexion du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le serveur et l'écran chez toi, ce que vérifie le serveur et ce que voit le joueur).
 - [ ] La création de personnage du RPG tactique : le point de `projects/rpg/REVIEW.md` (classes, équilibre, couleurs).
 - [ ] Le village du RPG tactique : le point de `projects/rpg/REVIEW.md` (le village chez toi, les dialogues).
+- [ ] Le launcher et la fiche du RPG tactique : les deux points de `projects/rpg/REVIEW.md` (le launcher chez toi, la fiche).
 
 ## Constats
 
