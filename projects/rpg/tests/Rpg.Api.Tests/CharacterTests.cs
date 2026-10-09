@@ -156,7 +156,7 @@ public class CharacterTests
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         using JsonDocument list = JsonDocument.Parse(await server.Http.GetStringAsync(new Uri("api/characters", UriKind.Relative), Cancel));
         JsonElement only = list.RootElement.EnumerateArray().Single();
-        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place", "server", "level", "hair", "skin", "height", "build", "xp", "stats", "ranks", "quests"], only.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place", "server", "level", "hair", "skin", "height", "build", "xp", "stats", "ranks", "quests", "inventory", "worn"], only.EnumerateObject().Select(p => p.Name));
         Assert.Equal(["town", "x", "y"], only.GetProperty("place").EnumerateObject().Select(p => p.Name));
     }
 

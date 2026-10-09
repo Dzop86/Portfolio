@@ -38,6 +38,10 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             character.Ignore(c => c.Stats);
             character.Ignore(c => c.RankList);
             character.Ignore(c => c.QuestList);
+            character.Property(c => c.Inventory).HasMaxLength(8000).HasDefaultValue("");
+            character.Property(c => c.Worn).HasMaxLength(1000).HasDefaultValue("");
+            character.Ignore(c => c.InventoryList);
+            character.Ignore(c => c.WornList);
             character.Ignore(c => c.Hero);
         });
         modelBuilder.Entity<PendingFight>(fight =>

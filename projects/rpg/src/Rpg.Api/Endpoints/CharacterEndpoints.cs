@@ -20,6 +20,7 @@ public static class CharacterEndpoints
         group.MapPost("/{id:guid}/fights/{fight:guid}", ReportFight)
             .Accepts<FightRecord>("application/json")
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
+        group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
 
@@ -156,15 +157,39 @@ public static class CharacterEndpoints
         Quest? quest = played!.WinningTeam == 0
             ? GameData.Embedded.Quests.Values.FirstOrDefault(q => q.Scenario == pending.Scenario && !character.QuestList.Contains(q.Id))
             : null;
+        // The loot follows the fight's seed, which the server drew: the game cannot pick it either.
+        List<ItemCount> items = [.. Equipment.Loot(played)];
         if (quest is not null)
         {
             xp += quest.Xp;
             character.Quests = string.Join(',', character.QuestList.Append(quest.Id));
+            items.AddRange(quest.Items ?? []);
         }
+        character.Receive(items);
         character.Xp += xp;
         character.Level = Progression.LevelFor(character.Xp);
         await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id));
+        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items));
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SaveEquipment(
+        Guid id, Wear request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        var worn = new Dictionary<Slot, string>(request?.Worn ?? new Dictionary<Slot, string>());
+        // Only what it owns: two rings alike need two in the inventory.
+        Dictionary<string, int> owned = character.InventoryList.ToDictionary(i => i.Item, i => i.Count, StringComparer.Ordinal);
+        string? problem = worn.Values.GroupBy(i => i).FirstOrDefault(g => g.Count() > owned.GetValueOrDefault(g.Key)) is IGrouping<string, string> missing
+            ? $"'{missing.Key}': not owned, or not that many."
+            : (character.Hero with { Worn = worn }).Problem(GameData.Embedded);
+        if (problem is not null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["equipment"] = [problem] });
+        character.Worn = string.Join(',', worn.OrderBy(w => w.Key).Select(w => $"{w.Key}:{w.Value}"));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SavePoints(
@@ -186,7 +211,7 @@ public static class CharacterEndpoints
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

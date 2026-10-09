@@ -90,6 +90,14 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<FightResult>(Json, cancel))!;
     }
 
+    /// <summary>Puts items on a character; the server checks it owns them and they fit.</summary>
+    public async Task<CharacterSummary> SaveEquipment(Guid id, IReadOnlyDictionary<Slot, string> worn, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/equipment", UriKind.Relative), new Wear(worn), Json, cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     /// <summary>Spends a character's points; the server checks them against its level.</summary>
     public async Task<CharacterSummary> SavePoints(Guid id, Points points, CancellationToken cancel = default)
     {

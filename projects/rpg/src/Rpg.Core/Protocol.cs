@@ -31,19 +31,21 @@ public sealed record Place(string Town, int X, int Y)
 
 /// <summary>
 /// One of the player's characters, on one server; <see cref="Place"/> is null until they first walk
-/// in a town. Its level follows its experience; its points are spent as <see cref="Stats"/> and
+/// in a town. <see cref="Inventory"/> holds everything it owns, what it wears included
+/// (<see cref="Worn"/>, sprint 59). Its level follows its experience; its points are spent as <see cref="Stats"/> and
 /// <see cref="Ranks"/> say (sprint 58); <see cref="Quests"/> are the ids of the quests it has done.
 /// </summary>
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
-    int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null)
+    int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
+    IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null)
 {
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
         other is not null && (Id, CreatedAt, Place, Server, Xp) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp)
-        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []);
+        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []);
 
     public override int GetHashCode() => HashCode.Combine(Id, Hero, Xp);
 }
@@ -56,9 +58,12 @@ public sealed record NewFight(string? Scenario);
 
 /// <summary>
 /// What the server gave for a fight it replayed: the experience earned (the fight's and a quest's),
-/// the new total and level, and the quest done, if any.
+/// the new total and level, the quest done, if any, and the items won (loot and the quest's).
 /// </summary>
-public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null);
+public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null);
+
+/// <summary>What a character is to wear, slot by slot: items it owns.</summary>
+public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);
 
 /// <summary>How a character spends its points: characteristics, and the ranks of its spells (rank 1 when not listed).</summary>
 public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks);

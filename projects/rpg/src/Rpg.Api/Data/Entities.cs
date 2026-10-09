@@ -64,6 +64,27 @@ public sealed class Character
     /// <summary>The quests done, their ids separated by commas.</summary>
     public string Quests { get; set; } = "";
 
+    /// <summary>Everything owned, worn included, as "item:count" separated by commas.</summary>
+    public string Inventory { get; set; } = "";
+
+    /// <summary>What is worn, as "Slot:item" separated by commas.</summary>
+    public string Worn { get; set; } = "";
+
+    public List<ItemCount> InventoryList => [.. Inventory.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(i => i.Split(':')).Select(i => new ItemCount(i[0], int.Parse(i[1], System.Globalization.CultureInfo.InvariantCulture)))];
+
+    public Dictionary<Slot, string> WornList => Worn.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(w => w.Split(':')).ToDictionary(w => Enum.Parse<Slot>(w[0]), w => w[1]);
+
+    /// <summary>Adds items to the inventory, in the order of the items' ids.</summary>
+    public void Receive(IEnumerable<ItemCount> items)
+    {
+        var all = InventoryList.ToDictionary(i => i.Item, i => i.Count, StringComparer.Ordinal);
+        foreach (ItemCount i in items)
+            all[i.Item] = all.GetValueOrDefault(i.Item) + i.Count;
+        Inventory = string.Join(',', all.OrderBy(i => i.Key, StringComparer.Ordinal).Select(i => $"{i.Key}:{i.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+    }
+
     public Characteristics Stats => new(Vitality, Strength, Intelligence, Chance, Agility);
 
     public Dictionary<string, int> RankList => Ranks.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -72,7 +93,7 @@ public sealed class Character
     public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>The character as the rules see it.</summary>
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList);
 }
 
 /// <summary>
