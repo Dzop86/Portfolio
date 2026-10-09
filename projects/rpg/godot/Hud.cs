@@ -20,7 +20,7 @@ public partial class Hud : CanvasLayer
     private PanelContainer _info = null!;
     private Label _infoText = null!;
     private readonly Queue<string> _log = new();
-    private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!;
+    private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!, _result = null!;
     private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
     private HBoxContainer _spellBar = null!;
     private PanelContainer _end = null!;
@@ -105,7 +105,7 @@ public partial class Hud : CanvasLayer
         row.AddChild(_lang);
 
         _end = new PanelContainer { Visible = false };
-        Anchor(_end, 0.5f, 0.5f, -180, -120, 360, 240);
+        Anchor(_end, 0.5f, 0.5f, -190, -140, 380, 280);
         root.AddChild(_end);
         var endBox = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
         endBox.AddThemeConstantOverride("separation", 20);
@@ -113,6 +113,10 @@ public partial class Hud : CanvasLayer
         _endTitle = new Label { HorizontalAlignment = HorizontalAlignment.Center };
         _endTitle.AddThemeFontSizeOverride("font_size", 36);
         endBox.AddChild(_endTitle);
+        _result = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(320, 0) };
+        _result.AddThemeFontSizeOverride("font_size", 18);
+        _result.AddThemeColorOverride("font_color", FighterView.PlayerColour);
+        endBox.AddChild(_result);
         _again = new Button { CustomMinimumSize = new Vector2(200, 48), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
         _again.Pressed += () => AgainPressed?.Invoke();
         endBox.AddChild(_again);
@@ -205,6 +209,11 @@ public partial class Hud : CanvasLayer
         _again.Text = Texts["again"];
         _back.Text = Texts["town.back"];
     }
+
+    /// <summary>What the fight earned, on the end screen.</summary>
+    public void ShowResult(string text) => _result.Text = text;
+
+    public string ResultText => _result.Text;
 
     /// <summary>The end screen's way back to town.</summary>
     public void SetBackShown(bool shown) => _back.Visible = shown;

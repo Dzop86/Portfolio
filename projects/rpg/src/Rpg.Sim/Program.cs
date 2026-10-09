@@ -11,7 +11,8 @@ namespace Rpg.Sim;
 ///   rpg-sim --replay fight.json [--show]
 /// Options: --data (a data folder; by default the data built into Rpg.Core), --lang fr|en (default en),
 /// --class ID (the hero of team A plays that class of data/classes.json), --rival ID (team B's first
-/// fighter too, for class duels), --level N (both heroes' level, 1 by default).
+/// fighter too, for class duels), --level N (both heroes' level, 1 by default, their points spent
+/// the simplest way: Progression.Built).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -57,7 +58,8 @@ public static class Program
                     error.WriteLine($"Unknown class '{id}'.");
                     return 2;
                 }
-                var h = new Hero(c.Name.In(options.Lang), isRival ? "male-d" : "female-d", c.Id, Level: options.Level);
+                // Its points spent the simplest way (Progression.Built), as a player of that level would have them.
+                Hero h = Progression.Built(new Hero(c.Name.In(options.Lang), isRival ? "male-d" : "female-d", c.Id, Level: options.Level), data);
                 if (isRival)
                     rival = h;
                 else

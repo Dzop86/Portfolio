@@ -1,0 +1,70 @@
+using Rpg.Core;
+
+namespace Rpg.Client.Tests;
+
+/// <summary>The characteristics and spells screens, and what a fight earned (sprint 58).</summary>
+public class PointsTests
+{
+    private static GameData Data => GameData.Embedded;
+
+    [Fact]
+    public void TheButtons_SpendThePointsTheLevelGives_NeverMore()
+    {
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 3), Data);
+        Assert.Equal((20, 2), (editor.CharacteristicPointsLeft, editor.SpellPointsLeft));
+        editor.Add(Characteristic.Vitality, 15);
+        editor.Add(Characteristic.Strength, 10);
+        Assert.Equal((15, 5, 0), (editor[Characteristic.Vitality], editor[Characteristic.Strength], editor.CharacteristicPointsLeft));
+        Assert.False(editor.CanAdd(Characteristic.Chance));
+        editor.Remove(Characteristic.Vitality, 20);
+        Assert.Equal((0, 15), (editor[Characteristic.Vitality], editor.CharacteristicPointsLeft));
+        Assert.False(editor.CanRemove(Characteristic.Agility));
+        Assert.Null(editor.Draft.Problem(Data));
+    }
+
+    [Fact]
+    public void ARank_CostsMoreTheHigherItGoes_OnlyForUnlockedSpells()
+    {
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 4), Data);
+        Spell bash = Data.Spells["shield-bash"];
+        Assert.Equal(["strike", "axe", "spear", "shield-bash"], editor.Spells.Select(s => s.Id));
+        Assert.Equal((1, 1), (editor.Rank(bash), editor.NextRankCost(bash)));
+        editor.Raise(bash);
+        Assert.Equal((2, 2, 2), (editor.Rank(bash), editor.NextRankCost(bash), editor.SpellPointsLeft));
+        editor.Raise(bash);
+        Assert.Equal((3, 0), (editor.Rank(bash), editor.SpellPointsLeft));
+        Assert.False(editor.CanRaise(Data.Spells["strike"]));
+        Assert.False(editor.CanRaise(Data.Spells["bulwark"]));
+        editor.Lower(bash);
+        editor.Lower(bash);
+        editor.Lower(bash);
+        Assert.Equal((1, 3), (editor.Rank(bash), editor.SpellPointsLeft));
+        Assert.False(editor.Changed);
+    }
+
+    [Fact]
+    public void WhatIsSaved_StartsTheEditor_AndTheDraftGoesToTheServer()
+    {
+        var saved = new Hero("Élise", "female-c", "mage", Level: 10, Stats: new Characteristics(Vitality: 30, Intelligence: 20), Ranks: new Dictionary<string, int> { ["ice-shard"] = 3 });
+        var editor = new PointsEditor(saved, Data);
+        Assert.Equal((30, 20, 40, 3, 6), (editor[Characteristic.Vitality], editor[Characteristic.Intelligence], editor.CharacteristicPointsLeft, editor.Rank(Data.Spells["ice-shard"]), editor.SpellPointsLeft));
+        Assert.False(editor.Changed);
+        editor.Add(Characteristic.Chance, 5);
+        Assert.True(editor.Changed);
+        Points p = editor.ToPoints();
+        Assert.Equal(new Characteristics(Vitality: 30, Intelligence: 20, Chance: 5), p.Stats);
+        Assert.Equal(3, p.Ranks!["ice-shard"]);
+    }
+
+    [Fact]
+    public void TheEndScreen_SaysWhatTheFightEarned()
+    {
+        var fr = new Texts("fr");
+        Assert.Equal("+210 XP · Quête terminée : Première leçon · Niveau 2 !", fr.Result(new FightResult(210, 210, 2, "first-lesson"), 1));
+        Assert.Equal("+60 XP", new Texts("en").Result(new FightResult(60, 270, 2), 2));
+        Assert.Equal("Niveau 2 · 270 / 300 XP", fr.XpLine(2, 270));
+        Assert.Equal("Level 100 · 600000 XP", new Texts("en").XpLine(100, 600_000));
+        foreach (Characteristic c in Enum.GetValues<Characteristic>())
+            Assert.NotEqual(fr["char." + c], new Texts("en")["char." + c + ".help"]);
+    }
+}

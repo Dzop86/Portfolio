@@ -3,7 +3,7 @@
   "start": "offer",
   "lines": {
     "offer": {
-      "text": { "fr": "Envie de vous mesurer à un orque et à un braconnier ? Ils ne mordent pas. Enfin, presque.", "en": "Fancy a go at an orc and a poacher? They do not bite. Well, hardly." },
+      "text": { "fr": "Envie de vous mesurer à un orque et à un braconnier ? Ils ne mordent pas. Enfin, presque. Battez-les une première fois et la leçon vous vaudra de l'expérience en plus.", "en": "Fancy a go at an orc and a poacher? They do not bite. Well, hardly. Beat them once and the lesson will earn you extra experience." },
       "answers": [
         { "text": { "fr": "Allons-y !", "en": "Let's go!" }, "fight": "training" },
         { "text": { "fr": "Comment gagner ?", "en": "How do I win?" }, "next": "tips" },

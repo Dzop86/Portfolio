@@ -27,6 +27,11 @@ public partial class Main : Node3D
     // session, the character chosen (null offline) and its hero, the fight's scenario.
     private static Screen _screen = Screen.Lobby;
     private static ulong? _nextSeed;
+
+    // The fight the server started (signed in), for the scene about to be built; then the one played.
+    private static FightTicket? _pendingTicket;
+    private FightTicket? _ticket;
+    private Task<string>? _report;
     private static Lobby? _lobby;
     private static CharacterSummary? _character;
     private static Hero? _hero;
@@ -123,7 +128,9 @@ public partial class Main : Node3D
     {
         _screen = Screen.Fight;
         _scenario = scenario;
-        ulong seed = _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
+        _ticket = _pendingTicket;
+        _pendingTicket = null;
+        ulong seed = _ticket?.Seed ?? _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
         _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero));
         BuildWorld();
         if (_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest)
@@ -245,11 +252,7 @@ public partial class Main : Node3D
             if (!_busy)
                 Act(_controller.EndTurn());
         };
-        _hud.AgainPressed += () =>
-        {
-            _nextSeed = _controller.Fight.Seed + 1;
-            GetTree().ReloadCurrentScene();
-        };
+        _hud.AgainPressed += () => _ = Again();
         // Back to town, where the player stood before the fight.
         _hud.SetBackShown(true);
         _hud.BackPressed += () =>
@@ -260,6 +263,57 @@ public partial class Main : Node3D
         };
         _seen = fight.Events.Count;
         RefreshViews();
+    }
+
+    private async Task Again()
+    {
+        _nextSeed = _controller.Fight.Seed + 1;
+        _pendingTicket = await RequestTicket(_controller.Fight.Scenario.Id);
+        GetTree().ReloadCurrentScene();
+    }
+
+    /// <summary>Asks the server for a fight, signed in with a character; null offline or when it cannot be reached.</summary>
+    private static async Task<FightTicket?> RequestTicket(string scenario)
+    {
+        if (_lobby?.SignedIn != true || _character is null)
+            return null;
+        try
+        {
+            return await _lobby.Server.StartFight(_character.Id, scenario);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// At the end of a fight the server started: hands it the record, keeps what it earned (the
+    /// character's experience and level) and says it on the end screen. Once per fight.
+    /// </summary>
+    private Task<string> ReportFight() => _report ??= ReportFightAsync();
+
+    private async Task<string> ReportFightAsync()
+    {
+        Texts texts = _hud.Texts;
+        if (_ticket is not FightTicket ticket || _lobby?.SignedIn != true || _character is null)
+            return _hero?.Class is null ? "" : texts["result.offline"];
+        try
+        {
+            int before = _character.Level;
+            FightResult result = await _lobby.Server.ReportFight(_character.Id, ticket.Id, FightRecord.Of(_controller.Fight));
+            _character = (await _lobby.Server.Characters()).Single(c => c.Id == _character.Id);
+            _hero = _character.Hero;
+            return texts.Result(result, before);
+        }
+        catch (ServerException e)
+        {
+            return texts["result.refused", e.Message];
+        }
+        catch (HttpRequestException)
+        {
+            return texts["lobby.unreachable"];
+        }
     }
 
     private void ChooseSpell(int index)
@@ -327,9 +381,13 @@ public partial class Main : Node3D
         }
         RefreshViews();
         _busy = false;
+        if (_controller.Fight.IsOver && _report is null)
+            _ = ShowResult();
         if (_controller.IsPlayerTurn)
             ShowPreview();
     }
+
+    private async Task ShowResult() => _hud.ShowResult(await ReportFight());
 
     private Task Animate(FightEvent e, bool instant)
     {
@@ -471,12 +529,36 @@ public partial class Main : Node3D
         });
         if (!_hud.EndShown)
             problems.Add("no end screen");
+        _ = FinishSelfTest(problems, checks);
+    }
+
+    /// <summary>
+    /// The end of the fight's self-test: signed in, the fight goes to the server, which must keep
+    /// exactly the experience the rules give, and the end screen must say it; then the report.
+    /// </summary>
+    private async Task FinishSelfTest(List<string> problems, int checks)
+    {
+        string? progress = null;
+        if (_ticket is not null && _character is not null)
+        {
+            long before = _character.Xp;
+            bool firstWin = _controller.Fight.WinningTeam == 0 && !(_character.Quests ?? []).Contains("first-lesson");
+            string shown = await ReportFight();
+            long earned = Progression.FightXp(_controller.Fight) + (firstWin ? GameData.Embedded.Quests["first-lesson"].Xp : 0);
+            if (_character.Xp != before + earned)
+                problems.Add($"the server keeps {_character.Xp} experience, not {before + earned} ({shown})");
+            if (_hud.ResultText != shown || !shown.StartsWith(_hud.Texts["result.xp", earned], StringComparison.Ordinal))
+                problems.Add($"the end screen says '{_hud.ResultText}'");
+            progress = $"Experience: +{earned} kept by the server, level {_character.Level}.";
+        }
         string report = SelfPlay.Report(_controller.Fight);
         report += problems.Count == 0
             ? $" Views checked {checks} times, {_board.Tiles} tiles."
             : $" VIEW PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (_selfTestNote is not null)
             report += " " + _selfTestNote;
+        if (progress is not null)
+            report += " " + progress;
         if (problems.Count > 0)
             report = report.Replace("SELFTEST OK", "SELFTEST FAILED", StringComparison.Ordinal);
         GD.Print(report);

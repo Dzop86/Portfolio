@@ -6,13 +6,15 @@ namespace Rpg.Desktop;
 
 /// <summary>
 /// The screen over the town: its name and the help line, the language button, the way back to the
-/// characters (signed in only), a message line, and the talk: who speaks, what they say, the answers.
+/// characters (signed in only), the character's level and experience and its characteristics and
+/// spells screen, a message line, and the talk: who speaks, what they say, the answers.
 /// </summary>
 public partial class TalkPanel : CanvasLayer
 {
     private readonly List<Button> _answers = [];
-    private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!;
-    private Button _lang = null!, _characters = null!;
+    private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!;
+    private Button _lang = null!, _characters = null!, _points = null!;
+    private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
     private VBoxContainer _answerBox = null!;
     private TownController _town = null!;
@@ -21,6 +23,7 @@ public partial class TalkPanel : CanvasLayer
 
     public event Action<int>? Answered;
     public event Action? CharactersPressed;
+    public event Action? PointsPressed;
     public event Action? LanguageChanged;
 
     public void Build(TownController town, Texts texts, bool signedIn)
@@ -35,9 +38,12 @@ public partial class TalkPanel : CanvasLayer
         _help.Modulate = new Color(1, 1, 1, 0.75f);
         _message = Text(root, 16, 20, 78, 900, 24);
 
-        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -320, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
+        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -520, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 10);
         root.AddChild(buttons);
+        _points = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
+        _points.Pressed += () => PointsPressed?.Invoke();
+        buttons.AddChild(_points);
         _characters = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = signedIn };
         _characters.Pressed += () => CharactersPressed?.Invoke();
         buttons.AddChild(_characters);
@@ -49,6 +55,12 @@ public partial class TalkPanel : CanvasLayer
             LanguageChanged?.Invoke();
         };
         buttons.AddChild(_lang);
+
+        _xp = new Label { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -520, OffsetRight = -20, OffsetTop = 62, OffsetBottom = 86, HorizontalAlignment = HorizontalAlignment.Right, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _xp.AddThemeFontSizeOverride("font_size", 16);
+        _xp.AddThemeColorOverride("font_outline_color", Colors.Black);
+        _xp.AddThemeConstantOverride("outline_size", 6);
+        root.AddChild(_xp);
 
         // Anchored at the bottom, it grows upwards as high as its line and answers.
         _talk = new PanelContainer
@@ -87,6 +99,15 @@ public partial class TalkPanel : CanvasLayer
 
     public void ShowMessage(string text) => _message.Text = text;
 
+    /// <summary>The character's level and experience, and its points screen; null: no character (a classless hero).</summary>
+    public void SetProgress(int? level, long xp)
+    {
+        _progress = level is int l ? (l, xp) : null;
+        Refresh();
+    }
+
+    public string XpText => _xp.Text;
+
     /// <summary>Redraws the texts and the talk from the town's state and the language.</summary>
     public void Refresh()
     {
@@ -94,6 +115,9 @@ public partial class TalkPanel : CanvasLayer
         _help.Text = Texts["town.help"];
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
         _characters.Text = Texts["lobby.back"];
+        _points.Text = Texts["points.button"];
+        _points.Visible = _progress is not null;
+        _xp.Text = _progress is (int level, long xp) ? Texts.XpLine(level, xp) : "";
         _talk.Visible = _town.Talk is not null;
         if (_town.Talk is not Conversation talk)
             return;

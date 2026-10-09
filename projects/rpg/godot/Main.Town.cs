@@ -15,6 +15,7 @@ public partial class Main
     private TownController? _town;
     private TownView? _townView;
     private TalkPanel? _talkPanel;
+    private PointsPanel? _pointsPanel;
     private bool _walking;
 
     private void ShowTown()
@@ -32,6 +33,8 @@ public partial class Main
         _talkPanel = new TalkPanel();
         AddChild(_talkPanel);
         _talkPanel.Build(_town, new Texts(_options.Lang), _lobby?.SignedIn == true && _character is not null);
+        _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
+        _talkPanel.PointsPressed += OpenPoints;
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () => _townView.SetLanguage(_talkPanel.Texts.Lang);
         _talkPanel.CharactersPressed += () =>
@@ -47,7 +50,7 @@ public partial class Main
 
     private void TownInput(InputEvent @event)
     {
-        if (_town is null || _townView is null || _walking)
+        if (_town is null || _townView is null || _walking || _pointsPanel is not null)
             return;
         switch (@event)
         {
@@ -76,6 +79,50 @@ public partial class Main
         await SavePlace();
         if (_town.Fight is string scenario)
             EnterFight(scenario);
+    }
+
+    /// <summary>The characteristics and spells screen, over the town.</summary>
+    private void OpenPoints()
+    {
+        if (_pointsPanel is not null || _hero is null)
+            return;
+        _pointsPanel = new PointsPanel();
+        AddChild(_pointsPanel);
+        _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded), _talkPanel!.Texts);
+        _pointsPanel.SavePressed += p => _ = SavePoints(p);
+        _pointsPanel.ClosePressed += () =>
+        {
+            _pointsPanel.QueueFree();
+            _pointsPanel = null;
+        };
+    }
+
+    /// <summary>Saves the points on the server (which checks them); offline, for this game only.</summary>
+    private async Task<bool> SavePoints(Points points)
+    {
+        PointsPanel panel = _pointsPanel!;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _hero = panel.Editor.Draft;
+            panel.Saved(_hero, panel.Texts["points.offline"]);
+            return false;
+        }
+        try
+        {
+            _character = await _lobby.Server.SavePoints(_character.Id, points);
+            _hero = _character.Hero;
+            panel.Saved(_hero, panel.Texts["points.saved"]);
+            return true;
+        }
+        catch (ServerException e)
+        {
+            panel.ShowMessage(e.Message);
+        }
+        catch (HttpRequestException)
+        {
+            panel.ShowMessage(panel.Texts["lobby.unreachable"]);
+        }
+        return false;
     }
 
     private void Answer(int index)
@@ -108,11 +155,15 @@ public partial class Main
         }
     }
 
-    private void EnterFight(string scenario)
+    private void EnterFight(string scenario) => _ = EnterFightAsync(scenario);
+
+    /// <summary>Signed in, the server draws the fight's seed first: only that fight earns experience.</summary>
+    private async Task EnterFightAsync(string scenario)
     {
         _place = _town!.Position;
         _scenario = scenario;
         _screen = Screen.Fight;
+        _pendingTicket = await RequestTicket(scenario);
         ClearScene();
         StartFight(_hero, scenario);
     }
@@ -148,6 +199,18 @@ public partial class Main
             if (_talkPanel.AnswersText.Count() != talk.Line.Answers.Count)
                 problems.Add($"line {talk.LineId} shows {_talkPanel.AnswersText.Count()} answers");
         });
+        // The characteristics and spells screen shows the hero's points, and gives none it has not.
+        if (_hero?.Class is not null)
+        {
+            OpenPoints();
+            PointsEditor editor = _pointsPanel!.Editor;
+            if (!_pointsPanel.StatsText.SequenceEqual(Enum.GetValues<Characteristic>().Select(c => editor[c].ToString(System.Globalization.CultureInfo.InvariantCulture))))
+                problems.Add("the characteristics screen does not show the hero's");
+            if (_hero.Level == 1 && (editor.CharacteristicPointsLeft != 0 || editor.SpellPointsLeft != 0 || editor.Changed))
+                problems.Add("a first-level hero has points to spend");
+            _pointsPanel.QueueFree();
+            _pointsPanel = null;
+        }
         string note = $"Town: {talks} people, {lines} lines";
         if (_lobby?.SignedIn == true && _character is not null)
         {

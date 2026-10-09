@@ -68,12 +68,18 @@ public class BalanceTests
     [InlineData(100)]
     public void AtHighLevels_ClassDuels_AlwaysEnd_HealingNeverOutlastsDamage(int level)
     {
-        // Erosion takes back a tenth of each blow from the maximum: no duel reaches the round limit.
+        // Erosion takes back a tenth of each blow from the maximum: no duel reaches the round limit,
+        // with points spent (sprint 58) or not.
         string[] classes = ["sentinel", "guard", "mage"];
         foreach (string a in classes)
         {
             foreach (string b in classes.Where(c => c != a))
-                Assert.Equal(0, Results("duel", 20, new Hero("Alpha", "female-a", a, Level: level), new Hero("Bravo", "male-a", b, Level: level))[2]);
+            {
+                var alpha = new Hero("Alpha", "female-a", a, Level: level);
+                var bravo = new Hero("Bravo", "male-a", b, Level: level);
+                Assert.Equal(0, Results("duel", 20, alpha, bravo)[2]);
+                Assert.Equal(0, Results("duel", 20, Progression.Built(alpha, Real), Progression.Built(bravo, Real))[2]);
+            }
         }
     }
 }

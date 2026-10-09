@@ -21,6 +21,34 @@ public sealed class Texts
         ["again"] = "Rejouer",
         ["help"] = "Clic : se déplacer · 1, 2, 3 : choisir un sort · Échap : annuler · Espace : fin du tour",
         ["spell"] = "{0} ({1} PA, portée {2}-{3})",
+        ["points.button"] = "Personnage",
+        ["points.title"] = "Caractéristiques et sorts",
+        ["points.characteristics"] = "Caractéristiques : {0} point(s) à répartir",
+        ["points.spells"] = "Sorts : {0} point(s) de sort",
+        ["points.rank"] = "rang {0}/{1}",
+        ["points.next"] = "rang suivant : {0} point(s)",
+        ["points.max"] = "rang maximum",
+        ["points.save"] = "Enregistrer",
+        ["points.close"] = "Fermer",
+        ["points.saved"] = "Points enregistrés.",
+        ["points.offline"] = "Hors ligne : rien n'est enregistré.",
+        ["char.Vitality"] = "Vitalité",
+        ["char.Strength"] = "Force",
+        ["char.Intelligence"] = "Intelligence",
+        ["char.Chance"] = "Chance",
+        ["char.Agility"] = "Agilité",
+        ["char.Vitality.help"] = "+1 PV par point",
+        ["char.Strength.help"] = "+1 % de dégâts Terre et neutres",
+        ["char.Intelligence.help"] = "+1 % de dégâts Feu et de soins",
+        ["char.Chance.help"] = "+1 % de dégâts Eau",
+        ["char.Agility.help"] = "+1 % de dégâts Air",
+        ["xp.line"] = "Niveau {0} · {1} / {2} XP",
+        ["xp.max"] = "Niveau {0} · {1} XP",
+        ["result.xp"] = "+{0} XP",
+        ["result.quest"] = "Quête terminée : {0}",
+        ["result.level"] = "Niveau {0} !",
+        ["result.offline"] = "Hors ligne : l'expérience n'est pas gardée.",
+        ["result.refused"] = "Le serveur n'a pas compté ce combat : {0}",
         ["card.fighter"] = "{0} · {1}/{2} PV · {3} PA · {4} PM",
         ["card.shield"] = " · bouclier {0}",
         ["card.resist"] = "Résistances : {0}",
@@ -159,6 +187,34 @@ public sealed class Texts
         ["again"] = "Play again",
         ["help"] = "Click: move · 1, 2, 3: choose a spell · Esc: cancel · Space: end turn",
         ["spell"] = "{0} ({1} AP, range {2}-{3})",
+        ["points.button"] = "Character",
+        ["points.title"] = "Characteristics and spells",
+        ["points.characteristics"] = "Characteristics: {0} point(s) to spend",
+        ["points.spells"] = "Spells: {0} spell point(s)",
+        ["points.rank"] = "rank {0}/{1}",
+        ["points.next"] = "next rank: {0} point(s)",
+        ["points.max"] = "highest rank",
+        ["points.save"] = "Save",
+        ["points.close"] = "Close",
+        ["points.saved"] = "Points saved.",
+        ["points.offline"] = "Offline: nothing is saved.",
+        ["char.Vitality"] = "Vitality",
+        ["char.Strength"] = "Strength",
+        ["char.Intelligence"] = "Intelligence",
+        ["char.Chance"] = "Chance",
+        ["char.Agility"] = "Agility",
+        ["char.Vitality.help"] = "+1 HP a point",
+        ["char.Strength.help"] = "+1% Earth and neutral damage",
+        ["char.Intelligence.help"] = "+1% Fire damage and healing",
+        ["char.Chance.help"] = "+1% Water damage",
+        ["char.Agility.help"] = "+1% Air damage",
+        ["xp.line"] = "Level {0} · {1} / {2} XP",
+        ["xp.max"] = "Level {0} · {1} XP",
+        ["result.xp"] = "+{0} XP",
+        ["result.quest"] = "Quest done: {0}",
+        ["result.level"] = "Level {0}!",
+        ["result.offline"] = "Offline: the experience is not kept.",
+        ["result.refused"] = "The server did not count this fight: {0}",
         ["card.fighter"] = "{0} · {1}/{2} HP · {3} AP · {4} MP",
         ["card.shield"] = " · shield {0}",
         ["card.resist"] = "Resistances: {0}",
@@ -373,6 +429,22 @@ public sealed class Texts
             parts.Add(text + (e is SummonEffect ? "" : this["affects." + e.Affects]));
         }
         return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
+    }
+
+    /// <summary>A character's level and experience: "Niveau 3 · 340 / 600 XP" (the total for the next level).</summary>
+    public string XpLine(int level, long xp) =>
+        level >= Hero.MaxLevel ? this["xp.max", level, xp] : this["xp.line", level, xp, Progression.XpToReach(level + 1)];
+
+    /// <summary>What a fight earned, as the end screen says it: experience, the quest done, the new level.</summary>
+    public string Result(FightResult result, int levelBefore)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        var parts = new List<string> { this["result.xp", result.Xp] };
+        if (result.Quest is string id && GameData.Embedded.Quests.TryGetValue(id, out Quest? quest))
+            parts.Add(this["result.quest", quest.Name.In(Lang)]);
+        if (result.Level > levelBefore)
+            parts.Add(this["result.level", result.Level]);
+        return string.Join(" · ", parts);
     }
 
     /// <summary>What a cast would do, one line per fighter of its area (<see cref="Fight.Foresee"/>).</summary>
