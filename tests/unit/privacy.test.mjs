@@ -22,8 +22,9 @@ const PATTERNS = [
 // Exact matches that are not private data: the digit string of number formatting code (js_of_ocaml's
 // runtime has "0123456789abcdef"), which looks like a phone number; the public address of a package
 // maintainer that npm copies into package-lock.json with a deprecation notice (glob 10, pulled by the
-// Angular tools). Anything else still fails.
-const ALLOWED = ['0123456789', 'i@izs.me'];
+// Angular tools); the creation date and hour of Kenney's Fantasy Town Kit in its licence
+// ("03-08-2025 13:56", projects/rpg). Anything else still fails.
+const ALLOWED = ['0123456789', 'i@izs.me', '03-08-2025 13'];
 
 const extraTerms = (process.env.PRIVATE_TERMS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 
