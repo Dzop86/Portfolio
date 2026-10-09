@@ -1,0 +1,21 @@
+{
+  "id": "trainer",
+  "start": "offer",
+  "lines": {
+    "offer": {
+      "text": { "fr": "Envie de vous mesurer à un orque et à un braconnier ? Ils ne mordent pas. Enfin, presque.", "en": "Fancy a go at an orc and a poacher? They do not bite. Well, hardly." },
+      "answers": [
+        { "text": { "fr": "Allons-y !", "en": "Let's go!" }, "fight": "training" },
+        { "text": { "fr": "Comment gagner ?", "en": "How do I win?" }, "next": "tips" },
+        { "text": { "fr": "Plus tard.", "en": "Later." } }
+      ]
+    },
+    "tips": {
+      "text": { "fr": "Visez d'abord le braconnier : il a moins de points de vie, et sa fronde passe par-dessus les obstacles.", "en": "Go for the poacher first: he has fewer hit points, and his sling flies over obstacles." },
+      "answers": [
+        { "text": { "fr": "Allons-y !", "en": "Let's go!" }, "fight": "training" },
+        { "text": { "fr": "Plus tard.", "en": "Later." } }
+      ]
+    }
+  }
+}

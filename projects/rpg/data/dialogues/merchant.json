@@ -1,0 +1,19 @@
+{
+  "id": "merchant",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": { "fr": "Du pain, des pommes, des flèches… Enfin, bientôt : l'étal ouvre au prochain marché.", "en": "Bread, apples, arrows… Well, soon: the stall opens on the next market day." },
+      "answers": [
+        { "text": { "fr": "Que vendrez-vous ?", "en": "What will you sell?" }, "next": "wares" },
+        { "text": { "fr": "À bientôt.", "en": "See you soon." } }
+      ]
+    },
+    "wares": {
+      "text": { "fr": "Des potions et des armes. Pour l'instant, je range les caisses.", "en": "Potions and weapons. For now, I am tidying up the crates." },
+      "answers": [
+        { "text": { "fr": "Bon courage !", "en": "Good luck!" } }
+      ]
+    }
+  }
+}

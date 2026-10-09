@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using Rpg.Client;
@@ -122,5 +123,40 @@ public class CharacterTests
         CharacterSummary old = Assert.Single(await server.Characters(Cancel));
         Assert.Equal(("sentinel", 0), (old.Class, old.Colour));
         Assert.Null(old.Hero.Problem(GameData.Embedded));
+    }
+
+    [Fact]
+    public async Task WhereACharacterStands_IsSaved_IfTheyCouldWalkThere()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        Assert.Null(c.Place);
+        await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
+        Assert.Equal(new Place("clairval", 1, 6), Assert.Single(await server.Characters(Cancel)).Place);
+        // A house, someone else's cell, outside the town, an unknown town: refused, the place kept.
+        foreach (Place wrong in new[] { new Place("clairval", 4, 0), new Place("clairval", 8, 9), new Place("clairval", 40, 2), new Place("atlantis", 1, 1) })
+        {
+            var e = await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, wrong, Cancel));
+            Assert.Equal(HttpStatusCode.BadRequest, e.Status);
+        }
+        Assert.Equal(new Place("clairval", 1, 6), Assert.Single(await server.Characters(Cancel)).Place);
+        // Nobody moves someone else's character.
+        GameServer other = await api.SignedIn("o");
+        var notMine = await Assert.ThrowsAsync<ServerException>(() => other.SavePlace(c.Id, new Place("clairval", 2, 6), Cancel));
+        Assert.Equal(HttpStatusCode.NotFound, notMine.Status);
+    }
+
+    [Fact]
+    public async Task TheListSays_OnlyWhatIsStored()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "mage", 3, Cancel);
+        await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
+        using JsonDocument list = JsonDocument.Parse(await server.Http.GetStringAsync(new Uri("api/characters", UriKind.Relative), Cancel));
+        JsonElement only = list.RootElement.EnumerateArray().Single();
+        Assert.Equal(["id", "name", "look", "class", "colour", "createdAt", "place"], only.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(["town", "x", "y"], only.GetProperty("place").EnumerateObject().Select(p => p.Name));
     }
 }

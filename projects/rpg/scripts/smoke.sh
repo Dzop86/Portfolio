@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # End-to-end check of a running accounts and characters API: sign up, sign in, create, list and
-# delete characters, the server's refusals. Run from projects/rpg.
+# delete characters, their place in town, the server's refusals. Run from projects/rpg.
 #   scripts/smoke.sh http://localhost:8002
 set -euo pipefail
 base=${1:?usage: scripts/smoke.sh BASE_URL}
@@ -29,6 +29,10 @@ json "${auth[@]}" "$base/api/characters" | jq -e --arg n "$hero" 'length == 1 an
   || fail "character list"
 [[ $(status "${auth[@]}" -d '{"name": "R2D2", "look": "female-c", "class": "mage"}' "$base/api/characters") == 400 ]] || fail "invalid name"
 [[ $(status "${auth[@]}" -d '{"name": "Valide", "look": "female-c", "class": "dragon"}' "$base/api/characters") == 400 ]] || fail "unknown class"
+# Where the character stands in town: a cell one can walk to, not a house.
+[[ $(status -X PUT "${auth[@]}" -d '{"town": "clairval", "x": 1, "y": 6}' "$base/api/characters/$id/place") == 204 ]] || fail "place"
+[[ $(status -X PUT "${auth[@]}" -d '{"town": "clairval", "x": 4, "y": 0}' "$base/api/characters/$id/place") == 400 ]] || fail "place in a house"
+json "${auth[@]}" "$base/api/characters" | jq -e '.[0].place == {town: "clairval", x: 1, y: 6}' > /dev/null || fail "place kept"
 [[ $(status -X DELETE "${auth[@]}" "$base/api/characters/$id") == 204 ]] || fail "delete"
 json "${auth[@]}" "$base/api/characters" | jq -e 'length == 0' > /dev/null || fail "list after delete"
 

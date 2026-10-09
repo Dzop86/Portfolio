@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Rpg.Core;
 
 // What the game and its server exchange, in JSON (camelCase). Shared, so both sides cannot drift apart.
@@ -14,8 +16,17 @@ public sealed record AccessToken(string Token, DateTimeOffset ExpiresAt);
 public sealed record NewCharacter(string? Name, string? Look, string? Class = null, int Colour = 0);
 
 /// <summary>One of the player's characters.</summary>
-public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt)
+/// <summary>Where a character stands in a town; the game brings them back there.</summary>
+public sealed record Place(string Town, int X, int Y)
 {
+    [JsonIgnore]
+    public Cell Cell => new(X, Y);
+}
+
+/// <summary>One of the player's characters; <see cref="Place"/> is null until they first walk in a town.</summary>
+public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null)
+{
+    [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour);
 }
 

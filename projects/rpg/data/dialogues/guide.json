@@ -1,0 +1,35 @@
+{
+  "id": "guide",
+  "start": "welcome",
+  "lines": {
+    "welcome": {
+      "text": { "fr": "Bienvenue à Clairval ! Je m'appelle Aubin. C'est votre premier jour ici ?", "en": "Welcome to Clairval! My name is Aubin. Is it your first day here?" },
+      "answers": [
+        { "text": { "fr": "Oui. Que faut-il savoir ?", "en": "Yes. What should I know?" }, "next": "fights" },
+        { "text": { "fr": "Qui habite ici ?", "en": "Who lives here?" }, "next": "people" },
+        { "text": { "fr": "Non. Au revoir !", "en": "No. Goodbye!" } }
+      ]
+    },
+    "fights": {
+      "text": { "fr": "En combat, chacun joue à son tour. Les PM servent à marcher, les PA à lancer des sorts. Derrière un arbre ou un rocher, on est hors de vue.", "en": "In a fight, everyone plays in turn. MP are for walking, AP for casting spells. Behind a tree or a rock, you are out of sight." },
+      "answers": [
+        { "text": { "fr": "Et pour m'entraîner ?", "en": "And to train?" }, "next": "training" },
+        { "text": { "fr": "Merci !", "en": "Thank you!" } }
+      ]
+    },
+    "training": {
+      "text": { "fr": "Garance, la maîtresse d'armes, attend près de la porte est. Vous pouvez aussi passer la porte vous-même.", "en": "Garance, the weapons master, waits by the east gate. You can also go through the gate yourself." },
+      "answers": [
+        { "text": { "fr": "Qui d'autre habite ici ?", "en": "Who else lives here?" }, "next": "people" },
+        { "text": { "fr": "Compris.", "en": "Understood." } }
+      ]
+    },
+    "people": {
+      "text": { "fr": "Rose tient l'étal du marché, au nord. Garance entraîne les nouveaux venus près de la porte est.", "en": "Rose keeps the market stall, up north. Garance trains newcomers by the east gate." },
+      "answers": [
+        { "text": { "fr": "Et les combats ?", "en": "And the fights?" }, "next": "fights" },
+        { "text": { "fr": "Merci.", "en": "Thanks." } }
+      ]
+    }
+  }
+}

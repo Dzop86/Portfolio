@@ -51,6 +51,10 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>Saves where a character stands in a town.</summary>
+    public async Task SavePlace(Guid id, Place place, CancellationToken cancel = default) =>
+        await Check(await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel);
+
     public async Task DeleteCharacter(Guid id, CancellationToken cancel = default) =>
         await Check(await Http.DeleteAsync(new Uri($"api/characters/{id}", UriKind.Relative), cancel), cancel);
 

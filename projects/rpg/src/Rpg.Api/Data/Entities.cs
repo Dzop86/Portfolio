@@ -28,5 +28,10 @@ public sealed class Character
     public required string Look { get; set; }
     public required string Class { get; set; }
     public int Colour { get; set; }
+
+    /// <summary>Where the character stands: a town and a cell, or nothing before their first walk.</summary>
+    public string? Town { get; set; }
+    public int? X { get; set; }
+    public int? Y { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

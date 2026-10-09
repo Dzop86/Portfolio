@@ -15,6 +15,7 @@ public static class CharacterEndpoints
         group.MapGet("", List).WithSummary("The signed-in player's characters, oldest first.");
         group.MapPost("", Create).WithSummary($"Creates a character (at most {Accounts.MaxCharacters} per account, a name unique on the server).");
         group.MapDelete("/{id:guid}", Delete).WithSummary("Deletes one of the signed-in player's characters.");
+        group.MapPut("/{id:guid}/place", SavePlace).WithSummary("Saves where one of the player's characters stands in a town (a cell they can walk to).");
     }
 
     /// <summary>The account in the token; tokens of a deleted account no longer match any.</summary>
@@ -24,11 +25,12 @@ public static class CharacterEndpoints
     internal static async Task<Ok<CharacterSummary[]>> List(ClaimsPrincipal user, GameDb db, CancellationToken cancel)
     {
         Guid account = AccountId(user);
-        CharacterSummary[] list = await db.Characters.Where(c => c.AccountId == account)
+        var list = await db.Characters.Where(c => c.AccountId == account)
             .OrderBy(c => c.CreatedAt).ThenBy(c => c.Name)
-            .Select(c => new CharacterSummary(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt))
+            .Select(c => new { c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, c.Town, c.X, c.Y })
             .ToArrayAsync(cancel);
-        return TypedResults.Ok(list);
+        return TypedResults.Ok(list.Select(c => new CharacterSummary(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt,
+            c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null)).ToArray());
     }
 
     internal static async Task<Results<Created<CharacterSummary>, ValidationProblem, ProblemHttpResult>> Create(
@@ -75,6 +77,18 @@ public static class CharacterEndpoints
         // Someone else's character answers like a missing one: ids of other players stay unknown.
         int deleted = await db.Characters.Where(c => c.Id == id && c.AccountId == account).ExecuteDeleteAsync(cancel);
         return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SavePlace(
+        Guid id, Place place, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        // The rules' own towns decide: a known town, a cell the player could walk to from the arrival.
+        if (place?.Town is null || !GameData.Embedded.Towns.TryGetValue(place.Town, out Town? town) || !town.CanStand(place.Cell))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = ["A known town and a cell one can walk to there."] });
+        Guid account = AccountId(user);
+        int saved = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
+            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Town, place.Town).SetProperty(c => c.X, place.X).SetProperty(c => c.Y, place.Y), cancel);
+        return saved == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
     private static ProblemHttpResult NameTaken() =>
