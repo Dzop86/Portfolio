@@ -143,11 +143,11 @@ def load_corpus(
     root: Path, patterns: tuple[str, ...] = DEFAULT_PATTERNS, max_chars: int = 1200, exclude: tuple[str, ...] = DEFAULT_EXCLUDE
 ) -> list[Chunk]:
     """Every passage of the files under ``root`` that match ``patterns``, except those under ``exclude``, in a stable order."""
-    files = sorted({p for pattern in patterns for p in root.glob(pattern) if p.is_file()})
+    # Sorted by their path as text: Windows paths compare without case, which would change the order there.
+    files = {p.relative_to(root).as_posix(): p for pattern in patterns for p in root.glob(pattern) if p.is_file()}
     chunks: list[Chunk] = []
-    for path in files:
-        source = path.relative_to(root).as_posix()
+    for source in sorted(files):
         if source.startswith(exclude):
             continue
-        chunks.extend(chunk_document(source, path.read_text(encoding="utf-8"), max_chars))
+        chunks.extend(chunk_document(source, files[source].read_text(encoding="utf-8"), max_chars))
     return chunks
