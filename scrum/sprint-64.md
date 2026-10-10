@@ -1,14 +1,12 @@
-# Sprint 64 : Osmose, les premiers monstres
+# Sprint 64 : Osmose, le personnage et ses caractéristiques
 
-**Objectif :** Une première famille de monstres (DPS mêlée, DPS distance, tank, support, boss) en groupes visibles sur la carte.
+**Objectif :** demande de Charles (D61), après avoir essayé le jeu : des caractéristiques qui comptent comme dans les jeux du genre (10 points = +2 dégâts dans leur élément), des coups critiques, un sort tous les cinq niveaux environ, et une fiche de caractéristiques complète.
 
-**En pause (D58) :** Osmose s'arrête après le sprint 60, à la demande de Charles, le temps de l'assistant documentaire (sprints 61 et 62) et des schémas d'architecture (sprint 63, D59) ; ce sprint reprendra tel quel.
-
-**Goal:** A first family of monsters (melee and ranged damage, tank, support, boss) in groups visible on the map.
+**Goal:** Charles's request (D61), after trying the game: characteristics that count as in the games of the genre (10 points = +2 damage in their element), critical hits, a spell about every five levels, and a full characteristics sheet.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats les monstres de la zone (rpg) : une famille de cinq monstres (DPS mêlée, DPS distance, tank, support soin ou bouclier, boss), groupes visibles qui errent, clic pour combattre, réapparition ; XP et butin ; équilibre par simulation ; auto-test, captures. | 3 | À faire |
+| En tant que joueur, je vois ce que valent mes caractéristiques (rpg) : 10 points dans un élément = +2 dégâts dans cet élément seulement (et +2 soins pour l'Intelligence), coups critiques (chance propre à chaque sort, +20 % du maximum sur les deux bornes), un sort tous les cinq niveaux environ ; fiche de caractéristiques refaite (points investis et points de l'équipement, bonus de dégâts et résistance par élément, PV, PA, PM, initiative) ; équilibre refait par simulation, combats enregistrés réenregistrés ; xUnit, auto-test, capture. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
