@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S66), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S70), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S66 | 65 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S70 | 77 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 286 points sur 66 sprints de deux semaines.
+Total : 298 points sur 70 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -93,7 +93,7 @@ Six sprints, 26 points. Un jeu à télécharger, écrit de zéro (aucun code, no
 Trois sprints, 9 points, après l'essai du jeu par Charles sous Windows et un questionnaire. S51 le launcher refait : nom de compte, mot de passe et « Se connecter » seulement (la connexion met à jour puis lance le jeu), mémoriser le nom et le mot de passe (gestionnaire d'identifiants du système), inscription, mise à jour automatique à l'ouverture, serveur caché, une présentation moins austère. S52 dans le jeu, comme Dofus : choix du serveur (direct tant qu'il n'y en a qu'un), puis liste visuelle des personnages (pseudo, classe, niveau, icône) et création s'il y en a moins de cinq. S53 un écran de création à part, plein écran : plusieurs couleurs (tenue, cheveux, peau), taille et carrure, et le choix sur pièces d'un pack libre de modèles à pièces détachables (cheveux, yeux, vêtements, accessoires). Ensuite, après un nouveau questionnaire : les classes retravaillées (quatre éléments, effets, sorts de classe débloqués par niveau, lisibilité et animations du combat), la progression (expérience, caractéristiques, sorts à monter, équipement), puis le monde (cartes reliées, caméra).
 
 ## Osmose : éléments, classes, progression et monde (décision de Charles, 9 octobre 2026, D56)
-Huit sprints, 24 points, après un second questionnaire. S54 les quatre éléments (une caractéristique chacun, résistances) et les effets (soin, bouclier, poussée et attirance, effets dans la durée, zones) ; S55 les invocations, les sorts à rangs débloqués par niveau, les caractéristiques dans les dégâts ; S56 les trois classes refaites, une vingtaine de sorts chacune ; S57 un combat lisible (survol, frise de l'ordre de jeu, effets visuels) ; S58 l'expérience et les niveaux 1 à 100, 10 points de caractéristique et 1 point de sort par niveau ; S59 les 14 emplacements d'équipement, les panoplies, l'inventaire en pages ; S60 de grandes zones avec une caméra qui suit le joueur, la carte du monde ; S61 (66 depuis D58, D59 et D61) une première famille de monstres en groupes visibles. Ensuite, après un nouveau questionnaire : donjons, quêtes, groupes, guildes, métiers, succès, bestiaire, cosmétiques, tutoriel.
+Huit sprints, 24 points, après un second questionnaire. S54 les quatre éléments (une caractéristique chacun, résistances) et les effets (soin, bouclier, poussée et attirance, effets dans la durée, zones) ; S55 les invocations, les sorts à rangs débloqués par niveau, les caractéristiques dans les dégâts ; S56 les trois classes refaites, une vingtaine de sorts chacune ; S57 un combat lisible (survol, frise de l'ordre de jeu, effets visuels) ; S58 l'expérience et les niveaux 1 à 100, 10 points de caractéristique et 1 point de sort par niveau ; S59 les 14 emplacements d'équipement, les panoplies, l'inventaire en pages ; S60 de grandes zones avec une caméra qui suit le joueur, la carte du monde ; S61 (70 depuis D58, D59, D61 et D62) une première famille de monstres en groupes visibles. Ensuite, après un nouveau questionnaire : donjons, quêtes, groupes, guildes, métiers, succès, bestiaire, cosmétiques, tutoriel.
 
 ## Un schéma d'architecture sur chaque fiche (demande de Charles, 9 octobre 2026, D57)
 Un sprint de 5 points, la vitrine passe de 11 à 16. Sprint 62 (63 depuis D58 et D59), avant la reprise d'Osmose : sur chaque fiche qui a au moins trois morceaux qui se parlent, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose (boîtes, technologies, flèches nommées), décrit en données, dessiné en SVG par le générateur, en français et en anglais, lisible à 375 px et dans les deux thèmes.
@@ -106,6 +106,9 @@ Après l'assistant documentaire, les schémas « Comment les morceaux tiennent e
 
 ## Osmose : le personnage, les sorts et l'inventaire refaits (décision de Charles, 10 octobre 2026, D61)
 Après avoir essayé le jeu, Charles demande des écrans à la hauteur des jeux du genre. Deux sprints de 3 points avant les monstres (qui deviennent le sprint 66) : S64 les caractéristiques qui comptent (10 points = +2 dégâts dans leur élément), les coups critiques, un sort tous les cinq niveaux environ et la fiche de caractéristiques ; S65 l'écran des sorts (couleur d'élément, fourchettes normales et critiques, fiche au survol) et l'inventaire (personnage entouré de ses emplacements, onglets, grille d'objets).
+
+## Osmose : éléments, sorts, deck, menus et déplacement (décision de Charles, 10 octobre 2026, D62)
+Après un second essai du jeu, quatre sprints de 3 points avant les monstres (qui deviennent le sprint 70) : S66 les caractéristiques Vitalité, Terre, Eau, Feu, Air (une couleur et un effet chacune, bases communes 8 PA, 4 PM, 10 d'initiative, réinitialisation à tout moment) ; S67 vingt-quatre sorts par classe (quatre par élément, huit neutres, cinq au niveau 1 puis un tous les cinq niveaux), avec leurs icônes ; S68 un deck de douze sorts et sa barre de combat ; S69 le menu Échap, les sons, une barre latérale d'icônes et un déplacement libre hors combat.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
