@@ -23,3 +23,18 @@
 ## G5. Des tests sans modèle, une évaluation avec
 **Choix :** les tests (Linux, Windows, macOS, Python 3.12 et 3.13) utilisent un faux embedder déterministe (sac de mots haché) et Qdrant en mémoire ; un job à part télécharge le vrai modèle (mis en cache), évalue les trois recherches et échoue si l'hybride trouve un bon passage dans les cinq premiers pour moins de 3 questions sur 4.
 **Pourquoi :** les tests vérifient le code, vite et partout ; l'évaluation vérifie la qualité, là où elle a un sens.
+
+## G6. Les citations natives de l'API : des blocs `search_result`
+**Choix :** les six meilleurs passages (recherche hybride) partent vers Claude en blocs `search_result`, citations activées, un bloc de texte par bloc Markdown ; chaque citation rendue (`search_result_location` : quel passage, quels blocs) redevient un fichier et des lignes (`answer.citations_of`). Le modèle est `claude-opus-5-5`, effort `low` (des réponses courtes à partir de quelques passages), avec le repli côté serveur (`fallbacks: "default"`) si un classifieur de sécurité refuse.
+**Pourquoi :** des citations demandées en texte libre (« [1] ») se vérifient mal et s'inventent ; celles de l'API pointent vers des blocs réellement fournis, et le texte cité revient tel quel. Le bloc de texte est la plus petite unité citable : découper par bloc Markdown donne des citations à la ligne près.
+**Alternatives :** des blocs `document` (citations par caractère : à reconvertir en lignes) ; des citations dans une sortie JSON structurée (incompatible avec les citations natives, qui renvoient une erreur 400).
+
+## G7. Dire « pas de réponse » : une consigne et une garde
+**Choix :** la consigne demande `NO_ANSWER` quand les passages ne répondent pas ; en plus, une réponse sans aucune citation compte comme une absence de réponse (`found: false`), et un refus (`stop_reason: refusal`) aussi.
+**Pourquoi :** ne rien répondre vaut mieux que répondre de mémoire ; la garde ne dépend pas de l'obéissance du modèle à la consigne.
+**Limites :** pas de seuil de score de recherche pour ne pas appeler Claude du tout : les scores RRF ne sont pas calibrés, et un seuil sur la similarité cosinus ferait refuser des questions bien posées dans l'autre langue.
+
+## G8. Une API sans état, Qdrant à côté, la clé seulement pour `/ask`
+**Choix :** FastAPI : `GET /health`, `GET /search` (mode, nombre de passages), `POST /ask`. Au démarrage, l'API lit la documentation (`DOCRAG_CORPUS`), calcule les embeddings et remplit Qdrant (`QDRANT_URL`, en mémoire sinon). Image Docker : le modèle d'embeddings téléchargé au build (aucun réseau pour chercher), la documentation copiée par une liste blanche (`Dockerfile.dockerignore`), utilisateur non root, système de fichiers en lecture seule ; `docker compose` lance l'API (port 8003) et Qdrant, qui n'est pas exposé. Sans `ANTHROPIC_API_KEY`, `/ask` répond 503 et `/search` marche.
+**Pourquoi :** l'index se reconstruit en une minute à partir des fichiers : rien à sauvegarder, et l'index suit toujours la documentation de l'image.
+**Limites :** pas d'authentification ni de limite de débit devant `/ask`, qui coûte des appels payants : à mettre avant toute exposition publique. Réindexer demande de redémarrer.

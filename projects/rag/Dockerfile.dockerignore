@@ -1,0 +1,11 @@
+# Context is the repository root: send only the API's code and the documentation it indexes.
+*
+!README.md
+!PLAN.md
+!DECISIONS.md
+!projects/*/README.md
+!projects/*/DECISIONS.md
+!projects/rag/pyproject.toml
+!projects/rag/src
+**/__pycache__
+**/*.egg-info

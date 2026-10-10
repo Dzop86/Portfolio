@@ -77,6 +77,26 @@ services:
     volumes:
       - rpg-db:/var/lib/postgresql
 
+  # Documentation assistant API (projects/rag) and its vector database, rebuilt at each start.
+  rag-api:
+    build:
+      context: .
+      dockerfile: projects/rag/Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      QDRANT_URL: http://rag-qdrant:6333
+      # For /ask only: /search works without a key.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    depends_on:
+      - rag-qdrant
+    # Qdrant may take a moment to listen: the API starts again until it can index.
+    restart: on-failure
+    read_only: true
+    tmpfs:
+      - /tmp
+  rag-qdrant:
+    image: qdrant/qdrant:v1.19.2
 
 volumes:
   rogue-db:

@@ -60,3 +60,47 @@ jobs:
         with:
           name: rag-retrieval
           path: ${{ runner.temp }}/retrieval.json
+
+  docker:
+    name: Documentation assistant (Docker image, compose with Qdrant)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: compose.yaml builds the API, starts Qdrant, and the API indexes the documentation
+        run: |
+          docker compose up -d --build rag-api
+          for i in $(seq 1 90); do curl -fsS http://localhost:8003/health && break; sleep 2; done
+      - name: End to end (health, search, /ask refused without a key)
+        run: projects/rag/scripts/smoke.sh http://localhost:8003
+      - name: API logs
+        if: always()
+        run: docker compose logs rag-api rag-qdrant
+
+  # Claude's answers cost API calls: run by hand (Actions > rag > Run workflow), with the
+  # ANTHROPIC_API_KEY secret.
+  answers:
+    name: Answers on the reference questions (Claude API)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      FASTEMBED_CACHE_PATH: ${{ github.workspace }}/.fastembed
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/cache@v6
+        with:
+          path: .fastembed
+          key: fastembed-paraphrase-multilingual-MiniLM-L12-v2
+      - run: python -m pip install "./projects/rag[embed]"
+      - name: Ask every reference question
+        working-directory: projects/rag
+        run: python -m docrag.evaluate --out "$RUNNER_TEMP/evaluation.json" --answers "$RUNNER_TEMP/answers.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rag-answers
+          path: |
+            ${{ runner.temp }}/evaluation.json
+            ${{ runner.temp }}/answers.json

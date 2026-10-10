@@ -46,6 +46,8 @@ COPY projects/gcartes/course.json ./projects/gcartes/
 # ML results page: what the DVC pipeline wrote.
 COPY projects/ml/metrics.json projects/ml/confusion.json projects/ml/params.yaml ./projects/ml/
 COPY projects/ml/export/pointnet.json ./projects/ml/export/
+# The documentation assistant's measures and recorded answers (D58).
+COPY projects/rag/eval ./projects/rag/eval
 # War statistics computed by the Ada program.
 COPY projects/bataille/data/stats.json ./projects/bataille/data/
 # Tic-tac-toe move book computed by the Python program.

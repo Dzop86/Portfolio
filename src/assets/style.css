@@ -674,3 +674,8 @@ tr.is-picked { background: var(--surface-2); }
 .rpg-arch marker path { fill: var(--chocolat-clair); }
 .rpg-arch-list li { margin-bottom: var(--space-2); }
 .rpg-launcher img { max-width: 360px; }
+/* Documentation assistant (D58): the best search in bold, recorded answers under a rule. */
+.row-best th, .row-best td { font-weight: 700; color: var(--text-strong); }
+.rag-example { border-top: 1px solid var(--border-strong); padding-top: var(--space-3); margin-top: var(--space-3); max-width: 75ch; }
+.rag-sources { margin-top: 0; }
+.rag-sources a { overflow-wrap: anywhere; }

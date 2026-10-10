@@ -7,6 +7,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] `src/docrag/chunking.py` : les lignes de chaque bloc, les titres sautés, les blocs de code.
 - [ ] `eval/questions.jsonl` : les 40 questions de référence sont-elles justes, et assez variées ? Les 8 sans réponse sont-elles vraiment sans réponse ?
 - [ ] `src/docrag/retrieve.py` : la fusion RRF et le choix de 20 candidats par liste.
+- [ ] `src/docrag/answer.py` : la consigne, la garde « pas de citation, pas de réponse », le passage des citations aux lignes.
+- [ ] `src/docrag/api.py` et `compose.yaml` : `/ask` sans authentification ni limite de débit, acceptable tant que rien n'est exposé ?
 
 ## Constats
 
@@ -14,3 +16,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 |---|---|---|---|
 | 2026-10-10 | `src/docrag/embed.py` | (Claude) Avec `paraphrase-multilingual-mpnet-base-v2`, l'évaluation était tuée sans message (code 137) : FastEmbed encode par lots de 256, des gigaoctets pour des séquences de 512 tokens | Lots de 32 |
 | 2026-10-10 | `tests/test_retrieve.py` | (Claude) Mutation non attrapée : BM25 sans son IDF passait tous les tests | Test d'un mot rare qui l'emporte sur un mot courant répété ; 6 mutations, 6 attrapées |
+| 2026-10-10 | `scripts/smoke.sh` | (Claude) Le test de fumée échouait contre une API qui marchait : le motif attendait un guillemet devant « D8. », alors que le titre commence par « Journal des décisions > » | Motif corrigé |
+| 2026-10-10 | `src/docrag/chunking.py` | (Claude) La documentation de ce projet citait des mots des questions de référence (`zone.js`, MLflow, D45) : elle aurait répondu à la place des vrais passages | Exclue du corpus (G1) |

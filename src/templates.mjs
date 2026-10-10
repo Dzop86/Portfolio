@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
@@ -638,6 +638,7 @@ ${p.widget === 'maille-playground' ? maillePlayground(t) : ''}
 ${p.widget === 'latex-editor' ? latexEditor(t, lang) : ''}
 ${p.widget === 'gmap-course' ? gmapCourse(t, lang) : ''}
 ${p.widget === 'ml-results' ? mlResults(t, lang) : ''}
+${p.widget === 'rag-results' ? ragResults(t, lang) : ''}
 ${p.widget === 'othello-board' ? othelloBoard(t) : ''}
 ${p.widget === 'naval-screenshot' ? navalScreenshot(t, lang) : ''}
 ${p.widget === 'rogue-screenshot' ? rogueScreenshot(t, lang) : ''}
@@ -1086,6 +1087,48 @@ function mlResults(t, lang) {
   <p class="notice">${esc(fill(t('ml.threshold'), { threshold: pct(threshold) }))}</p>
   <div class="split ml-confusions">${matrix('baseline')}${matrix('pointnet')}</div>
   <p class="meta">${esc(t('ml.confusion.help'))}</p>
+</section>`;
+}
+
+// The documentation assistant (D58): its search measured on the reference questions, then Claude's answers
+// and a few of them, in the page's language, when they have been recorded (they need an API key).
+function ragResults(t, lang) {
+  const file = (f) => join(ROOT, 'projects/rag/eval', f);
+  const retrieval = JSON.parse(readFileSync(file('retrieval.json'), 'utf8'));
+  const num = (x) => x.toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cols = ['recall@1', 'recall@3', 'recall@5', 'mrr'];
+  const rows = ['bm25', 'dense', 'hybrid'].map((m) => `<tr${m === 'hybrid' ? ' class="row-best"' : ''}><th scope="row">${esc(t(`rag.mode.${m}`))}</th>${
+    cols.map((c) => `<td class="num">${num(retrieval.retrieval[m][c])}</td>`).join('')}</tr>`).join('');
+  const head = cols.map((c) => `<th scope="col" class="num">${esc(t(`rag.col.${c}`))}</th>`).join('');
+  let answers = `<p class="notice">${esc(t('rag.answers.pending'))}</p>`;
+  if (existsSync(file('evaluation.json')) && existsSync(file('answers.json'))) {
+    const evaluation = JSON.parse(readFileSync(file('evaluation.json'), 'utf8'));
+    const records = JSON.parse(readFileSync(file('answers.json'), 'utf8')).filter((r) => r.lang === lang);
+    const pct = (x) => `${Math.round(100 * x)} %`;
+    const metrics = ['answered_with_right_source', 'citation_precision', 'abstained_when_unanswerable', 'answered']
+      .map((k) => `<tr><th scope="row">${esc(t(`rag.metric.${k}`))}</th><td class="num">${pct(evaluation.answers[k])}</td></tr>`).join('');
+    const examples = [...records.filter((r) => r.answerable && r.found && r.cites_right_place).slice(0, 2), ...records.filter((r) => !r.answerable && !r.found).slice(0, 1)];
+    const cite = (c) => `<li><a href="${REPO_URL}/blob/main/${esc(c.source)}#L${c.start}-L${c.end}"><code>${esc(c.source)}</code></a>, ${esc(fill(t('rag.example.lines'), { start: c.start, end: c.end }))}</li>`;
+    const example = (r) => `<article class="rag-example">
+      <p class="rag-question"><strong>${esc(r.question)}</strong></p>
+      <p>${esc(r.found ? r.answer : t('rag.example.noanswer'))}</p>
+      ${r.citations.length ? `<p class="meta">${esc(t('rag.example.sources'))}</p><ul class="rag-sources">${r.citations.map(cite).join('')}</ul>` : ''}
+    </article>`;
+    answers = `<div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-rag-answers"><table data-rag-answers>
+      <thead><tr><th scope="col">${esc(t('rag.col.measure'))}</th><th scope="col" class="num">${esc(t('rag.col.value'))}</th></tr></thead>
+      <tbody>${metrics}</tbody></table></div>
+    <p class="meta">${esc(fill(t('rag.answers.note'), { model: evaluation.model }))}</p>
+    <h3>${esc(t('rag.examples.title'))}</h3>
+    ${examples.map(example).join('')}`;
+  }
+  return `<section class="block panel" aria-labelledby="h-rag">
+  <h2 id="h-rag">${esc(t('rag.title'))}</h2>
+  <p>${esc(fill(t('rag.lead'), { questions: retrieval.questions, answerable: retrieval.answerable, passages: retrieval.passages }))}</p>
+  <div class="table-wrap" tabindex="0" role="region" aria-labelledby="h-rag"><table data-rag-retrieval>
+    <thead><tr><th scope="col">${esc(t('rag.col.mode'))}</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="meta">${esc(fill(t('rag.retrieval.note'), { model: retrieval.embedder }))}</p>
+  <h2 id="h-rag-answers">${esc(t('rag.answers.title'))}</h2>
+  ${answers}
 </section>`;
 }
 
