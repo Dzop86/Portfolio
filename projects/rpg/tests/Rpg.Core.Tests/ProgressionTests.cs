@@ -122,4 +122,24 @@ public class ProgressionTests
         Assert.Equal(hero, r.Hero);
         Assert.Equal(Fingerprint(f), Fingerprint(r.Replay(Real)));
     }
+
+    [Fact]
+    public void TheHero_FightsWithItsDeck_InItsOrder_WithinTheRules()
+    {
+        Hero H(int level, params string[] deck) => new("Élise", "female-c", "guard", Level: level, Deck: deck);
+        // No deck: the class's first unlocked spells, twelve at most.
+        Assert.Equal(Real.Class("guard")!.Spells.Take(5), new Hero("Élise", "female-c", "guard").DeckOf(Real));
+        Assert.Equal(12, new Hero("Élise", "female-c", "guard", Level: 95).DeckOf(Real).Count);
+        // A deck is played as chosen, in its order.
+        Fighter f = new Fight(Real, "duel", 1, H(10, "taunt", "slash")).Fighters[0];
+        Assert.Equal(["taunt", "slash"], f.Spells.Select(s => s.Id));
+        Assert.Null(H(10, "taunt", "slash").Problem(Real));
+        Assert.Contains("each once", H(10, "slash", "slash").Problem(Real), StringComparison.Ordinal);
+        Assert.Contains("at most 12", H(95, [.. Real.Class("guard")!.Spells.Take(13)]).Problem(Real), StringComparison.Ordinal);
+        Assert.Contains("not one this hero has", H(4, "bulwark").Problem(Real), StringComparison.Ordinal);
+        Assert.Contains("not one this hero has", H(10, "pebble").Problem(Real), StringComparison.Ordinal);
+        // The deck travels with the hero and compares by content.
+        Assert.Equal(H(10, "taunt"), H(10, "taunt"));
+        Assert.NotEqual(H(10, "taunt"), H(10, "slash"));
+    }
 }

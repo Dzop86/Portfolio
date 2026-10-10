@@ -8,15 +8,31 @@ namespace Rpg.Core;
 /// keeps the scenario's. Its name and appearance (look, outfit colour, hair colour, skin tone,
 /// height, build) only change what is shown. With its level come points (<see cref="Progression"/>):
 /// the characteristics it was given (<see cref="Stats"/>) and the ranks of its spells
-/// (<see cref="Ranks"/>, rank 1 when not listed); and what it wears (<see cref="Worn"/>, sprint 59).
+/// (<see cref="Ranks"/>, rank 1 when not listed); what it wears (<see cref="Worn"/>, sprint 59); and the
+/// spells it fights with (<see cref="Deck"/>, sprint 68).
 /// </summary>
 public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1,
-    Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null)
+    Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null)
 {
+    /// <summary>The spells a hero fights with: twelve, in two rows of six (D62).</summary>
+    public const int DeckSize = 12;
+
+    /// <summary>
+    /// The spells this hero fights with, in the order of its bar: its deck when it has chosen one, else its
+    /// class's first spells unlocked, up to <see cref="DeckSize"/>.
+    /// </summary>
+    public IReadOnlyList<string> DeckOf(GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        if (Deck is { Count: > 0 })
+            return Deck;
+        return data.Class(Class) is HeroClass c ? [.. c.Spells.Where(id => data.Spells[id].Level <= Level).Take(DeckSize)] : [];
+    }
+
     /// <summary>The same hero: the ranks compare by content, not by dictionary.</summary>
     public bool Equals(Hero? other) =>
         other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
-        && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems);
+        && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems) && (Deck ?? []).SequenceEqual(other.Deck ?? []);
 
     public override int GetHashCode() => HashCode.Combine(Name, Look, Class, Colour, Level, Stats ?? Characteristics.None);
 
@@ -64,7 +80,19 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             : Math.Abs(Height) > Shape || Math.Abs(Build) > Shape ? $"Height and build are -{Shape} to {Shape}."
             : Level is < 1 or > MaxLevel ? $"The level is 1 to {MaxLevel}."
             : Class is not null && data.Class(Class) is null ? $"Unknown class '{Class}'."
-            : PointsProblem(data) ?? (Worn is null ? null : Equipment.Problem(Worn, Level, data));
+            : PointsProblem(data) ?? DeckProblem(data) ?? (Worn is null ? null : Equipment.Problem(Worn, Level, data));
+    }
+
+    /// <summary>At most twelve spells, each once, each a spell of the class the level has unlocked.</summary>
+    private string? DeckProblem(GameData data)
+    {
+        if (Deck is null || Deck.Count == 0)
+            return null;
+        HeroClass? c = Class is null ? null : data.Class(Class);
+        if (Deck.Count > DeckSize || Deck.Distinct(StringComparer.Ordinal).Count() != Deck.Count)
+            return $"A deck holds at most {DeckSize} spells, each once.";
+        string? stranger = Deck.FirstOrDefault(id => c is null || !c.Spells.Contains(id) || data.Spells[id].Level > Level);
+        return stranger is null ? null : $"The spell '{stranger}' is not one this hero has.";
     }
 
     /// <summary>Characteristic and spell points within what the level gives; ranks of unlocked spells of the class.</summary>

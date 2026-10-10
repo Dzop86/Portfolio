@@ -36,7 +36,23 @@ public partial class SpellIcon : Control
     public override void _Draw()
     {
         if (_spell is null)
+        {
+            // An empty place of the deck: a faint frame.
+            DrawStyleBox(new StyleBoxFlat
+            {
+                BgColor = new Color(1, 1, 1, 0.04f),
+                BorderColor = new Color(1, 1, 1, 0.18f),
+                BorderWidthLeft = 1,
+                BorderWidthRight = 1,
+                BorderWidthTop = 1,
+                BorderWidthBottom = 1,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+            }, new Rect2(Vector2.Zero, Size));
             return;
+        }
         var colour = new Color(ElementStyle.Colour(_spell.Element));
         float alpha = Faint ? 0.4f : 1f;
         DrawStyleBox(new StyleBoxFlat

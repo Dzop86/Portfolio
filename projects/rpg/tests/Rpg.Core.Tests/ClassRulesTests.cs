@@ -94,7 +94,8 @@ public class ClassRulesTests
         Fighter rival = f.Fighters.First(x => x.Team == 1);
         HeroClass mage = Real.Class("mage")!;
         Assert.Equal(("Élise", mage.Ap, mage.Hp + mage.HpPerLevel * 39), (rival.Name.Fr, rival.Spec.Ap, rival.MaxHp));
-        Assert.Equal(mage.Spells.Where(id => Real.Spells[id].Level <= 40), rival.Spells.Select(s => s.Id));
+        // No deck chosen: the class's first twelve spells unlocked (sprint 68).
+        Assert.Equal(mage.Spells.Where(id => Real.Spells[id].Level <= 40).Take(Hero.DeckSize), rival.Spells.Select(s => s.Id));
         Ai.PlayOut(f);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(f).ToJson());
         Assert.Equal(f.Rival, r.Rival);

@@ -22,6 +22,7 @@ public sealed class PointsEditor
 {
     private readonly int[] _stats = new int[5];
     private readonly Dictionary<string, int> _ranks = new(StringComparer.Ordinal);
+    private readonly List<string> _deck;
 
     public PointsEditor(Hero hero, GameData data)
     {
@@ -31,7 +32,24 @@ public sealed class PointsEditor
         (_stats[0], _stats[1], _stats[2], _stats[3], _stats[4]) = (st.Vitality, st.Earth, st.Fire, st.Water, st.Air);
         foreach ((string spell, int rank) in hero.RanksGiven)
             _ranks[spell] = rank;
+        _deck = [.. hero.DeckOf(data)];
     }
+
+    /// <summary>The spells of the deck, in the order of the bar (sprint 68).</summary>
+    public IReadOnlyList<string> Deck => _deck;
+
+    public bool InDeck(Spell spell) => _deck.Contains((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
+
+    /// <summary>A spell can join the deck when the level has unlocked it, it is not there yet, and there is room.</summary>
+    public bool CanAddToDeck(Spell spell) => Spells.Contains(spell) && !InDeck(spell) && _deck.Count < Hero.DeckSize;
+
+    public void AddToDeck(Spell spell)
+    {
+        if (CanAddToDeck(spell))
+            _deck.Add(spell.Id);
+    }
+
+    public void RemoveFromDeck(Spell spell) => _deck.Remove((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
 
     /// <summary>The hero as saved.</summary>
     public Hero Hero { get; }
@@ -104,11 +122,12 @@ public sealed class PointsEditor
     {
         Stats = new Characteristics(_stats[0], _stats[1], _stats[2], _stats[3], _stats[4]),
         Ranks = new Dictionary<string, int>(_ranks, StringComparer.Ordinal),
+        Deck = [.. _deck],
     };
 
-    /// <summary>Whether the draft differs from what is saved.</summary>
-    public bool Changed => Draft != Hero;
+    /// <summary>Whether the draft differs from what is saved (a deck left as it comes is no change).</summary>
+    public bool Changed => Draft != Hero with { Deck = Hero.DeckOf(Data) };
 
     /// <summary>What the server receives.</summary>
-    public Points ToPoints() => new(Draft.Stats, Draft.Ranks);
+    public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck);
 }

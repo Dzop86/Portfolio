@@ -70,6 +70,12 @@ public sealed class Character
     /// <summary>What is worn, as "Slot:item" separated by commas.</summary>
     public string Worn { get; set; } = "";
 
+    /// <summary>The spells fought with, in the order of the bar, their ids separated by commas (sprint 68); empty: the default deck.</summary>
+    public string Deck { get; set; } = "";
+
+    /// <summary>The deck, without the spells the class no longer has.</summary>
+    public string[] DeckList => [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Class(Class)?.Spells.Contains(id) == true)];
+
     public List<ItemCount> InventoryList => [.. Inventory.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(i => i.Split(':')).Select(i => new ItemCount(i[0], int.Parse(i[1], System.Globalization.CultureInfo.InvariantCulture)))];
 
@@ -99,7 +105,7 @@ public sealed class Character
     public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>The character as the rules see it.</summary>
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList);
 }
 
 /// <summary>

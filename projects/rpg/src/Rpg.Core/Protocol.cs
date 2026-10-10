@@ -37,10 +37,10 @@ public sealed record Place(string Town, int X, int Y)
 /// </summary>
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
-    IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null)
+    IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null)
 {
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
@@ -66,7 +66,7 @@ public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest
 public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);
 
 /// <summary>How a character spends its points: characteristics, and the ranks of its spells (rank 1 when not listed).</summary>
-public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks);
+public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null);
 
 public static class Servers
 {

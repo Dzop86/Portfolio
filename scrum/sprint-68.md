@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je joue avec mon deck (rpg) : 12 sorts choisis parmi ceux débloqués dans l'écran des sorts, gardés par le serveur (qui vérifie qu'ils sont à moi) ; en combat, une barre de 2 × 6 (icône, couleur de l'élément, fiche au survol), touches 1 à 6 et Ctrl+1 à Ctrl+6 ; l'IA et le simulateur jouent avec un deck ; xUnit, auto-test, captures. | 3 | À faire |
+| En tant que joueur, je joue avec mon deck (rpg) : 12 sorts choisis parmi ceux débloqués dans l'écran des sorts, gardés par le serveur (qui vérifie qu'ils sont à moi) ; en combat, une barre de 2 × 6 (icône, couleur de l'élément, fiche au survol), touches 1 à 6 et Ctrl+1 à Ctrl+6 ; l'IA et le simulateur jouent avec un deck ; xUnit, auto-test, captures. | 3 | Fait |
+
+**Résultat :** le deck de douze sorts, composé dans l'écran des sorts, gardé et vérifié par le serveur (rejeu compris), joué depuis une barre de deux rangées de six avec icônes, couleurs, fiche au survol et touches 1 à 6, Ctrl+1 à 6 (T35). L'IA et le simulateur jouent le deck du héros.
 
 ## Rétro (Charles)
 - Ce qui a marché :

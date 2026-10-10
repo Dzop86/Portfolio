@@ -154,7 +154,7 @@ public sealed class Fight
 
     /// <summary>
     /// What a hero of a class fights with: its class's numbers at its level, what it wears added to its
-    /// own points and to its action and movement points, the spells its level has unlocked. Null without
+    /// own points and to its action and movement points, the spells of its deck (Hero.DeckOf). Null without
     /// a class. The characteristics sheet shows the same numbers.
     /// </summary>
     public static HeroNumbers? HeroTotals(Hero hero, GameData data)
@@ -165,7 +165,7 @@ public sealed class Fight
             return null;
         (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
         return new HeroNumbers(c.Hp + c.HpPerLevel * (hero.Level - 1), c.Ap + ap, c.Mp + mp, c.Initiative,
-            Equipment.Add(hero.Stats ?? Characteristics.None, worn), worn, [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)]);
+            Equipment.Add(hero.Stats ?? Characteristics.None, worn), worn, hero.DeckOf(data));
     }
 
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>

@@ -8,7 +8,7 @@ namespace Rpg.Client;
 /// counted (2 more for every 10): the normal range, the critical range, and the next rank's range.
 /// A spell that does no damage has (0, 0) everywhere.
 /// </summary>
-public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCost, (int Min, int Max) Damage, (int Min, int Max) Critical, (int Min, int Max)? NextRank)
+public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCost, (int Min, int Max) Damage, (int Min, int Max) Critical, (int Min, int Max)? NextRank, bool InDeck = false)
 {
     public Element Element => Spell.Element;
 }
@@ -36,7 +36,7 @@ public sealed class SpellBook
         (int, int) Range(Spell s, int extra) => s.DamageMax > 0 ? (s.DamageMin + extra + bonus, s.DamageMax + extra + bonus) : (0, 0);
         int crit = Spell.CritBonus(now.DamageMax);
         return new BookSpell(spell, spell.Level <= draft.Level, rank, editor.NextRankCost(spell),
-            Range(now, 0), spell.Crit > 0 ? Range(now, crit) : (0, 0), rank < spell.MaxRank ? Range(spell.AtRank(rank + 1), 0) : null);
+            Range(now, 0), spell.Crit > 0 ? Range(now, crit) : (0, 0), rank < spell.MaxRank ? Range(spell.AtRank(rank + 1), 0) : null, editor.InDeck(spell));
     }
 
     public IReadOnlyList<BookSpell> Spells { get; }

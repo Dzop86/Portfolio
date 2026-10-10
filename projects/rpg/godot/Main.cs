@@ -63,8 +63,13 @@ public partial class Main : Node3D
             _launcherToken = System.Environment.GetEnvironmentVariable("RPG_TOKEN");
         }
         AddEnvironment();
-        if (_options.SelfTest || _options.Demo || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
+        if (_options.SelfTest || _options.Demo)
             StartFight(_hero, _options.Scenario);
+        else if (_options.Shot is "move" or "spell" && _options.Screenshot is not null)
+        {
+            // The pictures of the project page: a tenth-level sentinel and its deck, icons and colours shown.
+            StartFight(new Hero("Aubépine", "female-b", "sentinel", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
+        }
         else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "zone" or "world")
         {
             // The pictures of the world: in the woods, a few steps from the way north.
@@ -205,8 +210,9 @@ public partial class Main : Node3D
                 ShowPreview();
                 break;
             case InputEventKey { Pressed: true, Echo: false } key:
-                if (key.Keycode >= Key.Key1 && key.Keycode <= Key.Key9)
-                    ChooseSpell((int)(key.Keycode - Key.Key1));
+                // 1 to 6 for the first row of the deck, Ctrl+1 to Ctrl+6 for the second (sprint 68).
+                if (key.Keycode >= Key.Key1 && key.Keycode <= Key.Key6)
+                    ChooseSpell((int)(key.Keycode - Key.Key1) + (key.CtrlPressed ? 6 : 0));
                 else if (key.Keycode == Key.Escape)
                     ChooseSpell(-1);
                 else if (key.Keycode is Key.Space or Key.Enter)
@@ -687,6 +693,9 @@ public partial class Main : Node3D
         }
         else
         {
+            // Monsters with more initiative play first: up to the player's turn.
+            for (int guard = 0; guard < 50 && !fight.IsOver && !_controller.IsPlayerTurn; guard++)
+                _controller.PlayAiStep();
             Fighter me = fight.Current;
             _hovered = _controller.Hover(null).Reachable.OrderByDescending(c => c.DistanceTo(me.Cell)).ThenBy(c => c.Y).ThenBy(c => c.X).First();
         }

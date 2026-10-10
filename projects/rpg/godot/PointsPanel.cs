@@ -22,6 +22,9 @@ public partial class PointsPanel : CanvasLayer
     private string? _selected, _hovered;
     private Label _detailName = null!, _detailRank = null!;
     private SpellIcon _detailIcon = null!;
+    private Button _deckButton = null!;
+    private Label _deckCount = null!;
+    private readonly List<SpellIcon> _deckSlots = [];
     private RichTextLabel _detail = null!;
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
@@ -190,8 +193,23 @@ public partial class PointsPanel : CanvasLayer
         var body = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         body.AddThemeConstantOverride("separation", 14);
         page.AddChild(body);
-        var scroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        body.AddChild(scroll);
+        var left = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        left.AddThemeConstantOverride("separation", 8);
+        body.AddChild(left);
+        var scroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        left.AddChild(scroll);
+        // The deck, as the fight's bar shows it: twelve places, 1 to 6 then Ctrl+1 to Ctrl+6 (sprint 68).
+        var deckRow = new HBoxContainer();
+        deckRow.AddThemeConstantOverride("separation", 4);
+        left.AddChild(deckRow);
+        _deckCount = new Label { CustomMinimumSize = new Vector2(96, 0), VerticalAlignment = VerticalAlignment.Center };
+        deckRow.AddChild(_deckCount);
+        for (int k = 0; k < Hero.DeckSize; k++)
+        {
+            var slot = new SpellIcon { CustomMinimumSize = new Vector2(40, 40) };
+            deckRow.AddChild(slot);
+            _deckSlots.Add(slot);
+        }
         var grid = new GridContainer { Columns = 3 };
         grid.AddThemeConstantOverride("h_separation", 6);
         grid.AddThemeConstantOverride("v_separation", 6);
@@ -262,6 +280,18 @@ public partial class PointsPanel : CanvasLayer
         var ranks = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End };
         ranks.AddThemeConstantOverride("separation", 8);
         inside.AddChild(ranks);
+        _deckButton = new Button { CustomMinimumSize = new Vector2(170, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _deckButton.Pressed += () =>
+        {
+            if (Shown() is not Spell sp)
+                return;
+            if (Editor.InDeck(sp))
+                Editor.RemoveFromDeck(sp);
+            else
+                Editor.AddToDeck(sp);
+            Refresh();
+        };
+        ranks.AddChild(_deckButton);
         _rankMinus = Small(ranks, "−", () =>
         {
             if (Shown() is Spell sp)
@@ -310,6 +340,8 @@ public partial class PointsPanel : CanvasLayer
             : Escape(line)));
         _rankMinus.Disabled = !Editor.CanLower(spell);
         _rankPlus.Disabled = !Editor.CanRaise(spell);
+        _deckButton.Text = Editor.InDeck(spell) ? Texts["deck.remove"] : Texts["deck.add"];
+        _deckButton.Disabled = !Editor.InDeck(spell) && !Editor.CanAddToDeck(spell);
     }
 
     private static string Capital(string text) => text.Length == 0 ? text : char.ToUpperInvariant(text[0]) + text[1..];
@@ -423,8 +455,14 @@ public partial class PointsPanel : CanvasLayer
         {
             BookSpell b = bookNow.Spells.Single(x => x.Spell.Id == spell.Id);
             tile.Visible = _filter is null || spell.Element == _filter;
-            sub.Text = b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level];
+            sub.Text = (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
             tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
+        }
+        _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Hero.DeckSize];
+        for (int k = 0; k < _deckSlots.Count; k++)
+        {
+            _deckSlots[k].Spell = k < Editor.Deck.Count ? Editor.Data.Spells[Editor.Deck[k]] : null;
+            _deckSlots[k].TooltipText = k < Editor.Deck.Count ? $"{(k < 6 ? $"{k + 1}" : $"Ctrl+{k - 5}")} · {Editor.Data.Spells[Editor.Deck[k]].Name.In(Texts.Lang)}" : "";
         }
         ShowDetail();
         _save.Text = Texts["points.save"];

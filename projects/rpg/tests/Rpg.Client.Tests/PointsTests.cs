@@ -87,4 +87,31 @@ public class PointsTests
         Assert.Null(editor.Draft.Problem(Data));
         Assert.Equal(new Characteristics(Water: 30), editor.ToPoints().Stats);
     }
+
+    [Fact]
+    public void TheDeck_StartsWithTheFirstSpells_TakesOnlyUnlockedOnes_UpToTwelve()
+    {
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "mage", Level: 1), Data);
+        // At level 1, the five spells unlocked; left as it is, the deck is no change.
+        Assert.Equal(Data.Class("mage")!.Spells.Take(5), editor.Deck);
+        Assert.False(editor.Changed);
+        Spell mend = Data.Spells["mend"], ward = Data.Spells["frost-ward"];
+        editor.RemoveFromDeck(mend);
+        Assert.Equal(4, editor.Deck.Count);
+        Assert.True(editor.Changed);
+        Assert.False(editor.CanAddToDeck(ward));
+        editor.AddToDeck(mend);
+        Assert.Equal("mend", editor.Deck[^1]);
+        Assert.Equal(editor.Deck, editor.ToPoints().Deck);
+        // A hero of level 95 has every spell, but only twelve go in the deck.
+        var high = new PointsEditor(new Hero("Élise", "female-c", "mage", Level: 95), Data);
+        Assert.Equal(12, high.Deck.Count);
+        Spell last = Data.Spells[Data.Class("mage")!.Spells[^1]];
+        Assert.False(high.CanAddToDeck(last));
+        high.RemoveFromDeck(Data.Spells[high.Deck[0]]);
+        high.AddToDeck(last);
+        Assert.Equal(last.Id, high.Deck[^1]);
+        Assert.True(new SpellBook(high).Spells.Single(s => s.Spell.Id == last.Id).InDeck);
+        Assert.Null(high.Draft.Problem(Data));
+    }
 }

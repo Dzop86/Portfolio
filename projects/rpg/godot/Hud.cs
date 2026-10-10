@@ -14,7 +14,7 @@ public partial class Hud : CanvasLayer
     /// <summary>Turns shown on the timeline.</summary>
     public const int TimelineLength = 8;
 
-    private readonly List<Button> _spells = [];
+    private readonly List<(Button Tile, SpellIcon Icon)> _spells = [];
     private readonly List<string> _spellNames = [];
     private readonly List<(PanelContainer Card, Portrait Face, Label Name, ProgressBar Hp)> _timeline = [];
     private PanelContainer _info = null!;
@@ -22,7 +22,7 @@ public partial class Hud : CanvasLayer
     private readonly Queue<string> _log = new();
     private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!, _result = null!;
     private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
-    private HBoxContainer _spellBar = null!;
+    private GridContainer _spellBar = null!;
     private PanelContainer _end = null!;
     private FightController _controller = null!;
 
@@ -72,17 +72,17 @@ public partial class Hud : CanvasLayer
         _infoText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(310, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
         _infoText.AddThemeFontSizeOverride("font_size", 15);
         _info.AddChild(_infoText);
-        _logLabel = Text(root, 15, 0, 1, 20, -270, 520, 170);
+        _logLabel = Text(root, 15, 0, 1, 20, -330, 520, 170);
         _logLabel.VerticalAlignment = VerticalAlignment.Bottom;
-        _message = Text(root, 18, 0.5f, 1, -300, -136, 600, 26);
+        _message = Text(root, 18, 0.5f, 1, -300, -190, 600, 26);
         _message.HorizontalAlignment = HorizontalAlignment.Center;
         _message.AddThemeColorOverride("font_color", new Color("ffb4a2"));
-        _help = Text(root, 14, 0.5f, 1, -400, -106, 800, 22);
+        _help = Text(root, 14, 0.5f, 1, -400, -158, 800, 22);
         _help.HorizontalAlignment = HorizontalAlignment.Center;
         _help.Modulate = new Color(1, 1, 1, 0.7f);
 
         var bar = new PanelContainer();
-        Anchor(bar, 0.5f, 1, -480, -78, 960, 64);
+        Anchor(bar, 0.5f, 1, -480, -130, 960, 120);
         root.AddChild(bar);
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 12);
@@ -90,8 +90,10 @@ public partial class Hud : CanvasLayer
         _stats = new Label { CustomMinimumSize = new Vector2(250, 0), VerticalAlignment = VerticalAlignment.Center };
         _stats.AddThemeFontSizeOverride("font_size", 20);
         row.AddChild(_stats);
-        _spellBar = new HBoxContainer();
-        _spellBar.AddThemeConstantOverride("separation", 8);
+        // The deck: two rows of six, keys 1 to 6 and Ctrl+1 to Ctrl+6 (sprint 68).
+        _spellBar = new GridContainer { Columns = 6 };
+        _spellBar.AddThemeConstantOverride("h_separation", 6);
+        _spellBar.AddThemeConstantOverride("v_separation", 6);
         row.AddChild(_spellBar);
         _endTurn = new Button { CustomMinimumSize = new Vector2(140, 48) };
         _endTurn.Pressed += () => EndTurnPressed?.Invoke();
@@ -179,27 +181,46 @@ public partial class Hud : CanvasLayer
         _help.Text = Texts["help"];
         _logLabel.Text = string.Join('\n', _log);
         bool canAct = _controller.IsPlayerTurn && !busy;
-        // Up to five spells show their names; more (a class has twenty) are narrower, the card on hover.
-        bool narrow = me.Spells.Count > 5;
-        while (_spells.Count < me.Spells.Count)
+        while (_spells.Count < Hero.DeckSize)
         {
             int index = _spells.Count;
-            var b = new Button { CustomMinimumSize = new Vector2(44, 48), ToggleMode = true, ClipText = true };
+            var b = new Button { CustomMinimumSize = new Vector2(52, 52), ToggleMode = true };
+            // No frame of its own (the icon is the tile), but the chosen spell outlined in the accent colour.
+            foreach (string state in new[] { "normal", "hover", "disabled", "focus", "hover_pressed" })
+                b.AddThemeStyleboxOverride(state, new StyleBoxEmpty());
+            b.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { DrawCenter = false, BorderColor = FighterView.PlayerColour, BorderWidthLeft = 3, BorderWidthRight = 3, BorderWidthTop = 3, BorderWidthBottom = 3, CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8 });
+            // Inset, so that the outline of the chosen spell shows around it.
+            var icon = new SpellIcon { MouseFilter = Control.MouseFilterEnum.Ignore, AnchorRight = 1, AnchorBottom = 1, OffsetLeft = 4, OffsetTop = 4, OffsetRight = -4, OffsetBottom = -4 };
+            b.AddChild(icon);
+            var key = new Label { Text = index < 6 ? $"{index + 1}" : $"^{index - 5}", Position = new Vector2(3, 33), MouseFilter = Control.MouseFilterEnum.Ignore };
+            key.AddThemeFontSizeOverride("font_size", 12);
+            key.AddThemeColorOverride("font_outline_color", Colors.Black);
+            key.AddThemeConstantOverride("outline_size", 4);
+            b.AddChild(key);
             b.Pressed += () => SpellChosen?.Invoke(index);
             _spellBar.AddChild(b);
-            _spells.Add(b);
+            _spells.Add((b, icon));
         }
         _spellNames.Clear();
-        float width = narrow ? Math.Max(44, 560f / me.Spells.Count) : 150;
-        for (int i = 0; i < me.Spells.Count; i++)
+        for (int i = 0; i < _spells.Count; i++)
         {
-            Spell s = me.Spells[i];
+            (Button tile, SpellIcon icon) = _spells[i];
+            Spell? s = i < me.Spells.Count ? me.Spells[i] : null;
+            icon.Spell = s;
+            tile.Visible = true;
+            if (s is null)
+            {
+                tile.Disabled = true;
+                tile.TooltipText = "";
+                continue;
+            }
             _spellNames.Add(s.Name.In(Texts.Lang));
-            _spells[i].CustomMinimumSize = new Vector2(width, 48);
-            _spells[i].Text = narrow ? $"{(i < 9 ? $"{i + 1}. " : "")}{s.Name.In(Texts.Lang)}" : $"{i + 1}. {s.Name.In(Texts.Lang)} · {s.ApCost} {Texts["ap"]}";
-            _spells[i].TooltipText = Texts.SpellCard(s);
-            _spells[i].Disabled = !canAct || !_controller.CanUse(s);
-            _spells[i].SetPressedNoSignal(_controller.SelectedSpell == s);
+            bool usable = canAct && _controller.CanUse(s);
+            icon.Faint = !usable;
+            icon.QueueRedraw();
+            tile.TooltipText = $"{(i < 6 ? $"{i + 1}" : $"Ctrl+{i - 5}")} · " + Texts.SpellCard(s, me.Spec.Characteristics);
+            tile.Disabled = !usable;
+            tile.SetPressedNoSignal(_controller.SelectedSpell == s);
         }
         _endTurn.Text = Texts["end-turn"];
         _endTurn.Disabled = !canAct;

@@ -112,5 +112,14 @@ public class ProgressionTests
         ticket = await server.StartFight(c.Id, "training", Cancel);
         FightResult ok = await server.ReportFight(c.Id, ticket.Id, Play(ticket, spent.Hero), Cancel);
         Assert.True(ok.TotalXp > 0);
+        // The deck (sprint 68): kept by the server, only spells the hero has, and the fights played with it.
+        CharacterSummary decked = await server.SavePoints(c.Id, new Points(spent.Stats, spent.Ranks, ["slash", "shield-bash"]), Cancel);
+        Assert.Equal(["slash", "shield-bash"], decked.Deck);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePoints(c.Id, new Points(spent.Stats, spent.Ranks, ["bulwark"]), Cancel))).Status);
+        ticket = await server.StartFight(c.Id, "training", Cancel);
+        var otherDeck = await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, Play(ticket, decked.Hero with { Deck = ["shield-bash"] }), Cancel));
+        Assert.Equal(HttpStatusCode.BadRequest, otherDeck.Status);
+        ticket = await server.StartFight(c.Id, "training", Cancel);
+        Assert.True((await server.ReportFight(c.Id, ticket.Id, Play(ticket, (await server.Characters(Cancel)).Single().Hero), Cancel)).TotalXp >= 0);
     }
 }
