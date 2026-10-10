@@ -27,6 +27,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 57 : le combat (survol d'un combattant, d'un sort visé, infobulle des sorts, frise en haut à droite, couleurs des éléments, traits et éclats) : est-ce lisible ? La couleur de chaque élément te va-t-elle (Terre ocre, Feu orange, Eau bleu, Air violet) ?
 - [ ] Sprint 58 : la courbe d'XP, l'XP des monstres, le coût des rangs, l'écran « Personnage » du village et l'écran de fin. **À trancher :** l'équilibre de haut niveau (T29) : faut-il baisser la valeur d'un point (1 % par point donne ×11 au niveau 100), donner plus de PV par point de Vitalité, ou les deux ? Je mesurerai ce que tu choisis.
 - [ ] Sprint 59 : l'écran « Inventaire » (emplacements, pages, fiche des objets au survol), les vingt objets et la panoplie du braconnier, le butin de l'entraînement (`data/scenarios/training.json`) : les chances te vont-elles ?
+- [ ] Sprint 60 : les deux zones (Bois de Clairval, Lande des Brumes : taille, décor, niveaux 3 et 10), la caméra (molette, Q et E : le pas de zoom et la rotation instantanée te vont-ils ?) et la carte du monde (touche M).
 
 ## Constats
 
@@ -108,3 +109,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-10 | `godot/InventoryPanel.cs`, `godot/PointsPanel.cs` | (Claude) Vu sur la capture : les panneaux étaient transparents (le village et un dialogue transparaissaient), les onglets tronqués, « ×2 (0) » illisible | Fond opaque gris sombre bordé de pistache, onglets élargis, « ×2 · 0 libre(s) » ; la capture n'ouvre plus de dialogue |
 | 2026-10-10 | `src/Rpg.Core/Fight.cs` | (Claude) `dotnet format` refusait une ligne de mon commit local (la CI l'aurait rejetée) | Reformatée avant de pousser |
 | 2026-10-10 | `godot/Main.cs` (`--lobby-selftest`) | (Claude) Trois parcours connectés de suite perdus avec des graines différentes : vérifié que ce n'était pas le générateur (les mêmes graines perdent au simulateur, d'autres gagnent), puis relancé jusqu'à une victoire pour voir XP, quête et butin gardés | Rien à corriger ; la CI couvre les deux issues |
+| 2026-10-10 | `.github/workflows/rpg.yml` | (Claude) La phrase « World: … » de l'auto-test s'insère avant « Experience: » : le motif de la CI du parcours connecté ne l'aurait plus reconnue | Motifs des deux auto-tests mis à jour, vérifiés sur les sorties locales |
+| 2026-10-10 | `godot/WorldMapPanel.cs` | (Claude) Vu sur la capture : la carte du monde collée à gauche du panneau, « niveau 3 · vous êtes ici » débordait de sa case | Graphe centré sous le titre, cases élargies, « vous êtes ici » sur sa ligne |
+| 2026-10-10 | `godot/TalkPanel.cs` | (Claude) L'aide du haut se lisait mal sur les sapins clairs : son atténuation (`Modulate`) estompait aussi le contour noir | Seule la couleur du texte est atténuée ; captures de la ville et de l'inventaire refaites (l'aide a aussi changé) |
+| 2026-10-10 | `godot/*.cs.uid` | (Claude) Les `.uid` de l'inventaire et des points, créés au sprint 59, n'avaient pas été commités (les autres le sont) | Ajoutés |
+| 2026-10-10 | `godot/WorldMapPanel.cs` | (Claude) `dotnet format` refusait des lignes du panneau ; la CI ne le voit pas (le projet Godot n'est pas dans la solution) | Reformaté |
