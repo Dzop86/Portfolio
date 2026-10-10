@@ -114,10 +114,18 @@ def budget(sp):
     avg = f * sp["apCost"]
     sp["damageMin"], sp["damageMax"] = max(1, round(avg * 0.85)), max(1, round(avg * 1.15))
     sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
+# One class spell about every five levels (D61): the first at level 1, then 5, 10... up to 80.
+for group in (sentinel, guard, mage):
+    for k, sp in enumerate(group):
+        sp.pop("level", None)
+        if k: sp["level"] = 5 * k
 # The first spell of each class keeps its numbers, tuned on the level-1 duels.
 for sp in sentinel + guard + mage:
     if sp["damageMax"] > 0 and sp.get("level", 1) > 1:
         budget(sp)
+# Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
+for sp in base + sentinel + guard + mage + creatures:
+    sp["crit"] = 10
 spells = base + sentinel + guard + mage + creatures
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")

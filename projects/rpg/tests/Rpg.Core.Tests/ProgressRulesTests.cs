@@ -38,16 +38,69 @@ public class ProgressRulesTests
     [InlineData("wave", 0, 0, 40, 0)]
     [InlineData("gust", 0, 0, 0, 40)]
     [InlineData("strike", 40, 0, 0, 0)]
-    public void EachElement_GrowsWithItsCharacteristic_OnePercentAPoint(string spell, int strength, int intelligence, int chance, int agility)
+    public void EachElement_GrowsWithItsCharacteristic_TwoMoreForEveryTenPoints(string spell, int strength, int intelligence, int chance, int agility)
     {
         var stats = new Characteristics(0, strength, intelligence, chance, agility);
         Fight f = Play(["AB"], Caster(stats, spell), Spec(1, hp: 99));
         f.Apply(new CastAction(spell, new Cell(1, 0)));
-        Assert.Equal(99 - 14, f.Fighters[1].Hp);
+        Assert.Equal(99 - 18, f.Fighters[1].Hp);
         // The other characteristics do nothing for this element.
         Fight other = Play(["AB"], Caster(new Characteristics(0, 40 - strength, 40 - intelligence, 40 - chance, 40 - agility), spell), Spec(1, hp: 99));
         other.Apply(new CastAction(spell, new Cell(1, 0)));
         Assert.Equal(99 - 10, other.Fighters[1].Hp);
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(9, 0)]
+    [InlineData(10, 2)]
+    [InlineData(19, 2)]
+    [InlineData(55, 10)]
+    [InlineData(1000, 200)]
+    public void TheBonus_IsTwoForEveryWholeTenPoints(int points, int bonus) => Assert.Equal(bonus, Characteristics.Bonus(points));
+
+    [Theory]
+    [InlineData(10, 2)]
+    [InlineData(26, 5)]
+    [InlineData(12, 2)]
+    [InlineData(13, 3)]
+    [InlineData(0, 0)]
+    public void ACriticalHit_AddsAFifthOfTheTop_Rounded(int max, int bonus) => Assert.Equal(bonus, Spell.CritBonus(max));
+
+    [Fact]
+    public void ACriticalHit_RaisesTheRollAndTheHeal_AndIsTold()
+    {
+        Spell sure = Rock with { Id = "sure", Crit = 100 };
+        Spell sureMend = Mend with { Id = "sure-mend", Crit = 100 };
+        var data = new GameData([.. All, sure, sureMend], [new MapSpec("m", Text, ["AA.B"])],
+            [new Scenario("s", Text, "m", [Caster(Characteristics.None, "sure", "sure-mend"), Spec(0, 1, hp: 99), Spec(1, hp: 99)])], null, null, null, [Wolf]);
+        var f = new Fight(data, "s", 1);
+        f.Apply(new CastAction("sure", new Cell(3, 0)));
+        Assert.Equal(99 - 12, f.Fighters[2].Hp);
+        Assert.True(f.Events.OfType<SpellCast>().Last().Critical);
+        f.Fighters[1].Hp = 10;
+        f.Apply(new CastAction("sure-mend", new Cell(1, 0)));
+        Assert.Equal(10 + 24, f.Fighters[1].Hp);
+        // Never with a chance of 0: the fixed rock always does its 10.
+        Fight never = Play(["AB"], Caster(Characteristics.None, "rock"), Spec(1, hp: 99));
+        never.Apply(new CastAction("rock", new Cell(1, 0)));
+        Assert.Equal((99 - 10, false), (never.Fighters[1].Hp, never.Events.OfType<SpellCast>().Single().Critical));
+    }
+
+    [Fact]
+    public void ACriticalHit_ComesAboutAsOftenAsTheSpellSays()
+    {
+        Spell often = Rock with { Id = "often", Crit = 25 };
+        var data = new GameData([.. All, often], [new MapSpec("m", Text, ["AB"])],
+            [new Scenario("s", Text, "m", [Caster(Characteristics.None, "often"), Spec(1, hp: 9999)])], null, null, null, [Wolf]);
+        int critical = 0;
+        for (ulong seed = 0; seed < 2000; seed++)
+        {
+            var f = new Fight(data, "s", seed);
+            f.Apply(new CastAction("often", new Cell(1, 0)));
+            critical += f.Events.OfType<SpellCast>().Single().Critical ? 1 : 0;
+        }
+        Assert.InRange(critical, 440, 560);
     }
 
     [Fact]

@@ -49,13 +49,14 @@ public sealed record TurnStarted(int Fighter, int Round) : FightEvent;
 
 public sealed record Moved(int Fighter, IReadOnlyList<Cell> Path) : FightEvent;
 
-public sealed record SpellCast(int Fighter, string Spell, Cell Target) : FightEvent;
+public sealed record SpellCast(int Fighter, string Spell, Cell Target, bool Critical = false) : FightEvent;
 
 /// <summary>
 /// What a cast would do to one fighter (<see cref="Fight.Foresee"/>): damage before shields, from
 /// the lowest to the highest roll, and healing.
 /// </summary>
-public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element)
+/// <param name="CritMin">The damage of a critical hit's lowest roll; with <paramref name="CritMax"/>, 0 when the spell never lands one.</param>
+public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0)
 {
     /// <summary>Even the lowest roll kills, through the shields.</summary>
     public bool SureKill => DamageMax > 0 && DamageMin >= Fighter.Hp + Fighter.Shield;

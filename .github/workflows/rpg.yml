@@ -51,9 +51,9 @@ jobs:
         shell: bash
         run: |
           dotnet run --project src/Rpg.Sim -c Release --no-build -- --replay samples/training-7.json | tee "$RUNNER_TEMP/training.txt"
-          grep -qF "Training, seed 7: team B wins in round 5, after 35 actions." "$RUNNER_TEMP/training.txt"
+          grep -qF "Training, seed 7: team A wins in round 6, after 38 actions." "$RUNNER_TEMP/training.txt"
           dotnet run --project src/Rpg.Sim -c Release --no-build -- --replay samples/duel-3.json | tee "$RUNNER_TEMP/duel.txt"
-          grep -qF "Duel, seed 3: team B wins in round 4, after 22 actions." "$RUNNER_TEMP/duel.txt"
+          grep -qF "Duel, seed 3: team A wins in round 4, after 21 actions." "$RUNNER_TEMP/duel.txt"
       - name: A thousand AI fights
         run: dotnet run --project src/Rpg.Sim -c Release --no-build -- --simulate 1000 --scenario duel
 

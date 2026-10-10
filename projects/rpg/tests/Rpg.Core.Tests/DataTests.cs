@@ -36,7 +36,7 @@ public class DataTests
     }
 
     [Fact]
-    public void EveryClass_HasTwentySpells_OnTwoElementsAtLeast_UnlockedFromLevel1To100()
+    public void EveryClass_HasTwentySpells_OnTwoElementsAtLeast_OneAboutEveryFiveLevels()
     {
         string[] shared = ["strike", "arrow", "spear", "axe", "staff", "spark", "fireball"];
         foreach (HeroClass c in Real.Classes)
@@ -44,10 +44,11 @@ public class DataTests
             Spell[] spells = [.. c.Spells.Select(id => Real.Spells[id])];
             Assert.Equal(20, spells.Length);
             Assert.True(spells.Where(s => s.DamageMax > 0).Select(s => s.Element).Distinct().Count() >= 2, c.Id);
-            // A spell of its own from level 1, the last one at level 100, in the order they unlock.
+            // Four spells at level 1, one of them its own, then one every five levels up to 80 (D61), each
+            // able to land a critical hit.
             Assert.Contains(spells, s => s.Level == 1 && !shared.Contains(s.Id));
-            Assert.Equal(100, spells.Max(s => s.Level));
-            Assert.Equal(spells.Select(s => s.Level).Order(), spells.Select(s => s.Level));
+            Assert.Equal([1, 1, 1, 1, .. Enumerable.Range(1, 16).Select(k => 5 * k)], spells.Select(s => s.Level));
+            Assert.All(spells, s => Assert.Equal(10, s.Crit));
         }
         // No spell of a class belongs to another: the shared ones are the first sprints'.
         string[][] own = [.. Real.Classes.Select(c => c.Spells.Except(shared).ToArray())];

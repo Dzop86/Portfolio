@@ -54,8 +54,12 @@ public class ReadabilityTests
     public void ASpellCard_TellsCostRangeLimitsDamageAreaAndEffects()
     {
         Spell wave = GameData.Embedded.Spells["tidal-wave"];
-        Assert.Equal($"Raz-de-marée · 5 PA · portée 2-5, en ligne · 1 fois par tour\n{wave.DamageMin} à {wave.DamageMax} dégâts, Eau, zone : ligne de 2, poussée de 1",
+        int crit = Spell.CritBonus(wave.DamageMax);
+        Assert.Equal($"Raz-de-marée · 5 PA · portée 2-5, en ligne · 1 fois par tour\n{wave.DamageMin} à {wave.DamageMax} dégâts, Eau ({wave.DamageMin + crit} à {wave.DamageMax + crit} en critique, 10 %), zone : ligne de 2, poussée de 1",
             new Texts("fr").SpellCard(wave));
+        // With the caster's points: 25 in Chance give 4 more Water damage, critical hit included; Strength gives nothing.
+        Assert.StartsWith($"Tidal Wave · 5 AP · range 2-5, in line · 1 per turn\n{wave.DamageMin + 4} to {wave.DamageMax + 4} damage, Water ({wave.DamageMin + crit + 4} to {wave.DamageMax + crit + 4} on a critical hit, 10%)",
+            new Texts("en").SpellCard(wave, new Characteristics(Strength: 90, Chance: 25)), StringComparison.Ordinal);
         Assert.Equal("Frost Ward · 3 AP · range 0-4 · 1 per turn · cooldown 2 turn(s)\nshield 10 (1 turn(s)) on allies",
             new Texts("en").SpellCard(GameData.Embedded.Spells["frost-ward"]));
         Assert.EndsWith("summons Ember", new Texts("en").SpellCard(GameData.Embedded.Spells["elemental"]), StringComparison.Ordinal);

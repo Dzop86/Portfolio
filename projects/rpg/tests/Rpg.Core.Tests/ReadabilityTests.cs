@@ -28,8 +28,8 @@ public class ReadabilityTests
         {
             Fight f = Play(seed, ["A.B"], Caster("blaze"), Resistant);
             Forecast fc = Assert.Single(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0)));
-            // 6 to 10, +50 % Intelligence, -25 % resistance.
-            Assert.Equal((f.Fighters[1], 6, 11, Element.Fire), (fc.Fighter, fc.DamageMin, fc.DamageMax, fc.Element));
+            // 6 to 10, +10 for 50 Intelligence, -25 % resistance; a spell that never lands a critical hit.
+            Assert.Equal((f.Fighters[1], 12, 15, Element.Fire, 0, 0), (fc.Fighter, fc.DamageMin, fc.DamageMax, fc.Element, fc.CritMin, fc.CritMax));
             int events = f.Events.Count;
             Assert.Equal(events, f.Events.Count);
             f.Apply(new CastAction("blaze", new Cell(2, 0)));
@@ -37,8 +37,27 @@ public class ReadabilityTests
             Assert.InRange(hit.Amount, fc.DamageMin, fc.DamageMax);
             seen.Add(hit.Amount);
         }
-        Assert.Contains(6, seen);
-        Assert.Contains(11, seen);
+        Assert.Contains(12, seen);
+        Assert.Contains(15, seen);
+    }
+
+    [Fact]
+    public void AForecast_GivesTheCriticalRangeToo_AndBoundsEveryCriticalHit()
+    {
+        Spell lucky = Blaze with { Id = "lucky", Crit = 50 };
+        int critical = 0;
+        for (ulong seed = 0; seed < 60; seed++)
+        {
+            var f = new Fight(new GameData([.. All, lucky], [new MapSpec("m", Text, ["A.B"])], [new Scenario("s", Text, "m", [Caster("lucky"), Resistant])]), "s", seed);
+            Forecast fc = Assert.Single(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0)));
+            // 6 to 10 and 2 more on a critical hit (a fifth of 10), +10, -25 %.
+            Assert.Equal((12, 15, 13, 16), (fc.DamageMin, fc.DamageMax, fc.CritMin, fc.CritMax));
+            f.Apply(new CastAction("lucky", new Cell(2, 0)));
+            bool crit = f.Events.OfType<SpellCast>().Single().Critical;
+            Assert.InRange(f.Events.OfType<Damaged>().Single().Amount, crit ? fc.CritMin : fc.DamageMin, crit ? fc.CritMax : fc.DamageMax);
+            critical += crit ? 1 : 0;
+        }
+        Assert.InRange(critical, 15, 45);
     }
 
     [Fact]
@@ -48,21 +67,22 @@ public class ReadabilityTests
         f.Fighters[1].Hp = 45;
         IReadOnlyList<Forecast> cross = f.Foresee(f.Fighters[0].Spells[0], new Cell(3, 1));
         Assert.Equal([1, 2], cross.Select(c => c.Fighter.Id));
-        // The heal (10 to 14, +50 %) stops at the 5 hit points missing; the enemy in reach is not healed.
+        // The heal (10 to 14, +10) stops at the 5 hit points missing; the enemy in reach is not healed.
         Forecast heal = Assert.Single(f.Foresee(f.Fighters[0].Spells[1], new Cell(3, 1)));
         Assert.Equal((1, 0, 0, 5, 5), (heal.Fighter.Id, heal.DamageMin, heal.DamageMax, heal.HealMin, heal.HealMax));
         // A spell that heals its caster shows both: the hit on the target, the caster's healing.
         f.Fighters[0].Hp = 10;
         IReadOnlyList<Forecast> drain = f.Foresee(f.Fighters[0].Spells[2], new Cell(4, 1));
-        Assert.Equal([(2, 5, 5, 0), (0, 0, 0, 12)], drain.Select(d => (d.Fighter.Id, d.DamageMin, d.DamageMax, d.HealMax)));
+        Assert.Equal([(2, 5, 5, 0), (0, 0, 0, 18)], drain.Select(d => (d.Fighter.Id, d.DamageMin, d.DamageMax, d.HealMax)));
     }
 
     [Fact]
     public void ASureKill_IsOneThatEvenTheLowestRollGetsThroughTheShields()
     {
-        Fight f = Play(1, ["A.B"], Caster("blaze"), Spec(1, hp: 9));
+        // The lowest roll: 6, +10 for 50 Intelligence.
+        Fight f = Play(1, ["A.B"], Caster("blaze"), Spec(1, hp: 16));
         Assert.True(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0))[0].SureKill);
-        f.Fighters[1].Hp = 10;
+        f.Fighters[1].Hp = 17;
         Assert.False(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0))[0].SureKill);
     }
 

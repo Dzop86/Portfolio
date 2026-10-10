@@ -3,8 +3,8 @@
   "name": { "fr": "Entraînement", "en": "Training" },
   "map": "arena",
   "fighters": [
-    { "name": { "fr": "Héroïne", "en": "Heroine" }, "look": "female-d", "team": 0, "hp": 35, "ap": 6, "mp": 3, "initiative": 120, "start": 1, "spells": ["strike", "arrow", "spear"] },
-    { "name": { "fr": "Orque", "en": "Orc" }, "look": "orc", "team": 1, "hp": 40, "ap": 6, "mp": 3, "initiative": 80, "start": 0, "spells": ["club"], "loot": [{ "item": "orc-fang", "percent": 60 }, { "item": "bread", "percent": 30 }, { "item": "orc-breastplate", "percent": 10 }, { "item": "orc-pauldrons", "percent": 10 }, { "item": "orc-club", "percent": 5 }] },
+    { "name": { "fr": "Héroïne", "en": "Heroine" }, "look": "female-d", "team": 0, "hp": 36, "ap": 6, "mp": 3, "initiative": 120, "start": 1, "spells": ["strike", "arrow", "spear"] },
+    { "name": { "fr": "Orque", "en": "Orc" }, "look": "orc", "team": 1, "hp": 41, "ap": 6, "mp": 3, "initiative": 80, "start": 0, "spells": ["club"], "loot": [{ "item": "orc-fang", "percent": 60 }, { "item": "bread", "percent": 30 }, { "item": "orc-breastplate", "percent": 10 }, { "item": "orc-pauldrons", "percent": 10 }, { "item": "orc-club", "percent": 5 }] },
     { "name": { "fr": "Braconnier", "en": "Poacher" }, "look": "male-f", "team": 1, "hp": 30, "ap": 6, "mp": 4, "initiative": 90, "start": 2, "spells": ["sling", "club"], "loot": [{ "item": "leather", "percent": 60 }, { "item": "feather", "percent": 40 }, { "item": "healing-potion", "percent": 20 }, { "item": "poacher-hat", "percent": 15 }, { "item": "poacher-cape", "percent": 15 }, { "item": "poacher-boots", "percent": 15 }, { "item": "dagger", "percent": 10 }] }
   ]
 }

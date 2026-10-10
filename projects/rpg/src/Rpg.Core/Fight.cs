@@ -211,14 +211,17 @@ public sealed class Fight
             int healMin = 0, healMax = 0;
             foreach (HealEffect h in heals.Where(h => h.Affects == Affects.Caster ? f == me : area.Contains(f) && Touches(h.Affects, me, f)))
             {
-                healMin += h.Min * (100 + me.Spec.Characteristics.Intelligence) / 100;
-                healMax += h.Max * (100 + me.Spec.Characteristics.Intelligence) / 100;
+                healMin += Healing(h.Min, me.Spec.Characteristics);
+                healMax += Healing(h.Max, me.Spec.Characteristics);
             }
             int missing = f.MaxHp - f.Hp;
             if (hit || healMax > 0)
             {
+                int crit = Spell.CritBonus(spell.DamageMax);
+                bool canCrit = hit && spell.Crit > 0;
                 forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element) : 0,
-                    Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element));
+                    Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
+                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element) : 0));
             }
         }
         return forecasts;
@@ -337,16 +340,21 @@ public sealed class Fight
     }
 
     /// <summary>
-    /// The damage a hit of <paramref name="roll"/> does: more with the caster's damage bonus, less with
-    /// the target's resistance to the element; a neutral hit without bonus is the roll itself.
+    /// The damage a hit of <paramref name="roll"/> does: 2 more for every 10 points the caster has in the
+    /// element's characteristic (D61), then more with the caster's damage bonus in percent, less with the
+    /// target's resistance to the element; a hit without points nor bonus is the roll itself.
     /// </summary>
     public static int Damage(int roll, Fighter caster, Fighter target, Element element)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        long scaled = (long)roll * (100 + caster.Spec.Characteristics.For(element) + caster.DamageBonus) * (100 - target.Resistance(element));
+        long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
+        long scaled = raw * (100 + caster.DamageBonus) * (100 - target.Resistance(element));
         return (int)Math.Max(0, scaled / 10_000);
     }
+
+    /// <summary>A heal of <paramref name="roll"/>: 2 more for every 10 points of Intelligence (D61).</summary>
+    public static int Healing(int roll, Characteristics caster) => roll + Characteristics.Bonus((caster ?? Characteristics.None).Intelligence);
 
     /// <summary>The living fighters on the cells of a spell's area, in the area's order, each once.</summary>
     public IReadOnlyList<Fighter> InArea(Spell spell, Cell from, Cell target)
@@ -376,9 +384,11 @@ public sealed class Fight
         // Counted down at the start of each of the caster's turns, so one more than the turns to skip.
         if (spell.Cooldown > 0)
             me.Cooldowns[spell.Id] = spell.Cooldown + 1;
-        _events.Add(new SpellCast(me.Id, spell.Id, target));
-        // The roll is drawn even on an empty cell: the sequence of draws depends only on the actions.
-        int roll = _rng.Next(spell.DamageMin, spell.DamageMax);
+        // The critical hit, then the roll, are drawn even on an empty cell: the sequence of draws depends
+        // only on the actions.
+        bool critical = _rng.Next(1, 100) <= spell.Crit;
+        _events.Add(new SpellCast(me.Id, spell.Id, target, critical));
+        int roll = _rng.Next(spell.DamageMin, spell.DamageMax) + (critical ? Spell.CritBonus(spell.DamageMax) : 0);
         IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
         if (spell.DamageMax > 0)
         {
@@ -390,8 +400,8 @@ public sealed class Fight
         }
         foreach (SpellEffect effect in spell.AllEffects)
         {
-            // Healing grows with Intelligence, 1 % a point.
-            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) * (100 + me.Spec.Characteristics.Intelligence) / 100 : 0;
+            // Healing grows with Intelligence, and with a critical hit as damage does.
+            int effectRoll = effect is HealEffect heal ? Healing(_rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0), me.Spec.Characteristics) : 0;
             if (effect is SummonEffect summon)
             {
                 Summon(me, _data.Summons[summon.Summon], target);

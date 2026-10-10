@@ -93,6 +93,7 @@ public sealed class Texts
         ["card.per-turn"] = " · {0} fois par tour",
         ["card.cooldown"] = " · relance {0} tour(s)",
         ["card.damage"] = "{0} à {1} dégâts, {2}",
+        ["card.crit"] = " ({0} à {1} en critique, {2} %)",
         ["card.area"] = "zone : {0} de {1}",
         ["area.Cross"] = "croix",
         ["area.Circle"] = "cercle",
@@ -109,6 +110,7 @@ public sealed class Texts
         ["forecast.damage"] = "{0} : {1} à {2} dégâts",
         ["forecast.heal"] = "{0} : +{1} à {2} PV",
         ["forecast.kill"] = " (mortel)",
+        ["forecast.crit"] = ", {0} à {1} en critique",
         ["log.move"] = "{0} se déplace de {1} case(s).",
         ["log.cast"] = "{0} lance {1}.",
         ["log.damage"] = "{0} perd {1} PV.",
@@ -295,6 +297,7 @@ public sealed class Texts
         ["card.per-turn"] = " · {0} per turn",
         ["card.cooldown"] = " · cooldown {0} turn(s)",
         ["card.damage"] = "{0} to {1} damage, {2}",
+        ["card.crit"] = " ({0} to {1} on a critical hit, {2}%)",
         ["card.area"] = "area: {0} of {1}",
         ["area.Cross"] = "cross",
         ["area.Circle"] = "circle",
@@ -311,6 +314,7 @@ public sealed class Texts
         ["forecast.damage"] = "{0}: {1} to {2} damage",
         ["forecast.heal"] = "{0}: +{1} to {2} HP",
         ["forecast.kill"] = " (lethal)",
+        ["forecast.crit"] = ", {0} to {1} on a critical hit",
         ["log.move"] = "{0} moves {1} cell(s).",
         ["log.cast"] = "{0} casts {1}.",
         ["log.damage"] = "{0} loses {1} HP.",
@@ -475,22 +479,32 @@ public sealed class Texts
     }
 
     /// <summary>What hovering a spell tells: cost, range and its limits; damage, area and effects.</summary>
-    public string SpellCard(Spell s)
+    /// <summary>
+    /// A spell's card; with the caster's characteristics, its damage and healing count them (2 more for
+    /// every 10 points of the element), as the fight will.
+    /// </summary>
+    public string SpellCard(Spell s, Characteristics? stats = null)
     {
         ArgumentNullException.ThrowIfNull(s);
+        int bonus = Characteristics.Bonus((stats ?? Characteristics.None).For(s.Element));
+        int healBonus = Characteristics.Bonus((stats ?? Characteristics.None).Intelligence);
         string head = this["card.spell", s.Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange]
             + (s.InLine ? this["card.in-line"] : "") + (s.LineOfSight ? "" : this["card.no-sight"])
             + this["card.per-turn", s.PerTurn] + (s.Cooldown > 0 ? this["card.cooldown", s.Cooldown] : "");
         var parts = new List<string>();
         if (s.DamageMax > 0)
-            parts.Add(this["card.damage", s.DamageMin, s.DamageMax, this["element." + s.Element]]);
+        {
+            int crit = Core.Spell.CritBonus(s.DamageMax);
+            parts.Add(this["card.damage", s.DamageMin + bonus, s.DamageMax + bonus, this["element." + s.Element]]
+                + (s.Crit > 0 ? this["card.crit", s.DamageMin + crit + bonus, s.DamageMax + crit + bonus, s.Crit] : ""));
+        }
         if (s.Area is Area area && area.Shape != AreaShape.Point)
             parts.Add(this["card.area", this["area." + area.Shape], area.Radius]);
         foreach (SpellEffect e in s.AllEffects)
         {
             string text = e switch
             {
-                HealEffect h => this["effect.heal", h.Min, h.Max],
+                HealEffect h => this["effect.heal", h.Min + healBonus, h.Max + healBonus],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
                 PullEffect p => this["effect.pull", p.Cells],
@@ -558,7 +572,7 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(forecasts);
         return string.Join('\n', forecasts.SelectMany(fc => new[]
         {
-            fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.SureKill ? this["forecast.kill"] : "") : null,
+            fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.CritMax > 0 ? this["forecast.crit", fc.CritMin, fc.CritMax] : "") + (fc.SureKill ? this["forecast.kill"] : "") : null,
             fc.HealMax > 0 ? this["forecast.heal", Name(fc.Fighter), fc.HealMin, fc.HealMax] : null,
         }).OfType<string>());
     }

@@ -32,8 +32,15 @@ public sealed record Spell(
     IReadOnlyList<SpellEffect>? Effects = null,
     int Level = 1,
     IReadOnlyList<SpellRank>? Ranks = null,
-    int Cooldown = 0)
+    int Cooldown = 0,
+    int Crit = 0)
 {
+    /// <summary>
+    /// What a critical hit adds to both ends of a range: a fifth of its top, rounded (Charles's examples:
+    /// 5 to 10 becomes 7 to 12, 22 to 26 becomes 27 to 31).
+    /// </summary>
+    public static int CritBonus(int max) => (int)Math.Round(max * 0.2, MidpointRounding.AwayFromZero);
+
     /// <summary>The highest rank: 1 plus the ranks listed.</summary>
     public int MaxRank => 1 + (Ranks?.Count ?? 0);
 
@@ -71,6 +78,9 @@ public sealed record SpellRank(int DamageMin, int DamageMax, int? ApCost = null,
 public sealed record Characteristics(int Vitality = 0, int Strength = 0, int Intelligence = 0, int Chance = 0, int Agility = 0)
 {
     public static readonly Characteristics None = new();
+
+    /// <summary>What points in a characteristic add to each hit (or heal) of its element: 2 for every 10 (D61).</summary>
+    public static int Bonus(int points) => points / 10 * 2;
 
     /// <summary>The characteristic that strengthens an element's damage.</summary>
     public int For(Element element) => element switch
@@ -292,8 +302,8 @@ public sealed class GameData
     private static void Check(Spell s)
     {
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
-            || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0)
-            throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage or casts per turn out of bounds.");
+            || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0 || s.Crit is < 0 or > 100)
+            throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage, casts per turn or critical chance out of bounds.");
         if (s.Level is < 1 or > 100 || (s.Ranks?.Count ?? 0) > 4
             || (s.Ranks ?? []).Any(r => r.DamageMin < 0 || r.DamageMax < r.DamageMin || r.ApCost < 1 || r.MaxRange < s.MinRange || r.PerTurn < 1))
             throw new InvalidDataException($"Spell '{s.Id}': level 1 to 100, at most 5 ranks, each consistent.");

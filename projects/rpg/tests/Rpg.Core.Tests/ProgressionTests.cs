@@ -80,7 +80,7 @@ public class ProgressionTests
         Assert.Contains("ranks 1 to 5", Ranked(50, "shield-bash", 6).Problem(Real), StringComparison.Ordinal);
         // Another class's spell, or one the level has not unlocked yet.
         Assert.Contains("not one this hero has", Ranked(50, "ice-shard", 2).Problem(Real), StringComparison.Ordinal);
-        Assert.Contains("not one this hero has", Ranked(5, "bulwark", 2).Problem(Real), StringComparison.Ordinal);
+        Assert.Contains("not one this hero has", Ranked(4, "bulwark", 2).Problem(Real), StringComparison.Ordinal);
     }
 
     [Fact]
