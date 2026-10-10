@@ -1,6 +1,6 @@
 # rag : un assistant documentaire
 
-Un assistant qui répond aux questions d'une équipe à partir de sa documentation technique, en citant ses sources au fichier et à la ligne près, et qui dit quand elles ne répondent pas. Le corpus est la documentation de ce portfolio (G1). Sprint 63 : retrouver le bon passage et le mesurer ; sprint 64 : les réponses citées de Claude, l'API et Docker.
+Un assistant qui répond aux questions d'une équipe à partir de sa documentation technique, en citant ses sources au fichier et à la ligne près, et qui dit quand elles ne répondent pas. Le corpus est la documentation de ce portfolio (G1). Sprint 61 : retrouver le bon passage et le mesurer ; sprint 62 : les réponses citées de Claude, l'API et Docker.
 
 *A documentation assistant: hybrid search (BM25 and multilingual embeddings in Qdrant, fused by reciprocal rank) over the portfolio's Markdown documentation, split into passages that keep their file, headings and lines, and measured on 40 reference questions in French and English (recall@k, MRR).*
 

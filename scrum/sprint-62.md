@@ -1,12 +1,12 @@
-# Sprint 62 : un schéma d'architecture sur chaque fiche
+# Sprint 62 : assistant documentaire, des réponses citées
 
-**Objectif :** demande de Charles (D57) : sur chaque fiche, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose, quand le projet a au moins trois morceaux qui se parlent.
+**Objectif :** demande de Charles (D58) : répondre avec les passages retrouvés, chaque phrase citée au fichier et à la ligne près, et dire quand les sources ne répondent pas.
 
-**Goal:** Charles's request (D57): on each project page, a "How the pieces fit together" diagram, like Osmose's, when the project has at least three pieces that talk to each other.
+**Goal:** Charles's request (D58): answer from the retrieved passages, each sentence cited down to the file and line, and say when the sources hold no answer.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que visiteur, je vois d'un coup d'œil comment chaque projet est construit (vitrine) : le schéma d'Osmose décrit en données et dessiné en SVG par le générateur ; un schéma pour chaque fiche qui a au moins trois morceaux (boîtes avec leur technologie, flèches nommées), en français et en anglais ; tests Node (traductions, flèches vers des boîtes connues, textes qui tiennent dans leur boîte) ; Playwright (375 px sans défilement horizontal, deux thèmes, axe) ; les fiches sans schéma listées ici avec la raison. | 5 | À faire |
+| En tant que développeur, j'obtiens une réponse sourcée (rag) : réponse de Claude à partir des seuls passages retrouvés (blocs search_result, citations ramenées au fichier et aux lignes), refus quand les sources ne répondent pas, API FastAPI, Qdrant et l'API dans docker compose ; évaluation des réponses (citations justes, refus justes) ; fiche du projet avec résultats et exemples enregistrés. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

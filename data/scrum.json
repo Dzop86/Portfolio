@@ -123,7 +123,7 @@
         58,
         59,
         60,
-        61
+        63
       ],
       "decisions": [
         "D56"
@@ -132,7 +132,7 @@
     {
       "after": 55,
       "sprints": [
-        62
+        64
       ],
       "decisions": [
         "D57"
@@ -141,8 +141,8 @@
     {
       "after": 60,
       "sprints": [
-        63,
-        64
+        61,
+        62
       ],
       "decisions": [
         "D58"
@@ -490,32 +490,32 @@
       "sprints": "S61",
       "kind": "build",
       "label": {
-        "fr": "Osmose : les premiers monstres",
-        "en": "Osmose: the first monsters"
+        "fr": "Assistant documentaire : retrouver le bon passage",
+        "en": "Documentation assistant: finding the right passage"
       }
     },
     {
       "sprints": "S62",
       "kind": "build",
       "label": {
-        "fr": "Vitrine : un schéma d'architecture sur chaque fiche",
-        "en": "Showcase: an architecture diagram on each project page"
+        "fr": "Assistant documentaire : des réponses citées",
+        "en": "Documentation assistant: cited answers"
       }
     },
     {
       "sprints": "S63",
       "kind": "build",
       "label": {
-        "fr": "Assistant documentaire : retrouver le bon passage",
-        "en": "Documentation assistant: finding the right passage"
+        "fr": "Osmose : les premiers monstres",
+        "en": "Osmose: the first monsters"
       }
     },
     {
       "sprints": "S64",
       "kind": "build",
       "label": {
-        "fr": "Assistant documentaire : des réponses citées",
-        "en": "Documentation assistant: cited answers"
+        "fr": "Vitrine : un schéma d'architecture sur chaque fiche",
+        "en": "Showcase: an architecture diagram on each project page"
       }
     }
   ],
