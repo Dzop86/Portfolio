@@ -23,6 +23,8 @@ public sealed class Texts
         ["spell"] = "{0} ({1} PA, portée {2}-{3})",
         ["inventory.button"] = "Inventaire",
         ["inventory.title"] = "Inventaire et équipement",
+        ["inventory.search"] = "Rechercher un objet",
+        ["inventory.hint"] = "Survolez un objet pour voir sa fiche ; un clic l'équipe, un clic sur un emplacement l'enlève.",
         ["inventory.empty"] = "Rien ici.",
         ["inventory.free"] = "{0} libre(s)",
         ["inventory.saved"] = "Équipement enregistré.",
@@ -34,7 +36,7 @@ public sealed class Texts
         ["page.Equipment"] = "Équipement",
         ["page.Consumable"] = "Consommables",
         ["page.Resource"] = "Ressources",
-        ["page.Quest"] = "Objets de quête",
+        ["page.Quest"] = "Quête",
         ["kind.Consumable"] = "consommable",
         ["kind.Resource"] = "ressource",
         ["kind.Quest"] = "objet de quête",
@@ -64,6 +66,19 @@ public sealed class Texts
         ["points.close"] = "Fermer",
         ["points.saved"] = "Points enregistrés.",
         ["points.offline"] = "Hors ligne : rien n'est enregistré.",
+        ["sd.cost"] = "Coût : {0} PA",
+        ["sd.range"] = "Portée : {0} à {1}",
+        ["sd.per-turn"] = "{0} lancer(s) par tour",
+        ["sd.crit-chance"] = "Critique : {0} %",
+        ["sd.damage"] = "{0} à {1} dégâts {2}",
+        ["sd.crit"] = "{0} à {1} en critique",
+        ["sd.unlock"] = "Se débloque au niveau {0}",
+        ["sd.next"] = "Rang suivant ({0} point(s) de sort) : {1} à {2}",
+        ["sd.next-cost"] = "Rang suivant : {0} point(s) de sort",
+        ["sd.hint"] = "Survolez un sort pour voir sa fiche ; les dégâts comptent vos caractéristiques et votre équipement.",
+        ["sd.all"] = "Tous",
+        ["sd.rank"] = "Rang {0}/{1}",
+        ["sd.locked"] = "Niv. {0}",
         ["sheet.tab.stats"] = "Caractéristiques",
         ["sheet.tab.spells"] = "Sorts",
         ["sheet.level"] = "Niveau {0} · {1}",
@@ -245,6 +260,8 @@ public sealed class Texts
         ["spell"] = "{0} ({1} AP, range {2}-{3})",
         ["inventory.button"] = "Inventory",
         ["inventory.title"] = "Inventory and equipment",
+        ["inventory.search"] = "Search for an item",
+        ["inventory.hint"] = "Hover over an item to see its card; a click puts it on, a click on a slot takes it off.",
         ["inventory.empty"] = "Nothing here.",
         ["inventory.free"] = "{0} free",
         ["inventory.saved"] = "Equipment saved.",
@@ -256,7 +273,7 @@ public sealed class Texts
         ["page.Equipment"] = "Equipment",
         ["page.Consumable"] = "Consumables",
         ["page.Resource"] = "Resources",
-        ["page.Quest"] = "Quest items",
+        ["page.Quest"] = "Quest",
         ["kind.Consumable"] = "consumable",
         ["kind.Resource"] = "resource",
         ["kind.Quest"] = "quest item",
@@ -286,6 +303,19 @@ public sealed class Texts
         ["points.close"] = "Close",
         ["points.saved"] = "Points saved.",
         ["points.offline"] = "Offline: nothing is saved.",
+        ["sd.cost"] = "Cost: {0} AP",
+        ["sd.range"] = "Range: {0} to {1}",
+        ["sd.per-turn"] = "{0} cast(s) per turn",
+        ["sd.crit-chance"] = "Critical: {0}%",
+        ["sd.damage"] = "{0} to {1} {2} damage",
+        ["sd.crit"] = "{0} to {1} on a critical hit",
+        ["sd.unlock"] = "Unlocked at level {0}",
+        ["sd.next"] = "Next rank ({0} spell point(s)): {1} to {2}",
+        ["sd.next-cost"] = "Next rank: {0} spell point(s)",
+        ["sd.hint"] = "Hover over a spell to see its card; damage counts your characteristics and equipment.",
+        ["sd.all"] = "All",
+        ["sd.rank"] = "Rank {0}/{1}",
+        ["sd.locked"] = "Lv {0}",
         ["sheet.tab.stats"] = "Characteristics",
         ["sheet.tab.spells"] = "Spells",
         ["sheet.level"] = "Level {0} · {1}",
@@ -534,6 +564,14 @@ public sealed class Texts
             parts.Add(this["card.damage", s.DamageMin + bonus, s.DamageMax + bonus, this["element." + s.Element]]
                 + (s.Crit > 0 ? this["card.crit", s.DamageMin + crit + bonus, s.DamageMax + crit + bonus, s.Crit] : ""));
         }
+        parts.AddRange(Effects(s, healBonus));
+        return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
+    }
+
+    /// <summary>A spell's area and effects, each as a phrase ("zone : croix de 1", "soin 7 à 10 des alliés").</summary>
+    private List<string> Effects(Spell s, int healBonus)
+    {
+        var parts = new List<string>();
         if (s.Area is Area area && area.Shape != AreaShape.Point)
             parts.Add(this["card.area", this["area." + area.Shape], area.Radius]);
         foreach (SpellEffect e in s.AllEffects)
@@ -550,7 +588,40 @@ public sealed class Texts
             };
             parts.Add(text + (e is SummonEffect ? "" : this["affects." + e.Affects]));
         }
-        return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
+        return parts;
+    }
+
+    /// <summary>
+    /// The details of a spell on the spells screen, line by line (sprint 65): cost, range, casts and
+    /// cooldown, critical chance; damage and critical damage with the hero's points; area and effects;
+    /// then the level that unlocks it, or what the next rank gives and costs.
+    /// </summary>
+    public IReadOnlyList<string> SpellDetails(BookSpell b, Characteristics? stats)
+    {
+        ArgumentNullException.ThrowIfNull(b);
+        Spell s = b.Spell.AtRank(b.Rank);
+        var lines = new List<string>
+        {
+            this["sd.cost", s.ApCost],
+            this["sd.range", s.MinRange, s.MaxRange] + (s.InLine ? this["card.in-line"] : "") + (s.LineOfSight ? "" : this["card.no-sight"]),
+            this["sd.per-turn", s.PerTurn] + (s.Cooldown > 0 ? this["card.cooldown", s.Cooldown] : ""),
+        };
+        if (s.Crit > 0)
+            lines.Add(this["sd.crit-chance", s.Crit]);
+        if (s.DamageMax > 0)
+        {
+            lines.Add(this["sd.damage", b.Damage.Min, b.Damage.Max, this["element." + s.Element]]);
+            if (s.Crit > 0)
+                lines.Add(this["sd.crit", b.Critical.Min, b.Critical.Max]);
+        }
+        lines.AddRange(Effects(s, Characteristics.Bonus((stats ?? Characteristics.None).Intelligence)));
+        if (!b.Unlocked)
+            lines.Add(this["sd.unlock", b.Spell.Level]);
+        else if (b.NextCost == 0)
+            lines.Add(this["points.max"]);
+        else
+            lines.Add(b.NextRank is (int min, int max) && max > 0 ? this["sd.next", b.NextCost, min, max] : this["sd.next-cost", b.NextCost]);
+        return lines;
     }
 
     /// <summary>A character's level and experience: "Niveau 3 · 340 / 600 XP" (the total for the next level).</summary>

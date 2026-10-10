@@ -1326,6 +1326,7 @@ function rpgScreenshots(t, lang) {
   ${shot('zone', 'rpg.altZone', 'rpg.captionZone')}
   ${shot('world', 'rpg.altWorld', 'rpg.captionWorld')}
   ${shot('points', 'rpg.altPoints', 'rpg.captionPoints')}
+  ${shot('spells', 'rpg.altSpells', 'rpg.captionSpells')}
   ${shot('inventory', 'rpg.altInventory', 'rpg.captionInventory')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}

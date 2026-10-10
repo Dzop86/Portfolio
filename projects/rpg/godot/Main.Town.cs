@@ -52,7 +52,7 @@ public partial class Main
         };
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "inventory" or "points" or "zone" or "world")
+        else if (_options.Shot is "town" or "banner" or "inventory" or "points" or "spells" or "zone" or "world")
             _ = TownScreenshot();
     }
 
@@ -323,6 +323,10 @@ public partial class Main
                 problems.Add("the characteristics screen does not show the hero's");
             if (_hero.Level == 1 && (editor.CharacteristicPointsLeft != 0 || editor.SpellPointsLeft != 0 || editor.Changed))
                 problems.Add("a first-level hero has points to spend");
+            // The spells tab shows every spell of the class, the locked ones too.
+            _pointsPanel.ShowTab(spells: true);
+            if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0))
+                problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
             _pointsPanel.QueueFree();
             _pointsPanel = null;
             // The inventory screen: fourteen slots, what is worn in them, the items of each page.
@@ -429,7 +433,7 @@ public partial class Main
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
             return;
         }
-        if (_options.Shot == "points")
+        if (_options.Shot is "points" or "spells")
         {
             // The character sheet for the project page: a tenth-level guard, points spent, a few items worn.
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10,
@@ -438,6 +442,12 @@ public partial class Main
             _talkPanel!.SetProgress(10, 5_000);
             OpenPoints();
             _pointsPanel!.Editor.Add(Characteristic.Strength, 5);
+            if (_options.Shot == "spells")
+            {
+                _pointsPanel.Editor.Raise(GameData.Embedded.Spells["shield-bash"]);
+                _pointsPanel.ShowTab(spells: true);
+                _pointsPanel.Select("shield-bash");
+            }
             _pointsPanel.Refresh();
             _townView!.ShowPath(null);
             for (int i = 0; i < 30; i++)

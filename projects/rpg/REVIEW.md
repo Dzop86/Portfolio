@@ -29,6 +29,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 59 : l'écran « Inventaire » (emplacements, pages, fiche des objets au survol), les vingt objets et la panoplie du braconnier, le butin de l'entraînement (`data/scenarios/training.json`) : les chances te vont-elles ?
 - [ ] Sprint 60 : les deux zones (Bois de Clairval, Lande des Brumes : taille, décor, niveaux 3 et 10), la caméra (molette, Q et E : le pas de zoom et la rotation instantanée te vont-ils ?) et la carte du monde (touche M).
 - [ ] Sprint 64 : la règle des tranches (10 points = +2 dégâts), le critique tel que je l'ai compris (un cinquième du maximum sur les deux bornes, 10 % par sort ; l'Intelligence +2 soins par 10 points), un sort tous les cinq niveaux jusqu'au 80, la fiche de caractéristiques. **À trancher :** à haut niveau la Garde gagne encore presque tous ses duels (T32, mesures) : faut-il régler chaque classe maintenant, ou après les monstres ?
+- [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
 
@@ -119,3 +120,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-10 | `tests/Rpg.Core.Tests` | (Claude) Avec 10 % de critique par défaut, les sorts aux dégâts fixes des tests devenaient aléatoires | Chance de critique à 0 si elle n'est pas dite ; le générateur la met à 10 % pour les sorts du jeu |
 | 2026-10-10 | `data/scenarios` | (Claude) Les critiques ont déplacé l'équilibre du niveau 1 (duel symétrique 60 %, Mage 88 % à l'entraînement, héroïne 58 %) ; un premier réglage à l'aveugle l'a fait basculer (duel 18 %, Garde 30 %) | Balayage des PV, puis 51, 41 et 36 PV ; combat enregistré de l'entraînement refait |
 | 2026-10-10 | `godot/PointsPanel.cs` | (Claude) Une capture tournait sans fin : la compilation avait échoué (règles d'analyse) et le jeu lancé était l'ancien, qui ne connaissait pas `--shot points` | Code corrigé ; mon script de capture s'arrête désormais si la compilation échoue |
+| 2026-10-10 | `src/Rpg.Client/ItemStyle.cs` | (Claude) La recherche sans accents ne trouvait pas « Âne » avec « ane » : sous la globalisation invariante du projet, `Normalize(FormD)` ne décompose rien | Table des lettres accentuées du français |
+| 2026-10-10 | `godot/InventoryPanel.cs` | (Claude) Vu sur la capture : les objets dont tous les exemplaires sont portés apparaissaient gris comme ceux d'un niveau trop haut, sans leur nombre ; l'onglet « Objets de quête » était coupé | Couleur gardée et atténuée, nombre possédé affiché ; onglet « Quête » |
+| 2026-10-10 | `tests/Rpg.Client.Tests/BookTests.cs` | (Claude) Mutation non attrapée : l'égalité de deux caractéristiques d'un objet pouvait changer sa couleur sans qu'aucun test ne le voie | Test d'un objet à égalité |

@@ -15,7 +15,13 @@ namespace Rpg.Desktop;
 public partial class PointsPanel : CanvasLayer
 {
     private readonly List<(Characteristic Stat, Label[] Cells, Button Minus, Button Plus)> _stats = [];
-    private readonly List<(Spell Spell, Label Rank, Button Minus, Button Plus)> _spells = [];
+    private readonly List<(Spell Spell, Button Tile, Label Name, Label Sub)> _tiles2 = [];
+    private readonly List<(Element? Element, Button Chip)> _chips = [];
+    private Element? _filter;
+    private string? _selected, _hovered;
+    private Label _detailName = null!, _detailRank = null!;
+    private RichTextLabel _detail = null!;
+    private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
     private Label _name = null!, _level = null!, _spellsLeft = null!, _message = null!, _help = null!;
     private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!;
@@ -141,29 +147,148 @@ public partial class PointsPanel : CanvasLayer
     private VBoxContainer BuildSpells(PointsEditor editor)
     {
         var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
-        page.AddThemeConstantOverride("separation", 6);
-        _spellsLeft = new Label();
-        page.AddChild(_spellsLeft);
-        var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        page.AddChild(scroll);
-        var list = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        scroll.AddChild(list);
-        foreach (Spell spell in editor.Spells)
+        page.AddThemeConstantOverride("separation", 8);
+        var top = new HBoxContainer();
+        top.AddThemeConstantOverride("separation", 6);
+        page.AddChild(top);
+        HeroClass? c = editor.Data.Class(editor.Hero.Class);
+        Element[] present = c is null ? [] : [.. c.Spells.Select(id => editor.Data.Spells[id].Element).Distinct().Order()];
+        foreach (Element? e in new Element?[] { null }.Concat(present.Select(x => (Element?)x)))
         {
-            var row = new HBoxContainer();
-            list.AddChild(row);
-            var name = new Label { CustomMinimumSize = new Vector2(220, 0), ClipText = true, MouseFilter = Control.MouseFilterEnum.Stop, Text = spell.Name.In(Texts.Lang) };
-            name.AddThemeColorOverride("font_color", new Color(ElementStyle.Colour(spell.Element)));
-            row.AddChild(name);
-            var rank = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            rank.AddThemeFontSizeOverride("font_size", 13);
-            row.AddChild(rank);
-            Button minus = Small(row, "−", () => Editor.Lower(spell));
-            Button plus = Small(row, "+", () => Editor.Raise(spell));
-            _spells.Add((spell, rank, minus, plus));
+            var chip = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(84, 40) };
+            if (e is Element el)
+                chip.AddThemeColorOverride("font_color", new Color(ElementStyle.Colour(el)));
+            chip.Pressed += () =>
+            {
+                _filter = e;
+                Refresh();
+            };
+            top.AddChild(chip);
+            _chips.Add((e, chip));
         }
+        _spellsLeft = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, HorizontalAlignment = HorizontalAlignment.Right };
+        _spellsLeft.AddThemeFontSizeOverride("font_size", 17);
+        top.AddChild(_spellsLeft);
+
+        var body = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        body.AddThemeConstantOverride("separation", 14);
+        page.AddChild(body);
+        var scroll = new ScrollContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        body.AddChild(scroll);
+        var grid = new GridContainer { Columns = 3 };
+        grid.AddThemeConstantOverride("h_separation", 6);
+        grid.AddThemeConstantOverride("v_separation", 6);
+        scroll.AddChild(grid);
+        foreach (Spell spell in c?.Spells.Select(id => editor.Data.Spells[id]) ?? [])
+        {
+            var tile = new Button { CustomMinimumSize = new Vector2(196, 56), ClipText = true };
+            var colour = new Color(ElementStyle.Colour(spell.Element));
+            foreach ((string state, float mix) in new[] { ("normal", 0.78f), ("hover", 0.62f), ("pressed", 0.55f), ("disabled", 0.9f), ("focus", 0.62f) })
+            {
+                tile.AddThemeStyleboxOverride(state, new StyleBoxFlat
+                {
+                    BgColor = colour.Lerp(new Color("1c1c1c"), mix),
+                    BorderColor = colour,
+                    BorderWidthLeft = 5,
+                    CornerRadiusTopLeft = 6,
+                    CornerRadiusTopRight = 6,
+                    CornerRadiusBottomLeft = 6,
+                    CornerRadiusBottomRight = 6,
+                });
+            }
+            var name = new Label { Position = new Vector2(14, 6), MouseFilter = Control.MouseFilterEnum.Ignore, Text = spell.Name.In(Texts.Lang) };
+            name.AddThemeFontSizeOverride("font_size", 16);
+            tile.AddChild(name);
+            var sub = new Label { Position = new Vector2(14, 30), MouseFilter = Control.MouseFilterEnum.Ignore, Modulate = new Color(1, 1, 1, 0.75f) };
+            sub.AddThemeFontSizeOverride("font_size", 12);
+            tile.AddChild(sub);
+            string id = spell.Id;
+            tile.MouseEntered += () =>
+            {
+                _hovered = id;
+                ShowDetail();
+            };
+            tile.MouseExited += () =>
+            {
+                _hovered = null;
+                ShowDetail();
+            };
+            tile.Pressed += () =>
+            {
+                _selected = id;
+                ShowDetail();
+            };
+            grid.AddChild(tile);
+            _tiles2.Add((spell, tile, name, sub));
+        }
+
+        var card = new PanelContainer { CustomMinimumSize = new Vector2(330, 0) };
+        card.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("262626"), CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8, ContentMarginLeft = 14, ContentMarginRight = 14, ContentMarginTop = 10, ContentMarginBottom = 10 });
+        body.AddChild(card);
+        var inside = new VBoxContainer();
+        inside.AddThemeConstantOverride("separation", 6);
+        card.AddChild(inside);
+        _detailName = new Label();
+        _detailName.AddThemeFontSizeOverride("font_size", 22);
+        inside.AddChild(_detailName);
+        _detailRank = new Label { Modulate = new Color(1, 1, 1, 0.8f) };
+        inside.AddChild(_detailRank);
+        _detail = new RichTextLabel { BbcodeEnabled = true, FitContent = true, SizeFlagsVertical = Control.SizeFlags.ExpandFill, ScrollActive = false };
+        _detail.AddThemeFontSizeOverride("normal_font_size", 15);
+        inside.AddChild(_detail);
+        var ranks = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End };
+        ranks.AddThemeConstantOverride("separation", 8);
+        inside.AddChild(ranks);
+        _rankMinus = Small(ranks, "−", () =>
+        {
+            if (Shown() is Spell sp)
+                Editor.Lower(sp);
+        });
+        _rankPlus = Small(ranks, "+", () =>
+        {
+            if (Shown() is Spell sp)
+                Editor.Raise(sp);
+        });
         return page;
     }
+
+    /// <summary>Shows a spell's details as if clicked (the capture of the project page).</summary>
+    public void Select(string spell)
+    {
+        _selected = spell;
+        ShowDetail();
+    }
+
+    /// <summary>The spell the details show: the one under the mouse, else the one clicked, else the first.</summary>
+    private Spell? Shown()
+    {
+        string? id = _hovered ?? _selected ?? _tiles2.FirstOrDefault().Spell?.Id;
+        return id is null ? null : Editor.Data.Spells[id];
+    }
+
+    private void ShowDetail()
+    {
+        if (Shown() is not Spell spell)
+            return;
+        var book = new SpellBook(Editor);
+        BookSpell b = book.Spells.Single(x => x.Spell.Id == spell.Id);
+        string colour = ElementStyle.Colour(spell.Element);
+        _detailName.Text = spell.Name.In(Texts.Lang);
+        _detailName.AddThemeColorOverride("font_color", new Color(colour));
+        _detailRank.Text = $"{Texts["sd.rank", b.Rank, spell.MaxRank]} · {Texts["element." + spell.Element]}";
+        Characteristics? stats = Fight.HeroTotals(Editor.Draft, Editor.Data)?.Stats;
+        // The damage lines in the element's colour, the critical line in the accent, the rest plain.
+        _detail.Text = string.Join('\n', Texts.SpellDetails(b, stats).Select(Capital).Select((line, i) =>
+            line.Contains(Texts["element." + spell.Element], StringComparison.Ordinal) && b.Damage.Max > 0 && line.StartsWith(b.Damage.Min.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal) ? $"[color={colour}][b]{Escape(line)}[/b][/color]"
+            : b.Critical.Max > 0 && line.StartsWith(b.Critical.Min.ToString(System.Globalization.CultureInfo.InvariantCulture) + " ", StringComparison.Ordinal) ? $"[color=#bef374]{Escape(line)}[/color]"
+            : Escape(line)));
+        _rankMinus.Disabled = !Editor.CanLower(spell);
+        _rankPlus.Disabled = !Editor.CanRaise(spell);
+    }
+
+    private static string Capital(string text) => text.Length == 0 ? text : char.ToUpperInvariant(text[0]) + text[1..];
+
+    private static string Escape(string text) => text.Replace("[", "[lb]", StringComparison.Ordinal);
 
     /// <summary>The colour of a characteristic: its element's, the heal colour for Vitality.</summary>
     private static string Colour(Characteristic stat) => stat switch
@@ -257,14 +382,20 @@ public partial class PointsPanel : CanvasLayer
         }
         _help.Text = Texts["sheet.help"];
         _spellsLeft.Text = Texts["points.spells", Editor.SpellPointsLeft];
-        foreach ((Spell spell, Label rank, Button minus, Button plus) in _spells)
+        foreach ((Element? e, Button chip) in _chips)
         {
-            int next = Editor.NextRankCost(spell);
-            rank.Text = $"{Texts["points.rank", Editor.Rank(spell), spell.MaxRank]} · {(next > 0 ? Texts["points.next", next] : Texts["points.max"])}";
-            rank.GetParent<HBoxContainer>().GetChild<Label>(0).TooltipText = Texts.SpellCard(spell.AtRank(Editor.Rank(spell)), sheet.Hero.Stats is null ? null : Fight.HeroTotals(sheet.Hero, Editor.Data)?.Stats);
-            minus.Disabled = !Editor.CanLower(spell);
-            plus.Disabled = !Editor.CanRaise(spell);
+            chip.Text = Capital(e is Element el ? Texts["element." + el] : Texts["sd.all"]);
+            chip.SetPressedNoSignal(e == _filter);
         }
+        var bookNow = new SpellBook(Editor);
+        foreach ((Spell spell, Button tile, Label name, Label sub) in _tiles2)
+        {
+            BookSpell b = bookNow.Spells.Single(x => x.Spell.Id == spell.Id);
+            tile.Visible = _filter is null || spell.Element == _filter;
+            sub.Text = b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level];
+            tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
+        }
+        ShowDetail();
         _save.Text = Texts["points.save"];
         _save.Disabled = !Editor.Changed;
         _close.Text = Texts["points.close"];
@@ -276,6 +407,9 @@ public partial class PointsPanel : CanvasLayer
 
     /// <summary>The totals shown, as the self-test reads them.</summary>
     public IEnumerable<string> StatsText => _stats.Select(s => s.Cells[1].Text);
+
+    /// <summary>The spells on the spells tab, unlocked or not, as the self-test counts them.</summary>
+    public int SpellTiles => _tiles2.Count;
 
     public string MessageText => _message.Text;
 

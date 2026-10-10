@@ -6,7 +6,11 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je choisis mes sorts et mon équipement d'un coup d'œil (rpg) : écran des sorts (les vingt sorts de la classe, couleur de leur élément, verrouillés avec leur niveau, rang et points de sort, dégâts normaux et critiques avec mes caractéristiques, fiche complète au survol) ; inventaire refait (le personnage en 3D entouré de ses quatorze emplacements, onglets Tout, Équipement, Consommables, Ressources, Quête, grille d'objets avec icône et quantité, recherche, fiche au survol) ; xUnit, auto-test, captures. | 3 | À faire |
+| En tant que joueur, je choisis mes sorts et mon équipement d'un coup d'œil (rpg) : écran des sorts (les vingt sorts de la classe, couleur de leur élément, verrouillés avec leur niveau, rang et points de sort, dégâts normaux et critiques avec mes caractéristiques, fiche complète au survol) ; inventaire refait (le personnage en 3D entouré de ses quatorze emplacements, onglets Tout, Équipement, Consommables, Ressources, Quête, grille d'objets avec icône et quantité, recherche, fiche au survol) ; xUnit, auto-test, captures. | 3 | Fait |
+
+**Résultat :** l'onglet des sorts (grille à la couleur des éléments, verrouillés avec leur niveau, filtre, fiche complète avec dégâts normaux et critiques comptant caractéristiques et équipement, rang suivant) et l'inventaire refait (personnage en 3D entouré de ses quatorze emplacements, recherche, onglets, grille d'icônes dessinées par le jeu avec leur nombre, fiche au survol) ; captures sur la fiche du projet (T33).
+
+**Tests :** 6 tests de plus dans `Rpg.Client`, auto-tests du village et du parcours connecté passés ; 5 mutations, 5 attrapées.
 
 ## Rétro (Charles)
 - Ce qui a marché :
