@@ -4,6 +4,7 @@ import { parseExamples } from './sqlplay/core.js';
 import { CUBE_NET, cubeNetMap, dartGeometry } from '../projects/gcartes/src/net.js';
 import { decompositionStep, STEPS } from '../projects/gcartes/src/decompose.js';
 import { linkPath } from '../projects/gcartes/src/links.js';
+import { archSection } from './arch.mjs';
 import { ROOT, esc, pick, teachingTotals, riskLevel, sprintRange, roadmapState, projectPage, neighbours, progress, PAGES, REPO_URL, techsOf, velocity, burndown, projectSummary } from './lib.mjs';
 
 const SEAL = `<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="7"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central">CL</text></svg>`;
@@ -631,6 +632,7 @@ ${pageHead(pick(p.name, lang), pick(p.pitch, lang), t(`projects.group.${p.group}
 ${plainBlock}
 ${teaching}
 ${linkBlock}
+${archSection(p.id, data.architecture[p.id], lang, t)}
 ${p.widget === 'mesh-reader' ? meshDemo(t) : ''}
 ${p.widget === 'topology-viewer' ? topoViewer(t, lang) : ''}
 ${p.widget === 'sql-playground' ? sqlPlayground(t) : ''}
@@ -1240,7 +1242,8 @@ function adaCrossroads(t) {
 function tictactoeBoard(t) {
   const labels = Object.fromEntries(MORPION_LABELS.map((k) => [k, t(`morpion.label.${k}`)]));
   const cells = Array.from({ length: 9 }, (_, i) =>
-    `<button type="button" class="ttt-cell" data-cell="${i}" tabindex="${i === 4 ? 0 : -1}"></button>`).join('');
+    // Named from the start (the script names them again once the book is loaded, when the board comes into view).
+    `<button type="button" class="ttt-cell" data-cell="${i}" tabindex="${i === 4 ? 0 : -1}" aria-label="${esc(`${fill(labels.square, { row: Math.floor(i / 3) + 1, col: (i % 3) + 1 })}, ${labels.empty}`)}"></button>`).join('');
   return `<section class="block panel demo morpion" aria-labelledby="h-ttt" data-morpion data-labels="${esc(JSON.stringify(labels))}">
   <h2 id="h-ttt">${esc(t('morpion.title'))}</h2>
   <p>${esc(t('morpion.lead'))}</p>
@@ -1313,7 +1316,6 @@ function rpgScreenshots(t, lang) {
     </video>
     <figcaption class="meta" id="rpg-video-text">${esc(t('rpg.videoText'))}</figcaption>
   </figure>
-  ${rpgArchitecture(t)}
   <figure class="naval-shot rpg-launcher">
     <img src="../assets/images/rpg-launcher-${lang}.png" width="520" height="720" loading="lazy" alt="${esc(t('rpg.altLauncher'))}">
     <figcaption class="meta">${esc(t('rpg.captionLauncher'))}</figcaption>
@@ -1335,43 +1337,6 @@ dotnet build godot/Rpg.Godot.csproj
 godot --path godot -- --lang ${lang}                                # ${esc(t('rpg.godot'))}</code></pre>
   <p>${esc(t('rpg.download'))} <a href="https://github.com/Dzop86/Portfolio/actions/workflows/rpg.yml">${esc(t('rpg.downloadLink'))}</a></p>
 </section>`;
-}
-
-// The parts of the tactical RPG and what goes between them: a drawing (its text in the language of the
-// page, colours from the tokens) and the same in words, which also reads well on a phone.
-function rpgArchitecture(t) {
-  const box = (x, y, name, tech, core = false) => `<g class="arch-box${core ? ' arch-core' : ''}">
-      <rect x="${x}" y="${y}" width="200" height="64" rx="8"></rect>
-      <text x="${x + 100}" y="${y + 27}" class="arch-name">${esc(t(name))}</text>
-      <text x="${x + 100}" y="${y + 48}" class="arch-tech">${esc(t(tech))}</text>
-    </g>`;
-  const arrow = (x1, y1, x2, y2, label, lx, ly, anchor = 'middle') => `<g class="arch-link">
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#arch-arrow)"></line>
-      ${label ? `<text x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(t(label))}</text>` : ''}
-    </g>`;
-  return `<h3>${esc(t('rpg.arch.title'))}</h3>
-  <figure class="rpg-arch">
-    <svg viewBox="0 0 720 390" role="img" aria-labelledby="rpg-arch-title">
-      <title id="rpg-arch-title">${esc(t('rpg.arch.alt'))}</title>
-      <defs><marker id="arch-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"></path></marker></defs>
-      ${arrow(220, 52, 520, 158, 'rpg.arch.updates', 390, 88)}
-      ${arrow(120, 84, 120, 158, 'rpg.arch.starts', 130, 126, 'start')}
-      ${arrow(120, 224, 120, 298, '', 0, 0)}
-      ${arrow(210, 300, 512, 226, 'rpg.arch.http', 330, 248)}
-      ${arrow(220, 332, 258, 332, '', 0, 0)}
-      ${arrow(560, 224, 420, 298, 'rpg.arch.same', 520, 276, 'start')}
-      ${arrow(640, 224, 640, 298, 'rpg.arch.ef', 650, 266, 'start')}
-      ${box(20, 20, 'rpg.arch.launcher', 'rpg.arch.launcherTech')}
-      ${box(20, 160, 'rpg.arch.game', 'rpg.arch.gameTech')}
-      ${box(500, 160, 'rpg.arch.server', 'rpg.arch.serverTech')}
-      ${box(20, 300, 'rpg.arch.client', 'rpg.arch.clientTech')}
-      ${box(260, 300, 'rpg.arch.core', 'rpg.arch.coreTech', true)}
-      ${box(500, 300, 'rpg.arch.db', 'rpg.arch.dbTech')}
-    </svg>
-  </figure>
-  <ul class="rpg-arch-list">
-    ${['launcher', 'game', 'core', 'server', 'sim'].map((k) => `<li>${esc(t(`rpg.arch.${k}Text`))}</li>`).join('\n    ')}
-  </ul>`;
 }
 
 // The Angular dashboard (D44): a link to it, and its comparison with the React one, measured by

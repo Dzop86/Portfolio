@@ -1,0 +1,3112 @@
+{
+  "vitrine": {
+    "boxes": [
+      {
+        "id": "data",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Données",
+          "en": "Data"
+        },
+        "tech": {
+          "fr": "JSON, sprints en Markdown",
+          "en": "JSON, sprints in Markdown"
+        }
+      },
+      {
+        "id": "gen",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Générateur",
+          "en": "Generator"
+        },
+        "tech": {
+          "fr": "Node, sans framework",
+          "en": "Node, no framework"
+        },
+        "core": true
+      },
+      {
+        "id": "pages",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Pages FR et EN",
+          "en": "FR and EN pages"
+        },
+        "tech": {
+          "fr": "HTML, CSS, JavaScript",
+          "en": "HTML, CSS, JavaScript"
+        }
+      },
+      {
+        "id": "api",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "API JSON",
+          "en": "JSON API"
+        },
+        "tech": {
+          "fr": "lue par les dashboards",
+          "en": "read by the dashboards"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "node:test, Playwright, axe",
+          "en": "node:test, Playwright, axe"
+        }
+      },
+      {
+        "id": "ci",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "CI",
+          "en": "CI"
+        },
+        "tech": {
+          "fr": "GitHub Actions, 3 OS",
+          "en": "GitHub Actions, 3 OSes"
+        }
+      },
+      {
+        "id": "host",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "GitHub Pages",
+          "en": "GitHub Pages"
+        },
+        "tech": {
+          "fr": "site statique",
+          "en": "static site"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "data",
+        "to": "gen",
+        "label": {
+          "fr": "lues au build",
+          "en": "read at build time"
+        }
+      },
+      {
+        "from": "gen",
+        "to": "pages",
+        "label": {
+          "fr": "écrit",
+          "en": "writes"
+        }
+      },
+      {
+        "from": "gen",
+        "to": "api"
+      },
+      {
+        "from": "tests",
+        "to": "pages"
+      },
+      {
+        "from": "ci",
+        "to": "tests"
+      },
+      {
+        "from": "ci",
+        "to": "host",
+        "label": {
+          "fr": "déploie si vert",
+          "en": "deploys if green"
+        }
+      }
+    ]
+  },
+  "lib-c": {
+    "boxes": [
+      {
+        "id": "files",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Fichiers",
+          "en": "Files"
+        },
+        "tech": {
+          "fr": "OBJ, PLY, STL",
+          "en": "OBJ, PLY, STL"
+        }
+      },
+      {
+        "id": "readers",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Lecteurs",
+          "en": "Readers"
+        },
+        "tech": {
+          "fr": "C11, sans dépendance",
+          "en": "C11, no dependency"
+        },
+        "core": true
+      },
+      {
+        "id": "mesh",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Maillage",
+          "en": "Mesh"
+        },
+        "tech": {
+          "fr": "sommets, triangles, arêtes",
+          "en": "vertices, triangles, edges"
+        }
+      },
+      {
+        "id": "fuzz",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "libFuzzer",
+          "en": "libFuzzer"
+        },
+        "tech": {
+          "fr": "ASan, UBSan",
+          "en": "ASan, UBSan"
+        }
+      },
+      {
+        "id": "cli",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "meshinfo",
+          "en": "meshinfo"
+        },
+        "tech": {
+          "fr": "ligne de commande",
+          "en": "command line"
+        }
+      },
+      {
+        "id": "wasm",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "WebAssembly",
+          "en": "WebAssembly"
+        },
+        "tech": {
+          "fr": "démo de la fiche",
+          "en": "the page's demo"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "files",
+        "to": "readers",
+        "label": {
+          "fr": "lus ligne à ligne",
+          "en": "read line by line"
+        }
+      },
+      {
+        "from": "fuzz",
+        "to": "readers",
+        "label": {
+          "fr": "entrées aléatoires",
+          "en": "random inputs"
+        }
+      },
+      {
+        "from": "readers",
+        "to": "mesh",
+        "label": {
+          "fr": "construisent",
+          "en": "build"
+        }
+      },
+      {
+        "from": "mesh",
+        "to": "cli"
+      },
+      {
+        "from": "readers",
+        "to": "wasm",
+        "label": {
+          "fr": "compilés par Emscripten",
+          "en": "built by Emscripten"
+        }
+      }
+    ]
+  },
+  "topologie": {
+    "boxes": [
+      {
+        "id": "libc",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "lib-c",
+          "en": "lib-c"
+        },
+        "tech": {
+          "fr": "lecture OBJ, PLY, STL",
+          "en": "reads OBJ, PLY, STL"
+        }
+      },
+      {
+        "id": "topo",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Topologie",
+          "en": "Topology"
+        },
+        "tech": {
+          "fr": "C++20, demi-arêtes",
+          "en": "C++20, half-edges"
+        },
+        "core": true
+      },
+      {
+        "id": "capi",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "API C",
+          "en": "C API"
+        },
+        "tech": {
+          "fr": "une seule interface",
+          "en": "a single interface"
+        }
+      },
+      {
+        "id": "wasm",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "WebAssembly",
+          "en": "WebAssembly"
+        },
+        "tech": {
+          "fr": "Emscripten",
+          "en": "Emscripten"
+        }
+      },
+      {
+        "id": "viewer",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Visionneuse",
+          "en": "Viewer"
+        },
+        "tech": {
+          "fr": "three.js, sur la fiche",
+          "en": "three.js, on the page"
+        }
+      },
+      {
+        "id": "python",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "API Python",
+          "en": "Python API"
+        },
+        "tech": {
+          "fr": "FastAPI, ctypes",
+          "en": "FastAPI, ctypes"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "libc",
+        "to": "topo",
+        "label": {
+          "fr": "maillage lu",
+          "en": "mesh read"
+        }
+      },
+      {
+        "from": "topo",
+        "to": "capi",
+        "label": {
+          "fr": "invariants, courbure",
+          "en": "invariants, curvature"
+        }
+      },
+      {
+        "from": "capi",
+        "to": "wasm"
+      },
+      {
+        "from": "wasm",
+        "to": "viewer"
+      },
+      {
+        "from": "capi",
+        "to": "python",
+        "label": {
+          "fr": "bibliothèque partagée",
+          "en": "shared library"
+        }
+      }
+    ]
+  },
+  "fastapi": {
+    "boxes": [
+      {
+        "id": "client",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Client HTTP",
+          "en": "HTTP client"
+        },
+        "tech": {
+          "fr": "fichier en corps brut",
+          "en": "raw file body"
+        }
+      },
+      {
+        "id": "api",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "API",
+          "en": "API"
+        },
+        "tech": {
+          "fr": "FastAPI, uvicorn",
+          "en": "FastAPI, uvicorn"
+        },
+        "core": true
+      },
+      {
+        "id": "libc",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "lib-c",
+          "en": "lib-c"
+        },
+        "tech": {
+          "fr": "bibliothèque partagée",
+          "en": "shared library"
+        }
+      },
+      {
+        "id": "topo",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Topologie",
+          "en": "Topology"
+        },
+        "tech": {
+          "fr": "API C, sous verrou",
+          "en": "C API, under a lock"
+        }
+      },
+      {
+        "id": "onnx",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Classifieur",
+          "en": "Classifier"
+        },
+        "tech": {
+          "fr": "ONNX Runtime, sans PyTorch",
+          "en": "ONNX Runtime, no PyTorch"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "client",
+        "to": "api",
+        "label": {
+          "fr": "POST /v1/mesh/…",
+          "en": "POST /v1/mesh/…"
+        }
+      },
+      {
+        "from": "api",
+        "to": "libc",
+        "label": {
+          "fr": "statistiques",
+          "en": "statistics"
+        }
+      },
+      {
+        "from": "api",
+        "to": "topo",
+        "label": {
+          "fr": "invariants",
+          "en": "invariants"
+        },
+        "labelAt": {
+          "dx": 10,
+          "dy": 4,
+          "anchor": "start"
+        }
+      },
+      {
+        "from": "api",
+        "to": "onnx",
+        "label": {
+          "fr": "classe de la forme",
+          "en": "shape class"
+        }
+      }
+    ]
+  },
+  "ml": {
+    "boxes": [
+      {
+        "id": "dvc",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Pipeline DVC",
+          "en": "DVC pipeline"
+        },
+        "tech": {
+          "fr": "params.yaml, dvc.lock",
+          "en": "params.yaml, dvc.lock"
+        },
+        "core": true
+      },
+      {
+        "id": "data",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Données",
+          "en": "Data"
+        },
+        "tech": {
+          "fr": "6 formes, 512 points",
+          "en": "6 shapes, 512 points"
+        }
+      },
+      {
+        "id": "models",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Modèles",
+          "en": "Models"
+        },
+        "tech": {
+          "fr": "scikit-learn, PyTorch",
+          "en": "scikit-learn, PyTorch"
+        }
+      },
+      {
+        "id": "mlflow",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "MLflow",
+          "en": "MLflow"
+        },
+        "tech": {
+          "fr": "base SQLite locale",
+          "en": "local SQLite store"
+        }
+      },
+      {
+        "id": "onnx",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "ONNX",
+          "en": "ONNX"
+        },
+        "tech": {
+          "fr": "pointnet.onnx, 300 Ko",
+          "en": "pointnet.onnx, 300 KB"
+        }
+      },
+      {
+        "id": "api",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "API Python",
+          "en": "Python API"
+        },
+        "tech": {
+          "fr": "POST /v1/mesh/classify",
+          "en": "POST /v1/mesh/classify"
+        }
+      },
+      {
+        "id": "site",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "résultats lus au build",
+          "en": "results read at build"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "dvc",
+        "to": "data",
+        "label": {
+          "fr": "génère",
+          "en": "generates"
+        }
+      },
+      {
+        "from": "data",
+        "to": "models",
+        "label": {
+          "fr": "entraînent",
+          "en": "train"
+        }
+      },
+      {
+        "from": "models",
+        "to": "mlflow"
+      },
+      {
+        "from": "models",
+        "to": "onnx",
+        "label": {
+          "fr": "export vérifié",
+          "en": "checked export"
+        }
+      },
+      {
+        "from": "onnx",
+        "to": "api"
+      },
+      {
+        "from": "dvc",
+        "to": "site",
+        "label": {
+          "fr": "métriques, matrices",
+          "en": "metrics, matrices"
+        }
+      }
+    ]
+  },
+  "sql": {
+    "boxes": [
+      {
+        "id": "bench",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Banc de mesure",
+          "en": "Benchmark"
+        },
+        "tech": {
+          "fr": "Node, lib-c, topologie",
+          "en": "Node, lib-c, topology"
+        }
+      },
+      {
+        "id": "csv",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "CSV plat",
+          "en": "Flat CSV"
+        },
+        "tech": {
+          "fr": "une ligne par répétition",
+          "en": "one row per repetition"
+        }
+      },
+      {
+        "id": "pg",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "PostgreSQL",
+          "en": "PostgreSQL"
+        },
+        "tech": {
+          "fr": "schéma, contraintes",
+          "en": "schema, constraints"
+        },
+        "core": true
+      },
+      {
+        "id": "views",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Vues",
+          "en": "Views"
+        },
+        "tech": {
+          "fr": "fenêtres, régressions",
+          "en": "windows, regressions"
+        }
+      },
+      {
+        "id": "pgtap",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "pgTAP",
+          "en": "pgTAP"
+        },
+        "tech": {
+          "fr": "tests dans l'image",
+          "en": "tests in the image"
+        }
+      },
+      {
+        "id": "sqlite",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Copie SQLite",
+          "en": "SQLite copy"
+        },
+        "tech": {
+          "fr": "sql.js, sur la fiche",
+          "en": "sql.js, on the page"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "bench",
+        "to": "csv",
+        "label": {
+          "fr": "écrit",
+          "en": "writes"
+        }
+      },
+      {
+        "from": "csv",
+        "to": "pg",
+        "label": {
+          "fr": "chargé en SQL",
+          "en": "loaded in SQL"
+        }
+      },
+      {
+        "from": "pg",
+        "to": "views"
+      },
+      {
+        "from": "pgtap",
+        "to": "pg",
+        "label": {
+          "fr": "vérifie",
+          "en": "checks"
+        }
+      },
+      {
+        "from": "pg",
+        "to": "sqlite",
+        "label": {
+          "fr": "même schéma, dialecte SQLite",
+          "en": "same schema, SQLite dialect"
+        }
+      }
+    ]
+  },
+  "langage": {
+    "boxes": [
+      {
+        "id": "source",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Programme Maille",
+          "en": "Maille program"
+        },
+        "tech": {
+          "fr": "texte",
+          "en": "text"
+        }
+      },
+      {
+        "id": "parser",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Analyseur",
+          "en": "Parser"
+        },
+        "tech": {
+          "fr": "C, Flex, Bison",
+          "en": "C, Flex, Bison"
+        }
+      },
+      {
+        "id": "tree",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Arbre syntaxique",
+          "en": "Syntax tree"
+        },
+        "tech": {
+          "fr": "S-expression",
+          "en": "S-expression"
+        },
+        "core": true
+      },
+      {
+        "id": "interp",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Interpréteur",
+          "en": "Interpreter"
+        },
+        "tech": {
+          "fr": "OCaml, Hindley-Milner",
+          "en": "OCaml, Hindley-Milner"
+        }
+      },
+      {
+        "id": "result",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Résultat",
+          "en": "Result"
+        },
+        "tech": {
+          "fr": "valeur et type",
+          "en": "value and type"
+        }
+      },
+      {
+        "id": "web",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Navigateur",
+          "en": "Browser"
+        },
+        "tech": {
+          "fr": "WebAssembly, js_of_ocaml",
+          "en": "WebAssembly, js_of_ocaml"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "source",
+        "to": "parser",
+        "label": {
+          "fr": "lu",
+          "en": "read"
+        }
+      },
+      {
+        "from": "parser",
+        "to": "tree",
+        "label": {
+          "fr": "écrit",
+          "en": "writes"
+        }
+      },
+      {
+        "from": "tree",
+        "to": "interp"
+      },
+      {
+        "from": "interp",
+        "to": "result",
+        "label": {
+          "fr": "infère, évalue",
+          "en": "infers, evaluates"
+        }
+      },
+      {
+        "from": "web",
+        "to": "result",
+        "label": {
+          "fr": "les deux, chez le visiteur",
+          "en": "both, in the visitor's browser"
+        },
+        "labelAt": {
+          "dx": 0,
+          "dy": -44
+        }
+      }
+    ]
+  },
+  "ada": {
+    "boxes": [
+      {
+        "id": "types",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Types et contrats",
+          "en": "Types, contracts"
+        },
+        "tech": {
+          "fr": "phases, durées bornées",
+          "en": "phases, bounded durations"
+        }
+      },
+      {
+        "id": "ctrl",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Contrôleur",
+          "en": "Controller"
+        },
+        "tech": {
+          "fr": "Ada 2022, SPARK",
+          "en": "Ada 2022, SPARK"
+        },
+        "core": true
+      },
+      {
+        "id": "prove",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "GNATprove",
+          "en": "GNATprove"
+        },
+        "tech": {
+          "fr": "lemme fantôme",
+          "en": "ghost lemma"
+        }
+      },
+      {
+        "id": "auto",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Automate",
+          "en": "Automaton"
+        },
+        "tech": {
+          "fr": "carrefour --automaton",
+          "en": "carrefour --automaton"
+        }
+      },
+      {
+        "id": "json",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "automaton.json",
+          "en": "automaton.json"
+        },
+        "tech": {
+          "fr": "tous les états",
+          "en": "every state"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "carrefour en direct",
+          "en": "live crossroads"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Tests AUnit",
+          "en": "AUnit tests"
+        },
+        "tech": {
+          "fr": "chaque phase",
+          "en": "every phase"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "types",
+        "to": "ctrl",
+        "label": {
+          "fr": "aucun double vert",
+          "en": "never two greens"
+        }
+      },
+      {
+        "from": "prove",
+        "to": "ctrl",
+        "label": {
+          "fr": "prouve la sûreté",
+          "en": "proves safety"
+        }
+      },
+      {
+        "from": "ctrl",
+        "to": "auto",
+        "label": {
+          "fr": "explore",
+          "en": "explores"
+        }
+      },
+      {
+        "from": "auto",
+        "to": "json"
+      },
+      {
+        "from": "json",
+        "to": "page"
+      },
+      {
+        "from": "tests",
+        "to": "ctrl",
+        "label": {
+          "fr": "vérifient",
+          "en": "check"
+        }
+      }
+    ]
+  },
+  "latex": {
+    "boxes": [
+      {
+        "id": "editor",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Éditeur",
+          "en": "Editor"
+        },
+        "tech": {
+          "fr": "source et aperçu",
+          "en": "source and preview"
+        }
+      },
+      {
+        "id": "parser",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Analyseur",
+          "en": "Parser"
+        },
+        "tech": {
+          "fr": "TypeScript, à la main",
+          "en": "TypeScript, hand-written"
+        },
+        "core": true
+      },
+      {
+        "id": "render",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Rendu",
+          "en": "Renderer"
+        },
+        "tech": {
+          "fr": "deux passes, KaTeX",
+          "en": "two passes, KaTeX"
+        }
+      },
+      {
+        "id": "diag",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Diagnostics",
+          "en": "Diagnostics"
+        },
+        "tech": {
+          "fr": "ligne et colonne",
+          "en": "line and column"
+        }
+      },
+      {
+        "id": "preview",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Aperçu",
+          "en": "Preview"
+        },
+        "tech": {
+          "fr": "HTML sûr",
+          "en": "safe HTML"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "editor",
+        "to": "parser",
+        "label": {
+          "fr": "à chaque frappe",
+          "en": "at each keystroke"
+        }
+      },
+      {
+        "from": "parser",
+        "to": "render",
+        "label": {
+          "fr": "arbre",
+          "en": "tree"
+        }
+      },
+      {
+        "from": "render",
+        "to": "preview"
+      },
+      {
+        "from": "parser",
+        "to": "diag"
+      },
+      {
+        "from": "diag",
+        "to": "editor",
+        "label": {
+          "fr": "mènent à la ligne",
+          "en": "lead to the line"
+        }
+      }
+    ]
+  },
+  "gcartes": {
+    "boxes": [
+      {
+        "id": "decomp",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Construction",
+          "en": "Construction"
+        },
+        "tech": {
+          "fr": "decompose.js, pas à pas",
+          "en": "decompose.js, step by step"
+        }
+      },
+      {
+        "id": "lib",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Bibliothèque",
+          "en": "Library"
+        },
+        "tech": {
+          "fr": "gmap.js, involutions",
+          "en": "gmap.js, involutions"
+        },
+        "core": true
+      },
+      {
+        "id": "tests",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "node:test",
+          "en": "node:test"
+        }
+      },
+      {
+        "id": "draw",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Dessin",
+          "en": "Drawing"
+        },
+        "tech": {
+          "fr": "SVG, liaisons α0 α1 α2",
+          "en": "SVG, α0 α1 α2 links"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Cours",
+          "en": "Course"
+        },
+        "tech": {
+          "fr": "fiche du site",
+          "en": "project page"
+        }
+      },
+      {
+        "id": "course",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "Textes",
+          "en": "Texts"
+        },
+        "tech": {
+          "fr": "course.json, FR et EN",
+          "en": "course.json, FR and EN"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "decomp",
+        "to": "lib",
+        "label": {
+          "fr": "étapes",
+          "en": "steps"
+        }
+      },
+      {
+        "from": "tests",
+        "to": "lib",
+        "label": {
+          "fr": "χ, orientabilité, bords",
+          "en": "χ, orientability, borders"
+        }
+      },
+      {
+        "from": "lib",
+        "to": "draw"
+      },
+      {
+        "from": "draw",
+        "to": "page"
+      },
+      {
+        "from": "course",
+        "to": "page",
+        "label": {
+          "fr": "expliquent",
+          "en": "explain"
+        }
+      }
+    ]
+  },
+  "othello": {
+    "boxes": [
+      {
+        "id": "board",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Moteur",
+          "en": "Engine"
+        },
+        "tech": {
+          "fr": "C, deux bitboards",
+          "en": "C, two bitboards"
+        },
+        "core": true
+      },
+      {
+        "id": "perft",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Perft",
+          "en": "Perft"
+        },
+        "tech": {
+          "fr": "nombres de référence",
+          "en": "reference counts"
+        }
+      },
+      {
+        "id": "ai",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "IA",
+          "en": "AI"
+        },
+        "tech": {
+          "fr": "negamax alpha-bêta",
+          "en": "alpha-beta negamax"
+        }
+      },
+      {
+        "id": "wasm",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "WebAssembly",
+          "en": "WebAssembly"
+        },
+        "tech": {
+          "fr": "Emscripten, 4,5 Ko",
+          "en": "Emscripten, 4.5 KB"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "souris, toucher, clavier",
+          "en": "mouse, touch, keyboard"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "perft",
+        "to": "board",
+        "label": {
+          "fr": "vérifie les règles",
+          "en": "checks the rules"
+        }
+      },
+      {
+        "from": "ai",
+        "to": "board"
+      },
+      {
+        "from": "board",
+        "to": "wasm",
+        "label": {
+          "fr": "compilés par Emscripten",
+          "en": "built by Emscripten"
+        }
+      },
+      {
+        "from": "wasm",
+        "to": "page",
+        "label": {
+          "fr": "partie, annulation",
+          "en": "game, undo"
+        }
+      }
+    ]
+  },
+  "naval": {
+    "boxes": [
+      {
+        "id": "model",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Modèle",
+          "en": "Model"
+        },
+        "tech": {
+          "fr": "grille, flotte, tirs",
+          "en": "grid, fleet, shots"
+        },
+        "core": true
+      },
+      {
+        "id": "ai",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "IA",
+          "en": "AI"
+        },
+        "tech": {
+          "fr": "damier, puis cible",
+          "en": "checkerboard, then target"
+        }
+      },
+      {
+        "id": "view",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Vue",
+          "en": "View"
+        },
+        "tech": {
+          "fr": "JavaFX, sans fenêtre",
+          "en": "JavaFX, no window"
+        }
+      },
+      {
+        "id": "app",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Fenêtre",
+          "en": "Window"
+        },
+        "tech": {
+          "fr": "application JavaFX",
+          "en": "JavaFX application"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "JUnit, Monocle",
+          "en": "JUnit, Monocle"
+        }
+      },
+      {
+        "id": "shots",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Captures",
+          "en": "Screenshots"
+        },
+        "tech": {
+          "fr": "pour la fiche",
+          "en": "for the page"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "ai",
+        "to": "model",
+        "label": {
+          "fr": "tire",
+          "en": "shoots"
+        }
+      },
+      {
+        "from": "model",
+        "to": "view"
+      },
+      {
+        "from": "view",
+        "to": "app",
+        "label": {
+          "fr": "affichée",
+          "en": "shown"
+        }
+      },
+      {
+        "from": "tests",
+        "to": "view"
+      },
+      {
+        "from": "view",
+        "to": "shots",
+        "label": {
+          "fr": "pilotée sans écran",
+          "en": "driven without a screen"
+        }
+      }
+    ]
+  },
+  "aventure": {
+    "boxes": [
+      {
+        "id": "texts",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Textes",
+          "en": "Texts"
+        },
+        "tech": {
+          "fr": "français et anglais",
+          "en": "French and English"
+        }
+      },
+      {
+        "id": "engine",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Moteur",
+          "en": "Engine"
+        },
+        "tech": {
+          "fr": "Game.respond(ligne)",
+          "en": "Game.respond(line)"
+        },
+        "core": true
+      },
+      {
+        "id": "term",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Terminal",
+          "en": "Terminal"
+        },
+        "tech": {
+          "fr": "Main, Java",
+          "en": "Main, Java"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "JUnit, parties entières",
+          "en": "JUnit, whole games"
+        }
+      },
+      {
+        "id": "web",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Navigateur",
+          "en": "Browser"
+        },
+        "tech": {
+          "fr": "compilé en JavaScript",
+          "en": "compiled to JavaScript"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "texts",
+        "to": "engine",
+        "label": {
+          "fr": "phrases",
+          "en": "sentences"
+        }
+      },
+      {
+        "from": "term",
+        "to": "engine",
+        "label": {
+          "fr": "chaque ligne tapée",
+          "en": "each line typed"
+        }
+      },
+      {
+        "from": "tests",
+        "to": "engine",
+        "label": {
+          "fr": "jouent",
+          "en": "play"
+        }
+      },
+      {
+        "from": "web",
+        "to": "engine"
+      }
+    ]
+  },
+  "bataille": {
+    "boxes": [
+      {
+        "id": "cards",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Cartes",
+          "en": "Cards"
+        },
+        "tech": {
+          "fr": "types Ada, contrats",
+          "en": "Ada types, contracts"
+        }
+      },
+      {
+        "id": "game",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Partie",
+          "en": "Game"
+        },
+        "tech": {
+          "fr": "mélange, plis, batailles",
+          "en": "shuffle, tricks, wars"
+        },
+        "core": true
+      },
+      {
+        "id": "cli",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Terminal",
+          "en": "Terminal"
+        },
+        "tech": {
+          "fr": "pli par pli",
+          "en": "trick by trick"
+        }
+      },
+      {
+        "id": "stats",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Statistiques",
+          "en": "Statistics"
+        },
+        "tech": {
+          "fr": "100 000 parties",
+          "en": "100,000 games"
+        }
+      },
+      {
+        "id": "json",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "stats.json",
+          "en": "stats.json"
+        },
+        "tech": {
+          "fr": "lu au build du site",
+          "en": "read at site build"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "graphiques",
+          "en": "charts"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "AUnit",
+          "en": "AUnit"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "cards",
+        "to": "game",
+        "label": {
+          "fr": "jouées",
+          "en": "played"
+        }
+      },
+      {
+        "from": "game",
+        "to": "cli",
+        "label": {
+          "fr": "raconte",
+          "en": "tells"
+        }
+      },
+      {
+        "from": "game",
+        "to": "stats"
+      },
+      {
+        "from": "stats",
+        "to": "json",
+        "label": {
+          "fr": "écrites en JSON",
+          "en": "written as JSON"
+        }
+      },
+      {
+        "from": "json",
+        "to": "page"
+      },
+      {
+        "from": "tests",
+        "to": "game",
+        "label": {
+          "fr": "vérifient",
+          "en": "check"
+        }
+      }
+    ]
+  },
+  "morpion": {
+    "boxes": [
+      {
+        "id": "board",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Règles",
+          "en": "Rules"
+        },
+        "tech": {
+          "fr": "board.py, positions",
+          "en": "board.py, positions"
+        }
+      },
+      {
+        "id": "ai",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "IA",
+          "en": "AI"
+        },
+        "tech": {
+          "fr": "negamax, tout l'arbre",
+          "en": "negamax, the whole tree"
+        },
+        "core": true
+      },
+      {
+        "id": "book",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Livre de coups",
+          "en": "Opening book"
+        },
+        "tech": {
+          "fr": "book.json",
+          "en": "book.json"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "JavaScript, sans Python",
+          "en": "JavaScript, no Python"
+        }
+      },
+      {
+        "id": "cli",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Terminal",
+          "en": "Terminal"
+        },
+        "tech": {
+          "fr": "Python typé",
+          "en": "typed Python"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "toutes les parties",
+          "en": "every game"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "board",
+        "to": "ai",
+        "label": {
+          "fr": "coups légaux",
+          "en": "legal moves"
+        }
+      },
+      {
+        "from": "ai",
+        "to": "book",
+        "label": {
+          "fr": "calculé une fois",
+          "en": "computed once"
+        }
+      },
+      {
+        "from": "book",
+        "to": "page"
+      },
+      {
+        "from": "cli",
+        "to": "ai"
+      },
+      {
+        "from": "tests",
+        "to": "ai",
+        "label": {
+          "fr": "ne perd jamais",
+          "en": "never loses"
+        }
+      }
+    ]
+  },
+  "rogue": {
+    "boxes": [
+      {
+        "id": "term",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Terminal",
+          "en": "Terminal"
+        },
+        "tech": {
+          "fr": "client texte",
+          "en": "text client"
+        }
+      },
+      {
+        "id": "core",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Rogue.Core",
+          "en": "Rogue.Core"
+        },
+        "tech": {
+          "fr": "règles, graine, rejeu",
+          "en": "rules, seed, replay"
+        },
+        "core": true
+      },
+      {
+        "id": "godot",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Client Godot",
+          "en": "Godot client"
+        },
+        "tech": {
+          "fr": "Godot 4, C#",
+          "en": "Godot 4, C#"
+        }
+      },
+      {
+        "id": "api",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "API de scores",
+          "en": "Scores API"
+        },
+        "tech": {
+          "fr": "ASP.NET Core, JWT",
+          "en": "ASP.NET Core, JWT"
+        }
+      },
+      {
+        "id": "db",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "PostgreSQL",
+          "en": "PostgreSQL"
+        },
+        "tech": {
+          "fr": "classement en SQL",
+          "en": "ranking in SQL"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "term",
+        "to": "core",
+        "label": {
+          "fr": "actions",
+          "en": "actions"
+        }
+      },
+      {
+        "from": "godot",
+        "to": "core",
+        "label": {
+          "fr": "mêmes règles",
+          "en": "same rules"
+        }
+      },
+      {
+        "from": "godot",
+        "to": "api",
+        "label": {
+          "fr": "graine, partie jouée",
+          "en": "seed, game played"
+        }
+      },
+      {
+        "from": "api",
+        "to": "core",
+        "label": {
+          "fr": "rejoue la partie",
+          "en": "replays the game"
+        }
+      },
+      {
+        "from": "api",
+        "to": "db",
+        "label": {
+          "fr": "EF Core",
+          "en": "EF Core"
+        }
+      }
+    ]
+  },
+  "qt": {
+    "boxes": [
+      {
+        "id": "libc",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "lib-c",
+          "en": "lib-c"
+        },
+        "tech": {
+          "fr": "lecture des fichiers",
+          "en": "reads the files"
+        }
+      },
+      {
+        "id": "model",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "MeshModel",
+          "en": "MeshModel"
+        },
+        "tech": {
+          "fr": "normales, couleurs",
+          "en": "normals, colours"
+        },
+        "core": true
+      },
+      {
+        "id": "picking",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Sélection",
+          "en": "Picking"
+        },
+        "tech": {
+          "fr": "lancer de rayon CPU",
+          "en": "ray casting on the CPU"
+        }
+      },
+      {
+        "id": "window",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Fenêtre",
+          "en": "Window"
+        },
+        "tech": {
+          "fr": "Qt Widgets, Linguist",
+          "en": "Qt Widgets, Linguist"
+        }
+      },
+      {
+        "id": "renderer",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Rendu",
+          "en": "Renderer"
+        },
+        "tech": {
+          "fr": "OpenGL 3.3, GLSL",
+          "en": "OpenGL 3.3, GLSL"
+        }
+      },
+      {
+        "id": "camera",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "Caméra",
+          "en": "Camera"
+        },
+        "tech": {
+          "fr": "orbitale, sans OpenGL",
+          "en": "orbital, no OpenGL"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "libc",
+        "to": "model",
+        "label": {
+          "fr": "maillage lu",
+          "en": "mesh read"
+        }
+      },
+      {
+        "from": "window",
+        "to": "model",
+        "label": {
+          "fr": "ouvre",
+          "en": "opens"
+        }
+      },
+      {
+        "from": "model",
+        "to": "renderer"
+      },
+      {
+        "from": "window",
+        "to": "renderer",
+        "label": {
+          "fr": "dessine",
+          "en": "draws"
+        }
+      },
+      {
+        "from": "window",
+        "to": "camera"
+      },
+      {
+        "from": "camera",
+        "to": "renderer",
+        "label": {
+          "fr": "vue, zoom",
+          "en": "view, zoom"
+        }
+      },
+      {
+        "from": "model",
+        "to": "picking",
+        "label": {
+          "fr": "clic : sommet ou face",
+          "en": "click: vertex or face"
+        }
+      }
+    ]
+  },
+  "parallele": {
+    "boxes": [
+      {
+        "id": "bench",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Benchmarks",
+          "en": "Benchmarks"
+        },
+        "tech": {
+          "fr": "bench.json, sur la fiche",
+          "en": "bench.json, on the page"
+        }
+      },
+      {
+        "id": "mesh",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Maillage",
+          "en": "Mesh"
+        },
+        "tech": {
+          "fr": "tableaux plats, voisinage",
+          "en": "flat arrays, neighbours"
+        }
+      },
+      {
+        "id": "kernels",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Deux passes",
+          "en": "Two passes"
+        },
+        "tech": {
+          "fr": "angles, puis courbure",
+          "en": "angles, then curvature"
+        },
+        "core": true
+      },
+      {
+        "id": "openmp",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "OpenMP",
+          "en": "OpenMP"
+        },
+        "tech": {
+          "fr": "séquentiel et parallèle",
+          "en": "sequential and parallel"
+        }
+      },
+      {
+        "id": "opencl",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "OpenCL",
+          "en": "OpenCL"
+        },
+        "tech": {
+          "fr": "double précision",
+          "en": "double precision"
+        }
+      },
+      {
+        "id": "cuda",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "CUDA",
+          "en": "CUDA"
+        },
+        "tech": {
+          "fr": "double et simple",
+          "en": "double and single"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "mesh",
+        "to": "kernels",
+        "label": {
+          "fr": "lu",
+          "en": "read"
+        }
+      },
+      {
+        "from": "bench",
+        "to": "kernels",
+        "label": {
+          "fr": "mesure chaque version",
+          "en": "times every version"
+        },
+        "labelAt": {
+          "dx": -14,
+          "dy": 4,
+          "anchor": "end"
+        }
+      },
+      {
+        "from": "kernels",
+        "to": "openmp",
+        "label": {
+          "fr": "mêmes fonctions",
+          "en": "same functions"
+        },
+        "labelAt": {
+          "dx": -14,
+          "dy": 4,
+          "anchor": "end"
+        }
+      },
+      {
+        "from": "kernels",
+        "to": "opencl",
+        "label": {
+          "fr": "en noyaux",
+          "en": "as kernels"
+        }
+      },
+      {
+        "from": "kernels",
+        "to": "cuda",
+        "label": {
+          "fr": "mêmes passes",
+          "en": "same passes"
+        }
+      }
+    ]
+  },
+  "react": {
+    "boxes": [
+      {
+        "id": "data",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Données du site",
+          "en": "Site data"
+        },
+        "tech": {
+          "fr": "projets, sprints, mesures",
+          "en": "projects, sprints, timings"
+        }
+      },
+      {
+        "id": "api",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "API JSON",
+          "en": "JSON API"
+        },
+        "tech": {
+          "fr": "/api/v1, au build",
+          "en": "/api/v1, at build time"
+        }
+      },
+      {
+        "id": "app",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Dashboard",
+          "en": "Dashboard"
+        },
+        "tech": {
+          "fr": "React, TypeScript, Vite",
+          "en": "React, TypeScript, Vite"
+        },
+        "core": true
+      },
+      {
+        "id": "charts",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Graphiques",
+          "en": "Charts"
+        },
+        "tech": {
+          "fr": "SVG écrits à la main",
+          "en": "hand-written SVG"
+        }
+      },
+      {
+        "id": "viewer",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Visionneuse 3D",
+          "en": "3D viewer"
+        },
+        "tech": {
+          "fr": "three.js, WebAssembly",
+          "en": "three.js, WebAssembly"
+        }
+      },
+      {
+        "id": "angular",
+        "at": [
+          2,
+          0
+        ],
+        "name": {
+          "fr": "Dashboard Angular",
+          "en": "Angular dashboard"
+        },
+        "tech": {
+          "fr": "projects/angular",
+          "en": "projects/angular"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "data",
+        "to": "api",
+        "label": {
+          "fr": "écrite par src/api.mjs",
+          "en": "written by src/api.mjs"
+        }
+      },
+      {
+        "from": "api",
+        "to": "app"
+      },
+      {
+        "from": "app",
+        "to": "charts"
+      },
+      {
+        "from": "app",
+        "to": "viewer",
+        "label": {
+          "fr": "même WebAssembly",
+          "en": "same WebAssembly"
+        }
+      },
+      {
+        "from": "app",
+        "to": "angular",
+        "label": {
+          "fr": "code partagé",
+          "en": "shared code"
+        }
+      }
+    ]
+  },
+  "angular": {
+    "boxes": [
+      {
+        "id": "api",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "API JSON",
+          "en": "JSON API"
+        },
+        "tech": {
+          "fr": "la même que le React",
+          "en": "the same as React's"
+        }
+      },
+      {
+        "id": "app",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Dashboard",
+          "en": "Dashboard"
+        },
+        "tech": {
+          "fr": "Angular, signaux",
+          "en": "Angular, signals"
+        },
+        "core": true
+      },
+      {
+        "id": "shared",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "Code partagé",
+          "en": "Shared code"
+        },
+        "tech": {
+          "fr": "api.ts, model.ts, i18n.ts",
+          "en": "api.ts, model.ts, i18n.ts"
+        }
+      },
+      {
+        "id": "routes",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Vues",
+          "en": "Views"
+        },
+        "tech": {
+          "fr": "routeur à fragment",
+          "en": "fragment router"
+        }
+      },
+      {
+        "id": "tests",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Tests",
+          "en": "Tests"
+        },
+        "tech": {
+          "fr": "Jest, Cypress",
+          "en": "Jest, Cypress"
+        }
+      },
+      {
+        "id": "react",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Dashboard React",
+          "en": "React dashboard"
+        },
+        "tech": {
+          "fr": "projects/react",
+          "en": "projects/react"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "api",
+        "to": "app",
+        "label": {
+          "fr": "httpResource",
+          "en": "httpResource"
+        }
+      },
+      {
+        "from": "shared",
+        "to": "app"
+      },
+      {
+        "from": "app",
+        "to": "routes"
+      },
+      {
+        "from": "tests",
+        "to": "app",
+        "label": {
+          "fr": "vérifient",
+          "en": "check"
+        },
+        "labelAt": {
+          "dx": 30,
+          "dy": 4,
+          "anchor": "start"
+        }
+      },
+      {
+        "from": "react",
+        "to": "shared"
+      }
+    ]
+  },
+  "raytracer": {
+    "boxes": [
+      {
+        "id": "libc",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "lib-c",
+          "en": "lib-c"
+        },
+        "tech": {
+          "fr": "lecture des maillages",
+          "en": "reads the meshes"
+        }
+      },
+      {
+        "id": "engine",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Moteur",
+          "en": "Engine"
+        },
+        "tech": {
+          "fr": "C++, BVH, tracé de chemins",
+          "en": "C++, BVH, path tracing"
+        },
+        "core": true
+      },
+      {
+        "id": "cli",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Ligne de commande",
+          "en": "Command line"
+        },
+        "tech": {
+          "fr": "images de référence, PSNR",
+          "en": "reference images, PSNR"
+        }
+      },
+      {
+        "id": "wasm",
+        "at": [
+          1,
+          1
+        ],
+        "name": {
+          "fr": "WebAssembly",
+          "en": "WebAssembly"
+        },
+        "tech": {
+          "fr": "interface C",
+          "en": "C interface"
+        }
+      },
+      {
+        "id": "workers",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Web workers",
+          "en": "Web workers"
+        },
+        "tech": {
+          "fr": "une bande chacun",
+          "en": "one band each"
+        }
+      },
+      {
+        "id": "page",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Fiche du site",
+          "en": "Project page"
+        },
+        "tech": {
+          "fr": "rendu progressif",
+          "en": "progressive render"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "libc",
+        "to": "engine",
+        "label": {
+          "fr": "OBJ, PLY, STL",
+          "en": "OBJ, PLY, STL"
+        }
+      },
+      {
+        "from": "engine",
+        "to": "cli",
+        "label": {
+          "fr": "rendu natif",
+          "en": "native render"
+        }
+      },
+      {
+        "from": "engine",
+        "to": "wasm"
+      },
+      {
+        "from": "wasm",
+        "to": "workers"
+      },
+      {
+        "from": "workers",
+        "to": "page",
+        "label": {
+          "fr": "passe après passe",
+          "en": "pass after pass"
+        }
+      }
+    ]
+  },
+  "rpg": {
+    "alt": {
+      "fr": "Schéma : le launcher (Rust, Tauri) se connecte au serveur et met le jeu à jour, puis lance le jeu avec le jeton. Le jeu (Godot 4, C#) passe par Rpg.Client, qui parle au serveur en HTTP avec le jeton JWT et applique les règles de Rpg.Core. Le serveur (ASP.NET Core) vérifie avec les mêmes règles de Rpg.Core et garde comptes et personnages dans PostgreSQL par EF Core.",
+      "en": "Diagram: the launcher (Rust, Tauri) signs in to the server and updates the game, then starts the game with the token. The game (Godot 4, C#) goes through Rpg.Client, which talks to the server over HTTP with the JWT token and applies the rules of Rpg.Core. The server (ASP.NET Core) checks with the same rules of Rpg.Core and keeps accounts and characters in PostgreSQL through EF Core."
+    },
+    "boxes": [
+      {
+        "id": "launcher",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Launcher",
+          "en": "Launcher"
+        },
+        "tech": {
+          "fr": "Rust, Tauri",
+          "en": "Rust, Tauri"
+        }
+      },
+      {
+        "id": "game",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "Jeu de bureau",
+          "en": "Desktop game"
+        },
+        "tech": {
+          "fr": "Godot 4, C#",
+          "en": "Godot 4, C#"
+        }
+      },
+      {
+        "id": "server",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Serveur",
+          "en": "Server"
+        },
+        "tech": {
+          "fr": "ASP.NET Core, JWT",
+          "en": "ASP.NET Core, JWT"
+        }
+      },
+      {
+        "id": "client",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "Rpg.Client",
+          "en": "Rpg.Client"
+        },
+        "tech": {
+          "fr": "commandes, textes",
+          "en": "controls, texts"
+        }
+      },
+      {
+        "id": "core",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Rpg.Core",
+          "en": "Rpg.Core"
+        },
+        "tech": {
+          "fr": "règles partagées",
+          "en": "shared rules"
+        },
+        "core": true
+      },
+      {
+        "id": "db",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "PostgreSQL",
+          "en": "PostgreSQL"
+        },
+        "tech": {
+          "fr": "comptes, personnages",
+          "en": "accounts, characters"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "launcher",
+        "to": "server",
+        "label": {
+          "fr": "connexion, mises à jour",
+          "en": "sign-in, updates"
+        }
+      },
+      {
+        "from": "launcher",
+        "to": "game",
+        "label": {
+          "fr": "lance, avec le jeton",
+          "en": "starts it, with the token"
+        }
+      },
+      {
+        "from": "game",
+        "to": "client"
+      },
+      {
+        "from": "client",
+        "to": "server",
+        "label": {
+          "fr": "HTTP + JWT",
+          "en": "HTTP + JWT"
+        }
+      },
+      {
+        "from": "client",
+        "to": "core"
+      },
+      {
+        "from": "server",
+        "to": "core",
+        "label": {
+          "fr": "mêmes règles",
+          "en": "same rules"
+        },
+        "labelAt": {
+          "dx": 22,
+          "dy": 16,
+          "anchor": "start"
+        }
+      },
+      {
+        "from": "server",
+        "to": "db",
+        "label": {
+          "fr": "EF Core",
+          "en": "EF Core"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "fr": "Le launcher (Rust, Tauri) connecte le joueur, compare le jeu installé au manifeste du serveur (taille et empreinte SHA-256 de chaque fichier), ne télécharge que ce qui a changé, reprend un téléchargement coupé, vérifie chaque fichier, puis lance le jeu en lui passant le jeton.",
+        "en": "The launcher (Rust, Tauri) signs the player in, compares the installed game with the server's manifest (size and SHA-256 of every file), downloads only what changed, resumes a cut download, checks every file, then starts the game with the token."
+      },
+      {
+        "fr": "Le jeu de bureau (Godot 4, C#) ne fait que dessiner : écran de connexion, village, combat. Tout ce qu'un clic peut faire est dans Rpg.Client, une bibliothèque sans moteur testée par xUnit, que le jeu rejoue lui-même dans la CI (auto-tests).",
+        "en": "The desktop game (Godot 4, C#) only draws: login screen, village, fight. Everything a click can do lives in Rpg.Client, a library without an engine tested with xUnit, which the game replays itself in the CI (self-tests)."
+      },
+      {
+        "fr": "Rpg.Core porte les règles et les données (sorts, classes, monstres, cartes, village, dialogues) : la même bibliothèque sert au jeu, au serveur et au simulateur, si bien qu'un combat enregistré se rejoue à l'identique partout, sur les trois systèmes.",
+        "en": "Rpg.Core holds the rules and the data (spells, classes, monsters, maps, village, dialogues): the same library serves the game, the server and the simulator, so a recorded fight replays identically everywhere, on all three systems."
+      },
+      {
+        "fr": "Le serveur (ASP.NET Core) gère comptes et personnages (JWT, mots de passe hachés, limite d'essais, EF Core et PostgreSQL), valide chaque demande avec les règles de Rpg.Core, et sert les fichiers du jeu au launcher.",
+        "en": "The server (ASP.NET Core) handles accounts and characters (JWT, hashed passwords, rate limit, EF Core and PostgreSQL), checks every request with the rules of Rpg.Core, and serves the game's files to the launcher."
+      },
+      {
+        "fr": "Rpg.Sim, le simulateur en ligne de commande, fait jouer l'IA des milliers de fois : c'est lui qui a réglé l'équilibre des classes et des monstres.",
+        "en": "Rpg.Sim, the command-line simulator, has the AI play thousands of times: it is what balanced the classes and the monsters."
+      }
+    ]
+  },
+  "rag": {
+    "boxes": [
+      {
+        "id": "docs",
+        "at": [
+          0,
+          0
+        ],
+        "name": {
+          "fr": "Documentation",
+          "en": "Documentation"
+        },
+        "tech": {
+          "fr": "Markdown du dépôt",
+          "en": "the repository's Markdown"
+        }
+      },
+      {
+        "id": "chunk",
+        "at": [
+          1,
+          0
+        ],
+        "name": {
+          "fr": "Découpage",
+          "en": "Chunking"
+        },
+        "tech": {
+          "fr": "blocs, titres, lignes",
+          "en": "blocks, headings, lines"
+        }
+      },
+      {
+        "id": "bm25",
+        "at": [
+          0,
+          1
+        ],
+        "name": {
+          "fr": "BM25",
+          "en": "BM25"
+        },
+        "tech": {
+          "fr": "écrit ici, sans dépendance",
+          "en": "written here, no library"
+        }
+      },
+      {
+        "id": "qdrant",
+        "at": [
+          2,
+          1
+        ],
+        "name": {
+          "fr": "Qdrant",
+          "en": "Qdrant"
+        },
+        "tech": {
+          "fr": "embeddings MiniLM",
+          "en": "MiniLM embeddings"
+        }
+      },
+      {
+        "id": "search",
+        "at": [
+          1,
+          2
+        ],
+        "name": {
+          "fr": "Recherche hybride",
+          "en": "Hybrid search"
+        },
+        "tech": {
+          "fr": "fusion RRF",
+          "en": "RRF fusion"
+        },
+        "core": true
+      },
+      {
+        "id": "api",
+        "at": [
+          0,
+          2
+        ],
+        "name": {
+          "fr": "API",
+          "en": "API"
+        },
+        "tech": {
+          "fr": "FastAPI, Docker",
+          "en": "FastAPI, Docker"
+        }
+      },
+      {
+        "id": "claude",
+        "at": [
+          2,
+          2
+        ],
+        "name": {
+          "fr": "Claude",
+          "en": "Claude"
+        },
+        "tech": {
+          "fr": "blocs search_result",
+          "en": "search_result blocks"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "docs",
+        "to": "chunk"
+      },
+      {
+        "from": "chunk",
+        "to": "bm25",
+        "label": {
+          "fr": "mots-clés",
+          "en": "keywords"
+        }
+      },
+      {
+        "from": "chunk",
+        "to": "qdrant",
+        "label": {
+          "fr": "vecteurs",
+          "en": "vectors"
+        }
+      },
+      {
+        "from": "bm25",
+        "to": "search",
+        "label": {
+          "fr": "rangs",
+          "en": "ranks"
+        }
+      },
+      {
+        "from": "qdrant",
+        "to": "search",
+        "label": {
+          "fr": "rangs",
+          "en": "ranks"
+        }
+      },
+      {
+        "from": "api",
+        "to": "search"
+      },
+      {
+        "from": "search",
+        "to": "claude"
+      }
+    ]
+  }
+}

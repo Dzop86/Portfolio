@@ -977,7 +977,7 @@ test('the tactical RPG page shows its video and how its parts fit together, in b
     await expect(drawing).toBeVisible();
     await expect(drawing.locator('text', { hasText: launcher }).first()).toBeAttached();
     await expect(drawing.locator('text', { hasText: core })).toBeAttached();
-    await expect(page.locator('.rpg-arch-list li')).toHaveCount(5);
+    await expect(page.locator('.arch-list li')).toHaveCount(5);
   }
 });
 

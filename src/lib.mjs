@@ -43,6 +43,7 @@ export function loadData() {
       .map((f) => parseSprint(readFileSync(join(ROOT, 'scrum', f), 'utf8'), f))
       .sort((a, b) => a.number - b.number),
     i18n: { fr: readJson('data/i18n/fr.json'), en: readJson('data/i18n/en.json') },
+    architecture: readJson('data/architecture.json'),
   };
 }
 

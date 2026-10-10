@@ -465,7 +465,7 @@ test('the tactical RPG page shows five pictures of the Godot client in each lang
       assert.ok(html.includes(`../assets/video/rpg-fight-${lang}.${ext}`), ext);
       assert.ok(existsSync(join(ROOT_DIR, `src/assets/video/rpg-fight-${lang}.${ext}`)), `${lang} ${ext}`);
     }
-    assert.match(html, /<svg viewBox="0 0 720 390" role="img" aria-labelledby="rpg-arch-title">/);
+    assert.match(html, /<svg viewBox="0 0 720 390" style="max-width:720px" role="img" aria-labelledby="arch-title-rpg">/);
     assert.ok(html.includes(`../assets/images/rpg-launcher-${lang}.png" width="520" height="720"`));
     assert.ok(existsSync(join(ROOT_DIR, `src/assets/images/rpg-launcher-${lang}.png`)));
     assert.equal((html.match(/<li>/g) ?? []).length >= 5, true);
