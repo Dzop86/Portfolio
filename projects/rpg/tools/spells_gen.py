@@ -36,63 +36,97 @@ base = [
  S("spark","Étincelle","Spark",2,1,4,4,6,2,"Fire",1,los=False),
  S("fireball","Boule de feu","Fireball",4,2,5,9,13,1,"Fire",1),
 ]
-sentinel = [
- S("recoil-shot","Tir de recul","Recoil Shot",3,1,5,4,6,2,"Air",1,effects=[push(2)]),
- S("frost-arrow","Flèche de givre","Frost Arrow",4,2,6,5,8,2,"Water",6,effects=[status("Enemies","Mp",-1,1)]),
- S("volley","Volée","Volley",5,3,7,5,8,1,"Air",9,area=("Cross",1)),
- S("hawk","Faucon","Hawk",4,1,3,0,0,1,"Neutral",13,los=False,effects=[summon("hawk")],cd=3),
- S("piercing-arrow","Flèche perçante","Piercing Arrow",4,2,8,6,9,2,"Air",17,line=True,area=("Line",2)),
- S("snare","Collet","Snare",3,1,4,0,0,1,"Water",21,effects=[status("Enemies","Mp",-2,1)],cd=2),
- S("arrow-rain","Pluie de flèches","Arrow Rain",5,3,8,6,9,1,"Water",26,los=False,area=("Circle",1)),
- S("focus","Concentration","Focus",2,0,0,0,0,1,"Neutral",31,los=False,effects=[status("Caster","Damage",30,2)],cd=3),
- S("venom-arrow","Flèche empoisonnée","Venom Arrow",3,2,6,3,4,2,"Water",36,effects=[status("Enemies","Poison",4,3,"Water")]),
- S("grapple","Grappin","Grapple",2,2,5,0,0,1,"Neutral",42,line=True,effects=[pull(3)],cd=1),
- S("precise-shot","Tir précis","Precise Shot",5,4,9,12,16,1,"Air",48),
- S("tide-arrow","Flèche de marée","Tide Arrow",4,2,6,8,11,2,"Water",54,effects=[push(1)]),
- S("sidestep","Dérobade","Sidestep",1,0,0,0,0,1,"Neutral",60,los=False,effects=[status("Caster","Mp",2,1)],cd=2),
- S("storm","Tempête","Storm",6,2,6,9,12,1,"Air",67,los=False,area=("Circle",2)),
- S("crippling-shot","Tir handicapant","Crippling Shot",4,2,7,7,9,1,"Air",75,effects=[status("Enemies","Ap",-2,1)],cd=2),
- S("deluge","Déluge","Deluge",6,3,8,10,13,1,"Water",85,los=False,area=("Cross",2)),
- S("skyfall","Chute céleste","Skyfall",6,3,9,24,30,1,"Air",100,area=("Circle",1),cd=2),
-]
-guard = [
- S("shield-bash","Coup de bouclier","Shield Bash",3,1,1,5,7,2,"Earth",1,effects=[push(2)]),
- S("bulwark","Rempart","Bulwark",2,0,0,0,0,1,"Neutral",6,los=False,effects=[shield("Caster",10,2)],cd=3),
- S("taunt","Provocation","Taunt",2,2,5,0,0,1,"Neutral",9,line=True,effects=[pull(3)],cd=1),
- S("cleave","Fauchage","Cleave",4,1,1,7,10,1,"Earth",13,area=("Cross",1)),
- S("burning-blade","Lame ardente","Burning Blade",4,1,1,9,13,2,"Fire",17),
- S("stone-skin","Peau de pierre","Stone Skin",2,0,0,0,0,1,"Neutral",21,los=False,effects=[status("Caster","Resistance",15,2)],cd=4),
- S("quake","Séisme","Quake",5,1,2,8,11,1,"Earth",26,area=("Circle",1)),
- S("war-cry","Cri de guerre","War Cry",3,0,0,0,0,1,"Neutral",31,los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2)],cd=3),
- S("fire-lunge","Fente ardente","Fire Lunge",4,1,3,10,13,2,"Fire",36,line=True),
- S("iron-grip","Poigne de fer","Iron Grip",3,1,1,6,8,2,"Earth",42,effects=[status("Enemies","Mp",-2,1)],cd=2),
- S("second-wind","Second souffle","Second Wind",3,0,0,0,0,1,"Neutral",48,los=False,effects=[heal("Caster",10,14)],cd=4),
- S("smite","Châtiment","Smite",5,1,1,15,19,1,"Fire",54),
- S("shockwave","Onde de choc","Shockwave",4,1,3,9,12,1,"Earth",60,line=True,area=("Line",2),effects=[push(1)]),
- S("aegis","Égide","Aegis",4,0,3,0,0,1,"Neutral",67,los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
- S("inferno-blade","Lame infernale","Inferno Blade",5,1,1,14,18,1,"Fire",75,area=("Cross",1)),
- S("rampart-breaker","Brise-rempart","Rampart Breaker",5,1,1,12,15,1,"Earth",85,effects=[status("Enemies","Resistance",-20,2)]),
- S("titan-blow","Coup de titan","Titan Blow",7,1,1,28,34,1,"Earth",100,effects=[push(3)],cd=2),
-]
-mage = [
- S("ice-shard","Éclat de glace","Ice Shard",3,1,5,5,7,2,"Water",1),
- S("mend","Soin","Mend",3,0,5,0,0,1,"Neutral",6,effects=[heal("Allies",7,10)],cd=1),
- S("frost-ward","Bouclier de givre","Frost Ward",3,0,4,0,0,1,"Neutral",9,effects=[shield("Allies",10,1)],cd=2),
- S("elemental","Élémentaire","Elemental",4,1,2,0,0,1,"Neutral",13,los=False,effects=[summon("ember")],cd=3),
- S("burn","Brûlure","Burn",3,1,5,3,5,2,"Fire",17,effects=[status("Enemies","Poison",5,2,"Fire")]),
- S("tidal-wave","Raz-de-marée","Tidal Wave",5,2,5,8,11,1,"Water",21,line=True,area=("Line",2),effects=[push(1)]),
- S("meteor","Météore","Meteor",6,3,7,10,14,1,"Fire",26,los=False,area=("Circle",1)),
- S("renewal","Renouveau","Renewal",4,0,5,0,0,1,"Neutral",31,area=("Circle",1),effects=[heal("Allies",10,14)],cd=2),
- S("freeze","Gel","Freeze",4,1,5,6,8,1,"Water",36,effects=[status("Enemies","Mp",-2,1)],cd=1),
- S("ignite","Embrasement","Ignite",4,2,6,9,12,1,"Fire",42,area=("Cross",1)),
- S("mana-surge","Afflux","Mana Surge",1,0,0,0,0,1,"Neutral",48,los=False,effects=[status("Caster","Ap",2,1)],cd=3),
- S("maelstrom","Maelström","Maelstrom",5,2,6,10,13,1,"Water",54,area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
- S("sanctuary","Sanctuaire","Sanctuary",4,0,4,0,0,1,"Neutral",60,los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
- S("pyre","Bûcher","Pyre",6,2,6,13,17,1,"Fire",67,effects=[status("Enemies","Poison",4,2,"Fire")]),
- S("glacier","Glacier","Glacier",6,2,6,12,15,1,"Water",75,los=False,area=("Cross",2)),
- S("rebirth","Renaissance","Rebirth",6,0,5,0,0,1,"Neutral",85,los=False,area=("Circle",2),effects=[heal("Allies",22,28)],cd=4),
- S("cataclysm","Cataclysme","Cataclysm",8,3,8,22,28,1,"Fire",100,los=False,area=("Circle",2),cd=2),
-]
+# D62: 24 spells per class, four per element and eight neutral ones; level 1 gives one per element and
+# one neutral, then one every five levels: a neutral, Earth, Fire, Water, Air, three times, then the last
+# four neutral ones. "icon" is a game-icons.net icon (CC BY 3.0, authors credited on the project page).
+LEVELS = [1, 1, 1, 1, 1] + list(range(5, 100, 5))
+def C(*rows):
+    out = []
+    for lvl, (args, kw, icon) in zip(LEVELS, rows):
+        sp = S(*args, lvl, **kw)
+        sp["icon"] = icon
+        out.append(sp)
+    return out
+def R(id, fr, en, ap, mn, mx, dmin, dmax, per, el, icon, **kw): return ((id, fr, en, ap, mn, mx, dmin, dmax, per, el), kw, icon)
+sentinel = C(
+ R("stone-arrow","Flèche de pierre","Stone Arrow",3,2,6,1,1,2,"Earth","delapouite/plain-arrow"),
+ R("fire-arrow","Flèche ardente","Burning Arrow",4,2,6,1,1,2,"Fire","lorc/flaming-arrow"),
+ R("frost-arrow","Flèche de givre","Frost Arrow",4,2,6,1,1,2,"Water","lorc/ice-bolt",effects=[status("Enemies","Mp",-1,1)]),
+ R("recoil-shot","Tir de recul","Recoil Shot",3,1,5,1,1,2,"Air","lorc/arrow-flights",effects=[push(2)]),
+ R("sidestep","Dérobade","Sidestep",1,0,0,0,0,1,"Neutral","lorc/sprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+ R("grapple","Grappin","Grapple",2,2,5,0,0,1,"Neutral","lorc/grapple",line=True,effects=[pull(3)],cd=1),
+ R("heavy-shot","Tir lourd","Heavy Shot",4,2,5,1,1,1,"Earth","lorc/cannon-shot",effects=[push(1)]),
+ R("ember-volley","Salve ardente","Ember Volley",5,3,7,1,1,1,"Fire","lorc/fire-ring",area=("Cross",1)),
+ R("tide-arrow","Flèche de marée","Tide Arrow",4,2,6,1,1,2,"Water","lorc/wave-crest",effects=[push(1)]),
+ R("piercing-arrow","Flèche perçante","Piercing Arrow",4,2,8,1,1,2,"Air","lorc/arrow-cluster",line=True,area=("Line",2)),
+ R("hawk","Faucon","Hawk",4,1,3,0,0,1,"Neutral","lorc/hawk-emblem",los=False,effects=[summon("hawk")],cd=3),
+ R("rockfall","Éboulis","Rockfall",5,3,8,1,1,1,"Earth","lorc/falling-boulder",los=False,area=("Circle",1)),
+ R("searing-shot","Tir brûlant","Searing Shot",3,2,6,1,1,2,"Fire","lorc/burning-round-shot",effects=[status("Enemies","Poison",4,3,"Fire")]),
+ R("venom-arrow","Flèche empoisonnée","Venom Arrow",3,2,6,1,1,2,"Water","sbed/poison",effects=[status("Enemies","Poison",4,3,"Water")]),
+ R("gale","Rafale","Gale",5,3,8,1,1,1,"Air","lorc/whirlwind",los=False,area=("Circle",1)),
+ R("focus","Concentration","Focus",2,0,0,0,0,1,"Neutral","delapouite/eye-target",los=False,effects=[status("Caster","Damage",30,2)],cd=3),
+ R("stake","Pieu","Stake",4,2,7,1,1,1,"Earth","lorc/barbed-spear",effects=[status("Enemies","Mp",-2,1)],cd=2),
+ R("ember-rain","Pluie de braises","Ember Rain",6,2,6,1,1,1,"Fire","lorc/burning-meteor",los=False,area=("Circle",2)),
+ R("deluge","Déluge","Deluge",6,3,8,1,1,1,"Water","lorc/big-wave",los=False,area=("Cross",2)),
+ R("skyfall","Chute céleste","Skyfall",6,3,9,1,1,1,"Air","lorc/lightning-arc",area=("Circle",1),cd=2),
+ R("snare","Collet","Snare",3,1,4,0,0,1,"Neutral","lorc/mantrap",effects=[status("Enemies","Mp",-2,1)],cd=2),
+ R("camouflage","Camouflage","Camouflage",2,0,0,0,0,1,"Neutral","lorc/hood",los=False,effects=[status("Caster","Resistance",20,2)],cd=4),
+ R("warning-shot","Tir de semonce","Warning Shot",3,2,6,0,0,1,"Neutral","delapouite/human-target",effects=[status("Enemies","Ap",-2,1)],cd=2),
+ R("field-dressing","Pansement","Field Dressing",3,0,0,0,0,1,"Neutral","delapouite/healing",los=False,effects=[heal("Caster",12,16)],cd=3),
+)
+guard = C(
+ R("shield-bash","Coup de bouclier","Shield Bash",3,1,1,1,1,2,"Earth","delapouite/shield-bash",effects=[push(2)]),
+ R("burning-blade","Lame ardente","Burning Blade",4,1,1,1,1,2,"Fire","delapouite/swords-power"),
+ R("ice-blade","Lame de glace","Ice Blade",3,1,2,1,1,2,"Water","lorc/ice-spear",effects=[status("Enemies","Mp",-1,1)]),
+ R("slash","Taillade","Slash",2,1,2,1,1,3,"Air","lorc/sword-slice"),
+ # The guard fights up close: at level 1 it can already bring an enemy to it.
+ R("taunt","Provocation","Taunt",2,2,5,0,0,1,"Neutral","lorc/grab",line=True,effects=[pull(3)],cd=1),
+ R("bulwark","Rempart","Bulwark",2,0,0,0,0,1,"Neutral","lorc/shield-reflect",los=False,effects=[shield("Caster",10,2)],cd=3),
+ R("cleave","Fauchage","Cleave",4,1,1,1,1,1,"Earth","lorc/sword-spin",area=("Cross",1)),
+ R("fire-lunge","Fente ardente","Fire Lunge",4,1,3,1,1,2,"Fire","lorc/fire-dash",line=True),
+ R("undertow","Ressac","Undertow",3,1,3,1,1,2,"Water","delapouite/high-tide",line=True,effects=[pull(1)]),
+ R("wind-blade","Lame du vent","Wind Blade",3,1,2,1,1,2,"Air","lorc/wind-slap"),
+ R("stone-skin","Peau de pierre","Stone Skin",2,0,0,0,0,1,"Neutral","delapouite/rock-golem",los=False,effects=[status("Caster","Resistance",15,2)],cd=4),
+ R("quake","Séisme","Quake",5,1,2,1,1,1,"Earth","lorc/quake-stomp",area=("Circle",1)),
+ R("smite","Châtiment","Smite",5,1,1,1,1,1,"Fire","lorc/fire-punch"),
+ R("groundswell","Vague de fond","Groundswell",4,1,3,1,1,1,"Water","lorc/water-splash",line=True,area=("Line",2),effects=[push(1)]),
+ R("cyclone-blade","Cyclone","Cyclone",4,1,3,1,1,1,"Air","lorc/tornado",area=("Circle",1)),
+ R("war-cry","Cri de guerre","War Cry",3,0,0,0,0,1,"Neutral","lorc/shouting",los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2)],cd=3),
+ R("titan-blow","Coup de titan","Titan Blow",7,1,1,1,1,1,"Earth","lorc/thor-fist",effects=[push(3)],cd=2),
+ R("inferno-blade","Lame infernale","Inferno Blade",5,1,1,1,1,1,"Fire","lorc/fire-ring",area=("Cross",1)),
+ R("torrent","Torrent","Torrent",5,1,3,1,1,1,"Water","sbed/water-drop",area=("Circle",1)),
+ R("hurricane","Ouragan","Hurricane",6,1,3,1,1,1,"Air","lorc/tornado-discs",area=("Circle",1),cd=1),
+ R("iron-grip","Poigne de fer","Iron Grip",3,1,1,0,0,1,"Neutral","lorc/mailed-fist",effects=[status("Enemies","Mp",-2,1)],cd=2),
+ R("second-wind","Second souffle","Second Wind",3,0,0,0,0,1,"Neutral","delapouite/healing-shield",los=False,effects=[heal("Caster",10,14)],cd=4),
+ R("aegis","Égide","Aegis",4,0,3,0,0,1,"Neutral","delapouite/cross-shield",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
+ R("momentum","Élan","Momentum",1,0,0,0,0,1,"Neutral","lorc/run",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
+mage = C(
+ R("pebble","Caillou","Pebble",3,1,5,1,1,2,"Earth","delapouite/stone-pile"),
+ R("flare","Flammèche","Flare",3,1,5,1,1,2,"Fire","lorc/candle-flame"),
+ R("ice-shard","Éclat de glace","Ice Shard",3,1,5,1,1,2,"Water","lorc/frozen-orb"),
+ R("gust","Bourrasque","Gust",3,1,5,1,1,2,"Air","lorc/wind-hole",effects=[push(1)]),
+ R("mend","Soin","Mend",3,0,5,0,0,1,"Neutral","delapouite/healing",effects=[heal("Allies",7,10)],cd=1),
+ R("frost-ward","Bouclier de givre","Frost Ward",3,0,4,0,0,1,"Neutral","lorc/ice-shield",effects=[shield("Allies",10,1)],cd=2),
+ R("roots","Racines","Roots",4,1,5,1,1,1,"Earth","delapouite/tree-roots",effects=[status("Enemies","Mp",-2,1)],cd=1),
+ R("burn","Brûlure","Burn",3,1,5,1,1,2,"Fire","lorc/flame-spin",effects=[status("Enemies","Poison",5,2,"Fire")]),
+ R("tidal-wave","Raz-de-marée","Tidal Wave",5,2,5,1,1,1,"Water","lorc/wave-strike",line=True,area=("Line",2),effects=[push(1)]),
+ R("bolt","Éclair","Bolt",4,2,6,1,1,2,"Air","lorc/focused-lightning",line=True),
+ R("elemental","Élémentaire","Elemental",4,1,2,0,0,1,"Neutral","lorc/fire-silhouette",los=False,effects=[summon("ember")],cd=3),
+ R("landslide","Éboulement","Landslide",5,2,6,1,1,1,"Earth","delapouite/falling-rocks",los=False,area=("Circle",1)),
+ R("meteor","Météore","Meteor",6,3,7,1,1,1,"Fire","lorc/meteor-impact",los=False,area=("Circle",1)),
+ R("freeze","Gel","Freeze",4,1,5,1,1,1,"Water","lorc/frostfire",effects=[status("Enemies","Mp",-2,1)],cd=1),
+ R("cyclone","Cyclone","Cyclone",5,2,6,1,1,1,"Air","lorc/stomp-tornado",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
+ R("renewal","Renouveau","Renewal",4,0,5,0,0,1,"Neutral","sbed/health-increase",area=("Circle",1),effects=[heal("Allies",10,14)],cd=2),
+ R("fault-line","Faille","Fault Line",5,1,5,1,1,1,"Earth","lorc/earth-crack",line=True,area=("Line",2)),
+ R("cataclysm","Cataclysme","Cataclysm",8,3,8,1,1,1,"Fire","lorc/bright-explosion",los=False,area=("Circle",2),cd=2),
+ R("glacier","Glacier","Glacier",6,2,6,1,1,1,"Water","lorc/icicles-aura",los=False,area=("Cross",2)),
+ R("tempest","Tempête","Tempest",6,2,6,1,1,1,"Air","lorc/lightning-storm",los=False,area=("Circle",2)),
+ R("mana-surge","Afflux","Mana Surge",1,0,0,0,0,1,"Neutral","delapouite/sparkles",los=False,effects=[status("Caster","Ap",2,1)],cd=3),
+ R("sanctuary","Sanctuaire","Sanctuary",4,0,4,0,0,1,"Neutral","lorc/aura",los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
+ R("rebirth","Renaissance","Rebirth",6,0,5,0,0,1,"Neutral","lorc/angel-wings",los=False,area=("Circle",2),effects=[heal("Allies",22,28)],cd=4),
+ R("light-step","Pas léger","Light Step",1,0,0,0,0,1,"Neutral","delapouite/running-shoe",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
 creatures = [
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False),
  S("ember-bolt","Trait de braise","Ember Bolt",3,1,3,4,7,1,"Fire",1,ranks=False),
@@ -114,14 +148,9 @@ def budget(sp):
     avg = f * sp["apCost"]
     sp["damageMin"], sp["damageMax"] = max(1, round(avg * 0.85)), max(1, round(avg * 1.15))
     sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
-# One class spell about every five levels (D61): the first at level 1, then 5, 10... up to 80.
-for group in (sentinel, guard, mage):
-    for k, sp in enumerate(group):
-        sp.pop("level", None)
-        if k: sp["level"] = 5 * k
-# The first spell of each class keeps its numbers, tuned on the level-1 duels.
+# Every damaging class spell gets its numbers from the budget rule (the placeholders 1 to 1 above).
 for sp in sentinel + guard + mage:
-    if sp["damageMax"] > 0 and sp.get("level", 1) > 1:
+    if sp["damageMax"] > 0:
         budget(sp)
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
 for sp in base + sentinel + guard + mage + creatures:
@@ -130,9 +159,7 @@ spells = base + sentinel + guard + mage + creatures
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"sentinel": ["strike", "arrow", "spear"] + [s["id"] for s in sentinel],
-         "guard": ["strike", "axe", "spear"] + [s["id"] for s in guard],
-         "mage": ["staff", "spark", "fireball"] + [s["id"] for s in mage]}
+lists = {"sentinel": [s["id"] for s in sentinel], "guard": [s["id"] for s in guard], "mage": [s["id"] for s in mage]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")

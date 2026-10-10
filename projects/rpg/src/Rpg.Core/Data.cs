@@ -33,7 +33,8 @@ public sealed record Spell(
     int Level = 1,
     IReadOnlyList<SpellRank>? Ranks = null,
     int Cooldown = 0,
-    int Crit = 0)
+    int Crit = 0,
+    string? Icon = null)
 {
     /// <summary>
     /// What a critical hit adds to both ends of a range: a fifth of its top, rounded (Charles's examples:

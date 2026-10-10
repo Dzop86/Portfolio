@@ -23,8 +23,8 @@ public class BalanceTests
     [Fact]
     public void Training_TheHeroPlayedByTheAi_WinsMostFights_ButNotAll()
     {
-        // 71 % over 5,000 fights when it was tuned (sprint 56, the AI planning its turns: the heroine
-        // went from 60 to 35 hit points); a human player chooses better than the AI.
+        // 66 % since the training's enemies were made sturdier for the classes of sprint 67 (the heroine
+        // went from 36 to 80 hit points with them); a human player chooses better than the AI.
         int[] r = Results("training", 1000);
         Assert.InRange(r[0], 600, 780);
         Assert.Equal(0, r[2]);
@@ -45,9 +45,11 @@ public class BalanceTests
     [InlineData("mage")]
     public void Training_EveryClass_WinsMostFights_ButNotAll(string id)
     {
-        // Measured on 1,000 fights (sprint 56): sentinel 83 %, guard 70 %, mage 84 % (README, limits).
+        // Measured on 1,000 fights after the classes were redone (sprint 67, T34): sentinel 83 %, guard 91 %,
+        // mage 65 %. The guard fights up close and the training's enemies come to it: tuned down for it, the
+        // other two fall off a cliff (README, limits).
         int[] r = Results("training", 1000, new Hero("Essai", "female-d", id));
-        Assert.InRange(r[0], 600, 870);
+        Assert.InRange(r[0], 600, 930);
         Assert.Equal(0, r[2]);
     }
 

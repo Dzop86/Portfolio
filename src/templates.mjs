@@ -1331,6 +1331,7 @@ function rpgScreenshots(t, lang) {
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
   <p class="meta">${esc(t('rpg.made'))}</p>
+  <p class="meta">${esc(t('rpg.icons'))}</p>
   <p>${esc(t('rpg.run'))}</p>
   <pre class="naval-run" tabindex="0"><code>cd projects/rpg
 dotnet run --project src/Rpg.Sim -- --simulate 100 --lang ${lang}   # ${esc(t('rpg.sim'))}

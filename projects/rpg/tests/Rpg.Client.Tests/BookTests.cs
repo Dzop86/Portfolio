@@ -9,23 +9,23 @@ public class BookTests
     private static readonly string[] Samples = ["copper-ring", "orc-club", "bread", "orc-fang", "garance-badge"];
 
     private static PointsEditor Guard() => new(new Hero("Élise", "female-c", "guard", Level: 10,
-        Stats: new Characteristics(Earth: 25), Ranks: new Dictionary<string, int> { ["strike"] = 3 }), Data);
+        Stats: new Characteristics(Earth: 25), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 }), Data);
 
     [Fact]
     public void TheBook_ListsEveryClassSpell_TheLockedOnesToo_InTheOrderTheyUnlock()
     {
         var book = new SpellBook(Guard());
         Assert.Equal(Data.Class("guard")!.Spells, book.Spells.Select(s => s.Spell.Id));
-        // Four at level 1, one at 5, one at 10: six for a tenth-level hero.
-        Assert.Equal(6, book.Spells.Count(s => s.Unlocked));
+        // Five at level 1, one at 5, one at 10: seven for a tenth-level hero.
+        Assert.Equal(7, book.Spells.Count(s => s.Unlocked));
         Assert.All(book.Spells.Where(s => !s.Unlocked), s => Assert.True(s.Spell.Level > 10));
     }
 
     [Fact]
     public void ASpellsDamage_IsAtItsRank_WithThePointsOfItsElementOnly_NormalCriticalAndNext()
     {
-        BookSpell strike = new SpellBook(Guard()).Spells.Single(s => s.Spell.Id == "strike");
-        Spell at3 = Data.Spells["strike"].AtRank(3), at4 = Data.Spells["strike"].AtRank(4);
+        BookSpell strike = new SpellBook(Guard()).Spells.Single(s => s.Spell.Id == "shield-bash");
+        Spell at3 = Data.Spells["shield-bash"].AtRank(3), at4 = Data.Spells["shield-bash"].AtRank(4);
         int crit = Spell.CritBonus(at3.DamageMax);
         // 25 Earth: 4 more Earth damage.
         Assert.Equal((3, (at3.DamageMin + 4, at3.DamageMax + 4), (at3.DamageMin + crit + 4, at3.DamageMax + crit + 4)), (strike.Rank, strike.Damage, strike.Critical));
@@ -79,10 +79,10 @@ public class BookTests
     public void ASpellsDetails_SayEverything_ThenTheNextRank_OrTheLevelThatUnlocksIt()
     {
         var book = new SpellBook(Guard());
-        BookSpell strike = book.Spells.Single(s => s.Spell.Id == "strike");
+        BookSpell strike = book.Spells.Single(s => s.Spell.Id == "shield-bash");
         var fr = new Texts("fr");
         IReadOnlyList<string> lines = fr.SpellDetails(strike, new Characteristics(Earth: 25));
-        Spell at3 = Data.Spells["strike"].AtRank(3);
+        Spell at3 = Data.Spells["shield-bash"].AtRank(3);
         Assert.Equal($"Coût : {at3.ApCost} PA", lines[0]);
         Assert.Contains("Critique : 10 %", lines);
         Assert.Contains($"{strike.Damage.Min} à {strike.Damage.Max} dégâts Terre", lines);

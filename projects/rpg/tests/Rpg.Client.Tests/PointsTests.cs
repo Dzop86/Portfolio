@@ -27,13 +27,13 @@ public class PointsTests
     {
         var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 4), Data);
         Spell bash = Data.Spells["shield-bash"];
-        Assert.Equal(["strike", "axe", "spear", "shield-bash"], editor.Spells.Select(s => s.Id));
+        Assert.Equal(["shield-bash", "burning-blade", "ice-blade", "slash", "taunt"], editor.Spells.Select(s => s.Id));
         Assert.Equal((1, 1), (editor.Rank(bash), editor.NextRankCost(bash)));
         editor.Raise(bash);
         Assert.Equal((2, 2, 2), (editor.Rank(bash), editor.NextRankCost(bash), editor.SpellPointsLeft));
         editor.Raise(bash);
         Assert.Equal((3, 0), (editor.Rank(bash), editor.SpellPointsLeft));
-        Assert.False(editor.CanRaise(Data.Spells["strike"]));
+        Assert.False(editor.CanRaise(Data.Spells["slash"]));
         Assert.False(editor.CanRaise(Data.Spells["bulwark"]));
         editor.Lower(bash);
         editor.Lower(bash);

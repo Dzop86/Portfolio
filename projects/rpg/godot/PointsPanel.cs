@@ -21,6 +21,7 @@ public partial class PointsPanel : CanvasLayer
     private Element? _filter;
     private string? _selected, _hovered;
     private Label _detailName = null!, _detailRank = null!;
+    private SpellIcon _detailIcon = null!;
     private RichTextLabel _detail = null!;
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
@@ -197,7 +198,7 @@ public partial class PointsPanel : CanvasLayer
         scroll.AddChild(grid);
         foreach (Spell spell in c?.Spells.Select(id => editor.Data.Spells[id]) ?? [])
         {
-            var tile = new Button { CustomMinimumSize = new Vector2(196, 56), ClipText = true };
+            var tile = new Button { CustomMinimumSize = new Vector2(208, 56), ClipText = true };
             var colour = new Color(ElementStyle.Colour(spell.Element));
             foreach ((string state, float mix) in new[] { ("normal", 0.78f), ("hover", 0.62f), ("pressed", 0.55f), ("disabled", 0.9f), ("focus", 0.62f) })
             {
@@ -212,10 +213,11 @@ public partial class PointsPanel : CanvasLayer
                     CornerRadiusBottomRight = 6,
                 });
             }
-            var name = new Label { Position = new Vector2(14, 6), MouseFilter = Control.MouseFilterEnum.Ignore, Text = spell.Name.In(Texts.Lang) };
+            tile.AddChild(new SpellIcon { Spell = spell, Position = new Vector2(10, 6), Size = new Vector2(44, 44), MouseFilter = Control.MouseFilterEnum.Ignore });
+            var name = new Label { Position = new Vector2(62, 6), MouseFilter = Control.MouseFilterEnum.Ignore, Text = spell.Name.In(Texts.Lang) };
             name.AddThemeFontSizeOverride("font_size", 16);
             tile.AddChild(name);
-            var sub = new Label { Position = new Vector2(14, 30), MouseFilter = Control.MouseFilterEnum.Ignore, Modulate = new Color(1, 1, 1, 0.75f) };
+            var sub = new Label { Position = new Vector2(62, 30), MouseFilter = Control.MouseFilterEnum.Ignore, Modulate = new Color(1, 1, 1, 0.75f) };
             sub.AddThemeFontSizeOverride("font_size", 12);
             tile.AddChild(sub);
             string id = spell.Id;
@@ -244,9 +246,14 @@ public partial class PointsPanel : CanvasLayer
         var inside = new VBoxContainer();
         inside.AddThemeConstantOverride("separation", 6);
         card.AddChild(inside);
-        _detailName = new Label();
+        var head = new HBoxContainer();
+        head.AddThemeConstantOverride("separation", 12);
+        inside.AddChild(head);
+        _detailIcon = new SpellIcon { CustomMinimumSize = new Vector2(56, 56) };
+        head.AddChild(_detailIcon);
+        _detailName = new Label { VerticalAlignment = VerticalAlignment.Center };
         _detailName.AddThemeFontSizeOverride("font_size", 22);
-        inside.AddChild(_detailName);
+        head.AddChild(_detailName);
         _detailRank = new Label { Modulate = new Color(1, 1, 1, 0.8f) };
         inside.AddChild(_detailRank);
         _detail = new RichTextLabel { BbcodeEnabled = true, FitContent = true, SizeFlagsVertical = Control.SizeFlags.ExpandFill, ScrollActive = false };
@@ -290,6 +297,7 @@ public partial class PointsPanel : CanvasLayer
         BookSpell b = book.Spells.Single(x => x.Spell.Id == spell.Id);
         string colour = ElementStyle.Colour(spell.Element);
         _detailName.Text = spell.Name.In(Texts.Lang);
+        _detailIcon.Spell = spell;
         _detailName.AddThemeColorOverride("font_color", new Color(colour));
         _detailRank.Text = $"{Texts["sd.rank", b.Rank, spell.MaxRank]} · {Texts["element." + spell.Element]}";
         Characteristics? stats = Fight.HeroTotals(Editor.Draft, Editor.Data)?.Stats;

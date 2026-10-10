@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je découvre un sort tous les cinq niveaux (rpg) : 24 sorts par classe (4 Terre, 4 Feu, 4 Eau, 4 Air, 8 neutres : mobilité, placement, boost), 5 au niveau 1 (un par élément et un neutre) puis un tous les cinq niveaux jusqu'au 95 ; une icône par sort (game-icons.net, CC BY 3.0, auteurs crédités) sur fond de la couleur de l'élément ; fiche de sort complète (effets et effets critiques) ; équilibre par simulation, combats enregistrés refaits ; xUnit, auto-test, captures. | 3 | À faire |
+| En tant que joueur, je découvre un sort tous les cinq niveaux (rpg) : 24 sorts par classe (4 Terre, 4 Feu, 4 Eau, 4 Air, 8 neutres : mobilité, placement, boost), 5 au niveau 1 (un par élément et un neutre) puis un tous les cinq niveaux jusqu'au 95 ; une icône par sort (game-icons.net, CC BY 3.0, auteurs crédités) sur fond de la couleur de l'élément ; fiche de sort complète (effets et effets critiques) ; équilibre par simulation, combats enregistrés refaits ; xUnit, auto-test, captures. | 3 | Fait |
+
+**Résultat :** 24 sorts par classe (quatre par élément, huit neutres), cinq au niveau 1 puis un tous les cinq niveaux jusqu'au 95, chacun avec son icône de game-icons.net sur la couleur de son élément ; les rangs des sorts disparus rendus aux joueurs ; équilibre du niveau 1 refait par balayage (T34) ; combats enregistrés refaits.
 
 ## Rétro (Charles)
 - Ce qui a marché :

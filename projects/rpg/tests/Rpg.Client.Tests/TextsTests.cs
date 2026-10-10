@@ -59,10 +59,10 @@ public partial class TextsTests
     public void AClass_IsDescribedWithItsPointsAndElements_ThenItsSpellsByLevel()
     {
         HeroClass mage = GameData.Embedded.Class("mage")!;
-        Assert.Equal("Fragile, mais frappe en zone, soigne ses alliés et invoque une braise. 62 PV · 8 PA · 4 PM · Feu, Eau", new Texts("fr").Class(mage));
-        Assert.EndsWith("70 HP · 8 AP · 4 MP · Earth, Fire", new Texts("en").Class(GameData.Embedded.Class("guard")!), StringComparison.Ordinal);
-        Assert.StartsWith("Niv. 1 : Bâton, Étincelle, Boule de feu, Éclat de glace · Niv. 5 : Soin · ", new Texts("fr").ClassSpells(mage), StringComparison.Ordinal);
-        Assert.EndsWith(" · Lv 75: Rebirth · Lv 80: Cataclysm", new Texts("en").ClassSpells(mage), StringComparison.Ordinal);
+        Assert.Equal("Fragile, mais frappe en zone, soigne ses alliés et invoque une braise. 79 PV · 8 PA · 4 PM · Terre, Feu, Eau, Air", new Texts("fr").Class(mage));
+        Assert.EndsWith("70 HP · 8 AP · 4 MP · Earth, Fire, Water, Air", new Texts("en").Class(GameData.Embedded.Class("guard")!), StringComparison.Ordinal);
+        Assert.StartsWith("Niv. 1 : Caillou, Flammèche, Éclat de glace, Bourrasque, Soin · Niv. 5 : Bouclier de givre · ", new Texts("fr").ClassSpells(mage), StringComparison.Ordinal);
+        Assert.EndsWith(" · Lv 90: Rebirth · Lv 95: Light Step", new Texts("en").ClassSpells(mage), StringComparison.Ordinal);
     }
 
     [Fact]

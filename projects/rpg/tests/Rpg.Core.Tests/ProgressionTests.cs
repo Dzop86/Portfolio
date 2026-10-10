@@ -87,11 +87,11 @@ public class ProgressionTests
     public void InAFight_TheHerosPointsCount()
     {
         HeroClass guard = Real.Class("guard")!;
-        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40, Earth: 60), Ranks: new Dictionary<string, int> { ["strike"] = 3 });
+        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40, Earth: 60), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
         Assert.Equal(guard.Hp + guard.HpPerLevel * 10 + 40, f.MaxHp);
         Assert.Equal(60, f.Spec.Characteristics.Earth);
-        Assert.Equal(Real.Spells["strike"].AtRank(3).DamageMax, f.Spells.Single(s => s.Id == "strike").DamageMax);
+        Assert.Equal(Real.Spells["shield-bash"].AtRank(3).DamageMax, f.Spells.Single(s => s.Id == "shield-bash").DamageMax);
     }
 
     [Fact]
@@ -113,9 +113,9 @@ public class ProgressionTests
     [Fact]
     public void TheHerosPoints_TravelInTheRecord_AndCompareByContent()
     {
-        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40), Ranks: new Dictionary<string, int> { ["strike"] = 3 });
-        Assert.Equal(hero, hero with { Ranks = new Dictionary<string, int> { ["strike"] = 3 } });
-        Assert.NotEqual(hero, hero with { Ranks = new Dictionary<string, int> { ["strike"] = 2 } });
+        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
+        Assert.Equal(hero, hero with { Ranks = new Dictionary<string, int> { ["shield-bash"] = 3 } });
+        Assert.NotEqual(hero, hero with { Ranks = new Dictionary<string, int> { ["shield-bash"] = 2 } });
         var f = new Fight(Real, "training", 3, hero);
         Ai.PlayOut(f);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(f).ToJson());

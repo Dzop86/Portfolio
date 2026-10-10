@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je répartis mes points comme je veux (rpg) : caractéristiques Vitalité, Terre, Eau, Feu, Air (rose, marron, bleu, rouge, vert, partout, combat compris) ; chaque élément ne renforce que ses dégâts (plus de soins par le Feu, rien pour le neutre) ; 8 PA, 4 PM et 10 d'initiative de base pour toutes les classes ; réinitialisation à tout moment, MIN, MAX et saisie d'une valeur ; le critique en gras à la couleur de l'élément ; données et base du serveur migrées ; équilibre refait ; xUnit, auto-test, captures. | 3 | À faire |
+| En tant que joueur, je répartis mes points comme je veux (rpg) : caractéristiques Vitalité, Terre, Eau, Feu, Air (rose, marron, bleu, rouge, vert, partout, combat compris) ; chaque élément ne renforce que ses dégâts (plus de soins par le Feu, rien pour le neutre) ; 8 PA, 4 PM et 10 d'initiative de base pour toutes les classes ; réinitialisation à tout moment, MIN, MAX et saisie d'une valeur ; le critique en gras à la couleur de l'élément ; données et base du serveur migrées ; équilibre refait ; xUnit, auto-test, captures. | 3 | Fait |
+
+**Résultat :** Vitalité, Terre, Eau, Feu, Air, à leurs couleurs partout ; chaque élément ne donne que ses dégâts ; 8 PA, 4 PM et 10 d'initiative de base ; la fiche reprend les points (réinitialiser, MIN, MAX, valeur tapée) ; le critique en gras à la couleur de l'élément ; migration de la base écrite à la main (T34). L'équilibre a été refait avec les sorts du sprint 67.
 
 ## Rétro (Charles)
 - Ce qui a marché :

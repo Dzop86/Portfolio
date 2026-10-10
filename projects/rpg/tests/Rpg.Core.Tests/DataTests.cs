@@ -36,23 +36,25 @@ public class DataTests
     }
 
     [Fact]
-    public void EveryClass_HasTwentySpells_OnTwoElementsAtLeast_OneAboutEveryFiveLevels()
+    public void EveryClass_HasFourSpellsPerElement_AndEightNeutralOnes_OneEveryFiveLevels()
     {
-        string[] shared = ["strike", "arrow", "spear", "axe", "staff", "spark", "fireball"];
+        Element[] elements = [Element.Earth, Element.Fire, Element.Water, Element.Air];
         foreach (HeroClass c in Real.Classes)
         {
             Spell[] spells = [.. c.Spells.Select(id => Real.Spells[id])];
-            Assert.Equal(20, spells.Length);
-            Assert.True(spells.Where(s => s.DamageMax > 0).Select(s => s.Element).Distinct().Count() >= 2, c.Id);
-            // Four spells at level 1, one of them its own, then one every five levels up to 80 (D61), each
-            // able to land a critical hit.
-            Assert.Contains(spells, s => s.Level == 1 && !shared.Contains(s.Id));
-            Assert.Equal([1, 1, 1, 1, .. Enumerable.Range(1, 16).Select(k => 5 * k)], spells.Select(s => s.Level));
+            // D62: 24 spells, four per element, eight neutral ones that do no damage.
+            Assert.Equal(24, spells.Length);
+            Assert.All(elements, e => Assert.Equal(4, spells.Count(s => s.Element == e && s.DamageMax > 0)));
+            Assert.Equal(8, spells.Count(s => s.Element == Element.Neutral && s.DamageMax == 0));
+            // Five at level 1, one per element and one neutral, then one every five levels up to 95; each with
+            // its critical chance and its icon.
+            Assert.Equal([1, 1, 1, 1, 1, .. Enumerable.Range(1, 19).Select(k => 5 * k)], spells.Select(s => s.Level));
+            Assert.Equal([.. elements, Element.Neutral], spells.Take(5).Select(s => s.Element));
             Assert.All(spells, s => Assert.Equal(10, s.Crit));
+            Assert.All(spells, s => Assert.False(string.IsNullOrEmpty(s.Icon), s.Id));
         }
-        // No spell of a class belongs to another: the shared ones are the first sprints'.
-        string[][] own = [.. Real.Classes.Select(c => c.Spells.Except(shared).ToArray())];
-        Assert.Equal(own.Sum(o => o.Length), own.SelectMany(o => o).Distinct().Count());
+        // No spell of a class belongs to another.
+        Assert.Equal(Real.Classes.Sum(c => c.Spells.Count), Real.Classes.SelectMany(c => c.Spells).Distinct().Count());
     }
 
     [Fact]

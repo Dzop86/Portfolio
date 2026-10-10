@@ -87,8 +87,14 @@ public sealed class Character
 
     public Characteristics Stats => new(Vitality, Earth, Fire, Water, Air);
 
+    /// <summary>
+    /// The spell ranks bought, those of spells the class still has only: when the classes' spells were
+    /// redone (D62), the points put in a spell that went away came back to be spent again.
+    /// </summary>
     public Dictionary<string, int> RankList => Ranks.Split(',', StringSplitOptions.RemoveEmptyEntries)
-        .Select(r => r.Split(':')).ToDictionary(r => r[0], r => int.Parse(r[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);
+        .Select(r => r.Split(':'))
+        .Where(r => GameData.Embedded.Class(Class)?.Spells.Contains(r[0]) == true)
+        .ToDictionary(r => r[0], r => int.Parse(r[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);
 
     public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
