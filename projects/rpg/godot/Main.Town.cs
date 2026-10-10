@@ -9,8 +9,11 @@ public partial class Main
 {
     private const string Village = "clairval";
 
-    // Where the player stood in town, for the way back from a fight when no server keeps it.
+    // The zone the player is in, and where they stood, for the way back from a fight when no server keeps it.
+    private static string _zone = Village;
     private static Cell? _place;
+    private ExploreCamera? _explore;
+    private WorldMapPanel? _mapPanel;
 
     private TownController? _town;
     private TownView? _townView;
@@ -22,20 +25,23 @@ public partial class Main
     private void ShowTown()
     {
         _screen = Screen.Town;
-        Cell? at = _character?.Place is Place p && p.Town == Village ? p.Cell : _place;
-        _town = new TownController(GameData.Embedded, Village, at);
+        // The server's place first (its zone included), then the one kept in memory.
+        if (_character?.Place is Place p && GameData.Embedded.Towns.ContainsKey(p.Town))
+            (_zone, _place) = (p.Town, p.Cell);
+        _town = new TownController(GameData.Embedded, _zone, _place);
         _townView = new TownView();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
-        var centre = new Vector3((_town.Board.Width - 1) / 2f, 0, (_town.Board.Height - 1) / 2f);
-        _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 13.5f, RotationDegrees = new Vector3(-30, 45, 0) };
+        _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
-        _camera.Position = centre + _camera.Transform.Basis.Z * 30f + new Vector3(0, -0.4f, 0);
+        _explore = new ExploreCamera(_town.Position.X, _town.Position.Y);
+        PlaceCamera();
         _talkPanel = new TalkPanel();
         AddChild(_talkPanel);
         _talkPanel.Build(_town, new Texts(_options.Lang), _lobby?.SignedIn == true && _character is not null);
         _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
         _talkPanel.PointsPressed += OpenPoints;
+        _talkPanel.MapPressed += ToggleMap;
         _talkPanel.InventoryPressed += () => OpenInventory(_character?.Inventory ?? []);
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () => _townView.SetLanguage(_talkPanel.Texts.Lang);
@@ -46,13 +52,76 @@ public partial class Main
         };
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "inventory")
+        else if (_options.Shot is "town" or "banner" or "inventory" or "zone" or "world")
             _ = TownScreenshot();
+    }
+
+    /// <summary>The camera where <see cref="ExploreCamera"/> says: looking down at 30°, turned by its quarter, from afar (orthographic).</summary>
+    private void PlaceCamera()
+    {
+        ExploreCamera cam = _explore!;
+        _camera.Size = (float)cam.Zoom;
+        _camera.RotationDegrees = new Vector3(-30, (float)cam.Yaw, 0);
+        _camera.Position = new Vector3((float)cam.X, 0, (float)cam.Z) + _camera.Transform.Basis.Z * 30f;
+    }
+
+    /// <summary>Each frame in a zone: the camera follows the player as drawn.</summary>
+    private void FollowPlayer(double delta)
+    {
+        if (_explore is null || _townView is null)
+            return;
+        Vector3 at = _townView.Player.Position;
+        _explore.Follow(at.X, at.Z, delta);
+        PlaceCamera();
+    }
+
+    private void ToggleMap()
+    {
+        if (_mapPanel is not null)
+        {
+            _mapPanel.QueueFree();
+            _mapPanel = null;
+            return;
+        }
+        _mapPanel = new WorldMapPanel();
+        AddChild(_mapPanel);
+        _mapPanel.Build(GameData.Embedded, _zone, _talkPanel!.Texts);
+    }
+
+    /// <summary>Through a way: the next zone is built, the player on its arrival, the place saved there.</summary>
+    private async Task TravelTo(ZoneLink link)
+    {
+        (_zone, _place) = (link.To, link.Arrival);
+        _character = _character is null ? null : _character with { Place = new Place(link.To, link.Arrival.X, link.Arrival.Y) };
+        ClearScene();
+        ShowTown();
+        await SavePlace();
     }
 
     private void TownInput(InputEvent @event)
     {
-        if (_town is null || _townView is null || _walking || _pointsPanel is not null || _inventoryPanel is not null)
+        if (_town is null || _townView is null)
+            return;
+        // The camera and the map answer even during a walk.
+        switch (@event)
+        {
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
+                _explore?.ZoomBy(1);
+                return;
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
+                _explore?.ZoomBy(-1);
+                return;
+            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.Q }:
+                _explore?.Turn(-1);
+                return;
+            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.E }:
+                _explore?.Turn(1);
+                return;
+            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.M }:
+                ToggleMap();
+                return;
+        }
+        if (_walking || _pointsPanel is not null || _inventoryPanel is not null || _mapPanel is not null)
             return;
         switch (@event)
         {
@@ -81,6 +150,8 @@ public partial class Main
         await SavePlace();
         if (_town.Fight is string scenario)
             EnterFight(scenario);
+        else if (_town.Travel is ZoneLink link)
+            await TravelTo(link);
     }
 
     /// <summary>The characteristics and spells screen, over the town.</summary>
@@ -183,7 +254,7 @@ public partial class Main
         _place = _town!.Position;
         if (_lobby?.SignedIn != true || _character is null)
             return false;
-        var place = new Place(Village, _town.Position.X, _town.Position.Y);
+        var place = new Place(_zone, _town.Position.X, _town.Position.Y);
         try
         {
             await _lobby.Server.SavePlace(_character.Id, place);
@@ -274,12 +345,15 @@ public partial class Main
         {
             bool saved = await SavePlace();
             Place? back = (await _lobby.Server.Characters()).Single(c => c.Id == _character.Id).Place;
-            if (!saved || back != new Place(Village, _town!.Position.X, _town.Position.Y))
+            if (!saved || back != new Place(_zone, _town!.Position.X, _town.Position.Y))
                 problems.Add($"the server keeps the place {back}, not {_town!.Position}");
             else
                 note += $", place {_town.Position} saved on the server";
         }
+        string world = CheckWorld(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
+        if (problems.Count == 0)
+            note += " " + world;
         _selfTestNote = _selfTestNote is null ? note : $"{_selfTestNote} {note}";
         if (problems.Count > 0 || _town!.Fight is not string scenario)
         {
@@ -294,11 +368,67 @@ public partial class Main
     }
 
     /// <summary>
+    /// The self-test of sprint 60: every zone reached by the world tour is drawn whole with its ways;
+    /// the camera keeps the player in the middle of the screen at every quarter turn and zoom; the map
+    /// shows every zone, the current one marked.
+    /// </summary>
+    private string CheckWorld(List<string> problems)
+    {
+        Hero hero = _hero ?? new Hero("", "female-d");
+        IReadOnlyList<string> zones = TownTour.World(new TownController(GameData.Embedded, Village));
+        foreach (string id in zones)
+        {
+            var controller = new TownController(GameData.Embedded, id);
+            var view = new TownView();
+            AddChild(view);
+            view.Build(controller, _options.Lang, hero);
+            Town t = controller.Town;
+            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links?.Count ?? 0))
+                problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
+            RemoveChild(view);
+            view.QueueFree();
+        }
+        Vector2 middle = GetViewport().GetVisibleRect().Size / 2;
+        Vector3 player = _townView!.Player.Position;
+        for (int quarter = 0; quarter < 4; quarter++)
+        {
+            foreach (int zoom in new[] { 0, 3 })
+            {
+                _explore!.ZoomBy(zoom);
+                _explore.Jump(player.X, player.Z);
+                PlaceCamera();
+                if (_camera.UnprojectPosition(player).DistanceTo(middle) > 2)
+                    problems.Add($"turned {quarter} and zoomed {_explore.Zoom:0.0}, the camera shows the player at {_camera.UnprojectPosition(player)}");
+                _explore.ZoomBy(-zoom);
+            }
+            _explore!.Turn(1);
+        }
+        ToggleMap();
+        if (_mapPanel!.Zones.Count != GameData.Embedded.Towns.Count || _mapPanel.Current != _zone)
+            problems.Add($"the map shows {_mapPanel.Zones.Count} zones, {_mapPanel.Current} as here");
+        ToggleMap();
+        return $"World: {zones.Count} zones, camera and map checked.";
+    }
+
+    /// <summary>
     /// The town for the project page: the player has walked up to Aubin, who talks; or, for the
-    /// launcher's banner, the village alone, without the screen's texts.
+    /// launcher's banner, the village alone, without the screen's texts; or a zone of the world, its map open or not.
     /// </summary>
     private async Task TownScreenshot()
     {
+        if (_options.Shot is "zone" or "world")
+        {
+            // A zone of the world seen from the explore camera; or the world map over it.
+            if (_options.Shot == "world")
+                ToggleMap();
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error picture = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {picture} {_options.Screenshot}");
+            GetTree().Quit(picture == Error.Ok ? 0 : 1);
+            return;
+        }
         if (_options.Shot == "inventory")
         {
             // A showcase for the project page: a tenth-level guard with what training fights leave.

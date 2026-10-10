@@ -13,7 +13,7 @@ public partial class TalkPanel : CanvasLayer
 {
     private readonly List<Button> _answers = [];
     private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!;
-    private Button _lang = null!, _characters = null!, _points = null!, _inventory = null!;
+    private Button _lang = null!, _characters = null!, _points = null!, _inventory = null!, _map = null!;
     private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
     private VBoxContainer _answerBox = null!;
@@ -25,6 +25,7 @@ public partial class TalkPanel : CanvasLayer
     public event Action? CharactersPressed;
     public event Action? PointsPressed;
     public event Action? InventoryPressed;
+    public event Action? MapPressed;
     public event Action? LanguageChanged;
 
     public void Build(TownController town, Texts texts, bool signedIn)
@@ -36,12 +37,15 @@ public partial class TalkPanel : CanvasLayer
         AddChild(root);
         _title = Text(root, 26, 20, 14, 600, 36);
         _help = Text(root, 15, 20, 52, 900, 24);
-        _help.Modulate = new Color(1, 1, 1, 0.75f);
+        _help.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.85f));
         _message = Text(root, 16, 20, 78, 900, 24);
 
-        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -680, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
+        var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -800, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 10);
         root.AddChild(buttons);
+        _map = new Button { CustomMinimumSize = new Vector2(100, 44) };
+        _map.Pressed += () => MapPressed?.Invoke();
+        buttons.AddChild(_map);
         _inventory = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
         _inventory.Pressed += () => InventoryPressed?.Invoke();
         buttons.AddChild(_inventory);
@@ -122,6 +126,7 @@ public partial class TalkPanel : CanvasLayer
         _points.Text = Texts["points.button"];
         _points.Visible = _progress is not null;
         _inventory.Text = Texts["inventory.button"];
+        _map.Text = Texts["map.button"];
         _inventory.Visible = _progress is not null;
         _xp.Text = _progress is (int level, long xp) ? Texts.XpLine(level, xp) : "";
         _talk.Visible = _town.Talk is not null;

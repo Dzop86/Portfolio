@@ -11,7 +11,7 @@ namespace Rpg.Desktop;
 /// to the town); --selftest [--report FILE] plays a whole fight through the controls and checks the
 /// views; --town-selftest walks the town and talks to everyone first; --lobby-selftest signs up,
 /// creates and chooses a character on the login screen against the server, then does both;
-/// --screenshot FILE [--shot move|spell|lobby|town|banner] saves a picture; --demo lets the AI play the
+/// --screenshot FILE [--shot move|spell|lobby|town|banner|zone|world] saves a picture; --demo lets the AI play the
 /// hero too, animations and all, and quits after the fight (for the video of the project page).
 /// </summary>
 public partial class Main : Node3D
@@ -65,8 +65,13 @@ public partial class Main : Node3D
         AddEnvironment();
         if (_options.SelfTest || _options.Demo || _options.Shot is "move" or "spell" && _options.Screenshot is not null)
             StartFight(_hero, _options.Scenario);
-        else if (_options.TownSelfTest || _options.Shot is "town" or "banner")
+        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "zone" or "world")
+        {
+            // The pictures of the world: in the woods, a few steps from the way north.
+            if (_options.Shot is "zone" or "world")
+                (_zone, _place) = ("clairval-woods", new Cell(15, 3));
             ShowTown();
+        }
         else if (_options.LobbySelfTest || _options.Shot is "lobby" or "create")
             ShowLobby();
         else if (_screen == Screen.Fight)
@@ -88,6 +93,9 @@ public partial class Main : Node3D
         _lobbyView = null;
         _townView = null;
         _talkPanel = null;
+        _mapPanel = null;
+        _pointsPanel = null;
+        _inventoryPanel = null;
         AddEnvironment();
     }
 
@@ -143,6 +151,11 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
+        if (_townView is not null)
+        {
+            FollowPlayer(delta);
+            return;
+        }
         if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)
             return;
         if (_controller.Fight.IsOver)

@@ -7,7 +7,7 @@ namespace Rpg.Desktop;
 /// <summary>
 /// A town drawn from Rpg.Client's <see cref="TownController"/>: grass, roads and water, houses built
 /// from Kenney's Fantasy Town Kit, its people with their names above them, the player walking, the
-/// path under the mouse and the gate. The talks are drawn by <see cref="TalkPanel"/>.
+/// path under the mouse, the gates and the ways to the other zones. The talks are drawn by <see cref="TalkPanel"/>.
 /// </summary>
 public partial class TownView : Node3D
 {
@@ -20,6 +20,12 @@ public partial class TownView : Node3D
     private AnimationPlayer? _anim;
 
     public TownController Controller { get; private set; } = null!;
+
+    /// <summary>The ground tiles drawn: one per cell.</summary>
+    public int Tiles { get; private set; }
+
+    /// <summary>The names over the gates and the ways, as the self-test counts them.</summary>
+    public int WayLabels => _exitLabels.Count;
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
 
@@ -41,6 +47,7 @@ public partial class TownView : Node3D
                 _ => Looks.Nature("ground_grass").Instantiate<Node3D>(),
             };
             ground.Position = BoardView.ToWorld(c);
+            Tiles++;
             if (k is not '=' and not '~')
                 BoardView.Paint(ground, grass[(c.X + c.Y) % 2]);
             AddChild(ground);
@@ -65,6 +72,20 @@ public partial class TownView : Node3D
             Label3D label = Label(exit.Name.In(lang), BoardView.ToWorld(exit.At) + new Vector3(0, 0.7f, 0), 36);
             AddChild(label);
             _exitLabels.Add((label, exit.Name));
+        }
+        // The ways to the other zones, ringed in the accent colour, their names above.
+        foreach (ZoneLink link in town.Links ?? [])
+        {
+            AddChild(new MeshInstance3D
+            {
+                Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = FighterView.PlayerColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                Scale = new Vector3(1, 0.15f, 1),
+                Position = BoardView.ToWorld(link.At) + new Vector3(0, 0.05f, 0),
+            });
+            Label3D label = Label(link.Name.In(lang), BoardView.ToWorld(link.At) + new Vector3(0, 0.7f, 0), 36);
+            AddChild(label);
+            _exitLabels.Add((label, link.Name));
         }
         Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;

@@ -1278,6 +1278,8 @@ function rpgScreenshots(t, lang) {
   ${shot('lobby', 'rpg.altLobby', 'rpg.captionLobby')}
   ${shot('create', 'rpg.altCreate', 'rpg.captionCreate')}
   ${shot('town', 'rpg.altTown', 'rpg.captionTown')}
+  ${shot('zone', 'rpg.altZone', 'rpg.captionZone')}
+  ${shot('world', 'rpg.altWorld', 'rpg.captionWorld')}
   ${shot('inventory', 'rpg.altInventory', 'rpg.captionInventory')}
   ${shot('move', 'rpg.altMove', 'rpg.captionMove')}
   ${shot('spell', 'rpg.altSpell', 'rpg.captionSpell')}
