@@ -329,7 +329,7 @@
   "rag.mode.hybrid": "Hybride (les deux, fusionnés)",
   "rag.retrieval.note": "Part des questions dont un bon passage arrive dans les premiers résultats ; MRR : moyenne de 1 / rang du premier bon passage. Embeddings : {model}, en local. Recalculé par la CI à chaque modification de la documentation.",
   "rag.answers.title": "Ce qu'il répond",
-  "rag.answers.pending": "Les réponses de Claude sur ces questions n'ont pas encore été enregistrées : elles demandent une clé d'API (job « answers » de la CI, lancé à la main).",
+  "rag.answers.pending": "Prototype : l'évaluation des réponses de Claude (citations justes, refus justes) est écrite et testée avec un faux modèle, mais n'a pas été lancée, faute de clé d'API ; le job « answers » de la CI la produira avec une clé.",
   "rag.col.measure": "Mesure",
   "rag.col.value": "Valeur",
   "rag.metric.answered_with_right_source": "Questions avec réponse qui citent le bon passage",

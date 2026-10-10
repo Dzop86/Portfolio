@@ -47,3 +47,4 @@ projects/rag/scripts/smoke.sh http://localhost:8003
 - Le modèle d'embeddings tronque à 128 tokens (G4).
 - Pas d'assistant en direct sur le site, qui est statique : les réponses de la fiche sont enregistrées. `/ask` n'a ni authentification ni limite de débit (G8).
 - Pas de seuil pour refuser avant d'appeler Claude (G7) ; une question sans réponse coûte donc un appel.
+- Prototype : l'évaluation des réponses n'a pas été lancée (pas de clé d'API) ; elle est écrite, testée avec un faux modèle, et lançable par le job « answers » de la CI.

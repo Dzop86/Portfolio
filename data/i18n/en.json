@@ -329,7 +329,7 @@
   "rag.mode.hybrid": "Hybrid (both, fused)",
   "rag.retrieval.note": "Share of the questions with a right passage among the first results; MRR: mean of 1 / rank of the first right passage. Embeddings: {model}, run locally. Recomputed by the CI whenever the documentation changes.",
   "rag.answers.title": "What it answers",
-  "rag.answers.pending": "Claude's answers to these questions have not been recorded yet: they need an API key (the CI's \"answers\" job, run by hand).",
+  "rag.answers.pending": "Prototype: the evaluation of Claude's answers (right citations, right refusals) is written and tested with a fake model, but has not been run, for want of an API key; the CI's \"answers\" job will produce it with a key.",
   "rag.col.measure": "Measure",
   "rag.col.value": "Value",
   "rag.metric.answered_with_right_source": "Answerable questions whose answer cites a right passage",
