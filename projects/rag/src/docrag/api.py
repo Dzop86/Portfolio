@@ -19,8 +19,6 @@ from pydantic import BaseModel, Field
 from .answer import Answerer
 from .retrieve import Mode, Retriever
 
-ROOT = Path(__file__).resolve().parents[4]
-
 
 class Passage(BaseModel):
     source: str
@@ -53,11 +51,11 @@ class AnswerOut(BaseModel):
 def build_retriever() -> Retriever:
     from qdrant_client import QdrantClient
 
-    from .chunking import load_corpus
+    from .chunking import find_root, load_corpus
     from .embed import FastEmbedder, HashEmbedder
     from .retrieve import VectorStore
 
-    corpus = Path(os.environ.get("DOCRAG_CORPUS", ROOT))
+    corpus = Path(os.environ["DOCRAG_CORPUS"]) if os.environ.get("DOCRAG_CORPUS") else find_root()
     embedder = HashEmbedder() if os.environ.get("DOCRAG_EMBEDDER") == "hash" else FastEmbedder()
     client = QdrantClient(url=os.environ["QDRANT_URL"]) if os.environ.get("QDRANT_URL") else QdrantClient(":memory:")
     return Retriever(load_corpus(corpus), embedder, VectorStore(client))

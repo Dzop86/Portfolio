@@ -3,9 +3,9 @@ import json
 import pytest
 from qdrant_client import QdrantClient
 
-from docrag.chunking import chunk_document, load_corpus
+from docrag.chunking import chunk_document, find_root, load_corpus
 from docrag.embed import HashEmbedder
-from docrag.evaluate import ROOT, check_expected, load_questions, relevant, retrieval_metrics
+from docrag.evaluate import check_expected, load_questions, relevant, retrieval_metrics
 from docrag.retrieve import Retriever, VectorStore
 
 
@@ -49,7 +49,7 @@ def test_recall_and_mrr_count_the_rank_of_the_first_right_passage():
 
 def test_integration_every_reference_question_points_to_a_passage_of_the_real_documentation():
     questions = load_questions()
-    chunks = load_corpus(ROOT)
+    chunks = load_corpus(find_root())
     assert len(chunks) > 300
     assert check_expected(chunks, questions) == []
     assert sum(q["answerable"] for q in questions) >= 30
@@ -59,7 +59,7 @@ def test_integration_every_reference_question_points_to_a_passage_of_the_real_do
 
 def test_integration_hybrid_search_over_the_real_documentation_without_a_model():
     """With the hashed bag of words, the words alone already find most answers in the first five."""
-    r = Retriever(load_corpus(ROOT), HashEmbedder(), VectorStore(QdrantClient(":memory:")))
+    r = Retriever(load_corpus(find_root()), HashEmbedder(), VectorStore(QdrantClient(":memory:")))
     scores = retrieval_metrics(r, load_questions())
     assert scores["bm25"]["recall@5"] >= 0.6
     hits = r.search("Quelle version minimale de Node faut-il ?", k=3)

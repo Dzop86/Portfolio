@@ -127,6 +127,18 @@ def chunk_document(source: str, text: str, max_chars: int = 1200) -> list[Chunk]
     return chunks
 
 
+def find_root(start: Path | None = None) -> Path:
+    """The repository: the first folder, from ``start`` (the current one) upwards, that holds this project.
+
+    Not derived from this file's place, which is in site-packages once the package is installed.
+    """
+    here = (start or Path.cwd()).resolve()
+    for folder in (here, *here.parents):
+        if (folder / "projects" / "rag" / "pyproject.toml").is_file():
+            return folder
+    raise FileNotFoundError(f"no repository with projects/rag above {here}: run from inside it, or set DOCRAG_CORPUS")
+
+
 def load_corpus(
     root: Path, patterns: tuple[str, ...] = DEFAULT_PATTERNS, max_chars: int = 1200, exclude: tuple[str, ...] = DEFAULT_EXCLUDE
 ) -> list[Chunk]:

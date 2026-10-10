@@ -6,9 +6,8 @@ from qdrant_client import QdrantClient
 
 from docrag.answer import NO_ANSWER
 from docrag.api import create_app
-from docrag.chunking import chunk_document, load_corpus
+from docrag.chunking import chunk_document, find_root, load_corpus
 from docrag.embed import HashEmbedder
-from docrag.evaluate import ROOT
 from docrag.retrieve import Retriever, VectorStore
 from fakes import FakeClient, cite, text
 
@@ -62,7 +61,7 @@ def test_ask_without_a_key_or_with_a_refused_key_says_so(monkeypatch):
 
 def test_integration_the_real_documentation_through_the_api():
     """The repository's documentation, the hashed embedder, a fake model that says what it was given."""
-    r = Retriever(load_corpus(ROOT), HashEmbedder(), VectorStore(QdrantClient(":memory:")))
+    r = Retriever(load_corpus(find_root()), HashEmbedder(), VectorStore(QdrantClient(":memory:")))
     client = FakeClient(lambda req: ([text(NO_ANSWER)], "end_turn"))
     with TestClient(create_app(r, client)) as c:
         assert c.get("/health").json()["passages"] > 300

@@ -17,15 +17,18 @@ import json
 import sys
 from pathlib import Path
 
-from .chunking import Chunk
+from .chunking import Chunk, find_root
 from .retrieve import MODES, Retriever
 
-ROOT = Path(__file__).resolve().parents[4]  # the repository: projects/rag/src/docrag -> ../../../..
-QUESTIONS = Path(__file__).resolve().parents[2] / "eval" / "questions.jsonl"
 KS = (1, 3, 5)
 
 
-def load_questions(path: Path = QUESTIONS) -> list[dict]:
+def questions_file() -> Path:
+    return find_root() / "projects" / "rag" / "eval" / "questions.jsonl"
+
+
+def load_questions(path: Path | None = None) -> list[dict]:
+    path = path or questions_file()
     questions = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
     ids = [q["id"] for q in questions]
     if len(set(ids)) != len(ids):
@@ -91,7 +94,7 @@ def relevant_place(source: str, title: str, expected: list[dict]) -> bool:
     return any(source == e["source"] and e.get("section", "").lower() in title.lower() for e in expected)
 
 
-def build_retriever(embedder_name: str, model: str | None = None, root: Path = ROOT) -> Retriever:
+def build_retriever(embedder_name: str, model: str | None = None, root: Path | None = None) -> Retriever:
     from qdrant_client import QdrantClient
 
     from .chunking import load_corpus
@@ -99,7 +102,7 @@ def build_retriever(embedder_name: str, model: str | None = None, root: Path = R
     from .retrieve import VectorStore
 
     embedder = HashEmbedder() if embedder_name == "hash" else FastEmbedder(model or DEFAULT_MODEL)
-    return Retriever(load_corpus(root), embedder, VectorStore(QdrantClient(":memory:")))
+    return Retriever(load_corpus(root or find_root()), embedder, VectorStore(QdrantClient(":memory:")))
 
 
 def main(argv: list[str] | None = None) -> int:

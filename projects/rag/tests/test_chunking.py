@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from docrag.chunking import chunk_document, load_corpus, split_blocks
+import pytest
+
+from docrag.chunking import chunk_document, find_root, load_corpus, split_blocks
 
 DOC = """# Guide
 
@@ -82,3 +84,15 @@ def test_the_corpus_reads_the_matching_files_in_a_stable_order(tmp_path: Path):
     (tmp_path / "projects" / "rag" / "README.md").write_text("# this assistant's own\n\nx\n", encoding="utf-8")
     sources = [c.source for c in load_corpus(tmp_path)]
     assert sources == ["README.md", "projects/a/DECISIONS.md", "projects/b/README.md"]
+
+
+def test_the_repository_is_found_from_any_folder_inside_it_and_nowhere_else(tmp_path: Path):
+    (tmp_path / "projects" / "rag" / "eval").mkdir(parents=True)
+    (tmp_path / "projects" / "rag" / "pyproject.toml").write_text("", encoding="utf-8")
+    assert find_root(tmp_path / "projects" / "rag" / "eval") == tmp_path.resolve()
+    assert find_root(tmp_path / "projects") == tmp_path.resolve()
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    (tmp_path / "projects" / "rag" / "pyproject.toml").unlink()
+    with pytest.raises(FileNotFoundError, match="DOCRAG_CORPUS"):
+        find_root(elsewhere)

@@ -40,7 +40,7 @@ projects/rag/scripts/smoke.sh http://localhost:8003
 ```
 
 ## Tests
-32 tests pytest : découpage (lignes, titres, listes, tableaux, code, blocs jamais coupés), BM25, les trois recherches et la fusion RRF sur Qdrant en mémoire, les mesures ; les réponses avec un faux client (requête envoyée, citations ramenées aux lignes, absence de réponse, refus, mesures des réponses) ; l'API (recherche, paramètres refusés, `/ask` sans clé ou avec une clé refusée) ; trois tests d'intégration sur la vraie documentation. Sous Linux, Windows et macOS. Jobs à part : l'évaluation des recherches avec le vrai modèle (G5), l'image Docker avec Qdrant de bout en bout, et les réponses de Claude, lancées à la main parce qu'elles coûtent. 12 mutations, 12 attrapées.
+33 tests pytest : découpage (lignes, titres, listes, tableaux, code, blocs jamais coupés), BM25, les trois recherches et la fusion RRF sur Qdrant en mémoire, les mesures ; les réponses avec un faux client (requête envoyée, citations ramenées aux lignes, absence de réponse, refus, mesures des réponses) ; l'API (recherche, paramètres refusés, `/ask` sans clé ou avec une clé refusée) ; trois tests d'intégration sur la vraie documentation. Sous Linux, Windows et macOS. Jobs à part : l'évaluation des recherches avec le vrai modèle (G5), l'image Docker avec Qdrant de bout en bout, et les réponses de Claude, lancées à la main parce qu'elles coûtent. 12 mutations, 12 attrapées.
 
 ## Limites
 - 32 questions : de quoi comparer des choix, pas de quoi trancher des écarts de quelques points.
