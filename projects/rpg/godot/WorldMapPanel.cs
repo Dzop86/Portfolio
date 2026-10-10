@@ -51,8 +51,14 @@ public partial class WorldMapPanel : CanvasLayer
             {
                 BgColor = new Color(0.16f, 0.16f, 0.16f),
                 BorderColor = here ? FighterView.PlayerColour : new Color(1, 1, 1, 0.35f),
-                BorderWidthLeft = here ? 3 : 1, BorderWidthRight = here ? 3 : 1, BorderWidthTop = here ? 3 : 1, BorderWidthBottom = here ? 3 : 1,
-                CornerRadiusTopLeft = 6, CornerRadiusTopRight = 6, CornerRadiusBottomLeft = 6, CornerRadiusBottomRight = 6,
+                BorderWidthLeft = here ? 3 : 1,
+                BorderWidthRight = here ? 3 : 1,
+                BorderWidthTop = here ? 3 : 1,
+                BorderWidthBottom = here ? 3 : 1,
+                CornerRadiusTopLeft = 6,
+                CornerRadiusTopRight = 6,
+                CornerRadiusBottomLeft = 6,
+                CornerRadiusBottomRight = 6,
             });
             var label = new Label
             {
