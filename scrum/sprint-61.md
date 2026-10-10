@@ -2,6 +2,8 @@
 
 **Objectif :** Une première famille de monstres (DPS mêlée, DPS distance, tank, support, boss) en groupes visibles sur la carte.
 
+**En pause (D58) :** Osmose s'arrête après le sprint 60, à la demande de Charles, le temps de l'assistant documentaire (sprints 63 et 64) ; ce sprint reprendra tel quel.
+
 **Goal:** A first family of monsters (melee and ranged damage, tank, support, boss) in groups visible on the map.
 
 | Story | Points | État |

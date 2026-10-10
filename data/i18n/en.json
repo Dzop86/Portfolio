@@ -127,7 +127,7 @@
   "progress.sprint": "Current sprint ({n})",
   "progress.project": "Project in progress: {name}",
   "progress.points": "{done} of {total} points",
-  "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 22 projects are done.",
+  "progress.note": "Temporary panel, recomputed at every build from the sprint files; it will go once the 23 projects are done.",
   "demo.title": "Try lib-c in your browser",
   "demo.lead": "The file is read by the C library compiled to WebAssembly: it never leaves your browser.",
   "demo.choose": "Choose an OBJ, PLY or STL file",

@@ -127,7 +127,7 @@
   "progress.sprint": "Sprint en cours ({n})",
   "progress.project": "Projet en cours : {name}",
   "progress.points": "{done} points sur {total}",
-  "progress.note": "Bandeau temporaire, recalculé à chaque build depuis les fichiers de sprint ; il disparaîtra quand les 22 projets seront terminés.",
+  "progress.note": "Bandeau temporaire, recalculé à chaque build depuis les fichiers de sprint ; il disparaîtra quand les 23 projets seront terminés.",
   "demo.title": "Essayer lib-c dans le navigateur",
   "demo.lead": "Le fichier est lu par la bibliothèque C compilée en WebAssembly : il ne quitte pas votre navigateur.",
   "demo.choose": "Choisir un fichier OBJ, PLY ou STL",

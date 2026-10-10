@@ -7,9 +7,9 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S62), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S64), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
-## Les 22 projets
+## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
@@ -35,9 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S61 | 59 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S61 | 59 |
+| 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S63-S64 | 10 |
 
-Total : 270 points sur 62 sprints de deux semaines.
+Total : 280 points sur 64 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -96,6 +97,9 @@ Huit sprints, 24 points, après un second questionnaire. S54 les quatre élémen
 
 ## Un schéma d'architecture sur chaque fiche (demande de Charles, 9 octobre 2026, D57)
 Un sprint de 5 points, la vitrine passe de 11 à 16. Sprint 62, après Osmose : sur chaque fiche qui a au moins trois morceaux qui se parlent, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose (boîtes, technologies, flèches nommées), décrit en données, dessiné en SVG par le générateur, en français et en anglais, lisible à 375 px et dans les deux thèmes.
+
+## Un assistant documentaire avec RAG ; Osmose en pause (décision de Charles, 10 octobre 2026, D58)
+Osmose s'arrête après le sprint 60 ; le sprint 61 attend sa reprise, le sprint 62 (schémas) reste prévu. Deux sprints de 5 points, 63 et 64 : un assistant qui répond aux questions sur une documentation technique (celle du portfolio : README, décisions, OpenAPI) en citant fichier et lignes, qui refuse quand les sources ne répondent pas, avec recherche hybride dans Qdrant, API FastAPI, Docker et une évaluation sur des questions de référence.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
