@@ -137,21 +137,35 @@ public sealed class Fight
     private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data)
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
-        if (data.Class(hero.Class) is not HeroClass c)
+        if (HeroTotals(hero, data) is not HeroNumbers n)
             return spec;
-        // What the hero wears adds up with its own points; its action and movement points too.
-        (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
         return spec with
         {
-            Hp = c.Hp + c.HpPerLevel * (hero.Level - 1),
-            Ap = c.Ap + ap,
-            Mp = c.Mp + mp,
-            Initiative = c.Initiative,
-            Spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)],
-            Stats = Equipment.Add(hero.Stats ?? Characteristics.None, worn),
+            Hp = n.Hp,
+            Ap = n.Ap,
+            Mp = n.Mp,
+            Initiative = n.Initiative,
+            Spells = n.Spells,
+            Stats = n.Stats,
             SpellRanks = hero.Ranks,
             Level = hero.Level,
         };
+    }
+
+    /// <summary>
+    /// What a hero of a class fights with: its class's numbers at its level, what it wears added to its
+    /// own points and to its action and movement points, the spells its level has unlocked. Null without
+    /// a class. The characteristics sheet shows the same numbers.
+    /// </summary>
+    public static HeroNumbers? HeroTotals(Hero hero, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(data);
+        if (data.Class(hero.Class) is not HeroClass c)
+            return null;
+        (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
+        return new HeroNumbers(c.Hp + c.HpPerLevel * (hero.Level - 1), c.Ap + ap, c.Mp + mp, c.Initiative,
+            Equipment.Add(hero.Stats ?? Characteristics.None, worn), worn, [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)]);
     }
 
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>

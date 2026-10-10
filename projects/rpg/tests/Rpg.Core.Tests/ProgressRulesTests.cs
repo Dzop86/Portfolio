@@ -104,6 +104,20 @@ public class ProgressRulesTests
     }
 
     [Fact]
+    public void ASpellSureOfItsCriticalHit_LandsOneEveryTime()
+    {
+        Spell sure = Rock with { Id = "sure", Crit = 100 };
+        var data = new GameData([.. All, sure], [new MapSpec("m", Text, ["AB"])],
+            [new Scenario("s", Text, "m", [Caster(Characteristics.None, "sure"), Spec(1, hp: 9999)])], null, null, null, [Wolf]);
+        for (ulong seed = 0; seed < 1000; seed++)
+        {
+            var f = new Fight(data, "s", seed);
+            f.Apply(new CastAction("sure", new Cell(1, 0)));
+            Assert.True(f.Events.OfType<SpellCast>().Single().Critical, $"seed {seed}");
+        }
+    }
+
+    [Fact]
     public void Healing_GrowsWithIntelligence()
     {
         Fight f = Play(["AA.B"], Caster(new Characteristics(Intelligence: 50), "mend"), Spec(0, 1, hp: 99), Spec(1));

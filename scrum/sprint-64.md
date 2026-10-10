@@ -6,7 +6,11 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois ce que valent mes caractéristiques (rpg) : 10 points dans un élément = +2 dégâts dans cet élément seulement (et +2 soins pour l'Intelligence), coups critiques (chance propre à chaque sort, +20 % du maximum sur les deux bornes), un sort tous les cinq niveaux environ ; fiche de caractéristiques refaite (points investis et points de l'équipement, bonus de dégâts et résistance par élément, PV, PA, PM, initiative) ; équilibre refait par simulation, combats enregistrés réenregistrés ; xUnit, auto-test, capture. | 3 | À faire |
+| En tant que joueur, je vois ce que valent mes caractéristiques (rpg) : 10 points dans un élément = +2 dégâts dans cet élément seulement (et +2 soins pour l'Intelligence), coups critiques (chance propre à chaque sort, +20 % du maximum sur les deux bornes), un sort tous les cinq niveaux environ ; fiche de caractéristiques refaite (points investis et points de l'équipement, bonus de dégâts et résistance par élément, PV, PA, PM, initiative) ; équilibre refait par simulation, combats enregistrés réenregistrés ; xUnit, auto-test, capture. | 3 | Fait |
+
+**Résultat :** la règle des tranches, les coups critiques (fourchette et chance par sort, annoncés et prévus), un sort tous les cinq niveaux jusqu'au 80, le niveau 1 rééquilibré par simulation, la fiche de caractéristiques refaite (portrait, PV, PA, PM, initiative, points restants ; points investis, de l'équipement, total, effet et résistance par caractéristique, à la couleur de son élément), capture sur la fiche du projet (T32). **Pas fait :** l'équilibre de haut niveau (la Garde domine), question posée à Charles.
+
+**Tests :** 11 tests de plus (7 des règles, 4 du client), les tests de règles repris, combats enregistrés refaits, auto-tests Godot passés.
 
 ## Rétro (Charles)
 - Ce qui a marché :

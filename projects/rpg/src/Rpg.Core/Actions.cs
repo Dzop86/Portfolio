@@ -55,6 +55,12 @@ public sealed record SpellCast(int Fighter, string Spell, Cell Target, bool Crit
 /// What a cast would do to one fighter (<see cref="Fight.Foresee"/>): damage before shields, from
 /// the lowest to the highest roll, and healing.
 /// </summary>
+/// <summary>
+/// A hero's numbers in a fight (<see cref="Fight.HeroTotals"/>): hit points before Vitality, action and
+/// movement points, initiative, its characteristics with what it wears, what it wears alone, its spells.
+/// </summary>
+public sealed record HeroNumbers(int Hp, int Ap, int Mp, int Initiative, Characteristics Stats, Characteristics Worn, IReadOnlyList<string> Spells);
+
 /// <param name="CritMin">The damage of a critical hit's lowest roll; with <paramref name="CritMax"/>, 0 when the spell never lands one.</param>
 public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0)
 {

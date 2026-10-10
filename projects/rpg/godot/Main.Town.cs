@@ -52,7 +52,7 @@ public partial class Main
         };
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "inventory" or "zone" or "world")
+        else if (_options.Shot is "town" or "banner" or "inventory" or "points" or "zone" or "world")
             _ = TownScreenshot();
     }
 
@@ -427,6 +427,24 @@ public partial class Main
             Error picture = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {picture} {_options.Screenshot}");
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot == "points")
+        {
+            // The character sheet for the project page: a tenth-level guard, points spent, a few items worn.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10,
+                Stats: new Characteristics(Vitality: 20, Strength: 40, Intelligence: 0, Chance: 9, Agility: 10),
+                Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club", [Slot.Boots] = "poacher-boots", [Slot.Pet] = "kitten" });
+            _talkPanel!.SetProgress(10, 5_000);
+            OpenPoints();
+            _pointsPanel!.Editor.Add(Characteristic.Strength, 5);
+            _pointsPanel.Refresh();
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error sheet = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {sheet} {_options.Screenshot}");
+            GetTree().Quit(sheet == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "inventory")
