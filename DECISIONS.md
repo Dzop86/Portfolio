@@ -303,3 +303,9 @@ Le burndown comptait par projet entier, brûlé à son dernier sprint : réouvri
 **Pourquoi ce projet plutôt qu'un agent de revue de code :** Charles proposait les deux et m'a laissé choisir. Le RAG est le plus demandé des deux et se mesure (rappel, MRR, citations justes, refus justes) ; il s'appuie sur ce que le portfolio a déjà (FastAPI, Docker, PostgreSQL, CI). L'agent de revue reste une bonne suite.
 **Limites :** le site est statique : pas d'assistant en direct sur la fiche (il faudrait un serveur et une clé d'API payante), mais des réponses enregistrées et les résultats de l'évaluation. Les réponses demandent une clé `ANTHROPIC_API_KEY` ; sans elle, la recherche et son évaluation tournent quand même, et les tests utilisent un faux modèle.
 **Alternatives :** l'agent de revue de code (proposé par Charles) ; finir Osmose d'abord (son sprint, le 63, est prêt à reprendre).
+
+## D59. Les schémas d'architecture avant la reprise d'Osmose (10 octobre 2026)
+**Choix (demande de Charles) :** le sprint des schémas « Comment les morceaux tiennent ensemble » (D57) passe avant les premiers monstres d'Osmose : il devient le sprint 63, les monstres le sprint 64. Aucun point de plus (280).
+**Pourquoi :** Charles trouve le schéma de la fiche Osmose parfait et le veut sur chaque fiche avant de reprendre le jeu.
+**Alternatives :** reprendre Osmose d'abord, comme D58 le prévoyait.
+

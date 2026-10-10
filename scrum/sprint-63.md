@@ -1,14 +1,12 @@
-# Sprint 63 : Osmose, les premiers monstres
+# Sprint 63 : un schéma d'architecture sur chaque fiche
 
-**Objectif :** Une première famille de monstres (DPS mêlée, DPS distance, tank, support, boss) en groupes visibles sur la carte.
+**Objectif :** demande de Charles (D57) : sur chaque fiche, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose, quand le projet a au moins trois morceaux qui se parlent.
 
-**En pause (D58) :** Osmose s'arrête après le sprint 60, à la demande de Charles, le temps de l'assistant documentaire (sprints 61 et 62) ; ce sprint reprendra tel quel.
-
-**Goal:** A first family of monsters (melee and ranged damage, tank, support, boss) in groups visible on the map.
+**Goal:** Charles's request (D57): on each project page, a "How the pieces fit together" diagram, like Osmose's, when the project has at least three pieces that talk to each other.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats les monstres de la zone (rpg) : une famille de cinq monstres (DPS mêlée, DPS distance, tank, support soin ou bouclier, boss), groupes visibles qui errent, clic pour combattre, réapparition ; XP et butin ; équilibre par simulation ; auto-test, captures. | 3 | À faire |
+| En tant que visiteur, je vois d'un coup d'œil comment chaque projet est construit (vitrine) : le schéma d'Osmose décrit en données et dessiné en SVG par le générateur ; un schéma pour chaque fiche qui a au moins trois morceaux (boîtes avec leur technologie, flèches nommées), en français et en anglais ; tests Node (traductions, flèches vers des boîtes connues, textes qui tiennent dans leur boîte) ; Playwright (375 px sans défilement horizontal, deux thèmes, axe) ; les fiches sans schéma listées ici avec la raison. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

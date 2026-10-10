@@ -18,7 +18,8 @@
     "D55",
     "D56",
     "D57",
-    "D58"
+    "D58",
+    "D59"
   ],
   "scopeSteps": [
     {
@@ -123,7 +124,7 @@
         58,
         59,
         60,
-        63
+        64
       ],
       "decisions": [
         "D56"
@@ -132,7 +133,7 @@
     {
       "after": 55,
       "sprints": [
-        64
+        63
       ],
       "decisions": [
         "D57"
@@ -506,16 +507,16 @@
       "sprints": "S63",
       "kind": "build",
       "label": {
-        "fr": "Osmose : les premiers monstres",
-        "en": "Osmose: the first monsters"
+        "fr": "Vitrine : un schéma d'architecture sur chaque fiche",
+        "en": "Showcase: an architecture diagram on each project page"
       }
     },
     {
       "sprints": "S64",
       "kind": "build",
       "label": {
-        "fr": "Vitrine : un schéma d'architecture sur chaque fiche",
-        "en": "Showcase: an architecture diagram on each project page"
+        "fr": "Osmose : les premiers monstres",
+        "en": "Osmose: the first monsters"
       }
     }
   ],
@@ -550,8 +551,8 @@
         "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
       },
       "outcome": {
-        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), puis un RPG tactique à la manière de Dofus (D54 : 26 points de plus, 232 en tout, six sprints), puis, après l'essai du jeu par Charles, le launcher, le choix du serveur et la création de personnage refaits (D55 : 9 points de plus, 241 en tout, trois sprints), puis, après un second questionnaire, les éléments, les effets, les classes, la progression, l'équipement et le monde (D56 : 24 points de plus, 265 en tout, huit sprints), puis un schéma d'architecture sur chaque fiche (D57 : 5 points de plus, 270 en tout, un sprint), puis un assistant documentaire avec RAG, Osmose mis en pause pour lui (D58 : 10 points de plus, 280 en tout, deux sprints), chaque fois avec Charles et dans des sprints à part, sans rien décaler.",
-        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), then a tactical RPG in the style of Dofus (D54: 26 more points, 232 in all, six sprints), then, after Charles tried the game, the launcher, the server choice and character creation redone (D55: 9 more points, 241 in all, three sprints), then, after a second questionnaire, elements, effects, classes, progression, equipment and world (D56: 24 more points, 265 in all, eight sprints), then an architecture diagram on each project page (D57: 5 more points, 270 in all, one sprint), then a documentation assistant with RAG, Osmose paused for it (D58: 10 more points, 280 in all, two sprints), each time with Charles and in sprints of their own, delaying nothing."
+        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), puis un RPG tactique à la manière de Dofus (D54 : 26 points de plus, 232 en tout, six sprints), puis, après l'essai du jeu par Charles, le launcher, le choix du serveur et la création de personnage refaits (D55 : 9 points de plus, 241 en tout, trois sprints), puis, après un second questionnaire, les éléments, les effets, les classes, la progression, l'équipement et le monde (D56 : 24 points de plus, 265 en tout, huit sprints), puis un schéma d'architecture sur chaque fiche (D57 : 5 points de plus, 270 en tout, un sprint), puis un assistant documentaire avec RAG, Osmose mis en pause pour lui (D58 : 10 points de plus, 280 en tout, deux sprints), puis les schémas passés avant la reprise d'Osmose (D59, sans point de plus), chaque fois avec Charles et dans des sprints à part, sans rien décaler.",
+        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), then a tactical RPG in the style of Dofus (D54: 26 more points, 232 in all, six sprints), then, after Charles tried the game, the launcher, the server choice and character creation redone (D55: 9 more points, 241 in all, three sprints), then, after a second questionnaire, elements, effects, classes, progression, equipment and world (D56: 24 more points, 265 in all, eight sprints), then an architecture diagram on each project page (D57: 5 more points, 270 in all, one sprint), then a documentation assistant with RAG, Osmose paused for it (D58: 10 more points, 280 in all, two sprints), then the diagrams moved ahead of Osmose's return (D59, no extra points), each time with Charles and in sprints of their own, delaying nothing."
       }
     },
     {
@@ -652,8 +653,8 @@
         "en": "Two buffer sprints, one project in progress at a time"
       },
       "outcome": {
-        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 64 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58).",
-        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 64 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58)."
+        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 64 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59).",
+        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 64 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59)."
       }
     },
     {

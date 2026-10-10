@@ -14,7 +14,7 @@ Source de vérité : `data/projects.json`. Résumé :
 
 | # | Projet | Stack principale | Sprint | Points |
 |---|---|---|---|---|
-| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40+S44+S64 | 16 |
+| 1 | Vitrine (ce site) | HTML, CSS, JS, Node, Playwright | S1-S9+S35+S40+S44+S63 | 16 |
 | 2 | Topologie 3D | C++, Three.js | S4-S5+S36-S41+S43 | 36 |
 | 3 | Bibliothèque C de maillages | C, CMake, WebAssembly, libFuzzer | S2-S6+S42 | 10 |
 | 4 | Visionneuse Qt/OpenGL | C++, Qt, OpenGL | S26-S27 | 13 |
@@ -35,7 +35,7 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S63 | 59 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64 | 59 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
 Total : 280 points sur 64 sprints de deux semaines.
@@ -93,13 +93,16 @@ Six sprints, 26 points. Un jeu à télécharger, écrit de zéro (aucun code, no
 Trois sprints, 9 points, après l'essai du jeu par Charles sous Windows et un questionnaire. S51 le launcher refait : nom de compte, mot de passe et « Se connecter » seulement (la connexion met à jour puis lance le jeu), mémoriser le nom et le mot de passe (gestionnaire d'identifiants du système), inscription, mise à jour automatique à l'ouverture, serveur caché, une présentation moins austère. S52 dans le jeu, comme Dofus : choix du serveur (direct tant qu'il n'y en a qu'un), puis liste visuelle des personnages (pseudo, classe, niveau, icône) et création s'il y en a moins de cinq. S53 un écran de création à part, plein écran : plusieurs couleurs (tenue, cheveux, peau), taille et carrure, et le choix sur pièces d'un pack libre de modèles à pièces détachables (cheveux, yeux, vêtements, accessoires). Ensuite, après un nouveau questionnaire : les classes retravaillées (quatre éléments, effets, sorts de classe débloqués par niveau, lisibilité et animations du combat), la progression (expérience, caractéristiques, sorts à monter, équipement), puis le monde (cartes reliées, caméra).
 
 ## Osmose : éléments, classes, progression et monde (décision de Charles, 9 octobre 2026, D56)
-Huit sprints, 24 points, après un second questionnaire. S54 les quatre éléments (une caractéristique chacun, résistances) et les effets (soin, bouclier, poussée et attirance, effets dans la durée, zones) ; S55 les invocations, les sorts à rangs débloqués par niveau, les caractéristiques dans les dégâts ; S56 les trois classes refaites, une vingtaine de sorts chacune ; S57 un combat lisible (survol, frise de l'ordre de jeu, effets visuels) ; S58 l'expérience et les niveaux 1 à 100, 10 points de caractéristique et 1 point de sort par niveau ; S59 les 14 emplacements d'équipement, les panoplies, l'inventaire en pages ; S60 de grandes zones avec une caméra qui suit le joueur, la carte du monde ; S61 (63 depuis D58) une première famille de monstres en groupes visibles. Ensuite, après un nouveau questionnaire : donjons, quêtes, groupes, guildes, métiers, succès, bestiaire, cosmétiques, tutoriel.
+Huit sprints, 24 points, après un second questionnaire. S54 les quatre éléments (une caractéristique chacun, résistances) et les effets (soin, bouclier, poussée et attirance, effets dans la durée, zones) ; S55 les invocations, les sorts à rangs débloqués par niveau, les caractéristiques dans les dégâts ; S56 les trois classes refaites, une vingtaine de sorts chacune ; S57 un combat lisible (survol, frise de l'ordre de jeu, effets visuels) ; S58 l'expérience et les niveaux 1 à 100, 10 points de caractéristique et 1 point de sort par niveau ; S59 les 14 emplacements d'équipement, les panoplies, l'inventaire en pages ; S60 de grandes zones avec une caméra qui suit le joueur, la carte du monde ; S61 (64 depuis D58 et D59) une première famille de monstres en groupes visibles. Ensuite, après un nouveau questionnaire : donjons, quêtes, groupes, guildes, métiers, succès, bestiaire, cosmétiques, tutoriel.
 
 ## Un schéma d'architecture sur chaque fiche (demande de Charles, 9 octobre 2026, D57)
-Un sprint de 5 points, la vitrine passe de 11 à 16. Sprint 62 (64 depuis D58), après Osmose : sur chaque fiche qui a au moins trois morceaux qui se parlent, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose (boîtes, technologies, flèches nommées), décrit en données, dessiné en SVG par le générateur, en français et en anglais, lisible à 375 px et dans les deux thèmes.
+Un sprint de 5 points, la vitrine passe de 11 à 16. Sprint 62 (63 depuis D58 et D59), avant la reprise d'Osmose : sur chaque fiche qui a au moins trois morceaux qui se parlent, un schéma « Comment les morceaux tiennent ensemble », comme celui d'Osmose (boîtes, technologies, flèches nommées), décrit en données, dessiné en SVG par le générateur, en français et en anglais, lisible à 375 px et dans les deux thèmes.
 
 ## Un assistant documentaire avec RAG ; Osmose en pause (décision de Charles, 10 octobre 2026, D58)
 Osmose s'arrête après le sprint 60. Les sprints sont renumérotés dans l'ordre où ils se font : deux sprints de 5 points, 61 et 62, pour l'assistant ; les premiers monstres d'Osmose deviennent le sprint 63 (qui attend sa reprise), les schémas d'architecture le sprint 64. L'assistant : un assistant qui répond aux questions sur une documentation technique (celle du portfolio : README, décisions, OpenAPI) en citant fichier et lignes, qui refuse quand les sources ne répondent pas, avec recherche hybride dans Qdrant, API FastAPI, Docker et une évaluation sur des questions de référence.
+
+## Les schémas avant la reprise d'Osmose (décision de Charles, 10 octobre 2026, D59)
+Après l'assistant documentaire, les schémas « Comment les morceaux tiennent ensemble » de chaque fiche passent en premier (sprint 63), puis Osmose reprend avec ses premiers monstres (sprint 64). Aucun point de plus.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
