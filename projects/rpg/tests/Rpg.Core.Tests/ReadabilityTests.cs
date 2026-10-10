@@ -16,7 +16,7 @@ public class ReadabilityTests
         new(new GameData(All, [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)]), "s", seed);
 
     private static FighterSpec Caster(params string[] spells) =>
-        Spec(0, ap: 99, mp: 0, initiative: 999, spells: spells) with { Stats = new Characteristics(Intelligence: 50) };
+        Spec(0, ap: 99, mp: 0, initiative: 999, spells: spells) with { Stats = new Characteristics(Fire: 50) };
 
     private static readonly FighterSpec Resistant = Spec(1, hp: 99) with { Resistances = new Dictionary<Element, int> { [Element.Fire] = 25 } };
 
@@ -28,7 +28,7 @@ public class ReadabilityTests
         {
             Fight f = Play(seed, ["A.B"], Caster("blaze"), Resistant);
             Forecast fc = Assert.Single(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0)));
-            // 6 to 10, +10 for 50 Intelligence, -25 % resistance; a spell that never lands a critical hit.
+            // 6 to 10, +10 for 50 Fire, -25 % resistance; a spell that never lands a critical hit.
             Assert.Equal((f.Fighters[1], 12, 15, Element.Fire, 0, 0), (fc.Fighter, fc.DamageMin, fc.DamageMax, fc.Element, fc.CritMin, fc.CritMax));
             int events = f.Events.Count;
             Assert.Equal(events, f.Events.Count);
@@ -67,19 +67,19 @@ public class ReadabilityTests
         f.Fighters[1].Hp = 45;
         IReadOnlyList<Forecast> cross = f.Foresee(f.Fighters[0].Spells[0], new Cell(3, 1));
         Assert.Equal([1, 2], cross.Select(c => c.Fighter.Id));
-        // The heal (10 to 14, +10) stops at the 5 hit points missing; the enemy in reach is not healed.
+        // The heal (10 to 14: Fire adds nothing to it) stops at the 5 hit points missing; the enemy in reach is not healed.
         Forecast heal = Assert.Single(f.Foresee(f.Fighters[0].Spells[1], new Cell(3, 1)));
         Assert.Equal((1, 0, 0, 5, 5), (heal.Fighter.Id, heal.DamageMin, heal.DamageMax, heal.HealMin, heal.HealMax));
         // A spell that heals its caster shows both: the hit on the target, the caster's healing.
         f.Fighters[0].Hp = 10;
         IReadOnlyList<Forecast> drain = f.Foresee(f.Fighters[0].Spells[2], new Cell(4, 1));
-        Assert.Equal([(2, 5, 5, 0), (0, 0, 0, 18)], drain.Select(d => (d.Fighter.Id, d.DamageMin, d.DamageMax, d.HealMax)));
+        Assert.Equal([(2, 5, 5, 0), (0, 0, 0, 8)], drain.Select(d => (d.Fighter.Id, d.DamageMin, d.DamageMax, d.HealMax)));
     }
 
     [Fact]
     public void ASureKill_IsOneThatEvenTheLowestRollGetsThroughTheShields()
     {
-        // The lowest roll: 6, +10 for 50 Intelligence.
+        // The lowest roll: 6, +10 for 50 Fire.
         Fight f = Play(1, ["A.B"], Caster("blaze"), Spec(1, hp: 16));
         Assert.True(f.Foresee(f.Fighters[0].Spells[0], new Cell(2, 0))[0].SureKill);
         f.Fighters[1].Hp = 17;

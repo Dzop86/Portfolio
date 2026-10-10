@@ -152,7 +152,7 @@ public static class Equipment
     }
 
     public static Characteristics Add(Characteristics a, Characteristics? b) => b is null ? a
-        : new(a.Vitality + b.Vitality, a.Strength + b.Strength, a.Intelligence + b.Intelligence, a.Chance + b.Chance, a.Agility + b.Agility);
+        : new(a.Vitality + b.Vitality, a.Earth + b.Earth, a.Fire + b.Fire, a.Water + b.Water, a.Air + b.Air);
 
     /// <summary>
     /// What the monsters of a fight the hero's team won leave: each drop of each defeated monster is

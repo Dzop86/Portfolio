@@ -9,7 +9,7 @@ public class BookTests
     private static readonly string[] Samples = ["copper-ring", "orc-club", "bread", "orc-fang", "garance-badge"];
 
     private static PointsEditor Guard() => new(new Hero("Élise", "female-c", "guard", Level: 10,
-        Stats: new Characteristics(Strength: 25), Ranks: new Dictionary<string, int> { ["strike"] = 3 }), Data);
+        Stats: new Characteristics(Earth: 25), Ranks: new Dictionary<string, int> { ["strike"] = 3 }), Data);
 
     [Fact]
     public void TheBook_ListsEveryClassSpell_TheLockedOnesToo_InTheOrderTheyUnlock()
@@ -27,11 +27,11 @@ public class BookTests
         BookSpell strike = new SpellBook(Guard()).Spells.Single(s => s.Spell.Id == "strike");
         Spell at3 = Data.Spells["strike"].AtRank(3), at4 = Data.Spells["strike"].AtRank(4);
         int crit = Spell.CritBonus(at3.DamageMax);
-        // 25 Strength: 4 more Earth damage.
+        // 25 Earth: 4 more Earth damage.
         Assert.Equal((3, (at3.DamageMin + 4, at3.DamageMax + 4), (at3.DamageMin + crit + 4, at3.DamageMax + crit + 4)), (strike.Rank, strike.Damage, strike.Critical));
         Assert.Equal((at4.DamageMin + 4, at4.DamageMax + 4), strike.NextRank);
         Assert.Equal(Progression.RankCost(4) - Progression.RankCost(3), strike.NextCost);
-        // Fire is not Strength's: no bonus there.
+        // Fire is not Earth's: no bonus there.
         BookSpell blade = new SpellBook(Guard()).Spells.Single(s => s.Spell.Id == "burning-blade");
         Assert.Equal((Data.Spells["burning-blade"].DamageMin, Data.Spells["burning-blade"].DamageMax), blade.Damage);
         // A spell that does no damage has no range.
@@ -55,8 +55,8 @@ public class BookTests
         Assert.Equal(ElementStyle.Colour(Element.Fire), ItemStyle.Colour(Data.Items["ember-ring"]));
         Assert.Equal(ElementStyle.Heal, ItemStyle.Colour(Data.Items["orc-breastplate"]));
         Assert.Equal("#bdbdbd", ItemStyle.Colour(Data.Items["donkey"]));
-        // A tie goes to the first in the sheet's order: Strength before Chance.
-        var even = new Item("even", new LocalizedText("x", "x"), ItemKind.Equipment, ItemSlot.Belt, Stats: new Characteristics(Strength: 5, Chance: 5));
+        // A tie goes to the first in the sheet's order: Earth before Water.
+        var even = new Item("even", new LocalizedText("x", "x"), ItemKind.Equipment, ItemSlot.Belt, Stats: new Characteristics(Earth: 5, Water: 5));
         Assert.Equal(ElementStyle.Colour(Element.Earth), ItemStyle.Colour(even));
         // Every slot has its own shape.
         ItemSlot[] slots = Enum.GetValues<ItemSlot>();
@@ -81,7 +81,7 @@ public class BookTests
         var book = new SpellBook(Guard());
         BookSpell strike = book.Spells.Single(s => s.Spell.Id == "strike");
         var fr = new Texts("fr");
-        IReadOnlyList<string> lines = fr.SpellDetails(strike, new Characteristics(Strength: 25));
+        IReadOnlyList<string> lines = fr.SpellDetails(strike, new Characteristics(Earth: 25));
         Spell at3 = Data.Spells["strike"].AtRank(3);
         Assert.Equal($"Coût : {at3.ApCost} PA", lines[0]);
         Assert.Contains("Critique : 10 %", lines);
@@ -90,11 +90,10 @@ public class BookTests
         Assert.Equal($"Rang suivant ({strike.NextCost} point(s) de sort) : {strike.NextRank!.Value.Min} à {strike.NextRank.Value.Max}", lines[^1]);
         BookSpell late = book.Spells[^1];
         Assert.Equal($"Unlocked at level {late.Spell.Level}", new Texts("en").SpellDetails(late, null)[^1]);
-        // A heal counts Intelligence; a spell without damage says no range.
+        // A heal counts no characteristic (D62); a spell without damage says no range.
         BookSpell wind = book.Spells.Single(s => s.Spell.Id == "second-wind");
-        Assert.DoesNotContain(new Texts("en").SpellDetails(wind, new Characteristics(Intelligence: 20)), l => l.Contains("damage", StringComparison.Ordinal));
-        // Second Wind heals 10 to 14; 20 Intelligence add 4.
-        Assert.Contains(new Texts("en").SpellDetails(wind, new Characteristics(Intelligence: 20)), l => l.StartsWith("heal 14 to 18", StringComparison.Ordinal));
+        Assert.DoesNotContain(new Texts("en").SpellDetails(wind, new Characteristics(Fire: 20)), l => l.Contains("damage", StringComparison.Ordinal));
+        Assert.Contains(new Texts("en").SpellDetails(wind, new Characteristics(Fire: 20)), l => l.StartsWith("heal 10 to 14", StringComparison.Ordinal));
         // Every spell of every class has its details in both languages.
         foreach (string c in new[] { "sentinel", "guard", "mage" })
         {

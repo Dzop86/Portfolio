@@ -437,11 +437,11 @@ public partial class Main
         {
             // The character sheet for the project page: a tenth-level guard, points spent, a few items worn.
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10,
-                Stats: new Characteristics(Vitality: 20, Strength: 40, Intelligence: 0, Chance: 9, Agility: 10),
+                Stats: new Characteristics(Vitality: 20, Earth: 40, Fire: 0, Water: 9, Air: 10),
                 Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club", [Slot.Boots] = "poacher-boots", [Slot.Pet] = "kitten" });
             _talkPanel!.SetProgress(10, 5_000);
             OpenPoints();
-            _pointsPanel!.Editor.Add(Characteristic.Strength, 5);
+            _pointsPanel!.Editor.Add(Characteristic.Earth, 5);
             if (_options.Shot == "spells")
             {
                 _pointsPanel.Editor.Raise(GameData.Embedded.Spells["shield-bash"]);

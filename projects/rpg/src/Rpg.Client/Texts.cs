@@ -95,18 +95,20 @@ public sealed class Texts
         ["sheet.col.resist"] = "Résistance",
         ["sheet.bonus.hp"] = "+{0} PV",
         ["sheet.bonus.damage"] = "+{0} dégâts {1}",
-        ["sheet.bonus.heal"] = ", +{0} soins",
-        ["sheet.help"] = "10 points dans un élément = +2 dégâts dans cet élément, et dans aucun autre · Maj+clic : 10 points d'un coup",
+        ["sheet.help"] = "10 points dans un élément = +2 dégâts dans cet élément, et rien d'autre · tapez une valeur, ou Maj+clic : 10 points d'un coup",
+        ["sheet.reset"] = "Réinitialiser",
+        ["sheet.min"] = "MIN",
+        ["sheet.max"] = "MAX",
         ["char.Vitality"] = "Vitalité",
-        ["char.Strength"] = "Force",
-        ["char.Intelligence"] = "Intelligence",
-        ["char.Chance"] = "Chance",
-        ["char.Agility"] = "Agilité",
+        ["char.Earth"] = "Terre",
+        ["char.Fire"] = "Feu",
+        ["char.Water"] = "Eau",
+        ["char.Air"] = "Air",
         ["char.Vitality.help"] = "+1 PV par point",
-        ["char.Strength.help"] = "+2 dégâts Terre et neutres par tranche de 10 points",
-        ["char.Intelligence.help"] = "+2 dégâts Feu et +2 soins par tranche de 10 points",
-        ["char.Chance.help"] = "+2 dégâts Eau par tranche de 10 points",
-        ["char.Agility.help"] = "+2 dégâts Air par tranche de 10 points",
+        ["char.Earth.help"] = "+2 dégâts Terre par tranche de 10 points, et rien d'autre",
+        ["char.Fire.help"] = "+2 dégâts Feu par tranche de 10 points, et rien d'autre",
+        ["char.Water.help"] = "+2 dégâts Eau par tranche de 10 points, et rien d'autre",
+        ["char.Air.help"] = "+2 dégâts Air par tranche de 10 points, et rien d'autre",
         ["xp.line"] = "Niveau {0} · {1} / {2} XP",
         ["xp.max"] = "Niveau {0} · {1} XP",
         ["result.xp"] = "+{0} XP",
@@ -332,18 +334,20 @@ public sealed class Texts
         ["sheet.col.resist"] = "Resistance",
         ["sheet.bonus.hp"] = "+{0} HP",
         ["sheet.bonus.damage"] = "+{0} {1} damage",
-        ["sheet.bonus.heal"] = ", +{0} healing",
-        ["sheet.help"] = "10 points in an element = +2 damage in that element, and no other · Shift+click: 10 points at once",
+        ["sheet.help"] = "10 points in an element = +2 damage in that element, and nothing else · type a value, or Shift+click: 10 points at once",
+        ["sheet.reset"] = "Reset",
+        ["sheet.min"] = "MIN",
+        ["sheet.max"] = "MAX",
         ["char.Vitality"] = "Vitality",
-        ["char.Strength"] = "Strength",
-        ["char.Intelligence"] = "Intelligence",
-        ["char.Chance"] = "Chance",
-        ["char.Agility"] = "Agility",
+        ["char.Earth"] = "Earth",
+        ["char.Fire"] = "Fire",
+        ["char.Water"] = "Water",
+        ["char.Air"] = "Air",
         ["char.Vitality.help"] = "+1 HP a point",
-        ["char.Strength.help"] = "+2 Earth and neutral damage for every 10 points",
-        ["char.Intelligence.help"] = "+2 Fire damage and +2 healing for every 10 points",
-        ["char.Chance.help"] = "+2 Water damage for every 10 points",
-        ["char.Agility.help"] = "+2 Air damage for every 10 points",
+        ["char.Earth.help"] = "+2 Earth damage for every 10 points, and nothing else",
+        ["char.Fire.help"] = "+2 Fire damage for every 10 points, and nothing else",
+        ["char.Water.help"] = "+2 Water damage for every 10 points, and nothing else",
+        ["char.Air.help"] = "+2 Air damage for every 10 points, and nothing else",
         ["xp.line"] = "Level {0} · {1} / {2} XP",
         ["xp.max"] = "Level {0} · {1} XP",
         ["result.xp"] = "+{0} XP",
@@ -546,14 +550,13 @@ public sealed class Texts
 
     /// <summary>What hovering a spell tells: cost, range and its limits; damage, area and effects.</summary>
     /// <summary>
-    /// A spell's card; with the caster's characteristics, its damage and healing count them (2 more for
-    /// every 10 points of the element), as the fight will.
+    /// A spell's card; with the caster's characteristics, its damage counts them (2 more for every 10 points
+    /// of its element), as the fight will.
     /// </summary>
     public string SpellCard(Spell s, Characteristics? stats = null)
     {
         ArgumentNullException.ThrowIfNull(s);
         int bonus = Characteristics.Bonus((stats ?? Characteristics.None).For(s.Element));
-        int healBonus = Characteristics.Bonus((stats ?? Characteristics.None).Intelligence);
         string head = this["card.spell", s.Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange]
             + (s.InLine ? this["card.in-line"] : "") + (s.LineOfSight ? "" : this["card.no-sight"])
             + this["card.per-turn", s.PerTurn] + (s.Cooldown > 0 ? this["card.cooldown", s.Cooldown] : "");
@@ -564,12 +567,12 @@ public sealed class Texts
             parts.Add(this["card.damage", s.DamageMin + bonus, s.DamageMax + bonus, this["element." + s.Element]]
                 + (s.Crit > 0 ? this["card.crit", s.DamageMin + crit + bonus, s.DamageMax + crit + bonus, s.Crit] : ""));
         }
-        parts.AddRange(Effects(s, healBonus));
+        parts.AddRange(Effects(s));
         return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
     }
 
     /// <summary>A spell's area and effects, each as a phrase ("zone : croix de 1", "soin 7 à 10 des alliés").</summary>
-    private List<string> Effects(Spell s, int healBonus)
+    private List<string> Effects(Spell s)
     {
         var parts = new List<string>();
         if (s.Area is Area area && area.Shape != AreaShape.Point)
@@ -578,7 +581,7 @@ public sealed class Texts
         {
             string text = e switch
             {
-                HealEffect h => this["effect.heal", h.Min + healBonus, h.Max + healBonus],
+                HealEffect h => this["effect.heal", h.Min, h.Max],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
                 PullEffect p => this["effect.pull", p.Cells],
@@ -614,7 +617,7 @@ public sealed class Texts
             if (s.Crit > 0)
                 lines.Add(this["sd.crit", b.Critical.Min, b.Critical.Max]);
         }
-        lines.AddRange(Effects(s, Characteristics.Bonus((stats ?? Characteristics.None).Intelligence)));
+        lines.AddRange(Effects(s));
         if (!b.Unlocked)
             lines.Add(this["sd.unlock", b.Spell.Level]);
         else if (b.NextCost == 0)
@@ -669,7 +672,7 @@ public sealed class Texts
     private string Gives(Characteristics? stats, int ap, int mp)
     {
         Characteristics st = stats ?? Characteristics.None;
-        var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Strength, this["char.Strength"]), (st.Intelligence, this["char.Intelligence"]), (st.Chance, this["char.Chance"]), (st.Agility, this["char.Agility"]), (ap, this["ap"]), (mp, this["mp"]) };
+        var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Earth, this["char.Earth"]), (st.Fire, this["char.Fire"]), (st.Water, this["char.Water"]), (st.Air, this["char.Air"]), (ap, this["ap"]), (mp, this["mp"]) };
         return string.Join(", ", parts.Where(p => p.Value != 0).Select(p => $"{p.Value.ToString("+0;-0", CultureInfo.InvariantCulture)} {p.Name}"));
     }
 

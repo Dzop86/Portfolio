@@ -8,15 +8,17 @@ namespace Rpg.Client;
 /// </summary>
 public static class ElementStyle
 {
-    public const string Heal = "#7be07b";
+    // Vitality and healing in pink, the elements in the colours Charles chose (D62): Earth brown, Fire red,
+    // Water blue, Air green; light enough to read on the dark interface.
+    public const string Heal = "#ff7eb6";
     public const string Shield = "#a9c7e8";
 
     public static string Colour(Element element) => element switch
     {
-        Element.Earth => "#d9a55b",
-        Element.Fire => "#ff6b3d",
+        Element.Earth => "#b07a45",
+        Element.Fire => "#ef4b4b",
         Element.Water => "#3d9cff",
-        Element.Air => "#b98cff",
+        Element.Air => "#52c45a",
         _ => "#e0e0e0",
     };
 }

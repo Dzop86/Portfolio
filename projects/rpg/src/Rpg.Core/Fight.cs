@@ -225,8 +225,8 @@ public sealed class Fight
             int healMin = 0, healMax = 0;
             foreach (HealEffect h in heals.Where(h => h.Affects == Affects.Caster ? f == me : area.Contains(f) && Touches(h.Affects, me, f)))
             {
-                healMin += Healing(h.Min, me.Spec.Characteristics);
-                healMax += Healing(h.Max, me.Spec.Characteristics);
+                healMin += h.Min;
+                healMax += h.Max;
             }
             int missing = f.MaxHp - f.Hp;
             if (hit || healMax > 0)
@@ -367,8 +367,6 @@ public sealed class Fight
         return (int)Math.Max(0, scaled / 10_000);
     }
 
-    /// <summary>A heal of <paramref name="roll"/>: 2 more for every 10 points of Intelligence (D61).</summary>
-    public static int Healing(int roll, Characteristics caster) => roll + Characteristics.Bonus((caster ?? Characteristics.None).Intelligence);
 
     /// <summary>The living fighters on the cells of a spell's area, in the area's order, each once.</summary>
     public IReadOnlyList<Fighter> InArea(Spell spell, Cell from, Cell target)
@@ -414,8 +412,8 @@ public sealed class Fight
         }
         foreach (SpellEffect effect in spell.AllEffects)
         {
-            // Healing grows with Intelligence, and with a critical hit as damage does.
-            int effectRoll = effect is HealEffect heal ? Healing(_rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0), me.Spec.Characteristics) : 0;
+            // Healing grows with a critical hit, as damage does, and with no characteristic (D62).
+            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) : 0;
             if (effect is SummonEffect summon)
             {
                 Summon(me, _data.Summons[summon.Summon], target);

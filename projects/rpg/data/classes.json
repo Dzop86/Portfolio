@@ -10,9 +10,9 @@
       "en": "Shoots from afar, pushes back and hinders; mobile, she keeps her distance."
     },
     "hp": 62,
-    "ap": 6,
+    "ap": 8,
     "mp": 4,
-    "initiative": 120,
+    "initiative": 10,
     "spells": [
       "strike",
       "arrow",
@@ -48,9 +48,9 @@
       "en": "Pulls, holds and hits hard up close; shields herself."
     },
     "hp": 70,
-    "ap": 7,
-    "mp": 3,
-    "initiative": 100,
+    "ap": 8,
+    "mp": 4,
+    "initiative": 10,
     "spells": [
       "strike",
       "axe",
@@ -87,8 +87,8 @@
     },
     "hp": 62,
     "ap": 8,
-    "mp": 3,
-    "initiative": 110,
+    "mp": 4,
+    "initiative": 10,
     "spells": [
       "staff",
       "spark",

@@ -14,7 +14,8 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class PointsPanel : CanvasLayer
 {
-    private readonly List<(Characteristic Stat, Label[] Cells, Button Minus, Button Plus)> _stats = [];
+    private readonly List<(Characteristic Stat, Label[] Cells, LineEdit Value, Button[] Buttons)> _stats = [];
+    private Button _reset = null!;
     private readonly List<(Spell Spell, Button Tile, Label Name, Label Sub)> _tiles2 = [];
     private readonly List<(Element? Element, Button Chip)> _chips = [];
     private Element? _filter;
@@ -38,7 +39,7 @@ public partial class PointsPanel : CanvasLayer
     {
         Editor = editor;
         Texts = texts;
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -500, OffsetRight = 500, OffsetTop = -270, OffsetBottom = 290 };
+        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -570, OffsetRight = 570, OffsetTop = -300, OffsetBottom = 320 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
         var margin = new MarginContainer();
@@ -98,12 +99,14 @@ public partial class PointsPanel : CanvasLayer
         page.AddChild(tiles);
         foreach ((string key, string colour) in new[] { ("hp", ElementStyle.Heal), ("ap", "#6fb6ff"), ("mp", "#9be36b"), ("initiative", "#e0e0e0"), ("left", "#bef374") })
             _tiles[key] = Tile(tiles, colour, big: key is "hp" or "left");
+        // Every point back, to spend again (D62).
+        _reset = Small(tiles, "", () => Editor.ResetCharacteristics(), 200);
 
         var right = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         right.AddThemeConstantOverride("separation", 8);
         page.AddChild(right);
-        var grid = new GridContainer { Columns = 8 };
-        grid.AddThemeConstantOverride("h_separation", 14);
+        var grid = new GridContainer { Columns = 10 };
+        grid.AddThemeConstantOverride("h_separation", 8);
         grid.AddThemeConstantOverride("v_separation", 10);
         right.AddChild(grid);
         foreach (string col in new[] { "stat", "invested", "worn", "total", "bonus", "resist" })
@@ -113,30 +116,43 @@ public partial class PointsPanel : CanvasLayer
             h.SetMeta("key", "sheet.col." + col);
             grid.AddChild(h);
         }
-        grid.AddChild(new Control());
-        grid.AddChild(new Control());
+        for (int k = 0; k < 4; k++)
+            grid.AddChild(new Control());
         foreach (Characteristic stat in Enum.GetValues<Characteristic>())
         {
             Color colour = new(Colour(stat));
-            var name = new Label { CustomMinimumSize = new Vector2(150, 0), MouseFilter = Control.MouseFilterEnum.Stop };
+            var name = new Label { CustomMinimumSize = new Vector2(110, 0), MouseFilter = Control.MouseFilterEnum.Stop };
             name.AddThemeColorOverride("font_color", colour);
             name.AddThemeFontSizeOverride("font_size", 18);
             grid.AddChild(name);
-            var cells = new Label[6];
-            cells[0] = name;
-            for (int i = 1; i < 6; i++)
+            // The points put in, typed or changed by the buttons; a typed value is kept within what is left.
+            var value = new LineEdit { CustomMinimumSize = new Vector2(70, 40), Alignment = HorizontalAlignment.Right };
+            void Apply(string text)
             {
-                cells[i] = new Label { HorizontalAlignment = HorizontalAlignment.Right, CustomMinimumSize = new Vector2(i == 4 ? 210 : 70, 0) };
-                if (i == 3)
+                if (int.TryParse(text, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int n))
+                    Editor.Set(stat, n);
+                Refresh();
+            }
+            value.TextSubmitted += Apply;
+            value.FocusExited += () => Apply(value.Text);
+            grid.AddChild(value);
+            var cells = new Label[5];
+            cells[0] = name;
+            for (int i = 1; i < 5; i++)
+            {
+                cells[i] = new Label { HorizontalAlignment = HorizontalAlignment.Right, CustomMinimumSize = new Vector2(i == 3 ? 150 : 56, 0) };
+                if (i == 2)
                 {
                     cells[i].AddThemeFontSizeOverride("font_size", 18);
                     cells[i].AddThemeColorOverride("font_color", colour);
                 }
                 grid.AddChild(cells[i]);
             }
+            Button min = Small(grid, "", () => Editor.Set(stat, 0), 56);
             Button minus = Small(grid, "−", () => Editor.Remove(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1));
             Button plus = Small(grid, "+", () => Editor.Add(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1));
-            _stats.Add((stat, cells, minus, plus));
+            Button max = Small(grid, "", () => Editor.Set(stat, Editor.Max(stat)), 56);
+            _stats.Add((stat, cells, value, [min, minus, plus, max]));
         }
         _help = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.65f) };
         _help.AddThemeFontSizeOverride("font_size", 13);
@@ -277,10 +293,12 @@ public partial class PointsPanel : CanvasLayer
         _detailName.AddThemeColorOverride("font_color", new Color(colour));
         _detailRank.Text = $"{Texts["sd.rank", b.Rank, spell.MaxRank]} · {Texts["element." + spell.Element]}";
         Characteristics? stats = Fight.HeroTotals(Editor.Draft, Editor.Data)?.Stats;
-        // The damage lines in the element's colour, the critical line in the accent, the rest plain.
-        _detail.Text = string.Join('\n', Texts.SpellDetails(b, stats).Select(Capital).Select((line, i) =>
-            line.Contains(Texts["element." + spell.Element], StringComparison.Ordinal) && b.Damage.Max > 0 && line.StartsWith(b.Damage.Min.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal) ? $"[color={colour}][b]{Escape(line)}[/b][/color]"
-            : b.Critical.Max > 0 && line.StartsWith(b.Critical.Min.ToString(System.Globalization.CultureInfo.InvariantCulture) + " ", StringComparison.Ordinal) ? $"[color=#bef374]{Escape(line)}[/color]"
+        // The damage line in the element's colour, the critical line in it and in bold (D62), the rest plain.
+        string min = b.Damage.Min.ToString(System.Globalization.CultureInfo.InvariantCulture) + " ";
+        string critMin = b.Critical.Min.ToString(System.Globalization.CultureInfo.InvariantCulture) + " ";
+        _detail.Text = string.Join('\n', Texts.SpellDetails(b, stats).Select(Capital).Select(line =>
+            b.Critical.Max > 0 && line.StartsWith(critMin, StringComparison.Ordinal) && !line.Contains(Texts["element." + spell.Element], StringComparison.Ordinal) ? $"[color={colour}][b]{Escape(line)}[/b][/color]"
+            : b.Damage.Max > 0 && line.StartsWith(min, StringComparison.Ordinal) ? $"[color={colour}]{Escape(line)}[/color]"
             : Escape(line)));
         _rankMinus.Disabled = !Editor.CanLower(spell);
         _rankPlus.Disabled = !Editor.CanRaise(spell);
@@ -293,10 +311,10 @@ public partial class PointsPanel : CanvasLayer
     /// <summary>The colour of a characteristic: its element's, the heal colour for Vitality.</summary>
     private static string Colour(Characteristic stat) => stat switch
     {
-        Characteristic.Strength => ElementStyle.Colour(Element.Earth),
-        Characteristic.Intelligence => ElementStyle.Colour(Element.Fire),
-        Characteristic.Chance => ElementStyle.Colour(Element.Water),
-        Characteristic.Agility => ElementStyle.Colour(Element.Air),
+        Characteristic.Earth => ElementStyle.Colour(Element.Earth),
+        Characteristic.Fire => ElementStyle.Colour(Element.Fire),
+        Characteristic.Water => ElementStyle.Colour(Element.Water),
+        Characteristic.Air => ElementStyle.Colour(Element.Air),
         _ => ElementStyle.Heal,
     };
 
@@ -361,25 +379,30 @@ public partial class PointsPanel : CanvasLayer
         _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
         _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";
         _tiles["initiative"].Text = $"{Texts["sheet.initiative"]}   {sheet.Initiative}";
-        _tiles["left"].Text = $"{Texts["sheet.left"]}   {sheet.PointsLeft}";
+        _tiles["left"].Text = $"{Texts["sheet.left"]}   {sheet.PointsLeft} / {Progression.CharacteristicPoints(Editor.Hero.Level)}";
         foreach (Label h in _statsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
             h.Text = Texts[(string)h.GetMeta("key")];
-        foreach ((Characteristic stat, Label[] cells, Button minus, Button plus) in _stats)
+        foreach ((Characteristic stat, Label[] cells, LineEdit value, Button[] buttons) in _stats)
         {
             SheetLine line = sheet[stat];
             cells[0].Text = Texts[$"char.{stat}"];
             cells[0].TooltipText = Texts[$"char.{stat}.help"];
-            cells[1].Text = Num(line.Invested);
-            cells[2].Text = line.Worn == 0 ? "—" : "+" + Num(line.Worn);
-            cells[3].Text = Num(line.Total);
+            if (!value.HasFocus())
+                value.Text = Num(line.Invested);
+            cells[1].Text = line.Worn == 0 ? "—" : "+" + Num(line.Worn);
+            cells[2].Text = Num(line.Total);
             // Below the first 10 points, nothing yet: a dash rather than "+0".
-            cells[4].Text = line.Bonus == 0 ? "—" : line.Element is Element e
-                ? Texts["sheet.bonus.damage", line.Bonus, Texts["element." + e]] + (stat == Characteristic.Intelligence ? Texts["sheet.bonus.heal", line.Bonus] : "")
+            cells[3].Text = line.Bonus == 0 ? "—" : line.Element is Element e
+                ? Texts["sheet.bonus.damage", line.Bonus, Texts["element." + e]]
                 : Texts["sheet.bonus.hp", line.Bonus];
-            cells[5].Text = line.Element is null ? "—" : $"{line.Resistance} %";
-            minus.Disabled = !Editor.CanRemove(stat);
-            plus.Disabled = !Editor.CanAdd(stat);
+            cells[4].Text = line.Element is null ? "—" : $"{line.Resistance} %";
+            buttons[0].Text = Texts["sheet.min"];
+            buttons[3].Text = Texts["sheet.max"];
+            buttons[0].Disabled = buttons[1].Disabled = !Editor.CanRemove(stat);
+            buttons[2].Disabled = buttons[3].Disabled = !Editor.CanAdd(stat);
         }
+        _reset.Text = Texts["sheet.reset"];
+        _reset.Disabled = Editor.CharacteristicPointsLeft == Progression.CharacteristicPoints(Editor.Hero.Level);
         _help.Text = Texts["sheet.help"];
         _spellsLeft.Text = Texts["points.spells", Editor.SpellPointsLeft];
         foreach ((Element? e, Button chip) in _chips)
@@ -406,16 +429,16 @@ public partial class PointsPanel : CanvasLayer
     public void ShowMessage(string text) => _message.Text = text;
 
     /// <summary>The totals shown, as the self-test reads them.</summary>
-    public IEnumerable<string> StatsText => _stats.Select(s => s.Cells[1].Text);
+    public IEnumerable<string> StatsText => _stats.Select(s => s.Value.Text);
 
     /// <summary>The spells on the spells tab, unlocked or not, as the self-test counts them.</summary>
     public int SpellTiles => _tiles2.Count;
 
     public string MessageText => _message.Text;
 
-    private Button Small(Container parent, string text, Action act)
+    private Button Small(Container parent, string text, Action act, float width = 44)
     {
-        var b = new Button { Text = text, CustomMinimumSize = new Vector2(44, 44) };
+        var b = new Button { Text = text, CustomMinimumSize = new Vector2(width, 44) };
         b.Pressed += () =>
         {
             act();

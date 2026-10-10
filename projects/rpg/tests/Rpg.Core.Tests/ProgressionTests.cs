@@ -67,7 +67,7 @@ public class ProgressionTests
             Assert.Null(p);
         else
             Assert.Contains(problem, p, StringComparison.Ordinal);
-        Assert.NotNull(new Hero("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Strength: -1)).Problem(Real));
+        Assert.NotNull(new Hero("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Earth: -1)).Problem(Real));
     }
 
     [Fact]
@@ -87,10 +87,10 @@ public class ProgressionTests
     public void InAFight_TheHerosPointsCount()
     {
         HeroClass guard = Real.Class("guard")!;
-        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40, Strength: 60), Ranks: new Dictionary<string, int> { ["strike"] = 3 });
+        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40, Earth: 60), Ranks: new Dictionary<string, int> { ["strike"] = 3 });
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
         Assert.Equal(guard.Hp + guard.HpPerLevel * 10 + 40, f.MaxHp);
-        Assert.Equal(60, f.Spec.Characteristics.Strength);
+        Assert.Equal(60, f.Spec.Characteristics.Earth);
         Assert.Equal(Real.Spells["strike"].AtRank(3).DamageMax, f.Spells.Single(s => s.Id == "strike").DamageMax);
     }
 
@@ -104,7 +104,7 @@ public class ProgressionTests
                 Hero built = Progression.Built(new Hero("Élise", "female-c", c.Id, Level: level), Real);
                 Assert.Null(built.Problem(Real));
                 Characteristics st = built.Stats!;
-                Assert.Equal(Progression.CharacteristicPoints(level), st.Vitality + st.Strength + st.Intelligence + st.Chance + st.Agility);
+                Assert.Equal(Progression.CharacteristicPoints(level), st.Vitality + st.Earth + st.Fire + st.Water + st.Air);
                 Assert.True(built.Ranks!.Values.Sum(Progression.RankCost) > Progression.SpellPoints(level) - 5, $"{c.Id} {level}");
             }
         }

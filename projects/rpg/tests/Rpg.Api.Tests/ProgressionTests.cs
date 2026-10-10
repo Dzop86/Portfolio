@@ -100,8 +100,8 @@ public class ProgressionTests
         }
         Assert.True((await server.Characters(Cancel)).Single().Level >= 2);
         var ranks = new Dictionary<string, int> { ["shield-bash"] = 2 };
-        CharacterSummary spent = await server.SavePoints(c.Id, new Points(new Characteristics(Vitality: 4, Strength: 6), ranks), Cancel);
-        Assert.Equal((new Characteristics(Vitality: 4, Strength: 6), 2), (spent.Stats, spent.Ranks!["shield-bash"]));
+        CharacterSummary spent = await server.SavePoints(c.Id, new Points(new Characteristics(Vitality: 4, Earth: 6), ranks), Cancel);
+        Assert.Equal((new Characteristics(Vitality: 4, Earth: 6), 2), (spent.Stats, spent.Ranks!["shield-bash"]));
         Assert.Equal(spent, (await server.Characters(Cancel)).Single());
         foreach (Points wrong in new[] { new Points(new Characteristics(Vitality: 11), null), new Points(null, new Dictionary<string, int> { ["shield-bash"] = 3 }), new Points(null, new Dictionary<string, int> { ["ice-shard"] = 2 }) })
             Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePoints(c.Id, wrong, Cancel))).Status);

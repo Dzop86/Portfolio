@@ -204,7 +204,7 @@ public static class CharacterEndpoints
         // The rules decide: within the level's points, ranks of the class's unlocked spells.
         if ((character.Hero with { Stats = stats, Ranks = ranks }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
-        (character.Vitality, character.Strength, character.Intelligence, character.Chance, character.Agility) = (stats.Vitality, stats.Strength, stats.Intelligence, stats.Chance, stats.Agility);
+        (character.Vitality, character.Earth, character.Fire, character.Water, character.Air) = (stats.Vitality, stats.Earth, stats.Fire, stats.Water, stats.Air);
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));

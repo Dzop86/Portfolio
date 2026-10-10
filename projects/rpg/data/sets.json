@@ -9,13 +9,13 @@
       {
         "pieces": 2,
         "stats": {
-          "agility": 10
+          "air": 10
         }
       },
       {
         "pieces": 3,
         "stats": {
-          "agility": 20
+          "air": 20
         },
         "mp": 1
       }

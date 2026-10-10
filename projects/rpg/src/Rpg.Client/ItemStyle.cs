@@ -66,10 +66,10 @@ public static class ItemStyle
         (int Value, string Colour)[] all =
         [
             (st.Vitality, ElementStyle.Heal),
-            (st.Strength, ElementStyle.Colour(Element.Earth)),
-            (st.Intelligence, ElementStyle.Colour(Element.Fire)),
-            (st.Chance, ElementStyle.Colour(Element.Water)),
-            (st.Agility, ElementStyle.Colour(Element.Air)),
+            (st.Earth, ElementStyle.Colour(Element.Earth)),
+            (st.Fire, ElementStyle.Colour(Element.Fire)),
+            (st.Water, ElementStyle.Colour(Element.Water)),
+            (st.Air, ElementStyle.Colour(Element.Air)),
         ];
         (int best, string colour) = all.Aggregate((a, b) => b.Value > a.Value ? b : a);
         return best > 0 ? colour : item.Kind == ItemKind.Quest ? "#f0c060" : "#bdbdbd";

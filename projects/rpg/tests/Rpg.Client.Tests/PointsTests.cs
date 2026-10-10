@@ -13,12 +13,12 @@ public class PointsTests
         var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 3), Data);
         Assert.Equal((20, 2), (editor.CharacteristicPointsLeft, editor.SpellPointsLeft));
         editor.Add(Characteristic.Vitality, 15);
-        editor.Add(Characteristic.Strength, 10);
-        Assert.Equal((15, 5, 0), (editor[Characteristic.Vitality], editor[Characteristic.Strength], editor.CharacteristicPointsLeft));
-        Assert.False(editor.CanAdd(Characteristic.Chance));
+        editor.Add(Characteristic.Earth, 10);
+        Assert.Equal((15, 5, 0), (editor[Characteristic.Vitality], editor[Characteristic.Earth], editor.CharacteristicPointsLeft));
+        Assert.False(editor.CanAdd(Characteristic.Water));
         editor.Remove(Characteristic.Vitality, 20);
         Assert.Equal((0, 15), (editor[Characteristic.Vitality], editor.CharacteristicPointsLeft));
-        Assert.False(editor.CanRemove(Characteristic.Agility));
+        Assert.False(editor.CanRemove(Characteristic.Air));
         Assert.Null(editor.Draft.Problem(Data));
     }
 
@@ -45,14 +45,14 @@ public class PointsTests
     [Fact]
     public void WhatIsSaved_StartsTheEditor_AndTheDraftGoesToTheServer()
     {
-        var saved = new Hero("Élise", "female-c", "mage", Level: 10, Stats: new Characteristics(Vitality: 30, Intelligence: 20), Ranks: new Dictionary<string, int> { ["ice-shard"] = 3 });
+        var saved = new Hero("Élise", "female-c", "mage", Level: 10, Stats: new Characteristics(Vitality: 30, Fire: 20), Ranks: new Dictionary<string, int> { ["ice-shard"] = 3 });
         var editor = new PointsEditor(saved, Data);
-        Assert.Equal((30, 20, 40, 3, 6), (editor[Characteristic.Vitality], editor[Characteristic.Intelligence], editor.CharacteristicPointsLeft, editor.Rank(Data.Spells["ice-shard"]), editor.SpellPointsLeft));
+        Assert.Equal((30, 20, 40, 3, 6), (editor[Characteristic.Vitality], editor[Characteristic.Fire], editor.CharacteristicPointsLeft, editor.Rank(Data.Spells["ice-shard"]), editor.SpellPointsLeft));
         Assert.False(editor.Changed);
-        editor.Add(Characteristic.Chance, 5);
+        editor.Add(Characteristic.Water, 5);
         Assert.True(editor.Changed);
         Points p = editor.ToPoints();
-        Assert.Equal(new Characteristics(Vitality: 30, Intelligence: 20, Chance: 5), p.Stats);
+        Assert.Equal(new Characteristics(Vitality: 30, Fire: 20, Water: 5), p.Stats);
         Assert.Equal(3, p.Ranks!["ice-shard"]);
     }
 
@@ -66,5 +66,25 @@ public class PointsTests
         Assert.Equal("Level 100 · 600000 XP", new Texts("en").XpLine(100, 600_000));
         foreach (Characteristic c in Enum.GetValues<Characteristic>())
             Assert.NotEqual(fr["char." + c], new Texts("en")["char." + c + ".help"]);
+    }
+
+    [Fact]
+    public void ThePoints_CanBeTakenBack_AndSpentElsewhere_ByValueMinOrMax()
+    {
+        // A hero who spent everything in Fire spends it in Water instead (D62).
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "mage", Level: 11, Stats: new Characteristics(Fire: 100)), Data);
+        Assert.Equal((0, 100), (editor.CharacteristicPointsLeft, editor.Max(Characteristic.Fire)));
+        editor.ResetCharacteristics();
+        Assert.Equal((100, 0), (editor.CharacteristicPointsLeft, editor[Characteristic.Fire]));
+        editor.Set(Characteristic.Water, editor.Max(Characteristic.Water));
+        Assert.Equal((100, 0), (editor[Characteristic.Water], editor.CharacteristicPointsLeft));
+        // A typed value stays within bounds.
+        editor.Set(Characteristic.Water, 250);
+        editor.Set(Characteristic.Air, -5);
+        Assert.Equal((100, 0), (editor[Characteristic.Water], editor[Characteristic.Air]));
+        editor.Set(Characteristic.Water, 30);
+        Assert.Equal((30, 70, 70), (editor[Characteristic.Water], editor.CharacteristicPointsLeft, editor.Max(Characteristic.Earth)));
+        Assert.Null(editor.Draft.Problem(Data));
+        Assert.Equal(new Characteristics(Water: 30), editor.ToPoints().Stats);
     }
 }

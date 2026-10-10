@@ -37,15 +37,14 @@ public class ProgressRulesTests
     [InlineData("flame", 0, 40, 0, 0)]
     [InlineData("wave", 0, 0, 40, 0)]
     [InlineData("gust", 0, 0, 0, 40)]
-    [InlineData("strike", 40, 0, 0, 0)]
-    public void EachElement_GrowsWithItsCharacteristic_TwoMoreForEveryTenPoints(string spell, int strength, int intelligence, int chance, int agility)
+    public void EachElement_GrowsWithItsCharacteristic_TwoMoreForEveryTenPoints(string spell, int earth, int fire, int water, int air)
     {
-        var stats = new Characteristics(0, strength, intelligence, chance, agility);
+        var stats = new Characteristics(0, earth, fire, water, air);
         Fight f = Play(["AB"], Caster(stats, spell), Spec(1, hp: 99));
         f.Apply(new CastAction(spell, new Cell(1, 0)));
         Assert.Equal(99 - 18, f.Fighters[1].Hp);
         // The other characteristics do nothing for this element.
-        Fight other = Play(["AB"], Caster(new Characteristics(0, 40 - strength, 40 - intelligence, 40 - chance, 40 - agility), spell), Spec(1, hp: 99));
+        Fight other = Play(["AB"], Caster(new Characteristics(0, 40 - earth, 40 - fire, 40 - water, 40 - air), spell), Spec(1, hp: 99));
         other.Apply(new CastAction(spell, new Cell(1, 0)));
         Assert.Equal(99 - 10, other.Fighters[1].Hp);
     }
@@ -118,12 +117,16 @@ public class ProgressRulesTests
     }
 
     [Fact]
-    public void Healing_GrowsWithIntelligence()
+    public void NeutralDamage_AndHealing_GrowWithNoCharacteristic()
     {
-        Fight f = Play(["AA.B"], Caster(new Characteristics(Intelligence: 50), "mend"), Spec(0, 1, hp: 99), Spec(1));
+        // D62: every characteristic gives its element's damage, and nothing else.
+        Fight f = Play(["AA.B"], Caster(new Characteristics(10, 50, 50, 50, 50), "mend", "strike"), Spec(0, 1, hp: 99), Spec(1, 0, hp: 99));
         f.Fighters[1].Hp = 10;
         f.Apply(new CastAction("mend", new Cell(1, 0)));
-        Assert.Equal(40, f.Fighters[1].Hp);
+        Assert.Equal(30, f.Fighters[1].Hp);
+        Fight n = Play(["AB"], Caster(new Characteristics(0, 50, 50, 50, 50), "strike"), Spec(1, hp: 99));
+        n.Apply(new CastAction("strike", new Cell(1, 0)));
+        Assert.Equal(99 - 10, n.Fighters[1].Hp);
     }
 
     [Fact]
@@ -182,7 +185,7 @@ public class ProgressRulesTests
     [Fact]
     public void AFightWithSummons_ReplaysTheSame()
     {
-        GameData data = Data(["A....B", "......"], [Caster(new Characteristics(Strength: 20), "call", "strike"), Spec(1, hp: 80, spells: ["strike", "bow"])]);
+        GameData data = Data(["A....B", "......"], [Caster(new Characteristics(Earth: 20), "call", "strike"), Spec(1, hp: 80, spells: ["strike", "bow"])]);
         var f = new Fight(data, "s", 3);
         Ai.PlayOut(f);
         Assert.Contains(f.Events, e => e is Summoned);

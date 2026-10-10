@@ -24,14 +24,14 @@ public sealed class CharacterSheet
         Lines =
         [
             new(Characteristic.Vitality, null, own.Vitality, n.Worn.Vitality, n.Stats.Vitality, n.Stats.Vitality, 0),
-            Line(Characteristic.Strength, Element.Earth, own.Strength, n.Worn.Strength),
-            Line(Characteristic.Intelligence, Element.Fire, own.Intelligence, n.Worn.Intelligence),
-            Line(Characteristic.Chance, Element.Water, own.Chance, n.Worn.Chance),
-            Line(Characteristic.Agility, Element.Air, own.Agility, n.Worn.Agility),
+            Line(Characteristic.Earth, Element.Earth, own.Earth, n.Worn.Earth),
+            Line(Characteristic.Fire, Element.Fire, own.Fire, n.Worn.Fire),
+            Line(Characteristic.Water, Element.Water, own.Water, n.Worn.Water),
+            Line(Characteristic.Air, Element.Air, own.Air, n.Worn.Air),
         ];
         MaxHp = n.Hp + n.Stats.Vitality;
         (Ap, Mp, Initiative) = (n.Ap, n.Mp, n.Initiative);
-        PointsLeft = Progression.CharacteristicPoints(hero.Level) - (own.Vitality + own.Strength + own.Intelligence + own.Chance + own.Agility);
+        PointsLeft = Progression.CharacteristicPoints(hero.Level) - (own.Vitality + own.Earth + own.Fire + own.Water + own.Air);
     }
 
     // Heroes have no resistance of their own yet, and items give none: the column says 0 until they do.

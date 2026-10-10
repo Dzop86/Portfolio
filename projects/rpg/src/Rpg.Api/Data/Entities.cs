@@ -53,10 +53,10 @@ public sealed class Character
 
     /// <summary>The characteristic points spent (sprint 58).</summary>
     public int Vitality { get; set; }
-    public int Strength { get; set; }
-    public int Intelligence { get; set; }
-    public int Chance { get; set; }
-    public int Agility { get; set; }
+    public int Earth { get; set; }
+    public int Fire { get; set; }
+    public int Water { get; set; }
+    public int Air { get; set; }
 
     /// <summary>The ranks of the spells above 1, as "spell:rank" separated by commas.</summary>
     public string Ranks { get; set; } = "";
@@ -85,7 +85,7 @@ public sealed class Character
         Inventory = string.Join(',', all.OrderBy(i => i.Key, StringComparer.Ordinal).Select(i => $"{i.Key}:{i.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
     }
 
-    public Characteristics Stats => new(Vitality, Strength, Intelligence, Chance, Agility);
+    public Characteristics Stats => new(Vitality, Earth, Fire, Water, Air);
 
     public Dictionary<string, int> RankList => Ranks.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(r => r.Split(':')).ToDictionary(r => r[0], r => int.Parse(r[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);

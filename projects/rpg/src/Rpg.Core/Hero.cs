@@ -71,7 +71,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     private string? PointsProblem(GameData data)
     {
         Characteristics st = Stats ?? Characteristics.None;
-        int[] values = [st.Vitality, st.Strength, st.Intelligence, st.Chance, st.Agility];
+        int[] values = [st.Vitality, st.Earth, st.Fire, st.Water, st.Air];
         if (values.Any(v => v < 0) || values.Sum() > Progression.CharacteristicPoints(Level))
             return $"At most {Progression.CharacteristicPoints(Level)} characteristic points at level {Level}, none below zero.";
         if (Ranks is null || Ranks.Count == 0)

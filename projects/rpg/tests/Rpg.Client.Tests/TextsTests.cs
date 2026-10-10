@@ -59,8 +59,8 @@ public partial class TextsTests
     public void AClass_IsDescribedWithItsPointsAndElements_ThenItsSpellsByLevel()
     {
         HeroClass mage = GameData.Embedded.Class("mage")!;
-        Assert.Equal("Fragile, mais frappe en zone, soigne ses alliés et invoque une braise. 62 PV · 8 PA · 3 PM · Feu, Eau", new Texts("fr").Class(mage));
-        Assert.EndsWith("70 HP · 7 AP · 3 MP · Earth, Fire", new Texts("en").Class(GameData.Embedded.Class("guard")!), StringComparison.Ordinal);
+        Assert.Equal("Fragile, mais frappe en zone, soigne ses alliés et invoque une braise. 62 PV · 8 PA · 4 PM · Feu, Eau", new Texts("fr").Class(mage));
+        Assert.EndsWith("70 HP · 8 AP · 4 MP · Earth, Fire", new Texts("en").Class(GameData.Embedded.Class("guard")!), StringComparison.Ordinal);
         Assert.StartsWith("Niv. 1 : Bâton, Étincelle, Boule de feu, Éclat de glace · Niv. 5 : Soin · ", new Texts("fr").ClassSpells(mage), StringComparison.Ordinal);
         Assert.EndsWith(" · Lv 75: Rebirth · Lv 80: Cataclysm", new Texts("en").ClassSpells(mage), StringComparison.Ordinal);
     }

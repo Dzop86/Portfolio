@@ -34,9 +34,9 @@ public class ItemsTests
     [Fact]
     public void ASet_GivesItsBestBonus_ForThePiecesWorn()
     {
-        Assert.Equal((new Characteristics(Agility: 6), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
-        Assert.Equal((new Characteristics(Agility: 20), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
-        Assert.Equal((new Characteristics(Vitality: 8, Agility: 30), 0, 1), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
+        Assert.Equal((new Characteristics(Air: 6), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
+        Assert.Equal((new Characteristics(Air: 20), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
+        Assert.Equal((new Characteristics(Vitality: 8, Air: 30), 0, 1), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
         Assert.Equal((Characteristics.None, 0, 0), Equipment.Total(null, Real));
     }
 
@@ -49,7 +49,7 @@ public class ItemsTests
         Assert.Null(hero.Problem(Real));
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
         Assert.Equal(guard.Hp + guard.HpPerLevel * 19 + 10 + 8, f.MaxHp);
-        Assert.Equal((guard.Ap, guard.Mp + 2, 30), (f.Spec.Ap, f.Spec.Mp, f.Spec.Characteristics.Agility));
+        Assert.Equal((guard.Ap, guard.Mp + 2, 30), (f.Spec.Ap, f.Spec.Mp, f.Spec.Characteristics.Air));
         Assert.NotNull((hero with { Level = 19 }).Problem(Real));
     }
 

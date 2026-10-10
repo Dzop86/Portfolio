@@ -72,23 +72,25 @@ public sealed record SpellRank(int DamageMin, int DamageMax, int? ApCost = null,
 
 /// <summary>
 /// The five characteristics: Vitality adds hit points, each other one adds 1 % of damage per point
-/// in its element (Strength: earth and neutral; Intelligence: fire, and healing; Chance: water;
-/// Agility: air).
+/// in its element (Earth: earth and neutral; Fire: fire, and healing; Water: water;
+/// Air: air).
 /// </summary>
-public sealed record Characteristics(int Vitality = 0, int Strength = 0, int Intelligence = 0, int Chance = 0, int Agility = 0)
+public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire = 0, int Water = 0, int Air = 0)
 {
     public static readonly Characteristics None = new();
 
-    /// <summary>What points in a characteristic add to each hit (or heal) of its element: 2 for every 10 (D61).</summary>
+    /// <summary>What points in a characteristic add to each hit of its element: 2 for every 10 (D61), and nothing else (D62).</summary>
     public static int Bonus(int points) => points / 10 * 2;
 
     /// <summary>The characteristic that strengthens an element's damage.</summary>
     public int For(Element element) => element switch
     {
-        Element.Fire => Intelligence,
-        Element.Water => Chance,
-        Element.Air => Agility,
-        _ => Strength,
+        Element.Earth => Earth,
+        Element.Fire => Fire,
+        Element.Water => Water,
+        Element.Air => Air,
+        // Neutral damage grows with no characteristic (D62).
+        _ => 0,
     };
 }
 

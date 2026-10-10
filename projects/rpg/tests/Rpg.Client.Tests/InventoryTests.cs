@@ -51,7 +51,7 @@ public class InventoryTests
     public void AnItemCard_SaysWhereItGoes_WhatItGives_AndItsSet()
     {
         var fr = new Texts("fr");
-        Assert.Equal("Cape du braconnier · Cape · niveau 1\n+6 Agilité\nPanoplie du braconnier : 2 pièces +10 Agilité ; 3 pièces +20 Agilité, +1 PM", fr.ItemCard(Data.Items["poacher-cape"]));
+        Assert.Equal("Cape du braconnier · Cape · niveau 1\n+6 Air\nPanoplie du braconnier : 2 pièces +10 Air ; 3 pièces +20 Air, +1 PM", fr.ItemCard(Data.Items["poacher-cape"]));
         Assert.Equal("Donkey · Mount · level 20\n+1 MP", new Texts("en").ItemCard(Data.Items["donkey"]));
         Assert.Equal("Pain · consommable", fr.ItemCard(Data.Items["bread"]));
         foreach (Item i in Data.Items.Values)

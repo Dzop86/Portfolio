@@ -6,10 +6,10 @@ namespace Rpg.Client;
 public enum Characteristic
 {
     Vitality,
-    Strength,
-    Intelligence,
-    Chance,
-    Agility,
+    Earth,
+    Fire,
+    Water,
+    Air,
 }
 
 /// <summary>
@@ -28,7 +28,7 @@ public sealed class PointsEditor
         Hero = hero ?? throw new ArgumentNullException(nameof(hero));
         Data = data ?? throw new ArgumentNullException(nameof(data));
         Characteristics st = hero.Stats ?? Characteristics.None;
-        (_stats[0], _stats[1], _stats[2], _stats[3], _stats[4]) = (st.Vitality, st.Strength, st.Intelligence, st.Chance, st.Agility);
+        (_stats[0], _stats[1], _stats[2], _stats[3], _stats[4]) = (st.Vitality, st.Earth, st.Fire, st.Water, st.Air);
         foreach ((string spell, int rank) in hero.RanksGiven)
             _ranks[spell] = rank;
     }
@@ -60,6 +60,15 @@ public sealed class PointsEditor
     public bool CanRaise(Spell spell) => Spells.Contains(spell) && NextRankCost(spell) is > 0 and var cost && cost <= SpellPointsLeft;
 
     public bool CanLower(Spell spell) => Rank(spell) > 1;
+
+    /// <summary>The most a characteristic can hold now: what it has and every point left.</summary>
+    public int Max(Characteristic stat) => _stats[(int)stat] + CharacteristicPointsLeft;
+
+    /// <summary>Puts a characteristic at a value, kept between 0 and <see cref="Max"/> (the typed value of the screen).</summary>
+    public void Set(Characteristic stat, int value) => _stats[(int)stat] = Math.Clamp(value, 0, Max(stat));
+
+    /// <summary>Takes back every characteristic point, to spend them again (D62); the server only checks totals.</summary>
+    public void ResetCharacteristics() => Array.Clear(_stats);
 
     /// <summary>Adds points to a characteristic (as many as asked and left).</summary>
     public void Add(Characteristic stat, int amount = 1)
