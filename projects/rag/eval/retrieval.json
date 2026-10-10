@@ -1,0 +1,26 @@
+{
+  "embedder": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "passages": 421,
+  "questions": 40,
+  "answerable": 32,
+  "retrieval": {
+    "bm25": {
+      "recall@1": 0.406,
+      "recall@3": 0.562,
+      "recall@5": 0.656,
+      "mrr": 0.509
+    },
+    "dense": {
+      "recall@1": 0.312,
+      "recall@3": 0.625,
+      "recall@5": 0.75,
+      "mrr": 0.487
+    },
+    "hybrid": {
+      "recall@1": 0.531,
+      "recall@3": 0.688,
+      "recall@5": 0.812,
+      "mrr": 0.623
+    }
+  }
+}
