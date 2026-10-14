@@ -1,12 +1,12 @@
-# Sprint 84 : Osmose, les premières quêtes
+# Sprint 84 : Osmose, le chat de proximité
 
-**Objectif :** demande de Charles (D65) : le début de la quête principale et des quêtes annexes dans chaque zone.
+**Objectif :** demande de Charles (D65) : parler aux joueurs de la même carte.
 
-**Goal:** Charles's request (D65): the start of the main quest and side quests in every zone.
+**Goal:** Charles's request (D65): talking to the players of the same map.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ai des quêtes à faire (rpg) : le début de la quête principale (d'après la bible), une à deux quêtes annexes par zone et une quête par donjon ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je parle aux joueurs de ma carte (rpg) : Entrée pour écrire, Entrée pour envoyer, Échap ou un clic ailleurs pour quitter la saisie ; messages par WebSocket, reçus par ceux de la même carte seulement, longueur et cadence bornées par le serveur ; canaux prévus pour le groupe, la guilde et le monde ; xUnit, intégration, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
