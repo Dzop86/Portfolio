@@ -13,6 +13,9 @@ public static class Looks
         GD.Load<PackedScene>(look == "orc" ? Root + "dungeon/character-orc.glb" : $"{Root}characters/character-{look}.glb")
         ?? throw new KeyNotFoundException($"No model for the look '{look}'.");
 
+    /// <summary>A fighter's model: Kenney's for the people and the orc, the game's own for the monsters (<see cref="Creatures"/>).</summary>
+    public static Node3D Model(string look) => Creatures.Knows(look) ? Creatures.Build(look) : Fighter(look).Instantiate<Node3D>();
+
     private static readonly Shader Outfit = GD.Load<Shader>("res://shaders/outfit.gdshader");
 
     /// <summary>The hair colours a player may choose (index 1 to 7; 0 keeps the look's own): palette cells.</summary>

@@ -29,7 +29,8 @@ public partial class Main
         // The server's place first (its zone included), then the one kept in memory.
         if (_character?.Place is Place p && GameData.Embedded.Towns.ContainsKey(p.Town))
             (_zone, _place) = (p.Town, p.Cell);
-        _town = new TownController(GameData.Embedded, _zone, _place);
+        _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(DateTimeOffset.UtcNow));
+        _roamAt.Clear();
         _townView = new TownView();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
@@ -64,6 +65,38 @@ public partial class Main
         _camera.Size = (float)cam.Zoom;
         _camera.RotationDegrees = new Vector3(-30, (float)cam.Yaw, 0);
         _camera.Position = new Vector3((float)cam.X, 0, (float)cam.Z) + _camera.Transform.Basis.Z * 30f;
+    }
+
+    /// <summary>The groups of monsters beaten in this session, away for a while (sprint 72).</summary>
+    private static readonly MonsterPresence Presence = new();
+
+    // When each group of the map moves next, in seconds from now; the draws of their walks.
+    private readonly Dictionary<string, double> _roamAt = [];
+    private readonly Rng _roam = new((ulong)System.Environment.TickCount64);
+
+    /// <summary>A group walks this many cells a second.</summary>
+    private const double GroupSpeed = 1.6;
+
+    /// <summary>
+    /// Each frame on a map: every few seconds, each group of monsters walks a few steps around its
+    /// home (<see cref="Roaming"/>), but for the one the player is walking up to. Still during the self-tests.
+    /// </summary>
+    private void RoamGroups(double delta)
+    {
+        if (_town is null || _townView is null || _options.TownSelfTest || _options.LobbySelfTest || _options.Screenshot is not null)
+            return;
+        foreach (string id in _town.Groups.Keys.ToList())
+        {
+            double left = _roamAt.TryGetValue(id, out double t) ? t - delta : 2 + _roam.Next(0, 4000) / 1000.0;
+            _roamAt[id] = left;
+            if (left > 0)
+                continue;
+            _roamAt[id] = 4 + _roam.Next(0, 5000) / 1000.0;
+            if (_town.FightGroup?.Id == id || Roaming.Next(_town, id, _roam) is not { Count: > 0 } path)
+                continue;
+            _town.MoveGroup(id, path[^1]);
+            _ = _townView.MoveGroup(id, path, GroupSpeed);
+        }
     }
 
     /// <summary>Each frame in a zone: the camera follows the player as drawn.</summary>
@@ -561,6 +594,7 @@ public partial class Main
     {
         Hero hero = _hero ?? new Hero("", "female-d");
         IReadOnlyList<string> zones = TownTour.World(new TownController(GameData.Embedded, Village));
+        int groups = 0;
         foreach (string id in zones)
         {
             var controller = new TownController(GameData.Embedded, id);
@@ -570,6 +604,14 @@ public partial class Main
             Town t = controller.Town;
             if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links ?? []).Select(l => l.To).Distinct().Count())
                 problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
+            // Its groups of monsters, each with its monsters on its cell (sprint 72).
+            foreach ((string g, Cell at) in controller.Groups)
+            {
+                groups++;
+                int models = view.Groups.TryGetValue(g, out Node3D? node) ? node.GetChildren().OfType<Node3D>().Count(n => n.FindChild("AnimationPlayer", true, false) is not null) : 0;
+                if (models != GameData.Embedded.Groups[g].Monsters.Count || node!.Position != BoardView.ToWorld(at))
+                    problems.Add($"the group {g} is drawn with {models} monsters");
+            }
             RemoveChild(view);
             view.QueueFree();
         }
@@ -591,7 +633,52 @@ public partial class Main
         ToggleMap();
         CheckWorldMap(problems);
         ToggleMap();
-        return $"World: {zones.Count} maps, camera and map checked.";
+        CheckMonsters(problems);
+        return $"World: {zones.Count} maps, {groups} groups of monsters, camera and map checked.";
+    }
+
+    /// <summary>
+    /// The monsters of sprint 72: every model of every family has its two animations; a click on a group
+    /// of the woods walks up to it and chooses its fight, a fight whose fighters the board can draw; a
+    /// group roams a few steps and is drawn there.
+    /// </summary>
+    private void CheckMonsters(List<string> problems)
+    {
+        foreach (MonsterSpec m in GameData.Embedded.Monsters.Values)
+        {
+            Node3D model = Looks.Model(m.Look);
+            if (model.FindChild("AnimationPlayer", true, false) is not AnimationPlayer anim || !anim.HasAnimation("idle") || !anim.HasAnimation("walk"))
+                problems.Add($"the model of {m.Id} has no idle or walk");
+            model.Free();
+        }
+        MonsterGroup group = GameData.Embedded.GroupsOn("woods-2-2")[0];
+        var woods = new TownController(GameData.Embedded, "woods-2-2");
+        var view = new TownView();
+        AddChild(view);
+        view.Build(woods, _options.Lang, _hero ?? new Hero("", "female-d"));
+        if (woods.Click(group.Home) is not { Group: not null } || woods.Fight != group.Scenario)
+            problems.Add($"a click on the group {group.Id} does not start its fight");
+        var fight = new Fight(GameData.Embedded, group.Scenario, 1);
+        foreach (Fighter f in fight.Fighters)
+        {
+            var fv = new FighterView();
+            AddChild(fv);
+            fv.Setup(f, f.Team == 0);
+            RemoveChild(fv);
+            fv.QueueFree();
+        }
+        var stay = new TownController(GameData.Embedded, "woods-2-2");
+        if (Roaming.Next(stay, group.Id, new Rng(3)) is { Count: > 0 } path)
+        {
+            stay.MoveGroup(group.Id, path[^1]);
+            view.PlaceGroup(group.Id, path[^1]);
+            if (view.Groups[group.Id].Position != BoardView.ToWorld(path[^1]))
+                problems.Add($"the group {group.Id} is not drawn where it roamed");
+        }
+        else
+            problems.Add($"the group {group.Id} cannot roam");
+        RemoveChild(view);
+        view.QueueFree();
     }
 
     /// <summary>

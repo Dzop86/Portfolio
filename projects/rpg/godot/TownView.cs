@@ -91,6 +91,8 @@ public partial class TownView : Node3D
             AddChild(label);
             _exitLabels.Add((label, link.Name));
         }
+        foreach ((string id, Cell at) in controller.Groups)
+            AddGroup(controller.Data.Groups[id], at, lang);
         Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         Player.Position = BoardView.ToWorld(controller.Position);
@@ -189,6 +191,8 @@ public partial class TownView : Node3D
                     label.Visible = !_namesHidden && npc.At.DistanceTo(player) <= NameDistance;
             }
         }
+        foreach ((string id, Label3D label) in _groupLabels)
+            label.Visible = !_namesHidden && Controller.Groups.TryGetValue(id, out Cell at) && at.DistanceTo(player) <= NameDistance + 1;
     }
 
     /// <summary>Whether an inhabitant's name is shown (for the self-test).</summary>
@@ -214,7 +218,95 @@ public partial class TownView : Node3D
     {
         foreach ((Label3D label, LocalizedText text) in _exitLabels)
             label.Text = text.In(lang);
+        foreach ((string id, Label3D label) in _groupLabels)
+            label.Text = new Texts(lang).GroupLabel(Controller.Data.Groups[id], Controller.Data);
     }
+
+    /// <summary>The groups of monsters drawn (sprint 72), by id: their models together on their cell.</summary>
+    public Dictionary<string, Node3D> Groups { get; } = [];
+
+    private readonly Dictionary<string, Label3D> _groupLabels = [];
+    private readonly Dictionary<string, int> _groupWalks = [];
+
+    // Where each monster of a group of one, two or three stands on its cell.
+    private static readonly Vector3[][] GroupPlaces =
+    [
+        [Vector3.Zero],
+        [new(-0.22f, 0, 0.14f), new(0.22f, 0, -0.14f)],
+        [new(0, 0, 0.24f), new(-0.26f, 0, -0.18f), new(0.26f, 0, -0.18f)],
+    ];
+
+    private void AddGroup(MonsterGroup group, Cell at, string lang)
+    {
+        var root = new Node3D { Position = BoardView.ToWorld(at), Name = "Group " + group.Id };
+        root.AddChild(new MeshInstance3D
+        {
+            Mesh = new TorusMesh { InnerRadius = 0.4f, OuterRadius = 0.48f, Rings = 24 },
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = FighterView.EnemyColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+            Scale = new Vector3(1, 0.12f, 1),
+            Position = new Vector3(0, 0.04f, 0),
+        });
+        Vector3[] places = GroupPlaces[Math.Min(group.Monsters.Count, GroupPlaces.Length) - 1];
+        for (int i = 0; i < group.Monsters.Count && i < places.Length; i++)
+        {
+            Node3D model = Looks.Model(Controller.Data.Monsters[group.Monsters[i]].Look);
+            model.Position = places[i];
+            model.RotationDegrees = new Vector3(0, 30 + 40 * i, 0);
+            root.AddChild(model);
+            Animate(model, "idle");
+        }
+        Label3D label = Label(new Texts(lang).GroupLabel(group, Controller.Data), new Vector3(0, 1.1f, 0), 32);
+        label.Modulate = new Color("ffb3a3");
+        root.AddChild(label);
+        _groupLabels[group.Id] = label;
+        AddChild(root);
+        Groups[group.Id] = root;
+    }
+
+    private static void Animate(Node3D model, string name)
+    {
+        if (model.FindChild("AnimationPlayer", true, false) is AnimationPlayer anim && anim.HasAnimation(name))
+        {
+            anim.GetAnimation(name).LoopMode = Animation.LoopModeEnum.Linear;
+            anim.Play(name);
+        }
+    }
+
+    /// <summary>A group walks along <paramref name="path"/>, <paramref name="speed"/> cells a second, turned the way it goes.</summary>
+    public async Task MoveGroup(string id, IReadOnlyList<Cell> path, double speed)
+    {
+        Node3D root = Groups[id];
+        int me = _groupWalks[id] = _groupWalks.GetValueOrDefault(id) + 1;
+        Node3D[] models = [.. root.GetChildren().OfType<Node3D>().Where(n => n.FindChild("AnimationPlayer", true, false) is not null)];
+        foreach (Node3D m in models)
+            Animate(m, "walk");
+        foreach (Cell c in path)
+        {
+            Vector3 to = BoardView.ToWorld(c);
+            foreach (Node3D m in models)
+                m.Rotation = new Vector3(0, Mathf.Atan2(to.X - root.Position.X, to.Z - root.Position.Z), 0);
+            while (root.Position != to)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (_groupWalks[id] != me || !IsInstanceValid(root))
+                    return;
+                root.Position = root.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+            }
+            ShowNamesNear(Standing);
+        }
+        foreach (Node3D m in models)
+            Animate(m, "idle");
+    }
+
+    /// <summary>Puts a group on a cell at once (the self-test).</summary>
+    public void PlaceGroup(string id, Cell at)
+    {
+        _groupWalks[id] = _groupWalks.GetValueOrDefault(id) + 1;
+        Groups[id].Position = BoardView.ToWorld(at);
+    }
+
+    /// <summary>Whether a group's label is shown (for the self-test).</summary>
+    public bool GroupNamed(string id) => _groupLabels[id].Visible;
 
     /// <summary>The path a click would walk, in yellow.</summary>
     public void ShowPath(IReadOnlyList<Cell>? path)

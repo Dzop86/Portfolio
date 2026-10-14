@@ -166,6 +166,7 @@ public partial class Main : Node3D
         if (_townView is not null)
         {
             FollowPlayer(delta);
+            RoamGroups(delta);
             return;
         }
         if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)
@@ -481,6 +482,9 @@ public partial class Main : Node3D
         if (_controller.Fight.IsOver && _report is null)
         {
             _sound?.Play(_controller.Fight.WinningTeam == _controller.PlayerTeam ? "victory" : "defeat");
+            // A group of monsters beaten leaves its map for a while (sprint 72).
+            if (_controller.Fight.WinningTeam == _controller.PlayerTeam && _controller.Fight.Scenario.Id.StartsWith(MonsterGroup.Prefix, StringComparison.Ordinal))
+                Presence.Beaten(_controller.Fight.Scenario.Id[MonsterGroup.Prefix.Length..], DateTimeOffset.UtcNow);
             _ = ShowResult();
         }
         if (_controller.IsPlayerTurn)

@@ -49,6 +49,26 @@ public class ProgressionTests
     }
 
     [Fact]
+    public async Task AGroupOfMonsters_IsAFightTheServerStarts_ChecksAndRewards()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn();
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
+        // A lone boar next to the village (sprint 72): the server knows the group, replays and rewards it.
+        MonsterGroup boar = GameData.Embedded.GroupsOn("woods-4-2")[0];
+        Assert.InRange(boar.Scenario.Length, 1, 40);
+        FightTicket ticket = await server.StartFight(c.Id, boar.Scenario, Cancel);
+        FightRecord record = Play(ticket, (await server.Characters(Cancel)).Single().Hero);
+        Assert.Equal(boar.Scenario, record.Scenario);
+        FightResult result = await server.ReportFight(c.Id, ticket.Id, record, Cancel);
+        bool won = record.Replay(GameData.Embedded).WinningTeam == 0;
+        Assert.Equal(won ? Progression.MonsterXp(GameData.Embedded.Monsters[boar.Monsters[0]].Level) : 0, result.Xp);
+        // No such group, no fight.
+        var e = await Assert.ThrowsAsync<ServerException>(() => server.StartFight(c.Id, MonsterGroup.Prefix + "woods-9-9.0", Cancel));
+        Assert.Equal(HttpStatusCode.BadRequest, e.Status);
+    }
+
+    [Fact]
     public async Task ARecordThatIsNotTheFightTheServerStarted_IsRefused_AndTheTicketIsUsed()
     {
         await using var api = new ApiFactory();

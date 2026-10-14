@@ -181,9 +181,23 @@ public sealed class GameData
     public IReadOnlyDictionary<string, Item> Items { get; }
     public IReadOnlyDictionary<string, ItemSet> Sets { get; }
 
+    /// <summary>The families of monsters (sprint 72), each monster also by its id, and the groups they form on the maps, by id.</summary>
+    public IReadOnlyDictionary<string, MonsterFamily> Families { get; }
+    public IReadOnlyDictionary<string, MonsterSpec> Monsters { get; }
+    public IReadOnlyDictionary<string, MonsterGroup> Groups { get; }
+
+    private readonly Dictionary<string, Scenario> _groupFights = new(StringComparer.Ordinal);
+
+    /// <summary>The groups of monsters living on a map, in their order.</summary>
+    public IReadOnlyList<MonsterGroup> GroupsOn(string mapId) => [.. Groups.Values.Where(g => g.Map == mapId)];
+
+    /// <summary>A scenario of the data files, or the fight against a group of monsters ("group:" and its id); null if neither.</summary>
+    public Scenario? FindScenario(string id) =>
+        Scenarios.TryGetValue(id, out Scenario? s) ? s : _groupFights.GetValueOrDefault(id);
+
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
-        IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null)
+        IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -229,6 +243,17 @@ public sealed class GameData
         // One map per place of the world.
         if (Towns.Values.GroupBy(t => t.MapAt).FirstOrDefault(g => g.Count() > 1) is { } shared)
             throw new InvalidDataException($"Towns {string.Join(", ", shared.Select(t => $"'{t.Id}'"))}: the same place {shared.Key} of the world.");
+        Families = Index(families ?? [], f => f.Id, "family");
+        Monsters = Index(Families.Values.SelectMany(f => f.Monsters), m => m.Id, "monster");
+        foreach (MonsterFamily f in Families.Values)
+            Check(f);
+        Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values])), g => g.Id, "group");
+        foreach (MonsterGroup g in Groups.Values)
+        {
+            Scenario fight = MonsterGroups.Scenario(g, Families[g.Family], Monsters);
+            Check(fight);
+            _groupFights[fight.Id] = fight;
+        }
         Quests = Index(quests ?? [], q => q.Id, "quest");
         foreach (Quest q in Quests.Values)
         {
@@ -257,7 +282,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "summons.json")) ? Read<List<SummonSpec>>(Path.Combine(folder, "summons.json")) : null,
             File.Exists(Path.Combine(folder, "quests.json")) ? Read<List<Quest>>(Path.Combine(folder, "quests.json")) : null,
             File.Exists(Path.Combine(folder, "items.json")) ? Read<List<Item>>(Path.Combine(folder, "items.json")) : null,
-            File.Exists(Path.Combine(folder, "sets.json")) ? Read<List<ItemSet>>(Path.Combine(folder, "sets.json")) : null);
+            File.Exists(Path.Combine(folder, "sets.json")) ? Read<List<ItemSet>>(Path.Combine(folder, "sets.json")) : null,
+            File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null);
     }
 
     /// <summary>
@@ -286,7 +312,8 @@ public sealed class GameData
             files.TryGetValue("data/summons.json", out string? summons) ? Parse<List<SummonSpec>>("summons.json", summons) : null,
             files.TryGetValue("data/quests.json", out string? quests) ? Parse<List<Quest>>("quests.json", quests) : null,
             files.TryGetValue("data/items.json", out string? items) ? Parse<List<Item>>("items.json", items) : null,
-            files.TryGetValue("data/sets.json", out string? sets) ? Parse<List<ItemSet>>("sets.json", sets) : null);
+            files.TryGetValue("data/sets.json", out string? sets) ? Parse<List<ItemSet>>("sets.json", sets) : null,
+            files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null);
     }
 
     public Board Board(string mapId) =>
@@ -463,6 +490,29 @@ public sealed class GameData
             if (!facing)
                 throw new InvalidDataException($"{who}: the way at {l.At} to {l.To} is not on the edge facing that map, or does not arrive on the edge facing back.");
         }
+    }
+
+    /// <summary>
+    /// A family: one monster of each role (D63), each with known spells and loot, a level and points
+    /// in bounds; a zone of the world, a battle map with room for a group of three, a boss map in the zone.
+    /// </summary>
+    private void Check(MonsterFamily f)
+    {
+        string who = $"Family '{f.Id}'";
+        MonsterRole[] roles = [.. f.Monsters.Select(m => m.Role).Order()];
+        if (!roles.SequenceEqual(Enum.GetValues<MonsterRole>()))
+            throw new InvalidDataException($"{who}: one monster of each role ({string.Join(", ", Enum.GetValues<MonsterRole>())}), not {string.Join(", ", roles)}.");
+        foreach (MonsterSpec m in f.Monsters)
+        {
+            if (m.Level is < 1 or > Hero.MaxLevel || m.Hp < 1 || m.Ap < 1 || m.Mp < 0 || m.Spells.Count == 0 || m.Spells.Any(id => !Spells.ContainsKey(id))
+                || string.IsNullOrWhiteSpace(m.Look) || (m.Loot ?? []).Any(l => !Items.ContainsKey(l.Item) || l.Percent is < 1 or > 100))
+                throw new InvalidDataException($"{who}, '{m.Id}': a level, points, known spells, a look and known loot.");
+        }
+        Town[] zone = [.. Towns.Values.Where(t => t.Zone == f.Zone)];
+        if (zone.Length == 0 || !zone.Any(t => t.Id == f.BossMap))
+            throw new InvalidDataException($"{who}: unknown zone '{f.Zone}', or a boss map '{f.BossMap}' outside it.");
+        if (!Maps.ContainsKey(f.Battle) || Board(f.Battle).Starts[1].Count < 3 || Board(f.Battle).Starts[0].Count < 1)
+            throw new InvalidDataException($"{who}: the battle map '{f.Battle}' is unknown, or has no room for a hero and three monsters.");
     }
 
     private void Check(Scenario s)

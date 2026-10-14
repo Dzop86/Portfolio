@@ -104,7 +104,7 @@ public sealed class Fight
     public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null)
     {
         ArgumentNullException.ThrowIfNull(data);
-        Scenario = data.Scenarios.TryGetValue(scenarioId, out Scenario? s) ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
+        Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
         if (hero?.Problem(data) is string problem)
             throw new ArgumentException(problem, nameof(hero));
         if (rival?.Problem(data) is string rivalProblem)

@@ -56,7 +56,7 @@ public partial class Portrait : SubViewportContainer
         Look = hero.Look;
         Colour = hero.Colour;
         _model?.QueueFree();
-        _model = Looks.Fighter(hero.Look).Instantiate<Node3D>();
+        _model = Looks.Model(hero.Look);
         if (paint)
             Looks.Paint(_model, hero);
         _model.RotationDegrees = new Vector3(0, 20, 0);

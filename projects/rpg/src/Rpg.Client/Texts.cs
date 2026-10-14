@@ -240,6 +240,7 @@ public sealed class Texts
         ["menu.Characters"] = "Changer de personnage",
         ["menu.Quit"] = "Quitter",
         ["menu.key"] = "Échap",
+        ["group.member"] = "{0} (niv. {1})",
         ["map.button"] = "Carte",
         ["map.title"] = "Carte du monde",
         ["map.level"] = "niveau {0}",
@@ -500,6 +501,7 @@ public sealed class Texts
         ["menu.Characters"] = "Change character",
         ["menu.Quit"] = "Quit",
         ["menu.key"] = "Esc",
+        ["group.member"] = "{0} (lvl {1})",
         ["map.button"] = "Map",
         ["map.title"] = "World map",
         ["map.level"] = "level {0}",
@@ -678,6 +680,14 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(map);
         string name = map.Name.In(Lang);
         return map.Zone is null ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
+    }
+
+    /// <summary>A group of monsters as its label says it: each one with its level, "Laie (niv. 2), Sanglier chargeur (niv. 2)".</summary>
+    public string GroupLabel(MonsterGroup group, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(data);
+        return string.Join(", ", group.Monsters.Select(id => this["group.member", data.Monsters[id].Name.In(Lang), data.Monsters[id].Level]));
     }
 
     /// <summary>A character's level and experience: "Niveau 3 · 340 / 600 XP" (the total for the next level).</summary>

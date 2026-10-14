@@ -43,7 +43,7 @@ public static class Program
                     output.Write(Draw(fight, options.Lang));
                 return 0;
             }
-            if (!data.Scenarios.ContainsKey(options.Scenario))
+            if (data.FindScenario(options.Scenario) is null)
             {
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
@@ -98,7 +98,7 @@ public static class Program
             else
                 draws++;
         }
-        output.WriteLine(text.Stats(data.Scenarios[options.Scenario], options.Simulate, wins, draws,
+        output.WriteLine(text.Stats(data.FindScenario(options.Scenario)!, options.Simulate, wins, draws,
             (double)rounds / options.Simulate, (double)actions / options.Simulate));
     }
 

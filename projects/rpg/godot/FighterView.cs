@@ -21,7 +21,7 @@ public partial class FighterView : Node3D
     {
         Fighter = fighter;
         Name = $"Fighter{fighter.Id}";
-        _model = Looks.Fighter(fighter.Spec.Look).Instantiate<Node3D>();
+        _model = Looks.Model(fighter.Spec.Look);
         AddChild(_model);
         _anim = _model.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         foreach (string loop in new[] { "idle", "walk" })

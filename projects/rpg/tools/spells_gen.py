@@ -131,6 +131,17 @@ creatures = [
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False),
  S("ember-bolt","Trait de braise","Ember Bolt",3,1,3,4,7,1,"Fire",1,ranks=False),
 ]
+# The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
+beasts = [
+ S("gore","Coup de boutoir","Gore",3,1,1,6,9,2,"Earth",1,ranks=False),
+ S("charge","Charge","Charge",4,2,3,7,10,1,"Earth",1,line=True,effects=[push(1)],ranks=False),
+ S("acorn-throw","Jet de glands","Acorn Throw",3,2,5,4,7,2,"Air",1,ranks=False),
+ S("nip","Mordillement","Nip",2,1,1,3,5,2,"Earth",1,ranks=False),
+ S("mud-wallow","Bain de boue","Mud Wallow",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("soothing-grunt","Grognement apaisant","Soothing Grunt",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",6,9)],ranks=False,cd=1),
+ S("royal-gore","Boutoir royal","Royal Gore",4,1,1,10,14,1,"Earth",1,ranks=False),
+ S("stampede","Ruée","Stampede",4,1,2,7,10,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
+]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
 BUDGET, GROWTH = 3, 0.6
@@ -153,9 +164,9 @@ for sp in sentinel + guard + mage:
     if sp["damageMax"] > 0:
         budget(sp)
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + creatures:
+for sp in base + sentinel + guard + mage + creatures + beasts:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + creatures
+spells = base + sentinel + guard + mage + creatures + beasts
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)

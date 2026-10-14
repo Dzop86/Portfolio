@@ -51,7 +51,7 @@ public sealed record FightRecord(
         ArgumentNullException.ThrowIfNull(data);
         if (Version != CurrentVersion)
             throw new InvalidFightRecordException($"Unknown record version {Version}.");
-        if (!data.Scenarios.ContainsKey(Scenario))
+        if (data.FindScenario(Scenario) is null)
             throw new InvalidFightRecordException($"Unknown scenario '{Scenario}'.");
         if ((Hero?.Problem(data) ?? Rival?.Problem(data)) is string problem)
             throw new InvalidFightRecordException($"Invalid hero: {problem}");

@@ -109,8 +109,9 @@ public static class CharacterEndpoints
     internal static async Task<Results<Ok<FightTicket>, NotFound, ValidationProblem>> StartFight(
         Guid id, NewFight request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
     {
-        if (request?.Scenario is not string scenario || !GameData.Embedded.Scenarios.ContainsKey(scenario))
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = [$"One of: {string.Join(", ", GameData.Embedded.Scenarios.Keys)}."] });
+        // A scenario of the data files, or a group of monsters of the world (sprint 72).
+        if (request?.Scenario is not string scenario || GameData.Embedded.FindScenario(scenario) is null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = [$"One of: {string.Join(", ", GameData.Embedded.Scenarios.Keys)}, or \"{MonsterGroup.Prefix}\" and a group of monsters."] });
         Guid account = AccountId(user);
         if (!await db.Characters.AnyAsync(c => c.Id == id && c.AccountId == account, cancel))
             return TypedResults.NotFound();

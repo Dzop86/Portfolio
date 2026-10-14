@@ -84,4 +84,26 @@ public class BalanceTests
             }
         }
     }
+
+    private static int Wins(string group, string id, int level, int fights) =>
+        Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real))[0];
+
+    [Theory]
+    [InlineData("sentinel")]
+    [InlineData("guard")]
+    [InlineData("mage")]
+    public void TheBoars_AloneAreForBeginners_InGroupsForAFifthLevel_TheirKingForASeventhToNinth(string id)
+    {
+        // Measured on 30 fights per group (sprint 72, T39): every lone boar at level 1, 30 of 30; every
+        // group of two or three at level 5, 28 to 30, but for the guard against the loner, the charger
+        // and the piglet of the north-west corner (1: it cannot reach the piglet behind the loner); the
+        // king and his escort at level 5, 0 to 14, at level 9, 30.
+        foreach (MonsterGroup lone in Real.Groups.Values.Where(g => g.Monsters.Count == 1))
+            Assert.InRange(Wins(lone.Id, id, 1, 30), 27, 30);
+        MonsterGroup[] groups = [.. Real.Groups.Values.Where(g => g.Monsters.Count > 1 && !g.Monsters.Contains("boar-king"))];
+        Assert.InRange(groups.Count(g => Wins(g.Id, id, 5, 30) < 20), 0, 1);
+        MonsterGroup king = Real.Groups.Values.Single(g => g.Monsters.Contains("boar-king"));
+        Assert.InRange(Wins(king.Id, id, 5, 30), 0, 18);
+        Assert.InRange(Wins(king.Id, id, 9, 30), 25, 30);
+    }
 }

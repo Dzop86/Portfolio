@@ -33,7 +33,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue)
 /// What a click did in town: the cells to walk, then a talk, a way to a fight or to another zone, or
 /// neither. <see cref="Waypoints"/> is the same walk in straight lines (sprint 69), what the client draws.
 /// </summary>
-public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null)
+public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null, MonsterGroup? Group = null)
 {
     public IReadOnlyList<Cell> Waypoints { get; init; } = Path;
 }
@@ -41,24 +41,53 @@ public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? E
 /// <summary>
 /// The player in a town, without an engine: a click walks the shortest way, in eight directions
 /// (<see cref="Wander"/>), a click on someone walks up to them and opens the talk, a click on an exit
-/// leads to its fight; a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
+/// leads to its fight, a click on a group of monsters walks up to it and starts its fight (sprint 72);
+/// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
 public sealed class TownController
 {
     private readonly GameData _data;
+    private readonly Dictionary<string, Cell> _groups = new(StringComparer.Ordinal);
 
     /// <param name="at">Where the player was (saved by the server); a cell they cannot stand on gives the arrival.</param>
-    public TownController(GameData data, string townId, Cell? at = null)
+    /// <param name="absent">Groups of monsters not on the map (beaten, not back yet: <see cref="MonsterPresence"/>).</param>
+    public TownController(GameData data, string townId, Cell? at = null, IEnumerable<string>? absent = null)
     {
         _data = data ?? throw new ArgumentNullException(nameof(data));
         Town = data.Towns.TryGetValue(townId, out Town? t) ? t : throw new KeyNotFoundException($"Unknown town '{townId}'.");
         Board = Town.Board();
-        Position = at is Cell c && CanStand(c) ? c : Town.Spawn;
+        HashSet<string> away = [.. absent ?? []];
+        foreach (MonsterGroup g in data.GroupsOn(Town.Id).Where(g => !away.Contains(g.Id)))
+            _groups[g.Id] = g.Home;
+        Position = at is Cell c && CanStand(c) && GroupAt(c) is null ? c : Town.Spawn;
+    }
+
+    /// <summary>The groups of monsters on the map (sprint 72) and the cell each stands on.</summary>
+    public IReadOnlyDictionary<string, Cell> Groups => _groups;
+
+    /// <summary>The group of monsters standing on a cell, if any.</summary>
+    public MonsterGroup? GroupAt(Cell c) => _groups.FirstOrDefault(g => g.Value == c).Key is string id ? _data.Groups[id] : null;
+
+    /// <summary>The group the player walked up to, whose fight <see cref="Fight"/> is.</summary>
+    public MonsterGroup? FightGroup { get; private set; }
+
+    /// <summary>Where one may walk: free of decor, people and monsters.</summary>
+    public bool IsFree(Cell c) => Town.IsFree(Board, c) && GroupAt(c) is null;
+
+    /// <summary>A group wanders onto <paramref name="to"/>: a free cell where the player is not.</summary>
+    public void MoveGroup(string id, Cell to)
+    {
+        if (!_groups.TryGetValue(id, out Cell at))
+            throw new KeyNotFoundException($"No group '{id}' on {Town.Id}.");
+        if (at != to && (!Board.Contains(to) || !IsFree(to) || to == Position))
+            throw new ArgumentException($"The group cannot stand on {to}.", nameof(to));
+        _groups[id] = to;
     }
 
     public Town Town { get; }
     public Board Board { get; }
+    public GameData Data => _data;
     public Cell Position { get; private set; }
 
     /// <summary>The talk going on, if any: clicks on the town wait until it is over.</summary>
@@ -70,8 +99,9 @@ public sealed class TownController
     /// <summary>The way to another zone the player walked onto, if any (sprint 60).</summary>
     public ZoneLink? Travel { get; private set; }
 
-    /// <summary>The zone the way leads to, the player on its arrival cell.</summary>
-    public TownController Enter(ZoneLink link) => new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival);
+    /// <summary>The map the way leads to, the player on its arrival cell, without the <paramref name="absent"/> groups.</summary>
+    public TownController Enter(ZoneLink link, IEnumerable<string>? absent = null) =>
+        new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival, absent);
 
     /// <summary>A free cell the player can walk to from the arrival (exits included).</summary>
     public bool CanStand(Cell c) => Town.CanStand(c);
@@ -81,17 +111,18 @@ public sealed class TownController
     {
         if (Talk is not null || Fight is not null || Travel is not null)
             return null;
-        if (Town.NpcAt(target) is not null)
+        // Someone to talk to, or monsters to fight: up to the nearest cell next to them.
+        if (Town.NpcAt(target) is not null || GroupAt(target) is not null)
         {
-            return Wander.Steps.Select(s => target + s).Where(n => Town.IsFree(Board, n))
-                .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, c => Town.IsFree(Board, c)))
+            return Wander.Steps.Select(s => target + s).Where(IsFree)
+                .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, IsFree))
                 .OfType<IReadOnlyList<Cell>>()
                 .OrderBy(p => p.Count)
                 .FirstOrDefault();
         }
         if (target == Position)
             return [];
-        return Town.IsFree(Board, target) ? Wander.FindPath(Board, Position, target, c => Town.IsFree(Board, c)) : null;
+        return IsFree(target) ? Wander.FindPath(Board, Position, target, IsFree) : null;
     }
 
     public TownStep? Click(Cell target)
@@ -102,17 +133,21 @@ public sealed class TownController
         if (path.Count > 0)
             Position = path[^1];
         Npc? npc = Town.NpcAt(target);
+        MonsterGroup? group = GroupAt(target);
         TownExit? exit = Town.ExitAt(Position);
         ZoneLink? link = Town.LinkAt(Position);
+        bool there = npc is null && group is null && Position == target;
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
-        else if (exit is not null && Position == target)
+        else if (group is not null)
+            (Fight, FightGroup) = (group.Scenario, group);
+        else if (exit is not null && there)
             Fight = exit.Scenario;
-        else if (link is not null && Position == target)
+        else if (link is not null && there)
             Travel = link;
-        return new TownStep(path, npc, npc is null && Position == target ? exit : null, npc is null && Position == target ? link : null)
+        return new TownStep(path, npc, there ? exit : null, there ? link : null, group)
         {
-            Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && Town.IsFree(Board, c)),
+            Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
         };
     }
 
@@ -122,11 +157,12 @@ public sealed class TownController
     /// </summary>
     public void Interrupt(Cell reached)
     {
-        if (!Board.Contains(reached) || !Town.IsFree(Board, reached))
+        if (!Board.Contains(reached) || !IsFree(reached))
             throw new ArgumentException($"The player cannot stand on {reached}.", nameof(reached));
         Position = reached;
         Talk = null;
         Fight = null;
+        FightGroup = null;
         Travel = null;
     }
 
