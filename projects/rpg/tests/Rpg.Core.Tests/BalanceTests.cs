@@ -91,13 +91,15 @@ public class BalanceTests
     [Theory]
     [InlineData("woods", 3)]
     [InlineData("mouldy", 10)]
+    [InlineData("lake", 18)]
     public void AZone_GroupsOfOneToThree_AreForOnePlayerAtItsLevel_OfSixAndMore_ForSeveral(string zone, int level)
     {
         // Charles's rule (D63): a player alone beats groups of one to three easily, at the zone's level;
         // groups of six to ten are for several players, and a player alone often loses there. Measured on
         // 30 fights per group and class (sprints 72 to 74, T41): the woods at level 3, 98 to 100 % on
         // average, three cases under 80 % (17 to 22 of 30); the mouldy woods at level 10, 98 to 100 %,
-        // four cases (16 to 22 of 30); the hordes and the chiefs, 0 to 2 %.
+        // four cases (16 to 22 of 30); the lake at level 18 (sprint 75, T42), 96 to 100 %, four cases,
+        // one under 18 of 30 (13); the hordes and the chiefs, 0 to 2 %.
         MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == zone)];
         foreach (string id in new[] { "sentinel", "guard", "mage" })
         {

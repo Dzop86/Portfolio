@@ -11,9 +11,9 @@
     "y": -2
   },
   "rows": [
-    "TTTTTTTTTTTTTTTT",
-    "T.......TTT....T",
-    ".........TR....T",
+    "TTTTTT...TTTTTTT",
+    "T.........T....T",
+    "..........R....T",
     "...........TT..T",
     "...........TT..T",
     "T.TTTT~....TTT.T",
@@ -164,6 +164,51 @@
       "name": {
         "fr": "Sud",
         "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 0
+      },
+      "to": "lake-1-4",
+      "arrival": {
+        "x": 6,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Lac des Joncs",
+        "en": "North: Reed Lake"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 0
+      },
+      "to": "lake-1-4",
+      "arrival": {
+        "x": 7,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Lac des Joncs",
+        "en": "North: Reed Lake"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 0
+      },
+      "to": "lake-1-4",
+      "arrival": {
+        "x": 8,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Lac des Joncs",
+        "en": "North: Reed Lake"
       }
     }
   ]

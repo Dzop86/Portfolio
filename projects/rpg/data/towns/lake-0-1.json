@@ -1,0 +1,170 @@
+{
+  "id": "lake-0-1",
+  "zone": "lake",
+  "name": {
+    "fr": "Lac des Joncs",
+    "en": "Reed Lake"
+  },
+  "level": 18,
+  "mapAt": {
+    "x": -5,
+    "y": -6
+  },
+  "rows": [
+    "BBBBBBBBBBB...BB",
+    "B.....T........B",
+    "B.....T.........",
+    "B...............",
+    "B..B..T.........",
+    "BB.BB..........B",
+    "B.BBB........TTB",
+    "B.B...........TB",
+    "B..............B",
+    "B..............B",
+    "B.............~B",
+    "BBBBBBB...BBBBBB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 2
+      },
+      "to": "lake-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 2
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 3
+      },
+      "to": "lake-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 3
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 4
+      },
+      "to": "lake-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 4
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "lake-0-2",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "lake-0-2",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 11
+      },
+      "to": "lake-0-2",
+      "arrival": {
+        "x": 9,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 0
+      },
+      "to": "lake-0-0",
+      "arrival": {
+        "x": 11,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 12,
+        "y": 0
+      },
+      "to": "lake-0-0",
+      "arrival": {
+        "x": 12,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 13,
+        "y": 0
+      },
+      "to": "lake-0-0",
+      "arrival": {
+        "x": 13,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

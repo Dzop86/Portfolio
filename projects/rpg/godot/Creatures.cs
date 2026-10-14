@@ -9,7 +9,8 @@ namespace Rpg.Desktop;
 /// piglet, a big grey loner, a tuskless sow, a crowned king); a wolf's lean body, long muzzle, pointed
 /// ears and raised tail (sprint 73: a grey wolf, a pale howler with a dark mask, a great male with a
 /// ruff, a fawn she-wolf, a black leader with a scar); a mushroom's stem and cap on two feet, a zombie's
-/// green body in rags, arms held out (sprint 74). Each has an "idle" and a "walk"
+/// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
+/// shell, eye stalks and two claws (sprint 75). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z.
 /// </summary>
 public static class Creatures
@@ -17,7 +18,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -42,6 +43,16 @@ public static class Creatures
         "zombie-tank" => Zombie(1.3f, new Color("6f9a5c"), new Color("4a3f35"), bloated: true),
         "zombie-support" => Zombie(1.0f, new Color("8fae78"), new Color("e8e4d8"), stitches: true),
         "zombie-boss" => Zombie(1.5f, new Color("587a4a"), new Color("2e2a2a"), bloated: true, crown: true),
+        "frog-melee" => Frog(1.0f, new Color("4caf50")),
+        "frog-ranged" => Frog(0.85f, new Color("8bc34a"), stripes: true),
+        "frog-tank" => Frog(1.35f, new Color("6d7f3a"), warts: true),
+        "frog-support" => Frog(0.8f, new Color("2ecc71"), pale: true),
+        "frog-boss" => Frog(1.6f, new Color("556b2f"), warts: true, crown: true),
+        "crab-melee" => Crab(1.0f, new Color("d35400")),
+        "crab-ranged" => Crab(0.85f, new Color("e67e22"), bubbles: true),
+        "crab-tank" => Crab(1.3f, new Color("7e3b22"), spikes: true),
+        "crab-support" => Crab(0.9f, new Color("c0392b"), hermitShell: true),
+        "crab-boss" => Crab(1.6f, new Color("8e2a1a"), spikes: true, crown: true),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
 
@@ -191,6 +202,91 @@ public static class Creatures
             Crown(body, 1.02f);
         Legs(model, TwoLegs, 0.09f, 0.39f, rags.Darkened(0.3f));
         root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static Node3D Frog(float size, Color skin, bool stripes = false, bool warts = false, bool pale = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Frog" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color belly = pale ? new Color("f5f0c8") : skin.Lightened(0.5f), dark = skin.Darkened(0.35f);
+        Block(body, new Vector3(0.50f, 0.26f, 0.46f), new Vector3(0, 0.26f, 0), skin);
+        Block(body, new Vector3(0.40f, 0.06f, 0.36f), new Vector3(0, 0.14f, 0.02f), belly);
+        Block(body, new Vector3(0.36f, 0.04f, 0.02f), new Vector3(0, 0.22f, 0.235f), dark);
+        foreach (float x in new[] { -0.13f, 0.13f })
+        {
+            Block(body, new Vector3(0.14f, 0.12f, 0.12f), new Vector3(x, 0.44f, 0.14f), skin);
+            Block(body, new Vector3(0.08f, 0.08f, 0.02f), new Vector3(x, 0.45f, 0.205f), Colors.White);
+            Block(body, new Vector3(0.04f, 0.05f, 0.02f), new Vector3(x, 0.45f, 0.215f), Colors.Black);
+        }
+        if (stripes)
+        {
+            foreach (float z in new[] { -0.12f, 0.04f })
+                Block(body, new Vector3(0.51f, 0.04f, 0.06f), new Vector3(0, 0.36f, z), dark);
+        }
+        if (warts)
+        {
+            foreach ((float x, float z) in new[] { (-0.15f, -0.1f), (0.12f, -0.15f), (0.02f, 0.05f), (0.17f, 0.08f) })
+                Block(body, new Vector3(0.06f, 0.04f, 0.06f), new Vector3(x, 0.40f, z), dark);
+        }
+        if (crown)
+            Crown(body, 0.54f);
+        // Folded back legs, short front ones.
+        foreach ((string name, float x, float z, float h) in new[] { ("LegFL", -0.17f, 0.16f, 0.14f), ("LegFR", 0.17f, 0.16f, 0.14f), ("LegBL", -0.24f, -0.14f, 0.16f), ("LegBR", 0.24f, -0.14f, 0.16f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, h, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.10f, h, 0.14f), new Vector3(0, -h / 2, 0), dark);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private static Node3D Crab(float size, Color shell, bool bubbles = false, bool spikes = false, bool crown = false, bool hermitShell = false)
+    {
+        var root = new Node3D { Name = "Crab" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color dark = shell.Darkened(0.35f), light = shell.Lightened(0.35f);
+        Block(body, new Vector3(0.58f, 0.18f, 0.42f), new Vector3(0, 0.26f, 0), shell);
+        Block(body, new Vector3(0.44f, 0.06f, 0.32f), new Vector3(0, 0.37f, -0.02f), light);
+        foreach (float x in new[] { -0.08f, 0.08f })
+        {
+            Block(body, new Vector3(0.03f, 0.12f, 0.03f), new Vector3(x, 0.40f, 0.18f), dark);
+            Block(body, new Vector3(0.06f, 0.06f, 0.06f), new Vector3(x, 0.48f, 0.18f), Colors.Black);
+        }
+        // Two claws, held up in front.
+        foreach (float x in new[] { -0.30f, 0.30f })
+        {
+            Block(body, new Vector3(0.08f, 0.08f, 0.18f), new Vector3(x, 0.30f, 0.20f), shell);
+            Block(body, new Vector3(0.16f, 0.14f, 0.14f), new Vector3(x, 0.36f, 0.34f), dark);
+        }
+        if (bubbles)
+        {
+            foreach ((float x, float y) in new[] { (-0.05f, 0.60f), (0.06f, 0.70f), (0f, 0.80f) })
+                Block(body, new Vector3(0.06f, 0.06f, 0.06f), new Vector3(x, y, 0.22f), new Color("d6f0ff"));
+        }
+        if (spikes)
+        {
+            foreach (float x in new[] { -0.18f, 0f, 0.18f })
+                Block(body, new Vector3(0.05f, 0.10f, 0.05f), new Vector3(x, 0.44f, -0.04f), dark);
+        }
+        if (hermitShell)
+            Block(body, new Vector3(0.30f, 0.26f, 0.30f), new Vector3(0, 0.50f, -0.06f), new Color("d9c7a3"));
+        if (crown)
+            Crown(body, 0.42f);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.24f, 0.08f), ("LegFR", 0.24f, 0.08f), ("LegBL", -0.24f, -0.12f), ("LegBR", 0.24f, -0.12f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.18f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.18f, 0.18f, 0.05f), new Vector3(x < 0 ? -0.06f : 0.06f, -0.09f, 0), dark);
+        }
+        root.AddChild(Animations(FourLegs));
         return root;
     }
 

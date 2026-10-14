@@ -23,7 +23,8 @@ public sealed class MonsterPresence
 
 /// <summary>
 /// How a group of monsters wanders (sprint 72): from time to time, a few steps to a free cell no more
-/// than <see cref="Radius"/> from its home, never onto the player, another group, a way or an exit.
+/// than <see cref="Radius"/> from its home, never onto the player, another group, a way or an exit,
+/// nor onto a cell that would cut the map in two (a pontoon, sprint 75).
 /// </summary>
 public static class Roaming
 {
@@ -41,7 +42,8 @@ public static class Roaming
         Cell[] places = [.. Enumerable.Range(-Radius, 2 * Radius + 1)
             .SelectMany(dx => Enumerable.Range(-Radius, 2 * Radius + 1).Select(dy => group.Home + new Cell(dx, dy)))
             .Where(c => c != from && c.DistanceTo(group.Home) <= Radius && town.Board.Contains(c) && Free(c)
-                && town.Town.LinkAt(c) is null && town.Town.ExitAt(c) is null)];
+                && town.Town.LinkAt(c) is null && town.Town.ExitAt(c) is null
+                && MonsterGroups.KeepsWaysOpen(town.Town, town.Board, [.. town.Groups.Where(o => o.Key != groupId).Select(o => o.Value), c]))];
         if (places.Length == 0)
             return null;
         Cell to = places[rng.Next(0, places.Length - 1)];

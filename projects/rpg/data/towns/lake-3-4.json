@@ -1,0 +1,215 @@
+{
+  "id": "lake-3-4",
+  "zone": "lake",
+  "name": {
+    "fr": "Lac des Joncs",
+    "en": "Reed Lake"
+  },
+  "level": 18,
+  "mapAt": {
+    "x": -2,
+    "y": -3
+  },
+  "rows": [
+    "BBBBBBBBBBB...BB",
+    "B..............B",
+    "B.R............B",
+    "B....RB...T....B",
+    "..........T....B",
+    "..........T..B.B",
+    "................",
+    "B.B.............",
+    "B..T............",
+    "B.T..........B.B",
+    "BT.............B",
+    "BBBBBB...BBBBBBB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 6
+      },
+      "to": "lake-4-4",
+      "arrival": {
+        "x": 1,
+        "y": 6
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 7
+      },
+      "to": "lake-4-4",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 8
+      },
+      "to": "lake-4-4",
+      "arrival": {
+        "x": 1,
+        "y": 8
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "lake-2-4",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "lake-2-4",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "lake-2-4",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 11
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Bois de Clairval",
+        "en": "South: Clairval Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Bois de Clairval",
+        "en": "South: Clairval Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Bois de Clairval",
+        "en": "South: Clairval Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 0
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 11,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 12,
+        "y": 0
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 12,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 13,
+        "y": 0
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 13,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

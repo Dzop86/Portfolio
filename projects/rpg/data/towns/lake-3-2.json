@@ -1,0 +1,215 @@
+{
+  "id": "lake-3-2",
+  "zone": "lake",
+  "name": {
+    "fr": "Lac des Joncs",
+    "en": "Reed Lake"
+  },
+  "level": 18,
+  "mapAt": {
+    "x": -2,
+    "y": -5
+  },
+  "rows": [
+    "BBBBBBB...BBBBBB",
+    "B~~~~~~===~~~~~B",
+    ".=~~~~~~=~~~~~~B",
+    ".====.......~~~B",
+    ".=~~~.......~~~B",
+    "B~~~~......B~~~B",
+    "B~~~~.T.....~~=.",
+    "B~~~~T......===.",
+    "B~~~~.......~~=.",
+    "B~~~~BR.....~~~B",
+    "B~~~~~~~======~B",
+    "BBBBBBBBBBB...BB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 6
+      },
+      "to": "lake-4-2",
+      "arrival": {
+        "x": 1,
+        "y": 6
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 7
+      },
+      "to": "lake-4-2",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 8
+      },
+      "to": "lake-4-2",
+      "arrival": {
+        "x": 1,
+        "y": 8
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 2
+      },
+      "to": "lake-2-2",
+      "arrival": {
+        "x": 14,
+        "y": 2
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 3
+      },
+      "to": "lake-2-2",
+      "arrival": {
+        "x": 14,
+        "y": 3
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "lake-2-2",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 11
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 11,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 12,
+        "y": 11
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 12,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 13,
+        "y": 11
+      },
+      "to": "lake-3-3",
+      "arrival": {
+        "x": 13,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 0
+      },
+      "to": "lake-3-1",
+      "arrival": {
+        "x": 7,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 0
+      },
+      "to": "lake-3-1",
+      "arrival": {
+        "x": 8,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 0
+      },
+      "to": "lake-3-1",
+      "arrival": {
+        "x": 9,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

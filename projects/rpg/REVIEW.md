@@ -37,6 +37,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 72 : les sangliers (noms, rôles, sorts, modèles en blocs construits par le jeu : à voir en jouant), deux groupes par carte qui errent, le combat au clic, le retour après deux minutes ; **à valider** : l'équilibre (seuls au niveau 1, groupes au niveau 5, roi au niveau 7 à 9, T39).
 - [ ] Sprint 73 : les loups (noms, rôles, la louve qui protège, le chef de meute en [-3, -2], modèles à voir en jouant) et leur mélange avec les sangliers.
 - [ ] Sprint 74 : le bois moisi (décor, teinte, champignons et zombies, modèles à voir en jouant) ; tes deux règles appliquées partout : deux à quatre groupes de un à dix par carte, les petits faciles seul au niveau de la zone, les hordes et les chefs faits pour plusieurs (T41).
+- [ ] Sprint 75 : le Lac des Joncs (le lac, ses pontons, ses îlots), ses grenouilles et ses crabes (modèles à voir en jouant).
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
@@ -149,3 +150,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-14 | `src/Rpg.Core/Monsters.cs` | (Claude) La taille des groupes se mesurait depuis le village : tout le bois moisi, loin de lui, aurait eu des trios dès son entrée | Profondeur mesurée depuis l'entrée de la zone (les cartes d'une zone plus facile qui y mènent) |
 | 2026-10-14 | `data/monsters.json`, `tools/spells_gen.py` | (Claude) Selon la règle de Charles, les groupes de un à trois devaient être faciles seul au niveau de la zone : mesuré, un sur cinq ne l'était pas dans le bois (niveau 3), et la Garde gagnait 67 % en moyenne dans le bois moisi (niveau 10) | PV, boucliers, coups et résistances baissés famille par famille jusqu'à 98-100 % (T41) |
 | 2026-10-14 | `tools/world_gen.py` | (Claude) Les ouvertures vers une zone pas encore écrite étaient creusées dans les cartes du bois, sans passage : des trous dans la bordure qui ne mènent nulle part | Les passages vers une zone ne sont creusés que quand la zone est écrite |
+| 2026-10-14 | `src/Rpg.Core/Monsters.cs`, `src/Rpg.Client/MonsterPresence.cs` | (Claude) Un groupe posé ou errant sur un ponton d'une case coupait la carte : l'auto-test ne pouvait plus atteindre un passage, un joueur non plus | Un groupe ne s'installe ni n'erre là où les passages, sorties et habitants ne seraient plus tous joignables |
+| 2026-10-14 | `tools/world_gen.py` (lac) | (Claude) Ensuite, cinq cartes presque toutes d'eau n'avaient plus aucun groupe | Un îlot de 7 × 7 cases au centre de chaque carte du lac |

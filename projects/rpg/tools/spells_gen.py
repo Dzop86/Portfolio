@@ -162,6 +162,19 @@ beasts = [
  S("stitch","Recoudre","Stitch",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",10,14)],ranks=False,cd=1),
  S("grave-smash","Coup de tombe","Grave Smash",4,1,1,15,20,1,"Fire",1,ranks=False),
  S("plague-wave","Vague de peste","Plague Wave",4,1,2,10,14,1,"Fire",1,area=("Cross",1),ranks=False,cd=1),
+ # The lake (sprint 75): frogs and crabs, made for heroes of about level 18.
+ S("tongue-lash","Coup de langue","Tongue Lash",3,1,2,12,17,2,"Water",1,ranks=False),
+ S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,10,15,2,"Water",1,ranks=False),
+ S("toad-skin","Peau de crapaud","Toad Skin",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("dew-mend","Rosée","Dew Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",11,15)],ranks=False,cd=1),
+ S("tongue-crush","Langue écrasante","Tongue Crush",4,1,2,22,28,1,"Water",1,ranks=False),
+ S("royal-croak","Coassement royal","Royal Croak",4,1,3,15,20,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
+ S("pinch","Pince","Pinch",3,1,1,12,17,2,"Earth",1,ranks=False),
+ S("bubble-shot","Tir de bulles","Bubble Shot",3,2,5,10,15,2,"Water",1,ranks=False),
+ S("shell-up","Carapace","Shell Up",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("shell-guard","Garde de coquille","Shell Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",12,2)],ranks=False,cd=1),
+ S("giant-pinch","Pince géante","Giant Pinch",4,1,1,22,28,1,"Earth",1,ranks=False),
+ S("tide-sweep","Balayage de marée","Tide Sweep",4,1,2,15,20,1,"Water",1,area=("Cross",1),ranks=False,cd=1),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.

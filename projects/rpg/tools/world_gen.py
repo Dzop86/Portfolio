@@ -201,7 +201,12 @@ for (col, start) in ((1, 6), (3, 6)):
 
 
 def lake_water(gx, gy):
-    """The lake: an ellipse over the middle of the zone (80 x 60 cells), its shore a little ragged."""
+    """
+    The lake: an ellipse over the middle of the zone (80 x 60 cells), its shore a little ragged, an
+    islet in the middle of every map (room for its groups of monsters, which a pontoon cannot hold).
+    """
+    if abs(gx % W - CENTRE[0]) <= 3 and abs(gy % H - CENTRE[1]) <= 3:
+        return False
     dx, dy = (gx - 40) / 27, (gy - 30) / 19
     wobble = 0.08 * ((gx * 7 + gy * 13) % 5 - 2)
     return dx * dx + dy * dy < 1 + wobble

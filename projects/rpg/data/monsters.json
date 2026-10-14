@@ -636,5 +636,318 @@
         ]
       }
     ]
+  },
+  {
+    "id": "frog",
+    "name": {
+      "fr": "Grenouilles",
+      "en": "Frogs"
+    },
+    "zone": "lake",
+    "battle": "lakeshore",
+    "bossMap": "lake-0-0",
+    "monsters": [
+      {
+        "id": "brawler-frog",
+        "role": "Melee",
+        "name": {
+          "fr": "Grenouille bagarreuse",
+          "en": "Brawler Frog"
+        },
+        "look": "frog-melee",
+        "level": 17,
+        "hp": 47,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 80,
+        "spells": [
+          "tongue-lash"
+        ],
+        "resistances": {
+          "Water": 10
+        },
+        "loot": [
+          {
+            "item": "frog-leg",
+            "percent": 40
+          },
+          {
+            "item": "slime",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "spitting-frog",
+        "role": "Ranged",
+        "name": {
+          "fr": "Grenouille cracheuse",
+          "en": "Spitting Frog"
+        },
+        "look": "frog-ranged",
+        "level": 16,
+        "hp": 32,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 85,
+        "spells": [
+          "venom-spit"
+        ],
+        "loot": [
+          {
+            "item": "slime",
+            "percent": 60
+          }
+        ]
+      },
+      {
+        "id": "bullfrog",
+        "role": "Tank",
+        "name": {
+          "fr": "Crapaud buffle",
+          "en": "Bullfrog"
+        },
+        "look": "frog-tank",
+        "level": 18,
+        "hp": 52,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 50,
+        "spells": [
+          "tongue-lash",
+          "toad-skin"
+        ],
+        "resistances": {
+          "Water": 15,
+          "Earth": 10
+        },
+        "loot": [
+          {
+            "item": "frog-leg",
+            "percent": 60
+          },
+          {
+            "item": "lily-ring",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "healing-treefrog",
+        "role": "Support",
+        "name": {
+          "fr": "Rainette guérisseuse",
+          "en": "Healing Treefrog"
+        },
+        "look": "frog-support",
+        "level": 17,
+        "hp": 47,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 70,
+        "spells": [
+          "dew-mend",
+          "tongue-lash"
+        ],
+        "loot": [
+          {
+            "item": "slime",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "toad-king",
+        "role": "Boss",
+        "name": {
+          "fr": "Crapaud-roi",
+          "en": "Toad King"
+        },
+        "look": "frog-boss",
+        "level": 22,
+        "hp": 280,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "tongue-crush",
+          "royal-croak"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Fire": 10,
+          "Water": 25,
+          "Air": 15
+        },
+        "loot": [
+          {
+            "item": "frog-leg",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "lily-ring",
+            "percent": 25
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "crab",
+    "name": {
+      "fr": "Crabes",
+      "en": "Crabs"
+    },
+    "zone": "lake",
+    "battle": "lakeshore",
+    "bossMap": "lake-4-1",
+    "monsters": [
+      {
+        "id": "pincer-crab",
+        "role": "Melee",
+        "name": {
+          "fr": "Crabe pinceur",
+          "en": "Pincer Crab"
+        },
+        "look": "crab-melee",
+        "level": 17,
+        "hp": 48,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 70,
+        "spells": [
+          "pinch"
+        ],
+        "resistances": {
+          "Earth": 10
+        },
+        "loot": [
+          {
+            "item": "crab-claw",
+            "percent": 40
+          },
+          {
+            "item": "crab-shell",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "bubble-crab",
+        "role": "Ranged",
+        "name": {
+          "fr": "Crabe à bulles",
+          "en": "Bubble Crab"
+        },
+        "look": "crab-ranged",
+        "level": 16,
+        "hp": 34,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 75,
+        "spells": [
+          "bubble-shot",
+          "pinch"
+        ],
+        "loot": [
+          {
+            "item": "crab-shell",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "armoured-crab",
+        "role": "Tank",
+        "name": {
+          "fr": "Crabe cuirassé",
+          "en": "Armoured Crab"
+        },
+        "look": "crab-tank",
+        "level": 18,
+        "hp": 62,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 40,
+        "spells": [
+          "pinch",
+          "shell-up"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Water": 10
+        },
+        "loot": [
+          {
+            "item": "crab-shell",
+            "percent": 60
+          },
+          {
+            "item": "shell-shield",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "hermit-crab",
+        "role": "Support",
+        "name": {
+          "fr": "Bernard-l'ermite",
+          "en": "Hermit Crab"
+        },
+        "look": "crab-support",
+        "level": 17,
+        "hp": 48,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 55,
+        "spells": [
+          "shell-guard",
+          "pinch"
+        ],
+        "loot": [
+          {
+            "item": "crab-claw",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "giant-crab",
+        "role": "Boss",
+        "name": {
+          "fr": "Crabe géant",
+          "en": "Giant Crab"
+        },
+        "look": "crab-boss",
+        "level": 22,
+        "hp": 290,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 55,
+        "spells": [
+          "giant-pinch",
+          "tide-sweep"
+        ],
+        "resistances": {
+          "Earth": 25,
+          "Fire": 10,
+          "Water": 15,
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "crab-claw",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "shell-shield",
+            "percent": 25
+          }
+        ]
+      }
+    ]
   }
 ]

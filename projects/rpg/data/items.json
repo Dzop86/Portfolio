@@ -30,5 +30,11 @@
   { "id": "cap-hat", "name": { "fr": "Chapeau-champignon", "en": "Toadstool Hat" }, "kind": "Equipment", "slot": "Hat", "level": 10, "stats": { "water": 10, "vitality": 8 } },
   { "id": "rotten-cloth", "name": { "fr": "Tissu pourri", "en": "Rotten Cloth" }, "kind": "Resource" },
   { "id": "old-bone", "name": { "fr": "Vieil os", "en": "Old Bone" }, "kind": "Resource" },
-  { "id": "grave-belt", "name": { "fr": "Ceinture de tombe", "en": "Grave Belt" }, "kind": "Equipment", "slot": "Belt", "level": 12, "stats": { "fire": 10, "vitality": 8 } }
+  { "id": "grave-belt", "name": { "fr": "Ceinture de tombe", "en": "Grave Belt" }, "kind": "Equipment", "slot": "Belt", "level": 12, "stats": { "fire": 10, "vitality": 8 } },
+  { "id": "frog-leg", "name": { "fr": "Cuisse de grenouille", "en": "Frog Leg" }, "kind": "Resource" },
+  { "id": "slime", "name": { "fr": "Bave", "en": "Slime" }, "kind": "Resource" },
+  { "id": "lily-ring", "name": { "fr": "Anneau de nénuphar", "en": "Lily Ring" }, "kind": "Equipment", "slot": "Ring", "level": 18, "stats": { "water": 14, "vitality": 10 } },
+  { "id": "crab-shell", "name": { "fr": "Carapace de crabe", "en": "Crab Shell" }, "kind": "Resource" },
+  { "id": "crab-claw", "name": { "fr": "Pince de crabe", "en": "Crab Claw" }, "kind": "Resource" },
+  { "id": "shell-shield", "name": { "fr": "Bouclier de carapace", "en": "Shell Shield" }, "kind": "Equipment", "slot": "Shield", "level": 20, "stats": { "earth": 14, "vitality": 12 } }
 ]

@@ -73,6 +73,27 @@ public class WorldTests
         Assert.Equal(6, Real.Towns.Values.Where(t => t.Zone == "woods").Sum(t => t.Links!.Count(l => l.To.StartsWith("mouldy", StringComparison.Ordinal))));
     }
 
+    [Fact]
+    public void TheLake_IsFiveByFiveMaps_NorthOfTheWoods_ItsWaterCrossedByPontoons()
+    {
+        Town[] lake = [.. Real.Towns.Values.Where(t => t.Zone == "lake")];
+        Assert.Equal(25, lake.Length);
+        Assert.All(lake, t => Assert.Equal((16, 12, 18, "Lac des Joncs", "Reed Lake"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(-7, 5).Select(y => new Cell(x, y)))],
+            lake.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
+        // The middle map: water crossed by pontoons, an islet in its middle; the shores have their bushes.
+        Town middle = Real.Towns["lake-2-2"];
+        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '~')) > 60);
+        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '=')) > 10);
+        Assert.Equal('.', middle[middle.Spawn + new Cell(-2, 1)]);
+        Assert.Contains(lake, t => t.Rows.Any(r => r.Contains('B')));
+        foreach (int col in new[] { 1, 3 })
+        {
+            Assert.Equal(3, Real.Towns[$"woods-{col}-0"].Links!.Count(l => l.To == $"lake-{col}-4"));
+            Assert.Equal(3, Real.Towns[$"lake-{col}-4"].Links!.Count(l => l.To == $"woods-{col}-0"));
+        }
+    }
+
     // Two maps side by side, three cells wide: a to the west of b.
     private static readonly Town West = new("a", Text, ["...", "..."], new Cell(0, 0), [], [], [new ZoneLink(new Cell(2, 0), "b", new Cell(0, 0), Text)]);
     private static readonly Town East = new("b", Text, ["...", "..."], new Cell(1, 1), [], [], [new ZoneLink(new Cell(0, 1), "a", new Cell(2, 1), Text)], MapAt: new Cell(1, 0));

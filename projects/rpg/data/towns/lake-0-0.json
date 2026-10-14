@@ -1,0 +1,125 @@
+{
+  "id": "lake-0-0",
+  "zone": "lake",
+  "name": {
+    "fr": "Lac des Joncs",
+    "en": "Reed Lake"
+  },
+  "level": 18,
+  "mapAt": {
+    "x": -5,
+    "y": -7
+  },
+  "rows": [
+    "BBBBBBBBBBBBBBBB",
+    "B..............B",
+    "B.........T....B",
+    "B....B...BT..R.B",
+    "B.R..BB.B......B",
+    "B....BB.........",
+    "B.TB..B.........",
+    "BTTTB...........",
+    "BTT...B........B",
+    "B..BB..........B",
+    "B..............B",
+    "BBBBBBBBBBB...BB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 5
+      },
+      "to": "lake-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 6
+      },
+      "to": "lake-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 6
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 7
+      },
+      "to": "lake-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 11
+      },
+      "to": "lake-0-1",
+      "arrival": {
+        "x": 11,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 12,
+        "y": 11
+      },
+      "to": "lake-0-1",
+      "arrival": {
+        "x": 12,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 13,
+        "y": 11
+      },
+      "to": "lake-0-1",
+      "arrival": {
+        "x": 13,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    }
+  ]
+}

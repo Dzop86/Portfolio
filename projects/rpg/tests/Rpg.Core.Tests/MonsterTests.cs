@@ -37,18 +37,20 @@ public class MonsterTests
     }
 
     [Theory]
-    [InlineData("mushroom", "mouldy-0-0")]
-    [InlineData("zombie", "mouldy-2-4")]
-    public void TheMouldyWoods_HaveTheirTwoFamilies_FiveOfAKindEach(string id, string chiefMap)
+    [InlineData("mushroom", "mouldy", "mouldy-hollow", "mouldy-0-0", "wolf")]
+    [InlineData("zombie", "mouldy", "mouldy-hollow", "mouldy-2-4", "wolf")]
+    [InlineData("frog", "lake", "lakeshore", "lake-0-0", "zombie")]
+    [InlineData("crab", "lake", "lakeshore", "lake-4-1", "zombie")]
+    public void EveryZone_HasItsTwoFamilies_FiveOfAKindEach_StrongerThanTheZoneBefore(string id, string zone, string battle, string chiefMap, string before)
     {
         MonsterFamily f = Real.Families[id];
-        Assert.Equal(("mouldy", "mouldy-hollow", chiefMap), (f.Zone, f.Battle, f.BossMap));
+        Assert.Equal((zone, battle, chiefMap), (f.Zone, f.Battle, f.BossMap));
         Assert.Equal(Enum.GetValues<MonsterRole>(), f.Monsters.Select(m => m.Role).Order());
         Assert.All(f.Monsters, m => Assert.Equal(id + "-" + m.Role.ToString().ToLowerInvariant(), m.Look));
-        // Made for heroes of about level 10: stronger than the woods'.
-        Assert.True(f.Monsters.Min(m => m.Level) > Real.Families["wolf"].Monsters.Max(m => m.Level));
-        Assert.Contains(f[MonsterRole.Support].Spells, s => Real.Spells[s].Effects?.Any(e => e is HealEffect) == true);
-        Assert.Equal(10, Real.Board("mouldy-hollow").Starts[1].Count);
+        Assert.True(f.Monsters.Min(m => m.Level) > Real.Families[before].Monsters.Where(m => m.Role != MonsterRole.Boss).Max(m => m.Level));
+        // The support heals or shields its allies.
+        Assert.Contains(f[MonsterRole.Support].Spells, s => Real.Spells[s].Effects?.Any(e => e is HealEffect or ShieldEffect { Affects: Affects.Allies }) == true);
+        Assert.Equal(10, Real.Board(battle).Starts[1].Count);
     }
 
     private static GameData WithBoars(params MonsterSpec[] monsters) => new(
@@ -82,6 +84,18 @@ public class MonsterTests
         static IEnumerable<string> Seen(GameData d) => d.Groups.Values.Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}");
         Assert.Equal(Seen(Real), Seen(WithBoars([.. Real.Families["boar"].Monsters])));
         Assert.Equal(0xaf63dc4c8601ec8cUL, MonsterGroups.Seed("a"));
+    }
+
+    [Fact]
+    public void TheGroupsOfAMap_NeverCutIt_EvenOnThePontoonsOfTheLake()
+    {
+        foreach (Town map in Real.Towns.Values.Where(t => t.Zone is not null))
+            Assert.True(MonsterGroups.KeepsWaysOpen(map, map.Board(), [.. Real.GroupsOn(map.Id).Select(g => g.Home)]), map.Id);
+        // A group on a pontoon would cut the way: there are such cells, and no group stands on one.
+        Town lake = Real.Towns["lake-2-2"];
+        Cell[] cutting = [.. lake.Board().Cells().Where(c => lake[c] == '=' && !MonsterGroups.KeepsWaysOpen(lake, lake.Board(), [c]))];
+        Assert.NotEmpty(cutting);
+        Assert.DoesNotContain(Real.GroupsOn("lake-2-2"), g => cutting.Contains(g.Home));
     }
 
     [Fact]

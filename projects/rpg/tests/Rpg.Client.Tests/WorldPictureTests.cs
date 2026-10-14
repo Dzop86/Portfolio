@@ -16,9 +16,9 @@ public class WorldPictureTests
     [Fact]
     public void ThePicture_LaysEveryMapInItsPlace_EdgeToEdge()
     {
-        // From the mouldy woods' west column (-10) to the village (0), from the woods' north row (-2) to their south row (2).
-        Assert.Equal((11, 5, 16, 12), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
-        Assert.Equal((11 * 16 * 8, 5 * 12 * 8), (Picture.Width, Picture.Height));
+        // From the mouldy woods' west column (-10) to the village (0), from the lake's north row (-7) to the woods' south row (2).
+        Assert.Equal((11, 10, 16, 12), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
+        Assert.Equal((11 * 16 * 8, 10 * 12 * 8), (Picture.Width, Picture.Height));
         Assert.Equal(Picture.Width * Picture.Height * 4, Picture.Pixels.Length);
         Assert.Equal(Picture.Pixels, new WorldPicture(GameData.Embedded).Pixels);
         foreach (Town t in GameData.Embedded.Towns.Values)

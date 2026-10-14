@@ -110,9 +110,18 @@ public static class MonsterGroups
         var groups = new List<MonsterGroup>();
         MonsterFamily? chief = here.FirstOrDefault(f => f.BossMap == map.Id);
         int depth = Depth(map, world), count = rng.Next(Fewest, Most);
+        var taken = new List<Cell>();
         for (int i = 0; i < count && homes.Count > 0; i++)
         {
             Cell home = homes[rng.Next(0, homes.Count - 1)];
+            // Never on a pontoon or in a gap the ways need: everything must stay reachable around the groups.
+            if (!KeepsWaysOpen(map, board, [.. taken, home]))
+            {
+                homes.Remove(home);
+                i--;
+                continue;
+            }
+            taken.Add(home);
             homes.RemoveAll(c => c.DistanceTo(home) < Distance);
             bool boss = i == 0 && chief is not null;
             MonsterFamily family = boss ? chief! : here[rng.Next(0, here.Length - 1)];
@@ -123,6 +132,20 @@ public static class MonsterGroups
             groups.Add(new MonsterGroup($"{map.Id}.{i}", map.Id, family.Id, home, [.. roles.Select(r => family[r].Id)]));
         }
         return groups;
+    }
+
+    /// <summary>
+    /// Whether the ways, the exits and the arrival of a map can all still be reached from one another
+    /// with groups of monsters standing on <paramref name="occupied"/> (a group must not cut a map in two).
+    /// </summary>
+    public static bool KeepsWaysOpen(Town map, Board board, IReadOnlyCollection<Cell> occupied)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(board);
+        ArgumentNullException.ThrowIfNull(occupied);
+        var reach = Pathfinding.Reachable(board, map.Spawn, board.Width * board.Height, c => map.IsFree(board, c) && !occupied.Contains(c)).Keys.ToHashSet();
+        return (map.Links ?? []).Select(l => l.At).Concat(map.Exits.Select(e => e.At)).All(reach.Contains)
+            && map.Npcs.All(n => n.At.Neighbours().Any(reach.Contains));
     }
 
     /// <summary>
