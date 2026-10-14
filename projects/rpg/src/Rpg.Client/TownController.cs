@@ -136,18 +136,19 @@ public sealed class TownController
         return IsFree(target) ? Wander.FindPath(Board, Position, target, IsFree) : null;
     }
 
-    /// <summary>How near an edge a cell leads to the next map (sprint 83): on it, or one cell in.</summary>
-    public const int EdgeReach = 1;
+    /// <summary>How near an edge a cell leads to the next map (sprints 83 and 85): on it, or up to two cells in.</summary>
+    public const int EdgeReach = 2;
 
     /// <summary>
-    /// As in the games of the genre (sprint 83, D66): a cell at the edge of the map, decor included, leads
-    /// to the way out on that side the player can reach by the shortest walk; with the side's direction
-    /// (one step out), for the arrow under the mouse. Null away from the edges, on a side without a way,
-    /// on someone or on monsters.
+    /// As in the games of the genre (sprints 83 and 85, D66, D67): a cell near the edge of the map, decor
+    /// included, or beyond it (the dark around the map), leads to the way out on that side the player can
+    /// reach by the shortest walk; with the side's direction (one step out), for the arrow under the mouse.
+    /// Beyond a corner, the side it is farthest beyond first, then the other. Null away from the edges, on
+    /// sides without a way, on someone or on monsters.
     /// </summary>
     public (ZoneLink Way, Cell Direction)? EdgeWay(Cell target)
     {
-        if (!Board.Contains(target) || Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
+        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
             return null;
         (int distance, Cell direction, Func<Cell, bool> onSide)[] sides =
         [
@@ -156,16 +157,20 @@ public sealed class TownController
             (target.Y, new Cell(0, -1), c => c.Y == 0),
             (Board.Height - 1 - target.Y, new Cell(0, 1), c => c.Y == Board.Height - 1),
         ];
-        (int nearest, Cell toward, Func<Cell, bool> side) = sides.MinBy(s => s.distance);
-        if (nearest > EdgeReach)
-            return null;
-        ZoneLink? way = (Town.Links ?? []).Where(l => side(l.At))
-            .Select(l => (Link: l, Path: l.At == Position ? [] : Wander.FindPath(Board, Position, l.At, IsFree)))
-            .Where(p => p.Path is not null)
-            .OrderBy(p => p.Path!.Count).ThenBy(p => p.Link.At.DistanceTo(target))
-            .Select(p => p.Link)
-            .FirstOrDefault();
-        return way is null ? null : (way, toward);
+        // Beyond the map: the sides it is beyond, the farthest first; inside: those near enough, the nearest first.
+        bool outside = !Board.Contains(target);
+        foreach ((_, Cell toward, Func<Cell, bool> side) in sides.Where(s => outside ? s.distance < 0 : s.distance <= EdgeReach).OrderBy(s => s.distance))
+        {
+            ZoneLink? way = (Town.Links ?? []).Where(l => side(l.At))
+                .Select(l => (Link: l, Path: l.At == Position ? [] : Wander.FindPath(Board, Position, l.At, IsFree)))
+                .Where(p => p.Path is not null)
+                .OrderBy(p => p.Path!.Count).ThenBy(p => p.Link.At.DistanceTo(target))
+                .Select(p => p.Link)
+                .FirstOrDefault();
+            if (way is not null)
+                return (way, toward);
+        }
+        return null;
     }
 
     /// <summary>

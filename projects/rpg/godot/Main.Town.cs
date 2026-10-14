@@ -237,7 +237,7 @@ public partial class Main
                 _ = Walk(cell);
                 break;
             // A right click on monsters: their menu, "Attack" in it (sprint 78, D64).
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when BoardView.Pick(_camera, click.Position) is Cell cell && _town.GroupAt(cell) is not null:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when GroupUnder(click.Position) is Cell cell:
                 OpenGroupMenu(cell, click.Position);
                 break;
             case InputEventKey { Pressed: true, Echo: false } key when _town.Talk is not null && key.Keycode >= Key.Key1 && key.Keycode <= Key.Key4:
@@ -316,7 +316,7 @@ public partial class Main
             any = true;
         }
         if (any)
-            _chatBox?.Refresh();
+            _chatBox?.Refresh(fresh: true);
     }
 
     private EdgeArrow? _edgeArrow;
@@ -333,6 +333,33 @@ public partial class Main
         }
         Vector2 direction = _camera.UnprojectPosition(BoardView.ToWorld(cell + step)) - _camera.UnprojectPosition(BoardView.ToWorld(cell));
         _edgeArrow.Point(at, direction, way.Name?.In(_talkPanel!.Texts.Lang));
+    }
+
+    /// <summary>How far from a monster's body on screen a right click still reaches it, in pixels (D68: "the click is too precise").</summary>
+    public const float GroupReach = 56;
+
+    /// <summary>The heights looked at on a monster: its feet, its middle, its head.</summary>
+    private static readonly float[] BodyHeights = [0f, 0.6f, 1.2f];
+
+    /// <summary>
+    /// The group of monsters a right click is on: the one whose body (its feet, its middle, its head on
+    /// screen) is nearest the click, within <see cref="GroupReach"/> pixels; else the one on the cell.
+    /// </summary>
+    private Cell? GroupUnder(Vector2 click)
+    {
+        if (_town is null || _townView is null)
+            return null;
+        (Cell At, float Distance)? best = null;
+        foreach ((string id, Cell at) in _town.Groups)
+        {
+            Vector3 feet = BoardView.ToWorld(at);
+            float d = BodyHeights.Min(h => _camera.UnprojectPosition(feet + new Vector3(0, h, 0)).DistanceTo(click));
+            if (d <= GroupReach && (best is null || d < best.Value.Distance))
+                best = (at, d);
+        }
+        if (best is not null)
+            return best.Value.At;
+        return BoardView.Pick(_camera, click) is Cell cell && _town.GroupAt(cell) is not null ? cell : null;
     }
 
     private PopupMenu? _groupMenu;
@@ -579,6 +606,28 @@ public partial class Main
         panel.PasteCode(code);
         if (editor.Code != code || !Shows())
             problems.Add($"the code {code} gives the deck {editor.Code}");
+        // The icons' textures outlive a garbage collection (D67: white squares on Charles's screen).
+        foreach (Spell spell in editor.Spells)
+            SpellIcon.TextureOf(spell);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        if (!SpellIcon.Kept.Any() || SpellIcon.Kept.Any(t => !IsInstanceValid(t) || !t.GetRid().IsValid))
+            problems.Add("a spell icon's texture is gone after a garbage collection");
+        // The window moved by its header, as the mouse would (D67).
+        Control window = panel.Window;
+        // In the corner of the header, away from its buttons.
+        Vector2 before = window.Position, grab = window.GlobalPosition + new Vector2(6, 6);
+        // Headless, the mouse does not reach the interface: the events go to the window's handler itself.
+        Vector2 local = grab - window.GlobalPosition;
+        foreach (InputEvent e in new InputEvent[]
+        {
+            new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = local },
+            new InputEventMouseMotion { Relative = new Vector2(-40, 30), Position = local + new Vector2(-40, 30) },
+            new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = local + new Vector2(-40, 30) },
+        })
+            window.EmitSignal(Control.SignalName.GuiInput, e);
+        if (window.Position != before + new Vector2(-40, 30))
+            problems.Add($"the spells window dragged by its header went from {before} to {window.Position}");
         // The deck it had, kept again.
         if (_lobby?.SignedIn == true && _character is not null)
             await SavePoints(editor.ToPoints());
@@ -591,6 +640,8 @@ public partial class Main
     private async Task<string> CheckChat(List<string> problems)
     {
         ChatBox box = _chatBox!;
+        if (box.LinesShown)
+            problems.Add("the chat shows with nothing new");
         box.Open();
         bool opened = box.Typing;
         box.Leave();
@@ -613,6 +664,10 @@ public partial class Main
             problems.Add($"the chat shows \"{box.LogText}\", not the line said");
             return "";
         }
+        // A line come in shows the chat (hidden otherwise, D67).
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!box.LinesShown)
+            problems.Add("a line came in and the chat stays hidden");
         return " Chat: a line heard back.";
     }
 
@@ -786,7 +841,7 @@ public partial class Main
         TownController town = _town!;
         Cell start = town.Position;
         Cell far = Enumerable.Range(0, town.Board.Width).SelectMany(x => Enumerable.Range(0, town.Board.Height).Select(y => new Cell(x, y)))
-            .Where(c => town.Town.IsFree(town.Board, c) && town.Town.NpcAt(c) is null && town.PathTo(c) is not null)
+            .Where(c => town.Town.IsFree(town.Board, c) && town.Town.NpcAt(c) is null && town.PathTo(c) is not null && town.EdgeWay(c) is null)
             .MaxBy(c => Wander.Distance(start, c));
         TownStep step = town.Click(far)!;
         if (step.Waypoints.Count > step.Path.Count || step.Waypoints[^1] != far || Wander.Length(start, step.Waypoints) > Wander.Length(start, step.Path) + 1e-9)
@@ -1064,6 +1119,10 @@ public partial class Main
             problems.Add($"the menu of the group {group.Id} offers {menu.ItemCount} lines");
         menu.QueueFree();
         _groupMenu = null;
+        // A right click on the monster's head, a little off, still finds it (D68).
+        Vector2 head = _camera.UnprojectPosition(BoardView.ToWorld(group.Home) + new Vector3(0, 1.2f, 0)) + new Vector2(20, -10);
+        if (GroupUnder(head) != group.Home)
+            problems.Add($"a right click near the head of the group {group.Id} does not reach it");
         _town = town;
         var fight = new Fight(GameData.Embedded, group.Scenario, 1);
         foreach (Fighter f in fight.Fighters)
@@ -1101,6 +1160,9 @@ public partial class Main
         Vector2 expected = map.PictureAt + new Vector2((float)px, (float)py) * map.Zoom;
         if (map.PictureSize != new Vector2I(world.Width, world.Height) || map.Current != _zone || map.MarkerCentre.DistanceTo(expected) > 0.5f)
             problems.Add($"the world map is {map.PictureSize}, marks {map.Current} at {map.MarkerCentre} (expected {expected})");
+        // The grid of the maps (sprint 85): shown by default.
+        if (!map.GridShown)
+            problems.Add("the world map has no grid");
         // The eight dungeons' doors, each named under the pointer (sprint 83).
         if (map.Doors.Count() != GameData.Embedded.Dungeons.Count)
             problems.Add($"the world map shows {map.Doors.Count()} dungeons");

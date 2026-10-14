@@ -1,6 +1,6 @@
 # Writes the zones of the world (sprint 70, D63): a zone is a grid of 5 x 5 maps of 48 x 32 cells
-# (sprint 77, D64; 16 x 12, the village's size, before), each bordered (trees, or hedges) and open towards its neighbours; walking onto an
-# opening leads to the next map. The woods west of Clairval (sprint 70), the mouldy woods west of them
+# (sprint 77, D64; 16 x 12, the village's size, before), bordered by groves (trees, or hedges) with gaps
+# towards its neighbours, a third to a half of each side (sprint 85, D67); walking onto a gap leads to the next map. The woods west of Clairval (sprint 70), the mouldy woods west of them
 # (sprint 74), the lake north of them (sprint 75), the fields south of them (sprint 76), each zone
 # opening on the woods by two maps (data/towns/<zone>-<col>-<row>.json); Clairval's west way is written
 # by hand in clairval.json. Deterministic: the same seed gives the same
@@ -33,11 +33,43 @@ SIDES = {  # direction: (step on the grid of maps, name)
 
 def edge_cells(side, start, width):
     """The cells of an opening on a side of a map, and the cell one step inside for each."""
+    return edge_cells_at(side, range(start, start + width))
+
+
+def edge_cells_at(side, positions):
+    """The cells at these positions along a side of a map, and the cell one step inside for each."""
     if side in ("east", "west"):
         x, inner = (W - 1, W - 2) if side == "east" else (0, 1)
-        return [((x, y), (inner, y)) for y in range(start, start + width)]
+        return [((x, y), (inner, y)) for y in positions]
     y, inner = (H - 1, H - 2) if side == "south" else (0, 1)
-    return [((x, y), (x, inner)) for x in range(start, start + width)]
+    return [((x, y), (x, inner)) for x in positions]
+
+
+def gaps(rnd, side):
+    """
+    Where a side between two maps of a zone is open (sprint 85, D67: "you don't have to fill the borders
+    with trees"): a few gaps of 3 to 8 cells, a third to a half of the side, away from the corners;
+    the rest of the border stays in groves.
+    """
+    length = H if side in ("east", "west") else W
+    cells = set()
+    target = rnd.randint(length // 3, length // 2)
+    while len(cells) < target:
+        width = rnd.randint(3, 8)
+        start = rnd.randrange(2, length - 2 - width)
+        cells |= set(range(start, start + width))
+    return sorted(cells)
+
+
+def runs(cells):
+    """The cells of an opening, cut into its runs of neighbouring cells."""
+    out = []
+    for c in cells:
+        if out and abs(c[0][0] - out[-1][-1][0][0]) + abs(c[0][1] - out[-1][-1][0][1]) == 1:
+            out[-1].append(c)
+        else:
+            out.append([c])
+    return out
 
 
 def mirror(side, c):
@@ -91,8 +123,9 @@ def woods_map(seed, openings, exit_at, style="woods", water=None):
             for (edge, inner) in cells:
                 g[edge[1]][edge[0]] = '.'
                 keep |= {edge, inner}
-            # A free trail from the middle of the opening to the centre.
-            keep |= set(lpath(cells[len(cells) // 2][1], CENTRE))
+            # A free trail from the middle of each gap to the centre.
+            for run in runs(cells):
+                keep |= set(lpath(run[len(run) // 2][1], CENTRE))
         if exit_at:
             keep |= set(lpath(exit_at, CENTRE))
         for (x, y) in keep:
@@ -115,17 +148,13 @@ def woods_map(seed, openings, exit_at, style="woods", water=None):
 
 
 # Each style: its border, and its decor (character, clusters, cells per cluster) drawn per map.
+# Half the trees, hedges and mushrooms of sprint 77 since sprint 85 (D67: "there are too many trees").
 STYLES = {
-    "woods": ('T', lambda rnd: [('T', 18, 6), ('R', 3, 1)] + ([('~', 1, 5)] if rnd.random() < 0.4 else [])),
-    "mouldy": ('T', lambda rnd: [('T', 14, 6), ('M', 9, 3), ('~', 2, 4), ('R', 2, 1)]),
-    "lake": ('B', lambda rnd: [('B', 7, 3), ('T', 4, 3), ('R', 2, 1)]),
-    "fields": ('B', lambda rnd: [(',', 20, 8), ('B', 6, 4), ('T', 3, 2), ('C', 1, 1)]),
+    "woods": ('T', lambda rnd: [('T', 9, 6), ('R', 2, 1)] + ([('~', 1, 5)] if rnd.random() < 0.4 else [])),
+    "mouldy": ('T', lambda rnd: [('T', 7, 6), ('M', 5, 3), ('~', 2, 4), ('R', 1, 1)]),
+    "lake": ('B', lambda rnd: [('B', 4, 3), ('T', 2, 3), ('R', 1, 1)]),
+    "fields": ('B', lambda rnd: [(',', 20, 8), ('B', 3, 4), ('T', 2, 2), ('C', 1, 1)]),
 }
-
-
-def opening(rnd, side):
-    """Where an opening of three cells starts along a side, away from the corners."""
-    return rnd.randrange(2, H - 4) if side in ("east", "west") else rnd.randrange(2, W - 4)
 
 
 def zone(zid, name, level, origin, seed, style="woods", exits=None, outside=None, water=None):
@@ -142,7 +171,7 @@ def zone(zid, name, level, origin, seed, style="woods", exits=None, outside=None
             for side in ("east", "south"):
                 (dx, dy), _ = SIDES[side]
                 if col + dx < SIZE and row + dy < SIZE:
-                    starts[(col, row, side)] = opening(rnd, side)
+                    starts[(col, row, side)] = gaps(rnd, side)
     maps = {}
     for row in range(SIZE):
         for col in range(SIZE):
@@ -151,7 +180,7 @@ def zone(zid, name, level, origin, seed, style="woods", exits=None, outside=None
             for side, ((dx, dy), side_name) in SIDES.items():
                 key = (col, row, side) if side in ("east", "south") else (col + dx, row + dy, OPPOSITE[side])
                 if key in starts:
-                    cells = edge_cells(side, starts[key], 3)
+                    cells = edge_cells_at(side, starts[key])
                     to = f"{zid}-{col + dx}-{row + dy}"
                     # A way inside the zone has no name (D64): its ring says enough.
                     links += [O([("at", cell(*e)), ("to", to), ("arrival", cell(*mirror(side, e)))]) for (e, _) in cells]

@@ -22,7 +22,8 @@ public partial class ChatBox : CanvasLayer
     {
         _lines = lines;
         _texts = texts;
-        Layer = 5;
+        // Under the windows (inventory, spells...), which are in front (D67).
+        Layer = 0;
         var box = new VBoxContainer { AnchorTop = 1, AnchorBottom = 1, OffsetLeft = 12, OffsetRight = 452, OffsetTop = -232, OffsetBottom = -60, MouseFilter = Control.MouseFilterEnum.Ignore };
         box.AddThemeConstantOverride("separation", 4);
         AddChild(box);
@@ -44,16 +45,46 @@ public partial class ChatBox : CanvasLayer
             }
         };
         box.AddChild(_field);
+        _field.Visible = false;
+        _log.Visible = false;
         Refresh();
     }
+
+    /// <summary>How long new lines stay on screen before the chat hides again (D67: "invisible unless something scrolls").</summary>
+    public const double ShownFor = 8;
+
+    private double _shown;
+
+    public override void _Process(double delta)
+    {
+        if (Typing)
+            return;
+        _shown -= delta;
+        _log.Visible = _shown > 0;
+        _log.Modulate = new Color(1, 1, 1, (float)Math.Clamp(_shown, 0, 1));
+    }
+
+    /// <summary>Whether the lines are on screen (for the self-test).</summary>
+    public bool LinesShown => _log.Visible;
 
     public bool Typing => _field.HasFocus();
 
     /// <summary>Enter, from the town: the field opens.</summary>
-    public void Open() => _field.GrabFocus();
+    public void Open()
+    {
+        _field.Visible = true;
+        _log.Visible = true;
+        _log.Modulate = Colors.White;
+        _field.GrabFocus();
+    }
 
-    /// <summary>Escape, or a click elsewhere: the field closes, what was typed stays for later.</summary>
-    public void Leave() => _field.ReleaseFocus();
+    /// <summary>Escape, or a click elsewhere: the field closes and hides, what was typed stays for later.</summary>
+    public void Leave()
+    {
+        _field.ReleaseFocus();
+        _field.Visible = false;
+        _shown = Math.Max(_shown, 2);
+    }
 
     /// <summary>As the player would type a line and press Enter (for the self-test).</summary>
     public void Type(string text)
@@ -63,7 +94,13 @@ public partial class ChatBox : CanvasLayer
         Submit(text);
     }
 
-    public void Refresh() => _log.Text = string.Join('\n', _lines.Lines);
+    /// <summary>The lines again; new ones show the chat for a few seconds.</summary>
+    public void Refresh(bool fresh = false)
+    {
+        _log.Text = string.Join('\n', _lines.Lines);
+        if (fresh)
+            _shown = ShownFor;
+    }
 
     /// <summary>The lines shown (for the self-test).</summary>
     public string LogText => _log.Text;

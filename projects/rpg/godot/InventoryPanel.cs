@@ -38,6 +38,7 @@ public partial class InventoryPanel : CanvasLayer
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -520, OffsetRight = 520, OffsetTop = -290, OffsetBottom = 300 };
         panel.AddThemeStyleboxOverride("panel", Background());
         AddChild(panel);
+        WindowDrag.Make(panel, "inventory");
         var margin = new MarginContainer();
         foreach (string side in new[] { "left", "right", "top", "bottom" })
             margin.AddThemeConstantOverride("margin_" + side, 16);

@@ -29,6 +29,7 @@ public partial class CraftPanel : CanvasLayer
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -300, OffsetRight = 300, OffsetTop = -260, OffsetBottom = 260 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
+        WindowDrag.Make(panel, "craft");
         var margin = new MarginContainer();
         foreach (string side in new[] { "left", "right", "top", "bottom" })
             margin.AddThemeConstantOverride("margin_" + side, 16);

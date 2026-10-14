@@ -49,6 +49,8 @@ public partial class PointsPanel : CanvasLayer
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -570, OffsetRight = 570, OffsetTop = -300, OffsetBottom = 320 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
+        WindowDrag.Make(panel, "points");
+        Window = panel;
         var margin = new MarginContainer();
         foreach (string side in new[] { "left", "right", "top", "bottom" })
             margin.AddThemeConstantOverride("margin_" + side, 16);
@@ -387,6 +389,9 @@ public partial class PointsPanel : CanvasLayer
         ShowMessage(left is null ? Texts["deck.bad-code"] : left > 0 ? Texts["deck.code-partly", left] : Texts["deck.code-used"]);
         Refresh();
     }
+
+    /// <summary>The window itself, moved by its header (for the self-test).</summary>
+    public Control Window { get; private set; } = null!;
 
     /// <summary>"Empty the deck", as the player would press it (for the self-test).</summary>
     public void PressClearDeck() => _clearDeck.EmitSignal(BaseButton.SignalName.Pressed);

@@ -36,9 +36,10 @@ public class EdgeWayTests
         Assert.Equal(new Cell(0, -1), town.EdgeWay(new Cell(w / 2, 0))!.Value.Direction);
         Assert.Equal(new Cell(0, 1), town.EdgeWay(new Cell(w / 2, h))!.Value.Direction);
         Assert.All(new[] { new Cell(w, h / 2), new Cell(w / 2, 0), new Cell(w / 2, h) }, c => Assert.True(town.EdgeWay(c)!.Value.Way.At.DistanceTo(c) <= Math.Max(map.Width, map.Rows.Count)));
-        // Away from the edges, nothing.
+        // Away from the edges, nothing; two cells in, still the edge (sprint 85).
         Assert.Null(town.EdgeWay(new Cell(w / 2, h / 2)));
-        Assert.Null(town.EdgeWay(new Cell(2, h / 2)));
+        Assert.Null(town.EdgeWay(new Cell(3, h / 2)));
+        Assert.Equal(new Cell(-1, 0), town.EdgeWay(new Cell(2, h / 2))!.Value.Direction);
     }
 
     [Fact]
@@ -54,5 +55,26 @@ public class EdgeWayTests
         Assert.Equal(link, clairval.Click(link.At)!.Link);
         // Busy (a walk to a way under way), no arrow.
         Assert.Null(clairval.EdgeWay(new Cell(0, 9)));
+    }
+
+    [Fact]
+    public void AClickBeyondTheMap_OnTheRightSide_LeadsThere_TheFarthestSideFirst()
+    {
+        var town = new TownController(Data, "woods-2-2");
+        Town map = town.Town;
+        int w = map.Width - 1, h = map.Rows.Count - 1;
+        // In the dark on the left, on the right, above, below.
+        Assert.Equal(new Cell(-1, 0), town.EdgeWay(new Cell(-6, h / 2))!.Value.Direction);
+        Assert.Equal(new Cell(1, 0), town.EdgeWay(new Cell(w + 3, 4))!.Value.Direction);
+        Assert.Equal(new Cell(0, -1), town.EdgeWay(new Cell(w / 2, -9))!.Value.Direction);
+        Assert.Equal(new Cell(0, 1), town.EdgeWay(new Cell(-1, h + 7))!.Value.Direction);
+        TownStep step = town.Click(new Cell(-6, h / 2))!;
+        Assert.Equal(0, step.Link!.At.X);
+        Assert.Equal(step.Link, town.Travel);
+        // Clairval has no way north: beyond its top left corner, the west way.
+        var clairval = new TownController(Data, "clairval");
+        Assert.Equal(new Cell(-1, 0), clairval.EdgeWay(new Cell(-1, -8))!.Value.Direction);
+        // Beyond a side without a way: nothing.
+        Assert.Null(clairval.EdgeWay(new Cell(30, 6)));
     }
 }

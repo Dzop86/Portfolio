@@ -33,12 +33,24 @@ public partial class SpellIcon : Control
     /// <summary>A spell not unlocked yet, or not castable now: drawn faint.</summary>
     public bool Faint { get; set; }
 
+    // Kept for the whole game: a texture only drawn, not held by any node, was freed when the C# garbage
+    // collector let its wrapper go, and the canvas then drew a white square in its place (Charles, D67).
+    private static readonly Dictionary<string, Texture2D?> Textures = [];
+
     /// <summary>The drawing of a spell, from the icons imported with the game; null without one.</summary>
     public static Texture2D? TextureOf(Spell spell)
     {
+        if (Textures.TryGetValue(spell.Id, out Texture2D? known))
+            return known;
         string path = $"res://assets/icons/spells/{spell.Id}.svg";
-        return spell.Icon is not null && ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
+        return Textures[spell.Id] = spell.Icon is not null && ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
     }
+
+    /// <summary>Lets the textures go, before the game quits (no resource left alive at exit).</summary>
+    public static void Forget() => Textures.Clear();
+
+    /// <summary>The textures kept (for the self-test: still valid after a garbage collection).</summary>
+    public static IEnumerable<Texture2D> Kept => Textures.Values.OfType<Texture2D>();
 
     public override void _Draw()
     {

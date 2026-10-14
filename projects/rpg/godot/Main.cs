@@ -294,7 +294,7 @@ public partial class Main : Node3D
                 GetTree().ReloadCurrentScene();
                 break;
             case MenuChoice.Quit:
-                GetTree().Quit();
+                _ = QuitCleanly(0);
                 break;
         }
     }
@@ -763,6 +763,7 @@ public partial class Main : Node3D
     private async Task QuitCleanly(int code)
     {
         await CloseChat();
+        SpellIcon.Forget();
         foreach (Node child in GetChildren())
         {
             RemoveChild(child);

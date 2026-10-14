@@ -50,6 +50,8 @@ public partial class WorldMapPanel : CanvasLayer
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -420, OffsetRight = 420, OffsetTop = -270, OffsetBottom = 270 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
+
+        WindowDrag.Make(panel, "map");
         var area = new Control { CustomMinimumSize = new Vector2(840, 540) };
         panel.AddChild(area);
         var title = new Label { Text = texts["map.title"], Position = new Vector2(20, 10) };
@@ -70,6 +72,16 @@ public partial class WorldMapPanel : CanvasLayer
             MouseFilter = Control.MouseFilterEnum.Ignore,
         };
         _view.AddChild(_picture);
+        // A light grid on the maps' edges (sprint 85, D67), shown or not, the choice kept.
+        _grid = new MapGrid { MouseFilter = Control.MouseFilterEnum.Ignore, Cell = new Vector2(_world.MapWidth, _world.MapHeight) * WorldPicture.CellPixels, Visible = ShowGrid };
+        _view.AddChild(_grid);
+        var gridBox = new CheckBox { Text = texts["map.grid"], ButtonPressed = ShowGrid, Position = new Vector2(620, 8), CustomMinimumSize = new Vector2(0, 44) };
+        gridBox.Toggled += on =>
+        {
+            ShowGrid = on;
+            _grid.Visible = on;
+        };
+        area.AddChild(gridBox);
         // The player: a ring in the accent colour, the same size at every zoom.
         _marker = new Panel { Size = new Vector2(22, 22), MouseFilter = Control.MouseFilterEnum.Ignore };
         _marker.AddThemeStyleboxOverride("panel", new StyleBoxFlat
@@ -133,6 +145,13 @@ public partial class WorldMapPanel : CanvasLayer
 
     private readonly List<(Dungeon Dungeon, Vector2 Pixel, Panel Door)> _doors = [];
 
+    private MapGrid _grid = null!;
+
+    /// <summary>Whether the grid of the maps is shown, for every opening of the world map until changed.</summary>
+    public static bool ShowGrid { get; set; } = true;
+
+    public bool GridShown => _grid.Visible;
+
     /// <summary>The dungeons' doors on the map and where they are drawn in the view (for the self-test).</summary>
     public IEnumerable<(string Dungeon, Vector2 Centre)> Doors => _doors.Select(d => (d.Dungeon.Id, d.Door.Position + d.Door.Size / 2));
 
@@ -182,10 +201,32 @@ public partial class WorldMapPanel : CanvasLayer
         PictureAt = new Vector2(Keep(PictureAt.X, size.X, ViewSize.X), Keep(PictureAt.Y, size.Y, ViewSize.Y));
         _picture.Position = PictureAt;
         _picture.Size = size;
+        _grid.Position = PictureAt;
+        _grid.Size = size;
+        _grid.Zoom = Zoom;
+        _grid.QueueRedraw();
         _marker.Position = PictureAt + _player * Zoom - _marker.Size / 2;
         foreach ((_, Vector2 pixel, Panel door) in _doors)
             door.Position = PictureAt + pixel * Zoom - door.Size / 2;
     }
 
     private void ShowHover(Vector2? at) => _hover.Text = at is Vector2 p ? HoverAt(p) : "";
+}
+
+/// <summary>The edges of the maps over the world's picture: thin and faint, not to spoil it.</summary>
+public partial class MapGrid : Control
+{
+    /// <summary>The size of a map in pixels of the picture, and the zoom it is drawn at.</summary>
+    public Vector2 Cell { get; set; }
+    public float Zoom { get; set; } = 1;
+
+    public override void _Draw()
+    {
+        var line = new Color(1, 1, 1, 0.22f);
+        float step = Cell.X * Zoom, rise = Cell.Y * Zoom;
+        for (float x = step; x < Size.X - 0.5f; x += step)
+            DrawLine(new Vector2(x, 0), new Vector2(x, Size.Y), line, 1);
+        for (float y = rise; y < Size.Y - 0.5f; y += rise)
+            DrawLine(new Vector2(0, y), new Vector2(Size.X, y), line, 1);
+    }
 }
