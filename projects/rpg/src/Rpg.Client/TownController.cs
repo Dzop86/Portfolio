@@ -136,11 +136,46 @@ public sealed class TownController
         return IsFree(target) ? Wander.FindPath(Board, Position, target, IsFree) : null;
     }
 
+    /// <summary>How near an edge a cell leads to the next map (sprint 83): on it, or one cell in.</summary>
+    public const int EdgeReach = 1;
+
+    /// <summary>
+    /// As in the games of the genre (sprint 83, D66): a cell at the edge of the map, decor included, leads
+    /// to the way out on that side the player can reach by the shortest walk; with the side's direction
+    /// (one step out), for the arrow under the mouse. Null away from the edges, on a side without a way,
+    /// on someone or on monsters.
+    /// </summary>
+    public (ZoneLink Way, Cell Direction)? EdgeWay(Cell target)
+    {
+        if (!Board.Contains(target) || Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
+            return null;
+        (int distance, Cell direction, Func<Cell, bool> onSide)[] sides =
+        [
+            (target.X, new Cell(-1, 0), c => c.X == 0),
+            (Board.Width - 1 - target.X, new Cell(1, 0), c => c.X == Board.Width - 1),
+            (target.Y, new Cell(0, -1), c => c.Y == 0),
+            (Board.Height - 1 - target.Y, new Cell(0, 1), c => c.Y == Board.Height - 1),
+        ];
+        (int nearest, Cell toward, Func<Cell, bool> side) = sides.MinBy(s => s.distance);
+        if (nearest > EdgeReach)
+            return null;
+        ZoneLink? way = (Town.Links ?? []).Where(l => side(l.At))
+            .Select(l => (Link: l, Path: l.At == Position ? [] : Wander.FindPath(Board, Position, l.At, IsFree)))
+            .Where(p => p.Path is not null)
+            .OrderBy(p => p.Path!.Count).ThenBy(p => p.Link.At.DistanceTo(target))
+            .Select(p => p.Link)
+            .FirstOrDefault();
+        return way is null ? null : (way, toward);
+    }
+
     /// <summary>
     /// A left click: walks there, or up to someone (and talks) or to a group of monsters (without
-    /// fighting it: that is <see cref="Attack"/>, sprint 78).
+    /// fighting it: that is <see cref="Attack"/>, sprint 78); near an edge, to its way out (<see cref="EdgeWay"/>).
     /// </summary>
-    public TownStep? Click(Cell target) => Walk(target, attack: false);
+    public TownStep? Click(Cell target) =>
+        Town.LinkAt(target) is null && Town.ExitAt(target) is null && Town.DoorAt(target) is null && Town.WorkshopAt(target) is null && EdgeWay(target) is ({ } way, _)
+            ? Walk(way.At, attack: false)
+            : Walk(target, attack: false);
 
     /// <summary>"Attack" in the menu of a group of monsters (a right click on it, sprint 78): walks up to it and starts its fight.</summary>
     public TownStep? Attack(Cell target) => GroupAt(target) is null ? null : Walk(target, attack: true);

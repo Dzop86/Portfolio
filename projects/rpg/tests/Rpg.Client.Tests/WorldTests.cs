@@ -17,7 +17,7 @@ public class WorldTests
         TownController woods = town.Enter(town.Travel!);
         Assert.Equal(("woods-4-2", new Cell(46, 5), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
         // Walking elsewhere does not take a way: only stopping on it.
-        Cell inside = woods.Board.Cells().First(c => c.X == 40 && woods.IsFree(c) && woods.Town.LinkAt(c) is null);
+        Cell inside = woods.Board.Cells().First(c => c.X == 40 && c.Y > TownController.EdgeReach + 1 && woods.IsFree(c) && woods.Town.LinkAt(c) is null);
         Assert.Null(woods.Click(inside)!.Link);
         Assert.Null(woods.Travel);
         // From map to map: the way north arrives on the bottom edge of the map above.
@@ -51,7 +51,7 @@ public class WorldTests
     }
 
     [Fact]
-    public void TheCamera_Follows_Zooms_AndTurnsAQuarterAtATime()
+    public void TheCamera_Follows_AndZooms_AlwaysFromTheSameSide()
     {
         var cam = new ExploreCamera(0, 0);
         cam.Follow(10, 4, 0.05);
@@ -64,10 +64,9 @@ public class WorldTests
         Assert.Equal(ExploreCamera.MinZoom, cam.Zoom);
         cam.ZoomBy(-50);
         Assert.Equal(ExploreCamera.MaxZoom, cam.Zoom);
-        cam.Turn(1);
-        Assert.Equal(135, cam.Yaw);
-        cam.Turn(-2);
-        Assert.Equal((3, 315.0), (cam.Quarter, cam.Yaw));
+        Assert.Equal(45, ExploreCamera.Yaw);
+        // The zoom of the map left, kept on the next one (sprint 83).
+        Assert.Equal(ExploreCamera.MaxZoom, new ExploreCamera(5, 5, cam.Zoom).Zoom);
         cam.Jump(2, 2);
         Assert.Equal((2.0, 2.0), (cam.X, cam.Z));
     }

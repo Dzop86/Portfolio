@@ -10,7 +10,8 @@ public class TownTests
     public void AClick_WalksTheShortestWay_AroundHousesAndWater()
     {
         TownController town = Clairval();
-        Cell to = new(1, 6);
+        // Two cells in from the west edge: one cell in would lead to the woods (sprint 83).
+        Cell to = new(2, 6);
         TownStep step = town.Click(to)!;
         Assert.Equal(to, town.Position);
         Assert.Equal(Wander.FindPath(town.Board, town.Town.Spawn, to, c => town.Town.IsFree(town.Board, c))!.Count, step.Path.Count);

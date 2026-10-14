@@ -86,6 +86,27 @@ public partial class WorldMapPanel : CanvasLayer
             CornerRadiusBottomRight = 11,
         });
         _view.AddChild(_marker);
+        // The dungeons' doors (sprint 83, D66): a chocolate square each, named on hover.
+        foreach (Dungeon d in data.Dungeons.Values)
+        {
+            (double dx, double dy) = _world.PixelOf(d.Map, d.Door);
+            var door = new Panel { Size = new Vector2(16, 16), MouseFilter = Control.MouseFilterEnum.Ignore };
+            door.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+            {
+                BgColor = TownView.DoorColour,
+                BorderColor = new Color(0.1f, 0.07f, 0.04f),
+                BorderWidthLeft = 2,
+                BorderWidthRight = 2,
+                BorderWidthTop = 2,
+                BorderWidthBottom = 2,
+                CornerRadiusTopLeft = 3,
+                CornerRadiusTopRight = 3,
+                CornerRadiusBottomLeft = 3,
+                CornerRadiusBottomRight = 3,
+            });
+            _view.AddChild(door);
+            _doors.Add((d, new Vector2((float)dx, (float)dy), door));
+        }
         _view.GuiInput += OnInput;
         _view.MouseExited += () => ShowHover(null);
 
@@ -101,11 +122,19 @@ public partial class WorldMapPanel : CanvasLayer
     /// <summary>The map under a point of the view, as the line below names it, with its level; empty off the maps.</summary>
     public string HoverAt(Vector2 inView)
     {
+        // A dungeon's door under the pointer: its name first.
+        if (_doors.FirstOrDefault(d => (d.Door.Position + d.Door.Size / 2).DistanceTo(inView) <= 10) is { Dungeon: Dungeon dungeon })
+            return _texts["map.dungeon", dungeon.Name.In(_texts.Lang)];
         Vector2 p = (inView - PictureAt) / Zoom;
         return _world.MapAtPixel(p.X, p.Y) is Town map ? $"{_texts.MapTitle(map)} · {_texts["map.level", map.Level]}{(map.Id == Current ? " · " + _texts["map.here"] : "")}" : "";
     }
 
     public string HoverText => _hover.Text;
+
+    private readonly List<(Dungeon Dungeon, Vector2 Pixel, Panel Door)> _doors = [];
+
+    /// <summary>The dungeons' doors on the map and where they are drawn in the view (for the self-test).</summary>
+    public IEnumerable<(string Dungeon, Vector2 Centre)> Doors => _doors.Select(d => (d.Dungeon.Id, d.Door.Position + d.Door.Size / 2));
 
     /// <summary>Zooms by <paramref name="factor"/>, the point of the picture under <paramref name="around"/> staying there.</summary>
     public void ZoomAround(Vector2 around, float factor)
@@ -154,6 +183,8 @@ public partial class WorldMapPanel : CanvasLayer
         _picture.Position = PictureAt;
         _picture.Size = size;
         _marker.Position = PictureAt + _player * Zoom - _marker.Size / 2;
+        foreach ((_, Vector2 pixel, Panel door) in _doors)
+            door.Position = PictureAt + pixel * Zoom - door.Size / 2;
     }
 
     private void ShowHover(Vector2? at) => _hover.Text = at is Vector2 p ? HoverAt(p) : "";

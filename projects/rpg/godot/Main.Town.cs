@@ -23,6 +23,9 @@ public partial class Main
     private SideBar? _bar;
     private bool _walking;
 
+    /// <summary>The zoom chosen, for every map until changed.</summary>
+    private static double _zoom = ExploreCamera.DefaultZoom;
+
     private void ShowTown()
     {
         _screen = Screen.Town;
@@ -36,11 +39,14 @@ public partial class Main
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
-        _explore = new ExploreCamera(_town.Position.X, _town.Position.Y);
+        // The zoom of the map left, kept (sprint 83, D66).
+        _explore = new ExploreCamera(_town.Position.X, _town.Position.Y, _zoom);
         PlaceCamera();
         _talkPanel = new TalkPanel();
         AddChild(_talkPanel);
         _talkPanel.Build(_town, new Texts(_options.Lang));
+        _edgeArrow = new EdgeArrow();
+        _talkPanel.AddChild(_edgeArrow);
         _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () =>
@@ -63,7 +69,7 @@ public partial class Main
     {
         ExploreCamera cam = _explore!;
         _camera.Size = (float)cam.Zoom;
-        _camera.RotationDegrees = new Vector3(-30, (float)cam.Yaw, 0);
+        _camera.RotationDegrees = new Vector3(-30, (float)ExploreCamera.Yaw, 0);
         _camera.Position = new Vector3((float)cam.X, 0, (float)cam.Z) + _camera.Transform.Basis.Z * 30f;
     }
 
@@ -200,15 +206,11 @@ public partial class Main
         {
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
                 _explore?.ZoomBy(1);
+                _zoom = _explore?.Zoom ?? _zoom;
                 return;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelDown }:
                 _explore?.ZoomBy(-1);
-                return;
-            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.Q }:
-                _explore?.Turn(-1);
-                return;
-            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.E }:
-                _explore?.Turn(1);
+                _zoom = _explore?.Zoom ?? _zoom;
                 return;
             case InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } key when WindowState.ForKey((char)key.Keycode) is GameWindow window:
                 ToggleWindow(window);
@@ -216,9 +218,13 @@ public partial class Main
         }
         if (_windows.Open is not null)
             return;
-        // Free walking (sprint 69): no cells shown under the mouse, a new click turns the walk.
+        // Free walking (sprint 69): no cells shown under the mouse, a new click turns the walk; near an
+        // edge, an arrow to the next map (sprint 83).
         switch (@event)
         {
+            case InputEventMouseMotion motion:
+                ShowEdge(motion.Position);
+                break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when BoardView.Pick(_camera, click.Position) is Cell cell:
                 _ = Walk(cell);
                 break;
@@ -234,8 +240,24 @@ public partial class Main
         }
     }
 
-    /// <summary>The player's walking pace, in cells a second.</summary>
-    private const double WalkSpeed = 4.2;
+    /// <summary>The player's walking pace, in cells a second: 20 % faster since sprint 83 (D66).</summary>
+    private const double WalkSpeed = 5.04;
+
+    private EdgeArrow? _edgeArrow;
+
+    /// <summary>The arrow under the mouse when it is near an edge with a way out on that side; hidden elsewhere.</summary>
+    private void ShowEdge(Vector2 at)
+    {
+        if (_edgeArrow is null || _town is null)
+            return;
+        if (BoardView.Pick(_camera, at) is not Cell cell || _town.EdgeWay(cell) is not ({ } way, Cell step))
+        {
+            _edgeArrow.Hide();
+            return;
+        }
+        Vector2 direction = _camera.UnprojectPosition(BoardView.ToWorld(cell + step)) - _camera.UnprojectPosition(BoardView.ToWorld(cell));
+        _edgeArrow.Point(at, direction, way.Name?.In(_talkPanel!.Texts.Lang));
+    }
 
     private PopupMenu? _groupMenu;
 
@@ -781,25 +803,58 @@ public partial class Main
         }
         Vector2 middle = GetViewport().GetVisibleRect().Size / 2;
         Vector3 player = _townView!.Player.Position;
-        for (int quarter = 0; quarter < 4; quarter++)
+        foreach (int zoom in new[] { 0, 3 })
         {
-            foreach (int zoom in new[] { 0, 3 })
-            {
-                _explore!.ZoomBy(zoom);
-                _explore.Jump(player.X, player.Z);
-                PlaceCamera();
-                if (_camera.UnprojectPosition(player).DistanceTo(middle) > 2)
-                    problems.Add($"turned {quarter} and zoomed {_explore.Zoom:0.0}, the camera shows the player at {_camera.UnprojectPosition(player)}");
-                _explore.ZoomBy(-zoom);
-            }
-            _explore!.Turn(1);
+            _explore!.ZoomBy(zoom);
+            _explore.Jump(player.X, player.Z);
+            PlaceCamera();
+            if (_camera.UnprojectPosition(player).DistanceTo(middle) > 2)
+                problems.Add($"zoomed {_explore.Zoom:0.0}, the camera shows the player at {_camera.UnprojectPosition(player)}");
+            _explore.ZoomBy(-zoom);
         }
         ToggleMap();
         CheckWorldMap(problems);
         ToggleMap();
         CheckMonsters(problems);
+        CheckEdges(problems);
         int doors = CheckDungeons(problems);
         return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera and map checked.";
+    }
+
+    /// <summary>
+    /// The edges of sprint 83: the mouse over a cell of the edge where a way leaves shows the arrow,
+    /// pointing outwards on screen; in the middle of the map, none.
+    /// </summary>
+    private void CheckEdges(List<string> problems)
+    {
+        // A fresh walk on this map: the tour has chosen the gate's fight by now, and a busy player gets no arrow.
+        var town = _town;
+        _town = new TownController(GameData.Embedded, town!.Town.Id, town.Position);
+        Town map = _town.Town;
+        ZoneLink? link = map.Links is { Count: > 0 } links ? links[0] : null;
+        if (link is null)
+        {
+            _town = town;
+            return;
+        }
+        Vector2 Screen(Cell c) => _camera.UnprojectPosition(BoardView.ToWorld(c));
+        ShowEdge(Screen(link.At));
+        (ZoneLink, Cell)? expected = _town.EdgeWay(link.At);
+        if (expected is not ({ } way, Cell step) || !_edgeArrow!.Visible || _edgeArrow.ZoneText != (way.Name?.In(_talkPanel!.Texts.Lang) ?? ""))
+            problems.Add($"no arrow over the way to {link.To}");
+        else
+        {
+            // Pointing outwards: towards where the cell beyond the edge is drawn.
+            Vector2 outwards = Screen(link.At + step) - Screen(link.At);
+            Vector2 drawn = Vector2.Up.Rotated(_edgeArrow.Rotation);
+            if (drawn.Dot(outwards.Normalized()) < 0.99f)
+                problems.Add($"the arrow over the way to {link.To} points {drawn}, not {outwards.Normalized()}");
+        }
+        ShowEdge(Screen(new Cell(map.Width / 2, map.Rows.Count / 2)));
+        if (_edgeArrow!.Visible)
+            problems.Add("an arrow in the middle of the map");
+        _edgeArrow.Hide();
+        _town = town;
     }
 
     /// <summary>
@@ -938,6 +993,14 @@ public partial class Main
         Vector2 expected = map.PictureAt + new Vector2((float)px, (float)py) * map.Zoom;
         if (map.PictureSize != new Vector2I(world.Width, world.Height) || map.Current != _zone || map.MarkerCentre.DistanceTo(expected) > 0.5f)
             problems.Add($"the world map is {map.PictureSize}, marks {map.Current} at {map.MarkerCentre} (expected {expected})");
+        // The eight dungeons' doors, each named under the pointer (sprint 83).
+        if (map.Doors.Count() != GameData.Embedded.Dungeons.Count)
+            problems.Add($"the world map shows {map.Doors.Count()} dungeons");
+        foreach ((string id, Vector2 centre) in map.Doors.Take(1))
+        {
+            if (map.HoverAt(centre) != _talkPanel!.Texts["map.dungeon", GameData.Embedded.Dungeons[id].Name.In(_talkPanel.Texts.Lang)])
+                problems.Add($"the door of {id} on the world map says \"{map.HoverAt(centre)}\"");
+        }
         string here = _talkPanel!.Texts.MapTitle(_town.Town);
         if (!map.HoverText.StartsWith(here, StringComparison.Ordinal) || map.HoverAt(map.MarkerCentre) != map.HoverText)
             problems.Add($"the world map names \"{map.HoverText}\" under the player");
