@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S76), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S78), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S76 | 95 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S78 | 101 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 316 points sur 76 sprints de deux semaines.
+Total : 322 points sur 78 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -112,6 +112,9 @@ Après un second essai du jeu, quatre sprints de 3 points avant les monstres (qu
 
 ## Osmose : un monde de cartes, vu du ciel, et huit familles de monstres (décision de Charles, 14 octobre 2026, D63)
 Les premiers monstres (sprint 70, 3 points) deviennent sept sprints de 3 points (18 de plus) : S70 le monde en cartes (une zone = 5 × 5 cartes reliées par leurs bords, le bois d'abord) ; S71 la carte du monde vue du ciel, comme une seule grande carte ; S72 les monstres (groupes qui errent, combat au clic, réapparition, XP, butin) et les sangliers ; S73 les loups ; S74 le bois moisi, ses champignons et ses zombies ; S75 le lac, ses grenouilles et ses crabes ; S76 les champs, ses abeilles et ses taupes. Chaque famille compte cinq monstres de la même espèce, un par rôle (DPS mêlée, DPS distance, tank, support, boss).
+
+## Osmose : des cartes plus grandes, la frise du tour, le combat au clic droit (décision de Charles, 14 octobre 2026, D64)
+Après avoir parcouru le monde de D63, deux sprints de 3 points : S77 les cartes des zones en 48 × 32 cases (au lieu de 16 × 12), les passages sans points cardinaux (le nom de la zone seulement quand on en change) ; S78 la frise du combat limitée au tour en cours, qui recommence à chaque tour, le combat lancé par un clic droit puis « Attaquer », et plus de jeu hors ligne proposé au joueur.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
