@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S78), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S84), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S78 | 101 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S84 | 121 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 322 points sur 78 sprints de deux semaines.
+Total : 342 points sur 84 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -115,6 +115,9 @@ Les premiers monstres (sprint 70, 3 points) deviennent sept sprints de 3 points 
 
 ## Osmose : des cartes plus grandes, la frise du tour, le combat au clic droit (décision de Charles, 14 octobre 2026, D64)
 Après avoir parcouru le monde de D63, deux sprints de 3 points : S77 les cartes des zones en 48 × 32 cases (au lieu de 16 × 12), les passages sans points cardinaux (le nom de la zone seulement quand on en change) ; S78 la frise du combat limitée au tour en cours, qui recommence à chaque tour, le combat lancé par un clic droit puis « Attaquer », et plus de jeu hors ligne proposé au joueur.
+
+## Osmose : retours d'essai, donjons, métier, chat de proximité, quêtes (décision de Charles, 14 octobre 2026, D65)
+Après l'essai du sprint 78, six sprints : S79 (3 points) la connexion mémorisée dans le jeu, les morts qui quittent le plateau, le numéro du tour près d'une horloge, une commande d'administration ; S80 (5) un donjon par famille, trois salles (affaiblie, pleine force, avec le chef), une clef consommée à l'entrée, un trousseau d'administrateur ; S81 (3) le métier de serrurier qui fabrique les clefs, les ressources et la clef laissées par les monstres ; S82 (3) le chat de proximité ; S83 (3) les quêtes et leur journal ; S84 (3) le début de la quête principale et les quêtes annexes.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
