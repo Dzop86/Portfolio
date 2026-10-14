@@ -21,6 +21,7 @@ builder.Services.AddDbContext<GameDb>(options => options.UseNpgsql(connection));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<Tokens>();
 builder.Services.AddSingleton<GameServers>();
+builder.Services.AddSingleton<ChatHub>();
 builder.Services.AddSingleton<IPasswordHasher<Account>, PasswordHasher<Account>>();
 builder.Services.AddProblemDetails();
 // A body that is not valid JSON is the client's fault (400), in development too, where it is thrown.
@@ -112,6 +113,7 @@ if (app.Configuration["Updates:Root"] is string updates && Directory.Exists(upda
         DefaultContentType = "application/octet-stream",
     });
 }
+app.UseWebSockets();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();

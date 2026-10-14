@@ -168,6 +168,7 @@ public partial class Main : Node3D
     {
         if (_townView is not null)
         {
+            DrainChat();
             FollowPlayer(delta);
             RoamGroups(delta);
             return;
@@ -284,6 +285,8 @@ public partial class Main : Node3D
                 ShowMenu();
                 break;
             case MenuChoice.Servers or MenuChoice.Characters:
+                // Another character: its own chat.
+                _ = CloseChat();
                 // The lobby again: on the server list, or on this server's characters.
                 if (choice == MenuChoice.Servers)
                     _lobby?.ChooseServer(null);
@@ -750,8 +753,16 @@ public partial class Main : Node3D
     /// (images, materials, animations built by the self-tests) crashed Godot's .NET module on its way
     /// out, now and then, after a self-test that had passed (CI, sprint 71).
     /// </summary>
+    private static async Task CloseChat()
+    {
+        if (_chat is not null)
+            await _chat.DisposeAsync();
+        (_chat, _chatOf) = (null, null);
+    }
+
     private async Task QuitCleanly(int code)
     {
+        await CloseChat();
         foreach (Node child in GetChildren())
         {
             RemoveChild(child);

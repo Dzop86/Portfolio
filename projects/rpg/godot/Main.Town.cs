@@ -56,6 +56,7 @@ public partial class Main
             _menuPanel?.SetTexts(_talkPanel.Texts);
         };
         ShowBar();
+        ShowChat();
         _townView.Footstep += () => _sound?.Step();
         _sound?.PlayMusic();
         if (_options.TownSelfTest || _options.LobbySelfTest)
@@ -212,6 +213,13 @@ public partial class Main
                 _explore?.ZoomBy(-1);
                 _zoom = _explore?.Zoom ?? _zoom;
                 return;
+            // Enter: the chat's field (sprint 84); a click on the map leaves it.
+            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.Enter or Key.KpEnter } when _chatBox is not null:
+                _chatBox.Open();
+                return;
+            case InputEventMouseButton { Pressed: true } when _chatBox?.Typing == true:
+                _chatBox.Leave();
+                break;
             case InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } key when WindowState.ForKey((char)key.Keycode) is GameWindow window:
                 ToggleWindow(window);
                 return;
@@ -242,6 +250,74 @@ public partial class Main
 
     /// <summary>The player's walking pace, in cells a second: 20 % faster since sprint 83 (D66).</summary>
     private const double WalkSpeed = 5.04;
+
+    // The proximity chat (sprint 84): one socket for the character in play, kept from map to map (the
+    // server follows the place it saves), and its lines.
+    private static ChatClient? _chat;
+    private static Guid? _chatOf;
+    private static ChatLog? _chatLog;
+    private ChatBox? _chatBox;
+
+    private void ShowChat()
+    {
+        Texts texts = _talkPanel!.Texts;
+        _chatLog ??= new ChatLog(texts);
+        _chatBox = new ChatBox();
+        AddChild(_chatBox);
+        _chatBox.Build(_chatLog, texts);
+        _chatBox.Said += line => _ = Say(line);
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            if (_chatLog.Lines.Count == 0)
+                _chatLog.Note(texts["chat.offline"]);
+            _chatBox.Refresh();
+        }
+        else if (_chat is null || !_chat.IsOpen || _chatOf != _character.Id)
+            _ = OpenChat(_character.Id);
+    }
+
+    private async Task OpenChat(Guid character)
+    {
+        Texts texts = _talkPanel?.Texts ?? new Texts(_options.Lang);
+        if (_chat is not null)
+            await _chat.DisposeAsync();
+        _chat = null;
+        try
+        {
+            _chat = await _lobby!.Server.OpenChat(character);
+            _chatOf = character;
+            _chatLog!.Note(texts["chat.open"]);
+        }
+        catch (Exception e) when (e is System.Net.WebSockets.WebSocketException or HttpRequestException or InvalidOperationException)
+        {
+            _chatLog!.Note(texts["chat.closed"]);
+        }
+        _chatBox?.Refresh();
+    }
+
+    private async Task Say(string line)
+    {
+        if (_chat is null || !_chat.IsOpen)
+        {
+            _chatLog!.Note(_talkPanel!.Texts[_lobby?.SignedIn == true ? "chat.closed" : "chat.offline"]);
+            _chatBox?.Refresh();
+            return;
+        }
+        await _chat.Say(line);
+    }
+
+    /// <summary>What the chat brought since the last frame, on screen.</summary>
+    private void DrainChat()
+    {
+        bool any = false;
+        while (_chat is not null && _chat.TryRead(out ChatEvent? e))
+        {
+            _chatLog!.Add(e!);
+            any = true;
+        }
+        if (any)
+            _chatBox?.Refresh();
+    }
 
     private EdgeArrow? _edgeArrow;
 
@@ -508,6 +584,38 @@ public partial class Main
             await SavePoints(editor.ToPoints());
     }
 
+    /// <summary>
+    /// The chat of sprint 84: Enter opens the field, Escape leaves it; signed in, a line typed comes back
+    /// from the server, as everyone on the map sees it.
+    /// </summary>
+    private async Task<string> CheckChat(List<string> problems)
+    {
+        ChatBox box = _chatBox!;
+        box.Open();
+        bool opened = box.Typing;
+        box.Leave();
+        if (!opened || box.Typing)
+            problems.Add("the chat's field does not open and close");
+        if (_lobby?.SignedIn != true || _character is null)
+            return "";
+        for (int i = 0; i < 100 && _chat is null; i++)
+            await ToSignal(GetTree().CreateTimer(0.05), SceneTreeTimer.SignalName.Timeout);
+        string said = "Bonjour depuis l'auto-test";
+        box.Type(said);
+        string expected = _talkPanel!.Texts["chat.line", _talkPanel.Texts["chat.map"], _character.Name, said];
+        for (int i = 0; i < 100 && !box.LogText.Contains(expected, StringComparison.Ordinal); i++)
+        {
+            await ToSignal(GetTree().CreateTimer(0.05), SceneTreeTimer.SignalName.Timeout);
+            DrainChat();
+        }
+        if (!box.LogText.Contains(expected, StringComparison.Ordinal))
+        {
+            problems.Add($"the chat shows \"{box.LogText}\", not the line said");
+            return "";
+        }
+        return " Chat: a line heard back.";
+    }
+
     private async Task<bool> SavePoints(Points points)
     {
         PointsPanel panel = _pointsPanel!;
@@ -651,7 +759,7 @@ public partial class Main
             else
                 note += $", place {_town.Position} saved on the server";
         }
-        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + await CheckChat(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;

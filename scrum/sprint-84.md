@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je parle aux joueurs de ma carte (rpg) : Entrée pour écrire, Entrée pour envoyer, Échap ou un clic ailleurs pour quitter la saisie ; messages par WebSocket, reçus par ceux de la même carte seulement, longueur et cadence bornées par le serveur ; canaux prévus pour le groupe, la guilde et le monde ; xUnit, intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je parle aux joueurs de ma carte (rpg) : Entrée pour écrire, Entrée pour envoyer, Échap ou un clic ailleurs pour quitter la saisie ; messages par WebSocket, reçus par ceux de la même carte seulement, longueur et cadence bornées par le serveur ; canaux prévus pour le groupe, la guilde et le monde ; xUnit, intégration, auto-test. | 3 | Fait |
+
+**Résultat :** le chat de proximité par WebSocket, la carte connue du serveur, Entrée et Échap dans le jeu (T51).
 
 ## Rétro (Charles)
 - Ce qui a marché :

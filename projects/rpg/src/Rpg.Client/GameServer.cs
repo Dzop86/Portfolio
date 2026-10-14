@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.WebSockets;
 using System.Text.Json;
 using Rpg.Core;
 
@@ -53,6 +54,36 @@ public sealed class GameServer(HttpClient http)
     {
         Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         _credentials = null;
+    }
+
+    /// <summary>
+    /// The proximity chat of a character (sprint 84): a WebSocket to the server, with this session's
+    /// token; refused for a token run out, signed in again once. <paramref name="open"/> makes the socket
+    /// (a <see cref="ClientWebSocket"/> by default; the tests' in-memory server otherwise).
+    /// </summary>
+    public async Task<ChatClient> OpenChat(Guid id, Func<Uri, AuthenticationHeaderValue?, CancellationToken, Task<WebSocket>>? open = null, CancellationToken cancel = default)
+    {
+        open ??= OpenSocket;
+        var http = new Uri(Http.BaseAddress ?? throw new InvalidOperationException("No server address."), $"api/characters/{id}/chat");
+        var uri = new UriBuilder(http) { Scheme = http.Scheme == Uri.UriSchemeHttps ? "wss" : "ws" }.Uri;
+        try
+        {
+            return new ChatClient(await open(uri, Http.DefaultRequestHeaders.Authorization, cancel));
+        }
+        catch (WebSocketException) when (_credentials is { Name: string name, Password: string password })
+        {
+            await SignIn(name, password, cancel);
+            return new ChatClient(await open(uri, Http.DefaultRequestHeaders.Authorization, cancel));
+        }
+    }
+
+    private static async Task<WebSocket> OpenSocket(Uri uri, AuthenticationHeaderValue? auth, CancellationToken cancel)
+    {
+        var socket = new ClientWebSocket();
+        if (auth is not null)
+            socket.Options.SetRequestHeader("Authorization", auth.ToString());
+        await socket.ConnectAsync(uri, cancel);
+        return socket;
     }
 
     /// <summary>A call; refused for a token no longer valid, signed in again with this session's password and made once more.</summary>

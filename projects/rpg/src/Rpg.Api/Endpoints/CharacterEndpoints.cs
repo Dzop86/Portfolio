@@ -24,6 +24,7 @@ public static class CharacterEndpoints
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
         group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
+        group.Map("/{id:guid}/chat", Chat).WithSummary("The proximity chat of one of the player's characters, as a WebSocket: lines in, the lines said on its map out.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
 
@@ -97,8 +98,22 @@ public static class CharacterEndpoints
         return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
+    /// <summary>The chat's socket (sprint 84): for a character of the account, on the map the server knows it on.</summary>
+    internal static async Task<IResult> Chat(Guid id, HttpContext context, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+    {
+        if (!context.WebSockets.IsWebSocketRequest)
+            return TypedResults.BadRequest();
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        using System.Net.WebSockets.WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
+        await hub.Serve(character.Id, character.Name, character.Town ?? "clairval", socket, context.RequestAborted);
+        return TypedResults.Empty;
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SavePlace(
-        Guid id, Place place, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+        Guid id, Place place, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
     {
         // The rules' own towns decide: a known town, a cell the player could walk to from the arrival.
         if (place?.Town is null || !GameData.Embedded.Towns.TryGetValue(place.Town, out Town? town) || !town.CanStand(place.Cell))
@@ -106,6 +121,8 @@ public static class CharacterEndpoints
         Guid account = AccountId(user);
         int saved = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
             .ExecuteUpdateAsync(set => set.SetProperty(c => c.Town, place.Town).SetProperty(c => c.X, place.X).SetProperty(c => c.Y, place.Y), cancel);
+        if (saved > 0)
+            hub.Move(id, place.Town);
         return saved == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
