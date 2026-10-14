@@ -1,0 +1,215 @@
+{
+  "id": "fields-1-0",
+  "zone": "fields",
+  "name": {
+    "fr": "Champs de Clairval",
+    "en": "Clairval Fields"
+  },
+  "level": 26,
+  "mapAt": {
+    "x": -4,
+    "y": 3
+  },
+  "rows": [
+    "BBBBBB...BBBBBBB",
+    "B..,......,,,..B",
+    "B..,BB....,,,..B",
+    "B.,,.BB...,,,,.B",
+    "..........,,.,.B",
+    "................",
+    "................",
+    "B.B,............",
+    "B,,,,........,.B",
+    "B,,,........,..B",
+    "B.,,.......,,,.B",
+    "BBBBB...BBBBBBBB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 5
+      },
+      "to": "fields-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 6
+      },
+      "to": "fields-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 6
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 7
+      },
+      "to": "fields-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "fields-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "fields-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "fields-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 5,
+        "y": 11
+      },
+      "to": "fields-1-1",
+      "arrival": {
+        "x": 5,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 11
+      },
+      "to": "fields-1-1",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "fields-1-1",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 0
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 6,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Bois de Clairval",
+        "en": "North: Clairval Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 0
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 7,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Bois de Clairval",
+        "en": "North: Clairval Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 0
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 8,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord : Bois de Clairval",
+        "en": "North: Clairval Woods"
+      }
+    }
+  ]
+}

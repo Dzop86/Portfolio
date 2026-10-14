@@ -38,6 +38,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 73 : les loups (noms, rôles, la louve qui protège, le chef de meute en [-3, -2], modèles à voir en jouant) et leur mélange avec les sangliers.
 - [ ] Sprint 74 : le bois moisi (décor, teinte, champignons et zombies, modèles à voir en jouant) ; tes deux règles appliquées partout : deux à quatre groupes de un à dix par carte, les petits faciles seul au niveau de la zone, les hordes et les chefs faits pour plusieurs (T41).
 - [ ] Sprint 75 : le Lac des Joncs (le lac, ses pontons, ses îlots), ses grenouilles et ses crabes (modèles à voir en jouant).
+- [ ] Sprint 76 : les Champs de Clairval (fleurs, haies), leurs abeilles et leurs taupes ; et l'ensemble de D63 : le monde de 101 cartes, huit familles, la règle des groupes (T43).
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
@@ -152,3 +153,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-14 | `tools/world_gen.py` | (Claude) Les ouvertures vers une zone pas encore écrite étaient creusées dans les cartes du bois, sans passage : des trous dans la bordure qui ne mènent nulle part | Les passages vers une zone ne sont creusés que quand la zone est écrite |
 | 2026-10-14 | `src/Rpg.Core/Monsters.cs`, `src/Rpg.Client/MonsterPresence.cs` | (Claude) Un groupe posé ou errant sur un ponton d'une case coupait la carte : l'auto-test ne pouvait plus atteindre un passage, un joueur non plus | Un groupe ne s'installe ni n'erre là où les passages, sorties et habitants ne seraient plus tous joignables |
 | 2026-10-14 | `tools/world_gen.py` (lac) | (Claude) Ensuite, cinq cartes presque toutes d'eau n'avaient plus aucun groupe | Un îlot de 7 × 7 cases au centre de chaque carte du lac |
+| 2026-10-14 | `tools/spells_gen.py` (taupe-roi) | (Claude) Le séisme de la taupe-roi reprenait l'identifiant `quake`, déjà pris par un sort de classe : le chargement des données l'a refusé | Renommé `tremor` (« Secousse ») |

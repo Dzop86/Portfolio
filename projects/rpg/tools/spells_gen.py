@@ -175,6 +175,19 @@ beasts = [
  S("shell-guard","Garde de coquille","Shell Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",12,2)],ranks=False,cd=1),
  S("giant-pinch","Pince géante","Giant Pinch",4,1,1,22,28,1,"Earth",1,ranks=False),
  S("tide-sweep","Balayage de marée","Tide Sweep",4,1,2,15,20,1,"Water",1,area=("Cross",1),ranks=False,cd=1),
+ # The fields (sprint 76): bees and moles, made for heroes of about level 26.
+ S("sting","Dard","Sting",3,1,2,16,22,2,"Air",1,ranks=False),
+ S("stinger-shot","Tir de dard","Stinger Shot",3,2,6,13,19,2,"Air",1,ranks=False),
+ S("wax-coat","Couche de cire","Wax Coat",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",12,2)],ranks=False,cd=2),
+ S("royal-jelly","Gelée royale","Royal Jelly",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",13,18)],ranks=False,cd=1),
+ S("queen-sting","Dard de la reine","Queen's Sting",4,1,2,28,36,1,"Air",1,ranks=False),
+ S("swarm","Essaim","Swarm",4,1,3,19,25,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
+ S("dig-claw","Griffe fouisseuse","Digging Claw",3,1,1,16,22,2,"Earth",1,ranks=False),
+ S("clod-throw","Jet de motte","Clod Throw",3,2,5,13,19,2,"Earth",1,ranks=False),
+ S("burrow","Terrier","Burrow",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",12,2)],ranks=False,cd=2),
+ S("earth-ward","Rempart de terre","Earth Ward",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",12,2)],ranks=False,cd=1),
+ S("crushing-claws","Griffes broyeuses","Crushing Claws",4,1,1,28,36,1,"Earth",1,ranks=False),
+ S("tremor","Secousse","Tremor",4,1,2,19,25,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.

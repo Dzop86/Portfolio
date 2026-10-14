@@ -41,6 +41,8 @@ public class MonsterTests
     [InlineData("zombie", "mouldy", "mouldy-hollow", "mouldy-2-4", "wolf")]
     [InlineData("frog", "lake", "lakeshore", "lake-0-0", "zombie")]
     [InlineData("crab", "lake", "lakeshore", "lake-4-1", "zombie")]
+    [InlineData("bee", "fields", "meadow", "fields-0-4", "crab")]
+    [InlineData("mole", "fields", "meadow", "fields-4-3", "crab")]
     public void EveryZone_HasItsTwoFamilies_FiveOfAKindEach_StrongerThanTheZoneBefore(string id, string zone, string battle, string chiefMap, string before)
     {
         MonsterFamily f = Real.Families[id];

@@ -1,0 +1,170 @@
+{
+  "id": "fields-4-3",
+  "zone": "fields",
+  "name": {
+    "fr": "Champs de Clairval",
+    "en": "Clairval Fields"
+  },
+  "level": 26,
+  "mapAt": {
+    "x": -1,
+    "y": 6
+  },
+  "rows": [
+    "BBBBBBB...BBBBBB",
+    "B..............B",
+    "B..,.TB......,.B",
+    "..........,,,,,B",
+    "..........,,,,,B",
+    "..........,,,,.B",
+    "B..,,.,......,.B",
+    "B..B,T,......,,B",
+    "B.,BT,C......,,B",
+    "B,,BB..........B",
+    "B,.............B",
+    "BBBBB...BBBBBBBB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 0,
+        "y": 3
+      },
+      "to": "fields-3-3",
+      "arrival": {
+        "x": 14,
+        "y": 3
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "fields-3-3",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "fields-3-3",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 5,
+        "y": 11
+      },
+      "to": "fields-4-4",
+      "arrival": {
+        "x": 5,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 11
+      },
+      "to": "fields-4-4",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "fields-4-4",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 0
+      },
+      "to": "fields-4-2",
+      "arrival": {
+        "x": 7,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 0
+      },
+      "to": "fields-4-2",
+      "arrival": {
+        "x": 8,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 0
+      },
+      "to": "fields-4-2",
+      "arrival": {
+        "x": 9,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

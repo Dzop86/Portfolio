@@ -36,5 +36,11 @@
   { "id": "lily-ring", "name": { "fr": "Anneau de nénuphar", "en": "Lily Ring" }, "kind": "Equipment", "slot": "Ring", "level": 18, "stats": { "water": 14, "vitality": 10 } },
   { "id": "crab-shell", "name": { "fr": "Carapace de crabe", "en": "Crab Shell" }, "kind": "Resource" },
   { "id": "crab-claw", "name": { "fr": "Pince de crabe", "en": "Crab Claw" }, "kind": "Resource" },
-  { "id": "shell-shield", "name": { "fr": "Bouclier de carapace", "en": "Shell Shield" }, "kind": "Equipment", "slot": "Shield", "level": 20, "stats": { "earth": 14, "vitality": 12 } }
+  { "id": "shell-shield", "name": { "fr": "Bouclier de carapace", "en": "Shell Shield" }, "kind": "Equipment", "slot": "Shield", "level": 20, "stats": { "earth": 14, "vitality": 12 } },
+  { "id": "honeycomb", "name": { "fr": "Rayon de miel", "en": "Honeycomb" }, "kind": "Resource" },
+  { "id": "bee-wing", "name": { "fr": "Aile d'abeille", "en": "Bee Wing" }, "kind": "Resource" },
+  { "id": "stinger-dagger", "name": { "fr": "Dague-dard", "en": "Stinger Dagger" }, "kind": "Equipment", "slot": "OneHanded", "level": 26, "stats": { "air": 18, "vitality": 12 } },
+  { "id": "mole-fur", "name": { "fr": "Fourrure de taupe", "en": "Mole Fur" }, "kind": "Resource" },
+  { "id": "earthworm", "name": { "fr": "Ver de terre", "en": "Earthworm" }, "kind": "Resource" },
+  { "id": "digger-boots", "name": { "fr": "Bottes de fouisseur", "en": "Digger Boots" }, "kind": "Equipment", "slot": "Boots", "level": 28, "stats": { "earth": 18, "vitality": 14 } }
 ]

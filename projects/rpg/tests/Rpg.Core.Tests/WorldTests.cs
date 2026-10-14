@@ -94,6 +94,28 @@ public class WorldTests
         }
     }
 
+    [Fact]
+    public void TheFields_AreFiveByFiveMaps_SouthOfTheWoods_InFlowersAndHedges()
+    {
+        Town[] fields = [.. Real.Towns.Values.Where(t => t.Zone == "fields")];
+        Assert.Equal(25, fields.Length);
+        Assert.All(fields, t => Assert.Equal((16, 12, 26, "Champs de Clairval", "Clairval Fields"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(3, 5).Select(y => new Cell(x, y)))],
+            fields.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
+        // Flowers one walks on, hedges one does not.
+        Town middle = Real.Towns["fields-2-2"];
+        Cell flowers = middle.Board().Cells().First(c => middle[c] == ',');
+        Assert.True(middle.Board().IsFloor(flowers));
+        Assert.All(fields, t => Assert.Equal('B', t[new Cell(0, 0)]));
+        foreach (int col in new[] { 1, 3 })
+        {
+            Assert.Equal(3, Real.Towns[$"woods-{col}-4"].Links!.Count(l => l.To == $"fields-{col}-0"));
+            Assert.Equal(3, Real.Towns[$"fields-{col}-0"].Links!.Count(l => l.To == $"woods-{col}-4"));
+        }
+        // Four zones and the village: 101 maps.
+        Assert.Equal(101, Real.Towns.Count);
+    }
+
     // Two maps side by side, three cells wide: a to the west of b.
     private static readonly Town West = new("a", Text, ["...", "..."], new Cell(0, 0), [], [], [new ZoneLink(new Cell(2, 0), "b", new Cell(0, 0), Text)]);
     private static readonly Town East = new("b", Text, ["...", "..."], new Cell(1, 1), [], [], [new ZoneLink(new Cell(0, 1), "a", new Cell(2, 1), Text)], MapAt: new Cell(1, 0));

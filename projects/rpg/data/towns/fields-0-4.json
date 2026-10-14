@@ -1,0 +1,125 @@
+{
+  "id": "fields-0-4",
+  "zone": "fields",
+  "name": {
+    "fr": "Champs de Clairval",
+    "en": "Clairval Fields"
+  },
+  "level": 26,
+  "mapAt": {
+    "x": -5,
+    "y": 7
+  },
+  "rows": [
+    "BBBBBBBBB...BBBB",
+    "B...,,.......,.B",
+    "B.,,,,,.....,,.B",
+    "B.BBBB,...B,.,.B",
+    "B.,.......,,,..B",
+    "B.,,.,....,,,,.B",
+    "B.,,,,....,,,,.B",
+    "B,,,,BB.........",
+    "BBBB,...........",
+    "B.B....B........",
+    "B..........,...B",
+    "BBBBBBBBBBBBBBBB"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 7
+      },
+      "to": "fields-1-4",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 8
+      },
+      "to": "fields-1-4",
+      "arrival": {
+        "x": 1,
+        "y": 8
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 9
+      },
+      "to": "fields-1-4",
+      "arrival": {
+        "x": 1,
+        "y": 9
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 0
+      },
+      "to": "fields-0-3",
+      "arrival": {
+        "x": 9,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 0
+      },
+      "to": "fields-0-3",
+      "arrival": {
+        "x": 10,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 0
+      },
+      "to": "fields-0-3",
+      "arrival": {
+        "x": 11,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

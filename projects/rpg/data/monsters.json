@@ -949,5 +949,317 @@
         ]
       }
     ]
+  },
+  {
+    "id": "bee",
+    "name": {
+      "fr": "Abeilles",
+      "en": "Bees"
+    },
+    "zone": "fields",
+    "battle": "meadow",
+    "bossMap": "fields-0-4",
+    "monsters": [
+      {
+        "id": "worker-bee",
+        "role": "Melee",
+        "name": {
+          "fr": "Abeille ouvrière",
+          "en": "Worker Bee"
+        },
+        "look": "bee-melee",
+        "level": 25,
+        "hp": 64,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 95,
+        "spells": [
+          "sting"
+        ],
+        "resistances": {
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "bee-wing",
+            "percent": 40
+          },
+          {
+            "item": "honeycomb",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "archer-bee",
+        "role": "Ranged",
+        "name": {
+          "fr": "Abeille archère",
+          "en": "Archer Bee"
+        },
+        "look": "bee-ranged",
+        "level": 24,
+        "hp": 44,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 100,
+        "spells": [
+          "stinger-shot"
+        ],
+        "loot": [
+          {
+            "item": "bee-wing",
+            "percent": 60
+          }
+        ]
+      },
+      {
+        "id": "drone",
+        "role": "Tank",
+        "name": {
+          "fr": "Faux-bourdon",
+          "en": "Drone"
+        },
+        "look": "bee-tank",
+        "level": 26,
+        "hp": 64,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "sting",
+          "wax-coat"
+        ],
+        "resistances": {
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "honeycomb",
+            "percent": 60
+          },
+          {
+            "item": "stinger-dagger",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "nurse-bee",
+        "role": "Support",
+        "name": {
+          "fr": "Abeille nourricière",
+          "en": "Nurse Bee"
+        },
+        "look": "bee-support",
+        "level": 25,
+        "hp": 64,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 80,
+        "spells": [
+          "royal-jelly",
+          "sting"
+        ],
+        "loot": [
+          {
+            "item": "honeycomb",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "queen-bee",
+        "role": "Boss",
+        "name": {
+          "fr": "Reine des abeilles",
+          "en": "Queen Bee"
+        },
+        "look": "bee-boss",
+        "level": 30,
+        "hp": 380,
+        "ap": 8,
+        "mp": 4,
+        "initiative": 90,
+        "spells": [
+          "queen-sting",
+          "swarm"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Fire": 10,
+          "Water": 15,
+          "Air": 25
+        },
+        "loot": [
+          {
+            "item": "honeycomb",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "stinger-dagger",
+            "percent": 25
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mole",
+    "name": {
+      "fr": "Taupes",
+      "en": "Moles"
+    },
+    "zone": "fields",
+    "battle": "meadow",
+    "bossMap": "fields-4-3",
+    "monsters": [
+      {
+        "id": "digger-mole",
+        "role": "Melee",
+        "name": {
+          "fr": "Taupe fouisseuse",
+          "en": "Digger Mole"
+        },
+        "look": "mole-melee",
+        "level": 25,
+        "hp": 66,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "dig-claw"
+        ],
+        "resistances": {
+          "Earth": 10
+        },
+        "loot": [
+          {
+            "item": "mole-fur",
+            "percent": 40
+          },
+          {
+            "item": "earthworm",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "clod-mole",
+        "role": "Ranged",
+        "name": {
+          "fr": "Taupe lance-mottes",
+          "en": "Clod Thrower"
+        },
+        "look": "mole-ranged",
+        "level": 24,
+        "hp": 46,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 70,
+        "spells": [
+          "clod-throw",
+          "dig-claw"
+        ],
+        "loot": [
+          {
+            "item": "earthworm",
+            "percent": 60
+          }
+        ]
+      },
+      {
+        "id": "old-mole",
+        "role": "Tank",
+        "name": {
+          "fr": "Vieille taupe",
+          "en": "Old Mole"
+        },
+        "look": "mole-tank",
+        "level": 26,
+        "hp": 78,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 40,
+        "spells": [
+          "dig-claw",
+          "burrow"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Water": 10
+        },
+        "loot": [
+          {
+            "item": "mole-fur",
+            "percent": 60
+          },
+          {
+            "item": "digger-boots",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "mole-mother",
+        "role": "Support",
+        "name": {
+          "fr": "Mère taupe",
+          "en": "Mole Mother"
+        },
+        "look": "mole-support",
+        "level": 25,
+        "hp": 66,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 50,
+        "spells": [
+          "earth-ward",
+          "dig-claw"
+        ],
+        "loot": [
+          {
+            "item": "mole-fur",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "mole-king",
+        "role": "Boss",
+        "name": {
+          "fr": "Taupe-roi",
+          "en": "Mole King"
+        },
+        "look": "mole-boss",
+        "level": 30,
+        "hp": 390,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 55,
+        "spells": [
+          "crushing-claws",
+          "tremor"
+        ],
+        "resistances": {
+          "Earth": 25,
+          "Fire": 10,
+          "Water": 15,
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "mole-fur",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "digger-boots",
+            "percent": 25
+          }
+        ]
+      }
+    ]
   }
 ]

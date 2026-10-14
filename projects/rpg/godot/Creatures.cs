@@ -10,7 +10,8 @@ namespace Rpg.Desktop;
 /// ears and raised tail (sprint 73: a grey wolf, a pale howler with a dark mask, a great male with a
 /// ruff, a fawn she-wolf, a black leader with a scar); a mushroom's stem and cap on two feet, a zombie's
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
-/// shell, eye stalks and two claws (sprint 75). Each has an "idle" and a "walk"
+/// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
+/// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z.
 /// </summary>
 public static class Creatures
@@ -18,7 +19,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -53,6 +54,16 @@ public static class Creatures
         "crab-tank" => Crab(1.3f, new Color("7e3b22"), spikes: true),
         "crab-support" => Crab(0.9f, new Color("c0392b"), hermitShell: true),
         "crab-boss" => Crab(1.6f, new Color("8e2a1a"), spikes: true, crown: true),
+        "bee-melee" => Bee(1.0f, new Color("f1c40f")),
+        "bee-ranged" => Bee(0.85f, new Color("f7dc6f"), longSting: true),
+        "bee-tank" => Bee(1.3f, new Color("d4ac0d"), fat: true),
+        "bee-support" => Bee(0.9f, new Color("fad7a0")),
+        "bee-boss" => Bee(1.6f, new Color("e67e22"), fat: true, longSting: true, crown: true),
+        "mole-melee" => Mole(1.0f, new Color("4a4a52")),
+        "mole-ranged" => Mole(0.9f, new Color("6b5b4b"), clod: true),
+        "mole-tank" => Mole(1.3f, new Color("3a3a40"), helmet: true),
+        "mole-support" => Mole(0.95f, new Color("7a6a62"), apron: true),
+        "mole-boss" => Mole(1.6f, new Color("2b2b30"), helmet: true, crown: true),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
 
@@ -285,6 +296,74 @@ public static class Creatures
             var leg = new Node3D { Name = name, Position = new Vector3(x, 0.18f, z) };
             model.AddChild(leg);
             Block(leg, new Vector3(0.18f, 0.18f, 0.05f), new Vector3(x < 0 ? -0.06f : 0.06f, -0.09f, 0), dark);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private static Node3D Bee(float size, Color yellow, bool fat = false, bool longSting = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Bee" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color black = new("1c1c1c"), wing = new(0.92f, 0.96f, 1f);
+        float w = fat ? 0.36f : 0.28f;
+        // Head, thorax, striped abdomen, raised off the ground: a bee hovers.
+        Block(body, new Vector3(0.22f, 0.22f, 0.20f), new Vector3(0, 0.56f, 0.28f), black);
+        Block(body, new Vector3(0.24f, 0.24f, 0.20f), new Vector3(0, 0.56f, 0.10f), yellow);
+        for (int i = 0; i < 3; i++)
+            Block(body, new Vector3(w, w, 0.10f), new Vector3(0, 0.54f, -0.06f - i * 0.10f), i % 2 == 0 ? black : yellow);
+        Block(body, new Vector3(0.04f, 0.04f, longSting ? 0.18f : 0.10f), new Vector3(0, 0.52f, longSting ? -0.42f : -0.38f), black);
+        foreach (float x in new[] { -0.07f, 0.07f })
+        {
+            Block(body, new Vector3(0.06f, 0.06f, 0.02f), new Vector3(x, 0.60f, 0.385f), new Color("5dade2"));
+            Block(body, new Vector3(0.02f, 0.14f, 0.02f), new Vector3(x, 0.72f, 0.32f), black);
+        }
+        foreach (float x in new[] { -0.22f, 0.22f })
+            body.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.28f, 0.02f, 0.18f) }, Position = new Vector3(x, 0.72f, 0.06f), RotationDegrees = new Vector3(0, 0, x < 0 ? 20 : -20), MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(wing, 0.7f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha } });
+        if (crown)
+            Crown(body, 0.70f);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.08f, 0.14f), ("LegFR", 0.08f, 0.14f), ("LegBL", -0.08f, 0.02f), ("LegBR", 0.08f, 0.02f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.44f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.03f, 0.22f, 0.03f), new Vector3(0, -0.11f, 0), black);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private static Node3D Mole(float size, Color fur, bool clod = false, bool helmet = false, bool apron = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Mole" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color pink = new("f1948a"), dark = fur.Darkened(0.3f);
+        Block(body, new Vector3(0.40f, 0.30f, 0.52f), new Vector3(0, 0.28f, 0), fur);
+        Block(body, new Vector3(0.28f, 0.22f, 0.20f), new Vector3(0, 0.30f, 0.32f), fur);
+        Block(body, new Vector3(0.12f, 0.10f, 0.10f), new Vector3(0, 0.28f, 0.46f), pink);
+        Block(body, new Vector3(0.03f, 0.03f, 0.02f), new Vector3(-0.07f, 0.37f, 0.42f), Colors.Black);
+        Block(body, new Vector3(0.03f, 0.03f, 0.02f), new Vector3(0.07f, 0.37f, 0.42f), Colors.Black);
+        // Wide digging hands, pink, turned outwards.
+        foreach (float x in new[] { -0.25f, 0.25f })
+            Block(body, new Vector3(0.14f, 0.05f, 0.14f), new Vector3(x, 0.18f, 0.26f), pink);
+        if (clod)
+            Block(body, new Vector3(0.12f, 0.12f, 0.12f), new Vector3(0.25f, 0.27f, 0.26f), new Color("6e4b2a"));
+        if (helmet)
+            Block(body, new Vector3(0.30f, 0.08f, 0.22f), new Vector3(0, 0.44f, 0.32f), new Color("b7950b"));
+        if (apron)
+            Block(body, new Vector3(0.30f, 0.20f, 0.02f), new Vector3(0, 0.28f, 0.265f), new Color("ecf0f1"));
+        if (crown)
+            Crown(body, 0.48f);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.13f, 0.16f), ("LegFR", 0.13f, 0.16f), ("LegBL", -0.13f, -0.18f), ("LegBR", 0.13f, -0.18f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.14f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.09f, 0.14f, 0.09f), new Vector3(0, -0.07f, 0), dark);
         }
         root.AddChild(Animations(FourLegs));
         return root;

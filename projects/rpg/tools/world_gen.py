@@ -117,7 +117,7 @@ STYLES = {
     "woods": ('T', lambda rnd: [('T', 18, 6), ('R', 3, 1)] + ([('~', 1, 5)] if rnd.random() < 0.4 else [])),
     "mouldy": ('T', lambda rnd: [('T', 14, 6), ('M', 9, 3), ('~', 2, 4), ('R', 2, 1)]),
     "lake": ('B', lambda rnd: [('B', 7, 3), ('T', 4, 3), ('R', 2, 1)]),
-    "fields": ('B', lambda rnd: [(',', 12, 7), ('B', 6, 4), ('T', 3, 2), ('C', 1, 1)]),
+    "fields": ('B', lambda rnd: [(',', 20, 8), ('B', 6, 4), ('T', 3, 2), ('C', 1, 1)]),
 }
 
 

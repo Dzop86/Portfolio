@@ -20,9 +20,9 @@
     "T...T...........",
     "T..T............",
     "T.TT..T.........",
-    "TT..TT..R.TRTT.T",
+    "TT..TT....TRTT.T",
     "T.........TT..TT",
-    "TTTTTTTTTTTTTTTT"
+    "TTTTTT...TTTTTTT"
   ],
   "spawn": {
     "x": 8,
@@ -119,6 +119,51 @@
       "name": {
         "fr": "Ouest",
         "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 11
+      },
+      "to": "fields-3-0",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Champs de Clairval",
+        "en": "South: Clairval Fields"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "fields-3-0",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Champs de Clairval",
+        "en": "South: Clairval Fields"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "fields-3-0",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud : Champs de Clairval",
+        "en": "South: Clairval Fields"
       }
     },
     {
