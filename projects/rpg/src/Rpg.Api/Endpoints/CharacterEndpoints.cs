@@ -273,13 +273,14 @@ public static class CharacterEndpoints
             return TypedResults.NotFound();
         Characteristics stats = points?.Stats ?? Characteristics.None;
         var ranks = new Dictionary<string, int>(points?.Ranks ?? new Dictionary<string, int>(), StringComparer.Ordinal);
-        string[] deck = [.. points?.Deck ?? []];
+        // No deck sent: the class's first spells; a deck sent empty is kept empty (D66).
+        string[]? deck = points?.Deck is null ? null : [.. points.Deck];
         // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them.
         if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
         (character.Vitality, character.Earth, character.Fire, character.Water, character.Air) = (stats.Vitality, stats.Earth, stats.Fire, stats.Water, stats.Air);
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
-        character.Deck = string.Join(',', deck);
+        character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }

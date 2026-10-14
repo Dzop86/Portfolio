@@ -18,13 +18,14 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     public const int DeckSize = 12;
 
     /// <summary>
-    /// The spells this hero fights with, in the order of its bar: its deck when it has chosen one, else its
+    /// The spells this hero fights with, in the order of its bar: its deck when it has chosen one, of 0 to
+    /// <see cref="DeckSize"/> spells (D66: an empty deck is a choice too); without a choice (null), its
     /// class's first spells unlocked, up to <see cref="DeckSize"/>.
     /// </summary>
     public IReadOnlyList<string> DeckOf(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        if (Deck is { Count: > 0 })
+        if (Deck is not null)
             return Deck;
         return data.Class(Class) is HeroClass c ? [.. c.Spells.Where(id => data.Spells[id].Level <= Level).Take(DeckSize)] : [];
     }
@@ -32,7 +33,8 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     /// <summary>The same hero: the ranks compare by content, not by dictionary.</summary>
     public bool Equals(Hero? other) =>
         other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
-        && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems) && (Deck ?? []).SequenceEqual(other.Deck ?? []);
+        && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems)
+        && (Deck is null) == (other.Deck is null) && (Deck ?? []).SequenceEqual(other.Deck ?? []);
 
     public override int GetHashCode() => HashCode.Combine(Name, Look, Class, Colour, Level, Stats ?? Characteristics.None);
 
@@ -86,7 +88,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     /// <summary>At most twelve spells, each once, each a spell of the class the level has unlocked.</summary>
     private string? DeckProblem(GameData data)
     {
-        if (Deck is null || Deck.Count == 0)
+        if (Deck is null)
             return null;
         HeroClass? c = Class is null ? null : data.Class(Class);
         if (Deck.Count > DeckSize || Deck.Distinct(StringComparer.Ordinal).Count() != Deck.Count)

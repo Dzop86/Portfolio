@@ -51,6 +51,49 @@ public sealed class PointsEditor
 
     public void RemoveFromDeck(Spell spell) => _deck.Remove((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
 
+    /// <summary>
+    /// A spell dropped on place <paramref name="index"/> of the deck (sprint 82, D66): moved there if it is
+    /// in the deck already, else put there if there is room; places after the last spell mean the end.
+    /// </summary>
+    public bool PlaceInDeck(string spellId, int index)
+    {
+        if (!Data.Spells.TryGetValue(spellId ?? "", out Spell? spell) || !Spells.Contains(spell))
+            return false;
+        bool moving = _deck.Remove(spellId!);
+        if (!moving && _deck.Count >= Hero.DeckSize)
+            return false;
+        _deck.Insert(Math.Clamp(index, 0, _deck.Count), spellId!);
+        return true;
+    }
+
+    /// <summary>The spell at a place of the deck taken out (dragged off the bar).</summary>
+    public void RemoveFromDeckAt(int index)
+    {
+        if (index >= 0 && index < _deck.Count)
+            _deck.RemoveAt(index);
+    }
+
+    /// <summary>An empty deck (D66: a choice like any other).</summary>
+    public void ClearDeck() => _deck.Clear();
+
+    /// <summary>
+    /// The deck of a code (<see cref="DeckCode"/>): the class's spells this hero has unlocked, in order, up to
+    /// twelve; the others are left out. Null if the code is not one, or of another class; else how many were left out.
+    /// </summary>
+    public int? UseCode(string code)
+    {
+        if (DeckCode.Decode(code, Data) is not (string cls, IReadOnlyList<string> spells) || cls != Hero.Class)
+            return null;
+        HashSet<string> unlocked = [.. Spells.Select(s => s.Id)];
+        string[] kept = [.. spells.Where(unlocked.Contains).Distinct().Take(Hero.DeckSize)];
+        _deck.Clear();
+        _deck.AddRange(kept);
+        return spells.Count - kept.Length;
+    }
+
+    /// <summary>This deck's code, to give to someone else.</summary>
+    public string Code => DeckCode.Encode(Hero.Class ?? "", _deck, Data);
+
     /// <summary>The hero as saved.</summary>
     public Hero Hero { get; }
 

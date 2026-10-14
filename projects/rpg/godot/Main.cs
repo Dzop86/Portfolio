@@ -650,10 +650,10 @@ public partial class Main : Node3D
             FighterView heroView = _views.Values.Single(v => v.Fighter.Name.Fr == hero.Name);
             if (heroView.Painted != hero.Colour)
                 problems.Add($"the hero is painted {heroView.Painted?.ToString(CultureInfo.InvariantCulture) ?? "not at all"}, not {hero.Colour}");
-            // The class's spells that the hero's level has unlocked, in order.
+            // The hero's deck, in its order (by default, the class's spells its level has unlocked).
             if (GameData.Embedded.Class(hero.Class) is HeroClass c
-                && !_hud.SpellsText.SequenceEqual(c.Spells.Select(id => GameData.Embedded.Spells[id]).Where(sp => sp.Level <= hero.Level).Select(sp => sp.Name.In(_hud.Texts.Lang))))
-                problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s spells of level {hero.Level}");
+                && !_hud.SpellsText.SequenceEqual(hero.DeckOf(GameData.Embedded).Select(id => GameData.Embedded.Spells[id].Name.In(_hud.Texts.Lang))))
+                problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s deck of level {hero.Level}");
         }
         int seenNumbers = 0;
         SelfPlay.Run(_controller, _ =>

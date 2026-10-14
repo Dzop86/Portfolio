@@ -33,16 +33,42 @@ public sealed class GameServer(HttpClient http)
         await Check(response, cancel);
         AccessToken token = (await response.Content.ReadFromJsonAsync<AccessToken>(Json, cancel))!;
         Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+        _credentials = new Credentials(name, password);
     }
 
-    public void SignOut() => Http.DefaultRequestHeaders.Authorization = null;
+    /// <summary>
+    /// The name and password of this session's sign-in, kept in memory only: a token run out (the server
+    /// restarted with another key, or twelve hours went by) is replaced without asking (sprint 82, D66).
+    /// </summary>
+    private Credentials? _credentials;
 
-    /// <summary>Signed in by someone else: the launcher hands the game a token it got itself.</summary>
-    public void UseToken(string token) => Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    public void SignOut()
+    {
+        Http.DefaultRequestHeaders.Authorization = null;
+        _credentials = null;
+    }
+
+    /// <summary>Signed in by someone else: the launcher hands the game a token it got itself (no password to sign in again).</summary>
+    public void UseToken(string token)
+    {
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        _credentials = null;
+    }
+
+    /// <summary>A call; refused for a token no longer valid, signed in again with this session's password and made once more.</summary>
+    private async Task<HttpResponseMessage> Send(Func<Task<HttpResponseMessage>> call, CancellationToken cancel)
+    {
+        HttpResponseMessage response = await call();
+        if (response.StatusCode != HttpStatusCode.Unauthorized || _credentials is not { Name: string name, Password: string password })
+            return response;
+        response.Dispose();
+        await SignIn(name, password, cancel);
+        return await call();
+    }
 
     public async Task<IReadOnlyList<CharacterSummary>> Characters(CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.GetAsync(new Uri("api/characters", UriKind.Relative), cancel);
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri("api/characters", UriKind.Relative), cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary[]>(Json, cancel))!;
     }
@@ -50,7 +76,7 @@ public sealed class GameServer(HttpClient http)
     /// <summary>The game servers, to choose from before one's characters.</summary>
     public async Task<IReadOnlyList<ServerInfo>> Servers(CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.GetAsync(new Uri("api/servers", UriKind.Relative), cancel);
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri("api/servers", UriKind.Relative), cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<ServerInfo[]>(Json, cancel))!;
     }
@@ -63,19 +89,19 @@ public sealed class GameServer(HttpClient http)
     {
         ArgumentNullException.ThrowIfNull(hero);
         var request = new NewCharacter(hero.Name, hero.Look, hero.Class, hero.Colour, server, hero.Hair, hero.Skin, hero.Height, hero.Build);
-        HttpResponseMessage response = await Http.PostAsJsonAsync("api/characters", request, Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync("api/characters", request, Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
     /// <summary>Saves where a character stands in a town.</summary>
     public async Task SavePlace(Guid id, Place place, CancellationToken cancel = default) =>
-        await Check(await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel);
+        await Check(await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel), cancel);
 
     /// <summary>Asks the server for a fight: it draws the seed, and only that fight will earn experience.</summary>
     public async Task<FightTicket> StartFight(Guid id, string scenario, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PostAsJsonAsync(new Uri($"api/characters/{id}/fights", UriKind.Relative), new NewFight(scenario), Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/fights", UriKind.Relative), new NewFight(scenario), Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<FightTicket>(Json, cancel))!;
     }
@@ -85,7 +111,7 @@ public sealed class GameServer(HttpClient http)
     {
         ArgumentNullException.ThrowIfNull(record);
         using var content = new StringContent(record.ToJson(), System.Text.Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await Http.PostAsync(new Uri($"api/characters/{id}/fights/{fight}", UriKind.Relative), content, cancel);
+        HttpResponseMessage response = await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/fights/{fight}", UriKind.Relative), content, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<FightResult>(Json, cancel))!;
     }
@@ -93,7 +119,7 @@ public sealed class GameServer(HttpClient http)
     /// <summary>Puts items on a character; the server checks it owns them and they fit.</summary>
     public async Task<CharacterSummary> SaveEquipment(Guid id, IReadOnlyDictionary<Slot, string> worn, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/equipment", UriKind.Relative), new Wear(worn), Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/equipment", UriKind.Relative), new Wear(worn), Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
@@ -101,7 +127,7 @@ public sealed class GameServer(HttpClient http)
     /// <summary>Spends a character's points; the server checks them against its level.</summary>
     public async Task<CharacterSummary> SavePoints(Guid id, Points points, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PutAsJsonAsync(new Uri($"api/characters/{id}/points", UriKind.Relative), points, Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/points", UriKind.Relative), points, Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
@@ -109,7 +135,7 @@ public sealed class GameServer(HttpClient http)
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
     public async Task<CharacterSummary> Craft(Guid id, string job, string item, int count = 1, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PostAsJsonAsync(new Uri($"api/characters/{id}/craft", UriKind.Relative), new Craft(job, item, count), Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/craft", UriKind.Relative), new Craft(job, item, count), Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
@@ -117,16 +143,16 @@ public sealed class GameServer(HttpClient http)
     /// <summary>Goes into a dungeon (sprint 80); the server checks the key and uses it up.</summary>
     public async Task<CharacterSummary> EnterDungeon(Guid id, string dungeon, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Http.PostAsJsonAsync(new Uri($"api/characters/{id}/dungeon", UriKind.Relative), new EnterDungeon(dungeon), Json, cancel);
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/dungeon", UriKind.Relative), new EnterDungeon(dungeon), Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
     public async Task LeaveDungeon(Guid id, CancellationToken cancel = default) =>
-        await Check(await Http.DeleteAsync(new Uri($"api/characters/{id}/dungeon", UriKind.Relative), cancel), cancel);
+        await Check(await Send(() => Http.DeleteAsync(new Uri($"api/characters/{id}/dungeon", UriKind.Relative), cancel), cancel), cancel);
 
     public async Task DeleteCharacter(Guid id, CancellationToken cancel = default) =>
-        await Check(await Http.DeleteAsync(new Uri($"api/characters/{id}", UriKind.Relative), cancel), cancel);
+        await Check(await Send(() => Http.DeleteAsync(new Uri($"api/characters/{id}", UriKind.Relative), cancel), cancel), cancel);
 
     private static async Task Check(HttpResponseMessage response, CancellationToken cancel)
     {

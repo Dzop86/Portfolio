@@ -450,6 +450,42 @@ public partial class Main
     }
 
     /// <summary>Saves the points on the server (which checks them); offline, for this game only.</summary>
+    /// <summary>
+    /// The deck of sprint 82 (D66): emptied, a spell dragged onto it, then dragged off; its code pasted back;
+    /// every place shows the spell it holds; signed in, a deck of one spell saved and read back.
+    /// </summary>
+    private async Task CheckDeck(List<string> problems)
+    {
+        PointsPanel panel = _pointsPanel!;
+        PointsEditor editor = panel.Editor;
+        bool Shows() => panel.DeckShown.SequenceEqual(editor.Deck.Select(id => (string?)id).Concat(Enumerable.Repeat<string?>(null, Hero.DeckSize - editor.Deck.Count)));
+        string code = editor.Code;
+        string first = editor.Spells[0].Id;
+        panel.PressClearDeck();
+        if (editor.Deck.Count != 0 || !Shows())
+            problems.Add("emptying the deck leaves spells on it");
+        panel.Drop("spell:" + first, 0);
+        if (!editor.Deck.SequenceEqual([first]) || !Shows())
+            problems.Add($"a spell dropped on the deck shows {string.Join(", ", panel.DeckShown)}");
+        if (_lobby?.SignedIn == true && _character is not null)
+        {
+            await SavePoints(editor.ToPoints());
+            if (!(_character.Deck ?? ["default"]).SequenceEqual([first]))
+                problems.Add($"a deck of one spell comes back from the server as {string.Join(", ", _character.Deck ?? ["the class's"])}");
+            panel = _pointsPanel!;
+            editor = panel.Editor;
+        }
+        panel.Drop("deck:0", null);
+        if (editor.Deck.Count != 0 || !Shows())
+            problems.Add("a spell dragged off the deck stays on it");
+        panel.PasteCode(code);
+        if (editor.Code != code || !Shows())
+            problems.Add($"the code {code} gives the deck {editor.Code}");
+        // The deck it had, kept again.
+        if (_lobby?.SignedIn == true && _character is not null)
+            await SavePoints(editor.ToPoints());
+    }
+
     private async Task<bool> SavePoints(Points points)
     {
         PointsPanel panel = _pointsPanel!;
@@ -565,6 +601,7 @@ public partial class Main
             _pointsPanel.ShowTab(spells: true);
             if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0))
                 problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
+            await CheckDeck(problems);
             _pointsPanel.QueueFree();
             _pointsPanel = null;
             // The inventory screen: fourteen slots, what is worn in them, the items of each page.

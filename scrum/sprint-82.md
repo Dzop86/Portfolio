@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je construis mon deck comme je veux (rpg) : de 0 à 12 sorts, de n'importe quels éléments, glissés-déposés depuis le grimoire (et retirés de même) ; un bouton pour le vider ; un code de deck à copier et coller pour le partager ; les icônes restent affichées pendant la construction ; le deck et les caractéristiques s'enregistrent, le jeu se reconnectant seul si sa session a expiré ; xUnit, intégration, auto-test. | 5 | À faire |
+| En tant que joueur, je construis mon deck comme je veux (rpg) : de 0 à 12 sorts, de n'importe quels éléments, glissés-déposés depuis le grimoire (et retirés de même) ; un bouton pour le vider ; un code de deck à copier et coller pour le partager ; les icônes restent affichées pendant la construction ; le deck et les caractéristiques s'enregistrent, le jeu se reconnectant seul si sa session a expiré ; xUnit, intégration, auto-test. | 5 | Fait |
+
+**Résultat :** le deck libre de 0 à 12 sorts, glissé-déposé, vidé, partagé par un code ; l'enregistrement qui ne tombe plus sur une session périmée (T49).
 
 ## Rétro (Charles)
 - Ce qui a marché :

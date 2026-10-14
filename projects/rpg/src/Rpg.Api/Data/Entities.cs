@@ -86,7 +86,11 @@ public sealed class Character
     public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom) : null;
 
     /// <summary>The deck, without the spells the class no longer has.</summary>
-    public string[] DeckList => [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Class(Class)?.Spells.Contains(id) == true)];
+    /// <summary>"" when the character never chose (the class's first spells), "-" for a deck chosen empty (D66).</summary>
+    public const string EmptyDeck = "-";
+
+    public string[]? DeckList => Deck.Length == 0 ? null
+        : [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Class(Class)?.Spells.Contains(id) == true)];
 
     public List<ItemCount> InventoryList => [.. Inventory.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(i => i.Split(':')).Select(i => new ItemCount(i[0], int.Parse(i[1], System.Globalization.CultureInfo.InvariantCulture)))];

@@ -23,6 +23,13 @@ public partial class SpellIcon : Control
         }
     }
 
+    /// <summary>Drawn again at its new size (in a row or a grid, the size comes after the first drawing).</summary>
+    public override void _Notification(int what)
+    {
+        if (what == NotificationResized)
+            QueueRedraw();
+    }
+
     /// <summary>A spell not unlocked yet, or not castable now: drawn faint.</summary>
     public bool Faint { get; set; }
 

@@ -24,7 +24,9 @@ public partial class PointsPanel : CanvasLayer
     private SpellIcon _detailIcon = null!;
     private Button _deckButton = null!;
     private Label _deckCount = null!;
-    private readonly List<SpellIcon> _deckSlots = [];
+    private readonly List<DeckSlot> _deckSlots = [];
+    private Button _clearDeck = null!, _copyCode = null!, _useCode = null!;
+    private LineEdit _code = null!;
     private RichTextLabel _detail = null!;
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
@@ -210,19 +212,62 @@ public partial class PointsPanel : CanvasLayer
         left.AddChild(deckRow);
         _deckCount = new Label { CustomMinimumSize = new Vector2(96, 0), VerticalAlignment = VerticalAlignment.Center };
         deckRow.AddChild(_deckCount);
+        // Dragged and dropped (sprint 82, D66): a spell of the book onto a place, a place onto another
+        // (moved), a place off the bar onto the book (taken out).
         for (int k = 0; k < Hero.DeckSize; k++)
         {
-            var slot = new SpellIcon { CustomMinimumSize = new Vector2(40, 40) };
+            int place = k;
+            var slot = new DeckSlot { CustomMinimumSize = new Vector2(40, 40) };
+            slot.Rules = new DragRules
+            {
+                Hand = () => place < Editor.Deck.Count ? DeckData(place) : default(Variant),
+                Preview = () => DragPreview(Editor.Data.Spells[Editor.Deck[place]]),
+                Accepts = data => data.VariantType == Variant.Type.String && ((string)data).StartsWith(SpellData, StringComparison.Ordinal) | ((string)data).StartsWith(PlaceData, StringComparison.Ordinal),
+                Take = data => Drop((string)data, place),
+            };
             deckRow.AddChild(slot);
             _deckSlots.Add(slot);
         }
+        // Emptied in one go, or given and taken as a code.
+        var codeRow = new HBoxContainer();
+        codeRow.AddThemeConstantOverride("separation", 6);
+        left.AddChild(codeRow);
+        _clearDeck = new Button { CustomMinimumSize = new Vector2(0, 44) };
+        _clearDeck.Pressed += () =>
+        {
+            Editor.ClearDeck();
+            Refresh();
+        };
+        codeRow.AddChild(_clearDeck);
+        _copyCode = new Button { CustomMinimumSize = new Vector2(0, 44) };
+        _copyCode.Pressed += () =>
+        {
+            DisplayServer.ClipboardSet(Editor.Code);
+            ShowMessage(Texts["deck.copied", Editor.Code]);
+        };
+        codeRow.AddChild(_copyCode);
+        _code = new LineEdit { CustomMinimumSize = new Vector2(150, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _code.TextSubmitted += _ => UseCode();
+        codeRow.AddChild(_code);
+        _useCode = new Button { CustomMinimumSize = new Vector2(0, 44) };
+        _useCode.Pressed += UseCode;
+        codeRow.AddChild(_useCode);
         var grid = new GridContainer { Columns = 3 };
         grid.AddThemeConstantOverride("h_separation", 6);
         grid.AddThemeConstantOverride("v_separation", 6);
         scroll.AddChild(grid);
         foreach (Spell spell in c?.Spells.Select(id => editor.Data.Spells[id]) ?? [])
         {
-            var tile = new Button { CustomMinimumSize = new Vector2(208, 56), ClipText = true };
+            var tile = new SpellTile { CustomMinimumSize = new Vector2(208, 56), ClipText = true };
+            Spell dragged = spell;
+            tile.Rules = new DragRules
+            {
+                Hand = () => Editor.Spells.Contains(dragged) ? (Variant)(SpellData + dragged.Id) : default(Variant),
+                Preview = () => DragPreview(dragged),
+                // A spell of the deck dropped back on the book leaves the deck.
+                Accepts = data => data.VariantType == Variant.Type.String && ((string)data).StartsWith(PlaceData, StringComparison.Ordinal),
+                Take = data => Drop((string)data, null),
+            };
             var colour = new Color(ElementStyle.Colour(spell.Element));
             foreach ((string state, float mix) in new[] { ("normal", 0.78f), ("hover", 0.62f), ("pressed", 0.55f), ("disabled", 0.9f), ("focus", 0.62f) })
             {
@@ -310,6 +355,51 @@ public partial class PointsPanel : CanvasLayer
         });
         return page;
     }
+
+    private const string SpellData = "spell:", PlaceData = "deck:";
+
+    private static Variant DeckData(int place) => PlaceData + place.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    private static SpellIcon DragPreview(Spell spell) => new() { Spell = spell, Size = new Vector2(44, 44), Modulate = new Color(1, 1, 1, 0.85f) };
+
+    /// <summary>
+    /// Something dropped: a spell of the book or a place of the deck, onto place <paramref name="place"/> of
+    /// the deck, or onto the book (null): placed, moved, or taken out.
+    /// </summary>
+    public void Drop(string data, int? place)
+    {
+        if (data.StartsWith(SpellData, StringComparison.Ordinal) && place is int to)
+            Editor.PlaceInDeck(data[SpellData.Length..], to);
+        else if (data.StartsWith(PlaceData, StringComparison.Ordinal) && int.TryParse(data[PlaceData.Length..], System.Globalization.CultureInfo.InvariantCulture, out int from) && from < Editor.Deck.Count)
+        {
+            if (place is int target)
+                Editor.PlaceInDeck(Editor.Deck[from], target);
+            else
+                Editor.RemoveFromDeckAt(from);
+        }
+        Refresh();
+    }
+
+    /// <summary>A deck's code pasted: the spells this hero has of it, or why not.</summary>
+    private void UseCode()
+    {
+        int? left = Editor.UseCode(_code.Text);
+        ShowMessage(left is null ? Texts["deck.bad-code"] : left > 0 ? Texts["deck.code-partly", left] : Texts["deck.code-used"]);
+        Refresh();
+    }
+
+    /// <summary>"Empty the deck", as the player would press it (for the self-test).</summary>
+    public void PressClearDeck() => _clearDeck.EmitSignal(BaseButton.SignalName.Pressed);
+
+    /// <summary>Pastes a code as the player would (for the self-test).</summary>
+    public void PasteCode(string code)
+    {
+        _code.Text = code;
+        UseCode();
+    }
+
+    /// <summary>The spells the deck's places show, in order (for the self-test: an icon on every place used).</summary>
+    public IEnumerable<string?> DeckShown => _deckSlots.Select(s => s.Spell?.Id);
 
     /// <summary>Shows a spell's details as if clicked (the capture of the project page).</summary>
     public void Select(string spell)
@@ -465,6 +555,11 @@ public partial class PointsPanel : CanvasLayer
             tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
         }
         _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Hero.DeckSize];
+        _clearDeck.Text = Texts["deck.clear"];
+        _clearDeck.Disabled = Editor.Deck.Count == 0;
+        _copyCode.Text = Texts["deck.copy"];
+        _code.PlaceholderText = Texts["deck.code"];
+        _useCode.Text = Texts["deck.use"];
         for (int k = 0; k < _deckSlots.Count; k++)
         {
             _deckSlots[k].Spell = k < Editor.Deck.Count ? Editor.Data.Spells[Editor.Deck[k]] : null;

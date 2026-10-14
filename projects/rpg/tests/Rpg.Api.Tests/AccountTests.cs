@@ -65,8 +65,10 @@ public class AccountTests
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync(new Uri("/api/characters", UriKind.Relative), Cancel)).StatusCode);
         GameServer server = await api.SignedIn();
         api.Clock.Advance(TimeSpan.FromHours(13));
-        var e = await Assert.ThrowsAsync<ServerException>(() => server.Characters(Cancel));
-        Assert.Equal(HttpStatusCode.Unauthorized, e.Status);
+        // The server refuses the old token (the game, knowing the password, signs in again: DeckSaveTests).
+        HttpClient stale = api.CreateClient();
+        stale.DefaultRequestHeaders.Authorization = server.Http.DefaultRequestHeaders.Authorization;
+        Assert.Equal(HttpStatusCode.Unauthorized, (await stale.GetAsync(new Uri("/api/characters", UriKind.Relative), Cancel)).StatusCode);
     }
 
     [Fact]

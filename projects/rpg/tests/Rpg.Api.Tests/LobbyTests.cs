@@ -60,15 +60,15 @@ public class LobbyTests
     }
 
     [Fact]
-    public async Task AfterTwelveHours_ThePlayerSignsInAgain()
+    public async Task AfterTwelveHours_TheGameSignsInAgainByItself()
     {
         await using var api = new ApiFactory();
         var lobby = new Lobby(new GameServer(api.CreateClient()));
         await lobby.SignIn("ada_lovelace", "correct horse battery", create: true, Cancel);
         api.Clock.Advance(TimeSpan.FromHours(13));
-        Assert.False(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
-        Assert.Equal("lobby.session-expired", lobby.Problem);
-        Assert.False(lobby.SignedIn);
+        // Since sprint 82 (D66), the password typed this session gets a new token without a word.
+        Assert.True(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
+        Assert.True(lobby.SignedIn);
     }
 
     [Fact]
