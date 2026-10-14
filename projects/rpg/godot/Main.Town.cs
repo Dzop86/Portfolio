@@ -286,6 +286,56 @@ public partial class Main
             EnterFight(scenario);
         else if (_town.Travel is ZoneLink link)
             await TravelTo(link);
+        else if (_town.Door is DungeonDoor door)
+            AskDungeon(door);
+    }
+
+    private ConfirmationDialog? _doorDialog;
+
+    /// <summary>
+    /// On a dungeon's door (sprint 80): what opens it, then in, on the server's word (it uses the key up);
+    /// without its key, a word and the player stays outside.
+    /// </summary>
+    private ConfirmationDialog? AskDungeon(DungeonDoor door)
+    {
+        Texts texts = _talkPanel!.Texts;
+        Dungeon dungeon = GameData.Embedded.Dungeons[door.Dungeon];
+        (string text, bool canEnter) = texts.DoorText(dungeon, _character?.Inventory ?? (_character is null ? null : []), _character?.Run);
+        if (!canEnter)
+        {
+            _talkPanel.ShowMessage(text);
+            _town!.CloseDoor();
+            return null;
+        }
+        _doorDialog?.QueueFree();
+        _doorDialog = new ConfirmationDialog { Title = dungeon.Name.In(texts.Lang), DialogText = text, Exclusive = true, OkButtonText = texts["dungeon.go-in"], CancelButtonText = texts["dungeon.stay"] };
+        _doorDialog.Confirmed += () => _ = EnterDungeon(dungeon);
+        _doorDialog.Canceled += () => _town?.CloseDoor();
+        AddChild(_doorDialog);
+        _doorDialog.PopupCentered();
+        return _doorDialog;
+    }
+
+    /// <summary>Into the dungeon: the server takes the key and says the room; offline, the first room.</summary>
+    private async Task EnterDungeon(Dungeon dungeon)
+    {
+        int room = 1;
+        if (_lobby?.SignedIn == true && _character is not null)
+        {
+            try
+            {
+                _character = await _lobby.Server.EnterDungeon(_character.Id, dungeon.Id);
+                room = _character.Run?.Room ?? 1;
+            }
+            catch (Exception e) when (e is ServerException or HttpRequestException)
+            {
+                _talkPanel?.ShowMessage(e is ServerException refused ? _talkPanel.Texts["result.refused", refused.Message] : _talkPanel.Texts["lobby.unreachable"]);
+                _town?.CloseDoor();
+                return;
+            }
+        }
+        _town!.CloseDoor();
+        EnterFight(dungeon.Scenario(room));
     }
 
     /// <summary>The characteristics window, or the spells window, over the town; both tabs when <paramref name="spells"/> is null.</summary>
@@ -638,7 +688,7 @@ public partial class Main
             AddChild(view);
             view.Build(controller, _options.Lang, hero);
             Town t = controller.Town;
-            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links ?? []).Where(l => l.Name is not null).Select(l => l.To).Distinct().Count())
+            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + t.Doors.Count + (t.Links ?? []).Where(l => l.Name is not null).Select(l => l.To).Distinct().Count())
                 problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
             // Its groups of monsters, each with its monsters on its cell (sprint 72).
             foreach ((string g, Cell at) in controller.Groups)
@@ -670,7 +720,57 @@ public partial class Main
         CheckWorldMap(problems);
         ToggleMap();
         CheckMonsters(problems);
-        return $"World: {zones.Count} maps, {groups} groups of monsters, camera and map checked.";
+        int doors = CheckDungeons(problems);
+        return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera and map checked.";
+    }
+
+    /// <summary>
+    /// The dungeons of sprint 80: each door drawn with its name on its map; walking onto it asks to go in
+    /// (offline here: the door opens), staying outside lets the player walk on; every room's fighters can
+    /// be drawn on its board.
+    /// </summary>
+    private int CheckDungeons(List<string> problems)
+    {
+        var town = _town;
+        int checkedDoors = 0;
+        foreach (Dungeon d in GameData.Embedded.Dungeons.Values)
+        {
+            _town = new TownController(GameData.Embedded, d.Map);
+            if (_town.Click(d.Door)?.Door?.Dungeon != d.Id)
+            {
+                problems.Add($"walking onto the door of {d.Id} does not ask to go in");
+                continue;
+            }
+            // Offline the door opens; signed in, it wants the key the character may not have.
+            Texts texts = _talkPanel!.Texts;
+            (string expected, bool canEnter) = texts.DoorText(d, _character?.Inventory ?? (_character is null ? null : []), _character?.Run);
+            ConfirmationDialog? dialog = AskDungeon(_town.Door!);
+            if (canEnter ? dialog is null || dialog.DialogText != expected || dialog.Title != d.Name.In(texts.Lang) : dialog is not null || _talkPanel.MessageText != expected)
+                problems.Add($"the door of {d.Id} says \"{dialog?.DialogText ?? _talkPanel.MessageText}\", not \"{expected}\"");
+            dialog?.EmitSignal(AcceptDialog.SignalName.Canceled);
+            if (_town.Door is not null || _town.Click(_town.Town.Spawn) is null)
+                problems.Add($"staying outside {d.Id} does not let the player walk on");
+            dialog?.QueueFree();
+            _doorDialog = null;
+            for (int room = 1; room <= Dungeons.RoomCount; room++)
+            {
+                var fight = new Fight(GameData.Embedded, d.Scenario(room), 1);
+                if (fight.Fighters.Count(f => f.Team == 1) != Dungeons.RolesIn(room).Count)
+                    problems.Add($"room {room} of {d.Id} has {fight.Fighters.Count - 1} monsters");
+            }
+            checkedDoors++;
+        }
+        // Drawn on its map: the door's name over it.
+        Dungeon first = GameData.Embedded.Dungeons.Values.First();
+        var view = new TownView();
+        AddChild(view);
+        view.Build(new TownController(GameData.Embedded, first.Map), _options.Lang, _hero ?? new Hero("", "female-d"));
+        if (!view.WayNames.Contains(first.Name.In(_options.Lang)))
+            problems.Add($"the door of {first.Id} has no name over it");
+        RemoveChild(view);
+        view.QueueFree();
+        _town = town;
+        return checkedDoors;
     }
 
     /// <summary>

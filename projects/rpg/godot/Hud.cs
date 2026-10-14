@@ -154,7 +154,9 @@ public partial class Hud : CanvasLayer
         Fighter me = _controller.IsPlayerTurn ? current : fight.Fighters.First(f => f.Team == _controller.PlayerTeam);
         _round.Text = fight.Round.ToString(System.Globalization.CultureInfo.InvariantCulture);
         _round.TooltipText = Texts["round", fight.Round];
-        _turn.Text = $"{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
+        // In a dungeon, its name and the room first (sprint 80).
+        string room = Dungeons.Parse(fight.Scenario.Id) is (_, int n) ? Texts["dungeon.room", fight.Scenario.Name.In(Texts.Lang), n] + " · " : "";
+        _turn.Text = $"{room}{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
         // The round's order, the one playing outlined; it starts again with each round (D64).
         IReadOnlyList<Fighter> next = [.. fight.RoundOrder.Take(TimelineLength)];
         CurrentCard = next.ToList().IndexOf(current);
@@ -240,8 +242,11 @@ public partial class Hud : CanvasLayer
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
         _end.Visible = fight.IsOver;
         _endTitle.Text = fight.WinningTeam is null ? Texts["draw"] : fight.WinningTeam == _controller.PlayerTeam ? Texts["victory"] : Texts["defeat"];
-        _again.Text = Texts["again"];
-        _back.Text = Texts["town.back"];
+        // A dungeon's room is not played again: won, the next room, or out (sprint 80).
+        bool dungeon = Dungeons.Parse(fight.Scenario.Id) is not null;
+        _again.Visible = !dungeon || _nextRoom;
+        _again.Text = dungeon ? Texts["dungeon.next"] : Texts["again"];
+        _back.Text = dungeon && _nextRoom ? Texts["dungeon.leave"] : Texts["town.back"];
     }
 
     /// <summary>What the fight earned, on the end screen.</summary>
@@ -251,6 +256,18 @@ public partial class Hud : CanvasLayer
 
     /// <summary>The end screen's way back to town.</summary>
     public void SetBackShown(bool shown) => _back.Visible = shown;
+
+    private bool _nextRoom;
+
+    /// <summary>A dungeon's room won, and another after it: "Next room" and "Leave the dungeon" (sprint 80).</summary>
+    public void ShowNextRoom(bool next)
+    {
+        _nextRoom = next;
+        Refresh();
+    }
+
+    /// <summary>The end screen's buttons, as shown (for the self-test).</summary>
+    public IEnumerable<string> EndButtons => new[] { _again, _back }.Where(b => b.Visible).Select(b => b.Text);
 
     public string TurnText => _turn.Text;
 

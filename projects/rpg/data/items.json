@@ -42,5 +42,14 @@
   { "id": "stinger-dagger", "name": { "fr": "Dague-dard", "en": "Stinger Dagger" }, "kind": "Equipment", "slot": "OneHanded", "level": 26, "stats": { "air": 18, "vitality": 12 } },
   { "id": "mole-fur", "name": { "fr": "Fourrure de taupe", "en": "Mole Fur" }, "kind": "Resource" },
   { "id": "earthworm", "name": { "fr": "Ver de terre", "en": "Earthworm" }, "kind": "Resource" },
-  { "id": "digger-boots", "name": { "fr": "Bottes de fouisseur", "en": "Digger Boots" }, "kind": "Equipment", "slot": "Boots", "level": 28, "stats": { "earth": 18, "vitality": 14 } }
+  { "id": "digger-boots", "name": { "fr": "Bottes de fouisseur", "en": "Digger Boots" }, "kind": "Equipment", "slot": "Boots", "level": 28, "stats": { "earth": 18, "vitality": 14 } },
+  { "id": "boar-wallow-key", "name": { "fr": "Clef de la bauge", "en": "Wallow Key" }, "kind": "Resource" },
+  { "id": "wolf-den-key", "name": { "fr": "Clef de la tanière", "en": "Den Key" }, "kind": "Resource" },
+  { "id": "mushroom-cellar-key", "name": { "fr": "Clef de la champignonnière", "en": "Cellar Key" }, "kind": "Resource" },
+  { "id": "zombie-crypt-key", "name": { "fr": "Clef de la crypte", "en": "Crypt Key" }, "kind": "Resource" },
+  { "id": "frog-grotto-key", "name": { "fr": "Clef de la grotte", "en": "Grotto Key" }, "kind": "Resource" },
+  { "id": "crab-reef-key", "name": { "fr": "Clef du récif", "en": "Reef Key" }, "kind": "Resource" },
+  { "id": "royal-hive-key", "name": { "fr": "Clef de la ruche", "en": "Hive Key" }, "kind": "Resource" },
+  { "id": "mole-burrows-key", "name": { "fr": "Clef des galeries", "en": "Burrow Key" }, "kind": "Resource" },
+  { "id": "admin-keyring", "name": { "fr": "Trousseau d'administrateur", "en": "Operator's Keyring" }, "kind": "Quest" }
 ]

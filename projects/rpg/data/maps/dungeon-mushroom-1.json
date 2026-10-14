@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-mushroom-1",
+  "name": {
+    "fr": "Champignonnière : antichambre",
+    "en": "The Mushroom Cellar: Antechamber"
+  },
+  "rows": [
+    "...........",
+    "....#....B.",
+    ".A.........",
+    "...#......B",
+    "....##.....",
+    "A.A.....B.B",
+    "....##.....",
+    "...#......B",
+    ".A.........",
+    "....#....B.",
+    "..........."
+  ]
+}

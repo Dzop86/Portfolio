@@ -122,7 +122,8 @@ public sealed record FighterSpec(
     Characteristics? Stats = null,
     IReadOnlyDictionary<string, int>? SpellRanks = null,
     int Level = 1,
-    IReadOnlyList<LootDrop>? Loot = null)
+    IReadOnlyList<LootDrop>? Loot = null,
+    int Power = 100)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -186,18 +187,25 @@ public sealed class GameData
     public IReadOnlyDictionary<string, MonsterSpec> Monsters { get; }
     public IReadOnlyDictionary<string, MonsterGroup> Groups { get; }
 
+    /// <summary>The dungeons (sprint 80), by id.</summary>
+    public IReadOnlyDictionary<string, Dungeon> Dungeons { get; }
+
     private readonly Dictionary<string, Scenario> _groupFights = new(StringComparer.Ordinal);
 
     /// <summary>The groups of monsters living on a map, in their order.</summary>
     public IReadOnlyList<MonsterGroup> GroupsOn(string mapId) => [.. Groups.Values.Where(g => g.Map == mapId)];
 
-    /// <summary>A scenario of the data files, or the fight against a group of monsters ("group:" and its id); null if neither.</summary>
+    /// <summary>
+    /// A scenario of the data files, the fight against a group of monsters ("group:" and its id) or a
+    /// dungeon's room ("dungeon:", its id, ":" and the room); null if none.
+    /// </summary>
     public Scenario? FindScenario(string id) =>
         Scenarios.TryGetValue(id, out Scenario? s) ? s : _groupFights.GetValueOrDefault(id);
 
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
-        IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null)
+        IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null,
+        IEnumerable<Dungeon>? dungeons = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -247,6 +255,19 @@ public sealed class GameData
         Monsters = Index(Families.Values.SelectMany(f => f.Monsters), m => m.Id, "monster");
         foreach (MonsterFamily f in Families.Values)
             Check(f);
+        Dungeons = Index(dungeons ?? [], d => d.Id, "dungeon");
+        foreach (Dungeon d in Dungeons.Values)
+        {
+            Check(d);
+            for (int room = 1; room <= Core.Dungeons.RoomCount; room++)
+            {
+                Scenario fight = Core.Dungeons.Scenario(d, room, Families[d.Family]);
+                Check(fight);
+                _groupFights[fight.Id] = fight;
+            }
+        }
+        // The doors go on their maps before the groups are placed: a group never stands on one.
+        Towns = Towns.ToDictionary(t => t.Key, t => t.Value with { Doors = [.. Dungeons.Values.Where(d => d.Map == t.Key).Select(d => new DungeonDoor(d.Door, d.Id))] }, StringComparer.Ordinal);
         Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values], [.. Towns.Values])), g => g.Id, "group");
         foreach (MonsterGroup g in Groups.Values)
         {
@@ -283,7 +304,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "quests.json")) ? Read<List<Quest>>(Path.Combine(folder, "quests.json")) : null,
             File.Exists(Path.Combine(folder, "items.json")) ? Read<List<Item>>(Path.Combine(folder, "items.json")) : null,
             File.Exists(Path.Combine(folder, "sets.json")) ? Read<List<ItemSet>>(Path.Combine(folder, "sets.json")) : null,
-            File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null);
+            File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null,
+            File.Exists(Path.Combine(folder, "dungeons.json")) ? Read<List<Dungeon>>(Path.Combine(folder, "dungeons.json")) : null);
     }
 
     /// <summary>
@@ -313,7 +335,8 @@ public sealed class GameData
             files.TryGetValue("data/quests.json", out string? quests) ? Parse<List<Quest>>("quests.json", quests) : null,
             files.TryGetValue("data/items.json", out string? items) ? Parse<List<Item>>("items.json", items) : null,
             files.TryGetValue("data/sets.json", out string? sets) ? Parse<List<ItemSet>>("sets.json", sets) : null,
-            files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null);
+            files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null,
+            files.TryGetValue("data/dungeons.json", out string? dungeons) ? Parse<List<Dungeon>>("dungeons.json", dungeons) : null);
     }
 
     public Board Board(string mapId) =>
@@ -496,6 +519,26 @@ public sealed class GameData
     /// A family: one monster of each role (D63), each with known spells and loot, a level and points
     /// in bounds; a zone of the world, a battle map with room for the largest group, a boss map in the zone.
     /// </summary>
+    /// <summary>
+    /// A dungeon (sprint 80): a known family; its door on a map of the family's zone where one can stand,
+    /// away from the ways, exits and arrival; a key among the resources and the operator's keyring among
+    /// the items; three rooms on battle maps with room for a hero and the chief's room.
+    /// </summary>
+    private void Check(Dungeon d)
+    {
+        string who = $"Dungeon '{d.Id}'";
+        if (!Families.TryGetValue(d.Family, out MonsterFamily? family))
+            throw new InvalidDataException($"{who}: unknown family '{d.Family}'.");
+        if (!Towns.TryGetValue(d.Map, out Town? map) || map.Zone != family.Zone || !map.CanStand(d.Door)
+            || map.Links?.Any(l => l.At.DistanceTo(d.Door) < MonsterGroups.Distance) == true || map.Exits.Any(e => e.At.DistanceTo(d.Door) < MonsterGroups.Distance)
+            || map.Spawn.DistanceTo(d.Door) < MonsterGroups.Distance)
+            throw new InvalidDataException($"{who}: its door {d.Door} is not on a map of the {family.Zone} where one can stand, away from its ways, exits and arrival.");
+        if (!Items.TryGetValue(d.Key, out Item? key) || key.Kind != ItemKind.Resource || !Items.ContainsKey(Core.Dungeons.Keyring))
+            throw new InvalidDataException($"{who}: its key '{d.Key}' is not a resource, or there is no '{Core.Dungeons.Keyring}'.");
+        if (d.Rooms.Count != Core.Dungeons.RoomCount || d.Rooms.Any(r => !Maps.ContainsKey(r) || Board(r).Starts[0].Count < 1 || Board(r).Starts[1].Count < Core.Dungeons.RolesIn(Core.Dungeons.RoomCount).Count))
+            throw new InvalidDataException($"{who}: {Core.Dungeons.RoomCount} rooms on known battle maps, each with room for a hero and {Core.Dungeons.RolesIn(Core.Dungeons.RoomCount).Count} monsters.");
+    }
+
     private void Check(MonsterFamily f)
     {
         string who = $"Family '{f.Id}'";

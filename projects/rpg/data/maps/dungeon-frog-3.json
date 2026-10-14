@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-frog-3",
+  "name": {
+    "fr": "Grotte du Roi grenouille : salle du chef",
+    "en": "The Frog King's Grotto: Chief's Hall"
+  },
+  "rows": [
+    "...........",
+    ".....#.#.B.",
+    ".A.........",
+    "....#.#...B",
+    "...#.......",
+    "A.A.....B.B",
+    "...#.......",
+    "....#.#...B",
+    ".A.........",
+    ".....#.#.B.",
+    "..........."
+  ]
+}

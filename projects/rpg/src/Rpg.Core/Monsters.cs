@@ -37,8 +37,12 @@ public sealed record MonsterSpec(
     IReadOnlyDictionary<Element, int>? Resistances = null,
     IReadOnlyList<LootDrop>? Loot = null)
 {
-    /// <summary>The monster as a fighter of team B on start cell <paramref name="start"/>.</summary>
-    public FighterSpec Fighter(int start) => new(Name, Look, 1, Hp, Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot);
+    /// <summary>
+    /// The monster as a fighter of team B on start cell <paramref name="start"/>, at <paramref name="power"/>
+    /// percent of its hit points and damage (a dungeon's first room, sprint 80).
+    /// </summary>
+    public FighterSpec Fighter(int start, int power = 100) =>
+        new(Name, Look, 1, Math.Max(1, Hp * power / 100), Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot, power);
 }
 
 /// <summary>
@@ -102,7 +106,7 @@ public static class MonsterGroups
             return [];
         var rng = new Rng(Seed(map.Id));
         Board board = map.Board();
-        Cell[] away = [.. (map.Links ?? []).Select(l => l.At), .. map.Exits.Select(e => e.At), map.Spawn];
+        Cell[] away = [.. (map.Links ?? []).Select(l => l.At), .. map.Exits.Select(e => e.At), .. map.Doors.Select(d => d.At), map.Spawn];
         var homes = Pathfinding.Reachable(board, map.Spawn, board.Width * board.Height, c => map.IsFree(board, c)).Keys
             .Where(c => away.All(a => a.DistanceTo(c) >= Distance))
             .OrderBy(c => c.Y).ThenBy(c => c.X)
@@ -144,7 +148,7 @@ public static class MonsterGroups
         ArgumentNullException.ThrowIfNull(board);
         ArgumentNullException.ThrowIfNull(occupied);
         var reach = Pathfinding.Reachable(board, map.Spawn, board.Width * board.Height, c => map.IsFree(board, c) && !occupied.Contains(c)).Keys.ToHashSet();
-        return (map.Links ?? []).Select(l => l.At).Concat(map.Exits.Select(e => e.At)).All(reach.Contains)
+        return (map.Links ?? []).Select(l => l.At).Concat(map.Exits.Select(e => e.At)).Concat(map.Doors.Select(d => d.At)).All(reach.Contains)
             && map.Npcs.All(n => n.At.Neighbours().Any(reach.Contains));
     }
 

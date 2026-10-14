@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-frog-1",
+  "name": {
+    "fr": "Grotte du Roi grenouille : antichambre",
+    "en": "The Frog King's Grotto: Antechamber"
+  },
+  "rows": [
+    "...........",
+    "...##....B.",
+    ".A.........",
+    "..........B",
+    "....#.#....",
+    "A.A.....B.B",
+    "....#.#....",
+    "..........B",
+    ".A.........",
+    "...##....B.",
+    "..........."
+  ]
+}

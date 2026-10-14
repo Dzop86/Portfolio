@@ -12,6 +12,9 @@ public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 /// </summary>
 public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? Name = null);
 
+/// <summary>The door of a dungeon on a map of the world (sprint 80): walking onto it leads in.</summary>
+public sealed record DungeonDoor(Cell At, string Dungeon);
+
 /// <summary>
 /// A map of the world, as described in <c>data/towns/*.json</c> (a town is one): one walks there and
 /// talks; fights start from its exits. Its rows say what stands on each cell (see <see cref="Decor"/>);
@@ -25,6 +28,12 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
     IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null)
 {
     public ZoneLink? LinkAt(Cell c) => (Links ?? []).FirstOrDefault(l => l.At == c);
+
+    /// <summary>The doors of dungeons on this map, from <c>data/dungeons.json</c> (not the map's file).</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public IReadOnlyList<DungeonDoor> Doors { get; init; } = [];
+
+    public DungeonDoor? DoorAt(Cell c) => Doors.FirstOrDefault(d => d.At == c);
 
     /// <summary>The zone this map belongs to: <see cref="Zone"/>, or the map itself.</summary>
     public string ZoneId => Zone ?? Id;

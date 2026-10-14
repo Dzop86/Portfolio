@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-boar-3",
+  "name": {
+    "fr": "Bauge du Roi sanglier : salle du chef",
+    "en": "The Boar King's Wallow: Chief's Hall"
+  },
+  "rows": [
+    "...........",
+    "......#..B.",
+    ".A....##...",
+    "..........B",
+    "...........",
+    "A.A.....B.B",
+    "...........",
+    "..........B",
+    ".A....##...",
+    "......#..B.",
+    "..........."
+  ]
+}

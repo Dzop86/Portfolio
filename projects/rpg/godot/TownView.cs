@@ -26,8 +26,13 @@ public partial class TownView : Node3D
 
     /// <summary>The names over the gates and the ways, as the self-test counts them.</summary>
     public int WayLabels => _exitLabels.Count;
+
+    public IEnumerable<string> WayNames => _exitLabels.Select(l => l.Label.Text);
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
+
+    /// <summary>The ring of a dungeon's door: the chocolate of the charter, lightened to show on grass.</summary>
+    public static readonly Color DoorColour = new("8a5a34");
 
     /// <summary>An inhabitant's name shows only within this many steps of the player.</summary>
     public const int NameDistance = 3;
@@ -92,6 +97,23 @@ public partial class TownView : Node3D
             Label3D label = Label(link.Name!.In(lang), BoardView.ToWorld(link.At) + new Vector3(0, 0.7f, 0), 36);
             AddChild(label);
             _exitLabels.Add((label, link.Name));
+        }
+        // The doors of dungeons (sprint 80): a stone doorway behind a ring in chocolate, the dungeon's name above.
+        foreach (DungeonDoor door in town.Doors)
+        {
+            Vector3 at = BoardView.ToWorld(door.At);
+            Place(Kit + "wall-door.glb", at + new Vector3(0, 0, -0.5f), 0, 1);
+            AddChild(new MeshInstance3D
+            {
+                Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = DoorColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                Scale = new Vector3(1, 0.15f, 1),
+                Position = at + new Vector3(0, 0.05f, 0),
+            });
+            LocalizedText name = controller.Data.Dungeons[door.Dungeon].Name;
+            Label3D label = Label(name.In(lang), at + new Vector3(0, 1.4f, 0), 36);
+            AddChild(label);
+            _exitLabels.Add((label, name));
         }
         foreach ((string id, Cell at) in controller.Groups)
             AddGroup(controller.Data.Groups[id], at, lang);

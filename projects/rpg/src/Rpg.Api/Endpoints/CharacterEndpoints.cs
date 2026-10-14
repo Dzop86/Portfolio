@@ -21,6 +21,8 @@ public static class CharacterEndpoints
             .Accepts<FightRecord>("application/json")
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
+        group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
+        group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
 
@@ -113,8 +115,12 @@ public static class CharacterEndpoints
         if (request?.Scenario is not string scenario || GameData.Embedded.FindScenario(scenario) is null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = [$"One of: {string.Join(", ", GameData.Embedded.Scenarios.Keys)}, or \"{MonsterGroup.Prefix}\" and a group of monsters."] });
         Guid account = AccountId(user);
-        if (!await db.Characters.AnyAsync(c => c.Id == id && c.AccountId == account, cancel))
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
             return TypedResults.NotFound();
+        // A dungeon's room only for who went in, and only the room it is at (sprint 80).
+        if (Dungeons.Parse(scenario) is (string dungeon, int room) && character.Run != new DungeonRun(dungeon, room))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = ["Not the room of the dungeon this character is at."] });
         // The server draws the seed: the player cannot pick the rolls.
         var pending = new PendingFight { CharacterId = id, Scenario = scenario, Seed = BitConverter.ToInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), CreatedAt = clock.GetUtcNow() };
         db.PendingFights.Add(pending);
@@ -166,11 +172,52 @@ public static class CharacterEndpoints
             character.Quests = string.Join(',', character.QuestList.Append(quest.Id));
             items.AddRange(quest.Items ?? []);
         }
+        // A dungeon's room: won, the next room, or out with the last one's experience twice; lost, out.
+        bool done = false;
+        if (Dungeons.Parse(pending.Scenario) is (string dungeon, int room) && character.Run == new DungeonRun(dungeon, room))
+        {
+            bool won = played.WinningTeam == 0;
+            done = won && room == Dungeons.RoomCount;
+            if (done)
+                xp += Progression.FightXp(played);
+            (character.Dungeon, character.DungeonRoom) = won && !done ? (dungeon, room + 1) : (null, 0);
+        }
         character.Receive(items);
         character.Xp += xp;
         character.Level = Progression.LevelFor(character.Xp);
         await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items));
+        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items, character.Run, done));
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Enter(
+        Guid id, EnterDungeon request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (request?.Dungeon is not string dungeonId || !GameData.Embedded.Dungeons.TryGetValue(dungeonId, out Dungeon? dungeon))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["dungeon"] = [$"One of: {string.Join(", ", GameData.Embedded.Dungeons.Keys)}."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        // Already in it: back to its room, without a key.
+        if (character.Dungeon != dungeon.Id)
+        {
+            List<ItemCount> owned = character.InventoryList;
+            if (!Dungeons.CanEnter(dungeon, owned))
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["key"] = [$"The key of this dungeon ('{dungeon.Key}') is needed."] });
+            if (Dungeons.UsedOnEntry(dungeon, owned) is ItemCount used)
+                character.Spend(used);
+            (character.Dungeon, character.DungeonRoom) = (dungeon.Id, 1);
+            await db.SaveChangesAsync(cancel);
+        }
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> Leave(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        int left = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
+            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Dungeon, (string?)null).SetProperty(c => c.DungeonRoom, 0), cancel);
+        return left == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SaveEquipment(
@@ -214,7 +261,7 @@ public static class CharacterEndpoints
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

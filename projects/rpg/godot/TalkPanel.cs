@@ -91,6 +91,8 @@ public partial class TalkPanel : CanvasLayer
 
     public void ShowMessage(string text) => _message.Text = text;
 
+    public string MessageText => _message.Text;
+
     /// <summary>The character's level and experience; null: no character (a classless hero).</summary>
     public void SetProgress(int? level, long xp)
     {

@@ -33,7 +33,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue)
 /// What a click did in town: the cells to walk, then a talk, a way to a fight or to another zone, or
 /// neither. <see cref="Waypoints"/> is the same walk in straight lines (sprint 69), what the client draws.
 /// </summary>
-public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null, MonsterGroup? Group = null)
+public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null, MonsterGroup? Group = null, DungeonDoor? Door = null)
 {
     public IReadOnlyList<Cell> Waypoints { get; init; } = Path;
 }
@@ -42,7 +42,8 @@ public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? E
 /// The player in a town, without an engine: a click walks the shortest way, in eight directions
 /// (<see cref="Wander"/>), a click on someone walks up to them and opens the talk, a click on an exit
 /// leads to its fight; "Attack" on a group of monsters (a right click, sprint 78) walks up to it and
-/// starts its fight, a left click only walks up to it;
+/// starts its fight, a left click only walks up to it; walking onto the door of a dungeon (sprint 80)
+/// asks to go in (<see cref="Door"/>);
 /// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
@@ -100,6 +101,12 @@ public sealed class TownController
     /// <summary>The way to another zone the player walked onto, if any (sprint 60).</summary>
     public ZoneLink? Travel { get; private set; }
 
+    /// <summary>The door of a dungeon the player walked onto, if any (sprint 80): the game asks before going in.</summary>
+    public DungeonDoor? Door { get; private set; }
+
+    /// <summary>Not going in after all: the player stays on the door, free to walk on.</summary>
+    public void CloseDoor() => Door = null;
+
     /// <summary>The map the way leads to, the player on its arrival cell, without the <paramref name="absent"/> groups.</summary>
     public TownController Enter(ZoneLink link, IEnumerable<string>? absent = null) =>
         new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival, absent);
@@ -110,7 +117,7 @@ public sealed class TownController
     /// <summary>The cells a click on <paramref name="target"/> would walk, for the hover preview; null if it does nothing.</summary>
     public IReadOnlyList<Cell>? PathTo(Cell target)
     {
-        if (Talk is not null || Fight is not null || Travel is not null)
+        if (Talk is not null || Fight is not null || Travel is not null || Door is not null)
             return null;
         // Someone to talk to, or monsters to fight: up to the nearest cell next to them.
         if (Town.NpcAt(target) is not null || GroupAt(target) is not null)
@@ -146,6 +153,7 @@ public sealed class TownController
         MonsterGroup? group = GroupAt(target);
         TownExit? exit = Town.ExitAt(Position);
         ZoneLink? link = Town.LinkAt(Position);
+        DungeonDoor? door = Town.DoorAt(Position);
         bool there = npc is null && group is null && Position == target;
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
@@ -158,7 +166,9 @@ public sealed class TownController
             Fight = exit.Scenario;
         else if (link is not null && there)
             Travel = link;
-        return new TownStep(path, npc, there ? exit : null, there ? link : null, attack ? group : null)
+        else if (door is not null && there)
+            Door = door;
+        return new TownStep(path, npc, there ? exit : null, there ? link : null, attack ? group : null, there ? door : null)
         {
             Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
         };
@@ -177,6 +187,7 @@ public sealed class TownController
         Fight = null;
         FightGroup = null;
         Travel = null;
+        Door = null;
     }
 
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>

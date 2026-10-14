@@ -73,6 +73,12 @@ public sealed class Character
     /// <summary>The spells fought with, in the order of the bar, their ids separated by commas (sprint 68); empty: the default deck.</summary>
     public string Deck { get; set; } = "";
 
+    /// <summary>The dungeon the character is in (sprint 80), and the room it is to fight there; null and 0 outside.</summary>
+    public string? Dungeon { get; set; }
+    public int DungeonRoom { get; set; }
+
+    public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom) : null;
+
     /// <summary>The deck, without the spells the class no longer has.</summary>
     public string[] DeckList => [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Class(Class)?.Spells.Contains(id) == true)];
 
@@ -81,6 +87,15 @@ public sealed class Character
 
     public Dictionary<Slot, string> WornList => Worn.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(w => w.Split(':')).ToDictionary(w => Enum.Parse<Slot>(w[0]), w => w[1]);
+
+    /// <summary>Takes items out of the inventory (a key used up); those down to none go away.</summary>
+    public void Spend(ItemCount used)
+    {
+        ArgumentNullException.ThrowIfNull(used);
+        var all = InventoryList.ToDictionary(i => i.Item, i => i.Count, StringComparer.Ordinal);
+        all[used.Item] = all.GetValueOrDefault(used.Item) - used.Count;
+        Inventory = string.Join(',', all.Where(i => i.Value > 0).OrderBy(i => i.Key, StringComparer.Ordinal).Select(i => $"{i.Key}:{i.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+    }
 
     /// <summary>Adds items to the inventory, in the order of the items' ids.</summary>
     public void Receive(IEnumerable<ItemCount> items)

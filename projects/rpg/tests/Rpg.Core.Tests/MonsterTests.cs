@@ -57,7 +57,7 @@ public class MonsterTests
 
     private static GameData WithBoars(params MonsterSpec[] monsters) => new(
         Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
-        Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? f with { Monsters = monsters } : f)]);
+        Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? f with { Monsters = monsters } : f)], Real.Dungeons.Values);
 
     [Fact]
     public void AFamily_WithoutOneOfTheRoles_OrWithTwoOfOne_IsRefused()

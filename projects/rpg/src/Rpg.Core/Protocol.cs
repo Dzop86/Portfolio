@@ -37,7 +37,7 @@ public sealed record Place(string Town, int X, int Y)
 /// </summary>
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
-    IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null)
+    IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null)
 {
     [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
@@ -45,7 +45,7 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
         other is not null && (Id, CreatedAt, Place, Server, Xp) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp)
-        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []);
+        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []) && Run == other.Run;
 
     public override int GetHashCode() => HashCode.Combine(Id, Hero, Xp);
 }
@@ -57,10 +57,18 @@ public sealed record FightTicket(Guid Id, string Scenario, [property: JsonNumber
 public sealed record NewFight(string? Scenario);
 
 /// <summary>
-/// What the server gave for a fight it replayed: the experience earned (the fight's and a quest's),
-/// the new total and level, the quest done, if any, and the items won (loot and the quest's).
+/// What the server gave for a fight it replayed: the experience earned (the fight's, a quest's, a
+/// dungeon's last room's), the new total and level, the quest done, if any, and the items won (loot and
+/// the quest's); in a dungeon (sprint 80), the room to fight next (null when out of it) and whether it
+/// was just finished.
 /// </summary>
-public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null);
+public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null, DungeonRun? Run = null, bool DungeonDone = false);
+
+/// <summary>Where a character is in a dungeon (sprint 80): the dungeon, and the room to fight (1 to 3).</summary>
+public sealed record DungeonRun(string Dungeon, int Room);
+
+/// <summary>A dungeon to go into, through its door.</summary>
+public sealed record EnterDungeon(string? Dungeon);
 
 /// <summary>What a character is to wear, slot by slot: items it owns.</summary>
 public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);

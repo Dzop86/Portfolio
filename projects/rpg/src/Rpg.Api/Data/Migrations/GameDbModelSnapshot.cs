@@ -85,6 +85,13 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Dungeon")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<int>("DungeonRoom")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Earth")
                         .HasColumnType("integer");
 

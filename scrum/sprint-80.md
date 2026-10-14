@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'entre dans un donjon (rpg) : un par famille (huit), à part du monde, porte sur une carte de sa zone ; trois salles, la première avec un monstre de chaque rôle (mêlée, distance, tank, soutien) affaiblis, la deuxième les mêmes à pleine force, la troisième les mêmes et le chef ; une clef de ce donjon, gardée par le serveur, consommée à l'entrée ; le trousseau d'administrateur ouvre tous les donjons sans s'user ; récompense à la sortie ; xUnit, intégration, auto-test. | 5 | À faire |
+| En tant que joueur, j'entre dans un donjon (rpg) : un par famille (huit), à part du monde, porte sur une carte de sa zone ; trois salles, la première avec un monstre de chaque rôle (mêlée, distance, tank, soutien) affaiblis, la deuxième les mêmes à pleine force, la troisième les mêmes et le chef ; une clef de ce donjon, gardée par le serveur, consommée à l'entrée ; le trousseau d'administrateur ouvre tous les donjons sans s'user ; récompense à la sortie ; xUnit, intégration, auto-test. | 5 | Fait |
+
+**Résultat :** huit donjons de trois salles, la clef ou le trousseau, les salles gardées par le serveur ; seul, la salle du chef ne se gagne qu'avec de l'avance (T47).
 
 ## Rétro (Charles)
 - Ce qui a marché :

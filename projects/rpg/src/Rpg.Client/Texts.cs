@@ -249,6 +249,18 @@ public sealed class Texts
         ["map.level"] = "niveau {0}",
         ["map.here"] = "vous êtes ici",
         ["town.back"] = "Retour en ville",
+        ["dungeon.enter"] = "Entrer dans {0} ?",
+        ["dungeon.key-used"] = "Cela utilise une clef : {0}.",
+        ["dungeon.keyring"] = "Le trousseau d'administrateur ouvre la porte.",
+        ["dungeon.no-key"] = "{0} : il faut une clef pour entrer ({1}).",
+        ["dungeon.resume"] = "Retourner dans {0}, salle {1} sur 3 ?",
+        ["dungeon.go-in"] = "Entrer",
+        ["dungeon.stay"] = "Rester dehors",
+        ["dungeon.room"] = "{0}, salle {1} sur 3",
+        ["dungeon.next"] = "Salle suivante",
+        ["dungeon.leave"] = "Quitter le donjon",
+        ["dungeon.done"] = "Donjon terminé !",
+        ["dungeon.out"] = "Vous voilà dehors.",
         ["town.exit"] = "Vers : {0}",
         ["town.saved"] = "Position enregistrée sur le serveur.",
         ["lobby.colour-n"] = "Couleur {0}",
@@ -513,6 +525,18 @@ public sealed class Texts
         ["map.level"] = "level {0}",
         ["map.here"] = "you are here",
         ["town.back"] = "Back to town",
+        ["dungeon.enter"] = "Go into {0}?",
+        ["dungeon.key-used"] = "This uses up a key: {0}.",
+        ["dungeon.keyring"] = "The operator's keyring opens the door.",
+        ["dungeon.no-key"] = "{0}: a key is needed to go in ({1}).",
+        ["dungeon.resume"] = "Go back into {0}, room {1} of 3?",
+        ["dungeon.go-in"] = "Go in",
+        ["dungeon.stay"] = "Stay outside",
+        ["dungeon.room"] = "{0}, room {1} of 3",
+        ["dungeon.next"] = "Next room",
+        ["dungeon.leave"] = "Leave the dungeon",
+        ["dungeon.done"] = "Dungeon cleared!",
+        ["dungeon.out"] = "You are outside again.",
         ["town.exit"] = "To: {0}",
         ["town.saved"] = "Position saved on the server.",
         ["lobby.colour-n"] = "Colour {0}",
@@ -715,8 +739,28 @@ public sealed class Texts
             parts.Add(this["result.quest", quest.Name.In(Lang)]);
         if (result.Level > levelBefore)
             parts.Add(this["result.level", result.Level]);
+        if (result.DungeonDone)
+            parts.Insert(0, this["dungeon.done"]);
         string text = string.Join(" · ", parts);
         return result.Loot is { Count: > 0 } loot ? text + "\n" + this["result.loot", Items(loot)] : text;
+    }
+
+    /// <summary>
+    /// What the door of a dungeon says (sprint 80), and whether one may go in: back to its room if the
+    /// character is in it already; in with the keyring, or using up its key; shut without either.
+    /// Without a character (offline, for tests), it opens.
+    /// </summary>
+    public (string Text, bool CanEnter) DoorText(Dungeon dungeon, IReadOnlyList<ItemCount>? owned, DungeonRun? run)
+    {
+        ArgumentNullException.ThrowIfNull(dungeon);
+        string name = dungeon.Name.In(Lang), key = Items([new ItemCount(dungeon.Key, 1)]);
+        if (run?.Dungeon == dungeon.Id)
+            return (this["dungeon.resume", name, run.Room], true);
+        if (owned is null)
+            return (this["dungeon.enter", name], true);
+        if (!Dungeons.CanEnter(dungeon, owned))
+            return (this["dungeon.no-key", name, key], false);
+        return (this["dungeon.enter", name] + "\n" + (Dungeons.UsedOnEntry(dungeon, owned) is null ? this["dungeon.keyring"] : this["dungeon.key-used", key]), true);
     }
 
     /// <summary>Some items as a list: "Croc d'orque ×2, Pain".</summary>

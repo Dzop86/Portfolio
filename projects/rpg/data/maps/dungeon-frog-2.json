@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-frog-2",
+  "name": {
+    "fr": "Grotte du Roi grenouille : grande salle",
+    "en": "The Frog King's Grotto: Great Hall"
+  },
+  "rows": [
+    "...........",
+    ".....#...B.",
+    ".A.#.......",
+    "....#.....B",
+    "...##......",
+    "A.A.....B.B",
+    "...##......",
+    "....#.....B",
+    ".A.#.......",
+    ".....#...B.",
+    "..........."
+  ]
+}

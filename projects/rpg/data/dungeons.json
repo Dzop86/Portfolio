@@ -1,0 +1,154 @@
+[
+  {
+    "id": "boar-wallow",
+    "name": {
+      "fr": "Bauge du Roi sanglier",
+      "en": "The Boar King's Wallow"
+    },
+    "family": "boar",
+    "map": "woods-0-2",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "boar-wallow-key",
+    "rooms": [
+      "dungeon-boar-1",
+      "dungeon-boar-2",
+      "dungeon-boar-3"
+    ]
+  },
+  {
+    "id": "wolf-den",
+    "name": {
+      "fr": "Tanière de la meute",
+      "en": "The Pack's Den"
+    },
+    "family": "wolf",
+    "map": "woods-2-0",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "wolf-den-key",
+    "rooms": [
+      "dungeon-wolf-1",
+      "dungeon-wolf-2",
+      "dungeon-wolf-3"
+    ]
+  },
+  {
+    "id": "mushroom-cellar",
+    "name": {
+      "fr": "Champignonnière",
+      "en": "The Mushroom Cellar"
+    },
+    "family": "mushroom",
+    "map": "mouldy-0-0",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "mushroom-cellar-key",
+    "rooms": [
+      "dungeon-mushroom-1",
+      "dungeon-mushroom-2",
+      "dungeon-mushroom-3"
+    ]
+  },
+  {
+    "id": "zombie-crypt",
+    "name": {
+      "fr": "Crypte oubliée",
+      "en": "The Forgotten Crypt"
+    },
+    "family": "zombie",
+    "map": "mouldy-2-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "zombie-crypt-key",
+    "rooms": [
+      "dungeon-zombie-1",
+      "dungeon-zombie-2",
+      "dungeon-zombie-3"
+    ]
+  },
+  {
+    "id": "frog-grotto",
+    "name": {
+      "fr": "Grotte du Roi grenouille",
+      "en": "The Frog King's Grotto"
+    },
+    "family": "frog",
+    "map": "lake-0-0",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "frog-grotto-key",
+    "rooms": [
+      "dungeon-frog-1",
+      "dungeon-frog-2",
+      "dungeon-frog-3"
+    ]
+  },
+  {
+    "id": "crab-reef",
+    "name": {
+      "fr": "Récif des pinces",
+      "en": "The Pincer Reef"
+    },
+    "family": "crab",
+    "map": "lake-4-1",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "crab-reef-key",
+    "rooms": [
+      "dungeon-crab-1",
+      "dungeon-crab-2",
+      "dungeon-crab-3"
+    ]
+  },
+  {
+    "id": "royal-hive",
+    "name": {
+      "fr": "Ruche royale",
+      "en": "The Royal Hive"
+    },
+    "family": "bee",
+    "map": "fields-0-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "royal-hive-key",
+    "rooms": [
+      "dungeon-bee-1",
+      "dungeon-bee-2",
+      "dungeon-bee-3"
+    ]
+  },
+  {
+    "id": "mole-burrows",
+    "name": {
+      "fr": "Galeries des taupes",
+      "en": "The Mole Burrows"
+    },
+    "family": "mole",
+    "map": "fields-4-3",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "mole-burrows-key",
+    "rooms": [
+      "dungeon-mole-1",
+      "dungeon-mole-2",
+      "dungeon-mole-3"
+    ]
+  }
+]

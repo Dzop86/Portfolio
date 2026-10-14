@@ -362,15 +362,16 @@ public sealed class Fight
     /// <summary>
     /// The damage a hit of <paramref name="roll"/> does: 2 more for every 10 points the caster has in the
     /// element's characteristic (D61), then more with the caster's damage bonus in percent, less with the
-    /// target's resistance to the element; a hit without points nor bonus is the roll itself.
+    /// target's resistance to the element; a hit without points nor bonus is the roll itself. A fighter
+    /// weakened (<see cref="FighterSpec.Power"/> below 100, a dungeon's first room) hits that much less.
     /// </summary>
     public static int Damage(int roll, Fighter caster, Fighter target, Element element)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
-        long scaled = raw * (100 + caster.DamageBonus) * (100 - target.Resistance(element));
-        return (int)Math.Max(0, scaled / 10_000);
+        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonus) * (100 - target.Resistance(element));
+        return (int)Math.Max(0, scaled / 1_000_000);
     }
 
 
