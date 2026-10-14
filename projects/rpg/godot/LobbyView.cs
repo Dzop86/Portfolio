@@ -105,6 +105,16 @@ public partial class LobbyView : CanvasLayer
         _password = new LineEdit { CustomMinimumSize = new Vector2(320, 44), Secret = true };
         _password.TextSubmitted += text => _ = SignIn(create: false);
         _signedOut.AddChild(_password);
+        // As in the launcher (sprint 51), in the game itself (sprint 79, D65).
+        _rememberName = new CheckBox { CustomMinimumSize = new Vector2(320, 44) };
+        _signedOut.AddChild(_rememberName);
+        _rememberPassword = new CheckBox { CustomMinimumSize = new Vector2(320, 44) };
+        _rememberPassword.Toggled += on => { if (on) _rememberName.ButtonPressed = true; };
+        _rememberName.Toggled += on => { if (!on) _rememberPassword.ButtonPressed = false; };
+        _signedOut.AddChild(_rememberPassword);
+        RememberedSignIn remembered = SignInMemory.Read(ReadMemory(), MemoryBox);
+        (_account.Text, _password.Text) = (remembered.Name, remembered.Password);
+        (_rememberName.ButtonPressed, _rememberPassword.ButtonPressed) = (remembered.RememberName, remembered.RememberPassword);
         var signButtons = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
         signButtons.AddThemeConstantOverride("separation", 12);
         _signedOut.AddChild(signButtons);
@@ -447,6 +457,8 @@ public partial class LobbyView : CanvasLayer
         _account.PlaceholderText = Texts["lobby.name"];
         _password.PlaceholderText = Texts["lobby.password"];
         _signIn.Text = Texts["lobby.sign-in"];
+        _rememberName.Text = Texts["lobby.remember-name"];
+        _rememberPassword.Text = Texts["lobby.remember-password"];
         _signUp.Text = Texts["lobby.sign-up"];
         _signIn.Disabled = _signUp.Disabled = _busy;
         _signInMessage.Text = !_lobby.SignedIn && _lobby.Problem is string problem ? Texts[problem] : "";
@@ -577,6 +589,35 @@ public partial class LobbyView : CanvasLayer
     }
 
     private LineEdit _account = null!, _password = null!;
+    private CheckBox _rememberName = null!, _rememberPassword = null!;
+
+    /// <summary>Where the sign-in is remembered; the self-test points it elsewhere.</summary>
+    public static string MemoryPath { get; set; } = "user://" + SignInMemory.FileName;
+
+    /// <summary>
+    /// The password sealed with a key drawn from this computer's id and the user's name (D65): unreadable
+    /// copied elsewhere, but not a store of the system's like the launcher's (see the README's limits).
+    /// </summary>
+    private static ISecretBox MemoryBox => AesSecretBox.FromText(OS.GetUniqueId() + "/" + System.Environment.UserName);
+
+    private static string? ReadMemory()
+    {
+        using Godot.FileAccess? file = Godot.FileAccess.Open(MemoryPath, Godot.FileAccess.ModeFlags.Read);
+        return file?.GetAsText();
+    }
+
+    private static void WriteMemory(string json)
+    {
+        using Godot.FileAccess? file = Godot.FileAccess.Open(MemoryPath, Godot.FileAccess.ModeFlags.Write);
+        file?.StoreString(json);
+    }
+
+    /// <summary>The boxes ticked, and what the screen starts with when it is built again (for the self-test).</summary>
+    public void TickRemember(bool name, bool password) => (_rememberName.ButtonPressed, _rememberPassword.ButtonPressed) = (name, password);
+
+    public static RememberedSignIn Remembered => SignInMemory.Read(ReadMemory(), MemoryBox);
+
+    public bool RememberShown => _rememberName.Visible && _rememberPassword.Visible && _rememberName.Text.Length > 0 && _rememberPassword.Text.Length > 0;
     private Label _signInMessage = null!;
 
     /// <summary>Signs in, or creates the account, from the fields of the signed-out screen; the servers follow.</summary>
@@ -586,7 +627,9 @@ public partial class LobbyView : CanvasLayer
             return;
         _busy = true;
         Refresh();
-        await _lobby.SignIn(_account.Text.Trim(), _password.Text, create);
+        string name = _account.Text.Trim(), password = _password.Text;
+        if (await _lobby.SignIn(name, password, create))
+            WriteMemory(SignInMemory.Write(new RememberedSignIn(name, password, _rememberName.ButtonPressed, _rememberPassword.ButtonPressed), MemoryBox));
         _busy = false;
         _password.Text = "";
         Refresh();

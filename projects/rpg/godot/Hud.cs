@@ -20,6 +20,7 @@ public partial class Hud : CanvasLayer
     private PanelContainer _info = null!;
     private Label _infoText = null!;
     private readonly Queue<string> _log = new();
+    private Label _round = null!;
     private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!, _result = null!;
     private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
     private GridContainer _spellBar = null!;
@@ -45,9 +46,17 @@ public partial class Hud : CanvasLayer
         _turn = Text(root, 22, 0, 0, 20, 14, 600, 32);
         var timeline = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         timeline.AddThemeConstantOverride("separation", 6);
-        Anchor(timeline, 1, 0, -8 - TimelineLength * 64, 10, TimelineLength * 64, 92);
+        Anchor(timeline, 1, 0, -8 - TimelineLength * 64 - 48, 10, TimelineLength * 64 + 48, 92);
         timeline.Alignment = BoxContainer.AlignmentMode.End;
         root.AddChild(timeline);
+        // The round, before its order: a small clock and its number (sprint 79, D65).
+        var round = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, CustomMinimumSize = new Vector2(42, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+        round.AddThemeConstantOverride("separation", 2);
+        round.AddChild(new ClockIcon { CustomMinimumSize = new Vector2(18, 18), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore });
+        _round = new Label { HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _round.AddThemeFontSizeOverride("font_size", 16);
+        round.AddChild(_round);
+        timeline.AddChild(round);
         for (int i = 0; i < TimelineLength; i++)
         {
             var card = new PanelContainer { CustomMinimumSize = new Vector2(58, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -143,6 +152,8 @@ public partial class Hud : CanvasLayer
         Fight fight = _controller.Fight;
         Fighter current = fight.Current;
         Fighter me = _controller.IsPlayerTurn ? current : fight.Fighters.First(f => f.Team == _controller.PlayerTeam);
+        _round.Text = fight.Round.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        _round.TooltipText = Texts["round", fight.Round];
         _turn.Text = $"{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
         // The round's order, the one playing outlined; it starts again with each round (D64).
         IReadOnlyList<Fighter> next = [.. fight.RoundOrder.Take(TimelineLength)];
@@ -242,6 +253,9 @@ public partial class Hud : CanvasLayer
     public void SetBackShown(bool shown) => _back.Visible = shown;
 
     public string TurnText => _turn.Text;
+
+    /// <summary>The round's number next to the clock, on the timeline.</summary>
+    public string RoundText => _round.Text;
     public string StatsText => _stats.Text;
     public string OrderText => _order.Text;
 

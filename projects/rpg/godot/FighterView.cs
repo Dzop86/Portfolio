@@ -131,17 +131,25 @@ public partial class FighterView : Node3D
         tween.TweenCallback(Callable.From(label.QueueFree));
     }
 
+    /// <summary>
+    /// A fighter who falls leaves the board (sprint 79, D65): its fall when the model has one, then it
+    /// sinks and fades; at once in the instant replays and self-tests.
+    /// </summary>
     public void Die(bool animate)
     {
         Refresh();
-        if (animate)
-        {
-            Play("die");
-        }
-        else
+        if (!animate)
         {
             Visible = false;
+            return;
         }
+        bool falls = _anim?.HasAnimation("die") == true;
+        Play("die");
+        Tween tween = CreateTween();
+        tween.TweenInterval(falls ? 0.9 : 0.2);
+        tween.TweenProperty(_model, "scale", Vector3.One * 0.01f, 0.45).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
+        tween.Parallel().TweenProperty(_model, "position:y", -0.4f, 0.45);
+        tween.TweenCallback(Callable.From(() => Visible = false));
     }
 
     private void Face(Vector3 direction)

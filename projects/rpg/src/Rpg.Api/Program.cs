@@ -83,6 +83,21 @@ if (app.Configuration.GetValue("Database:Migrate", true))
     scope.ServiceProvider.GetRequiredService<GameDb>().Database.Migrate();
 }
 
+// The operator's command (sprint 79): applied to the database, then the program ends without serving.
+if (args is [Admin.Verb, ..])
+{
+    (AdminOrder? order, string? error) = Admin.Parse(args);
+    if (order is null)
+    {
+        Console.Error.WriteLine(error);
+        return 2;
+    }
+    using IServiceScope scope = app.Services.CreateScope();
+    foreach (string line in await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), order))
+        Console.WriteLine(line);
+    return 0;
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 // The game's files for the launcher, one folder per platform with its manifest.json, when a folder
@@ -115,7 +130,8 @@ app.MapAccountEndpoints();
 app.MapCharacterEndpoints();
 app.MapServerEndpoints();
 
-app.Run();
+await app.RunAsync();
+return 0;
 
 /// <summary>Visible to the integration tests (WebApplicationFactory).</summary>
 public partial class Program;

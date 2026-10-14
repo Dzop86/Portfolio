@@ -116,6 +116,9 @@ public partial class Main : Node3D
         _camera = new Camera3D();
         AddChild(_camera);
         _lobbyView = new LobbyView();
+        // The self-test remembers its sign-in apart from the player's.
+        if (_options.LobbySelfTest)
+            LobbyView.MemoryPath = "user://selftest-" + SignInMemory.FileName;
         _lobbyView.Chosen += character =>
         {
             _character = character;
@@ -619,6 +622,9 @@ public partial class Main : Node3D
                 Fighter f = v.Fighter;
                 if (f.IsAlive && v.Position != BoardView.ToWorld(f.Cell))
                     problems.Add($"{f.Name.En} drawn at {v.Position}, standing on {f.Cell}");
+                // The fallen leave the board (sprint 79).
+                if (f.IsAlive != v.Visible)
+                    problems.Add($"{f.Name.En} {(f.IsAlive ? "alive and hidden" : "fallen and still drawn")}");
                 if (v.HpText != $"{f.Hp}/{f.MaxHp}")
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
                 checks++;
@@ -715,6 +721,8 @@ public partial class Main : Node3D
             problems.Add($"the timeline shows {string.Join(", ", _hud.TimelineText)}");
         if (!_hud.TimelineLooks.SequenceEqual(fight.RoundOrder.Take(Hud.TimelineLength).Select(f => f.Spec.Look)))
             problems.Add("the timeline's portraits are not the fighters'");
+        if (_hud.RoundText != fight.Round.ToString(CultureInfo.InvariantCulture))
+            problems.Add($"the clock shows round {_hud.RoundText}, not {fight.Round}");
         if (!fight.IsOver && _hud.CurrentCard != fight.RoundOrder.ToList().IndexOf(fight.Current))
             problems.Add($"the timeline outlines card {_hud.CurrentCard}, not the one playing");
         var last = new Dictionary<int, Color>();
@@ -840,7 +848,11 @@ public partial class Main : Node3D
         if (_lobby!.SignedIn || view.SignInMessage != view.Texts["lobby.password-short"])
             signIn ??= $"a short password gives \"{view.SignInMessage}\"";
         view.TypeSignIn("selftest_" + suffix, "selftest password");
+        // Both boxes ticked (sprint 79): the name and the password come back, the password sealed.
+        view.TickRemember(name: true, password: true);
         await view.SignIn(create: true);
+        if (!view.RememberShown || LobbyView.Remembered != new RememberedSignIn("selftest_" + suffix, "selftest password", true, true))
+            signIn ??= $"the sign-in remembered is {LobbyView.Remembered with { Password = "…" }}";
         // Letters only: the hex digits of the suffix become letters a to p.
         string hero = "Essai" + string.Concat(suffix.Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))));
         string? problem = signIn ?? (_lobby.ChosenServer is null ? $"no server chosen among {_lobby.Servers.Count}" : null);
