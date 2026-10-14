@@ -101,5 +101,9 @@ public class MonsterGroupTests
         var group = new MonsterGroup("x", "woods-2-2", "boar", new Cell(1, 1), ["boar-sow", "boar-charger"]);
         Assert.Equal("Laie (niv. 2), Sanglier chargeur (niv. 2)", new Texts("fr").GroupLabel(group, Data));
         Assert.Equal("Sow (lvl 2), Charging Boar (lvl 2)", new Texts("en").GroupLabel(group, Data));
+        // More than three: the family, how many, their levels.
+        var horde = group with { Monsters = ["boar-sow", "boar-charger", "acorn-piglet", "old-loner", "boar-king", "boar-sow"] };
+        Assert.Equal("Sangliers ×6 (niv. 1 à 6)", new Texts("fr").GroupLabel(horde, Data));
+        Assert.Equal("Boars ×6 (lvl 1 to 6)", new Texts("en").GroupLabel(horde, Data));
     }
 }

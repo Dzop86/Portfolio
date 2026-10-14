@@ -18,7 +18,7 @@
         },
         "look": "boar-melee",
         "level": 2,
-        "hp": 42,
+        "hp": 34,
         "ap": 6,
         "mp": 4,
         "initiative": 70,
@@ -49,7 +49,7 @@
         },
         "look": "boar-ranged",
         "level": 1,
-        "hp": 30,
+        "hp": 20,
         "ap": 6,
         "mp": 3,
         "initiative": 80,
@@ -73,7 +73,7 @@
         },
         "look": "boar-tank",
         "level": 3,
-        "hp": 72,
+        "hp": 48,
         "ap": 6,
         "mp": 2,
         "initiative": 50,
@@ -109,7 +109,7 @@
         },
         "look": "boar-support",
         "level": 2,
-        "hp": 44,
+        "hp": 35,
         "ap": 6,
         "mp": 3,
         "initiative": 60,
@@ -180,7 +180,7 @@
         },
         "look": "wolf-melee",
         "level": 2,
-        "hp": 32,
+        "hp": 24,
         "ap": 6,
         "mp": 5,
         "initiative": 90,
@@ -211,7 +211,7 @@
         },
         "look": "wolf-ranged",
         "level": 2,
-        "hp": 26,
+        "hp": 20,
         "ap": 6,
         "mp": 4,
         "initiative": 85,
@@ -235,7 +235,7 @@
         },
         "look": "wolf-tank",
         "level": 3,
-        "hp": 60,
+        "hp": 45,
         "ap": 6,
         "mp": 3,
         "initiative": 60,
@@ -271,7 +271,7 @@
         },
         "look": "wolf-support",
         "level": 2,
-        "hp": 36,
+        "hp": 27,
         "ap": 6,
         "mp": 4,
         "initiative": 70,
@@ -318,6 +318,319 @@
           },
           {
             "item": "wolf-cape",
+            "percent": 25
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mushroom",
+    "name": {
+      "fr": "Champignons",
+      "en": "Mushrooms"
+    },
+    "zone": "mouldy",
+    "battle": "mouldy-hollow",
+    "bossMap": "mouldy-0-0",
+    "monsters": [
+      {
+        "id": "bruiser-toadstool",
+        "role": "Melee",
+        "name": {
+          "fr": "Champignon cogneur",
+          "en": "Bruiser Toadstool"
+        },
+        "look": "mushroom-melee",
+        "level": 9,
+        "hp": 45,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 70,
+        "spells": [
+          "cap-slam"
+        ],
+        "resistances": {
+          "Earth": 10
+        },
+        "loot": [
+          {
+            "item": "mushroom-cap",
+            "percent": 40
+          },
+          {
+            "item": "spore-dust",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "spore-puffer",
+        "role": "Ranged",
+        "name": {
+          "fr": "Vesse-de-loup",
+          "en": "Spore Puffer"
+        },
+        "look": "mushroom-ranged",
+        "level": 8,
+        "hp": 32,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 80,
+        "spells": [
+          "spore-burst"
+        ],
+        "loot": [
+          {
+            "item": "spore-dust",
+            "percent": 60
+          }
+        ]
+      },
+      {
+        "id": "great-cap",
+        "role": "Tank",
+        "name": {
+          "fr": "Gros chapeau",
+          "en": "Great Cap"
+        },
+        "look": "mushroom-tank",
+        "level": 10,
+        "hp": 60,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 50,
+        "spells": [
+          "cap-slam",
+          "hard-cap"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Water": 10
+        },
+        "loot": [
+          {
+            "item": "mushroom-cap",
+            "percent": 60
+          },
+          {
+            "item": "cap-hat",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "healing-morel",
+        "role": "Support",
+        "name": {
+          "fr": "Morille guérisseuse",
+          "en": "Healing Morel"
+        },
+        "look": "mushroom-support",
+        "level": 9,
+        "hp": 46,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "mycelium-mend",
+          "cap-slam"
+        ],
+        "loot": [
+          {
+            "item": "spore-dust",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "elder-fungus",
+        "role": "Boss",
+        "name": {
+          "fr": "Champignon ancestral",
+          "en": "Elder Fungus"
+        },
+        "look": "mushroom-boss",
+        "level": 13,
+        "hp": 170,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "elder-slam",
+          "rot-spores"
+        ],
+        "resistances": {
+          "Earth": 20,
+          "Fire": 10,
+          "Water": 20,
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "mushroom-cap",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "cap-hat",
+            "percent": 25
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "zombie",
+    "name": {
+      "fr": "Zombies",
+      "en": "Zombies"
+    },
+    "zone": "mouldy",
+    "battle": "mouldy-hollow",
+    "bossMap": "mouldy-2-4",
+    "monsters": [
+      {
+        "id": "shambling-brute",
+        "role": "Melee",
+        "name": {
+          "fr": "Zombie cogneur",
+          "en": "Shambling Brute"
+        },
+        "look": "zombie-melee",
+        "level": 9,
+        "hp": 46,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "claw"
+        ],
+        "resistances": {
+          "Fire": 10
+        },
+        "loot": [
+          {
+            "item": "rotten-cloth",
+            "percent": 40
+          },
+          {
+            "item": "old-bone",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "bile-spitter",
+        "role": "Ranged",
+        "name": {
+          "fr": "Zombie cracheur",
+          "en": "Bile Spitter"
+        },
+        "look": "zombie-ranged",
+        "level": 8,
+        "hp": 33,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 75,
+        "spells": [
+          "bile-spit",
+          "claw"
+        ],
+        "loot": [
+          {
+            "item": "rotten-cloth",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "bloated-zombie",
+        "role": "Tank",
+        "name": {
+          "fr": "Zombie bouffi",
+          "en": "Bloated Zombie"
+        },
+        "look": "zombie-tank",
+        "level": 10,
+        "hp": 62,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 40,
+        "spells": [
+          "claw",
+          "rotting-hide"
+        ],
+        "resistances": {
+          "Fire": 15,
+          "Earth": 10
+        },
+        "loot": [
+          {
+            "item": "old-bone",
+            "percent": 60
+          },
+          {
+            "item": "grave-belt",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "bonesetter",
+        "role": "Support",
+        "name": {
+          "fr": "Zombie rebouteux",
+          "en": "Bonesetter"
+        },
+        "look": "zombie-support",
+        "level": 9,
+        "hp": 48,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 55,
+        "spells": [
+          "stitch",
+          "claw"
+        ],
+        "loot": [
+          {
+            "item": "old-bone",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "zombie-overlord",
+        "role": "Boss",
+        "name": {
+          "fr": "Zombie colossal",
+          "en": "Zombie Overlord"
+        },
+        "look": "zombie-boss",
+        "level": 13,
+        "hp": 175,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 55,
+        "spells": [
+          "grave-smash",
+          "plague-wave"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Fire": 25,
+          "Water": 10,
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "old-bone",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "grave-belt",
             "percent": 25
           }
         ]

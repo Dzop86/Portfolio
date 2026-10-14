@@ -609,7 +609,8 @@ public partial class Main
             {
                 groups++;
                 int models = view.Groups.TryGetValue(g, out Node3D? node) ? node.GetChildren().OfType<Node3D>().Count(n => n.FindChild("AnimationPlayer", true, false) is not null) : 0;
-                if (models != GameData.Embedded.Groups[g].Monsters.Count || node!.Position != BoardView.ToWorld(at))
+                // Three at most on a cell; the label tells how many more.
+                if (models != Math.Min(3, GameData.Embedded.Groups[g].Monsters.Count) || node!.Position != BoardView.ToWorld(at))
                     problems.Add($"the group {g} is drawn with {models} monsters");
             }
             RemoveChild(view);

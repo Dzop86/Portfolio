@@ -241,6 +241,7 @@ public sealed class Texts
         ["menu.Quit"] = "Quitter",
         ["menu.key"] = "Échap",
         ["group.member"] = "{0} (niv. {1})",
+        ["group.horde"] = "{0} ×{1} (niv. {2} à {3})",
         ["map.button"] = "Carte",
         ["map.title"] = "Carte du monde",
         ["map.level"] = "niveau {0}",
@@ -502,6 +503,7 @@ public sealed class Texts
         ["menu.Quit"] = "Quit",
         ["menu.key"] = "Esc",
         ["group.member"] = "{0} (lvl {1})",
+        ["group.horde"] = "{0} ×{1} (lvl {2} to {3})",
         ["map.button"] = "Map",
         ["map.title"] = "World map",
         ["map.level"] = "level {0}",
@@ -682,12 +684,18 @@ public sealed class Texts
         return map.Zone is null ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
     }
 
-    /// <summary>A group of monsters as its label says it: each one with its level, "Laie (niv. 2), Sanglier chargeur (niv. 2)".</summary>
+    /// <summary>
+    /// A group of monsters as its label says it: up to three, each one with its level, "Laie (niv. 2),
+    /// Sanglier chargeur (niv. 2)"; more, their family, how many and their levels, "Sangliers ×7 (niv. 1 à 5)".
+    /// </summary>
     public string GroupLabel(MonsterGroup group, GameData data)
     {
         ArgumentNullException.ThrowIfNull(group);
         ArgumentNullException.ThrowIfNull(data);
-        return string.Join(", ", group.Monsters.Select(id => this["group.member", data.Monsters[id].Name.In(Lang), data.Monsters[id].Level]));
+        MonsterSpec[] members = [.. group.Monsters.Select(id => data.Monsters[id])];
+        return members.Length <= 3
+            ? string.Join(", ", members.Select(m => this["group.member", m.Name.In(Lang), m.Level]))
+            : this["group.horde", data.Families[group.Family].Name.In(Lang), members.Length, members.Min(m => m.Level), members.Max(m => m.Level)];
     }
 
     /// <summary>A character's level and experience: "Niveau 3 · 340 / 600 XP" (the total for the next level).</summary>

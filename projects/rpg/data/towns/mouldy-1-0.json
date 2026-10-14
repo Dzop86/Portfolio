@@ -1,0 +1,170 @@
+{
+  "id": "mouldy-1-0",
+  "zone": "mouldy",
+  "name": {
+    "fr": "Bois moisi",
+    "en": "Mouldy Woods"
+  },
+  "level": 10,
+  "mapAt": {
+    "x": -9,
+    "y": -2
+  },
+  "rows": [
+    "TTTTTTTTTTTTTTTT",
+    "T.M.......TMMM.T",
+    "T.MM..MT........",
+    "T.....M.........",
+    "T...............",
+    "T..T..T....TR..T",
+    "..........~T.TTT",
+    "..........~RTTTT",
+    "..........T~T.TT",
+    "T.MTT~~........T",
+    "T....~.........T",
+    "TTTTTTT...TTTTTT"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 2
+      },
+      "to": "mouldy-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 2
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 3
+      },
+      "to": "mouldy-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 3
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 4
+      },
+      "to": "mouldy-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 4
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "mouldy-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 7
+      },
+      "to": "mouldy-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 7
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 8
+      },
+      "to": "mouldy-0-0",
+      "arrival": {
+        "x": 14,
+        "y": 8
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "mouldy-1-1",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "mouldy-1-1",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 11
+      },
+      "to": "mouldy-1-1",
+      "arrival": {
+        "x": 9,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    }
+  ]
+}

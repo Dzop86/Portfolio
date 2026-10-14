@@ -149,6 +149,19 @@ beasts = [
  S("pack-guard","Garde de la meute","Pack Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",8,2)],ranks=False,cd=1),
  S("savage-bite","Morsure sauvage","Savage Bite",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("pack-howl","Hurlement de meute","Pack Howl",4,1,3,6,9,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
+ # The mouldy woods (sprint 74): mushrooms and zombies, made for heroes of about level 10.
+ S("cap-slam","Coup de chapeau","Cap Slam",3,1,1,8,12,2,"Earth",1,ranks=False),
+ S("spore-burst","Jet de spores","Spore Burst",3,2,5,7,11,2,"Water",1,ranks=False),
+ S("hard-cap","Chapeau dur","Hard Cap",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("mycelium-mend","Soin du mycélium","Mycelium Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",10,14)],ranks=False,cd=1),
+ S("rot-spores","Spores pourries","Rot Spores",4,1,3,10,14,1,"Water",1,area=("Circle",1),ranks=False,cd=1),
+ S("elder-slam","Coup ancestral","Elder Slam",4,1,1,15,20,1,"Earth",1,ranks=False),
+ S("claw","Griffure","Claw",3,1,1,8,12,2,"Fire",1,ranks=False),
+ S("bile-spit","Crachat de bile","Bile Spit",3,2,5,7,11,2,"Water",1,ranks=False),
+ S("rotting-hide","Peau pourrie","Rotting Hide",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("stitch","Recoudre","Stitch",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",10,14)],ranks=False,cd=1),
+ S("grave-smash","Coup de tombe","Grave Smash",4,1,1,15,20,1,"Fire",1,ranks=False),
+ S("plague-wave","Vague de peste","Plague Wave",4,1,2,10,14,1,"Fire",1,area=("Cross",1),ranks=False,cd=1),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.

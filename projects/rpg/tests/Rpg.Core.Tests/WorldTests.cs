@@ -34,7 +34,6 @@ public class WorldTests
     {
         Town village = Real.Towns["clairval"];
         Town[] woods = [.. Real.Towns.Values.Where(t => t.Zone == "woods")];
-        Assert.Equal(26, Real.Towns.Count);
         Assert.Equal(25, woods.Length);
         Assert.Equal((null, new Cell(0, 0)), (village.Zone, village.MapAt));
         Assert.All(woods, t => Assert.Equal((16, 12, 3, "Bois de Clairval", "Clairval Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
@@ -53,6 +52,25 @@ public class WorldTests
         Assert.All(village.Links!, l => Assert.Equal("woods-4-2", l.To));
         Assert.Equal(new Cell(-1, 0), Real.Towns["woods-4-2"].MapAt);
         Assert.All(Real.Towns.Values.SelectMany(t => t.Links ?? []), l => Assert.False(string.IsNullOrWhiteSpace(l.Name.Fr) || string.IsNullOrWhiteSpace(l.Name.En)));
+    }
+
+    [Fact]
+    public void TheMouldyWoods_AreFiveByFiveMaps_WestOfTheWoods_OpenOnThemByTwoMaps()
+    {
+        Town[] mouldy = [.. Real.Towns.Values.Where(t => t.Zone == "mouldy")];
+        Assert.Equal(25, mouldy.Length);
+        Assert.All(mouldy, t => Assert.Equal((16, 12, 10, "Bois moisi", "Mouldy Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.Equal([.. Enumerable.Range(-10, 5).SelectMany(x => Enumerable.Range(-2, 5).Select(y => new Cell(x, y)))],
+            mouldy.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
+        // Its giant mushrooms, and the woods' ways to it, three cells each, both ways.
+        Assert.Contains(mouldy, t => t.Rows.Any(r => r.Contains('M')));
+        foreach (int row in new[] { 1, 3 })
+        {
+            Assert.Equal(3, Real.Towns[$"woods-0-{row}"].Links!.Count(l => l.To == $"mouldy-4-{row}"));
+            Assert.Equal(3, Real.Towns[$"mouldy-4-{row}"].Links!.Count(l => l.To == $"woods-0-{row}"));
+        }
+        // Nowhere else.
+        Assert.Equal(6, Real.Towns.Values.Where(t => t.Zone == "woods").Sum(t => t.Links!.Count(l => l.To.StartsWith("mouldy", StringComparison.Ordinal))));
     }
 
     // Two maps side by side, three cells wide: a to the west of b.

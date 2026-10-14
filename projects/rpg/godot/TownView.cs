@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 public partial class TownView : Node3D
 {
     private const string Kit = "res://assets/kenney/town/";
-    private static readonly Color[] Grass = [new("37602a"), new("406c31")];
+    private const string Nature = "res://assets/kenney/nature/";
 
     private readonly List<MeshInstance3D> _pathMarks = [];
     private readonly List<(Label3D Label, LocalizedText Text)> _exitLabels = [];
@@ -36,7 +36,8 @@ public partial class TownView : Node3D
     {
         Controller = controller;
         Town town = controller.Town;
-        StandardMaterial3D[] grass = [.. Grass.Select(g => new StandardMaterial3D { AlbedoColor = g, Roughness = 1 })];
+        (string light, string dark) = ZoneStyle.Ground(town.Zone);
+        StandardMaterial3D[] grass = [.. new[] { light, dark }.Select(g => new StandardMaterial3D { AlbedoColor = new Color(g), Roughness = 1 })];
         foreach (Cell c in controller.Board.Cells())
         {
             char k = town[c];
@@ -131,6 +132,15 @@ public partial class TownView : Node3D
                 break;
             case 'C':
                 Place(Kit + "cart.glb", at, 30, 1);
+                break;
+            case 'M':
+                Place(Nature + "mushroom_tan.glb", at, (c.X * 53) % 360, 2.4f);
+                break;
+            case 'B':
+                Place(Nature + "plant_bushSmall.glb", at, (c.X * 41) % 360, 1.8f);
+                break;
+            case ',':
+                Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
                 break;
         }
     }
@@ -228,7 +238,7 @@ public partial class TownView : Node3D
     private readonly Dictionary<string, Label3D> _groupLabels = [];
     private readonly Dictionary<string, int> _groupWalks = [];
 
-    // Where each monster of a group of one, two or three stands on its cell.
+    // Where each monster of a group stands on its cell: three at most are drawn, the label says how many.
     private static readonly Vector3[][] GroupPlaces =
     [
         [Vector3.Zero],

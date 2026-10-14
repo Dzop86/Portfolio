@@ -5,8 +5,8 @@ namespace Rpg.Client;
 /// <summary>
 /// The world seen from the sky (sprint 71): every map laid in its place (<see cref="Town.MapAt"/>),
 /// edge to edge, as one big map, each cell a tile of <see cref="CellPixels"/> × <see cref="CellPixels"/>
-/// pixels drawn after what stands on it: grass in checks, roads, trees seen from above, water, rocks,
-/// roofs, the fountain. Computed without an engine, as RGBA bytes the client turns into a texture;
+/// pixels drawn after what stands on it: grass in checks of the zone's colour, roads, trees seen from
+/// above, water, rocks, roofs, the fountain, mushrooms, bushes, flowers. Computed without an engine, as RGBA bytes the client turns into a texture;
 /// where no map is, the dark of the interface.
 /// </summary>
 public sealed class WorldPicture
@@ -61,6 +61,7 @@ public sealed class WorldPicture
     public static readonly Rgb Roof = new(0x78, 0xd9, 0xd6), RoofEdge = new(0x3f, 0x95, 0x95);
     public static readonly Rgb Stone = new(0xd8, 0xd8, 0xd8);
     public static readonly Rgb Wood = new(0x9a, 0x67, 0x3c), Light = new(0xff, 0xd8, 0x5a);
+    public static readonly Rgb Cap = new(0xc8, 0x4b, 0x3a), Spots = new(0xf4, 0xee, 0xe0), Bush = new(0x3f, 0x8f, 0x45), Petal = new(0xe8, 0x5d, 0x75);
 
     /// <summary>The colour of a pixel of the picture.</summary>
     public Rgb At(int x, int y)
@@ -111,8 +112,9 @@ public sealed class WorldPicture
     {
         const int P = CellPixels;
         char k = map[c];
-        // Grass in checks, as the board is drawn, under everything that stands on grass.
-        Rgb ground = (c.X + c.Y) % 2 == 0 ? Grass : GrassDark;
+        // Grass in checks, as the board is drawn, in the zone's colour, under everything that stands on grass.
+        (Rgb light, Rgb dark) = ZoneStyle.Sky(map.Zone);
+        Rgb ground = (c.X + c.Y) % 2 == 0 ? light : dark;
         switch (k)
         {
             case '=':
@@ -161,6 +163,25 @@ public sealed class WorldPicture
             case 'C':
                 Fill(px, py, P, P, ground);
                 Fill(px + 1, py + 2, P - 2, P - 4, Wood);
+                break;
+            case 'M':
+                Fill(px, py, P, P, ground);
+                Disc(px + 4, py + 4, 3.2, Cap);
+                Fill(px + 2, py + 3, 1, 1, Spots);
+                Fill(px + 5, py + 2, 1, 1, Spots);
+                Fill(px + 4, py + 5, 1, 1, Spots);
+                break;
+            case 'B':
+                Fill(px, py, P, P, ground);
+                Fill(px + 1, py + 1, P - 2, P - 2, Bush);
+                Fill(px + 2, py + 2, 2, 2, TreeLight);
+                break;
+            case ',':
+                Fill(px, py, P, P, ground);
+                Fill(px + 1, py + 2, 1, 1, Light);
+                Fill(px + 5, py + 1, 1, 1, Petal);
+                Fill(px + 3, py + 5, 1, 1, Light);
+                Fill(px + 6, py + 6, 1, 1, Petal);
                 break;
             default:
                 Fill(px, py, P, P, ground);

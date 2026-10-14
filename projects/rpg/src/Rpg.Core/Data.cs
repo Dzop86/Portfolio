@@ -247,7 +247,7 @@ public sealed class GameData
         Monsters = Index(Families.Values.SelectMany(f => f.Monsters), m => m.Id, "monster");
         foreach (MonsterFamily f in Families.Values)
             Check(f);
-        Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values])), g => g.Id, "group");
+        Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values], [.. Towns.Values])), g => g.Id, "group");
         foreach (MonsterGroup g in Groups.Values)
         {
             Scenario fight = MonsterGroups.Scenario(g, Families[g.Family], Monsters);
@@ -494,7 +494,7 @@ public sealed class GameData
 
     /// <summary>
     /// A family: one monster of each role (D63), each with known spells and loot, a level and points
-    /// in bounds; a zone of the world, a battle map with room for a group of three, a boss map in the zone.
+    /// in bounds; a zone of the world, a battle map with room for the largest group, a boss map in the zone.
     /// </summary>
     private void Check(MonsterFamily f)
     {
@@ -511,8 +511,8 @@ public sealed class GameData
         Town[] zone = [.. Towns.Values.Where(t => t.Zone == f.Zone)];
         if (zone.Length == 0 || !zone.Any(t => t.Id == f.BossMap))
             throw new InvalidDataException($"{who}: unknown zone '{f.Zone}', or a boss map '{f.BossMap}' outside it.");
-        if (!Maps.ContainsKey(f.Battle) || Board(f.Battle).Starts[1].Count < 3 || Board(f.Battle).Starts[0].Count < 1)
-            throw new InvalidDataException($"{who}: the battle map '{f.Battle}' is unknown, or has no room for a hero and three monsters.");
+        if (!Maps.ContainsKey(f.Battle) || Board(f.Battle).Starts[1].Count < MonsterGroups.Largest || Board(f.Battle).Starts[0].Count < 1)
+            throw new InvalidDataException($"{who}: the battle map '{f.Battle}' is unknown, or has no room for a hero and {MonsterGroups.Largest} monsters.");
     }
 
     private void Check(Scenario s)

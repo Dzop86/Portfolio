@@ -62,27 +62,41 @@ public sealed record MonsterGroup(string Id, string Map, string Family, Cell Hom
 }
 
 /// <summary>
-/// Where the groups of monsters live (sprint 72): drawn once from each map's name, so that the game,
-/// the server and the tests see the same groups. Two groups on every map of a zone that has families
-/// (the boss's map: the boss with one of its family, and one more group), each of one family, one to
-/// three monsters (fewer near the village, see <see cref="Largest"/>), a support never alone nor
-/// twice; their homes on free cells reachable from the arrival, away
-/// from the ways, the exits and the arrival, and apart from one another.
+/// Where the groups of monsters live (sprints 72 to 74): drawn once from each map's name, so that the
+/// game, the server and the tests see the same groups. Two to four groups on every map of a zone that
+/// has families, each of one family and of one to ten monsters: one to three near the zone's way in,
+/// up to six a little farther, up to ten at the far end (<see cref="Depth"/>); the chief, on its map,
+/// with five to nine of its family. Groups of one to three are for a player alone; of six and more,
+/// for several (D63, Charles). A support is never alone, and one for three monsters at most. Their
+/// homes are free cells reachable from the arrival, away from the ways, the exits and the arrival,
+/// and apart from one another.
 /// </summary>
 public static class MonsterGroups
 {
-    public const int PerMap = 2;
+    public const int Fewest = 2, Most = 4;
+
+    /// <summary>The largest group; a battle map has room for that many monsters.</summary>
+    public const int Largest = 10;
 
     /// <summary>How far a group's home is from a way, an exit or the arrival, and from another group, at least.</summary>
     public const int Distance = 3;
 
-    /// <summary>The roles a group is drawn from, besides the boss.</summary>
+    /// <summary>The roles a group is drawn from, besides the chief.</summary>
     private static readonly MonsterRole[] Common = [MonsterRole.Melee, MonsterRole.Ranged, MonsterRole.Tank, MonsterRole.Support];
 
-    public static IReadOnlyList<MonsterGroup> For(Town map, IReadOnlyList<MonsterFamily> families)
+    // The sizes of groups, in tenths of a hundred, by depth: near the way in, farther, at the far end.
+    private static readonly int[][] Sizes =
+    [
+        [50, 35, 15],
+        [25, 30, 25, 10, 5, 5],
+        [15, 20, 20, 10, 10, 8, 6, 5, 3, 3],
+    ];
+
+    public static IReadOnlyList<MonsterGroup> For(Town map, IReadOnlyList<MonsterFamily> families, IReadOnlyCollection<Town> world)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(families);
+        ArgumentNullException.ThrowIfNull(world);
         MonsterFamily[] here = [.. families.Where(f => map.Zone is not null && f.Zone == map.Zone)];
         if (here.Length == 0)
             return [];
@@ -94,45 +108,60 @@ public static class MonsterGroups
             .OrderBy(c => c.Y).ThenBy(c => c.X)
             .ToList();
         var groups = new List<MonsterGroup>();
-        MonsterFamily? boss = here.FirstOrDefault(f => f.BossMap == map.Id);
-        for (int i = 0; i < PerMap && homes.Count > 0; i++)
+        MonsterFamily? chief = here.FirstOrDefault(f => f.BossMap == map.Id);
+        int depth = Depth(map, world), count = rng.Next(Fewest, Most);
+        for (int i = 0; i < count && homes.Count > 0; i++)
         {
             Cell home = homes[rng.Next(0, homes.Count - 1)];
             homes.RemoveAll(c => c.DistanceTo(home) < Distance);
-            MonsterFamily family = i == 0 && boss is not null ? boss : here[rng.Next(0, here.Length - 1)];
-            List<MonsterRole> roles = i == 0 && boss is not null ? [MonsterRole.Boss] : [];
-            int size = roles.Count == 1 ? 2 : Math.Min(Size(rng), Largest(map));
+            bool boss = i == 0 && chief is not null;
+            MonsterFamily family = boss ? chief! : here[rng.Next(0, here.Length - 1)];
+            List<MonsterRole> roles = boss ? [MonsterRole.Boss] : [];
+            int size = boss ? rng.Next(6, Largest) : Size(rng, depth);
             while (roles.Count < size)
-                roles.Add(Draw(rng, alone: size == 1, support: !roles.Contains(MonsterRole.Support)));
+                roles.Add(Draw(rng, alone: size == 1, support: roles.Count(r => r == MonsterRole.Support) < size / 3));
             groups.Add(new MonsterGroup($"{map.Id}.{i}", map.Id, family.Id, home, [.. roles.Select(r => family[r].Id)]));
         }
         return groups;
     }
 
     /// <summary>
-    /// The largest group of a map: one monster next to the village (at [0, 0]), up to two a little
-    /// farther, three beyond, so that the woods grow harder as one goes in.
+    /// How deep a map is in its zone: 0 next to the way in, 1 a little farther, 2 at the far end. The
+    /// way in: the maps of easier zones (a lower level) that open on this one (the village for the
+    /// woods, the woods for the others).
     /// </summary>
-    public static int Largest(Town map)
+    public static int Depth(Town map, IReadOnlyCollection<Town> world)
     {
         ArgumentNullException.ThrowIfNull(map);
-        return map.MapAt.DistanceTo(new Cell(0, 0)) switch
+        ArgumentNullException.ThrowIfNull(world);
+        HashSet<string> zone = [.. world.Where(t => t.ZoneId == map.ZoneId).Select(t => t.Id)];
+        Cell[] ways = [.. world.Where(t => t.ZoneId != map.ZoneId && t.Level < map.Level && (t.Links ?? []).Any(l => zone.Contains(l.To))).Select(t => t.MapAt)];
+        int distance = ways.Length == 0 ? 0 : ways.Min(w => w.DistanceTo(map.MapAt));
+        return distance switch
         {
-            <= 2 => 1,
-            <= 4 => 2,
-            _ => 3,
+            <= 2 => 0,
+            <= 4 => 1,
+            _ => 2,
         };
     }
 
-    /// <summary>One monster four times in ten, two four times, three twice.</summary>
-    private static int Size(Rng rng) => rng.Next(1, 10) switch
-    {
-        <= 4 => 1,
-        <= 8 => 2,
-        _ => 3,
-    };
+    /// <summary>The largest group of a map at that depth: 3, 6 or 10.</summary>
+    public static int LargestAt(int depth) => Sizes[depth].Length;
 
-    /// <summary>A role for one more monster: a support neither alone nor twice in a group.</summary>
+    private static int Size(Rng rng, int depth)
+    {
+        int roll = rng.Next(1, 100);
+        int[] weights = Sizes[depth];
+        for (int i = 0; i < weights.Length; i++)
+        {
+            roll -= weights[i];
+            if (roll <= 0)
+                return i + 1;
+        }
+        return weights.Length;
+    }
+
+    /// <summary>A role for one more monster: a support neither alone nor beyond the share allowed.</summary>
     private static MonsterRole Draw(Rng rng, bool alone, bool support) => Common[rng.Next(0, alone || !support ? 2 : Common.Length - 1)];
 
     /// <summary>A seed from a name, the same on every platform (FNV-1a, 64 bits).</summary>

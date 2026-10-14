@@ -35,9 +35,9 @@ public class WorldTests
             Assert.NotNull(s.Link);
             steps++;
         });
-        Assert.Equal(26, zones.Count);
+        Assert.Equal(GameData.Embedded.Towns.Count, zones.Count);
         Assert.Equal(GameData.Embedded.Towns.Keys.Order(StringComparer.Ordinal), zones.Order(StringComparer.Ordinal));
-        Assert.Equal(25, steps);
+        Assert.Equal(zones.Count - 1, steps);
     }
 
     [Fact]

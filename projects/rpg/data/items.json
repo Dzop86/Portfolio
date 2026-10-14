@@ -24,5 +24,11 @@
   { "id": "tusk-amulet", "name": { "fr": "Amulette de défenses", "en": "Tusk Amulet" }, "kind": "Equipment", "slot": "Amulet", "level": 3, "stats": { "earth": 6, "vitality": 4 } },
   { "id": "wolf-fang", "name": { "fr": "Croc de loup", "en": "Wolf Fang" }, "kind": "Resource" },
   { "id": "wolf-pelt", "name": { "fr": "Peau de loup", "en": "Wolf Pelt" }, "kind": "Resource" },
-  { "id": "wolf-cape", "name": { "fr": "Cape en peau de loup", "en": "Wolf Pelt Cape" }, "kind": "Equipment", "slot": "Cape", "level": 4, "stats": { "air": 6, "vitality": 5 } }
+  { "id": "wolf-cape", "name": { "fr": "Cape en peau de loup", "en": "Wolf Pelt Cape" }, "kind": "Equipment", "slot": "Cape", "level": 4, "stats": { "air": 6, "vitality": 5 } },
+  { "id": "spore-dust", "name": { "fr": "Poussière de spores", "en": "Spore Dust" }, "kind": "Resource" },
+  { "id": "mushroom-cap", "name": { "fr": "Chapeau de champignon", "en": "Mushroom Cap" }, "kind": "Resource" },
+  { "id": "cap-hat", "name": { "fr": "Chapeau-champignon", "en": "Toadstool Hat" }, "kind": "Equipment", "slot": "Hat", "level": 10, "stats": { "water": 10, "vitality": 8 } },
+  { "id": "rotten-cloth", "name": { "fr": "Tissu pourri", "en": "Rotten Cloth" }, "kind": "Resource" },
+  { "id": "old-bone", "name": { "fr": "Vieil os", "en": "Old Bone" }, "kind": "Resource" },
+  { "id": "grave-belt", "name": { "fr": "Ceinture de tombe", "en": "Grave Belt" }, "kind": "Equipment", "slot": "Belt", "level": 12, "stats": { "fire": 10, "vitality": 8 } }
 ]

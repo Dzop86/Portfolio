@@ -36,6 +36,21 @@ public class MonsterTests
         Assert.Single(Real.Groups.Values, g => g.Monsters.Contains("pack-leader"));
     }
 
+    [Theory]
+    [InlineData("mushroom", "mouldy-0-0")]
+    [InlineData("zombie", "mouldy-2-4")]
+    public void TheMouldyWoods_HaveTheirTwoFamilies_FiveOfAKindEach(string id, string chiefMap)
+    {
+        MonsterFamily f = Real.Families[id];
+        Assert.Equal(("mouldy", "mouldy-hollow", chiefMap), (f.Zone, f.Battle, f.BossMap));
+        Assert.Equal(Enum.GetValues<MonsterRole>(), f.Monsters.Select(m => m.Role).Order());
+        Assert.All(f.Monsters, m => Assert.Equal(id + "-" + m.Role.ToString().ToLowerInvariant(), m.Look));
+        // Made for heroes of about level 10: stronger than the woods'.
+        Assert.True(f.Monsters.Min(m => m.Level) > Real.Families["wolf"].Monsters.Max(m => m.Level));
+        Assert.Contains(f[MonsterRole.Support].Spells, s => Real.Spells[s].Effects?.Any(e => e is HealEffect) == true);
+        Assert.Equal(10, Real.Board("mouldy-hollow").Starts[1].Count);
+    }
+
     private static GameData WithBoars(params MonsterSpec[] monsters) => new(
         Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
         Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? f with { Monsters = monsters } : f)]);
@@ -57,11 +72,12 @@ public class MonsterTests
     }
 
     [Fact]
-    public void EveryMapOfTheWoods_HasTwoGroups_TheVillageNone_AlwaysTheSame()
+    public void EveryMapOfAZone_HasTwoToFourGroups_TheVillageNone_AlwaysTheSame()
     {
         Assert.Empty(Real.GroupsOn("clairval"));
-        Assert.All(Real.Towns.Values.Where(t => t.Zone == "woods"), t => Assert.Equal(MonsterGroups.PerMap, Real.GroupsOn(t.Id).Count));
-        Assert.Equal(50, Real.Groups.Count);
+        Assert.All(Real.Towns.Values.Where(t => t.Zone is not null), t => Assert.InRange(Real.GroupsOn(t.Id).Count, MonsterGroups.Fewest, MonsterGroups.Most));
+        // Every count happens.
+        Assert.Equal([2, 3, 4], Real.Towns.Values.Where(t => t.Zone is not null).Select(t => Real.GroupsOn(t.Id).Count).Distinct().Order());
         // Drawn from the maps' names alone: the same data gives the same groups, on every platform (FNV-1a).
         static IEnumerable<string> Seen(GameData d) => d.Groups.Values.Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}");
         Assert.Equal(Seen(Real), Seen(WithBoars([.. Real.Families["boar"].Monsters])));
@@ -82,31 +98,42 @@ public class MonsterTests
     }
 
     [Fact]
-    public void AGroup_IsOneFamily_SmallNearTheVillage_ASupportNeverAloneNorTwice_TheKingOnHisMapOnly()
+    public void AGroup_IsOneFamily_OfOneToTen_SmallNearTheWayIn_ASupportForThreeAtMost_TheChiefWithFiveToNine()
     {
+        IReadOnlyCollection<Town> world = [.. Real.Towns.Values];
         foreach (MonsterGroup g in Real.Groups.Values)
         {
             MonsterSpec[] members = [.. g.Monsters.Select(id => Real.Monsters[id])];
             Assert.All(members, m => Assert.Contains(m, Real.Families[g.Family].Monsters));
-            Assert.InRange(members.Length, 1, 3);
-            Assert.True(members.Count(m => m.Role == MonsterRole.Support) <= (members.Length == 1 ? 0 : 1), g.Id);
-            if (!g.Monsters.Contains("boar-king"))
-                Assert.True(members.Length <= MonsterGroups.Largest(Real.Towns[g.Map]), g.Id);
+            Assert.InRange(members.Length, 1, MonsterGroups.Largest);
+            Assert.True(members.Count(m => m.Role == MonsterRole.Support) <= members.Length / 3, g.Id);
+            bool chief = members[0].Role == MonsterRole.Boss;
+            Assert.Equal(chief ? 1 : 0, members.Count(m => m.Role == MonsterRole.Boss));
+            if (chief)
+                Assert.InRange(members.Length, 6, MonsterGroups.Largest);
+            else
+                Assert.True(members.Length <= MonsterGroups.LargestAt(MonsterGroups.Depth(Real.Towns[g.Map], world)), g.Id);
         }
-        MonsterGroup king = Assert.Single(Real.Groups.Values, g => g.Monsters.Contains("boar-king"));
-        Assert.Equal(("woods-0-2", 2, "boar-king"), (king.Map, king.Monsters.Count, king.Monsters[0]));
-        // Next to the village, one boar at a time.
-        Assert.All(Real.GroupsOn("woods-4-2"), g => Assert.Single(g.Monsters));
-        Assert.Contains(Real.Groups.Values, g => g.Monsters.Count == 3);
+        // Each chief once, on its map.
+        foreach (MonsterFamily f in Real.Families.Values)
+            Assert.Equal(f.BossMap, Assert.Single(Real.Groups.Values, g => g.Monsters.Contains(f[MonsterRole.Boss].Id)).Map);
+        // Next to the way in, small groups only: the woods from the village, the mouldy woods from the woods.
+        Assert.Equal((0, 0, 2), (MonsterGroups.Depth(Real.Towns["woods-4-2"], world), MonsterGroups.Depth(Real.Towns["mouldy-4-1"], world), MonsterGroups.Depth(Real.Towns["woods-0-0"], world)));
+        Assert.All(Real.GroupsOn("woods-4-2"), g => Assert.InRange(g.Monsters.Count, 1, 3));
+        // Hordes of six and more, for several players, at the far end.
+        Assert.Contains(Real.Groups.Values, g => g.Monsters.Count >= 6 && g.Monsters.All(m => Real.Monsters[m].Role != MonsterRole.Boss));
     }
 
     [Fact]
     public void FightingAGroup_IsAScenarioTheRulesBuild_PlayedReplayedAndRewarded()
     {
-        MonsterGroup g = Real.Groups.Values.First(g => g.Monsters.Count == 2);
+        MonsterGroup g = Real.Groups.Values.First(g => g.Monsters.Count == 2 && g.Map.StartsWith("woods", StringComparison.Ordinal));
         Scenario s = Real.FindScenario(g.Scenario)!;
         Assert.Equal(("group:" + g.Id, "woods-glade"), (s.Id, s.Map));
         Assert.Equal([0, 1, 1], s.Fighters.Select(f => f.Team));
+        // A horde of ten fits on its battle map.
+        MonsterGroup horde = Real.Groups.Values.MaxBy(g => g.Monsters.Count)!;
+        Assert.Equal(horde.Monsters.Count, new Fight(Real, horde.Scenario, 1).Fighters.Count(f => f.Team == 1));
         Assert.Equal(g.Monsters.Select(id => Real.Monsters[id].Name), s.Fighters.Skip(1).Select(f => f.Name));
         Assert.Null(Real.FindScenario("group:nowhere.0"));
         Assert.Same(Real.Scenarios["training"], Real.FindScenario("training"));

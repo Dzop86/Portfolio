@@ -1,0 +1,125 @@
+{
+  "id": "mouldy-4-0",
+  "zone": "mouldy",
+  "name": {
+    "fr": "Bois moisi",
+    "en": "Mouldy Woods"
+  },
+  "level": 10,
+  "mapAt": {
+    "x": -6,
+    "y": -2
+  },
+  "rows": [
+    "TTTTTTTTTTTTTTTT",
+    "T..T..T.T.T.T..T",
+    "T.T..T~TT.TTT..T",
+    ".........T...T.T",
+    "............TT.T",
+    ".............T.T",
+    "T.TTMMM......MMT",
+    "T...MMM.......MT",
+    "T...TMM........T",
+    "T.MMT~M........T",
+    "T...TT.........T",
+    "TTTTTTT...TTTTTT"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 0,
+        "y": 3
+      },
+      "to": "mouldy-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 3
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "mouldy-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "mouldy-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 11
+      },
+      "to": "mouldy-4-1",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "mouldy-4-1",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 11
+      },
+      "to": "mouldy-4-1",
+      "arrival": {
+        "x": 9,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    }
+  ]
+}

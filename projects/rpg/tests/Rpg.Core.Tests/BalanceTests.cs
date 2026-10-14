@@ -89,25 +89,24 @@ public class BalanceTests
         Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real))[0];
 
     [Theory]
-    [InlineData("sentinel")]
-    [InlineData("guard")]
-    [InlineData("mage")]
-    public void TheWoods_AloneAreForBeginners_InGroupsForAFifthLevel_TheirChiefsForASeventhToNinth(string id)
+    [InlineData("woods", 3)]
+    [InlineData("mouldy", 10)]
+    public void AZone_GroupsOfOneToThree_AreForOnePlayerAtItsLevel_OfSixAndMore_ForSeveral(string zone, int level)
     {
-        // Measured on 30 fights per group, boars and wolves (sprints 72 and 73, T39, T40): every lone
-        // monster at level 1, 30 of 30; every group of two or three at level 5, 20 to 30, but for the
-        // sentinel against the grey wolf, the she-wolf and the great male (15); the boar king and the
-        // pack leader with their escort at level 5, 0 to 14, at level 9, 26 to 30.
-        foreach (MonsterGroup lone in Real.Groups.Values.Where(g => g.Monsters.Count == 1))
-            Assert.InRange(Wins(lone.Id, id, 1, 30), 27, 30);
-        MonsterGroup[] chiefs = [.. Real.Groups.Values.Where(g => g.Monsters.Any(m => Real.Monsters[m].Role == MonsterRole.Boss))];
-        MonsterGroup[] groups = [.. Real.Groups.Values.Where(g => g.Monsters.Count > 1).Except(chiefs)];
-        Assert.InRange(groups.Count(g => Wins(g.Id, id, 5, 30) < 20), 0, 1);
-        Assert.Equal(2, chiefs.Length);
-        foreach (MonsterGroup chief in chiefs)
+        // Charles's rule (D63): a player alone beats groups of one to three easily, at the zone's level;
+        // groups of six to ten are for several players, and a player alone often loses there. Measured on
+        // 30 fights per group and class (sprints 72 to 74, T41): the woods at level 3, 98 to 100 % on
+        // average, three cases under 80 % (17 to 22 of 30); the mouldy woods at level 10, 98 to 100 %,
+        // four cases (16 to 22 of 30); the hordes and the chiefs, 0 to 2 %.
+        MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == zone)];
+        foreach (string id in new[] { "sentinel", "guard", "mage" })
         {
-            Assert.InRange(Wins(chief.Id, id, 5, 30), 0, 18);
-            Assert.InRange(Wins(chief.Id, id, 9, 30), 24, 30);
+            int[] small = [.. here.Where(g => g.Monsters.Count <= 3).AsParallel().Select(g => Wins(g.Id, id, level, 30))];
+            Assert.True(small.Average() >= 27, $"{id}: {small.Average():0.0} of 30 against the small groups of {zone}");
+            Assert.InRange(small.Count(w => w < 18), 0, 2);
+            int[] large = [.. here.Where(g => g.Monsters.Count >= 6).AsParallel().Select(g => Wins(g.Id, id, level, 10))];
+            Assert.NotEmpty(large);
+            Assert.True(large.Average() <= 3, $"{id}: {large.Average():0.0} of 10 against the hordes of {zone}");
         }
     }
 }

@@ -15,9 +15,9 @@
     "T..............T",
     "T.........T..T.T",
     "T.T.T.....TTTT.T",
-    "T.TTTR..........",
-    "TT.TTT..........",
-    "T.T..TT.........",
+    "................",
+    "................",
+    "................",
     "T..TTR......TT.T",
     "TTTTTT......T..T",
     "T.TT.........T.T",
@@ -74,6 +74,51 @@
       "name": {
         "fr": "Est",
         "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "mouldy-4-3",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest : Bois moisi",
+        "en": "West: Mouldy Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "mouldy-4-3",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest : Bois moisi",
+        "en": "West: Mouldy Woods"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "mouldy-4-3",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest : Bois moisi",
+        "en": "West: Mouldy Woods"
       }
     },
     {

@@ -8,13 +8,17 @@ namespace Rpg.Desktop;
 /// ears and four legs, its size, colours and details telling its role (a crested charger, a striped
 /// piglet, a big grey loner, a tuskless sow, a crowned king); a wolf's lean body, long muzzle, pointed
 /// ears and raised tail (sprint 73: a grey wolf, a pale howler with a dark mask, a great male with a
-/// ruff, a fawn she-wolf, a black leader with a scar). Each has an "idle" and a "walk"
+/// ruff, a fawn she-wolf, a black leader with a scar); a mushroom's stem and cap on two feet, a zombie's
+/// green body in rags, arms held out (sprint 74). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z.
 /// </summary>
 public static class Creatures
 {
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
-    public static bool Knows(string look) => look.StartsWith("boar-", StringComparison.Ordinal) || look.StartsWith("wolf-", StringComparison.Ordinal);
+    public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
+
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie"];
+    private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
     {
@@ -28,6 +32,16 @@ public static class Creatures
         "wolf-tank" => Wolf(1.3f, new Color("5a4636"), ruff: true),
         "wolf-support" => Wolf(0.95f, new Color("b08a62")),
         "wolf-boss" => Wolf(1.45f, new Color("2c2c30"), ruff: true, scar: true),
+        "mushroom-melee" => Mushroom(1.0f, new Color("c0392b"), spots: true, fists: true),
+        "mushroom-ranged" => Mushroom(0.85f, new Color("b88a55"), puff: true),
+        "mushroom-tank" => Mushroom(1.3f, new Color("7a6a58"), spots: true),
+        "mushroom-support" => Mushroom(0.95f, new Color("c9a46a"), morel: true),
+        "mushroom-boss" => Mushroom(1.5f, new Color("6c3483"), spots: true, fists: true, crown: true),
+        "zombie-melee" => Zombie(1.0f, new Color("7fa86b"), new Color("5d4a3a")),
+        "zombie-ranged" => Zombie(0.9f, new Color("9bb87a"), new Color("6e7f4f"), drool: true),
+        "zombie-tank" => Zombie(1.3f, new Color("6f9a5c"), new Color("4a3f35"), bloated: true),
+        "zombie-support" => Zombie(1.0f, new Color("8fae78"), new Color("e8e4d8"), stitches: true),
+        "zombie-boss" => Zombie(1.5f, new Color("587a4a"), new Color("2e2a2a"), bloated: true, crown: true),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
 
@@ -74,7 +88,7 @@ public static class Creatures
             model.AddChild(leg);
             Block(leg, new Vector3(0.11f, 0.24f, 0.11f), new Vector3(0, -0.12f, 0), dark);
         }
-        root.AddChild(Animations());
+        root.AddChild(Animations(FourLegs));
         return root;
     }
 
@@ -107,8 +121,96 @@ public static class Creatures
             model.AddChild(leg);
             Block(leg, new Vector3(0.08f, 0.32f, 0.08f), new Vector3(0, -0.16f, 0), dark);
         }
-        root.AddChild(Animations());
+        root.AddChild(Animations(FourLegs));
         return root;
+    }
+
+    private static Node3D Mushroom(float size, Color cap, bool spots = false, bool fists = false, bool puff = false, bool morel = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Mushroom" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color stem = new("efe6d2"), white = new("fbf8f0");
+        Block(body, new Vector3(0.26f, 0.38f, 0.24f), new Vector3(0, 0.36f, 0), stem);
+        Block(body, new Vector3(0.05f, 0.06f, 0.02f), new Vector3(-0.06f, 0.44f, 0.125f), Colors.Black);
+        Block(body, new Vector3(0.05f, 0.06f, 0.02f), new Vector3(0.06f, 0.44f, 0.125f), Colors.Black);
+        if (puff)
+            Block(body, new Vector3(0.46f, 0.36f, 0.46f), new Vector3(0, 0.70f, 0), cap);
+        else if (morel)
+        {
+            Block(body, new Vector3(0.34f, 0.30f, 0.34f), new Vector3(0, 0.68f, 0), cap);
+            Block(body, new Vector3(0.22f, 0.20f, 0.22f), new Vector3(0, 0.90f, 0), cap.Darkened(0.2f));
+        }
+        else
+        {
+            Block(body, new Vector3(0.62f, 0.16f, 0.62f), new Vector3(0, 0.62f, 0), cap);
+            Block(body, new Vector3(0.44f, 0.10f, 0.44f), new Vector3(0, 0.74f, 0), cap);
+        }
+        if (spots)
+        {
+            foreach ((float x, float z) in new[] { (-0.18f, 0.12f), (0.16f, -0.14f), (0.05f, 0.2f), (-0.1f, -0.18f) })
+                Block(body, new Vector3(0.08f, 0.03f, 0.08f), new Vector3(x, 0.80f, z), white);
+        }
+        if (fists)
+        {
+            Block(body, new Vector3(0.10f, 0.10f, 0.10f), new Vector3(-0.2f, 0.34f, 0.06f), stem);
+            Block(body, new Vector3(0.10f, 0.10f, 0.10f), new Vector3(0.2f, 0.34f, 0.06f), stem);
+        }
+        if (crown)
+            Crown(body, 0.86f);
+        Legs(model, TwoLegs, 0.07f, 0.16f, stem.Darkened(0.25f));
+        root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static Node3D Zombie(float size, Color skin, Color rags, bool bloated = false, bool drool = false, bool stitches = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Zombie" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        float w = bloated ? 0.44f : 0.30f;
+        Block(body, new Vector3(w, 0.34f, bloated ? 0.34f : 0.20f), new Vector3(0, 0.56f, 0), rags);
+        Block(body, new Vector3(0.26f, 0.26f, 0.24f), new Vector3(0, 0.86f, 0.02f), skin);
+        Block(body, new Vector3(0.05f, 0.04f, 0.02f), new Vector3(-0.06f, 0.88f, 0.145f), new Color("e74c3c"));
+        Block(body, new Vector3(0.05f, 0.04f, 0.02f), new Vector3(0.06f, 0.88f, 0.145f), new Color("e74c3c"));
+        // Arms held out in front, as zombies do.
+        Block(body, new Vector3(0.08f, 0.08f, 0.30f), new Vector3(-(w / 2 + 0.04f), 0.66f, 0.16f), skin);
+        Block(body, new Vector3(0.08f, 0.08f, 0.30f), new Vector3(w / 2 + 0.04f, 0.66f, 0.16f), skin);
+        if (drool)
+            Block(body, new Vector3(0.04f, 0.10f, 0.02f), new Vector3(0.03f, 0.74f, 0.145f), new Color("c5e17a"));
+        if (stitches)
+        {
+            foreach (float y in new[] { 0.48f, 0.56f, 0.64f })
+                Block(body, new Vector3(0.18f, 0.02f, 0.01f), new Vector3(0, y, 0.105f), new Color("3d2b1f"));
+        }
+        if (crown)
+            Crown(body, 1.02f);
+        Legs(model, TwoLegs, 0.09f, 0.39f, rags.Darkened(0.3f));
+        root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static void Crown(Node3D body, float y)
+    {
+        var gold = new Color("e8c547");
+        Block(body, new Vector3(0.28f, 0.06f, 0.28f), new Vector3(0, y, 0), gold);
+        foreach ((float x, float z) in new[] { (-0.11f, -0.11f), (0.11f, -0.11f), (-0.11f, 0.11f), (0.11f, 0.11f) })
+            Block(body, new Vector3(0.05f, 0.09f, 0.05f), new Vector3(x, y + 0.07f, z), gold);
+    }
+
+    /// <summary>Two legs hung from the hips, side by side, <paramref name="height"/> long.</summary>
+    private static void Legs(Node3D model, string[] names, float width, float height, Color colour)
+    {
+        foreach ((string name, float x) in new[] { (names[0], -0.08f), (names[1], 0.08f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, height, 0) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(width, height, width), new Vector3(0, -height / 2, 0), colour);
+        }
     }
 
     private static void Block(Node3D parent, Vector3 size, Vector3 at, Color colour) => parent.AddChild(new MeshInstance3D
@@ -118,8 +220,8 @@ public static class Creatures
         MaterialOverride = new StandardMaterial3D { AlbedoColor = colour, Roughness = 0.9f },
     });
 
-    /// <summary>"idle": the body breathes; "walk": the legs swing in pairs and the body bobs.</summary>
-    private static AnimationPlayer Animations()
+    /// <summary>"idle": the body breathes; "walk": the legs swing in turn and the body bobs.</summary>
+    private static AnimationPlayer Animations(string[] legs)
     {
         var idle = new Animation { Length = 1.2f, LoopMode = Animation.LoopModeEnum.Linear };
         int t = idle.AddTrack(Animation.TrackType.Value);
@@ -129,7 +231,8 @@ public static class Creatures
         idle.TrackInsertKey(t, 1.2, Vector3.Zero);
 
         var walk = new Animation { Length = 0.5f, LoopMode = Animation.LoopModeEnum.Linear };
-        foreach ((string leg, float sign) in new[] { ("LegFL", 1f), ("LegBR", 1f), ("LegFR", -1f), ("LegBL", -1f) })
+        // Diagonal pairs on four legs, one after the other on two.
+        foreach ((string leg, float sign) in legs.Select(l => (l, l is "LegFL" or "LegBR" or "LegL" ? 1f : -1f)))
         {
             int k = walk.AddTrack(Animation.TrackType.Value);
             walk.TrackSetPath(k, $"Model/{leg}:rotation");

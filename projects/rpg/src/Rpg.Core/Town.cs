@@ -29,9 +29,10 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
     public int Width => Rows.Count == 0 ? 0 : Rows[0].Length;
 
     /// <summary>
-    /// What a character of the rows stands for. Walkable: '.' grass, '=' road. Not walkable: 'H' a house
-    /// (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2, 'f'), 'T' a
-    /// tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water.
+    /// What a character of the rows stands for. Walkable: '.' grass, '=' road, ',' flowers. Not walkable:
+    /// 'H' a house (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2,
+    /// 'f'), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
+    /// giant mushroom, 'B' a bush or a hedge (sprint 74).
     /// </summary>
     public static readonly IReadOnlyDictionary<char, string> Decor = new Dictionary<char, string>
     {
@@ -47,13 +48,16 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
         ['L'] = "lantern",
         ['C'] = "cart",
         ['~'] = "water",
+        [','] = "flowers",
+        ['M'] = "mushroom",
+        ['B'] = "bush",
     };
 
     public char this[Cell c] => c.Y >= 0 && c.Y < Rows.Count && c.X >= 0 && c.X < Rows[c.Y].Length ? Rows[c.Y][c.X] : '~';
 
-    /// <summary>The town as a board: grass and road are floor, water a hole, the rest obstacles.</summary>
+    /// <summary>The town as a board: grass, road and flowers are floor, water a hole, the rest obstacles.</summary>
     public Board Board() =>
-        Core.Board.Parse([.. Rows.Select(r => string.Concat(r.Select(c => c switch { '.' or '=' => '.', '~' => '~', _ => '#' })))]);
+        Core.Board.Parse([.. Rows.Select(r => string.Concat(r.Select(c => c switch { '.' or '=' or ',' => '.', '~' => '~', _ => '#' })))]);
 
     public Npc? NpcAt(Cell c) => Npcs.FirstOrDefault(n => n.At == c);
 
