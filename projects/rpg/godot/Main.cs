@@ -678,7 +678,27 @@ public partial class Main : Node3D
         GD.Print(report);
         if (_options.Report is string path)
             File.WriteAllText(path, report + "\n");
-        GetTree().Quit(report.StartsWith("SELFTEST OK", StringComparison.Ordinal) ? 0 : 1);
+        _ = QuitCleanly(report.StartsWith("SELFTEST OK", StringComparison.Ordinal) ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Quits once the scene is emptied and the C# objects collected: quitting with many still alive
+    /// (images, materials, animations built by the self-tests) crashed Godot's .NET module on its way
+    /// out, now and then, after a self-test that had passed (CI, sprint 71).
+    /// </summary>
+    private async Task QuitCleanly(int code)
+    {
+        foreach (Node child in GetChildren())
+        {
+            RemoveChild(child);
+            child.QueueFree();
+        }
+        for (int i = 0; i < 3; i++)
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        GetTree().Quit(code);
     }
 
     /// <summary>

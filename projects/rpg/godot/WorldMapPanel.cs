@@ -59,7 +59,8 @@ public partial class WorldMapPanel : CanvasLayer
         _view = new Control { Position = new Vector2(20, 54), Size = ViewSize, ClipContents = true, MouseFilter = Control.MouseFilterEnum.Stop, MouseDefaultCursorShape = Control.CursorShape.Drag };
         area.AddChild(_view);
         _view.AddChild(new ColorRect { Size = ViewSize, Color = new Color(0.094f, 0.094f, 0.094f), MouseFilter = Control.MouseFilterEnum.Ignore });
-        Image image = Image.CreateFromData(_world.Width, _world.Height, false, Image.Format.Rgba8, _world.Pixels);
+        // The image is copied into the texture, then let go at once (see Main.QuitCleanly).
+        using Image image = Image.CreateFromData(_world.Width, _world.Height, false, Image.Format.Rgba8, _world.Pixels);
         _picture = new TextureRect
         {
             Texture = ImageTexture.CreateFromImage(image),
