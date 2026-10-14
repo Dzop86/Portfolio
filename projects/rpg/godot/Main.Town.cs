@@ -86,7 +86,7 @@ public partial class Main
         }
         _mapPanel = new WorldMapPanel();
         AddChild(_mapPanel);
-        _mapPanel.Build(GameData.Embedded, _zone, _talkPanel!.Texts);
+        _mapPanel.Build(GameData.Embedded, _zone, _town!.Position, _talkPanel!.Texts);
     }
 
     /// <summary>The side bar, the character's icons only when there is a character (built again when the hero changes).</summary>
@@ -589,10 +589,40 @@ public partial class Main
             _explore!.Turn(1);
         }
         ToggleMap();
-        if (_mapPanel!.Maps.Count != GameData.Embedded.Towns.Count || _mapPanel.Current != _zone)
-            problems.Add($"the map shows {_mapPanel.Maps.Count} maps, {_mapPanel.Current} as here");
+        CheckWorldMap(problems);
         ToggleMap();
         return $"World: {zones.Count} maps, camera and map checked.";
+    }
+
+    /// <summary>
+    /// The world map of sprint 71: the picture of the whole world, the player's ring on their cell, the
+    /// map under it named; zooming keeps the point under the pointer still, between the whole world and
+    /// four times; the picture cannot be dragged away.
+    /// </summary>
+    private void CheckWorldMap(List<string> problems)
+    {
+        WorldMapPanel map = _mapPanel!;
+        var world = new WorldPicture(GameData.Embedded);
+        (double px, double py) = world.PixelOf(_zone, _town!.Position);
+        Vector2 expected = map.PictureAt + new Vector2((float)px, (float)py) * map.Zoom;
+        if (map.PictureSize != new Vector2I(world.Width, world.Height) || map.Current != _zone || map.MarkerCentre.DistanceTo(expected) > 0.5f)
+            problems.Add($"the world map is {map.PictureSize}, marks {map.Current} at {map.MarkerCentre} (expected {expected})");
+        string here = _talkPanel!.Texts.MapTitle(_town.Town);
+        if (!map.HoverText.StartsWith(here, StringComparison.Ordinal) || map.HoverAt(map.MarkerCentre) != map.HoverText)
+            problems.Add($"the world map names \"{map.HoverText}\" under the player");
+        var pointer = new Vector2(300, 200);
+        Vector2 under = (pointer - map.PictureAt) / map.Zoom;
+        // Zooming in (zooming out may meet an edge of the world, and the picture is kept in the view).
+        map.ZoomAround(pointer, 1.25f);
+        if (((pointer - map.PictureAt) / map.Zoom).DistanceTo(under) > 0.5f)
+            problems.Add("zooming the world map moves the point under the pointer");
+        map.ZoomAround(pointer, 0.01f);
+        map.Drag(new Vector2(5000, 5000));
+        if (Math.Abs(map.Zoom - map.MinZoom) > 1e-4f || map.PictureAt.X < 0 || map.PictureAt.Y < 0)
+            problems.Add($"the world map zooms out to {map.Zoom} and is dragged to {map.PictureAt}");
+        map.ZoomAround(pointer, 100);
+        if (Math.Abs(map.Zoom - 4) > 1e-4f)
+            problems.Add($"the world map zooms in to {map.Zoom}");
     }
 
     /// <summary>

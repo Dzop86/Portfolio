@@ -33,6 +33,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 68 : le deck (composer dans l'écran des sorts, barre de combat 2 × 6, touches 1 à 6 et Ctrl+1 à 6).
 - [ ] Sprint 69 : le menu Échap (volumes, coupure, serveur, personnage, quitter), la barre d'icônes à droite (C, S, I, M), les sons et la musique du village, la marche libre en diagonale (vitesse de 4,2 cases par seconde : trop lente, trop rapide ?).
 - [ ] Sprint 70 : le monde en cartes (le bois en 5 × 5 cartes de la taille du village, ouvertures de trois cases, titre avec la place [x, y]) ; **à valider** : le village reste une seule carte et l'ancien Bois et la Lande disparaissent (D63) ; les cartes du bois, générées, sont-elles assez « bois » ?
+- [ ] Sprint 71 : la carte du monde vue du ciel (glisser, molette, anneau du joueur, nom de la carte survolée) : le rendu en pixels te va-t-il, ou préfères-tu une vue rendue en 3D (T38) ?
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
@@ -136,3 +137,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-14 | `godot/MenuPanel.cs` | (Claude) Le panneau du menu avait une hauteur fixe : un grand vide sous les choix quand seuls « Revenir au jeu » et « Quitter » sont proposés | Hauteur prise du contenu |
 | 2026-10-14 | fiche du portfolio | (Claude) Les captures montrent encore les boutons du haut (« Carte », « M : carte ») remplacés par la barre latérale | Laissé tel quel, choix de Charles : les images seront refaites plus tard, pour la promotion |
 | 2026-10-14 | `src/Rpg.Client/TownController.cs` (`TownTour.World`) | (Claude) Le tour du monde supposait un monde en arbre : revenu d'une carte voisine, la carte de départ gardait son passage en cours et refusait d'aller vers la suivante (vu avec les 25 cartes du bois) | Le joueur est remis sur le passage, libre, au retour (`Interrupt`) |
+| 2026-10-14 | `godot/Main.Town.cs` (auto-test de la carte) | (Claude) Le contrôle du zoom « autour du pointeur » échouait en zoom arrière près du bord du monde : l'image y est recadrée exprès pour ne pas sortir du cadre | Le point fixe se vérifie en zoom avant ; le zoom arrière vérifie la borne et le cadre |

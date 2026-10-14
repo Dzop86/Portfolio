@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois le monde d'en haut (rpg) : la carte du monde (M) assemble toutes les cartes vues du ciel en une seule grande image (terrain, routes, eau, arbres, maisons), avec défilement et zoom, la carte où je suis marquée, le nom des zones au survol ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je vois le monde d'en haut (rpg) : la carte du monde (M) assemble toutes les cartes vues du ciel en une seule grande image (terrain, routes, eau, arbres, maisons), avec défilement et zoom, la carte où je suis marquée, le nom des zones au survol ; xUnit, auto-test. | 3 | Fait |
+
+**Résultat :** la carte du monde vue du ciel : toutes les cartes à leur place, bord à bord, chaque case dessinée d'après ce qui s'y trouve (`WorldPicture`, testée sans moteur), qu'on fait glisser et zoomer autour du pointeur, le joueur marqué d'un anneau, la carte survolée nommée avec sa place et son niveau (T38).
 
 ## Rétro (Charles)
 - Ce qui a marché :
