@@ -39,7 +39,8 @@ public partial class PointsPanel : CanvasLayer
     public event Action<Points>? SavePressed;
     public event Action? ClosePressed;
 
-    public void Build(PointsEditor editor, Texts texts)
+    /// <summary>The screen with its two tabs; or, <paramref name="only"/> given, one window, the spells or the characteristics (sprint 69).</summary>
+    public void Build(PointsEditor editor, Texts texts, bool? only = null)
     {
         Editor = editor;
         Texts = texts;
@@ -73,6 +74,8 @@ public partial class PointsPanel : CanvasLayer
         header.AddChild(tabs);
         _statsTab = Tab(tabs, () => ShowTab(spells: false));
         _spellsTab = Tab(tabs, () => ShowTab(spells: true));
+        _statsTab.Visible = only != true;
+        _spellsTab.Visible = only != false;
 
         _statsPage = BuildStats();
         column.AddChild(_statsPage);
@@ -90,8 +93,11 @@ public partial class PointsPanel : CanvasLayer
         _close = new Button { CustomMinimumSize = new Vector2(150, 44) };
         _close.Pressed += () => ClosePressed?.Invoke();
         buttons.AddChild(_close);
-        ShowTab(spells: false);
+        ShowTab(spells: only ?? false);
     }
+
+    /// <summary>Which window this is when it is one alone: true the spells, false the characteristics, null both tabs.</summary>
+    public bool? Only => _statsTab.Visible == _spellsTab.Visible ? null : _spellsTab.Visible;
 
     private HBoxContainer BuildStats()
     {

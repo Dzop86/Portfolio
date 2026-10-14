@@ -1,0 +1,7 @@
+{
+ "characteristics": "lorc/muscle-up",
+ "spells": "delapouite/spell-book",
+ "inventory": "lorc/knapsack",
+ "map": "lorc/treasure-map",
+ "menu": "lorc/cog"
+}

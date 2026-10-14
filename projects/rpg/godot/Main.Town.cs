@@ -20,6 +20,7 @@ public partial class Main
     private TalkPanel? _talkPanel;
     private PointsPanel? _pointsPanel;
     private InventoryPanel? _inventoryPanel;
+    private SideBar? _bar;
     private bool _walking;
 
     private void ShowTown()
@@ -38,21 +39,21 @@ public partial class Main
         PlaceCamera();
         _talkPanel = new TalkPanel();
         AddChild(_talkPanel);
-        _talkPanel.Build(_town, new Texts(_options.Lang), _lobby?.SignedIn == true && _character is not null);
+        _talkPanel.Build(_town, new Texts(_options.Lang));
         _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
-        _talkPanel.PointsPressed += OpenPoints;
-        _talkPanel.MapPressed += ToggleMap;
-        _talkPanel.InventoryPressed += () => OpenInventory(_character?.Inventory ?? []);
         _talkPanel.Answered += Answer;
-        _talkPanel.LanguageChanged += () => _townView.SetLanguage(_talkPanel.Texts.Lang);
-        _talkPanel.CharactersPressed += () =>
+        _talkPanel.LanguageChanged += () =>
         {
-            _screen = Screen.Lobby;
-            GetTree().ReloadCurrentScene();
+            _townView.SetLanguage(_talkPanel.Texts.Lang);
+            _bar?.SetTexts(_talkPanel.Texts);
+            _menuPanel?.SetTexts(_talkPanel.Texts);
         };
+        ShowBar();
+        _townView.Footstep += () => _sound?.Step();
+        _sound?.PlayMusic();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "inventory" or "points" or "spells" or "zone" or "world")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "zone" or "world")
             _ = TownScreenshot();
     }
 
@@ -88,6 +89,58 @@ public partial class Main
         _mapPanel.Build(GameData.Embedded, _zone, _talkPanel!.Texts);
     }
 
+    /// <summary>The side bar, the character's icons only when there is a character (built again when the hero changes).</summary>
+    private void ShowBar()
+    {
+        _bar?.QueueFree();
+        _bar = new SideBar();
+        AddChild(_bar);
+        _bar.Build(_talkPanel!.Texts, _hero?.Class is not null);
+        _bar.WindowPressed += ToggleWindow;
+        _bar.MenuPressed += () => Escape(menuOnly: true);
+    }
+
+    /// <summary>A window's icon or key: opens it, or closes it when it is the open one (sprint 69).</summary>
+    private void ToggleWindow(GameWindow window)
+    {
+        if (window != GameWindow.Map && _hero?.Class is null)
+            return;
+        _windows.Toggle(window);
+        ShowWindows();
+    }
+
+    /// <summary>
+    /// The windows as <see cref="WindowState"/> says: the one open built (the characteristics and the
+    /// spells each alone), the others closed, its icon lit.
+    /// </summary>
+    private void ShowWindows()
+    {
+        GameWindow? open = _windows.Open;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null;
+        if (open != GameWindow.Map && _mapPanel is not null)
+            ToggleMap();
+        bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
+        if (_pointsPanel is not null && _pointsPanel.Only != spells)
+            ClosePoints();
+        if (open != GameWindow.Inventory && _inventoryPanel is not null)
+            CloseInventory();
+        switch (open)
+        {
+            case GameWindow.Map when _mapPanel is null:
+                ToggleMap();
+                break;
+            case GameWindow.Characteristics or GameWindow.Spells when _pointsPanel is null:
+                OpenPoints(spells);
+                break;
+            case GameWindow.Inventory when _inventoryPanel is null:
+                OpenInventory(_character?.Inventory ?? []);
+                break;
+        }
+        _bar?.Show(open);
+        if (before || open is not null)
+            _sound?.Play(open is null ? "close" : "open");
+    }
+
     /// <summary>Through a way: the next zone is built, the player on its arrival, the place saved there.</summary>
     private async Task TravelTo(ZoneLink link)
     {
@@ -102,7 +155,14 @@ public partial class Main
     {
         if (_town is null || _townView is null)
             return;
-        // The camera and the map answer even during a walk.
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+        {
+            Escape(menuOnly: false);
+            return;
+        }
+        if (_windows.MenuOpen)
+            return;
+        // The camera and the windows answer even during a walk.
         switch (@event)
         {
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
@@ -117,17 +177,15 @@ public partial class Main
             case InputEventKey { Pressed: true, Echo: false, Keycode: Key.E }:
                 _explore?.Turn(1);
                 return;
-            case InputEventKey { Pressed: true, Echo: false, Keycode: Key.M }:
-                ToggleMap();
+            case InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } key when WindowState.ForKey((char)key.Keycode) is GameWindow window:
+                ToggleWindow(window);
                 return;
         }
-        if (_walking || _pointsPanel is not null || _inventoryPanel is not null || _mapPanel is not null)
+        if (_windows.Open is not null)
             return;
+        // Free walking (sprint 69): no cells shown under the mouse, a new click turns the walk.
         switch (@event)
         {
-            case InputEventMouseMotion motion when BoardView.Pick(_camera, motion.Position) is Cell over:
-                _townView.ShowPath(_town.PathTo(over));
-                break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when BoardView.Pick(_camera, click.Position) is Cell cell:
                 _ = Walk(cell);
                 break;
@@ -139,12 +197,24 @@ public partial class Main
         }
     }
 
+    /// <summary>The player's walking pace, in cells a second.</summary>
+    private const double WalkSpeed = 4.2;
+
     private async Task Walk(Cell target)
     {
+        if (_walking)
+        {
+            // Mid-walk: the player stops where they are drawn, then walks on from there.
+            Cell here = _townView!.Standing;
+            _townView.Stop();
+            _town!.Interrupt(here);
+            _walking = false;
+        }
         if (_town!.Click(target) is not TownStep step)
             return;
         _walking = true;
-        await _townView!.Walk(step, 0.18);
+        if (!await _townView!.Walk(step, WalkSpeed))
+            return;
         _walking = false;
         _talkPanel!.Refresh();
         await SavePlace();
@@ -154,20 +224,32 @@ public partial class Main
             await TravelTo(link);
     }
 
-    /// <summary>The characteristics and spells screen, over the town.</summary>
-    private void OpenPoints()
+    /// <summary>The characteristics window, or the spells window, over the town; both tabs when <paramref name="spells"/> is null.</summary>
+    private void OpenPoints(bool? spells = null)
     {
         if (_pointsPanel is not null || _hero is null)
             return;
         _pointsPanel = new PointsPanel();
         AddChild(_pointsPanel);
-        _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded), _talkPanel!.Texts);
+        _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded), _talkPanel!.Texts, spells);
         _pointsPanel.SavePressed += p => _ = SavePoints(p);
         _pointsPanel.ClosePressed += () =>
         {
-            _pointsPanel.QueueFree();
-            _pointsPanel = null;
+            _windows.Close();
+            ShowWindows();
         };
+    }
+
+    private void ClosePoints()
+    {
+        _pointsPanel?.QueueFree();
+        _pointsPanel = null;
+    }
+
+    private void CloseInventory()
+    {
+        _inventoryPanel?.QueueFree();
+        _inventoryPanel = null;
     }
 
     /// <summary>The inventory and equipment screen, over the town.</summary>
@@ -181,8 +263,8 @@ public partial class Main
         _inventoryPanel.SavePressed += worn => _ = SaveEquipment(worn);
         _inventoryPanel.ClosePressed += () =>
         {
-            _inventoryPanel.QueueFree();
-            _inventoryPanel = null;
+            _windows.Close();
+            ShowWindows();
         };
     }
 
@@ -293,6 +375,7 @@ public partial class Main
         var problems = new List<string>();
         string lang = _options.Lang;
         int talks = 0;
+        await CheckFreeWalk(problems);
         int lines = TownTour.Run(_town!, step =>
         {
             if (!_townView!.Walk(step, 0).IsCompleted)
@@ -354,7 +437,7 @@ public partial class Main
             else
                 note += $", place {_town.Position} saved on the server";
         }
-        string world = CheckWorld(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;
@@ -369,6 +452,104 @@ public partial class Main
             return;
         }
         EnterFight(scenario);
+    }
+
+    /// <summary>
+    /// Free walking (sprint 69): a walk goes in straight lines of eight directions, shorter than on
+    /// four; a new click mid-walk stops the first where the player is drawn, on a free cell. The player
+    /// is then put back where they started, for the town tour.
+    /// </summary>
+    private async Task CheckFreeWalk(List<string> problems)
+    {
+        TownController town = _town!;
+        Cell start = town.Position;
+        Cell far = Enumerable.Range(0, town.Board.Width).SelectMany(x => Enumerable.Range(0, town.Board.Height).Select(y => new Cell(x, y)))
+            .Where(c => town.Town.IsFree(town.Board, c) && town.Town.NpcAt(c) is null && town.PathTo(c) is not null)
+            .MaxBy(c => Wander.Distance(start, c));
+        TownStep step = town.Click(far)!;
+        if (step.Waypoints.Count > step.Path.Count || step.Waypoints[^1] != far || Wander.Length(start, step.Waypoints) > Wander.Length(start, step.Path) + 1e-9)
+            problems.Add($"the walk to {far} is {step.Waypoints.Count} straight lines for {step.Path.Count} cells");
+        Task<bool> first = _townView!.Walk(step, WalkSpeed);
+        for (int i = 0; i < 6; i++)
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        Cell here = _townView.Standing;
+        _townView.Stop();
+        town.Interrupt(here);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!first.IsCompleted || first.Result || here == far || _townView.Player.Position.DistanceTo(BoardView.ToWorld(here)) > 0.71f)
+            problems.Add($"a walk cut short at {here} went on, or the player is drawn at {_townView.Player.Position}");
+        town.Interrupt(start);
+        _townView.Player.Position = BoardView.ToWorld(start);
+    }
+
+    /// <summary>
+    /// The side bar and the menu (sprint 69): each icon names its window and key; each key opens its
+    /// window alone and lit, and closes it; Escape closes the window, then opens the menu, whose
+    /// sliders set the buses and the file; every sound of the game is there.
+    /// </summary>
+    private string CheckBarAndMenu(List<string> problems)
+    {
+        Texts t = _talkPanel!.Texts;
+        bool character = _hero?.Class is not null;
+        var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
+        if (!_bar!.Tips.SequenceEqual(tips))
+            problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
+        int windows = 0;
+        foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
+        {
+            TownInput(new InputEventKey { Pressed = true, Keycode = (Key)key });
+            bool shown = window switch
+            {
+                GameWindow.Map => _mapPanel is not null && _pointsPanel is null && _inventoryPanel is null,
+                GameWindow.Characteristics => _pointsPanel?.Only == false && _mapPanel is null,
+                GameWindow.Spells => _pointsPanel?.Only == true && _mapPanel is null,
+                _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null,
+            };
+            if (!shown || !_bar.Lit(window))
+                problems.Add($"{key} does not open the {window} window alone");
+            windows++;
+        }
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
+        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _menuPanel is not null)
+            problems.Add("Escape does not close the window");
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
+        if (_mapPanel is not null)
+            problems.Add("M again does not close the map");
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
+        if (_menuPanel is null)
+            problems.Add("Escape does not open the menu");
+        else
+        {
+            int choices = _lobby?.SignedIn == true ? 4 : 2;
+            if (_menuPanel.ChoicesText.Count() != choices)
+                problems.Add($"the menu offers {string.Join(", ", _menuPanel.ChoicesText)}");
+            AudioSettings before = Sound.Settings;
+            _menuPanel.SetVolume("music", 40);
+            if (Sound.Settings.Music != 40 || Math.Abs(AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex(Sound.MusicBus)) - AudioSettings.Decibels(40)) > 0.01)
+                problems.Add("the music slider does not set the music bus");
+            _menuPanel.SetMuted(true);
+            if (AudioServer.GetBusVolumeDb(0) > -79)
+                problems.Add("the sound is not cut");
+            using (var file = Godot.FileAccess.Open("user://" + AudioSettings.FileName, Godot.FileAccess.ModeFlags.Read))
+            {
+                if (AudioSettings.Parse(file?.GetAsText()) != Sound.Settings)
+                    problems.Add("the settings file does not keep the sound");
+            }
+            Sound.Apply(before);
+            // Keys do nothing behind the menu.
+            TownInput(new InputEventKey { Pressed = true, Keycode = Key.I });
+            if (_inventoryPanel is not null || _mapPanel is not null)
+                problems.Add("a window opens behind the menu");
+            TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
+            if (_menuPanel is not null)
+                problems.Add("Escape does not close the menu");
+        }
+        string[] effects = ["step-1", "step-2", "step-3", "step-4", "hit", "cast", "open", "close", "click", "error", "victory", "defeat"];
+        string[] missing = [.. effects.Where(e => !ResourceLoader.Exists($"res://assets/kenney/sounds/{e}.ogg"))];
+        if (missing.Length > 0 || !ResourceLoader.Exists("res://assets/music/village.wav"))
+            problems.Add($"sounds missing: {string.Join(", ", missing)}");
+        return $"Bar: {windows} window(s), menu and sound checked.";
     }
 
     /// <summary>
@@ -424,7 +605,7 @@ public partial class Main
         {
             // A zone of the world seen from the explore camera; or the world map over it.
             if (_options.Shot == "world")
-                ToggleMap();
+                ToggleWindow(GameWindow.Map);
             _townView!.ShowPath(null);
             for (int i = 0; i < 30; i++)
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
@@ -440,12 +621,12 @@ public partial class Main
                 Stats: new Characteristics(Vitality: 20, Earth: 40, Fire: 0, Water: 9, Air: 10),
                 Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club", [Slot.Boots] = "poacher-boots", [Slot.Pet] = "kitten" });
             _talkPanel!.SetProgress(10, 5_000);
-            OpenPoints();
+            ShowBar();
+            ToggleWindow(_options.Shot == "spells" ? GameWindow.Spells : GameWindow.Characteristics);
             _pointsPanel!.Editor.Add(Characteristic.Earth, 5);
             if (_options.Shot == "spells")
             {
                 _pointsPanel.Editor.Raise(GameData.Embedded.Spells["shield-bash"]);
-                _pointsPanel.ShowTab(spells: true);
                 _pointsPanel.Select("shield-bash");
             }
             _pointsPanel.Refresh();
@@ -462,6 +643,8 @@ public partial class Main
             // A showcase for the project page: a tenth-level guard with what training fights leave.
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
             _talkPanel!.SetProgress(10, 5_000);
+            ShowBar();
+            _bar!.Show(GameWindow.Inventory);
             ItemCount[] bag = [new("copper-ring", 2), new("pebble-amulet", 1), new("poacher-hat", 1), new("poacher-cape", 1), new("poacher-boots", 1), new("dagger", 1), new("wooden-shield", 1), new("orc-club", 1), new("kitten", 1), new("bread", 3), new("healing-potion", 2), new("orc-fang", 5), new("leather", 4), new("garance-badge", 1)];
             OpenInventory(bag);
             foreach (string id in new[] { "copper-ring", "copper-ring", "pebble-amulet", "poacher-hat", "poacher-cape", "poacher-boots", "dagger", "wooden-shield", "kitten" })
@@ -480,8 +663,16 @@ public partial class Main
         if (_options.Shot == "banner")
         {
             _talkPanel!.Visible = false;
+            _bar!.Visible = false;
             _townView.HideExitLabels();
             _townView.HideNames();
+        }
+        else if (_options.Shot == "menu")
+        {
+            // The Escape menu over the village, a character's four icons on the side bar.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
+            ShowBar();
+            Escape(menuOnly: false);
         }
         else
         {

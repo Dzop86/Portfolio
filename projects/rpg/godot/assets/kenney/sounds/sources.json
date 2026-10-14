@@ -1,0 +1,14 @@
+{
+ "step-1": "RPG Audio/footstep00",
+ "step-2": "RPG Audio/footstep01",
+ "step-3": "RPG Audio/footstep02",
+ "step-4": "RPG Audio/footstep03",
+ "hit": "RPG Audio/chop",
+ "cast": "RPG Audio/drawKnife1",
+ "open": "RPG Audio/bookOpen",
+ "close": "RPG Audio/bookClose",
+ "click": "Interface Sounds/click_002",
+ "error": "Interface Sounds/error_004",
+ "victory": "Music Jingles/jingles_PIZZI00",
+ "defeat": "Music Jingles/jingles_PIZZI08"
+}

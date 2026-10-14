@@ -5,15 +5,15 @@ using Rpg.Core;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// The screen over the town: its name and the help line, the language button, the way back to the
-/// characters (signed in only), the character's level and experience and its characteristics and
-/// spells screen, a message line, and the talk: who speaks, what they say, the answers.
+/// The screen over the town: its name and the help line, the language button, the character's level
+/// and experience, a message line, and the talk: who speaks, what they say, the answers. The windows
+/// open from the side bar (<see cref="SideBar"/>), the way back to the characters from the menu.
 /// </summary>
 public partial class TalkPanel : CanvasLayer
 {
     private readonly List<Button> _answers = [];
     private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!;
-    private Button _lang = null!, _characters = null!, _points = null!, _inventory = null!, _map = null!;
+    private Button _lang = null!;
     private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
     private VBoxContainer _answerBox = null!;
@@ -22,13 +22,9 @@ public partial class TalkPanel : CanvasLayer
     public Texts Texts { get; private set; } = new("en");
 
     public event Action<int>? Answered;
-    public event Action? CharactersPressed;
-    public event Action? PointsPressed;
-    public event Action? InventoryPressed;
-    public event Action? MapPressed;
     public event Action? LanguageChanged;
 
-    public void Build(TownController town, Texts texts, bool signedIn)
+    public void Build(TownController town, Texts texts)
     {
         _town = town;
         Texts = texts;
@@ -43,18 +39,6 @@ public partial class TalkPanel : CanvasLayer
         var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -800, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 10);
         root.AddChild(buttons);
-        _map = new Button { CustomMinimumSize = new Vector2(100, 44) };
-        _map.Pressed += () => MapPressed?.Invoke();
-        buttons.AddChild(_map);
-        _inventory = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
-        _inventory.Pressed += () => InventoryPressed?.Invoke();
-        buttons.AddChild(_inventory);
-        _points = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = false };
-        _points.Pressed += () => PointsPressed?.Invoke();
-        buttons.AddChild(_points);
-        _characters = new Button { CustomMinimumSize = new Vector2(150, 44), Visible = signedIn };
-        _characters.Pressed += () => CharactersPressed?.Invoke();
-        buttons.AddChild(_characters);
         _lang = new Button { CustomMinimumSize = new Vector2(56, 44), TooltipText = "Français / English" };
         _lang.Pressed += () =>
         {
@@ -107,7 +91,7 @@ public partial class TalkPanel : CanvasLayer
 
     public void ShowMessage(string text) => _message.Text = text;
 
-    /// <summary>The character's level and experience, and its points screen; null: no character (a classless hero).</summary>
+    /// <summary>The character's level and experience; null: no character (a classless hero).</summary>
     public void SetProgress(int? level, long xp)
     {
         _progress = level is int l ? (l, xp) : null;
@@ -122,12 +106,6 @@ public partial class TalkPanel : CanvasLayer
         _title.Text = _town.Town.Name.In(Texts.Lang);
         _help.Text = Texts["town.help"];
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
-        _characters.Text = Texts["lobby.back"];
-        _points.Text = Texts["points.button"];
-        _points.Visible = _progress is not null;
-        _inventory.Text = Texts["inventory.button"];
-        _map.Text = Texts["map.button"];
-        _inventory.Visible = _progress is not null;
         _xp.Text = _progress is (int level, long xp) ? Texts.XpLine(level, xp) : "";
         _talk.Visible = _town.Talk is not null;
         if (_town.Talk is not Conversation talk)

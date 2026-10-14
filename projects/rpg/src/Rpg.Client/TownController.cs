@@ -29,12 +29,19 @@ public sealed class Conversation(Npc npc, Dialogue dialogue)
     }
 }
 
-/// <summary>What a click did in town: the cells to walk, then a talk, a way to a fight or to another zone, or neither.</summary>
-public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null);
+/// <summary>
+/// What a click did in town: the cells to walk, then a talk, a way to a fight or to another zone, or
+/// neither. <see cref="Waypoints"/> is the same walk in straight lines (sprint 69), what the client draws.
+/// </summary>
+public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? Exit, ZoneLink? Link = null)
+{
+    public IReadOnlyList<Cell> Waypoints { get; init; } = Path;
+}
 
 /// <summary>
-/// The player in a town, without an engine: a click walks the shortest way, a click on someone walks
-/// up to them and opens the talk, a click on an exit leads to its fight. The Godot client draws it;
+/// The player in a town, without an engine: a click walks the shortest way, in eight directions
+/// (<see cref="Wander"/>), a click on someone walks up to them and opens the talk, a click on an exit
+/// leads to its fight; a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
 public sealed class TownController
@@ -76,21 +83,22 @@ public sealed class TownController
             return null;
         if (Town.NpcAt(target) is not null)
         {
-            return target.Neighbours().Where(n => Town.IsFree(Board, n))
-                .Select(n => n == Position ? [] : Pathfinding.FindPath(Board, Position, n, c => Town.IsFree(Board, c)))
+            return Wander.Steps.Select(s => target + s).Where(n => Town.IsFree(Board, n))
+                .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, c => Town.IsFree(Board, c)))
                 .OfType<IReadOnlyList<Cell>>()
                 .OrderBy(p => p.Count)
                 .FirstOrDefault();
         }
         if (target == Position)
             return [];
-        return Town.IsFree(Board, target) ? Pathfinding.FindPath(Board, Position, target, c => Town.IsFree(Board, c)) : null;
+        return Town.IsFree(Board, target) ? Wander.FindPath(Board, Position, target, c => Town.IsFree(Board, c)) : null;
     }
 
     public TownStep? Click(Cell target)
     {
         if (PathTo(target) is not IReadOnlyList<Cell> path)
             return null;
+        Cell start = Position;
         if (path.Count > 0)
             Position = path[^1];
         Npc? npc = Town.NpcAt(target);
@@ -102,7 +110,24 @@ public sealed class TownController
             Fight = exit.Scenario;
         else if (link is not null && Position == target)
             Travel = link;
-        return new TownStep(path, npc, npc is null && Position == target ? exit : null, npc is null && Position == target ? link : null);
+        return new TownStep(path, npc, npc is null && Position == target ? exit : null, npc is null && Position == target ? link : null)
+        {
+            Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && Town.IsFree(Board, c)),
+        };
+    }
+
+    /// <summary>
+    /// A walk cut short at <paramref name="reached"/>, a free cell the player has got to: they stand
+    /// there, and what the walk was going to (a talk, a fight, another zone) does not happen.
+    /// </summary>
+    public void Interrupt(Cell reached)
+    {
+        if (!Board.Contains(reached) || !Town.IsFree(Board, reached))
+            throw new ArgumentException($"The player cannot stand on {reached}.", nameof(reached));
+        Position = reached;
+        Talk = null;
+        Fight = null;
+        Travel = null;
     }
 
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>

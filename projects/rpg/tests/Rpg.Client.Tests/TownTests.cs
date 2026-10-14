@@ -13,7 +13,9 @@ public class TownTests
         Cell to = new(1, 6);
         TownStep step = town.Click(to)!;
         Assert.Equal(to, town.Position);
-        Assert.Equal(town.Town.Spawn.DistanceTo(to), step.Path.Count);
+        Assert.Equal(Wander.FindPath(town.Board, town.Town.Spawn, to, c => town.Town.IsFree(town.Board, c))!.Count, step.Path.Count);
+        Assert.True(step.Path.Count < town.Town.Spawn.DistanceTo(to));
+        Assert.Equal(to, step.Waypoints[^1]);
         Assert.All(step.Path, c => Assert.True(town.Town.IsFree(town.Board, c)));
         // A house, the fountain, water: nothing happens, the player stays.
         Assert.Null(town.Click(new Cell(4, 0)));
@@ -29,7 +31,7 @@ public class TownTests
         Npc rose = town.Town.Npcs.Single(n => n.Id == "rose");
         TownStep step = town.Click(rose.At)!;
         Assert.Equal(rose, step.TalkTo);
-        Assert.Equal(1, town.Position.DistanceTo(rose.At));
+        Assert.True(Math.Abs(town.Position.X - rose.At.X) <= 1 && Math.Abs(town.Position.Y - rose.At.Y) <= 1);
         Assert.Equal("hello", town.Talk!.LineId);
         // While they talk, the town waits.
         Assert.Null(town.Click(town.Town.Spawn));
@@ -45,9 +47,9 @@ public class TownTests
     public void TheWalkUpToSomeone_EndsOnTheirNearestSide()
     {
         TownController town = Clairval();
-        // Aubin stands two steps from the arrival on two sides, four on the other two.
+        // Aubin stands two steps from the arrival on two sides: one step on the diagonal.
         TownStep step = town.Click(town.Town.Npcs.Single(n => n.Id == "aubin").At)!;
-        Assert.Equal(2, step.Path.Count);
+        Assert.Single(step.Path);
     }
 
     [Fact]
@@ -103,5 +105,20 @@ public class TownTests
             Assert.True(Texts.Fr.ContainsKey(key), key);
             Assert.True(Texts.En.ContainsKey(key), key);
         }
+    }
+
+    [Fact]
+    public void ANewClickDuringAWalk_StopsItWhereThePlayerIs_AndWhatItLedToIsForgotten()
+    {
+        TownController town = Clairval();
+        Npc rose = town.Town.Npcs.Single(n => n.Id == "rose");
+        TownStep step = town.Click(rose.At)!;
+        Assert.NotNull(town.Talk);
+        Cell halfway = step.Path.Count > 1 ? step.Path[0] : town.Town.Spawn;
+        town.Interrupt(halfway);
+        Assert.Equal(halfway, town.Position);
+        Assert.Null(town.Talk);
+        Assert.NotNull(town.Click(town.Town.Spawn));
+        Assert.Throws<ArgumentException>(() => town.Interrupt(rose.At));
     }
 }

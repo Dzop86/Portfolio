@@ -228,27 +228,53 @@ public partial class TownView : Node3D
 
     public int PathShown => _pathMarks.Count;
 
-    /// <summary>Walks the player along the path (at once when <paramref name="step"/> is 0), turning to whom they talk to.</summary>
-    public async Task Walk(TownStep move, double step)
+    // Each walk's number: a newer walk, or Stop, ends the one going on.
+    private int _walk;
+
+    /// <summary>A footstep sounds every this many cells walked.</summary>
+    public const double StepLength = 0.6;
+
+    /// <summary>Called at each footstep of a walk (the client plays the sound).</summary>
+    public event Action? Footstep;
+
+    /// <summary>
+    /// Walks the player along the walk's straight lines (sprint 69) at <paramref name="speed"/> cells a
+    /// second, at once when it is 0, turning to whom they talk to. True when the walk got to its end;
+    /// false when a newer walk or <see cref="Stop"/> cut it short, the player left where they were.
+    /// </summary>
+    public async Task<bool> Walk(TownStep move, double speed)
     {
+        int me = ++_walk;
         ShowPath(null);
-        if (move.Path.Count > 0)
+        if (move.Waypoints.Count > 0)
         {
             _anim?.Play("walk");
-            foreach (Cell c in move.Path)
+            double walked = 0;
+            foreach (Cell c in move.Waypoints)
             {
                 Vector3 to = BoardView.ToWorld(c);
                 Face(Player, to - Player.Position);
-                if (step <= 0)
+                if (speed <= 0)
                 {
                     Player.Position = to;
                     ShowNamesNear(c);
                     continue;
                 }
-                Tween tween = CreateTween();
-                tween.TweenProperty(Player, "position", to, step);
-                ShowNamesNear(c);
-                await ToSignal(tween, Tween.SignalName.Finished);
+                while (Player.Position != to)
+                {
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    if (me != _walk)
+                        return false;
+                    float stride = (float)(speed * GetProcessDeltaTime());
+                    Player.Position = Player.Position.MoveToward(to, stride);
+                    ShowNamesNear(Standing);
+                    walked += stride;
+                    if (walked >= StepLength)
+                    {
+                        walked -= StepLength;
+                        Footstep?.Invoke();
+                    }
+                }
             }
             _anim?.Play("idle");
         }
@@ -257,7 +283,18 @@ public partial class TownView : Node3D
             Face(Player, BoardView.ToWorld(npc.At) - Player.Position);
             Face(People[npc.Id], Player.Position - People[npc.Id].Position);
         }
+        return true;
     }
+
+    /// <summary>Ends the walk going on where the player is; they stand still.</summary>
+    public void Stop()
+    {
+        _walk++;
+        _anim?.Play("idle");
+    }
+
+    /// <summary>The cell under the player as drawn, mid-walk too.</summary>
+    public Cell Standing => new(Mathf.RoundToInt(Player.Position.X), Mathf.RoundToInt(Player.Position.Z));
 
     /// <summary>Turns a person's model (their first child) towards a direction; models look along +z.</summary>
     private static void Face(Node3D person, Vector3 direction)

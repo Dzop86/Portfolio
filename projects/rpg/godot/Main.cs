@@ -49,6 +49,9 @@ public partial class Main : Node3D
     private bool _busy;
     private LobbyView? _lobbyView;
     private string? _selfTestNote;
+    private Sound? _sound;
+    private MenuPanel? _menuPanel;
+    private WindowState _windows = new();
 
     public override void _Ready()
     {
@@ -70,7 +73,7 @@ public partial class Main : Node3D
             // The pictures of the project page: a tenth-level sentinel and its deck, icons and colours shown.
             StartFight(new Hero("Aubépine", "female-b", "sentinel", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
         }
-        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "zone" or "world")
+        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "zone" or "world")
         {
             // The pictures of the world: in the woods, a few steps from the way north.
             if (_options.Shot is "zone" or "world")
@@ -101,6 +104,10 @@ public partial class Main : Node3D
         _mapPanel = null;
         _pointsPanel = null;
         _inventoryPanel = null;
+        _menuPanel = null;
+        _bar = null;
+        // A new screen opens with no window and no menu.
+        _windows = new WindowState();
         AddEnvironment();
     }
 
@@ -187,6 +194,14 @@ public partial class Main : Node3D
         }
         if (_lobbyView is not null || _controller is null)
             return;
+        // Escape cancels the spell chosen; otherwise, on any turn, it opens or closes the menu.
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && (_windows.MenuOpen || _controller.SelectedSpell is null || _busy || !_controller.IsPlayerTurn))
+        {
+            Escape(menuOnly: false);
+            return;
+        }
+        if (_windows.MenuOpen)
+            return;
         // The hover panel works on every turn, the AI's included.
         if (@event is InputEventMouseMotion motion)
         {
@@ -221,8 +236,66 @@ public partial class Main : Node3D
         }
     }
 
+    /// <summary>
+    /// Escape (sprint 69): in town, closes the menu, else the window, else opens the menu; the menu's
+    /// icon (<paramref name="menuOnly"/>) opens or closes the menu alone. In a fight, the menu.
+    /// </summary>
+    private void Escape(bool menuOnly)
+    {
+        if (menuOnly)
+            _windows.ToggleMenu();
+        else
+            _windows.Escape();
+        if (_town is not null)
+            ShowWindows();
+        ShowMenu();
+    }
+
+    /// <summary>The menu shown or not, as <see cref="WindowState.MenuOpen"/> says.</summary>
+    private void ShowMenu()
+    {
+        if (_windows.MenuOpen == _menuPanel is not null)
+            return;
+        _sound?.Play("click");
+        if (!_windows.MenuOpen)
+        {
+            _menuPanel!.QueueFree();
+            _menuPanel = null;
+            return;
+        }
+        _menuPanel = new MenuPanel();
+        AddChild(_menuPanel);
+        // The picture of the project page shows the menu as when signed in.
+        _menuPanel.Build(_talkPanel?.Texts ?? _hud?.Texts ?? new Texts(_options.Lang), _lobby?.SignedIn == true || _options.Shot == "menu");
+        _menuPanel.Chosen += Choose;
+    }
+
+    private void Choose(MenuChoice choice)
+    {
+        _sound?.Play("click");
+        switch (choice)
+        {
+            case MenuChoice.Resume:
+                _windows.CloseMenu();
+                ShowMenu();
+                break;
+            case MenuChoice.Servers or MenuChoice.Characters:
+                // The lobby again: on the server list, or on this server's characters.
+                if (choice == MenuChoice.Servers)
+                    _lobby?.ChooseServer(null);
+                _screen = Screen.Lobby;
+                GetTree().ReloadCurrentScene();
+                break;
+            case MenuChoice.Quit:
+                GetTree().Quit();
+                break;
+        }
+    }
+
     private void AddEnvironment()
     {
+        _sound = new Sound();
+        AddChild(_sound);
         var env = new Godot.Environment
         {
             BackgroundMode = Godot.Environment.BGMode.Color,
@@ -342,7 +415,12 @@ public partial class Main : Node3D
         if (index < 0)
             _controller.CancelSpell();
         else
+        {
             _controller.SelectSpell(index);
+            // A spell that cannot be cast now (points, cooldown) is refused with a sound.
+            if (_controller.LastError is not null)
+                _sound?.Play("error");
+        }
         ShowPreview();
     }
 
@@ -401,7 +479,10 @@ public partial class Main : Node3D
         RefreshViews();
         _busy = false;
         if (_controller.Fight.IsOver && _report is null)
+        {
+            _sound?.Play(_controller.Fight.WinningTeam == _controller.PlayerTeam ? "victory" : "defeat");
             _ = ShowResult();
+        }
         if (_controller.IsPlayerTurn)
             ShowPreview();
     }
@@ -415,8 +496,12 @@ public partial class Main : Node3D
             case Moved m:
                 return _views[m.Fighter].Walk(m.Path, instant ? 0 : 0.22);
             case SpellCast c:
+                if (!instant)
+                    _sound?.Play("cast");
                 return Cast(c, instant);
             case Damaged d:
+                if (!instant)
+                    _sound?.Play("hit");
                 _views[d.Fighter].ShowDamage(d.Amount, d.Element, instant ? 0 : 0.9);
                 return Task.CompletedTask;
             case Died d:
