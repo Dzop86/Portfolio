@@ -1,14 +1,12 @@
-# Sprint 70 : Osmose, les premiers monstres
+# Sprint 70 : Osmose, le monde en cartes
 
-**Objectif :** Une première famille de monstres (DPS mêlée, DPS distance, tank, support, boss) en groupes visibles sur la carte.
+**Objectif :** demande de Charles (D63) : un monde fait de cartes reliées : une zone est une grille de 5 × 5 cartes, le bois d'abord.
 
-**En pause (D58) :** Osmose s'arrête après le sprint 60, à la demande de Charles, le temps de l'assistant documentaire (sprints 61 et 62) et des schémas d'architecture (sprint 63, D59) ; Osmose reprend par le personnage (sprints 64 à 69, D61 et D62), puis ce sprint, tel quel.
-
-**Goal:** A first family of monsters (melee and ranged damage, tank, support, boss) in groups visible on the map.
+**Goal:** Charles's request (D63): a world made of linked maps: a zone is a grid of 5 × 5 maps, the woods first.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats les monstres de la zone (rpg) : une famille de cinq monstres (DPS mêlée, DPS distance, tank, support soin ou bouclier, boss), groupes visibles qui errent, clic pour combattre, réapparition ; XP et butin ; équilibre par simulation ; auto-test, captures. | 3 | À faire |
+| En tant que joueur, je parcours un monde de cartes (rpg) : une zone = une grille de 5 × 5 cartes de la taille d'un écran, reliées par leurs bords (on passe à la voisine en marchant jusqu'au bord) ; le village de Clairval reste une carte, à l'entrée du Bois (25 cartes, décrites en données et écrites par un script, chacune accessible) ; le serveur garde la carte et la case ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
