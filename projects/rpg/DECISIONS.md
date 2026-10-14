@@ -235,3 +235,7 @@ Charles : « un joueur peut battre des groupes de 1 à 3 monstres facilement mai
 **Équilibre :** remesuré, dans les bornes de T41 (groupes de un à trois à 96-100 % en moyenne, hordes et chefs à 0-10 %).
 **Limites :** le village reste une carte de 16 × 12, petite à côté des autres (sur la carte du monde, il n'occupe qu'un coin de sa case) ; chaque carte compte 1 536 cases en 3D, une par tuile (un rendu groupé, MultiMesh, viendra si le jeu ralentit).
 
+
+## T45. La frise du tour, le clic droit, plus de jeu hors ligne (sprint 78)
+**Choix (D64) :** la frise montre l'ordre du tour en cours (`Fight.RoundOrder` : les vivants dans l'ordre d'initiative, le même tout le tour), le combattant qui joue entouré et éclairé ; elle recommence à chaque tour au lieu de faire défiler les tours suivants (`NextTurns`, gardé pour les tests). Quatorze cartes plus petites (58 pixels) pour tenir un groupe de dix, le héros et ses invocations. Le clic gauche sur des monstres ne fait que s'en approcher ; le clic droit ouvre un menu (le nom du groupe, grisé, puis « Attaquer ») : `TownController.Attack`. Sans launcher, l'écran de connexion demande lui-même le compte et le mot de passe (« Se connecter », « Créer le compte ») ; le bouton « Jouer hors ligne » disparaît, l'option `--offline` reste pour les tests et les captures.
+**Limites :** au-delà de quatorze combattants vivants, la frise coupe la fin du tour ; le menu n'a qu'une action (« Attaquer »), d'autres (« Défier », « Rejoindre ») viendront avec le jeu à plusieurs.

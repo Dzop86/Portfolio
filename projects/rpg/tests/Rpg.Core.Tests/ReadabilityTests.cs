@@ -107,4 +107,25 @@ public class ReadabilityTests
         f.Apply(new EndTurnAction());
         Assert.Equal([Element.Fire, Element.Neutral, Element.Water], f.Events.OfType<Damaged>().Select(d => d.Element));
     }
+
+    [Fact]
+    public void TheRoundOrder_IsTheSameAllRoundLong_AndComesBackEachRound_WithoutTheFallen()
+    {
+        var f = new Fight(Real, "training", 3);
+        IReadOnlyList<Fighter> first = f.RoundOrder;
+        Assert.Equal(f.Fighters.Count, first.Count);
+        Assert.Equal(first.OrderByDescending(x => x.Spec.Initiative).ThenBy(x => x.Id), first);
+        int round = f.Round;
+        while (f.Round == round && !f.IsOver)
+        {
+            // Whoever plays is in it; the order does not move during the round.
+            Assert.Contains(f.Current, f.RoundOrder);
+            Assert.Equal(first.Where(x => x.IsAlive), f.RoundOrder);
+            Assert.Equal(ActionError.None, f.Apply(Ai.Decide(f)));
+        }
+        // A new round: the same order again, from its first fighter.
+        Assert.Equal(first.Where(x => x.IsAlive), f.RoundOrder);
+        Ai.PlayOut(f);
+        Assert.Empty(f.RoundOrder);
+    }
 }

@@ -702,7 +702,8 @@ public partial class Main : Node3D
     }
 
     /// <summary>
-    /// The self-test of sprint 57: the timeline shows the next turns; hovering each fighter shows its
+    /// The self-test of sprint 57: the timeline shows the round's order, the one playing outlined
+    /// (sprint 78); hovering each fighter shows its
     /// card, and aiming a spell at an enemy its forecast; every number shown above a fighter since
     /// the last check has its colour (the last one per fighter is compared).
     /// </summary>
@@ -710,10 +711,12 @@ public partial class Main : Node3D
     {
         Fight fight = _controller.Fight;
         Texts texts = _hud.Texts;
-        if (!_hud.TimelineText.SequenceEqual(fight.NextTurns(Hud.TimelineLength).Select(texts.Name)))
+        if (!_hud.TimelineText.SequenceEqual(fight.RoundOrder.Take(Hud.TimelineLength).Select(texts.Name)))
             problems.Add($"the timeline shows {string.Join(", ", _hud.TimelineText)}");
-        if (!_hud.TimelineLooks.SequenceEqual(fight.NextTurns(Hud.TimelineLength).Select(f => f.Spec.Look)))
+        if (!_hud.TimelineLooks.SequenceEqual(fight.RoundOrder.Take(Hud.TimelineLength).Select(f => f.Spec.Look)))
             problems.Add("the timeline's portraits are not the fighters'");
+        if (!fight.IsOver && _hud.CurrentCard != fight.RoundOrder.ToList().IndexOf(fight.Current))
+            problems.Add($"the timeline outlines card {_hud.CurrentCard}, not the one playing");
         var last = new Dictionary<int, Color>();
         IReadOnlyList<FightEvent> events = fight.Events;
         for (; seenNumbers < events.Count; seenNumbers++)
@@ -829,12 +832,18 @@ public partial class Main : Node3D
     {
         LobbyView view = _lobbyView!;
         string suffix = Guid.NewGuid().ToString("N")[..8];
-        // The launcher signs up and in; here the lobby does it, then the screens take over.
-        await _lobby!.SignIn("selftest_" + suffix, "selftest password", create: true);
-        view.Refresh();
+        // Started without the launcher, the game asks to sign in itself (sprint 78): a password too short
+        // is refused with its message, then the account is made through the same fields.
+        string? signIn = view.SignInShown ? null : "the sign-in fields are not shown";
+        view.TypeSignIn("selftest_" + suffix, "short");
+        await view.SignIn(create: true);
+        if (_lobby!.SignedIn || view.SignInMessage != view.Texts["lobby.password-short"])
+            signIn ??= $"a short password gives \"{view.SignInMessage}\"";
+        view.TypeSignIn("selftest_" + suffix, "selftest password");
+        await view.SignIn(create: true);
         // Letters only: the hex digits of the suffix become letters a to p.
         string hero = "Essai" + string.Concat(suffix.Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))));
-        string? problem = _lobby.ChosenServer is null ? $"no server chosen among {_lobby.Servers.Count}" : null;
+        string? problem = signIn ?? (_lobby.ChosenServer is null ? $"no server chosen among {_lobby.Servers.Count}" : null);
         if (problem is null)
         {
             view.OpenCreate();

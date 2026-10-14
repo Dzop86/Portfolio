@@ -8,12 +8,17 @@ public class MonsterGroupTests
     private static readonly GameData Data = GameData.Embedded;
 
     [Fact]
-    public void ClickingAGroup_WalksUpToIt_AndStartsItsFight()
+    public void AttackingAGroup_WalksUpToIt_AndStartsItsFight_ALeftClickOnlyWalks()
     {
         var town = new TownController(Data, "woods-2-2");
         Assert.Equal(Data.GroupsOn("woods-2-2").Select(g => (g.Id, g.Home)), town.Groups.Select(g => (g.Key, g.Value)));
         MonsterGroup group = Data.GroupsOn("woods-2-2")[0];
-        TownStep step = town.Click(group.Home)!;
+        // A left click walks up to it, no more (sprint 78).
+        TownStep walk = town.Click(group.Home)!;
+        Assert.Null(walk.Group);
+        Assert.Null(town.Fight);
+        Assert.Null(town.Attack(town.Town.Spawn));
+        TownStep step = town.Attack(group.Home)!;
         Assert.Equal(group, step.Group);
         Assert.Equal((group.Scenario, group), (town.Fight, town.FightGroup));
         // Next to the group, never on it.

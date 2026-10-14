@@ -21,7 +21,7 @@ public partial class LobbyView : CanvasLayer
     private Label _createTitle = null!, _lookName = null!, _classLabel = null!, _colourLabel = null!, _hairLabel = null!, _skinLabel = null!, _heightLabel = null!, _buildLabel = null!, _nameLabel = null!;
     private HSlider _height = null!, _build = null!;
     private int _look, _class, _hair, _skin;
-    private Button _lang = null!, _offline = null!, _changeServer = null!, _delete = null!, _create = null!, _close = null!;
+    private Button _lang = null!, _signIn = null!, _signUp = null!, _changeServer = null!, _delete = null!, _create = null!, _close = null!;
     private Control _createPanel = null!;
     private Portrait _preview = null!;
     private ConfirmationDialog _confirm = null!;
@@ -96,11 +96,21 @@ public partial class LobbyView : CanvasLayer
         screens.AddThemeConstantOverride("separation", 16);
         centre.AddChild(screens);
 
-        // Not signed in: the launcher signs in.
+        // Not signed in: the launcher signs in; started without it, the game asks itself (sprint 78: no
+        // more playing offline, D64).
         _signedOut = Column(screens);
         _launcherText = Text(_signedOut, 22);
-        _offline = Button(_signedOut, () => Chosen?.Invoke(null));
-        _offline.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+        _account = new LineEdit { CustomMinimumSize = new Vector2(320, 44), MaxLength = 20 };
+        _signedOut.AddChild(_account);
+        _password = new LineEdit { CustomMinimumSize = new Vector2(320, 44), Secret = true };
+        _password.TextSubmitted += text => _ = SignIn(create: false);
+        _signedOut.AddChild(_password);
+        var signButtons = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        signButtons.AddThemeConstantOverride("separation", 12);
+        _signedOut.AddChild(signButtons);
+        _signIn = Button(signButtons, () => _ = SignIn(create: false));
+        _signUp = Button(signButtons, () => _ = SignIn(create: true));
+        _signInMessage = Text(_signedOut, 16);
 
         // The servers.
         _serverScreen = Column(screens);
@@ -434,7 +444,12 @@ public partial class LobbyView : CanvasLayer
         _serverScreen.Visible = _lobby.SignedIn && !chosen;
         _characterScreen.Visible = chosen && !_createPanel.Visible;
         _launcherText.Text = Texts["lobby.launcher"];
-        _offline.Text = Texts["lobby.offline"];
+        _account.PlaceholderText = Texts["lobby.name"];
+        _password.PlaceholderText = Texts["lobby.password"];
+        _signIn.Text = Texts["lobby.sign-in"];
+        _signUp.Text = Texts["lobby.sign-up"];
+        _signIn.Disabled = _signUp.Disabled = _busy;
+        _signInMessage.Text = !_lobby.SignedIn && _lobby.Problem is string problem ? Texts[problem] : "";
         _serversTitle.Text = Texts["lobby.servers"];
         RefreshServers();
         if (chosen)
@@ -560,6 +575,30 @@ public partial class LobbyView : CanvasLayer
         _cardRow.AddChild(card);
         return card;
     }
+
+    private LineEdit _account = null!, _password = null!;
+    private Label _signInMessage = null!;
+
+    /// <summary>Signs in, or creates the account, from the fields of the signed-out screen; the servers follow.</summary>
+    public async Task SignIn(bool create)
+    {
+        if (_busy)
+            return;
+        _busy = true;
+        Refresh();
+        await _lobby.SignIn(_account.Text.Trim(), _password.Text, create);
+        _busy = false;
+        _password.Text = "";
+        Refresh();
+    }
+
+    /// <summary>Fills the fields as the player would (for the self-test).</summary>
+    public void TypeSignIn(string account, string password) => (_account.Text, _password.Text) = (account, password);
+
+    /// <summary>The signed-out screen's message, its fields and buttons shown (for the self-test).</summary>
+    public string SignInMessage => _signInMessage.Text;
+
+    public bool SignInShown => _signedOut.Visible && _account.Visible && _password.Visible && _signIn.Visible && _signUp.Visible;
 
     private static VBoxContainer Column(Container parent)
     {

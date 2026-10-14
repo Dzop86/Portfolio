@@ -11,8 +11,8 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class Hud : CanvasLayer
 {
-    /// <summary>Turns shown on the timeline.</summary>
-    public const int TimelineLength = 8;
+    /// <summary>The cards of the timeline: a whole round, ten monsters, the hero and summons (sprint 78).</summary>
+    public const int TimelineLength = 14;
 
     private readonly List<(Button Tile, SpellIcon Icon)> _spells = [];
     private readonly List<string> _spellNames = [];
@@ -45,21 +45,21 @@ public partial class Hud : CanvasLayer
         _turn = Text(root, 22, 0, 0, 20, 14, 600, 32);
         var timeline = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         timeline.AddThemeConstantOverride("separation", 6);
-        Anchor(timeline, 1, 0, -8 - TimelineLength * 78, 10, TimelineLength * 78, 100);
+        Anchor(timeline, 1, 0, -8 - TimelineLength * 64, 10, TimelineLength * 64, 92);
         timeline.Alignment = BoxContainer.AlignmentMode.End;
         root.AddChild(timeline);
         for (int i = 0; i < TimelineLength; i++)
         {
-            var card = new PanelContainer { CustomMinimumSize = new Vector2(72, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+            var card = new PanelContainer { CustomMinimumSize = new Vector2(58, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
             var box = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
             box.AddThemeConstantOverride("separation", 2);
             card.AddChild(box);
-            Portrait face = Portrait.Make(new Vector2(68, 56), turning: false, distance: 1.7f);
+            Portrait face = Portrait.Make(new Vector2(56, 48), turning: false, distance: 1.7f);
             box.AddChild(face);
-            var name = new Label { HorizontalAlignment = HorizontalAlignment.Center, ClipText = true, CustomMinimumSize = new Vector2(68, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
+            var name = new Label { HorizontalAlignment = HorizontalAlignment.Center, ClipText = true, CustomMinimumSize = new Vector2(56, 0), MouseFilter = Control.MouseFilterEnum.Ignore };
             name.AddThemeFontSizeOverride("font_size", 12);
             box.AddChild(name);
-            var hp = new ProgressBar { ShowPercentage = false, CustomMinimumSize = new Vector2(68, 6), MouseFilter = Control.MouseFilterEnum.Ignore };
+            var hp = new ProgressBar { ShowPercentage = false, CustomMinimumSize = new Vector2(56, 6), MouseFilter = Control.MouseFilterEnum.Ignore };
             box.AddChild(hp);
             timeline.AddChild(card);
             _timeline.Add((card, face, name, hp));
@@ -144,7 +144,9 @@ public partial class Hud : CanvasLayer
         Fighter current = fight.Current;
         Fighter me = _controller.IsPlayerTurn ? current : fight.Fighters.First(f => f.Team == _controller.PlayerTeam);
         _turn.Text = $"{Texts["round", fight.Round]} · {(_controller.IsPlayerTurn ? Texts["your-turn"] : Texts["their-turn", Texts.Name(current)])}";
-        IReadOnlyList<Fighter> next = fight.NextTurns(TimelineLength);
+        // The round's order, the one playing outlined; it starts again with each round (D64).
+        IReadOnlyList<Fighter> next = [.. fight.RoundOrder.Take(TimelineLength)];
+        CurrentCard = next.ToList().IndexOf(current);
         for (int i = 0; i < _timeline.Count; i++)
         {
             (PanelContainer card, Portrait face, Label name, ProgressBar hp) = _timeline[i];
@@ -163,12 +165,12 @@ public partial class Hud : CanvasLayer
             // The one playing now is outlined in its team's colour.
             card.AddThemeStyleboxOverride("panel", new StyleBoxFlat
             {
-                BgColor = new Color(0.12f, 0.12f, 0.12f, 0.85f),
-                BorderColor = team,
-                BorderWidthBottom = i == 0 ? 3 : 1,
-                BorderWidthTop = i == 0 ? 3 : 1,
-                BorderWidthLeft = i == 0 ? 3 : 1,
-                BorderWidthRight = i == 0 ? 3 : 1,
+                BgColor = f == current ? new Color(0.2f, 0.2f, 0.2f, 0.95f) : new Color(0.12f, 0.12f, 0.12f, 0.85f),
+                BorderColor = f == current ? team : new Color(team, 0.5f),
+                BorderWidthBottom = f == current ? 3 : 1,
+                BorderWidthTop = f == current ? 3 : 1,
+                BorderWidthLeft = f == current ? 3 : 1,
+                BorderWidthRight = f == current ? 3 : 1,
                 ContentMarginLeft = 2,
                 ContentMarginRight = 2,
                 ContentMarginTop = 2,
@@ -243,7 +245,10 @@ public partial class Hud : CanvasLayer
     public string StatsText => _stats.Text;
     public string OrderText => _order.Text;
 
-    /// <summary>The names on the timeline, the one playing first.</summary>
+    /// <summary>The card outlined as playing (for the self-test).</summary>
+    public int CurrentCard { get; private set; } = -1;
+
+    /// <summary>The names on the timeline, in the round's order.</summary>
     public IEnumerable<string> TimelineText => _timeline.Where(t => t.Card.Visible).Select(t => t.Name.Text);
 
     /// <summary>The looks drawn on the timeline's portraits.</summary>

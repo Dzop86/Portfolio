@@ -190,6 +190,12 @@ public sealed class Fight
     public IReadOnlyList<Fighter> TurnOrder => _order;
 
     /// <summary>
+    /// The order of play of this round (sprint 78, D64): every fighter still standing, the one playing
+    /// among them; the same list comes back each round, without those who fell.
+    /// </summary>
+    public IReadOnlyList<Fighter> RoundOrder => IsOver ? [] : [.. _order.Where(f => f.IsAlive)];
+
+    /// <summary>
     /// The next <paramref name="count"/> turns, the current one first: the living fighters in the
     /// order of play, round after round (the turn order's timeline).
     /// </summary>

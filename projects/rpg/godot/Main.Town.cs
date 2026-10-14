@@ -222,6 +222,10 @@ public partial class Main
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when BoardView.Pick(_camera, click.Position) is Cell cell:
                 _ = Walk(cell);
                 break;
+            // A right click on monsters: their menu, "Attack" in it (sprint 78, D64).
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when BoardView.Pick(_camera, click.Position) is Cell cell && _town.GroupAt(cell) is not null:
+                OpenGroupMenu(cell, click.Position);
+                break;
             case InputEventKey { Pressed: true, Echo: false } key when _town.Talk is not null && key.Keycode >= Key.Key1 && key.Keycode <= Key.Key4:
                 int index = (int)(key.Keycode - Key.Key1);
                 if (index < _town.Talk.Line.Answers.Count)
@@ -233,7 +237,34 @@ public partial class Main
     /// <summary>The player's walking pace, in cells a second.</summary>
     private const double WalkSpeed = 4.2;
 
-    private async Task Walk(Cell target)
+    private PopupMenu? _groupMenu;
+
+    /// <summary>
+    /// The menu of a group of monsters, where the right click was: who they are (not a choice), then
+    /// "Attack", which walks up to them and starts the fight.
+    /// </summary>
+    private PopupMenu OpenGroupMenu(Cell cell, Vector2 at)
+    {
+        _groupMenu?.QueueFree();
+        MonsterGroup group = _town!.GroupAt(cell)!;
+        Texts texts = _talkPanel!.Texts;
+        _groupMenu = new PopupMenu();
+        _groupMenu.AddItem(texts.GroupLabel(group, GameData.Embedded), 0);
+        _groupMenu.SetItemDisabled(0, true);
+        _groupMenu.AddSeparator();
+        _groupMenu.AddItem(texts["group.attack"], 1);
+        _groupMenu.IdPressed += id =>
+        {
+            if (id == 1)
+                _ = Walk(_town!.Groups.TryGetValue(group.Id, out Cell now) ? now : cell, attack: true);
+        };
+        AddChild(_groupMenu);
+        _groupMenu.Position = (Vector2I)at;
+        _groupMenu.Popup();
+        return _groupMenu;
+    }
+
+    private async Task Walk(Cell target, bool attack = false)
     {
         if (_walking)
         {
@@ -243,7 +274,7 @@ public partial class Main
             _town!.Interrupt(here);
             _walking = false;
         }
-        if (_town!.Click(target) is not TownStep step)
+        if ((attack ? _town!.Attack(target) : _town!.Click(target)) is not TownStep step)
             return;
         _walking = true;
         if (!await _townView!.Walk(step, WalkSpeed))
@@ -643,8 +674,8 @@ public partial class Main
     }
 
     /// <summary>
-    /// The monsters of sprint 72: every model of every family has its two animations; a click on a group
-    /// of the woods walks up to it and chooses its fight, a fight whose fighters the board can draw; a
+    /// The monsters of sprint 72: every model of every family has its two animations; a left click on a
+    /// group only walks up to it, "Attack" in its menu (a right click, sprint 78) chooses its fight, a fight whose fighters the board can draw; a
     /// group roams a few steps and is drawn there.
     /// </summary>
     private void CheckMonsters(List<string> problems)
@@ -661,8 +692,20 @@ public partial class Main
         var view = new TownView();
         AddChild(view);
         view.Build(woods, _options.Lang, _hero ?? new Hero("", "female-d"));
-        if (woods.Click(group.Home) is not { Group: not null } || woods.Fight != group.Scenario)
-            problems.Add($"a click on the group {group.Id} does not start its fight");
+        if (woods.Click(group.Home) is not { Group: null } || woods.Fight is not null)
+            problems.Add($"a left click on the group {group.Id} starts a fight");
+        woods.Interrupt(woods.Position);
+        if (woods.Attack(group.Home) is not { Group: not null } || woods.Fight != group.Scenario)
+            problems.Add($"attacking the group {group.Id} does not start its fight");
+        // Its menu, on a right click: who they are, then "Attack".
+        var town = _town;
+        _town = new TownController(GameData.Embedded, "woods-2-2");
+        PopupMenu menu = OpenGroupMenu(group.Home, new Vector2(100, 100));
+        if (menu.ItemCount != 3 || menu.GetItemText(0) != _talkPanel!.Texts.GroupLabel(group, GameData.Embedded) || !menu.IsItemDisabled(0) || menu.GetItemText(2) != _talkPanel.Texts["group.attack"])
+            problems.Add($"the menu of the group {group.Id} offers {menu.ItemCount} lines");
+        menu.QueueFree();
+        _groupMenu = null;
+        _town = town;
         var fight = new Fight(GameData.Embedded, group.Scenario, 1);
         foreach (Fighter f in fight.Fighters)
         {

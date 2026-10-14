@@ -41,7 +41,8 @@ public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? E
 /// <summary>
 /// The player in a town, without an engine: a click walks the shortest way, in eight directions
 /// (<see cref="Wander"/>), a click on someone walks up to them and opens the talk, a click on an exit
-/// leads to its fight, a click on a group of monsters walks up to it and starts its fight (sprint 72);
+/// leads to its fight; "Attack" on a group of monsters (a right click, sprint 78) walks up to it and
+/// starts its fight, a left click only walks up to it;
 /// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
@@ -125,7 +126,16 @@ public sealed class TownController
         return IsFree(target) ? Wander.FindPath(Board, Position, target, IsFree) : null;
     }
 
-    public TownStep? Click(Cell target)
+    /// <summary>
+    /// A left click: walks there, or up to someone (and talks) or to a group of monsters (without
+    /// fighting it: that is <see cref="Attack"/>, sprint 78).
+    /// </summary>
+    public TownStep? Click(Cell target) => Walk(target, attack: false);
+
+    /// <summary>"Attack" in the menu of a group of monsters (a right click on it, sprint 78): walks up to it and starts its fight.</summary>
+    public TownStep? Attack(Cell target) => GroupAt(target) is null ? null : Walk(target, attack: true);
+
+    private TownStep? Walk(Cell target, bool attack)
     {
         if (PathTo(target) is not IReadOnlyList<Cell> path)
             return null;
@@ -140,12 +150,15 @@ public sealed class TownController
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
         else if (group is not null)
-            (Fight, FightGroup) = (group.Scenario, group);
+        {
+            if (attack)
+                (Fight, FightGroup) = (group.Scenario, group);
+        }
         else if (exit is not null && there)
             Fight = exit.Scenario;
         else if (link is not null && there)
             Travel = link;
-        return new TownStep(path, npc, there ? exit : null, there ? link : null, group)
+        return new TownStep(path, npc, there ? exit : null, there ? link : null, attack ? group : null)
         {
             Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
         };
