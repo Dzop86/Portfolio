@@ -1,12 +1,12 @@
-# Sprint 85 : Osmose, les quêtes
+# Sprint 85 : Osmose, des cartes plus lisibles
 
-**Objectif :** demande de Charles (D65) : les quêtes et leur journal.
+**Objectif :** retours de Charles (D67) : voir les cartes sur la carte du monde, changer de carte sans viser, des cartes moins chargées.
 
-**Goal:** Charles's request (D65): quests and their journal.
+**Goal:** Charles's feedback (D67): seeing the maps on the world map, changing maps without aiming, lighter maps.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis des quêtes (rpg) : objectifs (parler à quelqu'un, vaincre des monstres d'une famille, rapporter des objets, finir un donjon), données par des habitants, suivies et récompensées par le serveur ; un journal (touche Q) par zone, en cours et terminées ; xUnit, intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je m'oriente et je circule sans peine (rpg) : sur la carte du monde, un quadrillage léger des cartes, à afficher ou non ; un clic près du bord, ou en dehors de la carte du bon côté, mène au passage de ce côté ; deux fois moins d'arbres et de décor sur les cartes des zones, l'équilibre vérifié ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

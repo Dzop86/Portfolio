@@ -1,12 +1,12 @@
-# Sprint 86 : Osmose, les premières quêtes
+# Sprint 86 : Osmose, de vrais donjons
 
-**Objectif :** demande de Charles (D65) : le début de la quête principale et des quêtes annexes dans chaque zone.
+**Objectif :** retours de Charles (D67) : des salles où l'on se tient, et un bâtiment à l'entrée.
 
-**Goal:** Charles's request (D65): the start of the main quest and side quests in every zone.
+**Goal:** Charles's feedback (D67): rooms one stands in, and a building at the way in.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ai des quêtes à faire (rpg) : le début de la quête principale (d'après la bible), une à deux quêtes annexes par zone et une quête par donjon ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, j'explore un donjon (rpg) : l'entrée est un bâtiment imposant sur la carte ; chaque salle est une carte où l'on marche, où l'on peut parler à quelqu'un, changer d'équipement, se soigner, puis attaquer le groupe de la salle (clic droit) ; une fois le groupe battu, la porte de la salle suivante s'ouvre ; après le chef, la sortie ; le serveur garde la salle où l'on est ; xUnit, intégration, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
