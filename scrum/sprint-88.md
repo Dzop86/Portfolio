@@ -1,12 +1,12 @@
-# Sprint 88 : Osmose, les premières quêtes
+# Sprint 88 : Osmose, les quêtes
 
-**Objectif :** demande de Charles (D65) : le début de la quête principale et des quêtes annexes dans chaque zone.
+**Objectif :** demande de Charles (D65) : les quêtes et leur journal.
 
-**Goal:** Charles's request (D65): the start of the main quest and side quests in every zone.
+**Goal:** Charles's request (D65): quests and their journal.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ai des quêtes à faire (rpg) : le début de la quête principale (d'après la bible), une à deux quêtes annexes par zone et une quête par donjon ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je suis des quêtes (rpg) : objectifs (parler à quelqu'un, vaincre des monstres d'une famille, rapporter des objets, finir un donjon), données par des habitants, suivies et récompensées par le serveur ; un journal (touche Q) par zone, en cours et terminées ; xUnit, intégration, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

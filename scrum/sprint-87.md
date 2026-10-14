@@ -1,12 +1,12 @@
-# Sprint 87 : Osmose, les quêtes
+# Sprint 87 : Osmose, la fin du combat
 
-**Objectif :** demande de Charles (D65) : les quêtes et leur journal.
+**Objectif :** demande de Charles (D68) : une fenêtre de fin de combat comme dans les jeux du genre, et de l'argent gagné.
 
-**Goal:** Charles's request (D65): quests and their journal.
+**Goal:** Charles's request (D68): an end-of-fight window as in the games of the genre, and money earned.
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis des quêtes (rpg) : objectifs (parler à quelqu'un, vaincre des monstres d'une famille, rapporter des objets, finir un donjon), données par des habitants, suivies et récompensées par le serveur ; un journal (touche Q) par zone, en cours et terminées ; xUnit, intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je vois ce qu'a donné le combat (rpg) : une fenêtre « Combat terminé », Victoire ou Défaite, les gagnants et les perdants ; pour chaque joueur, son niveau et sa barre d'expérience, l'expérience gagnée, les Éclats gagnés (la monnaie, nouvelle, donnée par le serveur) et son butin en icônes ; un onglet de statistiques (dégâts infligés et reçus, soins, boucliers, ennemis achevés) ; un seul bouton « Fermer », qui laisse le joueur là où il était, sans rejouer ni rentrer au village ; xUnit, intégration, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
