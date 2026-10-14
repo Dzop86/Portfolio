@@ -598,16 +598,20 @@ public partial class Main
         foreach (string id in zones)
         {
             var controller = new TownController(GameData.Embedded, id);
+            groups += controller.Groups.Count;
+            // Maps of 48 x 32 since sprint 77: the village and the middle map of each zone are drawn, the
+            // others are toured above without views (drawing a hundred of them took minutes).
+            if (id != Village && !id.EndsWith("-2-2", StringComparison.Ordinal))
+                continue;
             var view = new TownView();
             AddChild(view);
             view.Build(controller, _options.Lang, hero);
             Town t = controller.Town;
-            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links ?? []).Select(l => l.To).Distinct().Count())
+            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links ?? []).Where(l => l.Name is not null).Select(l => l.To).Distinct().Count())
                 problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
             // Its groups of monsters, each with its monsters on its cell (sprint 72).
             foreach ((string g, Cell at) in controller.Groups)
             {
-                groups++;
                 int models = view.Groups.TryGetValue(g, out Node3D? node) ? node.GetChildren().OfType<Node3D>().Count(n => n.FindChild("AnimationPlayer", true, false) is not null) : 0;
                 // Three at most on a cell; the label tells how many more.
                 if (models != Math.Min(3, GameData.Embedded.Groups[g].Monsters.Count) || node!.Position != BoardView.ToWorld(at))

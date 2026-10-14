@@ -11,22 +11,42 @@
     "y": -2
   },
   "rows": [
-    "TTTTTTTTTTTTTTTT",
-    "T..T.TT........T",
-    "T..TTR..T......T",
-    "T...TT..T......T",
-    ".........TTT.T.T",
-    "..........TTT..T",
-    "...........~T..T",
-    "T.T.TT....~~T..T",
-    "T..TTR....T~T..T",
-    "T.........T..T.T",
-    "T..........T..TT",
-    "TTTT...TTTTTTTTT"
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T.....................................T........T",
+    "T.TT..TT.TT......~~..............T.....T..RT...T",
+    "TTTTT.TTTT.......~~T............TT.....TTTT....T",
+    "T.T..T.TT.T.......T..R......T.TTR.T....TTRT....T",
+    "T.TTTTTT.TTT...TTT........TT.TTTTT.T...R.TTT...T",
+    "T.TTTT...T..TTTTTTT.T.....T.TTTTT...........TTTT",
+    "T.TTT.TTTTTTR..T.T...T..TT.TT..........TT.....TT",
+    "TTTT.T.TTT.T...TT.R.T.T.TR...........T.TTT...T.T",
+    "T...TR..T.TTT..TT..TT.T.TT.......TTT..TTT......T",
+    "TT..T.....T...TT.T.TTTTT..TT..TT..T.TT.........T",
+    "T.T.T.T....TT.....T...TT.TT.TTT....TT..........T",
+    "..........................TTTTT...T...TT~......T",
+    "............................TTTRT.....T~....T..T",
+    "...........................TTTTTTT...TT~~T..T..T",
+    "T.....T...TT.TTTTTTT.TT....TTTT..T...T.~T...TR.T",
+    "T......T.TTTTTRT.TRT..~....TTTTT...TT..TTT...T.T",
+    "T.......TTT..T..T.T~.......TT.TT.T..T..T.T...T.T",
+    "T.....TTTTT..T.TT~T~TTT........TTTT.T....TTT.TTT",
+    "T......TTTTTTRTTTT~.T.T.....TTT..T...TT...TTT..T",
+    "T.TTT.TTTT.TT..TTTTT.TT....T...TTTTT.T.T....T..T",
+    "T..TTTT..TTT...~..TTTTT....T....T.TTT.TTTTT.T..T",
+    "T....TTT.TTT...~TTTTT.....TTT...TT....T..T.T...T",
+    "T....TT.T..TTT~~T.T..T....T...TT..........T.T..T",
+    "TT....TT.T.TTTT...T.TT....T..........~.....T...T",
+    "TT.T.TTT.TTT.T.R...RTTT...........TT.~~..TT....T",
+    "TTTT..T..T.TT......TT.T...T......T..T.~..T.....T",
+    "TTTTTTTTT..T......T..RT...T.R........T..R.~~...T",
+    "T.T....T.T......TT...TT...T..........T.....~...T",
+    "T.R..TTT..................TT.........TT.....T..T",
+    "T.........................T............T...TT..T",
+    "TTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
@@ -34,91 +54,67 @@
     {
       "at": {
         "x": 0,
-        "y": 4
+        "y": 12
       },
       "to": "woods-3-0",
       "arrival": {
-        "x": 14,
-        "y": 4
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 12
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 5
+        "y": 13
       },
       "to": "woods-3-0",
       "arrival": {
-        "x": 14,
-        "y": 5
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 13
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 6
+        "y": 14
       },
       "to": "woods-3-0",
       "arrival": {
-        "x": 14,
-        "y": 6
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 14
       }
     },
     {
       "at": {
-        "x": 4,
-        "y": 11
+        "x": 11,
+        "y": 31
       },
       "to": "woods-4-1",
       "arrival": {
-        "x": 4,
+        "x": 11,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 5,
-        "y": 11
+        "x": 12,
+        "y": 31
       },
       "to": "woods-4-1",
       "arrival": {
-        "x": 5,
+        "x": 12,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 6,
-        "y": 11
+        "x": 13,
+        "y": 31
       },
       "to": "woods-4-1",
       "arrival": {
-        "x": 6,
+        "x": 13,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     }
   ]

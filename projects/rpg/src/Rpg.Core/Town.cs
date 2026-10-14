@@ -6,8 +6,11 @@ public sealed record Npc(string Id, LocalizedText Name, string Look, int Colour,
 /// <summary>A cell of a town that leads to a fight (the town gate, the training ground).</summary>
 public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 
-/// <summary>A cell of a zone that leads to another zone (<see cref="To"/>), where the player arrives on <see cref="Arrival"/>.</summary>
-public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText Name);
+/// <summary>
+/// A cell of a map that leads to another map (<see cref="To"/>), where the player arrives on
+/// <see cref="Arrival"/>; <see cref="Name"/>, the zone it leads to when it leaves this one, none inside a zone (D64).
+/// </summary>
+public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? Name = null);
 
 /// <summary>
 /// A map of the world, as described in <c>data/towns/*.json</c> (a town is one): one walks there and

@@ -11,204 +11,176 @@
     "y": 1
   },
   "rows": [
-    "TTTTTTTTT...TTTT",
-    "TT.............T",
-    "T.TRT.T.........",
-    "T...TT~.........",
-    "................",
-    "..........T..T.T",
-    "..........TTTT.T",
-    "T.TT.TT...TTTT.T",
-    "TTTTTTT....TT..T",
-    "T.TTTT.........T",
-    "T...T..........T",
-    "TTTTTT...TTTTTTT"
+    "TTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T........T.T...................T...............T",
+    "T...TT...TT..................TT.........T...TT.T",
+    "T.....T..T...........TT.........T....TT.TT..TT.T",
+    "T......T.....T...TT.TTT.....T~.TT...T.....T.T..T",
+    "T.T.T...TT...TTTTTT.T.R....T..~.~T.T.....TTTTT.T",
+    "T.TT.TT.......TTTT.TT.T....T...~TTTT....TTT...TT",
+    "T..TTTR.......TTTT..T.......T....R.T....TTT...TT",
+    "TTT.TTTT......TTTT.TT.....R.TTTTT~.RT......TTT.T",
+    "TTT....TT..T...TTT.T.T......RT.T.~~.TT.T..TT...T",
+    "TTT...TTTTT...T.T.T.RTT....T.TTTT....TTT..TT...T",
+    "TT..RTTTT.T....TTTTRTTT.........................",
+    "T....TTTT.......T....T..........................",
+    "TT.TTTTTT.............T.........................",
+    "T.TT.T.TT.~TT................TT~..T.T.T.T.TTTT.T",
+    "T..T.....~~T.TT.......T....TT.T.....TT.....TT..T",
+    "T....T...~....TT.....TT...TTT.T..T......T....T.T",
+    "..........................TT.T....T..TTTT..TTT.T",
+    "..........................TTT....TR...TT...TT..T",
+    "..........................T.....TTTT.T...TTTTT.T",
+    "T...T.TTT....T..TT.TTTT...T.R....T.....TTTTT.T.T",
+    "T.T.TT.TTT.~...TTTTTTTT....TT..........TTTT.TT.T",
+    "TTT...TTT.~~~.......T.T.....T......TT....TT..TTT",
+    "T..TTTTT.TT~........TTT......TTT....T....RTT..TT",
+    "T..TTT...TTTT.TT...TT.....TTTTT..R........TTTTTT",
+    "T..T.TT...TTTTT....TT.....TTTT....RTT..TT.T..TTT",
+    "T...TT.T.TR.T..T.T.TT.T...T......TTT~~TTTTT...TT",
+    "T..TT.TTT.T...TTRTRTT.T...T....TTT.R..TT.T.....T",
+    "T..~~~.....T....TT.T~~.....T.....T......TTTT...T",
+    "T...~~....................T.............TTT....T",
+    "T..............................................T",
+    "TTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 2
+        "x": 47,
+        "y": 11
       },
       "to": "woods-2-3",
       "arrival": {
         "x": 1,
-        "y": 2
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 11
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 3
+        "x": 47,
+        "y": 12
       },
       "to": "woods-2-3",
       "arrival": {
         "x": 1,
-        "y": 3
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 12
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 4
+        "x": 47,
+        "y": 13
       },
       "to": "woods-2-3",
       "arrival": {
         "x": 1,
-        "y": 4
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 13
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 4
+        "y": 17
       },
       "to": "woods-0-3",
       "arrival": {
-        "x": 14,
-        "y": 4
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 17
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 5
+        "y": 18
       },
       "to": "woods-0-3",
       "arrival": {
-        "x": 14,
-        "y": 5
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 18
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 6
+        "y": 19
       },
       "to": "woods-0-3",
       "arrival": {
-        "x": 14,
-        "y": 6
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
-      }
-    },
-    {
-      "at": {
-        "x": 6,
-        "y": 11
-      },
-      "to": "woods-1-4",
-      "arrival": {
-        "x": 6,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 7,
-        "y": 11
-      },
-      "to": "woods-1-4",
-      "arrival": {
-        "x": 7,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 8,
-        "y": 11
-      },
-      "to": "woods-1-4",
-      "arrival": {
-        "x": 8,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 9,
-        "y": 0
-      },
-      "to": "woods-1-2",
-      "arrival": {
-        "x": 9,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 46,
+        "y": 19
       }
     },
     {
       "at": {
         "x": 10,
-        "y": 0
+        "y": 31
       },
-      "to": "woods-1-2",
+      "to": "woods-1-4",
       "arrival": {
         "x": 10,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "y": 1
       }
     },
     {
       "at": {
         "x": 11,
+        "y": 31
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 11,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 12,
+        "y": 31
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 19,
         "y": 0
       },
       "to": "woods-1-2",
       "arrival": {
-        "x": 11,
-        "y": 10
+        "x": 19,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 20,
+        "y": 0
       },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+      "to": "woods-1-2",
+      "arrival": {
+        "x": 20,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 0
+      },
+      "to": "woods-1-2",
+      "arrival": {
+        "x": 21,
+        "y": 30
       }
     }
   ]

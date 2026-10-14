@@ -30,13 +30,13 @@ public class WorldTests
     }
 
     [Fact]
-    public void TheWoods_AreFiveByFiveMaps_OfTheVillagesSize_WestOfIt_EachOpenOnItsNeighbours()
+    public void TheWoods_AreFiveByFiveMaps_Of48By32_WestOfTheVillage_EachOpenOnItsNeighbours()
     {
         Town village = Real.Towns["clairval"];
         Town[] woods = [.. Real.Towns.Values.Where(t => t.Zone == "woods")];
         Assert.Equal(25, woods.Length);
         Assert.Equal((null, new Cell(0, 0)), (village.Zone, village.MapAt));
-        Assert.All(woods, t => Assert.Equal((16, 12, 3, "Bois de Clairval", "Clairval Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.All(woods, t => Assert.Equal((48, 32, 3, "Bois de Clairval", "Clairval Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(-2, 5).Select(y => new Cell(x, y)))],
             woods.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         foreach (Town a in woods)
@@ -51,7 +51,15 @@ public class WorldTests
         // The village's west road opens on the middle of the woods' east side.
         Assert.All(village.Links!, l => Assert.Equal("woods-4-2", l.To));
         Assert.Equal(new Cell(-1, 0), Real.Towns["woods-4-2"].MapAt);
-        Assert.All(Real.Towns.Values.SelectMany(t => t.Links ?? []), l => Assert.False(string.IsNullOrWhiteSpace(l.Name.Fr) || string.IsNullOrWhiteSpace(l.Name.En)));
+        // A way to another zone is named after it alone (D64: no compass points); inside a zone, no name.
+        foreach (Town t in Real.Towns.Values)
+        {
+            foreach (ZoneLink l in t.Links ?? [])
+            {
+                Town to = Real.Towns[l.To];
+                Assert.Equal(to.ZoneId == t.ZoneId ? null : to.Name, l.Name);
+            }
+        }
     }
 
     [Fact]
@@ -59,7 +67,7 @@ public class WorldTests
     {
         Town[] mouldy = [.. Real.Towns.Values.Where(t => t.Zone == "mouldy")];
         Assert.Equal(25, mouldy.Length);
-        Assert.All(mouldy, t => Assert.Equal((16, 12, 10, "Bois moisi", "Mouldy Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.All(mouldy, t => Assert.Equal((48, 32, 10, "Bois moisi", "Mouldy Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(-10, 5).SelectMany(x => Enumerable.Range(-2, 5).Select(y => new Cell(x, y)))],
             mouldy.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         // Its giant mushrooms, and the woods' ways to it, three cells each, both ways.
@@ -78,13 +86,13 @@ public class WorldTests
     {
         Town[] lake = [.. Real.Towns.Values.Where(t => t.Zone == "lake")];
         Assert.Equal(25, lake.Length);
-        Assert.All(lake, t => Assert.Equal((16, 12, 18, "Lac des Joncs", "Reed Lake"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.All(lake, t => Assert.Equal((48, 32, 18, "Lac des Joncs", "Reed Lake"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(-7, 5).Select(y => new Cell(x, y)))],
             lake.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         // The middle map: water crossed by pontoons, an islet in its middle; the shores have their bushes.
         Town middle = Real.Towns["lake-2-2"];
-        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '~')) > 60);
-        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '=')) > 10);
+        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '~')) > 500);
+        Assert.True(middle.Rows.Sum(r => r.Count(c => c == '=')) > 30);
         Assert.Equal('.', middle[middle.Spawn + new Cell(-2, 1)]);
         Assert.Contains(lake, t => t.Rows.Any(r => r.Contains('B')));
         foreach (int col in new[] { 1, 3 })
@@ -99,7 +107,7 @@ public class WorldTests
     {
         Town[] fields = [.. Real.Towns.Values.Where(t => t.Zone == "fields")];
         Assert.Equal(25, fields.Length);
-        Assert.All(fields, t => Assert.Equal((16, 12, 26, "Champs de Clairval", "Clairval Fields"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
+        Assert.All(fields, t => Assert.Equal((48, 32, 26, "Champs de Clairval", "Clairval Fields"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(3, 5).Select(y => new Cell(x, y)))],
             fields.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         // Flowers one walks on, hedges one does not.

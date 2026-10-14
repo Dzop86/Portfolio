@@ -1,5 +1,5 @@
-# Writes the zones of the world (sprint 70, D63): a zone is a grid of 5 x 5 maps of 16 x 12 cells, the
-# size of the village, each bordered (trees, or hedges) and open towards its neighbours; walking onto an
+# Writes the zones of the world (sprint 70, D63): a zone is a grid of 5 x 5 maps of 48 x 32 cells
+# (sprint 77, D64; 16 x 12, the village's size, before), each bordered (trees, or hedges) and open towards its neighbours; walking onto an
 # opening leads to the next map. The woods west of Clairval (sprint 70), the mouldy woods west of them
 # (sprint 74), the lake north of them (sprint 75), the fields south of them (sprint 76), each zone
 # opening on the woods by two maps (data/towns/<zone>-<col>-<row>.json); Clairval's west way is written
@@ -10,9 +10,11 @@ import collections, glob, json, os, random, sys
 
 root = sys.argv[1]
 O = collections.OrderedDict
-W, H = 16, 12
+W, H = 48, 32
 SIZE = 5
-CENTRE = (8, 6)
+CENTRE = (24, 16)
+# The decor of a style is given for a map of 16 x 12: its clusters grow with the map.
+AREA = (W * H) // (16 * 12)
 
 
 def cell(x, y): return O([("x", x), ("y", y)])
@@ -98,7 +100,7 @@ def woods_map(seed, openings, exit_at, style="woods", water=None):
                 g[y][x] = '='
         near = {(x + dx, y + dy) for (x, y) in keep for (dx, dy) in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))}
         for (ch, count, size) in decor_of(rnd):
-            for _ in range(count):
+            for _ in range(count * AREA):
                 x, y = rnd.randrange(2, W - 2), rnd.randrange(2, H - 2)
                 for _ in range(size):
                     if 1 <= x < W - 1 and 1 <= y < H - 1 and (x, y) not in near and g[y][x] != '~':
@@ -151,7 +153,8 @@ def zone(zid, name, level, origin, seed, style="woods", exits=None, outside=None
                 if key in starts:
                     cells = edge_cells(side, starts[key], 3)
                     to = f"{zid}-{col + dx}-{row + dy}"
-                    links += [O([("at", cell(*e)), ("to", to), ("arrival", cell(*mirror(side, e))), ("name", side_name)]) for (e, _) in cells]
+                    # A way inside the zone has no name (D64): its ring says enough.
+                    links += [O([("at", cell(*e)), ("to", to), ("arrival", cell(*mirror(side, e)))]) for (e, _) in cells]
                     openings[side] = cells
                 elif (col, row, side) in outside:
                     to, ways, way_name = outside[(col, row, side)]
@@ -187,27 +190,27 @@ NAMES = {
 
 
 def towards(side, zid):
-    d = SIDES[side][1]
-    return text(f"{d['fr']} : {NAMES[zid]['fr']}", f"{d['en']}: {NAMES[zid]['en']}")
+    """A way to another zone is named after that zone alone (D64: no compass points)."""
+    return NAMES[zid]
 
 
-outsides = {"woods": {(4, 2, "east"): ("clairval", [((15, 5), (1, 5)), ((15, 6), (1, 6))], text("Est : Clairval", "East: Clairval"))}}
+outsides = {"woods": {(4, 2, "east"): ("clairval", [((W - 1, 5), (1, 5)), ((W - 1, 6), (1, 6))], text("Clairval", "Clairval"))}}
 # Each zone opens on the woods by two maps (sprints 74 to 76).
-for (row, start) in ((1, 5), (3, 4)):
+for (row, start) in ((1, 14), (3, 12)):
     bridge(outsides, ("woods", 0, row), ("mouldy", 4, row), "west", start, (towards("west", "mouldy"), towards("east", "woods")))
-for (col, start) in ((1, 6), (3, 6)):
+for (col, start) in ((1, 22), (3, 22)):
     bridge(outsides, ("woods", col, 0), ("lake", col, 4), "north", start, (towards("north", "lake"), towards("south", "woods")))
     bridge(outsides, ("woods", col, 4), ("fields", col, 0), "south", start, (towards("south", "fields"), towards("north", "woods")))
 
 
 def lake_water(gx, gy):
     """
-    The lake: an ellipse over the middle of the zone (80 x 60 cells), its shore a little ragged, an
+    The lake: an ellipse over the middle of the zone, its shore a little ragged, an
     islet in the middle of every map (room for its groups of monsters, which a pontoon cannot hold).
     """
-    if abs(gx % W - CENTRE[0]) <= 3 and abs(gy % H - CENTRE[1]) <= 3:
+    if abs(gx % W - CENTRE[0]) <= 6 and abs(gy % H - CENTRE[1]) <= 5:
         return False
-    dx, dy = (gx - 40) / 27, (gy - 30) / 19
+    dx, dy = (gx - 2.5 * W) / (1.7 * W), (gy - 2.5 * H) / (1.6 * H)
     wobble = 0.08 * ((gx * 7 + gy * 13) % 5 - 2)
     return dx * dx + dy * dy < 1 + wobble
 
@@ -219,7 +222,7 @@ outsides = {z: {k: v for k, v in ways.items() if v[0] == "clairval" or v[0].rspl
 zones = [
     # The woods, west of the village (at 0, 0): their east middle map opens on Clairval's west road (rows 5 and 6).
     zone("woods", NAMES["woods"], 3, (-5, -2), 70,
-         exits={(2, 2): ((5, 6), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]),
+         exits={(2, 2): ((19, 16), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]),
 ]
 ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76)}
 for zid in sys.argv[2:]:

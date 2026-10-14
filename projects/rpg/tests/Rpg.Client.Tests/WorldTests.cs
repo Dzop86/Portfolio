@@ -15,9 +15,10 @@ public class WorldTests
         // Nothing else to do there: the zone changes.
         Assert.Null(town.Click(new Cell(1, 6)));
         TownController woods = town.Enter(town.Travel!);
-        Assert.Equal(("woods-4-2", new Cell(14, 5), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
-        // Walking past a way does not take it: only stopping on it.
-        Assert.Null(woods.Click(new Cell(13, 6))!.Link);
+        Assert.Equal(("woods-4-2", new Cell(46, 5), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
+        // Walking elsewhere does not take a way: only stopping on it.
+        Cell inside = woods.Board.Cells().First(c => c.X == 40 && woods.IsFree(c) && woods.Town.LinkAt(c) is null);
+        Assert.Null(woods.Click(inside)!.Link);
         Assert.Null(woods.Travel);
         // From map to map: the way north arrives on the bottom edge of the map above.
         ZoneLink north = woods.Town.Links!.First(l => l.To == "woods-4-1");

@@ -11,204 +11,188 @@
     "y": 1
   },
   "rows": [
-    "TTTTTT...TTTTTTT",
-    "T..............T",
-    "T.........T..T.T",
-    "T.T.T.....TTTT.T",
-    "................",
-    "................",
-    "................",
-    "T..TTR......TT.T",
-    "TTTTTT......T..T",
-    "T.TT.........T.T",
-    "T.............TT",
-    "TTTT...TTTTTTTTT"
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTT",
+    "T..TTTT..................................TT....T",
+    "T..TT.T.........T........................T.TT..T",
+    "T...TTT........TTTT...T.....T.T.TTTTT...TT.TTTTT",
+    "TT.T.T.R......T.TTT...T....T......TT..TTTTT..TTT",
+    "T.TT.TTT......T..TTTTTT...TRT......TT..TTT...TTT",
+    "T..TTTTT....T...TTTT......TTTT....TTTT..TT...TTT",
+    "T.TT.T.....T......TT.......RT....TRTTTT.T...TT.T",
+    "TTRTTTTTTTTT...T.TTTTT..........TTR.TT.....TTTTT",
+    "T..T..TTTT..T.TTTT.TT.....T.....T..TT..TTT.TTTTT",
+    "TTTTTT.TTTTTT..T..T.TT....T...TT...T.....TTTTTTT",
+    "T..TTTTTTTTTT.......T.....T......T.T....TT.T...T",
+    "..........................T....TTTTTR.TTT...T..T",
+    ".............................TT.TT...T...TT....T",
+    "............................TTT......T...T..T..T",
+    "T.TTTT...RTT...TT.........T.T..T..........TT...T",
+    "T..TTTTT.TTTT..T.T........TT.TT.T.........TTT..T",
+    "T.....TTT.TT...TT..TT...........................",
+    "T..TTTTT..TT...R.TT.T.T.........................",
+    "T..........TTTT...T...T.........................",
+    "T...T....R...T.T..........TTT.T..TT............T",
+    "TT.T...T.T...T..TTT...T...TTT.TTT..TTT.TTTT..TTT",
+    "T.T...RTTT..T.T...T.TTT...TT.TTTT...TT.T.TTT..TT",
+    "T.....TTTTT.T.TT..TTTRT...T....TR...TT..TTTR...T",
+    "T..R.T.TTTTTTTTTT.TTT.R.........T...T.....TTTTTT",
+    "T...T...TTTTTTT..TTTT.R.......TTT...T....T.TTT.T",
+    "T...T...TTRT...T.T........T....TTT.T.T.......T.T",
+    "T..T.......TTTT...T.......TT....T.TTTT.........T",
+    "T.T...R...TTTT...................T..T......TT..T",
+    "T...........T..T...R...........T.....TTT....TT.T",
+    "T............TTT..............T.........TT...T.T",
+    "TTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 4
+        "x": 47,
+        "y": 17
       },
       "to": "woods-1-3",
       "arrival": {
         "x": 1,
-        "y": 4
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 17
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 5
+        "x": 47,
+        "y": 18
       },
       "to": "woods-1-3",
       "arrival": {
         "x": 1,
-        "y": 5
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 18
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 6
+        "x": 47,
+        "y": 19
       },
       "to": "woods-1-3",
       "arrival": {
         "x": 1,
-        "y": 6
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 19
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 4
+        "y": 12
       },
       "to": "mouldy-4-3",
       "arrival": {
-        "x": 14,
-        "y": 4
+        "x": 46,
+        "y": 12
       },
       "name": {
-        "fr": "Ouest : Bois moisi",
-        "en": "West: Mouldy Woods"
+        "fr": "Bois moisi",
+        "en": "Mouldy Woods"
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 5
+        "y": 13
       },
       "to": "mouldy-4-3",
       "arrival": {
-        "x": 14,
-        "y": 5
+        "x": 46,
+        "y": 13
       },
       "name": {
-        "fr": "Ouest : Bois moisi",
-        "en": "West: Mouldy Woods"
+        "fr": "Bois moisi",
+        "en": "Mouldy Woods"
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 6
+        "y": 14
       },
       "to": "mouldy-4-3",
       "arrival": {
-        "x": 14,
-        "y": 6
+        "x": 46,
+        "y": 14
       },
       "name": {
-        "fr": "Ouest : Bois moisi",
-        "en": "West: Mouldy Woods"
+        "fr": "Bois moisi",
+        "en": "Mouldy Woods"
       }
     },
     {
       "at": {
-        "x": 4,
-        "y": 11
+        "x": 24,
+        "y": 31
       },
       "to": "woods-0-4",
       "arrival": {
-        "x": 4,
+        "x": 24,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 5,
-        "y": 11
+        "x": 25,
+        "y": 31
       },
       "to": "woods-0-4",
       "arrival": {
-        "x": 5,
+        "x": 25,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 6,
-        "y": 11
+        "x": 26,
+        "y": 31
       },
       "to": "woods-0-4",
       "arrival": {
-        "x": 6,
+        "x": 26,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 6,
+        "x": 34,
         "y": 0
       },
       "to": "woods-0-2",
       "arrival": {
-        "x": 6,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 34,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 7,
+        "x": 35,
         "y": 0
       },
       "to": "woods-0-2",
       "arrival": {
-        "x": 7,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 35,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 8,
+        "x": 36,
         "y": 0
       },
       "to": "woods-0-2",
       "arrival": {
-        "x": 8,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 36,
+        "y": 30
       }
     }
   ]

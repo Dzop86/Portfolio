@@ -11,204 +11,176 @@
     "y": -1
   },
   "rows": [
-    "TTTT...TTTTTTTTT",
-    "T..............T",
-    "T.T.........TR.T",
-    "...........TTTTT",
-    "..........TTTT.T",
-    "................",
-    "T..T..T.........",
-    "T..TTTR.........",
-    "T.T.TT....T.T..T",
-    "T..TT......TTT.T",
-    "T..T........T..T",
-    "TTTTT...TTTTTTTT"
+    "TTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T.......T..............................T.T.....T",
+    "T......TTT................TT..........TTT.TT.TTT",
+    "T...T........T......TT....TT..T.....T...T.TTTT.T",
+    "T..R.TT...TT..T......T....T..TT.....TT..TT..TT.T",
+    "T........TTTTT............TTT.T......TTTTR...TTT",
+    "T.....R...TTTT.............TTTT..R....TT.T..T..T",
+    "T.R.T.....T.T..TT...........TTT....T..T..TT.TT.T",
+    ".............................TT...TTTTR...TT.T.T",
+    "............................T.....TTT.TT.TT....T",
+    "..........................TTT.....TTTT...TT....T",
+    "T..TTT.T.....T............TTT....TTTT..TRT.....T",
+    "TTT.TTT.TT............T..........TTT..T.T......T",
+    "T..TT.T..TT....TT............T..TTTTT..T....TT.T",
+    "T....T..T....TTT.TTT........TTT.RTTT..T.....TT.T",
+    "TTTTTTT..T.....TTT.T.........TTTT.TTTTR.TR..T..T",
+    "T.TTTTT.T.......TTTT........T.T.T.TTT.T.TTTT...T",
+    "T..TTT.T....T..TTTT.TT....T..T.T..TT...T.TTTT..T",
+    "T.TTTTT......T.TTTT.TTT....T.TTTTTTT....TT..T..T",
+    "T.T.TT.TT..TTTT.TT...TT...TTTTTT.TTT...T.......T",
+    "T.RTT.TT.T.TTTTT......T...TTTTTTT...T.TTTT.....T",
+    "T....TT....TT..T......T...TTTT.T.....T..T......T",
+    "TTT.....T...T...TT...TT...TTT.T.T.T.T..R.......T",
+    "TTT....TT......TTT....T...TTTR.TTT.TTTR..TT....T",
+    "TTR.TTT......T.TTT........TTT.TTTT..TRT..TT....T",
+    "T.T.TT...T..T...TTT.......TRTT.TTT........T....T",
+    "T........TTTTT..TT..........TT.TT.RT...........T",
+    "T.TTTT....T..T..................................",
+    "T..TTT..........................................",
+    "T....TT..........TT.............................",
+    "T....T..........TT....................T........T",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 5
+        "x": 47,
+        "y": 27
       },
       "to": "woods-3-1",
       "arrival": {
         "x": 1,
-        "y": 5
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 27
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 6
+        "x": 47,
+        "y": 28
       },
       "to": "woods-3-1",
       "arrival": {
         "x": 1,
-        "y": 6
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 28
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 7
+        "x": 47,
+        "y": 29
       },
       "to": "woods-3-1",
       "arrival": {
         "x": 1,
-        "y": 7
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 29
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 3
+        "y": 8
       },
       "to": "woods-1-1",
       "arrival": {
-        "x": 14,
-        "y": 3
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 8
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 4
+        "y": 9
       },
       "to": "woods-1-1",
       "arrival": {
-        "x": 14,
-        "y": 4
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 9
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 5
+        "y": 10
       },
       "to": "woods-1-1",
       "arrival": {
-        "x": 14,
-        "y": 5
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 10
       }
     },
     {
       "at": {
-        "x": 5,
-        "y": 11
+        "x": 26,
+        "y": 31
       },
       "to": "woods-2-2",
       "arrival": {
-        "x": 5,
+        "x": 26,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 6,
-        "y": 11
+        "x": 27,
+        "y": 31
       },
       "to": "woods-2-2",
       "arrival": {
-        "x": 6,
+        "x": 27,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 7,
-        "y": 11
+        "x": 28,
+        "y": 31
       },
       "to": "woods-2-2",
       "arrival": {
-        "x": 7,
+        "x": 28,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 4,
+        "x": 10,
         "y": 0
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 4,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 10,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 5,
+        "x": 11,
         "y": 0
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 5,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 11,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 6,
+        "x": 12,
         "y": 0
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 6,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 12,
+        "y": 30
       }
     }
   ]

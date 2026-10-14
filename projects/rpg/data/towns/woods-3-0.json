@@ -11,204 +11,188 @@
     "y": -2
   },
   "rows": [
-    "TTTTTT...TTTTTTT",
-    "T..........T.TTT",
-    "T.........T.TR.T",
-    "T..........TT..T",
-    "T....T..........",
-    "................",
-    "................",
-    "..........T..T.T",
-    "T.TTT.T....RTT.T",
-    "T.........TTTT.T",
-    "T............T.T",
-    "TTT...TTTTTTTTTT"
+    "TTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTT",
+    "T..............T............T...........TT.....T",
+    "T.......TT..T...T.........TTTT.........TTTT.T..T",
+    "T....T..TTRT...T..TT.T....TT...TT.TT....TTTTT..T",
+    "T....TTTTTT......RT.T.....TT....TT.RTTTT.TT....T",
+    "T.T....T.TT...R.......T.....TT....T.T.TTTT.....T",
+    "T.TT.T..TTT...TT.....TT.....TT..TT.TTRTTTT.....T",
+    "T.TTR.TTTTT....TT.....T......T..TT...T....T....T",
+    "T......T.......TTT....T...T..T.T......TT...T...T",
+    "T...........TTTT...TTT....T.T..T......T....TTT.T",
+    "T........T.TTTTT..T.T.T...TTT.TTTTTT.T.T....T..T",
+    "T.......TTT.....T..T.......TTT.T.TTTTT.TT......T",
+    "T....T.T.TR...R.TT...TT.........................",
+    "T....T.TT.......T..T..T.........................",
+    "T.T...TTT.......TT.T............................",
+    "T..T.TTRTT..T..TTTR...R...TTRT.......TT.....TT.T",
+    "..........................TTT.......T......T...T",
+    "..........................T.......T...T.....T..T",
+    "..........................T..TTTTT...T.......TTT",
+    "T.TTTT....TT.TTTT..........TTTTTTTT...T........T",
+    "T..TT...TTTTTT.TT.........T.TT.T..TTTT.T.......T",
+    "T.TTTTTTTT..T...TT........TTTTTTT..T..T........T",
+    "T.....TTTTT..TTT..........TTTTT......T....TT...T",
+    "T...TT.TT..TT.T.....R.....TTTTTTT...T...T.TTT.TT",
+    "T..T..T.........T...........TTTTTT..TT...T.TTT.T",
+    "T...............TTT........TTTTTTT.T.....TTTTT.T",
+    "T.........T....T...........R..TTTTTT.....TTTTT.T",
+    "T........TT...TTT.........T...TTTTRTT.T.TTTTT..T",
+    "T.....T..T.T.TTTT...T.T.......T.T.TT..T...TRTT.T",
+    "T....TTT.....................TT....T.TT..TT..T.T",
+    "T....T....................TTT.T.....T.....T.T..T",
+    "TTTTTTTT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 4
+        "x": 47,
+        "y": 12
       },
       "to": "woods-4-0",
       "arrival": {
         "x": 1,
-        "y": 4
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 12
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 5
+        "x": 47,
+        "y": 13
       },
       "to": "woods-4-0",
       "arrival": {
         "x": 1,
-        "y": 5
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 13
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 6
+        "x": 47,
+        "y": 14
       },
       "to": "woods-4-0",
       "arrival": {
         "x": 1,
-        "y": 6
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 14
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 5
+        "y": 16
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 14,
-        "y": 5
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 16
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 6
+        "y": 17
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 14,
-        "y": 6
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 17
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 7
+        "y": 18
       },
       "to": "woods-2-0",
       "arrival": {
-        "x": 14,
-        "y": 7
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
-      }
-    },
-    {
-      "at": {
-        "x": 3,
-        "y": 11
-      },
-      "to": "woods-3-1",
-      "arrival": {
-        "x": 3,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 4,
-        "y": 11
-      },
-      "to": "woods-3-1",
-      "arrival": {
-        "x": 4,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 5,
-        "y": 11
-      },
-      "to": "woods-3-1",
-      "arrival": {
-        "x": 5,
-        "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
-      }
-    },
-    {
-      "at": {
-        "x": 6,
-        "y": 0
-      },
-      "to": "lake-3-4",
-      "arrival": {
-        "x": 6,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord : Lac des Joncs",
-        "en": "North: Reed Lake"
-      }
-    },
-    {
-      "at": {
-        "x": 7,
-        "y": 0
-      },
-      "to": "lake-3-4",
-      "arrival": {
-        "x": 7,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord : Lac des Joncs",
-        "en": "North: Reed Lake"
+        "x": 46,
+        "y": 18
       }
     },
     {
       "at": {
         "x": 8,
+        "y": 31
+      },
+      "to": "woods-3-1",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 31
+      },
+      "to": "woods-3-1",
+      "arrival": {
+        "x": 9,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 31
+      },
+      "to": "woods-3-1",
+      "arrival": {
+        "x": 10,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 22,
         "y": 0
       },
       "to": "lake-3-4",
       "arrival": {
-        "x": 8,
-        "y": 10
+        "x": 22,
+        "y": 30
       },
       "name": {
-        "fr": "Nord : Lac des Joncs",
-        "en": "North: Reed Lake"
+        "fr": "Lac des Joncs",
+        "en": "Reed Lake"
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 0
+      },
+      "to": "lake-3-4",
+      "arrival": {
+        "x": 23,
+        "y": 30
+      },
+      "name": {
+        "fr": "Lac des Joncs",
+        "en": "Reed Lake"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 0
+      },
+      "to": "lake-3-4",
+      "arrival": {
+        "x": 24,
+        "y": 30
+      },
+      "name": {
+        "fr": "Lac des Joncs",
+        "en": "Reed Lake"
       }
     }
   ]

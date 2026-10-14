@@ -11,7 +11,8 @@ namespace Rpg.Client;
 /// </summary>
 public sealed class WorldPicture
 {
-    public const int CellPixels = 8;
+    /// <summary>Pixels a cell, square: 4 since the maps of 48 × 32 (sprint 77), 8 before.</summary>
+    public const int CellPixels = 4;
 
     private readonly GameData _data;
     private readonly Cell _origin;
@@ -111,6 +112,9 @@ public sealed class WorldPicture
     private void DrawCell(Town map, Cell c, int px, int py)
     {
         const int P = CellPixels;
+        // The drawings are made for a cell of 8 pixels, and scaled to CellPixels.
+        const double K = P / 8.0;
+        int S(double v) => (int)Math.Round(v * K);
         char k = map[c];
         // Grass in checks, as the board is drawn, in the zone's colour, under everything that stands on grass.
         (Rgb light, Rgb dark) = ZoneStyle.Sky(map.Zone);
@@ -122,19 +126,18 @@ public sealed class WorldPicture
                 break;
             case '~':
                 Fill(px, py, P, P, Water);
-                Fill(px + 1, py + 2, 3, 1, WaterLight);
-                Fill(px + 4, py + 5, 3, 1, WaterLight);
+                Fill(px + S(1), py + S(2), Math.Max(1, S(3)), Math.Max(1, S(1)), WaterLight);
                 break;
             case 'T':
                 Fill(px, py, P, P, ground);
-                Disc(px + 4.5, py + 4.5, 3.2, Shadow);
-                Disc(px + 4, py + 4, 3.4, Tree);
-                Disc(px + 3.2, py + 3.2, 1.4, TreeLight);
+                Disc(px + 4.5 * K, py + 4.5 * K, 3.2 * K, Shadow);
+                Disc(px + 4 * K, py + 4 * K, 3.4 * K, Tree);
+                Disc(px + 3.2 * K, py + 3.2 * K, 1.4 * K, TreeLight);
                 break;
             case 'R':
                 Fill(px, py, P, P, ground);
-                Disc(px + 4, py + 4.4, 2.8, Rock);
-                Disc(px + 3.4, py + 3.6, 1.2, RockLight);
+                Disc(px + 4 * K, py + 4.4 * K, 2.8 * K, Rock);
+                Disc(px + 3.4 * K, py + 3.6 * K, 1.2 * K, RockLight);
                 break;
             case 'H' or 'h':
                 Fill(px, py, P, P, Roof);
@@ -150,38 +153,34 @@ public sealed class WorldPicture
                 break;
             case 'F' or 'f':
                 Fill(px, py, P, P, Stone);
-                Fill(px + 2, py + 2, P - 4, P - 4, Water);
+                Fill(px + S(2), py + S(2), P - 2 * S(2), P - 2 * S(2), Water);
                 break;
             case 'S':
                 Fill(px, py, P, P, ground);
-                Fill(px + 1, py + 2, P - 2, P - 4, Roof);
+                Fill(px + S(1), py + S(2), P - 2 * S(1), P - 2 * S(2), Roof);
                 break;
             case 'L':
                 Fill(px, py, P, P, ground);
-                Disc(px + 4, py + 4, 1.6, Light);
+                Disc(px + 4 * K, py + 4 * K, 1.6 * K, Light);
                 break;
             case 'C':
                 Fill(px, py, P, P, ground);
-                Fill(px + 1, py + 2, P - 2, P - 4, Wood);
+                Fill(px + S(1), py + S(2), P - 2 * S(1), P - 2 * S(2), Wood);
                 break;
             case 'M':
                 Fill(px, py, P, P, ground);
-                Disc(px + 4, py + 4, 3.2, Cap);
-                Fill(px + 2, py + 3, 1, 1, Spots);
-                Fill(px + 5, py + 2, 1, 1, Spots);
-                Fill(px + 4, py + 5, 1, 1, Spots);
+                Disc(px + 4 * K, py + 4 * K, 3.2 * K, Cap);
+                Fill(px + S(2), py + S(3), 1, 1, Spots);
                 break;
             case 'B':
                 Fill(px, py, P, P, ground);
-                Fill(px + 1, py + 1, P - 2, P - 2, Bush);
-                Fill(px + 2, py + 2, 2, 2, TreeLight);
+                Fill(px + S(1), py + S(1), P - 2 * S(1), P - 2 * S(1), Bush);
+                Fill(px + S(2), py + S(2), Math.Max(1, S(2)), Math.Max(1, S(2)), TreeLight);
                 break;
             case ',':
                 Fill(px, py, P, P, ground);
-                Fill(px + 1, py + 2, 1, 1, Light);
-                Fill(px + 5, py + 1, 1, 1, Petal);
-                Fill(px + 3, py + 5, 1, 1, Light);
-                Fill(px + 6, py + 6, 1, 1, Petal);
+                Fill(px + S(1), py + S(2), 1, 1, Light);
+                Fill(px + S(5), py + S(5), 1, 1, Petal);
                 break;
             default:
                 Fill(px, py, P, P, ground);

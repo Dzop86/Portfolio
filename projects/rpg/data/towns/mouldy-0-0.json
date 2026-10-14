@@ -11,114 +11,110 @@
     "y": -2
   },
   "rows": [
-    "TTTTTTTTTTTTTTTT",
-    "TTT..T......M..T",
-    "T.R..T.MMMMMM.TT",
-    "T...TT....TMTTTT",
-    "T...MMTTT.MTTT.T",
-    "T....MTT..MTTT.T",
-    "T...MMT.........",
-    "T.....M.........",
-    "T...MMT.........",
-    "T....MT......T.T",
-    "T..............T",
-    "TTTTTTTTTT...TTT"
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "T....................M..................TTTT...T",
+    "T...........~........MM.T......MTT...TTTTTTTT..T",
+    "T.........M~~..........T.T....TMT....TT..TTT.M.T",
+    "T.........MMM..~.TMMT.TT...MT.MT..........TTM..T",
+    "T...M........M.~.TMT.MMT.TMTTTT...M.......TM.T.T",
+    "T...MMM..M...M~~R..T.M.MTM....T...RM....T..M..TT",
+    "T....MM.M....~....TTMMMTTT...T.........TTTTMMM.T",
+    "T.T.TTMM.....T~....MT~T.TTM.TR.TT.TT..TTTT.TM..T",
+    "T..TTMT.......T...T..~~T...M.TT..T.T.TTRT.T.M..T",
+    "T..RMTMTTM...TTT...TTT~TT........TT..TTTT..M...T",
+    "T..TMMMTM....TT...T.T~~TR....T..T.R.....~~..M..T",
+    "T.TTM.....TMM.TT...TTTTT..T..TTT.......~.T...T.T",
+    "T..MT.....TMRTT...TMT.T..TTT...T......M.T.M.T..T",
+    "T.MMT...T.TT.TT.TTM.MTT..TTT....M....MM.R..MTT.T",
+    "T...T.~TTR.T...TTTMM.T.T.RT.T...MT...TM...TTMTTT",
+    "T..TR..~TTTTTT....T..MM....T.TT.TTT..MM.T..T...T",
+    "T.T...~.~TT.TTTT.T...MM...TTT~TTTTT..MMMT......T",
+    "T...M....~.T.TMMT.M...M...MT~MMMMTTT...T.TT....T",
+    "T...MR...TT.TTTMMM.R.MT....M~MM.M.~~~..T.TT....T",
+    "T..MM...T...TTTTM.TTMM......~..MMTM.MTTRMT...M.T",
+    "T...TM........T...T...M.........................",
+    "T...TTM~~....TT.M....T~.........................",
+    "T..TTT~.....TT.MM.T..T..........................",
+    "T..TT.~....T.T...TTTT.....M.M.T...M..TTM..MMM..T",
+    "T...TT~~....TTMMT..........TTT~....MTTTT...M...T",
+    "T..TT~...T.TT.MTT....T......T~~.TTTMTTT...M....T",
+    "T.......T...TTTT.TTT.TT...~.TTTT.TTTTTT..M...M.T",
+    "T......TT.....T.T.TT......TTTTTTTTTTTT.TM.....MT",
+    "T.....TTTT.......TTT.................T.MM....M.T",
+    "T......T.........T......................T......T",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 6
+        "x": 47,
+        "y": 21
       },
       "to": "mouldy-1-0",
       "arrival": {
         "x": 1,
-        "y": 6
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 21
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 7
+        "x": 47,
+        "y": 22
       },
       "to": "mouldy-1-0",
       "arrival": {
         "x": 1,
-        "y": 7
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 22
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 8
+        "x": 47,
+        "y": 23
       },
       "to": "mouldy-1-0",
       "arrival": {
         "x": 1,
-        "y": 8
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 23
       }
     },
     {
       "at": {
-        "x": 10,
-        "y": 11
+        "x": 34,
+        "y": 31
       },
       "to": "mouldy-0-1",
       "arrival": {
-        "x": 10,
+        "x": 34,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 11,
-        "y": 11
+        "x": 35,
+        "y": 31
       },
       "to": "mouldy-0-1",
       "arrival": {
-        "x": 11,
+        "x": 35,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 12,
-        "y": 11
+        "x": 36,
+        "y": 31
       },
       "to": "mouldy-0-1",
       "arrival": {
-        "x": 12,
+        "x": 36,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     }
   ]

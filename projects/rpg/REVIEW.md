@@ -39,6 +39,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 74 : le bois moisi (décor, teinte, champignons et zombies, modèles à voir en jouant) ; tes deux règles appliquées partout : deux à quatre groupes de un à dix par carte, les petits faciles seul au niveau de la zone, les hordes et les chefs faits pour plusieurs (T41).
 - [ ] Sprint 75 : le Lac des Joncs (le lac, ses pontons, ses îlots), ses grenouilles et ses crabes (modèles à voir en jouant).
 - [ ] Sprint 76 : les Champs de Clairval (fleurs, haies), leurs abeilles et leurs taupes ; et l'ensemble de D63 : le monde de 101 cartes, huit familles, la règle des groupes (T43).
+- [ ] Sprint 77 : les cartes de 48 × 32 (assez grandes ?), les passages sans points cardinaux ; **à trancher** : agrandir aussi le village (aujourd'hui 16 × 12) ?
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats

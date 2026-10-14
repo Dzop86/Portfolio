@@ -11,204 +11,176 @@
     "y": 0
   },
   "rows": [
-    "TTTTTTTTTT...TTT",
-    "T.T.T..........T",
-    "T.T.............",
-    "TT...TM.........",
-    "TTM..TM.........",
-    "T.MMTTT....MT..T",
-    "..........R.MT.T",
-    "..........MM.T.T",
-    "..........T.MTTT",
-    "T.M.T..........T",
-    "TM...T.........T",
-    "TTTTTTTTTT...TTT"
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTT",
+    "TT.T..TTT..TT.T....TTT.........................T",
+    "T.MMT.TTT...TTMT..TTTT..............MTT........T",
+    "T.TM..~.TT.MMM......T.T...MTTTT....MMTTT.......T",
+    "TTT.T~.~.TTM.MM......T....~MTTTT....MTT..~.MM..T",
+    "T.TTR...~..RTT..TTTTT.....TMM.....MTTTM..~~MM..T",
+    "T.....T....TTT.RT.TTT.....M....M.MTT...M.TMM...T",
+    "TM~.TTT..TTTT....TTTT.....TRM.MMT.T.T...MMT..M.T",
+    "T~M~..TTTTTT....TTTTTTM....TMTTT~.MTTM.MMTMMM..T",
+    "T.~MT.TT.TTTT.T.T.T..MT....T.M.~~M.TTM.MTMMMM..T",
+    "............................MMM~.......TT......T",
+    "...........................T..T.R.MM...TT......T",
+    "..........................T.T.TT....M..........T",
+    "T..........T....MTTT......T.~.TMTTT...MM..R..R.T",
+    "T...........M....M.TMT~...~T~TTTMT.T.......TTT.T",
+    "T....T...~...MM.M....~~....~T~TTM.MMM......TTTTT",
+    "T...TMT.~M~.TTM......TM...~MTT~..M.MM...T......T",
+    "T....MM.~M.TT.T...M..MM...T~TTTMMTM.M.TM.......T",
+    "T...TTT.M...T.T.TM..M......~TTT..T.MM...M...T.TT",
+    "T.TT.T.TTMT..TTT....M.M...TT~..T..TM.MM.M....T.T",
+    "T.TT.TT..M....TTT...MMM...T.~...TMMT.T......T..T",
+    "T.T.M..T.......TT...TM..........................",
+    "T..RM..TTT....TTT...TT..........................",
+    "T......T..T..T.T................................",
+    "T.....T.....TT......TTM.....TR.TM.TTTMM........T",
+    "T.....T....TT..MM..T.MM....TT...T.T.T.T........T",
+    "T....T.TT..TT..M....T.....~TTT.T..TT.TTT.~...R.T",
+    "T.....T....TTT......~T....~TTTT...TT.TMMT~MM...T",
+    "T..........M.M.M...~T.~.....T.......T..MTM~....T",
+    "T.........................RT...........TTM.~T..T",
+    "T.........................TTT...........T.MTT..T",
+    "TT...TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
   ],
   "spawn": {
-    "x": 8,
-    "y": 6
+    "x": 24,
+    "y": 16
   },
   "npcs": [],
   "exits": [],
   "links": [
     {
       "at": {
-        "x": 15,
-        "y": 2
+        "x": 47,
+        "y": 21
       },
       "to": "mouldy-2-2",
       "arrival": {
         "x": 1,
-        "y": 2
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 21
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 3
+        "x": 47,
+        "y": 22
       },
       "to": "mouldy-2-2",
       "arrival": {
         "x": 1,
-        "y": 3
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 22
       }
     },
     {
       "at": {
-        "x": 15,
-        "y": 4
+        "x": 47,
+        "y": 23
       },
       "to": "mouldy-2-2",
       "arrival": {
         "x": 1,
-        "y": 4
-      },
-      "name": {
-        "fr": "Est",
-        "en": "East"
+        "y": 23
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 6
+        "y": 10
       },
       "to": "mouldy-0-2",
       "arrival": {
-        "x": 14,
-        "y": 6
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 10
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 7
+        "y": 11
       },
       "to": "mouldy-0-2",
       "arrival": {
-        "x": 14,
-        "y": 7
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 11
       }
     },
     {
       "at": {
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "to": "mouldy-0-2",
       "arrival": {
-        "x": 14,
-        "y": 8
-      },
-      "name": {
-        "fr": "Ouest",
-        "en": "West"
+        "x": 46,
+        "y": 12
       }
     },
     {
       "at": {
-        "x": 10,
-        "y": 11
+        "x": 2,
+        "y": 31
       },
       "to": "mouldy-1-3",
       "arrival": {
-        "x": 10,
+        "x": 2,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 11,
-        "y": 11
+        "x": 3,
+        "y": 31
       },
       "to": "mouldy-1-3",
       "arrival": {
-        "x": 11,
+        "x": 3,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 12,
-        "y": 11
+        "x": 4,
+        "y": 31
       },
       "to": "mouldy-1-3",
       "arrival": {
-        "x": 12,
+        "x": 4,
         "y": 1
-      },
-      "name": {
-        "fr": "Sud",
-        "en": "South"
       }
     },
     {
       "at": {
-        "x": 10,
+        "x": 31,
         "y": 0
       },
       "to": "mouldy-1-1",
       "arrival": {
-        "x": 10,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 31,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 11,
+        "x": 32,
         "y": 0
       },
       "to": "mouldy-1-1",
       "arrival": {
-        "x": 11,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 32,
+        "y": 30
       }
     },
     {
       "at": {
-        "x": 12,
+        "x": 33,
         "y": 0
       },
       "to": "mouldy-1-1",
       "arrival": {
-        "x": 12,
-        "y": 10
-      },
-      "name": {
-        "fr": "Nord",
-        "en": "North"
+        "x": 33,
+        "y": 30
       }
     }
   ]

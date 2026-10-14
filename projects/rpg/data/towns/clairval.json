@@ -24,8 +24,8 @@
     { "id": "garance", "name": { "fr": "Garance", "en": "Garance" }, "look": "female-f", "colour": 5, "at": { "x": 15, "y": 4 }, "dialogue": "trainer" }
   ],
   "links": [
-    { "at": { "x": 0, "y": 5 }, "to": "woods-4-2", "arrival": { "x": 14, "y": 5 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } },
-    { "at": { "x": 0, "y": 6 }, "to": "woods-4-2", "arrival": { "x": 14, "y": 6 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } }
+    { "at": { "x": 0, "y": 5 }, "to": "woods-4-2", "arrival": { "x": 46, "y": 5 }, "name": { "fr": "Bois de Clairval", "en": "Clairval Woods" } },
+    { "at": { "x": 0, "y": 6 }, "to": "woods-4-2", "arrival": { "x": 46, "y": 6 }, "name": { "fr": "Bois de Clairval", "en": "Clairval Woods" } }
   ],
   "exits": [
     { "at": { "x": 15, "y": 5 }, "scenario": "training", "name": { "fr": "Porte est : entraînement", "en": "East gate: training" } }
