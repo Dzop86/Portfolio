@@ -151,8 +151,8 @@ public sealed class TownController
 public static class TownTour
 {
     /// <summary>
-    /// Goes through the whole world by its ways, from <paramref name="start"/>: each zone entered
-    /// once, each way walked (there, then back when it has a way back). Returns the zones visited.
+    /// Goes through the whole world by its ways, from <paramref name="start"/>: each map entered once,
+    /// by the first way found to it, depth first. Returns the maps visited.
     /// </summary>
     public static IReadOnlyList<string> World(TownController start, Action<TownController, TownStep>? afterClick = null)
     {
@@ -167,6 +167,8 @@ public static class TownTour
                 TownStep step = here.Click(link.At) ?? throw new InvalidOperationException($"Cannot walk to the way to {link.To}.");
                 afterClick?.Invoke(here, step);
                 TownController there = here.Enter(here.Travel!);
+                // Back from there, the player stands on the way, free to walk to the next one.
+                here.Interrupt(here.Position);
                 visited.Add(there.Town.Id);
                 Visit(there);
             }

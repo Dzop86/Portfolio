@@ -10,16 +10,23 @@ public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText Name);
 
 /// <summary>
-/// A zone of the world, as described in <c>data/towns/*.json</c> (a town is one): one walks there and
+/// A map of the world, as described in <c>data/towns/*.json</c> (a town is one): one walks there and
 /// talks; fights start from its exits. Its rows say what stands on each cell (see <see cref="Decor"/>);
-/// the player arrives on <see cref="Spawn"/>. Its <see cref="Links"/> lead to the zones around it,
-/// its <see cref="Level"/> says what level it is meant for, and <see cref="MapAt"/> places it on the
-/// world map (sprint 60).
+/// the player arrives on <see cref="Spawn"/>. Its <see cref="Links"/> lead to the maps around it, each
+/// on the edge that faces its neighbour; its <see cref="Level"/> says what level it is meant for, and
+/// <see cref="MapAt"/> is its place in the world, one step per map, y growing southwards (sprint 60).
+/// Since sprint 70 a zone is a grid of maps, all with the zone's name: <see cref="Zone"/> says which;
+/// a map without one (the village) is a zone of its own.
 /// </summary>
 public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
-    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default)
+    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null)
 {
     public ZoneLink? LinkAt(Cell c) => (Links ?? []).FirstOrDefault(l => l.At == c);
+
+    /// <summary>The zone this map belongs to: <see cref="Zone"/>, or the map itself.</summary>
+    public string ZoneId => Zone ?? Id;
+
+    public int Width => Rows.Count == 0 ? 0 : Rows[0].Length;
 
     /// <summary>
     /// What a character of the rows stands for. Walkable: '.' grass, '=' road. Not walkable: 'H' a house

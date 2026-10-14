@@ -77,7 +77,7 @@ public partial class Main : Node3D
         {
             // The pictures of the world: in the woods, a few steps from the way north.
             if (_options.Shot is "zone" or "world")
-                (_zone, _place) = ("clairval-woods", new Cell(15, 3));
+                (_zone, _place) = ("woods-2-2", new Cell(8, 5));
             ShowTown();
         }
         else if (_options.LobbySelfTest || _options.Shot is "lobby" or "create")

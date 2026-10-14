@@ -1,0 +1,125 @@
+{
+  "id": "woods-4-0",
+  "zone": "woods",
+  "name": {
+    "fr": "Bois de Clairval",
+    "en": "Clairval Woods"
+  },
+  "level": 3,
+  "mapAt": {
+    "x": -1,
+    "y": -2
+  },
+  "rows": [
+    "TTTTTTTTTTTTTTTT",
+    "T..T.TT........T",
+    "T..TTR..T......T",
+    "T...TT..T......T",
+    ".........TTT.T.T",
+    "..........TTT..T",
+    "...........~T..T",
+    "T.T.TT....~~T..T",
+    "T..TTR....T~T..T",
+    "T.........T..T.T",
+    "T..........T..TT",
+    "TTTT...TTTTTTTTT"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 4
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 5
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "woods-3-0",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 4,
+        "y": 11
+      },
+      "to": "woods-4-1",
+      "arrival": {
+        "x": 4,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 5,
+        "y": 11
+      },
+      "to": "woods-4-1",
+      "arrival": {
+        "x": 5,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 11
+      },
+      "to": "woods-4-1",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    }
+  ]
+}

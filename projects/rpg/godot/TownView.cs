@@ -73,8 +73,10 @@ public partial class TownView : Node3D
             AddChild(label);
             _exitLabels.Add((label, exit.Name));
         }
-        // The ways to the other zones, ringed in the accent colour, their names above.
-        foreach (ZoneLink link in town.Links ?? [])
+        // The ways to the other maps, each cell ringed in the accent colour, the name once per way, above its middle cell.
+        IReadOnlyList<ZoneLink> links = town.Links ?? [];
+        var named = links.GroupBy(l => l.To).Select(g => g.OrderBy(l => l.At.X).ThenBy(l => l.At.Y).ElementAt(g.Count() / 2)).ToHashSet();
+        foreach (ZoneLink link in links)
         {
             AddChild(new MeshInstance3D
             {
@@ -83,6 +85,8 @@ public partial class TownView : Node3D
                 Scale = new Vector3(1, 0.15f, 1),
                 Position = BoardView.ToWorld(link.At) + new Vector3(0, 0.05f, 0),
             });
+            if (!named.Contains(link))
+                continue;
             Label3D label = Label(link.Name.In(lang), BoardView.ToWorld(link.At) + new Vector3(0, 0.7f, 0), 36);
             AddChild(label);
             _exitLabels.Add((label, link.Name));

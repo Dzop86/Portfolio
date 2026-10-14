@@ -103,7 +103,7 @@ public partial class TalkPanel : CanvasLayer
     /// <summary>Redraws the texts and the talk from the town's state and the language.</summary>
     public void Refresh()
     {
-        _title.Text = _town.Town.Name.In(Texts.Lang);
+        _title.Text = Texts.MapTitle(_town.Town);
         _help.Text = Texts["town.help"];
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
         _xp.Text = _progress is (int level, long xp) ? Texts.XpLine(level, xp) : "";

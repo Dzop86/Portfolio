@@ -10,15 +10,20 @@ public class WorldTests
     {
         var town = new TownController(GameData.Embedded, "clairval");
         TownStep step = town.Click(new Cell(0, 5))!;
-        Assert.Equal("clairval-woods", step.Link!.To);
+        Assert.Equal("woods-4-2", step.Link!.To);
         Assert.Equal(step.Link, town.Travel);
         // Nothing else to do there: the zone changes.
         Assert.Null(town.Click(new Cell(1, 6)));
         TownController woods = town.Enter(town.Travel!);
-        Assert.Equal(("clairval-woods", new Cell(28, 11), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
+        Assert.Equal(("woods-4-2", new Cell(14, 5), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
         // Walking past a way does not take it: only stopping on it.
-        Assert.Null(woods.Click(new Cell(26, 11))!.Link);
+        Assert.Null(woods.Click(new Cell(13, 6))!.Link);
         Assert.Null(woods.Travel);
+        // From map to map: the way north arrives on the bottom edge of the map above.
+        ZoneLink north = woods.Town.Links!.First(l => l.To == "woods-4-1");
+        Assert.Equal(north, woods.Click(north.At)!.Link);
+        TownController above = woods.Enter(woods.Travel!);
+        Assert.Equal(("woods-4-1", above.Town.Rows.Count - 2), (above.Town.Id, above.Position.Y));
     }
 
     [Fact]
@@ -30,8 +35,18 @@ public class WorldTests
             Assert.NotNull(s.Link);
             steps++;
         });
-        Assert.Equal(["clairval", "clairval-woods", "misty-heath"], zones);
-        Assert.Equal(2, steps);
+        Assert.Equal(26, zones.Count);
+        Assert.Equal(GameData.Embedded.Towns.Keys.Order(StringComparer.Ordinal), zones.Order(StringComparer.Ordinal));
+        Assert.Equal(25, steps);
+    }
+
+    [Fact]
+    public void AMapsTitle_IsItsZone_AndItsPlaceInTheWorld()
+    {
+        Assert.Equal("Bois de Clairval [-3, 0]", new Texts("fr").MapTitle(GameData.Embedded.Towns["woods-2-2"]));
+        Assert.Equal("Clairval Woods [-5, -2]", new Texts("en").MapTitle(GameData.Embedded.Towns["woods-0-0"]));
+        // The village is a zone of its own: its name alone.
+        Assert.Equal("Clairval", new Texts("fr").MapTitle(GameData.Embedded.Towns["clairval"]));
     }
 
     [Fact]

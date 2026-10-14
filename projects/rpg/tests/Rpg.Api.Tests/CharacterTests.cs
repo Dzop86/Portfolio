@@ -142,9 +142,9 @@ public class CharacterTests
         }
         Assert.Equal(new Place("clairval", 1, 6), Assert.Single(await server.Characters(Cancel)).Place);
         // Another zone of the world (sprint 60): the place is kept there too.
-        await server.SavePlace(c.Id, new Place("misty-heath", 6, 8), Cancel);
-        Assert.Equal(new Place("misty-heath", 6, 8), Assert.Single(await server.Characters(Cancel)).Place);
-        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, new Place("misty-heath", 0, 0), Cancel))).Status);
+        await server.SavePlace(c.Id, new Place("woods-2-2", 8, 6), Cancel);
+        Assert.Equal(new Place("woods-2-2", 8, 6), Assert.Single(await server.Characters(Cancel)).Place);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, new Place("woods-2-2", 0, 0), Cancel))).Status);
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         // Nobody moves someone else's character.
         GameServer other = await api.SignedIn("o");

@@ -1,0 +1,215 @@
+{
+  "id": "woods-1-1",
+  "zone": "woods",
+  "name": {
+    "fr": "Bois de Clairval",
+    "en": "Clairval Woods"
+  },
+  "level": 3,
+  "mapAt": {
+    "x": -4,
+    "y": -1
+  },
+  "rows": [
+    "TTTTTTTTT...TTTT",
+    "T..............T",
+    "T..R...........T",
+    "T.T.T.T.........",
+    "T.TTTT..........",
+    "TT.TT...........",
+    "T...TTT...TT...T",
+    "..........T.T.TT",
+    "............TT.T",
+    "...............T",
+    "T..............T",
+    "TTTTTTTT...TTTTT"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 3
+      },
+      "to": "woods-2-1",
+      "arrival": {
+        "x": 1,
+        "y": 3
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 4
+      },
+      "to": "woods-2-1",
+      "arrival": {
+        "x": 1,
+        "y": 4
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 5
+      },
+      "to": "woods-2-1",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 7
+      },
+      "to": "woods-0-1",
+      "arrival": {
+        "x": 14,
+        "y": 7
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 8
+      },
+      "to": "woods-0-1",
+      "arrival": {
+        "x": 14,
+        "y": 8
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 9
+      },
+      "to": "woods-0-1",
+      "arrival": {
+        "x": 14,
+        "y": 9
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 11
+      },
+      "to": "woods-1-2",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 11
+      },
+      "to": "woods-1-2",
+      "arrival": {
+        "x": 9,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 11
+      },
+      "to": "woods-1-2",
+      "arrival": {
+        "x": 10,
+        "y": 1
+      },
+      "name": {
+        "fr": "Sud",
+        "en": "South"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 0
+      },
+      "to": "woods-1-0",
+      "arrival": {
+        "x": 9,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 0
+      },
+      "to": "woods-1-0",
+      "arrival": {
+        "x": 10,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 0
+      },
+      "to": "woods-1-0",
+      "arrival": {
+        "x": 11,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

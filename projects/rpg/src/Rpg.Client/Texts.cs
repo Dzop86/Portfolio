@@ -669,6 +669,17 @@ public sealed class Texts
         return lines;
     }
 
+    /// <summary>
+    /// A map's title: its name, and for a map of a zone of several (sprint 70) its place in the world,
+    /// "Bois de Clairval [-3, 0]", as in the games of the kind.
+    /// </summary>
+    public string MapTitle(Town map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        string name = map.Name.In(Lang);
+        return map.Zone is null ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
+    }
+
     /// <summary>A character's level and experience: "Niveau 3 · 340 / 600 XP" (the total for the next level).</summary>
     public string XpLine(int level, long xp) =>
         level >= Hero.MaxLevel ? this["xp.max", level, xp] : this["xp.line", level, xp, Progression.XpToReach(level + 1)];

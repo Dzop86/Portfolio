@@ -226,6 +226,9 @@ public sealed class GameData
             Check(d);
         foreach (Town t in Towns.Values)
             Check(t);
+        // One map per place of the world.
+        if (Towns.Values.GroupBy(t => t.MapAt).FirstOrDefault(g => g.Count() > 1) is { } shared)
+            throw new InvalidDataException($"Towns {string.Join(", ", shared.Select(t => $"'{t.Id}'"))}: the same place {shared.Key} of the world.");
         Quests = Index(quests ?? [], q => q.Id, "quest");
         foreach (Quest q in Quests.Values)
         {
@@ -447,6 +450,18 @@ public sealed class GameData
                 throw new InvalidDataException($"{who}: the way to {l.To} at {l.At} cannot be reached.");
             if (!Towns.TryGetValue(l.To, out Town? to) || !to.CanStand(l.Arrival))
                 throw new InvalidDataException($"{who}: the way at {l.At} leads to an unknown zone or a cell nobody can stand on.");
+            // A way leads to the map next door, from the edge that faces it, onto the edge that faces back.
+            Cell d = to.MapAt - t.MapAt;
+            bool facing = (d.X, d.Y) switch
+            {
+                (1, 0) => l.At.X == t.Width - 1 && l.Arrival.X <= 1,
+                (-1, 0) => l.At.X == 0 && l.Arrival.X >= to.Width - 2,
+                (0, 1) => l.At.Y == t.Rows.Count - 1 && l.Arrival.Y <= 1,
+                (0, -1) => l.At.Y == 0 && l.Arrival.Y >= to.Rows.Count - 2,
+                _ => false,
+            };
+            if (!facing)
+                throw new InvalidDataException($"{who}: the way at {l.At} to {l.To} is not on the edge facing that map, or does not arrive on the edge facing back.");
         }
     }
 

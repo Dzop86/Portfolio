@@ -1,0 +1,170 @@
+{
+  "id": "woods-2-4",
+  "zone": "woods",
+  "name": {
+    "fr": "Bois de Clairval",
+    "en": "Clairval Woods"
+  },
+  "level": 3,
+  "mapAt": {
+    "x": -3,
+    "y": 2
+  },
+  "rows": [
+    "TTT...TTTTTTTTTT",
+    "TT........TTTT.T",
+    "T.T.......TTTT.T",
+    "T.T..T..........",
+    "T...............",
+    "T...............",
+    "..........TTT..T",
+    "..........TTT..T",
+    "............T..T",
+    "T..T.T..T..TTT.T",
+    "T..TTT..TTT....T",
+    "TTTTTTTTTTTTTTTT"
+  ],
+  "spawn": {
+    "x": 8,
+    "y": 6
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 15,
+        "y": 3
+      },
+      "to": "woods-3-4",
+      "arrival": {
+        "x": 1,
+        "y": 3
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 4
+      },
+      "to": "woods-3-4",
+      "arrival": {
+        "x": 1,
+        "y": 4
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 5
+      },
+      "to": "woods-3-4",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      },
+      "name": {
+        "fr": "Est",
+        "en": "East"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 14,
+        "y": 6
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 7
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 14,
+        "y": 7
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 8
+      },
+      "to": "woods-1-4",
+      "arrival": {
+        "x": 14,
+        "y": 8
+      },
+      "name": {
+        "fr": "Ouest",
+        "en": "West"
+      }
+    },
+    {
+      "at": {
+        "x": 3,
+        "y": 0
+      },
+      "to": "woods-2-3",
+      "arrival": {
+        "x": 3,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 4,
+        "y": 0
+      },
+      "to": "woods-2-3",
+      "arrival": {
+        "x": 4,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    },
+    {
+      "at": {
+        "x": 5,
+        "y": 0
+      },
+      "to": "woods-2-3",
+      "arrival": {
+        "x": 5,
+        "y": 10
+      },
+      "name": {
+        "fr": "Nord",
+        "en": "North"
+      }
+    }
+  ]
+}

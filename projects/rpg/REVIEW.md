@@ -32,6 +32,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprints 66 et 67 : les noms et les couleurs des éléments, la fiche (réinitialiser, MIN, MAX, saisir une valeur), les 24 sorts de chaque classe (`tools/spells_gen.py` : noms, éléments, effets, niveaux) et leurs icônes. **À valider :** la Provocation au niveau 1 pour la Garde, et la Garde à 91 % à l'entraînement (T34).
 - [ ] Sprint 68 : le deck (composer dans l'écran des sorts, barre de combat 2 × 6, touches 1 à 6 et Ctrl+1 à 6).
 - [ ] Sprint 69 : le menu Échap (volumes, coupure, serveur, personnage, quitter), la barre d'icônes à droite (C, S, I, M), les sons et la musique du village, la marche libre en diagonale (vitesse de 4,2 cases par seconde : trop lente, trop rapide ?).
+- [ ] Sprint 70 : le monde en cartes (le bois en 5 × 5 cartes de la taille du village, ouvertures de trois cases, titre avec la place [x, y]) ; **à valider** : le village reste une seule carte et l'ancien Bois et la Lande disparaissent (D63) ; les cartes du bois, générées, sont-elles assez « bois » ?
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
@@ -134,3 +135,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-14 | `godot/Main.cs` | (Claude) L'état des fenêtres (`WindowState`) survivait au passage en combat : une fenêtre ouverte pendant un dialogue qui mène à un combat restait « ouverte » au retour en ville, sans panneau, et bloquait les clics | État remis à zéro avec chaque nouvel écran |
 | 2026-10-14 | `godot/MenuPanel.cs` | (Claude) Le panneau du menu avait une hauteur fixe : un grand vide sous les choix quand seuls « Revenir au jeu » et « Quitter » sont proposés | Hauteur prise du contenu |
 | 2026-10-14 | fiche du portfolio | (Claude) Les captures montrent encore les boutons du haut (« Carte », « M : carte ») remplacés par la barre latérale | Laissé tel quel, choix de Charles : les images seront refaites plus tard, pour la promotion |
+| 2026-10-14 | `src/Rpg.Client/TownController.cs` (`TownTour.World`) | (Claude) Le tour du monde supposait un monde en arbre : revenu d'une carte voisine, la carte de départ gardait son passage en cours et refusait d'aller vers la suivante (vu avec les 25 cartes du bois) | Le joueur est remis sur le passage, libre, au retour (`Interrupt`) |

@@ -2,7 +2,7 @@
   "id": "clairval",
   "name": { "fr": "Clairval", "en": "Clairval" },
   "level": 1,
-  "mapAt": { "x": 2, "y": 1 },
+  "mapAt": { "x": 0, "y": 0 },
   "rows": [
     "TT..Hh....Hh.TTT",
     "T...hhL...hh...T",
@@ -24,7 +24,8 @@
     { "id": "garance", "name": { "fr": "Garance", "en": "Garance" }, "look": "female-f", "colour": 5, "at": { "x": 15, "y": 4 }, "dialogue": "trainer" }
   ],
   "links": [
-    { "at": { "x": 0, "y": 5 }, "to": "clairval-woods", "arrival": { "x": 28, "y": 11 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } }
+    { "at": { "x": 0, "y": 5 }, "to": "woods-4-2", "arrival": { "x": 14, "y": 5 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } },
+    { "at": { "x": 0, "y": 6 }, "to": "woods-4-2", "arrival": { "x": 14, "y": 6 }, "name": { "fr": "Ouest : Bois de Clairval", "en": "West: Clairval Woods" } }
   ],
   "exits": [
     { "at": { "x": 15, "y": 5 }, "scenario": "training", "name": { "fr": "Porte est : entraînement", "en": "East gate: training" } }

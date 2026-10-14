@@ -568,7 +568,7 @@ public partial class Main
             AddChild(view);
             view.Build(controller, _options.Lang, hero);
             Town t = controller.Town;
-            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links?.Count ?? 0))
+            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + (t.Links ?? []).Select(l => l.To).Distinct().Count())
                 problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
             RemoveChild(view);
             view.QueueFree();
@@ -589,10 +589,10 @@ public partial class Main
             _explore!.Turn(1);
         }
         ToggleMap();
-        if (_mapPanel!.Zones.Count != GameData.Embedded.Towns.Count || _mapPanel.Current != _zone)
-            problems.Add($"the map shows {_mapPanel.Zones.Count} zones, {_mapPanel.Current} as here");
+        if (_mapPanel!.Maps.Count != GameData.Embedded.Towns.Count || _mapPanel.Current != _zone)
+            problems.Add($"the map shows {_mapPanel.Maps.Count} maps, {_mapPanel.Current} as here");
         ToggleMap();
-        return $"World: {zones.Count} zones, camera and map checked.";
+        return $"World: {zones.Count} maps, camera and map checked.";
     }
 
     /// <summary>
