@@ -6,13 +6,15 @@ namespace Rpg.Desktop;
 /// The monsters' models (sprint 72), built by the game from blocks in the spirit of Kenney's blocky
 /// characters, since no free pack has every kind and role (D63): a boar's body, head, snout, tusks,
 /// ears and four legs, its size, colours and details telling its role (a crested charger, a striped
-/// piglet, a big grey loner, a tuskless sow, a crowned king). Each has an "idle" and a "walk"
+/// piglet, a big grey loner, a tuskless sow, a crowned king); a wolf's lean body, long muzzle, pointed
+/// ears and raised tail (sprint 73: a grey wolf, a pale howler with a dark mask, a great male with a
+/// ruff, a fawn she-wolf, a black leader with a scar). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z.
 /// </summary>
 public static class Creatures
 {
-    /// <summary>Whether a look is one of these models ("boar-melee"...).</summary>
-    public static bool Knows(string look) => look.StartsWith("boar-", StringComparison.Ordinal);
+    /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
+    public static bool Knows(string look) => look.StartsWith("boar-", StringComparison.Ordinal) || look.StartsWith("wolf-", StringComparison.Ordinal);
 
     public static Node3D Build(string look) => look switch
     {
@@ -21,6 +23,11 @@ public static class Creatures
         "boar-tank" => Boar(1.25f, new Color("4d4741"), bigTusks: true),
         "boar-support" => Boar(1.0f, new Color("8f5f3f"), tusks: false),
         "boar-boss" => Boar(1.45f, new Color("3b2a1e"), crest: true, bigTusks: true, crown: true),
+        "wolf-melee" => Wolf(1.0f, new Color("7d7f85")),
+        "wolf-ranged" => Wolf(0.9f, new Color("a9acb2"), mask: true),
+        "wolf-tank" => Wolf(1.3f, new Color("5a4636"), ruff: true),
+        "wolf-support" => Wolf(0.95f, new Color("b08a62")),
+        "wolf-boss" => Wolf(1.45f, new Color("2c2c30"), ruff: true, scar: true),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
 
@@ -66,6 +73,39 @@ public static class Creatures
             var leg = new Node3D { Name = name, Position = new Vector3(x, 0.24f, z) };
             model.AddChild(leg);
             Block(leg, new Vector3(0.11f, 0.24f, 0.11f), new Vector3(0, -0.12f, 0), dark);
+        }
+        root.AddChild(Animations());
+        return root;
+    }
+
+    private static Node3D Wolf(float size, Color fur, bool mask = false, bool ruff = false, bool scar = false)
+    {
+        var root = new Node3D { Name = "Wolf" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color dark = fur.Darkened(0.4f), light = fur.Lightened(0.45f);
+        Block(body, new Vector3(0.30f, 0.28f, 0.70f), new Vector3(0, 0.44f, 0), fur);
+        Block(body, new Vector3(0.24f, 0.18f, 0.30f), new Vector3(0, 0.40f, 0.12f), light);
+        Block(body, new Vector3(0.26f, 0.26f, 0.26f), new Vector3(0, 0.58f, 0.42f), fur);
+        Block(body, new Vector3(0.14f, 0.12f, 0.20f), new Vector3(0, 0.52f, 0.62f), mask ? dark : light);
+        Block(body, new Vector3(0.06f, 0.05f, 0.04f), new Vector3(0, 0.56f, 0.73f), Colors.Black);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.07f, 0.64f, 0.555f), new Color("f2c94c"));
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.07f, 0.64f, 0.555f), new Color("f2c94c"));
+        Block(body, new Vector3(0.07f, 0.13f, 0.05f), new Vector3(-0.08f, 0.76f, 0.38f), dark);
+        Block(body, new Vector3(0.07f, 0.13f, 0.05f), new Vector3(0.08f, 0.76f, 0.38f), dark);
+        var tail = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.08f, 0.08f, 0.32f) }, Position = new Vector3(0, 0.56f, -0.46f), RotationDegrees = new Vector3(-35, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = dark, Roughness = 0.9f } };
+        body.AddChild(tail);
+        if (ruff)
+            Block(body, new Vector3(0.36f, 0.32f, 0.16f), new Vector3(0, 0.52f, 0.26f), light.Lerp(fur, 0.5f));
+        if (scar)
+            Block(body, new Vector3(0.02f, 0.14f, 0.02f), new Vector3(0.10f, 0.62f, 0.556f), new Color("c0392b"));
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.10f, 0.24f), ("LegFR", 0.10f, 0.24f), ("LegBL", -0.10f, -0.24f), ("LegBR", 0.10f, -0.24f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.32f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.08f, 0.32f, 0.08f), new Vector3(0, -0.16f, 0), dark);
         }
         root.AddChild(Animations());
         return root;

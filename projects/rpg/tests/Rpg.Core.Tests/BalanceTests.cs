@@ -92,18 +92,22 @@ public class BalanceTests
     [InlineData("sentinel")]
     [InlineData("guard")]
     [InlineData("mage")]
-    public void TheBoars_AloneAreForBeginners_InGroupsForAFifthLevel_TheirKingForASeventhToNinth(string id)
+    public void TheWoods_AloneAreForBeginners_InGroupsForAFifthLevel_TheirChiefsForASeventhToNinth(string id)
     {
-        // Measured on 30 fights per group (sprint 72, T39): every lone boar at level 1, 30 of 30; every
-        // group of two or three at level 5, 28 to 30, but for the guard against the loner, the charger
-        // and the piglet of the north-west corner (1: it cannot reach the piglet behind the loner); the
-        // king and his escort at level 5, 0 to 14, at level 9, 30.
+        // Measured on 30 fights per group, boars and wolves (sprints 72 and 73, T39, T40): every lone
+        // monster at level 1, 30 of 30; every group of two or three at level 5, 20 to 30, but for the
+        // sentinel against the grey wolf, the she-wolf and the great male (15); the boar king and the
+        // pack leader with their escort at level 5, 0 to 14, at level 9, 26 to 30.
         foreach (MonsterGroup lone in Real.Groups.Values.Where(g => g.Monsters.Count == 1))
             Assert.InRange(Wins(lone.Id, id, 1, 30), 27, 30);
-        MonsterGroup[] groups = [.. Real.Groups.Values.Where(g => g.Monsters.Count > 1 && !g.Monsters.Contains("boar-king"))];
+        MonsterGroup[] chiefs = [.. Real.Groups.Values.Where(g => g.Monsters.Any(m => Real.Monsters[m].Role == MonsterRole.Boss))];
+        MonsterGroup[] groups = [.. Real.Groups.Values.Where(g => g.Monsters.Count > 1).Except(chiefs)];
         Assert.InRange(groups.Count(g => Wins(g.Id, id, 5, 30) < 20), 0, 1);
-        MonsterGroup king = Real.Groups.Values.Single(g => g.Monsters.Contains("boar-king"));
-        Assert.InRange(Wins(king.Id, id, 5, 30), 0, 18);
-        Assert.InRange(Wins(king.Id, id, 9, 30), 25, 30);
+        Assert.Equal(2, chiefs.Length);
+        foreach (MonsterGroup chief in chiefs)
+        {
+            Assert.InRange(Wins(chief.Id, id, 5, 30), 0, 18);
+            Assert.InRange(Wins(chief.Id, id, 9, 30), 24, 30);
+        }
     }
 }

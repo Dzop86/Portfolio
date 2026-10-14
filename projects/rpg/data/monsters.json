@@ -160,5 +160,168 @@
         ]
       }
     ]
+  },
+  {
+    "id": "wolf",
+    "name": {
+      "fr": "Loups",
+      "en": "Wolves"
+    },
+    "zone": "woods",
+    "battle": "woods-glade",
+    "bossMap": "woods-2-0",
+    "monsters": [
+      {
+        "id": "grey-wolf",
+        "role": "Melee",
+        "name": {
+          "fr": "Loup gris",
+          "en": "Grey Wolf"
+        },
+        "look": "wolf-melee",
+        "level": 2,
+        "hp": 32,
+        "ap": 6,
+        "mp": 5,
+        "initiative": 90,
+        "spells": [
+          "bite",
+          "lunge"
+        ],
+        "resistances": {
+          "Air": 10
+        },
+        "loot": [
+          {
+            "item": "wolf-fang",
+            "percent": 40
+          },
+          {
+            "item": "wolf-pelt",
+            "percent": 40
+          }
+        ]
+      },
+      {
+        "id": "howling-wolf",
+        "role": "Ranged",
+        "name": {
+          "fr": "Loup hurleur",
+          "en": "Howling Wolf"
+        },
+        "look": "wolf-ranged",
+        "level": 2,
+        "hp": 26,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 85,
+        "spells": [
+          "howl",
+          "bite"
+        ],
+        "loot": [
+          {
+            "item": "wolf-fang",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "great-wolf",
+        "role": "Tank",
+        "name": {
+          "fr": "Grand mâle",
+          "en": "Great Wolf"
+        },
+        "look": "wolf-tank",
+        "level": 3,
+        "hp": 60,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 60,
+        "spells": [
+          "bite",
+          "thick-fur"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Water": 20
+        },
+        "loot": [
+          {
+            "item": "wolf-pelt",
+            "percent": 60
+          },
+          {
+            "item": "wolf-fang",
+            "percent": 40
+          },
+          {
+            "item": "wolf-cape",
+            "percent": 5
+          }
+        ]
+      },
+      {
+        "id": "she-wolf",
+        "role": "Support",
+        "name": {
+          "fr": "Louve",
+          "en": "She-Wolf"
+        },
+        "look": "wolf-support",
+        "level": 2,
+        "hp": 36,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 70,
+        "spells": [
+          "pack-guard",
+          "bite"
+        ],
+        "loot": [
+          {
+            "item": "wolf-pelt",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "pack-leader",
+        "role": "Boss",
+        "name": {
+          "fr": "Chef de meute",
+          "en": "Pack Leader"
+        },
+        "look": "wolf-boss",
+        "level": 6,
+        "hp": 100,
+        "ap": 8,
+        "mp": 5,
+        "initiative": 100,
+        "spells": [
+          "savage-bite",
+          "pack-howl",
+          "lunge"
+        ],
+        "resistances": {
+          "Earth": 15,
+          "Fire": 10,
+          "Water": 10,
+          "Air": 20
+        },
+        "loot": [
+          {
+            "item": "wolf-fang",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "wolf-cape",
+            "percent": 25
+          }
+        ]
+      }
+    ]
   }
 ]

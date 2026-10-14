@@ -141,6 +141,14 @@ beasts = [
  S("soothing-grunt","Grognement apaisant","Soothing Grunt",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",6,9)],ranks=False,cd=1),
  S("royal-gore","Boutoir royal","Royal Gore",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("stampede","Ruée","Stampede",4,1,2,7,10,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
+ # The wolves (sprint 73): quick bites, a howl from afar, thick fur, a guard for the pack.
+ S("bite","Morsure","Bite",3,1,1,5,8,2,"Earth",1,ranks=False),
+ S("lunge","Bond","Lunge",4,2,3,6,9,1,"Air",1,line=True,ranks=False),
+ S("howl","Hurlement","Howl",3,2,5,4,7,2,"Air",1,ranks=False),
+ S("thick-fur","Épaisse fourrure","Thick Fur",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("pack-guard","Garde de la meute","Pack Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",8,2)],ranks=False,cd=1),
+ S("savage-bite","Morsure sauvage","Savage Bite",4,1,1,10,14,1,"Earth",1,ranks=False),
+ S("pack-howl","Hurlement de meute","Pack Howl",4,1,3,6,9,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.

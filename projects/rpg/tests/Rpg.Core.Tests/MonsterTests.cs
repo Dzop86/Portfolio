@@ -20,9 +20,25 @@ public class MonsterTests
         Assert.True(Real.Spells[boars[MonsterRole.Ranged].Spells[0]].MaxRange >= 4);
     }
 
+    [Fact]
+    public void TheWolves_AreFiveWolves_OneOfEachRole_InTheSameWoods_TheirLeaderElsewhere()
+    {
+        MonsterFamily wolves = Real.Families["wolf"];
+        Assert.Equal(("woods", "woods-glade", "woods-2-0"), (wolves.Zone, wolves.Battle, wolves.BossMap));
+        Assert.Equal(Enum.GetValues<MonsterRole>(), wolves.Monsters.Select(m => m.Role).Order());
+        Assert.All(wolves.Monsters, m => Assert.Equal("wolf-" + m.Role.ToString().ToLowerInvariant(), m.Look));
+        Assert.NotEqual(Real.Families["boar"].BossMap, wolves.BossMap);
+        // The she-wolf guards the pack: a shield on her allies.
+        Assert.Contains(wolves[MonsterRole.Support].Spells, id => Real.Spells[id].Effects?.Any(e => e is ShieldEffect { Affects: Affects.Allies }) == true);
+        // Both families meet in the woods, each group of one of them.
+        Assert.Contains(Real.Groups.Values, g => g.Family == "wolf");
+        Assert.Contains(Real.Groups.Values, g => g.Family == "boar");
+        Assert.Single(Real.Groups.Values, g => g.Monsters.Contains("pack-leader"));
+    }
+
     private static GameData WithBoars(params MonsterSpec[] monsters) => new(
         Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
-        Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [Real.Families["boar"] with { Monsters = monsters }]);
+        Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? f with { Monsters = monsters } : f)]);
 
     [Fact]
     public void AFamily_WithoutOneOfTheRoles_OrWithTwoOfOne_IsRefused()
@@ -35,6 +51,9 @@ public class MonsterTests
         Assert.Throws<InvalidDataException>(() => WithBoars([.. boars[..4], boars[4] with { Loot = [new LootDrop("no-such-item", 50)] }]));
         Assert.Throws<InvalidDataException>(() => new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
             Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [Real.Families["boar"] with { BossMap = "clairval" }]));
+        // Two families with the same monster.
+        Assert.Throws<InvalidDataException>(() => new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
+            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [Real.Families["boar"], Real.Families["boar"] with { Id = "twin" }]));
     }
 
     [Fact]

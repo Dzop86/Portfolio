@@ -35,6 +35,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 70 : le monde en cartes (le bois en 5 × 5 cartes de la taille du village, ouvertures de trois cases, titre avec la place [x, y]) ; **à valider** : le village reste une seule carte et l'ancien Bois et la Lande disparaissent (D63) ; les cartes du bois, générées, sont-elles assez « bois » ?
 - [ ] Sprint 71 : la carte du monde vue du ciel (glisser, molette, anneau du joueur, nom de la carte survolée) : le rendu en pixels te va-t-il, ou préfères-tu une vue rendue en 3D (T38) ?
 - [ ] Sprint 72 : les sangliers (noms, rôles, sorts, modèles en blocs construits par le jeu : à voir en jouant), deux groupes par carte qui errent, le combat au clic, le retour après deux minutes ; **à valider** : l'équilibre (seuls au niveau 1, groupes au niveau 5, roi au niveau 7 à 9, T39).
+- [ ] Sprint 73 : les loups (noms, rôles, la louve qui protège, le chef de meute en [-3, -2], modèles à voir en jouant) et leur mélange avec les sangliers.
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 
 ## Constats
@@ -143,3 +144,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-14 | `src/Rpg.Core/Monsters.cs` | (Claude) Mesuré : le roi avec deux escortes n'était battu par aucune classe seule (0 sur 100 aux niveaux 3 et 5) | Une seule escorte ; 100 PV, battu aux niveaux 7 à 9 |
 | 2026-10-14 | `src/Rpg.Core/Monsters.cs` | (Claude) Vu dans les groupes tirés : deux laies ensemble, et des groupes de trois à la sortie du village | Au plus un soutien, jamais seul ; taille selon la distance au village |
 | 2026-10-14 | `godot/Main.cs`, `godot/WorldMapPanel.cs` | (Claude) CI du sprint 71 rouge sous Windows et dans le job Docker : l'auto-test réussi, Godot plantait en quittant (module .NET arrêté avec des objets C# encore vivants : l'image de la carte du monde, des matériaux) | Image libérée dès la texture faite ; les auto-tests vident la scène, ramassent les objets C# puis quittent (`QuitCleanly`) |
+| 2026-10-14 | `data/monsters.json` (loups) | (Claude) Mesuré : les trios de loups au niveau 5 n'étaient presque jamais battus (4 à 17 sur 30) | PV des loups baissés d'environ 15 % ; plus qu'un cas sous 20 sur 30 (T40) |

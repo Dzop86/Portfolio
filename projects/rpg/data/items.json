@@ -21,5 +21,8 @@
   { "id": "garance-badge", "name": { "fr": "Insigne de Garance", "en": "Garance's Badge" }, "kind": "Quest" },
   { "id": "boar-tusk", "name": { "fr": "Défense de sanglier", "en": "Boar Tusk" }, "kind": "Resource" },
   { "id": "boar-bristle", "name": { "fr": "Soies de sanglier", "en": "Boar Bristles" }, "kind": "Resource" },
-  { "id": "tusk-amulet", "name": { "fr": "Amulette de défenses", "en": "Tusk Amulet" }, "kind": "Equipment", "slot": "Amulet", "level": 3, "stats": { "earth": 6, "vitality": 4 } }
+  { "id": "tusk-amulet", "name": { "fr": "Amulette de défenses", "en": "Tusk Amulet" }, "kind": "Equipment", "slot": "Amulet", "level": 3, "stats": { "earth": 6, "vitality": 4 } },
+  { "id": "wolf-fang", "name": { "fr": "Croc de loup", "en": "Wolf Fang" }, "kind": "Resource" },
+  { "id": "wolf-pelt", "name": { "fr": "Peau de loup", "en": "Wolf Pelt" }, "kind": "Resource" },
+  { "id": "wolf-cape", "name": { "fr": "Cape en peau de loup", "en": "Wolf Pelt Cape" }, "kind": "Equipment", "slot": "Cape", "level": 4, "stats": { "air": 6, "vitality": 5 } }
 ]
