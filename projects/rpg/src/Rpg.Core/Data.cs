@@ -187,6 +187,9 @@ public sealed class GameData
     public IReadOnlyDictionary<string, MonsterSpec> Monsters { get; }
     public IReadOnlyDictionary<string, MonsterGroup> Groups { get; }
 
+    /// <summary>The trades (sprint 81), by id.</summary>
+    public IReadOnlyDictionary<string, Job> Jobs { get; }
+
     /// <summary>The dungeons (sprint 80), by id.</summary>
     public IReadOnlyDictionary<string, Dungeon> Dungeons { get; }
 
@@ -205,7 +208,7 @@ public sealed class GameData
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
         IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null,
-        IEnumerable<Dungeon>? dungeons = null)
+        IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -255,6 +258,22 @@ public sealed class GameData
         Monsters = Index(Families.Values.SelectMany(f => f.Monsters), m => m.Id, "monster");
         foreach (MonsterFamily f in Families.Values)
             Check(f);
+        Jobs = Index(jobs ?? [], j => j.Id, "job");
+        foreach (Job j in Jobs.Values)
+        {
+            if (j.Recipes.Count == 0 || j.Recipes.GroupBy(r => r.Item).Any(g => g.Count() > 1)
+                || j.Recipes.Any(r => !Items.ContainsKey(r.Item) || r.Level is < 1 or > Crafting.MaxLevel || r.Ingredients.Count == 0
+                    || r.Ingredients.Any(i => !Items.ContainsKey(i.Item) || i.Count < 1 || i.Item == r.Item)))
+                throw new InvalidDataException($"Job '{j.Id}': recipes of known items, each once, a level 1 to {Crafting.MaxLevel}, known ingredients.");
+        }
+        foreach (Town t in Towns.Values)
+        {
+            foreach (Workshop w in t.Workshops ?? [])
+            {
+                if (!Jobs.ContainsKey(w.Job) || !t.CanStand(w.At) || t.ExitAt(w.At) is not null || t.LinkAt(w.At) is not null)
+                    throw new InvalidDataException($"Town '{t.Id}': the workshop at {w.At} is of an unknown trade, or not on a free cell.");
+            }
+        }
         Dungeons = Index(dungeons ?? [], d => d.Id, "dungeon");
         foreach (Dungeon d in Dungeons.Values)
         {
@@ -305,7 +324,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "items.json")) ? Read<List<Item>>(Path.Combine(folder, "items.json")) : null,
             File.Exists(Path.Combine(folder, "sets.json")) ? Read<List<ItemSet>>(Path.Combine(folder, "sets.json")) : null,
             File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null,
-            File.Exists(Path.Combine(folder, "dungeons.json")) ? Read<List<Dungeon>>(Path.Combine(folder, "dungeons.json")) : null);
+            File.Exists(Path.Combine(folder, "dungeons.json")) ? Read<List<Dungeon>>(Path.Combine(folder, "dungeons.json")) : null,
+            File.Exists(Path.Combine(folder, "jobs.json")) ? Read<List<Job>>(Path.Combine(folder, "jobs.json")) : null);
     }
 
     /// <summary>
@@ -336,7 +356,8 @@ public sealed class GameData
             files.TryGetValue("data/items.json", out string? items) ? Parse<List<Item>>("items.json", items) : null,
             files.TryGetValue("data/sets.json", out string? sets) ? Parse<List<ItemSet>>("sets.json", sets) : null,
             files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null,
-            files.TryGetValue("data/dungeons.json", out string? dungeons) ? Parse<List<Dungeon>>("dungeons.json", dungeons) : null);
+            files.TryGetValue("data/dungeons.json", out string? dungeons) ? Parse<List<Dungeon>>("dungeons.json", dungeons) : null,
+            files.TryGetValue("data/jobs.json", out string? jobs) ? Parse<List<Job>>("jobs.json", jobs) : null);
     }
 
     public Board Board(string mapId) =>

@@ -103,7 +103,7 @@ public class DungeonTests
     {
         Dungeon wallow = Real.Dungeons["boar-wallow"];
         GameData With(Dungeon d) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, [d]);
+            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, [d], Real.Jobs.Values);
         Assert.Equal(wallow, With(wallow).Dungeons["boar-wallow"]);
         Assert.Throws<InvalidDataException>(() => With(wallow with { Family = "dragon" }));
         Assert.Throws<InvalidDataException>(() => With(wallow with { Map = "clairval" }));

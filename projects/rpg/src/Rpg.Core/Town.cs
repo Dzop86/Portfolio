@@ -12,6 +12,9 @@ public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 /// </summary>
 public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? Name = null);
 
+/// <summary>A trade's workshop on a map (sprint 81): walking onto it opens the trade's recipes.</summary>
+public sealed record Workshop(Cell At, string Job);
+
 /// <summary>The door of a dungeon on a map of the world (sprint 80): walking onto it leads in.</summary>
 public sealed record DungeonDoor(Cell At, string Dungeon);
 
@@ -25,8 +28,10 @@ public sealed record DungeonDoor(Cell At, string Dungeon);
 /// a map without one (the village) is a zone of its own.
 /// </summary>
 public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
-    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null)
+    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null, IReadOnlyList<Workshop>? Workshops = null)
 {
+    public Workshop? WorkshopAt(Cell c) => (Workshops ?? []).FirstOrDefault(w => w.At == c);
+
     public ZoneLink? LinkAt(Cell c) => (Links ?? []).FirstOrDefault(l => l.At == c);
 
     /// <summary>The doors of dungeons on this map, from <c>data/dungeons.json</c> (not the map's file).</summary>

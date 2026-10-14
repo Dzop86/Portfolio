@@ -73,6 +73,12 @@ public sealed class Character
     /// <summary>The spells fought with, in the order of the bar, their ids separated by commas (sprint 68); empty: the default deck.</summary>
     public string Deck { get; set; } = "";
 
+    /// <summary>The experience of each trade (sprint 81), as "job:xp" separated by commas.</summary>
+    public string Jobs { get; set; } = "";
+
+    public Dictionary<string, long> JobList => Jobs.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(j => j.Split(':')).ToDictionary(j => j[0], j => long.Parse(j[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);
+
     /// <summary>The dungeon the character is in (sprint 80), and the room it is to fight there; null and 0 outside.</summary>
     public string? Dungeon { get; set; }
     public int DungeonRoom { get; set; }

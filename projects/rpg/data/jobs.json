@@ -1,0 +1,127 @@
+[
+  {
+    "id": "locksmith",
+    "name": {
+      "fr": "Serrurier",
+      "en": "Locksmith"
+    },
+    "workshop": {
+      "fr": "Établi du serrurier",
+      "en": "Locksmith's bench"
+    },
+    "recipes": [
+      {
+        "item": "boar-wallow-key",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "boar-tusk",
+            "count": 6
+          },
+          {
+            "item": "boar-bristle",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "wolf-den-key",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "wolf-fang",
+            "count": 6
+          },
+          {
+            "item": "wolf-pelt",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "mushroom-cellar-key",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "mushroom-cap",
+            "count": 6
+          },
+          {
+            "item": "spore-dust",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "zombie-crypt-key",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "rotten-cloth",
+            "count": 6
+          },
+          {
+            "item": "old-bone",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "frog-grotto-key",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "frog-leg",
+            "count": 6
+          },
+          {
+            "item": "slime",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "crab-reef-key",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "crab-claw",
+            "count": 6
+          },
+          {
+            "item": "crab-shell",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "royal-hive-key",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "bee-wing",
+            "count": 6
+          },
+          {
+            "item": "honeycomb",
+            "count": 4
+          }
+        ]
+      },
+      {
+        "item": "mole-burrows-key",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "mole-fur",
+            "count": 6
+          },
+          {
+            "item": "earthworm",
+            "count": 4
+          }
+        ]
+      }
+    ]
+  }
+]

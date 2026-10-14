@@ -45,6 +45,8 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             character.Ignore(c => c.Hero);
             character.Property(c => c.Dungeon).HasMaxLength(40);
             character.Ignore(c => c.Run);
+            character.Property(c => c.Jobs).HasMaxLength(1000).HasDefaultValue("");
+            character.Ignore(c => c.JobList);
         });
         modelBuilder.Entity<PendingFight>(fight =>
         {

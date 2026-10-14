@@ -1,6 +1,8 @@
 # Writes the dungeons (sprint 80, D65): one per family of monsters, its door on the family's boss map,
 # its three rooms on battle maps of their own (data/maps/dungeon-<family>-<room>.json), its key and the
-# operator's keyring in data/items.json, the list in data/dungeons.json. Deterministic: the same data
+# operator's keyring in data/items.json, the list in data/dungeons.json; since sprint 81, the key among
+# the loot of the family's monsters (rarely) and its recipe for the locksmith in data/jobs.json, made of
+# the family's two resources at a level that follows the zone's. Deterministic: the same data
 # gives the same files; every room is checked connected, with room for the hero and five monsters.
 # Run from projects/rpg after tools/world_gen.py:  python3 tools/dungeon_gen.py data
 import collections, json, random, sys
@@ -100,6 +102,22 @@ for n, f in enumerate(families):
                        ("key", f"{did}-key"), ("rooms", rooms)]))
     items.append(O([("id", f"{did}-key"), ("name", key_name), ("kind", "Resource")]))
 items.append(O([("id", "admin-keyring"), ("name", text("Trousseau d'administrateur", "Operator's Keyring")), ("kind", "Quest")]))
+# The key, rarely left by the family's monsters (sprint 81): one in fifty, one in ten for the chief.
+KEY_PERCENT, CHIEF_KEY_PERCENT = 2, 10
+# The locksmith's recipes: the key of each dungeon, from the family's two resources.
+RECIPE_LEVEL = {"woods": 1, "mouldy": 10, "lake": 20, "fields": 30}
+kinds = {i["id"]: i["kind"] for i in items}
+recipes = []
+for f, d in zip(families, dungeons):
+    for m in f["monsters"]:
+        m["loot"] = [l for l in m.get("loot", []) if not l["item"].endswith("-key")]
+        m["loot"].append(O([("item", d["key"]), ("percent", CHIEF_KEY_PERCENT if m["role"] == "Boss" else KEY_PERCENT)]))
+    resources = list(O.fromkeys(l["item"] for m in f["monsters"] for l in m["loot"] if kinds.get(l["item"]) == "Resource"))
+    recipes.append(O([("item", d["key"]), ("level", RECIPE_LEVEL[f["zone"]]),
+                      ("ingredients", [O([("item", resources[0]), ("count", 6)]), O([("item", resources[1]), ("count", 4)])])]))
+open(f"{root}/monsters.json", "w").write(json.dumps(families, ensure_ascii=False, indent=2) + "\n")
+jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])]
+open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")
 open(f"{root}/dungeons.json", "w").write(json.dumps(dungeons, ensure_ascii=False, indent=2) + "\n")
 
 

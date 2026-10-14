@@ -43,7 +43,7 @@ public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? E
 /// (<see cref="Wander"/>), a click on someone walks up to them and opens the talk, a click on an exit
 /// leads to its fight; "Attack" on a group of monsters (a right click, sprint 78) walks up to it and
 /// starts its fight, a left click only walks up to it; walking onto the door of a dungeon (sprint 80)
-/// asks to go in (<see cref="Door"/>);
+/// asks to go in (<see cref="Door"/>); onto a workshop (sprint 81), opens its trade (<see cref="Bench"/>);
 /// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
@@ -104,8 +104,11 @@ public sealed class TownController
     /// <summary>The door of a dungeon the player walked onto, if any (sprint 80): the game asks before going in.</summary>
     public DungeonDoor? Door { get; private set; }
 
-    /// <summary>Not going in after all: the player stays on the door, free to walk on.</summary>
-    public void CloseDoor() => Door = null;
+    /// <summary>The workshop the player walked onto, if any (sprint 81): the game opens its trade's recipes.</summary>
+    public Workshop? Bench { get; private set; }
+
+    /// <summary>Not going in after all, or done at the bench: the player stays there, free to walk on.</summary>
+    public void CloseDoor() => (Door, Bench) = (null, null);
 
     /// <summary>The map the way leads to, the player on its arrival cell, without the <paramref name="absent"/> groups.</summary>
     public TownController Enter(ZoneLink link, IEnumerable<string>? absent = null) =>
@@ -117,7 +120,7 @@ public sealed class TownController
     /// <summary>The cells a click on <paramref name="target"/> would walk, for the hover preview; null if it does nothing.</summary>
     public IReadOnlyList<Cell>? PathTo(Cell target)
     {
-        if (Talk is not null || Fight is not null || Travel is not null || Door is not null)
+        if (Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
             return null;
         // Someone to talk to, or monsters to fight: up to the nearest cell next to them.
         if (Town.NpcAt(target) is not null || GroupAt(target) is not null)
@@ -154,6 +157,7 @@ public sealed class TownController
         TownExit? exit = Town.ExitAt(Position);
         ZoneLink? link = Town.LinkAt(Position);
         DungeonDoor? door = Town.DoorAt(Position);
+        Workshop? bench = Town.WorkshopAt(Position);
         bool there = npc is null && group is null && Position == target;
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
@@ -168,6 +172,8 @@ public sealed class TownController
             Travel = link;
         else if (door is not null && there)
             Door = door;
+        else if (bench is not null && there)
+            Bench = bench;
         return new TownStep(path, npc, there ? exit : null, there ? link : null, attack ? group : null, there ? door : null)
         {
             Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
@@ -188,6 +194,7 @@ public sealed class TownController
         FightGroup = null;
         Travel = null;
         Door = null;
+        Bench = null;
     }
 
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>

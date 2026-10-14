@@ -111,6 +111,13 @@ namespace Rpg.Api.Data.Migrations
                         .HasColumnType("character varying(8000)")
                         .HasDefaultValue("");
 
+                    b.Property<string>("Jobs")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasDefaultValue("");
+
                     b.Property<int>("Level")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")

@@ -106,7 +106,7 @@ public static class MonsterGroups
             return [];
         var rng = new Rng(Seed(map.Id));
         Board board = map.Board();
-        Cell[] away = [.. (map.Links ?? []).Select(l => l.At), .. map.Exits.Select(e => e.At), .. map.Doors.Select(d => d.At), map.Spawn];
+        Cell[] away = [.. (map.Links ?? []).Select(l => l.At), .. map.Exits.Select(e => e.At), .. map.Doors.Select(d => d.At), .. (map.Workshops ?? []).Select(w => w.At), map.Spawn];
         var homes = Pathfinding.Reachable(board, map.Spawn, board.Width * board.Height, c => map.IsFree(board, c)).Keys
             .Where(c => away.All(a => a.DistanceTo(c) >= Distance))
             .OrderBy(c => c.Y).ThenBy(c => c.X)
@@ -148,7 +148,7 @@ public static class MonsterGroups
         ArgumentNullException.ThrowIfNull(board);
         ArgumentNullException.ThrowIfNull(occupied);
         var reach = Pathfinding.Reachable(board, map.Spawn, board.Width * board.Height, c => map.IsFree(board, c) && !occupied.Contains(c)).Keys.ToHashSet();
-        return (map.Links ?? []).Select(l => l.At).Concat(map.Exits.Select(e => e.At)).Concat(map.Doors.Select(d => d.At)).All(reach.Contains)
+        return (map.Links ?? []).Select(l => l.At).Concat(map.Exits.Select(e => e.At)).Concat(map.Doors.Select(d => d.At)).Concat((map.Workshops ?? []).Select(w => w.At)).All(reach.Contains)
             && map.Npcs.All(n => n.At.Neighbours().Any(reach.Contains));
     }
 

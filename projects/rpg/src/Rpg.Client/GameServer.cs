@@ -106,6 +106,14 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    public async Task<CharacterSummary> Craft(Guid id, string job, string item, int count = 1, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Http.PostAsJsonAsync(new Uri($"api/characters/{id}/craft", UriKind.Relative), new Craft(job, item, count), Json, cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     /// <summary>Goes into a dungeon (sprint 80); the server checks the key and uses it up.</summary>
     public async Task<CharacterSummary> EnterDungeon(Guid id, string dungeon, CancellationToken cancel = default)
     {

@@ -22,6 +22,7 @@ public static class CharacterEndpoints
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
+        group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
@@ -212,6 +213,29 @@ public static class CharacterEndpoints
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Make(
+        Guid id, Craft request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (request?.Job is not string jobId || !GameData.Embedded.Jobs.TryGetValue(jobId, out Job? job)
+            || request.Item is not string item || job.RecipeFor(item) is not Recipe recipe)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["recipe"] = ["A trade, and an item it makes."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        Dictionary<string, long> jobs = character.JobList;
+        // The rules decide: the trade's level, the ingredients owned (worn ones count as owned, but are kept on).
+        if (Crafting.Problem(recipe, Crafting.LevelFor(jobs.GetValueOrDefault(job.Id)), character.InventoryList, request.Count) is string problem)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["recipe"] = [problem] });
+        foreach (ItemCount i in recipe.Ingredients)
+            character.Spend(i with { Count = i.Count * request.Count });
+        character.Receive([new ItemCount(recipe.Item, request.Count)]);
+        jobs[job.Id] = jobs.GetValueOrDefault(job.Id) + Crafting.Xp(recipe) * request.Count;
+        character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
     internal static async Task<Results<NoContent, NotFound>> Leave(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
     {
         Guid account = AccountId(user);
@@ -261,7 +285,7 @@ public static class CharacterEndpoints
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

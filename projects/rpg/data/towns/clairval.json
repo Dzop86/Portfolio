@@ -29,5 +29,8 @@
   ],
   "exits": [
     { "at": { "x": 15, "y": 5 }, "scenario": "training", "name": { "fr": "Porte est : entraînement", "en": "East gate: training" } }
+  ],
+  "workshops": [
+    { "at": { "x": 11, "y": 9 }, "job": "locksmith" }
   ]
 }

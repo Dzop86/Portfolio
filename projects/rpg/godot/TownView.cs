@@ -115,6 +115,22 @@ public partial class TownView : Node3D
             AddChild(label);
             _exitLabels.Add((label, name));
         }
+        // The workshops (sprint 81): a ring in chocolate and the bench's name.
+        foreach (Workshop w in town.Workshops ?? [])
+        {
+            Vector3 at = BoardView.ToWorld(w.At);
+            AddChild(new MeshInstance3D
+            {
+                Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = DoorColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                Scale = new Vector3(1, 0.15f, 1),
+                Position = at + new Vector3(0, 0.05f, 0),
+            });
+            LocalizedText name = controller.Data.Jobs[w.Job].Workshop;
+            Label3D label = Label(name.In(lang), at + new Vector3(0, 0.9f, 0), 36);
+            AddChild(label);
+            _exitLabels.Add((label, name));
+        }
         foreach ((string id, Cell at) in controller.Groups)
             AddGroup(controller.Data.Groups[id], at, lang);
         Player = Person(player, null);

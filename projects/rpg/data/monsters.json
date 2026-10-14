@@ -37,6 +37,10 @@
           {
             "item": "boar-bristle",
             "percent": 40
+          },
+          {
+            "item": "boar-wallow-key",
+            "percent": 2
           }
         ]
       },
@@ -61,6 +65,10 @@
           {
             "item": "boar-bristle",
             "percent": 50
+          },
+          {
+            "item": "boar-wallow-key",
+            "percent": 2
           }
         ]
       },
@@ -97,6 +105,10 @@
           {
             "item": "tusk-amulet",
             "percent": 5
+          },
+          {
+            "item": "boar-wallow-key",
+            "percent": 2
           }
         ]
       },
@@ -121,6 +133,10 @@
           {
             "item": "boar-bristle",
             "percent": 50
+          },
+          {
+            "item": "boar-wallow-key",
+            "percent": 2
           }
         ]
       },
@@ -156,6 +172,10 @@
           {
             "item": "tusk-amulet",
             "percent": 25
+          },
+          {
+            "item": "boar-wallow-key",
+            "percent": 10
           }
         ]
       }
@@ -199,6 +219,10 @@
           {
             "item": "wolf-pelt",
             "percent": 40
+          },
+          {
+            "item": "wolf-den-key",
+            "percent": 2
           }
         ]
       },
@@ -223,6 +247,10 @@
           {
             "item": "wolf-fang",
             "percent": 50
+          },
+          {
+            "item": "wolf-den-key",
+            "percent": 2
           }
         ]
       },
@@ -259,6 +287,10 @@
           {
             "item": "wolf-cape",
             "percent": 5
+          },
+          {
+            "item": "wolf-den-key",
+            "percent": 2
           }
         ]
       },
@@ -283,6 +315,10 @@
           {
             "item": "wolf-pelt",
             "percent": 50
+          },
+          {
+            "item": "wolf-den-key",
+            "percent": 2
           }
         ]
       },
@@ -319,6 +355,10 @@
           {
             "item": "wolf-cape",
             "percent": 25
+          },
+          {
+            "item": "wolf-den-key",
+            "percent": 10
           }
         ]
       }
@@ -361,6 +401,10 @@
           {
             "item": "spore-dust",
             "percent": 40
+          },
+          {
+            "item": "mushroom-cellar-key",
+            "percent": 2
           }
         ]
       },
@@ -384,6 +428,10 @@
           {
             "item": "spore-dust",
             "percent": 60
+          },
+          {
+            "item": "mushroom-cellar-key",
+            "percent": 2
           }
         ]
       },
@@ -416,6 +464,10 @@
           {
             "item": "cap-hat",
             "percent": 5
+          },
+          {
+            "item": "mushroom-cellar-key",
+            "percent": 2
           }
         ]
       },
@@ -440,6 +492,10 @@
           {
             "item": "spore-dust",
             "percent": 50
+          },
+          {
+            "item": "mushroom-cellar-key",
+            "percent": 2
           }
         ]
       },
@@ -475,6 +531,10 @@
           {
             "item": "cap-hat",
             "percent": 25
+          },
+          {
+            "item": "mushroom-cellar-key",
+            "percent": 10
           }
         ]
       }
@@ -517,6 +577,10 @@
           {
             "item": "old-bone",
             "percent": 40
+          },
+          {
+            "item": "zombie-crypt-key",
+            "percent": 2
           }
         ]
       },
@@ -541,6 +605,10 @@
           {
             "item": "rotten-cloth",
             "percent": 50
+          },
+          {
+            "item": "zombie-crypt-key",
+            "percent": 2
           }
         ]
       },
@@ -573,6 +641,10 @@
           {
             "item": "grave-belt",
             "percent": 5
+          },
+          {
+            "item": "zombie-crypt-key",
+            "percent": 2
           }
         ]
       },
@@ -597,6 +669,10 @@
           {
             "item": "old-bone",
             "percent": 50
+          },
+          {
+            "item": "zombie-crypt-key",
+            "percent": 2
           }
         ]
       },
@@ -632,6 +708,10 @@
           {
             "item": "grave-belt",
             "percent": 25
+          },
+          {
+            "item": "zombie-crypt-key",
+            "percent": 10
           }
         ]
       }
@@ -674,6 +754,10 @@
           {
             "item": "slime",
             "percent": 40
+          },
+          {
+            "item": "frog-grotto-key",
+            "percent": 2
           }
         ]
       },
@@ -697,6 +781,10 @@
           {
             "item": "slime",
             "percent": 60
+          },
+          {
+            "item": "frog-grotto-key",
+            "percent": 2
           }
         ]
       },
@@ -729,6 +817,10 @@
           {
             "item": "lily-ring",
             "percent": 5
+          },
+          {
+            "item": "frog-grotto-key",
+            "percent": 2
           }
         ]
       },
@@ -753,6 +845,10 @@
           {
             "item": "slime",
             "percent": 50
+          },
+          {
+            "item": "frog-grotto-key",
+            "percent": 2
           }
         ]
       },
@@ -788,6 +884,10 @@
           {
             "item": "lily-ring",
             "percent": 25
+          },
+          {
+            "item": "frog-grotto-key",
+            "percent": 10
           }
         ]
       }
@@ -830,6 +930,10 @@
           {
             "item": "crab-shell",
             "percent": 40
+          },
+          {
+            "item": "crab-reef-key",
+            "percent": 2
           }
         ]
       },
@@ -854,6 +958,10 @@
           {
             "item": "crab-shell",
             "percent": 50
+          },
+          {
+            "item": "crab-reef-key",
+            "percent": 2
           }
         ]
       },
@@ -886,6 +994,10 @@
           {
             "item": "shell-shield",
             "percent": 5
+          },
+          {
+            "item": "crab-reef-key",
+            "percent": 2
           }
         ]
       },
@@ -910,6 +1022,10 @@
           {
             "item": "crab-claw",
             "percent": 50
+          },
+          {
+            "item": "crab-reef-key",
+            "percent": 2
           }
         ]
       },
@@ -945,6 +1061,10 @@
           {
             "item": "shell-shield",
             "percent": 25
+          },
+          {
+            "item": "crab-reef-key",
+            "percent": 10
           }
         ]
       }
@@ -987,6 +1107,10 @@
           {
             "item": "honeycomb",
             "percent": 40
+          },
+          {
+            "item": "royal-hive-key",
+            "percent": 2
           }
         ]
       },
@@ -1010,6 +1134,10 @@
           {
             "item": "bee-wing",
             "percent": 60
+          },
+          {
+            "item": "royal-hive-key",
+            "percent": 2
           }
         ]
       },
@@ -1041,6 +1169,10 @@
           {
             "item": "stinger-dagger",
             "percent": 5
+          },
+          {
+            "item": "royal-hive-key",
+            "percent": 2
           }
         ]
       },
@@ -1065,6 +1197,10 @@
           {
             "item": "honeycomb",
             "percent": 50
+          },
+          {
+            "item": "royal-hive-key",
+            "percent": 2
           }
         ]
       },
@@ -1100,6 +1236,10 @@
           {
             "item": "stinger-dagger",
             "percent": 25
+          },
+          {
+            "item": "royal-hive-key",
+            "percent": 10
           }
         ]
       }
@@ -1142,6 +1282,10 @@
           {
             "item": "earthworm",
             "percent": 40
+          },
+          {
+            "item": "mole-burrows-key",
+            "percent": 2
           }
         ]
       },
@@ -1166,6 +1310,10 @@
           {
             "item": "earthworm",
             "percent": 60
+          },
+          {
+            "item": "mole-burrows-key",
+            "percent": 2
           }
         ]
       },
@@ -1198,6 +1346,10 @@
           {
             "item": "digger-boots",
             "percent": 5
+          },
+          {
+            "item": "mole-burrows-key",
+            "percent": 2
           }
         ]
       },
@@ -1222,6 +1374,10 @@
           {
             "item": "mole-fur",
             "percent": 50
+          },
+          {
+            "item": "mole-burrows-key",
+            "percent": 2
           }
         ]
       },
@@ -1257,6 +1413,10 @@
           {
             "item": "digger-boots",
             "percent": 25
+          },
+          {
+            "item": "mole-burrows-key",
+            "percent": 10
           }
         ]
       }

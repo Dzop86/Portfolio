@@ -288,6 +288,47 @@ public partial class Main
             await TravelTo(link);
         else if (_town.Door is DungeonDoor door)
             AskDungeon(door);
+        else if (_town.Bench is Workshop bench)
+            OpenBench(bench);
+    }
+
+    private CraftPanel? _craftPanel;
+
+    /// <summary>A trade's workshop (sprint 81): its recipes; the server makes what is asked.</summary>
+    private CraftPanel OpenBench(Workshop bench)
+    {
+        _craftPanel?.QueueFree();
+        Texts texts = _talkPanel!.Texts;
+        Job job = GameData.Embedded.Jobs[bench.Job];
+        _craftPanel = new CraftPanel();
+        AddChild(_craftPanel);
+        _craftPanel.Build(new Workbench(job, _character, texts), texts);
+        _craftPanel.ClosePressed += () =>
+        {
+            _craftPanel?.QueueFree();
+            _craftPanel = null;
+            _town?.CloseDoor();
+        };
+        _craftPanel.MakePressed += (item, count) => _ = Make(job, item, count);
+        return _craftPanel;
+    }
+
+    private async Task Make(Job job, string item, int count)
+    {
+        if (_craftPanel is null || _lobby?.SignedIn != true || _character is null)
+            return;
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            _character = await _lobby.Server.Craft(_character.Id, job.Id, item, count);
+            _hero = _character.Hero;
+            _craftPanel?.Show(new Workbench(job, _character, texts));
+            _craftPanel?.ShowMessage(texts["craft.made", texts.Items([new ItemCount(item, count)])]);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _craftPanel?.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
     }
 
     private ConfirmationDialog? _doorDialog;
@@ -688,7 +729,7 @@ public partial class Main
             AddChild(view);
             view.Build(controller, _options.Lang, hero);
             Town t = controller.Town;
-            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + t.Doors.Count + (t.Links ?? []).Where(l => l.Name is not null).Select(l => l.To).Distinct().Count())
+            if (view.Tiles != t.Rows.Count * t.Rows[0].Length || view.WayLabels != t.Exits.Count + t.Doors.Count + (t.Workshops ?? []).Count + (t.Links ?? []).Where(l => l.Name is not null).Select(l => l.To).Distinct().Count())
                 problems.Add($"{id} is drawn with {view.Tiles} tiles and {view.WayLabels} names of ways");
             // Its groups of monsters, each with its monsters on its cell (sprint 72).
             foreach ((string g, Cell at) in controller.Groups)
@@ -759,6 +800,24 @@ public partial class Main
                     problems.Add($"room {room} of {d.Id} has {fight.Fighters.Count - 1} monsters");
             }
             checkedDoors++;
+        }
+        // The locksmith's bench in Clairval (sprint 81): walked onto, it opens its recipes, none to make
+        // without the ingredients; closed, the player walks on.
+        _town = new TownController(GameData.Embedded, "clairval");
+        Workshop bench = _town.Town.Workshops![0];
+        if (_town.Click(bench.At)?.Path is null || _town.Bench != bench)
+            problems.Add("walking onto the locksmith's bench does not open it");
+        else
+        {
+            CraftPanel panel = OpenBench(bench);
+            var expected = new Workbench(GameData.Embedded.Jobs[bench.Job], _character, _talkPanel!.Texts);
+            if (panel.TitleText != expected.Title || !panel.Recipes.SequenceEqual(expected.Rows.Select(r => (r.Recipe.Item, r.Most > 0))))
+                problems.Add($"the bench shows \"{panel.TitleText}\" and {panel.Recipes.Count()} recipes");
+            _craftPanel!.QueueFree();
+            _craftPanel = null;
+            _town.CloseDoor();
+            if (_town.Click(_town.Town.Spawn) is null)
+                problems.Add("after the bench, the player cannot walk on");
         }
         // Drawn on its map: the door's name over it.
         Dungeon first = GameData.Embedded.Dungeons.Values.First();

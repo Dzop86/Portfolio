@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je fabrique mes clefs (rpg) : chaque famille laisse des ressources ; le métier de serrurier (niveaux, expérience) fabrique la clef d'un donjon à partir des ressources de sa famille, à l'établi du village ; chaque monstre laisse aussi, rarement, la clef de son donjon ; tout vérifié par le serveur ; xUnit, intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je fabrique mes clefs (rpg) : chaque famille laisse des ressources ; le métier de serrurier (niveaux, expérience) fabrique la clef d'un donjon à partir des ressources de sa famille, à l'établi du village ; chaque monstre laisse aussi, rarement, la clef de son donjon ; tout vérifié par le serveur ; xUnit, intégration, auto-test. | 3 | Fait |
+
+**Résultat :** le serrurier et son établi au village, les huit clefs fabriquées des ressources des familles, la clef laissée rarement par les monstres (T48).
 
 ## Rétro (Charles)
 - Ce qui a marché :
