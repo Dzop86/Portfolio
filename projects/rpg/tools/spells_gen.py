@@ -140,21 +140,29 @@ creatures = [
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
  S("gore","Coup de boutoir","Gore",3,1,1,6,9,2,"Earth",1,ranks=False),
- S("charge","Charge","Charge",4,2,3,7,10,1,"Earth",1,line=True,effects=[push(1)],ranks=False),
+ S("charge","Charge","Charge",4,2,4,6,9,1,"Earth",1,line=True,effects=[push(2)],ranks=False),
  S("acorn-throw","Jet de glands","Acorn Throw",3,2,5,4,7,2,"Air",1,ranks=False),
  S("nip","Mordillement","Nip",2,1,1,3,5,2,"Earth",1,ranks=False),
  S("mud-wallow","Bain de boue","Mud Wallow",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("soothing-grunt","Grognement apaisant","Soothing Grunt",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",6,9)],ranks=False,cd=1),
  S("royal-gore","Boutoir royal","Royal Gore",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("stampede","Ruée","Stampede",4,1,2,7,10,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
+ # The boars of D69 (sprint 91, docs/design-familles.md §4.1): charges into walls, a tank that tramples, a sow that calls her young back.
+ S("trample","Piétinement","Trample",3,1,1,3,5,1,"Earth",1,area=("Line",1),effects=[status("Enemies","Mp",-1,1)],ranks=False,cd=1),
+ S("sow-call","Rappel des petits","Call the Young",2,2,4,0,0,1,"Neutral",1,effects=[pull(2,"Allies")],ranks=False,cd=2),
+ S("royal-charge","Charge royale","Royal Charge",4,2,5,8,11,1,"Earth",1,line=True,effects=[push(3)],ranks=False,cd=2),
  # The wolves (sprint 73): quick bites, a howl from afar, thick fur, a guard for the pack.
  S("bite","Morsure","Bite",3,1,1,5,8,2,"Earth",1,ranks=False),
- S("lunge","Bond","Lunge",4,2,3,6,9,1,"Air",1,line=True,ranks=False),
- S("howl","Hurlement","Howl",3,2,5,4,7,2,"Air",1,ranks=False),
+ S("lunge","Bond","Lunge",2,2,4,0,0,1,"Neutral",1,effects=[leap()],ranks=False,cd=1),
+ S("howl","Hurlement glaçant","Chilling Howl",3,2,5,3,6,1,"Air",1,effects=[status("Enemies","Mp",-1,1)],ranks=False),
  S("thick-fur","Épaisse fourrure","Thick Fur",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("pack-guard","Garde de la meute","Pack Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",8,2)],ranks=False,cd=1),
  S("savage-bite","Morsure sauvage","Savage Bite",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("pack-howl","Hurlement de meute","Pack Howl",4,1,3,6,9,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
+ # The wolves of D69 (sprint 91, §4.2): a tank that takes a hurt wolf's place, a she-wolf who rallies, the leader's cubs.
+ S("intercept","S'interposer","Intercept",2,1,3,0,0,1,"Neutral",1,effects=[swap("Allies"),shield("Caster",10,2)],ranks=False,cd=2),
+ S("rally-howl","Appel de la louve","Rallying Howl",3,0,0,0,0,1,"Neutral",1,area=("Circle",2),effects=[status("Allies","Mp",1,1)],ranks=False,cd=2),
+ S("cub-bite","Mordillage de louveteau","Cub Bite",3,1,1,3,5,2,"Earth",1,ranks=False),
  # The mouldy woods (sprint 74): mushrooms and zombies, made for heroes of about level 10.
  S("cap-slam","Coup de chapeau","Cap Slam",3,1,1,8,12,2,"Earth",1,ranks=False),
  S("spore-burst","Jet de spores","Spore Burst",3,2,5,7,11,2,"Water",1,ranks=False),
@@ -231,5 +239,37 @@ summons = [
  O([("id","hawk"),("name",O([("fr","Faucon"),("en","Hawk")])),("look","female-a"),("hp",30),("ap",6),("mp",4),("initiative",130),("spells",["peck"])]),
  O([("id","ember"),("name",O([("fr","Braise"),("en","Ember")])),("look","male-e"),("hp",30),("ap",6),("mp",3),("initiative",90),("spells",["ember-bolt"])]),
 ]
+# The young of the families' chiefs (D69): a monster's look, drawn smaller, and passives.
+def young(id, fr, en, look, scale, hp, ap, mp, ini, spells, passives=None):
+    d = O([("id",id),("name",O([("fr",fr),("en",en)])),("look",look),("hp",hp),("ap",ap),("mp",mp),("initiative",ini),("spells",spells)])
+    if passives: d["passives"] = passives
+    d["scale"] = scale
+    return d
+summons += [
+ young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
+]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
+
+# The monsters' passives (D69, data/passives.json): a trigger, its numbers, spell effects with the bearer as caster.
+def P(id, fr, en, dfr, den, trigger, effects=None, area=None, **kw):
+    d = O([("id",id),("name",O([("fr",fr),("en",en)])),("description",O([("fr",dfr),("en",den)])),("trigger",trigger)])
+    if effects: d["effects"] = effects
+    if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
+    for k in ("melee", "percent", "range", "damageMin", "damageMax", "element"):
+        if k in kw: d[k] = kw[k]
+    return d
+passives = [
+ # The boars (§4.1): they avenge one another, the piglet flees, the loner's mud, the king's etched shard.
+ P("herd-grudge","Rancune de la harde","Herd Grudge","Quand un sanglier tombe à 3 cases ou moins, gagne 1 PM et 15 % de dégâts pendant 2 tours.",
+   "When a boar falls 3 cells away or less, gains 1 MP and 15% damage for 2 turns.","AllyDies",[status("Caster","Mp",1,2),status("Caster","Damage",15,2)],range=3),
+ P("scamper","Détale","Scamper","Frappé au contact, gagne 2 PM pour fuir.","Struck up close, gains 2 MP to flee.","Hit",[status("Caster","Mp",2,1)],melee=True),
+ P("mud-hide","Peau de boue","Mud Hide","Qui le frappe au contact perd 1 PM.","Whoever strikes it up close loses 1 MP.","Hit",[status("Attacker","Mp",-1,1)],melee=True),
+ P("etched-shard","Éclat gravé","Etched Shard","Sous la moitié de ses PV, le signe de sa défense s'allume : +1 PA et +20 % de résistance Terre pendant 3 tours.",
+   "Below half its HP, the sign on its tusk lights up: +1 AP and +20% Earth resistance for 3 turns.","LowHp",[status("Caster","Ap",1,3),status("Caster","Resistance",20,3,"Earth")],percent=50),
+ # The wolves (§4.2): the pack's instinct, and the leader's cubs.
+ P("pack-instinct","Instinct de meute","Pack Instinct","Au début de son tour, les loups à 2 cases ou moins gagnent 10 % de dégâts. Plusieurs loups cumulent leurs instincts.",
+   "At the start of its turn, the wolves 2 cells away or less gain 10% damage. Several wolves add up their instincts.","TurnStart",[status("Allies","Damage",10,1)],area=("Circle",2)),
+ P("pack-answers","La meute répond","The Pack Answers","Sous la moitié de ses PV, appelle deux louveteaux.","Below half its HP, calls two wolf cubs.","LowHp",[summon("wolf-cub",count=2)],percent=50),
+]
+open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")
 print(len(spells), {k: len(v) for k, v in lists.items()})

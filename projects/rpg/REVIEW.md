@@ -42,6 +42,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 77 : les cartes de 48 × 32 (assez grandes ?), les passages sans points cardinaux ; **à trancher** : agrandir aussi le village (aujourd'hui 16 × 12) ?
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
 - [ ] Sprint 90 : le moteur des passifs, du saut et de l'échange (`src/Rpg.Core/Fight.cs` : `Resolve`, `Hurt`, `Apply` ; T57), sans monstre qui s'en serve encore (ils viennent aux sprints 91 à 94). **À trancher :** Dérobade compte enfin (+2 PM) et la Sentinelle dominait ses duels ; ses PV passent à 62 (Garde 74, Mage 86) et, jouée par l'IA, elle ne gagne plus que la moitié de ses entraînements : garder ces PV, ou Dérobade à +1 PM ?
+- [ ] Sprint 91 : les sangliers et les loups (`data/monsters.json`, `data/passives.json`, `tools/spells_gen.py`, T58) et le Fourré : sent-on la différence entre les deux familles (§6 de la conception) ? Les textes des passifs te vont-ils ?
 
 ## Constats
 
@@ -195,3 +196,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-15 | `tests/*/bin/` (hors dépôt) | (Claude) Des anciennes cartes copiées dans les dossiers de sortie des tests faisaient échouer le chargement du dossier `data` en local | Dossiers `data` des sorties supprimés ; la CI part d'un dépôt propre |
 | 2026-10-15 | `tests/Rpg.Core.Tests/PassiveTests.cs` | (Claude) Mon combat d'essai « avec chaque déclencheur » finissait au premier tour (un lanceur à 99 PA) : trois déclencheurs sur cinq seulement | Deux héros ordinaires qui jouent après les monstres ; le test exige les cinq |
 | 2026-10-15 | `godot/Main.cs` | (Claude) Mon premier jet de l'échange de place réutilisait un nom de variable déjà pris dans la méthode : refusé par le compilateur | Noms propres à ce cas |
+| 2026-10-15 | `tests/Rpg.Core.Tests` (donjons, métiers, quêtes, monstres) | (Claude) Les données réduites construites par ces tests avec les vraies familles n'avaient pas les passifs : refusées au chargement | Les vrais passifs leur sont passés |
+| 2026-10-15 | `godot/Main.cs` (auto-test) | (Claude) Le contrôle « le dernier nombre au-dessus d'un combattant est dans sa couleur » ne connaissait pas les noms de passifs | Le nom d'un passif attendu dans la couleur neutre |

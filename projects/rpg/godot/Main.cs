@@ -832,6 +832,10 @@ public partial class Main : Node3D
                 case ShieldAbsorbed a:
                     last[a.Fighter] = new Color(ElementStyle.Shield);
                     break;
+                // A passive's name floats in the neutral colour (sprint 90).
+                case PassiveTriggered p:
+                    last[p.Fighter] = new Color(ElementStyle.Colour(Element.Neutral));
+                    break;
             }
         }
         foreach ((int id, Color colour) in last)

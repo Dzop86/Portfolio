@@ -103,7 +103,7 @@ public class DungeonTests
     {
         Dungeon wallow = Real.Dungeons["boar-wallow"];
         GameData With(Dungeon d) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Quests(d), Real.Items.Values, Real.Sets.Values, Real.Families.Values, [d], Real.Jobs.Values);
+            Real.Dialogues.Values, Real.Summons.Values, Quests(d), Real.Items.Values, Real.Sets.Values, Real.Families.Values, [d], Real.Jobs.Values, Real.Passives.Values);
         // The quests of the other dungeons (sprint 89) have no dungeon to finish here.
         static IEnumerable<Quest> Quests(Dungeon d) => Real.Quests.Values.Where(q => q.Objectives?.All(o => o.Goal != QuestGoal.Dungeon || o.Target == d.Id) != false);
         Assert.Equal(wallow, With(wallow).Dungeons["boar-wallow"]);

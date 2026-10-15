@@ -9,7 +9,7 @@ public class QuestTests
 
     private static GameData WithQuests(params Quest[] quests) => new(
         Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
-        quests, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, Real.Jobs.Values);
+        quests, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, Real.Jobs.Values, Real.Passives.Values);
 
     [Fact]
     public void AGivenQuest_HasAKnownGiver_ItsWords_AndObjectivesOfKnownThings()

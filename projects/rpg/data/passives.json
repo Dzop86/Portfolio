@@ -1,0 +1,152 @@
+[
+  {
+    "id": "herd-grudge",
+    "name": {
+      "fr": "Rancune de la harde",
+      "en": "Herd Grudge"
+    },
+    "description": {
+      "fr": "Quand un sanglier tombe à 3 cases ou moins, gagne 1 PM et 15 % de dégâts pendant 2 tours.",
+      "en": "When a boar falls 3 cells away or less, gains 1 MP and 15% damage for 2 turns."
+    },
+    "trigger": "AllyDies",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 1,
+        "turns": 2
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 15,
+        "turns": 2
+      }
+    ],
+    "range": 3
+  },
+  {
+    "id": "scamper",
+    "name": {
+      "fr": "Détale",
+      "en": "Scamper"
+    },
+    "description": {
+      "fr": "Frappé au contact, gagne 2 PM pour fuir.",
+      "en": "Struck up close, gains 2 MP to flee."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "mud-hide",
+    "name": {
+      "fr": "Peau de boue",
+      "en": "Mud Hide"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact perd 1 PM.",
+      "en": "Whoever strikes it up close loses 1 MP."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Mp",
+        "value": -1,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "etched-shard",
+    "name": {
+      "fr": "Éclat gravé",
+      "en": "Etched Shard"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, le signe de sa défense s'allume : +1 PA et +20 % de résistance Terre pendant 3 tours.",
+      "en": "Below half its HP, the sign on its tusk lights up: +1 AP and +20% Earth resistance for 3 turns."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 1,
+        "turns": 3
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": 20,
+        "turns": 3,
+        "element": "Earth"
+      }
+    ],
+    "percent": 50
+  },
+  {
+    "id": "pack-instinct",
+    "name": {
+      "fr": "Instinct de meute",
+      "en": "Pack Instinct"
+    },
+    "description": {
+      "fr": "Au début de son tour, les loups à 2 cases ou moins gagnent 10 % de dégâts. Plusieurs loups cumulent leurs instincts.",
+      "en": "At the start of its turn, the wolves 2 cells away or less gain 10% damage. Several wolves add up their instincts."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Allies",
+        "stat": "Damage",
+        "value": 10,
+        "turns": 1
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    }
+  },
+  {
+    "id": "pack-answers",
+    "name": {
+      "fr": "La meute répond",
+      "en": "The Pack Answers"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, appelle deux louveteaux.",
+      "en": "Below half its HP, calls two wolf cubs."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "wolf-cub",
+        "max": 1,
+        "count": 2
+      }
+    ],
+    "percent": 50
+  }
+]

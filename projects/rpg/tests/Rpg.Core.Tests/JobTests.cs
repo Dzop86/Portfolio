@@ -70,7 +70,7 @@ public class JobTests
     {
         Job locksmith = Real.Jobs["locksmith"];
         GameData With(Job j, IEnumerable<Town>? towns = null) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, towns ?? Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, [j]);
+            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, [j], Real.Passives.Values);
         Assert.Equal(locksmith, With(locksmith).Jobs["locksmith"]);
         Recipe r = locksmith.Recipes[0];
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [r with { Item = "nothing" }] }));

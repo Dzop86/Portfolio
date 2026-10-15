@@ -28,5 +28,21 @@
     "spells": [
       "ember-bolt"
     ]
+  },
+  {
+    "id": "wolf-cub",
+    "name": {
+      "fr": "Louveteau",
+      "en": "Wolf Cub"
+    },
+    "look": "wolf-melee",
+    "hp": 12,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 90,
+    "spells": [
+      "cub-bite"
+    ],
+    "scale": 70
   }
 ]
