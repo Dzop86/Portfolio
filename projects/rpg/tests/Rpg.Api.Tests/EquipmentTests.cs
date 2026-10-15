@@ -1,4 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
+using Rpg.Api.Data;
 using Rpg.Client;
 using Rpg.Core;
 
@@ -80,5 +82,29 @@ public class EquipmentTests
         await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(ringed), Cancel);
         // Taking it off.
         Assert.Empty((await server.SaveEquipment(c.Id, new Dictionary<Slot, string>(), Cancel)).Worn!);
+    }
+
+    [Fact]
+    public async Task BootsOfInitiative_PlayTheHeroEarlier_AndTheServerReplaysTheSameOrder()
+    {
+        // Sprint 95 (D71): initiative comes from boots, capes and rings found in loot.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("ini");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 3, [new ItemCount("wolf-boots", 1)]), Cancel);
+        CharacterSummary booted = await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Boots] = "wolf-boots" }, Cancel);
+        FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
+        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero);
+        Assert.Equal(GameData.Embedded.Class("guard")!.Initiative + 10, fight.HeroFighter!.Spec.Initiative);
+        // Played without the boots, the order differs: the server, which replays with them, refuses it.
+        var bare = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero with { Worn = null });
+        Ai.PlayOut(bare);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, FightRecord.Of(bare), Cancel))).Status);
+        ticket = await server.StartFight(c.Id, "training", Cancel);
+        fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero);
+        Ai.PlayOut(fight);
+        await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
     }
 }

@@ -56,8 +56,8 @@ public enum ItemSlot
 
 /// <summary>
 /// An item, as described in <c>data/items.json</c>: a piece of equipment (its slot, the level it
-/// needs, the characteristics, action and movement points it gives, its set), a consumable, a
-/// resource or a quest item.
+/// needs, the characteristics, action and movement points it gives, its set, and since sprint 95 the
+/// initiative of boots, capes and rings), a consumable, a resource or a quest item.
 /// </summary>
 public sealed record Item(
     string Id,
@@ -68,8 +68,12 @@ public sealed record Item(
     Characteristics? Stats = null,
     int Ap = 0,
     int Mp = 0,
-    string? Set = null)
+    string? Set = null,
+    int Initiative = 0)
 {
+    /// <summary>The kinds of pieces that may carry initiative (sprint 95, D71): the light ones.</summary>
+    public static readonly IReadOnlyList<ItemSlot> Quick = [ItemSlot.Boots, ItemSlot.Cape, ItemSlot.Ring];
+
     /// <summary>The slots this item may go in (none for what is not equipment).</summary>
     [JsonIgnore]
     public IReadOnlyList<Slot> Slots => Slot switch
@@ -81,7 +85,7 @@ public sealed record Item(
 }
 
 /// <summary>What a set gives when that many of its pieces are worn.</summary>
-public sealed record SetBonus(int Pieces, Characteristics? Stats = null, int Ap = 0, int Mp = 0);
+public sealed record SetBonus(int Pieces, Characteristics? Stats = null, int Ap = 0, int Mp = 0, int Initiative = 0);
 
 /// <summary>A set of items, as described in <c>data/sets.json</c>: bonuses for wearing several pieces.</summary>
 public sealed record ItemSet(string Id, LocalizedText Name, IReadOnlyList<SetBonus> Bonuses);
@@ -130,25 +134,25 @@ public static class Equipment
         }
     }
 
-    /// <summary>The characteristics, action and movement points that what is worn adds, sets included.</summary>
-    public static (Characteristics Stats, int Ap, int Mp) Total(IReadOnlyDictionary<Slot, string>? worn, GameData data)
+    /// <summary>The characteristics, action and movement points and initiative that what is worn adds, sets included.</summary>
+    public static (Characteristics Stats, int Ap, int Mp, int Initiative) Total(IReadOnlyDictionary<Slot, string>? worn, GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
         Characteristics sum = Characteristics.None;
-        int ap = 0, mp = 0;
+        int ap = 0, mp = 0, initiative = 0;
         if (worn is null)
-            return (sum, ap, mp);
+            return (sum, ap, mp, initiative);
         foreach (Item item in worn.Values.Where(data.Items.ContainsKey).Select(id => data.Items[id]))
         {
             sum = Add(sum, item.Stats);
-            (ap, mp) = (ap + item.Ap, mp + item.Mp);
+            (ap, mp, initiative) = (ap + item.Ap, mp + item.Mp, initiative + item.Initiative);
         }
         foreach (SetBonus bonus in SetBonuses(worn, data))
         {
             sum = Add(sum, bonus.Stats);
-            (ap, mp) = (ap + bonus.Ap, mp + bonus.Mp);
+            (ap, mp, initiative) = (ap + bonus.Ap, mp + bonus.Mp, initiative + bonus.Initiative);
         }
-        return (sum, ap, mp);
+        return (sum, ap, mp, initiative);
     }
 
     public static Characteristics Add(Characteristics a, Characteristics? b) => b is null ? a

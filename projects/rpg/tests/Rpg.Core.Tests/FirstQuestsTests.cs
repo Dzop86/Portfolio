@@ -25,6 +25,10 @@ public class FirstQuestsTests
         }
         // The stone's fifth sign leads under the Boar King's wallow, then to the four trails of the four Primordials.
         Assert.Contains(main[2].Objectives!, o => o.Goal == QuestGoal.Dungeon && o.Target == "boar-wallow");
+        // The main quest is done alone at its level (sprint 95, D71): never a dungeon's last room, made for
+        // several; the key to go in is given with the quest.
+        Assert.All(main.SelectMany(q => q.Objectives!).Where(o => o.Goal == QuestGoal.Dungeon), o => Assert.InRange(o.Room, 1, 2));
+        Assert.Equal([new ItemCount("boar-wallow-key", 1)], main[2].Grants!);
         Assert.Equal(["clairval/rose", "clairval/garance", "clairval/aubin"], main[3].Objectives!.Select(o => o.Target));
         Assert.Equal((2, 8), (Real.FindNpc("clairval/ysaline")!.Value.Npc.At.X, Real.FindNpc("clairval/ysaline")!.Value.Npc.At.Y));
     }

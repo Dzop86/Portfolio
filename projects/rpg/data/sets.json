@@ -20,5 +20,125 @@
         "mp": 1
       }
     ]
+  },
+  {
+    "id": "boar",
+    "name": {
+      "fr": "Panoplie du sanglier",
+      "en": "Boar set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "vitality": 5
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "vitality": 5,
+          "earth": 5
+        }
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "vitality": 12,
+          "earth": 5
+        },
+        "initiative": 10
+      }
+    ]
+  },
+  {
+    "id": "wolf",
+    "name": {
+      "fr": "Panoplie de la meute",
+      "en": "Pack set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {},
+        "initiative": 10
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "air": 5
+        },
+        "initiative": 10
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "air": 5
+        },
+        "mp": 1,
+        "initiative": 10
+      }
+    ]
+  },
+  {
+    "id": "mushroom",
+    "name": {
+      "fr": "Panoplie du mycélium",
+      "en": "Mycelium set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "vitality": 5
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "vitality": 5,
+          "water": 5
+        }
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "vitality": 15,
+          "water": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "zombie",
+    "name": {
+      "fr": "Panoplie de la crypte",
+      "en": "Crypt set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "fire": 5
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "fire": 5,
+          "vitality": 5
+        }
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "fire": 10,
+          "vitality": 5,
+          "earth": 5,
+          "water": 5,
+          "air": 5
+        }
+      }
+    ]
   }
 ]

@@ -77,9 +77,9 @@ public static class Progression
     /// A hero of this class and level with its points spent the simple way, for simulations: half the
     /// characteristic points in Vitality, the rest in the characteristics of its damaging spells'
     /// elements (in proportion to their number); spell points on the strongest unlocked damaging
-    /// spells, a rank at a time, the cheapest step first.
+    /// spells, a rank at a time, the cheapest step first; wearing <paramref name="worn"/> if given (sprint 95).
     /// </summary>
-    public static Hero Built(Hero hero, GameData data)
+    public static Hero Built(Hero hero, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(data);
@@ -108,6 +108,47 @@ public static class Progression
             spent += step;
             ranks[next.Id] = rank;
         }
-        return hero with { Stats = stats, Ranks = ranks };
+        return hero with { Stats = stats, Ranks = ranks, Worn = worn ?? hero.Worn };
     }
+
+    /// <summary>The kits a simulation can wear (sprint 95, D71): nothing, two quick pieces of the zone, or all the quick ones.</summary>
+    public static readonly IReadOnlyList<string> Kits = ["none", "zone", "fast"];
+
+    /// <summary>
+    /// What a hero of this level wears in a simulation, from the sets of the zone's families: "none" nothing (how
+    /// the floors of T41 are measured); "fast" in each slot the piece with the most initiative, of the quickest set,
+    /// then the most characteristics (how the ceilings are measured: the best case); "zone" the two pieces of that kit with the
+    /// most initiative only.
+    /// </summary>
+    public static IReadOnlyDictionary<Slot, string> Kit(string kit, string zone, int level, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        var worn = new Dictionary<Slot, string>();
+        if (kit == "none")
+            return worn;
+        if (kit is not ("zone" or "fast"))
+            throw new ArgumentException($"A kit is one of: {string.Join(", ", Kits)}.", nameof(kit));
+        HashSet<string> sets = [.. data.Families.Values.Where(f => f.Zone == zone).Select(f => f.Id)];
+        Item[] pieces = [.. data.Items.Values.Where(i => i.Set is string s && sets.Contains(s) && i.Level <= level)
+            .OrderByDescending(i => i.Initiative).ThenByDescending(i => SetInitiative(i.Set!, data)).ThenByDescending(i => Sum(i.Stats)).ThenBy(i => i.Id, StringComparer.Ordinal)];
+        foreach (Item piece in pieces.Where(p => !worn.ContainsValue(p.Id)))
+        {
+            foreach (Slot slot in piece.Slots.Where(s => !worn.ContainsKey(s)))
+            {
+                if (Equipment.Problem(new Dictionary<Slot, string>(worn) { [slot] = piece.Id }, level, data) is null)
+                {
+                    worn[slot] = piece.Id;
+                    break;
+                }
+            }
+        }
+        return kit == "fast" ? worn
+            : worn.Where(w => data.Items[w.Value].Initiative > 0).OrderByDescending(w => data.Items[w.Value].Initiative).ThenBy(w => w.Key).Take(2).ToDictionary();
+    }
+
+    /// <summary>The initiative of a whole set: its pieces' and its best bonus (the quickest set's pieces come first on a tie).</summary>
+    private static int SetInitiative(string set, GameData data) =>
+        data.Items.Values.Where(i => i.Set == set).Sum(i => i.Initiative) + (data.Sets.TryGetValue(set, out ItemSet? s) ? s.Bonuses.Max(b => b.Initiative) : 0);
+
+    private static int Sum(Characteristics? c) => c is null ? 0 : c.Vitality + c.Earth + c.Fire + c.Water + c.Air;
 }

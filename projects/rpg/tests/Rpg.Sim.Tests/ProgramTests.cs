@@ -111,4 +111,26 @@ public class ProgramTests
     [InlineData("--fly")]
     [InlineData("--simulate", "3", "--scenario", "nowhere")]
     public void WrongArguments_ExitWith2(params string[] args) => Assert.Equal(2, Run(args).Code);
+
+    [Fact]
+    public void AKit_DressesTheHero_FromTheSetsOfTheMonstersZone()
+    {
+        // Sprint 95 (D71): "--kit fast" for the ceilings of T41, "none" by default.
+        string group = Rpg.Core.GameData.Embedded.Groups.Values.First(g => g.Family == "wolf" && g.Fight is null).Id;
+        string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
+        try
+        {
+            (int code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "guard", "--level", "6", "--kit", "fast");
+            Assert.Equal(0, code);
+            Assert.Contains("wolf-boots", File.ReadAllText(file), StringComparison.Ordinal);
+            (code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "guard", "--level", "6");
+            Assert.Equal(0, code);
+            Assert.DoesNotContain("wolf-boots", File.ReadAllText(file), StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+        Assert.Equal(2, Run("--simulate", "5", "--kit", "heavy").Code);
+    }
 }

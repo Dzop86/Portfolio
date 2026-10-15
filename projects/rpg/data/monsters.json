@@ -47,6 +47,10 @@
             "percent": 40
           },
           {
+            "item": "boar-boots",
+            "percent": 8
+          },
+          {
             "item": "boar-wallow-key",
             "percent": 2
           }
@@ -73,6 +77,10 @@
           {
             "item": "boar-bristle",
             "percent": 50
+          },
+          {
+            "item": "acorn-ring",
+            "percent": 8
           },
           {
             "item": "boar-wallow-key",
@@ -123,7 +131,7 @@
           },
           {
             "item": "tusk-amulet",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "boar-wallow-key",
@@ -153,6 +161,10 @@
           {
             "item": "boar-bristle",
             "percent": 50
+          },
+          {
+            "item": "bristle-belt",
+            "percent": 8
           },
           {
             "item": "boar-wallow-key",
@@ -201,8 +213,24 @@
             "count": 2
           },
           {
+            "item": "king-tusk",
+            "percent": 30
+          },
+          {
+            "item": "boar-boots",
+            "percent": 8
+          },
+          {
+            "item": "acorn-ring",
+            "percent": 8
+          },
+          {
             "item": "tusk-amulet",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "bristle-belt",
+            "percent": 8
           },
           {
             "item": "boar-wallow-key",
@@ -260,6 +288,10 @@
             "percent": 40
           },
           {
+            "item": "wolf-boots",
+            "percent": 8
+          },
+          {
             "item": "wolf-den-key",
             "percent": 2
           }
@@ -286,6 +318,10 @@
           {
             "item": "wolf-fang",
             "percent": 50
+          },
+          {
+            "item": "howl-ring",
+            "percent": 8
           },
           {
             "item": "wolf-den-key",
@@ -335,7 +371,7 @@
           },
           {
             "item": "wolf-cape",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "wolf-den-key",
@@ -365,6 +401,10 @@
           {
             "item": "wolf-pelt",
             "percent": 50
+          },
+          {
+            "item": "pack-amulet",
+            "percent": 8
           },
           {
             "item": "wolf-den-key",
@@ -413,8 +453,24 @@
             "count": 2
           },
           {
+            "item": "leader-fang",
+            "percent": 30
+          },
+          {
+            "item": "wolf-boots",
+            "percent": 8
+          },
+          {
+            "item": "howl-ring",
+            "percent": 8
+          },
+          {
             "item": "wolf-cape",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "pack-amulet",
+            "percent": 8
           },
           {
             "item": "wolf-den-key",
@@ -472,6 +528,10 @@
             "percent": 40
           },
           {
+            "item": "mycelium-belt",
+            "percent": 8
+          },
+          {
             "item": "mushroom-cellar-key",
             "percent": 2
           }
@@ -504,6 +564,10 @@
           {
             "item": "spore-dust",
             "percent": 60
+          },
+          {
+            "item": "puffball-ring",
+            "percent": 8
           },
           {
             "item": "mushroom-cellar-key",
@@ -543,7 +607,7 @@
           },
           {
             "item": "cap-hat",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "mushroom-cellar-key",
@@ -579,6 +643,10 @@
           {
             "item": "spore-dust",
             "percent": 50
+          },
+          {
+            "item": "morel-amulet",
+            "percent": 8
           },
           {
             "item": "mushroom-cellar-key",
@@ -621,8 +689,24 @@
             "count": 2
           },
           {
+            "item": "elder-staff",
+            "percent": 30
+          },
+          {
+            "item": "mycelium-belt",
+            "percent": 8
+          },
+          {
+            "item": "puffball-ring",
+            "percent": 8
+          },
+          {
             "item": "cap-hat",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "morel-amulet",
+            "percent": 8
           },
           {
             "item": "mushroom-cellar-key",
@@ -680,6 +764,10 @@
             "percent": 40
           },
           {
+            "item": "stitched-hat",
+            "percent": 8
+          },
+          {
             "item": "zombie-crypt-key",
             "percent": 2
           }
@@ -711,6 +799,10 @@
           {
             "item": "rotten-cloth",
             "percent": 50
+          },
+          {
+            "item": "bile-ring",
+            "percent": 8
           },
           {
             "item": "zombie-crypt-key",
@@ -751,7 +843,7 @@
           },
           {
             "item": "grave-belt",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "zombie-crypt-key",
@@ -787,6 +879,10 @@
           {
             "item": "old-bone",
             "percent": 50
+          },
+          {
+            "item": "bone-cape",
+            "percent": 8
           },
           {
             "item": "zombie-crypt-key",
@@ -830,8 +926,24 @@
             "count": 2
           },
           {
+            "item": "overlord-cleaver",
+            "percent": 30
+          },
+          {
+            "item": "stitched-hat",
+            "percent": 8
+          },
+          {
+            "item": "bile-ring",
+            "percent": 8
+          },
+          {
             "item": "grave-belt",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "bone-cape",
+            "percent": 8
           },
           {
             "item": "zombie-crypt-key",

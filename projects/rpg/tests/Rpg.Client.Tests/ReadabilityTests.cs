@@ -24,14 +24,14 @@ public class ReadabilityTests
     {
         FightController c = Make();
         var fr = new Texts("fr");
-        Assert.Equal("Orque · 40/40 PV · 6 PA · 3 PM\nRésistances : Feu -10 %, Eau 25 %", c.Info(new Cell(3, 0), fr));
+        Assert.Equal("Orque · 40/40 PV · 6 PA · 3 PM\nInitiative : 100\nRésistances : Feu -10 %, Eau 25 %", c.Info(new Cell(3, 0), fr));
         c.SelectSpell(1);
         c.Click(new Cell(0, 0));
         c.SelectSpell(0);
         c.Click(new Cell(3, 0));
         c.CancelSpell();
         // The one playing shows what is left of its points; a status shows its turns.
-        Assert.Equal("Élise · 50/50 PV · 1 PA · 3 PM · bouclier 10", c.Info(new Cell(0, 0), fr));
+        Assert.Equal("Élise · 50/50 PV · 1 PA · 3 PM · bouclier 10\nInitiative : 200", c.Info(new Cell(0, 0), fr));
         Assert.EndsWith("\nEffets : -2 PM (2 tour(s))", c.Info(new Cell(3, 0), fr), StringComparison.Ordinal);
         Assert.Equal("Effects: -2 MP (2 turn(s))", c.Info(new Cell(3, 0), new Texts("en"))!.Split('\n')[^1]);
         Assert.Null(c.Info(new Cell(1, 0), fr));
@@ -44,7 +44,7 @@ public class ReadabilityTests
         FightController c = Make();
         c.SelectSpell(0);
         // 6 to 8 water damage, 25 % resisted.
-        Assert.Equal("Orc: 4 to 6 damage\n\nOrc · 40/40 HP · 6 AP · 3 MP\nResistances: Fire -10%, Water 25%", c.Info(new Cell(3, 0), new Texts("en")));
+        Assert.Equal("Orc: 4 to 6 damage\n\nOrc · 40/40 HP · 6 AP · 3 MP\nInitiative: 100\nResistances: Fire -10%, Water 25%", c.Info(new Cell(3, 0), new Texts("en")));
         FightController weak = Make(orcHp: 4);
         weak.SelectSpell(0);
         Assert.StartsWith("Orque : 4 à 6 dégâts (mortel)\n", weak.Info(new Cell(3, 0), new Texts("fr")), StringComparison.Ordinal);

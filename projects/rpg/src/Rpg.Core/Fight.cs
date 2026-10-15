@@ -144,7 +144,8 @@ public sealed class Fight
         }
         _data = data;
         // Highest initiative first; equal initiatives keep the scenario's order.
-        _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
+        // By initiative; on a tie, the heroes' team first (sprint 95, D71), then the scenario's order.
+        _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Team).ThenBy(f => f.Id)];
         Round = 1;
         _events.Add(new TurnStarted(Current.Id, Round));
         foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart))
@@ -185,8 +186,9 @@ public sealed class Fight
         ArgumentNullException.ThrowIfNull(data);
         if (data.Class(hero.Class) is not HeroClass c)
             return null;
-        (Characteristics worn, int ap, int mp) = Equipment.Total(hero.Worn, data);
-        return new HeroNumbers(c.Hp + c.HpPerLevel * (hero.Level - 1), c.Ap + ap, c.Mp + mp, c.Initiative,
+        // The initiative comes from what is worn alone (sprint 95, D71), never from the characteristics.
+        (Characteristics worn, int ap, int mp, int initiative) = Equipment.Total(hero.Worn, data);
+        return new HeroNumbers(c.Hp + c.HpPerLevel * (hero.Level - 1), c.Ap + ap, c.Mp + mp, c.Initiative + initiative,
             Equipment.Add(hero.Stats ?? Characteristics.None, worn), worn, hero.DeckOf(data));
     }
 

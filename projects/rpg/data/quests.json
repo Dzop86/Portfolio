@@ -139,23 +139,30 @@
     "zone": "woods",
     "level": 5,
     "text": {
-      "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier, au fond du bois. Si la marque vient de quelque part, c'est de là. Il faut une clef pour y entrer : le serrurier du village sait la faire.",
-      "en": "The woodcutters hear a rumbling under the Boar King's wallow, deep in the woods. If the mark comes from somewhere, it is from there. A key is needed to go in: the village locksmith knows how to make it."
+      "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier, au fond du bois. Si la marque vient de quelque part, c'est de là. Prends cette clef : descends jusqu'à la grande salle, c'est sous elle que ça gronde.",
+      "en": "The woodcutters hear a rumbling under the Boar King's wallow, deep in the woods. If the mark comes from somewhere, it is from there. Take this key: go down to the great hall, the rumbling is under it."
     },
     "thanks": {
-      "fr": "Une pierre comme la nôtre, sous la bauge, avec le même cinquième signe ? Alors il y en a d'autres.",
-      "en": "A stone like ours, under the wallow, with the same fifth sign? Then there are others."
+      "fr": "Une pierre comme la nôtre, sous la grande salle de la bauge, avec le même cinquième signe ? Alors il y en a d'autres.",
+      "en": "A stone like ours, under the wallow's great hall, with the same fifth sign? Then there are others."
     },
     "objectives": [
       {
         "goal": "Dungeon",
-        "target": "boar-wallow"
+        "target": "boar-wallow",
+        "room": 2
       }
     ],
     "xp": 450,
     "shards": 60,
     "after": [
       "restless-beasts"
+    ],
+    "grants": [
+      {
+        "item": "boar-wallow-key",
+        "count": 1
+      }
     ]
   },
   {

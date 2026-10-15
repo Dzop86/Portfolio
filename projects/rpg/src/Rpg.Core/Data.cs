@@ -105,7 +105,7 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
 /// </summary>
 public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scenario = null, IReadOnlyList<ItemCount>? Items = null,
     string? Giver = null, string? Zone = null, LocalizedText? Text = null, LocalizedText? Thanks = null, IReadOnlyList<QuestObjective>? Objectives = null,
-    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1)
+    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null)
 {
     /// <summary>Given by someone and handed back, rather than done by a fight.</summary>
     public bool IsGiven => Giver is not null;
@@ -121,8 +121,11 @@ public enum QuestGoal
     Dungeon,
 }
 
-/// <summary>One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon), how many.</summary>
-public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1);
+/// <summary>
+/// One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon), how many;
+/// for a dungeon, the room to win (sprint 95, D71: 0 = finish it), so that the main quest is done alone.
+/// </summary>
+public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1, int Room = 0);
 
 /// <summary>
 /// A creature a spell or a passive can summon, as described in <c>data/summons.json</c>; a monster's
@@ -249,10 +252,12 @@ public sealed class GameData
         {
             if ((i.Kind == ItemKind.Equipment) != (i.Slot is not null) || i.Level is < 1 or > Hero.MaxLevel || (i.Set is not null && !Sets.ContainsKey(i.Set)))
                 throw new InvalidDataException($"Item '{i.Id}': equipment has a slot and nothing else does, a level 1 to {Hero.MaxLevel}, a known set.");
+            if (i.Initiative < 0 || (i.Initiative > 0 && (i.Slot is not ItemSlot slot || !Item.Quick.Contains(slot))))
+                throw new InvalidDataException($"Item '{i.Id}': initiative on boots, a cape or a ring only.");
         }
         foreach (ItemSet s in Sets.Values)
         {
-            if (s.Bonuses.Count == 0 || s.Bonuses.Any(b => b.Pieces < 2))
+            if (s.Bonuses.Count == 0 || s.Bonuses.Any(b => b.Pieces < 2 || b.Initiative < 0))
                 throw new InvalidDataException($"Set '{s.Id}': bonuses from two pieces up.");
         }
         Spells = Index(spells, s => s.Id, "spell");
@@ -337,7 +342,7 @@ public sealed class GameData
         Quests = Index(quests ?? [], q => q.Id, "quest");
         foreach (Quest q in Quests.Values)
         {
-            if (q.Xp < 1 || q.Shards < 0 || (q.Items ?? []).Any(st => !Items.ContainsKey(st.Item) || st.Count < 1))
+            if (q.Xp < 1 || q.Shards < 0 || (q.Items ?? []).Concat(q.Grants ?? []).Any(st => !Items.ContainsKey(st.Item) || st.Count < 1))
                 throw new InvalidDataException($"Quest '{q.Id}': no experience, Éclats below zero or an unknown item.");
             // A fight's quest, or a given one (sprint 88): never both.
             if (q.IsGiven == (q.Scenario is not null) || (q.Scenario is string sc && !Scenarios.ContainsKey(sc)))
@@ -359,6 +364,8 @@ public sealed class GameData
                 };
                 if (!known || o.Count < 1 || (o.Goal is QuestGoal.Talk or QuestGoal.Dungeon && o.Count != 1))
                     throw new InvalidDataException($"Quest '{q.Id}': the objective {o.Goal} '{o.Target}' ×{o.Count} is unknown.");
+                if (o.Room is < 0 or > Rpg.Core.Dungeons.RoomCount || (o.Room != 0 && o.Goal != QuestGoal.Dungeon))
+                    throw new InvalidDataException($"Quest '{q.Id}': a room of 1 to {Rpg.Core.Dungeons.RoomCount}, for a dungeon only.");
             }
         }
     }

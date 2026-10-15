@@ -37,4 +37,18 @@ public class SheetTests
     [Fact]
     public void AHeroWithoutAClass_HasNoSheet() =>
         Assert.Throws<ArgumentException>(() => new CharacterSheet(new Hero("Ana", "female-a"), GameData.Embedded));
+
+    [Fact]
+    public void TheSheet_SaysWhoTheHeroPlaysBefore_AndTheFighterCard_ItsInitiative()
+    {
+        // Sprint 95 (D71): initiative found on boots, capes and rings; heroes first on a tie.
+        var fr = new Texts("fr");
+        Assert.StartsWith("Vous jouez après toutes les familles", fr.PlaysBefore(10), StringComparison.Ordinal);
+        Assert.Equal("Vous jouez avant : " + string.Join(", ", GameData.Embedded.Families.Values.Select(f => f.Name.Fr)), fr.PlaysBefore(100));
+        string[] at75 = [.. GameData.Embedded.Families.Values.Where(f => f.Monsters.All(m => m.Initiative <= 75)).Select(f => f.Name.En)];
+        Assert.NotEmpty(at75);
+        Assert.Equal("You play before: " + string.Join(", ", at75), new Texts("en").PlaysBefore(75));
+        var fight = new Fight(GameData.Embedded, "training", 1);
+        Assert.Contains($"Initiative : {fight.Fighters[0].Spec.Initiative}", fr.FighterCard(fight.Fighters[0], fight), StringComparison.Ordinal);
+    }
 }

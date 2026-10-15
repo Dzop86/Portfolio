@@ -88,8 +88,12 @@ public class BalanceTests
         }
     }
 
-    private static int Wins(string group, string id, int level, int fights) =>
-        Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real))[0];
+    /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
+    private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
+
+    private static int Wins(string group, string id, int level, int fights, string kit = "none") =>
+        Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real,
+            Progression.Kit(kit, Real.Families[Real.Groups[group].Family].Zone, level, Real)))[0];
 
     [Theory]
     [InlineData("woods", 3)]
@@ -113,6 +117,25 @@ public class BalanceTests
             int[] large = [.. here.Where(g => g.Monsters.Count >= 6).AsParallel().Select(g => Wins(g.Id, id, level, 10))];
             Assert.NotEmpty(large);
             Assert.True(large.Average() <= 3, $"{id}: {large.Average():0.0} of 10 against the hordes of {zone}");
+            // Since sprint 95 (D71), the ceilings are measured again with all the zone's quick pieces worn, off the maps
+            // where the hordes come in single file round the water (accepted by Charles, T59 and T60).
+            int[] equipped = [.. here.Where(g => g.Monsters.Count >= 6 && !SingleFile.Contains(Real.Families[g.Family].BattleOf(g.Id)))
+                .AsParallel().Select(g => Wins(g.Id, id, level, 10, "fast"))];
+            Assert.True(equipped.Average() <= 1.5, $"{id}: {equipped.Average():0.0} of 10 against the hordes of {zone}, equipped");
         }
+    }
+
+    [Theory]
+    [InlineData("sentinel")]
+    [InlineData("guard")]
+    [InlineData("mage")]
+    public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
+    {
+        // Sprint 95 (D71): "rumble-under-the-wallow" asks for the great hall, at least 7 times in 10 alone,
+        // at the quest's level, with nothing worn.
+        Quest quest = Real.Quests["rumble-under-the-wallow"];
+        var hero = Progression.Built(new Hero("Essai", "female-d", id, Level: quest.Level), Real);
+        int wins = Results(Real.Dungeons["boar-wallow"].Scenario(2), 100, hero)[0];
+        Assert.True(wins >= 70, $"{id}: {wins} of 100 in the great hall at level {quest.Level}");
     }
 }

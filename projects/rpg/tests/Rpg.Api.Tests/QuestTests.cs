@@ -72,4 +72,24 @@ public class QuestTests
         GameServer other = await api.SignedIn("oth");
         Assert.Equal(HttpStatusCode.NotFound, await Refused(() => other.TakeQuest(c.Id, Edge.Id, Cancel)));
     }
+
+    [Fact]
+    public async Task TheWallowsQuest_GivesItsKey_WhenTaken_Once()
+    {
+        // Sprint 95 (D71): the main quest's step under the wallow is done alone, its key given with it.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("key");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        await Give(api, account, 5);
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Quests = "whispering-stone,restless-beasts";
+            return db.SaveChanges();
+        });
+        CharacterSummary taken = await server.TakeQuest(c.Id, "rumble-under-the-wallow", Cancel);
+        Assert.Contains(new ItemCount("boar-wallow-key", 1), taken.Inventory!);
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "rumble-under-the-wallow", Cancel)));
+        Assert.Equal(1, (await server.Characters(Cancel)).Single().Inventory!.Single(i => i.Item == "boar-wallow-key").Count);
+    }
 }

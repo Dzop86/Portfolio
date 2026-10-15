@@ -58,8 +58,10 @@ public static class Program
                     error.WriteLine($"Unknown class '{id}'.");
                     return 2;
                 }
-                // Its points spent the simplest way (Progression.Built), as a player of that level would have them.
-                Hero h = Progression.Built(new Hero(c.Name.In(options.Lang), isRival ? "male-d" : "female-d", c.Id, Level: options.Level), data);
+                // Its points spent the simplest way (Progression.Built), as a player of that level would have them;
+                // wearing the kit asked for (sprint 95), from the sets of the zone of the scenario's monsters.
+                IReadOnlyDictionary<Slot, string>? worn = ZoneOf(data, options.Scenario) is string zone ? Progression.Kit(options.Kit, zone, options.Level, data) : null;
+                Hero h = Progression.Built(new Hero(c.Name.In(options.Lang), isRival ? "male-d" : "female-d", c.Id, Level: options.Level), data, worn);
                 if (isRival)
                     rival = h;
                 else
@@ -122,7 +124,13 @@ public static class Program
         return sb.ToString();
     }
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1)
+    /// <summary>The zone of a group's or a dungeon room's monsters, or null.</summary>
+    private static string? ZoneOf(GameData data, string scenario) =>
+        scenario.StartsWith(MonsterGroup.Prefix, StringComparison.Ordinal) && data.Groups.TryGetValue(scenario[MonsterGroup.Prefix.Length..], out MonsterGroup? g) ? data.Families[g.Family].Zone
+        : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
+        : null;
+
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none")
     {
         public static Options Parse(string[] args)
         {
@@ -142,6 +150,7 @@ public static class Program
                     "--show" => o with { Show = true },
                     "--class" => o with { Class = Value() },
                     "--rival" => o with { Rival = Value() },
+                    "--kit" => o with { Kit = Progression.Kits.Contains(Value()) ? args[i] : throw new ArgumentException($"--kit is one of: {string.Join(", ", Progression.Kits)}.") },
                     "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100.") },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };

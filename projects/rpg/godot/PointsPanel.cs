@@ -520,6 +520,9 @@ public partial class PointsPanel : CanvasLayer
         _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
         _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";
         _tiles["initiative"].Text = $"{Texts["sheet.initiative"]}   {sheet.Initiative}";
+        // Who the hero plays before (sprint 95), on hovering the tile.
+        _tiles["initiative"].TooltipText = Texts.PlaysBefore(sheet.Initiative);
+        _tiles["initiative"].MouseFilter = Control.MouseFilterEnum.Stop;
         _tiles["left"].Text = $"{Texts["sheet.left"]}   {sheet.PointsLeft} / {Progression.CharacteristicPoints(Editor.Hero.Level)}";
         foreach (Label h in _statsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
             h.Text = Texts[(string)h.GetMeta("key")];

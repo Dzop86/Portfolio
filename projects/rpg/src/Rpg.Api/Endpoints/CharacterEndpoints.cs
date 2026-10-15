@@ -222,9 +222,10 @@ public static class CharacterEndpoints
         long shards = Progression.FightShards(played);
         // The quests under way (sprint 88): the monsters defeated, the dungeon finished.
         IReadOnlyDictionary<string, int> defeated = Rpg.Core.Quests.Defeated(GameData.Embedded, played);
-        string? finished = done ? inRoom!.Dungeon : null;
-        if (defeated.Count > 0 || finished is not null)
-            character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, finished)));
+        // The room won (sprint 95): the last finishes the dungeon, an earlier one is enough for some quests.
+        (string, int)? roomWon = inRoom is DungeonRun fought && played.WinningTeam == 0 ? (fought.Dungeon, fought.Room) : null;
+        if (defeated.Count > 0 || roomWon is not null)
+            character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon)));
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;
@@ -293,6 +294,8 @@ public static class CharacterEndpoints
         if (Rpg.Core.Quests.WhyNot(quest, character.Level, character.QuestList, active) is string why)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = [why] });
         character.QuestLog = Rpg.Core.Quests.Write(active.Append(Rpg.Core.Quests.Start(quest)));
+        // What the quest gives to set out (sprint 95): a quest is taken once, so it is given once.
+        character.Receive(quest.Grants ?? []);
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }

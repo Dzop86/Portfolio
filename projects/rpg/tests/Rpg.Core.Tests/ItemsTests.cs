@@ -34,10 +34,10 @@ public class ItemsTests
     [Fact]
     public void ASet_GivesItsBestBonus_ForThePiecesWorn()
     {
-        Assert.Equal((new Characteristics(Air: 6), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
-        Assert.Equal((new Characteristics(Air: 20), 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
-        Assert.Equal((new Characteristics(Vitality: 8, Air: 30), 0, 1), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
-        Assert.Equal((Characteristics.None, 0, 0), Equipment.Total(null, Real));
+        Assert.Equal((new Characteristics(Air: 6), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
+        Assert.Equal((new Characteristics(Air: 20), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
+        Assert.Equal((new Characteristics(Vitality: 8, Air: 30), 0, 1, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
+        Assert.Equal((Characteristics.None, 0, 0, 0), Equipment.Total(null, Real));
     }
 
     [Fact]

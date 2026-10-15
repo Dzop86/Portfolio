@@ -69,10 +69,15 @@ public class QuestTests
         Assert.False(Quests.IsComplete(Edge, p, [new ItemCount("boar-bristle", 1)]));
         Assert.True(Quests.IsComplete(Edge, p, [new ItemCount("boar-bristle", 3)]));
         Assert.Equal([new ItemCount("boar-bristle", 2)], Quests.Taken(Edge));
-        // A dungeon finished counts for a "dungeon" objective.
+        // A dungeon finished (its last room won) counts for a "dungeon" objective; an earlier room, for one that names it (sprint 95).
         Quest den = Edge with { Objectives = [new QuestObjective(QuestGoal.Dungeon, "wolf-den")] };
-        Assert.Equal([1], Quests.AfterFight(den, Quests.Start(den), new Dictionary<string, int>(), "wolf-den").Counts);
-        Assert.Equal([0], Quests.AfterFight(den, Quests.Start(den), new Dictionary<string, int>(), "boar-wallow").Counts);
+        Assert.Equal([1], Quests.AfterFight(den, Quests.Start(den), new Dictionary<string, int>(), ("wolf-den", 3)).Counts);
+        Assert.Equal([0], Quests.AfterFight(den, Quests.Start(den), new Dictionary<string, int>(), ("wolf-den", 2)).Counts);
+        Assert.Equal([0], Quests.AfterFight(den, Quests.Start(den), new Dictionary<string, int>(), ("boar-wallow", 3)).Counts);
+        Quest hall = Edge with { Objectives = [new QuestObjective(QuestGoal.Dungeon, "wolf-den", Room: 2)] };
+        Assert.Equal([0], Quests.AfterFight(hall, Quests.Start(hall), new Dictionary<string, int>(), ("wolf-den", 1)).Counts);
+        Assert.Equal([1], Quests.AfterFight(hall, Quests.Start(hall), new Dictionary<string, int>(), ("wolf-den", 2)).Counts);
+        Assert.Equal([1], Quests.AfterFight(hall, Quests.Start(hall), new Dictionary<string, int>(), ("wolf-den", 3)).Counts);
         // As the server keeps them.
         List<QuestProgress> log = [p, new QuestProgress("other", [1, 0])];
         Assert.Equal(log, Quests.Read(Quests.Write(log)));

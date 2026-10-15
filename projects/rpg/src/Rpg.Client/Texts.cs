@@ -99,6 +99,9 @@ public sealed class Texts
         ["sheet.ap"] = "PA",
         ["sheet.mp"] = "PM",
         ["sheet.initiative"] = "Initiative",
+        ["card.initiative"] = "Initiative : {0}",
+        ["sheet.before"] = "Vous jouez avant : {0}",
+        ["sheet.before-none"] = "Vous jouez après toutes les familles : l'initiative se trouve sur les bottes, les capes et les anneaux.",
         ["sheet.left"] = "Points à répartir",
         ["sheet.col.stat"] = "Caractéristique",
         ["sheet.col.invested"] = "Investis",
@@ -268,6 +271,7 @@ public sealed class Texts
         ["quest.Defeat"] = "Vaincre : {0} ({1}/{2})",
         ["quest.Bring"] = "Rapporter : {0} ({1}/{2})",
         ["quest.Dungeon"] = "Finir {0}",
+        ["quest.DungeonRoom"] = "Gagner la salle {3} de {0}",
         ["quest.offer"] = "Quête : {0}",
         ["quest.handin"] = "Rendre la quête : {0}",
         ["quest.accept"] = "J'accepte.",
@@ -450,6 +454,9 @@ public sealed class Texts
         ["sheet.ap"] = "AP",
         ["sheet.mp"] = "MP",
         ["sheet.initiative"] = "Initiative",
+        ["card.initiative"] = "Initiative: {0}",
+        ["sheet.before"] = "You play before: {0}",
+        ["sheet.before-none"] = "You play after every family: initiative is found on boots, capes and rings.",
         ["sheet.left"] = "Points to spend",
         ["sheet.col.stat"] = "Characteristic",
         ["sheet.col.invested"] = "Put in",
@@ -619,6 +626,7 @@ public sealed class Texts
         ["quest.Defeat"] = "Defeat: {0} ({1}/{2})",
         ["quest.Bring"] = "Bring: {0} ({1}/{2})",
         ["quest.Dungeon"] = "Finish {0}",
+        ["quest.DungeonRoom"] = "Win room {3} of {0}",
         ["quest.offer"] = "Quest: {0}",
         ["quest.handin"] = "Hand the quest back: {0}",
         ["quest.accept"] = "I accept.",
@@ -771,7 +779,19 @@ public sealed class Texts
             lines.Add(this["card.effects", string.Join(", ", f.Statuses.Select(st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.TurnsLeft]))]);
         // Its passives (sprint 90): what each does, in a line.
         lines.AddRange(f.Passives.Select(p => this["card.passive", p.Name.In(Lang), p.Description.In(Lang)]));
+        // Its initiative (sprint 95): who plays first, under its points.
+        lines.Insert(1, this["card.initiative", f.Spec.Initiative]);
         return string.Join('\n', lines);
+    }
+
+    /// <summary>
+    /// The families a hero of this initiative plays before (sprint 95, D71): those whose every monster has
+    /// as much or less, the heroes playing first on a tie.
+    /// </summary>
+    public string PlaysBefore(int initiative)
+    {
+        string[] before = [.. GameData.Embedded.Families.Values.Where(f => f.Monsters.All(m => m.Initiative <= initiative)).Select(f => f.Name.In(Lang))];
+        return before.Length == 0 ? this["sheet.before-none"] : this["sheet.before", string.Join(", ", before)];
     }
 
     /// <summary>What hovering a spell tells: cost, range and its limits; damage, area and effects.</summary>
@@ -931,7 +951,8 @@ public sealed class Texts
             QuestGoal.Bring => data.Items.TryGetValue(objective.Target, out Item? i) ? i.Name.In(Lang) : objective.Target,
             _ => data.Dungeons.TryGetValue(objective.Target, out Dungeon? d) ? d.Name.In(Lang) : objective.Target,
         };
-        return this["quest." + objective.Goal, target, Math.Min(reached, objective.Count), objective.Count];
+        string key = objective.Goal == QuestGoal.Dungeon && objective.Room > 0 ? "quest.DungeonRoom" : "quest." + objective.Goal;
+        return this[key, target, Math.Min(reached, objective.Count), objective.Count, objective.Room];
     }
 
     /// <summary>A text in both languages (the answers the game adds to a talk, sprint 88).</summary>
@@ -957,19 +978,19 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(item);
         string what = item.Slot is ItemSlot slot ? this["slot." + slot] : this["kind." + item.Kind];
         var lines = new List<string> { $"{item.Name.In(Lang)} · {what}" + (item.Kind == ItemKind.Equipment ? " · " + this["inventory.level", item.Level] : "") };
-        string gives = Gives(item.Stats, item.Ap, item.Mp);
+        string gives = Gives(item.Stats, item.Ap, item.Mp, item.Initiative);
         if (gives.Length > 0)
             lines.Add(gives);
         if (item.Set is string id && GameData.Embedded.Sets.TryGetValue(id, out ItemSet? set))
-            lines.Add(this["inventory.set", set.Name.In(Lang), string.Join(" ; ", set.Bonuses.Select(b => this["inventory.pieces", b.Pieces, Gives(b.Stats, b.Ap, b.Mp)]))]);
+            lines.Add(this["inventory.set", set.Name.In(Lang), string.Join(" ; ", set.Bonuses.Select(b => this["inventory.pieces", b.Pieces, Gives(b.Stats, b.Ap, b.Mp, b.Initiative)]))]);
         return string.Join('\n', lines);
     }
 
-    /// <summary>"+5 Vitalité, +1 PM": the characteristics, action and movement points given.</summary>
-    private string Gives(Characteristics? stats, int ap, int mp)
+    /// <summary>"+5 Vitalité, +1 PM, +10 Initiative": the characteristics, action and movement points and initiative given.</summary>
+    private string Gives(Characteristics? stats, int ap, int mp, int initiative = 0)
     {
         Characteristics st = stats ?? Characteristics.None;
-        var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Earth, this["char.Earth"]), (st.Fire, this["char.Fire"]), (st.Water, this["char.Water"]), (st.Air, this["char.Air"]), (ap, this["ap"]), (mp, this["mp"]) };
+        var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Earth, this["char.Earth"]), (st.Fire, this["char.Fire"]), (st.Water, this["char.Water"]), (st.Air, this["char.Air"]), (ap, this["ap"]), (mp, this["mp"]), (initiative, this["sheet.initiative"]) };
         return string.Join(", ", parts.Where(p => p.Value != 0).Select(p => $"{p.Value.ToString("+0;-0", CultureInfo.InvariantCulture)} {p.Name}"));
     }
 

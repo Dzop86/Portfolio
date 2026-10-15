@@ -54,8 +54,11 @@ public static class Quests
         return counts;
     }
 
-    /// <summary>A quest after a won fight: its "defeat" objectives count the family's monsters, its "dungeon" one the dungeon finished.</summary>
-    public static QuestProgress AfterFight(Quest quest, QuestProgress progress, IReadOnlyDictionary<string, int> defeated, string? dungeonDone)
+    /// <summary>
+    /// A quest after a won fight: its "defeat" objectives count the family's monsters, its "dungeon" one the
+    /// room just won (<paramref name="roomWon"/>), when it is the objective's room or later (the last room by default).
+    /// </summary>
+    public static QuestProgress AfterFight(Quest quest, QuestProgress progress, IReadOnlyDictionary<string, int> defeated, (string Dungeon, int Room)? roomWon)
     {
         ArgumentNullException.ThrowIfNull(quest);
         ArgumentNullException.ThrowIfNull(progress);
@@ -65,7 +68,7 @@ public static class Quests
             Counts = [.. quest.Objectives!.Select((o, i) => o.Goal switch
             {
                 QuestGoal.Defeat => Math.Min(o.Count, progress.Counts[i] + defeated.GetValueOrDefault(o.Target)),
-                QuestGoal.Dungeon when o.Target == dungeonDone => 1,
+                QuestGoal.Dungeon when roomWon is var (dungeon, room) && o.Target == dungeon && room >= (o.Room == 0 ? Dungeons.RoomCount : o.Room) => 1,
                 _ => progress.Counts[i],
             })],
         };
