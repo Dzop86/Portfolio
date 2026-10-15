@@ -183,6 +183,7 @@ public partial class InventoryPanel : CanvasLayer
         {
             Item? worn = Worn(slot);
             icon.Glyph = worn is null ? ItemStyle.GlyphOf(new Item("", new LocalizedText("", ""), ItemKind.Equipment, KindOf(slot))) : ItemStyle.GlyphOf(worn);
+            icon.Item = worn;
             icon.Tint = worn is null ? Colors.White : new Color(ItemStyle.Colour(worn));
             icon.Faint = worn is null;
             icon.Count = 1;
@@ -208,6 +209,7 @@ public partial class InventoryPanel : CanvasLayer
         {
             (Button tile, ItemIcon icon) = ItemIcon.Tile(TileSize);
             icon.Glyph = ItemStyle.GlyphOf(item);
+            icon.Item = item;
             icon.Tint = new Color(ItemStyle.Colour(item));
             icon.Count = count;
             string card = Texts.ItemCard(item) + (free < count ? "\n" + Texts["inventory.free", free] : "");

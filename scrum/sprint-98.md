@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, chaque objet a une vraie icône (game-icons.net, CC BY 3.0) teintée de son élément, sur une tuile sombre au cadre de sa provenance : commun, artisan, panoplie, chef (rpg) ; crédits ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, chaque objet a une vraie icône (game-icons.net, CC BY 3.0) teintée de son élément, sur une tuile sombre au cadre de sa provenance : commun, artisan, panoplie, chef (rpg) ; crédits ; xUnit, auto-test. | 3 | Fait |
+
+**Résultat :** chaque objet a son dessin game-icons.net teint de sa couleur, sur une tuile sombre au cadre de sa provenance (T66).
 
 ## Rétro (Charles)
 - Ce qui a marché :

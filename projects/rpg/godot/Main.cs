@@ -820,6 +820,7 @@ public partial class Main : Node3D
     {
         await CloseChat();
         SpellIcon.Forget();
+        ItemIcon.Forget();
         foreach (Node child in GetChildren())
         {
             RemoveChild(child);

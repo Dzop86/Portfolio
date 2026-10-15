@@ -134,6 +134,7 @@ public partial class EndPanel : PanelContainer
                         continue;
                     (Button tile, ItemIcon icon) = ItemIcon.Tile(40);
                     icon.Glyph = ItemStyle.GlyphOf(item);
+                    icon.Item = item;
                     icon.Tint = new Color(ItemStyle.Colour(item));
                     icon.Count = loot.Count;
                     tile.TooltipText = _texts.Items([loot]);

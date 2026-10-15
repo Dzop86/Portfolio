@@ -29,6 +29,15 @@ public enum Glyph
 /// or its kind) and its colour (the element of the characteristic it gives most, the heal colour for
 /// Vitality, grey for nothing), drawn by the client; and the search through item names.
 /// </summary>
+/// <summary>Where an item comes from (sprint 98): common, a craftsman's, a set's piece, a chief's.</summary>
+public enum Provenance
+{
+    Common,
+    Craft,
+    Set,
+    Chief,
+}
+
 public static class ItemStyle
 {
     public static Glyph GlyphOf(Item item)
@@ -74,6 +83,31 @@ public static class ItemStyle
         (int best, string colour) = all.Aggregate((a, b) => b.Value > a.Value ? b : a);
         return best > 0 ? colour : item.Kind == ItemKind.Quest ? "#f0c060" : "#bdbdbd";
     }
+
+    /// <summary>
+    /// Where an item comes from (sprint 98, D72), told by the frame of its icon: a chief's piece (left by a
+    /// chief alone), a set's piece (the monsters' loot), a craftsman's work (a trade's recipe), or common.
+    /// </summary>
+    public static Provenance ProvenanceOf(Item item, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(data);
+        MonsterSpec[] droppers = [.. data.Families.Values.SelectMany(f => f.Monsters).Where(m => (m.Loot ?? []).Any(l => l.Item == item.Id))];
+        if (item.Kind == ItemKind.Equipment && droppers.Length > 0 && droppers.All(m => m.Role == MonsterRole.Boss))
+            return Provenance.Chief;
+        if (item.Set is not null)
+            return Provenance.Set;
+        return data.Jobs.Values.Any(j => j.RecipeFor(item.Id) is not null) ? Provenance.Craft : Provenance.Common;
+    }
+
+    /// <summary>The frame's colour of each provenance: grey, the chart's chocolate, its pistachio, gold.</summary>
+    public static string Frame(Provenance provenance) => provenance switch
+    {
+        Provenance.Craft => "#8a5a36",
+        Provenance.Set => "#bef374",
+        Provenance.Chief => "#e0b84a",
+        _ => "#7a7a7a",
+    };
 
     /// <summary>Whether an item's name, in a language, holds the words searched (case and accents aside).</summary>
     public static bool Matches(Item item, string? search, string lang)

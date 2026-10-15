@@ -69,7 +69,8 @@ public sealed record Item(
     int Ap = 0,
     int Mp = 0,
     string? Set = null,
-    int Initiative = 0)
+    int Initiative = 0,
+    string? Icon = null)
 {
     /// <summary>The kinds of pieces that may carry initiative (sprint 95, D71): the light ones.</summary>
     public static readonly IReadOnlyList<ItemSlot> Quick = [ItemSlot.Boots, ItemSlot.Cape, ItemSlot.Ring];

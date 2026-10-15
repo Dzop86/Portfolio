@@ -1,0 +1,88 @@
+# The items' icons (sprint 98, D72, docs/suite-apres-d69.md §3 bis): a game-icons.net drawing (CC BY 3.0) for
+# every item, written as its "icon" in data/items.json; the drawings in godot/assets/icons/items/<name>.svg,
+# their black square taken off and the shape in white (the game tints it with the item's colour), their
+# authors in credits.json. Items of a kind may share a drawing. Deterministic; --fetch downloads the drawings
+# missing (from the game-icons repository on GitHub), otherwise every one must be there.
+# Run from projects/rpg last, after tools/dungeon_gen.py and tools/sets_gen.py (which write items again):
+#   python3 tools/icons_gen.py data [--fetch]
+import json, os, re, sys, urllib.request
+
+root = sys.argv[1]
+fetch = "--fetch" in sys.argv
+out = os.path.join(os.path.dirname(os.path.abspath(root)), "godot", "assets", "icons", "items")
+
+ICONS = {
+    # Equipment: rings, amulets, belts, capes, hats, chests, shoulders, weapons, shields, pets, mounts, boots.
+    "copper-ring": "delapouite/ring", "ember-ring": "delapouite/power-ring", "lily-ring": "delapouite/diamond-ring",
+    "acorn-ring": "delapouite/ring", "howl-ring": "delapouite/globe-ring", "puffball-ring": "delapouite/diamond-ring",
+    "bile-ring": "lorc/skull-ring", "bubble-ring": "delapouite/frozen-ring", "wax-ring": "delapouite/power-ring", "clod-ring": "delapouite/ring",
+    "pebble-amulet": "delapouite/tribal-pendant", "tusk-amulet": "delapouite/primitive-necklace", "pack-amulet": "lorc/gem-pendant",
+    "morel-amulet": "delapouite/primitive-necklace", "croak-amulet": "delapouite/tribal-pendant", "jelly-amulet": "lorc/gem-pendant",
+    "leather-belt": "lucasms/belt", "grave-belt": "delapouite/belt-armor", "bristle-belt": "lucasms/belt",
+    "mycelium-belt": "delapouite/belt-armor", "claw-belt": "delapouite/belt-armor", "burrow-belt": "lucasms/belt",
+    "poacher-cape": "delapouite/cape", "wolf-cape": "lucasms/cloak", "bone-cape": "delapouite/vampire-cape",
+    "hermit-cape": "delapouite/cape", "wing-cape": "lorc/wing-cloak",
+    "poacher-hat": "delapouite/robin-hood-hat", "cap-hat": "lorc/mushroom-gills", "stitched-hat": "delapouite/pilgrim-hat",
+    "dew-hat": "delapouite/flower-hat", "mole-hat": "delapouite/outback-hat",
+    "orc-breastplate": "lorc/breastplate", "orc-pauldrons": "skoll/pauldrons",
+    "dagger": "lorc/plain-dagger", "stinger-dagger": "lorc/stiletto", "leader-fang": "lorc/bone-knife",
+    "overlord-cleaver": "lorc/meat-cleaver", "toad-sceptre": "delapouite/winged-scepter",
+    "orc-club": "delapouite/wood-club", "king-tusk": "delapouite/ivory-tusks", "elder-staff": "lorc/wizard-staff",
+    "figurehead-axe": "lorc/battle-axe", "debris-pick": "delapouite/war-pick",
+    "wooden-shield": "delapouite/viking-shield", "shell-shield": "delapouite/spiked-shield",
+    "kitten": "lorc/cat", "donkey": "skoll/donkey",
+    "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
+    "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
+    # Consumables.
+    "bread": "delapouite/bread", "healing-potion": "delapouite/health-potion",
+    # Resources the monsters leave.
+    "leather": "delapouite/animal-hide", "orc-fang": "lorc/fangs-circle", "feather": "lorc/feather",
+    "boar-tusk": "lorc/boar-tusks", "boar-bristle": "delapouite/hair-strands", "wolf-fang": "skoll/fangs",
+    "wolf-pelt": "delapouite/animal-hide", "spore-dust": "lorc/fluffy-cloud", "mushroom-cap": "delapouite/mushrooms",
+    "rotten-cloth": "delapouite/rolled-cloth", "old-bone": "lorc/broken-bone", "frog-leg": "delapouite/frog-foot",
+    "slime": "delapouite/slime", "crab-shell": "lorc/spiked-shell", "crab-claw": "lorc/crab-claw",
+    "honeycomb": "lorc/honeycomb", "bee-wing": "delapouite/fairy-wings", "mole-fur": "delapouite/animal-hide",
+    "earthworm": "cathelineau/earth-worm",
+    # The dungeons' keys, and the quest items.
+    "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
+    "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",
+    "royal-hive-key": "delapouite/boss-key", "mole-burrows-key": "delapouite/boss-key",
+    "garance-badge": "andymeneely/police-badge", "admin-keyring": "delapouite/keyring",
+}
+
+
+def inline(v):
+    """One item per line, as tools/dungeon_gen.py writes the file."""
+    if isinstance(v, dict):
+        return "{ " + ", ".join(f"{json.dumps(k)}: {inline(x)}" for k, x in v.items()) + " }"
+    if isinstance(v, list):
+        return "[" + ", ".join(inline(x) for x in v) + "]"
+    return json.dumps(v, ensure_ascii=False)
+
+
+def white(svg):
+    """The drawing without its black square, its shape in white, as the spells' are."""
+    svg = re.sub(r'<path d="M0 0h512v512H0z"\s*/>', "", svg)
+    return re.sub(r'fill="#[0-9a-fA-F]{3,6}"', 'fill="#ffffff"', svg)
+
+
+items = json.load(open(f"{root}/items.json"))
+missing = [i["id"] for i in items if i["id"] not in ICONS]
+assert not missing, f"no icon for {missing}"
+os.makedirs(out, exist_ok=True)
+credits = {}
+for icon in sorted(set(ICONS.values())):
+    name = icon.split("/")[1]
+    assert credits.get(name, icon) == icon, f"two drawings named {name}"
+    credits[name] = icon
+    path = os.path.join(out, f"{name}.svg")
+    if not os.path.exists(path):
+        assert fetch, f"{path} missing: run with --fetch"
+        url = f"https://raw.githubusercontent.com/game-icons/icons/master/{icon}.svg"
+        open(path, "w").write(white(urllib.request.urlopen(url, timeout=30).read().decode()))
+for i in items:
+    i["icon"] = ICONS[i["id"]]
+with open(f"{root}/items.json", "w") as f:
+    f.write("[\n" + ",\n".join("  " + inline(i) for i in items) + "\n]\n")
+open(os.path.join(out, "credits.json"), "w").write(json.dumps(credits, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+print(f"{len(items)} items, {len(credits)} drawings")

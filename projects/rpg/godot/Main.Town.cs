@@ -1089,6 +1089,10 @@ public partial class Main
             inv.QueueFree();
             _inventoryPanel = null;
         }
+        // Every item's drawing (sprint 98), imported with the game.
+        string[] bare = [.. GameData.Embedded.Items.Values.Where(i => ItemIcon.TextureOf(i) is null).Select(i => i.Id)];
+        if (bare.Length > 0)
+            problems.Add($"no drawing for {string.Join(", ", bare.Take(5))}");
         string note = $"Town: {talks} people, {lines} lines";
         if (_lobby?.SignedIn == true && _character is not null)
         {
