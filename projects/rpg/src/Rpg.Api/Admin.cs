@@ -6,15 +6,19 @@ using Rpg.Core;
 namespace Rpg.Api;
 
 /// <summary>What the server's operator asks for the characters of an account (sprint 79).</summary>
-public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null);
+public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null, IReadOnlyList<Renaming>? Rename = null);
+
+/// <summary>A character of the account the operator renames (sprint 94, Charles): its name, then the new one.</summary>
+public sealed record Renaming(string From, string To);
 
 /// <summary>A character the operator creates for an account (sprint 93): its class and its name.</summary>
 public sealed record NewHero(string Class, string Name);
 
 /// <summary>
 /// The server's administration command, run where the server runs and never over HTTP:
-/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--level N] [--give ITEM[:COUNT]]...</c> first creates
-/// characters for the account (the names and the limit of the sign-up apply), then brings every character of the
+/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]...</c> first creates
+/// characters for the account (the names and the limit of the sign-up apply), renames some (a name of the
+/// sign-up's rule, free on the server), then brings every character of the
 /// account to a level (its experience with it; the points spent are given back if the level goes down)
 /// and gives them items of the data files. For the operator's tests (D65): no account, password or
 /// character is written in the repository.
@@ -23,7 +27,7 @@ public static class Admin
 {
     public const string Verb = "admin";
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--level N] [--give ITEM[:COUNT]]...";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]...";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -33,6 +37,7 @@ public static class Admin
         int? level = null;
         var give = new List<ItemCount>();
         var create = new List<NewHero>();
+        var rename = new List<Renaming>();
         for (int i = 2; i < args.Count; i++)
         {
             string value = i + 1 < args.Count ? args[i + 1] : "";
@@ -61,13 +66,20 @@ public static class Admin
                     create.Add(new NewHero(hero[0], hero[1]));
                     i++;
                     break;
+                case "--rename":
+                    string[] names = value.Split(':');
+                    if (names.Length != 2 || names[0].Length == 0 || !Hero.IsValidName(names[1]))
+                        return (null, $"--rename: a character's name and a new name of 3 to 20 letters, the first a capital ('{value}').");
+                    rename.Add(new Renaming(names[0], names[1]));
+                    i++;
+                    break;
                 default:
                     return (null, $"Unknown: '{args[i]}'. {Usage}");
             }
         }
-        if (level is null && give.Count == 0 && create.Count == 0)
-            return (null, "Nothing to do: --create, --level or --give.");
-        return (new AdminOrder(args[1], level, give, create), null);
+        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0)
+            return (null, "Nothing to do: --create, --rename, --level or --give.");
+        return (new AdminOrder(args[1], level, give, create, rename), null);
     }
 
     /// <summary>Applies the order; says what it did, one line per character.</summary>
@@ -88,6 +100,18 @@ public static class Admin
             else
                 // Added to the context itself: its id is already drawn, and through the collection alone it would be taken for an update.
                 db.Characters.Add(new Character { Account = account, AccountId = account.Id, Name = hero.Name, NormalizedName = name, Look = "female-d", Class = hero.Class, CreatedAt = DateTimeOffset.UtcNow });
+        }
+        foreach (Renaming r in order.Rename ?? [])
+        {
+            string from = r.From.ToUpperInvariant(), to = r.To.ToUpperInvariant();
+            Character? c = account.Characters.FirstOrDefault(c => c.NormalizedName == from);
+            if (c is null)
+                done.Add($"{r.From}: no such character on '{account.Name}'.");
+            // Its own name in other letters ("plop" to "Plop") is no conflict.
+            else if (await db.Characters.AnyAsync(o => o.NormalizedName == to && o.Id != c.Id, cancel))
+                done.Add($"{r.From}: not renamed, '{r.To}' is taken.");
+            else
+                (c.Name, c.NormalizedName) = (r.To, to);
         }
         foreach (Character c in account.Characters.OrderBy(c => c.CreatedAt).ThenBy(c => c.Name))
         {

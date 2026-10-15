@@ -26,6 +26,9 @@ public class AdminTests
         Assert.Null(Admin.Parse(["admin", "tester", "--create", "dragon:Ondine"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard:ondine"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard"]).Order);
+        Assert.Equal([new Renaming("plop", "Plop")], Admin.Parse(["admin", "tester", "--rename", "plop:Plop"]).Order!.Rename);
+        Assert.Null(Admin.Parse(["admin", "tester", "--rename", "Plop:pl0p"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--rename", "Plop"]).Order);
         Assert.Null(Admin.Parse(["admin", "--level", "3"]).Order);
         Assert.Null(Admin.Parse(["serve"]).Order);
     }
@@ -81,5 +84,29 @@ public class AdminTests
             Assert.Equal(100, c.Level);
             Assert.Equal([new ItemCount("admin-keyring", 1)], c.Inventory!);
         });
+    }
+
+    [Fact]
+    public async Task TheOperator_RenamesACharacter_ToAFreeNameOfTheRule()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("adm");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        await server.CreateCharacter("Aube", "female-c", "sentinel", cancel: Cancel);
+        await server.CreateCharacter("Brume", "female-c", "guard", cancel: Cancel);
+        // A name of the old rule, as some characters still have: changed in the base for the test.
+        api.WithDb(db =>
+        {
+            Character aube = db.Characters.Single(c => c.Name == "Aube");
+            (aube.Name, aube.NormalizedName) = ("aube", "AUBE");
+            return db.SaveChanges();
+        });
+        IReadOnlyList<string> said;
+        using (IServiceScope scope = api.Services.CreateScope())
+            said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(),
+                Admin.Parse(["admin", account, "--rename", "aube:Aube", "--rename", "Brume:Aube", "--rename", "Nobody:Cendre"]).Order!, Cancel);
+        Assert.Contains("Brume: not renamed, 'Aube' is taken.", said);
+        Assert.Contains($"Nobody: no such character on '{account}'.", said);
+        Assert.Equal(["Aube", "Brume"], (await server.Characters(Cancel)).Select(c => c.Name));
     }
 }
