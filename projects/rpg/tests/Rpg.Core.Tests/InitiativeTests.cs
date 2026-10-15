@@ -5,7 +5,7 @@ namespace Rpg.Core.Tests;
 /// <summary>
 /// The initiative found in loot and the families' sets (sprint 95, D71, docs/suite-apres-d69.md §3): boots,
 /// capes and rings carry it, the sets add to it, the turn order follows it with the heroes first on a tie;
-/// each family of the Woods and the Mouldy Woods has five pieces, one left by each of its monsters.
+/// each family has five pieces, one left by each of its monsters (sprints 95 and 96).
 /// </summary>
 public class InitiativeTests
 {
@@ -46,6 +46,10 @@ public class InitiativeTests
     [InlineData("wolf")]
     [InlineData("mushroom")]
     [InlineData("zombie")]
+    [InlineData("frog")]
+    [InlineData("crab")]
+    [InlineData("bee")]
+    [InlineData("mole")]
     public void AFamily_HasFivePieces_OneLeftByEachMonster_TheWeaponByItsChief(string id)
     {
         MonsterFamily family = Real.Families[id];
@@ -70,11 +74,24 @@ public class InitiativeTests
         Assert.All(pieces, p => Assert.InRange(Sum(p.Stats) + 0.6 * p.Initiative / 2, 1, (8 + p.Level) / 2.0 + 1));
     }
 
+    [Theory]
+    [InlineData("wolf", 30)]
+    [InlineData("frog", 40)]
+    [InlineData("bee", 75)]
+    [InlineData("boar", 10)]
+    [InlineData("zombie", 15)]
+    [InlineData("mushroom", 0)]
+    [InlineData("crab", 0)]
+    [InlineData("mole", 0)]
+    public void ThreeQuickSets_ThePackTheReedsAndTheHive_OthersLittleOrNone(string set, int initiative) =>
+        Assert.Equal(initiative, Real.Items.Values.Where(i => i.Set == set).Sum(i => i.Initiative));
+
     [Fact]
-    public void ThePack_IsTheWoodsQuickSet_AndTheMushroomsHaveNone()
+    public void EveryFamily_HasItsSet_TenPiecesOfFortyCarryingInitiative()
     {
-        Assert.Equal(30, Real.Items.Values.Where(i => i.Set == "wolf").Sum(i => i.Initiative));
-        Assert.Equal(0, Real.Items.Values.Where(i => i.Set == "mushroom").Sum(i => i.Initiative));
+        Item[] pieces = [.. Real.Items.Values.Where(i => i.Set is string s && Real.Families.ContainsKey(s))];
+        Assert.Equal(40, pieces.Length);
+        Assert.Equal(10, pieces.Count(p => p.Initiative > 0));
     }
 
     [Fact]

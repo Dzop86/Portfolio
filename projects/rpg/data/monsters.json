@@ -1001,6 +1001,10 @@
             "percent": 40
           },
           {
+            "item": "frog-boots",
+            "percent": 8
+          },
+          {
             "item": "frog-grotto-key",
             "percent": 2
           }
@@ -1033,6 +1037,10 @@
           {
             "item": "slime",
             "percent": 60
+          },
+          {
+            "item": "croak-amulet",
+            "percent": 8
           },
           {
             "item": "frog-grotto-key",
@@ -1073,7 +1081,7 @@
           },
           {
             "item": "lily-ring",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "frog-grotto-key",
@@ -1110,6 +1118,10 @@
           {
             "item": "slime",
             "percent": 50
+          },
+          {
+            "item": "dew-hat",
+            "percent": 8
           },
           {
             "item": "frog-grotto-key",
@@ -1151,8 +1163,24 @@
             "count": 2
           },
           {
+            "item": "toad-sceptre",
+            "percent": 30
+          },
+          {
+            "item": "frog-boots",
+            "percent": 8
+          },
+          {
+            "item": "croak-amulet",
+            "percent": 8
+          },
+          {
             "item": "lily-ring",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "dew-hat",
+            "percent": 8
           },
           {
             "item": "frog-grotto-key",
@@ -1212,6 +1240,10 @@
             "percent": 40
           },
           {
+            "item": "claw-belt",
+            "percent": 8
+          },
+          {
             "item": "crab-reef-key",
             "percent": 2
           }
@@ -1247,6 +1279,10 @@
           {
             "item": "crab-shell",
             "percent": 50
+          },
+          {
+            "item": "bubble-ring",
+            "percent": 8
           },
           {
             "item": "crab-reef-key",
@@ -1287,7 +1323,7 @@
           },
           {
             "item": "shell-shield",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "crab-reef-key",
@@ -1326,6 +1362,10 @@
           {
             "item": "crab-claw",
             "percent": 50
+          },
+          {
+            "item": "hermit-cape",
+            "percent": 8
           },
           {
             "item": "crab-reef-key",
@@ -1367,8 +1407,24 @@
             "count": 2
           },
           {
+            "item": "figurehead-axe",
+            "percent": 30
+          },
+          {
+            "item": "claw-belt",
+            "percent": 8
+          },
+          {
+            "item": "bubble-ring",
+            "percent": 8
+          },
+          {
             "item": "shell-shield",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "hermit-cape",
+            "percent": 8
           },
           {
             "item": "crab-reef-key",
@@ -1425,6 +1481,10 @@
             "percent": 40
           },
           {
+            "item": "bee-boots",
+            "percent": 8
+          },
+          {
             "item": "royal-hive-key",
             "percent": 2
           }
@@ -1457,6 +1517,10 @@
           {
             "item": "bee-wing",
             "percent": 60
+          },
+          {
+            "item": "wing-cape",
+            "percent": 8
           },
           {
             "item": "royal-hive-key",
@@ -1495,8 +1559,8 @@
             "percent": 60
           },
           {
-            "item": "stinger-dagger",
-            "percent": 5
+            "item": "wax-ring",
+            "percent": 8
           },
           {
             "item": "royal-hive-key",
@@ -1533,6 +1597,10 @@
           {
             "item": "honeycomb",
             "percent": 50
+          },
+          {
+            "item": "jelly-amulet",
+            "percent": 8
           },
           {
             "item": "royal-hive-key",
@@ -1576,7 +1644,23 @@
           },
           {
             "item": "stinger-dagger",
-            "percent": 25
+            "percent": 30
+          },
+          {
+            "item": "bee-boots",
+            "percent": 8
+          },
+          {
+            "item": "wing-cape",
+            "percent": 8
+          },
+          {
+            "item": "wax-ring",
+            "percent": 8
+          },
+          {
+            "item": "jelly-amulet",
+            "percent": 8
           },
           {
             "item": "royal-hive-key",
@@ -1634,6 +1718,10 @@
             "percent": 40
           },
           {
+            "item": "mole-hat",
+            "percent": 8
+          },
+          {
             "item": "mole-burrows-key",
             "percent": 2
           }
@@ -1667,6 +1755,10 @@
           {
             "item": "earthworm",
             "percent": 60
+          },
+          {
+            "item": "clod-ring",
+            "percent": 8
           },
           {
             "item": "mole-burrows-key",
@@ -1705,7 +1797,7 @@
           },
           {
             "item": "digger-boots",
-            "percent": 5
+            "percent": 8
           },
           {
             "item": "mole-burrows-key",
@@ -1742,6 +1834,10 @@
           {
             "item": "mole-fur",
             "percent": 50
+          },
+          {
+            "item": "burrow-belt",
+            "percent": 8
           },
           {
             "item": "mole-burrows-key",
@@ -1784,8 +1880,24 @@
             "count": 2
           },
           {
+            "item": "debris-pick",
+            "percent": 30
+          },
+          {
+            "item": "mole-hat",
+            "percent": 8
+          },
+          {
+            "item": "clod-ring",
+            "percent": 8
+          },
+          {
             "item": "digger-boots",
-            "percent": 25
+            "percent": 8
+          },
+          {
+            "item": "burrow-belt",
+            "percent": 8
           },
           {
             "item": "mole-burrows-key",

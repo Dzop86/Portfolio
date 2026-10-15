@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je ramasse les panoplies du Lac et des Champs, dont les rapides des grenouilles et des abeilles (rpg) ; T41 remesuré ; playtest de Charles. | 3 | À faire |
+| En tant que joueur, je ramasse les panoplies du Lac et des Champs, dont les rapides des grenouilles et des abeilles (rpg) ; T41 remesuré ; playtest de Charles. | 3 | Fait |
+
+**Résultat :** les panoplies du Lac et des Champs, les grenouilles et les abeilles rapides ; chaque famille laisse désormais sa panoplie ; les plafonds de T41 mesurés équipés, les hordes de taupes lanceuses des Champs trop faciles avec tout l'équipement rapide, à trancher par Charles (T64). Prêt pour le playtest.
 
 ## Rétro (Charles)
 - Ce qui a marché :

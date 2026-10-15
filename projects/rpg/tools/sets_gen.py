@@ -1,4 +1,4 @@
-# Writes the families' sets (sprint 95, D71, docs/suite-apres-d69.md §3): five pieces a family, one
+# Writes the families' sets (sprints 95 and 96, D71, docs/suite-apres-d69.md §3): five pieces a family, one
 # left by each of its four common monsters (8 %), the weapon by its chief (30 %, and the other pieces
 # at 8 % each); the pieces in data/items.json (the family items of before keep their ids), the sets
 # and their bonuses in data/sets.json, the drops in data/monsters.json. A piece spends about 8 + its
@@ -55,6 +55,35 @@ SETS = O([
                  piece("grave-belt", "Ceinture de tombe", "Grave Belt", "Belt", 12, "bloated-zombie", {"fire": 10, "vitality": 8}),
                  piece("bone-cape", "Cape d'os", "Bone Cape", "Cape", 9, "bonesetter", {"fire": 9, "vitality": 8}),
                  piece("overlord-cleaver", "Fendoir du seigneur", "Overlord's Cleaver", "OneHanded", 13, "zombie-overlord", {"fire": 14, "vitality": 7})])),
+    # Sprint 96: the Lake and the Fields; the frogs and the bees are their quick sets.
+    ("frog", (text("Panoplie des joncs", "Reed set"),
+              [({}, 0, 0, 15), ({"water": 15}, 0, 0, 15), ({"water": 15}, 0, 1, 15)],
+              [piece("frog-boots", "Bottes palmées", "Webbed Boots", "Boots", 17, "brawler-frog", {"water": 7, "air": 6}, 20),
+               piece("croak-amulet", "Amulette du coassement", "Croaking Amulet", "Amulet", 16, "spitting-frog", {"water": 14, "air": 10}),
+               piece("lily-ring", "Anneau de nénuphar", "Lily Ring", "Ring", 18, "bullfrog", {"water": 8, "air": 6}, 20),
+               piece("dew-hat", "Chapeau de rosée", "Dew Hat", "Hat", 17, "healing-treefrog", {"water": 15, "vitality": 10}),
+               piece("toad-sceptre", "Sceptre du crapaud-roi", "Toad King's Sceptre", "OneHanded", 22, "toad-king", {"water": 18, "air": 12})])),
+    ("crab", (text("Panoplie du récif", "Reef set"),
+              [({"vitality": 15}, 0, 0, 0), ({"vitality": 15, "earth": 15}, 0, 0, 0), ({"vitality": 45, "earth": 15}, 0, 0, 0)],
+              [piece("claw-belt", "Ceinture de pinces", "Claw Belt", "Belt", 17, "pincer-crab", {"earth": 13, "vitality": 12}),
+               piece("bubble-ring", "Anneau de bulle", "Bubble Ring", "Ring", 16, "bubble-crab", {"earth": 12, "vitality": 12}),
+               piece("shell-shield", "Bouclier de carapace", "Shell Shield", "Shield", 20, "armoured-crab", {"earth": 14, "vitality": 14}),
+               piece("hermit-cape", "Cape de bernard", "Hermit's Cape", "Cape", 17, "hermit-crab", {"earth": 12, "vitality": 13}),
+               piece("figurehead-axe", "Hache de proue", "Figurehead Axe", "TwoHanded", 22, "giant-crab", {"earth": 18, "vitality": 12})])),
+    ("bee", (text("Panoplie de la ruche", "Hive set"),
+             [({}, 0, 0, 15), ({"air": 15}, 0, 0, 15), ({"air": 15}, 1, 0, 15)],
+             [piece("bee-boots", "Bottes d'ouvrière", "Worker's Boots", "Boots", 25, "worker-bee", {"air": 10, "fire": 8}, 25),
+              piece("wing-cape", "Cape d'ailes", "Wing Cape", "Cape", 24, "archer-bee", {"air": 10, "fire": 7}, 25),
+              piece("wax-ring", "Anneau de cire", "Wax Ring", "Ring", 26, "drone", {"fire": 11, "air": 8}, 25),
+              piece("jelly-amulet", "Amulette de gelée royale", "Royal Jelly Amulet", "Amulet", 25, "nurse-bee", {"air": 18, "vitality": 15}),
+              piece("stinger-dagger", "Dague-dard", "Stinger Dagger", "OneHanded", 26, "queen-bee", {"air": 20, "fire": 14})])),
+    ("mole", (text("Panoplie des galeries", "Burrow set"),
+              [({"earth": 15}, 0, 0, 0), ({"earth": 15, "vitality": 15}, 0, 0, 0), ({"earth": 15, "vitality": 15}, 0, 1, 0)],
+              [piece("mole-hat", "Bonnet de taupe", "Mole Cap", "Hat", 25, "digger-mole", {"earth": 18, "vitality": 15}),
+               piece("clod-ring", "Anneau de motte", "Clod Ring", "Ring", 24, "clod-mole", {"earth": 17, "vitality": 15}),
+               piece("digger-boots", "Bottes de fouisseur", "Digger Boots", "Boots", 28, "old-mole", {"earth": 20, "vitality": 16}),
+               piece("burrow-belt", "Ceinture de terrier", "Burrow Belt", "Belt", 25, "mole-mother", {"earth": 18, "vitality": 15}),
+               piece("debris-pick", "Pioche du débris", "Debris Pick", "TwoHanded", 30, "mole-king", {"earth": 24, "vitality": 14})])),
 ])
 PIECES = 5
 

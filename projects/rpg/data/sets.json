@@ -140,5 +140,122 @@
         }
       }
     ]
+  },
+  {
+    "id": "frog",
+    "name": {
+      "fr": "Panoplie des joncs",
+      "en": "Reed set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {},
+        "initiative": 15
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "water": 8
+        },
+        "initiative": 15
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "water": 8
+        },
+        "mp": 1,
+        "initiative": 15
+      }
+    ]
+  },
+  {
+    "id": "crab",
+    "name": {
+      "fr": "Panoplie du récif",
+      "en": "Reef set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "vitality": 8
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "vitality": 8,
+          "earth": 8
+        }
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "vitality": 22,
+          "earth": 8
+        }
+      }
+    ]
+  },
+  {
+    "id": "bee",
+    "name": {
+      "fr": "Panoplie de la ruche",
+      "en": "Hive set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {},
+        "initiative": 15
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "air": 8
+        },
+        "initiative": 15
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "air": 8
+        },
+        "ap": 1,
+        "initiative": 15
+      }
+    ]
+  },
+  {
+    "id": "mole",
+    "name": {
+      "fr": "Panoplie des galeries",
+      "en": "Burrow set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "earth": 8
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "earth": 8,
+          "vitality": 8
+        }
+      },
+      {
+        "pieces": 5,
+        "stats": {
+          "earth": 8,
+          "vitality": 8
+        },
+        "mp": 1
+      }
+    ]
   }
 ]
