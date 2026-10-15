@@ -1,12 +1,12 @@
-# Sprint 99 : Osmose : le quartier des artisans
+# Sprint 99 : Osmose : la récolte
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71).
+**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71, D72).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71).
+**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71, D72).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je trouve à l'est de Clairval le quartier des artisans, ses quatre ateliers, leurs artisans et leurs quêtes d'initiation (rpg) ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je récolte avec cinq métiers (bûcheron, mineur, pêcheur, paysan, herboriste), une nouvelle ressource tous les 5 niveaux, 40 ressources des niveaux 1 à 35 sur les points des cartes (rpg) ; xUnit, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

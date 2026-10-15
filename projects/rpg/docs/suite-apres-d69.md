@@ -7,7 +7,7 @@
 > - **Version 3 :** trois demandes de Charles.
 >   - Une **fenêtre « Métiers »** (§5.9), sur le modèle d'une capture d'un jeu du genre.
 >   - Des **métiers de 1 à 100** et **une nouvelle ressource tous les 5 niveaux** pour chaque métier de récolte (§5.3 et §5.4) : les paliers de 10 de la v2 sont remplacés. Les métiers de fabrication font les équipements, les clefs et les consommables.
->   - De **vraies icônes pour les objets** (§3 bis, nouveau sprint S97).
+>   - De **vraies icônes pour les objets** (§3 bis, nouveau sprint S98 : Rose était déjà faite au S97).
 >   Le plan passe à **58 points** (§10).
 >
 > Rédigée après lecture du dépôt au commit `08cb31c` :
@@ -155,7 +155,7 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
 
 ---
 
-## 3 bis. Chantier 1 bis : des icônes d'objets (S97, 3 points) *(v3)*
+## 3 bis. Chantier 1 bis : des icônes d'objets (S98, 3 points) *(v3)*
 
 ### 3 bis.1 Ce qui existe
 - **Les sorts** ont de vraies icônes : un dessin de **game-icons.net** (CC BY 3.0) en SVG, dans `godot/assets/icons/spells/<id>.svg`. Il est posé **en blanc sur une tuile arrondie à la couleur de l'élément** (`SpellIcon`). Le champ `icon` de chaque sort est écrit par `tools/spells_gen.py` (« lorc/flame-spin »…), et les auteurs sont listés dans `credits.json`. Un sort sans icône montre sa première lettre. La barre latérale fait de même (`assets/icons/bar/credits.json`).
@@ -183,7 +183,7 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
 - **Les métiers** ont aussi leur icône (9), dans la fenêtre Métiers et la barre latérale.
 
 ### 3 bis.3 Sprint, tests
-- **S97 (3 points)**, juste après les panoplies, pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S103) reçoivent la leur en même temps qu'ils sont écrits.
+- **S98 (3 points)**, juste après les panoplies et l'étal de Rose (fait au S97 avant la v3), pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S103) reçoivent la leur en même temps qu'ils sont écrits.
 - **Tests :**
   - chaque objet a une icône ou un repli, et chaque icône a son crédit ;
   - le cadre dépend de la provenance (`ItemStyle.Frame`, sans moteur) ;
@@ -192,7 +192,7 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
 
 ---
 
-## 4. Chantier 2 : les Éclats servent à quelque chose (S98, 3 points)
+## 4. Chantier 2 : les Éclats servent à quelque chose (S97, 3 points, fait)
 
 ### 4.1 L'expérience visée
 « J'ai 800 Éclats : je refais mes caractéristiques, ou je garde de quoi acheter la clef de la ruche ? »
@@ -535,13 +535,13 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 26 | Fenêtre Métiers | **touche J**, icône dans la barre ; la liste et la barre « 710 / 2 840 » ; onglets Recettes et Ressources ; recherche, niveau de … à …, catégorie, tri, « possibles seulement » ; « ingrédients manquants » affichés en rouge plutôt que filtrés ; elle remplace le panneau de l'établi et ne fabrique que devant l'atelier |
 | 27 | Source des icônes d'objets | **game-icons.net (CC BY 3.0)**, comme les sorts ; Kenney (CC0) en appoint ; pas de pixel art ni d'IA |
 | 28 | Style des icônes | **silhouette colorée par l'élément sur tuile sombre** (l'inverse des sorts), **cadre selon la provenance** : gris commun, chocolat artisan, vert panoplie, or chef |
-| 29 | Place des icônes | **un sprint dédié, S97**, juste après les panoplies |
+| 29 | Place des icônes | **un sprint dédié, S98**, juste après les panoplies et Rose |
 
 ---
 
 ## 10. Planification proposée (si Charles dit « Go » sur la v3)
 
-Une nouvelle décision, **D71**, couvre les sprints **95 à 110** : **58 points**. Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (dont les 3 de la potion, autrefois en option), 2 pour l'échange entre joueurs, 3 pour les icônes et 3 pour la fenêtre Métiers.
+D71 (v1 et v2, 52 points, sprints 95 à 108) et **D72** (v3 : les icônes, la fenêtre Métiers, une ressource tous les 5 niveaux ; 6 points de plus, sprints 109 et 110) couvrent ensemble les sprints **95 à 110** : **58 points**. Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (dont les 3 de la potion, autrefois en option), 2 pour l'échange entre joueurs, 3 pour les icônes et 3 pour la fenêtre Métiers.
 - Le projet passe de **381 à 439 points**, et rpg de **160 à 218**.
 - Il faut mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-NN.md`, ainsi que R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »).
 - Les entrées de `DECISIONS.md` commencent à **T63**.
@@ -550,8 +550,8 @@ Une nouvelle décision, **D71**, couvre les sprints **95 à 110** : **58 points*
 |---|---|---|---|
 | S95 | 5 | 0 et 1 | Correctif de la Bauge ; moteur de l'initiative ; panoplies du Bois et du Bois moisi ; `--kit` |
 | S96 | 3 | 1 | Panoplies du Lac et des Champs ; T41 remesuré ; **playtest** |
-| S97 | 3 | 1 bis | Les icônes d'objets (game-icons.net, cadre selon la provenance) |
-| S98 | 3 | 2 | Rose marchande, puits d'Éclats |
+| S97 | 3 | 2 | Rose marchande, puits d'Éclats (fait, T65) |
+| S98 | 3 | 1 bis | Les icônes d'objets (game-icons.net, cadre selon la provenance) |
 | S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes |
 | S100 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi |
 | S101 | 3 | 3 | Le quartier des artisans, les ateliers et les quêtes d'initiation |
