@@ -1,12 +1,12 @@
-# Sprint 108 : Osmose : la suite de la quête d'Ysaline (Bois moisi)
+# Sprint 108 : Osmose : le combat à plusieurs, client et donjons
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71, D72).
+**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D73).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71, D72).
+**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D73).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis la quête d'Ysaline après « Quatre pistes » dans le Bois moisi, et j'interagis avec des objets des cartes (rpg) ; textes relus par le scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, je rejoins le combat d'un allié, je fais les donjons à plusieurs, et hordes et chefs sont réglés pour le groupe (rpg) ; équilibre à plusieurs ; auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

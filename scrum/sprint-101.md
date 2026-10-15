@@ -1,12 +1,12 @@
-# Sprint 101 : Osmose : le quartier des artisans
+# Sprint 101 : Osmose : la vie qui se garde
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71, D72).
+**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D73).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71, D72).
+**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D73).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je trouve à l'est de Clairval le quartier des artisans, ses ateliers, leurs artisans et leurs quêtes d'initiation (rpg) ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je garde la vie que j'ai en sortant d'un combat ; elle remonte d'1 % de mes PV max par seconde (au moins 1 PV/s, doublé au village), jamais en combat ; perdre me laisse à 1 PV ; un pain me soigne hors combat ; une barre de vie et un avertissement sous 30 % (rpg) ; xUnit, intégration, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -1,12 +1,12 @@
-# Sprint 109 : Osmose : la quête d'Ysaline au Lac et aux Champs
+# Sprint 109 : Osmose : la suite de la quête d'Ysaline (Bois moisi)
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71, D72).
+**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D73).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71, D72).
+**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D73).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis la quête d'Ysaline au Lac et aux Champs jusqu'au niveau 28, avec Liane (rpg) ; textes relus par le scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, je suis la quête d'Ysaline après « Quatre pistes » dans le Bois moisi, et j'interagis avec des objets des cartes (rpg) ; textes relus par le scénariste ; xUnit. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

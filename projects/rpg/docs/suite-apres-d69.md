@@ -439,7 +439,7 @@ On simplifie :
 
 ---
 
-## 5 bis. Chantier 3 bis : la vie se garde entre les combats (S100, 5 points) *(v4, règle de Charles)*
+## 5 bis. Chantier 3 bis : la vie se garde entre les combats (S101, 5 points) *(v4, règle de Charles)*
 
 ### 5 bis.1 Ce qui existe
 - **Hors donjon, chaque combat commence à pleine vie.** `Fight` ne prend des PV de départ (`heroHp`) que pour les salles de donjon.
@@ -523,7 +523,7 @@ La vie devient une **ressource méso**, entre deux combats.
 - **Le combat montre la vie de départ** du héros dans la frise et sur sa barre : `Fight` le fait déjà en donjon.
 - **La fenêtre de fin de combat** affiche la vie restante, « 20 / 100 PV », sur la ligne du joueur.
 
-### 5 bis.8 Sprint S100 (5 points) et tests
+### 5 bis.8 Sprint S101 (5 points) et tests
 **Contenu :**
 - `Rpg.Core.Life` : le rythme, `Now`, les règles de défaite, de montée de niveau et de bornes.
 - Le serveur : colonnes `Hp` et `HpAt` et l'état « en combat », migration de `DungeonHp`, la vie figée à chaque changement, le ticket qui fige et porte la vie de départ, le rapport qui la rend, le ticket non rendu compté comme défaite.
@@ -691,8 +691,8 @@ Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (don
 | S97 | 3 | 2 | Rose marchande, puits d'Éclats (fait, T65) |
 | S98 | 3 | 1 bis | Les icônes d'objets (game-icons.net, cadre selon la provenance) |
 | S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes (fait) |
-| S100 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose |
-| S101 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi |
+| S100 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi (fait, T68) |
+| S101 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose |
 | S102 | 3 | 3 | Le quartier des artisans, les 5 ateliers (dont le four) et les quêtes d'initiation |
 | S103 | 3 | 3 | Forgeron et tailleur : 16 pièces d'artisan ; T41 remesuré |
 | S104 | 5 | 3 | Alchimiste (potions et huiles en combat) et boulanger (pains hors combat) ; T41 et vie restante remesurées ; **playtest** |
