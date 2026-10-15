@@ -169,7 +169,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -179,6 +179,8 @@ public partial class Main
             CloseInventory();
         if (open != GameWindow.Journal && _journalPanel is not null)
             CloseJournal();
+        if (open != GameWindow.Jobs && _jobsPanel is not null && _town?.Bench is null)
+            CloseJobs();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -192,6 +194,9 @@ public partial class Main
                 break;
             case GameWindow.Journal when _journalPanel is null:
                 OpenJournal();
+                break;
+            case GameWindow.Jobs when _jobsPanel is null:
+                OpenJobs();
                 break;
         }
         _bar?.Show(open);
@@ -560,42 +565,58 @@ public partial class Main
             await Gather(node);
     }
 
-    private CraftPanel? _craftPanel;
+    private JobsPanel? _jobsPanel;
 
-    /// <summary>A trade's workshop (sprint 81): its recipes; the server makes what is asked.</summary>
-    private CraftPanel OpenBench(Workshop bench)
+    /// <summary>
+    /// The trades window (sprint 100, D72): opened by J to look at, or at a trade's workshop on that trade,
+    /// to make its recipes (it replaced the workshop's panel of sprint 81); the server makes what is asked.
+    /// </summary>
+    private JobsPanel OpenJobs(Workshop? bench = null)
     {
-        _craftPanel?.QueueFree();
-        Texts texts = _talkPanel!.Texts;
-        Job job = GameData.Embedded.Jobs[bench.Job];
-        _craftPanel = new CraftPanel();
-        AddChild(_craftPanel);
-        _craftPanel.Build(new Workbench(job, _character, texts), texts);
-        _craftPanel.ClosePressed += () =>
+        _jobsPanel?.QueueFree();
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        _jobsPanel = new JobsPanel();
+        AddChild(_jobsPanel);
+        _jobsPanel.Build(new JobBook(GameData.Embedded, _character, texts, bench?.Job), texts, bench?.Job);
+        _jobsPanel.ClosePressed += () =>
         {
-            _craftPanel?.QueueFree();
-            _craftPanel = null;
-            _town?.CloseDoor();
+            if (bench is not null)
+            {
+                CloseJobs();
+                _town?.CloseDoor();
+            }
+            else
+            {
+                _windows.Close();
+                ShowWindows();
+            }
         };
-        _craftPanel.MakePressed += (item, count) => _ = Make(job, item, count);
-        return _craftPanel;
+        _jobsPanel.MakePressed += (job, item, count) => _ = Make(job, item, count, bench);
+        return _jobsPanel;
     }
 
-    private async Task Make(Job job, string item, int count)
+    private void CloseJobs()
     {
-        if (_craftPanel is null || _lobby?.SignedIn != true || _character is null)
+        _jobsPanel?.QueueFree();
+        _jobsPanel = null;
+    }
+
+    private JobsPanel OpenBench(Workshop bench) => OpenJobs(bench);
+
+    private async Task Make(Job job, string item, int count, Workshop? bench)
+    {
+        if (_jobsPanel is null || _lobby?.SignedIn != true || _character is null)
             return;
-        Texts texts = _talkPanel!.Texts;
+        Texts texts = _jobsPanel.Texts;
         try
         {
-            _character = await _lobby.Server.Craft(_character.Id, job.Id, item, count);
-            _hero = _character.Hero;
-            _craftPanel?.Show(new Workbench(job, _character, texts));
-            _craftPanel?.ShowMessage(texts["craft.made", texts.Items([new ItemCount(item, count)])]);
+            KeepCharacter(await _lobby.Server.Craft(_character.Id, job.Id, item, count));
+            _jobsPanel?.Show(new JobBook(GameData.Embedded, _character, texts, bench?.Job));
+            _jobsPanel?.ShowMessage(texts["craft.made", texts.Items([new ItemCount(item, count)])]);
         }
         catch (Exception e) when (e is ServerException or HttpRequestException)
         {
-            _craftPanel?.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+            _jobsPanel?.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
         }
     }
 
@@ -1420,12 +1441,12 @@ public partial class Main
             problems.Add("walking onto the locksmith's bench does not open it");
         else
         {
-            CraftPanel panel = OpenBench(bench);
-            var expected = new Workbench(GameData.Embedded.Jobs[bench.Job], _character, _talkPanel!.Texts);
-            if (panel.TitleText != expected.Title || !panel.Recipes.SequenceEqual(expected.Rows.Select(r => (r.Recipe.Item, r.Most > 0))))
-                problems.Add($"the bench shows \"{panel.TitleText}\" and {panel.Recipes.Count()} recipes");
-            _craftPanel!.QueueFree();
-            _craftPanel = null;
+            // Since sprint 100, the trades window on the bench's trade, its recipes listed.
+            JobsPanel panel = OpenBench(bench);
+            var expected = new JobBook(GameData.Embedded, _character, _talkPanel!.Texts, bench.Job);
+            if (panel.Shown.Id != bench.Job || panel.JobsListed != expected.Jobs.Count || panel.Lines != expected.Recipes(GameData.Embedded.Jobs[bench.Job]).Count)
+                problems.Add($"the bench opens the trades window on {panel.Shown.Id}, {panel.JobsListed} trades and {panel.Lines} lines");
+            CloseJobs();
             _town.CloseDoor();
             if (_town.Click(_town.Town.Spawn) is null)
                 problems.Add("after the bench, the player cannot walk on");

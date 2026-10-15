@@ -4,5 +4,6 @@
  "inventory": "lorc/knapsack",
  "map": "lorc/treasure-map",
  "menu": "lorc/cog",
- "journal": "lorc/scroll-unfurled"
+ "journal": "lorc/scroll-unfurled",
+ "jobs": "lorc/anvil"
 }

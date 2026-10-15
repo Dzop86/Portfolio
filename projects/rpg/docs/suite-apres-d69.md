@@ -9,13 +9,14 @@
 >   - Des **métiers de 1 à 100** et **une nouvelle ressource tous les 5 niveaux** pour chaque métier de récolte (§5.3 et §5.4) : les paliers de 10 de la v2 sont remplacés. Les métiers de fabrication font les équipements, les clefs et les consommables.
 >   - De **vraies icônes pour les objets** (§3 bis, nouveau sprint S98 : Rose était déjà faite au S97).
 >   Le plan passe à **58 points** (§10).
+> - **Version 4, 16 octobre 2026 :** règle voulue par Charles, **la vie se garde entre les combats** et se restaure avec le temps (§5 bis, nouveau sprint S100, juste après la récolte faite au S99). Elle redonne un usage à la nourriture : le **boulanger** rejoint l'alchimiste en S104. Le plan passe à **65 points** (§10).
 >
-> Rédigée après lecture du dépôt au commit `08cb31c` :
+> Rédigée après lecture du dépôt au commit `08cb31c`, revérifiée pour la v4 (`classes.json`, `Fight.cs` : `heroHp`, `StartHeroHp`, `MaxHp` ; `FightRecord.HeroHp` ; `Entities.cs` : `DungeonHp` ; `Shop.cs`) :
 > - `DECISIONS.md` (T29 à T62), `docs/design-familles.md`, `docs/trame-saga-1.md`, `docs/bible.md`, `PLAN.md` (D54 à D70) ;
 > - les données `data/items.json`, `sets.json`, `monsters.json`, `quests.json`, `jobs.json`, `classes.json`, `data/towns/clairval.json`, `data/towns/woods-2-2.json` ;
 > - le code `src/Rpg.Core/Fight.cs`, `Items.cs`, `Jobs.cs`, `Progression.cs`, `Monsters.cs`, `FightRecord.cs`, `Data.cs`, `Town.cs`, `src/Rpg.Client/ItemStyle.cs`, `GameMenu.cs` (`WindowState.Bar`), `godot/SpellIcon.cs`, `godot/SideBar.cs`, `godot/assets/icons/spells/credits.json`, `src/Rpg.Api/Endpoints/CharacterEndpoints.cs`, `src/Rpg.Api/Data/Entities.cs`, et l'outil `tools/world_gen.py`.
 >
-> Les points **[À TRANCHER]** ont une **valeur par défaut** (§9), à utiliser tant que Charles n'a pas dit autre chose. **Rien n'est à implémenter avant son accord sur la v3.**
+> Les points **[À TRANCHER]** ont une **valeur par défaut** (§9), à utiliser tant que Charles n'a pas dit autre chose. **Rien de la v4 n'est à implémenter avant son accord.**
 
 ---
 
@@ -27,12 +28,13 @@
 | 1 | **Le butin de Clairval : panoplies et initiative** | il n'y a presque rien à looter, et l'initiative ne compte pas | 2 sprints (5 + 3) | rien |
 | 1 bis | **Des icônes d'objets** *(v3)* | les glyphes dessinés par le jeu sont laids, et 150 objets nouveaux arrivent | 1 sprint (3) | 1 (la liste des nouveaux objets) |
 | 2 | **Les Éclats servent à quelque chose** | la monnaie s'accumule sans aucun usage | 1 sprint (3) | 1 (les prix des objets) |
-| 3 | **Les métiers : récolte, fenêtre Métiers, ateliers, fabrication** *(v2, v3)* | les cartes ne donnent rien hors des combats, et l'établi ne fait que des clefs | 5 sprints (5 + 3 + 3 + 3 + 3) | 1 (budget des objets), 1 bis (icônes), 2 (prix de Rose) |
+| 3 | **Les métiers : récolte, fenêtre Métiers, ateliers, fabrication** *(v2, v3, v4)* | les cartes ne donnent rien hors des combats, et l'établi ne fait que des clefs | 5 sprints (5 + 3 + 3 + 3 + 5) | 1 (budget des objets), 1 bis (icônes), 2 (prix de Rose) |
+| 3 bis | **La vie se garde entre les combats** *(v4)* | chaque combat repart à pleine vie : une victoire serrée ne coûte rien, et soins et nourriture n'ont pas d'usage hors combat | 1 sprint (5), S100 | rien ; le boulanger (S104) s'appuie dessus |
 | 4 | **Jouer ensemble** | les hordes, les chefs, les salles 3 et les quêtes de donjon sont faits pour plusieurs, mais le jeu ne connaît qu'un héros par combat | 4 sprints (3 + 5 + 5 + 5) | 1 ; 3 pour l'échange entre joueurs |
 | 5 | **La fin du chapitre 1** | l'histoire s'arrête au niveau 8, alors que 94 % de l'XP jusqu'au niveau 30 vient après | 3 sprints (3 + 3 + 3) | 0 |
 | 6 | Le monde après 30 (concept de `design-familles.md` §7) | il n'y a plus rien après le niveau 30 | plusieurs mois | 1 à 5 et une décision de Charles |
 
-**Ma recommandation :** faire les chantiers 0 à 5 dans cet ordre, soit **58 points, sprints 95 à 110**, avec un playtest après le chantier 1 et un autre après le chantier 3.
+**Ma recommandation :** faire les chantiers 0 à 5 dans cet ordre, soit **65 points, sprints 95 à 111**, avec un playtest après le chantier 1 et un autre après le chantier 3. La vie (3 bis) se glisse en S100, entre la récolte et la fenêtre Métiers.
 
 - **Les métiers passent avant le jeu à plusieurs.** Ils complètent la boucle d'un joueur seul (combattre, récolter, fabriquer, vendre) pour un risque technique faible : l'établi, les recettes et le niveau de métier existent déjà (T48). Ils donnent aussi au jeu à plusieurs sa première raison d'échanger.
 - **Le jeu à plusieurs reste le trou le plus grand.** Mais une boucle de récompense vide reste vide à quatre. Il faut d'abord que le butin, la monnaie et l'artisanat aient un sens, et que l'équilibre soit mesuré avec l'équipement, que le multijoueur viendra multiplier.
@@ -183,7 +185,7 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
 - **Les métiers** ont aussi leur icône (9), dans la fenêtre Métiers et la barre latérale.
 
 ### 3 bis.3 Sprint, tests
-- **S98 (3 points)**, juste après les panoplies et l'étal de Rose (fait au S97 avant la v3), pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S103) reçoivent la leur en même temps qu'ils sont écrits.
+- **S98 (3 points)**, juste après les panoplies et l'étal de Rose (fait au S97 avant la v3), pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S104) reçoivent la leur en même temps qu'ils sont écrits.
 - **Tests :**
   - chaque objet a une icône ou un repli, et chaque icône a son crédit ;
   - le cadre dépend de la provenance (`ItemStyle.Frame`, sans moteur) ;
@@ -204,14 +206,14 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
   - Les potions viennent de l'alchimiste (§5.5). Rose les vend à 10 + niveau Éclats, plus cher que leur fabrication.
 - **Puits 1 : refaire ses caractéristiques** coûte **10 × niveau** Éclats, gratuit jusqu'au niveau 10.
 - **Puits 2 : les clefs du serrurier** coûtent aussi **5 × le niveau du donjon** en Éclats.
-- **Puits 3 : les potions en combat.** Il n'est plus en option : il arrive avec l'alchimiste, en S103 (§5.5).
+- **Puits 3 : les potions en combat.** Il n'est plus en option : il arrive avec l'alchimiste, en S104 (§5.5).
 - Le marchand se fait **au village seulement**, et le serveur vérifie tout.
 
 **Tests :** prix calculés par les règles ; achat refusé sans Éclats ; vente d'un objet porté refusée ; réinitialisation facturée au bon prix ; intégration API achat → inventaire → Éclats.
 
 ---
 
-## 5. Chantier 3 : les métiers (S99 à 5 points, S100 à S103 à 3 points) *(v2 et v3, demandes de Charles)*
+## 5. Chantier 3 : les métiers (S99 à 5 points, fait ; S101 à S103 à 3 points ; S104 à 5 points) *(v2, v3 et v4, demandes de Charles)*
 
 ### 5.1 L'expérience visée
 « En traversant le Lac pour aller aux crabes, je coupe deux saules et je pêche une anguille. Ce soir, je forge le bouclier de mon palier ; la panoplie des grenouilles, je l'attends du butin. »
@@ -242,12 +244,13 @@ Les outils donnent leur nom et leur geste à l'animation de récolte. Ils ne son
 | **Tailleur** | fabrication (équipement) | plastrons, épaulettes | tous les combattants | atelier du tailleur |
 | **Alchimiste** | fabrication (consommables) | potions de soin et huiles d'élément (utilisables en combat) | tous, surtout en donjon | alambic |
 | Serrurier (existant) | fabrication (clefs) | clefs des donjons | tous | établi (existant) |
+| **Boulanger** *(v4)* | fabrication (consommables hors combat) | pains, qui rendent de la vie hors combat (§5 bis.5) | tous, entre deux combats | four |
 
 Comme le veut Charles, **les métiers de fabrication font les équipements (forgeron, tailleur), les clefs de donjon (serrurier) et les consommables (alchimiste)**. Tous les métiers, de récolte comme de fabrication, vont de 1 à 100.
 
 - **Écartés pour l'instant :**
   - **bijoutier et cordonnier** : ils feraient anneaux, amulettes et bottes, les pièces des panoplies tombées et de l'initiative ;
-  - **la cuisine** (le pain et les céréales du paysan) : les PV reviennent pleins après chaque combat hors donjon, et la fontaine les rend en donjon, donc un plat n'aurait pas d'usage. Elle reviendra avec un effet qui compte (un bonus d'une heure, par exemple) ;
+  - ~~la cuisine~~ : écartée en v2 parce que les PV revenaient pleins après chaque combat. **Depuis la v4, la vie se garde (§5 bis) : le boulanger entre au plan**, avec les céréales du paysan. Une cuisine plus riche (plats à effet durable) reste pour plus tard ;
   - **l'herboriste fusionné dans le paysan** : un seul métier pour les fibres et les plantes médicinales nourrirait à la fois le tailleur et l'alchimiste, ce qui en ferait un passage obligé. Séparés, chaque métier de fabrication a son récolteur principal ;
   - **les produits intermédiaires** (planches, lingots) : un étage de plus pour le même plaisir.
 - Un personnage peut **apprendre tous les métiers**, sans limite. Le jeu se joue encore surtout seul : une limite à la Dofus obligerait à trouver d'autres joueurs pour s'équiper.
@@ -339,7 +342,7 @@ Chaque métier de base a au moins un point sur presque chaque carte où il a que
   Un consommable décrit ses effets comme un sort (`SpellEffect` : soin, état). Le moteur n'a donc qu'une action de plus, sans nouvel effet. L'objet est retiré de l'inventaire, ce que le serveur vérifie au rejeu. C'était l'option S98 de la v1.
 - **Les ateliers : un quartier des artisans.** Clairval fait 16 × 12 cases, et T44 le dit « petit à côté des autres ».
   - Une **nouvelle carte du village, « Clairval, quartier des artisans »**, en [1, 0] à l'est (case libre du monde), de 24 × 16 cases. On y entre par la porte est, dont la sortie d'entraînement de Garance est déplacée d'une case.
-  - Elle porte **la forge, l'atelier du tailleur et l'alambic**, et accueille l'établi du serrurier, déplacé.
+  - Elle porte **la forge, l'atelier du tailleur, l'alambic et le four du boulanger** (v4), et accueille l'établi du serrurier, déplacé.
   - Un artisan PNJ par atelier, qui explique son métier et donne une quête d'initiation : récolter 5, fabriquer 1 (50 XP de métier).
   - `Town.Workshops` sert déjà pour n'importe quel métier. L'ancien panneau de l'établi (T48) est remplacé par la fenêtre Métiers (§5.9), qui s'ouvre sur le bon métier, en mode « Fabriquer ».
   - *Alternative :* les ateliers dans les zones (la forge au Bois moisi). Écartée : le craft est un moment social, au même endroit que Rose ; les zones gardent la récolte.
@@ -366,8 +369,8 @@ L'arme fabriquée et l'arme du chef ont le **même budget**. Celle du chef compl
 - **Initiative :** inchangée par le craft (§3.2). Aucune pièce d'artisan et aucun consommable n'en donne.
 
 ### 5.8 Dépendances avec le jeu à plusieurs
-- Les points partagés n'ont pas besoin du chantier 4. Le serveur garde leur état. Le client le lit en entrant sur une carte, et un refus « déjà récolté » le met à jour. Quand le chantier 4 diffuse les présences (S104), il diffuse aussi « point récolté » et « point repoussé ».
-- **L'échange entre joueurs** (deux joueurs sur la même carte, les deux valident) entre dans le chantier 4, au sprint du groupe (S105, 5 points). C'est ce qui donne un sens économique aux métiers à plusieurs.
+- Les points partagés n'ont pas besoin du chantier 4. Le serveur garde leur état. Le client le lit en entrant sur une carte, et un refus « déjà récolté » le met à jour. Quand le chantier 4 diffuse les présences (S105), il diffuse aussi « point récolté » et « point repoussé ».
+- **L'échange entre joueurs** (deux joueurs sur la même carte, les deux valident) entre dans le chantier 4, au sprint du groupe (S106, 5 points). C'est ce qui donne un sens économique aux métiers à plusieurs.
 
 ### 5.9 La fenêtre « Métiers » *(v3, d'après la capture de Charles)*
 
@@ -407,10 +410,11 @@ On simplifie :
 | Sprint | Pts | Contenu |
 |---|---|---|
 | S99 | 5 | **La récolte.** `Job` gagne `Kind` (récolte ou fabrication) et `Harvests` (ressource, niveau, nature du point : arbre, roche, eau, parcelle, herbe) ; champ `nodes` des cartes, écrit par `world_gen.py` (ressource selon la profondeur de la carte) ; table serveur des points (carte, case, prêt à) et `POST …/harvest` ; règle des 20 niveaux pour l'XP ; client : points dessinés (les parcelles en carrés de culture), clic, marche, barre de 3 s avec l'outil en main, « +2 Chêne » flottant ; les **40 ressources** (niveaux 1 à 35) et les 5 métiers de récolte. |
-| S100 | 3 | **La fenêtre Métiers** (§5.9), touche J, `JobBook` ; elle remplace le panneau de l'établi. |
-| S101 | 3 | **Le quartier des artisans** : la carte [1, 0], la porte est, les 4 ateliers et leurs artisans, les 3 quêtes d'initiation ; l'établi du serrurier déplacé. |
-| S102 | 3 | **Forgeron et tailleur** : les 16 pièces d'artisan et leurs recettes (niveaux 1 à 35), `Recipe.Xp`, `ItemBudgetTests` étendu ; T41 remesuré (kit « fast » + artisan). |
-| S103 | 3 | **L'alchimiste et `UseItem`** : 4 potions, 4 huiles (une par élément à chaque taille), un consommable par combat, rejoué par le serveur, l'IA ne s'en sert pas ; Rose revend les potions ; T41 remesuré. |
+| (S100) | (5) | *La vie qui se garde : chantier 3 bis, §5 bis.* |
+| S101 | 3 | **La fenêtre Métiers** (§5.9), touche J, `JobBook` ; elle remplace le panneau de l'établi. |
+| S102 | 3 | **Le quartier des artisans** : la carte [1, 0], la porte est, les 5 ateliers (forge, tailleur, alambic, four, établi déplacé) et leurs artisans, les quêtes d'initiation. |
+| S103 | 3 | **Forgeron et tailleur** : les 16 pièces d'artisan et leurs recettes (niveaux 1 à 35), `Recipe.Xp`, `ItemBudgetTests` étendu ; T41 remesuré (kit « fast » + artisan). |
+| S104 | 5 | **L'alchimiste, `UseItem` et le boulanger** : 4 potions, 4 huiles (une par élément à chaque taille), un consommable par combat, rejoué par le serveur, l'IA ne s'en sert pas ; Rose revend les potions ; les 8 pains du boulanger, mangés hors combat (§5 bis.5) ; T41 remesuré. |
 
 **Tests :**
 - **Unitaires :**
@@ -435,7 +439,123 @@ On simplifie :
 
 ---
 
-## 6. Chantier 4 : jouer ensemble (S104 à S107, 18 points)
+## 5 bis. Chantier 3 bis : la vie se garde entre les combats (S100, 5 points) *(v4, règle de Charles)*
+
+### 5 bis.1 Ce qui existe
+- **Hors donjon, chaque combat commence à pleine vie.** `Fight` ne prend des PV de départ (`heroHp`) que pour les salles de donjon.
+- **En donjon**, les PV restants passent de salle en salle (`Character.DungeonHp`, `FightRecord.HeroHp`, vérifié au rejeu, T53), et la fontaine les rend tous.
+- **Perdre ne coûte aucune vie.** Un ticket de combat jamais rendu ne coûte rien non plus : c'est une limite connue de T29 (« abandonner un combat mal parti »).
+- **Les PV max** valent les PV de la classe + PV par niveau × (niveau − 1) + la Vitalité, un point de Vitalité valant un PV (`Fight.HeroTotals`, `Fighter.MaxHp`). Classes : Sentinelle 62 + 5 par niveau, Garde 74 + 3, Mage 86 + 3. Avec les points répartis comme dans les simulations (`Progression.Built`, moitié en Vitalité), cela donne environ **60 à 90 PV au niveau 1, 300 à 350 au niveau 30, 870 à 1 050 au niveau 100**, et jusqu'à 1 550 avec tous les points en Vitalité, sans compter l'équipement.
+
+### 5 bis.2 L'expérience visée
+« J'ai gagné à 20 PV. Je mange un pain et je repars, ou je marche jusqu'au groupe suivant le temps de remonter ? »
+
+La vie devient une **ressource méso**, entre deux combats.
+- Une victoire serrée **coûte** quelque chose.
+- Jouer proprement (finir sans perdre de vie) **rapporte** du temps.
+- Les soins, les potions et la nourriture **comptent**.
+- Le temps d'attente doit rester court, sinon on retombe dans le « je regarde ma barre remonter », qui est de l'ennui pur. **Cible : le repos ne dépasse pas la moitié de la durée d'un combat** (2 à 3 minutes), et la marche vers le groupe suivant en couvre la plus grande partie.
+
+### 5 bis.3 La règle
+
+**1. Le rythme de récupération.** Le rythme exact de Charles (1 PV par seconde) vaut pour 100 PV. Appliqué tel quel au niveau 100, il donnerait plus de 15 minutes pour remonter de zéro : c'est trop. Il faut donc un rythme qui suit les PV max :
+- **un pour cent des PV max par seconde, au moins 1 PV par seconde**, soit `max(1, PV max / 100)` par seconde, en valeur exacte et pas arrondie ;
+- ce qui donne :
+  - 1 PV/s jusqu'à 100 PV max, donc la règle de Charles telle quelle pour un héros de 100 PV ;
+  - environ 3,3 PV/s au niveau 30 ;
+  - environ 10 PV/s au niveau 100 ;
+- **de 0 à pleine vie, il faut 60 à 100 secondes, à tous les niveaux.** Le confort ne dépend pas du niveau ;
+- **au village** (Clairval et le quartier des artisans), le rythme est **doublé**. C'est une raison de rentrer vendre et fabriquer, et un lieu sûr.
+- *S'asseoir pour récupérer plus vite* (comme dans les jeux du genre) est laissé pour plus tard : c'est un état et une animation de plus, pour un gain que le village donne déjà.
+
+**2. Le calcul se fait à partir d'un horodatage, sans tic.**
+- Le serveur garde, pour chaque personnage, sa **vie** (`Hp`), le **moment** où elle a été fixée (`HpAt`) et son **état** (hors combat ou en combat).
+- La vie au moment t vaut :
+  > min(PV max, Hp + (t − HpAt) × rythme × multiplicateur du lieu)
+  
+  Le calcul est dans `Rpg.Core` (`Life.Now`). Le client utilise le même code pour animer la barre, sans rien demander au serveur.
+- **La vie est figée à nouveau** (on écrit la valeur du moment, puis on repart de là) à chaque événement qui change la vie, le rythme ou l'état :
+  - un **changement de carte** (le village double le rythme) ;
+  - un **équipement** changé (les PV max changent) ;
+  - un **niveau** gagné ;
+  - l'**entrée en combat** et la **fin** du combat ;
+  - un **pain** mangé.
+- **Pas de récupération en combat.** Le ticket de combat fige la vie, qui ne bouge plus jusqu'au rapport.
+- **La vie remonte aussi hors ligne**, toujours au rythme normal (le personnage n'est pas au village pour le serveur s'il s'est déconnecté dehors). On revient donc à pleine vie : aucune raison de punir l'absence.
+
+**3. Le combat.**
+- **Tout combat commence avec la vie actuelle du héros**, calculée par le serveur au moment du ticket. Le paramètre `heroHp` de `Fight`, qui ne servait qu'en donjon, sert désormais partout. `FightRecord.HeroHp` le garde, et le serveur le compare au rejeu, comme en donjon aujourd'hui.
+- **À la fin**, la vie est celle du héros à la dernière action, bornée à ses PV max hors combat (l'érosion ne vaut que pendant le combat).
+- Les potions de l'alchimiste (S104) soignent pendant le combat, donc **elles comptent aussi pour la suite**.
+- **Monter de niveau rend toute la vie.** C'est le moment fort de la progression, il doit faire du bien, comme dans les jeux du genre.
+- **Changer d'équipement** ne soigne pas : la vie est seulement ramenée aux nouveaux PV max si elle les dépasse.
+
+**4. La défaite.**
+- **Le héros reste où il était, à 1 PV.** En donjon, il ressort devant la porte, comme aujourd'hui, à 1 PV.
+- Le coût d'une défaite est donc le temps : 60 à 100 secondes, deux fois moins au village, ou un pain.
+- *Alternative écartée :* le retour au village. La marche depuis le fond des Champs (une dizaine de cartes) est longue, et elle punit par l'ennui plutôt que par un choix.
+- **Un ticket jamais rendu compte comme une défaite.** Au prochain ticket demandé, ou après 30 minutes, la vie passe à 1 PV. Cela ferme la limite de T29 (abandonner un combat mal parti en gardant sa vie). Le risque : un plantage du jeu en plein combat coûte la vie. On l'accepte et on le dit dans les Limites. Le combat à plusieurs (S107) saura reprendre un combat interrompu.
+
+### 5 bis.4 Les donjons et la fontaine
+- **`DungeonHp` disparaît.** La vie du personnage est la même partout : en donjon, elle passe d'une salle à l'autre parce qu'elle se garde, tout simplement. Une migration copie `DungeonHp` dans `Hp` pour les personnages en cours de donjon.
+- **Dans les salles, la vie remonte au rythme normal**, hors combat. On ne peut pas l'interdire sans rendre l'attente absurde.
+- **La fontaine rend toute la vie d'un coup** (`POST …/dungeon/rest`, inchangé). Elle fait gagner du temps, et rien de plus : la difficulté d'un donjon reste celle de chaque salle, et la règle des PV gardés en donjon (T53) devient celle du monde entier.
+
+### 5 bis.5 Ce qui fait remonter la vie plus vite
+- **Le pain** (le boulanger, S104) se mange **hors combat seulement**. Il rend tout de suite **30 + 10 × son niveau** PV : 40 au niveau 1, 380 au niveau 35. Une recette tous les 5 niveaux, comme les autres métiers, avec 3 céréales du paysan + 1 ressource de l'herboriste ou du pêcheur de son niveau.
+  - **Rose vend le pain de Clairval** (l'objet `bread` qui existe déjà, niveau 1, 40 PV) à 10 Éclats. Le joueur a de quoi manger dès le début, sans métier.
+  - Il n'y a pas de délai entre deux pains : le prix est l'objet. Le serveur vérifie qu'on n'est pas en combat (`POST …/use`).
+- **Les potions et les huiles de l'alchimiste se boivent en combat seulement** (une par combat, `UseItem`, S104). Les rôles restent clairs : le pain entre les combats, la potion pendant.
+- **Le village double le rythme** (§5 bis.3), et la fontaine des donjons soigne tout.
+- Plus tard, des plats à effet durable (un rythme doublé pendant 10 minutes, par exemple) pourront venir d'une vraie cuisine.
+
+### 5 bis.6 L'équilibre T41
+- **Les planchers (petits groupes ≥ 96 % seul) restent mesurés à pleine vie.** Le joueur peut toujours attendre une minute ou manger : la règle mesure ce que le jeu demande, pas l'impatience. Les hordes et les chefs restent mesurés à pleine vie aussi : c'est le meilleur cas.
+- **Nouvelle mesure, la vie restante** : la moyenne des PV restants à la fin des victoires contre les petits groupes, au niveau de la zone, nu, par classe. **Cible : au moins 50 % des PV max.**
+  - Au-dessus, le joueur enchaîne : la marche vers le groupe suivant (20 à 40 secondes) rend 20 à 40 % de la vie.
+  - En dessous, chaque combat impose une pause : on regarde alors les dégâts des monstres concernés, jamais la règle de récupération.
+  - Cette mesure est un **indicateur**, notée dans `DECISIONS.md` à chaque remesure, pas un test bloquant.
+- **Les donjons** se mesurent comme aujourd'hui (la vie passe d'une salle à l'autre).
+
+### 5 bis.7 Le client
+- **Une barre de vie hors combat**, sous le nom du personnage, en haut à gauche : « 20 / 100 », qui se remplit en continu, avec le rythme au survol (« +1 PV/s, ×2 au village »). Elle apparaît aussi dans la fiche C.
+- **Attaquer en dessous de 30 % de vie** ouvre un avertissement, pas un refus : « Vous n'avez que 20 PV sur 100. Attaquer quand même ? » (« Attaquer » ou « Plus tard »). C'est aussi le cas pour « Rejoindre » un combat à plusieurs.
+- **Le combat montre la vie de départ** du héros dans la frise et sur sa barre : `Fight` le fait déjà en donjon.
+- **La fenêtre de fin de combat** affiche la vie restante, « 20 / 100 PV », sur la ligne du joueur.
+
+### 5 bis.8 Sprint S100 (5 points) et tests
+**Contenu :**
+- `Rpg.Core.Life` : le rythme, `Now`, les règles de défaite, de montée de niveau et de bornes.
+- Le serveur : colonnes `Hp` et `HpAt` et l'état « en combat », migration de `DungeonHp`, la vie figée à chaque changement, le ticket qui fige et porte la vie de départ, le rapport qui la rend, le ticket non rendu compté comme défaite.
+- La route `POST …/use` (manger un pain), et le pain de Rose.
+- Le client : la barre, l'avertissement, la fin de combat.
+
+**Tests :**
+- **Unitaires :**
+  - le rythme (1 PV/s jusqu'à 100 PV max, puis 1 %) ;
+  - le doublement au village ;
+  - la borne aux PV max ;
+  - la vie figée puis reprise sans perte (deux changements de carte d'affilée donnent la même vie qu'un seul calcul) ;
+  - pas de récupération en combat ;
+  - défaite à 1 PV ;
+  - montée de niveau à pleine vie ;
+  - équipement : vie bornée sans soin.
+- **Intégration :**
+  - un combat gagné à 20 PV, puis un second demandé tout de suite qui part à 20 PV environ (± ce que les secondes ont rendu) ;
+  - un ticket abandonné, puis un nouveau ticket à 1 PV ;
+  - un pain mangé, refusé en combat ;
+  - un donjon dont la vie passe de salle en salle sans `DungeonHp` ;
+  - la fontaine.
+- **Auto-test Godot :** la barre hors combat se remplit, et l'avertissement s'ouvre sous 30 %.
+
+**Risques :**
+- Le rejeu des anciens combats : `FightRecord.HeroHp` est nul pour eux, ce qui veut dire pleine vie, et ils se rejouent comme avant.
+- Le compte d'essai de Charles (Plouf) part à pleine vie.
+- Les auto-tests qui enchaînent des combats doivent attendre ou partir d'une vie fixée par la commande d'administration : ajouter `--hp N` à `admin`.
+
+---
+
+## 6. Chantier 4 : jouer ensemble (S105 à S108, 18 points)
 
 ### 6.1 L'expérience visée
 « Je vois Plop passer sur la carte. On se groupe, il attaque la horde du fond, je le rejoins, et la reine tombe à deux. Après, je lui échange mes saules contre son arme de reine. »
@@ -449,10 +569,10 @@ Le moteur est déjà **déterministe et piloté par les actions** (T4).
 ### 6.3 Découpage
 | Sprint | Pts | Contenu |
 |---|---|---|
-| S104 | 3 | **Se voir.** Le serveur diffuse aux joueurs d'une carte l'arrivée, la case visée et le départ de chacun, ainsi que l'état des points de récolte. **Les groupes de monstres deviennent communs** : leur errance se calcule à partir de l'horloge, et « battu » et « en combat » passent côté serveur. |
-| S105 | 5 | **Le groupe et l'échange.** Inviter au groupe (4 au plus), un chef de groupe, le canal de groupe du chat, le bandeau du groupe ; **l'échange entre deux joueurs** de la même carte (objets et Éclats, chacun valide, le serveur fait tout ou rien). |
-| S106 | 5 | **Le combat à plusieurs : règles et serveur.** `Fight` prend une liste de héros ; `FightRecord` passe à une nouvelle version ; XP, Éclats, butin (tiré pour chacun) et quêtes par héros ; un consommable par héros ; le hub de combat, le tour de 30 s, la reconnexion ; le simulateur fait jouer plusieurs héros par l'IA. |
-| S107 | 5 | **Le combat à plusieurs : client et donjons.** « Rejoindre » pendant 15 s ; la frise et la fin de combat à plusieurs lignes ; les donjons à plusieurs (chacun use sa clef) ; l'équilibre à plusieurs (§6.4). |
+| S105 | 3 | **Se voir.** Le serveur diffuse aux joueurs d'une carte l'arrivée, la case visée et le départ de chacun, ainsi que l'état des points de récolte. **Les groupes de monstres deviennent communs** : leur errance se calcule à partir de l'horloge, et « battu » et « en combat » passent côté serveur. |
+| S106 | 5 | **Le groupe et l'échange.** Inviter au groupe (4 au plus), un chef de groupe, le canal de groupe du chat, le bandeau du groupe ; **l'échange entre deux joueurs** de la même carte (objets et Éclats, chacun valide, le serveur fait tout ou rien). |
+| S107 | 5 | **Le combat à plusieurs : règles et serveur.** `Fight` prend une liste de héros ; `FightRecord` passe à une nouvelle version ; XP, Éclats, butin (tiré pour chacun), quêtes et **vie de départ et de fin** par héros (§5 bis) ; un consommable par héros ; le hub de combat, le tour de 30 s, la reconnexion ; le simulateur fait jouer plusieurs héros par l'IA. |
+| S108 | 5 | **Le combat à plusieurs : client et donjons.** « Rejoindre » pendant 15 s ; la frise et la fin de combat à plusieurs lignes ; les donjons à plusieurs (chacun use sa clef) ; l'équilibre à plusieurs (§6.4). |
 
 ### 6.4 Équilibre à plusieurs (validé par Charles)
 Mesuré avec des héros joués par l'IA, en compositions de classes mélangées, au niveau de la zone, avec le kit « zone » :
@@ -462,15 +582,15 @@ Mesuré avec des héros joués par l'IA, en compositions de classes mélangées,
 On règle les PV du chef seul. **XP :** la règle actuelle reste (XP entière pour chacun, +10 % par allié).
 
 ### 6.5 Risques
-C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en mémoire, un seul processus), le client et l'auto-test. Il faut **un test d'intégration à deux clients WebSocket** dès S106, et accepter qu'un sprint glisse.
+C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en mémoire, un seul processus), le client et l'auto-test. Il faut **un test d'intégration à deux clients WebSocket** dès S107, et accepter qu'un sprint glisse.
 
 ---
 
-## 7. Chantier 5 : la fin du chapitre 1 (S108 à S110, 9 points)
+## 7. Chantier 5 : la fin du chapitre 1 (S109 à S111, 9 points)
 
-- **S108 (3) :** l'objectif `Interact` (un objet posé sur une carte, `Town.Props`) ; la chaîne d'Ysaline après « Quatre pistes », en **option A** de la trame (chapitre 1 = niveaux 1 à 30) : « Ce qui pousse entre » (10), « La crypte que personne n'a creusée » (12), « Crypte oubliée » (14, `Room: 2` puis `Interact` sur le sceau).
-- **S109 (3) :** le Lac et les Champs, de « La berceuse que personne n'a apprise » (18) à « Sous les haies » (28). **Liane** est la seule nouvelle PNJ.
-- **S110 (3) :** le **Disjoint** (`design-familles.md` §4.9), **gagnable seul au niveau 30 (50 à 70 %)**, « groupe conseillé » ; puis « Quatre routes » (30). Tant que le chantier 6 n'existe pas, le chapitre se termine sur une promesse, sans contenu fantôme.
+- **S109 (3) :** l'objectif `Interact` (un objet posé sur une carte, `Town.Props`) ; la chaîne d'Ysaline après « Quatre pistes », en **option A** de la trame (chapitre 1 = niveaux 1 à 30) : « Ce qui pousse entre » (10), « La crypte que personne n'a creusée » (12), « Crypte oubliée » (14, `Room: 2` puis `Interact` sur le sceau).
+- **S110 (3) :** le Lac et les Champs, de « La berceuse que personne n'a apprise » (18) à « Sous les haies » (28). **Liane** est la seule nouvelle PNJ.
+- **S111 (3) :** le **Disjoint** (`design-familles.md` §4.9), **gagnable seul au niveau 30 (50 à 70 %)**, « groupe conseillé » ; puis « Quatre routes » (30). Tant que le chantier 6 n'existe pas, le chapitre se termine sur une promesse, sans contenu fantôme.
 - **Écriture :** agent `scenariste`, puis relecture de Charles. **Récompenses :** environ 100 × niveau en XP, pas d'équipement (le butin et l'artisanat restent ses sources). Une quête de la chaîne peut demander une ressource récoltée (« trois joncs pour Liane ») : c'est un clin d'œil aux métiers, jamais une porte (Rose la vend).
 
 **Tests :** chaque quête de la chaîne se prend à son niveau et se finit seul (objectifs de donjon ≤ salle 2) ; `Interact` refuse un objet d'une autre carte ; le Disjoint perd 15 PV par tour et explose ; intégration : toute la chaîne de 1 à 30 jouée par l'API.
@@ -513,7 +633,7 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | # | Question | Valeur par défaut |
 |---|---|---|
 | 12 | Place des métiers dans le plan | **Après les Éclats, avant le jeu à plusieurs** (chantier 3) |
-| 13 | Quels métiers au départ | **Récolte : les quatre de base demandés par Charles (bûcheron, mineur, pêcheur, paysan, un par élément), plus l'herboriste pour l'alchimie. Fabrication : forgeron, tailleur, alchimiste**, en plus du serrurier. Bijoutier, cordonnier et cuisine plus tard |
+| 13 | Quels métiers au départ | **Récolte : les quatre de base demandés par Charles (bûcheron, mineur, pêcheur, paysan, un par élément), plus l'herboriste pour l'alchimie. Fabrication : forgeron, tailleur, alchimiste**, en plus du serrurier ; **le boulanger depuis la v4** (question 35). Bijoutier, cordonnier et cuisine à effet durable plus tard |
 | 13 bis | Le paysan sème-t-il ? | **Non : il cueille** des parcelles sauvages ou cultivées, partagées comme les autres points ; planter viendra avec des parcelles à soi |
 | 13 ter | Les noms des métiers, des outils et des ressources | ceux du §5.2 et du §5.3 (pic, nasse, hachette, faucille ; lin, chanvre, laîche, blé de Clairval…), à faire relire par Charles et l'agent `scenariste` |
 | 14 | Combien de métiers par personnage | **Tous**, sans limite |
@@ -524,7 +644,7 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 19 | Réussite et qualité | **100 % de réussite, pas de jets aléatoires** : l'objet a les chiffres de sa fiche |
 | 20 | Ce qui se fabrique | **Plastron et épaulettes (craft seulement), boucliers et armes (craft et butin), consommables (potions, huiles), clefs.** Jamais d'initiative, de PA ou de PM, ni de panoplie sur une pièce fabriquée |
 | 21 | Où sont les ateliers | **Un nouveau quartier des artisans à l'est de Clairval**, avec forge, tailleur, alambic et l'établi du serrurier déplacé |
-| 22 | L'échange entre joueurs | **Oui, avec le groupe (S105)** |
+| 22 | L'échange entre joueurs | **Oui, avec le groupe (S106)** |
 
 ### 9.3 Nouvelles (v3)
 | # | Question | Valeur par défaut |
@@ -537,12 +657,30 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 28 | Style des icônes | **silhouette colorée par l'élément sur tuile sombre** (l'inverse des sorts), **cadre selon la provenance** : gris commun, chocolat artisan, vert panoplie, or chef |
 | 29 | Place des icônes | **un sprint dédié, S98**, juste après les panoplies et Rose |
 
+### 9.4 Nouvelles (v4, la vie qui se garde)
+| # | Question | Valeur par défaut |
+|---|---|---|
+| 30 | Le rythme de récupération | **1 % des PV max par seconde, au moins 1 PV/s** (la règle de Charles pour 100 PV ; de 0 à pleine vie en 60 à 100 s à tous les niveaux) ; **×2 au village** ; s'asseoir plus tard ; la vie remonte aussi hors ligne |
+| 31 | Le calcul | **par le serveur, à partir d'un horodatage** (vie, moment, état), sans tic ; la même formule dans `Rpg.Core` pour la barre du client ; pas de récupération en combat |
+| 32 | La défaite | **sur place à 1 PV** (devant la porte en donjon) ; un ticket non rendu compte comme une défaite |
+| 33 | Monter de niveau | **rend toute la vie** ; changer d'équipement ne soigne pas |
+| 34 | Les donjons | **`DungeonHp` fusionne dans la vie du personnage** ; la vie remonte dans les salles hors combat ; la fontaine rend tout d'un coup |
+| 35 | Les consommables | **pain hors combat** (boulanger, 30 + 10 × niveau PV, Rose vend le pain de Clairval à 10 Éclats) ; **potions et huiles en combat seulement** (alchimiste) |
+| 36 | L'équilibre T41 | **planchers et plafonds toujours à pleine vie** ; nouvel indicateur, la vie restante après un petit groupe, cible ≥ 50 % |
+| 37 | Le client | **barre de vie hors combat** qui se remplit ; **avertissement sous 30 %**, jamais de refus ; vie restante dans la fin de combat |
+| 38 | La place dans le plan | **S100 (5 points)**, juste après la récolte ; tout ce qui suit recule d'un cran ; le boulanger rejoint l'alchimiste en S104 (qui passe à 5 points) |
+
 ---
 
-## 10. Planification proposée (si Charles dit « Go » sur la v3)
+## 10. Planification proposée (si Charles dit « Go » sur la v4)
 
-D71 (v1 et v2, 52 points, sprints 95 à 108) et **D72** (v3 : les icônes, la fenêtre Métiers, une ressource tous les 5 niveaux ; 6 points de plus, sprints 109 et 110) couvrent ensemble les sprints **95 à 110** : **58 points**. Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (dont les 3 de la potion, autrefois en option), 2 pour l'échange entre joueurs, 3 pour les icônes et 3 pour la fenêtre Métiers.
-- Le projet passe de **381 à 439 points**, et rpg de **160 à 218**.
+Trois décisions couvrent ensemble les sprints **95 à 111**, soit **65 points** :
+- **D71** (v1 et v2, 52 points) ;
+- **D72** (v3 : les icônes, la fenêtre Métiers, une ressource tous les 5 niveaux ; 6 points de plus) ;
+- **D73** (v4 : la vie qui se garde, 5 points en S100, et le boulanger, 2 points de plus en S104 ; tout ce qui suit S99 recule d'un cran).
+
+Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (dont les 3 de la potion, autrefois en option), 2 pour l'échange entre joueurs, 3 pour les icônes, 3 pour la fenêtre Métiers, 5 pour la vie et 2 pour le boulanger.
+- Le projet passe de **381 à 446 points**, et rpg de **160 à 225**.
 - Il faut mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-NN.md`, ainsi que R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »).
 - Les entrées de `DECISIONS.md` commencent à **T63**.
 
@@ -552,15 +690,16 @@ D71 (v1 et v2, 52 points, sprints 95 à 108) et **D72** (v3 : les icônes, la fe
 | S96 | 3 | 1 | Panoplies du Lac et des Champs ; T41 remesuré ; **playtest** |
 | S97 | 3 | 2 | Rose marchande, puits d'Éclats (fait, T65) |
 | S98 | 3 | 1 bis | Les icônes d'objets (game-icons.net, cadre selon la provenance) |
-| S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes |
-| S100 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi |
-| S101 | 3 | 3 | Le quartier des artisans, les ateliers et les quêtes d'initiation |
-| S102 | 3 | 3 | Forgeron et tailleur : 16 pièces d'artisan ; T41 remesuré |
-| S103 | 3 | 3 | Alchimiste, potions et huiles en combat ; T41 avec consommable ; **playtest** |
-| S104 | 3 | 4 | Se voir sur la carte, des monstres et des points communs |
-| S105 | 5 | 4 | Le groupe, son canal de chat, l'échange entre joueurs |
-| S106 | 5 | 4 | Le combat à plusieurs : règles, serveur, simulation |
-| S107 | 5 | 4 | Le combat à plusieurs : client, donjons, équilibre |
-| S108 | 3 | 5 | Objectif `Interact`, chaîne du Bois moisi |
-| S109 | 3 | 5 | Chaîne du Lac et des Champs |
-| S110 | 3 | 5 | Le Disjoint, « Quatre routes » |
+| S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes (fait) |
+| S100 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose |
+| S101 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi |
+| S102 | 3 | 3 | Le quartier des artisans, les 5 ateliers (dont le four) et les quêtes d'initiation |
+| S103 | 3 | 3 | Forgeron et tailleur : 16 pièces d'artisan ; T41 remesuré |
+| S104 | 5 | 3 | Alchimiste (potions et huiles en combat) et boulanger (pains hors combat) ; T41 et vie restante remesurées ; **playtest** |
+| S105 | 3 | 4 | Se voir sur la carte, des monstres et des points communs |
+| S106 | 5 | 4 | Le groupe, son canal de chat, l'échange entre joueurs |
+| S107 | 5 | 4 | Le combat à plusieurs : règles, serveur, simulation |
+| S108 | 5 | 4 | Le combat à plusieurs : client, donjons, équilibre |
+| S109 | 3 | 5 | Objectif `Interact`, chaîne du Bois moisi |
+| S110 | 3 | 5 | Chaîne du Lac et des Champs |
+| S111 | 3 | 5 | Le Disjoint, « Quatre routes » |

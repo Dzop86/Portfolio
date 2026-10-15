@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ouvre la fenêtre Métiers (J) : mes métiers, leur niveau et leur XP, leurs recettes et leurs ressources, avec recherche, filtres et tri (rpg) ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, j'ouvre la fenêtre Métiers (J) : mes métiers, leur niveau et leur XP, leurs recettes et leurs ressources, avec recherche, filtres et tri (rpg) ; xUnit, auto-test. | 3 | Fait |
+
+**Résultat :** la fenêtre Métiers sur la touche J, qui remplace le panneau de l'établi (T68).
 
 ## Rétro (Charles)
 - Ce qui a marché :
