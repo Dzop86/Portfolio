@@ -154,7 +154,9 @@ public partial class Main : Node3D
         _ticket = _pendingTicket;
         _pendingTicket = null;
         ulong seed = _ticket?.Seed ?? _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
-        _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero));
+        // In a dungeon's room, the hit points kept from the room before (sprint 86).
+        int? hp = hero?.Class is not null && Dungeons.Parse(scenario) is not null ? Run?.Hp : null;
+        _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero, heroHp: hp));
         BuildWorld();
         if (_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest)
             CallDeferred(MethodName.RunSelfTest);
@@ -351,24 +353,11 @@ public partial class Main : Node3D
             if (!_busy)
                 Act(_controller.EndTurn());
         };
-        _hud.AgainPressed += () => _ = Dungeons.Parse(_controller.Fight.Scenario.Id) is not null ? NextRoom() : Again();
-        // Back to town, where the player stood before the fight; out of a dungeon left between two rooms.
+        _hud.AgainPressed += () => _ = Again();
+        // Back to town, where the player stood before the fight: in a dungeon's hall, or out of it when the room was lost or the last (sprint 86).
         _hud.SetBackShown(true);
-        _hud.BackPressed += async () =>
+        _hud.BackPressed += () =>
         {
-            if (_nextRoomScenario is not null && _lobby?.SignedIn == true && _character is not null)
-            {
-                try
-                {
-                    await _lobby.Server.LeaveDungeon(_character.Id);
-                    _character = _character with { Run = null };
-                }
-                catch (Exception e) when (e is ServerException or HttpRequestException)
-                {
-                    // Unreachable: the character stays in its room, and the door takes it back there.
-                }
-            }
-            _nextRoomScenario = null;
             _screen = Screen.Town;
             _nextSeed = null;
             GetTree().ReloadCurrentScene();
@@ -377,19 +366,11 @@ public partial class Main : Node3D
         RefreshViews();
     }
 
-    /// <summary>The room after the one won (sprint 80): the server's word, or offline the next one.</summary>
-    private static string? _nextRoomScenario;
+    /// <summary>Offline, where the player is in a dungeon (sprint 86); signed in, the server keeps it.</summary>
+    private static DungeonRun? _offlineRun;
 
-    private async Task NextRoom()
-    {
-        if (_nextRoomScenario is not string next)
-            return;
-        _nextRoomScenario = null;
-        _scenario = next;
-        _nextSeed = null;
-        _pendingTicket = await RequestTicket(next);
-        GetTree().ReloadCurrentScene();
-    }
+    /// <summary>Where the player is in a dungeon: the server's word, or offline the one kept in memory.</summary>
+    private static DungeonRun? Run => _character is not null ? _character.Run : _offlineRun;
 
     private async Task Again()
     {
@@ -529,14 +510,17 @@ public partial class Main : Node3D
     private async Task ShowResult()
     {
         _hud.ShowResult(await ReportFight());
-        // In a dungeon: the room after this one, if it was won and is not the last.
+        // In a dungeon: won and not the last, back to its hall, the far door open; offline, the run kept here.
         if (Dungeons.Parse(_controller.Fight.Scenario.Id) is (string dungeon, int room))
         {
-            int? next = _ticket is null
-                ? (_controller.Fight.WinningTeam == _controller.PlayerTeam && room < Dungeons.RoomCount ? room + 1 : null)
-                : _lastResult?.Run?.Room;
-            _nextRoomScenario = next is int n ? GameData.Embedded.Dungeons[dungeon].Scenario(n) : null;
-            _hud.ShowNextRoom(_nextRoomScenario is not null);
+            if (_character is null)
+            {
+                Fighter? me = _controller.Fight.HeroFighter;
+                _offlineRun = _controller.Fight.WinningTeam == _controller.PlayerTeam && room < Dungeons.RoomCount && me is not null
+                    ? new DungeonRun(dungeon, room + 1, me.Hp < me.MaxHp ? me.Hp : null)
+                    : null;
+            }
+            _hud.ShowBackToHall(Run?.IsAt(dungeon, room + 1) == true);
         }
     }
 
@@ -719,7 +703,7 @@ public partial class Main : Node3D
                 progress += $" Loot: {loot.Count} kind(s) of item.";
         }
         // A dungeon's room (sprint 80): its name and number above, and at the end, won and not the last,
-        // "Next room" and "Leave the dungeon"; otherwise "Back to town" alone.
+        // "Back to the room" (sprint 86); otherwise "Back to town".
         if (Dungeons.Parse(_controller.Fight.Scenario.Id) is (_, int room))
         {
             await ShowResult();
@@ -727,7 +711,7 @@ public partial class Main : Node3D
             if (!_hud.TurnText.StartsWith(t["dungeon.room", _controller.Fight.Scenario.Name.In(t.Lang), room], StringComparison.Ordinal))
                 problems.Add($"the top line says '{_hud.TurnText}'");
             bool next = _controller.Fight.WinningTeam == _controller.PlayerTeam && room < Dungeons.RoomCount;
-            string[] buttons = next ? [t["dungeon.next"], t["dungeon.leave"]] : [t["town.back"]];
+            string[] buttons = next ? [t["hall.back"]] : [t["town.back"]];
             if (!_hud.EndButtons.SequenceEqual(buttons))
                 problems.Add($"the end screen offers {string.Join(", ", _hud.EndButtons)}");
             _selfTestNote = ((_selfTestNote ?? "") + $" Dungeon room {room}: end screen checked.").Trim();

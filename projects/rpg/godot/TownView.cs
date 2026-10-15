@@ -31,6 +31,9 @@ public partial class TownView : Node3D
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
 
+    /// <summary>The dungeons' keeps drawn (sprint 86), for the self-test.</summary>
+    public int Keeps { get; private set; }
+
     /// <summary>The ring of a dungeon's door: the chocolate of the charter, lightened to show on grass.</summary>
     public static readonly Color DoorColour = new("8a5a34");
 
@@ -83,12 +86,13 @@ public partial class TownView : Node3D
         // zone's name once, above its middle cell; a way inside the zone, none (D64).
         IReadOnlyList<ZoneLink> links = town.Links ?? [];
         var named = links.Where(l => l.Name is not null).GroupBy(l => l.To).Select(g => g.OrderBy(l => l.At.X).ThenBy(l => l.At.Y).ElementAt(g.Count() / 2)).ToHashSet();
+        // A hall's far door while its group stands (sprint 86): ringed in the enemies' colour.
         foreach (ZoneLink link in links)
         {
             AddChild(new MeshInstance3D
             {
                 Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
-                MaterialOverride = new StandardMaterial3D { AlbedoColor = FighterView.PlayerColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = controller.ShutWays.Contains(link) ? FighterView.EnemyColour : FighterView.PlayerColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
                 Scale = new Vector3(1, 0.15f, 1),
                 Position = BoardView.ToWorld(link.At) + new Vector3(0, 0.05f, 0),
             });
@@ -102,7 +106,9 @@ public partial class TownView : Node3D
         foreach (DungeonDoor door in town.Doors)
         {
             Vector3 at = BoardView.ToWorld(door.At);
-            Place(Kit + "wall-door.glb", at + new Vector3(0, 0, -0.5f), 0, 1);
+            // Under a keep (sprint 86), the keep's own doorway; otherwise a small one.
+            if (town[door.At + new Cell(0, -1)] != 'k')
+                Place(Kit + "wall-door.glb", at + new Vector3(0, 0, -0.5f), 0, 1);
             AddChild(new MeshInstance3D
             {
                 Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
@@ -157,6 +163,9 @@ public partial class TownView : Node3D
             case 'F':
                 Place(Kit + "fountain-round.glb", block, 0, 1);
                 break;
+            case 'K':
+                Keep(at + new Vector3(1, 0, 1));
+                break;
             case 'T':
                 Place(Kit + ((c.X + c.Y) % 2 == 0 ? "tree.glb" : "tree-high.glb"), at, 0, 1);
                 break;
@@ -184,12 +193,38 @@ public partial class TownView : Node3D
         }
     }
 
-    private void Place(string path, Vector3 at, float turn, float scale)
+    /// <summary>
+    /// A dungeon's keep (sprint 86, D67), over 3 × 3 cells: two storeys of stone, the doorway south over
+    /// the dungeon's door, a pointed roof, and a tower at each corner, taller than the houses around.
+    /// </summary>
+    private void Keep(Vector3 centre)
+    {
+        Keeps++;
+        foreach ((string piece, float turn) in new[] { ("wall-door", -90f), ("wall", 0f), ("wall", 90f), ("wall", 180f) })
+            Place(Kit + piece + ".glb", centre, turn, 3);
+        foreach (float turn in new[] { -90f, 0f, 90f, 180f })
+            Place(Kit + "wall-window-shutters.glb", centre + new Vector3(0, 3, 0), turn, 3);
+        Place(Kit + "roof-point.glb", centre + new Vector3(0, 6, 0), 0, 3);
+        foreach ((float dx, float dz) in new[] { (-1.4f, -1.4f), (1.4f, -1.4f), (-1.4f, 1.4f), (1.4f, 1.4f) })
+        {
+            Vector3 tower = centre + new Vector3(dx, 0, dz);
+            for (int storey = 0; storey < 3; storey++)
+            {
+                foreach (float turn in new[] { -90f, 0f, 90f, 180f })
+                    Place(Kit + "wall.glb", tower + new Vector3(0, storey * 2.6f, 0), turn, new Vector3(1.1f, 2.6f, 1.1f));
+            }
+            Place(Kit + "roof-point.glb", tower + new Vector3(0, 7.8f, 0), 0, 1.1f);
+        }
+    }
+
+    private void Place(string path, Vector3 at, float turn, float scale) => Place(path, at, turn, new Vector3(scale, scale, scale));
+
+    private void Place(string path, Vector3 at, float turn, Vector3 scale)
     {
         Node3D model = Model(path);
         model.Position = at;
         model.RotationDegrees = new Vector3(0, turn, 0);
-        model.Scale = new Vector3(scale, scale, scale);
+        model.Scale = scale;
         AddChild(model);
     }
 

@@ -6,11 +6,20 @@ namespace Rpg.Core;
 /// family's zone; one goes in with its key (<see cref="Key"/>, used up) or the operator's keyring, and
 /// fights its three rooms in turn, each on its own battle map (<see cref="Rooms"/>).
 /// </summary>
-public sealed record Dungeon(string Id, LocalizedText Name, string Family, string Map, Cell Door, string Key, IReadOnlyList<string> Rooms)
+public sealed record Dungeon(string Id, LocalizedText Name, string Family, string Map, Cell Door, string Key, IReadOnlyList<string> Rooms, IReadOnlyList<Hall>? Halls = null)
 {
     /// <summary>The fight of room <paramref name="room"/> (1 to 3).</summary>
     public string Scenario(int room) => $"{Dungeons.Prefix}{Id}:{room}";
+
+    /// <summary>The room a hall's map is, 1 to 3; 0 if it is not one of this dungeon's.</summary>
+    public int RoomOf(string map) => (Halls ?? []).Select((h, i) => (h, i)).FirstOrDefault(p => p.h.Map == map) is { h: not null } found ? found.i + 1 : 0;
+
+    /// <summary>The group guarding room <paramref name="room"/>, in its hall.</summary>
+    public string GroupOf(int room) => $"{Id}.{room}";
 }
+
+/// <summary>A room of a dungeon one walks in (sprint 86, D67): its map, and where its group stands.</summary>
+public sealed record Hall(string Map, Cell Group);
 
 /// <summary>
 /// The rooms of a dungeon (D65, Charles): the first with one monster of each role of the family
@@ -58,6 +67,15 @@ public static class Dungeons
         int power = PowerIn(room);
         return new Scenario(dungeon.Scenario(room), dungeon.Name, dungeon.Rooms[room - 1],
             [hero, .. RolesIn(room).Select((role, i) => family[role].Fighter(i, power))]);
+    }
+
+    /// <summary>The group guarding a room: one monster of each role (and the chief in the last), fighting that room's fight.</summary>
+    public static MonsterGroup Guard(Dungeon dungeon, int room, MonsterFamily family)
+    {
+        ArgumentNullException.ThrowIfNull(dungeon);
+        ArgumentNullException.ThrowIfNull(family);
+        Hall hall = dungeon.Halls![room - 1];
+        return new MonsterGroup(dungeon.GroupOf(room), hall.Map, family.Id, hall.Group, [.. RolesIn(room).Select(r => family[r].Id)], dungeon.Scenario(room));
     }
 
     /// <summary>Whether a character with these items may go into a dungeon: its key, or the keyring.</summary>

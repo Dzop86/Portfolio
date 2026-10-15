@@ -18,8 +18,9 @@ public class WorldTests
                     todo.Enqueue(l.To);
             }
         }
-        Assert.Equal(Real.Towns.Keys.Order(StringComparer.Ordinal), seen.Order(StringComparer.Ordinal));
-        foreach (Town t in Real.Towns.Values)
+        // The world's maps; a dungeon's halls are entered by its door (sprint 86).
+        Assert.Equal(Real.Towns.Values.Where(t => !t.IsHall).Select(t => t.Id).Order(StringComparer.Ordinal), seen.Order(StringComparer.Ordinal));
+        foreach (Town t in Real.Towns.Values.Where(t => !t.IsHall))
         {
             foreach (ZoneLink l in t.Links ?? [])
             {
@@ -53,7 +54,7 @@ public class WorldTests
         Assert.All(village.Links!, l => Assert.Equal("woods-4-2", l.To));
         Assert.Equal(new Cell(-1, 0), Real.Towns["woods-4-2"].MapAt);
         // A way to another zone is named after it alone (D64: no compass points); inside a zone, no name.
-        foreach (Town t in Real.Towns.Values)
+        foreach (Town t in Real.Towns.Values.Where(t => !t.IsHall))
         {
             foreach (ZoneLink l in t.Links ?? [])
             {
@@ -122,7 +123,7 @@ public class WorldTests
             Assert.Equal(3, Real.Towns[$"fields-{col}-0"].Links!.Count(l => l.To == $"woods-{col}-4"));
         }
         // Four zones and the village: 101 maps.
-        Assert.Equal(101, Real.Towns.Count);
+        Assert.Equal(101, Real.Towns.Values.Count(t => !t.IsHall));
     }
 
     // Two maps side by side, three cells wide: a to the west of b.

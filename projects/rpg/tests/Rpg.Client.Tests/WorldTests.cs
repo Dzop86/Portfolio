@@ -36,8 +36,10 @@ public class WorldTests
             Assert.NotNull(s.Link);
             steps++;
         });
-        Assert.Equal(GameData.Embedded.Towns.Count, zones.Count);
-        Assert.Equal(GameData.Embedded.Towns.Keys.Order(StringComparer.Ordinal), zones.Order(StringComparer.Ordinal));
+        // The world's maps; a dungeon's halls are entered by its door (sprint 86).
+        string[] world = [.. GameData.Embedded.Towns.Values.Where(t => !t.IsHall).Select(t => t.Id)];
+        Assert.Equal(world.Length, zones.Count);
+        Assert.Equal(world.Order(StringComparer.Ordinal), zones.Order(StringComparer.Ordinal));
         Assert.Equal(zones.Count - 1, steps);
     }
 

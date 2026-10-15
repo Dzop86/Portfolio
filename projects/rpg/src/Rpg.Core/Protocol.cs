@@ -69,8 +69,18 @@ public sealed record NewFight(string? Scenario);
 /// </summary>
 public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null, DungeonRun? Run = null, bool DungeonDone = false);
 
-/// <summary>Where a character is in a dungeon (sprint 80): the dungeon, and the room to fight (1 to 3).</summary>
-public sealed record DungeonRun(string Dungeon, int Room);
+/// <summary>
+/// Where a character is in a dungeon (sprint 80): the dungeon, and the room to fight (1 to 3); since
+/// sprint 86, the hit points kept from the room before (null: all of them, until a fountain heals).
+/// </summary>
+public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
+{
+    /// <summary>At that room of that dungeon, whatever the hit points.</summary>
+    public bool IsAt(string dungeon, int room) => (Dungeon, Room) == (dungeon, room);
+
+    /// <summary>The room of a dungeon's hall is behind: its group beaten, its far door open.</summary>
+    public bool Cleared(string dungeon, int room) => Dungeon == dungeon && room < Room;
+}
 
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);

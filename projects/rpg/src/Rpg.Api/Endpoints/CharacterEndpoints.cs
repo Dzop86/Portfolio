@@ -23,6 +23,7 @@ public static class CharacterEndpoints
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
         group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
+        group.MapPost("/{id:guid}/dungeon/rest", Rest).WithSummary("Heals one of the player's characters in its dungeon, at the fountain of a hall: all its hit points for the next room.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.Map("/{id:guid}/chat", Chat).WithSummary("The proximity chat of one of the player's characters, as a WebSocket: lines in, the lines said on its map out.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
@@ -119,6 +120,15 @@ public static class CharacterEndpoints
         if (place?.Town is null || !GameData.Embedded.Towns.TryGetValue(place.Town, out Town? town) || !town.CanStand(place.Cell))
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = ["A known town and a cell one can walk to there."] });
         Guid account = AccountId(user);
+        // A dungeon's hall (sprint 86): only for who is in that dungeon, up to the room it is at.
+        if (town.Dungeon is string hallOf)
+        {
+            var run = await db.Characters.Where(c => c.Id == id && c.AccountId == account).Select(c => new { c.Dungeon, c.DungeonRoom }).FirstOrDefaultAsync(cancel);
+            if (run is null)
+                return TypedResults.NotFound();
+            if (run.Dungeon != hallOf || GameData.Embedded.Dungeons[hallOf].RoomOf(town.Id) > run.DungeonRoom)
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = ["A hall of the dungeon this character is in, up to the room it is at."] });
+        }
         int saved = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
             .ExecuteUpdateAsync(set => set.SetProperty(c => c.Town, place.Town).SetProperty(c => c.X, place.X).SetProperty(c => c.Y, place.Y), cancel);
         if (saved > 0)
@@ -137,7 +147,7 @@ public static class CharacterEndpoints
         if (character is null)
             return TypedResults.NotFound();
         // A dungeon's room only for who went in, and only the room it is at (sprint 80).
-        if (Dungeons.Parse(scenario) is (string dungeon, int room) && character.Run != new DungeonRun(dungeon, room))
+        if (Dungeons.Parse(scenario) is (string dungeon, int room) && character.Run?.IsAt(dungeon, room) != true)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = ["Not the room of the dungeon this character is at."] });
         // The server draws the seed: the player cannot pick the rolls.
         var pending = new PendingFight { CharacterId = id, Scenario = scenario, Seed = BitConverter.ToInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), CreatedAt = clock.GetUtcNow() };
@@ -160,11 +170,14 @@ public static class CharacterEndpoints
         using var reader = new StreamReader(request.Body);
         string? problem;
         Fight? played = null;
+        // In a dungeon's room, the hero starts with the hit points kept from the room before (sprint 86).
+        DungeonRun? inRoom = Dungeons.Parse(pending.Scenario) is (string runOf, int roomOf) && character.Run?.IsAt(runOf, roomOf) == true ? character.Run : null;
         try
         {
             FightRecord record = FightRecord.FromJson(await reader.ReadToEndAsync(cancel));
             problem = record.Scenario != pending.Scenario || record.Seed != unchecked((ulong)pending.Seed) ? "Not the fight the server started."
                 : record.Hero != character.Hero || record.Rival is not null ? "Not this character's fight."
+                : record.HeroHp != inRoom?.Hp ? "Not the hit points this character has."
                 : null;
             if (problem is null)
             {
@@ -190,15 +203,18 @@ public static class CharacterEndpoints
             character.Quests = string.Join(',', character.QuestList.Append(quest.Id));
             items.AddRange(quest.Items ?? []);
         }
-        // A dungeon's room: won, the next room, or out with the last one's experience twice; lost, out.
+        // A dungeon's room: won, the next room with the hit points left, or out with the last one's experience twice; lost, out.
         bool done = false;
-        if (Dungeons.Parse(pending.Scenario) is (string dungeon, int room) && character.Run == new DungeonRun(dungeon, room))
+        if (inRoom is DungeonRun run)
         {
             bool won = played.WinningTeam == 0;
-            done = won && room == Dungeons.RoomCount;
+            done = won && run.Room == Dungeons.RoomCount;
             if (done)
                 xp += Progression.FightXp(played);
-            (character.Dungeon, character.DungeonRoom) = won && !done ? (dungeon, room + 1) : (null, 0);
+            Fighter hero = played.HeroFighter!;
+            (character.Dungeon, character.DungeonRoom, character.DungeonHp) = won && !done
+                ? (run.Dungeon, run.Room + 1, hero.Hp < hero.MaxHp ? hero.Hp : (int?)null)
+                : ((string?)null, 0, (int?)null);
         }
         character.Receive(items);
         character.Xp += xp;
@@ -224,7 +240,7 @@ public static class CharacterEndpoints
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["key"] = [$"The key of this dungeon ('{dungeon.Key}') is needed."] });
             if (Dungeons.UsedOnEntry(dungeon, owned) is ItemCount used)
                 character.Spend(used);
-            (character.Dungeon, character.DungeonRoom) = (dungeon.Id, 1);
+            (character.Dungeon, character.DungeonRoom, character.DungeonHp) = (dungeon.Id, 1, null);
             await db.SaveChangesAsync(cancel);
         }
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
@@ -257,8 +273,22 @@ public static class CharacterEndpoints
     {
         Guid account = AccountId(user);
         int left = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
-            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Dungeon, (string?)null).SetProperty(c => c.DungeonRoom, 0), cancel);
+            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Dungeon, (string?)null).SetProperty(c => c.DungeonRoom, 0).SetProperty(c => c.DungeonHp, (int?)null), cancel);
         return left == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Rest(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        // The fountains are in the halls: in a dungeon only (like the ways, the server does not check the cell).
+        if (character.Dungeon is null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["dungeon"] = ["Not in a dungeon."] });
+        character.DungeonHp = null;
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SaveEquipment(

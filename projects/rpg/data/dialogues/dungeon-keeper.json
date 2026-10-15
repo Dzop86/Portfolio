@@ -1,0 +1,19 @@
+{
+  "id": "dungeon-keeper",
+  "start": "welcome",
+  "lines": {
+    "welcome": {
+      "text": { "fr": "Halte, voyageur. Reprends ton souffle : la fontaine soigne tes blessures, et ton sac reste à portée de main.", "en": "Halt, traveller. Catch your breath: the fountain heals your wounds, and your bag is within reach." },
+      "answers": [
+        { "text": { "fr": "Que m'attend-il plus loin ?", "en": "What lies further on?" }, "next": "ahead" },
+        { "text": { "fr": "Merci, j'y vais.", "en": "Thank you, I'm going." } }
+      ]
+    },
+    "ahead": {
+      "text": { "fr": "Le groupe de cette salle garde la porte du fond. Bats-le, et elle s'ouvrira. La sortie, derrière toi, reste ouverte : en repassant la grande porte, tu retrouveras la salle où tu en étais, sans autre clef. Mais si un groupe te bat, tout est à refaire.", "en": "This room's group guards the far door. Beat it, and it will open. The way out, behind you, stays open: back through the great door, you will find the room you had reached, without another key. But if a group beats you, it is all to do again." },
+      "answers": [
+        { "text": { "fr": "Compris.", "en": "Understood." } }
+      ]
+    }
+  }
+}

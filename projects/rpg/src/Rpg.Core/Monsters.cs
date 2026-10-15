@@ -58,11 +58,12 @@ public sealed record MonsterFamily(string Id, LocalizedText Name, string Zone, s
 /// A group of monsters on a map: where it lives (<see cref="Home"/>, it wanders around it) and who is
 /// in it. Fighting it is the scenario <see cref="Scenario"/>, which the rules build from the group.
 /// </summary>
-public sealed record MonsterGroup(string Id, string Map, string Family, Cell Home, IReadOnlyList<string> Monsters)
+public sealed record MonsterGroup(string Id, string Map, string Family, Cell Home, IReadOnlyList<string> Monsters, string? Fight = null)
 {
     public const string Prefix = "group:";
 
-    public string Scenario => Prefix + Id;
+    /// <summary>Its fight: the group's own, or, guarding a dungeon's room (sprint 86), that room's.</summary>
+    public string Scenario => Fight ?? Prefix + Id;
 }
 
 /// <summary>

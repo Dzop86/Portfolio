@@ -1,0 +1,138 @@
+{
+  "id": "boar-wallow-2",
+  "dungeon": "boar-wallow",
+  "name": {
+    "fr": "Bauge du Roi sanglier, salle 2",
+    "en": "The Boar King's Wallow, room 2"
+  },
+  "level": 3,
+  "rows": [
+    "RRRRRRRRR===RRRRRRRR",
+    "R==================R",
+    "R==================R",
+    "R====R========R====R",
+    "R==================R",
+    "R==================R",
+    "R=Ff===============R",
+    "R=ff===============R",
+    "R==================R",
+    "R====R========R====R",
+    "R==================R",
+    "R==================R",
+    "R==================R",
+    "RRRRRRRRR===RRRRRRRR"
+  ],
+  "spawn": {
+    "x": 10,
+    "y": 11
+  },
+  "npcs": [
+    {
+      "id": "keeper",
+      "name": {
+        "fr": "Gardienne",
+        "en": "Keeper"
+      },
+      "look": "female-e",
+      "colour": 2,
+      "at": {
+        "x": 16,
+        "y": 7
+      },
+      "dialogue": "dungeon-keeper"
+    }
+  ],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 9,
+        "y": 13
+      },
+      "to": "woods-0-2",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 13
+      },
+      "to": "woods-0-2",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 13
+      },
+      "to": "woods-0-2",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    },
+    {
+      "at": {
+        "x": 9,
+        "y": 0
+      },
+      "to": "boar-wallow-3",
+      "arrival": {
+        "x": 9,
+        "y": 12
+      },
+      "name": {
+        "fr": "Salle 3",
+        "en": "Room 3"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 0
+      },
+      "to": "boar-wallow-3",
+      "arrival": {
+        "x": 10,
+        "y": 12
+      },
+      "name": {
+        "fr": "Salle 3",
+        "en": "Room 3"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 0
+      },
+      "to": "boar-wallow-3",
+      "arrival": {
+        "x": 11,
+        "y": 12
+      },
+      "name": {
+        "fr": "Salle 3",
+        "en": "Room 3"
+      }
+    }
+  ]
+}

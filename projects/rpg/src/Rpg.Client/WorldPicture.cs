@@ -16,6 +16,7 @@ public sealed class WorldPicture
 
     private readonly GameData _data;
     private readonly Cell _origin;
+    private readonly Town[] _world;
 
     public WorldPicture(GameData data)
     {
@@ -23,16 +24,19 @@ public sealed class WorldPicture
         if (data.Towns.Count == 0)
             throw new ArgumentException("A world without maps has no picture.", nameof(data));
         // Every map gets the room of the largest one, so that neighbours meet edge to edge.
-        MapWidth = data.Towns.Values.Max(t => t.Width);
-        MapHeight = data.Towns.Values.Max(t => t.Rows.Count);
-        _origin = new Cell(data.Towns.Values.Min(t => t.MapAt.X), data.Towns.Values.Min(t => t.MapAt.Y));
-        Columns = data.Towns.Values.Max(t => t.MapAt.X) - _origin.X + 1;
-        RowsOfMaps = data.Towns.Values.Max(t => t.MapAt.Y) - _origin.Y + 1;
+        // The world's maps: a dungeon's halls are apart from it (sprint 86).
+        Town[] world = [.. data.Towns.Values.Where(t => !t.IsHall)];
+        _world = world;
+        MapWidth = world.Max(t => t.Width);
+        MapHeight = world.Max(t => t.Rows.Count);
+        _origin = new Cell(world.Min(t => t.MapAt.X), world.Min(t => t.MapAt.Y));
+        Columns = world.Max(t => t.MapAt.X) - _origin.X + 1;
+        RowsOfMaps = world.Max(t => t.MapAt.Y) - _origin.Y + 1;
         Width = Columns * MapWidth * CellPixels;
         Height = RowsOfMaps * MapHeight * CellPixels;
         Pixels = new byte[Width * Height * 4];
         Fill(0, 0, Width, Height, Void);
-        foreach (Town t in data.Towns.Values)
+        foreach (Town t in world)
             Draw(t);
     }
 
@@ -91,7 +95,7 @@ public sealed class WorldPicture
         if (x < 0 || y < 0 || x >= Width || y >= Height)
             return null;
         var at = new Cell((int)(x / (MapWidth * CellPixels)) + _origin.X, (int)(y / (MapHeight * CellPixels)) + _origin.Y);
-        Town? map = _data.Towns.Values.FirstOrDefault(t => t.MapAt == at);
+        Town? map = _world.FirstOrDefault(t => t.MapAt == at);
         if (map is null)
             return null;
         (int cx, int cy) = Corner(map);

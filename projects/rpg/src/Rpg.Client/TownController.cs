@@ -44,7 +44,9 @@ public sealed record TownStep(IReadOnlyList<Cell> Path, Npc? TalkTo, TownExit? E
 /// leads to its fight; "Attack" on a group of monsters (a right click, sprint 78) walks up to it and
 /// starts its fight, a left click only walks up to it; walking onto the door of a dungeon (sprint 80)
 /// asks to go in (<see cref="Door"/>); onto a workshop (sprint 81), opens its trade (<see cref="Bench"/>);
-/// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). The Godot client draws it;
+/// a new click during a walk stops it where the player is (<see cref="Interrupt"/>). In a dungeon's hall
+/// (sprint 86), the far door stays shut (<see cref="Shut"/>) while the room's group stands, and a click on
+/// the fountain walks up to it to heal (<see cref="Spring"/>). The Godot client draws it;
 /// the tests and <see cref="TownTour"/> play it.
 /// </summary>
 public sealed class TownController
@@ -54,16 +56,43 @@ public sealed class TownController
 
     /// <param name="at">Where the player was (saved by the server); a cell they cannot stand on gives the arrival.</param>
     /// <param name="absent">Groups of monsters not on the map (beaten, not back yet: <see cref="MonsterPresence"/>).</param>
-    public TownController(GameData data, string townId, Cell? at = null, IEnumerable<string>? absent = null)
+    /// <param name="run">Where the player is in a dungeon (sprint 86): in its halls, the rooms behind have their group beaten and their far door open.</param>
+    public TownController(GameData data, string townId, Cell? at = null, IEnumerable<string>? absent = null, DungeonRun? run = null)
     {
         _data = data ?? throw new ArgumentNullException(nameof(data));
         Town = data.Towns.TryGetValue(townId, out Town? t) ? t : throw new KeyNotFoundException($"Unknown town '{townId}'.");
         Board = Town.Board();
         HashSet<string> away = [.. absent ?? []];
+        Run = run;
+        if (Town.Dungeon is string dungeon)
+        {
+            int room = data.Dungeons[dungeon].RoomOf(Town.Id);
+            if (run?.Cleared(dungeon, room) == true)
+                away.Add(data.Dungeons[dungeon].GroupOf(room));
+            else
+                _shut = [.. (Town.Links ?? []).Where(l => data.Towns[l.To].Dungeon == dungeon)];
+        }
         foreach (MonsterGroup g in data.GroupsOn(Town.Id).Where(g => !away.Contains(g.Id)))
             _groups[g.Id] = g.Home;
         Position = at is Cell c && CanStand(c) && GroupAt(c) is null ? c : Town.Spawn;
     }
+
+    private readonly HashSet<ZoneLink> _shut = [];
+
+    /// <summary>Where the player is in a dungeon, as the controller was given it.</summary>
+    public DungeonRun? Run { get; }
+
+    /// <summary>The ways that stay shut: a hall's far door while its group stands (sprint 86).</summary>
+    public IReadOnlyCollection<ZoneLink> ShutWays => _shut;
+
+    /// <summary>The shut way the player walked onto, if any: the game says why it does not open.</summary>
+    public ZoneLink? Shut { get; private set; }
+
+    /// <summary>The player walked up to a hall's fountain (sprint 86): the game heals them.</summary>
+    public bool Spring { get; private set; }
+
+    /// <summary>A hall's fountain (its four cells, 'F' and 'f'); none outside the dungeons.</summary>
+    public bool IsSpring(Cell c) => Town.IsHall && Town[c] is 'F' or 'f' && Board.Contains(c);
 
     /// <summary>The groups of monsters on the map (sprint 72) and the cell each stands on.</summary>
     public IReadOnlyDictionary<string, Cell> Groups => _groups;
@@ -108,11 +137,11 @@ public sealed class TownController
     public Workshop? Bench { get; private set; }
 
     /// <summary>Not going in after all, or done at the bench: the player stays there, free to walk on.</summary>
-    public void CloseDoor() => (Door, Bench) = (null, null);
+    public void CloseDoor() => (Door, Bench, Shut, Spring) = (null, null, null, false);
 
-    /// <summary>The map the way leads to, the player on its arrival cell, without the <paramref name="absent"/> groups.</summary>
+    /// <summary>The map the way leads to, the player on its arrival cell, without the <paramref name="absent"/> groups; in the same dungeon run.</summary>
     public TownController Enter(ZoneLink link, IEnumerable<string>? absent = null) =>
-        new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival, absent);
+        new(_data, (link ?? throw new ArgumentNullException(nameof(link))).To, link.Arrival, absent, Run);
 
     /// <summary>A free cell the player can walk to from the arrival (exits included).</summary>
     public bool CanStand(Cell c) => Town.CanStand(c);
@@ -120,10 +149,10 @@ public sealed class TownController
     /// <summary>The cells a click on <paramref name="target"/> would walk, for the hover preview; null if it does nothing.</summary>
     public IReadOnlyList<Cell>? PathTo(Cell target)
     {
-        if (Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
+        if (Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
             return null;
-        // Someone to talk to, or monsters to fight: up to the nearest cell next to them.
-        if (Town.NpcAt(target) is not null || GroupAt(target) is not null)
+        // Someone to talk to, monsters to fight or a fountain: up to the nearest cell next to them.
+        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || IsSpring(target))
         {
             return Wander.Steps.Select(s => target + s).Where(IsFree)
                 .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, IsFree))
@@ -148,7 +177,7 @@ public sealed class TownController
     /// </summary>
     public (ZoneLink Way, Cell Direction)? EdgeWay(Cell target)
     {
-        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null)
+        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
             return null;
         (int distance, Cell direction, Func<Cell, bool> onSide)[] sides =
         [
@@ -198,7 +227,8 @@ public sealed class TownController
         ZoneLink? link = Town.LinkAt(Position);
         DungeonDoor? door = Town.DoorAt(Position);
         Workshop? bench = Town.WorkshopAt(Position);
-        bool there = npc is null && group is null && Position == target;
+        bool spring = npc is null && group is null && IsSpring(target);
+        bool there = npc is null && group is null && !spring && Position == target;
         if (npc is not null)
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
         else if (group is not null)
@@ -208,13 +238,17 @@ public sealed class TownController
         }
         else if (exit is not null && there)
             Fight = exit.Scenario;
+        else if (spring)
+            Spring = true;
+        else if (link is not null && there && _shut.Contains(link))
+            Shut = link;
         else if (link is not null && there)
             Travel = link;
         else if (door is not null && there)
             Door = door;
         else if (bench is not null && there)
             Bench = bench;
-        return new TownStep(path, npc, there ? exit : null, there ? link : null, attack ? group : null, there ? door : null)
+        return new TownStep(path, npc, there ? exit : null, there && Shut is null ? link : null, attack ? group : null, there ? door : null)
         {
             Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
         };
@@ -235,6 +269,8 @@ public sealed class TownController
         Travel = null;
         Door = null;
         Bench = null;
+        Shut = null;
+        Spring = false;
     }
 
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>

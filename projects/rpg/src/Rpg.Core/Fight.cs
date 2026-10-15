@@ -101,7 +101,8 @@ public sealed class Fight
 
     /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
     /// <param name="rival">Another hero, in place of the scenario's first fighter of team B (class duels).</param>
-    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null)
+    /// <param name="heroHp">The hero's hit points to start with, at most its maximum (a dungeon's rooms, sprint 86); null: all of them.</param>
+    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
@@ -123,6 +124,13 @@ public sealed class Fight
                 : f;
             return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data));
         })];
+        _heroIndex = heroIndex;
+        // As asked, for the record to replay it; clamped on the board (equipment changed since may have lowered the maximum).
+        if (heroHp is int start && heroIndex >= 0)
+        {
+            _fighters[heroIndex].Hp = Math.Clamp(start, 1, _fighters[heroIndex].MaxHp);
+            StartHeroHp = start;
+        }
         _data = data;
         // Highest initiative first; equal initiatives keep the scenario's order.
         _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
@@ -173,6 +181,14 @@ public sealed class Fight
         [.. spec.Spells.Select(id => data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1))];
 
     public Scenario Scenario { get; }
+
+    private readonly int _heroIndex;
+
+    /// <summary>The hero's hit points asked for at the start (sprint 86); null: all of them.</summary>
+    public int? StartHeroHp { get; }
+
+    /// <summary>The fighter the hero plays (the scenario's first of team A).</summary>
+    public Fighter? HeroFighter => _heroIndex >= 0 ? _fighters[_heroIndex] : null;
     public Hero? Hero { get; }
 
     /// <summary>The hero playing team B's first fighter, if any.</summary>

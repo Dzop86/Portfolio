@@ -179,6 +179,14 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>At a hall's fountain (sprint 86): all the hit points back for the next room.</summary>
+    public async Task<CharacterSummary> Rest(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/dungeon/rest", UriKind.Relative), null, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     public async Task LeaveDungeon(Guid id, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.DeleteAsync(new Uri($"api/characters/{id}/dungeon", UriKind.Relative), cancel), cancel), cancel);
 

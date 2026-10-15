@@ -33,7 +33,8 @@ public class MonsterTests
         // Both families meet in the woods, each group of one of them.
         Assert.Contains(Real.Groups.Values, g => g.Family == "wolf");
         Assert.Contains(Real.Groups.Values, g => g.Family == "boar");
-        Assert.Single(Real.Groups.Values, g => g.Monsters.Contains("pack-leader"));
+        // The pack leader once in the woods, once more in the den's last hall (sprint 86).
+        Assert.Single(Real.Groups.Values, g => g.Fight is null && g.Monsters.Contains("pack-leader"));
     }
 
     [Theory]
@@ -117,7 +118,9 @@ public class MonsterTests
     public void AGroup_IsOneFamily_OfOneToTen_SmallNearTheWayIn_ASupportForThreeAtMost_TheChiefWithFiveToNine()
     {
         IReadOnlyCollection<Town> world = [.. Real.Towns.Values];
-        foreach (MonsterGroup g in Real.Groups.Values)
+        // The groups of the zones; those guarding a dungeon's halls fight its rooms' fights (sprint 86).
+        MonsterGroup[] roaming = [.. Real.Groups.Values.Where(g => g.Fight is null)];
+        foreach (MonsterGroup g in roaming)
         {
             MonsterSpec[] members = [.. g.Monsters.Select(id => Real.Monsters[id])];
             Assert.All(members, m => Assert.Contains(m, Real.Families[g.Family].Monsters));
@@ -132,7 +135,7 @@ public class MonsterTests
         }
         // Each chief once, on its map.
         foreach (MonsterFamily f in Real.Families.Values)
-            Assert.Equal(f.BossMap, Assert.Single(Real.Groups.Values, g => g.Monsters.Contains(f[MonsterRole.Boss].Id)).Map);
+            Assert.Equal(f.BossMap, Assert.Single(roaming, g => g.Monsters.Contains(f[MonsterRole.Boss].Id)).Map);
         // Next to the way in, small groups only: the woods from the village, the mouldy woods from the woods.
         Assert.Equal((0, 0, 2), (MonsterGroups.Depth(Real.Towns["woods-4-2"], world), MonsterGroups.Depth(Real.Towns["mouldy-4-1"], world), MonsterGroups.Depth(Real.Towns["woods-0-0"], world)));
         Assert.All(Real.GroupsOn("woods-4-2"), g => Assert.InRange(g.Monsters.Count, 1, 3));

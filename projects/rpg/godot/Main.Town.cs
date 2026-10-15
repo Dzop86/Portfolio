@@ -32,7 +32,8 @@ public partial class Main
         // The server's place first (its zone included), then the one kept in memory.
         if (_character?.Place is Place p && GameData.Embedded.Towns.ContainsKey(p.Town))
             (_zone, _place) = (p.Town, p.Cell);
-        _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(DateTimeOffset.UtcNow));
+        bool outOfHall = LeaveShutHall();
+        _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(DateTimeOffset.UtcNow), Run);
         _roamAt.Clear();
         _townView = new TownView();
         AddChild(_townView);
@@ -59,6 +60,14 @@ public partial class Main
         ShowChat();
         _townView.Footstep += () => _sound?.Step();
         _sound?.PlayMusic();
+        // In a hall, the hit points left; just out of one (lost, or the last room won), there under the keep.
+        if (outOfHall)
+        {
+            _talkPanel.ShowMessage(_talkPanel.Texts["dungeon.out"]);
+            _ = SavePlace();
+        }
+        else if (_town.Town.IsHall)
+            ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
         else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "zone" or "world")
@@ -179,6 +188,55 @@ public partial class Main
         _bar?.Show(open);
         if (before || open is not null)
             _sound?.Play(open is null ? "close" : "open");
+    }
+
+    /// <summary>
+    /// A dungeon's hall the player may not be in (sprint 86): out of the dungeon (a room lost, the last one
+    /// won, or left meanwhile), or past the room it is at. The player is then outside, under the keep's door.
+    /// </summary>
+    private static bool LeaveShutHall()
+    {
+        if (!GameData.Embedded.Towns.TryGetValue(_zone, out Town? hall) || hall.Dungeon is not string id)
+            return false;
+        Dungeon dungeon = GameData.Embedded.Dungeons[id];
+        if (Run is DungeonRun run && run.Dungeon == id && dungeon.RoomOf(hall.Id) <= run.Room)
+            return false;
+        (_zone, _place) = (dungeon.Map, dungeon.Door + new Cell(0, 1));
+        if (_character is not null)
+            _character = _character with { Place = new Place(_zone, _place.Value.X, _place.Value.Y) };
+        return true;
+    }
+
+    /// <summary>In a hall: the hit points the hero has for the next room.</summary>
+    private void ShowHallHp()
+    {
+        if (_hero?.Class is null)
+            return;
+        int max = new CharacterSheet(_hero, GameData.Embedded).MaxHp;
+        _talkPanel!.ShowMessage(_talkPanel.Texts["hall.hp", Math.Min(Run?.Hp ?? max, max), max]);
+    }
+
+    /// <summary>At a hall's fountain (sprint 86): all the hit points back, on the server's word when signed in.</summary>
+    private async Task Rest()
+    {
+        Texts texts = _talkPanel!.Texts;
+        _town?.CloseDoor();
+        if (_lobby?.SignedIn == true && _character is not null)
+        {
+            try
+            {
+                _character = await _lobby.Server.Rest(_character.Id);
+            }
+            catch (Exception e) when (e is ServerException or HttpRequestException)
+            {
+                _talkPanel.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+                return;
+            }
+        }
+        else if (_offlineRun is DungeonRun run)
+            _offlineRun = run with { Hp = null };
+        _sound?.Play("open");
+        _talkPanel.ShowMessage(texts["hall.rested", _hero?.Class is null ? 0 : new CharacterSheet(_hero, GameData.Embedded).MaxHp]);
     }
 
     /// <summary>Through a way: the next zone is built, the player on its arrival, the place saved there.</summary>
@@ -415,6 +473,14 @@ public partial class Main
             AskDungeon(door);
         else if (_town.Bench is Workshop bench)
             OpenBench(bench);
+        else if (_town.Shut is not null)
+        {
+            _sound?.Play("error");
+            _talkPanel.ShowMessage(_talkPanel.Texts["hall.shut"]);
+            _town.CloseDoor();
+        }
+        else if (_town.Spring)
+            await Rest();
     }
 
     private CraftPanel? _craftPanel;
@@ -482,10 +548,13 @@ public partial class Main
         return _doorDialog;
     }
 
-    /// <summary>Into the dungeon: the server takes the key and says the room; offline, the first room.</summary>
+    /// <summary>
+    /// Into the dungeon: the server takes the key and says the room; offline, the first room, or the one
+    /// reached. The player walks in that room's hall (sprint 86), at its way in.
+    /// </summary>
     private async Task EnterDungeon(Dungeon dungeon)
     {
-        int room = 1;
+        int room;
         if (_lobby?.SignedIn == true && _character is not null)
         {
             try
@@ -500,8 +569,14 @@ public partial class Main
                 return;
             }
         }
+        else
+        {
+            _offlineRun = _offlineRun?.Dungeon == dungeon.Id ? _offlineRun : new DungeonRun(dungeon.Id, 1);
+            room = _offlineRun.Room;
+        }
         _town!.CloseDoor();
-        EnterFight(dungeon.Scenario(room));
+        Town hall = GameData.Embedded.Towns[dungeon.Halls![room - 1].Map];
+        await TravelTo(new ZoneLink(dungeon.Door, hall.Id, hall.Spawn));
     }
 
     /// <summary>The characteristics window, or the spells window, over the town; both tabs when <paramref name="spells"/> is null.</summary>
@@ -1053,6 +1128,7 @@ public partial class Main
                 var fight = new Fight(GameData.Embedded, d.Scenario(room), 1);
                 if (fight.Fighters.Count(f => f.Team == 1) != Dungeons.RolesIn(room).Count)
                     problems.Add($"room {room} of {d.Id} has {fight.Fighters.Count - 1} monsters");
+                CheckHall(d, room, problems);
             }
             checkedDoors++;
         }
@@ -1081,10 +1157,45 @@ public partial class Main
         view.Build(new TownController(GameData.Embedded, first.Map), _options.Lang, _hero ?? new Hero("", "female-d"));
         if (!view.WayNames.Contains(first.Name.In(_options.Lang)))
             problems.Add($"the door of {first.Id} has no name over it");
+        if (view.Keeps != 1)
+            problems.Add($"the map of {first.Id} shows {view.Keeps} keeps");
+        RemoveChild(view);
+        view.QueueFree();
+        // A hall drawn (sprint 86): its keeper, its group, its two ways named.
+        Town hall = GameData.Embedded.Towns[first.Halls![0].Map];
+        view = new TownView();
+        AddChild(view);
+        view.Build(new TownController(GameData.Embedded, hall.Id, null, null, new DungeonRun(first.Id, 1)), _options.Lang, _hero ?? new Hero("", "female-d"));
+        if (view.People.Count != 1 || view.WayNames.Count() != 2)
+            problems.Add($"the hall {hall.Id} shows {view.People.Count} people and the ways {string.Join(", ", view.WayNames)}");
         RemoveChild(view);
         view.QueueFree();
         _town = town;
         return checkedDoors;
+    }
+
+    /// <summary>
+    /// A dungeon's hall (sprint 86): at its room, the group stands, the far door is shut and says why,
+    /// the fountain heals; the room behind, no group and the far door leads to the next hall.
+    /// </summary>
+    private static void CheckHall(Dungeon d, int room, List<string> problems)
+    {
+        Town hall = GameData.Embedded.Towns[d.Halls![room - 1].Map];
+        var here = new TownController(GameData.Embedded, hall.Id, null, null, new DungeonRun(d.Id, room));
+        if (!here.Groups.ContainsKey(d.GroupOf(room)))
+            problems.Add($"no group guards {hall.Id}");
+        Cell fountain = hall.Rows.Select((r, y) => new Cell(r.IndexOf('F', StringComparison.Ordinal), y)).First(c => c.X >= 0);
+        if (here.Click(fountain) is null || !here.Spring)
+            problems.Add($"the fountain of {hall.Id} does not heal");
+        here.CloseDoor();
+        ZoneLink? far = (hall.Links ?? []).FirstOrDefault(l => GameData.Embedded.Towns[l.To].IsHall);
+        if (far is null)
+            return;
+        if (here.Click(far.At) is null || here.Shut != far || here.Travel is not null)
+            problems.Add($"the far door of {hall.Id} opens before its group is beaten");
+        var behind = new TownController(GameData.Embedded, hall.Id, null, null, new DungeonRun(d.Id, room + 1));
+        if (behind.Groups.Count != 0 || behind.Click(far.At) is null || behind.Travel != far)
+            problems.Add($"{hall.Id}, its group beaten, does not lead on");
     }
 
     /// <summary>

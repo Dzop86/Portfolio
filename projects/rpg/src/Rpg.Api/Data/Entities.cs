@@ -83,7 +83,10 @@ public sealed class Character
     public string? Dungeon { get; set; }
     public int DungeonRoom { get; set; }
 
-    public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom) : null;
+    /// <summary>The hit points kept from the room before (sprint 86); null: all of them.</summary>
+    public int? DungeonHp { get; set; }
+
+    public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom, DungeonHp) : null;
 
     /// <summary>The deck, without the spells the class no longer has.</summary>
     /// <summary>"" when the character never chose (the class's first spells), "-" for a deck chosen empty (D66).</summary>

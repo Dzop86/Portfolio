@@ -28,8 +28,12 @@ public sealed record DungeonDoor(Cell At, string Dungeon);
 /// a map without one (the village) is a zone of its own.
 /// </summary>
 public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
-    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null, IReadOnlyList<Workshop>? Workshops = null)
+    IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null, IReadOnlyList<Workshop>? Workshops = null,
+    string? Dungeon = null)
 {
+    /// <summary>A room of a dungeon (sprint 86): a map apart from the world, its ways leading to the next room or out.</summary>
+    public bool IsHall => Dungeon is not null;
+
     public Workshop? WorkshopAt(Cell c) => (Workshops ?? []).FirstOrDefault(w => w.At == c);
 
     public ZoneLink? LinkAt(Cell c) => (Links ?? []).FirstOrDefault(l => l.At == c);
@@ -48,7 +52,7 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
     /// <summary>
     /// What a character of the rows stands for. Walkable: '.' grass, '=' road, ',' flowers. Not walkable:
     /// 'H' a house (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2,
-    /// 'f'), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
+    /// 'f'), 'K' a dungeon's keep (3 × 3, 'k', sprint 86), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
     /// giant mushroom, 'B' a bush or a hedge (sprint 74).
     /// </summary>
     public static readonly IReadOnlyDictionary<char, string> Decor = new Dictionary<char, string>
@@ -68,6 +72,8 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
         [','] = "flowers",
         ['M'] = "mushroom",
         ['B'] = "bush",
+        ['K'] = "keep",
+        ['k'] = "keep",
     };
 
     public char this[Cell c] => c.Y >= 0 && c.Y < Rows.Count && c.X >= 0 && c.X < Rows[c.Y].Length ? Rows[c.Y][c.X] : '~';

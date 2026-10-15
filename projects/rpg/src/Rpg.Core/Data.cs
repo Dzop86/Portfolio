@@ -252,7 +252,7 @@ public sealed class GameData
         foreach (Town t in Towns.Values)
             Check(t);
         // One map per place of the world.
-        if (Towns.Values.GroupBy(t => t.MapAt).FirstOrDefault(g => g.Count() > 1) is { } shared)
+        if (Towns.Values.Where(t => !t.IsHall).GroupBy(t => t.MapAt).FirstOrDefault(g => g.Count() > 1) is { } shared)
             throw new InvalidDataException($"Towns {string.Join(", ", shared.Select(t => $"'{t.Id}'"))}: the same place {shared.Key} of the world.");
         Families = Index(families ?? [], f => f.Id, "family");
         Monsters = Index(Families.Values.SelectMany(f => f.Monsters), m => m.Id, "monster");
@@ -287,8 +287,11 @@ public sealed class GameData
         }
         // The doors go on their maps before the groups are placed: a group never stands on one.
         Towns = Towns.ToDictionary(t => t.Key, t => t.Value with { Doors = [.. Dungeons.Values.Where(d => d.Map == t.Key).Select(d => new DungeonDoor(d.Door, d.Id))] }, StringComparer.Ordinal);
-        Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values], [.. Towns.Values])), g => g.Id, "group");
-        foreach (MonsterGroup g in Groups.Values)
+        // The groups of the zones, then those guarding the dungeons' halls (sprint 86).
+        IEnumerable<MonsterGroup> guards = Dungeons.Values.Where(d => d.Halls is not null)
+            .SelectMany(d => Enumerable.Range(1, Core.Dungeons.RoomCount).Select(room => Core.Dungeons.Guard(d, room, Families[d.Family])));
+        Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values], [.. Towns.Values])).Concat(guards), g => g.Id, "group");
+        foreach (MonsterGroup g in Groups.Values.Where(g => g.Fight is null))
         {
             Scenario fight = MonsterGroups.Scenario(g, Families[g.Family], Monsters);
             Check(fight);
@@ -483,6 +486,18 @@ public sealed class GameData
                 if (t[c + new Cell(1, 0)] != rest || t[c + new Cell(0, 1)] != rest || t[c + new Cell(1, 1)] != rest)
                     throw new InvalidDataException($"{who}: the {Town.Decor[k]} at {c} does not fill 2 × 2 cells.");
             }
+            else if (k == 'K')
+            {
+                // A keep fills 3 × 3 cells (sprint 86).
+                for (int dy = 0; dy < 3; dy++)
+                {
+                    for (int dx = 0; dx < 3; dx++)
+                    {
+                        if ((dx, dy) != (0, 0) && t[c + new Cell(dx, dy)] != 'k')
+                            throw new InvalidDataException($"{who}: the keep at {c} does not fill 3 × 3 cells.");
+                    }
+                }
+            }
             else if (k is 'h' or 'f')
             {
                 char corner = char.ToUpperInvariant(k);
@@ -521,6 +536,9 @@ public sealed class GameData
                 throw new InvalidDataException($"{who}: the way to {l.To} at {l.At} cannot be reached.");
             if (!Towns.TryGetValue(l.To, out Town? to) || !to.CanStand(l.Arrival))
                 throw new InvalidDataException($"{who}: the way at {l.At} leads to an unknown zone or a cell nobody can stand on.");
+            // A dungeon's hall leads to the next hall or out, wherever its doors are (sprint 86).
+            if (t.IsHall || to.IsHall)
+                continue;
             // A way leads to the map next door, from the edge that faces it, onto the edge that faces back.
             Cell d = to.MapAt - t.MapAt;
             bool facing = (d.X, d.Y) switch
@@ -558,6 +576,10 @@ public sealed class GameData
             throw new InvalidDataException($"{who}: its key '{d.Key}' is not a resource, or there is no '{Core.Dungeons.Keyring}'.");
         if (d.Rooms.Count != Core.Dungeons.RoomCount || d.Rooms.Any(r => !Maps.ContainsKey(r) || Board(r).Starts[0].Count < 1 || Board(r).Starts[1].Count < Core.Dungeons.RolesIn(Core.Dungeons.RoomCount).Count))
             throw new InvalidDataException($"{who}: {Core.Dungeons.RoomCount} rooms on known battle maps, each with room for a hero and {Core.Dungeons.RolesIn(Core.Dungeons.RoomCount).Count} monsters.");
+        // Its halls (sprint 86): one map per room, of this dungeon, its group where one can stand.
+        if (d.Halls is { } halls && (halls.Count != Core.Dungeons.RoomCount
+            || halls.Any(h => !Towns.TryGetValue(h.Map, out Town? hall) || hall.Dungeon != d.Id || !hall.CanStand(h.Group) || hall.Spawn == h.Group)))
+            throw new InvalidDataException($"{who}: {Core.Dungeons.RoomCount} halls, maps of this dungeon, each with its group on a cell one can stand on.");
     }
 
     private void Check(MonsterFamily f)

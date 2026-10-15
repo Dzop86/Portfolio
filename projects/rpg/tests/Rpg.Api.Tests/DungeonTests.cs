@@ -17,11 +17,12 @@ public class DungeonTests
         await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, level, items), Cancel);
     }
 
-    /// <summary>Plays the room the server allows, the AI choosing for the hero, and reports it.</summary>
-    private static async Task<(FightResult Result, Fight Played)> Fight(GameServer server, CharacterSummary c, string scenario)
+    /// <summary>Plays the room the server allows, the AI choosing for the hero, and reports it; the hit points kept from the room before unless given.</summary>
+    private static async Task<(FightResult Result, Fight Played)> Fight(GameServer server, CharacterSummary c, string scenario, int? hp = -1)
     {
         FightTicket ticket = await server.StartFight(c.Id, scenario, Cancel);
-        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, (await server.Characters(Cancel)).Single(x => x.Id == c.Id).Hero);
+        CharacterSummary now = (await server.Characters(Cancel)).Single(x => x.Id == c.Id);
+        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: hp == -1 ? now.Run?.Hp : hp);
         Ai.PlayOut(fight);
         return (await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel), fight);
     }
@@ -52,10 +53,13 @@ public class DungeonTests
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.StartFight(c.Id, wallow.Scenario(2), Cancel))).Status);
         for (int room = 1; room <= Dungeons.RoomCount; room++)
         {
+            // At the fountain of the hall first (sprint 86): the hit points of the room before are kept otherwise.
+            if (room > 1)
+                await server.Rest(c.Id, Cancel);
             (FightResult result, Fight played) = await Fight(server, c, wallow.Scenario(room));
             Assert.Equal(0, played.WinningTeam);
             Assert.Equal(room == 3, result.DungeonDone);
-            Assert.Equal(room == 3 ? null : new DungeonRun(wallow.Id, room + 1), result.Run);
+            Assert.Equal(room == 3 ? null : $"{wallow.Id} {room + 1}", result.Run is { } run ? $"{run.Dungeon} {run.Room}" : null);
             // The last room's experience comes twice.
             Assert.Equal(Progression.FightXp(played) * (room == 3 ? 2 : 1), result.Xp);
         }
@@ -108,5 +112,43 @@ public class DungeonTests
         GameServer other = await api.SignedIn("oth");
         Assert.Equal(HttpStatusCode.NotFound, (await Assert.ThrowsAsync<ServerException>(() => other.EnterDungeon(c.Id, "boar-wallow", Cancel))).Status);
         Assert.Equal(HttpStatusCode.NotFound, (await Assert.ThrowsAsync<ServerException>(() => other.LeaveDungeon(c.Id, Cancel))).Status);
+    }
+
+    [Fact]
+    public async Task AWonRoom_KeepsTheHitPointsLeft_TheFountainHealsThem_AndTheHallsAreForWhoIsThere()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("dun");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        Dungeon wallow = GameData.Embedded.Dungeons["boar-wallow"];
+        await Give(api, account, 20, new ItemCount(wallow.Key, 1));
+        // Outside, neither a hall nor the fountain.
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, new Place(wallow.Halls![0].Map, 10, 11), Cancel))).Status);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.Rest(c.Id, Cancel))).Status);
+        await server.EnterDungeon(c.Id, wallow.Id, Cancel);
+        // In, the first hall; not the second before its room.
+        await server.SavePlace(c.Id, new Place(wallow.Halls![0].Map, 10, 11), Cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, new Place(wallow.Halls[1].Map, 10, 11), Cancel))).Status);
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, new Place(GameData.Embedded.Dungeons["wolf-den"].Halls![0].Map, 10, 11), Cancel))).Status);
+
+        (FightResult first, Fight played) = await Fight(server, c, wallow.Scenario(1));
+        Assert.Equal(0, played.WinningTeam);
+        Fighter hero = played.HeroFighter!;
+        Assert.True(hero.Hp < hero.MaxHp);
+        Assert.Equal(new DungeonRun(wallow.Id, 2, hero.Hp), first.Run);
+        Assert.Equal(first.Run, (await server.Characters(Cancel)).Single().Run);
+        await server.SavePlace(c.Id, new Place(wallow.Halls[1].Map, 10, 11), Cancel);
+        // The next room with all the hit points: refused, the ticket used up.
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => Fight(server, c, wallow.Scenario(2), hp: null))).Status);
+        // The fountain: all of them, the same room.
+        CharacterSummary rested = await server.Rest(c.Id, Cancel);
+        Assert.Equal(new DungeonRun(wallow.Id, 2), rested.Run);
+        // Then with what it has (all): played, and counted.
+        (FightResult second, _) = await Fight(server, c, wallow.Scenario(2));
+        Assert.NotEqual(0, second.Xp);
+        // A lost or a finished run forgets them.
+        await server.LeaveDungeon(c.Id, Cancel);
+        Assert.Null((await server.Characters(Cancel)).Single().Run);
     }
 }

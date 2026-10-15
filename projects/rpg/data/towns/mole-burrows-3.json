@@ -1,0 +1,93 @@
+{
+  "id": "mole-burrows-3",
+  "dungeon": "mole-burrows",
+  "name": {
+    "fr": "Galeries des taupes, salle 3",
+    "en": "The Mole Burrows, room 3"
+  },
+  "level": 26,
+  "rows": [
+    "RRRRRRRRRRRRRRRRRRRR",
+    "R==================R",
+    "R==================R",
+    "R====R========R====R",
+    "R==================R",
+    "R==================R",
+    "R=Ff===============R",
+    "R=ff===============R",
+    "R==================R",
+    "R====R========R====R",
+    "R==================R",
+    "R==================R",
+    "R==================R",
+    "RRRRRRRRR===RRRRRRRR"
+  ],
+  "spawn": {
+    "x": 10,
+    "y": 11
+  },
+  "npcs": [
+    {
+      "id": "keeper",
+      "name": {
+        "fr": "Gardienne",
+        "en": "Keeper"
+      },
+      "look": "female-e",
+      "colour": 2,
+      "at": {
+        "x": 16,
+        "y": 7
+      },
+      "dialogue": "dungeon-keeper"
+    }
+  ],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 9,
+        "y": 13
+      },
+      "to": "fields-4-3",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    },
+    {
+      "at": {
+        "x": 10,
+        "y": 13
+      },
+      "to": "fields-4-3",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    },
+    {
+      "at": {
+        "x": 11,
+        "y": 13
+      },
+      "to": "fields-4-3",
+      "arrival": {
+        "x": 24,
+        "y": 10
+      },
+      "name": {
+        "fr": "Sortie",
+        "en": "Way out"
+      }
+    }
+  ]
+}

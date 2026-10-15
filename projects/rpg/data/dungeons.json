@@ -16,6 +16,29 @@
       "dungeon-boar-1",
       "dungeon-boar-2",
       "dungeon-boar-3"
+    ],
+    "halls": [
+      {
+        "map": "boar-wallow-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "boar-wallow-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "boar-wallow-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -35,6 +58,29 @@
       "dungeon-wolf-1",
       "dungeon-wolf-2",
       "dungeon-wolf-3"
+    ],
+    "halls": [
+      {
+        "map": "wolf-den-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "wolf-den-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "wolf-den-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -46,14 +92,37 @@
     "family": "mushroom",
     "map": "mouldy-0-0",
     "door": {
-      "x": 24,
-      "y": 9
+      "x": 25,
+      "y": 11
     },
     "key": "mushroom-cellar-key",
     "rooms": [
       "dungeon-mushroom-1",
       "dungeon-mushroom-2",
       "dungeon-mushroom-3"
+    ],
+    "halls": [
+      {
+        "map": "mushroom-cellar-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mushroom-cellar-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mushroom-cellar-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -73,6 +142,29 @@
       "dungeon-zombie-1",
       "dungeon-zombie-2",
       "dungeon-zombie-3"
+    ],
+    "halls": [
+      {
+        "map": "zombie-crypt-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "zombie-crypt-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "zombie-crypt-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -92,6 +184,29 @@
       "dungeon-frog-1",
       "dungeon-frog-2",
       "dungeon-frog-3"
+    ],
+    "halls": [
+      {
+        "map": "frog-grotto-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "frog-grotto-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "frog-grotto-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -111,6 +226,29 @@
       "dungeon-crab-1",
       "dungeon-crab-2",
       "dungeon-crab-3"
+    ],
+    "halls": [
+      {
+        "map": "crab-reef-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "crab-reef-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "crab-reef-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -130,6 +268,29 @@
       "dungeon-bee-1",
       "dungeon-bee-2",
       "dungeon-bee-3"
+    ],
+    "halls": [
+      {
+        "map": "royal-hive-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "royal-hive-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "royal-hive-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   },
   {
@@ -149,6 +310,29 @@
       "dungeon-mole-1",
       "dungeon-mole-2",
       "dungeon-mole-3"
+    ],
+    "halls": [
+      {
+        "map": "mole-burrows-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mole-burrows-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mole-burrows-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
     ]
   }
 ]

@@ -89,6 +89,9 @@ namespace Rpg.Api.Data.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
+                    b.Property<int?>("DungeonHp")
+                        .HasColumnType("integer");
+
                     b.Property<int>("DungeonRoom")
                         .HasColumnType("integer");
 

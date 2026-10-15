@@ -2,7 +2,10 @@
 # its three rooms on battle maps of their own (data/maps/dungeon-<family>-<room>.json), its key and the
 # operator's keyring in data/items.json, the list in data/dungeons.json; since sprint 81, the key among
 # the loot of the family's monsters (rarely) and its recipe for the locksmith in data/jobs.json, made of
-# the family's two resources at a level that follows the zone's. Deterministic: the same data
+# the family's two resources at a level that follows the zone's; since sprint 86, its three halls
+# (data/towns/<dungeon>-<room>.json: stone walls, a fountain, a keeper, the room's group, the far door
+# and the way out) and its keep, 3 x 3 cells over the door on the chief's map (stamped into that map,
+# so run after tools/world_gen.py). Deterministic: the same data
 # gives the same files; every room is checked connected, with room for the hero and five monsters.
 # Run from projects/rpg after tools/world_gen.py:  python3 tools/dungeon_gen.py data
 import collections, json, random, sys
@@ -74,14 +77,66 @@ def reachable(rows, start):
     return seen
 
 
+def keep_cells(d):
+    """The 3 x 3 cells of the keep over a door, its top-left corner first."""
+    return [(d[0] - 1 + dx, d[1] - 3 + dy) for dy in range(3) for dx in range(3)]
+
+
+def stamped(rows, d):
+    """The rows with the keep over door d: 'K' on its top-left corner, 'k' on the rest."""
+    g = [list(r) for r in rows]
+    for i, (x, y) in enumerate(keep_cells(d)):
+        g[y][x] = 'K' if i == 0 else 'k'
+    return [''.join(r) for r in g]
+
+
 def door(town):
-    """A cell of the map north of its centre, reachable, away from its ways, exits and arrival."""
+    """
+    A cell of the map north of its centre, reachable, away from its ways, exits and arrival, with the
+    keep's 3 x 3 cells of grass over it and a cell to stand on under it; the keep must cut nothing.
+    """
+    rows = town["rows"]
     spawn = (town["spawn"]["x"], town["spawn"]["y"])
-    away = [spawn] + [(l["at"]["x"], l["at"]["y"]) for l in town["links"]] + [(e["at"]["x"], e["at"]["y"]) for e in town["exits"]]
+    links = [(l["at"]["x"], l["at"]["y"]) for l in town["links"]]
+    away = [spawn] + links + [(e["at"]["x"], e["at"]["y"]) for e in town["exits"]]
     hex_distance = lambda a, b: abs(a[0] - b[0]) + abs(a[1] - b[1])
     goal = (spawn[0], spawn[1] - 7)
-    cells = [c for c in reachable(town["rows"], spawn) if all(hex_distance(c, a) >= DISTANCE + 1 for a in away)]
-    return min(cells, key=lambda c: (hex_distance(c, goal), c[1], c[0]))
+    reach = reachable(rows, spawn)
+    cells = sorted((c for c in reach if all(hex_distance(c, a) >= DISTANCE + 1 for a in away)), key=lambda c: (hex_distance(c, goal), c[1], c[0]))
+    for c in cells:
+        under = (c[0], c[1] + 1)
+        keep = keep_cells(c)
+        if under not in reach or any(k not in reach or any(hex_distance(k, a) < DISTANCE for a in away) for k in keep):
+            continue
+        after = reachable(stamped(rows, c), spawn)
+        if all(m in after for m in links + [c, under]):
+            return c
+    raise SystemExit(f"no door for {town['id']}")
+
+
+# A hall: 20 x 14 cells of stone, walled; the way out at the bottom, the far door at the top (none in the
+# last), a fountain on the left, the keeper on the right, the group in the middle.
+HW, HH = 20, 14
+HALL_GROUP = (10, 5)
+HALL_SPAWN = (10, 11)
+
+
+def hall(hid, did, name, room, level, entrance, outside):
+    g = [['R' if x in (0, HW - 1) or y in (0, HH - 1) else '=' for x in range(HW)] for y in range(HH)]
+    for (x, y) in ((5, 3), (14, 3), (5, 9), (14, 9)):
+        g[y][x] = 'R'
+    for (x, y), ch in (((2, 6), 'F'), ((3, 6), 'f'), ((2, 7), 'f'), ((3, 7), 'f')):
+        g[y][x] = ch
+    out = [(x, HH - 1) for x in (9, 10, 11)]
+    up = [(x, 0) for x in (9, 10, 11)] if room < 3 else []
+    for (x, y) in out + up:
+        g[y][x] = '='
+    links = [O([("at", O([("x", x), ("y", y)])), ("to", entrance), ("arrival", O([("x", outside[0]), ("y", outside[1])])), ("name", text("Sortie", "Way out"))]) for (x, y) in out]
+    links += [O([("at", O([("x", x), ("y", y)])), ("to", f"{did}-{room + 1}"), ("arrival", O([("x", x), ("y", HH - 2)])), ("name", text(f"Salle {room + 1}", f"Room {room + 1}"))]) for (x, y) in up]
+    return O([("id", hid), ("dungeon", did), ("name", O([("fr", f"{name['fr']}, salle {room}"), ("en", f"{name['en']}, room {room}")])), ("level", level),
+              ("rows", [''.join(r) for r in g]), ("spawn", O([("x", HALL_SPAWN[0]), ("y", HALL_SPAWN[1])])),
+              ("npcs", [O([("id", "keeper"), ("name", text("Gardienne", "Keeper")), ("look", "female-e"), ("colour", 2), ("at", O([("x", 16), ("y", 7)])), ("dialogue", "dungeon-keeper")])]),
+              ("exits", []), ("links", links)])
 
 
 families = json.load(open(f"{root}/monsters.json"))
@@ -97,9 +152,18 @@ for n, f in enumerate(families):
         m = O([("id", mid), ("name", O([("fr", f"{name['fr']} : {ROOMS[r - 1]['fr'].lower()}"), ("en", f"{name['en']}: {ROOMS[r - 1]['en']}")])), ("rows", room(800 + n * 10 + r, r))])
         open(f"{root}/maps/{mid}.json", "w").write(json.dumps(m, ensure_ascii=False, indent=2) + "\n")
     town = json.load(open(f"{root}/towns/{f['bossMap']}.json"))
+    # The keep of the last run comes off first: the door is chosen on the map as world_gen wrote it.
+    town["rows"] = [r.replace('K', '.').replace('k', '.') for r in town["rows"]]
     dx, dy = door(town)
+    town["rows"] = stamped(town["rows"], (dx, dy))
+    open(f"{root}/towns/{f['bossMap']}.json", "w").write(json.dumps(town, ensure_ascii=False, indent=2) + "\n")
+    halls = []
+    for r in range(1, 4):
+        hid = f"{did}-{r}"
+        open(f"{root}/towns/{hid}.json", "w").write(json.dumps(hall(hid, did, name, r, town["level"], f["bossMap"], (dx, dy + 1)), ensure_ascii=False, indent=2) + "\n")
+        halls.append(O([("map", hid), ("group", O([("x", HALL_GROUP[0]), ("y", HALL_GROUP[1])]))]))
     dungeons.append(O([("id", did), ("name", name), ("family", f["id"]), ("map", f["bossMap"]), ("door", O([("x", dx), ("y", dy)])),
-                       ("key", f"{did}-key"), ("rooms", rooms)]))
+                       ("key", f"{did}-key"), ("rooms", rooms), ("halls", halls)]))
     items.append(O([("id", f"{did}-key"), ("name", key_name), ("kind", "Resource")]))
 items.append(O([("id", "admin-keyring"), ("name", text("Trousseau d'administrateur", "Operator's Keyring")), ("kind", "Quest")]))
 # The key, rarely left by the family's monsters (sprint 81): one in fifty, one in ten for the chief.

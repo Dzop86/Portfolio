@@ -22,7 +22,7 @@ public class WorldPictureTests
         Assert.Equal((11 * 48 * P, 15 * 32 * P), (Picture.Width, Picture.Height));
         Assert.Equal(Picture.Width * Picture.Height * 4, Picture.Pixels.Length);
         Assert.Equal(Picture.Pixels, new WorldPicture(GameData.Embedded).Pixels);
-        foreach (Town t in GameData.Embedded.Towns.Values)
+        foreach (Town t in GameData.Embedded.Towns.Values.Where(t => !t.IsHall))
         {
             (double x, double y) = Picture.PixelOf(t.Id, t.Spawn);
             Assert.Equal(t.Id, Picture.MapAtPixel(x, y)?.Id);
@@ -70,7 +70,7 @@ public class WorldPictureTests
         Assert.Equal(Picture.PixelOf("woods-4-2", new Cell(47, 5)), (x - P, y));
         Assert.NotEqual(WorldPicture.Tree, Picture.At((int)x - P, (int)y));
         // Every way of the woods has open ground on both sides of the edge.
-        foreach (Town t in GameData.Embedded.Towns.Values)
+        foreach (Town t in GameData.Embedded.Towns.Values.Where(t => !t.IsHall))
         {
             foreach (ZoneLink l in t.Links ?? [])
             {

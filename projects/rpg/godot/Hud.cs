@@ -242,11 +242,11 @@ public partial class Hud : CanvasLayer
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
         _end.Visible = fight.IsOver;
         _endTitle.Text = fight.WinningTeam is null ? Texts["draw"] : fight.WinningTeam == _controller.PlayerTeam ? Texts["victory"] : Texts["defeat"];
-        // A dungeon's room is not played again: won, the next room, or out (sprint 80).
+        // A dungeon's room is not played again: won, back to its hall, its far door open; otherwise out (sprints 80 and 86).
         bool dungeon = Dungeons.Parse(fight.Scenario.Id) is not null;
-        _again.Visible = !dungeon || _nextRoom;
-        _again.Text = dungeon ? Texts["dungeon.next"] : Texts["again"];
-        _back.Text = dungeon && _nextRoom ? Texts["dungeon.leave"] : Texts["town.back"];
+        _again.Visible = !dungeon;
+        _again.Text = Texts["again"];
+        _back.Text = dungeon && _backToHall ? Texts["hall.back"] : Texts["town.back"];
     }
 
     /// <summary>What the fight earned, on the end screen.</summary>
@@ -257,12 +257,12 @@ public partial class Hud : CanvasLayer
     /// <summary>The end screen's way back to town.</summary>
     public void SetBackShown(bool shown) => _back.Visible = shown;
 
-    private bool _nextRoom;
+    private bool _backToHall;
 
-    /// <summary>A dungeon's room won, and another after it: "Next room" and "Leave the dungeon" (sprint 80).</summary>
-    public void ShowNextRoom(bool next)
+    /// <summary>A dungeon's room won, and another after it: "Back to the room" (sprint 86), where the far door is now open.</summary>
+    public void ShowBackToHall(bool back)
     {
-        _nextRoom = next;
+        _backToHall = back;
         Refresh();
     }
 

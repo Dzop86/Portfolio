@@ -117,4 +117,49 @@ public class DungeonTests
         // The first room of the old arena has no room for five monsters.
         Assert.Throws<InvalidDataException>(() => With(wallow with { Rooms = [.. wallow.Rooms.Take(2), "arena"] }));
     }
+
+    [Fact]
+    public void EachRoom_IsAHallOneWalksIn_ItsGroupGuardingTheFarDoor_TheWayOutBackToTheKeep()
+    {
+        foreach (Dungeon d in Real.Dungeons.Values)
+        {
+            Assert.Equal(Dungeons.RoomCount, d.Halls!.Count);
+            for (int room = 1; room <= Dungeons.RoomCount; room++)
+            {
+                Town hall = Real.Towns[d.Halls[room - 1].Map];
+                Assert.Equal((d.Id, room), (hall.Dungeon, d.RoomOf(hall.Id)));
+                // Someone to talk to, a fountain, the room's group fighting the room's fight.
+                Assert.Single(hall.Npcs);
+                Assert.Contains(hall.Rows, r => r.Contains('F', StringComparison.Ordinal));
+                MonsterGroup guard = Assert.Single(Real.GroupsOn(hall.Id));
+                Assert.Equal((d.GroupOf(room), d.Scenario(room)), (guard.Id, guard.Scenario));
+                // The way out leads under the keep's door; the far door to the next hall, none in the last.
+                Assert.All(hall.Links!.Where(l => l.To == d.Map), l => Assert.Equal(d.Door + new Cell(0, 1), l.Arrival));
+                Assert.Equal(room < Dungeons.RoomCount ? 3 : 0, hall.Links!.Count(l => l.To == d.Halls.ElementAtOrDefault(room)?.Map));
+                Assert.True(MonsterGroups.KeepsWaysOpen(hall, hall.Board(), [guard.Home]));
+            }
+            // The keep, 3 x 3 cells over the door, on the chief's map.
+            Town map = Real.Towns[d.Map];
+            Assert.Equal('K', map[d.Door + new Cell(-1, -3)]);
+            Assert.Equal('k', map[d.Door + new Cell(1, -1)]);
+        }
+        // Halls are apart from the world: not on its picture, no place of their own.
+        Assert.DoesNotContain(Real.Towns.Values.Where(t => t.IsHall), t => t.Zone is not null);
+    }
+
+    [Fact]
+    public void AFight_StartsWithTheHitPointsKeptFromTheRoomBefore_AndTheRecordSaysSo()
+    {
+        var hero = new Hero("Ronce", "female-c", "guard", Level: 20);
+        var fight = new Fight(Real, Real.Dungeons["boar-wallow"].Scenario(2), 3, hero, heroHp: 25);
+        Assert.Equal((25, 25), (fight.HeroFighter!.Hp, fight.StartHeroHp!.Value));
+        Assert.True(fight.HeroFighter.MaxHp > 25);
+        Ai.PlayOut(fight);
+        FightRecord record = FightRecord.FromJson(FightRecord.Of(fight).ToJson());
+        Assert.Equal(25, record.HeroHp);
+        Assert.Equal(Fingerprint(fight), Fingerprint(record.Replay(Real)));
+        // More than the maximum: the maximum; none given: all of them.
+        Assert.Equal(new Fight(Real, "training", 1, hero).HeroFighter!.MaxHp, new Fight(Real, "training", 1, hero, heroHp: 9999).HeroFighter!.Hp);
+        Assert.Null(new Fight(Real, "training", 1, hero).StartHeroHp);
+    }
 }
