@@ -96,10 +96,33 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
 }
 
 /// <summary>
-/// A quest, as described in <c>data/quests.json</c>: done the first time the hero wins a fight of
-/// its <see cref="Scenario"/>, which the server checks by replaying that fight; worth <see cref="Xp"/>, once.
+/// A quest, as described in <c>data/quests.json</c>, worth <see cref="Xp"/> (and <see cref="Shards"/>,
+/// <see cref="Items"/>) once. Either done the first time the hero wins a fight of its
+/// <see cref="Scenario"/>, which the server checks by replaying that fight (the first lesson); or, since
+/// sprint 88, given by an inhabitant (<see cref="Giver"/>, "town/npc") from a level and after other
+/// quests (<see cref="After"/>), its <see cref="Objectives"/> followed all at once, then handed back to
+/// the giver. <see cref="Zone"/> sorts it in the journal.
 /// </summary>
-public sealed record Quest(string Id, LocalizedText Name, long Xp, string Scenario, IReadOnlyList<ItemCount>? Items = null);
+public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scenario = null, IReadOnlyList<ItemCount>? Items = null,
+    string? Giver = null, string? Zone = null, LocalizedText? Text = null, LocalizedText? Thanks = null, IReadOnlyList<QuestObjective>? Objectives = null,
+    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1)
+{
+    /// <summary>Given by someone and handed back, rather than done by a fight.</summary>
+    public bool IsGiven => Giver is not null;
+}
+
+/// <summary>What a quest asks (sprint 88): to talk to someone ("town/npc"), to defeat monsters of a family, to bring items (taken when handed back), to finish a dungeon.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<QuestGoal>))]
+public enum QuestGoal
+{
+    Talk,
+    Defeat,
+    Bring,
+    Dungeon,
+}
+
+/// <summary>One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon), how many.</summary>
+public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1);
 
 /// <summary>A creature a spell can summon, as described in <c>data/summons.json</c>.</summary>
 public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells);
@@ -300,9 +323,38 @@ public sealed class GameData
         Quests = Index(quests ?? [], q => q.Id, "quest");
         foreach (Quest q in Quests.Values)
         {
-            if (q.Xp < 1 || !Scenarios.ContainsKey(q.Scenario) || (q.Items ?? []).Any(st => !Items.ContainsKey(st.Item) || st.Count < 1))
-                throw new InvalidDataException($"Quest '{q.Id}': no experience, an unknown scenario '{q.Scenario}' or an unknown item.");
+            if (q.Xp < 1 || q.Shards < 0 || (q.Items ?? []).Any(st => !Items.ContainsKey(st.Item) || st.Count < 1))
+                throw new InvalidDataException($"Quest '{q.Id}': no experience, Éclats below zero or an unknown item.");
+            // A fight's quest, or a given one (sprint 88): never both.
+            if (q.IsGiven == (q.Scenario is not null) || (q.Scenario is string sc && !Scenarios.ContainsKey(sc)))
+                throw new InvalidDataException($"Quest '{q.Id}': a scenario or a giver, one of them, known.");
+            if (!q.IsGiven)
+                continue;
+            if (FindNpc(q.Giver!) is null || q.Text is null || q.Thanks is null || q.Objectives is not { Count: > 0 } goals || q.Level is < 1 or > Hero.MaxLevel
+                || (q.Zone is not null && !Towns.Values.Any(t => t.Zone == q.Zone)) || (q.After ?? []).Any(a => a == q.Id || !(quests ?? []).Any(o => o.Id == a)))
+                throw new InvalidDataException($"Quest '{q.Id}': a known giver, its words, objectives, a level, a known zone and known quests before it.");
+            foreach (QuestObjective o in goals)
+            {
+                bool known = o.Goal switch
+                {
+                    QuestGoal.Talk => FindNpc(o.Target) is not null,
+                    QuestGoal.Defeat => Families.ContainsKey(o.Target),
+                    QuestGoal.Bring => Items.ContainsKey(o.Target),
+                    QuestGoal.Dungeon => Dungeons.ContainsKey(o.Target),
+                    _ => false,
+                };
+                if (!known || o.Count < 1 || (o.Goal is QuestGoal.Talk or QuestGoal.Dungeon && o.Count != 1))
+                    throw new InvalidDataException($"Quest '{q.Id}': the objective {o.Goal} '{o.Target}' ×{o.Count} is unknown.");
+            }
         }
+    }
+
+    /// <summary>An inhabitant by "town/npc" (sprint 88), and its town.</summary>
+    public (Town Town, Npc Npc)? FindNpc(string reference)
+    {
+        int slash = (reference ?? throw new ArgumentNullException(nameof(reference))).IndexOf('/', StringComparison.Ordinal);
+        return slash > 0 && Towns.TryGetValue(reference[..slash], out Town? town) && town.Npcs.FirstOrDefault(n => n.Id == reference[(slash + 1)..]) is Npc npc
+            ? (town, npc) : null;
     }
 
     public HeroClass? Class(string? id) => Classes.FirstOrDefault(c => c.Id == id);

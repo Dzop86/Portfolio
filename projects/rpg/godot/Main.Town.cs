@@ -34,6 +34,9 @@ public partial class Main
             (_zone, _place) = (p.Town, p.Cell);
         bool outOfHall = LeaveShutHall();
         _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(DateTimeOffset.UtcNow), Run);
+        // The character's quests (sprint 88), offered and taken back in the talks; online only.
+        if (_character is not null)
+            _town.Book = QuestBook.Of(_character, GameData.Embedded);
         _roamAt.Clear();
         _townView = new TownView();
         AddChild(_townView);
@@ -165,7 +168,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -173,6 +176,8 @@ public partial class Main
             ClosePoints();
         if (open != GameWindow.Inventory && _inventoryPanel is not null)
             CloseInventory();
+        if (open != GameWindow.Journal && _journalPanel is not null)
+            CloseJournal();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -183,6 +188,9 @@ public partial class Main
                 break;
             case GameWindow.Inventory when _inventoryPanel is null:
                 OpenInventory(_character?.Inventory ?? []);
+                break;
+            case GameWindow.Journal when _journalPanel is null:
+                OpenJournal();
                 break;
         }
         _bar?.Show(open);
@@ -464,6 +472,7 @@ public partial class Main
             return;
         _walking = false;
         _talkPanel!.Refresh();
+        await TellTalks();
         await SavePlace();
         if (_town.Fight is string scenario)
             EnterFight(scenario);
@@ -746,6 +755,64 @@ public partial class Main
         return " Chat: a line heard back.";
     }
 
+    /// <summary>
+    /// The quests of sprint 88, signed in: Aubin offers his, accepted on the server; the journal (Q)
+    /// shows it with its three objectives; talking to Rose counts on the server; not done, it is not handed back.
+    /// </summary>
+    private async Task<string> CheckQuests(List<string> problems)
+    {
+        if (_lobby?.SignedIn != true || _character is null)
+            return "";
+        Quest edge = GameData.Embedded.Quests["edge-of-the-woods"];
+        Texts texts = _talkPanel!.Texts;
+        TownController town = _town!;
+        _town = new TownController(GameData.Embedded, Village) { Book = QuestBook.Of(_character, GameData.Embedded) };
+        try
+        {
+            async Task Until(Func<bool> done)
+            {
+                for (int i = 0; i < 100 && !done(); i++)
+                    await ToSignal(GetTree().CreateTimer(0.05), SceneTreeTimer.SignalName.Timeout);
+            }
+            Npc Inhabitant(string id) => _town.Town.Npcs.Single(n => n.Id == id);
+            _town.Click(Inhabitant("aubin").At);
+            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", edge.Name.In(texts.Lang)])
+            {
+                problems.Add("Aubin does not offer his quest");
+                return "";
+            }
+            Answer(0);
+            Answer(0);
+            await Until(() => _character.QuestLog is { Count: > 0 });
+            if (_character.QuestLog?.SingleOrDefault()?.Quest != edge.Id)
+                problems.Add("the quest taken is not under way on the server");
+            TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
+            if (_journalPanel is null || !_journalPanel.ActiveNames.SequenceEqual([edge.Name.In(texts.Lang)]) || _journalPanel.ObjectiveLines.Count != edge.Objectives!.Count)
+                problems.Add($"the journal shows {string.Join(", ", _journalPanel?.ActiveNames ?? [])}");
+            TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
+            if (_journalPanel is not null)
+                problems.Add("Q does not close the journal");
+            _town.Click(Inhabitant("rose").At);
+            await TellTalks();
+            if (_character.QuestLog?.SingleOrDefault()?.Counts[2] != 1)
+                problems.Add("talking to Rose is not counted");
+            while (_town.Talk is Conversation talk)
+            {
+                IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
+                _town.Answer(Math.Max(0, answers.ToList().FindIndex(a => a.Next is null && a.Fight is null)));
+            }
+            _town.Click(Inhabitant("aubin").At);
+            if (_town.Talk?.Line.Answers.Any(a => a.Next?.StartsWith("hand-in:", StringComparison.Ordinal) == true) != false)
+                problems.Add("a quest not done is offered to hand back");
+            return " Quests: one taken from Aubin, followed in the journal, Rose seen.";
+        }
+        finally
+        {
+            _town = town;
+            _town.Book = QuestBook.Of(_character, GameData.Embedded);
+        }
+    }
+
     private async Task<bool> SavePoints(Points points)
     {
         PointsPanel panel = _pointsPanel!;
@@ -779,6 +846,94 @@ public partial class Main
         _talkPanel!.Refresh();
         if (_town.Fight is string scenario)
             EnterFight(scenario);
+        else if (_town.QuestTaken is not null || _town.QuestHandedIn is not null)
+            _ = SeeToQuest();
+    }
+
+    private JournalPanel? _journalPanel;
+
+    private void OpenJournal()
+    {
+        _journalPanel = new JournalPanel();
+        AddChild(_journalPanel);
+        _journalPanel.Build(_town?.Book ?? new QuestBook(GameData.Embedded, 1, [], [], []), _talkPanel!.Texts);
+        _journalPanel.ClosePressed += () =>
+        {
+            _windows.Close();
+            ShowWindows();
+        };
+    }
+
+    private void CloseJournal()
+    {
+        _journalPanel?.QueueFree();
+        _journalPanel = null;
+    }
+
+    /// <summary>The character as the server now says, its quests in the town's book (and the journal, if open).</summary>
+    private void KeepCharacter(CharacterSummary character)
+    {
+        _character = character;
+        _hero = character.Hero;
+        if (_town is not null)
+            _town.Book = QuestBook.Of(character, GameData.Embedded);
+        if (_journalPanel is not null)
+        {
+            CloseJournal();
+            OpenJournal();
+        }
+        _talkPanel?.SetProgress(_hero.Level, character.Xp);
+    }
+
+    /// <summary>A quest taken or handed back in a talk (sprint 88): on the server's word.</summary>
+    private async Task SeeToQuest()
+    {
+        Texts texts = _talkPanel!.Texts;
+        (string? taken, string? handedIn) = (_town!.QuestTaken, _town.QuestHandedIn);
+        _town.QuestSeenTo();
+        if (_lobby?.SignedIn != true || _character is null)
+            return;
+        try
+        {
+            if (taken is not null)
+            {
+                KeepCharacter(await _lobby.Server.TakeQuest(_character.Id, taken));
+                _talkPanel.ShowMessage(texts["quest.taken", GameData.Embedded.Quests[taken].Name.In(texts.Lang)]);
+            }
+            else if (handedIn is not null)
+            {
+                QuestReward reward = await _lobby.Server.HandInQuest(_character.Id, handedIn);
+                KeepCharacter(reward.Character);
+                _talkPanel.ShowMessage(texts["quest.done", GameData.Embedded.Quests[handedIn].Name.In(texts.Lang), reward.Xp, reward.Shards]);
+                _sound?.Play("victory");
+            }
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _talkPanel.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
+    /// <summary>Someone the quests under way asked to see (sprint 88): the server counts the talk.</summary>
+    private async Task TellTalks()
+    {
+        IReadOnlyList<Quest> quests = _town!.QuestTalks;
+        if (quests.Count == 0 || _lobby?.SignedIn != true || _character is null || _town.Talk is not Conversation talk)
+            return;
+        string npc = _town.Town.Id + "/" + talk.Npc.Id;
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            foreach (Quest q in quests)
+            {
+                KeepCharacter(await _lobby.Server.QuestTalk(_character.Id, q.Id, npc));
+                _talkPanel.ShowMessage(texts["quest.talked", q.Name.In(texts.Lang)]);
+            }
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _talkPanel.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
     }
 
     /// <summary>Keeps where the player stands: on the server when signed in, in memory otherwise.</summary>
@@ -827,6 +982,9 @@ public partial class Main
         string lang = _options.Lang;
         int talks = 0;
         await CheckFreeWalk(problems);
+        // The tour reads the inhabitants' own lines; their quests are checked apart (CheckQuests).
+        QuestBook? book = _town!.Book;
+        _town.Book = null;
         int lines = TownTour.Run(_town!, step =>
         {
             if (!_townView!.Walk(step, 0).IsCompleted)
@@ -848,6 +1006,7 @@ public partial class Main
             if (_talkPanel.AnswersText.Count() != talk.Line.Answers.Count)
                 problems.Add($"line {talk.LineId} shows {_talkPanel.AnswersText.Count()} answers");
         });
+        _town.Book = book;
         // The characteristics and spells screen shows the hero's points, and gives none it has not.
         if (_hero?.Class is not null)
         {
@@ -889,7 +1048,7 @@ public partial class Main
             else
                 note += $", place {_town.Position} saved on the server";
         }
-        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + await CheckChat(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + await CheckChat(problems) + await CheckQuests(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;
@@ -955,14 +1114,15 @@ public partial class Main
                 GameWindow.Map => _mapPanel is not null && _pointsPanel is null && _inventoryPanel is null,
                 GameWindow.Characteristics => _pointsPanel?.Only == false && _mapPanel is null,
                 GameWindow.Spells => _pointsPanel?.Only == true && _mapPanel is null,
-                _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null,
+                GameWindow.Journal => _journalPanel is not null && _inventoryPanel is null && _mapPanel is null,
+                _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null,
             };
             if (!shown || !_bar.Lit(window))
                 problems.Add($"{key} does not open the {window} window alone");
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });

@@ -179,6 +179,30 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>Takes a quest from its giver (sprint 88); the server checks its level and the quests before it.</summary>
+    public async Task<CharacterSummary> TakeQuest(Guid id, string quest, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/quests", UriKind.Relative), new TakeQuest(quest), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
+    /// <summary>Someone a quest under way asks to see, talked to ("town/npc").</summary>
+    public async Task<CharacterSummary> QuestTalk(Guid id, string quest, string npc, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/quests/{Uri.EscapeDataString(quest)}/talk", UriKind.Relative), new QuestTalk(npc), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
+    /// <summary>Hands a quest back to its giver, its objectives reached; the server takes the items it asks and gives its rewards.</summary>
+    public async Task<QuestReward> HandInQuest(Guid id, string quest, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/quests/{Uri.EscapeDataString(quest)}/done", UriKind.Relative), null, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<QuestReward>(Json, cancel))!;
+    }
+
     /// <summary>At a hall's fountain (sprint 86): all the hit points back for the next room.</summary>
     public async Task<CharacterSummary> Rest(Guid id, CancellationToken cancel = default)
     {

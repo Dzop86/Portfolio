@@ -38,7 +38,7 @@ public sealed record Place(string Town, int X, int Y)
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
     IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null,
-    IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0)
+    IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null)
 {
     [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
@@ -46,7 +46,7 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
         other is not null && (Id, CreatedAt, Place, Server, Xp, Shards) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp, other.Shards)
-        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []) && Run == other.Run
+        && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (QuestLog ?? []).SequenceEqual(other.QuestLog ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []) && Run == other.Run
         && (Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal).SequenceEqual((other.Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal));
 
     /// <summary>A trade's level, from its experience (1 before any).</summary>
@@ -85,6 +85,18 @@ public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
 
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);
+
+/// <summary>A quest to take from its giver (sprint 88).</summary>
+public sealed record TakeQuest(string? Quest);
+
+/// <summary>Someone talked to ("town/npc") for a quest under way (sprint 88).</summary>
+public sealed record QuestTalk(string? Npc);
+
+/// <summary>
+/// What a quest handed back gave (sprint 88): its experience, Éclats and items, the character's new
+/// totals and level, and the character itself (its quests, inventory).
+/// </summary>
+public sealed record QuestReward(string Quest, long Xp, long Shards, IReadOnlyList<ItemCount> Items, int Level, CharacterSummary Character);
 
 /// <summary>A dungeon to go into, through its door.</summary>
 public sealed record EnterDungeon(string? Dungeon);

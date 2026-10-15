@@ -28,7 +28,8 @@ public class MenuTests
         Assert.Equal(GameWindow.Spells, WindowState.ForKey('S'));
         Assert.Equal(GameWindow.Inventory, WindowState.ForKey('i'));
         Assert.Equal(GameWindow.Map, WindowState.ForKey('M'));
-        Assert.Null(WindowState.ForKey('Q'));
+        Assert.Equal(GameWindow.Journal, WindowState.ForKey('q'));
+        Assert.Null(WindowState.ForKey('X'));
         var w = new WindowState();
         w.Toggle(GameWindow.Spells);
         Assert.Equal(GameWindow.Spells, w.Open);

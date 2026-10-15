@@ -3,5 +3,6 @@
  "spells": "delapouite/spell-book",
  "inventory": "lorc/knapsack",
  "map": "lorc/treasure-map",
- "menu": "lorc/cog"
+ "menu": "lorc/cog",
+ "journal": "lorc/scroll-unfurled"
 }

@@ -64,6 +64,11 @@ public sealed class Character
     /// <summary>The quests done, their ids separated by commas.</summary>
     public string Quests { get; set; } = "";
 
+    /// <summary>The quests under way and their progress (sprint 88), as <see cref="Rpg.Core.Quests.Write"/> writes them.</summary>
+    public string QuestLog { get; set; } = "";
+
+    public List<QuestProgress> ActiveQuests => Rpg.Core.Quests.Read(QuestLog);
+
     /// <summary>Everything owned, worn included, as "item:count" separated by commas.</summary>
     public string Inventory { get; set; } = "";
 

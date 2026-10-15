@@ -2,17 +2,51 @@ using Rpg.Core;
 
 namespace Rpg.Client;
 
-/// <summary>A talk with an NPC: the line said, the answers; an answer leads on, ends the talk, or starts a fight.</summary>
-public sealed class Conversation(Npc npc, Dialogue dialogue)
+/// <summary>
+/// A talk with an NPC: the line said, the answers; an answer leads on, ends the talk, or starts a fight.
+/// Since sprint 88, the first line also offers the quests the NPC gives (<paramref name="offers"/>: its
+/// words, "I accept" or "Later") and takes back those done (<paramref name="handIns"/>: its thanks).
+/// </summary>
+public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest>? offers = null, IReadOnlyList<Quest>? handIns = null)
 {
+    private const string OfferLine = "quest:", HandInLine = "hand-in:";
+
     public Npc Npc { get; } = npc ?? throw new ArgumentNullException(nameof(npc));
     public Dialogue Dialogue { get; } = dialogue ?? throw new ArgumentNullException(nameof(dialogue));
     public string LineId { get; private set; } = dialogue.Start;
-    public DialogueLine Line => Dialogue.Lines[LineId];
     public bool IsOver { get; private set; }
+
+    private readonly IReadOnlyList<Quest> _offers = offers ?? [], _handIns = handIns ?? [];
+
+    public DialogueLine Line
+    {
+        get
+        {
+            if (LineId.StartsWith(OfferLine, StringComparison.Ordinal) && _offers.FirstOrDefault(q => q.Id == LineId[OfferLine.Length..]) is Quest offer)
+                return new DialogueLine(offer.Text!, [new DialogueAnswer(Texts.Both("quest.accept"), Take: offer.Id), new DialogueAnswer(Texts.Both("quest.later"))]);
+            if (LineId.StartsWith(HandInLine, StringComparison.Ordinal) && _handIns.FirstOrDefault(q => q.Id == LineId[HandInLine.Length..]) is Quest done)
+                return new DialogueLine(done.Thanks!, [new DialogueAnswer(Texts.Both("quest.give"), HandIn: done.Id)]);
+            DialogueLine line = Dialogue.Lines[LineId];
+            if (LineId != Dialogue.Start)
+                return line;
+            // The quests to hand back first, then those to take.
+            return line with
+            {
+                Answers = [.. _handIns.Select(q => new DialogueAnswer(Texts.Both("quest.handin", q.Name), HandInLine + q.Id)),
+                    .. _offers.Select(q => new DialogueAnswer(Texts.Both("quest.offer", q.Name), OfferLine + q.Id)),
+                    .. line.Answers],
+            };
+        }
+    }
 
     /// <summary>The scenario the last answer started, if it started a fight.</summary>
     public string? Fight { get; private set; }
+
+    /// <summary>The quest the last answer took, if any (sprint 88).</summary>
+    public string? Taken { get; private set; }
+
+    /// <summary>The quest the last answer handed back, if any (sprint 88).</summary>
+    public string? HandedIn { get; private set; }
 
     public void Choose(int answer)
     {
@@ -25,7 +59,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue)
             return;
         }
         IsOver = true;
-        Fight = a.Fight;
+        (Fight, Taken, HandedIn) = (a.Fight, a.Take, a.HandIn);
     }
 }
 
@@ -78,6 +112,17 @@ public sealed class TownController
     }
 
     private readonly HashSet<ZoneLink> _shut = [];
+
+    /// <summary>The character's quests (sprint 88): the inhabitants offer theirs in their talks. None for a hero without a character.</summary>
+    public QuestBook? Book { get; set; }
+
+    /// <summary>The quests under way that asked to talk to the inhabitant the talk is with (the game tells the server).</summary>
+    public IReadOnlyList<Quest> QuestTalks { get; private set; } = [];
+
+    /// <summary>The quest the talk just ended took, or handed back (sprint 88): the game asks the server.</summary>
+    public string? QuestTaken { get; private set; }
+
+    public string? QuestHandedIn { get; private set; }
 
     /// <summary>Where the player is in a dungeon, as the controller was given it.</summary>
     public DungeonRun? Run { get; }
@@ -230,7 +275,12 @@ public sealed class TownController
         bool spring = npc is null && group is null && IsSpring(target);
         bool there = npc is null && group is null && !spring && Position == target;
         if (npc is not null)
-            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue]);
+        {
+            // The character's quests (sprint 88): this inhabitant's to take and to hand back, and those asking to see them.
+            string who = Town.Id + "/" + npc.Id;
+            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who));
+            QuestTalks = Book?.Talks(who) ?? [];
+        }
         else if (group is not null)
         {
             if (attack)
@@ -273,6 +323,9 @@ public sealed class TownController
         Spring = false;
     }
 
+    /// <summary>The quest taken or handed back, seen to by the game.</summary>
+    public void QuestSeenTo() => (QuestTaken, QuestHandedIn) = (null, null);
+
     /// <summary>An answer in the talk going on; an answer that starts a fight sets <see cref="Fight"/>.</summary>
     public void Answer(int index)
     {
@@ -282,6 +335,7 @@ public sealed class TownController
         {
             Talk = null;
             Fight = talk.Fight;
+            (QuestTaken, QuestHandedIn) = (talk.Taken, talk.HandedIn);
         }
     }
 }

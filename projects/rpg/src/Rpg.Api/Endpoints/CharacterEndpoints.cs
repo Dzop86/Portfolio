@@ -24,6 +24,9 @@ public static class CharacterEndpoints
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
         group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
         group.MapPost("/{id:guid}/dungeon/rest", Rest).WithSummary("Heals one of the player's characters in its dungeon, at the fountain of a hall: all its hit points for the next room.");
+        group.MapPost("/{id:guid}/quests", Take).WithSummary("Takes a quest an inhabitant gives, from its level and after the quests it follows.");
+        group.MapPost("/{id:guid}/quests/{quest}/talk", Talk).WithSummary("Counts a talk to someone a quest under way asks to see.");
+        group.MapPost("/{id:guid}/quests/{quest}/done", HandIn).WithSummary("Hands a quest back to its giver, its objectives reached: the items it asks are taken, its rewards given.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.Map("/{id:guid}/chat", Chat).WithSummary("The proximity chat of one of the player's characters, as a WebSocket: lines in, the lines said on its map out.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
@@ -217,6 +220,11 @@ public static class CharacterEndpoints
                 : ((string?)null, 0, (int?)null);
         }
         long shards = Progression.FightShards(played);
+        // The quests under way (sprint 88): the monsters defeated, the dungeon finished.
+        IReadOnlyDictionary<string, int> defeated = Rpg.Core.Quests.Defeated(GameData.Embedded, played);
+        string? finished = done ? inRoom!.Dungeon : null;
+        if (defeated.Count > 0 || finished is not null)
+            character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, finished)));
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;
@@ -269,6 +277,66 @@ public static class CharacterEndpoints
         character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Take(
+        Guid id, TakeQuest request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (request?.Quest is not string questId || !GameData.Embedded.Quests.TryGetValue(questId, out Quest? quest))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["A known quest."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        List<QuestProgress> active = character.ActiveQuests;
+        // The rules decide (like the ways, T31, the server does not check that the giver is near).
+        if (Rpg.Core.Quests.WhyNot(quest, character.Level, character.QuestList, active) is string why)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = [why] });
+        character.QuestLog = Rpg.Core.Quests.Write(active.Append(Rpg.Core.Quests.Start(quest)));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Talk(
+        Guid id, string quest, QuestTalk request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        List<QuestProgress> active = character.ActiveQuests;
+        if (active.FirstOrDefault(p => p.Quest == quest) is not QuestProgress progress
+            || request?.Npc is not string npc || !GameData.Embedded.Quests[quest].Objectives!.Any(o => o.Goal == QuestGoal.Talk && o.Target == npc))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["A quest under way that asks to talk to this inhabitant."] });
+        character.QuestLog = Rpg.Core.Quests.Write(active.Select(p => p == progress ? Rpg.Core.Quests.AfterTalk(GameData.Embedded.Quests[quest], p, npc) : p));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    internal static async Task<Results<Ok<QuestReward>, NotFound, ValidationProblem>> HandIn(
+        Guid id, string quest, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        List<QuestProgress> active = character.ActiveQuests;
+        if (active.FirstOrDefault(p => p.Quest == quest) is not QuestProgress progress)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["Not a quest under way."] });
+        Quest q = GameData.Embedded.Quests[quest];
+        if (!Rpg.Core.Quests.IsComplete(q, progress, character.InventoryList))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["Its objectives are not all reached."] });
+        foreach (ItemCount taken in Rpg.Core.Quests.Taken(q))
+            character.Spend(taken);
+        character.Receive(q.Items ?? []);
+        character.Xp += q.Xp;
+        character.Shards += q.Shards;
+        character.Level = Progression.LevelFor(character.Xp);
+        character.Quests = string.Join(',', character.QuestList.Append(q.Id));
+        character.QuestLog = Rpg.Core.Quests.Write(active.Where(p => p != progress));
+        await db.SaveChangesAsync(cancel);
+        CharacterSummary summary = Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null);
+        return TypedResults.Ok(new QuestReward(q.Id, q.Xp, q.Shards, q.Items ?? [], character.Level, summary));
     }
 
     internal static async Task<Results<NoContent, NotFound>> Leave(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
@@ -335,7 +403,7 @@ public static class CharacterEndpoints
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

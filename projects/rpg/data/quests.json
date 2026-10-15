@@ -1,9 +1,63 @@
 [
   {
     "id": "first-lesson",
-    "name": { "fr": "Première leçon", "en": "First lesson" },
+    "name": {
+      "fr": "Première leçon",
+      "en": "First lesson"
+    },
     "xp": 150,
     "scenario": "training",
-    "items": [{ "item": "garance-badge", "count": 1 }, { "item": "copper-ring", "count": 1 }]
+    "items": [
+      {
+        "item": "garance-badge",
+        "count": 1
+      },
+      {
+        "item": "copper-ring",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "edge-of-the-woods",
+    "name": {
+      "fr": "La lisière",
+      "en": "The Edge of the Woods"
+    },
+    "giver": "clairval/aubin",
+    "zone": "woods",
+    "text": {
+      "fr": "Les sangliers s'approchent du village. Chasse-en trois à l'orée du bois, rapporte-moi deux poignées de leurs soies, et va prévenir Rose qu'elle garde ses étals à l'abri.",
+      "en": "The boars are coming close to the village. Hunt three of them at the edge of the woods, bring me two handfuls of their bristles, and go and warn Rose to keep her stalls safe."
+    },
+    "thanks": {
+      "fr": "Merci ! Le village dormira mieux cette nuit. Tiens, c'est pour ta peine.",
+      "en": "Thank you! The village will sleep better tonight. Here, for your trouble."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "boar",
+        "count": 3
+      },
+      {
+        "goal": "Bring",
+        "target": "boar-bristle",
+        "count": 2
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/rose"
+      }
+    ],
+    "xp": 120,
+    "shards": 20,
+    "level": 1,
+    "items": [
+      {
+        "item": "bread",
+        "count": 2
+      }
+    ]
   }
 ]

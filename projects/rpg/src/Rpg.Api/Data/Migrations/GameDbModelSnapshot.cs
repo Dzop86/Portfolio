@@ -141,6 +141,13 @@ namespace Rpg.Api.Data.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("QuestLog")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasDefaultValue("");
+
                     b.Property<string>("Quests")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

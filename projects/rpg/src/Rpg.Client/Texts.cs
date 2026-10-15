@@ -253,6 +253,26 @@ public sealed class Texts
         ["bar.Spells"] = "Sorts",
         ["bar.Inventory"] = "Inventaire",
         ["bar.Map"] = "Carte",
+        ["bar.Journal"] = "Journal",
+        ["quest.Talk"] = "Parler à {0}",
+        ["quest.Defeat"] = "Vaincre : {0} ({1}/{2})",
+        ["quest.Bring"] = "Rapporter : {0} ({1}/{2})",
+        ["quest.Dungeon"] = "Finir {0}",
+        ["quest.offer"] = "Quête : {0}",
+        ["quest.handin"] = "Rendre la quête : {0}",
+        ["quest.accept"] = "J'accepte.",
+        ["quest.later"] = "Plus tard.",
+        ["quest.give"] = "Avec plaisir.",
+        ["quest.taken"] = "Quête acceptée : {0}. Le journal (Q) la suit.",
+        ["quest.done"] = "Quête terminée : {0} · +{1} XP · +{2} Éclats",
+        ["quest.talked"] = "Quête « {0} » : c'est noté.",
+        ["journal.title"] = "Journal des quêtes",
+        ["journal.active"] = "En cours",
+        ["journal.done"] = "Terminées",
+        ["journal.village"] = "Clairval",
+        ["journal.empty"] = "Aucune quête pour l'instant : parlez aux habitants.",
+        ["journal.giver"] = "Donnée par {0}",
+        ["journal.ready"] = "À rendre à {0}",
         ["bar.menu"] = "Menu",
         ["bar.tip"] = "{0} ({1})",
         ["menu.title"] = "Menu",
@@ -574,6 +594,26 @@ public sealed class Texts
         ["bar.Spells"] = "Spells",
         ["bar.Inventory"] = "Inventory",
         ["bar.Map"] = "Map",
+        ["bar.Journal"] = "Journal",
+        ["quest.Talk"] = "Talk to {0}",
+        ["quest.Defeat"] = "Defeat: {0} ({1}/{2})",
+        ["quest.Bring"] = "Bring: {0} ({1}/{2})",
+        ["quest.Dungeon"] = "Finish {0}",
+        ["quest.offer"] = "Quest: {0}",
+        ["quest.handin"] = "Hand the quest back: {0}",
+        ["quest.accept"] = "I accept.",
+        ["quest.later"] = "Later.",
+        ["quest.give"] = "With pleasure.",
+        ["quest.taken"] = "Quest taken: {0}. The journal (Q) follows it.",
+        ["quest.done"] = "Quest done: {0} · +{1} XP · +{2} Éclats",
+        ["quest.talked"] = "Quest \"{0}\": noted.",
+        ["journal.title"] = "Quest journal",
+        ["journal.active"] = "Under way",
+        ["journal.done"] = "Done",
+        ["journal.village"] = "Clairval",
+        ["journal.empty"] = "No quest yet: talk to the inhabitants.",
+        ["journal.giver"] = "Given by {0}",
+        ["journal.ready"] = "To hand back to {0}",
         ["bar.menu"] = "Menu",
         ["bar.tip"] = "{0} ({1})",
         ["menu.title"] = "Menu",
@@ -854,6 +894,28 @@ public sealed class Texts
             return (this["dungeon.no-key", name, key], false);
         return (this["dungeon.enter", name] + "\n" + (Dungeons.UsedOnEntry(dungeon, owned) is null ? this["dungeon.keyring"] : this["dungeon.key-used", key]), true);
     }
+
+    /// <summary>A quest's objective as the journal says it (sprint 88): "Vaincre : Sangliers (1/3)", "Parler à Rose".</summary>
+    public string Objective(QuestObjective objective, int reached)
+    {
+        ArgumentNullException.ThrowIfNull(objective);
+        GameData data = GameData.Embedded;
+        string target = objective.Goal switch
+        {
+            QuestGoal.Talk => data.FindNpc(objective.Target) is (_, Npc n) ? n.Name.In(Lang) : objective.Target,
+            QuestGoal.Defeat => data.Families.TryGetValue(objective.Target, out MonsterFamily? f) ? f.Name.In(Lang) : objective.Target,
+            QuestGoal.Bring => data.Items.TryGetValue(objective.Target, out Item? i) ? i.Name.In(Lang) : objective.Target,
+            _ => data.Dungeons.TryGetValue(objective.Target, out Dungeon? d) ? d.Name.In(Lang) : objective.Target,
+        };
+        return this["quest." + objective.Goal, target, Math.Min(reached, objective.Count), objective.Count];
+    }
+
+    /// <summary>A text in both languages (the answers the game adds to a talk, sprint 88).</summary>
+    public static LocalizedText Both(string key) => new(new Texts("fr")[key], new Texts("en")[key]);
+
+    /// <summary>The same, around a name in both languages.</summary>
+    public static LocalizedText Both(string key, LocalizedText name) =>
+        new(new Texts("fr")[key, (name ?? throw new ArgumentNullException(nameof(name))).Fr], new Texts("en")[key, name.En]);
 
     /// <summary>Some items as a list: "Croc d'orque ×2, Pain".</summary>
     public string Items(IEnumerable<ItemCount> items)

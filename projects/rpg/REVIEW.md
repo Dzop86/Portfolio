@@ -182,4 +182,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-15 | `tests/Rpg.Client.Tests` (monde, carte du monde, tour du village) | (Claude) Les salles comptaient comme cartes du monde et la réplique de la gardienne comme dialogue du village | Les salles à part ; les lignes comptées sont celles des habitants du village |
 | 2026-10-15 | `tests/Rpg.Api.Tests/CharacterTests.cs` | (Claude) Le test de la fiche lue par la liste des personnages ne connaissait pas le nouveau champ `shards` | Ajouté à la liste attendue |
 | 2026-10-15 | `src/Rpg.Core/FightStats.cs` | (Claude) Mon premier jet réutilisait le même nom de variable dans chaque cas du `switch` : refusé par le compilateur | Un nom par cas (`by`, `healer`, `shielder`, `killer`) |
+| 2026-10-15 | `godot/Main.Town.cs` (auto-test de la ville) | (Claude) Avec les quêtes, la conversation d'Aubin gagnait une réplique : la tournée du village, connectée, aurait lu 9 lignes au lieu de 8 et accepté la quête en passant | La tournée lit les répliques des habitants sans les quêtes ; les quêtes ont leur propre contrôle |
+| 2026-10-15 | `godot/Main.Town.cs` (auto-test de la barre) | (Claude) Mon contrôle « une touche ouvre sa fenêtre seule » prenait la touche Q du journal pour celle de l'inventaire | Un cas pour le journal, et Échap qui le ferme aussi |
+| 2026-10-15 | `tests/Rpg.Api.Tests/QuestTests.cs` | (Claude) Mon test attendait une seule poignée de soies après avoir rendu la quête : les sangliers battus en avaient laissé d'autres | Deux de moins qu'avant de rendre |
+| 2026-10-15 | `tests/Rpg.Client.Tests/QuestBookTests.cs` | (Claude) Mon contrôle des textes appelait des textes à trou sans valeur : exception de format | Une valeur passée à chacun |
 
