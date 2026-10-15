@@ -44,5 +44,43 @@
       "cub-bite"
     ],
     "scale": 70
+  },
+  {
+    "id": "spore-sprout",
+    "name": {
+      "fr": "Pousse de vesse",
+      "en": "Puffball Sprout"
+    },
+    "look": "mushroom-ranged",
+    "hp": 20,
+    "ap": 6,
+    "mp": 2,
+    "initiative": 80,
+    "spells": [
+      "spore-burst"
+    ],
+    "passives": [
+      "final-spores"
+    ],
+    "scale": 70
+  },
+  {
+    "id": "bloated-spawn",
+    "name": {
+      "fr": "Bouffi recousu",
+      "en": "Stitched Bloater"
+    },
+    "look": "zombie-tank",
+    "hp": 40,
+    "ap": 6,
+    "mp": 2,
+    "initiative": 40,
+    "spells": [
+      "rot-fist"
+    ],
+    "passives": [
+      "explosion"
+    ],
+    "scale": 85
   }
 ]

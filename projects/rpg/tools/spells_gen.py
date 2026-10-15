@@ -165,17 +165,29 @@ beasts = [
  S("cub-bite","Mordillage de louveteau","Cub Bite",3,1,1,3,5,2,"Earth",1,ranks=False),
  # The mouldy woods (sprint 74): mushrooms and zombies, made for heroes of about level 10.
  S("cap-slam","Coup de chapeau","Cap Slam",3,1,1,8,12,2,"Earth",1,ranks=False),
- S("spore-burst","Jet de spores","Spore Burst",3,2,5,7,11,2,"Water",1,ranks=False),
+ S("spore-burst","Nuage de spores","Spore Cloud",3,2,5,5,7,2,"Water",1,area=("Circle",1),effects=[status("Enemies","Poison",3,2,"Water")],ranks=False),
  S("hard-cap","Chapeau dur","Hard Cap",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
- S("mycelium-mend","Soin du mycélium","Mycelium Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",10,14)],ranks=False,cd=1),
+ S("mycelium-mend","Réseau mycélien","Mycelial Web",3,0,4,0,0,1,"Neutral",1,area=("Circle",1),effects=[heal("Allies",7,10)],ranks=False,cd=1),
  S("rot-spores","Spores pourries","Rot Spores",4,1,3,10,14,1,"Water",1,area=("Circle",1),ranks=False,cd=1),
  S("elder-slam","Coup ancestral","Elder Slam",4,1,1,15,20,1,"Earth",1,ranks=False),
+ # The mushrooms of D69 (sprint 92, §4.3): the network, to be finished from afar.
+ S("sticky-spore","Spore collante","Sticky Spore",3,1,2,5,7,1,"Water",1,effects=[status("Enemies","Mp",-1,1)],ranks=False),
+ S("umbrella","Ombrelle","Umbrella",3,0,0,0,0,1,"Neutral",1,area=("Circle",1),effects=[shield("Allies",8,2)],ranks=False,cd=2),
+ S("cutting","Bouture","Cutting",3,1,2,0,0,1,"Neutral",1,effects=[summon("spore-sprout",2)],ranks=False,cd=3),
  S("claw","Griffure","Claw",3,1,1,8,12,2,"Fire",1,ranks=False),
- S("bile-spit","Crachat de bile","Bile Spit",3,2,5,7,11,2,"Water",1,ranks=False),
+ S("bile-spit","Bile","Bile",3,2,5,6,9,2,"Water",1,effects=[status("Enemies","Poison",3,2,"Water")],ranks=False),
  S("rotting-hide","Peau pourrie","Rotting Hide",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
- S("stitch","Recoudre","Stitch",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",10,14)],ranks=False,cd=1),
+ S("stitch","Recousu de travers","Crooked Stitch",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",12,16),status("Allies","Mp",-1,1)],ranks=False,cd=1),
  S("grave-smash","Coup de tombe","Grave Smash",4,1,1,15,20,1,"Fire",1,ranks=False),
  S("plague-wave","Vague de peste","Plague Wave",4,1,2,10,14,1,"Fire",1,area=("Cross",1),ranks=False,cd=1),
+ # The zombies of D69 (sprint 92, §4.4): each strikes in an element of its own; their overlord in all four.
+ S("grip","Étreinte","Grip",3,1,1,4,6,1,"Fire",1,effects=[status("Enemies","Mp",-2,1)],ranks=False,cd=1),
+ S("rot-fist","Poing pourri","Rotten Fist",3,1,1,8,12,2,"Earth",1,ranks=False),
+ S("foul-breath","Haleine fétide","Foul Breath",2,0,0,0,0,1,"Neutral",1,area=("Circle",1),effects=[status("Enemies","Damage",-10,2)],ranks=False,cd=1),
+ S("gust-claw","Griffe du vent","Gust Claw",3,1,1,7,10,2,"Air",1,ranks=False),
+ S("tomb-vomit","Vomi de tombe","Grave Vomit",4,2,3,10,14,1,"Water",1,area=("Cross",1),ranks=False,cd=1),
+ S("stone-fist","Poing de pierre","Stone Fist",3,1,1,12,16,1,"Earth",1,effects=[push(1)],ranks=False),
+ S("wing-gust","Souffle des ailes","Wing Gust",4,1,3,10,14,1,"Air",1,area=("Line",2),ranks=False,cd=1),
  # The lake (sprint 75): frogs and crabs, made for heroes of about level 18.
  S("tongue-lash","Coup de langue","Tongue Lash",3,1,2,12,17,2,"Water",1,ranks=False),
  S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,10,15,2,"Water",1,ranks=False),
@@ -247,6 +259,8 @@ def young(id, fr, en, look, scale, hp, ap, mp, ini, spells, passives=None):
     return d
 summons += [
  young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
+ young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),
+ young("bloated-spawn","Bouffi recousu","Stitched Bloater","zombie-tank",85,40,6,2,40,["rot-fist"],["explosion"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -270,6 +284,19 @@ passives = [
  P("pack-instinct","Instinct de meute","Pack Instinct","Au début de son tour, les loups à 2 cases ou moins gagnent 10 % de dégâts. Plusieurs loups cumulent leurs instincts.",
    "At the start of its turn, the wolves 2 cells away or less gain 10% damage. Several wolves add up their instincts.","TurnStart",[status("Allies","Damage",10,1)],area=("Circle",2)),
  P("pack-answers","La meute répond","The Pack Answers","Sous la moitié de ses PV, appelle deux louveteaux.","Below half its HP, calls two wolf cubs.","LowHp",[summon("wolf-cub",count=2)],percent=50),
+ # The mushrooms (§4.3): spores at their death, the elder that roots itself.
+ P("final-spores","Sporée finale","Final Spores","À sa mort, empoisonne ceux qui sont au contact (3 par tour, 2 tours).",
+   "At its death, poisons those next to it (3 a turn, 2 turns).","Death",[status("Enemies","Poison",3,2,"Water")],area=("Circle",1)),
+ P("puffball-burst","Éclate","Puffball Burst","À sa mort, éclate et empoisonne à 2 cases (4 par tour, 2 tours).",
+   "At its death, bursts and poisons 2 cells around (4 a turn, 2 turns).","Death",[status("Enemies","Poison",4,2,"Water")],area=("Circle",2)),
+ P("network-retracts","Le réseau se rétracte","The Web Retracts","Sous 30 % de ses PV, s'enracine : soigné de 30, +30 % de résistances, −2 PM pendant 2 tours.",
+   "Below 30% of its HP, it roots itself: healed by 30, +30% resistances, −2 MP for 2 turns.","LowHp",[heal("Caster",30,30),status("Caster","Resistance",30,2),status("Caster","Mp",-2,2)],percent=30),
+ # The zombies (§4.4): a contagion in each one's element, the bloater that explodes, the overlord's bloater.
+ *[P(f"contagion-{el.lower()}","Contagion","Contagion","Qui le frappe au contact est empoisonné (2 par tour, 2 tours).",
+   "Whoever strikes it up close is poisoned (2 a turn, 2 turns).","Hit",[status("Attacker","Poison",2,2,el)],melee=True) for el in ("Fire","Water","Earth","Air")],
+ P("explosion","Explosion","Explosion","À sa mort, explose : 10 à 14 dégâts Terre à 2 cases, alliés compris.",
+   "At its death, it explodes: 10 to 14 Earth damage 2 cells around, allies included.","Death",area=("Circle",2),damageMin=10,damageMax=14,element="Earth"),
+ P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
 ]
 open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")
 print(len(spells), {k: len(v) for k, v in lists.items()})

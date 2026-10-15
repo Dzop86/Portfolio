@@ -148,5 +148,224 @@
       }
     ],
     "percent": 50
+  },
+  {
+    "id": "final-spores",
+    "name": {
+      "fr": "Sporée finale",
+      "en": "Final Spores"
+    },
+    "description": {
+      "fr": "À sa mort, empoisonne ceux qui sont au contact (3 par tour, 2 tours).",
+      "en": "At its death, poisons those next to it (3 a turn, 2 turns)."
+    },
+    "trigger": "Death",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Enemies",
+        "stat": "Poison",
+        "value": 3,
+        "turns": 2,
+        "element": "Water"
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 1
+    }
+  },
+  {
+    "id": "puffball-burst",
+    "name": {
+      "fr": "Éclate",
+      "en": "Puffball Burst"
+    },
+    "description": {
+      "fr": "À sa mort, éclate et empoisonne à 2 cases (4 par tour, 2 tours).",
+      "en": "At its death, bursts and poisons 2 cells around (4 a turn, 2 turns)."
+    },
+    "trigger": "Death",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Enemies",
+        "stat": "Poison",
+        "value": 4,
+        "turns": 2,
+        "element": "Water"
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    }
+  },
+  {
+    "id": "network-retracts",
+    "name": {
+      "fr": "Le réseau se rétracte",
+      "en": "The Web Retracts"
+    },
+    "description": {
+      "fr": "Sous 30 % de ses PV, s'enracine : soigné de 30, +30 % de résistances, −2 PM pendant 2 tours.",
+      "en": "Below 30% of its HP, it roots itself: healed by 30, +30% resistances, −2 MP for 2 turns."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "heal",
+        "affects": "Caster",
+        "min": 30,
+        "max": 30
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": 30,
+        "turns": 2
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": -2,
+        "turns": 2
+      }
+    ],
+    "percent": 30
+  },
+  {
+    "id": "contagion-fire",
+    "name": {
+      "fr": "Contagion",
+      "en": "Contagion"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact est empoisonné (2 par tour, 2 tours).",
+      "en": "Whoever strikes it up close is poisoned (2 a turn, 2 turns)."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Poison",
+        "value": 2,
+        "turns": 2,
+        "element": "Fire"
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "contagion-water",
+    "name": {
+      "fr": "Contagion",
+      "en": "Contagion"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact est empoisonné (2 par tour, 2 tours).",
+      "en": "Whoever strikes it up close is poisoned (2 a turn, 2 turns)."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Poison",
+        "value": 2,
+        "turns": 2,
+        "element": "Water"
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "contagion-earth",
+    "name": {
+      "fr": "Contagion",
+      "en": "Contagion"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact est empoisonné (2 par tour, 2 tours).",
+      "en": "Whoever strikes it up close is poisoned (2 a turn, 2 turns)."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Poison",
+        "value": 2,
+        "turns": 2,
+        "element": "Earth"
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "contagion-air",
+    "name": {
+      "fr": "Contagion",
+      "en": "Contagion"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact est empoisonné (2 par tour, 2 tours).",
+      "en": "Whoever strikes it up close is poisoned (2 a turn, 2 turns)."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Poison",
+        "value": 2,
+        "turns": 2,
+        "element": "Air"
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "explosion",
+    "name": {
+      "fr": "Explosion",
+      "en": "Explosion"
+    },
+    "description": {
+      "fr": "À sa mort, explose : 10 à 14 dégâts Terre à 2 cases, alliés compris.",
+      "en": "At its death, it explodes: 10 to 14 Earth damage 2 cells around, allies included."
+    },
+    "trigger": "Death",
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "damageMin": 10,
+    "damageMax": 14,
+    "element": "Earth"
+  },
+  {
+    "id": "four-wings",
+    "name": {
+      "fr": "Les quatre ailes",
+      "en": "The Four Wings"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, un bouffi se détache de lui.",
+      "en": "Below half its HP, a bloater comes away from it."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "bloated-spawn",
+        "max": 1
+      }
+    ],
+    "percent": 50
   }
 ]

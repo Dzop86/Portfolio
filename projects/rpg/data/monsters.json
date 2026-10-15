@@ -432,6 +432,10 @@
     },
     "zone": "mouldy",
     "battle": "mouldy-hollow",
+    "battles": [
+      "mouldy-hollow",
+      "mouldy-pools"
+    ],
     "bossMap": "mouldy-0-0",
     "monsters": [
       {
@@ -448,11 +452,16 @@
         "mp": 3,
         "initiative": 70,
         "spells": [
-          "cap-slam"
+          "cap-slam",
+          "sticky-spore"
         ],
         "resistances": {
-          "Earth": 10
+          "Earth": 10,
+          "Fire": -15
         },
+        "passives": [
+          "final-spores"
+        ],
         "loot": [
           {
             "item": "mushroom-cap",
@@ -484,6 +493,13 @@
         "spells": [
           "spore-burst"
         ],
+        "resistances": {
+          "Water": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "puffball-burst"
+        ],
         "loot": [
           {
             "item": "spore-dust",
@@ -510,12 +526,16 @@
         "initiative": 50,
         "spells": [
           "cap-slam",
-          "hard-cap"
+          "umbrella"
         ],
         "resistances": {
           "Earth": 15,
-          "Water": 10
+          "Water": 10,
+          "Fire": -15
         },
+        "passives": [
+          "final-spores"
+        ],
         "loot": [
           {
             "item": "mushroom-cap",
@@ -548,6 +568,13 @@
           "mycelium-mend",
           "cap-slam"
         ],
+        "resistances": {
+          "Water": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "final-spores"
+        ],
         "loot": [
           {
             "item": "spore-dust",
@@ -574,14 +601,19 @@
         "initiative": 60,
         "spells": [
           "elder-slam",
-          "rot-spores"
+          "rot-spores",
+          "cutting"
         ],
         "resistances": {
           "Earth": 20,
-          "Fire": 10,
           "Water": 20,
-          "Air": 10
+          "Air": 10,
+          "Fire": -5
         },
+        "passives": [
+          "final-spores",
+          "network-retracts"
+        ],
         "loot": [
           {
             "item": "mushroom-cap",
@@ -608,6 +640,10 @@
     },
     "zone": "mouldy",
     "battle": "mouldy-hollow",
+    "battles": [
+      "mouldy-hollow",
+      "mouldy-pools"
+    ],
     "bossMap": "mouldy-2-4",
     "monsters": [
       {
@@ -624,11 +660,16 @@
         "mp": 3,
         "initiative": 60,
         "spells": [
-          "claw"
+          "claw",
+          "grip"
         ],
         "resistances": {
-          "Fire": 10
+          "Fire": 10,
+          "Water": -15
         },
+        "passives": [
+          "contagion-fire"
+        ],
         "loot": [
           {
             "item": "rotten-cloth",
@@ -658,8 +699,13 @@
         "mp": 3,
         "initiative": 75,
         "spells": [
-          "bile-spit",
-          "claw"
+          "bile-spit"
+        ],
+        "resistances": {
+          "Water": 10
+        },
+        "passives": [
+          "contagion-water"
         ],
         "loot": [
           {
@@ -686,13 +732,18 @@
         "mp": 2,
         "initiative": 40,
         "spells": [
-          "claw",
-          "rotting-hide"
+          "rot-fist",
+          "foul-breath"
         ],
         "resistances": {
-          "Fire": 15,
-          "Earth": 10
+          "Earth": 15,
+          "Fire": 10,
+          "Water": -15
         },
+        "passives": [
+          "contagion-earth",
+          "explosion"
+        ],
         "loot": [
           {
             "item": "old-bone",
@@ -723,7 +774,14 @@
         "initiative": 55,
         "spells": [
           "stitch",
-          "claw"
+          "gust-claw"
+        ],
+        "resistances": {
+          "Air": 10,
+          "Water": -15
+        },
+        "passives": [
+          "contagion-air"
         ],
         "loot": [
           {
@@ -751,14 +809,20 @@
         "initiative": 55,
         "spells": [
           "grave-smash",
-          "plague-wave"
+          "tomb-vomit",
+          "stone-fist",
+          "wing-gust"
         ],
         "resistances": {
           "Earth": 15,
           "Fire": 25,
-          "Water": 10,
-          "Air": 10
+          "Air": 10,
+          "Water": -5
         },
+        "passives": [
+          "contagion-fire",
+          "four-wings"
+        ],
         "loot": [
           {
             "item": "old-bone",
