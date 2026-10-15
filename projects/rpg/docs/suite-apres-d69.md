@@ -22,7 +22,7 @@
 > - les données `data/items.json`, `sets.json`, `monsters.json`, `quests.json`, `jobs.json`, `classes.json`, `data/towns/clairval.json`, `data/towns/woods-2-2.json` ;
 > - le code `src/Rpg.Core/Fight.cs`, `Items.cs`, `Jobs.cs`, `Progression.cs`, `Monsters.cs`, `FightRecord.cs`, `Data.cs`, `Town.cs`, `src/Rpg.Client/ItemStyle.cs`, `GameMenu.cs` (`WindowState.Bar`), `godot/SpellIcon.cs`, `godot/SideBar.cs`, `godot/assets/icons/spells/credits.json`, `src/Rpg.Api/Endpoints/CharacterEndpoints.cs`, `src/Rpg.Api/Data/Entities.cs`, et l'outil `tools/world_gen.py`.
 >
-> Les points **[À TRANCHER]** ont une **valeur par défaut** (§9), à utiliser tant que Charles n'a pas dit autre chose. **Rien de la v4 n'est à implémenter avant son accord.**
+> Les points **[À TRANCHER]** ont une **valeur par défaut** (§9), à utiliser tant que Charles n'a pas dit autre chose. **Rien de la v5 n'est à implémenter avant son accord** (la v4, la vie, est en cours au S101).
 
 ---
 
@@ -38,10 +38,15 @@
 | 3 bis | **La vie se garde entre les combats** *(v4)* | chaque combat repart à pleine vie : une victoire serrée ne coûte rien, et soins et nourriture n'ont pas d'usage hors combat | 1 sprint (5), S101 | rien ; le boulanger (S107) s'appuie dessus |
 | 3 ter | **Clairval en 12 cartes, le fil conducteur des quêtes, la mini-carte** *(v5)* | trop de quêtes d'un coup chez chaque habitant (le dialogue déborde), aucun ordre, un village d'une seule carte, rien pour se repérer | 7 sprints (5 + 5 + 3 + 3, puis 3 + 3 + 3), S102 à S105 et S108 à S110 | 3 (récolte, ateliers), 3 bis (la vie) ; il remplace le chantier 5 |
 | 4 | **Jouer ensemble** | les hordes, les chefs, les salles 3 et les quêtes de donjon sont faits pour plusieurs, mais le jeu ne connaît qu'un héros par combat | 4 sprints (3 + 5 + 5 + 5) | 1 ; 3 pour l'échange entre joueurs |
-| 5 | **La fin du chapitre 1** | l'histoire s'arrête au niveau 8, alors que 94 % de l'XP jusqu'au niveau 30 vient après | 3 sprints (3 + 3 + 3) | 0 |
+| 5 | ~~**La fin du chapitre 1**~~ *(remplacé par 3 ter en v5)* | l'histoire s'arrête au niveau 8, alors que 94 % de l'XP jusqu'au niveau 30 vient après | 3 sprints (3 + 3 + 3) | 0 |
 | 6 | Le monde après 30 (concept de `design-familles.md` §7) | il n'y a plus rien après le niveau 30 | plusieurs mois | 1 à 5 et une décision de Charles |
 
-**Ma recommandation :** faire les chantiers 0 à 5 dans cet ordre, soit **65 points, sprints 95 à 111**, avec un playtest après le chantier 1 et un autre après le chantier 3. La vie (3 bis) se glisse en S100, entre la récolte et la fenêtre Métiers.
+**Ma recommandation (v5) :** soit **78 points, sprints 95 à 114**, dans cet ordre :
+- les chantiers 0 à 3 bis ;
+- **le chantier 3 ter** : le village, le moteur des quêtes, le tuto, la mini-carte, puis les quêtes des zones jusqu'au Disjoint ;
+- **le jeu à plusieurs en dernier**.
+
+Un playtest a lieu après le chantier 1, un autre après l'alchimie (S107). Le chantier 5 est remplacé par le 3 ter.
 
 - **Les métiers passent avant le jeu à plusieurs.** Ils complètent la boucle d'un joueur seul (combattre, récolter, fabriquer, vendre) pour un risque technique faible : l'établi, les recettes et le niveau de métier existent déjà (T48). Ils donnent aussi au jeu à plusieurs sa première raison d'échanger.
 - **Le jeu à plusieurs reste le trou le plus grand.** Mais une boucle de récompense vide reste vide à quatre. Il faut d'abord que le butin, la monnaie et l'artisanat aient un sens, et que l'équilibre soit mesuré avec l'équipement, que le multijoueur viendra multiplier.
@@ -940,15 +945,20 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 
 ---
 
-## 10. Planification proposée (si Charles dit « Go » sur la v4)
+## 10. Planification proposée (si Charles dit « Go » sur la v5)
 
-Trois décisions couvrent ensemble les sprints **95 à 111**, soit **65 points** :
+Quatre décisions couvrent ensemble les sprints **95 à 114**, soit **78 points** :
 - **D71** (v1 et v2, 52 points) ;
 - **D72** (v3 : les icônes, la fenêtre Métiers, une ressource tous les 5 niveaux ; 6 points de plus) ;
-- **D73** (v4 : la vie qui se garde, 5 points en S100, et le boulanger, 2 points de plus en S104 ; tout ce qui suit S99 recule d'un cran).
+- **D73** (v4 : la vie qui se garde, 5 points, et le boulanger, 2 points de plus) ;
+- **D74** (v5 : le village, le fil conducteur, la mini-carte).
 
-Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (dont les 3 de la potion, autrefois en option), 2 pour l'échange entre joueurs, 3 pour les icônes, 3 pour la fenêtre Métiers, 5 pour la vie et 2 pour le boulanger.
-- Le projet passe de **381 à 446 points**, et rpg de **160 à 225**.
+**Le bilan de D74 :**
+- **Retirés** : l'ancien S102 (le quartier des artisans, 3 points), les anciens S109 à S111 (la chaîne et le Disjoint, 9 points).
+- **Ajoutés** : S102 le village (5), S103 le moteur des quêtes (5), S104 le tuto (3), S105 la mini-carte (3), S108 et S109 les quêtes des zones (3 + 3), S110 le Disjoint et la fin (3).
+- Soit 25 points ajoutés et 12 retirés : **13 de plus**.
+- Les icônes d'ingrédients de l'établi sont faites dans S101.
+- Le projet passe de **381 à 459 points**, et rpg de **160 à 238**.
 - Il faut mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-NN.md`, ainsi que R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »).
 - Les entrées de `DECISIONS.md` commencent à **T63**.
 
@@ -960,14 +970,17 @@ Il y a 36 points pour les chantiers de la v1, 14 pour les métiers de la v2 (don
 | S98 | 3 | 1 bis | Les icônes d'objets (game-icons.net, cadre selon la provenance) |
 | S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes (fait) |
 | S100 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi (fait, T68) |
-| S101 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose |
-| S102 | 3 | 3 | Le quartier des artisans, les 5 ateliers (dont le four) et les quêtes d'initiation |
-| S103 | 3 | 3 | Forgeron et tailleur : 16 pièces d'artisan ; T41 remesuré |
-| S104 | 5 | 3 | Alchimiste (potions et huiles en combat) et boulanger (pains hors combat) ; T41 et vie restante remesurées ; **playtest** |
-| S105 | 3 | 4 | Se voir sur la carte, des monstres et des points communs |
-| S106 | 5 | 4 | Le groupe, son canal de chat, l'échange entre joueurs |
-| S107 | 5 | 4 | Le combat à plusieurs : règles, serveur, simulation |
-| S108 | 5 | 4 | Le combat à plusieurs : client, donjons, équilibre |
-| S109 | 3 | 5 | Objectif `Interact`, chaîne du Bois moisi |
-| S110 | 3 | 5 | Chaîne du Lac et des Champs |
-| S111 | 3 | 5 | Le Disjoint, « Quatre routes » |
+| S101 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose ; icônes d'ingrédients de l'établi (fait, T69) |
+| S102 | 5 | 3 ter | **Le nouveau Clairval** : 12 cartes, palissade, 3 portes, habitants déplacés, quartier des artisans (5 ateliers), points de niveau 1, porte est retirée ; correctif du dialogue (2 offres au plus, défilement, touches 1 à 9) |
+| S103 | 5 | 3 ter | **Le moteur des quêtes** : `Interact`, `Win`, `Wear`, butin de quête, habitants des zones, « ! » et « ? », journal « où aller » |
+| S104 | 3 | 3 ter | **Le tuto de Clairval** : 9 quêtes (niveaux 1 à 5), rats du grenier, équipement de départ |
+| S105 | 3 | 3 ter | **La mini-carte** (N), déplaçable et zoomable |
+| S106 | 3 | 3 | Forgeron et tailleur : 16 pièces d'artisan ; T41 remesuré |
+| S107 | 5 | 3 | Alchimiste (potions et huiles en combat) et boulanger (pains hors combat) ; T41 et vie restante remesurées ; **playtest** |
+| S108 | 3 | 3 ter | Quêtes du Bois et du Bois moisi (18) ; campement des bûcherons, ermite des mares |
+| S109 | 3 | 3 ter | Quêtes du Lac et des Champs (16) ; Liane, la fermière des Champs |
+| S110 | 3 | 3 ter | Le Disjoint et `four-trails` (niveau 30), fin du chapitre 1 |
+| S111 | 3 | 4 | Se voir sur la carte, des monstres et des points communs |
+| S112 | 5 | 4 | Le groupe, son canal de chat, l'échange entre joueurs |
+| S113 | 5 | 4 | Le combat à plusieurs : règles, serveur, simulation |
+| S114 | 5 | 4 | Le combat à plusieurs : client, donjons, équilibre |

@@ -1,12 +1,12 @@
-# Sprint 108 : Osmose : le combat à plusieurs, client et donjons
+# Sprint 108 : Osmose : les quêtes du Bois et du Bois moisi
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D73).
+**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D73).
+**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je rejoins le combat d'un allié, je fais les donjons à plusieurs, et hordes et chefs sont réglés pour le groupe (rpg) ; équilibre à plusieurs ; auto-test. | 5 | À faire |
+| En tant que joueur, je suis le fil des quêtes du Bois et du Bois moisi (18), avec le campement des bûcherons et l'ermite des mares (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

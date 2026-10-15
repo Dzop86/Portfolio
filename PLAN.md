@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S111), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S114), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S111 | 225 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S114 | 238 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 446 points sur 111 sprints de deux semaines.
+Total : 459 points sur 114 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -142,6 +142,9 @@ Demandes de Charles intégrées par le game designer (v3 de `projects/rpg/docs/s
 
 ## Osmose : la vie qui se garde entre les combats (16 octobre 2026, D73)
 Règle de Charles, conçue par le game designer (v4 de `projects/rpg/docs/suite-apres-d69.md`) : S101 (5 points) la vie gardée d'un combat à l'autre, qui remonte hors combat, la défaite à 1 PV, le pain ; le boulanger rejoint l'alchimiste en S104 (5 points) ; la suite décalée d'un cran, jusqu'à S111.
+
+## Osmose : un fil conducteur, Clairval en douze cartes, le tuto, la mini-carte (16 octobre 2026, D74)
+Demandes de Charles, conçues par le game designer (v5 de `projects/rpg/docs/suite-apres-d69.md`), textes par le scénariste (`projects/rpg/docs/textes-v5.md`) : S102 (5) le nouveau Clairval et le dialogue réparé, S103 (5) le moteur des quêtes, S104 (3) le tuto, S105 (3) la mini-carte, puis l'artisanat (S106-S107), les quêtes des zones jusqu'au Disjoint (S108-S110) et le jeu à plusieurs (S111-S114).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
