@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S89), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S94), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S89 | 141 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S94 | 158 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 362 points sur 89 sprints de deux semaines.
+Total : 379 points sur 94 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -127,6 +127,9 @@ Après l'essai du sprint 82, deux sprints avant les quêtes : S85 (3 points) un 
 
 ## Osmose : les icônes, le chat discret, les fenêtres mobiles, la fin du combat (décision de Charles, 15 octobre 2026, D68)
 Pendant le sprint 85 (qui passe à 4 points) : des bordures ouvertes, les icônes des sorts réparées, le chat caché sauf quand une ligne arrive, les fenêtres déplacées par leur en-tête. Puis S87 (3 points) : la fenêtre de fin de combat (gagnants, perdants, expérience, Éclats et butin de chacun, statistiques, « Fermer » sans changer de place) et la monnaie.
+
+## Osmose : des familles de monstres qui se jouent chacune autrement (15 octobre 2026, D69)
+D'après la conception `projects/rpg/docs/design-familles.md` (game designer, lancée par Charles) : les huit familles suivaient le même gabarit. Cinq sprints : S90 (5 points) le moteur, des passifs (début de tour, coup reçu, PV bas, allié tombé, mort), un saut et un échange de place, plusieurs cartes de combat par famille, la correction des états PA et PM posés sur soi ; puis, zone par zone, chaque famille avec sa leçon, son passif, sa faiblesse, un tank qui protège, un soutien qui replace et un chef à deux phases, et une nouvelle carte de combat : S91 le Bois, S92 le Bois moisi, S93 le Lac, S94 les Champs (3 points chacun).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
