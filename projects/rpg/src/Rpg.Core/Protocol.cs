@@ -86,6 +86,9 @@ public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);
 
+/// <summary>Items to buy from Rose or to sell her (sprint 97): which, how many.</summary>
+public sealed record Trade(string? Item, int Count = 1);
+
 /// <summary>A quest to take from its giver (sprint 88).</summary>
 public sealed record TakeQuest(string? Quest);
 

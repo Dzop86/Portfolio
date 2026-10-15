@@ -858,6 +858,47 @@ public partial class Main
             EnterFight(scenario);
         else if (_town.QuestTaken is not null || _town.QuestHandedIn is not null)
             _ = SeeToQuest();
+        else if (_town.ShopOpened)
+        {
+            _town.ShopSeenTo();
+            OpenShop();
+        }
+    }
+
+    private ShopPanel? _shopPanel;
+
+    /// <summary>Rose's stall (sprint 97): her stock and what she buys; the server makes each deal.</summary>
+    private ShopPanel OpenShop()
+    {
+        _shopPanel?.QueueFree();
+        Texts texts = _talkPanel!.Texts;
+        _shopPanel = new ShopPanel();
+        AddChild(_shopPanel);
+        _shopPanel.Build(new Stall(_character, texts), texts);
+        _shopPanel.ClosePressed += () =>
+        {
+            _shopPanel?.QueueFree();
+            _shopPanel = null;
+        };
+        _shopPanel.DealPressed += (item, count, buying) => _ = Deal(item, count, buying);
+        return _shopPanel;
+    }
+
+    private async Task Deal(string item, int count, bool buying)
+    {
+        if (_shopPanel is null || _lobby?.SignedIn != true || _character is null)
+            return;
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            KeepCharacter(buying ? await _lobby.Server.Buy(_character.Id, item, count) : await _lobby.Server.Sell(_character.Id, item, count));
+            _shopPanel?.Show(new Stall(_character, texts));
+            _shopPanel?.ShowMessage(texts[buying ? "shop.bought" : "shop.sold", texts.Items([new ItemCount(item, count)])]);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _shopPanel?.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
     }
 
     private JournalPanel? _journalPanel;
@@ -1319,6 +1360,24 @@ public partial class Main
             _town.CloseDoor();
             if (_town.Click(_town.Town.Spawn) is null)
                 problems.Add("after the bench, the player cannot walk on");
+        }
+        // Rose's stall (sprint 97): her answer opens it, her stock as the rules say; closed, the player walks on.
+        _town = new TownController(GameData.Embedded, "clairval");
+        Npc rose = _town.Town.Npcs.First(n => n.Dialogue == "merchant");
+        Dialogue merchant = GameData.Embedded.Dialogues["merchant"];
+        int shopAnswer = merchant.Lines[merchant.Start].Answers.ToList().FindIndex(a => a.Shop);
+        if (_town.Click(rose.At)?.TalkTo != rose || shopAnswer < 0)
+            problems.Add("Rose's talk has no answer opening her stall");
+        else
+        {
+            Answer(shopAnswer);
+            var expectedStall = new Stall(_character, _talkPanel!.Texts);
+            if (_shopPanel is null || _shopPanel.TitleText != expectedStall.Title || !_shopPanel.Buying.SequenceEqual(expectedStall.ToBuy.Select(r => (r.Item.Id, r.Most > 0))))
+                problems.Add($"Rose's answer does not open her stall as the rules say ({_shopPanel?.TitleText ?? "nothing"})");
+            _shopPanel?.QueueFree();
+            _shopPanel = null;
+            if (_town.Click(_town.Town.Spawn) is null)
+                problems.Add("after Rose's stall, the player cannot walk on");
         }
         // Drawn on its map: the door's name over it.
         Dungeon first = GameData.Embedded.Dungeons.Values.First();

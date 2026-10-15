@@ -164,6 +164,19 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    /// <summary>Buys from Rose's stall (sprint 97); the server checks the place, the stock and the Éclats.</summary>
+    public async Task<CharacterSummary> Buy(Guid id, string item, int count = 1, CancellationToken cancel = default) => await Trade(id, "buy", item, count, cancel);
+
+    /// <summary>Sells Rose what she buys (sprint 97); the server checks the place and what is owned and not worn.</summary>
+    public async Task<CharacterSummary> Sell(Guid id, string item, int count = 1, CancellationToken cancel = default) => await Trade(id, "sell", item, count, cancel);
+
+    private async Task<CharacterSummary> Trade(Guid id, string way, string item, int count, CancellationToken cancel)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/shop/{way}", UriKind.Relative), new Trade(item, count), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     public async Task<CharacterSummary> Craft(Guid id, string job, string item, int count = 1, CancellationToken cancel = default)
     {
         HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/craft", UriKind.Relative), new Craft(job, item, count), Json, cancel), cancel);

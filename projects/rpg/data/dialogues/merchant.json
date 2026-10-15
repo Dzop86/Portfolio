@@ -3,16 +3,18 @@
   "start": "hello",
   "lines": {
     "hello": {
-      "text": { "fr": "Du pain, des pommes, des flèches… Enfin, bientôt : l'étal ouvre au prochain marché.", "en": "Bread, apples, arrows… Well, soon: the stall opens on the next market day." },
+      "text": { "fr": "L'étal est ouvert ! Je rachète ce que tu rapportes des bois, et j'ai de quoi dépanner un artisan pressé.", "en": "The stall is open! I buy back what you bring from the woods, and I have enough to help a craftsman in a hurry." },
       "answers": [
-        { "text": { "fr": "Que vendrez-vous ?", "en": "What will you sell?" }, "next": "wares" },
+        { "text": { "fr": "Voyons l'étal.", "en": "Let us see the stall." }, "shop": true },
+        { "text": { "fr": "Que vendez-vous ?", "en": "What do you sell?" }, "next": "wares" },
         { "text": { "fr": "À bientôt.", "en": "See you soon." } }
       ]
     },
     "wares": {
-      "text": { "fr": "Des potions et des armes. Pour l'instant, je range les caisses.", "en": "Potions and weapons. For now, I am tidying up the crates." },
+      "text": { "fr": "Des soies, des crocs, des chapeaux de champignon, tout ce que les monstres laissent. Plus cher que ce que je les paie, c'est le métier. Les clefs, c'est le serrurier.", "en": "Bristles, fangs, mushroom caps, all that the monsters leave. Dearer than I pay for them, that is the trade. Keys, that is the locksmith." },
       "answers": [
-        { "text": { "fr": "Bon courage !", "en": "Good luck!" } }
+        { "text": { "fr": "Voyons l'étal.", "en": "Let us see the stall." }, "shop": true },
+        { "text": { "fr": "Merci, Rose.", "en": "Thank you, Rose." } }
       ]
     }
   }

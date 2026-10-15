@@ -577,6 +577,9 @@ public partial class PointsPanel : CanvasLayer
         _save.Text = Texts["points.save"];
         _save.Disabled = !Editor.Changed;
         _close.Text = Texts["points.close"];
+        // Taking points back costs Éclats from level 11 (sprint 97): said before saving.
+        if (Editor.ResetCost > 0 && !Editor.ReadOnly)
+            _message.Text = Texts["points.reset-cost", Editor.ResetCost];
         // In a fight (sprint 93): shown only, nothing to save, reset or paste.
         if (Editor.ReadOnly)
         {

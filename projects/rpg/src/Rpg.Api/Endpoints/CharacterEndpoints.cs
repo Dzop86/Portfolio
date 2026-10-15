@@ -22,6 +22,8 @@ public static class CharacterEndpoints
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
+        group.MapPost("/{id:guid}/shop/buy", Buy).WithSummary("Buys from Rose's stall, in the village, what she sells, for Éclats.");
+        group.MapPost("/{id:guid}/shop/sell", Sell).WithSummary("Sells Rose, in the village, resources and equipment owned and not worn, for Éclats.");
         group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
         group.MapPost("/{id:guid}/dungeon/rest", Rest).WithSummary("Heals one of the player's characters in its dungeon, at the fountain of a hall: all its hit points for the next room.");
         group.MapPost("/{id:guid}/quests", Take).WithSummary("Takes a quest an inhabitant gives, from its level and after the quests it follows.");
@@ -257,6 +259,42 @@ public static class CharacterEndpoints
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
+    /// <summary>Rose's stall (sprint 97, D71): the rules decide the price, the place, the Éclats and what is owned.</summary>
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Buy(
+        Guid id, Trade request, ClaimsPrincipal user, GameDb db, CancellationToken cancel) => await Deal(id, request, user, db, buying: true, cancel);
+
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Sell(
+        Guid id, Trade request, ClaimsPrincipal user, GameDb db, CancellationToken cancel) => await Deal(id, request, user, db, buying: false, cancel);
+
+    private static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Deal(
+        Guid id, Trade request, ClaimsPrincipal user, GameDb db, bool buying, CancellationToken cancel)
+    {
+        if (request?.Item is not string itemId || !GameData.Embedded.Items.TryGetValue(itemId, out Item? item))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = ["A known item."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        string? why = buying
+            ? Shop.WhyNotBuy(item, request.Count, character.Shards, character.Town, GameData.Embedded)
+            : Shop.WhyNotSell(item, request.Count, character.InventoryList, character.WornList, character.Town, GameData.Embedded);
+        if (why is not null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = [why] });
+        var deal = new ItemCount(item.Id, request.Count);
+        if (buying)
+        {
+            character.Shards -= Shop.SellPrice(item, GameData.Embedded)!.Value * request.Count;
+            character.Receive([deal]);
+        }
+        else
+        {
+            character.Shards += Shop.BuyPrice(item, GameData.Embedded)!.Value * request.Count;
+            character.Spend(deal);
+        }
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Make(
         Guid id, Craft request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
     {
@@ -269,10 +307,12 @@ public static class CharacterEndpoints
             return TypedResults.NotFound();
         Dictionary<string, long> jobs = character.JobList;
         // The rules decide: the trade's level, the ingredients owned (worn ones count as owned, but are kept on).
-        if (Crafting.Problem(recipe, Crafting.LevelFor(jobs.GetValueOrDefault(job.Id)), character.InventoryList, request.Count) is string problem)
+        if (Crafting.Problem(recipe, Crafting.LevelFor(jobs.GetValueOrDefault(job.Id)), character.InventoryList, request.Count, character.Shards) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["recipe"] = [problem] });
         foreach (ItemCount i in recipe.Ingredients)
             character.Spend(i with { Count = i.Count * request.Count });
+        // The key's price in Éclats (sprint 97).
+        character.Shards -= recipe.Shards * request.Count;
         character.Receive([new ItemCount(recipe.Item, request.Count)]);
         jobs[job.Id] = jobs.GetValueOrDefault(job.Id) + Crafting.Xp(recipe) * request.Count;
         character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
@@ -398,6 +438,11 @@ public static class CharacterEndpoints
         // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them.
         if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
+        // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71).
+        long cost = Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0;
+        if (cost > character.Shards)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [$"Taking points back costs {cost} Éclats."] });
+        character.Shards -= cost;
         (character.Vitality, character.Earth, character.Fire, character.Water, character.Air) = (stats.Vitality, stats.Earth, stats.Fire, stats.Water, stats.Air);
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);

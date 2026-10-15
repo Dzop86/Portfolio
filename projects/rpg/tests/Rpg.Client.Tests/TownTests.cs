@@ -36,12 +36,19 @@ public class TownTests
         Assert.Equal("hello", town.Talk!.LineId);
         // While they talk, the town waits.
         Assert.Null(town.Click(town.Town.Spawn));
-        town.Answer(0);
+        town.Answer(1);
         Assert.Equal("wares", town.Talk!.LineId);
-        town.Answer(0);
+        town.Answer(1);
         Assert.Null(town.Talk);
         Assert.Null(town.Fight);
+        Assert.False(town.ShopOpened);
         Assert.NotNull(town.Click(town.Town.Spawn));
+        // Her first answer opens her stall (sprint 97); the game says it is seen to.
+        town.Click(rose.At);
+        town.Answer(0);
+        Assert.True(town.ShopOpened);
+        town.ShopSeenTo();
+        Assert.False(town.ShopOpened);
     }
 
     [Fact]

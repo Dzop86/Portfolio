@@ -1,7 +1,7 @@
 namespace Rpg.Core;
 
-/// <summary>What a trade makes (sprint 81): an item, from the job's level, out of its ingredients.</summary>
-public sealed record Recipe(string Item, int Level, IReadOnlyList<ItemCount> Ingredients);
+/// <summary>What a trade makes (sprint 81): an item, from the job's level, out of its ingredients, and since sprint 97 Éclats.</summary>
+public sealed record Recipe(string Item, int Level, IReadOnlyList<ItemCount> Ingredients, long Shards = 0);
 
 /// <summary>
 /// A trade, as described in <c>data/jobs.json</c> (sprint 81, D65): its name, its workshop's, and what it
@@ -38,8 +38,8 @@ public static class Crafting
     /// <summary>The experience one item of a recipe gives: 20, and 5 for each level the recipe needs.</summary>
     public static long Xp(Recipe recipe) => 20 + 5L * (recipe ?? throw new ArgumentNullException(nameof(recipe))).Level;
 
-    /// <summary>Why <paramref name="count"/> of a recipe cannot be made now, or null if they can.</summary>
-    public static string? Problem(Recipe recipe, int jobLevel, IEnumerable<ItemCount> owned, int count = 1)
+    /// <summary>Why <paramref name="count"/> of a recipe cannot be made now, or null if they can; <paramref name="shards"/> owned, if known.</summary>
+    public static string? Problem(Recipe recipe, int jobLevel, IEnumerable<ItemCount> owned, int count = 1, long? shards = null)
     {
         ArgumentNullException.ThrowIfNull(recipe);
         ArgumentNullException.ThrowIfNull(owned);
@@ -47,6 +47,8 @@ public static class Crafting
             return $"1 to {MostAtOnce} at once.";
         if (jobLevel < recipe.Level)
             return $"The trade's level {recipe.Level} is needed.";
+        if (shards is long owns && recipe.Shards * count > owns)
+            return $"{recipe.Shards * count} Éclats needed.";
         var have = owned.GroupBy(i => i.Item).ToDictionary(g => g.Key, g => g.Sum(i => i.Count), StringComparer.Ordinal);
         return recipe.Ingredients.FirstOrDefault(i => have.GetValueOrDefault(i.Item) < i.Count * count) is ItemCount missing
             ? $"Not enough '{missing.Item}': {missing.Count * count} needed."

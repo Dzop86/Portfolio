@@ -48,6 +48,9 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
     /// <summary>The quest the last answer handed back, if any (sprint 88).</summary>
     public string? HandedIn { get; private set; }
 
+    /// <summary>Whether the last answer opened the stall (sprint 97).</summary>
+    public bool Shop { get; private set; }
+
     public void Choose(int answer)
     {
         if (IsOver)
@@ -59,7 +62,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
             return;
         }
         IsOver = true;
-        (Fight, Taken, HandedIn) = (a.Fight, a.Take, a.HandIn);
+        (Fight, Taken, HandedIn, Shop) = (a.Fight, a.Take, a.HandIn, a.Shop);
     }
 }
 
@@ -121,6 +124,11 @@ public sealed class TownController
 
     /// <summary>The quest the talk just ended took, or handed back (sprint 88): the game asks the server.</summary>
     public string? QuestTaken { get; private set; }
+
+    /// <summary>Whether the last talk ended on Rose's stall (sprint 97); the game opens it and says it is seen to.</summary>
+    public bool ShopOpened { get; private set; }
+
+    public void ShopSeenTo() => ShopOpened = false;
 
     public string? QuestHandedIn { get; private set; }
 
@@ -336,6 +344,7 @@ public sealed class TownController
             Talk = null;
             Fight = talk.Fight;
             (QuestTaken, QuestHandedIn) = (talk.Taken, talk.HandedIn);
+            ShopOpened = talk.Shop;
         }
     }
 }

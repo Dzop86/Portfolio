@@ -180,8 +180,11 @@ for f, d in zip(families, dungeons):
         m["loot"] = [l for l in m.get("loot", []) if not l["item"].endswith("-key")]
         m["loot"].append(O([("item", d["key"]), ("percent", CHIEF_KEY_PERCENT if m["role"] == "Boss" else KEY_PERCENT)]))
     resources = list(O.fromkeys(l["item"] for m in f["monsters"] for l in m["loot"] if kinds.get(l["item"]) == "Resource"))
+    # Since sprint 97 (D71), a key also costs 5 Éclats a level of the dungeon's chief.
+    chief = next(m for m in f["monsters"] if m["role"] == "Boss")
     recipes.append(O([("item", d["key"]), ("level", RECIPE_LEVEL[f["zone"]]),
-                      ("ingredients", [O([("item", resources[0]), ("count", 6)]), O([("item", resources[1]), ("count", 4)])])]))
+                      ("ingredients", [O([("item", resources[0]), ("count", 6)]), O([("item", resources[1]), ("count", 4)])]),
+                      ("shards", 5 * chief["level"])]))
 open(f"{root}/monsters.json", "w").write(json.dumps(families, ensure_ascii=False, indent=2) + "\n")
 jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])]
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")

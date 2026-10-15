@@ -23,7 +23,14 @@ public class CraftTests
         Assert.Equal(HttpStatusCode.BadRequest, refused.Status);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, null, [new("boar-tusk", 13), new("boar-bristle", 9), new("frog-leg", 6), new("slime", 4)]), Cancel);
+        // Since sprint 97, a key also costs Éclats: 30 each for the wallow's.
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Shards = 60;
+            return db.SaveChanges();
+        });
         CharacterSummary made = await server.Craft(c.Id, "locksmith", "boar-wallow-key", 2, Cancel);
+        Assert.Equal(0, made.Shards);
         Assert.Equal([new ItemCount("boar-bristle", 1), new ItemCount("boar-tusk", 1), new ItemCount("boar-wallow-key", 2), new ItemCount("frog-leg", 6), new ItemCount("slime", 4)], made.Inventory!);
         Assert.Equal(new Dictionary<string, long> { ["locksmith"] = 50 }, made.Jobs!);
         Assert.Equal(2, made.JobLevel("locksmith"));

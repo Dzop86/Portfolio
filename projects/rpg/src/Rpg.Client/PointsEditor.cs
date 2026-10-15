@@ -193,6 +193,9 @@ public sealed class PointsEditor
     /// <summary>Whether the draft differs from what is saved (a deck left as it comes is no change).</summary>
     public bool Changed => Draft != Hero with { Deck = Hero.DeckOf(Data) };
 
+    /// <summary>What saving this draft costs in Éclats (sprint 97): taking back points, from level 11.</summary>
+    public long ResetCost => Shop.TakesBack(Hero.Stats ?? Characteristics.None, Draft.Stats!) ? Shop.ResetCost(Hero.Level) : 0;
+
     /// <summary>What the server receives.</summary>
     public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck);
 }

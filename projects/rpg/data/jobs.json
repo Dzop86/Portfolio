@@ -22,7 +22,8 @@
             "item": "boar-bristle",
             "count": 4
           }
-        ]
+        ],
+        "shards": 30
       },
       {
         "item": "wolf-den-key",
@@ -36,7 +37,8 @@
             "item": "wolf-pelt",
             "count": 4
           }
-        ]
+        ],
+        "shards": 30
       },
       {
         "item": "mushroom-cellar-key",
@@ -50,7 +52,8 @@
             "item": "spore-dust",
             "count": 4
           }
-        ]
+        ],
+        "shards": 65
       },
       {
         "item": "zombie-crypt-key",
@@ -64,7 +67,8 @@
             "item": "old-bone",
             "count": 4
           }
-        ]
+        ],
+        "shards": 65
       },
       {
         "item": "frog-grotto-key",
@@ -78,7 +82,8 @@
             "item": "slime",
             "count": 4
           }
-        ]
+        ],
+        "shards": 110
       },
       {
         "item": "crab-reef-key",
@@ -92,7 +97,8 @@
             "item": "crab-shell",
             "count": 4
           }
-        ]
+        ],
+        "shards": 110
       },
       {
         "item": "royal-hive-key",
@@ -106,7 +112,8 @@
             "item": "honeycomb",
             "count": 4
           }
-        ]
+        ],
+        "shards": 150
       },
       {
         "item": "mole-burrows-key",
@@ -120,7 +127,8 @@
             "item": "earthworm",
             "count": 4
           }
-        ]
+        ],
+        "shards": 150
       }
     ]
   }
