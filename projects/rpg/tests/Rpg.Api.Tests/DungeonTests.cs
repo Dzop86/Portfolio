@@ -22,7 +22,7 @@ public class DungeonTests
     {
         FightTicket ticket = await server.StartFight(c.Id, scenario, Cancel);
         CharacterSummary now = (await server.Characters(Cancel)).Single(x => x.Id == c.Id);
-        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: hp == -1 ? now.Run?.Hp : hp);
+        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: hp == -1 ? ticket.HeroHp : hp);
         Ai.PlayOut(fight);
         return (await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel), fight);
     }
@@ -137,8 +137,9 @@ public class DungeonTests
         Assert.Equal(0, played.WinningTeam);
         Fighter hero = played.HeroFighter!;
         Assert.True(hero.Hp < hero.MaxHp);
-        Assert.Equal(new DungeonRun(wallow.Id, 2, hero.Hp), first.Run);
-        Assert.Equal(first.Run, (await server.Characters(Cancel)).Single().Run);
+        Assert.Equal(new DungeonRun(wallow.Id, 2), first.Run);
+        // The hit points left are the character's life now (sprint 101).
+        Assert.Equal(hero.Hp, (await server.Characters(Cancel)).Single().LifeAt(api.Clock.GetUtcNow(), GameData.Embedded));
         await server.SavePlace(c.Id, new Place(wallow.Halls[1].Map, 10, 11), Cancel);
         // The next room with all the hit points: refused, the ticket used up.
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => Fight(server, c, wallow.Scenario(2), hp: null))).Status);

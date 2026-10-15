@@ -12,7 +12,7 @@ public class ProgressionTests
     /// <summary>Plays the fight the server started, the AI choosing for the hero, and records it.</summary>
     private static FightRecord Play(FightTicket ticket, Hero hero)
     {
-        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, hero);
+        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, hero, heroHp: ticket.HeroHp);
         Ai.PlayOut(fight);
         return FightRecord.Of(fight);
     }
@@ -90,7 +90,7 @@ public class ProgressionTests
         await Refused(t => Play(t with { Seed = t.Seed + 1 }, c.Hero), "Not the fight the server started.");
         await Refused(t => Play(t, c.Hero with { Level = 100 }), "Not this character's fight.");
         await Refused(t => Play(t with { Scenario = "duel" }, c.Hero), "Not the fight the server started.");
-        await Refused(t => new FightRecord(FightRecord.CurrentVersion, t.Scenario, t.Seed, [new EndTurnAction()], c.Hero), "The fight is not over.");
+        await Refused(t => new FightRecord(FightRecord.CurrentVersion, t.Scenario, t.Seed, [new EndTurnAction()], c.Hero, HeroHp: t.HeroHp), "The fight is not over.");
         await Refused(t => Play(t, c.Hero) with { Actions = [new CastAction("titan-blow", new Cell(1, 1))] }, "titan-blow");
         Assert.Equal(0, (await server.Characters(Cancel)).Single().Xp);
     }

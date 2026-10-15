@@ -29,6 +29,9 @@ public partial class InventoryPanel : CanvasLayer
     public InventoryPage Page { get; private set; }
 
     public event Action<IReadOnlyDictionary<Slot, string>>? SavePressed;
+
+    /// <summary>Food clicked, to eat (sprint 101).</summary>
+    public event Action<Item>? EatPressed;
     public event Action? ClosePressed;
 
     public void Build(InventoryEditor editor, Texts texts)
@@ -218,10 +221,16 @@ public partial class InventoryPanel : CanvasLayer
             icon.Faint = item.Kind == ItemKind.Equipment && item.Level > Editor.Hero.Level;
             icon.Modulate = item.Kind == ItemKind.Equipment && free == 0 ? new Color(1, 1, 1, 0.5f) : Colors.White;
             // In a fight, every item stays readable (sprint 93); a click does nothing.
-            tile.Disabled = !Editor.ReadOnly && Editor.WhyNot(item) is not null;
+            tile.Disabled = !Editor.ReadOnly && Editor.WhyNot(item) is not null && item.Heal <= 0;
             tile.MouseEntered += () => _details.Text = card;
             tile.Pressed += () =>
             {
+                // Food is eaten out of a fight (sprint 101); equipment is put on.
+                if (item.Heal > 0 && !Editor.ReadOnly)
+                {
+                    EatPressed?.Invoke(item);
+                    return;
+                }
                 Editor.Put(item);
                 Refresh();
             };

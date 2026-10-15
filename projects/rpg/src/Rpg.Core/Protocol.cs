@@ -38,14 +38,18 @@ public sealed record Place(string Town, int X, int Y)
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
     IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null,
-    IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null)
+    IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null,
+    int? Hp = null, DateTimeOffset? HpAt = null, bool InFight = false)
 {
+    /// <summary>The character's hit points at a moment (sprint 101): set, grown back since, frozen in a fight.</summary>
+    public int LifeAt(DateTimeOffset now, GameData data) => Life.Now(Life.MaxHp(Hero, data), Hp, HpAt, InFight, Place?.Town, now);
+
     [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
-        other is not null && (Id, CreatedAt, Place, Server, Xp, Shards) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp, other.Shards)
+        other is not null && (Id, CreatedAt, Place, Server, Xp, Shards, Hp, HpAt, InFight) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp, other.Shards, other.Hp, other.HpAt, other.InFight)
         && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (QuestLog ?? []).SequenceEqual(other.QuestLog ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []) && Run == other.Run
         && (Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal).SequenceEqual((other.Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal));
 
@@ -55,8 +59,8 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     public override int GetHashCode() => HashCode.Combine(Id, Hero, Xp);
 }
 
-/// <summary>A fight the player is about to play, on the server's word: its scenario and the seed the server drew.</summary>
-public sealed record FightTicket(Guid Id, string Scenario, [property: JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)] ulong Seed);
+/// <summary>A fight the player is about to play, on the server's word: its scenario, the seed the server drew, and since sprint 101 the hero's hit points to start with (null: all).</summary>
+public sealed record FightTicket(Guid Id, string Scenario, [property: JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)] ulong Seed, int? HeroHp = null);
 
 /// <summary>A fight to start: one of the scenarios of the rules.</summary>
 public sealed record NewFight(string? Scenario);
@@ -85,6 +89,9 @@ public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
 
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);
+
+/// <summary>An item to use out of a fight (sprint 101): food, which heals.</summary>
+public sealed record Use(string? Item);
 
 /// <summary>A gathering spot to gather (sprint 99), from the cell the character stands on.</summary>
 public sealed record Gather(string? Node, Cell From);

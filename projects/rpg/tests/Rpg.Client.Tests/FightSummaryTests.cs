@@ -90,4 +90,16 @@ public class FightSummaryTests
             Assert.NotEqual(key, texts[key]);
         Assert.Contains("12", texts.Result(new FightResult(5, 5, 1, Shards: 12), 1), StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void TheEndWindow_SaysTheLifeKept_1IfLost()
+    {
+        // Sprint 101 (D73): the hit points the hero keeps for the next fight.
+        var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 5), GameData.Embedded);
+        var fight = new Fight(GameData.Embedded, "training", 1, hero);
+        Ai.PlayOut(fight);
+        SummaryRow row = new FightSummary(fight, 0, null, new Texts("fr")).Winners.Concat(new FightSummary(fight, 0, null, new Texts("fr")).Losers).Single(r => r.IsPlayer);
+        int max = Life.MaxHp(hero, GameData.Embedded);
+        Assert.Equal($"Vie : {(fight.WinningTeam == 0 ? Math.Min(fight.HeroFighter!.Hp, max) : 1)} / {max}", row.Life);
+    }
 }

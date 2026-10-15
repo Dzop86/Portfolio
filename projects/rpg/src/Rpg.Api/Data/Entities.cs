@@ -91,10 +91,29 @@ public sealed class Character
     /// <summary>The Éclats it owns, the money (sprint 87).</summary>
     public long Shards { get; set; }
 
-    /// <summary>The hit points kept from the room before (sprint 86); null: all of them.</summary>
-    public int? DungeonHp { get; set; }
+    /// <summary>
+    /// Its life (sprint 101, D73): the hit points last set (null: all of them), when, and whether a fight was
+    /// taken since (the life frozen until its report). It grows back from there (<see cref="Life.Now"/>).
+    /// </summary>
+    public int? Hp { get; set; }
+    public DateTimeOffset? HpAt { get; set; }
+    public bool InFight { get; set; }
 
-    public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom, DungeonHp) : null;
+    /// <summary>The hit points now.</summary>
+    public int LifeNow(DateTimeOffset now) => Life.Now(Life.MaxHp(Hero, GameData.Embedded), Hp, HpAt, InFight, Town, now);
+
+    /// <summary>Sets the life at a moment (out of a fight): all of them as null; to the millisecond, as the database keeps it.</summary>
+    public void SetLife(int hp, DateTimeOffset now)
+    {
+        Hp = hp >= Life.MaxHp(Hero, GameData.Embedded) ? null : Math.Max(1, hp);
+        HpAt = Hp is null ? null : new DateTimeOffset(now.Ticks - now.Ticks % TimeSpan.TicksPerMillisecond, now.Offset);
+        InFight = false;
+    }
+
+    /// <summary>Sets the life where it has grown to now (before the map, the equipment or the level changes it).</summary>
+    public void KeepLife(DateTimeOffset now) => SetLife(LifeNow(now), now);
+
+    public DungeonRun? Run => Dungeon is string d ? new DungeonRun(d, DungeonRoom) : null;
 
     /// <summary>The deck, without the spells the class no longer has.</summary>
     /// <summary>"" when the character never chose (the class's first spells), "-" for a deck chosen empty (D66).</summary>

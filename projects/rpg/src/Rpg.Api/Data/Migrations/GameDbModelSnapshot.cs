@@ -89,9 +89,6 @@ namespace Rpg.Api.Data.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
-                    b.Property<int?>("DungeonHp")
-                        .HasColumnType("integer");
-
                     b.Property<int>("DungeonRoom")
                         .HasColumnType("integer");
 
@@ -106,6 +103,15 @@ namespace Rpg.Api.Data.Migrations
 
                     b.Property<int>("Height")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("Hp")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("HpAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("InFight")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Inventory")
                         .IsRequired()

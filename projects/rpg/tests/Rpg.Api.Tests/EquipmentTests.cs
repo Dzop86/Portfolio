@@ -12,19 +12,21 @@ public class EquipmentTests
     private static CancellationToken Cancel => TestContext.Current.CancellationToken;
 
     /// <summary>Wins training fights until the first one, which does the quest; returns the character after it.</summary>
-    private static async Task<CharacterSummary> FirstWin(GameServer server, CharacterSummary c, List<FightResult> results)
+    private static async Task<CharacterSummary> FirstWin(ApiFactory api, GameServer server, CharacterSummary c, List<FightResult> results)
     {
         for (int i = 0; i < 12; i++)
         {
             FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
             CharacterSummary now = (await server.Characters(Cancel)).Single();
-            var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero);
+            var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: ticket.HeroHp);
             Ai.PlayOut(fight);
             FightResult result = await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
             results.Add(result);
             Assert.Equal(Equipment.Loot(fight).Concat(result.Quest is null ? [] : GameData.Embedded.Quests[result.Quest].Items!), result.Loot!);
             if (fight.WinningTeam == 0)
                 return (await server.Characters(Cancel)).Single();
+            // Lost, at 1 hit point (sprint 101): the time for the life to grow back.
+            api.Clock.Advance(TimeSpan.FromMinutes(5));
         }
         throw new InvalidOperationException("Twelve training fights without a win.");
     }
@@ -37,7 +39,7 @@ public class EquipmentTests
         CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
         Assert.Empty(c.Inventory ?? []);
         var results = new List<FightResult>();
-        CharacterSummary after = await FirstWin(server, c, results);
+        CharacterSummary after = await FirstWin(api, server, c, results);
         var expected = results.SelectMany(r => r.Loot!).GroupBy(i => i.Item).Select(g => new ItemCount(g.Key, g.Sum(i => i.Count))).OrderBy(i => i.Item, StringComparer.Ordinal);
         Assert.Equal(expected, after.Inventory!);
         Assert.Contains(new ItemCount("garance-badge", 1), after.Inventory!);
@@ -50,7 +52,7 @@ public class EquipmentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
         CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
-        c = await FirstWin(server, c, []);
+        c = await FirstWin(api, server, c, []);
         CharacterSummary wearing = await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Ring2] = "copper-ring" }, Cancel);
         Assert.Equal("copper-ring", wearing.Worn![Slot.Ring2]);
         Assert.Equal(wearing, (await server.Characters(Cancel)).Single());
@@ -71,11 +73,11 @@ public class EquipmentTests
         }
         // The next fight is played with the ring: without it, the server refuses the record.
         FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
-        var bare = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, wearing.Hero with { Worn = null });
+        var bare = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, wearing.Hero with { Worn = null }, heroHp: ticket.HeroHp);
         Ai.PlayOut(bare);
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, FightRecord.Of(bare), Cancel))).Status);
         ticket = await server.StartFight(c.Id, "training", Cancel);
-        var ringed = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, wearing.Hero);
+        var ringed = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, wearing.Hero, heroHp: ticket.HeroHp);
         Assert.Null(wearing.Hero.Problem(GameData.Embedded));
         Assert.Equal(GameData.Embedded.Class("guard")!.Hp + 5, ringed.Fighters[0].MaxHp - GameData.Embedded.Class("guard")!.HpPerLevel * (wearing.Level - 1));
         Ai.PlayOut(ringed);
@@ -96,14 +98,14 @@ public class EquipmentTests
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 3, [new ItemCount("wolf-boots", 1)]), Cancel);
         CharacterSummary booted = await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Boots] = "wolf-boots" }, Cancel);
         FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
-        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero);
+        var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero, heroHp: ticket.HeroHp);
         Assert.Equal(GameData.Embedded.Class("guard")!.Initiative + 10, fight.HeroFighter!.Spec.Initiative);
         // Played without the boots, the order differs: the server, which replays with them, refuses it.
-        var bare = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero with { Worn = null });
+        var bare = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero with { Worn = null }, heroHp: ticket.HeroHp);
         Ai.PlayOut(bare);
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, FightRecord.Of(bare), Cancel))).Status);
         ticket = await server.StartFight(c.Id, "training", Cancel);
-        fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero);
+        fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, booted.Hero, heroHp: ticket.HeroHp);
         Ai.PlayOut(fight);
         await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
     }

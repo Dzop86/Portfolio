@@ -13,7 +13,7 @@
   { "id": "kitten", "name": { "fr": "Chaton", "en": "Kitten" }, "kind": "Equipment", "slot": "Pet", "stats": { "water": 4 }, "icon": "lorc/cat" },
   { "id": "donkey", "name": { "fr": "Âne", "en": "Donkey" }, "kind": "Equipment", "slot": "Mount", "level": 20, "mp": 1, "icon": "skoll/donkey" },
   { "id": "poacher-boots", "name": { "fr": "Bottes du braconnier", "en": "Poacher's Boots" }, "kind": "Equipment", "slot": "Boots", "stats": { "air": 4 }, "set": "poacher", "icon": "lorc/leather-boot" },
-  { "id": "bread", "name": { "fr": "Pain", "en": "Bread" }, "kind": "Consumable", "icon": "delapouite/bread" },
+  { "id": "bread", "name": { "fr": "Pain", "en": "Bread" }, "kind": "Consumable", "heal": 40, "icon": "delapouite/bread" },
   { "id": "healing-potion", "name": { "fr": "Potion de soin", "en": "Healing Potion" }, "kind": "Consumable", "icon": "delapouite/health-potion" },
   { "id": "leather", "name": { "fr": "Cuir", "en": "Leather" }, "kind": "Resource", "icon": "delapouite/animal-hide" },
   { "id": "orc-fang", "name": { "fr": "Croc d'orque", "en": "Orc Fang" }, "kind": "Resource", "icon": "lorc/fangs-circle" },

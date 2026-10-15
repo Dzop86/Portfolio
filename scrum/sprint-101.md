@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je garde la vie que j'ai en sortant d'un combat ; elle remonte d'1 % de mes PV max par seconde (au moins 1 PV/s, doublé au village), jamais en combat ; perdre me laisse à 1 PV ; un pain me soigne hors combat ; une barre de vie et un avertissement sous 30 % (rpg) ; xUnit, intégration, auto-test. | 5 | À faire |
+| En tant que joueur, je garde la vie que j'ai en sortant d'un combat ; elle remonte d'1 % de mes PV max par seconde (au moins 1 PV/s, doublé au village), jamais en combat ; perdre me laisse à 1 PV ; un pain me soigne hors combat ; une barre de vie et un avertissement sous 30 % (rpg) ; xUnit, intégration, auto-test. | 5 | Fait |
+
+**Résultat :** la vie gardée d'un combat à l'autre, qui remonte hors combat, la défaite à 1 PV, le pain, la barre de vie et l'avertissement (T69) ; avec deux retours de Charles : la molette derrière une fenêtre, les icônes des ingrédients.
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -255,6 +255,9 @@ public sealed class GameData
         {
             if ((i.Kind == ItemKind.Equipment) != (i.Slot is not null) || i.Level is < 1 or > Hero.MaxLevel || (i.Set is not null && !Sets.ContainsKey(i.Set)))
                 throw new InvalidDataException($"Item '{i.Id}': equipment has a slot and nothing else does, a level 1 to {Hero.MaxLevel}, a known set.");
+            // Food (sprint 101): a consumable that heals out of a fight.
+            if (i.Heal < 0 || (i.Heal > 0 && i.Kind != ItemKind.Consumable))
+                throw new InvalidDataException($"Item '{i.Id}': only a consumable heals.");
             if (i.Initiative < 0 || (i.Initiative > 0 && (i.Slot is not ItemSlot slot || !Item.Quick.Contains(slot))))
                 throw new InvalidDataException($"Item '{i.Id}': initiative on boots, a cape or a ring only.");
         }

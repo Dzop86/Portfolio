@@ -53,6 +53,7 @@ public partial class Main
         _edgeArrow = new EdgeArrow();
         _talkPanel.AddChild(_edgeArrow);
         _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
+        _talkPanel.Living = _character;
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () =>
         {
@@ -226,8 +227,8 @@ public partial class Main
     {
         if (_hero?.Class is null)
             return;
-        int max = new CharacterSheet(_hero, GameData.Embedded).MaxHp;
-        _talkPanel!.ShowMessage(_talkPanel.Texts["hall.hp", Math.Min(Run?.Hp ?? max, max), max]);
+        int max = Life.MaxHp(_hero, GameData.Embedded);
+        _talkPanel!.ShowMessage(_talkPanel.Texts["hall.hp", _character?.LifeAt(DateTimeOffset.UtcNow, GameData.Embedded) ?? max, max]);
     }
 
     /// <summary>At a hall's fountain (sprint 86): all the hit points back, on the server's word when signed in.</summary>
@@ -338,9 +339,13 @@ public partial class Main
         }
         if (_windows.MenuOpen)
             return;
-        // The camera and the windows answer even during a walk.
+        // The camera and the windows answer even during a walk; the wheel zooms the map only with no window
+        // open over it (Charles: with the spells or the inventory open, the wheel is theirs).
+        bool covered = _windows.Open is not null || _shopPanel is not null || _jobsPanel is not null;
         switch (@event)
         {
+            case InputEventMouseButton { ButtonIndex: MouseButton.WheelUp or MouseButton.WheelDown } when covered:
+                return;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp }:
                 _explore?.ZoomBy(1);
                 _zoom = _explore?.Zoom ?? _zoom;
@@ -516,8 +521,23 @@ public partial class Main
         _groupMenu.AddItem(texts["group.attack"], 1);
         _groupMenu.IdPressed += id =>
         {
-            if (id == 1)
-                _ = Walk(_town!.Groups.TryGetValue(group.Id, out Cell now) ? now : cell, attack: true);
+            if (id != 1)
+                return;
+            void Go() => _ = Walk(_town!.Groups.TryGetValue(group.Id, out Cell now) ? now : cell, attack: true);
+            // Little life left (sprint 101): asked first, never refused.
+            if (_character is CharacterSummary c && _hero?.Class is not null)
+            {
+                int max = Life.MaxHp(_hero, GameData.Embedded), life = c.LifeAt(DateTimeOffset.UtcNow, GameData.Embedded);
+                if (Life.Low(life, max))
+                {
+                    var ask = new ConfirmationDialog { DialogText = texts["life.low", life, max], OkButtonText = texts["life.attack"], CancelButtonText = texts["life.later"] };
+                    ask.Confirmed += Go;
+                    AddChild(ask);
+                    ask.PopupCentered();
+                    return;
+                }
+            }
+            Go();
         };
         AddChild(_groupMenu);
         _groupMenu.Position = (Vector2I)at;
@@ -715,11 +735,29 @@ public partial class Main
         AddChild(_inventoryPanel);
         _inventoryPanel.Build(new InventoryEditor(_hero, owned, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts);
         _inventoryPanel.SavePressed += worn => _ = SaveEquipment(worn);
+        _inventoryPanel.EatPressed += item => _ = Eat(item);
         _inventoryPanel.ClosePressed += () =>
         {
             _windows.Close();
             ShowWindows();
         };
+    }
+
+    /// <summary>Food eaten from the inventory (sprint 101), on the server's word.</summary>
+    private async Task Eat(Item item)
+    {
+        InventoryPanel? panel = _inventoryPanel;
+        if (panel is null || _lobby?.SignedIn != true || _character is null)
+            return;
+        try
+        {
+            KeepCharacter(await _lobby.Server.Eat(_character.Id, item.Id));
+            panel.Saved(_hero!, _character.Inventory ?? [], panel.Texts["life.eaten", item.Name.In(panel.Texts.Lang), item.Heal]);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            panel.ShowMessage(e is ServerException refused ? panel.Texts["result.refused", refused.Message] : panel.Texts["lobby.unreachable"]);
+        }
     }
 
     /// <summary>Saves what the hero wears on the server (which checks it owns it); offline, for this game only.</summary>
@@ -1020,6 +1058,8 @@ public partial class Main
             OpenJournal();
         }
         _talkPanel?.SetProgress(_hero.Level, character.Xp);
+        if (_talkPanel is not null)
+            _talkPanel.Living = character;
     }
 
     /// <summary>A quest taken or handed back in a talk (sprint 88): on the server's word.</summary>
@@ -1174,6 +1214,16 @@ public partial class Main
             }
             inv.QueueFree();
             _inventoryPanel = null;
+        }
+        // The wheel over an open window is the window's, not the map's (Charles, sprint 101).
+        if (_explore is not null && _hero?.Class is not null)
+        {
+            double zoom = _explore.Zoom;
+            ToggleWindow(GameWindow.Inventory);
+            TownInput(new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.WheelUp });
+            if (_explore.Zoom != zoom)
+                problems.Add("the wheel zooms the map with the inventory open");
+            ToggleWindow(GameWindow.Inventory);
         }
         // Every item's drawing (sprint 98), imported with the game.
         string[] bare = [.. GameData.Embedded.Items.Values.Where(i => ItemIcon.TextureOf(i) is null).Select(i => i.Id)];

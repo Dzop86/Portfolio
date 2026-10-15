@@ -123,6 +123,9 @@ public partial class EndPanel : PanelContainer
                     xp.AddChild(progress);
                 }
                 xp.AddChild(new Label { Text = _texts["result.xp", row.Xp ?? 0] });
+                // The life kept for the next fight (sprint 101).
+                if (row.Life is string kept)
+                    xp.AddChild(new Label { Text = kept, Modulate = new Color(ElementStyle.Heal) });
                 line.AddChild(xp);
                 var shards = new HBoxContainer();
                 shards.AddChild(new ShardIcon { CustomMinimumSize = new Vector2(20, 20), SizeFlagsVertical = SizeFlags.ShrinkCenter, TooltipText = _texts["end.shards"] });

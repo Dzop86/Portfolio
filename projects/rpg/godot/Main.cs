@@ -154,8 +154,8 @@ public partial class Main : Node3D
         _ticket = _pendingTicket;
         _pendingTicket = null;
         ulong seed = _ticket?.Seed ?? _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
-        // In a dungeon's room, the hit points kept from the room before (sprint 86).
-        int? hp = hero?.Class is not null && Dungeons.Parse(scenario) is not null ? Run?.Hp : null;
+        // The hero's life to start with, on the server's word (sprint 101, D73; a dungeon's rooms since sprint 86).
+        int? hp = hero?.Class is not null ? _ticket?.HeroHp : null;
         _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero, heroHp: hp));
         BuildWorld();
         if (_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest)

@@ -22,6 +22,7 @@ public static class CharacterEndpoints
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
+        group.MapPost("/{id:guid}/use", Eat).WithSummary("Eats food the character owns, out of a fight: its hit points back at once.");
         group.MapPost("/{id:guid}/harvest", Harvest).WithSummary("Gathers a spot of the character's map with a gathering trade: the trade's level, next to the spot, the spot ready; the resource and the trade's experience.");
         group.MapGet("/{id:guid}/harvest", Spots).WithSummary("The gathering spots of the character's map still growing back, and when.");
         group.MapPost("/{id:guid}/shop/buy", Buy).WithSummary("Buys from Rose's stall, in the village, what she sells, for Éclats.");
@@ -121,7 +122,7 @@ public static class CharacterEndpoints
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SavePlace(
-        Guid id, Place place, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+        Guid id, Place place, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
         // The rules' own towns decide: a known town, a cell the player could walk to from the arrival.
         if (place?.Town is null || !GameData.Embedded.Towns.TryGetValue(place.Town, out Town? town) || !town.CanStand(place.Cell))
@@ -136,8 +137,16 @@ public static class CharacterEndpoints
             if (run.Dungeon != hallOf || GameData.Embedded.Dungeons[hallOf].RoomOf(town.Id) > run.DungeonRoom)
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = ["A hall of the dungeon this character is in, up to the room it is at."] });
         }
-        int saved = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
-            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Town, place.Town).SetProperty(c => c.X, place.X).SetProperty(c => c.Y, place.Y), cancel);
+        Character? moving = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        int saved = 0;
+        if (moving is not null)
+        {
+            // The life grown so far at the map's rate (the village heals twice as fast, sprint 101), then the new map.
+            if (moving.Town != place.Town && !moving.InFight)
+                moving.KeepLife(clock.GetUtcNow());
+            (moving.Town, moving.X, moving.Y) = (place.Town, place.X, place.Y);
+            saved = await db.SaveChangesAsync(cancel);
+        }
         if (saved > 0)
             hub.Move(id, place.Town);
         return saved == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
@@ -156,15 +165,26 @@ public static class CharacterEndpoints
         // A dungeon's room only for who went in, and only the room it is at (sprint 80).
         if (Dungeons.Parse(scenario) is (string dungeon, int room) && character.Run?.IsAt(dungeon, room) != true)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = ["Not the room of the dungeon this character is at."] });
+        // The life (sprint 101, D73): a fight taken and never reported is lost (1 hit point); the life now is
+        // the hero's to start with, frozen until the report.
+        DateTimeOffset now = clock.GetUtcNow();
+        if (character.InFight)
+        {
+            character.SetLife(1, now);
+            await db.PendingFights.Where(f => f.CharacterId == id).ExecuteDeleteAsync(cancel);
+        }
+        character.KeepLife(now);
+        character.InFight = true;
+        character.HpAt ??= new DateTimeOffset(now.Ticks - now.Ticks % TimeSpan.TicksPerMillisecond, now.Offset);
         // The server draws the seed: the player cannot pick the rolls.
-        var pending = new PendingFight { CharacterId = id, Scenario = scenario, Seed = BitConverter.ToInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), CreatedAt = clock.GetUtcNow() };
+        var pending = new PendingFight { CharacterId = id, Scenario = scenario, Seed = BitConverter.ToInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), CreatedAt = now };
         db.PendingFights.Add(pending);
         await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(new FightTicket(pending.Id, scenario, unchecked((ulong)pending.Seed)));
+        return TypedResults.Ok(new FightTicket(pending.Id, scenario, unchecked((ulong)pending.Seed), character.Hp));
     }
 
     internal static async Task<Results<Ok<FightResult>, NotFound, ValidationProblem>> ReportFight(
-        Guid id, Guid fight, HttpRequest request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+        Guid id, Guid fight, HttpRequest request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -177,14 +197,15 @@ public static class CharacterEndpoints
         using var reader = new StreamReader(request.Body);
         string? problem;
         Fight? played = null;
-        // In a dungeon's room, the hero starts with the hit points kept from the room before (sprint 86).
+        // The hero starts with the life frozen by the ticket (sprint 101; a dungeon's rooms since sprint 86).
+        int? startHp = character.InFight ? character.Hp : null;
         DungeonRun? inRoom = Dungeons.Parse(pending.Scenario) is (string runOf, int roomOf) && character.Run?.IsAt(runOf, roomOf) == true ? character.Run : null;
         try
         {
             FightRecord record = FightRecord.FromJson(await reader.ReadToEndAsync(cancel));
             problem = record.Scenario != pending.Scenario || record.Seed != unchecked((ulong)pending.Seed) ? "Not the fight the server started."
                 : record.Hero != character.Hero || record.Rival is not null ? "Not this character's fight."
-                : record.HeroHp != inRoom?.Hp ? "Not the hit points this character has."
+                : record.HeroHp != startHp ? "Not the hit points this character has."
                 : null;
             if (problem is null)
             {
@@ -218,10 +239,7 @@ public static class CharacterEndpoints
             done = won && run.Room == Dungeons.RoomCount;
             if (done)
                 xp += Progression.FightXp(played);
-            Fighter hero = played.HeroFighter!;
-            (character.Dungeon, character.DungeonRoom, character.DungeonHp) = won && !done
-                ? (run.Dungeon, run.Room + 1, hero.Hp < hero.MaxHp ? hero.Hp : (int?)null)
-                : ((string?)null, 0, (int?)null);
+            (character.Dungeon, character.DungeonRoom) = won && !done ? (run.Dungeon, run.Room + 1) : ((string?)null, 0);
         }
         long shards = Progression.FightShards(played);
         // The quests under way (sprint 88): the monsters defeated, the dungeon finished.
@@ -233,7 +251,11 @@ public static class CharacterEndpoints
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;
+        int before = character.Level;
         character.Level = Progression.LevelFor(character.Xp);
+        // The life the fight ends with (sprint 101, D73): what the hero has left, 1 if lost; a level gained gives it all back.
+        DateTimeOffset ended = clock.GetUtcNow();
+        character.SetLife(character.Level > before ? int.MaxValue : played.WinningTeam == 0 ? played.HeroFighter!.Hp : 1, ended);
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items, character.Run, done, shards, character.Shards));
     }
@@ -255,9 +277,30 @@ public static class CharacterEndpoints
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["key"] = [$"The key of this dungeon ('{dungeon.Key}') is needed."] });
             if (Dungeons.UsedOnEntry(dungeon, owned) is ItemCount used)
                 character.Spend(used);
-            (character.Dungeon, character.DungeonRoom, character.DungeonHp) = (dungeon.Id, 1, null);
+            (character.Dungeon, character.DungeonRoom) = (dungeon.Id, 1);
             await db.SaveChangesAsync(cancel);
         }
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    /// <summary>Food eaten out of a fight (sprint 101, D73): owned, not in a fight; its hit points at once, the item used up.</summary>
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Eat(
+        Guid id, Use request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+    {
+        if (request?.Item is not string itemId || !GameData.Embedded.Items.TryGetValue(itemId, out Item? item) || item.Heal <= 0)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = ["Food, which heals."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        string? why = character.InFight ? "Not in a fight."
+            : character.InventoryList.Where(i => i.Item == itemId).Sum(i => i.Count) < 1 ? "None owned." : null;
+        if (why is not null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = [why] });
+        DateTimeOffset now = clock.GetUtcNow();
+        character.SetLife(character.LifeNow(now) + item.Heal, now);
+        character.Spend(new ItemCount(itemId, 1));
+        await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
@@ -427,11 +470,11 @@ public static class CharacterEndpoints
     {
         Guid account = AccountId(user);
         int left = await db.Characters.Where(c => c.Id == id && c.AccountId == account)
-            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Dungeon, (string?)null).SetProperty(c => c.DungeonRoom, 0).SetProperty(c => c.DungeonHp, (int?)null), cancel);
+            .ExecuteUpdateAsync(set => set.SetProperty(c => c.Dungeon, (string?)null).SetProperty(c => c.DungeonRoom, 0), cancel);
         return left == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
-    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Rest(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Rest(Guid id, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -440,13 +483,14 @@ public static class CharacterEndpoints
         // The fountains are in the halls: in a dungeon only (like the ways, the server does not check the cell).
         if (character.Dungeon is null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["dungeon"] = ["Not in a dungeon."] });
-        character.DungeonHp = null;
+        // The fountain gives the whole life back at once (sprint 101).
+        character.SetLife(int.MaxValue, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SaveEquipment(
-        Guid id, Wear request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+        Guid id, Wear request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -460,13 +504,17 @@ public static class CharacterEndpoints
             : (character.Hero with { Worn = worn }).Problem(GameData.Embedded);
         if (problem is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["equipment"] = [problem] });
+        // The life grown so far, at most the new maximum (changing what is worn does not heal, sprint 101).
+        int life = character.InFight ? 0 : character.LifeNow(clock.GetUtcNow());
         character.Worn = string.Join(',', worn.OrderBy(w => w.Key).Select(w => $"{w.Key}:{w.Value}"));
+        if (!character.InFight)
+            character.SetLife(life, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SavePoints(
-        Guid id, Points points, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+        Guid id, Points points, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -484,15 +532,19 @@ public static class CharacterEndpoints
         if (cost > character.Shards)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [$"Taking points back costs {cost} Éclats."] });
         character.Shards -= cost;
+        int lifeBefore = character.InFight ? 0 : character.LifeNow(clock.GetUtcNow());
         (character.Vitality, character.Earth, character.Fire, character.Water, character.Air) = (stats.Vitality, stats.Earth, stats.Fire, stats.Water, stats.Air);
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);
+        if (!character.InFight)
+            character.SetLife(lifeBefore, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
+            c.Hp, c.HpAt, c.InFight);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

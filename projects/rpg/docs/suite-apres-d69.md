@@ -9,7 +9,13 @@
 >   - Des **métiers de 1 à 100** et **une nouvelle ressource tous les 5 niveaux** pour chaque métier de récolte (§5.3 et §5.4) : les paliers de 10 de la v2 sont remplacés. Les métiers de fabrication font les équipements, les clefs et les consommables.
 >   - De **vraies icônes pour les objets** (§3 bis, nouveau sprint S98 : Rose était déjà faite au S97).
 >   Le plan passe à **58 points** (§10).
-> - **Version 4, 16 octobre 2026 :** règle voulue par Charles, **la vie se garde entre les combats** et se restaure avec le temps (§5 bis, nouveau sprint S100, juste après la récolte faite au S99). Elle redonne un usage à la nourriture : le **boulanger** rejoint l'alchimiste en S104. Le plan passe à **65 points** (§10).
+> - **Version 4, 16 octobre 2026 :** règle voulue par Charles, **la vie se garde entre les combats** et se restaure avec le temps (§5 bis, sprint S101, après la fenêtre Métiers faite au S100). Elle redonne un usage à la nourriture : le **boulanger** rejoint l'alchimiste (S107 depuis la v5). Le plan passe à **65 points** (§10).
+> - **Version 5, 16 octobre 2026 :** demandes de Charles (§5 ter).
+>   - **Clairval en 12 cartes** derrière une palissade de bois, sans la porte d'entraînement.
+>   - **Un fil conducteur** : une chaîne principale, des quêtes ouvertes l'une après l'autre, **au plus 2 quêtes proposées par habitant**, un tuto au village jusqu'au niveau 5, des donneurs dans chaque zone, quatre objectifs nouveaux dont le butin de quête.
+>   - **Une mini-carte** déplaçable et zoomable.
+>   - Les icônes d'ingrédients de l'établi, faites au S101.
+>   L'histoire passe **avant** le jeu à plusieurs. Le plan passe à **78 points** (§10).
 >
 > Rédigée après lecture du dépôt au commit `08cb31c`, revérifiée pour la v4 (`classes.json`, `Fight.cs` : `heroHp`, `StartHeroHp`, `MaxHp` ; `FightRecord.HeroHp` ; `Entities.cs` : `DungeonHp` ; `Shop.cs`) :
 > - `DECISIONS.md` (T29 à T62), `docs/design-familles.md`, `docs/trame-saga-1.md`, `docs/bible.md`, `PLAN.md` (D54 à D70) ;
@@ -29,7 +35,8 @@
 | 1 bis | **Des icônes d'objets** *(v3)* | les glyphes dessinés par le jeu sont laids, et 150 objets nouveaux arrivent | 1 sprint (3) | 1 (la liste des nouveaux objets) |
 | 2 | **Les Éclats servent à quelque chose** | la monnaie s'accumule sans aucun usage | 1 sprint (3) | 1 (les prix des objets) |
 | 3 | **Les métiers : récolte, fenêtre Métiers, ateliers, fabrication** *(v2, v3, v4)* | les cartes ne donnent rien hors des combats, et l'établi ne fait que des clefs | 5 sprints (5 + 3 + 3 + 3 + 5) | 1 (budget des objets), 1 bis (icônes), 2 (prix de Rose) |
-| 3 bis | **La vie se garde entre les combats** *(v4)* | chaque combat repart à pleine vie : une victoire serrée ne coûte rien, et soins et nourriture n'ont pas d'usage hors combat | 1 sprint (5), S100 | rien ; le boulanger (S104) s'appuie dessus |
+| 3 bis | **La vie se garde entre les combats** *(v4)* | chaque combat repart à pleine vie : une victoire serrée ne coûte rien, et soins et nourriture n'ont pas d'usage hors combat | 1 sprint (5), S101 | rien ; le boulanger (S107) s'appuie dessus |
+| 3 ter | **Clairval en 12 cartes, le fil conducteur des quêtes, la mini-carte** *(v5)* | trop de quêtes d'un coup chez chaque habitant (le dialogue déborde), aucun ordre, un village d'une seule carte, rien pour se repérer | 7 sprints (5 + 5 + 3 + 3, puis 3 + 3 + 3), S102 à S105 et S108 à S110 | 3 (récolte, ateliers), 3 bis (la vie) ; il remplace le chantier 5 |
 | 4 | **Jouer ensemble** | les hordes, les chefs, les salles 3 et les quêtes de donjon sont faits pour plusieurs, mais le jeu ne connaît qu'un héros par combat | 4 sprints (3 + 5 + 5 + 5) | 1 ; 3 pour l'échange entre joueurs |
 | 5 | **La fin du chapitre 1** | l'histoire s'arrête au niveau 8, alors que 94 % de l'XP jusqu'au niveau 30 vient après | 3 sprints (3 + 3 + 3) | 0 |
 | 6 | Le monde après 30 (concept de `design-familles.md` §7) | il n'y a plus rien après le niveau 30 | plusieurs mois | 1 à 5 et une décision de Charles |
@@ -185,7 +192,7 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
 - **Les métiers** ont aussi leur icône (9), dans la fenêtre Métiers et la barre latérale.
 
 ### 3 bis.3 Sprint, tests
-- **S98 (3 points)**, juste après les panoplies et l'étal de Rose (fait au S97 avant la v3), pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S104) reçoivent la leur en même temps qu'ils sont écrits.
+- **S98 (3 points)**, juste après les panoplies et l'étal de Rose (fait au S97 avant la v3), pour que tous les objets du chantier 1 arrivent avec leur icône. Les objets des métiers (S99 à S107) reçoivent la leur en même temps qu'ils sont écrits.
 - **Tests :**
   - chaque objet a une icône ou un repli, et chaque icône a son crédit ;
   - le cadre dépend de la provenance (`ItemStyle.Frame`, sans moteur) ;
@@ -206,14 +213,14 @@ Chaque famille a **une panoplie de 5 pièces**. Chacun des 4 monstres communs en
   - Les potions viennent de l'alchimiste (§5.5). Rose les vend à 10 + niveau Éclats, plus cher que leur fabrication.
 - **Puits 1 : refaire ses caractéristiques** coûte **10 × niveau** Éclats, gratuit jusqu'au niveau 10.
 - **Puits 2 : les clefs du serrurier** coûtent aussi **5 × le niveau du donjon** en Éclats.
-- **Puits 3 : les potions en combat.** Il n'est plus en option : il arrive avec l'alchimiste, en S104 (§5.5).
+- **Puits 3 : les potions en combat.** Il n'est plus en option : il arrive avec l'alchimiste, en S107 (§5.5).
 - Le marchand se fait **au village seulement**, et le serveur vérifie tout.
 
 **Tests :** prix calculés par les règles ; achat refusé sans Éclats ; vente d'un objet porté refusée ; réinitialisation facturée au bon prix ; intégration API achat → inventaire → Éclats.
 
 ---
 
-## 5. Chantier 3 : les métiers (S99 à 5 points, fait ; S101 à S103 à 3 points ; S104 à 5 points) *(v2, v3 et v4, demandes de Charles)*
+## 5. Chantier 3 : les métiers (S99 et S100, faits ; S106 à 3 points ; S107 à 5 points ; les ateliers vont dans le nouveau village, S102) *(v2 à v5, demandes de Charles)*
 
 ### 5.1 L'expérience visée
 « En traversant le Lac pour aller aux crabes, je coupe deux saules et je pêche une anguille. Ce soir, je forge le bouclier de mon palier ; la panoplie des grenouilles, je l'attends du butin. »
@@ -369,8 +376,8 @@ L'arme fabriquée et l'arme du chef ont le **même budget**. Celle du chef compl
 - **Initiative :** inchangée par le craft (§3.2). Aucune pièce d'artisan et aucun consommable n'en donne.
 
 ### 5.8 Dépendances avec le jeu à plusieurs
-- Les points partagés n'ont pas besoin du chantier 4. Le serveur garde leur état. Le client le lit en entrant sur une carte, et un refus « déjà récolté » le met à jour. Quand le chantier 4 diffuse les présences (S105), il diffuse aussi « point récolté » et « point repoussé ».
-- **L'échange entre joueurs** (deux joueurs sur la même carte, les deux valident) entre dans le chantier 4, au sprint du groupe (S106, 5 points). C'est ce qui donne un sens économique aux métiers à plusieurs.
+- Les points partagés n'ont pas besoin du chantier 4. Le serveur garde leur état. Le client le lit en entrant sur une carte, et un refus « déjà récolté » le met à jour. Quand le chantier 4 diffuse les présences (S111), il diffuse aussi « point récolté » et « point repoussé ».
+- **L'échange entre joueurs** (deux joueurs sur la même carte, les deux valident) entre dans le chantier 4, au sprint du groupe (S112, 5 points). C'est ce qui donne un sens économique aux métiers à plusieurs.
 
 ### 5.9 La fenêtre « Métiers » *(v3, d'après la capture de Charles)*
 
@@ -412,9 +419,9 @@ On simplifie :
 | S99 | 5 | **La récolte.** `Job` gagne `Kind` (récolte ou fabrication) et `Harvests` (ressource, niveau, nature du point : arbre, roche, eau, parcelle, herbe) ; champ `nodes` des cartes, écrit par `world_gen.py` (ressource selon la profondeur de la carte) ; table serveur des points (carte, case, prêt à) et `POST …/harvest` ; règle des 20 niveaux pour l'XP ; client : points dessinés (les parcelles en carrés de culture), clic, marche, barre de 3 s avec l'outil en main, « +2 Chêne » flottant ; les **40 ressources** (niveaux 1 à 35) et les 5 métiers de récolte. |
 | (S100) | (5) | *La vie qui se garde : chantier 3 bis, §5 bis.* |
 | S101 | 3 | **La fenêtre Métiers** (§5.9), touche J, `JobBook` ; elle remplace le panneau de l'établi. |
-| S102 | 3 | **Le quartier des artisans** : la carte [1, 0], la porte est, les 5 ateliers (forge, tailleur, alambic, four, établi déplacé) et leurs artisans, les quêtes d'initiation. |
-| S103 | 3 | **Forgeron et tailleur** : les 16 pièces d'artisan et leurs recettes (niveaux 1 à 35), `Recipe.Xp`, `ItemBudgetTests` étendu ; T41 remesuré (kit « fast » + artisan). |
-| S104 | 5 | **L'alchimiste, `UseItem` et le boulanger** : 4 potions, 4 huiles (une par élément à chaque taille), un consommable par combat, rejoué par le serveur, l'IA ne s'en sert pas ; Rose revend les potions ; les 8 pains du boulanger, mangés hors combat (§5 bis.5) ; T41 remesuré. |
+| ~~S102~~ | — | ~~Le quartier des artisans à part~~ : **fondu dans le nouveau Clairval** (§5 ter, S102, carte `clairval-3-1`). |
+| S106 | 3 | **Forgeron et tailleur** : les 16 pièces d'artisan et leurs recettes (niveaux 1 à 35), `Recipe.Xp`, `ItemBudgetTests` étendu ; T41 remesuré (kit « fast » + artisan). |
+| S107 | 5 | **L'alchimiste, `UseItem` et le boulanger** : 4 potions, 4 huiles (une par élément à chaque taille), un consommable par combat, rejoué par le serveur, l'IA ne s'en sert pas ; Rose revend les potions ; les 8 pains du boulanger, mangés hors combat (§5 bis.5) ; T41 remesuré. |
 
 **Tests :**
 - **Unitaires :**
@@ -486,7 +493,7 @@ La vie devient une **ressource méso**, entre deux combats.
 **3. Le combat.**
 - **Tout combat commence avec la vie actuelle du héros**, calculée par le serveur au moment du ticket. Le paramètre `heroHp` de `Fight`, qui ne servait qu'en donjon, sert désormais partout. `FightRecord.HeroHp` le garde, et le serveur le compare au rejeu, comme en donjon aujourd'hui.
 - **À la fin**, la vie est celle du héros à la dernière action, bornée à ses PV max hors combat (l'érosion ne vaut que pendant le combat).
-- Les potions de l'alchimiste (S104) soignent pendant le combat, donc **elles comptent aussi pour la suite**.
+- Les potions de l'alchimiste (S107) soignent pendant le combat, donc **elles comptent aussi pour la suite**.
 - **Monter de niveau rend toute la vie.** C'est le moment fort de la progression, il doit faire du bien, comme dans les jeux du genre.
 - **Changer d'équipement** ne soigne pas : la vie est seulement ramenée aux nouveaux PV max si elle les dépasse.
 
@@ -494,7 +501,7 @@ La vie devient une **ressource méso**, entre deux combats.
 - **Le héros reste où il était, à 1 PV.** En donjon, il ressort devant la porte, comme aujourd'hui, à 1 PV.
 - Le coût d'une défaite est donc le temps : 60 à 100 secondes, deux fois moins au village, ou un pain.
 - *Alternative écartée :* le retour au village. La marche depuis le fond des Champs (une dizaine de cartes) est longue, et elle punit par l'ennui plutôt que par un choix.
-- **Un ticket jamais rendu compte comme une défaite.** Au prochain ticket demandé, ou après 30 minutes, la vie passe à 1 PV. Cela ferme la limite de T29 (abandonner un combat mal parti en gardant sa vie). Le risque : un plantage du jeu en plein combat coûte la vie. On l'accepte et on le dit dans les Limites. Le combat à plusieurs (S107) saura reprendre un combat interrompu.
+- **Un ticket jamais rendu compte comme une défaite.** Au prochain ticket demandé, ou après 30 minutes, la vie passe à 1 PV. Cela ferme la limite de T29 (abandonner un combat mal parti en gardant sa vie). Le risque : un plantage du jeu en plein combat coûte la vie. On l'accepte et on le dit dans les Limites. Le combat à plusieurs (S113) saura reprendre un combat interrompu.
 
 ### 5 bis.4 Les donjons et la fontaine
 - **`DungeonHp` disparaît.** La vie du personnage est la même partout : en donjon, elle passe d'une salle à l'autre parce qu'elle se garde, tout simplement. Une migration copie `DungeonHp` dans `Hp` pour les personnages en cours de donjon.
@@ -502,10 +509,10 @@ La vie devient une **ressource méso**, entre deux combats.
 - **La fontaine rend toute la vie d'un coup** (`POST …/dungeon/rest`, inchangé). Elle fait gagner du temps, et rien de plus : la difficulté d'un donjon reste celle de chaque salle, et la règle des PV gardés en donjon (T53) devient celle du monde entier.
 
 ### 5 bis.5 Ce qui fait remonter la vie plus vite
-- **Le pain** (le boulanger, S104) se mange **hors combat seulement**. Il rend tout de suite **30 + 10 × son niveau** PV : 40 au niveau 1, 380 au niveau 35. Une recette tous les 5 niveaux, comme les autres métiers, avec 3 céréales du paysan + 1 ressource de l'herboriste ou du pêcheur de son niveau.
+- **Le pain** (le boulanger, S107) se mange **hors combat seulement**. Il rend tout de suite **30 + 10 × son niveau** PV : 40 au niveau 1, 380 au niveau 35. Une recette tous les 5 niveaux, comme les autres métiers, avec 3 céréales du paysan + 1 ressource de l'herboriste ou du pêcheur de son niveau.
   - **Rose vend le pain de Clairval** (l'objet `bread` qui existe déjà, niveau 1, 40 PV) à 10 Éclats. Le joueur a de quoi manger dès le début, sans métier.
   - Il n'y a pas de délai entre deux pains : le prix est l'objet. Le serveur vérifie qu'on n'est pas en combat (`POST …/use`).
-- **Les potions et les huiles de l'alchimiste se boivent en combat seulement** (une par combat, `UseItem`, S104). Les rôles restent clairs : le pain entre les combats, la potion pendant.
+- **Les potions et les huiles de l'alchimiste se boivent en combat seulement** (une par combat, `UseItem`, S107). Les rôles restent clairs : le pain entre les combats, la potion pendant.
 - **Le village double le rythme** (§5 bis.3), et la fontaine des donjons soigne tout.
 - Plus tard, des plats à effet durable (un rythme doublé pendant 10 minutes, par exemple) pourront venir d'une vraie cuisine.
 
@@ -555,7 +562,249 @@ La vie devient une **ressource méso**, entre deux combats.
 
 ---
 
-## 6. Chantier 4 : jouer ensemble (S105 à S108, 18 points)
+## 5 ter. Chantier 3 ter : Clairval en douze cartes, un fil conducteur, la mini-carte (S102 à S105, puis S108 à S110) *(v5, demande de Charles)*
+
+### 5 ter.1 Le constat, vérifié dans le dépôt
+
+**Le « bug » d'interface n'en est pas vraiment un : c'est un dialogue qui déborde.**
+- `QuestBook.Offers` propose **toutes** les quêtes disponibles d'un habitant, et `Conversation` les ajoute **toutes** comme réponses, devant les réponses du dialogue.
+- Toutes les quêtes du jeu sont données au village par 4 personnes. Au niveau 30, Garance en propose jusqu'à 7 (`the-pack`, `the-walking-dead`, `under-the-furrows` et quatre quêtes « Au fond : … ») et Aubin 6.
+- Le panneau de dialogue (`TalkPanel`) est **ancré en bas et grandit vers le haut, sans hauteur maximale ni défilement** : au-delà de 6 à 8 réponses, il sort de l'écran par le haut.
+- **Seules les touches 1 à 4** répondent (`Main.Town`, `Key1` à `Key4`).
+
+**Le jeu ne raconte pas de fil.** Les quêtes de toutes les zones sont disponibles dès leur niveau, au même endroit, sans ordre. La chaîne d'Ysaline s'arrête au niveau 8, et les quêtes des donjons (« Au fond : … ») sont proposées en même temps que tout le reste.
+
+**Clairval est une seule carte de 16 × 12** (`data/towns/clairval.json`, à la main) :
+- 4 habitants (Aubin, Rose, Garance, Ysaline) ;
+- l'établi du serrurier ;
+- une sortie est vers le combat d'entraînement (`training`) ;
+- un passage ouest vers `woods-4-2` (`tools/world_gen.py`, `outsides`).
+
+Les zones sont placées autour, sur la carte du monde : Bois en x −5 à −1 et y −2 à 2, Lac en y −7 à −3, Champs en y 3 à 7, Bois moisi en x −10 à −6. **Tout ce qui est à l'est de x = 0 est libre.**
+
+### 5 ter.2 L'expérience visée
+« Je sors de chez moi à Clairval : on m'apprend à me battre, à porter mon anneau, à couper du bois pour la palissade, à vendre à Rose. Au niveau 5, Garance m'ouvre la porte de l'Ouest. Dans le Bois, un campement de bûcherons a besoin de moi, et la pierre d'Ysaline me tire toujours plus loin. »
+
+Il faut **une seule question à la fois dans la tête du joueur** (« que veut dire ce cinquième signe ? »), et à chaque endroit **une ou deux choses à faire, pas quinze**. Les quêtes secondaires nourrissent le fil sans le noyer.
+
+### 5 ter.3 Le nouveau Clairval : 4 × 3 cartes derrière une palissade
+
+**Placement :** les cartes vont de **x = 0 à 3, y = −1 à 1** sur la carte du monde. Le côté ouest du village touche les trois cartes du bord est du Bois (`woods-4-1`, `woods-4-2`, `woods-4-3`, en x = −1). Rien d'autre ne bouge sur la carte du monde.
+
+**Taille :** **48 × 32 cases** par carte, comme les zones. Les passages de bord à bord (T50), la carte du monde et la mini-carte fonctionnent alors sans cas particulier, et le village remplit enfin ses cases sur la carte du monde (limite de T44).
+
+**Identifiants :** **la place garde l'identifiant `clairval`.** Les donneurs « clairval/… », les places enregistrées et les tests continuent de marcher. Les autres cartes s'appellent `clairval-<col>-<row>` (col 0 à 3, row 0 à 2).
+
+**La palissade.** Une nouvelle tuile, la palissade de pieux en bois, fait le tour extérieur des 12 cartes. Elle bloque le passage comme un arbre, et elle est dessinée en pieux taillés, avec des tours de guet aux angles. Elle a **trois portes**, de 3 cases chacune, gardées, toutes à l'ouest, vers le Bois :
+- **Porte de l'Ouest** (`clairval-0-1`, vers `woods-4-2`) : la route principale, déjà existante ;
+- **Porte du Nord** (`clairval-0-0`, vers `woods-4-1`) : « chemin du Lac » ;
+- **Porte du Sud** (`clairval-0-2`, vers `woods-4-3`) : « chemin des Champs ».
+
+Entre deux cartes du village, les bords sont largement ouverts (rues, places). **La porte est d'entraînement disparaît** : le combat `training` reste, mais il est lancé par Garance dans sa conversation (« Première leçon », §5 ter.4).
+
+| Carte | Nom (proposition) | Contenu |
+|---|---|---|
+| `clairval-0-0` | Porte du Nord, les vergers | la porte, un garde ; **la charpentière** (palissade, tuto bûcheron) ; vergers : 3 chênes (bûcheron niv. 1) |
+| `clairval-1-0` | Les potagers | parcelles de lin sauvage (paysan niv. 1), orties (herboriste niv. 1), maisons |
+| `clairval-2-0` | Le moulin et l'étang | le **moulin** et son meunier ; un étang : goujons (pêcheur niv. 1) |
+| `clairval-3-0` | La carrière | une petite carrière dans la palissade : 3 roches de cuivre (mineur niv. 1) ; le **mineur retraité** (tuto mineur, optionnel) |
+| `clairval-0-1` | Porte de l'Ouest | la grande porte, la cour d'armes : **Garance** (déplacée), ses mannequins ; deux gardes |
+| **`clairval`** (1-1) | La place | **la vieille pierre gravée** et **Ysaline** ; **Aubin** ; la fontaine du village ; l'arrivée des nouveaux personnages |
+| `clairval-2-1` | Le marché | **l'étal de Rose** (déplacé) ; deux étals vides (pour plus tard) ; une auberge (décor) |
+| `clairval-3-1` | Le quartier des artisans | **forge, atelier du tailleur, alambic, four du boulanger, établi du serrurier** (déplacé), un artisan par atelier (§5.5). Cela remplace la carte [1, 0] prévue en S102 |
+| `clairval-0-2` | Porte du Sud | la porte, un garde ; une écurie (décor, pour les montures plus tard) |
+| `clairval-1-2` | Les maisons du sud | maisons, greniers : le **grenier infesté de rats** (combat du tuto) ; la fermière du village |
+| `clairval-2-2` | La chapelle et le cimetière | la chapelle, le cimetière (il annonce la Crypte oubliée) ; le **copiste du registre** (Odalric dans la trame, à valider) |
+| `clairval-3-2` | Les pâturages | un enclos, quelques moutons (décor), parcelles et touffes de niveau 1 |
+
+- **Des spots de niveau 1 seulement** au village (2 à 4 par carte qui en a), pour apprendre sans sortir. Les ressources de niveau 5 et plus restent dans les zones (§5.3).
+- **Pas de monstres errants dans le village** : c'est la raison d'être de la palissade. Les combats du tuto sont des **scénarios de quête**, comme l'entraînement :
+  - le combat de Garance contre un mannequin animé et son élève ;
+  - les **rats du grenier**, deux ou trois rats de niveau 1, lancés en parlant au meunier ou en ouvrant la trappe du grenier.
+  Ces créatures ne sont pas une famille (la règle des 5 rôles d'une même espèce vaut pour le monde, pas pour un scénario de tuto).
+- **Rythme de récupération ×2** dans tout le village (§5 bis.3).
+
+**Comment c'est fabriqué :**
+- un nouvel outil, **`tools/village_gen.py`**, lit 12 plans ASCII de 48 × 32 dessinés à la main, dans `tools/village/<carte>.txt` ;
+- il ajoute la palissade, les portes, les passages entre les cartes du village et vers les trois cartes du Bois, puis écrit `data/towns/clairval*.json`, avec les habitants, les ateliers et les points de récolte (`nodes`) ;
+- **`world_gen.py`** ouvre le bord est de `woods-4-1` et de `woods-4-3` en face des portes nouvelles (et garde celui de `woods-4-2`). Les groupes de ces deux cartes sont retirés au sort (ils dépendent du plan de la carte) : on remesure seulement la règle des petits groupes sur ces cartes.
+
+**La migration des données :**
+- les personnages enregistrés sur l'ancien `clairval` (coordonnées de 16 × 12) sont replacés à l'arrivée de la nouvelle place ;
+- l'établi du serrurier change de carte (`workshops`).
+
+### 5 ter.4 Le fil conducteur des quêtes
+
+**Les règles :**
+1. **Une chaîne principale**, celle d'Ysaline et de la pierre, de 1 à 30. Elle est la seule à ouvrir la zone suivante dans l'histoire. Chaque quête principale terminée ouvre (`After`) **la suivante et une ou deux quêtes secondaires** de l'endroit où l'on est.
+2. **Des quêtes secondaires en petites suites** de 2 ou 3 quêtes par donneur, chacune ouverte par la précédente (`After`).
+3. **Un habitant ne propose jamais plus de 2 quêtes à la fois.**
+   - `QuestBook.Offers` les classe (la quête principale d'abord, puis le niveau le plus bas, puis l'ordre des données) et **n'en garde que 2**.
+   - Un test vérifie, en simulant un joueur qui prend tout ce qu'on lui propose de niveau en niveau, qu'aucun habitant n'en a jamais plus de 2 sous la main.
+4. **Les donneurs vivent là où se font les quêtes.** Le village pour le tuto, puis un habitant par zone, sur une carte de l'entrée de la zone. Le champ `npcs` des cartes de zone est écrit par `world_gen.py` à partir d'une petite table.
+   - Bois : **le campement des bûcherons**, avec le chef des bûcherons (`woods-3-2`).
+   - Bois moisi : **l'ermite des mares**.
+   - Lac : **Liane, la passeuse**, sur les pontons.
+   - Champs : **la fermière des Champs**, dans sa ferme.
+   - Ysaline voyage : elle donne la quête principale de chaque zone **depuis le donneur de la zone**, ou depuis la place.
+5. **On voit où aller.**
+   - Un « ! » au-dessus d'un habitant qui a une quête à proposer, un « ? » s'il en attend une.
+   - Le journal (Q) indique pour chaque quête en cours la carte où se trouve son objectif ou son donneur (« Bois de Clairval, campement des bûcherons »).
+   - La mini-carte (§5 ter.6) montre les « ! » et les « ? ».
+
+**Les objectifs.** Quatre existent : parler (`Talk`), vaincre (`Defeat`, une famille, N monstres), rapporter (`Bring`), donjon (`Dungeon`, avec `Room`). Il en faut quatre de plus :
+- **`Interact` : trouver des indices sur une carte.** Il était prévu en S109 et **avance en S103**. Ce sont des objets posés (`Town.Props` : id, case, apparence), cliquables à une case : une trace de griffes, un nœud de mycélium, un sceau, un roseau, une galerie. Chaque objet ne compte que pour la quête qui le demande, et il est dessiné avec un éclat discret tant que la quête est en cours.
+- **`Win` : gagner un scénario de quête.** C'est le mécanisme de « Première leçon » (champ `scenario`), qui devient un objectif comme les autres. Le combat est lancé depuis une conversation (réponse `Fight`, qui existe déjà) ou un objet `Interact` (la trappe du grenier).
+- **`Wear` : porter un objet** (le tuto de l'inventaire). Le serveur le sait déjà (`Worn`).
+- **Le butin de quête** : un objet de quête (`kind: Quest`) qui **ne tombe que si la quête est en cours** et que son objectif `Bring` n'est pas atteint.
+  - Nouveau champ `quest` sur `LootDrop` (« croc marqué, 35 %, seulement pendant `restless-beasts` »).
+  - Le serveur tire le butin en connaissant les quêtes en cours du héros. Le tirage reste déterministe : graine du combat et journal de quêtes.
+  - Les objets de quête ne se vendent pas et disparaissent quand la quête est rendue.
+
+Les ressources de métiers se rapportent avec `Bring` (déjà là), les objets fabriqués aussi (« rapporte un pieu de palissade que tu as taillé »), et « farmer des monstres » est `Defeat`.
+
+**Les récompenses :**
+- **XP :** quête principale **60 × niveau**, secondaire **40 × niveau**, donjon entier **100 × niveau**. Un test vérifie que les quêtes faisables seul d'une zone donnent **35 à 60 % de l'XP** qu'il faut pour la traverser, sans les donjons entiers (le reste vient des combats).
+- **Éclats :** 10 × niveau, 15 × niveau pour un donjon entier.
+- **Objets :**
+  - le **tuto donne l'équipement de départ** : anneau de cuivre, dague ou bouclier de bois selon la classe, ceinture de cuir, 3 pains ;
+  - les quêtes principales donnent la **clef** de leur donjon (`Grants`) ;
+  - les secondaires donnent des consommables (pains, potions) et des ressources.
+  Pas de pièce de panoplie en récompense : le butin des monstres en reste la source (§3.4).
+
+**Les quêtes, zone par zone.** Il y en a 45 :
+
+| Zone | Niveaux | Principales (Ysaline, la pierre) | Secondaires | Total |
+|---|---|---|---|---|
+| Clairval (tuto) | 1 → 5 | 2 | 7 | 9 |
+| Bois | 5 → 10 | 4 | 5 (dont 2 donjons entiers) | 9 |
+| Bois moisi | 10 → 18 | 4 | 5 (dont 2 donjons entiers) | 9 |
+| Lac | 18 → 26 | 4 | 5 (dont 2 donjons entiers) | 9 |
+| Champs | 26 → 30 | 4 (dont le Disjoint et la fin du chapitre) | 5 (dont 2 donjons entiers) | 9 |
+
+**Clairval, le tuto (niveaux 1 à 5).** Une quête = un système appris. On ne peut jamais en avoir plus de deux devant soi.
+
+| # | Identifiant | Niv. | Donneur | Objectifs | Ce qu'elle apprend | Ouverte par |
+|---|---|---|---|---|---|---|
+| C1 | `welcome` (nouv.) | 1 | Aubin (place) | `Talk` Garance (porte de l'Ouest) | marcher, changer de carte, parler | — |
+| C2 | `first-lesson` (gardée) | 1 | Garance | `Win` training (lancé par sa conversation) | le combat, la frise, les sorts | C1 |
+| C3 | `well-equipped` (nouv.) | 1 | Garance | `Wear` anneau de cuivre (donné par C2) ; récompense : dague ou bouclier selon la classe | l'inventaire, l'équipement, les caractéristiques (le texte invite à placer ses points) | C2 |
+| C4 | `cellar-rats` (nouv.) | 2 | le meunier (moulin) | `Win` « rats du grenier » ; `Bring` 3 queues de rat (**butin de quête**) | le deck, le butin de quête, la vie qui se garde (on sort du combat blessé) | C3 |
+| C5 | `palisade-stakes` (nouv.) | 2 | la charpentière (porte du Nord) | `Bring` 6 chênes ; `Bring` 1 pieu de palissade (fabriqué à la forge : 3 chênes, 2 cuivres, recette de tuto) | la récolte, la fenêtre Métiers (J), un atelier | C3 |
+| C6 | `roses-stall` (nouv.) | 3 | Rose (marché) | `Bring` 4 lins ; `Bring` 1 pain (acheté chez elle) | vendre, acheter, manger hors combat | C5 |
+| C7 | `whispering-stone` (gardée) | 3 | Ysaline (place) | `Interact` la pierre ; `Talk` Aubin ; `Talk` le copiste | les indices, le journal ; **début du fil** | C4 et C6 |
+| C8 | `the-registry` (nouv., principale) | 4 | Ysaline | `Interact` 2 tombes marquées du cimetière ; `Bring` 3 orties (pour l'encre du copiste) | `Interact` sur une autre carte ; l'herboriste | C7 |
+| C9 | `edge-of-the-woods` (gardée, donneur changé : Garance) | 4-5 | Garance | `Defeat` 3 sangliers juste derrière la porte de l'Ouest ; `Bring` 2 soies | le premier vrai combat dehors ; **ouvre le Bois** | C8 |
+
+**Le Bois (5 à 10) : les monstres et le premier donjon.**
+- **Principales** (Ysaline, puis le chef des bûcherons qui relaie) :
+  - `restless-beasts` (gardée, niv. 5) : `Defeat` 5 loups, avec 3 crocs marqués (**butin de quête**), et `Interact` 2 traces ;
+  - `the-root-circle` (nouv., 7) : `Interact` le cercle de racines ; `Talk` le chef des bûcherons ;
+  - `rumble-under-the-wallow` (gardée, 8) : `Dungeon` bauge, `Room: 2`, clef offerte ;
+  - `four-signs` (nouv., 9) : `Talk` Ysaline ; elle ouvre le Bois moisi.
+- **Secondaires** (le chef des bûcherons, en deux suites) :
+  - `the-pack` (gardée, 6) puis `winter-pelts` (nouv., 7) : `Bring` 4 peaux de loup et 6 noisetiers ;
+  - `the-old-loner` (nouv., 8) : `Defeat` 3 vieux solitaires.
+  - Les donjons entiers `boar-wallow-cleared` (9) et `wolf-den-cleared` (10) sont ouverts après `rumble-under-the-wallow`, avec « groupe conseillé ».
+
+**Le Bois moisi (10 à 18).**
+- **Principales :**
+  - « Ce qui pousse entre » (10) : `Interact` 3 nœuds de mycélium ; `Defeat` 5 champignons ;
+  - « La crypte que personne n'a creusée » (12) : `Talk` Aubin et le copiste ; `Bring` 3 pages de registre (**butin de quête** des zombies) ;
+  - « Crypte oubliée » (14) : `Dungeon` crypte, `Room: 2`, puis `Interact` le sceau ; clef offerte ;
+  - « Le sceau fissuré » (16) : `Talk` Ysaline ; elle ouvre le Lac.
+- **Secondaires** (l'ermite des mares) :
+  - `spores-for-the-stall` (gardée, donneur changé, 11) puis « Remède de l'ermite » (13) : `Bring` 2 anguilles et 3 pieds-de-loup ;
+  - `the-walking-dead` (gardée, 12) ;
+  - donjons entiers `mushroom-cellar-cleared` (15) et `zombie-crypt-cleared` (17).
+
+**Le Lac (18 à 26).**
+- **Principales :**
+  - « La berceuse que personne n'a apprise » (18) : `Talk` Liane et 2 villageois ; `Interact` 3 roseaux chantants ;
+  - « Le dernier couplet » (20) : `Dungeon` grotte, `Room: 2` ; `Bring` le couplet (**butin de quête** du crapaud-roi) ;
+  - « La passeuse au nom lavé » (23) : `Bring` 6 tessons gravés (**butin de quête** des bernard-l'ermite) ; `Talk` le copiste ;
+  - « Le nom rendu » (25) : `Talk` Aubin ; elle ouvre les Champs.
+- **Secondaires** (Liane) :
+  - `frog-song` (gardée, 19) puis « Les filets de Liane » (22) : `Bring` 5 perches et 8 laîches ;
+  - `shells-and-claws` (gardée, 21) ;
+  - donjons entiers `frog-grotto-cleared` (24) et `crab-reef-cleared` (25).
+
+**Les Champs (26 à 30).**
+- **Principales :**
+  - « Les ruches brûlantes » (26) : `Defeat` 8 abeilles ; `Talk` Rose ;
+  - « Sous les haies » (28) : `Interact` 3 galeries ; `Bring` le débris (**butin de quête** de la taupe-roi) ;
+  - « Le Disjoint » (30) : `Win` le scénario du Disjoint (`design-familles.md` §4.9, gagnable seul à 50 à 70 %) ;
+  - `four-trails` (**gardée, déplacée du niveau 8 au niveau 30**) : les quatre pistes deviennent la fin du chapitre et ouvrent les arcs de la bible.
+- **Secondaires** (la fermière des Champs) :
+  - `clairval-honey` (gardée, 27) puis « Le pain de la moisson » (28) : `Bring` 10 blés et 2 pains fabriqués ;
+  - `under-the-furrows` (gardée, 27) ;
+  - donjons entiers `royal-hive-cleared` (29) et `mole-burrows-cleared` (29).
+
+**Les quêtes existantes :** **les 21 identifiants sont gardés.** Les personnages en ont dans leur journal, et les quêtes « Au fond : … » ou de famille restent justes. Changent :
+- les **donneurs** : vers Garance, ou vers les donneurs des zones ;
+- les **`After`**, pour enchaîner ;
+- les **niveaux** ;
+- l'**XP** selon la règle ci-dessus ;
+- les **textes**, réécrits par le scénariste.
+
+`four-trails` passe du niveau 8 au niveau 30. Aucune quête n'est supprimée. Il y a **24 quêtes nouvelles** : 6 au tuto, 18 dans les zones.
+
+### 5 ter.5 Ce que le scénariste devra écrire (le cadre est ci-dessus, lui écrit les mots)
+- **Les noms et les fiches** des nouveaux habitants :
+  - au village : la charpentière, le meunier, la fermière, le copiste, les 5 artisans (forgeron, tailleur, alchimiste, boulanger, serrurier), 3 gardes ;
+  - dans les zones : le chef des bûcherons, l'ermite des mares, Liane, la fermière des Champs.
+  Pour chacun : rôle, ton, un trait, son lien avec le fil de la pierre. **Prénoms interdits : Margaux et Camille.**
+- **Les noms des 12 cartes du village** (ceux du tableau sont des propositions).
+- **Pour les 45 quêtes :** le titre, le texte d'offre, le texte de remerciement, l'intitulé de chaque objectif dans le journal, et **en fr et en en**. Il réécrit les 21 existantes et écrit les 24 nouvelles.
+- **Les descriptions des objets `Interact`** (ce qu'on voit en cliquant : 1 ou 2 phrases) et des **objets de quête** (queues de rat, crocs marqués, pages de registre, couplet, tessons, débris…).
+- **Les répliques de base** des habitants (hors quêtes), 1 à 3 lignes chacun, et les mots de Garance qui « ouvre la porte de l'Ouest ».
+- **Contraintes :**
+  - 3 à 5 lignes par texte ;
+  - les anomalies se montrent avant d'être expliquées (trame §7) ;
+  - le fil « relation ≠ fusion » ;
+  - rien sur l'Accord avant la Saga I tardive ;
+  - aucun nom ni contenu d'Ankama ;
+  - relecture par Charles avant intégration.
+
+### 5 ter.6 La mini-carte
+- **Touche N**, ou une icône de la barre latérale. Elle est **visible par défaut**, en haut à droite, au-dessus de la barre latérale.
+- **Déplaçable** par son cadre comme les fenêtres (T52), avec **trois tailles** (petite, moyenne, grande). Sa place, sa taille et son zoom sont gardés entre deux parties (`WindowState`).
+- **Zoom** à la molette au-dessus d'elle et avec des boutons + et − : de la **carte entière** (48 × 32) **jusqu'à 3 × 3 cartes autour** au plus large, et jusqu'à environ 16 cases au plus serré. Elle est centrée sur le joueur et suit ses pas.
+- **Ce qu'elle montre**, en couleurs simples avec une légende au survol :
+  - le décor simplifié (sol, obstacles, eau, palissade) ;
+  - **le joueur** (point et direction) ; les autres joueurs quand le jeu à plusieurs viendra (S111) ;
+  - **les groupes de monstres** (points rouges, plus gros pour une horde, couronne pour un chef) ;
+  - **les points de récolte** (couleur du métier, grisés si le métier est trop bas, cachés pendant la repousse) ;
+  - **les habitants** (jaune, avec « ! » et « ? ») ;
+  - **les passages** vers les cartes voisines (flèches au bord, nom de la zone quand on en change), les portes de donjon et les ateliers ;
+  - **les objectifs de la quête suivie** (un cercle).
+- **Clic** sur un point de la carte actuelle : le personnage y marche, comme un clic sur le sol. Elle se cache en combat.
+- **Code :** le calcul (ce qu'on montre, où, à quel zoom) va dans `Rpg.Client.MiniMap`, testé sans moteur. Le dessin reprend celui de la carte du monde vue du ciel (`WorldPicture`, T38).
+
+### 5 ter.7 Découpage
+
+| Sprint | Pts | Contenu |
+|---|---|---|
+| S102 | 5 | **Le nouveau Clairval** : `village_gen.py` et les 12 plans, la palissade, les 3 portes et les bords ouverts du Bois, les habitants déplacés, le quartier des artisans (forge, tailleur, alambic, four, établi), les points de niveau 1, la porte est retirée, la migration des places. **Correctif du dialogue** : au plus 2 quêtes proposées par habitant, le panneau a une hauteur maximale et défile, les touches 1 à 9. Remplace l'ancien S102 (le quartier des artisans à part). |
+| S103 | 5 | **Le moteur des quêtes** : `Interact` (`Town.Props`), `Win`, `Wear`, le butin de quête (`LootDrop.Quest`), les habitants des zones, « ! » et « ? », le journal qui dit où aller, le test « jamais plus de 2 ». Avancé depuis l'ancien S109. |
+| S104 | 3 | **Le tuto de Clairval** : les 9 quêtes, les rats du grenier, la recette du pieu, l'équipement de départ (textes du scénariste). |
+| S105 | 3 | **La mini-carte.** |
+| S108 | 3 | **Les quêtes du Bois et du Bois moisi** : 18 quêtes, le campement des bûcherons, l'ermite. |
+| S109 | 3 | **Les quêtes du Lac et des Champs**, sauf la fin : 16 quêtes, Liane, la fermière. |
+| S110 | 3 | **Le Disjoint et `four-trails`** : la fin du chapitre (ancien S111). |
+
+**Tests :**
+- au plus 2 offres par habitant à chaque niveau, en simulant un joueur qui prend tout ;
+- chaque quête a un chemin d'`After` depuis C1 ;
+- chaque objectif a sa cible (habitant, objet `Interact`, scénario, objet porté, butin de quête qui tombe bien d'un monstre de la zone) ;
+- le butin de quête ne tombe que pendant sa quête ;
+- l'XP des quêtes d'une zone reste entre 35 et 60 % de ce qu'il faut pour la traverser ;
+- le village : 12 cartes reliées, palissade fermée sauf aux portes, toutes les cases importantes atteignables ;
+- l'auto-test Godot fait C1 à C3 et ouvre la mini-carte.
+
+---
+
+## 6. Chantier 4 : jouer ensemble (S111 à S114, 18 points)
 
 ### 6.1 L'expérience visée
 « Je vois Plop passer sur la carte. On se groupe, il attaque la horde du fond, je le rejoins, et la reine tombe à deux. Après, je lui échange mes saules contre son arme de reine. »
@@ -569,10 +818,10 @@ Le moteur est déjà **déterministe et piloté par les actions** (T4).
 ### 6.3 Découpage
 | Sprint | Pts | Contenu |
 |---|---|---|
-| S105 | 3 | **Se voir.** Le serveur diffuse aux joueurs d'une carte l'arrivée, la case visée et le départ de chacun, ainsi que l'état des points de récolte. **Les groupes de monstres deviennent communs** : leur errance se calcule à partir de l'horloge, et « battu » et « en combat » passent côté serveur. |
-| S106 | 5 | **Le groupe et l'échange.** Inviter au groupe (4 au plus), un chef de groupe, le canal de groupe du chat, le bandeau du groupe ; **l'échange entre deux joueurs** de la même carte (objets et Éclats, chacun valide, le serveur fait tout ou rien). |
-| S107 | 5 | **Le combat à plusieurs : règles et serveur.** `Fight` prend une liste de héros ; `FightRecord` passe à une nouvelle version ; XP, Éclats, butin (tiré pour chacun), quêtes et **vie de départ et de fin** par héros (§5 bis) ; un consommable par héros ; le hub de combat, le tour de 30 s, la reconnexion ; le simulateur fait jouer plusieurs héros par l'IA. |
-| S108 | 5 | **Le combat à plusieurs : client et donjons.** « Rejoindre » pendant 15 s ; la frise et la fin de combat à plusieurs lignes ; les donjons à plusieurs (chacun use sa clef) ; l'équilibre à plusieurs (§6.4). |
+| S111 | 3 | **Se voir.** Le serveur diffuse aux joueurs d'une carte l'arrivée, la case visée et le départ de chacun, ainsi que l'état des points de récolte. **Les groupes de monstres deviennent communs** : leur errance se calcule à partir de l'horloge, et « battu » et « en combat » passent côté serveur. |
+| S112 | 5 | **Le groupe et l'échange.** Inviter au groupe (4 au plus), un chef de groupe, le canal de groupe du chat, le bandeau du groupe ; **l'échange entre deux joueurs** de la même carte (objets et Éclats, chacun valide, le serveur fait tout ou rien). |
+| S113 | 5 | **Le combat à plusieurs : règles et serveur.** `Fight` prend une liste de héros ; `FightRecord` passe à une nouvelle version ; XP, Éclats, butin (tiré pour chacun), quêtes et **vie de départ et de fin** par héros (§5 bis) ; un consommable par héros ; le hub de combat, le tour de 30 s, la reconnexion ; le simulateur fait jouer plusieurs héros par l'IA. |
+| S114 | 5 | **Le combat à plusieurs : client et donjons.** « Rejoindre » pendant 15 s ; la frise et la fin de combat à plusieurs lignes ; les donjons à plusieurs (chacun use sa clef) ; l'équilibre à plusieurs (§6.4). |
 
 ### 6.4 Équilibre à plusieurs (validé par Charles)
 Mesuré avec des héros joués par l'IA, en compositions de classes mélangées, au niveau de la zone, avec le kit « zone » :
@@ -582,15 +831,17 @@ Mesuré avec des héros joués par l'IA, en compositions de classes mélangées,
 On règle les PV du chef seul. **XP :** la règle actuelle reste (XP entière pour chacun, +10 % par allié).
 
 ### 6.5 Risques
-C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en mémoire, un seul processus), le client et l'auto-test. Il faut **un test d'intégration à deux clients WebSocket** dès S107, et accepter qu'un sprint glisse.
+C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en mémoire, un seul processus), le client et l'auto-test. Il faut **un test d'intégration à deux clients WebSocket** dès S113, et accepter qu'un sprint glisse.
 
 ---
 
-## 7. Chantier 5 : la fin du chapitre 1 (S109 à S111, 9 points)
+## 7. Chantier 5 : la fin du chapitre 1 *(remplacé en v5 par le §5 ter)*
 
-- **S109 (3) :** l'objectif `Interact` (un objet posé sur une carte, `Town.Props`) ; la chaîne d'Ysaline après « Quatre pistes », en **option A** de la trame (chapitre 1 = niveaux 1 à 30) : « Ce qui pousse entre » (10), « La crypte que personne n'a creusée » (12), « Crypte oubliée » (14, `Room: 2` puis `Interact` sur le sceau).
-- **S110 (3) :** le Lac et les Champs, de « La berceuse que personne n'a apprise » (18) à « Sous les haies » (28). **Liane** est la seule nouvelle PNJ.
-- **S111 (3) :** le **Disjoint** (`design-familles.md` §4.9), **gagnable seul au niveau 30 (50 à 70 %)**, « groupe conseillé » ; puis « Quatre routes » (30). Tant que le chantier 6 n'existe pas, le chapitre se termine sur une promesse, sans contenu fantôme.
+> **Depuis la v5**, la chaîne principale de 1 à 30, les objectifs `Interact` et le Disjoint sont décrits au §5 ter.4 et découpés au §5 ter.7 (S103, S108 à S110). Ce qui suit reste comme source pour le scénariste (titres, idées d'objectifs), mais le découpage ci-dessous n'est plus le plan.
+
+- **(ancien) S109 (3) :** l'objectif `Interact` (un objet posé sur une carte, `Town.Props`) ; la chaîne d'Ysaline après « Quatre pistes », en **option A** de la trame (chapitre 1 = niveaux 1 à 30) : « Ce qui pousse entre » (10), « La crypte que personne n'a creusée » (12), « Crypte oubliée » (14, `Room: 2` puis `Interact` sur le sceau).
+- **(ancien) S110 (3) :** le Lac et les Champs, de « La berceuse que personne n'a apprise » (18) à « Sous les haies » (28). **Liane** est la seule nouvelle PNJ (v5 : d'autres habitants s'ajoutent, §5 ter.5).
+- **(ancien) S111 (3) :** le **Disjoint** (`design-familles.md` §4.9), **gagnable seul au niveau 30 (50 à 70 %)**, « groupe conseillé » ; puis « Quatre routes » (30). Tant que le chantier 6 n'existe pas, le chapitre se termine sur une promesse, sans contenu fantôme.
 - **Écriture :** agent `scenariste`, puis relecture de Charles. **Récompenses :** environ 100 × niveau en XP, pas d'équipement (le butin et l'artisanat restent ses sources). Une quête de la chaîne peut demander une ressource récoltée (« trois joncs pour Liane ») : c'est un clin d'œil aux métiers, jamais une porte (Rose la vend).
 
 **Tests :** chaque quête de la chaîne se prend à son niveau et se finit seul (objectifs de donjon ≤ salle 2) ; `Interact` refuse un objet d'une autre carte ; le Disjoint perd 15 PV par tour et explose ; intégration : toute la chaîne de 1 à 30 jouée par l'API.
@@ -644,7 +895,7 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 19 | Réussite et qualité | **100 % de réussite, pas de jets aléatoires** : l'objet a les chiffres de sa fiche |
 | 20 | Ce qui se fabrique | **Plastron et épaulettes (craft seulement), boucliers et armes (craft et butin), consommables (potions, huiles), clefs.** Jamais d'initiative, de PA ou de PM, ni de panoplie sur une pièce fabriquée |
 | 21 | Où sont les ateliers | **Un nouveau quartier des artisans à l'est de Clairval**, avec forge, tailleur, alambic et l'établi du serrurier déplacé |
-| 22 | L'échange entre joueurs | **Oui, avec le groupe (S106)** |
+| 22 | L'échange entre joueurs | **Oui, avec le groupe (S112)** |
 
 ### 9.3 Nouvelles (v3)
 | # | Question | Valeur par défaut |
@@ -668,7 +919,24 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 35 | Les consommables | **pain hors combat** (boulanger, 30 + 10 × niveau PV, Rose vend le pain de Clairval à 10 Éclats) ; **potions et huiles en combat seulement** (alchimiste) |
 | 36 | L'équilibre T41 | **planchers et plafonds toujours à pleine vie** ; nouvel indicateur, la vie restante après un petit groupe, cible ≥ 50 % |
 | 37 | Le client | **barre de vie hors combat** qui se remplit ; **avertissement sous 30 %**, jamais de refus ; vie restante dans la fin de combat |
-| 38 | La place dans le plan | **S100 (5 points)**, juste après la récolte ; tout ce qui suit recule d'un cran ; le boulanger rejoint l'alchimiste en S104 (qui passe à 5 points) |
+| 38 | La place dans le plan | **S101 (5 points)**, après la fenêtre Métiers ; le boulanger rejoint l'alchimiste (S107, 5 points) |
+
+### 9.5 Nouvelles (v5 : le village, le fil conducteur, la mini-carte)
+| # | Question | Valeur par défaut |
+|---|---|---|
+| 39 | Taille du village | **4 × 3 cartes de 48 × 32** (x 0 à 3, y −1 à 1), la place garde l'identifiant `clairval` ; *alternative :* 3 × 3 cartes |
+| 40 | Les portes | **3 portes, toutes à l'ouest vers le Bois** (Nord : chemin du Lac ; Ouest : route principale ; Sud : chemin des Champs) ; palissade partout ailleurs ; **la porte est d'entraînement disparaît**, le combat d'entraînement est lancé par Garance |
+| 41 | Monstres au village | **aucun groupe errant** ; les combats du tuto sont des scénarios de quête (le mannequin de Garance, les rats du grenier) |
+| 42 | Quêtes proposées par habitant | **au plus 2 à la fois** (la principale d'abord, puis le niveau le plus bas) ; le dialogue défile et répond aux touches 1 à 9 |
+| 43 | L'enchaînement | **une chaîne principale** (Ysaline, la pierre) qui ouvre chaque zone ; des **suites secondaires de 2 ou 3 quêtes** par donneur, ouvertes l'une après l'autre ; les donjons entiers ouverts après la quête principale du donjon |
+| 44 | Où sont les donneurs | **au village pour le tuto, puis un donneur par zone** sur une carte d'entrée : le chef des bûcherons, l'ermite des mares, Liane, la fermière des Champs |
+| 45 | Les objectifs nouveaux | **`Interact`** (indices, avancé en S103), **`Win`** (gagner un scénario), **`Wear`** (porter un objet), **butin de quête** (ne tombe que pendant la quête) |
+| 46 | Le nombre de quêtes | **45** : 9 par zone, village compris (2 principales et 7 secondaires au tuto, 4 et 5 dans chaque zone) ; 21 identifiants gardés, 24 nouveaux, **aucune supprimée** ; `four-trails` passe du niveau 8 au niveau 30 |
+| 47 | Les récompenses | XP **60 × niveau** (principale), **40 ×** (secondaire), **100 ×** (donjon entier) ; Éclats 10 × niveau (15 × pour un donjon) ; l'équipement de départ par le tuto ; les clefs par la chaîne principale ; jamais de pièce de panoplie |
+| 48 | Les repères | « ! » et « ? » au-dessus des habitants, le journal dit où aller, la mini-carte montre les objectifs de la quête suivie |
+| 49 | La mini-carte | **touche N, visible par défaut en haut à droite**, déplaçable, 3 tailles, zoom de 16 cases à 3 × 3 cartes ; elle montre le joueur, les groupes, les points de récolte, les habitants (! ?), les passages, les portes de donjon, les ateliers, les objectifs ; un clic fait marcher ; cachée en combat |
+| 50 | Les nouveaux habitants | le copiste (Odalric dans la trame) **gardé** ; le reste selon §5 ter.5 ; **Margaux et Camille interdits** |
+| 51 | L'ordre du plan | **l'histoire avant le jeu à plusieurs** : le village, le moteur des quêtes, le tuto et la mini-carte (S102 à S105), puis la forge et l'alchimie (S106, S107), puis les quêtes des zones (S108 à S110), puis le jeu à plusieurs (S111 à S114) |
 
 ---
 

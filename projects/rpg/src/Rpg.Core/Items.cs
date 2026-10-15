@@ -70,7 +70,8 @@ public sealed record Item(
     int Mp = 0,
     string? Set = null,
     int Initiative = 0,
-    string? Icon = null)
+    string? Icon = null,
+    int Heal = 0)
 {
     /// <summary>The kinds of pieces that may carry initiative (sprint 95, D71): the light ones.</summary>
     public static readonly IReadOnlyList<ItemSlot> Quick = [ItemSlot.Boots, ItemSlot.Cape, ItemSlot.Ring];

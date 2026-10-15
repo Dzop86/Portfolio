@@ -8,7 +8,7 @@ namespace Rpg.Client;
 /// now stands (0 to 1 of the way to the next level).
 /// </summary>
 public sealed record SummaryRow(int Fighter, string Name, int Level, bool IsPlayer, long? Xp = null, long? Shards = null,
-    IReadOnlyList<ItemCount>? Loot = null, double? XpBar = null, string? XpText = null);
+    IReadOnlyList<ItemCount>? Loot = null, double? XpBar = null, string? XpText = null, string? Life = null);
 
 /// <summary>
 /// The end-of-fight window without any engine (sprint 87, D68), as in the games of the genre: Victory
@@ -26,16 +26,24 @@ public sealed class FightSummary
         Title = fight.WinningTeam is null ? texts["draw"] : fight.WinningTeam == playerTeam ? texts["victory"] : texts["defeat"];
         Won = fight.WinningTeam == playerTeam;
         Fighter? hero = fight.Hero is null ? null : fight.HeroFighter;
+        // The life the hero keeps (sprint 101, D73): what is left, 1 if lost, all of it with a level gained.
+        string? life = null;
+        if (fight.Hero is Hero h && h.Class is not null && hero is not null && fight.WinningTeam is not null)
+        {
+            int max = Rpg.Core.Life.MaxHp(h, GameData.Embedded);
+            int left = result is not null && result.Level > h.Level ? max : Won ? Math.Min(hero.Hp, max) : 1;
+            life = texts["end.life", left, max];
+        }
         SummaryRow Row(Fighter f)
         {
             if (f != hero)
                 return new SummaryRow(f.Id, texts.Name(f), f.Spec.Level, false);
             if (result is null)
-                return new SummaryRow(f.Id, texts.Name(f), f.Spec.Level, true, Progression.FightXp(fight), Progression.FightShards(fight), Equipment.Loot(fight));
+                return new SummaryRow(f.Id, texts.Name(f), f.Spec.Level, true, Progression.FightXp(fight), Progression.FightShards(fight), Equipment.Loot(fight), Life: life);
             long from = Progression.XpToReach(result.Level), to = Progression.XpToReach(result.Level + 1);
             bool max = result.Level >= Hero.MaxLevel;
             return new SummaryRow(f.Id, texts.Name(f), result.Level, true, result.Xp, result.Shards, result.Loot ?? [],
-                max ? 1 : Math.Clamp((double)(result.TotalXp - from) / (to - from), 0, 1), texts.XpLine(result.Level, result.TotalXp));
+                max ? 1 : Math.Clamp((double)(result.TotalXp - from) / (to - from), 0, 1), texts.XpLine(result.Level, result.TotalXp), life);
         }
         int winners = fight.WinningTeam ?? playerTeam;
         Fighter[] people = [.. fight.Fighters.Where(f => !f.IsSummon)];

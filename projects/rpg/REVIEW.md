@@ -45,6 +45,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 91 : les sangliers et les loups (`data/monsters.json`, `data/passives.json`, `tools/spells_gen.py`, T58) et le Fourré : sent-on la différence entre les deux familles (§6 de la conception) ? Les textes des passifs te vont-ils ?
 - [ ] Sprint 92 : les champignons et les zombies (`data/monsters.json`, `data/passives.json`, `tools/spells_gen.py`, T59) et les Mares moisies : sent-on la différence entre les deux familles (§6) ? **À trancher :** la Sentinelle gagne seule une horde de champignons sur les Mares moisies (la mare fait passer les monstres en file) : l'accepter, ou faire contourner l'IA ?
 - [ ] Sprint 93 : les grenouilles et les crabes (`data/monsters.json`, `data/passives.json`, `tools/spells_gen.py`, T60) et les Pontons : sent-on la différence entre les deux familles (§6) ? La Berceuse ôte ses 2 PA tout de suite au héros qui joue (règle du §2.1) : ça te va ?
+- [ ] Sprint 101 : la vie qui se garde (T69) : le rythme (1 % des PV max par seconde, au moins 1, ×2 au village) te va-t-il, et la défaite à 1 PV sur place ?
 - [ ] Sprint 100 : la fenêtre Métiers (J) (T68) : est-elle assez proche de ta capture ? Que lui manque-t-il ?
 - [ ] Sprint 99 : la récolte (T67) : les noms des 40 ressources, le nombre de points par carte, la gemme au-dessus de chaque point, les 3 secondes de récolte. Ça se joue bien ?
 - [ ] Sprint 98 : les icônes des objets (T66) : les dessins, la couleur, le cadre selon la provenance te plaisent-ils dans l'inventaire et la fin de combat ?
@@ -233,3 +234,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-16 | `src/Rpg.Core/Harvesting.cs` | (Claude) Les Champs n'ont pas de roches : l'argent et le quartz ne poussaient nulle part (le test des 40 ressources l'a vu) | Affleurement sur l'herbe là où une carte n'a pas de roche |
 | 2026-10-16 | `src/Rpg.Core/Harvesting.cs` | (Claude) « À côté du point » comptait en pas droits, alors que la marche libre s'arrête en diagonale : le serveur aurait refusé une récolte sur deux | Les huit cases autour (`Harvesting.Beside`) |
 | 2026-10-16 | `src/Rpg.Client/JobBook.cs` | (Claude) Les poissons des niveaux 30 et 35 étaient dits « aux Champs », qui n'ont pas d'eau | Dits « au Lac, en eau profonde » |
+| 2026-10-16 | `godot/Main.Town.cs` | (Charles) La molette zoomait la carte avec la page des sorts ou l'inventaire ouverts | Le zoom n'est traité qu'aucune fenêtre ouverte (sorts, caractéristiques, inventaire, carte, journal, métiers, étal) |

@@ -45,7 +45,7 @@ public class QuestTests
         for (int i = 0; down < 3; i++)
         {
             FightTicket ticket = await server.StartFight(c.Id, boars[i].Scenario, Cancel);
-            var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, (await server.Characters(Cancel)).Single().Hero);
+            var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, (await server.Characters(Cancel)).Single().Hero, heroHp: ticket.HeroHp);
             Ai.PlayOut(fight);
             await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
             if (fight.WinningTeam == 0)

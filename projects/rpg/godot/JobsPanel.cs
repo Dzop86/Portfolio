@@ -220,10 +220,25 @@ public partial class JobsPanel : CanvasLayer
         if (r.TooHigh)
             name.AddThemeColorOverride("font_color", new Color("ff7a7a"));
         text.AddChild(name);
-        var needs = new Label { Text = string.Join(" · ", r.Ingredients.Select(n => $"{n.Item.Name.In(Texts.Lang)} {n.Owned}/{n.Count}")), Modulate = new Color(1, 1, 1, 0.8f) };
-        if (r.Ingredients.Any(n => n.Missing))
-            needs.AddThemeColorOverride("font_color", new Color("ffb0b0"));
+        // Each ingredient as its icon (Charles, sprint 101): how many the recipe needs on it, owned / needed under it, in red if missing.
+        var needs = new HBoxContainer();
+        needs.AddThemeConstantOverride("separation", 6);
         text.AddChild(needs);
+        foreach (Needed n in r.Ingredients)
+        {
+            var one = new VBoxContainer();
+            one.AddThemeConstantOverride("separation", 0);
+            needs.AddChild(one);
+            (Button small, ItemIcon mark) = ItemIcon.Tile(34);
+            (mark.Glyph, mark.Item, mark.Tint, mark.Count, mark.Faint) = (ItemStyle.GlyphOf(n.Item), n.Item, new Color(ItemStyle.Colour(n.Item)), n.Count, n.Missing);
+            small.TooltipText = $"{n.Item.Name.In(Texts.Lang)} {n.Owned}/{n.Count}";
+            one.AddChild(small);
+            var count = new Label { Text = $"{n.Owned}/{n.Count}", HorizontalAlignment = HorizontalAlignment.Center };
+            count.AddThemeFontSizeOverride("font_size", 11);
+            if (n.Missing)
+                count.AddThemeColorOverride("font_color", new Color("ff7a7a"));
+            one.AddChild(count);
+        }
         if (_book.Workshop == r.Job.Id)
         {
             var make = new Button { Text = Texts["craft.make"], CustomMinimumSize = new Vector2(110, 44), Disabled = !r.CanMake };

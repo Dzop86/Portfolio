@@ -17,7 +17,8 @@ public class ShopTests
         Assert.Null(Shop.SellPrice(fang, Real));
         Assert.Null(Shop.SellPrice(Real.Items["boar-wallow-key"], Real));
         Assert.Null(Shop.BuyPrice(Real.Items["admin-keyring"], Real));
-        Assert.All(Shop.Stock(Real), i => Assert.Equal(ItemKind.Resource, i.Kind));
+        // Resources, and since sprint 101 food.
+        Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Heal > 0, i.Id));
         Assert.Contains(bristle, Shop.Stock(Real));
     }
 

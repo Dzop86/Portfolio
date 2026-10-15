@@ -12,7 +12,27 @@ namespace Rpg.Desktop;
 public partial class TalkPanel : CanvasLayer
 {
     private readonly List<Button> _answers = [];
-    private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!;
+    private Label _title = null!, _help = null!, _message = null!, _speaker = null!, _line = null!, _xp = null!, _life = null!;
+
+    /// <summary>The character whose life is shown, growing back as <see cref="Rpg.Core.Life"/> says (sprint 101); null: none.</summary>
+    public CharacterSummary? Living { get; set; }
+
+    /// <summary>The life line as shown (for the self-test).</summary>
+    public string LifeText => _life.Text;
+
+    public override void _Process(double delta)
+    {
+        if (Living is not CharacterSummary c || c.Hero.Class is null)
+        {
+            _life.Text = "";
+            return;
+        }
+        int max = Rpg.Core.Life.MaxHp(c.Hero, Rpg.Core.GameData.Embedded);
+        int now = c.LifeAt(DateTimeOffset.UtcNow, Rpg.Core.GameData.Embedded);
+        _life.Text = Texts["life.line", now, max];
+        _life.TooltipText = Texts["life.rate", Math.Round(Rpg.Core.Life.PerSecond(max), 1)];
+        _life.Modulate = Rpg.Core.Life.Low(now, max) ? new Color("ff8a8a") : new Color(ElementStyle.Heal);
+    }
     private Button _lang = null!;
     private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
@@ -53,6 +73,11 @@ public partial class TalkPanel : CanvasLayer
         _xp.AddThemeColorOverride("font_outline_color", Colors.Black);
         _xp.AddThemeConstantOverride("outline_size", 6);
         root.AddChild(_xp);
+        _life = new Label { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -520, OffsetRight = -20, OffsetTop = 86, OffsetBottom = 110, HorizontalAlignment = HorizontalAlignment.Right, MouseFilter = Control.MouseFilterEnum.Stop };
+        _life.AddThemeFontSizeOverride("font_size", 16);
+        _life.AddThemeColorOverride("font_outline_color", Colors.Black);
+        _life.AddThemeConstantOverride("outline_size", 6);
+        root.AddChild(_life);
 
         // Anchored at the bottom, it grows upwards as high as its line and answers.
         _talk = new PanelContainer

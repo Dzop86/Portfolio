@@ -164,6 +164,14 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    /// <summary>Eats food out of a fight (sprint 101); the server checks it is owned and heals.</summary>
+    public async Task<CharacterSummary> Eat(Guid id, string item, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/use", UriKind.Relative), new Use(item), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     /// <summary>Gathers a spot from where the character stands (sprint 99); the server checks the trade, the place and the spot.</summary>
     public async Task<Gathered> Harvest(Guid id, string node, Cell from, CancellationToken cancel = default)
     {

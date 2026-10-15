@@ -47,14 +47,15 @@ public static class Shop
         HashSet<string> keys = [.. data.Dungeons.Values.Select(d => d.Key)];
         HashSet<string> dropped = [.. data.Families.Values.SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Select(l => l.Item),
             .. data.Jobs.Values.SelectMany(j => j.Harvests ?? []).Select(h => h.Item)];
-        return [.. data.Items.Values.Where(i => i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id))];
+        return [.. data.Items.Values.Where(i => (i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id)) || i.Heal > 0)];
     }
 
-    /// <summary>What Rose asks for one of her stock: five times what she would pay; null if she does not sell it.</summary>
+    /// <summary>What Rose asks for one of her stock: five times what she would pay, food ten Éclats a level; null if she does not sell it.</summary>
     public static long? SellPrice(Item item, GameData data)
     {
         ArgumentNullException.ThrowIfNull(item);
-        return Stock(data).Contains(item) ? 5 * BuyPrice(item, data) : null;
+        // Food (sprint 101): the village's bread at ten Éclats a level.
+        return !Stock(data).Contains(item) ? null : item.Heal > 0 ? 10L * item.Level : 5 * BuyPrice(item, data);
     }
 
     /// <summary>Why <paramref name="count"/> cannot be bought now, or null: in stock, in the village, with the Éclats.</summary>
