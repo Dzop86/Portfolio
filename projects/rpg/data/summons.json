@@ -82,5 +82,22 @@
       "explosion"
     ],
     "scale": 85
+  },
+  {
+    "id": "hermit-spawn",
+    "name": {
+      "fr": "Jeune bernard",
+      "en": "Young Hermit"
+    },
+    "look": "crab-support",
+    "hp": 30,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 55,
+    "spells": [
+      "shell-guard",
+      "pinch"
+    ],
+    "scale": 70
   }
 ]

@@ -14,8 +14,10 @@ public class FamilyTests
     [InlineData("wolf", "pack-instinct", Element.Fire, "woods-thicket")]
     [InlineData("mushroom", "final-spores", Element.Fire, "mouldy-pools", "spore-puffer")]
     [InlineData("zombie", "contagion-", Element.Water, "mouldy-pools", null, "bile-spitter")]
+    [InlineData("frog", "damp-skin", Element.Earth, "lakeshore-pontoon")]
+    [InlineData("crab", "molt", Element.Air, "lakeshore-pontoon", null, null, -10)]
     public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string second,
-        string? ownPassive = null, string? strongInIt = null)
+        string? ownPassive = null, string? strongInIt = null, int weak = -15)
     {
         MonsterFamily family = Real.Families[id];
         foreach (MonsterSpec m in family.Monsters)
@@ -29,8 +31,8 @@ public class FamilyTests
                 Assert.True(m.Resistances![weakness] > 0);
                 continue;
             }
-            // -15 % for the monsters, -5 % for the chief (D69 §9, by default).
-            Assert.Equal(m.Role == MonsterRole.Boss ? -5 : -15, m.Resistances![weakness]);
+            // -15 % for the monsters (-10 % for the armoured crabs, §4.6), -5 % for the chief (D69 §9, by default).
+            Assert.Equal(m.Role == MonsterRole.Boss ? -5 : weak, m.Resistances![weakness]);
             Assert.True(m.Resistances.Count(r => r.Value < 0) == 1, $"{m.Id}: one weakness only");
         }
         // No more tank shielding itself and nothing else (D69 §1).
@@ -45,6 +47,7 @@ public class FamilyTests
     [Theory]
     [InlineData("woods", "woods-glade", "woods-thicket")]
     [InlineData("mouldy", "mouldy-hollow", "mouldy-pools")]
+    [InlineData("lake", "lakeshore", "lakeshore-pontoon")]
     public void TheTwoMapsOfAFamily_AreBothFoughtOn_EachGroupAlwaysOnTheSame(string zone, string first, string second)
     {
         MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Families[g.Family].Zone == zone && g.Fight is null)];
@@ -174,5 +177,63 @@ public class FamilyTests
         Assert.Equal("bloated-spawn", f.Fighters[spawn.Fighter].SummonKind);
         Assert.Equal(["explosion"], Real.Summons["bloated-spawn"].Passives);
         Assert.Equal(["final-spores"], Real.Summons["spore-sprout"].Passives);
+    }
+
+    [Fact]
+    public void AFrog_HealsItselfAtTheStartOfItsTurn()
+    {
+        Fight f = Against("brawler-frog", "frog", 20);
+        f.Apply(new EndTurnAction());
+        Assert.Contains(new PassiveTriggered(1, "damp-skin"), f.Events);
+        Assert.Equal(24, f.Fighters[1].Hp);
+    }
+
+    [Fact]
+    public void TheBullfrog_PushesBackWhoeverStrikesItUpClose()
+    {
+        Fight f = Against("bullfrog", "frog", Real.Monsters["bullfrog"].Hp, ".AB.", damage: 1);
+        f.Apply(new CastAction("blow", new Cell(2, 0)));
+        Assert.Equal(new Cell(0, 0), f.Fighters[0].Cell);
+    }
+
+    [Fact]
+    public void TheToadKing_BelowHalfItsHitPoints_SingsAwayTwoActionPoints_OfWhoeverIsNear()
+    {
+        MonsterSpec king = Real.Monsters["toad-king"];
+        Fight f = Against("toad-king", "frog", king.Hp / 2 + 3, "A..B");
+        int ap = f.Fighters[0].Ap;
+        f.Apply(new CastAction("blow", new Cell(3, 0)));
+        Assert.Contains(new PassiveTriggered(1, "lullaby"), f.Events);
+        // The hero playing loses them at once (D69 §2.1); the blow cost one.
+        Assert.Equal(ap - 1 - 2, f.Fighters[0].Ap);
+        Fight far = Against("toad-king", "frog", king.Hp / 2 + 3, "A....B");
+        far.Apply(new CastAction("blow", new Cell(5, 0)));
+        Assert.Equal(ap - 1, far.Fighters[0].Ap);
+    }
+
+    [Fact]
+    public void ACrab_BelowTwoFifthsOfItsHitPoints_MoltsItsArmourForSpeedAndStrength()
+    {
+        MonsterSpec crab = Real.Monsters["pincer-crab"];
+        Fight f = Against("pincer-crab", "crab", crab.Hp * 4 / 10 + 3);
+        Fighter pincer = f.Fighters[1];
+        int earth = pincer.Resistance(Element.Earth);
+        f.Apply(new CastAction("blow", new Cell(6, 0)));
+        Assert.Contains(new PassiveTriggered(1, "molt"), f.Events);
+        Assert.Equal(earth - 30, pincer.Resistance(Element.Earth));
+        f.Apply(new EndTurnAction());
+        Assert.Equal(crab.Mp + 2, pincer.Mp);
+    }
+
+    [Fact]
+    public void TheGiantCrab_BelowHalfItsHitPoints_ShieldsItselfAndAHermitJoinsIt()
+    {
+        MonsterSpec giant = Real.Monsters["giant-crab"];
+        Fight f = Against("giant-crab", "crab", giant.Hp / 2 + 3);
+        f.Apply(new CastAction("blow", new Cell(6, 0)));
+        Assert.Contains(new Shielded(1, 40, 2), f.Events);
+        Summoned hermit = Assert.Single(f.Events.OfType<Summoned>());
+        Assert.Equal("hermit-spawn", f.Fighters[hermit.Fighter].SummonKind);
+        Assert.Equal(70, Real.Summons["hermit-spawn"].Scale);
     }
 }

@@ -190,17 +190,22 @@ beasts = [
  S("wing-gust","Souffle des ailes","Wing Gust",4,1,3,10,14,1,"Air",1,area=("Line",2),ranks=False,cd=1),
  # The lake (sprint 75): frogs and crabs, made for heroes of about level 18.
  S("tongue-lash","Coup de langue","Tongue Lash",3,1,2,12,17,2,"Water",1,ranks=False),
- S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,10,15,2,"Water",1,ranks=False),
+ S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,7,10,2,"Water",1,effects=[status("Enemies","Poison",4,2,"Water")],ranks=False),
  S("toad-skin","Peau de crapaud","Toad Skin",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("dew-mend","Rosée","Dew Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",11,15)],ranks=False,cd=1),
- S("tongue-crush","Langue écrasante","Tongue Crush",4,1,2,22,28,1,"Water",1,ranks=False),
+ S("tongue-crush","Langue écrasante","Tongue Crush",4,1,2,22,28,1,"Water",1,effects=[pull(2)],ranks=False),
  S("royal-croak","Coassement royal","Royal Croak",4,1,3,15,20,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
  S("pinch","Pince","Pinch",3,1,1,12,17,2,"Earth",1,ranks=False),
- S("bubble-shot","Tir de bulles","Bubble Shot",3,2,5,10,15,2,"Water",1,ranks=False),
- S("shell-up","Carapace","Shell Up",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
+ S("bubble-shot","Tir de bulles","Bubble Shot",3,2,5,9,13,2,"Water",1,effects=[push(1)],ranks=False),
+ S("shell-up","Rentrer dans sa coquille","Shell Up",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",20,2),status("Caster","Mp",-4,2)],ranks=False,cd=3),
  S("shell-guard","Garde de coquille","Shell Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",12,2)],ranks=False,cd=1),
  S("giant-pinch","Pince géante","Giant Pinch",4,1,1,22,28,1,"Earth",1,ranks=False),
- S("tide-sweep","Balayage de marée","Tide Sweep",4,1,2,15,20,1,"Water",1,area=("Cross",1),ranks=False,cd=1),
+ S("tide-sweep","Balayage de marée","Tide Sweep",4,1,2,15,20,1,"Water",1,area=("Cross",1),effects=[push(1)],ranks=False,cd=1),
+ # The frogs of D69 (sprint 93, §4.5): they heal, leap and pull; the crabs (§4.6): armour to go round, a molt.
+ S("frog-leap","Bond","Leap",2,2,4,0,0,1,"Neutral",1,effects=[leap()],ranks=False,cd=1),
+ S("lasso-tongue","Langue-lasso","Lasso Tongue",3,2,4,6,9,1,"Water",1,effects=[pull(2)],ranks=False,cd=1),
+ S("holding-pinch","Pince qui tient","Holding Pinch",3,1,1,8,11,1,"Earth",1,effects=[status("Enemies","Mp",-2,1)],ranks=False,cd=1),
+ S("shell-swap","Changer de coquille","Shell Swap",2,1,4,0,0,1,"Neutral",1,effects=[swap()],ranks=False,cd=2),
  # The fields (sprint 76): bees and moles, made for heroes of about level 26.
  S("sting","Dard","Sting",3,1,2,16,22,2,"Air",1,ranks=False),
  S("stinger-shot","Tir de dard","Stinger Shot",3,2,6,13,19,2,"Air",1,ranks=False),
@@ -261,6 +266,7 @@ summons += [
  young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
  young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),
  young("bloated-spawn","Bouffi recousu","Stitched Bloater","zombie-tank",85,40,6,2,40,["rot-fist"],["explosion"]),
+ young("hermit-spawn","Jeune bernard","Young Hermit","crab-support",70,30,6,3,55,["shell-guard","pinch"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -296,6 +302,17 @@ passives = [
    "Whoever strikes it up close is poisoned (2 a turn, 2 turns).","Hit",[status("Attacker","Poison",2,2,el)],melee=True) for el in ("Fire","Water","Earth","Air")],
  P("explosion","Explosion","Explosion","À sa mort, explose : 10 à 14 dégâts Terre à 2 cases, alliés compris.",
    "At its death, it explodes: 10 to 14 Earth damage 2 cells around, allies included.","Death",area=("Circle",2),damageMin=10,damageMax=14,element="Earth"),
+ # The frogs (§4.5): damp skin that heals, the bullfrog that bounces, the toad king's lullaby.
+ P("damp-skin","Peau humide","Damp Skin","Se soigne de 4 PV au début de son tour.","Heals itself by 4 HP at the start of its turn.","TurnStart",[heal("Caster",4,4)]),
+ P("bounce","Rebond","Bounce","Qui le frappe au contact est repoussé d'une case.","Whoever strikes it up close is pushed back one cell.","Hit",[push(1,"Attacker")],melee=True),
+ P("lullaby","Berceuse","Lullaby","Sous la moitié de ses PV, chante : les ennemis à 3 cases perdent 2 PA pendant un tour (tout de suite pour qui est en train de jouer).",
+   "Below half its HP, it sings: the enemies 3 cells away lose 2 AP for a turn (at once for whoever is playing).","LowHp",[status("Enemies","Ap",-2,1)],area=("Circle",3),percent=50),
+ # The crabs (§4.6): a molt that trades armour for speed, the giant's figurehead.
+ P("molt","Mue","Molt","Sous 40 % de ses PV, mue : −30 % de résistances, mais +2 PM et +20 % de dégâts jusqu'à la fin du combat.",
+   "Below 40% of its HP, it molts: −30% resistances, but +2 MP and +20% damage until the end of the fight.","LowHp",
+   [status("Caster","Resistance",-30,10),status("Caster","Mp",2,10),status("Caster","Damage",20,10)],percent=40),
+ P("figurehead","Proue gravée","Carved Figurehead","Sous la moitié de ses PV, se couvre de sa proue (bouclier de 40) et un bernard-l'ermite le rejoint.",
+   "Below half its HP, it shields itself with its figurehead (40) and a hermit crab joins it.","LowHp",[shield("Caster",40,2),summon("hermit-spawn")],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
 ]
 open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")

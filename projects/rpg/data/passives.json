@@ -348,6 +348,135 @@
     "element": "Earth"
   },
   {
+    "id": "damp-skin",
+    "name": {
+      "fr": "Peau humide",
+      "en": "Damp Skin"
+    },
+    "description": {
+      "fr": "Se soigne de 4 PV au début de son tour.",
+      "en": "Heals itself by 4 HP at the start of its turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "heal",
+        "affects": "Caster",
+        "min": 4,
+        "max": 4
+      }
+    ]
+  },
+  {
+    "id": "bounce",
+    "name": {
+      "fr": "Rebond",
+      "en": "Bounce"
+    },
+    "description": {
+      "fr": "Qui le frappe au contact est repoussé d'une case.",
+      "en": "Whoever strikes it up close is pushed back one cell."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "push",
+        "affects": "Attacker",
+        "cells": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "lullaby",
+    "name": {
+      "fr": "Berceuse",
+      "en": "Lullaby"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, chante : les ennemis à 3 cases perdent 2 PA pendant un tour (tout de suite pour qui est en train de jouer).",
+      "en": "Below half its HP, it sings: the enemies 3 cells away lose 2 AP for a turn (at once for whoever is playing)."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Enemies",
+        "stat": "Ap",
+        "value": -2,
+        "turns": 1
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 3
+    },
+    "percent": 50
+  },
+  {
+    "id": "molt",
+    "name": {
+      "fr": "Mue",
+      "en": "Molt"
+    },
+    "description": {
+      "fr": "Sous 40 % de ses PV, mue : −30 % de résistances, mais +2 PM et +20 % de dégâts jusqu'à la fin du combat.",
+      "en": "Below 40% of its HP, it molts: −30% resistances, but +2 MP and +20% damage until the end of the fight."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": -30,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 20,
+        "turns": 10
+      }
+    ],
+    "percent": 40
+  },
+  {
+    "id": "figurehead",
+    "name": {
+      "fr": "Proue gravée",
+      "en": "Carved Figurehead"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, se couvre de sa proue (bouclier de 40) et un bernard-l'ermite le rejoint.",
+      "en": "Below half its HP, it shields itself with its figurehead (40) and a hermit crab joins it."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Caster",
+        "amount": 40,
+        "turns": 2
+      },
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "hermit-spawn",
+        "max": 1
+      }
+    ],
+    "percent": 50
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

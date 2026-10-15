@@ -849,6 +849,10 @@
     },
     "zone": "lake",
     "battle": "lakeshore",
+    "battles": [
+      "lakeshore",
+      "lakeshore-pontoon"
+    ],
     "bossMap": "lake-0-0",
     "monsters": [
       {
@@ -865,11 +869,16 @@
         "mp": 4,
         "initiative": 80,
         "spells": [
-          "tongue-lash"
+          "tongue-lash",
+          "frog-leap"
         ],
         "resistances": {
-          "Water": 10
+          "Water": 10,
+          "Earth": -15
         },
+        "passives": [
+          "damp-skin"
+        ],
         "loot": [
           {
             "item": "frog-leg",
@@ -901,6 +910,13 @@
         "spells": [
           "venom-spit"
         ],
+        "resistances": {
+          "Water": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "damp-skin"
+        ],
         "loot": [
           {
             "item": "slime",
@@ -921,18 +937,23 @@
         },
         "look": "frog-tank",
         "level": 18,
-        "hp": 52,
+        "hp": 46,
         "ap": 6,
         "mp": 2,
         "initiative": 50,
         "spells": [
           "tongue-lash",
-          "toad-skin"
+          "lasso-tongue"
         ],
         "resistances": {
           "Water": 15,
-          "Earth": 10
+          "Air": 10,
+          "Earth": -15
         },
+        "passives": [
+          "damp-skin",
+          "bounce"
+        ],
         "loot": [
           {
             "item": "frog-leg",
@@ -957,13 +978,21 @@
         },
         "look": "frog-support",
         "level": 17,
-        "hp": 47,
+        "hp": 42,
         "ap": 6,
         "mp": 4,
         "initiative": 70,
         "spells": [
           "dew-mend",
+          "frog-leap",
           "tongue-lash"
+        ],
+        "resistances": {
+          "Water": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "damp-skin"
         ],
         "loot": [
           {
@@ -994,11 +1023,15 @@
           "royal-croak"
         ],
         "resistances": {
-          "Earth": 10,
-          "Fire": 10,
           "Water": 25,
-          "Air": 15
+          "Air": 15,
+          "Fire": 10,
+          "Earth": -5
         },
+        "passives": [
+          "damp-skin",
+          "lullaby"
+        ],
         "loot": [
           {
             "item": "frog-leg",
@@ -1025,6 +1058,10 @@
     },
     "zone": "lake",
     "battle": "lakeshore",
+    "battles": [
+      "lakeshore",
+      "lakeshore-pontoon"
+    ],
     "bossMap": "lake-4-1",
     "monsters": [
       {
@@ -1041,11 +1078,18 @@
         "mp": 3,
         "initiative": 70,
         "spells": [
-          "pinch"
+          "pinch",
+          "holding-pinch"
         ],
         "resistances": {
-          "Earth": 10
+          "Earth": 20,
+          "Fire": 20,
+          "Water": 20,
+          "Air": -10
         },
+        "passives": [
+          "molt"
+        ],
         "loot": [
           {
             "item": "crab-claw",
@@ -1070,13 +1114,22 @@
         },
         "look": "crab-ranged",
         "level": 16,
-        "hp": 34,
+        "hp": 39,
         "ap": 6,
         "mp": 3,
         "initiative": 75,
         "spells": [
           "bubble-shot",
           "pinch"
+        ],
+        "resistances": {
+          "Earth": 20,
+          "Fire": 20,
+          "Water": 20,
+          "Air": -10
+        },
+        "passives": [
+          "molt"
         ],
         "loot": [
           {
@@ -1098,7 +1151,7 @@
         },
         "look": "crab-tank",
         "level": 18,
-        "hp": 62,
+        "hp": 71,
         "ap": 6,
         "mp": 2,
         "initiative": 40,
@@ -1107,9 +1160,14 @@
           "shell-up"
         ],
         "resistances": {
-          "Earth": 15,
-          "Water": 10
+          "Earth": 30,
+          "Fire": 30,
+          "Water": 30,
+          "Air": -10
         },
+        "passives": [
+          "molt"
+        ],
         "loot": [
           {
             "item": "crab-shell",
@@ -1140,7 +1198,17 @@
         "initiative": 55,
         "spells": [
           "shell-guard",
+          "shell-swap",
           "pinch"
+        ],
+        "resistances": {
+          "Earth": 20,
+          "Fire": 20,
+          "Water": 20,
+          "Air": -10
+        },
+        "passives": [
+          "molt"
         ],
         "loot": [
           {
@@ -1171,11 +1239,15 @@
           "tide-sweep"
         ],
         "resistances": {
-          "Earth": 25,
-          "Fire": 10,
-          "Water": 15,
-          "Air": 10
+          "Earth": 30,
+          "Fire": 20,
+          "Water": 25,
+          "Air": -5
         },
+        "passives": [
+          "molt",
+          "figurehead"
+        ],
         "loot": [
           {
             "item": "crab-claw",
