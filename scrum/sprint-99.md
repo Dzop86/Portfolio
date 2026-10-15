@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je récolte avec cinq métiers (bûcheron, mineur, pêcheur, paysan, herboriste), une nouvelle ressource tous les 5 niveaux, 40 ressources des niveaux 1 à 35 sur les points des cartes (rpg) ; xUnit, auto-test. | 5 | À faire |
+| En tant que joueur, je récolte avec cinq métiers (bûcheron, mineur, pêcheur, paysan, herboriste), une nouvelle ressource tous les 5 niveaux, 40 ressources des niveaux 1 à 35 sur les points des cartes (rpg) ; xUnit, auto-test. | 5 | Fait |
+
+**Résultat :** cinq métiers de récolte, 40 ressources des niveaux 1 à 35, 830 points sur les cartes des zones, trois secondes de récolte vérifiées par le serveur, des points qui repoussent pour tous (T67).
 
 ## Rétro (Charles)
 - Ce qui a marché :

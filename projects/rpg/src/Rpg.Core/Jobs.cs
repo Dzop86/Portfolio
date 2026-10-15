@@ -3,13 +3,31 @@ namespace Rpg.Core;
 /// <summary>What a trade makes (sprint 81): an item, from the job's level, out of its ingredients, and since sprint 97 Éclats.</summary>
 public sealed record Recipe(string Item, int Level, IReadOnlyList<ItemCount> Ingredients, long Shards = 0);
 
+/// <summary>The kinds of spots a gathering trade works (sprint 99): a marked tree, a veined rock, water, a plot, herbs.</summary>
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<NodeKind>))]
+public enum NodeKind
+{
+    Tree,
+    Rock,
+    Water,
+    Plot,
+    Herb,
+}
+
+/// <summary>What a gathering trade takes (sprint 99): a resource, from the trade's level, on a kind of spot.</summary>
+public sealed record Harvest(string Item, int Level, NodeKind Node);
+
 /// <summary>
 /// A trade, as described in <c>data/jobs.json</c> (sprint 81, D65): its name, its workshop's, and what it
-/// makes. The first is the locksmith, who makes the dungeons' keys.
+/// makes. The first is the locksmith, who makes the dungeons' keys; since sprint 99 the gathering trades
+/// (woodcutter, miner, fisher, farmer, herbalist) have no workshop and take resources (<see cref="Harvests"/>).
 /// </summary>
-public sealed record Job(string Id, LocalizedText Name, LocalizedText Workshop, IReadOnlyList<Recipe> Recipes)
+public sealed record Job(string Id, LocalizedText Name, IReadOnlyList<Recipe> Recipes, LocalizedText? Workshop = null, IReadOnlyList<Harvest>? Harvests = null)
 {
     public Recipe? RecipeFor(string item) => Recipes.FirstOrDefault(r => r.Item == item);
+
+    /// <summary>A gathering trade (sprint 99).</summary>
+    public bool Gathers => Harvests is { Count: > 0 };
 }
 
 /// <summary>

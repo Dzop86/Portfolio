@@ -86,6 +86,15 @@ public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);
 
+/// <summary>A gathering spot to gather (sprint 99), from the cell the character stands on.</summary>
+public sealed record Gather(string? Node, Cell From);
+
+/// <summary>What a gathering gave: the character after it, the resource, the trade's experience, when the spot grows back.</summary>
+public sealed record Gathered(CharacterSummary Character, ItemCount Item, long Xp, DateTimeOffset GrowsBack);
+
+/// <summary>The spots of a map still growing back (sprint 99), and when each will be ready.</summary>
+public sealed record Growing(IReadOnlyDictionary<string, DateTimeOffset> Spots);
+
 /// <summary>Items to buy from Rose or to sell her (sprint 97): which, how many.</summary>
 public sealed record Trade(string? Item, int Count = 1);
 

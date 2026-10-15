@@ -220,6 +220,9 @@ public sealed class GameData
     public IReadOnlyDictionary<string, MonsterSpec> Monsters { get; }
     public IReadOnlyDictionary<string, MonsterGroup> Groups { get; }
 
+    /// <summary>The gathering spots of every map (sprint 99), by id.</summary>
+    public IReadOnlyDictionary<string, HarvestNode> Nodes { get; }
+
     /// <summary>The trades (sprint 81), by id.</summary>
     public IReadOnlyDictionary<string, Job> Jobs { get; }
 
@@ -303,7 +306,10 @@ public sealed class GameData
         Jobs = Index(jobs ?? [], j => j.Id, "job");
         foreach (Job j in Jobs.Values)
         {
-            if (j.Recipes.Count == 0 || j.Recipes.GroupBy(r => r.Item).Any(g => g.Count() > 1)
+            // A gathering trade (sprint 99): known resources, a level each, no workshop.
+            if (j.Gathers && (j.Workshop is not null || j.Harvests!.Any(h => !Items.TryGetValue(h.Item, out Item? r) || r.Kind != ItemKind.Resource || h.Level is < 1 or > Crafting.MaxLevel)))
+                throw new InvalidDataException($"Job '{j.Id}': a gathering trade takes known resources, from a level 1 to {Crafting.MaxLevel}, without a workshop.");
+            if ((j.Recipes.Count == 0 && !j.Gathers) || (!j.Gathers && j.Workshop is null) || j.Recipes.GroupBy(r => r.Item).Any(g => g.Count() > 1)
                 || j.Recipes.Any(r => !Items.ContainsKey(r.Item) || r.Level is < 1 or > Crafting.MaxLevel || r.Ingredients.Count == 0
                     || r.Ingredients.Any(i => !Items.ContainsKey(i.Item) || i.Count < 1 || i.Item == r.Item)))
                 throw new InvalidDataException($"Job '{j.Id}': recipes of known items, each once, a level 1 to {Crafting.MaxLevel}, known ingredients.");
@@ -333,6 +339,8 @@ public sealed class GameData
         IEnumerable<MonsterGroup> guards = Dungeons.Values.Where(d => d.Halls is not null)
             .SelectMany(d => Enumerable.Range(1, Core.Dungeons.RoomCount).Select(room => Core.Dungeons.Guard(d, room, Families[d.Family])));
         Groups = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => MonsterGroups.For(t, [.. Families.Values], [.. Towns.Values])).Concat(guards), g => g.Id, "group");
+        // The gathering spots of the zones (sprint 99), drawn like the groups.
+        Nodes = Index(Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => Harvesting.For(t, [.. Towns.Values], [.. Jobs.Values])), n => n.Id, "gathering spot");
         foreach (MonsterGroup g in Groups.Values.Where(g => g.Fight is null))
         {
             Scenario fight = MonsterGroups.Scenario(g, Families[g.Family], Monsters);

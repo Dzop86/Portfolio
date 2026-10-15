@@ -3,7 +3,7 @@
 # their black square taken off and the shape in white (the game tints it with the item's colour), their
 # authors in credits.json. Items of a kind may share a drawing. Deterministic; --fetch downloads the drawings
 # missing (from the game-icons repository on GitHub), otherwise every one must be there.
-# Run from projects/rpg last, after tools/dungeon_gen.py and tools/sets_gen.py (which write items again):
+# Run from projects/rpg last, after tools/dungeon_gen.py, tools/sets_gen.py and tools/trades_gen.py (which write items again):
 #   python3 tools/icons_gen.py data [--fetch]
 import json, os, re, sys, urllib.request
 
@@ -43,6 +43,17 @@ ICONS = {
     "slime": "delapouite/slime", "crab-shell": "lorc/spiked-shell", "crab-claw": "lorc/crab-claw",
     "honeycomb": "lorc/honeycomb", "bee-wing": "delapouite/fairy-wings", "mole-fur": "delapouite/animal-hide",
     "earthworm": "cathelineau/earth-worm",
+    # The gathered resources (sprint 99): wood, ore, fish, crops, herbs.
+    "oak-log": "delapouite/log", "hazel-log": "delapouite/half-log", "blackwood-log": "delapouite/wood-pile", "yew-log": "delapouite/log",
+    "willow-log": "delapouite/half-log", "alder-log": "delapouite/wood-pile", "ash-log": "delapouite/axe-in-log", "linden-log": "delapouite/log",
+    "copper-ore": "faithtoken/ore", "tin-ore": "faithtoken/minerals", "iron-ore": "faithtoken/ore", "sulphur": "lorc/crystal-growth",
+    "blue-clay": "delapouite/clay-brick", "zinc-ore": "faithtoken/minerals", "silver-ore": "delapouite/gold-nuggets", "quartz": "lorc/crystal-cluster",
+    "gudgeon": "delapouite/tropical-fish", "crayfish": "delapouite/shrimp", "pool-eel": "delapouite/circling-fish", "tench": "delapouite/flatfish",
+    "perch": "delapouite/tropical-fish", "carp": "delapouite/double-fish", "pike": "delapouite/piranha", "zander": "various-artists/salmon",
+    "wild-flax": "delapouite/flax", "wild-oats": "delapouite/grain", "pool-hemp": "delapouite/hemp", "rye": "delapouite/grain-bundle",
+    "shore-sedge": "lorc/sprout", "reed-rice": "delapouite/grain", "clairval-wheat": "lorc/wheat", "buckwheat": "delapouite/grain-bundle",
+    "nettle": "delapouite/herbs-bundle", "wood-mint": "delapouite/oak-leaf", "glowmoss": "lorc/ground-sprout", "clubmoss": "delapouite/fern",
+    "water-lily": "lorc/lotus-flower", "horsetail": "lorc/sprout", "hive-flower": "delapouite/sunflower", "lavender": "delapouite/dandelion-flower",
     # The dungeons' keys, and the quest items.
     "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",

@@ -131,5 +131,255 @@
         "shards": 150
       }
     ]
+  },
+  {
+    "id": "woodcutter",
+    "name": {
+      "fr": "Bûcheron",
+      "en": "Woodcutter"
+    },
+    "recipes": [],
+    "harvests": [
+      {
+        "item": "oak-log",
+        "level": 1,
+        "node": "Tree"
+      },
+      {
+        "item": "hazel-log",
+        "level": 5,
+        "node": "Tree"
+      },
+      {
+        "item": "blackwood-log",
+        "level": 10,
+        "node": "Tree"
+      },
+      {
+        "item": "yew-log",
+        "level": 15,
+        "node": "Tree"
+      },
+      {
+        "item": "willow-log",
+        "level": 20,
+        "node": "Tree"
+      },
+      {
+        "item": "alder-log",
+        "level": 25,
+        "node": "Tree"
+      },
+      {
+        "item": "ash-log",
+        "level": 30,
+        "node": "Tree"
+      },
+      {
+        "item": "linden-log",
+        "level": 35,
+        "node": "Tree"
+      }
+    ]
+  },
+  {
+    "id": "miner",
+    "name": {
+      "fr": "Mineur",
+      "en": "Miner"
+    },
+    "recipes": [],
+    "harvests": [
+      {
+        "item": "copper-ore",
+        "level": 1,
+        "node": "Rock"
+      },
+      {
+        "item": "tin-ore",
+        "level": 5,
+        "node": "Rock"
+      },
+      {
+        "item": "iron-ore",
+        "level": 10,
+        "node": "Rock"
+      },
+      {
+        "item": "sulphur",
+        "level": 15,
+        "node": "Rock"
+      },
+      {
+        "item": "blue-clay",
+        "level": 20,
+        "node": "Rock"
+      },
+      {
+        "item": "zinc-ore",
+        "level": 25,
+        "node": "Rock"
+      },
+      {
+        "item": "silver-ore",
+        "level": 30,
+        "node": "Rock"
+      },
+      {
+        "item": "quartz",
+        "level": 35,
+        "node": "Rock"
+      }
+    ]
+  },
+  {
+    "id": "fisher",
+    "name": {
+      "fr": "Pêcheur",
+      "en": "Fisher"
+    },
+    "recipes": [],
+    "harvests": [
+      {
+        "item": "gudgeon",
+        "level": 1,
+        "node": "Water"
+      },
+      {
+        "item": "crayfish",
+        "level": 5,
+        "node": "Water"
+      },
+      {
+        "item": "pool-eel",
+        "level": 10,
+        "node": "Water"
+      },
+      {
+        "item": "tench",
+        "level": 15,
+        "node": "Water"
+      },
+      {
+        "item": "perch",
+        "level": 20,
+        "node": "Water"
+      },
+      {
+        "item": "carp",
+        "level": 25,
+        "node": "Water"
+      },
+      {
+        "item": "pike",
+        "level": 30,
+        "node": "Water"
+      },
+      {
+        "item": "zander",
+        "level": 35,
+        "node": "Water"
+      }
+    ]
+  },
+  {
+    "id": "farmer",
+    "name": {
+      "fr": "Paysan",
+      "en": "Farmer"
+    },
+    "recipes": [],
+    "harvests": [
+      {
+        "item": "wild-flax",
+        "level": 1,
+        "node": "Plot"
+      },
+      {
+        "item": "wild-oats",
+        "level": 5,
+        "node": "Plot"
+      },
+      {
+        "item": "pool-hemp",
+        "level": 10,
+        "node": "Plot"
+      },
+      {
+        "item": "rye",
+        "level": 15,
+        "node": "Plot"
+      },
+      {
+        "item": "shore-sedge",
+        "level": 20,
+        "node": "Plot"
+      },
+      {
+        "item": "reed-rice",
+        "level": 25,
+        "node": "Plot"
+      },
+      {
+        "item": "clairval-wheat",
+        "level": 30,
+        "node": "Plot"
+      },
+      {
+        "item": "buckwheat",
+        "level": 35,
+        "node": "Plot"
+      }
+    ]
+  },
+  {
+    "id": "herbalist",
+    "name": {
+      "fr": "Herboriste",
+      "en": "Herbalist"
+    },
+    "recipes": [],
+    "harvests": [
+      {
+        "item": "nettle",
+        "level": 1,
+        "node": "Herb"
+      },
+      {
+        "item": "wood-mint",
+        "level": 5,
+        "node": "Herb"
+      },
+      {
+        "item": "glowmoss",
+        "level": 10,
+        "node": "Herb"
+      },
+      {
+        "item": "clubmoss",
+        "level": 15,
+        "node": "Herb"
+      },
+      {
+        "item": "water-lily",
+        "level": 20,
+        "node": "Herb"
+      },
+      {
+        "item": "horsetail",
+        "level": 25,
+        "node": "Herb"
+      },
+      {
+        "item": "hive-flower",
+        "level": 30,
+        "node": "Herb"
+      },
+      {
+        "item": "lavender",
+        "level": 35,
+        "node": "Herb"
+      }
+    ]
   }
 ]

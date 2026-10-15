@@ -9,7 +9,7 @@
 # gives the same files; every room is checked connected, with room for the hero and five monsters; since
 # sprint 94, the second room on the drawing of the family's second battle map.
 # Run from projects/rpg after tools/world_gen.py:  python3 tools/dungeon_gen.py data
-import collections, json, random, sys
+import collections, json, os, random, sys
 
 root = sys.argv[1]
 O = collections.OrderedDict
@@ -186,7 +186,9 @@ for f, d in zip(families, dungeons):
                       ("ingredients", [O([("item", resources[0]), ("count", 6)]), O([("item", resources[1]), ("count", 4)])]),
                       ("shards", 5 * chief["level"])]))
 open(f"{root}/monsters.json", "w").write(json.dumps(families, ensure_ascii=False, indent=2) + "\n")
-jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])]
+# The other trades (sprint 99: the gathering ones, written by tools/trades_gen.py) are kept as they are.
+others = [j for j in json.load(open(f"{root}/jobs.json")) if j["id"] != "locksmith"] if os.path.exists(f"{root}/jobs.json") else []
+jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])] + others
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")
 open(f"{root}/dungeons.json", "w").write(json.dumps(dungeons, ensure_ascii=False, indent=2) + "\n")
 

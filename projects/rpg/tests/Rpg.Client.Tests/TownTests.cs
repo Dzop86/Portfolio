@@ -129,4 +129,21 @@ public class TownTests
         Assert.NotNull(town.Click(town.Town.Spawn));
         Assert.Throws<ArgumentException>(() => town.Interrupt(rose.At));
     }
+
+    [Fact]
+    public void AClickOnAGatheringSpot_WalksNextToIt_AndAsksForTheGathering_AWalkCancelsIt()
+    {
+        // Sprint 99: the first spot of a map of the woods.
+        HarvestNode node = GameData.Embedded.Nodes.Values.First(n => n.Map.StartsWith("woods-", StringComparison.Ordinal) && n.Kind == NodeKind.Tree);
+        var town = new TownController(GameData.Embedded, node.Map);
+        Assert.Contains(node, town.Nodes);
+        Assert.NotNull(town.Click(node.At));
+        Assert.Equal(node, town.Gathering);
+        Assert.True(Harvesting.Beside(town.Position, node.At) && town.Position != node.At);
+        town.Interrupt(town.Position);
+        Assert.Null(town.Gathering);
+        town.Click(node.At);
+        town.GatheringSeenTo();
+        Assert.Null(town.Gathering);
+    }
 }

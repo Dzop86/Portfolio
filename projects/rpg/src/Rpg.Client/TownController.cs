@@ -189,6 +189,16 @@ public sealed class TownController
     /// <summary>The workshop the player walked onto, if any (sprint 81): the game opens its trade's recipes.</summary>
     public Workshop? Bench { get; private set; }
 
+    /// <summary>The gathering spots of this map (sprint 99).</summary>
+    public IReadOnlyList<HarvestNode> Nodes => [.. _data.Nodes.Values.Where(n => n.Map == Town.Id)];
+
+    public HarvestNode? NodeAt(Cell c) => _data.Nodes.Values.FirstOrDefault(n => n.Map == Town.Id && n.At == c);
+
+    /// <summary>The spot the player walked up to, to gather it (sprint 99); the game gathers it, then says it is seen to.</summary>
+    public HarvestNode? Gathering { get; private set; }
+
+    public void GatheringSeenTo() => Gathering = null;
+
     /// <summary>Not going in after all, or done at the bench: the player stays there, free to walk on.</summary>
     public void CloseDoor() => (Door, Bench, Shut, Spring) = (null, null, null, false);
 
@@ -204,6 +214,15 @@ public sealed class TownController
     {
         if (Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
             return null;
+        // A gathering spot (sprint 99): on it if one can stand there (a plot, herbs), else next to it.
+        if (NodeAt(target) is not null && GroupAt(target) is null)
+        {
+            return new[] { target }.Concat(Wander.Steps.Select(s => target + s)).Where(c => Board.Contains(c) && IsFree(c))
+                .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, IsFree))
+                .OfType<IReadOnlyList<Cell>>()
+                .OrderBy(p => p.Count)
+                .FirstOrDefault();
+        }
         // Someone to talk to, monsters to fight or a fountain: up to the nearest cell next to them.
         if (Town.NpcAt(target) is not null || GroupAt(target) is not null || IsSpring(target))
         {
@@ -306,6 +325,8 @@ public sealed class TownController
             Door = door;
         else if (bench is not null && there)
             Bench = bench;
+        else if (NodeAt(target) is HarvestNode node && npc is null && group is null)
+            Gathering = node;
         return new TownStep(path, npc, there ? exit : null, there && Shut is null ? link : null, attack ? group : null, there ? door : null)
         {
             Waypoints = Wander.Smooth(start, path, c => Board.Contains(c) && IsFree(c)),
@@ -329,6 +350,7 @@ public sealed class TownController
         Bench = null;
         Shut = null;
         Spring = false;
+        Gathering = null;
     }
 
     /// <summary>The quest taken or handed back, seen to by the game.</summary>

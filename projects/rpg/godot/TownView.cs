@@ -132,13 +132,32 @@ public partial class TownView : Node3D
                 Scale = new Vector3(1, 0.15f, 1),
                 Position = at + new Vector3(0, 0.05f, 0),
             });
-            LocalizedText name = controller.Data.Jobs[w.Job].Workshop;
+            LocalizedText name = controller.Data.Jobs[w.Job].Workshop!;
             Label3D label = Label(name.In(lang), at + new Vector3(0, 0.9f, 0), 36);
             AddChild(label);
             _exitLabels.Add((label, name));
         }
         foreach ((string id, Cell at) in controller.Groups)
             AddGroup(controller.Data.Groups[id], at, lang);
+        // The gathering spots (sprint 99): a small gem in the trade's colour over each, grey while it grows back;
+        // a rock on the grass where a map has none to mine.
+        foreach (HarvestNode node in controller.Nodes)
+        {
+            Vector3 at = BoardView.ToWorld(node.At);
+            bool onDecor = town.Rows[node.At.Y][node.At.X] != '.' && town.Rows[node.At.Y][node.At.X] != ',';
+            if (node.Kind == NodeKind.Rock && !onDecor)
+                Place(Kit + "rock-large.glb", at, (node.At.X * 37) % 360, 0.35f);
+            var material = new StandardMaterial3D { AlbedoColor = new Color(NodeColour(node.Kind)), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+            var gem = new MeshInstance3D
+            {
+                Mesh = new PrismMesh { Size = new Vector3(0.22f, 0.3f, 0.22f) },
+                MaterialOverride = material,
+                Position = at + new Vector3(0, node.Kind is NodeKind.Tree ? 2.2f : node.Kind is NodeKind.Rock && onDecor ? 1.1f : 0.7f, 0),
+                RotationDegrees = new Vector3(180, 0, 0),
+            };
+            AddChild(gem);
+            _nodes[node.Id] = (gem, material, node.Kind);
+        }
         Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         Player.Position = BoardView.ToWorld(controller.Position);
@@ -146,6 +165,32 @@ public partial class TownView : Node3D
         AddChild(Player);
         _pathMaterial = new StandardMaterial3D { AlbedoColor = new Color(1f, 0.9f, 0.35f, 0.8f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
     }
+
+    private readonly Dictionary<string, (MeshInstance3D Gem, StandardMaterial3D Material, NodeKind Kind)> _nodes = [];
+
+    /// <summary>The colour of a kind of gathering spot: the element of its trade (wood Fire, ore Earth, fish Water, crops Air), herbs the heal's.</summary>
+    public static string NodeColour(NodeKind kind) => kind switch
+    {
+        NodeKind.Tree => ElementStyle.Colour(Element.Fire),
+        NodeKind.Rock => ElementStyle.Colour(Element.Earth),
+        NodeKind.Water => ElementStyle.Colour(Element.Water),
+        NodeKind.Plot => ElementStyle.Colour(Element.Air),
+        _ => ElementStyle.Heal,
+    };
+
+    /// <summary>The spots growing back drawn grey and small, the others in their colour.</summary>
+    public void ShowGrowing(IReadOnlyCollection<string> growing)
+    {
+        foreach ((string id, (MeshInstance3D gem, StandardMaterial3D material, NodeKind kind)) in _nodes)
+        {
+            bool waiting = growing.Contains(id);
+            material.AlbedoColor = waiting ? new Color(0.45f, 0.45f, 0.45f) : new Color(NodeColour(kind));
+            gem.Scale = Vector3.One * (waiting ? 0.6f : 1f);
+        }
+    }
+
+    /// <summary>How many spots are drawn, and how many grey (for the self-test).</summary>
+    public (int Drawn, int Growing) NodesShown => (_nodes.Count, _nodes.Values.Count(n => n.Gem.Scale.X < 1));
 
     /// <summary>What stands on a cell: houses and the fountain once, from their top-left corner.</summary>
     private void Decorate(Cell c, char k)

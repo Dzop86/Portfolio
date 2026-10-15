@@ -22,6 +22,8 @@ public static class CharacterEndpoints
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
+        group.MapPost("/{id:guid}/harvest", Harvest).WithSummary("Gathers a spot of the character's map with a gathering trade: the trade's level, next to the spot, the spot ready; the resource and the trade's experience.");
+        group.MapGet("/{id:guid}/harvest", Spots).WithSummary("The gathering spots of the character's map still growing back, and when.");
         group.MapPost("/{id:guid}/shop/buy", Buy).WithSummary("Buys from Rose's stall, in the village, what she sells, for Éclats.");
         group.MapPost("/{id:guid}/shop/sell", Sell).WithSummary("Sells Rose, in the village, resources and equipment owned and not worn, for Éclats.");
         group.MapPost("/{id:guid}/craft", Make).WithSummary("Makes items of a trade's recipe for one of the player's characters: the trade's level, the ingredients used up, the trade's experience.");
@@ -257,6 +259,45 @@ public static class CharacterEndpoints
             await db.SaveChangesAsync(cancel);
         }
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    /// <summary>A gathering (sprint 99, D71): the rules decide, the server keeps the spots and the trade's experience.</summary>
+    internal static async Task<Results<Ok<Gathered>, NotFound, ValidationProblem>> Harvest(
+        Guid id, Gather request, ClaimsPrincipal user, GameDb db, Fields fields, CancellationToken cancel)
+    {
+        if (request?.Node is not string nodeId || !GameData.Embedded.Nodes.TryGetValue(nodeId, out HarvestNode? node))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["node"] = ["A known gathering spot."] });
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        Dictionary<string, long> jobs = character.JobList;
+        int level = Crafting.LevelFor(jobs.GetValueOrDefault(node.Job));
+        // Where the character says it stands: a free cell of its map (like the ways, T31, the walk itself is not replayed).
+        Town map = GameData.Embedded.Towns[node.Map];
+        string? why = Harvesting.WhyNot(node, level, character.Town, request.From)
+            ?? (map.CanStand(request.From) ? null : "Not a cell to stand on.");
+        if (why is null && !fields.Take(node.Id, character.Id, Harvesting.Regrowth(node.Level), Harvesting.Duration))
+            why = "The spot is growing back, or a gathering is under way.";
+        if (why is not null)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["node"] = [why] });
+        var item = new ItemCount(node.Item, Harvesting.Quantity(level, node.Level));
+        long xp = Harvesting.Xp(level, node.Level);
+        character.Receive([item]);
+        jobs[node.Job] = jobs.GetValueOrDefault(node.Job) + xp;
+        character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
+        (character.X, character.Y) = (request.From.X, request.From.Y);
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(new Gathered(Summary(character, new Place(map.Id, request.From.X, request.From.Y)), item, xp, fields.GrowsBack(node.Id)!.Value));
+    }
+
+    internal static async Task<Results<Ok<Growing>, NotFound>> Spots(Guid id, ClaimsPrincipal user, GameDb db, Fields fields, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        return TypedResults.Ok(new Growing(fields.Growing(GameData.Embedded.Nodes.Values.Where(n => n.Map == character.Town).Select(n => n.Id))));
     }
 
     /// <summary>Rose's stall (sprint 97, D71): the rules decide the price, the place, the Éclats and what is owned.</summary>

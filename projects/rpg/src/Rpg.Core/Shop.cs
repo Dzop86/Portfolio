@@ -40,12 +40,13 @@ public static class Shop
         };
     }
 
-    /// <summary>The monsters' resources Rose sells, in the order of the data (not the dungeons' keys: the locksmith makes them).</summary>
+    /// <summary>The resources Rose sells, the monsters' and since sprint 99 the gathered ones, in the order of the data (not the dungeons' keys: the locksmith makes them).</summary>
     public static IReadOnlyList<Item> Stock(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
         HashSet<string> keys = [.. data.Dungeons.Values.Select(d => d.Key)];
-        HashSet<string> dropped = [.. data.Families.Values.SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Select(l => l.Item)];
+        HashSet<string> dropped = [.. data.Families.Values.SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Select(l => l.Item),
+            .. data.Jobs.Values.SelectMany(j => j.Harvests ?? []).Select(h => h.Item)];
         return [.. data.Items.Values.Where(i => i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id))];
     }
 

@@ -164,6 +164,22 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    /// <summary>Gathers a spot from where the character stands (sprint 99); the server checks the trade, the place and the spot.</summary>
+    public async Task<Gathered> Harvest(Guid id, string node, Cell from, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/harvest", UriKind.Relative), new Gather(node, from), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<Gathered>(Json, cancel))!;
+    }
+
+    /// <summary>The spots of the character's map still growing back (sprint 99).</summary>
+    public async Task<Growing> Growing(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/harvest", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<Growing>(Json, cancel))!;
+    }
+
     /// <summary>Buys from Rose's stall (sprint 97); the server checks the place, the stock and the Éclats.</summary>
     public async Task<CharacterSummary> Buy(Guid id, string item, int count = 1, CancellationToken cancel = default) => await Trade(id, "buy", item, count, cancel);
 

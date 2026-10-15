@@ -41,6 +41,7 @@ public partial class Main
         _townView = new TownView();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
+        _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
         // The zoom of the map left, kept (sprint 83, D66).
@@ -255,6 +256,67 @@ public partial class Main
         ClearScene();
         ShowTown();
         await SavePlace();
+        // The new map's spots growing back, now the server knows the character is on it.
+        await RefreshGrowing();
+    }
+
+    // The gathering spots of the map growing back (sprint 99), as the server says.
+    private readonly HashSet<string> _growing = [];
+
+    private async Task RefreshGrowing()
+    {
+        _growing.Clear();
+        if (_lobby?.SignedIn == true && _character is not null)
+        {
+            try
+            {
+                _growing.UnionWith((await _lobby.Server.Growing(_character.Id)).Spots.Keys);
+            }
+            catch (Exception e) when (e is ServerException or HttpRequestException)
+            {
+                // Drawn ready: the server refuses a spot growing back anyway.
+            }
+        }
+        _townView?.ShowGrowing(_growing);
+    }
+
+    // A new walk cancels a gathering under way: the gathering waits for this ticket to be the last.
+    private int _gatherTicket;
+
+    /// <summary>A gathering (sprint 99): three seconds standing by the spot, then the server gives the resource and the trade's experience.</summary>
+    private async Task Gather(HarvestNode node)
+    {
+        _town!.GatheringSeenTo();
+        Texts texts = _talkPanel!.Texts;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _talkPanel.ShowMessage(texts["gather.offline"]);
+            return;
+        }
+        if (_growing.Contains(node.Id))
+        {
+            _talkPanel.ShowMessage(texts["gather.growing"]);
+            return;
+        }
+        int ticket = ++_gatherTicket;
+        string trade = GameData.Embedded.Jobs[node.Job].Name.In(texts.Lang);
+        _talkPanel.ShowMessage(texts["gather.doing", trade, texts.Items([new ItemCount(node.Item, 1)])]);
+        await ToSignal(GetTree().CreateTimer(Harvesting.Duration.TotalSeconds), SceneTreeTimer.SignalName.Timeout);
+        if (ticket != _gatherTicket || _town is null)
+            return;
+        try
+        {
+            Gathered got = await _lobby.Server.Harvest(_character.Id, node.Id, _town.Position);
+            KeepCharacter(got.Character);
+            _growing.Add(node.Id);
+            _townView?.ShowGrowing(_growing);
+            _talkPanel.ShowMessage(texts["gather.done", got.Item.Count, texts.Items([got.Item with { Count = 1 }]), got.Xp, trade]);
+            _sound?.Play("click");
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _talkPanel.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
     }
 
     /// <summary>Walking a map (its town and its view built); otherwise in a fight, even one started from the town.</summary>
@@ -470,6 +532,7 @@ public partial class Main
         }
         if ((attack ? _town!.Attack(target) : _town!.Click(target)) is not TownStep step)
             return;
+        _gatherTicket++;
         _walking = true;
         if (!await _townView!.Walk(step, WalkSpeed))
             return;
@@ -493,6 +556,8 @@ public partial class Main
         }
         else if (_town.Spring)
             await Rest();
+        else if (_town.Gathering is HarvestNode node)
+            await Gather(node);
     }
 
     private CraftPanel? _craftPanel;
@@ -1392,6 +1457,11 @@ public partial class Main
             problems.Add($"the door of {first.Id} has no name over it");
         if (view.Keeps != 1)
             problems.Add($"the map of {first.Id} shows {view.Keeps} keeps");
+        // Its gathering spots (sprint 99), drawn, and grey once growing back.
+        int spots = GameData.Embedded.Nodes.Values.Count(n => n.Map == first.Map);
+        view.ShowGrowing([GameData.Embedded.Nodes.Values.First(n => n.Map == first.Map).Id]);
+        if (spots == 0 || view.NodesShown != (spots, 1))
+            problems.Add($"the map of {first.Id} draws {view.NodesShown.Drawn} of its {spots} gathering spots");
         RemoveChild(view);
         view.QueueFree();
         // A hall drawn (sprint 86): its keeper, its group, its two ways named.
