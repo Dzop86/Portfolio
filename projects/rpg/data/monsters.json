@@ -1274,6 +1274,10 @@
     },
     "zone": "fields",
     "battle": "meadow",
+    "battles": [
+      "meadow",
+      "meadow-hedges"
+    ],
     "bossMap": "fields-0-4",
     "monsters": [
       {
@@ -1293,8 +1297,12 @@
           "sting"
         ],
         "resistances": {
-          "Air": 10
+          "Air": 10,
+          "Earth": -15
         },
+        "passives": [
+          "alarm"
+        ],
         "loot": [
           {
             "item": "bee-wing",
@@ -1326,6 +1334,13 @@
         "spells": [
           "stinger-shot"
         ],
+        "resistances": {
+          "Air": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "alarm"
+        ],
         "loot": [
           {
             "item": "bee-wing",
@@ -1346,17 +1361,22 @@
         },
         "look": "bee-tank",
         "level": 26,
-        "hp": 64,
+        "hp": 54,
         "ap": 6,
         "mp": 3,
         "initiative": 60,
         "spells": [
-          "sting",
-          "wax-coat"
+          "fire-sting",
+          "hot-wax"
         ],
         "resistances": {
-          "Air": 10
+          "Fire": 10,
+          "Air": 10,
+          "Earth": -15
         },
+        "passives": [
+          "alarm"
+        ],
         "loot": [
           {
             "item": "honeycomb",
@@ -1387,7 +1407,15 @@
         "initiative": 80,
         "spells": [
           "royal-jelly",
+          "foraging",
           "sting"
+        ],
+        "resistances": {
+          "Air": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "alarm"
         ],
         "loot": [
           {
@@ -1415,14 +1443,19 @@
         "initiative": 90,
         "spells": [
           "queen-sting",
-          "swarm"
+          "swarm",
+          "egg-laying"
         ],
         "resistances": {
-          "Earth": 10,
-          "Fire": 10,
+          "Air": 25,
+          "Fire": 15,
           "Water": 15,
-          "Air": 25
+          "Earth": -5
         },
+        "passives": [
+          "alarm",
+          "overheat"
+        ],
         "loot": [
           {
             "item": "honeycomb",
@@ -1449,6 +1482,10 @@
     },
     "zone": "fields",
     "battle": "meadow",
+    "battles": [
+      "meadow",
+      "meadow-hedges"
+    ],
     "bossMap": "fields-4-3",
     "monsters": [
       {
@@ -1460,16 +1497,21 @@
         },
         "look": "mole-melee",
         "level": 25,
-        "hp": 66,
+        "hp": 48,
         "ap": 6,
         "mp": 3,
         "initiative": 60,
         "spells": [
-          "dig-claw"
+          "dig-claw",
+          "surface"
         ],
         "resistances": {
-          "Earth": 10
+          "Earth": 10,
+          "Water": -15
         },
+        "passives": [
+          "bury"
+        ],
         "loot": [
           {
             "item": "mole-fur",
@@ -1502,6 +1544,13 @@
           "clod-throw",
           "dig-claw"
         ],
+        "resistances": {
+          "Earth": 10,
+          "Water": -15
+        },
+        "passives": [
+          "bury"
+        ],
         "loot": [
           {
             "item": "earthworm",
@@ -1522,18 +1571,21 @@
         },
         "look": "mole-tank",
         "level": 26,
-        "hp": 78,
+        "hp": 66,
         "ap": 6,
         "mp": 2,
         "initiative": 40,
         "spells": [
           "dig-claw",
-          "burrow"
+          "cave-in"
         ],
         "resistances": {
           "Earth": 15,
-          "Water": 10
+          "Water": -15
         },
+        "passives": [
+          "bury"
+        ],
         "loot": [
           {
             "item": "mole-fur",
@@ -1558,13 +1610,21 @@
         },
         "look": "mole-support",
         "level": 25,
-        "hp": 66,
+        "hp": 56,
         "ap": 6,
         "mp": 3,
         "initiative": 50,
         "spells": [
           "earth-ward",
+          "surface",
           "dig-claw"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Water": -15
+        },
+        "passives": [
+          "bury"
         ],
         "loot": [
           {
@@ -1592,14 +1652,19 @@
         "initiative": 55,
         "spells": [
           "crushing-claws",
-          "tremor"
+          "tremor",
+          "surface"
         ],
         "resistances": {
           "Earth": 25,
           "Fire": 10,
-          "Water": 15,
-          "Air": 10
+          "Air": 10,
+          "Water": -5
         },
+        "passives": [
+          "bury",
+          "the-debris"
+        ],
         "loot": [
           {
             "item": "mole-fur",

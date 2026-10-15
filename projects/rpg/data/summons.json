@@ -99,5 +99,41 @@
       "pinch"
     ],
     "scale": 70
+  },
+  {
+    "id": "worker-spawn",
+    "name": {
+      "fr": "Jeune ouvrière",
+      "en": "Young Worker"
+    },
+    "look": "bee-melee",
+    "hp": 30,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 95,
+    "spells": [
+      "sting"
+    ],
+    "passives": [
+      "alarm"
+    ],
+    "scale": 70
+  },
+  {
+    "id": "digger-spawn",
+    "name": {
+      "fr": "Jeune fouisseuse",
+      "en": "Young Digger"
+    },
+    "look": "mole-melee",
+    "hp": 35,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 60,
+    "spells": [
+      "dig-claw",
+      "surface"
+    ],
+    "scale": 70
   }
 ]

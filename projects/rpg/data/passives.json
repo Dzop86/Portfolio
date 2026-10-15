@@ -477,6 +477,118 @@
     "percent": 50
   },
   {
+    "id": "alarm",
+    "name": {
+      "fr": "Alarme",
+      "en": "Alarm"
+    },
+    "description": {
+      "fr": "Frappée, alerte les abeilles à 3 cases : +20 % de dégâts pendant 1 tour.",
+      "en": "Struck, it alerts the bees 3 cells away: +20% damage for 1 turn."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Allies",
+        "stat": "Damage",
+        "value": 20,
+        "turns": 1
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 3
+    }
+  },
+  {
+    "id": "overheat",
+    "name": {
+      "fr": "Ruche en surchauffe",
+      "en": "Overheated Hive"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, la ruche surchauffe : +30 % de dégâts, −15 % de résistances jusqu'à la fin.",
+      "en": "Below half its HP, the hive overheats: +30% damage, −15% resistances until the end."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 30,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": -15,
+        "turns": 10
+      }
+    ],
+    "percent": 50
+  },
+  {
+    "id": "bury",
+    "name": {
+      "fr": "S'enfouir",
+      "en": "Burrow Down"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, s'enfouit : +40 % de résistances et +2 PM pendant 1 tour.",
+      "en": "Below half its HP, it burrows down: +40% resistances and +2 MP for 1 turn."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": 40,
+        "turns": 1
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "percent": 50
+  },
+  {
+    "id": "the-debris",
+    "name": {
+      "fr": "Le débris",
+      "en": "The Debris"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, déterre un éclat de métal inconnu : +2 PA pendant 2 tours, et deux fouisseuses surgissent.",
+      "en": "Below half its HP, it digs up a shard of unknown metal: +2 AP for 2 turns, and two diggers surface."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 2,
+        "turns": 2
+      },
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "digger-spawn",
+        "max": 1,
+        "count": 2
+      }
+    ],
+    "percent": 50
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

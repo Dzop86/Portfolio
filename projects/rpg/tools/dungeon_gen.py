@@ -6,7 +6,8 @@
 # (data/towns/<dungeon>-<room>.json: stone walls, a fountain, a keeper, the room's group, the far door
 # and the way out) and its keep, 3 x 3 cells over the door on the chief's map (stamped into that map,
 # so run after tools/world_gen.py). Deterministic: the same data
-# gives the same files; every room is checked connected, with room for the hero and five monsters.
+# gives the same files; every room is checked connected, with room for the hero and five monsters; since
+# sprint 94, the second room on the drawing of the family's second battle map.
 # Run from projects/rpg after tools/world_gen.py:  python3 tools/dungeon_gen.py data
 import collections, json, random, sys
 
@@ -149,7 +150,9 @@ for n, f in enumerate(families):
     for r in range(1, 4):
         mid = f"dungeon-{f['id']}-{r}"
         rooms.append(mid)
-        m = O([("id", mid), ("name", O([("fr", f"{name['fr']} : {ROOMS[r - 1]['fr'].lower()}"), ("en", f"{name['en']}: {ROOMS[r - 1]['en']}")])), ("rows", room(800 + n * 10 + r, r))])
+        # Since sprint 94 (D69 §5.3), the great hall is fought on the drawing of the family's second battle map.
+        rows = json.load(open(f"{root}/maps/{f['battles'][1]}.json"))["rows"] if r == 2 else room(800 + n * 10 + r, r)
+        m = O([("id", mid), ("name", O([("fr", f"{name['fr']} : {ROOMS[r - 1]['fr'].lower()}"), ("en", f"{name['en']}: {ROOMS[r - 1]['en']}")])), ("rows", rows)])
         open(f"{root}/maps/{mid}.json", "w").write(json.dumps(m, ensure_ascii=False, indent=2) + "\n")
     town = json.load(open(f"{root}/towns/{f['bossMap']}.json"))
     # The keep of the last run comes off first: the door is chosen on the map as world_gen wrote it.

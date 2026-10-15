@@ -143,7 +143,6 @@ beasts = [
  S("charge","Charge","Charge",4,2,4,6,9,1,"Earth",1,line=True,effects=[push(2)],ranks=False),
  S("acorn-throw","Jet de glands","Acorn Throw",3,2,5,4,7,2,"Air",1,ranks=False),
  S("nip","Mordillement","Nip",2,1,1,3,5,2,"Earth",1,ranks=False),
- S("mud-wallow","Bain de boue","Mud Wallow",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("soothing-grunt","Grognement apaisant","Soothing Grunt",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",6,9)],ranks=False,cd=1),
  S("royal-gore","Boutoir royal","Royal Gore",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("stampede","Ruée","Stampede",4,1,2,7,10,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
@@ -155,7 +154,6 @@ beasts = [
  S("bite","Morsure","Bite",3,1,1,5,8,2,"Earth",1,ranks=False),
  S("lunge","Bond","Lunge",2,2,4,0,0,1,"Neutral",1,effects=[leap()],ranks=False,cd=1),
  S("howl","Hurlement glaçant","Chilling Howl",3,2,5,3,6,1,"Air",1,effects=[status("Enemies","Mp",-1,1)],ranks=False),
- S("thick-fur","Épaisse fourrure","Thick Fur",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("pack-guard","Garde de la meute","Pack Guard",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",8,2)],ranks=False,cd=1),
  S("savage-bite","Morsure sauvage","Savage Bite",4,1,1,10,14,1,"Earth",1,ranks=False),
  S("pack-howl","Hurlement de meute","Pack Howl",4,1,3,6,9,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
@@ -166,7 +164,6 @@ beasts = [
  # The mouldy woods (sprint 74): mushrooms and zombies, made for heroes of about level 10.
  S("cap-slam","Coup de chapeau","Cap Slam",3,1,1,8,12,2,"Earth",1,ranks=False),
  S("spore-burst","Nuage de spores","Spore Cloud",3,2,5,5,7,2,"Water",1,area=("Circle",1),effects=[status("Enemies","Poison",3,2,"Water")],ranks=False),
- S("hard-cap","Chapeau dur","Hard Cap",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("mycelium-mend","Réseau mycélien","Mycelial Web",3,0,4,0,0,1,"Neutral",1,area=("Circle",1),effects=[heal("Allies",7,10)],ranks=False,cd=1),
  S("rot-spores","Spores pourries","Rot Spores",4,1,3,10,14,1,"Water",1,area=("Circle",1),ranks=False,cd=1),
  S("elder-slam","Coup ancestral","Elder Slam",4,1,1,15,20,1,"Earth",1,ranks=False),
@@ -176,10 +173,8 @@ beasts = [
  S("cutting","Bouture","Cutting",3,1,2,0,0,1,"Neutral",1,effects=[summon("spore-sprout",2)],ranks=False,cd=3),
  S("claw","Griffure","Claw",3,1,1,8,12,2,"Fire",1,ranks=False),
  S("bile-spit","Bile","Bile",3,2,5,6,9,2,"Water",1,effects=[status("Enemies","Poison",3,2,"Water")],ranks=False),
- S("rotting-hide","Peau pourrie","Rotting Hide",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("stitch","Recousu de travers","Crooked Stitch",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",12,16),status("Allies","Mp",-1,1)],ranks=False,cd=1),
  S("grave-smash","Coup de tombe","Grave Smash",4,1,1,15,20,1,"Fire",1,ranks=False),
- S("plague-wave","Vague de peste","Plague Wave",4,1,2,10,14,1,"Fire",1,area=("Cross",1),ranks=False,cd=1),
  # The zombies of D69 (sprint 92, §4.4): each strikes in an element of its own; their overlord in all four.
  S("grip","Étreinte","Grip",3,1,1,4,6,1,"Fire",1,effects=[status("Enemies","Mp",-2,1)],ranks=False,cd=1),
  S("rot-fist","Poing pourri","Rotten Fist",3,1,1,8,12,2,"Earth",1,ranks=False),
@@ -191,7 +186,6 @@ beasts = [
  # The lake (sprint 75): frogs and crabs, made for heroes of about level 18.
  S("tongue-lash","Coup de langue","Tongue Lash",3,1,2,12,17,2,"Water",1,ranks=False),
  S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,7,10,2,"Water",1,effects=[status("Enemies","Poison",4,2,"Water")],ranks=False),
- S("toad-skin","Peau de crapaud","Toad Skin",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",10,2)],ranks=False,cd=2),
  S("dew-mend","Rosée","Dew Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",11,15)],ranks=False,cd=1),
  S("tongue-crush","Langue écrasante","Tongue Crush",4,1,2,22,28,1,"Water",1,effects=[pull(2)],ranks=False),
  S("royal-croak","Coassement royal","Royal Croak",4,1,3,15,20,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
@@ -209,16 +203,21 @@ beasts = [
  # The fields (sprint 76): bees and moles, made for heroes of about level 26.
  S("sting","Dard","Sting",3,1,2,16,22,2,"Air",1,ranks=False),
  S("stinger-shot","Tir de dard","Stinger Shot",3,2,6,13,19,2,"Air",1,ranks=False),
- S("wax-coat","Couche de cire","Wax Coat",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",12,2)],ranks=False,cd=2),
  S("royal-jelly","Gelée royale","Royal Jelly",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",13,18)],ranks=False,cd=1),
  S("queen-sting","Dard de la reine","Queen's Sting",4,1,2,28,36,1,"Air",1,ranks=False),
  S("swarm","Essaim","Swarm",4,1,3,19,25,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
  S("dig-claw","Griffe fouisseuse","Digging Claw",3,1,1,16,22,2,"Earth",1,ranks=False),
- S("clod-throw","Jet de motte","Clod Throw",3,2,5,13,19,2,"Earth",1,ranks=False),
- S("burrow","Terrier","Burrow",2,0,0,0,0,1,"Neutral",1,effects=[shield("Caster",12,2)],ranks=False,cd=2),
+ S("clod-throw","Motte dans l'œil","Clod in the Eye",3,2,5,10,14,1,"Earth",1,effects=[status("Enemies","Ap",-1,1)],ranks=False),
  S("earth-ward","Rempart de terre","Earth Ward",3,0,4,0,0,1,"Neutral",1,effects=[shield("Allies",12,2)],ranks=False,cd=1),
  S("crushing-claws","Griffes broyeuses","Crushing Claws",4,1,1,28,36,1,"Earth",1,ranks=False),
  S("tremor","Secousse","Tremor",4,1,2,19,25,1,"Earth",1,area=("Cross",1),ranks=False,cd=1),
+ # The bees of D69 (sprint 94, §4.7): the tempo, a swarm not to wake; the moles (§4.8): the ground, an enemy that surfaces.
+ S("fire-sting","Piqûre brûlante","Burning Sting",3,1,2,16,22,2,"Fire",1,ranks=False),
+ S("hot-wax","Cire brûlante","Hot Wax",3,1,1,6,9,1,"Fire",1,area=("Line",1),effects=[status("Enemies","Mp",-1,1)],ranks=False,cd=1),
+ S("foraging","Butinage","Foraging",2,0,4,0,0,1,"Neutral",1,effects=[status("Allies","Ap",1,1)],ranks=False,cd=2),
+ S("egg-laying","Ponte","Egg-Laying",3,1,2,0,0,1,"Neutral",1,effects=[summon("worker-spawn",2)],ranks=False,cd=3),
+ S("surface","Surgir","Surface",2,2,5,0,0,1,"Neutral",1,los=False,effects=[leap()],ranks=False,cd=2),
+ S("cave-in","Effondrement","Cave-in",3,2,3,6,9,1,"Earth",1,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],ranks=False,cd=2),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
@@ -267,6 +266,8 @@ summons += [
  young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),
  young("bloated-spawn","Bouffi recousu","Stitched Bloater","zombie-tank",85,40,6,2,40,["rot-fist"],["explosion"]),
  young("hermit-spawn","Jeune bernard","Young Hermit","crab-support",70,30,6,3,55,["shell-guard","pinch"]),
+ young("worker-spawn","Jeune ouvrière","Young Worker","bee-melee",70,30,6,4,95,["sting"],["alarm"]),
+ young("digger-spawn","Jeune fouisseuse","Young Digger","mole-melee",70,35,6,3,60,["dig-claw","surface"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -313,6 +314,15 @@ passives = [
    [status("Caster","Resistance",-30,10),status("Caster","Mp",2,10),status("Caster","Damage",20,10)],percent=40),
  P("figurehead","Proue gravée","Carved Figurehead","Sous la moitié de ses PV, se couvre de sa proue (bouclier de 40) et un bernard-l'ermite le rejoint.",
    "Below half its HP, it shields itself with its figurehead (40) and a hermit crab joins it.","LowHp",[shield("Caster",40,2),summon("hermit-spawn")],percent=50),
+ # The bees (§4.7): the alarm that wakes the swarm, the overheated hive; the moles (§4.8): burrowing, the debris.
+ P("alarm","Alarme","Alarm","Frappée, alerte les abeilles à 3 cases : +20 % de dégâts pendant 1 tour.",
+   "Struck, it alerts the bees 3 cells away: +20% damage for 1 turn.","Hit",[status("Allies","Damage",20,1)],area=("Circle",3)),
+ P("overheat","Ruche en surchauffe","Overheated Hive","Sous la moitié de ses PV, la ruche surchauffe : +30 % de dégâts, −15 % de résistances jusqu'à la fin.",
+   "Below half its HP, the hive overheats: +30% damage, −15% resistances until the end.","LowHp",[status("Caster","Damage",30,10),status("Caster","Resistance",-15,10)],percent=50),
+ P("bury","S'enfouir","Burrow Down","Sous la moitié de ses PV, s'enfouit : +40 % de résistances et +2 PM pendant 1 tour.",
+   "Below half its HP, it burrows down: +40% resistances and +2 MP for 1 turn.","LowHp",[status("Caster","Resistance",40,1),status("Caster","Mp",2,1)],percent=50),
+ P("the-debris","Le débris","The Debris","Sous la moitié de ses PV, déterre un éclat de métal inconnu : +2 PA pendant 2 tours, et deux fouisseuses surgissent.",
+   "Below half its HP, it digs up a shard of unknown metal: +2 AP for 2 turns, and two diggers surface.","LowHp",[status("Caster","Ap",2,2),summon("digger-spawn",count=2)],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
 ]
 open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")

@@ -16,6 +16,8 @@ public class FamilyTests
     [InlineData("zombie", "contagion-", Element.Water, "mouldy-pools", null, "bile-spitter")]
     [InlineData("frog", "damp-skin", Element.Earth, "lakeshore-pontoon")]
     [InlineData("crab", "molt", Element.Air, "lakeshore-pontoon", null, null, -10)]
+    [InlineData("bee", "alarm", Element.Earth, "meadow-hedges")]
+    [InlineData("mole", "bury", Element.Water, "meadow-hedges")]
     public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string second,
         string? ownPassive = null, string? strongInIt = null, int weak = -15)
     {
@@ -48,6 +50,7 @@ public class FamilyTests
     [InlineData("woods", "woods-glade", "woods-thicket")]
     [InlineData("mouldy", "mouldy-hollow", "mouldy-pools")]
     [InlineData("lake", "lakeshore", "lakeshore-pontoon")]
+    [InlineData("fields", "meadow", "meadow-hedges")]
     public void TheTwoMapsOfAFamily_AreBothFoughtOn_EachGroupAlwaysOnTheSame(string zone, string first, string second)
     {
         MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Families[g.Family].Zone == zone && g.Fight is null)];
@@ -235,5 +238,72 @@ public class FamilyTests
         Summoned hermit = Assert.Single(f.Events.OfType<Summoned>());
         Assert.Equal("hermit-spawn", f.Fighters[hermit.Fighter].SummonKind);
         Assert.Equal(70, Real.Summons["hermit-spawn"].Scale);
+    }
+
+    [Fact]
+    public void ABee_StruckAlertsTheBeesThreeCellsAround_NotFarther()
+    {
+        Fight f = Among("bee", "A.BB..B", 1, 0, "worker-bee", "archer-bee", "archer-bee");
+        f.Apply(new CastAction("blow", new Cell(2, 0)));
+        Assert.Contains(new PassiveTriggered(1, "alarm"), f.Events);
+        Assert.Contains(f.Events, e => e is StatusAdded { Fighter: 1, Stat: Stat.Damage, Value: 20 });
+        Assert.Contains(f.Events, e => e is StatusAdded { Fighter: 2, Stat: Stat.Damage, Value: 20 });
+        Assert.DoesNotContain(f.Events, e => e is StatusAdded { Fighter: 3 });
+    }
+
+    [Fact]
+    public void TheQueen_BelowHalfItsHitPoints_Overheats()
+    {
+        MonsterSpec queen = Real.Monsters["queen-bee"];
+        Fight f = Against("queen-bee", "bee", queen.Hp / 2 + 3);
+        int air = f.Fighters[1].Resistance(Element.Air);
+        f.Apply(new CastAction("blow", new Cell(6, 0)));
+        Assert.Contains(new PassiveTriggered(1, "overheat"), f.Events);
+        Assert.Equal(air - 15, f.Fighters[1].Resistance(Element.Air));
+        Assert.Contains(f.Events, e => e is StatusAdded { Fighter: 1, Stat: Stat.Damage, Value: 30 });
+    }
+
+    [Fact]
+    public void AMole_BelowHalfItsHitPoints_BurrowsDown_ForOneTurn()
+    {
+        MonsterSpec digger = Real.Monsters["digger-mole"];
+        Fight f = Against("digger-mole", "mole", digger.Hp / 2 + 3);
+        int earth = f.Fighters[1].Resistance(Element.Earth);
+        f.Apply(new CastAction("blow", new Cell(6, 0)));
+        Assert.Equal(earth + 40, f.Fighters[1].Resistance(Element.Earth));
+        f.Apply(new EndTurnAction());
+        Assert.Equal(digger.Mp + 2, f.Fighters[1].Mp);
+        // A mole surfaces anywhere it can land, out of sight too.
+        Spell surface = Real.Spells["surface"];
+        Assert.False(surface.LineOfSight);
+        Assert.Contains(surface.AllEffects, e => e is LeapEffect);
+    }
+
+    [Fact]
+    public void TheMoleKing_BelowHalfItsHitPoints_DigsUpTheDebris_AndTwoDiggersSurface()
+    {
+        MonsterSpec king = Real.Monsters["mole-king"];
+        Fight f = Against("mole-king", "mole", king.Hp / 2 + 3);
+        f.Apply(new CastAction("blow", new Cell(6, 0)));
+        Assert.Contains(new PassiveTriggered(1, "the-debris"), f.Events);
+        Summoned[] diggers = [.. f.Events.OfType<Summoned>()];
+        Assert.Equal(2, diggers.Length);
+        Assert.All(diggers, d => Assert.Equal("digger-spawn", f.Fighters[d.Fighter].SummonKind));
+        f.Apply(new EndTurnAction());
+        Assert.Equal(king.Ap + 2, f.Fighters[1].Ap);
+    }
+
+    [Fact]
+    public void EveryDungeonsGreatHall_IsFoughtOnItsFamilysSecondMap()
+    {
+        foreach (Dungeon d in Real.Dungeons.Values)
+            Assert.Equal(Real.Maps[Real.Families[d.Family].AllBattles[1]].Rows, Real.Maps[d.Rooms[1]].Rows);
+    }
+
+    [Fact]
+    public void TheEightSpells_OfTheTanksThatOnlyShieldedThemselves_AreGone()
+    {
+        string[] gone = ["mud-wallow", "thick-fur", "hard-cap", "rotting-hide", "plague-wave", "toad-skin", "wax-coat", "burrow"];
+        Assert.DoesNotContain(Real.Spells.Keys, gone.Contains);
     }
 }
