@@ -6,8 +6,12 @@ public class HeroTests
 {
     [Theory]
     [InlineData("Élise", true)]
-    [InlineData("Jean-Luc", true)]
-    [InlineData("O'Neil", true)]
+    [InlineData("Ondine", true)]
+    [InlineData("Jean-Luc", false)]
+    [InlineData("O'Neil", false)]
+    [InlineData("élise", false)]
+    [InlineData("Ana!", false)]
+    [InlineData("Ana9", false)]
     [InlineData("Bo", false)]
     [InlineData("Abcdefghijklmnopqrstu", false)]
     [InlineData("Jean--Luc", false)]
@@ -16,8 +20,18 @@ public class HeroTests
     [InlineData("R2D2", false)]
     [InlineData("Jean Luc", false)]
     [InlineData(null, false)]
-    public void Names_AreLettersWithSingleHyphensOrApostrophesInside(string? name, bool valid) =>
+    public void Names_AreACapitalThenLettersOnly(string? name, bool valid) =>
         Assert.Equal(valid, Hero.IsValidName(name));
+
+    [Theory]
+    [InlineData("plop")]
+    [InlineData("Jean-Luc")]
+    public void ACharacterNamedUnderTheOldRule_StillFights(string name)
+    {
+        Assert.False(Hero.IsValidName(name));
+        Assert.Null(new Hero(name, "female-c").Problem(Real));
+        Assert.NotNull(new Hero("R2D2", "female-c").Problem(Real));
+    }
 
     [Fact]
     public void TheHero_TakesThePlaceOfTheFirstFighterOfTeamA_WithTheSameCharacteristics()

@@ -64,17 +64,25 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     public static readonly IReadOnlyList<string> Looks =
         ["female-a", "female-b", "female-c", "female-d", "female-e", "female-f", "male-a", "male-b", "male-c", "male-d", "male-e", "male-f"];
 
-    /// <summary>3 to 20 letters, with single hyphens or apostrophes inside: "Élise", "Jean-Luc", "O'Neil".</summary>
-    [GeneratedRegex(@"^\p{L}+(?:['-]\p{L}+)*$")]
+    /// <summary>A new character's name (Charles, sprint 93): a capital, then letters only, 3 to 20 in all: "Élise", "Ondine".</summary>
+    [GeneratedRegex(@"^\p{Lu}\p{L}{2,19}$")]
     private static partial Regex NamePattern();
 
+    /// <summary>The rule before sprint 93: letters with single hyphens or apostrophes inside ("plop", "Jean-Luc").</summary>
+    [GeneratedRegex(@"^\p{L}+(?:['-]\p{L}+)*$")]
+    private static partial Regex OldNamePattern();
+
+    /// <summary>Whether a new character may take this name.</summary>
     public static bool IsValidName(string? name) => name is { Length: >= 3 and <= 20 } && NamePattern().IsMatch(name);
+
+    /// <summary>Whether a character may fight under this name: the characters named before sprint 93 keep theirs.</summary>
+    public static bool IsKnownName(string? name) => IsValidName(name) || name is { Length: >= 3 and <= 20 } && OldNamePattern().IsMatch(name);
 
     /// <summary>Why this hero cannot fight with these data, or null.</summary>
     public string? Problem(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        return !IsValidName(Name) ? "A name has 3 to 20 letters, with single hyphens or apostrophes inside."
+        return !IsKnownName(Name) ? "A name has 3 to 20 letters, the first a capital."
             : !Looks.Contains(Look) ? $"Unknown look '{Look}'."
             : Colour is < 0 or >= Colours ? $"The colour is 0 to {Colours - 1}."
             : Hair is < 0 or >= HairColours ? $"The hair colour is 0 to {HairColours - 1}."

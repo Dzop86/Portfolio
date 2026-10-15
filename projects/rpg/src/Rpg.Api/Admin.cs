@@ -6,11 +6,15 @@ using Rpg.Core;
 namespace Rpg.Api;
 
 /// <summary>What the server's operator asks for the characters of an account (sprint 79).</summary>
-public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give);
+public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null);
+
+/// <summary>A character the operator creates for an account (sprint 93): its class and its name.</summary>
+public sealed record NewHero(string Class, string Name);
 
 /// <summary>
 /// The server's administration command, run where the server runs and never over HTTP:
-/// <c>Rpg.Api admin ACCOUNT [--level N] [--give ITEM[:COUNT]]...</c> brings every character of the
+/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--level N] [--give ITEM[:COUNT]]...</c> first creates
+/// characters for the account (the names and the limit of the sign-up apply), then brings every character of the
 /// account to a level (its experience with it; the points spent are given back if the level goes down)
 /// and gives them items of the data files. For the operator's tests (D65): no account, password or
 /// character is written in the repository.
@@ -19,7 +23,7 @@ public static class Admin
 {
     public const string Verb = "admin";
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--level N] [--give ITEM[:COUNT]]...";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--level N] [--give ITEM[:COUNT]]...";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -28,6 +32,7 @@ public static class Admin
             return (null, Usage);
         int? level = null;
         var give = new List<ItemCount>();
+        var create = new List<NewHero>();
         for (int i = 2; i < args.Count; i++)
         {
             string value = i + 1 < args.Count ? args[i + 1] : "";
@@ -49,13 +54,20 @@ public static class Admin
                     give.Add(new ItemCount(parts[0], count));
                     i++;
                     break;
+                case "--create":
+                    string[] hero = value.Split(':');
+                    if (hero.Length != 2 || GameData.Embedded.Class(hero[0]) is null || !Hero.IsValidName(hero[1]))
+                        return (null, $"--create: a class of the data files and a name of 3 to 20 letters, the first a capital ('{value}').");
+                    create.Add(new NewHero(hero[0], hero[1]));
+                    i++;
+                    break;
                 default:
                     return (null, $"Unknown: '{args[i]}'. {Usage}");
             }
         }
-        if (level is null && give.Count == 0)
-            return (null, "Nothing to do: --level or --give.");
-        return (new AdminOrder(args[1], level, give), null);
+        if (level is null && give.Count == 0 && create.Count == 0)
+            return (null, "Nothing to do: --create, --level or --give.");
+        return (new AdminOrder(args[1], level, give, create), null);
     }
 
     /// <summary>Applies the order; says what it did, one line per character.</summary>
@@ -66,6 +78,17 @@ public static class Admin
         if (account is null)
             return [$"No account named '{order.Account}'."];
         var done = new List<string>();
+        foreach (NewHero hero in order.Create ?? [])
+        {
+            string name = hero.Name.ToUpperInvariant();
+            if (account.Characters.Count >= Accounts.MaxCharacters)
+                done.Add($"{hero.Name}: not created, at most {Accounts.MaxCharacters} characters per account.");
+            else if (await db.Characters.AnyAsync(c => c.NormalizedName == name, cancel))
+                done.Add($"{hero.Name}: not created, the name is taken.");
+            else
+                // Added to the context itself: its id is already drawn, and through the collection alone it would be taken for an update.
+                db.Characters.Add(new Character { Account = account, AccountId = account.Id, Name = hero.Name, NormalizedName = name, Look = "female-d", Class = hero.Class, CreatedAt = DateTimeOffset.UtcNow });
+        }
         foreach (Character c in account.Characters.OrderBy(c => c.CreatedAt).ThenBy(c => c.Name))
         {
             if (order.Level is int level)

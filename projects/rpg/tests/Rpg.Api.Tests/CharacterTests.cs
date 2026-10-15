@@ -17,7 +17,7 @@ public class CharacterTests
         GameServer server = await api.SignedIn();
         CharacterSummary elise = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
         api.Clock.Advance(TimeSpan.FromMinutes(1));
-        CharacterSummary jean = await server.CreateCharacter("Jean-Luc", "male-a", "sentinel", cancel: Cancel);
+        CharacterSummary jean = await server.CreateCharacter("Jean", "male-a", "sentinel", cancel: Cancel);
         Assert.Equal([elise, jean], await server.Characters(Cancel));
         Assert.Equal(new Hero("Élise", "female-c", "sentinel"), elise.Hero);
         await server.DeleteCharacter(elise.Id, Cancel);
@@ -29,6 +29,9 @@ public class CharacterTests
     [Theory]
     [InlineData("Él", "female-a", "sentinel", 0, "name")]
     [InlineData("R2D2", "female-a", "sentinel", 0, "name")]
+    [InlineData("élise", "female-a", "sentinel", 0, "name")]
+    [InlineData("Jean-Luc", "female-a", "sentinel", 0, "name")]
+    [InlineData("Élise!", "female-a", "sentinel", 0, "name")]
     [InlineData("Élise", "orc", "sentinel", 0, "look")]
     [InlineData("Élise", "", "sentinel", 0, "look")]
     [InlineData("Élise", "female-a", "dragon", 0, "class")]

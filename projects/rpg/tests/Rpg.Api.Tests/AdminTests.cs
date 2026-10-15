@@ -22,6 +22,10 @@ public class AdminTests
         Assert.Null(Admin.Parse(["admin", "tester", "--give", "dagger:0"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--fly"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester"]).Order);
+        Assert.Equal([new NewHero("guard", "Ondine")], Admin.Parse(["admin", "tester", "--create", "guard:Ondine"]).Order!.Create);
+        Assert.Null(Admin.Parse(["admin", "tester", "--create", "dragon:Ondine"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard:ondine"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard"]).Order);
         Assert.Null(Admin.Parse(["admin", "--level", "3"]).Order);
         Assert.Null(Admin.Parse(["serve"]).Order);
     }
@@ -55,5 +59,27 @@ public class AdminTests
         Assert.Equal((5, Characteristics.None), (down.Level, down.Stats));
         using (IServiceScope scope = api.Services.CreateScope())
             Assert.Equal(["No account named 'nobody'."], await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder("nobody", 3, []), Cancel));
+    }
+
+    [Fact]
+    public async Task TheOperator_CreatesCharactersForAnAccount_UnderTheSignUpsRules()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("adm");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        await server.CreateCharacter("Aube", "female-c", "sentinel", cancel: Cancel);
+        AdminOrder order = Admin.Parse(["admin", account, "--create", "guard:Brume", "--create", "mage:Aube", "--level", "100", "--give", "admin-keyring"]).Order!;
+        IReadOnlyList<string> said;
+        using (IServiceScope scope = api.Services.CreateScope())
+            said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), order, Cancel);
+        // Aube is taken: the guard alone is created, and both reach the level with the keyring.
+        Assert.Contains("Aube: not created, the name is taken.", said);
+        IReadOnlyList<CharacterSummary> all = await server.Characters(Cancel);
+        Assert.Equal([("Aube", "sentinel"), ("Brume", "guard")], all.Select(c => (c.Name, c.Class)));
+        Assert.All(all, c =>
+        {
+            Assert.Equal(100, c.Level);
+            Assert.Equal([new ItemCount("admin-keyring", 1)], c.Inventory!);
+        });
     }
 }

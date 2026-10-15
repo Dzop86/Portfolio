@@ -50,7 +50,7 @@ public static class CharacterEndpoints
     {
         var errors = new Dictionary<string, string[]>();
         if (!Hero.IsValidName(request.Name))
-            errors["name"] = ["3 to 20 letters, with single hyphens or apostrophes inside."];
+            errors["name"] = ["3 to 20 letters and nothing else, the first a capital."];
         if (request.Look is null || !Hero.Looks.Contains(request.Look))
             errors["look"] = [$"One of: {string.Join(", ", Hero.Looks)}."];
         // Every new character has a class; the classes come from the rules' own data.

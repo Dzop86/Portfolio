@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S94 | 158 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S94 | 160 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 379 points sur 94 sprints de deux semaines.
+Total : 381 points sur 94 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -130,6 +130,9 @@ Pendant le sprint 85 (qui passe à 4 points) : des bordures ouvertes, les icône
 
 ## Osmose : des familles de monstres qui se jouent chacune autrement (15 octobre 2026, D69)
 D'après la conception `projects/rpg/docs/design-familles.md` (game designer, lancée par Charles) : les huit familles suivaient le même gabarit. Cinq sprints : S90 (5 points) le moteur, des passifs (début de tour, coup reçu, PV bas, allié tombé, mort), un saut et un échange de place, plusieurs cartes de combat par famille, la correction des états PA et PM posés sur soi ; puis, zone par zone, chaque famille avec sa leçon, son passif, sa faiblesse, un tank qui protège, un soutien qui replace et un chef à deux phases, et une nouvelle carte de combat : S91 le Bois, S92 le Bois moisi, S93 le Lac, S94 les Champs (3 points chacun).
+
+## Osmose : les pseudos, le compte d'essai, les fenêtres en combat (15 octobre 2026, D70)
+Après l'essai du sprint 93, pendant le sprint 94 (qui passe à 5 points) : des pseudos d'une majuscule et de lettres seulement, la création de personnages par la commande d'administration (le compte d'essai de Charles, un personnage de chaque classe au niveau 100), les caractéristiques et l'inventaire consultables en combat (C et I).
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
