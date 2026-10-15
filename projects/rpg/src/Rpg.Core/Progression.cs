@@ -56,6 +56,23 @@ public static class Progression
         return xp * (100 + GroupBonus * (allies - 1)) / 100;
     }
 
+    /// <summary>The Éclats, the money (sprint 87, D68), a monster of this level leaves.</summary>
+    public static long MonsterShards(int level) => 2 + level;
+
+    /// <summary>
+    /// The Éclats the hero earns from a fight: as for the experience, nothing unless its team won, and
+    /// for each monster of the other team (neither a summon nor a rival hero) its worth, whatever its
+    /// level; shared by nobody (each hero of a group would earn as much).
+    /// </summary>
+    public static long FightShards(Fight fight)
+    {
+        ArgumentNullException.ThrowIfNull(fight);
+        if (fight.Hero is null || fight.WinningTeam != 0)
+            return 0;
+        Fighter? rival = fight.Rival is null ? null : fight.Fighters.First(f => f.Team == 1);
+        return fight.Fighters.Where(f => f.Team != 0 && !f.IsSummon && f != rival).Sum(f => MonsterShards(f.Spec.Level));
+    }
+
     /// <summary>
     /// A hero of this class and level with its points spent the simple way, for simulations: half the
     /// characteristic points in Vitality, the rest in the characteristics of its damaging spells'

@@ -21,18 +21,18 @@ public partial class Hud : CanvasLayer
     private Label _infoText = null!;
     private readonly Queue<string> _log = new();
     private Label _round = null!;
-    private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!, _endTitle = null!, _result = null!;
-    private Button _endTurn = null!, _again = null!, _back = null!, _lang = null!;
+    private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!;
+    private Button _endTurn = null!, _lang = null!;
     private GridContainer _spellBar = null!;
-    private PanelContainer _end = null!;
+    private EndPanel _end = null!;
     private FightController _controller = null!;
 
     public Texts Texts { get; private set; } = new("en");
 
     public event Action<int>? SpellChosen;
     public event Action? EndTurnPressed;
-    public event Action? AgainPressed;
-    public event Action? BackPressed;
+    /// <summary>"Close" on the end-of-fight window: back where the player stood (sprint 87).</summary>
+    public event Action? ClosePressed;
 
     public void Build(FightController controller, Texts texts)
     {
@@ -115,25 +115,12 @@ public partial class Hud : CanvasLayer
         };
         row.AddChild(_lang);
 
-        _end = new PanelContainer { Visible = false };
-        Anchor(_end, 0.5f, 0.5f, -190, -140, 380, 280);
+        // The end-of-fight window (sprint 87), filled once the fight is over.
+        _end = new EndPanel { Visible = false };
+        Anchor(_end, 0.5f, 0.5f, -380, -260, 760, 520);
         root.AddChild(_end);
-        var endBox = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-        endBox.AddThemeConstantOverride("separation", 20);
-        _end.AddChild(endBox);
-        _endTitle = new Label { HorizontalAlignment = HorizontalAlignment.Center };
-        _endTitle.AddThemeFontSizeOverride("font_size", 36);
-        endBox.AddChild(_endTitle);
-        _result = new Label { HorizontalAlignment = HorizontalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(320, 0) };
-        _result.AddThemeFontSizeOverride("font_size", 18);
-        _result.AddThemeColorOverride("font_color", FighterView.PlayerColour);
-        endBox.AddChild(_result);
-        _again = new Button { CustomMinimumSize = new Vector2(200, 48), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
-        _again.Pressed += () => AgainPressed?.Invoke();
-        endBox.AddChild(_again);
-        _back = new Button { CustomMinimumSize = new Vector2(200, 48), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, Visible = false };
-        _back.Pressed += () => BackPressed?.Invoke();
-        endBox.AddChild(_back);
+        _end.Build(texts);
+        _end.ClosePressed += () => ClosePressed?.Invoke();
         Refresh();
     }
 
@@ -240,34 +227,25 @@ public partial class Hud : CanvasLayer
         _endTurn.Text = Texts["end-turn"];
         _endTurn.Disabled = !canAct;
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";
-        _end.Visible = fight.IsOver;
-        _endTitle.Text = fight.WinningTeam is null ? Texts["draw"] : fight.WinningTeam == _controller.PlayerTeam ? Texts["victory"] : Texts["defeat"];
-        // A dungeon's room is not played again: won, back to its hall, its far door open; otherwise out (sprints 80 and 86).
-        bool dungeon = Dungeons.Parse(fight.Scenario.Id) is not null;
-        _again.Visible = !dungeon;
-        _again.Text = Texts["again"];
-        _back.Text = dungeon && _backToHall ? Texts["hall.back"] : Texts["town.back"];
+        _end.Visible = fight.IsOver && _summary is not null;
+        if (_end.Visible)
+            _end.Show(_summary!(Texts), Texts, _problem);
     }
 
-    /// <summary>What the fight earned, on the end screen.</summary>
-    public void ShowResult(string text) => _result.Text = text;
+    private Func<Texts, FightSummary>? _summary;
+    private string? _problem;
 
-    public string ResultText => _result.Text;
-
-    /// <summary>The end screen's way back to town.</summary>
-    public void SetBackShown(bool shown) => _back.Visible = shown;
-
-    private bool _backToHall;
-
-    /// <summary>A dungeon's room won, and another after it: "Back to the room" (sprint 86), where the far door is now open.</summary>
-    public void ShowBackToHall(bool back)
+    /// <summary>
+    /// The end-of-fight window (sprint 87): what <paramref name="summary"/> makes in the language shown
+    /// (made again when it changes), and what went wrong with the server, if anything.
+    /// </summary>
+    public void ShowSummary(Func<Texts, FightSummary> summary, string? problem = null)
     {
-        _backToHall = back;
+        (_summary, _problem) = (summary, problem);
         Refresh();
     }
 
-    /// <summary>The end screen's buttons, as shown (for the self-test).</summary>
-    public IEnumerable<string> EndButtons => new[] { _again, _back }.Where(b => b.Visible).Select(b => b.Text);
+    public EndPanel End => _end;
 
     public string TurnText => _turn.Text;
 

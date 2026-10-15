@@ -82,7 +82,6 @@ public class HallTests
         var texts = new Texts(lang);
         Assert.Contains("25", texts["hall.hp", 25, 80], StringComparison.Ordinal);
         Assert.Contains("80", texts["hall.rested", 80], StringComparison.Ordinal);
-        Assert.NotEqual(texts["hall.back"], texts["town.back"]);
         Assert.NotEmpty(texts["hall.shut"]);
     }
 }

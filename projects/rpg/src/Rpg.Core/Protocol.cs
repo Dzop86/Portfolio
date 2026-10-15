@@ -38,14 +38,14 @@ public sealed record Place(string Town, int X, int Y)
 public sealed record CharacterSummary(Guid Id, string Name, string Look, string Class, int Colour, DateTimeOffset CreatedAt, Place? Place = null, string Server = Servers.Default, int Level = 1,
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
     IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null,
-    IReadOnlyDictionary<string, long>? Jobs = null)
+    IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0)
 {
     [JsonIgnore]
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
-        other is not null && (Id, CreatedAt, Place, Server, Xp) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp)
+        other is not null && (Id, CreatedAt, Place, Server, Xp, Shards) == (other.Id, other.CreatedAt, other.Place, other.Server, other.Xp, other.Shards)
         && Hero == other.Hero && (Quests ?? []).SequenceEqual(other.Quests ?? []) && (Inventory ?? []).SequenceEqual(other.Inventory ?? []) && Run == other.Run
         && (Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal).SequenceEqual((other.Jobs ?? new Dictionary<string, long>()).OrderBy(j => j.Key, StringComparer.Ordinal));
 
@@ -65,9 +65,10 @@ public sealed record NewFight(string? Scenario);
 /// What the server gave for a fight it replayed: the experience earned (the fight's, a quest's, a
 /// dungeon's last room's), the new total and level, the quest done, if any, and the items won (loot and
 /// the quest's); in a dungeon (sprint 80), the room to fight next (null when out of it) and whether it
-/// was just finished.
+/// was just finished; since sprint 87, the Éclats earned and the character's new total.
 /// </summary>
-public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null, DungeonRun? Run = null, bool DungeonDone = false);
+public sealed record FightResult(long Xp, long TotalXp, int Level, string? Quest = null, IReadOnlyList<ItemCount>? Loot = null, DungeonRun? Run = null, bool DungeonDone = false,
+    long Shards = 0, long TotalShards = 0);
 
 /// <summary>
 /// Where a character is in a dungeon (sprint 80): the dungeon, and the room to fight (1 to 3); since

@@ -24,7 +24,7 @@ public class ProgressionTests
         GameServer server = await api.SignedIn();
         CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
         Assert.Equal((0L, 1, 0), (c.Xp, c.Level, c.Quests?.Count ?? 0));
-        long total = 0;
+        long total = 0, shards = 0;
         bool questDone = false;
         for (int i = 0; i < 12; i++)
         {
@@ -38,13 +38,16 @@ public class ProgressionTests
             questDone |= won;
             total += expected;
             Assert.Equal((total, Progression.LevelFor(total)), (result.TotalXp, result.Level));
+            // The Éclats (sprint 87): each of the two monsters' worth, won only, kept.
+            shards += won ? Progression.MonsterShards(1) * 2 : 0;
+            Assert.Equal((won ? Progression.MonsterShards(1) * 2 : 0, shards), (result.Shards, result.TotalShards));
             // The same ticket does not serve twice.
             var again = await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, record, Cancel));
             Assert.Equal(HttpStatusCode.NotFound, again.Status);
         }
         Assert.True(questDone, "twelve training fights without a win");
         CharacterSummary after = (await server.Characters(Cancel)).Single();
-        Assert.Equal((total, Progression.LevelFor(total)), (after.Xp, after.Level));
+        Assert.Equal((total, Progression.LevelFor(total), shards), (after.Xp, after.Level, after.Shards));
         Assert.Equal(["first-lesson"], after.Quests!);
     }
 

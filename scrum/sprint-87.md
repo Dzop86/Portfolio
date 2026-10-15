@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois ce qu'a donné le combat (rpg) : une fenêtre « Combat terminé », Victoire ou Défaite, les gagnants et les perdants ; pour chaque joueur, son niveau et sa barre d'expérience, l'expérience gagnée, les Éclats gagnés (la monnaie, nouvelle, donnée par le serveur) et son butin en icônes ; un onglet de statistiques (dégâts infligés et reçus, soins, boucliers, ennemis achevés) ; un seul bouton « Fermer », qui laisse le joueur là où il était, sans rejouer ni rentrer au village ; xUnit, intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je vois ce qu'a donné le combat (rpg) : une fenêtre « Combat terminé », Victoire ou Défaite, les gagnants et les perdants ; pour chaque joueur, son niveau et sa barre d'expérience, l'expérience gagnée, les Éclats gagnés (la monnaie, nouvelle, donnée par le serveur) et son butin en icônes ; un onglet de statistiques (dégâts infligés et reçus, soins, boucliers, ennemis achevés) ; un seul bouton « Fermer », qui laisse le joueur là où il était, sans rejouer ni rentrer au village ; xUnit, intégration, auto-test. | 3 | Fait |
+
+**Résultat :** la fenêtre « Combat terminé » à deux onglets (résultats, statistiques) et son seul bouton « Fermer » ; les Éclats, gagnés à chaque victoire et gardés par le serveur (T54).
 
 ## Rétro (Charles)
 - Ce qui a marché :

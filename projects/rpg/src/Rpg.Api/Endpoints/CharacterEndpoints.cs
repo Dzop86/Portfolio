@@ -216,11 +216,13 @@ public static class CharacterEndpoints
                 ? (run.Dungeon, run.Room + 1, hero.Hp < hero.MaxHp ? hero.Hp : (int?)null)
                 : ((string?)null, 0, (int?)null);
         }
+        long shards = Progression.FightShards(played);
         character.Receive(items);
         character.Xp += xp;
+        character.Shards += shards;
         character.Level = Progression.LevelFor(character.Xp);
         await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items, character.Run, done));
+        return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items, character.Run, done, shards, character.Shards));
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Enter(
@@ -333,7 +335,7 @@ public static class CharacterEndpoints
     }
 
     private static CharacterSummary Summary(Character c, Place? place) =>
-        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList);
+        new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

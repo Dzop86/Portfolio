@@ -180,4 +180,6 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-15 | `tests/Rpg.Api.Tests/DungeonTests.cs` | (Claude) Avec les PV gardés d'une salle à l'autre, mon test d'un donjon fini d'une traite perdait la salle 3 au niveau 60 | Le test passe par la fontaine avant chaque salle, comme un joueur ; un test à part vérifie les PV gardés et refusés |
 | 2026-10-15 | `src/Rpg.Core/Fight.cs` | (Claude) Les PV de départ gardés dans l'enregistrement étaient ceux bornés au maximum : un équipement retiré entre deux salles aurait fait refuser le combat par le serveur | L'enregistrement garde les PV demandés, le plateau les borne |
 | 2026-10-15 | `tests/Rpg.Client.Tests` (monde, carte du monde, tour du village) | (Claude) Les salles comptaient comme cartes du monde et la réplique de la gardienne comme dialogue du village | Les salles à part ; les lignes comptées sont celles des habitants du village |
+| 2026-10-15 | `tests/Rpg.Api.Tests/CharacterTests.cs` | (Claude) Le test de la fiche lue par la liste des personnages ne connaissait pas le nouveau champ `shards` | Ajouté à la liste attendue |
+| 2026-10-15 | `src/Rpg.Core/FightStats.cs` | (Claude) Mon premier jet réutilisait le même nom de variable dans chaque cas du `switch` : refusé par le compilateur | Un nom par cas (`by`, `healer`, `shielder`, `killer`) |
 

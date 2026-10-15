@@ -83,6 +83,9 @@ public sealed class Character
     public string? Dungeon { get; set; }
     public int DungeonRoom { get; set; }
 
+    /// <summary>The Éclats it owns, the money (sprint 87).</summary>
+    public long Shards { get; set; }
+
     /// <summary>The hit points kept from the room before (sprint 86); null: all of them.</summary>
     public int? DungeonHp { get; set; }
 

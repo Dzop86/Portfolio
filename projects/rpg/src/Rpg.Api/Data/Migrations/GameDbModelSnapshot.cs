@@ -162,6 +162,9 @@ namespace Rpg.Api.Data.Migrations
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("osmeria");
 
+                    b.Property<long>("Shards")
+                        .HasColumnType("bigint");
+
                     b.Property<int>("Skin")
                         .HasColumnType("integer");
 

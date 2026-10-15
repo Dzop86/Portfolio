@@ -31,7 +31,7 @@ public partial class Main : Node3D
     // The fight the server started (signed in), for the scene about to be built; then the one played.
     private static FightTicket? _pendingTicket;
     private FightTicket? _ticket;
-    private Task<string>? _report;
+    private Task<string?>? _report;
     private static Lobby? _lobby;
     private static CharacterSummary? _character;
     private static Hero? _hero;
@@ -353,10 +353,9 @@ public partial class Main : Node3D
             if (!_busy)
                 Act(_controller.EndTurn());
         };
-        _hud.AgainPressed += () => _ = Again();
-        // Back to town, where the player stood before the fight: in a dungeon's hall, or out of it when the room was lost or the last (sprint 86).
-        _hud.SetBackShown(true);
-        _hud.BackPressed += () =>
+        // "Close": where the player stood before the fight, never the same fight again (sprint 87, D68); in a
+        // dungeon's hall, or out of it when the room was lost or the last (sprint 86).
+        _hud.ClosePressed += () =>
         {
             _screen = Screen.Town;
             _nextSeed = null;
@@ -371,13 +370,6 @@ public partial class Main : Node3D
 
     /// <summary>Where the player is in a dungeon: the server's word, or offline the one kept in memory.</summary>
     private static DungeonRun? Run => _character is not null ? _character.Run : _offlineRun;
-
-    private async Task Again()
-    {
-        _nextSeed = _controller.Fight.Seed + 1;
-        _pendingTicket = await RequestTicket(_controller.Fight.Scenario.Id);
-        GetTree().ReloadCurrentScene();
-    }
 
     /// <summary>Asks the server for a fight, signed in with a character; null offline or when it cannot be reached.</summary>
     private static async Task<FightTicket?> RequestTicket(string scenario)
@@ -395,25 +387,28 @@ public partial class Main : Node3D
     }
 
     /// <summary>
-    /// At the end of a fight the server started: hands it the record, keeps what it earned (the
-    /// character's experience and level) and says it on the end screen. Once per fight.
+    /// At the end of a fight the server started: hands it the record and keeps what it earned (the
+    /// character's experience, level, Éclats and items, <see cref="_lastResult"/>). Once per fight.
+    /// Returns what went wrong, if anything; null when it is kept, or offline.
     /// </summary>
-    private Task<string> ReportFight() => _report ??= ReportFightAsync();
+    private Task<string?> ReportFight() => _report ??= ReportFightAsync();
 
-    private async Task<string> ReportFightAsync()
+    /// <summary>No server keeps this fight: offline, or no ticket drawn.</summary>
+    private bool Offline => _ticket is null || _lobby?.SignedIn != true || _character is null;
+
+    private async Task<string?> ReportFightAsync()
     {
         Texts texts = _hud.Texts;
         _lastResult = null;
-        if (_ticket is not FightTicket ticket || _lobby?.SignedIn != true || _character is null)
-            return _hero?.Class is null ? "" : texts["result.offline"];
+        if (_ticket is not FightTicket ticket || Offline)
+            return null;
         try
         {
-            int before = _character.Level;
-            FightResult result = await _lobby.Server.ReportFight(_character.Id, ticket.Id, FightRecord.Of(_controller.Fight));
+            FightResult result = await _lobby!.Server.ReportFight(_character!.Id, ticket.Id, FightRecord.Of(_controller.Fight));
             _lastResult = result;
             _character = (await _lobby.Server.Characters()).Single(c => c.Id == _character.Id);
             _hero = _character.Hero;
-            return texts.Result(result, before);
+            return null;
         }
         catch (ServerException e)
         {
@@ -507,9 +502,19 @@ public partial class Main : Node3D
             ShowPreview();
     }
 
+    /// <summary>
+    /// The end-of-fight window (sprint 87): at once with what the rules give, then with what the server
+    /// kept, or why it did not.
+    /// </summary>
     private async Task ShowResult()
     {
-        _hud.ShowResult(await ReportFight());
+        Fight fight = _controller.Fight;
+        int team = _controller.PlayerTeam;
+        bool offline = Offline;
+        _hud.ShowSummary(t => new FightSummary(fight, team, null, t, offline));
+        string? problem = await ReportFight();
+        FightResult? result = _lastResult;
+        _hud.ShowSummary(t => new FightSummary(fight, team, result, t, offline), problem);
         // In a dungeon: won and not the last, back to its hall, the far door open; offline, the run kept here.
         if (Dungeons.Parse(_controller.Fight.Scenario.Id) is (string dungeon, int room))
         {
@@ -520,7 +525,6 @@ public partial class Main : Node3D
                     ? new DungeonRun(dungeon, room + 1, me.Hp < me.MaxHp ? me.Hp : null)
                     : null;
             }
-            _hud.ShowBackToHall(Run?.IsAt(dungeon, room + 1) == true);
         }
     }
 
@@ -677,6 +681,26 @@ public partial class Main : Node3D
         _ = FinishSelfTest(problems, checks);
     }
 
+    private void CheckEndWindow(List<string> problems)
+    {
+        Fight fight = _controller.Fight;
+        Texts t = _hud.Texts;
+        if (_hud.End.Summary is not FightSummary summary)
+        {
+            problems.Add("no end-of-fight window");
+            return;
+        }
+        int people = fight.Fighters.Count(f => !f.IsSummon);
+        string title = fight.WinningTeam is null ? t["draw"] : fight.WinningTeam == _controller.PlayerTeam ? t["victory"] : t["defeat"];
+        if (summary.Title != title || summary.Winners.Count + summary.Losers.Count != people || _hud.End.Lines.Count != people)
+            problems.Add($"the end window says {summary.Title} with {_hud.End.Lines.Count} lines for {people} fighters");
+        int damage = fight.Events.OfType<Damaged>().Sum(d => d.Amount);
+        if (summary.Stats.Sum(s => s.Stats.DamageTaken) != damage || summary.Stats.Sum(s => s.Stats.DamageDealt) > damage)
+            problems.Add($"the statistics count {summary.Stats.Sum(s => s.Stats.DamageTaken)} damage taken, the fight {damage}");
+        if (_hud.End.CloseText != t["end.close"])
+            problems.Add($"the end window's button says {_hud.End.CloseText}");
+    }
+
     /// <summary>
     /// The end of the fight's self-test: signed in, the fight goes to the server, which must keep
     /// exactly the experience the rules give, and the end screen must say it; then the report.
@@ -686,15 +710,21 @@ public partial class Main : Node3D
         string? progress = null;
         if (_ticket is not null && _character is not null)
         {
-            long before = _character.Xp;
+            long before = _character.Xp, shardsBefore = _character.Shards;
             bool firstWin = _controller.Fight.WinningTeam == 0 && !(_character.Quests ?? []).Contains("first-lesson");
-            string shown = await ReportFight();
+            string? refused = await ReportFight();
             long earned = Progression.FightXp(_controller.Fight) + (firstWin ? GameData.Embedded.Quests["first-lesson"].Xp : 0);
-            if (_character.Xp != before + earned)
-                problems.Add($"the server keeps {_character.Xp} experience, not {before + earned} ({shown})");
-            if (_hud.ResultText != shown || !shown.StartsWith(_hud.Texts["result.xp", earned], StringComparison.Ordinal))
-                problems.Add($"the end screen says '{_hud.ResultText}'");
-            progress = $"Experience: +{earned} kept by the server, level {_character.Level}.";
+            long shards = Progression.FightShards(_controller.Fight);
+            if (_character.Xp != before + earned || _character.Shards != shardsBefore + shards)
+                problems.Add($"the server keeps {_character.Xp} experience and {_character.Shards} Éclats, not {before + earned} and {shardsBefore + shards} ({refused})");
+            // The end-of-fight window (sprint 87): the player's line says what the server kept, its loot as icons.
+            await ShowResult();
+            SummaryRow? mine = _hud.End.Summary?.Player;
+            if (!_hud.EndShown || mine?.Xp != earned || mine.Shards != shards || mine.Level != _character.Level || mine.XpBar is null)
+                problems.Add($"the end window shows {mine}");
+            else if (_hud.End.LootIcons != (mine.Loot ?? []).Count(l => GameData.Embedded.Items.ContainsKey(l.Item)))
+                problems.Add($"the end window shows {_hud.End.LootIcons} loot icons");
+            progress = $"Experience: +{earned} kept by the server, level {_character.Level}. Éclats: +{shards}, {_character.Shards} in all.";
             // The loot and the quest's items are in the inventory the server keeps.
             var loot = Equipment.Loot(_controller.Fight).Concat(firstWin ? GameData.Embedded.Quests["first-lesson"].Items! : []).ToList();
             if (loot.Any(l => (_character.Inventory ?? []).FirstOrDefault(i => i.Item == l.Item)?.Count < l.Count || !(_character.Inventory ?? []).Any(i => i.Item == l.Item)))
@@ -702,18 +732,17 @@ public partial class Main : Node3D
             else if (loot.Count > 0)
                 progress += $" Loot: {loot.Count} kind(s) of item.";
         }
-        // A dungeon's room (sprint 80): its name and number above, and at the end, won and not the last,
-        // "Back to the room" (sprint 86); otherwise "Back to town".
+        // The end-of-fight window (sprint 87): the winners and the losers, every fighter but the summons,
+        // the statistics adding up to what the fight did, and "Close" alone.
+        await ShowResult();
+        CheckEndWindow(problems);
+        _selfTestNote = ($"End window: {_hud.End.Lines.Count} lines, statistics checked. " + (_selfTestNote ?? "")).Trim();
+        // A dungeon's room (sprint 80): its name and number above.
         if (Dungeons.Parse(_controller.Fight.Scenario.Id) is (_, int room))
         {
-            await ShowResult();
             Texts t = _hud.Texts;
             if (!_hud.TurnText.StartsWith(t["dungeon.room", _controller.Fight.Scenario.Name.In(t.Lang), room], StringComparison.Ordinal))
                 problems.Add($"the top line says '{_hud.TurnText}'");
-            bool next = _controller.Fight.WinningTeam == _controller.PlayerTeam && room < Dungeons.RoomCount;
-            string[] buttons = next ? [t["hall.back"]] : [t["town.back"]];
-            if (!_hud.EndButtons.SequenceEqual(buttons))
-                problems.Add($"the end screen offers {string.Join(", ", _hud.EndButtons)}");
             _selfTestNote = ((_selfTestNote ?? "") + $" Dungeon room {room}: end screen checked.").Trim();
         }
         string report = SelfPlay.Report(_controller.Fight);
