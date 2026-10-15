@@ -66,4 +66,17 @@ public class InventoryTests
     {
         Assert.Equal("+60 XP\nButin : Croc d'orque ×2, Pain", new Texts("fr").Result(new FightResult(60, 60, 1, null, [new("orc-fang", 2), new("bread", 1)]), 1));
     }
+
+    [Fact]
+    public void InAFight_TheEquipmentIsShown_NothingIsPutOnOrTakenOff()
+    {
+        var hero = new Hero("Élise", "female-c", "guard", Level: 10, Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring" });
+        var editor = new InventoryEditor(hero, Bag, Data, readOnly: true);
+        Assert.Equal("in a fight", editor.WhyNot(Data.Items["dagger"]));
+        Assert.False(editor.Put(Data.Items["dagger"]));
+        editor.TakeOff(Slot.Ring1);
+        Assert.Equal("copper-ring", editor.Worn[Slot.Ring1]);
+        Assert.Equal(8, editor.Page(InventoryPage.All).Count);
+        Assert.False(editor.Changed);
+    }
 }

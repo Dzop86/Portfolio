@@ -574,6 +574,13 @@ public partial class PointsPanel : CanvasLayer
         _save.Text = Texts["points.save"];
         _save.Disabled = !Editor.Changed;
         _close.Text = Texts["points.close"];
+        // In a fight (sprint 93): shown only, nothing to save, reset or paste.
+        if (Editor.ReadOnly)
+        {
+            _save.Visible = _reset.Visible = _clearDeck.Visible = _code.Visible = _useCode.Visible = false;
+            _deckButton.Disabled = true;
+            _message.Text = Texts["window.in-fight"];
+        }
     }
 
     private static string Num(int n) => n.ToString(System.Globalization.CultureInfo.InvariantCulture);

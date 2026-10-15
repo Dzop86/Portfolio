@@ -24,8 +24,10 @@ public sealed class PointsEditor
     private readonly Dictionary<string, int> _ranks = new(StringComparer.Ordinal);
     private readonly List<string> _deck;
 
-    public PointsEditor(Hero hero, GameData data)
+    /// <param name="readOnly">In a fight (sprint 93): the points and the deck are shown, never changed.</param>
+    public PointsEditor(Hero hero, GameData data, bool readOnly = false)
     {
+        ReadOnly = readOnly;
         Hero = hero ?? throw new ArgumentNullException(nameof(hero));
         Data = data ?? throw new ArgumentNullException(nameof(data));
         Characteristics st = hero.Stats ?? Characteristics.None;
@@ -35,13 +37,16 @@ public sealed class PointsEditor
         _deck = [.. hero.DeckOf(data)];
     }
 
+    /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>
+    public bool ReadOnly { get; }
+
     /// <summary>The spells of the deck, in the order of the bar (sprint 68).</summary>
     public IReadOnlyList<string> Deck => _deck;
 
     public bool InDeck(Spell spell) => _deck.Contains((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
 
     /// <summary>A spell can join the deck when the level has unlocked it, it is not there yet, and there is room.</summary>
-    public bool CanAddToDeck(Spell spell) => Spells.Contains(spell) && !InDeck(spell) && _deck.Count < Hero.DeckSize;
+    public bool CanAddToDeck(Spell spell) => !ReadOnly && Spells.Contains(spell) && !InDeck(spell) && _deck.Count < Hero.DeckSize;
 
     public void AddToDeck(Spell spell)
     {
@@ -49,7 +54,12 @@ public sealed class PointsEditor
             _deck.Add(spell.Id);
     }
 
-    public void RemoveFromDeck(Spell spell) => _deck.Remove((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
+    public void RemoveFromDeck(Spell spell)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        if (!ReadOnly)
+            _deck.Remove(spell.Id);
+    }
 
     /// <summary>
     /// A spell dropped on place <paramref name="index"/> of the deck (sprint 82, D66): moved there if it is
@@ -57,7 +67,7 @@ public sealed class PointsEditor
     /// </summary>
     public bool PlaceInDeck(string spellId, int index)
     {
-        if (!Data.Spells.TryGetValue(spellId ?? "", out Spell? spell) || !Spells.Contains(spell))
+        if (ReadOnly || !Data.Spells.TryGetValue(spellId ?? "", out Spell? spell) || !Spells.Contains(spell))
             return false;
         bool moving = _deck.Remove(spellId!);
         if (!moving && _deck.Count >= Hero.DeckSize)
@@ -69,12 +79,16 @@ public sealed class PointsEditor
     /// <summary>The spell at a place of the deck taken out (dragged off the bar).</summary>
     public void RemoveFromDeckAt(int index)
     {
-        if (index >= 0 && index < _deck.Count)
+        if (!ReadOnly && index >= 0 && index < _deck.Count)
             _deck.RemoveAt(index);
     }
 
     /// <summary>An empty deck (D66: a choice like any other).</summary>
-    public void ClearDeck() => _deck.Clear();
+    public void ClearDeck()
+    {
+        if (!ReadOnly)
+            _deck.Clear();
+    }
 
     /// <summary>
     /// The deck of a code (<see cref="DeckCode"/>): the class's spells this hero has unlocked, in order, up to
@@ -82,7 +96,7 @@ public sealed class PointsEditor
     /// </summary>
     public int? UseCode(string code)
     {
-        if (DeckCode.Decode(code, Data) is not (string cls, IReadOnlyList<string> spells) || cls != Hero.Class)
+        if (ReadOnly || DeckCode.Decode(code, Data) is not (string cls, IReadOnlyList<string> spells) || cls != Hero.Class)
             return null;
         HashSet<string> unlocked = [.. Spells.Select(s => s.Id)];
         string[] kept = [.. spells.Where(unlocked.Contains).Distinct().Take(Hero.DeckSize)];
@@ -114,22 +128,30 @@ public sealed class PointsEditor
     /// <summary>The spell points the next rank of this spell costs; 0 at its last rank.</summary>
     public int NextRankCost(Spell spell) => Rank(spell) >= spell.MaxRank ? 0 : Progression.RankCost(Rank(spell) + 1) - Progression.RankCost(Rank(spell));
 
-    public bool CanAdd(Characteristic stat, int amount = 1) => amount > 0 && amount <= CharacteristicPointsLeft;
+    public bool CanAdd(Characteristic stat, int amount = 1) => !ReadOnly && amount > 0 && amount <= CharacteristicPointsLeft;
 
-    public bool CanRemove(Characteristic stat, int amount = 1) => amount > 0 && _stats[(int)stat] >= amount;
+    public bool CanRemove(Characteristic stat, int amount = 1) => !ReadOnly && amount > 0 && _stats[(int)stat] >= amount;
 
-    public bool CanRaise(Spell spell) => Spells.Contains(spell) && NextRankCost(spell) is > 0 and var cost && cost <= SpellPointsLeft;
+    public bool CanRaise(Spell spell) => !ReadOnly && Spells.Contains(spell) && NextRankCost(spell) is > 0 and var cost && cost <= SpellPointsLeft;
 
-    public bool CanLower(Spell spell) => Rank(spell) > 1;
+    public bool CanLower(Spell spell) => !ReadOnly && Rank(spell) > 1;
 
     /// <summary>The most a characteristic can hold now: what it has and every point left.</summary>
     public int Max(Characteristic stat) => _stats[(int)stat] + CharacteristicPointsLeft;
 
     /// <summary>Puts a characteristic at a value, kept between 0 and <see cref="Max"/> (the typed value of the screen).</summary>
-    public void Set(Characteristic stat, int value) => _stats[(int)stat] = Math.Clamp(value, 0, Max(stat));
+    public void Set(Characteristic stat, int value)
+    {
+        if (!ReadOnly)
+            _stats[(int)stat] = Math.Clamp(value, 0, Max(stat));
+    }
 
     /// <summary>Takes back every characteristic point, to spend them again (D62); the server only checks totals.</summary>
-    public void ResetCharacteristics() => Array.Clear(_stats);
+    public void ResetCharacteristics()
+    {
+        if (!ReadOnly)
+            Array.Clear(_stats);
+    }
 
     /// <summary>Adds points to a characteristic (as many as asked and left).</summary>
     public void Add(Characteristic stat, int amount = 1)

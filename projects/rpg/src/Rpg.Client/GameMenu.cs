@@ -99,6 +99,9 @@ public sealed class WindowState
         return null;
     }
 
+    /// <summary>The windows a fight opens too (sprint 93, Charles): the characteristics and the inventory, to look at only.</summary>
+    public static bool OpensInFight(GameWindow window) => window is GameWindow.Characteristics or GameWindow.Inventory;
+
     /// <summary>Opens the window, or closes it when it is the open one; nothing while the menu is open.</summary>
     public void Toggle(GameWindow window)
     {

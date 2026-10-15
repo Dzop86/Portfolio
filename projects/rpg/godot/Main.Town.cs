@@ -257,6 +257,9 @@ public partial class Main
         await SavePlace();
     }
 
+    /// <summary>Walking a map (its town and its view built); otherwise in a fight, even one started from the town.</summary>
+    private bool InTown => _town is not null && _townView is not null;
+
     private void TownInput(InputEvent @event)
     {
         if (_town is null || _townView is null)
@@ -595,7 +598,8 @@ public partial class Main
             return;
         _pointsPanel = new PointsPanel();
         AddChild(_pointsPanel);
-        _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded), _talkPanel!.Texts, spells);
+        // In a fight, to look at only (sprint 93).
+        _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts, spells);
         _pointsPanel.SavePressed += p => _ = SavePoints(p);
         _pointsPanel.ClosePressed += () =>
         {
@@ -623,7 +627,7 @@ public partial class Main
             return;
         _inventoryPanel = new InventoryPanel();
         AddChild(_inventoryPanel);
-        _inventoryPanel.Build(new InventoryEditor(_hero, owned, GameData.Embedded), _talkPanel!.Texts);
+        _inventoryPanel.Build(new InventoryEditor(_hero, owned, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts);
         _inventoryPanel.SavePressed += worn => _ = SaveEquipment(worn);
         _inventoryPanel.ClosePressed += () =>
         {

@@ -114,4 +114,24 @@ public class PointsTests
         Assert.True(new SpellBook(high).Spells.Single(s => s.Spell.Id == last.Id).InDeck);
         Assert.Null(high.Draft.Problem(Data));
     }
+
+    [Fact]
+    public void InAFight_ThePointsAndTheDeck_AreShownButNeverChanged()
+    {
+        var hero = new Hero("Élise", "female-c", "guard", Level: 20, Stats: new Characteristics(10, 5, 0, 0, 0));
+        var editor = new PointsEditor(hero, Data, readOnly: true);
+        Spell bash = Data.Spells["shield-bash"];
+        Assert.Equal(10, editor[Characteristic.Vitality]);
+        Assert.False(editor.CanAdd(Characteristic.Earth) || editor.CanRemove(Characteristic.Vitality) || editor.CanRaise(bash) || editor.CanLower(bash));
+        editor.Add(Characteristic.Earth, 5);
+        editor.Set(Characteristic.Vitality, 0);
+        editor.ResetCharacteristics();
+        editor.Raise(bash);
+        editor.ClearDeck();
+        editor.RemoveFromDeckAt(0);
+        Assert.False(editor.PlaceInDeck("shield-bash", 0));
+        Assert.Null(editor.UseCode(editor.Code));
+        Assert.False(editor.Changed);
+        Assert.Equal(hero.DeckOf(Data), editor.Deck);
+    }
 }

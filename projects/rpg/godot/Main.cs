@@ -194,7 +194,7 @@ public partial class Main : Node3D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (_town is not null && _townView is not null)
+        if (InTown)
         {
             TownInput(@event);
             return;
@@ -202,12 +202,25 @@ public partial class Main : Node3D
         if (_lobbyView is not null || _controller is null)
             return;
         // Escape cancels the spell chosen; otherwise, on any turn, it opens or closes the menu.
-        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && (_windows.MenuOpen || _controller.SelectedSpell is null || _busy || !_controller.IsPlayerTurn))
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape } && (_windows.MenuOpen || _windows.Open is not null || _controller.SelectedSpell is null || _busy || !_controller.IsPlayerTurn))
         {
             Escape(menuOnly: false);
             return;
         }
         if (_windows.MenuOpen)
+            return;
+        // C and I (sprint 93, Charles): the characteristics and the inventory, to look at only, on any turn.
+        if (@event is InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } pressed
+            && WindowState.ForKey((char)pressed.Keycode) is GameWindow window && WindowState.OpensInFight(window))
+        {
+            if (_hero?.Class is not null)
+            {
+                _windows.Toggle(window);
+                ShowWindows();
+            }
+            return;
+        }
+        if (_windows.Open is not null)
             return;
         // The hover panel works on every turn, the AI's included.
         if (@event is InputEventMouseMotion motion)
@@ -253,8 +266,7 @@ public partial class Main : Node3D
             _windows.ToggleMenu();
         else
             _windows.Escape();
-        if (_town is not null)
-            ShowWindows();
+        ShowWindows();
         ShowMenu();
     }
 
@@ -655,6 +667,8 @@ public partial class Main : Node3D
                 && !_hud.SpellsText.SequenceEqual(hero.DeckOf(GameData.Embedded).Select(id => GameData.Embedded.Spells[id].Name.In(_hud.Texts.Lang))))
                 problems.Add($"the spell bar shows {string.Join(", ", _hud.SpellsText)}, not the {c.Id}'s deck of level {hero.Level}");
         }
+        CheckFightWindows(problems);
+        checks++;
         int seenNumbers = 0;
         SelfPlay.Run(_controller, _ =>
         {
@@ -688,6 +702,26 @@ public partial class Main : Node3D
         if (!_hud.EndShown)
             problems.Add("no end screen");
         _ = FinishSelfTest(problems, checks);
+    }
+
+    /// <summary>
+    /// C and I in a fight (sprint 93): the characteristics, then the inventory instead, both to look at
+    /// only; Escape closes the window before the menu. Without a character, a guard of level 10 lends hers.
+    /// </summary>
+    private void CheckFightWindows(List<string> problems)
+    {
+        Hero? before = _hero;
+        _hero ??= _controller.Fight.Hero ?? new Hero("Essai", "female-b", "guard", Level: 10);
+        _UnhandledInput(new InputEventKey { Pressed = true, Keycode = Key.C });
+        if (_pointsPanel?.Editor.ReadOnly != true)
+            problems.Add("C does not show the characteristics, to look at only, in a fight");
+        _UnhandledInput(new InputEventKey { Pressed = true, Keycode = Key.I });
+        if (_inventoryPanel?.Editor.ReadOnly != true || _pointsPanel is not null)
+            problems.Add("I does not show the inventory alone, to look at only, in a fight");
+        _UnhandledInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
+        if (_inventoryPanel is not null || _windows.MenuOpen)
+            problems.Add("Escape does not close the inventory first in a fight");
+        _hero = before;
     }
 
     private void CheckEndWindow(List<string> problems)

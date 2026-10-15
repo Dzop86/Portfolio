@@ -215,7 +215,8 @@ public partial class InventoryPanel : CanvasLayer
             // Equipment above the hero's level is drawn faint; all of it worn, dimmed; the rest cannot be worn at all.
             icon.Faint = item.Kind == ItemKind.Equipment && item.Level > Editor.Hero.Level;
             icon.Modulate = item.Kind == ItemKind.Equipment && free == 0 ? new Color(1, 1, 1, 0.5f) : Colors.White;
-            tile.Disabled = Editor.WhyNot(item) is not null;
+            // In a fight, every item stays readable (sprint 93); a click does nothing.
+            tile.Disabled = !Editor.ReadOnly && Editor.WhyNot(item) is not null;
             tile.MouseEntered += () => _details.Text = card;
             tile.Pressed += () =>
             {
@@ -228,6 +229,9 @@ public partial class InventoryPanel : CanvasLayer
             _details.Text = Texts["inventory.hint"];
         _save.Text = Texts["points.save"];
         _save.Disabled = !Editor.Changed;
+        _save.Visible = !Editor.ReadOnly;
+        if (Editor.ReadOnly)
+            _message.Text = Texts["window.in-fight"];
         _close.Text = Texts["points.close"];
     }
 

@@ -71,4 +71,10 @@ public class MenuTests
         w.ToggleMenu();
         Assert.False(w.MenuOpen);
     }
+
+    [Fact]
+    public void InAFight_OnlyTheCharacteristicsAndTheInventory_Open()
+    {
+        Assert.Equal([GameWindow.Characteristics, GameWindow.Inventory], WindowState.Bar.Select(b => b.Window).Where(WindowState.OpensInFight));
+    }
 }

@@ -21,8 +21,10 @@ public sealed class InventoryEditor
 {
     private readonly Dictionary<Slot, string> _worn;
 
-    public InventoryEditor(Hero hero, IReadOnlyList<ItemCount> owned, GameData data)
+    /// <param name="readOnly">In a fight (sprint 93): the equipment is shown, never changed.</param>
+    public InventoryEditor(Hero hero, IReadOnlyList<ItemCount> owned, GameData data, bool readOnly = false)
     {
+        ReadOnly = readOnly;
         Hero = hero ?? throw new ArgumentNullException(nameof(hero));
         Owned = owned ?? throw new ArgumentNullException(nameof(owned));
         Data = data ?? throw new ArgumentNullException(nameof(data));
@@ -30,6 +32,10 @@ public sealed class InventoryEditor
     }
 
     public Hero Hero { get; }
+
+    /// <summary>Shown only (in a fight, sprint 93): nothing can be put on or taken off.</summary>
+    public bool ReadOnly { get; }
+
     public IReadOnlyList<ItemCount> Owned { get; }
     public GameData Data { get; }
 
@@ -46,6 +52,8 @@ public sealed class InventoryEditor
     public string? WhyNot(Item item)
     {
         ArgumentNullException.ThrowIfNull(item);
+        if (ReadOnly)
+            return "in a fight";
         if (item.Kind != ItemKind.Equipment)
             return "not equipment";
         if (item.Level > Hero.Level)
@@ -76,7 +84,11 @@ public sealed class InventoryEditor
         return true;
     }
 
-    public void TakeOff(Slot slot) => _worn.Remove(slot);
+    public void TakeOff(Slot slot)
+    {
+        if (!ReadOnly)
+            _worn.Remove(slot);
+    }
 
     /// <summary>The hero as the draft would have it.</summary>
     public Hero Draft => Hero with { Worn = new Dictionary<Slot, string>(_worn) };
