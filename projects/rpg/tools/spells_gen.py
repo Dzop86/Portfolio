@@ -16,13 +16,19 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
     return d
 def heal(a, mn, mx): return O([("kind", "heal"), ("affects", a), ("min", mn), ("max", mx)])
 def shield(a, n, t): return O([("kind", "shield"), ("affects", a), ("amount", n), ("turns", t)])
-def push(n): return O([("kind", "push"), ("affects", "Enemies"), ("cells", n)])
-def pull(n): return O([("kind", "pull"), ("affects", "Enemies"), ("cells", n)])
+def push(n, affects="Enemies"): return O([("kind", "push"), ("affects", affects), ("cells", n)])
+def pull(n, affects="Enemies"): return O([("kind", "pull"), ("affects", affects), ("cells", n)])
+# The caster lands on the target cell; trades places with the fighter there (sprint 90).
+def leap(): return O([("kind", "leap"), ("affects", "Caster")])
+def swap(affects="Allies"): return O([("kind", "swap"), ("affects", affects)])
 def status(a, stat, v, t, el=None):
     d = O([("kind", "status"), ("affects", a), ("stat", stat), ("value", v), ("turns", t)])
     if el: d["element"] = el
     return d
-def summon(id): return O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", 1)])
+def summon(id, mx=1, count=1):
+    d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
+    if count != 1: d["count"] = count
+    return d
 
 # The nine spells of before, unchanged at rank 1 (monsters and recorded fights use them).
 base = [

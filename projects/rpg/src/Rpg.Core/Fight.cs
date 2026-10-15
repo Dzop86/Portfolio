@@ -5,8 +5,9 @@ public sealed class Fighter
 {
     internal readonly Dictionary<string, int> CastsThisTurn = new(StringComparer.Ordinal);
 
-    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells, int? summoner = null, string? summonKind = null)
+    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells, IReadOnlyList<PassiveSpec> passives, int? summoner = null, string? summonKind = null)
     {
+        Passives = passives;
         Id = id;
         Spec = spec;
         Summoner = summoner;
@@ -28,6 +29,13 @@ public sealed class Fighter
     public int Mp { get; internal set; }
     public Cell Cell { get; internal set; }
     public IReadOnlyList<Spell> Spells { get; }
+
+    /// <summary>The fighter's passives (sprint 90), in the order of its description.</summary>
+    public IReadOnlyList<PassiveSpec> Passives { get; }
+
+    /// <summary>The low-health passives that have fired: once per fight each.</summary>
+    internal readonly HashSet<string> LowHpFired = new(StringComparer.Ordinal);
+
     public bool IsAlive => Hp > 0;
 
     /// <summary>Hit points at most: the description's, plus Vitality, minus the erosion.</summary>
@@ -99,6 +107,9 @@ public sealed class Fight
     private readonly Rng _rng;
     private int _current;
 
+    /// <summary>The passives set off during the action being played, with their bearer and, for a hit, the attacker (sprint 90).</summary>
+    private readonly Queue<(Fighter Bearer, PassiveSpec Passive, Fighter? Attacker)> _pending = new();
+
     /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
     /// <param name="rival">Another hero, in place of the scenario's first fighter of team B (class duels).</param>
     /// <param name="heroHp">The hero's hit points to start with, at most its maximum (a dungeon's rooms, sprint 86); null: all of them.</param>
@@ -122,7 +133,7 @@ public sealed class Fight
             FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data)
                 : rival is not null && i == rivalIndex ? AsHero(f, rival, data)
                 : f;
-            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data));
+            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data));
         })];
         _heroIndex = heroIndex;
         // As asked, for the record to replay it; clamped on the board (equipment changed since may have lowered the maximum).
@@ -136,6 +147,9 @@ public sealed class Fight
         _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Id)];
         Round = 1;
         _events.Add(new TurnStarted(Current.Id, Round));
+        foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart))
+            _pending.Enqueue((Current, p, null));
+        Resolve();
     }
 
     /// <summary>
@@ -179,6 +193,8 @@ public sealed class Fight
     /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>
     private static List<Spell> SpellsOf(FighterSpec spec, GameData data) =>
         [.. spec.Spells.Select(id => data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1))];
+
+    private static List<PassiveSpec> PassivesOf(IReadOnlyList<string>? ids, GameData data) => [.. (ids ?? []).Select(id => data.Passives[id])];
 
     public Scenario Scenario { get; }
 
@@ -316,6 +332,14 @@ public sealed class Fight
             if (Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id && f.SummonKind == summon.Summon) >= summon.Max)
                 return ActionError.TooManySummons;
         }
+        // A leap lands on a free cell; a swap trades places with a fighter of the side it affects (sprint 90).
+        if (spell.AllEffects.Any(e => e is LeapEffect) && !IsFree(target))
+            return ActionError.TargetNotFree;
+        foreach (SwapEffect swap in spell.AllEffects.OfType<SwapEffect>())
+        {
+            if (At(target) is not Fighter other || other == caster || !Touches(swap.Affects, caster, other))
+                return ActionError.NoValidTarget;
+        }
         return ActionError.None;
     }
 
@@ -429,20 +453,64 @@ public sealed class Fight
         {
             foreach (Fighter hit in area)
             {
-                if (hit.IsAlive)
-                    Hurt(hit, Damage(roll, me, hit, spell.Element), spell.Element);
+                if (!hit.IsAlive)
+                    continue;
+                // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
+                bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
+                if (Hurt(hit, Damage(roll, me, hit, spell.Element), spell.Element) > 0 && hit.IsAlive)
+                {
+                    foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
+                        _pending.Enqueue((hit, p, me));
+                }
             }
         }
-        foreach (SpellEffect effect in spell.AllEffects)
+        Apply(me, spell.AllEffects, area, target, critical, attacker: null);
+        Resolve();
+        // A fighter who dies during its own turn hands over at once.
+        if (!IsOver && !me.IsAlive)
+            NextTurn();
+    }
+
+    /// <summary>
+    /// The effects of a spell, or of a passive (sprint 90) with its bearer as <paramref name="me"/>, on the
+    /// fighters of <paramref name="area"/>; <paramref name="attacker"/>, for a passive set off by a hit.
+    /// </summary>
+    private void Apply(Fighter me, IReadOnlyList<SpellEffect> effects, IReadOnlyList<Fighter> area, Cell target, bool critical, Fighter? attacker, bool passive = false)
+    {
+        foreach (SpellEffect effect in effects)
         {
             // Healing grows with a critical hit, as damage does, and with no characteristic (D62).
             int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) : 0;
-            if (effect is SummonEffect summon)
+            switch (effect)
             {
-                Summon(me, _data.Summons[summon.Summon], target);
-                continue;
+                case SummonEffect summon when passive:
+                    SummonAround(me, _data.Summons[summon.Summon], summon.Count);
+                    continue;
+                case SummonEffect summon:
+                    Summon(me, _data.Summons[summon.Summon], target);
+                    continue;
+                case LeapEffect:
+                    if (IsFree(target))
+                    {
+                        Cell from = me.Cell;
+                        me.Cell = target;
+                        _events.Add(new Leaped(me.Id, from, target));
+                    }
+                    continue;
+                case SwapEffect:
+                    if (At(target) is Fighter other && other != me)
+                    {
+                        (me.Cell, other.Cell) = (other.Cell, me.Cell);
+                        _events.Add(new Swapped(me.Id, other.Id));
+                    }
+                    continue;
             }
-            IEnumerable<Fighter> touched = effect.Affects == Affects.Caster ? [me] : area.Where(f => Touches(effect.Affects, me, f));
+            IEnumerable<Fighter> touched = effect.Affects switch
+            {
+                Affects.Caster => [me],
+                Affects.Attacker => attacker is null ? [] : [attacker],
+                _ => area.Where(f => Touches(effect.Affects, me, f)),
+            };
             foreach (Fighter f in touched.ToList())
             {
                 if (IsOver || !f.IsAlive)
@@ -469,25 +537,54 @@ public sealed class Fight
                         f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id);
                         f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
                         _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
+                        // On the fighter playing, action and movement points change at once (sprint 90):
+                        // a status of one turn set on oneself counts this very turn.
+                        if (f == Current && status.Stat == Stat.Ap)
+                            f.Ap = Math.Max(0, f.Ap + status.Value);
+                        if (f == Current && status.Stat == Stat.Mp)
+                            f.Mp = Math.Max(0, f.Mp + status.Value);
                         break;
                 }
             }
         }
-        // A fighter who dies during its own turn hands over at once.
-        if (!IsOver && !me.IsAlive)
-            NextTurn();
     }
 
-    /// <summary>A creature on a free cell, in the caster's team, playing right after it.</summary>
-    private void Summon(Fighter me, SummonSpec m, Cell cell)
+    /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
+    private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null)
     {
         if (!IsFree(cell))
-            return;
-        var spec = new FighterSpec(m.Name, m.Look, me.Team, m.Hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells);
-        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), me.Id, m.Id);
+            return null;
+        var spec = new FighterSpec(m.Name, m.Look, me.Team, m.Hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
+        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id);
         _fighters.Add(summoned);
-        _order.Insert(_current + 1, summoned);
+        // Right after its summoner in the order of play, or after the one summoned just before.
+        int at = _order.IndexOf(after ?? me) + 1;
+        _order.Insert(at, summoned);
+        if (at <= _current)
+            _current++;
         _events.Add(new Summoned(summoned.Id, me.Id, cell));
+        return summoned;
+    }
+
+    /// <summary>
+    /// A passive's creatures (sprint 90): <paramref name="count"/> of them on the free cells next to the
+    /// bearer, in the order of <see cref="Cell.Steps"/>, then two steps away; fewer if there is no room.
+    /// </summary>
+    private void SummonAround(Fighter me, SummonSpec m, int count)
+    {
+        Cell[] near = [.. Cell.Steps.Select(d => me.Cell + d)];
+        Cell[] farther = [.. Cell.Steps.Select(d => me.Cell + d + d), .. Cell.Steps.SelectMany(d => Cell.Steps.Where(e => e != d && e != new Cell(-d.X, -d.Y)).Select(e => me.Cell + d + e)).Distinct()];
+        Fighter? last = null;
+        foreach (Cell cell in near.Concat(farther.Where(c => !near.Contains(c))))
+        {
+            if (count == 0)
+                break;
+            if (IsFree(cell) && Summon(me, m, cell, last) is Fighter added)
+            {
+                last = added;
+                count--;
+            }
+        }
     }
 
     /// <summary>Moves a fighter cell by cell; what stops a push hurts, per cell left.</summary>
@@ -512,8 +609,11 @@ public sealed class Fight
             Hurt(f, blocked * CollisionDamage);
     }
 
-    /// <summary>Damage through the shields first, then the hit points; a death may end the fight.</summary>
-    private void Hurt(Fighter hit, int damage, Element element = Element.Neutral)
+    /// <summary>
+    /// Damage through the shields first, then the hit points; a death may end the fight. Returns what was
+    /// taken, shield and hit points. Queues the passives a loss of hit points or a death sets off (sprint 90).
+    /// </summary>
+    private int Hurt(Fighter hit, int damage, Element element = Element.Neutral)
     {
         int absorbed = 0;
         for (int i = 0; i < hit.Shields.Count && damage > 0; i++)
@@ -528,20 +628,44 @@ public sealed class Fight
         if (absorbed > 0)
             _events.Add(new ShieldAbsorbed(hit.Id, absorbed, hit.Shield));
         if (damage == 0 && absorbed > 0)
-            return;
+            return absorbed;
         hit.Hp = Math.Max(0, hit.Hp - damage);
         hit.Eroded += damage * Erosion / 100;
         _events.Add(new Damaged(hit.Id, damage, hit.Hp, element));
         if (hit.IsAlive)
-            return;
+        {
+            // Below a share of its hit points, once per fight.
+            foreach (PassiveSpec p in hit.Passives)
+            {
+                if (p.Trigger == Trigger.LowHp && damage > 0 && hit.Hp * 100 < p.Percent * hit.Spec.Hp && hit.LowHpFired.Add(p.Id))
+                    _pending.Enqueue((hit, p, null));
+            }
+            return absorbed + damage;
+        }
         _events.Add(new Died(hit.Id));
         hit.StatusList.Clear();
         hit.Shields.Clear();
+        List<Fighter> dead = [hit];
         // Summons die with their summoner.
         foreach (Fighter summon in Fighters.Where(f => f.Summoner == hit.Id && f.IsAlive).ToList())
         {
             summon.Hp = 0;
             _events.Add(new Died(summon.Id));
+            dead.Add(summon);
+        }
+        foreach (Fighter d in dead)
+        {
+            foreach (PassiveSpec p in d.Passives.Where(p => p.Trigger == Trigger.Death))
+                _pending.Enqueue((d, p, null));
+        }
+        // An ally of the same family falls (not a summon), within the passive's range.
+        if (!hit.IsSummon && hit.Spec.Family is string family)
+        {
+            foreach (Fighter f in Fighters.Where(f => f.IsAlive && f.Team == hit.Team && f.Spec.Family == family))
+            {
+                foreach (PassiveSpec p in f.Passives.Where(p => p.Trigger == Trigger.AllyDies && (p.Range == 0 || f.Cell.DistanceTo(hit.Cell) <= p.Range)))
+                    _pending.Enqueue((f, p, null));
+            }
         }
         // A team with nobody left has lost (summons never outlive their summoner).
         for (int team = 0; team < 2; team++)
@@ -549,8 +673,40 @@ public sealed class Fight
             if (!Fighters.Any(f => f.Team == team && f.IsAlive))
             {
                 End(1 - team);
-                return;
+                break;
             }
+        }
+        return absorbed + damage;
+    }
+
+    /// <summary>
+    /// Plays the passives set off during an action, in the order they were set off; those their effects
+    /// set off follow at the end (an explosion that kills sets off the next). Every fighter dies once
+    /// only, so it ends. Nothing more fires once the fight is over.
+    /// </summary>
+    private void Resolve()
+    {
+        while (_pending.TryDequeue(out (Fighter Bearer, PassiveSpec Passive, Fighter? Attacker) next))
+        {
+            (Fighter bearer, PassiveSpec p, Fighter? attacker) = next;
+            if (IsOver || (p.Trigger != Trigger.Death && !bearer.IsAlive))
+                continue;
+            _events.Add(new PassiveTriggered(bearer.Id, p.Id));
+            // Around the bearer; without an area, its own cell.
+            Cell[] cells = p.Area is Area a ? [.. a.Cells(bearer.Cell, bearer.Cell)] : [bearer.Cell];
+            if (p.DamageMax > 0)
+            {
+                int roll = _rng.Next(p.DamageMin, p.DamageMax);
+                foreach (Fighter f in cells.Skip(p.Area is null ? 0 : 1).Select(At).OfType<Fighter>().ToList())
+                {
+                    if (!IsOver && f.IsAlive)
+                        Hurt(f, Damage(roll, bearer, f, p.Element), p.Element);
+                }
+            }
+            if (IsOver)
+                continue;
+            IReadOnlyList<Fighter> area = [.. cells.Where(Board.Contains).Select(At).OfType<Fighter>().Distinct()];
+            Apply(bearer, p.AllEffects, area, bearer.Cell, critical: false, attacker is { IsAlive: true } ? attacker : null, passive: true);
         }
     }
 
@@ -600,6 +756,13 @@ public sealed class Fight
             long damage = (long)poison.Value * (100 - next.Resistance(poison.Element)) / 100;
             Hurt(next, (int)Math.Max(0, damage), poison.Element);
         }
+        // Then its passives of the start of a turn, if it still stands (sprint 90).
+        if (!IsOver && next.IsAlive)
+        {
+            foreach (PassiveSpec p in next.Passives.Where(p => p.Trigger == Trigger.TurnStart))
+                _pending.Enqueue((next, p, null));
+        }
+        Resolve();
         if (!IsOver && !next.IsAlive)
             NextTurn();
     }

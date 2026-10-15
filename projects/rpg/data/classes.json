@@ -9,7 +9,7 @@
       "fr": "Tire de loin, repousse et entrave ; mobile, elle garde ses distances.",
       "en": "Shoots from afar, pushes back and hinders; mobile, she keeps her distance."
     },
-    "hp": 66,
+    "hp": 62,
     "ap": 8,
     "mp": 4,
     "initiative": 10,
@@ -51,7 +51,7 @@
       "fr": "Attire, bloque et frappe fort au corps à corps ; se protège elle-même.",
       "en": "Pulls, holds and hits hard up close; shields herself."
     },
-    "hp": 70,
+    "hp": 74,
     "ap": 8,
     "mp": 4,
     "initiative": 10,
@@ -93,7 +93,7 @@
       "fr": "Fragile, mais frappe en zone, soigne ses alliés et invoque une braise.",
       "en": "Frail, but strikes in areas, heals allies and summons an ember."
     },
-    "hp": 79,
+    "hp": 86,
     "ap": 8,
     "mp": 4,
     "initiative": 10,

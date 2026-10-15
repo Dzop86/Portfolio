@@ -558,6 +558,15 @@ public partial class Main : Node3D
                 return Task.CompletedTask;
             case Pushed p when p.Path.Count > 0:
                 return _views[p.Fighter].Walk(p.Path, instant ? 0 : 0.12);
+            // A passive's name floats above its bearer; leaps arc, swaps slide across (sprint 90).
+            case PassiveTriggered p:
+                _views[p.Fighter].ShowNumber(_controller.Fight.Fighters[p.Fighter].Passives.First(x => x.Id == p.Passive).Name.In(_options.Lang), new Color(ElementStyle.Colour(Element.Neutral)), instant ? 0 : 1.2);
+                return Task.CompletedTask;
+            case Leaped l:
+                return _views[l.Fighter].Leap(l.To, instant ? 0 : 0.35);
+            case Swapped w:
+                Vector3 atA = _views[w.A].Position, atB = _views[w.B].Position;
+                return Task.WhenAll(_views[w.A].Glide(atB, instant ? 0 : 0.3), _views[w.B].Glide(atA, instant ? 0 : 0.3));
             case Healed h:
                 _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(ElementStyle.Heal), instant ? 0 : 0.9);
                 return Task.CompletedTask;

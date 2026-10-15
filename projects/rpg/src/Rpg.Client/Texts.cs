@@ -150,6 +150,7 @@ public sealed class Texts
         ["card.resist"] = "Résistances : {0}",
         ["card.resist-one"] = "{0} {1} %",
         ["card.effects"] = "Effets : {0}",
+        ["card.passive"] = "{0} : {1}",
         ["card.turns"] = "{0} ({1} tour(s))",
         ["card.spell"] = "{0} · {1} PA · portée {2}-{3}",
         ["card.in-line"] = ", en ligne",
@@ -167,10 +168,13 @@ public sealed class Texts
         ["effect.push"] = "poussée de {0}",
         ["effect.pull"] = "attirance de {0}",
         ["effect.summon"] = "invoque {0}",
+        ["effect.leap"] = "bond sur la case",
+        ["effect.swap"] = "échange de place",
         ["affects.Caster"] = " sur soi",
         ["affects.Allies"] = " aux alliés",
         ["affects.All"] = " à tous",
         ["affects.Enemies"] = "",
+        ["affects.Attacker"] = " à l'attaquant",
         ["forecast.damage"] = "{0} : {1} à {2} dégâts",
         ["forecast.heal"] = "{0} : +{1} à {2} PV",
         ["forecast.kill"] = " (mortel)",
@@ -187,6 +191,9 @@ public sealed class Texts
         ["log.blocked"] = "{0} heurte un obstacle.",
         ["log.status"] = "{0} : {1} pendant {2} tour(s).",
         ["log.status-ended"] = "{0} : fin de l'effet {1}.",
+        ["log.passive"] = "{0} : {1} !",
+        ["log.leap"] = "{0} bondit.",
+        ["log.swap"] = "{0} et {1} échangent leurs places.",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} PA",
         ["stat.Mp"] = "{0} PM",
@@ -211,6 +218,8 @@ public sealed class Texts
         ["error.FightOver"] = "Le combat est fini.",
         ["error.TooManySummons"] = "Déjà autant d'invocations que permis.",
         ["error.Cooldown"] = "Sort encore en relance.",
+        ["error.TargetNotFree"] = "Il faut une case libre pour atterrir.",
+        ["error.NoValidTarget"] = "Ce sort vise un autre combattant, du bon camp.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Nom de compte",
         ["lobby.password"] = "Mot de passe",
@@ -491,6 +500,7 @@ public sealed class Texts
         ["card.resist"] = "Resistances: {0}",
         ["card.resist-one"] = "{0} {1}%",
         ["card.effects"] = "Effects: {0}",
+        ["card.passive"] = "{0}: {1}",
         ["card.turns"] = "{0} ({1} turn(s))",
         ["card.spell"] = "{0} · {1} AP · range {2}-{3}",
         ["card.in-line"] = ", in line",
@@ -508,10 +518,13 @@ public sealed class Texts
         ["effect.push"] = "push by {0}",
         ["effect.pull"] = "pull by {0}",
         ["effect.summon"] = "summons {0}",
+        ["effect.leap"] = "leap onto the cell",
+        ["effect.swap"] = "swap places",
         ["affects.Caster"] = " on self",
         ["affects.Allies"] = " on allies",
         ["affects.All"] = " on everyone",
         ["affects.Enemies"] = "",
+        ["affects.Attacker"] = " on the attacker",
         ["forecast.damage"] = "{0}: {1} to {2} damage",
         ["forecast.heal"] = "{0}: +{1} to {2} HP",
         ["forecast.kill"] = " (lethal)",
@@ -528,6 +541,9 @@ public sealed class Texts
         ["log.blocked"] = "{0} hits an obstacle.",
         ["log.status"] = "{0}: {1} for {2} turn(s).",
         ["log.status-ended"] = "{0}: {1} wears off.",
+        ["log.passive"] = "{0}: {1}!",
+        ["log.leap"] = "{0} leaps.",
+        ["log.swap"] = "{0} and {1} swap places.",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} AP",
         ["stat.Mp"] = "{0} MP",
@@ -552,6 +568,8 @@ public sealed class Texts
         ["error.FightOver"] = "The fight is over.",
         ["error.TooManySummons"] = "Already as many summons as allowed.",
         ["error.Cooldown"] = "Spell still on cooldown.",
+        ["error.TargetNotFree"] = "A free cell is needed to land on.",
+        ["error.NoValidTarget"] = "This spell aims at another fighter, of the right side.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Account name",
         ["lobby.password"] = "Password",
@@ -749,6 +767,8 @@ public sealed class Texts
             lines.Add(this["card.resist", string.Join(", ", resist)]);
         if (f.Statuses.Count > 0)
             lines.Add(this["card.effects", string.Join(", ", f.Statuses.Select(st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.TurnsLeft]))]);
+        // Its passives (sprint 90): what each does, in a line.
+        lines.AddRange(f.Passives.Select(p => this["card.passive", p.Name.In(Lang), p.Description.In(Lang)]));
         return string.Join('\n', lines);
     }
 
@@ -791,9 +811,11 @@ public sealed class Texts
                 PullEffect p => this["effect.pull", p.Cells],
                 SummonEffect m => this["effect.summon", GameData.Embedded.Summons.TryGetValue(m.Summon, out SummonSpec? spec) ? spec.Name.In(Lang) : m.Summon],
                 StatusEffect st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.Turns],
+                LeapEffect => this["effect.leap"],
+                SwapEffect => this["effect.swap"],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -989,6 +1011,9 @@ public sealed class Texts
             Pushed p => this["log.pushed", Name(fight.Fighters[p.Fighter]), p.Path.Count],
             StatusAdded st => this["log.status", Name(fight.Fighters[st.Fighter]), Status(st.Stat, st.Value, st.Element), st.Turns],
             StatusEnded st => this["log.status-ended", Name(fight.Fighters[st.Fighter]), this["stat." + st.Stat, "", ""].Trim()],
+            PassiveTriggered p => this["log.passive", Name(fight.Fighters[p.Fighter]), fight.Fighters[p.Fighter].Passives.First(x => x.Id == p.Passive).Name.In(Lang)],
+            Leaped l => this["log.leap", Name(fight.Fighters[l.Fighter])],
+            Swapped w => this["log.swap", Name(fight.Fighters[w.A]), Name(fight.Fighters[w.B])],
             _ => null,
         };
     }

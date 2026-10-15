@@ -40,6 +40,12 @@ public enum ActionError
 
     /// <summary>The spell was cast too recently: its cooldown is not over.</summary>
     Cooldown,
+
+    /// <summary>A leap needs a free floor cell to land on (sprint 90).</summary>
+    TargetNotFree,
+
+    /// <summary>A swap needs a fighter on the target cell, of the side it affects, other than the caster (sprint 90).</summary>
+    NoValidTarget,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -89,6 +95,15 @@ public sealed record StatusEnded(int Fighter, Stat Stat) : FightEvent;
 
 /// <summary>A creature summoned by <see cref="Summoner"/> appears; it is <c>Fighters[Fighter]</c>.</summary>
 public sealed record Summoned(int Fighter, int Summoner, Cell Cell) : FightEvent;
+
+/// <summary>A passive of <see cref="Fighter"/> fires (sprint 90): its effects follow.</summary>
+public sealed record PassiveTriggered(int Fighter, string Passive) : FightEvent;
+
+/// <summary>The fighter leaps from a cell to another (sprint 90).</summary>
+public sealed record Leaped(int Fighter, Cell From, Cell To) : FightEvent;
+
+/// <summary>Two fighters trade places (sprint 90): <see cref="A"/> cast the spell.</summary>
+public sealed record Swapped(int A, int B) : FightEvent;
 
 /// <summary>The end of the fight; <see cref="WinningTeam"/> is null for a draw at the round limit.</summary>
 public sealed record FightEnded(int? WinningTeam) : FightEvent;

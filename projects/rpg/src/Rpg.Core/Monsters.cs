@@ -35,23 +35,33 @@ public sealed record MonsterSpec(
     int Initiative,
     IReadOnlyList<string> Spells,
     IReadOnlyDictionary<Element, int>? Resistances = null,
-    IReadOnlyList<LootDrop>? Loot = null)
+    IReadOnlyList<LootDrop>? Loot = null,
+    IReadOnlyList<string>? Passives = null)
 {
     /// <summary>
     /// The monster as a fighter of team B on start cell <paramref name="start"/>, at <paramref name="power"/>
-    /// percent of its hit points and damage (a dungeon's first room, sprint 80).
+    /// percent of its hit points and damage (a dungeon's first room, sprint 80), with its passives and
+    /// its <paramref name="family"/> (sprint 90).
     /// </summary>
-    public FighterSpec Fighter(int start, int power = 100) =>
-        new(Name, Look, 1, Math.Max(1, Hp * power / 100), Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot, power);
+    public FighterSpec Fighter(int start, int power = 100, string? family = null) =>
+        new(Name, Look, 1, Math.Max(1, Hp * power / 100), Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot, power, Passives, family);
 }
 
 /// <summary>
 /// A family of monsters (sprint 72, D63): five monsters of the same kind, one per role, living in a
-/// zone; their fights take place on <see cref="Battle"/>, and the boss is met on <see cref="BossMap"/>.
+/// zone; their fights take place on <see cref="Battle"/>, or since sprint 90 on one of <see cref="Battles"/>
+/// (which starts with it), drawn from the group's name; the boss is met on <see cref="BossMap"/>.
 /// </summary>
-public sealed record MonsterFamily(string Id, LocalizedText Name, string Zone, string Battle, string BossMap, IReadOnlyList<MonsterSpec> Monsters)
+public sealed record MonsterFamily(string Id, LocalizedText Name, string Zone, string Battle, string BossMap, IReadOnlyList<MonsterSpec> Monsters,
+    IReadOnlyList<string>? Battles = null)
 {
     public MonsterSpec this[MonsterRole role] => Monsters.First(m => m.Role == role);
+
+    /// <summary>Every battle map of the family, <see cref="Battle"/> first.</summary>
+    public IReadOnlyList<string> AllBattles => Battles ?? [Battle];
+
+    /// <summary>The battle map of a group: always the same for the same group.</summary>
+    public string BattleOf(string groupId) => AllBattles[(int)(MonsterGroups.Seed(groupId) % (ulong)AllBattles.Count)];
 }
 
 /// <summary>
@@ -206,7 +216,7 @@ public static class MonsterGroups
     }
 
     /// <summary>
-    /// The fight against a group: the family's battle map, a hero on team A (played by the player's
+    /// The fight against a group: one of the family's battle maps, a hero on team A (played by the player's
     /// character), the group's monsters on team B in their order.
     /// </summary>
     public static Scenario Scenario(MonsterGroup group, MonsterFamily family, IReadOnlyDictionary<string, MonsterSpec> monsters)
@@ -215,6 +225,6 @@ public static class MonsterGroups
         ArgumentNullException.ThrowIfNull(family);
         ArgumentNullException.ThrowIfNull(monsters);
         FighterSpec hero = new(new LocalizedText("Héros", "Hero"), "female-d", 0, 80, 6, 3, 120, 0, ["strike", "arrow", "spear"]);
-        return new Scenario(group.Scenario, family.Name, family.Battle, [hero, .. group.Monsters.Select((id, i) => monsters[id].Fighter(i))]);
+        return new Scenario(group.Scenario, family.Name, family.BattleOf(group.Id), [hero, .. group.Monsters.Select((id, i) => monsters[id].Fighter(i, family: family.Id))]);
     }
 }

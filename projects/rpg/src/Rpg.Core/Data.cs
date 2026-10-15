@@ -124,12 +124,17 @@ public enum QuestGoal
 /// <summary>One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon), how many.</summary>
 public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1);
 
-/// <summary>A creature a spell can summon, as described in <c>data/summons.json</c>.</summary>
-public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells);
+/// <summary>
+/// A creature a spell or a passive can summon, as described in <c>data/summons.json</c>; a monster's
+/// young have passives and are drawn at <see cref="Scale"/> percent of their size (sprint 90).
+/// </summary>
+public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells,
+    IReadOnlyList<string>? Passives = null, int Scale = 100);
 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team
-/// (0 or 1), its characteristics and the index of its starting cell.
+/// (0 or 1), its characteristics and the index of its starting cell. A monster's carries its passives
+/// and its family (sprint 90), which an ally's death reads.
 /// </summary>
 public sealed record FighterSpec(
     LocalizedText Name,
@@ -146,7 +151,9 @@ public sealed record FighterSpec(
     IReadOnlyDictionary<string, int>? SpellRanks = null,
     int Level = 1,
     IReadOnlyList<LootDrop>? Loot = null,
-    int Power = 100)
+    int Power = 100,
+    IReadOnlyList<string>? Passives = null,
+    string? Family = null)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -216,6 +223,9 @@ public sealed class GameData
     /// <summary>The dungeons (sprint 80), by id.</summary>
     public IReadOnlyDictionary<string, Dungeon> Dungeons { get; }
 
+    /// <summary>The monsters' passives (sprint 90), by id.</summary>
+    public IReadOnlyDictionary<string, PassiveSpec> Passives { get; }
+
     private readonly Dictionary<string, Scenario> _groupFights = new(StringComparer.Ordinal);
 
     /// <summary>The groups of monsters living on a map, in their order.</summary>
@@ -231,7 +241,7 @@ public sealed class GameData
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
         IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null,
-        IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null)
+        IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null, IEnumerable<PassiveSpec>? passives = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -250,6 +260,9 @@ public sealed class GameData
         Scenarios = Index(scenarios, s => s.Id, "scenario");
         Classes = [.. Index(classes ?? [], c => c.Id, "class").Values];
         Summons = Index(summons ?? [], s => s.Id, "summon");
+        Passives = Index(passives ?? [], p => p.Id, "passive");
+        foreach (PassiveSpec p in Passives.Values)
+            Check(p);
         foreach (Spell s in Spells.Values)
         {
             Check(s);
@@ -261,8 +274,9 @@ public sealed class GameData
         }
         foreach (SummonSpec m in Summons.Values)
         {
-            if (m.Hp < 1 || m.Ap < 0 || m.Mp < 0 || m.Spells.Any(id => !Spells.ContainsKey(id)))
-                throw new InvalidDataException($"Summon '{m.Id}': hit points, points or spells out of bounds.");
+            if (m.Hp < 1 || m.Ap < 0 || m.Mp < 0 || m.Spells.Any(id => !Spells.ContainsKey(id)) || m.Scale is < 10 or > 200)
+                throw new InvalidDataException($"Summon '{m.Id}': hit points, points, spells or scale out of bounds.");
+            CheckPassives($"Summon '{m.Id}'", m.Passives);
         }
         foreach (Scenario s in Scenarios.Values)
             Check(s);
@@ -380,7 +394,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "sets.json")) ? Read<List<ItemSet>>(Path.Combine(folder, "sets.json")) : null,
             File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null,
             File.Exists(Path.Combine(folder, "dungeons.json")) ? Read<List<Dungeon>>(Path.Combine(folder, "dungeons.json")) : null,
-            File.Exists(Path.Combine(folder, "jobs.json")) ? Read<List<Job>>(Path.Combine(folder, "jobs.json")) : null);
+            File.Exists(Path.Combine(folder, "jobs.json")) ? Read<List<Job>>(Path.Combine(folder, "jobs.json")) : null,
+            File.Exists(Path.Combine(folder, "passives.json")) ? Read<List<PassiveSpec>>(Path.Combine(folder, "passives.json")) : null);
     }
 
     /// <summary>
@@ -412,7 +427,8 @@ public sealed class GameData
             files.TryGetValue("data/sets.json", out string? sets) ? Parse<List<ItemSet>>("sets.json", sets) : null,
             files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null,
             files.TryGetValue("data/dungeons.json", out string? dungeons) ? Parse<List<Dungeon>>("dungeons.json", dungeons) : null,
-            files.TryGetValue("data/jobs.json", out string? jobs) ? Parse<List<Job>>("jobs.json", jobs) : null);
+            files.TryGetValue("data/jobs.json", out string? jobs) ? Parse<List<Job>>("jobs.json", jobs) : null,
+            files.TryGetValue("data/passives.json", out string? passives) ? Parse<List<PassiveSpec>>("passives.json", passives) : null);
     }
 
     public Board Board(string mapId) =>
@@ -431,7 +447,7 @@ public sealed class GameData
         return index;
     }
 
-    private static void Check(Spell s)
+    private void Check(Spell s)
     {
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
             || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0 || s.Crit is < 0 or > 100)
@@ -439,23 +455,60 @@ public sealed class GameData
         if (s.Level is < 1 or > 100 || (s.Ranks?.Count ?? 0) > 4
             || (s.Ranks ?? []).Any(r => r.DamageMin < 0 || r.DamageMax < r.DamageMin || r.ApCost < 1 || r.MaxRange < s.MinRange || r.PerTurn < 1))
             throw new InvalidDataException($"Spell '{s.Id}': level 1 to 100, at most 5 ranks, each consistent.");
-        if (s.Zone.Radius is < 0 or > 5 || (s.Zone.Shape == AreaShape.Point && s.Zone.Radius != 0))
+        if (!ValidArea(s.Zone))
             throw new InvalidDataException($"Spell '{s.Id}': an area's radius is 1 to 5 (0 for a single cell).");
         foreach (SpellEffect e in s.AllEffects)
         {
+            // A leap lands the caster, a swap trades places with one fighter: on a single cell (sprint 90).
             bool ok = e switch
             {
-                HealEffect h => h.Min >= 0 && h.Max >= h.Min && h.Max > 0,
-                ShieldEffect sh => sh.Amount > 0 && sh.Turns is >= 1 and <= 10,
-                PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
-                PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
-                StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat != Stat.Poison || st.Value > 0),
-                SummonEffect sm => sm.Max is >= 1 and <= 4,
-                _ => false,
+                LeapEffect l => l.Affects == Affects.Caster && s.Zone.Shape == AreaShape.Point,
+                SwapEffect w => w.Affects is not (Affects.Caster or Affects.Attacker) && s.Zone.Shape == AreaShape.Point,
+                SummonEffect sm => sm.Count == 1 && ValidEffect(e),
+                _ => e.Affects != Affects.Attacker && ValidEffect(e),
             };
             if (!ok)
                 throw new InvalidDataException($"Spell '{s.Id}': effect {e} out of bounds.");
         }
+    }
+
+    private static bool ValidArea(Area a) => a.Radius is >= 0 and <= 5 && (a.Shape == AreaShape.Point) == (a.Radius == 0);
+
+    /// <summary>The bounds of an effect, for a spell or a passive.</summary>
+    private bool ValidEffect(SpellEffect e) => e switch
+    {
+        HealEffect h => h.Min >= 0 && h.Max >= h.Min && h.Max > 0,
+        ShieldEffect sh => sh.Amount > 0 && sh.Turns is >= 1 and <= 10,
+        PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
+        PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
+        StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat != Stat.Poison || st.Value > 0),
+        SummonEffect sm => sm.Max is >= 1 and <= 4 && sm.Count is >= 1 and <= 4 && Summons.ContainsKey(sm.Summon),
+        _ => false,
+    };
+
+    /// <summary>
+    /// A passive (sprint 90): a percentage for a low-health one only, "melee" and the attacker for a hit
+    /// only, a range for an ally's death only, effects in the bounds of a spell's (no leap nor swap),
+    /// damage in bounds, an area of 1 to 5.
+    /// </summary>
+    private void Check(PassiveSpec p)
+    {
+        bool ok = (p.Trigger == Trigger.LowHp ? p.Percent is >= 1 and <= 99 : p.Percent == 0)
+            && (p.Trigger == Trigger.Hit || (!p.Melee && p.AllEffects.All(e => e.Affects != Affects.Attacker)))
+            && (p.Trigger == Trigger.AllyDies ? p.Range >= 0 : p.Range == 0)
+            && p.DamageMin >= 0 && p.DamageMax >= p.DamageMin && (p.Area is null || (p.Area.Shape != AreaShape.Point && ValidArea(p.Area)))
+            && p.AllEffects.All(ValidEffect);
+        if (!ok)
+            throw new InvalidDataException($"Passive '{p.Id}': its numbers do not fit its trigger {p.Trigger}.");
+    }
+
+    /// <summary>Known passives, three at most (sprint 90).</summary>
+    private void CheckPassives(string who, IReadOnlyList<string>? passives)
+    {
+        if (passives is null)
+            return;
+        if (passives.Count > 3 || passives.Distinct().Count() != passives.Count || passives.FirstOrDefault(p => !Passives.ContainsKey(p)) is string)
+            throw new InvalidDataException($"{who}: at most 3 known passives, each once.");
     }
 
     private void Check(HeroClass c)
@@ -645,12 +698,18 @@ public sealed class GameData
             if (m.Level is < 1 or > Hero.MaxLevel || m.Hp < 1 || m.Ap < 1 || m.Mp < 0 || m.Spells.Count == 0 || m.Spells.Any(id => !Spells.ContainsKey(id))
                 || string.IsNullOrWhiteSpace(m.Look) || (m.Loot ?? []).Any(l => !Items.ContainsKey(l.Item) || l.Percent is < 1 or > 100))
                 throw new InvalidDataException($"{who}, '{m.Id}': a level, points, known spells, a look and known loot.");
+            CheckPassives($"{who}, '{m.Id}'", m.Passives);
         }
         Town[] zone = [.. Towns.Values.Where(t => t.Zone == f.Zone)];
         if (zone.Length == 0 || !zone.Any(t => t.Id == f.BossMap))
             throw new InvalidDataException($"{who}: unknown zone '{f.Zone}', or a boss map '{f.BossMap}' outside it.");
-        if (!Maps.ContainsKey(f.Battle) || Board(f.Battle).Starts[1].Count < MonsterGroups.Largest || Board(f.Battle).Starts[0].Count < 1)
-            throw new InvalidDataException($"{who}: the battle map '{f.Battle}' is unknown, or has no room for a hero and {MonsterGroups.Largest} monsters.");
+        if (f.Battles is { } battles && (battles.Count == 0 || battles[0] != f.Battle || battles.Distinct().Count() != battles.Count))
+            throw new InvalidDataException($"{who}: its battle maps start with '{f.Battle}', each once.");
+        foreach (string battle in f.AllBattles)
+        {
+            if (!Maps.ContainsKey(battle) || Board(battle).Starts[1].Count < MonsterGroups.Largest || Board(battle).Starts[0].Count < 1)
+                throw new InvalidDataException($"{who}: the battle map '{battle}' is unknown, or has no room for a hero and {MonsterGroups.Largest} monsters.");
+        }
     }
 
     private void Check(Scenario s)
@@ -677,6 +736,7 @@ public sealed class GameData
                 if (!Spells.ContainsKey(spell))
                     throw new InvalidDataException($"{who}: unknown spell '{spell}'.");
             }
+            CheckPassives(who, f.Passives);
         }
         for (int team = 0; team < 2; team++)
         {

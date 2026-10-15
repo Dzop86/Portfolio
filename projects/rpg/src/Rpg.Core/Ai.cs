@@ -28,7 +28,7 @@ public static class Ai
         if (here is var (spell, target, _, _) && (me.Mp == 0 || kills))
             return new CastAction(spell.Id, target);
         if (me.Mp == 0)
-            return new EndTurnAction();
+            return BestLeap(fight, me, 0) is var (jump, onto) ? new CastAction(jump.Id, onto) : new EndTurnAction();
         IReadOnlyDictionary<Cell, int> reachable = fight.ReachableCells();
 
         // Walk where the turn is worth the most, then the shortest walk; with a cast possible here,
@@ -42,6 +42,10 @@ public static class Ai
                 (best, bestValue) = (cell, value);
             }
         }
+        // A leap is a walk (sprint 90): taken when the turn from where it lands, with the action points
+        // left, beats the best walk, and the turn from here by as much.
+        if (BestLeap(fight, me, bestValue) is var (leap, landing))
+            return new CastAction(leap.Id, landing);
         if (best is Cell attackFrom)
             return new MoveAction(attackFrom);
         if (here is var (castSpell, castTarget, _, _))
@@ -90,8 +94,9 @@ public static class Ai
     /// plan (listed first on a tie), its value and the plan's; a cast that kills is a plan of its
     /// own. Null when nothing is worth casting.
     /// </summary>
-    internal static (Spell Spell, Cell Target, double Value, double Turn)? BestTurn(Fight fight, Fighter me, Cell from)
+    internal static (Spell Spell, Cell Target, double Value, double Turn)? BestTurn(Fight fight, Fighter me, Cell from, int? apLeft = null)
     {
+        int ap = apLeft ?? me.Ap;
         if (BestCast(fight, me, from) is not var (topSpell, topTarget, topValue))
             return null;
         if (Kills(fight, me, topTarget, topValue))
@@ -102,16 +107,16 @@ public static class Ai
         {
             if (BestCast(fight, me, from, spell) is var (s, t, v))
             {
-                int times = spell.Cooldown > 0 ? 1 : Math.Min(me.CastsLeft(spell), me.Ap / spell.ApCost);
+                int times = spell.Cooldown > 0 ? 1 : Math.Min(me.CastsLeft(spell), ap / spell.ApCost);
                 casts.AddRange(Enumerable.Repeat((s, t, v), times));
             }
         }
         // worth[i, a]: the most the first i casts are worth with a action points; strict gains only,
         // so that on a tie the casts listed first are kept.
-        double[,] worth = new double[casts.Count + 1, me.Ap + 1];
+        double[,] worth = new double[casts.Count + 1, ap + 1];
         for (int i = 1; i <= casts.Count; i++)
         {
-            for (int a = 0; a <= me.Ap; a++)
+            for (int a = 0; a <= ap; a++)
             {
                 worth[i, a] = worth[i - 1, a];
                 int cost = casts[i - 1].Spell.ApCost;
@@ -120,7 +125,7 @@ public static class Ai
             }
         }
         (Spell Spell, Cell Target, double Value)? first = null;
-        for (int i = casts.Count, a = me.Ap; i > 0; i--)
+        for (int i = casts.Count, a = ap; i > 0; i--)
         {
             if (worth[i, a] == worth[i - 1, a])
                 continue;
@@ -128,8 +133,47 @@ public static class Ai
                 first = casts[i - 1];
             a -= casts[i - 1].Spell.ApCost;
         }
-        return first is var (firstSpell, firstTarget, firstValue) ? (firstSpell, firstTarget, firstValue, worth[casts.Count, me.Ap]) : (topSpell, topTarget, topValue, topValue);
+        return first is var (firstSpell, firstTarget, firstValue) ? (firstSpell, firstTarget, firstValue, worth[casts.Count, ap]) : (topSpell, topTarget, topValue, topValue);
     }
+
+    /// <summary>
+    /// The leap worth taking (sprint 90): among the free cells a leaping spell reaches, the one whose turn,
+    /// with the action points left after the leap, is worth more than <paramref name="toBeat"/>; the
+    /// nearest, then in reading order, on a tie. Null when no leap beats it.
+    /// </summary>
+    private static (Spell Spell, Cell Landing)? BestLeap(Fight fight, Fighter me, double toBeat)
+    {
+        (Spell, Cell)? best = null;
+        foreach (Spell leap in me.Spells.Where(sp => sp.AllEffects.Any(e => e is LeapEffect)))
+        {
+            Cell[] cells = [.. Enumerable.Range(-leap.MaxRange, 2 * leap.MaxRange + 1)
+                .SelectMany(dy => Enumerable.Range(-leap.MaxRange, 2 * leap.MaxRange + 1).Select(dx => me.Cell + new Cell(dx, dy)))
+                .Where(c => fight.CheckCast(me, leap, me.Cell, c) == ActionError.None)
+                .OrderBy(c => c.DistanceTo(me.Cell)).ThenBy(c => c.Y).ThenBy(c => c.X)];
+            foreach (Cell landing in cells)
+            {
+                if (BestTurn(fight, me, landing, me.Ap - leap.ApCost) is (_, _, _, double value) && value > toBeat)
+                {
+                    best = (leap, landing);
+                    toBeat = value;
+                }
+            }
+        }
+        return best;
+    }
+
+    /// <summary>A spell that trades places with an ally or pulls one (sprint 90).</summary>
+    private static bool MovesAnAlly(Spell spell) =>
+        spell.AllEffects.Any(e => e is SwapEffect || (e is PullEffect && e.Affects is Affects.Allies or Affects.All));
+
+    /// <summary>
+    /// Whether an ally should be swapped with or pulled away (sprint 90): below half its hit points with
+    /// an enemy next to it; to take its place, the caster must have more hit points than it.
+    /// </summary>
+    private static bool NeedsRescue(Fight fight, Fighter me, Spell spell, Fighter ally) =>
+        ally.Team == me.Team && ally != me && ally.Hp * 2 < ally.MaxHp
+        && fight.Fighters.Any(f => f.IsAlive && f.Team != me.Team && f.Cell.DistanceTo(ally.Cell) == 1)
+        && (!spell.AllEffects.Any(e => e is SwapEffect) || me.Hp > ally.Hp);
 
     /// <summary>Whether a cast worth <paramref name="value"/> on <paramref name="target"/> surely kills an enemy there.</summary>
     private static bool Kills(Fight fight, Fighter me, Cell target, double value) =>
@@ -150,7 +194,8 @@ public static class Ai
                 continue;
             foreach (Spell spell in me.Spells)
             {
-                if ((only is not null && spell != only) || fight.CheckCast(me, spell, from, aim.Cell) != ActionError.None)
+                if ((only is not null && spell != only) || fight.CheckCast(me, spell, from, aim.Cell) != ActionError.None
+                    || (MovesAnAlly(spell) && !NeedsRescue(fight, me, spell, aim)))
                     continue;
                 double value = Value(fight, me, spell, from, aim.Cell);
                 bool better = value > bestKey.Value
@@ -204,8 +249,9 @@ public static class Ai
         }
         foreach (SpellEffect effect in spell.AllEffects)
         {
-            // A creature on our side is worth a few hits, once, whoever stands nearby.
-            if (effect is SummonEffect)
+            // A creature on our side is worth a few hits, once, whoever stands nearby; so is getting a hurt
+            // ally out of reach (only cast then, see NeedsRescue).
+            if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
                 value += 8;
                 continue;

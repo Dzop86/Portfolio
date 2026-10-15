@@ -41,6 +41,7 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 - [ ] Sprint 76 : les Champs de Clairval (fleurs, haies), leurs abeilles et leurs taupes ; et l'ensemble de D63 : le monde de 101 cartes, huit familles, la règle des groupes (T43).
 - [ ] Sprint 77 : les cartes de 48 × 32 (assez grandes ?), les passages sans points cardinaux ; **à trancher** : agrandir aussi le village (aujourd'hui 16 × 12) ?
 - [ ] Sprint 65 : l'onglet des sorts (couleurs, fiche, fourchettes) et l'inventaire (personnage entouré de ses emplacements, onglets, icônes dessinées) : est-ce à la hauteur de ce que tu attendais ?
+- [ ] Sprint 90 : le moteur des passifs, du saut et de l'échange (`src/Rpg.Core/Fight.cs` : `Resolve`, `Hurt`, `Apply` ; T57), sans monstre qui s'en serve encore (ils viennent aux sprints 91 à 94). **À trancher :** Dérobade compte enfin (+2 PM) et la Sentinelle dominait ses duels ; ses PV passent à 62 (Garde 74, Mage 86) et, jouée par l'IA, elle ne gagne plus que la moitié de ses entraînements : garder ces PV, ou Dérobade à +1 PM ?
 
 ## Constats
 
@@ -189,4 +190,8 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-15 | `data/quests.json` | (Claude) Mon premier jet faisait donner les quêtes de donjon par les gardiennes des salles : une fois le donjon fini, on est dehors, et les rendre aurait demandé une nouvelle clef | Données par Garance et Aubin, au village ; un test vérifie que toute quête se rend à Clairval |
 | 2026-10-15 | `data/quests.json` | (Claude) Mon premier jet de titres de donjon donnait « Le cœur de Récif des pinces » | Un seul modèle, « Au fond : … » |
 | 2026-10-15 | `tests/Rpg.Core.Tests/DungeonTests.cs`, `MonsterTests.cs` | (Claude) Des tests construisent des données réduites (un seul donjon, une seule famille) avec les vraies quêtes : celles des autres donjons y étaient refusées, et deux tests de refus auraient passé pour cette raison-là | Seules les quêtes valables dans ces données leur sont passées ; un contrôle vérifie que les données réduites, sans la faute, se chargent |
-
+| 2026-10-15 | `src/Rpg.Core/Fight.cs` | (Claude) Trouvé par la conception du game designer (D69 §2.1) : un état de PA ou de PM d'un tour posé sur soi était retiré à la fin du tour sans avoir compté ; Dérobade, Élan et Afflux ne faisaient rien | L'état change tout de suite les PA ou PM de celui qui joue ; test ; PV des classes réglés de nouveau (T57) |
+| 2026-10-15 | `data/classes.json` | (Claude) Avec Dérobade qui compte, la Sentinelle gagnait 92 % de ses duels contre la Garde ; aucun réglage des PV ne garde à la fois ses duels dans les bornes et son entraînement au-dessus de 60 % | Duels réglés (62, 74, 86 PV : 55, 49, 57 %), entraînement de la Sentinelle à 52 %, bornes du test par classe ; question posée à Charles (garder, ou Dérobade à +1 PM) |
+| 2026-10-15 | `tests/*/bin/` (hors dépôt) | (Claude) Des anciennes cartes copiées dans les dossiers de sortie des tests faisaient échouer le chargement du dossier `data` en local | Dossiers `data` des sorties supprimés ; la CI part d'un dépôt propre |
+| 2026-10-15 | `tests/Rpg.Core.Tests/PassiveTests.cs` | (Claude) Mon combat d'essai « avec chaque déclencheur » finissait au premier tour (un lanceur à 99 PA) : trois déclencheurs sur cinq seulement | Deux héros ordinaires qui jouent après les monstres ; le test exige les cinq |
+| 2026-10-15 | `godot/Main.cs` | (Claude) Mon premier jet de l'échange de place réutilisait un nom de variable déjà pris dans la méthode : refusé par le compilateur | Noms propres à ce cas |

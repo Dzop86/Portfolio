@@ -26,6 +26,9 @@ public enum Affects
 
     /// <summary>The caster alone, wherever the spell lands.</summary>
     Caster,
+
+    /// <summary>A passive's only (<see cref="Trigger.Hit"/>): the caster of the spell that set it off.</summary>
+    Attacker,
 }
 
 /// <summary>The shape of a spell's area, around the target cell.</summary>
@@ -89,10 +92,10 @@ public enum Stat
     /// <summary>Damage at the start of each of the fighter's turns, in the status's element.</summary>
     Poison,
 
-    /// <summary>Action points added (or removed) at the start of each turn.</summary>
+    /// <summary>Action points added (or removed) at the start of each turn, and at once on the fighter playing (sprint 90).</summary>
     Ap,
 
-    /// <summary>Movement points added (or removed) at the start of each turn.</summary>
+    /// <summary>Movement points added (or removed) at the start of each turn, and at once on the fighter playing (sprint 90).</summary>
     Mp,
 
     /// <summary>Damage the fighter deals, in percent.</summary>
@@ -113,6 +116,8 @@ public enum Stat
 [JsonDerivedType(typeof(PullEffect), "pull")]
 [JsonDerivedType(typeof(StatusEffect), "status")]
 [JsonDerivedType(typeof(SummonEffect), "summon")]
+[JsonDerivedType(typeof(LeapEffect), "leap")]
+[JsonDerivedType(typeof(SwapEffect), "swap")]
 public abstract record SpellEffect(Affects Affects);
 
 /// <summary>Gives back hit points, never above the maximum.</summary>
@@ -136,8 +141,60 @@ public sealed record StatusEffect(Affects Affects, Stat Stat, int Value, int Tur
 /// <summary>
 /// Summons a creature of <c>data/summons.json</c> on the target cell, which must be free: it joins the
 /// caster's team, plays right after the caster, and dies with it; at most <see cref="Max"/> at once.
+/// A passive (sprint 90) summons <see cref="Count"/> of them on the free cells next to its bearer.
 /// </summary>
-public sealed record SummonEffect(Affects Affects, string Summon, int Max = 1) : SpellEffect(Affects);
+public sealed record SummonEffect(Affects Affects, string Summon, int Max = 1, int Count = 1) : SpellEffect(Affects);
+
+/// <summary>The caster lands on the target cell, which must be a free floor cell (sprint 90).</summary>
+public sealed record LeapEffect(Affects Affects) : SpellEffect(Affects);
+
+/// <summary>The caster and the fighter on the target cell trade places (sprint 90).</summary>
+public sealed record SwapEffect(Affects Affects) : SpellEffect(Affects);
+
+/// <summary>When a passive fires (sprint 90, D69).</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<Trigger>))]
+public enum Trigger
+{
+    /// <summary>At the start of the bearer's turn, after its poisons, if it is still standing.</summary>
+    TurnStart,
+
+    /// <summary>A spell damages the bearer (hit points or shield) and it survives; once per spell cast.</summary>
+    Hit,
+
+    /// <summary>Once per fight, the first time its hit points fall below a percentage of its maximum.</summary>
+    LowHp,
+
+    /// <summary>A fighter of its team and family (not a summon) dies, within some steps.</summary>
+    AllyDies,
+
+    /// <summary>At its death, unless that death ends the fight.</summary>
+    Death,
+}
+
+/// <summary>
+/// A monster's passive (data/passives.json, sprint 90): when it fires, and the spell effects it applies,
+/// its bearer in the caster's place. <see cref="Area"/> is centred on the bearer (null: its cell only);
+/// damage, if any, is rolled once and strikes every fighter of the area, allies included.
+/// </summary>
+/// <param name="Melee">Hit only: the attacker stands next to the bearer.</param>
+/// <param name="Percent">LowHp only: 1 to 99.</param>
+/// <param name="Range">AllyDies only: the ally died within that many steps (0: anywhere).</param>
+public sealed record PassiveSpec(
+    string Id,
+    LocalizedText Name,
+    LocalizedText Description,
+    Trigger Trigger,
+    IReadOnlyList<SpellEffect>? Effects = null,
+    Area? Area = null,
+    bool Melee = false,
+    int Percent = 0,
+    int Range = 0,
+    int DamageMin = 0,
+    int DamageMax = 0,
+    Element Element = Element.Neutral)
+{
+    public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
+}
 
 /// <summary>A status on a fighter during a fight.</summary>
 public sealed record Status(Stat Stat, int Value, int TurnsLeft, Element Element, int Source);

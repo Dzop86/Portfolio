@@ -66,7 +66,7 @@ public static class Dungeons
         FighterSpec hero = new(new LocalizedText("Héros", "Hero"), "female-d", 0, 80, 6, 3, 120, 0, ["strike", "arrow", "spear"]);
         int power = PowerIn(room);
         return new Scenario(dungeon.Scenario(room), dungeon.Name, dungeon.Rooms[room - 1],
-            [hero, .. RolesIn(room).Select((role, i) => family[role].Fighter(i, power))]);
+            [hero, .. RolesIn(room).Select((role, i) => family[role].Fighter(i, power, family.Id))]);
     }
 
     /// <summary>The group guarding a room: one monster of each role (and the chief in the last), fighting that room's fight.</summary>

@@ -19,7 +19,7 @@ public class SheetTests
         Assert.Equal((9, 0, Element.Water), (sheet[Characteristic.Water].Total, sheet[Characteristic.Water].Bonus, sheet[Characteristic.Water].Element));
         Assert.Equal((Element.Fire, Element.Air), (sheet[Characteristic.Fire].Element!.Value, sheet[Characteristic.Air].Element!.Value));
         // 70 hit points at level 1, 3 a level, then Vitality; 8 AP, 4 MP and 10 initiative for every class (D62); 90 points at level 10, 59 spent.
-        Assert.Equal((70 + 27 + 25, 8, 4, 10, 31), (sheet.MaxHp, sheet.Ap, sheet.Mp, sheet.Initiative, sheet.PointsLeft));
+        Assert.Equal((74 + 27 + 25, 8, 4, 10, 31), (sheet.MaxHp, sheet.Ap, sheet.Mp, sheet.Initiative, sheet.PointsLeft));
     }
 
     [Fact]

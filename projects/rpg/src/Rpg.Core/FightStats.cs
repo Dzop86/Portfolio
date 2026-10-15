@@ -5,7 +5,7 @@ public sealed record FighterStats(int Fighter, int DamageDealt, int DamageTaken,
 
 /// <summary>
 /// The statistics of a fight, read from its events (sprint 87, D68): what follows a spell is its
-/// caster's doing (the damage of a push included), and a summon's doing is its summoner's. Damage over
+/// caster's doing (the damage of a push included), what follows a passive its bearer's, and a summon's doing is its summoner's. Damage over
 /// time, dealt at the start of a turn, is taken by its target without being dealt by anyone; a
 /// shield's absorbed damage is not taken. One line per fighter who is not a summon, in the fight's order.
 /// </summary>
@@ -27,6 +27,10 @@ public static class FightStats
                     break;
                 case SpellCast c:
                     actor = Owner(c.Fighter);
+                    break;
+                // What a passive does is its bearer's doing (sprint 90).
+                case PassiveTriggered p:
+                    actor = Owner(p.Fighter);
                     break;
                 case Damaged d:
                     taken[Owner(d.Fighter)] += d.Amount;

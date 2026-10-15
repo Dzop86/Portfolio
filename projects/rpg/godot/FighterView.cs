@@ -22,6 +22,9 @@ public partial class FighterView : Node3D
         Fighter = fighter;
         Name = $"Fighter{fighter.Id}";
         _model = Looks.Model(fighter.Spec.Look);
+        // A monster's young are drawn smaller (sprint 90).
+        if (fighter.SummonKind is string kind && GameData.Embedded.Summons.TryGetValue(kind, out SummonSpec? summon) && summon.Scale != 100)
+            _model.Scale *= summon.Scale / 100f;
         AddChild(_model);
         _anim = _model.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         foreach (string loop in new[] { "idle", "walk" })
@@ -87,6 +90,34 @@ public partial class FighterView : Node3D
             await ToSignal(tween, Tween.SignalName.Finished);
         }
         Play("idle");
+    }
+
+    /// <summary>A leap (sprint 90): an arc through the air to the cell.</summary>
+    public async Task Leap(Cell to, double duration)
+    {
+        Vector3 from = Position, end = BoardView.ToWorld(to);
+        if (duration <= 0)
+        {
+            Position = end;
+            return;
+        }
+        Face(end - from);
+        Tween tween = CreateTween();
+        tween.TweenMethod(Callable.From<float>(t => Position = from.Lerp(end, t) + new Vector3(0, 2.4f * t * (1 - t), 0)), 0f, 1f, duration);
+        await ToSignal(tween, Tween.SignalName.Finished);
+    }
+
+    /// <summary>A slide to a place, without walking (a swap, sprint 90).</summary>
+    public async Task Glide(Vector3 to, double duration)
+    {
+        if (duration <= 0)
+        {
+            Position = to;
+            return;
+        }
+        Tween tween = CreateTween();
+        tween.TweenProperty(this, "position", to, duration);
+        await ToSignal(tween, Tween.SignalName.Finished);
     }
 
     /// <summary>Turns to the target and plays a strike (in reach) or a throw (at range).</summary>

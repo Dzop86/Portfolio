@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affronte des monstres qui ont des passifs (rpg) : passifs au début du tour, quand ils sont frappés, sous un seuil de PV, quand un allié tombe et à leur mort ; un saut et un échange de place ; plusieurs cartes de combat par famille ; les états PA et PM posés sur soi comptent tout de suite ; l'IA sait sauter et échanger ; la fiche de survol liste les passifs ; xUnit, rejeu, auto-test. | 5 | À faire |
+| En tant que joueur, j'affronte des monstres qui ont des passifs (rpg) : passifs au début du tour, quand ils sont frappés, sous un seuil de PV, quand un allié tombe et à leur mort ; un saut et un échange de place ; plusieurs cartes de combat par famille ; les états PA et PM posés sur soi comptent tout de suite ; l'IA sait sauter et échanger ; la fiche de survol liste les passifs ; xUnit, rejeu, auto-test. | 5 | Fait |
+
+**Résultat :** des passifs à cinq déclencheurs joués dans l'ordre et rejoués à l'identique, le saut et l'échange de place, plusieurs cartes de combat par famille, les états de PA et PM qui comptent tout de suite (Dérobade, Élan et Afflux ne faisaient rien), les PV des classes réglés de nouveau (T57). À trancher : l'entraînement de la Sentinelle à 52 %.
 
 ## Rétro (Charles)
 - Ce qui a marché :
