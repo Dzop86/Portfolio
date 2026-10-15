@@ -91,7 +91,7 @@ public class TownTests
             if (step.TalkTo is Npc n)
                 talkedTo.Add(n.Id);
         }, talk => read.Add((talk.Dialogue.Id, talk.LineId)));
-        Assert.Equal(["aubin", "rose", "garance"], talkedTo);
+        Assert.Equal(["aubin", "rose", "garance", "ysaline"], talkedTo);
         Assert.Equal(town.Town.Npcs.Select(n => GameData.Embedded.Dialogues[n.Dialogue]).Distinct().Sum(d => d.Lines.Count), read.Count);
         Assert.True(lines >= read.Count);
         Assert.Equal("training", town.Fight);

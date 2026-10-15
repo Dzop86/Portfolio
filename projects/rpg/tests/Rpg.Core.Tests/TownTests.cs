@@ -23,8 +23,8 @@ public class TownTests
     public void TheVillage_IsConsistent()
     {
         Town clairval = Real.Towns["clairval"];
-        Assert.Equal(["aubin", "rose", "garance"], clairval.Npcs.Select(n => n.Id));
-        Assert.Equal(["dungeon-keeper", "guide", "merchant", "trainer"], Real.Dialogues.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["aubin", "rose", "garance", "ysaline"], clairval.Npcs.Select(n => n.Id));
+        Assert.Equal(["dungeon-keeper", "guide", "merchant", "scholar", "trainer"], Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         Board board = clairval.Board();
         Assert.Equal((16, 12), (board.Width, board.Height));
         // Houses and the fountain stand in the way, roads and grass do not.

@@ -1,0 +1,19 @@
+{
+  "id": "scholar",
+  "start": "welcome",
+  "lines": {
+    "welcome": {
+      "text": { "fr": "Ah, un visage neuf. Je suis Ysaline : j'étudie les vieilles pierres de Clairval, et celle-ci plus que les autres.", "en": "Ah, a new face. I am Ysaline: I study the old stones of Clairval, and this one more than the others." },
+      "answers": [
+        { "text": { "fr": "Qu'a-t-elle de particulier ?", "en": "What is special about it?" }, "next": "stone" },
+        { "text": { "fr": "Bonne étude !", "en": "Good luck with your study!" } }
+      ]
+    },
+    "stone": {
+      "text": { "fr": "Quatre signes y sont gravés depuis toujours : une graine, une goutte, un marteau, une plume. Les anciens disent qu'ils protègent le village. Moi, je me demande ce qu'ils racontent.", "en": "Four signs have always been carved on it: a seed, a drop, a hammer, a feather. The elders say they protect the village. I wonder what they tell." },
+      "answers": [
+        { "text": { "fr": "Je reviendrai vous voir.", "en": "I will come back to see you." } }
+      ]
+    }
+  }
+}

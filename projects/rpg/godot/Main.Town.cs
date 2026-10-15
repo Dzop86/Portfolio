@@ -804,7 +804,13 @@ public partial class Main
             _town.Click(Inhabitant("aubin").At);
             if (_town.Talk?.Line.Answers.Any(a => a.Next?.StartsWith("hand-in:", StringComparison.Ordinal) == true) != false)
                 problems.Add("a quest not done is offered to hand back");
-            return " Quests: one taken from Aubin, followed in the journal, Rose seen.";
+            _town.Interrupt(_town.Position);
+            // The main quest starts with Ysaline, by the old stone (sprint 89).
+            Quest stone = GameData.Embedded.Quests["whispering-stone"];
+            _town.Click(Inhabitant("ysaline").At);
+            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", stone.Name.In(texts.Lang)])
+                problems.Add("Ysaline does not offer the main quest");
+            return " Quests: one taken from Aubin, followed in the journal, Rose seen, the main quest offered.";
         }
         finally
         {

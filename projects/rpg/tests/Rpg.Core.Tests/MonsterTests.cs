@@ -69,11 +69,14 @@ public class MonsterTests
         Assert.Throws<InvalidDataException>(() => WithBoars([.. boars[..4], boars[0] with { Id = "twin" }]));
         Assert.Throws<InvalidDataException>(() => WithBoars([.. boars[..4], boars[4] with { Spells = ["no-such-spell"] }]));
         Assert.Throws<InvalidDataException>(() => WithBoars([.. boars[..4], boars[4] with { Loot = [new LootDrop("no-such-item", 50)] }]));
+        // Without quests (theirs name other families and dungeons): the boars alone load, their chief in the village does not.
+        Assert.NotNull(new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
+            Real.Dialogues.Values, Real.Summons.Values, [], Real.Items.Values, Real.Sets.Values, [Real.Families["boar"]], null, Real.Jobs.Values));
         Assert.Throws<InvalidDataException>(() => new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [Real.Families["boar"] with { BossMap = "clairval" }], null, Real.Jobs.Values));
+            Real.Dialogues.Values, Real.Summons.Values, [], Real.Items.Values, Real.Sets.Values, [Real.Families["boar"] with { BossMap = "clairval" }], null, Real.Jobs.Values));
         // Two families with the same monster.
         Assert.Throws<InvalidDataException>(() => new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, [Real.Families["boar"], Real.Families["boar"] with { Id = "twin" }], null, Real.Jobs.Values));
+            Real.Dialogues.Values, Real.Summons.Values, [], Real.Items.Values, Real.Sets.Values, [Real.Families["boar"], Real.Families["boar"] with { Id = "twin" }], null, Real.Jobs.Values));
     }
 
     [Fact]

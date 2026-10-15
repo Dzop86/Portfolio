@@ -59,5 +59,546 @@
         "count": 2
       }
     ]
+  },
+  {
+    "id": "whispering-stone",
+    "name": {
+      "fr": "La pierre qui murmurait",
+      "en": "The Whispering Stone"
+    },
+    "giver": "clairval/ysaline",
+    "level": 1,
+    "text": {
+      "fr": "Cette nuit, la vieille pierre a montré un cinquième signe, un que personne n'a jamais vu, puis elle s'est fendue. Les anciens disent que ce n'est rien. Demande à Aubin et à Garance ce qu'ils ont vu : on ne m'écoute pas, toi peut-être.",
+      "en": "Last night, the old stone showed a fifth sign, one nobody has ever seen, then it cracked. The elders say it is nothing. Ask Aubin and Garance what they saw: they do not listen to me, perhaps they will to you."
+    },
+    "thanks": {
+      "fr": "Le même rêve, tous les deux ? Un cercle qui relie quatre lumières… Ce n'est pas rien. Merci.",
+      "en": "The same dream, both of them? A circle joining four lights… That is not nothing. Thank you."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/aubin"
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/garance"
+      }
+    ],
+    "xp": 80,
+    "shards": 10
+  },
+  {
+    "id": "restless-beasts",
+    "name": {
+      "fr": "Les bêtes inquiètes",
+      "en": "The Restless Beasts"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "woods",
+    "level": 2,
+    "text": {
+      "fr": "Depuis que la pierre s'est fendue, les bêtes du bois ne tiennent plus en place. Calme les sangliers et les loups de la lisière, et rapporte-moi deux crocs : je veux voir s'ils portent la marque.",
+      "en": "Since the stone cracked, the beasts of the woods cannot keep still. Calm the boars and the wolves at the edge, and bring me two fangs: I want to see whether they bear the mark."
+    },
+    "thanks": {
+      "fr": "Regarde : une fêlure en cinq branches, sur chaque croc. Comme sur la pierre.",
+      "en": "Look: a crack with five branches, on every fang. Like on the stone."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "boar",
+        "count": 4
+      },
+      {
+        "goal": "Defeat",
+        "target": "wolf",
+        "count": 3
+      },
+      {
+        "goal": "Bring",
+        "target": "wolf-fang",
+        "count": 2
+      }
+    ],
+    "xp": 220,
+    "shards": 30,
+    "after": [
+      "whispering-stone"
+    ]
+  },
+  {
+    "id": "rumble-under-the-wallow",
+    "name": {
+      "fr": "Ce qui gronde sous la bauge",
+      "en": "What Rumbles under the Wallow"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "woods",
+    "level": 5,
+    "text": {
+      "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier, au fond du bois. Si la marque vient de quelque part, c'est de là. Il faut une clef pour y entrer : le serrurier du village sait la faire.",
+      "en": "The woodcutters hear a rumbling under the Boar King's wallow, deep in the woods. If the mark comes from somewhere, it is from there. A key is needed to go in: the village locksmith knows how to make it."
+    },
+    "thanks": {
+      "fr": "Une pierre comme la nôtre, sous la bauge, avec le même cinquième signe ? Alors il y en a d'autres.",
+      "en": "A stone like ours, under the wallow, with the same fifth sign? Then there are others."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "boar-wallow"
+      }
+    ],
+    "xp": 450,
+    "shards": 60,
+    "after": [
+      "restless-beasts"
+    ]
+  },
+  {
+    "id": "four-trails",
+    "name": {
+      "fr": "Quatre pistes",
+      "en": "Four Trails"
+    },
+    "giver": "clairval/ysaline",
+    "level": 8,
+    "text": {
+      "fr": "Quatre signes, quatre pierres peut-être, quelque part. Rose entend tout ce qui se dit au marché, Garance connaît les forges, Aubin a vu toutes les cartes du pays. Va les trouver : chacun tient un bout de fil.",
+      "en": "Four signs, four stones perhaps, somewhere. Rose hears everything said at the market, Garance knows the forges, Aubin has seen every map of the land. Go and find them: each of them holds the end of a thread."
+    },
+    "thanks": {
+      "fr": "Une ville qui oublie, une forge interdite, des cartes qui changent la nuit, des racines sous un arbre géant. Le voyage ne fait que commencer.",
+      "en": "A town that forgets, a forbidden forge, maps that change at night, roots under a giant tree. The journey has only begun."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/rose"
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/garance"
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/aubin"
+      }
+    ],
+    "xp": 300,
+    "shards": 40,
+    "after": [
+      "rumble-under-the-wallow"
+    ]
+  },
+  {
+    "id": "the-pack",
+    "name": {
+      "fr": "La meute",
+      "en": "The Pack"
+    },
+    "giver": "clairval/garance",
+    "zone": "woods",
+    "level": 3,
+    "text": {
+      "fr": "Une meute rôde au sud du bois, et mes élèves n'osent plus y aller. Montre-leur que ça se fait : six loups, pas un de moins.",
+      "en": "A pack roams the south of the woods, and my pupils no longer dare go there. Show them it can be done: six wolves, not one fewer."
+    },
+    "thanks": {
+      "fr": "Six ! Mes élèves vont avoir honte. Tant mieux.",
+      "en": "Six! My pupils will be ashamed. So much the better."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "wolf",
+        "count": 6
+      }
+    ],
+    "xp": 240,
+    "shards": 30
+  },
+  {
+    "id": "spores-for-the-stall",
+    "name": {
+      "fr": "Des spores pour l'étal",
+      "en": "Spores for the Stall"
+    },
+    "giver": "clairval/rose",
+    "zone": "mouldy",
+    "level": 9,
+    "text": {
+      "fr": "On me demande des remèdes à base de champignons du bois moisi. Rapporte-moi de la poussière de spores et des chapeaux, je paie bien.",
+      "en": "People ask me for remedies made from the mushrooms of the Mouldy Woods. Bring me spore dust and caps, I pay well."
+    },
+    "thanks": {
+      "fr": "Parfait, ça sent la cave et l'argent. Voici ta part.",
+      "en": "Perfect, it smells of cellars and money. Here is your share."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "spore-dust",
+        "count": 5
+      },
+      {
+        "goal": "Bring",
+        "target": "mushroom-cap",
+        "count": 3
+      }
+    ],
+    "xp": 650,
+    "shards": 90
+  },
+  {
+    "id": "the-walking-dead",
+    "name": {
+      "fr": "Les morts qui marchent",
+      "en": "The Walking Dead"
+    },
+    "giver": "clairval/garance",
+    "zone": "mouldy",
+    "level": 10,
+    "text": {
+      "fr": "Des morts se relèvent dans le bois moisi. Ce n'est pas une rumeur : j'en ai vu un. Couche-en huit, et qu'ils restent couchés.",
+      "en": "The dead are rising in the Mouldy Woods. It is no rumour: I saw one. Put eight of them down, and make them stay down."
+    },
+    "thanks": {
+      "fr": "Huit… Et ils ne se relèvent plus ? Bien. Bien.",
+      "en": "Eight… And they do not get up again? Good. Good."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "zombie",
+        "count": 8
+      }
+    ],
+    "xp": 750,
+    "shards": 100
+  },
+  {
+    "id": "shells-and-claws",
+    "name": {
+      "fr": "Carapaces et pinces",
+      "en": "Shells and Claws"
+    },
+    "giver": "clairval/rose",
+    "zone": "lake",
+    "level": 16,
+    "text": {
+      "fr": "Les carapaces du lac des Joncs font les plus beaux boutons du pays. Quatre carapaces, deux pinces, et je te fais un prix.",
+      "en": "The shells of Reed Lake make the finest buttons in the land. Four shells, two claws, and I will give you a good price."
+    },
+    "thanks": {
+      "fr": "Regarde-moi ce nacre ! Tiens, et ne dis à personne combien je les revends.",
+      "en": "Look at that mother-of-pearl! Here, and do not tell anyone what I sell them for."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "crab-shell",
+        "count": 4
+      },
+      {
+        "goal": "Bring",
+        "target": "crab-claw",
+        "count": 2
+      }
+    ],
+    "xp": 1250,
+    "shards": 160
+  },
+  {
+    "id": "frog-song",
+    "name": {
+      "fr": "Le chant des grenouilles",
+      "en": "The Frog Song"
+    },
+    "giver": "clairval/aubin",
+    "zone": "lake",
+    "level": 17,
+    "text": {
+      "fr": "Les grenouilles du lac chantent jour et nuit depuis la pierre fendue, et les pêcheurs ne dorment plus. Fais-les taire, huit suffiront.",
+      "en": "The lake's frogs have sung day and night since the stone cracked, and the fishermen no longer sleep. Silence them, eight will do."
+    },
+    "thanks": {
+      "fr": "Le silence, enfin. Les pêcheurs te remercient, moi aussi.",
+      "en": "Silence, at last. The fishermen thank you, and so do I."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "frog",
+        "count": 8
+      }
+    ],
+    "xp": 1350,
+    "shards": 170
+  },
+  {
+    "id": "clairval-honey",
+    "name": {
+      "fr": "Le miel de Clairval",
+      "en": "Clairval Honey"
+    },
+    "giver": "clairval/rose",
+    "zone": "fields",
+    "level": 24,
+    "text": {
+      "fr": "Le miel des champs est le meilleur, mais les abeilles y sont devenues méchantes. Rapporte-moi cinq rayons, je n'en ai plus un seul à vendre.",
+      "en": "The honey of the fields is the best, but the bees there have turned nasty. Bring me five combs, I do not have a single one left to sell."
+    },
+    "thanks": {
+      "fr": "Ça colle aux doigts et ça vaut de l'or. Merci !",
+      "en": "It sticks to your fingers and it is worth gold. Thank you!"
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "honeycomb",
+        "count": 5
+      }
+    ],
+    "xp": 2050,
+    "shards": 250
+  },
+  {
+    "id": "under-the-furrows",
+    "name": {
+      "fr": "Sous les sillons",
+      "en": "Under the Furrows"
+    },
+    "giver": "clairval/garance",
+    "zone": "fields",
+    "level": 25,
+    "text": {
+      "fr": "Les taupes creusent sous les champs jusqu'à faire tomber les charrues. Huit taupes, et les paysans te nourriront tout l'hiver.",
+      "en": "The moles dig under the fields until the ploughs fall in. Eight moles, and the farmers will feed you all winter."
+    },
+    "thanks": {
+      "fr": "Les sillons tiennent de nouveau. Tu as gagné ta soupe, et plus.",
+      "en": "The furrows hold again. You have earned your soup, and more."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "mole",
+        "count": 8
+      }
+    ],
+    "xp": 2250,
+    "shards": 270
+  },
+  {
+    "id": "boar-wallow-cleared",
+    "name": {
+      "fr": "Au fond : Bauge du Roi sanglier",
+      "en": "At the bottom: The Boar King's Wallow"
+    },
+    "giver": "clairval/garance",
+    "zone": "woods",
+    "level": 4,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Bauge du Roi sanglier. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Boar King's Wallow. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "boar-wallow"
+      }
+    ],
+    "xp": 420,
+    "shards": 44
+  },
+  {
+    "id": "wolf-den-cleared",
+    "name": {
+      "fr": "Au fond : Tanière de la meute",
+      "en": "At the bottom: The Pack's Den"
+    },
+    "giver": "clairval/garance",
+    "zone": "woods",
+    "level": 4,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Tanière de la meute. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Pack's Den. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "wolf-den"
+      }
+    ],
+    "xp": 420,
+    "shards": 44
+  },
+  {
+    "id": "mushroom-cellar-cleared",
+    "name": {
+      "fr": "Au fond : Champignonnière",
+      "en": "At the bottom: The Mushroom Cellar"
+    },
+    "giver": "clairval/aubin",
+    "zone": "mouldy",
+    "level": 11,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Champignonnière. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Mushroom Cellar. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "mushroom-cellar"
+      }
+    ],
+    "xp": 840,
+    "shards": 86
+  },
+  {
+    "id": "zombie-crypt-cleared",
+    "name": {
+      "fr": "Au fond : Crypte oubliée",
+      "en": "At the bottom: The Forgotten Crypt"
+    },
+    "giver": "clairval/aubin",
+    "zone": "mouldy",
+    "level": 11,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Crypte oubliée. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Forgotten Crypt. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "zombie-crypt"
+      }
+    ],
+    "xp": 840,
+    "shards": 86
+  },
+  {
+    "id": "frog-grotto-cleared",
+    "name": {
+      "fr": "Au fond : Grotte du Roi grenouille",
+      "en": "At the bottom: The Frog King's Grotto"
+    },
+    "giver": "clairval/garance",
+    "zone": "lake",
+    "level": 19,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Grotte du Roi grenouille. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Frog King's Grotto. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "frog-grotto"
+      }
+    ],
+    "xp": 1320,
+    "shards": 134
+  },
+  {
+    "id": "crab-reef-cleared",
+    "name": {
+      "fr": "Au fond : Récif des pinces",
+      "en": "At the bottom: The Pincer Reef"
+    },
+    "giver": "clairval/garance",
+    "zone": "lake",
+    "level": 19,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Récif des pinces. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Pincer Reef. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "crab-reef"
+      }
+    ],
+    "xp": 1320,
+    "shards": 134
+  },
+  {
+    "id": "royal-hive-cleared",
+    "name": {
+      "fr": "Au fond : Ruche royale",
+      "en": "At the bottom: The Royal Hive"
+    },
+    "giver": "clairval/aubin",
+    "zone": "fields",
+    "level": 27,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Ruche royale. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Royal Hive. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "royal-hive"
+      }
+    ],
+    "xp": 1800,
+    "shards": 182
+  },
+  {
+    "id": "mole-burrows-cleared",
+    "name": {
+      "fr": "Au fond : Galeries des taupes",
+      "en": "At the bottom: The Mole Burrows"
+    },
+    "giver": "clairval/aubin",
+    "zone": "fields",
+    "level": 27,
+    "text": {
+      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Galeries des taupes. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
+      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Mole Burrows. If you manage it, come back and tell me: I keep count of those who did."
+    },
+    "thanks": {
+      "fr": "Je t'inscris au compte. Tu peux en être fier.",
+      "en": "I write you into the count. You can be proud of it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "mole-burrows"
+      }
+    ],
+    "xp": 1800,
+    "shards": 182
   }
 ]
