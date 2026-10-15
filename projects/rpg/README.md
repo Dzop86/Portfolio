@@ -107,6 +107,8 @@ La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'
 ## Tests
 Sprint 94 : 8 tests de plus dans `Rpg.Core` (les abeilles et les taupes partagent leur passif et leur faiblesse ; les deux cartes des Champs servent ; l'alarme d'une abeille à 3 cases, pas plus loin ; la surchauffe de la reine ; une taupe s'enfouit un tour, surgit sans ligne de vue ; le roi des taupes déterre le débris et deux fouisseuses surgissent ; la grande salle de chaque donjon sur la deuxième carte de sa famille ; les huit sorts retirés). La règle de T41 mesurée de nouveau sur les Champs.
 
+Après le sprint 94 : 1 test de plus dans `Rpg.Api` (l'opérateur renomme un personnage vers un nom libre de la règle, son propre nom en d'autres capitales compris).
+
 D70 (pendant le sprint 94) : 7 tests de plus (`Rpg.Core` : un pseudo, une majuscule puis des lettres ; un personnage nommé avant combat encore ; `Rpg.Api` : les noms refusés à la création, la commande d'administration crée des personnages sans prendre un nom déjà pris ; `Rpg.Client` : en combat, les points, le deck et l'équipement se consultent sans changer, seules les caractéristiques et l'inventaire s'ouvrent). `--selftest` ouvre C puis I en combat et vérifie qu'ils sont en lecture seule, puis qu'Échap ferme la fenêtre.
 
 Sprint 93 : 8 tests de plus dans `Rpg.Core` (les grenouilles et les crabes partagent leur passif et leur faiblesse ; les deux cartes du Lac servent ; une grenouille se soigne au début de son tour ; l'ouaouaron repousse qui le frappe au contact ; la berceuse ôte 2 PA à qui est à 3 cases, tout de suite pour qui joue ; la mue d'un crabe ; la proue du géant et son jeune bernard). La règle de T41 mesurée de nouveau sur le Lac.
