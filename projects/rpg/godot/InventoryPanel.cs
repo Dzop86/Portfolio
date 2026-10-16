@@ -49,9 +49,17 @@ public partial class InventoryPanel : CanvasLayer
         var column = new VBoxContainer();
         column.AddThemeConstantOverride("separation", 8);
         margin.AddChild(column);
-        _title = new Label();
+        _title = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _title.AddThemeFontSizeOverride("font_size", 24);
-        column.AddChild(_title);
+        // The title, and the Éclats owned on its right (Charles, sprint 103).
+        var header = new HBoxContainer();
+        header.AddThemeConstantOverride("separation", 8);
+        column.AddChild(header);
+        header.AddChild(_title);
+        header.AddChild(new ShardIcon { CustomMinimumSize = new Vector2(24, 24), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
+        _shards = new Label { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        _shards.AddThemeFontSizeOverride("font_size", 20);
+        header.AddChild(_shards);
         var halves = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         halves.AddThemeConstantOverride("separation", 18);
         column.AddChild(halves);
@@ -178,9 +186,22 @@ public partial class InventoryPanel : CanvasLayer
     private IReadOnlyList<(Item Item, int Count, int Free)> Shown() =>
         [.. Editor.Page(Page).Where(i => ItemStyle.Matches(i.Item, _search.Text, Texts.Lang))];
 
+    private Label _shards = null!;
+    private long _owned;
+
+    /// <summary>The Éclats the character owns, shown by the title.</summary>
+    public void SetShards(long shards)
+    {
+        _owned = shards;
+        _shards.Text = Texts["inventory.shards", shards];
+    }
+
+    public string ShardsText => _shards.Text;
+
     public void Refresh()
     {
         _title.Text = Texts["inventory.title"];
+        SetShards(_owned);
         _search.PlaceholderText = Texts["inventory.search"];
         foreach ((Slot slot, (Button tile, ItemIcon icon)) in _slots)
         {

@@ -27,6 +27,20 @@ public class EdgeWayTests
     }
 
     [Fact]
+    public void AGatheringSpotByTheEdge_IsClickedForItself_NotForTheWayOut()
+    {
+        // Charles, sprint 103: a spot two cells from an edge with a way could not be clicked.
+        (HarvestNode node, TownController town) = Data.Nodes.Values
+            .Select(n => (Node: n, Town: new TownController(Data, n.Map)))
+            .First(x => x.Town.Board.Contains(x.Node.At) && x.Town.PathTo(x.Node.At) is not null && (x.Town.Town.Links ?? []).Any(l => l.At.X == 0) && x.Node.At.X <= TownController.EdgeReach);
+        Assert.Null(town.EdgeWay(node.At));
+        // The cell beside it, as near the edge, still leads out.
+        Assert.NotNull(town.EdgeWay(new Cell(0, node.At.Y)));
+        Assert.Null(town.Click(node.At)!.Link);
+        Assert.Equal(node, town.Gathering);
+    }
+
+    [Fact]
     public void EachSide_PointsItsOwnWay()
     {
         var town = new TownController(Data, "woods-2-2");

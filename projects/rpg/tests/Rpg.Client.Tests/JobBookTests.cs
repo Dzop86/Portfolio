@@ -62,4 +62,19 @@ public class JobBookTests
         // A making trade: its ingredients and where they come from.
         Assert.Contains(new JobBook(Data, null, fr).Resources(Locksmith), r => r.Item!.Id == "boar-tusk" && r.Where == "Sangliers");
     }
+
+    [Fact]
+    public void ATradesNewLevel_IsSeen_FromWhatItWasToWhatTheServerSends()
+    {
+        // Charles, sprint 103: a message when a trade goes up a level.
+        var before = new CharacterSummary(Guid.NewGuid(), "Élise", "female-c", "mage", 0, DateTimeOffset.UnixEpoch, Jobs: new Dictionary<string, long> { ["woodcutter"] = 0 });
+        long next = Enumerable.Range(1, 1000).First(xp => Crafting.LevelFor(xp) == 2);
+        CharacterSummary after = before with { Jobs = new Dictionary<string, long> { ["woodcutter"] = next, ["miner"] = 1 } };
+        Assert.Equal([("woodcutter", 2)], JobBook.LevelsGained(before, after));
+        Assert.Empty(JobBook.LevelsGained(after, after));
+        Assert.Empty(JobBook.LevelsGained(null, after));
+        Assert.Empty(JobBook.LevelsGained(before with { Id = Guid.NewGuid() }, after));
+        foreach (string key in new[] { "job.levelup", "inventory.shards" })
+            Assert.True(Texts.Fr.ContainsKey(key) && Texts.En.ContainsKey(key), key);
+    }
 }

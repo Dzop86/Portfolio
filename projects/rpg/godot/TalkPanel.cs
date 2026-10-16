@@ -59,6 +59,24 @@ public partial class TalkPanel : CanvasLayer
         _help = Text(root, 15, 20, 52, 900, 24);
         _help.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.85f));
         _message = Text(root, 16, 20, 78, 900, 24);
+        // The gathering's bar (sprint 103): centred low on the screen, filling over its three seconds.
+        _gather = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore, AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 1, AnchorBottom = 1, OffsetLeft = -160, OffsetRight = 160, OffsetTop = -190, OffsetBottom = -140, Visible = false };
+        _gatherLabel = new Label { HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _gatherLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
+        _gatherLabel.AddThemeConstantOverride("outline_size", 6);
+        _gather.AddChild(_gatherLabel);
+        _gatherBar = new ProgressBar { MaxValue = 1, Step = 0.001, ShowPercentage = false, CustomMinimumSize = new Vector2(320, 14), MouseFilter = Control.MouseFilterEnum.Ignore };
+        _gatherBar.AddThemeStyleboxOverride("background", new StyleBoxFlat { BgColor = new Color(0.12f, 0.12f, 0.12f, 0.9f), CornerRadiusTopLeft = 7, CornerRadiusTopRight = 7, CornerRadiusBottomLeft = 7, CornerRadiusBottomRight = 7 });
+        _gatherBar.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = new Color("bef374"), CornerRadiusTopLeft = 7, CornerRadiusTopRight = 7, CornerRadiusBottomLeft = 7, CornerRadiusBottomRight = 7 });
+        _gather.AddChild(_gatherBar);
+        root.AddChild(_gather);
+        // A notice in the middle of the screen (sprint 103: a trade's new level), fading after a while.
+        _notice = new Label { HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore, AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.3f, AnchorBottom = 0.3f, OffsetLeft = -400, OffsetRight = 400, OffsetBottom = 48, Visible = false };
+        _notice.AddThemeFontSizeOverride("font_size", 30);
+        _notice.AddThemeColorOverride("font_color", new Color("bef374"));
+        _notice.AddThemeColorOverride("font_outline_color", Colors.Black);
+        _notice.AddThemeConstantOverride("outline_size", 8);
+        root.AddChild(_notice);
 
         var buttons = new HBoxContainer { AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -800, OffsetRight = -20, OffsetTop = 14, OffsetBottom = 58, Alignment = BoxContainer.AlignmentMode.End };
         buttons.AddThemeConstantOverride("separation", 10);
@@ -125,6 +143,37 @@ public partial class TalkPanel : CanvasLayer
     public void ShowMessage(string text) => _message.Text = text;
 
     public string MessageText => _message.Text;
+
+    private VBoxContainer _gather = null!;
+    private Label _gatherLabel = null!, _notice = null!;
+    private ProgressBar _gatherBar = null!;
+    private Tween? _noticeFade;
+
+    /// <summary>The gathering's bar at <paramref name="progress"/> (0 to 1) under its label; null hides it.</summary>
+    public void ShowGathering(double? progress, string label = "")
+    {
+        _gather.Visible = progress is not null;
+        _gatherBar.Value = progress ?? 0;
+        _gatherLabel.Text = label;
+    }
+
+    /// <summary>The gathering bar's fill, null when hidden (for the self-test).</summary>
+    public double? GatheringShown => _gather.Visible ? _gatherBar.Value : null;
+
+    /// <summary>A notice in the middle of the screen for a few seconds.</summary>
+    public void ShowNotice(string text)
+    {
+        _noticeFade?.Kill();
+        _notice.Text = text;
+        _notice.Visible = true;
+        _notice.Modulate = Colors.White;
+        _noticeFade = CreateTween();
+        _noticeFade.TweenInterval(2.5);
+        _noticeFade.TweenProperty(_notice, "modulate:a", 0f, 0.8);
+        _noticeFade.TweenCallback(Callable.From(() => _notice.Visible = false));
+    }
+
+    public string NoticeText => _notice.Visible ? _notice.Text : "";
 
     /// <summary>The character's level and experience; null: no character (a classless hero).</summary>
     public void SetProgress(int? level, long xp)

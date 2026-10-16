@@ -173,6 +173,7 @@ public partial class Main : Node3D
             DrainChat();
             FollowPlayer(delta);
             RoamGroups(delta);
+            GrowBack();
             return;
         }
         if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)

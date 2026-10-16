@@ -245,11 +245,11 @@ public sealed class TownController
     /// included, or beyond it (the dark around the map), leads to the way out on that side the player can
     /// reach by the shortest walk; with the side's direction (one step out), for the arrow under the mouse.
     /// Beyond a corner, the side it is farthest beyond first, then the other. Null away from the edges, on
-    /// sides without a way, on someone or on monsters.
+    /// sides without a way, on someone, on monsters or on a gathering spot (sprint 103).
     /// </summary>
     public (ZoneLink Way, Cell Direction)? EdgeWay(Cell target)
     {
-        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
+        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || NodeAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
             return null;
         (int distance, Cell direction, Func<Cell, bool> onSide)[] sides =
         [

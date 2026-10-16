@@ -37,7 +37,7 @@ public class HarvestTests
         // Growing back: refused, even after the gathering's three seconds.
         api.Clock.Advance(TimeSpan.FromSeconds(4));
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.Harvest(c.Id, oak.Id, next, Cancel)));
-        api.Clock.Advance(Harvesting.Regrowth(oak.Level));
+        api.Clock.Advance(Harvesting.Regrowth);
         Assert.Equal(60L, (await server.Harvest(c.Id, oak.Id, next, Cancel)).Character.Jobs!["woodcutter"]);
         if (hazel is not null)
         {

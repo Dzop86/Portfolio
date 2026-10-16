@@ -37,6 +37,20 @@ public sealed class JobBook(GameData data, CharacterSummary? character, Texts te
     /// <summary>A gathering trade's resources: one every 5 levels up to 100.</summary>
     public const int Step = 5;
 
+    /// <summary>
+    /// The trades a character went up in, and their new level (sprint 103, Charles: a message on a trade's new
+    /// level), from what it was to what the server sent back; none without a character before.
+    /// </summary>
+    public static IReadOnlyList<(string Job, int Level)> LevelsGained(CharacterSummary? before, CharacterSummary after)
+    {
+        ArgumentNullException.ThrowIfNull(after);
+        if (before is null || before.Id != after.Id)
+            return [];
+        return [.. (after.Jobs ?? new Dictionary<string, long>()).Keys.Order(StringComparer.Ordinal)
+            .Where(j => after.JobLevel(j) > before.JobLevel(j))
+            .Select(j => (j, after.JobLevel(j)))];
+    }
+
     public GameData Data { get; } = data ?? throw new ArgumentNullException(nameof(data));
 
     /// <summary>The trade whose workshop the character stands at, where it can make (null: to look at only).</summary>

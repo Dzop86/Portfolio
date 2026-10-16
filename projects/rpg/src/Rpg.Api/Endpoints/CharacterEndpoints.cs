@@ -320,7 +320,7 @@ public static class CharacterEndpoints
         Town map = GameData.Embedded.Towns[node.Map];
         string? why = Harvesting.WhyNot(node, level, character.Town, request.From)
             ?? (map.CanStand(request.From) ? null : "Not a cell to stand on.");
-        if (why is null && !fields.Take(node.Id, character.Id, Harvesting.Regrowth(node.Level), Harvesting.Duration))
+        if (why is null && !fields.Take(node.Id, character.Id, Harvesting.Regrowth, Harvesting.Duration))
             why = "The spot is growing back, or a gathering is under way.";
         if (why is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["node"] = [why] });

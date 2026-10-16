@@ -78,8 +78,9 @@ public static class Harvesting
             Cell[] all = [.. Enumerable.Range(0, board.Height).SelectMany(y => Enumerable.Range(0, board.Width).Select(x => new Cell(x, y)))
                 .Where(c => away.All(a => a.DistanceTo(c) >= Distance))];
             List<Cell> cells = [.. all.Where(fits)];
-            // No rock in the fields' decor: an outcrop on the grass, drawn by the game (water is never made up).
-            if (cells.Count == 0 && kind != NodeKind.Water)
+            // No rock in the fields' decor: an outcrop on the grass, drawn by the game. A tree or water is never
+            // made up (sprint 103: a woodcutter's spot stood on bare grass in the village).
+            if (cells.Count == 0 && kind is not (NodeKind.Water or NodeKind.Tree))
                 cells = [.. all.Where(c => At(c) == '.' && reach.Contains(c))];
             int wanted = counts[k] + (kind == NodeKind.Water ? extraWater : 0);
             for (int i = 0; i < wanted; i++)
@@ -109,8 +110,8 @@ public static class Harvesting
     /// <summary>The trade's experience of a gathering: 25 + 5 a level of the resource; nothing 20 levels or more below the trade.</summary>
     public static long Xp(int jobLevel, int level) => jobLevel - level >= 20 ? 0 : 25 + 5L * level;
 
-    /// <summary>When a spot grows back: 2 minutes, and one more for every 10 levels of its resource.</summary>
-    public static TimeSpan Regrowth(int level) => TimeSpan.FromMinutes(2 + level / 10);
+    /// <summary>How long a spot takes to grow back, whatever its level (Charles, sprint 103: a fixed time, one minute).</summary>
+    public static readonly TimeSpan Regrowth = TimeSpan.FromMinutes(1);
 
     /// <summary>Why the character cannot gather this spot from where it stands, or null: on its map, next to it, the trade's level.</summary>
     public static string? WhyNot(HarvestNode node, int jobLevel, string? map, Cell standing)

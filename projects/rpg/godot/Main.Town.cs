@@ -267,23 +267,30 @@ public partial class Main
     }
 
     // The gathering spots of the map growing back (sprint 99), as the server says.
-    private readonly HashSet<string> _growing = [];
+    private readonly GrowingSpots _growing = new();
 
     private async Task RefreshGrowing()
     {
-        _growing.Clear();
+        _growing.Reset(new Dictionary<string, DateTimeOffset>());
         if (_lobby?.SignedIn == true && _character is not null)
         {
             try
             {
-                _growing.UnionWith((await _lobby.Server.Growing(_character.Id)).Spots.Keys);
+                _growing.Reset((await _lobby.Server.Growing(_character.Id)).Spots);
             }
             catch (Exception e) when (e is ServerException or HttpRequestException)
             {
                 // Drawn ready: the server refuses a spot growing back anyway.
             }
         }
-        _townView?.ShowGrowing(_growing);
+        _townView?.ShowGrowing(_growing.Ids);
+    }
+
+    /// <summary>The spots whose minute is over drawn again (sprint 103), checked as the town runs.</summary>
+    private void GrowBack()
+    {
+        if (_growing.Ready(DateTimeOffset.UtcNow).Count > 0)
+            _townView?.ShowGrowing(_growing.Ids);
     }
 
     // A new walk cancels a gathering under way: the gathering waits for this ticket to be the last.
@@ -306,16 +313,30 @@ public partial class Main
         }
         int ticket = ++_gatherTicket;
         string trade = GameData.Embedded.Jobs[node.Job].Name.In(texts.Lang);
-        _talkPanel.ShowMessage(texts["gather.doing", trade, texts.Items([new ItemCount(node.Item, 1)])]);
-        await ToSignal(GetTree().CreateTimer(Harvesting.Duration.TotalSeconds), SceneTreeTimer.SignalName.Timeout);
+        string doing = texts["gather.doing", trade, texts.Items([new ItemCount(node.Item, 1)])];
+        // The bar fills over the gathering's three seconds (Charles, sprint 103); a new walk stops it.
+        ulong start = Time.GetTicksMsec();
+        double progress = 0;
+        while (progress < 1)
+        {
+            progress = GrowingSpots.Progress(TimeSpan.FromMilliseconds(Time.GetTicksMsec() - start));
+            if (ticket != _gatherTicket || _town is null)
+            {
+                _talkPanel.ShowGathering(null);
+                return;
+            }
+            _talkPanel.ShowGathering(progress, doing);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        }
+        _talkPanel.ShowGathering(null);
         if (ticket != _gatherTicket || _town is null)
             return;
         try
         {
             Gathered got = await _lobby.Server.Harvest(_character.Id, node.Id, _town.Position);
             KeepCharacter(got.Character);
-            _growing.Add(node.Id);
-            _townView?.ShowGrowing(_growing);
+            _growing.Taken(node.Id, DateTimeOffset.UtcNow);
+            _townView?.ShowGrowing(_growing.Ids);
             _talkPanel.ShowMessage(texts["gather.done", got.Item.Count, texts.Items([got.Item with { Count = 1 }]), got.Xp, trade]);
             _sound?.Play("click");
         }
@@ -374,7 +395,7 @@ public partial class Main
             case InputEventMouseMotion motion:
                 ShowEdge(motion.Position);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when BoardView.Pick(_camera, click.Position) is Cell cell:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when (SpotUnder(click.Position) ?? BoardView.Pick(_camera, click.Position)) is Cell cell:
                 _ = Walk(cell);
                 break;
             // A right click on monsters: their menu, "Attack" in it (sprint 78, D64).
@@ -467,13 +488,37 @@ public partial class Main
     {
         if (_edgeArrow is null || _town is null)
             return;
-        if (BoardView.Pick(_camera, at) is not Cell cell || _town.EdgeWay(cell) is not ({ } way, Cell step))
+        if (SpotUnder(at) is not null || BoardView.Pick(_camera, at) is not Cell cell || _town.EdgeWay(cell) is not ({ } way, Cell step))
         {
             _edgeArrow.Hide();
             return;
         }
         Vector2 direction = _camera.UnprojectPosition(BoardView.ToWorld(cell + step)) - _camera.UnprojectPosition(BoardView.ToWorld(cell));
         _edgeArrow.Point(at, direction, way.Name?.In(_talkPanel!.Texts.Lang));
+    }
+
+    /// <summary>How far from a gathering spot's resource or gem on screen a click still reaches it, in pixels.</summary>
+    public const float SpotReach = 32;
+
+    /// <summary>
+    /// The gathering spot a click is on (Charles, sprint 103: a spot by the edge could not be clicked, the edge's
+    /// way taking the click): the nearest whose foot, middle or gem is within <see cref="SpotReach"/> pixels on screen.
+    /// </summary>
+    private Cell? SpotUnder(Vector2 click)
+    {
+        if (_town is null || _townView is null)
+            return null;
+        (Cell At, float Distance)? best = null;
+        foreach (HarvestNode node in _town.Nodes)
+        {
+            if (_growing.Contains(node.Id))
+                continue;
+            Vector3 feet = BoardView.ToWorld(node.At);
+            float d = new[] { 0f, 0.4f, TownView.GemHeight(node, _town.Town) }.Min(h => _camera.UnprojectPosition(feet + new Vector3(0, h, 0)).DistanceTo(click));
+            if (d <= SpotReach && (best is null || d < best.Value.Distance))
+                best = (node.At, d);
+        }
+        return best?.At;
     }
 
     /// <summary>How far from a monster's body on screen a right click still reaches it, in pixels (D68: "the click is too precise").</summary>
@@ -734,6 +779,7 @@ public partial class Main
         _inventoryPanel = new InventoryPanel();
         AddChild(_inventoryPanel);
         _inventoryPanel.Build(new InventoryEditor(_hero, owned, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts);
+        _inventoryPanel.SetShards(_character?.Shards ?? 0);
         _inventoryPanel.SavePressed += worn => _ = SaveEquipment(worn);
         _inventoryPanel.EatPressed += item => _ = Eat(item);
         _inventoryPanel.ClosePressed += () =>
@@ -1053,8 +1099,15 @@ public partial class Main
     /// <summary>The character as the server now says, its quests in the town's book (and the journal, if open).</summary>
     private void KeepCharacter(CharacterSummary character)
     {
+        // A trade's new level, said in the middle of the screen (Charles, sprint 103).
+        if (_talkPanel is not null && JobBook.LevelsGained(_character, character) is { Count: > 0 } gained)
+        {
+            _talkPanel.ShowNotice(string.Join("  ", gained.Select(g => _talkPanel.Texts["job.levelup", GameData.Embedded.Jobs[g.Job].Name.In(_talkPanel.Texts.Lang), g.Level])));
+            _sound?.Play("victory");
+        }
         _character = character;
         _hero = character.Hero;
+        _inventoryPanel?.SetShards(character.Shards);
         if (_town is not null)
             _town.Book = QuestBook.Of(character, GameData.Embedded);
         if (_journalPanel is not null)
@@ -1217,6 +1270,9 @@ public partial class Main
                 if (inv.ListText.Count() != listed)
                     problems.Add($"the {page} page lists {inv.ListText.Count()} items, not {listed}");
             }
+            // The Éclats owned, by the title (sprint 103).
+            if (inv.ShardsText != inv.Texts["inventory.shards", _character?.Shards ?? 0])
+                problems.Add($"the inventory says '{inv.ShardsText}' of the Éclats");
             inv.QueueFree();
             _inventoryPanel = null;
         }

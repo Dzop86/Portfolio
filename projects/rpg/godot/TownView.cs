@@ -139,24 +139,42 @@ public partial class TownView : Node3D
         }
         foreach ((string id, Cell at) in controller.Groups)
             AddGroup(controller.Data.Groups[id], at, lang);
-        // The gathering spots (sprint 99): a small gem in the trade's colour over each, grey while it grows back;
-        // a rock on the grass where a map has none to mine.
+        // The gathering spots (sprint 99): a small gem in the trade's colour over each. Since sprint 103 (Charles),
+        // the resource itself is always seen (the tree, the rock, a fish in the water, wheat on a plot, a tuft of
+        // herbs) and, once gathered, it and its gem vanish until it grows back, leaving a stump or a few stones.
         foreach (HarvestNode node in controller.Nodes)
         {
             Vector3 at = BoardView.ToWorld(node.At);
-            bool onDecor = town.Rows[node.At.Y][node.At.X] != '.' && town.Rows[node.At.Y][node.At.X] != ',';
-            if (node.Kind == NodeKind.Rock && !onDecor)
-                Place(Kit + "rock-large.glb", at, (node.At.X * 37) % 360, 0.35f);
+            char decor = town.Rows[node.At.Y][node.At.X];
+            Node3D resource = node.Kind switch
+            {
+                NodeKind.Tree or NodeKind.Rock when _decor.TryGetValue(node.At, out Node3D? standing) => standing,
+                NodeKind.Rock => Place(Kit + "rock-large.glb", at, (node.At.X * 37) % 360, 0.35f),
+                NodeKind.Water => Fish(at),
+                NodeKind.Plot => Crops(at, node.At),
+                _ when _decor.TryGetValue(node.At, out Node3D? standing) => standing,
+                _ => Herbs(at, node.At),
+            };
+            Node3D? remnant = node.Kind switch
+            {
+                NodeKind.Tree => Stump(at),
+                NodeKind.Rock => Stones(at),
+                NodeKind.Plot => Soil(at),
+                _ when decor == 'M' => Stump(at, new Color("e8e0cc")),
+                _ => null,
+            };
+            if (remnant is not null && node.Kind != NodeKind.Plot)
+                remnant.Visible = false;
             var material = new StandardMaterial3D { AlbedoColor = new Color(NodeColour(node.Kind)), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
             var gem = new MeshInstance3D
             {
                 Mesh = new PrismMesh { Size = new Vector3(0.22f, 0.3f, 0.22f) },
                 MaterialOverride = material,
-                Position = at + new Vector3(0, node.Kind is NodeKind.Tree ? 2.2f : node.Kind is NodeKind.Rock && onDecor ? 1.1f : 0.7f, 0),
+                Position = at + new Vector3(0, GemHeight(node, town), 0),
                 RotationDegrees = new Vector3(180, 0, 0),
             };
             AddChild(gem);
-            _nodes[node.Id] = (gem, material, node.Kind);
+            _nodes[node.Id] = (gem, resource, remnant, node.Kind);
         }
         Player = Person(player, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
@@ -166,7 +184,113 @@ public partial class TownView : Node3D
         _pathMaterial = new StandardMaterial3D { AlbedoColor = new Color(1f, 0.9f, 0.35f, 0.8f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
     }
 
-    private readonly Dictionary<string, (MeshInstance3D Gem, StandardMaterial3D Material, NodeKind Kind)> _nodes = [];
+    private readonly Dictionary<string, (MeshInstance3D Gem, Node3D Resource, Node3D? Remnant, NodeKind Kind)> _nodes = [];
+
+    // The trees, rocks, giant mushrooms and flowers drawn, by cell: a gathering spot's resource when it stands on one.
+    private readonly Dictionary<Cell, Node3D> _decor = [];
+
+    /// <summary>How high a spot's gem floats: over a tree's crown, a rock of the decor, or a little over what grows.</summary>
+    public static float GemHeight(HarvestNode node, Town town)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(town);
+        char decor = town[node.At];
+        return node.Kind switch
+        {
+            NodeKind.Tree => 2.2f,
+            NodeKind.Rock when decor == 'R' => 1.1f,
+            _ when decor == 'M' => 2.4f,
+            NodeKind.Plot => 1.0f,
+            _ => 0.8f,
+        };
+    }
+
+    private static StandardMaterial3D Matte(Color colour) => new() { AlbedoColor = colour, Roughness = 0.9f };
+
+    private MeshInstance3D Part(Node3D parent, Mesh mesh, Color colour, Vector3 at, Vector3? turn = null)
+    {
+        var part = new MeshInstance3D { Mesh = mesh, MaterialOverride = Matte(colour), Position = at, RotationDegrees = turn ?? Vector3.Zero };
+        parent.AddChild(part);
+        return part;
+    }
+
+    private Node3D Group(Vector3 at)
+    {
+        var node = new Node3D { Position = at };
+        AddChild(node);
+        return node;
+    }
+
+    /// <summary>Ripe stalks on a plot (a farmer's spot): a dozen golden stems, each with its ear, a little uneven.</summary>
+    private Node3D Crops(Vector3 at, Cell c)
+    {
+        Node3D crops = Group(at);
+        var straw = new Color("d9b44a");
+        for (int i = 0; i < 12; i++)
+        {
+            float x = -0.3f + 0.2f * (i % 4) + 0.05f * ((c.X + i) % 3 - 1), z = -0.25f + 0.25f * (i / 4) + 0.05f * ((c.Y + i) % 3 - 1);
+            float h = 0.55f + 0.08f * ((c.X * 7 + i * 3) % 3);
+            Part(crops, new CylinderMesh { TopRadius = 0.015f, BottomRadius = 0.02f, Height = h, RadialSegments = 4 }, straw, new Vector3(x, h / 2, z), new Vector3(0, 0, 4 * ((i % 3) - 1)));
+            Part(crops, new CapsuleMesh { Radius = 0.04f, Height = 0.18f, RadialSegments = 6, Rings = 2 }, new Color("e8c45c"), new Vector3(x, h + 0.06f, z));
+        }
+        return crops;
+    }
+
+    /// <summary>A plot's tilled earth, seen with or without its crop.</summary>
+    private Node3D Soil(Vector3 at)
+    {
+        Node3D soil = Group(at);
+        for (int row = 0; row < 3; row++)
+            Part(soil, new BoxMesh { Size = new Vector3(0.85f, 0.06f, 0.18f) }, new Color("6b4a2c"), new Vector3(0, 0.03f, -0.25f + 0.25f * row));
+        return soil;
+    }
+
+    /// <summary>A tuft of herbs (a herbalist's spot): leaves round a few small flowers.</summary>
+    private Node3D Herbs(Vector3 at, Cell c)
+    {
+        Node3D herbs = Group(at);
+        var leaf = new Color("2f8a3e");
+        for (int i = 0; i < 7; i++)
+        {
+            float angle = Mathf.Tau * i / 7 + c.X;
+            Part(herbs, new PrismMesh { Size = new Vector3(0.14f, 0.4f, 0.05f) }, leaf, new Vector3(0.18f * Mathf.Cos(angle), 0.2f, 0.18f * Mathf.Sin(angle)), new Vector3(0, -Mathf.RadToDeg(angle), 18));
+        }
+        foreach ((float x, float z) in new[] { (0f, 0f), (0.1f, 0.08f), (-0.08f, 0.1f) })
+        {
+            Part(herbs, new CylinderMesh { TopRadius = 0.01f, BottomRadius = 0.01f, Height = 0.45f, RadialSegments = 4 }, leaf, new Vector3(x, 0.22f, z));
+            Part(herbs, new SphereMesh { Radius = 0.05f, Height = 0.1f, RadialSegments = 6, Rings = 3 }, new Color("ff7eb6"), new Vector3(x, 0.47f, z));
+        }
+        return herbs;
+    }
+
+    /// <summary>A fish leaping out of rings on the water (a fisher's spot).</summary>
+    private Node3D Fish(Vector3 at)
+    {
+        Node3D fish = Group(at);
+        Part(fish, new TorusMesh { InnerRadius = 0.25f, OuterRadius = 0.3f, Rings = 16, RingSegments = 4 }, new Color("d6eefc"), new Vector3(0, 0.04f, 0));
+        Part(fish, new TorusMesh { InnerRadius = 0.4f, OuterRadius = 0.44f, Rings = 16, RingSegments = 4 }, new Color("a9d8f5"), new Vector3(0, 0.03f, 0));
+        Part(fish, new SphereMesh { Radius = 0.1f, Height = 0.36f, RadialSegments = 8, Rings = 4 }, new Color("9fb3c2"), new Vector3(0, 0.3f, 0), new Vector3(0, 0, 70));
+        Part(fish, new PrismMesh { Size = new Vector3(0.18f, 0.14f, 0.04f) }, new Color("7f95a5"), new Vector3(-0.12f, 0.16f, 0), new Vector3(0, 0, -20));
+        return fish;
+    }
+
+    /// <summary>What a felled tree leaves (or a giant mushroom, in its own colour): a stump.</summary>
+    private Node3D Stump(Vector3 at, Color? colour = null)
+    {
+        Node3D stump = Group(at);
+        Part(stump, new CylinderMesh { TopRadius = 0.2f, BottomRadius = 0.26f, Height = 0.3f, RadialSegments = 10 }, colour ?? new Color("8a5a36"), new Vector3(0, 0.15f, 0));
+        Part(stump, new CylinderMesh { TopRadius = 0.17f, BottomRadius = 0.17f, Height = 0.02f, RadialSegments = 10 }, new Color("e2c08d"), new Vector3(0, 0.31f, 0));
+        return stump;
+    }
+
+    /// <summary>What a mined rock leaves: a few stones, still in the way.</summary>
+    private Node3D Stones(Vector3 at)
+    {
+        Node3D stones = Group(at);
+        foreach ((float x, float z, float r) in new[] { (-0.15f, 0.05f, 0.14f), (0.12f, -0.1f, 0.11f), (0.1f, 0.15f, 0.09f) })
+            Part(stones, new SphereMesh { Radius = r, Height = r * 1.4f, RadialSegments = 6, Rings = 3 }, new Color("9a9a96"), new Vector3(x, r * 0.6f, z));
+        return stones;
+    }
 
     /// <summary>The colour of a kind of gathering spot: the element of its trade (wood Fire, ore Earth, fish Water, crops Air), herbs the heal's.</summary>
     public static string NodeColour(NodeKind kind) => kind switch
@@ -178,19 +302,20 @@ public partial class TownView : Node3D
         _ => ElementStyle.Heal,
     };
 
-    /// <summary>The spots growing back drawn grey and small, the others in their colour.</summary>
+    /// <summary>The spots growing back without their resource nor their gem (a stump, stones or bare earth left), the others whole.</summary>
     public void ShowGrowing(IReadOnlyCollection<string> growing)
     {
-        foreach ((string id, (MeshInstance3D gem, StandardMaterial3D material, NodeKind kind)) in _nodes)
+        foreach ((string id, (MeshInstance3D gem, Node3D resource, Node3D? remnant, NodeKind kind)) in _nodes)
         {
             bool waiting = growing.Contains(id);
-            material.AlbedoColor = waiting ? new Color(0.45f, 0.45f, 0.45f) : new Color(NodeColour(kind));
-            gem.Scale = Vector3.One * (waiting ? 0.6f : 1f);
+            gem.Visible = resource.Visible = !waiting;
+            if (remnant is not null && kind != NodeKind.Plot)
+                remnant.Visible = waiting;
         }
     }
 
-    /// <summary>How many spots are drawn, and how many grey (for the self-test).</summary>
-    public (int Drawn, int Growing) NodesShown => (_nodes.Count, _nodes.Values.Count(n => n.Gem.Scale.X < 1));
+    /// <summary>How many spots are drawn, and how many have vanished, growing back (for the self-test).</summary>
+    public (int Drawn, int Growing) NodesShown => (_nodes.Count, _nodes.Values.Count(n => !n.Gem.Visible && !n.Resource.Visible));
 
     /// <summary>What stands on a cell: houses and the fountain once, from their top-left corner.</summary>
     private void Decorate(Cell c, char k)
@@ -212,10 +337,10 @@ public partial class TownView : Node3D
                 Keep(at + new Vector3(1, 0, 1));
                 break;
             case 'T':
-                Place(Kit + ((c.X + c.Y) % 2 == 0 ? "tree.glb" : "tree-high.glb"), at, 0, 1);
+                _decor[c] = Place(Kit + ((c.X + c.Y) % 2 == 0 ? "tree.glb" : "tree-high.glb"), at, 0, 1);
                 break;
             case 'R':
-                Place(Kit + "rock-large.glb", at, (c.X * 37) % 360, 0.6f);
+                _decor[c] = Place(Kit + "rock-large.glb", at, (c.X * 37) % 360, 0.6f);
                 break;
             case 'S':
                 Place(Kit + ((c.X + c.Y) % 2 == 0 ? "stall-red.glb" : "stall-green.glb"), at, -90, 1);
@@ -227,7 +352,7 @@ public partial class TownView : Node3D
                 Place(Kit + "cart.glb", at, 30, 1);
                 break;
             case 'M':
-                Place(Nature + "mushroom_tan.glb", at, (c.X * 53) % 360, 2.4f);
+                _decor[c] = Place(Nature + "mushroom_tan.glb", at, (c.X * 53) % 360, 2.4f);
                 break;
             case 'B':
                 Place(Nature + "plant_bushSmall.glb", at, (c.X * 41) % 360, 1.8f);
@@ -236,7 +361,7 @@ public partial class TownView : Node3D
                 Stakes(at);
                 break;
             case ',':
-                Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
+                _decor[c] = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
                 break;
         }
     }
@@ -283,15 +408,16 @@ public partial class TownView : Node3D
         }
     }
 
-    private void Place(string path, Vector3 at, float turn, float scale) => Place(path, at, turn, new Vector3(scale, scale, scale));
+    private Node3D Place(string path, Vector3 at, float turn, float scale) => Place(path, at, turn, new Vector3(scale, scale, scale));
 
-    private void Place(string path, Vector3 at, float turn, Vector3 scale)
+    private Node3D Place(string path, Vector3 at, float turn, Vector3 scale)
     {
         Node3D model = Model(path);
         model.Position = at;
         model.RotationDegrees = new Vector3(0, turn, 0);
         model.Scale = scale;
         AddChild(model);
+        return model;
     }
 
     private static Node3D Model(string path) => GD.Load<PackedScene>(path).Instantiate<Node3D>();

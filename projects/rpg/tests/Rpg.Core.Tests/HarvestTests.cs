@@ -22,14 +22,16 @@ public class HarvestTests
         // Since sprint 102, the village has a few spots, of the first level only.
         Assert.All(Real.Nodes.Values.Where(n => Shop.InVillage(n.Map)), n => Assert.Equal(1, n.Level));
         Assert.Contains(Real.Nodes.Values, n => Shop.InVillage(n.Map));
-        foreach (Town map in Real.Towns.Values.Where(t => t.Zone is string z && Harvesting.Tiers.ContainsKey(z) && !Shop.InVillage(t.Id)))
+        foreach (Town map in Real.Towns.Values.Where(t => t.Zone is string z && Harvesting.Tiers.ContainsKey(z)))
         {
             HarvestNode[] here = [.. Real.Nodes.Values.Where(n => n.Map == map.Id)];
-            Assert.InRange(here.Length, 5, 12);
+            if (!Shop.InVillage(map.Id))
+                Assert.InRange(here.Length, 5, 12);
             foreach (HarvestNode n in here)
             {
+                // A woodcutter's spot on a tree, a fisher's on water, never on bare grass (sprint 103).
                 char decor = map.Rows[n.At.Y][n.At.X];
-                Assert.Contains(decor, n.Kind switch { NodeKind.Tree => "T.", NodeKind.Rock => "R.", NodeKind.Water => "~", NodeKind.Plot => ".", _ => ".M," });
+                Assert.Contains(decor, n.Kind switch { NodeKind.Tree => "T", NodeKind.Rock => "R.", NodeKind.Water => "~", NodeKind.Plot => ".", _ => ".M," });
                 Assert.True(map.Spawn.DistanceTo(n.At) >= Harvesting.Distance);
                 Assert.Equal(Real.Jobs[n.Job].Harvests!.Single(h => h.Item == n.Item).Level, n.Level);
             }
@@ -47,7 +49,8 @@ public class HarvestTests
         Assert.Equal((1, 3, 3), (Harvesting.Quantity(1, 1), Harvesting.Quantity(41, 1), Harvesting.Quantity(99, 1)));
         Assert.Equal(2, Harvesting.Quantity(30, 10));
         Assert.Equal((30L, 75L, 0L), (Harvesting.Xp(1, 1), Harvesting.Xp(10, 10), Harvesting.Xp(21, 1)));
-        Assert.Equal((TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(5)), (Harvesting.Regrowth(1), Harvesting.Regrowth(35)));
+        // A fixed minute, whatever the level (Charles, sprint 103).
+        Assert.Equal(TimeSpan.FromMinutes(1), Harvesting.Regrowth);
         HarvestNode node = Real.Nodes.Values.First(n => n.Level == 5);
         Cell next = node.At.Neighbours().First();
         Assert.Null(Harvesting.WhyNot(node, 5, node.Map, next));
