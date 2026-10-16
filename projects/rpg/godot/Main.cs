@@ -173,6 +173,7 @@ public partial class Main : Node3D
             DrainChat();
             FollowPlayer(delta);
             RoamGroups(delta);
+            RoamBeasts(delta);
             GrowBack();
             return;
         }

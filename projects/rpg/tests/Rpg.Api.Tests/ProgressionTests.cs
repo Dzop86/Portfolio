@@ -120,6 +120,8 @@ public class ProgressionTests
         // Win until level 2 (the quest alone gives 150 experience).
         for (int i = 0; i < 12 && (await server.Characters(Cancel)).Single().Level < 2; i++)
         {
+            // Life grows back between fights, as in the game (sprint 101): a loss would leave 1 HP for the next.
+            api.Clock.Advance(TimeSpan.FromMinutes(5));
             FightTicket t = await server.StartFight(c.Id, "training", Cancel);
             await server.ReportFight(c.Id, t.Id, Play(t, (await server.Characters(Cancel)).Single().Hero), Cancel);
         }

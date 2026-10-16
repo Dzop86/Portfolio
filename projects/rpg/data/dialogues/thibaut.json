@@ -1,0 +1,41 @@
+{
+  "id": "thibaut",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Porte du Nord, chemin du Lac ! Enfin, le Bois d'abord, le Lac après.",
+        "en": "North Gate, the Lake Road! Well, the woods first, then the lake."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Rien à signaler ?",
+            "en": "Anything to report?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "La nuit, quand le vent vient du nord, on entend les grenouilles chanter. On dirait une berceuse. Mahaut dit que j'ai trop d'imagination.",
+        "en": "At night, when the wind's from the north, you can hear the frogs singing. Sounds like a lullaby. Mahaut says I've too much imagination."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

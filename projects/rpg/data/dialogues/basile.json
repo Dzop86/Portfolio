@@ -1,0 +1,76 @@
+{
+  "id": "basile",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Mmh, bonjour. Je suis debout depuis trois heures, sois gentil.",
+        "en": "Mmh, morning. I've been up since three, be kind."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le pain ?",
+            "en": "Bread?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "La fête de la pierre ?",
+            "en": "The stone festival?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Des céréales, une herbe ou un poisson, et le four fait le reste. Le pain se mange hors combat : c'est lui qui te remet debout.",
+        "en": "Grain, a herb or a fish, and the oven does the rest. Bread is eaten outside fights: it's what puts you back on your feet."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "La fête de la pierre ?",
+            "en": "The stone festival?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Pour la fête de la pierre, on fait un pain à quatre entailles. Ma mère en faisait cinq, je crois. Ou quatre. Quatre, sûrement.",
+        "en": "For the stone festival we bake a loaf with four cuts. My mother made five, I think. Or four. Four, surely."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le pain ?",
+            "en": "Bread?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

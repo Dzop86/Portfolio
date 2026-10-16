@@ -62,6 +62,18 @@ public partial class TownView : Node3D
             AddChild(ground);
             Decorate(c, k);
         }
+        // The village's beasts (sprint 104), each where the map says, turned a little at random.
+        Herd = new Herd(town);
+        for (int i = 0; i < Herd.Animals.Count; i++)
+        {
+            Node3D beast = Creatures.Beast(Herd.Animals[i].Kind);
+            beast.Position = BoardView.ToWorld(Herd.At(i));
+            beast.RotationDegrees = new Vector3(0, (Herd.At(i).X * 67 + Herd.At(i).Y * 31) % 360, 0);
+            AddChild(beast);
+            Animate(beast, "idle");
+            Beasts.Add(beast);
+            _beastWalks.Add(0);
+        }
         foreach (Npc npc in town.Npcs)
         {
             Node3D person = Person(new Hero("", npc.Look, null, npc.Colour), npc.Name.In(lang));
@@ -360,6 +372,15 @@ public partial class TownView : Node3D
             case 'P':
                 Stakes(at);
                 break;
+            case 'X':
+                Fence(c);
+                break;
+            case 'Q':
+                HenHouse(block);
+                break;
+            case 'E':
+                Stable(block);
+                break;
             case ',':
                 _decor[c] = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
                 break;
@@ -406,6 +427,56 @@ public partial class TownView : Node3D
             AddChild(new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = 0.14f, BottomRadius = 0.16f, Height = height, RadialSegments = 8 }, MaterialOverride = _stake, Position = foot + new Vector3(0, height / 2, 0) });
             AddChild(new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = 0, BottomRadius = 0.14f, Height = 0.3f, RadialSegments = 8 }, MaterialOverride = _stake, Position = foot + new Vector3(0, height + 0.15f, 0) });
         }
+    }
+
+    /// <summary>
+    /// A fence (sprint 104, no free model of one): a post on each cell and two rails to the next fence
+    /// east and south, in a lighter wood than the palisade.
+    /// </summary>
+    private void Fence(Cell c)
+    {
+        Fences++;
+        Vector3 at = BoardView.ToWorld(c);
+        Color wood = new("9a673c");
+        Part(this, new BoxMesh { Size = new Vector3(0.12f, 0.8f, 0.12f) }, wood, at + new Vector3(0, 0.4f, 0));
+        Town town = Controller.Town;
+        foreach (Cell d in new[] { new Cell(1, 0), new Cell(0, 1) })
+        {
+            if (town[c + d] != 'X')
+                continue;
+            Vector3 mid = at + new Vector3(d.X * 0.5f, 0, d.Y * 0.5f);
+            Vector3 size = d.X == 1 ? new Vector3(1, 0.07f, 0.05f) : new Vector3(0.05f, 0.07f, 1);
+            foreach (float h in new[] { 0.35f, 0.65f })
+                Part(this, new BoxMesh { Size = size }, wood.Darkened(0.1f), mid + new Vector3(0, h, 0));
+        }
+    }
+
+    /// <summary>Léonie's hen house (sprint 104), over 2 × 2 cells: a cabin of planks on stilts, a ramp to its door, a roof.</summary>
+    private void HenHouse(Vector3 centre)
+    {
+        Sheds++;
+        Color planks = new("b07a48"), dark = new("5a3a22");
+        foreach ((float x, float z) in new[] { (-0.6f, -0.5f), (0.6f, -0.5f), (-0.6f, 0.5f), (0.6f, 0.5f) })
+            Part(this, new BoxMesh { Size = new Vector3(0.1f, 0.35f, 0.1f) }, dark, centre + new Vector3(x, 0.17f, z));
+        Part(this, new BoxMesh { Size = new Vector3(1.4f, 0.8f, 1.2f) }, planks, centre + new Vector3(0, 0.75f, 0));
+        Part(this, new BoxMesh { Size = new Vector3(0.3f, 0.4f, 0.04f) }, dark, centre + new Vector3(0.3f, 0.6f, 0.61f));
+        Part(this, new BoxMesh { Size = new Vector3(0.3f, 0.04f, 0.6f) }, planks.Darkened(0.2f), centre + new Vector3(0.3f, 0.22f, 0.85f), new Vector3(-35, 0, 0));
+        Place(Kit + "roof-point.glb", centre + new Vector3(0, 1.15f, 0), 0, new Vector3(1.6f, 0.8f, 1.4f));
+    }
+
+    /// <summary>The stables (sprint 104), over 2 × 2 cells: three walls of planks open to the south, hay inside, a roof on posts.</summary>
+    private void Stable(Vector3 centre)
+    {
+        Sheds++;
+        Color planks = new("8a5a34"), hay = new("e3c35a");
+        Part(this, new BoxMesh { Size = new Vector3(1.9f, 1.4f, 0.1f) }, planks, centre + new Vector3(0, 0.7f, -0.9f));
+        Part(this, new BoxMesh { Size = new Vector3(0.1f, 1.4f, 1.9f) }, planks, centre + new Vector3(-0.9f, 0.7f, 0));
+        Part(this, new BoxMesh { Size = new Vector3(0.1f, 1.4f, 1.9f) }, planks, centre + new Vector3(0.9f, 0.7f, 0));
+        foreach (float x in new[] { -0.9f, 0f, 0.9f })
+            Part(this, new BoxMesh { Size = new Vector3(0.12f, 1.4f, 0.12f) }, planks.Darkened(0.3f), centre + new Vector3(x, 0.7f, 0.9f));
+        Part(this, new BoxMesh { Size = new Vector3(0.7f, 0.3f, 0.5f) }, hay, centre + new Vector3(-0.5f, 0.15f, -0.55f));
+        Part(this, new BoxMesh { Size = new Vector3(0.5f, 0.25f, 0.4f) }, hay.Darkened(0.1f), centre + new Vector3(0.45f, 0.12f, -0.6f));
+        Place(Kit + "roof-point.glb", centre + new Vector3(0, 1.4f, 0), 0, new Vector3(2.1f, 1f, 2.1f));
     }
 
     private Node3D Place(string path, Vector3 at, float turn, float scale) => Place(path, at, turn, new Vector3(scale, scale, scale));
@@ -500,6 +571,39 @@ public partial class TownView : Node3D
 
     /// <summary>The groups of monsters drawn (sprint 72), by id: their models together on their cell.</summary>
     public Dictionary<string, Node3D> Groups { get; } = [];
+
+    /// <summary>The beasts of the map (sprint 104), where they wander, and their models, in the same order.</summary>
+    public Herd Herd { get; private set; } = null!;
+
+    public List<Node3D> Beasts { get; } = [];
+
+    private readonly List<int> _beastWalks = [];
+
+    /// <summary>The hen houses, stables and fence cells drawn (sprint 104), for the self-test.</summary>
+    public int Sheds { get; private set; }
+
+    public int Fences { get; private set; }
+
+    /// <summary>A beast walks along <paramref name="path"/> at its own pace, turned the way it goes, then stands.</summary>
+    public async Task MoveBeast(int i, IReadOnlyList<Cell> path, double speed)
+    {
+        Node3D beast = Beasts[i];
+        int me = ++_beastWalks[i];
+        Animate(beast, "walk");
+        foreach (Cell c in path)
+        {
+            Vector3 to = BoardView.ToWorld(c);
+            beast.Rotation = new Vector3(0, Mathf.Atan2(to.X - beast.Position.X, to.Z - beast.Position.Z), 0);
+            while (beast.Position != to)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (!IsInstanceValid(beast) || _beastWalks[i] != me)
+                    return;
+                beast.Position = beast.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+            }
+        }
+        Animate(beast, "idle");
+    }
 
     private readonly Dictionary<string, Label3D> _groupLabels = [];
     private readonly Dictionary<string, int> _groupWalks = [];

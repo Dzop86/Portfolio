@@ -1,0 +1,76 @@
+{
+  "id": "firmin",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Ah ! Tu m'as fait peur. Tout me fait peur, depuis les rats.",
+        "en": "Ah! You gave me a fright. Everything frightens me since the rats."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et le moulin ?",
+            "en": "And the mill?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et l'étang ?",
+            "en": "And the pond?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Le moulin tourne avec l'étang. Sauf la nuit où la pierre s'est fendue : la roue a tourné à l'envers pendant une heure. Les enfants, sûrement.",
+        "en": "The mill runs on the pond. Except the night the stone cracked: the wheel turned backwards for a whole hour. The children, I'm sure."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et l'étang ?",
+            "en": "And the pond?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "L'étang est plein de goujons. Ils ne mordent que pour les gens patients.",
+        "en": "The pond is full of gudgeon. They only bite for patient folk."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et le moulin ?",
+            "en": "And the mill?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

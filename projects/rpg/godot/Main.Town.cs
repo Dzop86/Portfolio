@@ -39,6 +39,7 @@ public partial class Main
             _town.Book = QuestBook.Of(_character, GameData.Embedded);
         _roamAt.Clear();
         _townView = new TownView();
+        _beastAt.Clear();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _ = RefreshGrowing();
@@ -117,6 +118,29 @@ public partial class Main
                 continue;
             _town.MoveGroup(id, path[^1]);
             _ = _townView.MoveGroup(id, path, GroupSpeed);
+        }
+    }
+
+    // When each beast of the map moves next (sprint 104), in seconds from now.
+    private readonly Dictionary<int, double> _beastAt = [];
+
+    /// <summary>A beast walks this many cells a second, slower than the monsters.</summary>
+    private const double BeastSpeed = 0.9;
+
+    /// <summary>Each frame on a map: every few seconds, each beast of the village strolls a few steps in its pasture. Still during the self-tests.</summary>
+    private void RoamBeasts(double delta)
+    {
+        if (_townView?.Herd is not Herd herd || _options.TownSelfTest || _options.LobbySelfTest || _options.Screenshot is not null)
+            return;
+        for (int i = 0; i < herd.Animals.Count; i++)
+        {
+            double left = _beastAt.TryGetValue(i, out double t) ? t - delta : 1 + _roam.Next(0, 5000) / 1000.0;
+            _beastAt[i] = left;
+            if (left > 0)
+                continue;
+            _beastAt[i] = 3 + _roam.Next(0, 6000) / 1000.0;
+            if (herd.Roam(i, _roam) is { Count: > 0 } path)
+                _ = _townView.MoveBeast(i, path, BeastSpeed);
         }
     }
 
@@ -1599,6 +1623,20 @@ public partial class Main
             problems.Add($"the map of {first.Id} draws {view.NodesShown.Drawn} of its {spots} gathering spots");
         RemoveChild(view);
         view.QueueFree();
+        // The village's yards (sprint 104): each beast drawn with its two animations, the hen house, the stables and the fences.
+        foreach ((string map, int sheds) in new[] { ("clairval-1-2", 1), ("clairval-0-2", 1), ("clairval-3-2", 0) })
+        {
+            view = new TownView();
+            AddChild(view);
+            view.Build(new TownController(GameData.Embedded, map), _options.Lang, _hero ?? new Hero("", "female-d"));
+            int beasts = GameData.Embedded.Towns[map].Animals?.Count ?? 0;
+            if (beasts == 0 || view.Beasts.Count != beasts || view.Sheds != sheds || view.Fences == 0)
+                problems.Add($"{map} draws {view.Beasts.Count} of its {beasts} beasts, {view.Sheds} sheds and {view.Fences} fences");
+            if (view.Beasts.Any(b => b.FindChild("AnimationPlayer", true, false) is not AnimationPlayer anim || !anim.HasAnimation("idle") || !anim.HasAnimation("walk")))
+                problems.Add($"a beast of {map} has no idle or walk");
+            RemoveChild(view);
+            view.QueueFree();
+        }
         // A hall drawn (sprint 86): its keeper, its group, its two ways named.
         Town hall = GameData.Embedded.Towns[first.Halls![0].Map];
         view = new TownView();

@@ -1,0 +1,76 @@
+{
+  "id": "mahaut",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Halte. Ah, c'est toi. Passe, et reviens en un seul morceau.",
+        "en": "Halt. Oh, it's you. Go on, and come back in one piece."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Garance ?",
+            "en": "Garance?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Rien à signaler ?",
+            "en": "Anything to report?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "J'ai été l'élève de Garance, il y a dix ans. Elle crie toujours aussi fort ? Bien.",
+        "en": "I was Garance's pupil ten years ago. Does she still shout that loud? Good."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Rien à signaler ?",
+            "en": "Anything to report?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Les sangliers grattent la palissade, la nuit. Ils n'avaient jamais fait ça.",
+        "en": "The boars scratch at the palisade at night. They never used to."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Garance ?",
+            "en": "Garance?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

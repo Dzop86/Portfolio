@@ -1,0 +1,76 @@
+{
+  "id": "perrine",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Ne bouge pas, je prends tes mesures. Voilà. Tu peux bouger.",
+        "en": "Hold still, I'm taking your measurements. There. You may move."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Les peaux de loup ?",
+            "en": "Wolf pelts?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Lin, cuir, peaux : je couds tout ce qui se coud, et droit. Le travers, je le laisse aux zombies.",
+        "en": "Flax, leather, pelts: I sew anything that can be sewn, and straight. Crooked I leave to the zombies."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Les peaux de loup ?",
+            "en": "Wolf pelts?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Les peaux de loup qu'on m'apporte ont des poils raides comme de l'écorce. Je les couds quand même, mais ça m'agace.",
+        "en": "The wolf pelts I'm brought have hairs as stiff as bark. I sew them anyway, but it irks me."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

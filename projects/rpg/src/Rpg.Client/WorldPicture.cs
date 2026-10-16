@@ -162,6 +162,17 @@ public sealed class WorldPicture
                 if (!IsHouse(map[c + new Cell(0, 1)]))
                     Fill(px, py + P - 1, P, 1, RoofEdge);
                 break;
+            // A hen house or a stable (sprint 104): a roof of planks, its edge darker.
+            case 'Q' or 'q' or 'E' or 'e':
+                Fill(px, py, P, P, Palisade);
+                Fill((int)(px + K), (int)(py + K), (int)(P - 2 * K), (int)(P - 2 * K), Wood);
+                break;
+            // A fence (sprint 104): a rail of wood across the grass.
+            case 'X':
+                Fill(px, py, P, P, ground);
+                Fill(px, py + S(3), P, Math.Max(1, S(2)), Wood);
+                Fill(px + S(3), py, Math.Max(1, S(2)), P, Wood);
+                break;
             case 'F' or 'f':
                 Fill(px, py, P, P, Stone);
                 Fill(px + S(2), py + S(2), P - 2 * S(2), P - 2 * S(2), Water);

@@ -1,0 +1,41 @@
+{
+  "id": "gautier",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Porte du Sud, chemin des Champs. Et l'écurie, si tu cherches un cheval : ceux-là tirent la charrue, ils ne se montent pas. Pour les montures, il faudra attendre.",
+        "en": "South Gate, the Fields Road. And the stables, if you're after a horse: these ones pull the plough, they aren't for riding. Mounts will have to wait."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Rien à signaler ?",
+            "en": "Anything to report?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Quand le vent vient des Champs, il sent le miel chaud. Le miel, ça ne devrait pas sentir chaud.",
+        "en": "When the wind blows from the fields, it smells of warm honey. Honey shouldn't smell warm."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

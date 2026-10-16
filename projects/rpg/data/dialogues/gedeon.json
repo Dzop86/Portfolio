@@ -1,0 +1,76 @@
+{
+  "id": "gedeon",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Tu viens pour une clef ? Tout le monde vient pour une clef.",
+        "en": "Here for a key? Everyone's here for a key."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Une clef de donjon ?",
+            "en": "A dungeon key?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Ces serrures ?",
+            "en": "Those locks?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Apporte les ressources, je te fais la clef d'un donjon. Une clef, une porte. Pas de crédit.",
+        "en": "Bring the materials and I'll make you a dungeon key. One key, one door. No credit."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ces serrures ?",
+            "en": "Those locks?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Les serrures des donjons sont plus vieilles que le village. Celui qui les a posées voulait qu'on n'entre pas. Moi, je veux qu'on ressorte.",
+        "en": "The dungeon locks are older than the village. Whoever fitted them wanted nobody to get in. I want folk to get out."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Une clef de donjon ?",
+            "en": "A dungeon key?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

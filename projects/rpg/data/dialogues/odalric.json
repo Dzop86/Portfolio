@@ -1,0 +1,76 @@
+{
+  "id": "odalric",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Bonjour. Parlez doucement, je vous prie : l'encre sèche.",
+        "en": "Good day. Speak softly, if you please: the ink is drying."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le registre ?",
+            "en": "The registry?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Qu'y a-t-il dedans ?",
+            "en": "What is in it?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Le registre ne ment pas. Il lui arrive seulement de se taire.",
+        "en": "The registry does not lie. It merely falls silent at times."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Qu'y a-t-il dedans ?",
+            "en": "What is in it?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Naissances, mariages, morts, récoltes : Clairval tient dans quatre gros volumes. Et dans le cimetière, bien sûr.",
+        "en": "Births, marriages, deaths, harvests: Clairval fits into four thick volumes. And into the churchyard, of course."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le registre ?",
+            "en": "The registry?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": "leonie",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Bonjour ! Attention à Pétronille, c'est ma poule la plus curieuse.",
+        "en": "Hello! Mind Pétronille, she's my nosiest hen."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Un rêve ?",
+            "en": "A dream?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et le grenier ?",
+            "en": "And the loft?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "J'ai rêvé d'un cercle qui reliait quatre lumières. Aubin et Garance aussi, mais eux n'en parlent pas. Moi, je trouvais ça joli.",
+        "en": "I dreamt of a circle joining four lights. So did Aubin and Garance, but they won't talk about it. I thought it was lovely."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et le grenier ?",
+            "en": "And the loft?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Le grenier garde mon grain et la farine de Firmin. Quand il n'y a pas de rats.",
+        "en": "The loft keeps my grain and Firmin's flour. When there aren't rats in it."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Un rêve ?",
+            "en": "A dream?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

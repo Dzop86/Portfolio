@@ -1,0 +1,76 @@
+{
+  "id": "sidonie",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Ne touche à rien ! Sauf à ça. Non, pas à ça non plus.",
+        "en": "Don't touch anything! Except that. No, not that either."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "L'alchimie ?",
+            "en": "Alchemy?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Ces fioles ?",
+            "en": "These flasks?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Une plante, de l'eau, du feu sous l'alambic et beaucoup de chance : c'est ça, l'alchimie. Surtout la chance.",
+        "en": "A plant, some water, a flame under the still and plenty of luck: that's alchemy. Mostly the luck."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ces fioles ?",
+            "en": "These flasks?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Les spores du Bois moisi restent côte à côte dans la fiole, sans jamais se mêler. Je n'avais jamais vu une poudre aussi bien élevée.",
+        "en": "Spores from the Mouldy Woods sit side by side in the flask and never mix. I've never seen such well-mannered powder."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "L'alchimie ?",
+            "en": "Alchemy?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

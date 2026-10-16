@@ -1,0 +1,76 @@
+{
+  "id": "hortense",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Attention aux pieux, ils sont frais.",
+        "en": "Mind the stakes, they're fresh."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et la palissade ?",
+            "en": "And the palisade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et le bois ?",
+            "en": "And the wood?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Mille deux cents pieux, trois portes et pas un trou. Enfin, pas un trou que je n'aie pas vu.",
+        "en": "Twelve hundred stakes, three gates and not one gap. Well, not one gap I haven't seen."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et le bois ?",
+            "en": "And the wood?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Un chêne des vergers, une hache et un peu de dos : voilà comment on garde un village.",
+        "en": "An oak from the orchard, an axe and a strong back: that's how you keep a village safe."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et la palissade ?",
+            "en": "And the palisade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

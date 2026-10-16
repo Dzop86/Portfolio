@@ -26,30 +26,63 @@ def text(fr, en): return O([("fr", fr), ("en", en)])
 def mid(c, r): return "clairval" if (c, r) == (1, 1) else f"clairval-{c}-{r}"
 
 
-NAMES = {
-    (0, 0): text("Clairval, porte du Nord", "Clairval, North Gate"),
-    (1, 0): text("Clairval, les potagers", "Clairval, the Gardens"),
-    (2, 0): text("Clairval, le moulin", "Clairval, the Mill"),
-    (3, 0): text("Clairval, la carrière", "Clairval, the Quarry"),
-    (0, 1): text("Clairval, porte de l'Ouest", "Clairval, West Gate"),
+NAMES = {  # The scriptwriter's names (docs/textes-v5.md §2, sprint 104), after the village's.
+    (0, 0): text("Clairval, les vergers", "Clairval, the Orchards"),
+    (1, 0): text("Clairval, les potagers", "Clairval, the Kitchen Gardens"),
+    (2, 0): text("Clairval, le moulin de l'étang", "Clairval, the Pond Mill"),
+    (3, 0): text("Clairval, la petite carrière", "Clairval, the Little Quarry"),
+    (0, 1): text("Clairval, la cour d'armes", "Clairval, the Drill Yard"),
     (1, 1): text("Clairval", "Clairval"),
     (2, 1): text("Clairval, le marché", "Clairval, the Market"),
-    (3, 1): text("Clairval, quartier des artisans", "Clairval, Craftsmen's Quarter"),
-    (0, 2): text("Clairval, porte du Sud", "Clairval, South Gate"),
-    (1, 2): text("Clairval, les maisons", "Clairval, the Houses"),
-    (2, 2): text("Clairval, la chapelle", "Clairval, the Chapel"),
-    (3, 2): text("Clairval, les pâturages", "Clairval, the Pastures"),
+    (3, 1): text("Clairval, la rue des artisans", "Clairval, Craftsmen's Row"),
+    (0, 2): text("Clairval, l'écurie", "Clairval, the Stables"),
+    (1, 2): text("Clairval, les greniers", "Clairval, the Granaries"),
+    (2, 2): text("Clairval, le clos de la chapelle", "Clairval, Chapel Close"),
+    (3, 2): text("Clairval, le pré aux moutons", "Clairval, Sheep Meadow"),
 }
 WOODS = text("Bois de Clairval", "Clairval Woods")
 
-# The people of the old single map, moved (their ids and dialogues kept: "clairval/<npc>" still finds them on the square).
+# The people of the old single map, moved (their ids and dialogues kept: "clairval/<npc>" still finds them on the
+# square), and since sprint 104 the scriptwriter's (docs/textes-v5.md §1.3), each by their house or their gate.
 PEOPLE = {
     (1, 1): [("aubin", text("Aubin", "Aubin"), "male-a", 0, (26, 18), "guide"),
              ("ysaline", text("Ysaline", "Ysaline"), "female-d", 6, (20, 12), "scholar")],
-    (0, 1): [("garance", text("Garance", "Garance"), "female-f", 5, (10, 13), "trainer")],
+    (0, 0): [("thibaut", text("Thibaut", "Thibaut"), "male-b", 1, (3, 13), "thibaut"),
+             ("hortense", text("Hortense", "Hortense"), "female-e", 2, (12, 13), "hortense")],
+    (2, 0): [("firmin", text("Firmin", "Firmin"), "male-c", 4, (29, 10), "firmin")],
+    (3, 0): [("gaspard", text("Gaspard", "Gaspard"), "male-d", 6, (31, 11), "gaspard")],
+    (0, 1): [("garance", text("Garance", "Garance"), "female-f", 5, (10, 13), "trainer"),
+             ("mahaut", text("Mahaut", "Mahaut"), "female-a", 0, (3, 13), "mahaut"),
+             ("guard", text("Garde", "Guard"), "male-e", 1, (3, 19), "guard")],
     (2, 1): [("rose", text("Rose", "Rose"), "female-b", 3, (22, 12), "merchant")],
+    (3, 1): [("anselme", text("Anselme", "Anselme"), "male-d", 0, (26, 5), "anselme"),
+             ("perrine", text("Perrine", "Perrine"), "female-b", 6, (26, 10), "perrine"),
+             ("gedeon", text("Gédéon", "Gédéon"), "male-a", 5, (21, 11), "gedeon"),
+             ("sidonie", text("Sidonie", "Sidonie"), "female-f", 4, (26, 21), "sidonie"),
+             ("basile", text("Basile", "Basile"), "male-c", 3, (26, 26), "basile")],
+    (0, 2): [("gautier", text("Gautier", "Gautier"), "male-f", 3, (3, 13), "gautier")],
+    (1, 2): [("leonie", text("Léonie", "Léonie"), "female-c", 5, (21, 22), "leonie")],
+    (2, 2): [("odalric", text("Odalric", "Odalric"), "male-b", 2, (27, 21), "odalric")],
 }
-BENCHES = {(3, 1): [((24, 12), "locksmith")]}
+# Their houses (top-left corner; the door faces south), set before anything else of the map.
+HOMES = {
+    (0, 0): [(10, 11)],
+    (2, 0): [(27, 7)],
+    (3, 0): [(32, 9)],
+    (3, 1): [(27, 4), (27, 9), (19, 8), (27, 20), (27, 25)],
+    (1, 2): [(23, 25)],
+    (2, 2): [(28, 19)],
+}
+# A workshop beside its craftsman's house, never on the road (Charles, D75): the locksmith's bench by Gédéon's door.
+BENCHES = {(3, 1): [((19, 10), "locksmith")]}
+# Fenced yards (sprint 104): the corners of the fence, what stands inside against it, and its beasts.
+PENS = {
+    (0, 2): ((8, 19), (19, 28), [("E", (9, 20))], [("horse", (13, 23)), ("horse", (16, 25)), ("horse", (12, 26))]),
+    (1, 2): ((10, 19), (19, 27), [("Q", (11, 20))], [("hen", (14, 22)), ("hen", (16, 21)), ("hen", (13, 25)), ("hen", (17, 24)), ("hen", (15, 26))]),
+    (3, 2): ((29, 5), (44, 26), [], [("sheep", (33, 9)), ("sheep", (38, 12)), ("sheep", (35, 18)), ("sheep", (41, 21)), ("sheep", (32, 23)), ("sheep", (40, 8))]),
+}
+# Pétronille, Léonie's nosiest hen, out of the yard by her side.
+LOOSE = {(1, 2): [("hen", (22, 24))]}
 
 
 def lpath(a, b):
@@ -74,11 +107,22 @@ def reachable(rows, start):
     return seen
 
 
-def house(g, x, y):
-    g[y][x], g[y][x + 1], g[y + 1][x], g[y + 1][x + 1] = 'H', 'h', 'h', 'h'
+def house(g, x, y, k='H'):
+    g[y][x], g[y][x + 1], g[y + 1][x], g[y + 1][x + 1] = k, k.lower(), k.lower(), k.lower()
 
 
-def theme(rnd, g, c, r, free):
+def pen(g, a, b, inside):
+    """A fence round the rectangle from a to b, what stands inside it."""
+    (x0, y0), (x1, y1) = a, b
+    for x in range(x0, x1 + 1):
+        g[y0][x] = g[y1][x] = 'X'
+    for y in range(y0, y1 + 1):
+        g[y][x0] = g[y][x1] = 'X'
+    for (k, (x, y)) in inside:
+        house(g, x, y, k)
+
+
+def theme(rnd, g, c, r, free, road_cells):
     """What stands on a map of the village, on the cells left free by the ways."""
     def put(ch, count, size=1):
         for _ in range(count):
@@ -89,10 +133,13 @@ def theme(rnd, g, c, r, free):
                 x, y = x + rnd.randint(-1, 1), y + rnd.randint(-1, 1)
 
     def houses(count):
-        for _ in range(count * 4):
+        # Along the streets first (sprint 104, "a real village"): the closest free places to a road, a little shuffled.
+        spots = [(x, y) for x in range(2, W - 3) for y in range(2, H - 3)]
+        rnd.shuffle(spots)
+        spots.sort(key=lambda p: min(abs(p[0] - rx) + abs(p[1] - ry) for (rx, ry) in road_cells) // 3)
+        for (x, y) in spots:
             if count == 0:
                 break
-            x, y = rnd.randrange(3, W - 5), rnd.randrange(3, H - 5)
             if all(free(x + dx, y + dy) for dx in range(-1, 3) for dy in range(-1, 3)):
                 house(g, x, y)
                 count -= 1
@@ -102,33 +149,33 @@ def theme(rnd, g, c, r, free):
             for x in range(26, 44, 3):
                 if free(x, y):
                     g[y][x] = 'T'
-        houses(2)
+        houses(5)
     elif (c, r) == (1, 0):          # The gardens: flower beds, plots of grass, houses.
         put(',', 10, 6)
-        houses(4)
+        houses(8)
     elif (c, r) == (2, 0):          # The mill and its pond.
         for y in range(5, 11):
             for x in range(30, 40):
                 if ((x - 35) / 5) ** 2 + ((y - 8) / 3) ** 2 < 1 and free(x, y):
                     g[y][x] = '~'
-        houses(3)
+        houses(5)
         put('T', 4, 2)
     elif (c, r) == (3, 0):          # The quarry: rocks against the palisade.
         put('R', 14, 2)
-        houses(1)
+        houses(3)
     elif (c, r) == (0, 1):          # The west gate's yard: lanterns, a cart.
         for (x, y) in ((6, 13), (6, 19), (12, 20)):
             if free(x, y):
                 g[y][x] = 'L'
         put('C', 1)
-        houses(3)
+        houses(5)
     elif (c, r) == (1, 1):          # The square: the fountain, lanterns, the old houses.
         for (x, y) in ((22, 13), (23, 13), (22, 14), (23, 14)):
             g[y][x] = 'F' if (x, y) == (22, 13) else 'f'
         for (x, y) in ((18, 15), (29, 15), (18, 18), (29, 18)):
             if free(x, y):
                 g[y][x] = 'L'
-        houses(6)
+        houses(10)
         put('T', 3, 2)
     elif (c, r) == (2, 1):          # The market: stalls round the street.
         for x in range(14, 36, 4):
@@ -136,27 +183,28 @@ def theme(rnd, g, c, r, free):
                 if free(x, y):
                     g[y][x] = 'S'
         put('C', 2)
-        houses(4)
-    elif (c, r) == (3, 1):          # The craftsmen's quarter: workshops are houses, the benches in front.
+        houses(8)
+    elif (c, r) == (3, 1):          # Craftsmen's row: their houses along the street, a bench by the locksmith's.
         houses(6)
+        put('C', 2)
+    elif (c, r) == (0, 2):          # The south gate: the stables and their paddock, a cart, hedges.
         put('C', 1)
-    elif (c, r) == (0, 2):          # The south gate: a cart, hedges.
-        put('B', 6, 4)
-        put('C', 1)
-        houses(2)
-    elif (c, r) == (1, 2):          # The houses.
-        houses(9)
+        houses(6)
+        put('B', 4, 3)
+    elif (c, r) == (1, 2):          # The granaries, Léonie's hen house and its yard.
+        houses(8)
         put('T', 3, 2)
     elif (c, r) == (2, 2):          # The chapel and the graves.
-        houses(2)
+        houses(6)
         for y in range(22, 28, 2):
             for x in range(30, 40, 2):
                 if free(x, y):
                     g[y][x] = 'R'
         put('T', 4, 2)
-    else:                           # The pastures: hedges, flowers.
-        put('B', 8, 5)
-        put(',', 6, 5)
+    else:                           # The sheep meadow, fenced; hedges, flowers.
+        houses(3)
+        put('B', 4, 3)
+        put(',', 4, 4)
         put('T', 3, 2)
 
 
@@ -207,13 +255,24 @@ for r in range(ROWS):
         for (x, y) in road:
             g[y][x] = '='
         near = {(x + dx, y + dy) for (x, y) in road for dx in (-1, 0, 1) for dy in (-1, 0, 1)}
+        for (x, y) in HOMES.get((c, r), []):
+            assert all(g[y + dy][x + dx] == '.' and (x + dx, y + dy) not in near for dx in (0, 1) for dy in (0, 1)), ((c, r), x, y)
+            house(g, x, y)
+        if (c, r) in PENS:
+            (a, b, inside, _) = PENS[(c, r)]
+            assert not any((x, y) in near for x in range(a[0], b[0] + 1) for y in range(a[1], b[1] + 1)), (c, r)
+            pen(g, a, b, inside)
+        beasts = PENS.get((c, r), (0, 0, 0, []))[3] + LOOSE.get((c, r), [])
         people = [p[4] for p in PEOPLE.get((c, r), [])] + [b[0] for b in BENCHES.get((c, r), [])]
-        keep = near | {(x + dx, y + dy) for (x, y) in people for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2)}
+        assert all(g[y][x] == '.' and (x, y) not in road for (x, y) in people), (c, r)
+        assert all(g[y][x] == '.' for (_, (x, y)) in beasts), (c, r)
+        keep = near | {(x + dx, y + dy) for (x, y) in people for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2)} \
+            | {(x + dx, y + dy) for (_, (x, y)) in beasts for dx in (-1, 0, 1) for dy in (-1, 0, 1)}
 
         def free(x, y, g=g, keep=keep):
             return 1 <= x < W - 1 and 1 <= y < H - 1 and g[y][x] == '.' and (x, y) not in keep
 
-        theme(rnd, g, c, r, free)
+        theme(rnd, g, c, r, free, sorted(road))
         rows = [''.join(row) for row in g]
         seen = reachable(rows, CENTRE)
         musts = [(l["at"]["x"], l["at"]["y"]) for l in links] + people
@@ -223,6 +282,8 @@ for r in range(ROWS):
                   ("npcs", [O([("id", i), ("name", n), ("look", look), ("colour", col), ("at", cell(*at)), ("dialogue", d)])
                             for (i, n, look, col, at, d) in PEOPLE.get((c, r), [])]),
                   ("links", links), ("exits", [])])
+        if beasts:
+            town["animals"] = [O([("kind", k), ("at", cell(*at))]) for (k, at) in beasts]
         if (c, r) in BENCHES:
             town["workshops"] = [O([("at", cell(*at)), ("job", job)]) for (at, job) in BENCHES[(c, r)]]
         maps[mid(c, r)] = town

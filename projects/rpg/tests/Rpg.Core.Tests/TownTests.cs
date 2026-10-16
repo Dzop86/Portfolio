@@ -5,6 +5,7 @@ namespace Rpg.Core.Tests;
 public class TownTests
 {
     private static readonly DialogueAnswer Bye = new(Text);
+    private static readonly string[] Guards = ["thibaut", "mahaut", "gautier"];
 
     private static Dialogue Talk(string id = "d", params (string Id, DialogueAnswer[] Answers)[] lines) =>
         new(id, lines.Length == 0 ? "a" : lines[0].Id,
@@ -46,8 +47,10 @@ public class TownTests
         Assert.Equal([.. Enumerable.Range(0, 4).SelectMany(x => Enumerable.Range(-1, 3).Select(y => new Cell(x, y)))],
             village.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
-        Assert.Equal(["aubin", "garance", "rose", "ysaline"], village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(["dungeon-keeper", "guide", "merchant", "scholar", "trainer"], Real.Dialogues.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["anselme", "aubin", "basile", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
+            village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
+        Assert.Equal(["anselme", "basile", "dungeon-keeper", "firmin", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "leonie", "mahaut", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
+            Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {
             Board board = t.Board();
@@ -65,6 +68,57 @@ public class TownTests
             foreach (LocalizedText t in d.Lines.Values.SelectMany(l => l.Answers.Select(a => a.Text).Append(l.Text)))
                 Assert.False(string.IsNullOrWhiteSpace(t.Fr) || string.IsNullOrWhiteSpace(t.En), d.Id);
         }
+    }
+
+    [Fact]
+    public void TheVillage_IsPeopled_ByTheScriptwritersInhabitants_ItsBeastsInTheirYards()
+    {
+        // Sprint 104 (D75, "Clairval is too empty"): docs/textes-v5.md §1.3, each on their map.
+        (string Npc, string Map)[] people =
+        [
+            ("hortense", "clairval-0-0"), ("thibaut", "clairval-0-0"), ("firmin", "clairval-2-0"), ("gaspard", "clairval-3-0"),
+            ("mahaut", "clairval-0-1"), ("guard", "clairval-0-1"), ("anselme", "clairval-3-1"), ("perrine", "clairval-3-1"),
+            ("sidonie", "clairval-3-1"), ("basile", "clairval-3-1"), ("gedeon", "clairval-3-1"), ("gautier", "clairval-0-2"),
+            ("leonie", "clairval-1-2"), ("odalric", "clairval-2-2"),
+        ];
+        foreach ((string id, string map) in people)
+        {
+            (Town town, Npc npc) = Real.FindNpc($"clairval/{id}")!.Value;
+            Assert.Equal(map, town.Id);
+            // Their own talk, which says each of their lines and lets one go.
+            Dialogue talk = Real.Dialogues[npc.Dialogue];
+            Assert.Equal(id, talk.Id);
+            Assert.Contains(talk.Lines[talk.Start].Answers, a => a.Next is null && a.Fight is null && !a.Shop);
+            Assert.All(talk.Lines.Keys.Where(k => k != talk.Start), k => Assert.Contains(talk.Lines[talk.Start].Answers, a => a.Next == k));
+        }
+        // The guards stand by their gate, west.
+        Assert.All(Guards, g => Assert.True(Real.FindNpc($"clairval/{g}")!.Value.Npc.At.X <= 4));
+        // The beasts: hens round the hen house of the granaries, horses by the stables, sheep in their meadow.
+        (string Map, string Kind, char Shed)[] yards = [("clairval-1-2", "hen", 'Q'), ("clairval-0-2", "horse", 'E'), ("clairval-3-2", "sheep", 'X')];
+        foreach ((string map, string kind, char shed) in yards)
+        {
+            Town t = Real.Towns[map];
+            Assert.True((t.Animals ?? []).Count(a => a.Kind == kind) >= 3, map);
+            Assert.Contains(t.Rows, r => r.Contains(shed, StringComparison.Ordinal));
+        }
+        Assert.All(Real.Towns.Values.Where(t => !Shop.InVillage(t.Id)), t => Assert.Empty(t.Animals ?? []));
+    }
+
+    [Fact]
+    public void HenHousesStablesAndBeasts_AreChecked()
+    {
+        string[] rows = ["......", ".Qq...", ".qq.E.", "....e.", "XXXXXX"];
+        Assert.Throws<InvalidDataException>(() => With(Town(rows, new Cell(0, 0))));
+        rows[2] = ".qq.Ee";
+        rows[3] = "....ee";
+        Town fine = Town(rows, new Cell(0, 0)) with { Animals = [new Animal("hen", new Cell(3, 1))] };
+        Assert.Equal("hen house", Rpg.Core.Town.Decor[fine[new Cell(1, 1)]]);
+        Assert.Equal("fence", Rpg.Core.Town.Decor[fine[new Cell(0, 4)]]);
+        Assert.False(fine.Board().IsFloor(new Cell(0, 4)));
+        _ = With(fine);
+        Assert.Throws<InvalidDataException>(() => With(fine with { Animals = [new Animal("dragon", new Cell(3, 1))] }));
+        Assert.Throws<InvalidDataException>(() => With(fine with { Animals = [new Animal("hen", new Cell(1, 1))] }));
+        Assert.Throws<InvalidDataException>(() => With(fine with { Rows = [.. rows.Select(r => r.Replace('.', '='))], Animals = [new Animal("sheep", new Cell(0, 0))] }));
     }
 
     [Fact]

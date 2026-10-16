@@ -1,0 +1,20 @@
+{
+  "id": "guard",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Garance surveille la cour, moi la porte. Le Bois, lui, ne surveille personne.",
+        "en": "Garance watches the yard, I watch the gate. The woods watch nobody."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

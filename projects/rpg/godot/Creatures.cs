@@ -12,7 +12,8 @@ namespace Rpg.Desktop;
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
 /// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
 /// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76). Each has an "idle" and a "walk"
-/// animation, as Kenney's models do, and looks along +z.
+/// animation, as Kenney's models do, and looks along +z. Since sprint 104, the village's beasts too: a hen,
+/// a horse and a sheep (<see cref="Beast"/>).
 /// </summary>
 public static class Creatures
 {
@@ -66,6 +67,94 @@ public static class Creatures
         "mole-boss" => Mole(1.6f, new Color("2b2b30"), helmet: true, crown: true),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
+
+    /// <summary>A beast of the village (sprint 104): "hen", "horse" or "sheep", small beside the people, as they are.</summary>
+    public static Node3D Beast(string kind) => kind switch
+    {
+        "hen" => Hen(),
+        "horse" => Horse(),
+        "sheep" => Sheep(),
+        _ => throw new KeyNotFoundException($"No beast '{kind}'."),
+    };
+
+    private static Node3D Hen()
+    {
+        var root = new Node3D { Name = "Hen" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(0.8f, 0.8f, 0.8f) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color feathers = new("f3eee3"), comb = new("d63a2f"), beak = new("f0a830");
+        Block(body, new Vector3(0.30f, 0.26f, 0.38f), new Vector3(0, 0.36f, 0), feathers);
+        Block(body, new Vector3(0.18f, 0.20f, 0.18f), new Vector3(0, 0.56f, 0.16f), feathers);
+        Block(body, new Vector3(0.05f, 0.08f, 0.12f), new Vector3(0, 0.70f, 0.16f), comb);
+        Block(body, new Vector3(0.06f, 0.05f, 0.08f), new Vector3(0, 0.55f, 0.29f), beak);
+        Block(body, new Vector3(0.05f, 0.06f, 0.04f), new Vector3(0, 0.48f, 0.26f), comb);
+        Block(body, new Vector3(0.03f, 0.03f, 0.02f), new Vector3(-0.06f, 0.60f, 0.25f), Colors.Black);
+        Block(body, new Vector3(0.03f, 0.03f, 0.02f), new Vector3(0.06f, 0.60f, 0.25f), Colors.Black);
+        Block(body, new Vector3(0.20f, 0.20f, 0.08f), new Vector3(0, 0.48f, -0.22f), feathers.Darkened(0.08f));
+        Legs(model, TwoLegs, 0.04f, 0.23f, beak);
+        root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static Node3D Horse()
+    {
+        var root = new Node3D { Name = "Horse" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(1.25f, 1.25f, 1.25f) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color coat = new("8a5a34"), mane = new("3b2a1e"), muzzle = new("d9c3a5");
+        Block(body, new Vector3(0.30f, 0.30f, 0.72f), new Vector3(0, 0.62f, 0), coat);
+        // The neck raised forward, the long head at its end.
+        var neck = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.18f, 0.40f, 0.18f) }, Position = new Vector3(0, 0.86f, 0.36f), RotationDegrees = new Vector3(30, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = coat, Roughness = 0.9f } };
+        body.AddChild(neck);
+        Block(body, new Vector3(0.16f, 0.16f, 0.34f), new Vector3(0, 1.04f, 0.56f), coat);
+        Block(body, new Vector3(0.14f, 0.10f, 0.08f), new Vector3(0, 0.99f, 0.74f), muzzle);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.08f, 1.08f, 0.58f), Colors.Black);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.08f, 1.08f, 0.58f), Colors.Black);
+        Block(body, new Vector3(0.05f, 0.10f, 0.04f), new Vector3(-0.05f, 1.16f, 0.44f), coat.Darkened(0.2f));
+        Block(body, new Vector3(0.05f, 0.10f, 0.04f), new Vector3(0.05f, 1.16f, 0.44f), coat.Darkened(0.2f));
+        Block(body, new Vector3(0.06f, 0.30f, 0.10f), new Vector3(0, 1.0f, 0.30f), mane);
+        var tail = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.07f, 0.07f, 0.36f) }, Position = new Vector3(0, 0.58f, -0.46f), RotationDegrees = new Vector3(55, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = mane, Roughness = 0.9f } };
+        body.AddChild(tail);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.10f, 0.26f), ("LegFR", 0.10f, 0.26f), ("LegBL", -0.10f, -0.26f), ("LegBR", 0.10f, -0.26f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.48f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.08f, 0.48f, 0.08f), new Vector3(0, -0.24f, 0), coat.Darkened(0.15f));
+            Block(leg, new Vector3(0.09f, 0.06f, 0.09f), new Vector3(0, -0.45f, 0), mane);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private static Node3D Sheep()
+    {
+        var root = new Node3D { Name = "Sheep" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(0.8f, 0.8f, 0.8f) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color wool = new("f4f1ea"), face = new("3a3330");
+        Block(body, new Vector3(0.44f, 0.36f, 0.60f), new Vector3(0, 0.46f, 0), wool);
+        Block(body, new Vector3(0.36f, 0.08f, 0.50f), new Vector3(0, 0.67f, 0), wool.Darkened(0.05f));
+        Block(body, new Vector3(0.20f, 0.22f, 0.20f), new Vector3(0, 0.52f, 0.36f), face);
+        Block(body, new Vector3(0.26f, 0.10f, 0.12f), new Vector3(0, 0.66f, 0.32f), wool);
+        Block(body, new Vector3(0.10f, 0.05f, 0.06f), new Vector3(-0.15f, 0.56f, 0.34f), face);
+        Block(body, new Vector3(0.10f, 0.05f, 0.06f), new Vector3(0.15f, 0.56f, 0.34f), face);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.05f, 0.56f, 0.465f), Colors.White);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.05f, 0.56f, 0.465f), Colors.White);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.13f, 0.20f), ("LegFR", 0.13f, 0.20f), ("LegBL", -0.13f, -0.20f), ("LegBR", 0.13f, -0.20f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.28f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.07f, 0.28f, 0.07f), new Vector3(0, -0.14f, 0), face);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
 
     private static Node3D Boar(float size, Color hide, bool crest = false, bool stripes = false, bool tusks = true, bool bigTusks = false, bool crown = false)
     {

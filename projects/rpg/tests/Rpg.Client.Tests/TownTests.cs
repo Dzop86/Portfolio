@@ -9,6 +9,9 @@ public class TownTests
     // Rose's market and Garance's west gate, maps of the village since sprint 102.
     private static TownController Market() => new(GameData.Embedded, "clairval-2-1");
 
+    // A house of the square, wherever the village's script set it (sprint 104 lines them up along the streets).
+    private static readonly Cell House = GameData.Embedded.Towns["clairval"].Rows.Select((r, y) => new Cell(r.IndexOf('H', StringComparison.Ordinal), y)).First(c => c.X >= 0);
+
     [Fact]
     public void AClick_WalksTheShortestWay_AroundHousesAndWater()
     {
@@ -22,9 +25,9 @@ public class TownTests
         Assert.Equal(to, step.Waypoints[^1]);
         Assert.All(step.Path, c => Assert.True(town.Town.IsFree(town.Board, c)));
         // A house, the fountain, a tree: nothing happens, the player stays.
-        Assert.Null(town.Click(new Cell(5, 4)));
+        Assert.Null(town.Click(House));
         Assert.Null(town.Click(new Cell(22, 13)));
-        Assert.Null(town.Click(new Cell(43, 21)));
+        Assert.Null(town.Click(town.Town.Rows.Select((r, y) => new Cell(r.IndexOf('T', StringComparison.Ordinal), y)).First(c => c.X >= 0)));
         Assert.Equal(to, town.Position);
     }
 
@@ -81,7 +84,7 @@ public class TownTests
         Cell arrival = new(24, 16);
         Assert.Equal(new Cell(1, 6), Clairval(new Cell(1, 6)).Position);
         // A house, Aubin's cell, out of the map, the arrival itself.
-        Assert.Equal(arrival, Clairval(new Cell(5, 4)).Position);
+        Assert.Equal(arrival, Clairval(House).Position);
         Assert.Equal(arrival, Clairval(new Cell(26, 18)).Position);
         Assert.Equal(arrival, Clairval(new Cell(60, 40)).Position);
         Assert.Equal(arrival, Clairval(arrival).Position);

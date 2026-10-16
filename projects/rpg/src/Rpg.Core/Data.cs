@@ -616,11 +616,11 @@ public sealed class GameData
         {
             throw new InvalidDataException($"{who}: {e.Message}");
         }
-        // Houses and fountains fill 2 × 2 cells: an upper-case corner, three lower-case cells.
+        // Houses, fountains, hen houses and stables fill 2 × 2 cells: an upper-case corner, three lower-case cells.
         foreach (Cell c in board.Cells())
         {
             char k = t[c];
-            if (k is 'H' or 'F')
+            if (k is 'H' or 'F' or 'Q' or 'E')
             {
                 char rest = char.ToLowerInvariant(k);
                 if (t[c + new Cell(1, 0)] != rest || t[c + new Cell(0, 1)] != rest || t[c + new Cell(1, 1)] != rest)
@@ -638,7 +638,7 @@ public sealed class GameData
                     }
                 }
             }
-            else if (k is 'h' or 'f')
+            else if (k is 'h' or 'f' or 'q' or 'e')
             {
                 char corner = char.ToUpperInvariant(k);
                 if (!new[] { new Cell(-1, 0), new Cell(0, -1), new Cell(-1, -1) }.Any(d => t[c + d] == corner))
@@ -660,6 +660,12 @@ public sealed class GameData
                 throw new InvalidDataException($"{npc}: unknown look or colour.");
             if (!n.At.Neighbours().Any(reach.Contains))
                 throw new InvalidDataException($"{npc}: nobody can walk up to them from the arrival.");
+        }
+        // The beasts (sprint 104): a kind the game draws, on grass or flowers of their own, off the roads.
+        foreach (Animal a in t.Animals ?? [])
+        {
+            if (!Animal.Kinds.Contains(a.Kind) || !board.IsFloor(a.At) || t[a.At] == '=' || t.NpcAt(a.At) is not null || t.LinkAt(a.At) is not null)
+                throw new InvalidDataException($"{who}: the {a.Kind} at {a.At} is of an unknown kind, or not on grass of its own.");
         }
         foreach (TownExit e in t.Exits)
         {

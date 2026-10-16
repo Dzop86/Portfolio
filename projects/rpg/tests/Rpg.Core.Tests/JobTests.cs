@@ -21,8 +21,13 @@ public class JobTests
         // The easier the zone, the lower the recipe.
         Assert.Equal(1, locksmith.RecipeFor("boar-wallow-key")!.Level);
         Assert.True(locksmith.RecipeFor("royal-hive-key")!.Level > locksmith.RecipeFor("crab-reef-key")!.Level);
-        // Its bench is in Clairval's craftsmen's quarter (sprint 102), on a free cell.
-        Assert.Equal([new Workshop(new Cell(24, 12), "locksmith")], Real.Towns["clairval-3-1"].Workshops!);
+        // Its bench is on Clairval's craftsmen's row (sprint 102), since sprint 104 by Gédéon's door and off the road (Charles, D75).
+        Town row = Real.Towns["clairval-3-1"];
+        Workshop bench = Assert.Single(row.Workshops!);
+        Assert.Equal("locksmith", bench.Job);
+        Assert.NotEqual('=', row[bench.At]);
+        Assert.Contains(bench.At.Neighbours(), c => row[c] is 'H' or 'h');
+        Assert.True(row.Npcs.Single(n => n.Id == "gedeon").At.DistanceTo(bench.At) <= 3);
     }
 
     [Fact]

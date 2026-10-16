@@ -15,6 +15,16 @@ public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? N
 /// <summary>A trade's workshop on a map (sprint 81): walking onto it opens the trade's recipes.</summary>
 public sealed record Workshop(Cell At, string Job);
 
+/// <summary>
+/// A beast of the village (sprint 104, D75: hens, horses, sheep), there to be looked at: it wanders round
+/// where it stands, nobody fights it or talks to it, and it never stops anyone walking.
+/// </summary>
+public sealed record Animal(string Kind, Cell At)
+{
+    /// <summary>The kinds the game can draw.</summary>
+    public static readonly IReadOnlyList<string> Kinds = ["hen", "horse", "sheep"];
+}
+
 /// <summary>The door of a dungeon on a map of the world (sprint 80): walking onto it leads in.</summary>
 public sealed record DungeonDoor(Cell At, string Dungeon);
 
@@ -29,7 +39,7 @@ public sealed record DungeonDoor(Cell At, string Dungeon);
 /// </summary>
 public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
     IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null, IReadOnlyList<Workshop>? Workshops = null,
-    string? Dungeon = null)
+    string? Dungeon = null, IReadOnlyList<Animal>? Animals = null)
 {
     /// <summary>A room of a dungeon (sprint 86): a map apart from the world, its ways leading to the next room or out.</summary>
     public bool IsHall => Dungeon is not null;
@@ -52,8 +62,8 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
     /// <summary>
     /// What a character of the rows stands for. Walkable: '.' grass, '=' road, ',' flowers. Not walkable:
     /// 'H' a house (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2,
-    /// 'f'), 'K' a dungeon's keep (3 × 3, 'k', sprint 86), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
-    /// giant mushroom, 'B' a bush or a hedge (sprint 74), 'P' the village's palisade (sprint 102).
+    /// 'f'), 'K' a dungeon's keep (3 × 3, 'k', sprint 86), 'Q' a hen house and 'E' a stable (2 × 2, 'q' and 'e', sprint 104), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
+    /// giant mushroom, 'B' a bush or a hedge (sprint 74), 'P' the village's palisade (sprint 102), 'X' a fence (sprint 104).
     /// </summary>
     public static readonly IReadOnlyDictionary<char, string> Decor = new Dictionary<char, string>
     {
@@ -75,6 +85,11 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
         ['K'] = "keep",
         ['k'] = "keep",
         ['P'] = "palisade",
+        ['Q'] = "hen house",
+        ['q'] = "hen house",
+        ['E'] = "stable",
+        ['e'] = "stable",
+        ['X'] = "fence",
     };
 
     public char this[Cell c] => c.Y >= 0 && c.Y < Rows.Count && c.X >= 0 && c.X < Rows[c.Y].Length ? Rows[c.Y][c.X] : '~';

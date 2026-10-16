@@ -1,0 +1,76 @@
+{
+  "id": "gaspard",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Hein ? Parle plus fort, la roche m'a mangé les oreilles.",
+        "en": "Eh? Speak up, the rock ate my ears."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le cuivre ?",
+            "en": "Copper?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et la carrière ?",
+            "en": "And the quarry?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Le cuivre, c'est la roche verte, là. Approche-toi et frappe ; tout est dans ta fenêtre des métiers (J).",
+        "en": "Copper's the green rock, there. Walk up and strike it; it's all in your trades window (J)."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et la carrière ?",
+            "en": "And the quarry?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Depuis peu, la carrière sonne quand on la frappe, comme une cloche au loin. Cinquante ans de mine, et je n'avais jamais entendu ça.",
+        "en": "Lately the quarry rings when you strike it, like a bell far away. Fifty years of mining and I'd never heard the like."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le cuivre ?",
+            "en": "Copper?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -47,12 +47,12 @@ public class WorldPictureTests
         Assert.Equal(WorldPicture.Stone, Picture.At(cx + 22 * P, cy + 13 * P));
         Assert.Equal(WorldPicture.Water, Picture.At(cx + 22 * P + P / 2, cy + 13 * P + P / 2));
         // A roof, its edge where the house ends.
-        Assert.Equal('H', village[new Cell(5, 4)]);
-        Assert.Equal(WorldPicture.Roof, Picture.At(cx + 5 * P + P / 2, cy + 4 * P + P / 2));
-        Assert.Equal(WorldPicture.RoofEdge, Picture.At(cx + 5 * P, cy + 4 * P + P / 2));
+        Cell house = village.Rows.Select((r, y) => new Cell(r.IndexOf('H', StringComparison.Ordinal), y)).First(c => c.X >= 0);
+        Assert.Equal(WorldPicture.Roof, Picture.At(cx + house.X * P + P / 2, cy + house.Y * P + P / 2));
+        Assert.Equal(WorldPicture.RoofEdge, Picture.At(cx + house.X * P, cy + house.Y * P + P / 2));
         // A tree seen from above on its grass, water in the mill's pond.
-        Assert.Equal('T', village[new Cell(43, 21)]);
-        Assert.Equal(WorldPicture.Tree, Picture.At(cx + 43 * P + P / 2, cy + 21 * P + P / 2));
+        Cell tree = village.Rows.Select((r, y) => new Cell(r.IndexOf('T', StringComparison.Ordinal), y)).First(c => c.X >= 0);
+        Assert.Equal(WorldPicture.Tree, Picture.At(cx + tree.X * P + P / 2, cy + tree.Y * P + P / 2));
         Assert.Equal(WorldPicture.Grass, Picture.At(cx + 43 * P, cy + 21 * P));
         Town mill = GameData.Embedded.Towns["clairval-2-0"];
         Assert.Equal('~', mill[new Cell(33, 6)]);

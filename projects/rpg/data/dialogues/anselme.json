@@ -1,0 +1,76 @@
+{
+  "id": "anselme",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Hm. La forge est chaude. Parle vite.",
+        "en": "Hm. The forge is hot. Talk fast."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "L'arme de Garance ?",
+            "en": "Garance's weapon?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Du métal, du bois, de la patience. Le reste, c'est le marteau.",
+        "en": "Metal, wood, patience. The rest is the hammer."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "L'arme de Garance ?",
+            "en": "Garance's weapon?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Garance m'a apporté l'arme qui vibre. Le métal est bon. C'est la main qui ne l'est pas.",
+        "en": "Garance brought me the humming weapon. The metal is sound. It's the hand that isn't."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}
