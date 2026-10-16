@@ -133,6 +133,9 @@ app.MapAccountEndpoints();
 app.MapCharacterEndpoints();
 app.MapServerEndpoints();
 
+// The game's data loaded before the first request (136 maps, their groups and spots: seconds on a cold
+// container): loaded by the first list of characters, it outlasted the game's 10 s wait ("server unreachable").
+_ = Rpg.Core.GameData.Embedded;
 await app.RunAsync();
 return 0;
 
