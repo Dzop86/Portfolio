@@ -207,7 +207,7 @@ public partial class TownView : Node3D
 
     private static StandardMaterial3D Matte(Color colour) => new() { AlbedoColor = colour, Roughness = 0.9f };
 
-    private MeshInstance3D Part(Node3D parent, Mesh mesh, Color colour, Vector3 at, Vector3? turn = null)
+    private static MeshInstance3D Part(Node3D parent, Mesh mesh, Color colour, Vector3 at, Vector3? turn = null)
     {
         var part = new MeshInstance3D { Mesh = mesh, MaterialOverride = Matte(colour), Position = at, RotationDegrees = turn ?? Vector3.Zero };
         parent.AddChild(part);
