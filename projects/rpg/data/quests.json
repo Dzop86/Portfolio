@@ -61,6 +61,34 @@
     ]
   },
   {
+    "id": "well-equipped",
+    "name": {
+      "fr": "Bien équipé",
+      "en": "Kitted Out"
+    },
+    "giver": "clairval/garance",
+    "level": 1,
+    "text": {
+      "fr": "Un anneau au fond du sac ne protège personne. Ouvre ton sac (I) et passe-le au doigt. Puis regarde tes caractéristiques (C) : tu as des points à placer, place-les selon ta façon de te battre.",
+      "en": "A ring at the bottom of a bag protects nobody. Open your bag (I) and put it on. Then look at your characteristics (C): you have points to spend, so spend them to suit the way you fight."
+    },
+    "thanks": {
+      "fr": "Là, tu ressembles à quelqu'un. Et dis donc : tu passes d'un élément à l'autre sans qu'ils se marchent dessus. Chez la plupart des gens, l'un étouffe l'autre. Bon, Firmin a des rats, et Hortense manque de bras : va les voir.",
+      "en": "Now you look like somebody. And I must say: you go from one element to another without them treading on each other. In most people, one smothers the other. Right, Firmin has rats and Hortense needs a hand: go and see them."
+    },
+    "objectives": [
+      {
+        "goal": "Wear",
+        "target": "copper-ring"
+      }
+    ],
+    "after": [
+      "first-lesson"
+    ],
+    "xp": 50,
+    "shards": 10
+  },
+  {
     "id": "whispering-stone",
     "name": {
       "fr": "La pierre qui murmurait",
@@ -69,21 +97,25 @@
     "giver": "clairval/ysaline",
     "level": 1,
     "text": {
-      "fr": "Cette nuit, la vieille pierre a montré un cinquième signe, un que personne n'a jamais vu, puis elle s'est fendue. Les anciens disent que ce n'est rien. Demande à Aubin et à Garance ce qu'ils ont vu : on ne m'écoute pas, toi peut-être.",
-      "en": "Last night, the old stone showed a fifth sign, one nobody has ever seen, then it cracked. The elders say it is nothing. Ask Aubin and Garance what they saw: they do not listen to me, perhaps they will to you."
+      "fr": "Cette nuit, la vieille pierre a montré un cinquième signe que personne n'avait jamais vu, puis elle s'est fendue. Les anciens disent que ce n'est rien. Regardez-la vous-même, puis demandez à Aubin et à Odalric, le copiste, ce qu'ils en savent. On ne m'écoute pas ; vous, peut-être.",
+      "en": "Last night the old stone showed a fifth sign nobody had ever seen, then it cracked. The elders say it's nothing. Look at it yourself, then ask Aubin and Odalric the copyist what they know. They won't listen to me; perhaps they will to you."
     },
     "thanks": {
-      "fr": "Le même rêve, tous les deux ? Un cercle qui relie quatre lumières… Ce n'est pas rien. Merci.",
-      "en": "The same dream, both of them? A circle joining four lights… That is not nothing. Thank you."
+      "fr": "Un rêve partagé, une page grattée, une face polie par des siècles de mains… Ou quelqu'un a voulu qu'on oublie, ou tout le monde a oublié en même temps. Je ne sais pas ce qui est pire. Merci : tu m'as crue.",
+      "en": "A shared dream, a scraped page, a face worn smooth by centuries of hands… Either someone wanted us to forget, or everyone forgot at once. I don't know which is worse. Thank you: you believed me."
     },
     "objectives": [
+      {
+        "goal": "Interact",
+        "target": "old-stone"
+      },
       {
         "goal": "Talk",
         "target": "clairval/aubin"
       },
       {
         "goal": "Talk",
-        "target": "clairval/garance"
+        "target": "clairval/odalric"
       }
     ],
     "xp": 80,

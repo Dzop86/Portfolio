@@ -48,7 +48,22 @@
     "x": 24,
     "y": 16
   },
-  "npcs": [],
+  "npcs": [
+    {
+      "id": "liane",
+      "name": {
+        "fr": "Liane",
+        "en": "Liane"
+      },
+      "look": "female-a",
+      "colour": 4,
+      "at": {
+        "x": 27,
+        "y": 14
+      },
+      "dialogue": "liane"
+    }
+  ],
   "exits": [],
   "links": [
     {

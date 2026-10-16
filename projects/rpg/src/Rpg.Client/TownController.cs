@@ -197,6 +197,12 @@ public sealed class TownController
     /// <summary>The spot the player walked up to, to gather it (sprint 99); the game gathers it, then says it is seen to.</summary>
     public HarvestNode? Gathering { get; private set; }
 
+    /// <summary>The thing to examine the player has walked up to (sprint 105), for the game to read out and count.</summary>
+    public Prop? Examining { get; private set; }
+
+    /// <summary>The thing examined, seen to by the game.</summary>
+    public void ExaminingSeenTo() => Examining = null;
+
     public void GatheringSeenTo() => Gathering = null;
 
     /// <summary>Not going in after all, or done at the bench: the player stays there, free to walk on.</summary>
@@ -224,7 +230,7 @@ public sealed class TownController
                 .FirstOrDefault();
         }
         // Someone to talk to, monsters to fight or a fountain: up to the nearest cell next to them.
-        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || IsSpring(target))
+        if (Town.NpcAt(target) is not null || Town.PropAt(target) is not null || GroupAt(target) is not null || IsSpring(target))
         {
             return Wander.Steps.Select(s => target + s).Where(IsFree)
                 .Select(n => n == Position ? [] : Wander.FindPath(Board, Position, n, IsFree))
@@ -245,11 +251,11 @@ public sealed class TownController
     /// included, or beyond it (the dark around the map), leads to the way out on that side the player can
     /// reach by the shortest walk; with the side's direction (one step out), for the arrow under the mouse.
     /// Beyond a corner, the side it is farthest beyond first, then the other. Null away from the edges, on
-    /// sides without a way, on someone, on monsters or on a gathering spot (sprint 103).
+    /// sides without a way, on someone, on monsters, on a gathering spot (sprint 103) or on a thing to examine (sprint 105).
     /// </summary>
     public (ZoneLink Way, Cell Direction)? EdgeWay(Cell target)
     {
-        if (Town.NpcAt(target) is not null || GroupAt(target) is not null || NodeAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
+        if (Town.NpcAt(target) is not null || Town.PropAt(target) is not null || GroupAt(target) is not null || NodeAt(target) is not null || Talk is not null || Fight is not null || Travel is not null || Door is not null || Bench is not null || Shut is not null || Spring)
             return null;
         (int distance, Cell direction, Func<Cell, bool> onSide)[] sides =
         [
@@ -325,6 +331,8 @@ public sealed class TownController
             Door = door;
         else if (bench is not null && there)
             Bench = bench;
+        else if (Town.PropAt(target) is Prop prop)
+            Examining = prop;
         else if (NodeAt(target) is HarvestNode node && npc is null && group is null)
             Gathering = node;
         return new TownStep(path, npc, there ? exit : null, there && Shut is null ? link : null, attack ? group : null, there ? door : null)
@@ -351,6 +359,7 @@ public sealed class TownController
         Shut = null;
         Spring = false;
         Gathering = null;
+        Examining = null;
     }
 
     /// <summary>The quest taken or handed back, seen to by the game.</summary>

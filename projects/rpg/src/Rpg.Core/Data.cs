@@ -111,7 +111,11 @@ public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scena
     public bool IsGiven => Giver is not null;
 }
 
-/// <summary>What a quest asks (sprint 88): to talk to someone ("town/npc"), to defeat monsters of a family, to bring items (taken when handed back), to finish a dungeon.</summary>
+/// <summary>
+/// What a quest asks (sprint 88): to talk to someone ("town/npc"), to defeat monsters of a family, to bring
+/// items (taken when handed back), to finish a dungeon; since sprint 105 (D75), to examine a clue on a map
+/// (a <see cref="Prop"/>), to win a fight (a scenario, started from a talk), to wear an item.
+/// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<QuestGoal>))]
 public enum QuestGoal
 {
@@ -119,10 +123,13 @@ public enum QuestGoal
     Defeat,
     Bring,
     Dungeon,
+    Interact,
+    Win,
+    Wear,
 }
 
 /// <summary>
-/// One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon), how many;
+/// One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon, a prop, a scenario), how many;
 /// for a dungeon, the room to win (sprint 95, D71: 0 = finish it), so that the main quest is done alone.
 /// </summary>
 public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1, int Room = 0);
@@ -299,6 +306,9 @@ public sealed class GameData
             Check(d);
         foreach (Town t in Towns.Values)
             Check(t);
+        // A thing to examine is the world's only one of its id (sprint 105).
+        if (Towns.Values.SelectMany(t => t.Props ?? []).GroupBy(p => p.Id).FirstOrDefault(g => g.Count() > 1) is { } twice)
+            throw new InvalidDataException($"Prop '{twice.Key}': on several maps.");
         // One map per place of the world.
         if (Towns.Values.Where(t => !t.IsHall).GroupBy(t => t.MapAt).FirstOrDefault(g => g.Count() > 1) is { } shared)
             throw new InvalidDataException($"Towns {string.Join(", ", shared.Select(t => $"'{t.Id}'"))}: the same place {shared.Key} of the world.");
@@ -371,14 +381,38 @@ public sealed class GameData
                     QuestGoal.Defeat => Families.ContainsKey(o.Target),
                     QuestGoal.Bring => Items.ContainsKey(o.Target),
                     QuestGoal.Dungeon => Dungeons.ContainsKey(o.Target),
+                    QuestGoal.Interact => FindProp(o.Target) is not null,
+                    QuestGoal.Win => FindScenario(o.Target) is not null,
+                    QuestGoal.Wear => Items.TryGetValue(o.Target, out Item? worn) && worn.Kind == ItemKind.Equipment,
                     _ => false,
                 };
-                if (!known || o.Count < 1 || (o.Goal is QuestGoal.Talk or QuestGoal.Dungeon && o.Count != 1))
+                if (!known || o.Count < 1 || (o.Goal is not (QuestGoal.Defeat or QuestGoal.Bring) && o.Count != 1))
                     throw new InvalidDataException($"Quest '{q.Id}': the objective {o.Goal} '{o.Target}' ×{o.Count} is unknown.");
                 if (o.Room is < 0 or > Rpg.Core.Dungeons.RoomCount || (o.Room != 0 && o.Goal != QuestGoal.Dungeon))
                     throw new InvalidDataException($"Quest '{q.Id}': a room of 1 to {Rpg.Core.Dungeons.RoomCount}, for a dungeon only.");
             }
         }
+        // A quest's loot (sprint 105): a quest item that quest asks to bring.
+        foreach (MonsterSpec m in Monsters.Values)
+        {
+            foreach (LootDrop l in (m.Loot ?? []).Where(l => l.Quest is not null))
+            {
+                if (!Quests.TryGetValue(l.Quest!, out Quest? wanting) || Items[l.Item].Kind != ItemKind.Quest
+                    || !(wanting.Objectives ?? []).Any(o => o.Goal == QuestGoal.Bring && o.Target == l.Item))
+                    throw new InvalidDataException($"Monster '{m.Id}': the loot '{l.Item}' of the quest '{l.Quest}' is not a quest item it asks to bring.");
+            }
+        }
+    }
+
+    /// <summary>A thing to examine by its id (sprint 105), and its map.</summary>
+    public (Town Town, Prop Prop)? FindProp(string id)
+    {
+        foreach (Town town in Towns.Values)
+        {
+            if (town.Props?.FirstOrDefault(p => p.Id == id) is Prop prop)
+                return (town, prop);
+        }
+        return null;
     }
 
     /// <summary>An inhabitant by "town/npc" (sprint 88), and its town.</summary>
@@ -660,6 +694,13 @@ public sealed class GameData
                 throw new InvalidDataException($"{npc}: unknown look or colour.");
             if (!n.At.Neighbours().Any(reach.Contains))
                 throw new InvalidDataException($"{npc}: nobody can walk up to them from the arrival.");
+        }
+        // The things to examine (sprint 105): on floor of their own, named, walked up to from the arrival.
+        foreach (Prop p in t.Props ?? [])
+        {
+            if (!board.IsFloor(p.At) || t.NpcAt(p.At) is not null || t.LinkAt(p.At) is not null || t.ExitAt(p.At) is not null || !cells.Add(p.At)
+                || string.IsNullOrWhiteSpace(p.Id) || string.IsNullOrWhiteSpace(p.Look) || p.Name is null || p.Text is null || !p.At.Neighbours().Any(reach.Contains))
+                throw new InvalidDataException($"{who}: the prop '{p.Id}' at {p.At} is not on a floor cell of its own one can walk up to.");
         }
         // The beasts (sprint 104): a kind the game draws, on grass or flowers of their own, off the roads.
         foreach (Animal a in t.Animals ?? [])

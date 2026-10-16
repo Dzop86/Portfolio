@@ -48,7 +48,22 @@
     "x": 24,
     "y": 16
   },
-  "npcs": [],
+  "npcs": [
+    {
+      "id": "eglantine",
+      "name": {
+        "fr": "Églantine",
+        "en": "Églantine"
+      },
+      "look": "female-e",
+      "colour": 3,
+      "at": {
+        "x": 27,
+        "y": 14
+      },
+      "dialogue": "eglantine"
+    }
+  ],
   "exits": [],
   "links": [
     {

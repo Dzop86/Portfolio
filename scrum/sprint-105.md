@@ -6,7 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, mes quêtes me demandent d'examiner des indices, de gagner un combat, de porter un objet, de rapporter un objet qui ne tombe que pendant la quête ; des habitants dans les zones ; un « ! » ou un « ? » au-dessus des donneurs ; le journal dit où aller (rpg) ; xUnit, intégration, auto-test. | 5 | À faire |
+| En tant que joueur, mes quêtes me demandent d'examiner des indices, de gagner un combat, de porter un objet, de rapporter un objet qui ne tombe que pendant la quête ; des habitants dans les zones ; un « ! » ou un « ? » au-dessus des donneurs ; le journal dit où aller (rpg) ; xUnit, intégration, auto-test. | 5 | Fait |
+
+**Résultat :** les objectifs « examiner », « gagner » et « porter », le butin de quête, les quatre donneurs des zones, « ! » et « ? » au-dessus des habitants, le journal qui dit où aller ; « La pierre qui murmurait » réécrite par le scénariste et « Bien équipé » s'en servent (T73).
 
 ## Rétro (Charles)
 - Ce qui a marché :

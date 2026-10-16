@@ -84,6 +84,81 @@ public class QuestTests
         Assert.Empty(Quests.Read(""));
     }
 
+    [Fact]
+    public void AClueExamined_AFightWon_AnItemWorn_MoveAQuestOn()
+    {
+        // Sprint 105 (D75): the old stone of the square, the training fight, the copper ring.
+        Quest q = Edge with
+        {
+            Objectives = [new QuestObjective(QuestGoal.Interact, "old-stone"), new QuestObjective(QuestGoal.Win, "training"), new QuestObjective(QuestGoal.Wear, "copper-ring")],
+        };
+        Assert.NotNull(WithQuests(q).Quests[q.Id]);
+        Assert.Equal(("clairval", "stone"), Real.FindProp("old-stone") is (Town t, Prop p0) ? (t.Id, p0.Look) : default);
+        Assert.Null(Real.FindProp("no-such-thing"));
+        QuestProgress p = Quests.Start(q);
+        p = Quests.AfterInteract(q, p, "a-stone-elsewhere");
+        Assert.Equal([0, 0, 0], p.Counts);
+        p = Quests.AfterInteract(q, p, "old-stone");
+        // Another scenario, or none (a lost fight), counts for nothing.
+        p = Quests.AfterFight(q, p, new Dictionary<string, int>(), null, "dungeon:boar-wallow:1");
+        p = Quests.AfterFight(q, p, new Dictionary<string, int>(), null);
+        Assert.Equal([1, 0, 0], p.Counts);
+        p = Quests.AfterFight(q, p, new Dictionary<string, int>(), null, "training");
+        Assert.Equal([1, 1, 0], p.Counts);
+        // The ring counts while it is worn, not while it is owned.
+        Assert.False(Quests.IsComplete(q, p, [new ItemCount("copper-ring", 1)]));
+        Assert.False(Quests.IsComplete(q, p, [], ["acorn-ring"]));
+        Assert.True(Quests.IsComplete(q, p, [new ItemCount("copper-ring", 1)], ["copper-ring"]));
+        Assert.Empty(Quests.Taken(q));
+        // Unknown things are refused, and these goals ask for one each.
+        Assert.Throws<InvalidDataException>(() => WithQuests(q with { Objectives = [new QuestObjective(QuestGoal.Interact, "no-such-thing")] }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(q with { Objectives = [new QuestObjective(QuestGoal.Win, "no-such-fight")] }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(q with { Objectives = [new QuestObjective(QuestGoal.Wear, "boar-bristle")] }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(q with { Objectives = [new QuestObjective(QuestGoal.Interact, "old-stone", 2)] }));
+    }
+
+    [Fact]
+    public void AQuestsLoot_FallsOnlyWhileTheQuestWantsIt_TheDrawsStayingTheSame()
+    {
+        // A quest item the boars leave every time (100 %), only for a quest that asks to bring two (the families kept
+        // in their order: the groups of the world are drawn from it).
+        Quest q = Edge with { Objectives = [new QuestObjective(QuestGoal.Bring, "garance-badge", 2)] };
+        MonsterGroup boars = Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null && g.Monsters.Count == 2);
+        MonsterFamily boar = Real.Families["boar"];
+        MonsterFamily marked = boar with { Monsters = [.. boar.Monsters.Select(m => m with { Loot = [.. m.Loot ?? [], new LootDrop("garance-badge", 100, 1, q.Id)] })] };
+        GameData data = new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
+            [.. Real.Quests.Values.Where(x => x.Id != q.Id), q], Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? marked : f)],
+            Real.Dungeons.Values, Real.Jobs.Values, Real.Passives.Values);
+        var fight = new Fight(data, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), data));
+        Ai.PlayOut(fight);
+        Assert.Equal(0, fight.WinningTeam);
+        // No quest under way: the other loot only, drawn as it always was.
+        IReadOnlyList<ItemCount> plain = Equipment.Loot(fight);
+        Assert.DoesNotContain(plain, i => i.Item == "garance-badge");
+        Assert.Equal(plain, Equipment.Loot(fight, Quests.LootWanted(data, [], [])));
+        // Under way: the two boars leave one each; owned already, nothing more.
+        IReadOnlySet<string> wanted = Quests.LootWanted(data, [Quests.Start(q)], []);
+        Assert.Equal(["edge-of-the-woods/garance-badge"], wanted);
+        Assert.Equal(2, Equipment.Loot(fight, wanted).Single(i => i.Item == "garance-badge").Count);
+        Assert.Equal(plain, Equipment.Loot(fight, wanted).Where(i => i.Item != "garance-badge"));
+        Assert.Empty(Quests.LootWanted(data, [Quests.Start(q)], [new ItemCount("garance-badge", 2)]));
+        // A quest's loot must be a quest item the quest asks to bring.
+        MonsterFamily wrong = boar with { Monsters = [.. boar.Monsters.Select(m => m with { Loot = [new LootDrop("boar-bristle", 50, 1, q.Id)] })] };
+        Assert.Throws<InvalidDataException>(() => new GameData(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
+            [.. Real.Quests.Values.Where(x => x.Id != q.Id), q], Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? wrong : f)],
+            Real.Dungeons.Values, Real.Jobs.Values, Real.Passives.Values));
+    }
+
+    [Fact]
+    public void AQuestUnderWay_IsFittedToItsObjectivesAsTheyAreNow()
+    {
+        // A quest given more objectives since (the whispering stone, sprint 105) keeps its counts, the new at zero.
+        Assert.Equal(3, Real.Quests["whispering-stone"].Objectives!.Count);
+        List<QuestProgress> fitted = Quests.Fit(Real, [new QuestProgress("whispering-stone", [1, 1]), new QuestProgress("gone", [1]), new QuestProgress(Edge.Id, [1, 2, 0])]);
+        Assert.Equal([new QuestProgress("whispering-stone", [1, 1, 0]), new QuestProgress(Edge.Id, [1, 2, 0])], fitted);
+        Assert.Equal([new QuestProgress(Edge.Id, [1, 2, 0])], Quests.Fit(Real, [new QuestProgress(Edge.Id, [1, 2, 0, 5])]));
+    }
+
     /// <summary>A fight of the scenario won by a hero far stronger, played by the AI.</summary>
     private static Fight Won(string scenario)
     {

@@ -111,6 +111,9 @@ public sealed record TakeQuest(string? Quest);
 /// <summary>Someone talked to ("town/npc") for a quest under way (sprint 88).</summary>
 public sealed record QuestTalk(string? Npc);
 
+/// <summary>What one examines for a quest under way (sprint 105): a thing on a map, by its id.</summary>
+public sealed record QuestInteract(string? Prop);
+
 /// <summary>
 /// What a quest handed back gave (sprint 88): its experience, Éclats and items, the character's new
 /// totals and level, and the character itself (its quests, inventory).

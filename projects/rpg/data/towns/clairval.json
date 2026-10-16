@@ -388,5 +388,23 @@
       }
     }
   ],
-  "exits": []
+  "exits": [],
+  "props": [
+    {
+      "id": "old-stone",
+      "at": {
+        "x": 18,
+        "y": 12
+      },
+      "look": "stone",
+      "name": {
+        "fr": "La vieille pierre",
+        "en": "The old stone"
+      },
+      "text": {
+        "fr": "Une pierre levée, plus vieille que le village. Quatre signes y sont gravés : une graine, une goutte, un marteau, une plume. Une de ses faces est polie, comme par des siècles de mains, et une fissure toute fraîche la traverse.",
+        "en": "A standing stone, older than the village. Four signs are carved on it: a seed, a drop, a hammer, a feather. One face is worn smooth, as if by centuries of hands, and a fresh crack runs through it."
+      }
+    }
+  ]
 }

@@ -42,6 +42,7 @@ public partial class Main
         _beastAt.Clear();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
+        _townView.ShowMarks(_town.Book);
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
@@ -652,6 +653,34 @@ public partial class Main
             await Rest();
         else if (_town.Gathering is HarvestNode node)
             await Gather(node);
+        else if (_town.Examining is Prop prop)
+            await Examine(prop);
+    }
+
+    /// <summary>
+    /// A thing examined (sprint 105): what one sees in it, and for each quest under way that asks for it, the
+    /// server counts it.
+    /// </summary>
+    private async Task Examine(Prop prop)
+    {
+        _town!.ExaminingSeenTo();
+        Texts texts = _talkPanel!.Texts;
+        _talkPanel.ShowMessage(texts["prop.seen", prop.Name.In(texts.Lang), prop.Text.In(texts.Lang)]);
+        if (_lobby?.SignedIn != true || _character is null || _town.Book is not QuestBook book)
+            return;
+        try
+        {
+            foreach (Quest q in book.Interacts(prop.Id))
+            {
+                KeepCharacter(await _lobby.Server.QuestInteract(_character.Id, q.Id, prop.Id));
+                _talkPanel.ShowNotice(texts["quest.found", q.Name.In(texts.Lang)]);
+                _sound?.Play("click");
+            }
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _talkPanel.ShowMessage(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
     }
 
     private JobsPanel? _jobsPanel;
@@ -1012,8 +1041,26 @@ public partial class Main
             Quest stone = GameData.Embedded.Quests["whispering-stone"];
             _town.Click(Inhabitant("ysaline").At);
             if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", stone.Name.In(texts.Lang)])
+            {
                 problems.Add("Ysaline does not offer the main quest");
-            return " Quests: one taken from Aubin, followed in the journal, Rose seen, the main quest offered.";
+                return "";
+            }
+            // Taken, then the old stone beside her examined (sprint 105): the server counts the clue.
+            Answer(0);
+            Answer(0);
+            await Until(() => _character.QuestLog?.Any(p => p.Quest == stone.Id) == true);
+            _town.Interrupt(_town.Position);
+            (_, Prop oldStone) = GameData.Embedded.FindProp("old-stone")!.Value;
+            _town.Click(oldStone.At);
+            if (_town.Examining != oldStone)
+            {
+                problems.Add("a click on the old stone does not walk up to it");
+                return "";
+            }
+            await Examine(oldStone);
+            if (_character.QuestLog?.FirstOrDefault(p => p.Quest == stone.Id)?.Counts[0] != 1)
+                problems.Add("examining the old stone is not counted");
+            return " Quests: one taken from Aubin, followed in the journal, Rose seen, the main quest taken and its stone examined.";
         }
         finally
         {
@@ -1134,6 +1181,7 @@ public partial class Main
         _inventoryPanel?.SetShards(character.Shards);
         if (_town is not null)
             _town.Book = QuestBook.Of(character, GameData.Embedded);
+        _townView?.ShowMarks(_town?.Book);
         if (_journalPanel is not null)
         {
             CloseJournal();
@@ -1623,6 +1671,25 @@ public partial class Main
             problems.Add($"the map of {first.Id} draws {view.NodesShown.Drawn} of its {spots} gathering spots");
         RemoveChild(view);
         view.QueueFree();
+        // The square's marks and its old stone (sprint 105): "!" over Aubin for a new hero; the stone glinting and a
+        // grey "?" over Ysaline while her quest is under way, a "?" once it is done.
+        {
+            view = new TownView();
+            AddChild(view);
+            var square = new TownController(GameData.Embedded, "clairval");
+            view.Build(square, _options.Lang, _hero ?? new Hero("", "female-d"));
+            QuestProgress stone = Quests.Start(GameData.Embedded.Quests["whispering-stone"]);
+            view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [], []));
+            string fresh = view.MarkShown("aubin");
+            bool idle = view.ClueShown("old-stone");
+            view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone], []));
+            (string waiting, bool glint) = (view.MarkShown("ysaline"), view.ClueShown("old-stone"));
+            view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone with { Counts = [1, 1, 1] }], []));
+            if (view.PropsDrawn != 1 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
+                problems.Add($"the square shows {view.PropsDrawn} props, '{fresh}' over Aubin, the stone glinting {idle}/{glint}, '{waiting}' over Ysaline");
+            RemoveChild(view);
+            view.QueueFree();
+        }
         // The village's yards (sprint 104): each beast drawn with its two animations, the hen house, the stables and the fences.
         foreach ((string map, int sheds) in new[] { ("clairval-1-2", 1), ("clairval-0-2", 1), ("clairval-3-2", 0) })
         {

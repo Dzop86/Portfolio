@@ -31,6 +31,7 @@ public static class CharacterEndpoints
         group.MapPost("/{id:guid}/dungeon/rest", Rest).WithSummary("Heals one of the player's characters in its dungeon, at the fountain of a hall: all its hit points for the next room.");
         group.MapPost("/{id:guid}/quests", Take).WithSummary("Takes a quest an inhabitant gives, from its level and after the quests it follows.");
         group.MapPost("/{id:guid}/quests/{quest}/talk", Talk).WithSummary("Counts a talk to someone a quest under way asks to see.");
+        group.MapPost("/{id:guid}/quests/{quest}/interact", Interact).WithSummary("Counts a thing on a map examined, which a quest under way asks to find.");
         group.MapPost("/{id:guid}/quests/{quest}/done", HandIn).WithSummary("Hands a quest back to its giver, its objectives reached: the items it asks are taken, its rewards given.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.Map("/{id:guid}/chat", Chat).WithSummary("The proximity chat of one of the player's characters, as a WebSocket: lines in, the lines said on its map out.");
@@ -223,8 +224,9 @@ public static class CharacterEndpoints
         Quest? quest = played!.WinningTeam == 0
             ? GameData.Embedded.Quests.Values.FirstOrDefault(q => q.Scenario == pending.Scenario && !character.QuestList.Contains(q.Id))
             : null;
-        // The loot follows the fight's seed, which the server drew: the game cannot pick it either.
-        List<ItemCount> items = [.. Equipment.Loot(played)];
+        // The loot follows the fight's seed, which the server drew: the game cannot pick it either. The quests'
+        // loot falls only while its quest wants it (sprint 105).
+        List<ItemCount> items = [.. Equipment.Loot(played, Rpg.Core.Quests.LootWanted(GameData.Embedded, character.ActiveQuests, character.InventoryList))];
         if (quest is not null)
         {
             xp += quest.Xp;
@@ -246,8 +248,10 @@ public static class CharacterEndpoints
         IReadOnlyDictionary<string, int> defeated = Rpg.Core.Quests.Defeated(GameData.Embedded, played);
         // The room won (sprint 95): the last finishes the dungeon, an earlier one is enough for some quests.
         (string, int)? roomWon = inRoom is DungeonRun fought && played.WinningTeam == 0 ? (fought.Dungeon, fought.Room) : null;
-        if (defeated.Count > 0 || roomWon is not null)
-            character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon)));
+        // The scenario won, for the quests that ask to win it (sprint 105).
+        string? scenarioWon = played.WinningTeam == 0 ? pending.Scenario : null;
+        if (defeated.Count > 0 || roomWon is not null || scenarioWon is not null)
+            character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;
@@ -440,6 +444,23 @@ public static class CharacterEndpoints
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Interact(
+        Guid id, string quest, QuestInteract request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (character is null)
+            return TypedResults.NotFound();
+        List<QuestProgress> active = character.ActiveQuests;
+        // Like a talk (T31), the server does not check that the character stands by it.
+        if (active.FirstOrDefault(p => p.Quest == quest) is not QuestProgress progress
+            || request?.Prop is not string prop || !GameData.Embedded.Quests[quest].Objectives!.Any(o => o.Goal == QuestGoal.Interact && o.Target == prop))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["A quest under way that asks to examine this."] });
+        character.QuestLog = Rpg.Core.Quests.Write(active.Select(p => p == progress ? Rpg.Core.Quests.AfterInteract(GameData.Embedded.Quests[quest], p, prop) : p));
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
     internal static async Task<Results<Ok<QuestReward>, NotFound, ValidationProblem>> HandIn(
         Guid id, string quest, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
     {
@@ -451,7 +472,7 @@ public static class CharacterEndpoints
         if (active.FirstOrDefault(p => p.Quest == quest) is not QuestProgress progress)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["Not a quest under way."] });
         Quest q = GameData.Embedded.Quests[quest];
-        if (!Rpg.Core.Quests.IsComplete(q, progress, character.InventoryList))
+        if (!Rpg.Core.Quests.IsComplete(q, progress, character.InventoryList, character.WornList.Values))
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["quest"] = ["Its objectives are not all reached."] });
         foreach (ItemCount taken in Rpg.Core.Quests.Taken(q))
             character.Spend(taken);

@@ -56,9 +56,10 @@ public static class Quests
 
     /// <summary>
     /// A quest after a won fight: its "defeat" objectives count the family's monsters, its "dungeon" one the
-    /// room just won (<paramref name="roomWon"/>), when it is the objective's room or later (the last room by default).
+    /// room just won (<paramref name="roomWon"/>), when it is the objective's room or later (the last room by default),
+    /// its "win" one the scenario won (<paramref name="won"/>, sprint 105).
     /// </summary>
-    public static QuestProgress AfterFight(Quest quest, QuestProgress progress, IReadOnlyDictionary<string, int> defeated, (string Dungeon, int Room)? roomWon)
+    public static QuestProgress AfterFight(Quest quest, QuestProgress progress, IReadOnlyDictionary<string, int> defeated, (string Dungeon, int Room)? roomWon, string? won = null)
     {
         ArgumentNullException.ThrowIfNull(quest);
         ArgumentNullException.ThrowIfNull(progress);
@@ -69,6 +70,7 @@ public static class Quests
             {
                 QuestGoal.Defeat => Math.Min(o.Count, progress.Counts[i] + defeated.GetValueOrDefault(o.Target)),
                 QuestGoal.Dungeon when roomWon is var (dungeon, room) && o.Target == dungeon && room >= (o.Room == 0 ? Dungeons.RoomCount : o.Room) => 1,
+                QuestGoal.Win when o.Target == won => 1,
                 _ => progress.Counts[i],
             })],
         };
@@ -82,22 +84,64 @@ public static class Quests
         return progress with { Counts = [.. quest.Objectives!.Select((o, i) => o.Goal == QuestGoal.Talk && o.Target == npc ? 1 : progress.Counts[i])] };
     }
 
-    /// <summary>How far an objective has gone, items to bring counted in what is owned now.</summary>
-    public static int Reached(QuestObjective objective, int count, IReadOnlyList<ItemCount> owned)
-    {
-        ArgumentNullException.ThrowIfNull(objective);
-        ArgumentNullException.ThrowIfNull(owned);
-        return objective.Goal == QuestGoal.Bring
-            ? Math.Min(objective.Count, owned.Where(i => i.Item == objective.Target).Sum(i => i.Count))
-            : Math.Min(objective.Count, count);
-    }
-
-    /// <summary>Every objective reached: the quest can be handed back to its giver.</summary>
-    public static bool IsComplete(Quest quest, QuestProgress progress, IReadOnlyList<ItemCount> owned)
+    /// <summary>A quest after examining a thing on a map (sprint 105): its "interact" objective toward it done.</summary>
+    public static QuestProgress AfterInteract(Quest quest, QuestProgress progress, string prop)
     {
         ArgumentNullException.ThrowIfNull(quest);
         ArgumentNullException.ThrowIfNull(progress);
-        return quest.Objectives!.Select((o, i) => Reached(o, progress.Counts[i], owned) >= o.Count).All(x => x);
+        return progress with { Counts = [.. quest.Objectives!.Select((o, i) => o.Goal == QuestGoal.Interact && o.Target == prop ? 1 : progress.Counts[i])] };
+    }
+
+    /// <summary>
+    /// How far an objective has gone: items to bring counted in what is owned now, an item to wear in what is
+    /// worn now (sprint 105), the rest as the server counted it.
+    /// </summary>
+    public static int Reached(QuestObjective objective, int count, IReadOnlyList<ItemCount> owned, IEnumerable<string>? worn = null)
+    {
+        ArgumentNullException.ThrowIfNull(objective);
+        ArgumentNullException.ThrowIfNull(owned);
+        return objective.Goal switch
+        {
+            QuestGoal.Bring => Math.Min(objective.Count, owned.Where(i => i.Item == objective.Target).Sum(i => i.Count)),
+            QuestGoal.Wear => (worn ?? []).Contains(objective.Target) ? 1 : 0,
+            _ => Math.Min(objective.Count, count),
+        };
+    }
+
+    /// <summary>Every objective reached: the quest can be handed back to its giver.</summary>
+    public static bool IsComplete(Quest quest, QuestProgress progress, IReadOnlyList<ItemCount> owned, IEnumerable<string>? worn = null)
+    {
+        ArgumentNullException.ThrowIfNull(quest);
+        ArgumentNullException.ThrowIfNull(progress);
+        string[] wearing = [.. worn ?? []];
+        return quest.Objectives!.Select((o, i) => Reached(o, progress.Counts[i], owned, wearing) >= o.Count).All(x => x);
+    }
+
+    /// <summary>
+    /// The quests' loot still wanted (sprint 105), as "quest/item": a quest under way that asks to bring a quest
+    /// item, not all of it owned yet. Only these fall from the monsters (<see cref="Equipment.Loot(Fight, IReadOnlySet{string}?)"/>).
+    /// </summary>
+    public static IReadOnlySet<string> LootWanted(GameData data, IEnumerable<QuestProgress> active, IReadOnlyList<ItemCount> owned)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(active);
+        ArgumentNullException.ThrowIfNull(owned);
+        return new HashSet<string>(active.Where(p => data.Quests.ContainsKey(p.Quest)).SelectMany(p => data.Quests[p.Quest].Objectives!
+            .Where(o => o.Goal == QuestGoal.Bring && data.Items.TryGetValue(o.Target, out Item? item) && item.Kind == ItemKind.Quest && Reached(o, 0, owned) < o.Count)
+            .Select(o => $"{p.Quest}/{o.Target}")), StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// The quests under way as their objectives now are (sprint 105): progress kept from an older version of a
+    /// quest gets as many counts as its objectives, the missing ones at zero; quests no longer known are dropped.
+    /// </summary>
+    public static List<QuestProgress> Fit(GameData data, IEnumerable<QuestProgress> active)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(active);
+        return [.. active.Where(p => data.Quests.TryGetValue(p.Quest, out Quest? q) && q.IsGiven)
+            .Select(p => (Progress: p, Goals: data.Quests[p.Quest].Objectives!.Count))
+            .Select(x => x.Progress.Counts.Count == x.Goals ? x.Progress : x.Progress with { Counts = [.. Enumerable.Range(0, x.Goals).Select(i => i < x.Progress.Counts.Count ? x.Progress.Counts[i] : 0)] })];
     }
 
     /// <summary>The items handed back with the quest (those to bring).</summary>

@@ -1,0 +1,76 @@
+{
+  "id": "eglantine",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Ah, enfin quelqu'un ! Le vent tourne, la pluie arrive et mes ruches chauffent. Bonjour.",
+        "en": "Ah, someone at last! The wind's turning, the rain's coming and my hives are hot. Hello."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "La ferme ?",
+            "en": "The farm?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Cette haie ?",
+            "en": "That hedge?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Du blé, des fleurs pour les abeilles, du miel pour Rose : la ferme, c'est trois métiers et pas de sommeil.",
+        "en": "Wheat, flowers for the bees, honey for Rose: a farm is three trades and no sleep."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Cette haie ?",
+            "en": "That hedge?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Mon grand-père défendait d'arracher la vieille haie. Remarque, il défendait tout.",
+        "en": "My grandfather forbade anyone to pull up the old hedge. Mind you, he forbade everything."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "La ferme ?",
+            "en": "The farm?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

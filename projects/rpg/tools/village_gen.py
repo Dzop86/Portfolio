@@ -81,6 +81,10 @@ PENS = {
     (1, 2): ((10, 19), (19, 27), [("Q", (11, 20))], [("hen", (14, 22)), ("hen", (16, 21)), ("hen", (13, 25)), ("hen", (17, 24)), ("hen", (15, 26))]),
     (3, 2): ((29, 5), (44, 26), [], [("sheep", (33, 9)), ("sheep", (38, 12)), ("sheep", (35, 18)), ("sheep", (41, 21)), ("sheep", (32, 23)), ("sheep", (40, 8))]),
 }
+# Things to examine (sprint 105): the old stone Ysaline studies, on the square (its quest comes with the tutorial).
+PROPS = {(1, 1): [("old-stone", (18, 12), "stone", text("La vieille pierre", "The old stone"),
+                   text("Une pierre levée, plus vieille que le village. Quatre signes y sont gravés : une graine, une goutte, un marteau, une plume. Une de ses faces est polie, comme par des siècles de mains, et une fissure toute fraîche la traverse.",
+                        "A standing stone, older than the village. Four signs are carved on it: a seed, a drop, a hammer, a feather. One face is worn smooth, as if by centuries of hands, and a fresh crack runs through it."))]}
 # Pétronille, Léonie's nosiest hen, out of the yard by her side.
 LOOSE = {(1, 2): [("hen", (22, 24))]}
 
@@ -263,7 +267,7 @@ for r in range(ROWS):
             assert not any((x, y) in near for x in range(a[0], b[0] + 1) for y in range(a[1], b[1] + 1)), (c, r)
             pen(g, a, b, inside)
         beasts = PENS.get((c, r), (0, 0, 0, []))[3] + LOOSE.get((c, r), [])
-        people = [p[4] for p in PEOPLE.get((c, r), [])] + [b[0] for b in BENCHES.get((c, r), [])]
+        people = [p[4] for p in PEOPLE.get((c, r), [])] + [b[0] for b in BENCHES.get((c, r), [])] + [p[1] for p in PROPS.get((c, r), [])]
         assert all(g[y][x] == '.' and (x, y) not in road for (x, y) in people), (c, r)
         assert all(g[y][x] == '.' for (_, (x, y)) in beasts), (c, r)
         keep = near | {(x + dx, y + dy) for (x, y) in people for dx in (-2, -1, 0, 1, 2) for dy in (-2, -1, 0, 1, 2)} \
@@ -282,6 +286,8 @@ for r in range(ROWS):
                   ("npcs", [O([("id", i), ("name", n), ("look", look), ("colour", col), ("at", cell(*at)), ("dialogue", d)])
                             for (i, n, look, col, at, d) in PEOPLE.get((c, r), [])]),
                   ("links", links), ("exits", [])])
+        if (c, r) in PROPS:
+            town["props"] = [O([("id", i), ("at", cell(*at)), ("look", look), ("name", n), ("text", t)]) for (i, at, look, n, t) in PROPS[(c, r)]]
         if beasts:
             town["animals"] = [O([("kind", k), ("at", cell(*at))]) for (k, at) in beasts]
         if (c, r) in BENCHES:

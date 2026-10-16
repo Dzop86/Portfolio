@@ -92,6 +92,9 @@ public partial class JournalPanel : CanvasLayer
         name.AddThemeFontSizeOverride("font_size", 17);
         box.AddChild(name);
         box.AddChild(new Label { Text = q.Ready ? texts["journal.ready", q.Giver] : texts["journal.giver", q.Giver], Modulate = new Color(1, 1, 1, 0.6f) });
+        // Where to go next (sprint 105, D75).
+        if (!q.Done && q.Where is string where)
+            box.AddChild(new Label { Text = texts["journal.where", where], Modulate = new Color("ffd85a") });
         if (!q.Done)
         {
             box.AddChild(new Label { Text = q.Text, AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f), CustomMinimumSize = new Vector2(560, 0) });

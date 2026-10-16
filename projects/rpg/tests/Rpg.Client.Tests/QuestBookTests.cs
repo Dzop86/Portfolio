@@ -60,7 +60,8 @@ public class QuestBookTests
         // One under way: one more only.
         Assert.Single(new QuestBook(Data, 30, [], [Quests.Start(open[0])], []).Offers("clairval/garance"));
         // A player who takes all they are offered, level by level, each giver's oldest quest done at each level.
-        var done = new List<string>();
+        // The first lesson won on the first day (Garance's "Kitted out" follows it, sprint 105).
+        var done = new List<string> { "first-lesson" };
         var active = new List<QuestProgress>();
         string[] givers = [.. Data.Quests.Values.Select(q => q.Giver).OfType<string>().Distinct()];
         for (int level = 1; level <= 30; level++)
@@ -80,7 +81,7 @@ public class QuestBookTests
             }
         }
         // Every quest given by someone is offered on the way.
-        Assert.Equal(Data.Quests.Values.Where(q => q.Giver is not null).Select(q => q.Id).Order(StringComparer.Ordinal), done.Concat(active.Select(p => p.Quest)).Order(StringComparer.Ordinal));
+        Assert.Equal(Data.Quests.Values.Where(q => q.Giver is not null).Select(q => q.Id).Order(StringComparer.Ordinal), done.Where(d => Data.Quests[d].IsGiven).Concat(active.Select(p => p.Quest)).Order(StringComparer.Ordinal));
     }
 
     [Fact]
@@ -124,5 +125,68 @@ public class QuestBookTests
         Assert.Equal((0, 1), (after.Active.Count, after.Done.Count));
         foreach (string key in new[] { "journal.title", "journal.active", "journal.done", "journal.empty", "quest.taken", "quest.accept", "quest.later", "bar.Journal" })
             Assert.NotEqual(key, texts[key, "x"]);
+    }
+
+    [Fact]
+    public void OverEachInhabitant_AnExclamationToTake_AQuestionToHandBack()
+    {
+        // Sprint 105 (D75): "!" a quest to take, "?" one to hand back, a grey "?" one under way.
+        var fresh = new QuestBook(Data, 1, [], [], []);
+        Assert.Equal(QuestMark.Offer, fresh.Mark("clairval/aubin"));
+        Assert.Equal(QuestMark.None, fresh.Mark("clairval/gaspard"));
+        QuestProgress stone = Quests.Start(Data.Quests["whispering-stone"]);
+        var underWay = new QuestBook(Data, 1, [], [stone], []);
+        Assert.Equal(QuestMark.Waiting, underWay.Mark("clairval/ysaline"));
+        var ready = new QuestBook(Data, 1, [], [stone with { Counts = [1, 1, 1] }], []);
+        Assert.Equal(QuestMark.Ready, ready.Mark("clairval/ysaline"));
+        // The ring worn, Garance's "Kitted out" is to hand back (she has it to offer after the first lesson).
+        Assert.Equal(QuestMark.Offer, new QuestBook(Data, 1, ["first-lesson"], [], []).Mark("clairval/garance"));
+        QuestProgress kit = Quests.Start(Data.Quests["well-equipped"]);
+        Assert.Empty(new QuestBook(Data, 1, ["first-lesson"], [kit], [new ItemCount("copper-ring", 1)]).HandIns("clairval/garance"));
+        Assert.Equal(QuestMark.Ready, new QuestBook(Data, 1, ["first-lesson"], [kit], [new ItemCount("copper-ring", 1)], ["copper-ring"]).Mark("clairval/garance"));
+    }
+
+    [Theory]
+    [InlineData("fr")]
+    [InlineData("en")]
+    public void TheJournal_SaysWhereToGo_TheNextObjectivesMap_ThenTheGivers(string lang)
+    {
+        var texts = new Texts(lang);
+        string Title(string map) => texts.MapTitle(Data.Towns[map]);
+        QuestProgress stone = Quests.Start(Data.Quests["whispering-stone"]);
+        var book = new QuestBook(Data, 1, [], [stone], []);
+        // The old stone first, on the square; then Aubin, there too; then Odalric, at the chapel; then back to Ysaline.
+        Assert.Equal(Title("clairval"), book.Where(stone, texts));
+        Assert.Equal(Title("clairval-2-2"), book.Where(stone with { Counts = [1, 1, 0] }, texts));
+        Assert.Equal(Title("clairval"), book.Where(stone with { Counts = [1, 1, 1] }, texts));
+        Assert.Equal(Title("clairval"), book.Journal(texts).Single().Active.Single().Where);
+        // Monsters: where their family roams; a dungeon: its door's map; an item to wear: the inventory.
+        QuestProgress edge = Quests.Start(Edge);
+        Assert.StartsWith(Data.Towns[Data.Groups.Values.Where(g => g.Family == "boar" && !Data.Towns[g.Map].IsHall).Select(g => g.Map).Order(StringComparer.Ordinal).First()].Name.In(lang),
+            new QuestBook(Data, 1, [], [edge], []).Where(edge, texts), StringComparison.Ordinal);
+        QuestProgress wallow = Quests.Start(Data.Quests["rumble-under-the-wallow"]);
+        Assert.Equal(Title(Data.Dungeons["boar-wallow"].Map), new QuestBook(Data, 5, [], [wallow], []).Where(wallow, texts));
+        QuestProgress kit = Quests.Start(Data.Quests["well-equipped"]);
+        Assert.Equal(texts["journal.inventory"], new QuestBook(Data, 1, [], [kit], []).Where(kit, texts));
+        Assert.Contains(texts.Objective(Data.Quests["whispering-stone"].Objectives![0], 0), book.Journal(texts).Single().Active.Single().Objectives.Select(o => o.Line));
+    }
+
+    [Fact]
+    public void TheOldStone_IsWalkedUpTo_AndExamined_ForTheQuestThatAsks()
+    {
+        QuestProgress stone = Quests.Start(Data.Quests["whispering-stone"]);
+        TownController town = Village(new QuestBook(Data, 1, [], [stone], []));
+        (_, Prop prop) = Data.FindProp("old-stone")!.Value;
+        Assert.False(town.Town.IsFree(town.Board, prop.At));
+        TownStep step = town.Click(prop.At)!;
+        // Beside it, a diagonal step away at most.
+        Assert.Equal(1, Math.Max(Math.Abs(town.Position.X - prop.At.X), Math.Abs(town.Position.Y - prop.At.Y)));
+        Assert.Equal(prop, town.Examining);
+        Assert.Null(step.TalkTo);
+        Assert.Equal(["whispering-stone"], town.Book!.Interacts("old-stone").Select(q => q.Id));
+        town.ExaminingSeenTo();
+        Assert.Null(town.Examining);
+        // Done already: nothing more to find there.
+        Assert.Empty(new QuestBook(Data, 1, [], [stone with { Counts = [1, 0, 0] }], []).Interacts("old-stone"));
     }
 }

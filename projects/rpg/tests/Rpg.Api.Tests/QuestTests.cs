@@ -92,4 +92,43 @@ public class QuestTests
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "rumble-under-the-wallow", Cancel)));
         Assert.Equal(1, (await server.Characters(Cancel)).Single().Inventory!.Single(i => i.Item == "boar-wallow-key").Count);
     }
+
+    [Fact]
+    public async Task TheOldStone_IsExamined_AndTheRingWorn_ForTheirQuests()
+    {
+        // Sprint 105 (D75): an "interact" objective counted by the server, a "wear" one by what is worn.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("clu");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        await server.TakeQuest(c.Id, "whispering-stone", Cancel);
+        // Only a thing the quest asks to examine, and only for a quest under way.
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.QuestInteract(c.Id, "whispering-stone", "no-such-thing", Cancel)));
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.QuestInteract(c.Id, "edge-of-the-woods", "old-stone", Cancel)));
+        Assert.Equal([1, 0, 0], (await server.QuestInteract(c.Id, "whispering-stone", "old-stone", Cancel)).QuestLog!.Single().Counts);
+
+        // The ring: after the first lesson, owned but not worn, then worn.
+        await Give(api, account, 1, new ItemCount("copper-ring", 1));
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Quests = "first-lesson";
+            return db.SaveChanges();
+        });
+        await server.TakeQuest(c.Id, "well-equipped", Cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.HandInQuest(c.Id, "well-equipped", Cancel)));
+        await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring" }, Cancel);
+        QuestReward reward = await server.HandInQuest(c.Id, "well-equipped", Cancel);
+        // Worn, it stays: a ring to wear is not taken.
+        Assert.Contains(new ItemCount("copper-ring", 1), reward.Character.Inventory!);
+        Assert.Equal("copper-ring", reward.Character.Worn![Slot.Ring1]);
+
+        // A quest kept from before it had its clue (two counts for three objectives) is read as it is now.
+        api.WithDb(db =>
+        {
+            db.Characters.Single().QuestLog = "whispering-stone:0.1";
+            return db.SaveChanges();
+        });
+        Assert.Equal([0, 1, 0], (await server.Characters(Cancel)).Single().QuestLog!.Single().Counts);
+        Assert.Equal([1, 1, 0], (await server.QuestInteract(c.Id, "whispering-stone", "old-stone", Cancel)).QuestLog!.Single().Counts);
+    }
 }

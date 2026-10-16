@@ -1,0 +1,76 @@
+{
+  "id": "liane",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Bonjour ! Attention aux planches, la troisième est pourrie.",
+        "en": "Hello! Mind the boards, the third one's rotten."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Cet air ?",
+            "en": "That tune?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Je suis passeuse, comme celle d'avant moi. Tout le monde dit \"celle d'avant\", comme si elle n'avait pas de nom.",
+        "en": "I'm the ferrywoman, like the one before me. Everyone says 'the one before', as if she had no name."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Cet air ?",
+            "en": "That tune?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "(Elle fredonne.) Pardon, je chante sans m'en rendre compte. Tout le monde chante ça, ici.",
+        "en": "(She hums.) Sorry, I sing without noticing. Everyone sings that round here."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

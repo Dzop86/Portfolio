@@ -67,7 +67,8 @@ public sealed class Character
     /// <summary>The quests under way and their progress (sprint 88), as <see cref="Rpg.Core.Quests.Write"/> writes them.</summary>
     public string QuestLog { get; set; } = "";
 
-    public List<QuestProgress> ActiveQuests => Rpg.Core.Quests.Read(QuestLog);
+    // Fitted to the quests as they are now (sprint 105): a quest given more objectives since keeps its counts.
+    public List<QuestProgress> ActiveQuests => Rpg.Core.Quests.Fit(GameData.Embedded, Rpg.Core.Quests.Read(QuestLog));
 
     /// <summary>Everything owned, worn included, as "item:count" separated by commas.</summary>
     public string Inventory { get; set; } = "";

@@ -62,6 +62,8 @@ public partial class TownView : Node3D
             AddChild(ground);
             Decorate(c, k);
         }
+        foreach (Prop prop in town.Props ?? [])
+            AddProp(prop);
         // The village's beasts (sprint 104), each where the map says, turned a little at random.
         Herd = new Herd(town);
         for (int i = 0; i < Herd.Animals.Count; i++)
@@ -540,6 +542,76 @@ public partial class TownView : Node3D
         }
         foreach ((string id, Label3D label) in _groupLabels)
             label.Visible = !_namesHidden && Controller.Groups.TryGetValue(id, out Cell at) && at.DistanceTo(player) <= NameDistance + 1;
+    }
+
+    // The "!" and "?" over the inhabitants (sprint 105), apart from their names, always seen.
+    private readonly Dictionary<string, Label3D> _marks = [];
+
+    /// <summary>"!" over who has a quest to give, "?" over who waits for one (grey while it is not done), from the character's book.</summary>
+    public void ShowMarks(QuestBook? book)
+    {
+        foreach (Npc npc in Controller.Town.Npcs)
+        {
+            QuestMark mark = book?.Mark(GameData.Embedded.RefOf(Controller.Town, npc)) ?? QuestMark.None;
+            if (!_marks.TryGetValue(npc.Id, out Label3D? label))
+            {
+                label = Label("", BoardView.ToWorld(npc.At) + new Vector3(0, 1.9f, 0), 72);
+                AddChild(label);
+                _marks[npc.Id] = label;
+            }
+            label.Text = mark switch { QuestMark.Offer => "!", QuestMark.Ready or QuestMark.Waiting => "?", _ => "" };
+            label.Modulate = mark == QuestMark.Waiting ? new Color(0.75f, 0.75f, 0.75f) : WorldLight;
+            label.Visible = mark != QuestMark.None;
+        }
+        // The clues the quests under way still ask for glint (sprint 105).
+        foreach ((string id, Node3D glint) in _clues)
+            glint.Visible = book?.Interacts(id).Count > 0;
+    }
+
+    /// <summary>The yellow of the marks, of the lanterns' light on the world map.</summary>
+    private static readonly Color WorldLight = new("ffd85a");
+
+    /// <summary>The mark shown over an inhabitant, "" for none (for the self-test).</summary>
+    public string MarkShown(string npc) => _marks.TryGetValue(npc, out Label3D? l) && l.Visible ? l.Text : "";
+
+    // The things to examine (sprint 105) and the glint over each.
+    private readonly Dictionary<string, Node3D> _clues = [];
+
+    /// <summary>Whether the glint over a thing to examine is shown (for the self-test).</summary>
+    public bool ClueShown(string prop) => _clues.TryGetValue(prop, out Node3D? g) && g.Visible;
+
+    /// <summary>The things to examine drawn (sprint 105), for the self-test.</summary>
+    public int PropsDrawn => _clues.Count;
+
+    /// <summary>
+    /// A thing to examine (sprint 105): the old stone a standing stone with its four signs carved on its south face;
+    /// any other a small cairn until it has its own look. A glint turns over it while a quest asks for it.
+    /// </summary>
+    private void AddProp(Prop prop)
+    {
+        Vector3 at = BoardView.ToWorld(prop.At);
+        Color grey = new("8f8d86");
+        if (prop.Look == "stone")
+        {
+            Part(this, new BoxMesh { Size = new Vector3(0.55f, 1.5f, 0.35f) }, grey, at + new Vector3(0, 0.75f, 0), new Vector3(0, 0, 3));
+            foreach ((float x, float y) in new[] { (-0.12f, 1.15f), (0.12f, 1.15f), (-0.12f, 0.8f), (0.12f, 0.8f) })
+                Part(this, new BoxMesh { Size = new Vector3(0.12f, 0.12f, 0.02f) }, new Color("4a4844"), at + new Vector3(x, y, 0.18f));
+            Part(this, new BoxMesh { Size = new Vector3(0.025f, 1.0f, 0.02f) }, new Color("2e2c29"), at + new Vector3(0.05f, 0.7f, 0.181f), new Vector3(0, 0, 12));
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+                Part(this, new BoxMesh { Size = new Vector3(0.4f - 0.1f * i, 0.18f, 0.4f - 0.1f * i) }, grey, at + new Vector3(0, 0.09f + 0.18f * i, 0));
+        }
+        var glint = new MeshInstance3D
+        {
+            Mesh = new SphereMesh { Radius = 0.12f, Height = 0.24f },
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = WorldLight, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+            Position = at + new Vector3(0, prop.Look == "stone" ? 1.85f : 0.9f, 0),
+            Visible = false,
+        };
+        AddChild(glint);
+        _clues[prop.Id] = glint;
     }
 
     /// <summary>Whether an inhabitant's name is shown (for the self-test).</summary>

@@ -232,6 +232,14 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>A thing on a map a quest under way asks to find, examined (sprint 105).</summary>
+    public async Task<CharacterSummary> QuestInteract(Guid id, string quest, string prop, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/quests/{Uri.EscapeDataString(quest)}/interact", UriKind.Relative), new QuestInteract(prop), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     /// <summary>Hands a quest back to its giver, its objectives reached; the server takes the items it asks and gives its rewards.</summary>
     public async Task<QuestReward> HandInQuest(Guid id, string quest, CancellationToken cancel = default)
     {

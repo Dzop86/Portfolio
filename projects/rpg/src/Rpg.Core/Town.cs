@@ -25,6 +25,13 @@ public sealed record Animal(string Kind, Cell At)
     public static readonly IReadOnlyList<string> Kinds = ["hen", "horse", "sheep"];
 }
 
+/// <summary>
+/// Something to examine on a map (sprint 105, D75): a clue a quest asks to find ("Interact"), seen as
+/// <see cref="Look"/> ("stone", "claws", "mycelium"...), named, with what one reads in it when clicked
+/// from beside it. Nobody stands on it. Its <see cref="Id"/> is the world's only one.
+/// </summary>
+public sealed record Prop(string Id, Cell At, string Look, LocalizedText Name, LocalizedText Text);
+
 /// <summary>The door of a dungeon on a map of the world (sprint 80): walking onto it leads in.</summary>
 public sealed record DungeonDoor(Cell At, string Dungeon);
 
@@ -39,7 +46,7 @@ public sealed record DungeonDoor(Cell At, string Dungeon);
 /// </summary>
 public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> Rows, Cell Spawn, IReadOnlyList<Npc> Npcs, IReadOnlyList<TownExit> Exits,
     IReadOnlyList<ZoneLink>? Links = null, int Level = 1, Cell MapAt = default, string? Zone = null, IReadOnlyList<Workshop>? Workshops = null,
-    string? Dungeon = null, IReadOnlyList<Animal>? Animals = null)
+    string? Dungeon = null, IReadOnlyList<Animal>? Animals = null, IReadOnlyList<Prop>? Props = null)
 {
     /// <summary>A room of a dungeon (sprint 86): a map apart from the world, its ways leading to the next room or out.</summary>
     public bool IsHall => Dungeon is not null;
@@ -100,10 +107,13 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
 
     public Npc? NpcAt(Cell c) => Npcs.FirstOrDefault(n => n.At == c);
 
+    /// <summary>The thing to examine on this cell (sprint 105), if any.</summary>
+    public Prop? PropAt(Cell c) => (Props ?? []).FirstOrDefault(p => p.At == c);
+
     public TownExit? ExitAt(Cell c) => Exits.FirstOrDefault(e => e.At == c);
 
-    /// <summary>Where one can stand: floor without anybody on it.</summary>
-    public bool IsFree(Board board, Cell c) => (board ?? throw new ArgumentNullException(nameof(board))).IsFloor(c) && NpcAt(c) is null;
+    /// <summary>Where one can stand: floor without anybody, nor anything to examine, on it.</summary>
+    public bool IsFree(Board board, Cell c) => (board ?? throw new ArgumentNullException(nameof(board))).IsFloor(c) && NpcAt(c) is null && PropAt(c) is null;
 
     /// <summary>A cell the player can be on: free, and reachable on foot from the arrival.</summary>
     public bool CanStand(Cell c)

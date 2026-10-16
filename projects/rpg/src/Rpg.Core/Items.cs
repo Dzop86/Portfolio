@@ -92,8 +92,11 @@ public sealed record SetBonus(int Pieces, Characteristics? Stats = null, int Ap 
 /// <summary>A set of items, as described in <c>data/sets.json</c>: bonuses for wearing several pieces.</summary>
 public sealed record ItemSet(string Id, LocalizedText Name, IReadOnlyList<SetBonus> Bonuses);
 
-/// <summary>What a monster may leave: an item, its chance in percent, how many.</summary>
-public sealed record LootDrop(string Item, int Percent, int Count = 1);
+/// <summary>
+/// What a monster may leave: an item, its chance in percent, how many. A quest's loot (sprint 105, D75)
+/// falls only while <see cref="Quest"/> is under way and does not have all of it yet.
+/// </summary>
+public sealed record LootDrop(string Item, int Percent, int Count = 1, string? Quest = null);
 
 /// <summary>Some of an item, in an inventory or in loot.</summary>
 public sealed record ItemCount(string Item, int Count);
@@ -163,8 +166,10 @@ public static class Equipment
     /// <summary>
     /// What the monsters of a fight the hero's team won leave: each drop of each defeated monster is
     /// drawn once, in order, from a generator seeded by the fight's seed (not the fight's own rolls).
+    /// A quest's loot (sprint 105) is drawn like the rest but kept only if <paramref name="wanted"/> has it
+    /// ("quest/item", <see cref="Quests.LootWanted"/>): the server knows the quests, the draws stay the same.
     /// </summary>
-    public static IReadOnlyList<ItemCount> Loot(Fight fight)
+    public static IReadOnlyList<ItemCount> Loot(Fight fight, IReadOnlySet<string>? wanted = null)
     {
         ArgumentNullException.ThrowIfNull(fight);
         var loot = new List<ItemCount>();
@@ -175,7 +180,7 @@ public static class Equipment
         {
             foreach (LootDrop drop in f.Spec.Loot ?? [])
             {
-                if (rng.Next(1, 100) <= drop.Percent)
+                if (rng.Next(1, 100) <= drop.Percent && (drop.Quest is null || wanted?.Contains($"{drop.Quest}/{drop.Item}") == true))
                     loot.Add(new ItemCount(drop.Item, drop.Count));
             }
         }

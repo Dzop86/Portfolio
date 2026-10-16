@@ -48,7 +48,22 @@
     "x": 24,
     "y": 16
   },
-  "npcs": [],
+  "npcs": [
+    {
+      "id": "mathurin",
+      "name": {
+        "fr": "Mathurin",
+        "en": "Mathurin"
+      },
+      "look": "male-d",
+      "colour": 2,
+      "at": {
+        "x": 25,
+        "y": 14
+      },
+      "dialogue": "mathurin"
+    }
+  ],
   "exits": [],
   "links": [
     {

@@ -1,0 +1,76 @@
+{
+  "id": "mathurin",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Doucement. Les arbres écoutent, et moi aussi.",
+        "en": "Easy. The trees are listening, and so am I."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et ce bois ?",
+            "en": "And these woods?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "On coupe ce qui doit l'être, on laisse ce qui doit rester. Le reste, c'est du bavardage.",
+        "en": "You cut what needs cutting and leave what needs to stay. The rest is chatter."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et ce bois ?",
+            "en": "And these woods?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Ce bois est plus vieux que Clairval. Il se souvient de choses que nous, on a laissé tomber.",
+        "en": "These woods are older than Clairval. They remember things we let fall."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

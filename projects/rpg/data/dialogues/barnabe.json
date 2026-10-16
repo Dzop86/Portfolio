@@ -1,0 +1,76 @@
+{
+  "id": "barnabe",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Chut. Ils dorment, les champignons. Toi aussi, tu devrais.",
+        "en": "Hush. They're sleeping, the mushrooms. You should too."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ici, seul ?",
+            "en": "Here, alone?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le mycélium ?",
+            "en": "The mycelium?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Quarante ans que je vis ici. Jamais ils ne m'ont mordu. Polis, ils sont.",
+        "en": "Forty years I've lived here. Never once have they bitten me. Polite, they are."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le mycélium ?",
+            "en": "The mycelium?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Le mycélium, il relie. Il ne mange pas, il ne mélange pas. Il tient la main, c'est tout.",
+        "en": "The mycelium, it links. It doesn't eat, it doesn't mix. It holds hands, that's all."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ici, seul ?",
+            "en": "Here, alone?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

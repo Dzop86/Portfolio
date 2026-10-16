@@ -1,6 +1,6 @@
 # Run from projects/rpg:  python3 tools/village_dialogues.py data
-# One dialogue per new inhabitant of Clairval (sprint 104), from docs/textes-v5.md §3: the first line as the
-# greeting, each other line behind a short question of the player's, and a goodbye.
+# One dialogue per new inhabitant of Clairval (sprint 104) and of the zones (sprint 105), from docs/textes-v5.md §3:
+# the first line as the greeting, each other line behind a short question of the player's, and a goodbye.
 import collections, json, sys
 O = collections.OrderedDict
 root = sys.argv[1]
@@ -58,6 +58,23 @@ P = {
  "gautier": [
   (None, t("Porte du Sud, chemin des Champs. Et l'écurie, si tu cherches un cheval : ceux-là tirent la charrue, ils ne se montent pas. Pour les montures, il faudra attendre.", "South Gate, the Fields Road. And the stables, if you're after a horse: these ones pull the plough, they aren't for riding. Mounts will have to wait.")),
   (t("Rien à signaler ?", "Anything to report?"), t("Quand le vent vient des Champs, il sent le miel chaud. Le miel, ça ne devrait pas sentir chaud.", "When the wind blows from the fields, it smells of warm honey. Honey shouldn't smell warm."))],
+ # The zones' people (sprint 105), each on a map by the way in from the woods (tools/zone_people.py).
+ "mathurin": [
+  (None, t("Doucement. Les arbres écoutent, et moi aussi.", "Easy. The trees are listening, and so am I.")),
+  (t("Le métier ?", "The trade?"), t("On coupe ce qui doit l'être, on laisse ce qui doit rester. Le reste, c'est du bavardage.", "You cut what needs cutting and leave what needs to stay. The rest is chatter.")),
+  (t("Et ce bois ?", "And these woods?"), t("Ce bois est plus vieux que Clairval. Il se souvient de choses que nous, on a laissé tomber.", "These woods are older than Clairval. They remember things we let fall."))],
+ "barnabe": [
+  (None, t("Chut. Ils dorment, les champignons. Toi aussi, tu devrais.", "Hush. They're sleeping, the mushrooms. You should too.")),
+  (t("Ici, seul ?", "Here, alone?"), t("Quarante ans que je vis ici. Jamais ils ne m'ont mordu. Polis, ils sont.", "Forty years I've lived here. Never once have they bitten me. Polite, they are.")),
+  (t("Le mycélium ?", "The mycelium?"), t("Le mycélium, il relie. Il ne mange pas, il ne mélange pas. Il tient la main, c'est tout.", "The mycelium, it links. It doesn't eat, it doesn't mix. It holds hands, that's all."))],
+ "liane": [
+  (None, t("Bonjour ! Attention aux planches, la troisième est pourrie.", "Hello! Mind the boards, the third one's rotten.")),
+  (t("Le métier ?", "The trade?"), t("Je suis passeuse, comme celle d'avant moi. Tout le monde dit \"celle d'avant\", comme si elle n'avait pas de nom.", "I'm the ferrywoman, like the one before me. Everyone says 'the one before', as if she had no name.")),
+  (t("Cet air ?", "That tune?"), t("(Elle fredonne.) Pardon, je chante sans m'en rendre compte. Tout le monde chante ça, ici.", "(She hums.) Sorry, I sing without noticing. Everyone sings that round here."))],
+ "eglantine": [
+  (None, t("Ah, enfin quelqu'un ! Le vent tourne, la pluie arrive et mes ruches chauffent. Bonjour.", "Ah, someone at last! The wind's turning, the rain's coming and my hives are hot. Hello.")),
+  (t("La ferme ?", "The farm?"), t("Du blé, des fleurs pour les abeilles, du miel pour Rose : la ferme, c'est trois métiers et pas de sommeil.", "Wheat, flowers for the bees, honey for Rose: a farm is three trades and no sleep.")),
+  (t("Cette haie ?", "That hedge?"), t("Mon grand-père défendait d'arracher la vieille haie. Remarque, il défendait tout.", "My grandfather forbade anyone to pull up the old hedge. Mind you, he forbade everything."))],
  # The drill yard's second guard has no name nor lines in the scriptwriter's texts: one line of his own.
  "guard": [
   (None, t("Garance surveille la cour, moi la porte. Le Bois, lui, ne surveille personne.", "Garance watches the yard, I watch the gate. The woods watch nobody."))],
