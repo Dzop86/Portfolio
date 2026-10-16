@@ -43,6 +43,7 @@ public partial class Main
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _townView.ShowMarks(_town.Book);
+        ShowTrail();
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
@@ -165,7 +166,7 @@ public partial class Main
         }
         _mapPanel = new WorldMapPanel();
         AddChild(_mapPanel);
-        _mapPanel.Build(GameData.Embedded, _zone, _town!.Position, _talkPanel!.Texts);
+        _mapPanel.Build(GameData.Embedded, _zone, _town!.Position, _talkPanel!.Texts, FollowedGoal());
     }
 
     /// <summary>The side bar, the character's icons only when there is a character (built again when the hero changes).</summary>
@@ -655,6 +656,103 @@ public partial class Main
             await Gather(node);
         else if (_town.Examining is Prop prop)
             await Examine(prop);
+    }
+
+    // The quest followed (sprint 106): chosen in the journal, kept for the character between two games; the
+    // first under way when none is chosen.
+    private string? _followed;
+    private Guid? _followedFor;
+    private const string FollowedFile = "user://followed.txt";
+    private QuestTracker? _tracker;
+    private EdgeArrow? _trailArrow;
+
+    /// <summary>The quest followed, as it is under way, or none.</summary>
+    private QuestProgress? Followed()
+    {
+        if (_character is null || _town?.Book is not QuestBook book || book.Active.Count == 0)
+            return null;
+        if (_followedFor != _character.Id)
+        {
+            _followedFor = _character.Id;
+            _followed = null;
+            try
+            {
+                if (!_options.TownSelfTest && !_options.LobbySelfTest && Godot.FileAccess.FileExists(FollowedFile))
+                {
+                    using var file = Godot.FileAccess.Open(FollowedFile, Godot.FileAccess.ModeFlags.Read);
+                    string[] kept = file.GetAsText().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (kept.Length == 2 && kept[0] == _character.Id.ToString())
+                        _followed = kept[1];
+                }
+            }
+            catch (IOException)
+            {
+                // Nothing kept: the first quest under way.
+            }
+        }
+        return book.Active.FirstOrDefault(p => p.Quest == _followed) ?? book.Active[0];
+    }
+
+    /// <summary>Follows a quest under way, kept for the character.</summary>
+    private void Follow(string quest)
+    {
+        _followed = quest;
+        if (_character is not null && !_options.TownSelfTest && !_options.LobbySelfTest)
+        {
+            using var file = Godot.FileAccess.Open(FollowedFile, Godot.FileAccess.ModeFlags.Write);
+            file?.StoreString($"{_character.Id} {quest}");
+        }
+        ShowTrail();
+    }
+
+    /// <summary>Where the quest followed leads, for the world map.</summary>
+    private TrailGoal? FollowedGoal() => Followed() is QuestProgress p && _town?.Book is QuestBook book ? QuestTrail.Goal(book, p) : null;
+
+    /// <summary>The quest followed on the left, its ring on the map: on its goal, or on the way out towards it.</summary>
+    private void ShowTrail()
+    {
+        if (_talkPanel is null || _town is null)
+            return;
+        Texts texts = _talkPanel.Texts;
+        if (_tracker is null)
+        {
+            _tracker = new QuestTracker();
+            AddChild(_tracker);
+        }
+        QuestProgress? followed = Followed();
+        JournalQuest? entry = followed is null ? null
+            : _town.Book!.Journal(texts).SelectMany(z => z.Active).FirstOrDefault(q => q.Id == followed.Quest);
+        _tracker.Show(entry, texts);
+        TrailGoal? goal = FollowedGoal();
+        _townView?.ShowTrail(goal is null ? null : QuestTrail.Toward(GameData.Embedded, _town.Town, goal));
+    }
+
+    /// <summary>
+    /// Each frame on a map: the trail's ring off the screen, a chevron at the screen's edge points to it (sprint 106).
+    /// </summary>
+    private void PointTrail()
+    {
+        if (_townView?.TrailAt is not Cell at || _camera is null || _talkPanel is null || _screen != Screen.Town)
+        {
+            _trailArrow?.Hide();
+            return;
+        }
+        if (_trailArrow is null)
+        {
+            _trailArrow = new EdgeArrow();
+            _talkPanel.AddChild(_trailArrow);
+        }
+        Vector2 size = GetViewport().GetVisibleRect().Size;
+        Vector2 screen = _camera.UnprojectPosition(BoardView.ToWorld(at));
+        var inside = new Rect2(new Vector2(40, 40), size - new Vector2(80, 80));
+        if (inside.HasPoint(screen) && !_camera.IsPositionBehind(BoardView.ToWorld(at)))
+        {
+            _trailArrow.Hide();
+            return;
+        }
+        Vector2 centre = size / 2, direction = (screen - centre).Normalized();
+        float reach = Math.Min(Math.Abs(inside.Size.X / 2 / (direction.X == 0 ? 1e-6f : direction.X)), Math.Abs(inside.Size.Y / 2 / (direction.Y == 0 ? 1e-6f : direction.Y)));
+        _trailArrow.Point(centre + direction * reach, direction, null);
     }
 
     /// <summary>
@@ -1153,7 +1251,13 @@ public partial class Main
     {
         _journalPanel = new JournalPanel();
         AddChild(_journalPanel);
-        _journalPanel.Build(_town?.Book ?? new QuestBook(GameData.Embedded, 1, [], [], []), _talkPanel!.Texts);
+        _journalPanel.Build(_town?.Book ?? new QuestBook(GameData.Embedded, 1, [], [], []), _talkPanel!.Texts, Followed()?.Quest);
+        _journalPanel.FollowPressed += id =>
+        {
+            Follow(id);
+            CloseJournal();
+            OpenJournal();
+        };
         _journalPanel.ClosePressed += () =>
         {
             _windows.Close();
@@ -1182,6 +1286,7 @@ public partial class Main
         if (_town is not null)
             _town.Book = QuestBook.Of(character, GameData.Embedded);
         _townView?.ShowMarks(_town?.Book);
+        ShowTrail();
         if (_journalPanel is not null)
         {
             CloseJournal();
@@ -1687,6 +1792,30 @@ public partial class Main
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone with { Counts = [1, 1, 1] }], []));
             if (view.PropsDrawn != 1 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
                 problems.Add($"the square shows {view.PropsDrawn} props, '{fresh}' over Aubin, the stone glinting {idle}/{glint}, '{waiting}' over Ysaline");
+            // Following it (sprint 106): on the left, its name and its three objectives and where; the ring on the stone;
+            // "Followed" in the journal; a ring on the world map.
+            var book = new QuestBook(GameData.Embedded, 1, [], [stone], []);
+            Texts t = _talkPanel?.Texts ?? _hud.Texts;
+            var tracker = new QuestTracker();
+            AddChild(tracker);
+            tracker.Show(book.Journal(t).SelectMany(z => z.Active).Single(), t);
+            TrailGoal goal = QuestTrail.Goal(book, stone)!;
+            view.ShowTrail(QuestTrail.Toward(GameData.Embedded, square.Town, goal));
+            if (tracker.TitleText != GameData.Embedded.Quests["whispering-stone"].Name.In(t.Lang) || tracker.Lines.Count != 4 || view.TrailAt != GameData.Embedded.FindProp("old-stone")!.Value.Prop.At)
+                problems.Add($"following the stone shows '{tracker.TitleText}' with {tracker.Lines.Count} lines, the ring on {view.TrailAt}");
+            tracker.QueueFree();
+            var journal = new JournalPanel();
+            AddChild(journal);
+            journal.Build(book, t, stone.Quest);
+            if (!journal.FollowButtons[stone.Quest].Disabled)
+                problems.Add("the journal does not say the stone's quest is followed");
+            journal.QueueFree();
+            var world = new WorldMapPanel();
+            AddChild(world);
+            world.Build(GameData.Embedded, "clairval-3-2", new Cell(24, 16), t, goal);
+            if (world.GoalCentre is null)
+                problems.Add("the world map does not show where the quest followed leads");
+            world.QueueFree();
             RemoveChild(view);
             view.QueueFree();
         }

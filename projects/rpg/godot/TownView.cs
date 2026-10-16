@@ -568,6 +568,29 @@ public partial class TownView : Node3D
             glint.Visible = book?.Interacts(id).Count > 0;
     }
 
+    // The ring on the cell the quest followed leads to on this map (sprint 106), a goal or a way out.
+    private MeshInstance3D? _trail;
+
+    /// <summary>The cell the trail ring is on, if shown (for the self-test).</summary>
+    public Cell? TrailAt { get; private set; }
+
+    /// <summary>Puts the trail's yellow ring on a cell of the map, or takes it away.</summary>
+    public void ShowTrail(Cell? at)
+    {
+        TrailAt = at;
+        _trail ??= new MeshInstance3D
+        {
+            Mesh = new TorusMesh { InnerRadius = 0.36f, OuterRadius = 0.5f, Rings = 24 },
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = WorldLight, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+            Scale = new Vector3(1, 0.12f, 1),
+        };
+        if (_trail.GetParent() is null)
+            AddChild(_trail);
+        _trail.Visible = at is not null;
+        if (at is Cell c)
+            _trail.Position = BoardView.ToWorld(c) + new Vector3(0, 0.07f, 0);
+    }
+
     /// <summary>The yellow of the marks, of the lanterns' light on the world map.</summary>
     private static readonly Color WorldLight = new("ffd85a");
 

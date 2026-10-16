@@ -100,6 +100,8 @@ public partial class Main : Node3D
         }
         _lobbyView = null;
         _townView = null;
+        _tracker = null;
+        _trailArrow = null;
         _talkPanel = null;
         _mapPanel = null;
         _pointsPanel = null;
@@ -174,6 +176,7 @@ public partial class Main : Node3D
             FollowPlayer(delta);
             RoamGroups(delta);
             RoamBeasts(delta);
+            PointTrail();
             GrowBack();
             return;
         }

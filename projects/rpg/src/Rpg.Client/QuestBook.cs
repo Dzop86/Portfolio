@@ -84,10 +84,8 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
         ArgumentNullException.ThrowIfNull(progress);
         ArgumentNullException.ThrowIfNull(texts);
         Quest q = Data.Quests[progress.Quest];
-        int next = q.Objectives!.Select((o, i) => (o, i)).FirstOrDefault(x => Quests.Reached(x.o, progress.Counts[x.i], _owned, _worn) < x.o.Count, (null!, -1)).i;
-        if (next < 0)
+        if (Next(progress) is not QuestObjective goal)
             return Data.FindNpc(q.Giver!) is (Town giverMap, _) ? texts.MapTitle(giverMap) : null;
-        QuestObjective goal = q.Objectives![next];
         if (goal.Goal == QuestGoal.Wear)
             return texts["journal.inventory"];
         string? map = goal.Goal switch
@@ -104,6 +102,19 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
             _ => null,
         };
         return map is not null && Data.Towns.TryGetValue(map, out Town? town) ? texts.MapTitle(town) : null;
+    }
+
+    /// <summary>The quest's first objective not reached yet, or null when all are (sprint 106).</summary>
+    public QuestObjective? Next(QuestProgress progress)
+    {
+        ArgumentNullException.ThrowIfNull(progress);
+        IReadOnlyList<QuestObjective> goals = Data.Quests[progress.Quest].Objectives!;
+        for (int i = 0; i < goals.Count; i++)
+        {
+            if (Quests.Reached(goals[i], progress.Counts[i], _owned, _worn) < goals[i].Count)
+                return goals[i];
+        }
+        return null;
     }
 
     // The first map (by its name) where the family's monsters roam, out of the dungeons.

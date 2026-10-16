@@ -15,6 +15,14 @@ public partial class JournalPanel : CanvasLayer
 
     public event Action? ClosePressed;
 
+    /// <summary>"Follow" pressed on a quest under way (sprint 106): its id.</summary>
+    public event Action<string>? FollowPressed;
+
+    private string? _followed;
+
+    /// <summary>The quests that can be followed, by their buttons (for the self-test).</summary>
+    public Dictionary<string, Button> FollowButtons { get; } = [];
+
     /// <summary>The quests' names shown under way and done (for the self-test).</summary>
     public List<string> ActiveNames { get; } = [];
     public List<string> DoneNames { get; } = [];
@@ -22,8 +30,9 @@ public partial class JournalPanel : CanvasLayer
     /// <summary>Every objective line shown (for the self-test).</summary>
     public List<string> ObjectiveLines { get; } = [];
 
-    public void Build(QuestBook book, Texts texts)
+    public void Build(QuestBook book, Texts texts, string? followed = null)
     {
+        _followed = followed;
         Layer = 15;
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -320, OffsetRight = 320, OffsetTop = -270, OffsetBottom = 270 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
@@ -98,6 +107,17 @@ public partial class JournalPanel : CanvasLayer
         if (!q.Done)
         {
             box.AddChild(new Label { Text = q.Text, AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f), CustomMinimumSize = new Vector2(560, 0) });
+            // Followed on the left of the screen, with an arrow (sprint 106).
+            var follow = new Button
+            {
+                Text = texts[q.Id == _followed ? "journal.followed" : "journal.follow"],
+                Disabled = q.Id == _followed,
+                CustomMinimumSize = new Vector2(120, 44),
+                SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+            };
+            follow.Pressed += () => FollowPressed?.Invoke(q.Id);
+            box.AddChild(follow);
+            FollowButtons[q.Id] = follow;
             foreach ((string line, bool reached) in q.Objectives)
             {
                 var l = new Label { Text = "– " + line };

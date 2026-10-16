@@ -38,7 +38,14 @@ public partial class WorldMapPanel : CanvasLayer
     /// <summary>Where the player's ring is, in the view.</summary>
     public Vector2 MarkerCentre => _marker.Position + _marker.Size / 2;
 
-    public void Build(GameData data, string current, Cell at, Texts texts)
+    // The place of the quest followed (sprint 106): a yellow ring, if any.
+    private Control? _goal;
+    private Vector2 _goalPixel;
+
+    /// <summary>Where the ring of the quest followed is in the view, if any (for the self-test).</summary>
+    public Vector2? GoalCentre => _goal is null ? null : _goal.Position + _goal.Size / 2;
+
+    public void Build(GameData data, string current, Cell at, Texts texts, TrailGoal? goal = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         _texts = texts ?? throw new ArgumentNullException(nameof(texts));
@@ -118,6 +125,17 @@ public partial class WorldMapPanel : CanvasLayer
             });
             _view.AddChild(door);
             _doors.Add((d, new Vector2((float)dx, (float)dy), door));
+        }
+        if (goal is not null && data.Towns.TryGetValue(goal.Map, out Town? goalMap) && !goalMap.IsHall)
+        {
+            (double gx, double gy) = _world.PixelOf(goal.Map, goal.At);
+            _goalPixel = new Vector2((float)gx, (float)gy);
+            _goal = new Panel { Size = new Vector2(26, 26), MouseFilter = Control.MouseFilterEnum.Ignore };
+            var ring = new StyleBoxFlat { BgColor = new Color(0, 0, 0, 0), BorderColor = new Color("ffd85a") };
+            ring.SetBorderWidthAll(4);
+            ring.SetCornerRadiusAll(13);
+            _goal.AddThemeStyleboxOverride("panel", ring);
+            _view.AddChild(_goal);
         }
         _view.GuiInput += OnInput;
         _view.MouseExited += () => ShowHover(null);
@@ -208,6 +226,8 @@ public partial class WorldMapPanel : CanvasLayer
         _marker.Position = PictureAt + _player * Zoom - _marker.Size / 2;
         foreach ((_, Vector2 pixel, Panel door) in _doors)
             door.Position = PictureAt + pixel * Zoom - door.Size / 2;
+        if (_goal is not null)
+            _goal.Position = PictureAt + _goalPixel * Zoom - _goal.Size / 2;
     }
 
     private void ShowHover(Vector2? at) => _hover.Text = at is Vector2 p ? HoverAt(p) : "";
