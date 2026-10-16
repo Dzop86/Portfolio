@@ -1,4 +1,4 @@
-# Sprint 113 : Osmose : le combat à plusieurs, règles et serveur
+# Sprint 113 : Osmose : le Disjoint
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats avec mon groupe, le serveur menant le combat tour par tour (30 s) et la reconnexion ; butin, XP, quêtes et vie pour chacun (rpg) ; xUnit, test d'intégration à deux clients. | 5 | À faire |
+| En tant que joueur, j'affronte le Disjoint au niveau 30, battable seul, puis « Quatre pistes » clôt le chapitre 1 (rpg) ; simulation ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

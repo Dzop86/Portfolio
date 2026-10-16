@@ -1,4 +1,4 @@
-# Sprint 107 : Osmose : l'alchimiste et le boulanger
+# Sprint 107 : Osmose : le tuto de Clairval
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je prépare potions et huiles d'élément (une par combat) et des pains qui me soignent entre les combats (rpg) ; T41 et vie restante remesurées ; playtest de Charles ; xUnit, auto-test. | 5 | À faire |
+| En tant que nouveau joueur, je découvre le jeu par 9 quêtes à Clairval, des niveaux 1 à 5, chacune apprenant un système (rpg) ; textes du scénariste ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

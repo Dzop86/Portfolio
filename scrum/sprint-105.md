@@ -1,4 +1,4 @@
-# Sprint 105 : Osmose : la mini-carte
+# Sprint 105 : Osmose : le moteur des quêtes
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ai une mini-carte (N) que je place où je veux et que je zoome, qui montre où je suis, les monstres, les points de récolte, les PNJ et les objectifs, et sur laquelle un clic me fait marcher (rpg) ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, mes quêtes me demandent d'examiner des indices, de gagner un combat, de porter un objet, de rapporter un objet qui ne tombe que pendant la quête ; des habitants dans les zones ; un « ! » ou un « ? » au-dessus des donneurs ; le journal dit où aller (rpg) ; xUnit, intégration, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

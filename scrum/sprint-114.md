@@ -1,4 +1,4 @@
-# Sprint 114 : Osmose : le combat à plusieurs, client et donjons
+# Sprint 114 : Osmose : se voir sur la carte
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je rejoins le combat d'un allié, je fais les donjons à plusieurs, et hordes et chefs sont réglés pour le groupe (rpg) ; équilibre à plusieurs ; auto-test. | 5 | À faire |
+| En tant que joueur, je vois les autres joueurs de ma carte, et les monstres et les points de récolte sont les mêmes pour tous (rpg) ; xUnit, test d'intégration à deux clients. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -1,4 +1,4 @@
-# Sprint 108 : Osmose : les quêtes du Bois et du Bois moisi
+# Sprint 108 : Osmose : la mini-carte
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis le fil des quêtes du Bois et du Bois moisi (18), avec le campement des bûcherons et l'ermite des mares (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, j'ai une mini-carte (N) que je place où je veux et que je zoome, qui montre où je suis, les monstres, les points de récolte, les PNJ et les objectifs, et sur laquelle un clic me fait marcher (rpg) ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

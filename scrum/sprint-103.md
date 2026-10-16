@@ -1,12 +1,12 @@
-# Sprint 103 : Osmose : le moteur des quêtes
+# Sprint 103 : Osmose : la récolte qu'on voit
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
+**Objectif :** les retours de Charles après l'essai du sprint 102 (D75).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
+**Goal:** Charles's feedback after trying sprint 102 (D75).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, mes quêtes me demandent d'examiner des indices, de gagner un combat, de porter un objet, de rapporter un objet qui ne tombe que pendant la quête ; des habitants dans les zones ; un « ! » ou un « ? » au-dessus des donneurs ; le journal dit où aller (rpg) ; xUnit, intégration, auto-test. | 5 | À faire |
+| En tant que joueur, je vois la ressource de chaque point de récolte (arbre, rocher, eau, blé, herbes) ; une barre montre le temps de récolte restant ; la ressource et son cristal disparaissent une fois récoltés et reviennent au bout d'une minute ; mes Éclats sont affichés dans l'inventaire (rpg) ; xUnit, intégration, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

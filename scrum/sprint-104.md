@@ -1,12 +1,12 @@
-# Sprint 104 : Osmose : le tuto de Clairval
+# Sprint 104 : Osmose : un vrai village
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
+**Objectif :** les retours de Charles après l'essai du sprint 102 (D75).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
+**Goal:** Charles's feedback after trying sprint 102 (D75).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que nouveau joueur, je découvre le jeu par 9 quêtes à Clairval, des niveaux 1 à 5, chacune apprenant un système (rpg) ; textes du scénariste ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je traverse un vrai village : des maisons, des habitants (ceux du scénariste, avec leurs répliques), des ateliers à côté des maisons et jamais sur la route, un poulailler, une écurie et des animaux (poules, chevaux, moutons) qui se promènent (rpg) ; xUnit, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
