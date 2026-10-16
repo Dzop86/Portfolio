@@ -30,7 +30,7 @@ public class FirstQuestsTests
         Assert.All(main.SelectMany(q => q.Objectives!).Where(o => o.Goal == QuestGoal.Dungeon), o => Assert.InRange(o.Room, 1, 2));
         Assert.Equal([new ItemCount("boar-wallow-key", 1)], main[2].Grants!);
         Assert.Equal(["clairval/rose", "clairval/garance", "clairval/aubin"], main[3].Objectives!.Select(o => o.Target));
-        Assert.Equal((2, 8), (Real.FindNpc("clairval/ysaline")!.Value.Npc.At.X, Real.FindNpc("clairval/ysaline")!.Value.Npc.At.Y));
+        Assert.Equal((20, 12), (Real.FindNpc("clairval/ysaline")!.Value.Npc.At.X, Real.FindNpc("clairval/ysaline")!.Value.Npc.At.Y));
     }
 
     [Fact]

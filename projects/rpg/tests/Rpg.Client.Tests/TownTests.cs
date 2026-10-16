@@ -6,6 +6,9 @@ public class TownTests
 {
     private static TownController Clairval(Cell? at = null) => new(GameData.Embedded, "clairval", at);
 
+    // Rose's market and Garance's west gate, maps of the village since sprint 102.
+    private static TownController Market() => new(GameData.Embedded, "clairval-2-1");
+
     [Fact]
     public void AClick_WalksTheShortestWay_AroundHousesAndWater()
     {
@@ -18,17 +21,17 @@ public class TownTests
         Assert.True(step.Path.Count < town.Town.Spawn.DistanceTo(to));
         Assert.Equal(to, step.Waypoints[^1]);
         Assert.All(step.Path, c => Assert.True(town.Town.IsFree(town.Board, c)));
-        // A house, the fountain, water: nothing happens, the player stays.
-        Assert.Null(town.Click(new Cell(4, 0)));
-        Assert.Null(town.Click(new Cell(8, 5)));
-        Assert.Null(town.Click(new Cell(3, 10)));
+        // A house, the fountain, a tree: nothing happens, the player stays.
+        Assert.Null(town.Click(new Cell(5, 4)));
+        Assert.Null(town.Click(new Cell(22, 13)));
+        Assert.Null(town.Click(new Cell(43, 21)));
         Assert.Equal(to, town.Position);
     }
 
     [Fact]
     public void AClickOnSomeone_WalksUpToThem_AndOpensTheTalk()
     {
-        TownController town = Clairval();
+        TownController town = Market();
         Npc rose = town.Town.Npcs.Single(n => n.Id == "rose");
         TownStep step = town.Click(rose.At)!;
         Assert.Equal(rose, step.TalkTo);
@@ -61,34 +64,33 @@ public class TownTests
     }
 
     [Fact]
-    public void TheTrainer_AndTheEastGate_LeadToTheTrainingFight()
+    public void TheTrainer_LeadsToTheTrainingFight_NoGateDoesAnyMore()
     {
-        TownController town = Clairval();
+        TownController town = new(GameData.Embedded, "clairval-0-1");
         town.Click(town.Town.Npcs.Single(n => n.Id == "garance").At);
         town.Answer(0);
         Assert.Equal("training", town.Fight);
         Assert.Null(town.PathTo(town.Town.Spawn));
-
-        TownController gate = Clairval();
-        TownStep step = gate.Click(new Cell(15, 5))!;
-        Assert.Equal("training", step.Exit!.Scenario);
-        Assert.Equal("training", gate.Fight);
+        // The east gate to it is gone (sprint 102): Garance offers it in her talk alone.
+        Assert.All(GameData.Embedded.Towns.Values.Where(t => Shop.InVillage(t.Id)), t => Assert.Empty(t.Exits));
     }
 
     [Fact]
     public void ThePlayerComesBackWhereTheyWere_OrToTheArrival()
     {
+        Cell arrival = new(24, 16);
         Assert.Equal(new Cell(1, 6), Clairval(new Cell(1, 6)).Position);
-        Assert.Equal(new Cell(7, 11), Clairval(new Cell(4, 0)).Position);
-        Assert.Equal(new Cell(7, 11), Clairval(new Cell(8, 9)).Position);
-        Assert.Equal(new Cell(7, 11), Clairval(new Cell(40, 40)).Position);
-        Assert.Equal(new Cell(7, 11), Clairval(new Cell(7, 11)).Position);
-        // A tree at the corner of the village.
-        Assert.Equal(new Cell(7, 11), Clairval(new Cell(0, 11)).Position);
+        // A house, Aubin's cell, out of the map, the arrival itself.
+        Assert.Equal(arrival, Clairval(new Cell(5, 4)).Position);
+        Assert.Equal(arrival, Clairval(new Cell(26, 18)).Position);
+        Assert.Equal(arrival, Clairval(new Cell(60, 40)).Position);
+        Assert.Equal(arrival, Clairval(arrival).Position);
+        // A hedge on the square's edge.
+        Assert.Equal(arrival, Clairval(new Cell(0, 11)).Position);
     }
 
     [Fact]
-    public void TheTour_TalksToEveryone_ReadsEveryLine_AndLeavesByTheGate()
+    public void TheTour_TalksToEveryoneOfTheMap_AndReadsEveryLine()
     {
         TownController town = Clairval();
         var talkedTo = new List<string>();
@@ -98,11 +100,12 @@ public class TownTests
             if (step.TalkTo is Npc n)
                 talkedTo.Add(n.Id);
         }, talk => read.Add((talk.Dialogue.Id, talk.LineId)));
-        Assert.Equal(["aubin", "rose", "garance", "ysaline"], talkedTo);
+        // The square's people (sprint 102: the others live on the village's other maps).
+        Assert.Equal(["aubin", "ysaline"], talkedTo);
         Assert.Equal(town.Town.Npcs.Select(n => GameData.Embedded.Dialogues[n.Dialogue]).Distinct().Sum(d => d.Lines.Count), read.Count);
         Assert.True(lines >= read.Count);
-        Assert.Equal("training", town.Fight);
-        Assert.Equal(new Cell(15, 5), town.Position);
+        Assert.Null(town.Fight);
+        Assert.Null(town.Travel);
     }
 
     [Fact]
@@ -118,7 +121,7 @@ public class TownTests
     [Fact]
     public void ANewClickDuringAWalk_StopsItWhereThePlayerIs_AndWhatItLedToIsForgotten()
     {
-        TownController town = Clairval();
+        TownController town = Market();
         Npc rose = town.Town.Npcs.Single(n => n.Id == "rose");
         TownStep step = town.Click(rose.At)!;
         Assert.NotNull(town.Talk);

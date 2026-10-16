@@ -385,8 +385,25 @@ public sealed class GameData
     public (Town Town, Npc Npc)? FindNpc(string reference)
     {
         int slash = (reference ?? throw new ArgumentNullException(nameof(reference))).IndexOf('/', StringComparison.Ordinal);
-        return slash > 0 && Towns.TryGetValue(reference[..slash], out Town? town) && town.Npcs.FirstOrDefault(n => n.Id == reference[(slash + 1)..]) is Npc npc
-            ? (town, npc) : null;
+        if (slash <= 0)
+            return null;
+        string where = reference[..slash], who = reference[(slash + 1)..];
+        // The map named, else any map of the zone named (sprint 102: "clairval/rose" finds Rose on the village's market).
+        IEnumerable<Town> where2 = Towns.TryGetValue(where, out Town? named) ? [named] : [];
+        foreach (Town town in where2.Concat(Towns.Values.Where(t => t.Zone == where && t.Id != where).OrderBy(t => t.Id, StringComparer.Ordinal)))
+        {
+            if (town.Npcs.FirstOrDefault(n => n.Id == who) is Npc npc)
+                return (town, npc);
+        }
+        return null;
+    }
+
+    /// <summary>How the quests name an inhabitant: by its zone if that finds it (the village's, sprint 102), else by its map.</summary>
+    public string RefOf(Town town, Npc npc)
+    {
+        ArgumentNullException.ThrowIfNull(town);
+        ArgumentNullException.ThrowIfNull(npc);
+        return town.Zone is string zone && FindNpc($"{zone}/{npc.Id}")?.Npc == npc ? $"{zone}/{npc.Id}" : $"{town.Id}/{npc.Id}";
     }
 
     public HeroClass? Class(string? id) => Classes.FirstOrDefault(c => c.Id == id);

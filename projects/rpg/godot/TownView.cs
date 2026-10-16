@@ -232,6 +232,9 @@ public partial class TownView : Node3D
             case 'B':
                 Place(Nature + "plant_bushSmall.glb", at, (c.X * 41) % 360, 1.8f);
                 break;
+            case 'P':
+                Stakes(at);
+                break;
             case ',':
                 Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
                 break;
@@ -259,6 +262,24 @@ public partial class TownView : Node3D
                     Place(Kit + "wall.glb", tower + new Vector3(0, storey * 2.6f, 0), turn, new Vector3(1.1f, 2.6f, 1.1f));
             }
             Place(Kit + "roof-point.glb", tower + new Vector3(0, 7.8f, 0), 0, 1.1f);
+        }
+    }
+
+    private static StandardMaterial3D? _stake;
+
+    /// <summary>
+    /// The village's palisade (sprint 102, no free model of one): three stakes of wood a cell, cut to a point,
+    /// a little uneven, in the chart's chocolate.
+    /// </summary>
+    private void Stakes(Vector3 at)
+    {
+        _stake ??= new StandardMaterial3D { AlbedoColor = new Color("6b4a2c"), Roughness = 0.9f };
+        for (int i = 0; i < 3; i++)
+        {
+            float height = 1.5f + 0.15f * (((int)(at.X * 7 + at.Z * 13) + i) % 3);
+            Vector3 foot = at + new Vector3(-0.33f + 0.33f * i, 0, 0.02f * (i - 1));
+            AddChild(new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = 0.14f, BottomRadius = 0.16f, Height = height, RadialSegments = 8 }, MaterialOverride = _stake, Position = foot + new Vector3(0, height / 2, 0) });
+            AddChild(new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = 0, BottomRadius = 0.14f, Height = 0.3f, RadialSegments = 8 }, MaterialOverride = _stake, Position = foot + new Vector3(0, height + 0.15f, 0) });
         }
     }
 

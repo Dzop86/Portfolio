@@ -21,8 +21,8 @@ public class JobTests
         // The easier the zone, the lower the recipe.
         Assert.Equal(1, locksmith.RecipeFor("boar-wallow-key")!.Level);
         Assert.True(locksmith.RecipeFor("royal-hive-key")!.Level > locksmith.RecipeFor("crab-reef-key")!.Level);
-        // Its bench is in Clairval, on a free cell, and no group stands on it.
-        Assert.Equal([new Workshop(new Cell(11, 9), "locksmith")], Real.Towns["clairval"].Workshops!);
+        // Its bench is in Clairval's craftsmen's quarter (sprint 102), on a free cell.
+        Assert.Equal([new Workshop(new Cell(24, 12), "locksmith")], Real.Towns["clairval-3-1"].Workshops!);
     }
 
     [Fact]
@@ -79,8 +79,8 @@ public class JobTests
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [r with { Ingredients = [new ItemCount("nothing", 1)] }] }));
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [r with { Ingredients = [new ItemCount(r.Item, 1)] }] }));
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [] }));
-        Town clairval = Real.Towns["clairval"];
-        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != "clairval"), clairval with { Workshops = [new Workshop(new Cell(11, 9), "baker")] }]));
-        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != "clairval"), clairval with { Workshops = [new Workshop(new Cell(10, 9), "locksmith")] }]));
+        Town quarter = Real.Towns["clairval-3-1"];
+        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(24, 12), "baker")] }]));
+        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(47, 0), "locksmith")] }]));
     }
 }

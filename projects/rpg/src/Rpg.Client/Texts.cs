@@ -967,7 +967,8 @@ public sealed class Texts
     {
         ArgumentNullException.ThrowIfNull(map);
         string name = map.Name.In(Lang);
-        return map.Zone is null ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
+        // The village's maps each have a name of their own (sprint 102): no place in the world after it.
+        return map.Zone is null || Shop.InVillage(map.Id) ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
     }
 
     /// <summary>

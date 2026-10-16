@@ -18,14 +18,14 @@
       ]
     },
     "training": {
-      "text": { "fr": "Garance, la maîtresse d'armes, attend près de la porte est. Vous pouvez aussi passer la porte vous-même.", "en": "Garance, the weapons master, waits by the east gate. You can also go through the gate yourself." },
+      "text": { "fr": "Garance, la maîtresse d'armes, attend dans la cour d'armes, à la porte de l'Ouest, juste à l'ouest de la place.", "en": "Garance, the weapons master, waits in the drill yard by the West Gate, just west of the square." },
       "answers": [
         { "text": { "fr": "Qui d'autre habite ici ?", "en": "Who else lives here?" }, "next": "people" },
         { "text": { "fr": "Compris.", "en": "Understood." } }
       ]
     },
     "people": {
-      "text": { "fr": "Rose tient l'étal du marché, au nord. Garance entraîne les nouveaux venus près de la porte est.", "en": "Rose keeps the market stall, up north. Garance trains newcomers by the east gate." },
+      "text": { "fr": "Rose tient l'étal du marché, juste à l'est de la place. Garance entraîne les nouveaux venus à la porte de l'Ouest.", "en": "Rose keeps the market stall, just east of the square. Garance trains newcomers at the West Gate." },
       "answers": [
         { "text": { "fr": "Et les combats ?", "en": "And the fights?" }, "next": "fights" },
         { "text": { "fr": "Merci.", "en": "Thanks." } }

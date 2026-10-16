@@ -223,7 +223,9 @@ def towards(side, zid):
     return NAMES[zid]
 
 
-outsides = {"woods": {(4, 2, "east"): ("clairval", [((W - 1, 5), (1, 5)), ((W - 1, 6), (1, 6))], text("Clairval", "Clairval"))}}
+# The woods' east edge opens on the village's three gates (sprint 102, D74: Clairval in 4 x 3 maps, tools/village_gen.py).
+outsides = {"woods": {(4, row, "east"): (f"clairval-0-{row - 1}", [((W - 1, y), (1, y)) for y in (15, 16, 17)],
+                                        text("Clairval", "Clairval")) for row in (1, 2, 3)}}
 # Each zone opens on the woods by two maps (sprints 74 to 76).
 for (row, start) in ((1, 14), (3, 12)):
     bridge(outsides, ("woods", 0, row), ("mouldy", 4, row), "west", start, (towards("west", "mouldy"), towards("east", "woods")))
@@ -246,10 +248,10 @@ def lake_water(gx, gy):
 
 # Only the zones written now: a way to one not written yet is left out, with its opening.
 built = {"woods", *sys.argv[2:]}
-outsides = {z: {k: v for k, v in ways.items() if v[0] == "clairval" or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
+outsides = {z: {k: v for k, v in ways.items() if v[0].startswith("clairval") or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
 
 zones = [
-    # The woods, west of the village (at 0, 0): their east middle map opens on Clairval's west road (rows 5 and 6).
+    # The woods, west of the village (x 0 to 3): their east maps open on its three gates (rows 15 to 17).
     zone("woods", NAMES["woods"], 3, (-5, -2), 70,
          exits={(2, 2): ((19, 16), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]),
 ]

@@ -23,6 +23,8 @@ public static class Harvesting
         ["mouldy"] = (10, 15),
         ["lake"] = (20, 25),
         ["fields"] = (30, 35),
+        // The village's few spots, of the first level only (sprint 102).
+        ["clairval"] = (1, 1),
     };
 
     // How many spots of each kind a map of the zone has: trees, rocks, water, plots, herbs.
@@ -32,6 +34,7 @@ public static class Harvesting
         ["mouldy"] = [2, 2, 2, 1, 2],
         ["lake"] = [1, 1, 3, 2, 2],
         ["fields"] = [2, 2, 0, 4, 2],
+        ["clairval"] = [1, 1, 1, 2, 1],
     };
 
     /// <summary>How close to a way, an exit or the arrival a spot may be, and to another spot.</summary>

@@ -20,21 +20,46 @@ public class TownTests
             town is null ? [] : [town], dialogues.Length == 0 ? [Talk()] : dialogues);
 
     [Fact]
+    public void TheVillagesPeople_AreFoundByTheVillage_OnWhicheverOfItsMapsTheyLive()
+    {
+        // "clairval/rose" finds Rose on the market (sprint 102), as her own map's name does; the quests keep naming the village.
+        (Town market, Npc rose) = Real.FindNpc("clairval/rose")!.Value;
+        Assert.Equal("clairval-2-1", market.Id);
+        Assert.Equal(rose, Real.FindNpc("clairval-2-1/rose")!.Value.Npc);
+        Assert.Equal("clairval/rose", Real.RefOf(market, rose));
+        Assert.Equal("clairval", Real.FindNpc("clairval/aubin")!.Value.Town.Id);
+        Assert.Null(Real.FindNpc("clairval/nobody"));
+        Assert.Null(Real.FindNpc("clairval-2-1/aubin"));
+        Assert.Null(Real.FindNpc("rose"));
+        // The twelve maps are the village's: Rose's stall and the faster healing hold on them all.
+        Assert.All(Real.Towns.Values.Where(t => t.Zone == "clairval"), t => Assert.True(Shop.InVillage(t.Id)));
+        Assert.All(new[] { null, "clairvaux", "woods-4-2" }, m => Assert.False(Shop.InVillage(m)));
+        Assert.Equal((2, 2, 1), (Life.Factor("clairval"), Life.Factor("clairval-3-2"), Life.Factor("woods-4-2")));
+    }
+
+    [Fact]
     public void TheVillage_IsConsistent()
     {
-        Town clairval = Real.Towns["clairval"];
-        Assert.Equal(["aubin", "rose", "garance", "ysaline"], clairval.Npcs.Select(n => n.Id));
+        // Since sprint 102 (D74): twelve maps at x 0 to 3, y -1 to 1, the square keeping the id "clairval".
+        Town[] village = [.. Real.Towns.Values.Where(t => Shop.InVillage(t.Id))];
+        Assert.Equal(12, village.Length);
+        Assert.Equal([.. Enumerable.Range(0, 4).SelectMany(x => Enumerable.Range(-1, 3).Select(y => new Cell(x, y)))],
+            village.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
+        Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
+        Assert.Equal(["aubin", "garance", "rose", "ysaline"], village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
         Assert.Equal(["dungeon-keeper", "guide", "merchant", "scholar", "trainer"], Real.Dialogues.Keys.Order(StringComparer.Ordinal));
-        Board board = clairval.Board();
-        Assert.Equal((16, 12), (board.Width, board.Height));
-        // Houses and the fountain stand in the way, roads and grass do not.
-        Assert.Equal(Terrain.Obstacle, board[new Cell(4, 0)]);
-        Assert.Equal(Terrain.Obstacle, board[new Cell(8, 5)]);
-        Assert.Equal(Terrain.Floor, board[clairval.Spawn]);
-        Assert.Equal(Terrain.Hole, board[new Cell(3, 9)]);
-        // The trainer can start the training fight, which the east gate leads to as well.
+        foreach (Town t in village)
+        {
+            Board board = t.Board();
+            Assert.Equal((48, 32), (board.Width, board.Height));
+            Assert.Equal(Terrain.Floor, board[t.Spawn]);
+            // No way east to a training fight any more: Garance offers it in her talk.
+            Assert.Empty(t.Exits);
+        }
+        // The palisade round the outer edges, its three gates west towards the woods.
+        Assert.All(Enumerable.Range(0, 48), x => Assert.Equal('P', Real.Towns["clairval-1-0"][new Cell(x, 0)]));
+        Assert.Equal(["woods-4-1", "woods-4-2", "woods-4-3"], village.SelectMany(t => t.Links ?? []).Where(l => l.To.StartsWith("woods-", StringComparison.Ordinal)).Select(l => l.To).Distinct().Order(StringComparer.Ordinal));
         Assert.Contains(Real.Dialogues["trainer"].Lines.Values.SelectMany(l => l.Answers), a => a.Fight == "training");
-        Assert.Equal("training", clairval.ExitAt(new Cell(15, 5))!.Scenario);
         foreach (Dialogue d in Real.Dialogues.Values)
         {
             foreach (LocalizedText t in d.Lines.Values.SelectMany(l => l.Answers.Select(a => a.Text).Append(l.Text)))

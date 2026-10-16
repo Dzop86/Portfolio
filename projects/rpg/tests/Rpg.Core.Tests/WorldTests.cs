@@ -36,7 +36,8 @@ public class WorldTests
         Town village = Real.Towns["clairval"];
         Town[] woods = [.. Real.Towns.Values.Where(t => t.Zone == "woods")];
         Assert.Equal(25, woods.Length);
-        Assert.Equal((null, new Cell(0, 0)), (village.Zone, village.MapAt));
+        // Since sprint 102, the square of a village of 4 x 3 maps east of the woods (D74).
+        Assert.Equal(("clairval", new Cell(1, 0)), (village.Zone, village.MapAt));
         Assert.All(woods, t => Assert.Equal((48, 32, 3, "Bois de Clairval", "Clairval Woods"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(-5, 5).SelectMany(x => Enumerable.Range(-2, 5).Select(y => new Cell(x, y)))],
             woods.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
@@ -50,8 +51,13 @@ public class WorldTests
                 Assert.Equal(a.Links!.Count(l => l.To == b.Id), b.Links!.Count(l => l.To == a.Id));
             }
         }
-        // The village's west road opens on the middle of the woods' east side.
-        Assert.All(village.Links!, l => Assert.Equal("woods-4-2", l.To));
+        // The village's three west gates (sprint 102) open on the woods' east side, each on the map facing it.
+        foreach (int row in new[] { 0, 1, 2 })
+        {
+            Town gate = Real.Towns[row == 1 ? "clairval-0-1" : $"clairval-0-{row}"];
+            Assert.Equal(3, gate.Links!.Count(l => l.To == $"woods-4-{row + 1}"));
+            Assert.Equal(3, Real.Towns[$"woods-4-{row + 1}"].Links!.Count(l => l.To == gate.Id));
+        }
         Assert.Equal(new Cell(-1, 0), Real.Towns["woods-4-2"].MapAt);
         // A way to another zone is named after it alone (D64: no compass points); inside a zone, no name.
         foreach (Town t in Real.Towns.Values.Where(t => !t.IsHall))
@@ -59,7 +65,8 @@ public class WorldTests
             foreach (ZoneLink l in t.Links ?? [])
             {
                 Town to = Real.Towns[l.To];
-                Assert.Equal(to.ZoneId == t.ZoneId ? null : to.Name, l.Name);
+                // The village's maps have names of their own (sprint 102): a way to it is named after the village.
+                Assert.Equal(to.ZoneId == t.ZoneId ? null : Shop.InVillage(to.Id) ? Real.Towns[Shop.Village].Name : to.Name, l.Name);
             }
         }
     }
@@ -122,8 +129,8 @@ public class WorldTests
             Assert.Equal(3, Real.Towns[$"woods-{col}-4"].Links!.Count(l => l.To == $"fields-{col}-0"));
             Assert.Equal(3, Real.Towns[$"fields-{col}-0"].Links!.Count(l => l.To == $"woods-{col}-4"));
         }
-        // Four zones and the village: 101 maps.
-        Assert.Equal(101, Real.Towns.Values.Count(t => !t.IsHall));
+        // Four zones and the village's twelve maps (sprint 102): 112 maps.
+        Assert.Equal(112, Real.Towns.Values.Count(t => !t.IsHall));
     }
 
     // Two maps side by side, three cells wide: a to the west of b.

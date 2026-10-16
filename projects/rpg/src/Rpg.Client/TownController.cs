@@ -304,7 +304,7 @@ public sealed class TownController
         if (npc is not null)
         {
             // The character's quests (sprint 88): this inhabitant's to take and to hand back, and those asking to see them.
-            string who = Town.Id + "/" + npc.Id;
+            string who = _data.RefOf(Town, npc);
             Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who));
             QuestTalks = Book?.Talks(who) ?? [];
         }
@@ -429,8 +429,7 @@ public static class TownTour
             if (town.Fight is not null)
                 return lines;
         }
-        TownExit exit = town.Town.Exits[0];
-        afterClick?.Invoke(town.Click(exit.At) ?? throw new InvalidOperationException($"Cannot walk to the exit at {exit.At}."));
+        // No gate to the training fight any more (sprint 102): the tour ends by the last one talked to.
         return lines;
     }
 }

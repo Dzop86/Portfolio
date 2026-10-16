@@ -971,7 +971,7 @@ Quatre décisions couvrent ensemble les sprints **95 à 114**, soit **78 points*
 | S99 | 5 | 3 | La récolte : 5 métiers (bûcheron, mineur, pêcheur, paysan, herboriste), 40 ressources (niveaux 1 à 35), les points des cartes (fait) |
 | S100 | 3 | 3 | La fenêtre Métiers (touche J), qui remplace le panneau de l'établi (fait, T68) |
 | S101 | 5 | 3 bis | **La vie qui se garde** : vie et horodatage sur le serveur, 1 % des PV max par seconde (×2 au village), combats à la vie actuelle, défaite à 1 PV, `DungeonHp` fusionné, barre hors combat, avertissement, pain de Rose ; icônes d'ingrédients de l'établi (fait, T69) |
-| S102 | 5 | 3 ter | **Le nouveau Clairval** : 12 cartes, palissade, 3 portes, habitants déplacés, quartier des artisans (5 ateliers), points de niveau 1, porte est retirée ; correctif du dialogue (2 offres au plus, défilement, touches 1 à 9) |
+| S102 | 5 | 3 ter | **Le nouveau Clairval** : 12 cartes, palissade, 3 portes, habitants déplacés, quartier des artisans (5 ateliers), points de niveau 1, porte est retirée ; correctif du dialogue (2 offres au plus, défilement, touches 1 à 9) (fait, T70, sans les nouveaux habitants ni les ateliers à venir) |
 | S103 | 5 | 3 ter | **Le moteur des quêtes** : `Interact`, `Win`, `Wear`, butin de quête, habitants des zones, « ! » et « ? », journal « où aller » |
 | S104 | 3 | 3 ter | **Le tuto de Clairval** : 9 quêtes (niveaux 1 à 5), rats du grenier, équipement de départ |
 | S105 | 3 | 3 ter | **La mini-carte** (N), déplaçable et zoomable |

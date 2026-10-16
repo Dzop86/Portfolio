@@ -28,6 +28,8 @@ public class ProgressionTests
         bool questDone = false;
         for (int i = 0; i < 12; i++)
         {
+            // The life is kept between fights since sprint 101: it grows back in full before each one.
+            api.Clock.Advance(TimeSpan.FromMinutes(5));
             FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
             FightRecord record = Play(ticket, (await server.Characters(Cancel)).Single().Hero);
             FightResult result = await server.ReportFight(c.Id, ticket.Id, record, Cancel);

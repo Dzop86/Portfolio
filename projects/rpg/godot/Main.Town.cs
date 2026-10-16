@@ -381,7 +381,7 @@ public partial class Main
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when GroupUnder(click.Position) is Cell cell:
                 OpenGroupMenu(cell, click.Position);
                 break;
-            case InputEventKey { Pressed: true, Echo: false } key when _town.Talk is not null && key.Keycode >= Key.Key1 && key.Keycode <= Key.Key4:
+            case InputEventKey { Pressed: true, Echo: false } key when _town.Talk is not null && key.Keycode >= Key.Key1 && key.Keycode <= Key.Key9:
                 int index = (int)(key.Keycode - Key.Key1);
                 if (index < _town.Talk.Line.Answers.Count)
                     Answer(index);
@@ -920,6 +920,9 @@ public partial class Main
             TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
             if (_journalPanel is not null)
                 problems.Add("Q does not close the journal");
+            // Rose keeps her stall on the market, east of the square (sprint 102).
+            TownController square = _town;
+            _town = new TownController(GameData.Embedded, "clairval-2-1") { Book = square.Book };
             _town.Click(Inhabitant("rose").At);
             await TellTalks();
             if (_character.QuestLog?.SingleOrDefault()?.Counts[2] != 1)
@@ -929,6 +932,8 @@ public partial class Main
                 IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
                 _town.Answer(Math.Max(0, answers.ToList().FindIndex(a => a.Next is null && a.Fight is null)));
             }
+            square.Book = _town.Book;
+            _town = square;
             _town.Click(Inhabitant("aubin").At);
             if (_town.Talk?.Line.Answers.Any(a => a.Next?.StartsWith("hand-in:", StringComparison.Ordinal) == true) != false)
                 problems.Add("a quest not done is offered to hand back");
@@ -1097,7 +1102,7 @@ public partial class Main
         IReadOnlyList<Quest> quests = _town!.QuestTalks;
         if (quests.Count == 0 || _lobby?.SignedIn != true || _character is null || _town.Talk is not Conversation talk)
             return;
-        string npc = _town.Town.Id + "/" + talk.Npc.Id;
+        string npc = GameData.Embedded.RefOf(_town.Town, talk.Npc);
         Texts texts = _talkPanel!.Texts;
         try
         {
@@ -1151,7 +1156,7 @@ public partial class Main
     /// <summary>
     /// The town tour (Rpg.Client.TownTour) through the views: after each click the player stands where
     /// the town says, and each line of a talk is the one on screen with its answers; then, signed in,
-    /// the place is saved on the server and read back; then the gate's fight and its self-test.
+    /// the place is saved on the server and read back; then Garance's training fight and its self-test.
     /// </summary>
     private async Task RunTownSelfTest()
     {
@@ -1244,7 +1249,9 @@ public partial class Main
         if (problems.Count == 0)
             note += " " + world;
         _selfTestNote = _selfTestNote is null ? note : $"{_selfTestNote} {note}";
-        if (problems.Count > 0 || _town!.Fight is not string scenario)
+        // Garance's lesson, which her talk at the west gate starts since sprint 102 (no gate to it on the square).
+        string scenario = _town!.Fight ?? "training";
+        if (problems.Count > 0)
         {
             string report = $"SELFTEST FAILED {note}";
             GD.Print(report);
@@ -1306,7 +1313,8 @@ public partial class Main
                 GameWindow.Characteristics => _pointsPanel?.Only == false && _mapPanel is null,
                 GameWindow.Spells => _pointsPanel?.Only == true && _mapPanel is null,
                 GameWindow.Journal => _journalPanel is not null && _inventoryPanel is null && _mapPanel is null,
-                _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null,
+                GameWindow.Jobs => _jobsPanel is not null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
+                _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
                 problems.Add($"{key} does not open the {window} window alone");
@@ -1483,9 +1491,9 @@ public partial class Main
             }
             checkedDoors++;
         }
-        // The locksmith's bench in Clairval (sprint 81): walked onto, it opens its recipes, none to make
+        // The locksmith's bench in Clairval's craftsmen's quarter (sprints 81 and 102): walked onto, it opens its recipes, none to make
         // without the ingredients; closed, the player walks on.
-        _town = new TownController(GameData.Embedded, "clairval");
+        _town = new TownController(GameData.Embedded, "clairval-3-1");
         Workshop bench = _town.Town.Workshops![0];
         if (_town.Click(bench.At)?.Path is null || _town.Bench != bench)
             problems.Add("walking onto the locksmith's bench does not open it");
@@ -1501,8 +1509,8 @@ public partial class Main
             if (_town.Click(_town.Town.Spawn) is null)
                 problems.Add("after the bench, the player cannot walk on");
         }
-        // Rose's stall (sprint 97): her answer opens it, her stock as the rules say; closed, the player walks on.
-        _town = new TownController(GameData.Embedded, "clairval");
+        // Rose's stall on the market (sprints 97 and 102): her answer opens it, her stock as the rules say; closed, the player walks on.
+        _town = new TownController(GameData.Embedded, "clairval-2-1");
         Npc rose = _town.Town.Npcs.First(n => n.Dialogue == "merchant");
         Dialogue merchant = GameData.Embedded.Dialogues["merchant"];
         int shopAnswer = merchant.Lines[merchant.Start].Answers.ToList().FindIndex(a => a.Shop);

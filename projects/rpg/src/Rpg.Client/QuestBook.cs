@@ -25,9 +25,16 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
     public static QuestBook Of(CharacterSummary character, GameData data) =>
         new(data, (character ?? throw new ArgumentNullException(nameof(character))).Level, [.. character.Quests ?? []], character.QuestLog ?? [], character.Inventory ?? []);
 
-    /// <summary>The quests this inhabitant ("town/npc") gives that the character can take now.</summary>
+    /// <summary>The most quests an inhabitant has under way with the character, offered ones included (Charles, sprint 102).</summary>
+    public const int MostFromOne = 2;
+
+    /// <summary>
+    /// The quests this inhabitant ("town/npc") gives that the character can take now: the lowest levels first,
+    /// so that it never has more than <see cref="MostFromOne"/> of theirs under way at once.
+    /// </summary>
     public IReadOnlyList<Quest> Offers(string npc) =>
-        [.. Data.Quests.Values.Where(q => q.Giver == npc && Quests.WhyNot(q, level, DoneQuests, Active) is null)];
+        [.. Data.Quests.Values.Where(q => q.Giver == npc && Quests.WhyNot(q, level, DoneQuests, Active) is null)
+            .OrderBy(q => q.Level).Take(Math.Max(0, MostFromOne - Active.Count(p => Data.Quests.TryGetValue(p.Quest, out Quest? a) && a.Giver == npc)))];
 
     /// <summary>The quests under way this inhabitant gave, their objectives all reached: to hand back.</summary>
     public IReadOnlyList<Quest> HandIns(string npc) =>

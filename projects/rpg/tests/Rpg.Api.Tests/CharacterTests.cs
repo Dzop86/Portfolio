@@ -138,7 +138,7 @@ public class CharacterTests
         await server.SavePlace(c.Id, new Place("clairval", 1, 6), Cancel);
         Assert.Equal(new Place("clairval", 1, 6), Assert.Single(await server.Characters(Cancel)).Place);
         // A house, someone else's cell, outside the town, an unknown town: refused, the place kept.
-        foreach (Place wrong in new[] { new Place("clairval", 4, 0), new Place("clairval", 8, 9), new Place("clairval", 40, 2), new Place("atlantis", 1, 1) })
+        foreach (Place wrong in new[] { new Place("clairval", 4, 0), new Place("clairval", 26, 18), new Place("clairval", 60, 2), new Place("atlantis", 1, 1) })
         {
             var e = await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, wrong, Cancel));
             Assert.Equal(HttpStatusCode.BadRequest, e.Status);

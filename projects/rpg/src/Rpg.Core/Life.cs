@@ -18,7 +18,7 @@ public static class Life
     public static double PerSecond(int maxHp) => Math.Max(1, maxHp / 100.0);
 
     /// <summary>The village heals twice as fast.</summary>
-    public static int Factor(string? map) => map == Shop.Village ? 2 : 1;
+    public static int Factor(string? map) => Shop.InVillage(map) ? 2 : 1;
 
     /// <summary>A hero's maximum hit points out of a fight: its class's at its level and its Vitality, what it wears included.</summary>
     public static int MaxHp(Hero hero, GameData data) =>

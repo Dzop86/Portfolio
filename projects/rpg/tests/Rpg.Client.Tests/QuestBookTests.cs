@@ -44,9 +44,43 @@ public class QuestBookTests
         Assert.Empty(book.HandIns("clairval/aubin"));
         Assert.Equal([Edge], book.Talks("clairval/rose"));
         Assert.Empty(book.Talks("clairval/garance"));
-        town = Village(book);
+        // Rose on the village's market (sprint 102).
+        town = new TownController(Data, "clairval-2-1") { Book = book };
         town.Click(town.Town.Npcs.Single(n => n.Id == "rose").At);
         Assert.Equal([Edge], town.QuestTalks);
+    }
+
+    [Fact]
+    public void AnInhabitant_NeverHasMoreThanTwoQuestsUnderWay_TheLowestOffered()
+    {
+        // At level 30, nothing done: Garance has more to give, offered two at a time, the lowest first (Charles, sprint 102).
+        Quest[] open = [.. Data.Quests.Values.Where(q => q.Giver == "clairval/garance" && Quests.WhyNot(q, 30, [], []) is null).OrderBy(q => q.Level)];
+        Assert.True(open.Length > QuestBook.MostFromOne);
+        Assert.Equal(open.Take(QuestBook.MostFromOne), new QuestBook(Data, 30, [], [], []).Offers("clairval/garance"));
+        // One under way: one more only.
+        Assert.Single(new QuestBook(Data, 30, [], [Quests.Start(open[0])], []).Offers("clairval/garance"));
+        // A player who takes all they are offered, level by level, each giver's oldest quest done at each level.
+        var done = new List<string>();
+        var active = new List<QuestProgress>();
+        string[] givers = [.. Data.Quests.Values.Select(q => q.Giver).OfType<string>().Distinct()];
+        for (int level = 1; level <= 30; level++)
+        {
+            foreach (string giver in givers)
+            {
+                active.AddRange(new QuestBook(Data, level, done, active, []).Offers(giver).Select(Quests.Start));
+                Assert.InRange(active.Count(p => Data.Quests[p.Quest].Giver == giver), 0, QuestBook.MostFromOne);
+            }
+            foreach (string giver in givers)
+            {
+                if (active.FirstOrDefault(p => Data.Quests[p.Quest].Giver == giver) is QuestProgress oldest)
+                {
+                    active.Remove(oldest);
+                    done.Add(oldest.Quest);
+                }
+            }
+        }
+        // Every quest given by someone is offered on the way.
+        Assert.Equal(Data.Quests.Values.Where(q => q.Giver is not null).Select(q => q.Id).Order(StringComparer.Ordinal), done.Concat(active.Select(p => p.Quest)).Order(StringComparer.Ordinal));
     }
 
     [Fact]

@@ -45,13 +45,13 @@ public class EdgeWayTests
     [Fact]
     public void ASideWithoutAWay_LeadsNowhere_AndAWayItselfIsTakenAsBefore()
     {
-        var clairval = new TownController(Data, "clairval");
+        // The village's quarry, in its north-east corner (sprint 102), opens west and south only.
+        var clairval = new TownController(Data, "clairval-3-0");
         Town map = clairval.Town;
-        // Clairval opens west only.
         Assert.Null(clairval.EdgeWay(new Cell(map.Width - 1, 2)));
         Assert.Null(clairval.EdgeWay(new Cell(6, 0)));
         Assert.Equal(new Cell(-1, 0), clairval.EdgeWay(new Cell(0, 9))!.Value.Direction);
-        ZoneLink link = map.Links![0];
+        ZoneLink link = map.Links!.First(l => l.At.X == 0);
         Assert.Equal(link, clairval.Click(link.At)!.Link);
         // Busy (a walk to a way under way), no arrow.
         Assert.Null(clairval.EdgeWay(new Cell(0, 9)));
@@ -71,10 +71,10 @@ public class EdgeWayTests
         TownStep step = town.Click(new Cell(-6, h / 2))!;
         Assert.Equal(0, step.Link!.At.X);
         Assert.Equal(step.Link, town.Travel);
-        // Clairval has no way north: beyond its top left corner, the west way.
-        var clairval = new TownController(Data, "clairval");
+        // The quarry has no way north: beyond its top left corner, the west way.
+        var clairval = new TownController(Data, "clairval-3-0");
         Assert.Equal(new Cell(-1, 0), clairval.EdgeWay(new Cell(-1, -8))!.Value.Direction);
         // Beyond a side without a way: nothing.
-        Assert.Null(clairval.EdgeWay(new Cell(30, 6)));
+        Assert.Null(clairval.EdgeWay(new Cell(clairval.Town.Width + 5, 6)));
     }
 }

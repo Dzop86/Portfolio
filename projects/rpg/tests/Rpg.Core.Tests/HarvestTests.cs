@@ -17,10 +17,12 @@ public class HarvestTests
     }
 
     [Fact]
-    public void EveryMapOfAZone_HasSpots_OnTheRightDecor_AwayFromTheWays_NoneInTheVillage()
+    public void EveryMapOfAZone_HasSpots_OnTheRightDecor_AwayFromTheWays_TheVillagesOfTheFirstLevel()
     {
-        Assert.DoesNotContain(Real.Nodes.Values, n => n.Map == "clairval");
-        foreach (Town map in Real.Towns.Values.Where(t => t.Zone is string z && Harvesting.Tiers.ContainsKey(z)))
+        // Since sprint 102, the village has a few spots, of the first level only.
+        Assert.All(Real.Nodes.Values.Where(n => Shop.InVillage(n.Map)), n => Assert.Equal(1, n.Level));
+        Assert.Contains(Real.Nodes.Values, n => Shop.InVillage(n.Map));
+        foreach (Town map in Real.Towns.Values.Where(t => t.Zone is string z && Harvesting.Tiers.ContainsKey(z) && !Shop.InVillage(t.Id)))
         {
             HarvestNode[] here = [.. Real.Nodes.Values.Where(n => n.Map == map.Id)];
             Assert.InRange(here.Length, 5, 12);

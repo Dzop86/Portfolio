@@ -8,14 +8,15 @@ public class WorldTests
     [Fact]
     public void WalkingOntoAWay_LeadsToTheNextZone_OnItsArrival()
     {
-        var town = new TownController(GameData.Embedded, "clairval");
-        TownStep step = town.Click(new Cell(0, 5))!;
+        // The village's west gate (sprint 102).
+        var town = new TownController(GameData.Embedded, "clairval-0-1");
+        TownStep step = town.Click(new Cell(0, 16))!;
         Assert.Equal("woods-4-2", step.Link!.To);
         Assert.Equal(step.Link, town.Travel);
         // Nothing else to do there: the zone changes.
         Assert.Null(town.Click(new Cell(1, 6)));
         TownController woods = town.Enter(town.Travel!);
-        Assert.Equal(("woods-4-2", new Cell(46, 5), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
+        Assert.Equal(("woods-4-2", new Cell(46, 16), (ZoneLink?)null), (woods.Town.Id, woods.Position, woods.Travel));
         // Walking elsewhere does not take a way: only stopping on it.
         Cell inside = woods.Board.Cells().First(c => c.X == 40 && c.Y > TownController.EdgeReach + 1 && woods.IsFree(c) && woods.Town.LinkAt(c) is null);
         Assert.Null(woods.Click(inside)!.Link);
@@ -48,8 +49,9 @@ public class WorldTests
     {
         Assert.Equal("Bois de Clairval [-3, 0]", new Texts("fr").MapTitle(GameData.Embedded.Towns["woods-2-2"]));
         Assert.Equal("Clairval Woods [-5, -2]", new Texts("en").MapTitle(GameData.Embedded.Towns["woods-0-0"]));
-        // The village is a zone of its own: its name alone.
+        // The village's maps each have a name of their own (sprint 102): that name alone.
         Assert.Equal("Clairval", new Texts("fr").MapTitle(GameData.Embedded.Towns["clairval"]));
+        Assert.Equal("Clairval, the Market", new Texts("en").MapTitle(GameData.Embedded.Towns["clairval-2-1"]));
     }
 
     [Fact]

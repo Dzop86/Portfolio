@@ -37,6 +37,10 @@ public partial class TalkPanel : CanvasLayer
     private (int Level, long Xp)? _progress;
     private PanelContainer _talk = null!;
     private VBoxContainer _answerBox = null!;
+    private ScrollContainer _answerScroll = null!;
+
+    /// <summary>The most answers seen at once; the others are scrolled to.</summary>
+    public const int AnswersSeen = 6;
     private TownController _town = null!;
 
     public Texts Texts { get; private set; } = new("en");
@@ -108,9 +112,13 @@ public partial class TalkPanel : CanvasLayer
         _line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _line.AddThemeFontSizeOverride("font_size", 18);
         column.AddChild(_line);
-        _answerBox = new VBoxContainer();
-        _answerBox.AddThemeConstantOverride("separation", 6);
-        column.AddChild(_answerBox);
+        _answerBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _answerBox.AddThemeConstantOverride("separation", 4);
+        // At most six answers seen at once, the others scrolled to (sprint 102: a talk no longer leaves the screen).
+        var answers = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, 0) };
+        answers.AddChild(_answerBox);
+        _answerScroll = answers;
+        column.AddChild(answers);
         Refresh();
     }
 
@@ -151,8 +159,9 @@ public partial class TalkPanel : CanvasLayer
         {
             _answers[i].Visible = i < talk.Line.Answers.Count;
             if (_answers[i].Visible)
-                _answers[i].Text = $"{i + 1}. {talk.Line.Answers[i].Text.In(Texts.Lang)}";
+                _answers[i].Text = i < 9 ? $"{i + 1}. {talk.Line.Answers[i].Text.In(Texts.Lang)}" : talk.Line.Answers[i].Text.In(Texts.Lang);
         }
+        _answerScroll.CustomMinimumSize = new Vector2(0, Math.Min(talk.Line.Answers.Count, AnswersSeen) * 48);
     }
 
     public string SpeakerText => _talk.Visible ? _speaker.Text : "";

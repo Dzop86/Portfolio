@@ -53,7 +53,7 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
     /// What a character of the rows stands for. Walkable: '.' grass, '=' road, ',' flowers. Not walkable:
     /// 'H' a house (top-left of its 2 × 2 cells, the other three written 'h'), 'F' a fountain (2 × 2,
     /// 'f'), 'K' a dungeon's keep (3 × 3, 'k', sprint 86), 'T' a tree, 'R' a rock, 'S' a market stall, 'L' a lantern, 'C' a cart, '~' water, 'M' a
-    /// giant mushroom, 'B' a bush or a hedge (sprint 74).
+    /// giant mushroom, 'B' a bush or a hedge (sprint 74), 'P' the village's palisade (sprint 102).
     /// </summary>
     public static readonly IReadOnlyDictionary<char, string> Decor = new Dictionary<char, string>
     {
@@ -74,6 +74,7 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
         ['B'] = "bush",
         ['K'] = "keep",
         ['k'] = "keep",
+        ['P'] = "palisade",
     };
 
     public char this[Cell c] => c.Y >= 0 && c.Y < Rows.Count && c.X >= 0 && c.X < Rows[c.Y].Length ? Rows[c.Y][c.X] : '~';

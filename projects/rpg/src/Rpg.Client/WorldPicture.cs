@@ -64,6 +64,9 @@ public sealed class WorldPicture
     public static readonly Rgb Water = new(0x3b, 0x8c, 0xcf), WaterLight = new(0x67, 0xad, 0xe6);
     public static readonly Rgb Rock = new(0x9a, 0x9a, 0x96), RockLight = new(0xc4, 0xc4, 0xbf);
     public static readonly Rgb Roof = new(0x78, 0xd9, 0xd6), RoofEdge = new(0x3f, 0x95, 0x95);
+
+    /// <summary>The village's palisade (sprint 102): stakes of the chart's chocolate.</summary>
+    public static readonly Rgb Palisade = new(0x5a, 0x3a, 0x22), PalisadeLight = new(0x8a, 0x5a, 0x36);
     public static readonly Rgb Stone = new(0xd8, 0xd8, 0xd8);
     public static readonly Rgb Wood = new(0x9a, 0x67, 0x3c), Light = new(0xff, 0xd8, 0x5a);
     public static readonly Rgb Cap = new(0xc8, 0x4b, 0x3a), Spots = new(0xf4, 0xee, 0xe0), Bush = new(0x3f, 0x8f, 0x45), Petal = new(0xe8, 0x5d, 0x75);
@@ -137,6 +140,10 @@ public sealed class WorldPicture
                 Disc(px + 4.5 * K, py + 4.5 * K, 3.2 * K, Shadow);
                 Disc(px + 4 * K, py + 4 * K, 3.4 * K, Tree);
                 Disc(px + 3.2 * K, py + 3.2 * K, 1.4 * K, TreeLight);
+                break;
+            case 'P':
+                Fill(px, py, P, P, Palisade);
+                Fill((int)(px + K), (int)(py + K), (int)(2 * K), (int)(P - 2 * K), PalisadeLight);
                 break;
             case 'R':
                 Fill(px, py, P, P, ground);

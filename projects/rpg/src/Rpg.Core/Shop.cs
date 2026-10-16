@@ -8,8 +8,11 @@ namespace Rpg.Core;
 /// </summary>
 public static class Shop
 {
-    /// <summary>The map the stall stands on.</summary>
+    /// <summary>The village's square (its other maps are clairval-col-row since sprint 102).</summary>
     public const string Village = "clairval";
+
+    /// <summary>Whether a map is one of the village's (sprint 102: twelve maps, Rose on the market).</summary>
+    public static bool InVillage(string? map) => map is not null && (map == Village || map.StartsWith(Village + "-", StringComparison.Ordinal));
 
     /// <summary>The most bought or sold at once.</summary>
     public const int MostAtOnce = 99;
@@ -62,7 +65,7 @@ public static class Shop
     public static string? WhyNotBuy(Item item, int count, long shards, string? place, GameData data)
     {
         ArgumentNullException.ThrowIfNull(item);
-        return place != Village ? "Rose's stall is in the village."
+        return !InVillage(place) ? "Rose's stall is in the village."
             : count is < 1 or > MostAtOnce ? $"1 to {MostAtOnce} at once."
             : SellPrice(item, data) is not long price ? "Rose does not sell this."
             : price * count > shards ? $"{price * count} Éclats needed."
@@ -75,7 +78,7 @@ public static class Shop
         ArgumentNullException.ThrowIfNull(item);
         ArgumentNullException.ThrowIfNull(owned);
         int free = owned.Where(o => o.Item == item.Id).Sum(o => o.Count) - (worn ?? new Dictionary<Slot, string>()).Values.Count(w => w == item.Id);
-        return place != Village ? "Rose's stall is in the village."
+        return !InVillage(place) ? "Rose's stall is in the village."
             : count is < 1 or > MostAtOnce ? $"1 to {MostAtOnce} at once."
             : BuyPrice(item, data) is null ? "Rose does not buy this."
             : free < count ? "Not that many, or worn." : null;
