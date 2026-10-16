@@ -54,4 +54,26 @@ public class QuestTrailTests
         Town hall = Data.Towns[Data.Dungeons["boar-wallow"].Halls![0].Map];
         Assert.Null(QuestTrail.Toward(Data, hall, new TrailGoal("clairval", Data.Towns["clairval"].Spawn)));
     }
+
+    [Fact]
+    public void TheLoftsRats_AreFoundAtTheHatch_WhichStartsTheirFight_WhileFirminsQuestWantsIt()
+    {
+        QuestProgress rats = Quests.Start(Data.Quests["cellar-rats"]);
+        var book = new QuestBook(Data, 2, ["well-equipped"], [rats], []);
+        (Town granaries, Prop hatch) = Data.FindProp("loft-hatch")!.Value;
+        Assert.Equal(new TrailGoal(granaries.Id, hatch.At), QuestTrail.Goal(book, rats));
+        Assert.Equal(Data.Quests["cellar-rats"], book.FightFor(hatch));
+        // Won: the hatch is a hatch again.
+        Assert.Null(new QuestBook(Data, 2, [], [rats with { Counts = [1, 0] }], []).FightFor(hatch));
+        Assert.Null(new QuestBook(Data, 2, [], [], []).FightFor(hatch));
+        TownController town = new(Data, granaries.Id) { Book = book };
+        town.Click(hatch.At);
+        Assert.Equal(hatch, town.Examining);
+        // The tails: the rats leave them, so the trail leads back to the hatch's fight.
+        Assert.Equal(new TrailGoal(granaries.Id, hatch.At), QuestTrail.Goal(book, rats with { Counts = [1, 0] }));
+        // A stake: at the locksmith's bench that shapes it; a loaf: at Rose's stall.
+        Workshop bench = Data.Towns["clairval-3-1"].Workshops!.Single();
+        Assert.Equal(new TrailGoal("clairval-3-1", bench.At), QuestTrail.Source(Data, "palisade-stake"));
+        Assert.Equal(new TrailGoal("clairval-2-1", Data.FindNpc("clairval/rose")!.Value.Npc.At), QuestTrail.Source(Data, "bread"));
+    }
 }

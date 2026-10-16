@@ -9,7 +9,9 @@ public class JobTests
     public void TheLocksmith_MakesEveryDungeonsKey_FromItsFamilysResources_AtTheZonesLevel()
     {
         Job locksmith = Real.Jobs["locksmith"];
-        Assert.Equal(Real.Dungeons.Values.Select(d => d.Key).Order(), locksmith.Recipes.Select(r => r.Item).Order());
+        // The keys, and the tutorial's palisade stake (sprint 107: no forge yet).
+        Assert.Equal(Real.Dungeons.Values.Select(d => d.Key).Append("palisade-stake").Order(), locksmith.Recipes.Select(r => r.Item).Order());
+        Assert.Equal([new ItemCount("oak-log", 3), new ItemCount("copper-ore", 2)], locksmith.RecipeFor("palisade-stake")!.Ingredients);
         foreach (Dungeon d in Real.Dungeons.Values)
         {
             Recipe recipe = locksmith.RecipeFor(d.Key)!;

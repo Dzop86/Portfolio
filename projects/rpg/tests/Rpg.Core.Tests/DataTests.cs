@@ -13,7 +13,12 @@ public class DataTests
         Assert.Equal(["sentinel", "guard", "mage"], Real.Classes.Select(c => c.Id));
         foreach (HeroClass c in Real.Classes)
             Assert.False(string.IsNullOrWhiteSpace(c.Description.Fr) || string.IsNullOrWhiteSpace(c.Description.En), c.Id);
-        Assert.Equal(["duel", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal(["duel", "loft-rats", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
+        // A quest's loot (sprint 105) is a quest item its quest asks to bring (sprint 107: the loft's rats' tails).
+        LootDrop[] questLoot = [.. Real.Scenarios.Values.SelectMany(s => s.Fighters).SelectMany(f => f.Loot ?? [])
+            .Concat(Real.Monsters.Values.SelectMany(m => m.Loot ?? [])).Where(l => l.Quest is not null)];
+        Assert.Contains(questLoot, l => l.Item == "rat-tail");
+        Assert.All(questLoot, l => Assert.Contains(Real.Quests[l.Quest!].Objectives!, o => o.Goal == QuestGoal.Bring && o.Target == l.Item));
         foreach (Spell s in Real.Spells.Values)
             Assert.False(string.IsNullOrWhiteSpace(s.Name.Fr) || string.IsNullOrWhiteSpace(s.Name.En), s.Id);
         Board arena = Real.Board("arena");

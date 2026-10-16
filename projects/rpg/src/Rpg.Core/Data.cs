@@ -105,8 +105,11 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
 /// </summary>
 public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scenario = null, IReadOnlyList<ItemCount>? Items = null,
     string? Giver = null, string? Zone = null, LocalizedText? Text = null, LocalizedText? Thanks = null, IReadOnlyList<QuestObjective>? Objectives = null,
-    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null)
+    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null, string? HandIn = null)
 {
+    /// <summary>Who takes the quest back ("town/npc"): <see cref="HandIn"/> when set (sprint 107: Aubin's welcome ends with Garance), else its giver.</summary>
+    public string? Taker => HandIn ?? Giver;
+
     /// <summary>Given by someone and handed back, rather than done by a fight.</summary>
     public bool IsGiven => Giver is not null;
 }
@@ -130,9 +133,10 @@ public enum QuestGoal
 
 /// <summary>
 /// One thing a quest asks: its goal, its target (an inhabitant, a family, an item, a dungeon, a prop, a scenario), how many;
-/// for a dungeon, the room to win (sprint 95, D71: 0 = finish it), so that the main quest is done alone.
+/// for a dungeon, the room to win (sprint 95, D71: 0 = finish it), so that the main quest is done alone; for a talk,
+/// what the one talked to says while the objective is under way (sprint 107, <c>docs/textes-v5.md</c> §10.1).
 /// </summary>
-public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1, int Room = 0);
+public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1, int Room = 0, LocalizedText? Line = null);
 
 /// <summary>
 /// A creature a spell or a passive can summon, as described in <c>data/summons.json</c>; a monster's
@@ -370,7 +374,7 @@ public sealed class GameData
                 throw new InvalidDataException($"Quest '{q.Id}': a scenario or a giver, one of them, known.");
             if (!q.IsGiven)
                 continue;
-            if (FindNpc(q.Giver!) is null || q.Text is null || q.Thanks is null || q.Objectives is not { Count: > 0 } goals || q.Level is < 1 or > Hero.MaxLevel
+            if (FindNpc(q.Giver!) is null || (q.HandIn is not null && FindNpc(q.HandIn) is null) || q.Text is null || q.Thanks is null || q.Objectives is not { Count: > 0 } goals || q.Level is < 1 or > Hero.MaxLevel
                 || (q.Zone is not null && !Towns.Values.Any(t => t.Zone == q.Zone)) || (q.After ?? []).Any(a => a == q.Id || !(quests ?? []).Any(o => o.Id == a)))
                 throw new InvalidDataException($"Quest '{q.Id}': a known giver, its words, objectives, a level, a known zone and known quests before it.");
             foreach (QuestObjective o in goals)
@@ -388,19 +392,26 @@ public sealed class GameData
                 };
                 if (!known || o.Count < 1 || (o.Goal is not (QuestGoal.Defeat or QuestGoal.Bring) && o.Count != 1))
                     throw new InvalidDataException($"Quest '{q.Id}': the objective {o.Goal} '{o.Target}' ×{o.Count} is unknown.");
-                if (o.Room is < 0 or > Rpg.Core.Dungeons.RoomCount || (o.Room != 0 && o.Goal != QuestGoal.Dungeon))
+                if ((o.Line is not null && o.Goal != QuestGoal.Talk) || o.Room is < 0 or > Rpg.Core.Dungeons.RoomCount || (o.Room != 0 && o.Goal != QuestGoal.Dungeon))
                     throw new InvalidDataException($"Quest '{q.Id}': a room of 1 to {Rpg.Core.Dungeons.RoomCount}, for a dungeon only.");
             }
         }
-        // A quest's loot (sprint 105): a quest item that quest asks to bring.
-        foreach (MonsterSpec m in Monsters.Values)
+        // A quest's loot (sprint 105): a quest item; when its quest is in the data, one that quest asks to bring (data
+        // loaded without it, as some tests do, never lets it fall). Left by a monster, or by a fighter of a quest's own
+        // fight (sprint 107: the loft's rats).
+        foreach ((string who, LootDrop l) in Monsters.Values.SelectMany(m => (m.Loot ?? []).Select(l => (m.Id, l)))
+            .Concat(Scenarios.Values.SelectMany(s => s.Fighters.SelectMany(f => (f.Loot ?? []).Select(l => (s.Id, l)))))
+            .Where(x => x.l.Quest is not null))
         {
-            foreach (LootDrop l in (m.Loot ?? []).Where(l => l.Quest is not null))
-            {
-                if (!Quests.TryGetValue(l.Quest!, out Quest? wanting) || Items[l.Item].Kind != ItemKind.Quest
-                    || !(wanting.Objectives ?? []).Any(o => o.Goal == QuestGoal.Bring && o.Target == l.Item))
-                    throw new InvalidDataException($"Monster '{m.Id}': the loot '{l.Item}' of the quest '{l.Quest}' is not a quest item it asks to bring.");
-            }
+            if (Items[l.Item].Kind != ItemKind.Quest
+                || (Quests.TryGetValue(l.Quest!, out Quest? wanting) && !(wanting.Objectives ?? []).Any(o => o.Goal == QuestGoal.Bring && o.Target == l.Item)))
+                throw new InvalidDataException($"'{who}': the loot '{l.Item}' of the quest '{l.Quest}' is not a quest item it asks to bring.");
+        }
+        // A thing to examine that starts a fight (sprint 107): a known one.
+        foreach (Prop p in Towns.Values.SelectMany(t => t.Props ?? []).Where(p => p.Fight is not null))
+        {
+            if (FindScenario(p.Fight!) is null)
+                throw new InvalidDataException($"Prop '{p.Id}': an unknown fight '{p.Fight}'.");
         }
     }
 

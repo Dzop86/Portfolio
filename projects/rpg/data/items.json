@@ -19,6 +19,8 @@
   { "id": "orc-fang", "name": { "fr": "Croc d'orque", "en": "Orc Fang" }, "kind": "Resource", "icon": "lorc/fangs-circle" },
   { "id": "feather", "name": { "fr": "Plume", "en": "Feather" }, "kind": "Resource", "icon": "lorc/feather" },
   { "id": "garance-badge", "name": { "fr": "Insigne de Garance", "en": "Garance's Badge" }, "kind": "Quest", "icon": "andymeneely/police-badge" },
+  { "id": "rat-tail", "name": { "fr": "Queue de rat", "en": "Rat Tail" }, "kind": "Quest", "icon": "cathelineau/earth-worm" },
+  { "id": "palisade-stake", "name": { "fr": "Pieu de palissade", "en": "Palisade Stake" }, "kind": "Resource", "icon": "delapouite/log" },
   { "id": "boar-tusk", "name": { "fr": "Défense de sanglier", "en": "Boar Tusk" }, "kind": "Resource", "icon": "lorc/boar-tusks" },
   { "id": "boar-bristle", "name": { "fr": "Soies de sanglier", "en": "Boar Bristles" }, "kind": "Resource", "icon": "delapouite/hair-strands" },
   { "id": "tusk-amulet", "name": { "fr": "Amulette de défenses", "en": "Tusk Amulet" }, "kind": "Equipment", "slot": "Amulet", "level": 3, "stats": { "earth": 3, "vitality": 2 }, "set": "boar", "icon": "delapouite/primitive-necklace" },

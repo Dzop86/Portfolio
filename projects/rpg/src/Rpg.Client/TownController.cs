@@ -7,8 +7,12 @@ namespace Rpg.Client;
 /// Since sprint 88, the first line also offers the quests the NPC gives (<paramref name="offers"/>: its
 /// words, "I accept" or "Later") and takes back those done (<paramref name="handIns"/>: its thanks).
 /// </summary>
-public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest>? offers = null, IReadOnlyList<Quest>? handIns = null)
+public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest>? offers = null, IReadOnlyList<Quest>? handIns = null,
+    IReadOnlyList<LocalizedText>? asked = null)
 {
+    // What the inhabitant says for the quests that ask to see them (sprint 107), instead of their greeting.
+    private readonly IReadOnlyList<LocalizedText> _asked = asked ?? [];
+
     private const string OfferLine = "quest:", HandInLine = "hand-in:";
 
     public Npc Npc { get; } = npc ?? throw new ArgumentNullException(nameof(npc));
@@ -32,6 +36,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
             // The quests to hand back first, then those to take.
             return line with
             {
+                Text = _asked.Count == 0 ? line.Text : new LocalizedText(string.Join(" ", _asked.Select(a => a.Fr)), string.Join(" ", _asked.Select(a => a.En))),
                 Answers = [.. _handIns.Select(q => new DialogueAnswer(Texts.Both("quest.handin", q.Name), HandInLine + q.Id)),
                     .. _offers.Select(q => new DialogueAnswer(Texts.Both("quest.offer", q.Name), OfferLine + q.Id)),
                     .. line.Answers],
@@ -311,7 +316,7 @@ public sealed class TownController
         {
             // The character's quests (sprint 88): this inhabitant's to take and to hand back, and those asking to see them.
             string who = _data.RefOf(Town, npc);
-            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who));
+            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who), Book?.TalkLines(who));
             QuestTalks = Book?.Talks(who) ?? [];
         }
         else if (group is not null)

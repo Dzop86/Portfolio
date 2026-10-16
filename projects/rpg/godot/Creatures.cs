@@ -20,7 +20,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "rat"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -65,8 +65,37 @@ public static class Creatures
         "mole-tank" => Mole(1.3f, new Color("3a3a40"), helmet: true),
         "mole-support" => Mole(0.95f, new Color("7a6a62"), apron: true),
         "mole-boss" => Mole(1.6f, new Color("2b2b30"), helmet: true, crown: true),
+        "rat-loft" => Rat(),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
+
+    /// <summary>A loft's rat (sprint 107, the tutorial's fight): a grey body, a pink snout, round ears and a long tail.</summary>
+    private static Node3D Rat()
+    {
+        var root = new Node3D { Name = "Rat" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(0.75f, 0.75f, 0.75f) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color fur = new("7d7a78"), pink = new("e3a5a5");
+        Block(body, new Vector3(0.34f, 0.26f, 0.56f), new Vector3(0, 0.30f, 0), fur);
+        Block(body, new Vector3(0.24f, 0.20f, 0.24f), new Vector3(0, 0.34f, 0.36f), fur);
+        Block(body, new Vector3(0.10f, 0.08f, 0.10f), new Vector3(0, 0.30f, 0.52f), pink);
+        Block(body, new Vector3(0.10f, 0.12f, 0.03f), new Vector3(-0.10f, 0.49f, 0.32f), pink);
+        Block(body, new Vector3(0.10f, 0.12f, 0.03f), new Vector3(0.10f, 0.49f, 0.32f), pink);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.07f, 0.39f, 0.485f), Colors.Black);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.07f, 0.39f, 0.485f), Colors.Black);
+        var tail = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.04f, 0.04f, 0.5f) }, Position = new Vector3(0, 0.22f, -0.48f), RotationDegrees = new Vector3(15, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = pink, Roughness = 0.9f } };
+        body.AddChild(tail);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.12f, 0.18f), ("LegFR", 0.12f, 0.18f), ("LegBL", -0.12f, -0.18f), ("LegBR", 0.12f, -0.18f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.17f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.07f, 0.17f, 0.07f), new Vector3(0, -0.085f, 0), pink.Darkened(0.2f));
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
 
     /// <summary>A beast of the village (sprint 104): "hen", "horse" or "sheep", small beside the people, as they are.</summary>
     public static Node3D Beast(string kind) => kind switch

@@ -614,7 +614,22 @@ public partial class TownView : Node3D
     {
         Vector3 at = BoardView.ToWorld(prop.At);
         Color grey = new("8f8d86");
-        if (prop.Look == "stone")
+        if (prop.Look == "hatch")
+        {
+            // A wooden hatch in the ground by the granary, its gnawed latch.
+            Part(this, new BoxMesh { Size = new Vector3(0.8f, 0.08f, 0.8f) }, new Color("8a5a34"), at + new Vector3(0, 0.04f, 0));
+            foreach (float z in new[] { -0.2f, 0f, 0.2f })
+                Part(this, new BoxMesh { Size = new Vector3(0.82f, 0.02f, 0.03f) }, new Color("5a3a22"), at + new Vector3(0, 0.09f, z));
+            Part(this, new BoxMesh { Size = new Vector3(0.12f, 0.04f, 0.06f) }, new Color("9a9a96"), at + new Vector3(0.3f, 0.1f, 0));
+        }
+        else if (prop.Look == "grave")
+        {
+            // An old grave: a slab and a headstone, mossy.
+            Part(this, new BoxMesh { Size = new Vector3(0.5f, 0.08f, 0.8f) }, grey, at + new Vector3(0, 0.04f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.5f, 0.7f, 0.12f) }, grey.Darkened(0.1f), at + new Vector3(0, 0.35f, -0.4f));
+            Part(this, new BoxMesh { Size = new Vector3(0.3f, 0.06f, 0.4f) }, new Color("5f7a3a"), at + new Vector3(0.05f, 0.09f, 0.1f));
+        }
+        else if (prop.Look == "stone")
         {
             Part(this, new BoxMesh { Size = new Vector3(0.55f, 1.5f, 0.35f) }, grey, at + new Vector3(0, 0.75f, 0), new Vector3(0, 0, 3));
             foreach ((float x, float y) in new[] { (-0.12f, 1.15f), (0.12f, 1.15f), (-0.12f, 0.8f), (0.12f, 0.8f) })
@@ -630,7 +645,7 @@ public partial class TownView : Node3D
         {
             Mesh = new SphereMesh { Radius = 0.12f, Height = 0.24f },
             MaterialOverride = new StandardMaterial3D { AlbedoColor = WorldLight, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
-            Position = at + new Vector3(0, prop.Look == "stone" ? 1.85f : 0.9f, 0),
+            Position = at + new Vector3(0, prop.Look switch { "stone" => 1.85f, "grave" => 1.05f, _ => 0.6f }, 0),
             Visible = false,
         };
         AddChild(glint);

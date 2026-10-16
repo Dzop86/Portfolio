@@ -759,9 +759,9 @@ public partial class Main : Node3D
         if (_ticket is not null && _character is not null)
         {
             long before = _character.Xp, shardsBefore = _character.Shards;
-            bool firstWin = _controller.Fight.WinningTeam == 0 && !(_character.Quests ?? []).Contains("first-lesson");
             string? refused = await ReportFight();
-            long earned = Progression.FightXp(_controller.Fight) + (firstWin ? GameData.Embedded.Quests["first-lesson"].Xp : 0);
+            // Since sprint 107 the first lesson is Garance's quest, handed back to her: the fight gives its own experience only.
+            long earned = Progression.FightXp(_controller.Fight);
             long shards = Progression.FightShards(_controller.Fight);
             if (_character.Xp != before + earned || _character.Shards != shardsBefore + shards)
                 problems.Add($"the server keeps {_character.Xp} experience and {_character.Shards} Éclats, not {before + earned} and {shardsBefore + shards} ({refused})");
@@ -774,7 +774,7 @@ public partial class Main : Node3D
                 problems.Add($"the end window shows {_hud.End.LootIcons} loot icons");
             progress = $"Experience: +{earned} kept by the server, level {_character.Level}. Éclats: +{shards}, {_character.Shards} in all.";
             // The loot and the quest's items are in the inventory the server keeps.
-            var loot = Equipment.Loot(_controller.Fight).Concat(firstWin ? GameData.Embedded.Quests["first-lesson"].Items! : []).ToList();
+            var loot = Equipment.Loot(_controller.Fight).ToList();
             if (loot.Any(l => (_character.Inventory ?? []).FirstOrDefault(i => i.Item == l.Item)?.Count < l.Count || !(_character.Inventory ?? []).Any(i => i.Item == l.Item)))
                 problems.Add($"the inventory lacks the loot {_hud.Texts.Items(loot)}");
             else if (loot.Count > 0)

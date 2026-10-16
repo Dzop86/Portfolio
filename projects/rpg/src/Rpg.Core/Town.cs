@@ -28,9 +28,10 @@ public sealed record Animal(string Kind, Cell At)
 /// <summary>
 /// Something to examine on a map (sprint 105, D75): a clue a quest asks to find ("Interact"), seen as
 /// <see cref="Look"/> ("stone", "claws", "mycelium"...), named, with what one reads in it when clicked
-/// from beside it. Nobody stands on it. Its <see cref="Id"/> is the world's only one.
+/// from beside it. Nobody stands on it. Its <see cref="Id"/> is the world's only one. Since sprint 107, it may start
+/// a <see cref="Fight"/> (the loft's hatch), for a quest under way that asks to win it.
 /// </summary>
-public sealed record Prop(string Id, Cell At, string Look, LocalizedText Name, LocalizedText Text);
+public sealed record Prop(string Id, Cell At, string Look, LocalizedText Name, LocalizedText Text, string? Fight = null);
 
 /// <summary>The door of a dungeon on a map of the world (sprint 80): walking onto it leads in.</summary>
 public sealed record DungeonDoor(Cell At, string Dungeon);

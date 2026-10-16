@@ -18,14 +18,14 @@ public class ProgressionTests
     }
 
     [Fact]
-    public async Task AFightTheServerStarted_EarnsItsExperience_Once_AndTheFirstWinDoesTheQuest()
+    public async Task AFightTheServerStarted_EarnsItsExperience_Once()
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
         CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
         Assert.Equal((0L, 1, 0), (c.Xp, c.Level, c.Quests?.Count ?? 0));
         long total = 0, shards = 0;
-        bool questDone = false;
+        bool wonOnce = false;
         for (int i = 0; i < 12; i++)
         {
             // The life is kept between fights since sprint 101: it grows back in full before each one.
@@ -34,10 +34,11 @@ public class ProgressionTests
             FightRecord record = Play(ticket, (await server.Characters(Cancel)).Single().Hero);
             FightResult result = await server.ReportFight(c.Id, ticket.Id, record, Cancel);
             bool won = record.Replay(GameData.Embedded).WinningTeam == 0;
-            long expected = won ? Progression.MonsterXp(1) * 2 + (questDone ? 0 : 150) : 0;
+            // The first lesson is Garance's quest since sprint 107: a win alone does no quest.
+            long expected = won ? Progression.MonsterXp(1) * 2 : 0;
             Assert.Equal(expected, result.Xp);
-            Assert.Equal(won && !questDone ? "first-lesson" : null, result.Quest);
-            questDone |= won;
+            Assert.Null(result.Quest);
+            wonOnce |= won;
             total += expected;
             Assert.Equal((total, Progression.LevelFor(total)), (result.TotalXp, result.Level));
             // The Éclats (sprint 87): each of the two monsters' worth, won only, kept.
@@ -47,10 +48,10 @@ public class ProgressionTests
             var again = await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, record, Cancel));
             Assert.Equal(HttpStatusCode.NotFound, again.Status);
         }
-        Assert.True(questDone, "twelve training fights without a win");
+        Assert.True(wonOnce, "twelve training fights without a win");
         CharacterSummary after = (await server.Characters(Cancel)).Single();
         Assert.Equal((total, Progression.LevelFor(total), shards), (after.Xp, after.Level, after.Shards));
-        Assert.Equal(["first-lesson"], after.Quests!);
+        Assert.Empty(after.Quests ?? []);
     }
 
     [Fact]
@@ -117,7 +118,7 @@ public class ProgressionTests
         // Level 1: no point to spend yet.
         var e = await Assert.ThrowsAsync<ServerException>(() => server.SavePoints(c.Id, new Points(new Characteristics(Vitality: 1), null), Cancel));
         Assert.Contains("points: At most 0 characteristic points", e.Message, StringComparison.Ordinal);
-        // Win until level 2 (the quest alone gives 150 experience).
+        // Win until level 2.
         for (int i = 0; i < 12 && (await server.Characters(Cancel)).Single().Level < 2; i++)
         {
             // Life grows back between fights, as in the game (sprint 101): a loss would leave 1 HP for the next.

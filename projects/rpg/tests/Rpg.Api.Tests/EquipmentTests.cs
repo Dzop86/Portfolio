@@ -11,9 +11,16 @@ public class EquipmentTests
 {
     private static CancellationToken Cancel => TestContext.Current.CancellationToken;
 
-    /// <summary>Wins training fights until the first one, which does the quest; returns the character after it.</summary>
+    /// <summary>
+    /// The tutorial's start (sprint 107): Aubin's welcome handed back to Garance, her first lesson taken, training
+    /// fights won until the first win, the lesson handed back for its badge and ring; returns the character after it.
+    /// </summary>
     private static async Task<CharacterSummary> FirstWin(ApiFactory api, GameServer server, CharacterSummary c, List<FightResult> results)
     {
+        await server.TakeQuest(c.Id, "welcome", Cancel);
+        await server.QuestTalk(c.Id, "welcome", "clairval/garance", Cancel);
+        await server.HandInQuest(c.Id, "welcome", Cancel);
+        await server.TakeQuest(c.Id, "first-lesson", Cancel);
         for (int i = 0; i < 12; i++)
         {
             FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
@@ -22,9 +29,9 @@ public class EquipmentTests
             Ai.PlayOut(fight);
             FightResult result = await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
             results.Add(result);
-            Assert.Equal(Equipment.Loot(fight).Concat(result.Quest is null ? [] : GameData.Embedded.Quests[result.Quest].Items!), result.Loot!);
+            Assert.Equal(Equipment.Loot(fight), result.Loot!);
             if (fight.WinningTeam == 0)
-                return (await server.Characters(Cancel)).Single();
+                return (await server.HandInQuest(c.Id, "first-lesson", Cancel)).Character;
             // Lost, at 1 hit point (sprint 101): the time for the life to grow back.
             api.Clock.Advance(TimeSpan.FromMinutes(5));
         }
@@ -40,7 +47,7 @@ public class EquipmentTests
         Assert.Empty(c.Inventory ?? []);
         var results = new List<FightResult>();
         CharacterSummary after = await FirstWin(api, server, c, results);
-        var expected = results.SelectMany(r => r.Loot!).GroupBy(i => i.Item).Select(g => new ItemCount(g.Key, g.Sum(i => i.Count))).OrderBy(i => i.Item, StringComparer.Ordinal);
+        var expected = results.SelectMany(r => r.Loot!).Concat(GameData.Embedded.Quests["first-lesson"].Items!).GroupBy(i => i.Item).Select(g => new ItemCount(g.Key, g.Sum(i => i.Count))).OrderBy(i => i.Item, StringComparer.Ordinal);
         Assert.Equal(expected, after.Inventory!);
         Assert.Contains(new ItemCount("garance-badge", 1), after.Inventory!);
         Assert.Contains(new ItemCount("copper-ring", 1), after.Inventory!);

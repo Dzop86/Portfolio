@@ -1,0 +1,97 @@
+{
+  "id": "loft-rats",
+  "name": {
+    "fr": "Le grenier de Léonie",
+    "en": "Léonie's Loft"
+  },
+  "map": "arena",
+  "fighters": [
+    {
+      "name": {
+        "fr": "Héroïne",
+        "en": "Heroine"
+      },
+      "look": "female-d",
+      "team": 0,
+      "hp": 80,
+      "ap": 6,
+      "mp": 3,
+      "initiative": 120,
+      "start": 1,
+      "spells": [
+        "strike",
+        "arrow",
+        "spear"
+      ]
+    },
+    {
+      "name": {
+        "fr": "Rat du grenier",
+        "en": "Loft Rat"
+      },
+      "look": "rat-loft",
+      "team": 1,
+      "hp": 22,
+      "ap": 6,
+      "mp": 4,
+      "initiative": 70,
+      "start": 0,
+      "spells": [
+        "nip"
+      ],
+      "loot": [
+        {
+          "item": "rat-tail",
+          "percent": 100,
+          "quest": "cellar-rats"
+        }
+      ]
+    },
+    {
+      "name": {
+        "fr": "Rat du grenier",
+        "en": "Loft Rat"
+      },
+      "look": "rat-loft",
+      "team": 1,
+      "hp": 22,
+      "ap": 6,
+      "mp": 4,
+      "initiative": 70,
+      "start": 2,
+      "spells": [
+        "nip"
+      ],
+      "loot": [
+        {
+          "item": "rat-tail",
+          "percent": 100,
+          "quest": "cellar-rats"
+        }
+      ]
+    },
+    {
+      "name": {
+        "fr": "Gros rat",
+        "en": "Fat Rat"
+      },
+      "look": "rat-loft",
+      "team": 1,
+      "hp": 30,
+      "ap": 6,
+      "mp": 4,
+      "initiative": 70,
+      "start": 1,
+      "spells": [
+        "nip"
+      ],
+      "loot": [
+        {
+          "item": "rat-tail",
+          "percent": 100,
+          "quest": "cellar-rats"
+        }
+      ]
+    }
+  ]
+}

@@ -82,9 +82,21 @@ PENS = {
     (3, 2): ((29, 5), (44, 26), [], [("sheep", (33, 9)), ("sheep", (38, 12)), ("sheep", (35, 18)), ("sheep", (41, 21)), ("sheep", (32, 23)), ("sheep", (40, 8))]),
 }
 # Things to examine (sprint 105): the old stone Ysaline studies, on the square (its quest comes with the tutorial).
-PROPS = {(1, 1): [("old-stone", (18, 12), "stone", text("La vieille pierre", "The old stone"),
-                   text("Une pierre levée, plus vieille que le village. Quatre signes y sont gravés : une graine, une goutte, un marteau, une plume. Une de ses faces est polie, comme par des siècles de mains, et une fissure toute fraîche la traverse.",
-                        "A standing stone, older than the village. Four signs are carved on it: a seed, a drop, a hammer, a feather. One face is worn smooth, as if by centuries of hands, and a fresh crack runs through it."))]}
+PROPS = {
+    (1, 1): [("old-stone", (18, 12), "stone", text("La vieille pierre", "The old stone"),
+              text("Une pierre grise plus haute qu'un homme, fendue de haut en bas : une graine, une goutte, un marteau, une plume. Sur la face lisse, usée par les mains, un cinquième signe affleure : cinq traits en cercle, qui se font face sans se toucher.",
+                   "A grey stone taller than a man, split from top to bottom: a seed, a drop, a hammer, a feather. On the smooth face, worn by hands, a fifth sign shows through: five strokes in a ring, facing each other without touching."), None)],
+    # Sprint 107, the tutorial (docs/textes-v5.md §9.1): the loft's hatch starts the rats' fight, two old graves at the chapel.
+    (1, 2): [("loft-hatch", (25, 25), "hatch", text("La trappe du grenier", "The loft hatch"),
+              text("Une trappe en bois qui gratte de l'intérieur. Quelque chose a rongé le loquet.",
+                   "A wooden hatch, scratching from the inside. Something has gnawed through the latch."), "loft-rats")],
+    (2, 2): [("old-grave-1", (42, 26), "grave", text("Une vieille tombe", "An old grave"),
+              text("Une dalle mangée de mousse. Le nom est effacé, mais on lit encore une date : trois cents ans avant la fondation de Clairval.",
+                   "A slab eaten by moss. The name is gone, but a date can still be read: three hundred years before Clairval was founded."), None),
+             ("old-grave-2", (28, 27), "grave", text("Une tombe grattée", "A scraped grave"),
+              text("Quatre signes gravés autour d'un creux gratté au burin. Celui qui l'a gratté a pris soin de ne rien abîmer d'autre.",
+                   "Four signs carved around a hollow scraped out with a chisel. Whoever scraped it took care to damage nothing else."), None)],
+}
 # Pétronille, Léonie's nosiest hen, out of the yard by her side.
 LOOSE = {(1, 2): [("hen", (22, 24))]}
 
@@ -287,7 +299,7 @@ for r in range(ROWS):
                             for (i, n, look, col, at, d) in PEOPLE.get((c, r), [])]),
                   ("links", links), ("exits", [])])
         if (c, r) in PROPS:
-            town["props"] = [O([("id", i), ("at", cell(*at)), ("look", look), ("name", n), ("text", t)]) for (i, at, look, n, t) in PROPS[(c, r)]]
+            town["props"] = [O([("id", i), ("at", cell(*at)), ("look", look), ("name", n), ("text", t)] + ([("fight", f)] if f else [])) for (i, at, look, n, t, f) in PROPS[(c, r)]]
         if beasts:
             town["animals"] = [O([("kind", k), ("at", cell(*at))]) for (k, at) in beasts]
         if (c, r) in BENCHES:

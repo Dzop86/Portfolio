@@ -766,6 +766,12 @@ public partial class Main
         _talkPanel.ShowMessage(texts["prop.seen", prop.Name.In(texts.Lang), prop.Text.In(texts.Lang)]);
         if (_lobby?.SignedIn != true || _character is null || _town.Book is not QuestBook book)
             return;
+        // A thing that starts a fight (sprint 107: the loft's hatch), for the quest that asks to win it.
+        if (book.FightFor(prop) is not null && prop.Fight is string scenario)
+        {
+            EnterFight(scenario);
+            return;
+        }
         try
         {
             foreach (Quest q in book.Interacts(prop.Id))
@@ -1081,14 +1087,15 @@ public partial class Main
     }
 
     /// <summary>
-    /// The quests of sprint 88, signed in: Aubin offers his, accepted on the server; the journal (Q)
-    /// shows it with its three objectives; talking to Rose counts on the server; not done, it is not handed back.
+    /// The quests, signed in (sprints 88 and 107): Aubin offers his welcome, accepted on the server; the journal (Q)
+    /// shows it; at the West Gate, Garance says her line for it, the talk counts on the server and she takes the quest
+    /// back herself; then she offers her first lesson.
     /// </summary>
     private async Task<string> CheckQuests(List<string> problems)
     {
         if (_lobby?.SignedIn != true || _character is null)
             return "";
-        Quest edge = GameData.Embedded.Quests["edge-of-the-woods"];
+        Quest welcome = GameData.Embedded.Quests["welcome"];
         Texts texts = _talkPanel!.Texts;
         TownController town = _town!;
         _town = new TownController(GameData.Embedded, Village) { Book = QuestBook.Of(_character, GameData.Embedded) };
@@ -1101,64 +1108,47 @@ public partial class Main
             }
             Npc Inhabitant(string id) => _town.Town.Npcs.Single(n => n.Id == id);
             _town.Click(Inhabitant("aubin").At);
-            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", edge.Name.In(texts.Lang)])
+            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", welcome.Name.In(texts.Lang)])
             {
-                problems.Add("Aubin does not offer his quest");
+                problems.Add("Aubin does not offer his welcome");
                 return "";
             }
             Answer(0);
             Answer(0);
             await Until(() => _character.QuestLog is { Count: > 0 });
-            if (_character.QuestLog?.SingleOrDefault()?.Quest != edge.Id)
+            if (_character.QuestLog?.SingleOrDefault()?.Quest != welcome.Id)
                 problems.Add("the quest taken is not under way on the server");
             TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
-            if (_journalPanel is null || !_journalPanel.ActiveNames.SequenceEqual([edge.Name.In(texts.Lang)]) || _journalPanel.ObjectiveLines.Count != edge.Objectives!.Count)
+            if (_journalPanel is null || !_journalPanel.ActiveNames.SequenceEqual([welcome.Name.In(texts.Lang)]) || _journalPanel.ObjectiveLines.Count != welcome.Objectives!.Count)
                 problems.Add($"the journal shows {string.Join(", ", _journalPanel?.ActiveNames ?? [])}");
             TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
             if (_journalPanel is not null)
                 problems.Add("Q does not close the journal");
-            // Rose keeps her stall on the market, east of the square (sprint 102).
-            TownController square = _town;
-            _town = new TownController(GameData.Embedded, "clairval-2-1") { Book = square.Book };
-            _town.Click(Inhabitant("rose").At);
+            // Garance in the drill yard by the West Gate (sprint 102): her line for the newcomer, the talk counted, the quest hers to take back.
+            _town = new TownController(GameData.Embedded, "clairval-0-1") { Book = _town.Book };
+            _town.Click(Inhabitant("garance").At);
             await TellTalks();
-            if (_character.QuestLog?.SingleOrDefault()?.Counts[2] != 1)
-                problems.Add("talking to Rose is not counted");
-            while (_town.Talk is Conversation talk)
+            if (_town.Talk?.Line.Text != welcome.Objectives![0].Line)
+                problems.Add("Garance does not say her line for the welcome");
+            if (_character.QuestLog?.SingleOrDefault()?.Counts[0] != 1)
+                problems.Add("talking to Garance is not counted");
+            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.handin", welcome.Name.In(texts.Lang)])
             {
-                IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
-                _town.Answer(Math.Max(0, answers.ToList().FindIndex(a => a.Next is null && a.Fight is null)));
-            }
-            square.Book = _town.Book;
-            _town = square;
-            _town.Click(Inhabitant("aubin").At);
-            if (_town.Talk?.Line.Answers.Any(a => a.Next?.StartsWith("hand-in:", StringComparison.Ordinal) == true) != false)
-                problems.Add("a quest not done is offered to hand back");
-            _town.Interrupt(_town.Position);
-            // The main quest starts with Ysaline, by the old stone (sprint 89).
-            Quest stone = GameData.Embedded.Quests["whispering-stone"];
-            _town.Click(Inhabitant("ysaline").At);
-            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", stone.Name.In(texts.Lang)])
-            {
-                problems.Add("Ysaline does not offer the main quest");
+                problems.Add("Garance does not take the welcome back");
                 return "";
             }
-            // Taken, then the old stone beside her examined (sprint 105): the server counts the clue.
             Answer(0);
             Answer(0);
-            await Until(() => _character.QuestLog?.Any(p => p.Quest == stone.Id) == true);
+            await Until(() => _character.Quests?.Contains(welcome.Id) == true);
+            if (_character.Quests?.Contains(welcome.Id) != true || _character.QuestLog is { Count: > 0 })
+                problems.Add("the welcome handed back is not done on the server");
             _town.Interrupt(_town.Position);
-            (_, Prop oldStone) = GameData.Embedded.FindProp("old-stone")!.Value;
-            _town.Click(oldStone.At);
-            if (_town.Examining != oldStone)
-            {
-                problems.Add("a click on the old stone does not walk up to it");
-                return "";
-            }
-            await Examine(oldStone);
-            if (_character.QuestLog?.FirstOrDefault(p => p.Quest == stone.Id)?.Counts[0] != 1)
-                problems.Add("examining the old stone is not counted");
-            return " Quests: one taken from Aubin, followed in the journal, Rose seen, the main quest taken and its stone examined.";
+            _town.Click(Inhabitant("garance").At);
+            Quest lesson = GameData.Embedded.Quests["first-lesson"];
+            if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", lesson.Name.In(texts.Lang)])
+                problems.Add("Garance does not offer her first lesson");
+            _town.Interrupt(_town.Position);
+            return " Quests: Aubin's welcome taken, followed in the journal, Garance seen and given it back, her lesson offered.";
         }
         finally
         {

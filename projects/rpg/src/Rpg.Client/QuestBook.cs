@@ -51,15 +51,29 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
         [.. Data.Quests.Values.Where(q => q.Giver == npc && Quests.WhyNot(q, level, DoneQuests, Active) is null)
             .OrderBy(q => q.Level).Take(Math.Max(0, MostFromOne - Active.Count(p => Data.Quests.TryGetValue(p.Quest, out Quest? a) && a.Giver == npc)))];
 
-    /// <summary>The quests under way this inhabitant gave, their objectives all reached: to hand back.</summary>
+    /// <summary>The quests under way this inhabitant takes back (its giver, or the one it names, sprint 107), their objectives all reached.</summary>
     public IReadOnlyList<Quest> HandIns(string npc) =>
-        [.. Active.Select(p => (Quest: Data.Quests[p.Quest], Progress: p)).Where(x => x.Quest.Giver == npc && Quests.IsComplete(x.Quest, x.Progress, _owned, _worn)).Select(x => x.Quest)];
+        // The talk to them counted already (the server counts it as the talk opens): Garance takes back Aubin's welcome at once.
+        [.. Active.Select(p => (Quest: Data.Quests[p.Quest], Progress: p)).Where(x => x.Quest.Taker == npc && Quests.IsComplete(x.Quest, Quests.AfterTalk(x.Quest, x.Progress, npc), _owned, _worn)).Select(x => x.Quest)];
 
     /// <summary>The quests under way that ask to talk to this inhabitant, not yet done.</summary>
     public IReadOnlyList<Quest> Talks(string npc) =>
         [.. Active.Select(p => (Quest: Data.Quests[p.Quest], Progress: p))
             .Where(x => x.Quest.Objectives!.Select((o, i) => o.Goal == QuestGoal.Talk && o.Target == npc && x.Progress.Counts[i] < 1).Any(b => b))
             .Select(x => x.Quest)];
+
+    /// <summary>What this inhabitant says for the quests under way that ask to talk to them (sprint 107), in order.</summary>
+    public IReadOnlyList<LocalizedText> TalkLines(string npc) =>
+        [.. Talks(npc).SelectMany(q => q.Objectives!.Where(o => o.Goal == QuestGoal.Talk && o.Target == npc && o.Line is not null).Select(o => o.Line!))];
+
+    /// <summary>The quest under way that a thing's fight is won for (sprint 107: the loft's hatch), if any.</summary>
+    public Quest? FightFor(Prop prop)
+    {
+        ArgumentNullException.ThrowIfNull(prop);
+        return prop.Fight is not string fight ? null
+            : Active.Select(p => (Quest: Data.Quests[p.Quest], Progress: p))
+                .FirstOrDefault(x => x.Quest.Objectives!.Select((o, i) => o.Goal == QuestGoal.Win && o.Target == fight && x.Progress.Counts[i] < 1).Any(b => b)).Quest;
+    }
 
     /// <summary>The quests under way that ask to examine this thing (sprint 105), not yet done.</summary>
     public IReadOnlyList<Quest> Interacts(string prop) =>
@@ -85,7 +99,7 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
         ArgumentNullException.ThrowIfNull(texts);
         Quest q = Data.Quests[progress.Quest];
         if (Next(progress) is not QuestObjective goal)
-            return Data.FindNpc(q.Giver!) is (Town giverMap, _) ? texts.MapTitle(giverMap) : null;
+            return Data.FindNpc(q.Taker!) is (Town giverMap, _) ? texts.MapTitle(giverMap) : null;
         if (goal.Goal == QuestGoal.Wear)
             return texts["journal.inventory"];
         string? map = goal.Goal switch
@@ -93,10 +107,9 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
             QuestGoal.Talk => Data.FindNpc(goal.Target)?.Town.Id,
             QuestGoal.Interact => Data.FindProp(goal.Target)?.Town.Id,
             QuestGoal.Defeat => FamilyMap(goal.Target),
-            QuestGoal.Bring => Data.Families.Values.FirstOrDefault(f => f.Monsters.Any(m => (m.Loot ?? []).Any(l => l.Item == goal.Target))) is MonsterFamily f
-                ? FamilyMap(f.Id)
-                : Data.Nodes.Values.Where(n => n.Item == goal.Target).Select(n => n.Map).Order(StringComparer.Ordinal).FirstOrDefault(),
+            QuestGoal.Bring => QuestTrail.Source(Data, goal.Target)?.Map,
             QuestGoal.Dungeon => Data.Dungeons.TryGetValue(goal.Target, out Dungeon? d) ? d.Map : null,
+            QuestGoal.Win when Data.Towns.Values.SelectMany(t => t.Props ?? []).FirstOrDefault(p => p.Fight == goal.Target) is Prop hatch => Data.FindProp(hatch.Id)!.Value.Town.Id,
             QuestGoal.Win => Data.Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => t.Npcs.Select(n => (t, n)))
                 .FirstOrDefault(x => Data.Dialogues[x.n.Dialogue].Lines.Values.Any(l => l.Answers.Any(a => a.Fight == goal.Target))).t?.Id,
             _ => null,

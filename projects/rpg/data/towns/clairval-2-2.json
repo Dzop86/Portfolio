@@ -37,7 +37,7 @@
     "B..............................................B",
     "B.............................R.R.R.R.R........B",
     "B..............................................B",
-    "B.............................R.R.R.R.R........B",
+    "B...............................R.R.R.R........B",
     "B..............................................B",
     "B..............................................B",
     "B..............................................B",
@@ -297,5 +297,39 @@
       }
     }
   ],
-  "exits": []
+  "exits": [],
+  "props": [
+    {
+      "id": "old-grave-1",
+      "at": {
+        "x": 42,
+        "y": 26
+      },
+      "look": "grave",
+      "name": {
+        "fr": "Une vieille tombe",
+        "en": "An old grave"
+      },
+      "text": {
+        "fr": "Une dalle mangée de mousse. Le nom est effacé, mais on lit encore une date : trois cents ans avant la fondation de Clairval.",
+        "en": "A slab eaten by moss. The name is gone, but a date can still be read: three hundred years before Clairval was founded."
+      }
+    },
+    {
+      "id": "old-grave-2",
+      "at": {
+        "x": 28,
+        "y": 27
+      },
+      "look": "grave",
+      "name": {
+        "fr": "Une tombe grattée",
+        "en": "A scraped grave"
+      },
+      "text": {
+        "fr": "Quatre signes gravés autour d'un creux gratté au burin. Celui qui l'a gratté a pris soin de ne rien abîmer d'autre.",
+        "en": "Four signs carved around a hollow scraped out with a chisel. Whoever scraped it took care to damage nothing else."
+      }
+    }
+  ]
 }

@@ -28,15 +28,22 @@ public class QuestTests
         string account = api.WithDb(db => db.Accounts.Single().Name);
         CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "no-such-quest", Cancel)));
+        // Garance's first lesson comes after Aubin's welcome (sprint 107); her edge of the woods, at level 4 after the registry.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "first-lesson", Cancel)));
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, Edge.Id, Cancel)));
+        await Give(api, account, 4);
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Quests = "the-registry";
+            return db.SaveChanges();
+        });
         CharacterSummary taken = await server.TakeQuest(c.Id, Edge.Id, Cancel);
-        Assert.Equal([new QuestProgress(Edge.Id, [0, 0, 0])], taken.QuestLog!);
+        Assert.Equal([new QuestProgress(Edge.Id, [0, 0])], taken.QuestLog!);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, Edge.Id, Cancel)));
         // Not done yet: not handed back.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.HandInQuest(c.Id, Edge.Id, Cancel)));
-        // Rose, but not Garance, counts.
-        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.QuestTalk(c.Id, Edge.Id, "clairval/garance", Cancel)));
-        Assert.Equal([0, 0, 1], (await server.QuestTalk(c.Id, Edge.Id, "clairval/rose", Cancel)).QuestLog![0].Counts);
+        // Nobody to talk to for it.
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.QuestTalk(c.Id, Edge.Id, "clairval/rose", Cancel)));
 
         // Strong enough: boars fought until three are down.
         await Give(api, account, 40);
@@ -101,6 +108,13 @@ public class QuestTests
         GameServer server = await api.SignedIn("clu");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        // After the loft's rats and Rose's stall, from level 3 (sprint 107).
+        await Give(api, account, 3);
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Quests = "cellar-rats,roses-stall";
+            return db.SaveChanges();
+        });
         await server.TakeQuest(c.Id, "whispering-stone", Cancel);
         // Only a thing the quest asks to examine, and only for a quest under way.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.QuestInteract(c.Id, "whispering-stone", "no-such-thing", Cancel)));
@@ -130,5 +144,41 @@ public class QuestTests
         });
         Assert.Equal([0, 1, 0], (await server.Characters(Cancel)).Single().QuestLog!.Single().Counts);
         Assert.Equal([1, 1, 0], (await server.QuestInteract(c.Id, "whispering-stone", "old-stone", Cancel)).QuestLog!.Single().Counts);
+    }
+
+    [Fact]
+    public async Task TheLoftsRats_LeaveTheirTailsOnlyForFirmin_AndTheirFightIsWonForHisQuest()
+    {
+        // Sprint 107: the tutorial's quest fight, started by the loft's hatch; its quest loot, three tails at once.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("rat");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        await Give(api, account, 30);
+        async Task<FightResult> Rats()
+        {
+            api.Clock.Advance(TimeSpan.FromMinutes(5));
+            FightTicket ticket = await server.StartFight(c.Id, "loft-rats", Cancel);
+            var fight = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, (await server.Characters(Cancel)).Single().Hero, heroHp: ticket.HeroHp);
+            Ai.PlayOut(fight);
+            Assert.Equal(0, fight.WinningTeam);
+            return await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
+        }
+        // Without the quest: no tails.
+        Assert.DoesNotContain((await Rats()).Loot!, i => i.Item == "rat-tail");
+        api.WithDb(db =>
+        {
+            db.Characters.Single().Quests = "well-equipped";
+            return db.SaveChanges();
+        });
+        await server.TakeQuest(c.Id, "cellar-rats", Cancel);
+        FightResult won = await Rats();
+        Assert.Contains(new ItemCount("rat-tail", 3), won.Loot!);
+        Assert.Equal([1, 0], (await server.Characters(Cancel)).Single().QuestLog!.Single().Counts);
+        // Owned already: no more tails.
+        Assert.DoesNotContain((await Rats()).Loot!, i => i.Item == "rat-tail");
+        QuestReward reward = await server.HandInQuest(c.Id, "cellar-rats", Cancel);
+        Assert.DoesNotContain(reward.Character.Inventory!, i => i.Item == "rat-tail");
+        Assert.Contains(reward.Character.Inventory!, i => i.Item == "leather-belt");
     }
 }

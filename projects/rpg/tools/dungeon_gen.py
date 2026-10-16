@@ -187,6 +187,8 @@ for f, d in zip(families, dungeons):
                       ("shards", 5 * chief["level"])]))
 open(f"{root}/monsters.json", "w").write(json.dumps(families, ensure_ascii=False, indent=2) + "\n")
 # The other trades (sprint 99: the gathering ones, written by tools/trades_gen.py) are kept as they are.
+# The tutorial's palisade stake (sprint 107, docs/textes-v5.md §10.6: no forge yet, the locksmith's bench shapes it).
+recipes.append(O([("item", "palisade-stake"), ("level", 1), ("ingredients", [O([("item", "oak-log"), ("count", 3)]), O([("item", "copper-ore"), ("count", 2)])])]))
 others = [j for j in json.load(open(f"{root}/jobs.json")) if j["id"] != "locksmith"] if os.path.exists(f"{root}/jobs.json") else []
 jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])] + others
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")

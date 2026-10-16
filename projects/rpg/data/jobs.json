@@ -129,6 +129,20 @@
           }
         ],
         "shards": 150
+      },
+      {
+        "item": "palisade-stake",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "oak-log",
+            "count": 3
+          },
+          {
+            "item": "copper-ore",
+            "count": 2
+          }
+        ]
       }
     ]
   },

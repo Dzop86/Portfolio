@@ -298,6 +298,25 @@
     }
   ],
   "exits": [],
+  "props": [
+    {
+      "id": "loft-hatch",
+      "at": {
+        "x": 25,
+        "y": 25
+      },
+      "look": "hatch",
+      "name": {
+        "fr": "La trappe du grenier",
+        "en": "The loft hatch"
+      },
+      "text": {
+        "fr": "Une trappe en bois qui gratte de l'intérieur. Quelque chose a rongé le loquet.",
+        "en": "A wooden hatch, scratching from the inside. Something has gnawed through the latch."
+      },
+      "fight": "loft-rats"
+    }
+  ],
   "animals": [
     {
       "kind": "hen",

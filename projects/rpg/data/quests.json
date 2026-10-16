@@ -1,12 +1,59 @@
 [
   {
+    "id": "welcome",
+    "name": {
+      "fr": "Bienvenue à Clairval",
+      "en": "Welcome to Clairval"
+    },
+    "giver": "clairval/aubin",
+    "level": 1,
+    "text": {
+      "fr": "Bienvenue à Clairval ! Ici, tout le monde commence par voir Garance, notre maîtresse d'armes. Elle vous attend dans la cour d'armes, à la porte de l'Ouest : quittez la place par l'ouest, vous ne pouvez pas la manquer.",
+      "en": "Welcome to Clairval! Everyone here starts by seeing Garance, our weapons master. She's waiting for you in the drill yard by the West Gate: leave the square heading west, you can't miss her."
+    },
+    "thanks": {
+      "fr": "Aubin t'a bien guidé. Maintenant, on travaille.",
+      "en": "Aubin pointed you the right way. Now we work."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/garance",
+        "line": {
+          "fr": "La nouvelle recrue ? Aubin t'envoie, bien. Ici, on apprend à tenir debout avant d'apprendre à courir.",
+          "en": "The new recruit? Aubin sent you, good. Here we learn to stand before we learn to run."
+        }
+      }
+    ],
+    "handIn": "clairval/garance",
+    "xp": 50,
+    "shards": 10
+  },
+  {
     "id": "first-lesson",
     "name": {
       "fr": "Première leçon",
-      "en": "First lesson"
+      "en": "First Lesson"
     },
-    "xp": 150,
-    "scenario": "training",
+    "giver": "clairval/garance",
+    "level": 1,
+    "text": {
+      "fr": "L'orque et le braconnier que tu vois là servent de cibles à mes élèves, et ils rendent les coups. Bats-les tous les deux. La frise, en haut, te dit qui joue. Tes PA lancent tes sorts, tes PM te font marcher.",
+      "en": "The orc and the poacher over there are my pupils' targets, and they hit back. Beat them both. The strip at the top shows whose turn it is. Your AP cast your spells, your MP let you walk."
+    },
+    "thanks": {
+      "fr": "Pas mal. Mais l'arme que je t'ai prêtée vibrait, à la fin, quand tu t'énervais. Ça, je ne l'avais jamais vu. Tiens, mon insigne, et cet anneau : tu vas en avoir besoin.",
+      "en": "Not bad. But the weapon I lent you was humming at the end, when you lost your temper. I've never seen that before. Here, my badge, and this ring: you'll need it."
+    },
+    "objectives": [
+      {
+        "goal": "Win",
+        "target": "training"
+      }
+    ],
+    "after": [
+      "welcome"
+    ],
     "items": [
       {
         "item": "garance-badge",
@@ -16,49 +63,9 @@
         "item": "copper-ring",
         "count": 1
       }
-    ]
-  },
-  {
-    "id": "edge-of-the-woods",
-    "name": {
-      "fr": "La lisière",
-      "en": "The Edge of the Woods"
-    },
-    "giver": "clairval/aubin",
-    "zone": "woods",
-    "text": {
-      "fr": "Les sangliers s'approchent du village. Chasse-en trois à l'orée du bois, rapporte-moi deux poignées de leurs soies, et va prévenir Rose qu'elle garde ses étals à l'abri.",
-      "en": "The boars are coming close to the village. Hunt three of them at the edge of the woods, bring me two handfuls of their bristles, and go and warn Rose to keep her stalls safe."
-    },
-    "thanks": {
-      "fr": "Merci ! Le village dormira mieux cette nuit. Tiens, c'est pour ta peine.",
-      "en": "Thank you! The village will sleep better tonight. Here, for your trouble."
-    },
-    "objectives": [
-      {
-        "goal": "Defeat",
-        "target": "boar",
-        "count": 3
-      },
-      {
-        "goal": "Bring",
-        "target": "boar-bristle",
-        "count": 2
-      },
-      {
-        "goal": "Talk",
-        "target": "clairval/rose"
-      }
     ],
-    "xp": 120,
-    "shards": 20,
-    "level": 1,
-    "items": [
-      {
-        "item": "bread",
-        "count": 2
-      }
-    ]
+    "xp": 150,
+    "shards": 10
   },
   {
     "id": "well-equipped",
@@ -89,13 +96,128 @@
     "shards": 10
   },
   {
+    "id": "cellar-rats",
+    "name": {
+      "fr": "Les rats du grenier",
+      "en": "Rats in the Loft"
+    },
+    "giver": "clairval/firmin",
+    "level": 2,
+    "text": {
+      "fr": "Des rats ! Dans le grenier de Léonie, aux Greniers, là où je range ma farine ! Choisis bien tes sorts avant de monter : Garance dit toujours que ça se prépare avant, pas pendant. Et rapporte-moi leurs queues, que j'en sois sûr !",
+      "en": "Rats! In Léonie's loft, over at the Granaries, where I keep my flour! Choose your spells carefully before you go up: Garance always says you prepare before, not during. And bring me their tails, so I know for sure!"
+    },
+    "thanks": {
+      "fr": "Trois queues ! Bon sang de farine, tu saignes ? Ta vie reviendra plus vite ici qu'en plein bois, ou mange un morceau. Tiens, du pain, et la ceinture de mon père : il la portait pour soulever les sacs.",
+      "en": "Three tails! Flour and thunder, you're bleeding! Your life comes back faster here than out in the woods, or have a bite to eat. Here's some bread, and my father's belt: he wore it to lift the sacks."
+    },
+    "objectives": [
+      {
+        "goal": "Win",
+        "target": "loft-rats"
+      },
+      {
+        "goal": "Bring",
+        "target": "rat-tail",
+        "count": 3
+      }
+    ],
+    "after": [
+      "well-equipped"
+    ],
+    "items": [
+      {
+        "item": "bread",
+        "count": 2
+      },
+      {
+        "item": "leather-belt",
+        "count": 1
+      }
+    ],
+    "xp": 80,
+    "shards": 20
+  },
+  {
+    "id": "palisade-stakes",
+    "name": {
+      "fr": "Des pieux pour la palissade",
+      "en": "Stakes for the Palisade"
+    },
+    "giver": "clairval/hortense",
+    "level": 2,
+    "text": {
+      "fr": "La palissade, c'est mille deux cents pieux, et il en pourrit un par semaine. Coupe six chênes dans les vergers, puis taille un pieu à l'établi de Gédéon, rue des artisans ; prends deux cuivres à la carrière pour le ferrer. Ouvre ta fenêtre des métiers (J) : tout y est écrit.",
+      "en": "The palisade is twelve hundred stakes, and one rots every week. Cut six oaks in the orchard, then shape a stake at Gédéon's bench on Craftsmen's Row; get two copper from the quarry to shoe it. Open your trades window (J): it's all written there."
+    },
+    "thanks": {
+      "fr": "Droit, solide, bien taillé. Tu vois les pieux qui sèchent, là ? Ils se fendent en étoile, cinq branches. Le bois fait ce qu'il veut, cette année.",
+      "en": "Straight, solid, well shaped. See the stakes drying over there? They split into stars, five points. The wood does as it pleases this year."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "oak-log",
+        "count": 6
+      },
+      {
+        "goal": "Bring",
+        "target": "palisade-stake"
+      }
+    ],
+    "after": [
+      "well-equipped"
+    ],
+    "xp": 80,
+    "shards": 20
+  },
+  {
+    "id": "roses-stall",
+    "name": {
+      "fr": "L'étal de Rose",
+      "en": "Rose's Stall"
+    },
+    "giver": "clairval/rose",
+    "level": 3,
+    "text": {
+      "fr": "Tout le monde veut du lin pour ses chemises, et je n'en ai plus un brin : cueille-m'en quatre aux potagers. Et pour apprendre, achète un pain à mon étal, puis rends-le-moi. Oui, je sais. Le commerce, c'est ça.",
+      "en": "Everyone wants flax for their shirts and I haven't a thread left: pick me four in the kitchen gardens. And to learn, buy a loaf at my stall, then give it back to me. Yes, I know. That's trade."
+    },
+    "thanks": {
+      "fr": "Tu as payé dix Éclats un pain que je reprends : tu iras loin. Tiens, trois vrais pains. Mange-les hors combat, quand ta vie est basse. Et Ysaline, sur la place, cherche quelqu'un qui l'écoute.",
+      "en": "You paid ten Éclats for a loaf I'm taking back: you'll go far. Here, three real loaves. Eat them outside fights, when your life runs low. And Ysaline, on the square, is looking for someone who'll listen."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "wild-flax",
+        "count": 4
+      },
+      {
+        "goal": "Bring",
+        "target": "bread"
+      }
+    ],
+    "after": [
+      "palisade-stakes"
+    ],
+    "items": [
+      {
+        "item": "bread",
+        "count": 3
+      }
+    ],
+    "xp": 120,
+    "shards": 30
+  },
+  {
     "id": "whispering-stone",
     "name": {
       "fr": "La pierre qui murmurait",
       "en": "The Whispering Stone"
     },
     "giver": "clairval/ysaline",
-    "level": 1,
+    "level": 3,
     "text": {
       "fr": "Cette nuit, la vieille pierre a montré un cinquième signe que personne n'avait jamais vu, puis elle s'est fendue. Les anciens disent que ce n'est rien. Regardez-la vous-même, puis demandez à Aubin et à Odalric, le copiste, ce qu'ils en savent. On ne m'écoute pas ; vous, peut-être.",
       "en": "Last night the old stone showed a fifth sign nobody had ever seen, then it cracked. The elders say it's nothing. Look at it yourself, then ask Aubin and Odalric the copyist what they know. They won't listen to me; perhaps they will to you."
@@ -111,15 +233,105 @@
       },
       {
         "goal": "Talk",
-        "target": "clairval/aubin"
+        "target": "clairval/aubin",
+        "line": {
+          "fr": "On touche la pierre pour la chance. On ne lui pose pas de questions. … Bon. J'ai rêvé d'un cercle qui reliait quatre lumières. Un rêve, c'est un rêve.",
+          "en": "We touch the stone for luck. We don't ask it questions. … All right. I dreamt of a circle joining four lights. A dream is a dream."
+        }
       },
       {
         "goal": "Talk",
-        "target": "clairval/odalric"
+        "target": "clairval/odalric",
+        "line": {
+          "fr": "La pierre est dans le registre depuis la fondation, avec quatre signes. Mais la page d'avant a été grattée, proprement, par quelqu'un qui savait tenir un canif.",
+          "en": "The stone has been in the registry since the founding, with four signs. But the page before it was scraped off, neatly, by someone who knew how to hold a penknife."
+        }
       }
     ],
-    "xp": 80,
-    "shards": 10
+    "xp": 180,
+    "shards": 30,
+    "after": [
+      "cellar-rats",
+      "roses-stall"
+    ]
+  },
+  {
+    "id": "the-registry",
+    "name": {
+      "fr": "Ce que le registre tait",
+      "en": "What the Registry Leaves Out"
+    },
+    "giver": "clairval/ysaline",
+    "level": 4,
+    "text": {
+      "fr": "Odalric dit que deux tombes du cimetière sont plus vieilles que le village lui-même. C'est impossible, donc c'est intéressant. Va les examiner, et cueille trois orties aux potagers : il en fait son encre, et il voudra recopier ce que tu trouveras.",
+      "en": "Odalric says two graves in the churchyard are older than the village itself. That's impossible, so it's interesting. Go and examine them, and pick three nettles in the kitchen gardens: he makes his ink from them, and he'll want to copy whatever you find."
+    },
+    "thanks": {
+      "fr": "Plus vieilles que Clairval, et un signe gratté avec soin… On n'efface pas avec soin ce qu'on a oublié. On efface ce dont on se souvient trop bien. Garance voulait te voir, je crois : les sangliers s'approchent.",
+      "en": "Older than Clairval, and a sign carefully scraped away… You don't carefully erase what you've forgotten. You erase what you remember too well. Garance wanted to see you, I think: the boars are coming closer."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "old-grave-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "old-grave-2"
+      },
+      {
+        "goal": "Bring",
+        "target": "nettle",
+        "count": 3
+      }
+    ],
+    "after": [
+      "whispering-stone"
+    ],
+    "xp": 240,
+    "shards": 40
+  },
+  {
+    "id": "edge-of-the-woods",
+    "name": {
+      "fr": "La lisière",
+      "en": "The Edge of the Woods"
+    },
+    "giver": "clairval/garance",
+    "zone": "woods",
+    "text": {
+      "fr": "Le grenier, la leçon, et tu survis aux questions d'Ysaline : il est temps. Derrière la porte de l'Ouest, des sangliers grattent la palissade la nuit. Chasses-en trois, et rapporte-moi deux poignées de soies, que je sache que ce n'était pas de la chance.",
+      "en": "The loft, the lesson, and you survive Ysaline's questions: it's time. Beyond the West Gate, boars scratch at the palisade at night. Hunt three and bring me two handfuls of bristles, so I know it wasn't luck."
+    },
+    "thanks": {
+      "fr": "Deux poignées, et pas une égratignure de trop. À partir d'aujourd'hui, Mahaut ne te demandera plus où tu vas : la porte de l'Ouest est à toi. Va voir Ysaline, elle ne parle que de loups depuis ce matin.",
+      "en": "Two handfuls, and not one scratch too many. From today, Mahaut won't ask where you're going: the West Gate is yours. Go and see Ysaline, she's talked of nothing but wolves since this morning."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "boar",
+        "count": 3
+      },
+      {
+        "goal": "Bring",
+        "target": "boar-bristle",
+        "count": 2
+      }
+    ],
+    "xp": 120,
+    "shards": 20,
+    "level": 4,
+    "items": [
+      {
+        "item": "bread",
+        "count": 2
+      }
+    ],
+    "after": [
+      "the-registry"
+    ]
   },
   {
     "id": "restless-beasts",
@@ -129,7 +341,7 @@
     },
     "giver": "clairval/ysaline",
     "zone": "woods",
-    "level": 2,
+    "level": 5,
     "text": {
       "fr": "Depuis que la pierre s'est fendue, les bêtes du bois ne tiennent plus en place. Calme les sangliers et les loups de la lisière, et rapporte-moi deux crocs : je veux voir s'ils portent la marque.",
       "en": "Since the stone cracked, the beasts of the woods cannot keep still. Calm the boars and the wolves at the edge, and bring me two fangs: I want to see whether they bear the mark."
@@ -158,7 +370,7 @@
     "xp": 220,
     "shards": 30,
     "after": [
-      "whispering-stone"
+      "edge-of-the-woods"
     ]
   },
   {

@@ -5,7 +5,8 @@ namespace Rpg.Core.Tests;
 /// <summary>The quests given by inhabitants (sprint 88): the data checked, taking one, how it moves on, handing it back.</summary>
 public class QuestTests
 {
-    private static readonly Quest Edge = Real.Quests["edge-of-the-woods"];
+    // Garance's edge of the woods, taken alone: without the tutorial's quests before it (sprint 107).
+    private static readonly Quest Edge = Real.Quests["edge-of-the-woods"] with { After = null, Level = 1 };
 
     private static GameData WithQuests(params Quest[] quests) => new(
         Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
@@ -15,11 +16,12 @@ public class QuestTests
     public void AGivenQuest_HasAKnownGiver_ItsWords_AndObjectivesOfKnownThings()
     {
         Assert.True(Edge.IsGiven);
-        Assert.Equal(("clairval", "aubin"), Real.FindNpc(Edge.Giver!) is (Town t, Npc n) ? (t.Id, n.Id) : default);
+        Assert.Equal(("clairval-0-1", "garance"), Real.FindNpc(Edge.Giver!) is (Town t, Npc n) ? (t.Id, n.Id) : default);
         Assert.Null(Real.FindNpc("clairval/nobody"));
         Assert.Null(Real.FindNpc("nowhere"));
-        // The first lesson stays a fight's quest.
-        Assert.False(Real.Quests["first-lesson"].IsGiven);
+        // Since sprint 107 the first lesson is Garance's too, won by its fight; no fight's quest is left.
+        Assert.Equal(["first-lesson"], Real.Quests.Values.Where(q => q.Objectives?.Any(o => o.Goal == QuestGoal.Win && o.Target == "training") == true).Select(q => q.Id));
+        Assert.All(Real.Quests.Values, q => Assert.True(q.IsGiven));
         Assert.NotNull(WithQuests(Edge).Quests["edge-of-the-woods"]);
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Giver = "clairval/nobody" }));
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Scenario = "training" }));
@@ -30,6 +32,11 @@ public class QuestTests
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Objectives = [new QuestObjective(QuestGoal.Bring, "no-such-item")] }));
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { After = ["no-such-quest"] }));
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Zone = "moon" }));
+        // Sprint 107: a taker known, a line only for a talk.
+        Assert.Equal("clairval/rose", WithQuests(Edge with { HandIn = "clairval/rose" }).Quests[Edge.Id].Taker);
+        Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { HandIn = "clairval/nobody" }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Objectives = [new QuestObjective(QuestGoal.Defeat, "boar", 3, Line: Edge.Name)] }));
+        Assert.NotNull(WithQuests(Edge with { Objectives = [new QuestObjective(QuestGoal.Talk, "clairval/rose", Line: Edge.Name)] }));
     }
 
     [Fact]
@@ -50,6 +57,8 @@ public class QuestTests
     [Fact]
     public void AWonFight_CountsItsFamily_ATalkItsInhabitant_AndTheItemsAreThoseOwned()
     {
+        // The edge of the woods as it was before sprint 107, Rose to see as well.
+        Quest Edge = QuestTests.Edge with { Objectives = [.. QuestTests.Edge.Objectives!, new QuestObjective(QuestGoal.Talk, "clairval/rose")] };
         QuestProgress p = Quests.Start(Edge);
         Assert.Equal([0, 0, 0], p.Counts);
         // A group of boars of the woods, won: as many boars as it had, never more than asked.
@@ -154,9 +163,10 @@ public class QuestTests
     {
         // A quest given more objectives since (the whispering stone, sprint 105) keeps its counts, the new at zero.
         Assert.Equal(3, Real.Quests["whispering-stone"].Objectives!.Count);
+        // The edge of the woods lost its talk to Rose (sprint 107): its third count goes.
         List<QuestProgress> fitted = Quests.Fit(Real, [new QuestProgress("whispering-stone", [1, 1]), new QuestProgress("gone", [1]), new QuestProgress(Edge.Id, [1, 2, 0])]);
-        Assert.Equal([new QuestProgress("whispering-stone", [1, 1, 0]), new QuestProgress(Edge.Id, [1, 2, 0])], fitted);
-        Assert.Equal([new QuestProgress(Edge.Id, [1, 2, 0])], Quests.Fit(Real, [new QuestProgress(Edge.Id, [1, 2, 0, 5])]));
+        Assert.Equal([new QuestProgress("whispering-stone", [1, 1, 0]), new QuestProgress(Edge.Id, [1, 2])], fitted);
+        Assert.Equal([new QuestProgress(Edge.Id, [1, 2])], Quests.Fit(Real, [new QuestProgress(Edge.Id, [1, 2, 0, 5])]));
     }
 
     /// <summary>A fight of the scenario won by a hero far stronger, played by the AI.</summary>

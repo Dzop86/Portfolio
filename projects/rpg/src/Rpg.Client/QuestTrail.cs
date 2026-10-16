@@ -26,21 +26,43 @@ public static class QuestTrail
         Quest q = data.Quests[progress.Quest];
         QuestObjective? next = book.Next(progress);
         if (next is null)
-            return data.FindNpc(q.Giver!) is (Town t, Npc n) ? new TrailGoal(t.Id, n.At) : null;
+            return data.FindNpc(q.Taker!) is (Town t, Npc n) ? new TrailGoal(t.Id, n.At) : null;
         return next.Goal switch
         {
             QuestGoal.Talk => data.FindNpc(next.Target) is (Town t, Npc n) ? new TrailGoal(t.Id, n.At) : null,
             QuestGoal.Interact => data.FindProp(next.Target) is (Town t, Prop p) ? new TrailGoal(t.Id, p.At) : null,
             QuestGoal.Defeat => GroupOf(data, next.Target),
-            QuestGoal.Bring => data.Families.Values.FirstOrDefault(f => f.Monsters.Any(m => (m.Loot ?? []).Any(l => l.Item == next.Target))) is MonsterFamily f
-                ? GroupOf(data, f.Id)
-                : data.Nodes.Values.Where(n => n.Item == next.Target).OrderBy(n => n.Map, StringComparer.Ordinal).Select(n => new TrailGoal(n.Map, n.At)).FirstOrDefault(),
+            QuestGoal.Bring => Source(data, next.Target),
             QuestGoal.Dungeon => data.Dungeons.TryGetValue(next.Target, out Dungeon? d) ? new TrailGoal(d.Map, d.Door) : null,
+            QuestGoal.Win when data.Towns.Values.SelectMany(t => t.Props ?? []).FirstOrDefault(p => p.Fight == next.Target) is Prop hatch
+                => new TrailGoal(data.FindProp(hatch.Id)!.Value.Town.Id, hatch.At),
             QuestGoal.Win => data.Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => t.Npcs.Select(n => (Town: t, Npc: n)))
                 .Where(x => data.Dialogues[x.Npc.Dialogue].Lines.Values.Any(l => l.Answers.Any(a => a.Fight == next.Target)))
                 .Select(x => new TrailGoal(x.Town.Id, x.Npc.At)).FirstOrDefault(),
             _ => null,
         };
+    }
+
+    /// <summary>
+    /// Where an item comes from (sprints 106 and 107): a group of the monsters that leave it, the thing whose fight
+    /// leaves it (the loft's hatch), a spot where it grows, the workshop that makes it, Rose's stall if she sells it.
+    /// </summary>
+    public static TrailGoal? Source(GameData data, string item)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        if (data.Families.Values.FirstOrDefault(f => f.Monsters.Any(m => (m.Loot ?? []).Any(l => l.Item == item))) is MonsterFamily f)
+            return GroupOf(data, f.Id);
+        if (data.Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => (t.Props ?? []).Select(p => (Town: t, Prop: p)))
+            .FirstOrDefault(x => x.Prop.Fight is string fight && data.FindScenario(fight)!.Fighters.Any(s => (s.Loot ?? []).Any(l => l.Item == item))) is ({ } town, { } hatch))
+            return new TrailGoal(town.Id, hatch.At);
+        if (data.Nodes.Values.Where(n => n.Item == item).OrderBy(n => n.Map, StringComparer.Ordinal).ThenBy(n => n.Id, StringComparer.Ordinal).FirstOrDefault() is HarvestNode node)
+            return new TrailGoal(node.Map, node.At);
+        if (data.Jobs.Values.FirstOrDefault(j => j.RecipeFor(item) is not null) is Job job
+            && data.Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => (t.Workshops ?? []).Where(w => w.Job == job.Id).Select(w => new TrailGoal(t.Id, w.At))).FirstOrDefault() is TrailGoal bench)
+            return bench;
+        if (data.Items.TryGetValue(item, out Item? sold) && Shop.SellPrice(sold, data) is not null && data.FindNpc("clairval/rose") is (Town market, Npc rose))
+            return new TrailGoal(market.Id, rose.At);
+        return null;
     }
 
     // A group of the family, on the first map (by its name) where they roam, out of the dungeons.

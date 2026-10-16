@@ -8,6 +8,9 @@ public class QuestBookTests
     private static readonly GameData Data = GameData.Embedded;
     private static readonly Quest Edge = Data.Quests["edge-of-the-woods"];
 
+    // Aubin's welcome (sprint 107): talk to Garance, who takes it back herself.
+    private static readonly Quest Welcome = Data.Quests["welcome"];
+
     private static TownController Village(QuestBook book) => new(Data, "clairval") { Book = book };
 
     [Fact]
@@ -18,20 +21,20 @@ public class QuestBookTests
         Assert.NotNull(town.Click(aubin.At));
         Conversation talk = town.Talk!;
         DialogueLine first = talk.Line;
-        Assert.Equal(Texts.Both("quest.offer", Edge.Name), first.Answers[0].Text);
+        Assert.Equal(Texts.Both("quest.offer", Welcome.Name), first.Answers[0].Text);
         // The dialogue's own answers come after.
         Assert.Equal(Data.Dialogues[aubin.Dialogue].Lines[talk.Dialogue.Start].Answers, first.Answers.Skip(1));
         town.Answer(0);
-        Assert.Equal(Edge.Text, town.Talk!.Line.Text);
+        Assert.Equal(Welcome.Text, town.Talk!.Line.Text);
         town.Answer(0);
         Assert.Null(town.Talk);
-        Assert.Equal(("edge-of-the-woods", (string?)null), (town.QuestTaken, town.QuestHandedIn));
+        Assert.Equal(("welcome", (string?)null), (town.QuestTaken, town.QuestHandedIn));
         town.QuestSeenTo();
         Assert.Null(town.QuestTaken);
     }
 
     [Fact]
-    public void Later_TakesNothing_AndAQuestUnderWay_IsNotOfferedAgain_ButRoseIsCounted()
+    public void Later_TakesNothing_AndTheWelcome_LeadsToGarance_WhoSaysHerLine_AndTakesItBack()
     {
         TownController town = Village(new QuestBook(Data, 1, [], [], []));
         Npc aubin = town.Town.Npcs.Single(n => n.Id == "aubin");
@@ -39,15 +42,26 @@ public class QuestBookTests
         town.Answer(0);
         town.Answer(1);
         Assert.Null(town.QuestTaken);
-        var book = new QuestBook(Data, 1, [], [Quests.Start(Edge)], []);
+        var book = new QuestBook(Data, 1, [], [Quests.Start(Welcome)], []);
         Assert.Empty(book.Offers("clairval/aubin"));
         Assert.Empty(book.HandIns("clairval/aubin"));
-        Assert.Equal([Edge], book.Talks("clairval/rose"));
-        Assert.Empty(book.Talks("clairval/garance"));
-        // Rose on the village's market (sprint 102).
-        town = new TownController(Data, "clairval-2-1") { Book = book };
-        town.Click(town.Town.Npcs.Single(n => n.Id == "rose").At);
-        Assert.Equal([Edge], town.QuestTalks);
+        Assert.Equal([Welcome], book.Talks("clairval/garance"));
+        Assert.Empty(book.Talks("clairval/rose"));
+        // Garance at the West Gate's drill yard (sprint 102): her own line for the welcome instead of her greeting
+        // (sprint 107), and the quest to hand back to her at once, the talk counted as it opens.
+        town = new TownController(Data, "clairval-0-1") { Book = book };
+        town.Click(town.Town.Npcs.Single(n => n.Id == "garance").At);
+        Assert.Equal([Welcome], town.QuestTalks);
+        Assert.Equal(Welcome.Objectives![0].Line, town.Talk!.Line.Text);
+        Assert.Equal(Texts.Both("quest.handin", Welcome.Name), town.Talk.Line.Answers[0].Text);
+        town.Answer(0);
+        Assert.Equal(Welcome.Thanks, town.Talk!.Line.Text);
+        town.Answer(0);
+        Assert.Equal("welcome", town.QuestHandedIn);
+        // Talked to without a quest that asks for her, she greets as always.
+        town = new TownController(Data, "clairval-0-1") { Book = new QuestBook(Data, 1, ["welcome"], [], []) };
+        town.Click(town.Town.Npcs.Single(n => n.Id == "garance").At);
+        Assert.Equal(Data.Dialogues["trainer"].Lines["offer"].Text, town.Talk!.Line.Text);
     }
 
     [Fact]
@@ -60,8 +74,7 @@ public class QuestBookTests
         // One under way: one more only.
         Assert.Single(new QuestBook(Data, 30, [], [Quests.Start(open[0])], []).Offers("clairval/garance"));
         // A player who takes all they are offered, level by level, each giver's oldest quest done at each level.
-        // The first lesson won on the first day (Garance's "Kitted out" follows it, sprint 105).
-        var done = new List<string> { "first-lesson" };
+        var done = new List<string>();
         var active = new List<QuestProgress>();
         string[] givers = [.. Data.Quests.Values.Select(q => q.Giver).OfType<string>().Distinct()];
         for (int level = 1; level <= 30; level++)
@@ -87,19 +100,20 @@ public class QuestBookTests
     [Fact]
     public void AQuestDone_IsHandedBack_ToItsGiver_WithItsThanks()
     {
-        var progress = new QuestProgress(Edge.Id, [3, 0, 1]);
-        var book = new QuestBook(Data, 1, [], [progress], [new ItemCount("boar-bristle", 2)]);
-        Assert.Equal([Edge], book.HandIns("clairval/aubin"));
-        Assert.Empty(new QuestBook(Data, 1, [], [progress], [new ItemCount("boar-bristle", 1)]).HandIns("clairval/aubin"));
-        TownController town = Village(book);
-        town.Click(town.Town.Npcs.Single(n => n.Id == "aubin").At);
+        // Garance's since sprint 107, at the West Gate.
+        var progress = new QuestProgress(Edge.Id, [3, 0]);
+        var book = new QuestBook(Data, 4, [], [progress], [new ItemCount("boar-bristle", 2)]);
+        Assert.Equal([Edge], book.HandIns("clairval/garance"));
+        Assert.Empty(new QuestBook(Data, 4, [], [progress], [new ItemCount("boar-bristle", 1)]).HandIns("clairval/garance"));
+        var town = new TownController(Data, "clairval-0-1") { Book = book };
+        town.Click(town.Town.Npcs.Single(n => n.Id == "garance").At);
         Assert.Equal(Texts.Both("quest.handin", Edge.Name), town.Talk!.Line.Answers[0].Text);
         town.Answer(0);
         Assert.Equal(Edge.Thanks, town.Talk!.Line.Text);
         town.Answer(0);
         Assert.Equal(Edge.Id, town.QuestHandedIn);
         // Done: neither offered nor followed any more.
-        Assert.Empty(new QuestBook(Data, 1, [Edge.Id], [], []).Offers("clairval/aubin"));
+        Assert.DoesNotContain(Edge, new QuestBook(Data, 4, [Edge.Id], [], []).Offers("clairval/garance"));
     }
 
     [Theory]
@@ -109,17 +123,14 @@ public class QuestBookTests
     {
         var texts = new Texts(lang);
         Assert.Empty(new QuestBook(Data, 1, [], [], []).Journal(texts));
-        var book = new QuestBook(Data, 1, [], [new QuestProgress(Edge.Id, [1, 0, 1])], [new ItemCount("boar-bristle", 5)]);
+        var book = new QuestBook(Data, 1, [], [new QuestProgress(Edge.Id, [1, 0])], [new ItemCount("boar-bristle", 5)]);
         JournalZone woods = Assert.Single(book.Journal(texts));
         Assert.Equal(Data.Towns["woods-0-0"].Name.In(lang), woods.Name);
         JournalQuest q = Assert.Single(woods.Active);
-        Assert.Equal((Edge.Name.In(lang), "Aubin", false, false), (q.Name, q.Giver, q.Done, q.Ready));
-        Assert.Equal(
-            [(texts.Objective(Edge.Objectives![0], 1), false), (texts.Objective(Edge.Objectives[1], 2), true), (texts.Objective(Edge.Objectives[2], 1), true)],
-            q.Objectives);
+        Assert.Equal((Edge.Name.In(lang), "Garance", false, false), (q.Name, q.Giver, q.Done, q.Ready));
+        Assert.Equal([(texts.Objective(Edge.Objectives![0], 1), false), (texts.Objective(Edge.Objectives[1], 2), true)], q.Objectives);
         Assert.Contains("1/3", q.Objectives[0].Line, StringComparison.Ordinal);
         Assert.Contains(Data.Families["boar"].Name.In(lang), q.Objectives[0].Line, StringComparison.Ordinal);
-        Assert.Contains("Rose", q.Objectives[2].Line, StringComparison.Ordinal);
         // Done, under "done".
         JournalZone after = Assert.Single(new QuestBook(Data, 1, [Edge.Id], [], []).Journal(texts));
         Assert.Equal((0, 1), (after.Active.Count, after.Done.Count));
