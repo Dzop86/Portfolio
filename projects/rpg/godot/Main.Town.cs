@@ -63,8 +63,10 @@ public partial class Main
             _townView.SetLanguage(_talkPanel.Texts.Lang);
             _bar?.SetTexts(_talkPanel.Texts);
             _menuPanel?.SetTexts(_talkPanel.Texts);
+            _miniMap?.SetTexts(_talkPanel.Texts);
         };
         ShowBar();
+        ShowMiniMap();
         ShowChat();
         _townView.Footstep += () => _sound?.Step();
         _sound?.PlayMusic();
@@ -178,6 +180,41 @@ public partial class Main
         _bar.Build(_talkPanel!.Texts, _hero?.Class is not null);
         _bar.WindowPressed += ToggleWindow;
         _bar.MenuPressed += () => Escape(menuOnly: true);
+        _bar.MiniMapPressed += ToggleMiniMap;
+        _bar.ShowMiniMap(_miniMap?.Visible ?? false);
+    }
+
+    private MiniMapPanel? _miniMap;
+
+    /// <summary>The mini-map (sprint 108): as the last game left it, shown by default; the self-tests keep nothing.</summary>
+    private void ShowMiniMap()
+    {
+        bool selfTest = _options.TownSelfTest || _options.LobbySelfTest;
+        _miniMap = new MiniMapPanel();
+        AddChild(_miniMap);
+        _miniMap.Build(_talkPanel!.Texts, selfTest ? new MiniMapSettings() : MiniMapPanel.Load(), MiniScene, keep: !selfTest);
+        _miniMap.WalkTo += cell => _ = Walk(cell);
+        _bar?.ShowMiniMap(_miniMap.Visible);
+    }
+
+    /// <summary>What the mini-map shows of the map: its groups where they are, the spots growing back, the character's trades and quests, the goal followed.</summary>
+    private MiniScene MiniScene() => new(_town!.Town, _town.Groups, _growing.Ids, _character, _town.Book, FollowedGoal());
+
+    /// <summary>N or its icon: shows or hides the mini-map.</summary>
+    private void ToggleMiniMap()
+    {
+        _miniMap?.Toggle();
+        _bar?.ShowMiniMap(_miniMap?.Visible ?? false);
+    }
+
+    /// <summary>Each frame on a map: the mini-map on the player as drawn, facing where they walk.</summary>
+    private void FollowMiniMap()
+    {
+        if (_miniMap is not { Visible: true } || _townView is null || _town is null)
+            return;
+        Vector3 at = _townView.Player.Position;
+        float turn = _townView.Player.GetChildCount() > 0 && _townView.Player.GetChild(0) is Node3D model ? model.Rotation.Y : 0;
+        _miniMap.Follow(_zone, at.X, at.Z, new Vector2(Mathf.Sin(turn), Mathf.Cos(turn)));
     }
 
     /// <summary>A window's icon or key: opens it, or closes it when it is the open one (sprint 69).</summary>
@@ -410,6 +447,9 @@ public partial class Main
                 break;
             case InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } key when WindowState.ForKey((char)key.Keycode) is GameWindow window:
                 ToggleWindow(window);
+                return;
+            case InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false, Keycode: Key.N }:
+                ToggleMiniMap();
                 return;
         }
         if (_windows.Open is not null)
@@ -1523,7 +1563,7 @@ public partial class Main
     {
         Texts t = _talkPanel!.Texts;
         bool character = _hero?.Class is not null;
-        var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
+        var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
         if (!_bar!.Tips.SequenceEqual(tips))
             problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
         int windows = 0;
@@ -1635,10 +1675,11 @@ public partial class Main
         ToggleMap();
         CheckWorldMap(problems);
         ToggleMap();
+        CheckMiniMap(problems);
         CheckMonsters(problems);
         CheckEdges(problems);
         int doors = CheckDungeons(problems);
-        return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera and map checked.";
+        return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera, map and mini-map checked.";
     }
 
     /// <summary>
@@ -1925,6 +1966,76 @@ public partial class Main
     /// map under it named; zooming keeps the point under the pointer still, between the whole world and
     /// four times; the picture cannot be dragged away.
     /// </summary>
+    /// <summary>
+    /// The mini-map (sprint 108): shown by default at the top right, its icon lit; on the player, who is its centre
+    /// and its legend there; the inhabitants in view named; a click a few cells away walks there, on this map only;
+    /// its zoom, sizes and moves kept in their bounds; N hides it and shows it again.
+    /// </summary>
+    private void CheckMiniMap(List<string> problems)
+    {
+        MiniMapPanel? panel = _miniMap;
+        if (panel is null || !panel.Visible || _bar?.MiniMapLit != true)
+        {
+            problems.Add("the mini-map is not shown by default, its icon lit");
+            return;
+        }
+        Vector2 screen = GetViewport().GetVisibleRect().Size;
+        if (panel.PanelAt.X + panel.ViewSize.X > screen.X - 64 || panel.PanelAt.Y < 100 || panel.PanelAt.Y > screen.Y / 2)
+            problems.Add($"the mini-map is at {panel.PanelAt}, not at the top right");
+        FollowMiniMap();
+        MiniMap mini = panel.Mini;
+        Vector2 centre = panel.ViewSize / 2;
+        Texts texts = _talkPanel!.Texts;
+        if (panel.Marks.Count == 0 || panel.Marks[^1].Kind != MiniMarkKind.Player || panel.LegendAt(centre) != texts["minimap.you"])
+            problems.Add($"the mini-map says \"{panel.LegendAt(centre)}\" under the player");
+        foreach (MiniMark m in panel.Marks.Where(m => m.Kind == MiniMarkKind.Inhabitant))
+        {
+            if (!GameData.Embedded.Towns.Values.SelectMany(t => t.Npcs).Any(n => n.Name.In(texts.Lang) == m.Legend))
+                problems.Add($"the mini-map shows an inhabitant \"{m.Legend}\"");
+        }
+        if (_town!.Town.Npcs.Count(n => n.At.DistanceTo(_town.Position) <= 6) is int near && near > 0
+            && panel.Marks.Count(m => m.Kind == MiniMarkKind.Inhabitant) < near)
+            problems.Add($"the mini-map shows {panel.Marks.Count(m => m.Kind == MiniMarkKind.Inhabitant)} inhabitants, {near} being near");
+        // A cell three to the right of the player, a click there.
+        Vector2 right = centre + new Vector2(3 * WorldPicture.CellPixels * (float)mini.Scale, 0);
+        Cell? walked = mini.WalkTo(right.X, right.Y);
+        var standing = new Cell((int)Math.Round(_townView!.Player.Position.X), (int)Math.Round(_townView.Player.Position.Z));
+        if (walked != standing + new Cell(3, 0))
+            problems.Add($"a click on the mini-map walks to {walked}, not {standing + new Cell(3, 0)}");
+        // The zoom, from about 16 cells across to 3 maps, and back.
+        int zoom = mini.Zoom;
+        while (mini.ZoomIn())
+        {
+        }
+        int tight = mini.Span;
+        while (mini.ZoomOut())
+        {
+        }
+        if (tight != MiniMap.Spans[0] || mini.Span != MiniMap.Spans[^1])
+            problems.Add($"the mini-map zooms from {tight} to {mini.Span} cells across");
+        mini.Zoom = zoom;
+        // The three sizes, then the first again; a move kept on screen.
+        Vector2 size = panel.ViewSize;
+        var sizes = new HashSet<float>();
+        for (int i = 0; i < 3; i++)
+        {
+            panel.NextSize();
+            sizes.Add(panel.ViewSize.X);
+        }
+        if (sizes.Count != 3 || panel.ViewSize != size)
+            problems.Add($"the mini-map's sizes are {string.Join(", ", sizes)}");
+        Vector2 at = panel.PanelAt;
+        panel.MoveBy(new Vector2(-10000, -10000));
+        if (panel.PanelAt.Y < 0 || panel.PanelAt.X + panel.ViewSize.X < 0)
+            problems.Add($"the mini-map is moved off the screen, to {panel.PanelAt}");
+        panel.MoveBy(at - panel.PanelAt);
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.N });
+        bool hidden = !panel.Visible && !_bar.MiniMapLit;
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.N });
+        if (!hidden || !panel.Visible || !_bar.MiniMapLit)
+            problems.Add("N does not hide and show the mini-map");
+    }
+
     private void CheckWorldMap(List<string> problems)
     {
         WorldMapPanel map = _mapPanel!;

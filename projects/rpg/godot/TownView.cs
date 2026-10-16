@@ -307,14 +307,7 @@ public partial class TownView : Node3D
     }
 
     /// <summary>The colour of a kind of gathering spot: the element of its trade (wood Fire, ore Earth, fish Water, crops Air), herbs the heal's.</summary>
-    public static string NodeColour(NodeKind kind) => kind switch
-    {
-        NodeKind.Tree => ElementStyle.Colour(Element.Fire),
-        NodeKind.Rock => ElementStyle.Colour(Element.Earth),
-        NodeKind.Water => ElementStyle.Colour(Element.Water),
-        NodeKind.Plot => ElementStyle.Colour(Element.Air),
-        _ => ElementStyle.Heal,
-    };
+    public static string NodeColour(NodeKind kind) => MiniMap.SpotColour(kind);
 
     /// <summary>The spots growing back without their resource nor their gem (a stump, stones or bare earth left), the others whole.</summary>
     public void ShowGrowing(IReadOnlyCollection<string> growing)

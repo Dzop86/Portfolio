@@ -17,6 +17,11 @@ public partial class SideBar : CanvasLayer
     public event Action<GameWindow>? WindowPressed;
     public event Action? MenuPressed;
 
+    /// <summary>The mini-map's icon (sprint 108), under the windows': it shows or hides the mini-map, lit while shown.</summary>
+    public event Action? MiniMapPressed;
+
+    private Button _miniMap = null!;
+
     public void Build(Texts texts, bool withCharacter)
     {
         var column = new VBoxContainer { AnchorLeft = 1, AnchorRight = 1, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -64, OffsetRight = -12, OffsetTop = -150, OffsetBottom = 150, Alignment = BoxContainer.AlignmentMode.Center };
@@ -31,6 +36,9 @@ public partial class SideBar : CanvasLayer
             b.Pressed += () => WindowPressed?.Invoke(window);
             _buttons[window] = b;
         }
+        _miniMap = Icon(column, "minimap");
+        _miniMap.ToggleMode = true;
+        _miniMap.Pressed += () => MiniMapPressed?.Invoke();
         _menu = Icon(column, "menu");
         _menu.Pressed += () => MenuPressed?.Invoke();
         SetTexts(texts);
@@ -40,8 +48,13 @@ public partial class SideBar : CanvasLayer
     {
         foreach ((GameWindow window, char key) in WindowState.Bar)
             _buttons[window].TooltipText = texts["bar.tip", texts["bar." + window], key];
+        _miniMap.TooltipText = texts["minimap.tip"];
         _menu.TooltipText = texts["bar.tip", texts["bar.menu"], texts["menu.key"]];
     }
+
+    public void ShowMiniMap(bool shown) => _miniMap.SetPressedNoSignal(shown);
+
+    public bool MiniMapLit => _miniMap.ButtonPressed;
 
     /// <summary>Lights the open window's icon, and only it.</summary>
     public void Show(GameWindow? open)
@@ -51,7 +64,7 @@ public partial class SideBar : CanvasLayer
     }
 
     /// <summary>The tooltips, top to bottom, of the icons shown (for the self-test).</summary>
-    public IEnumerable<string> Tips => _buttons.Values.Where(b => b.Visible).Append(_menu).Select(b => b.TooltipText);
+    public IEnumerable<string> Tips => _buttons.Values.Where(b => b.Visible).Append(_miniMap).Append(_menu).Select(b => b.TooltipText);
 
     public bool Lit(GameWindow window) => _buttons[window].ButtonPressed;
 
