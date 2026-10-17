@@ -549,40 +549,81 @@
     "shards": 80
   },
   {
+    "id": "the-disjoint",
+    "name": {
+      "fr": "Le Disjoint",
+      "en": "The Disjoint"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "fields",
+    "level": 30,
+    "text": {
+      "fr": "Sous les Galeries des taupes, quelque chose remue, qui n'est ni taupe, ni crabe, ni abeille, et les bêtes du pays fuient toutes à la fois. Va à la porte des Galeries. D'après les pêcheurs qui l'ont aperçu, il s'use tout seul à chaque instant, mais il éclate quand il tombe : ne reste pas collé à lui.",
+      "en": "Under the Mole Burrows something is stirring that's neither mole, crab nor bee, and every beast in the land is fleeing at once. Go to the Burrows' gate. From what the fishermen glimpsed, it wears itself out with every moment, but it bursts when it falls: don't stay right next to it."
+    },
+    "thanks": {
+      "fr": "Quatre bêtes forcées en une seule, et elle n'a pas tenu un jour. En tombant, ses morceaux ont dessiné le cinquième signe sur la terre. Rentrons à Clairval : la pierre a quelque chose à nous dire, j'en suis sûre.",
+      "en": "Four beasts forced into one, and it didn't last a day. As it fell, its pieces traced the fifth sign on the ground. Let's go back to Clairval: the stone has something to tell us, I'm sure of it."
+    },
+    "objectives": [
+      {
+        "goal": "Win",
+        "target": "the-disjoint"
+      }
+    ],
+    "after": [
+      "under-the-hedges"
+    ],
+    "xp": 1800,
+    "shards": 300
+  },
+  {
     "id": "four-trails",
     "name": {
       "fr": "Quatre pistes",
       "en": "Four Trails"
     },
     "giver": "clairval/ysaline",
-    "level": 28,
+    "level": 30,
     "text": {
-      "fr": "Quatre signes, quatre pierres peut-être, quelque part. Rose entend tout ce qui se dit au marché, Garance connaît les forges, Aubin a vu toutes les cartes du pays. Va les trouver : chacun tient un bout de fil.",
-      "en": "Four signs, four stones perhaps, somewhere. Rose hears everything said at the market, Garance knows the forges, Aubin has seen every map of the land. Go and find them: each of them holds the end of a thread."
+      "fr": "La pierre s'est tue. Les quatre signes, eux, se sont allumés, chacun tourné vers une route qu'on n'a jamais prise. Rose, Garance et Aubin savent chacun quelque chose de ces routes : va les trouver, ils t'attendent.",
+      "en": "The stone has gone quiet. But the four signs have lit up, each one facing a road we've never taken. Rose, Garance and Aubin each know something about those roads: go and find them, they're expecting you."
     },
     "thanks": {
-      "fr": "Une ville qui oublie, une forge interdite, des cartes qui changent la nuit, des racines sous un arbre géant. Le voyage ne fait que commencer.",
-      "en": "A town that forgets, a forbidden forge, maps that change at night, roots under a giant tree. The journey has only begun."
+      "fr": "Une ville qui oublie, une forge interdite, des cartes qui changent la nuit, des racines sous un arbre géant. Quatre routes, dans l'ordre que tu voudras. Moi, je reste avec la pierre : quelqu'un doit l'écouter quand tu n'es pas là.",
+      "en": "A town that forgets, a forbidden forge, maps that change overnight, roots beneath a giant tree. Four roads, in whatever order you like. I'm staying with the stone: someone has to listen to it while you're away."
     },
     "objectives": [
       {
         "goal": "Talk",
-        "target": "clairval/rose"
+        "target": "clairval/rose",
+        "line": {
+          "fr": "Mes voyageurs parlent d'une ville sur la côte où personne ne raconte deux fois la même histoire. Ils y vendent bien, et ils en repartent vite.",
+          "en": "My travellers talk of a town on the coast where nobody tells the same story twice. They sell well there, and they leave quickly."
+        }
       },
       {
         "goal": "Talk",
-        "target": "clairval/garance"
+        "target": "clairval/garance",
+        "line": {
+          "fr": "J'ai appris l'épée chez des forgerons, très loin vers le soleil levant. Ils ont fermé un atelier, l'an passé, après des accidents. Les armes qui en sortaient se mettaient en colère avant leur porteur.",
+          "en": "I learnt the sword among smiths, far away towards the sunrise. Last year they shut a workshop after some accidents. The weapons that came out of it lost their temper before whoever held them."
+        }
       },
       {
         "goal": "Talk",
-        "target": "clairval/aubin"
+        "target": "clairval/aubin",
+        "line": {
+          "fr": "J'ai vu passer des cartes de toutes sortes. Celles du nord changent d'une nuit à l'autre, et celles du sud montrent un arbre si grand qu'il porte une ville. Si vous partez, la pierre continuera de parler sans vous.",
+          "en": "I've seen all sorts of maps go by. The northern ones change from one night to the next, and the southern ones show a tree so big it holds a town. If you leave, the stone will go on talking without you."
+        }
       }
     ],
-    "xp": 300,
-    "shards": 40,
     "after": [
-      "under-the-hedges"
-    ]
+      "the-disjoint"
+    ],
+    "xp": 1800,
+    "shards": 300
   },
   {
     "id": "the-pack",

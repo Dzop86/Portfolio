@@ -608,5 +608,40 @@
       }
     ],
     "percent": 50
+  },
+  {
+    "id": "unstable",
+    "name": {
+      "fr": "Instable",
+      "en": "Unstable"
+    },
+    "description": {
+      "fr": "Il s'use tout seul : perd 15 PV au début de chacun de ses tours.",
+      "en": "It wears itself out: loses 15 HP at the start of each of its turns."
+    },
+    "trigger": "TurnStart",
+    "damageMin": 15,
+    "damageMax": 15,
+    "element": "Neutral"
+  },
+  {
+    "id": "rupture",
+    "name": {
+      "fr": "Rupture",
+      "en": "Rupture"
+    },
+    "description": {
+      "fr": "Sous un dixième de ses PV, se fend : 15 à 20 dégâts neutres à 2 cases, lui compris.",
+      "en": "Below a tenth of its HP, it splits: 15 to 20 neutral damage 2 cells around, itself included."
+    },
+    "trigger": "LowHp",
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "percent": 10,
+    "damageMin": 15,
+    "damageMax": 20,
+    "element": "Neutral"
   }
 ]

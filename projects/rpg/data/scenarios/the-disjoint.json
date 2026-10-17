@@ -1,0 +1,58 @@
+{
+  "id": "the-disjoint",
+  "name": {
+    "fr": "La porte des Galeries",
+    "en": "The Burrows' Gate"
+  },
+  "map": "meadow",
+  "fighters": [
+    {
+      "name": {
+        "fr": "Héroïne",
+        "en": "Heroine"
+      },
+      "look": "female-d",
+      "team": 0,
+      "hp": 80,
+      "ap": 6,
+      "mp": 3,
+      "initiative": 120,
+      "start": 1,
+      "spells": [
+        "strike",
+        "arrow",
+        "spear"
+      ]
+    },
+    {
+      "name": {
+        "fr": "Le Disjoint",
+        "en": "The Disjoint"
+      },
+      "look": "mole-boss",
+      "team": 1,
+      "hp": 450,
+      "ap": 8,
+      "mp": 3,
+      "initiative": 70,
+      "start": 4,
+      "spells": [
+        "crushing-claws",
+        "tongue-crush",
+        "fire-sting",
+        "queen-sting"
+      ],
+      "resistances": {
+        "Earth": 15,
+        "Fire": 15,
+        "Water": 15,
+        "Air": 15
+      },
+      "level": 30,
+      "passives": [
+        "unstable",
+        "rupture"
+      ]
+    }
+  ]
+}

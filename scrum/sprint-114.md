@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affronte le Disjoint au niveau 30, battable seul, puis « Quatre pistes » clôt le chapitre 1 (rpg) ; simulation ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, j'affronte le Disjoint au niveau 30, battable seul, puis « Quatre pistes » clôt le chapitre 1 (rpg) ; simulation ; xUnit, auto-test. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

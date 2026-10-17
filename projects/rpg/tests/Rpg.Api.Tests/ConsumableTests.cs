@@ -37,10 +37,10 @@ public class ConsumableTests
         // Used up; the training's enemies may leave another one.
         int left = (await server.Characters(Cancel)).Single().Inventory!.Where(i => i.Item == "healing-potion").Sum(i => i.Count);
         Assert.Equal(result.Loot!.Where(i => i.Item == "healing-potion").Sum(i => i.Count), left);
-        // A potion not owned: the record is refused.
+        // A potion not owned (an elixir, which the training never leaves): the record is refused.
         ticket = await server.StartFight(c.Id, "training", Cancel);
         now = (await server.Characters(Cancel)).Single();
-        var cheat = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: ticket.HeroHp, pack: ["healing-potion"]);
+        var cheat = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, now.Hero, heroHp: ticket.HeroHp, pack: ["healing-elixir"]);
         Ai.PlayOut(cheat);
         var refused = await Assert.ThrowsAsync<ServerException>(() => server.ReportFight(c.Id, ticket.Id, FightRecord.Of(cheat), Cancel));
         Assert.Equal(HttpStatusCode.BadRequest, refused.Status);

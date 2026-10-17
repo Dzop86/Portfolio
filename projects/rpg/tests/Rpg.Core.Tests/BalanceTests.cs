@@ -88,6 +88,8 @@ public class BalanceTests
         }
     }
 
+    private static readonly string[] Classes = ["sentinel", "guard", "mage"];
+
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
 
@@ -137,6 +139,21 @@ public class BalanceTests
                 Assert.True(equipped.Average() <= 2, $"{id}: {equipped.Average():0.0} of 10 against the hordes of {zone}, kit {kit}");
             }
         }
+    }
+
+    [Fact]
+    public void TheDisjoint_IsBeatenAlone_AtLevelThirty_WithTheCraftsmensPieces()
+    {
+        // Sprint 114 (design-familles.md §4.9): the chapter's boss, four beasts forced into one, wearing itself out (15 hit
+        // points a turn) and bursting as it falls. Measured on 100 fights a class, with the "craft" kit (what a player alone
+        // is sure to have): sentinel 100, guard 39, mage 45, three in five on average; every class can beat it alone.
+        int[] wins = [.. Classes.Select(id =>
+        {
+            Hero hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 30), Real, Progression.Kit("craft", "fields", 30, Real));
+            return Results("the-disjoint", 100, hero)[0];
+        })];
+        Assert.All(wins, w => Assert.InRange(w, 30, 100));
+        Assert.InRange(wins.Average(), 50, 75);
     }
 
     [Theory]

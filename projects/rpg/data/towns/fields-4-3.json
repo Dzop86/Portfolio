@@ -810,5 +810,24 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "burrows-gate",
+      "at": {
+        "x": 24,
+        "y": 12
+      },
+      "look": "tunnel",
+      "name": {
+        "fr": "La porte des Galeries",
+        "en": "The Burrows' gate"
+      },
+      "text": {
+        "fr": "La terre devant la porte bouge toute seule, comme si quelque chose respirait dessous.",
+        "en": "The earth in front of the gate moves on its own, as if something were breathing beneath it."
+      },
+      "fight": "the-disjoint"
+    }
   ]
 }

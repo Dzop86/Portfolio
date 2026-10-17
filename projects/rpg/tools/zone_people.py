@@ -62,6 +62,10 @@ PROPS = [
     ("mole-tunnel-3", "tunnel", text("Le fond d'une galerie", "The end of a tunnel"),
      text("Au fond, une écaille de métal sombre, la même que le sceau de la crypte. Elle est tiède.",
           "At the bottom, a flake of dark metal, the same as the crypt's seal. It is warm."), "fields-2-3", (24, 16)),
+    # The Burrows' gate, where the Disjoint is fought (sprint 114): examined while the quest wants it, it starts the fight.
+    ("burrows-gate", "tunnel", text("La porte des Galeries", "The Burrows' gate"),
+     text("La terre devant la porte bouge toute seule, comme si quelque chose respirait dessous.",
+          "The earth in front of the gate moves on its own, as if something were breathing beneath it."), "fields-4-3", (24, 12), "the-disjoint"),
     ("crypt-seal", "seal", text("Le sceau", "The seal"),
      text("Un disque d'un métal sombre que personne ne sait nommer, posé là où les quatre ailes se rejoignent. Chaque signe regarde une aile. Une fissure le traverse, et elle est tiède.",
           "A disc of a dark metal nobody can name, set where the four wings meet. Each sign faces one wing. A crack runs through it, and it is warm."), "zombie-crypt-2", (10, 4)),
@@ -95,7 +99,7 @@ for (pid, name, look, colour, map_id, near, dialogue) in PEOPLE:
     open(path, "w").write(json.dumps(town, ensure_ascii=False, indent=2) + "\n")
     print(f"{pid} on {map_id} at {at}")
 
-for (pid, look, name, said, map_id, near) in PROPS:
+for (pid, look, name, said, map_id, near, *fight) in PROPS:
     path = f"{root}/towns/{map_id}.json"
     town = json.load(open(path), object_pairs_hook=O)
     rows = town["rows"]
@@ -107,7 +111,7 @@ for (pid, look, name, said, map_id, near) in PROPS:
     cells = [(x, y) for (x, y) in seen if rows[y][x] == ('=' if hall else '.') and (x, y) not in taken
              and all(n in seen and n not in taken for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))]
     at = min(cells, key=lambda c: (abs(c[0] - near[0]) + abs(c[1] - near[1]), c))
-    prop = O([("id", pid), ("at", O([("x", at[0]), ("y", at[1])])), ("look", look), ("name", name), ("text", said)])
+    prop = O([("id", pid), ("at", O([("x", at[0]), ("y", at[1])])), ("look", look), ("name", name), ("text", said)] + ([("fight", fight[0])] if fight else []))
     town["props"] = [p for p in town.get("props", []) if p["id"] != pid] + [prop]
     open(path, "w").write(json.dumps(town, ensure_ascii=False, indent=2) + "\n")
     print(f"{pid} on {map_id} at {at}")

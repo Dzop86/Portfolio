@@ -324,6 +324,12 @@ passives = [
  P("the-debris","Le débris","The Debris","Sous la moitié de ses PV, déterre un éclat de métal inconnu : +2 PA pendant 2 tours, et deux fouisseuses surgissent.",
    "Below half its HP, it digs up a shard of unknown metal: +2 AP for 2 turns, and two diggers surface.","LowHp",[status("Caster","Ap",2,2),summon("digger-spawn",count=2)],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
+ # The Disjoint (design-familles.md §4.9, sprint 114): four beasts forced into one, wearing itself out, bursting as it falls.
+ P("unstable","Instable","Unstable","Il s'use tout seul : perd 15 PV au début de chacun de ses tours.","It wears itself out: loses 15 HP at the start of each of its turns.",
+   "TurnStart",damageMin=15,damageMax=15,element="Neutral"),
+ # A death that ends the fight sets off no passive: alone, it bursts as it is about to fall, below a tenth of its hit points.
+ P("rupture","Rupture","Rupture","Sous un dixième de ses PV, se fend : 15 à 20 dégâts neutres à 2 cases, lui compris.","Below a tenth of its HP, it splits: 15 to 20 neutral damage 2 cells around, itself included.",
+   "LowHp",area=("Circle",2),damageMin=15,damageMax=20,element="Neutral",percent=10),
 ]
 open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")
 print(len(spells), {k: len(v) for k, v in lists.items()})

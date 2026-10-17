@@ -12,7 +12,7 @@ public class FirstQuestsTests
     private static readonly string[] Main =
         ["whispering-stone", "the-registry", "restless-beasts", "the-root-circle", "rumble-under-the-wallow", "four-signs",
          "what-grows-between", "the-undug-crypt", "down-into-the-crypt", "the-cracked-seal",
-         "the-unlearned-lullaby", "the-last-verse", "the-washed-name", "the-name-returned", "burning-hives", "under-the-hedges", "four-trails"];
+         "the-unlearned-lullaby", "the-last-verse", "the-washed-name", "the-name-returned", "burning-hives", "under-the-hedges", "the-disjoint", "four-trails"];
 
     /// <summary>The main steps a zone's giver relays (sprint 112): the woodcutters' head, the hermit of the pools.</summary>
     private static readonly Dictionary<string, string> Relayed = new()

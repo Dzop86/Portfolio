@@ -70,8 +70,9 @@ public class ZoneQuestsTests
     [Fact]
     public void TheFields_HaveTheirFirstSevenQuests_TheBurningHivesAndTheHedges_AndTheLakesJettiesTheirWitnesses()
     {
+        // Since sprint 114 with the Disjoint, the chapter's boss: eight, "Four trails" being the village's.
         Quest[] fields = [.. Real.Quests.Values.Where(q => q.Zone == "fields")];
-        Assert.Equal(7, fields.Length);
+        Assert.Equal(8, fields.Length);
         Assert.Equal(["burning-hives"], Real.Quests["under-the-hedges"].After!);
         Assert.Equal("fields/eglantine", Real.Quests["under-the-hedges"].Giver);
         // Joachim and Fleur, on the jetties by Liane, each with their own words and their line for the lullaby.
