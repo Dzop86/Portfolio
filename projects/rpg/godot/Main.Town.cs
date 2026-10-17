@@ -43,7 +43,6 @@ public partial class Main
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _townView.ShowMarks(_town.Book);
-        ShowTrail();
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
         AddChild(_camera);
@@ -55,7 +54,6 @@ public partial class Main
         _talkPanel.Build(_town, new Texts(_options.Lang));
         _edgeArrow = new EdgeArrow();
         _talkPanel.AddChild(_edgeArrow);
-        _talkPanel.SetProgress(_hero?.Class is null ? null : _hero.Level, _character?.Xp ?? 0);
         _talkPanel.Living = _character;
         _talkPanel.Answered += Answer;
         _talkPanel.LanguageChanged += () =>
@@ -68,6 +66,8 @@ public partial class Main
         ShowBar();
         ShowMiniMap();
         ShowChat();
+        // The quest followed, once the talk panel gives its words (sprint 115: drawn before it, it vanished at each change of map).
+        ShowTrail();
         _townView.Footstep += () => _sound?.Step();
         _sound?.PlayMusic();
         // In a hall, the hit points left; just out of one (lost, or the last room won), there under the keep.
@@ -1322,7 +1322,6 @@ public partial class Main
             CloseJournal();
             OpenJournal();
         }
-        _talkPanel?.SetProgress(_hero.Level, character.Xp);
         if (_talkPanel is not null)
             _talkPanel.Living = character;
     }
@@ -1830,6 +1829,15 @@ public partial class Main
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone with { Counts = [1, 1, 1] }], []));
             if (view.PropsDrawn != 1 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
                 problems.Add($"the square shows {view.PropsDrawn} props, '{fresh}' over Aubin, the stone glinting {idle}/{glint}, '{waiting}' over Ysaline");
+            // The life in a heart (sprint 115): the life over the most, the share below; half filled at half.
+            var heart = new HeartGauge();
+            AddChild(heart);
+            heart.Show(30, 100, false);
+            string heartText = heart.Text;
+            Vector2[] outline = HeartGauge.Outline(new Vector2(96, 88));
+            if (heartText != "30/100 30%" || outline.Min(p => p.X) < 0 || outline.Max(p => p.X) > 96 || outline.Min(p => p.Y) < 0 || outline.Max(p => p.Y) > 88)
+                problems.Add($"the heart says '{heartText}', drawn from {outline.Min(p => p.Y)} to {outline.Max(p => p.Y)}");
+            heart.QueueFree();
             // Following it (sprint 106): on the left, its name and its three objectives and where; the ring on the stone;
             // "Followed" in the journal; a ring on the world map.
             var book = new QuestBook(GameData.Embedded, 1, [], [stone], []);
@@ -2105,7 +2113,6 @@ public partial class Main
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10,
                 Stats: new Characteristics(Vitality: 20, Earth: 40, Fire: 0, Water: 9, Air: 10),
                 Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club", [Slot.Boots] = "poacher-boots", [Slot.Pet] = "kitten" });
-            _talkPanel!.SetProgress(10, 5_000);
             ShowBar();
             ToggleWindow(_options.Shot == "spells" ? GameWindow.Spells : GameWindow.Characteristics);
             _pointsPanel!.Editor.Add(Characteristic.Earth, 5);
@@ -2127,7 +2134,6 @@ public partial class Main
         {
             // A showcase for the project page: a tenth-level guard with what training fights leave.
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
-            _talkPanel!.SetProgress(10, 5_000);
             ShowBar();
             _bar!.Show(GameWindow.Inventory);
             ItemCount[] bag = [new("copper-ring", 2), new("pebble-amulet", 1), new("poacher-hat", 1), new("poacher-cape", 1), new("poacher-boots", 1), new("dagger", 1), new("wooden-shield", 1), new("orc-club", 1), new("kitten", 1), new("bread", 3), new("healing-potion", 2), new("orc-fang", 5), new("leather", 4), new("garance-badge", 1)];

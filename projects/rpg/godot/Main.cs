@@ -683,7 +683,7 @@ public partial class Main : Node3D
         }
         CheckFightWindows(problems);
         checks++;
-        int seenNumbers = 0;
+        int seenNumbers = 0, seenWaits = 0;
         SelfPlay.Run(_controller, _ =>
         {
             Task played = Play(instant: true);
@@ -710,9 +710,18 @@ public partial class Main : Node3D
                     problems.Add("the board does not show the reachable cells");
                 if (!_hud.StatsText.Contains($"{_controller.Fight.Current.Mp}", StringComparison.Ordinal))
                     problems.Add("the points shown are not the fighter's");
+                // A spell cast lately shows the turns it still waits (sprint 115).
+                Fighter me = _controller.Fight.Current;
+                int[] waits = [.. me.Spells.Select(me.CooldownLeft)];
+                if (!_hud.SpellWaits.SequenceEqual(waits))
+                    problems.Add($"the spell tiles wait {string.Join(",", _hud.SpellWaits)}, the spells {string.Join(",", waits)}");
+                if (waits.Any(w => w > 0))
+                    seenWaits++;
                 checks++;
             }
         });
+        if (seenWaits == 0 && _controller.Fight.Fighters.Any(f => f.Team == _controller.PlayerTeam && f.Spells.Any(sp => sp.Cooldown > 0)))
+            GD.Print("SELFTEST note: no spell with a cooldown was cast this fight");
         if (!_hud.EndShown)
             problems.Add("no end screen");
         _ = FinishSelfTest(problems, checks);

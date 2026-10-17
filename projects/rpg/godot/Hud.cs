@@ -14,8 +14,9 @@ public partial class Hud : CanvasLayer
     /// <summary>The cards of the timeline: a whole round, ten monsters, the hero and summons (sprint 78).</summary>
     public const int TimelineLength = 14;
 
-    private readonly List<(Button Tile, SpellIcon Icon)> _spells = [];
+    private readonly List<(Button Tile, SpellIcon Icon, Label Wait)> _spells = [];
     private readonly List<string> _spellNames = [];
+    private readonly List<int> _waits = [];
     private readonly List<(PanelContainer Card, Portrait Face, Label Name, ProgressBar Hp)> _timeline = [];
     private PanelContainer _info = null!;
     private Label _infoText = null!;
@@ -212,17 +213,26 @@ public partial class Hud : CanvasLayer
             key.AddThemeColorOverride("font_outline_color", Colors.Black);
             key.AddThemeConstantOverride("outline_size", 4);
             b.AddChild(key);
+            // The turns before the spell may be cast again (sprint 115), big in the middle of the greyed tile.
+            var wait = new Label { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, AnchorRight = 1, AnchorBottom = 1, MouseFilter = Control.MouseFilterEnum.Ignore };
+            wait.AddThemeFontSizeOverride("font_size", 26);
+            wait.AddThemeColorOverride("font_outline_color", Colors.Black);
+            wait.AddThemeConstantOverride("outline_size", 6);
+            b.AddChild(wait);
             b.Pressed += () => SpellChosen?.Invoke(index);
             _spellBar.AddChild(b);
-            _spells.Add((b, icon));
+            _spells.Add((b, icon, wait));
         }
         _spellNames.Clear();
+        _waits.Clear();
         for (int i = 0; i < _spells.Count; i++)
         {
-            (Button tile, SpellIcon icon) = _spells[i];
+            (Button tile, SpellIcon icon, Label wait) = _spells[i];
             Spell? s = i < me.Spells.Count ? me.Spells[i] : null;
             icon.Spell = s;
             tile.Visible = true;
+            int left = s is null ? 0 : me.CooldownLeft(s);
+            wait.Text = left > 0 ? left.ToString(System.Globalization.CultureInfo.InvariantCulture) : "";
             if (s is null)
             {
                 tile.Disabled = true;
@@ -230,6 +240,7 @@ public partial class Hud : CanvasLayer
                 continue;
             }
             _spellNames.Add(s.Name.In(Texts.Lang));
+            _waits.Add(left);
             bool usable = canAct && _controller.CanUse(s);
             icon.Faint = !usable;
             icon.QueueRedraw();
@@ -299,6 +310,9 @@ public partial class Hud : CanvasLayer
 
     /// <summary>The spells' names on the bar, in order.</summary>
     public IEnumerable<string> SpellsText => _spellNames;
+
+    /// <summary>The turns shown on each spell's tile before it may be cast again, 0 for none (for the self-test).</summary>
+    public IReadOnlyList<int> SpellWaits => _waits;
     public bool EndShown => _end.Visible;
 
     /// <summary>A label whose box is offset from an anchor point of the screen (0 to 1 on each axis).</summary>
