@@ -6,7 +6,10 @@ using Rpg.Core;
 
 namespace Rpg.Api.Tests;
 
-/// <summary>The locksmith on the server (sprint 81): ingredients used up, the key made, the trade's experience.</summary>
+/// <summary>
+/// The locksmith on the server (sprint 81): ingredients used up, the key made, the trade's experience; since sprint 109
+/// (D76) the smith, a piece gathered, made, worn and sold from start to end.
+/// </summary>
 public class CraftTests
 {
     private static CancellationToken Cancel => TestContext.Current.CancellationToken;
@@ -46,5 +49,53 @@ public class CraftTests
         // Someone else's character: unknown.
         GameServer other = await api.SignedIn("oth");
         Assert.Equal(HttpStatusCode.NotFound, (await Assert.ThrowsAsync<ServerException>(() => other.Craft(c.Id, "locksmith", "boar-wallow-key", cancel: Cancel))).Status);
+    }
+
+    [Fact]
+    public async Task ThePiece_IsGatheredMadeAtTheForge_Worn_AndSoldToRose_ForLessThanItsIngredients()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("smi");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Forge", "female-c", "guard", cancel: Cancel);
+        Recipe billhook = GameData.Embedded.Jobs["smith"].RecipeFor("copper-billhook")!;
+        // The oaks and the copper gathered on Clairval's spots, the fangs from the wolves (given here).
+        foreach (ItemCount wanted in billhook.Ingredients.Take(2))
+        {
+            HarvestNode spot = GameData.Embedded.Nodes.Values.First(n => n.Item == wanted.Item && Shop.InVillage(n.Map));
+            Cell next = spot.At.Neighbours().First(GameData.Embedded.Towns[spot.Map].CanStand);
+            api.WithDb(db =>
+            {
+                Character ch = db.Characters.Single();
+                (ch.Town, ch.X, ch.Y) = (spot.Map, next.X, next.Y);
+                return db.SaveChanges();
+            });
+            for (int n = 0; n < wanted.Count; n++)
+            {
+                await server.Harvest(c.Id, spot.Id, next, Cancel);
+                api.Clock.Advance(Harvesting.Regrowth + TimeSpan.FromSeconds(4));
+            }
+        }
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, null, [new("wolf-fang", 2)]), Cancel);
+        // Without the recipe's Éclats: refused.
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.Craft(c.Id, "smith", "copper-billhook", cancel: Cancel))).Status);
+        api.WithDb(db =>
+        {
+            Character ch = db.Characters.Single();
+            Cell square = GameData.Embedded.Towns[Shop.Village].Spawn;
+            (ch.Shards, ch.Town, ch.X, ch.Y, ch.Level) = (billhook.Shards, Shop.Village, square.X, square.Y, 3);
+            return db.SaveChanges();
+        });
+        CharacterSummary made = await server.Craft(c.Id, "smith", "copper-billhook", cancel: Cancel);
+        Assert.Equal(0, made.Shards);
+        Assert.Equal([new ItemCount("copper-billhook", 1)], made.Inventory!);
+        // A piece of equipment teaches the trade 150 + 15 a level: the smith reaches level 4.
+        Assert.Equal(165L, made.Jobs!["smith"]);
+        Assert.Equal(4, made.JobLevel("smith"));
+        // Worn at level 3, it counts; taken off, Rose buys it at twice its level.
+        Assert.Equal("copper-billhook", (await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.OneHanded] = "copper-billhook" }, Cancel)).Worn![Slot.OneHanded]);
+        await server.SaveEquipment(c.Id, new Dictionary<Slot, string>(), Cancel);
+        Assert.Equal(6L, (await server.Sell(c.Id, "copper-billhook", 1, Cancel)).Shards);
     }
 }

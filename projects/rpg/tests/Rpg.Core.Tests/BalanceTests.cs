@@ -91,6 +91,13 @@ public class BalanceTests
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
 
+    /// <summary>
+    /// The hordes of clod moles on the Meadow (three or more): frail against any full equipment, accepted as they are by
+    /// Charles (T64), left out of the "craft" kit's ceiling (T77).
+    /// </summary>
+    private static bool ClodMolesInTheOpen(MonsterGroup g) =>
+        Real.Families[g.Family].BattleOf(g.Id) == "meadow" && g.Monsters.Count(m => m == "clod-mole") >= 3;
+
     private static int Wins(string group, string id, int level, int fights, string kit = "none") =>
         Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real,
             Progression.Kit(kit, Real.Families[Real.Groups[group].Family].Zone, level, Real)))[0];
@@ -120,9 +127,15 @@ public class BalanceTests
             // Since sprint 96 (D71, T64), the ceilings are measured again with two quick pieces of the zone worn, off the
             // maps where the hordes come in single file round the water (accepted by Charles, T59 and T60). With all of
             // them (the "fast" kit), the Fields' hordes of clod moles fall to a lone hero: a question for Charles.
-            int[] equipped = [.. here.Where(g => g.Monsters.Count >= 6 && !SingleFile.Contains(Real.Families[g.Family].BattleOf(g.Id)))
-                .AsParallel().Select(g => Wins(g.Id, id, level, 10, "zone"))];
-            Assert.True(equipped.Average() <= 2, $"{id}: {equipped.Average():0.0} of 10 against the hordes of {zone}, equipped");
+            // Since sprint 109 (D76, T77), also with the craftsmen's pieces in every other slot (the "craft" kit): what a player
+            // alone is sure to have.
+            foreach (string kit in new[] { "zone", "craft" })
+            {
+                int[] equipped = [.. here.Where(g => g.Monsters.Count >= 6 && !SingleFile.Contains(Real.Families[g.Family].BattleOf(g.Id))
+                        && !(kit == "craft" && ClodMolesInTheOpen(g)))
+                    .AsParallel().Select(g => Wins(g.Id, id, level, 10, kit))];
+                Assert.True(equipped.Average() <= 2, $"{id}: {equipped.Average():0.0} of 10 against the hordes of {zone}, kit {kit}");
+            }
         }
     }
 

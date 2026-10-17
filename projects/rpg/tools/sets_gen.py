@@ -15,7 +15,9 @@ PIECE_PERCENT, WEAPON_PERCENT = 8, 30
 SCALE = 0.5
 
 
-def scaled(stats): return O((k, max(1, round(v * SCALE))) for k, v in stats.items())
+def scaled(stats, two_handed=False):
+    """A two-handed weapon counts as two pieces (sprint 109, D76): twice the budget of one."""
+    return O((k, max(1, round(v * SCALE * (2 if two_handed else 1)))) for k, v in stats.items())
 
 
 def text(fr, en): return O([("fr", fr), ("en", en)])
@@ -107,7 +109,7 @@ for family, (name, bonuses, pieces) in SETS.items():
                                   + ([("initiative", ini)] if ini else []))
                                 for n, (stats, ap, mp, ini) in zip((2, 3, PIECES), bonuses)])]))
     for p in pieces:
-        item = O([("id", p["id"]), ("name", p["name"]), ("kind", "Equipment"), ("slot", p["slot"]), ("level", p["level"]), ("stats", scaled(p["stats"]))])
+        item = O([("id", p["id"]), ("name", p["name"]), ("kind", "Equipment"), ("slot", p["slot"]), ("level", p["level"]), ("stats", scaled(p["stats"], p["slot"] == "TwoHanded"))])
         if p["initiative"]:
             item["initiative"] = p["initiative"]
         item["set"] = family

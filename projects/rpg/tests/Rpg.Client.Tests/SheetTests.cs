@@ -13,8 +13,8 @@ public class SheetTests
     {
         var sheet = new CharacterSheet(Guard(new() { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club" }), GameData.Embedded);
         Assert.Equal(new SheetLine(Characteristic.Vitality, null, 20, 5, 25, 25, 0), sheet[Characteristic.Vitality]);
-        // 30 put in, 20 worn: 50 Earth, 10 more Earth damage.
-        Assert.Equal(new SheetLine(Characteristic.Earth, Element.Earth, 30, 20, 50, 10, 0), sheet[Characteristic.Earth]);
+        // 30 put in, 21 worn (the orc's club counts as two pieces since sprint 109): 51 Earth, 10 more Earth damage.
+        Assert.Equal(new SheetLine(Characteristic.Earth, Element.Earth, 30, 21, 51, 10, 0), sheet[Characteristic.Earth]);
         // 9 points: not yet a whole 10, no bonus; nothing else but its own element.
         Assert.Equal((9, 0, Element.Water), (sheet[Characteristic.Water].Total, sheet[Characteristic.Water].Bonus, sheet[Characteristic.Water].Element));
         Assert.Equal((Element.Fire, Element.Air), (sheet[Characteristic.Fire].Element!.Value, sheet[Characteristic.Air].Element!.Value));

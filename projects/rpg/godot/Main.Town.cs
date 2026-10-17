@@ -1755,23 +1755,30 @@ public partial class Main
             }
             checkedDoors++;
         }
-        // The locksmith's bench in Clairval's craftsmen's quarter (sprints 81 and 102): walked onto, it opens its recipes, none to make
-        // without the ingredients; closed, the player walks on.
+        // The workshops of Clairval's craftsmen's quarter (sprints 81 and 102): the locksmith's bench, and since sprint 109 the
+        // forge and the tailor's workshop. Walked onto, each opens its recipes, none to make without the ingredients; closed,
+        // the player walks on.
         _town = new TownController(GameData.Embedded, "clairval-3-1");
-        Workshop bench = _town.Town.Workshops![0];
-        if (_town.Click(bench.At)?.Path is null || _town.Bench != bench)
-            problems.Add("walking onto the locksmith's bench does not open it");
-        else
+        foreach (Workshop bench in _town.Town.Workshops!)
         {
+            if (_town.Click(bench.At)?.Path is null || _town.Bench != bench)
+            {
+                problems.Add($"walking onto the workshop of the {bench.Job} does not open it");
+                continue;
+            }
             // Since sprint 100, the trades window on the bench's trade, its recipes listed.
             JobsPanel panel = OpenBench(bench);
             var expected = new JobBook(GameData.Embedded, _character, _talkPanel!.Texts, bench.Job);
-            if (panel.Shown.Id != bench.Job || panel.JobsListed != expected.Jobs.Count || panel.Lines != expected.Recipes(GameData.Embedded.Jobs[bench.Job]).Count)
-                problems.Add($"the bench opens the trades window on {panel.Shown.Id}, {panel.JobsListed} trades and {panel.Lines} lines");
+            IReadOnlyList<RecipeLine> lines = expected.Recipes(GameData.Embedded.Jobs[bench.Job]);
+            if (panel.Shown.Id != bench.Job || panel.JobsListed != expected.Jobs.Count || panel.Lines != lines.Count)
+                problems.Add($"the {bench.Job}'s workshop opens the trades window on {panel.Shown.Id}, {panel.JobsListed} trades and {panel.Lines} lines");
+            // The forge's first piece teaches 165 (sprint 109).
+            if (bench.Job == "smith" && lines.SingleOrDefault(l => l.Item.Id == "copper-billhook")?.Xp != 165)
+                problems.Add("the forge does not offer the copper billhook for 165 experience");
             CloseJobs();
             _town.CloseDoor();
             if (_town.Click(_town.Town.Spawn) is null)
-                problems.Add("after the bench, the player cannot walk on");
+                problems.Add($"after the {bench.Job}'s workshop, the player cannot walk on");
         }
         // Rose's stall on the market (sprints 97 and 102): her answer opens it, her stock as the rules say; closed, the player walks on.
         _town = new TownController(GameData.Embedded, "clairval-2-1");

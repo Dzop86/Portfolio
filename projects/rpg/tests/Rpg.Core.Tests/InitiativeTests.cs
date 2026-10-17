@@ -70,8 +70,9 @@ public class InitiativeTests
         }
         // The breastplate and the pauldrons are left to the craftsmen (§5.6).
         Assert.DoesNotContain(pieces, p => p.Slot is ItemSlot.Chest or ItemSlot.Shoulders);
-        // Within the budget: about half of 8 + the level in characteristics, a point of initiative counting 0.6.
-        Assert.All(pieces, p => Assert.InRange(Sum(p.Stats) + 0.6 * p.Initiative / 2, 1, (8 + p.Level) / 2.0 + 1));
+        // Within the budget: about half of 8 + the level in characteristics, a point of initiative counting 0.6; since
+        // sprint 109 (D76), a two-handed weapon twice that, or a one-handed weapon and a shield beat it.
+        Assert.All(pieces, p => Assert.InRange(Sum(p.Stats) + 0.6 * p.Initiative / 2, 1, ((8 + p.Level) / 2.0 + 1) * (p.Slot == ItemSlot.TwoHanded ? 2 : 1)));
     }
 
     [Theory]
@@ -108,6 +109,15 @@ public class InitiativeTests
         // The Woods' "fast" kit: the pack's boots, ring and cape and their bonus, as the design says (50).
         Assert.Equal(50, Initiative(fast));
         Assert.Throws<ArgumentException>(() => Progression.Kit("heavy", "woods", 6, Real));
+        // Since sprint 109 (D76): "craft" is "zone" and the best craftsmen's pieces elsewhere, no more initiative;
+        // "fast" takes a craftsman's piece where its sets leave a slot empty (the Woods have no breastplate).
+        IReadOnlyDictionary<Slot, string> craft = Progression.Kit("craft", "woods", 6, Real);
+        Assert.Null(Equipment.Problem(craft, 6, Real));
+        Assert.All(zone, w => Assert.Equal(w.Value, craft[w.Key]));
+        Assert.Equal(Initiative(zone), Initiative(craft));
+        Assert.Equal(["copper-billhook", "hazel-pavise", "linen-tunic", "oat-straw-hat"], craft.Values.Where(id => Real.MadePieces.Any(i => i.Id == id)).Order());
+        Assert.Equal("linen-tunic", fast[Slot.Chest]);
+        Assert.True(Progression.Kit("craft", "woods", 2, Real).Values.All(id => Real.Items[id].Level <= 2));
     }
 
     private static int Sum(Characteristics? c) => c is null ? 0 : c.Vitality + c.Earth + c.Fire + c.Water + c.Air;

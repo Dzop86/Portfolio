@@ -237,6 +237,9 @@ public sealed class GameData
     /// <summary>The trades (sprint 81), by id.</summary>
     public IReadOnlyDictionary<string, Job> Jobs { get; }
 
+    /// <summary>The pieces of equipment a trade makes (sprint 109, D76): the craftsmen's pieces.</summary>
+    public IEnumerable<Item> MadePieces => Jobs.Values.SelectMany(j => j.Recipes).Select(r => Items[r.Item]).Where(i => i.Kind == ItemKind.Equipment);
+
     /// <summary>The dungeons (sprint 80), by id.</summary>
     public IReadOnlyDictionary<string, Dungeon> Dungeons { get; }
 
@@ -330,6 +333,9 @@ public sealed class GameData
                 || j.Recipes.Any(r => !Items.ContainsKey(r.Item) || r.Level is < 1 or > Crafting.MaxLevel || r.Ingredients.Count == 0
                     || r.Ingredients.Any(i => !Items.ContainsKey(i.Item) || i.Count < 1 || i.Item == r.Item)))
                 throw new InvalidDataException($"Job '{j.Id}': recipes of known items, each once, a level 1 to {Crafting.MaxLevel}, known ingredients.");
+            // A craftsman's piece (sprint 109, D76): never initiative, action or movement points, nor a set; those stay the loot's.
+            if (j.Recipes.Select(r => Items[r.Item]).FirstOrDefault(i => i.Kind == ItemKind.Equipment && (i.Initiative != 0 || i.Ap != 0 || i.Mp != 0 || i.Set is not null)) is Item quick)
+                throw new InvalidDataException($"Job '{j.Id}': '{quick.Id}' is made, so it gives no initiative, action or movement points, and has no set.");
         }
         foreach (Town t in Towns.Values)
         {

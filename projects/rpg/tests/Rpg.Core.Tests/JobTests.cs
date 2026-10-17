@@ -9,9 +9,9 @@ public class JobTests
     public void TheLocksmith_MakesEveryDungeonsKey_FromItsFamilysResources_AtTheZonesLevel()
     {
         Job locksmith = Real.Jobs["locksmith"];
-        // The keys, and the tutorial's palisade stake (sprint 107: no forge yet).
-        Assert.Equal(Real.Dungeons.Values.Select(d => d.Key).Append("palisade-stake").Order(), locksmith.Recipes.Select(r => r.Item).Order());
-        Assert.Equal([new ItemCount("oak-log", 3), new ItemCount("copper-ore", 2)], locksmith.RecipeFor("palisade-stake")!.Ingredients);
+        // The keys; the tutorial's palisade stake went to the forge in sprint 109.
+        Assert.Equal(Real.Dungeons.Values.Select(d => d.Key).Order(), locksmith.Recipes.Select(r => r.Item).Order());
+        Assert.Equal([new ItemCount("oak-log", 3), new ItemCount("copper-ore", 2)], Real.Jobs["smith"].RecipeFor("palisade-stake")!.Ingredients);
         foreach (Dungeon d in Real.Dungeons.Values)
         {
             Recipe recipe = locksmith.RecipeFor(d.Key)!;
@@ -25,8 +25,7 @@ public class JobTests
         Assert.True(locksmith.RecipeFor("royal-hive-key")!.Level > locksmith.RecipeFor("crab-reef-key")!.Level);
         // Its bench is on Clairval's craftsmen's row (sprint 102), since sprint 104 by Gédéon's door and off the road (Charles, D75).
         Town row = Real.Towns["clairval-3-1"];
-        Workshop bench = Assert.Single(row.Workshops!);
-        Assert.Equal("locksmith", bench.Job);
+        Workshop bench = Assert.Single(row.Workshops!, w => w.Job == "locksmith");
         Assert.NotEqual('=', row[bench.At]);
         Assert.Contains(bench.At.Neighbours(), c => row[c] is 'H' or 'h');
         Assert.True(row.Npcs.Single(n => n.Id == "gedeon").At.DistanceTo(bench.At) <= 3);
@@ -38,10 +37,11 @@ public class JobTests
         Assert.Equal((1, 1, 2, 4, 10, 100), (Crafting.LevelFor(0), Crafting.LevelFor(19), Crafting.LevelFor(20), Crafting.LevelFor(120), Crafting.LevelFor(900), Crafting.LevelFor(long.MaxValue)));
         Assert.Equal(0, Crafting.XpToReach(1));
         Recipe boar = Real.Jobs["locksmith"].RecipeFor("boar-wallow-key")!, bee = Real.Jobs["locksmith"].RecipeFor("royal-hive-key")!;
-        Assert.Equal(25, Crafting.Xp(boar));
-        Assert.True(Crafting.Xp(bee) > Crafting.Xp(boar));
+        Item key = Real.Items[boar.Item];
+        Assert.Equal(25, Crafting.Xp(boar, key));
+        Assert.True(Crafting.Xp(bee, Real.Items[bee.Item]) > Crafting.Xp(boar, key));
         // The second zone's keys are reached by making the first's about thirty-six times.
-        Assert.InRange(Crafting.XpToReach(10) / Crafting.Xp(boar), 30, 40);
+        Assert.InRange(Crafting.XpToReach(10) / Crafting.Xp(boar, key), 30, 40);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class JobTests
     {
         Job locksmith = Real.Jobs["locksmith"];
         GameData With(Job j, IEnumerable<Town>? towns = null) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, towns ?? Real.Towns.Values,
-            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, [j], Real.Passives.Values);
+            Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, [.. Real.Jobs.Values.Where(x => x.Id != j.Id), j], Real.Passives.Values);
         Assert.Equal(locksmith, With(locksmith).Jobs["locksmith"]);
         Recipe r = locksmith.Recipes[0];
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [r with { Item = "nothing" }] }));

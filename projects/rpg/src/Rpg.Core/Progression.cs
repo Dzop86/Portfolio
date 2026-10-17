@@ -111,14 +111,16 @@ public static class Progression
         return hero with { Stats = stats, Ranks = ranks, Worn = worn ?? hero.Worn };
     }
 
-    /// <summary>The kits a simulation can wear (sprint 95, D71): nothing, two quick pieces of the zone, or all the quick ones.</summary>
-    public static readonly IReadOnlyList<string> Kits = ["none", "zone", "fast"];
+    /// <summary>The kits a simulation can wear (sprint 95, D71): nothing, two quick pieces of the zone, all the quick ones; since sprint 109 (D76), the craftsmen's.</summary>
+    public static readonly IReadOnlyList<string> Kits = ["none", "zone", "craft", "fast"];
 
     /// <summary>
     /// What a hero of this level wears in a simulation, from the sets of the zone's families: "none" nothing (how
     /// the floors of T41 are measured); "fast" in each slot the piece with the most initiative, of the quickest set,
-    /// then the most characteristics (how the ceilings are measured: the best case); "zone" the two pieces of that kit with the
-    /// most initiative only.
+    /// then the most characteristics, and since sprint 109 a craftsman's piece in the slots left empty (the best case);
+    /// "zone" the two pieces of that kit with the most initiative only; "craft" (sprint 109, D76) those two, and in
+    /// every other slot the best craftsman's piece of the hero's level or under, of any zone: what a player alone is
+    /// sure to have. "zone" and "craft" are how the ceilings are measured.
     /// </summary>
     public static IReadOnlyDictionary<Slot, string> Kit(string kit, string zone, int level, GameData data)
     {
@@ -126,7 +128,7 @@ public static class Progression
         var worn = new Dictionary<Slot, string>();
         if (kit == "none")
             return worn;
-        if (kit is not ("zone" or "fast"))
+        if (!Kits.Contains(kit))
             throw new ArgumentException($"A kit is one of: {string.Join(", ", Kits)}.", nameof(kit));
         HashSet<string> sets = [.. data.Families.Values.Where(f => f.Zone == zone).Select(f => f.Id)];
         Item[] pieces = [.. data.Items.Values.Where(i => i.Set is string s && sets.Contains(s) && i.Level <= level)
@@ -142,8 +144,41 @@ public static class Progression
                 }
             }
         }
-        return kit == "fast" ? worn
-            : worn.Where(w => data.Items[w.Value].Initiative > 0).OrderByDescending(w => data.Items[w.Value].Initiative).ThenBy(w => w.Key).Take(2).ToDictionary();
+        if (kit != "fast")
+            worn = worn.Where(w => data.Items[w.Value].Initiative > 0).OrderByDescending(w => data.Items[w.Value].Initiative).ThenBy(w => w.Key).Take(2).ToDictionary();
+        return kit == "zone" ? worn : WithMadePieces(worn, level, data);
+    }
+
+    /// <summary>
+    /// What is worn, the empty slots filled with the best craftsman's pieces of the level or under: the most characteristics
+    /// first; both hands with whichever holds more, a two-handed weapon or a one-handed weapon and a shield.
+    /// </summary>
+    private static Dictionary<Slot, string> WithMadePieces(Dictionary<Slot, string> worn, int level, GameData data)
+    {
+        Item[] made = [.. data.MadePieces.Where(i => i.Level <= level).OrderByDescending(i => Sum(i.Stats)).ThenBy(i => i.Id, StringComparer.Ordinal)];
+        Item? Best(ItemSlot slot) => made.FirstOrDefault(i => i.Slot == slot);
+        var filled = new Dictionary<Slot, string>(worn);
+        bool handsFree = !worn.ContainsKey(Slot.OneHanded) && !worn.ContainsKey(Slot.TwoHanded) && !worn.ContainsKey(Slot.Shield);
+        if (handsFree)
+        {
+            Item? two = Best(ItemSlot.TwoHanded), one = Best(ItemSlot.OneHanded), shield = Best(ItemSlot.Shield);
+            if (two is not null && Sum(two.Stats) > Sum(one?.Stats) + Sum(shield?.Stats))
+                filled[Slot.TwoHanded] = two.Id;
+            else
+            {
+                if (one is not null)
+                    filled[Slot.OneHanded] = one.Id;
+                if (shield is not null)
+                    filled[Slot.Shield] = shield.Id;
+            }
+        }
+        foreach (Item piece in made.Where(p => p.Slot is not (ItemSlot.OneHanded or ItemSlot.TwoHanded or ItemSlot.Shield)))
+        {
+            Slot? free = piece.Slots.Cast<Slot?>().FirstOrDefault(s => !filled.ContainsKey(s!.Value));
+            if (free is Slot slot && !filled.ContainsValue(piece.Id))
+                filled[slot] = piece.Id;
+        }
+        return filled;
     }
 
     /// <summary>The initiative of a whole set: its pieces' and its best bonus (the quickest set's pieces come first on a tie).</summary>

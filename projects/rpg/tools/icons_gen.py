@@ -3,7 +3,7 @@
 # their black square taken off and the shape in white (the game tints it with the item's colour), their
 # authors in credits.json. Items of a kind may share a drawing. Deterministic; --fetch downloads the drawings
 # missing (from the game-icons repository on GitHub), otherwise every one must be there.
-# Run from projects/rpg last, after tools/dungeon_gen.py, tools/sets_gen.py and tools/trades_gen.py (which write items again):
+# Run from projects/rpg last, after tools/dungeon_gen.py, tools/sets_gen.py, tools/trades_gen.py and tools/craft_gen.py (which write items again):
 #   python3 tools/icons_gen.py data [--fetch]
 import json, os, re, sys, urllib.request
 
@@ -31,6 +31,13 @@ ICONS = {
     "figurehead-axe": "lorc/battle-axe", "debris-pick": "delapouite/war-pick",
     "wooden-shield": "delapouite/viking-shield", "shell-shield": "delapouite/spiked-shield",
     "kitten": "lorc/cat", "donkey": "skoll/donkey",
+    # The craftsmen's pieces (sprint 109): the smith's and the tailor's, a drawing already there for each slot.
+    "copper-billhook": "lorc/plain-dagger", "hazel-pavise": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
+    "yew-targe": "delapouite/viking-shield", "willow-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
+    "ash-shield": "delapouite/viking-shield", "linden-falchion": "lorc/meat-cleaver",
+    "linen-tunic": "lorc/breastplate", "oat-straw-hat": "delapouite/outback-hat", "hemp-shoulders": "skoll/pauldrons",
+    "rye-pelerine": "delapouite/cape", "sedge-gambeson": "lorc/breastplate", "rice-sunhat": "delapouite/flower-hat",
+    "wheat-spaulders": "skoll/pauldrons", "harvest-mantle": "lucasms/cloak",
     "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
     "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
     # Consumables.

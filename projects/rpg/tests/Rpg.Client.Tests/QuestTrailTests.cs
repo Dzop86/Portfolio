@@ -71,8 +71,8 @@ public class QuestTrailTests
         Assert.Equal(hatch, town.Examining);
         // The tails: the rats leave them, so the trail leads back to the hatch's fight.
         Assert.Equal(new TrailGoal(granaries.Id, hatch.At), QuestTrail.Goal(book, rats with { Counts = [1, 0] }));
-        // A stake: at the locksmith's bench that shapes it; a loaf: at Rose's stall.
-        Workshop bench = Data.Towns["clairval-3-1"].Workshops!.Single();
+        // A stake: at the forge that shapes it since sprint 109; a loaf: at Rose's stall.
+        Workshop bench = Data.Towns["clairval-3-1"].Workshops!.Single(w => w.Job == "smith");
         Assert.Equal(new TrailGoal("clairval-3-1", bench.At), QuestTrail.Source(Data, "palisade-stake"));
         Assert.Equal(new TrailGoal("clairval-2-1", Data.FindNpc("clairval/rose")!.Value.Npc.At), QuestTrail.Source(Data, "bread"));
     }

@@ -394,15 +394,17 @@ public static class CharacterEndpoints
         if (character is null)
             return TypedResults.NotFound();
         Dictionary<string, long> jobs = character.JobList;
+        int level = Crafting.LevelFor(jobs.GetValueOrDefault(job.Id));
         // The rules decide: the trade's level, the ingredients owned (worn ones count as owned, but are kept on).
-        if (Crafting.Problem(recipe, Crafting.LevelFor(jobs.GetValueOrDefault(job.Id)), character.InventoryList, request.Count, character.Shards) is string problem)
+        if (Crafting.Problem(recipe, level, character.InventoryList, request.Count, character.Shards) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["recipe"] = [problem] });
         foreach (ItemCount i in recipe.Ingredients)
             character.Spend(i with { Count = i.Count * request.Count });
         // The key's price in Éclats (sprint 97).
         character.Shards -= recipe.Shards * request.Count;
         character.Receive([new ItemCount(recipe.Item, request.Count)]);
-        jobs[job.Id] = jobs.GetValueOrDefault(job.Id) + Crafting.Xp(recipe) * request.Count;
+        // A piece of equipment teaches more than a key, and nothing 20 levels under the trade (sprint 109, D76).
+        jobs[job.Id] = jobs.GetValueOrDefault(job.Id) + Crafting.Xp(recipe, GameData.Embedded.Items[recipe.Item], level) * request.Count;
         character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));

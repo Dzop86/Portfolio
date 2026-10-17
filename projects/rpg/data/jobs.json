@@ -129,20 +129,6 @@
           }
         ],
         "shards": 150
-      },
-      {
-        "item": "palisade-stake",
-        "level": 1,
-        "ingredients": [
-          {
-            "item": "oak-log",
-            "count": 3
-          },
-          {
-            "item": "copper-ore",
-            "count": 2
-          }
-        ]
       }
     ]
   },
@@ -393,6 +379,350 @@
         "item": "lavender",
         "level": 35,
         "node": "Herb"
+      }
+    ]
+  },
+  {
+    "id": "smith",
+    "name": {
+      "fr": "Forgeron",
+      "en": "Smith"
+    },
+    "workshop": {
+      "fr": "Forge",
+      "en": "Forge"
+    },
+    "recipes": [
+      {
+        "item": "palisade-stake",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "oak-log",
+            "count": 3
+          },
+          {
+            "item": "copper-ore",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "item": "copper-billhook",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "oak-log",
+            "count": 6
+          },
+          {
+            "item": "copper-ore",
+            "count": 2
+          },
+          {
+            "item": "wolf-fang",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "hazel-pavise",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "hazel-log",
+            "count": 6
+          },
+          {
+            "item": "tin-ore",
+            "count": 3
+          },
+          {
+            "item": "boar-tusk",
+            "count": 2
+          }
+        ],
+        "shards": 6
+      },
+      {
+        "item": "blackwood-maul",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "blackwood-log",
+            "count": 12
+          },
+          {
+            "item": "iron-ore",
+            "count": 5
+          },
+          {
+            "item": "old-bone",
+            "count": 4
+          }
+        ],
+        "shards": 20
+      },
+      {
+        "item": "yew-targe",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "yew-log",
+            "count": 8
+          },
+          {
+            "item": "sulphur",
+            "count": 4
+          },
+          {
+            "item": "mushroom-cap",
+            "count": 3
+          }
+        ],
+        "shards": 14
+      },
+      {
+        "item": "willow-cutlass",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "willow-log",
+            "count": 10
+          },
+          {
+            "item": "blue-clay",
+            "count": 4
+          },
+          {
+            "item": "crab-claw",
+            "count": 3
+          }
+        ],
+        "shards": 18
+      },
+      {
+        "item": "alder-greataxe",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "alder-log",
+            "count": 15
+          },
+          {
+            "item": "zinc-ore",
+            "count": 8
+          },
+          {
+            "item": "crab-shell",
+            "count": 4
+          }
+        ],
+        "shards": 44
+      },
+      {
+        "item": "ash-shield",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "ash-log",
+            "count": 12
+          },
+          {
+            "item": "silver-ore",
+            "count": 5
+          },
+          {
+            "item": "mole-fur",
+            "count": 4
+          }
+        ],
+        "shards": 26
+      },
+      {
+        "item": "linden-falchion",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "linden-log",
+            "count": 12
+          },
+          {
+            "item": "quartz",
+            "count": 6
+          },
+          {
+            "item": "honeycomb",
+            "count": 4
+          }
+        ],
+        "shards": 30
+      }
+    ]
+  },
+  {
+    "id": "tailor",
+    "name": {
+      "fr": "Tailleur",
+      "en": "Tailor"
+    },
+    "workshop": {
+      "fr": "Atelier de couture",
+      "en": "Tailor's workshop"
+    },
+    "recipes": [
+      {
+        "item": "linen-tunic",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "wild-flax",
+            "count": 6
+          },
+          {
+            "item": "nettle",
+            "count": 2
+          },
+          {
+            "item": "wolf-pelt",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "oat-straw-hat",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wild-oats",
+            "count": 6
+          },
+          {
+            "item": "wood-mint",
+            "count": 3
+          },
+          {
+            "item": "boar-bristle",
+            "count": 2
+          }
+        ],
+        "shards": 6
+      },
+      {
+        "item": "hemp-shoulders",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "pool-hemp",
+            "count": 8
+          },
+          {
+            "item": "glowmoss",
+            "count": 3
+          },
+          {
+            "item": "rotten-cloth",
+            "count": 3
+          }
+        ],
+        "shards": 10
+      },
+      {
+        "item": "rye-pelerine",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "rye",
+            "count": 8
+          },
+          {
+            "item": "clubmoss",
+            "count": 4
+          },
+          {
+            "item": "spore-dust",
+            "count": 3
+          }
+        ],
+        "shards": 14
+      },
+      {
+        "item": "sedge-gambeson",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "shore-sedge",
+            "count": 10
+          },
+          {
+            "item": "water-lily",
+            "count": 4
+          },
+          {
+            "item": "crab-shell",
+            "count": 3
+          }
+        ],
+        "shards": 18
+      },
+      {
+        "item": "rice-sunhat",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "reed-rice",
+            "count": 10
+          },
+          {
+            "item": "horsetail",
+            "count": 5
+          },
+          {
+            "item": "slime",
+            "count": 3
+          }
+        ],
+        "shards": 22
+      },
+      {
+        "item": "wheat-spaulders",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "clairval-wheat",
+            "count": 12
+          },
+          {
+            "item": "hive-flower",
+            "count": 5
+          },
+          {
+            "item": "bee-wing",
+            "count": 4
+          }
+        ],
+        "shards": 26
+      },
+      {
+        "item": "harvest-mantle",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "buckwheat",
+            "count": 12
+          },
+          {
+            "item": "lavender",
+            "count": 6
+          },
+          {
+            "item": "mole-fur",
+            "count": 4
+          }
+        ],
+        "shards": 30
       }
     ]
   }

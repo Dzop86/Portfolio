@@ -34,9 +34,10 @@ public class ItemsTests
     [Fact]
     public void ASet_GivesItsBestBonus_ForThePiecesWorn()
     {
-        Assert.Equal((new Characteristics(Air: 6), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
-        Assert.Equal((new Characteristics(Air: 20), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
-        Assert.Equal((new Characteristics(Vitality: 8, Air: 30), 0, 1, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
+        // Back within the budget in sprint 109 (D76): the cape 5 Air, the hat 5 Vitality, the bonus of two pieces +5 Air.
+        Assert.Equal((new Characteristics(Air: 5), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape")), Real));
+        Assert.Equal((new Characteristics(Air: 14), 0, 0, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots")), Real));
+        Assert.Equal((new Characteristics(Vitality: 5, Air: 29), 0, 1, 0), Equipment.Total(Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat")), Real));
         Assert.Equal((Characteristics.None, 0, 0, 0), Equipment.Total(null, Real));
     }
 
@@ -48,8 +49,8 @@ public class ItemsTests
             Worn: Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat"), (Slot.Mount, "donkey")));
         Assert.Null(hero.Problem(Real));
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
-        Assert.Equal(guard.Hp + guard.HpPerLevel * 19 + 10 + 8, f.MaxHp);
-        Assert.Equal((guard.Ap, guard.Mp + 2, 30), (f.Spec.Ap, f.Spec.Mp, f.Spec.Characteristics.Air));
+        Assert.Equal(guard.Hp + guard.HpPerLevel * 19 + 10 + 5, f.MaxHp);
+        Assert.Equal((guard.Ap, guard.Mp + 2, 29), (f.Spec.Ap, f.Spec.Mp, f.Spec.Characteristics.Air));
         Assert.NotNull((hero with { Level = 19 }).Problem(Real));
     }
 

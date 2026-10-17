@@ -112,7 +112,7 @@ public sealed class JobBook(GameData data, CharacterSummary? character, Texts te
             Needed[] needed = [.. x.Recipe.Ingredients.Select(i => new Needed(Data.Items[i.Item], i.Count, Have(i.Item)))];
             int most = Math.Min(Crafting.MostFrom(x.Recipe, Owned), Crafting.MostAtOnce);
             bool can = character is not null && Workshop == x.Job.Id && Crafting.Problem(x.Recipe, level, Owned, 1, character.Shards) is null;
-            return new RecipeLine(x.Job, x.Recipe, item, level < x.Recipe.Level, needed, Crafting.Xp(x.Recipe), can ? most : 0, can);
+            return new RecipeLine(x.Job, x.Recipe, item, level < x.Recipe.Level, needed, Crafting.Xp(x.Recipe, item, level), can ? most : 0, can);
         }).Where(l => l.Recipe.Level >= MinLevel && l.Recipe.Level <= MaxLevel
             && (Kind is null || KindOf(l.Item) == Kind)
             && ItemStyle.Matches(l.Item, Search, texts.Lang)

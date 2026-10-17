@@ -53,8 +53,22 @@ public static class Crafting
         return level;
     }
 
-    /// <summary>The experience one item of a recipe gives: 20, and 5 for each level the recipe needs.</summary>
-    public static long Xp(Recipe recipe) => 20 + 5L * (recipe ?? throw new ArgumentNullException(nameof(recipe))).Level;
+    /// <summary>Recipes this many levels or more under the trade give no experience, as gathering (sprint 109, D76).</summary>
+    public const int NoXpBelow = 20;
+
+    /// <summary>
+    /// The experience one item of a recipe gives: a piece of equipment 150, and 15 for each level the recipe needs
+    /// (sprint 109, D76: 165 at level 1, 675 at level 35); anything else 20, and 5 a level; nothing from a recipe
+    /// <see cref="NoXpBelow"/> levels or more under the trade's.
+    /// </summary>
+    public static long Xp(Recipe recipe, Item made, int jobLevel = 1)
+    {
+        ArgumentNullException.ThrowIfNull(recipe);
+        ArgumentNullException.ThrowIfNull(made);
+        if (jobLevel - recipe.Level >= NoXpBelow)
+            return 0;
+        return made.Kind == ItemKind.Equipment ? 150 + 15L * recipe.Level : 20 + 5L * recipe.Level;
+    }
 
     /// <summary>Why <paramref name="count"/> of a recipe cannot be made now, or null if they can; <paramref name="shards"/> owned, if known.</summary>
     public static string? Problem(Recipe recipe, int jobLevel, IEnumerable<ItemCount> owned, int count = 1, long? shards = null)
