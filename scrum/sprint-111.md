@@ -1,4 +1,4 @@
-# Sprint 111 : Osmose : les quêtes du Bois et du Bois moisi
+# Sprint 111 : Osmose : l'alchimiste et le boulanger
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis le fil des quêtes du Bois et du Bois moisi (18), avec le campement des bûcherons et l'ermite des mares (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, je prépare potions et huiles d'élément (une par combat) et des pains qui me soignent entre les combats (rpg) ; T41 et vie restante remesurées ; playtest de Charles ; xUnit, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

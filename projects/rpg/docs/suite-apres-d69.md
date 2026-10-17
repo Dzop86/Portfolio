@@ -16,6 +16,7 @@
 >   - **Une mini-carte** déplaçable et zoomable.
 >   - Les icônes d'ingrédients de l'établi, faites au S101.
 >   L'histoire passe **avant** le jeu à plusieurs. Le plan passe à **78 points** (§10).
+> - **Version 6, 17 octobre 2026 :** demande de Charles (§5 quater). **Quatre métiers d'équipement**, un pour chaque emplacement sauf le familier et la monture : forgeron, tailleur (qui fait aussi coiffes et capes), **bijoutier** et **cordonnier**. Les pièces fabriquées n'ont **jamais d'initiative**, au même budget que le butin. **32 recettes** des niveaux 1 à 35, le §5.6 et l'équilibre T41 revus, deux ateliers et deux artisans de plus dans la rue des artisans. **S109 (5 points) forgeron et tailleur, S110 (3 points) bijoutier et cordonnier**, la suite décalée d'un cran jusqu'à S118 : **5 points de plus** (§10, planification v6). Les tableaux de sprints des versions précédentes gardent leur numérotation d'origine ; celle qui fait foi est au §10.
 >
 > Rédigée après lecture du dépôt au commit `08cb31c`, revérifiée pour la v4 (`classes.json`, `Fight.cs` : `heroHp`, `StartHeroHp`, `MaxHp` ; `FightRecord.HeroHp` ; `Entities.cs` : `DungeonHp` ; `Shop.cs`) :
 > - `DECISIONS.md` (T29 à T62), `docs/design-familles.md`, `docs/trame-saga-1.md`, `docs/bible.md`, `PLAN.md` (D54 à D70) ;
@@ -35,6 +36,7 @@
 | 1 bis | **Des icônes d'objets** *(v3)* | les glyphes dessinés par le jeu sont laids, et 150 objets nouveaux arrivent | 1 sprint (3) | 1 (la liste des nouveaux objets) |
 | 2 | **Les Éclats servent à quelque chose** | la monnaie s'accumule sans aucun usage | 1 sprint (3) | 1 (les prix des objets) |
 | 3 | **Les métiers : récolte, fenêtre Métiers, ateliers, fabrication** *(v2, v3, v4)* | les cartes ne donnent rien hors des combats, et l'établi ne fait que des clefs | 5 sprints (5 + 3 + 3 + 3 + 5) | 1 (budget des objets), 1 bis (icônes), 2 (prix de Rose) |
+| 3 quater | **Un métier pour chaque pièce d'équipement** *(v6)* : forgeron, tailleur, bijoutier, cordonnier | des emplacements sans plancher garanti (coiffe, cape, anneaux, amulette, bottes, ceinture ne viennent que du butin), et aucun métier d'équipement n'existe encore | 2 sprints (5 + 3), S109 et S110 | 3 (récolte, fenêtre Métiers), 3 ter (le quartier des artisans) |
 | 3 bis | **La vie se garde entre les combats** *(v4)* | chaque combat repart à pleine vie : une victoire serrée ne coûte rien, et soins et nourriture n'ont pas d'usage hors combat | 1 sprint (5), S101 | rien ; le boulanger (S107) s'appuie dessus |
 | 3 ter | **Clairval en 12 cartes, le fil conducteur des quêtes, la mini-carte** *(v5)* | trop de quêtes d'un coup chez chaque habitant (le dialogue déborde), aucun ordre, un village d'une seule carte, rien pour se repérer | 7 sprints (5 + 5 + 3 + 3, puis 3 + 3 + 3), S102 à S105 et S108 à S110 | 3 (récolte, ateliers), 3 bis (la vie) ; il remplace le chantier 5 |
 | 4 | **Jouer ensemble** | les hordes, les chefs, les salles 3 et les quêtes de donjon sont faits pour plusieurs, mais le jeu ne connaît qu'un héros par combat | 4 sprints (3 + 5 + 5 + 5) | 1 ; 3 pour l'échange entre joueurs |
@@ -253,7 +255,9 @@ Les outils donnent leur nom et leur geste à l'animation de récolte. Ils ne son
 | **Paysan** | récolte (base) | fibres et céréales, en parcelles sauvages ou cultivées | tailleur (plastrons, épaulettes) | aucun |
 | **Herboriste** | récolte (en plus) | plantes médicinales (sous-bois, champignons, fleurs, eau) | alchimiste | aucun |
 | **Forgeron** | fabrication (équipement) | armes à une et à deux mains, boucliers | tous les combattants | forge |
-| **Tailleur** | fabrication (équipement) | plastrons, épaulettes | tous les combattants | atelier du tailleur |
+| **Tailleur** | fabrication (équipement) | plastrons, épaulettes ; **coiffes et capes depuis la v6** (§5 quater) | tous les combattants | atelier du tailleur |
+| **Bijoutier** *(v6)* | fabrication (équipement) | anneaux, amulettes (§5 quater) | tous les combattants | établi de bijouterie |
+| **Cordonnier** *(v6)* | fabrication (équipement) | bottes, ceintures (§5 quater) | tous les combattants | banc de cordonnerie |
 | **Alchimiste** | fabrication (consommables) | potions de soin et huiles d'élément (utilisables en combat) | tous, surtout en donjon | alambic |
 | Serrurier (existant) | fabrication (clefs) | clefs des donjons | tous | établi (existant) |
 | **Boulanger** *(v4)* | fabrication (consommables hors combat) | pains, qui rendent de la vie hors combat (§5 bis.5) | tous, entre deux combats | four |
@@ -261,7 +265,7 @@ Les outils donnent leur nom et leur geste à l'animation de récolte. Ils ne son
 Comme le veut Charles, **les métiers de fabrication font les équipements (forgeron, tailleur), les clefs de donjon (serrurier) et les consommables (alchimiste)**. Tous les métiers, de récolte comme de fabrication, vont de 1 à 100.
 
 - **Écartés pour l'instant :**
-  - **bijoutier et cordonnier** : ils feraient anneaux, amulettes et bottes, les pièces des panoplies tombées et de l'initiative ;
+  - ~~**bijoutier et cordonnier** : ils feraient anneaux, amulettes et bottes, les pièces des panoplies tombées et de l'initiative~~ : **ils entrent au plan en v6** (§5 quater), sans jamais d'initiative ; le butin garde l'initiative et les panoplies ;
   - ~~la cuisine~~ : écartée en v2 parce que les PV revenaient pleins après chaque combat. **Depuis la v4, la vie se garde (§5 bis) : le boulanger entre au plan**, avec les céréales du paysan. Une cuisine plus riche (plats à effet durable) reste pour plus tard ;
   - **l'herboriste fusionné dans le paysan** : un seul métier pour les fibres et les plantes médicinales nourrirait à la fois le tailleur et l'alchimiste, ce qui en ferait un passage obligé. Séparés, chaque métier de fabrication a son récolteur principal ;
   - **les produits intermédiaires** (planches, lingots) : un étage de plus pour le même plaisir.
@@ -361,6 +365,8 @@ Chaque métier de base a au moins un point sur presque chaque carte où il a que
 
 ### 5.6 Quelles pièces tombent, lesquelles se fabriquent
 
+> **v6 :** ce tableau est remplacé par celui du §5 quater.6 (coiffe, cape, anneaux, amulette, bottes et ceinture deviennent butin **et** artisanat). Il reste ici comme trace de la v2.
+
 | Emplacement | Source | Initiative possible |
 |---|---|---|
 | Coiffe, cape, bottes, anneaux, amulette, ceinture | **butin** (panoplies des familles) | oui sur cape, bottes, anneaux |
@@ -377,7 +383,7 @@ L'arme fabriquée et l'arme du chef ont le **même budget**. Celle du chef compl
   - Pour le joueur pressé, acheter le bois d'une hache coûte environ 40 Éclats au palier 1 et environ 300 au palier 30 : un puits utile.
   - Pour le récolteur, revendre rapporte environ 3 Éclats par action, **bien moins qu'un combat** (28 Éclats par monstre au niveau 26). La récolte n'est donc pas une ferme à Éclats.
 - **Revendre une pièce fabriquée** (2 × niveau, 52 au niveau 26) rapporte moins que ses ingrédients au prix de Rose. Il n'y a **pas de boucle infinie** acheter → fabriquer → revendre.
-- **T41 :** les planchers restent mesurés **nus, sans consommable**. Les plafonds sont mesurés avec le **kit « fast » + les 4 pièces d'artisan de la zone + le meilleur consommable** (potion ou huile, le pire des deux pour la règle). Si un plafond saute, on baisse d'abord les chiffres des pièces d'artisan : elles sont garanties, donc elles pèsent plus sur l'équilibre que le butin.
+- **T41** *(précisé en v6 au §5 quater.8 : kits `zone` et `craft` bloquants à 20 %, `fast` + artisan + consommable en indicateur)* **:** les planchers restent mesurés **nus, sans consommable**. Les plafonds sont mesurés avec le **kit « fast » + les 4 pièces d'artisan de la zone + le meilleur consommable** (potion ou huile, le pire des deux pour la règle). Si un plafond saute, on baisse d'abord les chiffres des pièces d'artisan : elles sont garanties, donc elles pèsent plus sur l'équilibre que le butin.
 - **Initiative :** inchangée par le craft (§3.2). Aucune pièce d'artisan et aucun consommable n'en donne.
 
 ### 5.8 Dépendances avec le jeu à plusieurs
@@ -418,6 +424,8 @@ On simplifie :
 **Code :** la logique (filtres, tri, barre d'XP, possédé / requis) va dans `Rpg.Client.JobBook`, testé sans moteur comme `SpellBook`. Godot ne fait que dessiner.
 
 ### 5.10 Découpage et tests
+
+> **v6 :** les sprints réels ont été renumérotés par D75, puis par la v6. Le forgeron et le tailleur sont au **S109 (5 points)**, le bijoutier et le cordonnier au **S110 (3 points)**, l'alchimiste et le boulanger au **S111** (§5 quater.11 et §10).
 
 | Sprint | Pts | Contenu |
 |---|---|---|
@@ -809,7 +817,329 @@ Les ressources de métiers se rapportent avec `Bring` (déjà là), les objets f
 
 ---
 
-## 6. Chantier 4 : jouer ensemble (S111 à S114, 18 points)
+## 5 quater. Chantier 3 quater : un métier pour chaque pièce d'équipement (S109 et S110) *(v6, demande de Charles du 17 octobre 2026)*
+
+### 5 quater.1 Ce que Charles a tranché, et ce que j'ai vérifié dans le dépôt
+
+**Tranché par Charles (17 octobre) :**
+1. **Quatre métiers d'équipement** : le **forgeron** (armes à une et à deux mains, boucliers), le **tailleur** (plastron, épaulettes, et désormais **coiffe et cape**), le **bijoutier** (anneaux, amulette), le **cordonnier** (bottes, ceinture). Chaque emplacement, sauf le familier et la monture, a son métier.
+2. **Une pièce fabriquée ne donne jamais d'initiative, ni PA ni PM**, au même budget que le butin. L'initiative reste le privilège des pièces tombées et des panoplies.
+3. **Deux sprints** : S109 le forgeron et le tailleur, S110 le bijoutier et le cordonnier, avec leurs deux ateliers et leurs deux artisans dans la rue des artisans (`clairval-3-1`), textes du scénariste. L'alchimiste et le boulanger passent en S111, toute la suite est décalée d'un cran.
+4. **Pas de nouveaux modèles 3D.** Une pièce fabriquée a son icône game-icons.net, comme les autres.
+
+**Vérifié dans le dépôt (commit `bdc1567`) :**
+- `data/jobs.json` compte le serrurier (8 clefs, et le pieu de palissade du tuto « en attendant la forge », T75) et les 5 métiers de récolte avec leurs 40 ressources (niveaux 1 à 35). **Aucun métier d'équipement n'existe encore.**
+- **Le budget réel des pièces est la moitié de 8 + niveau**, pas 8 + niveau. T63 l'a divisé par deux après la première mesure (la Sentinelle gagnait seule 43 % des hordes du Bois moisi), et `InitiativeTests` vérifie : somme des caractéristiques + 0,6 × initiative / 2 ≤ (8 + niveau) / 2 + 1. Le « budget 8 + niveau » du §3.3 et du §5.5 est le chiffre d'avant T63. **Les pièces d'artisan suivent le budget réel du butin**, comme Charles le veut (« même budget que le butin »).
+- **Une arme ne porte que des caractéristiques** : aucune n'a de dégâts propres (`Item` : `Stats`, `Ap`, `Mp`, `Initiative`), et `Equipment.Problem` interdit une arme à deux mains avec une arme à une main ou un bouclier. **Au même budget, une arme à deux mains vaut donc la moitié d'une arme à une main avec un bouclier** : c'est un choix dominé. C'est déjà vrai pour les 4 armes à deux mains des panoplies (`king-tusk`, `elder-staff`, `figurehead-axe`, `debris-pick`).
+- **Des objets de départ sont hors budget, et l'entraînement se rejoue** chez Garance (`dialogues/trainer.json`, « Contre l'orque et le braconnier ! », à volonté). Le **plastron d'orque** (niveau 5, 15 Vitalité + 5 Terre = 20 points, 10 % sur l'orque) bat tous les plastrons fabriqués jusqu'au niveau 30 (19 points). Le **bouclier de bois** (niveau 1, 12 Vitalité) et la **ceinture de cuir** (niveau 1, 10 Vitalité), donnés par le tuto, battent les boucliers et les ceintures d'artisan jusqu'au niveau 14. Sans correction, la ligne des plastrons du tailleur ne sert à rien (§5 quater.7).
+- `Recipe` n'a pas de champ `Xp`. `Crafting.Xp` vaut 20 + 5 × niveau pour toute recette, et la règle « pas d'XP 20 niveaux sous le métier » n'existe que pour la récolte (`Harvesting`), pas pour la fabrication.
+- **Ce qui vient gratuitement :** le filtre de la fenêtre Métiers range les recettes par emplacement (`JobBook.KindOf`) ; le cadre chocolat « artisan » est donné à tout ce qu'un métier fabrique (`ItemStyle.ProvenanceOf`, T66) ; un atelier est dessiné par un anneau chocolat et son nom (`TownView`), sans modèle 3D, et la mini-carte le montre déjà (`MiniMarkKind.Workshop`).
+- `ItemBudgetTests`, cité au §3.6 et au §5.10, **n'existe pas** : le budget n'est vérifié que pour les panoplies des familles (`InitiativeTests`). Il est créé au S109, pour tout l'équipement.
+
+### 5 quater.2 L'expérience visée
+« Il me manque des bottes. Le cordonnier me les fait à coup sûr, 5 de Terre et 4 de Vitalité. Les bottes de loup, elles, me feraient jouer avant la meute, si elles tombent un jour. »
+
+- **Un plancher garanti dans chaque emplacement** : un joueur seul et malchanceux n'a plus de trou dans son équipement. C'est la motivation de **compétence** (je prépare mon personnage) et d'**autonomie** (je choisis entre le sûr et le rare).
+- **Le butin garde ce que le craft n'a pas** : l'initiative, les bonus de panoplie, les PA et PM des 5 pièces. À niveau égal, la pièce fabriquée a **plus de caractéristiques** qu'une pièce rapide (l'initiative coûte du budget) ; la pièce tombée **joue plus tôt** ou complète une panoplie. Aucun des deux ne domine.
+- **La boucle méso** : on récolte en traversant une zone, on rapporte les ressources de ses monstres, on fabrique au village en vendant le reste à Rose.
+
+### 5 quater.3 Les quatre métiers
+
+**Le principe des récolteurs.** Chaque métier de fabrication a **un récolteur principal** (le gros des quantités) et **un récolteur secondaire**, plus une ressource de monstre de la zone. Avec 5 métiers de récolte et 6 métiers de fabrication (serrurier à part), un récolteur doit en nourrir deux ; je l'ai réparti pour que **chaque récolteur soit principal au moins une fois et secondaire au moins une fois**, et qu'aucun ne devienne un passage obligé pour tout :
+
+| Récolteur | Principal pour | Secondaire pour |
+|---|---|---|
+| Bûcheron | forgeron (manches, hampes, boucliers) | cordonnier (semelles, talons, écorce à tanner) |
+| Mineur | bijoutier (métaux, cristaux) | forgeron (lames, fers, boucles) |
+| Pêcheur | **cordonnier (cuir et colle de poisson)** | bijoutier (écailles et colle de poisson pour sertir), alchimiste (huiles) |
+| Paysan | tailleur (fibres, pailles), boulanger (céréales) | — |
+| Herboriste | alchimiste (plantes) | tailleur (teintures, fibres d'ortie), boulanger |
+
+- **Le pêcheur devient le récolteur principal du cordonnier.** Jusqu'ici il n'était le principal de personne. Le cuir de poisson (anguille, carpe, brochet) est souple, solide et réel ; c'est une identité propre à Osmose, et elle fait revenir le pêcheur au Lac pour les bottes et ceintures des niveaux 30 et 35 (les Champs n'ont pas d'eau, §5.3).
+- **Le tailleur prend l'herboriste en secondaire** (teintures, fibres d'ortie), et non plus le mineur comme dans l'exemple de la v2 (« 6 lin sauvage, 2 cuivre, 3 peaux de loup ») : le mineur aurait été le secondaire de trois métiers.
+
+| Métier (`id`) | Fabrique | Principal | Secondaire | Atelier (fr / en) | Artisan | Sprint |
+|---|---|---|---|---|---|---|
+| Forgeron / Smith (`smith`) | arme à une main ×3, bouclier ×3, arme à deux mains ×2 | bûcheron | mineur | Forge / Forge | Anselme (existe) | S109 |
+| Tailleur / Tailor (`tailor`) | plastron, épaulettes, coiffe, cape : ×2 chacun | paysan | herboriste | Atelier de couture / Tailor's workshop | Perrine (existe) | S109 |
+| Bijoutier / Jeweller (`jeweller`) | anneau ×4, amulette ×4 | mineur | pêcheur | Établi de bijouterie / Jeweller's bench | nouveau (scénariste) | S110 |
+| Cordonnier / Cobbler (`cobbler`) | bottes ×4, ceinture ×4 | pêcheur | bûcheron | Banc de cordonnerie / Cobbler's bench | nouveau (scénariste) | S110 |
+
+Les noms d'ateliers sont neutres pour ne pas présumer du genre des deux nouveaux artisans. L'anglais suit l'orthographe britannique du code (`Sulphur`, `Armoured`).
+
+**La progression de 1 à 100**, la même pour les quatre :
+- **Courbe inchangée** (`Crafting.XpToReach`). **Une recette tous les 5 niveaux**, 8 à Clairval (niveaux 1 à 35), 12 de plus avec le monde après 30 (§8.1), en données seulement.
+- **XP d'une pièce d'équipement : 150 + 15 × niveau de la recette** (165 au niveau 1, 675 au niveau 35), comme le prévoyait le §5.4. Je recommande une **règle dans `Crafting.Xp`** (l'équipement d'un côté, le reste à 20 + 5 × niveau) plutôt qu'un champ `xp` dans les données : une seule source de vérité, rien à recopier dans 32 recettes.
+- **Pas d'XP pour une recette 20 niveaux ou plus sous le métier**, comme la récolte. À ajouter dans `Crafting.Xp`, qui reçoit le niveau du métier.
+- **Le rythme**, en fabriquant la recette la plus haute qu'on peut :
+
+| Tranche | XP à gagner | XP par pièce | Pièces |
+|---|---|---|---|
+| 1 → 5 | 200 | 165 | 2 |
+| 5 → 10 | 700 | 225 | 4 |
+| 10 → 15 | 1 200 | 300 | 4 |
+| 15 → 20 | 1 700 | 375 | 5 |
+| 20 → 25 | 2 200 | 450 | 5 |
+| 25 → 30 | 2 700 | 525 | 6 |
+| 30 → 35 | 3 200 | 600 | 6 |
+
+  **32 pièces pour monter un métier de 1 à 35**, soit environ 530 ingrédients, dont une centaine de ressources de monstres. Avec la recette du niveau 35, le métier monte jusqu'à 55 environ (20 pièces de plus), comme la récolte. Ce n'est pas une corvée pour un métier ; c'en serait une pour les quatre à la fois, et ce n'est pas demandé : on fabrique d'abord ce qu'on porte.
+
+### 5 quater.4 Les règles communes des pièces d'artisan
+- **Le niveau de l'objet** suit celui de la recette, comme au §5.5 : recette 1 → objet 3, 5 → 6, 10 → 10, 15 → 14, 20 → 18, 25 → 22, 30 → 26, 35 → 30.
+- **Le budget B** = (8 + niveau de l'objet) / 2, arrondi au supérieur : **6, 7, 9, 11, 13, 15, 17, 19**. C'est le budget du butin (T63) : `king-tusk` (niveau 6) a 7 points, `mole-hat` (25) 17, `debris-pick` (30) 19.
+  - **Vitalité + un élément.** L'élément prend la moitié haute, la Vitalité la moitié basse (niveau 6 : 4 dans l'élément, 3 de Vitalité). **Un bouclier fait l'inverse** (la Vitalité d'abord) : c'est la pièce qui protège.
+  - **Une arme à deux mains compte pour deux pièces : budget 2 × B**, moitié élément, moitié Vitalité. Elle vaut alors une arme à une main et un bouclier ; elle concentre tout dans un élément, quand la paire en mélange deux. C'est un vrai choix, plus un piège. *[À TRANCHER, question 53]* Je recommande d'appliquer la même règle aux 4 armes à deux mains des panoplies (`sets_gen.py`) ; cela ne change pas le kit « fast » des mesures, qui prend partout l'arme à une main de la famille rapide.
+  - **Jamais** d'initiative, de PA, de PM ni de panoplie. Le chargement le refuse (`GameData`).
+- **Les éléments.** Chaque zone porte **8 pièces, deux par élément** ; les deux pièces d'un même métier dans une zone ont deux éléments différents. Sur les 35 niveaux, les **4 anneaux, les 4 amulettes, les 4 bottes et les 4 ceintures couvrent chacun les quatre éléments**, et les trois armes à une main comme les trois boucliers en couvrent trois. Il n'y a pas de variante par élément d'une même pièce (×4 objets) : c'est pour plus tard, s'il le faut (question 59).
+- **Les ingrédients** : 2 ressources récoltées **du niveau de la recette**, du récolteur principal puis du secondaire, et 1 ressource de monstre **de la zone de ce niveau**. Les quantités montent avec le niveau :
+
+| Niv. de recette | Principal | Secondaire | Monstre | Éclats |
+|---|---|---|---|---|
+| 1 | 6 | 2 | 2 | 3 |
+| 5 | 6 | 3 | 2 | 6 |
+| 10 | 8 | 3 | 3 | 10 |
+| 15 | 8 | 4 | 3 | 14 |
+| 20 | 10 | 4 | 3 | 18 |
+| 25 | 10 | 5 | 3 | 22 |
+| 30 | 12 | 5 | 4 | 26 |
+| 35 | 12 | 6 | 4 | 30 |
+
+  - **Arme à deux mains** : principal et secondaire × 1,5, une ressource de monstre de plus, Éclats × 2.
+  - **Une exception** : la ceinture du cordonnier de niveau 5 demande 4 écrevisses au lieu de 6. L'eau du Bois n'est que sur 40 % de ses cartes, et l'écrevisse est au fond (§5.3).
+  - Les poissons des niveaux 30 et 35 se pêchent au Lac, alors que leurs recettes prennent une ressource des Champs : c'est déjà la règle du §5.3.
+- **Les Éclats = le niveau de l'objet** (le charbon de la forge, le fil, la poix). C'est un petit puits, et il garantit que fabriquer puis revendre ne rapporte jamais plus que revendre ses ingrédients (§5 quater.9).
+- **L'icône** : un dessin **déjà téléchargé** (`tools/icons_gen.py`, table `ICONS`), choisi par emplacement, sans `--fetch` ; la couleur de l'élément et le cadre chocolat font la différence. Les pièces d'un même emplacement se ressemblent ; quelques dessins nouveaux pourront venir plus tard (question 61).
+
+### 5 quater.5 Les 32 recettes de Clairval
+
+Notation des caractéristiques : **Vit** Vitalité, **Te** Terre, **Fe** Feu, **Ea** Eau, **Ai** Air. Tous les identifiants de ressources ont été vérifiés dans `data/items.json`. Le niveau d'une ressource de monstre est celui du plus faible monstre qui la laisse (`Shop.Level`) : Bois 1 à 2, Bois moisi 8 à 9, Lac 16 à 17, Champs 24 à 25.
+
+**Forgeron (`smith`), S109.** Bûcheron + mineur + monstre.
+
+| Rec. | `id` | Nom fr / en | Emplacement | Obj. | Caractéristiques | Ingrédients | Éclats | Icône |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `copper-billhook` | Serpe de cuivre / Copper Billhook | OneHanded | 3 | Ai 3, Vit 3 | `oak-log` 6, `copper-ore` 2, `wolf-fang` 2 | 3 | `lorc/plain-dagger` |
+| 5 | `hazel-pavise` | Pavois de noisetier / Hazel Pavise | Shield | 6 | Vit 4, Te 3 | `hazel-log` 6, `tin-ore` 3, `boar-tusk` 2 | 6 | `delapouite/viking-shield` |
+| 10 | `blackwood-maul` | Merlin de bois noir / Blackwood Maul | TwoHanded | 10 | Fe 9, Vit 9 | `blackwood-log` 12, `iron-ore` 5, `old-bone` 4 | 20 | `delapouite/wood-club` |
+| 15 | `yew-targe` | Targe d'if / Yew Targe | Shield | 14 | Vit 6, Ea 5 | `yew-log` 8, `sulphur` 4, `mushroom-cap` 3 | 14 | `delapouite/viking-shield` |
+| 20 | `willow-cutlass` | Coutelas de saule / Willow Cutlass | OneHanded | 18 | Ea 7, Vit 6 | `willow-log` 10, `blue-clay` 4, `crab-claw` 3 | 18 | `lorc/meat-cleaver` |
+| 25 | `alder-greataxe` | Grande hache d'aulne / Alder Greataxe | TwoHanded | 22 | Te 15, Vit 15 | `alder-log` 15, `zinc-ore` 8, `crab-shell` 4 | 44 | `lorc/battle-axe` |
+| 30 | `ash-shield` | Écu de frêne / Ash Heater Shield | Shield | 26 | Vit 9, Ai 8 | `ash-log` 12, `silver-ore` 5, `mole-fur` 4 | 26 | `delapouite/viking-shield` |
+| 35 | `linden-falchion` | Fauchon de tilleul / Linden Falchion | OneHanded | 30 | Fe 10, Vit 9 | `linden-log` 12, `quartz` 6, `honeycomb` 4 | 30 | `lorc/meat-cleaver` |
+
+L'argile bleue du coutelas sert à tremper la lame (on l'enduit d'argile avant la trempe) : le mineur garde un rôle au niveau 20. **Si Charles refuse la règle des deux mains** (question 53), le merlin passe à Fe 5, Vit 4 et la grande hache à Te 8, Vit 7, avec les quantités d'une arme à une main.
+
+**Tailleur (`tailor`), S109.** Paysan + herboriste + monstre. Il alterne par zone : plastron et coiffe au Bois, épaulettes et cape au Bois moisi, plastron et coiffe au Lac, épaulettes et cape aux Champs. Le plastron et les épaulettes, qui ne tombent jamais, changent ainsi tous les 15 niveaux environ, en décalé (plastron 3 et 18, épaulettes 10 et 26). Le Bois, dont les panoplies n'ont pas de coiffe, a la sienne.
+
+| Rec. | `id` | Nom fr / en | Emplacement | Obj. | Caractéristiques | Ingrédients | Éclats | Icône |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `linen-tunic` | Tunique de lin / Linen Tunic | Chest | 3 | Ea 3, Vit 3 | `wild-flax` 6, `nettle` 2, `wolf-pelt` 2 | 3 | `lorc/breastplate` |
+| 5 | `oat-straw-hat` | Chapeau de paille d'avoine / Oat-Straw Hat | Hat | 6 | Fe 4, Vit 3 | `wild-oats` 6, `wood-mint` 3, `boar-bristle` 2 | 6 | `delapouite/outback-hat` |
+| 10 | `hemp-shoulders` | Épaulières de chanvre / Hemp Shoulder Guards | Shoulders | 10 | Te 5, Vit 4 | `pool-hemp` 8, `glowmoss` 3, `rotten-cloth` 3 | 10 | `skoll/pauldrons` |
+| 15 | `rye-pelerine` | Pèlerine de seigle / Rye Pelerine | Cape | 14 | Ai 6, Vit 5 | `rye` 8, `clubmoss` 4, `spore-dust` 3 | 14 | `delapouite/cape` |
+| 20 | `sedge-gambeson` | Gambison de laîche / Sedge Gambeson | Chest | 18 | Fe 7, Vit 6 | `shore-sedge` 10, `water-lily` 4, `crab-shell` 3 | 18 | `lorc/breastplate` |
+| 25 | `rice-sunhat` | Capeline de riz des joncs / Reed-Rice Sunhat | Hat | 22 | Ai 8, Vit 7 | `reed-rice` 10, `horsetail` 5, `slime` 3 | 22 | `delapouite/flower-hat` |
+| 30 | `wheat-spaulders` | Épaulières de blé tressé / Braided Wheat Spaulders | Shoulders | 26 | Ea 9, Vit 8 | `clairval-wheat` 12, `hive-flower` 5, `bee-wing` 4 | 26 | `skoll/pauldrons` |
+| 35 | `harvest-mantle` | Mante de moisson / Harvest Mantle | Cape | 30 | Te 10, Vit 9 | `buckwheat` 12, `lavender` 6, `mole-fur` 4 | 30 | `lucasms/cloak` |
+
+**Bijoutier (`jeweller`), S110.** Mineur + pêcheur + monstre. Un anneau puis une amulette dans chaque zone.
+
+| Rec. | `id` | Nom fr / en | Emplacement | Obj. | Caractéristiques | Ingrédients | Éclats | Icône |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `copper-band` | Jonc de cuivre / Copper Band | Ring | 3 | Te 3, Vit 3 | `copper-ore` 6, `gudgeon` 2, `boar-tusk` 2 | 3 | `delapouite/ring` |
+| 5 | `tin-pendant` | Pendentif d'étain / Tin Pendant | Amulet | 6 | Ea 4, Vit 3 | `tin-ore` 6, `crayfish` 3, `wolf-fang` 2 | 6 | `delapouite/tribal-pendant` |
+| 10 | `blackened-iron-ring` | Anneau de fer noirci / Blackened Iron Ring | Ring | 10 | Fe 5, Vit 4 | `iron-ore` 8, `pool-eel` 3, `old-bone` 3 | 10 | `delapouite/power-ring` |
+| 15 | `sulphur-medallion` | Médaillon de soufre / Sulphur Medallion | Amulet | 14 | Ai 6, Vit 5 | `sulphur` 8, `tench` 4, `spore-dust` 3 | 14 | `lorc/gem-pendant` |
+| 20 | `blue-clay-ring` | Anneau d'argile bleue / Blue Clay Ring | Ring | 18 | Ea 7, Vit 6 | `blue-clay` 10, `perch` 4, `crab-claw` 3 | 18 | `delapouite/frozen-ring` |
+| 25 | `zinc-torc` | Torque de zinc / Zinc Torc | Amulet | 22 | Te 8, Vit 7 | `zinc-ore` 10, `carp` 5, `frog-leg` 3 | 22 | `delapouite/primitive-necklace` |
+| 30 | `silver-signet` | Chevalière d'argent / Silver Signet | Ring | 26 | Ai 9, Vit 8 | `silver-ore` 12, `pike` 5, `honeycomb` 4 | 26 | `delapouite/globe-ring` |
+| 35 | `quartz-pendant` | Pendeloque de quartz / Quartz Drop Pendant | Amulet | 30 | Fe 10, Vit 9 | `quartz` 12, `zander` 6, `bee-wing` 4 | 30 | `lorc/gem-pendant` |
+
+Le jonc de cuivre ne remplace pas l'**anneau de cuivre** du tuto (`copper-ring`, niveau 1, Vit 5) : deux noms distincts, deux objets distincts.
+
+**Cordonnier (`cobbler`), S110.** Pêcheur + bûcheron + monstre. Des bottes puis une ceinture dans chaque zone ; les bottes du Bois moisi comblent le seul emplacement léger que ses panoplies n'ont pas.
+
+| Rec. | `id` | Nom fr / en | Emplacement | Obj. | Caractéristiques | Ingrédients | Éclats | Icône |
+|---|---|---|---|---|---|---|---|---|
+| 1 | `gudgeon-shoes` | Souliers en peau de goujon / Gudgeon-Skin Shoes | Boots | 3 | Ai 3, Vit 3 | `gudgeon` 6, `oak-log` 2, `wolf-pelt` 2 | 3 | `lorc/leather-boot` |
+| 5 | `crayfish-belt` | Ceinture à écailles d'écrevisse / Crayfish-Scale Belt | Belt | 6 | Fe 4, Vit 3 | `crayfish` 4, `hazel-log` 3, `boar-bristle` 2 | 6 | `lucasms/belt` |
+| 10 | `eel-skin-boots` | Bottes en peau d'anguille / Eel-Skin Boots | Boots | 10 | Te 5, Vit 4 | `pool-eel` 8, `blackwood-log` 3, `mushroom-cap` 3 | 10 | `delapouite/rubber-boot` |
+| 15 | `tench-girdle` | Ceinturon de tanche / Tench-Leather Girdle | Belt | 14 | Ea 6, Vit 5 | `tench` 8, `yew-log` 4, `rotten-cloth` 3 | 14 | `delapouite/belt-armor` |
+| 20 | `perch-waders` | Cuissardes en peau de perche / Perch-Skin Waders | Boots | 18 | Fe 7, Vit 6 | `perch` 10, `willow-log` 4, `frog-leg` 3 | 18 | `delapouite/rubber-boot` |
+| 25 | `carp-belt` | Ceinture en cuir de carpe / Carp-Leather Belt | Belt | 22 | Ai 8, Vit 7 | `carp` 10, `alder-log` 5, `slime` 3 | 22 | `lucasms/belt` |
+| 30 | `pike-skin-boots` | Bottes en peau de brochet / Pike-Skin Boots | Boots | 26 | Ea 9, Vit 8 | `pike` 12, `ash-log` 5, `mole-fur` 4 | 26 | `delapouite/fur-boot` |
+| 35 | `zander-baldric` | Baudrier de sandre / Zander Baldric | Belt | 30 | Te 10, Vit 9 | `zander` 12, `linden-log` 6, `honeycomb` 4 | 30 | `delapouite/belt-armor` |
+
+**Contrôle par zone** (les 8 pièces d'une zone, deux par élément) :
+
+| Zone (objets) | Terre | Feu | Eau | Air | Ressources de monstres (fois) |
+|---|---|---|---|---|---|
+| Bois (3, 6) | pavois, jonc | chapeau d'avoine, ceinture d'écrevisse | tunique, pendentif | serpe, souliers | défense 2, croc 2, peau de loup 2, soies 2 |
+| Bois moisi (10, 14) | épaulières de chanvre, bottes d'anguille | merlin, anneau de fer | targe, ceinturon | pèlerine, médaillon | vieil os 2, chapeau de champignon 2, tissu pourri 2, spores 2 |
+| Lac (18, 22) | grande hache, torque | gambison, cuissardes | coutelas, anneau d'argile | capeline, ceinture de carpe | pince 2, carapace 2, bave 2, cuisse 2 |
+| Champs (26, 30) | mante, baudrier | fauchon, pendeloque | épaulières de blé, bottes de brochet | écu, chevalière | fourrure de taupe 3, rayon de miel 3, aile 2, ver de terre 0 |
+
+Le ver de terre reste aux galeries (clef du serrurier) et à l'alchimiste (huile de Terre, S111) : un ver de terre dans une botte, personne n'y croirait.
+
+**Le pieu de palissade** (tuto C5) passe du serrurier au **forgeron**, au niveau 1, avec les mêmes ingrédients (3 chênes, 2 cuivres) : le texte du scénariste dit déjà « à la forge » (T75). Il reste une ressource, à 25 XP.
+
+### 5 quater.6 Quelles pièces tombent, lesquelles se fabriquent *(remplace le tableau du §5.6)*
+
+| Emplacement | Butin (panoplies des familles) | Artisanat (niveaux des objets) | Initiative |
+|---|---|---|---|
+| Coiffe | oui (toutes les zones sauf le Bois) | tailleur : 6, 22 | non |
+| Cape | oui | tailleur : 14, 30 | **oui, butin seulement** |
+| Anneaux (2) | oui | bijoutier : 3, 10, 18, 26 | **oui, butin seulement** |
+| Amulette | oui | bijoutier : 6, 14, 22, 30 | non |
+| Bottes | oui (toutes sauf le Bois moisi) | cordonnier : 3, 10, 18, 26 | **oui, butin seulement** |
+| Ceinture | oui | cordonnier : 6, 14, 22, 30 | non |
+| Arme à une main | l'arme du chef | forgeron : 3, 18, 30 | non |
+| Arme à deux mains | l'arme du chef | forgeron : 10, 22 | non |
+| Bouclier | le bouclier de carapace (crabes) | forgeron : 6, 14, 26 | non |
+| Plastron, épaulettes | **jamais** (le plastron et les épaulettes d'orque de l'entraînement, remis au budget) | tailleur : plastron 3, 18 ; épaulettes 10, 26 | non |
+| Familier, monture | ni l'un ni l'autre (l'âne et le chaton restent) | — | — |
+| Potions, huiles, pains | — | alchimiste, boulanger (S111) | — |
+
+- **Ce qui reste au butin :** l'initiative (bottes, cape, anneaux), les bonus de panoplie, les PA et PM des 5 pièces. **Rose ne vend toujours aucun équipement** (T65) : sinon on achèterait le craft.
+- **Pas de pièce de panoplie en récompense de quête** (§5 ter.4) : inchangé.
+
+### 5 quater.7 Les objets de départ remis au budget (S109)
+Sans cela, deux lignes du craft sont mortes dès le premier jour. Les objets gardent leur identifiant ; leurs chiffres sont dans les données, donc les exemplaires déjà possédés changent sans migration.
+
+| Objet | Niveau | Aujourd'hui | Proposé | Pourquoi |
+|---|---|---|---|---|
+| `orc-breastplate` (l'orque, 10 %, rejouable) | 5 | Vit 15, Te 5 (20) | Vit 4, Te 3 (7) | battait tous les plastrons fabriqués jusqu'au niveau 30 |
+| `orc-club` (l'orque, 5 %) | 8 | Te 15 | Te 16 (deux mains, 2 × 8) ; Te 8 si la question 53 est refusée | presque inchangé avec la règle des deux mains |
+| `wooden-shield` (tuto) | 1 | Vit 12 | Vit 5 | battait les boucliers fabriqués jusqu'au niveau 14 |
+| `leather-belt` (tuto) | 1 | Vit 10 | Vit 5 | battait les ceintures fabriquées jusqu'au niveau 6 |
+| `poacher-hat` | 1 | Vit 8 | Vit 5 | au-dessus du budget de 5,5 |
+| `poacher-cape` | 1 | Ai 6 | Ai 5 | idem |
+
+`orc-pauldrons` (Te 6), `copper-ring`, `pebble-amulet`, `dagger`, `poacher-boots` et `ember-ring` sont déjà dans le budget. **Le bonus de la panoplie du braconnier** (+10 Air dès deux pièces, au niveau 1) est à ramener à +5, comme les familles l'ont été (T63). Le familier et la monture restent hors de la règle.
+
+### 5 quater.8 L'équilibre T41
+
+**Combien de pièces d'artisan par zone.** Chaque zone a **8 pièces fabricables**. Dans le kit « fast » (le meilleur cas du butin, `Progression.Kit`), les panoplies remplissent déjà la plupart des places ; l'artisan n'y ajoute que **les places vides** :
+
+| Zone | Places vides du kit « fast » | Pièces d'artisan ajoutées |
+|---|---|---|
+| Bois | coiffe, plastron, épaulettes, bouclier | 3 (pas d'épaulettes avant le niveau 10) |
+| Bois moisi | bottes, plastron, épaulettes, bouclier | 4 |
+| Lac | plastron, épaulettes (le bouclier de carapace y est) | 2 |
+| Champs | plastron, épaulettes, bouclier | 3 |
+
+**Ce que ça pèse** (estimation à la main, à remesurer ; au niveau de fin de chaque zone, en points de caractéristiques) :
+
+| Zone (niveau) | Points du héros | Kit « fast » (butin) | « fast » + artisan | Kit « craft » (que de l'artisan) |
+|---|---|---|---|---|
+| Bois (6) | 50 | ≈ 33, + 50 d'initiative | ≈ 53 (+24 % sur héros + kit) | ≈ 52, initiative 10 |
+| Bois moisi (13) | 120 | ≈ 67 | ≈ 98 (+17 %) | ≈ 78 |
+| Lac (22) | 210 | ≈ 119 | ≈ 141 (+7 %) | ≈ 143 |
+| Champs (30) | 290 | ≈ 130 | ≈ 177 (+11 %) | ≈ 185 |
+
+**Ce que j'en tire :**
+- Le kit « craft » a **à peu près les caractéristiques du kit « fast »**, un peu plus, mais **sans initiative ni PA ni PM** : il joue toujours en dernier. Les mesures « fast » de T63 et T64 en donnent l'ordre de grandeur : sous 15 % dans le Bois, au Bois moisi et au Lac, hors des cartes à eau déjà acceptées (T59, T60), et au-dessus aux Champs (taupes lanceuses, acceptées par Charles, T64).
+- « fast » + artisan monte surtout **dans le Bois et au Bois moisi** (+17 à +24 %), parce qu'à bas niveau le héros a peu de points et que chaque pièce pèse lourd. C'est là qu'un plafond peut sauter.
+- **Je ne baisse rien d'avance.** Charles veut le même budget que le butin ; la mesure tranche.
+
+**La règle de mesure, v6 :**
+- **Planchers** (petits groupes ≥ 96 %) : **nus**, sans consommable, comme toujours.
+- **Plafonds**, trois kits :
+  - **`zone`** (deux pièces rapides) : le test bloquant de T64, **≤ 20 %**, inchangé ;
+  - **`craft`** (nouveau) : les deux pièces rapides de `zone` et, dans toutes les autres places, **la meilleure pièce fabriquée de niveau ≤ au héros, toutes zones**. C'est ce qu'un joueur seul a à coup sûr. **Nouveau test bloquant, ≤ 20 %**, avec les mêmes cartes exclues que T64 ;
+  - **`fast`** : il prend désormais aussi la meilleure pièce fabriquée dans les places vides, et, à partir du S111, le meilleur consommable (le §5.7). C'est un **indicateur**, noté dans `DECISIONS.md`, pas un test : il dépassait déjà aux Champs et sur les cartes à eau, et Charles l'a accepté.
+- **Si `craft` dépasse 20 %**, dans l'ordre : enlever 1 point de Vitalité aux pièces d'artisan de niveau ≤ 14 (celles qui pèsent le plus) ; puis, **avec l'accord de Charles seulement**, passer toutes les pièces d'artisan à 80 % du budget du butin. **Jamais les monstres** (§3.5).
+- **L'initiative** : inchangée par le craft, aucune pièce d'artisan n'en donne.
+
+### 5 quater.9 L'économie avec Rose
+- **Rose rachète une pièce fabriquée 2 × son niveau** (T65), de 6 à 60 Éclats. Elle ne vend aucun équipement.
+- **Pas de boucle infinie.** Ce que valent les ingrédients d'une recette chez Rose, en rachat (1 + niveau / 10 par ressource) et à l'achat (5 fois plus), comparé au rachat de la pièce :
+
+| Recette | Ingrédients revendus à Rose | Ingrédients achetés à Rose | Éclats de la recette | Pièce revendue |
+|---|---|---|---|---|
+| 1 (objet 3) | 10 | 50 | 3 | 6 |
+| 5 (objet 6) | 11 | 55 | 6 | 12 |
+| 15 (objet 14) | 27 | 135 | 14 | 28 |
+| 25, deux mains (objet 22) | 77 | 385 | 44 | 44 |
+| 35 (objet 30) | 84 | 420 | 30 | 60 |
+
+  - **Acheter, fabriquer, revendre** coûte toujours 4 à 9 fois ce que la pièce rapporte.
+  - **Récolter, fabriquer, revendre** rapporte moins que revendre ses ingrédients bruts, **grâce aux Éclats de la recette** : sans eux, les recettes 5 et 15 rapporteraient un ou deux Éclats de plus que le brut. C'est la raison de ce coût.
+  - **Fabriquer reste rentable autrement** : l'XP du métier, et la pièce qu'on porte.
+- **Le joueur pressé** achète ses ingrédients : environ 50 Éclats pour la serpe, 420 pour le fauchon, soit treize monstres au niveau 30 (2 + niveau par monstre). C'est un puits utile, pas une porte.
+- **Le récolteur** revend toujours 1 à 4 Éclats par ressource, bien moins qu'un combat : la récolte n'est pas une ferme à Éclats (§5.7, inchangé).
+
+### 5 quater.10 Les ateliers et les artisans dans la rue des artisans (`clairval-3-1`)
+
+**Le plan actuel** (`tools/village_gen.py`) : la carte a deux routes, **nord-sud en x = 24** (bords nord et sud) et **vers l'ouest en y = 16**, avec une case libre de chaque côté (x 23 à 25, y 15 à 17). L'est est la palissade. Les artisans existants sont **à l'est de la route** (x = 26 à 28), le serrurier **à l'ouest**, au nord :
+
+| Qui | Maison (coin haut-gauche, porte au sud) | Habitant | Atelier | Sprint |
+|---|---|---|---|---|
+| Gédéon, serrurier | (19, 8) | (21, 11) | établi (19, 10), existe | — |
+| Anselme, forgeron | (27, 4) | (26, 5) | **forge (27, 6)** | S109 |
+| Perrine, tailleuse | (27, 9) | (26, 10) | **atelier de couture (27, 11)** | S109 |
+| Sidonie, alchimiste | (27, 20) | (26, 21) | alambic (27, 22), réservé | S111 |
+| Basile, boulanger | (27, 25) | (26, 26) | four (27, 27), réservé | S111 |
+| **le bijoutier** (nouveau) | **(19, 19)** | **(21, 22)** | **établi de bijouterie (19, 21)** | S110 |
+| **le cordonnier** (nouveau) | **(19, 25)** | **(21, 28)** | **banc de cordonnerie (19, 27)** | S110 |
+
+```
+        x=19     x=24 (route N-S)   x=27
+y=4                  =             [A]  Anselme, forge (27,6)
+y=8    [G]           =
+y=9                  =             [P]  Perrine, couture (27,11)
+y=10   établi        =
+y=16  ===============+                  route vers la place (ouest)
+y=19   [B]           =             [S]  Sidonie (y=20), alambic (27,22)
+y=21   bijouterie    =
+y=25   [C]           =             [Bo] Basile, four (27,27)
+y=27   cordonnerie   =
+```
+
+- **Le même gabarit que Gédéon** : la maison, l'atelier juste sous sa porte, l'artisan deux cases à droite et trois en dessous du coin de la maison. Le côté ouest, au sud de la route de l'ouest, fait pendant à Sidonie et Basile. Toutes les cases sont hors des routes et de leur bordure, ce que `village_gen.py` vérifie déjà (`assert` des maisons et des habitants), comme le chemin depuis l'arrivée vers chaque habitant et chaque atelier (`reachable`).
+- **Ce qui bouge** : `HOMES[(3, 1)]` gagne deux maisons, `PEOPLE[(3, 1)]` deux habitants, `BENCHES[(3, 1)]` quatre ateliers (forge et couture au S109, les deux autres au S110), **ajoutés après l'établi du serrurier** : l'auto-test prend aujourd'hui `Workshops[0]` (`Main.Town.cs`), qui doit rester l'établi, ou mieux, chercher l'atelier par métier.
+- **Un effet de bord** : les 6 maisons tirées au hasard de la carte changent de place quand on ajoute des maisons fixes. Un personnage enregistré sur `clairval-3-1` peut se retrouver sur une case devenue maison. Le S109 vérifie que le serveur replace à l'arrivée un personnage sur une case bloquée ; sinon, une migration comme `MoveToTwelveMapVillage`.
+- **Le décor** : aucun modèle nouveau. Un atelier est un anneau chocolat et son nom (`TownView`), une maison est la maison du village.
+
+**Pour le scénariste** (lui écrit les mots, comme au §5 ter.5) : les deux nouveaux artisans, leur nom, leur ton, un trait, leur lien avec le fil de la pierre, 1 à 3 répliques de base, en fr et en en. Pistes, à prendre ou à laisser : le bijoutier sertit des pierres de la petite carrière et remarque qu'elles ont toutes quatre veines qui ne se touchent jamais ; le cordonnier tanne le cuir des poissons du lac et dit que les semelles de Clairval s'usent toutes du côté de l'ouest. **Prénoms interdits : Margaux et Camille.** Rien d'Ankama.
+
+**Une quête d'initiation par artisan** *[À TRANCHER, question 60]* : le §5.5 en prévoyait une par atelier. Je propose, en données seulement (le moteur existe) : chaque artisan propose, après « Des pieux pour la palissade » (C5), « Ta première pièce » : `Bring` sa pièce de niveau 1 (serpe, tunique, jonc, souliers), niveau 3, récompense 40 × niveau d'XP et 30 Éclats. Au plus 2 offres par habitant : chacun n'en a qu'une.
+
+### 5 quater.11 Le découpage : S109 et S110
+
+Le plan donnait **3 points** à « forgeron et tailleur, 16 pièces ». Réestimé honnêtement : il manquait le budget réel, la règle des deux mains, les objets de départ, les deux kits de mesure et la remesure de T41, et le tailleur passe de 2 à 4 emplacements. **32 pièces sur deux sprints, 8 points.**
+
+| Sprint | Pts | Contenu |
+|---|---|---|
+| **S109** | **5** | **Forgeron et tailleur.** Un nouvel outil **`tools/craft_gen.py`** (annoncé au §5.11) écrit les métiers d'équipement (`smith`, `tailor`, atelier et recettes), leurs 16 pièces (chiffres calculés par la règle du §5 quater.4, pas écrits à la main) et leurs icônes, en gardant les autres métiers ; il se lance après `trades_gen.py` et avant `icons_gen.py`. Le pieu de palissade passe à la forge. `Crafting.Xp` : 150 + 15 × niveau pour l'équipement, rien 20 niveaux sous le métier, appliqué par le serveur. **`ItemBudgetTests`** pour tout l'équipement ; la règle des deux mains (artisanat et butin, `sets_gen.py`) ; les objets de départ remis au budget (§5 quater.7). `Progression.Kit` : le kit `craft`, et `fast` complété par l'artisan ; `Rpg.Sim --kit craft`. **T41 remesuré** dans les quatre zones, trois classes, kits `none`, `zone`, `craft`, `fast` (entrée T77). La forge et l'atelier de couture au quartier. |
+| **S110** | **3** | **Bijoutier et cordonnier.** `craft_gen.py` gagne `jeweller` et `cobbler` et leurs 16 pièces ; les deux maisons, les deux artisans et leurs dialogues (`village_dialogues.py`, textes du scénariste), les deux ateliers ; un même anneau ne se porte pas deux fois (question 54) ; **T41 remesuré** (le kit `craft` gagne anneaux, amulette, bottes et ceinture) ; les quêtes d'initiation si Charles les veut (question 60). |
+
+**Tests attendus :**
+- **Unitaires (`Rpg.Core.Tests`) :**
+  - `ItemBudgetTests` : chaque pièce d'équipement (sauf familier et monture) a somme + 0,6 × initiative / 2 ≤ B + 1, B doublé pour une arme à deux mains ; **chaque pièce fabriquée** a B − 1 ≤ somme ≤ B + 1, Vitalité et un seul élément, aucune initiative, aucun PA ni PM, aucune panoplie ; le chargement refuse une pièce fabriquée avec de l'initiative ;
+  - chaque métier d'équipement a **une recette tous les 5 niveaux de 1 à 35**, chacune pour un emplacement de son métier ;
+  - chaque recette d'équipement a **trois ingrédients** : deux récoltés **au niveau de la recette**, du récolteur principal puis du secondaire du métier, et une ressource de monstre de niveau compris entre (niveau de l'objet − 10) et le niveau de l'objet ;
+  - les 8 pièces d'une zone ont **deux pièces par élément**, et les deux pièces d'un métier dans une zone deux éléments différents ; les anneaux, amulettes, bottes et ceintures couvrent les quatre éléments ;
+  - `Crafting.Xp` : 165 au niveau 1, 675 au niveau 35, 25 pour le pieu, 0 vingt niveaux sous le métier ;
+  - le prix des Éclats : égal au niveau de l'objet, double pour une arme à deux mains ; **pour chaque recette, ingrédients revendus + Éclats > pièce revendue** (pas de boucle) ;
+  - `Progression.Kit("craft", …)` est portable (`Equipment.Problem` nul), sans initiative au-delà des deux pièces de `zone` ; `fast` remplit ses places vides avec l'artisan ;
+  - (S110) deux anneaux identiques sont refusés, si la question 54 est acceptée.
+- **Intégration (`Rpg.Api.Tests`) :** de bout en bout, récolter du chêne et du cuivre, gagner des crocs de loup, fabriquer la serpe à la forge, l'équiper, la revendre à Rose au bon prix ; refus sans les Éclats de la recette ; l'XP du métier gardée. Au S110, la même chose pour le jonc de cuivre à l'établi de bijouterie.
+- **Village :** la forge, l'atelier de couture (S109), l'établi de bijouterie et le banc de cordonnerie (S110) existent, hors des routes, atteignables depuis l'arrivée ; chaque artisan est sur sa carte avec son dialogue.
+- **T41 :** les planchers inchangés, `zone` et `craft` ≤ 20 % hors des cartes acceptées.
+- **Auto-test Godot :** à la forge, la fenêtre Métiers s'ouvre sur le forgeron et fabrique la serpe ; au S110, la même chose chez le cordonnier.
+
+### 5 quater.12 Risques
+- **Le plafond du Bois** : à bas niveau, une pièce pèse lourd (§5 quater.8). La mesure du S109 le dira ; les leviers sont prêts et ne touchent pas aux monstres.
+- **Le volume de monstres** : environ 100 ressources de monstres pour monter un métier de 1 à 35, en concurrence avec les clefs du serrurier. Rose les vend ; au playtest du S111, demander « avez-vous manqué de ressources de monstres ? ». Si oui, on baisse la colonne « Monstre », pas les taux de butin.
+- **Les textes du scénariste** pour les deux nouveaux artisans **doivent être prêts avant le S110**, sinon le sprint glisse.
+- **Des icônes qui se ressemblent** : 32 pièces sur une quinzaine de dessins. La couleur de l'élément et le cadre suffisent pour un premier jet.
+- **Les noms** des 32 pièces sont des propositions, à relire par le scénariste et par Charles.
+
+---
+
+## 6. Chantier 4 : jouer ensemble (S111 à S114, 18 points ; S115 à S118 depuis la v6)
 
 ### 6.1 L'expérience visée
 « Je vois Plop passer sur la carte. On se groupe, il attaque la horde du fond, je le rejoins, et la reine tombe à deux. Après, je lui échange mes saules contre son arme de reine. »
@@ -866,7 +1196,7 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | Apparence en pièces séparées, puis barbier (puits d'Éclats) | souhait de Charles, puits purement cosmétique | 5 pts, en attente de l'essai des modèles |
 | Bestiaire | rend lisibles les leçons, les taux de butin et les ressources | 3 pts |
 | Guildes | après le groupe | 5 pts |
-| Bijoutier, cordonnier, paysan et cuisine | élargir l'artisanat quand le butin aura ses panoplies 30+ | 3 pts par métier |
+| ~~Bijoutier, cordonnier, paysan et cuisine~~ | ~~élargir l'artisanat quand le butin aura ses panoplies 30+~~ : le paysan est fait (S99), le bijoutier et le cordonnier entrent au plan en v6 (S110) ; reste une cuisine à effet durable | 3 pts |
 
 ---
 
@@ -943,6 +1273,26 @@ C'est le chantier le plus risqué : il touche le moteur, le serveur (un état en
 | 50 | Les nouveaux habitants | le copiste (Odalric dans la trame) **gardé** ; le reste selon §5 ter.5 ; **Margaux et Camille interdits** |
 | 51 | L'ordre du plan | **l'histoire avant le jeu à plusieurs** : le village, le moteur des quêtes, le tuto et la mini-carte (S102 à S105), puis la forge et l'alchimie (S106, S107), puis les quêtes des zones (S108 à S110), puis le jeu à plusieurs (S111 à S114) |
 
+### 9.6 Nouvelles (v6 : un métier pour chaque pièce d'équipement)
+Les quatre métiers, l'absence d'initiative sur le craft, les deux sprints et l'absence de nouveaux modèles sont **tranchés par Charles** (17 octobre). Restent :
+
+| # | Question | Valeur par défaut |
+|---|---|---|
+| 52 | Le budget des pièces d'artisan | **celui du butin réel : (8 + niveau) / 2**, arrondi au supérieur (T63), et non 8 + niveau (le chiffre d'avant T63) |
+| 53 | L'arme à deux mains | **elle compte pour deux pièces** (budget × 2, ingrédients × 1,5, Éclats × 2), sinon elle est dominée par une main + bouclier ; **la même règle pour les 4 armes à deux mains des panoplies** |
+| 54 | Deux fois le même anneau | **interdit** (`Equipment.Problem`, S110) : le craft rend le doublon trivial, et choisir son second anneau est une décision |
+| 55 | Les récolteurs | forgeron : bûcheron + mineur ; tailleur : paysan + **herboriste** ; bijoutier : mineur + pêcheur ; cordonnier : **pêcheur** (cuir de poisson) + bûcheron. Chaque récolteur est principal au moins une fois |
+| 56 | Le coût en Éclats | **le niveau de l'objet** (3 à 30, double pour une arme à deux mains) : un petit puits, et la garantie que fabriquer pour revendre ne rapporte jamais plus que le brut |
+| 57 | L'XP de fabrication | **150 + 15 × niveau pour l'équipement, par une règle dans `Crafting.Xp`** (pas un champ de données) ; **pas d'XP 20 niveaux sous le métier**, comme la récolte |
+| 58 | La mesure T41 | planchers nus ; plafonds : **`zone` et le nouveau `craft` bloquants à 20 %** (mêmes cartes exclues que T64), **`fast` + artisan (+ consommable au S111) en indicateur** ; si `craft` saute : −1 Vitalité aux pièces d'artisan de niveau ≤ 14, puis 80 % du budget **seulement avec l'accord de Charles** ; jamais les monstres |
+| 59 | Variantes par élément | **non pour l'instant** : une pièce, un élément ; les 8 pièces d'une zone couvrent les quatre éléments deux fois |
+| 60 | Une quête d'initiation par artisan | **oui**, en données seulement : « Ta première pièce », `Bring` la pièce de niveau 1, après C5, une par artisan (textes du scénariste) ; *alternative :* aucune, la fenêtre Métiers et C5 suffisent |
+| 61 | Les icônes | **les dessins déjà téléchargés**, par emplacement, sans `--fetch` ; quelques dessins nouveaux plus tard si les pièces se confondent |
+| 62 | Les objets de départ | **remis au budget au S109** : plastron d'orque 7 points (au lieu de 20), bouclier de bois et ceinture de cuir 5 Vitalité, chapeau et cape du braconnier 5, massue d'orque 16 (deux mains) ; le bonus de la panoplie du braconnier à +5 Air |
+| 63 | La répartition du tailleur | **deux de chaque** (plastron 3 et 18, coiffe 6 et 22, épaulettes 10 et 26, cape 14 et 30) ; *alternative :* 3 plastrons, 3 épaulettes, 1 coiffe, 1 cape, puisque plastron et épaulettes ne tombent jamais |
+| 64 | Les noms | ceux du §5 quater.5 et des ateliers (forge, atelier de couture, établi de bijouterie, banc de cordonnerie), à relire par le scénariste et Charles ; les deux nouveaux artisans nommés par le scénariste |
+| 65 | La place dans le plan | **S109 (5 points) et S110 (3 points)**, l'alchimiste et le boulanger en S111, la suite décalée d'un cran jusqu'à S118 ; **5 points de plus** |
+
 ---
 
 ## 10. Planification proposée (si Charles dit « Go » sur la v5)
@@ -984,3 +1334,39 @@ Quatre décisions couvrent ensemble les sprints **95 à 114**, soit **78 points*
 | S112 | 5 | 4 | Le groupe, son canal de chat, l'échange entre joueurs |
 | S113 | 5 | 4 | Le combat à plusieurs : règles, serveur, simulation |
 | S114 | 5 | 4 | Le combat à plusieurs : client, donjons, équilibre |
+
+### Planification v6 (17 octobre 2026, si Charles dit « Go »)
+
+Le tableau ci-dessus est celui de la v5. Depuis, **D75** (retours de Charles après le S102 : la récolte qu'on voit, un vrai village, suivre une quête) a décalé la suite de trois crans, et le plan comptait **470 points sur 117 sprints, Osmose 249** (`PLAN.md`). La v6 (décision **D76**) :
+- **Retiré :** le S109 de D75, « forgeron et tailleur, 16 pièces », 3 points.
+- **Ajoutés :** S109 forgeron et tailleur (5), S110 bijoutier et cordonnier (3).
+- **Soit 5 points et un sprint de plus** : le projet passe de **470 à 475 points sur 118 sprints**, Osmose de **249 à 254**.
+- Il faut mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-109.md` à `sprint-118.md` (un de plus), R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »).
+- Les entrées de `DECISIONS.md` reprennent à **T77**.
+
+| Sprint | Pts | Chantier | Contenu | État |
+|---|---|---|---|---|
+| S95 | 5 | 0 et 1 | Correctif de la Bauge ; initiative ; panoplies du Bois et du Bois moisi | fait (T63) |
+| S96 | 3 | 1 | Panoplies du Lac et des Champs ; T41 ; playtest | fait (T64) |
+| S97 | 3 | 2 | Rose marchande, puits d'Éclats | fait (T65) |
+| S98 | 3 | 1 bis | Les icônes des objets | fait (T66) |
+| S99 | 5 | 3 | La récolte : 5 métiers, 40 ressources | fait (T67) |
+| S100 | 3 | 3 | La fenêtre Métiers (J) | fait (T68) |
+| S101 | 5 | 3 bis | La vie qui se garde | fait (T69) |
+| S102 | 5 | 3 ter | Le nouveau Clairval en 12 cartes ; le dialogue réparé | fait (T70) |
+| S103 | 3 | D75 | La récolte qu'on voit | fait (T71) |
+| S104 | 5 | D75 | Un vrai village | fait (T72) |
+| S105 | 5 | 3 ter | Le moteur des quêtes | fait (T73) |
+| S106 | 3 | D75 | Suivre une quête | fait (T74) |
+| S107 | 3 | 3 ter | Le tuto de Clairval | fait (T75) |
+| S108 | 3 | 3 ter | La mini-carte | fait (T76) |
+| **S109** | **5** | **3 quater** | **Forgeron et tailleur** : 16 pièces, `craft_gen.py`, XP de fabrication, `ItemBudgetTests`, règle des deux mains, objets de départ au budget, kits `craft` et `fast` + artisan, T41 remesuré, forge et atelier de couture | à faire |
+| **S110** | **3** | **3 quater** | **Bijoutier et cordonnier** : 16 pièces, deux ateliers, deux artisans (textes du scénariste), un même anneau une seule fois, T41 remesuré | à faire (nouveau) |
+| S111 | 5 | 3 | L'alchimiste et le boulanger ; T41 (+ consommable) et vie restante remesurées ; **playtest** | à faire (ancien S110) |
+| S112 | 3 | 3 ter | Les quêtes du Bois et du Bois moisi (18) | à faire (ancien S111) |
+| S113 | 3 | 3 ter | Les quêtes du Lac et des Champs (16) | à faire (ancien S112) |
+| S114 | 3 | 3 ter | Le Disjoint et `four-trails`, fin du chapitre 1 | à faire (ancien S113) |
+| S115 | 3 | 4 | Se voir sur la carte | à faire (ancien S114) |
+| S116 | 5 | 4 | Le groupe et l'échange | à faire (ancien S115) |
+| S117 | 5 | 4 | Le combat à plusieurs : règles et serveur | à faire (ancien S116) |
+| S118 | 5 | 4 | Le combat à plusieurs : client et donjons | à faire (ancien S117) |

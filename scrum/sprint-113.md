@@ -1,4 +1,4 @@
-# Sprint 113 : Osmose : le Disjoint
+# Sprint 113 : Osmose : les quêtes du Lac et des Champs
 
 **Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
 
@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affronte le Disjoint au niveau 30, battable seul, puis « Quatre pistes » clôt le chapitre 1 (rpg) ; simulation ; xUnit, auto-test. | 3 | À faire |
+| En tant que joueur, je suis le fil des quêtes du Lac et des Champs (16), avec Liane et la fermière des Champs (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
