@@ -1,12 +1,12 @@
-# Sprint 116 : Osmose : le groupe et l'échange
+# Sprint 116 : Osmose : le journal de quêtes
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
+**Objectif :** les retours de Charles après l'essai du build 1.0.92 (D77).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
+**Goal:** Charles's feedback after trying build 1.0.92 (D77).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je forme un groupe de quatre au plus, avec son canal de chat, et j'échange objets et Éclats avec un autre joueur (rpg) ; xUnit, test d'intégration. | 5 | À faire |
+| En tant que joueur, je lis mon journal comme dans les jeux du genre : onglets en cours, terminées et masquées, recherche, filtres de niveau et de type, zones repliables, une icône par type de quête, une fiche avec son texte, ses objectifs et ses récompenses, Masquer et Suivre (rpg) ; xUnit, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

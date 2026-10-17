@@ -1,12 +1,12 @@
-# Sprint 115 : Osmose : se voir sur la carte
+# Sprint 115 : Osmose : consommables hors combat, un village plus vivant
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
+**Objectif :** les retours de Charles après l'essai du build 1.0.92 (D77).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
+**Goal:** Charles's feedback after trying build 1.0.92 (D77).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois les autres joueurs de ma carte, et les monstres et les points de récolte sont les mêmes pour tous (rpg) ; xUnit, test d'intégration à deux clients. | 3 | À faire |
+| En tant que joueur, je bois mes potions de soin hors combat comme un pain, plus rien en combat (les huiles retirées) ; la palissade de Clairval redessinée, plus de maisons au village, et je marche 10 % plus vite (rpg) ; xUnit, auto-test. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S118), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S121), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S118 | 254 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S121 | 267 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 475 points sur 118 sprints de deux semaines.
+Total : 488 points sur 121 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -151,6 +151,9 @@ Retours de Charles : S103 (3) la ressource visible sur chaque point de récolte,
 
 ## Osmose : un métier pour chaque pièce d'équipement (17 octobre 2026, D76)
 Demande de Charles, conçue par le game designer (v6 de `projects/rpg/docs/suite-apres-d69.md`), textes par le scénariste (`projects/rpg/docs/textes-v6.md`) : S109 (5) le forgeron (armes, boucliers) et le tailleur (plastron, épaulettes, coiffe, cape), l'arme à deux mains comptée double, les objets de départ remis au budget ; S110 (3) le bijoutier (anneaux, amulette) et le cordonnier (bottes, ceinture), deux nouveaux artisans ; pièces fabriquées sans initiative ; la suite décalée d'un cran, jusqu'à S118.
+
+## Osmose : après l'essai du build 1.0.92 (17 octobre 2026, D77)
+Retours de Charles : S115 (3) plus de consommables en combat (les potions soignent hors combat, les huiles retirées), une palissade qui ne ressemble plus à des fleurs, plus de maisons au village, 10 % de vitesse en plus ; S116 (5) un journal de quêtes comme dans les jeux du genre ; S117 (5) la fiche d'un objet au survol partout et son clic droit (équiper, utiliser, recettes, bestiaire, panoplie, partage dans le chat) ; le jeu à plusieurs décalé de trois crans, jusqu'à S121.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.

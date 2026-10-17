@@ -1,12 +1,12 @@
-# Sprint 117 : Osmose : le combat à plusieurs, règles et serveur
+# Sprint 117 : Osmose : les fiches d'objet et le clic droit
 
-**Objectif :** la suite d'Osmose après D69, conçue par le game designer (`projects/rpg/docs/suite-apres-d69.md`) et validée par Charles (D71 à D74).
+**Objectif :** les retours de Charles après l'essai du build 1.0.92 (D77).
 
-**Goal:** Osmose after D69, designed by the game designer (`projects/rpg/docs/suite-apres-d69.md`) and approved by Charles (D71 to D74).
+**Goal:** Charles's feedback after trying build 1.0.92 (D77).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats avec mon groupe, le serveur menant le combat tour par tour (30 s) et la reconnexion ; butin, XP, quêtes et vie pour chacun (rpg) ; xUnit, test d'intégration à deux clients. | 5 | À faire |
+| En tant que joueur, je vois la fiche d'un objet au survol partout (recettes, ingrédients, ressources) et, d'un clic droit, j'équipe ou je retire, j'utilise un consommable, je vois ses recettes, les monstres qui le laissent et à quel pourcentage, sa panoplie, et je le partage dans le chat par un lien cliquable (rpg) ; xUnit, test d'intégration, auto-test. | 5 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
