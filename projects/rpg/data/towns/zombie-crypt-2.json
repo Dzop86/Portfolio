@@ -134,5 +134,23 @@
         "en": "Room 3"
       }
     }
+  ],
+  "props": [
+    {
+      "id": "crypt-seal",
+      "at": {
+        "x": 10,
+        "y": 4
+      },
+      "look": "seal",
+      "name": {
+        "fr": "Le sceau",
+        "en": "The seal"
+      },
+      "text": {
+        "fr": "Un disque d'un métal sombre que personne ne sait nommer, posé là où les quatre ailes se rejoignent. Chaque signe regarde une aile. Une fissure le traverse, et elle est tiède.",
+        "en": "A disc of a dark metal nobody can name, set where the four wings meet. Each sign faces one wing. A crack runs through it, and it is warm."
+      }
+    }
   ]
 }

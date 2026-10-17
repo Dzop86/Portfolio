@@ -898,5 +898,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "root-circle",
+      "at": {
+        "x": 23,
+        "y": 15
+      },
+      "look": "roots",
+      "name": {
+        "fr": "Le cercle de racines",
+        "en": "The root circle"
+      },
+      "text": {
+        "fr": "Des racines épaisses comme des bras forment un cercle parfait, plus serré qu'aucune main ne l'aurait tressé. Au centre, la terre est bombée, comme si elle couvrait une pierre.",
+        "en": "Roots as thick as arms form a perfect circle, tighter than any hand could weave. In the middle the earth is mounded, as if covering a stone."
+      }
+    }
   ]
 }

@@ -479,35 +479,38 @@
     "zone": "woods",
     "level": 5,
     "text": {
-      "fr": "Depuis que la pierre s'est fendue, les bêtes du bois ne tiennent plus en place. Calme les sangliers et les loups de la lisière, et rapporte-moi deux crocs : je veux voir s'ils portent la marque.",
-      "en": "Since the stone cracked, the beasts of the woods cannot keep still. Calm the boars and the wolves at the edge, and bring me two fangs: I want to see whether they bear the mark."
+      "fr": "Les bûcherons disent que les loups ne fuient plus : ils tournent en rond, toujours au même endroit. Chasses-en cinq et rapporte-moi trois crocs, s'ils portent une marque. Regarde aussi les troncs le long de leur passage : les griffes laissent des traces.",
+      "en": "The woodcutters say the wolves no longer run: they go round in circles, always in the same spot. Hunt five and bring me three fangs, if any of them carry a mark. And look at the trunks along their path: claws leave traces."
     },
     "thanks": {
-      "fr": "Regarde : une fêlure en cinq branches, sur chaque croc. Comme sur la pierre.",
-      "en": "Look: a crack with five branches, on every fang. Like on the stone."
+      "fr": "Regarde : une fêlure à cinq branches sur chaque croc. Comme sur la pierre. Et ces loups tournaient autour de quelque chose. Je veux savoir quoi.",
+      "en": "Look: a crack with five branches on every fang. Like on the stone. And those wolves were circling something. I want to know what."
     },
     "objectives": [
       {
         "goal": "Defeat",
-        "target": "boar",
-        "count": 4
-      },
-      {
-        "goal": "Defeat",
         "target": "wolf",
-        "count": 3
+        "count": 5
       },
       {
         "goal": "Bring",
-        "target": "wolf-fang",
-        "count": 2
+        "target": "marked-fang",
+        "count": 3
+      },
+      {
+        "goal": "Interact",
+        "target": "claw-marks-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "claw-marks-2"
       }
     ],
-    "xp": 220,
-    "shards": 30,
     "after": [
       "edge-of-the-woods"
-    ]
+    ],
+    "xp": 300,
+    "shards": 50
   },
   {
     "id": "rumble-under-the-wallow",
@@ -517,14 +520,14 @@
     },
     "giver": "clairval/ysaline",
     "zone": "woods",
-    "level": 5,
+    "level": 8,
     "text": {
-      "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier, au fond du bois. Si la marque vient de quelque part, c'est de là. Prends cette clef : descends jusqu'à la grande salle, c'est sous elle que ça gronde.",
-      "en": "The woodcutters hear a rumbling under the Boar King's wallow, deep in the woods. If the mark comes from somewhere, it is from there. Take this key: go down to the great hall, the rumbling is under it."
+      "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier. Prends cette clef : elle ne servira qu'une fois, ensuite il faudra voir Gédéon, le serrurier. Descends jusqu'à la grande salle ; c'est sous elle que ça gronde. Et si tu peux, emmène quelqu'un.",
+      "en": "The woodcutters hear a rumbling under the Boar King's wallow. Take this key: it will only work once, after that you'll need Gédéon the locksmith. Go down to the great hall; the rumbling is under it. And if you can, take someone with you."
     },
     "thanks": {
-      "fr": "Une pierre comme la nôtre, sous la grande salle de la bauge, avec le même cinquième signe ? Alors il y en a d'autres.",
-      "en": "A stone like ours, under the wallow's great hall, with the same fifth sign? Then there are others."
+      "fr": "Une pierre comme la nôtre, sous la grande salle, avec le même cinquième signe ? Alors il y en a d'autres. Et elle n'est pas tombée là : on l'a enterrée.",
+      "en": "A stone like ours, under the great hall, with the same fifth sign? Then there are others. And it didn't fall there: somebody buried it."
     },
     "objectives": [
       {
@@ -533,17 +536,17 @@
         "room": 2
       }
     ],
-    "xp": 450,
-    "shards": 60,
     "after": [
-      "restless-beasts"
+      "the-root-circle"
     ],
     "grants": [
       {
         "item": "boar-wallow-key",
         "count": 1
       }
-    ]
+    ],
+    "xp": 480,
+    "shards": 80
   },
   {
     "id": "four-trails",
@@ -552,7 +555,7 @@
       "en": "Four Trails"
     },
     "giver": "clairval/ysaline",
-    "level": 8,
+    "level": 16,
     "text": {
       "fr": "Quatre signes, quatre pierres peut-être, quelque part. Rose entend tout ce qui se dit au marché, Garance connaît les forges, Aubin a vu toutes les cartes du pays. Va les trouver : chacun tient un bout de fil.",
       "en": "Four signs, four stones perhaps, somewhere. Rose hears everything said at the market, Garance knows the forges, Aubin has seen every map of the land. Go and find them: each of them holds the end of a thread."
@@ -578,7 +581,7 @@
     "xp": 300,
     "shards": 40,
     "after": [
-      "rumble-under-the-wallow"
+      "the-cracked-seal"
     ]
   },
   {
@@ -587,16 +590,16 @@
       "fr": "La meute",
       "en": "The Pack"
     },
-    "giver": "clairval/garance",
+    "giver": "woods/mathurin",
     "zone": "woods",
-    "level": 3,
+    "level": 6,
     "text": {
-      "fr": "Une meute rôde au sud du bois, et mes élèves n'osent plus y aller. Montre-leur que ça se fait : six loups, pas un de moins.",
-      "en": "A pack roams the south of the woods, and my pupils no longer dare go there. Show them it can be done: six wolves, not one fewer."
+      "fr": "Une meute rôde au sud de la coupe, et mes gars n'osent plus y aller seuls. Six loups. Pas pour le plaisir : pour qu'on puisse travailler.",
+      "en": "A pack roams south of the felling, and my lads daren't go there alone any more. Six wolves. Not for sport: so we can work."
     },
     "thanks": {
-      "fr": "Six ! Mes élèves vont avoir honte. Tant mieux.",
-      "en": "Six! My pupils will be ashamed. So much the better."
+      "fr": "Six. Les haches vont pouvoir chanter de nouveau. Ça mérite une miche, et un peu plus.",
+      "en": "Six. The axes can sing again. That's worth a loaf, and a bit more."
     },
     "objectives": [
       {
@@ -605,8 +608,17 @@
         "count": 6
       }
     ],
+    "after": [
+      "restless-beasts"
+    ],
+    "items": [
+      {
+        "item": "oat-bread",
+        "count": 2
+      }
+    ],
     "xp": 240,
-    "shards": 30
+    "shards": 60
   },
   {
     "id": "spores-for-the-stall",
@@ -614,16 +626,16 @@
       "fr": "Des spores pour l'étal",
       "en": "Spores for the Stall"
     },
-    "giver": "clairval/rose",
+    "giver": "mouldy/barnabe",
     "zone": "mouldy",
-    "level": 9,
+    "level": 11,
     "text": {
-      "fr": "On me demande des remèdes à base de champignons du bois moisi. Rapporte-moi de la poussière de spores et des chapeaux, je paie bien.",
-      "en": "People ask me for remedies made from the mushrooms of the Mouldy Woods. Bring me spore dust and caps, I pay well."
+      "fr": "Rose me commande un remède aux spores chaque saison, et c'est elle qui le vend. Il me faut cinq poussières de spores et trois chapeaux, et mes genoux ne plient plus. Prends-les sur les champignons. Demande poliment. Ou pas.",
+      "en": "Rose orders a spore remedy from me every season, and she sells it. I need five spore dusts and three caps, and my knees won't bend any more. Take them from the mushrooms. Ask nicely. Or don't."
     },
     "thanks": {
-      "fr": "Parfait, ça sent la cave et l'argent. Voici ta part.",
-      "en": "Perfect, it smells of cellars and money. Here is your share."
+      "fr": "Bien. Rose paiera le remède ; moi, je te donne ce que j'ai, et un conseil. Les champignons n'attaquent pas : ils défendent. Ce n'est pas pareil.",
+      "en": "Good. Rose will pay for the remedy; I'll give you what I have, and some advice. Mushrooms don't attack: they defend. It's not the same thing."
     },
     "objectives": [
       {
@@ -637,8 +649,17 @@
         "count": 3
       }
     ],
-    "xp": 650,
-    "shards": 90
+    "after": [
+      "what-grows-between"
+    ],
+    "items": [
+      {
+        "item": "hemp-bread",
+        "count": 2
+      }
+    ],
+    "xp": 440,
+    "shards": 110
   },
   {
     "id": "the-walking-dead",
@@ -646,16 +667,16 @@
       "fr": "Les morts qui marchent",
       "en": "The Walking Dead"
     },
-    "giver": "clairval/garance",
+    "giver": "mouldy/barnabe",
     "zone": "mouldy",
-    "level": 10,
+    "level": 12,
     "text": {
-      "fr": "Des morts se relèvent dans le bois moisi. Ce n'est pas une rumeur : j'en ai vu un. Couche-en huit, et qu'ils restent couchés.",
-      "en": "The dead are rising in the Mouldy Woods. It is no rumour: I saw one. Put eight of them down, and make them stay down."
+      "fr": "Les morts de la crypte sortent la nuit et piétinent mes champignons. Le mycélium essaie de les recouvrir, de les tenir, et il n'y arrive pas. Huit. Couche-les, et qu'ils restent couchés.",
+      "en": "The dead from the crypt come out at night and trample my mushrooms. The mycelium tries to cover them, to hold them, and it can't. Eight. Put them down, and make them stay down."
     },
     "thanks": {
-      "fr": "Huit… Et ils ne se relèvent plus ? Bien. Bien.",
-      "en": "Eight… And they do not get up again? Good. Good."
+      "fr": "Huit. Le mycélium les recouvre déjà. Lui, au moins, il ne lâche jamais.",
+      "en": "Eight. The mycelium is already covering them. It never lets go, that one."
     },
     "objectives": [
       {
@@ -664,8 +685,17 @@
         "count": 8
       }
     ],
-    "xp": 750,
-    "shards": 100
+    "after": [
+      "the-undug-crypt"
+    ],
+    "items": [
+      {
+        "item": "strong-healing-potion",
+        "count": 2
+      }
+    ],
+    "xp": 480,
+    "shards": 120
   },
   {
     "id": "shells-and-claws",
@@ -786,16 +816,16 @@
       "fr": "Au fond : Bauge du Roi sanglier",
       "en": "At the bottom: The Boar King's Wallow"
     },
-    "giver": "clairval/garance",
+    "giver": "woods/mathurin",
     "zone": "woods",
-    "level": 4,
+    "level": 9,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Bauge du Roi sanglier. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Boar King's Wallow. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "La grande salle, c'est une chose. Le Roi, au bout, c'en est une autre : il a un éclat de pierre fiché dans la défense et il charge comme une avalanche. Va jusqu'au fond, à plusieurs, et je graverai ton nom sur le poteau du campement.",
+      "en": "The great hall is one thing. The King, at the end, is another: he has a shard of stone stuck in his tusk and he charges like an avalanche. Go all the way down, with friends, and I'll carve your name on the camp post."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Le Roi est tombé ? Je grave ton nom sur le poteau, sous celui de mon grand-père.",
+      "en": "The King has fallen? I'll carve your name on the post, under my grandfather's."
     },
     "objectives": [
       {
@@ -803,8 +833,11 @@
         "target": "boar-wallow"
       }
     ],
-    "xp": 420,
-    "shards": 44
+    "after": [
+      "rumble-under-the-wallow"
+    ],
+    "xp": 900,
+    "shards": 135
   },
   {
     "id": "wolf-den-cleared",
@@ -812,16 +845,16 @@
       "fr": "Au fond : Tanière de la meute",
       "en": "At the bottom: The Pack's Den"
     },
-    "giver": "clairval/garance",
+    "giver": "woods/mathurin",
     "zone": "woods",
-    "level": 4,
+    "level": 10,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Tanière de la meute. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Pack's Den. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "La Tanière de la meute, c'est trois salles de crocs, et un chef dont la fourrure ressemble à de l'écorce. Personne ici n'est allé au bout. Va-y avec des amis : seul, c'est de l'entêtement.",
+      "en": "The Pack's Den is three rooms full of fangs, and a leader whose fur looks like bark. Nobody here has reached the end. Go with friends: alone, it's just stubbornness."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Le chef de meute… Il avait vraiment de l'écorce sur le dos ? Grave ton nom toi-même, j'ai les mains qui tremblent.",
+      "en": "The pack leader… Did he really have bark on his back? Carve your name yourself, my hands are shaking."
     },
     "objectives": [
       {
@@ -829,8 +862,11 @@
         "target": "wolf-den"
       }
     ],
-    "xp": 420,
-    "shards": 44
+    "after": [
+      "rumble-under-the-wallow"
+    ],
+    "xp": 1000,
+    "shards": 150
   },
   {
     "id": "mushroom-cellar-cleared",
@@ -838,16 +874,16 @@
       "fr": "Au fond : Champignonnière",
       "en": "At the bottom: The Mushroom Cellar"
     },
-    "giver": "clairval/aubin",
+    "giver": "mouldy/barnabe",
     "zone": "mouldy",
-    "level": 11,
+    "level": 15,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Champignonnière. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Mushroom Cellar. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "La Champignonnière, c'est la maison du plus vieux d'entre eux, le champignon ancestral. On ne le tue pas, tu sais : il rentre sous terre et il attend. Va jusqu'au fond, à plusieurs de préférence, et dis-moi s'il t'a regardé.",
+      "en": "The Mushroom Cellar is home to the oldest of them all, the elder fungus. You don't kill him, you know: he goes back underground and waits. Go all the way down, with friends ideally, and tell me if he looked at you."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Il s'est rétracté ? Bien. Il reviendra, il revient toujours. Ce n'est pas une défaite, c'est une politesse.",
+      "en": "He drew back? Good. He'll come back, he always does. It's not a defeat, it's good manners."
     },
     "objectives": [
       {
@@ -855,8 +891,11 @@
         "target": "mushroom-cellar"
       }
     ],
-    "xp": 840,
-    "shards": 86
+    "after": [
+      "down-into-the-crypt"
+    ],
+    "xp": 1500,
+    "shards": 225
   },
   {
     "id": "zombie-crypt-cleared",
@@ -864,16 +903,16 @@
       "fr": "Au fond : Crypte oubliée",
       "en": "At the bottom: The Forgotten Crypt"
     },
-    "giver": "clairval/aubin",
+    "giver": "mouldy/barnabe",
     "zone": "mouldy",
-    "level": 11,
+    "level": 17,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Crypte oubliée. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Forgotten Crypt. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "Au fond de la crypte, il y a un colosse fait des quatre ailes : des morceaux qui ne vont pas ensemble, cousus de force. Abats-le, avec des amis, et le bois dormira enfin.",
+      "en": "At the bottom of the crypt there's a colossus made from all four wings: pieces that don't belong together, sewn by force. Bring it down, with friends, and the woods will sleep at last."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Le colosse est tombé ? Les mares sont plus calmes ce soir. Même les filaments ont l'air de respirer.",
+      "en": "The colossus has fallen? The pools are calmer tonight. Even the threads seem to be breathing."
     },
     "objectives": [
       {
@@ -881,8 +920,360 @@
         "target": "zombie-crypt"
       }
     ],
+    "after": [
+      "down-into-the-crypt"
+    ],
+    "xp": 1700,
+    "shards": 255
+  },
+  {
+    "id": "the-root-circle",
+    "name": {
+      "fr": "Le cercle de racines",
+      "en": "The Root Circle"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "woods",
+    "level": 7,
+    "text": {
+      "fr": "Les traces mènent à une clairière où les racines ont poussé en cercle parfait. Mathurin, le chef des bûcherons, refuse d'y couper un seul arbre, et il ne veut pas me dire pourquoi. Va voir le cercle, puis va le voir, lui : avec toi, il parlera peut-être.",
+      "en": "The tracks lead to a clearing where the roots have grown in a perfect circle. Mathurin, the head woodcutter, refuses to fell a single tree there, and he won't tell me why. Go and see the circle, then go and see him: he might talk to you."
+    },
+    "thanks": {
+      "fr": "Un serment que personne ne comprend, autour d'une pierre que personne n'a vue. Les sangliers, eux, fouillent jusqu'à la bauge du Roi, plus loin. Si quelque chose dort sous ce bois, c'est là qu'il gronde.",
+      "en": "An oath nobody understands, around a stone nobody has seen. The boars, though, dig all the way to the Boar King's wallow, further on. If something sleeps under these woods, that's where it rumbles."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "root-circle"
+      },
+      {
+        "goal": "Talk",
+        "target": "woods/mathurin",
+        "line": {
+          "fr": "Mon grand-père ne coupait pas dans le cercle, son grand-père non plus. Pourquoi ? On ne demandait pas. Un serment, c'est fait pour être tenu, pas pour être compris.",
+          "en": "My grandfather never cut inside the circle, nor did his grandfather. Why? We didn't ask. An oath is made to be kept, not understood."
+        }
+      }
+    ],
+    "after": [
+      "restless-beasts"
+    ],
+    "xp": 420,
+    "shards": 70
+  },
+  {
+    "id": "four-signs",
+    "name": {
+      "fr": "Quatre signes",
+      "en": "Four Signs"
+    },
+    "giver": "woods/mathurin",
+    "zone": "woods",
+    "level": 9,
+    "text": {
+      "fr": "Ton érudite a couvert trois pages de mon carnet de comptes avec des signes. Elle dit qu'elle a compris quelque chose, et que c'est à toi qu'il faut le dire, pas à moi. Va la voir ; moi, je retourne à mes arbres.",
+      "en": "Your scholar has covered three pages of my tally book with signs. She says she's understood something, and it's you she needs to tell, not me. Go and see her; I'm going back to my trees."
+    },
+    "thanks": {
+      "fr": "Le Bois moisi. Mes gars n'y vont plus : ça sent la cave et ça colle aux bottes. Si tu y vas, Barnabé, l'ermite des mares, connaît le chemin. Prends du pain.",
+      "en": "The Mouldy Woods. My lads don't go there any more: it smells of cellars and sticks to your boots. If you go, Barnabé, the hermit of the pools, knows the way. Take some bread."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/ysaline",
+        "line": {
+          "fr": "Chaque signe de la pierre regarde un côté du pays : la graine vers le Bois, la goutte vers le Lac, la plume vers les Champs, le marteau vers un endroit qu'on ne connaît pas. La face lisse, celle du cinquième, regarde le Bois moisi. Et les filaments blancs de là-bas poussent jusqu'ici.",
+          "en": "Each sign on the stone faces a part of the land: the seed towards the woods, the drop towards the lake, the feather towards the fields, the hammer towards somewhere we don't know. The smooth face, the fifth one's, looks towards the Mouldy Woods. And the white threads from over there grow all the way here."
+        }
+      }
+    ],
+    "after": [
+      "rumble-under-the-wallow"
+    ],
+    "xp": 540,
+    "shards": 90
+  },
+  {
+    "id": "winter-pelts",
+    "name": {
+      "fr": "Des peaux pour l'hiver",
+      "en": "Pelts for Winter"
+    },
+    "giver": "woods/mathurin",
+    "zone": "woods",
+    "level": 7,
+    "text": {
+      "fr": "L'hiver vient, et mes gars dorment sous la toile. Rapporte-moi quatre peaux de loup pour les couvertures, et six noisetiers pour monter une vraie cabane. Les noisetiers poussent le long du ruisseau.",
+      "en": "Winter's coming, and my lads sleep under canvas. Bring me four wolf pelts for blankets, and six hazel to build a proper hut. Hazel grows along the stream."
+    },
+    "thanks": {
+      "fr": "Une cabane et des couvertures : mes gars vont te bénir jusqu'au printemps. C'est peu, mais c'est de bon cœur.",
+      "en": "A hut and blankets: my lads will bless you till spring. It's not much, but it's heartfelt."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "wolf-pelt",
+        "count": 4
+      },
+      {
+        "goal": "Bring",
+        "target": "hazel-log",
+        "count": 6
+      }
+    ],
+    "after": [
+      "the-pack"
+    ],
+    "items": [
+      {
+        "item": "healing-potion",
+        "count": 2
+      }
+    ],
+    "xp": 280,
+    "shards": 70
+  },
+  {
+    "id": "the-old-loner",
+    "name": {
+      "fr": "Les vieux solitaires",
+      "en": "The Old Loners"
+    },
+    "giver": "woods/mathurin",
+    "zone": "woods",
+    "level": 8,
+    "text": {
+      "fr": "Il y a de vieux sangliers qui vivent seuls, la peau dure comme la pierre. Ils mâchent des cailloux, je te jure, et ils chargent les charrettes. Trois, et la route du bois sera sûre.",
+      "en": "There are old boars that live alone, with hides as hard as stone. They chew pebbles, I swear, and they charge the carts. Three of them, and the forest road will be safe."
+    },
+    "thanks": {
+      "fr": "Dans l'estomac du dernier, mes gars ont trouvé des éclats de pierre gravée. Qui mange des cailloux qui vibrent ? Enfin. La route est sûre, c'est l'essentiel.",
+      "en": "In the last one's belly my lads found shards of carved stone. What eats pebbles that hum? Well. The road is safe, that's what matters."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "old-loner",
+        "count": 3
+      }
+    ],
+    "after": [
+      "the-root-circle"
+    ],
+    "items": [
+      {
+        "item": "oat-bread",
+        "count": 3
+      }
+    ],
+    "xp": 320,
+    "shards": 80
+  },
+  {
+    "id": "what-grows-between",
+    "name": {
+      "fr": "Ce qui pousse entre",
+      "en": "What Grows Between"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "mouldy",
+    "level": 10,
+    "text": {
+      "fr": "Les filaments blancs du Bois moisi s'accrochent à tout ce qu'ils touchent : la pierre, l'eau des mares, les racines. Suis-les jusqu'à trois nœuds, là où ils se rejoignent, et regarde bien. Les champignons les défendent : il faudra en écarter quelques-uns.",
+      "en": "The white threads of the Mouldy Woods cling to everything they touch: stone, pool water, roots. Follow them to three knots, where they meet, and look closely. The mushrooms defend them: you'll have to clear a few out of the way."
+    },
+    "thanks": {
+      "fr": "Ils relient sans mélanger : la pierre reste pierre, l'eau reste eau. Je n'avais jamais rien vu de pareil. Et pourtant, tout ce qu'ils touchent finit par pourrir. Bon signe ou mauvais signe ? Je n'en sais rien.",
+      "en": "They link without mixing: the stone stays stone, the water stays water. I've never seen anything like it. And yet everything they touch ends up rotting. A good sign or a bad one? I have no idea."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "mycelium-knot-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "mycelium-knot-2"
+      },
+      {
+        "goal": "Interact",
+        "target": "mycelium-knot-3"
+      },
+      {
+        "goal": "Defeat",
+        "target": "mushroom",
+        "count": 5
+      }
+    ],
+    "after": [
+      "four-signs"
+    ],
+    "xp": 600,
+    "shards": 100
+  },
+  {
+    "id": "the-undug-crypt",
+    "name": {
+      "fr": "La crypte que personne n'a creusée",
+      "en": "The Crypt Nobody Dug"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "mouldy",
+    "level": 12,
+    "text": {
+      "fr": "Les filaments mènent à l'entrée d'une crypte qui n'est sur aucune carte ni dans aucun registre. Pourtant ses morts marchent, et ils portent sur eux des pages arrachées. Rapporte-m'en trois, et demande à Aubin et à Odalric s'ils connaissent cet endroit.",
+      "en": "The threads lead to the entrance of a crypt that's on no map and in no registry. Yet its dead are walking, and they carry torn-out pages. Bring me three, and ask Aubin and Odalric whether they know the place."
+    },
+    "thanks": {
+      "fr": "Des morts rangés par élément, une crypte que tout le monde voit sans la remarquer… Clairval ne l'a pas oubliée : il a appris à ne pas la regarder. Il faut descendre.",
+      "en": "The dead sorted by element, a crypt everyone sees without noticing… Clairval didn't forget it: it learnt not to look at it. We have to go down."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "registry-page",
+        "count": 3
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/aubin",
+        "line": {
+          "fr": "La crypte du Bois moisi ? Mais elle a toujours été là, voyons. Je… je ne me souviens pas d'y avoir jamais pensé. C'est drôle, non ?",
+          "en": "The crypt in the Mouldy Woods? Why, it's always been there. I… I don't remember ever thinking about it. Funny, isn't it?"
+        }
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/odalric",
+        "line": {
+          "fr": "Ces pages viennent d'un registre comme le mien, de la même main que nos plus vieilles pages. Mais les morts y sont rangés en quatre colonnes : terre, eau, feu, air. Nous n'avons jamais rangé personne ainsi.",
+          "en": "These pages come from a registry like mine, in the same hand as our oldest pages. But the dead are listed in four columns: earth, water, fire, air. We have never listed anyone that way."
+        }
+      }
+    ],
+    "after": [
+      "what-grows-between"
+    ],
+    "xp": 720,
+    "shards": 120
+  },
+  {
+    "id": "down-into-the-crypt",
+    "name": {
+      "fr": "Descendre dans la crypte",
+      "en": "Down into the Crypt"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "mouldy",
+    "level": 14,
+    "text": {
+      "fr": "Gédéon m'a forgé cette clef d'après le moulage de la serrure ; elle ne servira qu'une fois. La crypte a quatre ailes, et quelque chose les tient fermées en leur centre. Descends jusqu'à la deuxième salle, trouve ce qui scelle tout ça, et regarde-le pour moi.",
+      "en": "Gédéon forged me this key from a cast of the lock; it will only work once. The crypt has four wings, and something at their centre keeps them shut. Go down to the second room, find whatever seals it all, and look at it for me."
+    },
+    "thanks": {
+      "fr": "Un sceau pour garder les morts séparés, chacun dans son aile. Il se fissure, et ils se relèvent mêlés, de travers. Les filaments, eux, reliaient sans forcer. Quelqu'un a cru que séparer suffisait.",
+      "en": "A seal to keep the dead apart, each in its own wing. It's cracking, and they rise all jumbled, put together wrong. The threads, though, linked without forcing anything. Someone believed that keeping things apart was enough."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "zombie-crypt",
+        "room": 2
+      },
+      {
+        "goal": "Interact",
+        "target": "crypt-seal"
+      }
+    ],
+    "after": [
+      "the-undug-crypt"
+    ],
+    "grants": [
+      {
+        "item": "zombie-crypt-key",
+        "count": 1
+      }
+    ],
     "xp": 840,
-    "shards": 86
+    "shards": 140
+  },
+  {
+    "id": "the-cracked-seal",
+    "name": {
+      "fr": "Le sceau fissuré",
+      "en": "The Cracked Seal"
+    },
+    "giver": "mouldy/barnabe",
+    "zone": "mouldy",
+    "level": 16,
+    "text": {
+      "fr": "Ton érudite, elle a dormi trois nuits chez mes champignons, à écrire. Maintenant, elle tourne en rond comme un loup. Va lui parler, toi. Moi, elle me fatigue, et les morilles aussi.",
+      "en": "Your scholar slept three nights among my mushrooms, writing. Now she's pacing like a wolf. You go and talk to her. She wears me out, and the morels too."
+    },
+    "thanks": {
+      "fr": "Le Lac ? Prends la porte du Nord du village, puis le chemin du Lac. Et salue Liane, la passeuse : elle chante faux, mais elle chante vrai.",
+      "en": "The lake? Take the village's North Gate, then the Lake Road. And say hello to Liane, the ferrywoman: she sings off-key, but she sings true."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/ysaline",
+        "line": {
+          "fr": "Le sceau de la crypte et la vieille pierre parlent la même langue, j'en suis sûre. Et cette nuit, au Lac des Joncs, les pêcheurs ont tous chanté une berceuse qu'aucun d'eux n'a apprise. Ça recommence ailleurs.",
+          "en": "The crypt's seal and the old stone speak the same language, I'm sure of it. And last night, at Reed Lake, the fishermen all sang a lullaby none of them ever learnt. It's starting again somewhere else."
+        }
+      }
+    ],
+    "after": [
+      "down-into-the-crypt"
+    ],
+    "xp": 960,
+    "shards": 160
+  },
+  {
+    "id": "hermits-remedy",
+    "name": {
+      "fr": "Le remède de l'ermite",
+      "en": "The Hermit's Remedy"
+    },
+    "giver": "mouldy/barnabe",
+    "zone": "mouldy",
+    "level": 13,
+    "text": {
+      "fr": "Le remède de Rose marche. Le mien marche mieux, mais il lui faut deux anguilles des mares et trois mousses-lumière. Pêche, cueille, rapporte. La mousse-lumière pousse à l'ombre, là où le mycélium brille.",
+      "en": "Rose's remedy works. Mine works better, but it needs two pool eels and three glowmoss. Fish, pick, bring them back. Glowmoss grows in the shade, where the mycelium glows."
+    },
+    "thanks": {
+      "fr": "Regarde : la potion reste en deux couches, l'anguille dessous, la plante dessus. Ça ne se mélange pas, et ça soigne quand même. Mieux, même. Prends-en une.",
+      "en": "Look: the potion stays in two layers, eel below, plant on top. They don't mix, and it heals all the same. Better, even. Take one."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "pool-eel",
+        "count": 2
+      },
+      {
+        "goal": "Bring",
+        "target": "glowmoss",
+        "count": 3
+      }
+    ],
+    "after": [
+      "spores-for-the-stall"
+    ],
+    "items": [
+      {
+        "item": "strong-healing-potion",
+        "count": 1
+      }
+    ],
+    "xp": 520,
+    "shards": 130
   },
   {
     "id": "frog-grotto-cleared",

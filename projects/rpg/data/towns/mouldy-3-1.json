@@ -821,5 +821,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mycelium-knot-1",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "mycelium",
+      "name": {
+        "fr": "Un nœud de filaments",
+        "en": "A knot of threads"
+      },
+      "text": {
+        "fr": "Des filaments blancs tiennent un éclat de pierre gravée sans l'entamer. La pierre reste pierre, le filament reste filament.",
+        "en": "White threads hold a shard of carved stone without biting into it. The stone stays stone, the thread stays thread."
+      }
+    }
   ]
 }

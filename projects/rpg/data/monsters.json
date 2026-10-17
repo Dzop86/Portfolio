@@ -292,6 +292,11 @@
             "percent": 8
           },
           {
+            "item": "marked-fang",
+            "percent": 35,
+            "quest": "restless-beasts"
+          },
+          {
             "item": "wolf-den-key",
             "percent": 2
           }
@@ -322,6 +327,11 @@
           {
             "item": "howl-ring",
             "percent": 8
+          },
+          {
+            "item": "marked-fang",
+            "percent": 35,
+            "quest": "restless-beasts"
           },
           {
             "item": "wolf-den-key",
@@ -374,6 +384,11 @@
             "percent": 8
           },
           {
+            "item": "marked-fang",
+            "percent": 35,
+            "quest": "restless-beasts"
+          },
+          {
             "item": "wolf-den-key",
             "percent": 2
           }
@@ -405,6 +420,11 @@
           {
             "item": "pack-amulet",
             "percent": 8
+          },
+          {
+            "item": "marked-fang",
+            "percent": 35,
+            "quest": "restless-beasts"
           },
           {
             "item": "wolf-den-key",
@@ -471,6 +491,11 @@
           {
             "item": "pack-amulet",
             "percent": 8
+          },
+          {
+            "item": "marked-fang",
+            "percent": 35,
+            "quest": "restless-beasts"
           },
           {
             "item": "wolf-den-key",
@@ -768,6 +793,11 @@
             "percent": 8
           },
           {
+            "item": "registry-page",
+            "percent": 35,
+            "quest": "the-undug-crypt"
+          },
+          {
             "item": "zombie-crypt-key",
             "percent": 2
           }
@@ -803,6 +833,11 @@
           {
             "item": "bile-ring",
             "percent": 8
+          },
+          {
+            "item": "registry-page",
+            "percent": 35,
+            "quest": "the-undug-crypt"
           },
           {
             "item": "zombie-crypt-key",
@@ -846,6 +881,11 @@
             "percent": 8
           },
           {
+            "item": "registry-page",
+            "percent": 35,
+            "quest": "the-undug-crypt"
+          },
+          {
             "item": "zombie-crypt-key",
             "percent": 2
           }
@@ -883,6 +923,11 @@
           {
             "item": "bone-cape",
             "percent": 8
+          },
+          {
+            "item": "registry-page",
+            "percent": 35,
+            "quest": "the-undug-crypt"
           },
           {
             "item": "zombie-crypt-key",
@@ -944,6 +989,11 @@
           {
             "item": "bone-cape",
             "percent": 8
+          },
+          {
+            "item": "registry-page",
+            "percent": 35,
+            "quest": "the-undug-crypt"
           },
           {
             "item": "zombie-crypt-key",

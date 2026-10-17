@@ -1084,7 +1084,8 @@ public sealed class Texts
         string target = objective.Goal switch
         {
             QuestGoal.Talk => data.FindNpc(objective.Target) is (_, Npc n) ? n.Name.In(Lang) : objective.Target,
-            QuestGoal.Defeat => data.Families.TryGetValue(objective.Target, out MonsterFamily? f) ? f.Name.In(Lang) : objective.Target,
+            QuestGoal.Defeat => data.Families.TryGetValue(objective.Target, out MonsterFamily? f) ? f.Name.In(Lang)
+                : data.Monsters.TryGetValue(objective.Target, out MonsterSpec? m) ? m.Name.In(Lang) : objective.Target,
             QuestGoal.Bring or QuestGoal.Wear => data.Items.TryGetValue(objective.Target, out Item? i) ? i.Name.In(Lang) : objective.Target,
             QuestGoal.Interact => data.FindProp(objective.Target) is (_, Prop p) ? p.Name.In(Lang) : objective.Target,
             QuestGoal.Win => data.FindScenario(objective.Target) is Scenario sc ? sc.Name.In(Lang) : objective.Target,

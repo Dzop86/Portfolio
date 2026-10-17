@@ -88,10 +88,11 @@ public class QuestTests
         GameServer server = await api.SignedIn("key");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
-        await Give(api, account, 5);
+        await Give(api, account, 8);
         api.WithDb(db =>
         {
-            db.Characters.Single().Quests = "whispering-stone,restless-beasts";
+            // Since sprint 112, at level 8 after the root circle.
+            db.Characters.Single().Quests = "whispering-stone,restless-beasts,the-root-circle";
             return db.SaveChanges();
         });
         CharacterSummary taken = await server.TakeQuest(c.Id, "rumble-under-the-wallow", Cancel);

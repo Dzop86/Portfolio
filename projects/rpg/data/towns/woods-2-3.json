@@ -876,5 +876,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "claw-marks-2",
+      "at": {
+        "x": 24,
+        "y": 20
+      },
+      "look": "claws",
+      "name": {
+        "fr": "Un sentier tassé",
+        "en": "A trodden path"
+      },
+      "text": {
+        "fr": "Le sol est tassé en un sentier courbe. Les loups ont tourné ici des nuits entières, autour de quelque chose.",
+        "en": "The ground is trodden into a curving path. The wolves have circled here for nights on end, around something."
+      }
+    }
   ]
 }

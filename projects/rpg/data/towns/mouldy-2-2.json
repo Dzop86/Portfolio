@@ -788,5 +788,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mycelium-knot-2",
+      "at": {
+        "x": 23,
+        "y": 15
+      },
+      "look": "mycelium",
+      "name": {
+        "fr": "Un filament dans la mare",
+        "en": "A thread in the pool"
+      },
+      "text": {
+        "fr": "Un filament plonge dans une mare et en ressort sec. Autour, l'eau est claire comme de la source.",
+        "en": "A thread dips into a pool and comes out dry. Around it the water is clear as spring water."
+      }
+    }
   ]
 }

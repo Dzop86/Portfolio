@@ -33,8 +33,10 @@ public class ConsumableTests
             fight.Apply(Ai.Decide(fight));
         Assert.Equal(ActionError.None, fight.Apply(new UseItemAction("healing-potion")));
         Ai.PlayOut(fight);
-        await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
-        Assert.DoesNotContain((await server.Characters(Cancel)).Single().Inventory!, i => i.Item == "healing-potion");
+        FightResult result = await server.ReportFight(c.Id, ticket.Id, FightRecord.Of(fight), Cancel);
+        // Used up; the training's enemies may leave another one.
+        int left = (await server.Characters(Cancel)).Single().Inventory!.Where(i => i.Item == "healing-potion").Sum(i => i.Count);
+        Assert.Equal(result.Loot!.Where(i => i.Item == "healing-potion").Sum(i => i.Count), left);
         // A potion not owned: the record is refused.
         ticket = await server.StartFight(c.Id, "training", Cancel);
         now = (await server.Characters(Cancel)).Single();

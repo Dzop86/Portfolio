@@ -392,7 +392,7 @@ public sealed class GameData
                 bool known = o.Goal switch
                 {
                     QuestGoal.Talk => FindNpc(o.Target) is not null,
-                    QuestGoal.Defeat => Families.ContainsKey(o.Target),
+                    QuestGoal.Defeat => Families.ContainsKey(o.Target) || Monsters.ContainsKey(o.Target),
                     QuestGoal.Bring => Items.ContainsKey(o.Target),
                     QuestGoal.Dungeon => Dungeons.ContainsKey(o.Target),
                     QuestGoal.Interact => FindProp(o.Target) is not null,

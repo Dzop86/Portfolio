@@ -601,7 +601,8 @@ public partial class TownView : Node3D
 
     /// <summary>
     /// A thing to examine (sprint 105): the old stone a standing stone with its four signs carved on its south face;
-    /// any other a small cairn until it has its own look. A glint turns over it while a quest asks for it.
+    /// since sprint 112 claw marks on a stump, a ring of roots, a knot of threads, the crypt's seal; any other a small
+    /// cairn until it has its own look. A glint turns over it while a quest asks for it.
     /// </summary>
     private void AddProp(Prop prop)
     {
@@ -628,6 +629,36 @@ public partial class TownView : Node3D
             foreach ((float x, float y) in new[] { (-0.12f, 1.15f), (0.12f, 1.15f), (-0.12f, 0.8f), (0.12f, 0.8f) })
                 Part(this, new BoxMesh { Size = new Vector3(0.12f, 0.12f, 0.02f) }, new Color("4a4844"), at + new Vector3(x, y, 0.18f));
             Part(this, new BoxMesh { Size = new Vector3(0.025f, 1.0f, 0.02f) }, new Color("2e2c29"), at + new Vector3(0.05f, 0.7f, 0.181f), new Vector3(0, 0, 12));
+        }
+        else if (prop.Look == "claws")
+        {
+            // A stump scored with claw marks (sprint 112).
+            Part(this, new CylinderMesh { TopRadius = 0.22f, BottomRadius = 0.26f, Height = 0.7f }, new Color("6b4a2b"), at + new Vector3(0, 0.35f, 0));
+            foreach (float y in new[] { 0.3f, 0.42f, 0.54f })
+                Part(this, new BoxMesh { Size = new Vector3(0.3f, 0.03f, 0.02f) }, new Color("e8d8b0"), at + new Vector3(0, y, 0.25f), new Vector3(0, 0, -18));
+        }
+        else if (prop.Look == "roots")
+        {
+            // Thick roots in a ring around a mound.
+            for (int i = 0; i < 8; i++)
+            {
+                float a = i * Mathf.Tau / 8;
+                Part(this, new BoxMesh { Size = new Vector3(0.36f, 0.12f, 0.12f) }, new Color("5a3a22"), at + new Vector3(Mathf.Cos(a) * 0.38f, 0.06f, Mathf.Sin(a) * 0.38f), new Vector3(0, -Mathf.RadToDeg(a) + 90, 0));
+            }
+            Part(this, new SphereMesh { Radius = 0.22f, Height = 0.2f }, new Color("6f5a3a"), at + new Vector3(0, 0.05f, 0));
+        }
+        else if (prop.Look == "mycelium")
+        {
+            // White threads in a knot over a shard.
+            Part(this, new BoxMesh { Size = new Vector3(0.3f, 0.12f, 0.2f) }, grey, at + new Vector3(0, 0.06f, 0), new Vector3(0, 20, 0));
+            for (int i = 0; i < 5; i++)
+                Part(this, new BoxMesh { Size = new Vector3(0.6f, 0.03f, 0.03f) }, new Color("f2efe6"), at + new Vector3(0, 0.1f + 0.02f * i, 0), new Vector3(0, i * 36, 8 * (i % 2 == 0 ? 1 : -1)));
+        }
+        else if (prop.Look == "seal")
+        {
+            // A dark disc on the floor, cracked across.
+            Part(this, new CylinderMesh { TopRadius = 0.42f, BottomRadius = 0.42f, Height = 0.06f }, new Color("2f2b33"), at + new Vector3(0, 0.03f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.7f, 0.02f, 0.03f) }, new Color("c9783a"), at + new Vector3(0, 0.07f, 0), new Vector3(0, 35, 0));
         }
         else
         {

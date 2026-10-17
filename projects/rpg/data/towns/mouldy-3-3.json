@@ -876,5 +876,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mycelium-knot-3",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "mycelium",
+      "name": {
+        "fr": "Une racine et un filament",
+        "en": "A root and a thread"
+      },
+      "text": {
+        "fr": "Une racine et un filament s'enroulent l'un autour de l'autre sans se mêler, comme deux mains qui se tiennent.",
+        "en": "A root and a thread wind around each other without merging, like two hands holding."
+      }
+    }
   ]
 }

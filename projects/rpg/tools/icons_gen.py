@@ -76,7 +76,7 @@ ICONS = {
     "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",
     "royal-hive-key": "delapouite/boss-key", "mole-burrows-key": "delapouite/boss-key",
-    "garance-badge": "andymeneely/police-badge", "rat-tail": "cathelineau/earth-worm", "palisade-stake": "delapouite/log", "admin-keyring": "delapouite/keyring",
+    "garance-badge": "andymeneely/police-badge", "rat-tail": "cathelineau/earth-worm", "marked-fang": "skoll/fangs", "registry-page": "lorc/scroll-unfurled", "palisade-stake": "delapouite/log", "admin-keyring": "delapouite/keyring",
 }
 
 

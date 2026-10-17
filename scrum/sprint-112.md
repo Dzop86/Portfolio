@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis le fil des quêtes du Bois et du Bois moisi (18), avec le campement des bûcherons et l'ermite des mares (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, je suis le fil des quêtes du Bois et du Bois moisi (18), avec le campement des bûcherons et l'ermite des mares (rpg) ; textes du scénariste ; xUnit. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

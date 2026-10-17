@@ -48,7 +48,12 @@ public static class Quests
         string id = fight.Scenario.Id;
         int beaten = fight.Fighters.Count(f => f.Team != 0 && !f.IsSummon);
         if (id.StartsWith(MonsterGroup.Prefix, StringComparison.Ordinal) && data.Groups.TryGetValue(id[MonsterGroup.Prefix.Length..], out MonsterGroup? group))
+        {
             counts[group.Family] = beaten;
+            // And each kind of monster of the group, for a quest that asks for one (sprint 112: three old loners).
+            foreach (string monster in group.Monsters)
+                counts[monster] = counts.GetValueOrDefault(monster) + 1;
+        }
         else if (Dungeons.Parse(id) is (string dungeon, _) && data.Dungeons.TryGetValue(dungeon, out Dungeon? d))
             counts[d.Family] = beaten;
         return counts;

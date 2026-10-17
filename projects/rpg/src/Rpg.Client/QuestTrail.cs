@@ -68,7 +68,7 @@ public static class QuestTrail
 
     // A group of the family, on the first map (by its name) where they roam, out of the dungeons.
     private static TrailGoal? GroupOf(GameData data, string family) =>
-        data.Groups.Values.Where(g => g.Family == family && !data.Towns[g.Map].IsHall)
+        data.Groups.Values.Where(g => (g.Family == family || g.Monsters.Contains(family)) && !data.Towns[g.Map].IsHall)
             .OrderBy(g => g.Map, StringComparer.Ordinal).ThenBy(g => g.Id, StringComparer.Ordinal)
             .Select(g => new TrailGoal(g.Map, g.Home)).FirstOrDefault();
 

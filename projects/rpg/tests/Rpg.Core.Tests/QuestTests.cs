@@ -64,7 +64,9 @@ public class QuestTests
         // A group of boars of the woods, won: as many boars as it had, never more than asked.
         MonsterGroup boars = Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null && g.Monsters.Count == 2);
         Fight won = Won(boars.Scenario);
-        Assert.Equal(new Dictionary<string, int> { ["boar"] = 2 }, Quests.Defeated(Real, won));
+        // The family, and since sprint 112 each kind of monster of the group.
+        Assert.Equal(2, Quests.Defeated(Real, won)["boar"]);
+        Assert.All(boars.Monsters.Distinct(), m => Assert.Equal(boars.Monsters.Count(x => x == m), Quests.Defeated(Real, won)[m]));
         p = Quests.AfterFight(Edge, p, Quests.Defeated(Real, won), null);
         p = Quests.AfterFight(Edge, p, Quests.Defeated(Real, won), null);
         Assert.Equal([3, 0, 0], p.Counts);

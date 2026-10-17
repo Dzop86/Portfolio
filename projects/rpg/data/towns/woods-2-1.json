@@ -854,5 +854,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "claw-marks-1",
+      "at": {
+        "x": 24,
+        "y": 10
+      },
+      "look": "claws",
+      "name": {
+        "fr": "Des griffures",
+        "en": "Claw marks"
+      },
+      "text": {
+        "fr": "Des griffures fraîches, toutes à la même hauteur, sur des troncs qui dessinent un arc de cercle.",
+        "en": "Fresh claw marks, all at the same height, on trunks that form an arc."
+      }
+    }
   ]
 }

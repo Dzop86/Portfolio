@@ -131,8 +131,9 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
     }
 
     // The first map (by its name) where the family's monsters roam, out of the dungeons.
-    private string? FamilyMap(string family) =>
-        Data.Groups.Values.Where(g => g.Family == family && !Data.Towns[g.Map].IsHall).Select(g => g.Map).Order(StringComparer.Ordinal).FirstOrDefault();
+    // A family's first map, or since sprint 112 the first map of a group with that kind of monster (the old loners).
+    private string? FamilyMap(string target) =>
+        Data.Groups.Values.Where(g => (g.Family == target || g.Monsters.Contains(target)) && !Data.Towns[g.Map].IsHall).Select(g => g.Map).Order(StringComparer.Ordinal).FirstOrDefault();
 
     /// <summary>
     /// The journal: a zone for each quest's zone (the village first, for quests of none), its quests under
