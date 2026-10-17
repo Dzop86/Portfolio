@@ -59,7 +59,10 @@ PEOPLE = {
              ("perrine", text("Perrine", "Perrine"), "female-b", 6, (26, 10), "perrine"),
              ("gedeon", text("Gédéon", "Gédéon"), "male-a", 5, (21, 11), "gedeon"),
              ("sidonie", text("Sidonie", "Sidonie"), "female-f", 4, (26, 21), "sidonie"),
-             ("basile", text("Basile", "Basile"), "male-c", 3, (26, 26), "basile")],
+             ("basile", text("Basile", "Basile"), "male-c", 3, (26, 26), "basile"),
+             # The jeweller and the cobbler (sprint 110, D76): Gédéon's pattern, west of the road, south of the way west.
+             ("eudes", text("Eudes", "Eudes"), "male-f", 2, (21, 22), "eudes"),
+             ("apolline", text("Apolline", "Apolline"), "female-c", 1, (21, 28), "apolline")],
     (0, 2): [("gautier", text("Gautier", "Gautier"), "male-f", 3, (3, 13), "gautier")],
     (1, 2): [("leonie", text("Léonie", "Léonie"), "female-c", 5, (21, 22), "leonie")],
     (2, 2): [("odalric", text("Odalric", "Odalric"), "male-b", 2, (27, 21), "odalric")],
@@ -69,12 +72,13 @@ HOMES = {
     (0, 0): [(10, 11)],
     (2, 0): [(27, 7)],
     (3, 0): [(32, 9)],
-    (3, 1): [(27, 4), (27, 9), (19, 8), (27, 20), (27, 25)],
+    (3, 1): [(27, 4), (27, 9), (19, 8), (27, 20), (27, 25), (19, 19), (19, 25)],
     (1, 2): [(23, 25)],
     (2, 2): [(28, 19)],
 }
 # A workshop beside its craftsman's house, never on the road (Charles, D75): the locksmith's bench by Gédéon's door.
-BENCHES = {(3, 1): [((19, 10), "locksmith"), ((27, 6), "smith"), ((27, 11), "tailor")]}  # The forge and the tailor's workshop since sprint 109.
+# The forge and the tailor's workshop since sprint 109, the jeweller's and the cobbler's benches since sprint 110.
+BENCHES = {(3, 1): [((19, 10), "locksmith"), ((27, 6), "smith"), ((27, 11), "tailor"), ((19, 21), "jeweller"), ((19, 27), "cobbler")]}
 # Fenced yards (sprint 104): the corners of the fence, what stands inside against it, and its beasts.
 PENS = {
     (0, 2): ((8, 19), (19, 28), [("E", (9, 20))], [("horse", (13, 23)), ("horse", (16, 25)), ("horse", (12, 26))]),

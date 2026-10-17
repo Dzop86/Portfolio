@@ -115,7 +115,11 @@ public class InitiativeTests
         Assert.Null(Equipment.Problem(craft, 6, Real));
         Assert.All(zone, w => Assert.Equal(w.Value, craft[w.Key]));
         Assert.Equal(Initiative(zone), Initiative(craft));
-        Assert.Equal(["copper-billhook", "hazel-pavise", "linen-tunic", "oat-straw-hat"], craft.Values.Where(id => Real.MadePieces.Any(i => i.Id == id)).Order());
+        // Every other slot a made piece of level 6 or under fits holds one (both hands: a one-handed weapon and a shield).
+        Slot[] fillable = [.. Real.MadePieces.Where(i => i.Level <= 6).SelectMany(i => i.Slots).Distinct().Where(s => !zone.ContainsKey(s) && s != Slot.TwoHanded)];
+        Assert.Equal(fillable.Order(), craft.Where(w => Real.MadePieces.Any(i => i.Id == w.Value)).Select(w => w.Key).Order());
+        Assert.Contains("copper-billhook", craft.Values);
+        Assert.Contains("hazel-roundshield", craft.Values);
         Assert.Equal("linen-tunic", fast[Slot.Chest]);
         Assert.True(Progression.Kit("craft", "woods", 2, Real).Values.All(id => Real.Items[id].Level <= 2));
     }

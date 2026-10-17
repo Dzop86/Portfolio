@@ -24,6 +24,13 @@
         },
         {
           "text": {
+            "fr": "L'atelier ?",
+            "en": "The workshop?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -45,6 +52,13 @@
         },
         {
           "text": {
+            "fr": "L'atelier ?",
+            "en": "The workshop?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -63,6 +77,41 @@
             "en": "The trade?"
           },
           "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "L'atelier ?",
+            "en": "The workshop?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Juste sous ma porte. Ouvre ta fenêtre des métiers (J), et ne touche pas à mes ciseaux : ils coupent droit, eux.",
+        "en": "Just below my door. Open your trades window (J), and don't touch my scissors: they cut straight, they do."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Les peaux de loup ?",
+            "en": "Wolf pelts?"
+          },
+          "next": "topic2"
         },
         {
           "text": {

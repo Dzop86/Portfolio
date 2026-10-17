@@ -58,6 +58,9 @@ public sealed class InventoryEditor
             return "not equipment";
         if (item.Level > Hero.Level)
             return $"level {item.Level}";
+        // The same ring never on both hands (sprint 110, D76).
+        if (item.Slot == ItemSlot.Ring && _worn.ContainsValue(item.Id))
+            return "already worn";
         int owned = Owned.Where(o => o.Item == item.Id).Sum(o => o.Count);
         return owned - _worn.Values.Count(w => w == item.Id) < 1 ? "none left" : null;
     }

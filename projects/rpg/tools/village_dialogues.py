@@ -30,11 +30,25 @@ P = {
  "anselme": [
   (None, t("Hm. La forge est chaude. Parle vite.", "Hm. The forge is hot. Talk fast.")),
   (t("Le métier ?", "The trade?"), t("Du métal, du bois, de la patience. Le reste, c'est le marteau.", "Metal, wood, patience. The rest is the hammer.")),
-  (t("L'arme de Garance ?", "Garance's weapon?"), t("Garance m'a apporté l'arme qui vibre. Le métal est bon. C'est la main qui ne l'est pas.", "Garance brought me the humming weapon. The metal is sound. It's the hand that isn't."))],
+  (t("L'arme de Garance ?", "Garance's weapon?"), t("Garance m'a apporté l'arme qui vibre. Le métal est bon. C'est la main qui ne l'est pas.", "Garance brought me the humming weapon. The metal is sound. It's the hand that isn't.")),
+  # The forge (sprint 110, docs/textes-v6.md §2).
+  (t("La forge ?", "The forge?"), t("Devant ma porte. Approche, ouvre ta fenêtre des métiers (J). Je ne prête pas mon marteau ; l'enclume, si.", "In front of my door. Step up and open your trades window (J). I don't lend my hammer; the anvil, yes."))],
  "perrine": [
   (None, t("Ne bouge pas, je prends tes mesures. Voilà. Tu peux bouger.", "Hold still, I'm taking your measurements. There. You may move.")),
   (t("Le métier ?", "The trade?"), t("Lin, cuir, peaux : je couds tout ce qui se coud, et droit. Le travers, je le laisse aux zombies.", "Flax, leather, pelts: I sew anything that can be sewn, and straight. Crooked I leave to the zombies.")),
-  (t("Les peaux de loup ?", "Wolf pelts?"), t("Les peaux de loup qu'on m'apporte ont des poils raides comme de l'écorce. Je les couds quand même, mais ça m'agace.", "The wolf pelts I'm brought have hairs as stiff as bark. I sew them anyway, but it irks me."))],
+  (t("Les peaux de loup ?", "Wolf pelts?"), t("Les peaux de loup qu'on m'apporte ont des poils raides comme de l'écorce. Je les couds quand même, mais ça m'agace.", "The wolf pelts I'm brought have hairs as stiff as bark. I sew them anyway, but it irks me.")),
+  (t("L'atelier ?", "The workshop?"), t("Juste sous ma porte. Ouvre ta fenêtre des métiers (J), et ne touche pas à mes ciseaux : ils coupent droit, eux.", "Just below my door. Open your trades window (J), and don't touch my scissors: they cut straight, they do."))],
+ # The jeweller and the cobbler of Craftsmen's Row (sprint 110, docs/textes-v6.md §2).
+ "eudes": [
+  (None, t("Approche, approche. Mes yeux ne voient plus bien loin, mais je n'oublie jamais un anneau.", "Come closer, closer. My eyes don't see very far any more, but I never forget a ring.")),
+  (t("Le métier ?", "The trade?"), t("Des anneaux et des amulettes : le métal vient de la carrière, la colle des poissons de l'étang. Mon établi est sous ma porte ; ouvre ta fenêtre des métiers (J), et va doucement avec mes pinces.", "Rings and amulets: the metal comes from the quarry, the glue from the fish in the pond. My bench is just below my door; open your trades window (J), and go gently with my pliers.")),
+  (t("Jamais ?", "Never?"), t("Chaque anneau que je fais, je l'inscris dans ce cahier, avec le doigt qui le porte. Les anneaux de cuivre que Garance donne à ses élèves, c'est moi. Ses insignes aussi.", "Every ring I make goes into this ledger, with the finger that wears it. The copper rings Garance gives her pupils are mine. Her badges too.")),
+  (t("Rien d'étrange ?", "Nothing strange?"), t("Dans mon tiroir, il y a un anneau qui porte ma marque. Je me souviens de tous ceux que j'ai faits. Pas de celui-là.", "In my drawer there's a ring that bears my mark. I remember every one I've ever made. Not that one."))],
+ "apolline": [
+  (None, t("Mmf. Attends, j'ai des clous plein la bouche. Voilà. Montre tes pieds, je te dirai d'où tu viens.", "Mmf. Hang on, I've a mouthful of nails. There. Show me your feet and I'll tell you where you've been.")),
+  (t("Le métier ?", "The trade?"), t("Bottes et ceintures, en cuir de poisson : Firmin me garde les peaux de ses goujons, il n'ose pas les vider lui-même. Mon banc est sous ma porte ; ta fenêtre des métiers (J) te dira le reste.", "Boots and belts, in fish leather: Firmin saves me the skins of his gudgeon, he daren't gut them himself. My bench is just below my door; your trades window (J) will tell you the rest.")),
+  (t("Lire les pieds ?", "Reading feet?"), t("Firmin ? De la farine jusqu'aux chevilles. Mahaut ? Le talon gauche usé : elle pivote à gauche à chaque ronde. Les gens mentent, leurs semelles jamais.", "Firmin? Flour up to his ankles. Mahaut? Left heel worn down: she turns left on every round. People lie, their soles never do.")),
+  (t("Rien d'étrange ?", "Nothing strange?"), t("Toutes les semelles de Clairval s'usent du côté de l'ouest. Toutes, même celles d'Eudes, qui ne sort jamais. Comme si le village entier penchait sans le savoir.", "Every sole in Clairval wears down on the west side. Every one, even Eudes's, and he never goes out. As if the whole village leant over without knowing it."))],
  "sidonie": [
   (None, t("Ne touche à rien ! Sauf à ça. Non, pas à ça non plus.", "Don't touch anything! Except that. No, not that either.")),
   (t("L'alchimie ?", "Alchemy?"), t("Une plante, de l'eau, du feu sous l'alambic et beaucoup de chance : c'est ça, l'alchimie. Surtout la chance.", "A plant, some water, a flame under the still and plenty of luck: that's alchemy. Mostly the luck.")),

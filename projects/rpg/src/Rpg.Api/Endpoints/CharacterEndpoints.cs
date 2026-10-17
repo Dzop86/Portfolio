@@ -520,11 +520,11 @@ public static class CharacterEndpoints
         if (character is null)
             return TypedResults.NotFound();
         var worn = new Dictionary<Slot, string>(request?.Worn ?? new Dictionary<Slot, string>());
-        // Only what it owns: two rings alike need two in the inventory.
+        // The rules first (since sprint 110, the same ring is never worn twice), then only what it owns.
         Dictionary<string, int> owned = character.InventoryList.ToDictionary(i => i.Item, i => i.Count, StringComparer.Ordinal);
-        string? problem = worn.Values.GroupBy(i => i).FirstOrDefault(g => g.Count() > owned.GetValueOrDefault(g.Key)) is IGrouping<string, string> missing
-            ? $"'{missing.Key}': not owned, or not that many."
-            : (character.Hero with { Worn = worn }).Problem(GameData.Embedded);
+        string? problem = (character.Hero with { Worn = worn }).Problem(GameData.Embedded)
+            ?? (worn.Values.GroupBy(i => i).FirstOrDefault(g => g.Count() > owned.GetValueOrDefault(g.Key)) is IGrouping<string, string> missing
+                ? $"'{missing.Key}': not owned, or not that many." : null);
         if (problem is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["equipment"] = [problem] });
         // The life grown so far, at most the new maximum (changing what is worn does not heal, sprint 101).

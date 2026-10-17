@@ -21,7 +21,9 @@ public class ItemsTests
     [Fact]
     public void WhatIsWorn_GoesInItsSlot_AtItsLevel_ATwoHandedWeaponAlone()
     {
-        Assert.Null(Equipment.Problem(Worn((Slot.Ring1, "copper-ring"), (Slot.Ring2, "copper-ring"), (Slot.OneHanded, "dagger"), (Slot.Shield, "wooden-shield")), 1, Real));
+        Assert.Null(Equipment.Problem(Worn((Slot.Ring1, "copper-ring"), (Slot.Ring2, "acorn-ring"), (Slot.OneHanded, "dagger"), (Slot.Shield, "wooden-shield")), 1, Real));
+        // The same ring twice: no (sprint 110, D76).
+        Assert.Contains("same ring", Equipment.Problem(Worn((Slot.Ring1, "copper-ring"), (Slot.Ring2, "copper-ring")), 1, Real), StringComparison.Ordinal);
         Assert.Contains("does not go in", Equipment.Problem(Worn((Slot.Hat, "copper-ring")), 1, Real), StringComparison.Ordinal);
         Assert.Contains("needs level 8", Equipment.Problem(Worn((Slot.TwoHanded, "orc-club")), 7, Real), StringComparison.Ordinal);
         Assert.Null(Equipment.Problem(Worn((Slot.TwoHanded, "orc-club")), 8, Real));

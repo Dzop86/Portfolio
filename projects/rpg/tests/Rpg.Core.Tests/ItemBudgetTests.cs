@@ -14,6 +14,8 @@ public class ItemBudgetTests
     {
         { "smith", "woodcutter", "miner" },
         { "tailor", "farmer", "herbalist" },
+        { "jeweller", "miner", "fisher" },
+        { "cobbler", "fisher", "woodcutter" },
     };
 
     /// <summary>The slots each equipment trade makes.</summary>
@@ -21,6 +23,8 @@ public class ItemBudgetTests
     {
         ["smith"] = [ItemSlot.OneHanded, ItemSlot.TwoHanded, ItemSlot.Shield],
         ["tailor"] = [ItemSlot.Chest, ItemSlot.Shoulders, ItemSlot.Hat, ItemSlot.Cape],
+        ["jeweller"] = [ItemSlot.Ring, ItemSlot.Amulet],
+        ["cobbler"] = [ItemSlot.Boots, ItemSlot.Belt],
     };
 
     /// <summary>The levels of the pieces made in each of the four zones, from the woods to the fields.</summary>
@@ -44,7 +48,7 @@ public class ItemBudgetTests
     public void ACraftsmansPiece_IsTheLootsBudget_InVitalityAndOneElement_WithoutInitiative()
     {
         Item[] made = [.. Real.MadePieces];
-        Assert.Equal(16, made.Length);
+        Assert.Equal(32, made.Length);
         foreach (Item i in made)
         {
             Assert.InRange(Sum(i.Stats), Budget(i) - 1, Budget(i) + 1);
@@ -96,12 +100,18 @@ public class ItemBudgetTests
                 Assert.Equal(mine.Length, mine.Select(i => (i.Stats!.Earth > 0, i.Stats.Fire > 0, i.Stats.Water > 0, i.Stats.Air > 0)).Distinct().Count());
             }
         }
+        // Since sprint 110: the rings, the amulets, the boots and the belts each cover the four elements over the 35 levels.
+        foreach (ItemSlot slot in new[] { ItemSlot.Ring, ItemSlot.Amulet, ItemSlot.Boots, ItemSlot.Belt })
+        {
+            Characteristics[] pieces = [.. Real.MadePieces.Where(i => i.Slot == slot).Select(i => i.Stats!)];
+            Assert.True(pieces.Any(c => c.Earth > 0) && pieces.Any(c => c.Fire > 0) && pieces.Any(c => c.Water > 0) && pieces.Any(c => c.Air > 0), slot.ToString());
+        }
     }
 
     [Fact]
     public void MakingAPiece_TeachesMoreThanAKey_AndNothingTwentyLevelsUnderTheTrade()
     {
-        Recipe billhook = Real.Jobs["smith"].RecipeFor("copper-billhook")!, falchion = Real.Jobs["smith"].RecipeFor("linden-falchion")!;
+        Recipe billhook = Real.Jobs["smith"].RecipeFor("copper-billhook")!, falchion = Real.Jobs["smith"].RecipeFor("reaper-falchion")!;
         Recipe stake = Real.Jobs["smith"].RecipeFor("palisade-stake")!;
         Assert.Equal(165, Crafting.Xp(billhook, Real.Items[billhook.Item]));
         Assert.Equal(675, Crafting.Xp(falchion, Real.Items[falchion.Item], 35));

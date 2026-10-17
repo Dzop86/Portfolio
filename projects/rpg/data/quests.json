@@ -211,6 +211,142 @@
     "shards": 30
   },
   {
+    "id": "first-billhook",
+    "name": {
+      "fr": "Le premier coup de marteau",
+      "en": "The First Hammer Blow"
+    },
+    "giver": "clairval/anselme",
+    "level": 3,
+    "text": {
+      "fr": "Hm. Un pieu, c'est du bois ; une serpe, c'est un métier. Fais-en une à la forge, devant ma porte : six chênes, deux cuivres, et deux crocs de loup pour le manche. Les crocs, Rose en vend.",
+      "en": "Hm. A stake is wood; a billhook is a trade. Make one at the forge, in front of my door: six oak, two copper, and two wolf fangs for the grip. Rose sells fangs."
+    },
+    "thanks": {
+      "fr": "(Il la retourne et la frappe de son poinçon.) Voilà. Une pièce sans poinçon n'a pas de père ; celle-ci en a un. Garde-la. Perrine, à côté, a des aiguilles pour toi.",
+      "en": "(He turns it over and strikes his mark into it.) There. A piece without a mark has no father; this one has. Keep it. Perrine, next door, has needles for you."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "copper-billhook"
+      }
+    ],
+    "after": [
+      "palisade-stakes"
+    ],
+    "items": [
+      {
+        "item": "copper-billhook",
+        "count": 1
+      }
+    ],
+    "xp": 120,
+    "shards": 30
+  },
+  {
+    "id": "first-tunic",
+    "name": {
+      "fr": "Cousu droit",
+      "en": "Sewn Straight"
+    },
+    "giver": "clairval/perrine",
+    "level": 3,
+    "text": {
+      "fr": "Tu portes ce qu'on te donne, et ça se voit : rien ne tombe droit. Couds-toi une tunique de lin à mon atelier : six lins sauvages des potagers, deux orties pour le fil, deux peaux de loup pour l'encolure. Rose a les peaux. Et couds droit.",
+      "en": "You wear whatever you're given, and it shows: nothing hangs straight. Sew yourself a linen tunic at my workshop: six wild flax from the kitchen gardens, two nettles for the thread, two wolf pelts for the collar. Rose has the pelts. And sew straight."
+    },
+    "thanks": {
+      "fr": "Montre. (Elle mesure l'ourlet.) Trois points de travers, ici. Je les reprends. Voilà : maintenant elle est droite, et elle est à toi. Anselme a du métal pour tes mains, s'il daigne lever les yeux.",
+      "en": "Let me see. (She measures the hem.) Three crooked stitches, here. I'll redo them. There: now it's straight, and it's yours. Anselme has metal for your hands, if he deigns to look up."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "linen-tunic"
+      }
+    ],
+    "after": [
+      "palisade-stakes"
+    ],
+    "items": [
+      {
+        "item": "linen-tunic",
+        "count": 1
+      }
+    ],
+    "xp": 120,
+    "shards": 30
+  },
+  {
+    "id": "first-band",
+    "name": {
+      "fr": "Inscrit au cahier",
+      "en": "Entered in the Ledger"
+    },
+    "giver": "clairval/eudes",
+    "level": 3,
+    "text": {
+      "fr": "Voyons, voyons… Pas un seul anneau de ta main dans mon cahier. Il faut réparer ça. Fais-toi un jonc de cuivre à mon établi : six cuivres de la carrière, deux goujons de l'étang pour la colle, et deux défenses de sanglier pour le polir. Rose en a, des défenses.",
+      "en": "Let's see, let's see… Not a single ring of your making in my ledger. We must put that right. Make yourself a copper band at my bench: six copper from the quarry, two gudgeon from the pond for the glue, and two boar tusks to polish it. Rose has tusks."
+    },
+    "thanks": {
+      "fr": "Approche-le de ma loupe… Bien. Un petit trait gravé à l'intérieur, et j'écris : « jonc de cuivre, première pièce ». Tiens. Celui-là, je m'en souviendrai.",
+      "en": "Bring it up to my loupe… Good. A little line engraved inside, and I write: 'copper band, first piece.' Here. This one, I'll remember."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "copper-band"
+      }
+    ],
+    "after": [
+      "palisade-stakes"
+    ],
+    "items": [
+      {
+        "item": "copper-band",
+        "count": 1
+      }
+    ],
+    "xp": 120,
+    "shards": 30
+  },
+  {
+    "id": "first-shoes",
+    "name": {
+      "fr": "Chaussure à son pied",
+      "en": "A Perfect Fit"
+    },
+    "giver": "clairval/apolline",
+    "level": 3,
+    "text": {
+      "fr": "Montre tes pieds. Poussière verte : la carrière. Copeaux de chêne : les vergers. Et des semelles qui bâillent. Fais-toi des souliers à mon banc : six goujons de l'étang pour le cuir, deux chênes pour la semelle, deux peaux de loup pour la doublure. Rose vend les peaux.",
+      "en": "Show me your feet. Green dust: the quarry. Oak shavings: the orchard. And soles that gape. Make yourself some shoes at my bench: six gudgeon from the pond for the leather, two oak for the soles, two wolf pelts for the lining. Rose sells pelts."
+    },
+    "thanks": {
+      "fr": "Fais voir la semelle. (Elle y plante un clou à tête carrée.) Mon clou. Où que tu ailles, je reconnaîtrai tes pas. Et reviens me dire de quel côté elles s'usent.",
+      "en": "Show me the sole. (She drives in a square-headed nail.) My nail. Wherever you go, I'll know your tracks. And come back and tell me which side they wear on."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "gudgeon-shoes"
+      }
+    ],
+    "after": [
+      "palisade-stakes"
+    ],
+    "items": [
+      {
+        "item": "gudgeon-shoes",
+        "count": 1
+      }
+    ],
+    "xp": 120,
+    "shards": 30
+  },
+  {
     "id": "whispering-stone",
     "name": {
       "fr": "La pierre qui murmurait",

@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je fabrique anneaux, amulettes, bottes et ceintures (16 pièces) chez le bijoutier et le cordonnier, deux nouveaux artisans de la rue des artisans, et chaque artisan me donne une quête d'initiation ; un même anneau ne se porte pas deux fois (rpg) ; textes du scénariste ; T41 remesuré ; xUnit, test d'intégration, auto-test. | 3 | À faire |
+| En tant que joueur, je fabrique anneaux, amulettes, bottes et ceintures (16 pièces) chez le bijoutier et le cordonnier, deux nouveaux artisans de la rue des artisans, et chaque artisan me donne une quête d'initiation ; un même anneau ne se porte pas deux fois (rpg) ; textes du scénariste ; T41 remesuré ; xUnit, test d'intégration, auto-test. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

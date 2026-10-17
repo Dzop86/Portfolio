@@ -1,0 +1,125 @@
+{
+  "id": "apolline",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Mmf. Attends, j'ai des clous plein la bouche. Voilà. Montre tes pieds, je te dirai d'où tu viens.",
+        "en": "Mmf. Hang on, I've a mouthful of nails. There. Show me your feet and I'll tell you where you've been."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Lire les pieds ?",
+            "en": "Reading feet?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Bottes et ceintures, en cuir de poisson : Firmin me garde les peaux de ses goujons, il n'ose pas les vider lui-même. Mon banc est sous ma porte ; ta fenêtre des métiers (J) te dira le reste.",
+        "en": "Boots and belts, in fish leather: Firmin saves me the skins of his gudgeon, he daren't gut them himself. My bench is just below my door; your trades window (J) will tell you the rest."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Lire les pieds ?",
+            "en": "Reading feet?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Firmin ? De la farine jusqu'aux chevilles. Mahaut ? Le talon gauche usé : elle pivote à gauche à chaque ronde. Les gens mentent, leurs semelles jamais.",
+        "en": "Firmin? Flour up to his ankles. Mahaut? Left heel worn down: she turns left on every round. People lie, their soles never do."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Toutes les semelles de Clairval s'usent du côté de l'ouest. Toutes, même celles d'Eudes, qui ne sort jamais. Comme si le village entier penchait sans le savoir.",
+        "en": "Every sole in Clairval wears down on the west side. Every one, even Eudes's, and he never goes out. As if the whole village leant over without knowing it."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Lire les pieds ?",
+            "en": "Reading feet?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

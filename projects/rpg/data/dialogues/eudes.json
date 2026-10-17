@@ -1,0 +1,125 @@
+{
+  "id": "eudes",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Approche, approche. Mes yeux ne voient plus bien loin, mais je n'oublie jamais un anneau.",
+        "en": "Come closer, closer. My eyes don't see very far any more, but I never forget a ring."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Jamais ?",
+            "en": "Never?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Des anneaux et des amulettes : le métal vient de la carrière, la colle des poissons de l'étang. Mon établi est sous ma porte ; ouvre ta fenêtre des métiers (J), et va doucement avec mes pinces.",
+        "en": "Rings and amulets: the metal comes from the quarry, the glue from the fish in the pond. My bench is just below my door; open your trades window (J), and go gently with my pliers."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Jamais ?",
+            "en": "Never?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Chaque anneau que je fais, je l'inscris dans ce cahier, avec le doigt qui le porte. Les anneaux de cuivre que Garance donne à ses élèves, c'est moi. Ses insignes aussi.",
+        "en": "Every ring I make goes into this ledger, with the finger that wears it. The copper rings Garance gives her pupils are mine. Her badges too."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Nothing strange?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Dans mon tiroir, il y a un anneau qui porte ma marque. Je me souviens de tous ceux que j'ai faits. Pas de celui-là.",
+        "en": "In my drawer there's a ring that bears my mark. I remember every one I've ever made. Not that one."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Jamais ?",
+            "en": "Never?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

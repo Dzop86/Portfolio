@@ -1,5 +1,6 @@
-# The equipment trades (sprint 109, D76, docs/suite-apres-d69.md §5 quater): the smith (one- and two-handed
-# weapons, shields) and the tailor (chest, shoulders, hat, cape), a recipe every 5 levels from 1 to 35. A piece's
+# The equipment trades (sprints 109 and 110, D76, docs/suite-apres-d69.md §5 quater): the smith (one- and two-handed
+# weapons, shields), the tailor (chest, shoulders, hat, cape), the jeweller (rings, amulet) and the cobbler (boots,
+# belt), a recipe every 5 levels from 1 to 35; the names as the scenarist reread them (docs/textes-v6.md §4). A piece's
 # characteristics come from the rule of §5 quater.4, not by hand: its level follows the recipe's, its budget is
 # that of the loot, (8 + level) / 2 rounded up, the element taking the upper half and Vitality the lower (a shield
 # the other way round), a two-handed weapon counting as two pieces; never initiative, action or movement points,
@@ -26,13 +27,13 @@ ELEMENT = {"Te": "earth", "Fe": "fire", "Ea": "water", "Ai": "air"}
 TRADES = O([
     ("smith", (text("Forgeron", "Smith"), text("Forge", "Forge"), [
         (1, "copper-billhook", "Serpe de cuivre", "Copper Billhook", "OneHanded", "Ai", ["oak-log", "copper-ore", "wolf-fang"]),
-        (5, "hazel-pavise", "Pavois de noisetier", "Hazel Pavise", "Shield", "Te", ["hazel-log", "tin-ore", "boar-tusk"]),
+        (5, "hazel-roundshield", "Rondache de noisetier", "Hazel Roundshield", "Shield", "Te", ["hazel-log", "tin-ore", "boar-tusk"]),
         (10, "blackwood-maul", "Merlin de bois noir", "Blackwood Maul", "TwoHanded", "Fe", ["blackwood-log", "iron-ore", "old-bone"]),
         (15, "yew-targe", "Targe d'if", "Yew Targe", "Shield", "Ea", ["yew-log", "sulphur", "mushroom-cap"]),
-        (20, "willow-cutlass", "Coutelas de saule", "Willow Cutlass", "OneHanded", "Ea", ["willow-log", "blue-clay", "crab-claw"]),
+        (20, "clay-quenched-cutlass", "Coutelas trempé à l'argile", "Clay-Quenched Cutlass", "OneHanded", "Ea", ["willow-log", "blue-clay", "crab-claw"]),
         (25, "alder-greataxe", "Grande hache d'aulne", "Alder Greataxe", "TwoHanded", "Te", ["alder-log", "zinc-ore", "crab-shell"]),
         (30, "ash-shield", "Écu de frêne", "Ash Heater Shield", "Shield", "Ai", ["ash-log", "silver-ore", "mole-fur"]),
-        (35, "linden-falchion", "Fauchon de tilleul", "Linden Falchion", "OneHanded", "Fe", ["linden-log", "quartz", "honeycomb"])])),
+        (35, "reaper-falchion", "Fauchon de moissonneur", "Reaper's Falchion", "OneHanded", "Fe", ["linden-log", "quartz", "honeycomb"])])),
     ("tailor", (text("Tailleur", "Tailor"), text("Atelier de couture", "Tailor's workshop"), [
         (1, "linen-tunic", "Tunique de lin", "Linen Tunic", "Chest", "Ea", ["wild-flax", "nettle", "wolf-pelt"]),
         (5, "oat-straw-hat", "Chapeau de paille d'avoine", "Oat-Straw Hat", "Hat", "Fe", ["wild-oats", "wood-mint", "boar-bristle"]),
@@ -41,8 +42,28 @@ TRADES = O([
         (20, "sedge-gambeson", "Gambison de laîche", "Sedge Gambeson", "Chest", "Fe", ["shore-sedge", "water-lily", "crab-shell"]),
         (25, "rice-sunhat", "Capeline de riz des joncs", "Reed-Rice Sunhat", "Hat", "Ai", ["reed-rice", "horsetail", "slime"]),
         (30, "wheat-spaulders", "Épaulières de blé tressé", "Braided Wheat Spaulders", "Shoulders", "Ea", ["clairval-wheat", "hive-flower", "bee-wing"]),
-        (35, "harvest-mantle", "Mante de moisson", "Harvest Mantle", "Cape", "Te", ["buckwheat", "lavender", "mole-fur"])])),
+        (35, "harvest-mantle", "Manteau de moisson", "Harvest Mantle", "Cape", "Te", ["buckwheat", "lavender", "mole-fur"])])),
+    ("jeweller", (text("Bijoutier", "Jeweller"), text("Établi de bijouterie", "Jeweller's bench"), [
+        (1, "copper-band", "Jonc de cuivre", "Copper Band", "Ring", "Te", ["copper-ore", "gudgeon", "boar-tusk"]),
+        (5, "tin-pendant", "Pendentif d'étain", "Tin Pendant", "Amulet", "Ea", ["tin-ore", "crayfish", "wolf-fang"]),
+        (10, "blackened-iron-ring", "Anneau de fer noirci", "Blackened Iron Ring", "Ring", "Fe", ["iron-ore", "pool-eel", "old-bone"]),
+        (15, "sulphur-medallion", "Médaillon de soufre", "Sulphur Medallion", "Amulet", "Ai", ["sulphur", "tench", "spore-dust"]),
+        (20, "blue-faience-ring", "Bague de faïence bleue", "Blue Faience Ring", "Ring", "Ea", ["blue-clay", "perch", "crab-claw"]),
+        (25, "zinc-torc", "Torque de zinc", "Zinc Torc", "Amulet", "Te", ["zinc-ore", "carp", "frog-leg"]),
+        (30, "silver-signet", "Chevalière d'argent", "Silver Signet", "Ring", "Ai", ["silver-ore", "pike", "honeycomb"]),
+        (35, "quartz-pendant", "Pendeloque de quartz", "Quartz Drop Pendant", "Amulet", "Fe", ["quartz", "zander", "bee-wing"])])),
+    ("cobbler", (text("Cordonnier", "Cobbler"), text("Banc de cordonnerie", "Cobbler's bench"), [
+        (1, "gudgeon-shoes", "Souliers en peau de goujon", "Gudgeon-Skin Shoes", "Boots", "Ai", ["gudgeon", "oak-log", "wolf-pelt"]),
+        (5, "crayfish-belt", "Ceinture à carapaces d'écrevisse", "Crayfish-Shell Belt", "Belt", "Fe", ["crayfish", "hazel-log", "boar-bristle"]),
+        (10, "eel-skin-boots", "Bottes en peau d'anguille", "Eel-Skin Boots", "Boots", "Te", ["pool-eel", "blackwood-log", "mushroom-cap"]),
+        (15, "tench-swordbelt", "Ceinturon de tanche", "Tench-Leather Swordbelt", "Belt", "Ea", ["tench", "yew-log", "rotten-cloth"]),
+        (20, "perch-waders", "Cuissardes en peau de perche", "Perch-Skin Waders", "Boots", "Fe", ["perch", "willow-log", "frog-leg"]),
+        (25, "carp-belt", "Ceinture en cuir de carpe", "Carp-Leather Belt", "Belt", "Ai", ["carp", "alder-log", "slime"]),
+        (30, "pike-skin-boots", "Bottes en peau de brochet", "Pike-Skin Boots", "Boots", "Ea", ["pike", "ash-log", "mole-fur"]),
+        (35, "zander-baldric", "Baudrier de sandre", "Zander Baldric", "Belt", "Te", ["zander", "linden-log", "honeycomb"])])),
 ])
+# The crayfish lives at the bottom of the woods' waters, on 40 % of its maps only (§5 quater.4): fewer of them.
+FEWER = {"crayfish-belt": 4}
 STAKE = O([("item", "palisade-stake"), ("level", 1), ("ingredients", [O([("item", "oak-log"), ("count", 3)]), O([("item", "copper-ore"), ("count", 2)])])])
 
 
@@ -77,6 +98,8 @@ for trade, (name, workshop, recipes) in TRADES.items():
         assert all(i in known for i in (main, second, monster)), rid
         two = slot == "TwoHanded"
         a, b, m = COUNTS[level]
+        if rid in FEWER:
+            a = FEWER[rid]
         counts = (math.ceil(a * 1.5), math.ceil(b * 1.5), m + 1) if two else (a, b, m)
         item = O([("id", rid), ("name", text(fr, en)), ("kind", "Equipment"), ("slot", slot), ("level", ITEM_LEVEL[level]),
                   ("stats", stats(ITEM_LEVEL[level], slot, element))])

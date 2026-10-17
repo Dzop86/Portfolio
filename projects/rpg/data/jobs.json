@@ -427,7 +427,7 @@
         "shards": 3
       },
       {
-        "item": "hazel-pavise",
+        "item": "hazel-roundshield",
         "level": 5,
         "ingredients": [
           {
@@ -484,7 +484,7 @@
         "shards": 14
       },
       {
-        "item": "willow-cutlass",
+        "item": "clay-quenched-cutlass",
         "level": 20,
         "ingredients": [
           {
@@ -541,7 +541,7 @@
         "shards": 26
       },
       {
-        "item": "linden-falchion",
+        "item": "reaper-falchion",
         "level": 35,
         "ingredients": [
           {
@@ -719,6 +719,336 @@
           },
           {
             "item": "mole-fur",
+            "count": 4
+          }
+        ],
+        "shards": 30
+      }
+    ]
+  },
+  {
+    "id": "jeweller",
+    "name": {
+      "fr": "Bijoutier",
+      "en": "Jeweller"
+    },
+    "workshop": {
+      "fr": "Établi de bijouterie",
+      "en": "Jeweller's bench"
+    },
+    "recipes": [
+      {
+        "item": "copper-band",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "copper-ore",
+            "count": 6
+          },
+          {
+            "item": "gudgeon",
+            "count": 2
+          },
+          {
+            "item": "boar-tusk",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "tin-pendant",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "tin-ore",
+            "count": 6
+          },
+          {
+            "item": "crayfish",
+            "count": 3
+          },
+          {
+            "item": "wolf-fang",
+            "count": 2
+          }
+        ],
+        "shards": 6
+      },
+      {
+        "item": "blackened-iron-ring",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "iron-ore",
+            "count": 8
+          },
+          {
+            "item": "pool-eel",
+            "count": 3
+          },
+          {
+            "item": "old-bone",
+            "count": 3
+          }
+        ],
+        "shards": 10
+      },
+      {
+        "item": "sulphur-medallion",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "sulphur",
+            "count": 8
+          },
+          {
+            "item": "tench",
+            "count": 4
+          },
+          {
+            "item": "spore-dust",
+            "count": 3
+          }
+        ],
+        "shards": 14
+      },
+      {
+        "item": "blue-faience-ring",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "blue-clay",
+            "count": 10
+          },
+          {
+            "item": "perch",
+            "count": 4
+          },
+          {
+            "item": "crab-claw",
+            "count": 3
+          }
+        ],
+        "shards": 18
+      },
+      {
+        "item": "zinc-torc",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "zinc-ore",
+            "count": 10
+          },
+          {
+            "item": "carp",
+            "count": 5
+          },
+          {
+            "item": "frog-leg",
+            "count": 3
+          }
+        ],
+        "shards": 22
+      },
+      {
+        "item": "silver-signet",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "silver-ore",
+            "count": 12
+          },
+          {
+            "item": "pike",
+            "count": 5
+          },
+          {
+            "item": "honeycomb",
+            "count": 4
+          }
+        ],
+        "shards": 26
+      },
+      {
+        "item": "quartz-pendant",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "quartz",
+            "count": 12
+          },
+          {
+            "item": "zander",
+            "count": 6
+          },
+          {
+            "item": "bee-wing",
+            "count": 4
+          }
+        ],
+        "shards": 30
+      }
+    ]
+  },
+  {
+    "id": "cobbler",
+    "name": {
+      "fr": "Cordonnier",
+      "en": "Cobbler"
+    },
+    "workshop": {
+      "fr": "Banc de cordonnerie",
+      "en": "Cobbler's bench"
+    },
+    "recipes": [
+      {
+        "item": "gudgeon-shoes",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "gudgeon",
+            "count": 6
+          },
+          {
+            "item": "oak-log",
+            "count": 2
+          },
+          {
+            "item": "wolf-pelt",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "crayfish-belt",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "crayfish",
+            "count": 4
+          },
+          {
+            "item": "hazel-log",
+            "count": 3
+          },
+          {
+            "item": "boar-bristle",
+            "count": 2
+          }
+        ],
+        "shards": 6
+      },
+      {
+        "item": "eel-skin-boots",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "pool-eel",
+            "count": 8
+          },
+          {
+            "item": "blackwood-log",
+            "count": 3
+          },
+          {
+            "item": "mushroom-cap",
+            "count": 3
+          }
+        ],
+        "shards": 10
+      },
+      {
+        "item": "tench-swordbelt",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "tench",
+            "count": 8
+          },
+          {
+            "item": "yew-log",
+            "count": 4
+          },
+          {
+            "item": "rotten-cloth",
+            "count": 3
+          }
+        ],
+        "shards": 14
+      },
+      {
+        "item": "perch-waders",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "perch",
+            "count": 10
+          },
+          {
+            "item": "willow-log",
+            "count": 4
+          },
+          {
+            "item": "frog-leg",
+            "count": 3
+          }
+        ],
+        "shards": 18
+      },
+      {
+        "item": "carp-belt",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "carp",
+            "count": 10
+          },
+          {
+            "item": "alder-log",
+            "count": 5
+          },
+          {
+            "item": "slime",
+            "count": 3
+          }
+        ],
+        "shards": 22
+      },
+      {
+        "item": "pike-skin-boots",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "pike",
+            "count": 12
+          },
+          {
+            "item": "ash-log",
+            "count": 5
+          },
+          {
+            "item": "mole-fur",
+            "count": 4
+          }
+        ],
+        "shards": 26
+      },
+      {
+        "item": "zander-baldric",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "zander",
+            "count": 12
+          },
+          {
+            "item": "linden-log",
+            "count": 6
+          },
+          {
+            "item": "honeycomb",
             "count": 4
           }
         ],

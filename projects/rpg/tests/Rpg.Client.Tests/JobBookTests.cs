@@ -16,7 +16,7 @@ public class JobBookTests
     public void TheTrades_GatheringThenMaking_WithTheirLevelAndTheExperienceInTheLevel()
     {
         var book = new JobBook(Data, With(30, 0), new Texts("fr"));
-        Assert.Equal(["woodcutter", "miner", "fisher", "farmer", "herbalist", "locksmith", "smith", "tailor"], book.Jobs.Select(j => j.Job.Id));
+        Assert.Equal(["woodcutter", "miner", "fisher", "farmer", "herbalist", "locksmith", "smith", "tailor", "jeweller", "cobbler"], book.Jobs.Select(j => j.Job.Id));
         JobLine wood = book.Jobs[0];
         // 30 experience: level 2 (20 needed), 10 into it of the 40 to level 3.
         Assert.Equal((2, 10L, 40L, true, true), (wood.Level, wood.XpIn, wood.XpNeeded, wood.Gathers, wood.Practised));

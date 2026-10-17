@@ -24,6 +24,13 @@
         },
         {
           "text": {
+            "fr": "La forge ?",
+            "en": "The forge?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -45,6 +52,13 @@
         },
         {
           "text": {
+            "fr": "La forge ?",
+            "en": "The forge?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -63,6 +77,41 @@
             "en": "The trade?"
           },
           "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "La forge ?",
+            "en": "The forge?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Devant ma porte. Approche, ouvre ta fenêtre des métiers (J). Je ne prête pas mon marteau ; l'enclume, si.",
+        "en": "In front of my door. Step up and open your trades window (J). I don't lend my hammer; the anvil, yes."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le métier ?",
+            "en": "The trade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "L'arme de Garance ?",
+            "en": "Garance's weapon?"
+          },
+          "next": "topic2"
         },
         {
           "text": {

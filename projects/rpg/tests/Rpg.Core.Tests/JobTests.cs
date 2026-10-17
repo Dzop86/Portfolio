@@ -90,4 +90,27 @@ public class JobTests
         Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(24, 12), "baker")] }]));
         Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(47, 0), "locksmith")] }]));
     }
+
+    [Theory]
+    [InlineData("first-billhook", "anselme", "smith")]
+    [InlineData("first-tunic", "perrine", "tailor")]
+    [InlineData("first-band", "eudes", "jeweller")]
+    [InlineData("first-shoes", "apolline", "cobbler")]
+    public void EachCraftsman_AsksForTheFirstPieceOfTheirTrade_AndGivesItBackMarked(string id, string craftsman, string trade)
+    {
+        // Sprint 110 (D76, docs/textes-v6.md §3): after the palisade's stakes, beside Rose's stall, a piece brought and given back.
+        Quest quest = Real.Quests[id];
+        Recipe first = Real.Jobs[trade].Recipes.Where(r => Real.Items[r.Item].Kind == ItemKind.Equipment).MinBy(r => r.Level)!;
+        Assert.Equal($"clairval/{craftsman}", quest.Giver);
+        Assert.Equal(["palisade-stakes"], quest.After);
+        QuestObjective bring = Assert.Single(quest.Objectives!);
+        Assert.Equal((QuestGoal.Bring, first.Item, 1), (bring.Goal, bring.Target, bring.Count));
+        Assert.Equal([new ItemCount(first.Item, 1)], quest.Items);
+        Assert.Equal((3, 120L, 30L), (quest.Level, quest.Xp, quest.Shards));
+        // One offer each, so never more than two at a time (T70); the craftsman stands by the workshop of the trade.
+        Assert.Single(Real.Quests.Values, q => q.Giver == quest.Giver);
+        Town row = Real.Towns["clairval-3-1"];
+        Workshop bench = Assert.Single(row.Workshops!, w => w.Job == trade);
+        Assert.True(row.Npcs.Single(n => n.Id == craftsman).At.DistanceTo(bench.At) <= 3, craftsman);
+    }
 }

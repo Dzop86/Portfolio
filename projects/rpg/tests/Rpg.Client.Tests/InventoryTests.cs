@@ -27,24 +27,26 @@ public class InventoryTests
         var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Bag, Data);
         Item ring = Data.Items["copper-ring"];
         Assert.True(editor.Put(ring));
-        Assert.True(editor.Put(ring));
-        Assert.Equal(("copper-ring", "copper-ring"), (editor.Worn[Slot.Ring1], editor.Worn[Slot.Ring2]));
-        Assert.Equal("none left", editor.WhyNot(ring));
-        Assert.Equal(0, editor.Page(InventoryPage.Equipment)[0].Free);
+        // Two copper rings owned, but the same ring never on both hands (sprint 110, D76).
+        Assert.Equal("already worn", editor.WhyNot(ring));
+        Assert.False(editor.Put(ring));
+        Assert.Equal(["copper-ring"], editor.Worn.Values);
+        Assert.Equal(1, editor.Page(InventoryPage.Equipment)[0].Free);
         editor.Put(Data.Items["dagger"]);
+        Assert.Equal("none left", editor.WhyNot(Data.Items["dagger"]));
         editor.Put(Data.Items["wooden-shield"]);
         // The club takes both hands; the dagger then takes the club off.
         editor.Put(Data.Items["orc-club"]);
-        Assert.Equal([Slot.Ring1, Slot.Ring2, Slot.TwoHanded], editor.Worn.Keys.Order());
+        Assert.Equal([Slot.Ring1, Slot.TwoHanded], editor.Worn.Keys.Order());
         editor.Put(Data.Items["dagger"]);
-        Assert.Equal([Slot.Ring1, Slot.Ring2, Slot.OneHanded], editor.Worn.Keys.Order());
+        Assert.Equal([Slot.Ring1, Slot.OneHanded], editor.Worn.Keys.Order());
         Assert.Equal("level 20", editor.WhyNot(Data.Items["donkey"]));
         Assert.Equal("not equipment", editor.WhyNot(Data.Items["bread"]));
         Assert.False(editor.Put(Data.Items["bread"]));
         Assert.Null(editor.Draft.Problem(Data));
         Assert.True(editor.Changed);
         editor.TakeOff(Slot.Ring1);
-        Assert.Equal(1, editor.Page(InventoryPage.Equipment)[0].Free);
+        Assert.Equal(2, editor.Page(InventoryPage.Equipment)[0].Free);
     }
 
     [Fact]

@@ -47,9 +47,9 @@ public class TownTests
         Assert.Equal([.. Enumerable.Range(0, 4).SelectMany(x => Enumerable.Range(-1, 3).Select(y => new Cell(x, y)))],
             village.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
-        Assert.Equal(["anselme", "aubin", "basile", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
+        Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
             village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(["anselme", "barnabe", "basile", "dungeon-keeper", "eglantine", "firmin", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "leonie", "liane", "mahaut", "mathurin", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
+        Assert.Equal(["anselme", "apolline", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "leonie", "liane", "mahaut", "mathurin", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
             Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {

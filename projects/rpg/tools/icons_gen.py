@@ -32,12 +32,19 @@ ICONS = {
     "wooden-shield": "delapouite/viking-shield", "shell-shield": "delapouite/spiked-shield",
     "kitten": "lorc/cat", "donkey": "skoll/donkey",
     # The craftsmen's pieces (sprint 109): the smith's and the tailor's, a drawing already there for each slot.
-    "copper-billhook": "lorc/plain-dagger", "hazel-pavise": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
-    "yew-targe": "delapouite/viking-shield", "willow-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
-    "ash-shield": "delapouite/viking-shield", "linden-falchion": "lorc/meat-cleaver",
+    "copper-billhook": "lorc/plain-dagger", "hazel-roundshield": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
+    "yew-targe": "delapouite/viking-shield", "clay-quenched-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
+    "ash-shield": "delapouite/viking-shield", "reaper-falchion": "lorc/meat-cleaver",
     "linen-tunic": "lorc/breastplate", "oat-straw-hat": "delapouite/outback-hat", "hemp-shoulders": "skoll/pauldrons",
     "rye-pelerine": "delapouite/cape", "sedge-gambeson": "lorc/breastplate", "rice-sunhat": "delapouite/flower-hat",
     "wheat-spaulders": "skoll/pauldrons", "harvest-mantle": "lucasms/cloak",
+    # The jeweller's and the cobbler's (sprint 110).
+    "copper-band": "delapouite/ring", "tin-pendant": "delapouite/tribal-pendant", "blackened-iron-ring": "delapouite/power-ring",
+    "sulphur-medallion": "lorc/gem-pendant", "blue-faience-ring": "delapouite/frozen-ring", "zinc-torc": "delapouite/primitive-necklace",
+    "silver-signet": "delapouite/globe-ring", "quartz-pendant": "lorc/gem-pendant",
+    "gudgeon-shoes": "lorc/leather-boot", "crayfish-belt": "lucasms/belt", "eel-skin-boots": "delapouite/rubber-boot",
+    "tench-swordbelt": "delapouite/belt-armor", "perch-waders": "delapouite/rubber-boot", "carp-belt": "lucasms/belt",
+    "pike-skin-boots": "delapouite/fur-boot", "zander-baldric": "delapouite/belt-armor",
     "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
     "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
     # Consumables.

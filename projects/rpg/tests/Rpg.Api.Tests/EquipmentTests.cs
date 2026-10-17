@@ -63,10 +63,10 @@ public class EquipmentTests
         CharacterSummary wearing = await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Ring2] = "copper-ring" }, Cancel);
         Assert.Equal("copper-ring", wearing.Worn![Slot.Ring2]);
         Assert.Equal(wearing, (await server.Characters(Cancel)).Single());
-        // Two rings need two; a dagger not owned; a ring on the head; a quest badge on a finger.
+        // The same ring twice (sprint 110); a dagger not owned; a ring on the head; a quest badge on a finger.
         foreach ((Dictionary<Slot, string> wrong, string why) in new[]
         {
-            (new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Ring2] = "copper-ring" }, "not owned, or not that many"),
+            (new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Ring2] = "copper-ring" }, "same ring"),
             (new Dictionary<Slot, string> { [Slot.OneHanded] = "dagger", [Slot.Ring1] = "copper-ring" }, wearing.Inventory!.Any(i => i.Item == "dagger") ? "" : "'dagger': not owned"),
             (new Dictionary<Slot, string> { [Slot.Hat] = "copper-ring" }, "does not go in Hat"),
             (new Dictionary<Slot, string> { [Slot.Ring1] = "garance-badge" }, "does not go in Ring1"),

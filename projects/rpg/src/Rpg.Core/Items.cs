@@ -108,7 +108,7 @@ public sealed record ItemCount(string Item, int Count);
 /// </summary>
 public static class Equipment
 {
-    /// <summary>Why the hero cannot wear this, or null: equipment, a slot it fits, its level, a two-handed weapon alone.</summary>
+    /// <summary>Why the hero cannot wear this, or null: equipment, a slot it fits, its level, a two-handed weapon alone, two different rings.</summary>
     public static string? Problem(IReadOnlyDictionary<Slot, string> worn, int level, GameData data)
     {
         ArgumentNullException.ThrowIfNull(worn);
@@ -124,6 +124,9 @@ public static class Equipment
         }
         if (worn.ContainsKey(Slot.TwoHanded) && (worn.ContainsKey(Slot.OneHanded) || worn.ContainsKey(Slot.Shield)))
             return "A two-handed weapon takes both hands: no one-handed weapon, no shield.";
+        // The same ring on both hands (sprint 110, D76): the jeweller would make the double trivial.
+        if (worn.TryGetValue(Slot.Ring1, out string? first) && worn.TryGetValue(Slot.Ring2, out string? second) && first == second)
+            return "The same ring cannot be worn twice.";
         return null;
     }
 

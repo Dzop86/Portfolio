@@ -98,4 +98,36 @@ public class CraftTests
         await server.SaveEquipment(c.Id, new Dictionary<Slot, string>(), Cancel);
         Assert.Equal(6L, (await server.Sell(c.Id, "copper-billhook", 1, Cancel)).Shards);
     }
+
+    [Fact]
+    public async Task TheJewellersBand_IsMade_Worn_ThenBroughtToEudes_WhoGivesItBackMarked_StillWorn()
+    {
+        // Sprint 110 (D76): the band made at the jeweller's bench, worn, then brought for "first-band": taken and given
+        // back in the same answer, it stays on its finger.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("jew");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Joncs", "male-c", "guard", cancel: Cancel);
+        Recipe band = GameData.Embedded.Jobs["jeweller"].RecipeFor("copper-band")!;
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, null, [.. band.Ingredients]), Cancel);
+        api.WithDb(db =>
+        {
+            Character ch = db.Characters.Single();
+            Cell square = GameData.Embedded.Towns[Shop.Village].Spawn;
+            (ch.Shards, ch.Level, ch.Quests, ch.Town, ch.X, ch.Y) = (band.Shards, 3, "palisade-stakes", Shop.Village, square.X, square.Y);
+            return db.SaveChanges();
+        });
+        CharacterSummary made = await server.Craft(c.Id, "jeweller", "copper-band", cancel: Cancel);
+        Assert.Equal(165L, made.Jobs!["jeweller"]);
+        await server.SaveEquipment(c.Id, new Dictionary<Slot, string> { [Slot.Ring1] = "copper-band" }, Cancel);
+        await server.TakeQuest(c.Id, "first-band", Cancel);
+        QuestReward reward = await server.HandInQuest(c.Id, "first-band", Cancel);
+        CharacterSummary after = (await server.Characters(Cancel)).Single();
+        Assert.Equal(30L, after.Shards);
+        Assert.Contains("first-band", after.Quests!);
+        Assert.Equal([new ItemCount("copper-band", 1)], after.Inventory!);
+        Assert.Equal("copper-band", after.Worn![Slot.Ring1]);
+        Assert.NotNull(reward);
+    }
 }
