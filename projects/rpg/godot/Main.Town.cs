@@ -476,8 +476,8 @@ public partial class Main
         }
     }
 
-    /// <summary>The player's walking pace, in cells a second: 20 % faster since sprint 83 (D66).</summary>
-    private const double WalkSpeed = 5.04;
+    /// <summary>The player's walking pace, in cells a second: 20 % faster since sprint 83 (D66), 10 % more since sprint 115.</summary>
+    private const double WalkSpeed = 5.544;
 
     // The proximity chat (sprint 84): one socket for the character in play, kept from map to map (the
     // server follows the place it saves), and its lines.

@@ -56,9 +56,8 @@ public class InventoryTests
         Assert.Equal("Cape du braconnier · Cape · niveau 1\n+5 Air\nPanoplie du braconnier : 2 pièces +5 Air ; 3 pièces +20 Air, +1 PM", fr.ItemCard(Data.Items["poacher-cape"]));
         Assert.Equal("Donkey · Mount · level 20\n+1 MP", new Texts("en").ItemCard(Data.Items["donkey"]));
         Assert.Equal("Pain · consommable\nRend 40 PV, hors combat.", fr.ItemCard(Data.Items["bread"]));
-        // Since sprint 111, a potion and an oil say what they do in a fight.
-        Assert.Equal("Potion de soin · consommable\nEn combat : rend 26 PV (2 PA, une potion ou une huile par combat).", fr.ItemCard(Data.Items["healing-potion"]));
-        Assert.Equal("Earth Oil · consumable\nIn a fight: +10 % Earth damage for 3 turns (2 AP, one potion or oil a fight).", new Texts("en").ItemCard(Data.Items["earth-oil"]));
+        // Since sprint 115, a potion heals out of a fight, as food does.
+        Assert.Equal("Healing Potion · consumable\nGives back 110 HP, out of a fight.", new Texts("en").ItemCard(Data.Items["healing-potion"]));
         foreach (Item i in Data.Items.Values)
         {
             Assert.DoesNotContain("{", fr.ItemCard(i), StringComparison.Ordinal);

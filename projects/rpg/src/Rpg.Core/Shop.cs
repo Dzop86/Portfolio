@@ -49,7 +49,7 @@ public static class Shop
     /// <summary>
     /// The resources Rose sells, the monsters' and since sprint 99 the gathered ones, in the order of the data (not the
     /// dungeons' keys: the locksmith makes them); the village's loaf; since sprint 111 the healing potions, dearer than
-    /// the alchemist makes them, not his oils nor the baker's other breads.
+    /// the alchemist makes them, not the baker's other breads.
     /// </summary>
     public static IReadOnlyList<Item> Stock(GameData data)
     {
@@ -57,10 +57,12 @@ public static class Shop
         HashSet<string> keys = [.. data.Dungeons.Values.Select(d => d.Key)];
         HashSet<string> dropped = [.. data.Families.Values.SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Select(l => l.Item),
             .. data.Jobs.Values.SelectMany(j => j.Harvests ?? []).Select(h => h.Item)];
-        return [.. data.Items.Values.Where(i => (i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id)) || i.Id == Loaf || IsHealingPotion(i))];
+        return [.. data.Items.Values.Where(i => (i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id)) || i.Id == Loaf || IsHealingPotion(i, data))];
     }
 
-    private static bool IsHealingPotion(Item item) => item.InFight && item.Effects!.Any(e => e is HealEffect);
+    /// <summary>The alchemist's potions (sprint 111; out of a fight since sprint 115): healing, dearer than food.</summary>
+    private static bool IsHealingPotion(Item item, GameData data) =>
+        item.Heal > 0 && data.Jobs.TryGetValue("alchemist", out Job? alchemist) && alchemist.RecipeFor(item.Id) is not null;
 
     /// <summary>A healing potion's price at Rose's (sprint 111): 10 Éclats and one a level.</summary>
     public static long PotionPrice(Item item)
@@ -74,7 +76,7 @@ public static class Shop
     {
         ArgumentNullException.ThrowIfNull(item);
         // Food (sprint 101): the village's bread at ten Éclats a level.
-        return !Stock(data).Contains(item) ? null : item.Heal > 0 ? 10L * item.Level : item.InFight ? PotionPrice(item) : 5 * BuyPrice(item, data);
+        return !Stock(data).Contains(item) ? null : IsHealingPotion(item, data) ? PotionPrice(item) : item.Heal > 0 ? 10L * item.Level : 5 * BuyPrice(item, data);
     }
 
     /// <summary>Why <paramref name="count"/> cannot be bought now, or null: in stock, in the village, with the Éclats.</summary>

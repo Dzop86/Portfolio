@@ -71,13 +71,8 @@ public sealed record Item(
     string? Set = null,
     int Initiative = 0,
     string? Icon = null,
-    int Heal = 0,
-    IReadOnlyList<SpellEffect>? Effects = null)
+    int Heal = 0)
 {
-    /// <summary>A potion or an oil (sprint 111): drunk in a fight, its effects on the one who drinks it.</summary>
-    [JsonIgnore]
-    public bool InFight => Kind == ItemKind.Consumable && Effects is { Count: > 0 };
-
     /// <summary>The kinds of pieces that may carry initiative (sprint 95, D71): the light ones.</summary>
     public static readonly IReadOnlyList<ItemSlot> Quick = [ItemSlot.Boots, ItemSlot.Cape, ItemSlot.Ring];
 

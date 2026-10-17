@@ -115,10 +115,8 @@ public sealed class Fight
     /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
     /// <param name="rival">Another hero, in place of the scenario's first fighter of team B (class duels).</param>
     /// <param name="heroHp">The hero's hit points to start with, at most its maximum (a dungeon's rooms, sprint 86); null: all of them.</param>
-    /// <param name="pack">The potions and oils the hero carries in (sprint 111), one of which it may drink; none if null.</param>
-    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null, IReadOnlyList<string>? pack = null)
+    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null)
     {
-        Pack = [.. (pack ?? []).Distinct()];
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
         if (hero?.Problem(data) is string problem)
@@ -211,25 +209,6 @@ public sealed class Fight
 
     /// <summary>The fighter the hero plays (the scenario's first of team A).</summary>
     public Fighter? HeroFighter => _heroIndex >= 0 ? _fighters[_heroIndex] : null;
-
-    /// <summary>The action points a potion or an oil costs (sprint 111, D71).</summary>
-    public const int ItemAp = 2;
-
-    /// <summary>The potions and oils the hero carried in (sprint 111): one may be drunk.</summary>
-    public IReadOnlyList<string> Pack { get; }
-
-    /// <summary>The potion or oil drunk this fight, if any: one a fight, whichever it is.</summary>
-    public string? UsedItem { get; private set; }
-
-    /// <summary>Whether the fighter playing could drink <paramref name="item"/> now.</summary>
-    public ActionError CheckUse(string item)
-    {
-        if (IsOver)
-            return ActionError.FightOver;
-        if (Current != HeroFighter || UsedItem is not null || !Pack.Contains(item) || !_data.Items.TryGetValue(item, out Item? it) || !it.InFight)
-            return ActionError.ItemUnavailable;
-        return Current.Ap < ItemAp ? ActionError.NotEnoughAp : ActionError.None;
-    }
     public Hero? Hero { get; }
 
     /// <summary>The hero playing team B's first fighter, if any.</summary>
@@ -396,8 +375,6 @@ public sealed class Fight
                 return spell is null ? ActionError.UnknownSpell : CheckCast(me, spell, me.Cell, cast.Target);
             case EndTurnAction:
                 return ActionError.None;
-            case UseItemAction use:
-                return CheckUse(use.Item);
             default:
                 throw new ArgumentException($"Unknown action {action.GetType().Name}.", nameof(action));
         }
@@ -424,14 +401,6 @@ public sealed class Fight
                 break;
             case EndTurnAction:
                 NextTurn();
-                break;
-            case UseItemAction use:
-                // Drunk at once, on oneself: its effects as a spell's on its caster (a heal, a status).
-                me.Ap -= ItemAp;
-                UsedItem = use.Item;
-                _events.Add(new ItemUsed(me.Id, use.Item));
-                Apply(me, _data.Items[use.Item].Effects!, [me], me.Cell, critical: false, attacker: null);
-                Resolve();
                 break;
         }
         return ActionError.None;

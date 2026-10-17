@@ -18,10 +18,10 @@ public class ShopTests
         Assert.Null(Shop.SellPrice(Real.Items["boar-wallow-key"], Real));
         Assert.Null(Shop.BuyPrice(Real.Items["admin-keyring"], Real));
         // Resources, since sprint 101 the village's loaf, since sprint 111 the healing potions at 10 and one a level;
-        // neither the baker's other breads nor the alchemist's oils.
-        Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Id == Shop.Loaf || (i.InFight && i.Effects!.Any(e => e is HealEffect)), i.Id));
+        // not the baker's other breads.
+        Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Id == Shop.Loaf || Real.Jobs["alchemist"].RecipeFor(i.Id) is not null, i.Id));
+        Assert.Equal(4, Shop.Stock(Real).Count(i => Real.Jobs["alchemist"].RecipeFor(i.Id) is not null));
         Assert.Equal(13L, Shop.SellPrice(Real.Items["healing-potion"], Real));
-        Assert.Null(Shop.SellPrice(Real.Items["earth-oil"], Real));
         Assert.Null(Shop.SellPrice(Real.Items["oat-bread"], Real));
         Assert.Equal(10L, Shop.SellPrice(Real.Items[Shop.Loaf], Real));
         Assert.Contains(bristle, Shop.Stock(Real));

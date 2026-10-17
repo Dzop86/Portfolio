@@ -272,10 +272,6 @@ public sealed class GameData
             // Food (sprint 101): a consumable that heals out of a fight.
             if (i.Heal < 0 || (i.Heal > 0 && i.Kind != ItemKind.Consumable))
                 throw new InvalidDataException($"Item '{i.Id}': only a consumable heals.");
-            // A potion or an oil (sprint 111): a consumable, not food too, on the one who drinks it, a heal or a status.
-            if (i.Effects is { Count: > 0 } && (i.Kind != ItemKind.Consumable || i.Heal > 0
-                || i.Effects.Any(e => e.Affects != Affects.Caster || e is not (HealEffect or StatusEffect))))
-                throw new InvalidDataException($"Item '{i.Id}': a potion or an oil is a consumable, not food, healing or giving a status to the one who drinks it.");
             if (i.Initiative < 0 || (i.Initiative > 0 && (i.Slot is not ItemSlot slot || !Item.Quick.Contains(slot))))
                 throw new InvalidDataException($"Item '{i.Id}': initiative on boots, a cape or a ring only.");
         }

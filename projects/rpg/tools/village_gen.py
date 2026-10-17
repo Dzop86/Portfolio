@@ -155,7 +155,7 @@ def theme(rnd, g, c, r, free, road_cells):
                 x, y = x + rnd.randint(-1, 1), y + rnd.randint(-1, 1)
 
     def houses(count):
-        # Along the streets first (sprint 104, "a real village"): the closest free places to a road, a little shuffled.
+        # Along the streets first (sprint 104, "a real village"; two more a map since sprint 115): the closest free places to a road, a little shuffled.
         spots = [(x, y) for x in range(2, W - 3) for y in range(2, H - 3)]
         rnd.shuffle(spots)
         spots.sort(key=lambda p: min(abs(p[0] - rx) + abs(p[1] - ry) for (rx, ry) in road_cells) // 3)
@@ -171,33 +171,33 @@ def theme(rnd, g, c, r, free, road_cells):
             for x in range(26, 44, 3):
                 if free(x, y):
                     g[y][x] = 'T'
-        houses(5)
+        houses(7)
     elif (c, r) == (1, 0):          # The gardens: flower beds, plots of grass, houses.
         put(',', 10, 6)
-        houses(8)
+        houses(10)
     elif (c, r) == (2, 0):          # The mill and its pond.
         for y in range(5, 11):
             for x in range(30, 40):
                 if ((x - 35) / 5) ** 2 + ((y - 8) / 3) ** 2 < 1 and free(x, y):
                     g[y][x] = '~'
-        houses(5)
+        houses(7)
         put('T', 4, 2)
     elif (c, r) == (3, 0):          # The quarry: rocks against the palisade.
         put('R', 14, 2)
-        houses(3)
+        houses(5)
     elif (c, r) == (0, 1):          # The west gate's yard: lanterns, a cart.
         for (x, y) in ((6, 13), (6, 19), (12, 20)):
             if free(x, y):
                 g[y][x] = 'L'
         put('C', 1)
-        houses(5)
+        houses(7)
     elif (c, r) == (1, 1):          # The square: the fountain, lanterns, the old houses.
         for (x, y) in ((22, 13), (23, 13), (22, 14), (23, 14)):
             g[y][x] = 'F' if (x, y) == (22, 13) else 'f'
         for (x, y) in ((18, 15), (29, 15), (18, 18), (29, 18)):
             if free(x, y):
                 g[y][x] = 'L'
-        houses(10)
+        houses(12)
         put('T', 3, 2)
     elif (c, r) == (2, 1):          # The market: stalls round the street.
         for x in range(14, 36, 4):
@@ -205,26 +205,26 @@ def theme(rnd, g, c, r, free, road_cells):
                 if free(x, y):
                     g[y][x] = 'S'
         put('C', 2)
-        houses(8)
+        houses(10)
     elif (c, r) == (3, 1):          # Craftsmen's row: their houses along the street, a bench by the locksmith's.
-        houses(6)
+        houses(8)
         put('C', 2)
     elif (c, r) == (0, 2):          # The south gate: the stables and their paddock, a cart, hedges.
         put('C', 1)
-        houses(6)
+        houses(8)
         put('B', 4, 3)
     elif (c, r) == (1, 2):          # The granaries, Léonie's hen house and its yard.
-        houses(8)
+        houses(10)
         put('T', 3, 2)
     elif (c, r) == (2, 2):          # The chapel and the graves.
-        houses(6)
+        houses(8)
         for y in range(22, 28, 2):
             for x in range(30, 40, 2):
                 if free(x, y):
                     g[y][x] = 'R'
         put('T', 4, 2)
     else:                           # The sheep meadow, fenced; hedges, flowers.
-        houses(3)
+        houses(5)
         put('B', 4, 3)
         put(',', 4, 4)
         put('T', 3, 2)
@@ -235,11 +235,12 @@ for r in range(ROWS):
     for c in range(COLS):
         rnd = random.Random(1020 + 10 * r + c)
         g = [['.'] * W for _ in range(H)]
-        # The palisade on the village's outer edges; inner edges are bushes but for their wide ways.
+        # The palisade on the village's outer edges; inner edges are a wooden fence but for their wide ways (sprint 115:
+        # Charles found the bushes there ugly).
         for x in range(W):
-            g[0][x] = g[H - 1][x] = 'B'
+            g[0][x] = g[H - 1][x] = 'X'
         for y in range(H):
-            g[y][0] = g[y][W - 1] = 'B'
+            g[y][0] = g[y][W - 1] = 'X'
         # The palisade last, so that it holds the corners.
         for x in range(W):
             if r == 0:

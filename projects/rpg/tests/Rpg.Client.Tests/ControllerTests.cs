@@ -135,19 +135,4 @@ public class ControllerTests
         Assert.False(c.IsPlayerTurn);
         Assert.NotNull(c.PlayAiStep());
     }
-
-    [Fact]
-    public void ThePotionsCarried_AreOfferedOnce_ThenGone()
-    {
-        // Sprint 111: what the hero carried in, lowest first; drunk, nothing more to offer.
-        var fight = new Fight(GameData.Embedded, "training", 3, new Hero("Essai", "female-d", "guard", Level: 10), pack: ["strong-healing-potion", "healing-potion"]);
-        while (fight.Current != fight.HeroFighter)
-            fight.Apply(Ai.Decide(fight));
-        var controller = new FightController(fight);
-        Assert.Equal(["healing-potion", "strong-healing-potion"], controller.Drinkable(GameData.Embedded).Select(i => i.Id));
-        Assert.Equal(new UseItemAction("healing-potion"), controller.Drink("healing-potion"));
-        Assert.Empty(controller.Drinkable(GameData.Embedded));
-        Assert.Null(controller.Drink("strong-healing-potion"));
-        Assert.Equal(ActionError.ItemUnavailable, controller.LastError);
-    }
 }

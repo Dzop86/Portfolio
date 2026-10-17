@@ -62,24 +62,17 @@ TRADES = O([
         (30, "pike-skin-boots", "Bottes en peau de brochet", "Pike-Skin Boots", "Boots", "Ea", ["pike", "ash-log", "mole-fur"]),
         (35, "zander-baldric", "Baudrier de sandre", "Zander Baldric", "Belt", "Te", ["zander", "linden-log", "honeycomb"])])),
 ])
-# The consumables' trades (sprint 111, D71, §5.5 and §5 bis.5): the alchemist's potions (a heal of 20 + 2 × the item's
-# level, recipes 1, 10, 20, 30) and oils (+10 to +25 % damage of their element for 3 turns, recipes 5, 15, 25, 35, one per
-# element at each size), drunk in a fight, one a fight; the baker's breads (30 + 10 × the recipe's level hit points, eaten
-# out of a fight), the first being the village's loaf that Rose sells. Their ingredients: the herbalist's plant of the
-# recipe's level and a fish of that level (potions), a monster's resource of the zone, one per element (oils); three of
-# the farmer's grain and a plant (breads).
+# The consumables' trades (sprint 111, D71, §5.5 and §5 bis.5; out of a fight only since sprint 115, D77): the alchemist's
+# healing potions (50 + 20 × the item's level hit points at once, recipes 1, 10, 20, 30), the baker's breads (30 + 10 × the
+# recipe's level hit points), all of them eaten or drunk out of a fight; the first bread is the village's loaf that Rose
+# sells. Their ingredients: the herbalist's plant of the recipe's level and a fish of that level (potions); three of the
+# farmer's grain and a plant (breads). The oils of sprint 111 went with the consumables in a fight.
 HERBS = {1: "nettle", 5: "wood-mint", 10: "glowmoss", 15: "clubmoss", 20: "water-lily", 25: "horsetail", 30: "hive-flower", 35: "lavender"}
 FISH = {1: "gudgeon", 10: "pool-eel", 20: "perch", 30: "pike"}
 GRAIN = {1: "wild-flax", 5: "wild-oats", 10: "pool-hemp", 15: "rye", 20: "shore-sedge", 25: "reed-rice", 30: "clairval-wheat", 35: "buckwheat"}
 POTIONS = [(1, "healing-potion", "Potion de soin", "Healing Potion", (4, 2)), (10, "strong-healing-potion", "Potion de soin forte", "Strong Healing Potion", (5, 2)),
            (20, "greater-healing-potion", "Grande potion de soin", "Greater Healing Potion", (6, 3)), (30, "healing-elixir", "Élixir de soin", "Healing Elixir", (7, 3))]
-# Oils by size: recipe level, percent, names (fr with the element's name, en), and per element the zone's monster resource.
-OILS = [(5, 10, ("Huile {de}", "{El} Oil"), {"earth": "boar-tusk", "fire": "boar-bristle", "water": "wolf-pelt", "air": "wolf-fang"}),
-        (15, 15, ("Huile {de} concentrée", "Concentrated {El} Oil"), {"earth": "mushroom-cap", "fire": "spore-dust", "water": "rotten-cloth", "air": "old-bone"}),
-        (25, 20, ("Essence {de}", "{El} Essence"), {"earth": "crab-shell", "fire": "slime", "water": "frog-leg", "air": "crab-claw"}),
-        (35, 25, ("Quintessence {de}", "{El} Quintessence"), {"earth": "earthworm", "fire": "honeycomb", "water": "mole-fur", "air": "bee-wing"})]
-OIL_ID = {5: "{e}-oil", 15: "concentrated-{e}-oil", 25: "{e}-essence", 35: "{e}-quintessence"}
-ELEMENT_NAMES = {"earth": ("de terre", "Earth"), "fire": ("de feu", "Fire"), "water": ("d'eau", "Water"), "air": ("d'air", "Air")}
+OILS = [size.format(e=e) for size in ("{e}-oil", "concentrated-{e}-oil", "{e}-essence", "{e}-quintessence") for e in ("earth", "fire", "water", "air")]
 BREADS = [(1, "bread", "Pain", "Bread"), (5, "oat-bread", "Pain d'avoine", "Oat Bread"), (10, "hemp-bread", "Pain de chanvre", "Hemp Bread"),
           (15, "rye-bread", "Pain de seigle", "Rye Bread"), (20, "sedge-flatbread", "Galette de laîche", "Sedge Flatbread"),
           (25, "reed-rice-bread", "Pain de riz des joncs", "Reed-Rice Bread"), (30, "clairval-loaf", "Miche de Clairval", "Clairval Loaf"),
@@ -159,17 +152,9 @@ def recipe(item, level, ingredients, shards=0):
 brews = []
 for level, iid, fr, en, (herbs, fish) in POTIONS:
     lv = ITEM_LEVEL[level]
-    put(O([("id", iid), ("name", text(fr, en)), ("kind", "Consumable"), ("level", lv),
-           ("effects", [O([("kind", "heal"), ("affects", "Caster"), ("min", 20 + 2 * lv), ("max", 20 + 2 * lv)])])]))
+    put(O([("id", iid), ("name", text(fr, en)), ("kind", "Consumable"), ("level", lv), ("heal", 50 + 20 * lv)]))
     brews.append(recipe(iid, level, [(HERBS[level], herbs), (FISH[level], fish)], max(1, lv // 2)))
-for level, percent, (fr, en), resource in OILS:
-    lv = ITEM_LEVEL[level]
-    for element, monster in resource.items():
-        de, el = ELEMENT_NAMES[element]
-        iid = OIL_ID[level].format(e=element)
-        put(O([("id", iid), ("name", text(fr.format(de=de), en.format(El=el))), ("kind", "Consumable"), ("level", lv),
-               ("effects", [O([("kind", "status"), ("affects", "Caster"), ("stat", "Damage"), ("value", percent), ("turns", 3), ("element", element.capitalize())])])]))
-        brews.append(recipe(iid, level, [(HERBS[level], 4 + level // 10), (monster, 2)], max(1, lv // 2)))
+items[:] = [i for i in items if i["id"] not in OILS]
 loaves = []
 for level, iid, fr, en in BREADS:
     put(O([("id", iid), ("name", text(fr, en)), ("kind", "Consumable"), ("level", level), ("heal", 30 + 10 * level)]))
@@ -180,4 +165,4 @@ for trade, made in (("alchemist", brews), ("baker", loaves)):
 with open(f"{root}/items.json", "w") as out:
     out.write("[\n" + ",\n".join("  " + inline(i) for i in items) + "\n]\n")
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")
-print(f"{len(TRADES)} equipment trades, {pieces} pieces; {len(brews)} potions and oils, {len(loaves)} breads")
+print(f"{len(TRADES)} equipment trades, {pieces} pieces; {len(brews)} potions, {len(loaves)} breads")

@@ -47,11 +47,9 @@ ICONS = {
     "pike-skin-boots": "delapouite/fur-boot", "zander-baldric": "delapouite/belt-armor",
     "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
     "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
-    # Consumables; since sprint 111 the alchemist's potions and oils and the baker's breads.
+    # Consumables; since sprint 111 the alchemist's potions and the baker's breads.
     "bread": "delapouite/bread", "healing-potion": "delapouite/health-potion",
     "strong-healing-potion": "delapouite/health-potion", "greater-healing-potion": "delapouite/health-potion", "healing-elixir": "delapouite/health-potion",
-    **{oil.format(e=e): "lorc/round-bottom-flask" for oil in ("{e}-oil", "concentrated-{e}-oil", "{e}-essence", "{e}-quintessence")
-       for e in ("earth", "fire", "water", "air")},
     **{b: "delapouite/bread" for b in ("oat-bread", "hemp-bread", "rye-bread", "sedge-flatbread", "reed-rice-bread", "clairval-loaf", "buckwheat-galette")},
     # Resources the monsters leave.
     "leather": "delapouite/animal-hide", "orc-fang": "lorc/fangs-circle", "feather": "lorc/feather",

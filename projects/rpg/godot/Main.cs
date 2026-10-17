@@ -159,9 +159,7 @@ public partial class Main : Node3D
         ulong seed = _ticket?.Seed ?? _nextSeed ?? _options.Seed ?? (ulong)Time.GetUnixTimeFromSystem();
         // The hero's life to start with, on the server's word (sprint 101, D73; a dungeon's rooms since sprint 86).
         int? hp = hero?.Class is not null ? _ticket?.HeroHp : null;
-        // The potions and oils the character carries (sprint 111): one of them may be drunk.
-        IReadOnlyList<string> pack = hero is null ? [] : [.. (_character?.Inventory ?? []).Where(i => GameData.Embedded.Items.TryGetValue(i.Item, out Item? it) && it.InFight).Select(i => i.Item)];
-        _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero, heroHp: hp, pack: pack));
+        _controller = new FightController(new Fight(GameData.Embedded, scenario, seed, hero, heroHp: hp));
         BuildWorld();
         if (_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest)
             CallDeferred(MethodName.RunSelfTest);
@@ -369,11 +367,6 @@ public partial class Main : Node3D
         AddChild(_hud);
         _hud.Build(_controller, new Texts(_options.Lang));
         _hud.SpellChosen += ChooseSpell;
-        _hud.ItemChosen += id =>
-        {
-            if (!_busy)
-                Act(_controller.Drink(id));
-        };
         _hud.EndTurnPressed += () =>
         {
             if (!_busy)
