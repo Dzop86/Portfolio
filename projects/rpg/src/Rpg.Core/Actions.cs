@@ -7,6 +7,7 @@ namespace Rpg.Core;
 [JsonDerivedType(typeof(MoveAction), "move")]
 [JsonDerivedType(typeof(CastAction), "cast")]
 [JsonDerivedType(typeof(EndTurnAction), "end")]
+[JsonDerivedType(typeof(UseItemAction), "use")]
 public abstract record FightAction;
 
 /// <summary>Walk to a cell by a shortest path, one movement point per step.</summary>
@@ -17,6 +18,9 @@ public sealed record CastAction(string Spell, Cell Target) : FightAction;
 
 /// <summary>End the turn: the next fighter plays.</summary>
 public sealed record EndTurnAction : FightAction;
+
+/// <summary>Drink a potion or an oil carried into the fight (sprint 111, D71): one a fight, for the hero only.</summary>
+public sealed record UseItemAction(string Item) : FightAction;
 
 /// <summary>Why an action was refused; the fight is then left unchanged.</summary>
 public enum ActionError
@@ -46,6 +50,11 @@ public enum ActionError
 
     /// <summary>A swap needs a fighter on the target cell, of the side it affects, other than the caster (sprint 90).</summary>
     NoValidTarget,
+
+    /// <summary>
+    /// The item is not a potion or an oil carried by the hero, or the hero already used one this fight (sprint 111).
+    /// </summary>
+    ItemUnavailable,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -56,6 +65,9 @@ public sealed record TurnStarted(int Fighter, int Round) : FightEvent;
 public sealed record Moved(int Fighter, IReadOnlyList<Cell> Path) : FightEvent;
 
 public sealed record SpellCast(int Fighter, string Spell, Cell Target, bool Critical = false) : FightEvent;
+
+/// <summary>A potion or an oil drunk (sprint 111): its effects follow.</summary>
+public sealed record ItemUsed(int Fighter, string Item) : FightEvent;
 
 /// <summary>
 /// What a cast would do to one fighter (<see cref="Fight.Foresee"/>): damage before shields, from

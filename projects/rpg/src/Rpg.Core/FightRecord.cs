@@ -19,7 +19,8 @@ public sealed record FightRecord(
     IReadOnlyList<FightAction> Actions,
     Hero? Hero = null,
     Hero? Rival = null,
-    int? HeroHp = null)
+    int? HeroHp = null,
+    IReadOnlyList<string>? Pack = null)
 {
     public const int CurrentVersion = 1;
 
@@ -28,7 +29,7 @@ public sealed record FightRecord(
     public static FightRecord Of(Fight fight)
     {
         ArgumentNullException.ThrowIfNull(fight);
-        return new FightRecord(CurrentVersion, fight.Scenario.Id, fight.Seed, [.. fight.History], fight.Hero, fight.Rival, fight.StartHeroHp);
+        return new FightRecord(CurrentVersion, fight.Scenario.Id, fight.Seed, [.. fight.History], fight.Hero, fight.Rival, fight.StartHeroHp, fight.Pack.Count > 0 ? fight.Pack : null);
     }
 
     public string ToJson() => JsonSerializer.Serialize(this, Compact);
@@ -56,7 +57,7 @@ public sealed record FightRecord(
             throw new InvalidFightRecordException($"Unknown scenario '{Scenario}'.");
         if ((Hero?.Problem(data) ?? Rival?.Problem(data)) is string problem)
             throw new InvalidFightRecordException($"Invalid hero: {problem}");
-        var fight = new Fight(data, Scenario, Seed, Hero, Rival, HeroHp);
+        var fight = new Fight(data, Scenario, Seed, Hero, Rival, HeroHp, Pack);
         for (int i = 0; i < Actions.Count; i++)
         {
             ActionError error = fight.Apply(Actions[i]);

@@ -77,8 +77,10 @@ HOMES = {
     (2, 2): [(28, 19)],
 }
 # A workshop beside its craftsman's house, never on the road (Charles, D75): the locksmith's bench by Gédéon's door.
-# The forge and the tailor's workshop since sprint 109, the jeweller's and the cobbler's benches since sprint 110.
-BENCHES = {(3, 1): [((19, 10), "locksmith"), ((27, 6), "smith"), ((27, 11), "tailor"), ((19, 21), "jeweller"), ((19, 27), "cobbler")]}
+# The forge and the tailor's workshop since sprint 109, the jeweller's and the cobbler's benches since sprint 110, Sidonie's
+# still and Basile's oven since sprint 111.
+BENCHES = {(3, 1): [((19, 10), "locksmith"), ((27, 6), "smith"), ((27, 11), "tailor"), ((19, 21), "jeweller"), ((19, 27), "cobbler"),
+                    ((27, 22), "alchemist"), ((27, 27), "baker")]}
 # Fenced yards (sprint 104): the corners of the fence, what stands inside against it, and its beasts.
 PENS = {
     (0, 2): ((8, 19), (19, 28), [("E", (9, 20))], [("horse", (13, 23)), ("horse", (16, 25)), ("horse", (12, 26))]),

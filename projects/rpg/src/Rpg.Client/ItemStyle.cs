@@ -67,10 +67,20 @@ public static class ItemStyle
         };
     }
 
-    /// <summary>The colour of an item: its strongest characteristic's element (ties in the sheet's order).</summary>
+    /// <summary>
+    /// The colour of an item: its strongest characteristic's element (ties in the sheet's order); a potion
+    /// the healing's, an oil its element's (sprint 111).
+    /// </summary>
     public static string Colour(Item item)
     {
         ArgumentNullException.ThrowIfNull(item);
+        switch (item.Effects is { Count: > 0 } effects ? effects[0] : null)
+        {
+            case HealEffect:
+                return ElementStyle.Heal;
+            case StatusEffect status:
+                return ElementStyle.Colour(status.Element);
+        }
         Characteristics st = item.Stats ?? Characteristics.None;
         (int Value, string Colour)[] all =
         [

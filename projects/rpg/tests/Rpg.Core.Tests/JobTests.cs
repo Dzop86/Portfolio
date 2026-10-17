@@ -87,7 +87,7 @@ public class JobTests
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [r with { Ingredients = [new ItemCount(r.Item, 1)] }] }));
         Assert.Throws<InvalidDataException>(() => With(locksmith with { Recipes = [] }));
         Town quarter = Real.Towns["clairval-3-1"];
-        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(24, 12), "baker")] }]));
+        Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(24, 12), "weaver")] }]));
         Assert.Throws<InvalidDataException>(() => With(locksmith, [.. Real.Towns.Values.Where(t => t.Id != quarter.Id), quarter with { Workshops = [new Workshop(new Cell(47, 0), "locksmith")] }]));
     }
 

@@ -15,6 +15,11 @@ public sealed class Texts
         ["ap"] = "PA",
         ["mp"] = "PM",
         ["end-turn"] = "Fin du tour",
+        ["drink"] = "Boire",
+        ["item.food"] = "Rend {0} PV, hors combat.",
+        ["item.potion"] = "En combat : rend {0} PV ({1} PA, une potion ou une huile par combat).",
+        ["item.oil"] = "En combat : +{0} % de dégâts {1} pendant {2} tours ({3} PA, une potion ou une huile par combat).",
+        ["drink.tip"] = "Une potion ou une huile par combat ({0} PA).",
         ["victory"] = "Victoire !",
         ["defeat"] = "Défaite…",
         ["draw"] = "Match nul",
@@ -188,6 +193,7 @@ public sealed class Texts
         ["log.damage"] = "{0} perd {1} PV.",
         ["log.died"] = "{0} est vaincu(e).",
         ["log.heal"] = "{0} récupère {1} PV.",
+        ["log.item"] = "{0} boit : {1}.",
         ["log.summon"] = "{0} invoque {1}.",
         ["log.shield"] = "{0} gagne un bouclier de {1}.",
         ["log.absorbed"] = "Le bouclier de {0} absorbe {1}.",
@@ -224,6 +230,7 @@ public sealed class Texts
         ["error.Cooldown"] = "Sort encore en relance.",
         ["error.TargetNotFree"] = "Il faut une case libre pour atterrir.",
         ["error.NoValidTarget"] = "Ce sort vise un autre combattant, du bon camp.",
+        ["error.ItemUnavailable"] = "Une potion ou une huile par combat, et seulement celles qu'on a sur soi.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Nom de compte",
         ["lobby.password"] = "Mot de passe",
@@ -431,6 +438,11 @@ public sealed class Texts
         ["ap"] = "AP",
         ["mp"] = "MP",
         ["end-turn"] = "End turn",
+        ["drink"] = "Drink",
+        ["item.food"] = "Gives back {0} HP, out of a fight.",
+        ["item.potion"] = "In a fight: gives back {0} HP ({1} AP, one potion or oil a fight).",
+        ["item.oil"] = "In a fight: +{0} % {1} damage for {2} turns ({3} AP, one potion or oil a fight).",
+        ["drink.tip"] = "One potion or oil a fight ({0} AP).",
         ["victory"] = "Victory!",
         ["defeat"] = "Defeat…",
         ["draw"] = "Draw",
@@ -604,6 +616,7 @@ public sealed class Texts
         ["log.damage"] = "{0} loses {1} HP.",
         ["log.died"] = "{0} is defeated.",
         ["log.heal"] = "{0} recovers {1} HP.",
+        ["log.item"] = "{0} drinks: {1}.",
         ["log.summon"] = "{0} summons {1}.",
         ["log.shield"] = "{0} gets a shield of {1}.",
         ["log.absorbed"] = "{0}'s shield absorbs {1}.",
@@ -640,6 +653,7 @@ public sealed class Texts
         ["error.Cooldown"] = "Spell still on cooldown.",
         ["error.TargetNotFree"] = "A free cell is needed to land on.",
         ["error.NoValidTarget"] = "This spell aims at another fighter, of the right side.",
+        ["error.ItemUnavailable"] = "One potion or oil a fight, and only those carried.",
         ["lobby.title"] = "Osmose",
         ["lobby.name"] = "Account name",
         ["lobby.password"] = "Password",
@@ -1106,6 +1120,16 @@ public sealed class Texts
         string gives = Gives(item.Stats, item.Ap, item.Mp, item.Initiative);
         if (gives.Length > 0)
             lines.Add(gives);
+        // Food and potions (sprints 101 and 111): what they give back, and when.
+        if (item.Heal > 0)
+            lines.Add(this["item.food", item.Heal]);
+        foreach (SpellEffect effect in item.Effects ?? [])
+        {
+            if (effect is HealEffect heal)
+                lines.Add(this["item.potion", heal.Max, Fight.ItemAp]);
+            else if (effect is StatusEffect oil)
+                lines.Add(this["item.oil", oil.Value, this["element." + oil.Element], oil.Turns, Fight.ItemAp]);
+        }
         if (item.Set is string id && GameData.Embedded.Sets.TryGetValue(id, out ItemSet? set))
             lines.Add(this["inventory.set", set.Name.In(Lang), string.Join(" ; ", set.Bonuses.Select(b => this["inventory.pieces", b.Pieces, Gives(b.Stats, b.Ap, b.Mp, b.Initiative)]))]);
         return string.Join('\n', lines);
@@ -1152,6 +1176,7 @@ public sealed class Texts
             Damaged d => this["log.damage", Name(fight.Fighters[d.Fighter]), d.Amount],
             Died d => this["log.died", Name(fight.Fighters[d.Fighter])],
             Healed h => this["log.heal", Name(fight.Fighters[h.Fighter]), h.Amount],
+            ItemUsed u => this["log.item", Name(fight.Fighters[u.Fighter]), Items([new ItemCount(u.Item, 1)])],
             Summoned m => this["log.summon", Name(fight.Fighters[m.Summoner]), Name(fight.Fighters[m.Fighter])],
             Shielded s => this["log.shield", Name(fight.Fighters[s.Fighter]), s.Amount],
             ShieldAbsorbed a => this["log.absorbed", Name(fight.Fighters[a.Fighter]), a.Amount],

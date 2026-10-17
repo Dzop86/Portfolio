@@ -65,6 +65,30 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
         SelectedSpell = LastError is null ? spell : null;
     }
 
+    /// <summary>The potions and oils the hero may still drink (sprint 111): those it carried in, none once one is drunk.</summary>
+    public IReadOnlyList<Item> Drinkable(GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return Fight.UsedItem is not null ? [] : [.. Fight.Pack.Select(i => data.Items[i]).OrderBy(i => i.Level).ThenBy(i => i.Id, StringComparer.Ordinal)];
+    }
+
+    /// <summary>Drinks a potion or an oil carried in: the action played, or null (and <see cref="LastError"/>).</summary>
+    public FightAction? Drink(string item)
+    {
+        if (!IsPlayerTurn)
+            return null;
+        var action = new UseItemAction(item);
+        ActionError error = Fight.Apply(action);
+        if (error != ActionError.None)
+        {
+            LastError = error;
+            return null;
+        }
+        SelectedSpell = null;
+        LastError = null;
+        return action;
+    }
+
     public void CancelSpell()
     {
         SelectedSpell = null;

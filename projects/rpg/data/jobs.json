@@ -1055,5 +1055,443 @@
         "shards": 30
       }
     ]
+  },
+  {
+    "id": "alchemist",
+    "name": {
+      "fr": "Alchimiste",
+      "en": "Alchemist"
+    },
+    "workshop": {
+      "fr": "Alambic",
+      "en": "Still"
+    },
+    "recipes": [
+      {
+        "item": "healing-potion",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "nettle",
+            "count": 4
+          },
+          {
+            "item": "gudgeon",
+            "count": 2
+          }
+        ],
+        "shards": 1
+      },
+      {
+        "item": "strong-healing-potion",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "glowmoss",
+            "count": 5
+          },
+          {
+            "item": "pool-eel",
+            "count": 2
+          }
+        ],
+        "shards": 5
+      },
+      {
+        "item": "greater-healing-potion",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "water-lily",
+            "count": 6
+          },
+          {
+            "item": "perch",
+            "count": 3
+          }
+        ],
+        "shards": 9
+      },
+      {
+        "item": "healing-elixir",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "hive-flower",
+            "count": 7
+          },
+          {
+            "item": "pike",
+            "count": 3
+          }
+        ],
+        "shards": 13
+      },
+      {
+        "item": "earth-oil",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wood-mint",
+            "count": 4
+          },
+          {
+            "item": "boar-tusk",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "fire-oil",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wood-mint",
+            "count": 4
+          },
+          {
+            "item": "boar-bristle",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "water-oil",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wood-mint",
+            "count": 4
+          },
+          {
+            "item": "wolf-pelt",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "air-oil",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wood-mint",
+            "count": 4
+          },
+          {
+            "item": "wolf-fang",
+            "count": 2
+          }
+        ],
+        "shards": 3
+      },
+      {
+        "item": "concentrated-earth-oil",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "clubmoss",
+            "count": 5
+          },
+          {
+            "item": "mushroom-cap",
+            "count": 2
+          }
+        ],
+        "shards": 7
+      },
+      {
+        "item": "concentrated-fire-oil",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "clubmoss",
+            "count": 5
+          },
+          {
+            "item": "spore-dust",
+            "count": 2
+          }
+        ],
+        "shards": 7
+      },
+      {
+        "item": "concentrated-water-oil",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "clubmoss",
+            "count": 5
+          },
+          {
+            "item": "rotten-cloth",
+            "count": 2
+          }
+        ],
+        "shards": 7
+      },
+      {
+        "item": "concentrated-air-oil",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "clubmoss",
+            "count": 5
+          },
+          {
+            "item": "old-bone",
+            "count": 2
+          }
+        ],
+        "shards": 7
+      },
+      {
+        "item": "earth-essence",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "horsetail",
+            "count": 6
+          },
+          {
+            "item": "crab-shell",
+            "count": 2
+          }
+        ],
+        "shards": 11
+      },
+      {
+        "item": "fire-essence",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "horsetail",
+            "count": 6
+          },
+          {
+            "item": "slime",
+            "count": 2
+          }
+        ],
+        "shards": 11
+      },
+      {
+        "item": "water-essence",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "horsetail",
+            "count": 6
+          },
+          {
+            "item": "frog-leg",
+            "count": 2
+          }
+        ],
+        "shards": 11
+      },
+      {
+        "item": "air-essence",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "horsetail",
+            "count": 6
+          },
+          {
+            "item": "crab-claw",
+            "count": 2
+          }
+        ],
+        "shards": 11
+      },
+      {
+        "item": "earth-quintessence",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "lavender",
+            "count": 7
+          },
+          {
+            "item": "earthworm",
+            "count": 2
+          }
+        ],
+        "shards": 15
+      },
+      {
+        "item": "fire-quintessence",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "lavender",
+            "count": 7
+          },
+          {
+            "item": "honeycomb",
+            "count": 2
+          }
+        ],
+        "shards": 15
+      },
+      {
+        "item": "water-quintessence",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "lavender",
+            "count": 7
+          },
+          {
+            "item": "mole-fur",
+            "count": 2
+          }
+        ],
+        "shards": 15
+      },
+      {
+        "item": "air-quintessence",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "lavender",
+            "count": 7
+          },
+          {
+            "item": "bee-wing",
+            "count": 2
+          }
+        ],
+        "shards": 15
+      }
+    ]
+  },
+  {
+    "id": "baker",
+    "name": {
+      "fr": "Boulanger",
+      "en": "Baker"
+    },
+    "workshop": {
+      "fr": "Four",
+      "en": "Oven"
+    },
+    "recipes": [
+      {
+        "item": "bread",
+        "level": 1,
+        "ingredients": [
+          {
+            "item": "wild-flax",
+            "count": 3
+          },
+          {
+            "item": "nettle",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "oat-bread",
+        "level": 5,
+        "ingredients": [
+          {
+            "item": "wild-oats",
+            "count": 3
+          },
+          {
+            "item": "wood-mint",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "hemp-bread",
+        "level": 10,
+        "ingredients": [
+          {
+            "item": "pool-hemp",
+            "count": 3
+          },
+          {
+            "item": "glowmoss",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "rye-bread",
+        "level": 15,
+        "ingredients": [
+          {
+            "item": "rye",
+            "count": 3
+          },
+          {
+            "item": "clubmoss",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "sedge-flatbread",
+        "level": 20,
+        "ingredients": [
+          {
+            "item": "shore-sedge",
+            "count": 3
+          },
+          {
+            "item": "water-lily",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "reed-rice-bread",
+        "level": 25,
+        "ingredients": [
+          {
+            "item": "reed-rice",
+            "count": 3
+          },
+          {
+            "item": "horsetail",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "clairval-loaf",
+        "level": 30,
+        "ingredients": [
+          {
+            "item": "clairval-wheat",
+            "count": 3
+          },
+          {
+            "item": "hive-flower",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "buckwheat-galette",
+        "level": 35,
+        "ingredients": [
+          {
+            "item": "buckwheat",
+            "count": 3
+          },
+          {
+            "item": "lavender",
+            "count": 1
+          }
+        ]
+      }
+    ]
   }
 ]

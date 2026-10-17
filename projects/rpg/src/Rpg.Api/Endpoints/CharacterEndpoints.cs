@@ -207,6 +207,9 @@ public static class CharacterEndpoints
             problem = record.Scenario != pending.Scenario || record.Seed != unchecked((ulong)pending.Seed) ? "Not the fight the server started."
                 : record.Hero != character.Hero || record.Rival is not null ? "Not this character's fight."
                 : record.HeroHp != startHp ? "Not the hit points this character has."
+                // The potions and oils carried in (sprint 111): owned, and only those.
+                : (record.Pack ?? []).Any(i => !GameData.Embedded.Items.TryGetValue(i, out Item? it) || !it.InFight || !character.InventoryList.Any(o => o.Item == i))
+                    ? "Not this character's potions and oils."
                 : null;
             if (problem is null)
             {
@@ -220,6 +223,9 @@ public static class CharacterEndpoints
         }
         if (problem is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["record"] = [problem] });
+        // The potion or oil drunk is used up (sprint 111).
+        if (played!.UsedItem is string drunk)
+            character.Spend(new ItemCount(drunk, 1));
         long xp = Progression.FightXp(played!);
         Quest? quest = played!.WinningTeam == 0
             ? GameData.Embedded.Quests.Values.FirstOrDefault(q => q.Scenario == pending.Scenario && !character.QuestList.Contains(q.Id))

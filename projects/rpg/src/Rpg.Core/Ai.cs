@@ -17,11 +17,29 @@ public static class Ai
     /// <summary>What finishing off an enemy is worth, on top of the damage.</summary>
     internal const double KillBonus = 10;
 
+    /// <summary>
+    /// What the hero drinks, if it carried something in (sprint 111, how the balance measures it): a healing potion
+    /// below two fifths of its hit points, else, on its first turn, the oil of the element it strikes most in.
+    /// The monsters carry nothing.
+    /// </summary>
+    private static string? Drink(Fight fight, Fighter me)
+    {
+        if (fight.Pack.Count == 0 || fight.UsedItem is not null)
+            return null;
+        Item[] usable = [.. fight.Pack.Where(i => fight.CheckUse(i) == ActionError.None).Select(i => fight.Data.Items[i])];
+        if (me.Hp * 5 < me.MaxHp * 2 && usable.Where(i => i.Effects!.Any(e => e is HealEffect)).MaxBy(i => i.Level) is Item potion)
+            return potion.Id;
+        Element strongest = me.Spells.Where(s => s.DamageMax > 0).GroupBy(s => s.Element).OrderByDescending(g => me.Spec.Characteristics.For(g.Key)).ThenBy(g => g.Key).Select(g => g.Key).FirstOrDefault();
+        return fight.Round == 1 && usable.Where(i => i.Effects!.Any(e => e is StatusEffect st && st.Element == strongest)).MaxBy(i => i.Level) is Item oil ? oil.Id : null;
+    }
+
     /// <summary>The next action of the current fighter.</summary>
     public static FightAction Decide(Fight fight)
     {
         ArgumentNullException.ThrowIfNull(fight);
         Fighter me = fight.Current;
+        if (Drink(fight, me) is string item)
+            return new UseItemAction(item);
         (Spell Spell, Cell Target, double Value, double Turn)? here = BestTurn(fight, me, me.Cell);
         // A sure kill is never worth walking away from: the value of a cast stops at the target's hit points.
         bool kills = here is var (_, aimed, worth, _) && Kills(fight, me, aimed, worth);
@@ -239,7 +257,7 @@ public static class Ai
         {
             foreach (Fighter f in area)
             {
-                double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonus) * (100 - f.Resistance(spell.Element)) / 10_000, f.Hp + f.Shield);
+                double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000, f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
                 value += f.Team == me.Team ? -1.5 * hit : f.IsSummon ? 0.5 * hit : hit;

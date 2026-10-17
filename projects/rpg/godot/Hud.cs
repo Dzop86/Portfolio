@@ -23,6 +23,8 @@ public partial class Hud : CanvasLayer
     private Label _round = null!;
     private Label _turn = null!, _order = null!, _stats = null!, _message = null!, _help = null!, _logLabel = null!;
     private Button _endTurn = null!, _lang = null!;
+    private MenuButton _drink = null!;
+    private IReadOnlyList<Item> _drinkable = [];
     private GridContainer _spellBar = null!;
     private EndPanel _end = null!;
     private FightController _controller = null!;
@@ -31,6 +33,9 @@ public partial class Hud : CanvasLayer
 
     public event Action<int>? SpellChosen;
     public event Action? EndTurnPressed;
+
+    /// <summary>A potion or an oil chosen in the drink menu (sprint 111).</summary>
+    public event Action<string>? ItemChosen;
     /// <summary>"Close" on the end-of-fight window: back where the player stood (sprint 87).</summary>
     public event Action? ClosePressed;
 
@@ -104,6 +109,14 @@ public partial class Hud : CanvasLayer
         _spellBar.AddThemeConstantOverride("h_separation", 6);
         _spellBar.AddThemeConstantOverride("v_separation", 6);
         row.AddChild(_spellBar);
+        // The potions and oils carried in (sprint 111): one a fight, chosen in a menu.
+        _drink = new MenuButton { CustomMinimumSize = new Vector2(96, 48), Flat = false };
+        _drink.GetPopup().IdPressed += id =>
+        {
+            if (id >= 0 && id < _drinkable.Count)
+                ItemChosen?.Invoke(_drinkable[(int)id].Id);
+        };
+        row.AddChild(_drink);
         _endTurn = new Button { CustomMinimumSize = new Vector2(140, 48) };
         _endTurn.Pressed += () => EndTurnPressed?.Invoke();
         row.AddChild(_endTurn);
@@ -224,6 +237,15 @@ public partial class Hud : CanvasLayer
             tile.Disabled = !usable;
             tile.SetPressedNoSignal(_controller.SelectedSpell == s);
         }
+        _drinkable = _controller.Drinkable(GameData.Embedded);
+        _drink.Visible = fight.Pack.Count > 0;
+        _drink.Text = Texts["drink"];
+        _drink.TooltipText = Texts["drink.tip", Fight.ItemAp];
+        _drink.Disabled = !canAct || _drinkable.Count == 0 || me.Ap < Fight.ItemAp;
+        PopupMenu menu = _drink.GetPopup();
+        menu.Clear();
+        for (int i = 0; i < _drinkable.Count; i++)
+            menu.AddItem(Texts.ItemCard(_drinkable[i]).Split('\n')[0], i);
         _endTurn.Text = Texts["end-turn"];
         _endTurn.Disabled = !canAct;
         _lang.Text = Texts.Lang == "fr" ? "EN" : "FR";

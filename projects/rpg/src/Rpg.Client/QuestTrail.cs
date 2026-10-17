@@ -45,7 +45,8 @@ public static class QuestTrail
 
     /// <summary>
     /// Where an item comes from (sprints 106 and 107): a group of the monsters that leave it, the thing whose fight
-    /// leaves it (the loft's hatch), a spot where it grows, the workshop that makes it, Rose's stall if she sells it.
+    /// leaves it (the loft's hatch), a spot where it grows, Rose's stall if she sells it (a beginner buys before learning a
+    /// trade: the loaf, the healing potion, sprint 111), the workshop that makes it.
     /// </summary>
     public static TrailGoal? Source(GameData data, string item)
     {
@@ -57,11 +58,11 @@ public static class QuestTrail
             return new TrailGoal(town.Id, hatch.At);
         if (data.Nodes.Values.Where(n => n.Item == item).OrderBy(n => n.Map, StringComparer.Ordinal).ThenBy(n => n.Id, StringComparer.Ordinal).FirstOrDefault() is HarvestNode node)
             return new TrailGoal(node.Map, node.At);
+        if (data.Items.TryGetValue(item, out Item? sold) && Shop.SellPrice(sold, data) is not null && data.FindNpc("clairval/rose") is (Town market, Npc rose))
+            return new TrailGoal(market.Id, rose.At);
         if (data.Jobs.Values.FirstOrDefault(j => j.RecipeFor(item) is not null) is Job job
             && data.Towns.Values.OrderBy(t => t.Id, StringComparer.Ordinal).SelectMany(t => (t.Workshops ?? []).Where(w => w.Job == job.Id).Select(w => new TrailGoal(t.Id, w.At))).FirstOrDefault() is TrailGoal bench)
             return bench;
-        if (data.Items.TryGetValue(item, out Item? sold) && Shop.SellPrice(sold, data) is not null && data.FindNpc("clairval/rose") is (Town market, Npc rose))
-            return new TrailGoal(market.Id, rose.At);
         return null;
     }
 

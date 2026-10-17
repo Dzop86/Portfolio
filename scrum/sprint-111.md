@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je prépare potions et huiles d'élément (une par combat) et des pains qui me soignent entre les combats (rpg) ; T41 et vie restante remesurées ; playtest de Charles ; xUnit, auto-test. | 5 | À faire |
+| En tant que joueur, je prépare potions et huiles d'élément (une par combat) et des pains qui me soignent entre les combats (rpg) ; T41 et vie restante remesurées ; playtest de Charles ; xUnit, auto-test. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

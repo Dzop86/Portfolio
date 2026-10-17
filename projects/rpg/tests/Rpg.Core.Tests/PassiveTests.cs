@@ -136,7 +136,7 @@ public class PassiveTests
             Monster(3, family: "wolf", passives: "grudge"));
         f.Apply(new CastAction("hit", new Cell(1, 0)));
         Assert.Equal([2], Fired(f, "grudge"));
-        Assert.Equal(15, f.Fighters[2].DamageBonus);
+        Assert.Equal(15, f.Fighters[2].DamageBonusFor(Element.Neutral));
     }
 
     [Fact]
@@ -161,13 +161,13 @@ public class PassiveTests
         Fight f = Play(["A...BB"], Spec(0, initiative: 1), Monster(0, initiative: 999, passives: "aura"), Monster(1, initiative: 998, passives: "aura"));
         // The first monster's turn has started; the second's next.
         f.Apply(new EndTurnAction());
-        Assert.Equal(20, f.Fighters[2].DamageBonus);
+        Assert.Equal(20, f.Fighters[2].DamageBonusFor(Element.Neutral));
         f.Apply(new EndTurnAction());
         f.Apply(new EndTurnAction());
         // A new round: the first monster's aura again, renewed on both of them, not stacked.
         Assert.Equal(1, f.Fighters[2].Statuses.Count(s => s.Source == 1));
-        Assert.Equal(20, f.Fighters[2].DamageBonus);
-        Assert.Equal(20, f.Fighters[1].DamageBonus);
+        Assert.Equal(20, f.Fighters[2].DamageBonusFor(Element.Neutral));
+        Assert.Equal(20, f.Fighters[1].DamageBonusFor(Element.Neutral));
     }
 
     [Fact]
