@@ -11,10 +11,14 @@ public class FirstQuestsTests
 {
     private static readonly string[] Main =
         ["whispering-stone", "the-registry", "restless-beasts", "the-root-circle", "rumble-under-the-wallow", "four-signs",
-         "what-grows-between", "the-undug-crypt", "down-into-the-crypt", "the-cracked-seal", "four-trails"];
+         "what-grows-between", "the-undug-crypt", "down-into-the-crypt", "the-cracked-seal",
+         "the-unlearned-lullaby", "the-last-verse", "the-washed-name", "the-name-returned", "burning-hives", "under-the-hedges", "four-trails"];
 
     /// <summary>The main steps a zone's giver relays (sprint 112): the woodcutters' head, the hermit of the pools.</summary>
-    private static readonly Dictionary<string, string> Relayed = new() { ["four-signs"] = "woods/mathurin", ["the-cracked-seal"] = "mouldy/barnabe" };
+    private static readonly Dictionary<string, string> Relayed = new()
+    {
+        ["four-signs"] = "woods/mathurin", ["the-cracked-seal"] = "mouldy/barnabe", ["the-last-verse"] = "lake/liane", ["under-the-hedges"] = "fields/eglantine",
+    };
 
     // Every quest a quest follows, near or far.
     private static HashSet<string> Before(Quest q) => [.. (q.After ?? []).SelectMany(a => Before(Real.Quests[a]).Append(a))];
@@ -39,11 +43,13 @@ public class FirstQuestsTests
         // The stone's fifth sign leads under the Boar King's wallow, then to the four trails of the four Primordials.
         Assert.Contains(main[4].Objectives!, o => o.Goal == QuestGoal.Dungeon && o.Target == "boar-wallow");
         Assert.Contains(main[8].Objectives!, o => o.Goal == QuestGoal.Dungeon && o.Target == "zombie-crypt");
+        Assert.Contains(main[11].Objectives!, o => o.Goal == QuestGoal.Dungeon && o.Target == "frog-grotto");
         // The main quest is done alone at its level (sprint 95, D71): never a dungeon's last room, made for
         // several; the key to go in is given with the quest.
         Assert.All(main.SelectMany(q => q.Objectives!).Where(o => o.Goal == QuestGoal.Dungeon), o => Assert.InRange(o.Room, 1, 2));
         Assert.Equal([new ItemCount("boar-wallow-key", 1)], main[4].Grants!);
         Assert.Equal([new ItemCount("zombie-crypt-key", 1)], main[8].Grants!);
+        Assert.Equal([new ItemCount("frog-grotto-key", 1)], main[11].Grants!);
         Assert.Equal(["clairval/rose", "clairval/garance", "clairval/aubin"], main[^1].Objectives!.Select(o => o.Target));
         // Every target spoken to has its own line about the stone (§10.1).
         Assert.All(main.SelectMany(q => q.Objectives!).Where(o => o.Goal == QuestGoal.Talk && main.IndexOf(main.First(q => q.Objectives!.Contains(o))) < main.Length - 1), o => Assert.NotNull(o.Line));
@@ -60,6 +66,8 @@ public class FirstQuestsTests
         // The Woods' and the Mouldy Woods' side quests come from their givers, in two small chains (sprint 112).
         Assert.All(side.Where(q => q.Zone == "woods"), q => Assert.Equal("woods/mathurin", q.Giver));
         Assert.All(side.Where(q => q.Zone == "mouldy"), q => Assert.Equal("mouldy/barnabe", q.Giver));
+        Assert.All(side.Where(q => q.Zone == "lake"), q => Assert.Equal("lake/liane", q.Giver));
+        Assert.All(side.Where(q => q.Zone == "fields"), q => Assert.Equal("fields/eglantine", q.Giver));
         foreach (Dungeon d in Real.Dungeons.Values)
         {
             Quest q = Real.Quests[d.Id + "-cleared"];
@@ -93,9 +101,11 @@ public class FirstQuestsTests
                             || Shop.SellPrice(Real.Items[o.Target], Real) is not null || Real.Scenarios.Values.Any(s => s.Fighters.Any(f => (f.Loot ?? []).Any(l => l.Item == o.Target))), $"{q.Id} {o.Target}");
                         break;
                     case QuestGoal.Bring:
-                        // Left by a monster of the zone, or since sprint 112 gathered on its maps at the quest's level or under.
+                        // Left by a monster of the zone, or since sprint 112 gathered on its maps at the quest's level or under, or
+                        // since sprint 113 made by a trade (the harvest's loaves).
                         Assert.True(Real.Families.Values.Where(f => f.Zone == q.Zone).SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Any(l => l.Item == o.Target)
-                            || Real.Nodes.Values.Any(n => n.Item == o.Target && Real.Towns[n.Map].Zone == q.Zone && n.Level <= q.Level), $"{q.Id} {o.Target}");
+                            || Real.Nodes.Values.Any(n => n.Item == o.Target && Real.Towns[n.Map].Zone == q.Zone && n.Level <= q.Level)
+                            || Real.Jobs.Values.Any(j => j.RecipeFor(o.Target) is { } r && r.Level <= q.Level), $"{q.Id} {o.Target}");
                         break;
                 }
             }

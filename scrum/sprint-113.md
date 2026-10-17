@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je suis le fil des quêtes du Lac et des Champs (16), avec Liane et la fermière des Champs (rpg) ; textes du scénariste ; xUnit. | 3 | À faire |
+| En tant que joueur, je suis le fil des quêtes du Lac et des Champs (16), avec Liane et la fermière des Champs (rpg) ; textes du scénariste ; xUnit. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

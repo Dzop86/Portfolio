@@ -67,17 +67,20 @@ public class QuestBookTests
     [Fact]
     public void AnInhabitant_NeverHasMoreThanTwoQuestsUnderWay_TheLowestOffered()
     {
-        // At level 30, nothing done: Garance has more to give, offered two at a time, the lowest first (Charles, sprint 102).
-        Quest[] open = [.. Data.Quests.Values.Where(q => q.Giver == "clairval/garance" && Quests.WhyNot(q, 30, [], []) is null).OrderBy(q => q.Level)];
+        // At level 30, the woods' first steps done: Mathurin has more to give (since sprint 112), offered two at a time,
+        // the lowest first (Charles, sprint 102).
+        string[] steps = ["restless-beasts", "the-root-circle", "rumble-under-the-wallow"];
+        Quest[] open = [.. Data.Quests.Values.Where(q => q.Giver == "woods/mathurin" && Quests.WhyNot(q, 30, steps, []) is null).OrderBy(q => q.Level)];
         Assert.True(open.Length > QuestBook.MostFromOne);
-        Assert.Equal(open.Take(QuestBook.MostFromOne), new QuestBook(Data, 30, [], [], []).Offers("clairval/garance"));
+        Assert.Equal(open.Take(QuestBook.MostFromOne), new QuestBook(Data, 30, steps, [], []).Offers("woods/mathurin"));
         // One under way: one more only.
-        Assert.Single(new QuestBook(Data, 30, [], [Quests.Start(open[0])], []).Offers("clairval/garance"));
+        Assert.Single(new QuestBook(Data, 30, steps, [Quests.Start(open[0])], []).Offers("woods/mathurin"));
         // A player who takes all they are offered, level by level, each giver's oldest quest done at each level.
         var done = new List<string>();
         var active = new List<QuestProgress>();
         string[] givers = [.. Data.Quests.Values.Select(q => q.Giver).OfType<string>().Distinct()];
-        for (int level = 1; level <= 30; level++)
+        // Up to level 45: one quest handed back by each giver at each level, the zones' longer chains (sprint 113) take longer.
+        for (int level = 1; level <= 45; level++)
         {
             foreach (string giver in givers)
             {

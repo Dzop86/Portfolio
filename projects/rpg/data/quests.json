@@ -555,7 +555,7 @@
       "en": "Four Trails"
     },
     "giver": "clairval/ysaline",
-    "level": 16,
+    "level": 28,
     "text": {
       "fr": "Quatre signes, quatre pierres peut-être, quelque part. Rose entend tout ce qui se dit au marché, Garance connaît les forges, Aubin a vu toutes les cartes du pays. Va les trouver : chacun tient un bout de fil.",
       "en": "Four signs, four stones perhaps, somewhere. Rose hears everything said at the market, Garance knows the forges, Aubin has seen every map of the land. Go and find them: each of them holds the end of a thread."
@@ -581,7 +581,7 @@
     "xp": 300,
     "shards": 40,
     "after": [
-      "the-cracked-seal"
+      "under-the-hedges"
     ]
   },
   {
@@ -703,16 +703,16 @@
       "fr": "Carapaces et pinces",
       "en": "Shells and Claws"
     },
-    "giver": "clairval/rose",
+    "giver": "lake/liane",
     "zone": "lake",
-    "level": 16,
+    "level": 21,
     "text": {
-      "fr": "Les carapaces du lac des Joncs font les plus beaux boutons du pays. Quatre carapaces, deux pinces, et je te fais un prix.",
-      "en": "The shells of Reed Lake make the finest buttons in the land. Four shells, two claws, and I will give you a good price."
+      "fr": "Rose me paie les carapaces du lac pour ses boutons, mais les crabes deviennent hargneux. Quatre carapaces, deux pinces. Rose fera les boutons, moi je ferai les comptes.",
+      "en": "Rose pays me for the lake's shells to make her buttons, but the crabs are turning nasty. Four shells, two claws. Rose will make the buttons, I'll do the sums."
     },
     "thanks": {
-      "fr": "Regarde-moi ce nacre ! Tiens, et ne dis à personne combien je les revends.",
-      "en": "Look at that mother-of-pearl! Here, and do not tell anyone what I sell them for."
+      "fr": "Regarde-moi ce nacre. Rose va dire que c'est trop cher. Rose dit toujours ça.",
+      "en": "Look at that mother-of-pearl. Rose will say it's too dear. Rose always says that."
     },
     "objectives": [
       {
@@ -726,8 +726,17 @@
         "count": 2
       }
     ],
-    "xp": 1250,
-    "shards": 160
+    "after": [
+      "the-last-verse"
+    ],
+    "items": [
+      {
+        "item": "sedge-flatbread",
+        "count": 3
+      }
+    ],
+    "xp": 840,
+    "shards": 210
   },
   {
     "id": "frog-song",
@@ -735,16 +744,16 @@
       "fr": "Le chant des grenouilles",
       "en": "The Frog Song"
     },
-    "giver": "clairval/aubin",
+    "giver": "lake/liane",
     "zone": "lake",
-    "level": 17,
+    "level": 19,
     "text": {
-      "fr": "Les grenouilles du lac chantent jour et nuit depuis la pierre fendue, et les pêcheurs ne dorment plus. Fais-les taire, huit suffiront.",
-      "en": "The lake's frogs have sung day and night since the stone cracked, and the fishermen no longer sleep. Silence them, eight will do."
+      "fr": "Les grenouilles chantent jour et nuit depuis le printemps, et les pêcheurs ne dorment plus. Moi, j'aime bien. Eux, non. Fais-en taire huit, doucement si tu peux.",
+      "en": "The frogs have sung day and night since spring, and the fishermen can't sleep. I quite like it. They don't. Quieten eight of them, gently if you can."
     },
     "thanks": {
-      "fr": "Le silence, enfin. Les pêcheurs te remercient, moi aussi.",
-      "en": "Silence, at last. The fishermen thank you, and so do I."
+      "fr": "Le silence. C'est presque triste. Les pêcheurs te paient ; moi, je te chanterais bien quelque chose. Non ? Tant pis.",
+      "en": "Silence. It's almost sad. The fishermen are paying you; I'd happily sing you something. No? Never mind."
     },
     "objectives": [
       {
@@ -753,8 +762,17 @@
         "count": 8
       }
     ],
-    "xp": 1350,
-    "shards": 170
+    "after": [
+      "the-unlearned-lullaby"
+    ],
+    "items": [
+      {
+        "item": "sedge-flatbread",
+        "count": 2
+      }
+    ],
+    "xp": 760,
+    "shards": 190
   },
   {
     "id": "clairval-honey",
@@ -762,16 +780,16 @@
       "fr": "Le miel de Clairval",
       "en": "Clairval Honey"
     },
-    "giver": "clairval/rose",
+    "giver": "fields/eglantine",
     "zone": "fields",
-    "level": 24,
+    "level": 27,
     "text": {
-      "fr": "Le miel des champs est le meilleur, mais les abeilles y sont devenues méchantes. Rapporte-moi cinq rayons, je n'en ai plus un seul à vendre.",
-      "en": "The honey of the fields is the best, but the bees there have turned nasty. Bring me five combs, I do not have a single one left to sell."
+      "fr": "Rose attend mon miel, mais mes abeilles piquent avec du feu et je n'ose plus ouvrir les ruches. Cinq rayons. Prends-les sur les abeilles elles-mêmes : elles en portent toujours un peu.",
+      "en": "Rose is waiting for my honey, but my bees sting with fire and I daren't open the hives any more. Five combs. Take them from the bees themselves: they always carry a little."
     },
     "thanks": {
-      "fr": "Ça colle aux doigts et ça vaut de l'or. Merci !",
-      "en": "It sticks to your fingers and it is worth gold. Thank you!"
+      "fr": "Tiède dans la main, comme du pain qui sort du four. Rose va le vendre une fortune, et moi je n'en verrai qu'un quart. Prends ta part.",
+      "en": "Warm in the hand, like bread fresh from the oven. Rose will sell it for a fortune, and I'll see a quarter of it. Take your share."
     },
     "objectives": [
       {
@@ -780,8 +798,17 @@
         "count": 5
       }
     ],
-    "xp": 2050,
-    "shards": 250
+    "after": [
+      "burning-hives"
+    ],
+    "items": [
+      {
+        "item": "healing-elixir",
+        "count": 2
+      }
+    ],
+    "xp": 1080,
+    "shards": 270
   },
   {
     "id": "under-the-furrows",
@@ -789,16 +816,16 @@
       "fr": "Sous les sillons",
       "en": "Under the Furrows"
     },
-    "giver": "clairval/garance",
+    "giver": "fields/eglantine",
     "zone": "fields",
-    "level": 25,
+    "level": 27,
     "text": {
-      "fr": "Les taupes creusent sous les champs jusqu'à faire tomber les charrues. Huit taupes, et les paysans te nourriront tout l'hiver.",
-      "en": "The moles dig under the fields until the ploughs fall in. Eight moles, and the farmers will feed you all winter."
+      "fr": "Les taupes creusent sous mes sillons jusqu'à faire tomber la charrue. Huit, et je te nourris tout l'hiver. Et regarde où elles vont : toutes du même côté, comme si on les appelait.",
+      "en": "The moles dig under my furrows until the plough falls in. Eight, and I'll feed you all winter. And watch where they go: all the same way, as if something were calling them."
     },
     "thanks": {
-      "fr": "Les sillons tiennent de nouveau. Tu as gagné ta soupe, et plus.",
-      "en": "The furrows hold again. You have earned your soup, and more."
+      "fr": "Les sillons tiennent. Tu as gagné ta soupe, et le droit de te plaindre de ma cuisine.",
+      "en": "The furrows are holding. You've earned your soup, and the right to complain about my cooking."
     },
     "objectives": [
       {
@@ -807,7 +834,16 @@
         "count": 8
       }
     ],
-    "xp": 2250,
+    "after": [
+      "burning-hives"
+    ],
+    "items": [
+      {
+        "item": "reed-rice-bread",
+        "count": 3
+      }
+    ],
+    "xp": 1080,
     "shards": 270
   },
   {
@@ -1281,16 +1317,16 @@
       "fr": "Au fond : Grotte du Roi grenouille",
       "en": "At the bottom: The Frog King's Grotto"
     },
-    "giver": "clairval/garance",
+    "giver": "lake/liane",
     "zone": "lake",
-    "level": 19,
+    "level": 24,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Grotte du Roi grenouille. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Frog King's Grotto. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "Tout au fond de la grotte, c'est là que la chanson est la plus forte. Les pêcheurs n'y vont pas, même à plusieurs. Toi, emmène du monde, va jusqu'au bout, et reviens me dire ce qu'on y entend.",
+      "en": "Right at the back of the grotto is where the song is loudest. The fishermen won't go, not even together. You, take some company, go all the way, and come back and tell me what you hear."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Le roi s'est tu ? Le lac va me sembler bien grand. Merci quand même.",
+      "en": "The king has gone quiet? The lake is going to feel very big. Thank you all the same."
     },
     "objectives": [
       {
@@ -1298,8 +1334,11 @@
         "target": "frog-grotto"
       }
     ],
-    "xp": 1320,
-    "shards": 134
+    "after": [
+      "the-last-verse"
+    ],
+    "xp": 2400,
+    "shards": 360
   },
   {
     "id": "crab-reef-cleared",
@@ -1307,16 +1346,16 @@
       "fr": "Au fond : Récif des pinces",
       "en": "At the bottom: The Pincer Reef"
     },
-    "giver": "clairval/garance",
+    "giver": "lake/liane",
     "zone": "lake",
-    "level": 19,
+    "level": 25,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Récif des pinces. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Pincer Reef. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "Le Récif des pinces, c'est le cimetière des barques. Le crabe géant, au bout, porte une proue sur le dos, peut-être celle de la passeuse d'avant. Va au fond, avec des amis, et dis-moi s'il y reste quelque chose de peint.",
+      "en": "The Pincer Reef is where boats go to die. The giant crab at the end carries a prow on its back, maybe the old ferrywoman's. Go all the way down, with friends, and tell me if anything painted is left on it."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Juste une goutte peinte, à moitié effacée ? C'est déjà beaucoup. Je la peindrai sur ma barque.",
+      "en": "Just a painted drop, half worn away? That's already a lot. I'll paint it on my boat."
     },
     "objectives": [
       {
@@ -1324,8 +1363,11 @@
         "target": "crab-reef"
       }
     ],
-    "xp": 1320,
-    "shards": 134
+    "after": [
+      "the-washed-name"
+    ],
+    "xp": 2500,
+    "shards": 375
   },
   {
     "id": "royal-hive-cleared",
@@ -1333,16 +1375,16 @@
       "fr": "Au fond : Ruche royale",
       "en": "At the bottom: The Royal Hive"
     },
-    "giver": "clairval/aubin",
+    "giver": "fields/eglantine",
     "zone": "fields",
-    "level": 27,
+    "level": 29,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Ruche royale. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Royal Hive. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "La Ruche royale, c'est là que naît la chaleur. La reine change d'humeur et d'élément selon l'état de sa ruche. Va au fond, à plusieurs, et dis-moi si elle va bien. Oui, si elle va bien.",
+      "en": "The Royal Hive is where the heat begins. The queen changes mood and element with the state of her hive. Go to the bottom, with friends, and tell me if she's all right. Yes, if she's all right."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Elle est vaincue, et la ruche refroidit déjà. Elle repartira : les reines repartent toujours. Merci.",
+      "en": "She's beaten, and the hive is already cooling. She'll start again: queens always do. Thank you."
     },
     "objectives": [
       {
@@ -1350,8 +1392,11 @@
         "target": "royal-hive"
       }
     ],
-    "xp": 1800,
-    "shards": 182
+    "after": [
+      "under-the-hedges"
+    ],
+    "xp": 2900,
+    "shards": 435
   },
   {
     "id": "mole-burrows-cleared",
@@ -1359,16 +1404,16 @@
       "fr": "Au fond : Galeries des taupes",
       "en": "At the bottom: The Mole Burrows"
     },
-    "giver": "clairval/aubin",
+    "giver": "fields/eglantine",
     "zone": "fields",
-    "level": 27,
+    "level": 29,
     "text": {
-      "fr": "Trois salles, et le maître des lieux au bout : peu reviennent victorieux de Galeries des taupes. Si tu y parviens, reviens me le dire : je tiens le compte de ceux qui l'ont fait.",
-      "en": "Three rooms, and the master of the place at the end: few come back victorious from The Mole Burrows. If you manage it, come back and tell me: I keep count of those who did."
+      "fr": "Les Galeries des taupes descendent plus bas que mon puits. La taupe-roi y garde ce qu'elle déterre. Prends des amis et va jusqu'au fond : je veux savoir ce qu'il y a sous mes champs.",
+      "en": "The Mole Burrows go deeper than my well. The mole king keeps whatever it digs up down there. Take some friends and go all the way: I want to know what's under my fields."
     },
     "thanks": {
-      "fr": "Je t'inscris au compte. Tu peux en être fier.",
-      "en": "I write you into the count. You can be proud of it."
+      "fr": "Rien que de la terre, et encore de ce métal qui vibre ? Bon. Je planterai des fleurs au-dessus, ça ne fera pas de mal.",
+      "en": "Nothing but earth, and more of that humming metal? Right. I'll plant flowers on top, it can't hurt."
     },
     "objectives": [
       {
@@ -1376,7 +1421,343 @@
         "target": "mole-burrows"
       }
     ],
-    "xp": 1800,
-    "shards": 182
+    "after": [
+      "under-the-hedges"
+    ],
+    "xp": 2900,
+    "shards": 435
+  },
+  {
+    "id": "the-unlearned-lullaby",
+    "name": {
+      "fr": "La berceuse que personne n'a apprise",
+      "en": "The Lullaby Nobody Learnt"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "lake",
+    "level": 18,
+    "text": {
+      "fr": "Au Lac des Joncs, tout le monde chante la même berceuse, et personne ne sait qui la lui a apprise. Parle à Liane, la passeuse, puis à Joachim et à sa petite-fille Fleur, sur les pontons. Et écoute les roseaux : il paraît qu'ils chantent aussi.",
+      "en": "At Reed Lake everyone sings the same lullaby, and nobody knows who taught it to them. Talk to Liane the ferrywoman, then to Joachim and his granddaughter Fleur, on the jetties. And listen to the reeds: they say the reeds sing too."
+    },
+    "thanks": {
+      "fr": "Une berceuse, une chanson de pêche, quelqu'un qu'on a caché : trois chansons sur le même air. Et elle s'arrête toujours au même endroit. Il manque la fin, et les grenouilles chantent plus loin que nous.",
+      "en": "A lullaby, a fishing song, someone hidden: three songs to the same tune. And it always stops at the same place. The ending is missing, and the frogs sing further than we do."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "lake/liane",
+        "line": {
+          "fr": "Je l'ai toujours chantée. Mais je ne sais pas qui me l'a chantée. Ma mère, sans doute. Ma mère ne chantait pas.",
+          "en": "I've always sung it. But I don't know who sang it to me. My mother, I suppose. My mother didn't sing."
+        }
+      },
+      {
+        "goal": "Talk",
+        "target": "lake/joachim",
+        "line": {
+          "fr": "Une berceuse ? C'est une chanson de pêche. Elle parle de filets et de brume, pas d'enfants.",
+          "en": "A lullaby? It's a fishing song. It's about nets and mist, not children."
+        }
+      },
+      {
+        "goal": "Talk",
+        "target": "lake/fleur",
+        "line": {
+          "fr": "Elle parle de quelqu'un qu'on a caché ! C'est les grenouilles qui me l'ont apprise. Grand-père dit que non, mais si.",
+          "en": "It's about someone who was hidden! The frogs taught it to me. Grandad says they didn't, but they did."
+        }
+      },
+      {
+        "goal": "Interact",
+        "target": "singing-reed-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "singing-reed-2"
+      },
+      {
+        "goal": "Interact",
+        "target": "singing-reed-3"
+      }
+    ],
+    "after": [
+      "the-cracked-seal"
+    ],
+    "xp": 1080,
+    "shards": 180
+  },
+  {
+    "id": "the-last-verse",
+    "name": {
+      "fr": "Le dernier couplet",
+      "en": "The Last Verse"
+    },
+    "giver": "lake/liane",
+    "zone": "lake",
+    "level": 20,
+    "text": {
+      "fr": "Les grenouilles chantent la fin, celle que personne ne connaît. Le crapaud-roi, au fond de sa grotte, la chante mieux que toutes, à ce qu'on dit. Va jusqu'à lui et rapporte-moi le couplet. Je voudrais l'entendre une fois, rien qu'une.",
+      "en": "The frogs sing the ending, the one nobody knows. The toad king, deep in his grotto, sings it best of all, so they say. Go to him and bring me back the verse. I'd like to hear it once, just once."
+    },
+    "thanks": {
+      "fr": "« Toi que la mer a caché »… Il n'y a pas de mer, ici. Il n'y a que le lac. Alors pourquoi est-ce que j'ai les yeux qui piquent ? Merci.",
+      "en": "'You whom the sea has hidden'… There's no sea here. There's only the lake. So why are my eyes stinging? Thank you."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "frog-grotto",
+        "room": 2
+      },
+      {
+        "goal": "Bring",
+        "target": "last-verse"
+      }
+    ],
+    "after": [
+      "the-unlearned-lullaby"
+    ],
+    "grants": [
+      {
+        "item": "frog-grotto-key",
+        "count": 1
+      }
+    ],
+    "xp": 1200,
+    "shards": 200
+  },
+  {
+    "id": "the-washed-name",
+    "name": {
+      "fr": "La passeuse au nom lavé",
+      "en": "The Ferrywoman's Washed-Out Name"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "lake",
+    "level": 23,
+    "text": {
+      "fr": "Liane a repris la barque d'une passeuse dont personne ne se rappelle le nom. Les bernard-l'ermite du lac se font des coquilles avec des tessons peints, des morceaux d'une vieille plaque de proue. Rapporte-m'en six, et montre-les à Odalric : s'il y a un nom dessus, il le lira.",
+      "en": "Liane took over the boat of a ferrywoman whose name nobody remembers. The lake's hermit crabs make shells out of painted shards, pieces of an old prow plaque. Bring me six, and show them to Odalric: if there's a name on them, he'll read it."
+    },
+    "thanks": {
+      "fr": "Isaure. Une passeuse de Clairval, effacée du registre et de toutes les mémoires, sauf d'une chanson. On n'oublie pas quelqu'un par hasard. Il faut le dire à Aubin : il connaît toutes les familles.",
+      "en": "Isaure. A ferrywoman from Clairval, wiped from the registry and from every memory, except a song. Nobody forgets someone by chance. We must tell Aubin: he knows every family."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "painted-shard",
+        "count": 6
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/odalric",
+        "line": {
+          "fr": "Six tessons, six lettres : I, S, A, U, R, E. Isaure. Ce nom est dans le registre, sur une page que j'ai toujours crue blanche. L'encre a été lavée, mais on la devine encore, à contre-jour.",
+          "en": "Six shards, six letters: I, S, A, U, R, E. Isaure. That name is in the registry, on a page I always believed was blank. The ink was washed away, but you can still make it out against the light."
+        }
+      }
+    ],
+    "after": [
+      "the-last-verse"
+    ],
+    "xp": 1380,
+    "shards": 230
+  },
+  {
+    "id": "the-name-returned",
+    "name": {
+      "fr": "Le nom rendu",
+      "en": "The Name Returned"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "lake",
+    "level": 25,
+    "text": {
+      "fr": "Aubin connaît toutes les familles de Clairval, depuis toujours. Dis-lui le nom d'Isaure, simplement, et regarde ce qu'il fait. Moi, je n'ose pas.",
+      "en": "Aubin has known every family in Clairval all his life. Just tell him Isaure's name, and watch what he does. I don't dare."
+    },
+    "thanks": {
+      "fr": "Sa tête ne s'en souvenait pas, mais lui, si. Rien ne s'efface tout à fait, alors : ça se cache. Les Champs, maintenant : Églantine, la fermière, dit que ses ruches brûlent.",
+      "en": "His head didn't remember, but he did. So nothing is ever wiped out completely: it hides. The fields now: Églantine, the farmer, says her hives are burning."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "clairval/aubin",
+        "line": {
+          "fr": "Isaure… Je ne connais personne de ce nom. Alors pourquoi je pleure ? Ma grand-mère fredonnait un air, le soir, sur le ponton. Je l'avais oublié jusqu'à maintenant.",
+          "en": "Isaure… I don't know anyone by that name. Then why am I crying? My grandmother used to hum a tune of an evening, on the jetty. I'd forgotten it, until now."
+        }
+      }
+    ],
+    "after": [
+      "the-washed-name"
+    ],
+    "xp": 1500,
+    "shards": 250
+  },
+  {
+    "id": "lianes-nets",
+    "name": {
+      "fr": "Les filets de Liane",
+      "en": "Liane's Nets"
+    },
+    "giver": "lake/liane",
+    "zone": "lake",
+    "level": 22,
+    "text": {
+      "fr": "Mes filets ont plus de trous que de mailles. Il me faut huit brassées de laîche des rives pour les retresser, et cinq perches pour payer le cordier, qui ne prend que du poisson.",
+      "en": "My nets have more holes than mesh. I need eight armfuls of shore sedge to reweave them, and five perch to pay the ropemaker, who only takes fish."
+    },
+    "thanks": {
+      "fr": "Des filets neufs ! On dit que la passeuse d'avant moi faisait les mêmes nœuds. Personne ne sait qui l'a dit. Tiens, c'est pour toi.",
+      "en": "New nets! They say the ferrywoman before me tied the same knots. Nobody knows who said so. Here, this is for you."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "shore-sedge",
+        "count": 8
+      },
+      {
+        "goal": "Bring",
+        "target": "perch",
+        "count": 5
+      }
+    ],
+    "after": [
+      "frog-song"
+    ],
+    "items": [
+      {
+        "item": "greater-healing-potion",
+        "count": 2
+      }
+    ],
+    "xp": 880,
+    "shards": 220
+  },
+  {
+    "id": "burning-hives",
+    "name": {
+      "fr": "Les ruches brûlantes",
+      "en": "The Burning Hives"
+    },
+    "giver": "clairval/ysaline",
+    "zone": "fields",
+    "level": 26,
+    "text": {
+      "fr": "Églantine dit que ses ruches sont chaudes comme des fours et que ses abeilles piquent avec du feu. Écartes-en huit en les regardant bien, puis va voir Rose : c'est elle qui vend ce miel, elle saura s'il a changé.",
+      "en": "Églantine says her hives are as hot as ovens and her bees sting with fire. Fend off eight while you watch them closely, then go and see Rose: she sells that honey, she'll know if it's changed."
+    },
+    "thanks": {
+      "fr": "De l'air et du feu dans la même ruche, et rien ne brûle. Les zombies étaient des morceaux forcés ensemble ; les abeilles, elles, travaillent ensemble. Je crois que c'est même le contraire.",
+      "en": "Air and fire in the same hive, and nothing burns. The zombies were pieces forced together; the bees work together. I think it's the very opposite."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "bee",
+        "count": 8
+      },
+      {
+        "goal": "Talk",
+        "target": "clairval/rose",
+        "line": {
+          "fr": "Le miel des Champs ? Il reste tiède dans le pot, même l'hiver, et il soigne mieux qu'avant. Je l'ai vendu deux fois plus cher. Tu crois que j'aurais dû m'inquiéter ?",
+          "en": "Honey from the fields? It stays warm in the jar, even in winter, and it heals better than before. I've been selling it at twice the price. Do you think I should have been worried?"
+        }
+      }
+    ],
+    "after": [
+      "the-name-returned"
+    ],
+    "xp": 1560,
+    "shards": 260
+  },
+  {
+    "id": "under-the-hedges",
+    "name": {
+      "fr": "Sous les haies",
+      "en": "Under the Hedges"
+    },
+    "giver": "fields/eglantine",
+    "zone": "fields",
+    "level": 28,
+    "text": {
+      "fr": "Les taupes creusent toutes vers la même haie, la vieille, au bout de mon champ. Regarde trois de leurs galeries, et si tu croises la taupe-roi, prends ce qu'elle garde : on dit qu'elle a déterré un bout de métal qui chante.",
+      "en": "The moles all dig towards the same hedge, the old one at the end of my field. Look into three of their tunnels, and if you come across the mole king, take what it's guarding: they say it dug up a piece of metal that sings."
+    },
+    "thanks": {
+      "fr": "Ça vibre, ce truc, et mes abeilles deviennent folles dès que je l'approche. Je le descends au fond du puits, loin des ruches. Va raconter à ton érudite ce que tu as vu.",
+      "en": "That thing hums, and my bees go mad the moment I bring it near. I'm lowering it to the bottom of the well, away from the hives. Go and tell your scholar what you saw."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "mole-tunnel-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "mole-tunnel-2"
+      },
+      {
+        "goal": "Interact",
+        "target": "mole-tunnel-3"
+      },
+      {
+        "goal": "Bring",
+        "target": "humming-debris"
+      }
+    ],
+    "after": [
+      "burning-hives"
+    ],
+    "xp": 1680,
+    "shards": 280
+  },
+  {
+    "id": "harvest-bread",
+    "name": {
+      "fr": "Le pain de la moisson",
+      "en": "The Harvest Bread"
+    },
+    "giver": "fields/eglantine",
+    "zone": "fields",
+    "level": 30,
+    "text": {
+      "fr": "La moisson approche, et la coutume veut qu'on la fête avec un pain de nos propres blés. Rapporte-moi dix blés de Clairval et deux pains cuits de tes mains au four de Basile. Il râlera, mais il te prêtera son four.",
+      "en": "Harvest is coming, and custom says we celebrate with bread from our own wheat. Bring me ten Clairval wheat and two loaves you've baked yourself in Basile's oven. He'll grumble, but he'll lend you his oven."
+    },
+    "thanks": {
+      "fr": "Croustillant ! On le rompt en cinq morceaux, c'est la coutume. Pourquoi cinq ? Ma mère disait que c'était pour l'invité qu'on attend. Je n'en sais pas plus.",
+      "en": "Lovely and crusty! We break it into five pieces, that's the custom. Why five? My mother said it was for the guest we're waiting for. That's all I know."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "clairval-wheat",
+        "count": 10
+      },
+      {
+        "goal": "Bring",
+        "target": "oat-bread",
+        "count": 2
+      }
+    ],
+    "after": [
+      "clairval-honey"
+    ],
+    "items": [
+      {
+        "item": "clairval-loaf",
+        "count": 2
+      }
+    ],
+    "xp": 1200,
+    "shards": 300
   }
 ]

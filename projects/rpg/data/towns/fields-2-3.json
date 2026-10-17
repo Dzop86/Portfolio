@@ -876,5 +876,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mole-tunnel-3",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "tunnel",
+      "name": {
+        "fr": "Le fond d'une galerie",
+        "en": "The end of a tunnel"
+      },
+      "text": {
+        "fr": "Au fond, une écaille de métal sombre, la même que le sceau de la crypte. Elle est tiède.",
+        "en": "At the bottom, a flake of dark metal, the same as the crypt's seal. It is warm."
+      }
+    }
   ]
 }

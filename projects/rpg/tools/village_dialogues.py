@@ -85,6 +85,13 @@ P = {
   (None, t("Bonjour ! Attention aux planches, la troisième est pourrie.", "Hello! Mind the boards, the third one's rotten.")),
   (t("Le métier ?", "The trade?"), t("Je suis passeuse, comme celle d'avant moi. Tout le monde dit \"celle d'avant\", comme si elle n'avait pas de nom.", "I'm the ferrywoman, like the one before me. Everyone says 'the one before', as if she had no name.")),
   (t("Cet air ?", "That tune?"), t("(Elle fredonne.) Pardon, je chante sans m'en rendre compte. Tout le monde chante ça, ici.", "(She hums.) Sorry, I sing without noticing. Everyone sings that round here."))],
+ # The old fisherman and his granddaughter on the lake's jetties (sprint 113, docs/textes-v5.md §3).
+ "joachim": [
+  (None, t("Hm. Le poisson ne mord pas, alors je parle. Qu'est-ce que tu veux ?", "Hm. The fish aren't biting, so I'm talking. What do you want?")),
+  (t("Le lac ?", "The lake?"), t("Cinquante ans sur ce lac. Les grenouilles ne chantaient pas comme ça, avant.", "Fifty years on this lake. The frogs never sang like that before."))],
+ "fleur": [
+  (None, t("Tu sais chanter ? Moi oui. Les grenouilles m'ont appris.", "Can you sing? I can. The frogs taught me.")),
+  (t("Ton grand-père ?", "Your grandad?"), t("Grand-père dit que les grenouilles ne savent pas chanter. Il a tort, mais faut pas lui dire.", "Grandad says frogs can't sing. He's wrong, but don't tell him."))],
  "eglantine": [
   (None, t("Ah, enfin quelqu'un ! Le vent tourne, la pluie arrive et mes ruches chauffent. Bonjour.", "Ah, someone at last! The wind's turning, the rain's coming and my hives are hot. Hello.")),
   (t("La ferme ?", "The farm?"), t("Du blé, des fleurs pour les abeilles, du miel pour Rose : la ferme, c'est trois métiers et pas de sommeil.", "Wheat, flowers for the bees, honey for Rose: a farm is three trades and no sleep.")),

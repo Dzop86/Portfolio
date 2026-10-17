@@ -876,5 +876,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "singing-reed-2",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "reeds",
+      "name": {
+        "fr": "Des roseaux dans la brume",
+        "en": "Reeds in the mist"
+      },
+      "text": {
+        "fr": "Les roseaux chantent plus fort quand la brume monte. Pourtant, il n'y a pas de vent.",
+        "en": "The reeds sing louder as the mist rises. Yet there is no wind."
+      }
+    }
   ]
 }

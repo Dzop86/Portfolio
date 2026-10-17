@@ -62,6 +62,34 @@
         "y": 14
       },
       "dialogue": "liane"
+    },
+    {
+      "id": "joachim",
+      "name": {
+        "fr": "Joachim",
+        "en": "Joachim"
+      },
+      "look": "male-b",
+      "colour": 5,
+      "at": {
+        "x": 30,
+        "y": 16
+      },
+      "dialogue": "joachim"
+    },
+    {
+      "id": "fleur",
+      "name": {
+        "fr": "Fleur",
+        "en": "Fleur"
+      },
+      "look": "female-f",
+      "colour": 2,
+      "at": {
+        "x": 30,
+        "y": 12
+      },
+      "dialogue": "fleur"
     }
   ],
   "exits": [],

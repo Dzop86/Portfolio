@@ -887,5 +887,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "singing-reed-3",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "reeds",
+      "name": {
+        "fr": "Des roseaux muets",
+        "en": "Silent reeds"
+      },
+      "text": {
+        "fr": "Ici, tous les roseaux se taisent en même temps, au milieu d'une note, comme si la suite manquait.",
+        "en": "Here every reed falls silent at once, in the middle of a note, as if the rest were missing."
+      }
+    }
   ]
 }

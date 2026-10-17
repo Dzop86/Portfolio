@@ -1,0 +1,41 @@
+{
+  "id": "fleur",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Tu sais chanter ? Moi oui. Les grenouilles m'ont appris.",
+        "en": "Can you sing? I can. The frogs taught me."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ton grand-père ?",
+            "en": "Your grandad?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Grand-père dit que les grenouilles ne savent pas chanter. Il a tort, mais faut pas lui dire.",
+        "en": "Grandad says frogs can't sing. He's wrong, but don't tell him."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

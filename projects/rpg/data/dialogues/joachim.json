@@ -1,0 +1,41 @@
+{
+  "id": "joachim",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Hm. Le poisson ne mord pas, alors je parle. Qu'est-ce que tu veux ?",
+        "en": "Hm. The fish aren't biting, so I'm talking. What do you want?"
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le lac ?",
+            "en": "The lake?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Cinquante ans sur ce lac. Les grenouilles ne chantaient pas comme ça, avant.",
+        "en": "Fifty years on this lake. The frogs never sang like that before."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

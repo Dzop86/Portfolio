@@ -865,5 +865,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "singing-reed-1",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "reeds",
+      "name": {
+        "fr": "Des roseaux",
+        "en": "Reeds"
+      },
+      "text": {
+        "fr": "Le vent passe dans les roseaux, et on reconnaît les premières notes de la berceuse.",
+        "en": "The wind runs through the reeds, and you recognise the first notes of the lullaby."
+      }
+    }
   ]
 }

@@ -964,5 +964,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mole-tunnel-2",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "tunnel",
+      "name": {
+        "fr": "Une galerie qui vibre",
+        "en": "A humming tunnel"
+      },
+      "text": {
+        "fr": "Les parois vibrent sous la main, très légèrement, comme une corde pincée au loin.",
+        "en": "The walls tremble under your hand, very slightly, like a string plucked far away."
+      }
+    }
   ]
 }

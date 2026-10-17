@@ -49,7 +49,7 @@ public class TownTests
         Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
         Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
             village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(["anselme", "apolline", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "leonie", "liane", "mahaut", "mathurin", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
+        Assert.Equal(["anselme", "apolline", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "joachim", "leonie", "liane", "mahaut", "mathurin", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
             Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {

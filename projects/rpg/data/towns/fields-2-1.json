@@ -821,5 +821,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "mole-tunnel-1",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "tunnel",
+      "name": {
+        "fr": "Une galerie",
+        "en": "A tunnel"
+      },
+      "text": {
+        "fr": "Une galerie fraîche, droite comme un sillon tracé au cordeau. Elle file vers la vieille haie.",
+        "en": "A fresh tunnel, straight as a furrow laid with a line. It runs towards the old hedge."
+      }
+    }
   ]
 }

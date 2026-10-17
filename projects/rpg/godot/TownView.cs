@@ -654,6 +654,21 @@ public partial class TownView : Node3D
             for (int i = 0; i < 5; i++)
                 Part(this, new BoxMesh { Size = new Vector3(0.6f, 0.03f, 0.03f) }, new Color("f2efe6"), at + new Vector3(0, 0.1f + 0.02f * i, 0), new Vector3(0, i * 36, 8 * (i % 2 == 0 ? 1 : -1)));
         }
+        else if (prop.Look == "reeds")
+        {
+            // A clump of tall reeds (sprint 113).
+            for (int i = 0; i < 7; i++)
+            {
+                float a = i * 0.9f;
+                Part(this, new CylinderMesh { TopRadius = 0.015f, BottomRadius = 0.025f, Height = 0.9f + 0.1f * (i % 3) }, new Color("8fa85a"), at + new Vector3(Mathf.Cos(a) * 0.15f * (i % 3), 0.45f, Mathf.Sin(a) * 0.15f * (i % 3)), new Vector3(4 * (i % 2 == 0 ? 1 : -1), 0, 6));
+            }
+        }
+        else if (prop.Look == "tunnel")
+        {
+            // A mole's tunnel: a mound of earth around a dark mouth.
+            Part(this, new SphereMesh { Radius = 0.3f, Height = 0.3f }, new Color("6f5136"), at + new Vector3(0, 0.05f, 0));
+            Part(this, new CylinderMesh { TopRadius = 0.12f, BottomRadius = 0.12f, Height = 0.04f }, new Color("1f1812"), at + new Vector3(0, 0.19f, 0));
+        }
         else if (prop.Look == "seal")
         {
             // A dark disc on the floor, cracked across.

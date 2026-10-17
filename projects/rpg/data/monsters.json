@@ -1055,6 +1055,11 @@
             "percent": 8
           },
           {
+            "item": "last-verse",
+            "percent": 20,
+            "quest": "the-last-verse"
+          },
+          {
             "item": "frog-grotto-key",
             "percent": 2
           }
@@ -1091,6 +1096,11 @@
           {
             "item": "croak-amulet",
             "percent": 8
+          },
+          {
+            "item": "last-verse",
+            "percent": 20,
+            "quest": "the-last-verse"
           },
           {
             "item": "frog-grotto-key",
@@ -1134,6 +1144,11 @@
             "percent": 8
           },
           {
+            "item": "last-verse",
+            "percent": 20,
+            "quest": "the-last-verse"
+          },
+          {
             "item": "frog-grotto-key",
             "percent": 2
           }
@@ -1172,6 +1187,11 @@
           {
             "item": "dew-hat",
             "percent": 8
+          },
+          {
+            "item": "last-verse",
+            "percent": 20,
+            "quest": "the-last-verse"
           },
           {
             "item": "frog-grotto-key",
@@ -1231,6 +1251,11 @@
           {
             "item": "dew-hat",
             "percent": 8
+          },
+          {
+            "item": "last-verse",
+            "percent": 100,
+            "quest": "the-last-verse"
           },
           {
             "item": "frog-grotto-key",
@@ -1416,6 +1441,11 @@
           {
             "item": "hermit-cape",
             "percent": 8
+          },
+          {
+            "item": "painted-shard",
+            "percent": 50,
+            "quest": "the-washed-name"
           },
           {
             "item": "crab-reef-key",
@@ -1772,6 +1802,11 @@
             "percent": 8
           },
           {
+            "item": "humming-debris",
+            "percent": 15,
+            "quest": "under-the-hedges"
+          },
+          {
             "item": "mole-burrows-key",
             "percent": 2
           }
@@ -1809,6 +1844,11 @@
           {
             "item": "clod-ring",
             "percent": 8
+          },
+          {
+            "item": "humming-debris",
+            "percent": 15,
+            "quest": "under-the-hedges"
           },
           {
             "item": "mole-burrows-key",
@@ -1850,6 +1890,11 @@
             "percent": 8
           },
           {
+            "item": "humming-debris",
+            "percent": 15,
+            "quest": "under-the-hedges"
+          },
+          {
             "item": "mole-burrows-key",
             "percent": 2
           }
@@ -1888,6 +1933,11 @@
           {
             "item": "burrow-belt",
             "percent": 8
+          },
+          {
+            "item": "humming-debris",
+            "percent": 15,
+            "quest": "under-the-hedges"
           },
           {
             "item": "mole-burrows-key",
@@ -1948,6 +1998,11 @@
           {
             "item": "burrow-belt",
             "percent": 8
+          },
+          {
+            "item": "humming-debris",
+            "percent": 100,
+            "quest": "under-the-hedges"
           },
           {
             "item": "mole-burrows-key",
