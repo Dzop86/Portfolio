@@ -17,7 +17,10 @@ public class FirstQuestsTests
     /// <summary>The main steps a zone's giver relays (sprint 112): the woodcutters' head, the hermit of the pools.</summary>
     private static readonly Dictionary<string, string> Relayed = new()
     {
-        ["four-signs"] = "woods/mathurin", ["the-cracked-seal"] = "mouldy/barnabe", ["the-last-verse"] = "lake/liane", ["under-the-hedges"] = "fields/eglantine",
+        ["four-signs"] = "woods/mathurin",
+        ["the-cracked-seal"] = "mouldy/barnabe",
+        ["the-last-verse"] = "lake/liane",
+        ["under-the-hedges"] = "fields/eglantine",
     };
 
     // Every quest a quest follows, near or far.
