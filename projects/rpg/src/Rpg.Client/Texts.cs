@@ -337,6 +337,21 @@ public sealed class Texts
         ["journal.shards"] = "{0} Éclats",
         ["journal.item"] = "{0} ×{1}",
         ["journal.finished"] = "Terminée",
+        ["item.Equip"] = "Équiper",
+        ["item.TakeOff"] = "Retirer",
+        ["item.Use"] = "Utiliser",
+        ["item.Recipes"] = "Recettes",
+        ["item.Bestiary"] = "Bestiaire",
+        ["item.Set"] = "Panoplie",
+        ["item.Share"] = "Partager dans le chat",
+        ["item.hint"] = "Clic droit : plus d'options",
+        ["item.makes"] = "{0}, niveau {1} : {2}",
+        ["item.needs"] = "{0} ({1}, niveau {2}) : en demande {3}",
+        ["item.drop"] = "{0}, niveau {1} ({2}) : {3} %",
+        ["item.drop-quest"] = "{0}, niveau {1} ({2}) : {3} %, pendant sa quête",
+        ["item.piece"] = "{0} · {1} · niveau {2}",
+        ["item.none"] = "Rien à montrer pour cet objet.",
+        ["item.card"] = "Fiche",
         ["questkind.Tutorial"] = "Premiers pas",
         ["questkind.Main"] = "Quête principale",
         ["questkind.Side"] = "Quête secondaire",
@@ -774,6 +789,21 @@ public sealed class Texts
         ["journal.shards"] = "{0} Éclats",
         ["journal.item"] = "{0} ×{1}",
         ["journal.finished"] = "Done",
+        ["item.Equip"] = "Equip",
+        ["item.TakeOff"] = "Take off",
+        ["item.Use"] = "Use",
+        ["item.Recipes"] = "Recipes",
+        ["item.Bestiary"] = "Bestiary",
+        ["item.Set"] = "Set",
+        ["item.Share"] = "Share in the chat",
+        ["item.hint"] = "Right click: more options",
+        ["item.makes"] = "{0}, level {1}: {2}",
+        ["item.needs"] = "{0} ({1}, level {2}): needs {3}",
+        ["item.drop"] = "{0}, level {1} ({2}): {3} %",
+        ["item.drop-quest"] = "{0}, level {1} ({2}): {3} %, while its quest is under way",
+        ["item.piece"] = "{0} · {1} · level {2}",
+        ["item.none"] = "Nothing to show for this item.",
+        ["item.card"] = "Card",
         ["questkind.Tutorial"] = "First steps",
         ["questkind.Main"] = "Main quest",
         ["questkind.Side"] = "Side quest",
@@ -1158,7 +1188,7 @@ public sealed class Texts
     }
 
     /// <summary>"+5 Vitalité, +1 PM, +10 Initiative": the characteristics, action and movement points and initiative given.</summary>
-    private string Gives(Characteristics? stats, int ap, int mp, int initiative = 0)
+    public string Gives(Characteristics? stats, int ap, int mp, int initiative = 0)
     {
         Characteristics st = stats ?? Characteristics.None;
         var parts = new (int Value, string Name)[] { (st.Vitality, this["char.Vitality"]), (st.Earth, this["char.Earth"]), (st.Fire, this["char.Fire"]), (st.Water, this["char.Water"]), (st.Air, this["char.Air"]), (ap, this["ap"]), (mp, this["mp"]), (initiative, this["sheet.initiative"]) };

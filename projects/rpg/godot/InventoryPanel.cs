@@ -159,6 +159,22 @@ public partial class InventoryPanel : CanvasLayer
         CornerRadiusBottomRight = 6,
     };
 
+    /// <summary>An item put on from its right click (sprint 117), as its left click does.</summary>
+    public void Put(Item item)
+    {
+        Editor.Put(item);
+        Refresh();
+    }
+
+    /// <summary>An item taken off from its right click (sprint 117): the first slot that wears it.</summary>
+    public void TakeOff(Item item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (Editor.Worn.Where(w => w.Value == item.Id).Select(w => (Slot?)w.Key).FirstOrDefault() is Slot slot)
+            Editor.TakeOff(slot);
+        Refresh();
+    }
+
     public void ShowPage(InventoryPage page)
     {
         Page = page;
@@ -212,7 +228,7 @@ public partial class InventoryPanel : CanvasLayer
             icon.Faint = worn is null;
             icon.Count = 1;
             icon.QueueRedraw();
-            tile.TooltipText = SlotText(slot) + (worn is null ? "" : "\n" + Texts.ItemCard(worn));
+            tile.TooltipText = SlotText(slot) + (worn is null ? "" : "\n" + ItemMenu.Tooltip(worn, Texts));
             tile.Disabled = worn is null;
         }
         InventoryPage[] pages = Enum.GetValues<InventoryPage>();
@@ -237,7 +253,7 @@ public partial class InventoryPanel : CanvasLayer
             icon.Tint = new Color(ItemStyle.Colour(item));
             icon.Count = count;
             string card = Texts.ItemCard(item) + (free < count ? "\n" + Texts["inventory.free", free] : "");
-            tile.TooltipText = card;
+            tile.TooltipText = card + "\n" + Texts["item.hint"];
             // Equipment above the hero's level is drawn faint; all of it worn, dimmed; the rest cannot be worn at all.
             icon.Faint = item.Kind == ItemKind.Equipment && item.Level > Editor.Hero.Level;
             icon.Modulate = item.Kind == ItemKind.Equipment && free == 0 ? new Color(1, 1, 1, 0.5f) : Colors.White;

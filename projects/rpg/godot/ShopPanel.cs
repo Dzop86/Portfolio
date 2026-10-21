@@ -87,6 +87,11 @@ public partial class ShopPanel : CanvasLayer
             var line = new HBoxContainer();
             line.AddThemeConstantOverride("separation", 6);
             rows.AddChild(line);
+            // The item's tile, its card under the mouse and its right click (sprint 117, D77).
+            (Button tile, ItemIcon icon) = ItemIcon.Tile(44);
+            (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(row.Item), row.Item, new Color(ItemStyle.Colour(row.Item)));
+            tile.TooltipText = ItemMenu.Tooltip(row.Item, Texts);
+            line.AddChild(tile);
             line.AddChild(new Label { Text = row.Title, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, TooltipText = row.Refusal ?? "", MouseFilter = Control.MouseFilterEnum.Pass });
             var one = new Button { Text = "1", CustomMinimumSize = new Vector2(44, 44), Disabled = row.Most < 1 };
             one.Pressed += () => DealPressed?.Invoke(row.Item.Id, 1, buying);

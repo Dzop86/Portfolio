@@ -91,6 +91,7 @@ public sealed class ChatHub(TimeProvider clock)
         string? text = ChatRules.Clean(say?.Text);
         string? refusal = text is null ? "Nothing to say."
             : (say!.Channel ?? ChatChannels.Map) != ChatChannels.Map ? "Only the map's channel for now."
+            : ChatLinks.WhyNot(text, GameData.Embedded) is string links ? links
             : !me.Pace.TryTake(clock.GetUtcNow()) ? $"At most {ChatRules.Burst} lines in {ChatRules.Window.TotalSeconds:0} seconds."
             : null;
         if (refusal is not null)

@@ -66,6 +66,7 @@ public partial class Main : Node3D
             _launcherToken = System.Environment.GetEnvironmentVariable("RPG_TOKEN");
         }
         AddEnvironment();
+        ItemIcon.RightClicked += ItemRightClicked;
         if (_options.SelfTest || _options.Demo)
             StartFight(_hero, _options.Scenario);
         else if (_options.Shot is "move" or "spell" && _options.Screenshot is not null)
@@ -267,8 +268,16 @@ public partial class Main : Node3D
     /// Escape (sprint 69): in town, closes the menu, else the window, else opens the menu; the menu's
     /// icon (<paramref name="menuOnly"/>) opens or closes the menu alone. In a fight, the menu.
     /// </summary>
+    public override void _ExitTree() => ItemIcon.RightClicked -= ItemRightClicked;
+
     private void Escape(bool menuOnly)
     {
+        // An item's sheet first (sprint 117): it is over the windows.
+        if (!menuOnly && _itemSheet is not null)
+        {
+            CloseItemSheet();
+            return;
+        }
         if (menuOnly)
             _windows.ToggleMenu();
         else

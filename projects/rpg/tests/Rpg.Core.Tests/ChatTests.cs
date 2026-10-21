@@ -25,4 +25,19 @@ public class ChatTests
         Assert.True(pace.TryTake(t + ChatRules.Window));
         Assert.False(pace.TryTake(t + ChatRules.Window));
     }
+
+    [Fact]
+    public void AnItemsLink_IsCutOutOfTheLine_AndChecked()
+    {
+        // Sprint 117 (D77): the links shared, the text around them kept.
+        string line = $"Vends {ChatLinks.Of("copper-ring")} et {ChatLinks.Of("bread")}";
+        Assert.Equal([("Vends ", null), ("[item:copper-ring]", "copper-ring"), (" et ", null), ("[item:bread]", "bread")], ChatLinks.Pieces(line));
+        Assert.Equal([("[item:Bad] [item:]", (string?)null)], ChatLinks.Pieces("[item:Bad] [item:]"));
+        Assert.Empty(ChatLinks.Pieces(""));
+        Assert.Null(ChatLinks.WhyNot(line, Arena.Real));
+        Assert.Null(ChatLinks.WhyNot("rien à voir", Arena.Real));
+        Assert.NotNull(ChatLinks.WhyNot(ChatLinks.Of("no-such-thing"), Arena.Real));
+        Assert.NotNull(ChatLinks.WhyNot(string.Concat(Enumerable.Repeat(ChatLinks.Of("bread"), ChatLinks.Most + 1)), Arena.Real));
+        Assert.Null(ChatLinks.WhyNot(string.Concat(Enumerable.Repeat(ChatLinks.Of("bread"), ChatLinks.Most)), Arena.Real));
+    }
 }

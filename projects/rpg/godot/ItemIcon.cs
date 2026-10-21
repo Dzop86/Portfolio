@@ -155,6 +155,21 @@ public partial class ItemIcon : Control
         var tile = new Button { CustomMinimumSize = new Vector2(size, size), Flat = true, FocusMode = Control.FocusModeEnum.All };
         var icon = new ItemIcon { MouseFilter = MouseFilterEnum.Ignore, AnchorRight = 1, AnchorBottom = 1 };
         tile.AddChild(icon);
+        // A right click on any item's tile opens its menu (sprint 117, D77), wherever the tile is.
+        tile.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } && icon.Item is Rpg.Core.Item item)
+            {
+                tile.AcceptEvent();
+                RightClicked?.Invoke(item, tile);
+            }
+        };
         return (tile, icon);
     }
+
+    /// <summary>An item's tile right-clicked (sprint 117): the item, and the tile (its window says where it is).</summary>
+    public static event Action<Rpg.Core.Item, Control>? RightClicked;
+
+    /// <summary>A right click on a tile, as the mouse would (for the self-test).</summary>
+    public static void RightClick(Rpg.Core.Item item, Control tile) => RightClicked?.Invoke(item, tile);
 }

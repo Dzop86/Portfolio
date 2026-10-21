@@ -140,7 +140,7 @@ public partial class EndPanel : PanelContainer
                     icon.Item = item;
                     icon.Tint = new Color(ItemStyle.Colour(item));
                     icon.Count = loot.Count;
-                    tile.TooltipText = _texts.Items([loot]);
+                    tile.TooltipText = ItemMenu.Tooltip(item, _texts);
                     line.AddChild(tile);
                     LootIcons++;
                 }

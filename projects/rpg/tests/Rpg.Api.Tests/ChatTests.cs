@@ -91,6 +91,28 @@ public class ChatTests
     }
 
     [Fact]
+    public async Task AnItemShared_IsHeardWithItsLink_AnUnknownItemOrTooMany_AreRefused()
+    {
+        // Sprint 117 (D77): "[item:copper-ring]" in a line, clickable in the game.
+        await using var api = new ApiFactory();
+        (_, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
+        (_, _, ChatClient b) = await Player(api, "Brume");
+        await WaitUntilOn(api, "clairval", aube.Id);
+        string shared = $"Regardez {ChatLinks.Of("copper-ring")} !";
+        await a.Say(shared, Cancel);
+        Assert.Equal(shared, (await a.Next(Wait, Cancel))!.Line!.Text);
+        Assert.Equal(shared, (await b.Next(Wait, Cancel))!.Line!.Text);
+        await a.Say($"{ChatLinks.Of("no-such-thing")}", Cancel);
+        Assert.Contains("no-such-thing", (await a.Next(Wait, Cancel))!.Refusal, StringComparison.Ordinal);
+        await a.Say(string.Concat(Enumerable.Repeat(ChatLinks.Of("bread"), ChatLinks.Most + 1)), Cancel);
+        Assert.NotNull((await a.Next(Wait, Cancel))!.Refusal);
+        // Brume heard the shared ring only.
+        Assert.Null(await b.Next(Silence, Cancel));
+        await a.DisposeAsync();
+        await b.DisposeAsync();
+    }
+
+    [Fact]
     public async Task SomeoneElsesCharacter_HasNoChat()
     {
         await using var api = new ApiFactory();

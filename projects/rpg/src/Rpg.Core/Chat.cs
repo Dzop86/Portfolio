@@ -58,3 +58,46 @@ public sealed class ChatPace
         return true;
     }
 }
+
+/// <summary>
+/// An item shared in the chat (sprint 117, D77): "[item:copper-ring]" in a line, shown as the item's name that opens
+/// its card. At most <see cref="Most"/> in a line, each of a known item: the server refuses the others.
+/// </summary>
+public static partial class ChatLinks
+{
+    public const int Most = 3;
+
+    /// <summary>The link to an item, as a line carries it.</summary>
+    public static string Of(string item) => $"[item:{item ?? throw new ArgumentNullException(nameof(item))}]";
+
+    /// <summary>The line cut into its plain pieces and its links: (text, null) or (the link's text, the item's id).</summary>
+    public static IReadOnlyList<(string Text, string? Item)> Pieces(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        var pieces = new List<(string, string?)>();
+        int at = 0;
+        foreach (System.Text.RegularExpressions.Match m in Link().Matches(text))
+        {
+            if (m.Index > at)
+                pieces.Add((text[at..m.Index], null));
+            pieces.Add((m.Value, m.Groups[1].Value));
+            at = m.Index + m.Length;
+        }
+        if (at < text.Length)
+            pieces.Add((text[at..], null));
+        return pieces;
+    }
+
+    /// <summary>Why the server refuses the line's links (too many, or an item it does not know), or null.</summary>
+    public static string? WhyNot(string text, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        string[] items = [.. Pieces(text).Select(p => p.Item).OfType<string>()];
+        return items.Length > Most ? $"At most {Most} items in a line."
+            : items.FirstOrDefault(i => !data.Items.ContainsKey(i)) is string unknown ? $"No item '{unknown}'."
+            : null;
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\[item:([a-z0-9-]{1,64})\]")]
+    private static partial System.Text.RegularExpressions.Regex Link();
+}

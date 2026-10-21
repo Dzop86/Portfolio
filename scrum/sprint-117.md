@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois la fiche d'un objet au survol partout (recettes, ingrédients, ressources) et, d'un clic droit, j'équipe ou je retire, j'utilise un consommable, je vois ses recettes, les monstres qui le laissent et à quel pourcentage, sa panoplie, et je le partage dans le chat par un lien cliquable (rpg) ; xUnit, test d'intégration, auto-test. | 5 | À faire |
+| En tant que joueur, je vois la fiche d'un objet au survol partout (recettes, ingrédients, ressources) et, d'un clic droit, j'équipe ou je retire, j'utilise un consommable, je vois ses recettes, les monstres qui le laissent et à quel pourcentage, sa panoplie, et je le partage dans le chat par un lien cliquable (rpg) ; xUnit, test d'intégration, auto-test. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

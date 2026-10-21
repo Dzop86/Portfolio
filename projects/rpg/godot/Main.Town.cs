@@ -494,6 +494,11 @@ public partial class Main
         AddChild(_chatBox);
         _chatBox.Build(_chatLog, texts);
         _chatBox.Said += line => _ = Say(line);
+        _chatBox.LinkClicked += id =>
+        {
+            if (GameData.Embedded.Items.TryGetValue(id, out Item? item))
+                OpenItemSheet(item, ItemAction.Recipes);
+        };
         if (_lobby?.SignedIn != true || _character is null)
         {
             if (_chatLog.Lines.Count == 0)
@@ -1027,21 +1032,97 @@ public partial class Main
         };
     }
 
-    /// <summary>Food eaten from the inventory (sprint 101), on the server's word.</summary>
+    /// <summary>Food eaten from the inventory (sprint 101), or from its right click anywhere (sprint 117), on the server's word.</summary>
     private async Task Eat(Item item)
     {
         InventoryPanel? panel = _inventoryPanel;
-        if (panel is null || _lobby?.SignedIn != true || _character is null)
+        if (_lobby?.SignedIn != true || _character is null)
             return;
+        Texts texts = panel?.Texts ?? _talkPanel?.Texts ?? _hud.Texts;
+        void Tell(string text)
+        {
+            if (panel is not null)
+                panel.ShowMessage(text);
+            else
+                _talkPanel?.ShowNotice(text);
+        }
         try
         {
             KeepCharacter(await _lobby.Server.Eat(_character.Id, item.Id));
-            panel.Saved(_hero!, _character.Inventory ?? [], panel.Texts["life.eaten", item.Name.In(panel.Texts.Lang), item.Heal]);
+            string eaten = texts["life.eaten", item.Name.In(texts.Lang), item.Heal];
+            if (panel is not null)
+                panel.Saved(_hero!, _character.Inventory ?? [], eaten);
+            else
+                Tell(eaten);
         }
         catch (Exception e) when (e is ServerException or HttpRequestException)
         {
-            panel.ShowMessage(e is ServerException refused ? panel.Texts["result.refused", refused.Message] : panel.Texts["lobby.unreachable"]);
+            Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
         }
+    }
+
+    private ItemSheet? _itemSheet;
+    private PopupMenu? _itemMenu;
+
+    /// <summary>What the last right click on an item offered (for the self-test).</summary>
+    private IReadOnlyList<ItemAction> _itemActions = [];
+
+    /// <summary>
+    /// An item's tile right-clicked anywhere (sprint 117, D77): its menu at the mouse, with what the item and the place
+    /// allow: put on or taken off in the inventory, used, its recipes, its monsters, its set, shared in the chat.
+    /// </summary>
+    private void ItemRightClicked(Item item, Control tile)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        InventoryPanel? inventory = _inventoryPanel is not null && _inventoryPanel.IsAncestorOf(tile) ? _inventoryPanel : null;
+        IReadOnlyList<ItemCount> owned = inventory?.Editor.Owned ?? _character?.Inventory ?? [];
+        var place = new ItemPlace(
+            owned.Where(i => i.Item == item.Id).Sum(i => i.Count),
+            inventory?.Editor.Worn.Values.Contains(item.Id) == true,
+            inventory is not null,
+            !InTown,
+            _chatBox is not null && _lobby?.SignedIn == true && _character is not null);
+        _itemActions = new ItemInfo(GameData.Embedded).Actions(item, place);
+        if (_itemActions.Count > 0)
+            _itemMenu = ItemMenu.Open(this, _itemActions, texts, GetViewport().GetMousePosition(), action => DoItem(action, item));
+    }
+
+    private void DoItem(ItemAction action, Item item)
+    {
+        switch (action)
+        {
+            case ItemAction.Equip:
+                _inventoryPanel?.Put(item);
+                break;
+            case ItemAction.TakeOff:
+                _inventoryPanel?.TakeOff(item);
+                break;
+            case ItemAction.Use:
+                _ = Eat(item);
+                break;
+            case ItemAction.Share:
+                _chatBox?.Share(item);
+                break;
+            default:
+                OpenItemSheet(item, action);
+                break;
+        }
+    }
+
+    /// <summary>An item's sheet, on one of its tabs (sprint 117): over every window, Escape or "Close" closes it.</summary>
+    private void OpenItemSheet(Item item, ItemAction tab)
+    {
+        CloseItemSheet();
+        _itemSheet = new ItemSheet();
+        AddChild(_itemSheet);
+        _itemSheet.Build(item, tab, _talkPanel?.Texts ?? _hud.Texts);
+        _itemSheet.ClosePressed += CloseItemSheet;
+    }
+
+    private void CloseItemSheet()
+    {
+        _itemSheet?.QueueFree();
+        _itemSheet = null;
     }
 
     /// <summary>Saves what the hero wears on the server (which checks it owns it); offline, for this game only.</summary>
@@ -1164,7 +1245,28 @@ public partial class Main
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         if (!box.LinesShown)
             problems.Add("a line came in and the chat stays hidden");
-        return " Chat: a line heard back.";
+        // An item shared (sprint 117, D77): its right click puts its name in the field, the line goes as its link, comes
+        // back in its colour, and the link opens its sheet.
+        Item ring = GameData.Embedded.Items["copper-ring"];
+        DoItem(ItemAction.Share, ring);
+        string typed = box.FieldText;
+        box.Type(typed);
+        for (int i = 0; i < 100 && !box.LogCode.Contains("[url=copper-ring]", StringComparison.Ordinal); i++)
+        {
+            await ToSignal(GetTree().CreateTimer(0.05), SceneTreeTimer.SignalName.Timeout);
+            DrainChat();
+        }
+        string shown = ChatMarkup.Shown(ring, _talkPanel.Texts.Lang);
+        if (typed.Trim() != shown || !box.LogCode.Contains("[url=copper-ring]", StringComparison.Ordinal) || !box.LogText.Contains(shown, StringComparison.Ordinal))
+        {
+            problems.Add($"the ring shared shows \"{box.LogText}\"");
+            return " Chat: a line heard back.";
+        }
+        box.ClickLink("copper-ring");
+        if (_itemSheet?.Item != ring)
+            problems.Add("the ring's link does not open its sheet");
+        CloseItemSheet();
+        return " Chat: a line heard back, an item shared as a link that opens its sheet.";
     }
 
     /// <summary>
@@ -1594,7 +1696,7 @@ public partial class Main
             else
                 note += $", place {_town.Position} saved on the server";
         }
-        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + await CheckChat(problems) + await CheckQuests(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + await CheckChat(problems) + await CheckQuests(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;
@@ -1646,6 +1748,40 @@ public partial class Main
     /// window alone and lit, and closes it; Escape closes the window, then opens the menu, whose
     /// sliders set the buses and the file; every sound of the game is there.
     /// </summary>
+    /// <summary>
+    /// An item's right click and sheet (sprint 117, D77): the boar's bristle offers its recipes and its monsters (and to
+    /// share it, signed in); its bestiary lists every monster that leaves it; the poacher's cape shows its set; Escape
+    /// closes the sheet.
+    /// </summary>
+    private string CheckItems(List<string> problems)
+    {
+        var info = new ItemInfo(GameData.Embedded);
+        Item bristle = GameData.Embedded.Items["boar-bristle"], cape = GameData.Embedded.Items["poacher-cape"];
+        (Button tile, ItemIcon icon) = ItemIcon.Tile(40);
+        icon.Item = bristle;
+        AddChild(tile);
+        ItemIcon.RightClick(bristle, tile);
+        tile.QueueFree();
+        bool signedIn = _lobby?.SignedIn == true && _character is not null;
+        ItemAction[] expected = signedIn ? [ItemAction.Recipes, ItemAction.Bestiary, ItemAction.Share] : [ItemAction.Recipes, ItemAction.Bestiary];
+        if (!_itemActions.SequenceEqual(expected) || _itemMenu is null || _itemMenu.ItemCount != expected.Length)
+            problems.Add($"the bristle's right click offers {string.Join(", ", _itemActions)}");
+        _itemMenu?.Hide();
+        _itemMenu?.EmitSignal(PopupMenu.SignalName.IdPressed, (long)ItemAction.Bestiary);
+        if (_itemSheet is not { Tab: ItemAction.Bestiary } sheet || sheet.Lines[ItemAction.Bestiary].Count != info.Drops(bristle.Id).Count
+            || sheet.Lines[ItemAction.Recipes].Count != info.Recipes(bristle.Id).Count || sheet.Lines[ItemAction.Set].Count != 0)
+            problems.Add("the bristle's sheet does not list its monsters and its recipes");
+        OpenItemSheet(cape, ItemAction.Set);
+        (ItemSet set, IReadOnlyList<Item> pieces) = info.Set(cape)!.Value;
+        if (_itemSheet?.Lines[ItemAction.Set].Count != 1 + pieces.Count + set.Bonuses.Count)
+            problems.Add("the cape's sheet does not show its set");
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
+        if (_itemSheet is not null || _windows.MenuOpen)
+            problems.Add("Escape does not close the item's sheet alone");
+        CloseItemSheet();
+        return " Items: right click, recipes, bestiary and set checked.";
+    }
+
     private string CheckBarAndMenu(List<string> problems)
     {
         Texts t = _talkPanel!.Texts;

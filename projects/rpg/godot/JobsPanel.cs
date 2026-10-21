@@ -212,7 +212,7 @@ public partial class JobsPanel : CanvasLayer
         line.AddThemeConstantOverride("separation", 8);
         (Button tile, ItemIcon icon) = ItemIcon.Tile(48);
         (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(r.Item), r.Item, new Color(ItemStyle.Colour(r.Item)));
-        tile.TooltipText = Texts.ItemCard(r.Item);
+        tile.TooltipText = ItemMenu.Tooltip(r.Item, Texts);
         line.AddChild(tile);
         var text = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         line.AddChild(text);
@@ -231,7 +231,8 @@ public partial class JobsPanel : CanvasLayer
             needs.AddChild(one);
             (Button small, ItemIcon mark) = ItemIcon.Tile(34);
             (mark.Glyph, mark.Item, mark.Tint, mark.Count, mark.Faint) = (ItemStyle.GlyphOf(n.Item), n.Item, new Color(ItemStyle.Colour(n.Item)), n.Count, n.Missing);
-            small.TooltipText = $"{n.Item.Name.In(Texts.Lang)} {n.Owned}/{n.Count}";
+            // The whole card on an ingredient too (sprint 117, D77), what is owned of it under it.
+            small.TooltipText = ItemMenu.Tooltip(n.Item, Texts) + $"\n{n.Owned}/{n.Count}";
             one.AddChild(small);
             var count = new Label { Text = $"{n.Owned}/{n.Count}", HorizontalAlignment = HorizontalAlignment.Center };
             count.AddThemeFontSizeOverride("font_size", 11);
@@ -259,7 +260,7 @@ public partial class JobsPanel : CanvasLayer
         if (r.Item is Item item)
         {
             (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(item), item, new Color(ItemStyle.Colour(item)));
-            tile.TooltipText = Texts.ItemCard(item);
+            tile.TooltipText = ItemMenu.Tooltip(item, Texts);
         }
         else
             (icon.Glyph, icon.Faint) = (Glyph.Leaf, true);
