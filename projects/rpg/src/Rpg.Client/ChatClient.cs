@@ -6,8 +6,8 @@ using Rpg.Core;
 
 namespace Rpg.Client;
 
-/// <summary>What came from the chat: a line said on the map, or the server's refusal of one of ours.</summary>
-public sealed record ChatEvent(ChatLine? Line, string? Refusal);
+/// <summary>What came from the chat: a line said on the map, or the server's refusal of one of ours; since sprint 118, news of the map.</summary>
+public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null);
 
 /// <summary>
 /// The game's side of the proximity chat (sprint 84): a WebSocket to the server, lines sent as
@@ -38,6 +38,13 @@ public sealed class ChatClient : IAsyncDisposable
             return false;
         await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(clean), Json)), WebSocketMessageType.Text, true, cancel);
         return true;
+    }
+
+    /// <summary>Tells the map's other players the cell the character walks to (sprint 118).</summary>
+    public async Task WalkTo(Cell to, CancellationToken cancel = default)
+    {
+        if (IsOpen)
+            await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(null, To: to), Json)), WebSocketMessageType.Text, true, cancel);
     }
 
     public bool TryRead(out ChatEvent? e) => _received.TryDequeue(out e);
@@ -73,8 +80,8 @@ public sealed class ChatClient : IAsyncDisposable
                 }
                 while (!result.EndOfMessage);
                 using JsonDocument doc = JsonDocument.Parse(message.ToArray());
-                _received.Enqueue(doc.RootElement.TryGetProperty("reason", out JsonElement reason)
-                    ? new ChatEvent(null, reason.GetString())
+                _received.Enqueue(doc.RootElement.TryGetProperty("reason", out JsonElement reason) ? new ChatEvent(null, reason.GetString())
+                    : doc.RootElement.TryGetProperty("kind", out _) ? new ChatEvent(null, null, doc.RootElement.Deserialize<MapNews>(Json))
                     : new ChatEvent(doc.RootElement.Deserialize<ChatLine>(Json), null));
             }
         }
@@ -122,6 +129,8 @@ public sealed class ChatLog(Texts texts)
     public void Add(ChatEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        if (e.News is not null)
+            return;
         _lines.Add(e.Line is ChatLine line ? texts["chat.line", texts["chat." + line.Channel], line.From, line.Text] : texts["chat.refused", e.Refusal ?? ""]);
         if (_lines.Count > Kept)
             _lines.RemoveAt(0);

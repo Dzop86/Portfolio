@@ -43,6 +43,7 @@ public partial class TownView : Node3D
     public void Build(TownController controller, string lang, Hero player)
     {
         Controller = controller;
+        _lang = lang;
         Town town = controller.Town;
         (string light, string dark) = ZoneStyle.Ground(town.Zone);
         StandardMaterial3D[] grass = [.. new[] { light, dark }.Select(g => new StandardMaterial3D { AlbedoColor = new Color(g), Roughness = 1 })];
@@ -710,8 +711,11 @@ public partial class TownView : Node3D
             label.Visible = false;
     }
 
+    private string _lang = "en";
+
     public void SetLanguage(string lang)
     {
+        _lang = lang;
         foreach ((Label3D label, LocalizedText text) in _exitLabels)
             label.Text = text.In(lang);
         foreach ((string id, Label3D label) in _groupLabels)
@@ -825,6 +829,84 @@ public partial class TownView : Node3D
         }
         foreach (Node3D m in models)
             Animate(m, "idle");
+    }
+
+    /// <summary>A group back on the map (sprint 118): drawn again on its cell.</summary>
+    public void ShowGroup(string id, Cell at)
+    {
+        if (Groups.TryGetValue(id, out Node3D? root))
+        {
+            root.Visible = true;
+            PlaceGroup(id, at);
+        }
+        else
+            AddGroup(Controller.Data.Groups[id], at, _lang);
+    }
+
+    /// <summary>A group fought or beaten by someone (sprint 118): hidden until it is back.</summary>
+    public void HideGroup(string id)
+    {
+        if (Groups.TryGetValue(id, out Node3D? root))
+            root.Visible = false;
+    }
+
+    /// <summary>The other players drawn (sprint 118), by id: their own looks, their names above them.</summary>
+    public Dictionary<Guid, Node3D> Others { get; } = [];
+
+    private readonly Dictionary<Guid, Cell> _otherAt = [];
+    private readonly Dictionary<Guid, int> _otherWalks = [];
+
+    /// <summary>
+    /// The other players as the server says (sprint 118): the newcomers drawn where they stand, those gone taken away,
+    /// the others walking to their new cells around the decor, <paramref name="speed"/> cells a second.
+    /// </summary>
+    public void ShowOthers(IReadOnlyCollection<OtherPlayer> others, double speed)
+    {
+        ArgumentNullException.ThrowIfNull(others);
+        foreach (Guid gone in Others.Keys.Except(others.Select(o => o.Id)).ToList())
+        {
+            Others[gone].QueueFree();
+            Others.Remove(gone);
+            _otherAt.Remove(gone);
+        }
+        foreach (OtherPlayer other in others)
+        {
+            if (!Others.TryGetValue(other.Id, out Node3D? person))
+            {
+                person = Person(other.Look, other.Name);
+                person.Position = BoardView.ToWorld(other.At);
+                AddChild(person);
+                Others[other.Id] = person;
+            }
+            else if (_otherAt[other.Id] != other.At)
+            {
+                Board board = Controller.Board;
+                IReadOnlyList<Cell> path = Wander.FindPath(board, _otherAt[other.Id], other.At, c => Controller.Town.IsFree(board, c)) ?? [other.At];
+                _ = MoveOther(other.Id, path, speed);
+            }
+            _otherAt[other.Id] = other.At;
+        }
+    }
+
+    private async Task MoveOther(Guid id, IReadOnlyList<Cell> path, double speed)
+    {
+        Node3D root = Others[id];
+        int me = _otherWalks[id] = _otherWalks.GetValueOrDefault(id) + 1;
+        Node3D model = root.GetChild<Node3D>(0);
+        Animate(model, "walk");
+        foreach (Cell c in path)
+        {
+            Vector3 to = BoardView.ToWorld(c);
+            Face(root, to - root.Position);
+            while (root.Position != to)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (_otherWalks.GetValueOrDefault(id) != me || !IsInstanceValid(root))
+                    return;
+                root.Position = root.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+            }
+        }
+        Animate(model, "idle");
     }
 
     /// <summary>Puts a group on a cell at once (the self-test).</summary>

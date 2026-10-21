@@ -118,7 +118,9 @@ public static class CharacterEndpoints
         if (character is null)
             return TypedResults.NotFound();
         using System.Net.WebSockets.WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
-        await hub.Serve(character.Id, character.Name, character.Town ?? "clairval", socket, context.RequestAborted);
+        string map = character.Town ?? "clairval";
+        Cell at = character.X is int x && character.Y is int y ? new Cell(x, y) : GameData.Embedded.Towns[map].Spawn;
+        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted);
         return TypedResults.Empty;
     }
 
@@ -149,12 +151,12 @@ public static class CharacterEndpoints
             saved = await db.SaveChangesAsync(cancel);
         }
         if (saved > 0)
-            hub.Move(id, place.Town);
+            await hub.Move(id, place.Town, place.Cell, cancel);
         return saved == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
     internal static async Task<Results<Ok<FightTicket>, NotFound, ValidationProblem>> StartFight(
-        Guid id, NewFight request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        Guid id, NewFight request, ClaimsPrincipal user, GameDb db, TimeProvider clock, Hunts hunts, ChatHub hub, CancellationToken cancel)
     {
         // A scenario of the data files, or a group of monsters of the world (sprint 72).
         if (request?.Scenario is not string scenario || GameData.Embedded.FindScenario(scenario) is null)
@@ -166,6 +168,13 @@ public static class CharacterEndpoints
         // A dungeon's room only for who went in, and only the room it is at (sprint 80).
         if (Dungeons.Parse(scenario) is (string dungeon, int room) && character.Run?.IsAt(dungeon, room) != true)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = ["Not the room of the dungeon this character is at."] });
+        // A group of the world (sprint 118, D74): one fight at a time, none while it is away; its map's players see it fought.
+        if (Hunts.GroupOf(scenario) is MonsterGroup group)
+        {
+            if (!hunts.Start(group.Id, id))
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["scenario"] = ["This group is fighting someone else, or beaten and not back yet."] });
+            await hub.Tell(group.Map, new MapNews(MapNewsKind.Fighting, Group: group.Id), cancel: cancel);
+        }
         // The life (sprint 101, D73): a fight taken and never reported is lost (1 hit point); the life now is
         // the hero's to start with, frozen until the report.
         DateTimeOffset now = clock.GetUtcNow();
@@ -185,7 +194,7 @@ public static class CharacterEndpoints
     }
 
     internal static async Task<Results<Ok<FightResult>, NotFound, ValidationProblem>> ReportFight(
-        Guid id, Guid fight, HttpRequest request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        Guid id, Guid fight, HttpRequest request, ClaimsPrincipal user, GameDb db, TimeProvider clock, Hunts hunts, ChatHub hub, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -217,6 +226,13 @@ public static class CharacterEndpoints
         catch (InvalidFightRecordException e)
         {
             problem = e.Message;
+        }
+        // The group fought (sprint 118): beaten and away for a while, or back at once; told to its map either way.
+        if (Hunts.GroupOf(pending.Scenario) is MonsterGroup group)
+        {
+            DateTimeOffset? until = hunts.End(group.Id, id, problem is null && played!.WinningTeam == 0, out bool itsFight);
+            if (itsFight)
+                await hub.Tell(group.Map, until is null ? new MapNews(MapNewsKind.Back, Group: group.Id) : new MapNews(MapNewsKind.Beaten, Group: group.Id, Until: until), cancel: cancel);
         }
         if (problem is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["record"] = [problem] });
@@ -310,7 +326,7 @@ public static class CharacterEndpoints
 
     /// <summary>A gathering (sprint 99, D71): the rules decide, the server keeps the spots and the trade's experience.</summary>
     internal static async Task<Results<Ok<Gathered>, NotFound, ValidationProblem>> Harvest(
-        Guid id, Gather request, ClaimsPrincipal user, GameDb db, Fields fields, CancellationToken cancel)
+        Guid id, Gather request, ClaimsPrincipal user, GameDb db, Fields fields, ChatHub hub, CancellationToken cancel)
     {
         if (request?.Node is not string nodeId || !GameData.Embedded.Nodes.TryGetValue(nodeId, out HarvestNode? node))
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["node"] = ["A known gathering spot."] });
@@ -335,7 +351,10 @@ public static class CharacterEndpoints
         character.Jobs = string.Join(',', jobs.OrderBy(j => j.Key, StringComparer.Ordinal).Select(j => $"{j.Key}:{j.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         (character.X, character.Y) = (request.From.X, request.From.Y);
         await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(new Gathered(Summary(character, new Place(map.Id, request.From.X, request.From.Y)), item, xp, fields.GrowsBack(node.Id)!.Value));
+        DateTimeOffset grows = fields.GrowsBack(node.Id)!.Value;
+        // The map's other players see it gone (sprint 118, D74).
+        await hub.Tell(map.Id, new MapNews(MapNewsKind.Taken, character.Id, Spot: node.Id, Until: grows), cancel: cancel, but: character.Id);
+        return TypedResults.Ok(new Gathered(Summary(character, new Place(map.Id, request.From.X, request.From.Y)), item, xp, grows));
     }
 
     internal static async Task<Results<Ok<Growing>, NotFound>> Spots(Guid id, ClaimsPrincipal user, GameDb db, Fields fields, CancellationToken cancel)

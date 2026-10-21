@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois les autres joueurs de ma carte, et les monstres et les points de récolte sont les mêmes pour tous (rpg) ; xUnit, test d'intégration à deux clients. | 3 | À faire |
+| En tant que joueur, je vois les autres joueurs de ma carte, et les monstres et les points de récolte sont les mêmes pour tous (rpg) ; xUnit, test d'intégration à deux clients. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

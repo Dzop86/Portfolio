@@ -26,6 +26,9 @@ public sealed class GrowingSpots
     /// <summary>A spot just gathered: back after <see cref="Harvesting.Regrowth"/>.</summary>
     public void Taken(string id, DateTimeOffset now) => _until[id] = now + Harvesting.Regrowth;
 
+    /// <summary>A spot someone else gathered (sprint 118): growing back until the server says.</summary>
+    public void GrowsUntil(string id, DateTimeOffset until) => _until[id ?? throw new ArgumentNullException(nameof(id))] = until;
+
     public bool Contains(string id) => _until.ContainsKey(id);
 
     /// <summary>The spots whose time has come, no longer growing: to draw again.</summary>

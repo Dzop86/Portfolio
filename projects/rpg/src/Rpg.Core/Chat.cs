@@ -12,8 +12,28 @@ public static class ChatChannels
 /// <summary>A line of the chat: the channel, who said it (a character's name), what, when.</summary>
 public sealed record ChatLine(string Channel, string From, string Text, DateTimeOffset At);
 
-/// <summary>What a player says: the text, on a channel (the map's when none).</summary>
-public sealed record ChatSay(string? Text, string? Channel = null);
+/// <summary>What a player says: the text, on a channel (the map's when none); since sprint 118, or the cell it walks to.</summary>
+public sealed record ChatSay(string? Text, string? Channel = null, Cell? To = null);
+
+/// <summary>
+/// What the server tells the players of a map besides the chat (sprint 118, D74), on the same socket: someone here
+/// (<see cref="MapNewsKind.Here"/>, their name, look and cell), walking to a cell, gone; a group of monsters fighting,
+/// beaten until a moment, back; a gathering spot taken, growing back until a moment.
+/// </summary>
+public sealed record MapNews(MapNewsKind Kind, Guid? Character = null, string? Name = null, Hero? Look = null, Cell? At = null,
+    string? Group = null, string? Spot = null, DateTimeOffset? Until = null);
+
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<MapNewsKind>))]
+public enum MapNewsKind
+{
+    Here,
+    Walk,
+    Gone,
+    Fighting,
+    Beaten,
+    Back,
+    Taken,
+}
 
 /// <summary>Why a line was not sent, as the server tells the one who wrote it.</summary>
 public sealed record ChatRefusal(string Reason);

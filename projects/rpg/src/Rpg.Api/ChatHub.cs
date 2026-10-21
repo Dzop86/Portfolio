@@ -10,17 +10,21 @@ namespace Rpg.Api;
 /// The proximity chat (sprint 84, D65): one WebSocket per character in play, the map it stands on as the
 /// server knows it (its place, saved after each walk and each way taken); a line goes to every
 /// character on the same map, its sender included. Lines are cleaned and paced by <see cref="ChatRules"/>;
-/// nothing is kept once sent. One server process holds them all (see the README's limits).
+/// nothing is kept once sent. One server process holds them all (see the README's limits). Since sprint 118 (D74),
+/// the same socket tells the players of a map who is there and where they walk (<see cref="MapNews"/>), and
+/// the endpoints tell them of the groups of monsters fought or beaten and of the spots gathered.
 /// </summary>
-public sealed class ChatHub(TimeProvider clock)
+public sealed class ChatHub(TimeProvider clock, Hunts hunts)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    private sealed class Speaker(Guid character, string name, string map, WebSocket socket)
+    private sealed class Speaker(Guid character, string name, Hero look, string map, Cell at, WebSocket socket)
     {
         public Guid Character { get; } = character;
         public string Name { get; } = name;
+        public Hero Look { get; } = look;
         public string Map { get; set; } = map;
+        public Cell At { get; set; } = at;
         public WebSocket Socket { get; } = socket;
         public ChatPace Pace { get; } = new();
         public SemaphoreSlim Sending { get; } = new(1, 1);
@@ -31,21 +35,52 @@ public sealed class ChatHub(TimeProvider clock)
     /// <summary>The characters connected on a map (for the tests).</summary>
     public IReadOnlyList<Guid> On(string map) => [.. _speakers.Values.Where(s => s.Map == map).Select(s => s.Character)];
 
-    /// <summary>The character walked onto another map: its lines go there from now on.</summary>
-    public void Move(Guid character, string map)
+    /// <summary>
+    /// The character's place saved (after a walk, or a way taken): on another map, gone from the old one's players,
+    /// here for the new one's, who it learns of with the map's groups; on the same map, where it stands now.
+    /// </summary>
+    public async Task Move(Guid character, string map, Cell at, CancellationToken cancel = default)
     {
-        if (_speakers.TryGetValue(character, out Speaker? s))
-            s.Map = map;
+        if (!_speakers.TryGetValue(character, out Speaker? s))
+            return;
+        string from = s.Map;
+        (s.Map, s.At) = (map, at);
+        if (from == map)
+        {
+            await Tell(map, new MapNews(MapNewsKind.Walk, character, At: at), cancel: cancel, but: character);
+            return;
+        }
+        await Tell(from, new MapNews(MapNewsKind.Gone, character), cancel: cancel, but: character);
+        await Arrive(s, cancel);
     }
 
-    /// <summary>Serves one character's socket until it closes: what it says goes to its map.</summary>
-    public async Task Serve(Guid character, string name, string map, WebSocket socket, CancellationToken cancel)
+    /// <summary>Tells the players of a map some news (a group fought or beaten, a spot gathered), but one of them if said.</summary>
+    public async Task Tell(string map, MapNews news, Guid? but = null, CancellationToken cancel = default)
     {
-        var me = new Speaker(character, name, map, socket);
+        string json = JsonSerializer.Serialize(news, Json);
+        foreach (Speaker other in _speakers.Values.Where(o => o.Map == map && o.Character != but))
+            await Send(other, json, cancel);
+    }
+
+    // On a map: the others there learn of it, it learns of them and of the groups fought or beaten.
+    private async Task Arrive(Speaker me, CancellationToken cancel)
+    {
+        await Tell(me.Map, Here(me), cancel: cancel, but: me.Character);
+        foreach (MapNews news in _speakers.Values.Where(o => o.Map == me.Map && o.Character != me.Character).Select(Here).Concat(hunts.On(me.Map)))
+            await Send(me, JsonSerializer.Serialize(news, Json), cancel);
+    }
+
+    private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At);
+
+    /// <summary>Serves one character's socket until it closes: what it says goes to its map.</summary>
+    public async Task Serve(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, CancellationToken cancel)
+    {
+        var me = new Speaker(character, name, look, map, at, socket);
         // A second connection of the same character replaces the first.
         if (_speakers.TryGetValue(character, out Speaker? old))
             await Close(old);
         _speakers[character] = me;
+        await Arrive(me, cancel);
         byte[] buffer = new byte[4096];
         try
         {
@@ -72,7 +107,8 @@ public sealed class ChatHub(TimeProvider clock)
         }
         finally
         {
-            _speakers.TryRemove(new KeyValuePair<Guid, Speaker>(character, me));
+            if (_speakers.TryRemove(new KeyValuePair<Guid, Speaker>(character, me)))
+                await Tell(me.Map, new MapNews(MapNewsKind.Gone, character), cancel: CancellationToken.None);
             await Close(me);
         }
     }
@@ -87,6 +123,16 @@ public sealed class ChatHub(TimeProvider clock)
         catch (JsonException)
         {
             say = null;
+        }
+        // A walk begun (sprint 118): to a cell one can stand on, told to the map's other players.
+        if (say?.To is Cell to)
+        {
+            if (GameData.Embedded.Towns.TryGetValue(me.Map, out Town? town) && town.CanStand(to))
+            {
+                me.At = to;
+                await Tell(me.Map, new MapNews(MapNewsKind.Walk, me.Character, At: to), cancel: cancel, but: me.Character);
+            }
+            return;
         }
         string? text = ChatRules.Clean(say?.Text);
         string? refusal = text is null ? "Nothing to say."

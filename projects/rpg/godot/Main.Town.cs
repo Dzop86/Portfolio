@@ -33,15 +33,26 @@ public partial class Main
         if (_character?.Place is Place p && GameData.Embedded.Towns.ContainsKey(p.Town))
             (_zone, _place) = (p.Town, p.Cell);
         bool outOfHall = LeaveShutHall();
-        _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(DateTimeOffset.UtcNow), Run);
+        // The other players and the groups away (sprint 118): what the server said of this map, forgotten on another.
+        if (_crowdMap != _zone)
+        {
+            _crowd.Clear();
+            _crowdMap = _zone;
+        }
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        _town = new TownController(GameData.Embedded, _zone, _place, Presence.Away(now).Concat(_crowd.Away(now)), Run);
+        // The groups where every player sees them now (sprint 118, D74), not at their homes.
+        _slot = -1;
+        if (Roams)
+            Regroup(Roam.Places(GameData.Embedded, _town.Town, _town.Board, Roam.Slot(now)), walk: false);
         // The character's quests (sprint 88), offered and taken back in the talks; online only.
         if (_character is not null)
             _town.Book = QuestBook.Of(_character, GameData.Embedded);
-        _roamAt.Clear();
         _townView = new TownView();
         _beastAt.Clear();
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
+        _townView.ShowOthers(_crowd.Others, WalkSpeed);
         _townView.ShowMarks(_town.Book);
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
@@ -96,32 +107,78 @@ public partial class Main
     /// <summary>The groups of monsters beaten in this session, away for a while (sprint 72).</summary>
     private static readonly MonsterPresence Presence = new();
 
-    // When each group of the map moves next, in seconds from now; the draws of their walks.
-    private readonly Dictionary<string, double> _roamAt = [];
+    // The draws of the beasts' walks.
     private readonly Rng _roam = new((ulong)System.Environment.TickCount64);
 
     /// <summary>A group walks this many cells a second.</summary>
     private const double GroupSpeed = 1.6;
 
+    // The map the crowd's news are of, the other players and the groups away there (sprint 118); the clock's slot the groups stand in.
+    private readonly MapCrowd _crowd = new();
+    private string? _crowdMap;
+    private long _slot = -1;
+
+    /// <summary>Whether the groups wander: not during the self-tests, which find them at home.</summary>
+    private bool Roams => !_options.TownSelfTest && !_options.LobbySelfTest && _options.Screenshot is null;
+
     /// <summary>
-    /// Each frame on a map: every few seconds, each group of monsters walks a few steps around its
-    /// home (<see cref="Roaming"/>), but for the one the player is walking up to. Still during the self-tests.
+    /// Each frame on a map (sprint 118, D74): at each new slot of the clock, the groups away leave, those back come back,
+    /// and each group walks to where <see cref="Roam"/> puts it, the same for every player; but for the one the player
+    /// is walking up to. Still during the self-tests.
     /// </summary>
     private void RoamGroups(double delta)
     {
-        if (_town is null || _townView is null || _options.TownSelfTest || _options.LobbySelfTest || _options.Screenshot is not null)
+        if (_town is null || _townView is null || !Roams)
             return;
-        foreach (string id in _town.Groups.Keys.ToList())
+        long slot = Roam.Slot(DateTimeOffset.UtcNow);
+        if (slot == _slot)
+            return;
+        _slot = slot;
+        ShowGroupsAway();
+        Regroup(Roam.Places(GameData.Embedded, _town.Town, _town.Board, slot), walk: true);
+    }
+
+    // The groups to their places: two rounds, so that a group whose place another one leaves gets there too.
+    private void Regroup(IReadOnlyDictionary<string, Cell> places, bool walk)
+    {
+        for (int round = 0; round < 2; round++)
         {
-            double left = _roamAt.TryGetValue(id, out double t) ? t - delta : 2 + _roam.Next(0, 4000) / 1000.0;
-            _roamAt[id] = left;
-            if (left > 0)
-                continue;
-            _roamAt[id] = 4 + _roam.Next(0, 5000) / 1000.0;
-            if (_town.FightGroup?.Id == id || Roaming.Next(_town, id, _roam) is not { Count: > 0 } path)
-                continue;
-            _town.MoveGroup(id, path[^1]);
-            _ = _townView.MoveGroup(id, path, GroupSpeed);
+            foreach (string id in _town!.Groups.Keys.ToList())
+            {
+                Cell from = _town.Groups[id];
+                if (_town.FightGroup?.Id == id || !places.TryGetValue(id, out Cell to) || to == from || to == _town.Position || !_town.IsFree(to))
+                    continue;
+                IReadOnlyList<Cell>? path = Wander.FindPath(_town.Board, from, to, c => c == from || _town.IsFree(c));
+                if (path is not { Count: > 0 })
+                    continue;
+                _town.MoveGroup(id, to);
+                if (walk)
+                    _ = _townView!.MoveGroup(id, path, GroupSpeed);
+            }
+        }
+    }
+
+    /// <summary>The groups fought or beaten by someone off the map, those back on it (sprint 118).</summary>
+    private void ShowGroupsAway()
+    {
+        if (_town is null || _townView is null)
+            return;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        IReadOnlyDictionary<string, Cell>? places = null;
+        foreach (MonsterGroup g in GameData.Embedded.GroupsOn(_town.Town.Id))
+        {
+            bool away = _crowd.IsAway(g.Id, now) || Presence.IsAway(g.Id, now);
+            if (away && _town.Groups.ContainsKey(g.Id) && _town.FightGroup?.Id != g.Id)
+            {
+                _town.RemoveGroup(g.Id);
+                _townView.HideGroup(g.Id);
+            }
+            else if (!away && !_town.Groups.ContainsKey(g.Id) && _town.Town.Dungeon is null)
+            {
+                places ??= Roam.Places(GameData.Embedded, _town.Town, _town.Board, Roam.Slot(now));
+                if (_town.AddGroup(g.Id, places[g.Id]))
+                    _townView.ShowGroup(g.Id, _town.Groups[g.Id]);
+            }
         }
     }
 
@@ -542,14 +599,28 @@ public partial class Main
     /// <summary>What the chat brought since the last frame, on screen.</summary>
     private void DrainChat()
     {
-        bool any = false;
+        bool any = false, news = false;
         while (_chat is not null && _chat.TryRead(out ChatEvent? e))
         {
-            _chatLog!.Add(e!);
+            // The map's news (sprint 118): who is here and where, the groups away, the spots taken.
+            if (e!.News is MapNews n)
+            {
+                if (_character is not null)
+                    _crowd.Apply(n, _character.Id, _growing);
+                news = true;
+                continue;
+            }
+            _chatLog!.Add(e);
             any = true;
         }
         if (any)
             _chatBox?.Refresh(fresh: true);
+        if (news && _townView is not null)
+        {
+            _townView.ShowOthers(_crowd.Others, WalkSpeed);
+            _townView.ShowGrowing(_growing.Ids);
+            ShowGroupsAway();
+        }
     }
 
     private EdgeArrow? _edgeArrow;
@@ -673,6 +744,9 @@ public partial class Main
         }
         if ((attack ? _town!.Attack(target) : _town!.Click(target)) is not TownStep step)
             return;
+        // The map's other players see where the walk goes (sprint 118).
+        if (step.Waypoints.Count > 0 && _chat is { IsOpen: true } chat)
+            _ = TellWalk(chat, step.Waypoints[^1]);
         _gatherTicket++;
         _walking = true;
         if (!await _townView!.Walk(step, WalkSpeed))
@@ -1058,6 +1132,18 @@ public partial class Main
         catch (Exception e) when (e is ServerException or HttpRequestException)
         {
             Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
+    private static async Task TellWalk(ChatClient chat, Cell to)
+    {
+        try
+        {
+            await chat.WalkTo(to);
+        }
+        catch (Exception e) when (e is System.Net.WebSockets.WebSocketException or ObjectDisposedException or InvalidOperationException)
+        {
+            // The socket closed meanwhile: the place saved at the walk's end tells the server anyway.
         }
     }
 
@@ -2186,16 +2272,32 @@ public partial class Main
             RemoveChild(fv);
             fv.QueueFree();
         }
+        // Where the clock puts it (sprint 118, D74), the same for every player.
         var stay = new TownController(GameData.Embedded, "woods-2-2");
-        if (Roaming.Next(stay, group.Id, new Rng(3)) is { Count: > 0 } path)
+        if (Enumerable.Range(0, 20).Select(slot => (Cell?)Roam.Places(GameData.Embedded, stay.Town, stay.Board, slot)[group.Id])
+            .FirstOrDefault(c => c != group.Home && stay.IsFree(c!.Value) && c != stay.Position) is Cell roamed)
         {
-            stay.MoveGroup(group.Id, path[^1]);
-            view.PlaceGroup(group.Id, path[^1]);
-            if (view.Groups[group.Id].Position != BoardView.ToWorld(path[^1]))
+            stay.MoveGroup(group.Id, roamed);
+            view.PlaceGroup(group.Id, roamed);
+            if (view.Groups[group.Id].Position != BoardView.ToWorld(roamed))
                 problems.Add($"the group {group.Id} is not drawn where it roamed");
         }
         else
             problems.Add($"the group {group.Id} cannot roam");
+        // Another player (sprint 118): drawn where the server says, walking on, gone; a group fought hidden, then back.
+        var plop = new OtherPlayer(Guid.NewGuid(), "Plop", new Hero("Plop", "male-a", "guard"), stay.Town.Spawn);
+        view.ShowOthers([plop], 4);
+        bool drawn = view.Others.TryGetValue(plop.Id, out Node3D? other) && other.Position == BoardView.ToWorld(plop.At);
+        view.ShowOthers([plop with { At = plop.At.Neighbours().First(stay.IsFree) }], 4);
+        bool walking = view.Others.Count == 1;
+        view.ShowOthers([], 4);
+        if (!drawn || !walking || view.Others.Count != 0)
+            problems.Add($"another player: drawn {drawn}, walking {walking}, {view.Others.Count} left");
+        view.HideGroup(group.Id);
+        bool hidden = !view.Groups[group.Id].Visible;
+        view.ShowGroup(group.Id, group.Home);
+        if (!hidden || !view.Groups[group.Id].Visible)
+            problems.Add($"the group {group.Id} is not hidden while fought, then back");
         RemoveChild(view);
         view.QueueFree();
     }

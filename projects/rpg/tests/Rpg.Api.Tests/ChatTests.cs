@@ -32,6 +32,17 @@ public class ChatTests
             await Task.Delay(20, Cancel);
     }
 
+    // The next line or refusal, the map's news passed over (sprint 118: the same socket tells who is here).
+    private static async Task<ChatEvent?> Heard(ChatClient chat, TimeSpan within, CancellationToken cancel)
+    {
+        while (await chat.Next(within, cancel) is ChatEvent e)
+        {
+            if (e.News is null)
+                return e;
+        }
+        return null;
+    }
+
     [Fact]
     public async Task ALine_IsHeardOnItsMap_SenderIncluded_AndNowhereElse()
     {
@@ -46,14 +57,14 @@ public class ChatTests
         Assert.True(await a.Say("  Bonjour   à tous ", Cancel));
         foreach (ChatClient heard in new[] { a, b })
         {
-            ChatLine line = (await heard.Next(Wait, Cancel))!.Line!;
+            ChatLine line = (await Heard(heard, Wait, Cancel))!.Line!;
             Assert.Equal((ChatChannels.Map, "Aube", "Bonjour à tous"), (line.Channel, line.From, line.Text));
         }
-        Assert.Null(await c.Next(Silence, Cancel));
+        Assert.Null(await Heard(c, Silence, Cancel));
         // Cendre walks back to the village: heard there now.
         await cendreServer.SavePlace(cendre.Id, new Place("clairval", 7, 11), Cancel);
         await b.Say("Te revoilà", Cancel);
-        Assert.Equal("Te revoilà", (await c.Next(Wait, Cancel))!.Line!.Text);
+        Assert.Equal("Te revoilà", (await Heard(c, Wait, Cancel))!.Line!.Text);
         await a.DisposeAsync();
         await b.DisposeAsync();
         await c.DisposeAsync();
@@ -71,16 +82,16 @@ public class ChatTests
         for (int i = 0; i < ChatRules.Burst; i++)
             await a.Say($"ligne {i}", Cancel);
         for (int i = 0; i < ChatRules.Burst; i++)
-            Assert.Equal($"ligne {i}", (await a.Next(Wait, Cancel))!.Line!.Text);
+            Assert.Equal($"ligne {i}", (await Heard(a, Wait, Cancel))!.Line!.Text);
         await a.Say("une de trop", Cancel);
-        Assert.NotNull((await a.Next(Wait, Cancel))!.Refusal);
+        Assert.NotNull((await Heard(a, Wait, Cancel))!.Refusal);
         // Ten seconds later (the server's clock), heard again.
         api.Clock.Advance(ChatRules.Window);
         await a.Say(new string('x', 300), Cancel);
-        Assert.Equal(ChatRules.MaxLength, (await a.Next(Wait, Cancel))!.Line!.Text.Length);
+        Assert.Equal(ChatRules.MaxLength, (await Heard(a, Wait, Cancel))!.Line!.Text.Length);
         // Brume heard the five lines and the long one, not the refusal.
         int lines = 0;
-        while (await b.Next(Silence, Cancel) is ChatEvent e)
+        while (await Heard(b, Silence, Cancel) is ChatEvent e)
         {
             Assert.NotNull(e.Line);
             lines++;
@@ -100,14 +111,14 @@ public class ChatTests
         await WaitUntilOn(api, "clairval", aube.Id);
         string shared = $"Regardez {ChatLinks.Of("copper-ring")} !";
         await a.Say(shared, Cancel);
-        Assert.Equal(shared, (await a.Next(Wait, Cancel))!.Line!.Text);
-        Assert.Equal(shared, (await b.Next(Wait, Cancel))!.Line!.Text);
+        Assert.Equal(shared, (await Heard(a, Wait, Cancel))!.Line!.Text);
+        Assert.Equal(shared, (await Heard(b, Wait, Cancel))!.Line!.Text);
         await a.Say($"{ChatLinks.Of("no-such-thing")}", Cancel);
-        Assert.Contains("no-such-thing", (await a.Next(Wait, Cancel))!.Refusal, StringComparison.Ordinal);
+        Assert.Contains("no-such-thing", (await Heard(a, Wait, Cancel))!.Refusal, StringComparison.Ordinal);
         await a.Say(string.Concat(Enumerable.Repeat(ChatLinks.Of("bread"), ChatLinks.Most + 1)), Cancel);
-        Assert.NotNull((await a.Next(Wait, Cancel))!.Refusal);
+        Assert.NotNull((await Heard(a, Wait, Cancel))!.Refusal);
         // Brume heard the shared ring only.
-        Assert.Null(await b.Next(Silence, Cancel));
+        Assert.Null(await Heard(b, Silence, Cancel));
         await a.DisposeAsync();
         await b.DisposeAsync();
     }

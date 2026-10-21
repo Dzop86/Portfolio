@@ -63,28 +63,22 @@ public class MonsterGroupTests
     }
 
     [Fact]
-    public void AGroup_Roams_AFewStepsFromHome_NeverOntoThePlayerOrAWay()
+    public void AGroupFoughtBySomeoneElse_LeavesTheMap_AndComesBack_OnAFreeCell()
     {
-        foreach (MonsterGroup group in Data.Groups.Values.Take(20))
-        {
-            var town = new TownController(Data, group.Map);
-            var rng = new Rng(MonsterGroups.Seed(group.Id));
-            for (int i = 0; i < 10; i++)
-            {
-                IReadOnlyList<Cell>? path = Roaming.Next(town, group.Id, rng);
-                if (path is null || path.Count == 0)
-                    continue;
-                Assert.All(path, c => Assert.True(c != town.Position && town.Town.IsFree(town.Board, c)));
-                Cell to = path[^1];
-                Assert.True(to.DistanceTo(group.Home) <= Roaming.Radius, group.Id);
-                Assert.Null(town.Town.LinkAt(to));
-                Assert.Null(town.Town.ExitAt(to));
-                town.MoveGroup(group.Id, to);
-            }
-        }
-        // The same draws give the same walks.
-        MonsterGroup g = Data.Groups.Values.First();
-        Assert.Equal(Roaming.Next(new TownController(Data, g.Map), g.Id, new Rng(5)), Roaming.Next(new TownController(Data, g.Map), g.Id, new Rng(5)));
+        // Sprint 118 (D74): the server says a group is fought or beaten; back, where the clock puts it, or at home.
+        MonsterGroup group = Data.GroupsOn("woods-2-2")[0];
+        var town = new TownController(Data, "woods-2-2");
+        town.RemoveGroup(group.Id);
+        Assert.Null(town.GroupAt(group.Home));
+        Assert.False(town.AddGroup("woods-0-0.0", group.Home));
+        Cell free = group.Home.Neighbours().First(town.IsFree);
+        Assert.True(town.AddGroup(group.Id, free));
+        Assert.Equal(free, town.Groups[group.Id]);
+        Assert.False(town.AddGroup(group.Id, free));
+        // Its place taken (a wall, or the player): at home.
+        town.RemoveGroup(group.Id);
+        Assert.True(town.AddGroup(group.Id, new Cell(0, 0)));
+        Assert.Equal(group.Home, town.Groups[group.Id]);
     }
 
     [Fact]

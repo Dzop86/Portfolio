@@ -174,6 +174,24 @@ public sealed class TownController
         _groups[id] = to;
     }
 
+    /// <summary>A group fought or beaten by someone (sprint 118): off the map until it is back.</summary>
+    public void RemoveGroup(string id) => _groups.Remove(id);
+
+    /// <summary>
+    /// A group back on the map (sprint 118), on <paramref name="at"/> if free and the player is not there, else at its
+    /// home if that is; false when it stays away for now (a group of another map, already here, or nowhere free).
+    /// </summary>
+    public bool AddGroup(string id, Cell at)
+    {
+        if (!_data.Groups.TryGetValue(id, out MonsterGroup? g) || g.Map != Town.Id || _groups.ContainsKey(id))
+            return false;
+        Cell? free = new[] { at, g.Home }.Cast<Cell?>().FirstOrDefault(c => IsFree(c!.Value) && c != Position);
+        if (free is not Cell cell)
+            return false;
+        _groups[id] = cell;
+        return true;
+    }
+
     public Town Town { get; }
     public Board Board { get; }
     public GameData Data => _data;
