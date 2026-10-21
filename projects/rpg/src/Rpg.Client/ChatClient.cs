@@ -7,7 +7,7 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>What came from the chat: a line said on the map, or the server's refusal of one of ours; since sprint 118, news of the map.</summary>
-public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null, PartyNews? Party = null, TradeNews? Trade = null);
+public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null, PartyNews? Party = null, TradeNews? Trade = null, SharedFightNews? Shared = null);
 
 /// <summary>
 /// The game's side of the proximity chat (sprint 84): a WebSocket to the server, lines sent as
@@ -87,6 +87,7 @@ public sealed class ChatClient : IAsyncDisposable
                     : doc.RootElement.TryGetProperty("kind", out _) ? new ChatEvent(null, null, doc.RootElement.Deserialize<MapNews>(Json))
                     : doc.RootElement.TryGetProperty("party", out _) ? new ChatEvent(null, null, Party: doc.RootElement.Deserialize<PartyNews>(Json))
                     : doc.RootElement.TryGetProperty("trade", out _) ? new ChatEvent(null, null, Trade: doc.RootElement.Deserialize<TradeNews>(Json))
+                    : doc.RootElement.TryGetProperty("shared", out _) ? new ChatEvent(null, null, Shared: doc.RootElement.Deserialize<SharedFightNews>(Json))
                     : new ChatEvent(doc.RootElement.Deserialize<ChatLine>(Json), null));
             }
         }
@@ -134,7 +135,7 @@ public sealed class ChatLog(Texts texts)
     public void Add(ChatEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (e.News is not null || e.Party is not null || e.Trade is not null)
+        if (e.News is not null || e.Party is not null || e.Trade is not null || e.Shared is not null)
             return;
         _lines.Add(e.Line is ChatLine line ? texts["chat.line", texts["chat." + line.Channel], line.From, line.Text] : texts["chat.refused", e.Refusal ?? ""]);
         if (_lines.Count > Kept)

@@ -44,10 +44,11 @@ public static class Progression
     /// the other team (neither a summon nor a rival hero), its worth, unless it is
     /// <see cref="LevelGap"/> levels below the hero or more; then the group bonus for each ally.
     /// </summary>
-    public static long FightXp(Fight fight)
+    /// <param name="who">Since sprint 120, the hero of the party it is for (its level counts); the fight's hero when none.</param>
+    public static long FightXp(Fight fight, Hero? who = null)
     {
         ArgumentNullException.ThrowIfNull(fight);
-        if (fight.Hero is not Hero hero || fight.WinningTeam != 0)
+        if ((who ?? fight.Hero) is not Hero hero || fight.WinningTeam != 0)
             return 0;
         Fighter? rival = fight.Rival is null ? null : fight.Fighters.First(f => f.Team == 1);
         long xp = fight.Fighters.Where(f => f.Team != 0 && !f.IsSummon && f != rival && f.Spec.Level > hero.Level - LevelGap)

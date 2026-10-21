@@ -19,16 +19,20 @@ public sealed record FightRecord(
     IReadOnlyList<FightAction> Actions,
     Hero? Hero = null,
     Hero? Rival = null,
-    int? HeroHp = null)
+    int? HeroHp = null,
+    IReadOnlyList<Hero>? Allies = null,
+    IReadOnlyList<int?>? AlliesHp = null)
 {
-    public const int CurrentVersion = 1;
+    /// <summary>Version 2 (sprint 120) adds the hero's party; a record of version 1 is a fight alone, read the same.</summary>
+    public const int CurrentVersion = 2;
 
     private static readonly JsonSerializerOptions Compact = new(GameData.Json) { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
     public static FightRecord Of(Fight fight)
     {
         ArgumentNullException.ThrowIfNull(fight);
-        return new FightRecord(CurrentVersion, fight.Scenario.Id, fight.Seed, [.. fight.History], fight.Hero, fight.Rival, fight.StartHeroHp);
+        return new FightRecord(CurrentVersion, fight.Scenario.Id, fight.Seed, [.. fight.History], fight.Hero, fight.Rival, fight.StartHeroHp,
+            fight.Allies.Count == 0 ? null : fight.Allies, fight.Allies.Count == 0 ? null : fight.AlliesHp);
     }
 
     public string ToJson() => JsonSerializer.Serialize(this, Compact);
@@ -50,13 +54,21 @@ public sealed record FightRecord(
     public Fight Replay(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        if (Version != CurrentVersion)
+        if (Version is not (1 or CurrentVersion) || (Version == 1 && Allies is { Count: > 0 }))
             throw new InvalidFightRecordException($"Unknown record version {Version}.");
         if (data.FindScenario(Scenario) is null)
             throw new InvalidFightRecordException($"Unknown scenario '{Scenario}'.");
-        if ((Hero?.Problem(data) ?? Rival?.Problem(data)) is string problem)
+        if ((Hero?.Problem(data) ?? Rival?.Problem(data) ?? (Allies ?? []).Select(a => a.Problem(data)).FirstOrDefault(p => p is not null)) is string problem)
             throw new InvalidFightRecordException($"Invalid hero: {problem}");
-        var fight = new Fight(data, Scenario, Seed, Hero, Rival, HeroHp);
+        Fight fight;
+        try
+        {
+            fight = new Fight(data, Scenario, Seed, Hero, Rival, HeroHp, Allies, AlliesHp);
+        }
+        catch (ArgumentException e)
+        {
+            throw new InvalidFightRecordException(e.Message);
+        }
         for (int i = 0; i < Actions.Count; i++)
         {
             ActionError error = fight.Apply(Actions[i]);

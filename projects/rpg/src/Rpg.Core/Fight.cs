@@ -115,7 +115,13 @@ public sealed class Fight
     /// <param name="hero">The player's character, in place of the scenario's first fighter of team A; null keeps it.</param>
     /// <param name="rival">Another hero, in place of the scenario's first fighter of team B (class duels).</param>
     /// <param name="heroHp">The hero's hit points to start with, at most its maximum (a dungeon's rooms, sprint 86); null: all of them.</param>
-    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null)
+    /// <param name="allies">
+    /// Since sprint 120 (D74), the hero's party: up to three more heroes in team A, on the board's starts of team A the
+    /// scenario leaves free, after the scenario's fighters (whose ids do not change).
+    /// </param>
+    /// <param name="alliesHp">Each ally's hit points to start with, in the same order; null for all of them.</param>
+    public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null,
+        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
@@ -123,6 +129,11 @@ public sealed class Fight
             throw new ArgumentException(problem, nameof(hero));
         if (rival?.Problem(data) is string rivalProblem)
             throw new ArgumentException(rivalProblem, nameof(rival));
+        Allies = [.. allies ?? []];
+        if (Allies.Count > 0 && hero is null)
+            throw new ArgumentException("Allies fight with a hero.", nameof(allies));
+        if (Allies.FirstOrDefault(a => a.Problem(data) is not null) is Hero wrong)
+            throw new ArgumentException(wrong.Problem(data), nameof(allies));
         Hero = hero;
         Rival = rival;
         Board = data.Board(Scenario.Map);
@@ -138,6 +149,20 @@ public sealed class Fight
             return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data));
         })];
         _heroIndex = heroIndex;
+        // The allies (sprint 120): the starts of team A no fighter of the scenario stands on, in order.
+        int[] freeStarts = [.. Enumerable.Range(0, Board.Starts[0].Count).Except(Scenario.Fighters.Where(f => f.Team == 0).Select(f => f.Start))];
+        if (Allies.Count > freeStarts.Length)
+            throw new ArgumentException($"The board has {freeStarts.Length} free starts for allies.", nameof(allies));
+        for (int k = 0; k < Allies.Count; k++)
+        {
+            FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data);
+            var ally = new Fighter(_fighters.Count, spec, Board.Starts[0][freeStarts[k]], SpellsOf(spec, data), PassivesOf(spec.Passives, data));
+            if (alliesHp?.ElementAtOrDefault(k) is int hp)
+                ally.Hp = Math.Clamp(hp, 1, ally.MaxHp);
+            _fighters.Add(ally);
+            _allyIds.Add(ally.Id);
+        }
+        AlliesHp = [.. Enumerable.Range(0, Allies.Count).Select(k => alliesHp?.ElementAtOrDefault(k))];
         // As asked, for the record to replay it; clamped on the board (equipment changed since may have lowered the maximum).
         if (heroHp is int start && heroIndex >= 0)
         {
@@ -213,6 +238,18 @@ public sealed class Fight
 
     /// <summary>The hero playing team B's first fighter, if any.</summary>
     public Hero? Rival { get; }
+
+    /// <summary>The hero's party (sprint 120): the other heroes of team A, in order.</summary>
+    public IReadOnlyList<Hero> Allies { get; }
+
+    /// <summary>Each ally's hit points asked for at the start, null for all of them.</summary>
+    public IReadOnlyList<int?> AlliesHp { get; }
+
+    /// <summary>The fighters the heroes play: the hero first, then each ally (sprint 120).</summary>
+    public IReadOnlyList<Fighter> HeroFighters => HeroFighter is Fighter hero ? [hero, .. _allyIds.Select(i => _fighters[i])] : [];
+
+    // The allies' ids, kept at the start: summons come after them in the list.
+    private readonly List<int> _allyIds = [];
     public Board Board { get; }
     public ulong Seed { get; }
 

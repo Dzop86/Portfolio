@@ -172,13 +172,14 @@ public static class Equipment
     /// A quest's loot (sprint 105) is drawn like the rest but kept only if <paramref name="wanted"/> has it
     /// ("quest/item", <see cref="Quests.LootWanted"/>): the server knows the quests, the draws stay the same.
     /// </summary>
-    public static IReadOnlyList<ItemCount> Loot(Fight fight, IReadOnlySet<string>? wanted = null)
+    public static IReadOnlyList<ItemCount> Loot(Fight fight, IReadOnlySet<string>? wanted = null, int draw = 0)
     {
         ArgumentNullException.ThrowIfNull(fight);
         var loot = new List<ItemCount>();
         if (fight.Hero is null || fight.WinningTeam != 0)
             return loot;
-        var rng = new Rng(fight.Seed ^ 0x9E3779B97F4A7C15);
+        // Each hero of a party draws its own loot (sprint 120): the k-th from the k-th stream of the seed; the hero alone, the first.
+        var rng = new Rng(fight.Seed ^ 0x9E3779B97F4A7C15 ^ ((ulong)draw * 0xBF58476D1CE4E5B9UL));
         foreach (Fighter f in fight.Fighters.Where(f => f.Team != 0 && !f.IsSummon))
         {
             foreach (LootDrop drop in f.Spec.Loot ?? [])

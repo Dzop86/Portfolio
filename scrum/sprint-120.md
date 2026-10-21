@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je combats avec mon groupe, le serveur menant le combat tour par tour (30 s) et la reconnexion ; butin, XP, quêtes et vie pour chacun (rpg) ; xUnit, test d'intégration à deux clients. | 5 | À faire |
+| En tant que joueur, je combats avec mon groupe, le serveur menant le combat tour par tour (30 s) et la reconnexion ; butin, XP, quêtes et vie pour chacun (rpg) ; xUnit, test d'intégration à deux clients. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

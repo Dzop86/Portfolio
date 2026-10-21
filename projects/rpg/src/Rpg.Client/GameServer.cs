@@ -169,6 +169,34 @@ public sealed class GameServer(HttpClient http)
     public async Task CancelTrade(Guid id, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/trade/cancel", UriKind.Relative), null, cancel), cancel), cancel);
 
+    /// <summary>Opens a fight with the party on a group of monsters (sprint 120); its members on the map may join for 15 seconds.</summary>
+    public async Task<SharedFightNews> OpenBattle(Guid id, string scenario, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/battles", UriKind.Relative), new NewSharedFight(scenario), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<SharedFightNews>(Json, cancel))!;
+    }
+
+    /// <summary>Joins a fight a member of the party opened (sprint 120).</summary>
+    public async Task JoinBattle(Guid id, Guid fight, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/battles/{fight}/join", UriKind.Relative), null, cancel), cancel), cancel);
+
+    /// <summary>Starts the fight one opened without waiting (sprint 120).</summary>
+    public async Task GoBattle(Guid id, Guid fight, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/battles/{fight}/go", UriKind.Relative), null, cancel), cancel), cancel);
+
+    /// <summary>Plays an action of the character's hero in a fight with the party (sprint 120); the server checks it is its turn.</summary>
+    public async Task Act(Guid id, Guid fight, FightAction action, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/battles/{fight}/act", UriKind.Relative), action, Json, cancel), cancel), cancel);
+
+    /// <summary>A fight with the party as it stands: its start and every action so far (sprint 120, coming back).</summary>
+    public async Task<SharedFightNews> Battle(Guid id, Guid fight, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/battles/{fight}", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<SharedFightNews>(Json, cancel))!;
+    }
+
     /// <summary>Saves where a character stands in a town.</summary>
     public async Task SavePlace(Guid id, Place place, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel), cancel);
