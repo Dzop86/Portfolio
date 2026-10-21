@@ -17,6 +17,7 @@
 >   - Les icônes d'ingrédients de l'établi, faites au S101.
 >   L'histoire passe **avant** le jeu à plusieurs. Le plan passe à **78 points** (§10).
 > - **Version 6, 17 octobre 2026 :** demande de Charles (§5 quater). **Quatre métiers d'équipement**, un pour chaque emplacement sauf le familier et la monture : forgeron, tailleur (qui fait aussi coiffes et capes), **bijoutier** et **cordonnier**. Les pièces fabriquées n'ont **jamais d'initiative**, au même budget que le butin. **32 recettes** des niveaux 1 à 35, le §5.6 et l'équilibre T41 revus, deux ateliers et deux artisans de plus dans la rue des artisans. **S109 (5 points) forgeron et tailleur, S110 (3 points) bijoutier et cordonnier**, la suite décalée d'un cran jusqu'à S118 : **5 points de plus** (§10, planification v6). Les tableaux de sprints des versions précédentes gardent leur numérotation d'origine ; celle qui fait foi est au §10.
+> - **Version 7, 21 octobre 2026 :** la suite après S121 (§11). Le plan v6 est fini (S122 n'existe pas encore). Elle propose **16 sprints, S122 à S137, 62 points** : finir le jeu à plusieurs (une IA de héros qui joue en équipe, l'équilibre à plusieurs réglé, la minuterie, les absents, des combats qui survivent au serveur), les amis et le voyage, une **tranche du chapitre 2** (Quatre-Chemins et la Forêt des Aïeux, niveaux 30 à 45), puis les guildes. Elle répond aux deux questions d'équilibre de T89 (§11.2). **Rien de la v7 n'est à implémenter avant l'accord de Charles.**
 >
 > Rédigée après lecture du dépôt au commit `08cb31c`, revérifiée pour la v4 (`classes.json`, `Fight.cs` : `heroHp`, `StartHeroHp`, `MaxHp` ; `FightRecord.HeroHp` ; `Entities.cs` : `DungeonHp` ; `Shop.cs`) :
 > - `DECISIONS.md` (T29 à T62), `docs/design-familles.md`, `docs/trame-saga-1.md`, `docs/bible.md`, `PLAN.md` (D54 à D70) ;
@@ -1370,3 +1371,252 @@ Le tableau ci-dessus est celui de la v5. Depuis, **D75** (retours de Charles apr
 | S116 | 5 | 4 | Le groupe et l'échange | à faire (ancien S115) |
 | S117 | 5 | 4 | Le combat à plusieurs : règles et serveur | à faire (ancien S116) |
 | S118 | 5 | 4 | Le combat à plusieurs : client et donjons | à faire (ancien S117) |
+
+> Depuis, D77 et D78 ont ajouté trois sprints (S115 à S117) et décalé le jeu à plusieurs en S118 à S121. Le plan v6 est **entièrement fait** au commit `6f779a0` : 489 points, 121 sprints, Osmose 268.
+
+---
+
+## 11. La suite après S121 *(v7, 21 octobre 2026)*
+
+> Rédigée après lecture de `DECISIONS.md` (D75 à D78), `projects/rpg/DECISIONS.md` (T77 à T89), `PLAN.md`, `docs/design-familles.md` §2.5 et §7, `data/monsters.json` (famille `bee`), `data/spells.json` (`royal-jelly`, `foraging`, `egg-laying`, `swarm`), `src/Rpg.Core/Monsters.cs` (`Sizes`, `Draw`) et `src/Rpg.Core/Ai.cs` (`BestCast`, `Value`).
+
+### 11.1 Le constat après S121
+
+Le chapitre 1 est complet (niveaux 1 à 30, 49 quêtes, le Disjoint), les sept métiers de fabrication et les cinq de récolte tournent, la vie se garde, et le jeu à plusieurs existe de bout en bout : se voir, se grouper, échanger, combattre à quatre, descendre en donjon ensemble. Les trous, du plus gênant au moins gênant :
+
+1. **L'équilibre à plusieurs n'est pas tenu, et il est mal mesuré.** T89 laisse deux questions ouvertes (§11.2). Surtout, les héros du simulateur `--party` sont joués par une IA qui **ignore les rôles et les passifs** : `Ai.BestCast` prend la plus grande valeur, puis la cible la plus faible, et `design-familles.md` §2.5 l'avait accepté (« les passifs ne sont pas prévus par l'IA »). Trois joueurs humains tuent d'abord la nourrice ; l'IA, non. Avec 20 combats par cas, l'incertitude est de ±20 points autour de 50 % : la reine de `fields-4-3` à 75 % peut aussi bien être à 55 %.
+2. **Le combat à plusieurs se lit mal et casse facilement** (limites de T86 à T89) : pas de minuterie affichée, un absent fait attendre 30 s à chaque tour, pas d'exclusion du groupe, un échange ouvert survit à la déconnexion, l'allure d'un joueur ne change pas quand il s'équipe, et **un redémarrage du serveur perd tous les combats en cours** (`Battles` en mémoire).
+3. **Rien ne retient deux joueurs l'un à l'autre** d'une soirée à l'autre : ni amis, ni message privé, ni guilde (souhaits du 9 octobre : « contacts », « guilde »).
+4. **Il n'y a rien après le niveau 30.** Les personnages de Plouf, au niveau 100, n'ont aucun contenu à leur niveau ; un joueur qui finit « Quatre pistes » n'a plus que le farm des Champs.
+5. **On se déplace seulement à pied**, alors que Charles veut des téléportations (D77) et que le chapitre 2 doublera les distances.
+
+**Hors de cette liste, volontairement :** l'hôtel des ventes (§11.8), l'apparence (reportée à la fin du jeu, D76), le JcJ (personne ne l'a demandé).
+
+### 11.2 Les deux questions d'équilibre de T89
+
+**Principe commun :** on ne règle pas un monstre contre une IA qui joue mal. On rend d'abord l'IA des héros capable de jouer en équipe (S122), on remesure avec **100 combats par cas**, et seulement ensuite on touche aux données (S123), avec le levier le moins invasif d'abord. Chaque levier a une **condition d'arrêt** : dès que la cible est tenue, on s'arrête.
+
+#### 11.2.1 La reine des abeilles de `fields-0-4.0` (5 % à trois, 100 % à quatre)
+
+**Diagnostic.** Le groupe compte 7 monstres : la reine (380 PV, 8 PA, `overheat` : +30 % de dégâts sous la moitié de ses PV), **deux nourrices** (Gelée royale, 13 à 18 PV, un tour sur deux chacune ; Butinage, +1 PA à un allié) et quatre abeilles qui déclenchent `alarm`. Deux nourrices rendent environ 15 PV par tour à la reine : sur un combat de 10 tours, 150 PV, ce qui explique les « 380 → 150 » de T89. La **salle 3 de la Ruche royale**, qui n'a qu'une nourrice (un monstre de chaque rôle), passe à 100 % à trois : le problème est la deuxième nourrice, pas la reine. La règle de génération l'autorise (`Draw` : soutiens `< size / 3`, soit 2 pour un groupe de 7, 3 pour un groupe de 9 ou 10). Le saut de 5 % à 100 % entre trois et quatre héros dit la même chose : c'est une course entre les dégâts et les soins, gagnée ou perdue d'un bloc.
+
+**À vérifier d'abord :** que `--party` mesure les chefs au niveau de **leur carte** et non de la zone (Champs 26) : la reine est niveau 30.
+
+**Recommandation, dans l'ordre :**
+
+| Étape | Levier | Où | S'arrêter si |
+|---|---|---|---|
+| 1 | L'IA des héros vise d'abord les soigneurs et concentre ses coups (§11.4, S122) | `Ai`, combats à plusieurs seulement | ≥ 70 % à trois sur les 10 compositions de classes, aucune sous 50 % |
+| 2 | **Un groupe de chef compte au plus un soutien**, comme la salle 3 de son donjon. Le soutien en trop devient un mêlée, tiré **après** les autres pour ne pas changer la suite des tirages du reste du monde | `MonsterGroups.For` | idem |
+| 3 | PV de la reine : 380 → 330, puis **300 au plus bas** (−21 %) | `monsters.json` | idem, et la salle 3 de la Ruche royale reste ≤ 10 % seul (règle de `design-familles.md` §9, question 3) |
+| 4 | Retour à Charles avec les chiffres (par exemple : un chef ne reçoit que la moitié des soins) | — | — |
+
+Mon pronostic : l'étape 2 suffit (elle rend le groupe identique, au mêlée près, à la salle 3 qui passe déjà à 100 %). Elle touche **tous les groupes de chef du monde**, mais seulement pour les rendre plus faciles ; ils sont tous à 100 % à trois sauf les deux reines. C'est une règle de composition, pas une règle sur les PV : Charles avait validé « on règle les PV du chef seul » (§6.4), d'où la question 66. La reine de `fields-4-3` (75 % sur 20 combats) suit les mêmes étapes.
+
+#### 11.2.2 Les hordes à deux joueurs (de 0 à 100 %)
+
+**Diagnostic.** « 2 joueurs ≈ 50 % » s'appliquait à toutes les hordes, de 6 à 10 monstres. Or une horde de 6 contre deux héros fait 3 monstres par héros, la limite du « facile seul » de Charles ; une horde de 10 en fait 5. Un écart de 0 à 100 % est donc **en partie normal** : la cible doit dépendre de la taille. La règle de Charles du 14 octobre (« un joueur bat 1 à 3 monstres facilement ») donne une lecture simple : **un joueur par tranche de 3 monstres**.
+
+**Cible recommandée** (elle précise celle de §6.4 sans la contredire) :
+
+| Taille de la horde | 2 joueurs | 3 joueurs | 4 joueurs |
+|---|---|---|---|
+| 6 | 50 à 90 % | ≥ 90 % | — |
+| 7 et 8 | 20 à 70 % | ≥ 80 % | ≥ 95 % |
+| 9 et 10 | ≤ 40 % (0 % permis) | ≥ 60 % | ≥ 90 % |
+| **Médiane des hordes d'une zone** | **35 à 65 %** (le « ≈ 50 % » de Charles) | **≥ 80 %** | — |
+
+Les hordes de taupes lanceuses de la Prairie restent à part, comme en T64 et T77. T89 ne donne pas la mesure à trois joueurs : elle est à faire.
+
+**Leviers, dans l'ordre, jamais les caractéristiques des monstres :**
+1. L'IA des héros en équipe (S122), puis remesure.
+2. **Au plus deux soutiens par groupe** (aujourd'hui trois pour 9 et 10 monstres) : trois soigneurs empilés rendent une horde imprenable à deux comme à trois.
+3. Si la médiane d'une zone reste sous 35 % à deux : les tirages de 9 et 10 monstres au fond passent de 3 + 3 à 2 + 1 sur 100, reportés sur 6 (`Sizes[2]` : `[15, 20, 20, 10, 10, 8, 6, 5, 3, 3]` → `[15, 20, 20, 10, 10, 11, 6, 5, 2, 1]`). Ce levier touche toutes les zones, d'où la mesure de toutes avant et après.
+4. Une horde trop **facile** (au-dessus de sa bande) est acceptée : on ne durcit rien.
+
+### 11.3 Les chantiers dans l'ordre
+
+| Rang | Chantier | Le trou qu'il bouche | Sprints | Points |
+|---|---|---|---|---|
+| 7 | **Finir le jeu à plusieurs** | §11.1, points 1 et 2 | S122 à S125 | 3 + 3 + 5 + 3 = 14 |
+| 8 | **Les amis et le voyage** | points 3 (en partie) et 5 | S126, S127 | 3 + 3 = 6 |
+| 9 | **Le chapitre 2, une tranche** : Quatre-Chemins et la Forêt des Aïeux (30 à 45) | point 4 | S128 à S136 | 37 |
+| 10 | **Les guildes** | point 3 | S137 | 5 |
+| | **Total** | | **16 sprints** | **62** |
+
+**Pourquoi cet ordre.**
+- **Le jeu à plusieurs d'abord**, parce qu'il vient d'arriver : ses défauts se voient au premier essai à deux, et un combat perdu au redémarrage du serveur coûte la confiance d'un joueur. Le playtest de S125 décide du reste.
+- **Les amis et le voyage avant le chapitre 2** : 6 points peu risqués. Le voyage est un prérequis du chapitre 2 (Quatre-Chemins est loin), les amis rendent le playtest à plusieurs utilisable d'une soirée à l'autre.
+- **Une tranche du chapitre 2, pas une région.** `design-familles.md` §7 prévoit quatre régions de deux zones entre 30 et 60, soit des mois. Une seule zone (deux familles, deux donjons, une mécanique) teste toute la chaîne de fabrication du contenu à haut niveau en 37 points, et donne aux niveaux 30 à 45 de quoi jouer. La zone suivante (les Mines de Sous-Racine, 45 à 60) se décide après y avoir joué.
+- **Les guildes en dernier** : une guilde sert quand il y a assez de joueurs pour en remplir une. Si Charles veut inviter des testeurs tôt (question 71), elles passent avant le chapitre 2 sans rien changer d'autre.
+
+### 11.4 Chantier 7 : finir le jeu à plusieurs (S122 à S125, 14 points)
+
+#### S122 (3) : une IA de héros qui joue en équipe, des mesures fiables
+- **Expérience visée :** aucune pour le joueur ; elle sert à régler les combats contre la façon dont des humains les jouent : « on tue d'abord la nourrice, on tape tous la même ».
+- **Contenu :**
+  - Dans `Ai`, **seulement quand le combat compte au moins deux héros** (le combat seul et T41 ne bougent pas), trois multiplicateurs sur `Value` :
+    - ×1,5 contre un monstre qui a un sort de soin ;
+    - ×1,25 contre le monstre qu'un autre héros a frappé depuis le début du tour de jeu ;
+    - −10 % de la valeur par monstre qu'un passif `Hit` à zone (comme `alarm`) renforcerait.
+  - `--party` : **100 combats par cas**, toutes les compositions de classes (6 à deux, 10 à trois, 15 à quatre), au niveau de la carte, un tableau par taille de groupe, et l'intervalle de confiance à 95 % (Wilson) à côté de chaque taux.
+  - La remesure complète des hordes à deux et à trois, des chefs et des salles 3, consignée en T90.
+- **Tests :**
+  - unitaires : un héros entre une nourrice et une ouvrière de même valeur frappe la nourrice ; deux héros finissent la même cible ; un combat seul enregistré avant S122 se rejoue à l'identique (le multiplicateur ne s'applique pas) ;
+  - intégration : `--party` sur `fields-0-4.0` avec une graine fixe donne deux fois le même tableau.
+- **Risques :**
+  - le temps du simulateur (×5 combats) : les mesures complètes restent hors de la CI ;
+  - les taux montent partout : c'est l'effet voulu, et les cibles à quatre (≥ 90 %) ne peuvent pas être dépassées dans le mauvais sens.
+
+#### S123 (3) : l'équilibre à plusieurs réglé
+- **Expérience visée :** « à trois, la reine se mérite mais tombe » ; « une horde de 7 à deux, c'est un pari ; à trois, ça passe ».
+- **Contenu :** les étapes 2 et 3 du §11.2.1 et les leviers 2 et 3 du §11.2.2, chacun appliqué **seulement si la mesure de S122 l'exige**, dans l'ordre. T91 consigne avant et après.
+- **Tests :**
+  - unitaires : `MonsterGroups.For` ne met jamais plus d'un soutien dans un groupe de chef, ni plus de deux ailleurs ; les autres groupes du monde gardent leur composition (instantané des groupes de toutes les cartes, comparé hors des groupes touchés) ;
+  - intégration : `PartyBalanceTests`, un échantillon fixe par zone (une horde de chaque bande de taille, les deux reines, deux salles 3), 30 combats, bandes du §11.2 avec ±10 points de tolérance ;
+  - les tests T41 seuls restent verts (planchers nus, plafonds `zone` et `craft`).
+- **Risques :**
+  - un groupe battu qui change de composition sous les yeux d'un joueur connecté : déployer serveur et jeu ensemble ;
+  - les quêtes qui comptent des soutiens (« 3 nourrices ») : à vérifier dans `quests.json`, la quête reste faisable puisque les soutiens existent toujours dans les petits groupes.
+
+#### S124 (5) : le combat à plusieurs qui se lit, le groupe qui se tient
+- **Expérience visée :** « je vois qu'il me reste 8 secondes ; Plop est parti chercher un café, son tour ne nous bloque plus ; je vois l'épée sur le groupe que Rosalie attaque et je la rejoins à temps ».
+- **Contenu :**
+  - **Minuterie du tour** :
+    - le serveur donne l'échéance de chaque tour (`TurnStarted { fighter, deadline }`, heure du serveur) ; le jeu corrige l'écart de son horloge à la connexion ;
+    - dans la frise, un anneau autour du portrait de celui qui joue, et les secondes ; les 10 dernières en couleur d'alerte, un son à 5 s ;
+    - rien dans le combat seul, qui n'a pas de limite de temps.
+  - **Les absents** : deux tours passés de suite par la minuterie, et le tour de ce héros ne dure plus que **10 s** jusqu'à sa prochaine action ; son portrait est marqué « absent » ; il retrouve 30 s dès qu'il agit.
+  - **Rejoindre** : les 15 s se voient aussi hors de la question, avec deux épées croisées et un compte à rebours au-dessus du groupe de monstres, et une ligne dans le bandeau du groupe (« Rosalie attaque : rejoindre (12 s) ») ; un clic rejoint même si la question a été fermée. **Pas de « rejoindre en cours »** (question 69).
+  - **Le groupe** (limites de T86 et T87) :
+    - le chef exclut un membre ;
+    - un membre hors ligne depuis 10 minutes quitte le groupe ;
+    - un échange s'annule quand l'un des deux ferme sa connexion ;
+    - l'allure d'un joueur est rediffusée quand il change d'équipement.
+- **Tests :**
+  - unitaires : `BattleClock` (30, 30, puis 10 s ; 30 de nouveau après une action), la correction d'horloge, les règles d'exclusion ;
+  - intégration à deux clients WebSocket, sur une horloge simulée : un joueur muet voit ses tours passer en 30, 30, puis 10 s ; l'exclusion ; l'échange annulé à la fermeture ;
+  - l'auto-test Godot ouvre un combat à plusieurs factice et vérifie que la minuterie s'affiche.
+- **Risques :** une horloge du client en avance ou en retard (d'où l'échéance du serveur, jamais une durée lancée côté client) ; une frise surchargée à 4 héros et 10 monstres : l'anneau seulement sur celui qui joue.
+
+#### S125 (3) : un combat qui survit au serveur, le premier vrai playtest à plusieurs
+- **Expérience visée :** « le serveur a redémarré pendant la reine : on a reperdu dix secondes, pas le combat ».
+- **Contenu :**
+  - Chaque combat à plusieurs s'écrit en base **au fil de l'eau**. Une table `battles` (le départ : graine, groupe, héros, vies) et une table `battle_actions` (les actions numérotées, en ajout seul). Au démarrage, le serveur reconstruit les combats en cours en rejouant leurs actions (le moteur est déterministe, T4) et rend 30 s à celui dont c'est le tour. `Hunts` se déduit des combats ; les groupes de joueurs restent en mémoire (T87 : un groupe vit une soirée), on se regroupe après un redémarrage.
+  - **Playtest à plusieurs**, 45 minutes guidées : se grouper, une horde à deux, un chef à trois, un donjon, un échange. Charles et un à trois joueurs, ou Charles avec trois jeux ouverts si personne n'est disponible (question 71). Les retours deviennent D79.
+- **Tests :**
+  - unitaires : reconstruire un combat depuis la base donne le même état que celui en mémoire ;
+  - intégration : ouvrir un combat, jouer trois actions, arrêter et relancer l'hôte (nouveau `WebApplicationFactory` sur la même base), `GET /battles/{id}` rend le même combat et le tour continue.
+- **Risques :** une écriture par action (quelques millisecondes, sans effet sur un tour de 30 s) ; une version du moteur qui change entre deux démarrages rendrait le rejeu faux : le combat garde la version du jeu qui l'a ouvert, et en cas d'écart il s'arrête **sans perte**, chacun garde sa vie de départ.
+
+### 11.5 Chantier 8 : les amis et le voyage (S126, S127, 6 points)
+
+#### S126 (3) : les amis et les messages privés
+- **Expérience visée :** « Plop est en ligne, aux Champs ; je lui écris, je l'invite au groupe d'un clic ».
+- **Contenu :**
+  - l'onglet **Contacts** (souhait du 9 octobre) : ajouter par nom de personnage, liste en ligne ou hors ligne, niveau, **zone** (pas la carte), inviter au groupe, retirer ;
+  - **ignorer** : ni messages, ni invitations, ni échanges de cette personne ;
+  - `/w Nom message` partout dans le monde, et « Nom n'est pas en ligne » sinon ;
+  - un avis discret quand un ami se connecte, en option ;
+  - les listes sont en base, par compte : un ami se suit d'un personnage à l'autre.
+- **Tests :**
+  - unitaires : l'analyse de `/w`, les règles d'ignorer, la limite de 100 contacts ;
+  - intégration à deux clients sur deux cartes : le message privé arrive ; un ignoré ne peut ni écrire ni inviter.
+- **Risques :** le harcèlement. Ignorer suffit pour un jeu de test ; un signalement viendra avec un public. Ne jamais montrer la carte exacte (la zone suffit).
+
+#### S127 (3) : le rappel et les pierres de passage
+- **Expérience visée :** « sac plein au fond du Lac : je lis un parchemin, je suis sur la place » ; « je touche la pierre des Champs une fois, puis j'y reviens d'un clic ».
+- **Contenu :**
+  - **Le parchemin de rappel** : consommable hors combat et hors donjon, comme le pain (route `/use`). Il ramène à la place de Clairval, puis à la pierre choisie comme foyer. Odalric le copiste le vend 15 Éclats (c'est un copiste : il écrit des parchemins).
+  - **Les pierres de passage** : une à Clairval et une à l'entrée de chaque zone, soit 5, puis une par zone du chapitre 2. Une pierre se découvre en passant à 3 cases, et le personnage garde celles qu'il a découvertes. Le voyage coûte **10 + 2 × niveau de la zone d'arrivée** Éclats (12 à 62 à Clairval) : un puits régulier.
+  - La fenêtre de la pierre montre l'image du monde vu du ciel (`WorldPicture`, T38) et les pierres connues.
+- **Tests :**
+  - unitaires : la découverte, le coût, le refus d'une pierre inconnue, en combat ou en donjon ;
+  - intégration par l'API : le voyage retire les Éclats et place le personnage ; le rappel est consommé.
+- **Risques :** tuer l'exploration. Les pierres sont aux **entrées** des zones : le fond se rejoint toujours à pied.
+
+### 11.6 Chantier 9 : le chapitre 2, une tranche (S128 à S136, 37 points)
+
+**Expérience visée :** « après le Disjoint, je prends la route de Quatre-Chemins. L'érudit me montre quatre pistes ; trois sont barrées, la Terre est ouverte. Dans la Forêt des Aïeux, des cerfs de pierre posent des glyphes sur le plateau, et je ne marche plus n'importe où. Mon bûcheron trouve un bois nouveau, ma forge une recette nouvelle. »
+
+**Pourquoi la Terre et ses glyphes :** c'est la mécanique de §7 la plus lisible (une case marquée, un effet) et la moins coûteuse pour l'IA (un coût de chemin). La copie de sort (Eau) et l'invisibilité (Air) demandent bien plus de travail au moteur et à l'IA. Le rythme mesuré (une famille ≈ un sprint de 3, S72 à S76 ; une zone de Clairval ≈ un sprint de quêtes) donne les chiffres ci-dessous.
+
+| Sprint | Pts | Contenu | Tests | Risques |
+|---|---|---|---|---|
+| **S128** | 3 | **Le socle après 30** : l'initiative des monstres monte avec leur niveau (§3.5) ; les gabarits PV, dégâts et résistances par rôle de 30 à 45 ; le budget des objets de 31 à 45 ; le rythme d'XP (environ 10 monstres de la zone par niveau, comme à Clairval) ; la liste des sorts de classe qui s'ouvrent entre 30 et 45 (s'il n'y en a aucun, le dire à Charles : la montée ne donnerait que des caractéristiques) ; les kits `zone` et `craft` aux niveaux 35, 40 et 45 | T41 aux niveaux 35 et 45 sur une famille de synthèse ; `ItemBudgetTests` jusqu'à 45 | découvrir que les classes sont déséquilibrées à haut niveau (T29) : on le consigne, on ne règle pas les classes dans ce sprint |
+| **S129** | 5 | **Quatre-Chemins** : 2 × 2 cartes au style de Clairval (S104), une route depuis Clairval ouverte par « Quatre pistes », l'érudit et une étape de la chaîne principale, 6 à 8 habitants (scénariste), un marchand, une pierre de passage ; les trois autres routes **barrées dans le monde** (éboulis, gué en crue, brasier), avec un habitant qui dit pourquoi, sans contenu fantôme | cartes valides (`KeepsWaysOpen`), passages et routes barrées, la quête ouvre la route ; auto-test du village | un hub vide : les métiers restent à Clairval, Quatre-Chemins a ses habitants et sa pierre, et c'est assez |
+| **S130** | 5 | **Le moteur des glyphes** : un effet `glyph` posé sur des cases pour N tours, déclenché à l'entrée sur la case et au début du tour de celui qui s'y trouve (dégâts ou état), dessiné sur le plateau, montré au survol ; l'IA l'évite (coût de chemin) et sait en poser ; la fiche de sort le décrit | règles de déclenchement, rejeu identique par le serveur, l'IA contourne un glyphe, `FightRecord` v2 suffit (l'effet vit dans le sort) | la file des passifs et des glyphes au même moment : un ordre écrit et testé (glyphe, puis passifs) |
+| **S131** | 5 | **La Forêt des Aïeux** : 25 cartes (`world_gen.py`, un style nouveau), ses passages vers Quatre-Chemins, **10 ressources** (niveaux 40 et 45 des cinq récolteurs), leurs points, leurs icônes, une pierre de passage | cartes valides, ressources par profondeur, icônes présentes (`credits.json`) | des cartes qui ressemblent au Bois : un style de décor différent (pierre moussue, troncs géants), sans nouveaux modèles (Kenney, D76) |
+| **S132** | 3 | **Les Sylvecerfs** : 5 monstres et leur chef, la leçon (les glyphes), le passif, la faiblesse, le butin, la panoplie de 4 pièces | T41 seul (planchers et plafonds), `--party` pour le chef | une leçon trop punitive : le glyphe montré avant qu'il ne frappe |
+| **S133** | 3 | **Les Gardiens moussus** : idem | idem | idem |
+| **S134** | 5 | **Les deux donjons** (les Racines de l'Arbre-Mère et un second, nommé par le scénariste), leurs clefs chez le serrurier, leurs trois salles | salle 2 gagnable seul à son niveau (la règle du §2), salle 3 au §6.4 avec `--party` | la salle 3 réglée avant S123 : faire S134 après |
+| **S135** | 3 | **Les recettes 40 et 45** : forgeron, tailleur, bijoutier et cordonnier (16 pièces par `craft_gen.py`), deux potions, deux pains, les clefs | `MadePieces`, `ItemBudgetTests`, kit `craft` au niveau 45 ≤ 20 % des hordes seul | rien de nouveau dans les règles : le risque est faible |
+| **S136** | 5 | **Les quêtes de la Forêt** : 9 quêtes comme une zone de Clairval (4 principales, 5 secondaires en petites suites), un donneur, des indices, un butin de quête, la fin de tranche qui promet les Mines ; textes du scénariste relus par Charles ; **playtest** | chaque étape principale se fait seul à son niveau (donjons ≤ salle 2) ; intégration : la chaîne de « Quatre pistes » à la fin de la tranche jouée par l'API | l'écriture attend la relecture de Charles : la demander dès S129 |
+
+**Tranché par défaut, à confirmer (question 70) :** la tranche couvre **30 à 45**, et les niveaux 45 à 100 restent sans contenu. Les familles de la zone ont les niveaux 31 à 45, leur chef 45.
+
+### 11.7 Chantier 10 : les guildes (S137, 5 points)
+- **Expérience visée :** « je porte le nom de ma guilde au-dessus de ma tête, je vois qui est en ligne et je parle à tous sur /gu ».
+- **Contenu :**
+  - Créer une guilde chez un habitant de la mairie de Clairval, pour **1 000 Éclats** (un puits ; un joueur au niveau 30 en a plusieurs milliers, §1.3). Un nom de 3 à 20 caractères, unique, filtré comme les pseudos.
+  - Trois rangs (meneur, officier, membre) et **50 membres** au plus.
+  - Inviter (meneur et officiers), quitter, exclure, transmettre le titre de meneur.
+  - Le canal `/gu`.
+  - L'onglet **Guilde** : membres, rang, niveau, en ligne, dernière connexion.
+  - Le nom de la guilde sous le pseudo sur la carte.
+  - Tout est en base.
+  - **Pas** de niveau de guilde, de percepteur, de blason ni de banque de guilde dans ce sprint.
+- **Tests :**
+  - unitaires : les droits par rang, le nom unique, la transmission quand le meneur part ;
+  - intégration à deux clients : invitation, `/gu`, exclusion, création refusée sans les Éclats.
+- **Risques :** une guilde n'a de sens qu'avec des joueurs. C'est pourquoi elle est en dernier, sauf si Charles ouvre le serveur à des testeurs (question 71).
+
+### 11.8 Hors classement (à garder en tête)
+
+| Chantier | Pourquoi pas maintenant | Taille | Quand |
+|---|---|---|---|
+| **Hôtel des ventes** | avec quelques joueurs, il reste vide, et un marché vide dit « jeu mort ». L'échange (T87) et Rose suffisent | 5 pts (dépôt, recherche, taxe de 2 % comme puits, 20 offres par joueur) | quand une dizaine de joueurs réguliers jouent sur un serveur ouvert |
+| **Rejoindre en cours** | il casse le réglage de §11.2 : une horde faite pour deux, rejointe par deux de plus au tour 3. S124 règle la vraie gêne (rater les 15 s) | 3 pts (au début d'un tour de jeu, sur une case de départ libre) | si Charles le veut après le playtest (question 69) |
+| Banque du compte | utile pour Plouf et ses trois personnages, pas pour le jeu | 3 pts | à glisser si un sprint finit tôt |
+| Fenêtre Bestiaire, succès | souhaits du 9 octobre (onglets « comme Dofus vraiment ») | 3 + 5 pts | après le chapitre 2 |
+| Les Mines de Sous-Racine (45 à 60) | la suite de la tranche | environ 30 pts | après le playtest de S136 |
+| Apparence, barbier | reportée par Charles à la fin du jeu (D76) | 5 pts et plus | à la fin |
+
+### 11.9 Questions à trancher par Charles (v7)
+
+| # | Question | Valeur par défaut |
+|---|---|---|
+| 66 | La reine des abeilles | **dans l'ordre du §11.2.1** : l'IA en équipe, puis **un soutien au plus dans un groupe de chef** (une règle de composition, pas de PV), puis ses PV jusqu'à **300 au plus bas** ; au-delà, retour à Charles |
+| 67 | La cible des hordes à plusieurs | **par taille, un joueur par tranche de 3 monstres** (tableau du §11.2.2), et le « ≈ 50 % » de Charles comme **médiane de chaque zone à deux joueurs (35 à 65 %)** ; **au plus deux soutiens par groupe** |
+| 68 | L'ordre des chantiers | **finir le jeu à plusieurs (S122 à S125), les amis et le voyage (S126, S127), la tranche du chapitre 2 (S128 à S136), les guildes (S137)** ; *alternative :* le chapitre 2 d'abord, si Charles joue surtout seul pour l'instant |
+| 69 | Rejoindre un combat déjà lancé | **non** : les 15 s rendues visibles (S124) ; un absent passe ses tours en 10 s au bout de deux tours manqués |
+| 70 | Le chapitre 2 | **une zone, pas une région** : Quatre-Chemins et **la Forêt des Aïeux (30 à 45, Terre, les glyphes)**, les trois autres routes barrées dans le monde ; *alternative :* une autre région (Eau, Feu, Air), plus chère au moteur |
+| 71 | Jouer avec d'autres | **playtest de S125 avec Charles seul sur trois jeux** si personne n'est disponible ; **un serveur ouvert à des testeurs** (hébergement, coût, compte de test) est une décision à part : elle avance les guildes et rend l'hôtel des ventes utile |
+| 72 | Les prix | parchemin de rappel 15 Éclats, voyage 10 + 2 × niveau de la zone d'arrivée, guilde 1 000 Éclats et 50 membres |
+
+### 11.10 Planification v7 (si Charles dit « Go »)
+
+- **Ajoutés :** S122 à S137, soit 16 sprints et **62 points**. Le projet passe de **489 à 551 points**, et de **121 à 137 sprints** ; Osmose passe de **268 à 330**.
+- Il faut mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-122.md` à `sprint-137.md`, R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »), et écrire une décision D79.
+- Les entrées de `projects/rpg/DECISIONS.md` reprennent à **T90**.
+- **Deux playtests** : S125 (à plusieurs) et S136 (la tranche).
+- **Point d'arrêt prévu après S127** : si le playtest de S125 change les priorités (par exemple, ouvrir un serveur à des testeurs), le chantier 9 se replanifie sans rien perdre.
+
+| Sprint | Pts | Chantier | Contenu |
+|---|---|---|---|
+| S122 | 3 | 7 | Une IA de héros qui joue en équipe ; `--party` à 100 combats, toutes les compositions, intervalles de confiance |
+| S123 | 3 | 7 | L'équilibre à plusieurs réglé : la reine, les hordes (§11.2) |
+| S124 | 5 | 7 | La minuterie du tour, les absents, rejoindre qui se voit, exclure, l'échange et l'allure à jour |
+| S125 | 3 | 7 | Les combats à plusieurs écrits en base et repris au redémarrage ; **playtest à plusieurs** |
+| S126 | 3 | 8 | Les amis, ignorer, les messages privés |
+| S127 | 3 | 8 | Le parchemin de rappel, les pierres de passage |
+| S128 | 3 | 9 | Le socle après 30 : initiative, gabarits, budget, XP, sorts, kits |
+| S129 | 5 | 9 | Quatre-Chemins et ses routes barrées |
+| S130 | 5 | 9 | Le moteur des glyphes |
+| S131 | 5 | 9 | La Forêt des Aïeux : 25 cartes, 10 ressources |
+| S132 | 3 | 9 | Les Sylvecerfs |
+| S133 | 3 | 9 | Les Gardiens moussus |
+| S134 | 5 | 9 | Les deux donjons de la Forêt |
+| S135 | 3 | 9 | Les recettes 40 et 45 |
+| S136 | 5 | 9 | Les quêtes de la Forêt ; **playtest** |
+| S137 | 5 | 10 | Les guildes |
