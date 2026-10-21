@@ -101,17 +101,32 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
 /// <see cref="Scenario"/>, which the server checks by replaying that fight (the first lesson); or, since
 /// sprint 88, given by an inhabitant (<see cref="Giver"/>, "town/npc") from a level and after other
 /// quests (<see cref="After"/>), its <see cref="Objectives"/> followed all at once, then handed back to
-/// the giver. <see cref="Zone"/> sorts it in the journal.
+/// the giver. <see cref="Zone"/> sorts it in the journal, <see cref="Kind"/> gives it its icon there (sprint 116, D77).
 /// </summary>
 public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scenario = null, IReadOnlyList<ItemCount>? Items = null,
     string? Giver = null, string? Zone = null, LocalizedText? Text = null, LocalizedText? Thanks = null, IReadOnlyList<QuestObjective>? Objectives = null,
-    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null, string? HandIn = null)
+    long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null, string? HandIn = null,
+    QuestKind Kind = QuestKind.Side)
 {
     /// <summary>Who takes the quest back ("town/npc"): <see cref="HandIn"/> when set (sprint 107: Aubin's welcome ends with Garance), else its giver.</summary>
     public string? Taker => HandIn ?? Giver;
 
     /// <summary>Given by someone and handed back, rather than done by a fight.</summary>
     public bool IsGiven => Giver is not null;
+}
+
+/// <summary>
+/// What sort of quest it is, for the journal (sprint 116, D77): the village's first steps, a step of the main quest,
+/// a side quest, a trade's first piece, a dungeon to finish.
+/// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<QuestKind>))]
+public enum QuestKind
+{
+    Tutorial,
+    Main,
+    Side,
+    Trade,
+    Dungeon,
 }
 
 /// <summary>
@@ -401,6 +416,9 @@ public sealed class GameData
                 if ((o.Line is not null && o.Goal != QuestGoal.Talk) || o.Room is < 0 or > Rpg.Core.Dungeons.RoomCount || (o.Room != 0 && o.Goal != QuestGoal.Dungeon))
                     throw new InvalidDataException($"Quest '{q.Id}': a room of 1 to {Rpg.Core.Dungeons.RoomCount}, for a dungeon only.");
             }
+            // A dungeon's quest asks only to finish it (sprint 116).
+            if ((q.Kind == QuestKind.Dungeon) != goals is [{ Goal: QuestGoal.Dungeon, Room: 0 }])
+                throw new InvalidDataException($"Quest '{q.Id}': a dungeon's quest, and only it, asks just to finish a dungeon.");
         }
         // A quest's loot (sprint 105): a quest item; when its quest is in the data, one that quest asks to bring (data
         // loaded without it, as some tests do, never lets it fall). Left by a monster, or by a fighter of a quest's own

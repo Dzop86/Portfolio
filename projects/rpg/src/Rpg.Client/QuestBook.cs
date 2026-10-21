@@ -4,9 +4,11 @@ namespace Rpg.Client;
 
 /// <summary>
 /// A quest as the journal shows it (sprint 88): its name, who gave it, its words, one line per objective with how
-/// far it has gone; under way, where to go next (sprint 105, D75: the map of the next objective, or of its giver).
+/// far it has gone; under way, where to go next (sprint 105, D75: the map of the next objective, or of its giver);
+/// since sprint 116 (D77), its kind, level, zone and rewards ("120 XP", "20 Éclats", "Bread ×2") for its card.
 /// </summary>
-public sealed record JournalQuest(string Id, string Name, string Giver, string Text, IReadOnlyList<(string Line, bool Reached)> Objectives, bool Done, bool Ready, string? Where = null);
+public sealed record JournalQuest(string Id, string Name, string Giver, string Text, IReadOnlyList<(string Line, bool Reached)> Objectives, bool Done, bool Ready, string? Where = null,
+    QuestKind Kind = QuestKind.Side, int Level = 1, string Zone = "", IReadOnlyList<string>? Rewards = null);
 
 /// <summary>What shows over an inhabitant (sprint 105, D75): "!" a quest to take, "?" a quest to hand back, grey "?" one under way.</summary>
 public enum QuestMark
@@ -150,8 +152,12 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
                 int reached = p is null ? o.Count : Quests.Reached(o, p.Counts[i], _owned, _worn);
                 return (texts.Objective(o, reached), reached >= o.Count);
             }).ToList();
+            List<string> rewards = [texts["journal.xp", q.Xp]];
+            if (q.Shards > 0)
+                rewards.Add(texts["journal.shards", q.Shards]);
+            rewards.AddRange((q.Items ?? []).Select(i => texts["journal.item", Data.Items[i.Item].Name.In(texts.Lang), i.Count]));
             return new JournalQuest(q.Id, q.Name.In(texts.Lang), giver, q.Text!.In(texts.Lang), lines, p is null, p is not null && Quests.IsComplete(q, p, _owned, _worn),
-                p is null ? null : Where(p, texts));
+                p is null ? null : Where(p, texts), q.Kind, q.Level, ZoneName(q.Zone), rewards);
         }
         string ZoneName(string? zone) => zone is null ? texts["journal.village"]
             : Data.Towns.Values.FirstOrDefault(t => t.Zone == zone) is Town t ? t.Name.In(texts.Lang) : zone;

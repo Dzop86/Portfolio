@@ -60,6 +60,24 @@ public class FirstQuestsTests
     }
 
     [Fact]
+    public void EveryQuest_HasItsKind_ForTheJournalsIcon()
+    {
+        // Sprint 116 (D77): the main steps, the village's first steps up to the edge of the woods, the trades' first
+        // pieces, a dungeon's to finish; the others side quests.
+        string[] tutorial = ["welcome", "first-lesson", "well-equipped", "cellar-rats", "palisade-stakes", "roses-stall", "edge-of-the-woods"];
+        foreach (Quest q in Real.Quests.Values)
+        {
+            QuestKind kind = Main.Contains(q.Id) ? QuestKind.Main
+                : tutorial.Contains(q.Id) ? QuestKind.Tutorial
+                : q.Id.EndsWith("-cleared", StringComparison.Ordinal) ? QuestKind.Dungeon
+                : q.Items?.Any(i => Real.Items[i.Item].Kind == ItemKind.Equipment) == true && q.Id.StartsWith("first-", StringComparison.Ordinal) && q.Id != "first-lesson" ? QuestKind.Trade
+                : QuestKind.Side;
+            Assert.True(kind == q.Kind, $"{q.Id}: {q.Kind}, not {kind}");
+        }
+        Assert.Equal(4, Real.Quests.Values.Count(q => q.Kind == QuestKind.Trade));
+    }
+
+    [Fact]
     public void EveryZone_HasSideQuests_AndEveryDungeonOne_NeverGivenBehindADungeonsDoor()
     {
         // The tutorial's last quest (the edge of the woods, Garance's) is the village's, not the zone's.

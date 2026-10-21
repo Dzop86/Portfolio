@@ -7,6 +7,7 @@
     },
     "giver": "clairval/aubin",
     "level": 1,
+    "kind": "Tutorial",
     "text": {
       "fr": "Bienvenue à Clairval ! Ici, tout le monde commence par voir Garance, notre maîtresse d'armes. Elle vous attend dans la cour d'armes, à la porte de l'Ouest : quittez la place par l'ouest, vous ne pouvez pas la manquer.",
       "en": "Welcome to Clairval! Everyone here starts by seeing Garance, our weapons master. She's waiting for you in the drill yard by the West Gate: leave the square heading west, you can't miss her."
@@ -37,6 +38,7 @@
     },
     "giver": "clairval/garance",
     "level": 1,
+    "kind": "Tutorial",
     "text": {
       "fr": "L'orque et le braconnier que tu vois là servent de cibles à mes élèves, et ils rendent les coups. Bats-les tous les deux. La frise, en haut, te dit qui joue. Tes PA lancent tes sorts, tes PM te font marcher.",
       "en": "The orc and the poacher over there are my pupils' targets, and they hit back. Beat them both. The strip at the top shows whose turn it is. Your AP cast your spells, your MP let you walk."
@@ -75,6 +77,7 @@
     },
     "giver": "clairval/garance",
     "level": 1,
+    "kind": "Tutorial",
     "text": {
       "fr": "Un anneau au fond du sac ne protège personne. Ouvre ton sac (I) et passe-le au doigt. Puis regarde tes caractéristiques (C) : tu as des points à placer, place-les selon ta façon de te battre.",
       "en": "A ring at the bottom of a bag protects nobody. Open your bag (I) and put it on. Then look at your characteristics (C): you have points to spend, so spend them to suit the way you fight."
@@ -103,6 +106,7 @@
     },
     "giver": "clairval/firmin",
     "level": 2,
+    "kind": "Tutorial",
     "text": {
       "fr": "Des rats ! Dans le grenier de Léonie, aux Greniers, là où je range ma farine ! Choisis bien tes sorts avant de monter : Garance dit toujours que ça se prépare avant, pas pendant. Et rapporte-moi leurs queues, que j'en sois sûr !",
       "en": "Rats! In Léonie's loft, over at the Granaries, where I keep my flour! Choose your spells carefully before you go up: Garance always says you prepare before, not during. And bring me their tails, so I know for sure!"
@@ -146,6 +150,7 @@
     },
     "giver": "clairval/hortense",
     "level": 2,
+    "kind": "Tutorial",
     "text": {
       "fr": "La palissade, c'est mille deux cents pieux, et il en pourrit un par semaine. Coupe six chênes dans les vergers, puis taille un pieu à la forge d'Anselme, rue des artisans ; prends deux cuivres à la carrière pour le ferrer. Ouvre ta fenêtre des métiers (J) : tout y est écrit.",
       "en": "The palisade is twelve hundred stakes, and one rots every week. Cut six oaks in the orchard, then shape a stake at Anselme's forge on Craftsmen's Row; get two copper from the quarry to shoe it. Open your trades window (J): it's all written there."
@@ -179,6 +184,7 @@
     },
     "giver": "clairval/rose",
     "level": 3,
+    "kind": "Tutorial",
     "text": {
       "fr": "Tout le monde veut du lin pour ses chemises, et je n'en ai plus un brin : cueille-m'en quatre aux potagers. Et pour apprendre, achète un pain à mon étal, puis rends-le-moi. Oui, je sais. Le commerce, c'est ça.",
       "en": "Everyone wants flax for their shirts and I haven't a thread left: pick me four in the kitchen gardens. And to learn, buy a loaf at my stall, then give it back to me. Yes, I know. That's trade."
@@ -218,6 +224,7 @@
     },
     "giver": "clairval/anselme",
     "level": 3,
+    "kind": "Trade",
     "text": {
       "fr": "Hm. Un pieu, c'est du bois ; une serpe, c'est un métier. Fais-en une à la forge, devant ma porte : six chênes, deux cuivres, et deux crocs de loup pour le manche. Les crocs, Rose en vend.",
       "en": "Hm. A stake is wood; a billhook is a trade. Make one at the forge, in front of my door: six oak, two copper, and two wolf fangs for the grip. Rose sells fangs."
@@ -252,6 +259,7 @@
     },
     "giver": "clairval/perrine",
     "level": 3,
+    "kind": "Trade",
     "text": {
       "fr": "Tu portes ce qu'on te donne, et ça se voit : rien ne tombe droit. Couds-toi une tunique de lin à mon atelier : six lins sauvages des potagers, deux orties pour le fil, deux peaux de loup pour l'encolure. Rose a les peaux. Et couds droit.",
       "en": "You wear whatever you're given, and it shows: nothing hangs straight. Sew yourself a linen tunic at my workshop: six wild flax from the kitchen gardens, two nettles for the thread, two wolf pelts for the collar. Rose has the pelts. And sew straight."
@@ -286,6 +294,7 @@
     },
     "giver": "clairval/eudes",
     "level": 3,
+    "kind": "Trade",
     "text": {
       "fr": "Voyons, voyons… Pas un seul anneau de ta main dans mon cahier. Il faut réparer ça. Fais-toi un jonc de cuivre à mon établi : six cuivres de la carrière, deux goujons de l'étang pour la colle, et deux défenses de sanglier pour le polir. Rose en a, des défenses.",
       "en": "Let's see, let's see… Not a single ring of your making in my ledger. We must put that right. Make yourself a copper band at my bench: six copper from the quarry, two gudgeon from the pond for the glue, and two boar tusks to polish it. Rose has tusks."
@@ -320,6 +329,7 @@
     },
     "giver": "clairval/apolline",
     "level": 3,
+    "kind": "Trade",
     "text": {
       "fr": "Montre tes pieds. Poussière verte : la carrière. Copeaux de chêne : les vergers. Et des semelles qui bâillent. Fais-toi des souliers à mon banc : six goujons de l'étang pour le cuir, deux chênes pour la semelle, deux peaux de loup pour la doublure. Rose vend les peaux.",
       "en": "Show me your feet. Green dust: the quarry. Oak shavings: the orchard. And soles that gape. Make yourself some shoes at my bench: six gudgeon from the pond for the leather, two oak for the soles, two wolf pelts for the lining. Rose sells pelts."
@@ -354,6 +364,7 @@
     },
     "giver": "clairval/ysaline",
     "level": 3,
+    "kind": "Main",
     "text": {
       "fr": "Cette nuit, la vieille pierre a montré un cinquième signe que personne n'avait jamais vu, puis elle s'est fendue. Les anciens disent que ce n'est rien. Regardez-la vous-même, puis demandez à Aubin et à Odalric, le copiste, ce qu'ils en savent. On ne m'écoute pas ; vous, peut-être.",
       "en": "Last night the old stone showed a fifth sign nobody had ever seen, then it cracked. The elders say it's nothing. Look at it yourself, then ask Aubin and Odalric the copyist what they know. They won't listen to me; perhaps they will to you."
@@ -399,6 +410,7 @@
     },
     "giver": "clairval/ysaline",
     "level": 4,
+    "kind": "Main",
     "text": {
       "fr": "Odalric dit que deux tombes du cimetière sont plus vieilles que le village lui-même. C'est impossible, donc c'est intéressant. Va les examiner, et cueille trois orties aux potagers : il en fait son encre, et il voudra recopier ce que tu trouveras.",
       "en": "Odalric says two graves in the churchyard are older than the village itself. That's impossible, so it's interesting. Go and examine them, and pick three nettles in the kitchen gardens: he makes his ink from them, and he'll want to copy whatever you find."
@@ -459,6 +471,7 @@
     "xp": 120,
     "shards": 20,
     "level": 4,
+    "kind": "Tutorial",
     "items": [
       {
         "item": "bread",
@@ -478,6 +491,7 @@
     "giver": "clairval/ysaline",
     "zone": "woods",
     "level": 5,
+    "kind": "Main",
     "text": {
       "fr": "Les bûcherons disent que les loups ne fuient plus : ils tournent en rond, toujours au même endroit. Chasses-en cinq et rapporte-moi trois crocs, s'ils portent une marque. Regarde aussi les troncs le long de leur passage : les griffes laissent des traces.",
       "en": "The woodcutters say the wolves no longer run: they go round in circles, always in the same spot. Hunt five and bring me three fangs, if any of them carry a mark. And look at the trunks along their path: claws leave traces."
@@ -521,6 +535,7 @@
     "giver": "clairval/ysaline",
     "zone": "woods",
     "level": 8,
+    "kind": "Main",
     "text": {
       "fr": "Les bûcherons entendent gronder sous la bauge du Roi sanglier. Prends cette clef : elle ne servira qu'une fois, ensuite il faudra voir Gédéon, le serrurier. Descends jusqu'à la grande salle ; c'est sous elle que ça gronde. Et si tu peux, emmène quelqu'un.",
       "en": "The woodcutters hear a rumbling under the Boar King's wallow. Take this key: it will only work once, after that you'll need Gédéon the locksmith. Go down to the great hall; the rumbling is under it. And if you can, take someone with you."
@@ -557,6 +572,7 @@
     "giver": "clairval/ysaline",
     "zone": "fields",
     "level": 30,
+    "kind": "Main",
     "text": {
       "fr": "Sous les Galeries des taupes, quelque chose remue, qui n'est ni taupe, ni crabe, ni abeille, et les bêtes du pays fuient toutes à la fois. Va à la porte des Galeries. D'après les pêcheurs qui l'ont aperçu, il s'use tout seul à chaque instant, mais il éclate quand il tombe : ne reste pas collé à lui.",
       "en": "Under the Mole Burrows something is stirring that's neither mole, crab nor bee, and every beast in the land is fleeing at once. Go to the Burrows' gate. From what the fishermen glimpsed, it wears itself out with every moment, but it bursts when it falls: don't stay right next to it."
@@ -585,6 +601,7 @@
     },
     "giver": "clairval/ysaline",
     "level": 30,
+    "kind": "Main",
     "text": {
       "fr": "La pierre s'est tue. Les quatre signes, eux, se sont allumés, chacun tourné vers une route qu'on n'a jamais prise. Rose, Garance et Aubin savent chacun quelque chose de ces routes : va les trouver, ils t'attendent.",
       "en": "The stone has gone quiet. But the four signs have lit up, each one facing a road we've never taken. Rose, Garance and Aubin each know something about those roads: go and find them, they're expecting you."
@@ -634,6 +651,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 6,
+    "kind": "Side",
     "text": {
       "fr": "Une meute rôde au sud de la coupe, et mes gars n'osent plus y aller seuls. Six loups. Pas pour le plaisir : pour qu'on puisse travailler.",
       "en": "A pack roams south of the felling, and my lads daren't go there alone any more. Six wolves. Not for sport: so we can work."
@@ -670,6 +688,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 11,
+    "kind": "Side",
     "text": {
       "fr": "Rose me commande un remède aux spores chaque saison, et c'est elle qui le vend. Il me faut cinq poussières de spores et trois chapeaux, et mes genoux ne plient plus. Prends-les sur les champignons. Demande poliment. Ou pas.",
       "en": "Rose orders a spore remedy from me every season, and she sells it. I need five spore dusts and three caps, and my knees won't bend any more. Take them from the mushrooms. Ask nicely. Or don't."
@@ -711,6 +730,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 12,
+    "kind": "Side",
     "text": {
       "fr": "Les morts de la crypte sortent la nuit et piétinent mes champignons. Le mycélium essaie de les recouvrir, de les tenir, et il n'y arrive pas. Huit. Couche-les, et qu'ils restent couchés.",
       "en": "The dead from the crypt come out at night and trample my mushrooms. The mycelium tries to cover them, to hold them, and it can't. Eight. Put them down, and make them stay down."
@@ -747,6 +767,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 21,
+    "kind": "Side",
     "text": {
       "fr": "Rose me paie les carapaces du lac pour ses boutons, mais les crabes deviennent hargneux. Quatre carapaces, deux pinces. Rose fera les boutons, moi je ferai les comptes.",
       "en": "Rose pays me for the lake's shells to make her buttons, but the crabs are turning nasty. Four shells, two claws. Rose will make the buttons, I'll do the sums."
@@ -788,6 +809,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 19,
+    "kind": "Side",
     "text": {
       "fr": "Les grenouilles chantent jour et nuit depuis le printemps, et les pêcheurs ne dorment plus. Moi, j'aime bien. Eux, non. Fais-en taire huit, doucement si tu peux.",
       "en": "The frogs have sung day and night since spring, and the fishermen can't sleep. I quite like it. They don't. Quieten eight of them, gently if you can."
@@ -824,6 +846,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 27,
+    "kind": "Side",
     "text": {
       "fr": "Rose attend mon miel, mais mes abeilles piquent avec du feu et je n'ose plus ouvrir les ruches. Cinq rayons. Prends-les sur les abeilles elles-mêmes : elles en portent toujours un peu.",
       "en": "Rose is waiting for my honey, but my bees sting with fire and I daren't open the hives any more. Five combs. Take them from the bees themselves: they always carry a little."
@@ -860,6 +883,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 27,
+    "kind": "Side",
     "text": {
       "fr": "Les taupes creusent sous mes sillons jusqu'à faire tomber la charrue. Huit, et je te nourris tout l'hiver. Et regarde où elles vont : toutes du même côté, comme si on les appelait.",
       "en": "The moles dig under my furrows until the plough falls in. Eight, and I'll feed you all winter. And watch where they go: all the same way, as if something were calling them."
@@ -896,6 +920,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 9,
+    "kind": "Dungeon",
     "text": {
       "fr": "La grande salle, c'est une chose. Le Roi, au bout, c'en est une autre : il a un éclat de pierre fiché dans la défense et il charge comme une avalanche. Va jusqu'au fond, à plusieurs, et je graverai ton nom sur le poteau du campement.",
       "en": "The great hall is one thing. The King, at the end, is another: he has a shard of stone stuck in his tusk and he charges like an avalanche. Go all the way down, with friends, and I'll carve your name on the camp post."
@@ -925,6 +950,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 10,
+    "kind": "Dungeon",
     "text": {
       "fr": "La Tanière de la meute, c'est trois salles de crocs, et un chef dont la fourrure ressemble à de l'écorce. Personne ici n'est allé au bout. Va-y avec des amis : seul, c'est de l'entêtement.",
       "en": "The Pack's Den is three rooms full of fangs, and a leader whose fur looks like bark. Nobody here has reached the end. Go with friends: alone, it's just stubbornness."
@@ -954,6 +980,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 15,
+    "kind": "Dungeon",
     "text": {
       "fr": "La Champignonnière, c'est la maison du plus vieux d'entre eux, le champignon ancestral. On ne le tue pas, tu sais : il rentre sous terre et il attend. Va jusqu'au fond, à plusieurs de préférence, et dis-moi s'il t'a regardé.",
       "en": "The Mushroom Cellar is home to the oldest of them all, the elder fungus. You don't kill him, you know: he goes back underground and waits. Go all the way down, with friends ideally, and tell me if he looked at you."
@@ -983,6 +1010,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 17,
+    "kind": "Dungeon",
     "text": {
       "fr": "Au fond de la crypte, il y a un colosse fait des quatre ailes : des morceaux qui ne vont pas ensemble, cousus de force. Abats-le, avec des amis, et le bois dormira enfin.",
       "en": "At the bottom of the crypt there's a colossus made from all four wings: pieces that don't belong together, sewn by force. Bring it down, with friends, and the woods will sleep at last."
@@ -1012,6 +1040,7 @@
     "giver": "clairval/ysaline",
     "zone": "woods",
     "level": 7,
+    "kind": "Main",
     "text": {
       "fr": "Les traces mènent à une clairière où les racines ont poussé en cercle parfait. Mathurin, le chef des bûcherons, refuse d'y couper un seul arbre, et il ne veut pas me dire pourquoi. Va voir le cercle, puis va le voir, lui : avec toi, il parlera peut-être.",
       "en": "The tracks lead to a clearing where the roots have grown in a perfect circle. Mathurin, the head woodcutter, refuses to fell a single tree there, and he won't tell me why. Go and see the circle, then go and see him: he might talk to you."
@@ -1049,6 +1078,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 9,
+    "kind": "Main",
     "text": {
       "fr": "Ton érudite a couvert trois pages de mon carnet de comptes avec des signes. Elle dit qu'elle a compris quelque chose, et que c'est à toi qu'il faut le dire, pas à moi. Va la voir ; moi, je retourne à mes arbres.",
       "en": "Your scholar has covered three pages of my tally book with signs. She says she's understood something, and it's you she needs to tell, not me. Go and see her; I'm going back to my trees."
@@ -1082,6 +1112,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 7,
+    "kind": "Side",
     "text": {
       "fr": "L'hiver vient, et mes gars dorment sous la toile. Rapporte-moi quatre peaux de loup pour les couvertures, et six noisetiers pour monter une vraie cabane. Les noisetiers poussent le long du ruisseau.",
       "en": "Winter's coming, and my lads sleep under canvas. Bring me four wolf pelts for blankets, and six hazel to build a proper hut. Hazel grows along the stream."
@@ -1123,6 +1154,7 @@
     "giver": "woods/mathurin",
     "zone": "woods",
     "level": 8,
+    "kind": "Side",
     "text": {
       "fr": "Il y a de vieux sangliers qui vivent seuls, la peau dure comme la pierre. Ils mâchent des cailloux, je te jure, et ils chargent les charrettes. Trois, et la route du bois sera sûre.",
       "en": "There are old boars that live alone, with hides as hard as stone. They chew pebbles, I swear, and they charge the carts. Three of them, and the forest road will be safe."
@@ -1159,6 +1191,7 @@
     "giver": "clairval/ysaline",
     "zone": "mouldy",
     "level": 10,
+    "kind": "Main",
     "text": {
       "fr": "Les filaments blancs du Bois moisi s'accrochent à tout ce qu'ils touchent : la pierre, l'eau des mares, les racines. Suis-les jusqu'à trois nœuds, là où ils se rejoignent, et regarde bien. Les champignons les défendent : il faudra en écarter quelques-uns.",
       "en": "The white threads of the Mouldy Woods cling to everything they touch: stone, pool water, roots. Follow them to three knots, where they meet, and look closely. The mushrooms defend them: you'll have to clear a few out of the way."
@@ -1201,6 +1234,7 @@
     "giver": "clairval/ysaline",
     "zone": "mouldy",
     "level": 12,
+    "kind": "Main",
     "text": {
       "fr": "Les filaments mènent à l'entrée d'une crypte qui n'est sur aucune carte ni dans aucun registre. Pourtant ses morts marchent, et ils portent sur eux des pages arrachées. Rapporte-m'en trois, et demande à Aubin et à Odalric s'ils connaissent cet endroit.",
       "en": "The threads lead to the entrance of a crypt that's on no map and in no registry. Yet its dead are walking, and they carry torn-out pages. Bring me three, and ask Aubin and Odalric whether they know the place."
@@ -1247,6 +1281,7 @@
     "giver": "clairval/ysaline",
     "zone": "mouldy",
     "level": 14,
+    "kind": "Main",
     "text": {
       "fr": "Gédéon m'a forgé cette clef d'après le moulage de la serrure ; elle ne servira qu'une fois. La crypte a quatre ailes, et quelque chose les tient fermées en leur centre. Descends jusqu'à la deuxième salle, trouve ce qui scelle tout ça, et regarde-le pour moi.",
       "en": "Gédéon forged me this key from a cast of the lock; it will only work once. The crypt has four wings, and something at their centre keeps them shut. Go down to the second room, find whatever seals it all, and look at it for me."
@@ -1287,6 +1322,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 16,
+    "kind": "Main",
     "text": {
       "fr": "Ton érudite, elle a dormi trois nuits chez mes champignons, à écrire. Maintenant, elle tourne en rond comme un loup. Va lui parler, toi. Moi, elle me fatigue, et les morilles aussi.",
       "en": "Your scholar slept three nights among my mushrooms, writing. Now she's pacing like a wolf. You go and talk to her. She wears me out, and the morels too."
@@ -1320,6 +1356,7 @@
     "giver": "mouldy/barnabe",
     "zone": "mouldy",
     "level": 13,
+    "kind": "Side",
     "text": {
       "fr": "Le remède de Rose marche. Le mien marche mieux, mais il lui faut deux anguilles des mares et trois mousses-lumière. Pêche, cueille, rapporte. La mousse-lumière pousse à l'ombre, là où le mycélium brille.",
       "en": "Rose's remedy works. Mine works better, but it needs two pool eels and three glowmoss. Fish, pick, bring them back. Glowmoss grows in the shade, where the mycelium glows."
@@ -1361,6 +1398,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 24,
+    "kind": "Dungeon",
     "text": {
       "fr": "Tout au fond de la grotte, c'est là que la chanson est la plus forte. Les pêcheurs n'y vont pas, même à plusieurs. Toi, emmène du monde, va jusqu'au bout, et reviens me dire ce qu'on y entend.",
       "en": "Right at the back of the grotto is where the song is loudest. The fishermen won't go, not even together. You, take some company, go all the way, and come back and tell me what you hear."
@@ -1390,6 +1428,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 25,
+    "kind": "Dungeon",
     "text": {
       "fr": "Le Récif des pinces, c'est le cimetière des barques. Le crabe géant, au bout, porte une proue sur le dos, peut-être celle de la passeuse d'avant. Va au fond, avec des amis, et dis-moi s'il y reste quelque chose de peint.",
       "en": "The Pincer Reef is where boats go to die. The giant crab at the end carries a prow on its back, maybe the old ferrywoman's. Go all the way down, with friends, and tell me if anything painted is left on it."
@@ -1419,6 +1458,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 29,
+    "kind": "Dungeon",
     "text": {
       "fr": "La Ruche royale, c'est là que naît la chaleur. La reine change d'humeur et d'élément selon l'état de sa ruche. Va au fond, à plusieurs, et dis-moi si elle va bien. Oui, si elle va bien.",
       "en": "The Royal Hive is where the heat begins. The queen changes mood and element with the state of her hive. Go to the bottom, with friends, and tell me if she's all right. Yes, if she's all right."
@@ -1448,6 +1488,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 29,
+    "kind": "Dungeon",
     "text": {
       "fr": "Les Galeries des taupes descendent plus bas que mon puits. La taupe-roi y garde ce qu'elle déterre. Prends des amis et va jusqu'au fond : je veux savoir ce qu'il y a sous mes champs.",
       "en": "The Mole Burrows go deeper than my well. The mole king keeps whatever it digs up down there. Take some friends and go all the way: I want to know what's under my fields."
@@ -1477,6 +1518,7 @@
     "giver": "clairval/ysaline",
     "zone": "lake",
     "level": 18,
+    "kind": "Main",
     "text": {
       "fr": "Au Lac des Joncs, tout le monde chante la même berceuse, et personne ne sait qui la lui a apprise. Parle à Liane, la passeuse, puis à Joachim et à sa petite-fille Fleur, sur les pontons. Et écoute les roseaux : il paraît qu'ils chantent aussi.",
       "en": "At Reed Lake everyone sings the same lullaby, and nobody knows who taught it to them. Talk to Liane the ferrywoman, then to Joachim and his granddaughter Fleur, on the jetties. And listen to the reeds: they say the reeds sing too."
@@ -1538,6 +1580,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 20,
+    "kind": "Main",
     "text": {
       "fr": "Les grenouilles chantent la fin, celle que personne ne connaît. Le crapaud-roi, au fond de sa grotte, la chante mieux que toutes, à ce qu'on dit. Va jusqu'à lui et rapporte-moi le couplet. Je voudrais l'entendre une fois, rien qu'une.",
       "en": "The frogs sing the ending, the one nobody knows. The toad king, deep in his grotto, sings it best of all, so they say. Go to him and bring me back the verse. I'd like to hear it once, just once."
@@ -1578,6 +1621,7 @@
     "giver": "clairval/ysaline",
     "zone": "lake",
     "level": 23,
+    "kind": "Main",
     "text": {
       "fr": "Liane a repris la barque d'une passeuse dont personne ne se rappelle le nom. Les bernard-l'ermite du lac se font des coquilles avec des tessons peints, des morceaux d'une vieille plaque de proue. Rapporte-m'en six, et montre-les à Odalric : s'il y a un nom dessus, il le lira.",
       "en": "Liane took over the boat of a ferrywoman whose name nobody remembers. The lake's hermit crabs make shells out of painted shards, pieces of an old prow plaque. Bring me six, and show them to Odalric: if there's a name on them, he'll read it."
@@ -1616,6 +1660,7 @@
     "giver": "clairval/ysaline",
     "zone": "lake",
     "level": 25,
+    "kind": "Main",
     "text": {
       "fr": "Aubin connaît toutes les familles de Clairval, depuis toujours. Dis-lui le nom d'Isaure, simplement, et regarde ce qu'il fait. Moi, je n'ose pas.",
       "en": "Aubin has known every family in Clairval all his life. Just tell him Isaure's name, and watch what he does. I don't dare."
@@ -1649,6 +1694,7 @@
     "giver": "lake/liane",
     "zone": "lake",
     "level": 22,
+    "kind": "Side",
     "text": {
       "fr": "Mes filets ont plus de trous que de mailles. Il me faut huit brassées de laîche des rives pour les retresser, et cinq perches pour payer le cordier, qui ne prend que du poisson.",
       "en": "My nets have more holes than mesh. I need eight armfuls of shore sedge to reweave them, and five perch to pay the ropemaker, who only takes fish."
@@ -1690,6 +1736,7 @@
     "giver": "clairval/ysaline",
     "zone": "fields",
     "level": 26,
+    "kind": "Main",
     "text": {
       "fr": "Églantine dit que ses ruches sont chaudes comme des fours et que ses abeilles piquent avec du feu. Écartes-en huit en les regardant bien, puis va voir Rose : c'est elle qui vend ce miel, elle saura s'il a changé.",
       "en": "Églantine says her hives are as hot as ovens and her bees sting with fire. Fend off eight while you watch them closely, then go and see Rose: she sells that honey, she'll know if it's changed."
@@ -1728,6 +1775,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 28,
+    "kind": "Main",
     "text": {
       "fr": "Les taupes creusent toutes vers la même haie, la vieille, au bout de mon champ. Regarde trois de leurs galeries, et si tu croises la taupe-roi, prends ce qu'elle garde : on dit qu'elle a déterré un bout de métal qui chante.",
       "en": "The moles all dig towards the same hedge, the old one at the end of my field. Look into three of their tunnels, and if you come across the mole king, take what it's guarding: they say it dug up a piece of metal that sings."
@@ -1769,6 +1817,7 @@
     "giver": "fields/eglantine",
     "zone": "fields",
     "level": 30,
+    "kind": "Side",
     "text": {
       "fr": "La moisson approche, et la coutume veut qu'on la fête avec un pain de nos propres blés. Rapporte-moi dix blés de Clairval et deux pains cuits de tes mains au four de Basile. Il râlera, mais il te prêtera son four.",
       "en": "Harvest is coming, and custom says we celebrate with bread from our own wheat. Bring me ten Clairval wheat and two loaves you've baked yourself in Basile's oven. He'll grumble, but he'll lend you his oven."

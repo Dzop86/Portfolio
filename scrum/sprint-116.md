@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je lis mon journal comme dans les jeux du genre : onglets en cours, terminées et masquées, recherche, filtres de niveau et de type, zones repliables, une icône par type de quête, une fiche avec son texte, ses objectifs et ses récompenses, Masquer et Suivre (rpg) ; xUnit, auto-test. | 5 | À faire |
+| En tant que joueur, je lis mon journal comme dans les jeux du genre : onglets en cours, terminées et masquées, recherche, filtres de niveau et de type, zones repliables, une icône par type de quête, une fiche avec son texte, ses objectifs et ses récompenses, Masquer et Suivre (rpg) ; xUnit, auto-test. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

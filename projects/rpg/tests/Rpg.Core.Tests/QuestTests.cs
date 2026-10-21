@@ -32,6 +32,10 @@ public class QuestTests
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Objectives = [new QuestObjective(QuestGoal.Bring, "no-such-item")] }));
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { After = ["no-such-quest"] }));
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Zone = "moon" }));
+        // Sprint 116: a dungeon's quest, and only it, asks just to finish a dungeon.
+        Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Kind = QuestKind.Dungeon }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { Objectives = [new QuestObjective(QuestGoal.Dungeon, "boar-wallow")] }));
+        Assert.Equal(QuestKind.Dungeon, WithQuests(Edge with { Kind = QuestKind.Dungeon, Objectives = [new QuestObjective(QuestGoal.Dungeon, "boar-wallow")] }).Quests[Edge.Id].Kind);
         // Sprint 107: a taker known, a line only for a talk.
         Assert.Equal("clairval/rose", WithQuests(Edge with { HandIn = "clairval/rose" }).Quests[Edge.Id].Taker);
         Assert.Throws<InvalidDataException>(() => WithQuests(Edge with { HandIn = "clairval/nobody" }));

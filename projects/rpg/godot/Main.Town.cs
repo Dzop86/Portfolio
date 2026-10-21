@@ -703,34 +703,75 @@ public partial class Main
     private string? _followed;
     private Guid? _followedFor;
     private const string FollowedFile = "user://followed.txt";
+
+    // The quests hidden in the journal (sprint 116, D77), kept for each character like the quest followed; and what
+    // the journal shows (its tab, search, filters, folded zones), kept between two openings.
+    private HashSet<string> _hidden = [];
+    private const string HiddenFile = "user://hidden-quests.txt";
+    private readonly JournalView _journalView = new();
     private QuestTracker? _tracker;
     private EdgeArrow? _trailArrow;
 
     /// <summary>The quest followed, as it is under way, or none.</summary>
     private QuestProgress? Followed()
     {
-        if (_character is null || _town?.Book is not QuestBook book || book.Active.Count == 0)
+        Kept();
+        if (_character is null || _town?.Book is not QuestBook book)
             return null;
-        if (_followedFor != _character.Id)
+        // A hidden quest is never followed (sprint 116): the first under way that is not.
+        return book.Active.FirstOrDefault(p => p.Quest == _followed && !_hidden.Contains(p.Quest)) ?? book.Active.FirstOrDefault(p => !_hidden.Contains(p.Quest));
+    }
+
+    // The quest followed and the quests hidden, as kept on this computer for the character, read once for it.
+    private void Kept()
+    {
+        if (_character is null || _followedFor == _character.Id)
+            return;
+        _followedFor = _character.Id;
+        _followed = null;
+        _hidden = [];
+        if (_options.TownSelfTest || _options.LobbySelfTest)
+            return;
+        try
         {
-            _followedFor = _character.Id;
-            _followed = null;
-            try
+            if (Godot.FileAccess.FileExists(FollowedFile))
             {
-                if (!_options.TownSelfTest && !_options.LobbySelfTest && Godot.FileAccess.FileExists(FollowedFile))
-                {
-                    using var file = Godot.FileAccess.Open(FollowedFile, Godot.FileAccess.ModeFlags.Read);
-                    string[] kept = file.GetAsText().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    if (kept.Length == 2 && kept[0] == _character.Id.ToString())
-                        _followed = kept[1];
-                }
+                using var file = Godot.FileAccess.Open(FollowedFile, Godot.FileAccess.ModeFlags.Read);
+                string[] kept = file.GetAsText().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (kept.Length == 2 && kept[0] == _character.Id.ToString())
+                    _followed = kept[1];
             }
-            catch (IOException)
+            if (Godot.FileAccess.FileExists(HiddenFile))
             {
-                // Nothing kept: the first quest under way.
+                using var file = Godot.FileAccess.Open(HiddenFile, Godot.FileAccess.ModeFlags.Read);
+                _hidden = HiddenQuests.Read(file.GetAsText(), _character.Id);
             }
         }
-        return book.Active.FirstOrDefault(p => p.Quest == _followed) ?? book.Active[0];
+        catch (IOException)
+        {
+            // Nothing kept: the first quest under way, none hidden.
+        }
+    }
+
+    /// <summary>Hides a quest in the journal, or shows it again (sprint 116), kept for the character.</summary>
+    private void Hide(string quest, bool hidden)
+    {
+        Kept();
+        if (!(hidden ? _hidden.Add(quest) : _hidden.Remove(quest)))
+            return;
+        if (_character is not null && !_options.TownSelfTest && !_options.LobbySelfTest)
+        {
+            string? kept = null;
+            if (Godot.FileAccess.FileExists(HiddenFile))
+            {
+                using var old = Godot.FileAccess.Open(HiddenFile, Godot.FileAccess.ModeFlags.Read);
+                kept = old?.GetAsText();
+            }
+            using var file = Godot.FileAccess.Open(HiddenFile, Godot.FileAccess.ModeFlags.Write);
+            file?.StoreString(HiddenQuests.Write(kept, _character.Id, _hidden));
+        }
+        ShowTrail();
+        ShowJournal();
     }
 
     /// <summary>Follows a quest under way, kept for the character.</summary>
@@ -1159,8 +1200,10 @@ public partial class Main
             if (_character.QuestLog?.SingleOrDefault()?.Quest != welcome.Id)
                 problems.Add("the quest taken is not under way on the server");
             TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
-            if (_journalPanel is null || !_journalPanel.ActiveNames.SequenceEqual([welcome.Name.In(texts.Lang)]) || _journalPanel.ObjectiveLines.Count != welcome.Objectives!.Count)
-                problems.Add($"the journal shows {string.Join(", ", _journalPanel?.ActiveNames ?? [])}");
+            if (_journalPanel is null || !_journalPanel.ListedNames.SequenceEqual([welcome.Name.In(texts.Lang)]) || _journalPanel.ObjectiveLines.Count != welcome.Objectives!.Count)
+                problems.Add($"the journal shows {string.Join(", ", _journalPanel?.ListedNames ?? [])}");
+            else
+                CheckJournal(_journalPanel, welcome, texts, problems);
             TownInput(new InputEventKey { Pressed = true, Keycode = Key.Q });
             if (_journalPanel is not null)
                 problems.Add("Q does not close the journal");
@@ -1188,13 +1231,52 @@ public partial class Main
             if (_town.Talk?.Line.Answers[0].Text.In(texts.Lang) != texts["quest.offer", lesson.Name.In(texts.Lang)])
                 problems.Add("Garance does not offer her first lesson");
             _town.Interrupt(_town.Position);
-            return " Quests: Aubin's welcome taken, followed in the journal, Garance seen and given it back, her lesson offered.";
+            return " Quests: Aubin's welcome taken, followed in the journal (its card, searched, filtered, folded, hidden and shown again), Garance seen and given it back, her lesson offered.";
         }
         finally
         {
             _town = town;
             _town.Book = QuestBook.Of(_character, GameData.Embedded);
         }
+    }
+
+    /// <summary>
+    /// The journal as in the games of the kind (sprint 116, D77): the welcome's card with its kind and rewards; found by a
+    /// word of its giver, gone for another word or with its kind left out or levels above it; its zone folded; hidden,
+    /// under the hidden tab and no longer followed, then shown again.
+    /// </summary>
+    private void CheckJournal(JournalPanel journal, Quest welcome, Texts texts, List<string> problems)
+    {
+        string name = welcome.Name.In(texts.Lang);
+        if (journal.CardQuest?.Id != welcome.Id || journal.CardQuest.Kind != QuestKind.Tutorial || journal.CardQuest.Rewards?.Contains(texts["journal.xp", welcome.Xp]) != true
+            || journal.FollowButton is not { Disabled: true } || journal.HideButton is null)
+            problems.Add("the journal's card does not show the welcome, its kind, its rewards, Follow and Hide");
+        journal.Search("aubin");
+        bool found = journal.ListedNames.SequenceEqual([name]);
+        journal.Search("zzzz");
+        bool gone = journal.ListedNames.Count == 0 && journal.CardQuest is null;
+        journal.Search("");
+        journal.KindButtons[QuestKind.Tutorial].ButtonPressed = false;
+        bool kindOut = journal.ListedNames.Count == 0;
+        journal.KindButtons[QuestKind.Tutorial].ButtonPressed = true;
+        journal.MinLevel.Value = 2;
+        bool levelOut = journal.ListedNames.Count == 0;
+        journal.MinLevel.Value = 1;
+        if (!found || !gone || !kindOut || !levelOut || !journal.ListedNames.SequenceEqual([name]))
+            problems.Add($"the journal's search and filters: found {found}, gone {gone}, kind left out {kindOut}, level above {levelOut}");
+        journal.SectionButtons[texts["journal.village"]].EmitSignal(BaseButton.SignalName.Pressed);
+        bool folded = journal.ListedNames.Count == 0 && journal.SectionButtons.ContainsKey(texts["journal.village"]);
+        journal.SectionButtons[texts["journal.village"]].EmitSignal(BaseButton.SignalName.Pressed);
+        if (!folded || !journal.ListedNames.SequenceEqual([name]))
+            problems.Add("the journal's village does not fold and open again");
+        journal.HideButton!.EmitSignal(BaseButton.SignalName.Pressed);
+        bool hidden = journal.ListedNames.Count == 0 && Followed() is null && _tracker?.TitleText == "";
+        journal.TabButtons[JournalTab.Hidden].EmitSignal(BaseButton.SignalName.Pressed);
+        bool underHidden = journal.ListedNames.SequenceEqual([name]) && journal.FollowButton is null && journal.HideButton?.Text == texts["journal.show"];
+        journal.HideButton?.EmitSignal(BaseButton.SignalName.Pressed);
+        journal.TabButtons[JournalTab.Active].EmitSignal(BaseButton.SignalName.Pressed);
+        if (!hidden || !underHidden || !journal.ListedNames.SequenceEqual([name]) || Followed()?.Quest != welcome.Id)
+            problems.Add($"the journal's hide: hidden {hidden}, under its tab {underHidden}, shown again {journal.ListedNames.Count}");
     }
 
     private async Task<bool> SavePoints(Points points)
@@ -1281,18 +1363,28 @@ public partial class Main
     {
         _journalPanel = new JournalPanel();
         AddChild(_journalPanel);
-        _journalPanel.Build(_town?.Book ?? new QuestBook(GameData.Embedded, 1, [], [], []), _talkPanel!.Texts, Followed()?.Quest);
+        string? followed = Followed()?.Quest;
+        _journalPanel.Build(JournalBook(), _talkPanel!.Texts, _journalView, _hidden, followed);
         _journalPanel.FollowPressed += id =>
         {
             Follow(id);
-            CloseJournal();
-            OpenJournal();
+            ShowJournal();
         };
+        _journalPanel.HidePressed += Hide;
         _journalPanel.ClosePressed += () =>
         {
             _windows.Close();
             ShowWindows();
         };
+    }
+
+    private QuestBook JournalBook() => _town?.Book ?? new QuestBook(GameData.Embedded, 1, [], [], []);
+
+    /// <summary>The journal, if open, as the character's quests now are.</summary>
+    private void ShowJournal()
+    {
+        string? followed = Followed()?.Quest;
+        _journalPanel?.Show(JournalBook(), _hidden, followed);
     }
 
     private void CloseJournal()
@@ -1317,11 +1409,7 @@ public partial class Main
             _town.Book = QuestBook.Of(character, GameData.Embedded);
         _townView?.ShowMarks(_town?.Book);
         ShowTrail();
-        if (_journalPanel is not null)
-        {
-            CloseJournal();
-            OpenJournal();
-        }
+        ShowJournal();
         if (_talkPanel is not null)
             _talkPanel.Living = character;
     }
@@ -1852,9 +1940,9 @@ public partial class Main
             tracker.QueueFree();
             var journal = new JournalPanel();
             AddChild(journal);
-            journal.Build(book, t, stone.Quest);
-            if (!journal.FollowButtons[stone.Quest].Disabled)
-                problems.Add("the journal does not say the stone's quest is followed");
+            journal.Build(book, t, new JournalView(), new HashSet<string>(), stone.Quest);
+            if (journal.FollowButton is not { Disabled: true } || journal.CardQuest?.Kind != QuestKind.Main || journal.Rows.Count != 1)
+                problems.Add("the journal does not say the stone's quest, a main quest, is followed");
             journal.QueueFree();
             var world = new WorldMapPanel();
             AddChild(world);
