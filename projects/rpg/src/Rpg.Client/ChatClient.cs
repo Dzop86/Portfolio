@@ -7,7 +7,7 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>What came from the chat: a line said on the map, or the server's refusal of one of ours; since sprint 118, news of the map.</summary>
-public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null);
+public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null, PartyNews? Party = null, TradeNews? Trade = null);
 
 /// <summary>
 /// The game's side of the proximity chat (sprint 84): a WebSocket to the server, lines sent as
@@ -32,11 +32,14 @@ public sealed class ChatClient : IAsyncDisposable
     public bool IsOpen => _socket.State == WebSocketState.Open;
 
     /// <summary>Says a line on the map; cleaned first, nothing sent if nothing is left.</summary>
-    public async Task<bool> Say(string text, CancellationToken cancel = default)
+    public Task<bool> Say(string text, CancellationToken cancel = default) => Say(text, ChatChannels.Map, cancel);
+
+    /// <summary>Says a line on a channel (the map's, or since sprint 119 the party's).</summary>
+    public async Task<bool> Say(string text, string channel, CancellationToken cancel = default)
     {
         if (ChatRules.Clean(text) is not string clean || !IsOpen)
             return false;
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(clean), Json)), WebSocketMessageType.Text, true, cancel);
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(clean, channel == ChatChannels.Map ? null : channel), Json)), WebSocketMessageType.Text, true, cancel);
         return true;
     }
 
@@ -82,6 +85,8 @@ public sealed class ChatClient : IAsyncDisposable
                 using JsonDocument doc = JsonDocument.Parse(message.ToArray());
                 _received.Enqueue(doc.RootElement.TryGetProperty("reason", out JsonElement reason) ? new ChatEvent(null, reason.GetString())
                     : doc.RootElement.TryGetProperty("kind", out _) ? new ChatEvent(null, null, doc.RootElement.Deserialize<MapNews>(Json))
+                    : doc.RootElement.TryGetProperty("party", out _) ? new ChatEvent(null, null, Party: doc.RootElement.Deserialize<PartyNews>(Json))
+                    : doc.RootElement.TryGetProperty("trade", out _) ? new ChatEvent(null, null, Trade: doc.RootElement.Deserialize<TradeNews>(Json))
                     : new ChatEvent(doc.RootElement.Deserialize<ChatLine>(Json), null));
             }
         }
@@ -129,7 +134,7 @@ public sealed class ChatLog(Texts texts)
     public void Add(ChatEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (e.News is not null)
+        if (e.News is not null || e.Party is not null || e.Trade is not null)
             return;
         _lines.Add(e.Line is ChatLine line ? texts["chat.line", texts["chat." + line.Channel], line.From, line.Text] : texts["chat.refused", e.Refusal ?? ""]);
         if (_lines.Count > Kept)

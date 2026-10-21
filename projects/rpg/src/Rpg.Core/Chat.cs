@@ -7,6 +7,9 @@ namespace Rpg.Core;
 public static class ChatChannels
 {
     public const string Map = "map";
+
+    /// <summary>The party's members, wherever they are (sprint 119).</summary>
+    public const string Party = "party";
 }
 
 /// <summary>A line of the chat: the channel, who said it (a character's name), what, when.</summary>

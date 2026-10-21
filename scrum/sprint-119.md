@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je forme un groupe de quatre au plus, avec son canal de chat, et j'échange objets et Éclats avec un autre joueur (rpg) ; xUnit, test d'intégration. | 5 | À faire |
+| En tant que joueur, je forme un groupe de quatre au plus, avec son canal de chat, et j'échange objets et Éclats avec un autre joueur (rpg) ; xUnit, test d'intégration. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

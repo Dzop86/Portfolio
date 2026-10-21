@@ -854,6 +854,10 @@ public partial class TownView : Node3D
     public Dictionary<Guid, Node3D> Others { get; } = [];
 
     private readonly Dictionary<Guid, Cell> _otherAt = [];
+
+    /// <summary>The other player drawn on a cell, mid-walk too (sprint 119: their right click).</summary>
+    public Guid? OtherAt(Cell cell) =>
+        Others.Where(o => new Cell(Mathf.RoundToInt(o.Value.Position.X), Mathf.RoundToInt(o.Value.Position.Z)) == cell).Select(o => (Guid?)o.Key).FirstOrDefault();
     private readonly Dictionary<Guid, int> _otherWalks = [];
 
     /// <summary>

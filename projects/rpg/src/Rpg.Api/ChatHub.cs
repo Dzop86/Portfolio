@@ -14,7 +14,7 @@ namespace Rpg.Api;
 /// the same socket tells the players of a map who is there and where they walk (<see cref="MapNews"/>), and
 /// the endpoints tell them of the groups of monsters fought or beaten and of the spots gathered.
 /// </summary>
-public sealed class ChatHub(TimeProvider clock, Hunts hunts)
+public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -31,6 +31,16 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts)
     }
 
     private readonly ConcurrentDictionary<Guid, Speaker> _speakers = new();
+
+    /// <summary>The map a character in play is on, or null when its game is not connected (sprint 119).</summary>
+    public string? MapOf(Guid character) => _speakers.TryGetValue(character, out Speaker? s) ? s.Map : null;
+
+    /// <summary>Tells one character some news of its party or of a trade (sprint 119), wherever it is.</summary>
+    public async Task TellCharacter(Guid character, object news, CancellationToken cancel = default)
+    {
+        if (_speakers.TryGetValue(character, out Speaker? s))
+            await Send(s, JsonSerializer.Serialize(news, news.GetType(), Json), cancel);
+    }
 
     /// <summary>The characters connected on a map (for the tests).</summary>
     public IReadOnlyList<Guid> On(string map) => [.. _speakers.Values.Where(s => s.Map == map).Select(s => s.Character)];
@@ -135,8 +145,12 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts)
             return;
         }
         string? text = ChatRules.Clean(say?.Text);
+        string channel = say?.Channel ?? ChatChannels.Map;
+        // The party's channel (sprint 119): its members wherever they are.
+        IReadOnlyList<Guid>? party = parties.Of(me.Character)?.Members;
         string? refusal = text is null ? "Nothing to say."
-            : (say!.Channel ?? ChatChannels.Map) != ChatChannels.Map ? "Only the map's channel for now."
+            : channel is not (ChatChannels.Map or ChatChannels.Party) ? "The map's channel, or the party's."
+            : channel == ChatChannels.Party && party is null ? "Not in a party."
             : ChatLinks.WhyNot(text, GameData.Embedded) is string links ? links
             : !me.Pace.TryTake(clock.GetUtcNow()) ? $"At most {ChatRules.Burst} lines in {ChatRules.Window.TotalSeconds:0} seconds."
             : null;
@@ -145,8 +159,8 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts)
             await Send(me, JsonSerializer.Serialize(new ChatRefusal(refusal), Json), cancel);
             return;
         }
-        string line = JsonSerializer.Serialize(new ChatLine(ChatChannels.Map, me.Name, text!, clock.GetUtcNow()), Json);
-        foreach (Speaker other in _speakers.Values.Where(s => s.Map == me.Map))
+        string line = JsonSerializer.Serialize(new ChatLine(channel, me.Name, text!, clock.GetUtcNow()), Json);
+        foreach (Speaker other in _speakers.Values.Where(s => channel == ChatChannels.Party ? party!.Contains(s.Character) : s.Map == me.Map))
             await Send(other, line, cancel);
     }
 

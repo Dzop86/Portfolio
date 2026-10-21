@@ -77,6 +77,7 @@ public partial class Main
         ShowBar();
         ShowMiniMap();
         ShowChat();
+        ShowParty();
         // The quest followed, once the talk panel gives its words (sprint 115: drawn before it, it vanished at each change of map).
         ShowTrail();
         _townView.Footstep += () => _sound?.Step();
@@ -521,6 +522,11 @@ public partial class Main
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when (SpotUnder(click.Position) ?? BoardView.Pick(_camera, click.Position)) is Cell cell:
                 _ = Walk(cell);
                 break;
+            // A right click on another player (sprint 119): invite them, offer a trade.
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when BoardView.Pick(_camera, click.Position) is Cell cell
+                && _townView.OtherAt(cell) is Guid someone && _crowd.Others.FirstOrDefault(o => o.Id == someone) is OtherPlayer other:
+                OpenPlayerMenu(other, click.Position);
+                break;
             // A right click on monsters: their menu, "Attack" in it (sprint 78, D64).
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when GroupUnder(click.Position) is Cell cell:
                 OpenGroupMenu(cell, click.Position);
@@ -593,7 +599,11 @@ public partial class Main
             _chatBox?.Refresh();
             return;
         }
-        await _chat.Say(line);
+        // "/g" or "/p" first: to the party (sprint 119).
+        if (line.Length > 3 && line[0] == '/' && line[1] is 'g' or 'p' or 'G' or 'P' && line[2] == ' ')
+            await _chat.Say(line[3..], ChatChannels.Party);
+        else
+            await _chat.Say(line);
     }
 
     /// <summary>What the chat brought since the last frame, on screen.</summary>
@@ -602,8 +612,19 @@ public partial class Main
         bool any = false, news = false;
         while (_chat is not null && _chat.TryRead(out ChatEvent? e))
         {
+            // The party and the trades (sprint 119).
+            if (e!.Party is PartyNews party)
+            {
+                OnParty(party);
+                continue;
+            }
+            if (e.Trade is TradeNews trade)
+            {
+                OnTrade(trade);
+                continue;
+            }
             // The map's news (sprint 118): who is here and where, the groups away, the spots taken.
-            if (e!.News is MapNews n)
+            if (e.News is MapNews n)
             {
                 if (_character is not null)
                     _crowd.Apply(n, _character.Id, _growing);
@@ -1133,6 +1154,169 @@ public partial class Main
         {
             Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
         }
+    }
+
+    // The party (sprint 119): as the server last said, its banner, the questions of the other players, the trade open.
+    private static PartyNews? _party;
+    private static Guid? _partyOf;
+    private PartyBanner? _partyBanner;
+    private AskPanel? _askPanel;
+    private TradePanel? _tradePanel;
+    private PopupMenu? _playerMenu;
+
+    private void ShowParty()
+    {
+        Texts texts = _talkPanel!.Texts;
+        _partyBanner = new PartyBanner();
+        AddChild(_partyBanner);
+        _partyBanner.Build(texts);
+        _partyBanner.LeavePressed += () => _ = Social(s => s.LeaveParty(_character!.Id));
+        _askPanel = new AskPanel();
+        AddChild(_askPanel);
+        _askPanel.Build();
+        if (_character is not null && _partyOf != _character.Id)
+        {
+            (_party, _partyOf) = (null, _character.Id);
+            _ = RefreshParty();
+        }
+        _partyBanner.Show(_party);
+    }
+
+    private async Task RefreshParty()
+    {
+        if (_lobby?.SignedIn != true || _character is null)
+            return;
+        try
+        {
+            OnParty(await _lobby.Server.Party(_character.Id));
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            // No party shown; the next news will say.
+        }
+    }
+
+    /// <summary>A call about the party or a trade, on the server's word; its refusal said in the chat.</summary>
+    private async Task Social(Func<GameServer, Task> call)
+    {
+        if (_lobby?.SignedIn != true || _character is null)
+            return;
+        try
+        {
+            await call(_lobby.Server);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+            _chatLog?.Note(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+            _chatBox?.Refresh(fresh: true);
+        }
+    }
+
+    /// <summary>The menu of another player (sprint 119): invite them into the party, offer them a trade.</summary>
+    private PopupMenu OpenPlayerMenu(OtherPlayer other, Vector2 at)
+    {
+        _playerMenu?.QueueFree();
+        Texts texts = _talkPanel!.Texts;
+        _playerMenu = new PopupMenu();
+        _playerMenu.AddItem(other.Name, 0);
+        _playerMenu.SetItemDisabled(0, true);
+        _playerMenu.AddSeparator();
+        _playerMenu.AddItem(texts["party.invite"], 1);
+        _playerMenu.AddItem(texts["party.trade"], 2);
+        _playerMenu.IdPressed += id =>
+        {
+            if (id == 1)
+                _ = Social(async s =>
+                {
+                    await s.Invite(_character!.Id, other.Name);
+                    Note(texts["party.sent", other.Name]);
+                });
+            else if (id == 2)
+                _ = Social(async s =>
+                {
+                    await s.AskTrade(_character!.Id, other.Id);
+                    Note(texts["trade.sent", other.Name]);
+                });
+        };
+        AddChild(_playerMenu);
+        _playerMenu.Popup(new Rect2I((Vector2I)at, Vector2I.Zero));
+        return _playerMenu;
+    }
+
+    private void Note(string text)
+    {
+        _chatLog?.Note(text);
+        _chatBox?.Refresh(fresh: true);
+    }
+
+    /// <summary>What the server says of the party: someone invites, the party now, no party any more.</summary>
+    private void OnParty(PartyNews news)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        switch (news.Party)
+        {
+            case PartyNewsKind.Invited when news is { From: Guid from, Name: string name }:
+                _askPanel?.Ask(texts["party.invited", name], texts["party.join"], texts["party.decline"], () => _ = Social(s => s.JoinParty(_character!.Id, from)));
+                break;
+            case PartyNewsKind.Changed:
+                _party = news;
+                _partyBanner?.Show(news);
+                break;
+            default:
+                if (_party is not null)
+                    Note(texts["party.left"]);
+                _party = null;
+                _partyBanner?.Show(null);
+                break;
+        }
+    }
+
+    /// <summary>What the server says of a trade: asked, opened or changed (the window), made or called off.</summary>
+    private void OnTrade(TradeNews news)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        switch (news.Trade)
+        {
+            case TradeNewsKind.Asked when news is { From: Guid from, Name: string name }:
+                _askPanel?.Ask(texts["trade.asked", name], texts["trade.open"], texts["party.decline"], () => _ = Social(s => s.OpenTrade(_character!.Id, from)));
+                break;
+            case TradeNewsKind.Opened or TradeNewsKind.Changed when news.View is TradeView view:
+                if (_tradePanel is null && _character is not null)
+                    OpenTrade();
+                _tradePanel?.Show(view);
+                break;
+            case TradeNewsKind.Done:
+                CloseTrade();
+                Note(texts["trade.done"]);
+                _ = Social(async s =>
+                {
+                    if ((await s.Characters()).FirstOrDefault(c => c.Id == _character!.Id) is CharacterSummary now)
+                        KeepCharacter(now);
+                });
+                break;
+            default:
+                CloseTrade();
+                Note(texts["trade.cancelled"]);
+                break;
+        }
+    }
+
+    private void OpenTrade()
+    {
+        CharacterSummary me = _character!;
+        _tradePanel = new TradePanel();
+        AddChild(_tradePanel);
+        _tradePanel.Build(new TradeDraft(me.Inventory ?? [], me.Worn ?? new Dictionary<Slot, string>(), me.Shards), me.Inventory ?? [], _talkPanel?.Texts ?? _hud.Texts);
+        _tradePanel.OfferChanged += offer => _ = Social(s => s.Offer(me.Id, offer));
+        _tradePanel.ReadyPressed += () => _ = Social(async s => KeepCharacter(await s.ReadyTrade(me.Id)));
+        _tradePanel.CancelPressed += () => _ = Social(s => s.CancelTrade(me.Id));
+    }
+
+    private void CloseTrade()
+    {
+        _tradePanel?.QueueFree();
+        _tradePanel = null;
     }
 
     private static async Task TellWalk(ChatClient chat, Cell to)
@@ -1782,7 +1966,7 @@ public partial class Main
             else
                 note += $", place {_town.Position} saved on the server";
         }
-        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + await CheckChat(problems) + await CheckQuests(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + CheckTogether(problems) + await CheckChat(problems) + await CheckQuests(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;
@@ -1866,6 +2050,51 @@ public partial class Main
             problems.Add("Escape does not close the item's sheet alone");
         CloseItemSheet();
         return " Items: right click, recipes, bestiary and set checked.";
+    }
+
+    /// <summary>
+    /// Playing together (sprint 119, D74), without a second player: the party's banner with its four lines, the leader
+    /// said; an invitation asked and answered; the trade's window, an item put on the table and taken back, the other's
+    /// offer and acceptance shown.
+    /// </summary>
+    private string CheckTogether(List<string> problems)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        var banner = new PartyBanner();
+        AddChild(banner);
+        banner.Build(texts);
+        Guid lead = Guid.NewGuid();
+        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "guard", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]));
+        if (!banner.Shown || banner.Lines.Count != 3 || banner.Lines[1] != texts["party.leader", "Plop", 12] || banner.Lines[2] != texts["party.offline", "Plouf"])
+            problems.Add($"the party's banner shows {string.Join(" | ", banner.Lines)}");
+        banner.Show(null);
+        if (banner.Shown)
+            problems.Add("the party's banner stays without a party");
+        banner.QueueFree();
+        var ask = new AskPanel();
+        AddChild(ask);
+        ask.Build();
+        bool joined = false;
+        ask.Ask(texts["party.invited", "Plop"], texts["party.join"], texts["party.decline"], () => joined = true);
+        bool asked = ask.Question == texts["party.invited", "Plop"];
+        ask.Answer(true);
+        if (!asked || !joined || ask.Question != "")
+            problems.Add("an invitation is not asked and answered");
+        ask.QueueFree();
+        var trade = new TradePanel();
+        AddChild(trade);
+        trade.Build(new TradeDraft([new ItemCount("bread", 2)], new Dictionary<Slot, string>(), 10), [new ItemCount("bread", 2)], texts);
+        TradeOffer? sent = null;
+        trade.OfferChanged += o => sent = o;
+        trade.Put("bread");
+        trade.Put("bread");
+        trade.Put("bread");
+        trade.TakeBack("bread");
+        trade.Show(new TradeView(Guid.NewGuid(), "Plop", TradeOffer.Nothing, new TradeOffer([new ItemCount("copper-ring", 1)], 5), false, true));
+        if (sent?.Items is not [{ Item: "bread", Count: 1 }] || trade.Theirs?.Shards != 5 || trade.Status != texts["trade.they-ready", "Plop"])
+            problems.Add($"the trade's window: offer {string.Join(", ", sent?.Items ?? [])}, status '{trade.Status}'");
+        trade.QueueFree();
+        return " Together: party banner, invitation and trade window checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)

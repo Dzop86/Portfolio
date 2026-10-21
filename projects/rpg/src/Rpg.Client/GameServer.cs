@@ -125,6 +125,50 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>The character's party (sprint 119): its leader and members, or <see cref="PartyNewsKind.Left"/>.</summary>
+    public async Task<PartyNews> Party(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/party", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<PartyNews>(Json, cancel))!;
+    }
+
+    /// <summary>Invites a character in play into the party, by its name (sprint 119).</summary>
+    public async Task Invite(Guid id, string name, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/invite", UriKind.Relative), new PartyInvite(name), Json, cancel), cancel), cancel);
+
+    /// <summary>Joins the party of a character who invited this one (sprint 119).</summary>
+    public async Task JoinParty(Guid id, Guid from, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/accept", UriKind.Relative), new PartyAnswer(from), Json, cancel), cancel), cancel);
+
+    /// <summary>Leaves the party (sprint 119).</summary>
+    public async Task LeaveParty(Guid id, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/party/leave", UriKind.Relative), null, cancel), cancel), cancel);
+
+    /// <summary>Asks a character on the same map to trade (sprint 119).</summary>
+    public async Task AskTrade(Guid id, Guid with, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/trade/ask", UriKind.Relative), new PartyAnswer(with), Json, cancel), cancel), cancel);
+
+    /// <summary>Opens the trade a character asked for (sprint 119).</summary>
+    public async Task OpenTrade(Guid id, Guid with, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/trade/accept", UriKind.Relative), new PartyAnswer(with), Json, cancel), cancel), cancel);
+
+    /// <summary>Puts items and Éclats on the table (sprint 119); the server checks they are owned and not worn.</summary>
+    public async Task Offer(Guid id, TradeOffer offer, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/trade", UriKind.Relative), offer, Json, cancel), cancel), cancel);
+
+    /// <summary>Accepts the offers as they stand (sprint 119): the character as it is after, the trade made if the other had accepted.</summary>
+    public async Task<CharacterSummary> ReadyTrade(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/trade/ready", UriKind.Relative), null, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
+    /// <summary>Calls the trade off (sprint 119).</summary>
+    public async Task CancelTrade(Guid id, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/trade/cancel", UriKind.Relative), null, cancel), cancel), cancel);
+
     /// <summary>Saves where a character stands in a town.</summary>
     public async Task SavePlace(Guid id, Place place, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/place", UriKind.Relative), place, Json, cancel), cancel), cancel);

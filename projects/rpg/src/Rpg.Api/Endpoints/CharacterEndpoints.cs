@@ -39,7 +39,7 @@ public static class CharacterEndpoints
     }
 
     /// <summary>The account in the token; tokens of a deleted account no longer match any.</summary>
-    private static Guid AccountId(ClaimsPrincipal user) =>
+    internal static Guid AccountId(ClaimsPrincipal user) =>
         Guid.TryParse(user.FindFirstValue(JwtRegisteredClaimNames.Sub), out Guid id) ? id : Guid.Empty;
 
     internal static async Task<Ok<CharacterSummary[]>> List(ClaimsPrincipal user, GameDb db, CancellationToken cancel)
@@ -583,6 +583,10 @@ public static class CharacterEndpoints
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
+
+    /// <summary>The character as the game reads it, with the place it stands on.</summary>
+    internal static CharacterSummary Summary(Character c) =>
+        Summary(c, c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null);
 
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,

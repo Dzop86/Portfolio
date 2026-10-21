@@ -24,6 +24,8 @@ builder.Services.AddSingleton<GameServers>();
 builder.Services.AddSingleton<ChatHub>();
 builder.Services.AddSingleton<Fields>();
 builder.Services.AddSingleton<Hunts>();
+builder.Services.AddSingleton<Parties>();
+builder.Services.AddSingleton<Trades>();
 builder.Services.AddSingleton<IPasswordHasher<Account>, PasswordHasher<Account>>();
 builder.Services.AddProblemDetails();
 // A body that is not valid JSON is the client's fault (400), in development too, where it is thrown.
@@ -132,6 +134,7 @@ app.MapGet("/health", async (GameDb db, CancellationToken cancel) =>
     .ExcludeFromDescription();
 app.MapAccountEndpoints();
 app.MapCharacterEndpoints();
+app.MapSocialEndpoints();
 app.MapServerEndpoints();
 
 // The game's data loaded before the first request (136 maps, their groups and spots: seconds on a cold
