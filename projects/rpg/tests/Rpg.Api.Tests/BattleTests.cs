@@ -71,38 +71,9 @@ public class BattleTests
         await sb.JoinBattle(brume.Id, opened.Fight, Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => sb.GoBattle(brume.Id, opened.Fight, Cancel))).Status);
         await sa.GoBattle(aube.Id, opened.Fight, Cancel);
-        // Both games build the same fight from the start, then play the actions told.
-        var games = new List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)>();
-        foreach ((GameServer s, Guid me, ChatClient chat) in new[] { (sa, aube.Id, a), (sb, brume.Id, b) })
-        {
-            SharedFightNews started = (await Next(chat, SharedFightKind.Started))!;
-            Assert.Equal([aube.Id, brume.Id], started.Start!.Players);
-            games.Add((s, me, chat, started.Start.Build(GameData.Embedded)));
-        }
+        (List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)> games, SharedFightNews? over) = await PlayToTheEnd([(sa, aube.Id, a), (sb, brume.Id, b)], opened.Fight);
+        Assert.Equal([aube.Id, brume.Id], games.Select(g => g.Me));
         Assert.Equal(2, games[0].Fight.HeroFighters.Count);
-        SharedFightNews? over = null;
-        for (int step = 0; step < 3000 && over is null; step++)
-        {
-            // Each game reads what came; the player whose hero's turn it is plays as the AI would.
-            foreach ((GameServer s, Guid me, ChatClient chat, Fight fight) in games)
-            {
-                while (chat.TryRead(out ChatEvent? e))
-                {
-                    if (e!.Shared is { Shared: SharedFightKind.Acted, Action: FightAction done })
-                        Assert.Equal(ActionError.None, fight.Apply(done));
-                    else if (e.Shared is { Shared: SharedFightKind.Over } end && me == aube.Id)
-                        over = end;
-                }
-            }
-            (GameServer server, Guid id, _, Fight mine) = games.FirstOrDefault(g => !g.Fight.IsOver && g.Fight.HeroFighters[g.Me == aube.Id ? 0 : 1] == g.Fight.Current);
-            if (mine is not null)
-            {
-                FightAction action = Ai.Decide(mine);
-                if (await TryAct(server, id, opened.Fight, action) is false)
-                    await server.Act(id, opened.Fight, new EndTurnAction(), Cancel);
-            }
-            await Task.Delay(5, Cancel);
-        }
         Assert.NotNull(over);
         Assert.Equal(games[0].Fight.History, games[1].Fight.History);
         Assert.Equal(games[0].Fight.WinningTeam, over!.Winner);
@@ -116,6 +87,87 @@ public class BattleTests
         var hunts = (Hunts)api.Services.GetService(typeof(Hunts))!;
         if (over.Winner == 0)
             Assert.Contains(hunts.On(Group.Map), n => n.Group == Group.Id && n.Kind == MapNewsKind.Beaten);
+        await a.DisposeAsync();
+        await b.DisposeAsync();
+    }
+
+    // Both games build the same fight from the start, then play the actions told; the player whose hero's turn it is plays as the AI would.
+    private static async Task<(List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)> Games, SharedFightNews? Over)> PlayToTheEnd(
+        (GameServer Server, Guid Me, ChatClient Chat)[] players, Guid battle)
+    {
+        var games = new List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)>();
+        foreach ((GameServer s, Guid me, ChatClient chat) in players)
+        {
+            SharedFightNews started = (await Next(chat, SharedFightKind.Started))!;
+            Assert.Equal(players.Select(p => p.Me), started.Start!.Players);
+            games.Add((s, me, chat, started.Start.Build(GameData.Embedded)));
+        }
+        SharedFightNews? over = null;
+        for (int step = 0; step < 3000 && over is null; step++)
+        {
+            for (int k = 0; k < games.Count; k++)
+            {
+                while (games[k].Chat.TryRead(out ChatEvent? e))
+                {
+                    if (e!.Shared is { Shared: SharedFightKind.Acted, Action: FightAction done })
+                        Assert.Equal(ActionError.None, games[k].Fight.Apply(done));
+                    else if (e.Shared is { Shared: SharedFightKind.Over } end && k == 0)
+                        over = end;
+                }
+            }
+            int turn = Enumerable.Range(0, games.Count).FirstOrDefault(k => !games[k].Fight.IsOver && games[k].Fight.HeroFighters[k] == games[k].Fight.Current, -1);
+            if (turn >= 0)
+            {
+                (GameServer server, Guid id, _, Fight mine) = games[turn];
+                if (!await TryAct(server, id, battle, Ai.Decide(mine)))
+                    await server.Act(id, battle, new EndTurnAction(), Cancel);
+            }
+            await Task.Delay(5, Cancel);
+        }
+        return (games, over);
+    }
+
+    [Fact]
+    public async Task APartyInADungeon_FightsItsRoomTogether_EachWithItsOwnKey_AndGoesOnTogether()
+    {
+        await using var api = new ApiFactory();
+        (GameServer sa, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
+        (GameServer sb, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
+        Dungeon dungeon = GameData.Embedded.Dungeons.Values.First();
+        api.WithDb(db =>
+        {
+            foreach (Character c in db.Characters)
+            {
+                (c.Xp, c.Level) = (Progression.XpToReach(40), 40);
+                c.Receive([new ItemCount(dungeon.Key, 1)]);
+            }
+            return db.SaveChanges();
+        });
+        await sa.Invite(aube.Id, "Brume", Cancel);
+        await sb.JoinParty(brume.Id, aube.Id, Cancel);
+        // Each goes in with its own key, to the first hall.
+        Town hall = GameData.Embedded.Towns[dungeon.Halls![0].Map];
+        foreach ((GameServer s, Guid id) in new[] { (sa, aube.Id), (sb, brume.Id) })
+        {
+            CharacterSummary inside = await s.EnterDungeon(id, dungeon.Id, Cancel);
+            Assert.DoesNotContain(inside.Inventory ?? [], i => i.Item == dungeon.Key);
+            await s.SavePlace(id, new Place(hall.Id, hall.Spawn.X, hall.Spawn.Y), Cancel);
+        }
+        string room = dungeon.Scenario(1);
+        // Not a room it is at: refused; the first room, together.
+        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => sa.OpenBattle(aube.Id, dungeon.Scenario(2), Cancel))).Status);
+        SharedFightNews opened = await sa.OpenBattle(aube.Id, room, Cancel);
+        await Next(b, SharedFightKind.Opened);
+        await sb.JoinBattle(brume.Id, opened.Fight, Cancel);
+        await sa.GoBattle(aube.Id, opened.Fight, Cancel);
+        (_, SharedFightNews? over) = await PlayToTheEnd([(sa, aube.Id, a), (sb, brume.Id, b)], opened.Fight);
+        Assert.NotNull(over);
+        // Won: both at the second room; lost: both out.
+        api.WithDb(db =>
+        {
+            Assert.All(db.Characters, c => Assert.Equal(over!.Winner == 0 ? (dungeon.Id, 2) : (null, 0), (c.Dungeon, c.DungeonRoom)));
+            return 0;
+        });
         await a.DisposeAsync();
         await b.DisposeAsync();
     }

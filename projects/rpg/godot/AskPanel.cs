@@ -50,6 +50,9 @@ public partial class AskPanel : CanvasLayer
         Visible = true;
     }
 
+    /// <summary>Takes the question away, unanswered.</summary>
+    public new void Hide() => Visible = false;
+
     /// <summary>The question asked now, or "" (for the self-test).</summary>
     public string Question => Visible ? _text.Text : "";
 

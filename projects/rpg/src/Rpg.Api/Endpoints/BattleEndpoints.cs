@@ -35,26 +35,35 @@ public static class BattleEndpoints
     {
         if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
-        if (request?.Scenario is not string scenario || Hunts.GroupOf(scenario) is not MonsterGroup group)
-            return Refused("A group of monsters of the world.");
+        // A group of the world, or since sprint 121 the room of a dungeon the character is at (each member went in with its own key).
+        MonsterGroup? group = request?.Scenario is string sc ? Hunts.GroupOf(sc) : null;
+        bool room = request?.Scenario is string sr && Dungeons.Parse(sr) is (string dungeon, int at) && me.Run?.IsAt(dungeon, at) == true;
+        if (request?.Scenario is not string scenario || (group is null && !room))
+            return Refused("A group of monsters of the world, or the room of the dungeon the character is at.");
         if (parties.Of(id) is not (_, IReadOnlyList<Guid> party))
             return Refused("Not in a party: a fight alone is started as before.");
-        if (hub.MapOf(id) != group.Map)
+        if (hub.MapOf(id) is not string map || (group is not null && map != group.Map))
             return Refused("Not on the group's map.");
         if (battles.Of(id) is not null)
             return Refused("Already in a fight with the party.");
-        if (!hunts.Start(group.Id, id))
-            return Refused("This group is fighting someone else, or beaten and not back yet.");
-        await hub.Tell(group.Map, new MapNews(MapNewsKind.Fighting, Group: group.Id), cancel: cancel);
-        Guid fight = await battles.Open(id, me.Name, scenario, group.Map, group, party, cancel);
+        if (group is not null)
+        {
+            if (!hunts.Start(group.Id, id))
+                return Refused("This group is fighting someone else, or beaten and not back yet.");
+            await hub.Tell(group.Map, new MapNews(MapNewsKind.Fighting, Group: group.Id), cancel: cancel);
+        }
+        Guid fight = await battles.Open(id, me.Name, scenario, map, group, party, cancel);
         return TypedResults.Ok(new SharedFightNews(SharedFightKind.Opened, fight, me.Name, scenario));
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Join(
         Guid id, Guid fight, ClaimsPrincipal user, GameDb db, Battles battles, Parties parties, CancellationToken cancel)
     {
-        if (await Mine(id, user, db, cancel) is null)
+        if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
+        // A dungeon's room: only for who is at that room of that dungeon (sprint 121).
+        if (battles.ScenarioOf(fight) is string scenario && Dungeons.Parse(scenario) is (string dungeon, int room) && me.Run?.IsAt(dungeon, room) != true)
+            return Refused("Not at this room of the dungeon.");
         return await battles.Join(fight, id, parties.Of(id)?.Members, cancel) is string why ? Refused(why) : TypedResults.NoContent();
     }
 

@@ -19,7 +19,8 @@ public sealed record SummaryRow(int Fighter, string Name, int Level, bool IsPlay
 public sealed class FightSummary
 {
     /// <param name="offline">No server keeps the fight: the window says nothing is kept.</param>
-    public FightSummary(Fight fight, int playerTeam, FightResult? result, Texts texts, bool offline = false)
+    /// <param name="party">Since sprint 121, a fight with the party: what each hero earned, as the server said, and which one is the player's.</param>
+    public FightSummary(Fight fight, int playerTeam, FightResult? result, Texts texts, bool offline = false, (IReadOnlyList<SharedFightResult> Results, int Me)? party = null)
     {
         ArgumentNullException.ThrowIfNull(fight);
         ArgumentNullException.ThrowIfNull(texts);
@@ -36,6 +37,10 @@ public sealed class FightSummary
         }
         SummaryRow Row(Fighter f)
         {
+            // With the party, every hero has its line of rewards, the player's one marked.
+            int ally = fight.HeroFighters.ToList().IndexOf(f);
+            if (party is ({ } results, int me) && ally >= 0 && ally < results.Count)
+                return new SummaryRow(f.Id, texts.Name(f), results[ally].Level, ally == me, results[ally].Xp, results[ally].Shards, results[ally].Items);
             if (f != hero)
                 return new SummaryRow(f.Id, texts.Name(f), f.Spec.Level, false);
             if (result is null)

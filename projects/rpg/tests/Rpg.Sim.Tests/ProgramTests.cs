@@ -133,4 +133,44 @@ public class ProgramTests
         }
         Assert.Equal(2, Run("--simulate", "5", "--kit", "heavy").Code);
     }
+
+    [Fact]
+    public void AParty_FightsBesideTheHero_AndItsRecordKeepsIt()
+    {
+        // Sprint 121 (D74): up to three allies, played by the AI, at the hero's level with its kit.
+        string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
+        try
+        {
+            (int code, _, _) = Run("--record", file, "--scenario", "training", "--class", "guard", "--party", "mage,sentinel");
+            Assert.Equal(0, code);
+            string json = File.ReadAllText(file);
+            Assert.Contains("\"version\":2", json, StringComparison.Ordinal);
+            Assert.Contains("\"allies\":[{\"name\":\"Brume\"", json, StringComparison.Ordinal);
+            Assert.Equal(0, Run("--replay", file).Code);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+        Assert.Equal(2, Run("--simulate", "3", "--party", "mage").Code);
+        Assert.Equal(2, Run("--simulate", "3", "--class", "guard", "--party", "mage,mage,mage,mage").Code);
+        Assert.Equal(2, Run("--simulate", "3", "--class", "guard", "--party", "dragon").Code);
+    }
+
+    [Fact]
+    public void ADungeonsLastRoom_IsWonByThreeOrFour_AtTheZonesLevel()
+    {
+        // The balance with the party (D74, §6.4): a dungeon's third room won by three heroes at least 70 % of the time,
+        // by four at least 90 %; mixed classes, the zone's kit, the zone's level.
+        Rpg.Core.GameData data = Rpg.Core.GameData.Embedded;
+        Rpg.Core.Dungeon wallow = data.Dungeons["boar-wallow"];
+        string level = data.Towns.Values.Where(t => t.Zone == data.Families[wallow.Family].Zone).Min(t => t.Level).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        foreach ((string party, int least) in new[] { ("mage,sentinel", 7), ("mage,sentinel,guard", 9) })
+        {
+            (int code, string output, _) = Run("--simulate", "10", "--scenario", wallow.Scenario(3), "--class", "guard", "--party", party, "--level", level, "--kit", "zone");
+            Assert.Equal(0, code);
+            int won = int.Parse(System.Text.RegularExpressions.Regex.Match(output, @"team A (\d+)").Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            Assert.True(won >= least, $"{party}: {output}");
+        }
+    }
 }

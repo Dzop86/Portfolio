@@ -34,6 +34,9 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
 
     private readonly ConcurrentDictionary<Guid, Battle> _battles = new();
 
+    /// <summary>The scenario of a fight not over, if any.</summary>
+    public string? ScenarioOf(Guid fight) => _battles.TryGetValue(fight, out Battle? b) ? b.Scenario : null;
+
     /// <summary>The fight a character opened or joined and that is not over, if any.</summary>
     public Guid? Of(Guid character) => _battles.Values.FirstOrDefault(b => b.Players.Contains(character))?.Id;
 
@@ -240,8 +243,18 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
                 items.AddRange(quest.Items ?? []);
             }
             string? scenarioWon = won ? b.Scenario : null;
-            if (defeated.Count > 0 || scenarioWon is not null)
-                c.QuestLog = Rpg.Core.Quests.Write(c.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, null, scenarioWon)));
+            // A dungeon's room (sprint 121), as for a fight alone: won, the next room, or out with the last one's experience twice; lost, out.
+            (string, int)? roomWon = null;
+            if (Dungeons.Parse(b.Scenario) is (string dungeon, int room) && c.Run?.IsAt(dungeon, room) == true)
+            {
+                bool done = won && room == Dungeons.RoomCount;
+                if (done)
+                    xp += Progression.FightXp(f, hero);
+                roomWon = won ? (dungeon, room) : null;
+                (c.Dungeon, c.DungeonRoom) = won && !done ? (dungeon, room + 1) : ((string?)null, 0);
+            }
+            if (defeated.Count > 0 || roomWon is not null || scenarioWon is not null)
+                c.QuestLog = Rpg.Core.Quests.Write(c.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
             c.Receive(items);
             c.Xp += xp;
             c.Shards += shards;

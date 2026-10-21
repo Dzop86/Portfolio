@@ -20,12 +20,20 @@ public sealed record Preview(
 /// <summary>
 /// The player's side of a fight, without any engine: choosing a spell, hovering and clicking cells,
 /// ending the turn, letting the AI play the other team. The Godot client only draws what this says,
-/// so that everything a click can do is tested here.
+/// so that everything a click can do is tested here. Since sprint 121 (D74), a fight with the party: the player plays
+/// its own hero only, and the server plays the monsters (<see cref="SharedFightSync"/>).
 /// </summary>
-public sealed class FightController(Fight fight, int playerTeam = 0)
+public sealed class FightController(Fight fight, int playerTeam = 0, SharedFightSync? shared = null)
 {
+    public FightController(SharedFightSync shared) : this((shared ?? throw new ArgumentNullException(nameof(shared))).Fight, 0, shared)
+    {
+    }
+
     public Fight Fight { get; } = fight ?? throw new ArgumentNullException(nameof(fight));
     public int PlayerTeam { get; } = playerTeam;
+
+    /// <summary>The fight with the party this is, if it is one: the server plays everything but the player's hero.</summary>
+    public SharedFightSync? Shared { get; } = shared;
 
     /// <summary>The spell chosen for the next click, or null to walk.</summary>
     public Spell? SelectedSpell { get; private set; }
@@ -33,8 +41,8 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
     /// <summary>Why the last click or spell choice did nothing, for the message line; null when it worked.</summary>
     public ActionError? LastError { get; private set; }
 
-    /// <summary>The player plays their team's fighters; summons are left to the AI.</summary>
-    public bool IsPlayerTurn => !Fight.IsOver && Fight.Current.Team == PlayerTeam && !Fight.Current.IsSummon;
+    /// <summary>The player plays their team's fighters, summons left to the AI; with the party, their own hero only.</summary>
+    public bool IsPlayerTurn => Shared?.MyTurn ?? (!Fight.IsOver && Fight.Current.Team == PlayerTeam && !Fight.Current.IsSummon);
 
     /// <summary>Whether the current fighter could cast the spell somewhere this turn (enough AP, casts left).</summary>
     public bool CanUse(Spell spell)
@@ -149,10 +157,10 @@ public sealed class FightController(Fight fight, int playerTeam = 0)
         return action;
     }
 
-    /// <summary>One action of the AI, when it is not the player's turn; null otherwise.</summary>
+    /// <summary>One action of the AI, when it is not the player's turn; null otherwise, and always with the party (the server plays).</summary>
     public FightAction? PlayAiStep()
     {
-        if (Fight.IsOver || IsPlayerTurn)
+        if (Fight.IsOver || IsPlayerTurn || Shared is not null)
             return null;
         FightAction action = Ai.Decide(Fight);
         ActionError error = Fight.Apply(action);

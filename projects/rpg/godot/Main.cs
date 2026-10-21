@@ -110,6 +110,12 @@ public partial class Main : Node3D
         _inventoryPanel = null;
         _menuPanel = null;
         _bar = null;
+        _chatBox = null;
+        _partyBanner = null;
+        _askPanel = null;
+        _tradePanel = null;
+        _journalPanel = null;
+        _itemSheet = null;
         // A new screen opens with no window and no menu.
         _windows = new WindowState();
         AddEnvironment();
@@ -181,6 +187,16 @@ public partial class Main : Node3D
             PointTrail();
             FollowMiniMap();
             GrowBack();
+            return;
+        }
+        // A fight with the party (sprint 121): the server plays everything but the player's hero; its actions, as told, are shown in turn.
+        if (_controller?.Shared is SharedFightSync shared && _lobbyView is null)
+        {
+            DrainChat();
+            if (shared.OutOfStep && !_resyncing)
+                _ = Resync();
+            else if (!_busy && _seen < _controller.Fight.Events.Count)
+                _ = Play(instant: false);
             return;
         }
         if (_lobbyView is not null || _controller is null || _busy || _options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null)
@@ -370,6 +386,9 @@ public partial class Main : Node3D
             view.Setup(f, f.Team == _controller.PlayerTeam);
             if (fight.Hero is Hero hero && f.Name.Fr == hero.Name)
                 view.Paint(hero);
+            // The party's heroes in their own outfits (sprint 121).
+            else if (fight.Allies.FirstOrDefault(a => f.Team == 0 && f.Name.Fr == a.Name) is Hero ally)
+                view.Paint(ally);
             _views[f.Id] = view;
         }
         _hud = new Hud();
@@ -387,6 +406,7 @@ public partial class Main : Node3D
         {
             _screen = Screen.Town;
             _nextSeed = null;
+            (_sharedSync, _sharedOver) = (null, null);
             GetTree().ReloadCurrentScene();
         };
         _seen = fight.Events.Count;
@@ -419,7 +439,7 @@ public partial class Main : Node3D
     /// character's experience, level, Éclats and items, <see cref="_lastResult"/>). Once per fight.
     /// Returns what went wrong, if anything; null when it is kept, or offline.
     /// </summary>
-    private Task<string?> ReportFight() => _report ??= ReportFightAsync();
+    private Task<string?> ReportFight() => _report ??= _controller.Shared is not null ? Task.FromResult<string?>(null) : ReportFightAsync();
 
     /// <summary>No server keeps this fight: offline, or no ticket drawn.</summary>
     private bool Offline => _ticket is null || _lobby?.SignedIn != true || _character is null;
@@ -478,6 +498,9 @@ public partial class Main : Node3D
             ShowPreview();
             return;
         }
+        // With the party, the server is told; it checks it by the same rules (sprint 121).
+        if (_controller.Shared is not null && _sharedFight is Guid battle)
+            _ = Social(s => s.Act(_character!.Id, battle, action));
         _busy = true;
         _ = Play(instant: false);
     }
@@ -538,6 +561,26 @@ public partial class Main : Node3D
     {
         Fight fight = _controller.Fight;
         int team = _controller.PlayerTeam;
+        // With the party (sprint 121): each hero's line, as the server says once it has rewarded them.
+        if (_controller.Shared is SharedFightSync shared)
+        {
+            _hud.ShowSummary(t => new FightSummary(fight, team, null, t));
+            for (int i = 0; i < 100 && _sharedOver is null; i++)
+            {
+                await ToSignal(GetTree().CreateTimer(0.1), SceneTreeTimer.SignalName.Timeout);
+                DrainChat();
+            }
+            if (_sharedOver?.Results is IReadOnlyList<SharedFightResult> results)
+            {
+                _hud.ShowSummary(t => new FightSummary(fight, team, null, t, party: (results, shared.Me)));
+                await Social(async s =>
+                {
+                    if ((await s.Characters()).FirstOrDefault(c => c.Id == _character!.Id) is CharacterSummary now)
+                        (_character, _hero) = (now, now.Hero);
+                });
+            }
+            return;
+        }
         bool offline = Offline;
         _hud.ShowSummary(t => new FightSummary(fight, team, null, t, offline));
         string? problem = await ReportFight();

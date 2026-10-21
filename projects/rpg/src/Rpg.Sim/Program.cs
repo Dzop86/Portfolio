@@ -12,12 +12,16 @@ namespace Rpg.Sim;
 /// Options: --data (a data folder; by default the data built into Rpg.Core), --lang fr|en (default en),
 /// --class ID (the hero of team A plays that class of data/classes.json), --rival ID (team B's first
 /// fighter too, for class duels), --level N (both heroes' level, 1 by default, their points spent
-/// the simplest way: Progression.Built).
+/// the simplest way: Progression.Built), --party ID,ID... (since sprint 121, up to three allies of these classes beside the
+/// hero, at the same level with the same kit, all played by the AI).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
 {
     public static int Main(string[] args) => Run(args, Console.Out, Console.Error);
+
+    // The allies' names (--party), a name being letters only.
+    private static readonly string[] AllyNames = ["Brume", "Cendre", "Dune"];
 
     internal static int Run(string[] args, TextWriter output, TextWriter error)
     {
@@ -49,6 +53,7 @@ public static class Program
                 return 2;
             }
             Hero? hero = null, rival = null;
+            var allies = new List<Hero>();
             foreach ((string? id, bool isRival) in new[] { (options.Class, false), (options.Rival, true) })
             {
                 if (id is null)
@@ -67,15 +72,25 @@ public static class Program
                 else
                     hero = h;
             }
+            foreach (string id in options.Party)
+            {
+                if (data.Class(id) is not HeroClass c || hero is null)
+                {
+                    error.WriteLine(hero is null ? "--party needs --class." : $"Unknown class '{id}'.");
+                    return 2;
+                }
+                IReadOnlyDictionary<Slot, string>? worn = ZoneOf(data, options.Scenario) is string zone ? Progression.Kit(options.Kit, zone, options.Level, data) : null;
+                allies.Add(Progression.Built(new Hero(AllyNames[allies.Count], "female-c", c.Id, Level: options.Level), data, worn));
+            }
             if (options.Record is string recordPath)
             {
-                var fight = new Fight(data, options.Scenario, options.Seed, hero, rival);
+                var fight = new Fight(data, options.Scenario, options.Seed, hero, rival, null, allies);
                 Ai.PlayOut(fight);
                 File.WriteAllText(recordPath, FightRecord.Of(fight).ToJson());
                 output.WriteLine(text.Summary(fight));
                 return 0;
             }
-            Simulate(data, options, hero, rival, text, output);
+            Simulate(data, options, hero, rival, allies, text, output);
             return 0;
         }
         catch (InvalidFightRecordException e)
@@ -85,14 +100,14 @@ public static class Program
         }
     }
 
-    private static void Simulate(GameData data, Options options, Hero? hero, Hero? rival, Texts text, TextWriter output)
+    private static void Simulate(GameData data, Options options, Hero? hero, Hero? rival, IReadOnlyList<Hero> allies, Texts text, TextWriter output)
     {
         int[] wins = new int[2];
         int draws = 0;
         long rounds = 0, actions = 0;
         for (int i = 0; i < options.Simulate; i++)
         {
-            var fight = new Fight(data, options.Scenario, options.Seed + (ulong)i, hero, rival);
+            var fight = new Fight(data, options.Scenario, options.Seed + (ulong)i, hero, rival, null, allies);
             actions += Ai.PlayOut(fight);
             rounds += fight.Round;
             if (fight.WinningTeam is int team)
@@ -130,8 +145,10 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none")
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null)
     {
+        public IReadOnlyList<string> Party => Allies ?? [];
+
         public static Options Parse(string[] args)
         {
             var o = new Options(null, "en", "training", 1, 0, null, null, false);
@@ -150,6 +167,7 @@ public static class Program
                     "--show" => o with { Show = true },
                     "--class" => o with { Class = Value() },
                     "--rival" => o with { Rival = Value() },
+                    "--party" => o with { Allies = Value().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) is { Length: >= 1 and <= 3 } ids ? ids : throw new ArgumentException("--party is one to three classes, with commas.") },
                     "--kit" => o with { Kit = Progression.Kits.Contains(Value()) ? args[i] : throw new ArgumentException($"--kit is one of: {string.Join(", ", Progression.Kits)}.") },
                     "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100.") },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),

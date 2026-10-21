@@ -623,6 +623,12 @@ public partial class Main
                 OnTrade(trade);
                 continue;
             }
+            // The fights with the party (sprint 121).
+            if (e.Shared is SharedFightNews shared)
+            {
+                OnShared(shared);
+                continue;
+            }
             // The map's news (sprint 118): who is here and where, the groups away, the spots taken.
             if (e.News is MapNews n)
             {
@@ -1319,6 +1325,95 @@ public partial class Main
         _tradePanel = null;
     }
 
+    // The fight with the party under way (sprint 121): which one, the game's copy of it, the results once over.
+    private static Guid? _sharedFight;
+    private static SharedFightSync? _sharedSync;
+    private static SharedFightNews? _sharedOver;
+    private bool _resyncing;
+
+    /// <summary>Opens a fight with the party; false when the server refuses (the fight goes on alone, as before).</summary>
+    private async Task<bool> OpenPartyFight(string scenario)
+    {
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            SharedFightNews opened = await _lobby!.Server.OpenBattle(_character!.Id, scenario);
+            _sharedFight = opened.Fight;
+            _askPanel?.Ask(texts["battle.waiting"], texts["battle.go"], texts["battle.wait"], () => _ = Social(s => s.GoBattle(_character.Id, opened.Fight)));
+            return true;
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>What the server says of a fight with the party: one opened to join, started, an action, over.</summary>
+    private void OnShared(SharedFightNews news)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        switch (news.Shared)
+        {
+            case SharedFightKind.Opened when news.Name is string name:
+                string what = news.Scenario is string sc && GameData.Embedded.Groups.Values.FirstOrDefault(g => g.Scenario == sc) is MonsterGroup g
+                    ? texts.GroupLabel(g, GameData.Embedded) : news.Scenario ?? "";
+                _askPanel?.Ask(texts["battle.opened", name, what], texts["battle.join"], texts["party.decline"], () => _ = Social(async s =>
+                {
+                    await s.JoinBattle(_character!.Id, news.Fight);
+                    _sharedFight = news.Fight;
+                }));
+                break;
+            case SharedFightKind.Started when news.Start is SharedFightStart start && _character is not null && _sharedSync?.Start.Fight != news.Fight:
+                _askPanel?.Hide();
+                StartSharedFight(new SharedFightSync(start, _character.Id, GameData.Embedded, news.Actions), news.Fight);
+                break;
+            case SharedFightKind.Acted when news is { Number: int n, Action: FightAction action } && _sharedSync?.Start.Fight == news.Fight:
+                _sharedSync.Receive(n, action);
+                break;
+            case SharedFightKind.Over when _sharedSync?.Start.Fight == news.Fight || _sharedFight == news.Fight:
+                _sharedOver = news;
+                break;
+        }
+    }
+
+    /// <summary>The fight with the party on screen, from what the server said (the actions so far played at once).</summary>
+    private void StartSharedFight(SharedFightSync sync, Guid fight)
+    {
+        if (InTown)
+            _place = _town!.Position;
+        (_sharedSync, _sharedFight, _sharedOver) = (sync, fight, null);
+        _screen = Screen.Fight;
+        _scenario = sync.Start.Scenario;
+        _ticket = null;
+        _report = null;
+        ClearScene();
+        _controller = new FightController(sync);
+        BuildWorld();
+        _busy = false;
+    }
+
+    /// <summary>Out of step with the server: the fight built again from its start and every action it played.</summary>
+    private async Task Resync()
+    {
+        if (_sharedFight is not Guid fight || _character is null || _lobby?.SignedIn != true)
+            return;
+        _resyncing = true;
+        try
+        {
+            SharedFightNews now = await _lobby.Server.Battle(_character.Id, fight);
+            if (now.Start is SharedFightStart start)
+                StartSharedFight(new SharedFightSync(start, _character.Id, GameData.Embedded, now.Actions), fight);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            // Over meanwhile: the results will say.
+        }
+        finally
+        {
+            _resyncing = false;
+        }
+    }
+
     private static async Task TellWalk(ChatClient chat, Cell to)
     {
         try
@@ -1864,6 +1959,9 @@ public partial class Main
     /// <summary>Signed in, the server draws the fight's seed first: only that fight earns experience.</summary>
     private async Task EnterFightAsync(string scenario)
     {
+        // In a party (sprint 121): a fight with it, which the members on the map may join for 15 seconds.
+        if (_party?.Members is { Count: > 1 } && _lobby?.SignedIn == true && _character is not null && await OpenPartyFight(scenario))
+            return;
         _place = _town!.Position;
         _scenario = scenario;
         _screen = Screen.Fight;
@@ -2094,7 +2192,13 @@ public partial class Main
         if (sent?.Items is not [{ Item: "bread", Count: 1 }] || trade.Theirs?.Shards != 5 || trade.Status != texts["trade.they-ready", "Plop"])
             problems.Add($"the trade's window: offer {string.Join(", ", sent?.Items ?? [])}, status '{trade.Status}'");
         trade.QueueFree();
-        return " Together: party banner, invitation and trade window checked.";
+        // An ally attacks a group (sprint 121): asked to join, the group named.
+        MonsterGroup group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null);
+        OnShared(new SharedFightNews(SharedFightKind.Opened, Guid.NewGuid(), "Plop", group.Scenario));
+        if (_askPanel?.Question != texts["battle.opened", "Plop", texts.GroupLabel(group, GameData.Embedded)])
+            problems.Add($"an ally's fight asks '{_askPanel?.Question}'");
+        _askPanel?.Hide();
+        return " Together: party banner, invitation, trade window and an ally's fight checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)
