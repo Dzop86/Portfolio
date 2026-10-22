@@ -87,7 +87,9 @@ public class PartyTurnTests
             int seconds = (int)Math.Round((turn.TurnEnds!.Value - turn.ServerNow!.Value).TotalSeconds);
             if (turn.Fighter == aubeHero)
                 lengths.Add(seconds);
-            api.Clock.Advance(TimeSpan.FromSeconds(seconds));
+            // Aube's third turn is left running: it plays in it below.
+            if (lengths.Count < 3)
+                api.Clock.Advance(TimeSpan.FromSeconds(seconds));
         }
         Assert.Equal([30, 30, 10], lengths);
         Assert.Contains(aubeHero, turn!.Absent!);

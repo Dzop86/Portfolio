@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Rpg.Api.Data;
 using Rpg.Core;
@@ -13,7 +14,9 @@ namespace Rpg.Api;
 /// on its own: experience, Éclats, loot drawn for it, quests, the life it ends with. Kept in memory, in one server
 /// process; a player who comes back gets the start and every action so far. Since sprint 124, each hero's turn is told
 /// as it begins, with its end by the server's clock; a hero whose turns passed twice in a row by the clock is absent,
-/// its turns ten seconds long until it acts (<see cref="SharedRules.TurnFor"/>).
+/// its turns ten seconds long until it acts (<see cref="SharedRules.TurnFor"/>). Since sprint 125, each fight is
+/// written in the database as it goes (its start, then each action) and rebuilt by replaying them when the server
+/// starts again (<see cref="Restore"/>); one played by another build of the rules is stopped, nobody losing anything.
 /// </summary>
 public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunts, TimeProvider clock)
 {
@@ -40,6 +43,84 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
     }
 
     private readonly ConcurrentDictionary<Guid, Battle> _battles = new();
+
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    /// <summary>The build of the rules this server plays with (sprint 125): a fight written by another one is not replayed.</summary>
+    public static string Engine { get; } = typeof(Fight).Assembly.ManifestModule.ModuleVersionId.ToString("N");
+
+    /// <summary>
+    /// A fight rebuilt from its start and its actions, in order (sprint 125): the same as the one played, the rules being
+    /// deterministic; null when an action does not apply.
+    /// </summary>
+    public static Fight? Rebuild(SharedFightStart start, IEnumerable<FightAction> actions, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(actions);
+        Fight fight = start.Build(data);
+        foreach (FightAction action in actions)
+        {
+            if (fight.Apply(action) != ActionError.None)
+                return null;
+        }
+        return fight;
+    }
+
+    /// <summary>
+    /// When the server starts (sprint 125): each fight written and not over is rebuilt and goes on, the hero whose turn
+    /// it is given its whole time again; one written by another build of the rules, or that does not replay, is
+    /// stopped: its heroes leave it with the life they had at its start, and nobody is rewarded.
+    /// </summary>
+    public async Task Restore(CancellationToken cancel)
+    {
+        List<BattleRecord> records;
+        using (IServiceScope scope = scopes.CreateScope())
+            records = await scope.ServiceProvider.GetRequiredService<GameDb>().BattleRecords.AsNoTracking().Include(r => r.Actions).ToListAsync(cancel);
+        foreach (BattleRecord r in records)
+        {
+            SharedFightStart? start = JsonSerializer.Deserialize<SharedFightStart>(r.Start, Json);
+            Fight? fight = start is not null && r.Engine == Engine
+                ? Rebuild(start, r.Actions.OrderBy(a => a.Number).Select(a => JsonSerializer.Deserialize<FightAction>(a.Action, Json)!), GameData.Embedded)
+                : null;
+            if (fight is null || fight.IsOver)
+            {
+                await Stop(r.Id, start?.Players ?? [], cancel);
+                continue;
+            }
+            MonsterGroup? group = Hunts.GroupOf(r.Scenario);
+            var b = new Battle(r.Id, r.Scenario, start!.Seed, r.Starter, r.Map, group, r.StartedAt) { Start = start, Fight = fight };
+            b.Players.Clear();
+            b.Players.AddRange(start.Players);
+            _battles[b.Id] = b;
+            if (group is not null)
+                hunts.Start(group.Id, r.Starter);
+            await b.Lock.WaitAsync(cancel);
+            try
+            {
+                await Monsters(b, cancel);
+            }
+            finally
+            {
+                b.Lock.Release();
+            }
+        }
+    }
+
+    // A fight that cannot go on: out of it with the life each had at its start, its record gone.
+    private async Task Stop(Guid id, IReadOnlyList<Guid> players, CancellationToken cancel)
+    {
+        using IServiceScope scope = scopes.CreateScope();
+        GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
+        DateTimeOffset now = clock.GetUtcNow();
+        foreach (Character c in await db.Characters.Where(c => players.Contains(c.Id) && c.InFight).ToListAsync(cancel))
+        {
+            int life = c.LifeNow(now);
+            c.InFight = false;
+            c.SetLife(life, now);
+        }
+        await db.BattleRecords.Where(b => b.Id == id).ExecuteDeleteAsync(cancel);
+        await db.SaveChangesAsync(cancel);
+    }
 
     /// <summary>The scenario of a fight not over, if any.</summary>
     public string? ScenarioOf(Guid fight) => _battles.TryGetValue(fight, out Battle? b) ? b.Scenario : null;
@@ -194,6 +275,18 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             [.. heroes.Skip(1).Select(h => h.Hero)], [.. heroes.Skip(1).Select(h => (int?)h.Hp)], [.. b.Players]);
         b.Fight = b.Start.Build(GameData.Embedded);
         b.TurnEnds = now + SharedRules.Turn;
+        // Written before anything is played, so that a restart finds it (sprint 125).
+        db.BattleRecords.Add(new BattleRecord
+        {
+            Id = b.Id,
+            Scenario = b.Scenario,
+            Map = b.Map,
+            Starter = b.Starter,
+            Start = JsonSerializer.Serialize(b.Start, Json),
+            Engine = Engine,
+            StartedAt = now,
+        });
+        await db.SaveChangesAsync(cancel);
         await Tell(b, new SharedFightNews(SharedFightKind.Started, b.Id, Start: b.Start, Actions: [], TurnEnds: b.TurnEnds, ServerNow: now), cancel);
         await Monsters(b, cancel);
     }
@@ -222,8 +315,18 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
         await Tell(b, new SharedFightNews(SharedFightKind.Turn, b.Id, TurnEnds: b.TurnEnds, Fighter: f.Current.Id, Absent: b.Absent, ServerNow: now), cancel);
     }
 
-    private Task Played(Battle b, FightAction action, CancellationToken cancel) =>
-        Tell(b, new SharedFightNews(SharedFightKind.Acted, b.Id, Number: b.Fight!.History.Count - 1, Action: action, TurnEnds: b.TurnEnds), cancel);
+    // An action applied: written (sprint 125), then told.
+    private async Task Played(Battle b, FightAction action, CancellationToken cancel)
+    {
+        int number = b.Fight!.History.Count - 1;
+        using (IServiceScope scope = scopes.CreateScope())
+        {
+            GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
+            db.BattleActions.Add(new BattleActionRecord { BattleId = b.Id, Number = number, Action = JsonSerializer.Serialize(action, Json) });
+            await db.SaveChangesAsync(cancel);
+        }
+        await Tell(b, new SharedFightNews(SharedFightKind.Acted, b.Id, Number: number, Action: action, TurnEnds: b.TurnEnds), cancel);
+    }
 
     private async Task Tell(Battle b, SharedFightNews news, CancellationToken cancel)
     {
@@ -280,6 +383,8 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             c.InFight = false;
             results.Add(new SharedFightResult(c.Id, c.Name, xp, shards, items, c.Level, quest?.Id));
         }
+        // Over: its record goes with the rewards, in the same save (sprint 125).
+        db.BattleRecords.RemoveRange(db.BattleRecords.Where(r => r.Id == b.Id));
         await db.SaveChangesAsync(cancel);
         if (b.Group is MonsterGroup group)
         {
@@ -299,6 +404,15 @@ public sealed partial class BattleClock(Battles battles, Parties parties, ChatHu
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // The fights the server was leading when it stopped go on (sprint 125).
+        try
+        {
+            await battles.Restore(stoppingToken);
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            Failed(log, e);
+        }
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
         for (int tick = 0; await timer.WaitForNextTickAsync(stoppingToken); tick++)
         {

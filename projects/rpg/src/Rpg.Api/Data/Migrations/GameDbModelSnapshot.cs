@@ -53,6 +53,59 @@ namespace Rpg.Api.Data.Migrations
                     b.ToTable("accounts", (string)null);
                 });
 
+            modelBuilder.Entity("Rpg.Api.Data.BattleActionRecord", b =>
+                {
+                    b.Property<Guid>("BattleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("BattleId", "Number");
+
+                    b.ToTable("battle_actions", (string)null);
+                });
+
+            modelBuilder.Entity("Rpg.Api.Data.BattleRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Engine")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Map")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Scenario")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Start")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("Starter")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("battles", (string)null);
+                });
+
             modelBuilder.Entity("Rpg.Api.Data.Character", b =>
                 {
                     b.Property<Guid>("Id")
@@ -244,6 +297,15 @@ namespace Rpg.Api.Data.Migrations
                     b.ToTable("pending_fights", (string)null);
                 });
 
+            modelBuilder.Entity("Rpg.Api.Data.BattleActionRecord", b =>
+                {
+                    b.HasOne("Rpg.Api.Data.BattleRecord", null)
+                        .WithMany("Actions")
+                        .HasForeignKey("BattleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Rpg.Api.Data.Character", b =>
                 {
                     b.HasOne("Rpg.Api.Data.Account", "Account")
@@ -269,6 +331,11 @@ namespace Rpg.Api.Data.Migrations
             modelBuilder.Entity("Rpg.Api.Data.Account", b =>
                 {
                     b.Navigation("Characters");
+                });
+
+            modelBuilder.Entity("Rpg.Api.Data.BattleRecord", b =>
+                {
+                    b.Navigation("Actions");
                 });
 #pragma warning restore 612, 618
         }

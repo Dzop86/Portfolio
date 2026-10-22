@@ -10,6 +10,10 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
 
     public DbSet<PendingFight> PendingFights => Set<PendingFight>();
 
+    public DbSet<BattleRecord> BattleRecords => Set<BattleRecord>();
+
+    public DbSet<BattleActionRecord> BattleActions => Set<BattleActionRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(account =>
@@ -55,6 +59,22 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             fight.ToTable("pending_fights");
             fight.Property(f => f.Scenario).HasMaxLength(40);
             fight.HasOne(f => f.Character).WithMany().HasForeignKey(f => f.CharacterId).OnDelete(DeleteBehavior.Cascade);
+        });
+        // The fights with the party under way (sprint 125): their start, their actions added one by one.
+        modelBuilder.Entity<BattleRecord>(battle =>
+        {
+            battle.ToTable("battles");
+            battle.Property(b => b.Id).ValueGeneratedNever();
+            battle.Property(b => b.Scenario).HasMaxLength(60);
+            battle.Property(b => b.Map).HasMaxLength(40);
+            battle.Property(b => b.Engine).HasMaxLength(40);
+            battle.HasMany(b => b.Actions).WithOne().HasForeignKey(a => a.BattleId).OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<BattleActionRecord>(action =>
+        {
+            action.ToTable("battle_actions");
+            action.HasKey(a => new { a.BattleId, a.Number });
+            action.Property(a => a.Action).HasMaxLength(2000);
         });
     }
 }

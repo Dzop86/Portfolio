@@ -177,3 +177,28 @@ public sealed class PendingFight
     public long Seed { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
+
+/// <summary>
+/// A fight with the party under way (sprint 125, D79), written as it goes so that a restart of the server loses no
+/// fight: its start as each game got it (<see cref="Start"/>, JSON), the build of the rules that played it
+/// (<see cref="Engine"/>), and its actions, numbered, added one by one. Gone once the fight is over.
+/// </summary>
+public sealed class BattleRecord
+{
+    public Guid Id { get; set; }
+    public required string Scenario { get; set; }
+    public required string Map { get; set; }
+    public Guid Starter { get; set; }
+    public required string Start { get; set; }
+    public required string Engine { get; set; }
+    public DateTimeOffset StartedAt { get; set; }
+    public List<BattleActionRecord> Actions { get; } = [];
+}
+
+/// <summary>One action of a fight with the party (sprint 125), by its number from 0, as JSON.</summary>
+public sealed class BattleActionRecord
+{
+    public Guid BattleId { get; set; }
+    public int Number { get; set; }
+    public required string Action { get; set; }
+}

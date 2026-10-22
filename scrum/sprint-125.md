@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je garde mon combat à plusieurs quand le serveur redémarre (combats et actions en base, rejoués au démarrage) ; playtest à plusieurs (rpg) ; xUnit, intégration au redémarrage. | 3 | À faire |
+| En tant que joueur, je garde mon combat à plusieurs quand le serveur redémarre (combats et actions en base, rejoués au démarrage) ; playtest à plusieurs (rpg) ; xUnit, intégration au redémarrage. | 3 | Fait (playtest à faire avec Charles : `projects/rpg/docs/playtest-s125.md`) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

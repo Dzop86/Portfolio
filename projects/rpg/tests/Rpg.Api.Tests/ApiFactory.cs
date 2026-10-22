@@ -13,7 +13,11 @@ namespace Rpg.Api.Tests;
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
-    private readonly string _database = "rpg_test_" + Guid.NewGuid().ToString("N");
+    /// <summary>The database's name: a new one by default; the same one to start a server again on it (sprint 125).</summary>
+    public string Database { get; init; } = "rpg_test_" + Guid.NewGuid().ToString("N");
+
+    /// <summary>Keeps the database once disposed, for the next server to start on it (sprint 125).</summary>
+    public bool KeepDatabase { get; init; }
 
     public FakeClock Clock { get; } = new();
 
@@ -30,7 +34,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseSetting("ConnectionStrings:Game", $"{DatabaseServer};Database={_database}");
+        builder.UseSetting("ConnectionStrings:Game", $"{DatabaseServer};Database={Database}");
         builder.UseSetting("RateLimit:AccountsPerMinute", AccountsPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
         foreach ((string key, string value) in Settings)
             builder.UseSetting(key, value);
@@ -52,8 +56,11 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public override async ValueTask DisposeAsync()
     {
-        using (IServiceScope scope = Services.CreateScope())
+        if (!KeepDatabase)
+        {
+            using IServiceScope scope = Services.CreateScope();
             await scope.ServiceProvider.GetRequiredService<GameDb>().Database.EnsureDeletedAsync();
+        }
         await base.DisposeAsync();
     }
 
@@ -63,6 +70,18 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         var server = new GameServer(CreateClient());
         string name = $"{prefix}{Guid.NewGuid():N}"[..20];
         await server.SignUp(name, "correct horse battery");
+        await server.SignIn(name, "correct horse battery");
+        Accounts.Add(name);
+        return server;
+    }
+
+    /// <summary>The names of the accounts made by <see cref="SignedIn"/>, in order.</summary>
+    public List<string> Accounts { get; } = [];
+
+    /// <summary>The game's own client, signed in to an account that exists already (a server started again, sprint 125).</summary>
+    public async Task<GameServer> SignedInAs(string name)
+    {
+        var server = new GameServer(CreateClient());
         await server.SignIn(name, "correct horse battery");
         return server;
     }
