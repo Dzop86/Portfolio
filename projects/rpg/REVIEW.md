@@ -300,3 +300,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-10-21 | `godot/Main.cs` (`ClearScene`) | (Claude) En passant du village au combat, le bandeau du groupe, la question et la fenêtre d'échange étaient libérés mais leurs champs restaient : une nouvelle du groupe arrivée pendant un combat à plusieurs les aurait touchés une fois détruits | `ClearScene` les remet à null avec les autres panneaux |
 | 2026-10-21 | `src/Rpg.Sim/Program.cs` (`--party`) | (Claude) Mon outil de mesure et `--party` nommaient les alliés « Mage2 » : un nom de héros n'a que des lettres, le combat refusait de se construire | Les alliés s'appellent Brume, Cendre et Dune |
 
+| 2026-10-22 | `docs/chapitre-2-pistes.md` | (Claude) CI rouge sur d4dc177 : le scan de données privées a pris « Né de la colère · 55 » (titre de quête proposé suivi de son niveau) pour une date de naissance | Titre proposé renommé « La colère faite armure » ; le scan n'est pas assoupli |
