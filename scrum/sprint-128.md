@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je progresse après le niveau 30 : initiative des monstres, gabarits, budget des objets, XP, sorts et kits jusqu'au niveau 45 (rpg) ; xUnit, T41 aux niveaux 35 et 45. | 3 | À faire |
+| En tant que joueur, je progresse après le niveau 30 : initiative des monstres, gabarits, budget des objets, XP, sorts et kits jusqu'au niveau 45 (rpg) ; xUnit, T41 aux niveaux 35 et 45. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

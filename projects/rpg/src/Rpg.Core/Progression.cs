@@ -77,8 +77,8 @@ public static class Progression
     /// <summary>
     /// A hero of this class and level with its points spent the simple way, for simulations: half the
     /// characteristic points in Vitality, the rest in the characteristics of its damaging spells'
-    /// elements (in proportion to their number); spell points on the strongest unlocked damaging
-    /// spells, a rank at a time, the cheapest step first; wearing <paramref name="worn"/> if given (sprint 95).
+    /// elements (in proportion to their number); spell points on the strongest damaging spells of its
+    /// deck, a rank at a time, the cheapest step first; wearing <paramref name="worn"/> if given (sprint 95).
     /// </summary>
     public static Hero Built(Hero hero, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
     {
@@ -86,7 +86,8 @@ public static class Progression
         ArgumentNullException.ThrowIfNull(data);
         if (hero.Class is null || data.Class(hero.Class) is not HeroClass c)
             return hero;
-        Spell[] damaging = [.. c.Spells.Select(id => data.Spells[id]).Where(s => s.Level <= hero.Level && s.DamageMax > 0)];
+        // The spells of its deck only (sprint 128): from level 40 a class has more spells than a deck holds.
+        Spell[] damaging = [.. hero.DeckOf(data).Select(id => data.Spells[id]).Where(s => s.DamageMax > 0)];
         int points = CharacteristicPoints(hero.Level);
         int vitality = points / 2;
         Element[] elements = [.. damaging.Select(s => s.Element == Element.Neutral ? Element.Earth : s.Element)];

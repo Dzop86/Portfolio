@@ -30,7 +30,7 @@ public class ItemBudgetTests
     /// <summary>The levels of the pieces made in each of the four zones, from the woods to the fields.</summary>
     private static readonly int[][] Zones = [[3, 6], [10, 14], [18, 22], [26, 30]];
 
-    private static int Budget(Item i) => (int)Math.Ceiling((8 + i.Level) / 2.0) * (i.Slot == ItemSlot.TwoHanded ? 2 : 1);
+    private static int Budget(Item i) => Templates.Budget(i.Level, i.Slot!.Value);
 
     private static int Sum(Characteristics? c) => c is null ? 0 : c.Vitality + c.Earth + c.Fire + c.Water + c.Air;
 
@@ -41,7 +41,27 @@ public class ItemBudgetTests
     {
         // The pet and the mount stay out of the rule.
         foreach (Item i in Real.Items.Values.Where(i => i.Kind == ItemKind.Equipment && i.Slot is not (ItemSlot.Pet or ItemSlot.Mount)))
-            Assert.True(Sum(i.Stats) + 0.6 * i.Initiative / 2 <= Budget(i) + 1, $"{i.Id}: {Sum(i.Stats)} points and {i.Initiative} initiative at level {i.Level}");
+            Assert.True(Templates.WithinBudget(i), $"{i.Id}: {Sum(i.Stats)} points and {i.Initiative} initiative at level {i.Level}");
+    }
+
+    [Theory]
+    [InlineData(31, 20)]
+    [InlineData(35, 22)]
+    [InlineData(40, 24)]
+    [InlineData(45, 27)]
+    public void AfterThirty_ThePiecesBudget_GoesOnTheSame_AndTheLoadingRefusesAPieceOverIt(int level, int budget)
+    {
+        // Sprint 128 (D79): the second chapter's pieces, up to 45, keep to the same rule; the loading checks it.
+        Assert.Equal(budget, Templates.Budget(level, ItemSlot.Hat));
+        Assert.Equal(2 * budget, Templates.Budget(level, ItemSlot.TwoHanded));
+        var hat = new Item("deep-hat", Text, ItemKind.Equipment, ItemSlot.Hat, level, new Characteristics(budget / 2, budget - budget / 2, 0, 0, 0));
+        var boots = new Item("deep-boots", Text, ItemKind.Equipment, ItemSlot.Boots, level, new Characteristics(0, budget - 8, 0, 0, 0), Initiative: 25);
+        Assert.True(Templates.WithinBudget(hat) && Templates.WithinBudget(boots));
+        Assert.False(Templates.WithinBudget(boots with { Initiative = 40 }));
+        GameData Load(params Item[] extra) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, summons: Real.Summons.Values, items: [.. Real.Items.Values, .. extra], sets: Real.Sets.Values, passives: Real.Passives.Values);
+        Assert.Equal(level, Load(hat, boots).Items["deep-hat"].Level);
+        var e = Assert.Throws<InvalidDataException>(() => Load(hat with { Stats = new Characteristics(budget, 2, 0, 0, 0) }));
+        Assert.Contains("over its budget", e.Message);
     }
 
     [Fact]

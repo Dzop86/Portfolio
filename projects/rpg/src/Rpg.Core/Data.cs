@@ -289,6 +289,9 @@ public sealed class GameData
                 throw new InvalidDataException($"Item '{i.Id}': only a consumable heals.");
             if (i.Initiative < 0 || (i.Initiative > 0 && (i.Slot is not ItemSlot slot || !Item.Quick.Contains(slot))))
                 throw new InvalidDataException($"Item '{i.Id}': initiative on boots, a cape or a ring only.");
+            // The budget (sprint 109, D76), checked on loading since sprint 128: every new piece up to level 45 keeps to it.
+            if (!Templates.WithinBudget(i))
+                throw new InvalidDataException($"Item '{i.Id}': {Templates.Spent(i)} points over its budget of {Templates.Budget(i.Level, i.Slot!.Value)} at level {i.Level}.");
         }
         foreach (ItemSet s in Sets.Values)
         {
@@ -777,10 +780,6 @@ public sealed class GameData
     }
 
     /// <summary>
-    /// A family: one monster of each role (D63), each with known spells and loot, a level and points
-    /// in bounds; a zone of the world, a battle map with room for the largest group, a boss map in the zone.
-    /// </summary>
-    /// <summary>
     /// A dungeon (sprint 80): a known family; its door on a map of the family's zone where one can stand,
     /// away from the ways, exits and arrival; a key among the resources and the operator's keyring among
     /// the items; three rooms on battle maps with room for a hero and the chief's room.
@@ -804,6 +803,11 @@ public sealed class GameData
             throw new InvalidDataException($"{who}: {Core.Dungeons.RoomCount} halls, maps of this dungeon, each with its group on a cell one can stand on.");
     }
 
+    /// <summary>
+    /// A family: one monster of each role (D63), each with known spells and loot, a level and points
+    /// in bounds; a zone of the world, a battle map with room for the largest group, a boss map in the zone;
+    /// above level 30, the initiative of its role and level (sprint 128).
+    /// </summary>
     private void Check(MonsterFamily f)
     {
         string who = $"Family '{f.Id}'";
@@ -815,6 +819,8 @@ public sealed class GameData
             if (m.Level is < 1 or > Hero.MaxLevel || m.Hp < 1 || m.Ap < 1 || m.Mp < 0 || m.Spells.Count == 0 || m.Spells.Any(id => !Spells.ContainsKey(id))
                 || string.IsNullOrWhiteSpace(m.Look) || (m.Loot ?? []).Any(l => !Items.ContainsKey(l.Item) || l.Percent is < 1 or > 100))
                 throw new InvalidDataException($"{who}, '{m.Id}': a level, points, known spells, a look and known loot.");
+            if (!Templates.InitiativeFits(m))
+                throw new InvalidDataException($"{who}, '{m.Id}': initiative {m.Initiative}, not about {Templates.Initiative(m.Role, m.Level)} for a {m.Role} of level {m.Level}.");
             CheckPassives($"{who}, '{m.Id}'", m.Passives);
         }
         Town[] zone = [.. Towns.Values.Where(t => t.Zone == f.Zone)];

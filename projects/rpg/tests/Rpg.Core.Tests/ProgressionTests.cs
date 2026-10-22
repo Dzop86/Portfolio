@@ -105,7 +105,9 @@ public class ProgressionTests
                 Assert.Null(built.Problem(Real));
                 Characteristics st = built.Stats!;
                 Assert.Equal(Progression.CharacteristicPoints(level), st.Vitality + st.Earth + st.Fire + st.Water + st.Air);
-                Assert.True(built.Ranks!.Values.Sum(Progression.RankCost) > Progression.SpellPoints(level) - 5, $"{c.Id} {level}");
+                // Every point but a few, or (since sprint 128, the deck only) every damaging spell of the deck at its highest rank.
+                bool full = built.DeckOf(Real).Select(id => Real.Spells[id]).Where(s => s.DamageMax > 0).All(s => built.Ranks!.GetValueOrDefault(s.Id, 1) == s.MaxRank);
+                Assert.True(full || built.Ranks!.Values.Sum(Progression.RankCost) > Progression.SpellPoints(level) - 5, $"{c.Id} {level}");
             }
         }
     }
