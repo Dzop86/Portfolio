@@ -10,13 +10,42 @@ public static class ChatChannels
 
     /// <summary>The party's members, wherever they are (sprint 119).</summary>
     public const string Party = "party";
+
+    /// <summary>One character, by its name, wherever it is (sprint 126): <c>/w Name text</c>.</summary>
+    public const string Whisper = "whisper";
 }
 
-/// <summary>A line of the chat: the channel, who said it (a character's name), what, when.</summary>
-public sealed record ChatLine(string Channel, string From, string Text, DateTimeOffset At);
+/// <summary>A line of the chat: the channel, who said it (a character's name), what, when; since sprint 126, to whom for a whisper.</summary>
+public sealed record ChatLine(string Channel, string From, string Text, DateTimeOffset At, string? To = null);
 
-/// <summary>What a player says: the text, on a channel (the map's when none); since sprint 118, or the cell it walks to.</summary>
-public sealed record ChatSay(string? Text, string? Channel = null, Cell? To = null);
+/// <summary>
+/// What a player says: the text, on a channel (the map's when none); since sprint 118, or the cell it walks to; since
+/// sprint 126, on the whisper channel, the name of the one it is for.
+/// </summary>
+public sealed record ChatSay(string? Text, string? Channel = null, Cell? To = null, string? Whom = null);
+
+/// <summary>A whisper typed in the chat (sprint 126): <c>/w Name text</c> (or <c>/whisper</c>).</summary>
+public static class Whispers
+{
+    /// <summary>The name and the text of a whisper typed, or null when the line is not one (or has no text).</summary>
+    public static (string Name, string Text)? Parse(string? line)
+    {
+        if (line is null)
+            return null;
+        string trimmed = line.TrimStart();
+        string? rest = trimmed.StartsWith("/w ", StringComparison.OrdinalIgnoreCase) ? trimmed[3..]
+            : trimmed.StartsWith("/whisper ", StringComparison.OrdinalIgnoreCase) ? trimmed[9..]
+            : null;
+        if (rest is null)
+            return null;
+        rest = rest.TrimStart();
+        int space = rest.IndexOf(' ', StringComparison.Ordinal);
+        if (space <= 0)
+            return null;
+        string text = rest[(space + 1)..].Trim();
+        return text.Length == 0 ? null : (rest[..space], text);
+    }
+}
 
 /// <summary>
 /// What the server tells the players of a map besides the chat (sprint 118, D74), on the same socket: someone here

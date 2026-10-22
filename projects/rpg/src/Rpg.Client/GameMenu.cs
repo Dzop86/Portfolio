@@ -57,6 +57,7 @@ public enum GameWindow
     Map,
     Journal,
     Jobs,
+    Contacts,
 }
 
 /// <summary>What the Escape menu offers.</summary>
@@ -84,6 +85,7 @@ public sealed class WindowState
         (GameWindow.Map, 'M'),
         (GameWindow.Journal, 'Q'),
         (GameWindow.Jobs, 'J'),
+        (GameWindow.Contacts, 'F'),
     ];
 
     public GameWindow? Open { get; private set; }

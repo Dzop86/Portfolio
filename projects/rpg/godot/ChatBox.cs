@@ -117,6 +117,14 @@ public partial class ChatBox : CanvasLayer
         _shared.Add(item.Id);
     }
 
+    /// <summary>The field opened on a whisper to someone (sprint 126): <c>/w Name </c>, the rest to type.</summary>
+    public void WhisperTo(string name)
+    {
+        Open();
+        _field.Text = $"/w {name} ";
+        _field.CaretColumn = _field.Text.Length;
+    }
+
     /// <summary>What the field holds (for the self-test).</summary>
     public string FieldText => _field.Text;
 

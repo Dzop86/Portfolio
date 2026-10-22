@@ -4,7 +4,7 @@
 
 Un RPG tactique au tour par tour, dans l'esprit de Dofus et de Wakfu, écrit de zéro : aucun code, aucun nom, aucune image d'Ankama (D54). Six sprints : les règles du combat (sprint 45, ce dossier), le combat isométrique dans Godot 4 (46), le serveur de comptes et de personnages (47), la création de personnage (48), la ville d'accueil et ses PNJ (49), le launcher en Rust et les exécutables (50). Solo d'abord ; le multijoueur viendra plus tard, sur ces mêmes règles.
 
-*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 125: a fight with the party survives the server: written in the database as it goes (its start, then each action), rebuilt by replaying it when the server starts again, its hero given its whole turn; one written by another build of the rules is stopped, nobody losing anything; a guide for the first playtest with the party (docs/playtest-s125.md).*
+*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 126: friends and private messages: an account's contacts kept by the server (friends, with their level and zone when in play, never the map; ignored characters), the Contacts window (F) to add, invite, write to or take out; /w Name to whisper wherever one is; one ignored can neither whisper, nor invite, nor trade; a friend coming into play told in the chat.*
 
 ## Les règles
 - **Le plateau** est une grille de cases dessinées en losanges (vue isométrique). On se déplace vers l'une des quatre cases qui partagent un côté ; toutes les distances se comptent en pas, donc une portée dessine un losange autour du lanceur. Trois terrains : le sol, les obstacles (ni passage ni vue) et les trous (pas de passage, mais les sorts passent au-dessus).
@@ -112,6 +112,8 @@ scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscri
 La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
+Sprint 126 : 6 tests de plus (`Rpg.Core` : `ContactTests`, `/w Nom texte` et ce qui n'en est pas, un contact jamais soi ni deux fois et cent au plus, la zone d'un ami et jamais sa carte ; `Rpg.Api` : `ContactTests`, un ami listé avec sa zone, un message privé d'une carte à l'autre vu des deux côtés, un ami qui entre en jeu signalé ; un ignoré qui ne peut ni écrire, ni inviter, ni échanger, et n'en apprend rien) ; l'auto-test ouvre la fenêtre Contacts (touche F) et vérifie ses lignes.
+
 Sprint 125 : 3 tests de plus (`Rpg.Api` : `BattleRestartTests`, un combat reconstruit depuis son départ et ses actions identique à celui en mémoire, une action fausse refusée ; un second serveur sur la même base reprend le combat où il était, le héros joue ; un combat d'une autre version des règles arrêté, les héros dehors avec leur vie) ; un test instable de S124 corrigé.
 
 Sprint 124 : 7 tests de plus (`Rpg.Client` : `TurnClockTests`, les secondes à l'heure du serveur quelle que soit l'avance du jeu, l'alerte et le son à cinq une fois par tour, un combat à rejoindre gardé 15 s avec son groupe ; `Rpg.Api` : `PartyTurnTests`, les tours d'un joueur muet en 30, 30 puis 10 s et 30 de nouveau dès qu'il joue, le chef qui exclut et personne d'autre, un jeu fermé qui annule son échange et quitte son groupe au bout de 10 minutes, l'équipement vu par la carte) ; l'auto-test du combat affiche la minuterie, celui du village la croix du chef, la ligne pour rejoindre et les épées.

@@ -202,3 +202,14 @@ public sealed class BattleActionRecord
     public int Number { get; set; }
     public required string Action { get; set; }
 }
+
+/// <summary>
+/// One of an account's contacts (sprint 126, D79): a character it follows as a friend, or ignores, whichever of its
+/// own characters it plays.
+/// </summary>
+public sealed class ContactRecord
+{
+    public Guid AccountId { get; set; }
+    public Guid CharacterId { get; set; }
+    public bool Ignore { get; set; }
+}

@@ -145,6 +145,30 @@ public sealed class GameServer(HttpClient http)
     public async Task LeaveParty(Guid id, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/party/leave", UriKind.Relative), null, cancel), cancel), cancel);
 
+    /// <summary>The account's contacts (sprint 126): friends with their zone when in play, then those it ignores.</summary>
+    public async Task<ContactList> Contacts(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/contacts", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContactList>(Json, cancel))!;
+    }
+
+    /// <summary>Adds a character, by its name, as a friend or to ignore (sprint 126); the contacts as they now are.</summary>
+    public async Task<ContactList> AddContact(Guid id, string name, bool ignore = false, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/contacts", UriKind.Relative), new NewContact(name, ignore), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContactList>(Json, cancel))!;
+    }
+
+    /// <summary>Takes a character out of the contacts (sprint 126); the contacts as they now are.</summary>
+    public async Task<ContactList> RemoveContact(Guid id, Guid other, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.DeleteAsync(new Uri($"api/characters/{id}/contacts/{other}", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContactList>(Json, cancel))!;
+    }
+
     /// <summary>The party's leader sends a member out (sprint 124).</summary>
     public async Task KickFromParty(Guid id, Guid member, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/kick", UriKind.Relative), new PartyKick(member), Json, cancel), cancel), cancel);

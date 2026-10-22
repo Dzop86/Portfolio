@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ajoute des amis, j'en ignore d'autres, je vois qui est en ligne et dans quelle zone, et j'écris en privé avec /w (rpg) ; xUnit, intégration à deux clients. | 3 | À faire |
+| En tant que joueur, j'ajoute des amis, j'en ignore d'autres, je vois qui est en ligne et dans quelle zone, et j'écris en privé avec /w (rpg) ; xUnit, intégration à deux clients. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

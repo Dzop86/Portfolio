@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Rpg.Api.Data;
 using Rpg.Core;
 
 namespace Rpg.Api;
@@ -14,9 +16,11 @@ namespace Rpg.Api;
 /// the same socket tells the players of a map who is there and where they walk (<see cref="MapNews"/>), and
 /// the endpoints tell them of the groups of monsters fought or beaten and of the spots gathered. Since sprint 124, a
 /// game that closes its connection calls its trade off and starts its ten minutes out of play for its party, and a
-/// character's new look (what it wears) is told to its map.
+/// character's new look (what it wears) is told to its map. Since sprint 126, a whisper goes to one character by its name,
+/// wherever it is, unless it ignores the sender; and a character coming into play is told to the friends in play
+/// (<see cref="ContactNews"/>).
 /// </summary>
-public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Trades trades)
+public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Trades trades, IServiceScopeFactory scopes)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -93,6 +97,43 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
 
     private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At);
 
+    // The accounts that have it as a friend learn it came into play, on whichever of their characters is (sprint 126).
+    private async Task TellFriends(Speaker me, CancellationToken cancel)
+    {
+        Guid[] online = [.. _speakers.Keys.Where(k => k != me.Character)];
+        if (online.Length == 0)
+            return;
+        using IServiceScope scope = scopes.CreateScope();
+        GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
+        List<Guid> friends = await db.Characters.AsNoTracking()
+            .Where(c => online.Contains(c.Id) && db.Contacts.Any(k => k.AccountId == c.AccountId && k.CharacterId == me.Character && !k.Ignore))
+            .Select(c => c.Id).ToListAsync(cancel);
+        foreach (Guid friend in friends)
+            await TellCharacter(friend, new ContactNews(ContactNewsKind.Online, me.Name, Contacts.ZoneOf(me.Map, GameData.Embedded)), cancel);
+    }
+
+    // A whisper (sprint 126): to the one named, in play and not ignoring the sender; the sender sees it too.
+    private async Task Whisper(Speaker me, string? whom, string text, CancellationToken cancel)
+    {
+        Speaker? to = _speakers.Values.FirstOrDefault(s => string.Equals(s.Name, whom, StringComparison.OrdinalIgnoreCase));
+        bool ignored = false;
+        if (to is not null)
+        {
+            using IServiceScope scope = scopes.CreateScope();
+            ignored = await Endpoints.SocialEndpoints.Ignores(scope.ServiceProvider.GetRequiredService<GameDb>(), to.Character, me.Character, cancel);
+        }
+        if (to is null || ignored)
+        {
+            // Ignored: the same answer as not in play, so that nobody learns they are ignored.
+            await Send(me, JsonSerializer.Serialize(new ChatRefusal($"{whom} is not in play."), Json), cancel);
+            return;
+        }
+        string line = JsonSerializer.Serialize(new ChatLine(ChatChannels.Whisper, me.Name, text, clock.GetUtcNow(), to.Name), Json);
+        await Send(to, line, cancel);
+        if (to != me)
+            await Send(me, line, cancel);
+    }
+
     /// <summary>Serves one character's socket until it closes: what it says goes to its map.</summary>
     public async Task Serve(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, CancellationToken cancel)
     {
@@ -103,6 +144,7 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
         _speakers[character] = me;
         parties.Back(character);
         await Arrive(me, cancel);
+        await TellFriends(me, cancel);
         byte[] buffer = new byte[4096];
         try
         {
@@ -167,14 +209,20 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
         // The party's channel (sprint 119): its members wherever they are.
         IReadOnlyList<Guid>? party = parties.Of(me.Character)?.Members;
         string? refusal = text is null ? "Nothing to say."
-            : channel is not (ChatChannels.Map or ChatChannels.Party) ? "The map's channel, or the party's."
+            : channel is not (ChatChannels.Map or ChatChannels.Party or ChatChannels.Whisper) ? "The map's channel, the party's, or a whisper."
             : channel == ChatChannels.Party && party is null ? "Not in a party."
+            : channel == ChatChannels.Whisper && string.IsNullOrWhiteSpace(say?.Whom) ? "A whisper is for someone."
             : ChatLinks.WhyNot(text, GameData.Embedded) is string links ? links
             : !me.Pace.TryTake(clock.GetUtcNow()) ? $"At most {ChatRules.Burst} lines in {ChatRules.Window.TotalSeconds:0} seconds."
             : null;
         if (refusal is not null)
         {
             await Send(me, JsonSerializer.Serialize(new ChatRefusal(refusal), Json), cancel);
+            return;
+        }
+        if (channel == ChatChannels.Whisper)
+        {
+            await Whisper(me, say!.Whom, text!, cancel);
             return;
         }
         string line = JsonSerializer.Serialize(new ChatLine(channel, me.Name, text!, clock.GetUtcNow()), Json);

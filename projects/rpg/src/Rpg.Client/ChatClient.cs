@@ -7,7 +7,8 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>What came from the chat: a line said on the map, or the server's refusal of one of ours; since sprint 118, news of the map.</summary>
-public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null, PartyNews? Party = null, TradeNews? Trade = null, SharedFightNews? Shared = null);
+public sealed record ChatEvent(ChatLine? Line, string? Refusal, MapNews? News = null, PartyNews? Party = null, TradeNews? Trade = null, SharedFightNews? Shared = null,
+    ContactNews? Contact = null);
 
 /// <summary>
 /// The game's side of the proximity chat (sprint 84): a WebSocket to the server, lines sent as
@@ -34,12 +35,26 @@ public sealed class ChatClient : IAsyncDisposable
     /// <summary>Says a line on the map; cleaned first, nothing sent if nothing is left.</summary>
     public Task<bool> Say(string text, CancellationToken cancel = default) => Say(text, ChatChannels.Map, cancel);
 
-    /// <summary>Says a line on a channel (the map's, or since sprint 119 the party's).</summary>
+    /// <summary>
+    /// Says a line on a channel (the map's, or since sprint 119 the party's); since sprint 126, a line typed as
+    /// <c>/w Name text</c> is a whisper to that character, whatever the channel.
+    /// </summary>
     public async Task<bool> Say(string text, string channel, CancellationToken cancel = default)
     {
+        if (Whispers.Parse(text) is (string whom, string whispered))
+            return await Whisper(whom, whispered, cancel);
         if (ChatRules.Clean(text) is not string clean || !IsOpen)
             return false;
         await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(clean, channel == ChatChannels.Map ? null : channel), Json)), WebSocketMessageType.Text, true, cancel);
+        return true;
+    }
+
+    /// <summary>Whispers a line to one character, by its name, wherever it is (sprint 126).</summary>
+    public async Task<bool> Whisper(string whom, string text, CancellationToken cancel = default)
+    {
+        if (ChatRules.Clean(text) is not string clean || !IsOpen)
+            return false;
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ChatSay(clean, ChatChannels.Whisper, Whom: whom), Json)), WebSocketMessageType.Text, true, cancel);
         return true;
     }
 
@@ -88,6 +103,7 @@ public sealed class ChatClient : IAsyncDisposable
                     : doc.RootElement.TryGetProperty("party", out _) ? new ChatEvent(null, null, Party: doc.RootElement.Deserialize<PartyNews>(Json))
                     : doc.RootElement.TryGetProperty("trade", out _) ? new ChatEvent(null, null, Trade: doc.RootElement.Deserialize<TradeNews>(Json))
                     : doc.RootElement.TryGetProperty("shared", out _) ? new ChatEvent(null, null, Shared: doc.RootElement.Deserialize<SharedFightNews>(Json))
+                    : doc.RootElement.TryGetProperty("contact", out _) ? new ChatEvent(null, null, Contact: doc.RootElement.Deserialize<ContactNews>(Json))
                     : new ChatEvent(doc.RootElement.Deserialize<ChatLine>(Json), null));
             }
         }
@@ -135,9 +151,12 @@ public sealed class ChatLog(Texts texts)
     public void Add(ChatEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (e.News is not null || e.Party is not null || e.Trade is not null || e.Shared is not null)
+        if (e.News is not null || e.Party is not null || e.Trade is not null || e.Shared is not null || e.Contact is not null)
             return;
-        _lines.Add(e.Line is ChatLine line ? texts["chat.line", texts["chat." + line.Channel], line.From, line.Text] : texts["chat.refused", e.Refusal ?? ""]);
+        // A whisper (sprint 126) says who to whom.
+        _lines.Add(e.Line is { Channel: ChatChannels.Whisper } whisper ? texts["chat.whisper-line", whisper.From, whisper.To ?? "", whisper.Text]
+            : e.Line is ChatLine line ? texts["chat.line", texts["chat." + line.Channel], line.From, line.Text]
+            : texts["chat.refused", e.Refusal ?? ""]);
         if (_lines.Count > Kept)
             _lines.RemoveAt(0);
     }

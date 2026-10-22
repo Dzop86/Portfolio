@@ -291,7 +291,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -303,6 +303,8 @@ public partial class Main
             CloseJournal();
         if (open != GameWindow.Jobs && _jobsPanel is not null && _town?.Bench is null)
             CloseJobs();
+        if (open != GameWindow.Contacts && _contactsPanel is not null)
+            CloseContacts();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -319,6 +321,9 @@ public partial class Main
                 break;
             case GameWindow.Jobs when _jobsPanel is null:
                 OpenJobs();
+                break;
+            case GameWindow.Contacts when _contactsPanel is null:
+                OpenContacts();
                 break;
         }
         _bar?.Show(open);
@@ -621,6 +626,17 @@ public partial class Main
             if (e.Trade is TradeNews trade)
             {
                 OnTrade(trade);
+                continue;
+            }
+            // A friend came into play (sprint 126): a note, unless the player asked not to.
+            if (e.Contact is ContactNews contact)
+            {
+                if (NotifyFriends)
+                {
+                    Texts t = _talkPanel?.Texts ?? _hud.Texts;
+                    _chatLog!.Note(t["contacts.came", contact.Name, contact.Zone is string z ? t.ZoneName(z, GameData.Embedded) : ""]);
+                    any = true;
+                }
                 continue;
             }
             // The fights with the party (sprint 121).
@@ -1002,6 +1018,72 @@ public partial class Main
         };
         _jobsPanel.MakePressed += (job, item, count) => _ = Make(job, item, count, bench);
         return _jobsPanel;
+    }
+
+    // The contacts (sprint 126): the window, and whether to be told of a friend coming into play (user://contacts.txt).
+    private ContactsPanel? _contactsPanel;
+    private const string NotifyFile = "user://contacts.txt";
+
+    private static bool NotifyFriends
+    {
+        get => !Godot.FileAccess.FileExists(NotifyFile) || Godot.FileAccess.GetFileAsString(NotifyFile).Trim() != "off";
+        set
+        {
+            using Godot.FileAccess? f = Godot.FileAccess.Open(NotifyFile, Godot.FileAccess.ModeFlags.Write);
+            f?.StoreString(value ? "on" : "off");
+        }
+    }
+
+    /// <summary>The contacts window (sprint 126): the server's lists, each change asked of it and shown as it answers.</summary>
+    private void OpenContacts()
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        _contactsPanel = new ContactsPanel();
+        AddChild(_contactsPanel);
+        _contactsPanel.Build(texts, NotifyFriends);
+        _contactsPanel.ClosePressed += () =>
+        {
+            _windows.Close();
+            ShowWindows();
+        };
+        _contactsPanel.NotifyChanged += on => NotifyFriends = on;
+        _contactsPanel.AddPressed += (name, ignore) => _ = Contacts(s => s.AddContact(_character!.Id, name, ignore));
+        _contactsPanel.RemovePressed += other => _ = Contacts(s => s.RemoveContact(_character!.Id, other));
+        _contactsPanel.InvitePressed += name => _ = Social(s => s.Invite(_character!.Id, name));
+        _contactsPanel.WhisperPressed += name =>
+        {
+            _windows.Close();
+            ShowWindows();
+            _chatBox?.WhisperTo(name);
+        };
+        _ = Contacts(s => s.Contacts(_character!.Id));
+    }
+
+    // One call about the contacts; the window shows the lists it gives back, or what went wrong.
+    private async Task Contacts(Func<GameServer, Task<ContactList>> call)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _contactsPanel?.Tell(texts["contacts.needs-server"]);
+            return;
+        }
+        try
+        {
+            ContactList list = await call(_lobby.Server);
+            _contactsPanel?.Show(list);
+            _contactsPanel?.Tell("");
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _contactsPanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
+    private void CloseContacts()
+    {
+        _contactsPanel?.QueueFree();
+        _contactsPanel = null;
     }
 
     private void CloseJobs()
@@ -2246,6 +2328,17 @@ public partial class Main
         if (_askPanel?.Question != texts["battle.opened", "Plop", texts.GroupLabel(group, GameData.Embedded)])
             problems.Add($"an ally's fight asks '{_askPanel?.Question}'");
         _askPanel?.Hide();
+        // The contacts' window (sprint 126): a friend in play with its zone's name, one offline, one ignored.
+        var contacts = new ContactsPanel();
+        AddChild(contacts);
+        contacts.Build(texts, true);
+        Town woods = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id));
+        contacts.Show(new ContactList([new Contact(Guid.NewGuid(), "Plop", 12, "guard", woods.Zone), new Contact(Guid.NewGuid(), "Plouf", 9, "mage", null)],
+            [new Contact(Guid.NewGuid(), "Grincheux", 3, "mage", null)]));
+        string[] expected = [texts["contacts.online", "Plop", 12, woods.Name.In(texts.Lang)], texts["contacts.offline", "Plouf", 9], "Grincheux"];
+        if (!contacts.Lines.SequenceEqual(expected))
+            problems.Add($"the contacts show {string.Join(" | ", contacts.Lines)}");
+        contacts.QueueFree();
         // Its line on the banner with its seconds, the question closed or not (sprint 124); swords over a group of this map.
         ShowJoins();
         if (_partyBanner is not null && !_partyBanner.JoinLines.Any(l => l == texts["battle.join-line", "Plop", 15] || l == texts["battle.join-line", "Plop", 14]))
@@ -2261,7 +2354,7 @@ public partial class Main
         foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
             _joinOffers.Remove(o.Fight);
         ShowJoins();
-        return " Together: party banner, invitation, trade window, an ally's fight and its line to join checked.";
+        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)
@@ -2282,6 +2375,7 @@ public partial class Main
                 GameWindow.Spells => _pointsPanel?.Only == true && _mapPanel is null,
                 GameWindow.Journal => _journalPanel is not null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Jobs => _jobsPanel is not null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
+                GameWindow.Contacts => _contactsPanel is not null && _jobsPanel is null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
                 _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
@@ -2289,7 +2383,7 @@ public partial class Main
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });

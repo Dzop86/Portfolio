@@ -9,7 +9,8 @@ namespace Rpg.Api.Endpoints;
 /// <summary>
 /// Playing together (sprint 119, D74): the party (invite by name, accept, leave, see it) and the trade between two
 /// players of the same map (ask, accept, offer, accept the offers, call off). What changes is told to the players
-/// concerned on their map's socket (<see cref="PartyNews"/>, <see cref="TradeNews"/>).
+/// concerned on their map's socket (<see cref="PartyNews"/>, <see cref="TradeNews"/>). Since sprint 126, each account's
+/// contacts: friends, with their zone when in play, and ignored characters, who can neither invite nor trade.
 /// </summary>
 public static class SocialEndpoints
 {
@@ -26,6 +27,9 @@ public static class SocialEndpoints
         group.MapPut("/{id:guid}/trade", Offer).WithSummary("Puts items owned and not worn, and Éclats, on the table; both have to accept again.");
         group.MapPost("/{id:guid}/trade/ready", Ready).WithSummary("Accepts the offers as they stand; once both have, the trade is made, all of it or nothing.");
         group.MapPost("/{id:guid}/trade/cancel", Cancel).WithSummary("Calls the trade off.");
+        group.MapGet("/{id:guid}/contacts", ContactsOf).WithSummary("The account's contacts: its friends (their zone when in play), then those it ignores.");
+        group.MapPost("/{id:guid}/contacts", AddContact).WithSummary($"Adds a character of the server, by its name, as a friend or to ignore ({Rpg.Core.Contacts.Most} at most).");
+        group.MapDelete("/{id:guid}/contacts/{other:guid}", RemoveContact).WithSummary("Takes a character out of the account's contacts.");
     }
 
     private static ValidationProblem Refused(string field, string why) => TypedResults.ValidationProblem(new Dictionary<string, string[]> { [field] = [why] });
@@ -63,6 +67,8 @@ public static class SocialEndpoints
         var to = await db.Characters.AsNoTracking().Where(c => c.Name == request.Name && c.Server == me.Server).Select(c => new { c.Id }).FirstOrDefaultAsync(cancel);
         if (to is null || hub.MapOf(to.Id) is null)
             return Refused("name", "Nobody in play by that name.");
+        if (await Ignores(db, to.Id, id, cancel))
+            return Refused("name", "They take no invitation from this character.");
         if (parties.Invite(id, to.Id) is string why)
             return Refused("name", why);
         await hub.TellCharacter(to.Id, new PartyNews(PartyNewsKind.Invited, id, me.Name), cancel);
@@ -109,6 +115,8 @@ public static class SocialEndpoints
             return TypedResults.NotFound();
         if (hub.MapOf(id) is not string map || hub.MapOf(request.From) != map)
             return Refused("from", "Nobody in play by them on this map.");
+        if (await Ignores(db, request.From, id, cancel))
+            return Refused("from", "They take no trade from this character.");
         if (trades.Ask(id, request.From) is string why)
             return Refused("from", why);
         await hub.TellCharacter(request.From, new TradeNews(TradeNewsKind.Asked, id, me.Name), cancel);
@@ -196,6 +204,59 @@ public static class SocialEndpoints
         to.Receive(offer.Items ?? []);
         from.Shards -= offer.Shards;
         to.Shards += offer.Shards;
+    }
+
+    /// <summary>Whether the account of <paramref name="target"/> ignores the character <paramref name="from"/> (sprint 126).</summary>
+    internal static async Task<bool> Ignores(GameDb db, Guid target, Guid from, CancellationToken cancel)
+    {
+        Guid? account = await db.Characters.AsNoTracking().Where(c => c.Id == target).Select(c => (Guid?)c.AccountId).FirstOrDefaultAsync(cancel);
+        return account is Guid a && await db.Contacts.AnyAsync(c => c.AccountId == a && c.CharacterId == from && c.Ignore, cancel);
+    }
+
+    // The account's contacts as it sees them: its friends with their zone when in play, those it ignores without.
+    private static async Task<ContactList> ListOf(Guid account, GameDb db, ChatHub hub, CancellationToken cancel)
+    {
+        var rows = await (from c in db.Contacts.AsNoTracking()
+                          join ch in db.Characters.AsNoTracking() on c.CharacterId equals ch.Id
+                          where c.AccountId == account
+                          orderby ch.Name
+                          select new { ch.Id, ch.Name, ch.Level, ch.Class, c.Ignore }).ToListAsync(cancel);
+        Contact Of(Guid id, string name, int level, string cls, bool ignore) =>
+            new(id, name, level, cls, !ignore && hub.MapOf(id) is string map ? Rpg.Core.Contacts.ZoneOf(map, GameData.Embedded) : null);
+        return new ContactList([.. rows.Where(r => !r.Ignore).Select(r => Of(r.Id, r.Name, r.Level, r.Class, false))],
+            [.. rows.Where(r => r.Ignore).Select(r => Of(r.Id, r.Name, r.Level, r.Class, true))]);
+    }
+
+    internal static async Task<Results<Ok<ContactList>, NotFound>> ContactsOf(Guid id, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel) =>
+        await Mine(id, user, db, cancel) is Character me ? TypedResults.Ok(await ListOf(me.AccountId, db, hub, cancel)) : TypedResults.NotFound();
+
+    /// <summary>A character of the same server, by its name, as a friend or ignored; a friend ignored now, or the other way round.</summary>
+    internal static async Task<Results<Ok<ContactList>, NotFound, ValidationProblem>> AddContact(
+        Guid id, NewContact request, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is not Character me)
+            return TypedResults.NotFound();
+        var other = await db.Characters.AsNoTracking().Where(c => c.Name == request.Name && c.Server == me.Server).Select(c => new { c.Id, c.AccountId }).FirstOrDefaultAsync(cancel);
+        if (other is null)
+            return Refused("name", "Nobody by that name on this server.");
+        ContactRecord? known = await db.Contacts.FirstOrDefaultAsync(c => c.AccountId == me.AccountId && c.CharacterId == other.Id, cancel);
+        int count = await db.Contacts.CountAsync(c => c.AccountId == me.AccountId, cancel);
+        if (Rpg.Core.Contacts.WhyNotAdd(other.AccountId == me.AccountId, known?.Ignore == request.Ignore, known is null ? count : 0) is string why)
+            return Refused("name", why);
+        if (known is null)
+            db.Contacts.Add(new ContactRecord { AccountId = me.AccountId, CharacterId = other.Id, Ignore = request.Ignore });
+        else
+            known.Ignore = request.Ignore;
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(await ListOf(me.AccountId, db, hub, cancel));
+    }
+
+    internal static async Task<Results<Ok<ContactList>, NotFound>> RemoveContact(Guid id, Guid other, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is not Character me)
+            return TypedResults.NotFound();
+        await db.Contacts.Where(c => c.AccountId == me.AccountId && c.CharacterId == other).ExecuteDeleteAsync(cancel);
+        return TypedResults.Ok(await ListOf(me.AccountId, db, hub, cancel));
     }
 
     internal static async Task<Results<NoContent, NotFound>> Cancel(Guid id, ClaimsPrincipal user, GameDb db, Trades trades, ChatHub hub, CancellationToken cancel)

@@ -270,6 +270,24 @@ namespace Rpg.Api.Data.Migrations
                     b.ToTable("characters", (string)null);
                 });
 
+            modelBuilder.Entity("Rpg.Api.Data.ContactRecord", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ignore")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("AccountId", "CharacterId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("contacts", (string)null);
+                });
+
             modelBuilder.Entity("Rpg.Api.Data.PendingFight", b =>
                 {
                     b.Property<Guid>("Id")
@@ -315,6 +333,21 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("Rpg.Api.Data.ContactRecord", b =>
+                {
+                    b.HasOne("Rpg.Api.Data.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rpg.Api.Data.Character", null)
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Rpg.Api.Data.PendingFight", b =>

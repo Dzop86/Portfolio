@@ -105,3 +105,53 @@ public static class Trading
         return null;
     }
 }
+
+/// <summary>
+/// One of an account's contacts (sprint 126, D79): a friend or someone ignored, by their character: its name, level and
+/// class, and for a friend in play its zone, never the map (<see cref="Contacts.ZoneOf"/>); null when not in play.
+/// </summary>
+public sealed record Contact(Guid Id, string Name, int Level, string? Class, string? Zone);
+
+/// <summary>An account's contacts: its friends, then those it ignores.</summary>
+public sealed record ContactList(IReadOnlyList<Contact> Friends, IReadOnlyList<Contact> Ignored);
+
+/// <summary>A character to add to one's contacts, by its name: a friend, or someone to ignore.</summary>
+public sealed record NewContact(string? Name, bool Ignore = false);
+
+/// <summary>What the server tells of a friend (sprint 126): it came into play, in that zone.</summary>
+public sealed record ContactNews(ContactNewsKind Contact, string Name, string? Zone = null);
+
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<ContactNewsKind>))]
+public enum ContactNewsKind
+{
+    Online,
+}
+
+/// <summary>
+/// The contacts' rules (sprint 126, D79), shared by the game and the server: a hundred at most by account, friends and
+/// ignored together, never oneself; who ignores someone gets nothing from them: no whisper, no invitation, no trade.
+/// </summary>
+public static class Contacts
+{
+    public const int Most = 100;
+
+    /// <summary>Why a character cannot be added (one of one's own, already there, the list full), or null.</summary>
+    public static string? WhyNotAdd(bool ownCharacter, bool already, int count)
+    {
+        return ownCharacter ? "Not one of one's own characters."
+            : already ? "Already in the contacts."
+            : count >= Most ? $"At most {Most} contacts."
+            : null;
+    }
+
+    /// <summary>
+    /// The zone a map belongs to, as friends see it: the village for its maps, the zone for the others, never the map
+    /// itself (where exactly someone stands is theirs to tell).
+    /// </summary>
+    public static string ZoneOf(string map, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(data);
+        return Shop.InVillage(map) ? Shop.Village : data.Towns.TryGetValue(map, out Town? town) ? town.ZoneId : map;
+    }
+}

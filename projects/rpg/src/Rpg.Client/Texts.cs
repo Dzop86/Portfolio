@@ -269,6 +269,7 @@ public sealed class Texts
         ["bar.Map"] = "Carte",
         ["bar.Journal"] = "Journal",
         ["bar.Jobs"] = "Métiers",
+        ["bar.Contacts"] = "Contacts",
         ["jobs.title"] = "Métiers",
         ["jobs.gathering"] = "Récolte",
         ["jobs.making"] = "Fabrication",
@@ -378,8 +379,25 @@ public sealed class Texts
         ["chat.map"] = "Proximité",
         ["chat.line"] = "[{0}] {1} : {2}",
         ["chat.refused"] = "Non envoyé : {0}",
-        ["chat.placeholder"] = "Entrée pour parler (/g pour le groupe), Échap pour quitter",
+        ["chat.placeholder"] = "Entrée pour parler (/g pour le groupe, /w Nom en privé), Échap pour quitter",
         ["chat.party"] = "Groupe",
+        ["chat.whisper"] = "Privé",
+        ["chat.whisper-line"] = "[Privé] {0} → {1} : {2}",
+        ["contacts.title"] = "Contacts",
+        ["contacts.friends"] = "Amis ({0})",
+        ["contacts.ignored"] = "Ignorés ({0})",
+        ["contacts.online"] = "{0} (niv. {1}) · {2}",
+        ["contacts.offline"] = "{0} (niv. {1}) · hors ligne",
+        ["contacts.name"] = "Nom d'un personnage",
+        ["contacts.add"] = "Ajouter un ami",
+        ["contacts.ignore"] = "Ignorer",
+        ["contacts.invite"] = "Inviter",
+        ["contacts.whisper"] = "Écrire",
+        ["contacts.remove"] = "Retirer {0}",
+        ["contacts.notify"] = "Prévenir quand un ami se connecte",
+        ["contacts.came"] = "{0} est en jeu : {1}.",
+        ["contacts.none"] = "Personne pour l'instant.",
+        ["contacts.needs-server"] = "Les contacts demandent le serveur.",
         ["battle.opened"] = "{0} attaque {1} : le rejoindre ?",
         ["battle.join"] = "Rejoindre",
         ["battle.join-line"] = "{0} attaque : rejoindre ({1} s)",
@@ -757,6 +775,7 @@ public sealed class Texts
         ["bar.Map"] = "Map",
         ["bar.Journal"] = "Journal",
         ["bar.Jobs"] = "Trades",
+        ["bar.Contacts"] = "Contacts",
         ["jobs.title"] = "Trades",
         ["jobs.gathering"] = "Gathering",
         ["jobs.making"] = "Making",
@@ -866,8 +885,25 @@ public sealed class Texts
         ["chat.map"] = "Nearby",
         ["chat.line"] = "[{0}] {1}: {2}",
         ["chat.refused"] = "Not sent: {0}",
-        ["chat.placeholder"] = "Enter to talk (/p for the party), Escape to leave",
+        ["chat.placeholder"] = "Enter to talk (/p for the party, /w Name to whisper), Escape to leave",
         ["chat.party"] = "Party",
+        ["chat.whisper"] = "Whisper",
+        ["chat.whisper-line"] = "[Whisper] {0} → {1}: {2}",
+        ["contacts.title"] = "Contacts",
+        ["contacts.friends"] = "Friends ({0})",
+        ["contacts.ignored"] = "Ignored ({0})",
+        ["contacts.online"] = "{0} (lvl {1}) · {2}",
+        ["contacts.offline"] = "{0} (lvl {1}) · offline",
+        ["contacts.name"] = "A character's name",
+        ["contacts.add"] = "Add a friend",
+        ["contacts.ignore"] = "Ignore",
+        ["contacts.invite"] = "Invite",
+        ["contacts.whisper"] = "Write",
+        ["contacts.remove"] = "Take {0} out",
+        ["contacts.notify"] = "Tell me when a friend comes into play",
+        ["contacts.came"] = "{0} is in play: {1}.",
+        ["contacts.none"] = "Nobody yet.",
+        ["contacts.needs-server"] = "Contacts need the server.",
         ["battle.opened"] = "{0} attacks {1}: join them?",
         ["battle.join"] = "Join",
         ["battle.join-line"] = "{0} attacks: join ({1} s)",
@@ -1151,6 +1187,14 @@ public sealed class Texts
         string name = map.Name.In(Lang);
         // The village's maps each have a name of their own (sprint 102): no place in the world after it.
         return map.Zone is null || Shop.InVillage(map.Id) ? name : string.Create(CultureInfo.InvariantCulture, $"{name} [{map.MapAt.X}, {map.MapAt.Y}]");
+    }
+
+    /// <summary>A zone's name, as a friend's is shown (sprint 126): the village's, or the name the maps of the zone share.</summary>
+    public string ZoneName(string zone, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        Town? map = data.Towns.TryGetValue(zone, out Town? t) ? t : data.Towns.Values.FirstOrDefault(m => m.Zone == zone);
+        return map?.Name.In(Lang) ?? zone;
     }
 
     /// <summary>

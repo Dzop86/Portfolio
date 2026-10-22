@@ -14,6 +14,8 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
 
     public DbSet<BattleActionRecord> BattleActions => Set<BattleActionRecord>();
 
+    public DbSet<ContactRecord> Contacts => Set<ContactRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(account =>
@@ -75,6 +77,15 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             action.ToTable("battle_actions");
             action.HasKey(a => new { a.BattleId, a.Number });
             action.Property(a => a.Action).HasMaxLength(2000);
+        });
+        // Each account's friends and ignored characters (sprint 126); gone with either side.
+        modelBuilder.Entity<ContactRecord>(contact =>
+        {
+            contact.ToTable("contacts");
+            contact.HasKey(c => new { c.AccountId, c.CharacterId });
+            contact.HasOne<Account>().WithMany().HasForeignKey(c => c.AccountId).OnDelete(DeleteBehavior.Cascade);
+            contact.HasOne<Character>().WithMany().HasForeignKey(c => c.CharacterId).OnDelete(DeleteBehavior.Cascade);
+            contact.HasIndex(c => c.CharacterId);
         });
     }
 }

@@ -6,5 +6,6 @@
  "menu": "lorc/cog",
  "journal": "lorc/scroll-unfurled",
  "jobs": "lorc/anvil",
- "minimap": "lorc/radar-sweep"
+ "minimap": "lorc/radar-sweep",
+ "contacts": "delapouite/three-friends"
 }
