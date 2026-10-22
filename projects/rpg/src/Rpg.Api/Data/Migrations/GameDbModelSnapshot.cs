@@ -157,6 +157,10 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Height")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Home")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
                     b.Property<int?>("Hp")
                         .HasColumnType("integer");
 
@@ -243,6 +247,13 @@ namespace Rpg.Api.Data.Migrations
 
                     b.Property<int>("Water")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Waystones")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasDefaultValue("");
 
                     b.Property<string>("Worn")
                         .IsRequired()

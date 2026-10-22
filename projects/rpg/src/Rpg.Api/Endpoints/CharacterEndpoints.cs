@@ -22,7 +22,10 @@ public static class CharacterEndpoints
             .WithSummary("Replays the record of a fight the server started, once, and gives the experience it earned.");
         group.MapPut("/{id:guid}/equipment", SaveEquipment).WithSummary("Puts on a character the items it owns, each in a slot it fits, within its level.");
         group.MapPost("/{id:guid}/dungeon", Enter).WithSummary("Takes one of the player's characters into a dungeon, with its key (used up) or the operator's keyring; back into the room it was at if it is already there.");
-        group.MapPost("/{id:guid}/use", Eat).WithSummary("Eats food the character owns, out of a fight: its hit points back at once.");
+        group.MapPost("/{id:guid}/use", Eat).WithSummary("Eats food the character owns, out of a fight: its hit points back at once; or reads a recall scroll, out of a fight and a dungeon: home at once.");
+        group.MapGet("/{id:guid}/waystones", WaystonesOf).WithSummary("The waystones the character discovered, and its home.");
+        group.MapPost("/{id:guid}/travel", TravelTo).WithSummary("Travels to a waystone discovered, for 10 Éclats and two a level of its map, out of a fight and a dungeon.");
+        group.MapPost("/{id:guid}/home", MakeHome).WithSummary("Makes a waystone discovered the character's home, where the recall scroll takes it.");
         group.MapPost("/{id:guid}/harvest", Harvest).WithSummary("Gathers a spot of the character's map with a gathering trade: the trade's level, next to the spot, the spot ready; the resource and the trade's experience.");
         group.MapGet("/{id:guid}/harvest", Spots).WithSummary("The gathering spots of the character's map still growing back, and when.");
         group.MapPost("/{id:guid}/shop/buy", Buy).WithSummary("Buys from Rose's stall, in the village, what she sells, for Éclats.");
@@ -148,6 +151,8 @@ public static class CharacterEndpoints
             if (moving.Town != place.Town && !moving.InFight)
                 moving.KeepLife(clock.GetUtcNow());
             (moving.Town, moving.X, moving.Y) = (place.Town, place.X, place.Y);
+            // A waystone passed by is discovered (sprint 127).
+            moving.Discover();
             saved = await db.SaveChangesAsync(cancel);
         }
         if (saved > 0)
@@ -305,14 +310,23 @@ public static class CharacterEndpoints
 
     /// <summary>Food eaten out of a fight (sprint 101, D73): owned, not in a fight; its hit points at once, the item used up.</summary>
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> Eat(
-        Guid id, Use request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        Guid id, Use request, ClaimsPrincipal user, GameDb db, TimeProvider clock, ChatHub hub, CancellationToken cancel)
     {
-        if (request?.Item is not string itemId || !GameData.Embedded.Items.TryGetValue(itemId, out Item? item) || item.Heal <= 0)
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = ["Food, which heals."] });
+        if (request?.Item is not string itemId || !GameData.Embedded.Items.TryGetValue(itemId, out Item? item) || (item.Heal <= 0 && itemId != Waystones.Recall))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = ["Food, which heals, or the recall scroll."] });
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
         if (character is null)
             return TypedResults.NotFound();
+        // The recall scroll (sprint 127): home at once, the life kept as it was, the map told.
+        if (itemId == Waystones.Recall)
+        {
+            int owned = character.InventoryList.Where(i => i.Item == itemId).Sum(i => i.Count);
+            if (Waystones.WhyNotRecall(owned, character.InFight, character.Dungeon is not null) is string no)
+                return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = [no] });
+            character.Spend(new ItemCount(itemId, 1));
+            return await MoveTo(character, Waystones.Home(character.Home, GameData.Embedded), db, hub, clock, cancel);
+        }
         string? why = character.InFight ? "Not in a fight."
             : character.InventoryList.Where(i => i.Item == itemId).Sum(i => i.Count) < 1 ? "None owned." : null;
         if (why is not null)
@@ -322,6 +336,54 @@ public static class CharacterEndpoints
         character.Spend(new ItemCount(itemId, 1));
         await db.SaveChangesAsync(cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
+    }
+
+    // A character taken to a place (the recall scroll, a waystone): its life grown on the old map kept, saved, the maps told.
+    private static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> MoveTo(Character c, Place to, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        if (!c.InFight)
+            c.KeepLife(clock.GetUtcNow());
+        (c.Town, c.X, c.Y) = (to.Town, to.X, to.Y);
+        c.Discover();
+        await db.SaveChangesAsync(cancel);
+        await hub.Move(c.Id, to.Town, to.Cell, cancel);
+        return TypedResults.Ok(Summary(c));
+    }
+
+    internal static async Task<Results<Ok<WaystoneView>, NotFound>> WaystonesOf(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? c = await db.Characters.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        return c is null ? TypedResults.NotFound() : TypedResults.Ok(new WaystoneView(c.WaystoneList, c.Home));
+    }
+
+    /// <summary>A waystone discovered, out of a fight and a dungeon, for its price in Éclats (sprint 127).</summary>
+    internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> TravelTo(
+        Guid id, Travel request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? c = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (c is null)
+            return TypedResults.NotFound();
+        string waystone = request?.Waystone ?? "";
+        if (Waystones.WhyNotTravel(waystone, c.WaystoneList.ToList(), c.Town, c.InFight, c.Dungeon is not null, c.Shards, GameData.Embedded) is string why)
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["waystone"] = [why] });
+        c.Shards -= Waystones.Cost(waystone, GameData.Embedded);
+        return await MoveTo(c, Waystones.Arrival(waystone, GameData.Embedded), db, hub, clock, cancel);
+    }
+
+    /// <summary>A waystone discovered becomes the character's home (sprint 127).</summary>
+    internal static async Task<Results<Ok<WaystoneView>, NotFound, ValidationProblem>> MakeHome(Guid id, Travel request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid account = AccountId(user);
+        Character? c = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        if (c is null)
+            return TypedResults.NotFound();
+        if (request?.Waystone is not string home || !c.WaystoneList.Contains(home))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["waystone"] = ["A waystone discovered."] });
+        c.Home = home;
+        await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(new WaystoneView(c.WaystoneList, c.Home));
     }
 
     /// <summary>A gathering (sprint 99, D71): the rules decide, the server keeps the spots and the trade's experience.</summary>

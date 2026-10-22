@@ -672,5 +672,23 @@
         "en": "Clairval Woods"
       }
     }
+  ],
+  "props": [
+    {
+      "id": "waystone-fields",
+      "at": {
+        "x": 25,
+        "y": 15
+      },
+      "look": "waystone",
+      "name": {
+        "fr": "Pierre de passage",
+        "en": "Waystone"
+      },
+      "text": {
+        "fr": "Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+        "en": "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."
+      }
+    }
   ]
 }

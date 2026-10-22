@@ -68,7 +68,7 @@ public sealed class ItemInfo(GameData data)
             actions.Add(ItemAction.TakeOff);
         else if (changing && item.Kind == ItemKind.Equipment && place.Owned > 0)
             actions.Add(ItemAction.Equip);
-        if (item.Heal > 0 && place.Owned > 0 && !place.InFight)
+        if (item.Usable && place.Owned > 0 && !place.InFight)
             actions.Add(ItemAction.Use);
         if (Recipes(item.Id).Count > 0)
             actions.Add(ItemAction.Recipes);

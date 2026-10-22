@@ -966,6 +966,12 @@ public partial class Main
     {
         _town!.ExaminingSeenTo();
         Texts texts = _talkPanel!.Texts;
+        // A waystone (sprint 127): its window, to travel.
+        if (prop.Look == Waystones.Look)
+        {
+            await OpenWaystones();
+            return;
+        }
         _talkPanel.ShowMessage(texts["prop.seen", prop.Name.In(texts.Lang), prop.Text.In(texts.Lang)]);
         if (_lobby?.SignedIn != true || _character is null || _town.Book is not QuestBook book)
             return;
@@ -1078,6 +1084,66 @@ public partial class Main
         {
             _contactsPanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
         }
+    }
+
+    // A waystone's window (sprint 127), opened by examining one.
+    private WaystonePanel? _waystonePanel;
+
+    private async Task OpenWaystones()
+    {
+        Texts texts = _talkPanel!.Texts;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _talkPanel.ShowMessage(texts["waystone.needs-server"]);
+            return;
+        }
+        _waystonePanel?.QueueFree();
+        _waystonePanel = new WaystonePanel();
+        AddChild(_waystonePanel);
+        _waystonePanel.Build(texts, _zone);
+        _waystonePanel.ClosePressed += CloseWaystones;
+        _waystonePanel.TravelPressed += id => _ = Waystone(async s =>
+        {
+            CharacterSummary moved = await s.TravelTo(_character.Id, id);
+            KeepCharacter(moved);
+            CloseWaystones();
+            GoToPlace(moved.Place!, texts["waystone.arrived", texts.ZoneName(Rpg.Core.Contacts.ZoneOf(moved.Place!.Town, GameData.Embedded), GameData.Embedded)]);
+        });
+        _waystonePanel.HomePressed += id => _ = Waystone(async s => _waystonePanel?.Show(await s.MakeHome(_character.Id, id), _character.Shards));
+        await Waystone(async s => _waystonePanel?.Show(await s.Waystones(_character.Id), _character.Shards));
+    }
+
+    // One call about the waystones; what went wrong said in their window.
+    private async Task Waystone(Func<GameServer, Task> call)
+    {
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            await call(_lobby!.Server);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _waystonePanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
+    private void CloseWaystones()
+    {
+        _waystonePanel?.QueueFree();
+        _waystonePanel = null;
+    }
+
+    /// <summary>
+    /// Taken somewhere by the server (a waystone, the recall scroll, sprint 127): the map built there, the player on its
+    /// cell, a word about it.
+    /// </summary>
+    private void GoToPlace(Place place, string said)
+    {
+        (_zone, _place) = (place.Town, place.Cell);
+        ClearScene();
+        ShowTown();
+        _talkPanel?.ShowNotice(said);
+        _ = RefreshGrowing();
     }
 
     private void CloseContacts()
@@ -1231,7 +1297,16 @@ public partial class Main
         }
         try
         {
-            KeepCharacter(await _lobby.Server.Eat(_character.Id, item.Id));
+            CharacterSummary after = await _lobby.Server.Eat(_character.Id, item.Id);
+            KeepCharacter(after);
+            // The recall scroll (sprint 127): home, wherever it is.
+            if (item.Id == Waystones.Recall && after.Place is Place home)
+            {
+                CloseInventory();
+                _windows.Close();
+                GoToPlace(home, texts["waystone.recalled", texts.ZoneName(Rpg.Core.Contacts.ZoneOf(home.Town, GameData.Embedded), GameData.Embedded)]);
+                return;
+            }
             string eaten = texts["life.eaten", item.Name.In(texts.Lang), item.Heal];
             if (panel is not null)
                 panel.Saved(_hero!, _character.Inventory ?? [], eaten);
@@ -2351,10 +2426,19 @@ public partial class Main
             if (!marked || _townView.FightMarks.Count != 0)
                 problems.Add("no swords over a group an ally attacks");
         }
+        // A waystone's window (sprint 127): the village's known and home, the lake's to travel to, the others not yet.
+        var stones = new WaystonePanel();
+        AddChild(stones);
+        stones.Build(texts, Shop.Village);
+        stones.Show(new WaystoneView(["waystone-clairval", "waystone-lake"], null), 100);
+        if (stones.Lines.Count != Waystones.All(GameData.Embedded).Count || stones.Travels is not ["waystone-lake"]
+            || stones.Lines.Count(l => l.Contains(texts["waystone.unknown", "@"].Split('@')[1].Trim(), StringComparison.Ordinal)) != 3)
+            problems.Add($"the waystones show {string.Join(" | ", stones.Lines)}, travel to {string.Join(", ", stones.Travels)}");
+        stones.QueueFree();
         foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
             _joinOffers.Remove(o.Fight);
         ShowJoins();
-        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts checked.";
+        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts and waystones checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)
@@ -2627,7 +2711,8 @@ public partial class Main
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone], []));
             (string waiting, bool glint) = (view.MarkShown("ysaline"), view.ClueShown("old-stone"));
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone with { Counts = [1, 1, 1] }], []));
-            if (view.PropsDrawn != 1 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
+            // The old stone, and since sprint 127 the village's waystone.
+            if (view.PropsDrawn != 2 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
                 problems.Add($"the square shows {view.PropsDrawn} props, '{fresh}' over Aubin, the stone glinting {idle}/{glint}, '{waiting}' over Ysaline");
             // The life in a heart (sprint 115): the life over the most, the share below; half filled at half.
             var heart = new HeartGauge();

@@ -85,6 +85,21 @@ public sealed class Character
     public Dictionary<string, long> JobList => Jobs.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(j => j.Split(':')).ToDictionary(j => j[0], j => long.Parse(j[1], System.Globalization.CultureInfo.InvariantCulture), StringComparer.Ordinal);
 
+    /// <summary>The waystones it discovered (sprint 127), their ids separated by commas.</summary>
+    public string Waystones { get; set; } = "";
+
+    public IReadOnlyList<string> WaystoneList => Waystones.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    /// <summary>The waystone the recall scroll takes it to (sprint 127); null: the village's.</summary>
+    public string? Home { get; set; }
+
+    /// <summary>The waystones within reach of where it stands now added to those it knows (sprint 127).</summary>
+    public void Discover()
+    {
+        if (Town is string town && X is int x && Y is int y)
+            Waystones = string.Join(',', WaystoneList.Union(Rpg.Core.Waystones.Near(town, new Cell(x, y), GameData.Embedded)).Order(StringComparer.Ordinal));
+    }
+
     /// <summary>The dungeon the character is in (sprint 80), and the room it is to fight there; null and 0 outside.</summary>
     public string? Dungeon { get; set; }
     public int DungeonRoom { get; set; }

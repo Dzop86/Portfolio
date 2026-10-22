@@ -15,6 +15,7 @@
   { "id": "poacher-boots", "name": { "fr": "Bottes du braconnier", "en": "Poacher's Boots" }, "kind": "Equipment", "slot": "Boots", "stats": { "air": 4 }, "set": "poacher", "icon": "lorc/leather-boot" },
   { "id": "bread", "name": { "fr": "Pain", "en": "Bread" }, "kind": "Consumable", "level": 1, "heal": 40, "icon": "delapouite/bread" },
   { "id": "healing-potion", "name": { "fr": "Potion de soin", "en": "Healing Potion" }, "kind": "Consumable", "level": 3, "heal": 110, "icon": "delapouite/health-potion" },
+  { "id": "recall-scroll", "name": { "fr": "Parchemin de rappel", "en": "Recall Scroll" }, "kind": "Consumable", "level": 1, "icon": "lorc/scroll-unfurled" },
   { "id": "leather", "name": { "fr": "Cuir", "en": "Leather" }, "kind": "Resource", "icon": "delapouite/animal-hide" },
   { "id": "orc-fang", "name": { "fr": "Croc d'orque", "en": "Orc Fang" }, "kind": "Resource", "icon": "lorc/fangs-circle" },
   { "id": "feather", "name": { "fr": "Plume", "en": "Feather" }, "kind": "Resource", "icon": "lorc/feather" },

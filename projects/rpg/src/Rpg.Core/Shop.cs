@@ -57,7 +57,8 @@ public static class Shop
         HashSet<string> keys = [.. data.Dungeons.Values.Select(d => d.Key)];
         HashSet<string> dropped = [.. data.Families.Values.SelectMany(f => f.Monsters).SelectMany(m => m.Loot ?? []).Select(l => l.Item),
             .. data.Jobs.Values.SelectMany(j => j.Harvests ?? []).Select(h => h.Item)];
-        return [.. data.Items.Values.Where(i => (i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id)) || i.Id == Loaf || IsHealingPotion(i, data))];
+        return [.. data.Items.Values.Where(i => (i.Kind == ItemKind.Resource && dropped.Contains(i.Id) && !keys.Contains(i.Id)) || i.Id == Loaf || IsHealingPotion(i, data)
+            || i.Id == Waystones.Recall)];
     }
 
     /// <summary>The alchemist's potions (sprint 111; out of a fight since sprint 115): healing, dearer than food.</summary>
@@ -76,7 +77,9 @@ public static class Shop
     {
         ArgumentNullException.ThrowIfNull(item);
         // Food (sprint 101): the village's bread at ten Éclats a level.
-        return !Stock(data).Contains(item) ? null : IsHealingPotion(item, data) ? PotionPrice(item) : item.Heal > 0 ? 10L * item.Level : 5 * BuyPrice(item, data);
+        // The recall scroll (sprint 127): the copyist's, at a fixed price.
+        return !Stock(data).Contains(item) ? null : item.Id == Waystones.Recall ? Waystones.RecallPrice
+            : IsHealingPotion(item, data) ? PotionPrice(item) : item.Heal > 0 ? 10L * item.Level : 5 * BuyPrice(item, data);
     }
 
     /// <summary>Why <paramref name="count"/> cannot be bought now, or null: in stock, in the village, with the Éclats.</summary>

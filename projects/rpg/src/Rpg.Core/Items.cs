@@ -76,6 +76,10 @@ public sealed record Item(
     /// <summary>The kinds of pieces that may carry initiative (sprint 95, D71): the light ones.</summary>
     public static readonly IReadOnlyList<ItemSlot> Quick = [ItemSlot.Boots, ItemSlot.Cape, ItemSlot.Ring];
 
+    /// <summary>Whether it is used out of a fight from the inventory: food, and since sprint 127 the recall scroll.</summary>
+    [JsonIgnore]
+    public bool Usable => Heal > 0 || Id == Waystones.Recall;
+
     /// <summary>The slots this item may go in (none for what is not equipment).</summary>
     [JsonIgnore]
     public IReadOnlyList<Slot> Slots => Slot switch

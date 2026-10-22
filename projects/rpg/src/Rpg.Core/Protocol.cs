@@ -90,8 +90,14 @@ public sealed record DungeonRun(string Dungeon, int Room, int? Hp = null)
 /// <summary>Items to make at a trade's workshop (sprint 81): the recipe's item, how many.</summary>
 public sealed record Craft(string? Job, string? Item, int Count = 1);
 
-/// <summary>An item to use out of a fight (sprint 101): food, which heals.</summary>
+/// <summary>An item to use out of a fight (sprint 101): food, which heals; since sprint 127, the recall scroll.</summary>
 public sealed record Use(string? Item);
+
+/// <summary>A waystone to travel to, or to make one's home (sprint 127).</summary>
+public sealed record Travel(string? Waystone);
+
+/// <summary>The waystones a character discovered and the one it chose as home (sprint 127; null: the village's).</summary>
+public sealed record WaystoneView(IReadOnlyList<string> Known, string? Home);
 
 /// <summary>A gathering spot to gather (sprint 99), from the cell the character stands on.</summary>
 public sealed record Gather(string? Node, Cell From);

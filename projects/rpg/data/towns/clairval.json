@@ -405,6 +405,22 @@
         "fr": "Une pierre grise plus haute qu'un homme, fendue de haut en bas : une graine, une goutte, un marteau, une plume. Sur la face lisse, usée par les mains, un cinquième signe affleure : cinq traits en cercle, qui se font face sans se toucher.",
         "en": "A grey stone taller than a man, split from top to bottom: a seed, a drop, a hammer, a feather. On the smooth face, worn by hands, a fifth sign shows through: five strokes in a ring, facing each other without touching."
       }
+    },
+    {
+      "id": "waystone-clairval",
+      "at": {
+        "x": 25,
+        "y": 15
+      },
+      "look": "waystone",
+      "name": {
+        "fr": "Pierre de passage",
+        "en": "Waystone"
+      },
+      "text": {
+        "fr": "Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+        "en": "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."
+      }
     }
   ]
 }

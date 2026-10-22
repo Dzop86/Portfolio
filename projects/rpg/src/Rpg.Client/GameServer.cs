@@ -264,7 +264,31 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
-    /// <summary>Eats food out of a fight (sprint 101); the server checks it is owned and heals.</summary>
+    /// <summary>The waystones the character discovered, and its home (sprint 127).</summary>
+    public async Task<WaystoneView> Waystones(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/waystones", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<WaystoneView>(Json, cancel))!;
+    }
+
+    /// <summary>Travels to a waystone discovered (sprint 127); the character where it arrived, its Éclats spent.</summary>
+    public async Task<CharacterSummary> TravelTo(Guid id, string waystone, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/travel", UriKind.Relative), new Travel(waystone), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
+    /// <summary>Makes a waystone discovered the character's home (sprint 127).</summary>
+    public async Task<WaystoneView> MakeHome(Guid id, string waystone, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/home", UriKind.Relative), new Travel(waystone), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<WaystoneView>(Json, cancel))!;
+    }
+
+    /// <summary>Eats food out of a fight (sprint 101); the server checks it is owned and heals; since sprint 127, reads the recall scroll.</summary>
     public async Task<CharacterSummary> Eat(Guid id, string item, CancellationToken cancel = default)
     {
         HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/use", UriKind.Relative), new Use(item), Json, cancel), cancel);

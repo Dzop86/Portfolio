@@ -18,8 +18,9 @@ public class ShopTests
         Assert.Null(Shop.SellPrice(Real.Items["boar-wallow-key"], Real));
         Assert.Null(Shop.BuyPrice(Real.Items["admin-keyring"], Real));
         // Resources, since sprint 101 the village's loaf, since sprint 111 the healing potions at 10 and one a level;
-        // not the baker's other breads.
-        Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Id == Shop.Loaf || Real.Jobs["alchemist"].RecipeFor(i.Id) is not null, i.Id));
+        // not the baker's other breads; since sprint 127 the recall scroll, at 15.
+        Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Id == Shop.Loaf || i.Id == Waystones.Recall || Real.Jobs["alchemist"].RecipeFor(i.Id) is not null, i.Id));
+        Assert.Equal(Waystones.RecallPrice, Shop.SellPrice(Real.Items[Waystones.Recall], Real));
         Assert.Equal(4, Shop.Stock(Real).Count(i => Real.Jobs["alchemist"].RecipeFor(i.Id) is not null));
         Assert.Equal(13L, Shop.SellPrice(Real.Items["healing-potion"], Real));
         Assert.Null(Shop.SellPrice(Real.Items["oat-bread"], Real));

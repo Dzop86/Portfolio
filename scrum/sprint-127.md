@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je rentre à Clairval avec un parchemin de rappel et je voyage entre les pierres de passage découvertes, contre des Éclats (rpg) ; xUnit, intégration par l'API. | 3 | À faire |
+| En tant que joueur, je rentre à Clairval avec un parchemin de rappel et je voyage entre les pierres de passage découvertes, contre des Éclats (rpg) ; xUnit, intégration par l'API. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

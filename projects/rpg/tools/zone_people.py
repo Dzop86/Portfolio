@@ -70,6 +70,14 @@ PROPS = [
      text("Un disque d'un métal sombre que personne ne sait nommer, posé là où les quatre ailes se rejoignent. Chaque signe regarde une aile. Une fissure le traverse, et elle est tiède.",
           "A disc of a dark metal nobody can name, set where the four wings meet. Each sign faces one wing. A crack runs through it, and it is warm."), "zombie-crypt-2", (10, 4)),
 ]
+# The waystones (sprint 127, D79): the village's square and each zone's way in, two cells from the map's arrival, where
+# no group of monsters ever stands (they keep three cells away from it), so that no group of the world moves.
+WAYSTONE = (text("Pierre de passage", "Waystone"),
+            text("Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+                 "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."))
+for map_id in ("clairval", "woods-4-2", "mouldy-4-1", "lake-3-4", "fields-3-0"):
+    spawn = json.load(open(f"{root}/towns/{map_id}.json"))["spawn"]
+    PROPS.append((f"waystone-{map_id.split('-')[0]}", "waystone", WAYSTONE[0], WAYSTONE[1], map_id, (spawn["x"] + 2, spawn["y"])))
 WALK = '.=,'
 
 
@@ -110,6 +118,9 @@ for (pid, look, name, said, map_id, near, *fight) in PROPS:
     # Floor of its own (grass in the zones, the hall's floor in a dungeon), all four sides walkable.
     cells = [(x, y) for (x, y) in seen if rows[y][x] == ('=' if hall else '.') and (x, y) not in taken
              and all(n in seen and n not in taken for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))]
+    # A waystone within two cells of the arrival, where no group stands (they keep three away from it).
+    if look == "waystone":
+        cells = [c for c in cells if abs(c[0] - town["spawn"]["x"]) + abs(c[1] - town["spawn"]["y"]) <= 2]
     at = min(cells, key=lambda c: (abs(c[0] - near[0]) + abs(c[1] - near[1]), c))
     prop = O([("id", pid), ("at", O([("x", at[0]), ("y", at[1])])), ("look", look), ("name", name), ("text", said)] + ([("fight", fight[0])] if fight else []))
     town["props"] = [p for p in town.get("props", []) if p["id"] != pid] + [prop]

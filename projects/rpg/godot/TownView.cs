@@ -670,6 +670,13 @@ public partial class TownView : Node3D
             Part(this, new SphereMesh { Radius = 0.3f, Height = 0.3f }, new Color("6f5136"), at + new Vector3(0, 0.05f, 0));
             Part(this, new CylinderMesh { TopRadius = 0.12f, BottomRadius = 0.12f, Height = 0.04f }, new Color("1f1812"), at + new Vector3(0, 0.19f, 0));
         }
+        else if (prop.Look == Waystones.Look)
+        {
+            // A waystone (sprint 127): a squat grey stone on a round base, a pistachio band of light around it.
+            Part(this, new CylinderMesh { TopRadius = 0.42f, BottomRadius = 0.46f, Height = 0.12f }, grey.Darkened(0.15f), at + new Vector3(0, 0.06f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.5f, 1.0f, 0.5f) }, grey, at + new Vector3(0, 0.62f, 0), new Vector3(0, 45, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.54f, 0.08f, 0.54f) }, FighterView.PlayerColour, at + new Vector3(0, 0.82f, 0), new Vector3(0, 45, 0));
+        }
         else if (prop.Look == "seal")
         {
             // A dark disc on the floor, cracked across.
