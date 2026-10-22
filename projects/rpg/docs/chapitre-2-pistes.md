@@ -237,3 +237,14 @@ Ysaline interprète à mesure, et elle se trompe : jusqu'au troisième arc, elle
 6. **Le premier vrai choix du jeu** (`keep-or-dig`, Bérold ou Berthe) : le voulez-vous dès le chapitre 2 ? Il demande des drapeaux par personnage.
 7. **Quatre-Chemins** : gardé pour le chapitre 3, ou abandonné ?
 8. **La touche sur le héros aux quatre éléments** (§10.1, dernier point) : oui ou non ?
+
+### 10.3 Réponses de Charles (22 octobre 2026, D79)
+1. Géographie : **oui**, telle quelle.
+2. Les signes qui ont tourné : **une anomalie voulue**, aucune réplique livrée n'est retouchée.
+3. Les noms : **à relire** ; seuls Berthe, Bérold et Ormeval servent dans la tranche de la Forêt des Aïeux.
+4. Kesh : **plus tard**, avec la piste du Feu.
+5. L'ordre : **la Terre d'abord** (Forêt des Aïeux, 30 à 45), comme dans le plan du game designer (`suite-apres-d69.md` §11.6).
+6. « Garder ou creuser » : **plus tard**, l'étape (niveau 46) est hors de la tranche.
+7. Quatre-Chemins : **gardé**, comme l'étape où les routes parties de Clairval se séparent ; les quatre habitants donnent toujours leur piste à Clairval, et Quatre-Chemins est l'endroit où elles bifurquent.
+8. Le métal sombre qui ne tremble pas dans les mains du héros : **oui**.
+
