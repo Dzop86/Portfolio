@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que concepteur, je règle les combats à plusieurs contre une IA de héros qui joue en équipe (soigneurs d'abord, coups concentrés), mesurée sur 100 combats par cas avec leur intervalle de confiance (rpg) ; xUnit, test d'intégration de `--party`. | 3 | À faire |
+| En tant que concepteur, je règle les combats à plusieurs contre une IA de héros qui joue en équipe (soigneurs d'abord, coups concentrés), mesurée sur 100 combats par cas avec leur intervalle de confiance (rpg) ; xUnit, test d'intégration de `--party`. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

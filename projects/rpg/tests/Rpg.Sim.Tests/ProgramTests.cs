@@ -173,4 +173,48 @@ public class ProgramTests
             Assert.True(won >= least, $"{party}: {output}");
         }
     }
+
+    [Fact]
+    public void ThePartiesOfEachSize_AreTheClassesCombinations_HeroFirst()
+    {
+        // Sprint 122: 6 parties of two, 10 of three and 15 of four with three classes, none twice.
+        string[] classes = ["guard", "mage", "sentinel"];
+        foreach ((int size, int count) in new[] { (2, 6), (3, 10), (4, 15) })
+        {
+            IReadOnlyList<string>[] parties = [.. Program.Parties(classes, size)];
+            Assert.Equal(count, parties.Length);
+            Assert.All(parties, p => Assert.Equal(size, p.Count));
+            Assert.Equal(count, parties.Select(p => string.Join('+', p.Order(StringComparer.Ordinal))).Distinct().Count());
+        }
+        Assert.Equal(["guard", "guard"], Program.Parties(classes, 2).First());
+    }
+
+    [Theory]
+    [InlineData(50, 100, 40.4, 59.6)]
+    [InlineData(0, 20, 0, 16.1)]
+    [InlineData(20, 20, 83.9, 100)]
+    public void TheWilsonInterval_FramesTheRate(int wins, int n, double low, double high)
+    {
+        (double l, double h) = Program.Wilson(wins, n);
+        Assert.Equal(low, l, 1);
+        Assert.Equal(high, h, 1);
+    }
+
+    [Fact]
+    public void Parties_PlayEveryPartyAtTheMonstersLevel_TheSameWayTwice()
+    {
+        // The queen's group of the Fields (T89), two fights per party: a table per size, then the same tables again.
+        string[] args = ["--simulate", "2", "--scenario", "group:fields-0-4.0", "--parties", "--seed", "5"];
+        (int code, string output, _) = Run(args);
+        Assert.Equal(0, code);
+        Assert.Matches(@"level 30, kit none, 2 fights per party", output);
+        foreach (string size in new[] { "2 heroes", "3 heroes", "4 heroes" })
+            Assert.Contains(size, output, StringComparison.Ordinal);
+        Assert.Matches(@"sentinel\+guard\+mage\+mage +\d/2 ", output);
+        Assert.Equal(3, System.Text.RegularExpressions.Regex.Count(output, @"  all "));
+        Assert.Equal(output, Run(args).Out);
+        Assert.Contains("niveau 12", Run([.. args, "--level", "12", "--lang", "fr"]).Out, StringComparison.Ordinal);
+        Assert.Equal(2, Run("--simulate", "2", "--parties", "--class", "guard").Code);
+        Assert.Equal(2, Run("--record", "x.json", "--parties").Code);
+    }
 }

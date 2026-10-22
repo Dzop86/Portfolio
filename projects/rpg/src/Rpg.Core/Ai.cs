@@ -7,7 +7,8 @@ namespace Rpg.Core;
 /// it walks there first (a ranged fighter steps back from melee); a sure kill comes before anything.
 /// With nothing to cast it walks to the cell offering the best turn, otherwise towards the nearest
 /// enemy, but never with its action points spent; then it ends its turn. It only ever proposes
-/// actions the rules accept.
+/// actions the rules accept. Since sprint 122, a hero fighting beside other heroes plays as a team
+/// (<see cref="Focus"/>); a hero alone plays as before.
 /// </summary>
 public static class Ai
 {
@@ -17,6 +18,18 @@ public static class Ai
     /// <summary>What finishing off an enemy is worth, on top of the damage.</summary>
     internal const double KillBonus = 10;
 
+    /// <summary>Team play (sprint 122): damage to a monster that can heal is worth this much more.</summary>
+    internal const double HealerFocus = 1.5;
+
+    /// <summary>Team play (sprint 122): damage to a monster another hero hit this round is worth this much more.</summary>
+    internal const double SharedTargetFocus = 1.25;
+
+    /// <summary>Team play (sprint 122): the part of the damage lost for each monster a hit would alert (a passive like the bees' Alarm).</summary>
+    internal const double AlertPenalty = 0.1;
+
+    // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Fight, Tuple<int, int, HashSet<int>>> HitThisRound = [];
+
     /// <summary>The next action of the current fighter.</summary>
     public static FightAction Decide(Fight fight)
     {
@@ -24,7 +37,7 @@ public static class Ai
         Fighter me = fight.Current;
         (Spell Spell, Cell Target, double Value, double Turn)? here = BestTurn(fight, me, me.Cell);
         // A sure kill is never worth walking away from: the value of a cast stops at the target's hit points.
-        bool kills = here is var (_, aimed, worth, _) && Kills(fight, me, aimed, worth);
+        bool kills = here is var (aimSpell, aimed, _, _) && Kills(fight, me, aimSpell, me.Cell, aimed);
         if (here is var (spell, target, _, _) && (me.Mp == 0 || kills))
             return new CastAction(spell.Id, target);
         if (me.Mp == 0)
@@ -99,7 +112,7 @@ public static class Ai
         int ap = apLeft ?? me.Ap;
         if (BestCast(fight, me, from) is not var (topSpell, topTarget, topValue))
             return null;
-        if (Kills(fight, me, topTarget, topValue))
+        if (Kills(fight, me, topSpell, from, topTarget))
             return (topSpell, topTarget, topValue, topValue);
         // One item per possible cast: a spell with a cooldown is cast at most once.
         List<(Spell Spell, Cell Target, double Value)> casts = [];
@@ -175,9 +188,72 @@ public static class Ai
         && fight.Fighters.Any(f => f.IsAlive && f.Team != me.Team && f.Cell.DistanceTo(ally.Cell) == 1)
         && (!spell.AllEffects.Any(e => e is SwapEffect) || me.Hp > ally.Hp);
 
-    /// <summary>Whether a cast worth <paramref name="value"/> on <paramref name="target"/> surely kills an enemy there.</summary>
-    private static bool Kills(Fight fight, Fighter me, Cell target, double value) =>
-        fight.Fighters.Any(f => f.IsAlive && f.Cell == target && f.Team != me.Team && value >= f.Hp + f.Shield);
+    /// <summary>
+    /// Whether a cast on <paramref name="target"/> surely kills an enemy there: its worth, without team play
+    /// (<see cref="Focus"/> only chooses the target), reaches the enemy's hit points and shields.
+    /// </summary>
+    private static bool Kills(Fight fight, Fighter me, Spell spell, Cell from, Cell target)
+    {
+        double value = Value(fight, me, spell, from, target, focus: false);
+        return fight.Fighters.Any(f => f.IsAlive && f.Cell == target && f.Team != me.Team && value >= f.Hp + f.Shield);
+    }
+
+    /// <summary>
+    /// Team play (sprint 122, T90): how much damage to <paramref name="enemy"/> is worth when <paramref name="me"/> is a
+    /// hero fighting beside at least one other hero, as players would play: the monsters that heal first
+    /// (<see cref="HealerFocus"/>), all on the same monster (<see cref="SharedTargetFocus"/>, one another hero hit this
+    /// round), and a monster that would alert others when hit, and survive, last (<see cref="AlertPenalty"/> for each). 1 otherwise,
+    /// so that a hero alone, a monster and every fight recorded before plays exactly as before.
+    /// </summary>
+    internal static double Focus(Fight fight, Fighter me, Fighter enemy, bool kills = false)
+    {
+        IReadOnlyList<Fighter> heroes = fight.HeroFighters;
+        if (heroes.Count < 2 || !heroes.Contains(me) || enemy.Team == me.Team)
+            return 1;
+        double focus = 1;
+        if (enemy.Spells.Any(sp => sp.AllEffects.Any(e => e is HealEffect && e.Affects != Affects.Enemies)))
+            focus *= HealerFocus;
+        if (HitByOtherHeroes(fight, me).Contains(enemy.Id))
+            focus *= SharedTargetFocus;
+        int alerted = 0;
+        foreach (PassiveSpec passive in enemy.Passives.Where(p => !kills && p.Trigger == Trigger.Hit && p.Area is not null
+            && p.AllEffects.Any(e => e.Affects is Affects.Allies or Affects.All)))
+        {
+            alerted += passive.Area!.Cells(enemy.Cell, enemy.Cell).Skip(1).Select(fight.At)
+                .Count(f => f is not null && f.Team == enemy.Team);
+        }
+        return focus * Math.Max(0, 1 - AlertPenalty * alerted);
+    }
+
+    /// <summary>
+    /// The enemies the heroes other than <paramref name="me"/> damaged since the round began, read from the events
+    /// back to the round's first turn; kept per fight while no event is added.
+    /// </summary>
+    private static HashSet<int> HitByOtherHeroes(Fight fight, Fighter me)
+    {
+        IReadOnlyList<FightEvent> events = fight.Events;
+        if (HitThisRound.TryGetValue(fight, out Tuple<int, int, HashSet<int>>? known) && known.Item1 == events.Count && known.Item2 == me.Id)
+            return known.Item3;
+        var hit = new HashSet<int>();
+        var damaged = new List<int>();
+        for (int i = events.Count - 1; i >= 0; i--)
+        {
+            if (events[i] is Damaged d)
+            {
+                damaged.Add(d.Fighter);
+            }
+            else if (events[i] is TurnStarted turn)
+            {
+                if (turn.Round != fight.Round)
+                    break;
+                if (turn.Fighter != me.Id && fight.HeroFighters.Any(h => h.Id == turn.Fighter))
+                    hit.UnionWith(damaged.Where(id => fight.Fighters[id].Team != me.Team));
+                damaged.Clear();
+            }
+        }
+        HitThisRound.AddOrUpdate(fight, Tuple.Create(events.Count, me.Id, hit));
+        return hit;
+    }
 
     /// <summary>
     /// The best spell and target cell from <paramref name="from"/>, aiming at a fighter's cell: the
@@ -229,9 +305,10 @@ public static class Ai
     /// What a cast is worth: average damage to enemies, capped at their hit points (a sure kill beats
     /// overkill), minus one and a half times the damage to allies; healing that fills missing hit
     /// points; a little for shields, statuses and pushes. A single-target damage spell is worth its
-    /// average damage capped at the target's hit points, as before effects existed.
+    /// average damage capped at the target's hit points, as before effects existed. With
+    /// <paramref name="focus"/>, the damage to each enemy is weighed by team play (<see cref="Focus"/>).
     /// </summary>
-    internal static double Value(Fight fight, Fighter me, Spell spell, Cell from, Cell target)
+    internal static double Value(Fight fight, Fighter me, Spell spell, Cell from, Cell target, bool focus = true)
     {
         IReadOnlyList<Fighter> area = fight.InArea(spell, from, target);
         double value = 0;
@@ -242,7 +319,7 @@ public static class Ai
                 double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000, f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
-                value += f.Team == me.Team ? -1.5 * hit : f.IsSummon ? 0.5 * hit : hit;
+                value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1);
                 if (f.Team != me.Team && !f.IsSummon && hit >= f.Hp + f.Shield)
                     value += KillBonus;
             }

@@ -13,7 +13,9 @@ namespace Rpg.Sim;
 /// --class ID (the hero of team A plays that class of data/classes.json), --rival ID (team B's first
 /// fighter too, for class duels), --level N (both heroes' level, 1 by default, their points spent
 /// the simplest way: Progression.Built), --party ID,ID... (since sprint 121, up to three allies of these classes beside the
-/// hero, at the same level with the same kit, all played by the AI).
+/// hero, at the same level with the same kit, all played by the AI), --parties (since sprint 122, with --simulate N:
+/// every party of two, three and four heroes of the classes, N fights each, at the level of the scenario's monsters
+/// unless --level says otherwise; each rate with its 95 % interval).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -51,6 +53,11 @@ public static class Program
             {
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
+            }
+            if (options.Parties)
+            {
+                SimulateParties(data, options, text, output);
+                return 0;
             }
             Hero? hero = null, rival = null;
             var allies = new List<Hero>();
@@ -119,6 +126,64 @@ public static class Program
             (double)rounds / options.Simulate, (double)actions / options.Simulate));
     }
 
+    /// <summary>
+    /// Every party of two, three and four heroes (sprint 122): the classes' combinations with repetition, in the
+    /// order of the data (6, 10 and 15 with three classes), the first class playing the hero; the same seeds for each.
+    /// </summary>
+    internal static IEnumerable<IReadOnlyList<string>> Parties(IReadOnlyList<string> classes, int size)
+    {
+        IEnumerable<IReadOnlyList<string>> From(int first, int left) =>
+            left == 0 ? [[]] : Enumerable.Range(first, classes.Count - first).SelectMany(i => From(i, left - 1).Select(rest => (IReadOnlyList<string>)[classes[i], .. rest]));
+        return From(0, size);
+    }
+
+    /// <summary>The 95 % Wilson interval of <paramref name="wins"/> out of <paramref name="n"/>, in percent.</summary>
+    internal static (double Low, double High) Wilson(int wins, int n)
+    {
+        const double z = 1.96;
+        double p = (double)wins / n, d = 1 + z * z / n;
+        double centre = (p + z * z / (2 * n)) / d, half = z * Math.Sqrt(p * (1 - p) / n + z * z / (4.0 * n * n)) / d;
+        return (100 * Math.Max(0, centre - half), 100 * Math.Min(1, centre + half));
+    }
+
+    private static void SimulateParties(GameData data, Options options, Texts text, TextWriter output)
+    {
+        Scenario scenario = data.FindScenario(options.Scenario)!;
+        int level = options.LevelSet ? options.Level : Math.Max(1, scenario.Fighters.Where(f => f.Team == 1).Select(f => f.Level).DefaultIfEmpty(1).Max());
+        IReadOnlyDictionary<Slot, string>? worn = ZoneOf(data, options.Scenario) is string zone ? Progression.Kit(options.Kit, zone, level, data) : null;
+        Hero Built(string cls, string name) => Progression.Built(new Hero(name, "female-c", cls, Level: level), data, worn);
+        string[] classes = [.. data.Classes.Select(c => c.Id)];
+        output.WriteLine(text.PartiesHeader(scenario, level, options.Kit, options.Simulate));
+        for (int size = 2; size <= 4; size++)
+        {
+            IReadOnlyList<string>[] parties = [.. Parties(classes, size)];
+            int[] wins = new int[parties.Length];
+            // Each party on its own thread: the fights only read the data, and every result goes to its own place.
+            Parallel.For(0, parties.Length, k =>
+            {
+                Hero hero = Built(parties[k][0], "Aube");
+                Hero[] allies = [.. parties[k].Skip(1).Select((c, i) => Built(c, AllyNames[i]))];
+                for (int i = 0; i < options.Simulate; i++)
+                {
+                    var fight = new Fight(data, options.Scenario, options.Seed + (ulong)i, hero, null, null, allies);
+                    Ai.PlayOut(fight);
+                    if (fight.WinningTeam == 0)
+                        wins[k]++;
+                }
+            });
+            output.WriteLine(text.PartiesTitle(size));
+            for (int k = 0; k < parties.Length; k++)
+                output.WriteLine(Row(string.Join('+', parties[k]), wins[k], options.Simulate));
+            output.WriteLine(Row(text.All, wins.Sum(), options.Simulate * parties.Length));
+        }
+    }
+
+    private static string Row(string name, int wins, int n)
+    {
+        (double low, double high) = Wilson(wins, n);
+        return string.Create(CultureInfo.InvariantCulture, $"  {name,-36} {wins,5}/{n,-5} {100.0 * wins / n,5:0} %  [{low:0}-{high:0}]");
+    }
+
     /// <summary>The board as text: '.' floor, '#' obstacle, '~' hole, a letter per living fighter (a, b... team A; upper case team B).</summary>
     internal static string Draw(Fight fight, string lang)
     {
@@ -145,7 +210,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -169,11 +234,14 @@ public static class Program
                     "--rival" => o with { Rival = Value() },
                     "--party" => o with { Allies = Value().Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) is { Length: >= 1 and <= 3 } ids ? ids : throw new ArgumentException("--party is one to three classes, with commas.") },
                     "--kit" => o with { Kit = Progression.Kits.Contains(Value()) ? args[i] : throw new ArgumentException($"--kit is one of: {string.Join(", ", Progression.Kits)}.") },
-                    "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100.") },
+                    "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100."), LevelSet = true },
+                    "--parties" => o with { Parties = true },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
             int modes = (o.Simulate > 0 ? 1 : 0) + (o.Record is null ? 0 : 1) + (o.Replay is null ? 0 : 1);
+            if (o.Parties && (o.Simulate == 0 || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
+                throw new ArgumentException("--parties goes with --simulate N, without --class, --rival or --party.");
             return modes == 1 ? o : throw new ArgumentException("Choose one of --simulate N, --record FILE or --replay FILE.");
         }
     }
@@ -192,6 +260,14 @@ public static class Program
             char t = (char)('A' + team);
             return Fr ? $"{name}, graine {f.Seed} : l'équipe {t} gagne au tour {f.Round}, après {f.History.Count} actions." : $"{name}, seed {f.Seed}: team {t} wins in round {f.Round}, after {f.History.Count} actions.";
         }
+
+        public string All => Fr ? "toutes" : "all";
+
+        public string PartiesHeader(Scenario s, int level, string kit, int n) => Fr
+            ? $"{s.Name.Fr}, niveau {level}, équipement {kit}, {n} combats par groupe (victoires, taux, intervalle à 95 %) :"
+            : $"{s.Name.En}, level {level}, kit {kit}, {n} fights per party (wins, rate, 95 % interval):";
+
+        public string PartiesTitle(int size) => Fr ? $"{size} héros" : $"{size} heroes";
 
         public string Stats(Scenario s, int n, int[] wins, int draws, double rounds, double actions)
         {

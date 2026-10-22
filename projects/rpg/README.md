@@ -4,7 +4,7 @@
 
 Un RPG tactique au tour par tour, dans l'esprit de Dofus et de Wakfu, écrit de zéro : aucun code, aucun nom, aucune image d'Ankama (D54). Six sprints : les règles du combat (sprint 45, ce dossier), le combat isométrique dans Godot 4 (46), le serveur de comptes et de personnages (47), la création de personnage (48), la ville d'accueil et ses PNJ (49), le launcher en Rust et les exécutables (50). Solo d'abord ; le multijoueur viendra plus tard, sur ces mêmes règles.
 
-*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 121: fighting with the party in the game: in a party, attacking a group opens a fight its members on the map are asked to join (15 seconds, or Start); each game shows the fight the server leads, plays only its own hero, and ends with a line of rewards for each hero; dungeons with the party, each going in with its own key and all going on together; the party's balance measured with the simulator (--party).*
+*A turn-based tactical RPG in the style of Dofus and Wakfu, written from scratch. Sprint 122: a hero AI that plays as a team when several heroes fight (the monsters that heal first, the same monster for everyone, the ones that would alert others last; a hero alone plays exactly as before), and the party's balance measured on 100 fights for every party of two, three and four, with a 95 % interval (--parties).*
 
 ## Les règles
 - **Le plateau** est une grille de cases dessinées en losanges (vue isométrique). On se déplace vers l'une des quatre cases qui partagent un côté ; toutes les distances se comptent en pas, donc une portée dessine un losange autour du lanceur. Trois terrains : le sol, les obstacles (ni passage ni vue) et les trous (pas de passage, mais les sorts passent au-dessus).
@@ -100,6 +100,7 @@ dotnet test --project tests/Rpg.Core.Tests
 dotnet run --project src/Rpg.Sim -- --simulate 1000 --scenario duel
 dotnet run --project src/Rpg.Sim -- --record combat.json --scenario training --seed 7 --lang fr
 dotnet run --project src/Rpg.Sim -- --replay combat.json --show --lang fr
+dotnet run -c Release --project src/Rpg.Sim -- --simulate 100 --scenario group:fields-0-4.0 --parties --kit zone   # tous les groupes de 2, 3 et 4 héros
 ```
 Le serveur et ses tests demandent PostgreSQL :
 ```sh
@@ -111,6 +112,8 @@ scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscri
 La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
+Sprint 122 : 8 tests de plus (`Rpg.Core` : `TeamAiTests`, un héros entre une nourrice et une ouvrière de même valeur frappe la nourrice s'il a un allié, deux héros achèvent le même monstre plutôt que le plus faible, un monstre qui alerterait les autres vaut moins sauf s'il meurt du coup, rien ne change seul ni pour les monstres, et les combats d'un héros seul identiques à ceux d'avant le sprint (empreinte) ; `Rpg.Sim` : `--parties`, les 6, 10 et 15 groupes de deux, trois et quatre classes, l'intervalle de Wilson, le même tableau deux fois avec la même graine, au niveau des monstres sauf `--level`).
+
 Sprint 121 : 5 tests de plus (`Rpg.Client` : `SharedFightTests`, le même combat que le serveur depuis son départ, le joueur ne jouant que son héros, les actions dites appliquées une fois et dans l'ordre, un trou ou une autre action au même numéro qui demandent de reconstruire ; la fin avec une ligne de récompenses par héros, celle du joueur marquée ; `Rpg.Api` : un groupe dans un donjon, chacun entré avec sa clé, qui combat sa salle ensemble et avance ensemble ; `Rpg.Sim` : `--party` et son enregistrement, la troisième salle de la Bauge gagnée par trois héros au moins 7 fois sur 10 et par quatre au moins 9 fois sur 10) ; l'auto-test pose la question « X attaque … : le rejoindre ? ».
 
 Sprint 120 : 5 tests de plus (`Rpg.Core` : `PartyFightTests`, les alliés sur les cases libres de l'équipe A après les combattants du scénario, et qui le restent après une invocation ; un enregistrement de version 2 qui les rejoue, une version 1 toujours lue ; l'expérience de chacun selon son niveau, son propre butin ; `Rpg.Api` : `BattleTests`, deux clients qui ouvrent, rejoignent et lancent un combat sur un groupe, jouent chacun leur héros à leur tour pendant que le serveur joue les monstres, gardent le même combat que lui et sont récompensés chacun ; un tour laissé seul qui passe au bout de 30 s, un joueur qui ne peut pas jouer le héros d'un autre, un retour qui reçoit tout le combat) ; le test des enregistrements inconnus passe à la version 3.
