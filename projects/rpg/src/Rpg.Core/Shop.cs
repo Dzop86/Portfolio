@@ -11,8 +11,18 @@ public static class Shop
     /// <summary>The village's square (its other maps are clairval-col-row since sprint 102).</summary>
     public const string Village = "clairval";
 
-    /// <summary>Whether a map is one of the village's (sprint 102: twelve maps, Rose on the market).</summary>
-    public static bool InVillage(string? map) => map is not null && (map == Village || map.StartsWith(Village + "-", StringComparison.Ordinal));
+    /// <summary>Quatre-Chemins's square (sprint 129): the second village, its other maps four-ways-col-row.</summary>
+    public const string Hamlet = "four-ways";
+
+    /// <summary>The villages, by their square: the stall, the life that grows twice as fast.</summary>
+    public static readonly IReadOnlyList<string> Villages = [Village, Hamlet];
+
+    /// <summary>The village a map is one of (its square's id: Clairval's twelve maps since sprint 102, Quatre-Chemins's four since 129), or null.</summary>
+    public static string? VillageOf(string? map) =>
+        map is null ? null : Villages.FirstOrDefault(v => map == v || map.StartsWith(v + "-", StringComparison.Ordinal));
+
+    /// <summary>Whether a map is one of a village's.</summary>
+    public static bool InVillage(string? map) => VillageOf(map) is not null;
 
     /// <summary>The most bought or sold at once.</summary>
     public const int MostAtOnce = 99;
@@ -86,7 +96,7 @@ public static class Shop
     public static string? WhyNotBuy(Item item, int count, long shards, string? place, GameData data)
     {
         ArgumentNullException.ThrowIfNull(item);
-        return !InVillage(place) ? "Rose's stall is in the village."
+        return !InVillage(place) ? "The stall is in a village."
             : count is < 1 or > MostAtOnce ? $"1 to {MostAtOnce} at once."
             : SellPrice(item, data) is not long price ? "Rose does not sell this."
             : price * count > shards ? $"{price * count} Éclats needed."
@@ -99,7 +109,7 @@ public static class Shop
         ArgumentNullException.ThrowIfNull(item);
         ArgumentNullException.ThrowIfNull(owned);
         int free = owned.Where(o => o.Item == item.Id).Sum(o => o.Count) - (worn ?? new Dictionary<Slot, string>()).Values.Count(w => w == item.Id);
-        return !InVillage(place) ? "Rose's stall is in the village."
+        return !InVillage(place) ? "The stall is in a village."
             : count is < 1 or > MostAtOnce ? $"1 to {MostAtOnce} at once."
             : BuyPrice(item, data) is null ? "Rose does not buy this."
             : free < count ? "Not that many, or worn." : null;

@@ -140,8 +140,14 @@ public sealed class TownController
     /// <summary>Where the player is in a dungeon, as the controller was given it.</summary>
     public DungeonRun? Run { get; }
 
-    /// <summary>The ways that stay shut: a hall's far door while its group stands (sprint 86).</summary>
-    public IReadOnlyCollection<ZoneLink> ShutWays => _shut;
+    /// <summary>
+    /// The ways that stay shut: a hall's far door while its group stands (sprint 86); since sprint 129, a way that waits
+    /// for a quest the character has not done (every one of them for a hero without a character).
+    /// </summary>
+    public IReadOnlyCollection<ZoneLink> ShutWays => [.. (Town.Links ?? []).Where(IsShut)];
+
+    /// <summary>Whether a way of this map stays shut now.</summary>
+    public bool IsShut(ZoneLink link) => _shut.Contains(link) || !link.OpenFor(Book?.DoneQuests ?? []);
 
     /// <summary>The shut way the player walked onto, if any: the game says why it does not open.</summary>
     public ZoneLink? Shut { get; private set; }
@@ -346,7 +352,7 @@ public sealed class TownController
             Fight = exit.Scenario;
         else if (spring)
             Spring = true;
-        else if (link is not null && there && _shut.Contains(link))
+        else if (link is not null && there && IsShut(link))
             Shut = link;
         else if (link is not null && there)
             Travel = link;
@@ -412,7 +418,7 @@ public static class TownTour
 {
     /// <summary>
     /// Goes through the whole world by its ways, from <paramref name="start"/>: each map entered once,
-    /// by the first way found to it, depth first. Returns the maps visited.
+    /// by the first way found to it (a shut one too), depth first. Returns the maps visited.
     /// </summary>
     public static IReadOnlyList<string> World(TownController start, Action<TownController, TownStep>? afterClick = null)
     {
@@ -426,7 +432,10 @@ public static class TownTour
                     continue;
                 TownStep step = here.Click(link.At) ?? throw new InvalidOperationException($"Cannot walk to the way to {link.To}.");
                 afterClick?.Invoke(here, step);
-                TownController there = here.Enter(here.Travel!);
+                // A shut way (Clairval's east gate before "Four Trails", sprint 129) is toured all the same: the tour sees the whole world.
+                ZoneLink through = here.Travel ?? (here.Shut == link ? link : throw new InvalidOperationException($"The way to {link.To} leads nowhere."));
+                here.CloseDoor();
+                TownController there = here.Enter(through);
                 // Back from there, the player stands on the way, free to walk to the next one.
                 here.Interrupt(here.Position);
                 visited.Add(there.Town.Id);

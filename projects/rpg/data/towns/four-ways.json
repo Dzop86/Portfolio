@@ -1,0 +1,347 @@
+{
+  "id": "four-ways",
+  "name": {
+    "fr": "Quatre-Chemins, la place du relais",
+    "en": "Four Ways, Inn Square"
+  },
+  "level": 30,
+  "mapAt": {
+    "x": 4,
+    "y": 0
+  },
+  "zone": "four-ways",
+  "rows": [
+    "PXXXXXXXXXXXXXXXXXXXX=======XXXXXXXXXXXXXXXXXXXX",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=..........T...........X",
+    "P.......................=..........T...........X",
+    "P.......................=......................X",
+    "P................Hh.....=......................X",
+    "P................hh.....=......................X",
+    "P..BB...................=.........S......Hh....X",
+    "P..B......Hh............=...........Hh...hh....X",
+    "P.........hh............=...........hh.........=",
+    "P.......................=.........S............=",
+    "=.......................=......................=",
+    "================================================",
+    "=.......................=......................=",
+    "P.......................=................T.B...=",
+    "P....Hh...Hh.........L..=..L............T......=",
+    "P....hh...hh............=...............Hh..Hh.X",
+    "P...................Hh..=.....T.........hh.Thh.X",
+    "P...................hh..=......T...............X",
+    "P.......................=......................X",
+    "P.......................=.......C..............X",
+    "P.....................B.=......................X",
+    "P.......................=......................X",
+    "P.................~~~~~~~~~~~~~.......B........X",
+    "P.................~~~~~~~~~~~~~......BB........X",
+    "P.................~~~~~~~~~~~~~................X",
+    "P.................~~~~~~~~~~~~~................X",
+    "PPPPPPPPPPPPPPPPPPPPPP=====PPPPPPPPPPPPPPPPPPPPP"
+  ],
+  "spawn": {
+    "x": 24,
+    "y": 16
+  },
+  "npcs": [
+    {
+      "id": "lucien",
+      "name": {
+        "fr": "Lucien",
+        "en": "Lucien"
+      },
+      "look": "male-e",
+      "colour": 3,
+      "at": {
+        "x": 30,
+        "y": 12
+      },
+      "dialogue": "lucien"
+    },
+    {
+      "id": "josette",
+      "name": {
+        "fr": "Josette",
+        "en": "Josette"
+      },
+      "look": "female-e",
+      "colour": 1,
+      "at": {
+        "x": 18,
+        "y": 12
+      },
+      "dialogue": "josette"
+    },
+    {
+      "id": "aristide",
+      "name": {
+        "fr": "Aristide",
+        "en": "Aristide"
+      },
+      "look": "male-f",
+      "colour": 4,
+      "at": {
+        "x": 28,
+        "y": 24
+      },
+      "dialogue": "aristide"
+    }
+  ],
+  "links": [
+    {
+      "at": {
+        "x": 0,
+        "y": 15
+      },
+      "to": "clairval-3-1",
+      "arrival": {
+        "x": 46,
+        "y": 15
+      },
+      "name": {
+        "fr": "Clairval",
+        "en": "Clairval"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 16
+      },
+      "to": "clairval-3-1",
+      "arrival": {
+        "x": 46,
+        "y": 16
+      },
+      "name": {
+        "fr": "Clairval",
+        "en": "Clairval"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 17
+      },
+      "to": "clairval-3-1",
+      "arrival": {
+        "x": 46,
+        "y": 17
+      },
+      "name": {
+        "fr": "Clairval",
+        "en": "Clairval"
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 13
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 14
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 15
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 16
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 17
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 17
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 18
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 19
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 1,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 21,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 22,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 22,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 23,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 24,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 25,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 26,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 26,
+        "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 27,
+        "y": 0
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 27,
+        "y": 30
+      }
+    }
+  ],
+  "exits": [],
+  "props": [
+    {
+      "id": "four-armed-signpost",
+      "at": {
+        "x": 27,
+        "y": 12
+      },
+      "look": "signpost",
+      "name": {
+        "fr": "Le poteau aux quatre bras",
+        "en": "The four-armed signpost"
+      },
+      "text": {
+        "fr": "Un poteau de chêne à quatre bras, sans un seul nom : seulement des signes. La graine montre le sud, la goutte le sud-ouest, le marteau l'est, la plume le nord. Le bois est neuf ; les signes ont été recopiés d'un poteau plus vieux, et celui-là d'un plus vieux encore.",
+        "en": "An oak signpost with four arms and not a single name: only signs. The seed points south, the drop south-west, the hammer east, the feather north. The wood is new; the signs were copied from an older post, and that one from an older one still."
+      }
+    },
+    {
+      "id": "flooded-ford",
+      "at": {
+        "x": 24,
+        "y": 26
+      },
+      "look": "ford",
+      "name": {
+        "fr": "Le gué en crue",
+        "en": "The flooded ford"
+      },
+      "text": {
+        "fr": "D'habitude, on traverse ici avec de l'eau aux genoux. Aujourd'hui, la rivière roule large et brune, et charrie des joncs arrachés au Lac. Le piquet qui marquait le gué a disparu sous l'eau.",
+        "en": "Usually you cross here with the water at your knees. Today the river runs wide and brown, carrying reeds torn from the lake. The post that marked the ford has gone under."
+      }
+    },
+    {
+      "id": "waystone-four-ways",
+      "at": {
+        "x": 25,
+        "y": 15
+      },
+      "look": "waystone",
+      "name": {
+        "fr": "Pierre de passage des Quatre-Chemins",
+        "en": "Four Ways waystone"
+      },
+      "text": {
+        "fr": "Une pierre de passage plus usée que celle de Clairval : ici, tout le monde arrive de quelque part. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+        "en": "A waystone more worn than Clairval's: here, everyone has come from somewhere. Whoever has touched it once can come back to it from another stone, for a few Éclats."
+      }
+    }
+  ]
+}

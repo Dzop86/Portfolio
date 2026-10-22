@@ -1,0 +1,76 @@
+{
+  "id": "aristide",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Doucement, Biscotte, on ne vient pas nous voler. Enfin, je crois. Bonjour !",
+        "en": "Easy, Biscotte, nobody's here to rob us. I don't think. Hello!"
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le gué ?",
+            "en": "The ford?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "La charrette ?",
+            "en": "The cart?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "D'habitude, on passe avec de l'eau aux genoux, Biscotte et moi. Là, la rivière emporterait la charrette, la mule et le charretier. Et il n'a pas plu depuis un mois.",
+        "en": "Usually Biscotte and I cross with the water up to our knees. Now the river would take the cart, the mule and the carter. And it hasn't rained for a month."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "La charrette ?",
+            "en": "The cart?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Du miel des Champs pour la côte. Trois semaines que j'attends ici : il va finir par cristalliser, et moi avec.",
+        "en": "Honey from the Fields, for the coast. Three weeks I've been waiting here: it'll set solid before long, and so will I."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le gué ?",
+            "en": "The ford?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, après « Quatre pistes », je rejoins Quatre-Chemins, ses habitants et sa pierre ; trois routes sont barrées, celle de la Terre est ouverte (rpg) ; xUnit, auto-test du village. | 5 | À faire |
+| En tant que joueur, après « Quatre pistes », je rejoins Quatre-Chemins, ses habitants et sa pierre ; trois routes sont barrées, celle de la Terre est ouverte (rpg) ; xUnit, auto-test du village. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

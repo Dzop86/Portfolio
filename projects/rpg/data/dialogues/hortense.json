@@ -24,6 +24,13 @@
         },
         {
           "text": {
+            "fr": "La porte de l'Est ?",
+            "en": "The East Gate?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -45,6 +52,13 @@
         },
         {
           "text": {
+            "fr": "La porte de l'Est ?",
+            "en": "The East Gate?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
             "fr": "À bientôt.",
             "en": "See you."
           }
@@ -63,6 +77,41 @@
             "en": "And the palisade?"
           },
           "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "La porte de l'Est ?",
+            "en": "The East Gate?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Celle-là, je ne la comptais pas : une porte qui ne s'ouvre pas, c'est un mur. Ma grand-mère disait qu'on l'avait barrée « pour de bonnes raisons ». Elle n'a jamais dit lesquelles.",
+        "en": "That one I never counted: a gate that doesn't open is a wall. My grandmother said it was barred 'for good reasons'. She never said which."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Et la palissade ?",
+            "en": "And the palisade?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et le bois ?",
+            "en": "And the wood?"
+          },
+          "next": "topic2"
         },
         {
           "text": {

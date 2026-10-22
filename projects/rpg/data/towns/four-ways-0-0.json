@@ -1,0 +1,242 @@
+{
+  "id": "four-ways-0-0",
+  "name": {
+    "fr": "Quatre-Chemins, le chemin creux",
+    "en": "Four Ways, the Sunken Lane"
+  },
+  "level": 30,
+  "mapAt": {
+    "x": 4,
+    "y": -1
+  },
+  "zone": "four-ways",
+  "rows": [
+    "PPPPPPPPPPPPPPPPPPPPPP=====PPPPPPPPPPPPPPPPPPPPP",
+    "P..................RRRRRRRRRRR.................X",
+    "P....T.............RRRRRRRRRRR.................X",
+    "P.....TB...........RRRRRRRRRRR.................X",
+    "P........B.........RRRRRRRRRRR........TT.......X",
+    "P.........B.............=......................X",
+    "P.........B.........Hh..=......................X",
+    "P...................hh..=......................X",
+    "P.......................=...........R..........X",
+    "P.......R...............=......................X",
+    "P........R..............=.....C................X",
+    "P.......................=.................Hh...X",
+    "P.......................=.................hh...X",
+    "P.......................=......................=",
+    "P..................Hh...=......................=",
+    "P..................hh...=......................=",
+    "P................B......========================",
+    "P................B......=......................=",
+    "P...............B.......=......................=",
+    "P.......................=......................=",
+    "P...................Hh..=............R.........X",
+    "P...................hh..=...........Hh.........X",
+    "P.......................=...........hh.........X",
+    "P.......................=............T.........X",
+    "P..........TT...........=...........T..........X",
+    "P.......................=..Hh..........T.......X",
+    "P.......................=..hh...........T......X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "P.......................=......................X",
+    "PXXXXXXXXXXXXXXXXXXXX=======XXXXXXXXXXXXXXXXXXXX"
+  ],
+  "spawn": {
+    "x": 24,
+    "y": 16
+  },
+  "npcs": [
+    {
+      "id": "remi",
+      "name": {
+        "fr": "Rémi",
+        "en": "Rémi"
+      },
+      "look": "male-d",
+      "colour": 2,
+      "at": {
+        "x": 26,
+        "y": 7
+      },
+      "dialogue": "remi"
+    }
+  ],
+  "links": [
+    {
+      "at": {
+        "x": 47,
+        "y": 13
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 14
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 15
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 16
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 17
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 17
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 18
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 19
+      },
+      "to": "four-ways-1-0",
+      "arrival": {
+        "x": 1,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 21,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 22,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 22,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 25,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 26,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 26,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 27,
+        "y": 31
+      },
+      "to": "four-ways",
+      "arrival": {
+        "x": 27,
+        "y": 1
+      }
+    }
+  ],
+  "exits": [],
+  "props": [
+    {
+      "id": "north-rockfall",
+      "at": {
+        "x": 24,
+        "y": 5
+      },
+      "look": "rockfall",
+      "name": {
+        "fr": "L'éboulis",
+        "en": "The rockfall"
+      },
+      "text": {
+        "fr": "Un pan du chemin creux s'est couché en travers de la route du nord : des blocs plus gros qu'une charrette, empilés jusqu'en haut du talus. Entre eux, le vent siffle sans arrêt. Personne ne passera par ici, ni à pied ni à cheval.",
+        "en": "A whole bank of the sunken lane has come down across the north road: blocks bigger than a cart, heaped to the top of the bank. The wind whistles between them without stopping. Nobody's getting through here, on foot or on horseback."
+      }
+    }
+  ]
+}

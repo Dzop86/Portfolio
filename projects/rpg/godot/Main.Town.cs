@@ -806,10 +806,11 @@ public partial class Main
             AskDungeon(door);
         else if (_town.Bench is Workshop bench)
             OpenBench(bench);
-        else if (_town.Shut is not null)
+        else if (_town.Shut is ZoneLink shut)
         {
             _sound?.Play("error");
-            _talkPanel.ShowMessage(_talkPanel.Texts["hall.shut"]);
+            // A hall's far door, or since sprint 129 a way that waits for a quest (Clairval's east gate, docs/textes-v7.md §5.4).
+            _talkPanel.ShowMessage(_talkPanel.Texts[shut.Quest is null ? "hall.shut" : "way.shut"]);
             _town.CloseDoor();
         }
         else if (_town.Spring)
@@ -2432,7 +2433,7 @@ public partial class Main
         stones.Build(texts, Shop.Village);
         stones.Show(new WaystoneView(["waystone-clairval", "waystone-lake"], null), 100);
         if (stones.Lines.Count != Waystones.All(GameData.Embedded).Count || stones.Travels is not ["waystone-lake"]
-            || stones.Lines.Count(l => l.Contains(texts["waystone.unknown", "@"].Split('@')[1].Trim(), StringComparison.Ordinal)) != 3)
+            || stones.Lines.Count(l => l.Contains(texts["waystone.unknown", "@"].Split('@')[1].Trim(), StringComparison.Ordinal)) != Waystones.All(GameData.Embedded).Count - 2)
             problems.Add($"the waystones show {string.Join(" | ", stones.Lines)}, travel to {string.Join(", ", stones.Travels)}");
         stones.QueueFree();
         foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
@@ -2562,7 +2563,33 @@ public partial class Main
         CheckMonsters(problems);
         CheckEdges(problems);
         int doors = CheckDungeons(problems);
-        return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera, map and mini-map checked.";
+        return $"World: {zones.Count} maps, {groups} groups of monsters, {doors} dungeons, camera, map and mini-map checked." + CheckFourWays(problems, hero);
+    }
+
+    /// <summary>
+    /// Quatre-Chemins (sprint 129): Clairval's east gate shut without "Four Trails", and said why; each of the four maps
+    /// drawn with its people and its things to examine (the signpost, the waystone, what shuts the three roads).
+    /// </summary>
+    private string CheckFourWays(List<string> problems, Hero hero)
+    {
+        var gate = new TownController(GameData.Embedded, "clairval-3-1");
+        ZoneLink way = gate.Town.Links!.First(l => l.To == Shop.Hamlet);
+        if (gate.Click(way.At) is null || gate.Shut != way || gate.Travel is not null || string.IsNullOrEmpty(_talkPanel!.Texts["way.shut"]))
+            problems.Add("Clairval's east gate opens without Four Trails");
+        int people = 0, things = 0;
+        foreach (Town t in GameData.Embedded.Towns.Values.Where(t => Shop.VillageOf(t.Id) == Shop.Hamlet).OrderBy(t => t.Id, StringComparer.Ordinal))
+        {
+            var view = new TownView();
+            AddChild(view);
+            view.Build(new TownController(GameData.Embedded, t.Id), _options.Lang, hero);
+            if (view.PropsDrawn != (t.Props ?? []).Count || view.Tiles != t.Rows.Count * t.Rows[0].Length)
+                problems.Add($"{t.Id} is drawn with {view.PropsDrawn} things to examine and {view.Tiles} tiles");
+            people += t.Npcs.Count;
+            things += view.PropsDrawn;
+            RemoveChild(view);
+            view.QueueFree();
+        }
+        return $" Quatre-Chemins: {people} people, {things} things to examine, its gate shut until Four Trails.";
     }
 
     /// <summary>

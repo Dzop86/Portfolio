@@ -65,8 +65,9 @@ public class WorldTests
             foreach (ZoneLink l in t.Links ?? [])
             {
                 Town to = Real.Towns[l.To];
-                // The village's maps have names of their own (sprint 102): a way to it is named after the village.
-                Assert.Equal(to.ZoneId == t.ZoneId ? null : Shop.InVillage(to.Id) ? Real.Towns[Shop.Village].Name : to.Name, l.Name);
+                // The village's maps have names of their own (sprint 102): a way to it is named after the village (Quatre-Chemins since sprint 129).
+                LocalizedText? named = Shop.VillageOf(to.Id) switch { Shop.Village => Real.Towns[Shop.Village].Name, Shop.Hamlet => new("Quatre-Chemins", "Four Ways"), _ => null };
+                Assert.Equal(to.ZoneId == t.ZoneId ? null : named ?? to.Name, l.Name);
             }
         }
     }
@@ -129,8 +130,8 @@ public class WorldTests
             Assert.Equal(3, Real.Towns[$"woods-{col}-4"].Links!.Count(l => l.To == $"fields-{col}-0"));
             Assert.Equal(3, Real.Towns[$"fields-{col}-0"].Links!.Count(l => l.To == $"woods-{col}-4"));
         }
-        // Four zones and the village's twelve maps (sprint 102): 112 maps.
-        Assert.Equal(112, Real.Towns.Values.Count(t => !t.IsHall));
+        // Four zones and the village's twelve maps (sprint 102): 112 maps; Quatre-Chemins's four since sprint 129.
+        Assert.Equal(116, Real.Towns.Values.Count(t => !t.IsHall));
     }
 
     // Two maps side by side, three cells wide: a to the west of b.

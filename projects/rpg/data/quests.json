@@ -643,6 +643,56 @@
     "shards": 300
   },
   {
+    "id": "where-roads-part",
+    "name": {
+      "fr": "Là où les routes se séparent",
+      "en": "Where the Roads Part"
+    },
+    "giver": "clairval/ysaline",
+    "level": 30,
+    "kind": "Main",
+    "text": {
+      "fr": "Hortense vient d'ôter les barres de la porte de l'Est, au bout de la rue des artisans : personne ne l'avait ouverte depuis le temps de sa grand-mère. Les routes de Rose, de Garance et d'Aubin passent toutes par là, jusqu'à un relais qu'on appelle Quatre-Chemins. Anatole y tient le livre des routes ; il m'écrit depuis vingt ans. Va le voir : il sait lesquelles on peut prendre.",
+      "en": "Hortense has just taken the bars off the East Gate, at the end of Craftsmen's Row: nobody had opened it since her grandmother's day. Rose's, Garance's and Aubin's roads all go that way, as far as a coaching inn they call Four Ways. Anatole keeps the book of roads there; he's been writing to me for twenty years. Go and see him: he knows which ones can be taken."
+    },
+    "thanks": {
+      "fr": "Laisse-moi deviner : Ysaline t'a dit « dans l'ordre que tu voudras ». Sur le papier, oui. Cette saison, c'est la route qui choisit, et elle a choisi le sud. Je l'écris dans le livre : trois routes fermées, une ouverte, et ton nom à côté.",
+      "en": "Let me guess: Ysaline told you 'in whatever order you like'. On paper, yes. This season the road does the choosing, and it has chosen the south. I'll put it in the book: three roads closed, one open, and your name beside them."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "four-armed-signpost"
+      },
+      {
+        "goal": "Interact",
+        "target": "north-rockfall"
+      },
+      {
+        "goal": "Interact",
+        "target": "east-blaze"
+      },
+      {
+        "goal": "Interact",
+        "target": "flooded-ford"
+      },
+      {
+        "goal": "Talk",
+        "target": "four-ways/anatole",
+        "line": {
+          "fr": "Ysaline t'envoie ? Bien. Elle écrit trop, mais elle écrit juste. Fais le tour du hameau et regarde les trois routes fermées de tes yeux : mon livre ne suffit pas à tout le monde.",
+          "en": "Ysaline sent you? Good. She writes too much, but she writes true. Walk round the hamlet and look at the three closed roads with your own eyes: my book isn't enough for everyone."
+        }
+      }
+    ],
+    "handIn": "four-ways/anatole",
+    "after": [
+      "four-trails"
+    ],
+    "xp": 1200,
+    "shards": 200
+  },
+  {
     "id": "the-pack",
     "name": {
       "fr": "La meute",

@@ -23,6 +23,9 @@ internal static class Arena
 
     public static GameData Real => GameData.Embedded;
 
+    /// <summary>The real maps without the ways that wait for a quest (Clairval's east gate, sprint 129), for data loaded with some quests only.</summary>
+    public static readonly Town[] Ungated = [.. Real.Towns.Values.Select(t => t with { Links = t.Links?.Select(l => l with { Quest = null }).ToList() })];
+
     /// <summary>Everything observable about a fight, to compare two fights.</summary>
     public static string Fingerprint(Fight f) =>
         string.Join('|', f.Events.Select(e => e is Moved m ? $"Moved {m.Fighter} {string.Join(' ', m.Path)}" : e.ToString()))

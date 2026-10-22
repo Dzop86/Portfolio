@@ -9,7 +9,7 @@ public class WaystoneTests
     public void AWaystone_StandsInTheVillage_AndAtEachZonesWayIn_NearItsArrival()
     {
         var all = Waystones.All(Real);
-        Assert.Equal(["waystone-clairval", "waystone-fields", "waystone-lake", "waystone-mouldy", "waystone-woods"], all.Select(w => w.Id).Order(StringComparer.Ordinal));
+        Assert.Equal(["waystone-clairval", "waystone-fields", "waystone-four-ways", "waystone-lake", "waystone-mouldy", "waystone-woods"], all.Select(w => w.Id).Order(StringComparer.Ordinal));
         // Within two cells of the arrival, where no group of monsters stands: no group moved for them.
         Assert.All(all, w => Assert.InRange(w.At.DistanceTo(Real.Towns[w.Map].Spawn), 1, 2));
         Assert.All(all, w => Assert.True(Real.Towns[Waystones.Arrival(w.Id, Real).Town].CanStand(Waystones.Arrival(w.Id, Real).Cell), w.Id));

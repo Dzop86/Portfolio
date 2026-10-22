@@ -144,6 +144,9 @@ public static class CharacterEndpoints
                 return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = ["A hall of the dungeon this character is in, up to the room it is at."] });
         }
         Character? moving = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
+        // Beyond a way that waits for a quest (sprint 129: Quatre-Chemins after "Four Trails"): only once it is done.
+        if (moving is not null && GameData.Embedded.QuestToReach(place.Town) is string gate && !moving.QuestList.Contains(gate))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["place"] = [$"A map past a way that opens after the quest '{gate}'."] });
         int saved = 0;
         if (moving is not null)
         {

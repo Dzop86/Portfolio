@@ -602,7 +602,8 @@ public partial class TownView : Node3D
 
     /// <summary>
     /// A thing to examine (sprint 105): the old stone a standing stone with its four signs carved on its south face;
-    /// since sprint 112 claw marks on a stump, a ring of roots, a knot of threads, the crypt's seal; any other a small
+    /// since sprint 112 claw marks on a stump, a ring of roots, a knot of threads, the crypt's seal; since sprint 129 the
+    /// signpost, the rockfall, the flooded ford and the blaze across Quatre-Chemins's shut roads; any other a small
     /// cairn until it has its own look. A glint turns over it while a quest asks for it.
     /// </summary>
     private void AddProp(Prop prop)
@@ -677,6 +678,47 @@ public partial class TownView : Node3D
             Part(this, new BoxMesh { Size = new Vector3(0.5f, 1.0f, 0.5f) }, grey, at + new Vector3(0, 0.62f, 0), new Vector3(0, 45, 0));
             Part(this, new BoxMesh { Size = new Vector3(0.54f, 0.08f, 0.54f) }, FighterView.PlayerColour, at + new Vector3(0, 0.82f, 0), new Vector3(0, 45, 0));
         }
+        else if (prop.Look == "signpost")
+        {
+            // Quatre-Chemins's oak signpost: four arms, a sign painted at the end of each (seed, drop, hammer, feather).
+            Part(this, new CylinderMesh { TopRadius = 0.06f, BottomRadius = 0.07f, Height = 1.6f }, new Color("6b4a2b"), at + new Vector3(0, 0.8f, 0));
+            foreach ((float a, string colour) in new[] { (0f, "6b8f3a"), (90f, "4a7fa8"), (180f, "c9783a"), (270f, "d8d4c4") })
+            {
+                Vector3 arm = new Vector3(Mathf.Cos(Mathf.DegToRad(a)), 0, Mathf.Sin(Mathf.DegToRad(a))) * 0.3f;
+                Part(this, new BoxMesh { Size = new Vector3(0.55f, 0.1f, 0.04f) }, new Color("8a5a34"), at + arm + new Vector3(0, 1.35f, 0), new Vector3(0, -a, 0));
+                Part(this, new BoxMesh { Size = new Vector3(0.1f, 0.1f, 0.05f) }, new Color(colour), at + arm * 1.8f + new Vector3(0, 1.35f, 0), new Vector3(0, -a, 0));
+            }
+        }
+        else if (prop.Look == "rockfall")
+        {
+            // Quatre-Chemins's north road (sprint 129): boulders fallen across it, of three sizes.
+            foreach ((float x, float z, float size) in new[] { (-0.25f, -0.1f, 0.5f), (0.25f, 0.15f, 0.36f), (0.05f, -0.35f, 0.28f), (-0.3f, 0.3f, 0.22f) })
+                Part(this, new BoxMesh { Size = new Vector3(size, size * 0.8f, size) }, grey.Darkened(size * 0.3f), at + new Vector3(x, size * 0.4f, z), new Vector3(8, x * 90, 12));
+        }
+        else if (prop.Look == "ford")
+        {
+            // The south-west road's ford in flood: the posts of a footbridge, its plank broken and tilted.
+            foreach (float x in new[] { -0.3f, 0.3f })
+                Part(this, new CylinderMesh { TopRadius = 0.05f, BottomRadius = 0.06f, Height = 0.7f }, new Color("6b4a2b"), at + new Vector3(x, 0.35f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.7f, 0.05f, 0.2f) }, new Color("8a5a34"), at + new Vector3(0.05f, 0.25f, 0), new Vector3(0, 0, -18));
+            Part(this, new BoxMesh { Size = new Vector3(0.9f, 0.02f, 0.5f) }, new Color("4a7fa8"), at + new Vector3(0, 0.03f, 0.1f));
+        }
+        else if (prop.Look == "blaze")
+        {
+            // The east road's blaze: charred logs and flames that do not go out.
+            foreach (float a in new[] { 0f, 60f, 120f })
+                Part(this, new BoxMesh { Size = new Vector3(0.7f, 0.1f, 0.1f) }, new Color("2e2620"), at + new Vector3(0, 0.06f, 0), new Vector3(0, a, 0));
+            foreach ((float x, float z, float h, string colour) in new[] { (0f, 0f, 0.7f, "e8742a"), (0.15f, 0.1f, 0.45f, "f2b53a"), (-0.14f, -0.08f, 0.5f, "d9502a") })
+            {
+                var flame = new MeshInstance3D
+                {
+                    Mesh = new CylinderMesh { TopRadius = 0f, BottomRadius = 0.14f, Height = h },
+                    MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(colour), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                    Position = at + new Vector3(x, 0.1f + h / 2, z),
+                };
+                AddChild(flame);
+            }
+        }
         else if (prop.Look == "seal")
         {
             // A dark disc on the floor, cracked across.
@@ -692,7 +734,7 @@ public partial class TownView : Node3D
         {
             Mesh = new SphereMesh { Radius = 0.12f, Height = 0.24f },
             MaterialOverride = new StandardMaterial3D { AlbedoColor = WorldLight, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
-            Position = at + new Vector3(0, prop.Look switch { "stone" => 1.85f, "grave" => 1.05f, _ => 0.6f }, 0),
+            Position = at + new Vector3(0, prop.Look switch { "stone" => 1.85f, "signpost" => 1.85f, "grave" => 1.05f, _ => 0.6f }, 0),
             Visible = false,
         };
         AddChild(glint);

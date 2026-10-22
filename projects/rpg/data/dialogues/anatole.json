@@ -1,0 +1,125 @@
+{
+  "id": "anatole",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Ah. Encore quelqu'un qui croit que les routes vont quelque part. Elles partent, c'est déjà beaucoup. Anatole, arpenteur : je tiens le livre des routes.",
+        "en": "Ah. Another one who thinks roads go somewhere. They set off, and that's already a lot to ask. Anatole, surveyor: I keep the book of roads."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Les routes ?",
+            "en": "The roads?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Pourquoi fermées ?",
+            "en": "Why are they closed?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Pourquoi par l'est ?",
+            "en": "Why the east?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Quatre routes partent d'ici, une par bras du poteau. Au nord, un éboulis ; à l'est, la lande brûle ; au sud-ouest, le gué est en crue. Reste le sud : c'est la seule qu'on peut prendre en ce moment.",
+        "en": "Four roads leave from here, one for each arm of the signpost. North, a rockfall; east, the heath is burning; south-west, the ford is in flood. That leaves the south: it's the only one you can take just now."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Pourquoi fermées ?",
+            "en": "Why are they closed?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Pourquoi par l'est ?",
+            "en": "Why the east?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Un éboulis sans orage, une crue sans pluie, un feu que personne n'a allumé, et les trois le même mois. Dans mon livre, j'ai écrit « hasard ». Puis je l'ai barré.",
+        "en": "A rockfall without a storm, a flood without rain, a fire nobody lit, and all three in the same month. In my book I wrote 'chance'. Then I crossed it out."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Les routes ?",
+            "en": "The roads?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Pourquoi par l'est ?",
+            "en": "Why the east?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Clairval regarde le Bois, ses trois portes aussi. Les routes, elles, ont toujours évité le Bois : elles partent toutes d'ici, même celle de la côte, qui fait le tour par le gué. Ta porte de l'Est était la seule qui menait quelque part.",
+        "en": "Clairval faces the woods, and so do its three gates. The roads have always kept clear of the woods: they all start from here, even the coast road, which goes round by the ford. Your East Gate was the only one that led anywhere."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Les routes ?",
+            "en": "The roads?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Pourquoi fermées ?",
+            "en": "Why are they closed?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

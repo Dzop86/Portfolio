@@ -102,7 +102,7 @@ public class DungeonTests
     public void ADungeon_WithoutItsFamily_KeyRoomsOrAReachableDoor_IsRefused()
     {
         Dungeon wallow = Real.Dungeons["boar-wallow"];
-        GameData With(Dungeon d) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values,
+        GameData With(Dungeon d) => new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Ungated,
             Real.Dialogues.Values, Real.Summons.Values, Quests(d), Real.Items.Values, Real.Sets.Values, Real.Families.Values, [d], Real.Jobs.Values, Real.Passives.Values);
         // The quests of the other dungeons (sprint 89) have no dungeon to finish here, nor, since sprint 112, the quests after them.
         static IEnumerable<Quest> Quests(Dungeon d)

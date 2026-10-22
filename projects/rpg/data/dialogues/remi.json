@@ -1,0 +1,76 @@
+{
+  "id": "remi",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Bonjour ! Attention, je déblaie. Enfin, je commence à déblayer.",
+        "en": "Morning! Careful, I'm clearing. Well, I'm starting to clear."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "L'éboulis ?",
+            "en": "The rockfall?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le vent ?",
+            "en": "The wind?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Tombé en une nuit, sans orage et sans gel : au matin, la route du nord n'était plus là. J'en sors douze pierres par jour. À ce compte-là, mes petits-enfants passeront.",
+        "en": "Came down in one night, no storm, no frost: in the morning the north road just wasn't there. I shift twelve stones a day. At that rate, my grandchildren will get through."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le vent ?",
+            "en": "The wind?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Entre les blocs, le vent siffle sans arrêt, même quand rien ne bouge ici. On dirait qu'il cherche à passer, lui aussi. Il a plus de chances que moi.",
+        "en": "The wind whistles between the blocks all the time, even when nothing's stirring down here. It's as if it's trying to get through as well. It's got a better chance than I have."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "L'éboulis ?",
+            "en": "The rockfall?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

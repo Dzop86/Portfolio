@@ -14,6 +14,9 @@ public class FirstQuestsTests
          "what-grows-between", "the-undug-crypt", "down-into-the-crypt", "the-cracked-seal",
          "the-unlearned-lullaby", "the-last-verse", "the-washed-name", "the-name-returned", "burning-hives", "under-the-hedges", "the-disjoint", "four-trails"];
 
+    /// <summary>The second chapter's main steps (sprint 129): Quatre-Chemins first.</summary>
+    private static readonly string[] SecondChapter = ["where-roads-part"];
+
     /// <summary>The main steps a zone's giver relays (sprint 112): the woodcutters' head, the hermit of the pools.</summary>
     private static readonly Dictionary<string, string> Relayed = new()
     {
@@ -67,7 +70,7 @@ public class FirstQuestsTests
         string[] tutorial = ["welcome", "first-lesson", "well-equipped", "cellar-rats", "palisade-stakes", "roses-stall", "edge-of-the-woods"];
         foreach (Quest q in Real.Quests.Values)
         {
-            QuestKind kind = Main.Contains(q.Id) ? QuestKind.Main
+            QuestKind kind = Main.Contains(q.Id) || SecondChapter.Contains(q.Id) ? QuestKind.Main
                 : tutorial.Contains(q.Id) ? QuestKind.Tutorial
                 : q.Id.EndsWith("-cleared", StringComparison.Ordinal) ? QuestKind.Dungeon
                 : q.Items?.Any(i => Real.Items[i.Item].Kind == ItemKind.Equipment) == true && q.Id.StartsWith("first-", StringComparison.Ordinal) && q.Id != "first-lesson" ? QuestKind.Trade
@@ -81,7 +84,7 @@ public class FirstQuestsTests
     public void EveryZone_HasSideQuests_AndEveryDungeonOne_NeverGivenBehindADungeonsDoor()
     {
         // The tutorial's last quest (the edge of the woods, Garance's) is the village's, not the zone's.
-        Quest[] side = [.. Real.Quests.Values.Where(q => q.IsGiven && !Main.Contains(q.Id) && !q.Id.EndsWith("-cleared", StringComparison.Ordinal) && q.Id != "edge-of-the-woods")];
+        Quest[] side = [.. Real.Quests.Values.Where(q => q.IsGiven && !Main.Contains(q.Id) && !SecondChapter.Contains(q.Id) && !q.Id.EndsWith("-cleared", StringComparison.Ordinal) && q.Id != "edge-of-the-woods")];
         foreach (string zone in Real.Families.Values.Select(f => f.Zone).Distinct())
             Assert.InRange(side.Count(q => q.Zone == zone), 1, 3);
         // The Woods' and the Mouldy Woods' side quests come from their givers, in two small chains (sprint 112).

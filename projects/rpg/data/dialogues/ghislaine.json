@@ -1,0 +1,76 @@
+{
+  "id": "ghislaine",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Recule, tu vas prendre la suie. Moi, j'y suis faite.",
+        "en": "Stand back, you'll get soot on you. I'm used to it."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le brasier ?",
+            "en": "The blaze?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le charbon ?",
+            "en": "The charcoal?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Trente ans que je fais du feu, je le connais. Celui-là ne mange rien : il ne s'étend pas, il ne s'éteint pas, il tient la route. Un feu qui ne mange pas, ce n'est pas un feu.",
+        "en": "Thirty years I've been making fires; I know them. That one eats nothing: it doesn't spread, it doesn't go out, it just holds the road. A fire that doesn't eat isn't a fire."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le charbon ?",
+            "en": "The charcoal?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Les forgerons de l'est m'achetaient tout mon charbon. Depuis qu'ils ont fermé leur atelier, l'an passé, ils en prenaient moins. Maintenant, ils n'en auront plus du tout.",
+        "en": "The smiths out east used to buy all my charcoal. Since they shut their workshop last year they'd been taking less. Now they won't get any at all."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le brasier ?",
+            "en": "The blaze?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

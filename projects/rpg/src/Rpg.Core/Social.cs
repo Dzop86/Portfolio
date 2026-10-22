@@ -152,6 +152,6 @@ public static class Contacts
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(data);
-        return Shop.InVillage(map) ? Shop.Village : data.Towns.TryGetValue(map, out Town? town) ? town.ZoneId : map;
+        return Shop.VillageOf(map) is string village ? village : data.Towns.TryGetValue(map, out Town? town) ? town.ZoneId : map;
     }
 }

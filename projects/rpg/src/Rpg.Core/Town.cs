@@ -8,9 +8,15 @@ public sealed record TownExit(Cell At, string Scenario, LocalizedText Name);
 
 /// <summary>
 /// A cell of a map that leads to another map (<see cref="To"/>), where the player arrives on
-/// <see cref="Arrival"/>; <see cref="Name"/>, the zone it leads to when it leaves this one, none inside a zone (D64).
+/// <see cref="Arrival"/>; <see cref="Name"/>, the zone it leads to when it leaves this one, none inside a zone (D64);
+/// since sprint 129, a way that stays shut until the character has done <see cref="Quest"/> (Clairval's east gate, after
+/// "Four Trails").
 /// </summary>
-public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? Name = null);
+public sealed record ZoneLink(Cell At, string To, Cell Arrival, LocalizedText? Name = null, string? Quest = null)
+{
+    /// <summary>Whether the way is open to a character who has done these quests.</summary>
+    public bool OpenFor(IReadOnlyCollection<string> done) => Quest is null || (done ?? throw new ArgumentNullException(nameof(done))).Contains(Quest);
+}
 
 /// <summary>A trade's workshop on a map (sprint 81): walking onto it opens the trade's recipes.</summary>
 public sealed record Workshop(Cell At, string Job);

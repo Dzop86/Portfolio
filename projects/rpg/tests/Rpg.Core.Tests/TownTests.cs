@@ -42,14 +42,15 @@ public class TownTests
     public void TheVillage_IsConsistent()
     {
         // Since sprint 102 (D74): twelve maps at x 0 to 3, y -1 to 1, the square keeping the id "clairval".
-        Town[] village = [.. Real.Towns.Values.Where(t => Shop.InVillage(t.Id))];
+        Town[] village = [.. Real.Towns.Values.Where(t => Shop.VillageOf(t.Id) == Shop.Village)];
         Assert.Equal(12, village.Length);
         Assert.Equal([.. Enumerable.Range(0, 4).SelectMany(x => Enumerable.Range(-1, 3).Select(y => new Cell(x, y)))],
             village.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
         Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
         Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
             village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
-        Assert.Equal(["anselme", "apolline", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "guard", "guide", "hortense", "joachim", "leonie", "liane", "mahaut", "mathurin", "merchant", "odalric", "perrine", "scholar", "sidonie", "thibaut", "trainer"],
+        // Quatre-Chemins's seven since sprint 129 (docs/textes-v7.md).
+        Assert.Equal(["anatole", "anselme", "apolline", "aristide", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "ghislaine", "guard", "guide", "hortense", "joachim", "josette", "leonie", "liane", "lucien", "mahaut", "mathurin", "merchant", "odalric", "perrine", "remi", "romane", "scholar", "sidonie", "thibaut", "trainer"],
             Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {

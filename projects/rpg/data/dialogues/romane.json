@@ -1,0 +1,125 @@
+{
+  "id": "romane",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Tu viens de Clairval ? Par la porte de l'Est ? Personne n'est jamais arrivé par là, de toute ma vie !",
+        "en": "You've come from Clairval? Through the East Gate? Nobody's ever come that way, not in my whole life!"
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le sud ?",
+            "en": "The south?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le poteau ?",
+            "en": "The signpost?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Anatole ?",
+            "en": "Anatole?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Le sud, c'est la seule route où l'on garde les bottes sèches et les sourcils entiers. Elle monte vers les collines. Plus loin, je ne sais pas : Anatole dit que je compte mal les pas.",
+        "en": "The south's the only road where you keep your boots dry and your eyebrows on. It climbs towards the hills. Beyond that I couldn't say: Anatole says I can't count paces."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le poteau ?",
+            "en": "The signpost?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Anatole ?",
+            "en": "Anatole?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "C'est moi qui repeins les signes, chaque printemps, sans jamais les changer de bras. Ysaline a écrit que sa pierre ne regardait plus du même côté. Eh bien, ce n'est pas mon poteau qui a bougé.",
+        "en": "I'm the one who repaints the signs every spring, and I never move them to another arm. Ysaline wrote that her stone isn't facing the same way any more. Well, it isn't my signpost that's moved."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le sud ?",
+            "en": "The south?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Anatole ?",
+            "en": "Anatole?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Il compte tout : les pas, les voyageurs, les marches de son escalier. Le soir, il recompte, au cas où. Je l'aime bien, mais je ne le lui dis pas : il le noterait.",
+        "en": "He counts everything: paces, travellers, the steps on his stairs. In the evening he counts them again, just in case. I'm fond of him, but I don't tell him: he'd write it down."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le sud ?",
+            "en": "The south?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le poteau ?",
+            "en": "The signpost?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

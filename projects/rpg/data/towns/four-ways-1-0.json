@@ -1,0 +1,242 @@
+{
+  "id": "four-ways-1-0",
+  "name": {
+    "fr": "Quatre-Chemins, la lande fumante",
+    "en": "Four Ways, the Smoking Heath"
+  },
+  "level": 30,
+  "mapAt": {
+    "x": 5,
+    "y": -1
+  },
+  "zone": "four-ways",
+  "rows": [
+    "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+    "X..............................................P",
+    "X..............................................P",
+    "X..................BB..................B.......P",
+    "X.................B............B.......BB......P",
+    "X....B...........B.............BB..............P",
+    "X...BB............B............................P",
+    "X..B.B.............B..BB.......................P",
+    "X.....................B........................P",
+    "X...................B..............B.Hh........P",
+    "X....................B............B..hh........P",
+    "X....B....Hh.........B......Hh.................P",
+    "X....B...BhhB...............hh.............RRRRP",
+    "=...BB....BB...............................RRRRP",
+    "=..........................................RRRRP",
+    "=..........................................RRRR=",
+    "===========================================RRRR=",
+    "=.......................=..................RRRR=",
+    "=..B.............B......=.BT.............TTRRRRP",
+    "=.BBHh..........B.......=..................RRRRP",
+    "X..Bhh..................=.............Hh...RRRRP",
+    "X................Hh.....=.............hh.......P",
+    "X...........R....hh.....=.....R................P",
+    "X.......................=......................P",
+    "X...................BB..=.......T.R.........BB.P",
+    "X.........T.........B...=...Hh..T..........B...P",
+    "X..........T............=...hh.................P",
+    "X.......................=......................P",
+    "X.......................=.................T....P",
+    "X.......................=.................T....P",
+    "X.......................=......................P",
+    "XXXXXXXXXXXXXXXXXXXXX=======XXXXXXXXXXXXXXXXXXXP"
+  ],
+  "spawn": {
+    "x": 24,
+    "y": 16
+  },
+  "npcs": [
+    {
+      "id": "ghislaine",
+      "name": {
+        "fr": "Ghislaine",
+        "en": "Ghislaine"
+      },
+      "look": "female-c",
+      "colour": 0,
+      "at": {
+        "x": 38,
+        "y": 12
+      },
+      "dialogue": "ghislaine"
+    }
+  ],
+  "links": [
+    {
+      "at": {
+        "x": 0,
+        "y": 13
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 14
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 15
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 16
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 17
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 17
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 18
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 19
+      },
+      "to": "four-ways-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 21,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 22,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 22,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 25,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 26,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 26,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 27,
+        "y": 31
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 27,
+        "y": 1
+      }
+    }
+  ],
+  "exits": [],
+  "props": [
+    {
+      "id": "east-blaze",
+      "at": {
+        "x": 42,
+        "y": 16
+      },
+      "look": "blaze",
+      "name": {
+        "fr": "Le brasier",
+        "en": "The blaze"
+      },
+      "text": {
+        "fr": "La lande brûle en travers de la route de l'est, sur cent pas de large. Le feu ne gagne pas la bruyère d'à côté, et il ne baisse pas non plus : il reste sur la route. On sent sa chaleur d'ici.",
+        "en": "The heath is burning right across the east road, a hundred paces wide. The fire doesn't spread to the heather beside it, and it doesn't die down either: it stays on the road. You can feel the heat from here."
+      }
+    }
+  ]
+}

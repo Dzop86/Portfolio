@@ -51,8 +51,9 @@ public class DisjointTests
         Assert.Equal(["the-disjoint"], trails.After!);
         Assert.Equal((30, 1800L), (trails.Level, trails.Xp));
         Assert.All(trails.Objectives!, o => Assert.NotNull(o.Line));
-        // The main thread of the chapter: forty-nine quests in all, the last one "Four trails".
-        Assert.Equal(49, Real.Quests.Count);
-        Assert.DoesNotContain(Real.Quests.Values, q => (q.After ?? []).Contains("four-trails"));
+        // The main thread of the chapter: forty-nine quests in all, the last one "Four trails"; since sprint 129, the second
+        // chapter's first step after it.
+        Assert.Equal(50, Real.Quests.Count);
+        Assert.Equal(["where-roads-part"], Real.Quests.Values.Where(q => (q.After ?? []).Contains("four-trails")).Select(q => q.Id));
     }
 }

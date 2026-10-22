@@ -1,0 +1,76 @@
+{
+  "id": "josette",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Une chambre ? Une soupe ? Les deux ? Assieds-toi, tu as la tête de quelqu'un qui a marché.",
+        "en": "A room? Some soup? Both? Sit yourself down, you look like someone who's been walking."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le relais ?",
+            "en": "The inn?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Anything odd?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Douze lits, et onze vides depuis la dernière lune. Le douzième, c'est Aristide, et il me paie en miel.",
+        "en": "Twelve beds, and eleven empty since the last moon. The twelfth is Aristide's, and he pays me in honey."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Rien d'étrange ?",
+            "en": "Anything odd?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Mes derniers voyageurs, d'où qu'ils viennent, m'ont tous demandé s'il était vrai qu'une pierre parlait, à Clairval. Moi, je n'en savais rien. Toi, on dirait que si.",
+        "en": "My last travellers, wherever they came from, all asked me whether it was true a stone talked, over in Clairval. I'd no idea. You look as if you do."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le relais ?",
+            "en": "The inn?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

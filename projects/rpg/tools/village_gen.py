@@ -6,7 +6,7 @@
 # east to a training fight any more (Garance offers it in her talk). Deterministic; every way and every gate
 # checked reachable from the arrival. Run from projects/rpg before tools/world_gen.py (which opens the woods'
 # east edges in front of the gates):  python3 tools/village_gen.py data
-import collections, glob, json, os, random, sys
+import collections, glob, json, os, random, sys, types
 
 root = sys.argv[1]
 O = collections.OrderedDict
@@ -41,6 +41,11 @@ NAMES = {  # The scriptwriter's names (docs/textes-v5.md §2, sprint 104), after
     (3, 2): text("Clairval, le pré aux moutons", "Clairval, Sheep Meadow"),
 }
 WOODS = text("Bois de Clairval", "Clairval Woods")
+# Quatre-Chemins (sprint 129, D79, docs/textes-v7.md): 2 x 2 maps east of Clairval, past its east gate in Craftsmen's
+# Row, where the roads leaving the village part; written after Clairval below.
+EAST_GATE = (3, 1)
+HAMLET = "four-ways"
+HAMLET_NAME = text("Quatre-Chemins", "Four Ways")
 
 # The people of the old single map, moved (their ids and dialogues kept: "clairval/<npc>" still finds them on the
 # square), and since sprint 104 the scriptwriter's (docs/textes-v5.md §1.3), each by their house or their gate.
@@ -259,6 +264,12 @@ for r in range(ROWS):
                 g[y][0] = '='
                 links.append(O([("at", cell(0, y)), ("to", f"woods-4-{r + 1}"), ("arrival", cell(W - 2, y)), ("name", WOODS)]))
             ways.append((0, 16))
+        if (c, r) == EAST_GATE:
+            # The east gate (sprint 129, D79): to Quatre-Chemins, shut until "Four Trails" is done.
+            for y in GATE:
+                g[y][W - 1] = '='
+                links.append(O([("at", cell(W - 1, y)), ("to", HAMLET), ("arrival", cell(1, y)), ("name", HAMLET_NAME), ("quest", "four-trails")]))
+            ways.append((W - 1, 16))
         for (dc, dr, edge) in ((-1, 0, "west"), (1, 0, "east"), (0, -1, "north"), (0, 1, "south")):
             nc, nr = c + dc, r + dr
             if not (0 <= nc < COLS and 0 <= nr < ROWS):
@@ -313,7 +324,11 @@ for r in range(ROWS):
             town["workshops"] = [O([("at", cell(*at)), ("job", job)]) for (at, job) in BENCHES[(c, r)]]
         maps[mid(c, r)] = town
 
-for old in glob.glob(f"{root}/towns/clairval*.json"):
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import hamlet  # noqa: E402  (tools/hamlet.py: Quatre-Chemins's maps, from the same helpers)
+maps.update(hamlet.maps(types.SimpleNamespace(**globals())))
+
+for old in glob.glob(f"{root}/towns/clairval*.json") + glob.glob(f"{root}/towns/{HAMLET}*.json"):
     os.remove(old)
 for i, m in maps.items():
     open(f"{root}/towns/{i}.json", "w").write(json.dumps(m, ensure_ascii=False, indent=2) + "\n")

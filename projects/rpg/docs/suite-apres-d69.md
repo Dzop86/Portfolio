@@ -1581,6 +1581,7 @@ Les hordes de taupes lanceuses de la Prairie restent à part, comme en T64 et T7
 | Fenêtre Bestiaire, succès | souhaits du 9 octobre (onglets « comme Dofus vraiment ») | 3 + 5 pts | après le chapitre 2 |
 | Les Mines de Sous-Racine (45 à 60) | la suite de la tranche | environ 30 pts | après le playtest de S136 |
 | Apparence, barbier | reportée par Charles à la fin du jeu (D76) | 5 pts et plus | à la fin |
+| **Arbre de talents et spécialisations de classe** | demande de Charles du 23 octobre 2026 : un arbre de passifs et de talents, et des spécialisations par classe (exemple donné : un voleur qui devient acrobate, assassin…). Référence donnée par Charles le même jour, pour la discussion : le guide des classes de Dragonica, https://playdragonica.eu/guide/class (on s'en inspire, on n'en reprend ni noms ni contenus, D54). À discuter d'abord avec le scénariste (le sens de chaque voie dans le canon) et le game designer (quand on s'y spécialise, ce que coûte un talent, l'effet sur l'équilibre de T41 et de T96, le paquet de 12 sorts). Rien n'est conçu ni chiffré | à chiffrer avec le game designer | à discuter avant d'être planifié |
 
 ### 11.9 Questions à trancher par Charles (v7)
 

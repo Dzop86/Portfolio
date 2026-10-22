@@ -32,9 +32,10 @@ public class WorldTests
     public void TheWorldTour_EntersEveryZone()
     {
         var steps = 0;
-        IReadOnlyList<string> zones = TownTour.World(new TownController(GameData.Embedded, "clairval"), (_, s) =>
+        IReadOnlyList<string> zones = TownTour.World(new TownController(GameData.Embedded, "clairval"), (here, s) =>
         {
-            Assert.NotNull(s.Link);
+            // A way to walk through, or Clairval's east gate, shut for a hero without a character (sprint 129).
+            Assert.True(s.Link is not null || here.Shut?.To == Shop.Hamlet);
             steps++;
         });
         // The world's maps; a dungeon's halls are entered by its door (sprint 86).

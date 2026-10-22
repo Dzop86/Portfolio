@@ -10,7 +10,9 @@ P = {
  "hortense": [
   (None, t("Attention aux pieux, ils sont frais.", "Mind the stakes, they're fresh.")),
   (t("Et la palissade ?", "And the palisade?"), t("Mille deux cents pieux, trois portes et pas un trou. Enfin, pas un trou que je n'aie pas vu.", "Twelve hundred stakes, three gates and not one gap. Well, not one gap I haven't seen.")),
-  (t("Et le bois ?", "And the wood?"), t("Un chêne des vergers, une hache et un peu de dos : voilà comment on garde un village.", "An oak from the orchard, an axe and a strong back: that's how you keep a village safe."))],
+  (t("Et le bois ?", "And the wood?"), t("Un chêne des vergers, une hache et un peu de dos : voilà comment on garde un village.", "An oak from the orchard, an axe and a strong back: that's how you keep a village safe.")),
+  # The East Gate (sprint 129, docs/textes-v7.md §5.5): the fourth one, which she never counted.
+  (t("La porte de l'Est ?", "The East Gate?"), t("Celle-là, je ne la comptais pas : une porte qui ne s'ouvre pas, c'est un mur. Ma grand-mère disait qu'on l'avait barrée « pour de bonnes raisons ». Elle n'a jamais dit lesquelles.", "That one I never counted: a gate that doesn't open is a wall. My grandmother said it was barred 'for good reasons'. She never said which."))],
  "firmin": [
   (None, t("Ah ! Tu m'as fait peur. Tout me fait peur, depuis les rats.", "Ah! You gave me a fright. Everything frightens me since the rats.")),
   (t("Et le moulin ?", "And the mill?"), t("Le moulin tourne avec l'étang. Sauf la nuit où la pierre s'est fendue : la roue a tourné à l'envers pendant une heure. Les enfants, sûrement.", "The mill runs on the pond. Except the night the stone cracked: the wheel turned backwards for a whole hour. The children, I'm sure.")),

@@ -32,7 +32,8 @@ public class ContactTests
     [Fact]
     public void AFriendsZone_IsTheVillageOrTheZone_NeverTheMap()
     {
-        Assert.All(Real.Towns.Values.Where(t => Shop.InVillage(t.Id)), t => Assert.Equal(Shop.Village, Contacts.ZoneOf(t.Id, Real)));
+        // Each village's maps (Quatre-Chemins's since sprint 129) give their village.
+        Assert.All(Real.Towns.Values.Where(t => Shop.InVillage(t.Id)), t => Assert.Equal(Shop.VillageOf(t.Id), Contacts.ZoneOf(t.Id, Real)));
         Town woods = Real.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id));
         Assert.Equal(woods.Zone, Contacts.ZoneOf(woods.Id, Real));
         // Every map of a zone gives the same answer.

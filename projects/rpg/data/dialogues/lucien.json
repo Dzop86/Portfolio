@@ -1,0 +1,83 @@
+{
+  "id": "lucien",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Bienvenue au relais ! Mêmes prix que ma sœur Rose, au même Éclat près : on s'est disputés une fois, ça a suffi.",
+        "en": "Welcome to the inn yard! Same prices as my sister Rose, to the last Éclat: we argued about it once, and once was enough."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Voyons l'étal.",
+            "en": "Let's see the stall."
+          },
+          "shop": true
+        },
+        {
+          "text": {
+            "fr": "Rose est ta sœur ?",
+            "en": "Rose is your sister?"
+          },
+          "next": "sister"
+        },
+        {
+          "text": {
+            "fr": "Et les voyageurs ?",
+            "en": "And the travellers?"
+          },
+          "next": "travellers"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "sister": {
+      "text": {
+        "fr": "L'aînée, et elle ne me laisse pas l'oublier. Elle a pris le village, j'ai pris le carrefour : chacun voit passer son monde.",
+        "en": "The elder, and she never lets me forget it. She took the village, I took the crossroads: we each get our own passers-by."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Voyons l'étal.",
+            "en": "Let's see the stall."
+          },
+          "shop": true
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "travellers": {
+      "text": {
+        "fr": "D'habitude, ils arrivent des quatre côtés. Cette saison, il n'en vient plus que du sud. Trois routes fermées, c'est trois clients sur quatre envolés.",
+        "en": "Usually they come in from all four sides. This season they only come from the south. Three roads closed means three customers in four gone."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Voyons l'étal.",
+            "en": "Let's see the stall."
+          },
+          "shop": true
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

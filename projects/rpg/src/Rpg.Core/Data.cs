@@ -434,12 +434,63 @@ public sealed class GameData
                 || (Quests.TryGetValue(l.Quest!, out Quest? wanting) && !(wanting.Objectives ?? []).Any(o => o.Goal == QuestGoal.Bring && o.Target == l.Item)))
                 throw new InvalidDataException($"'{who}': the loot '{l.Item}' of the quest '{l.Quest}' is not a quest item it asks to bring.");
         }
+        // A way shut until a quest is done (sprint 129): a known quest, when the quests are loaded (some tests load the maps alone).
+        foreach ((Town t, ZoneLink l) in Towns.Values.SelectMany(t => (t.Links ?? []).Where(l => l.Quest is not null).Select(l => (t, l))))
+        {
+            if (Quests.Count > 0 && !Quests.ContainsKey(l.Quest!))
+                throw new InvalidDataException($"Town '{t.Id}': the way to {l.To} waits for an unknown quest '{l.Quest}'.");
+        }
         // A thing to examine that starts a fight (sprint 107): a known one.
         foreach (Prop p in Towns.Values.SelectMany(t => t.Props ?? []).Where(p => p.Fight is not null))
         {
             if (FindScenario(p.Fight!) is null)
                 throw new InvalidDataException($"Prop '{p.Id}': an unknown fight '{p.Fight}'.");
         }
+    }
+
+    private Dictionary<string, string>? _gates;
+
+    /// <summary>
+    /// The quest a character must have done to be on a map (sprint 129), or null: walking from the village's square by
+    /// the ways, the first shut way crossed to get there (Clairval's east gate before Quatre-Chemins). The server refuses
+    /// a place beyond it.
+    /// </summary>
+    public string? QuestToReach(string map)
+    {
+        if (_gates is null)
+        {
+            var gates = new Dictionary<string, string>(StringComparer.Ordinal);
+            var open = new HashSet<string>(StringComparer.Ordinal);
+            // The maps reached by open ways first; then, a round for each shut way, those reached past it.
+            var todo = new Queue<(string Map, string? Quest)>();
+            if (Towns.ContainsKey(Shop.Village))
+                todo.Enqueue((Shop.Village, null));
+            var later = new List<(string Map, string Quest)>();
+            while (todo.Count > 0 || later.Count > 0)
+            {
+                if (todo.Count == 0)
+                {
+                    foreach ((string m, string q) in later.Where(x => !open.Contains(x.Map)))
+                        todo.Enqueue((m, q));
+                    later.Clear();
+                    continue;
+                }
+                (string here, string? quest) = todo.Dequeue();
+                if (!open.Add(here))
+                    continue;
+                if (quest is not null)
+                    gates[here] = quest;
+                foreach (ZoneLink l in Towns[here].Links ?? [])
+                {
+                    if (l.Quest is null)
+                        todo.Enqueue((l.To, quest));
+                    else
+                        later.Add((l.To, quest ?? l.Quest));
+                }
+            }
+            _gates = gates;
+        }
+        return _gates.GetValueOrDefault(map ?? throw new ArgumentNullException(nameof(map)));
     }
 
     /// <summary>A thing to examine by its id (sprint 105), and its map.</summary>

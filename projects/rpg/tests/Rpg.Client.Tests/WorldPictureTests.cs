@@ -17,9 +17,9 @@ public class WorldPictureTests
     [Fact]
     public void ThePicture_LaysEveryMapInItsPlace_EdgeToEdge()
     {
-        // From the mouldy woods' west column (-10) to the village's east one (3, sprint 102), from the lake's north row (-7) to the fields' south row (7).
-        Assert.Equal((14, 15, 48, 32), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
-        Assert.Equal((14 * 48 * P, 15 * 32 * P), (Picture.Width, Picture.Height));
+        // From the mouldy woods' west column (-10) to Quatre-Chemins's east one (5, sprint 129), from the lake's north row (-7) to the fields' south row (7).
+        Assert.Equal((16, 15, 48, 32), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
+        Assert.Equal((16 * 48 * P, 15 * 32 * P), (Picture.Width, Picture.Height));
         Assert.Equal(Picture.Width * Picture.Height * 4, Picture.Pixels.Length);
         Assert.Equal(Picture.Pixels, new WorldPicture(GameData.Embedded).Pixels);
         foreach (Town t in GameData.Embedded.Towns.Values.Where(t => !t.IsHall))
