@@ -241,7 +241,7 @@ Ysaline interprète à mesure, et elle se trompe : jusqu'au troisième arc, elle
 ### 10.3 Réponses de Charles (22 octobre 2026, D79)
 1. Géographie : **oui**, telle quelle.
 2. Les signes qui ont tourné : **une anomalie voulue**, aucune réplique livrée n'est retouchée.
-3. Les noms : **à relire** ; seuls Berthe, Bérold et Ormeval servent dans la tranche de la Forêt des Aïeux.
+3. Les noms : **tous gardés** (Ferrand, Solène, Berthe ; Forge-Haute, Port-Écume, Ormeval, le Belvédère ; Kesh Brasemain, Ilse des Basses-Marées, Bérold Serment-Fixe, Sorrel Vent-Vif, Corwin).
 4. Kesh : **un homme**, comme dans la bible et dans ce cadre (piste du Feu).
 5. L'ordre : **la Terre d'abord** (Forêt des Aïeux, 30 à 45), comme dans le plan du game designer (`suite-apres-d69.md` §11.6).
 6. « Garder ou creuser » : **plus tard**, l'étape (niveau 46) est hors de la tranche.
