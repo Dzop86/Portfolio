@@ -18,6 +18,8 @@ public partial class Hud : CanvasLayer
     private readonly List<string> _spellNames = [];
     private readonly List<int> _waits = [];
     private readonly List<(PanelContainer Card, Portrait Face, Label Name, ProgressBar Hp)> _timeline = [];
+    private readonly List<TurnRing> _rings = [];
+    private readonly List<int> _cardFighters = [];
     private PanelContainer _info = null!;
     private Label _infoText = null!;
     private readonly Queue<string> _log = new();
@@ -73,6 +75,10 @@ public partial class Hud : CanvasLayer
             box.AddChild(name);
             var hp = new ProgressBar { ShowPercentage = false, CustomMinimumSize = new Vector2(56, 6), MouseFilter = Control.MouseFilterEnum.Ignore };
             box.AddChild(hp);
+            // The turn's clock over the card, in a fight with the party (sprint 124).
+            var ring = new TurnRing { MouseFilter = Control.MouseFilterEnum.Ignore };
+            card.AddChild(ring);
+            _rings.Add(ring);
             timeline.AddChild(card);
             _timeline.Add((card, face, name, hp));
         }
@@ -150,6 +156,8 @@ public partial class Hud : CanvasLayer
         // The round's order, the one playing outlined; it starts again with each round (D64).
         IReadOnlyList<Fighter> next = [.. fight.RoundOrder.Take(TimelineLength)];
         CurrentCard = next.ToList().IndexOf(current);
+        _cardFighters.Clear();
+        _cardFighters.AddRange(next.Select(f => f.Id));
         for (int i = 0; i < _timeline.Count; i++)
         {
             (PanelContainer card, Portrait face, Label name, ProgressBar hp) = _timeline[i];
@@ -244,6 +252,29 @@ public partial class Hud : CanvasLayer
         if (_end.Visible)
             _end.Show(_summary!(Texts), Texts, _problem);
     }
+
+    /// <summary>
+    /// The turn's clock of a fight with the party (sprint 124): the seconds left on the card of the one playing, out of
+    /// <paramref name="total"/>, in alert for the last ten; "away" under the absent heroes. Nothing with a null fighter.
+    /// </summary>
+    public void ShowClock(int? fighter, int? seconds, int total, bool alert, IReadOnlyList<int> absent)
+    {
+        ArgumentNullException.ThrowIfNull(absent);
+        for (int i = 0; i < _rings.Count; i++)
+        {
+            int? id = i < _cardFighters.Count && _timeline[i].Card.Visible ? _cardFighters[i] : null;
+            _rings[i].Set(id is not null && id == fighter ? seconds : null, total, alert, id is int a && absent.Contains(a) ? Texts["battle.absent"] : null);
+        }
+    }
+
+    /// <summary>The seconds shown on the timeline, or null (for the self-test).</summary>
+    public int? ClockShown => _rings.FirstOrDefault(r => r.Seconds is not null)?.Seconds;
+
+    /// <summary>Whether the clock shown is in alert (for the self-test).</summary>
+    public bool ClockInAlert => _rings.Any(r => r.Seconds is not null && r.InAlert);
+
+    /// <summary>The cards marked absent (for the self-test).</summary>
+    public int AbsentShown => _rings.Count(r => r.AbsentText is not null);
 
     private Func<Texts, FightSummary>? _summary;
     private string? _problem;

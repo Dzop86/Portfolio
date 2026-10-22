@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois les secondes de mon tour, un absent ne bloque plus le combat, je rejoins un allié qui se voit, le chef exclut, l'échange se ferme avec la connexion, l'allure suit l'équipement (rpg) ; xUnit, intégration à deux clients, auto-test. | 5 | À faire |
+| En tant que joueur, je vois les secondes de mon tour, un absent ne bloque plus le combat, je rejoins un allié qui se voit, le chef exclut, l'échange se ferme avec la connexion, l'allure suit l'équipement (rpg) ; xUnit, intégration à deux clients, auto-test. | 5 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

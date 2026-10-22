@@ -12,9 +12,11 @@ namespace Rpg.Api;
 /// character on the same map, its sender included. Lines are cleaned and paced by <see cref="ChatRules"/>;
 /// nothing is kept once sent. One server process holds them all (see the README's limits). Since sprint 118 (D74),
 /// the same socket tells the players of a map who is there and where they walk (<see cref="MapNews"/>), and
-/// the endpoints tell them of the groups of monsters fought or beaten and of the spots gathered.
+/// the endpoints tell them of the groups of monsters fought or beaten and of the spots gathered. Since sprint 124, a
+/// game that closes its connection calls its trade off and starts its ten minutes out of play for its party, and a
+/// character's new look (what it wears) is told to its map.
 /// </summary>
-public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
+public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Trades trades)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -22,7 +24,7 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
     {
         public Guid Character { get; } = character;
         public string Name { get; } = name;
-        public Hero Look { get; } = look;
+        public Hero Look { get; set; } = look;
         public string Map { get; set; } = map;
         public Cell At { get; set; } = at;
         public WebSocket Socket { get; } = socket;
@@ -40,6 +42,15 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
     {
         if (_speakers.TryGetValue(character, out Speaker? s))
             await Send(s, JsonSerializer.Serialize(news, news.GetType(), Json), cancel);
+    }
+
+    /// <summary>A character's look changed (it wears something else, sprint 124): its map's players see it so.</summary>
+    public async Task Restyle(Guid character, Hero look, CancellationToken cancel = default)
+    {
+        if (!_speakers.TryGetValue(character, out Speaker? s) || s.Look == look)
+            return;
+        s.Look = look;
+        await Tell(s.Map, Here(s), cancel: cancel, but: character);
     }
 
     /// <summary>The characters connected on a map (for the tests).</summary>
@@ -90,6 +101,7 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
         if (_speakers.TryGetValue(character, out Speaker? old))
             await Close(old);
         _speakers[character] = me;
+        parties.Back(character);
         await Arrive(me, cancel);
         byte[] buffer = new byte[4096];
         try
@@ -118,7 +130,13 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties)
         finally
         {
             if (_speakers.TryRemove(new KeyValuePair<Guid, Speaker>(character, me)))
+            {
                 await Tell(me.Map, new MapNews(MapNewsKind.Gone, character), cancel: CancellationToken.None);
+                // Its trade cannot go on without it; its party waits ten minutes for it (sprint 124).
+                parties.Gone(character);
+                if (trades.End(character) is Guid other)
+                    await TellCharacter(other, new TradeNews(TradeNewsKind.Cancelled), CancellationToken.None);
+            }
             await Close(me);
         }
     }

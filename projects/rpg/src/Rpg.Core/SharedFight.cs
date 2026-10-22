@@ -28,7 +28,10 @@ public sealed record SharedFightResult(Guid Character, string Name, long Xp, lon
 /// What the server tells the players of a fight with the party (sprint 120), on the map's socket: a party member opened
 /// one (<see cref="SharedFightKind.Opened"/>, to join within <see cref="SharedRules.JoinFor"/>), it started (or, coming
 /// back, everything so far: the start and the actions), an action accepted (numbered from 0), whose turn it is and until
-/// when, the results once over.
+/// when, the results once over. Since sprint 124: a hero's turn begins (<see cref="SharedFightKind.Turn"/>: the
+/// <see cref="Fighter"/>, its <see cref="TurnEnds"/>, the heroes <see cref="Absent"/>), and every news but an action says
+/// the server's time (<see cref="ServerNow"/>), for the game to set its clock by it; an opened fight's
+/// <see cref="TurnEnds"/> is the end of its fifteen seconds to join.
 /// </summary>
 public sealed record SharedFightNews(
     SharedFightKind Shared,
@@ -41,7 +44,10 @@ public sealed record SharedFightNews(
     FightAction? Action = null,
     DateTimeOffset? TurnEnds = null,
     IReadOnlyList<SharedFightResult>? Results = null,
-    int? Winner = null);
+    int? Winner = null,
+    int? Fighter = null,
+    IReadOnlyList<int>? Absent = null,
+    DateTimeOffset? ServerNow = null);
 
 [JsonConverter(typeof(JsonStringEnumConverter<SharedFightKind>))]
 public enum SharedFightKind
@@ -50,14 +56,28 @@ public enum SharedFightKind
     Started,
     Acted,
     Over,
+    Turn,
 }
 
 /// <summary>Opens a fight with the party: the scenario (a group of monsters of the world).</summary>
 public sealed record NewSharedFight(string? Scenario);
 
-/// <summary>The rules of a fight with the party (sprint 120, D74): fifteen seconds to join, thirty a turn.</summary>
+/// <summary>
+/// The rules of a fight with the party (sprint 120, D74): fifteen seconds to join, thirty a turn; since sprint 124, a hero
+/// whose turns passed twice in a row by the clock is absent, and its turns last ten seconds until it acts again.
+/// </summary>
 public static class SharedRules
 {
     public static readonly TimeSpan JoinFor = TimeSpan.FromSeconds(15);
     public static readonly TimeSpan Turn = TimeSpan.FromSeconds(30);
+    public static readonly TimeSpan AbsentTurn = TimeSpan.FromSeconds(10);
+
+    /// <summary>Turns passed by the clock in a row that make a hero absent.</summary>
+    public const int AbsentAfter = 2;
+
+    /// <summary>Whether a hero whose turns passed <paramref name="missed"/> times in a row by the clock is absent.</summary>
+    public static bool IsAbsent(int missed) => missed >= AbsentAfter;
+
+    /// <summary>How long the turn of a hero whose turns passed <paramref name="missed"/> times in a row lasts.</summary>
+    public static TimeSpan TurnFor(int missed) => IsAbsent(missed) ? AbsentTurn : Turn;
 }

@@ -187,12 +187,14 @@ public partial class Main : Node3D
             PointTrail();
             FollowMiniMap();
             GrowBack();
+            ShowJoins();
             return;
         }
         // A fight with the party (sprint 121): the server plays everything but the player's hero; its actions, as told, are shown in turn.
         if (_controller?.Shared is SharedFightSync shared && _lobbyView is null)
         {
             DrainChat();
+            ShowTurnClock();
             if (shared.OutOfStep && !_resyncing)
                 _ = Resync();
             else if (!_busy && _seen < _controller.Fight.Events.Count)
@@ -920,6 +922,17 @@ public partial class Main : Node3D
             problems.Add($"the clock shows round {_hud.RoundText}, not {fight.Round}");
         if (!fight.IsOver && _hud.CurrentCard != fight.RoundOrder.ToList().IndexOf(fight.Current))
             problems.Add($"the timeline outlines card {_hud.CurrentCard}, not the one playing");
+        // The turn's clock of a fight with the party (sprint 124), shown as if the server said 8 seconds were left.
+        if (!fight.IsOver)
+        {
+            int away = fight.Fighters.First(f => f.Team == 0).Id;
+            _hud.ShowClock(fight.Current.Id, 8, 30, alert: true, [away]);
+            if (_hud.ClockShown != 8 || !_hud.ClockInAlert || _hud.AbsentShown != fight.RoundOrder.Take(Hud.TimelineLength).Count(f => f.Id == away))
+                problems.Add($"the turn's clock shows {_hud.ClockShown} (alert {_hud.ClockInAlert}), {_hud.AbsentShown} away");
+            _hud.ShowClock(null, null, 30, alert: false, []);
+            if (_hud.ClockShown is not null || _hud.AbsentShown != 0)
+                problems.Add("the turn's clock stays without a fight with the party");
+        }
         var last = new Dictionary<int, Color>();
         IReadOnlyList<FightEvent> events = fight.Events;
         for (; seenNumbers < events.Count; seenNumbers++)

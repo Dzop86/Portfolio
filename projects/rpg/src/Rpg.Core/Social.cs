@@ -24,11 +24,28 @@ public sealed record PartyInvite(string? Name);
 /// <summary>Answers yes to the invitation of a character, by its id; also asks or answers a trade.</summary>
 public sealed record PartyAnswer(Guid From);
 
-/// <summary>The party's rules (sprint 119, D74): four at most, the leader invites, an invitation waits a minute.</summary>
+/// <summary>The leader sends a member out of the party (sprint 124), by its id.</summary>
+public sealed record PartyKick(Guid Member);
+
+/// <summary>
+/// The party's rules (sprint 119, D74): four at most, the leader invites, an invitation waits a minute; since sprint 124,
+/// the leader sends a member out, and a member out of play for ten minutes leaves.
+/// </summary>
 public static class PartyRules
 {
     public const int Most = 4;
     public static readonly TimeSpan InviteFor = TimeSpan.FromMinutes(1);
+    public static readonly TimeSpan OfflineFor = TimeSpan.FromMinutes(10);
+
+    /// <summary>Why <paramref name="by"/> cannot send <paramref name="member"/> out of a party led by <paramref name="leader"/>; null when it can.</summary>
+    public static string? WhyNotKick(Guid by, Guid member, Guid leader, IReadOnlyList<Guid> members)
+    {
+        ArgumentNullException.ThrowIfNull(members);
+        return by != leader ? "Only the party's leader sends a member out."
+            : member == by ? "Not oneself: leave the party instead."
+            : !members.Contains(member) ? "Not a member of the party."
+            : null;
+    }
 }
 
 /// <summary>What one puts on the table in a trade (sprint 119): items, Éclats.</summary>

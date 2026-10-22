@@ -532,7 +532,7 @@ public static class CharacterEndpoints
     }
 
     internal static async Task<Results<Ok<CharacterSummary>, NotFound, ValidationProblem>> SaveEquipment(
-        Guid id, Wear request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        Guid id, Wear request, ClaimsPrincipal user, GameDb db, TimeProvider clock, ChatHub hub, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         Character? character = await db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
@@ -552,6 +552,8 @@ public static class CharacterEndpoints
         if (!character.InFight)
             character.SetLife(life, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
+        // Its map's players see what it now wears (sprint 124).
+        await hub.Restyle(character.Id, character.Hero, cancel);
         return TypedResults.Ok(Summary(character, character.Town is string town && character.X is int x && character.Y is int y ? new Place(town, x, y) : null));
     }
 

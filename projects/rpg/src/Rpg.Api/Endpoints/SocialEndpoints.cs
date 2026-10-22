@@ -20,6 +20,7 @@ public static class SocialEndpoints
         group.MapPost("/{id:guid}/party/invite", Invite).WithSummary($"Invites a character in play, by its name, into the party (its leader invites, {PartyRules.Most} at most).");
         group.MapPost("/{id:guid}/party/accept", Join).WithSummary("Joins the party of a character who invited this one, within a minute.");
         group.MapPost("/{id:guid}/party/leave", LeaveParty).WithSummary("Leaves the party; the next member leads if the leader leaves.");
+        group.MapPost("/{id:guid}/party/kick", Kick).WithSummary("The party's leader sends a member out.");
         group.MapPost("/{id:guid}/trade/ask", Ask).WithSummary("Asks a character in play on the same map to trade.");
         group.MapPost("/{id:guid}/trade/accept", Open).WithSummary("Opens the trade a character on the same map asked for, within a minute.");
         group.MapPut("/{id:guid}/trade", Offer).WithSummary("Puts items owned and not worn, and Éclats, on the table; both have to accept again.");
@@ -45,7 +46,7 @@ public static class SocialEndpoints
             Members: [.. ids.Select(i => found.First(f => f.Id == i)).Select(f => new PartyMember(f.Id, f.Name, f.Level, f.Class, hub.MapOf(f.Id)))]);
     }
 
-    private static async Task TellParty(IEnumerable<Guid> members, Parties parties, ChatHub hub, GameDb db, CancellationToken cancel)
+    internal static async Task TellParty(IEnumerable<Guid> members, Parties parties, ChatHub hub, GameDb db, CancellationToken cancel)
     {
         foreach (Guid m in members)
             await hub.TellCharacter(m, await PartyOf(m, parties, hub, db, cancel), cancel);
@@ -84,6 +85,19 @@ public static class SocialEndpoints
         if (await Mine(id, user, db, cancel) is null)
             return TypedResults.NotFound();
         IReadOnlyList<Guid> before = parties.Leave(id);
+        await TellParty(before, parties, hub, db, cancel);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>The leader sends a member out (sprint 124): the member told it left, the others the party as it is.</summary>
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Kick(
+        Guid id, PartyKick request, ClaimsPrincipal user, GameDb db, Parties parties, ChatHub hub, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is null)
+            return TypedResults.NotFound();
+        (string? why, IReadOnlyList<Guid> before) = parties.Kick(id, request?.Member ?? Guid.Empty);
+        if (why is not null)
+            return Refused("member", why);
         await TellParty(before, parties, hub, db, cancel);
         return TypedResults.NoContent();
     }

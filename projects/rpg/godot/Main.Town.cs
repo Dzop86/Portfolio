@@ -1177,6 +1177,8 @@ public partial class Main
         AddChild(_partyBanner);
         _partyBanner.Build(texts);
         _partyBanner.LeavePressed += () => _ = Social(s => s.LeaveParty(_character!.Id));
+        _partyBanner.KickPressed += member => _ = Social(s => s.KickFromParty(_character!.Id, member));
+        _partyBanner.JoinPressed += JoinShared;
         _askPanel = new AskPanel();
         AddChild(_askPanel);
         _askPanel.Build();
@@ -1185,7 +1187,7 @@ public partial class Main
             (_party, _partyOf) = (null, _character.Id);
             _ = RefreshParty();
         }
-        _partyBanner.Show(_party);
+        _partyBanner.Show(_party, _character?.Id);
     }
 
     private async Task RefreshParty()
@@ -1267,7 +1269,7 @@ public partial class Main
                 break;
             case PartyNewsKind.Changed:
                 _party = news;
-                _partyBanner?.Show(news);
+                _partyBanner?.Show(news, _character?.Id);
                 break;
             default:
                 if (_party is not null)
@@ -1329,6 +1331,47 @@ public partial class Main
     private static Guid? _sharedFight;
     private static SharedFightSync? _sharedSync;
     private static SharedFightNews? _sharedOver;
+
+    // The turn's clock and the fights an ally opened, still to join (sprint 124), kept across the scenes.
+    private static readonly TurnClock _turnClock = new();
+    private static readonly JoinOffers _joinOffers = new();
+
+    /// <summary>Joins a fight an ally opened, from its question or its line on the party's banner.</summary>
+    private void JoinShared(Guid fight)
+    {
+        _joinOffers.Remove(fight);
+        _askPanel?.Hide();
+        _ = Social(async s =>
+        {
+            await s.JoinBattle(_character!.Id, fight);
+            _sharedFight = fight;
+        });
+    }
+
+    /// <summary>
+    /// Each frame on a map (sprint 124): a line on the party's banner for each fight an ally opened, with its seconds
+    /// left, and crossed swords with them where the group stood on this map.
+    /// </summary>
+    private void ShowJoins()
+    {
+        if (_partyBanner is null || _townView is null || _town is null)
+            return;
+        Texts texts = _talkPanel!.Texts;
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        IReadOnlyList<JoinOffer> open = _joinOffers.Open(now);
+        _partyBanner.ShowJoins([.. open.Select(o => (o.Fight, texts["battle.join-line", o.Name, JoinOffers.SecondsLeft(o, now)]))]);
+        _townView.MarkFights(open.Where(o => o.Group is not null && GameData.Embedded.Groups.TryGetValue(o.Group, out MonsterGroup? g) && g.Map == _town.Town.Id)
+            .ToDictionary(o => o.Group!, o => texts["battle.seconds", JoinOffers.SecondsLeft(o, now)]));
+    }
+
+    /// <summary>Each frame of a fight with the party (sprint 124): the turn's seconds on the timeline, a sound at five.</summary>
+    private void ShowTurnClock()
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        _hud.ShowClock(_turnClock.Fighter, _turnClock.SecondsLeft(now), _turnClock.TotalSeconds, _turnClock.Alert(now), _turnClock.Absent);
+        if (_turnClock.Sound(now))
+            _sound?.Play("open");
+    }
     private bool _resyncing;
 
     /// <summary>Opens a fight with the party; false when the server refuses (the fight goes on alone, as before).</summary>
@@ -1352,16 +1395,16 @@ public partial class Main
     private void OnShared(SharedFightNews news)
     {
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        // The server's time sets the turn's clock; an opened fight stays to join on the banner (sprint 124).
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        _turnClock.Receive(news, now);
+        _joinOffers.Receive(news, now);
         switch (news.Shared)
         {
             case SharedFightKind.Opened when news.Name is string name:
                 string what = news.Scenario is string sc && GameData.Embedded.Groups.Values.FirstOrDefault(g => g.Scenario == sc) is MonsterGroup g
                     ? texts.GroupLabel(g, GameData.Embedded) : news.Scenario ?? "";
-                _askPanel?.Ask(texts["battle.opened", name, what], texts["battle.join"], texts["party.decline"], () => _ = Social(async s =>
-                {
-                    await s.JoinBattle(_character!.Id, news.Fight);
-                    _sharedFight = news.Fight;
-                }));
+                _askPanel?.Ask(texts["battle.opened", name, what], texts["battle.join"], texts["party.decline"], () => JoinShared(news.Fight));
                 break;
             case SharedFightKind.Started when news.Start is SharedFightStart start && _character is not null && _sharedSync?.Start.Fight != news.Fight:
                 _askPanel?.Hide();
@@ -1372,6 +1415,7 @@ public partial class Main
                 break;
             case SharedFightKind.Over when _sharedSync?.Start.Fight == news.Fight || _sharedFight == news.Fight:
                 _sharedOver = news;
+                _turnClock.Stop();
                 break;
         }
     }
@@ -2165,6 +2209,10 @@ public partial class Main
         banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "guard", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]));
         if (!banner.Shown || banner.Lines.Count != 3 || banner.Lines[1] != texts["party.leader", "Plop", 12] || banner.Lines[2] != texts["party.offline", "Plouf"])
             problems.Add($"the party's banner shows {string.Join(" | ", banner.Lines)}");
+        // Leading it (sprint 124): a cross to send Plouf out.
+        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "guard", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]), lead);
+        if (banner.Kicks is not ["Plouf"])
+            problems.Add($"the leader can send out {string.Join(", ", banner.Kicks)}");
         banner.Show(null);
         if (banner.Shown)
             problems.Add("the party's banner stays without a party");
@@ -2198,7 +2246,22 @@ public partial class Main
         if (_askPanel?.Question != texts["battle.opened", "Plop", texts.GroupLabel(group, GameData.Embedded)])
             problems.Add($"an ally's fight asks '{_askPanel?.Question}'");
         _askPanel?.Hide();
-        return " Together: party banner, invitation, trade window and an ally's fight checked.";
+        // Its line on the banner with its seconds, the question closed or not (sprint 124); swords over a group of this map.
+        ShowJoins();
+        if (_partyBanner is not null && !_partyBanner.JoinLines.Any(l => l == texts["battle.join-line", "Plop", 15] || l == texts["battle.join-line", "Plop", 14]))
+            problems.Add($"the banner offers to join: {string.Join(" | ", _partyBanner.JoinLines)}");
+        if (_townView!.Groups.Keys.FirstOrDefault() is string here)
+        {
+            _townView.MarkFights(new Dictionary<string, string> { [here] = texts["battle.seconds", 12] });
+            bool marked = _townView.FightMarks.TryGetValue(here, out string? shown) && shown == texts["battle.seconds", 12];
+            _townView.MarkFights(new Dictionary<string, string>());
+            if (!marked || _townView.FightMarks.Count != 0)
+                problems.Add("no swords over a group an ally attacks");
+        }
+        foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
+            _joinOffers.Remove(o.Fight);
+        ShowJoins();
+        return " Together: party banner, invitation, trade window, an ally's fight and its line to join checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)

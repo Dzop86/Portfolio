@@ -11,7 +11,9 @@ namespace Rpg.Api;
 /// actions from its player (in its turn, by the same rules), plays the monsters with <see cref="Ai"/>, passes a hero's
 /// turn after thirty seconds, and tells every player each action accepted, numbered. Once over, each hero is rewarded
 /// on its own: experience, Éclats, loot drawn for it, quests, the life it ends with. Kept in memory, in one server
-/// process; a player who comes back gets the start and every action so far.
+/// process; a player who comes back gets the start and every action so far. Since sprint 124, each hero's turn is told
+/// as it begins, with its end by the server's clock; a hero whose turns passed twice in a row by the clock is absent,
+/// its turns ten seconds long until it acts (<see cref="SharedRules.TurnFor"/>).
 /// </summary>
 public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunts, TimeProvider clock)
 {
@@ -30,6 +32,11 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
         public DateTimeOffset TurnEnds { get; set; }
         public bool Done { get; set; }
         public SemaphoreSlim Lock { get; } = new(1, 1);
+
+        /// <summary>Each hero's turns passed by the clock in a row, by fighter id (sprint 124).</summary>
+        public Dictionary<int, int> Missed { get; } = [];
+
+        public IReadOnlyList<int> Absent => [.. Missed.Where(m => SharedRules.IsAbsent(m.Value)).Select(m => m.Key).Order()];
     }
 
     private readonly ConcurrentDictionary<Guid, Battle> _battles = new();
@@ -46,8 +53,9 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
         var battle = new Battle(Guid.NewGuid(), scenario, BitConverter.ToUInt64(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)), starter, map, group,
             clock.GetUtcNow() + SharedRules.JoinFor);
         _battles[battle.Id] = battle;
+        // The end of the fifteen seconds and the server's time (sprint 124): each game counts them down on its own clock.
         foreach (Guid member in party.Where(m => m != starter && hub.MapOf(m) == map))
-            await hub.TellCharacter(member, new SharedFightNews(SharedFightKind.Opened, battle.Id, starterName, scenario), cancel);
+            await hub.TellCharacter(member, new SharedFightNews(SharedFightKind.Opened, battle.Id, starterName, scenario, TurnEnds: battle.JoinUntil, ServerNow: clock.GetUtcNow()), cancel);
         return battle.Id;
     }
 
@@ -110,6 +118,8 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             ActionError error = f.Apply(action);
             if (error != ActionError.None)
                 return error.ToString();
+            // Its player is here: no longer absent.
+            b.Missed[current] = 0;
             await Played(b, action, cancel);
             // The turn passed (or the fight ended): the monsters play up to the next hero.
             if (f.IsOver || f.Current.Id != current || f.Round != round)
@@ -125,12 +135,13 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
     /// <summary>The fight as a player coming back sees it: its start and every action so far; null when it is not under way.</summary>
     public SharedFightNews? Now(Guid fight, Guid character) =>
         _battles.TryGetValue(fight, out Battle? b) && b.Players.Contains(character) && b.Fight is Fight f && b.Start is not null
-            ? new SharedFightNews(SharedFightKind.Started, b.Id, Start: b.Start, Actions: [.. f.History], TurnEnds: b.TurnEnds)
+            ? new SharedFightNews(SharedFightKind.Started, b.Id, Start: b.Start, Actions: [.. f.History], TurnEnds: b.TurnEnds,
+                Fighter: f.Current.Id, Absent: b.Absent, ServerNow: clock.GetUtcNow())
             : null;
 
     /// <summary>
     /// The clock (each quarter of a second, <see cref="BattleClock"/>): the fights whose fifteen seconds have passed
-    /// start; a hero whose thirty seconds have passed ends its turn.
+    /// start; a hero whose time has passed ends its turn, one more missed in a row.
     /// </summary>
     public async Task Tick(CancellationToken cancel)
     {
@@ -147,6 +158,7 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
                     await Begin(b, cancel);
                 else if (b.Fight is Fight f && !f.IsOver && now >= b.TurnEnds && f.HeroFighters.Contains(f.Current))
                 {
+                    b.Missed[f.Current.Id] = b.Missed.GetValueOrDefault(f.Current.Id) + 1;
                     f.Apply(new EndTurnAction());
                     await Played(b, new EndTurnAction(), cancel);
                     await Monsters(b, cancel);
@@ -182,11 +194,11 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             [.. heroes.Skip(1).Select(h => h.Hero)], [.. heroes.Skip(1).Select(h => (int?)h.Hp)], [.. b.Players]);
         b.Fight = b.Start.Build(GameData.Embedded);
         b.TurnEnds = now + SharedRules.Turn;
-        await Tell(b, new SharedFightNews(SharedFightKind.Started, b.Id, Start: b.Start, Actions: [], TurnEnds: b.TurnEnds), cancel);
+        await Tell(b, new SharedFightNews(SharedFightKind.Started, b.Id, Start: b.Start, Actions: [], TurnEnds: b.TurnEnds, ServerNow: now), cancel);
         await Monsters(b, cancel);
     }
 
-    // The monsters play until a hero's turn, or the end; a hero's turn starts its thirty seconds.
+    // The monsters play until a hero's turn, or the end; a hero's turn starts its time (ten seconds when absent), told to all.
     private async Task Monsters(Battle b, CancellationToken cancel)
     {
         Fight f = b.Fight!;
@@ -201,9 +213,13 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             await Played(b, action, cancel);
         }
         if (f.IsOver)
+        {
             await Finish(b, cancel);
-        else
-            b.TurnEnds = clock.GetUtcNow() + SharedRules.Turn;
+            return;
+        }
+        DateTimeOffset now = clock.GetUtcNow();
+        b.TurnEnds = now + SharedRules.TurnFor(b.Missed.GetValueOrDefault(f.Current.Id));
+        await Tell(b, new SharedFightNews(SharedFightKind.Turn, b.Id, TurnEnds: b.TurnEnds, Fighter: f.Current.Id, Absent: b.Absent, ServerNow: now), cancel);
     }
 
     private Task Played(Battle b, FightAction action, CancellationToken cancel) =>
@@ -275,23 +291,40 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
     }
 }
 
-/// <summary>Ticks the fights with the party every quarter of a second (sprint 120): their fifteen seconds to join, their thirty-second turns.</summary>
-public sealed partial class BattleClock(Battles battles, ILogger<BattleClock> log) : BackgroundService
+/// <summary>
+/// Ticks the fights with the party every quarter of a second (sprint 120): their fifteen seconds to join, their turns;
+/// since sprint 124, every five seconds, sends out of their party the members out of play for ten minutes.
+/// </summary>
+public sealed partial class BattleClock(Battles battles, Parties parties, ChatHub hub, IServiceScopeFactory scopes, ILogger<BattleClock> log) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(250));
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        for (int tick = 0; await timer.WaitForNextTickAsync(stoppingToken); tick++)
         {
             try
             {
                 await battles.Tick(stoppingToken);
+                if (tick % 20 == 0)
+                    await SweepParties(parties, hub, scopes, stoppingToken);
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
                 Failed(log, e);
             }
         }
+    }
+
+    /// <summary>The members out of play too long leave their party, the others told.</summary>
+    public static async Task SweepParties(Parties parties, ChatHub hub, IServiceScopeFactory scopes, CancellationToken cancel)
+    {
+        IReadOnlyList<Guid> stale = parties.Stale();
+        if (stale.Count == 0)
+            return;
+        using IServiceScope scope = scopes.CreateScope();
+        GameDb db = scope.ServiceProvider.GetRequiredService<GameDb>();
+        foreach (Guid gone in stale)
+            await Endpoints.SocialEndpoints.TellParty(parties.Leave(gone), parties, hub, db, cancel);
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "A fight with the party could not go on.")]

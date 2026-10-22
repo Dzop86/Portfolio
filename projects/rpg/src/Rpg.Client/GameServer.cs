@@ -145,6 +145,10 @@ public sealed class GameServer(HttpClient http)
     public async Task LeaveParty(Guid id, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/party/leave", UriKind.Relative), null, cancel), cancel), cancel);
 
+    /// <summary>The party's leader sends a member out (sprint 124).</summary>
+    public async Task KickFromParty(Guid id, Guid member, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/kick", UriKind.Relative), new PartyKick(member), Json, cancel), cancel), cancel);
+
     /// <summary>Asks a character on the same map to trade (sprint 119).</summary>
     public async Task AskTrade(Guid id, Guid with, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/trade/ask", UriKind.Relative), new PartyAnswer(with), Json, cancel), cancel), cancel);

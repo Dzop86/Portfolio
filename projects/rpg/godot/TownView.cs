@@ -843,6 +843,50 @@ public partial class TownView : Node3D
             AddGroup(Controller.Data.Groups[id], at, _lang);
     }
 
+    private readonly Dictionary<string, (Node3D Mark, Label3D Seconds)> _fightMarks = [];
+
+    /// <summary>
+    /// Crossed swords where each group an ally attacks stood, with the seconds left to join (sprint 124, D79), by
+    /// group id; the others taken away.
+    /// </summary>
+    public void MarkFights(IReadOnlyDictionary<string, string> marks)
+    {
+        foreach (string gone in _fightMarks.Keys.Where(k => !marks.ContainsKey(k)).ToList())
+        {
+            _fightMarks[gone].Mark.QueueFree();
+            _fightMarks.Remove(gone);
+        }
+        foreach ((string id, string text) in marks)
+        {
+            if (!_fightMarks.TryGetValue(id, out var mark))
+            {
+                if (!Groups.TryGetValue(id, out Node3D? group))
+                    continue;
+                var root = new Node3D { Position = group.Position + new Vector3(0, 1.5f, 0), Name = "Fight " + id };
+                var steel = new StandardMaterial3D { AlbedoColor = new Color(0.9f, 0.9f, 0.92f), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+                foreach (float angle in new[] { 45f, -45f })
+                {
+                    root.AddChild(new MeshInstance3D
+                    {
+                        Mesh = new BoxMesh { Size = new Vector3(0.06f, 0.7f, 0.06f) },
+                        MaterialOverride = steel,
+                        RotationDegrees = new Vector3(0, 45, angle),
+                    });
+                }
+                Label3D seconds = Label(text, new Vector3(0, -0.55f, 0), 40);
+                seconds.Modulate = FighterView.PlayerColour;
+                root.AddChild(seconds);
+                AddChild(root);
+                mark = (root, seconds);
+                _fightMarks[id] = mark;
+            }
+            mark.Seconds.Text = text;
+        }
+    }
+
+    /// <summary>The seconds shown by the swords over each group an ally attacks (for the self-test).</summary>
+    public IReadOnlyDictionary<string, string> FightMarks => _fightMarks.ToDictionary(m => m.Key, m => m.Value.Seconds.Text);
+
     /// <summary>A group fought or beaten by someone (sprint 118): hidden until it is back.</summary>
     public void HideGroup(string id)
     {
