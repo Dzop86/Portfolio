@@ -242,7 +242,7 @@ Ysaline interprète à mesure, et elle se trompe : jusqu'au troisième arc, elle
 1. Géographie : **oui**, telle quelle.
 2. Les signes qui ont tourné : **une anomalie voulue**, aucune réplique livrée n'est retouchée.
 3. Les noms : **à relire** ; seuls Berthe, Bérold et Ormeval servent dans la tranche de la Forêt des Aïeux.
-4. Kesh : **plus tard**, avec la piste du Feu.
+4. Kesh : **un homme**, comme dans la bible et dans ce cadre (piste du Feu).
 5. L'ordre : **la Terre d'abord** (Forêt des Aïeux, 30 à 45), comme dans le plan du game designer (`suite-apres-d69.md` §11.6).
 6. « Garder ou creuser » : **plus tard**, l'étape (niveau 46) est hors de la tranche.
 7. Quatre-Chemins : **gardé**, comme l'étape où les routes parties de Clairval se séparent ; les quatre habitants donnent toujours leur piste à Clairval, et Quatre-Chemins est l'endroit où elles bifurquent.
