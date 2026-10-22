@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je bats la reine des abeilles à trois et une horde à deux tient du pari : un soutien au plus par groupe de chef, deux ailleurs, PV de la reine à 300 au plus bas si besoin (rpg) ; xUnit, `PartyBalanceTests`. | 3 | À faire |
+| En tant que joueur, je bats la reine des abeilles à trois et une horde à deux tient du pari : un soutien au plus par groupe de chef, deux ailleurs, PV de la reine à 300 au plus bas si besoin (rpg) ; xUnit, `PartyBalanceTests`. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

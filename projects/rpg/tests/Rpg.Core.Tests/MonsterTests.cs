@@ -105,6 +105,26 @@ public class MonsterTests
         Assert.DoesNotContain(Real.GroupsOn("lake-2-2"), g => cutting.Contains(g.Home));
     }
 
+    /// <summary>
+    /// A chief's group has one support at most (sprint 123, T91, §11.2.1 step 2): the second nurse of the queen made her
+    /// unbeatable for three. The extra support became a melee in place, with the same draws: no other group changed, and
+    /// the chiefs' groups kept their home and size (fingerprints taken before the change).
+    /// </summary>
+    [Fact]
+    public void AChiefsGroup_HasOneSupportAtMost_AndNoOtherGroupChanged()
+    {
+        MonsterGroup[] roaming = [.. Real.Groups.Values.Where(g => g.Fight is null).OrderBy(g => g.Id, StringComparer.Ordinal)];
+        bool Chief(MonsterGroup g) => g.Monsters.Any(m => Real.Monsters[m].Role == MonsterRole.Boss);
+        Assert.All(roaming.Where(Chief), g => Assert.True(g.Monsters.Count(m => Real.Monsters[m].Role == MonsterRole.Support) <= 1, g.Id));
+        static string Hash(IEnumerable<string> lines) =>
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(string.Join('\n', lines))))[..16];
+        Assert.Equal(OthersFingerprint, Hash(roaming.Where(g => !Chief(g)).Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}")));
+        Assert.Equal(ChiefsFingerprint, Hash(roaming.Where(Chief).Select(g => $"{g.Id} {g.Home} {g.Monsters.Count}")));
+    }
+
+    private const string OthersFingerprint = "5D1C8AEBA631E2BB";
+    private const string ChiefsFingerprint = "A145322D67DE32CD";
+
     [Fact]
     public void AGroup_LivesOnAFreeCell_AwayFromTheWays_AndFromTheOtherGroup()
     {

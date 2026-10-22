@@ -82,7 +82,7 @@ public sealed record MonsterGroup(string Id, string Map, string Family, Cell Hom
 /// has families, each of one family and of one to ten monsters: one to three near the zone's way in,
 /// up to six a little farther, up to ten at the far end (<see cref="Depth"/>); the chief, on its map,
 /// with five to nine of its family. Groups of one to three are for a player alone; of six and more,
-/// for several (D63, Charles). A support is never alone, and one for three monsters at most. Their
+/// for several (D63, Charles). A support is never alone, and one for three monsters at most; one in a chief's group (T91). Their
 /// homes are free cells reachable from the arrival, away from the ways, the exits and the arrival,
 /// and apart from one another.
 /// </summary>
@@ -143,7 +143,12 @@ public static class MonsterGroups
             List<MonsterRole> roles = boss ? [MonsterRole.Boss] : [];
             int size = boss ? rng.Next(6, Largest) : Size(rng, depth);
             while (roles.Count < size)
-                roles.Add(Draw(rng, alone: size == 1, support: roles.Count(r => r == MonsterRole.Support) < size / 3));
+            {
+                MonsterRole role = Draw(rng, alone: size == 1, support: roles.Count(r => r == MonsterRole.Support) < size / 3);
+                // A chief's group has one support at most (sprint 123, T91): a second one is a melee, from the same draw,
+                // so that no other group of the world changes.
+                roles.Add(boss && role == MonsterRole.Support && roles.Contains(MonsterRole.Support) ? MonsterRole.Melee : role);
+            }
             groups.Add(new MonsterGroup($"{map.Id}.{i}", map.Id, family.Id, home, [.. roles.Select(r => family[r].Id)]));
         }
         return groups;
