@@ -48,7 +48,36 @@
     "x": 24,
     "y": 16
   },
-  "npcs": [],
+  "npcs": [
+    {
+      "id": "berthe",
+      "name": {
+        "fr": "Berthe",
+        "en": "Berthe"
+      },
+      "look": "female-b",
+      "colour": 1,
+      "at": {
+        "x": 24,
+        "y": 10
+      },
+      "dialogue": "berthe"
+    },
+    {
+      "id": "berold",
+      "name": {
+        "fr": "Bérold",
+        "en": "Bérold"
+      },
+      "look": "male-a",
+      "colour": 0,
+      "at": {
+        "x": 28,
+        "y": 8
+      },
+      "dialogue": "berold"
+    }
+  ],
   "exits": [],
   "links": [
     {

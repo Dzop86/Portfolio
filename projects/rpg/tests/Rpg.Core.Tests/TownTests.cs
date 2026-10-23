@@ -49,8 +49,8 @@ public class TownTests
         Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
         Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
             village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
-        // Quatre-Chemins's seven since sprint 129 (docs/textes-v7.md).
-        Assert.Equal(["anatole", "anselme", "apolline", "aristide", "barnabe", "basile", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "ghislaine", "guard", "guide", "hortense", "joachim", "josette", "leonie", "liane", "lucien", "mahaut", "mathurin", "merchant", "odalric", "perrine", "remi", "romane", "scholar", "sidonie", "thibaut", "trainer"],
+        // Quatre-Chemins's seven since sprint 129 (docs/textes-v7.md); the forest's miners' camp since sprint 136 (docs/textes-v8.md).
+        Assert.Equal(["anatole", "anselme", "apolline", "aristide", "barnabe", "basile", "berold", "berthe", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "ghislaine", "guard", "guide", "hortense", "joachim", "josette", "leonie", "liane", "lucien", "mahaut", "mathurin", "merchant", "odalric", "perrine", "remi", "romane", "scholar", "sidonie", "thibaut", "trainer"],
             Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {

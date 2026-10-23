@@ -15,7 +15,8 @@ public class FirstQuestsTests
          "the-unlearned-lullaby", "the-last-verse", "the-washed-name", "the-name-returned", "burning-hives", "under-the-hedges", "the-disjoint", "four-trails"];
 
     /// <summary>The second chapter's main steps (sprint 129): Quatre-Chemins first.</summary>
-    private static readonly string[] SecondChapter = ["where-roads-part"];
+    // Since sprint 136, the Forest of the Ancestors' main thread.
+    private static readonly string[] SecondChapter = ["where-roads-part", "the-tree-town", "the-unmapped-passage", "mossy-keepers", "roots-of-the-mother-tree"];
 
     /// <summary>The main steps a zone's giver relays (sprint 112): the woodcutters' head, the hermit of the pools.</summary>
     private static readonly Dictionary<string, string> Relayed = new()
@@ -85,8 +86,7 @@ public class FirstQuestsTests
     {
         // The tutorial's last quest (the edge of the woods, Garance's) is the village's, not the zone's.
         Quest[] side = [.. Real.Quests.Values.Where(q => q.IsGiven && !Main.Contains(q.Id) && !SecondChapter.Contains(q.Id) && !q.Id.EndsWith("-cleared", StringComparison.Ordinal) && q.Id != "edge-of-the-woods")];
-        // The forest's quests come with sprint 136.
-        foreach (string zone in Real.Families.Values.Select(f => f.Zone).Distinct().Where(z => z != "ancestors"))
+        foreach (string zone in Real.Families.Values.Select(f => f.Zone).Distinct())
             Assert.InRange(side.Count(q => q.Zone == zone), 1, 3);
         // The Woods' and the Mouldy Woods' side quests come from their givers, in two small chains (sprint 112).
         Assert.All(side.Where(q => q.Zone == "woods"), q => Assert.Equal("woods/mathurin", q.Giver));
@@ -111,7 +111,8 @@ public class FirstQuestsTests
         {
             // A zone's quests between its level and the next zone's (sprint 112: the Woods 5 to 10 for maps of level 3).
             if (q.Zone is string zone)
-                Assert.InRange(q.Level, 1, ZoneLevel(zone) + 7);
+                // Since sprint 136, the Forest of the Ancestors, maps of level 31 for a slice of levels 30 to 45 (D79).
+                Assert.InRange(q.Level, 1, zone == "ancestors" ? 45 : ZoneLevel(zone) + 7);
             foreach (QuestObjective o in q.Objectives!)
             {
                 switch (o.Goal)

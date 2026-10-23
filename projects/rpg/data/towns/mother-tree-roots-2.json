@@ -134,5 +134,23 @@
         "en": "Room 3"
       }
     }
+  ],
+  "props": [
+    {
+      "id": "rooted-slab",
+      "at": {
+        "x": 10,
+        "y": 4
+      },
+      "look": "roots",
+      "name": {
+        "fr": "La dalle prise dans les racines",
+        "en": "The slab in the roots"
+      },
+      "text": {
+        "fr": "Une dalle grande comme une porte, que les racines de l'Arbre serrent de tous côtés, comme une main tient un coffre fermé. On y lit les mots des cœurs des gardiens : « Nous tiendrons… ». La phrase continue sous le bord de la dalle, et de dessous monte un air froid : ça descend encore.",
+        "en": "A slab the size of a door, gripped on every side by the Tree's roots, the way a hand holds a chest shut. It bears the words from the keepers' hearts: 'We shall hold…'. The sentence carries on under the edge of the slab, and cold air rises from beneath it: the way goes on down."
+      }
+    }
   ]
 }

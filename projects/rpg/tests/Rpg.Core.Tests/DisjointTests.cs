@@ -52,8 +52,8 @@ public class DisjointTests
         Assert.Equal((30, 1800L), (trails.Level, trails.Xp));
         Assert.All(trails.Objectives!, o => Assert.NotNull(o.Line));
         // The main thread of the chapter: forty-nine quests in all, the last one "Four trails"; since sprint 129, the second
-        // chapter's first step after it.
-        Assert.Equal(50, Real.Quests.Count);
+        // chapter's first step after it; since sprint 136, the Forest of the Ancestors' nine.
+        Assert.Equal(59, Real.Quests.Count);
         Assert.Equal(["where-roads-part"], Real.Quests.Values.Where(q => (q.After ?? []).Contains("four-trails")).Select(q => q.Id));
     }
 }

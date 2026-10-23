@@ -1,0 +1,125 @@
+{
+  "id": "berold",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Voyageur. Vous entrez dans la forêt d'Ormeval, où l'on tient parole. Je suis Bérold, juge des serments.",
+        "en": "Traveller. You are entering the forest of Ormeval, where people keep their word. I am Bérold, judge of oaths."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ormeval ?",
+            "en": "Ormeval?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Les serments ?",
+            "en": "The oaths?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Et Berthe ?",
+            "en": "And Berthe?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Ormeval est dans les branches de l'Arbre-Mère, au fond de la forêt. Les étrangers n'y montent pas : c'est le premier serment de la ville, et personne ne l'a jamais rompu.",
+        "en": "Ormeval lies in the branches of the Mother Tree, at the far end of the forest. Strangers do not go up: that is the town's first oath, and no one has ever broken it."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Les serments ?",
+            "en": "The oaths?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Et Berthe ?",
+            "en": "And Berthe?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Un serment ne se comprend pas : il se tient. Ceux qui ont juré avant nous savaient pourquoi. Il nous suffit de savoir qu'ils ont juré.",
+        "en": "An oath is not there to be understood: it is there to be kept. Those who swore before us knew why. It is enough for us to know that they swore."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ormeval ?",
+            "en": "Ormeval?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Et Berthe ?",
+            "en": "And Berthe?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "Berthe creuse pour Ormeval, je le sais. Mais elle creuse là où personne n'aurait dû creuser, et les pierres le lui disent mieux que moi.",
+        "en": "Berthe digs for Ormeval, I know that. But she is digging where no one should ever have dug, and the stones are telling her so more plainly than I can."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Ormeval ?",
+            "en": "Ormeval?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Les serments ?",
+            "en": "The oaths?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

@@ -134,5 +134,23 @@
         "en": "Room 3"
       }
     }
+  ],
+  "props": [
+    {
+      "id": "echo-stone",
+      "at": {
+        "x": 10,
+        "y": 4
+      },
+      "look": "stone",
+      "name": {
+        "fr": "La pierre d'écho",
+        "en": "The echo stone"
+      },
+      "text": {
+        "fr": "Une pierre levée, creusée comme une conque, au fond de la combe. Le sol autour est gratté en rond par des générations de sabots. Tu la frappes : quatre échos reviennent des parois, puis le silence dure un écho de trop.",
+        "en": "A standing stone, hollowed like a conch, at the far end of the combe. The ground around it is scraped into a ring by generations of hooves. You strike it: four echoes come back off the walls, then the silence lasts one echo too long."
+      }
+    }
   ]
 }

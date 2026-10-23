@@ -22,6 +22,7 @@
   { "id": "garance-badge", "name": { "fr": "Insigne de Garance", "en": "Garance's Badge" }, "kind": "Quest", "icon": "andymeneely/police-badge" },
   { "id": "rat-tail", "name": { "fr": "Queue de rat", "en": "Rat Tail" }, "kind": "Quest", "icon": "cathelineau/earth-worm" },
   { "id": "marked-fang", "name": { "fr": "Croc marqué", "en": "Marked Fang" }, "kind": "Quest", "icon": "skoll/fangs" },
+  { "id": "keeper-heart", "name": { "fr": "Cœur gravé", "en": "Carved Heart" }, "kind": "Quest", "icon": "lorc/stone-sphere" },
   { "id": "registry-page", "name": { "fr": "Page de registre", "en": "Registry Page" }, "kind": "Quest", "icon": "lorc/scroll-unfurled" },
   { "id": "last-verse", "name": { "fr": "Le dernier couplet", "en": "The Last Verse" }, "kind": "Quest", "icon": "lorc/spiked-shell" },
   { "id": "painted-shard", "name": { "fr": "Tesson peint", "en": "Painted Shard" }, "kind": "Quest", "icon": "delapouite/clay-brick" },

@@ -1899,5 +1899,373 @@
     ],
     "xp": 1200,
     "shards": 300
+  },
+  {
+    "id": "the-tree-town",
+    "name": {
+      "fr": "Ceux de l'arbre",
+      "en": "The Tree Folk"
+    },
+    "giver": "four-ways/anatole",
+    "zone": "ancestors",
+    "level": 31,
+    "kind": "Main",
+    "text": {
+      "fr": "La route du sud entre dans la Forêt des Aïeux, et au bout se tient l'arbre qui porte une ville : Ormeval. Ses mineurs passent ici deux fois l'an ; cette saison, plus un seul. Leur contremaîtresse, Berthe, a monté un camp à l'entrée de la forêt : va voir ce qui les retient.",
+      "en": "The south road runs into the Forest of the Ancestors, and at the end of it stands the tree that holds a town: Ormeval. Its miners come through here twice a year; this season, not one. Their forewoman, Berthe, has set up camp at the edge of the forest: go and see what's keeping them."
+    },
+    "thanks": {
+      "fr": "Le juge t'a fait son discours ? Il le fait à tout le monde, même aux écureuils. Avant qu'on mure quoi que ce soit, je veux savoir ce qu'on a trouvé. Tu as l'œil neuf : tu vas m'aider.",
+      "en": "Did the judge give you his speech? He gives it to everyone, squirrels included. Before anybody walls anything up, I want to know what we've found. You've got fresh eyes: you're going to help me."
+    },
+    "objectives": [
+      {
+        "goal": "Talk",
+        "target": "ancestors/berold",
+        "line": {
+          "fr": "Les mineurs ont ouvert sous l'Arbre un passage qu'aucune carte ne montre, et les pierres se sont levées contre eux. Ce passage sera refermé. Je ne discute pas les serments : je les fais tenir.",
+          "en": "The miners opened a passage under the Tree that no map shows, and the stones rose up against them. That passage will be closed. I do not argue with oaths: I see that they are kept."
+        }
+      },
+      {
+        "goal": "Talk",
+        "target": "ancestors/berthe",
+        "line": {
+          "fr": "Tu viens de Quatre-Chemins ? Bon, deux bras de plus. On a ouvert un filon sous l'Arbre, le plus beau de ma vie, et depuis, les pierres marchent. Le juge veut tout murer ; moi, j'ai trente gars à payer.",
+          "en": "You've come from Four Ways? Good, another pair of hands. We opened a seam under the Tree, the best I've ever seen, and ever since, the stones have been walking. The judge wants it all walled up; I've got thirty lads to pay."
+        }
+      }
+    ],
+    "handIn": "ancestors/berthe",
+    "after": [
+      "where-roads-part"
+    ],
+    "xp": 1860,
+    "shards": 310
+  },
+  {
+    "id": "the-unmapped-passage",
+    "name": {
+      "fr": "Le passage qui n'existait pas",
+      "en": "The Passage That Wasn't There"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 33,
+    "kind": "Main",
+    "text": {
+      "fr": "Avant de trouver le filon, mes gars ont creusé des sondages, de l'entrée de la forêt jusqu'à l'Arbre. Dans trois d'entre eux, on est tombés sur des pierres gravées. Va les voir, puis demande au juge s'il les connaît : c'est lui qui garde les registres d'Ormeval.",
+      "en": "Before they found the seam, my lads sank test pits all the way from the edge of the forest to the Tree. In three of them we hit carved stones. Go and look at them, then ask the judge if he knows them: he keeps Ormeval's registers."
+    },
+    "thanks": {
+      "fr": "Un creux gratté entre quatre signes ? Des coups réguliers, au ciseau large : c'est du travail de carrier, et d'un bon. Quelqu'un a pris le temps d'effacer ça, et ce n'était pas hier.",
+      "en": "A scraped-out hollow between four signs? Even strokes, with a broad chisel: that's a quarryman's work, and a good one. Someone took their time rubbing that out, and it wasn't yesterday."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "trial-pit-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "trial-pit-2"
+      },
+      {
+        "goal": "Interact",
+        "target": "trial-pit-3"
+      },
+      {
+        "goal": "Talk",
+        "target": "ancestors/berold",
+        "line": {
+          "fr": "Les mineurs disent avoir trouvé des pierres plus vieilles que nos registres. Nos registres remontent à la première branche d'Ormeval. Rien de ce qui compte n'est plus vieux qu'eux.",
+          "en": "The miners claim they have found stones older than our registers. Our registers go back to Ormeval's first branch. Nothing that matters is older than they are."
+        }
+      }
+    ],
+    "after": [
+      "the-tree-town"
+    ],
+    "xp": 1980,
+    "shards": 330
+  },
+  {
+    "id": "mossy-keepers",
+    "name": {
+      "fr": "Les gardiens moussus",
+      "en": "The Mossy Keepers"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 36,
+    "kind": "Main",
+    "text": {
+      "fr": "Les pierres qui marchent, ce sont des gardiens : de la pierre tenue par la mousse, et ils ne laissent plus personne approcher du filon. Couches-en six. Rapporte aussi trois des cœurs gravés qu'ils portent en eux, et donne-les au juge : lui seul sait les lire.",
+      "en": "The walking stones are keepers: stone held together with moss, and they won't let anyone near the seam any more. Put six of them down. And bring back three of the carved hearts they carry inside, and give them to the judge: he's the only one who can read them."
+    },
+    "thanks": {
+      "fr": "Trois cœurs… Ce sont les premiers mots de nos serments, les plus anciens : « Nous tiendrons. » La suite, je ne la lis pas ; elle n'est pas effacée, je ne connais pas ces mots. Ces gardiens ne se battaient pas contre les mineurs, voyageur. Ils tenaient un serment.",
+      "en": "Three hearts… These are the first words of our oaths, the oldest ones: 'We shall hold.' The rest I cannot read; it is not worn away, I simply do not know those words. Those keepers were not fighting the miners, traveller. They were keeping an oath."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "golem",
+        "count": 6
+      },
+      {
+        "goal": "Bring",
+        "target": "keeper-heart",
+        "count": 3
+      }
+    ],
+    "handIn": "ancestors/berold",
+    "after": [
+      "the-unmapped-passage"
+    ],
+    "xp": 2160,
+    "shards": 360
+  },
+  {
+    "id": "roots-of-the-mother-tree",
+    "name": {
+      "fr": "Les Racines de l'Arbre-Mère",
+      "en": "The Mother Tree's Roots"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 41,
+    "kind": "Main",
+    "text": {
+      "fr": "Le juge a fait fermer la grille du passage. Ma grille. La clef, je l'ai encore, mais il fait changer la serrure demain : elle ne servira qu'une fois, ensuite il faudra voir Gédéon. Descends jusqu'à la grande salle, sous l'Arbre, et regarde ce que les racines serrent si fort.",
+      "en": "The judge has had the passage gate locked. My gate. I've still got the key, but he's having the lock changed tomorrow: it'll only work once, after that you'll need Gédéon. Go down to the great hall, under the Tree, and look at what the roots are gripping so tight."
+    },
+    "thanks": {
+      "fr": "Bérold Serment-Fixe m'a écrit ce matin, pour la première fois en vingt ans : « La route du sud s'arrête à l'Arbre. » Quand un juge prend la peine d'écrire ça, c'est que la route continue. Berthe appelle le dessous Sous-Racine ; je n'ai pas encore de page pour une route qui descend. J'écris à Ysaline ce soir.",
+      "en": "Bérold Serment-Fixe wrote to me this morning, for the first time in twenty years: 'The south road ends at the Tree.' When a judge goes to the trouble of writing that, the road carries on. Berthe calls what lies beneath Underroot; I haven't a page yet for a road that goes down. I'll write to Ysaline tonight."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "mother-tree-roots",
+        "room": 2
+      },
+      {
+        "goal": "Interact",
+        "target": "rooted-slab"
+      },
+      {
+        "goal": "Talk",
+        "target": "ancestors/berold",
+        "line": {
+          "fr": "Berthe vous a donné la clef de sa grille. Je sais tout ce qui se passe sous cet Arbre, voyageur. Ce qui est en bas ne se prend pas et ne se casse pas : cela se lit.",
+          "en": "Berthe has given you the key to her gate. I know everything that happens beneath this Tree, traveller. What lies below is not to be taken or broken: it is to be read."
+        }
+      }
+    ],
+    "handIn": "four-ways/anatole",
+    "after": [
+      "mossy-keepers"
+    ],
+    "grants": [
+      {
+        "item": "mother-tree-roots-key",
+        "count": 1
+      }
+    ],
+    "xp": 2460,
+    "shards": 410
+  },
+  {
+    "id": "burning-ground",
+    "name": {
+      "fr": "Le sol qui brûle",
+      "en": "Burning Ground"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 32,
+    "kind": "Side",
+    "text": {
+      "fr": "Les cerfs grattent le sol autour du camp, et leurs grattis s'allument sous les pieds de mes gars : trois brûlés cette semaine. Chasses-en six. Et regarde où tu marches : eux, ils regardent.",
+      "en": "The stags scrape the ground round the camp, and their scrapings light up under my lads' feet: three burnt this week. Hunt six of them. And watch where you tread: they do."
+    },
+    "thanks": {
+      "fr": "Six, et tes bottes sont entières. Mes gars vont pouvoir marcher sans regarder par terre. Enfin, presque. Prends ça pour tes brûlures.",
+      "en": "Six, and your boots are in one piece. My lads can walk without staring at the ground again. Well, nearly. Take these for your burns."
+    },
+    "objectives": [
+      {
+        "goal": "Defeat",
+        "target": "stag",
+        "count": 6
+      }
+    ],
+    "after": [
+      "the-tree-town"
+    ],
+    "items": [
+      {
+        "item": "healing-elixir",
+        "count": 3
+      }
+    ],
+    "xp": 1280,
+    "shards": 320
+  },
+  {
+    "id": "antler-wedges",
+    "name": {
+      "fr": "Des coins d'andouiller",
+      "en": "Antler Wedges"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 34,
+    "kind": "Side",
+    "text": {
+      "fr": "Un andouiller de pierre ne se fend jamais : c'est le meilleur coin qui soit pour caler un étai. Rapporte-m'en cinq, et quatre peaux de cerf pour les genouillères de mes gars : là-dessous, on travaille à genoux.",
+      "en": "A stone antler never splits: it's the best wedge there is for bracing a prop. Bring me five, and four deerskins for my lads' knee pads: down there, we work on our knees."
+    },
+    "thanks": {
+      "fr": "Cinq coins, quatre paires de genouillères : mes étais tiendront, et mes gars aussi. Tiens, c'est ce que je donne à ceux qui descendent.",
+      "en": "Five wedges, four pairs of knee pads: my props will hold, and so will my lads. Here, it's what I give the ones who go down."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "stone-antler",
+        "count": 5
+      },
+      {
+        "goal": "Bring",
+        "target": "stag-velvet",
+        "count": 4
+      }
+    ],
+    "after": [
+      "burning-ground"
+    ],
+    "items": [
+      {
+        "item": "greater-healing-elixir",
+        "count": 2
+      }
+    ],
+    "xp": 1360,
+    "shards": 340
+  },
+  {
+    "id": "the-bellow",
+    "name": {
+      "fr": "Le brame",
+      "en": "The Bellow"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 40,
+    "kind": "Side",
+    "text": {
+      "fr": "La nuit, les cerfs brament dans la combe, au sud-ouest, et mes étais tremblent jusqu'ici. Un brame ne fait pas trembler du bois : quelque chose lui répond. Un de mes gars a pris cette clef sur un vieux cerf ; elle ne servira qu'une fois. Descends jusqu'à la grande salle, et écoute.",
+      "en": "At night the stags bellow in the combe, off to the south-west, and my props shake all the way over here. A bellow doesn't make timber shake: something's answering it. One of my lads took this key off an old hart; it'll only work once. Go down to the great hall, and listen."
+    },
+    "thanks": {
+      "fr": "Quatre échos et un trou ? Sous terre, quand un coup ne revient pas, c'est qu'il y a du vide derrière la roche. Je n'aime pas ça, et mes gars encore moins. Tiens, mange : tu as la tête de quelqu'un qui a écouté trop longtemps.",
+      "en": "Four echoes and a gap? Underground, when a knock doesn't come back, there's empty space behind the rock. I don't like it, and my lads like it even less. Here, eat: you look like someone who's been listening too long."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "bellowing-combe",
+        "room": 2
+      },
+      {
+        "goal": "Interact",
+        "target": "echo-stone"
+      }
+    ],
+    "after": [
+      "antler-wedges"
+    ],
+    "grants": [
+      {
+        "item": "bellowing-combe-key",
+        "count": 1
+      }
+    ],
+    "items": [
+      {
+        "item": "spelt-bread",
+        "count": 3
+      }
+    ],
+    "xp": 1600,
+    "shards": 400
+  },
+  {
+    "id": "bellowing-combe-cleared",
+    "name": {
+      "fr": "Au fond : Combe du brame",
+      "en": "At the bottom: The Bellowing Combe"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 44,
+    "kind": "Dungeon",
+    "text": {
+      "fr": "Au bout de la combe vit le Cerf-Aïeul, celui dont la ramure porte des signes, à ce qu'on raconte. Mes gars l'ont vu une fois et ont couru jusqu'ici sans s'arrêter. Va jusqu'au fond, à plusieurs : seul, ce n'est plus du courage, c'est de la paperasse pour le juge.",
+      "en": "At the far end of the combe lives the Ancestor Stag, whose antlers carry signs, or so the story goes. My lads saw him once and ran all the way back here without stopping. Go all the way down, with others: alone, it isn't bravery any more, it's paperwork for the judge."
+    },
+    "thanks": {
+      "fr": "L'Aïeul est tombé ? Alors la combe va enfin se taire la nuit. Je dormirai une heure de plus, et c'est à toi que je la devrai.",
+      "en": "The Ancestor's down? Then the combe will finally keep quiet at night. I'll sleep an hour longer, and I'll have you to thank for it."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "bellowing-combe"
+      }
+    ],
+    "after": [
+      "the-bellow"
+    ],
+    "xp": 4400,
+    "shards": 660
+  },
+  {
+    "id": "mother-tree-roots-cleared",
+    "name": {
+      "fr": "Au fond : Racines de l'Arbre-Mère",
+      "en": "At the bottom: The Mother Tree's Roots"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "ancestors",
+    "level": 45,
+    "kind": "Dungeon",
+    "text": {
+      "fr": "Le plus vieux des gardiens, un menhir qui marche, tient le fond des Racines, au-delà de la dalle. Tant qu'il est debout, aucun de mes gars ne redescendra. Prends du monde et va jusqu'au fond : je veux mon passage, même si le juge veut sa grille.",
+      "en": "The oldest of the keepers, a walking menhir, holds the far end of the Roots, beyond the slab. While he's still standing, none of my lads will go back down. Take some company and go all the way: I want my passage, even if the judge wants his gate."
+    },
+    "thanks": {
+      "fr": "Le menhir est couché ? Le juge dira que tu as rompu un serment, et moi, que tu as rouvert un filon. On a sans doute raison tous les deux. Tiens, pour la route.",
+      "en": "The menhir's down? The judge will say you broke an oath, and I'll say you reopened a seam. We're probably both right. Here, for the road."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "mother-tree-roots"
+      }
+    ],
+    "after": [
+      "roots-of-the-mother-tree"
+    ],
+    "items": [
+      {
+        "item": "sorghum-flatbread",
+        "count": 3
+      }
+    ],
+    "xp": 4500,
+    "shards": 675
   }
 ]

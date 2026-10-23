@@ -22,6 +22,10 @@ PEOPLE = [
     ("joachim", text("Joachim", "Joachim"), "male-b", 5, "lake-3-4", (30, 16), "joachim"),
     ("fleur", text("Fleur", "Fleur"), "female-f", 2, "lake-3-4", (30, 12), "fleur"),
     ("eglantine", text("Églantine", "Églantine"), "female-e", 3, "fields-3-0", (27, 14), "eglantine"),
+    # The miners' camp at the Forest of the Ancestors' way in (sprint 136, docs/textes-v8.md §2): Berthe gives its quests,
+    # Bérold stands four steps from her.
+    ("berthe", text("Berthe", "Berthe"), "female-b", 1, "ancestors-1-1", (24, 10), "berthe"),
+    ("berold", text("Bérold", "Bérold"), "male-a", 0, "ancestors-1-1", (28, 10), "berold"),
 ]
 # The things to examine: id, look, name, what one reads, map, near which cell (docs/textes-v5.md §9.1).
 PROPS = [
@@ -62,6 +66,22 @@ PROPS = [
     ("mole-tunnel-3", "tunnel", text("Le fond d'une galerie", "The end of a tunnel"),
      text("Au fond, une écaille de métal sombre, la même que le sceau de la crypte. Elle est tiède.",
           "At the bottom, a flake of dark metal, the same as the crypt's seal. It is warm."), "fields-2-3", (24, 16)),
+    # The Forest of the Ancestors' clues (sprint 136, docs/textes-v8.md §5.2).
+    ("trial-pit-1", "stone", text("Un sondage", "A test pit"),
+     text("Au fond d'un trou carré, une pierre plate couverte de traits serrés. Ce n'est l'écriture de personne : ni celle des registres de Clairval, ni celle des bornes de la route.",
+          "At the bottom of a square hole, a flat stone covered in close-set strokes. It's nobody's writing: not the hand of Clairval's registers, nor that of the milestones on the road."), "ancestors-2-1", (24, 12)),
+    ("trial-pit-2", "roots", text("Un sondage sous les racines", "A test pit under the roots"),
+     text("Une racine a traversé la pierre gravée sans la fendre : elle a suivi les traits, comme on suit un chemin. Quelques signes ressemblent à des lettres : on devine « … tiendront… », puis la racine couvre le reste.",
+          "A root has grown right through the carved stone without splitting it: it followed the strokes, the way you'd follow a path. A few marks look like letters: you can make out '…shall hold…', then the root covers the rest."), "ancestors-1-2", (24, 12)),
+    ("trial-pit-3", "grave", text("Le dernier sondage", "The last test pit"),
+     text("Quatre signes gravés aux coins de la pierre : une graine, une goutte, un marteau, une plume. Au milieu, un creux gratté. Les traces sont nettes et régulières : on a gratté ici avec un outil, pas avec le temps.",
+          "Four signs carved at the corners of the stone: a seed, a drop, a hammer, a feather. In the middle, a scraped-out hollow. The marks are clean and even: this was scraped with a tool, not by time."), "ancestors-2-2", (24, 12)),
+    ("echo-stone", "stone", text("La pierre d'écho", "The echo stone"),
+     text("Une pierre levée, creusée comme une conque, au fond de la combe. Le sol autour est gratté en rond par des générations de sabots. Tu la frappes : quatre échos reviennent des parois, puis le silence dure un écho de trop.",
+          "A standing stone, hollowed like a conch, at the far end of the combe. The ground around it is scraped into a ring by generations of hooves. You strike it: four echoes come back off the walls, then the silence lasts one echo too long."), "bellowing-combe-2", (10, 4)),
+    ("rooted-slab", "roots", text("La dalle prise dans les racines", "The slab in the roots"),
+     text("Une dalle grande comme une porte, que les racines de l'Arbre serrent de tous côtés, comme une main tient un coffre fermé. On y lit les mots des cœurs des gardiens : « Nous tiendrons… ». La phrase continue sous le bord de la dalle, et de dessous monte un air froid : ça descend encore.",
+          "A slab the size of a door, gripped on every side by the Tree's roots, the way a hand holds a chest shut. It bears the words from the keepers' hearts: 'We shall hold…'. The sentence carries on under the edge of the slab, and cold air rises from beneath it: the way goes on down."), "mother-tree-roots-2", (10, 4)),
     # The Burrows' gate, where the Disjoint is fought (sprint 114): examined while the quest wants it, it starts the fight.
     ("burrows-gate", "tunnel", text("La porte des Galeries", "The Burrows' gate"),
      text("La terre devant la porte bouge toute seule, comme si quelque chose respirait dessous.",

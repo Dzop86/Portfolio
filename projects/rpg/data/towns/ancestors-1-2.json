@@ -777,5 +777,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "trial-pit-2",
+      "at": {
+        "x": 24,
+        "y": 12
+      },
+      "look": "roots",
+      "name": {
+        "fr": "Un sondage sous les racines",
+        "en": "A test pit under the roots"
+      },
+      "text": {
+        "fr": "Une racine a traversé la pierre gravée sans la fendre : elle a suivi les traits, comme on suit un chemin. Quelques signes ressemblent à des lettres : on devine « … tiendront… », puis la racine couvre le reste.",
+        "en": "A root has grown right through the carved stone without splitting it: it followed the strokes, the way you'd follow a path. A few marks look like letters: you can make out '…shall hold…', then the root covers the rest."
+      }
+    }
   ]
 }

@@ -92,7 +92,7 @@ ICONS = {
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",
     "royal-hive-key": "delapouite/boss-key", "mole-burrows-key": "delapouite/boss-key",
     "bellowing-combe-key": "delapouite/boss-key", "mother-tree-roots-key": "delapouite/boss-key",
-    "garance-badge": "andymeneely/police-badge", "rat-tail": "cathelineau/earth-worm", "marked-fang": "skoll/fangs", "registry-page": "lorc/scroll-unfurled", "last-verse": "lorc/spiked-shell", "painted-shard": "delapouite/clay-brick", "humming-debris": "faithtoken/ore", "palisade-stake": "delapouite/log", "admin-keyring": "delapouite/keyring",
+    "garance-badge": "andymeneely/police-badge", "rat-tail": "cathelineau/earth-worm", "marked-fang": "skoll/fangs", "keeper-heart": "lorc/stone-sphere", "registry-page": "lorc/scroll-unfurled", "last-verse": "lorc/spiked-shell", "painted-shard": "delapouite/clay-brick", "humming-debris": "faithtoken/ore", "palisade-stake": "delapouite/log", "admin-keyring": "delapouite/keyring",
     # The recall scroll (sprint 127, left out of this list then: added sprint 131).
     "recall-scroll": "lorc/scroll-unfurled",
 }

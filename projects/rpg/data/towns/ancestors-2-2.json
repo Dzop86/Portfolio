@@ -788,5 +788,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "trial-pit-3",
+      "at": {
+        "x": 24,
+        "y": 12
+      },
+      "look": "grave",
+      "name": {
+        "fr": "Le dernier sondage",
+        "en": "The last test pit"
+      },
+      "text": {
+        "fr": "Quatre signes gravés aux coins de la pierre : une graine, une goutte, un marteau, une plume. Au milieu, un creux gratté. Les traces sont nettes et régulières : on a gratté ici avec un outil, pas avec le temps.",
+        "en": "Four signs carved at the corners of the stone: a seed, a drop, a hammer, a feather. In the middle, a scraped-out hollow. The marks are clean and even: this was scraped with a tool, not by time."
+      }
+    }
   ]
 }

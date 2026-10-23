@@ -1,0 +1,125 @@
+{
+  "id": "berthe",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": {
+        "fr": "Fais vite : j'ai trente gars qui me coûtent une journée chacun à ne rien faire. Berthe, contremaîtresse. Tu veux quoi ?",
+        "en": "Make it quick: I've got thirty lads costing me a day's wages each to do nothing. Berthe, forewoman. What do you want?"
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le filon ?",
+            "en": "The seam?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le juge ?",
+            "en": "The judge?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Le camp ?",
+            "en": "The camp?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic1": {
+      "text": {
+        "fr": "Du granit à grain fin, et dessous, des veines vertes comme je n'en ai jamais vu. Un filon pareil fait vivre Ormeval dix ans. Encore faut-il y descendre, et les pierres ne veulent pas.",
+        "en": "Fine-grained granite, and under it green veins like nothing I've ever seen. A seam like that keeps Ormeval going for ten years. You've still got to get down to it, though, and the stones won't have it."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le juge ?",
+            "en": "The judge?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "Le camp ?",
+            "en": "The camp?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic2": {
+      "text": {
+        "fr": "Bérold fait tenir les serments d'Ormeval depuis quarante ans, sans en avoir changé un mot. Il est juste, je te l'accorde. Il est aussi têtu qu'une dalle.",
+        "en": "Bérold has kept Ormeval's oaths for forty years without changing a single word. He's fair, I'll give him that. He's also as stubborn as a slab."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le filon ?",
+            "en": "The seam?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le camp ?",
+            "en": "The camp?"
+          },
+          "next": "topic3"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    },
+    "topic3": {
+      "text": {
+        "fr": "On travaillait au pied de l'Arbre, au fond de la forêt. Depuis que les gardiens nous chassent, on a reculé jusqu'à la route. Au moins, ici, on voit passer les clients de Lucien.",
+        "en": "We used to work at the foot of the Tree, right at the back of the forest. Since the keepers started driving us off, we've pulled back to the road. At least here we see Lucien's customers go by."
+      },
+      "answers": [
+        {
+          "text": {
+            "fr": "Le filon ?",
+            "en": "The seam?"
+          },
+          "next": "topic1"
+        },
+        {
+          "text": {
+            "fr": "Le juge ?",
+            "en": "The judge?"
+          },
+          "next": "topic2"
+        },
+        {
+          "text": {
+            "fr": "À bientôt.",
+            "en": "See you."
+          }
+        }
+      ]
+    }
+  }
+}

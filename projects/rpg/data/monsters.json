@@ -2302,6 +2302,11 @@
             "percent": 8
           },
           {
+            "item": "keeper-heart",
+            "percent": 35,
+            "quest": "mossy-keepers"
+          },
+          {
             "item": "mother-tree-roots-key",
             "percent": 2
           }
@@ -2339,6 +2344,11 @@
           {
             "item": "moss-ring",
             "percent": 8
+          },
+          {
+            "item": "keeper-heart",
+            "percent": 35,
+            "quest": "mossy-keepers"
           },
           {
             "item": "mother-tree-roots-key",
@@ -2381,6 +2391,11 @@
             "percent": 8
           },
           {
+            "item": "keeper-heart",
+            "percent": 35,
+            "quest": "mossy-keepers"
+          },
+          {
             "item": "mother-tree-roots-key",
             "percent": 2
           }
@@ -2419,6 +2434,11 @@
           {
             "item": "keeper-moss",
             "percent": 50
+          },
+          {
+            "item": "keeper-heart",
+            "percent": 35,
+            "quest": "mossy-keepers"
           },
           {
             "item": "mother-tree-roots-key",
@@ -2479,6 +2499,11 @@
           {
             "item": "slab-shield",
             "percent": 8
+          },
+          {
+            "item": "keeper-heart",
+            "percent": 100,
+            "quest": "mossy-keepers"
           },
           {
             "item": "mother-tree-roots-key",

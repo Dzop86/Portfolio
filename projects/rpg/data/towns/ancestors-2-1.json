@@ -843,5 +843,23 @@
         "y": 30
       }
     }
+  ],
+  "props": [
+    {
+      "id": "trial-pit-1",
+      "at": {
+        "x": 24,
+        "y": 12
+      },
+      "look": "stone",
+      "name": {
+        "fr": "Un sondage",
+        "en": "A test pit"
+      },
+      "text": {
+        "fr": "Au fond d'un trou carré, une pierre plate couverte de traits serrés. Ce n'est l'écriture de personne : ni celle des registres de Clairval, ni celle des bornes de la route.",
+        "en": "At the bottom of a square hole, a flat stone covered in close-set strokes. It's nobody's writing: not the hand of Clairval's registers, nor that of the milestones on the road."
+      }
+    }
   ]
 }
