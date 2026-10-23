@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
 /// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
 /// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76); a sylvan stag's tall legs, raised neck
-/// and antlers of mossy stone (sprint 132). Each has an "idle" and a "walk"
+/// and antlers of mossy stone (sprint 132); a mossy keeper's body of stacked blocks, thick arms and tufts of moss (sprint 133). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z. Since sprint 104, the village's beasts too: a hen,
 /// a horse and a sheep (<see cref="Beast"/>).
 /// </summary>
@@ -21,7 +21,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "rat"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "golem", "rat"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -72,6 +72,13 @@ public static class Creatures
         "stag-tank" => Stag(1.3f, new Color("4e3f31"), Antlers.Great),
         "stag-support" => Stag(0.95f, new Color("b0855a"), Antlers.None),
         "stag-boss" => Stag(1.6f, new Color("2f2d2b"), Antlers.Great, crown: true),
+        // The mossy keepers (sprint 133, docs/familles-foret.md §4.7): a pebble in the ranged one's hand, a slab on the tank's back,
+        // more moss than stone on the tender, the chief a standing stone with arms.
+        "golem-melee" => Golem(1.0f, new Color("8a8a84")),
+        "golem-ranged" => Golem(0.9f, new Color("b0afa8"), pebble: true),
+        "golem-tank" => Golem(1.3f, new Color("5e5d58"), slab: true),
+        "golem-support" => Golem(0.95f, new Color("7f8a72"), mossy: true),
+        "golem-boss" => Golem(1.6f, new Color("4a4945"), menhir: true),
         "rat-loft" => Rat(),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
@@ -541,6 +548,52 @@ public static class Creatures
             Block(leg, new Vector3(0.08f, 0.05f, 0.08f), new Vector3(0, -0.46f, 0), stone.Darkened(0.3f));
         }
         root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private static Node3D Golem(float size, Color stone, bool pebble = false, bool slab = false, bool mossy = false, bool menhir = false)
+    {
+        var root = new Node3D { Name = "Golem" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color dark = stone.Darkened(0.3f), moss = new("4f7a34"), eye = new("bef374");
+        // A standing stone for the chief, else two blocks one on the other.
+        if (menhir)
+            Block(body, new Vector3(0.40f, 0.86f, 0.30f), new Vector3(0, 0.71f, 0), stone);
+        else
+        {
+            Block(body, new Vector3(0.46f, 0.32f, 0.34f), new Vector3(0, 0.44f, 0), stone);
+            Block(body, new Vector3(0.32f, 0.24f, 0.28f), new Vector3(0, 0.72f, 0.02f), stone.Lightened(0.08f));
+        }
+        float top = menhir ? 1.14f : 0.84f;
+        Block(body, new Vector3(0.05f, 0.04f, 0.02f), new Vector3(-0.07f, top - 0.14f, menhir ? 0.155f : 0.165f), eye);
+        Block(body, new Vector3(0.05f, 0.04f, 0.02f), new Vector3(0.07f, top - 0.14f, menhir ? 0.155f : 0.165f), eye);
+        // Moss on the head and the shoulders; much more on the tender.
+        Block(body, new Vector3(0.26f, 0.05f, 0.22f), new Vector3(0, top + 0.02f, 0.02f), moss);
+        Block(body, new Vector3(0.12f, 0.05f, 0.14f), new Vector3(-0.2f, 0.62f, 0), moss);
+        if (mossy)
+        {
+            Block(body, new Vector3(0.48f, 0.12f, 0.36f), new Vector3(0, 0.56f, 0), moss);
+            Block(body, new Vector3(0.20f, 0.10f, 0.06f), new Vector3(0, 0.40f, 0.18f), moss.Lightened(0.15f));
+        }
+        // Thick arms of stone.
+        foreach (float x in new[] { -0.30f, 0.30f })
+            Block(body, new Vector3(0.13f, 0.34f, 0.13f), new Vector3(x, 0.42f, 0.04f), dark);
+        if (pebble)
+            Block(body, new Vector3(0.12f, 0.10f, 0.12f), new Vector3(0.30f, 0.22f, 0.10f), stone.Lightened(0.3f));
+        if (slab)
+            Block(body, new Vector3(0.52f, 0.46f, 0.08f), new Vector3(0, 0.60f, -0.22f), dark);
+        if (menhir)
+            Crown(body, top + 0.08f);
+        foreach ((string name, float x) in new[] { ("LegL", -0.12f), ("LegR", 0.12f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.28f, 0) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.16f, 0.28f, 0.16f), new Vector3(0, -0.14f, 0), dark);
+        }
+        root.AddChild(Animations(TwoLegs));
         return root;
     }
 

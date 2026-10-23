@@ -135,5 +135,21 @@
       "surface"
     ],
     "scale": 70
+  },
+  {
+    "id": "pebbling",
+    "name": {
+      "fr": "Caillou éveillé",
+      "en": "Pebbling"
+    },
+    "look": "golem-melee",
+    "hp": 40,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 100,
+    "spells": [
+      "cobble-punch"
+    ],
+    "scale": 70
   }
 ]

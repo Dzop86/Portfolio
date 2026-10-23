@@ -238,6 +238,19 @@ beasts = [
  S("elder-antlers","Massacre de l'aïeul","Ancestor's Antlers",4,1,1,38,50,1,"Earth",1,effects=[push(1)],ranks=False),
  S("antler-hook","Crochet d'andouiller","Antler Hook",3,2,4,14,18,1,"Earth",1,effects=[pull(2)],ranks=False,cd=1),
  S("ancestors-ring","Brame de l'aïeul","Ancestor's Bellow",3,0,0,0,0,1,"Neutral",1,area=("Circle",2),effects=[glyph("Enemies",2,10,13,"Earth")],ranks=False,cd=2),
+ # The mossy keepers (sprint 133, docs/familles-foret.md §4): dislodging, glyphs that strengthen the keepers standing in them.
+ S("cobble-punch","Poing de moellon","Cobble Punch",3,1,1,21,27,2,"Earth",1,ranks=False),
+ S("stone-grip","Prise de pierre","Stone Grip",3,1,2,12,15,1,"Earth",1,effects=[pull(1)],ranks=False,cd=1),
+ S("pebble-shot","Galet","Pebble Shot",3,2,6,17,21,2,"Earth",1,ranks=False),
+ S("rolled-rock","Roche roulée","Rolled Rock",3,2,4,10,13,1,"Earth",1,line=True,effects=[push(1)],ranks=False,cd=1),
+ S("slab-slam","Coup de dalle","Slab Slam",3,1,1,20,26,2,"Earth",1,ranks=False),
+ S("moss-circle","Cercle de mousse","Moss Circle",3,0,0,0,0,1,"Neutral",1,area=("Circle",1),effects=[glyph("Allies",2,stat="Resistance",v=20,st=2)],ranks=False,cd=2),
+ S("moss-graft","Greffe de mousse","Moss Graft",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",17,21)],ranks=False,cd=1),
+ S("standing-ring","Mousse hérissée","Bristling Moss",3,1,4,0,0,1,"Neutral",1,area=("Cross",1),effects=[glyph("Allies",2,stat="Damage",v=20,st=2)],ranks=False,cd=2),
+ S("mossy-fist","Poing moussu","Mossy Fist",3,1,2,20,26,1,"Earth",1,ranks=False),
+ S("menhir-crush","Écrasement du menhir","Menhir Crush",4,1,1,38,50,1,"Earth",1,ranks=False),
+ S("oath-ring","Cercle du serment","Oath Ring",3,0,0,0,0,1,"Neutral",1,area=("Circle",2),effects=[glyph("Allies",2,stat="Resistance",v=20,st=2)],ranks=False,cd=2),
+ S("seismic-step","Pas sismique","Seismic Step",4,1,2,24,30,1,"Earth",1,area=("Cross",1),effects=[push(1)],ranks=False,cd=1),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
@@ -288,6 +301,8 @@ summons += [
  young("hermit-spawn","Jeune bernard","Young Hermit","crab-support",70,30,6,3,55,["shell-guard","pinch"]),
  young("worker-spawn","Jeune ouvrière","Young Worker","bee-melee",70,30,6,4,95,["sting"],["alarm"]),
  young("digger-spawn","Jeune fouisseuse","Young Digger","mole-melee",70,35,6,3,60,["dig-claw","surface"]),
+ # The menhir keeper's risen stones (sprint 133, docs/familles-foret.md §4.4).
+ young("pebbling","Caillou éveillé","Pebbling","golem-melee",70,40,6,3,100,["cobble-punch"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -347,6 +362,12 @@ passives = [
  P("skittish","Ombrageux","Skittish","Frappé au contact, gagne 2 PM à son prochain tour.","Struck up close, gains 2 MP on its next turn.","Hit",[status("Caster","Mp",2,1)],melee=True),
  P("cracked-antlers","Ramure fendue","Cracked Antlers","Sous la moitié de ses PV, sa ramure se fend : entre quatre signes, un creux gratté. +2 PA et −10 % de résistances jusqu'à la fin du combat.",
    "Below half its HP, its antlers split: between four signs, a scraped-out hollow. +2 AP and −10% resistances until the end of the fight.","LowHp",[status("Caster","Ap",2,10),status("Caster","Resistance",-10,10)],percent=50),
+ # The mossy keepers (docs/familles-foret.md §4.3): a fallen keeper's stones shelter the others, the menhir's carved heart.
+ P("cairn","Cairn","Cairn","Quand un gardien tombe à 3 cases ou moins, s'abrite derrière ses pierres : bouclier de 15 pendant 2 tours.",
+   "When a keeper falls 3 cells away or less, it shelters behind the fallen stones: a shield of 15 for 2 turns.","AllyDies",[shield("Caster",15,2)],range=3),
+ P("carved-heart","Cœur gravé","Carved Heart","Sous la moitié de ses PV, sa mousse tombe et laisse voir un cœur gravé ; deux pierres se lèvent à ses pieds. +20 % de dégâts et −15 % de résistances jusqu'à la fin du combat.",
+   "Below half its HP, its moss falls away to show a carved heart, and two stones rise at its feet. +20% damage and −15% resistances until the end of the fight.","LowHp",
+   [status("Caster","Damage",20,10),status("Caster","Resistance",-15,10),summon("pebbling",count=2)],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
  # The Disjoint (design-familles.md §4.9, sprint 114): four beasts forced into one, wearing itself out, bursting as it falls.
  P("unstable","Instable","Unstable","Il s'use tout seul : perd 15 PV au début de chacun de ses tours.","It wears itself out: loses 15 HP at the start of each of its turns.",

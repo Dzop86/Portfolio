@@ -6,7 +6,14 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affronte les Gardiens moussus, leur chef, leur butin et leur panoplie (rpg) ; xUnit, T41 et `--party`. | 3 | À faire |
+| En tant que joueur, j'affronte les Gardiens moussus, leur chef, leur butin et leur panoplie (rpg) ; xUnit, T41 et `--party`. | 3 | Fait |
+
+## Fait
+- Conception du game designer (`docs/familles-foret.md` §4), 5 textes du scénariste ; T101.
+- 12 sorts (3 glyphes alliés), 2 passifs (Cairn, Cœur gravé), l'invocation Caillou éveillé ; la famille `golem` (34 à 37, chef 45) ; le Cercle de pierres, partagé avec les cerfs ; le dessin du gardien ; la panoplie de 4 pièces.
+- T41 à 31 : gardiens aux PV des gabarits ; chef ≤ 10 % seul, une horde de 10 et le chef dans `PartyBalanceTests`.
+- CI Godot : un combat de chaque chef de la forêt, glyphes contrôlés.
+- Limite : l'IA ne cherche pas un cercle allié pour s'y arrêter (elle le pose autour d'elle).
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -2021,7 +2021,8 @@
     "zone": "ancestors",
     "battle": "ancestors-trunks",
     "battles": [
-      "ancestors-trunks"
+      "ancestors-trunks",
+      "ancestors-stones"
     ],
     "bossMap": "ancestors-0-4",
     "monsters": [
@@ -2223,6 +2224,224 @@
           },
           {
             "item": "stonehoof-boots",
+            "percent": 8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "golem",
+    "name": {
+      "fr": "Gardiens moussus",
+      "en": "Mossy Keepers"
+    },
+    "zone": "ancestors",
+    "battle": "ancestors-stones",
+    "battles": [
+      "ancestors-stones",
+      "ancestors-trunks"
+    ],
+    "bossMap": "ancestors-4-4",
+    "monsters": [
+      {
+        "id": "cobble-keeper",
+        "role": "Melee",
+        "name": {
+          "fr": "Gardien de moellons",
+          "en": "Cobble Keeper"
+        },
+        "look": "golem-melee",
+        "level": 35,
+        "hp": 65,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 131,
+        "spells": [
+          "cobble-punch",
+          "stone-grip"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Air": -15
+        },
+        "passives": [
+          "cairn"
+        ],
+        "loot": [
+          {
+            "item": "mossy-cobble",
+            "percent": 40
+          },
+          {
+            "item": "keeper-moss",
+            "percent": 40
+          },
+          {
+            "item": "cobble-belt",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "pebble-keeper",
+        "role": "Ranged",
+        "name": {
+          "fr": "Gardien lance-galets",
+          "en": "Pebble Keeper"
+        },
+        "look": "golem-ranged",
+        "level": 34,
+        "hp": 54,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 157,
+        "spells": [
+          "pebble-shot",
+          "rolled-rock"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Air": -15
+        },
+        "passives": [
+          "cairn"
+        ],
+        "loot": [
+          {
+            "item": "mossy-cobble",
+            "percent": 60
+          },
+          {
+            "item": "moss-ring",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "slab-keeper",
+        "role": "Tank",
+        "name": {
+          "fr": "Gardien de dalle",
+          "en": "Slab Keeper"
+        },
+        "look": "golem-tank",
+        "level": 37,
+        "hp": 79,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 86,
+        "spells": [
+          "slab-slam",
+          "moss-circle"
+        ],
+        "resistances": {
+          "Earth": 25,
+          "Water": 10,
+          "Air": -15
+        },
+        "passives": [
+          "cairn"
+        ],
+        "loot": [
+          {
+            "item": "keeper-moss",
+            "percent": 60
+          },
+          {
+            "item": "slab-shield",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "moss-tender",
+        "role": "Support",
+        "name": {
+          "fr": "Jardinier de mousse",
+          "en": "Moss Tender"
+        },
+        "look": "golem-support",
+        "level": 36,
+        "hp": 68,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 114,
+        "spells": [
+          "moss-graft",
+          "standing-ring",
+          "mossy-fist"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Air": -15
+        },
+        "passives": [
+          "cairn"
+        ],
+        "loot": [
+          {
+            "item": "mossy-cobble",
+            "percent": 50
+          },
+          {
+            "item": "keeper-moss",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "menhir-keeper",
+        "role": "Boss",
+        "name": {
+          "fr": "Menhir gardien",
+          "en": "Menhir Keeper"
+        },
+        "look": "golem-boss",
+        "level": 45,
+        "hp": 577,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 127,
+        "spells": [
+          "menhir-crush",
+          "oath-ring",
+          "seismic-step"
+        ],
+        "resistances": {
+          "Earth": 30,
+          "Water": 20,
+          "Fire": 10,
+          "Air": -5
+        },
+        "passives": [
+          "cairn",
+          "carved-heart"
+        ],
+        "loot": [
+          {
+            "item": "mossy-cobble",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "keeper-moss",
+            "percent": 100
+          },
+          {
+            "item": "menhir-mace",
+            "percent": 30
+          },
+          {
+            "item": "moss-ring",
+            "percent": 8
+          },
+          {
+            "item": "cobble-belt",
+            "percent": 8
+          },
+          {
+            "item": "slab-shield",
             "percent": 8
           }
         ]

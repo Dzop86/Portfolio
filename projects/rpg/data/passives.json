@@ -640,6 +640,63 @@
     "percent": 50
   },
   {
+    "id": "cairn",
+    "name": {
+      "fr": "Cairn",
+      "en": "Cairn"
+    },
+    "description": {
+      "fr": "Quand un gardien tombe à 3 cases ou moins, s'abrite derrière ses pierres : bouclier de 15 pendant 2 tours.",
+      "en": "When a keeper falls 3 cells away or less, it shelters behind the fallen stones: a shield of 15 for 2 turns."
+    },
+    "trigger": "AllyDies",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Caster",
+        "amount": 15,
+        "turns": 2
+      }
+    ],
+    "range": 3
+  },
+  {
+    "id": "carved-heart",
+    "name": {
+      "fr": "Cœur gravé",
+      "en": "Carved Heart"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, sa mousse tombe et laisse voir un cœur gravé ; deux pierres se lèvent à ses pieds. +20 % de dégâts et −15 % de résistances jusqu'à la fin du combat.",
+      "en": "Below half its HP, its moss falls away to show a carved heart, and two stones rise at its feet. +20% damage and −15% resistances until the end of the fight."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 20,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": -15,
+        "turns": 10
+      },
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "pebbling",
+        "max": 1,
+        "count": 2
+      }
+    ],
+    "percent": 50
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

@@ -18,8 +18,9 @@ public class FamilyTests
     [InlineData("crab", "molt", Element.Air, "lakeshore-pontoon", null, null, -10)]
     [InlineData("bee", "alarm", Element.Earth, "meadow-hedges")]
     [InlineData("mole", "bury", Element.Water, "meadow-hedges")]
-    // The forest's stags (sprint 132) on their one map until the keepers bring the second (sprint 133).
-    [InlineData("stag", "skittish", Element.Fire, null)]
+    // The forest's stags (sprint 132) and keepers (sprint 133), sharing its two maps.
+    [InlineData("stag", "skittish", Element.Fire, "ancestors-stones")]
+    [InlineData("golem", "cairn", Element.Air, "ancestors-trunks")]
     public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string? second,
         string? ownPassive = null, string? strongInIt = null, int weak = -15)
     {
@@ -53,6 +54,7 @@ public class FamilyTests
     [InlineData("mouldy", "mouldy-hollow", "mouldy-pools")]
     [InlineData("lake", "lakeshore", "lakeshore-pontoon")]
     [InlineData("fields", "meadow", "meadow-hedges")]
+    [InlineData("ancestors", "ancestors-stones", "ancestors-trunks")]
     public void TheTwoMapsOfAFamily_AreBothFoughtOn_EachGroupAlwaysOnTheSame(string zone, string first, string second)
     {
         MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Families[g.Family].Zone == zone && g.Fight is null)];

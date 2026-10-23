@@ -287,5 +287,34 @@
         "mp": 1
       }
     ]
+  },
+  {
+    "id": "golem",
+    "name": {
+      "fr": "Panoplie du gardien moussu",
+      "en": "Mossy Keeper set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "vitality": 10
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "vitality": 10,
+          "earth": 10
+        }
+      },
+      {
+        "pieces": 4,
+        "stats": {
+          "vitality": 30,
+          "earth": 10
+        }
+      }
+    ]
   }
 ]

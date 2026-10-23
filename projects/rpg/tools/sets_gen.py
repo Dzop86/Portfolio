@@ -95,9 +95,16 @@ SETS = O([
                piece("hind-cape", "Cape en peau de biche", "Hindskin Cape", "Cape", 31, "carving-hind", {"earth": 18, "vitality": 16}, 10),
                piece("stonehoof-boots", "Bottes à sabots de pierre", "Stonehoof Boots", "Boots", 34, "old-hart", {"earth": 20, "vitality": 16}, 10),
                piece("elder-antler-staff", "Bâton de ramure", "Antler Staff", "TwoHanded", 45, "elder-stag", {"earth": 34, "vitality": 20})])),
+    # Sprint 133: the mossy keepers (docs/familles-foret.md §4.6), twice the values worn.
+    ("golem", (text("Panoplie du gardien moussu", "Mossy Keeper set"),
+               [({"vitality": 20}, 0, 0, 0), ({"vitality": 20, "earth": 20}, 0, 0, 0), ({"vitality": 60, "earth": 20}, 0, 0, 0)],
+               [piece("moss-ring", "Anneau de mousse", "Moss Ring", "Ring", 34, "pebble-keeper", {"earth": 18, "vitality": 12}, 20),
+                piece("cobble-belt", "Ceinture de moellons", "Cobble Belt", "Belt", 35, "cobble-keeper", {"earth": 22, "vitality": 22}),
+                piece("slab-shield", "Bouclier de dalle", "Slab Shield", "Shield", 37, "slab-keeper", {"vitality": 26, "earth": 20}),
+                piece("menhir-mace", "Masse du menhir", "Menhir Mace", "OneHanded", 45, "menhir-keeper", {"earth": 34, "vitality": 20})])),
 ])
 # Clairval's families have five pieces, the forest's four.
-PIECES = {"stag": 4}
+PIECES = {"stag": 4, "golem": 4}
 
 
 def inline(v):
