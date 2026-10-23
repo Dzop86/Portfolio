@@ -21,8 +21,8 @@ public class ForestTests
         Assert.All(Forest, t => Assert.Equal((48, 32, 31, "Forêt des Aïeux", "Forest of the Ancestors"), (t.Width, t.Rows.Count, t.Level, t.Name.Fr, t.Name.En)));
         Assert.Equal([.. Enumerable.Range(4, 5).SelectMany(x => Enumerable.Range(1, 5).Select(y => new Cell(x, y)))],
             Forest.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
-        // No monsters before its families come (sprints 132 and 133).
-        Assert.All(Forest, t => Assert.Empty(Real.GroupsOn(t.Id)));
+        // Its families' groups on every map since sprint 132.
+        Assert.All(Forest, t => Assert.NotEmpty(Real.GroupsOn(t.Id)));
     }
 
     [Fact]

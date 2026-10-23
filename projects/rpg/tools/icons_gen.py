@@ -31,6 +31,8 @@ ICONS = {
     "figurehead-axe": "lorc/battle-axe", "debris-pick": "delapouite/war-pick",
     "wooden-shield": "delapouite/viking-shield", "shell-shield": "delapouite/spiked-shield",
     "kitten": "lorc/cat", "donkey": "skoll/donkey",
+    # The sylvan stags' set (sprint 132).
+    "antler-circlet": "lorc/crown-of-thorns", "hind-cape": "delapouite/cape", "stonehoof-boots": "delapouite/metal-boot", "elder-antler-staff": "lorc/wizard-staff",
     # The craftsmen's pieces (sprint 109): the smith's and the tailor's, a drawing already there for each slot.
     "copper-billhook": "lorc/plain-dagger", "hazel-roundshield": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
     "yew-targe": "delapouite/viking-shield", "clay-quenched-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
@@ -59,6 +61,8 @@ ICONS = {
     "slime": "delapouite/slime", "crab-shell": "lorc/spiked-shell", "crab-claw": "lorc/crab-claw",
     "honeycomb": "lorc/honeycomb", "bee-wing": "delapouite/fairy-wings", "mole-fur": "delapouite/animal-hide",
     "earthworm": "cathelineau/earth-worm",
+    # The sylvan stags' (sprint 132).
+    "stone-antler": "lorc/stag-head", "stag-velvet": "delapouite/animal-hide",
     # The gathered resources (sprint 99): wood, ore, fish, crops, herbs.
     "oak-log": "delapouite/log", "hazel-log": "delapouite/half-log", "blackwood-log": "delapouite/wood-pile", "yew-log": "delapouite/log",
     "willow-log": "delapouite/half-log", "alder-log": "delapouite/wood-pile", "ash-log": "delapouite/axe-in-log", "linden-log": "delapouite/log",

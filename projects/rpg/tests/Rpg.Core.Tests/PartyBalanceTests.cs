@@ -50,6 +50,10 @@ public class PartyBalanceTests
     [InlineData("group:lake-2-1.1", 8)]
     [InlineData("group:fields-1-2.3", 6)]
     [InlineData("group:fields-4-4.2", 8)]
+    // The Forest of the Ancestors' stags (sprint 132).
+    [InlineData("group:ancestors-3-2.1", 6)]
+    [InlineData("group:ancestors-4-2.0", 7)]
+    [InlineData("group:ancestors-2-4.0", 10)]
     public void AHorde_IsAGambleForTwo_AndPassesForThree(string group, int size)
     {
         Assert.Equal(size, Real.FindScenario(group)!.Fighters.Count(f => f.Team == 1));
@@ -64,6 +68,7 @@ public class PartyBalanceTests
     [InlineData("group:mouldy-2-4.0")]
     [InlineData("dungeon:royal-hive:3")]
     [InlineData("dungeon:mole-burrows:3")]
+    [InlineData("group:ancestors-0-4.0")]
     public void AChief_OrADungeonsLastRoom_FallsToThree_AndToFour(string scenario)
     {
         // §6.4 and §11.2.1: 70 % at least for three, 90 % for four.

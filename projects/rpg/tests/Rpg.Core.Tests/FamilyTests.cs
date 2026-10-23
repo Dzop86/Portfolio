@@ -18,7 +18,9 @@ public class FamilyTests
     [InlineData("crab", "molt", Element.Air, "lakeshore-pontoon", null, null, -10)]
     [InlineData("bee", "alarm", Element.Earth, "meadow-hedges")]
     [InlineData("mole", "bury", Element.Water, "meadow-hedges")]
-    public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string second,
+    // The forest's stags (sprint 132) on their one map until the keepers bring the second (sprint 133).
+    [InlineData("stag", "skittish", Element.Fire, null)]
+    public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string? second,
         string? ownPassive = null, string? strongInIt = null, int weak = -15)
     {
         MonsterFamily family = Real.Families[id];
@@ -42,8 +44,8 @@ public class FamilyTests
             s => s.AllEffects.Count > 0 && s.AllEffects.All(e => e is ShieldEffect { Affects: Affects.Caster }));
         // The chief changes when it is hurt.
         Assert.Contains(family[MonsterRole.Boss].Passives!, p => Real.Passives[p].Trigger == Trigger.LowHp);
-        Assert.Equal([family.Battle, second], family.AllBattles);
-        Real.Board(second);
+        Assert.Equal(second is null ? [family.Battle] : [family.Battle, second], family.AllBattles);
+        Real.Board(second ?? family.Battle);
     }
 
     [Theory]

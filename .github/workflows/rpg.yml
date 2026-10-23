@@ -171,6 +171,15 @@ jobs:
           godot --headless --path godot -- --selftest --scenario loft-rats --seed 9 --report "$RUNNER_TEMP/rats.txt"
           cat "$RUNNER_TEMP/rats.txt"
           grep -q "SELFTEST OK seed 9: team A wins .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/rats.txt"
+      # The sylvan stags' chief and its group (sprint 132): a board with real glyphs drawn and told on hovering.
+      - name: The sylvan stags' glyphs
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --selftest --scenario group:ancestors-0-4.0 --seed 9 --report "$RUNNER_TEMP/stags.txt"
+          cat "$RUNNER_TEMP/stags.txt"
+          grep -q "SELFTEST OK seed 9: .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/stags.txt"
+          grep -q "Glyphs checked [1-9][0-9]* times." "$RUNNER_TEMP/stags.txt"
       # A dungeon's first room (sprint 80): weakened monsters, then "Next room" and "Leave the dungeon".
       - name: A dungeon's room
         shell: bash

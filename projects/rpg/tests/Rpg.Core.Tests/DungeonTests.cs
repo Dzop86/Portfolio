@@ -10,7 +10,8 @@ public class DungeonTests
     [Fact]
     public void EveryFamily_HasItsDungeon_ItsDoorOnTheChiefsMap_ItsKeyAndThreeRoomsOfItsOwn()
     {
-        Assert.Equal(Real.Families.Keys.Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
+        // The forest's families have theirs from sprint 134.
+        Assert.Equal(Real.Families.Values.Where(f => f.Zone != "ancestors").Select(f => f.Id).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
         Assert.Equal(Real.Dungeons.Count * Dungeons.RoomCount, Real.Dungeons.Values.SelectMany(d => d.Rooms).Distinct().Count());
         foreach (Dungeon d in Real.Dungeons.Values)
         {

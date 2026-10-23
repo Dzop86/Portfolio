@@ -589,6 +589,57 @@
     "percent": 50
   },
   {
+    "id": "skittish",
+    "name": {
+      "fr": "Ombrageux",
+      "en": "Skittish"
+    },
+    "description": {
+      "fr": "Frappé au contact, gagne 2 PM à son prochain tour.",
+      "en": "Struck up close, gains 2 MP on its next turn."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "cracked-antlers",
+    "name": {
+      "fr": "Ramure fendue",
+      "en": "Cracked Antlers"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, sa ramure se fend : entre quatre signes, un creux gratté. +2 PA et −10 % de résistances jusqu'à la fin du combat.",
+      "en": "Below half its HP, its antlers split: between four signs, a scraped-out hollow. +2 AP and −10% resistances until the end of the fight."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 2,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": -10,
+        "turns": 10
+      }
+    ],
+    "percent": 50
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

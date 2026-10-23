@@ -257,5 +257,35 @@
         "mp": 1
       }
     ]
+  },
+  {
+    "id": "stag",
+    "name": {
+      "fr": "Panoplie du sylvecerf",
+      "en": "Sylvan Stag set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "earth": 10
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "earth": 10,
+          "vitality": 10
+        }
+      },
+      {
+        "pieces": 4,
+        "stats": {
+          "earth": 10,
+          "vitality": 15
+        },
+        "mp": 1
+      }
+    ]
   }
 ]

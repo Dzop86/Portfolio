@@ -11,7 +11,8 @@ namespace Rpg.Desktop;
 /// ruff, a fawn she-wolf, a black leader with a scar); a mushroom's stem and cap on two feet, a zombie's
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
 /// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
-/// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76). Each has an "idle" and a "walk"
+/// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76); a sylvan stag's tall legs, raised neck
+/// and antlers of mossy stone (sprint 132). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z. Since sprint 104, the village's beasts too: a hen,
 /// a horse and a sheep (<see cref="Beast"/>).
 /// </summary>
@@ -20,7 +21,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "rat"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "rat"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -65,6 +66,12 @@ public static class Creatures
         "mole-tank" => Mole(1.3f, new Color("3a3a40"), helmet: true),
         "mole-support" => Mole(0.95f, new Color("7a6a62"), apron: true),
         "mole-boss" => Mole(1.6f, new Color("2b2b30"), helmet: true, crown: true),
+        // The sylvan stags (sprint 132, docs/familles-foret.md §3.7): a brocket's short antlers, hinds without, a hart's and the elder's great ones.
+        "stag-melee" => Stag(1.0f, new Color("7a6a58"), Antlers.Short),
+        "stag-ranged" => Stag(0.9f, new Color("c39a6b"), Antlers.None),
+        "stag-tank" => Stag(1.3f, new Color("4e3f31"), Antlers.Great),
+        "stag-support" => Stag(0.95f, new Color("b0855a"), Antlers.None),
+        "stag-boss" => Stag(1.6f, new Color("2f2d2b"), Antlers.Great, crown: true),
         "rat-loft" => Rat(),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
@@ -482,6 +489,56 @@ public static class Creatures
             var leg = new Node3D { Name = name, Position = new Vector3(x, 0.14f, z) };
             model.AddChild(leg);
             Block(leg, new Vector3(0.09f, 0.14f, 0.09f), new Vector3(0, -0.07f, 0), dark);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
+    private enum Antlers { None, Short, Great }
+
+    private static Node3D Stag(float size, Color hide, Antlers antlers, bool crown = false)
+    {
+        var root = new Node3D { Name = "Stag" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color dark = hide.Darkened(0.35f), light = hide.Lightened(0.5f), stone = new("9a9890"), moss = new("4f7a34");
+        Block(body, new Vector3(0.30f, 0.30f, 0.66f), new Vector3(0, 0.62f, 0), hide);
+        Block(body, new Vector3(0.22f, 0.12f, 0.20f), new Vector3(0, 0.50f, -0.26f), light);
+        // The neck raised, the head forward, a darker muzzle.
+        Block(body, new Vector3(0.16f, 0.30f, 0.16f), new Vector3(0, 0.84f, 0.30f), hide);
+        Block(body, new Vector3(0.18f, 0.18f, 0.28f), new Vector3(0, 1.00f, 0.42f), hide);
+        Block(body, new Vector3(0.12f, 0.10f, 0.08f), new Vector3(0, 0.96f, 0.58f), dark);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.07f, 1.05f, 0.555f), Colors.Black);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.07f, 1.05f, 0.555f), Colors.Black);
+        Block(body, new Vector3(0.10f, 0.06f, 0.04f), new Vector3(-0.13f, 1.08f, 0.36f), dark);
+        Block(body, new Vector3(0.10f, 0.06f, 0.04f), new Vector3(0.13f, 1.08f, 0.36f), dark);
+        Block(body, new Vector3(0.06f, 0.08f, 0.06f), new Vector3(0, 0.70f, -0.35f), light);
+        // Antlers of carved stone, a tuft of moss at their foot: two beams, and tines on the great ones.
+        if (antlers != Antlers.None)
+        {
+            float h = antlers == Antlers.Great ? 0.34f : 0.16f;
+            foreach (float side in new[] { -1f, 1f })
+            {
+                Block(body, new Vector3(0.05f, h, 0.05f), new Vector3(0.08f * side, 1.09f + h / 2, 0.38f), stone);
+                Block(body, new Vector3(0.07f, 0.04f, 0.07f), new Vector3(0.08f * side, 1.10f, 0.38f), moss);
+                if (antlers == Antlers.Great)
+                {
+                    Block(body, new Vector3(0.18f, 0.04f, 0.04f), new Vector3(0.16f * side, 1.09f + h * 0.6f, 0.38f), stone);
+                    Block(body, new Vector3(0.04f, 0.12f, 0.04f), new Vector3(0.24f * side, 1.15f + h * 0.6f, 0.38f), stone);
+                    Block(body, new Vector3(0.04f, 0.04f, 0.14f), new Vector3(0.08f * side, 1.09f + h * 0.8f, 0.46f), stone);
+                }
+            }
+        }
+        if (crown)
+            Crown(body, 1.12f + (antlers == Antlers.Great ? 0f : 0.02f));
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.10f, 0.24f), ("LegFR", 0.10f, 0.24f), ("LegBL", -0.10f, -0.24f), ("LegBR", 0.10f, -0.24f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.48f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.07f, 0.48f, 0.07f), new Vector3(0, -0.24f, 0), dark);
+            Block(leg, new Vector3(0.08f, 0.05f, 0.08f), new Vector3(0, -0.46f, 0), stone.Darkened(0.3f));
         }
         root.AddChild(Animations(FourLegs));
         return root;

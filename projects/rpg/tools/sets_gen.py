@@ -3,7 +3,9 @@
 # at 8 % each); the pieces in data/items.json (the family items of before keep their ids), the sets
 # and their bonuses in data/sets.json, the drops in data/monsters.json. A piece spends about 8 + its
 # level in characteristic points, a point of initiative costing 0.6 of them; initiative only on boots,
-# capes and rings. Deterministic and idempotent. Run from projects/rpg after tools/dungeon_gen.py:
+# capes and rings. Since sprint 132 the Forest of the Ancestors' families have four pieces: one by each common monster
+# but the support, and the chief's weapon (docs/familles-foret.md §2.4). Deterministic and idempotent. Run from
+# projects/rpg after tools/dungeon_gen.py:
 #   python3 tools/sets_gen.py data
 import collections, json, sys
 
@@ -27,7 +29,7 @@ def piece(id, fr, en, slot, level, monster, stats, initiative=0):
     return dict(id=id, name=text(fr, en), slot=slot, level=level, monster=monster, stats=stats, initiative=initiative)
 
 
-# family: (set name, bonuses for 2, 3 and 5 pieces, pieces); a bonus is (stats, ap, mp, initiative), the best one worn counts.
+# family: (set name, bonuses for 2, 3 and all its pieces, pieces); a bonus is (stats, ap, mp, initiative), the best one worn counts.
 SETS = O([
     ("boar", (text("Panoplie du sanglier", "Boar set"),
               [({"vitality": 10}, 0, 0, 0), ({"vitality": 10, "earth": 10}, 0, 0, 0), ({"vitality": 25, "earth": 10}, 0, 0, 10)],
@@ -86,8 +88,16 @@ SETS = O([
                piece("digger-boots", "Bottes de fouisseur", "Digger Boots", "Boots", 28, "old-mole", {"earth": 20, "vitality": 16}),
                piece("burrow-belt", "Ceinture de terrier", "Burrow Belt", "Belt", 25, "mole-mother", {"earth": 18, "vitality": 15}),
                piece("debris-pick", "Pioche du débris", "Debris Pick", "TwoHanded", 30, "mole-king", {"earth": 24, "vitality": 14})])),
+    # Sprint 132: the Forest of the Ancestors' sylvan stags, four pieces (docs/familles-foret.md §3.5); twice the values worn, the two-handed weapon once.
+    ("stag", (text("Panoplie du sylvecerf", "Sylvan Stag set"),
+              [({"earth": 20}, 0, 0, 0), ({"earth": 20, "vitality": 20}, 0, 0, 0), ({"earth": 20, "vitality": 30}, 0, 1, 0)],
+              [piece("antler-circlet", "Couronne d'andouillers", "Antler Circlet", "Hat", 32, "brocket", {"earth": 22, "vitality": 18}),
+               piece("hind-cape", "Cape en peau de biche", "Hindskin Cape", "Cape", 31, "carving-hind", {"earth": 18, "vitality": 16}, 10),
+               piece("stonehoof-boots", "Bottes à sabots de pierre", "Stonehoof Boots", "Boots", 34, "old-hart", {"earth": 20, "vitality": 16}, 10),
+               piece("elder-antler-staff", "Bâton de ramure", "Antler Staff", "TwoHanded", 45, "elder-stag", {"earth": 34, "vitality": 20})])),
 ])
-PIECES = 5
+# Clairval's families have five pieces, the forest's four.
+PIECES = {"stag": 4}
 
 
 def inline(v):
@@ -103,11 +113,12 @@ items = json.load(open(f"{root}/items.json"))
 sets = [s for s in json.load(open(f"{root}/sets.json")) if s["id"] not in SETS]
 families = {f["id"]: f for f in json.load(open(f"{root}/monsters.json"))}
 for family, (name, bonuses, pieces) in SETS.items():
-    assert len(pieces) == PIECES and len(bonuses) == 3, family
+    count = PIECES.get(family, 5)
+    assert len(pieces) == count and len(bonuses) == 3, family
     sets.append(O([("id", family), ("name", name),
                    ("bonuses", [O([("pieces", n), ("stats", scaled(stats))] + ([("ap", ap)] if ap else []) + ([("mp", mp)] if mp else [])
                                   + ([("initiative", ini)] if ini else []))
-                                for n, (stats, ap, mp, ini) in zip((2, 3, PIECES), bonuses)])]))
+                                for n, (stats, ap, mp, ini) in zip((2, 3, count), bonuses)])]))
     for p in pieces:
         item = O([("id", p["id"]), ("name", p["name"]), ("kind", "Equipment"), ("slot", p["slot"]), ("level", p["level"]), ("stats", scaled(p["stats"], p["slot"] == "TwoHanded"))])
         if p["initiative"]:
@@ -119,20 +130,24 @@ for family, (name, bonuses, pieces) in SETS.items():
             at = next(i for i, x in enumerate(items) if x["id"].endswith("-key") or x["id"] == "admin-keyring")
             items.insert(at, item)
         else:
-            items[at] = item
+            # Its drawing kept (tools/icons_gen.py, sprint 132: it was lost until that script ran again).
+            items[at] = item | ({"icon": items[at]["icon"]} if "icon" in items[at] else {})
     # The drops: each common monster its piece, the chief its weapon and the others; before the dungeon's key.
     ids = {p["id"] for p in pieces}
-    weapon = next(p for p in pieces if families[family]["monsters"][4]["id"] == p["monster"])
+    chief = next(m for m in families[family]["monsters"] if m["role"] == "Boss")
+    weapon = next(p for p in pieces if chief["id"] == p["monster"])
     for m in families[family]["monsters"]:
         loot = [l for l in m.get("loot", []) if l["item"] not in ids]
         drops = ([O([("item", weapon["id"]), ("percent", WEAPON_PERCENT)])] + [O([("item", p["id"]), ("percent", PIECE_PERCENT)]) for p in pieces if p is not weapon]
                  if m["role"] == "Boss" else [O([("item", p["id"]), ("percent", PIECE_PERCENT)]) for p in pieces if p["monster"] == m["id"]])
-        assert drops, m["id"]
-        key = next(i for i, l in enumerate(loot) if l["item"].endswith("-key"))
+        # A forest family's support leaves no piece (docs/familles-foret.md §2.4).
+        assert drops or (count == 4 and m["role"] == "Support"), m["id"]
+        # Before the quests' items and the dungeon's key (sprint 132: after the quests' items, they moved); at the end without either.
+        key = next((i for i, l in enumerate(loot) if "quest" in l or l["item"].endswith("-key")), len(loot))
         m["loot"] = loot[:key] + drops + loot[key:]
 
 with open(f"{root}/items.json", "w") as out:
     out.write("[\n" + ",\n".join("  " + inline(i) for i in items) + "\n]\n")
 open(f"{root}/sets.json", "w").write(json.dumps(sets, ensure_ascii=False, indent=2) + "\n")
 open(f"{root}/monsters.json", "w").write(json.dumps(list(families.values()), ensure_ascii=False, indent=2) + "\n")
-print(f"{len(SETS)} family sets, {PIECES * len(SETS)} pieces")
+print(f"{len(SETS)} family sets, {sum(len(p) for _, _, p in SETS.values())} pieces")

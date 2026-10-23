@@ -24,7 +24,7 @@ public class BattleTests
         return client.ConnectAsync(uri, cancel);
     };
 
-    private static readonly MonsterGroup Group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null && g.Monsters.Count == 1);
+    private static readonly MonsterGroup Group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null && g.Monsters.Count == 1 && GameData.Embedded.QuestToReach(g.Map) is null);
 
     private static async Task<(GameServer Server, CharacterSummary Character, ChatClient Chat)> Player(ApiFactory api, string name)
     {

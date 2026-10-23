@@ -121,8 +121,10 @@ public class MonsterTests
         Assert.All(roaming.Where(Chief), g => Assert.True(g.Monsters.Count(m => Real.Monsters[m].Role == MonsterRole.Support) <= 1, g.Id));
         static string Hash(IEnumerable<string> lines) =>
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(string.Join('\n', lines))))[..16];
-        Assert.Equal(OthersFingerprint, Hash(roaming.Where(g => !Chief(g)).Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}")));
-        Assert.Equal(ChiefsFingerprint, Hash(roaming.Where(Chief).Select(g => $"{g.Id} {g.Home} {g.Monsters.Count}")));
+        // The first chapter's groups (the Forest of the Ancestors' came with sprint 132): the same as at sprint 123.
+        MonsterGroup[] first = [.. roaming.Where(g => Real.Towns[g.Map].Zone != "ancestors")];
+        Assert.Equal(OthersFingerprint, Hash(first.Where(g => !Chief(g)).Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}")));
+        Assert.Equal(ChiefsFingerprint, Hash(first.Where(Chief).Select(g => $"{g.Id} {g.Home} {g.Monsters.Count}")));
     }
 
     private const string OthersFingerprint = "5D1C8AEBA631E2BB";

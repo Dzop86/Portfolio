@@ -109,6 +109,7 @@ public class BalanceTests
     [InlineData("mouldy", 10)]
     [InlineData("lake", 18)]
     [InlineData("fields", 26)]
+    [InlineData("ancestors", 31)]
     public void AZone_GroupsOfOneToThree_AreForOnePlayerAtItsLevel_OfSixAndMore_ForSeveral(string zone, int level)
     {
         // Charles's rule (D63): a player alone beats groups of one to three easily, at the zone's level;

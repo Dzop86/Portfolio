@@ -756,7 +756,8 @@ public partial class Main : Node3D
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
                 checks++;
             }
-            // The glyphs drawn are the fight's, each on all its cells (sprint 130).
+            // The glyphs drawn are the fight's, each on all its cells (sprint 130); counted for the report (sprint 132).
+            _glyphChecks += _controller.Fight.Glyphs.Count;
             if (!_board.GlyphsShown().OrderBy(g => g.Key).SequenceEqual(_controller.Fight.Glyphs.Select(g => KeyValuePair.Create(g.Id, g.Cells.Count))))
                 problems.Add($"the board draws glyphs {string.Join(",", _board.GlyphsShown().Keys)}, the fight has {string.Join(",", _controller.Fight.Glyphs.Select(g => g.Id))}");
             CheckReadability(problems, ref seenNumbers);
@@ -829,6 +830,9 @@ public partial class Main : Node3D
     /// The end of the fight's self-test: signed in, the fight goes to the server, which must keep
     /// exactly the experience the rules give, and the end screen must say it; then the report.
     /// </summary>
+    // How many glyphs the self-test found drawn as the fight has them, over all its checks (sprint 132).
+    private int _glyphChecks;
+
     private async Task FinishSelfTest(List<string> problems, int checks)
     {
         string? progress = null;
@@ -871,7 +875,7 @@ public partial class Main : Node3D
         }
         string report = SelfPlay.Report(_controller.Fight);
         report += problems.Count == 0
-            ? $" Views checked {checks} times, {_board.Tiles} tiles."
+            ? $" Views checked {checks} times, {_board.Tiles} tiles." + (_glyphChecks > 0 ? $" Glyphs checked {_glyphChecks} times." : "")
             : $" VIEW PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (_selfTestNote is not null)
             report += " " + _selfTestNote;
@@ -974,7 +978,9 @@ public partial class Main : Node3D
         {
             _hovered = f.Cell;
             _hud.ShowInfo(_controller.Info(_hovered, texts));
-            if (_hud.InfoText?.EndsWith(texts.FighterCard(f, fight), StringComparison.Ordinal) != true)
+            // Its card, then the glyphs it stands on (sprint 132: the first real board with glyphs).
+            string card = string.Join("\n\n", [texts.FighterCard(f, fight), .. fight.GlyphsAt(f.Cell).Select(g => texts.GlyphCard(g, fight))]);
+            if (_hud.InfoText?.EndsWith(card, StringComparison.Ordinal) != true)
                 problems.Add($"hovering {f.Name.En} shows '{_hud.InfoText}'");
         }
         if (_controller.IsPlayerTurn && _controller.SelectedSpell is null)

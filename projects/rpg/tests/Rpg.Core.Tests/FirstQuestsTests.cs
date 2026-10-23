@@ -85,7 +85,8 @@ public class FirstQuestsTests
     {
         // The tutorial's last quest (the edge of the woods, Garance's) is the village's, not the zone's.
         Quest[] side = [.. Real.Quests.Values.Where(q => q.IsGiven && !Main.Contains(q.Id) && !SecondChapter.Contains(q.Id) && !q.Id.EndsWith("-cleared", StringComparison.Ordinal) && q.Id != "edge-of-the-woods")];
-        foreach (string zone in Real.Families.Values.Select(f => f.Zone).Distinct())
+        // The forest's quests come with sprint 136.
+        foreach (string zone in Real.Families.Values.Select(f => f.Zone).Distinct().Where(z => z != "ancestors"))
             Assert.InRange(side.Count(q => q.Zone == zone), 1, 3);
         // The Woods' and the Mouldy Woods' side quests come from their givers, in two small chains (sprint 112).
         Assert.All(side.Where(q => q.Zone == "woods"), q => Assert.Equal("woods/mathurin", q.Giver));

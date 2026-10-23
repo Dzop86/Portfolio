@@ -25,6 +25,13 @@ def status(a, stat, v, t, el=None):
     d = O([("kind", "status"), ("affects", a), ("stat", stat), ("value", v), ("turns", t)])
     if el: d["element"] = el
     return d
+# A glyph (sprint 130, T98): the floor cells of the spell's area marked for some of the caster's turns; damage, a status, or both.
+def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0):
+    d = O([("kind", "glyph"), ("affects", a), ("turns", turns)])
+    if dmax: d["damageMin"], d["damageMax"] = dmin, dmax
+    if el: d["element"] = el
+    if stat: d["status"], d["value"], d["statusTurns"] = stat, v, st
+    return d
 def summon(id, mx=1, count=1):
     d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
     if count != 1: d["count"] = count
@@ -218,6 +225,19 @@ beasts = [
  S("egg-laying","Ponte","Egg-Laying",3,1,2,0,0,1,"Neutral",1,effects=[summon("worker-spawn",2)],ranks=False,cd=3),
  S("surface","Surgir","Surface",2,2,5,0,0,1,"Neutral",1,los=False,effects=[leap()],ranks=False,cd=2),
  S("cave-in","Effondrement","Cave-in",3,2,3,6,9,1,"Earth",1,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],ranks=False,cd=2),
+ # The Forest of the Ancestors' sylvan stags (sprint 132, docs/familles-foret.md §3): reading the ground, glyphs that burn and weigh.
+ S("antler-jab","Coup d'andouiller","Antler Jab",3,1,1,19,25,2,"Earth",1,ranks=False),
+ S("head-toss","Coup de tête","Head Toss",3,1,1,10,13,1,"Earth",1,effects=[push(2)],ranks=False,cd=1),
+ S("antler-splinter","Jet de gravier","Gravel Throw",3,2,6,16,20,2,"Earth",1,ranks=False),
+ S("scrape","Grattis","Scrape",2,2,5,0,0,1,"Neutral",1,area=("Circle",1),effects=[glyph("Enemies",2,7,9,"Earth")],ranks=False,cd=2),
+ S("antler-butt","Coup de ramure","Antler Butt",3,1,1,19,25,2,"Earth",1,ranks=False),
+ S("heavy-ground","Terre lourde","Heavy Ground",3,1,3,0,0,1,"Neutral",1,area=("Cross",1),effects=[glyph("Enemies",2,stat="Mp",v=-2,st=1)],ranks=False,cd=2),
+ S("warm-breath","Souffle tiède","Warm Breath",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",16,20)],ranks=False,cd=1),
+ S("doe-call","Appel de la meneuse","Lead Hind's Call",2,2,4,0,0,1,"Neutral",1,effects=[pull(2,"Allies")],ranks=False,cd=2),
+ S("hoof-kick","Ruade","Hoof Kick",3,1,2,19,25,1,"Earth",1,ranks=False),
+ S("elder-antlers","Massacre de l'aïeul","Ancestor's Antlers",4,1,1,38,50,1,"Earth",1,effects=[push(1)],ranks=False),
+ S("antler-hook","Crochet d'andouiller","Antler Hook",3,2,4,14,18,1,"Earth",1,effects=[pull(2)],ranks=False,cd=1),
+ S("ancestors-ring","Brame de l'aïeul","Ancestor's Bellow",3,0,0,0,0,1,"Neutral",1,area=("Circle",2),effects=[glyph("Enemies",2,10,13,"Earth")],ranks=False,cd=2),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
@@ -323,6 +343,10 @@ passives = [
    "Below half its HP, it burrows down: +40% resistances and +2 MP for 1 turn.","LowHp",[status("Caster","Resistance",40,1),status("Caster","Mp",2,1)],percent=50),
  P("the-debris","Le débris","The Debris","Sous la moitié de ses PV, déterre un éclat de métal inconnu : +2 PA pendant 2 tours, et deux fouisseuses surgissent.",
    "Below half its HP, it digs up a shard of unknown metal: +2 AP for 2 turns, and two diggers surface.","LowHp",[status("Caster","Ap",2,2),summon("digger-spawn",count=2)],percent=50),
+ # The sylvan stags (docs/familles-foret.md §3.3, words of docs/familles-foret-textes.md): skittish when struck up close, the elder's antlers cracking open.
+ P("skittish","Ombrageux","Skittish","Frappé au contact, gagne 2 PM à son prochain tour.","Struck up close, gains 2 MP on its next turn.","Hit",[status("Caster","Mp",2,1)],melee=True),
+ P("cracked-antlers","Ramure fendue","Cracked Antlers","Sous la moitié de ses PV, sa ramure se fend : entre quatre signes, un creux gratté. +2 PA et −10 % de résistances jusqu'à la fin du combat.",
+   "Below half its HP, its antlers split: between four signs, a scraped-out hollow. +2 AP and −10% resistances until the end of the fight.","LowHp",[status("Caster","Ap",2,10),status("Caster","Resistance",-10,10)],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
  # The Disjoint (design-familles.md §4.9, sprint 114): four beasts forced into one, wearing itself out, bursting as it falls.
  P("unstable","Instable","Unstable","Il s'use tout seul : perd 15 PV au début de chacun de ses tours.","It wears itself out: loses 15 HP at the start of each of its turns.",

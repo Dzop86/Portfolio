@@ -19,7 +19,7 @@ public class BattleRestartTests
     private static CancellationToken Cancel => TestContext.Current.CancellationToken;
     private static readonly TimeSpan Wait = TimeSpan.FromSeconds(5);
 
-    private static readonly MonsterGroup Group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null && g.Monsters.Count == 1);
+    private static readonly MonsterGroup Group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null && g.Monsters.Count == 1 && GameData.Embedded.QuestToReach(g.Map) is null);
 
     private static Func<Uri, AuthenticationHeaderValue?, CancellationToken, Task<WebSocket>> Through(ApiFactory api) => (uri, auth, cancel) =>
     {

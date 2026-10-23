@@ -93,7 +93,7 @@ public class PresenceTests
         await using var api = new ApiFactory();
         (GameServer sa, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
         (GameServer sb, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
-        MonsterGroup group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null);
+        MonsterGroup group = GameData.Embedded.Groups.Values.First(g => GameData.Embedded.Towns[g.Map].Dungeon is null && GameData.Embedded.QuestToReach(g.Map) is null);
         Town map = GameData.Embedded.Towns[group.Map];
         await sb.SavePlace(brume.Id, new Place(map.Id, map.Spawn.X, map.Spawn.Y), Cancel);
         // Aube attacks it: Brume, on its map, sees it fought, and cannot attack it too.

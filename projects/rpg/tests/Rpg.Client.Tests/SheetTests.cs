@@ -44,7 +44,9 @@ public class SheetTests
         // Sprint 95 (D71): initiative found on boots, capes and rings; heroes first on a tie.
         var fr = new Texts("fr");
         Assert.StartsWith("Vous jouez après toutes les familles", fr.PlaysBefore(10), StringComparison.Ordinal);
-        Assert.Equal("Vous jouez avant : " + string.Join(", ", GameData.Embedded.Families.Values.Select(f => f.Name.Fr)), fr.PlaysBefore(100));
+        // At 100, before every family of the first chapter; the forest's play earlier (sprint 128: initiative grows after 30).
+        Assert.Equal("Vous jouez avant : " + string.Join(", ", GameData.Embedded.Families.Values.Where(f => f.Monsters.All(m => m.Initiative <= 100)).Select(f => f.Name.Fr)), fr.PlaysBefore(100));
+        Assert.DoesNotContain("Sylvecerfs", fr.PlaysBefore(100), StringComparison.Ordinal);
         string[] at75 = [.. GameData.Embedded.Families.Values.Where(f => f.Monsters.All(m => m.Initiative <= 75)).Select(f => f.Name.En)];
         Assert.NotEmpty(at75);
         Assert.Equal("You play before: " + string.Join(", ", at75), new Texts("en").PlaysBefore(75));

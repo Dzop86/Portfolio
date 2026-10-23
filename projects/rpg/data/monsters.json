@@ -2011,5 +2011,222 @@
         ]
       }
     ]
+  },
+  {
+    "id": "stag",
+    "name": {
+      "fr": "Sylvecerfs",
+      "en": "Sylvan Stags"
+    },
+    "zone": "ancestors",
+    "battle": "ancestors-trunks",
+    "battles": [
+      "ancestors-trunks"
+    ],
+    "bossMap": "ancestors-0-4",
+    "monsters": [
+      {
+        "id": "brocket",
+        "role": "Melee",
+        "name": {
+          "fr": "Daguet de pierre",
+          "en": "Stone Brocket"
+        },
+        "look": "stag-melee",
+        "level": 32,
+        "hp": 72,
+        "ap": 6,
+        "mp": 4,
+        "initiative": 126,
+        "spells": [
+          "antler-jab",
+          "head-toss"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "skittish"
+        ],
+        "loot": [
+          {
+            "item": "stone-antler",
+            "percent": 40
+          },
+          {
+            "item": "stag-velvet",
+            "percent": 40
+          },
+          {
+            "item": "antler-circlet",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "carving-hind",
+        "role": "Ranged",
+        "name": {
+          "fr": "Biche graveuse",
+          "en": "Carving Hind"
+        },
+        "look": "stag-ranged",
+        "level": 31,
+        "hp": 60,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 150,
+        "spells": [
+          "antler-splinter",
+          "scrape"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "skittish"
+        ],
+        "loot": [
+          {
+            "item": "stag-velvet",
+            "percent": 60
+          },
+          {
+            "item": "hind-cape",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "old-hart",
+        "role": "Tank",
+        "name": {
+          "fr": "Vieux cerf",
+          "en": "Old Hart"
+        },
+        "look": "stag-tank",
+        "level": 34,
+        "hp": 88,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 83,
+        "spells": [
+          "antler-butt",
+          "heavy-ground"
+        ],
+        "resistances": {
+          "Earth": 25,
+          "Water": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "skittish"
+        ],
+        "loot": [
+          {
+            "item": "stone-antler",
+            "percent": 60
+          },
+          {
+            "item": "stonehoof-boots",
+            "percent": 8
+          }
+        ]
+      },
+      {
+        "id": "lead-doe",
+        "role": "Support",
+        "name": {
+          "fr": "Biche meneuse",
+          "en": "Lead Hind"
+        },
+        "look": "stag-support",
+        "level": 33,
+        "hp": 76,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 109,
+        "spells": [
+          "warm-breath",
+          "doe-call",
+          "hoof-kick"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Fire": -15
+        },
+        "passives": [
+          "skittish"
+        ],
+        "loot": [
+          {
+            "item": "stone-antler",
+            "percent": 50
+          },
+          {
+            "item": "stag-velvet",
+            "percent": 50
+          }
+        ]
+      },
+      {
+        "id": "elder-stag",
+        "role": "Boss",
+        "name": {
+          "fr": "Cerf-Aïeul",
+          "en": "Ancestor Stag"
+        },
+        "look": "stag-boss",
+        "level": 45,
+        "hp": 577,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 127,
+        "spells": [
+          "elder-antlers",
+          "antler-hook",
+          "ancestors-ring"
+        ],
+        "resistances": {
+          "Earth": 30,
+          "Water": 15,
+          "Air": 15,
+          "Fire": -5
+        },
+        "passives": [
+          "skittish",
+          "cracked-antlers"
+        ],
+        "loot": [
+          {
+            "item": "stone-antler",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "stag-velvet",
+            "percent": 100
+          },
+          {
+            "item": "elder-antler-staff",
+            "percent": 30
+          },
+          {
+            "item": "antler-circlet",
+            "percent": 8
+          },
+          {
+            "item": "hind-cape",
+            "percent": 8
+          },
+          {
+            "item": "stonehoof-boots",
+            "percent": 8
+          }
+        ]
+      }
+    ]
   }
 ]
