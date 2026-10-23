@@ -84,9 +84,12 @@ public class MonsterTests
     {
         // The village's twelve maps (sprint 102), behind their palisade: no monsters.
         Assert.All(Real.Towns.Values.Where(t => Shop.InVillage(t.Id)), t => Assert.Empty(Real.GroupsOn(t.Id)));
-        Assert.All(Real.Towns.Values.Where(t => t.Zone is not null && !Shop.InVillage(t.Id)), t => Assert.InRange(Real.GroupsOn(t.Id).Count, MonsterGroups.Fewest, MonsterGroups.Most));
+        // A zone whose families are still to come has none (the Forest of the Ancestors until sprint 132).
+        Town[] wild = [.. Real.Towns.Values.Where(t => t.Zone is not null && !Shop.InVillage(t.Id) && Real.Families.Values.Any(f => f.Zone == t.Zone))];
+        Assert.All(Real.Towns.Values.Where(t => t.Zone is not null && !wild.Contains(t)), t => Assert.Empty(Real.GroupsOn(t.Id)));
+        Assert.All(wild, t => Assert.InRange(Real.GroupsOn(t.Id).Count, MonsterGroups.Fewest, MonsterGroups.Most));
         // Every count happens.
-        Assert.Equal([2, 3, 4], Real.Towns.Values.Where(t => t.Zone is not null && !Shop.InVillage(t.Id)).Select(t => Real.GroupsOn(t.Id).Count).Distinct().Order());
+        Assert.Equal([2, 3, 4], wild.Select(t => Real.GroupsOn(t.Id).Count).Distinct().Order());
         // Drawn from the maps' names alone: the same data gives the same groups, on every platform (FNV-1a).
         static IEnumerable<string> Seen(GameData d) => d.Groups.Values.Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}");
         Assert.Equal(Seen(Real), Seen(WithBoars([.. Real.Families["boar"].Monsters])));

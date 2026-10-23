@@ -179,6 +179,16 @@
         "item": "linden-log",
         "level": 35,
         "node": "Tree"
+      },
+      {
+        "item": "hornbeam-log",
+        "level": 40,
+        "node": "Tree"
+      },
+      {
+        "item": "elm-log",
+        "level": 45,
+        "node": "Tree"
       }
     ]
   },
@@ -228,6 +238,16 @@
       {
         "item": "quartz",
         "level": 35,
+        "node": "Rock"
+      },
+      {
+        "item": "granite",
+        "level": 40,
+        "node": "Rock"
+      },
+      {
+        "item": "malachite",
+        "level": 45,
         "node": "Rock"
       }
     ]
@@ -279,6 +299,16 @@
         "item": "zander",
         "level": 35,
         "node": "Water"
+      },
+      {
+        "item": "trout",
+        "level": 40,
+        "node": "Water"
+      },
+      {
+        "item": "catfish",
+        "level": 45,
+        "node": "Water"
       }
     ]
   },
@@ -329,6 +359,16 @@
         "item": "buckwheat",
         "level": 35,
         "node": "Plot"
+      },
+      {
+        "item": "spelt",
+        "level": 40,
+        "node": "Plot"
+      },
+      {
+        "item": "sorghum",
+        "level": 45,
+        "node": "Plot"
       }
     ]
   },
@@ -378,6 +418,16 @@
       {
         "item": "lavender",
         "level": 35,
+        "node": "Herb"
+      },
+      {
+        "item": "sage",
+        "level": 40,
+        "node": "Herb"
+      },
+      {
+        "item": "mandrake",
+        "level": 45,
         "node": "Herb"
       }
     ]

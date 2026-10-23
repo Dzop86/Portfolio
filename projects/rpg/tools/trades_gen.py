@@ -1,6 +1,7 @@
 # The gathering trades (sprint 99, D71 and D72, docs/suite-apres-d69.md §5.2 to §5.4): woodcutter, miner,
 # fisher, farmer and herbalist, each with a new resource every 5 levels; Clairval's zones carry the levels
-# 1 to 35, two a zone (the first near the way in, the second at the far end). The resources go in
+# 1 to 35, two a zone (the first near the way in, the second at the far end), the Forest of the Ancestors 40
+# and 45 (sprint 131). The resources go in
 # data/items.json (before the dungeons' keys), the trades in data/jobs.json with what they gather and on
 # which kind of spot. Deterministic and idempotent. Run from projects/rpg after tools/sets_gen.py, before
 # tools/icons_gen.py:  python3 tools/trades_gen.py data
@@ -13,29 +14,34 @@ O = collections.OrderedDict
 def text(fr, en): return O([("fr", fr), ("en", en)])
 
 
-LEVELS = [1, 5, 10, 15, 20, 25, 30, 35]
+LEVELS = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 # trade: (names, kind of spot, [(id, fr, en)] for the levels above)
 TRADES = O([
     ("woodcutter", (text("Bûcheron", "Woodcutter"), "Tree", [
         ("oak-log", "Chêne", "Oak"), ("hazel-log", "Noisetier", "Hazel"), ("blackwood-log", "Bois noir", "Blackwood"),
         ("yew-log", "If", "Yew"), ("willow-log", "Saule", "Willow"), ("alder-log", "Aulne", "Alder"),
-        ("ash-log", "Frêne", "Ash"), ("linden-log", "Tilleul", "Linden")])),
+        ("ash-log", "Frêne", "Ash"), ("linden-log", "Tilleul", "Linden"),
+        ("hornbeam-log", "Charme", "Hornbeam"), ("elm-log", "Orme", "Elm")])),
     ("miner", (text("Mineur", "Miner"), "Rock", [
         ("copper-ore", "Cuivre", "Copper"), ("tin-ore", "Étain", "Tin"), ("iron-ore", "Fer", "Iron"),
         ("sulphur", "Soufre", "Sulphur"), ("blue-clay", "Argile bleue", "Blue Clay"), ("zinc-ore", "Zinc", "Zinc"),
-        ("silver-ore", "Argent", "Silver"), ("quartz", "Quartz", "Quartz")])),
+        ("silver-ore", "Argent", "Silver"), ("quartz", "Quartz", "Quartz"),
+        ("granite", "Granit", "Granite"), ("malachite", "Malachite", "Malachite")])),
     ("fisher", (text("Pêcheur", "Fisher"), "Water", [
         ("gudgeon", "Goujon", "Gudgeon"), ("crayfish", "Écrevisse", "Crayfish"), ("pool-eel", "Anguille des mares", "Pool Eel"),
         ("tench", "Tanche", "Tench"), ("perch", "Perche", "Perch"), ("carp", "Carpe", "Carp"),
-        ("pike", "Brochet", "Pike"), ("zander", "Sandre", "Zander")])),
+        ("pike", "Brochet", "Pike"), ("zander", "Sandre", "Zander"),
+        ("trout", "Truite", "Trout"), ("catfish", "Silure", "Catfish")])),
     ("farmer", (text("Paysan", "Farmer"), "Plot", [
         ("wild-flax", "Lin sauvage", "Wild Flax"), ("wild-oats", "Avoine folle", "Wild Oats"), ("pool-hemp", "Chanvre des mares", "Pool Hemp"),
         ("rye", "Seigle", "Rye"), ("shore-sedge", "Laîche des rives", "Shore Sedge"), ("reed-rice", "Riz des joncs", "Reed Rice"),
-        ("clairval-wheat", "Blé de Clairval", "Clairval Wheat"), ("buckwheat", "Sarrasin", "Buckwheat")])),
+        ("clairval-wheat", "Blé de Clairval", "Clairval Wheat"), ("buckwheat", "Sarrasin", "Buckwheat"),
+        ("spelt", "Épeautre", "Spelt"), ("sorghum", "Sorgho", "Sorghum")])),
     ("herbalist", (text("Herboriste", "Herbalist"), "Herb", [
         ("nettle", "Ortie", "Nettle"), ("wood-mint", "Menthe des bois", "Wood Mint"), ("glowmoss", "Mousse-lumière", "Glowmoss"),
         ("clubmoss", "Pied-de-loup", "Clubmoss"), ("water-lily", "Nénuphar", "Water Lily"), ("horsetail", "Prêle", "Horsetail"),
-        ("hive-flower", "Fleur de ruche", "Hive Flower"), ("lavender", "Lavande", "Lavender")])),
+        ("hive-flower", "Fleur de ruche", "Hive Flower"), ("lavender", "Lavande", "Lavender"),
+        ("sage", "Sauge", "Sage"), ("mandrake", "Mandragore", "Mandrake")])),
 ])
 
 
@@ -49,7 +55,11 @@ def inline(v):
 
 
 items = json.load(open(f"{root}/items.json"))
-jobs = [j for j in json.load(open(f"{root}/jobs.json")) if j["id"] not in TRADES]
+jobs = json.load(open(f"{root}/jobs.json"))
+# The gathering trades where they were (after the locksmith), the others untouched (sprint 131: appended, they moved).
+place = next((i for i, j in enumerate(jobs) if j["id"] in TRADES), len(jobs))
+jobs = [j for j in jobs if j["id"] not in TRADES]
+gathering = []
 for trade, (name, node, resources) in TRADES.items():
     assert len(resources) == len(LEVELS), trade
     harvests = []
@@ -62,7 +72,8 @@ for trade, (name, node, resources) in TRADES.items():
         else:
             items[at] = item | ({"icon": items[at]["icon"]} if "icon" in items[at] else {})
         harvests.append(O([("item", rid), ("level", level), ("node", node)]))
-    jobs.append(O([("id", trade), ("name", name), ("recipes", []), ("harvests", harvests)]))
+    gathering.append(O([("id", trade), ("name", name), ("recipes", []), ("harvests", harvests)]))
+jobs[place:place] = gathering
 with open(f"{root}/items.json", "w") as out:
     out.write("[\n" + ",\n".join("  " + inline(i) for i in items) + "\n]\n")
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")

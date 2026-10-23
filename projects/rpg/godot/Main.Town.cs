@@ -2542,6 +2542,9 @@ public partial class Main
                 if (models != Math.Min(3, GameData.Embedded.Groups[g].Monsters.Count) || node!.Position != BoardView.ToWorld(at))
                     problems.Add($"the group {g} is drawn with {models} monsters");
             }
+            // The Forest of the Ancestors' own trees (sprint 131): giant trunks among its pines.
+            if (t.Zone == "ancestors" && view.Giants == 0)
+                problems.Add($"{id} draws no giant trunk");
             RemoveChild(view);
             view.QueueFree();
         }

@@ -70,11 +70,17 @@ ICONS = {
     "shore-sedge": "lorc/sprout", "reed-rice": "delapouite/grain", "clairval-wheat": "lorc/wheat", "buckwheat": "delapouite/grain-bundle",
     "nettle": "delapouite/herbs-bundle", "wood-mint": "delapouite/oak-leaf", "glowmoss": "lorc/ground-sprout", "clubmoss": "delapouite/fern",
     "water-lily": "lorc/lotus-flower", "horsetail": "lorc/sprout", "hive-flower": "delapouite/sunflower", "lavender": "delapouite/dandelion-flower",
+    # The Forest of the Ancestors' (sprint 131): levels 40 and 45.
+    "hornbeam-log": "delapouite/wood-beam", "elm-log": "delapouite/tree-roots", "granite": "lorc/stone-block", "malachite": "lorc/emerald",
+    "trout": "delapouite/fish-escape", "catfish": "delapouite/fish-bucket", "spelt": "delapouite/sesame", "sorghum": "delapouite/corn",
+    "sage": "lorc/three-leaves", "mandrake": "delapouite/plant-roots",
     # The dungeons' keys, and the quest items.
     "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",
     "royal-hive-key": "delapouite/boss-key", "mole-burrows-key": "delapouite/boss-key",
     "garance-badge": "andymeneely/police-badge", "rat-tail": "cathelineau/earth-worm", "marked-fang": "skoll/fangs", "registry-page": "lorc/scroll-unfurled", "last-verse": "lorc/spiked-shell", "painted-shard": "delapouite/clay-brick", "humming-debris": "faithtoken/ore", "palisade-stake": "delapouite/log", "admin-keyring": "delapouite/keyring",
+    # The recall scroll (sprint 127, left out of this list then: added sprint 131).
+    "recall-scroll": "lorc/scroll-unfurled",
 }
 
 

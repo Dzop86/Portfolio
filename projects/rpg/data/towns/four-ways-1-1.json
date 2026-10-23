@@ -42,7 +42,7 @@
     "X.......................=......................P",
     "X.......................=......................P",
     "X.......................=......................P",
-    "PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP"
+    "PPPPPPPPPPPPPPPPPPPPPPP===PPPPPPPPPPPPPPPPPPPPPP"
   ],
   "spawn": {
     "x": 24,
@@ -231,6 +231,51 @@
       "arrival": {
         "x": 27,
         "y": 30
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "ancestors-1-0",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "ancestors-1-0",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 31
+      },
+      "to": "ancestors-1-0",
+      "arrival": {
+        "x": 25,
+        "y": 1
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
       }
     }
   ],

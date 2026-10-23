@@ -1,0 +1,668 @@
+{
+  "id": "ancestors-1-0",
+  "zone": "ancestors",
+  "name": {
+    "fr": "Forêt des Aïeux",
+    "en": "Forest of the Ancestors"
+  },
+  "level": 31,
+  "mapAt": {
+    "x": 5,
+    "y": 1
+  },
+  "rows": [
+    "TTTTTTTTTTTTTTTTTTTTTTT...TTTTTTTTTTTTTTTTTTTTTT",
+    "T.....B...................................B....T",
+    "....BB................T....B.B.....R.....BB....T",
+    "..........................BB..B....R...........T",
+    "..........................B.B.....R............T",
+    "...........................R...................T",
+    ".........B.RRTT............R...................T",
+    "T........RB.RTT.....TTT.....TT...........R.....T",
+    "T........BBTR....R.RRT....TTT............R......",
+    "T..........TRT....R.T.....TT.........B...R......",
+    "T........TT.TBB....TT.....T..B........B..R......",
+    "T.......RTTTTTTBBBB.............................",
+    "T.......TR.TTTB.................................",
+    "T......TR.T.TB..................................",
+    "...........................TT..........R.T..T...",
+    "...........................TT.........RR....T...",
+    "............................T.........R........T",
+    "T...........T..................T......R........T",
+    "..............................TT.....RR........T",
+    ".............................RRRTR.....R........",
+    "................................................",
+    "................................................",
+    "...BB..B......T.................................",
+    "T.....RRB.....TT............B.BBR...........TT.T",
+    "T...RR..BB....T...TT.........B.BR........R.....T",
+    "T.B........RRT....TTTT..........................",
+    "T.B.......R.RTT...TT............................",
+    "T.B......RRR.T..................................",
+    "T........R.................TTTT...TT......R....T",
+    "T....TTT.......................................T",
+    "T....TTTT......................................T",
+    "TTTTTTTTTTTTTTT........TTTTTT........TT......TTT"
+  ],
+  "spawn": {
+    "x": 24,
+    "y": 16
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 47,
+        "y": 8
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 8
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 9
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 9
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 10
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 10
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 11
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 11
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 12
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 12
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 13
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 14
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 15
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 19
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 20
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 20
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 21
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 21
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 22
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 22
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 25
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 25
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 26
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 26
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 27
+      },
+      "to": "ancestors-2-0",
+      "arrival": {
+        "x": 1,
+        "y": 27
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 2
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 2
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 3
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 3
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 4
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 5
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 6
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 14
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 15
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 16
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 18
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 19
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 20
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 20
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 21
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 21
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 22
+      },
+      "to": "ancestors-0-0",
+      "arrival": {
+        "x": 46,
+        "y": 22
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 15,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 16,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 16,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 17,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 17,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 18,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 19,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 19,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 20,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 20,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 21,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 22,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 22,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 29,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 29,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 30,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 30,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 31,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 31,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 32,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 32,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 33,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 33,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 34,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 34,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 35,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 35,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 36,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 36,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 39,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 39,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 40,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 40,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 41,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 41,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 42,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 42,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 43,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 43,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 44,
+        "y": 31
+      },
+      "to": "ancestors-1-1",
+      "arrival": {
+        "x": 44,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 0
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 23,
+        "y": 30
+      },
+      "name": {
+        "fr": "Quatre-Chemins",
+        "en": "Four Ways"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 0
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 24,
+        "y": 30
+      },
+      "name": {
+        "fr": "Quatre-Chemins",
+        "en": "Four Ways"
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 0
+      },
+      "to": "four-ways-1-1",
+      "arrival": {
+        "x": 25,
+        "y": 30
+      },
+      "name": {
+        "fr": "Quatre-Chemins",
+        "en": "Four Ways"
+      }
+    }
+  ],
+  "props": [
+    {
+      "id": "waystone-ancestors",
+      "at": {
+        "x": 26,
+        "y": 16
+      },
+      "look": "waystone",
+      "name": {
+        "fr": "Pierre de passage",
+        "en": "Waystone"
+      },
+      "text": {
+        "fr": "Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+        "en": "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."
+      }
+    }
+  ]
+}

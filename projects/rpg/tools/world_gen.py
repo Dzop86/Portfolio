@@ -3,9 +3,10 @@
 # towards its neighbours, a third to a half of each side (sprint 85, D67); walking onto a gap leads to the next map. The woods west of Clairval (sprint 70), the mouldy woods west of them
 # (sprint 74), the lake north of them (sprint 75), the fields south of them (sprint 76), each zone
 # opening on the woods by two maps (data/towns/<zone>-<col>-<row>.json); Clairval's west way is written
-# by hand in clairval.json. Deterministic: the same seed gives the same
+# by hand in clairval.json. The Forest of the Ancestors (sprint 131), south of Quatre-Chemins, opens on its road
+# house by one map (tools/hamlet.py writes the other side). Deterministic: the same seed gives the same
 # maps; every opening and exit is checked reachable from the map's arrival. Run from projects/rpg:
-#   python3 tools/world_gen.py data [mouldy] [lake] [fields]   (the woods always)
+#   python3 tools/world_gen.py data [mouldy] [lake] [fields] [ancestors]   (the woods always)
 import collections, glob, json, os, random, sys
 
 root = sys.argv[1]
@@ -154,6 +155,9 @@ STYLES = {
     "mouldy": ('T', lambda rnd: [('T', 7, 6), ('M', 5, 3), ('~', 2, 4), ('R', 1, 1)]),
     "lake": ('B', lambda rnd: [('B', 4, 3), ('T', 2, 3), ('R', 1, 1)]),
     "fields": ('B', lambda rnd: [(',', 20, 8), ('B', 3, 4), ('T', 2, 2), ('C', 1, 1)]),
+    # The Forest of the Ancestors (sprint 131): few trees but in tight stands (the game draws them as giant trunks),
+    # mossy boulders in heaps, ferns, now and then a spring; not the woods' scattered clumps.
+    "ancestors": ('T', lambda rnd: [('T', 3, 12), ('R', 3, 4), ('B', 3, 3)] + ([('~', 1, 6)] if rnd.random() < 0.6 else [])),
 }
 
 
@@ -215,6 +219,7 @@ NAMES = {
     "mouldy": text("Bois moisi", "Mouldy Woods"),
     "lake": text("Lac des Joncs", "Reed Lake"),
     "fields": text("Champs de Clairval", "Clairval Fields"),
+    "ancestors": text("Forêt des Aïeux", "Forest of the Ancestors"),
 }
 
 
@@ -232,6 +237,9 @@ for (row, start) in ((1, 14), (3, 12)):
 for (col, start) in ((1, 22), (3, 22)):
     bridge(outsides, ("woods", col, 0), ("lake", col, 4), "north", start, (towards("north", "lake"), towards("south", "woods")))
     bridge(outsides, ("woods", col, 4), ("fields", col, 0), "south", start, (towards("south", "fields"), towards("north", "woods")))
+# The forest opens on Quatre-Chemins's road house (world [5, 0]) by its map at [5, 1]: the road's three cells
+# (x 23 to 25, tools/hamlet.py's ROAD_SOUTH).
+outsides.setdefault("ancestors", {})[(1, 0, "north")] = ("four-ways-1-1", [((x, 0), (x, H - 2)) for x in (23, 24, 25)], text("Quatre-Chemins", "Four Ways"))
 
 
 def lake_water(gx, gy):
@@ -248,14 +256,15 @@ def lake_water(gx, gy):
 
 # Only the zones written now: a way to one not written yet is left out, with its opening.
 built = {"woods", *sys.argv[2:]}
-outsides = {z: {k: v for k, v in ways.items() if v[0].startswith("clairval") or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
+outsides = {z: {k: v for k, v in ways.items() if v[0].startswith(("clairval", "four-ways")) or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
 
 zones = [
     # The woods, west of the village (x 0 to 3): their east maps open on its three gates (rows 15 to 17).
     zone("woods", NAMES["woods"], 3, (-5, -2), 70,
          exits={(2, 2): ((19, 16), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]),
 ]
-ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76)}
+# The forest at [4, 1] to [8, 5], south of Quatre-Chemins ([4, -1] to [5, 0]) and east of Clairval ([0, -1] to [3, 1]).
+ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76), "ancestors": (31, (4, 1), 131)}
 for zid in sys.argv[2:]:
     level, origin, seed = ZONES[zid]
     zones.append(zone(zid, NAMES[zid], level, origin, seed, style=zid, outside=outsides.get(zid), water=lake_water if zid == "lake" else None))

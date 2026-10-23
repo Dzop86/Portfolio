@@ -27,7 +27,8 @@ public class FourWaysTests
     public void BeingOnAMapOfQuatreChemins_NeedsFourTrails_TheRestOfTheWorldNothing()
     {
         Assert.All(Maps, m => Assert.Equal("four-trails", Real.QuestToReach(m)));
-        Assert.All(Real.Towns.Values.Where(t => !Maps.Contains(t.Id)), t => Assert.Null(Real.QuestToReach(t.Id)));
+        // The Forest of the Ancestors lies past Quatre-Chemins (sprint 131): its maps too.
+        Assert.All(Real.Towns.Values.Where(t => !Maps.Contains(t.Id) && t.Zone != "ancestors"), t => Assert.Null(Real.QuestToReach(t.Id)));
     }
 
     [Fact]
@@ -76,12 +77,15 @@ public class FourWaysTests
     }
 
     [Fact]
-    public void TheSouthRoad_TheEarths_RunsToThePalisade_UntilTheForestComes()
+    public void TheSouthRoad_TheEarths_GoesThroughThePalisade_IntoTheForest()
     {
+        // A wall until sprint 131; the forest's three ways since (ForestTests), each reached from the arrival.
         Town t = Real.Towns["four-ways-1-1"];
         HashSet<Cell> reach = Reach(t);
-        Assert.Contains(new Cell(24, t.Rows.Count - 2), reach);
-        Assert.DoesNotContain(t.Links!, l => l.At.Y == t.Rows.Count - 1);
+        ZoneLink[] south = [.. t.Links!.Where(l => l.At.Y == t.Rows.Count - 1)];
+        Assert.Equal(3, south.Length);
+        Assert.All(south, l => Assert.Equal("ancestors-1-0", l.To));
+        Assert.All(south, l => Assert.Contains(l.At, reach));
     }
 
     [Fact]

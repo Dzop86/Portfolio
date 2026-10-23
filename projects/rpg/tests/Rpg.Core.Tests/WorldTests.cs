@@ -130,8 +130,9 @@ public class WorldTests
             Assert.Equal(3, Real.Towns[$"woods-{col}-4"].Links!.Count(l => l.To == $"fields-{col}-0"));
             Assert.Equal(3, Real.Towns[$"fields-{col}-0"].Links!.Count(l => l.To == $"woods-{col}-4"));
         }
-        // Four zones and the village's twelve maps (sprint 102): 112 maps; Quatre-Chemins's four since sprint 129.
-        Assert.Equal(116, Real.Towns.Values.Count(t => !t.IsHall));
+        // Four zones and the village's twelve maps (sprint 102): 112 maps; Quatre-Chemins's four since sprint 129, the
+        // Forest of the Ancestors' 25 since sprint 131.
+        Assert.Equal(141, Real.Towns.Values.Count(t => !t.IsHall));
     }
 
     // Two maps side by side, three cells wide: a to the west of b.

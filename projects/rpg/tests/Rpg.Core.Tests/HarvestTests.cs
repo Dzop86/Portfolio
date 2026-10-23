@@ -6,13 +6,14 @@ namespace Rpg.Core.Tests;
 public class HarvestTests
 {
     [Fact]
-    public void FiveGatheringTrades_EachANewResourceEveryFiveLevels_UpTo35()
+    public void FiveGatheringTrades_EachANewResourceEveryFiveLevels_UpTo45()
     {
         Job[] gathering = [.. Real.Jobs.Values.Where(j => j.Gathers)];
         Assert.Equal(["woodcutter", "miner", "fisher", "farmer", "herbalist"], gathering.Select(j => j.Id));
-        Assert.All(gathering, j => Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35], j.Harvests!.Select(h => h.Level)));
+        // 40 and 45 since sprint 131, in the Forest of the Ancestors.
+        Assert.All(gathering, j => Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45], j.Harvests!.Select(h => h.Level)));
         Assert.All(gathering, j => Assert.Single(j.Harvests!.Select(h => h.Node).Distinct()));
-        Assert.Equal(40, gathering.SelectMany(j => j.Harvests!).Select(h => h.Item).Distinct().Count());
+        Assert.Equal(50, gathering.SelectMany(j => j.Harvests!).Select(h => h.Item).Distinct().Count());
         Assert.All(gathering.SelectMany(j => j.Harvests!), h => Assert.Equal(h.Level, Real.Items[h.Item].Level));
     }
 
@@ -39,8 +40,8 @@ public class HarvestTests
             (int near, int far) = Harvesting.Tiers[map.Zone!];
             Assert.All(here.Where(n => !(map.Zone == "lake" && n.Kind == NodeKind.Water && n.Level >= 30)), n => Assert.Contains(n.Level, new[] { near, far }));
         }
-        // Every one of the 40 resources grows somewhere.
-        Assert.Equal(40, Real.Nodes.Values.Select(n => n.Item).Distinct().Count());
+        // Every one of the 50 resources grows somewhere.
+        Assert.Equal(50, Real.Nodes.Values.Select(n => n.Item).Distinct().Count());
     }
 
     [Fact]

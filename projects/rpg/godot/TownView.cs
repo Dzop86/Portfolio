@@ -212,6 +212,8 @@ public partial class TownView : Node3D
         char decor = town[node.At];
         return node.Kind switch
         {
+            // A giant of the Forest of the Ancestors stands higher (sprint 131).
+            NodeKind.Tree when town.Zone == "ancestors" => Giant(node.At) ? 4.2f : 3f,
             NodeKind.Tree => 2.2f,
             NodeKind.Rock when decor == 'R' => 1.1f,
             _ when decor == 'M' => 2.4f,
@@ -344,8 +346,14 @@ public partial class TownView : Node3D
             case 'K':
                 Keep(at + new Vector3(1, 0, 1));
                 break;
+            case 'T' when Ancestral:
+                _decor[c] = Ancestor(c, at);
+                break;
             case 'T':
                 _decor[c] = Place(Kit + ((c.X + c.Y) % 2 == 0 ? "tree.glb" : "tree-high.glb"), at, 0, 1);
+                break;
+            case 'R' when Ancestral:
+                _decor[c] = MossyRock(c, at);
                 break;
             case 'R':
                 _decor[c] = Place(Kit + "rock-large.glb", at, (c.X * 37) % 360, 0.6f);
@@ -381,6 +389,38 @@ public partial class TownView : Node3D
                 _decor[c] = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
                 break;
         }
+    }
+
+    // The Forest of the Ancestors (sprint 131, D76: no new model): its own trees and rocks.
+    private bool Ancestral => Controller.Town.Zone == "ancestors";
+
+    /// <summary>How many giant trunks the map shows (for the self-test).</summary>
+    public int Giants { get; private set; }
+
+    /// <summary>
+    /// A tree of the Forest of the Ancestors: one cell in three a giant (the nature kit's tree, more than twice its
+    /// size, its trunk thickened by a column of bark), the others younger pines grown tall in their shade.
+    /// </summary>
+    private Node3D Ancestor(Cell c, Vector3 at)
+    {
+        float turn = (c.X * 53 + c.Y * 29) % 360;
+        if (!Giant(c))
+            return Place(Nature + "tree_pineDefaultA.glb", at, turn, 1.5f);
+        Giants++;
+        Node3D tree = Place(Nature + "tree_default.glb", at, turn, 2.4f);
+        Part(tree, new CylinderMesh { TopRadius = 0.09f, BottomRadius = 0.16f, Height = 0.7f, RadialSegments = 10 }, new Color("4a3524"), new Vector3(0, 0.35f, 0));
+        return tree;
+    }
+
+    /// <summary>Whether a tree of the forest is a giant: one cell in three, the same every time.</summary>
+    public static bool Giant(Cell c) => (c.X * 7 + c.Y * 5) % 3 == 0;
+
+    /// <summary>A boulder of the forest: the nature kit's rock, its top under a cushion of moss.</summary>
+    private Node3D MossyRock(Cell c, Vector3 at)
+    {
+        Node3D rock = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "rock_largeA.glb" : "rock_largeB.glb"), at, (c.X * 37) % 360, 0.8f);
+        Part(rock, new SphereMesh { Radius = 0.32f, Height = 0.22f, RadialSegments = 10, Rings = 4 }, new Color("4f7a34"), new Vector3(0.04f, 0.42f, -0.03f));
+        return rock;
     }
 
     /// <summary>

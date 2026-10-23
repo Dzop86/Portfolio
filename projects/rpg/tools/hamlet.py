@@ -2,8 +2,8 @@
 # cells at x 4 and 5, y -1 and 0 of the world, east of Clairval, whose east gate (Craftsmen's Row) leads to the square,
 # the south-west map. The roads leaving Clairval part here: the north road (Élyon, the Air) is shut by a rockfall, the
 # east road (Kaor, the Fire) by a blaze, the south-west road to the river (Névara, the Water) by a flooded ford, each
-# a thing to examine; the south road (Dhoram, the Earth) is open, and runs to the palisade until the Forest of the
-# Ancestors comes (sprint 131). Called by tools/village_gen.py, with its helpers.
+# a thing to examine; the south road (Dhoram, the Earth) is open: it ran to the palisade until sprint 131, and goes
+# through it into the Forest of the Ancestors since (tools/world_gen.py). Called by tools/village_gen.py, with its helpers.
 import random
 
 COLS, ROWS = 2, 2
@@ -40,6 +40,8 @@ BARRIERS = {
     (0, 1): ('flooded-ford', (24, 26), 'ford', text('Le gué en crue', 'The flooded ford'), text("D'habitude, on traverse ici avec de l'eau aux genoux. Aujourd'hui, la rivière roule large et brune, et charrie des joncs arrachés au Lac. Le piquet qui marquait le gué a disparu sous l'eau.", 'Usually you cross here with the water at your knees. Today the river runs wide and brown, carrying reeds torn from the lake. The post that marked the ford has gone under.')),
 }
 SQUARE = (0, 1)
+# The south road's cells through the road house's palisade, onto the forest's map at [5, 1] (tools/world_gen.py).
+ROAD_SOUTH = (23, 24, 25)
 
 
 def mid(c, r):
@@ -85,7 +87,7 @@ def maps(v):
                     g[y][x] = '='
                     links.append(O([("at", cell(x, y)), ("to", mid(nc, nr)), ("arrival", cell(ax, ay))]))
                 ways.append({"west": (0, 16), "east": (W - 1, 16), "north": (24, 0), "south": (24, H - 1)}[edge])
-            # The roads out, each to where it stops: the rockfall, the blaze, the flooded ford, the palisade.
+            # The roads out, each to where it stops: the rockfall, the blaze, the flooded ford; the south road goes on into the forest.
             if (c, r) == (0, 0):
                 ways.append((24, 5))
                 blocked = {(x, y) for x in range(19, 30) for y in range(1, 5)}
@@ -104,7 +106,11 @@ def maps(v):
                 for x in range(22, 27):
                     g[H - 1][x] = '='
             elif (c, r) == (1, 1):
-                ways.append((24, H - 2))
+                for x in ROAD_SOUTH:
+                    g[H - 1][x] = '='
+                    links.append(O([("at", cell(x, H - 1)), ("to", "ancestors-1-0"), ("arrival", cell(x, 1)),
+                                    ("name", v.text("Forêt des Aïeux", "Forest of the Ancestors"))]))
+                ways.append((24, H - 1))
             road = set()
             for w in ways:
                 road |= set(v.lpath(w, v.CENTRE))

@@ -79,8 +79,9 @@ WAYSTONE = (text("Pierre de passage", "Waystone"),
 HAMLET_STONE = (text("Pierre de passage des Quatre-Chemins", "Four Ways waystone"),
                 text("Une pierre de passage plus usée que celle de Clairval : ici, tout le monde arrive de quelque part. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
                      "A waystone more worn than Clairval's: here, everyone has come from somewhere. Whoever has touched it once can come back to it from another stone, for a few Éclats."))
-# Since sprint 129, Quatre-Chemins's square too (its id whole: "four" alone would say nothing).
-for map_id in ("clairval", "woods-4-2", "mouldy-4-1", "lake-3-4", "fields-3-0", "four-ways"):
+# Since sprint 129, Quatre-Chemins's square too (its id whole: "four" alone would say nothing); since sprint 131, the
+# Forest of the Ancestors' way in from Quatre-Chemins.
+for map_id in ("clairval", "woods-4-2", "mouldy-4-1", "lake-3-4", "fields-3-0", "four-ways", "ancestors-1-0"):
     spawn = json.load(open(f"{root}/towns/{map_id}.json"))["spawn"]
     stone = "waystone-four-ways" if map_id == "four-ways" else f"waystone-{map_id.split('-')[0]}"
     PROPS.append((stone, "waystone", *(HAMLET_STONE if map_id == "four-ways" else WAYSTONE), map_id, (spawn["x"] + 2, spawn["y"])))

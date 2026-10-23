@@ -23,6 +23,8 @@ public static class Harvesting
         ["mouldy"] = (10, 15),
         ["lake"] = (20, 25),
         ["fields"] = (30, 35),
+        // The Forest of the Ancestors (sprint 131), past Quatre-Chemins.
+        ["ancestors"] = (40, 45),
         // The village's few spots, of the first level only (sprint 102).
         ["clairval"] = (1, 1),
     };
@@ -34,6 +36,8 @@ public static class Harvesting
         ["mouldy"] = [2, 2, 2, 1, 2],
         ["lake"] = [1, 1, 3, 2, 2],
         ["fields"] = [2, 2, 0, 4, 2],
+        // Water only where a spring wells up (most maps): a map without one has a spot fewer.
+        ["ancestors"] = [2, 2, 1, 2, 2],
         ["clairval"] = [1, 1, 1, 2, 1],
     };
 

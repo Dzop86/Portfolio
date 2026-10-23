@@ -51,7 +51,8 @@ public class ContactTests
         CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id), b = await Connect(api, sb, brume.Id);
-        Town woods = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id));
+        // A zone anyone may stand in (not the Forest of the Ancestors, past Clairval's east gate, sprint 131).
+        Town woods = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id) && GameData.Embedded.QuestToReach(t.Id) is null);
         await sb.SavePlace(brume.Id, new Place(woods.Id, woods.Spawn.X, woods.Spawn.Y), Cancel);
         // A friend: its zone, not its map; oneself and a name that does not exist refused.
         ContactList list = await sa.AddContact(aube.Id, "Brume", cancel: Cancel);
