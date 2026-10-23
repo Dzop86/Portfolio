@@ -47,6 +47,53 @@ public static class Pathfinding
     }
 
     /// <summary>
+    /// The path from <paramref name="from"/> to <paramref name="to"/> in at most <paramref name="maxSteps"/>
+    /// steps whose cells cost the least <paramref name="toll"/> in all (sprint 130: the glyphs walked through),
+    /// then the shortest; the start costs nothing. Null when no path is short enough. A breadth-first search
+    /// by number of steps; ties go to the neighbours in their fixed order, so the same board gives the same path.
+    /// </summary>
+    public static IReadOnlyList<Cell>? FindPath(Board board, Cell from, Cell to, Func<Cell, bool> isFree, int maxSteps, Func<Cell, int> toll)
+    {
+        ArgumentNullException.ThrowIfNull(board);
+        ArgumentNullException.ThrowIfNull(isFree);
+        ArgumentNullException.ThrowIfNull(toll);
+        if (from == to)
+            return [];
+        if (!board.Contains(to) || !isFree(to))
+            return null;
+        // layers[s]: the least toll to reach each cell in exactly s steps, and the cell before.
+        var layers = new List<Dictionary<Cell, (int Toll, Cell Before)>> { new() { [from] = (0, from) } };
+        (int Toll, int Steps)? best = null;
+        for (int steps = 1; steps <= maxSteps; steps++)
+        {
+            var layer = new Dictionary<Cell, (int Toll, Cell Before)>();
+            foreach ((Cell cell, (int paid, _)) in layers[^1])
+            {
+                foreach (Cell next in cell.Neighbours())
+                {
+                    if (!board.Contains(next) || !isFree(next))
+                        continue;
+                    int cost = paid + toll(next);
+                    if (!layer.TryGetValue(next, out var known) || cost < known.Toll)
+                        layer[next] = (cost, cell);
+                }
+            }
+            layers.Add(layer);
+            if (layer.TryGetValue(to, out var reached) && (best is null || reached.Toll < best.Value.Toll))
+                best = (reached.Toll, steps);
+            if (layer.Count == 0)
+                break;
+        }
+        if (best is not var (_, length))
+            return null;
+        var path = new List<Cell>();
+        for (Cell c = to; length > 0; c = layers[length--][c].Before)
+            path.Add(c);
+        path.Reverse();
+        return path;
+    }
+
+    /// <summary>
     /// Every cell reachable in at most <paramref name="maxSteps"/> steps, with its distance in steps,
     /// the start included at 0 (a breadth-first search).
     /// </summary>

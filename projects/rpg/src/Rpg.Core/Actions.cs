@@ -105,5 +105,14 @@ public sealed record Leaped(int Fighter, Cell From, Cell To) : FightEvent;
 /// <summary>Two fighters trade places (sprint 90): <see cref="A"/> cast the spell.</summary>
 public sealed record Swapped(int A, int B) : FightEvent;
 
+/// <summary>A glyph is laid on <see cref="Cells"/> (sprint 130); it is <c>Glyphs</c>' glyph of that id.</summary>
+public sealed record GlyphPlaced(int Glyph, int Caster, string Spell, IReadOnlyList<Cell> Cells, int Turns) : FightEvent;
+
+/// <summary>A glyph strikes a fighter on one of its cells: its damage and status follow.</summary>
+public sealed record GlyphTriggered(int Glyph, int Fighter) : FightEvent;
+
+/// <summary>A glyph vanishes: its turns are over, its caster died, or it was laid again.</summary>
+public sealed record GlyphEnded(int Glyph) : FightEvent;
+
 /// <summary>The end of the fight; <see cref="WinningTeam"/> is null for a draw at the round limit.</summary>
 public sealed record FightEnded(int? WinningTeam) : FightEvent;

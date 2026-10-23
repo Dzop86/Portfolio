@@ -109,6 +109,9 @@ public sealed class Fight
     private readonly Rng _rng;
     private int _current;
 
+    private readonly List<Glyph> _glyphs = [];
+    private int _glyphsLaid;
+
     /// <summary>The passives set off during the action being played, with their bearer and, for a hit, the attacker (sprint 90).</summary>
     private readonly Queue<(Fighter Bearer, PassiveSpec Passive, Fighter? Attacker)> _pending = new();
 
@@ -331,6 +334,34 @@ public sealed class Fight
     public IReadOnlyList<FightAction> History => _history;
     public IReadOnlyList<FightEvent> Events => _events;
 
+    /// <summary>The glyphs on the board (sprint 130), oldest first.</summary>
+    public IReadOnlyList<Glyph> Glyphs => _glyphs;
+
+    /// <summary>The glyphs on a cell, oldest first.</summary>
+    public IReadOnlyList<Glyph> GlyphsAt(Cell cell) => [.. _glyphs.Where(g => g.Cells.Contains(cell))];
+
+    /// <summary>Whether a glyph would strike <paramref name="f"/>: it touches the fighter's side, as seen from its caster.</summary>
+    public bool Strikes(Glyph glyph, Fighter f)
+    {
+        ArgumentNullException.ThrowIfNull(glyph);
+        ArgumentNullException.ThrowIfNull(f);
+        return Touches(glyph.Effect.Affects, _fighters[glyph.Caster], f);
+    }
+
+    /// <summary>
+    /// The cells the current fighter walks to reach <paramref name="to"/>, without the start, or null when it
+    /// cannot. A shortest path; with glyphs that would strike it on the board (sprint 130), the path within its
+    /// movement points through the fewest of their cells, then the shortest: the board shows it, the move takes it.
+    /// </summary>
+    public IReadOnlyList<Cell>? PathTo(Cell to)
+    {
+        Fighter me = Current;
+        IReadOnlyList<Cell>? shortest = Pathfinding.FindPath(Board, me.Cell, to, IsFree);
+        if (shortest is null || !_glyphs.Any(g => Strikes(g, me)))
+            return shortest;
+        return Pathfinding.FindPath(Board, me.Cell, to, IsFree, me.Mp, c => _glyphs.Count(g => g.Cells.Contains(c) && Strikes(g, me))) ?? shortest;
+    }
+
     /// <summary>The living fighter on a cell, if any.</summary>
     public Fighter? At(Cell cell) => Fighters.FirstOrDefault(f => f.IsAlive && f.Cell == cell);
 
@@ -428,10 +459,7 @@ public sealed class Fight
         switch (action)
         {
             case MoveAction move:
-                IReadOnlyList<Cell> path = Pathfinding.FindPath(Board, me.Cell, move.To, IsFree)!;
-                me.Mp -= path.Count;
-                me.Cell = move.To;
-                _events.Add(new Moved(me.Id, path));
+                Walk(me, PathTo(move.To)!);
                 break;
             case CastAction cast:
                 Cast(me, me.Spells.First(s => s.Id == cast.Spell), cast.Target);
@@ -441,6 +469,76 @@ public sealed class Fight
                 break;
         }
         return ActionError.None;
+    }
+
+    /// <summary>
+    /// Walks a path cell by cell, a movement point each. A glyph on a cell entered strikes (sprint 130): the
+    /// walk so far is told, then the glyph, then the passives it set off; the walk goes on unless the walker
+    /// fell, the fight ended, a fighter now stands in the way (the points left are kept) or a glyph took its
+    /// last movement points.
+    /// </summary>
+    private void Walk(Fighter me, IReadOnlyList<Cell> path)
+    {
+        var walked = new List<Cell>();
+        foreach (Cell next in path)
+        {
+            if (!IsFree(next) || me.Mp <= 0)
+                break;
+            me.Mp--;
+            me.Cell = next;
+            walked.Add(next);
+            if (!GlyphsAt(next).Any(g => Strikes(g, me) && !g.Struck.Contains(me.Id)))
+                continue;
+            _events.Add(new Moved(me.Id, walked));
+            walked = [];
+            StrikeAt(me);
+            Resolve();
+            if (IsOver || !me.IsAlive)
+                break;
+        }
+        if (walked.Count > 0)
+            _events.Add(new Moved(me.Id, walked));
+        if (!IsOver && !me.IsAlive)
+            NextTurn();
+    }
+
+    /// <summary>
+    /// The glyphs on the fighter's cell that would strike it strike it, oldest first, once each per turn of
+    /// play (sprint 130): damage from their caster, in their element, through the shields; then their status.
+    /// A glyph's damage is not a spell's: it sets off no passive of a hit, as a poison.
+    /// </summary>
+    private void StrikeAt(Fighter f)
+    {
+        foreach (Glyph g in GlyphsAt(f.Cell))
+        {
+            if (IsOver || !f.IsAlive || !Strikes(g, f) || !g.Struck.Add(f.Id))
+                continue;
+            _events.Add(new GlyphTriggered(g.Id, f.Id));
+            Fighter caster = _fighters[g.Caster];
+            if (g.Effect.DamageMax > 0)
+                Hurt(f, Damage(_rng.Next(g.Effect.DamageMin, g.Effect.DamageMax), caster, f, g.Effect.Element), g.Effect.Element);
+            if (!IsOver && f.IsAlive && g.Effect.AsStatus is StatusEffect status)
+                SetStatus(caster, f, status);
+        }
+    }
+
+    /// <summary>Lays a glyph on the floor cells of a spell's area (sprint 130), in place of the caster's last one of that spell.</summary>
+    private void Lay(Fighter me, GlyphEffect effect, IReadOnlyList<Cell> zone, string spell)
+    {
+        foreach (Glyph old in _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell).ToList())
+            EndGlyph(old);
+        Cell[] cells = [.. zone.Where(Board.IsFloor).Distinct()];
+        if (cells.Length == 0)
+            return;
+        var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect);
+        _glyphs.Add(glyph);
+        _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns));
+    }
+
+    private void EndGlyph(Glyph glyph)
+    {
+        _glyphs.Remove(glyph);
+        _events.Add(new GlyphEnded(glyph.Id));
     }
 
     /// <summary>
@@ -508,7 +606,7 @@ public sealed class Fight
                 }
             }
         }
-        Apply(me, spell.AllEffects, area, target, critical, attacker: null);
+        Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
         Resolve();
         // A fighter who dies during its own turn hands over at once.
         if (!IsOver && !me.IsAlive)
@@ -519,7 +617,9 @@ public sealed class Fight
     /// The effects of a spell, or of a passive (sprint 90) with its bearer as <paramref name="me"/>, on the
     /// fighters of <paramref name="area"/>; <paramref name="attacker"/>, for a passive set off by a hit.
     /// </summary>
-    private void Apply(Fighter me, IReadOnlyList<SpellEffect> effects, IReadOnlyList<Fighter> area, Cell target, bool critical, Fighter? attacker, bool passive = false)
+    /// <param name="zone">A spell's area, every cell of it, for a glyph (sprint 130); <paramref name="spell"/>, its id.</param>
+    private void Apply(Fighter me, IReadOnlyList<SpellEffect> effects, IReadOnlyList<Fighter> area, Cell target, bool critical, Fighter? attacker,
+        bool passive = false, IReadOnlyList<Cell>? zone = null, string? spell = null)
     {
         foreach (SpellEffect effect in effects)
         {
@@ -539,6 +639,7 @@ public sealed class Fight
                         Cell from = me.Cell;
                         me.Cell = target;
                         _events.Add(new Leaped(me.Id, from, target));
+                        StrikeAt(me);
                     }
                     continue;
                 case SwapEffect:
@@ -546,7 +647,13 @@ public sealed class Fight
                     {
                         (me.Cell, other.Cell) = (other.Cell, me.Cell);
                         _events.Add(new Swapped(me.Id, other.Id));
+                        StrikeAt(me);
+                        StrikeAt(other);
                     }
+                    continue;
+                case GlyphEffect glyph:
+                    if (zone is not null && spell is not null && !IsOver)
+                        Lay(me, glyph, zone, spell);
                     continue;
             }
             IEnumerable<Fighter> touched = effect.Affects switch
@@ -577,20 +684,25 @@ public sealed class Fight
                         Shove(f, Cell.Direction(f.Cell, me.Cell), Math.Min(pull.Cells, f.Cell.DistanceTo(me.Cell) - 1), collide: false);
                         break;
                     case StatusEffect status:
-                        // The same status from the same caster is renewed, not stacked.
-                        f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id);
-                        f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
-                        _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
-                        // On the fighter playing, action and movement points change at once (sprint 90):
-                        // a status of one turn set on oneself counts this very turn.
-                        if (f == Current && status.Stat == Stat.Ap)
-                            f.Ap = Math.Max(0, f.Ap + status.Value);
-                        if (f == Current && status.Stat == Stat.Mp)
-                            f.Mp = Math.Max(0, f.Mp + status.Value);
+                        SetStatus(me, f, status);
                         break;
                 }
             }
         }
+    }
+
+    private void SetStatus(Fighter me, Fighter f, StatusEffect status)
+    {
+        // The same status from the same caster is renewed, not stacked.
+        f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id);
+        f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
+        _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
+        // On the fighter playing, action and movement points change at once (sprint 90):
+        // a status of one turn set on oneself counts this very turn.
+        if (f == Current && status.Stat == Stat.Ap)
+            f.Ap = Math.Max(0, f.Ap + status.Value);
+        if (f == Current && status.Stat == Stat.Mp)
+            f.Mp = Math.Max(0, f.Mp + status.Value);
     }
 
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
@@ -651,6 +763,9 @@ public sealed class Fight
         _events.Add(new Pushed(f.Id, path, blocked));
         if (blocked > 0)
             Hurt(f, blocked * CollisionDamage);
+        // Where it lands, a glyph strikes (sprint 130), after the collision.
+        if (path.Count > 0)
+            StrikeAt(f);
     }
 
     /// <summary>
@@ -701,6 +816,9 @@ public sealed class Fight
         {
             foreach (PassiveSpec p in d.Passives.Where(p => p.Trigger == Trigger.Death))
                 _pending.Enqueue((d, p, null));
+            // Its glyphs vanish with it (sprint 130).
+            foreach (Glyph g in _glyphs.Where(g => g.Caster == d.Id).ToList())
+                EndGlyph(g);
         }
         // An ally of the same family falls (not a summon), within the passive's range.
         if (!hit.IsSummon && hit.Spec.Family is string family)
@@ -792,6 +910,14 @@ public sealed class Fight
                 next.Cooldowns.Remove(id);
         }
         _events.Add(new TurnStarted(next.Id, Round));
+        // A new turn of play: the fighter's glyphs count one turn less, and every glyph may strike again (sprint 130).
+        foreach (Glyph g in _glyphs.Where(g => g.Caster == next.Id).ToList())
+        {
+            if (--g.TurnsLeft <= 0)
+                EndGlyph(g);
+        }
+        foreach (Glyph g in _glyphs)
+            g.Struck.Clear();
         // Poisons strike at the start of the turn, in their element, against the resistances.
         foreach (Status poison in next.StatusList.Where(st => st.Stat == Stat.Poison).ToList())
         {
@@ -800,7 +926,9 @@ public sealed class Fight
             long damage = (long)poison.Value * (100 - next.Resistance(poison.Element)) / 100;
             Hurt(next, (int)Math.Max(0, damage), poison.Element);
         }
-        // Then its passives of the start of a turn, if it still stands (sprint 90).
+        // Then the glyphs under it, then its passives of the start of a turn (the order of T98), if it still stands (sprint 90).
+        if (!IsOver && next.IsAlive)
+            StrikeAt(next);
         if (!IsOver && next.IsAlive)
         {
             foreach (PassiveSpec p in next.Passives.Where(p => p.Trigger == Trigger.TurnStart))

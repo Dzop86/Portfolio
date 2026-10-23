@@ -640,6 +640,14 @@ public partial class Main : Node3D
             case Swapped w:
                 Vector3 atA = _views[w.A].Position, atB = _views[w.B].Position;
                 return Task.WhenAll(_views[w.A].Glide(atB, instant ? 0 : 0.3), _views[w.B].Glide(atA, instant ? 0 : 0.3));
+            // A glyph's rings on the board (sprint 130), in its element's colour; the damage that follows a strike shows as any.
+            case GlyphPlaced g:
+                Spell laid = _controller.Fight.Fighters[g.Caster].Spells.First(s => s.Id == g.Spell);
+                _board.AddGlyph(g.Glyph, g.Cells, new Color(ElementStyle.Colour(laid.AllEffects.OfType<GlyphEffect>().First().Element)));
+                return Task.CompletedTask;
+            case GlyphEnded g:
+                _board.RemoveGlyph(g.Glyph);
+                return Task.CompletedTask;
             case Healed h:
                 _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(ElementStyle.Heal), instant ? 0 : 0.9);
                 return Task.CompletedTask;
@@ -748,6 +756,9 @@ public partial class Main : Node3D
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
                 checks++;
             }
+            // The glyphs drawn are the fight's, each on all its cells (sprint 130).
+            if (!_board.GlyphsShown().OrderBy(g => g.Key).SequenceEqual(_controller.Fight.Glyphs.Select(g => KeyValuePair.Create(g.Id, g.Cells.Count))))
+                problems.Add($"the board draws glyphs {string.Join(",", _board.GlyphsShown().Keys)}, the fight has {string.Join(",", _controller.Fight.Glyphs.Select(g => g.Id))}");
             CheckReadability(problems, ref seenNumbers);
             if (_controller.IsPlayerTurn)
             {

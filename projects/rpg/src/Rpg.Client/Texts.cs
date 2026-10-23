@@ -175,6 +175,13 @@ public sealed class Texts
         ["effect.summon"] = "invoque {0}",
         ["effect.leap"] = "bond sur la case",
         ["effect.swap"] = "échange de place",
+        ["effect.glyph"] = "glyphe de {0} tour(s) : {1}",
+        ["effect.glyph-damage"] = "{0} à {1} dégâts, {2}",
+        ["card.glyph"] = "Glyphe de {0} ({1}) : {2}, {3} ; encore {4} tour(s)",
+        ["glyph.Enemies"] = "frappe ses ennemis",
+        ["glyph.Allies"] = "touche ses alliés",
+        ["glyph.All"] = "touche tout le monde",
+        ["log.glyph"] = "{0} : un glyphe frappe !",
         ["affects.Caster"] = " sur soi",
         ["affects.Allies"] = " aux alliés",
         ["affects.All"] = " à tous",
@@ -693,6 +700,13 @@ public sealed class Texts
         ["effect.summon"] = "summons {0}",
         ["effect.leap"] = "leap onto the cell",
         ["effect.swap"] = "swap places",
+        ["effect.glyph"] = "glyph for {0} turn(s): {1}",
+        ["effect.glyph-damage"] = "{0} to {1} damage, {2}",
+        ["card.glyph"] = "{0}'s glyph ({1}): {2}, {3}; {4} turn(s) left",
+        ["glyph.Enemies"] = "strikes its enemies",
+        ["glyph.Allies"] = "touches its allies",
+        ["glyph.All"] = "touches everyone",
+        ["log.glyph"] = "{0}: a glyph strikes!",
         ["affects.Caster"] = " on self",
         ["affects.Allies"] = " on allies",
         ["affects.All"] = " on everyone",
@@ -1143,6 +1157,30 @@ public sealed class Texts
         return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
     }
 
+    /// <summary>What a glyph does when it strikes (sprint 130): its damage, then its status.</summary>
+    private string GlyphDoes(GlyphEffect g)
+    {
+        var parts = new List<string>();
+        if (g.DamageMax > 0)
+            parts.Add(this["effect.glyph-damage", g.DamageMin, g.DamageMax, this["element." + g.Element]]);
+        if (g.AsStatus is StatusEffect st)
+            parts.Add(this["card.turns", Status(st.Stat, st.Value, st.Element), st.Turns]);
+        return string.Join(", ", parts);
+    }
+
+    /// <summary>
+    /// A glyph's card, on hovering one of its cells (sprint 130): its caster and spell, whom it strikes, what it
+    /// does, and its caster's turns left.
+    /// </summary>
+    public string GlyphCard(Core.Glyph g, Fight fight)
+    {
+        ArgumentNullException.ThrowIfNull(g);
+        ArgumentNullException.ThrowIfNull(fight);
+        Fighter caster = fight.Fighters[g.Caster];
+        string spell = caster.Spells.FirstOrDefault(s => s.Id == g.Spell)?.Name.In(Lang) ?? g.Spell;
+        return this["card.glyph", Name(caster), spell, this["glyph." + g.Effect.Affects], GlyphDoes(g.Effect), g.TurnsLeft];
+    }
+
     /// <summary>A spell's area and effects, each as a phrase ("zone : croix de 1", "soin 7 à 10 des alliés").</summary>
     private List<string> Effects(Spell s)
     {
@@ -1161,6 +1199,7 @@ public sealed class Texts
                 StatusEffect st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.Turns],
                 LeapEffect => this["effect.leap"],
                 SwapEffect => this["effect.swap"],
+                GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
             parts.Add(text + (e is SummonEffect or LeapEffect ? "" : this["affects." + e.Affects]));
@@ -1378,6 +1417,7 @@ public sealed class Texts
             PassiveTriggered p => this["log.passive", Name(fight.Fighters[p.Fighter]), fight.Fighters[p.Fighter].Passives.First(x => x.Id == p.Passive).Name.In(Lang)],
             Leaped l => this["log.leap", Name(fight.Fighters[l.Fighter])],
             Swapped w => this["log.swap", Name(fight.Fighters[w.A]), Name(fight.Fighters[w.B])],
+            GlyphTriggered g => this["log.glyph", Name(fight.Fighters[g.Fighter])],
             _ => null,
         };
     }

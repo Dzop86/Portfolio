@@ -263,7 +263,7 @@ public partial class JobsPanel : CanvasLayer
             tile.TooltipText = ItemMenu.Tooltip(item, Texts);
         }
         else
-            (icon.Glyph, icon.Faint) = (Glyph.Leaf, true);
+            (icon.Glyph, icon.Faint) = (Rpg.Client.Glyph.Leaf, true);
         line.AddChild(tile);
         string name = r.Item?.Name.In(Texts.Lang) ?? "?";
         line.AddChild(new Label { Text = $"{Texts["jobs.level", r.Level]} · {name} · {r.Where}" + (r.Item is null ? "" : " · " + Texts["jobs.owned", r.Owned]), VerticalAlignment = VerticalAlignment.Center });

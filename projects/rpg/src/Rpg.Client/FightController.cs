@@ -103,14 +103,14 @@ public sealed class FightController(Fight fight, int playerTeam = 0, SharedFight
         }
         var reachable = Fight.ReachableCells().Keys.Where(c => c != me.Cell).ToHashSet();
         IReadOnlyList<Cell> path = hovered is Cell to && reachable.Contains(to)
-            ? Pathfinding.FindPath(Fight.Board, me.Cell, to, Fight.IsFree) ?? []
+            ? Fight.PathTo(to) ?? []
             : [];
         return new Preview(reachable, path, new HashSet<Cell>(), new HashSet<Cell>(), null);
     }
 
     /// <summary>
     /// The hover panel for <paramref name="hovered"/>: with a spell aimed there, what it would do to
-    /// each fighter of its area; then the card of the fighter standing there. Null when nothing is there.
+    /// each fighter of its area; then the card of the fighter standing there, then its glyphs. Null when nothing is there.
     /// </summary>
     public string? Info(Cell? hovered, Texts texts)
     {
@@ -122,6 +122,8 @@ public sealed class FightController(Fight fight, int playerTeam = 0, SharedFight
             parts.Add(texts.Forecast(forecasts));
         if (Fight.Board.Contains(cell) && Fight.At(cell) is Fighter f)
             parts.Add(texts.FighterCard(f, Fight));
+        // The glyphs on the cell (sprint 130): what each does, and for how long.
+        parts.AddRange(Fight.GlyphsAt(cell).Select(g => texts.GlyphCard(g, Fight)));
         return parts.Count == 0 ? null : string.Join("\n\n", parts);
     }
 

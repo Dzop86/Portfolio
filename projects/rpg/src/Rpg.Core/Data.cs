@@ -623,12 +623,22 @@ public sealed class GameData
                 LeapEffect l => l.Affects == Affects.Caster && s.Zone.Shape == AreaShape.Point,
                 SwapEffect w => w.Affects is not (Affects.Caster or Affects.Attacker) && s.Zone.Shape == AreaShape.Point,
                 SummonEffect sm => sm.Count == 1 && ValidEffect(e),
+                GlyphEffect g => ValidGlyph(g),
                 _ => e.Affects != Affects.Attacker && ValidEffect(e),
             };
             if (!ok)
                 throw new InvalidDataException($"Spell '{s.Id}': effect {e} out of bounds.");
         }
     }
+
+    /// <summary>
+    /// A glyph (sprint 130): on enemies, allies or all, for 1 to 10 turns, with damage, a status or both, each in
+    /// the bounds of a spell's; a spell's only, never a passive's.
+    /// </summary>
+    private bool ValidGlyph(GlyphEffect g) =>
+        g.Affects is Affects.Enemies or Affects.Allies or Affects.All && g.Turns is >= 1 and <= 10
+        && g.DamageMin >= 0 && g.DamageMax >= g.DamageMin && (g.DamageMax > 0 || g.Status is not null)
+        && (g.AsStatus is not StatusEffect st ? g.Value == 0 && g.StatusTurns == 0 : ValidEffect(st));
 
     private static bool ValidArea(Area a) => a.Radius is >= 0 and <= 5 && (a.Shape == AreaShape.Point) == (a.Radius == 0);
 

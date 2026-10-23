@@ -27,6 +27,12 @@ public static class Ai
     /// <summary>Team play (sprint 122): the part of the damage lost for each monster a hit would alert (a passive like the bees' Alarm).</summary>
     internal const double AlertPenalty = 0.1;
 
+    /// <summary>The part of a glyph's worth the AI counts when laying it (sprint 130): the fighter on it may walk away.</summary>
+    internal const double GlyphOdds = 0.6;
+
+    /// <summary>What one step closer to an enemy is worth against a glyph's damage, when the AI only walks (sprint 130).</summary>
+    internal const double StepWorth = 4;
+
     // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Fight, Tuple<int, int, HashSet<int>>> HitThisRound = [];
 
@@ -45,14 +51,16 @@ public static class Ai
         IReadOnlyDictionary<Cell, int> reachable = fight.ReachableCells();
 
         // Walk where the turn is worth the most, then the shortest walk; with a cast possible here,
-        // only for a turn worth much more.
+        // only for a turn worth much more. The glyphs that would strike on the way or there count against
+        // a cell, those under the fighter against staying (sprint 130).
         Cell? best = null;
-        double bestValue = here is var (_, _, _, t) ? t * StepAwayGain : 0;
+        double stay = GlyphRisk(fight, me, me.Cell);
+        double bestValue = (here is var (_, _, _, t) ? t * StepAwayGain : 0) - stay;
         foreach ((Cell cell, _) in Ordered(reachable))
         {
-            if (BestTurn(fight, me, cell) is (_, _, _, double value) && value > bestValue)
+            if (BestTurn(fight, me, cell) is (_, _, _, double value) && value - GlyphRisk(fight, me, cell) > bestValue)
             {
-                (best, bestValue) = (cell, value);
+                (best, bestValue) = (cell, value - GlyphRisk(fight, me, cell));
             }
         }
         // A leap is a walk (sprint 90): taken when the turn from where it lands, with the action points
@@ -64,21 +72,34 @@ public static class Ai
         if (here is var (castSpell, castTarget, _, _))
             return new CastAction(castSpell.Id, castTarget);
 
-        // Nothing left to cast this turn: stay, so that a ranged fighter keeps its distance.
+        // Nothing left to cast this turn: stay, so that a ranged fighter keeps its distance; off a glyph
+        // that would strike it at its next turn, to the nearest cell that costs less (sprint 130).
         if (!me.Spells.Any(sp => sp.ApCost <= me.Ap && me.CastsLeft(sp) > 0 && me.CooldownLeft(sp) == 0))
-            return new EndTurnAction();
+        {
+            Cell? safer = null;
+            double safest = stay;
+            foreach ((Cell cell, _) in Ordered(reachable))
+            {
+                if (GlyphRisk(fight, me, cell) < safest)
+                    (safer, safest) = (cell, GlyphRisk(fight, me, cell));
+            }
+            return safer is Cell off ? new MoveAction(off) : new EndTurnAction();
+        }
 
-        // Nothing in reach: get closer, counting real walks around obstacles.
+        // Nothing in reach: get closer, counting real walks around obstacles, and the glyphs on the way (sprint 130).
         IReadOnlyDictionary<Cell, int> toEnemy = WalkingDistanceToEnemies(fight, me);
         int distance = toEnemy.GetValueOrDefault(me.Cell, int.MaxValue);
         Cell? closer = null;
-        int closest = distance;
+        double closest = distance == int.MaxValue ? double.MaxValue : distance * StepWorth + stay;
         foreach ((Cell cell, _) in Ordered(reachable))
         {
             int d = toEnemy.GetValueOrDefault(cell, int.MaxValue);
-            if (d < closest)
+            if (d == int.MaxValue)
+                continue;
+            double score = d * StepWorth + GlyphRisk(fight, me, cell);
+            if (score < closest)
             {
-                (closer, closest) = (cell, d);
+                (closer, closest) = (cell, score);
             }
         }
         return closer is Cell step ? new MoveAction(step) : new EndTurnAction();
@@ -165,15 +186,47 @@ public static class Ai
                 .OrderBy(c => c.DistanceTo(me.Cell)).ThenBy(c => c.Y).ThenBy(c => c.X)];
             foreach (Cell landing in cells)
             {
-                if (BestTurn(fight, me, landing, me.Ap - leap.ApCost) is (_, _, _, double value) && value > toBeat)
+                if (BestTurn(fight, me, landing, me.Ap - leap.ApCost) is (_, _, _, double value) && value - GlyphRisk(fight, me, landing, [landing]) > toBeat)
                 {
                     best = (leap, landing);
-                    toBeat = value;
+                    toBeat = value - GlyphRisk(fight, me, landing, [landing]);
                 }
             }
         }
         return best;
     }
+
+    /// <summary>
+    /// What the glyphs would cost <paramref name="me"/> going to <paramref name="to"/> (sprint 130): each glyph that
+    /// would strike it on the cells it would walk (the board's path, or <paramref name="way"/>) and has not struck it
+    /// this turn, once; then each one on <paramref name="to"/> again, at the start of its next turn. 0 without glyphs.
+    /// </summary>
+    internal static double GlyphRisk(Fight fight, Fighter me, Cell to, IReadOnlyList<Cell>? way = null)
+    {
+        Glyph[] hostile = [.. fight.Glyphs.Where(g => fight.Strikes(g, me))];
+        if (hostile.Length == 0)
+            return 0;
+        IReadOnlyList<Cell> path = way ?? (to == me.Cell ? [] : fight.PathTo(to) ?? []);
+        double risk = hostile.Where(g => !g.Struck.Contains(me.Id) && path.Any(g.Cells.Contains)).Sum(g => GlyphWorth(fight, g, me));
+        return risk + hostile.Where(g => g.Cells.Contains(to)).Sum(g => GlyphWorth(fight, g, me));
+    }
+
+    /// <summary>What a glyph striking <paramref name="f"/> once is worth: its average damage, at most the hit points, and its status.</summary>
+    private static double GlyphWorth(Fight fight, Glyph g, Fighter f)
+    {
+        Fighter caster = fight.Fighters[g.Caster];
+        GlyphEffect e = g.Effect;
+        double hit = Math.Min(e.AverageDamage * (100 + caster.Spec.Characteristics.For(e.Element) + caster.DamageBonusFor(e.Element)) * (100 - f.Resistance(e.Element)) / 10_000, f.Hp + f.Shield);
+        return hit + (e.AsStatus is StatusEffect st ? StatusWorth(st, f) : 0);
+    }
+
+    /// <summary>A status's worth on a fighter, whichever side it is on: what <see cref="Value"/> counts for it.</summary>
+    private static double StatusWorth(StatusEffect st, Fighter f) => st.Stat switch
+    {
+        Stat.Poison => 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
+        Stat.Ap or Stat.Mp => -2.0 * st.Value * st.Turns,
+        _ => -0.05 * st.Value * st.Turns,
+    };
 
     /// <summary>A spell that trades places with an ally or pulls one (sprint 90).</summary>
     private static bool MovesAnAlly(Spell spell) =>
@@ -355,6 +408,9 @@ public static class Ai
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },
                     PushEffect or PullEffect => -sign * 1.0,
+                    // A glyph under a fighter strikes at its next turn, unless it walks away (sprint 130).
+                    GlyphEffect g => -sign * GlyphOdds * (Math.Min(g.AverageDamage * (100 + me.Spec.Characteristics.For(g.Element) + me.DamageBonusFor(g.Element)) * (100 - f.Resistance(g.Element)) / 10_000, f.Hp)
+                        + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
                     _ => 0,
                 };
             }

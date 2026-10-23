@@ -118,6 +118,7 @@ public enum Stat
 [JsonDerivedType(typeof(SummonEffect), "summon")]
 [JsonDerivedType(typeof(LeapEffect), "leap")]
 [JsonDerivedType(typeof(SwapEffect), "swap")]
+[JsonDerivedType(typeof(GlyphEffect), "glyph")]
 public abstract record SpellEffect(Affects Affects);
 
 /// <summary>Gives back hit points, never above the maximum.</summary>
@@ -150,6 +151,50 @@ public sealed record LeapEffect(Affects Affects) : SpellEffect(Affects);
 
 /// <summary>The caster and the fighter on the target cell trade places (sprint 90).</summary>
 public sealed record SwapEffect(Affects Affects) : SpellEffect(Affects);
+
+/// <summary>
+/// A glyph (sprint 130, T98): the floor cells of the spell's area are marked for <see cref="Turns"/> of the
+/// caster's turns. It strikes a fighter it <see cref="SpellEffect.Affects"/> who walks onto one of its cells,
+/// lands there (push, pull, leap, swap) or starts its turn there: damage in <see cref="Element"/>, a status,
+/// or both; once per turn of play for each fighter. It vanishes with its caster, and a new glyph of the same
+/// spell and caster replaces the old one.
+/// </summary>
+/// <param name="Status">The status it sets, if any, with <paramref name="Value"/> for <paramref name="StatusTurns"/> turns.</param>
+public sealed record GlyphEffect(Affects Affects, int Turns, int DamageMin = 0, int DamageMax = 0, Element Element = Element.Neutral,
+    Stat? Status = null, int Value = 0, int StatusTurns = 0) : SpellEffect(Affects)
+{
+    /// <summary>The status the glyph sets, as a spell's status effect, or null.</summary>
+    public StatusEffect? AsStatus => Status is Stat stat ? new StatusEffect(Affects, stat, Value, StatusTurns, Element) : null;
+
+    public double AverageDamage => (DamageMin + DamageMax) / 2.0;
+}
+
+/// <summary>A glyph on the board during a fight (sprint 130): its cells, its caster and spell, and its caster's turns left.</summary>
+public sealed class Glyph
+{
+    internal Glyph(int id, int caster, string spell, IReadOnlyList<Cell> cells, GlyphEffect effect)
+    {
+        Id = id;
+        Caster = caster;
+        Spell = spell;
+        Cells = cells;
+        Effect = effect;
+        TurnsLeft = effect.Turns;
+    }
+
+    /// <summary>Its number in the fight, in the order glyphs were laid: the same in a replay.</summary>
+    public int Id { get; }
+    public int Caster { get; }
+    public string Spell { get; }
+    public IReadOnlyList<Cell> Cells { get; }
+    public GlyphEffect Effect { get; }
+
+    /// <summary>Counted down at the start of each of its caster's turns; it vanishes at 0.</summary>
+    public int TurnsLeft { get; internal set; }
+
+    /// <summary>The fighters it struck during the turn being played: once each.</summary>
+    internal readonly HashSet<int> Struck = [];
+}
 
 /// <summary>When a passive fires (sprint 90, D69).</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Trigger>))]

@@ -15,6 +15,9 @@ public partial class BoardView : Node3D
     private readonly Dictionary<Cell, MeshInstance3D> _overlays = [];
     private readonly Dictionary<string, StandardMaterial3D> _marks = [];
 
+    // The glyphs drawn (sprint 130), by id: a glowing ring on each of their cells.
+    private readonly Dictionary<int, List<MeshInstance3D>> _glyphs = [];
+
     public static Vector3 ToWorld(Cell c) => new(c.X, 0, c.Y);
 
     public int Tiles { get; private set; }
@@ -69,6 +72,47 @@ public partial class BoardView : Node3D
     /// <summary>The marks shown, by kind: what the self-test checks against the preview.</summary>
     public IReadOnlyDictionary<Cell, string> Shown() =>
         _overlays.Where(o => o.Value.Visible).ToDictionary(o => o.Key, o => _marks.First(m => m.Value == o.Value.MaterialOverride).Key);
+
+    /// <summary>Draws a glyph (sprint 130): a ring of its element's colour on each cell, under the preview's marks.</summary>
+    public void AddGlyph(int id, IReadOnlyList<Cell> cells, Color colour)
+    {
+        ArgumentNullException.ThrowIfNull(cells);
+        RemoveGlyph(id);
+        var material = new StandardMaterial3D
+        {
+            AlbedoColor = colour with { A = 0.8f },
+            EmissionEnabled = true,
+            Emission = colour,
+            EmissionEnergyMultiplier = 1.5f,
+            Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+        };
+        var rings = new List<MeshInstance3D>();
+        foreach (Cell c in cells)
+        {
+            var ring = new MeshInstance3D
+            {
+                Mesh = new TorusMesh { InnerRadius = 0.3f, OuterRadius = 0.4f },
+                MaterialOverride = material,
+                Position = ToWorld(c) + new Vector3(0, 0.015f, 0),
+                Scale = new Vector3(1, 0.15f, 1),
+            };
+            AddChild(ring);
+            rings.Add(ring);
+        }
+        _glyphs[id] = rings;
+    }
+
+    public void RemoveGlyph(int id)
+    {
+        if (!_glyphs.Remove(id, out List<MeshInstance3D>? rings))
+            return;
+        foreach (MeshInstance3D ring in rings)
+            ring.QueueFree();
+    }
+
+    /// <summary>The glyphs drawn, by id, with their cells: what the self-test checks against the fight.</summary>
+    public IReadOnlyDictionary<int, int> GlyphsShown() => _glyphs.ToDictionary(g => g.Key, g => g.Value.Count);
 
     /// <summary>The cell under a point of the screen, found where the camera's ray meets the ground.</summary>
     public static Cell? Pick(Camera3D camera, Vector2 screen)
