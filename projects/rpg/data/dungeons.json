@@ -334,5 +334,89 @@
         }
       }
     ]
+  },
+  {
+    "id": "bellowing-combe",
+    "name": {
+      "fr": "Combe du brame",
+      "en": "The Bellowing Combe"
+    },
+    "family": "stag",
+    "map": "ancestors-0-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "bellowing-combe-key",
+    "rooms": [
+      "dungeon-stag-1",
+      "dungeon-stag-2",
+      "dungeon-stag-3"
+    ],
+    "halls": [
+      {
+        "map": "bellowing-combe-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "bellowing-combe-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "bellowing-combe-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "mother-tree-roots",
+    "name": {
+      "fr": "Racines de l'Arbre-Mère",
+      "en": "The Mother Tree's Roots"
+    },
+    "family": "golem",
+    "map": "ancestors-4-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "mother-tree-roots-key",
+    "rooms": [
+      "dungeon-golem-1",
+      "dungeon-golem-2",
+      "dungeon-golem-3"
+    ],
+    "halls": [
+      {
+        "map": "mother-tree-roots-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mother-tree-roots-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mother-tree-roots-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
+    ]
   }
 ]

@@ -129,6 +129,36 @@
           }
         ],
         "shards": 150
+      },
+      {
+        "item": "bellowing-combe-key",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "stone-antler",
+            "count": 6
+          },
+          {
+            "item": "stag-velvet",
+            "count": 4
+          }
+        ],
+        "shards": 225
+      },
+      {
+        "item": "mother-tree-roots-key",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "mossy-cobble",
+            "count": 6
+          },
+          {
+            "item": "keeper-moss",
+            "count": 4
+          }
+        ],
+        "shards": 225
       }
     ]
   },

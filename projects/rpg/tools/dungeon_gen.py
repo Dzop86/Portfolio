@@ -30,6 +30,9 @@ DUNGEONS = O([
     ("crab", ("crab-reef", text("Récif des pinces", "The Pincer Reef"), text("Clef du récif", "Reef Key"))),
     ("bee", ("royal-hive", text("Ruche royale", "The Royal Hive"), text("Clef de la ruche", "Hive Key"))),
     ("mole", ("mole-burrows", text("Galeries des taupes", "The Mole Burrows"), text("Clef des galeries", "Burrow Key"))),
+    # The Forest of the Ancestors (sprint 134): the scriptwriter's names, the keepers under the Mother Tree.
+    ("stag", ("bellowing-combe", text("Combe du brame", "The Bellowing Combe"), text("Clef de la combe", "Combe Key"))),
+    ("golem", ("mother-tree-roots", text("Racines de l'Arbre-Mère", "The Mother Tree's Roots"), text("Clef des racines", "Root Key"))),
 ])
 ROOMS = (text("Antichambre", "Antechamber"), text("Grande salle", "Great Hall"), text("Salle du chef", "Chief's Hall"))
 
@@ -163,7 +166,12 @@ for n, f in enumerate(families):
     halls = []
     for r in range(1, 4):
         hid = f"{did}-{r}"
-        open(f"{root}/towns/{hid}.json", "w").write(json.dumps(hall(hid, did, name, r, town["level"], f["bossMap"], (dx, dy + 1)), ensure_ascii=False, indent=2) + "\n")
+        h = hall(hid, did, name, r, town["level"], f["bossMap"], (dx, dy + 1))
+        # The props laid in a hall by tools/zone_people.py (the crypt's seal, sprint 114) stay where they are.
+        path = f"{root}/towns/{hid}.json"
+        if os.path.exists(path) and "props" in (before := json.load(open(path))):
+            h["props"] = before["props"]
+        open(path, "w").write(json.dumps(h, ensure_ascii=False, indent=2) + "\n")
         halls.append(O([("map", hid), ("group", O([("x", HALL_GROUP[0]), ("y", HALL_GROUP[1])]))]))
     dungeons.append(O([("id", did), ("name", name), ("family", f["id"]), ("map", f["bossMap"]), ("door", O([("x", dx), ("y", dy)])),
                        ("key", f"{did}-key"), ("rooms", rooms), ("halls", halls)]))
@@ -172,7 +180,7 @@ items.append(O([("id", "admin-keyring"), ("name", text("Trousseau d'administrate
 # The key, rarely left by the family's monsters (sprint 81): one in fifty, one in ten for the chief.
 KEY_PERCENT, CHIEF_KEY_PERCENT = 2, 10
 # The locksmith's recipes: the key of each dungeon, from the family's two resources.
-RECIPE_LEVEL = {"woods": 1, "mouldy": 10, "lake": 20, "fields": 30}
+RECIPE_LEVEL = {"woods": 1, "mouldy": 10, "lake": 20, "fields": 30, "ancestors": 40}
 kinds = {i["id"]: i["kind"] for i in items}
 recipes = []
 for f, d in zip(families, dungeons):
@@ -187,8 +195,7 @@ for f, d in zip(families, dungeons):
                       ("shards", 5 * chief["level"])]))
 open(f"{root}/monsters.json", "w").write(json.dumps(families, ensure_ascii=False, indent=2) + "\n")
 # The other trades (sprint 99: the gathering ones, written by tools/trades_gen.py) are kept as they are.
-# The tutorial's palisade stake (sprint 107, docs/textes-v5.md §10.6: no forge yet, the locksmith's bench shapes it).
-recipes.append(O([("item", "palisade-stake"), ("level", 1), ("ingredients", [O([("item", "oak-log"), ("count", 3)]), O([("item", "copper-ore"), ("count", 2)])])]))
+# The tutorial's palisade stake was the locksmith's until sprint 109: tools/craft_gen.py gives it to the smith.
 others = [j for j in json.load(open(f"{root}/jobs.json")) if j["id"] != "locksmith"] if os.path.exists(f"{root}/jobs.json") else []
 jobs = [O([("id", "locksmith"), ("name", text("Serrurier", "Locksmith")), ("workshop", text("Établi du serrurier", "Locksmith's bench")), ("recipes", recipes)])] + others
 open(f"{root}/jobs.json", "w").write(json.dumps(jobs, ensure_ascii=False, indent=2) + "\n")

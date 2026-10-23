@@ -71,6 +71,9 @@ public class PartyBalanceTests
     [InlineData("dungeon:mole-burrows:3")]
     [InlineData("group:ancestors-0-4.0")]
     [InlineData("group:ancestors-4-4.0")]
+    // The forest's dungeons (sprint 134).
+    [InlineData("dungeon:bellowing-combe:3")]
+    [InlineData("dungeon:mother-tree-roots:3")]
     public void AChief_OrADungeonsLastRoom_FallsToThree_AndToFour(string scenario)
     {
         // §6.4 and §11.2.1: 70 % at least for three, 90 % for four.

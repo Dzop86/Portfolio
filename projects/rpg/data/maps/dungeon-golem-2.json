@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-golem-2",
+  "name": {
+    "fr": "Racines de l'Arbre-Mère : grande salle",
+    "en": "The Mother Tree's Roots: Great Hall"
+  },
+  "rows": [
+    "..#......B.",
+    ".A.....#..B",
+    "....##..B..",
+    "....##....B",
+    ".A.......B.",
+    "..#.....#.B",
+    ".A.......B.",
+    "....##....B",
+    "....##..B..",
+    ".A.....#..B",
+    "..#........"
+  ]
+}

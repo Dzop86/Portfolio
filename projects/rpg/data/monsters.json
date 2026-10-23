@@ -2062,6 +2062,10 @@
           {
             "item": "antler-circlet",
             "percent": 8
+          },
+          {
+            "item": "bellowing-combe-key",
+            "percent": 2
           }
         ]
       },
@@ -2097,6 +2101,10 @@
           {
             "item": "hind-cape",
             "percent": 8
+          },
+          {
+            "item": "bellowing-combe-key",
+            "percent": 2
           }
         ]
       },
@@ -2133,6 +2141,10 @@
           {
             "item": "stonehoof-boots",
             "percent": 8
+          },
+          {
+            "item": "bellowing-combe-key",
+            "percent": 2
           }
         ]
       },
@@ -2169,6 +2181,10 @@
           {
             "item": "stag-velvet",
             "percent": 50
+          },
+          {
+            "item": "bellowing-combe-key",
+            "percent": 2
           }
         ]
       },
@@ -2225,6 +2241,10 @@
           {
             "item": "stonehoof-boots",
             "percent": 8
+          },
+          {
+            "item": "bellowing-combe-key",
+            "percent": 10
           }
         ]
       }
@@ -2280,6 +2300,10 @@
           {
             "item": "cobble-belt",
             "percent": 8
+          },
+          {
+            "item": "mother-tree-roots-key",
+            "percent": 2
           }
         ]
       },
@@ -2315,6 +2339,10 @@
           {
             "item": "moss-ring",
             "percent": 8
+          },
+          {
+            "item": "mother-tree-roots-key",
+            "percent": 2
           }
         ]
       },
@@ -2351,6 +2379,10 @@
           {
             "item": "slab-shield",
             "percent": 8
+          },
+          {
+            "item": "mother-tree-roots-key",
+            "percent": 2
           }
         ]
       },
@@ -2387,6 +2419,10 @@
           {
             "item": "keeper-moss",
             "percent": 50
+          },
+          {
+            "item": "mother-tree-roots-key",
+            "percent": 2
           }
         ]
       },
@@ -2443,6 +2479,10 @@
           {
             "item": "slab-shield",
             "percent": 8
+          },
+          {
+            "item": "mother-tree-roots-key",
+            "percent": 10
           }
         ]
       }

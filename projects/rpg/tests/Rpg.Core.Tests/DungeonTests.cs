@@ -10,8 +10,7 @@ public class DungeonTests
     [Fact]
     public void EveryFamily_HasItsDungeon_ItsDoorOnTheChiefsMap_ItsKeyAndThreeRoomsOfItsOwn()
     {
-        // The forest's families have theirs from sprint 134.
-        Assert.Equal(Real.Families.Values.Where(f => f.Zone != "ancestors").Select(f => f.Id).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
+        Assert.Equal(Real.Families.Values.Select(f => f.Id).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
         Assert.Equal(Real.Dungeons.Count * Dungeons.RoomCount, Real.Dungeons.Values.SelectMany(d => d.Rooms).Distinct().Count());
         foreach (Dungeon d in Real.Dungeons.Values)
         {
@@ -26,6 +25,21 @@ public class DungeonTests
         Assert.Equal(ItemKind.Quest, Real.Items[Dungeons.Keyring].Kind);
         // The keyring is the operator's: no monster leaves it.
         Assert.DoesNotContain(Real.Monsters.Values, m => (m.Loot ?? []).Any(l => l.Item == Dungeons.Keyring));
+    }
+
+    [Theory]
+    [InlineData("bellowing-combe", "stag", "Combe du brame", "stone-antler", "stag-velvet")]
+    [InlineData("mother-tree-roots", "golem", "Racines de l'Arbre-Mère", "mossy-cobble", "keeper-moss")]
+    public void TheForestsDungeons_TheKeepersUnderTheMotherTree_TheirKeysAtTheLocksmithAt40(string id, string family, string name, string first, string second)
+    {
+        // Sprint 134 (D79 §11.6, T102): the scriptwriter's names; the key from the family's two resources, at level 40,
+        // 5 Éclats a level of the chief; left by the commons one time in fifty, by the chief one time in ten.
+        Dungeon d = Real.Dungeons[id];
+        Assert.Equal((family, name, $"{id}-key"), (d.Family, d.Name.Fr, d.Key));
+        Recipe key = Real.Jobs["locksmith"].RecipeFor(d.Key)!;
+        Assert.Equal((40, 225L), (key.Level, key.Shards));
+        Assert.Equal([new ItemCount(first, 6), new ItemCount(second, 4)], key.Ingredients);
+        Assert.All(Real.Families[family].Monsters, m => Assert.Equal(m.Role == MonsterRole.Boss ? 10 : 2, m.Loot!.Single(l => l.Item == d.Key).Percent));
     }
 
     [Fact]

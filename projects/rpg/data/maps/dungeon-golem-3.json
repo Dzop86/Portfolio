@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-golem-3",
+  "name": {
+    "fr": "Racines de l'Arbre-Mère : salle du chef",
+    "en": "The Mother Tree's Roots: Chief's Hall"
+  },
+  "rows": [
+    "...........",
+    "....#....B.",
+    ".A..#.#....",
+    ".......#..B",
+    "...##......",
+    "A.A.....B.B",
+    "...##......",
+    ".......#..B",
+    ".A..#.#....",
+    "....#....B.",
+    "..........."
+  ]
+}

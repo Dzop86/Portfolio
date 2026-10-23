@@ -195,5 +195,7 @@
   { "id": "crab-reef-key", "name": { "fr": "Clef du récif", "en": "Reef Key" }, "kind": "Resource", "icon": "delapouite/boss-key" },
   { "id": "royal-hive-key", "name": { "fr": "Clef de la ruche", "en": "Hive Key" }, "kind": "Resource", "icon": "delapouite/boss-key" },
   { "id": "mole-burrows-key", "name": { "fr": "Clef des galeries", "en": "Burrow Key" }, "kind": "Resource", "icon": "delapouite/boss-key" },
+  { "id": "bellowing-combe-key", "name": { "fr": "Clef de la combe", "en": "Combe Key" }, "kind": "Resource", "icon": "delapouite/boss-key" },
+  { "id": "mother-tree-roots-key", "name": { "fr": "Clef des racines", "en": "Root Key" }, "kind": "Resource", "icon": "delapouite/boss-key" },
   { "id": "admin-keyring", "name": { "fr": "Trousseau d'administrateur", "en": "Operator's Keyring" }, "kind": "Quest", "icon": "delapouite/keyring" }
 ]

@@ -37,9 +37,9 @@ public class ForestTests
         Assert.All(up, l => Assert.Equal((0, house.Rows.Count - 2), (l.At.Y, l.Arrival.Y)));
         Assert.All(down, l => Assert.Equal("Forêt des Aïeux", l.Name!.Fr));
         Assert.All(up, l => Assert.Equal("Four Ways", l.Name!.En));
-        // The only ways between the forest and the rest of the world.
-        Assert.Equal(6, Real.Towns.Values.SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
-            .Count(w => (w.From.Zone == "ancestors") != (Real.Towns[w.To].Zone == "ancestors")));
+        // The only ways between the forest and the rest of the world (a dungeon's halls, from sprint 134, are not of it).
+        Assert.Equal(6, Real.Towns.Values.Where(t => t.Dungeon is null).SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
+            .Count(w => (w.From.Zone == "ancestors") != (Real.Towns[w.To].Zone == "ancestors") && Real.Towns[w.To].Dungeon is null));
     }
 
     [Fact]

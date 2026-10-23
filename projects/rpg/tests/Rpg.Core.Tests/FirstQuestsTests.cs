@@ -93,7 +93,8 @@ public class FirstQuestsTests
         Assert.All(side.Where(q => q.Zone == "mouldy"), q => Assert.Equal("mouldy/barnabe", q.Giver));
         Assert.All(side.Where(q => q.Zone == "lake"), q => Assert.Equal("lake/liane", q.Giver));
         Assert.All(side.Where(q => q.Zone == "fields"), q => Assert.Equal("fields/eglantine", q.Giver));
-        foreach (Dungeon d in Real.Dungeons.Values)
+        // The forest's dungeons (sprint 134) get theirs with its quests too.
+        foreach (Dungeon d in Real.Dungeons.Values.Where(d => Real.Families[d.Family].Zone != "ancestors"))
         {
             Quest q = Real.Quests[d.Id + "-cleared"];
             Assert.Equal([new QuestObjective(QuestGoal.Dungeon, d.Id)], q.Objectives!);

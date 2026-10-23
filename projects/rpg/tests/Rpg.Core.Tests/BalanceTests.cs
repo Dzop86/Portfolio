@@ -170,4 +170,22 @@ public class BalanceTests
         int wins = Results(Real.Dungeons["boar-wallow"].Scenario(2), 100, hero)[0];
         Assert.True(wins >= 70, $"{id}: {wins} of 100 in the great hall at level {quest.Level}");
     }
+
+    [Theory]
+    [InlineData("stag", "sentinel")]
+    [InlineData("stag", "guard")]
+    [InlineData("stag", "mage")]
+    [InlineData("golem", "sentinel")]
+    [InlineData("golem", "guard")]
+    [InlineData("golem", "mage")]
+    public void AForestDungeonsGreatHall_IsWonAloneAtLevel41(string family, string id)
+    {
+        // Sprint 134 (D79, §11.6, T102): the rule of §2, the great hall at least 7 times in 10 alone, with nothing
+        // worn, at the level of the quest that will ask for it: 41 rather than the 40 of docs/chapitre-2-pistes.md §5,
+        // where the guard won the Roots' 59 times in 100 (the rule raises the quest, it does not weaken the room).
+        Dungeon dungeon = Real.Dungeons.Values.Single(d => d.Family == family);
+        var hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 41), Real);
+        int wins = Results(dungeon.Scenario(2), 100, hero)[0];
+        Assert.True(wins >= 70, $"{id}: {wins} of 100 in {dungeon.Id}'s great hall at level 41");
+    }
 }
