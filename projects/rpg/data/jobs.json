@@ -638,6 +638,44 @@
           }
         ],
         "shards": 30
+      },
+      {
+        "item": "granite-warhammer",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "hornbeam-log",
+            "count": 21
+          },
+          {
+            "item": "granite",
+            "count": 9
+          },
+          {
+            "item": "stone-antler",
+            "count": 5
+          }
+        ],
+        "shards": 68
+      },
+      {
+        "item": "elm-pavise",
+        "level": 45,
+        "ingredients": [
+          {
+            "item": "elm-log",
+            "count": 14
+          },
+          {
+            "item": "malachite",
+            "count": 7
+          },
+          {
+            "item": "mossy-cobble",
+            "count": 5
+          }
+        ],
+        "shards": 38
       }
     ]
   },
@@ -803,6 +841,44 @@
           }
         ],
         "shards": 30
+      },
+      {
+        "item": "spelt-doublet",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "spelt",
+            "count": 14
+          },
+          {
+            "item": "sage",
+            "count": 6
+          },
+          {
+            "item": "stag-velvet",
+            "count": 4
+          }
+        ],
+        "shards": 34
+      },
+      {
+        "item": "sorghum-hood",
+        "level": 45,
+        "ingredients": [
+          {
+            "item": "sorghum",
+            "count": 14
+          },
+          {
+            "item": "mandrake",
+            "count": 7
+          },
+          {
+            "item": "keeper-moss",
+            "count": 5
+          }
+        ],
+        "shards": 38
       }
     ]
   },
@@ -968,6 +1044,44 @@
           }
         ],
         "shards": 30
+      },
+      {
+        "item": "granite-ring",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "granite",
+            "count": 14
+          },
+          {
+            "item": "trout",
+            "count": 6
+          },
+          {
+            "item": "stone-antler",
+            "count": 4
+          }
+        ],
+        "shards": 34
+      },
+      {
+        "item": "malachite-amulet",
+        "level": 45,
+        "ingredients": [
+          {
+            "item": "malachite",
+            "count": 14
+          },
+          {
+            "item": "catfish",
+            "count": 7
+          },
+          {
+            "item": "mossy-cobble",
+            "count": 5
+          }
+        ],
+        "shards": 38
       }
     ]
   },
@@ -1133,6 +1247,44 @@
           }
         ],
         "shards": 30
+      },
+      {
+        "item": "trout-skin-boots",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "trout",
+            "count": 14
+          },
+          {
+            "item": "hornbeam-log",
+            "count": 6
+          },
+          {
+            "item": "stag-velvet",
+            "count": 4
+          }
+        ],
+        "shards": 34
+      },
+      {
+        "item": "catfish-belt",
+        "level": 45,
+        "ingredients": [
+          {
+            "item": "catfish",
+            "count": 14
+          },
+          {
+            "item": "elm-log",
+            "count": 7
+          },
+          {
+            "item": "keeper-moss",
+            "count": 5
+          }
+        ],
+        "shards": 38
       }
     ]
   },
@@ -1206,6 +1358,21 @@
           }
         ],
         "shards": 13
+      },
+      {
+        "item": "greater-healing-elixir",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "sage",
+            "count": 8
+          },
+          {
+            "item": "trout",
+            "count": 4
+          }
+        ],
+        "shards": 17
       }
     ]
   },
@@ -1328,6 +1495,34 @@
           },
           {
             "item": "lavender",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "spelt-bread",
+        "level": 40,
+        "ingredients": [
+          {
+            "item": "spelt",
+            "count": 3
+          },
+          {
+            "item": "sage",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "sorghum-flatbread",
+        "level": 45,
+        "ingredients": [
+          {
+            "item": "sorghum",
+            "count": 3
+          },
+          {
+            "item": "mandrake",
             "count": 1
           }
         ]

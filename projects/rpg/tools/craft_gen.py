@@ -18,10 +18,11 @@ O = collections.OrderedDict
 def text(fr, en): return O([("fr", fr), ("en", en)])
 
 
-LEVELS = [1, 5, 10, 15, 20, 25, 30, 35]
-ITEM_LEVEL = {1: 3, 5: 6, 10: 10, 15: 14, 20: 18, 25: 22, 30: 26, 35: 30}
+# Since sprint 135 (D79), the levels 40 and 45 of the Forest of the Ancestors, with its resources and its two families'.
+LEVELS = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45]
+ITEM_LEVEL = {1: 3, 5: 6, 10: 10, 15: 14, 20: 18, 25: 22, 30: 26, 35: 30, 40: 34, 45: 38}
 # Quantities by recipe level: main gatherer, second gatherer, monster's resource.
-COUNTS = {1: (6, 2, 2), 5: (6, 3, 2), 10: (8, 3, 3), 15: (8, 4, 3), 20: (10, 4, 3), 25: (10, 5, 3), 30: (12, 5, 4), 35: (12, 6, 4)}
+COUNTS = {1: (6, 2, 2), 5: (6, 3, 2), 10: (8, 3, 3), 15: (8, 4, 3), 20: (10, 4, 3), 25: (10, 5, 3), 30: (12, 5, 4), 35: (12, 6, 4), 40: (14, 6, 4), 45: (14, 7, 5)}
 ELEMENT = {"Te": "earth", "Fe": "fire", "Ea": "water", "Ai": "air"}
 # trade: (name, workshop, [(recipe level, id, fr, en, slot, element, [main, second, monster], icon)])
 TRADES = O([
@@ -33,7 +34,9 @@ TRADES = O([
         (20, "clay-quenched-cutlass", "Coutelas trempé à l'argile", "Clay-Quenched Cutlass", "OneHanded", "Ea", ["willow-log", "blue-clay", "crab-claw"]),
         (25, "alder-greataxe", "Grande hache d'aulne", "Alder Greataxe", "TwoHanded", "Te", ["alder-log", "zinc-ore", "crab-shell"]),
         (30, "ash-shield", "Écu de frêne", "Ash Heater Shield", "Shield", "Ai", ["ash-log", "silver-ore", "mole-fur"]),
-        (35, "reaper-falchion", "Fauchon de moissonneur", "Reaper's Falchion", "OneHanded", "Fe", ["linden-log", "quartz", "honeycomb"])])),
+        (35, "reaper-falchion", "Fauchon de moissonneur", "Reaper's Falchion", "OneHanded", "Fe", ["linden-log", "quartz", "honeycomb"]),
+        (40, "granite-warhammer", "Marteau de granit", "Granite Warhammer", "TwoHanded", "Fe", ["hornbeam-log", "granite", "stone-antler"]),
+        (45, "elm-pavise", "Pavois d'orme", "Elm Pavise", "Shield", "Ai", ["elm-log", "malachite", "mossy-cobble"])])),
     ("tailor", (text("Tailleur", "Tailor"), text("Atelier de couture", "Tailor's workshop"), [
         (1, "linen-tunic", "Tunique de lin", "Linen Tunic", "Chest", "Ea", ["wild-flax", "nettle", "wolf-pelt"]),
         (5, "oat-straw-hat", "Chapeau de paille d'avoine", "Oat-Straw Hat", "Hat", "Fe", ["wild-oats", "wood-mint", "boar-bristle"]),
@@ -42,7 +45,9 @@ TRADES = O([
         (20, "sedge-gambeson", "Gambison de laîche", "Sedge Gambeson", "Chest", "Fe", ["shore-sedge", "water-lily", "crab-shell"]),
         (25, "rice-sunhat", "Capeline de riz des joncs", "Reed-Rice Sunhat", "Hat", "Ai", ["reed-rice", "horsetail", "slime"]),
         (30, "wheat-spaulders", "Épaulières de blé tressé", "Braided Wheat Spaulders", "Shoulders", "Ea", ["clairval-wheat", "hive-flower", "bee-wing"]),
-        (35, "harvest-mantle", "Manteau de moisson", "Harvest Mantle", "Cape", "Te", ["buckwheat", "lavender", "mole-fur"])])),
+        (35, "harvest-mantle", "Manteau de moisson", "Harvest Mantle", "Cape", "Te", ["buckwheat", "lavender", "mole-fur"]),
+        (40, "spelt-doublet", "Pourpoint d'épeautre", "Spelt Doublet", "Chest", "Ai", ["spelt", "sage", "stag-velvet"]),
+        (45, "sorghum-hood", "Capuche de sorgho", "Sorghum Hood", "Hat", "Fe", ["sorghum", "mandrake", "keeper-moss"])])),
     ("jeweller", (text("Bijoutier", "Jeweller"), text("Établi de bijouterie", "Jeweller's bench"), [
         (1, "copper-band", "Jonc de cuivre", "Copper Band", "Ring", "Te", ["copper-ore", "gudgeon", "boar-tusk"]),
         (5, "tin-pendant", "Pendentif d'étain", "Tin Pendant", "Amulet", "Ea", ["tin-ore", "crayfish", "wolf-fang"]),
@@ -51,7 +56,9 @@ TRADES = O([
         (20, "blue-faience-ring", "Bague de faïence bleue", "Blue Faience Ring", "Ring", "Ea", ["blue-clay", "perch", "crab-claw"]),
         (25, "zinc-torc", "Torque de zinc", "Zinc Torc", "Amulet", "Te", ["zinc-ore", "carp", "frog-leg"]),
         (30, "silver-signet", "Chevalière d'argent", "Silver Signet", "Ring", "Ai", ["silver-ore", "pike", "honeycomb"]),
-        (35, "quartz-pendant", "Pendeloque de quartz", "Quartz Drop Pendant", "Amulet", "Fe", ["quartz", "zander", "bee-wing"])])),
+        (35, "quartz-pendant", "Pendeloque de quartz", "Quartz Drop Pendant", "Amulet", "Fe", ["quartz", "zander", "bee-wing"]),
+        (40, "granite-ring", "Anneau de granit", "Granite Ring", "Ring", "Te", ["granite", "trout", "stone-antler"]),
+        (45, "malachite-amulet", "Amulette de malachite", "Malachite Amulet", "Amulet", "Ea", ["malachite", "catfish", "mossy-cobble"])])),
     ("cobbler", (text("Cordonnier", "Cobbler"), text("Banc de cordonnerie", "Cobbler's bench"), [
         (1, "gudgeon-shoes", "Souliers en peau de goujon", "Gudgeon-Skin Shoes", "Boots", "Ai", ["gudgeon", "oak-log", "wolf-pelt"]),
         (5, "crayfish-belt", "Ceinture à carapaces d'écrevisse", "Crayfish-Shell Belt", "Belt", "Fe", ["crayfish", "hazel-log", "boar-bristle"]),
@@ -60,23 +67,27 @@ TRADES = O([
         (20, "perch-waders", "Cuissardes en peau de perche", "Perch-Skin Waders", "Boots", "Fe", ["perch", "willow-log", "frog-leg"]),
         (25, "carp-belt", "Ceinture en cuir de carpe", "Carp-Leather Belt", "Belt", "Ai", ["carp", "alder-log", "slime"]),
         (30, "pike-skin-boots", "Bottes en peau de brochet", "Pike-Skin Boots", "Boots", "Ea", ["pike", "ash-log", "mole-fur"]),
-        (35, "zander-baldric", "Baudrier de sandre", "Zander Baldric", "Belt", "Te", ["zander", "linden-log", "honeycomb"])])),
+        (35, "zander-baldric", "Baudrier de sandre", "Zander Baldric", "Belt", "Te", ["zander", "linden-log", "honeycomb"]),
+        (40, "trout-skin-boots", "Bottes en peau de truite", "Trout-Skin Boots", "Boots", "Ea", ["trout", "hornbeam-log", "stag-velvet"]),
+        (45, "catfish-belt", "Ceinture en cuir de silure", "Catfish-Leather Belt", "Belt", "Te", ["catfish", "elm-log", "keeper-moss"])])),
 ])
 # The consumables' trades (sprint 111, D71, §5.5 and §5 bis.5; out of a fight only since sprint 115, D77): the alchemist's
 # healing potions (50 + 20 × the item's level hit points at once, recipes 1, 10, 20, 30), the baker's breads (30 + 10 × the
 # recipe's level hit points), all of them eaten or drunk out of a fight; the first bread is the village's loaf that Rose
 # sells. Their ingredients: the herbalist's plant of the recipe's level and a fish of that level (potions); three of the
 # farmer's grain and a plant (breads). The oils of sprint 111 went with the consumables in a fight.
-HERBS = {1: "nettle", 5: "wood-mint", 10: "glowmoss", 15: "clubmoss", 20: "water-lily", 25: "horsetail", 30: "hive-flower", 35: "lavender"}
-FISH = {1: "gudgeon", 10: "pool-eel", 20: "perch", 30: "pike"}
-GRAIN = {1: "wild-flax", 5: "wild-oats", 10: "pool-hemp", 15: "rye", 20: "shore-sedge", 25: "reed-rice", 30: "clairval-wheat", 35: "buckwheat"}
+HERBS = {1: "nettle", 5: "wood-mint", 10: "glowmoss", 15: "clubmoss", 20: "water-lily", 25: "horsetail", 30: "hive-flower", 35: "lavender", 40: "sage", 45: "mandrake"}
+FISH = {1: "gudgeon", 10: "pool-eel", 20: "perch", 30: "pike", 40: "trout"}
+GRAIN = {1: "wild-flax", 5: "wild-oats", 10: "pool-hemp", 15: "rye", 20: "shore-sedge", 25: "reed-rice", 30: "clairval-wheat", 35: "buckwheat", 40: "spelt", 45: "sorghum"}
 POTIONS = [(1, "healing-potion", "Potion de soin", "Healing Potion", (4, 2)), (10, "strong-healing-potion", "Potion de soin forte", "Strong Healing Potion", (5, 2)),
-           (20, "greater-healing-potion", "Grande potion de soin", "Greater Healing Potion", (6, 3)), (30, "healing-elixir", "Élixir de soin", "Healing Elixir", (7, 3))]
+           (20, "greater-healing-potion", "Grande potion de soin", "Greater Healing Potion", (6, 3)), (30, "healing-elixir", "Élixir de soin", "Healing Elixir", (7, 3)),
+           (40, "greater-healing-elixir", "Grand élixir de soin", "Greater Healing Elixir", (8, 4))]
 OILS = [size.format(e=e) for size in ("{e}-oil", "concentrated-{e}-oil", "{e}-essence", "{e}-quintessence") for e in ("earth", "fire", "water", "air")]
 BREADS = [(1, "bread", "Pain", "Bread"), (5, "oat-bread", "Pain d'avoine", "Oat Bread"), (10, "hemp-bread", "Pain de chanvre", "Hemp Bread"),
           (15, "rye-bread", "Pain de seigle", "Rye Bread"), (20, "sedge-flatbread", "Galette de laîche", "Sedge Flatbread"),
           (25, "reed-rice-bread", "Pain de riz des joncs", "Reed-Rice Bread"), (30, "clairval-loaf", "Miche de Clairval", "Clairval Loaf"),
-          (35, "buckwheat-galette", "Galette de sarrasin", "Buckwheat Galette")]
+          (35, "buckwheat-galette", "Galette de sarrasin", "Buckwheat Galette"), (40, "spelt-bread", "Pain d'épeautre", "Spelt Bread"),
+          (45, "sorghum-flatbread", "Galette de sorgho", "Sorghum Flatbread")]
 CONSUMABLES = {"alchemist": (text("Alchimiste", "Alchemist"), text("Alambic", "Still")), "baker": (text("Boulanger", "Baker"), text("Four", "Oven"))}
 
 # The crayfish lives at the bottom of the woods' waters, on 40 % of its maps only (§5 quater.4): fewer of them.

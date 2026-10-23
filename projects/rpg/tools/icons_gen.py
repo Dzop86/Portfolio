@@ -49,12 +49,17 @@ ICONS = {
     "gudgeon-shoes": "lorc/leather-boot", "crayfish-belt": "lucasms/belt", "eel-skin-boots": "delapouite/rubber-boot",
     "tench-swordbelt": "delapouite/belt-armor", "perch-waders": "delapouite/rubber-boot", "carp-belt": "lucasms/belt",
     "pike-skin-boots": "delapouite/fur-boot", "zander-baldric": "delapouite/belt-armor",
+    # The levels 40 and 45 of the four trades (sprint 135).
+    "granite-warhammer": "delapouite/wood-club", "elm-pavise": "delapouite/viking-shield", "spelt-doublet": "lorc/breastplate",
+    "sorghum-hood": "delapouite/robin-hood-hat", "granite-ring": "delapouite/power-ring", "malachite-amulet": "lorc/gem-pendant",
+    "trout-skin-boots": "delapouite/rubber-boot", "catfish-belt": "lucasms/belt",
     "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
     "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
     # Consumables; since sprint 111 the alchemist's potions and the baker's breads.
     "bread": "delapouite/bread", "healing-potion": "delapouite/health-potion",
     "strong-healing-potion": "delapouite/health-potion", "greater-healing-potion": "delapouite/health-potion", "healing-elixir": "delapouite/health-potion",
-    **{b: "delapouite/bread" for b in ("oat-bread", "hemp-bread", "rye-bread", "sedge-flatbread", "reed-rice-bread", "clairval-loaf", "buckwheat-galette")},
+    "greater-healing-elixir": "delapouite/health-potion",
+    **{b: "delapouite/bread" for b in ("oat-bread", "hemp-bread", "rye-bread", "sedge-flatbread", "reed-rice-bread", "clairval-loaf", "buckwheat-galette", "spelt-bread", "sorghum-flatbread")},
     # Resources the monsters leave.
     "leather": "delapouite/animal-hide", "orc-fang": "lorc/fangs-circle", "feather": "lorc/feather",
     "boar-tusk": "lorc/boar-tusks", "boar-bristle": "delapouite/hair-strands", "wolf-fang": "skoll/fangs",

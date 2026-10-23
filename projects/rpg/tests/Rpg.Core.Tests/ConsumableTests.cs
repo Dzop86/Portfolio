@@ -11,11 +11,11 @@ public class ConsumableTests
     private static readonly Hero Guard = new("Essai", "female-d", "guard", Level: 10);
 
     [Fact]
-    public void TheAlchemist_MakesFourHealingPotions_DrunkOutOfAFight()
+    public void TheAlchemist_MakesFiveHealingPotions_DrunkOutOfAFight()
     {
         Job alchemist = Real.Jobs["alchemist"];
         Item[] potions = [.. alchemist.Recipes.Select(r => Real.Items[r.Item])];
-        Assert.Equal([3, 10, 18, 26], potions.Select(p => p.Level));
+        Assert.Equal([3, 10, 18, 26, 34], potions.Select(p => p.Level));
         Assert.All(potions, p => Assert.Equal((ItemKind.Consumable, 50 + 20 * p.Level), (p.Kind, p.Heal)));
         // The herbalist's plant of the recipe's level in each.
         Assert.All(alchemist.Recipes, r => Assert.Contains(Real.Jobs["herbalist"].Harvests!, h => h.Item == r.Ingredients[0].Item && h.Level == r.Level));
@@ -37,7 +37,7 @@ public class ConsumableTests
     public void TheBaker_BakesEightBreads_TheFirstTheVillagesLoaf_EatenOutOfAFight()
     {
         Job baker = Real.Jobs["baker"];
-        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35], baker.Recipes.Select(r => r.Level));
+        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45], baker.Recipes.Select(r => r.Level));
         Assert.Equal(Shop.Loaf, baker.Recipes[0].Item);
         Assert.All(baker.Recipes, r => Assert.Equal(30 + 10 * r.Level, Real.Items[r.Item].Heal));
         // Three of the farmer's grain of its level.

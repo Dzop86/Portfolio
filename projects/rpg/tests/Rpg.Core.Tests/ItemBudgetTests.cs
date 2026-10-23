@@ -28,7 +28,8 @@ public class ItemBudgetTests
     };
 
     /// <summary>The levels of the pieces made in each of the four zones, from the woods to the fields.</summary>
-    private static readonly int[][] Zones = [[3, 6], [10, 14], [18, 22], [26, 30]];
+    // Since sprint 135 (D79), the Forest of the Ancestors' pieces, of levels 34 and 38.
+    private static readonly int[][] Zones = [[3, 6], [10, 14], [18, 22], [26, 30], [34, 38]];
 
     private static int Budget(Item i) => Templates.Budget(i.Level, i.Slot!.Value);
 
@@ -68,7 +69,7 @@ public class ItemBudgetTests
     public void ACraftsmansPiece_IsTheLootsBudget_InVitalityAndOneElement_WithoutInitiative()
     {
         Item[] made = [.. Real.MadePieces];
-        Assert.Equal(32, made.Length);
+        Assert.Equal(40, made.Length);
         foreach (Item i in made)
         {
             Assert.InRange(Sum(i.Stats), Budget(i) - 1, Budget(i) + 1);
@@ -87,7 +88,7 @@ public class ItemBudgetTests
     {
         Job job = Real.Jobs[trade];
         Recipe[] pieces = [.. job.Recipes.Where(r => Real.Items[r.Item].Kind == ItemKind.Equipment)];
-        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35], pieces.Select(r => r.Level));
+        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45], pieces.Select(r => r.Level));
         Assert.NotNull(job.Workshop);
         foreach (Recipe r in pieces)
         {

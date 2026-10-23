@@ -21,7 +21,8 @@ public class ShopTests
         // not the baker's other breads; since sprint 127 the recall scroll, at 15.
         Assert.All(Shop.Stock(Real), i => Assert.True(i.Kind == ItemKind.Resource || i.Id == Shop.Loaf || i.Id == Waystones.Recall || Real.Jobs["alchemist"].RecipeFor(i.Id) is not null, i.Id));
         Assert.Equal(Waystones.RecallPrice, Shop.SellPrice(Real.Items[Waystones.Recall], Real));
-        Assert.Equal(4, Shop.Stock(Real).Count(i => Real.Jobs["alchemist"].RecipeFor(i.Id) is not null));
+        // Since sprint 135, the fifth, the level 40 elixir.
+        Assert.Equal(5, Shop.Stock(Real).Count(i => Real.Jobs["alchemist"].RecipeFor(i.Id) is not null));
         Assert.Equal(13L, Shop.SellPrice(Real.Items["healing-potion"], Real));
         Assert.Null(Shop.SellPrice(Real.Items["oat-bread"], Real));
         Assert.Equal(10L, Shop.SellPrice(Real.Items[Shop.Loaf], Real));
