@@ -1,4 +1,4 @@
-# Sprint 137 : Osmose : les guildes
+# Sprint 145 : Osmose : les guildes
 
 **Objectif :** la suite d'Osmose après S121, conçue par le game designer (v7 de `projects/rpg/docs/suite-apres-d69.md`, §11) et validée par Charles (D79).
 

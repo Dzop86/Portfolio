@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S137), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S145), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S137 | 330 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S145 | 362 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 551 points sur 137 sprints de deux semaines.
+Total : 583 points sur 145 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -156,7 +156,10 @@ Demande de Charles, conçue par le game designer (v6 de `projects/rpg/docs/suite
 Retours de Charles : S115 (3) plus de consommables en combat (les potions soignent hors combat, les huiles retirées), une palissade qui ne ressemble plus à des fleurs, plus de maisons au village, 10 % de vitesse en plus ; S116 (5) un journal de quêtes comme dans les jeux du genre ; S117 (5) la fiche d'un objet au survol partout et son clic droit (équiper, utiliser, recettes, bestiaire, panoplie, partage dans le chat) ; le jeu à plusieurs décalé de trois crans, jusqu'à S121.
 
 ## Osmose : la suite après le jeu à plusieurs (22 octobre 2026, D79)
-Conçue par le game designer (v7 de `projects/rpg/docs/suite-apres-d69.md`, §11), valeurs par défaut validées par Charles : S122 (3) une IA de héros qui joue en équipe et des mesures sur 100 combats, S123 (3) l'équilibre à plusieurs réglé (la reine des abeilles, les hordes), S124 (5) la minuterie du tour, les absents, rejoindre, exclure, S125 (3) les combats à plusieurs gardés en base et un playtest à plusieurs ; S126 (3) les amis et les messages privés, S127 (3) le rappel et les pierres de passage ; une tranche du chapitre 2 : S128 (3) le socle après 30, S129 (5) Quatre-Chemins, S130 (5) les glyphes, S131 (5) la Forêt des Aïeux, S132 et S133 (3 + 3) deux familles, S134 (5) deux donjons, S135 (3) les recettes 40 et 45, S136 (5) les quêtes et un playtest ; S137 (5) les guildes.
+Conçue par le game designer (v7 de `projects/rpg/docs/suite-apres-d69.md`, §11), valeurs par défaut validées par Charles : S122 (3) une IA de héros qui joue en équipe et des mesures sur 100 combats, S123 (3) l'équilibre à plusieurs réglé (la reine des abeilles, les hordes), S124 (5) la minuterie du tour, les absents, rejoindre, exclure, S125 (3) les combats à plusieurs gardés en base et un playtest à plusieurs ; S126 (3) les amis et les messages privés, S127 (3) le rappel et les pierres de passage ; une tranche du chapitre 2 : S128 (3) le socle après 30, S129 (5) Quatre-Chemins, S130 (5) les glyphes, S131 (5) la Forêt des Aïeux, S132 et S133 (3 + 3) deux familles, S134 (5) deux donjons, S135 (3) les recettes 40 et 45, S136 (5) les quêtes et un playtest ; S137 (5) les guildes (passées en S145 par D80).
+
+## Osmose : l'arbre des talents commun aux classes (24 octobre 2026, D80)
+Conçu par le game designer (v3 de `projects/rpg/docs/talents-arbre.md`, éléments dans `projects/rpg/docs/elements.md`), valeurs par défaut validées par Charles : S137 (5) la tranche verticale, Enlisé et Au plus près pour la Sentinelle, avec un go ou pas go ; S138 (5) les éléments composés et la Foudre, S139 (3) la Foudre pour toutes les classes, S140 (5) la fenêtre « Ma route » et les réactions, S141 (3) Distance et Rythme, S142 (4) Terrain et la Rémanence, S143 (4) le Soutien, S144 (3) l'équilibre et un playtest ; les guildes passent en S145. Les 57 autres points (cinq paires, Lumière et Ténèbres, triplets, spécialisations) viendront avec les chapitres, Unisson avec la Saga II.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
