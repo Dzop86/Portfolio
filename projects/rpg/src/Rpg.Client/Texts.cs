@@ -237,6 +237,9 @@ public sealed class Texts
         ["element.Fire"] = "Feu",
         ["element.Water"] = "Eau",
         ["element.Air"] = "Air",
+        ["element.Lightning"] = "Foudre",
+        ["card.arc"] = "Arc : {0} % des dégâts sautent sur l'ennemi le plus proche à {1} cases",
+        ["log.arc"] = "L'arc saute de {0} à {1}.",
         ["error.NotEnoughMp"] = "Pas assez de PM.",
         ["error.NotEnoughAp"] = "Pas assez de PA.",
         ["error.CastLimit"] = "Sort déjà lancé le nombre de fois permis ce tour-ci.",
@@ -783,6 +786,9 @@ public sealed class Texts
         ["element.Fire"] = "Fire",
         ["element.Water"] = "Water",
         ["element.Air"] = "Air",
+        ["element.Lightning"] = "Lightning",
+        ["card.arc"] = "Arc: {0}% of the damage jumps to the nearest enemy within {1} cells",
+        ["log.arc"] = "The arc jumps from {0} to {1}.",
         ["error.NotEnoughMp"] = "Not enough MP.",
         ["error.NotEnoughAp"] = "Not enough AP.",
         ["error.CastLimit"] = "Spell already cast as often as allowed this turn.",
@@ -1195,6 +1201,9 @@ public sealed class Texts
             parts.Add(this["card.damage", s.DamageMin + bonus, s.DamageMax + bonus, this["element." + s.Element]]
                 + (s.Crit > 0 ? this["card.crit", s.DamageMin + crit + bonus, s.DamageMax + crit + bonus, s.Crit] : ""));
         }
+        // Lightning's signature (sprint 138).
+        if (s.DamageMax > 0 && s.Element == Element.Lightning)
+            parts.Add(this["card.arc", Elements.Arc, Elements.ArcCells]);
         parts.AddRange(Effects(s));
         return parts.Count == 0 ? head : head + "\n" + string.Join(", ", parts);
     }
@@ -1464,6 +1473,7 @@ public sealed class Texts
             Pushed p => this["log.pushed", Name(fight.Fighters[p.Fighter]), p.Path.Count],
             StatusAdded { Reaction: string r } st => this["log.reaction-status", Name(fight.Fighters[st.Fighter]), fight.Data.Reactions[r].Name.In(Lang), Status(st.Stat, st.Value, st.Element), st.Turns],
             StatusAdded st => this["log.status", Name(fight.Fighters[st.Fighter]), Status(st.Stat, st.Value, st.Element), st.Turns],
+            Arced a => this["log.arc", Name(fight.Fighters[a.From]), Name(fight.Fighters[a.To])],
             Marked m => this["log.marked", Name(fight.Fighters[m.Fighter]), this["element." + m.Element]],
             ReactionTriggered r => this["log.reaction", Name(fight.Fighters[r.Fighter]), fight.Data.Reactions[r.Reaction].Name.In(Lang)],
             StatusEnded st => this["log.status-ended", Name(fight.Fighters[st.Fighter]), this["stat." + st.Stat, "", ""].Trim()],

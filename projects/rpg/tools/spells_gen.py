@@ -256,8 +256,8 @@ beasts = [
 # long range and poison cost some of it, melee and cooldowns give some back.
 BUDGET, GROWTH = 3, 0.6
 AREA = {("Cross", 1): 0.8, ("Line", 2): 0.8, ("Circle", 1): 0.7, ("Circle", 2): 0.6, ("Cross", 2): 0.6}
-def budget(sp):
-    f = BUDGET * (1 + GROWTH * sp.get("level", 1) / 100)
+def budget(sp, scale=1):
+    f = BUDGET * (1 + GROWTH * sp.get("level", 1) / 100) * scale
     if "area" in sp: f *= AREA[(sp["area"]["shape"], sp["area"]["radius"])]
     kinds = [(e["kind"], e.get("stat")) for e in sp.get("effects", [])]
     if any(k in ("push", "pull") for k, _ in kinds): f *= 0.85
@@ -273,10 +273,36 @@ def budget(sp):
 for sp in sentinel + guard + mage:
     if sp["damageMax"] > 0:
         budget(sp)
+# The compounds (sprint 138, D80, docs/elements.md): a pair's spells are its parents' class spells transposed, "twin"
+# naming the spell they come from: the same cost, range, area, effects and level, the compound's element (a poison too),
+# damage from the budget at 80 % for a pair (its signature is paid for). Working names, for the scriptwriter to read.
+COMPOUNDS = {"Lightning": ("Fire", "Air")}
+SCALE = {"Lightning": 0.8}
+NAMES = {
+ "Lightning": {
+  "fire-arrow": ("Flèche d'orage", "Storm Arrow"), "ember-volley": ("Salve d'éclairs", "Lightning Volley"),
+  "searing-shot": ("Tir fulgurant", "Flash Shot"), "ember-rain": ("Pluie d'éclairs", "Rain of Bolts"),
+  "recoil-shot": ("Tir tonnant", "Thunder Shot"), "piercing-arrow": ("Flèche filante", "Streaking Arrow"),
+  "gale": ("Bourrasque d'orage", "Storm Squall"), "skyfall": ("Chute de foudre", "Lightning Fall"),
+ },
+}
+twins = []
+for el, parents in COMPOUNDS.items():
+    for sp in sentinel + guard + mage:
+        if sp["element"] in parents and sp["id"] in NAMES[el]:
+            t = json.loads(json.dumps(sp), object_pairs_hook=O)
+            t["id"], t["name"] = f"{el.lower()}-{sp['id']}", O([("fr", NAMES[el][sp["id"]][0]), ("en", NAMES[el][sp["id"]][1])])
+            t["element"] = el
+            for e in t.get("effects", []):
+                if e.get("stat") == "Poison":
+                    e["element"] = el
+            budget(t, SCALE[el])
+            t["twin"] = sp["id"]
+            twins.append(t)
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + creatures + beasts:
+for sp in base + sentinel + guard + mage + creatures + beasts + twins:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + creatures + beasts
+spells = base + sentinel + guard + mage + creatures + beasts + twins
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)

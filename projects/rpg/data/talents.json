@@ -1,18 +1,29 @@
 [
   {
     "id": "bogging",
-    "name": { "fr": "Enlisement", "en": "Bogging" },
+    "name": {
+      "fr": "Enlisement",
+      "en": "Bogging"
+    },
     "description": {
       "fr": "Frapper en Terre un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par la Terre, le rend Enlisé : −2 PM pendant 1 tour. Il faut deux éléments dans son deck.",
       "en": "Striking in Earth an enemy marked by Water, or in Water one marked by Earth, leaves it Bogged: −2 MP for 1 turn. It takes two elements in one's deck."
     },
     "branch": "Reactions",
     "tier": "First",
-    "rules": [ { "kind": "reaction", "reaction": "bogged" } ]
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "bogged"
+      }
+    ]
   },
   {
     "id": "up-close",
-    "name": { "fr": "Au plus près", "en": "Up close" },
+    "name": {
+      "fr": "Au plus près",
+      "en": "Up close"
+    },
     "description": {
       "fr": "+10 % de dégâts sur une cible à 3 cases ou moins ; en échange, −2 PO à tous ses sorts (jamais sous leur portée minimale ni sous 1).",
       "en": "+10% damage on a target 3 cells away or closer; in exchange, −2 range on all one's spells (never under their minimum range nor under 1)."
@@ -20,8 +31,178 @@
     "branch": "Distance",
     "tier": "First",
     "rules": [
-      { "kind": "range", "change": -2 },
-      { "kind": "distance", "minCells": 0, "maxCells": 3, "percent": 10 }
+      {
+        "kind": "range",
+        "change": -2
+      },
+      {
+        "kind": "distance",
+        "minCells": 0,
+        "maxCells": 3,
+        "percent": 10
+      }
+    ]
+  },
+  {
+    "id": "open-lightning",
+    "name": {
+      "fr": "Ouverture : Foudre",
+      "en": "Opening: Lightning"
+    },
+    "description": {
+      "fr": "Ajoute à ton grimoire 4 sorts de Foudre, jumeaux des deux premiers sorts de Feu et d'Air de ta classe. La Foudre frappe sur la somme de tes caractéristiques de Feu et d'Air ; son Arc fait sauter 35 % du coup sur l'ennemi le plus proche à 2 cases. Il faut leur trouver une place dans le deck.",
+      "en": "Adds 4 Lightning spells to your grimoire, twins of your class's first two Fire and Air spells. Lightning strikes on the sum of your Fire and Air characteristics; its Arc makes 35% of the hit jump to the nearest enemy within 2 cells. They need a place in the deck."
+    },
+    "branch": "Braids",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "open",
+        "element": "Lightning"
+      }
+    ]
+  },
+  {
+    "id": "full-grimoire",
+    "name": {
+      "fr": "Plein grimoire",
+      "en": "Full Grimoire"
+    },
+    "description": {
+      "fr": "Les 4 autres sorts de chaque composé ouvert : 8 sorts de Foudre au lieu de 4.",
+      "en": "The 4 other spells of each compound opened: 8 Lightning spells instead of 4."
+    },
+    "branch": "Braids",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "full-grimoire"
+      }
+    ]
+  },
+  {
+    "id": "transmute-fire-lightning",
+    "name": {
+      "fr": "Transmutation : Feu → Foudre",
+      "en": "Transmutation: Fire → Lightning"
+    },
+    "description": {
+      "fr": "Tes sorts de Feu deviennent leurs jumeaux de Foudre. En échange, tu perds le Feu : plus d'empreinte de Feu ni de réaction qui le demande, aucun bonus de dégâts. Demande l'Ouverture de la Foudre.",
+      "en": "Your Fire spells become their Lightning twins. In exchange, you lose Fire: no more Fire mark nor any reaction that needs it, no damage bonus. Asks for the Opening of Lightning."
+    },
+    "branch": "Braids",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "transmute",
+        "from": "Fire",
+        "to": "Lightning"
+      }
+    ],
+    "excludes": [
+      "convert-lightning"
+    ],
+    "requires": [
+      "open-lightning"
+    ]
+  },
+  {
+    "id": "transmute-air-lightning",
+    "name": {
+      "fr": "Transmutation : Air → Foudre",
+      "en": "Transmutation: Air → Lightning"
+    },
+    "description": {
+      "fr": "Tes sorts d'Air deviennent leurs jumeaux de Foudre. En échange, tu perds l'Air : plus d'empreinte d'Air ni de réaction qui le demande, aucun bonus de dégâts. Demande l'Ouverture de la Foudre.",
+      "en": "Your Air spells become their Lightning twins. In exchange, you lose Air: no more Air mark nor any reaction that needs it, no damage bonus. Asks for the Opening of Lightning."
+    },
+    "branch": "Braids",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "transmute",
+        "from": "Air",
+        "to": "Lightning"
+      }
+    ],
+    "excludes": [
+      "convert-lightning"
+    ],
+    "requires": [
+      "open-lightning"
+    ]
+  },
+  {
+    "id": "strong-signature",
+    "name": {
+      "fr": "Signature appuyée",
+      "en": "Pressed Signature"
+    },
+    "description": {
+      "fr": "Les signatures de tes sorts composés valent 50 % de plus (l'Arc passe de 35 à 52 %) ; en échange, tes sorts composés font 10 % de dégâts directs en moins.",
+      "en": "The signatures of your compound spells are worth 50% more (the Arc goes from 35 to 52%); in exchange, your compound spells deal 10% less direct damage."
+    },
+    "branch": "Braids",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "signature",
+        "percent": 50
+      },
+      {
+        "kind": "compound",
+        "percent": -10
+      }
+    ]
+  },
+  {
+    "id": "prism",
+    "name": {
+      "fr": "Prisme",
+      "en": "Prism"
+    },
+    "description": {
+      "fr": "Tes coups de paire posent l'empreinte de leur premier parent : la Foudre pose celle du Feu. Ils ne déclenchent toujours aucune réaction.",
+      "en": "Your pair hits leave the mark of their first parent: Lightning leaves Fire's. They still set off no reaction."
+    },
+    "branch": "Braids",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "prism"
+      }
+    ]
+  },
+  {
+    "id": "convert-lightning",
+    "name": {
+      "fr": "Conversion : Foudre",
+      "en": "Conversion: Lightning"
+    },
+    "description": {
+      "fr": "Tu perds tes 8 sorts de Feu et d'Air et tu gagnes les 8 sorts de Foudre, qui frappent 15 % plus fort et dont l'Arc vaut 50 % de plus. Il te reste la Terre et l'Eau. Clé de Matière : une seule dans tout l'arbre.",
+      "en": "You lose your 8 Fire and Air spells and gain the 8 Lightning spells, which hit 15% harder and whose Arc is worth 50% more. You keep Earth and Water. A key of Matter: only one in the whole tree."
+    },
+    "branch": "Braids",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "convert",
+        "element": "Lightning"
+      },
+      {
+        "kind": "element",
+        "element": "Lightning",
+        "percent": 15
+      },
+      {
+        "kind": "signature",
+        "percent": 50
+      }
+    ],
+    "excludes": [
+      "transmute-fire-lightning",
+      "transmute-air-lightning"
     ]
   }
 ]

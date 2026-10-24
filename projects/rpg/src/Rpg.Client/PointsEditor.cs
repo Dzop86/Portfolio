@@ -55,14 +55,30 @@ public sealed class PointsEditor
 
     public void Take(TalentSpec talent)
     {
-        if (CanTake(talent))
-            _talents.Add(talent.Id);
+        if (!CanTake(talent))
+            return;
+        _talents.Add(talent.Id);
+        FitDeck();
     }
 
     public void Drop(TalentSpec talent)
     {
-        if (CanDrop(talent))
-            _talents.Remove(talent.Id);
+        if (!CanDrop(talent))
+            return;
+        _talents.Remove(talent.Id);
+        FitDeck();
+    }
+
+    /// <summary>
+    /// The deck after a change of talents (sprint 138): each spell as the grimoire has it now (a transmuted spell, its
+    /// twin), once, without those the grimoire no longer holds.
+    /// </summary>
+    private void FitDeck()
+    {
+        Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
+        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(grimoire.Spells.Contains).Distinct()];
+        _deck.Clear();
+        _deck.AddRange(fitted);
     }
 
     /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>
@@ -147,11 +163,11 @@ public sealed class PointsEditor
 
     public int SpellPointsLeft => Progression.SpellPoints(Hero.Level) - _ranks.Values.Sum(Progression.RankCost);
 
-    /// <summary>The class's spells the level has unlocked, in the class's order.</summary>
-    public IReadOnlyList<Spell> Spells =>
-        Data.Class(Hero.Class) is HeroClass c ? [.. c.Spells.Select(id => Data.Spells[id]).Where(s => s.Level <= Hero.Level)] : [];
+    /// <summary>The spells the draft may fight with (sprint 138, <see cref="Talents.GrimoireOf"/>): the class's the level has unlocked, in the class's order, then the compounds'.</summary>
+    public IReadOnlyList<Spell> Spells => [.. Talents.GrimoireOf(Draft, Data).Spells.Select(id => Data.Spells[id])];
 
-    public int Rank(Spell spell) => _ranks.GetValueOrDefault((spell ?? throw new ArgumentNullException(nameof(spell))).Id, 1);
+    /// <summary>A spell's rank; a compound's twin has its class spell's (sprint 138).</summary>
+    public int Rank(Spell spell) => _ranks.GetValueOrDefault((spell ?? throw new ArgumentNullException(nameof(spell))).RankKey, 1);
 
     /// <summary>The spell points the next rank of this spell costs; 0 at its last rank.</summary>
     public int NextRankCost(Spell spell) => Rank(spell) >= spell.MaxRank ? 0 : Progression.RankCost(Rank(spell) + 1) - Progression.RankCost(Rank(spell));
@@ -197,7 +213,7 @@ public sealed class PointsEditor
     public void Raise(Spell spell)
     {
         if (CanRaise(spell))
-            _ranks[spell.Id] = Rank(spell) + 1;
+            _ranks[spell.RankKey] = Rank(spell) + 1;
     }
 
     public void Lower(Spell spell)
@@ -205,9 +221,9 @@ public sealed class PointsEditor
         if (!CanLower(spell))
             return;
         if (Rank(spell) == 2)
-            _ranks.Remove(spell.Id);
+            _ranks.Remove(spell.RankKey);
         else
-            _ranks[spell.Id] = Rank(spell) - 1;
+            _ranks[spell.RankKey] = Rank(spell) - 1;
     }
 
     /// <summary>The draft as the hero would have it.</summary>

@@ -182,6 +182,18 @@ public partial class PointsPanel : CanvasLayer
         return page;
     }
 
+    /// <summary>
+    /// The spells the book may show: the class's, then every compound's twin of them (sprint 138), shown only while the
+    /// talents of the draft give it.
+    /// </summary>
+    private static IEnumerable<Spell> BookSpells(PointsEditor editor)
+    {
+        HeroClass? c = editor.Data.Class(editor.Hero.Class);
+        if (c is null)
+            return [];
+        return [.. c.Spells.Select(id => editor.Data.Spells[id]), .. editor.Data.Spells.Values.Where(sp => sp.Twin is string t && c.Spells.Contains(t))];
+    }
+
     private VBoxContainer BuildSpells(PointsEditor editor)
     {
         var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
@@ -190,7 +202,7 @@ public partial class PointsPanel : CanvasLayer
         top.AddThemeConstantOverride("separation", 6);
         page.AddChild(top);
         HeroClass? c = editor.Data.Class(editor.Hero.Class);
-        Element[] present = c is null ? [] : [.. c.Spells.Select(id => editor.Data.Spells[id].Element).Distinct().Order()];
+        Element[] present = [.. BookSpells(editor).Select(sp => sp.Element).Distinct().Order()];
         foreach (Element? e in new Element?[] { null }.Concat(present.Select(x => (Element?)x)))
         {
             var chip = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(84, 40) };
@@ -266,7 +278,7 @@ public partial class PointsPanel : CanvasLayer
         grid.AddThemeConstantOverride("h_separation", 6);
         grid.AddThemeConstantOverride("v_separation", 6);
         scroll.AddChild(grid);
-        foreach (Spell spell in c?.Spells.Select(id => editor.Data.Spells[id]) ?? [])
+        foreach (Spell spell in BookSpells(editor))
         {
             var tile = new SpellTile { CustomMinimumSize = new Vector2(208, 56), ClipText = true };
             Spell dragged = spell;
@@ -433,7 +445,9 @@ public partial class PointsPanel : CanvasLayer
         if (Shown() is not Spell spell)
             return;
         var book = new SpellBook(Editor);
-        BookSpell b = book.Spells.Single(x => x.Spell.Id == spell.Id);
+        // A compound's spell its talents no longer give (sprint 138): nothing to tell.
+        if (book.Spells.FirstOrDefault(x => x.Spell.Id == spell.Id) is not BookSpell b)
+            return;
         string colour = ElementStyle.Colour(spell.Element);
         _detailName.Text = spell.Name.In(Texts.Lang);
         _detailIcon.Spell = spell;
@@ -634,7 +648,12 @@ public partial class PointsPanel : CanvasLayer
         var bookNow = new SpellBook(Editor);
         foreach ((Spell spell, Button tile, Label name, Label sub) in _tiles2)
         {
-            BookSpell b = bookNow.Spells.Single(x => x.Spell.Id == spell.Id);
+            // The compounds' spells come and go with the talents of the draft (sprint 138).
+            if (bookNow.Spells.FirstOrDefault(x => x.Spell.Id == spell.Id) is not BookSpell b)
+            {
+                tile.Visible = false;
+                continue;
+            }
             tile.Visible = _filter is null || spell.Element == _filter;
             sub.Text = (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
             tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);

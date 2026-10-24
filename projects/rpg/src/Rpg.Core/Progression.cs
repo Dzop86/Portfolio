@@ -90,7 +90,8 @@ public static class Progression
         Spell[] damaging = [.. hero.DeckOf(data).Select(id => data.Spells[id]).Where(s => s.DamageMax > 0)];
         int points = CharacteristicPoints(hero.Level);
         int vitality = points / 2;
-        Element[] elements = [.. damaging.Select(s => s.Element == Element.Neutral ? Element.Earth : s.Element)];
+        // A compound's spell counts for each of its parents (sprint 138).
+        Element[] elements = [.. damaging.SelectMany(s => s.Element == Element.Neutral ? [Element.Earth] : Elements.IsCompound(s.Element) ? Elements.Parents(s.Element) : [s.Element])];
         int Share(Element e) => elements.Length == 0 ? 0 : (points - vitality) * elements.Count(x => x == e) / elements.Length;
         var stats = new Characteristics(points - Share(Element.Earth) - Share(Element.Fire) - Share(Element.Water) - Share(Element.Air),
             Share(Element.Earth), Share(Element.Fire), Share(Element.Water), Share(Element.Air));
@@ -99,16 +100,17 @@ public static class Progression
         while (true)
         {
             // The next step: the cheapest, then the strongest spell (on average), then the first listed.
-            Spell? next = damaging.Where(s => ranks.GetValueOrDefault(s.Id, 1) < s.MaxRank)
-                .OrderBy(s => ranks.GetValueOrDefault(s.Id, 1)).ThenByDescending(s => s.AverageDamage).FirstOrDefault();
+            // A twin's rank is its class spell's (sprint 138).
+            Spell? next = damaging.Where(s => ranks.GetValueOrDefault(s.RankKey, 1) < s.MaxRank)
+                .OrderBy(s => ranks.GetValueOrDefault(s.RankKey, 1)).ThenByDescending(s => s.AverageDamage).FirstOrDefault();
             if (next is null)
                 break;
-            int rank = ranks.GetValueOrDefault(next.Id, 1) + 1;
+            int rank = ranks.GetValueOrDefault(next.RankKey, 1) + 1;
             int step = RankCost(rank) - RankCost(rank - 1);
             if (spent + step > SpellPoints(hero.Level))
                 break;
             spent += step;
-            ranks[next.Id] = rank;
+            ranks[next.RankKey] = rank;
         }
         return hero with { Stats = stats, Ranks = ranks, Worn = worn ?? hero.Worn };
     }

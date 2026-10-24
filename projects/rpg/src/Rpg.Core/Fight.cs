@@ -241,7 +241,7 @@ public sealed class Fight
     private static List<Spell> SpellsOf(FighterSpec spec, GameData data)
     {
         List<TalentSpec> talents = TalentsOf(spec, data);
-        return [.. spec.Spells.Select(id => Talents.Compile(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1), talents))];
+        return [.. spec.Spells.Select(id => Talents.Compile(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(data.Spells[id].RankKey, 1) ?? 1), talents))];
     }
 
     private static List<TalentSpec> TalentsOf(FighterSpec spec, GameData data) => [.. (spec.Talents ?? []).Select(id => data.Talents[id])];
@@ -575,7 +575,7 @@ public sealed class Fight
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
-        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell) : 0);
+        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element) : 0);
         long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) * talents;
         return (int)Math.Max(0, scaled / 100_000_000);
     }
@@ -592,12 +592,35 @@ public sealed class Fight
     }
 
     /// <summary>
+    /// Lightning's signature (sprint 138, <c>docs/elements.md</c> §2): <see cref="Elements.Arc"/> % of the hit, more with the
+    /// caster's signature talents, jumps once to the nearest fighter of <paramref name="from"/>'s side within
+    /// <see cref="Elements.ArcCells"/> cells of it, outside the spell's area (the lowest id on a tie). It is no spell's hit:
+    /// no passive answers it, no mark is left.
+    /// </summary>
+    private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area)
+    {
+        Fighter? to = Fighters.Where(f => f.IsAlive && f != from && f.Team == from.Team && !area.Contains(f) && f.Cell.DistanceTo(from.Cell) <= Elements.ArcCells)
+            .OrderBy(f => f.Cell.DistanceTo(from.Cell)).ThenBy(f => f.Id).FirstOrDefault();
+        if (to is null)
+            return;
+        int percent = Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100;
+        _events.Add(new Arced(from.Id, to.Id));
+        Hurt(to, Damage(roll, me, to, Element.Lightning, direct: true) * percent / 100, Element.Lightning);
+    }
+
+    /// <summary>
     /// What a hero's direct hit of a base element leaves on an enemy (sprint 137, D80 §6.1): on the fighter aimed at, if
     /// its mark is of another element and the caster has the reaction, the reaction, which uses the mark up; otherwise
     /// the hit's own mark in place of the one before, until the end of the caster's next turn.
     /// </summary>
     private void Imprint(Fighter me, Fighter f, Element element, bool aimed)
     {
+        // A pair's hit leaves its first parent's mark with Prism (sprint 138), and sets nothing off.
+        if (Elements.Parents(element) is [Element first, _] && Talents.HasPrism(me.Talents))
+        {
+            element = first;
+            aimed = false;
+        }
         if (!me.LaysMarks || !Talents.IsBase(element) || f.Team == me.Team || IsOver || !f.IsAlive)
             return;
         if (aimed && ReactionOn(me, f, element) is ReactionSpec reaction)
@@ -670,6 +693,9 @@ public sealed class Fight
                 }
                 // The mark or the reaction (sprint 137): a zone reacts on the fighter aimed at only.
                 Imprint(me, hit, spell.Element, hit.Cell == target);
+                // Lightning's Arc (sprint 138): part of the hit jumps on.
+                if (spell.Element == Element.Lightning && !IsOver)
+                    Arc(me, hit, roll, area);
             }
         }
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);

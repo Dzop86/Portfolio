@@ -15,7 +15,8 @@ public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCos
 
 /// <summary>
 /// The spells screen, without any engine (sprint 65): all the spells of the hero's class in the
-/// order they unlock, from a draft of its points (<see cref="PointsEditor"/>), filtered by element.
+/// order they unlock, then the compounds' its talents give (sprint 138), from a draft of its points
+/// (<see cref="PointsEditor"/>), filtered by element.
 /// </summary>
 public sealed class SpellBook
 {
@@ -25,7 +26,8 @@ public sealed class SpellBook
         Hero draft = editor.Draft;
         Characteristics stats = Fight.HeroTotals(draft, editor.Data)?.Stats ?? Characteristics.None;
         HeroClass? c = editor.Data.Class(draft.Class);
-        Spells = c is null ? [] : [.. c.Spells.Select(id => editor.Data.Spells[id]).Select(s => Entry(s, editor, draft, stats))];
+        IEnumerable<string> twins = Talents.GrimoireOf(draft, editor.Data).Spells.Where(id => editor.Data.Spells[id].Twin is not null);
+        Spells = c is null ? [] : [.. c.Spells.Concat(twins).Select(id => editor.Data.Spells[id]).Select(s => Entry(s, editor, draft, stats))];
     }
 
     private static BookSpell Entry(Spell spell, PointsEditor editor, Hero draft, Characteristics stats)

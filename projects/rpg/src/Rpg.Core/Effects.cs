@@ -4,7 +4,8 @@ namespace Rpg.Core;
 
 /// <summary>
 /// The element a spell strikes in. Each of the four has its own characteristic (sprint 55) and
-/// fighters resist them separately; a neutral spell ignores resistances.
+/// fighters resist them separately; a neutral spell ignores resistances. Since sprint 138 (D80), the
+/// compounds of the talent tree follow (<see cref="Elements"/>).
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Element>))]
 public enum Element
@@ -14,6 +15,9 @@ public enum Element
     Fire,
     Water,
     Air,
+
+    /// <summary>Fire and Air (sprint 138): its signature, the Arc.</summary>
+    Lightning,
 }
 
 /// <summary>Who an effect touches among the fighters in the spell's area.</summary>

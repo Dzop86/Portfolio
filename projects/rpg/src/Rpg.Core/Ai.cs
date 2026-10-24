@@ -370,7 +370,7 @@ public static class Ai
             foreach (Fighter f in area)
             {
                 double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000
-                    * (100 + Talents.Percent(me.Talents, from, f.Cell)) / 100, f.Hp + f.Shield);
+                    * (100 + Talents.Percent(me.Talents, from, f.Cell, spell.Element)) / 100, f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1);
@@ -378,6 +378,10 @@ public static class Ai
                     value += KillBonus;
                 else if (f.Team != me.Team && hit < f.Hp + f.Shield)
                     value += MarkWorth(fight, me, spell.Element, f, f.Cell == target);
+                // Lightning's Arc (sprint 138): a part of the hit on a neighbour of the target.
+                if (spell.Element == Element.Lightning && f.Team != me.Team
+                    && fight.Fighters.Any(o => o.IsAlive && o != f && o.Team == f.Team && !area.Contains(o) && o.Cell.DistanceTo(f.Cell) <= Elements.ArcCells))
+                    value += hit * Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 10_000;
             }
         }
         foreach (SpellEffect effect in spell.AllEffects)

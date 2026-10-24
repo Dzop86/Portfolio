@@ -66,4 +66,27 @@ public class TalentTextsTests
         FightEvent status = fight.Events.Last(e => e is StatusAdded { Reaction: "bogged" });
         Assert.Equal($"{target.Name.Fr} : Enlisé, -2 PM pendant 1 tour(s).", new Texts("fr").Describe(status, fight));
     }
+
+    [Fact]
+    public void Lightning_HasItsCard_ItsColour_AndItsSpellsInTheBook_WithTheTalents()
+    {
+        // Sprint 138 (T104): the Arc on the card, the yellow of Lightning, the spells of the opening in the book and the deck.
+        Spell storm = Data.Spells["lightning-fire-arrow"];
+        Assert.Contains("Arc : 35 % des dégâts sautent sur l'ennemi le plus proche à 2 cases", new Texts("fr").SpellCard(storm), StringComparison.Ordinal);
+        Assert.Contains("Lightning", new Texts("en").SpellCard(storm), StringComparison.Ordinal);
+        Assert.Equal("#f2d03b", ElementStyle.Colour(Element.Lightning));
+        var editor = new PointsEditor(Sentinel(35), Data);
+        Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
+        editor.Take(Data.Talents["open-lightning"]);
+        Assert.Equal(4, new SpellBook(editor).Spells.Count(b => b.Element == Element.Lightning));
+        Assert.True(editor.CanAddToDeck(storm) || editor.Deck.Count == Hero.DeckSize);
+        editor.RemoveFromDeck(Data.Spells["stone-arrow"]);
+        editor.AddToDeck(storm);
+        Assert.Contains("lightning-fire-arrow", editor.Deck);
+        // Its rank is Burning Arrow's; given back, the opening takes its spell out of the deck.
+        Assert.Equal(editor.Rank(Data.Spells["fire-arrow"]), editor.Rank(storm));
+        editor.Drop(Data.Talents["open-lightning"]);
+        Assert.DoesNotContain("lightning-fire-arrow", editor.Deck);
+        Assert.Null(editor.Draft.Problem(Data));
+    }
 }

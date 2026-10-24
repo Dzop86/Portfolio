@@ -116,6 +116,9 @@ public sealed record GlyphTriggered(int Glyph, int Fighter) : FightEvent;
 /// <summary>A glyph vanishes: its turns are over, its caster died, or it was laid again.</summary>
 public sealed record GlyphEnded(int Glyph) : FightEvent;
 
+/// <summary>Lightning's Arc (sprint 138): part of a hit on <see cref="From"/> jumps to <see cref="To"/>; its damage follows.</summary>
+public sealed record Arced(int From, int To) : FightEvent;
+
 /// <summary>A hero's hit leaves the mark of its element on an enemy (sprint 137), in place of any before.</summary>
 public sealed record Marked(int Fighter, Element Element, int Source) : FightEvent;
 

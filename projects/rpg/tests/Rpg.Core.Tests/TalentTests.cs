@@ -45,9 +45,9 @@ public class TalentTests
     public void TheTree_GivesTwoPointsAtThirty_ThenOneEveryFiveLevels(int level, int points) => Assert.Equal(points, Talents.Points(level));
 
     [Fact]
-    public void TheRealTree_HoldsTheSlice_BoggingAndUpClose_AndTheReactionBogged()
+    public void TheRealTree_HoldsBoggingAndUpClose_AndTheReactionBogged()
     {
-        Assert.Equal(["bogging", "up-close"], Real.Talents.Keys.Order(StringComparer.Ordinal));
+        Assert.True(Real.Talents.ContainsKey("bogging") && Real.Talents.ContainsKey("up-close"));
         TalentSpec bogging = Real.Talents["bogging"], close = Real.Talents["up-close"];
         Assert.Equal((Branch.Reactions, Tier.First, TalentFamily.Manner, 1), (bogging.Branch, bogging.Tier, bogging.Family, bogging.Cost));
         Assert.Equal((Branch.Distance, Tier.First, TalentFamily.Manner, 1), (close.Branch, close.Tier, close.Family, close.Cost));

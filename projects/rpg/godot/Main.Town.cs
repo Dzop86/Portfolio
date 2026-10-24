@@ -2219,7 +2219,9 @@ public partial class Main
                 problems.Add("a first-level hero has points to spend");
             // The spells tab shows every spell of the class, the locked ones too.
             _pointsPanel.ShowTab(spells: true);
-            if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0))
+            // With every compound's twin of them (sprint 138), shown with the talents only.
+            int twins = GameData.Embedded.Spells.Values.Count(sp => sp.Twin is string t && GameData.Embedded.Class(_hero.Class)?.Spells.Contains(t) == true);
+            if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0) + twins)
                 problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
             await CheckDeck(problems);
             // The talents tab shows every talent of the tree, those the hero has taken pressed (sprint 137).

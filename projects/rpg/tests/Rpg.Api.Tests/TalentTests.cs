@@ -59,4 +59,25 @@ public class TalentTests
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 20, []), Cancel);
         Assert.Null((await server.Characters(Cancel)).Single().Talents);
     }
+
+    [Fact]
+    public async Task ASentinelConvertedToLightning_SavesItsDeck_AndTheServerReplaysItsFight()
+    {
+        // Sprint 138 (T104): the conversion's keys, a deck chosen before turned into Lightning, a fight replayed with it.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("lgt");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
+        // A twin without its talent: refused.
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["lightning-fire-arrow"]), Cancel)));
+        string[] talents = ["open-lightning", "full-grimoire", "prism", "convert-lightning"];
+        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["fire-arrow", "stone-arrow", "lightning-recoil-shot"], talents), Cancel);
+        Hero hero = saved.Hero;
+        Assert.Equal(["lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"], hero.DeckOf(GameData.Embedded));
+        FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
+        await server.ReportFight(c.Id, ticket.Id, Play(ticket, hero), Cancel);
+        Assert.Equal(saved.Deck, (await server.Characters(Cancel)).Single().Deck);
+    }
 }

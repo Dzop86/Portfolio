@@ -23,14 +23,16 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     /// <summary>
     /// The spells this hero fights with, in the order of its bar: its deck when it has chosen one, of 0 to
     /// <see cref="DeckSize"/> spells (D66: an empty deck is a choice too); without a choice (null), its
-    /// class's first spells unlocked, up to <see cref="DeckSize"/>.
+    /// class's first spells unlocked, up to <see cref="DeckSize"/>. Since sprint 138, the spells its talents
+    /// turned into twins of a compound are those twins (<see cref="Talents.GrimoireOf"/>).
     /// </summary>
     public IReadOnlyList<string> DeckOf(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        if (Deck is not null)
-            return Deck;
-        return data.Class(Class) is HeroClass c ? [.. c.Spells.Where(id => data.Spells[id].Level <= Level).Take(DeckSize)] : [];
+        Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
+        if (Deck is null)
+            return [.. grimoire.Spells.Take(DeckSize)];
+        return [.. Deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id))];
     }
 
     /// <summary>The same hero: the ranks compare by content, not by dictionary.</summary>
@@ -102,16 +104,17 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
                 ?? (Talents is null ? null : Rpg.Core.Talents.Problem(Talents, Level, data));
     }
 
-    /// <summary>At most twelve spells, each once, each a spell of the class the level has unlocked.</summary>
+    /// <summary>At most twelve spells, each once, each of its grimoire: a spell of the class the level has unlocked, or a compound's its talents give (sprint 138).</summary>
     private string? DeckProblem(GameData data)
     {
         if (Deck is null)
             return null;
-        HeroClass? c = Class is null ? null : data.Class(Class);
-        if (Deck.Count > DeckSize || Deck.Distinct(StringComparer.Ordinal).Count() != Deck.Count)
+        Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
+        IReadOnlyList<string> deck = DeckOf(data);
+        if (deck.Count > DeckSize || deck.Distinct(StringComparer.Ordinal).Count() != deck.Count)
             return $"A deck holds at most {DeckSize} spells, each once.";
-        string? stranger = Deck.FirstOrDefault(id => c is null || !c.Spells.Contains(id) || data.Spells[id].Level > Level);
-        return stranger is null ? null : $"The spell '{stranger}' is not one this hero has.";
+        int stranger = deck.ToList().FindIndex(id => !grimoire.Spells.Contains(id));
+        return stranger < 0 ? null : $"The spell '{Deck[stranger]}' is not one this hero has.";
     }
 
     /// <summary>Characteristic and spell points within what the level gives; ranks of unlocked spells of the class.</summary>

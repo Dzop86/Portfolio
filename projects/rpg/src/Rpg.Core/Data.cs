@@ -34,8 +34,12 @@ public sealed record Spell(
     IReadOnlyList<SpellRank>? Ranks = null,
     int Cooldown = 0,
     int Crit = 0,
-    string? Icon = null)
+    string? Icon = null,
+    string? Twin = null)
 {
+    /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
+    public string RankKey => Twin ?? Id;
+
     /// <summary>
     /// What a critical hit adds to both ends of a range: a fifth of its top, rounded (Charles's examples:
     /// 5 to 10 becomes 7 to 12, 22 to 26 becomes 27 to 31).
@@ -90,8 +94,8 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
         Element.Fire => Fire,
         Element.Water => Water,
         Element.Air => Air,
-        // Neutral damage grows with no characteristic (D62).
-        _ => 0,
+        // Neutral damage grows with no characteristic (D62); a compound with twice its parents' average (sprint 138).
+        _ => Elements.Parents(element) is { Count: > 0 } parents ? 2 * parents.Sum(For) / parents.Count : 0,
     };
 }
 
@@ -189,8 +193,14 @@ public sealed record FighterSpec(
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
-    /// <summary>The fighter's resistance to an element, in percent (neutral damage ignores resistances).</summary>
-    public int Resistance(Element element) => element == Element.Neutral ? 0 : Resistances?.GetValueOrDefault(element) ?? 0;
+    /// <summary>
+    /// The fighter's resistance to an element, in percent (neutral damage ignores resistances); to a compound it is not
+    /// given, its parents' average (sprint 138).
+    /// </summary>
+    public int Resistance(Element element) => element == Element.Neutral ? 0
+        : Resistances?.TryGetValue(element, out int r) == true ? r
+        : Elements.Parents(element) is { Count: > 0 } parents ? parents.Sum(Resistance) / parents.Count
+        : 0;
 }
 
 /// <summary>
@@ -322,6 +332,10 @@ public sealed class GameData
         foreach (Spell s in Spells.Values)
         {
             Check(s);
+            // A compound's spell (sprint 138): transposed from a spell of one of its parents, unlocked at the same level.
+            if (s.Twin is string twin && (!Spells.TryGetValue(twin, out Spell? origin) || origin.Twin is not null
+                || !Elements.Parents(s.Element).Contains(origin.Element) || origin.Level != s.Level))
+                throw new InvalidDataException($"Spell '{s.Id}': the twin of a known spell of one of its element's parents, at its level.");
             foreach (SummonEffect summon in s.AllEffects.OfType<SummonEffect>())
             {
                 if (!Summons.ContainsKey(summon.Summon))
@@ -562,6 +576,9 @@ public sealed class GameData
                 throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
             if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
+            if (t.Rules.OfType<OpenRule>().Any(r => !Elements.IsCompound(r.Element)) || t.Rules.OfType<ConvertRule>().Any(r => !Elements.IsCompound(r.Element))
+                || t.Rules.OfType<TransmuteRule>().Any(r => !Elements.Parents(r.To).Contains(r.From)))
+                throw new InvalidDataException($"Talent '{t.Id}': a compound opened or converted, a parent transmuted into its compound.");
         }
     }
 
