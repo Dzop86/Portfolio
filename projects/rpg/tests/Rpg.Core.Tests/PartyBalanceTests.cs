@@ -64,6 +64,43 @@ public class PartyBalanceTests
         Assert.InRange(Won(group, 3), three - 10, 100);
     }
 
+    /// <summary>
+    /// The fights won by a duo of the Forest of the Ancestors (sprint 144, docs/talents-arbre.md §4.6): its first hero with
+    /// its class's build of Matter or of Manner in turn, its second with <paramref name="partner"/>'s build, or its own
+    /// class's Matter when it is null; each pair of classes in turn, at the group's level with the zone's kit.
+    /// </summary>
+    private static int Duo(string scenario, string? partner)
+    {
+        Scenario s = Real.FindScenario(scenario)!;
+        int level = s.Fighters.Where(f => f.Team == 1).Max(f => f.Level);
+        IReadOnlyDictionary<Slot, string> worn = Progression.Kit("zone", "ancestors", level, Real);
+        string[] classes = [.. Real.Classes.Select(c => c.Id)];
+        int won = 0;
+        Parallel.For(0, Fights, i =>
+        {
+            string first = classes[i % classes.Length], second = classes[i / classes.Length % classes.Length];
+            Hero Of(string name, string id, string build) => Progression.Talented(new Hero(name, "female-c", id, Level: level), build, Real, worn);
+            Hero striker = Of(Names[0], first, $"{first}-{(i % 2 == 0 ? "matter" : "manner")}");
+            Hero other = Of(Names[1], second, partner ?? $"{second}-matter");
+            var fight = new Fight(Real, scenario, 1 + (ulong)i, striker, null, null, [other]);
+            Ai.PlayOut(fight);
+            if (fight.WinningTeam == 0)
+                Interlocked.Increment(ref won);
+        });
+        return won;
+    }
+
+    [Theory]
+    [InlineData("group:ancestors-3-2.1")]
+    [InlineData("group:ancestors-4-2.0")]
+    public void ASupport_DoesNotWinADuoMoreThanASecondStriker(string group)
+    {
+        // §4.6: a duo "damage + support" wins at most 1.5 fights of 30 more than a duo "damage + damage"; and no horde
+        // needs a support to pass its floor (the strikers' duo does as well, give or take that margin).
+        int strikers = Duo(group, null), supported = Duo(group, "support");
+        Assert.True(supported <= strikers + 1.5, $"{group}: strikers {strikers}, supported {supported} of {Fights}");
+    }
+
     [Theory]
     [InlineData("group:fields-0-4.0")]
     [InlineData("group:mouldy-2-4.0")]

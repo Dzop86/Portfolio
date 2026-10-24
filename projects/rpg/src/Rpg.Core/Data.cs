@@ -87,15 +87,21 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
     /// <summary>What points in a characteristic add to each hit of its element: 2 for every 10 (D61), and nothing else (D62).</summary>
     public static int Bonus(int points) => points / 10 * 2;
 
-    /// <summary>The characteristic that strengthens an element's damage.</summary>
-    public int For(Element element) => element switch
+    /// <summary>
+    /// The characteristic that strengthens an element's damage. A compound strikes on the highest of its parents', or on
+    /// twice their average when <paramref name="converted"/> (sprint 144, docs/elements.md §3.4: "with the sum, a mere
+    /// opening would give everyone full strength for 1 point").
+    /// </summary>
+    public int For(Element element, bool converted = false) => element switch
     {
         Element.Earth => Earth,
         Element.Fire => Fire,
         Element.Water => Water,
         Element.Air => Air,
-        // Neutral damage grows with no characteristic (D62); a compound with twice its parents' average (sprint 138).
-        _ => Elements.Parents(element) is { Count: > 0 } parents ? 2 * parents.Sum(For) / parents.Count : 0,
+        // Neutral damage grows with no characteristic (D62).
+        _ => Elements.Parents(element) is { Count: > 0 } parents
+            ? converted ? 2 * parents.Sum(e => For(e)) / parents.Count : parents.Max(e => For(e))
+            : 0,
     };
 }
 

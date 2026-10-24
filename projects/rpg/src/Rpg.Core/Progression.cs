@@ -115,6 +115,47 @@ public static class Progression
         return hero with { Stats = stats, Ranks = ranks, Worn = worn ?? hero.Worn };
     }
 
+    /// <summary>
+    /// The reference builds of the talent tree (sprint 144, D80, docs/talents-arbre.md §4.5 and §7.3): for each class one
+    /// of Matter and one of Manner, and a support for the duos; the talents in the order they are taken, as the level's
+    /// points allow.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Builds = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
+    {
+        ["sentinel-matter"] = ["open-lightning", "strong-signature", "prism", "convert-lightning", "cracking"],
+        ["sentinel-manner"] = ["up-close", "firm-footing", "dancing-step", "first-gesture", "bogging"],
+        ["guard-matter"] = ["open-lightning", "full-grimoire", "prism", "convert-lightning", "bogging"],
+        ["guard-manner"] = ["bogging", "chilling", "lasting-mark", "up-close", "shared-mark"],
+        ["mage-matter"] = ["open-lightning", "strong-signature", "prism", "convert-lightning", "first-gesture"],
+        ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
+    };
+
+    /// <summary>
+    /// A hero with a reference build's talents (sprint 144): each in turn if the tree's rules allow it at its level, its
+    /// deck the spells the talents give first (the twins, the tree's spells), then its class's, then built the simple way.
+    /// </summary>
+    public static Hero Talented(Hero hero, string build, GameData data, IReadOnlyDictionary<Slot, string>? worn = null) =>
+        Talented(hero, Builds[build], data, worn);
+
+    /// <summary>A hero with these talents, taken as <see cref="Talented(Hero, string, GameData, IReadOnlyDictionary{Slot, string}?)"/> takes a build's.</summary>
+    public static Hero Talented(Hero hero, IReadOnlyList<string> build, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(build);
+        ArgumentNullException.ThrowIfNull(data);
+        var talents = new List<string>();
+        foreach (string id in build)
+        {
+            if (Talents.Problem([.. talents, id], hero.Level, data) is null)
+                talents.Add(id);
+        }
+        Hero talented = hero with { Talents = talents, Deck = null };
+        Grimoire grimoire = Talents.GrimoireOf(talented, data);
+        string[] deck = [.. grimoire.Spells.Where(id => !(data.Class(hero.Class)?.Spells.Contains(id) ?? false)), .. grimoire.Spells.Where(id => data.Class(hero.Class)?.Spells.Contains(id) ?? false)];
+        return Built(talented with { Deck = [.. deck.Take(talented.DeckLimit(data))] }, data, worn);
+    }
+
     /// <summary>The kits a simulation can wear (sprint 95, D71): nothing, two quick pieces of the zone, all the quick ones; since sprint 109 (D76), the craftsmen's.</summary>
     public static readonly IReadOnlyList<string> Kits = ["none", "zone", "craft", "fast"];
 

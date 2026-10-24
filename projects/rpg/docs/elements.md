@@ -29,6 +29,7 @@ Charles a validé la proposition (« c'est parfait ») et tranché les sept ques
 | 5 | Lumière **ou** Ténèbres s'obtient par un talent d'étage 2 et frappe sur la plus haute des quatre caractéristiques d'élément. |
 | 6 | Lumière et Ténèbres sont des polarités du héros, ni bien ni mal. Le scénariste doit le valider. |
 | 7 | Crépuscule est retenu : les 16 sorts d'élément sont perdus et la frappe se fait sur la somme des quatre, sans bonus. C'est une clé exclusive des composés. Le Demi-crépuscule reste en repli. |
+| 8 | *(sprint 144, après mesure)* Un composé **ouvert** frappe sur le **plus haut** de ses parents ; seul un composé **converti** frappe sur 2 × leur moyenne. Avec la somme, l'Ouverture de Foudre donnait sa pleine force à un héros hybride pour 1 point (Sentinelle : de 1,4 à 7,1 hordes sur 10). |
 
 Ces règles sont reprises dans l'arbre v3 (`docs/talents-arbre.md`), qui **remplace le §4.3 de ce document**. Deux points s'y précisent : Lumière, Ténèbres, Pureté et Crépuscule y forment leur propre branche, **Pôles**, et le remplacement partiel s'appelle **Transmutation**.
 

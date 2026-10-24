@@ -255,6 +255,7 @@ Notation : « existe » = le moteur sait déjà le faire ; « nouveau » = une p
 - **Plafond des bonus conditionnels** : la somme des pourcentages venus de l'arbre et de la spécialisation sur un même coup est plafonnée à **+35 %**. Les statuts de sorts (Concentration, Cri de guerre) restent hors plafond.
 - **Le talent dominant** : un talent qui donne **plus de 1,5 victoire sur 30** de plus que ses voisins d'étage contre les petits groupes, ou qui fait passer une horde au-dessus de son plafond, est retouché avant livraison.
 - **La fausse décision** : un talent pris par moins de 5 % des builds générés hors CI est revu.
+- **Le plafond des hordes** (sprint 144, Charles) : un build ne gagne pas plus de **1,5 horde sur 10** de plus que le **meilleur héros nu**, hybride ou d'un seul élément. Un héros d'un seul élément passe déjà des hordes que le héros hybride de T41 ne passe pas, et une Conversion revient à jouer un élément.
 - **L'équilibre des familles** : le meilleur build tout-Matière et le meilleur build tout-Manière à 45 doivent rester à **±1,5 victoire sur 30** l'un de l'autre. Sinon, une des deux familles est une fausse décision.
 
 ### 4.5 Trois builds complets

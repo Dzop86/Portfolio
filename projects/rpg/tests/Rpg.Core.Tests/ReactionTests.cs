@@ -114,4 +114,69 @@ public class ReactionTests
         Assert.False(Talents.GivesBack(["bogging"], ["bogging", "chilling"]));
         Assert.False(Talents.GivesBack(null, ["bogging"]));
     }
+
+    // ---- the second floor and the keys (sprint 144) ----
+
+    [Fact]
+    public void LastingMark_LastsATurnMore_LingeringReaction_StatesTooButTheTriggerIsSofter()
+    {
+        Fight f = Play(["A..B"], Hero("bogging", "chilling", "lasting-mark", "lingering-reaction"));
+        f.Apply(new CastAction("clod", C(3)));
+        Assert.Equal(3, f.Fighters[1].Mark!.TurnsLeft);
+        // The Water that sets Bogged off: −10 % (9); Bogged for 2 turns.
+        f.Apply(new CastAction("splash", C(3)));
+        Assert.Equal(300 - 10 - 9, f.Fighters[1].Hp);
+        Assert.Equal(2, f.Fighters[1].Statuses.Single().TurnsLeft);
+    }
+
+    [Fact]
+    public void Catalysis_HurtsOnTop_ButOnceATurn()
+    {
+        Fight f = Play(["A..B"], Hero("bogging", "chilling", "catalysis"));
+        f.Apply(new CastAction("clod", C(3)));
+        f.Apply(new CastAction("splash", C(3)));
+        // 10, 10, and 20 % of 10 neutral.
+        Assert.Equal(300 - 22, f.Fighters[1].Hp);
+        f.Apply(new CastAction("gust", C(3)));
+        f.Apply(new CastAction("splash", C(3)));
+        Assert.Single(f.Events.OfType<ReactionTriggered>());
+    }
+
+    [Fact]
+    public void Wave_SetsReactionsOffOnMoreMarkedFighters_ForSofterAreas()
+    {
+        Spell slab = new("slab", Text, 1, 1, 6, false, false, 10, 10, 9, Element.Earth, new Area(AreaShape.Cross, 1));
+        GameData data = new([.. Spells, .. TreeSpells, Clod, Ember, Splash, Gust, Poke, slab], [new MapSpec("m", Text, ["A..BBB"])],
+            [new Scenario("s", Text, "m", [Spec(0, initiative: 999, spells: ["strike"]), Monster(0), Monster(1), Monster(2)])], [Tester with { Spells = [.. Tester.Spells, "slab"] }],
+            summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        var f = new Fight(data, "s", 1, Hero("bogging", "chilling", "lasting-mark", "wave"));
+        foreach (int x in new[] { 3, 4, 5 })
+            f.Apply(new CastAction("splash", C(x)));
+        f.Apply(new CastAction("slab", C(4)));
+        Assert.Equal(3, f.Events.OfType<ReactionTriggered>().Count());
+        // 10 of the area, 15 % less: 8 on each.
+        Assert.Equal(300 - 10 - 8, f.Fighters[2].Hp);
+    }
+
+    [Fact]
+    public void SharedMark_LetsAnAllyReact_Virtuoso_OnlyOnItsOwnMarks()
+    {
+        Fight f = new(Data(["A..B", "....", "A..."], Spec(0, initiative: 999, spells: ["strike"]), Monster()), "s", 1,
+            Hero("bogging", "chilling", "lasting-mark", "shared-mark"), allies: [Hero() with { Name = "Romane" }]);
+        f.Apply(new CastAction("clod", C(3)));
+        f.Apply(new EndTurnAction());
+        // The ally, without a talent, completes the Earth mark with Water: Bogged.
+        f.Apply(new CastAction("splash", C(3)));
+        Assert.Single(f.Events.OfType<ReactionTriggered>());
+        Fight v = new(Data(["A..B", "....", "A..."], Spec(0, initiative: 999, spells: ["strike"]), Monster()), "s", 1,
+            Hero("bogging"), allies: [Hero("bogging", "chilling", "lasting-mark", "virtuoso") with { Name = "Romane" }]);
+        v.Apply(new CastAction("clod", C(3)));
+        v.Apply(new EndTurnAction());
+        v.Apply(new CastAction("splash", C(3)));
+        Assert.Empty(v.Events.OfType<ReactionTriggered>());
+        // Its own mark: +20 %.
+        v.Apply(new CastAction("splash", C(3)));
+        v.Apply(new CastAction("clod", C(3)));
+        Assert.Single(v.Events.OfType<ReactionTriggered>());
+    }
 }

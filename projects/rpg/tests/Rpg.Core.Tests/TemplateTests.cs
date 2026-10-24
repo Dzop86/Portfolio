@@ -253,4 +253,56 @@ public class TemplateTests
             Assert.True(large <= (kit == "none" ? 3 : 2), $"hordes, kit {kit}, {large:0.0} of 10; {report}");
         }
     }
+
+    [Theory]
+    [InlineData(35)]
+    [InlineData(40)]
+    [InlineData(45)]
+    public void TheReferenceBuilds_KeepT41_TheTreeWorthAtMostTenPercent_TheFamiliesEven(int level)
+    {
+        // Sprint 144 (D80, T110, docs/talents-arbre.md §4.4): each class bare, with its build of Matter and of Manner, 30
+        // fights a small group (at most 3 more victories with the tree, the two families within 1.5 of each other), 10 a
+        // horde with the craftsmen's kit. A Conversion makes a hero strike on all its points, like one who plays a single
+        // element without a talent, who already beats more hordes than T41's mixed hero (Charles, sprint 144): the tree is
+        // held to the best bare hero, mixed or of one element, give or take 1.5 (the noise of 10 fights a horde).
+        var family = new Synthetic(level);
+        var few = family.Groups.Where(g => g.Size <= 3).ToArray();
+        var hordes = family.Groups.Where(g => g.Size >= 6 && !g.InTheOpen).ToArray();
+        double Large(Hero h) => hordes.AsParallel().Select(g => family.Wins(g.Scenario, h, 10)).Average();
+        double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
+        var report = new List<string>();
+        bool kept = true;
+        foreach (string id in Classes)
+        {
+            Hero bare = family.Hero(id, "none"), craft = family.Hero(id, "craft");
+            double without = Small(bare);
+            double best = new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Select(e => Large(OfOne(family, id, e, craft.Worn))).Append(Large(craft)).Max();
+            var line = new List<string> { $"{id} bare {without:0.0} (best horde {best:0.0})" };
+            var families = new List<double>();
+            foreach (string build in new[] { "matter", "manner" })
+            {
+                double small = Small(Progression.Talented(bare, $"{id}-{build}", family.Data));
+                families.Add(small);
+                double large = Large(Progression.Talented(craft, $"{id}-{build}", family.Data, craft.Worn));
+                kept &= small >= 27 && small <= without + 3 && large <= best + 1.5;
+                line.Add($"{build} {small:0.0} (hordes {large:0.0})");
+            }
+            kept &= Math.Abs(families[0] - families[1]) <= 1.5;
+            report.Add(string.Join(", ", line));
+        }
+        Assert.True(kept, $"level {level}: " + string.Join("; ", report));
+    }
+
+    /// <summary>A hero of one element and no talent: its class's spells of that element and the neutral ones, all its points in it.</summary>
+    private static Hero OfOne(Synthetic family, string id, Element element, IReadOnlyDictionary<Slot, string>? worn)
+    {
+        Hero hero = family.Hero(id, "none");
+        string[] deck = [.. family.Data.Class(id)!.Spells.Where(s => family.Data.Spells[s].Element is Element.Neutral || family.Data.Spells[s].Element == element)
+            .Where(s => family.Data.Spells[s].Level <= hero.Level)];
+        Hero built = Progression.Built(hero with { Deck = deck }, family.Data, worn);
+        Characteristics st = built.Stats!;
+        int all = st.Earth + st.Fire + st.Water + st.Air;
+        int In(Element e) => e == element ? all : 0;
+        return built with { Stats = new Characteristics(st.Vitality, In(Element.Earth), In(Element.Fire), In(Element.Water), In(Element.Air)) };
+    }
 }

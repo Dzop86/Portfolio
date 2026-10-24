@@ -74,7 +74,33 @@ public enum Tier
 [JsonDerivedType(typeof(ReachRule), "reach")]
 [JsonDerivedType(typeof(HarmonyRule), "harmony")]
 [JsonDerivedType(typeof(RelieveRule), "relieve")]
+[JsonDerivedType(typeof(MarkRule), "mark")]
+[JsonDerivedType(typeof(CatalysisRule), "catalysis")]
+[JsonDerivedType(typeof(LingerRule), "linger")]
+[JsonDerivedType(typeof(WaveRule), "wave")]
+[JsonDerivedType(typeof(SharedMarkRule), "shared-mark")]
+[JsonDerivedType(typeof(VirtuosoRule), "virtuoso")]
 public abstract record TalentRule;
+
+// The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
+
+/// <summary>Living: the bearer's marks last <see cref="ExtraTurns"/> more of its turns (Lasting Mark).</summary>
+public sealed record MarkRule(int ExtraTurns) : TalentRule;
+
+/// <summary>Living: a reaction also deals <see cref="Percent"/> % of the hit that set it off, neutral; one reaction a turn at most (Catalysis).</summary>
+public sealed record CatalysisRule(int Percent) : TalentRule;
+
+/// <summary>Living: the states the bearer sets off last <see cref="ExtraTurns"/> more; its hits that set one off, <see cref="TriggerPercent"/> % (Lingering Reaction).</summary>
+public sealed record LingerRule(int ExtraTurns, int TriggerPercent) : TalentRule;
+
+/// <summary>Living: an area sets reactions off on <see cref="Extra"/> more marked fighters; the areas, <see cref="ZonePercent"/> % (Wave).</summary>
+public sealed record WaveRule(int Extra, int ZonePercent) : TalentRule;
+
+/// <summary>Living: the bearer's marks carry its reactions: an ally completing one sets it off without the talent (Shared Mark).</summary>
+public sealed record SharedMarkRule : TalentRule;
+
+/// <summary>Living: completing its own mark, <see cref="Percent"/> % more; the allies' marks no longer react for it (Virtuoso).</summary>
+public sealed record VirtuosoRule(int Percent) : TalentRule;
 
 // The branch Support (sprint 143, D80, docs/talents-arbre.md §4.3 and §4.6, the idea of Charles).
 
@@ -256,7 +282,9 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// </summary>
 /// <param name="Backed">The caster stands next to an obstacle (sprint 142).</param>
 /// <param name="InMyGlyph">The target stands in one of the caster's glyphs (sprint 142).</param>
-public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false);
+/// <param name="Triggers">The hit sets a reaction off (sprint 144); <paramref name="OwnMark"/>, on the caster's own mark; <paramref name="Zone"/>, a spell with an area.</param>
+public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
+    bool Triggers = false, bool OwnMark = false, bool Zone = false);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -442,6 +470,9 @@ public static class Talents
     /// <summary>The compounds' signatures' bonus, in percent: the strongest, they do not add up (Pressed Signature and Conversion, §4.5: "Arc at 50 %").</summary>
     public static int SignatureBonus(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<SignatureRule>().Select(r => r.Percent).DefaultIfEmpty(0).Max();
 
+    /// <summary>Whether the talents convert their holder's spells to this compound (<see cref="ConvertRule"/>): it then strikes on twice its parents' average.</summary>
+    public static bool Converts(IReadOnlyList<TalentSpec> talents, Element element) => talents.SelectMany(t => t.Rules).OfType<ConvertRule>().Any(r => r.Element == element);
+
     /// <summary>A pair's hit leaves its first parent's mark (<see cref="PrismRule"/>).</summary>
     public static bool HasPrism(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<PrismRule>().Any();
 
@@ -550,7 +581,10 @@ public static class Talents
             + rules.OfType<ApCostRule>().Where(r => c.ApCost >= r.MinAp && c.ApCost <= r.MaxAp).Sum(r => r.Percent)
             + rules.OfType<FirstCastRule>().Sum(r => c.DamageCasts == 0 ? r.First : r.Others)
             + rules.OfType<BackedRule>().Sum(r => c.Backed ? r.Damage : r.Otherwise)
-            + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside);
+            + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside)
+            + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
+            + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
+            + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);
         return Math.Clamp(sum, -100, Ceiling);
     }
 

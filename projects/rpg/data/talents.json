@@ -114,6 +114,127 @@
     ]
   },
   {
+    "id": "lasting-mark",
+    "name": {
+      "fr": "Empreinte tenace",
+      "en": "Lasting Mark"
+    },
+    "description": {
+      "fr": "Tes empreintes durent un tour de plus.",
+      "en": "Your marks last one turn more."
+    },
+    "branch": "Reactions",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "mark",
+        "extraTurns": 1
+      }
+    ]
+  },
+  {
+    "id": "catalysis",
+    "name": {
+      "fr": "Catalyse",
+      "en": "Catalysis"
+    },
+    "description": {
+      "fr": "Tes réactions infligent en plus 20 % des dégâts du coup qui les déclenche, en neutre ; en échange, une réaction par tour au plus.",
+      "en": "Your reactions also deal 20% of the damage of the hit that sets them off, neutral; in exchange, one reaction a turn at most."
+    },
+    "branch": "Reactions",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "catalysis",
+        "percent": 20
+      }
+    ],
+    "excludes": [
+      "shared-mark"
+    ]
+  },
+  {
+    "id": "lingering-reaction",
+    "name": {
+      "fr": "Réaction prolongée",
+      "en": "Lingering Reaction"
+    },
+    "description": {
+      "fr": "Les états que tu déclenches durent un tour de plus ; en échange, tes coups qui déclenchent font 10 % de moins.",
+      "en": "The states you set off last one turn more; in exchange, your hits that set one off deal 10% less."
+    },
+    "branch": "Reactions",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "linger",
+        "extraTurns": 1,
+        "triggerPercent": -10
+      }
+    ]
+  },
+  {
+    "id": "wave",
+    "name": {
+      "fr": "Onde",
+      "en": "Wave"
+    },
+    "description": {
+      "fr": "Tes zones déclenchent sur 2 cibles marquées de plus que celle visée ; en échange, tes zones font 15 % de moins.",
+      "en": "Your areas set reactions off on 2 more marked targets than the one aimed at; in exchange, your areas deal 15% less."
+    },
+    "branch": "Reactions",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "wave",
+        "extra": 2,
+        "zonePercent": -15
+      }
+    ]
+  },
+  {
+    "id": "shared-mark",
+    "name": {
+      "fr": "Empreinte partagée",
+      "en": "Shared Mark"
+    },
+    "description": {
+      "fr": "Ton empreinte porte tes talents : un allié qui la complète déclenche ta réaction, même sans le talent. Exclut la Catalyse.",
+      "en": "Your mark carries your talents: an ally who completes it sets your reaction off, even without the talent. Excludes Catalysis."
+    },
+    "branch": "Reactions",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "shared-mark"
+      }
+    ],
+    "excludes": [
+      "catalysis"
+    ]
+  },
+  {
+    "id": "virtuoso",
+    "name": {
+      "fr": "Virtuose",
+      "en": "Virtuoso"
+    },
+    "description": {
+      "fr": "Compléter ta propre empreinte : 20 % de dégâts en plus ; les empreintes de tes alliés ne réagissent plus pour toi.",
+      "en": "Completing your own mark: 20% more damage; your allies' marks no longer react for you."
+    },
+    "branch": "Reactions",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "virtuoso",
+        "percent": 20
+      }
+    ]
+  },
+  {
     "id": "up-close",
     "name": {
       "fr": "Au plus près",
@@ -335,8 +456,8 @@
       "en": "Opening: Lightning"
     },
     "description": {
-      "fr": "Ajoute à ton grimoire 4 sorts de Foudre, jumeaux des deux premiers sorts de Feu et d'Air de ta classe. La Foudre frappe sur la somme de tes caractéristiques de Feu et d'Air ; son Arc fait sauter 35 % du coup sur l'ennemi le plus proche à 2 cases. Il faut leur trouver une place dans le deck.",
-      "en": "Adds 4 Lightning spells to your grimoire, twins of your class's first two Fire and Air spells. Lightning strikes on the sum of your Fire and Air characteristics; its Arc makes 35% of the hit jump to the nearest enemy within 2 cells. They need a place in the deck."
+      "fr": "Ajoute à ton grimoire 4 sorts de Foudre, jumeaux des deux premiers sorts de Feu et d'Air de ta classe. La Foudre frappe sur la plus haute de tes caractéristiques de Feu et d'Air ; son Arc fait sauter 35 % du coup sur l'ennemi le plus proche à 2 cases. Il faut leur trouver une place dans le deck.",
+      "en": "Adds 4 Lightning spells to your grimoire, twins of your class's first two Fire and Air spells. Lightning strikes on the higher of your Fire and Air characteristics; its Arc makes 35% of the hit jump to the nearest enemy within 2 cells. They need a place in the deck."
     },
     "branch": "Braids",
     "tier": "First",

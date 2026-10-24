@@ -37,12 +37,16 @@ public class LightningTests
     // ---- the element ----
 
     [Fact]
-    public void Lightning_IsFireAndAir_StrikesOnTwiceTheirAverage_AndIsResistedByTheirAverage()
+    public void Lightning_IsFireAndAir_StrikesOnTheHigher_OrConvertedOnTwiceTheirAverage_AndIsResistedByTheirAverage()
     {
         Assert.Equal([Element.Fire, Element.Air], Elements.Parents(Element.Lightning));
         Assert.Empty(Elements.Parents(Element.Fire));
         Assert.True(Elements.IsCompound(Element.Lightning) && !Elements.IsCompound(Element.Air));
-        Assert.Equal(130, new Characteristics(Fire: 100, Air: 30, Earth: 500).For(Element.Lightning));
+        // Sprint 144 (docs/elements.md §3.4): opened, the higher of its parents; converted, twice their average.
+        var stats = new Characteristics(Fire: 100, Air: 30, Earth: 500);
+        Assert.Equal(100, stats.For(Element.Lightning));
+        Assert.Equal(130, stats.For(Element.Lightning, converted: true));
+        Assert.Equal(500, stats.For(Element.Earth, converted: true));
         FighterSpec m = Spec(1) with { Resistances = new Dictionary<Element, int> { [Element.Fire] = 30, [Element.Air] = -10 } };
         Assert.Equal(10, m.Resistance(Element.Lightning));
         // Given, it is its own.
@@ -194,6 +198,25 @@ public class LightningTests
         converted.Apply(new CastAction("l-ember", C(3)));
         Assert.Equal([189, 195], converted.Fighters.Skip(1).Select(m => m.Hp));
         Assert.Equal(50, Talents.SignatureBonus([Real.Talents["strong-signature"], Real.Talents["convert-lightning"]]));
+    }
+
+    [Fact]
+    public void AnOpenedLightning_StrikesOnTheHigherParent_AConvertedOne_OnBoth()
+    {
+        // Sprint 144: with the sum, a mere opening gave a mixed hero its full strength for 1 point.
+        var stats = new Characteristics(Fire: 100, Air: 30);
+        int Hit(Hero hero)
+        {
+            Fight f = Play(["A..B"], hero with { Deck = ["l-ember"] });
+            f.Apply(new CastAction("l-ember", C(3)));
+            return 200 - f.Fighters[1].Hp;
+        }
+        int plain = Hit(Hero(45, "open-lightning"));
+        Assert.Equal(plain + Characteristics.Bonus(100), Hit(Hero(45, "open-lightning") with { Stats = stats }));
+        Hero converting = Hero(45, "open-lightning", "full-grimoire", "prism", "convert-lightning");
+        Assert.True(Talents.Converts([.. converting.Talents!.Select(id => Real.Talents[id])], Element.Lightning));
+        Assert.False(Talents.Converts([Real.Talents["open-lightning"]], Element.Lightning));
+        Assert.True(Hit(converting with { Stats = stats }) - Hit(converting) >= Characteristics.Bonus(130));
     }
 
     [Fact]

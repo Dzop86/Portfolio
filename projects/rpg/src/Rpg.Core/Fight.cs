@@ -60,7 +60,7 @@ public sealed class Fighter
     internal bool SideStepped;
 
     /// <summary>Support (sprint 143): the supports given this turn, Relief used in this fight, action points the next turn loses.</summary>
-    internal int SupportsThisTurn, NextTurnPenalty;
+    internal int SupportsThisTurn, NextTurnPenalty, ReactionsThisTurn;
     internal bool Relieved;
     internal Cell TurnStart;
     internal (string Spell, int Target)? LastHit;
@@ -550,7 +550,7 @@ public sealed class Fight
         int percent = SupportOf(caster)?.Percent ?? 100;
         if (Relief(caster, ally) is not null)
             percent *= 2;
-        double d = spell.AverageDamage + Characteristics.Bonus(caster.Spec.Characteristics.For(spell.Element));
+        double d = spell.AverageDamage + Characteristics.Bonus(Strength(caster, spell.Element));
         return SupportEffect.Of(spell.Element, d, spell.ApCost, ally.MaxHp, percent);
     }
 
@@ -735,7 +735,7 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
+        long raw = roll + Characteristics.Bonus(Strength(caster, element));
         long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
         int resistance = element == Element.Neutral ? 0 : Math.Min(90, target.Resistance(element) + guard);
         long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents;
@@ -764,6 +764,10 @@ public sealed class Fight
     /// <summary>The resistance a fighter's talents give it where it stands (Backed, sprint 142).</summary>
     public int GuardOf(Fighter f) => f.Talents.Count == 0 ? 0 : Talents.Guard((f ?? throw new ArgumentNullException(nameof(f))).Talents, IsBacked(f.Cell));
 
+    /// <summary>The characteristic that strengthens <paramref name="caster"/>'s hits of this element, its Conversion given (sprint 144).</summary>
+    private static int Strength(Fighter caster, Element element) =>
+        caster.Spec.Characteristics.For(element, Talents.Converts(caster.Talents, element));
+
     /// <summary>
     /// The damage the AI expects a hit of <paramref name="average"/> to do (sprint 141): the one estimate it uses for spells
     /// and glyphs alike, the talents' <paramref name="talents"/> percent given. It keeps the AI's scale of before D61 (a
@@ -773,7 +777,7 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        return average * (100 + caster.Spec.Characteristics.For(element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100;
+        return average * (100 + Strength(caster, element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100;
     }
 
     /// <summary>
@@ -784,7 +788,15 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(f);
-        return caster.LaysMarks && f.Team != caster.Team && f.Mark is Mark m ? Talents.ReactionOf(caster.Talents, m.Element, element, _data) : null;
+        if (!caster.LaysMarks || f.Team == caster.Team || f.Mark is not Mark m)
+            return null;
+        TalentRule[] rules = [.. caster.Talents.SelectMany(t => t.Rules)];
+        // Virtuoso (sprint 144): its own marks only; Catalysis: one reaction a turn.
+        if (rules.OfType<VirtuosoRule>().Any() && m.Source != caster.Id || rules.OfType<CatalysisRule>().Any() && caster.ReactionsThisTurn > 0)
+            return null;
+        Fighter source = _fighters[m.Source];
+        return Talents.ReactionOf(caster.Talents, m.Element, element, _data)
+            ?? (source != caster && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any() ? Talents.ReactionOf(source.Talents, m.Element, element, _data) : null);
     }
 
     /// <summary>
@@ -825,7 +837,9 @@ public sealed class Fight
     /// its mark is of another element and the caster has the reaction, the reaction, which uses the mark up; otherwise
     /// the hit's own mark in place of the one before, until the end of the caster's next turn.
     /// </summary>
-    private void Imprint(Fighter me, Fighter f, Element element, bool aimed)
+    /// <param name="aimed">Whether this hit may set a reaction off: the fighter aimed at, or with Wave one of the first marked in the area.</param>
+    /// <param name="dealt">The hit's damage, for Catalysis (sprint 144).</param>
+    private void Imprint(Fighter me, Fighter f, Element element, bool aimed, int dealt = 0)
     {
         // A pair's hit leaves its first parent's mark with Prism (sprint 138), and sets nothing off.
         if (Elements.Parents(element) is [Element first, _] && Talents.HasPrism(me.Talents))
@@ -840,8 +854,12 @@ public sealed class Fight
             f.Mark = null;
             _events.Add(new MarkEnded(f.Id));
             _events.Add(new ReactionTriggered(f.Id, reaction.Id, me.Id));
-            foreach (StatusEffect status in reaction.Statuses)
+            me.ReactionsThisTurn++;
+            TalentRule[] rules = [.. me.Talents.SelectMany(t => t.Rules)];
+            int longer = rules.OfType<LingerRule>().Sum(r => r.ExtraTurns);
+            foreach (StatusEffect s in reaction.Statuses)
             {
+                StatusEffect status = s with { Turns = s.Turns + longer };
                 // A chief loses at most 2 action and 2 movement points to the reactions (§6.1).
                 int value = status.Value;
                 if (f.Spec.Chief && status.Stat is Stat.Ap or Stat.Mp && value < 0)
@@ -849,9 +867,12 @@ public sealed class Fight
                 if (value != 0)
                     SetStatus(me, f, status with { Value = value }, reaction.Id);
             }
+            int catalysis = rules.OfType<CatalysisRule>().Sum(r => r.Percent);
+            if (catalysis > 0 && dealt > 0 && f.IsAlive && !IsOver)
+                Hurt(f, dealt * catalysis / 100);
             return;
         }
-        f.Mark = new Mark(element, me.Id, 2);
+        f.Mark = new Mark(element, me.Id, 2 + me.Talents.SelectMany(t => t.Rules).OfType<MarkRule>().Sum(r => r.ExtraTurns));
         _events.Add(new Marked(f.Id, element, me.Id));
     }
 
@@ -911,19 +932,29 @@ public sealed class Fight
             me.DamageCastsThisTurn++;
         if (spell.DamageMax > 0)
         {
+            // Who may react (sprint 137): the fighter aimed at; with Wave (sprint 144), the first marked ones of the area too.
+            int wave = me.Talents.SelectMany(t => t.Rules).OfType<WaveRule>().Sum(r => r.Extra);
+            HashSet<Fighter> reacting = [.. area.Where(f => f.Cell == target || wave > 0).Where(f => ReactionOn(me, f, spell.Element) is not null)
+                .OrderBy(f => f.Cell == target ? 0 : 1).Take(1 + wave)];
             foreach (Fighter hit in area)
             {
                 if (!hit.IsAlive)
                     continue;
                 // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
                 bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
-                if (Hurt(hit, Damage(roll, me, hit, spell.Element, true, ContextOf(me, spell, me.Cell, hit) with { Walked = context.Walked, CellsSinceSpell = context.CellsSinceSpell, DamageCasts = context.DamageCasts }, GuardOf(hit)), spell.Element) > 0 && hit.IsAlive)
+                bool reacts = reacting.Contains(hit) && ReactionOn(me, hit, spell.Element) is not null;
+                HitContext here = ContextOf(me, spell, me.Cell, hit) with
+                {
+                    Walked = context.Walked, CellsSinceSpell = context.CellsSinceSpell, DamageCasts = context.DamageCasts,
+                    Triggers = reacts, OwnMark = hit.Mark?.Source == me.Id, Zone = spell.Zone.Radius > 0,
+                };
+                int dealt = Damage(roll, me, hit, spell.Element, true, here, GuardOf(hit));
+                if (Hurt(hit, dealt, spell.Element) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
                 }
-                // The mark or the reaction (sprint 137): a zone reacts on the fighter aimed at only.
-                Imprint(me, hit, spell.Element, hit.Cell == target);
+                Imprint(me, hit, spell.Element, reacts, dealt);
                 // Lightning's Arc (sprint 138), an Electrified fighter (sprint 140): part of the hit jumps on, once.
                 int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100 : 0,
                     hit.StatusList.Where(s => s.Stat == Stat.Electrified).Select(s => s.Value).DefaultIfEmpty(0).Max());
@@ -1278,7 +1309,7 @@ public sealed class Fight
         next.CarriedAp = 0;
         next.StepsThisTurn = next.DamageCastsThisTurn = 0;
         next.SideStepped = false;
-        next.SupportsThisTurn = 0;
+        next.SupportsThisTurn = next.ReactionsThisTurn = 0;
         next.Ap = Math.Max(0, next.Ap - next.NextTurnPenalty);
         next.NextTurnPenalty = 0;
         next.TurnStart = next.Cell;
