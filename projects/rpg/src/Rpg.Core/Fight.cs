@@ -945,8 +945,12 @@ public sealed class Fight
                 bool reacts = reacting.Contains(hit) && ReactionOn(me, hit, spell.Element) is not null;
                 HitContext here = ContextOf(me, spell, me.Cell, hit) with
                 {
-                    Walked = context.Walked, CellsSinceSpell = context.CellsSinceSpell, DamageCasts = context.DamageCasts,
-                    Triggers = reacts, OwnMark = hit.Mark?.Source == me.Id, Zone = spell.Zone.Radius > 0,
+                    Walked = context.Walked,
+                    CellsSinceSpell = context.CellsSinceSpell,
+                    DamageCasts = context.DamageCasts,
+                    Triggers = reacts,
+                    OwnMark = hit.Mark?.Source == me.Id,
+                    Zone = spell.Zone.Radius > 0,
                 };
                 int dealt = Damage(roll, me, hit, spell.Element, true, here, GuardOf(hit));
                 if (Hurt(hit, dealt, spell.Element) > 0 && hit.IsAlive)
