@@ -136,6 +136,196 @@
         "maxCells": 3,
         "percent": 10
       }
+    ],
+    "excludes": [
+      "long-sight",
+      "artillery"
+    ]
+  },
+  {
+    "id": "long-sight",
+    "name": {
+      "fr": "Longue vue",
+      "en": "Long Sight"
+    },
+    "description": {
+      "fr": "+2 PO aux sorts qui portent déjà à 4 cases ou plus ; en échange, −10 % de dégâts sur une cible à 1 ou 2 cases.",
+      "en": "+2 range on spells that already reach 4 cells or more; in exchange, −10% damage on a target 1 or 2 cells away."
+    },
+    "branch": "Distance",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "range",
+        "change": 2,
+        "atLeast": 4
+      },
+      {
+        "kind": "distance",
+        "minCells": 1,
+        "maxCells": 2,
+        "percent": -10
+      }
+    ],
+    "excludes": [
+      "up-close",
+      "close-quarters"
+    ]
+  },
+  {
+    "id": "firm-footing",
+    "name": {
+      "fr": "Pied ferme",
+      "en": "Firm Footing"
+    },
+    "description": {
+      "fr": "+15 % de dégâts si tu n'as dépensé aucun PM ce tour ; −5 % sinon.",
+      "en": "+15% damage if you spent no MP this turn; −5% otherwise."
+    },
+    "branch": "Distance",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "still",
+        "still": 15,
+        "moved": -5
+      }
+    ]
+  },
+  {
+    "id": "tight-zone",
+    "name": {
+      "fr": "Zone serrée",
+      "en": "Tight Zone"
+    },
+    "description": {
+      "fr": "Tes zones rétrécissent d'un cran (une croix de 1 devient une case) et frappent plus fort d'autant : moins de cibles, plus de dégâts sur chacune.",
+      "en": "Your areas shrink a notch (a cross of 1 becomes one cell) and hit that much harder: fewer targets, more damage on each."
+    },
+    "branch": "Distance",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "zone"
+      }
+    ]
+  },
+  {
+    "id": "heavy-push",
+    "name": {
+      "fr": "Poussée lourde",
+      "en": "Heavy Push"
+    },
+    "description": {
+      "fr": "Tes poussées portent une case plus loin et un choc fait 8 dégâts par case au lieu de 4 ; en échange, tes sorts qui poussent coûtent 1 PA de plus.",
+      "en": "Your pushes go one cell farther and a collision deals 8 damage a cell instead of 4; in exchange, your spells that push cost 1 AP more."
+    },
+    "branch": "Distance",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "push",
+        "cells": 1,
+        "apCost": 1,
+        "collision": 8
+      }
+    ]
+  },
+  {
+    "id": "dancing-step",
+    "name": {
+      "fr": "Pas dansant",
+      "en": "Dancing Step"
+    },
+    "description": {
+      "fr": "Chaque case parcourue donne +4 % au prochain sort (au plus +16 %), remis à zéro après le sort.",
+      "en": "Each cell walked gives +4% to the next spell (at most +16%), back to zero after the spell."
+    },
+    "branch": "Distance",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "dance",
+        "perCell": 4,
+        "max": 16
+      }
+    ]
+  },
+  {
+    "id": "close-quarters",
+    "name": {
+      "fr": "Corps à corps",
+      "en": "Close Quarters"
+    },
+    "description": {
+      "fr": "Tes sorts ne portent plus qu'à 2 cases, et frappent 25 % plus fort.",
+      "en": "Your spells reach 2 cells at most, and hit 25% harder."
+    },
+    "branch": "Distance",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "range-cap",
+        "max": 2
+      },
+      {
+        "kind": "bonus",
+        "percent": 25
+      }
+    ],
+    "excludes": [
+      "long-sight",
+      "artillery"
+    ]
+  },
+  {
+    "id": "artillery",
+    "name": {
+      "fr": "Artillerie",
+      "en": "Artillery"
+    },
+    "description": {
+      "fr": "Tes sorts de dégâts ne frappent plus à moins de 3 cases, portent 2 cases plus loin et frappent 15 % plus fort ; plus rien à 1 ou 2 cases.",
+      "en": "Your damage spells no longer hit closer than 3 cells, reach 2 cells farther and hit 15% harder; nothing at 1 or 2 cells."
+    },
+    "branch": "Distance",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "min-range",
+        "min": 3
+      },
+      {
+        "kind": "range",
+        "change": 2
+      },
+      {
+        "kind": "bonus",
+        "percent": 15
+      }
+    ],
+    "excludes": [
+      "up-close",
+      "close-quarters"
+    ]
+  },
+  {
+    "id": "clear-line",
+    "name": {
+      "fr": "Ligne claire",
+      "en": "Clear Line"
+    },
+    "description": {
+      "fr": "Tes sorts lancés en ligne ne demandent plus la ligne de vue ; les autres perdent 1 PO.",
+      "en": "Your spells cast in line no longer need the line of sight; the others lose 1 range."
+    },
+    "branch": "Distance",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "sight",
+        "othersChange": -1
+      }
     ]
   },
   {
@@ -298,6 +488,227 @@
     "excludes": [
       "transmute-fire-lightning",
       "transmute-air-lightning"
+    ]
+  },
+  {
+    "id": "heavy-blows",
+    "name": {
+      "fr": "Coups appuyés",
+      "en": "Heavy Blows"
+    },
+    "description": {
+      "fr": "Tes sorts de 4 PA ou plus frappent 15 % plus fort ; ceux de 3 PA ou moins, 15 % moins fort.",
+      "en": "Your spells of 4 AP or more hit 15% harder; those of 3 AP or less, 15% softer."
+    },
+    "branch": "Rhythm",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "ap-cost",
+        "minAp": 4,
+        "maxAp": 99,
+        "percent": 15
+      },
+      {
+        "kind": "ap-cost",
+        "minAp": 0,
+        "maxAp": 3,
+        "percent": -15
+      }
+    ],
+    "excludes": [
+      "light-blows"
+    ]
+  },
+  {
+    "id": "light-blows",
+    "name": {
+      "fr": "Petits coups",
+      "en": "Light Blows"
+    },
+    "description": {
+      "fr": "Tes sorts de 3 PA ou moins frappent 15 % plus fort ; ceux de 4 PA ou plus, 15 % moins fort.",
+      "en": "Your spells of 3 AP or less hit 15% harder; those of 4 AP or more, 15% softer."
+    },
+    "branch": "Rhythm",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "ap-cost",
+        "minAp": 0,
+        "maxAp": 3,
+        "percent": 15
+      },
+      {
+        "kind": "ap-cost",
+        "minAp": 4,
+        "maxAp": 99,
+        "percent": -15
+      }
+    ],
+    "excludes": [
+      "heavy-blows"
+    ]
+  },
+  {
+    "id": "first-gesture",
+    "name": {
+      "fr": "Premier geste",
+      "en": "First Gesture"
+    },
+    "description": {
+      "fr": "Le premier sort de dégâts de ton tour frappe 20 % plus fort ; les suivants, 5 % moins fort.",
+      "en": "The first damage spell of your turn hits 20% harder; the following ones, 5% softer."
+    },
+    "branch": "Rhythm",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "first-cast",
+        "first": 20,
+        "others": -5
+      }
+    ]
+  },
+  {
+    "id": "short-cooldown",
+    "name": {
+      "fr": "Relance courte",
+      "en": "Short Cooldown"
+    },
+    "description": {
+      "fr": "Tes sorts à relance attendent un tour de moins, et font 25 % de dégâts en moins par tour retiré.",
+      "en": "Your spells with a cooldown wait one turn less, and deal 25% less damage for each turn taken off."
+    },
+    "branch": "Rhythm",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "cooldown",
+        "change": -1,
+        "percentPerTurn": 25
+      }
+    ]
+  },
+  {
+    "id": "reserve",
+    "name": {
+      "fr": "Réserve",
+      "en": "Reserve"
+    },
+    "description": {
+      "fr": "Jusqu'à 2 PA non dépensés passent au tour suivant ; en échange, ton premier tour a 1 PA de moins.",
+      "en": "Up to 2 unspent AP carry over to the next turn; in exchange, your first turn has 1 AP less."
+    },
+    "branch": "Rhythm",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "reserve",
+        "max": 2
+      },
+      {
+        "kind": "points",
+        "ap": -1,
+        "fromTurn": 1,
+        "untilTurn": 1
+      }
+    ]
+  },
+  {
+    "id": "tight-deck",
+    "name": {
+      "fr": "Deck serré",
+      "en": "Tight Deck"
+    },
+    "description": {
+      "fr": "+1 PA à chaque tour ; en échange, ton deck n'a plus que 10 places.",
+      "en": "+1 AP every turn; in exchange, your deck has only 10 places."
+    },
+    "branch": "Rhythm",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "points",
+        "ap": 1
+      },
+      {
+        "kind": "deck",
+        "size": 10
+      }
+    ]
+  },
+  {
+    "id": "one-gesture",
+    "name": {
+      "fr": "Un geste par sort",
+      "en": "One Gesture per Spell"
+    },
+    "description": {
+      "fr": "Tes sorts frappent 20 % plus fort, mais chacun ne se lance qu'une fois par tour.",
+      "en": "Your spells hit 20% harder, but each can be cast only once per turn."
+    },
+    "branch": "Rhythm",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "bonus",
+        "percent": 20
+      },
+      {
+        "kind": "once-per-turn"
+      }
+    ]
+  },
+  {
+    "id": "thrift",
+    "name": {
+      "fr": "Économie",
+      "en": "Thrift"
+    },
+    "description": {
+      "fr": "Tes sorts coûtent 1 PA de moins (jamais sous 2) ; en échange, ton deck n'a plus que 8 places.",
+      "en": "Your spells cost 1 AP less (never under 2); in exchange, your deck has only 8 places."
+    },
+    "branch": "Rhythm",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "cost",
+        "change": -1,
+        "floor": 2
+      },
+      {
+        "kind": "deck",
+        "size": 8
+      }
+    ]
+  },
+  {
+    "id": "long-breath",
+    "name": {
+      "fr": "Souffle long",
+      "en": "Long Breath"
+    },
+    "description": {
+      "fr": "+1 PM et +1 PA dès ton 4e tour ; en échange, −1 PA tes 3 premiers tours.",
+      "en": "+1 MP and +1 AP from your 4th turn; in exchange, −1 AP on your first 3 turns."
+    },
+    "branch": "Rhythm",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "points",
+        "ap": 1,
+        "mp": 1,
+        "fromTurn": 4
+      },
+      {
+        "kind": "points",
+        "ap": -1,
+        "fromTurn": 1,
+        "untilTurn": 3
+      }
     ]
   }
 ]

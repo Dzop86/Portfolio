@@ -45,7 +45,73 @@ public enum Tier
 [JsonDerivedType(typeof(ElementRule), "element")]
 [JsonDerivedType(typeof(CompoundRule), "compound")]
 [JsonDerivedType(typeof(PrismRule), "prism")]
+[JsonDerivedType(typeof(RangeCapRule), "range-cap")]
+[JsonDerivedType(typeof(MinRangeRule), "min-range")]
+[JsonDerivedType(typeof(SightRule), "sight")]
+[JsonDerivedType(typeof(ZoneRule), "zone")]
+[JsonDerivedType(typeof(PushRule), "push")]
+[JsonDerivedType(typeof(CooldownRule), "cooldown")]
+[JsonDerivedType(typeof(CostRule), "cost")]
+[JsonDerivedType(typeof(OncePerTurnRule), "once-per-turn")]
+[JsonDerivedType(typeof(DeckRule), "deck")]
+[JsonDerivedType(typeof(PointsRule), "points")]
+[JsonDerivedType(typeof(ReserveRule), "reserve")]
+[JsonDerivedType(typeof(BonusRule), "bonus")]
+[JsonDerivedType(typeof(StillRule), "still")]
+[JsonDerivedType(typeof(DanceRule), "dance")]
+[JsonDerivedType(typeof(ApCostRule), "ap-cost")]
+[JsonDerivedType(typeof(FirstCastRule), "first-cast")]
 public abstract record TalentRule;
+
+// The branches Distance and Rhythm (sprint 141, D80, docs/talents-arbre.md §4.3).
+
+/// <summary>Compiled: the spells reach at most <see cref="Max"/> cells (Close Quarters).</summary>
+public sealed record RangeCapRule(int Max) : TalentRule;
+
+/// <summary>Compiled: the damage spells reach no closer than <see cref="Min"/> cells (Artillery), and at least that far.</summary>
+public sealed record MinRangeRule(int Min) : TalentRule;
+
+/// <summary>Compiled: the spells cast in line need no line of sight; the others reach <see cref="OthersChange"/> cells more (Clear Line).</summary>
+public sealed record SightRule(int OthersChange) : TalentRule;
+
+/// <summary>Compiled: the areas shrink a notch, their damage brought back up by the budget's area factors (Tight Zone).</summary>
+public sealed record ZoneRule : TalentRule;
+
+/// <summary>Compiled and living: pushes go <see cref="Cells"/> farther and cost <see cref="ApCost"/> more; a collision hurts <see cref="Collision"/> a cell (Heavy Push).</summary>
+public sealed record PushRule(int Cells, int ApCost, int Collision) : TalentRule;
+
+/// <summary>Compiled: the cooldowns <see cref="Change"/> turns shorter, never under 0, the damage <see cref="PercentPerTurn"/> % lower for each (Short Cooldown).</summary>
+public sealed record CooldownRule(int Change, int PercentPerTurn) : TalentRule;
+
+/// <summary>Compiled: the spells cost <see cref="Change"/> action points more (or fewer), never under <see cref="Floor"/> (Thrift).</summary>
+public sealed record CostRule(int Change, int Floor) : TalentRule;
+
+/// <summary>Compiled: each spell once per turn at most (One Gesture per Spell).</summary>
+public sealed record OncePerTurnRule : TalentRule;
+
+/// <summary>The deck holds <see cref="Size"/> spells at most (Tight Deck, Thrift): the smallest such rule wins.</summary>
+public sealed record DeckRule(int Size) : TalentRule;
+
+/// <summary>Living: action and movement points more (or fewer) at the start of the bearer's turns <see cref="FromTurn"/> to <see cref="UntilTurn"/> (0: on and on).</summary>
+public sealed record PointsRule(int Ap = 0, int Mp = 0, int FromTurn = 1, int UntilTurn = 0) : TalentRule;
+
+/// <summary>Living: up to <see cref="Max"/> action points left at the end of a turn are kept for the next (Reserve).</summary>
+public sealed record ReserveRule(int Max) : TalentRule;
+
+/// <summary>Living: every hit <see cref="Percent"/> % harder (or softer).</summary>
+public sealed record BonusRule(int Percent) : TalentRule;
+
+/// <summary>Living: <see cref="Still"/> % if the bearer spent no movement point this turn, <see cref="Moved"/> % otherwise (Firm Footing).</summary>
+public sealed record StillRule(int Still, int Moved) : TalentRule;
+
+/// <summary>Living: <see cref="PerCell"/> % for every cell walked since the last spell, at most <see cref="Max"/> % (Dancing Step).</summary>
+public sealed record DanceRule(int PerCell, int Max) : TalentRule;
+
+/// <summary>Living: the spells costing <see cref="MinAp"/> to <see cref="MaxAp"/> action points hit <see cref="Percent"/> % harder (or softer).</summary>
+public sealed record ApCostRule(int MinAp, int MaxAp, int Percent) : TalentRule;
+
+/// <summary>Living: the turn's first damage spell <see cref="First"/> %, the following ones <see cref="Others"/> % (First Gesture).</summary>
+public sealed record FirstCastRule(int First, int Others) : TalentRule;
 
 /// <summary>
 /// Compiled (sprint 138): the compound joins the grimoire, its spells transposed from the first two class spells of each
@@ -81,7 +147,8 @@ public sealed record ReactionRule(string Reaction) : TalentRule;
 /// Compiled: every spell reaching farther than 1 cell reaches <see cref="Change"/> cells more (or fewer), never under
 /// its minimum range nor under 1.
 /// </summary>
-public sealed record RangeRule(int Change) : TalentRule;
+/// <param name="AtLeast">Only the spells reaching that far already (Long Sight: 4).</param>
+public sealed record RangeRule(int Change, int AtLeast = 0) : TalentRule;
 
 /// <summary>Living: the bearer's spells hit <see cref="Percent"/> % harder (or softer) on a target <see cref="MinCells"/> to <see cref="MaxCells"/> cells away.</summary>
 public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : TalentRule;
@@ -114,6 +181,12 @@ public sealed record ReactionSpec(string Id, LocalizedText Name, LocalizedText D
 /// <see cref="Source"/>'s next turn (<see cref="TurnsLeft"/> of its turns' ends).
 /// </summary>
 public sealed record Mark(Element Element, int Source, int TurnsLeft);
+
+/// <summary>
+/// What a living talent reads of a hit (sprint 141): whether the caster walked this turn, the cells it walked since its last
+/// spell, the damage spells it cast before this one this turn, and the spell's cost in action points.
+/// </summary>
+public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0);
 
 /// <summary>A hero's grimoire (sprint 138): the spells it may fight with, and the class spells its talents changed into twins.</summary>
 public sealed record Grimoire(IReadOnlyList<string> Spells, IReadOnlyDictionary<string, string> Replaced);
@@ -256,28 +329,109 @@ public static class Talents
     public static bool HasPrism(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<PrismRule>().Any();
 
     /// <summary>A spell as the talents compile it before the fight: its range changed (<see cref="RangeRule"/>).</summary>
+    /// <remarks>
+    /// Since sprint 141, every compiled rule of Distance and Rhythm, in this order: the minimum range of the damage spells,
+    /// the range (never under 1 nor under the minimum, for a spell reaching farther than 1), its cap, the line of sight,
+    /// the area, the push, the cooldown, the cost, the casts per turn.
+    /// </remarks>
     public static Spell Compile(Spell spell, IReadOnlyList<TalentSpec> talents)
     {
         ArgumentNullException.ThrowIfNull(spell);
         ArgumentNullException.ThrowIfNull(talents);
-        int change = talents.SelectMany(t => t.Rules).OfType<RangeRule>().Sum(r => r.Change);
-        if (change == 0 || spell.MaxRange <= 1)
+        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
+        if (rules.Length == 0)
             return spell;
-        return spell with { MaxRange = Math.Max(Math.Max(1, spell.MinRange), spell.MaxRange + change) };
+        Spell s = spell;
+        foreach (MinRangeRule m in rules.OfType<MinRangeRule>().Where(_ => s.DamageMax > 0 && s.MaxRange > 0))
+            s = s with { MinRange = Math.Max(s.MinRange, m.Min), MaxRange = Math.Max(s.MaxRange, m.Min) };
+        int change = rules.OfType<RangeRule>().Where(r => spell.MaxRange >= r.AtLeast).Sum(r => r.Change)
+            + (s.InLine ? 0 : rules.OfType<SightRule>().Sum(r => r.OthersChange));
+        if (change != 0 && s.MaxRange > 1)
+            s = s with { MaxRange = Math.Max(Math.Max(1, s.MinRange), s.MaxRange + change) };
+        foreach (RangeCapRule cap in rules.OfType<RangeCapRule>())
+            s = s with { MaxRange = Math.Min(s.MaxRange, Math.Max(cap.Max, s.MinRange)) };
+        if (s.InLine && rules.OfType<SightRule>().Any())
+            s = s with { LineOfSight = false };
+        if (rules.OfType<ZoneRule>().Any() && s.Area is Area area && area.Radius > 0)
+        {
+            Area smaller = area.Radius == 1 ? Area.One : area with { Radius = area.Radius - 1 };
+            double ratio = AreaFactor(smaller) / AreaFactor(area);
+            s = Scaled(s, ratio) with { Area = smaller.Shape == AreaShape.Point ? null : smaller };
+        }
+        if (rules.OfType<PushRule>().ToArray() is { Length: > 0 } pushes && s.AllEffects.Any(e => e is PushEffect))
+        {
+            s = s with
+            {
+                ApCost = s.ApCost + pushes.Sum(p => p.ApCost),
+                Effects = [.. s.AllEffects.Select(e => e is PushEffect p ? p with { Cells = p.Cells + pushes.Sum(r => r.Cells) } : e)],
+            };
+        }
+        foreach (CooldownRule cd in rules.OfType<CooldownRule>().Where(_ => s.Cooldown > 0))
+        {
+            int removed = Math.Min(s.Cooldown, -cd.Change);
+            s = Scaled(s with { Cooldown = s.Cooldown - removed }, 1 - cd.PercentPerTurn * removed / 100.0);
+        }
+        foreach (CostRule c in rules.OfType<CostRule>().Where(c => s.ApCost > c.Floor))
+            s = s with { ApCost = Math.Max(c.Floor, s.ApCost + c.Change) };
+        if (rules.OfType<OncePerTurnRule>().Any())
+            s = s with { PerTurn = 1 };
+        return s;
     }
+
+    /// <summary>The budget's factor of an area (<c>tools/spells_gen.py</c>): a single cell 1, the larger the less.</summary>
+    private static double AreaFactor(Area a) => (a.Shape, a.Radius) switch
+    {
+        (AreaShape.Point, _) => 1,
+        (AreaShape.Cross, 1) or (AreaShape.Line, 2) => 0.8,
+        (AreaShape.Line, 1) => 0.9,
+        (AreaShape.Circle, 1) => 0.7,
+        _ => 0.6,
+    };
+
+    /// <summary>A spell's damage times a ratio, rounded, never under 1 for a spell that hurts.</summary>
+    private static Spell Scaled(Spell s, double ratio) => s.DamageMax <= 0 ? s
+        : s with { DamageMin = Math.Max(1, (int)Math.Round(s.DamageMin * ratio)), DamageMax = Math.Max(1, (int)Math.Round(s.DamageMax * ratio)) };
+
+    /// <summary>The spells a deck holds with these talents (sprint 141): <see cref="Hero.DeckSize"/>, or fewer (Tight Deck, Thrift).</summary>
+    public static int DeckSize(IEnumerable<TalentSpec> talents) =>
+        talents.SelectMany(t => t.Rules).OfType<DeckRule>().Select(r => r.Size).Append(Hero.DeckSize).Min();
+
+    /// <summary>The damage a collision does a cell, with these talents (Heavy Push).</summary>
+    public static int Collision(IReadOnlyList<TalentSpec> talents) =>
+        talents.SelectMany(t => t.Rules).OfType<PushRule>().Select(r => r.Collision).Append(Fight.CollisionDamage).Max();
+
+    /// <summary>Action and movement points the talents add at the start of the bearer's turn number <paramref name="turn"/> (1 for its first).</summary>
+    public static (int Ap, int Mp) TurnPoints(IReadOnlyList<TalentSpec> talents, int turn)
+    {
+        PointsRule[] rules = [.. talents.SelectMany(t => t.Rules).OfType<PointsRule>().Where(r => turn >= r.FromTurn && (r.UntilTurn == 0 || turn <= r.UntilTurn))];
+        return (rules.Sum(r => r.Ap), rules.Sum(r => r.Mp));
+    }
+
+    /// <summary>The action points left at the end of a turn the talents keep for the next (Reserve).</summary>
+    public static int Reserve(IReadOnlyList<TalentSpec> talents, int apLeft) =>
+        Math.Min(apLeft, talents.SelectMany(t => t.Rules).OfType<ReserveRule>().Sum(r => r.Max));
 
     /// <summary>
     /// The living talents' bonus on a hit in <paramref name="element"/> from <paramref name="from"/> on a fighter standing
     /// on <paramref name="at"/>, in percent: at most <see cref="Ceiling"/>, at least -100.
     /// </summary>
-    public static int Percent(IReadOnlyList<TalentSpec> talents, Cell from, Cell at, Element element = Element.Neutral)
+    /// <param name="context">The bearer's turn so far (sprint 141): whether it walked, the cells since its last spell, its damage spells cast; and the spell's cost.</param>
+    public static int Percent(IReadOnlyList<TalentSpec> talents, Cell from, Cell at, Element element = Element.Neutral, HitContext? context = null)
     {
         ArgumentNullException.ThrowIfNull(talents);
         int distance = from.DistanceTo(at);
         TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
+        if (rules.Length == 0)
+            return 0;
+        HitContext c = context ?? new HitContext();
         int sum = rules.OfType<DistanceRule>().Where(r => distance >= r.MinCells && distance <= r.MaxCells).Sum(r => r.Percent)
             + rules.OfType<ElementRule>().Sum(r => r.Element == element ? r.Percent : element == Element.Neutral ? 0 : r.Others)
-            + (Elements.IsCompound(element) ? rules.OfType<CompoundRule>().Sum(r => r.Percent) : 0);
+            + (Elements.IsCompound(element) ? rules.OfType<CompoundRule>().Sum(r => r.Percent) : 0)
+            + rules.OfType<BonusRule>().Sum(r => r.Percent)
+            + rules.OfType<StillRule>().Sum(r => c.Walked ? r.Moved : r.Still)
+            + rules.OfType<DanceRule>().Sum(r => Math.Min(r.Max, r.PerCell * c.CellsSinceSpell))
+            + rules.OfType<ApCostRule>().Where(r => c.ApCost >= r.MinAp && c.ApCost <= r.MaxAp).Sum(r => r.Percent)
+            + rules.OfType<FirstCastRule>().Sum(r => c.DamageCasts == 0 ? r.First : r.Others);
         return Math.Clamp(sum, -100, Ceiling);
     }
 

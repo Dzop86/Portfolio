@@ -76,7 +76,7 @@ public sealed class PointsEditor
     private void FitDeck()
     {
         Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
-        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(grimoire.Spells.Contains).Distinct()];
+        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(grimoire.Spells.Contains).Distinct().Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(fitted);
     }
@@ -90,7 +90,10 @@ public sealed class PointsEditor
     public bool InDeck(Spell spell) => _deck.Contains((spell ?? throw new ArgumentNullException(nameof(spell))).Id);
 
     /// <summary>A spell can join the deck when the level has unlocked it, it is not there yet, and there is room.</summary>
-    public bool CanAddToDeck(Spell spell) => !ReadOnly && Spells.Contains(spell) && !InDeck(spell) && _deck.Count < Hero.DeckSize;
+    public bool CanAddToDeck(Spell spell) => !ReadOnly && Spells.Contains(spell) && !InDeck(spell) && _deck.Count < DeckLimit;
+
+    /// <summary>The spells the draft's deck holds at most (sprint 141: fewer with Tight Deck or Thrift).</summary>
+    public int DeckLimit => Draft.DeckLimit(Data);
 
     public void AddToDeck(Spell spell)
     {
@@ -114,7 +117,7 @@ public sealed class PointsEditor
         if (ReadOnly || !Data.Spells.TryGetValue(spellId ?? "", out Spell? spell) || !Spells.Contains(spell))
             return false;
         bool moving = _deck.Remove(spellId!);
-        if (!moving && _deck.Count >= Hero.DeckSize)
+        if (!moving && _deck.Count >= DeckLimit)
             return false;
         _deck.Insert(Math.Clamp(index, 0, _deck.Count), spellId!);
         return true;
@@ -143,7 +146,7 @@ public sealed class PointsEditor
         if (ReadOnly || DeckCode.Decode(code, Data) is not (string cls, IReadOnlyList<string> spells) || cls != Hero.Class)
             return null;
         HashSet<string> unlocked = [.. Spells.Select(s => s.Id)];
-        string[] kept = [.. spells.Where(unlocked.Contains).Distinct().Take(Hero.DeckSize)];
+        string[] kept = [.. spells.Where(unlocked.Contains).Distinct().Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(kept);
         return spells.Count - kept.Length;

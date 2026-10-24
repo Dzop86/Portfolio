@@ -676,7 +676,7 @@ public partial class PointsPanel : CanvasLayer
             sub.Text = (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
             tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
         }
-        _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Hero.DeckSize];
+        _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Editor.DeckLimit];
         _clearDeck.Text = Texts["deck.clear"];
         _clearDeck.Disabled = Editor.Deck.Count == 0;
         _copyCode.Text = Texts["deck.copy"];

@@ -31,8 +31,15 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
         ArgumentNullException.ThrowIfNull(data);
         Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
         if (Deck is null)
-            return [.. grimoire.Spells.Take(DeckSize)];
+            return [.. grimoire.Spells.Take(DeckLimit(data))];
         return [.. Deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id))];
+    }
+
+    /// <summary>The spells this hero's deck holds at most: <see cref="DeckSize"/>, fewer with some talents (sprint 141).</summary>
+    public int DeckLimit(GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return Rpg.Core.Talents.DeckSize((Talents ?? []).Where(data.Talents.ContainsKey).Select(id => data.Talents[id]));
     }
 
     /// <summary>The same hero: the ranks compare by content, not by dictionary.</summary>
@@ -111,8 +118,8 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             return null;
         Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
         IReadOnlyList<string> deck = DeckOf(data);
-        if (deck.Count > DeckSize || deck.Distinct(StringComparer.Ordinal).Count() != deck.Count)
-            return $"A deck holds at most {DeckSize} spells, each once.";
+        if (deck.Count > DeckLimit(data) || deck.Distinct(StringComparer.Ordinal).Count() != deck.Count)
+            return $"A deck holds at most {DeckLimit(data)} spells, each once.";
         int stranger = deck.ToList().FindIndex(id => !grimoire.Spells.Contains(id));
         return stranger < 0 ? null : $"The spell '{Deck[stranger]}' is not one this hero has.";
     }

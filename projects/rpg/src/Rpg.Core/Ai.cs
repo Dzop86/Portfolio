@@ -216,7 +216,7 @@ public static class Ai
     {
         Fighter caster = fight.Fighters[g.Caster];
         GlyphEffect e = g.Effect;
-        double hit = Math.Min(e.AverageDamage * (100 + caster.Spec.Characteristics.For(e.Element) + caster.DamageBonusFor(e.Element)) * (100 - f.Resistance(e.Element)) / 10_000, f.Hp + f.Shield);
+        double hit = Math.Min(Fight.Expected(e.AverageDamage, caster, f, e.Element), f.Hp + f.Shield);
         return hit + (e.AsStatus is StatusEffect st ? StatusWorth(st, f) : 0);
     }
 
@@ -372,8 +372,8 @@ public static class Ai
         {
             foreach (Fighter f in area)
             {
-                double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000
-                    * (100 + Talents.Percent(me.Talents, from, f.Cell, spell.Element)) / 100, f.Hp + f.Shield);
+                // The one estimate (sprint 141): the rule of a hit, the living talents read from where it would be cast.
+                double hit = Math.Min(Fight.Expected(spell.AverageDamage, me, f, spell.Element, Talents.Percent(me.Talents, from, f.Cell, spell.Element, me.Context(spell, walking: from != me.Cell))), f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1);
@@ -419,7 +419,7 @@ public static class Ai
                     },
                     PushEffect or PullEffect => -sign * 1.0,
                     // A glyph under a fighter strikes at its next turn, unless it walks away (sprint 130).
-                    GlyphEffect g => -sign * GlyphOdds * (Math.Min(g.AverageDamage * (100 + me.Spec.Characteristics.For(g.Element) + me.DamageBonusFor(g.Element)) * (100 - f.Resistance(g.Element)) / 10_000, f.Hp)
+                    GlyphEffect g => -sign * GlyphOdds * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
                     _ => 0,
                 };

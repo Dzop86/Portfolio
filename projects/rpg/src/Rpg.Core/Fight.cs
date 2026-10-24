@@ -44,6 +44,19 @@ public sealed class Fighter
     /// <summary>A hero, or a hero's summon: its direct hits of a base element mark the enemies (monsters never do, §6.3).</summary>
     public bool LaysMarks { get; internal set; }
 
+    /// <summary>The turns it started (sprint 141): 1 during its first.</summary>
+    public int Turn { get; internal set; }
+
+    /// <summary>Cells walked this turn, cells walked since its last spell, damage spells cast this turn (sprint 141, the living talents).</summary>
+    internal int StepsThisTurn, CellsSinceSpell, DamageCastsThisTurn;
+
+    /// <summary>Action points kept from the turn before (Reserve, sprint 141).</summary>
+    internal int CarriedAp;
+
+    /// <summary>What its living talents would read of a hit with <paramref name="spell"/> now (sprint 141).</summary>
+    public HitContext Context(Spell? spell, bool walking = false) =>
+        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0);
+
     /// <summary>The low-health passives that have fired: once per fight each.</summary>
     internal readonly HashSet<string> LowHpFired = new(StringComparer.Ordinal);
 
@@ -202,6 +215,10 @@ public sealed class Fight
         // By initiative; on a tie, the heroes' team first (sprint 95, D71), then the scenario's order.
         _order = [.. _fighters.OrderByDescending(f => f.Spec.Initiative).ThenBy(f => f.Team).ThenBy(f => f.Id)];
         Round = 1;
+        // The first turn's points from the talents (sprint 141), as at the start of every turn.
+        Current.Turn = 1;
+        (int firstAp, int firstMp) = Talents.TurnPoints(Current.Talents, 1);
+        (Current.Ap, Current.Mp) = (Math.Max(0, Current.Ap + firstAp), Math.Max(0, Current.Mp + firstMp));
         _events.Add(new TurnStarted(Current.Id, Round));
         foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart))
             _pending.Enqueue((Current, p, null));
@@ -349,9 +366,10 @@ public sealed class Fight
             {
                 int crit = Spell.CritBonus(spell.DamageMax);
                 bool canCrit = hit && spell.Crit > 0;
-                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, direct: true) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, direct: true) : 0,
+                HitContext context = me.Context(spell);
+                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, true, context) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, true, context) : 0,
                     Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
-                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, direct: true) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, direct: true) : 0,
+                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, true, context) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, true, context) : 0,
                     hit && f.Cell == target ? ReactionOn(me, f, spell.Element)?.Id : null));
             }
         }
@@ -517,6 +535,8 @@ public sealed class Fight
             if (!IsFree(next) || me.Mp <= 0)
                 break;
             me.Mp--;
+            me.StepsThisTurn++;
+            me.CellsSinceSpell++;
             me.Cell = next;
             walked.Add(next);
             if (!GlyphsAt(next).Any(g => Strikes(g, me) && !g.Struck.Contains(me.Id)))
@@ -581,14 +601,26 @@ public sealed class Fight
     /// A spell's <paramref name="direct"/> hit (sprint 137) is also changed by the caster's living talents
     /// (<see cref="Talents.Percent"/>), apart from its statuses.
     /// </summary>
-    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false)
+    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
-        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element) : 0);
+        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
         long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) * talents;
         return (int)Math.Max(0, scaled / 100_000_000);
+    }
+
+    /// <summary>
+    /// The damage the AI expects a hit of <paramref name="average"/> to do (sprint 141): the one estimate it uses for spells
+    /// and glyphs alike, the talents' <paramref name="talents"/> percent given. It keeps the AI's scale of before D61 (a
+    /// characteristic point as one percent), on which every balance measure was made; <see cref="Damage"/> is the rule.
+    /// </summary>
+    public static double Expected(double average, Fighter caster, Fighter target, Element element, int talents = 0)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(target);
+        return average * (100 + caster.Spec.Characteristics.For(element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100;
     }
 
     /// <summary>
@@ -608,14 +640,14 @@ public sealed class Fight
     /// cells of it, outside the spell's area (the lowest id on a tie). It is no spell's hit: no passive answers it, no mark
     /// is left.
     /// </summary>
-    private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area, int percent, Element element)
+    private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area, int percent, Element element, HitContext context)
     {
         Fighter? to = Fighters.Where(f => f.IsAlive && f != from && f.Team == from.Team && !area.Contains(f) && f.Cell.DistanceTo(from.Cell) <= Elements.ArcCells)
             .OrderBy(f => f.Cell.DistanceTo(from.Cell)).ThenBy(f => f.Id).FirstOrDefault();
         if (to is null)
             return;
         _events.Add(new Arced(from.Id, to.Id));
-        Hurt(to, Damage(roll, me, to, element, direct: true) * percent / 100, element);
+        Hurt(to, Damage(roll, me, to, element, true, context) * percent / 100, element);
     }
 
     /// <summary>
@@ -688,6 +720,11 @@ public sealed class Fight
         _events.Add(new SpellCast(me.Id, spell.Id, target, critical));
         int roll = _rng.Next(spell.DamageMin, spell.DamageMax) + (critical ? Spell.CritBonus(spell.DamageMax) : 0);
         IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
+        // What the living talents read (sprint 141), as the turn stood before this spell; then counted.
+        HitContext context = me.Context(spell);
+        me.CellsSinceSpell = 0;
+        if (spell.DamageMax > 0)
+            me.DamageCastsThisTurn++;
         if (spell.DamageMax > 0)
         {
             foreach (Fighter hit in area)
@@ -696,7 +733,7 @@ public sealed class Fight
                     continue;
                 // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
                 bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
-                if (Hurt(hit, Damage(roll, me, hit, spell.Element, direct: true), spell.Element) > 0 && hit.IsAlive)
+                if (Hurt(hit, Damage(roll, me, hit, spell.Element, true, context), spell.Element) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
@@ -707,7 +744,7 @@ public sealed class Fight
                 int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100 : 0,
                     hit.StatusList.Where(s => s.Stat == Stat.Electrified).Select(s => s.Value).DefaultIfEmpty(0).Max());
                 if (jump > 0 && !IsOver)
-                    Arc(me, hit, roll, area, jump, spell.Element);
+                    Arc(me, hit, roll, area, jump, spell.Element, context);
             }
         }
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
@@ -782,7 +819,7 @@ public sealed class Fight
                         _events.Add(new Shielded(f.Id, shield.Amount, shield.Turns));
                         break;
                     case PushEffect push:
-                        Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true);
+                        Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true, Talents.Collision(me.Talents));
                         break;
                     case PullEffect pull:
                         Shove(f, Cell.Direction(f.Cell, me.Cell), Math.Min(pull.Cells, f.Cell.DistanceTo(me.Cell) - 1), collide: false);
@@ -854,7 +891,8 @@ public sealed class Fight
     }
 
     /// <summary>Moves a fighter cell by cell; what stops a push hurts, per cell left.</summary>
-    private void Shove(Fighter f, Cell direction, int cells, bool collide)
+    /// <param name="collision">The damage a cell not travelled does (Heavy Push, sprint 141).</param>
+    private void Shove(Fighter f, Cell direction, int cells, bool collide, int collision = CollisionDamage)
     {
         if (direction == new Cell(0, 0) || cells <= 0)
             return;
@@ -872,7 +910,7 @@ public sealed class Fight
         f.Cell = at;
         _events.Add(new Pushed(f.Id, path, blocked));
         if (blocked > 0)
-            Hurt(f, blocked * CollisionDamage);
+            Hurt(f, blocked * collision);
         // Where it lands, a glyph strikes (sprint 130), after the collision.
         if (path.Count > 0)
             StrikeAt(f);
@@ -994,8 +1032,9 @@ public sealed class Fight
 
     private void NextTurn()
     {
-        // The statuses and shields of the fighter whose turn ends count one turn less.
+        // The statuses and shields of the fighter whose turn ends count one turn less; the points it keeps (Reserve, sprint 141).
         Fighter ending = Current;
+        ending.CarriedAp = ending.IsAlive ? Talents.Reserve(ending.Talents, ending.Ap) : 0;
         foreach (Status st in ending.StatusList.Where(st => st.TurnsLeft <= 1).ToList())
             _events.Add(new StatusEnded(ending.Id, st.Stat));
         for (int i = 0; i < ending.StatusList.Count; i++)
@@ -1030,8 +1069,13 @@ public sealed class Fight
             return;
         }
         Fighter next = Current;
-        next.Ap = Math.Max(0, next.Spec.Ap + next.StatusList.Where(st => st.Stat == Stat.Ap).Sum(st => st.Value));
-        next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value));
+        // With the talents' points of this turn and the points kept (sprint 141).
+        next.Turn++;
+        (int talentAp, int talentMp) = Talents.TurnPoints(next.Talents, next.Turn);
+        next.Ap = Math.Max(0, next.Spec.Ap + next.StatusList.Where(st => st.Stat == Stat.Ap).Sum(st => st.Value) + talentAp + next.CarriedAp);
+        next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value) + talentMp);
+        next.CarriedAp = 0;
+        next.StepsThisTurn = next.DamageCastsThisTurn = 0;
         next.CastsThisTurn.Clear();
         foreach (string id in next.Cooldowns.Keys.ToList())
         {

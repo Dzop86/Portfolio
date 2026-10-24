@@ -6,7 +6,12 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je prends des talents de Distance et de Rythme, que l'IA estime avec une seule fonction (rpg) ; xUnit. | 3 | À faire |
+| En tant que joueur, je prends des talents de Distance et de Rythme, que l'IA estime avec une seule fonction (rpg) ; xUnit. | 3 | Fait |
+
+## Fait
+- Les 8 talents de Distance qui restaient et les 9 de Rythme, compilés ou vivants, et les points d'un tour (T107).
+- Une seule estimation des coups dans l'IA (`Fight.Expected`), qui lit les talents vivants depuis la case d'où elle lancerait ; son alignement sur la vraie règle des dégâts déplace huit mesures d'équilibre : reporté aux mesures de S144.
+- Tests : `DistanceRhythmTests` (9).
 
 ## Rétro (Charles)
 - Ce qui a marché :
