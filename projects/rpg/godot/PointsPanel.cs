@@ -658,12 +658,16 @@ public partial class PointsPanel : CanvasLayer
         _reset.Disabled = Editor.CharacteristicPointsLeft == Progression.CharacteristicPoints(Editor.Hero.Level);
         _help.Text = Texts["sheet.help"];
         _spellsLeft.Text = Texts["points.spells", Editor.SpellPointsLeft];
+        var bookNow = new SpellBook(Editor);
+        // A compound's chip only while the talents give its spells (Charles, after sprint 144).
+        if (_filter is Element f && !bookNow.Elements.Contains(f))
+            _filter = null;
         foreach ((Element? e, Button chip) in _chips)
         {
             chip.Text = Capital(e is Element el ? Texts["element." + el] : Texts["sd.all"]);
+            chip.Visible = e is not Element shown || bookNow.Elements.Contains(shown);
             chip.SetPressedNoSignal(e == _filter);
         }
-        var bookNow = new SpellBook(Editor);
         foreach ((Spell spell, Button tile, Label name, Label sub) in _tiles2)
         {
             // The compounds' spells come and go with the talents of the draft (sprint 138).
@@ -712,6 +716,9 @@ public partial class PointsPanel : CanvasLayer
 
     /// <summary>The spells on the spells tab, unlocked or not, as the self-test counts them.</summary>
     public int SpellTiles => _tiles2.Count;
+
+    /// <summary>The elements one may filter the book by, as the self-test reads them: a compound's only with its talents.</summary>
+    public IEnumerable<Element> ChipsShown => _chips.Where(c => c.Chip.Visible && c.Element is not null).Select(c => c.Element!.Value);
 
     public string MessageText => _message.Text;
 

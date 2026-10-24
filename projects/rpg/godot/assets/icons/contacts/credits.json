@@ -1,0 +1,7 @@
+{
+ "add": "delapouite/person",
+ "ignore": "delapouite/invisible",
+ "invite": "delapouite/team-upgrade",
+ "remove": "lorc/cross-mark",
+ "whisper": "lorc/envelope"
+}

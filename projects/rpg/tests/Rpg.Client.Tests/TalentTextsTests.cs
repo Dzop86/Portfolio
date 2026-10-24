@@ -77,8 +77,11 @@ public class TalentTextsTests
         Assert.Equal("#f2d03b", ElementStyle.Colour(Element.Lightning));
         var editor = new PointsEditor(Sentinel(35), Data);
         Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
+        // No Lightning to filter the book by before the talent (Charles, after sprint 144).
+        Assert.DoesNotContain(Element.Lightning, new SpellBook(editor).Elements);
         editor.Take(Data.Talents["open-lightning"]);
         Assert.Equal(4, new SpellBook(editor).Spells.Count(b => b.Element == Element.Lightning));
+        Assert.Contains(Element.Lightning, new SpellBook(editor).Elements);
         Assert.True(editor.CanAddToDeck(storm) || editor.Deck.Count == Hero.DeckSize);
         editor.RemoveFromDeck(Data.Spells["stone-arrow"]);
         editor.AddToDeck(storm);

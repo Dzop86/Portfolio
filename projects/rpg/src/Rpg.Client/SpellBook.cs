@@ -43,6 +43,12 @@ public sealed class SpellBook
 
     public IReadOnlyList<BookSpell> Spells { get; }
 
+    /// <summary>
+    /// The elements of the spells in the book, in order: a compound's only while the talents give its spells (Charles,
+    /// after sprint 144: no Lightning to filter by before the tree's passive changed the elements).
+    /// </summary>
+    public IReadOnlyList<Element> Elements => [.. Spells.Select(s => s.Element).Distinct().Order()];
+
     /// <summary>The spells of an element; all of them without one.</summary>
     public IReadOnlyList<BookSpell> Of(Element? element) => element is Element e ? [.. Spells.Where(s => s.Element == e)] : Spells;
 }

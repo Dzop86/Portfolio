@@ -4,50 +4,93 @@ using Rpg.Client;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// The side bar over the town (sprint 69): a column of discreet icons on the right edge, one per
-/// window of <see cref="WindowState.Bar"/> then the menu; hovering one shows its name and key, a click
-/// opens or closes its window, the open one stays lit. The icons are game-icons.net's (CC BY 3.0,
-/// authors in <c>assets/icons/bar/credits.json</c>).
+/// The menus over the town (sprint 69; a grid since Charles's playtest of sprint 144, the way Dofus does it): a small
+/// "Menus" panel at the bottom of the right edge, three icons a row, one per window of <see cref="WindowState.Bar"/>
+/// then the mini-map and the menu, each in its own colour with its key in a corner; hovering one shows its name and key,
+/// a click opens or closes its window, the open one stays lit. The icons are game-icons.net's (CC BY 3.0, authors in
+/// <c>assets/icons/bar/credits.json</c>).
 /// </summary>
 public partial class SideBar : CanvasLayer
 {
+    /// <summary>Icons a row: the nine of a hero fill three rows, a third of the old column's height.</summary>
+    public const int Columns = 3;
+
     private readonly Dictionary<GameWindow, Button> _buttons = [];
     private Button _menu = null!;
+    private Label _title = null!;
 
     public event Action<GameWindow>? WindowPressed;
     public event Action? MenuPressed;
 
-    /// <summary>The mini-map's icon (sprint 108), under the windows': it shows or hides the mini-map, lit while shown.</summary>
+    /// <summary>The mini-map's icon (sprint 108), after the windows': it shows or hides the mini-map, lit while shown.</summary>
     public event Action? MiniMapPressed;
 
     private Button _miniMap = null!;
 
+    // Each icon's colour, so that one finds it by its colour as much as by its drawing.
+    private static readonly Dictionary<string, Color> Hues = new()
+    {
+        ["characteristics"] = new Color("e8a33d"),
+        ["spells"] = new Color("b48cff"),
+        ["inventory"] = new Color("d09a5c"),
+        ["map"] = new Color("7fd06b"),
+        ["journal"] = new Color("f2d36b"),
+        ["jobs"] = new Color("a9bccd"),
+        ["contacts"] = new Color("6bb8f2"),
+        ["minimap"] = new Color("4fd1c5"),
+        ["menu"] = new Color("cfcfcf"),
+    };
+
     public void Build(Texts texts, bool withCharacter)
     {
-        var column = new VBoxContainer { AnchorLeft = 1, AnchorRight = 1, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -64, OffsetRight = -12, OffsetTop = -150, OffsetBottom = 150, Alignment = BoxContainer.AlignmentMode.Center };
-        column.AddThemeConstantOverride("separation", 8);
-        AddChild(column);
-        foreach ((GameWindow window, _) in WindowState.Bar)
+        var panel = new PanelContainer
         {
-            Button b = Icon(column, window.ToString().ToLowerInvariant());
-            b.ToggleMode = true;
+            AnchorLeft = 1,
+            AnchorRight = 1,
+            AnchorTop = 1,
+            AnchorBottom = 1,
+            OffsetRight = -12,
+            OffsetBottom = -12,
+            GrowHorizontal = Control.GrowDirection.Begin,
+            GrowVertical = Control.GrowDirection.Begin,
+        };
+        StyleBoxFlat frame = Tile(new Color(0.1f, 0.1f, 0.12f, 0.88f), new Color(1, 1, 1, 0.12f), 8);
+        frame.ContentMarginTop = 4;
+        panel.AddThemeStyleboxOverride("panel", frame);
+        AddChild(panel);
+        var column = new VBoxContainer();
+        column.AddThemeConstantOverride("separation", 4);
+        panel.AddChild(column);
+        _title = new Label { HorizontalAlignment = HorizontalAlignment.Center, Modulate = new Color(1, 1, 1, 0.7f) };
+        _title.AddThemeFontSizeOverride("font_size", 12);
+        column.AddChild(_title);
+        var grid = new GridContainer { Columns = Columns };
+        grid.AddThemeConstantOverride("h_separation", 4);
+        grid.AddThemeConstantOverride("v_separation", 4);
+        column.AddChild(grid);
+        foreach ((GameWindow window, char key) in WindowState.Bar)
+        {
             // The character's windows need a character (not the classless hero of the self-tests).
-            b.Visible = withCharacter || window == GameWindow.Map;
+            if (!withCharacter && window != GameWindow.Map)
+                continue;
+            Button b = Icon(grid, window.ToString().ToLowerInvariant(), key.ToString());
+            b.ToggleMode = true;
             b.Pressed += () => WindowPressed?.Invoke(window);
             _buttons[window] = b;
         }
-        _miniMap = Icon(column, "minimap");
+        _miniMap = Icon(grid, "minimap", "N");
         _miniMap.ToggleMode = true;
         _miniMap.Pressed += () => MiniMapPressed?.Invoke();
-        _menu = Icon(column, "menu");
+        _menu = Icon(grid, "menu", "");
         _menu.Pressed += () => MenuPressed?.Invoke();
         SetTexts(texts);
     }
 
     public void SetTexts(Texts texts)
     {
-        foreach ((GameWindow window, char key) in WindowState.Bar)
-            _buttons[window].TooltipText = texts["bar.tip", texts["bar." + window], key];
+        _title.Text = texts["bar.title"];
+        foreach ((GameWindow window, Button b) in _buttons)
+            b.TooltipText = texts["bar.tip", texts["bar." + window], WindowState.Bar.First(w => w.Window == window).Key];
         _miniMap.TooltipText = texts["minimap.tip"];
         _menu.TooltipText = texts["bar.tip", texts["bar.menu"], texts["menu.key"]];
     }
@@ -64,46 +107,63 @@ public partial class SideBar : CanvasLayer
     }
 
     /// <summary>The tooltips, top to bottom, of the icons shown (for the self-test).</summary>
-    public IEnumerable<string> Tips => _buttons.Values.Where(b => b.Visible).Append(_miniMap).Append(_menu).Select(b => b.TooltipText);
+    public IEnumerable<string> Tips => _buttons.Values.Append(_miniMap).Append(_menu).Select(b => b.TooltipText);
 
-    public bool Lit(GameWindow window) => _buttons[window].ButtonPressed;
+    /// <summary>The rows of icons (for the self-test): three for a hero, where the old column took nine places.</summary>
+    public int Rows => (_buttons.Count + 2 + Columns - 1) / Columns;
 
-    private static Button Icon(VBoxContainer parent, string name)
+    public bool Lit(GameWindow window) => _buttons.TryGetValue(window, out Button? b) && b.ButtonPressed;
+
+    private static Button Icon(GridContainer parent, string name, string key)
     {
+        Color hue = Hues[name];
         var b = new Button
         {
-            CustomMinimumSize = new Vector2(52, 52),
+            CustomMinimumSize = new Vector2(48, 48),
             Icon = GD.Load<Texture2D>($"res://assets/icons/bar/{name}.svg"),
             ExpandIcon = true,
             IconAlignment = HorizontalAlignment.Center,
             FocusMode = Control.FocusModeEnum.None,
-            Modulate = new Color(1, 1, 1, 0.8f),
         };
-        // Discreet: a dark rounded tile, lit in the accent when its window is open.
-        b.AddThemeStyleboxOverride("normal", Tile(new Color(0.12f, 0.12f, 0.12f, 0.75f), new Color(1, 1, 1, 0.15f)));
-        b.AddThemeStyleboxOverride("hover", Tile(new Color(0.2f, 0.2f, 0.2f, 0.9f), new Color(1, 1, 1, 0.4f)));
-        b.AddThemeStyleboxOverride("pressed", Tile(new Color(0.2f, 0.25f, 0.15f, 0.95f), new Color("bef374")));
-        b.AddThemeStyleboxOverride("hover_pressed", Tile(new Color(0.24f, 0.3f, 0.18f, 0.95f), new Color("bef374")));
-        b.AddThemeConstantOverride("icon_max_width", 34);
+        // A tile tinted by its colour, its drawing in that colour; lit in the accent when its window is open.
+        b.AddThemeStyleboxOverride("normal", Tile(hue.Darkened(0.78f), hue.Darkened(0.45f), 8));
+        b.AddThemeStyleboxOverride("hover", Tile(hue.Darkened(0.65f), hue, 8));
+        b.AddThemeStyleboxOverride("pressed", Tile(hue.Darkened(0.6f), new Color("bef374"), 8, 2));
+        b.AddThemeStyleboxOverride("hover_pressed", Tile(hue.Darkened(0.55f), new Color("bef374"), 8, 2));
+        foreach (string state in new[] { "icon_normal_color", "icon_pressed_color", "icon_focus_color" })
+            b.AddThemeColorOverride(state, hue);
+        b.AddThemeColorOverride("icon_hover_color", hue.Lightened(0.3f));
+        b.AddThemeColorOverride("icon_hover_pressed_color", hue.Lightened(0.3f));
+        b.AddThemeConstantOverride("icon_max_width", 30);
+        // Its key in the bottom right corner, to learn it without hovering.
+        if (key.Length > 0)
+        {
+            var letter = new Label { Text = key, MouseFilter = Control.MouseFilterEnum.Ignore, AnchorLeft = 1, AnchorRight = 1, AnchorTop = 1, AnchorBottom = 1, OffsetLeft = -14, OffsetTop = -17, OffsetRight = -3, OffsetBottom = -1, HorizontalAlignment = HorizontalAlignment.Right };
+            letter.AddThemeFontSizeOverride("font_size", 11);
+            letter.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.75f));
+            letter.AddThemeColorOverride("font_outline_color", new Color(0, 0, 0, 0.9f));
+            letter.AddThemeConstantOverride("outline_size", 3);
+            b.AddChild(letter);
+        }
         parent.AddChild(b);
         return b;
     }
 
-    private static StyleBoxFlat Tile(Color bg, Color border) => new()
+    private static StyleBoxFlat Tile(Color bg, Color border, int corner, int width = 1) => new()
     {
         BgColor = bg,
         BorderColor = border,
-        BorderWidthLeft = 1,
-        BorderWidthRight = 1,
-        BorderWidthTop = 1,
-        BorderWidthBottom = 1,
-        CornerRadiusTopLeft = 10,
-        CornerRadiusTopRight = 10,
-        CornerRadiusBottomLeft = 10,
-        CornerRadiusBottomRight = 10,
-        ContentMarginLeft = 8,
-        ContentMarginRight = 8,
-        ContentMarginTop = 8,
-        ContentMarginBottom = 8,
+        BorderWidthLeft = width,
+        BorderWidthRight = width,
+        BorderWidthTop = width,
+        BorderWidthBottom = width,
+        CornerRadiusTopLeft = corner,
+        CornerRadiusTopRight = corner,
+        CornerRadiusBottomLeft = corner,
+        CornerRadiusBottomRight = corner,
+        ContentMarginLeft = 6,
+        ContentMarginRight = 6,
+        ContentMarginTop = 6,
+        ContentMarginBottom = 6,
     };
 }

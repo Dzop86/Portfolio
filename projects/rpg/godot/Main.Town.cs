@@ -2223,6 +2223,9 @@ public partial class Main
             int twins = GameData.Embedded.Spells.Values.Count(sp => sp.Twin is string t && GameData.Embedded.Class(_hero.Class)?.Spells.Contains(t) == true);
             if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0) + twins)
                 problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
+            // An element to filter by only when the book has its spells: no Lightning before the talent (Charles, after sprint 144).
+            if (!_pointsPanel.ChipsShown.SequenceEqual(new SpellBook(editor).Elements))
+                problems.Add($"the spells tab filters by {string.Join(", ", _pointsPanel.ChipsShown)}");
             await CheckDeck(problems);
             // The talents tab shows every talent of the tree, those the hero has taken pressed (sprint 137).
             _pointsPanel.ShowTalents();
@@ -2456,6 +2459,9 @@ public partial class Main
         var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
         if (!_bar!.Tips.SequenceEqual(tips))
             problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
+        // A small grid, the way Dofus does it (Charles, after sprint 144): three rows at most.
+        if (_bar.Rows > 3)
+            problems.Add($"the menus take {_bar.Rows} rows");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
         {

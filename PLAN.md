@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S145 | 362 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S145 | 364 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 583 points sur 145 sprints de deux semaines.
+Total : 585 points sur 145 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -160,6 +160,9 @@ Conçue par le game designer (v7 de `projects/rpg/docs/suite-apres-d69.md`, §11
 
 ## Osmose : l'arbre des talents commun aux classes (24 octobre 2026, D80)
 Conçu par le game designer (v3 de `projects/rpg/docs/talents-arbre.md`, éléments dans `projects/rpg/docs/elements.md`), valeurs par défaut validées par Charles : S137 (5) la tranche verticale, Enlisé et Au plus près pour la Sentinelle, avec un go ou pas go ; S138 (5) les éléments composés et la Foudre, S139 (3) la Foudre pour toutes les classes, S140 (5) la fenêtre « Ma route » et les réactions, S141 (3) Distance et Rythme, S142 (4) Terrain et la Rémanence, S143 (4) le Soutien, S144 (3) l'équilibre et un playtest ; les guildes passent en S145. Les 57 autres points (cinq paires, Lumière et Ténèbres, triplets, spécialisations) viendront avec les chapitres, Unisson avec la Saga II.
+
+## Osmose : après le playtest du sprint 144 (25 octobre 2026, D81)
+Retours de Charles sur la 1.0.131, dans le sprint 144 (2 points de plus, 5 en tout) : une fenêtre d'amis à la manière de Dofus (onglets, colonnes, cartes, icônes), un panneau « Menus » en grille au bord droit à la place de la colonne d'icônes, pas de Foudre dans le filtre des sorts sans son talent. L'arbre des talents en vrai arbre (tronc, paires d'éléments, styles de jeu) attend les réponses au questionnaire du game designer (`projects/rpg/docs/talents-arbre-questions.md`) et sera chiffré ensuite.
 
 ## Gestion de projet
 - Scrum, sprints de deux semaines, Definition of Done dans `data/scrum.json`.
