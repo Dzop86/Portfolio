@@ -241,5 +241,5 @@ public sealed record PassiveSpec(
     public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
 }
 
-/// <summary>A status on a fighter during a fight.</summary>
-public sealed record Status(Stat Stat, int Value, int TurnsLeft, Element Element, int Source);
+/// <summary>A status on a fighter during a fight; set by a reaction (sprint 137), it bears its id.</summary>
+public sealed record Status(Stat Stat, int Value, int TurnsLeft, Element Element, int Source, string? Reaction = null);

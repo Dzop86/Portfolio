@@ -68,7 +68,8 @@ public sealed record SpellCast(int Fighter, string Spell, Cell Target, bool Crit
 public sealed record HeroNumbers(int Hp, int Ap, int Mp, int Initiative, Characteristics Stats, Characteristics Worn, IReadOnlyList<string> Spells);
 
 /// <param name="CritMin">The damage of a critical hit's lowest roll; with <paramref name="CritMax"/>, 0 when the spell never lands one.</param>
-public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0)
+/// <param name="Reaction">The reaction the hit would set off on this fighter (sprint 137), if any.</param>
+public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0, string? Reaction = null)
 {
     /// <summary>Even the lowest roll kills, through the shields.</summary>
     public bool SureKill => DamageMax > 0 && DamageMin >= Fighter.Hp + Fighter.Shield;
@@ -89,7 +90,8 @@ public sealed record ShieldAbsorbed(int Fighter, int Amount, int ShieldLeft) : F
 /// <summary>Pushed or pulled along <see cref="Path"/>; <see cref="Blocked"/> cells it could not travel (collision).</summary>
 public sealed record Pushed(int Fighter, IReadOnlyList<Cell> Path, int Blocked) : FightEvent;
 
-public sealed record StatusAdded(int Fighter, Stat Stat, int Value, int Turns, Element Element) : FightEvent;
+/// <summary>A status set on a fighter; by a reaction (sprint 137), with its id.</summary>
+public sealed record StatusAdded(int Fighter, Stat Stat, int Value, int Turns, Element Element, string? Reaction = null) : FightEvent;
 
 public sealed record StatusEnded(int Fighter, Stat Stat) : FightEvent;
 
@@ -113,6 +115,15 @@ public sealed record GlyphTriggered(int Glyph, int Fighter) : FightEvent;
 
 /// <summary>A glyph vanishes: its turns are over, its caster died, or it was laid again.</summary>
 public sealed record GlyphEnded(int Glyph) : FightEvent;
+
+/// <summary>A hero's hit leaves the mark of its element on an enemy (sprint 137), in place of any before.</summary>
+public sealed record Marked(int Fighter, Element Element, int Source) : FightEvent;
+
+/// <summary>A fighter's mark goes: used up by a reaction, its time over, its source or bearer dead.</summary>
+public sealed record MarkEnded(int Fighter) : FightEvent;
+
+/// <summary>A hero's hit sets off a reaction on a marked enemy (sprint 137): its statuses follow.</summary>
+public sealed record ReactionTriggered(int Fighter, string Reaction, int Caster) : FightEvent;
 
 /// <summary>The end of the fight; <see cref="WinningTeam"/> is null for a draw at the round limit.</summary>
 public sealed record FightEnded(int? WinningTeam) : FightEvent;

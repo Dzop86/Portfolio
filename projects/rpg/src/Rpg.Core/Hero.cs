@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Rpg.Core;
@@ -9,10 +10,12 @@ namespace Rpg.Core;
 /// height, build) only change what is shown. With its level come points (<see cref="Progression"/>):
 /// the characteristics it was given (<see cref="Stats"/>) and the ranks of its spells
 /// (<see cref="Ranks"/>, rank 1 when not listed); what it wears (<see cref="Worn"/>, sprint 59); and the
-/// spells it fights with (<see cref="Deck"/>, sprint 68).
+/// spells it fights with (<see cref="Deck"/>, sprint 68); from level 30, the talents of the tree shared by every
+/// class (<see cref="Talents"/>, sprint 137, D80).
 /// </summary>
 public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1,
-    Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null)
+    Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null,
+    IReadOnlyList<string>? Talents = null)
 {
     /// <summary>The spells a hero fights with: twelve, in two rows of six (D62).</summary>
     public const int DeckSize = 12;
@@ -34,7 +37,12 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     public bool Equals(Hero? other) =>
         other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
         && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems)
-        && (Deck is null) == (other.Deck is null) && (Deck ?? []).SequenceEqual(other.Deck ?? []);
+        && (Deck is null) == (other.Deck is null) && (Deck ?? []).SequenceEqual(other.Deck ?? [])
+        && TalentsTaken.SequenceEqual(other.TalentsTaken);
+
+    /// <summary>The talents taken, by id in order: the order they were taken in does not matter.</summary>
+    [JsonIgnore]
+    public IEnumerable<string> TalentsTaken => (Talents ?? []).Order(StringComparer.Ordinal);
 
     public override int GetHashCode() => HashCode.Combine(Name, Look, Class, Colour, Level, Stats ?? Characteristics.None);
 
@@ -90,7 +98,8 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             : Math.Abs(Height) > Shape || Math.Abs(Build) > Shape ? $"Height and build are -{Shape} to {Shape}."
             : Level is < 1 or > MaxLevel ? $"The level is 1 to {MaxLevel}."
             : Class is not null && data.Class(Class) is null ? $"Unknown class '{Class}'."
-            : PointsProblem(data) ?? DeckProblem(data) ?? (Worn is null ? null : Equipment.Problem(Worn, Level, data));
+            : PointsProblem(data) ?? DeckProblem(data) ?? (Worn is null ? null : Equipment.Problem(Worn, Level, data))
+                ?? (Talents is null ? null : Rpg.Core.Talents.Problem(Talents, Level, data));
     }
 
     /// <summary>At most twelve spells, each once, each a spell of the class the level has unlocked.</summary>

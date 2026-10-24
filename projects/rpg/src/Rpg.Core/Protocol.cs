@@ -39,13 +39,13 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, long Xp = 0, Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyList<string>? Quests = null,
     IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null,
     IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null,
-    int? Hp = null, DateTimeOffset? HpAt = null, bool InFight = false)
+    int? Hp = null, DateTimeOffset? HpAt = null, bool InFight = false, IReadOnlyList<string>? Talents = null)
 {
     /// <summary>The character's hit points at a moment (sprint 101): set, grown back since, frozen in a fight.</summary>
     public int LifeAt(DateTimeOffset now, GameData data) => Life.Now(Life.MaxHp(Hero, data), Hp, HpAt, InFight, Place?.Town, now);
 
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck, Talents);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
@@ -133,7 +133,8 @@ public sealed record EnterDungeon(string? Dungeon);
 public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);
 
 /// <summary>How a character spends its points: characteristics, and the ranks of its spells (rank 1 when not listed).</summary>
-public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null);
+/// <param name="Talents">The talents of the tree (sprint 137); null keeps those saved (a client from before them).</param>
+public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null, IReadOnlyList<string>? Talents = null);
 
 public static class Servers
 {

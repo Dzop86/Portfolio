@@ -648,6 +648,16 @@ public partial class Main : Node3D
             case GlyphEnded g:
                 _board.RemoveGlyph(g.Glyph);
                 return Task.CompletedTask;
+            // The marks and the reactions (sprint 137): a disc of the element above the fighter; the reaction's name floats up.
+            case Marked m:
+                _views[m.Fighter].ShowMark(m.Element);
+                return Task.CompletedTask;
+            case MarkEnded m:
+                _views[m.Fighter].ShowMark(null);
+                return Task.CompletedTask;
+            case ReactionTriggered r:
+                _views[r.Fighter].ShowNumber(_controller.Fight.Data.Reactions[r.Reaction].Name.In(_options.Lang) + (_options.Lang == "fr" ? " !" : "!"), new Color("bef374"), instant ? 0 : 1.2);
+                return Task.CompletedTask;
             case Healed h:
                 _views[h.Fighter].ShowNumber($"+{h.Amount}", new Color(ElementStyle.Heal), instant ? 0 : 0.9);
                 return Task.CompletedTask;
@@ -754,6 +764,10 @@ public partial class Main : Node3D
                     problems.Add($"{f.Name.En} {(f.IsAlive ? "alive and hidden" : "fallen and still drawn")}");
                 if (v.HpText != $"{f.Hp}/{f.MaxHp}")
                     problems.Add($"{f.Name.En} shows {v.HpText}, has {f.Hp}");
+                // The mark drawn is the fighter's (sprint 137).
+                if (v.MarkShown != f.Mark?.Element)
+                    problems.Add($"{f.Name.En} shows the mark {v.MarkShown}, bears {f.Mark?.Element}");
+                _markChecks += f.Mark is null ? 0 : 1;
                 checks++;
             }
             // The glyphs drawn are the fight's, each on all its cells (sprint 130); counted for the report (sprint 132).
@@ -833,6 +847,9 @@ public partial class Main : Node3D
     // How many glyphs the self-test found drawn as the fight has them, over all its checks (sprint 132).
     private int _glyphChecks;
 
+    /// <summary>The marks seen on the board during a self-test (sprint 137), for the report.</summary>
+    private int _markChecks;
+
     private async Task FinishSelfTest(List<string> problems, int checks)
     {
         string? progress = null;
@@ -875,7 +892,7 @@ public partial class Main : Node3D
         }
         string report = SelfPlay.Report(_controller.Fight);
         report += problems.Count == 0
-            ? $" Views checked {checks} times, {_board.Tiles} tiles." + (_glyphChecks > 0 ? $" Glyphs checked {_glyphChecks} times." : "")
+            ? $" Views checked {checks} times, {_board.Tiles} tiles." + (_glyphChecks > 0 ? $" Glyphs checked {_glyphChecks} times." : "") + (_markChecks > 0 ? $" Marks checked {_markChecks} times." : "")
             : $" VIEW PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (_selfTestNote is not null)
             report += " " + _selfTestNote;

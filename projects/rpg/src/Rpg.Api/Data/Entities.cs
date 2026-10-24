@@ -79,6 +79,12 @@ public sealed class Character
     /// <summary>The spells fought with, in the order of the bar, their ids separated by commas (sprint 68); empty: the default deck.</summary>
     public string Deck { get; set; } = "";
 
+    /// <summary>The talents of the tree taken (sprint 137, D80), their ids in order separated by commas.</summary>
+    public string Talents { get; set; } = "";
+
+    /// <summary>The talents, without those the tree no longer has.</summary>
+    public string[] TalentList => [.. Talents.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(GameData.Embedded.Talents.ContainsKey)];
+
     /// <summary>The experience of each trade (sprint 81), as "job:xp" separated by commas.</summary>
     public string Jobs { get; set; } = "";
 
@@ -176,7 +182,7 @@ public sealed class Character
     public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>The character as the rules see it.</summary>
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList, TalentList.Length == 0 ? null : TalentList);
 }
 
 /// <summary>

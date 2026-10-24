@@ -5,9 +5,11 @@ public sealed class Fighter
 {
     internal readonly Dictionary<string, int> CastsThisTurn = new(StringComparer.Ordinal);
 
-    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells, IReadOnlyList<PassiveSpec> passives, int? summoner = null, string? summonKind = null)
+    internal Fighter(int id, FighterSpec spec, Cell cell, IReadOnlyList<Spell> spells, IReadOnlyList<PassiveSpec> passives, int? summoner = null, string? summonKind = null,
+        IReadOnlyList<TalentSpec>? talents = null)
     {
         Passives = passives;
+        Talents = talents ?? [];
         Id = id;
         Spec = spec;
         Summoner = summoner;
@@ -32,6 +34,15 @@ public sealed class Fighter
 
     /// <summary>The fighter's passives (sprint 90), in the order of its description.</summary>
     public IReadOnlyList<PassiveSpec> Passives { get; }
+
+    /// <summary>A hero's talents (sprint 137, D80), in the order of its choice; none for a monster.</summary>
+    public IReadOnlyList<TalentSpec> Talents { get; }
+
+    /// <summary>The mark of a hero's last hit of a base element (sprint 137), if any.</summary>
+    public Mark? Mark { get; internal set; }
+
+    /// <summary>A hero, or a hero's summon: its direct hits of a base element mark the enemies (monsters never do, §6.3).</summary>
+    public bool LaysMarks { get; internal set; }
 
     /// <summary>The low-health passives that have fired: once per fight each.</summary>
     internal readonly HashSet<string> LowHpFired = new(StringComparer.Ordinal);
@@ -149,7 +160,10 @@ public sealed class Fight
             FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data)
                 : rival is not null && i == rivalIndex ? AsHero(f, rival, data)
                 : f;
-            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data));
+            return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data))
+            {
+                LaysMarks = (hero is not null && i == heroIndex) || (rival is not null && i == rivalIndex),
+            };
         })];
         _heroIndex = heroIndex;
         // The allies (sprint 120): the starts of team A no fighter of the scenario stands on, in order.
@@ -159,7 +173,7 @@ public sealed class Fight
         for (int k = 0; k < Allies.Count; k++)
         {
             FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data);
-            var ally = new Fighter(_fighters.Count, spec, Board.Starts[0][freeStarts[k]], SpellsOf(spec, data), PassivesOf(spec.Passives, data));
+            var ally = new Fighter(_fighters.Count, spec, Board.Starts[0][freeStarts[k]], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data)) { LaysMarks = true };
             if (alliesHp?.ElementAtOrDefault(k) is int hp)
                 ally.Hp = Math.Clamp(hp, 1, ally.MaxHp);
             _fighters.Add(ally);
@@ -202,6 +216,7 @@ public sealed class Fight
             Stats = n.Stats,
             SpellRanks = hero.Ranks,
             Level = hero.Level,
+            Talents = hero.Talents,
         };
     }
 
@@ -222,9 +237,14 @@ public sealed class Fight
             Equipment.Add(hero.Stats ?? Characteristics.None, worn), worn, hero.DeckOf(data));
     }
 
-    /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise).</summary>
-    private static List<Spell> SpellsOf(FighterSpec spec, GameData data) =>
-        [.. spec.Spells.Select(id => data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1))];
+    /// <summary>A fighter's spells at their ranks (rank 1 unless the description says otherwise), as its talents compile them (sprint 137).</summary>
+    private static List<Spell> SpellsOf(FighterSpec spec, GameData data)
+    {
+        List<TalentSpec> talents = TalentsOf(spec, data);
+        return [.. spec.Spells.Select(id => Talents.Compile(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(id, 1) ?? 1), talents))];
+    }
+
+    private static List<TalentSpec> TalentsOf(FighterSpec spec, GameData data) => [.. (spec.Talents ?? []).Select(id => data.Talents[id])];
 
     private static List<PassiveSpec> PassivesOf(IReadOnlyList<string>? ids, GameData data) => [.. (ids ?? []).Select(id => data.Passives[id])];
 
@@ -318,9 +338,10 @@ public sealed class Fight
             {
                 int crit = Spell.CritBonus(spell.DamageMax);
                 bool canCrit = hit && spell.Crit > 0;
-                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element) : 0,
+                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, direct: true) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, direct: true) : 0,
                     Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
-                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element) : 0));
+                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, direct: true) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, direct: true) : 0,
+                    hit && f.Cell == target ? ReactionOn(me, f, spell.Element)?.Id : null));
             }
         }
         return forecasts;
@@ -546,14 +567,57 @@ public sealed class Fight
     /// element's characteristic (D61), then more with the caster's damage bonus in percent, less with the
     /// target's resistance to the element; a hit without points nor bonus is the roll itself. A fighter
     /// weakened (<see cref="FighterSpec.Power"/> below 100, a dungeon's first room) hits that much less.
+    /// A spell's <paramref name="direct"/> hit (sprint 137) is also changed by the caster's living talents
+    /// (<see cref="Talents.Percent"/>), apart from its statuses.
     /// </summary>
-    public static int Damage(int roll, Fighter caster, Fighter target, Element element)
+    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
-        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - target.Resistance(element));
-        return (int)Math.Max(0, scaled / 1_000_000);
+        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell) : 0);
+        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) * talents;
+        return (int)Math.Max(0, scaled / 100_000_000);
+    }
+
+    /// <summary>
+    /// The reaction <paramref name="caster"/>'s direct hit in <paramref name="element"/> would set off on <paramref name="f"/>
+    /// (sprint 137): an enemy marked by another base element, a caster who lays marks and has the reaction's talent.
+    /// </summary>
+    public ReactionSpec? ReactionOn(Fighter caster, Fighter f, Element element)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(f);
+        return caster.LaysMarks && f.Team != caster.Team && f.Mark is Mark m ? Talents.ReactionOf(caster.Talents, m.Element, element, _data) : null;
+    }
+
+    /// <summary>
+    /// What a hero's direct hit of a base element leaves on an enemy (sprint 137, D80 §6.1): on the fighter aimed at, if
+    /// its mark is of another element and the caster has the reaction, the reaction, which uses the mark up; otherwise
+    /// the hit's own mark in place of the one before, until the end of the caster's next turn.
+    /// </summary>
+    private void Imprint(Fighter me, Fighter f, Element element, bool aimed)
+    {
+        if (!me.LaysMarks || !Talents.IsBase(element) || f.Team == me.Team || IsOver || !f.IsAlive)
+            return;
+        if (aimed && ReactionOn(me, f, element) is ReactionSpec reaction)
+        {
+            f.Mark = null;
+            _events.Add(new MarkEnded(f.Id));
+            _events.Add(new ReactionTriggered(f.Id, reaction.Id, me.Id));
+            foreach (StatusEffect status in reaction.Statuses)
+            {
+                // A chief loses at most 2 action and 2 movement points to the reactions (§6.1).
+                int value = status.Value;
+                if (f.Spec.Chief && status.Stat is Stat.Ap or Stat.Mp && value < 0)
+                    value = Math.Max(value, -2 - f.StatusList.Where(st => st.Stat == status.Stat && st.Reaction is not null && st.Value < 0 && st.Source != me.Id).Sum(st => st.Value));
+                if (value != 0)
+                    SetStatus(me, f, status with { Value = value }, reaction.Id);
+            }
+            return;
+        }
+        f.Mark = new Mark(element, me.Id, 2);
+        _events.Add(new Marked(f.Id, element, me.Id));
     }
 
 
@@ -599,11 +663,13 @@ public sealed class Fight
                     continue;
                 // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
                 bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
-                if (Hurt(hit, Damage(roll, me, hit, spell.Element), spell.Element) > 0 && hit.IsAlive)
+                if (Hurt(hit, Damage(roll, me, hit, spell.Element, direct: true), spell.Element) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
                 }
+                // The mark or the reaction (sprint 137): a zone reacts on the fighter aimed at only.
+                Imprint(me, hit, spell.Element, hit.Cell == target);
             }
         }
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
@@ -691,12 +757,13 @@ public sealed class Fight
         }
     }
 
-    private void SetStatus(Fighter me, Fighter f, StatusEffect status)
+    /// <param name="reaction">The reaction setting it (sprint 137): the status bears its name, and renews only its own.</param>
+    private void SetStatus(Fighter me, Fighter f, StatusEffect status, string? reaction = null)
     {
         // The same status from the same caster is renewed, not stacked.
-        f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id);
-        f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id));
-        _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element));
+        f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id && st.Reaction == reaction);
+        f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id, reaction));
+        _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element, reaction));
         // On the fighter playing, action and movement points change at once (sprint 90):
         // a status of one turn set on oneself counts this very turn.
         if (f == Current && status.Stat == Stat.Ap)
@@ -711,7 +778,7 @@ public sealed class Fight
         if (!IsFree(cell))
             return null;
         var spec = new FighterSpec(m.Name, m.Look, me.Team, m.Hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
-        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id);
+        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id) { LaysMarks = me.LaysMarks };
         _fighters.Add(summoned);
         // Right after its summoner in the order of play, or after the one summoned just before.
         int at = _order.IndexOf(after ?? me) + 1;
@@ -804,6 +871,11 @@ public sealed class Fight
         _events.Add(new Died(hit.Id));
         hit.StatusList.Clear();
         hit.Shields.Clear();
+        if (hit.Mark is not null)
+        {
+            hit.Mark = null;
+            _events.Add(new MarkEnded(hit.Id));
+        }
         List<Fighter> dead = [hit];
         // Summons die with their summoner.
         foreach (Fighter summon in Fighters.Where(f => f.Summoner == hit.Id && f.IsAlive).ToList())
@@ -816,9 +888,14 @@ public sealed class Fight
         {
             foreach (PassiveSpec p in d.Passives.Where(p => p.Trigger == Trigger.Death))
                 _pending.Enqueue((d, p, null));
-            // Its glyphs vanish with it (sprint 130).
+            // Its glyphs vanish with it (sprint 130), and its marks (sprint 137).
             foreach (Glyph g in _glyphs.Where(g => g.Caster == d.Id).ToList())
                 EndGlyph(g);
+            foreach (Fighter marked in Fighters.Where(f => f.Mark?.Source == d.Id && f.IsAlive))
+            {
+                marked.Mark = null;
+                _events.Add(new MarkEnded(marked.Id));
+            }
         }
         // An ally of the same family falls (not a summon), within the passive's range.
         if (!hit.IsSummon && hit.Spec.Family is string family)
@@ -884,6 +961,15 @@ public sealed class Fight
         for (int i = 0; i < ending.Shields.Count; i++)
             ending.Shields[i] = (ending.Shields[i].Amount, ending.Shields[i].TurnsLeft - 1);
         ending.Shields.RemoveAll(sh => sh.TurnsLeft <= 0);
+        // The marks it laid count one of its turns less (sprint 137): they last until the end of its next turn.
+        foreach (Fighter marked in Fighters.Where(f => f.Mark?.Source == ending.Id))
+        {
+            marked.Mark = marked.Mark! with { TurnsLeft = marked.Mark.TurnsLeft - 1 };
+            if (marked.Mark.TurnsLeft > 0)
+                continue;
+            marked.Mark = null;
+            _events.Add(new MarkEnded(marked.Id));
+        }
         do
         {
             _current++;

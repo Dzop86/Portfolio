@@ -2222,6 +2222,11 @@ public partial class Main
             if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0))
                 problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
             await CheckDeck(problems);
+            // The talents tab shows every talent of the tree, those the hero has taken pressed (sprint 137).
+            _pointsPanel.ShowTalents();
+            if (!_pointsPanel.TalentTiles.Select(t => t.Talent).Order(StringComparer.Ordinal).SequenceEqual(GameData.Embedded.Talents.Keys.Order(StringComparer.Ordinal))
+                || _pointsPanel.TalentTiles.Any(t => t.Taken != (_hero.Talents ?? []).Contains(t.Talent)))
+                problems.Add("the talents tab does not show the tree and the hero's talents");
             _pointsPanel.QueueFree();
             _pointsPanel = null;
             // The inventory screen: fourteen slots, what is worn in them, the items of each page.

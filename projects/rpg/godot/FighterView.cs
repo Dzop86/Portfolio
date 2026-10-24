@@ -13,6 +13,7 @@ public partial class FighterView : Node3D
     private AnimationPlayer? _anim;
     private Label3D _hp = null!;
     private MeshInstance3D _ring = null!;
+    private MeshInstance3D _mark = null!;
     private Node3D _model = null!;
 
     public Fighter Fighter { get; private set; } = null!;
@@ -50,6 +51,14 @@ public partial class FighterView : Node3D
             Position = new Vector3(0, 1.05f, 0),
         };
         AddChild(_hp);
+        // The mark of a hero's last hit (sprint 137): a small disc of its element's colour, beside the hit points.
+        _mark = new MeshInstance3D
+        {
+            Mesh = new SphereMesh { Radius = 0.09f, Height = 0.18f },
+            Position = new Vector3(0.42f, 1.05f, 0),
+            Visible = false,
+        };
+        AddChild(_mark);
         Position = BoardView.ToWorld(fighter.Cell);
         Face(fighter.Team == 0 ? new Vector3(1, 0, 0) : new Vector3(-1, 0, 0));
         Refresh();
@@ -71,6 +80,18 @@ public partial class FighterView : Node3D
     }
 
     public string HpText => _hp.Text;
+
+    /// <summary>Shows the mark of an element above the fighter, or none (sprint 137).</summary>
+    public void ShowMark(Element? element)
+    {
+        _mark.Visible = element is not null;
+        if (element is Element e)
+            _mark.MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(ElementStyle.Colour(e)), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded, NoDepthTest = true };
+        MarkShown = element;
+    }
+
+    /// <summary>The mark drawn, as the self-test reads it.</summary>
+    public Element? MarkShown { get; private set; }
 
     /// <summary>Walks along the path, one cell per <paramref name="step"/> seconds (0: at once).</summary>
     public async Task Walk(IReadOnlyList<Cell> path, double step)

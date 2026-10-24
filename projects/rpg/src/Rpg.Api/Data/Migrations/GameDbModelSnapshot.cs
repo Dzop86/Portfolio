@@ -238,6 +238,10 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Skin")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Talents")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Town")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");

@@ -23,6 +23,7 @@ public sealed class PointsEditor
     private readonly int[] _stats = new int[5];
     private readonly Dictionary<string, int> _ranks = new(StringComparer.Ordinal);
     private readonly List<string> _deck;
+    private readonly List<string> _talents;
 
     /// <param name="readOnly">In a fight (sprint 93): the points and the deck are shown, never changed.</param>
     public PointsEditor(Hero hero, GameData data, bool readOnly = false)
@@ -35,6 +36,33 @@ public sealed class PointsEditor
         foreach ((string spell, int rank) in hero.RanksGiven)
             _ranks[spell] = rank;
         _deck = [.. hero.DeckOf(data)];
+        _talents = [.. hero.Talents ?? []];
+    }
+
+    /// <summary>The talents of the draft (sprint 137, D80), in the order they were taken.</summary>
+    public IReadOnlyList<string> TalentsTaken => _talents;
+
+    /// <summary>The talent points the level gives that the draft leaves.</summary>
+    public int TalentPointsLeft => Talents.Points(Hero.Level) - _talents.Sum(id => Data.Talents[id].Cost);
+
+    public bool HasTalent(TalentSpec talent) => _talents.Contains((talent ?? throw new ArgumentNullException(nameof(talent))).Id);
+
+    /// <summary>A talent can be taken when the tree's rules allow it with those already taken (<see cref="Talents.Problem"/>).</summary>
+    public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem([.. _talents, talent.Id], Hero.Level, Data) is null;
+
+    /// <summary>A talent can be given back unless another one needs it (a floor above, a talent that requires it).</summary>
+    public bool CanDrop(TalentSpec talent) => !ReadOnly && HasTalent(talent) && Talents.Problem([.. _talents.Where(id => id != talent.Id)], Hero.Level, Data) is null;
+
+    public void Take(TalentSpec talent)
+    {
+        if (CanTake(talent))
+            _talents.Add(talent.Id);
+    }
+
+    public void Drop(TalentSpec talent)
+    {
+        if (CanDrop(talent))
+            _talents.Remove(talent.Id);
     }
 
     /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>
@@ -188,6 +216,7 @@ public sealed class PointsEditor
         Stats = new Characteristics(_stats[0], _stats[1], _stats[2], _stats[3], _stats[4]),
         Ranks = new Dictionary<string, int>(_ranks, StringComparer.Ordinal),
         Deck = [.. _deck],
+        Talents = _talents.Count == 0 ? null : [.. _talents],
     };
 
     /// <summary>Whether the draft differs from what is saved (a deck left as it comes is no change).</summary>
@@ -197,5 +226,5 @@ public sealed class PointsEditor
     public long ResetCost => Shop.TakesBack(Hero.Stats ?? Characteristics.None, Draft.Stats!) ? Shop.ResetCost(Hero.Level) : 0;
 
     /// <summary>What the server receives.</summary>
-    public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck);
+    public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck, [.. _talents]);
 }

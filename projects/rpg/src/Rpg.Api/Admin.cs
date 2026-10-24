@@ -120,7 +120,7 @@ public static class Admin
                 if (level < c.Level)
                 {
                     // Fewer points than were spent: all of them come back, to be spent again.
-                    (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck) = (0, 0, 0, 0, 0, "", "");
+                    (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck, c.Talents) = (0, 0, 0, 0, 0, "", "", "");
                 }
                 c.Xp = Progression.XpToReach(level);
                 c.Level = level;

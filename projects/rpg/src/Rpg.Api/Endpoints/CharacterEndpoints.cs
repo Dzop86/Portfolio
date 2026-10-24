@@ -633,8 +633,10 @@ public static class CharacterEndpoints
         var ranks = new Dictionary<string, int>(points?.Ranks ?? new Dictionary<string, int>(), StringComparer.Ordinal);
         // No deck sent: the class's first spells; a deck sent empty is kept empty (D66).
         string[]? deck = points?.Deck is null ? null : [.. points.Deck];
-        // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them.
-        if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck }).Problem(GameData.Embedded) is string problem)
+        // The talents (sprint 137): none sent, those saved.
+        string[] talents = points?.Talents is null ? character.TalentList : [.. points.Talents.Order(StringComparer.Ordinal)];
+        // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them, the tree's rules.
+        if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck, Talents = talents.Length == 0 ? null : talents }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
         // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71).
         long cost = Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0;
@@ -645,6 +647,7 @@ public static class CharacterEndpoints
         (character.Vitality, character.Earth, character.Fire, character.Water, character.Air) = (stats.Vitality, stats.Earth, stats.Fire, stats.Water, stats.Air);
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);
+        character.Talents = string.Join(',', talents);
         if (!character.InFight)
             character.SetLife(lifeBefore, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
@@ -657,7 +660,7 @@ public static class CharacterEndpoints
 
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
-            c.Hp, c.HpAt, c.InFight);
+            c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "bogged",
+    "name": { "fr": "Enlisé", "en": "Bogged" },
+    "description": {
+      "fr": "La Terre et l'Eau mêlées dans la cible : elle perd 2 PM pendant 1 tour.",
+      "en": "Earth and Water mixed in the target: it loses 2 MP for 1 turn."
+    },
+    "first": "Earth",
+    "second": "Water",
+    "statuses": [
+      { "affects": "Enemies", "stat": "Mp", "value": -2, "turns": 1 }
+    ]
+  }
+]

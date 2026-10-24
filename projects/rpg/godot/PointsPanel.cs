@@ -9,8 +9,8 @@ namespace Rpg.Desktop;
 /// "Characteristics" tab, hit points, action and movement points, initiative and the points left, then
 /// each characteristic in the colour of its element with the points put in, those of the equipment,
 /// the total and what it gives, and its − and + buttons (+10 with Shift); on the "Spells" tab, the
-/// spells the level has unlocked with their rank. It only draws <see cref="PointsEditor"/> and
-/// <see cref="CharacterSheet"/>.
+/// spells the level has unlocked with their rank; on the "Talents" tab (sprint 137), the tree's talents by branch,
+/// a click taking or giving one back. It only draws <see cref="PointsEditor"/> and <see cref="CharacterSheet"/>.
 /// </summary>
 public partial class PointsPanel : CanvasLayer
 {
@@ -31,8 +31,11 @@ public partial class PointsPanel : CanvasLayer
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
     private Label _name = null!, _level = null!, _spellsLeft = null!, _message = null!, _help = null!;
-    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!;
-    private Control _statsPage = null!, _spellsPage = null!;
+    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!;
+    private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!;
+    private Label _talentsLeft = null!, _talentsHint = null!;
+    private readonly List<(TalentSpec Talent, Button Tile)> _talentTiles = [];
+    private readonly List<(Branch Branch, Label Name)> _branches = [];
     private Portrait? _portrait;
 
     public PointsEditor Editor { get; private set; } = null!;
@@ -78,13 +81,18 @@ public partial class PointsPanel : CanvasLayer
         header.AddChild(tabs);
         _statsTab = Tab(tabs, () => ShowTab(spells: false));
         _spellsTab = Tab(tabs, () => ShowTab(spells: true));
+        _talentsTab = Tab(tabs, ShowTalents);
         _statsTab.Visible = only != true;
         _spellsTab.Visible = only != false;
+        // The talents go with the characteristics (sprint 137).
+        _talentsTab.Visible = only != true;
 
         _statsPage = BuildStats();
         column.AddChild(_statsPage);
         _spellsPage = BuildSpells(editor);
         column.AddChild(_spellsPage);
+        _talentsPage = BuildTalents(editor);
+        column.AddChild(_talentsPage);
 
         _message = new Label();
         column.AddChild(_message);
@@ -495,10 +503,67 @@ public partial class PointsPanel : CanvasLayer
     {
         _statsPage.Visible = !spells;
         _spellsPage.Visible = spells;
+        _talentsPage.Visible = false;
         _statsTab.SetPressedNoSignal(!spells);
         _spellsTab.SetPressedNoSignal(spells);
+        _talentsTab.SetPressedNoSignal(false);
         Refresh();
     }
+
+    /// <summary>The talents' tab (sprint 137).</summary>
+    public void ShowTalents()
+    {
+        _statsPage.Visible = _spellsPage.Visible = false;
+        _talentsPage.Visible = true;
+        _statsTab.SetPressedNoSignal(false);
+        _spellsTab.SetPressedNoSignal(false);
+        _talentsTab.SetPressedNoSignal(true);
+        Refresh();
+    }
+
+    /// <summary>
+    /// The tree's talents (sprint 137, D80): the points left, then each branch that has talents, in the colour of its
+    /// family (pistachio for Matter, the light text for Manner), its tiles side by side; a tile's tooltip tells it all.
+    /// </summary>
+    private VBoxContainer BuildTalents(PointsEditor editor)
+    {
+        var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        page.AddThemeConstantOverride("separation", 10);
+        _talentsLeft = new Label();
+        _talentsLeft.AddThemeFontSizeOverride("font_size", 20);
+        page.AddChild(_talentsLeft);
+        _talentsHint = new Label { Modulate = new Color(1, 1, 1, 0.7f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        page.AddChild(_talentsHint);
+        foreach (IGrouping<Branch, TalentSpec> branch in editor.Data.Talents.Values.GroupBy(t => t.Branch).OrderBy(g => g.Key))
+        {
+            var name = new Label();
+            name.AddThemeFontSizeOverride("font_size", 17);
+            name.AddThemeColorOverride("font_color", branch.First().Family == TalentFamily.Matter ? new Color("bef374") : new Color("e0e0e0"));
+            page.AddChild(name);
+            _branches.Add((branch.Key, name));
+            var row = new HFlowContainer();
+            row.AddThemeConstantOverride("h_separation", 8);
+            page.AddChild(row);
+            foreach (TalentSpec t in branch.OrderBy(t => t.Tier))
+            {
+                var tile = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(200, 44) };
+                tile.Pressed += () =>
+                {
+                    if (Editor.HasTalent(t))
+                        Editor.Drop(t);
+                    else
+                        Editor.Take(t);
+                    Refresh();
+                };
+                row.AddChild(tile);
+                _talentTiles.Add((t, tile));
+            }
+        }
+        return page;
+    }
+
+    /// <summary>The talents' tiles as the self-test reads them: their talent, taken or not.</summary>
+    public IEnumerable<(string Talent, bool Taken)> TalentTiles => _talentTiles.Select(t => (t.Talent.Id, t.Tile.ButtonPressed));
 
     /// <summary>After a save: a new draft from what the server kept, and a message.</summary>
     public void Saved(Hero hero, string message)
@@ -516,6 +581,18 @@ public partial class PointsPanel : CanvasLayer
         _level.Text = Texts["sheet.level", Editor.Hero.Level, cls];
         _statsTab.Text = Texts["sheet.tab.stats"];
         _spellsTab.Text = Texts["sheet.tab.spells"];
+        _talentsTab.Text = Texts["points.talents"];
+        _talentsLeft.Text = Editor.Hero.Level < Talents.Opens ? Texts["talents.closed", Talents.Opens] : Texts["talents.left", Editor.TalentPointsLeft];
+        _talentsHint.Text = Texts["talents.hint"];
+        foreach ((Branch branch, Label name) in _branches)
+            name.Text = $"{Texts["talents.branch." + branch]} · {Texts["talents.family." + (branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner)]}";
+        foreach ((TalentSpec t, Button tile) in _talentTiles)
+        {
+            tile.Text = t.Name.In(Texts.Lang);
+            tile.TooltipText = Texts.Talent(t);
+            tile.SetPressedNoSignal(Editor.HasTalent(t));
+            tile.Disabled = !(Editor.HasTalent(t) ? Editor.CanDrop(t) : Editor.CanTake(t));
+        }
         _tiles["hp"].Text = $"{Texts["sheet.hp"]}   {sheet.MaxHp}";
         _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
         _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";

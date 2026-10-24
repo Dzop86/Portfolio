@@ -98,5 +98,6 @@ public class TeamAiTests
         Assert.Equal(SoloFingerprint, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16]);
     }
 
-    private const string SoloFingerprint = "4A8466DB1647E427";
+    // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
+    private const string SoloFingerprint = "02BD78F479FCD1A6";
 }

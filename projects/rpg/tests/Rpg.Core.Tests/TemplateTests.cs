@@ -153,7 +153,8 @@ public class TemplateTests
             }
             Groups = groups;
             Data = new GameData([.. Real.Spells.Values, .. spells.Values], Real.Maps.Values, [.. Real.Scenarios.Values, .. scenarios], Real.Classes,
-                summons: Real.Summons.Values, items: [.. Real.Items.Values, .. Pieces(level)], sets: Real.Sets.Values, passives: Real.Passives.Values);
+                summons: Real.Summons.Values, items: [.. Real.Items.Values, .. Pieces(level)], sets: Real.Sets.Values, passives: Real.Passives.Values,
+                talents: Real.Talents.Values, reactions: Real.Reactions.Values);
         }
 
         /// <summary>The level the fields' kits are measured at (T41), which the kits of the synthetic family are carried from.</summary>
@@ -229,5 +230,27 @@ public class TemplateTests
             }
         }
         Assert.True(kept, $"level {level}: " + string.Join("; ", report));
+    }
+
+    [Fact]
+    public void TheTalentsOfTheSlice_KeepT41AtThirtyFive_AndGiveTheSentinelAtMostTenPercentMore()
+    {
+        // Sprint 137 (D80, T103): the Sentinel of 35 with Bogging and Up close, bare against the small groups, wearing the
+        // kits against the hordes; the tree is worth at most +10 % of victories against the small groups (§2.3).
+        var family = new Synthetic(35);
+        var few = family.Groups.Where(g => g.Size <= 3).ToArray();
+        Hero bare = family.Hero("sentinel", "none");
+        Hero tree = bare with { Talents = ["bogging", "up-close"] };
+        int[] without = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, bare, 30))];
+        int[] with = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, tree, 30))];
+        string report = $"small {without.Average():0.0} without, {with.Average():0.0} with ({with.Count(w => w < 18)} under 18)";
+        Assert.True(with.Average() >= 27 && with.Count(w => w < 18) <= 2, report);
+        Assert.True(with.Average() <= without.Average() + 3, report);
+        foreach (string kit in new[] { "none", "zone", "craft" })
+        {
+            Hero worn = family.Hero("sentinel", kit) with { Talents = ["bogging", "up-close"] };
+            double large = family.Groups.Where(g => g.Size >= 6 && !(kit == "craft" && g.InTheOpen)).AsParallel().Select(g => family.Wins(g.Scenario, worn, 10)).Average();
+            Assert.True(large <= (kit == "none" ? 3 : 2), $"hordes, kit {kit}, {large:0.0} of 10; {report}");
+        }
     }
 }

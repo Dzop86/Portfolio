@@ -163,7 +163,8 @@ public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team
 /// (0 or 1), its characteristics and the index of its starting cell. A monster's carries its passives
-/// and its family (sprint 90), which an ally's death reads.
+/// and its family (sprint 90), which an ally's death reads; a hero's, its talents (sprint 137); a family's
+/// chief, <see cref="Chief"/>: the reactions take it at most 2 action and 2 movement points.
 /// </summary>
 public sealed record FighterSpec(
     LocalizedText Name,
@@ -182,7 +183,9 @@ public sealed record FighterSpec(
     IReadOnlyList<LootDrop>? Loot = null,
     int Power = 100,
     IReadOnlyList<string>? Passives = null,
-    string? Family = null)
+    string? Family = null,
+    IReadOnlyList<string>? Talents = null,
+    bool Chief = false)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -261,6 +264,12 @@ public sealed class GameData
     /// <summary>The monsters' passives (sprint 90), by id.</summary>
     public IReadOnlyDictionary<string, PassiveSpec> Passives { get; }
 
+    /// <summary>The talents of the tree shared by every class (sprint 137, D80), by id, in the data file's order.</summary>
+    public IReadOnlyDictionary<string, TalentSpec> Talents { get; }
+
+    /// <summary>The elemental reactions (sprint 137), by id.</summary>
+    public IReadOnlyDictionary<string, ReactionSpec> Reactions { get; }
+
     private readonly Dictionary<string, Scenario> _groupFights = new(StringComparer.Ordinal);
 
     /// <summary>The groups of monsters living on a map, in their order.</summary>
@@ -276,7 +285,8 @@ public sealed class GameData
     public GameData(IEnumerable<Spell> spells, IEnumerable<MapSpec> maps, IEnumerable<Scenario> scenarios, IEnumerable<HeroClass>? classes = null,
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
         IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null,
-        IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null, IEnumerable<PassiveSpec>? passives = null)
+        IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null, IEnumerable<PassiveSpec>? passives = null,
+        IEnumerable<TalentSpec>? talents = null, IEnumerable<ReactionSpec>? reactions = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -306,6 +316,9 @@ public sealed class GameData
         Passives = Index(passives ?? [], p => p.Id, "passive");
         foreach (PassiveSpec p in Passives.Values)
             Check(p);
+        Reactions = Index(reactions ?? [], r => r.Id, "reaction");
+        Talents = Index(talents ?? [], t => t.Id, "talent");
+        CheckTalents();
         foreach (Spell s in Spells.Values)
         {
             Check(s);
@@ -529,6 +542,29 @@ public sealed class GameData
         return town.Zone is string zone && FindNpc($"{zone}/{npc.Id}")?.Npc == npc ? $"{zone}/{npc.Id}" : $"{town.Id}/{npc.Id}";
     }
 
+    /// <summary>
+    /// The talents and reactions hold together (sprint 137): a reaction joins two different base elements, each pair once,
+    /// and sets statuses on the enemy; a talent has rules, knows the reactions, talents it excludes and requires.
+    /// </summary>
+    private void CheckTalents()
+    {
+        foreach (ReactionSpec r in Reactions.Values)
+        {
+            if (r.First == r.Second || !Rpg.Core.Talents.IsBase(r.First) || !Rpg.Core.Talents.IsBase(r.Second) || r.Statuses.Count == 0
+                || r.Statuses.Any(st => st.Affects != Affects.Enemies || st.Turns < 1)
+                || Reactions.Values.Any(o => o != r && o.Joins(r.First, r.Second)))
+                throw new InvalidDataException($"Reaction '{r.Id}': two different base elements, a pair no other joins, statuses on the enemy.");
+        }
+        foreach (TalentSpec t in Talents.Values)
+        {
+            if (t.Rules.Count == 0 || t.Rules.OfType<ReactionRule>().Any(r => !Reactions.ContainsKey(r.Reaction))
+                || (t.Excludes ?? []).Concat(t.Requires ?? []).Any(id => id == t.Id || !Talents.ContainsKey(id)))
+                throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
+            if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
+                throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
+        }
+    }
+
     public HeroClass? Class(string? id) => Classes.FirstOrDefault(c => c.Id == id);
 
     /// <summary>Reads <c>spells.json</c>, <c>classes.json</c> (if there is one), <c>maps/*.json</c> and <c>scenarios/*.json</c> from a folder.</summary>
@@ -553,7 +589,9 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "monsters.json")) ? Read<List<MonsterFamily>>(Path.Combine(folder, "monsters.json")) : null,
             File.Exists(Path.Combine(folder, "dungeons.json")) ? Read<List<Dungeon>>(Path.Combine(folder, "dungeons.json")) : null,
             File.Exists(Path.Combine(folder, "jobs.json")) ? Read<List<Job>>(Path.Combine(folder, "jobs.json")) : null,
-            File.Exists(Path.Combine(folder, "passives.json")) ? Read<List<PassiveSpec>>(Path.Combine(folder, "passives.json")) : null);
+            File.Exists(Path.Combine(folder, "passives.json")) ? Read<List<PassiveSpec>>(Path.Combine(folder, "passives.json")) : null,
+            File.Exists(Path.Combine(folder, "talents.json")) ? Read<List<TalentSpec>>(Path.Combine(folder, "talents.json")) : null,
+            File.Exists(Path.Combine(folder, "reactions.json")) ? Read<List<ReactionSpec>>(Path.Combine(folder, "reactions.json")) : null);
     }
 
     /// <summary>
@@ -586,7 +624,9 @@ public sealed class GameData
             files.TryGetValue("data/monsters.json", out string? monsters) ? Parse<List<MonsterFamily>>("monsters.json", monsters) : null,
             files.TryGetValue("data/dungeons.json", out string? dungeons) ? Parse<List<Dungeon>>("dungeons.json", dungeons) : null,
             files.TryGetValue("data/jobs.json", out string? jobs) ? Parse<List<Job>>("jobs.json", jobs) : null,
-            files.TryGetValue("data/passives.json", out string? passives) ? Parse<List<PassiveSpec>>("passives.json", passives) : null);
+            files.TryGetValue("data/passives.json", out string? passives) ? Parse<List<PassiveSpec>>("passives.json", passives) : null,
+            files.TryGetValue("data/talents.json", out string? talents) ? Parse<List<TalentSpec>>("talents.json", talents) : null,
+            files.TryGetValue("data/reactions.json", out string? reactions) ? Parse<List<ReactionSpec>>("reactions.json", reactions) : null);
     }
 
     public Board Board(string mapId) =>

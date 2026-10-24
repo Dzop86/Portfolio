@@ -1,0 +1,27 @@
+[
+  {
+    "id": "bogging",
+    "name": { "fr": "Enlisement", "en": "Bogging" },
+    "description": {
+      "fr": "Frapper en Terre un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par la Terre, le rend Enlisé : −2 PM pendant 1 tour. Il faut deux éléments dans son deck.",
+      "en": "Striking in Earth an enemy marked by Water, or in Water one marked by Earth, leaves it Bogged: −2 MP for 1 turn. It takes two elements in one's deck."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [ { "kind": "reaction", "reaction": "bogged" } ]
+  },
+  {
+    "id": "up-close",
+    "name": { "fr": "Au plus près", "en": "Up close" },
+    "description": {
+      "fr": "+10 % de dégâts sur une cible à 3 cases ou moins ; en échange, −2 PO à tous ses sorts (jamais sous leur portée minimale ni sous 1).",
+      "en": "+10% damage on a target 3 cells away or closer; in exchange, −2 range on all one's spells (never under their minimum range nor under 1)."
+    },
+    "branch": "Distance",
+    "tier": "First",
+    "rules": [
+      { "kind": "range", "change": -2 },
+      { "kind": "distance", "minCells": 0, "maxCells": 3, "percent": 10 }
+    ]
+  }
+]

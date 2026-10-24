@@ -369,12 +369,15 @@ public static class Ai
         {
             foreach (Fighter f in area)
             {
-                double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000, f.Hp + f.Shield);
+                double hit = Math.Min(spell.AverageDamage * (100 + me.Spec.Characteristics.For(spell.Element) + me.DamageBonusFor(spell.Element)) * (100 - f.Resistance(spell.Element)) / 10_000
+                    * (100 + Talents.Percent(me.Talents, from, f.Cell)) / 100, f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1);
                 if (f.Team != me.Team && !f.IsSummon && hit >= f.Hp + f.Shield)
                     value += KillBonus;
+                else if (f.Team != me.Team && hit < f.Hp + f.Shield)
+                    value += MarkWorth(fight, me, spell.Element, f, f.Cell == target);
             }
         }
         foreach (SpellEffect effect in spell.AllEffects)
@@ -416,6 +419,23 @@ public static class Ai
             }
         }
         return value;
+    }
+
+    /// <summary>
+    /// What a hit leaves on an enemy that survives it (sprint 137, greedy, one cast ahead): the reaction it sets off, worth
+    /// its statuses; or, laying a mark one of the caster's reactions could use, half of that reaction. 0 without talents.
+    /// </summary>
+    private static double MarkWorth(Fight fight, Fighter me, Element element, Fighter f, bool aimed)
+    {
+        if (me.Talents.Count == 0 || !me.LaysMarks || !Talents.IsBase(element))
+            return 0;
+        if (aimed && fight.ReactionOn(me, f, element) is ReactionSpec reaction)
+            return reaction.Statuses.Sum(st => StatusWorth(st, f));
+        if (f.Mark?.Element == element)
+            return 0;
+        ReactionSpec? next = Talents.ReactionOf(me.Talents, element, Element.Earth, fight.Data) ?? Talents.ReactionOf(me.Talents, element, Element.Fire, fight.Data)
+            ?? Talents.ReactionOf(me.Talents, element, Element.Water, fight.Data) ?? Talents.ReactionOf(me.Talents, element, Element.Air, fight.Data);
+        return next is null ? 0 : 0.5 * next.Statuses.Sum(st => StatusWorth(st, f));
     }
 
     /// <summary>

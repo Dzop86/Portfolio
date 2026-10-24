@@ -44,7 +44,7 @@ public sealed record MonsterSpec(
     /// its <paramref name="family"/> (sprint 90).
     /// </summary>
     public FighterSpec Fighter(int start, int power = 100, string? family = null) =>
-        new(Name, Look, 1, Math.Max(1, Hp * power / 100), Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot, power, Passives, family);
+        new(Name, Look, 1, Math.Max(1, Hp * power / 100), Ap, Mp, Initiative, start, Spells, Resistances, null, null, Level, Loot, power, Passives, family, Chief: Role == MonsterRole.Boss);
 }
 
 /// <summary>

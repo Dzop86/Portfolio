@@ -59,6 +59,23 @@ public sealed class Texts
         ["points.title"] = "Caractéristiques et sorts",
         ["points.characteristics"] = "Caractéristiques : {0} point(s) à répartir",
         ["points.spells"] = "Sorts : {0} point(s) de sort",
+        ["points.talents"] = "Talents",
+        ["talents.left"] = "Talents : {0} point(s) à dépenser",
+        ["talents.closed"] = "L'arbre des talents s'ouvre au niveau {0}.",
+        ["talents.hint"] = "Un clic prend un talent ou le rend. L'étage 2 demande 2 points dans sa branche, la clé 3.",
+        ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
+        ["talents.family.Matter"] = "Matière",
+        ["talents.family.Manner"] = "Manière",
+        ["talents.branch.Braids"] = "Tresses",
+        ["talents.branch.Poles"] = "Pôles",
+        ["talents.branch.Reactions"] = "Réactions",
+        ["talents.branch.Distance"] = "Distance",
+        ["talents.branch.Rhythm"] = "Rythme",
+        ["talents.branch.Terrain"] = "Terrain",
+        ["talents.branch.Support"] = "Soutien",
+        ["talents.tier.First"] = "étage 1",
+        ["talents.tier.Second"] = "étage 2",
+        ["talents.tier.Key"] = "clé",
         ["points.rank"] = "rang {0}/{1}",
         ["points.next"] = "rang suivant : {0} point(s)",
         ["points.max"] = "rang maximum",
@@ -206,6 +223,10 @@ public sealed class Texts
         ["log.passive"] = "{0} : {1} !",
         ["log.leap"] = "{0} bondit.",
         ["log.swap"] = "{0} et {1} échangent leurs places.",
+        ["log.marked"] = "{0} porte l'empreinte {1}.",
+        ["log.reaction"] = "{0} : {1} !",
+        ["log.reaction-status"] = "{0} : {1}, {2} pendant {3} tour(s).",
+        ["forecast.reaction"] = " — {0} !",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} PA",
         ["stat.Mp"] = "{0} PM",
@@ -584,6 +605,23 @@ public sealed class Texts
         ["points.title"] = "Characteristics and spells",
         ["points.characteristics"] = "Characteristics: {0} point(s) to spend",
         ["points.spells"] = "Spells: {0} spell point(s)",
+        ["points.talents"] = "Talents",
+        ["talents.left"] = "Talents: {0} point(s) to spend",
+        ["talents.closed"] = "The talent tree opens at level {0}.",
+        ["talents.hint"] = "A click takes a talent or gives it back. The second floor asks 2 points in its branch, the key 3.",
+        ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
+        ["talents.family.Matter"] = "Matter",
+        ["talents.family.Manner"] = "Manner",
+        ["talents.branch.Braids"] = "Braids",
+        ["talents.branch.Poles"] = "Poles",
+        ["talents.branch.Reactions"] = "Reactions",
+        ["talents.branch.Distance"] = "Distance",
+        ["talents.branch.Rhythm"] = "Rhythm",
+        ["talents.branch.Terrain"] = "Terrain",
+        ["talents.branch.Support"] = "Support",
+        ["talents.tier.First"] = "first floor",
+        ["talents.tier.Second"] = "second floor",
+        ["talents.tier.Key"] = "key",
         ["points.rank"] = "rank {0}/{1}",
         ["points.next"] = "next rank: {0} point(s)",
         ["points.max"] = "highest rank",
@@ -731,6 +769,10 @@ public sealed class Texts
         ["log.passive"] = "{0}: {1}!",
         ["log.leap"] = "{0} leaps.",
         ["log.swap"] = "{0} and {1} swap places.",
+        ["log.marked"] = "{0} bears the {1} mark.",
+        ["log.reaction"] = "{0}: {1}!",
+        ["log.reaction-status"] = "{0}: {1}, {2} for {3} turn(s).",
+        ["forecast.reaction"] = " — {0}!",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} AP",
         ["stat.Mp"] = "{0} MP",
@@ -1380,9 +1422,17 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(forecasts);
         return string.Join('\n', forecasts.SelectMany(fc => new[]
         {
-            fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.CritMax > 0 ? this["forecast.crit", fc.CritMin, fc.CritMax] : "") + (fc.SureKill ? this["forecast.kill"] : "") : null,
+            fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.CritMax > 0 ? this["forecast.crit", fc.CritMin, fc.CritMax] : "") + (fc.SureKill ? this["forecast.kill"] : "")
+                + (fc.Reaction is string r && !fc.SureKill ? this["forecast.reaction", GameData.Embedded.Reactions[r].Name.In(Lang)] : "") : null,
             fc.HealMax > 0 ? this["forecast.heal", Name(fc.Fighter), fc.HealMin, fc.HealMax] : null,
         }).OfType<string>());
+    }
+
+    /// <summary>A talent's tile (sprint 137): "Enlisement · Réactions, étage 1, 1 point(s)", then what it does.</summary>
+    public string Talent(TalentSpec t)
+    {
+        ArgumentNullException.ThrowIfNull(t);
+        return this["talents.tile", t.Name.In(Lang), this["talents.branch." + t.Branch], this["talents.tier." + t.Tier], t.Cost] + "\n" + t.Description.In(Lang);
     }
 
     public string Spell(Spell s) =>
@@ -1412,7 +1462,10 @@ public sealed class Texts
             ShieldAbsorbed a => this["log.absorbed", Name(fight.Fighters[a.Fighter]), a.Amount],
             Pushed { Blocked: > 0 } p when p.Path.Count == 0 => this["log.blocked", Name(fight.Fighters[p.Fighter])],
             Pushed p => this["log.pushed", Name(fight.Fighters[p.Fighter]), p.Path.Count],
+            StatusAdded { Reaction: string r } st => this["log.reaction-status", Name(fight.Fighters[st.Fighter]), fight.Data.Reactions[r].Name.In(Lang), Status(st.Stat, st.Value, st.Element), st.Turns],
             StatusAdded st => this["log.status", Name(fight.Fighters[st.Fighter]), Status(st.Stat, st.Value, st.Element), st.Turns],
+            Marked m => this["log.marked", Name(fight.Fighters[m.Fighter]), this["element." + m.Element]],
+            ReactionTriggered r => this["log.reaction", Name(fight.Fighters[r.Fighter]), fight.Data.Reactions[r.Reaction].Name.In(Lang)],
             StatusEnded st => this["log.status-ended", Name(fight.Fighters[st.Fighter]), this["stat." + st.Stat, "", ""].Trim()],
             PassiveTriggered p => this["log.passive", Name(fight.Fighters[p.Fighter]), fight.Fighters[p.Fighter].Passives.First(x => x.Id == p.Passive).Name.In(Lang)],
             Leaped l => this["log.leap", Name(fight.Fighters[l.Fighter])],
