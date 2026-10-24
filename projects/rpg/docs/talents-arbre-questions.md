@@ -14,6 +14,23 @@
 - Tu peux aussi répondre en bloc : « toutes les Reco sauf B2, C4 et K1 ».
 - Il y a 144 questions en 16 thèmes. Les thèmes A à J portent sur la structure de l'arbre, K à O sur l'interface, P sur la méthode.
 
+## Réponses de Charles (25 octobre 2026)
+
+| Question | Réponse |
+|---|---|
+| A1 ★ | **b, Reco** : restructurer en tronc, paires, styles, en recasant les 54 talents. |
+| B1 ★ | **a, Reco** : tronc automatique aux niveaux 30, 35 et 40. |
+| D1 ★ | **b, Reco** : styles partagés, signature de paire plus tard. |
+| G1 ★ | **b, Reco** : 2 points à 30, puis 1 tous les 3 niveaux (7 à 45, 25 à 100). |
+| K1 ★ | **d, Reco** : vue focalisée montante, les autres paires en pointillés. |
+| C2 | **Réponse libre** : « Autant qu'il veut, tant que c'est possible : s'il a Eau-Feu, il ne peut pas avoir Eau-Air, parce que l'Eau est déjà consommée. » Les paires ne partagent donc aucun élément : deux paires au plus, qui prennent les quatre éléments. |
+| C12 | **b, Reco** : un style s'atteint aussi par le nœud Élément pur. |
+| F2 | **d, Reco** : les sorts de Foudre apparaissent dès l'Ouverture, avec un aperçu en pointillés tant que le talent n'est que coché. |
+| F4 | **a** : le « passif » dont parlait Charles est la Conversion. |
+| Les 135 autres | **Reco partout**, à corriger au playtest. |
+
+**Point à revoir avec Charles :** F4 a et F2 d se contredisent en partie. Si le passif en question est la Conversion, les sorts de Foudre ne devraient apparaître qu'une fois la Conversion prise (F2 b), et non dès l'Ouverture. À confirmer avant de corriger `BuildSpells`.
+
 ---
 
 ## 0. Ce que j'ai lu, et ce qui coince
