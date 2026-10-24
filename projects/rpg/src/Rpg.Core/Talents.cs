@@ -68,7 +68,37 @@ public enum Tier
 [JsonDerivedType(typeof(GlyphTargetRule), "glyph-target")]
 [JsonDerivedType(typeof(HpRule), "hp")]
 [JsonDerivedType(typeof(EchoRule), "echo")]
+[JsonDerivedType(typeof(SupportRule), "support")]
+[JsonDerivedType(typeof(BannerRule), "banner")]
+[JsonDerivedType(typeof(ShareRule), "share")]
+[JsonDerivedType(typeof(ReachRule), "reach")]
+[JsonDerivedType(typeof(HarmonyRule), "harmony")]
+[JsonDerivedType(typeof(RelieveRule), "relieve")]
 public abstract record TalentRule;
+
+// The branch Support (sprint 143, D80, docs/talents-arbre.md §4.3 and §4.6, the idea of Charles).
+
+/// <summary>
+/// Living: the bearer's element spells cast on an ally (a summon too, never itself) help it instead of hurting it, by
+/// their element (<see cref="Support"/>): <see cref="PerTurn"/> a turn, each at <see cref="Percent"/> % (Helping Hand,
+/// Double Hand, Devotion add up: the most supports, the product of the shares).
+/// </summary>
+public sealed record SupportRule(int PerTurn, int Percent) : TalentRule;
+
+/// <summary>Living: at the start of the bearer's turn, the allies within <see cref="Cells"/> cells deal <see cref="Percent"/> % more for a turn (Banner).</summary>
+public sealed record BannerRule(int Cells, int Percent) : TalentRule;
+
+/// <summary>Living: the ally helped deals <see cref="Ally"/> % more for a turn, the bearer <see cref="Self"/> % (Shared Momentum).</summary>
+public sealed record ShareRule(int Ally, int Self) : TalentRule;
+
+/// <summary>Living: spells cast on an ally reach <see cref="Ally"/> cells more, on an enemy <see cref="Enemy"/> (Long Hand).</summary>
+public sealed record ReachRule(int Ally, int Enemy) : TalentRule;
+
+/// <summary>Living: a support also gives <see cref="Percent"/> % of resistance to the spell's element for a turn, and costs <see cref="ApCost"/> more (Harmony).</summary>
+public sealed record HarmonyRule(int Percent, int ApCost) : TalentRule;
+
+/// <summary>Living: once a fight, a support on an ally under <see cref="Below"/> % of its life is doubled and costs no action point; the bearer's next turn, <see cref="Penalty"/> fewer (Relief).</summary>
+public sealed record RelieveRule(int Below, int Penalty) : TalentRule;
 
 // The branch Terrain (sprint 142, D80, docs/talents-arbre.md §4.3 and §4.6).
 
@@ -227,6 +257,47 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="Backed">The caster stands next to an obstacle (sprint 142).</param>
 /// <param name="InMyGlyph">The target stands in one of the caster's glyphs (sprint 142).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false);
+
+/// <summary>
+/// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
+/// shield, a resistance to every element, movement points and range; for a turn.
+/// </summary>
+public sealed record SupportEffect(int Heal, int Shield, int Resistance, int Mp, int Range)
+{
+    /// <summary>
+    /// The table by element of §4.6 on <paramref name="d"/>, the spell's average damage with its characteristic: Fire heals
+    /// 40 % of it (at most 15 % of the ally's maximum), Earth shields 60 %, Water gives 5 % of resistance a point of
+    /// action (20 at most), Air a movement point every two (2 at most) and a cell of range; a pair, both its parents at
+    /// 60 %; all of it times <paramref name="percent"/> %.
+    /// </summary>
+    public static SupportEffect Of(Element element, double d, int apCost, int allyMaxHp, int percent)
+    {
+        IReadOnlyList<Element> parents = Elements.IsCompound(element) ? Elements.Parents(element) : [element];
+        double share = percent / 100.0 * (parents.Count > 1 ? 0.6 : 1);
+        double heal = 0, shield = 0, resistance = 0, mp = 0, range = 0;
+        foreach (Element e in parents)
+        {
+            switch (e)
+            {
+                case Element.Fire:
+                    heal += 0.4 * d * share;
+                    break;
+                case Element.Earth:
+                    shield += 0.6 * d * share;
+                    break;
+                case Element.Water:
+                    resistance += Math.Min(20, 5 * apCost) * share;
+                    break;
+                case Element.Air:
+                    mp += Math.Min(2, apCost / 2) * share;
+                    range += share;
+                    break;
+            }
+        }
+        return new SupportEffect((int)Math.Round(Math.Min(heal, allyMaxHp * 0.15)), (int)Math.Round(shield), (int)Math.Round(resistance),
+            (int)Math.Round(mp), (int)Math.Round(range));
+    }
+}
 
 /// <summary>A hero's grimoire (sprint 138): the spells it may fight with, and the class spells its talents changed into twins.</summary>
 public sealed record Grimoire(IReadOnlyList<string> Spells, IReadOnlyDictionary<string, string> Replaced);

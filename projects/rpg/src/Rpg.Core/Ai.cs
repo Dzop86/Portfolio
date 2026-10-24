@@ -370,6 +370,12 @@ public static class Ai
     /// </summary>
     internal static double Value(Fight fight, Fighter me, Spell spell, Cell from, Cell target, bool focus = true)
     {
+        // A support (sprint 143): what it gives the ally, a heal only if it misses hit points.
+        if (fight.SupportTarget(me, spell, target) is Fighter ally)
+        {
+            SupportEffect s = Fight.SupportFrom(me, spell, ally);
+            return Math.Min(s.Heal, ally.MaxHp - ally.Hp) + 0.3 * s.Shield + 0.05 * s.Resistance + 2.0 * s.Mp + 1.0 * s.Range;
+        }
         IReadOnlyList<Fighter> area = fight.InArea(spell, from, target);
         double value = 0;
         if (spell.DamageMax > 0)

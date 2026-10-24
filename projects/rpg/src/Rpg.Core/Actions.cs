@@ -46,6 +46,9 @@ public enum ActionError
 
     /// <summary>A swap needs a fighter on the target cell, of the side it affects, other than the caster (sprint 90).</summary>
     NoValidTarget,
+
+    /// <summary>The supports of the turn are spent (sprint 143): no more spell on an ally this turn.</summary>
+    SupportSpent,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -121,6 +124,9 @@ public sealed record Arced(int From, int To) : FightEvent;
 
 /// <summary>An Echo strikes (sprint 142): <see cref="Fighter"/>'s last spell again from <see cref="From"/>, on <see cref="Target"/>; its damage follows.</summary>
 public sealed record Echoed(int Fighter, int Target, Cell From) : FightEvent;
+
+/// <summary>A spell cast on an ally helps it (sprint 143): its heal, shield and statuses follow.</summary>
+public sealed record Supported(int Caster, int Ally) : FightEvent;
 
 /// <summary>A hero's hit leaves the mark of its element on an enemy (sprint 137), in place of any before.</summary>
 public sealed record Marked(int Fighter, Element Element, int Source) : FightEvent;

@@ -58,6 +58,10 @@ public sealed class Fighter
     /// cast with its target; the echo it left, to strike at the start of its next turn.
     /// </summary>
     internal bool SideStepped;
+
+    /// <summary>Support (sprint 143): the supports given this turn, Relief used in this fight, action points the next turn loses.</summary>
+    internal int SupportsThisTurn, NextTurnPenalty;
+    internal bool Relieved;
     internal Cell TurnStart;
     internal (string Spell, int Target)? LastHit;
     internal (Cell From, string Spell, int Target)? Echo;
@@ -230,6 +234,7 @@ public sealed class Fight
         (int firstAp, int firstMp) = Talents.TurnPoints(Current.Talents, 1);
         (Current.Ap, Current.Mp) = (Math.Max(0, Current.Ap + firstAp), Math.Max(0, Current.Mp + firstMp));
         _events.Add(new TurnStarted(Current.Id, Round));
+        Rally(Current);
         foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart))
             _pending.Enqueue((Current, p, null));
         Resolve();
@@ -362,6 +367,12 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(spell);
         Fighter me = Current;
+        // A support (sprint 143): its heal, the rest is told by the spell's card.
+        if (SupportTarget(me, spell, target) is Fighter ally)
+        {
+            int heal = Math.Min(SupportFrom(me, spell, ally).Heal, ally.MaxHp - ally.Hp);
+            return [new Forecast(ally, 0, 0, heal, heal, spell.Element)];
+        }
         var forecasts = new List<Forecast>();
         IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
         HealEffect[] heals = [.. spell.AllEffects.OfType<HealEffect>()];
@@ -446,7 +457,8 @@ public sealed class Fight
         ArgumentNullException.ThrowIfNull(spell);
         if (!caster.Spells.Contains(spell))
             return ActionError.UnknownSpell;
-        if (caster.Ap < spell.ApCost)
+        Fighter? ally = SupportTarget(caster, spell, target);
+        if (caster.Ap < ApCostOn(caster, spell, ally))
             return ActionError.NotEnoughAp;
         if (caster.CastsLeft(spell) <= 0)
             return ActionError.CastLimit;
@@ -457,8 +469,10 @@ public sealed class Fight
         if (!Board.IsFloor(target))
             return ActionError.NotFloor;
         int distance = from.DistanceTo(target);
-        if (distance < spell.MinRange || distance > caster.MaxRangeOf(spell))
+        if (distance < spell.MinRange || distance > caster.MaxRangeOf(spell) + ReachOn(caster, spell, target))
             return ActionError.OutOfRange;
+        if (ally is not null && caster.SupportsThisTurn >= SupportOf(caster)!.PerTurn)
+            return ActionError.SupportSpent;
         if (spell.InLine && !from.IsInLineWith(target))
             return ActionError.NotInLine;
         if (spell.LineOfSight && !LineOfSight.IsClear(from, target, c => c != caster.Cell && BlocksSight(c)))
@@ -479,6 +493,105 @@ public sealed class Fight
                 return ActionError.NoValidTarget;
         }
         return ActionError.None;
+    }
+
+    /// <summary>The support rules a fighter's talents add up to (sprint 143), or null without Helping Hand.</summary>
+    public static SupportRule? SupportOf(Fighter f)
+    {
+        ArgumentNullException.ThrowIfNull(f);
+        SupportRule[] rules = [.. f.Talents.SelectMany(t => t.Rules).OfType<SupportRule>()];
+        return rules.Length == 0 ? null : new SupportRule(rules.Max(r => r.PerTurn), (int)Math.Round(rules.Aggregate(100.0, (p, r) => p * r.Percent / 100)));
+    }
+
+    /// <summary>
+    /// The ally a cast would help rather than hurt (sprint 143): an element spell that hurts, cast by a fighter with Helping
+    /// Hand on the cell of a living fighter of its side who is not itself; null otherwise.
+    /// </summary>
+    public Fighter? SupportTarget(Fighter caster, Spell spell, Cell target)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(spell);
+        if (spell.DamageMax <= 0 || spell.Element == Element.Neutral || caster.Talents.Count == 0 || SupportOf(caster) is null)
+            return null;
+        return At(target) is Fighter f && f.Team == caster.Team && f != caster ? f : null;
+    }
+
+    /// <summary>A cast's cost on its target (sprint 143): Harmony makes a support dearer, Relief free once.</summary>
+    public static int ApCostOn(Fighter caster, Spell spell, Fighter? ally)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(spell);
+        if (ally is null)
+            return spell.ApCost;
+        if (Relief(caster, ally) is not null)
+            return 0;
+        return spell.ApCost + caster.Talents.SelectMany(t => t.Rules).OfType<HarmonyRule>().Sum(r => r.ApCost);
+    }
+
+    /// <summary>Relief (sprint 143) for a support on <paramref name="ally"/>, if it applies now.</summary>
+    private static RelieveRule? Relief(Fighter caster, Fighter ally) =>
+        caster.Relieved ? null : caster.Talents.SelectMany(t => t.Rules).OfType<RelieveRule>().FirstOrDefault(r => ally.Hp * 100 < r.Below * ally.MaxHp);
+
+    /// <summary>Cells more (or fewer) a spell reaches on what stands on <paramref name="target"/> (Long Hand, sprint 143).</summary>
+    private int ReachOn(Fighter caster, Spell spell, Cell target)
+    {
+        ReachRule[] reach = [.. caster.Talents.SelectMany(t => t.Rules).OfType<ReachRule>()];
+        if (reach.Length == 0 || At(target) is not Fighter f || f == caster)
+            return 0;
+        return f.Team == caster.Team ? reach.Sum(r => r.Ally) : (spell.MaxRange > 1 ? reach.Sum(r => r.Enemy) : 0);
+    }
+
+    /// <summary>What a support from <paramref name="caster"/> with <paramref name="spell"/> would give <paramref name="ally"/> (sprint 143).</summary>
+    public static SupportEffect SupportFrom(Fighter caster, Spell spell, Fighter ally)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(spell);
+        ArgumentNullException.ThrowIfNull(ally);
+        int percent = SupportOf(caster)?.Percent ?? 100;
+        if (Relief(caster, ally) is not null)
+            percent *= 2;
+        double d = spell.AverageDamage + Characteristics.Bonus(caster.Spec.Characteristics.For(spell.Element));
+        return SupportEffect.Of(spell.Element, d, spell.ApCost, ally.MaxHp, percent);
+    }
+
+    /// <summary>
+    /// A support (sprint 143): the heal, the shield, the statuses of a turn (resistance to every element, movement points,
+    /// range), Harmony's resistance to the spell's element, Shared Momentum; no mark, no reaction, no damage.
+    /// </summary>
+    private void Support(Fighter me, Spell spell, Fighter ally)
+    {
+        SupportEffect s = SupportFrom(me, spell, ally);
+        if (Relief(me, ally) is RelieveRule relief)
+        {
+            me.Relieved = true;
+            me.NextTurnPenalty += relief.Penalty;
+        }
+        me.SupportsThisTurn++;
+        _events.Add(new Supported(me.Id, ally.Id));
+        if (s.Heal > 0)
+        {
+            int healed = Math.Min(s.Heal, ally.MaxHp - ally.Hp);
+            ally.Hp += healed;
+            _events.Add(new Healed(ally.Id, healed, ally.Hp));
+        }
+        if (s.Shield > 0)
+        {
+            ally.Shields.Add((s.Shield, 1));
+            _events.Add(new Shielded(ally.Id, s.Shield, 1));
+        }
+        if (s.Resistance > 0)
+            SetStatus(me, ally, new StatusEffect(Affects.Allies, Stat.Resistance, s.Resistance, 1));
+        if (s.Mp > 0)
+            SetStatus(me, ally, new StatusEffect(Affects.Allies, Stat.Mp, s.Mp, 1));
+        if (s.Range > 0)
+            SetStatus(me, ally, new StatusEffect(Affects.Allies, Stat.Range, s.Range, 1));
+        foreach (HarmonyRule h in me.Talents.SelectMany(t => t.Rules).OfType<HarmonyRule>())
+            SetStatus(me, ally, new StatusEffect(Affects.Allies, Stat.Resistance, h.Percent, 1, spell.Element));
+        foreach (ShareRule share in me.Talents.SelectMany(t => t.Rules).OfType<ShareRule>())
+        {
+            SetStatus(me, ally, new StatusEffect(Affects.Allies, Stat.Damage, share.Ally, 1));
+            SetStatus(me, me, new StatusEffect(Affects.Caster, Stat.Damage, share.Self, 1));
+        }
     }
 
     /// <summary>Why <paramref name="action"/> would be refused now, or <see cref="ActionError.None"/>.</summary>
@@ -766,6 +879,20 @@ public sealed class Fight
 
     private void Cast(Fighter me, Spell spell, Cell target)
     {
+        // A spell on an ally with Helping Hand (sprint 143): it helps, and nothing else; the dice are drawn all the same.
+        if (SupportTarget(me, spell, target) is Fighter ally)
+        {
+            me.Ap -= ApCostOn(me, spell, ally);
+            me.CastsThisTurn[spell.Id] = me.CastsThisTurn.GetValueOrDefault(spell.Id) + 1;
+            if (spell.Cooldown > 0)
+                me.Cooldowns[spell.Id] = spell.Cooldown + 1;
+            bool crit = _rng.Next(1, 100) <= spell.Crit;
+            _events.Add(new SpellCast(me.Id, spell.Id, target, crit));
+            _rng.Next(spell.DamageMin, spell.DamageMax);
+            Support(me, spell, ally);
+            Resolve();
+            return;
+        }
         me.Ap -= spell.ApCost;
         me.CastsThisTurn[spell.Id] = me.CastsThisTurn.GetValueOrDefault(spell.Id) + 1;
         // Counted down at the start of each of the caster's turns, so one more than the turns to skip.
@@ -1151,6 +1278,9 @@ public sealed class Fight
         next.CarriedAp = 0;
         next.StepsThisTurn = next.DamageCastsThisTurn = 0;
         next.SideStepped = false;
+        next.SupportsThisTurn = 0;
+        next.Ap = Math.Max(0, next.Ap - next.NextTurnPenalty);
+        next.NextTurnPenalty = 0;
         next.TurnStart = next.Cell;
         next.LastHit = null;
         next.CastsThisTurn.Clear();
@@ -1179,6 +1309,7 @@ public sealed class Fight
         // Then the glyphs under it, then its passives of the start of a turn (the order of T98), if it still stands (sprint 90).
         if (!IsOver && next.IsAlive)
             StrikeAt(next);
+        Rally(next);
         // Then its echo (sprint 142), if its target stands within the spell's range of it.
         if (!IsOver && next.IsAlive && next.Echo is (Cell echoFrom, string echoSpell, int echoAt) && next.Spells.FirstOrDefault(s => s.Id == echoSpell) is Spell echoed2
             && _fighters[echoAt] is { IsAlive: true } echoTarget2 && echoFrom.DistanceTo(echoTarget2.Cell) is int d && d >= echoed2.MinRange && d <= next.MaxRangeOf(echoed2))
@@ -1196,6 +1327,16 @@ public sealed class Fight
         Resolve();
         if (!IsOver && !next.IsAlive)
             NextTurn();
+    }
+
+    /// <summary>A Banner at the start of its bearer's turn (sprint 143): the allies near it deal more for a turn.</summary>
+    private void Rally(Fighter bearer)
+    {
+        foreach (BannerRule banner in bearer.Talents.SelectMany(t => t.Rules).OfType<BannerRule>())
+        {
+            foreach (Fighter friend in Fighters.Where(f => f.IsAlive && f != bearer && f.Team == bearer.Team && f.Cell.DistanceTo(bearer.Cell) <= banner.Cells).ToList())
+                SetStatus(bearer, friend, new StatusEffect(Affects.Allies, Stat.Damage, banner.Percent, 1));
+        }
     }
 
     private void End(int? winningTeam)

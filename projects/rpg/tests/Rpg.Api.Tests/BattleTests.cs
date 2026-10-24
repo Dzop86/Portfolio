@@ -91,6 +91,41 @@ public class BattleTests
         await b.DisposeAsync();
     }
 
+    [Fact]
+    public async Task TwoPlayersWithTalents_FightTogether_TheTalentsOnBothGames_TheSameFight()
+    {
+        // Sprint 143 (T109): Aube with Helping Hand and Banner, Brume with Bogging and Chilling; both games build the
+        // heroes with their talents from the server's start, and play the same fight to the end.
+        await using var api = new ApiFactory();
+        (GameServer sa, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
+        (GameServer sb, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
+        api.WithDb(db =>
+        {
+            foreach (Character c in db.Characters)
+            {
+                (c.Xp, c.Level) = (Progression.XpToReach(35), 35);
+                c.Talents = c.Name == "Aube" ? "banner,helping-hand" : "bogging,chilling";
+            }
+            return db.SaveChanges();
+        });
+        await sa.Invite(aube.Id, "Brume", Cancel);
+        await sb.JoinParty(brume.Id, aube.Id, Cancel);
+        SharedFightNews opened = await sa.OpenBattle(aube.Id, Group.Scenario, Cancel);
+        await Next(b, SharedFightKind.Opened);
+        await sb.JoinBattle(brume.Id, opened.Fight, Cancel);
+        await sa.GoBattle(aube.Id, opened.Fight, Cancel);
+        (List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)> games, SharedFightNews? over) = await PlayToTheEnd([(sa, aube.Id, a), (sb, brume.Id, b)], opened.Fight);
+        Assert.NotNull(over);
+        foreach (Fight f in games.Select(g => g.Fight))
+        {
+            Assert.Equal(["banner", "helping-hand"], f.HeroFighters[0].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+            Assert.Equal(["bogging", "chilling"], f.HeroFighters[1].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+        }
+        Assert.Equal(games[0].Fight.History, games[1].Fight.History);
+        await a.DisposeAsync();
+        await b.DisposeAsync();
+    }
+
     // Both games build the same fight from the start, then play the actions told; the player whose hero's turn it is plays as the AI would.
     private static async Task<(List<(GameServer Server, Guid Me, ChatClient Chat, Fight Fight)> Games, SharedFightNews? Over)> PlayToTheEnd(
         (GameServer Server, Guid Me, ChatClient Chat)[] players, Guid battle)

@@ -910,5 +910,195 @@
         "cells": 3
       }
     ]
+  },
+  {
+    "id": "helping-hand",
+    "name": {
+      "fr": "Main tendue",
+      "en": "Helping Hand"
+    },
+    "description": {
+      "fr": "Tes sorts d'élément lancés sur un allié (invocations comprises, jamais toi) l'aident au lieu de le frapper : le Feu soigne (40 % des dégâts, au plus 15 % de ses PV), la Terre protège (bouclier de 60 %), l'Eau résiste (+5 % par PA, 20 au plus), l'Air donne des PM (1 tous les 2 PA, 2 au plus) et 1 PO ; une paire, ses deux parents à 60 %. Un soutien par tour ; en échange, tes coups font 5 % de moins.",
+      "en": "Your element spells cast on an ally (summons too, never you) help it instead of hitting it: Fire heals (40% of the damage, at most 15% of its HP), Earth shields (60%), Water resists (+5% per AP, 20 at most), Air gives MP (1 every 2 AP, 2 at most) and 1 range; a pair, both its parents at 60%. One support a turn; in exchange, your hits deal 5% less."
+    },
+    "branch": "Support",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "support",
+        "perTurn": 1,
+        "percent": 100
+      },
+      {
+        "kind": "bonus",
+        "percent": -5
+      }
+    ]
+  },
+  {
+    "id": "banner",
+    "name": {
+      "fr": "Bannière",
+      "en": "Banner"
+    },
+    "description": {
+      "fr": "Au début de ton tour, tes alliés à 2 cases font 5 % de dégâts en plus pendant 1 tour ; toi, 5 % de moins.",
+      "en": "At the start of your turn, your allies within 2 cells deal 5% more damage for 1 turn; you, 5% less."
+    },
+    "branch": "Support",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "banner",
+        "cells": 2,
+        "percent": 5
+      },
+      {
+        "kind": "bonus",
+        "percent": -5
+      }
+    ]
+  },
+  {
+    "id": "double-hand",
+    "name": {
+      "fr": "Double main",
+      "en": "Double Hand"
+    },
+    "description": {
+      "fr": "Deux soutiens par tour, chacun à 75 %.",
+      "en": "Two supports a turn, each at 75%."
+    },
+    "branch": "Support",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "support",
+        "perTurn": 2,
+        "percent": 75
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
+  },
+  {
+    "id": "shared-momentum",
+    "name": {
+      "fr": "Élan partagé",
+      "en": "Shared Momentum"
+    },
+    "description": {
+      "fr": "L'allié soutenu fait 10 % de dégâts en plus pendant 1 tour ; toi, 10 % de moins.",
+      "en": "The ally you support deals 10% more damage for 1 turn; you, 10% less."
+    },
+    "branch": "Support",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "share",
+        "ally": 10,
+        "self": -10
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
+  },
+  {
+    "id": "long-hand",
+    "name": {
+      "fr": "Longue main",
+      "en": "Long Hand"
+    },
+    "description": {
+      "fr": "+2 PO aux sorts lancés sur un allié ; −1 PO aux sorts lancés sur un ennemi.",
+      "en": "+2 range on spells cast on an ally; −1 range on spells cast on an enemy."
+    },
+    "branch": "Support",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "reach",
+        "ally": 2,
+        "enemy": -1
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
+  },
+  {
+    "id": "devotion",
+    "name": {
+      "fr": "Dévouement",
+      "en": "Devotion"
+    },
+    "description": {
+      "fr": "Tes soutiens valent 50 % de plus ; en échange, tes coups font 20 % de moins.",
+      "en": "Your supports are worth 50% more; in exchange, your hits deal 20% less."
+    },
+    "branch": "Support",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "support",
+        "perTurn": 1,
+        "percent": 150
+      },
+      {
+        "kind": "bonus",
+        "percent": -20
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
+  },
+  {
+    "id": "harmony",
+    "name": {
+      "fr": "Harmonie",
+      "en": "Harmony"
+    },
+    "description": {
+      "fr": "En plus de son effet, chaque soutien donne à l'allié 15 % de résistance à l'élément du sort pendant 1 tour ; tes soutiens coûtent 1 PA de plus.",
+      "en": "On top of its effect, each support gives the ally 15% resistance to the spell's element for 1 turn; your supports cost 1 AP more."
+    },
+    "branch": "Support",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "harmony",
+        "percent": 15,
+        "apCost": 1
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
+  },
+  {
+    "id": "relief",
+    "name": {
+      "fr": "Relève",
+      "en": "Relief"
+    },
+    "description": {
+      "fr": "Une fois par combat, un soutien sur un allié sous 25 % de ses PV vaut le double et ne coûte aucun PA ; ton tour suivant, 2 PA de moins.",
+      "en": "Once a fight, a support on an ally under 25% of its HP is worth double and costs no AP; your next turn, 2 AP less."
+    },
+    "branch": "Support",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "relieve",
+        "below": 25,
+        "penalty": 2
+      }
+    ],
+    "requires": [
+      "helping-hand"
+    ]
   }
 ]

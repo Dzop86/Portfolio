@@ -6,7 +6,12 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, mes sorts lancés sur un allié l'aident selon leur élément (Feu soigne, Terre protège, Eau résiste, Air déplace), avec leurs plafonds, l'IA qui soutient et les huit talents (rpg) ; xUnit, intégration à deux clients. | 4 | À faire |
+| En tant que joueur, mes sorts lancés sur un allié l'aident selon leur élément (Feu soigne, Terre protège, Eau résiste, Air déplace), avec leurs plafonds, l'IA qui soutient et les huit talents (rpg) ; xUnit, intégration à deux clients. | 4 | Fait |
+
+## Fait
+- Main tendue et la table par élément, la paire à 60 %, le plafond de 15 % du soin, un soutien par tour, jamais sur soi (T109).
+- Bannière, Double main, Élan partagé, Longue main, Dévouement, Harmonie, Relève ; l'IA qui soutient ; la prévision d'un soutien.
+- Tests : `SupportTests` (12), `BattleTests` (deux joueurs avec leurs talents).
 
 ## Rétro (Charles)
 - Ce qui a marché :
