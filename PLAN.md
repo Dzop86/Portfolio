@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S145), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S151), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S145 | 364 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S151 | 393 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 585 points sur 145 sprints de deux semaines.
+Total : 614 points sur 151 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -177,3 +177,6 @@ Retours de Charles sur la 1.0.131, dans le sprint 144 (2 points de plus, 5 en to
 - Situation professionnelle actuelle (fin de l'ATER ?) pour mettre `data/cv.json` à jour.
 - Libellé unique entre le CV industriel et le CV analytique.
 - Nom définitif du compte ou de l'organisation GitHub.
+
+## Osmose : l'arbre des talents en vrai arbre (25 octobre 2026, D83)
+Charles a répondu au questionnaire du game designer (`projects/rpg/docs/talents-arbre-questions.md`) : restructurer l'arbre en tronc, paires d'éléments et styles de jeu en recasant les talents (A1 b), un tronc automatique à 30, 35 et 40 (B1 a), des styles partagés (D1 b), 1 point tous les 3 niveaux (G1 b), une vue focalisée montante (K1 d), des paires sans élément commun (C2), la Recommandation pour le reste. Le game designer a tranché F4 contre F2 (un sort combiné n'apparaît qu'avec une Transmutation ou une Conversion, l'Ouverture est retirée). Six sprints, 29 points : S146 (6) le tronc, les points et la Foudre arbitrée ; S147 (5) l'arbre en graphe et 9 builds mesurés ; S148 (5) la fenêtre de l'arbre ; S149 (5) les explications ; S150 (4) la fenêtre des sorts et le combat ; S151 (4) la planification, le partage et un playtest extérieur.
