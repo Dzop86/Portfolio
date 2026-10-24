@@ -29,7 +29,305 @@
 | F4 | **a** : le « passif » dont parlait Charles est la Conversion. |
 | Les 135 autres | **Reco partout**, à corriger au playtest. |
 
-**Point à revoir avec Charles :** F4 a et F2 d se contredisent en partie. Si le passif en question est la Conversion, les sorts de Foudre ne devraient apparaître qu'une fois la Conversion prise (F2 b), et non dès l'Ouverture. À confirmer avant de corriger `BuildSpells`.
+**F4 a contre F2 d :** tranché par le game designer, voir « Arbitrages du game designer », §1 ci-dessous. En bref, une Foudre qui n'apparaît qu'avec un changement d'élément, et l'Ouverture supprimée.
+
+## Arbitrages du game designer (25 octobre 2026)
+
+> Charles : « laisse le GD faire le choix de reco, puis go ». Cette section fait foi pour le développeur. Le reste du document garde l'argumentaire de chaque question.
+
+### 1. La Foudre dans les sorts : F4 a l'emporte, F2 devient « b avec l'aperçu de d », F3 a
+
+**Ce que Charles a voulu dire.** Sa phrase d'origine : pas de Foudre dans les sorts « tant que le passif dans l'arbre des talents ne sera pas utilisé et les éléments changés ». En F4, il a répondu lui-même, là où je n'avais pas de Reco : le passif, c'est la Conversion. Ma Reco de F2 (d) avait été écrite avant de connaître sa lecture de F4, et F2 en dépendait (« si tu choisis b… »). C'est donc F4 qui porte son intention. Son critère, c'est **« les éléments changés »**, pas le nom d'un talent.
+
+**Décision.**
+- **Règle R1.** Un sort d'élément combiné n'apparaît dans le grimoire, le deck, le filtre des sorts et la barre de combat que lorsqu'un talent **enregistré change un élément** : la Transmutation (un parent) ou la Conversion (les deux). Avant, il n'y a ni pastille ni tuile.
+- **Règle R2, ce qu'on garde de F2 d : l'aperçu.** Tant que la Transmutation ou la Conversion n'est que cochée dans le brouillon, les sorts qu'elle donnera s'affichent en pointillés, marqués « aperçu ». Ils restent hors du filtre, hors du deck et hors du compte de l'autotest. Ce n'est pas « de la Foudre dans les sorts » : c'est la conséquence montrée avant de payer (principe 4).
+- **Pourquoi la Transmutation compte aussi, alors que Charles a nommé la Conversion.**
+  1. Elle change bien un élément (« tes sorts de Feu deviennent de la Foudre »), ce qui est le critère de sa phrase.
+  2. La Conversion est une clé de niveau 45. Si elle était seule à compter, la Foudre n'existerait pas avant 45, et la Tresse serait vide de 30 à 44.
+  3. La Conversion reste la seule à donner les 8 sorts, le +15 % et la caractéristique 2 × moyenne. Elle garde son statut de grande bascule.
+
+  À vérifier au playtest : si Charles ne veut voir la Foudre qu'avec la Conversion, il suffit de placer la Transmutation derrière la clé. C'est un seul prérequis à changer.
+
+**F3, arbitrée : a, avec ces précisions.**
+- **L'Ouverture (T1) est supprimée.** C'est le seul talent qui donne des sorts combinés sans changer d'élément, donc le seul incompatible avec R1. **Plein grimoire (T2) disparaît avec elle** : il complétait l'Ouverture, et la Conversion donne déjà les 8 sorts. Le recasage garde donc **52 talents sur 54**.
+- **La Tresse d'une paire (« Fusion », M1) devient :**
+
+  | Palier | Nœud | Parent | Coût |
+  |---|---|---|---|
+  | 1 | **Transmutation**, nœud à choix : Feu → Foudre **ou** Air → Foudre | le nœud de paire (Électrisation) | 1 |
+  | 2 | **Signature appuyée** ; **Prisme** | la Transmutation **ou** la Conversion (G7 a) | 1 chacun |
+  | Clé | **Conversion** | le nœud de paire, et le niveau 45 | 2 |
+
+- **La Transmutation devient un nœud à choix.** Aujourd'hui, prendre les deux Transmutations d'une paire donne les 8 sorts sans prendre la grande bascule : c'est une Conversion au rabais, pour 2 points et sans clé. Le nœud à choix ferme cette porte.
+- **La Conversion absorbe la Transmutation de la même paire.** Dans le brouillon, cocher la Conversion décoche la Transmutation, le jeu le dit par un message, et le point revient. Ce remplacement ne compte pas comme un retour en arrière payant (I2) : c'est une montée en puissance, pas un regret. Cette règle remplace celle de la v3 (« fais refaire ta transmutation »), qui punissait le chemin naturel 30 → 45.
+- **Ce qui reste de S144.** Un sort transmuté frappe sur le plus haut des deux parents, et seule la Conversion frappe sur 2 × leur moyenne. Les builds `*-matter` prennent la Transmutation à 35 et 40, puis la Conversion à 45. Ils sont à re-mesurer (S146).
+- **Un compromis voulu, à écrire dans l'infobulle.** Transmuter l'Air coupe Électrisé, puisque Prisme ne pose que l'empreinte de Feu. Transmuter le Feu la coupe aussi, sauf avec Prisme. C'est une vraie décision (de la Foudre tout de suite, ou la réaction), à condition que le joueur la voie avant de payer (M4 a, contrepartie).
+- **Les autres talents touchés.** T7 Tresse triple : « dont tu as ouvert une paire » devient « dont tu as transmuté ou converti une paire ». P3 Ouverture : Lumière ou Ténèbres (pas encore livrée) n'est pas un élément combiné et sort du champ de la remarque. Elle suit F10 (ses sorts apparaissent quand elle est enregistrée) et sera revue avec les Pôles (temps 2).
+
+### 2. C2 : deux paires au plus, sans élément commun
+
+**La règle.** Un élément de base n'appartient qu'à une seule paire. Avec Vapeur (Feu + Eau), les paires qui contiennent le Feu ou l'Eau sont exclues, et seule Sable (Terre + Air) reste possible. Il n'existe donc que **trois couples** : Foudre + Boue, Glace + Magma, Vapeur + Sable.
+
+**Ce que ça change pour le joueur.** La seconde paire n'est plus un choix parmi plusieurs : c'est un oui ou un non sur le complément de la première. C'est plus lisible, et ça donne du poids au premier choix. Le risque, c'est que la seconde paire devienne un réflexe : à surveiller avec la règle des 5 % (J6) et la mesure des couples (J3).
+
+**Vérification contre les autres Reco.**
+
+| Reco | Contradiction ? | Arbitrage |
+|---|---|---|
+| C2 c (ma Reco) | remplacée | Le maximum reste de deux, et l'élément consommé s'y ajoute |
+| H2 a (deux éléments ouverts au plus) | non, mais devient en partie redondante | **Gardée et reformulée** : au plus deux éléments hors base dans le grimoire, qu'il s'agisse de composés transmutés ou convertis, d'un triplet, de Lumière ou de Ténèbres (Crépuscule compte pour deux). Avec C2, la limite de deux composés vient d'elle-même. H2 reste utile pour le triplet et les Pôles |
+| A5 c, C3 a, E1 a | non | Le nœud de paire donne sa réaction, aucun sort. C'est lui qui consomme les deux éléments. F3 renforce ce rôle |
+| C8 b, I1 b | non | Changer de paire rend sa Tresse. Si la nouvelle paire partage un élément avec l'autre paire prise, celle-ci est rendue aussi, en cascade, avec l'aperçu en rouge |
+| C12 b, H7 b | non, à préciser | **Élément pur ne consomme aucun élément** : on peut prendre Cœur : Feu avec Foudre. Seule la clé Pureté exclut les réactions |
+| C7 (Reco a pour une vue verticale) | **oui, en partie** | **Ordre changé** : les couples complémentaires sont côte à côte (Foudre et Boue, Glace et Magma, Vapeur et Sable), puis vient Élément pur. Le joueur voit à l'écran avec qui il peut former un couple, et la règle se lit sans texte |
+| K1 d, K4 a | à préciser | Quand deux paires sont prises, toutes les deux sont tracées en trait plein. La paire sélectionnée est déployée en entier, l'autre replie sa Tresse. Les styles sont partagés, donc toujours visibles. Les paires exclues passent à l'état « exclu » avec leur raison : « l'Eau est déjà prise par Boue ». K4 : l'arbre s'ouvre sur la paire dont la Tresse compte le plus de nœuds pris, sinon sur la première paire prise |
+| L5 b, H6 a | non | La consommation d'un élément devient une raison d'exclusion de plus |
+| Builds de référence (0.4, E) | **oui** | `guard-manner` (Enlisement + Transissement, donc l'Eau deux fois) devient illégal. La Garde « Marée montante » est réécrite en **Transissement + Fêlure** (Glace + Magma) : elle garde son Eau et gagne la Terre. Tout autre build, de référence ou de Plouf, dont deux paires partagent un élément est réécrit de la même façon |
+| J3 b | non, à compléter | Chaque paire est mesurée seule, et chacun des trois couples à ±1,5 victoire sur 30 des deux autres |
+| C9 a (triplets) | non, pour plus tard | Un triplet n'est pas un nœud de fourche et ne consomme rien. Il demande une paire transmutée ou convertie (F3) |
+
+### 3. Les Reco retenues, question par question (les 135 sans réponse de Charles)
+
+Les lignes en **gras** ont été modifiées ou précisées par les arbitrages 1 et 2.
+
+- A2 a + b : un but lointain visible, une seule paire déployée à la fois.
+- A3 b pour la structure (Diablo IV), d pour les nœuds (Last Epoch).
+- A4 a : la paire d'abord, le style ensuite.
+- A5 c : on peut prendre une paire pour sa seule réaction, sans composé.
+- A6 b : 1 à 2 minutes par point, et une planification facultative (N2).
+- A7 a : un pictogramme « groupe » (Soutien, Empreinte partagée).
+- B2 b : +5 % de dégâts (30), +3 % de résistances (35), +5 % de PV (40), puis mesure.
+- B3 c : 3 nœuds avant la fourche, puis un tronc central à 60 et 80 (temps 2, valeurs à mesurer).
+- B4 a : les dégâts de tous les sorts, neutres compris, appliqués comme l'équipement, avant les résistances.
+- B5 a : le tronc n'entre pas dans le plafond de +35 %.
+- B6 a : la résistance s'ajoute en points de pourcentage, sous le plafond existant.
+- B7 a : +5 % des PV max, Vitalité comprise.
+- B8 a : l'arbre s'ouvre à 30.
+- B9 a : le même tronc pour les trois classes.
+- B10 a : le tronc est visible et grisé avant 30, avec « s'ouvre au niveau 30 ».
+- C1 b : 6 paires et le nœud Élément pur.
+- C3 a : le nœud de paire donne sa réaction (R1 à R6), aucun sort.
+- C4 c : « Foudre » en titre, et les pastilles Feu et Air dessous.
+- C5 b : un conseil discret sur les deux caractéristiques les plus hautes.
+- C6 a : la paire et sa réaction sont jouables, sa Tresse « à venir » (rendu L10 c).
+- **C7 : les couples complémentaires côte à côte (§2).**
+- C8 b : changer de paire ne rend que sa Tresse.
+- C9 a : les triplets en passerelle (temps 2).
+- C10 a : Lumière, Ténèbres et Crépuscule sous Élément pur (temps 2).
+- C11 b : Unisson reste invisible.
+- D2 a : Mêlée, Distance, Soutien, Terrain, Tempo, Alchimie, plus la Tresse de chaque paire.
+- D3 a : Mêlée et Distance sont deux styles séparés.
+- D4 c : autant de styles que les points le permettent, une clé par style.
+- **D5 b : un gabarit à 4 paliers (deux paliers simples, un palier à choix s'il y a une exclusion interne, la clé). Un palier porte 1 à 3 nœuds : Terrain (10) et Tempo (9) y tiennent, Mêlée et Distance en ont 4 (E11 a).**
+- **D6 b : tous les nœuds d'un palier s'achètent, et chacun ouvre le palier suivant. L'exclusivité passe uniquement par les nœuds à choix (D7).**
+- D7 a : des nœuds à choix.
+- D8 a : Tempo et Terrain restent des styles à part.
+- D9 a : Main tendue chiffrée selon tes paires, dans l'infobulle.
+- D10 a au premier temps, b à terme (temps 2).
+- D11 a : aucun style réservé à une paire.
+- D12 a : la couche s'appelle « Styles ».
+- E1 a : R1 à R6 deviennent les nœuds de paire, avec les mêmes identifiants.
+- E2 a : R7 à R12 forment le style Alchimie.
+- **E3 b : la Transmutation et la Conversion sont deux bras, et la Conversion absorbe la Transmutation (§1).**
+- E4 a : D5 en Mêlée, D4 en Distance, D6 en Terrain.
+- E5 a : Rythme devient Tempo.
+- E6 a : Terrain reste un seul style.
+- E7 a : Soutien inchangé, avec Main tendue comme porte.
+- E8 a : les Pôles sous Élément pur.
+- E9 a : les noms des talents sont gardés.
+- **E10 a : une clé par style (la clé d'un style est un nœud à choix entre ses 2 ou 3 clés), et une seule grande bascule.**
+- E11 a : pas de nouveau talent au premier jet.
+- **F1 : sans objet. La pastille fantôme est corrigée depuis D81, et le reste relève de l'arbitrage 1.**
+- **F3 a, précisée (§1).**
+- F5 a : l'origine du sort sur sa carte.
+- F6 b : un sort remplacé est grisé, barré, avec une flèche vers son jumeau.
+- F7 a : le jumeau prend sa place dans le deck, avec un message.
+- F8 b : les éléments combinés ne sont visibles que dans l'arbre, verrouillés.
+- F9 a : un message « 3 points de sort rendus ».
+- F10 a : tout sort de l'arbre apparaît quand son talent est enregistré.
+- G2 a : les points ne viennent que du niveau.
+- G3 a : 1 point par nœud, 2 pour une clé.
+- G4 a : le parent suffit, plus le niveau pour les clés (c).
+- G5 a : les clés s'ouvrent au niveau 45.
+- **G6 a : deux parents au compte-gouttes (Signature appuyée et Prisme, triplets, signatures de paire).**
+- G7 a : OU, sauf pour une signature de paire (ET).
+- G8 b : environ un tiers de l'arbre pris à 100.
+- G9 a : on peut garder ses points, et une pastille « à dépenser » le rappelle.
+- G10 a : un seul nœud du palier précédent suffit.
+- H1 a : une seule grande bascule.
+- **H2 a, reformulée : au plus deux éléments hors base (§2).**
+- **H3 a, restreinte : Y1/Y2 et P3 deviennent des nœuds à choix. Les exclusions D1–D2, D1–D8, D2–D7 et D7–D8 relient deux styles (Mêlée et Distance) : elles restent des exclusions, affichées « exclu » avec leur raison.**
+- **H4 b, précisée : les deux styles entiers ne s'excluent pas, et les quatre exclusions de la v3, mesurées, restent (H3).**
+- H5 a : les paires se grisent avec la raison quand on prend Crépuscule.
+- H6 a : un cadenas, et la raison dans l'infobulle, avant le clic.
+- H7 b : seule la clé Pureté exclut les réactions.
+- I1 b : rendre un nœud rend ses enfants en cascade, avec l'aperçu et une confirmation.
+- **I2 a : un prix par enregistrement. La Conversion qui absorbe la Transmutation ne compte pas comme un retour en arrière (§1).**
+- I3 a : on rend des talents dans un village.
+- I4 a : un bouton « annuler les changements ».
+- **I5 a : une réinitialisation gratuite et unique à chaque version incompatible de l'arbre (S146, puis S147), avec un message à la connexion.**
+- I6 b : Plouf reçoit un build de référence par personnage, restauré par la commande admin.
+- I7 a : un seul plan pour l'instant (deux plus tard, avec les guildes).
+- I8 a : la spécialisation et l'arbre sont indépendants.
+- J1 a : les plafonds de S144 restent la référence.
+- J2 a : le tronc fait partie du héros nu.
+- **J3 c : les styles et les paires à ±1,5 victoire sur 30, plus les trois couples (§2).**
+- **J4 b : 9 builds de référence, `guard-manner` réécrit (§2).**
+- J5 b : les 18 combinaisons de paire et de classe, mesurées hors CI.
+- J6 a : la règle des 5 % s'applique à chaque moitié d'un nœud à choix.
+- J7 b : si le tronc rend les combats trop faciles, on baisse le tronc, pas les monstres.
+- K2 b : une fenêtre dédiée avec son raccourci (une touche libre, au choix du développeur), et un bouton depuis l'onglet.
+- K3 a : ni zoom ni déplacement.
+- **K4 a : l'arbre s'ouvre sur la paire prise ; avec deux paires, voir §2 ; sur le tronc tant qu'aucune n'est prise.**
+- K5 a : navigation au clavier.
+- K6 a : 1280 × 720 au minimum.
+- K7 b : un panneau latéral à droite.
+- K8 c : une infobulle courte au survol, le panneau au clic.
+- K9 a : un fond abstrait aux couleurs de la charte.
+- K10 b : des animations et un son sobres.
+- L1 a : une forme par type de nœud.
+- L2 a : 56 px pour un nœud simple, 72 px pour une paire ou une clé.
+- L3 b : une icône, et le nom court dessous.
+- L4 a : des couleurs par élément et par style, toutes dans `tokens.css` et `ElementStyle`.
+- L5 b : 5 états (pris, accessible, verrouillé, exclu, hors niveau).
+- L6 a : trois styles de liens, et les pointillés pour les branches repliées.
+- L7 a : le coût n'est affiché que s'il vaut 2.
+- L8 a : au survol, le chemin surligné et son coût total.
+- L9 a : des icônes d'élément en plus des couleurs.
+- L10 c : ce qui est à venir en pointillés, sans texte.
+- M1 a : Fondations, Affinités, Styles, Fusion, Élément pur, à valider par le scénariste.
+- M2 a : un bandeau en tête de chaque branche.
+- M3 a : « Foudre = Feu + Air », la phrase d'effet, la réaction.
+- M4 a d'abord, b ensuite (la ligne chiffrée « avant et après »).
+- M5 b : la légende derrière « ? », ouverte d'office à la première visite.
+- M6 a : trois bulles guidées à la première ouverture.
+- M7 a : un glossaire au survol.
+- M8 b : une ligne d'ambiance en italique, puis les chiffres.
+- M9 a, plus tard (temps 2).
+- M10 b : le scénariste valide les noms, puis Charles.
+- N1 a : le résumé complet du build.
+- N2 a : un mode planification, sans enregistrement possible.
+- N3 a : les builds de référence à charger en brouillon.
+- N4 a : un code de build à copier.
+- N5 a : « tout réinitialiser », avec le coût affiché et une confirmation.
+- N6 a : les nœuds gagnés et perdus surlignés avant l'enregistrement.
+- N7 a : voir l'arbre d'un autre joueur plus tard, avec les guildes.
+- N8 a : un titre de build généré.
+- O1 a : seulement les éléments possédés (fait par D81, à garder sous test).
+- O2 a : un badge « nouveau » jusqu'au premier survol.
+- O3 a : la ligne « modifié par l'arbre » sur la carte du sort.
+- O4 a : l'arbre lisible en combat, en lecture seule.
+- O5 a + b : des icônes d'état sur le portrait, et le détail dans la prévision.
+- O6 a : la prévision détaille les bonus de l'arbre.
+- O7 a : une colonne « arbre » dans les caractéristiques.
+- P1 a : une maquette statique, rendue hors écran, avant le code de l'interface.
+- P2 b : deux temps (voir le plan de livraison).
+- P3 b : des icônes SVG dans le style de `SpellIcon`, avec game-icons.net en repli.
+- P4 b : Charles avec Plouf, puis un joueur extérieur.
+- P5 a : en deux minutes, le joueur explique son build en une phrase.
+
+## Plan de livraison
+
+**Temps 1 : S146 à S151, 29 points.** Le cœur de la refonte (S146 à S148, 16 points) correspond à mon estimation de A1 b (13 à 16). S149 à S151 (13 points) livrent les Reco d'interface et d'explication : ce sont elles qui glissent si le planning se tend. Chaque sprint se livre seul : CI verte, build Windows, API locale à jour, Plouf restauré par la commande admin. L'autotest Godot tourne en headless, sans aucune fenêtre visible.
+
+| Sprint | Points | Contenu en une ligne |
+|---|---|---|
+| **S146** | 6 | Le tronc automatique, les points G1 b, la Foudre arbitrée (Ouverture retirée, Transmutation à choix), les paires disjointes, dans la fenêtre actuelle ; et la maquette |
+| **S147** | 5 | L'arbre devient un graphe de prérequis : `talents.json` v2, la fourche, les 6 styles, Élément pur, le nouveau `Talents.Problem`, 9 builds mesurés |
+| **S148** | 5 | La fenêtre de l'arbre : vue focalisée montante, états, liens, formes, clavier, cascade et annulation |
+| **S149** | 5 | Les explications : noms, bandeaux, légende, panneau et infobulles, glossaire, tutoriel, icônes |
+| **S150** | 4 | La fenêtre des sorts et le combat : origine des sorts, sorts remplacés, indicateurs et prévision |
+| **S151** | 4 | La planification et le partage, la mesure hors CI, le playtest extérieur |
+
+**Temps 2, avec les chapitres (non numéroté) :** les signatures de paire (D1 c, D10 b), les composés suivants (Glace d'abord), les Pôles complets sous Élément pur (E8, C10), les triplets en passerelle (C9), le tronc central à 60 et 80 (B3 c, mesuré avec le contenu de ces niveaux), les schémas animés (M9), deux plans de talents et l'arbre d'un autre joueur après les guildes (I7 b, N7).
+
+### S146 : le tronc, les points et la Foudre arbitrée (6 points), une tranche livrable seule
+
+Cette tranche change les règles et la puissance, mais pas encore la forme de l'arbre. Elle tient dans la fenêtre actuelle à 7 colonnes : le tronc s'y affiche en une ligne au-dessus des colonnes. Elle règle tout de suite la plainte sur la Foudre, et elle mesure le budget de puissance avant d'investir dans l'interface.
+
+| Story | Points |
+|---|---|
+| En tant que joueur, mon tronc s'allume tout seul à 30, 35 et 40 (+5 % de dégâts, +3 % de résistances, +5 % de PV), visible dans les caractéristiques (O7), et je reçois 2 points à 30 puis 1 tous les 3 niveaux | 3 |
+| En tant que joueur, je ne vois de Foudre dans mes sorts qu'une fois une Transmutation ou une Conversion enregistrée, avec un aperçu en pointillés dans le brouillon ; mes deux paires ne partagent aucun élément ; mes talents sont rendus gratuitement une fois | 2 |
+| En tant que Charles, je valide une maquette statique de la vue focalisée, rendue hors écran (P1), avant S148 | 1 |
+
+Contenu : T1 et T2 sont retirés. La Transmutation devient un nœud à choix, enfant d'Électrisation, et la Conversion l'absorbe. Signature appuyée et Prisme prennent les parents OU. `BuildSpells`, `SpellBook` et l'autotest de `Main.Town.cs` suivent R1 et R2. `Talents.Problem` refuse deux réactions qui partagent un élément. Les personnages migrent vers une `talentsVersion` 2. Les 7 builds de référence sont réécrits (Transmutation à la place de l'Ouverture, `guard-manner` en Glace + Magma), puis Plouf est restauré.
+
+Tests attendus :
+- **Unitaires.** Le tronc s'allume à 30, 35 et 40, et pas avant. Son bonus de dégâts s'applique avant les résistances et hors du plafond de +35 %. Sa résistance s'ajoute sous le plafond existant. Ses PV valent un pourcentage des PV max, Vitalité comprise. Les points valent 2 à 30, 7 à 45, 12 à 60 et 25 à 100. La Transmutation se prend sur le Feu ou sur l'Air, jamais les deux. La Conversion rend la Transmutation de la même paire sans coût de retour en arrière. Aucun sort combiné n'existe sans Transmutation ou Conversion enregistrée. L'aperçu du brouillon n'entre ni dans le filtre ni dans le deck. Le filtre ne montre que les éléments possédés. Boue + Glace est refusée avec la raison « l'Eau est déjà prise par Boue », en FR et en EN, alors que Foudre + Boue est acceptée.
+- **Intégration.** Un personnage en version 1 se charge depuis PostgreSQL : il est réinitialisé une seule fois, ses points sont rendus, et le message s'affiche à la connexion. L'API refuse un arbre illégal envoyé par un client. La commande admin restaure Plouf avec trois builds légaux. L'autotest du village, en headless, ne compte que les tuiles de Foudre enregistrées.
+- **Mesures d'équilibre, en CI, avec le harnais de S144.** Le héros nu passe à « héros nu + tronc » (J2) à 30, 35, 40 et 45. Les planchers T41 des petits groupes tiennent. Le héros hybride nu + tronc reste sous 2 hordes sur 10. Si ce plafond casse, on baisse le tronc à +3 %, +2 % et +3 % (J7). Les 7 builds réécrits restent à 1,5 horde sur 10 au plus du meilleur héros nu, la Matière et la Manière à ±1,5 victoire sur 30, et le duo avec soutien reste vert. On sonde aussi le passage de 5 à 7 points à 45, qui ajoute de la puissance même avant la nouvelle structure.
+
+### S147 : l'arbre devient un graphe (5 points)
+
+| Story | Points |
+|---|---|
+| En tant que joueur, mon arbre a un tronc, une fourche de 6 paires et d'Élément pur, une Fusion par paire et 6 styles partagés, et chaque refus me donne sa raison (rpg) | 3 |
+| En tant que joueur, 9 builds de référence garantissent qu'aucun style, aucune paire et aucun couple n'est une fausse décision | 2 |
+
+Contenu : `talents.json` v2 décrit chaque nœud par son type (tronc, paire, style, choix, clé), ses parents (OU, ou ET pour les signatures plus tard), son style et son niveau minimal. Les 52 talents sont recasés selon le tableau E, en appliquant §1 et §2. Élément pur a P1 Cœur pour porte : c'est le seul talent de Pôles livré à ce sprint. La clé d'un style est un nœud à choix entre ses clés. Y1 et Y2 deviennent un nœud à choix, et les quatre exclusions entre Mêlée et Distance sont gardées. `Talents.Problem` est réécrit : parent pris, clés au niveau 45, une clé par style, une seule grande bascule, au plus deux éléments hors base, paires disjointes, Pureté sans réaction. Il rend une raison par nœud. La logique de cascade (I1 b, C8 b) passe dans `PointsEditor`. La migration passe en version 3. En attendant S148, `PointsPanel` montre les nouvelles couches en colonnes.
+
+Tests attendus :
+- **Unitaires.** Chaque règle de `Talents.Problem` est testée en table : un cas accepté, un cas refusé, et le texte de la raison en FR et en EN. Le parent OU est testé, ainsi que le nœud à choix, le niveau 45 des clés et la cascade (rendre Électrisation rend la Transmutation, Prisme et Signature, mais pas les styles). Un test de propriété génère 10 000 arbres au hasard et vérifie que tout arbre accepté est atteignable par ses parents, et que tout arbre qui viole une règle est refusé.
+- **Intégration.** L'API valide avec les mêmes règles que le client, grâce à une bibliothèque partagée. La migration de la version 2 à la version 3 passe sur PostgreSQL. Plouf est restauré avec un build par classe. Le chargement de `talents.json` échoue au build si une clé de texte FR ou EN manque.
+- **Mesures d'équilibre, en CI.** À 45, chaque style est à ±1,5 victoire sur 30 des autres (J3 a), chaque paire, en réaction seule, à ±1,5 des autres (J3 b), et les trois couples à ±1,5 entre eux. Les 9 builds (une paire et un style par classe, un mono-élément avec Cœur par classe) restent à 1,5 horde sur 10 au plus du meilleur héros nu. Le duo avec soutien reste vert.
+
+### S148 : la fenêtre de l'arbre (5 points)
+
+| Story | Points |
+|---|---|
+| En tant que joueur, j'ouvre l'arbre dans sa fenêtre et je le lis de bas en haut : le tronc, la fourche, ma paire déployée, les autres en pointillés (rpg) | 3 |
+| En tant que joueur, je vois l'état de chaque nœud avant de cliquer, je rends une branche en voyant ce que je perds, et j'annule mon brouillon | 2 |
+
+Contenu : K1 d d'après la maquette validée, K2 b, K3 a, K4 (§2), K5 a, K6 a, K7 b (panneau minimal : points, éléments hors base 0/2, grande bascule), K9 a et K10 b. L1, L2, L5, L6, L7 et L10 c, avec C7 (§2) et B10 a. H5 a et H6 a (cadenas et raison). I1 b (aperçu en rouge et confirmation), I4 a, N5 a et N6 a. Les icônes sont provisoires (lettres) jusqu'à S149.
+
+Tests attendus :
+- **Unitaires, sans moteur.** Une classe `TreeLayout` dans `Rpg.Client`, sur le modèle de `ContactsView`, est testée : à 1280 × 720, aucun nœud ne sort de la fenêtre et deux nœuds ne se chevauchent pas, les nœuds font 56 et 72 px (au moins 44 px), chaque nœud a un voisin au clavier dans les quatre directions quand il en existe un, et les couples complémentaires sont côte à côte. Un nœud reçoit l'un des 5 états, testés sur un arbre type par état. L'aperçu de cascade liste exactement les nœuds perdus.
+- **Intégration.** L'autotest Godot, en headless, ouvre l'arbre de chaque personnage de Plouf, vérifie le nombre de nœuds par état, prend un nœud, l'annule, puis enregistre. Un aller-retour avec l'API vérifie que le brouillon annulé n'est pas envoyé.
+- **Équilibre.** Rien de neuf, mais les mesures de S147 restent vertes.
+
+### S149 : les explications (5 points)
+
+| Story | Points |
+|---|---|
+| En tant que joueur, je comprends chaque couche et chaque nœud sans aide : noms, bandeaux, panneau, légende, glossaire (rpg) | 3 |
+| En tant que joueur, je découvre l'arbre à 30 avec trois bulles guidées, et chaque nœud a son icône | 2 |
+
+Contenu : M1 a, validé par le scénariste puis par Charles (M10 b). M2 a (13 phrases), M3 a, M4 a, M5 b, M6 a (drapeau « vu » sur le compte), M7 a, M8 b (52 lignes d'ambiance), C4 c, C5 b, D9 a, A7 a et L9 a. N1 a (résumé complet, avertissement de plafond) et N8 a. Environ 60 icônes SVG (P3 b, L3 b) et les couleurs dans `tokens.css` (L4 a).
+
+Tests attendus :
+- **Unitaires.** Chaque nœud a un nom, un effet, une contrepartie et une ligne d'ambiance en FR et en EN, sinon le build échoue. Le titre généré est testé pour les 9 builds de référence. Le résumé est testé : la somme des contreparties, et l'avertissement de plafond qui s'allume au-delà de +35 %. Le conseil de paire désigne les deux caractéristiques les plus hautes. Chaque nœud a son icône, et chaque icône est créditée si elle vient de game-icons.net.
+- **Intégration.** Le drapeau du tutoriel est enregistré par l'API, et le tutoriel ne revient pas à la connexion suivante. L'autotest headless survole un nœud de chaque type et vérifie l'infobulle, puis le panneau.
+- **Contrôle de la charte.** Aucune couleur n'est écrite en dur hors de `tokens.css` et `ElementStyle`, et le pistache n'est jamais utilisé en texte sur fond clair.
+
+### S150 : la fenêtre des sorts et le combat (4 points)
+
+| Story | Points |
+|---|---|
+| En tant que joueur, je vois dans mon grimoire d'où vient chaque sort, ce qu'il a remplacé et ce que l'arbre a modifié (rpg) | 2 |
+| En tant que joueur, je vois en combat quels talents sont actifs, et leur part dans la prévision de dégâts | 2 |
+
+Contenu : F5 a, F6 b, F7 a, F9 a, O2 a et O3 a (`Texts.SpellCard`). O5 a + b, O6 a et O4 a (déjà là, à garder sous test). M4 b : la ligne chiffrée « avant et après », calculée avec `Talents.Compile` et `Talents.Percent`.
+
+Tests attendus :
+- **Unitaires.** La carte d'un sort transmuté porte son origine, et celle du sort remplacé est barrée et pointe vers son jumeau. Le jumeau prend la place du sort remplacé dans le deck. Le message des points de sort rendus donne le bon nombre. La prévision détaille chaque bonus de l'arbre, et la somme affichée égale les dégâts calculés. La ligne « avant et après » d'un nœud égale la différence de `Talents.Percent`.
+- **Intégration.** Un combat scripté avec Pied ferme et Pas dansant montre l'état allumé, puis éteint, sur le portrait. L'autotest headless vérifie le badge « nouveau » après une Transmutation enregistrée.
+
+### S151 : la planification, le partage et le playtest (4 points)
+
+| Story | Points |
+|---|---|
+| En tant que joueur, je planifie un build de niveau 60, je charge un build suggéré et je partage mon build par un code (rpg) | 2 |
+| En tant que Charles, un outil hors CI mesure les 18 combinaisons de paire et de classe et la règle des 5 %, et un joueur extérieur passe le critère des deux minutes | 2 |
+
+Contenu : L8 a (chemin et coût), N2 a (nœuds fantômes), N3 a (les 9 builds, en brouillon), N4 a (code de build) et G9 a (pastille). L'outil hors CI couvre J5 b et J6 a, sur 100 combats. Le playtest suit P4 b et P5 a.
+
+Tests attendus :
+- **Unitaires.** Un code de build fait l'aller-retour à l'identique. Un code illégal ou d'une ancienne version est refusé avec sa raison. Le coût du chemin égale la somme des coûts des nœuds non pris. Un plan fantôme ne peut pas être enregistré.
+- **Intégration.** L'API refuse un enregistrement qui contient des nœuds fantômes. Un build suggéré chargé reste un brouillon jusqu'à l'enregistrement.
+- **Mesures, hors CI.** Les 18 combinaisons de paire et de classe, sur 100 combats chacune, donnent un rapport versionné dans le dépôt. Tout talent ou toute moitié de nœud à choix pris par moins de 5 % des builds générés est listé pour revue.
+- **Playtest.** Le joueur extérieur explique son build en une phrase après deux minutes : réussi ou non, et ce qui l'a bloqué. C'est noté dans `REVIEW.md`.
 
 ---
 
