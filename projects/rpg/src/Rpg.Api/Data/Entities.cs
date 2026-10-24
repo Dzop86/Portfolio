@@ -48,6 +48,9 @@ public sealed class Character
     public int? Y { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 
+    /// <summary>When its game last connected (sprint 145: the guild's tab tells it); null before.</summary>
+    public DateTimeOffset? LastSeenAt { get; set; }
+
     /// <summary>Experience, earned only from fights the server replayed; the level follows it.</summary>
     public long Xp { get; set; }
 
@@ -234,4 +237,22 @@ public sealed class ContactRecord
     public Guid AccountId { get; set; }
     public Guid CharacterId { get; set; }
     public bool Ignore { get; set; }
+}
+
+/// <summary>A guild (sprint 145, D79): its name, unique over the server (case aside), and when it was founded.</summary>
+public sealed class GuildRecord
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public required string Name { get; set; }
+    public required string NormalizedName { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>A character in a guild (sprint 145): one guild at most, its rank, when it joined (who leads after the leader).</summary>
+public sealed class GuildMemberRecord
+{
+    public Guid CharacterId { get; set; }
+    public Guid GuildId { get; set; }
+    public GuildRank Rank { get; set; } = GuildRank.Member;
+    public DateTimeOffset JoinedAt { get; set; }
 }

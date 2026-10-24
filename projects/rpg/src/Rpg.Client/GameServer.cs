@@ -169,6 +169,42 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<ContactList>(Json, cancel))!;
     }
 
+    /// <summary>The character's guild (sprint 145): its name and members, or <see cref="GuildNewsKind.Left"/> when in none.</summary>
+    public async Task<GuildNews> Guild(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/guild", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<GuildNews>(Json, cancel))!;
+    }
+
+    /// <summary>Founds a guild at Clairval's registrar (sprint 145): the character as it is after, the Éclats paid.</summary>
+    public async Task<CharacterSummary> FoundGuild(Guid id, string name, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild", UriKind.Relative), new NewGuild(name), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
+    /// <summary>Invites a character in play into the guild, by its name (sprint 145).</summary>
+    public async Task InviteToGuild(Guid id, string name, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/invite", UriKind.Relative), new PartyInvite(name), Json, cancel), cancel), cancel);
+
+    /// <summary>Joins the guild of a member who invited this character (sprint 145).</summary>
+    public async Task JoinGuild(Guid id, Guid from, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/accept", UriKind.Relative), new PartyAnswer(from), Json, cancel), cancel), cancel);
+
+    /// <summary>Leaves the guild (sprint 145).</summary>
+    public async Task LeaveGuild(Guid id, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsync(new Uri($"api/characters/{id}/guild/leave", UriKind.Relative), null, cancel), cancel), cancel);
+
+    /// <summary>Sends a member out of the guild (sprint 145).</summary>
+    public async Task KickFromGuild(Guid id, Guid member, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/kick", UriKind.Relative), new GuildOrder(member), Json, cancel), cancel), cancel);
+
+    /// <summary>Gives a member a rank, or hands the title of leader over (sprint 145).</summary>
+    public async Task SetGuildRank(Guid id, Guid member, GuildRank rank, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/rank", UriKind.Relative), new GuildOrder(member, rank), Json, cancel), cancel), cancel);
+
     /// <summary>The party's leader sends a member out (sprint 124).</summary>
     public async Task KickFromParty(Guid id, Guid member, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/kick", UriKind.Relative), new PartyKick(member), Json, cancel), cancel), cancel);

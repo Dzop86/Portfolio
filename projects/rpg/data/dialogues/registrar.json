@@ -1,0 +1,21 @@
+{
+  "id": "registrar",
+  "start": "hello",
+  "lines": {
+    "hello": {
+      "text": { "fr": "Edmée, greffière de la mairie. C'est moi qui tiens le registre des guildes de Clairval. Pour en fonder une, il me faut un nom que personne n'a pris, et mille Éclats pour le sceau et l'encre.", "en": "Edmée, clerk of the town hall. I keep the register of Clairval's guilds. To found one I need a name nobody has taken, and a thousand Éclats for the seal and the ink." },
+      "answers": [
+        { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "À quoi sert une guilde ?", "en": "What is a guild for?" }, "next": "why" },
+        { "text": { "fr": "Au revoir.", "en": "Goodbye." } }
+      ]
+    },
+    "why": {
+      "text": { "fr": "On porte son nom sous le sien, on se parle d'où qu'on soit (/gu devant la phrase) et on voit qui est en jeu. Le meneur et ses officiers invitent, cinquante au plus, et chacun part quand il veut. Si le meneur s'en va, le plus ancien officier reprend le registre.", "en": "You wear its name under your own, you talk to each other wherever you are (/gu before the line) and you see who is in play. The leader and the officers invite, fifty at most, and anyone may leave when they like. If the leader goes, the oldest officer takes the register over." },
+      "answers": [
+        { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
+      ]
+    }
+  }
+}

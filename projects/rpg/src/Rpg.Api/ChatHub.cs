@@ -18,14 +18,17 @@ namespace Rpg.Api;
 /// game that closes its connection calls its trade off and starts its ten minutes out of play for its party, and a
 /// character's new look (what it wears) is told to its map. Since sprint 126, a whisper goes to one character by its name,
 /// wherever it is, unless it ignores the sender; and a character coming into play is told to the friends in play
-/// (<see cref="ContactNews"/>).
+/// (<see cref="ContactNews"/>). Since sprint 145, each character in play carries its guild: its name goes with it to
+/// its map's players, and the guild's channel reaches its members in play wherever they are.
 /// </summary>
 public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Trades trades, IServiceScopeFactory scopes)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    private sealed class Speaker(Guid character, string name, Hero look, string map, Cell at, WebSocket socket)
+    private sealed class Speaker(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, Guid? guild, string? guildName)
     {
+        public Guid? Guild { get; set; } = guild;
+        public string? GuildName { get; set; } = guildName;
         public Guid Character { get; } = character;
         public string Name { get; } = name;
         public Hero Look { get; set; } = look;
@@ -54,6 +57,15 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
         if (!_speakers.TryGetValue(character, out Speaker? s) || s.Look == look)
             return;
         s.Look = look;
+        await Tell(s.Map, Here(s), cancel: cancel, but: character);
+    }
+
+    /// <summary>A character joined a guild, or left it (null), sprint 145: its map's players see it under its new name.</summary>
+    public async Task SetGuild(Guid character, Guid? guild, string? name, CancellationToken cancel = default)
+    {
+        if (!_speakers.TryGetValue(character, out Speaker? s))
+            return;
+        (s.Guild, s.GuildName) = (guild, name);
         await Tell(s.Map, Here(s), cancel: cancel, but: character);
     }
 
@@ -95,7 +107,7 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
             await Send(me, JsonSerializer.Serialize(news, Json), cancel);
     }
 
-    private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At);
+    private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At, Guild: s.GuildName);
 
     // The accounts that have it as a friend learn it came into play, on whichever of their characters is (sprint 126).
     private async Task TellFriends(Speaker me, CancellationToken cancel)
@@ -134,10 +146,11 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
             await Send(me, line, cancel);
     }
 
-    /// <summary>Serves one character's socket until it closes: what it says goes to its map.</summary>
-    public async Task Serve(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, CancellationToken cancel)
+    /// <summary>Serves one character's socket until it closes: what it says goes to its map; since sprint 145, with its guild.</summary>
+    public async Task Serve(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, CancellationToken cancel,
+        Guid? guild = null, string? guildName = null)
     {
-        var me = new Speaker(character, name, look, map, at, socket);
+        var me = new Speaker(character, name, look, map, at, socket, guild, guildName);
         // A second connection of the same character replaces the first.
         if (_speakers.TryGetValue(character, out Speaker? old))
             await Close(old);
@@ -206,11 +219,12 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
         }
         string? text = ChatRules.Clean(say?.Text);
         string channel = say?.Channel ?? ChatChannels.Map;
-        // The party's channel (sprint 119): its members wherever they are.
+        // The party's channel (sprint 119): its members wherever they are; the guild's (sprint 145) likewise.
         IReadOnlyList<Guid>? party = parties.Of(me.Character)?.Members;
         string? refusal = text is null ? "Nothing to say."
-            : channel is not (ChatChannels.Map or ChatChannels.Party or ChatChannels.Whisper) ? "The map's channel, the party's, or a whisper."
+            : channel is not (ChatChannels.Map or ChatChannels.Party or ChatChannels.Whisper or ChatChannels.Guild) ? "The map's channel, the party's, the guild's, or a whisper."
             : channel == ChatChannels.Party && party is null ? "Not in a party."
+            : channel == ChatChannels.Guild && me.Guild is null ? "Not in a guild."
             : channel == ChatChannels.Whisper && string.IsNullOrWhiteSpace(say?.Whom) ? "A whisper is for someone."
             : ChatLinks.WhyNot(text, GameData.Embedded) is string links ? links
             : !me.Pace.TryTake(clock.GetUtcNow()) ? $"At most {ChatRules.Burst} lines in {ChatRules.Window.TotalSeconds:0} seconds."
@@ -226,7 +240,12 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
             return;
         }
         string line = JsonSerializer.Serialize(new ChatLine(channel, me.Name, text!, clock.GetUtcNow()), Json);
-        foreach (Speaker other in _speakers.Values.Where(s => channel == ChatChannels.Party ? party!.Contains(s.Character) : s.Map == me.Map))
+        foreach (Speaker other in _speakers.Values.Where(s => channel switch
+        {
+            ChatChannels.Party => party!.Contains(s.Character),
+            ChatChannels.Guild => s.Guild == me.Guild,
+            _ => s.Map == me.Map,
+        }))
             await Send(other, line, cancel);
     }
 

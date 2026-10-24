@@ -103,16 +103,19 @@ public static class CharacterEndpoints
         return TypedResults.Created($"/api/characters/{character.Id}", Summary(character, null));
     }
 
-    internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
     {
         Guid account = AccountId(user);
+        // Its guild first (sprint 145): a leader deleted hands its title over as one who leaves.
+        if (await db.Characters.AnyAsync(c => c.Id == id && c.AccountId == account, cancel))
+            await GuildEndpoints.Depart(id, db, hub, cancel);
         // Someone else's character answers like a missing one: ids of other players stay unknown.
         int deleted = await db.Characters.Where(c => c.Id == id && c.AccountId == account).ExecuteDeleteAsync(cancel);
         return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
     /// <summary>The chat's socket (sprint 84): for a character of the account, on the map the server knows it on.</summary>
-    internal static async Task<IResult> Chat(Guid id, HttpContext context, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+    internal static async Task<IResult> Chat(Guid id, HttpContext context, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
         if (!context.WebSockets.IsWebSocketRequest)
             return TypedResults.BadRequest();
@@ -123,7 +126,13 @@ public static class CharacterEndpoints
         using System.Net.WebSockets.WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
         string map = character.Town ?? "clairval";
         Cell at = character.X is int x && character.Y is int y ? new Cell(x, y) : GameData.Embedded.Towns[map].Spawn;
-        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted);
+        // Its guild goes with it (sprint 145), and the guild's tab tells when it last came into play.
+        var guild = await (from m in db.GuildMembers.AsNoTracking()
+                           join g in db.Guilds.AsNoTracking() on m.GuildId equals g.Id
+                           where m.CharacterId == id
+                           select new { g.Id, g.Name }).FirstOrDefaultAsync(cancel);
+        await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.LastSeenAt, clock.GetUtcNow()), cancel);
+        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name);
         return TypedResults.Empty;
     }
 
