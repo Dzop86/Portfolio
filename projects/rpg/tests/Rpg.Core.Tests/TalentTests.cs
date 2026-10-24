@@ -18,8 +18,8 @@ public class TalentTests
     private static readonly HeroClass Tester = new("tester", Text, Text, 500, 99, 6, 999, ["clod", "splash", "spark", "slab", "poke"], HpPerLevel: 0);
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
-        new([.. Spells, Clod, Splash, Spark, Slab, Poke], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
-            talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        new([.. Spells, .. TreeSpells, Clod, Splash, Spark, Slab, Poke], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
+            summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     private static readonly GameData Tree = Data(["A.B"], Spec(0), Monster());
 

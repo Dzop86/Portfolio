@@ -173,8 +173,10 @@ public sealed record SwapEffect(Affects Affects) : SpellEffect(Affects);
 /// spell and caster replaces the old one.
 /// </summary>
 /// <param name="Status">The status it sets, if any, with <paramref name="Value"/> for <paramref name="StatusTurns"/> turns.</param>
+/// <param name="Marks">A Seal's (sprint 142): it leaves its element's mark on whom it strikes, if its caster lays marks.</param>
+/// <param name="Decays">A Remanence's (sprint 142): its damage falls away from its centre, 100, 70, 45 then 25 %.</param>
 public sealed record GlyphEffect(Affects Affects, int Turns, int DamageMin = 0, int DamageMax = 0, Element Element = Element.Neutral,
-    Stat? Status = null, int Value = 0, int StatusTurns = 0) : SpellEffect(Affects)
+    Stat? Status = null, int Value = 0, int StatusTurns = 0, bool Marks = false, bool Decays = false) : SpellEffect(Affects)
 {
     /// <summary>The status the glyph sets, as a spell's status effect, or null.</summary>
     public StatusEffect? AsStatus => Status is Stat stat ? new StatusEffect(Affects, stat, Value, StatusTurns, Element) : null;
@@ -185,8 +187,9 @@ public sealed record GlyphEffect(Affects Affects, int Turns, int DamageMin = 0, 
 /// <summary>A glyph on the board during a fight (sprint 130): its cells, its caster and spell, and its caster's turns left.</summary>
 public sealed class Glyph
 {
-    internal Glyph(int id, int caster, string spell, IReadOnlyList<Cell> cells, GlyphEffect effect)
+    internal Glyph(int id, int caster, string spell, IReadOnlyList<Cell> cells, GlyphEffect effect, Cell? centre = null)
     {
+        Centre = centre ?? (cells.Count > 0 ? cells[0] : default);
         Id = id;
         Caster = caster;
         Spell = spell;
@@ -194,6 +197,18 @@ public sealed class Glyph
         Effect = effect;
         TurnsLeft = effect.Turns;
     }
+
+    /// <summary>The cell it was cast on (sprint 142): a decaying glyph strikes hardest there.</summary>
+    public Cell Centre { get; }
+
+    /// <summary>The share of its damage on a cell (sprint 142): all of it, or for a Remanence's, less away from the centre.</summary>
+    public int PercentAt(Cell cell) => !Effect.Decays ? 100 : Centre.DistanceTo(cell) switch
+    {
+        0 => 100,
+        1 => 70,
+        2 => 45,
+        _ => 25,
+    };
 
     /// <summary>Its number in the fight, in the order glyphs were laid: the same in a replay.</summary>
     public int Id { get; }

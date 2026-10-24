@@ -103,4 +103,17 @@ public class TalentTextsTests
         at40.Drop(Data.Talents["bogging"]);
         Assert.Equal((0, 0L), (at40.TalentsTaken.Count, at40.ResetCost));
     }
+
+    [Fact]
+    public void TheTreesSpells_HaveTheirCards_AndARemanenceItsName()
+    {
+        // Sprint 142 (T108): Relay, the Seals and the Decoy in both languages; a Remanence named on hovering, not by a spell id.
+        foreach (string id in new[] { "relay", "seal-earth", "seal-fire", "seal-water", "seal-air", "decoy" })
+        {
+            Assert.DoesNotContain("{", new Texts("fr").SpellCard(Data.Spells[id]), StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(Data.Spells[id].Name.En));
+        }
+        Assert.Equal("Sceau d'Air", Data.Spells["seal-air"].Name.Fr);
+        Assert.Equal(("Rémanence", "Remanence"), (new Texts("fr")["glyph.remanence"], new Texts("en")["glyph.remanence"]));
+    }
 }

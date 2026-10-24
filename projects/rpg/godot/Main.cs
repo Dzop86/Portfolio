@@ -642,8 +642,8 @@ public partial class Main : Node3D
                 return Task.WhenAll(_views[w.A].Glide(atB, instant ? 0 : 0.3), _views[w.B].Glide(atA, instant ? 0 : 0.3));
             // A glyph's rings on the board (sprint 130), in its element's colour; the damage that follows a strike shows as any.
             case GlyphPlaced g:
-                Spell laid = _controller.Fight.Fighters[g.Caster].Spells.First(s => s.Id == g.Spell);
-                _board.AddGlyph(g.Glyph, g.Cells, new Color(ElementStyle.Colour(laid.AllEffects.OfType<GlyphEffect>().First().Element)));
+                // A Remanence (sprint 142) is laid by no spell of its own: its element comes with the event.
+                _board.AddGlyph(g.Glyph, g.Cells, new Color(ElementStyle.Colour(g.Element)));
                 return Task.CompletedTask;
             case GlyphEnded g:
                 _board.RemoveGlyph(g.Glyph);

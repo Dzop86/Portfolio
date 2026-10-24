@@ -30,6 +30,20 @@
     ]
   },
   {
+    "id": "decoy",
+    "name": {
+      "fr": "Leurre",
+      "en": "Decoy"
+    },
+    "look": "female-d",
+    "hp": 1,
+    "ap": 0,
+    "mp": 0,
+    "initiative": 0,
+    "spells": [],
+    "hpOfSummoner": 10
+  },
+  {
     "id": "wolf-cub",
     "name": {
       "fr": "Louveteau",

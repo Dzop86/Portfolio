@@ -710,5 +710,205 @@
         "untilTurn": 3
       }
     ]
+  },
+  {
+    "id": "side-step",
+    "name": {
+      "fr": "Pas de côté",
+      "en": "Side Step"
+    },
+    "description": {
+      "fr": "Après un sort, 1 PM de plus, une fois par tour ; en échange, 1 PM de moins au début de chaque tour.",
+      "en": "After a spell, 1 MP more, once per turn; in exchange, 1 MP less at the start of each turn."
+    },
+    "branch": "Terrain",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "side-step"
+      },
+      {
+        "kind": "points",
+        "mp": -1
+      }
+    ]
+  },
+  {
+    "id": "backed",
+    "name": {
+      "fr": "Adossé",
+      "en": "Backed"
+    },
+    "description": {
+      "fr": "À côté d'un obstacle : +10 % de dégâts et +10 % de résistance ; ailleurs, −10 % de dégâts.",
+      "en": "Next to an obstacle: +10% damage and +10% resistance; elsewhere, −10% damage."
+    },
+    "branch": "Terrain",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "backed",
+        "damage": 10,
+        "resistance": 10,
+        "otherwise": -10
+      }
+    ]
+  },
+  {
+    "id": "relay-talent",
+    "name": {
+      "fr": "Relais",
+      "en": "Relay"
+    },
+    "description": {
+      "fr": "Un sort de plus, Relais (1 PA, une fois par tour) : tu échanges ta place avec un allié à 2 cases ou moins ; tes sorts perdent 1 PO jusqu'à la fin du tour.",
+      "en": "One more spell, Relay (1 AP, once per turn): you swap places with an ally 2 cells away or less; your spells lose 1 range until the end of the turn."
+    },
+    "branch": "Terrain",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "grant",
+        "spell": "relay"
+      }
+    ]
+  },
+  {
+    "id": "seal",
+    "name": {
+      "fr": "Sceau",
+      "en": "Seal"
+    },
+    "description": {
+      "fr": "Quatre sorts de plus, un par élément (3 PA, relance 3) : un glyphe de 2 tours qui pose l'empreinte de son élément sur l'ennemi qui y entre ou y commence son tour. Aucun dégât ; une place de deck.",
+      "en": "Four more spells, one per element (3 AP, cooldown 3): a glyph for 2 turns that leaves its element's mark on the enemy who walks onto it or starts its turn there. No damage; a place in the deck."
+    },
+    "branch": "Terrain",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "grant",
+        "spell": "seal-earth"
+      },
+      {
+        "kind": "grant",
+        "spell": "seal-fire"
+      },
+      {
+        "kind": "grant",
+        "spell": "seal-water"
+      },
+      {
+        "kind": "grant",
+        "spell": "seal-air"
+      }
+    ]
+  },
+  {
+    "id": "remanence",
+    "name": {
+      "fr": "Rémanence",
+      "en": "Remanence"
+    },
+    "description": {
+      "fr": "Un sort de dégâts lancé sur une case où il ne touche personne laisse un glyphe de son élément pendant 2 tours, en losange de son coût en rayon (3 au plus ; chaque PA de plus, +10 %) : 30 % des dégâts du sort au centre, 70 % de cela à 1 case, 45 % à 2, 25 % à 3. Un seul à la fois. En échange, tes coups font 5 % de moins.",
+      "en": "A damage spell cast where it hits nobody leaves a glyph of its element for 2 turns, a diamond of its cost in radius (3 at most; each AP beyond, +10%): 30% of the spell's damage at the centre, 70% of that 1 cell away, 45% at 2, 25% at 3. One at a time. In exchange, your hits deal 5% less."
+    },
+    "branch": "Terrain",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "remanence",
+        "percent": 30,
+        "turns": 2,
+        "maxRadius": 3
+      },
+      {
+        "kind": "bonus",
+        "percent": -5
+      }
+    ]
+  },
+  {
+    "id": "decoy-talent",
+    "name": {
+      "fr": "Leurre",
+      "en": "Decoy"
+    },
+    "description": {
+      "fr": "Un sort de plus, Leurre (2 PA, relance 4) : un leurre d'un dixième de tes PV, qui n'agit pas et que les monstres à 2 cases préfèrent frapper. Une place de deck.",
+      "en": "One more spell, Decoy (2 AP, cooldown 4): a decoy of a tenth of your HP, which does not act and which monsters 2 cells away prefer to strike. A place in the deck."
+    },
+    "branch": "Terrain",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "grant",
+        "spell": "decoy"
+      }
+    ]
+  },
+  {
+    "id": "scorched-earth",
+    "name": {
+      "fr": "Terre brûlée",
+      "en": "Scorched Earth"
+    },
+    "description": {
+      "fr": "Tes coups directs sur un ennemi debout dans un de tes glyphes font 20 % de plus ; sur les autres, 10 % de moins.",
+      "en": "Your direct hits on an enemy standing in one of your glyphs deal 20% more; on the others, 10% less."
+    },
+    "branch": "Terrain",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "glyph-target",
+        "inside": 20,
+        "outside": -10
+      }
+    ]
+  },
+  {
+    "id": "nomad",
+    "name": {
+      "fr": "Nomade",
+      "en": "Nomad"
+    },
+    "description": {
+      "fr": "+2 PM ; en échange, 15 % de PV en moins en combat.",
+      "en": "+2 MP; in exchange, 15% fewer HP in a fight."
+    },
+    "branch": "Terrain",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "points",
+        "mp": 2
+      },
+      {
+        "kind": "hp",
+        "percent": -15
+      }
+    ]
+  },
+  {
+    "id": "echo",
+    "name": {
+      "fr": "Écho",
+      "en": "Echo"
+    },
+    "description": {
+      "fr": "À la fin de ton tour, si tu as parcouru au moins 3 cases, tu laisses sur ta case de départ un écho de ton dernier sort de dégâts, qui frappe la même cible à 40 % au début de ton prochain tour si elle est à sa portée de l'écho. L'écho ne pose pas d'empreinte.",
+      "en": "At the end of your turn, if you walked at least 3 cells, you leave on the cell you started from an echo of your last damage spell, which strikes the same target at 40% at the start of your next turn if it is within the spell's range of the echo. The echo leaves no mark."
+    },
+    "branch": "Terrain",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "echo",
+        "percent": 40,
+        "cells": 3
+      }
+    ]
   }
 ]

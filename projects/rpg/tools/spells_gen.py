@@ -26,11 +26,13 @@ def status(a, stat, v, t, el=None):
     if el: d["element"] = el
     return d
 # A glyph (sprint 130, T98): the floor cells of the spell's area marked for some of the caster's turns; damage, a status, or both.
-def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0):
+def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0, marks=False):
     d = O([("kind", "glyph"), ("affects", a), ("turns", turns)])
     if dmax: d["damageMin"], d["damageMax"] = dmin, dmax
     if el: d["element"] = el
     if stat: d["status"], d["value"], d["statusTurns"] = stat, v, st
+    # A Seal's glyph (sprint 142) leaves its element's mark.
+    if marks: d["marks"] = True
     return d
 def summon(id, mx=1, count=1):
     d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
@@ -308,8 +310,17 @@ for el, parents in COMPOUNDS.items():
             budget(t, SCALE[el])
             t["twin"] = sp["id"]
             twins.append(t)
+# The spells of the tree (sprint 142, the branch Terrain, docs/talents-arbre.md §4.3): given by a talent, of no class.
+EL_FR = {"Earth": "Terre", "Fire": "Feu", "Water": "Eau", "Air": "Air"}
+tree = [
+ S("relay","Relais","Relay",1,1,2,0,0,1,"Neutral",1,los=False,effects=[swap(),status("Caster","Range",-1,1)],ranks=False),
+ *[S(f"seal-{el.lower()}",f"Sceau de {EL_FR[el]}" if el != "Air" else "Sceau d'Air",f"{el} Seal",3,1,5,0,0,1,"Neutral",1,effects=[glyph("Enemies",2,el=el,marks=True)],ranks=False,cd=3)
+   for el in ("Earth","Fire","Water","Air")],
+ S("decoy","Leurre","Decoy",2,1,3,0,0,1,"Neutral",1,los=False,effects=[summon("decoy")],ranks=False,cd=4),
+]
+twins += tree
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + creatures + beasts + twins:
+for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree]:
     sp["crit"] = 10
 spells = base + sentinel + guard + mage + creatures + beasts + twins
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
@@ -329,6 +340,8 @@ def young(id, fr, en, look, scale, hp, ap, mp, ini, spells, passives=None):
     if passives: d["passives"] = passives
     d["scale"] = scale
     return d
+# The Decoy of the talent (sprint 142): it does not act; a tenth of its summoner's hit points.
+summons.append(O([("id","decoy"),("name",O([("fr","Leurre"),("en","Decoy")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",10)]))
 summons += [
  young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
  young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),

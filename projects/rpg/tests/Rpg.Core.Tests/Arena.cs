@@ -23,6 +23,11 @@ internal static class Arena
 
     public static GameData Real => GameData.Embedded;
 
+    /// <summary>The spells the talent tree gives (sprint 142) and the summons they call, for small data with the real talents.</summary>
+    public static readonly Spell[] TreeSpells = [.. Real.Talents.Values.SelectMany(t => t.Rules).OfType<GrantRule>().Select(g => Real.Spells[g.Spell]).Distinct()];
+
+    public static readonly SummonSpec[] TreeSummons = [.. TreeSpells.SelectMany(s => s.AllEffects).OfType<SummonEffect>().Select(e => Real.Summons[e.Summon]).Distinct()];
+
     /// <summary>The real maps without the ways that wait for a quest (Clairval's east gate, sprint 129), for data loaded with some quests only.</summary>
     public static readonly Town[] Ungated = [.. Real.Towns.Values.Select(t => t with { Links = t.Links?.Select(l => l with { Quest = null }).ToList() })];
 

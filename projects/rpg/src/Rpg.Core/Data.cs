@@ -161,8 +161,9 @@ public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1
 /// A creature a spell or a passive can summon, as described in <c>data/summons.json</c>; a monster's
 /// young have passives and are drawn at <see cref="Scale"/> percent of their size (sprint 90).
 /// </summary>
+/// <param name="HpOfSummoner">A Decoy's (sprint 142): its hit points, this percent of its summoner's maximum (0: <paramref name="Hp"/>).</param>
 public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells,
-    IReadOnlyList<string>? Passives = null, int Scale = 100);
+    IReadOnlyList<string>? Passives = null, int Scale = 100, int HpOfSummoner = 0);
 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team
@@ -576,6 +577,8 @@ public sealed class GameData
                 throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
             if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
+            if (t.Rules.OfType<GrantRule>().Any(r => !Spells.ContainsKey(r.Spell)))
+                throw new InvalidDataException($"Talent '{t.Id}': a spell given that is known.");
             if (t.Rules.OfType<OpenRule>().Any(r => !Elements.IsCompound(r.Element)) || t.Rules.OfType<ConvertRule>().Any(r => !Elements.IsCompound(r.Element))
                 || t.Rules.OfType<TransmuteRule>().Any(r => !Elements.Parents(r.To).Contains(r.From)))
                 throw new InvalidDataException($"Talent '{t.Id}': a compound opened or converted, a parent transmuted into its compound.");
@@ -694,7 +697,7 @@ public sealed class GameData
     /// </summary>
     private bool ValidGlyph(GlyphEffect g) =>
         g.Affects is Affects.Enemies or Affects.Allies or Affects.All && g.Turns is >= 1 and <= 10
-        && g.DamageMin >= 0 && g.DamageMax >= g.DamageMin && (g.DamageMax > 0 || g.Status is not null)
+        && g.DamageMin >= 0 && g.DamageMax >= g.DamageMin && (g.DamageMax > 0 || g.Status is not null || g.Marks)
         && (g.AsStatus is not StatusEffect st ? g.Value == 0 && g.StatusTurns == 0 : ValidEffect(st));
 
     private static bool ValidArea(Area a) => a.Radius is >= 0 and <= 5 && (a.Shape == AreaShape.Point) == (a.Radius == 0);

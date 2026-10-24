@@ -19,8 +19,8 @@ public class LightningTests
     private static readonly HeroClass Tester = new("tester", Text, Text, 500, 99, 6, 999, ["ember", "draft", "clod", "blaze", "squall"], HpPerLevel: 0);
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
-        new([.. Spells, Ember, Blaze, Draft, Squall, Clod, .. Twins], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
-            talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        new([.. Spells, .. TreeSpells, Ember, Blaze, Draft, Squall, Clod, .. Twins], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
+            summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     private static readonly GameData Book = Data(["A.B"], Spec(0), Monster());
 
@@ -160,8 +160,8 @@ public class LightningTests
     public void ATwin_HasItsClassSpellsRank()
     {
         Spell ranked = Ember with { Ranks = [new SpellRank(20, 20)] };
-        GameData data = new([.. Spells, ranked, Blaze, Draft, Squall, Clod, .. Twins.Select(t => t.Id == "l-ember" ? t with { Ranks = [new SpellRank(16, 16)] } : t)],
-            [new MapSpec("m", Text, ["A..B"])], [new Scenario("s", Text, "m", [Spec(0, initiative: 999), Monster()])], [Tester], talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        GameData data = new([.. Spells, .. TreeSpells, ranked, Blaze, Draft, Squall, Clod, .. Twins.Select(t => t.Id == "l-ember" ? t with { Ranks = [new SpellRank(16, 16)] } : t)],
+            [new MapSpec("m", Text, ["A..B"])], [new Scenario("s", Text, "m", [Spec(0, initiative: 999), Monster()])], [Tester], summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
         var f = new Fight(data, "s", 1, Hero(45, "open-lightning") with { Ranks = new Dictionary<string, int> { ["ember"] = 2 }, Deck = ["l-ember"] });
         Assert.Equal(16, f.HeroFighter!.Spells.Single().DamageMin);
     }

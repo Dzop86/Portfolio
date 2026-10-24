@@ -53,6 +53,15 @@ public sealed class Fighter
     /// <summary>Action points kept from the turn before (Reserve, sprint 141).</summary>
     internal int CarriedAp;
 
+    /// <summary>
+    /// Terrain (sprint 142): the free step of Side Step taken this turn; where the turn started and the last damage spell
+    /// cast with its target; the echo it left, to strike at the start of its next turn.
+    /// </summary>
+    internal bool SideStepped;
+    internal Cell TurnStart;
+    internal (string Spell, int Target)? LastHit;
+    internal (Cell From, string Spell, int Target)? Echo;
+
     /// <summary>What its living talents would read of a hit with <paramref name="spell"/> now (sprint 141).</summary>
     public HitContext Context(Spell? spell, bool walking = false) =>
         new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0);
@@ -217,6 +226,7 @@ public sealed class Fight
         Round = 1;
         // The first turn's points from the talents (sprint 141), as at the start of every turn.
         Current.Turn = 1;
+        Current.TurnStart = Current.Cell;
         (int firstAp, int firstMp) = Talents.TurnPoints(Current.Talents, 1);
         (Current.Ap, Current.Mp) = (Math.Max(0, Current.Ap + firstAp), Math.Max(0, Current.Mp + firstMp));
         _events.Add(new TurnStarted(Current.Id, Round));
@@ -234,9 +244,12 @@ public sealed class Fight
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         if (HeroTotals(hero, data) is not HeroNumbers n)
             return spec;
+        // Nomad (sprint 142): the maximum, Vitality included, that many percent more or fewer.
+        int hpPercent = (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<HpRule>().Sum(r => r.Percent);
+        int hp = hpPercent == 0 ? n.Hp : (n.Hp + n.Stats.Vitality) * (100 + hpPercent) / 100 - n.Stats.Vitality;
         return spec with
         {
-            Hp = n.Hp,
+            Hp = hp,
             Ap = n.Ap,
             Mp = n.Mp,
             Initiative = n.Initiative,
@@ -366,7 +379,7 @@ public sealed class Fight
             {
                 int crit = Spell.CritBonus(spell.DamageMax);
                 bool canCrit = hit && spell.Crit > 0;
-                HitContext context = me.Context(spell);
+                HitContext context = ContextOf(me, spell, me.Cell, f);
                 forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, true, context) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, true, context) : 0,
                     Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
                     canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, true, context) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, true, context) : 0,
@@ -568,9 +581,12 @@ public sealed class Fight
             _events.Add(new GlyphTriggered(g.Id, f.Id));
             Fighter caster = _fighters[g.Caster];
             if (g.Effect.DamageMax > 0)
-                Hurt(f, Damage(_rng.Next(g.Effect.DamageMin, g.Effect.DamageMax), caster, f, g.Effect.Element), g.Effect.Element);
+                Hurt(f, Damage(_rng.Next(g.Effect.DamageMin, g.Effect.DamageMax), caster, f, g.Effect.Element) * g.PercentAt(f.Cell) / 100, g.Effect.Element);
             if (!IsOver && f.IsAlive && g.Effect.AsStatus is StatusEffect status)
                 SetStatus(caster, f, status);
+            // A Seal's mark (sprint 142): it never sets a reaction off.
+            if (!IsOver && f.IsAlive && g.Effect.Marks)
+                Imprint(caster, f, g.Effect.Element, aimed: false);
         }
     }
 
@@ -582,9 +598,9 @@ public sealed class Fight
         Cell[] cells = [.. zone.Where(Board.IsFloor).Distinct()];
         if (cells.Length == 0)
             return;
-        var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect);
+        var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect, zone[0]);
         _glyphs.Add(glyph);
-        _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns));
+        _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns, effect.Element));
     }
 
     private void EndGlyph(Glyph glyph)
@@ -601,15 +617,39 @@ public sealed class Fight
     /// A spell's <paramref name="direct"/> hit (sprint 137) is also changed by the caster's living talents
     /// (<see cref="Talents.Percent"/>), apart from its statuses.
     /// </summary>
-    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null)
+    /// <param name="guard">The target's resistance from its talents (Backed, sprint 142), within the ceiling of 90.</param>
+    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null, int guard = 0)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + Characteristics.Bonus(caster.Spec.Characteristics.For(element));
         long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
-        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) * talents;
+        int resistance = element == Element.Neutral ? 0 : Math.Min(90, target.Resistance(element) + guard);
+        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents;
         return (int)Math.Max(0, scaled / 100_000_000);
     }
+
+    /// <summary>Next to an obstacle (sprint 142): one of the four cells around is one.</summary>
+    public bool IsBacked(Cell cell) => cell.Neighbours().Any(n => Board.Contains(n) && Board[n] == Terrain.Obstacle);
+
+    /// <summary>
+    /// What <paramref name="caster"/>'s living talents read of a hit with <paramref name="spell"/> from <paramref name="from"/>
+    /// on <paramref name="target"/> (sprints 141 and 142): its turn so far, a walk to get there, an obstacle beside it, the
+    /// target in one of its glyphs.
+    /// </summary>
+    public HitContext ContextOf(Fighter caster, Spell? spell, Cell from, Fighter target)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(target);
+        return caster.Context(spell, walking: from != caster.Cell) with
+        {
+            Backed = caster.Talents.Count > 0 && IsBacked(from),
+            InMyGlyph = caster.Talents.Count > 0 && _glyphs.Any(g => g.Caster == caster.Id && g.Cells.Contains(target.Cell)),
+        };
+    }
+
+    /// <summary>The resistance a fighter's talents give it where it stands (Backed, sprint 142).</summary>
+    public int GuardOf(Fighter f) => f.Talents.Count == 0 ? 0 : Talents.Guard((f ?? throw new ArgumentNullException(nameof(f))).Talents, IsBacked(f.Cell));
 
     /// <summary>
     /// The damage the AI expects a hit of <paramref name="average"/> to do (sprint 141): the one estimate it uses for spells
@@ -633,6 +673,23 @@ public sealed class Fight
         ArgumentNullException.ThrowIfNull(f);
         return caster.LaysMarks && f.Team != caster.Team && f.Mark is Mark m ? Talents.ReactionOf(caster.Talents, m.Element, element, _data) : null;
     }
+
+    /// <summary>
+    /// A Remanence (sprint 142, the idea of Charles, docs/talents-arbre.md §4.6): a diamond around the cell aimed at, of the
+    /// spell's cost in radius up to the rule's, each action point beyond 10 % more; a glyph of the spell's element for the
+    /// rule's turns, of its share of the spell's damage, falling away from the centre; it replaces the caster's last one.
+    /// </summary>
+    private void Remain(Fighter me, Spell spell, Cell target, RemanenceRule rule)
+    {
+        int radius = Math.Min(spell.ApCost, rule.MaxRadius);
+        double share = rule.Percent / 100.0 * (1 + 0.1 * Math.Max(0, spell.ApCost - rule.MaxRadius));
+        var effect = new GlyphEffect(Affects.Enemies, rule.Turns, Math.Max(1, (int)Math.Round(spell.DamageMin * share)), Math.Max(1, (int)Math.Round(spell.DamageMax * share)),
+            spell.Element, Decays: true);
+        Lay(me, effect, [.. new Area(AreaShape.Circle, radius).Cells(me.Cell, target)], RemanenceKey);
+    }
+
+    /// <summary>The spell id a Remanence is laid under: one per caster.</summary>
+    public const string RemanenceKey = "remanence";
 
     /// <summary>
     /// A jump (Lightning's Arc, sprint 138, <c>docs/elements.md</c> §2; Electrified, sprint 140): <paramref name="percent"/>
@@ -733,7 +790,7 @@ public sealed class Fight
                     continue;
                 // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
                 bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
-                if (Hurt(hit, Damage(roll, me, hit, spell.Element, true, context), spell.Element) > 0 && hit.IsAlive)
+                if (Hurt(hit, Damage(roll, me, hit, spell.Element, true, ContextOf(me, spell, me.Cell, hit) with { Walked = context.Walked, CellsSinceSpell = context.CellsSinceSpell, DamageCasts = context.DamageCasts }, GuardOf(hit)), spell.Element) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
@@ -748,6 +805,17 @@ public sealed class Fight
             }
         }
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
+        // Terrain (sprint 142): the last damage spell and its target, for an Echo; a spell that strikes nobody leaves its
+        // Remanence; Side Step's free cell, once a turn.
+        if (spell.DamageMax > 0 && area.FirstOrDefault(f => f.Team != me.Team) is Fighter aimed)
+            me.LastHit = (spell.Id, aimed.Id);
+        if (spell.DamageMax > 0 && area.Count == 0 && !IsOver && me.Talents.SelectMany(t => t.Rules).OfType<RemanenceRule>().FirstOrDefault() is RemanenceRule rem)
+            Remain(me, spell, target, rem);
+        if (!me.SideStepped && me.IsAlive && me.Talents.SelectMany(t => t.Rules).OfType<SideStepRule>().Any())
+        {
+            me.SideStepped = true;
+            me.Mp++;
+        }
         Resolve();
         // A fighter who dies during its own turn hands over at once.
         if (!IsOver && !me.IsAlive)
@@ -857,7 +925,8 @@ public sealed class Fight
     {
         if (!IsFree(cell))
             return null;
-        var spec = new FighterSpec(m.Name, m.Look, me.Team, m.Hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
+        int hp = m.HpOfSummoner > 0 ? Math.Max(1, me.MaxHp * m.HpOfSummoner / 100) : m.Hp;
+        var spec = new FighterSpec(m.Name, m.Look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
         var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id) { LaysMarks = me.LaysMarks };
         _fighters.Add(summoned);
         // Right after its summoner in the order of play, or after the one summoned just before.
@@ -1043,6 +1112,11 @@ public sealed class Fight
         for (int i = 0; i < ending.Shields.Count; i++)
             ending.Shields[i] = (ending.Shields[i].Amount, ending.Shields[i].TurnsLeft - 1);
         ending.Shields.RemoveAll(sh => sh.TurnsLeft <= 0);
+        // An Echo (sprint 142): having walked far enough, the last damage spell is left on the cell the turn started from.
+        ending.Echo = null;
+        if (ending.IsAlive && ending.LastHit is (string echoed, int echoTarget)
+            && ending.Talents.SelectMany(t => t.Rules).OfType<EchoRule>().FirstOrDefault() is EchoRule echo && ending.StepsThisTurn >= echo.Cells)
+            ending.Echo = (ending.TurnStart, echoed, echoTarget);
         // The marks it laid count one of its turns less (sprint 137): they last until the end of its next turn.
         foreach (Fighter marked in Fighters.Where(f => f.Mark?.Source == ending.Id))
         {
@@ -1076,6 +1150,9 @@ public sealed class Fight
         next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value) + talentMp);
         next.CarriedAp = 0;
         next.StepsThisTurn = next.DamageCastsThisTurn = 0;
+        next.SideStepped = false;
+        next.TurnStart = next.Cell;
+        next.LastHit = null;
         next.CastsThisTurn.Clear();
         foreach (string id in next.Cooldowns.Keys.ToList())
         {
@@ -1102,6 +1179,15 @@ public sealed class Fight
         // Then the glyphs under it, then its passives of the start of a turn (the order of T98), if it still stands (sprint 90).
         if (!IsOver && next.IsAlive)
             StrikeAt(next);
+        // Then its echo (sprint 142), if its target stands within the spell's range of it.
+        if (!IsOver && next.IsAlive && next.Echo is (Cell echoFrom, string echoSpell, int echoAt) && next.Spells.FirstOrDefault(s => s.Id == echoSpell) is Spell echoed2
+            && _fighters[echoAt] is { IsAlive: true } echoTarget2 && echoFrom.DistanceTo(echoTarget2.Cell) is int d && d >= echoed2.MinRange && d <= next.MaxRangeOf(echoed2))
+        {
+            int percent = next.Talents.SelectMany(t => t.Rules).OfType<EchoRule>().Select(r => r.Percent).DefaultIfEmpty(0).Max();
+            _events.Add(new Echoed(next.Id, echoTarget2.Id, echoFrom));
+            Hurt(echoTarget2, Damage(_rng.Next(echoed2.DamageMin, echoed2.DamageMax), next, echoTarget2, echoed2.Element) * percent / 100, echoed2.Element);
+        }
+        next.Echo = null;
         if (!IsOver && next.IsAlive)
         {
             foreach (PassiveSpec p in next.Passives.Where(p => p.Trigger == Trigger.TurnStart))

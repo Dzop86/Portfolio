@@ -108,7 +108,7 @@ public sealed record Leaped(int Fighter, Cell From, Cell To) : FightEvent;
 public sealed record Swapped(int A, int B) : FightEvent;
 
 /// <summary>A glyph is laid on <see cref="Cells"/> (sprint 130); it is <c>Glyphs</c>' glyph of that id.</summary>
-public sealed record GlyphPlaced(int Glyph, int Caster, string Spell, IReadOnlyList<Cell> Cells, int Turns) : FightEvent;
+public sealed record GlyphPlaced(int Glyph, int Caster, string Spell, IReadOnlyList<Cell> Cells, int Turns, Element Element = Element.Neutral) : FightEvent;
 
 /// <summary>A glyph strikes a fighter on one of its cells: its damage and status follow.</summary>
 public sealed record GlyphTriggered(int Glyph, int Fighter) : FightEvent;
@@ -118,6 +118,9 @@ public sealed record GlyphEnded(int Glyph) : FightEvent;
 
 /// <summary>Lightning's Arc (sprint 138): part of a hit on <see cref="From"/> jumps to <see cref="To"/>; its damage follows.</summary>
 public sealed record Arced(int From, int To) : FightEvent;
+
+/// <summary>An Echo strikes (sprint 142): <see cref="Fighter"/>'s last spell again from <see cref="From"/>, on <see cref="Target"/>; its damage follows.</summary>
+public sealed record Echoed(int Fighter, int Target, Cell From) : FightEvent;
 
 /// <summary>A hero's hit leaves the mark of its element on an enemy (sprint 137), in place of any before.</summary>
 public sealed record Marked(int Fighter, Element Element, int Source) : FightEvent;

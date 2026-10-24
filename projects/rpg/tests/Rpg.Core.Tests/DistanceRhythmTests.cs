@@ -20,8 +20,8 @@ public class DistanceRhythmTests
     private static readonly HeroClass Tester = new("tester", Text, Text, 500, 8, 4, 999, ["bolt", "heavy", "jab", "burst", "shove", "lance", "slow"], HpPerLevel: 0);
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
-        new([.. Spells, Bolt, Heavy, Jab, Burst, Shove, Lance, Slow], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
-            talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        new([.. Spells, .. TreeSpells, Bolt, Heavy, Jab, Burst, Shove, Lance, Slow], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
+            summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
 

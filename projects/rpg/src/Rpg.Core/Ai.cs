@@ -33,6 +33,10 @@ public static class Ai
     /// <summary>What one step closer to an enemy is worth against a glyph's damage, when the AI only walks (sprint 130).</summary>
     internal const double StepWorth = 4;
 
+    /// <summary>The summon of the talent Decoy (sprint 142), and how much more hitting it is worth to a monster near it.</summary>
+    internal const string DecoyKind = "decoy";
+    internal const double DecoyPull = 6;
+
     // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Fight, Tuple<int, int, HashSet<int>>> HitThisRound = [];
 
@@ -373,10 +377,12 @@ public static class Ai
             foreach (Fighter f in area)
             {
                 // The one estimate (sprint 141): the rule of a hit, the living talents read from where it would be cast.
-                double hit = Math.Min(Fight.Expected(spell.AverageDamage, me, f, spell.Element, Talents.Percent(me.Talents, from, f.Cell, spell.Element, me.Context(spell, walking: from != me.Cell))), f.Hp + f.Shield);
+                double hit = Math.Min(Fight.Expected(spell.AverageDamage, me, f, spell.Element, Talents.Percent(me.Talents, from, f.Cell, spell.Element, fight.ContextOf(me, spell, from, f))), f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
-                value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1);
+                value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1)
+                    // A Decoy (sprint 142) draws the blows of those within 2 cells of it.
+                    * (f.SummonKind == DecoyKind && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1);
                 if (f.Team != me.Team && !f.IsSummon && hit >= f.Hp + f.Shield)
                     value += KillBonus;
                 else if (f.Team != me.Team && hit < f.Hp + f.Shield)

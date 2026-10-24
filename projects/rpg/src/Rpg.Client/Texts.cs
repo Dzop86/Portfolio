@@ -242,6 +242,8 @@ public sealed class Texts
         ["element.Lightning"] = "Foudre",
         ["card.arc"] = "Arc : {0} % des dégâts sautent sur l'ennemi le plus proche à {1} cases",
         ["log.arc"] = "L'arc saute de {0} à {1}.",
+        ["log.echo"] = "L'écho de {0} frappe {1}.",
+        ["glyph.remanence"] = "Rémanence",
         ["error.NotEnoughMp"] = "Pas assez de PM.",
         ["error.NotEnoughAp"] = "Pas assez de PA.",
         ["error.CastLimit"] = "Sort déjà lancé le nombre de fois permis ce tour-ci.",
@@ -793,6 +795,8 @@ public sealed class Texts
         ["element.Lightning"] = "Lightning",
         ["card.arc"] = "Arc: {0}% of the damage jumps to the nearest enemy within {1} cells",
         ["log.arc"] = "The arc jumps from {0} to {1}.",
+        ["log.echo"] = "{0}'s echo strikes {1}.",
+        ["glyph.remanence"] = "Remanence",
         ["error.NotEnoughMp"] = "Not enough MP.",
         ["error.NotEnoughAp"] = "Not enough AP.",
         ["error.CastLimit"] = "Spell already cast as often as allowed this turn.",
@@ -1232,7 +1236,7 @@ public sealed class Texts
         ArgumentNullException.ThrowIfNull(g);
         ArgumentNullException.ThrowIfNull(fight);
         Fighter caster = fight.Fighters[g.Caster];
-        string spell = caster.Spells.FirstOrDefault(s => s.Id == g.Spell)?.Name.In(Lang) ?? g.Spell;
+        string spell = caster.Spells.FirstOrDefault(s => s.Id == g.Spell)?.Name.In(Lang) ?? (g.Spell == Fight.RemanenceKey ? this["glyph.remanence"] : g.Spell);
         return this["card.glyph", Name(caster), spell, this["glyph." + g.Effect.Affects], GlyphDoes(g.Effect), g.TurnsLeft];
     }
 
@@ -1477,6 +1481,7 @@ public sealed class Texts
             Pushed p => this["log.pushed", Name(fight.Fighters[p.Fighter]), p.Path.Count],
             StatusAdded { Reaction: string r } st => this["log.reaction-status", Name(fight.Fighters[st.Fighter]), fight.Data.Reactions[r].Name.In(Lang), Status(st.Stat, st.Value, st.Element), st.Turns],
             StatusAdded st => this["log.status", Name(fight.Fighters[st.Fighter]), Status(st.Stat, st.Value, st.Element), st.Turns],
+            Echoed echo => this["log.echo", Name(fight.Fighters[echo.Fighter]), Name(fight.Fighters[echo.Target])],
             Arced a => this["log.arc", Name(fight.Fighters[a.From]), Name(fight.Fighters[a.To])],
             Marked m => this["log.marked", Name(fight.Fighters[m.Fighter]), this["element." + m.Element]],
             ReactionTriggered r => this["log.reaction", Name(fight.Fighters[r.Fighter]), fight.Data.Reactions[r.Reaction].Name.In(Lang)],

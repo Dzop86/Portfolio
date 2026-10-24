@@ -61,7 +61,45 @@ public enum Tier
 [JsonDerivedType(typeof(DanceRule), "dance")]
 [JsonDerivedType(typeof(ApCostRule), "ap-cost")]
 [JsonDerivedType(typeof(FirstCastRule), "first-cast")]
+[JsonDerivedType(typeof(GrantRule), "grant")]
+[JsonDerivedType(typeof(SideStepRule), "side-step")]
+[JsonDerivedType(typeof(BackedRule), "backed")]
+[JsonDerivedType(typeof(RemanenceRule), "remanence")]
+[JsonDerivedType(typeof(GlyphTargetRule), "glyph-target")]
+[JsonDerivedType(typeof(HpRule), "hp")]
+[JsonDerivedType(typeof(EchoRule), "echo")]
 public abstract record TalentRule;
+
+// The branch Terrain (sprint 142, D80, docs/talents-arbre.md §4.3 and §4.6).
+
+/// <summary>Compiled: a spell joins the grimoire (Relay, Seal, Decoy): a spell of the tree, no class's.</summary>
+public sealed record GrantRule(string Spell) : TalentRule;
+
+/// <summary>Living: after a spell, one movement point more, once per turn (Side Step).</summary>
+public sealed record SideStepRule : TalentRule;
+
+/// <summary>Living: next to an obstacle, <see cref="Damage"/> % of damage and <see cref="Resistance"/> % of resistance; elsewhere <see cref="Otherwise"/> % of damage (Backed).</summary>
+public sealed record BackedRule(int Damage, int Resistance, int Otherwise) : TalentRule;
+
+/// <summary>
+/// Living: a damage spell striking nobody lays a glyph of its element for <see cref="Turns"/> of the bearer's turns, a
+/// diamond of the spell's cost in radius (at most <see cref="MaxRadius"/>; each action point beyond, 10 % more), of
+/// <see cref="Percent"/> % of the spell's damage, falling away from the centre; one at a time (Remanence, §4.6).
+/// </summary>
+public sealed record RemanenceRule(int Percent, int Turns, int MaxRadius) : TalentRule;
+
+/// <summary>Living: the hits on a fighter standing in one of the bearer's glyphs <see cref="Inside"/> %, on the others <see cref="Outside"/> % (Scorched Earth).</summary>
+public sealed record GlyphTargetRule(int Inside, int Outside) : TalentRule;
+
+/// <summary>The bearer's maximum hit points <see cref="Percent"/> % more (or fewer) in a fight (Nomad).</summary>
+public sealed record HpRule(int Percent) : TalentRule;
+
+/// <summary>
+/// Living: having walked at least <see cref="Cells"/> cells in a turn, the bearer leaves on the cell it started from an
+/// echo of its last damage spell, which strikes the same target at <see cref="Percent"/> % at the start of its next turn,
+/// if the target is within the spell's range of the echo (Echo).
+/// </summary>
+public sealed record EchoRule(int Percent, int Cells) : TalentRule;
 
 // The branches Distance and Rhythm (sprint 141, D80, docs/talents-arbre.md §4.3).
 
@@ -186,7 +224,9 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// What a living talent reads of a hit (sprint 141): whether the caster walked this turn, the cells it walked since its last
 /// spell, the damage spells it cast before this one this turn, and the spell's cost in action points.
 /// </summary>
-public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0);
+/// <param name="Backed">The caster stands next to an obstacle (sprint 142).</param>
+/// <param name="InMyGlyph">The target stands in one of the caster's glyphs (sprint 142).</param>
+public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false);
 
 /// <summary>A hero's grimoire (sprint 138): the spells it may fight with, and the class spells its talents changed into twins.</summary>
 public sealed record Grimoire(IReadOnlyList<string> Spells, IReadOnlyDictionary<string, string> Replaced);
@@ -306,6 +346,9 @@ public static class Talents
                 spells.Add(id);
             }
         }
+        // The spells of the tree (sprint 142): after the class's.
+        foreach (GrantRule g in rules.OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
+            spells.Add(g.Spell);
         bool full = rules.OfType<FullGrimoireRule>().Any();
         foreach (Element compound in rules.OfType<OpenRule>().Select(o => o.Element).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Order())
         {
@@ -321,6 +364,9 @@ public static class Talents
         }
         return new Grimoire(spells, replaced);
     }
+
+    /// <summary>The resistance in percent the talents give a fighter next to an obstacle (Backed, sprint 142); 0 elsewhere.</summary>
+    public static int Guard(IReadOnlyList<TalentSpec> talents, bool backed) => backed ? talents.SelectMany(t => t.Rules).OfType<BackedRule>().Sum(r => r.Resistance) : 0;
 
     /// <summary>The compounds' signatures' bonus, in percent: the strongest, they do not add up (Pressed Signature and Conversion, §4.5: "Arc at 50 %").</summary>
     public static int SignatureBonus(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<SignatureRule>().Select(r => r.Percent).DefaultIfEmpty(0).Max();
@@ -431,7 +477,9 @@ public static class Talents
             + rules.OfType<StillRule>().Sum(r => c.Walked ? r.Moved : r.Still)
             + rules.OfType<DanceRule>().Sum(r => Math.Min(r.Max, r.PerCell * c.CellsSinceSpell))
             + rules.OfType<ApCostRule>().Where(r => c.ApCost >= r.MinAp && c.ApCost <= r.MaxAp).Sum(r => r.Percent)
-            + rules.OfType<FirstCastRule>().Sum(r => c.DamageCasts == 0 ? r.First : r.Others);
+            + rules.OfType<FirstCastRule>().Sum(r => c.DamageCasts == 0 ? r.First : r.Others)
+            + rules.OfType<BackedRule>().Sum(r => c.Backed ? r.Damage : r.Otherwise)
+            + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside);
         return Math.Clamp(sum, -100, Ceiling);
     }
 

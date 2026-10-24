@@ -18,8 +18,8 @@ public class ReactionTests
     private static readonly string[] All = ["bogging", "chilling", "cracking", "electrifying", "fogging", "blinding"];
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
-        new([.. Spells, Clod, Ember, Splash, Gust, Poke], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
-            talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+        new([.. Spells, .. TreeSpells, Clod, Ember, Splash, Gust, Poke], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
+            summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
 

@@ -142,7 +142,8 @@ public sealed class Character
     public const string EmptyDeck = "-";
 
     public string[]? DeckList => Deck.Length == 0 ? null
-        : [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Spells.TryGetValue(id, out Spell? s) && GameData.Embedded.Class(Class)?.Spells.Contains(s.RankKey) == true)];
+        : [.. Deck.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(id => GameData.Embedded.Spells.TryGetValue(id, out Spell? s)
+            && (GameData.Embedded.Class(Class)?.Spells.Contains(s.RankKey) == true || GameData.Embedded.Talents.Values.Any(t => t.Rules.OfType<GrantRule>().Any(g => g.Spell == id))))];
 
     public List<ItemCount> InventoryList => [.. Inventory.Split(',', StringSplitOptions.RemoveEmptyEntries)
         .Select(i => i.Split(':')).Select(i => new ItemCount(i[0], int.Parse(i[1], System.Globalization.CultureInfo.InvariantCulture)))];

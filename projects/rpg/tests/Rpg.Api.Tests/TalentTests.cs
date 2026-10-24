@@ -110,4 +110,21 @@ public class TalentTests
         Assert.Equal(["up-close"], after.Talents!);
         Assert.Equal(550, after.Shards);
     }
+
+    [Fact]
+    public async Task ASpellOfTheTree_IsSavedInTheDeck_WithItsTalentOnly()
+    {
+        // Sprint 142 (T108): a Seal in the deck with the talent Seal, refused without; the deck read back keeps it.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("trs");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 40, []), Cancel);
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["seal-water"]), Cancel)));
+        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["seal-water", "shield-bash"], ["side-step", "backed", "seal"]), Cancel);
+        Assert.Equal(["seal-water", "shield-bash"], (await server.Characters(Cancel)).Single().Deck!);
+        FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
+        await server.ReportFight(c.Id, ticket.Id, Play(ticket, saved.Hero), Cancel);
+    }
 }
