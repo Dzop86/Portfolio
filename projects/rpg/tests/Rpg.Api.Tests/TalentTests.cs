@@ -80,4 +80,34 @@ public class TalentTests
         await server.ReportFight(c.Id, ticket.Id, Play(ticket, hero), Cancel);
         Assert.Equal(saved.Deck, (await server.Characters(Cancel)).Single().Deck);
     }
+
+    [Fact]
+    public async Task GivingTalentsBack_IsFreeUpToForty_ThenCostsTenTimesTheLevel_InAVillageOnly()
+    {
+        // Sprint 140 (T106): taking more is free anywhere; giving back at 45 costs 450 Éclats, in a village, out of a fight.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("tpr");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
+        api.WithDb(db =>
+        {
+            Character ch = db.Characters.Single();
+            (ch.Town, ch.X, ch.Y, ch.Shards) = ("fields-0-0", 5, 5, 1000);
+            return db.SaveChanges();
+        });
+        await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging"]), Cancel);
+        Assert.Equal(["bogging", "up-close"], (await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging", "up-close"]), Cancel)).Talents!);
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close"]), Cancel)));
+        api.WithDb(db =>
+        {
+            Character ch = db.Characters.Single();
+            (ch.Town, ch.X, ch.Y) = ("clairval-1-1", 5, 5);
+            return db.SaveChanges();
+        });
+        CharacterSummary after = await server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close"]), Cancel);
+        Assert.Equal(["up-close"], after.Talents!);
+        Assert.Equal(550, after.Shards);
+    }
 }

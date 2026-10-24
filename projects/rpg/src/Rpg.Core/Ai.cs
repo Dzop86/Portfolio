@@ -225,6 +225,9 @@ public static class Ai
     {
         Stat.Poison => 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
         Stat.Ap or Stat.Mp => -2.0 * st.Value * st.Turns,
+        // Range lost keeps a fighter from striking (sprint 140); an electrified one spreads the hits it takes.
+        Stat.Range => -1.0 * st.Value * st.Turns,
+        Stat.Electrified => 0.1 * st.Value * st.Turns,
         _ => -0.05 * st.Value * st.Turns,
     };
 

@@ -59,10 +59,10 @@ public sealed class Texts
         ["points.title"] = "Caractéristiques et sorts",
         ["points.characteristics"] = "Caractéristiques : {0} point(s) à répartir",
         ["points.spells"] = "Sorts : {0} point(s) de sort",
-        ["points.talents"] = "Talents",
+        ["points.talents"] = "Ma route",
         ["talents.left"] = "Talents : {0} point(s) à dépenser",
         ["talents.closed"] = "L'arbre des talents s'ouvre au niveau {0}.",
-        ["talents.hint"] = "Un clic prend un talent ou le rend. L'étage 2 demande 2 points dans sa branche, la clé 3.",
+        ["talents.hint"] = "Un clic prend un talent ou le rend. Matière : changer ses éléments ; Manière : changer ses règles. L'étage 2 demande 2 points dans sa branche (1 en Tresses), la clé 3 ; une seule clé de Matière, deux éléments ouverts au plus. Rendre un talent coûte 10 × le niveau en Éclats après le niveau 40, dans un village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
         ["talents.family.Matter"] = "Matière",
         ["talents.family.Manner"] = "Manière",
@@ -232,6 +232,8 @@ public sealed class Texts
         ["stat.Mp"] = "{0} PM",
         ["stat.Damage"] = "{0} % de dégâts",
         ["stat.Resistance"] = "{0} % de résistance{1}",
+        ["stat.Range"] = "{0} PO",
+        ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
         ["element.Neutral"] = "neutre",
         ["element.Earth"] = "Terre",
         ["element.Fire"] = "Feu",
@@ -608,10 +610,10 @@ public sealed class Texts
         ["points.title"] = "Characteristics and spells",
         ["points.characteristics"] = "Characteristics: {0} point(s) to spend",
         ["points.spells"] = "Spells: {0} spell point(s)",
-        ["points.talents"] = "Talents",
+        ["points.talents"] = "My path",
         ["talents.left"] = "Talents: {0} point(s) to spend",
         ["talents.closed"] = "The talent tree opens at level {0}.",
-        ["talents.hint"] = "A click takes a talent or gives it back. The second floor asks 2 points in its branch, the key 3.",
+        ["talents.hint"] = "A click takes a talent or gives it back. Matter: change your elements; Manner: change your rules. The second floor asks 2 points in its branch (1 in Braids), the key 3; one key of Matter, two elements opened at most. Giving a talent back costs 10 × the level in Éclats after level 40, in a village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
         ["talents.family.Matter"] = "Matter",
         ["talents.family.Manner"] = "Manner",
@@ -781,6 +783,8 @@ public sealed class Texts
         ["stat.Mp"] = "{0} MP",
         ["stat.Damage"] = "{0}% damage",
         ["stat.Resistance"] = "{0}% resistance{1}",
+        ["stat.Range"] = "{0} range",
+        ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
         ["element.Neutral"] = "neutral",
         ["element.Earth"] = "Earth",
         ["element.Fire"] = "Fire",
@@ -1450,7 +1454,7 @@ public sealed class Texts
     /// <summary>A status as the log shows it: "-2 PA", "+50 % de dégâts", "poison 6 (Eau)".</summary>
     public string Status(Stat stat, int value, Element element)
     {
-        string signed = stat == Stat.Poison ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
+        string signed = stat is Stat.Poison or Stat.Electrified ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
         string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
         return this["stat." + stat, signed, elem];
     }

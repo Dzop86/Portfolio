@@ -83,6 +83,17 @@ public sealed class Fighter
 
     public int CastsLeft(Spell spell) => spell.PerTurn - CastsThisTurn.GetValueOrDefault(spell.Id);
 
+    /// <summary>
+    /// How far a spell reaches now (sprint 140): its range changed by the fighter's range statuses (Blinded) for a spell
+    /// reaching farther than 1, never under 1 nor under its minimum.
+    /// </summary>
+    public int MaxRangeOf(Spell spell)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        int change = StatusList.Where(s => s.Stat == Stat.Range).Sum(s => s.Value);
+        return change == 0 || spell.MaxRange <= 1 ? spell.MaxRange : Math.Max(Math.Max(1, spell.MinRange), spell.MaxRange + change);
+    }
+
     internal readonly Dictionary<string, int> Cooldowns = new(StringComparer.Ordinal);
 
     /// <summary>
@@ -415,7 +426,7 @@ public sealed class Fight
         if (!Board.IsFloor(target))
             return ActionError.NotFloor;
         int distance = from.DistanceTo(target);
-        if (distance < spell.MinRange || distance > spell.MaxRange)
+        if (distance < spell.MinRange || distance > caster.MaxRangeOf(spell))
             return ActionError.OutOfRange;
         if (spell.InLine && !from.IsInLineWith(target))
             return ActionError.NotInLine;
@@ -592,20 +603,19 @@ public sealed class Fight
     }
 
     /// <summary>
-    /// Lightning's signature (sprint 138, <c>docs/elements.md</c> §2): <see cref="Elements.Arc"/> % of the hit, more with the
-    /// caster's signature talents, jumps once to the nearest fighter of <paramref name="from"/>'s side within
-    /// <see cref="Elements.ArcCells"/> cells of it, outside the spell's area (the lowest id on a tie). It is no spell's hit:
-    /// no passive answers it, no mark is left.
+    /// A jump (Lightning's Arc, sprint 138, <c>docs/elements.md</c> §2; Electrified, sprint 140): <paramref name="percent"/>
+    /// of the hit jumps once to the nearest fighter of <paramref name="from"/>'s side within <see cref="Elements.ArcCells"/>
+    /// cells of it, outside the spell's area (the lowest id on a tie). It is no spell's hit: no passive answers it, no mark
+    /// is left.
     /// </summary>
-    private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area)
+    private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area, int percent, Element element)
     {
         Fighter? to = Fighters.Where(f => f.IsAlive && f != from && f.Team == from.Team && !area.Contains(f) && f.Cell.DistanceTo(from.Cell) <= Elements.ArcCells)
             .OrderBy(f => f.Cell.DistanceTo(from.Cell)).ThenBy(f => f.Id).FirstOrDefault();
         if (to is null)
             return;
-        int percent = Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100;
         _events.Add(new Arced(from.Id, to.Id));
-        Hurt(to, Damage(roll, me, to, Element.Lightning, direct: true) * percent / 100, Element.Lightning);
+        Hurt(to, Damage(roll, me, to, element, direct: true) * percent / 100, element);
     }
 
     /// <summary>
@@ -693,9 +703,11 @@ public sealed class Fight
                 }
                 // The mark or the reaction (sprint 137): a zone reacts on the fighter aimed at only.
                 Imprint(me, hit, spell.Element, hit.Cell == target);
-                // Lightning's Arc (sprint 138): part of the hit jumps on.
-                if (spell.Element == Element.Lightning && !IsOver)
-                    Arc(me, hit, roll, area);
+                // Lightning's Arc (sprint 138), an Electrified fighter (sprint 140): part of the hit jumps on, once.
+                int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100 : 0,
+                    hit.StatusList.Where(s => s.Stat == Stat.Electrified).Select(s => s.Value).DefaultIfEmpty(0).Max());
+                if (jump > 0 && !IsOver)
+                    Arc(me, hit, roll, area, jump, spell.Element);
             }
         }
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
@@ -786,8 +798,13 @@ public sealed class Fight
     /// <param name="reaction">The reaction setting it (sprint 137): the status bears its name, and renews only its own.</param>
     private void SetStatus(Fighter me, Fighter f, StatusEffect status, string? reaction = null)
     {
-        // The same status from the same caster is renewed, not stacked.
+        // The same status from the same caster is renewed, not stacked; one fighter electrified by each caster (sprint 140).
         f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id && st.Reaction == reaction);
+        if (status.Stat == Stat.Electrified)
+        {
+            foreach (Fighter other in Fighters.Where(o => o != f))
+                other.StatusList.RemoveAll(st => st.Stat == Stat.Electrified && st.Source == me.Id);
+        }
         f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id, reaction));
         _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element, reaction));
         // On the fighter playing, action and movement points change at once (sprint 90):

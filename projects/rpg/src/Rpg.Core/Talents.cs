@@ -166,8 +166,30 @@ public static class Talents
         }
         if (taken.Where(t => t.Tier == Tier.Key).GroupBy(t => t.Branch).Any(g => g.Count() > 1))
             return "One key per branch.";
+        if (ElementsOpened(taken) > MaxOpened)
+            return $"At most {MaxOpened} elements opened.";
         return taken.Count(t => t.Tier == Tier.Key && t.Family == TalentFamily.Matter) > 1 ? "One key of Matter in the whole tree." : null;
     }
+
+    /// <summary>The elements a hero may open, at most (sprint 140, §4.1): compounds, and later Light or Darkness.</summary>
+    public const int MaxOpened = 2;
+
+    /// <summary>The elements these talents open: each compound opened or converted, once.</summary>
+    public static int ElementsOpened(IEnumerable<TalentSpec> talents)
+    {
+        ArgumentNullException.ThrowIfNull(talents);
+        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
+        return rules.OfType<OpenRule>().Select(r => r.Element).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Count();
+    }
+
+    /// <summary>Talents are taken back for free up to this level; above, it costs <see cref="ChangeCost"/> Éclats, in a village (§4.2).</summary>
+    public const int FreeChangeUpTo = 40;
+
+    /// <summary>What giving back saved talents costs at a level, in Éclats: nothing up to 40, then 10 × the level.</summary>
+    public static long ChangeCost(int level) => level <= FreeChangeUpTo ? 0 : 10L * level;
+
+    /// <summary>Whether new talents give back any saved one (taking more is free).</summary>
+    public static bool GivesBack(IReadOnlyList<string>? before, IReadOnlyList<string>? after) => (before ?? []).Except(after ?? [], StringComparer.Ordinal).Any();
 
     /// <summary>
     /// The points below a second floor: 2, but 1 in Braids, whose first floor opens elements, two at most; the game

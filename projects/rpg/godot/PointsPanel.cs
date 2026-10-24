@@ -536,8 +536,9 @@ public partial class PointsPanel : CanvasLayer
     }
 
     /// <summary>
-    /// The tree's talents (sprint 137, D80): the points left, then each branch that has talents, in the colour of its
-    /// family (pistachio for Matter, the light text for Manner), its tiles side by side; a tile's tooltip tells it all.
+    /// "My path" (sprint 140, D80): the tree's talents in seven columns, the two of Matter (in pistachio) then the five of
+    /// Manner, each branch's tiles by floor (first, second, key); the points left above. A tile's tooltip tells it all; a
+    /// talent the rules refuse now is greyed.
     /// </summary>
     private VBoxContainer BuildTalents(PointsEditor editor)
     {
@@ -548,29 +549,44 @@ public partial class PointsPanel : CanvasLayer
         page.AddChild(_talentsLeft);
         _talentsHint = new Label { Modulate = new Color(1, 1, 1, 0.7f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         page.AddChild(_talentsHint);
-        foreach (IGrouping<Branch, TalentSpec> branch in editor.Data.Talents.Values.GroupBy(t => t.Branch).OrderBy(g => g.Key))
+        var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Auto };
+        page.AddChild(scroll);
+        var columns = new HBoxContainer();
+        columns.AddThemeConstantOverride("separation", 8);
+        scroll.AddChild(columns);
+        foreach (Branch branch in Enum.GetValues<Branch>())
         {
-            var name = new Label();
-            name.AddThemeFontSizeOverride("font_size", 17);
-            name.AddThemeColorOverride("font_color", branch.First().Family == TalentFamily.Matter ? new Color("bef374") : new Color("e0e0e0"));
-            page.AddChild(name);
-            _branches.Add((branch.Key, name));
-            var row = new HFlowContainer();
-            row.AddThemeConstantOverride("h_separation", 8);
-            page.AddChild(row);
-            foreach (TalentSpec t in branch.OrderBy(t => t.Tier))
+            var column = new VBoxContainer { CustomMinimumSize = new Vector2(150, 0) };
+            column.AddThemeConstantOverride("separation", 6);
+            columns.AddChild(column);
+            var name = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(150, 0) };
+            name.AddThemeFontSizeOverride("font_size", 16);
+            name.AddThemeColorOverride("font_color", branch is Branch.Braids or Branch.Poles ? new Color("bef374") : new Color("e0e0e0"));
+            column.AddChild(name);
+            _branches.Add((branch, name));
+            foreach (Tier tier in Enum.GetValues<Tier>())
             {
-                var tile = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(200, 44) };
-                tile.Pressed += () =>
+                TalentSpec[] here = [.. editor.Data.Talents.Values.Where(t => t.Branch == branch && t.Tier == tier)];
+                if (here.Length == 0)
+                    continue;
+                var floor = new Label { Modulate = new Color(1, 1, 1, 0.55f) };
+                floor.AddThemeFontSizeOverride("font_size", 12);
+                floor.SetMeta("key", "talents.tier." + tier);
+                column.AddChild(floor);
+                foreach (TalentSpec t in here)
                 {
-                    if (Editor.HasTalent(t))
-                        Editor.Drop(t);
-                    else
-                        Editor.Take(t);
-                    Refresh();
-                };
-                row.AddChild(tile);
-                _talentTiles.Add((t, tile));
+                    var tile = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(150, 44), ClipText = true };
+                    tile.Pressed += () =>
+                    {
+                        if (Editor.HasTalent(t))
+                            Editor.Drop(t);
+                        else
+                            Editor.Take(t);
+                        Refresh();
+                    };
+                    column.AddChild(tile);
+                    _talentTiles.Add((t, tile));
+                }
             }
         }
         return page;
@@ -600,6 +616,8 @@ public partial class PointsPanel : CanvasLayer
         _talentsHint.Text = Texts["talents.hint"];
         foreach ((Branch branch, Label name) in _branches)
             name.Text = $"{Texts["talents.branch." + branch]} · {Texts["talents.family." + (branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner)]}";
+        foreach (Label floor in _talentsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
+            floor.Text = Texts[(string)floor.GetMeta("key")];
         foreach ((TalentSpec t, Button tile) in _talentTiles)
         {
             tile.Text = t.Name.In(Texts.Lang);

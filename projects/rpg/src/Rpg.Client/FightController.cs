@@ -92,7 +92,7 @@ public sealed class FightController(Fight fight, int playerTeam = 0, SharedFight
             foreach (Cell c in Fight.Board.Cells())
             {
                 int d = me.Cell.DistanceTo(c);
-                if (!Fight.Board.IsFloor(c) || d < spell.MinRange || d > spell.MaxRange || (spell.InLine && !me.Cell.IsInLineWith(c)))
+                if (!Fight.Board.IsFloor(c) || d < spell.MinRange || d > me.MaxRangeOf(spell) || (spell.InLine && !me.Cell.IsInLineWith(c)))
                     continue;
                 inRange.Add(c);
                 if (Fight.CheckCast(me, spell, me.Cell, c) == ActionError.None)

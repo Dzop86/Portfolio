@@ -638,8 +638,11 @@ public static class CharacterEndpoints
         // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them, the tree's rules.
         if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck, Talents = talents.Length == 0 ? null : talents }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
-        // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71).
-        long cost = Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0;
+        // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71); talents from level 41, in a village, out of a fight (sprint 140).
+        long talentCost = Talents.GivesBack(character.TalentList, talents) ? Talents.ChangeCost(character.Level) : 0;
+        if (talentCost > 0 && (character.InFight || !Shop.InVillage(character.Town)))
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = ["Talents are given back in a village, out of a fight."] });
+        long cost = (Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0) + talentCost;
         if (cost > character.Shards)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [$"Taking points back costs {cost} Éclats."] });
         character.Shards -= cost;

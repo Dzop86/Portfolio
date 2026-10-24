@@ -107,6 +107,15 @@ public enum Stat
 
     /// <summary>Resistance to the status's element (to every element when neutral), in percent.</summary>
     Resistance,
+
+    /// <summary>Cells of range added (or removed) to the fighter's spells that reach farther than 1, never under 1 (sprint 140).</summary>
+    Range,
+
+    /// <summary>
+    /// Electrified (sprint 140): this percent of every hit the fighter takes jumps to the nearest fighter of its side within
+    /// <see cref="Elements.ArcCells"/> cells; one fighter electrified at a time by each caster.
+    /// </summary>
+    Electrified,
 }
 
 /// <summary>

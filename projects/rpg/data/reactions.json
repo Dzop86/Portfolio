@@ -1,7 +1,10 @@
 [
   {
     "id": "bogged",
-    "name": { "fr": "Enlisé", "en": "Bogged" },
+    "name": {
+      "fr": "Enlisé",
+      "en": "Bogged"
+    },
     "description": {
       "fr": "La Terre et l'Eau mêlées dans la cible : elle perd 2 PM pendant 1 tour.",
       "en": "Earth and Water mixed in the target: it loses 2 MP for 1 turn."
@@ -9,7 +12,117 @@
     "first": "Earth",
     "second": "Water",
     "statuses": [
-      { "affects": "Enemies", "stat": "Mp", "value": -2, "turns": 1 }
+      {
+        "affects": "Enemies",
+        "stat": "Mp",
+        "value": -2,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "chilled",
+    "name": {
+      "fr": "Transi",
+      "en": "Chilled"
+    },
+    "description": {
+      "fr": "L'Eau et l'Air mêlés dans la cible : elle perd 2 PA pendant 1 tour.",
+      "en": "Water and Air mixed in the target: it loses 2 AP for 1 turn."
+    },
+    "first": "Water",
+    "second": "Air",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Ap",
+        "value": -2,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "cracked",
+    "name": {
+      "fr": "Fêlé",
+      "en": "Cracked"
+    },
+    "description": {
+      "fr": "La Terre et le Feu mêlés dans la cible : −15 % de résistance à tous les éléments pendant 2 tours.",
+      "en": "Earth and Fire mixed in the target: −15% resistance to every element for 2 turns."
+    },
+    "first": "Earth",
+    "second": "Fire",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Resistance",
+        "value": -15,
+        "turns": 2
+      }
+    ]
+  },
+  {
+    "id": "electrified",
+    "name": {
+      "fr": "Électrisé",
+      "en": "Electrified"
+    },
+    "description": {
+      "fr": "Le Feu et l'Air mêlés dans la cible : pendant 1 tour, 35 % de chaque coup qu'elle reçoit sautent sur l'ennemi le plus proche à 2 cases. Une seule cible électrisée à la fois par lanceur.",
+      "en": "Fire and Air mixed in the target: for 1 turn, 35% of every hit it takes jumps to the nearest enemy within 2 cells. One target electrified at a time by each caster."
+    },
+    "first": "Fire",
+    "second": "Air",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Electrified",
+        "value": 35,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "fogged",
+    "name": {
+      "fr": "Embué",
+      "en": "Fogged"
+    },
+    "description": {
+      "fr": "Le Feu et l'Eau mêlés dans la cible : −25 % de dégâts infligés pendant 1 tour.",
+      "en": "Fire and Water mixed in the target: −25% damage dealt for 1 turn."
+    },
+    "first": "Fire",
+    "second": "Water",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Damage",
+        "value": -25,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "blinded",
+    "name": {
+      "fr": "Aveuglé",
+      "en": "Blinded"
+    },
+    "description": {
+      "fr": "La Terre et l'Air mêlés dans la cible : −2 PO à ses sorts pendant 1 tour (jamais sous 1).",
+      "en": "Earth and Air mixed in the target: −2 range on its spells for 1 turn (never under 1)."
+    },
+    "first": "Earth",
+    "second": "Air",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Range",
+        "value": -2,
+        "turns": 1
+      }
     ]
   }
 ]

@@ -6,7 +6,14 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je choisis mes talents dans une fenêtre à deux familles et sept branches ; les cinq autres réactions dont Électrisé, la portée en caractéristique, le prix du changement, une seule clé de Matière et deux éléments ajoutés au plus (rpg) ; xUnit, intégration API. | 5 | À faire |
+| En tant que joueur, je choisis mes talents dans une fenêtre à deux familles et sept branches ; les cinq autres réactions dont Électrisé, la portée en caractéristique, le prix du changement, une seule clé de Matière et deux éléments ajoutés au plus (rpg) ; xUnit, intégration API. | 5 | Fait |
+
+## Fait
+- Les cinq autres réactions et leurs talents (Transi, Fêlé, Électrisé, Embué, Aveuglé), `Stat.Range` et `Stat.Electrified` (T106).
+- Deux éléments ouverts au plus ; une seule clé de Matière (depuis S137).
+- Le prix du changement : rendre un talent coûte 10 × le niveau après 40, dans un village, hors combat ; annoncé dans l'écran.
+- L'onglet « Ma route » : sept colonnes, deux familles, les tuiles par étage.
+- Tests : `ReactionTests` (Core), `TalentTextsTests` (Client), `TalentTests` (API).
 
 ## Rétro (Charles)
 - Ce qui a marché :

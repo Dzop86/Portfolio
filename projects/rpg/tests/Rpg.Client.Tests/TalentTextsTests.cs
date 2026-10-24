@@ -89,4 +89,18 @@ public class TalentTextsTests
         Assert.DoesNotContain("lightning-fire-arrow", editor.Deck);
         Assert.Null(editor.Draft.Problem(Data));
     }
+
+    [Fact]
+    public void GivingATalentBack_AfterForty_SaysItsPrice_TakingOneDoesNot()
+    {
+        // Sprint 140 (T106): 10 × the level in Éclats, before saving.
+        var editor = new PointsEditor(Sentinel(45, "bogging"), Data);
+        editor.Take(Data.Talents["chilling"]);
+        Assert.Equal(0, editor.ResetCost);
+        editor.Drop(Data.Talents["bogging"]);
+        Assert.Equal(450, editor.ResetCost);
+        var at40 = new PointsEditor(Sentinel(40, "bogging"), Data);
+        at40.Drop(Data.Talents["bogging"]);
+        Assert.Equal((0, 0L), (at40.TalentsTaken.Count, at40.ResetCost));
+    }
 }

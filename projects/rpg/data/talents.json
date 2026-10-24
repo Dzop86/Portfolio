@@ -19,6 +19,101 @@
     ]
   },
   {
+    "id": "chilling",
+    "name": {
+      "fr": "Transissement",
+      "en": "Chilling"
+    },
+    "description": {
+      "fr": "Frapper en Eau un ennemi marqué par l'Air, ou en Air un ennemi marqué par l'Eau, le rend Transi : −2 PA pendant 1 tour.",
+      "en": "Striking in Water an enemy marked by Air, or in Air one marked by Water, leaves it Chilled: −2 AP for 1 turn."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "chilled"
+      }
+    ]
+  },
+  {
+    "id": "cracking",
+    "name": {
+      "fr": "Fêlure",
+      "en": "Cracking"
+    },
+    "description": {
+      "fr": "Frapper en Terre un ennemi marqué par le Feu, ou en Feu un ennemi marqué par la Terre, le rend Fêlé : −15 % de résistance à tous les éléments pendant 2 tours.",
+      "en": "Striking in Earth an enemy marked by Fire, or in Fire one marked by Earth, leaves it Cracked: −15% resistance to every element for 2 turns."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "cracked"
+      }
+    ]
+  },
+  {
+    "id": "electrifying",
+    "name": {
+      "fr": "Électrisation",
+      "en": "Electrifying"
+    },
+    "description": {
+      "fr": "Frapper en Feu un ennemi marqué par l'Air, ou en Air un ennemi marqué par le Feu, le rend Électrisé : pendant 1 tour, 35 % de chaque coup qu'il reçoit sautent sur l'ennemi le plus proche.",
+      "en": "Striking in Fire an enemy marked by Air, or in Air one marked by Fire, leaves it Electrified: for 1 turn, 35% of every hit it takes jumps to the nearest enemy."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "electrified"
+      }
+    ]
+  },
+  {
+    "id": "fogging",
+    "name": {
+      "fr": "Buée",
+      "en": "Fogging"
+    },
+    "description": {
+      "fr": "Frapper en Feu un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par le Feu, le rend Embué : −25 % de dégâts infligés pendant 1 tour.",
+      "en": "Striking in Fire an enemy marked by Water, or in Water one marked by Fire, leaves it Fogged: −25% damage dealt for 1 turn."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "fogged"
+      }
+    ]
+  },
+  {
+    "id": "blinding",
+    "name": {
+      "fr": "Poudroiement",
+      "en": "Blinding"
+    },
+    "description": {
+      "fr": "Frapper en Terre un ennemi marqué par l'Air, ou en Air un ennemi marqué par la Terre, le rend Aveuglé : −2 PO à ses sorts pendant 1 tour.",
+      "en": "Striking in Earth an enemy marked by Air, or in Air one marked by Earth, leaves it Blinded: −2 range on its spells for 1 turn."
+    },
+    "branch": "Reactions",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "reaction",
+        "reaction": "blinded"
+      }
+    ]
+  },
+  {
     "id": "up-close",
     "name": {
       "fr": "Au plus près",
