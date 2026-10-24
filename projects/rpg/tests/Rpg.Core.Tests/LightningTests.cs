@@ -49,17 +49,21 @@ public class LightningTests
         Assert.Equal(50, (m with { Resistances = new Dictionary<Element, int> { [Element.Lightning] = 50 } }).Resistance(Element.Lightning));
     }
 
-    [Fact]
-    public void TheSentinel_HasEightLightningSpells_TwinsOfItsFireAndAirOnes_AtFourFifthsOfTheBudget()
+    [Theory]
+    [InlineData("sentinel")]
+    [InlineData("guard")]
+    [InlineData("mage")]
+    public void EachClass_HasEightLightningSpells_TwinsOfItsFireAndAirOnes_AtFourFifthsOfTheBudget(string id)
     {
-        HeroClass sentinel = Real.Class("sentinel")!;
-        Spell[] twins = [.. Real.Spells.Values.Where(s => s.Element == Element.Lightning)];
+        // The Sentinel's since sprint 138, the Guard's and the Mage's since sprint 139.
+        HeroClass c = Real.Class(id)!;
+        Spell[] twins = [.. Real.Spells.Values.Where(s => s.Element == Element.Lightning && c.Spells.Contains(s.Twin!))];
         Assert.Equal(8, twins.Length);
         foreach (Spell t in twins)
         {
             Spell origin = Real.Spells[t.Twin!];
-            Assert.Contains(origin.Id, sentinel.Spells);
-            Assert.DoesNotContain(t.Id, sentinel.Spells);
+            Assert.Contains(origin.Id, c.Spells);
+            Assert.DoesNotContain(t.Id, c.Spells);
             Assert.Contains(origin.Element, new[] { Element.Fire, Element.Air });
             Assert.Equal((origin.ApCost, origin.MinRange, origin.MaxRange, origin.Zone, origin.Level, origin.Cooldown, origin.LineOfSight, origin.InLine),
                 (t.ApCost, t.MinRange, t.MaxRange, t.Zone, t.Level, t.Cooldown, t.LineOfSight, t.InLine));
@@ -69,6 +73,34 @@ public class LightningTests
             Assert.Equal(t.RankKey, origin.Id);
         }
         Assert.Equal(8, twins.Select(t => t.Name.Fr).Distinct().Count());
+    }
+
+    [Fact]
+    public void EverySpellOfTheClasses_HasANameOfItsOwn_AndTheBaseSpellsThatCarriedLightningsWordGaveItUp()
+    {
+        // Sprint 139: the Mage's Air "Éclair" is now "Trait de vent", its Lightning twin takes the name; the Guard's
+        // "Cyclone" (the Mage's too) is a "Lame cyclone".
+        Spell[] all = [.. Real.Classes.SelectMany(c => c.Spells).Select(id => Real.Spells[id]), .. Real.Spells.Values.Where(s => s.Twin is not null)];
+        Assert.Equal(all.Length, all.Select(s => s.Name.Fr).Distinct().Count());
+        Assert.Equal(all.Length, all.Select(s => s.Name.En).Distinct().Count());
+        Assert.Equal(("Trait de vent", "Wind Dart"), (Real.Spells["bolt"].Name.Fr, Real.Spells["bolt"].Name.En));
+        Assert.Equal(("Éclair", Element.Lightning), (Real.Spells["lightning-bolt"].Name.Fr, Real.Spells["lightning-bolt"].Element));
+        Assert.DoesNotContain(all.Where(s => s.Element is Element.Fire or Element.Air), s => s.Name.Fr.Contains("foudre", StringComparison.OrdinalIgnoreCase) || s.Name.Fr.Contains("éclair", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Theory]
+    [InlineData("guard", "lightning-burning-blade", "lightning-fire-lunge", "lightning-slash", "lightning-wind-blade")]
+    [InlineData("mage", "lightning-flare", "lightning-burn", "lightning-gust", "lightning-bolt")]
+    public void TheGuardsAndTheMagesOpening_AddTheirFirstFourTwins_AndAConvertedHeroPlaysAndReplays(string id, params string[] opened)
+    {
+        Hero hero = new("Ondine", "female-a", id, Level: 45, Talents: ["open-lightning"]);
+        Assert.Equal(opened, Talents.GrimoireOf(hero, Real).Spells.Where(s => Real.Spells[s].Twin is not null));
+        Hero converted = Progression.Built(hero with { Talents = ["open-lightning", "full-grimoire", "prism", "convert-lightning"] }, Real);
+        Assert.Null(converted.Problem(Real));
+        var f = new Fight(Real, "group:fields-0-4.0", 5, converted);
+        Ai.PlayOut(f);
+        Assert.True(f.IsOver);
+        Assert.Equal(Fingerprint(f), Fingerprint(FightRecord.FromJson(FightRecord.Of(f).ToJson()).Replay(Real)));
     }
 
     [Fact]
