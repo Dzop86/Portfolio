@@ -1292,7 +1292,7 @@ public partial class Main
         };
         // The three guided bubbles at the first opening from level 30, once an account (sprint 149, M6 a).
         _treePanel.TutorialDone += () => _ = MarkSeen(Seen.TreeTutorial);
-        if (editor.Hero.Level >= Talents.Opens)
+        if (editor.Hero.Level >= Talents.Opens && !editor.ReadOnly)
             _ = TutorialIfUnseen(_treePanel);
     }
 
@@ -2383,6 +2383,7 @@ public partial class Main
         try
         {
             await CheckTree(problems);
+            CheckTransmuted(problems);
         }
         catch (Exception e) when (e is InvalidOperationException or ArgumentException or KeyNotFoundException or NullReferenceException)
         {
@@ -2650,6 +2651,29 @@ public partial class Main
                 problems.Add($"{id}: the arrow up goes from {start} to {tree.Focused}");
             tree.QueueFree();
         }
+    }
+
+    /// <summary>
+    /// The spells window after a Transmutation saved (sprint 150, D82): the Fire spells it replaced gone, their Lightning
+    /// twins there and marked new until looked at, each saying where it comes from.
+    /// </summary>
+    private void CheckTransmuted(List<string> problems)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        Hero hero = Progression.Talented(new Hero("Ondine", "female-a", "sentinel", Level: 35), ["electrifying", "transmute-fire-lightning"], GameData.Embedded);
+        var panel = new PointsPanel();
+        AddChild(panel);
+        panel.Build(new PointsEditor(hero, GameData.Embedded), texts, only: true);
+        panel.Refresh();
+        Grimoire grimoire = Talents.GrimoireOf(hero, GameData.Embedded);
+        if (grimoire.Replaced.Count == 0 || grimoire.Replaced.Keys.Any(panel.ShownSpells.Contains))
+            problems.Add($"the spells window still shows the spells a Transmutation replaced: {string.Join(", ", grimoire.Replaced.Keys.Where(panel.ShownSpells.Contains))}");
+        if (!grimoire.Replaced.Values.All(panel.NewSpells.Contains))
+            problems.Add($"the twins are not marked new: {string.Join(", ", panel.NewSpells)}");
+        var book = new SpellBook(panel.Editor);
+        if (grimoire.Replaced.Values.Any(t => texts.SpellOrigin(book.Spells.Single(b => b.Spell.Id == t), GameData.Embedded).Count < 2))
+            problems.Add("a twin does not say where it comes from and what it replaced");
+        panel.QueueFree();
     }
 
     private string CheckBarAndMenu(List<string> problems)

@@ -6,8 +6,13 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je vois dans mon grimoire d'où vient chaque sort, ce qu'il a remplacé et ce que l'arbre a modifié (rpg) ; xUnit, auto-test Godot. | 2 | À faire |
-| En tant que joueur, je vois en combat quels talents sont actifs, et leur part dans la prévision de dégâts (rpg) ; xUnit, auto-test du combat. | 2 | À faire |
+| En tant que joueur, je vois dans mon grimoire d'où vient chaque sort, ce qu'il a remplacé et ce que l'arbre a modifié (rpg) ; xUnit, auto-test Godot. | 2 | Fait |
+| En tant que joueur, je vois en combat quels talents sont actifs, et leur part dans la prévision de dégâts (rpg) ; xUnit, auto-test du combat. | 2 | Fait |
+
+## Fait
+- Le grimoire après l'arbre (T117) : le sort remplacé disparaît (Charles), le jumeau dit d'où il vient et ce qu'il remplace, chaque sort les talents qui le changent, « nouveau » jusqu'au survol ; les changements du deck dits.
+- La ligne « avant et après » d'un nœud, sur un coup type.
+- En combat : la part de l'arbre dans la prévision, les talents du tour allumés ou éteints sous les points, l'arbre en lecture seule (touche T).
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -340,7 +340,12 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
             }
             else if (Editor.CanTake(t))
                 Editor.Take(t);
-            _message.Text = Editor.Replaced is string replaced ? Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)] : "";
+            // What the change did besides: a Conversion in its Transmutation's place, twins in the deck (sprint 150, F7 a).
+            IEnumerable<string> said = (Editor.Replaced is string replaced ? [Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)]] : Array.Empty<string>())
+                .Concat(Texts.DeckChanges(Editor));
+            _message.Text = string.Join("\n", said);
+            if (_message.HasMeta("diff"))
+                _message.RemoveMeta("diff");
         }
         Refresh();
     }
@@ -721,9 +726,13 @@ public partial class TreeNodeView : Control
     /// <summary>A node's drawing (sprint 149, P3 b): the talent's, or the trunk's node's (<c>trunk-30</c>); null without one.</summary>
     public static Texture2D? IconOf(TreeNode node)
     {
-        string? name = node.IsTalent ? node.Id : node.IsTrunk ? node.Id.Replace(':', '-') : null;
-        if (name is null)
-            return null;
+        ArgumentNullException.ThrowIfNull(node);
+        return node.IsTalent ? IconOf(node.Id) : node.IsTrunk ? IconOf(node.Id.Replace(':', '-')) : null;
+    }
+
+    /// <summary>A talent's drawing by its id (the fight's lit talents too, sprint 150).</summary>
+    public static Texture2D? IconOf(string name)
+    {
         if (Icons.TryGetValue(name, out Texture2D? known))
             return known;
         string path = $"res://assets/icons/talents/{name}.svg";

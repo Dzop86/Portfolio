@@ -679,6 +679,45 @@ public static class Talents
         return Math.Clamp(sum, -100, Ceiling);
     }
 
+    /// <summary>
+    /// Each talent's own part of <see cref="Percent"/> on a hit (sprint 150, D82, O6 a), those that give or take something:
+    /// the forecast details them. Their sum is the hit's bonus while under <see cref="Ceiling"/> (and over -100).
+    /// </summary>
+    public static IReadOnlyList<TalentShare> Shares(IReadOnlyList<TalentSpec> talents, Cell from, Cell at, Element element = Element.Neutral, HitContext? context = null)
+    {
+        ArgumentNullException.ThrowIfNull(talents);
+        return [.. talents.Select(t => new TalentShare(t.Id, Percent([t], from, at, element, context))).Where(s => s.Percent != 0)];
+    }
+
+    /// <summary>
+    /// The talents whose bonus depends on how the turn went (sprint 150, D82, O5 a): Firm Footing (lit while the bearer has
+    /// not moved), Dancing Step (lit by the cells walked), First Gesture (lit before the first damage spell), Backed (lit by
+    /// an obstacle), Scorched Earth's glyphs aside; with what each gives now.
+    /// </summary>
+    public static IReadOnlyList<TalentLight> Lights(IReadOnlyList<TalentSpec> talents, HitContext context)
+    {
+        ArgumentNullException.ThrowIfNull(talents);
+        ArgumentNullException.ThrowIfNull(context);
+        var lights = new List<TalentLight>();
+        foreach (TalentSpec t in talents)
+        {
+            foreach (TalentRule r in t.Rules)
+            {
+                TalentLight? light = r switch
+                {
+                    StillRule still => new(t.Id, !context.Walked, context.Walked ? still.Moved : still.Still),
+                    DanceRule dance => new(t.Id, context.CellsSinceSpell > 0, Math.Min(dance.Max, dance.PerCell * context.CellsSinceSpell)),
+                    FirstCastRule first => new(t.Id, context.DamageCasts == 0, context.DamageCasts == 0 ? first.First : first.Others),
+                    BackedRule backed => new(t.Id, context.Backed, context.Backed ? backed.Damage : backed.Otherwise),
+                    _ => null,
+                };
+                if (light is not null)
+                    lights.Add(light);
+            }
+        }
+        return lights;
+    }
+
     /// <summary>The reaction these talents set off between two elements, or null.</summary>
     public static ReactionSpec? ReactionOf(IReadOnlyList<TalentSpec> talents, Element a, Element b, GameData data)
     {
@@ -689,6 +728,12 @@ public static class Talents
         return talents.SelectMany(t => t.Rules).OfType<ReactionRule>().Select(r => data.Reactions[r.Reaction]).FirstOrDefault(r => r.Joins(a, b));
     }
 }
+
+/// <summary>A talent's part of a hit's bonus, in percent (sprint 150, <see cref="Talents.Shares"/>).</summary>
+public sealed record TalentShare(string Talent, int Percent);
+
+/// <summary>A talent that lights up with the turn (sprint 150, <see cref="Talents.Lights"/>): lit or not, and what it gives now.</summary>
+public sealed record TalentLight(string Talent, bool Lit, int Percent);
 
 /// <summary>A node of the trunk (sprint 146, D82): lit from <see cref="Level"/>, that many <see cref="Percent"/> more of <see cref="Gain"/>.</summary>
 public sealed record TrunkNode(int Level, TrunkGain Gain, int Percent);

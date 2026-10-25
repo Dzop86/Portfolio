@@ -72,7 +72,9 @@ public sealed record HeroNumbers(int Hp, int Ap, int Mp, int Initiative, Charact
 
 /// <param name="CritMin">The damage of a critical hit's lowest roll; with <paramref name="CritMax"/>, 0 when the spell never lands one.</param>
 /// <param name="Reaction">The reaction the hit would set off on this fighter (sprint 137), if any.</param>
-public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0, string? Reaction = null)
+/// <remarks>Since sprint 150 (D82, O6 a): <see cref="Tree"/>, each talent's part of the hit's bonus, and <see cref="Trunk"/>, the trunk's.</remarks>
+public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int HealMin, int HealMax, Element Element, int CritMin = 0, int CritMax = 0, string? Reaction = null,
+    IReadOnlyList<TalentShare>? Tree = null, int Trunk = 0)
 {
     /// <summary>Even the lowest roll kills, through the shields.</summary>
     public bool SureKill => DamageMax > 0 && DamageMin >= Fighter.Hp + Fighter.Shield;

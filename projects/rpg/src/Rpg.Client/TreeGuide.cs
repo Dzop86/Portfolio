@@ -115,6 +115,24 @@ public static class TreeGuide
         return data.Talents.Values.Where(t => t.IsPair).FirstOrDefault(t => PairOf(t, data)!.Joins(two[0], two[1]))?.Id;
     }
 
+    /// <summary>
+    /// The bonus of the talents on a typical hit (sprint 150, M4 b): 2 cells away, without moving, the first damage spell of
+    /// the turn, of 3 AP, in the hero's strongest base element; without <paramref name="talent"/>, then with it (a Conversion
+    /// in its Transmutation's place, what hangs on a talent given back gone with it).
+    /// </summary>
+    public static (int Before, int After) BeforeAfter(IReadOnlyList<string> taken, string talent, Hero hero, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(data);
+        Characteristics s = hero.Stats ?? Characteristics.None;
+        Element element = new[] { (Element.Earth, s.Earth), (Element.Fire, s.Fire), (Element.Water, s.Water), (Element.Air, s.Air) }.OrderByDescending(x => x.Item2).ThenBy(x => x.Item1).First().Item1;
+        int On(IEnumerable<string> ids) => Talents.Percent([.. ids.Select(id => data.Talents[id])], new Cell(0, 0), new Cell(2, 0), element, new HitContext(ApCost: 3));
+        List<string> without = taken.Contains(talent) ? Talents.Without(taken, talent, data) : [.. taken];
+        List<string> with = taken.Contains(talent) ? [.. taken] : Talents.With(taken, talent, data);
+        return (On(without), On(with));
+    }
+
     /// <summary>The base elements Helping Hand helps with (D9 a): those of the pairs taken, else all four.</summary>
     public static IReadOnlyList<Element> Helps(IReadOnlyList<string> taken, GameData data)
     {

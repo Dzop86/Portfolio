@@ -60,7 +60,8 @@ public class TalentTextsTests
         Assert.Equal($"{target.Name.Fr} porte l'empreinte Terre.", new Texts("fr").Describe(fight.Events[marked], fight));
         Assert.Equal($"{target.Name.En} bears the Earth mark.", new Texts("en").Describe(fight.Events[marked], fight));
         Assert.Equal(ActionError.None, fight.CheckCast(hero, frost, hero.Cell, target.Cell));
-        Assert.EndsWith(" — Enlisé !", new Texts("fr").Forecast(fight.Foresee(frost, target.Cell)), StringComparison.Ordinal);
+        // The damage line ends with the reaction; the tree's part comes under it (sprint 150).
+        Assert.EndsWith(" — Enlisé !", new Texts("fr").Forecast(fight.Foresee(frost, target.Cell)).Split('\n')[0], StringComparison.Ordinal);
         fight.Apply(new CastAction(frost.Id, target.Cell));
         FightEvent reaction = fight.Events.Last(e => e is ReactionTriggered);
         Assert.Equal($"{target.Name.En}: Bogged!", new Texts("en").Describe(reaction, fight));

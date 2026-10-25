@@ -235,7 +235,7 @@ public partial class Main : Node3D
         }
         if (_windows.MenuOpen)
             return;
-        // C and I (sprint 93, Charles): the characteristics and the inventory, to look at only, on any turn.
+        // C and I (sprint 93, Charles): the characteristics and the inventory, to look at only, on any turn; T the tree (sprint 150).
         if (@event is InputEventKey { Pressed: true, Echo: false, CtrlPressed: false, AltPressed: false } pressed
             && WindowState.ForKey((char)pressed.Keycode) is GameWindow window && WindowState.OpensInFight(window))
         {

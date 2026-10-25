@@ -97,7 +97,7 @@ public partial class TreeGuideTests
         Assert.StartsWith("Pour les autres", hand.Banner, StringComparison.Ordinal);
         Assert.Equal("En échange : Tes coups font 5 % de moins ; un soutien par tour.", hand.Counterpart);
         // Helping Hand said with the hero's elements (D9 a): Electrifying's Fire and Air.
-        Assert.Equal("Avec tes éléments : Feu, un soin de 40 % des dégâts (15 % de ses PV au plus) ; Air, 1 PM tous les 2 PA (2 au plus) et 1 PO", hand.Extra);
+        Assert.Equal("Avec tes éléments : Feu, un soin de 40 % des dégâts (15 % de ses PV au plus) ; Air, 1 PM tous les 2 PA (2 au plus) et 1 PO", hand.Extra!.Split('\n')[0]);
         Assert.Equal([Element.Earth, Element.Fire, Element.Water, Element.Air], TreeGuide.Helps([], Data));
         TreeCard key = fr.TreeCard(layout["devotion"]!, editor);
         Assert.Contains("une clé par style", key.Banner, StringComparison.OrdinalIgnoreCase);

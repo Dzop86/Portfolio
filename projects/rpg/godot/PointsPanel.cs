@@ -326,6 +326,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             tile.MouseExited += () =>
             {
                 _hovered = null;
+                // A spell of the tree looked at is no longer new (sprint 150, O2 a).
+                if (sub.HasMeta("new"))
+                {
+                    SpellBook.Look(id);
+                    Refresh();
+                }
                 ShowDetail();
             };
             tile.Pressed += () =>
@@ -466,7 +472,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _detail.Text = string.Join('\n', Texts.SpellDetails(b, stats).Select(Capital).Select(line =>
             b.Critical.Max > 0 && line.StartsWith(critMin, StringComparison.Ordinal) && !line.Contains(Texts["element." + spell.Element], StringComparison.Ordinal) ? $"[color={colour}][b]{Escape(line)}[/b][/color]"
             : b.Damage.Max > 0 && line.StartsWith(min, StringComparison.Ordinal) ? $"[color={colour}]{Escape(line)}[/color]"
-            : Escape(line)));
+            : Escape(line)).Concat(Texts.SpellOrigin(b, Editor.Data).Select(line => $"[i]{Escape(line)}[/i]")));
         _rankMinus.Disabled = !Editor.CanLower(spell);
         _rankPlus.Disabled = !Editor.CanRaise(spell);
         _deckButton.Text = Editor.InDeck(spell) ? Texts["deck.remove"] : Texts["deck.add"];
@@ -582,6 +588,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         return scroll;
     }
 
+    /// <summary>The spells the book shows as new (for the self-test, sprint 150).</summary>
+    public IEnumerable<string> NewSpells => _tiles2.Where(t => t.Tile.Visible && t.Sub.HasMeta("new")).Select(t => t.Spell.Id);
+
+    /// <summary>The spells' tiles shown, by id (for the self-test: a spell replaced is gone, sprint 150).</summary>
+    public IEnumerable<string> ShownSpells => _tiles2.Where(t => t.Tile.Visible).Select(t => t.Spell.Id);
+
     /// <summary>The Talents tab's summary as the self-test reads it, and its button pressed as the player would.</summary>
     public string TalentsSummary => _talentsTaken.Text;
 
@@ -686,7 +698,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             // A preview (sprint 146, D82, R2): what the draft's talents would give, faded and out of the filter.
             tile.Visible = _filter is null || (spell.Element == _filter && !b.Preview);
             sub.Text = b.Preview ? Texts["sd.preview"]
-                : (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
+                : (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "")
+                + (b.New ? "  ·  " + Texts["spell.new"] : "");
+            if (b.New)
+                sub.SetMeta("new", true);
+            else if (sub.HasMeta("new"))
+                sub.RemoveMeta("new");
             tile.Modulate = b.Preview ? new Color(1, 1, 1, 0.5f) : b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
             tile.SetMeta("preview", b.Preview);
         }

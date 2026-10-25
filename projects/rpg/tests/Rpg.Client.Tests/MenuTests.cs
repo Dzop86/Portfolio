@@ -75,6 +75,6 @@ public class MenuTests
     [Fact]
     public void InAFight_OnlyTheCharacteristicsAndTheInventory_Open()
     {
-        Assert.Equal([GameWindow.Characteristics, GameWindow.Inventory], WindowState.Bar.Select(b => b.Window).Where(WindowState.OpensInFight));
+        Assert.Equal([GameWindow.Characteristics, GameWindow.Inventory, GameWindow.Talents], WindowState.Bar.Select(b => b.Window).Where(WindowState.OpensInFight));
     }
 }

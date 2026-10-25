@@ -105,9 +105,15 @@ public partial class Hud : CanvasLayer
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 12);
         bar.AddChild(row);
+        var left = new VBoxContainer { CustomMinimumSize = new Vector2(250, 0), Alignment = BoxContainer.AlignmentMode.Center };
+        row.AddChild(left);
         _stats = new Label { CustomMinimumSize = new Vector2(250, 0), VerticalAlignment = VerticalAlignment.Center };
         _stats.AddThemeFontSizeOverride("font_size", 20);
-        row.AddChild(_stats);
+        left.AddChild(_stats);
+        // The talents that light up with the turn, under the hero's points (sprint 150, D82, O5 a).
+        _lights = new HBoxContainer();
+        _lights.AddThemeConstantOverride("separation", 4);
+        left.AddChild(_lights);
         // The deck: two rows of six, keys 1 to 6 and Ctrl+1 to Ctrl+6 (sprint 68).
         _spellBar = new GridContainer { Columns = 6 };
         _spellBar.AddThemeConstantOverride("h_separation", 6);
@@ -190,6 +196,7 @@ public partial class Hud : CanvasLayer
         }
         _order.Text = string.Join('\n', next.Select(f => Texts.Name(f)));
         _stats.Text = $"{Texts["hp"]} {me.Hp}/{me.MaxHp}   {Texts["ap"]} {me.Ap}   {Texts["mp"]} {me.Mp}";
+        ShowLights(fight, me);
         _message.Text = _controller.LastError is ActionError e ? Texts.Error(e) : "";
         _help.Text = Texts["help"];
         _logLabel.Text = string.Join('\n', _log);
@@ -296,6 +303,30 @@ public partial class Hud : CanvasLayer
     /// <summary>The round's number next to the clock, on the timeline.</summary>
     public string RoundText => _round.Text;
     public string StatsText => _stats.Text;
+
+    private HBoxContainer _lights = null!;
+
+    /// <summary>The talents of the turn as the self-test reads them: lit or not, and what they give.</summary>
+    public IReadOnlyList<TalentLight> Lit { get; private set; } = [];
+
+    /// <summary>Each talent that lights up with the turn, its icon bright when lit, faint when off, what it gives on hover.</summary>
+    private void ShowLights(Fight fight, Fighter me)
+    {
+        Lit = Talents.Lights(me.Talents, fight.ContextOf(me, null, me.Cell, me));
+        while (_lights.GetChildCount() < Lit.Count)
+            _lights.AddChild(new TextureRect { CustomMinimumSize = new Vector2(26, 26), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered });
+        for (int i = 0; i < _lights.GetChildCount(); i++)
+        {
+            var icon = (TextureRect)_lights.GetChild(i);
+            icon.Visible = i < Lit.Count;
+            if (i >= Lit.Count)
+                continue;
+            TalentLight l = Lit[i];
+            icon.Texture = TreeNodeView.IconOf(l.Talent);
+            icon.Modulate = l.Lit ? new Color(ElementStyle.Taken) : new Color(ElementStyle.Locked, 0.6f);
+            icon.TooltipText = Texts.Lights([l]) ?? "";
+        }
+    }
     public string OrderText => _order.Text;
 
     /// <summary>The card outlined as playing (for the self-test).</summary>

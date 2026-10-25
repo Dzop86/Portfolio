@@ -115,6 +115,16 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0} : clique pour déployer ce style.",
         ["tree.legend"] = "Légende",
+        ["spell.origin"] = "Donné par {0}",
+        ["spell.replaces"] = "Prend la place de {0}",
+        ["spell.modified"] = "Modifié par l'arbre : {0}",
+        ["spell.new"] = "nouveau",
+        ["deck.swap"] = "{0} prend la place de {1} dans ton deck.",
+        ["deck.left"] = "{0} quitte ton deck jusqu'à l'enregistrement.",
+        ["tree.before-after"] = "Sur un coup type (à 2 cases, sans bouger, premier sort de 3 PA) : {0} % → {1} %",
+        ["fight.lights"] = "Talents du tour : {0}",
+        ["fight.light.on"] = "{0} allumé ({1} %)",
+        ["fight.light.off"] = "{0} éteint ({1} %)",
         ["tree.layer.Foundations"] = "Fondations",
         ["tree.layer.Affinities"] = "Affinités",
         ["tree.layer.Pure"] = "Élément pur",
@@ -353,6 +363,10 @@ public sealed class Texts
         ["log.reaction"] = "{0} : {1} !",
         ["log.reaction-status"] = "{0} : {1}, {2} pendant {3} tour(s).",
         ["forecast.reaction"] = " — {0} !",
+        ["forecast.tree"] = "   arbre : {0}",
+        ["forecast.trunk"] = "tronc +{0} %",
+        ["forecast.share"] = "{0} {1} %",
+        ["forecast.ceiling"] = " (plafonné à +{0} %)",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} PA",
         ["stat.Mp"] = "{0} PM",
@@ -806,6 +820,16 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0}: click to deploy this style.",
         ["tree.legend"] = "Legend",
+        ["spell.origin"] = "Given by {0}",
+        ["spell.replaces"] = "Takes the place of {0}",
+        ["spell.modified"] = "Changed by the tree: {0}",
+        ["spell.new"] = "new",
+        ["deck.swap"] = "{0} takes the place of {1} in your deck.",
+        ["deck.left"] = "{0} leaves your deck until the save.",
+        ["tree.before-after"] = "On a typical hit (2 cells away, without moving, a first spell of 3 AP): {0}% → {1}%",
+        ["fight.lights"] = "Talents this turn: {0}",
+        ["fight.light.on"] = "{0} lit ({1}%)",
+        ["fight.light.off"] = "{0} off ({1}%)",
         ["tree.layer.Foundations"] = "Foundations",
         ["tree.layer.Affinities"] = "Affinities",
         ["tree.layer.Pure"] = "Pure element",
@@ -1044,6 +1068,10 @@ public sealed class Texts
         ["log.reaction"] = "{0}: {1}!",
         ["log.reaction-status"] = "{0}: {1}, {2} for {3} turn(s).",
         ["forecast.reaction"] = " — {0}!",
+        ["forecast.tree"] = "   tree: {0}",
+        ["forecast.trunk"] = "trunk +{0}%",
+        ["forecast.share"] = "{0} {1}%",
+        ["forecast.ceiling"] = " (capped at +{0}%)",
         ["stat.Poison"] = "poison {0}{1}",
         ["stat.Ap"] = "{0} AP",
         ["stat.Mp"] = "{0} MP",
@@ -1717,8 +1745,27 @@ public sealed class Texts
         {
             fc.DamageMax > 0 ? this["forecast.damage", Name(fc.Fighter), fc.DamageMin, fc.DamageMax] + (fc.CritMax > 0 ? this["forecast.crit", fc.CritMin, fc.CritMax] : "") + (fc.SureKill ? this["forecast.kill"] : "")
                 + (fc.Reaction is string r && !fc.SureKill ? this["forecast.reaction", GameData.Embedded.Reactions[r].Name.In(Lang)] : "") : null,
+            fc.DamageMax > 0 ? TreeShares(fc) : null,
             fc.HealMax > 0 ? this["forecast.heal", Name(fc.Fighter), fc.HealMin, fc.HealMax] : null,
         }).OfType<string>());
+    }
+
+    /// <summary>
+    /// The tree's part of a hit (sprint 150, D82, O6 a): "arbre : tronc +3 %, Au plus près +10 %, Pied ferme +15 %", and the
+    /// ceiling when the talents' parts pass it; null when the tree gives nothing.
+    /// </summary>
+    public string? TreeShares(Forecast fc)
+    {
+        ArgumentNullException.ThrowIfNull(fc);
+        IReadOnlyList<TalentShare> shares = fc.Tree ?? [];
+        if (shares.Count == 0 && fc.Trunk == 0)
+            return null;
+        var parts = new List<string>();
+        if (fc.Trunk != 0)
+            parts.Add(this["forecast.trunk", fc.Trunk]);
+        parts.AddRange(shares.Select(sh => this["forecast.share", GameData.Embedded.Talents[sh.Talent].Name.In(Lang), sh.Percent.ToString("+0;-0", CultureInfo.InvariantCulture)]));
+        int sum = shares.Sum(sh => sh.Percent);
+        return this["forecast.tree", string.Join(", ", parts)] + (sum > Rpg.Core.Talents.Ceiling ? this["forecast.ceiling", Rpg.Core.Talents.Ceiling] : "");
     }
 
     /// <summary>A talent's tile (sprint 137): "Enlisement · Réactions, étage 1, 1 point(s)", then what it does.</summary>
@@ -1827,8 +1874,58 @@ public sealed class Texts
         string? extra = t.Rules.OfType<SupportRule>().Any() && t.Id == "helping-hand"
             ? this["tree.helps", string.Join(" ; ", TreeGuide.Helps(editor.TalentsTaken, data).Select(e => this["tree.help." + e]))]
             : t.Id == "shared-mark" || t.Branch == Branch.Support ? this["tree.group"] : null;
+        // The line "before and after" (sprint 150, M4 b), after what the node says of itself.
+        if (BeforeAfter(t.Id, editor) is string change)
+            extra = extra is null ? change : extra + "\n" + change;
         string head = this["talents.tile", t.Name.In(Lang), this["talents.branch." + t.Branch], this["talents.tier." + t.Tier], t.Cost];
         return new(title, banner, t.Lore?.In(Lang) ?? "", head, equation, t.Description.In(Lang), t.Counterpart is { } c ? this["tree.counterpart", c.In(Lang)] : "", state, extra);
+    }
+
+    /// <summary>
+    /// Where a spell of the book comes from and what the tree does to it (sprint 150, D82, F5 a, O3 a): the talent that
+    /// gives it, the spell it took the place of, the talents that change it; nothing for a class's spell the tree leaves.
+    /// </summary>
+    public IReadOnlyList<string> SpellOrigin(BookSpell spell, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        ArgumentNullException.ThrowIfNull(data);
+        var lines = new List<string>();
+        if (spell.Origin is string origin)
+            lines.Add(this["spell.origin", data.Talents[origin].Name.In(Lang)]);
+        if (spell.Replaces is string replaced)
+            lines.Add(this["spell.replaces", data.Spells[replaced].Name.In(Lang)]);
+        if (spell.ModifiedBy is { Count: > 0 } by)
+            lines.Add(this["spell.modified", string.Join(", ", by.Select(id => data.Talents[id].Name.In(Lang)))]);
+        return lines;
+    }
+
+    /// <summary>What the last change of talents did to the deck (F7 a), one sentence a spell.</summary>
+    public IReadOnlyList<string> DeckChanges(PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(editor);
+        string Name(string id) => editor.Data.Spells[id].Name.In(Lang);
+        (IReadOnlyList<(string From, string To)> swapped, IReadOnlyList<string> left) = editor.DeckChanges;
+        return [.. swapped.Select(x => this["deck.swap", Name(x.To), Name(x.From)]), .. left.Select(id => this["deck.left", Name(id)])];
+    }
+
+    /// <summary>
+    /// A node's line "before and after" (sprint 150, D82, M4 b): the bonus of the draft's talents on a typical hit without
+    /// it, then with it; null when it changes nothing there.
+    /// </summary>
+    public string? BeforeAfter(string talent, PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(editor);
+        (int before, int after) = TreeGuide.BeforeAfter(editor.TalentsTaken, talent, editor.Draft, editor.Data);
+        return before == after ? null : this["tree.before-after", before.ToString("+0;-0;0", CultureInfo.InvariantCulture), after.ToString("+0;-0;0", CultureInfo.InvariantCulture)];
+    }
+
+    /// <summary>The talents that light up with the turn, lit or not and what they give (sprint 150, O5 a); null without any.</summary>
+    public string? Lights(IReadOnlyList<TalentLight> lights)
+    {
+        ArgumentNullException.ThrowIfNull(lights);
+        if (lights.Count == 0)
+            return null;
+        return this["fight.lights", string.Join(", ", lights.Select(l => this[l.Lit ? "fight.light.on" : "fight.light.off", GameData.Embedded.Talents[l.Talent].Name.In(Lang), l.Percent.ToString("+0;-0;0", CultureInfo.InvariantCulture)]))];
     }
 
     /// <summary>The panel's text of a node, all its lines (<see cref="TreeCard"/>) one after the other.</summary>

@@ -401,7 +401,8 @@ public sealed class Fight
                 forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, true, context) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, true, context) : 0,
                     Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
                     canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, true, context) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, true, context) : 0,
-                    hit && f.Cell == target ? ReactionOn(me, f, spell.Element)?.Id : null));
+                    hit && f.Cell == target ? ReactionOn(me, f, spell.Element)?.Id : null,
+                    hit ? Talents.Shares(me.Talents, me.Cell, f.Cell, spell.Element, context) : null, hit ? me.Spec.TreeDamage : 0));
             }
         }
         return forecasts;

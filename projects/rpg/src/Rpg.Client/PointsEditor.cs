@@ -78,6 +78,12 @@ public sealed class PointsEditor
         FitDeck();
     }
 
+    /// <summary>
+    /// What the last change of talents did to the deck (sprint 150, F7 a): each spell a twin took the place of, and the
+    /// spells that left it (a preview's parent until the save, a spell the grimoire no longer holds).
+    /// </summary>
+    public (IReadOnlyList<(string From, string To)> Swapped, IReadOnlyList<string> Left) DeckChanges { get; private set; } = ([], []);
+
     public void Drop(TalentSpec talent)
     {
         if (!CanDrop(talent))
@@ -144,9 +150,12 @@ public sealed class PointsEditor
     {
         Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
         HashSet<string> previewed = [.. Previewed.Select(s => s.Id)];
+        string[] before = [.. _deck];
         string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(id => grimoire.Spells.Contains(id) && !previewed.Contains(id)).Distinct().Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(fitted);
+        (string, string)[] swapped = [.. before.Where(id => grimoire.Replaced.TryGetValue(id, out string? twin) && fitted.Contains(twin)).Select(id => (id, grimoire.Replaced[id]))];
+        DeckChanges = (swapped, [.. before.Where(id => !fitted.Contains(id) && !swapped.Any(x => x.Item1 == id))]);
     }
 
     /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>
