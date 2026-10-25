@@ -38,6 +38,10 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     private Control _detailBox = null!, _legendBox = null!;
     private Button _help = null!;
     private PanelContainer? _bubble;
+    private Button _plan = null!, _copy = null!, _load = null!;
+    private OptionButton _suggested = null!;
+    private LineEdit _code = null!;
+    private PointsEditor? _real;
     private Label _bubbleText = null!;
     private Button _bubbleNext = null!;
     private readonly List<(NodeState? State, Label Text)> _legend = [];
@@ -72,6 +76,15 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     /// <summary>The legend and the glossary shown in place of the node's card (M5 b, behind "?").</summary>
     public bool LegendShown => _legendBox.Visible;
 
+    /// <summary>Planning at <see cref="TreePlan.PlanLevel"/> (sprint 151, N2 a): the real draft kept aside, nothing saved.</summary>
+    public bool Planning => _real is not null;
+
+    /// <summary>The nodes of the plan beyond the real draft, drawn as ghosts.</summary>
+    public IReadOnlyList<string> Ghosts => _real is null ? [] : TreePlan.Ghosts(Editor.TalentsTaken, _real.TalentsTaken);
+
+    /// <summary>The path the node under the mouse asks (L8 a), lit on the tree.</summary>
+    public IReadOnlyList<string> Path { get; private set; } = [];
+
     /// <summary>The node's card as the panel shows it, without its formatting (for the self-test).</summary>
     public string CardText => _detail.GetParsedText();
 
@@ -99,10 +112,28 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
 
         var left = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         row.AddChild(left);
-        _title = new Label();
-        _title.AddThemeFontSizeOverride("font_size", 20);
-        left.AddChild(_title);
-        var area = new Vector2(size.X - PanelWidth - 12 - 24, size.Y - 24 - 34);
+        // The title, then planning, the suggested builds and the build's code (sprint 151, N2 a, N3 a, N4 a).
+        var head = new HBoxContainer();
+        head.AddThemeConstantOverride("separation", 6);
+        left.AddChild(head);
+        _title = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis };
+        _title.AddThemeFontSizeOverride("font_size", 18);
+        head.AddChild(_title);
+        _suggested = new OptionButton { CustomMinimumSize = new Vector2(170, 44) };
+        _suggested.ItemSelected += i => Suggest((int)i);
+        head.AddChild(_suggested);
+        _plan = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(150, 44) };
+        _plan.Toggled += on => Plan(on);
+        head.AddChild(_plan);
+        _code = new LineEdit { CustomMinimumSize = new Vector2(120, 44) };
+        head.AddChild(_code);
+        _load = new Button { CustomMinimumSize = new Vector2(70, 44) };
+        _load.Pressed += () => LoadCode(_code.Text);
+        head.AddChild(_load);
+        _copy = new Button { CustomMinimumSize = new Vector2(70, 44) };
+        _copy.Pressed += () => CopyCode();
+        head.AddChild(_copy);
+        var area = new Vector2(size.X - PanelWidth - 12 - 24, size.Y - 24 - 50);
         _canvas = new TreeCanvas { Panel = this, CustomMinimumSize = area, ClipContents = true };
         left.AddChild(_canvas);
 
@@ -212,6 +243,66 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         Lay(TreeLayout.FocusOf(editor.TalentsTaken, editor.Data));
         Focused = Layout.Start(editor.TalentsTaken, editor.Data);
         Refresh();
+    }
+
+    /// <summary>
+    /// Planning at level 60 (N2 a), or back to the real draft: the plan starts from the draft, its nodes beyond it are
+    /// ghosts, and nothing in it can be saved.
+    /// </summary>
+    public void Plan(bool on)
+    {
+        if (on == Planning)
+            return;
+        if (on)
+        {
+            _real = Editor;
+            Editor = new PointsEditor(_real.Draft with { Level = Math.Max(_real.Hero.Level, TreePlan.PlanLevel), Talents = [.. _real.TalentsTaken] }, _real.Data);
+            _message.Text = Texts["tree.plan.on", Editor.Hero.Level];
+        }
+        else
+        {
+            Editor = _real!;
+            _real = null;
+            _message.Text = "";
+        }
+        _plan.SetPressedNoSignal(on);
+        Asking = null;
+        Refresh();
+    }
+
+    /// <summary>A suggested build of the hero's class loaded in the draft (N3 a), the list's first line being its title.</summary>
+    public void Suggest(int index)
+    {
+        IReadOnlyList<string> builds = TreePlan.Suggested(Editor.Hero.Class);
+        if (index < 1 || index > builds.Count)
+            return;
+        Editor.LoadTalents(Progression.Builds[builds[index - 1]]);
+        _message.Text = Texts["tree.suggested.loaded", Texts.TreeTitle(Progression.Builds[builds[index - 1]], Editor.Data)];
+        _suggested.Select(0);
+        Asking = null;
+        Refresh();
+    }
+
+    /// <summary>A build's code loaded in the draft (N4 a), or why it is refused.</summary>
+    public void LoadCode(string code)
+    {
+        CodeRead read = BuildCode.Read(code, Editor.Hero.Level, Editor.Data);
+        if (read.Talents is IReadOnlyList<string> talents)
+            Editor.LoadTalents(talents);
+        _message.Text = Texts.CodeRefused(read);
+        Asking = null;
+        Refresh();
+    }
+
+    /// <summary>The draft's code, to the clipboard.</summary>
+    public string CopyCode()
+    {
+        string code = BuildCode.Write(Editor.TalentsTaken, Editor.Data);
+        _code.Text = code;
+        if (DisplayServer.GetName() != "headless")
+            DisplayServer.ClipboardSet(code);
+        _message.Text = Texts["tree.code.copied", code];
+        return code;
     }
 
     /// <summary>The legend and the glossary in place of the node's card, or the card again.</summary>
@@ -389,7 +480,10 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     public void Hover(string? id)
     {
         _hovered = id;
+        // The path a node not taken asks, lit, its cost in the card (L8 a).
+        Path = id is not null && Layout[id] is { IsTalent: true } && !Editor.TalentsTaken.Contains(id) ? TreePlan.Path(Editor.TalentsTaken, id, Editor.Data) ?? [] : [];
         ShowDetail();
+        _canvas.Refresh();
     }
 
     public override void _Input(InputEvent @event)
@@ -455,7 +549,19 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _undo.Text = Texts["tree.undo"];
         _yes.Text = Texts["tree.confirm.yes"];
         _no.Text = Texts["tree.confirm.no"];
-        _save.Disabled = Editor.ReadOnly || !Editor.TalentsChanged;
+        // A plan is never saved (N2 a).
+        _save.Disabled = Editor.ReadOnly || Planning || !Editor.TalentsChanged;
+        _plan.Text = Planning ? Texts["tree.plan.leave"] : Texts["tree.plan", TreePlan.PlanLevel];
+        _plan.Disabled = (_real ?? Editor).ReadOnly;
+        _copy.Text = Texts["tree.code.copy"];
+        _load.Text = Texts["tree.code.load"];
+        _load.Disabled = Editor.ReadOnly;
+        _code.PlaceholderText = Texts["tree.code.placeholder"];
+        _suggested.Clear();
+        _suggested.AddItem(Texts["tree.suggested"]);
+        foreach (string suggested in TreePlan.Suggested(Editor.Hero.Class))
+            _suggested.AddItem(Texts.TreeTitle(Progression.Builds[suggested], Editor.Data));
+        _suggested.Disabled = Editor.ReadOnly;
         _undo.Disabled = Editor.ReadOnly || !Editor.TalentsChanged;
         _confirm.Visible = Asking is not null;
         if (Asking is { } a)
@@ -479,7 +585,8 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     private void ShowDetail()
     {
         TreeNode? node = Layout[_hovered ?? Focused];
-        _detail.Text = node is null ? "" : Card(Texts.TreeCard(node, Editor));
+        _detail.Text = node is null ? "" : Card(Texts.TreeCard(node, Editor))
+            + (node is { IsTalent: true } && _hovered == node.Id && !Editor.TalentsTaken.Contains(node.Id) ? "\n" + Texts.TreePath(TreePlan.Path(Editor.TalentsTaken, node.Id, Editor.Data), Editor.Data) : "");
     }
 
     /// <summary>
@@ -745,6 +852,14 @@ public partial class TreeNodeView : Control
         bool focused = Panel.Focused == Node.Id;
         bool red = Panel.Losing(Node.Id);
         TreeShapes.Draw(this, Node.Shape, state, Size, red);
+        // A plan's ghost (N2 a): a dotted pistachio ring; the path under the mouse (L8 a): a ring of light.
+        if (Panel.Ghosts.Contains(Node.Id))
+        {
+            for (int i = 0; i < 16; i++)
+                DrawArc(Size / 2, (Size.X / 2) + 3, i * Mathf.Tau / 16, (i + 0.5f) * Mathf.Tau / 16, 4, new Color(ElementStyle.Taken), 2, true);
+        }
+        if (Panel.Path.Contains(Node.Id))
+            DrawArc(Size / 2, (Size.X / 2) + 5, 0, Mathf.Tau, 48, new Color(ElementStyle.Cost, 0.8f), 3, true);
         if (focused)
             DrawRect(new Rect2(-4, -4, Size.X + 8, Size.Y + 8), new Color(ElementStyle.Taken), false, 2);
         if (Node.IsComing)

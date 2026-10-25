@@ -95,6 +95,31 @@ public sealed class PointsEditor
         FitDeck();
     }
 
+    /// <summary>
+    /// A build loaded in the draft (sprint 151, N3 a, N4 a): the talents taken in turn while the rules allow them at the
+    /// hero's level, as a player would; the deck fitted. The draft stays a draft until saved. Returns those left out.
+    /// </summary>
+    public IReadOnlyList<string> LoadTalents(IEnumerable<string> build)
+    {
+        ArgumentNullException.ThrowIfNull(build);
+        if (ReadOnly)
+            return [.. build];
+        var taken = new List<string>();
+        var left = new List<string>();
+        foreach (string id in build)
+        {
+            if (Data.Talents.ContainsKey(id) && Talents.With(taken, id, Data) is var after && Talents.Problem(after, Hero.Level, Data) is null)
+                taken = after;
+            else
+                left.Add(id);
+        }
+        _talents.Clear();
+        _talents.AddRange(taken);
+        Replaced = null;
+        FitDeck();
+        return left;
+    }
+
     /// <summary>The draft's talents differ from the hero's (sprint 148): something to save, or to undo.</summary>
     public bool TalentsChanged => !_talents.Order(StringComparer.Ordinal).SequenceEqual((Hero.Talents ?? []).Order(StringComparer.Ordinal), StringComparer.Ordinal);
 

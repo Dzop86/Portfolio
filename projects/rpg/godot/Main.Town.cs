@@ -336,6 +336,12 @@ public partial class Main
                 break;
         }
         _bar?.Show(open);
+        // The talent points left to spend, on the tree's icon (sprint 151, G9 a).
+        if (_hero is not null && _bar is not null)
+        {
+            int left = Talents.Points(_hero.Level) - (_hero.Talents ?? []).Where(GameData.Embedded.Talents.ContainsKey).Sum(id => GameData.Embedded.Talents[id].Cost);
+            _bar.SetBadge(GameWindow.Talents, left, (_talkPanel?.Texts ?? _hud.Texts)["tree.badge", left]);
+        }
         if (before || open is not null)
             _sound?.Play(open is null ? "close" : "open");
     }
@@ -2644,6 +2650,31 @@ public partial class Main
             if (!done || tree.TutorialStep != -1)
                 problems.Add($"{id}: the tutorial does not end after its three bubbles");
             tree.ShowLegend(false);
+            // Sprint 151: the build's code there and back, a plan never saved, a suggested build a draft, a path under the mouse.
+            string code = tree.CopyCode();
+            tree.Undo();
+            tree.LoadCode(code);
+            if (!tree.Editor.TalentsTaken.Order(StringComparer.Ordinal).SequenceEqual(build.Order(StringComparer.Ordinal)))
+                problems.Add($"{id}: the code {code} loads {string.Join(", ", tree.Editor.TalentsTaken)}");
+            tree.Plan(true);
+            TreeNode? planned = tree.Layout.Nodes.FirstOrDefault(n => n.IsTalent && tree.StateOf(n) == NodeState.Open);
+            if (planned is not null)
+                tree.Press(planned.Id);
+            tree.Save();
+            if (saved || (tree.Ghosts.Count == 0 && planned is not null))
+                problems.Add($"{id}: a plan saves, or shows no ghost");
+            tree.Plan(false);
+            tree.Suggest(1);
+            if (tree.Editor.Hero.Talents is not { } kept || !kept.SequenceEqual(build))
+                problems.Add($"{id}: a suggested build changes the saved talents");
+            tree.Undo();
+            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && n.Tier == Tier.Key && !build.Contains(n.Id)) is TreeNode far)
+            {
+                tree.Hover(far.Id);
+                if (tree.Path.Count == 0 && TreePlan.Path(build, far.Id, GameData.Embedded) is { Count: > 0 })
+                    problems.Add($"{id}: hovering {far.Id} lights no path");
+                tree.Hover(null);
+            }
             // The arrow up goes to the neighbour above where the keyboard starts (K5 a).
             string start = tree.Focused;
             tree.Move(Direction.Up);

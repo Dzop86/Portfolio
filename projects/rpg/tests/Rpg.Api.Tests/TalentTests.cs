@@ -83,6 +83,21 @@ public class TalentTests
     }
 
     [Fact]
+    public async Task APlanOfLevelSixty_IsRefused_AtFortyFive()
+    {
+        // Sprint 151 (N2 a): the window never saves a plan; were it sent, its ghosts are more points than the level gives.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("pln");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "mage", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
+        string[] plan = ["bogging", "side-step", "seal", "nomad", "heavy-blows", "short-cooldown", "thrift", "dancing-step"];
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: plan), Cancel)));
+        Assert.Null((await server.Characters(Cancel)).Single().Talents);
+    }
+
+    [Fact]
     public async Task ASentinelConvertedToLightning_SavesItsDeck_AndTheServerReplaysItsFight()
     {
         // Sprint 138 (T104): the conversion's keys, a deck chosen before turned into Lightning, a fight replayed with it.

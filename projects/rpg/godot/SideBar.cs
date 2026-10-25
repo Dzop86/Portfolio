@@ -115,6 +115,30 @@ public partial class SideBar : CanvasLayer
 
     public bool Lit(GameWindow window) => _buttons.TryGetValue(window, out Button? b) && b.ButtonPressed;
 
+    /// <summary>
+    /// A count on a window's icon, in its top left corner (sprint 151, D82, G9 a: the talent points left to spend); none at 0.
+    /// </summary>
+    public void SetBadge(GameWindow window, int count, string tip)
+    {
+        if (!_buttons.TryGetValue(window, out Button? b))
+            return;
+        if (b.GetNodeOrNull<Label>("Badge") is not Label badge)
+        {
+            badge = new Label { Name = "Badge", MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(2, 0), Size = new Vector2(20, 18), HorizontalAlignment = HorizontalAlignment.Center };
+            badge.AddThemeFontSizeOverride("font_size", 12);
+            badge.AddThemeColorOverride("font_color", new Color("5a3a22"));
+            badge.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = new Color("bef374"), CornerRadiusTopLeft = 9, CornerRadiusTopRight = 9, CornerRadiusBottomLeft = 9, CornerRadiusBottomRight = 9 });
+            b.AddChild(badge);
+        }
+        badge.Visible = count > 0;
+        badge.Text = count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        badge.TooltipText = tip;
+        Badges[window] = count;
+    }
+
+    /// <summary>The counts on the icons (for the self-test).</summary>
+    public Dictionary<GameWindow, int> Badges { get; } = [];
+
     private static Button Icon(GridContainer parent, string name, string key)
     {
         Color hue = Hues[name];

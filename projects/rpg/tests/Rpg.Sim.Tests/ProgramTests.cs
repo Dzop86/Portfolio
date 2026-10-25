@@ -110,7 +110,20 @@ public class ProgramTests
     [InlineData("--seed")]
     [InlineData("--fly")]
     [InlineData("--simulate", "3", "--scenario", "nowhere")]
+    [InlineData("--talents", "--simulate", "1", "--class", "mage")]
+    [InlineData("--talents", "--simulate", "1", "--scenario", "zone:nowhere")]
     public void WrongArguments_ExitWith2(params string[] args) => Assert.Equal(2, Run(args).Code);
+
+    [Fact]
+    public void TheTree_IsMeasured_ForEachClassAndPair_WithTheRareTalents()
+    {
+        // Sprint 151 (D82, J5 b, J6 a): the 18 combinations, one fight each here, against the Forest's small groups.
+        (int code, string output, _) = Run("--talents", "--simulate", "1", "--scenario", "zone:ancestors", "--lang", "fr");
+        Assert.Equal(0, code);
+        Assert.StartsWith("# L'arbre des talents hors CI : zone:ancestors, niveau 45", output, StringComparison.Ordinal);
+        Assert.Equal(18, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
+        Assert.Contains("Talents pris par moins de 5 % des 18 builds tirés", output, StringComparison.Ordinal);
+    }
 
     [Fact]
     public void AKit_DressesTheHero_FromTheSetsOfTheMonstersZone()

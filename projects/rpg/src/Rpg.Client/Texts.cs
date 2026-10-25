@@ -115,6 +115,22 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0} : clique pour déployer ce style.",
         ["tree.legend"] = "Légende",
+        ["tree.plan"] = "Planifier au niveau {0}",
+        ["tree.plan.leave"] = "Revenir à mon arbre",
+        ["tree.plan.on"] = "Planification au niveau {0} : les nœuds en pointillés pistache sont un plan, rien ne s'enregistre.",
+        ["tree.path"] = "Chemin : {0} ({1} point(s))",
+        ["tree.path.none"] = "Aucun chemin n'y mène avec tes nœuds.",
+        ["tree.suggested"] = "Build suggéré…",
+        ["tree.suggested.loaded"] = "{0} chargé en brouillon : enregistre pour le garder.",
+        ["tree.code.copy"] = "Copier",
+        ["tree.code.copied"] = "Code copié : {0}",
+        ["tree.code.load"] = "Charger",
+        ["tree.code.placeholder"] = "Code de build",
+        ["tree.code.Unreadable"] = "Ce n'est pas un code de build.",
+        ["tree.code.OldVersion"] = "Ce code vient d'une ancienne version de l'arbre ({0}) : il ne se charge plus.",
+        ["tree.code.Level"] = "Ce build demande le niveau {0}.",
+        ["tree.code.loaded"] = "Build chargé en brouillon : enregistre pour le garder.",
+        ["tree.badge"] = "{0} point(s) de talent à dépenser",
         ["spell.origin"] = "Donné par {0}",
         ["spell.replaces"] = "Prend la place de {0}",
         ["spell.modified"] = "Modifié par l'arbre : {0}",
@@ -820,6 +836,22 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0}: click to deploy this style.",
         ["tree.legend"] = "Legend",
+        ["tree.plan"] = "Plan at level {0}",
+        ["tree.plan.leave"] = "Back to my tree",
+        ["tree.plan.on"] = "Planning at level {0}: the nodes dotted in pistachio are a plan, nothing is saved.",
+        ["tree.path"] = "Path: {0} ({1} point(s))",
+        ["tree.path.none"] = "No path leads there from your nodes.",
+        ["tree.suggested"] = "Suggested build…",
+        ["tree.suggested.loaded"] = "{0} loaded in the draft: save to keep it.",
+        ["tree.code.copy"] = "Copy",
+        ["tree.code.copied"] = "Code copied: {0}",
+        ["tree.code.load"] = "Load",
+        ["tree.code.placeholder"] = "Build code",
+        ["tree.code.Unreadable"] = "This is not a build code.",
+        ["tree.code.OldVersion"] = "This code comes from an older tree ({0}): it no longer loads.",
+        ["tree.code.Level"] = "This build asks for level {0}.",
+        ["tree.code.loaded"] = "Build loaded in the draft: save to keep it.",
+        ["tree.badge"] = "{0} talent point(s) to spend",
         ["spell.origin"] = "Given by {0}",
         ["spell.replaces"] = "Takes the place of {0}",
         ["spell.modified"] = "Changed by the tree: {0}",
@@ -1926,6 +1958,20 @@ public sealed class Texts
         if (lights.Count == 0)
             return null;
         return this["fight.lights", string.Join(", ", lights.Select(l => this[l.Lit ? "fight.light.on" : "fight.light.off", GameData.Embedded.Talents[l.Talent].Name.In(Lang), l.Percent.ToString("+0;-0;0", CultureInfo.InvariantCulture)]))];
+    }
+
+    /// <summary>The path a node asks and its cost (sprint 151, L8 a), or that none leads there.</summary>
+    public string TreePath(IReadOnlyList<string>? path, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return path is null ? this["tree.path.none"] : this["tree.path", string.Join(" → ", path.Select(id => data.Talents[id].Name.In(Lang))), TreePlan.Cost(path, data)];
+    }
+
+    /// <summary>Why a build's code is refused (sprint 151, N4 a).</summary>
+    public string CodeRefused(CodeRead read)
+    {
+        ArgumentNullException.ThrowIfNull(read);
+        return read.Refusal is CodeRefusal r ? this["tree.code." + r, read.Number] : this["tree.code.loaded"];
     }
 
     /// <summary>The panel's text of a node, all its lines (<see cref="TreeCard"/>) one after the other.</summary>

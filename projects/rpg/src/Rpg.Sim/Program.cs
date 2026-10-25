@@ -15,7 +15,9 @@ namespace Rpg.Sim;
 /// the simplest way: Progression.Built), --party ID,ID... (since sprint 121, up to three allies of these classes beside the
 /// hero, at the same level with the same kit, all played by the AI), --parties (since sprint 122, with --simulate N:
 /// every party of two, three and four heroes of the classes, N fights each, at the level of the scenario's monsters
-/// unless --level says otherwise; each rate with its 95 % interval).
+/// unless --level says otherwise; each rate with its 95 % interval), --talents (since sprint 151, D82, with --simulate N: the
+/// talent tree out of CI, each class with each pair, N fights a combination, each with a build drawn at random from the pair
+/// at --level, 45 by default; then the talents fewer than 5 % of the builds take).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -49,10 +51,15 @@ public static class Program
                     output.Write(Draw(fight, options.Lang));
                 return 0;
             }
-            if (data.FindScenario(options.Scenario) is null)
+            if (data.FindScenario(options.Scenario) is null && !(options.Tree && SmallGroups(data, options.Scenario).Count > 0))
             {
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
+            }
+            if (options.Tree)
+            {
+                SimulateTree(data, options, text, output);
+                return 0;
             }
             if (options.Parties)
             {
@@ -146,6 +153,70 @@ public static class Program
         return (100 * Math.Max(0, centre - half), 100 * Math.Min(1, centre + half));
     }
 
+    /// <summary>
+    /// The tree out of CI (sprint 151, J5 b, J6 a): the 18 combinations of a class and a pair, N fights each, every fight a
+    /// build drawn at random from the pair (<see cref="TreeDraws.Random"/>), the same seeds for each; then the rare talents.
+    /// </summary>
+    private static void SimulateTree(GameData data, Options options, Texts text, TextWriter output)
+    {
+        // A zone (zone:ancestors): its groups of three monsters at most, one fight after the other, as the balance measures do.
+        IReadOnlyList<string> fights = data.FindScenario(options.Scenario) is null ? SmallGroups(data, options.Scenario) : [options.Scenario];
+        Scenario scenario = data.FindScenario(fights[0])!;
+        int level = options.LevelSet ? options.Level : 45;
+        IReadOnlyDictionary<Slot, string>? worn = ZoneOf(data, fights[0]) is string zone ? Progression.Kit(options.Kit, zone, level, data) : null;
+        string[] classes = [.. data.Classes.Select(c => c.Id)];
+        string[] pairs = [.. data.Talents.Values.Where(t => t.IsPair).Select(t => t.Id)];
+        (string Class, string Pair)[] combos = [.. classes.SelectMany(c => pairs.Select(p => (c, p)))];
+        int[] wins = new int[combos.Length];
+        var builds = new IReadOnlyList<string>[combos.Length * options.Simulate];
+        Parallel.For(0, combos.Length, k =>
+        {
+            for (int i = 0; i < options.Simulate; i++)
+            {
+                // A draw of its own for each combination and each fight, the same from one run to the next.
+                IReadOnlyList<string> build = TreeDraws.Random(combos[k].Pair, level, new Random(unchecked((int)options.Seed * 1_000_003 + (k * 7_919) + i)), data);
+                builds[(k * options.Simulate) + i] = build;
+                Hero hero = Progression.Talented(new Hero("Aube", "female-c", combos[k].Class, Level: level), build, data, worn);
+                var fight = new Fight(data, fights[i % fights.Count], options.Seed + (ulong)i, hero);
+                Ai.PlayOut(fight);
+                if (fight.WinningTeam == 0)
+                    wins[k]++;
+            }
+        });
+        output.WriteLine(text.TreeHeader(fights.Count > 1 ? options.Scenario : scenario.Name.In(options.Lang), level, options.Kit, options.Simulate));
+        output.WriteLine();
+        output.WriteLine(text.TreeColumns);
+        output.WriteLine("|---|---|---|---|");
+        for (int k = 0; k < combos.Length; k++)
+        {
+            (double low, double high) = Wilson(wins[k], options.Simulate);
+            output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"| {combos[k].Class} | {combos[k].Pair} | {100.0 * wins[k] / options.Simulate:0.0} % | {low:0.0} – {high:0.0} % |"));
+        }
+        output.WriteLine();
+        IReadOnlyList<(string Talent, double Share)> rare = TreeDraws.Rare(builds, data);
+        output.WriteLine(text.Rare(builds.Length));
+        foreach ((string talent, double share) in rare)
+            output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"- {talent} : {share:0.0} %"));
+        if (rare.Count == 0)
+            output.WriteLine(text.NoneRare);
+    }
+
+    /// <summary>
+    /// The fights of a zone's groups: <c>zone:ID</c> its groups of three monsters at most, <c>hordes:ID</c> those of six or
+    /// more (made for playing together), by id; none for anything else.
+    /// </summary>
+    private static IReadOnlyList<string> SmallGroups(GameData data, string scenario)
+    {
+        (string? zone, Func<int, bool> size) = scenario.Split(':') switch
+        {
+            ["zone", string z] => (z, n => n <= 3),
+            ["hordes", string z] => (z, n => n >= 6),
+            _ => ((string?)null, (Func<int, bool>)(_ => false)),
+        };
+        return zone is null ? [] : [.. data.Groups.Values.Where(g => g.Fight is null && size(g.Monsters.Count) && data.Towns.TryGetValue(g.Map, out Town? t) && t.Zone == zone)
+            .OrderBy(g => g.Id, StringComparer.Ordinal).Select(g => g.Scenario)];
+    }
+
     private static void SimulateParties(GameData data, Options options, Texts text, TextWriter output)
     {
         Scenario scenario = data.FindScenario(options.Scenario)!;
@@ -210,7 +281,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -236,12 +307,15 @@ public static class Program
                     "--kit" => o with { Kit = Progression.Kits.Contains(Value()) ? args[i] : throw new ArgumentException($"--kit is one of: {string.Join(", ", Progression.Kits)}.") },
                     "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100."), LevelSet = true },
                     "--parties" => o with { Parties = true },
+                    "--talents" => o with { Tree = true },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
             int modes = (o.Simulate > 0 ? 1 : 0) + (o.Record is null ? 0 : 1) + (o.Replay is null ? 0 : 1);
             if (o.Parties && (o.Simulate == 0 || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
                 throw new ArgumentException("--parties goes with --simulate N, without --class, --rival or --party.");
+            if (o.Tree && (o.Simulate == 0 || o.Parties || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
+                throw new ArgumentException("--talents goes with --simulate N, without --parties, --class, --rival or --party.");
             return modes == 1 ? o : throw new ArgumentException("Choose one of --simulate N, --record FILE or --replay FILE.");
         }
     }
@@ -268,6 +342,18 @@ public static class Program
             : $"{s.Name.En}, level {level}, kit {kit}, {n} fights per party (wins, rate, 95 % interval):";
 
         public string PartiesTitle(int size) => Fr ? $"{size} héros" : $"{size} heroes";
+
+        public string TreeHeader(string fights, int level, string kit, int n) => Fr
+            ? $"# L'arbre des talents hors CI : {fights}, niveau {level}, équipement {kit}, {n} combats par classe et par paire, un build tiré au hasard par combat"
+            : $"# The talent tree out of CI: {fights}, level {level}, kit {kit}, {n} fights a class and a pair, a build drawn at random each fight";
+
+        public string TreeColumns => Fr ? "| Classe | Paire | Victoires | Intervalle à 95 % |" : "| Class | Pair | Wins | 95 % interval |";
+
+        public string Rare(int builds) => Fr
+            ? $"Talents pris par moins de 5 % des {builds} builds tirés (une fausse décision à revoir) :"
+            : $"Talents taken by fewer than 5 % of the {builds} builds drawn (a false decision to look at):";
+
+        public string NoneRare => Fr ? "- aucun" : "- none";
 
         public string Stats(Scenario s, int n, int[] wins, int draws, double rounds, double actions)
         {
