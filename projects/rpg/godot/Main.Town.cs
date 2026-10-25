@@ -19,6 +19,10 @@ public partial class Main
     private TownView? _townView;
     private TalkPanel? _talkPanel;
     private PointsPanel? _pointsPanel;
+    private TreePanel? _treePanel;
+
+    // The draft of the characteristics window, carried to the tree's when its Talents tab opens it (sprint 148).
+    private PointsEditor? _carried;
     private InventoryPanel? _inventoryPanel;
     private SideBar? _bar;
     private bool _walking;
@@ -92,7 +96,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "zone" or "world")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world")
             _ = TownScreenshot();
     }
 
@@ -291,11 +295,11 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
-        if (_pointsPanel is not null && _pointsPanel.Only != spells)
+        if (_pointsPanel is not null && (_pointsPanel.Only != spells || open == GameWindow.Talents))
             ClosePoints();
         if (open != GameWindow.Inventory && _inventoryPanel is not null)
             CloseInventory();
@@ -305,6 +309,8 @@ public partial class Main
             CloseJobs();
         if (open != GameWindow.Contacts && _contactsPanel is not null)
             CloseContacts();
+        if (open != GameWindow.Talents && _treePanel is not null)
+            CloseTree();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -324,6 +330,9 @@ public partial class Main
                 break;
             case GameWindow.Contacts when _contactsPanel is null:
                 OpenContacts();
+                break;
+            case GameWindow.Talents when _treePanel is null:
+                OpenTree();
                 break;
         }
         _bar?.Show(open);
@@ -1250,12 +1259,43 @@ public partial class Main
         AddChild(_pointsPanel);
         // In a fight, to look at only (sprint 93).
         _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts, spells);
-        _pointsPanel.SavePressed += p => _ = SavePoints(p);
+        _pointsPanel.SavePressed += p => _ = SavePoints(p, _pointsPanel);
         _pointsPanel.ClosePressed += () =>
         {
             _windows.Close();
             ShowWindows();
         };
+        // The Talents tab's button: the tree's window, with the draft as it is (sprint 148, K2 b).
+        _pointsPanel.TreePressed += () =>
+        {
+            _carried = _pointsPanel?.Editor;
+            _windows.Toggle(GameWindow.Talents);
+            ShowWindows();
+        };
+    }
+
+    /// <summary>The talent tree's window (sprint 148, K2 b), over the town: the T key, the Menus panel or the Talents tab.</summary>
+    private void OpenTree()
+    {
+        if (_treePanel is not null || _hero is null)
+            return;
+        PointsEditor editor = _carried ?? new PointsEditor(_hero, GameData.Embedded, readOnly: !InTown);
+        _carried = null;
+        _treePanel = new TreePanel();
+        AddChild(_treePanel);
+        _treePanel.Build(editor, _talkPanel?.Texts ?? _hud.Texts);
+        _treePanel.SavePressed += p => _ = SavePoints(p, _treePanel);
+        _treePanel.ClosePressed += () =>
+        {
+            _windows.Close();
+            ShowWindows();
+        };
+    }
+
+    private void CloseTree()
+    {
+        _treePanel?.QueueFree();
+        _treePanel = null;
     }
 
     private void ClosePoints()
@@ -1954,9 +1994,9 @@ public partial class Main
             problems.Add($"the journal's hide: hidden {hidden}, under its tab {underHidden}, shown again {journal.ListedNames.Count}");
     }
 
-    private async Task<bool> SavePoints(Points points)
+    private async Task<bool> SavePoints(Points points, IPointsWindow? window = null)
     {
-        PointsPanel panel = _pointsPanel!;
+        IPointsWindow panel = window ?? _pointsPanel!;
         if (_lobby?.SignedIn != true || _character is null)
         {
             _hero = panel.Editor.Draft;
@@ -2237,12 +2277,26 @@ public partial class Main
             if (_pointsPanel.OwnTiles(Element.Lightning) != lightning)
                 problems.Add($"the spells tab shows {_pointsPanel.OwnTiles(Element.Lightning)} Lightning spells, the talents give {lightning}");
             await CheckDeck(problems);
-            // The talents tab shows every talent of the tree, those the hero has taken pressed (sprint 137).
+            // The talents tab sums the hero's talents up, its button opens the tree's window with the draft (sprint 148, K2 b).
             _pointsPanel.ShowTalents();
-            if (!_pointsPanel.TalentTiles.Select(t => t.Talent).Order(StringComparer.Ordinal).SequenceEqual(GameData.Embedded.Talents.Keys.Order(StringComparer.Ordinal))
-                || _pointsPanel.TalentTiles.Any(t => t.Taken != (_hero.Talents ?? []).Contains(t.Talent)))
-                problems.Add("the talents tab does not show the tree and the hero's talents");
-            _pointsPanel.QueueFree();
+            if ((_hero.Talents ?? []).Any(id => !_pointsPanel.TalentsSummary.Contains(GameData.Embedded.Talents[id].Name.In(_pointsPanel.Texts.Lang), StringComparison.Ordinal)))
+                problems.Add($"the talents tab sums up '{_pointsPanel.TalentsSummary}'");
+            // Each tab inside the game's window, its save button in reach (Charles, after 1.0.134).
+            foreach (Action show in new Action[] { () => _pointsPanel.ShowTab(spells: false), () => _pointsPanel.ShowTab(spells: true), _pointsPanel.ShowTalents })
+            {
+                show();
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (!GetViewport().GetVisibleRect().Encloses(_pointsPanel.Window.GetGlobalRect()))
+                    problems.Add($"the character's window ({_pointsPanel.Window.GetGlobalRect()}) leaves the game's ({GetViewport().GetVisibleRect()})");
+            }
+            _pointsPanel.ShowTalents();
+            _pointsPanel.PressOpenTree();
+            if (_treePanel is null || _pointsPanel is not null || _treePanel.Editor.Hero != _hero)
+                problems.Add("the talents tab's button does not open the tree's window alone");
+            _windows.Close();
+            ShowWindows();
+            _pointsPanel?.QueueFree();
             _pointsPanel = null;
             // The inventory screen: fourteen slots, what is worn in them, the items of each page.
             OpenInventory(_character?.Inventory ?? []);
@@ -2285,6 +2339,14 @@ public partial class Main
                 problems.Add($"the server keeps the place {back}, not {_town!.Position}");
             else
                 note += $", place {_town.Position} saved on the server";
+        }
+        try
+        {
+            await CheckTree(problems);
+        }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or KeyNotFoundException or NullReferenceException)
+        {
+            problems.Add($"the tree's window threw {e.GetType().Name}: {e.Message} {e.StackTrace}");
         }
         string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + CheckTogether(problems) + await CheckChat(problems) + await CheckQuests(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
@@ -2462,6 +2524,72 @@ public partial class Main
         return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts and waystones checked.";
     }
 
+    /// <summary>
+    /// The tree's window (sprint 148, D82): for each reference build at 45, every node inside the window and the window inside
+    /// the game's, each node in the state the build gives it, a node taken then undone, a pair given back asking first for
+    /// what hangs on it, Ctrl+S saving nothing unchanged.
+    /// </summary>
+    private async Task CheckTree(List<string> problems)
+    {
+        // The town's self-test has no hero of its own: a sentinel stands in.
+        Hero hero = _hero?.Class is null ? new Hero("Ondine", "female-a", "sentinel") : _hero;
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        foreach (string id in Progression.Builds.Keys)
+        {
+            // The build as a player takes it, a Conversion in its Transmutation's place.
+            Hero built = Progression.Talented(hero with { Level = 45 }, id, GameData.Embedded);
+            IReadOnlyList<string> build = built.Talents ?? [];
+            var tree = new TreePanel();
+            AddChild(tree);
+            tree.Build(new PointsEditor(built, GameData.Embedded), texts);
+            bool saved = false;
+            tree.SavePressed += _ => saved = true;
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (!GetViewport().GetVisibleRect().Encloses(tree.Window.GetGlobalRect()))
+                problems.Add($"the tree's window ({tree.Window.GetGlobalRect()}) leaves the game's");
+            TreeLayout layout = tree.Layout;
+            if (layout.Nodes.Any(n => !n.Box.Inside(layout.Width, layout.Height)))
+                problems.Add($"{id}: a node of the tree leaves its area");
+            int expected = layout.Nodes.Count(n => n.IsTalent ? build.Contains(n.Id) : n.IsTrunk || (n.IsFold && build.Any(b => GameData.Embedded.Talents[b].Branch == n.Branch && GameData.Embedded.Talents[b].Tier == n.Tier)));
+            if (tree.Counted.GetValueOrDefault(NodeState.Taken) != expected)
+                problems.Add($"{id}: the tree shows {tree.Counted.GetValueOrDefault(NodeState.Taken)} nodes taken, not {expected}");
+            if (layout.Nodes.Where(n => n.IsTalent).Any(n => tree.StateOf(n) != TreeLayout.State(build, n.Id, 45, GameData.Embedded)))
+                problems.Add($"{id}: a node of the tree shows another state than the rules give");
+            // A node taken, then the changes undone: the draft is the build again (I4 a).
+            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && tree.StateOf(n) == NodeState.Open) is TreeNode open)
+            {
+                tree.Press(open.Id);
+                if (!tree.Editor.TalentsTaken.Contains(open.Id))
+                    problems.Add($"{id}: pressing {open.Id} does not take it");
+                tree.Undo();
+                if (tree.Editor.TalentsChanged)
+                    problems.Add($"{id}: undoing leaves {string.Join(", ", tree.Editor.TalentsTaken)}");
+            }
+            // A door others hang on asks before it is given back with them (I1 b).
+            // (With two pairs, no door alone holds anything up.)
+            if (build.FirstOrDefault(b => GameData.Embedded.Talents[b].IsFork && tree.Editor.Losing(GameData.Embedded.Talents[b]).Count > 0) is string door)
+            {
+                tree.Press(door);
+                if (tree.Asking?.Talent != door || !tree.Editor.TalentsTaken.Contains(door))
+                    problems.Add($"{id}: giving back {door} does not ask first");
+                tree.Confirm();
+                if (tree.Editor.TalentsTaken.Contains(door) || tree.Editor.TalentsTaken.Any(b => !Talents.Without(build, door, GameData.Embedded).Contains(b)))
+                    problems.Add($"{id}: giving back {door} leaves {string.Join(", ", tree.Editor.TalentsTaken)}");
+                tree.Undo();
+            }
+            // Ctrl+S saves only a draft that changed.
+            tree._Input(new InputEventKey { Pressed = true, Keycode = Key.S, CtrlPressed = true });
+            if (saved)
+                problems.Add($"{id}: Ctrl+S saves a tree that did not change");
+            // The arrow up goes to the neighbour above where the keyboard starts (K5 a).
+            string start = tree.Focused;
+            tree.Move(Direction.Up);
+            if (tree.Focused != (layout.Neighbour(start, Direction.Up)?.Id ?? start))
+                problems.Add($"{id}: the arrow up goes from {start} to {tree.Focused}");
+            tree.QueueFree();
+        }
+    }
+
     private string CheckBarAndMenu(List<string> problems)
     {
         Texts t = _talkPanel!.Texts;
@@ -2469,8 +2597,8 @@ public partial class Main
         var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
         if (!_bar!.Tips.SequenceEqual(tips))
             problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
-        // A small grid, the way Dofus does it (Charles, after sprint 144): three rows at most.
-        if (_bar.Rows > 3)
+        // A small grid, the way Dofus does it (Charles, after sprint 144): three icons a row, four rows since the tree's (sprint 148).
+        if (_bar.Rows > 4)
             problems.Add($"the menus take {_bar.Rows} rows");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
@@ -2484,6 +2612,7 @@ public partial class Main
                 GameWindow.Journal => _journalPanel is not null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Jobs => _jobsPanel is not null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Contacts => _contactsPanel is not null && _jobsPanel is null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
+                GameWindow.Talents => _treePanel is not null && _contactsPanel is null && _pointsPanel is null && _mapPanel is null,
                 _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
@@ -2491,7 +2620,7 @@ public partial class Main
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
@@ -3059,6 +3188,20 @@ public partial class Main
             Error picture = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {picture} {_options.Screenshot}");
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot == "tree")
+        {
+            // The tree's window (sprint 148): a guard at 45 with its build of Matter, the Lightning braid taken.
+            _hero = Progression.Talented(new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 45), "guard-matter", GameData.Embedded);
+            ShowBar();
+            ToggleWindow(GameWindow.Talents);
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error tree = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {tree} {_options.Screenshot}");
+            GetTree().Quit(tree == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot is "points" or "spells")

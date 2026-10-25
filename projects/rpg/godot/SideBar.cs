@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class SideBar : CanvasLayer
 {
-    /// <summary>Icons a row: the nine of a hero fill three rows, a third of the old column's height.</summary>
+    /// <summary>Icons a row: the ten of a hero fill four rows (the tree's since sprint 148), under half the old column's height.</summary>
     public const int Columns = 3;
 
     private readonly Dictionary<GameWindow, Button> _buttons = [];
@@ -37,6 +37,7 @@ public partial class SideBar : CanvasLayer
         ["journal"] = new Color("f2d36b"),
         ["jobs"] = new Color("a9bccd"),
         ["contacts"] = new Color("6bb8f2"),
+        ["talents"] = new Color("bef374"),
         ["minimap"] = new Color("4fd1c5"),
         ["menu"] = new Color("cfcfcf"),
     };
@@ -109,7 +110,7 @@ public partial class SideBar : CanvasLayer
     /// <summary>The tooltips, top to bottom, of the icons shown (for the self-test).</summary>
     public IEnumerable<string> Tips => _buttons.Values.Append(_miniMap).Append(_menu).Select(b => b.TooltipText);
 
-    /// <summary>The rows of icons (for the self-test): three for a hero, where the old column took nine places.</summary>
+    /// <summary>The rows of icons (for the self-test): four for a hero, where the old column took nine places.</summary>
     public int Rows => (_buttons.Count + 2 + Columns - 1) / Columns;
 
     public bool Lit(GameWindow window) => _buttons.TryGetValue(window, out Button? b) && b.ButtonPressed;

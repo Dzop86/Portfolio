@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// spells the level has unlocked with their rank; on the "Talents" tab (sprint 137), the tree's talents by branch,
 /// a click taking or giving one back. It only draws <see cref="PointsEditor"/> and <see cref="CharacterSheet"/>.
 /// </summary>
-public partial class PointsPanel : CanvasLayer
+public partial class PointsPanel : CanvasLayer, IPointsWindow
 {
     private readonly List<(Characteristic Stat, Label[] Cells, LineEdit Value, Button[] Buttons)> _stats = [];
     private Button _reset = null!;
@@ -34,8 +34,8 @@ public partial class PointsPanel : CanvasLayer
     private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!;
     private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!;
     private Label _talentsLeft = null!, _talentsHint = null!, _trunk = null!, _talentsSaid = null!;
-    private readonly List<(TalentSpec Talent, Button Tile)> _talentTiles = [];
-    private readonly List<(Branch Branch, Label Name)> _branches = [];
+    private Label _talentsTaken = null!;
+    private Button _openTree = null!;
     private Portrait? _portrait;
 
     public PointsEditor Editor { get; private set; } = null!;
@@ -44,12 +44,20 @@ public partial class PointsPanel : CanvasLayer
     public event Action<Points>? SavePressed;
     public event Action? ClosePressed;
 
+    /// <summary>The Talents tab's button: the tree in its own window (sprint 148, K2 b), the draft carried over.</summary>
+    public event Action? TreePressed;
+
     /// <summary>The screen with its two tabs; or, <paramref name="only"/> given, one window, the spells or the characteristics (sprint 69).</summary>
     public void Build(PointsEditor editor, Texts texts, bool? only = null)
     {
+        // Over the mini-map (layer 6), with the other windows (sprint 148: the mini-map covered its right side).
+        Layer = 15;
         Editor = editor;
         Texts = texts;
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -570, OffsetRight = 570, OffsetTop = -300, OffsetBottom = 320 };
+        // Never larger than the game's window (Charles, after 1.0.134: the save button was out of reach): each page scrolls.
+        Vector2 screen = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280, 720);
+        var size = new Vector2(Mathf.Min(1140, screen.X - 20), Mathf.Min(620, screen.Y - 16));
+        var panel = new PanelContainer { Position = (screen - size) / 2, Size = size, CustomMinimumSize = size };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
         WindowDrag.Make(panel, "points");
@@ -87,12 +95,9 @@ public partial class PointsPanel : CanvasLayer
         // The talents go with the characteristics (sprint 137).
         _talentsTab.Visible = only != true;
 
-        _statsPage = BuildStats();
-        column.AddChild(_statsPage);
-        _spellsPage = BuildSpells(editor);
-        column.AddChild(_spellsPage);
-        _talentsPage = BuildTalents(editor);
-        column.AddChild(_talentsPage);
+        _statsPage = Scrolled(column, BuildStats());
+        _spellsPage = Scrolled(column, BuildSpells(editor));
+        _talentsPage = Scrolled(column, BuildTalents());
 
         _message = new Label();
         column.AddChild(_message);
@@ -537,71 +542,67 @@ public partial class PointsPanel : CanvasLayer
     }
 
     /// <summary>
-    /// The Talents tab ("My path" from sprint 140 to 146, renamed at Charles's word): the tree's talents in seven columns, the two of Matter (in pistachio) then the five of
-    /// Manner, each branch's tiles by floor (first, second, key); the points left above. A tile's tooltip tells it all; a
-    /// talent the rules refuse now is greyed.
+    /// The Talents tab (\"My path\" from sprint 140 to 146, renamed at Charles's word): since sprint 148 (K2 b), a summary of
+    /// the draft, the points left, the trunk and the talents taken by layer, and the button that opens the tree in its own
+    /// window (the T key too). The seven columns of sprint 137 are gone: they made the window taller than the game's.
     /// </summary>
-    private VBoxContainer BuildTalents(PointsEditor editor)
+    private VBoxContainer BuildTalents()
     {
-        var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         page.AddThemeConstantOverride("separation", 10);
         _talentsLeft = new Label();
         _talentsLeft.AddThemeFontSizeOverride("font_size", 20);
         page.AddChild(_talentsLeft);
         _talentsHint = new Label { Modulate = new Color(1, 1, 1, 0.7f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         page.AddChild(_talentsHint);
-        // The trunk (sprint 146, D82): lit by itself at 30, 35 and 40, above the branches.
+        // The trunk (sprint 146, D82): lit by itself at 30, 35 and 40.
         _trunk = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _trunk.AddThemeColorOverride("font_color", new Color("bef374"));
         page.AddChild(_trunk);
         // What the last talent taken did besides (a Conversion replacing its Transmutation).
         _talentsSaid = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f) };
         page.AddChild(_talentsSaid);
-        var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Auto };
-        page.AddChild(scroll);
-        var columns = new HBoxContainer();
-        columns.AddThemeConstantOverride("separation", 8);
-        scroll.AddChild(columns);
-        foreach (Branch branch in Enum.GetValues<Branch>())
-        {
-            var column = new VBoxContainer { CustomMinimumSize = new Vector2(150, 0) };
-            column.AddThemeConstantOverride("separation", 6);
-            columns.AddChild(column);
-            var name = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(150, 0) };
-            name.AddThemeFontSizeOverride("font_size", 16);
-            name.AddThemeColorOverride("font_color", branch is Branch.Fork or Branch.Pure or Branch.Braids ? new Color("bef374") : new Color("e0e0e0"));
-            column.AddChild(name);
-            _branches.Add((branch, name));
-            foreach (Tier tier in Enum.GetValues<Tier>())
-            {
-                TalentSpec[] here = [.. editor.Data.Talents.Values.Where(t => t.Branch == branch && t.Tier == tier)];
-                if (here.Length == 0)
-                    continue;
-                var floor = new Label { Modulate = new Color(1, 1, 1, 0.55f) };
-                floor.AddThemeFontSizeOverride("font_size", 12);
-                floor.SetMeta("key", "talents.tier." + tier);
-                column.AddChild(floor);
-                foreach (TalentSpec t in here)
-                {
-                    var tile = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(150, 44), ClipText = true };
-                    tile.Pressed += () =>
-                    {
-                        if (Editor.HasTalent(t))
-                            Editor.Drop(t);
-                        else
-                            Editor.Take(t);
-                        Refresh();
-                    };
-                    column.AddChild(tile);
-                    _talentTiles.Add((t, tile));
-                }
-            }
-        }
+        _talentsTaken = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        page.AddChild(_talentsTaken);
+        _openTree = new Button { CustomMinimumSize = new Vector2(260, 52), SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        _openTree.AddThemeFontSizeOverride("font_size", 18);
+        _openTree.Pressed += () => TreePressed?.Invoke();
+        page.AddChild(_openTree);
         return page;
     }
 
-    /// <summary>The talents' tiles as the self-test reads them: their talent, taken or not.</summary>
-    public IEnumerable<(string Talent, bool Taken)> TalentTiles => _talentTiles.Select(t => (t.Talent.Id, t.Tile.ButtonPressed));
+    /// <summary>A page that scrolls inside the window, so that the window never grows past the game's (Charles, after 1.0.134).</summary>
+    private static ScrollContainer Scrolled(VBoxContainer column, Control page)
+    {
+        var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Auto };
+        page.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        page.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        scroll.AddChild(page);
+        column.AddChild(scroll);
+        return scroll;
+    }
+
+    /// <summary>The Talents tab's summary as the self-test reads it, and its button pressed as the player would.</summary>
+    public string TalentsSummary => _talentsTaken.Text;
+
+    public void PressOpenTree() => _openTree.EmitSignal(BaseButton.SignalName.Pressed);
+
+    /// <summary>Ctrl+S saves the draft from any tab (Charles, after 1.0.134).</summary>
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.S, CtrlPressed: true } && Window is not null && Window.IsVisibleInTree())
+        {
+            PressSave();
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
+    /// <summary>The save button pressed, as the player or Ctrl+S would (nothing in a fight).</summary>
+    public void PressSave()
+    {
+        if (!_save.Disabled && _save.Visible)
+            SavePressed?.Invoke(Editor.ToPoints());
+    }
 
     /// <summary>After a save: a new draft from what the server kept, and a message.</summary>
     public void Saved(Hero hero, string message)
@@ -624,23 +625,10 @@ public partial class PointsPanel : CanvasLayer
         _talentsHint.Text = Texts["talents.hint"];
         _trunk.Text = Texts.Trunk(Editor.Hero.Level);
         _talentsSaid.Text = Editor.Replaced is string replaced ? Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)] : "";
-        foreach ((Branch branch, Label name) in _branches)
-            name.Text = Texts["talents.branch." + branch];
-        foreach (Label floor in _talentsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
-            floor.Text = Texts[(string)floor.GetMeta("key")];
-        foreach ((TalentSpec t, Button tile) in _talentTiles)
-        {
-            tile.Text = t.Name.In(Texts.Lang);
-            // A pair that shares an element with one taken says which (sprint 146, C2).
-            // Taken: what giving it back gives back with it (sprint 147, I1 b).
-            string? losing = Editor.HasTalent(t) && Editor.Losing(t) is { Count: > 0 } lost ? Texts["talents.losing", string.Join(", ", lost.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))] : null;
-            // Not to take: why, before the click (sprint 147, H6 a).
-            string? why = Editor.HasTalent(t) || TalentReasons.WhyNot(Editor.TalentsTaken, t.Id, Editor.Hero.Level, Editor.Data) is not TalentRefusal no ? null : Texts.WhyNot(no, Editor.Data);
-            string? said = losing ?? why;
-            tile.TooltipText = Texts.Talent(t) + (said is not null ? "\n" + said : null);
-            tile.SetPressedNoSignal(Editor.HasTalent(t));
-            tile.Disabled = !(Editor.HasTalent(t) ? Editor.CanDrop(t) : Editor.CanTake(t));
-        }
+        // The talents taken, layer by layer (sprint 148): the tree itself is in its window.
+        _talentsTaken.Text = string.Join("\n", Editor.TalentsTaken.GroupBy(id => Editor.Data.Talents[id].Branch).OrderBy(g => g.Key)
+            .Select(g => $"{Texts["talents.branch." + g.Key]} : {string.Join(", ", g.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))}"));
+        _openTree.Text = Texts["tree.open"];
         _tiles["hp"].Text = $"{Texts["sheet.hp"]}   {sheet.MaxHp}";
         _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
         _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";
@@ -731,7 +719,7 @@ public partial class PointsPanel : CanvasLayer
 
     private static string Num(int n) => n.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
-    public void ShowMessage(string text) => _message.Text = text;
+    public void ShowMessage(string message) => _message.Text = message;
 
     /// <summary>The totals shown, as the self-test reads them.</summary>
     public IEnumerable<string> StatsText => _stats.Select(s => s.Value.Text);

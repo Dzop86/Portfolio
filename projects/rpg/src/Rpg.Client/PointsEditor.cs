@@ -89,6 +89,37 @@ public sealed class PointsEditor
         FitDeck();
     }
 
+    /// <summary>The draft's talents differ from the hero's (sprint 148): something to save, or to undo.</summary>
+    public bool TalentsChanged => !_talents.Order(StringComparer.Ordinal).SequenceEqual((Hero.Talents ?? []).Order(StringComparer.Ordinal), StringComparer.Ordinal);
+
+    /// <summary>
+    /// Undoes the draft's talents (sprint 148, I4 a): the hero's saved talents back, and its saved deck with them, since a
+    /// change of talents may have fitted the deck to the draft's grimoire.
+    /// </summary>
+    public void UndoTalents()
+    {
+        if (ReadOnly || !TalentsChanged)
+            return;
+        _talents.Clear();
+        _talents.AddRange(Hero.Talents ?? []);
+        _deck.Clear();
+        _deck.AddRange(Hero.DeckOf(Data));
+        Replaced = null;
+    }
+
+    /// <summary>
+    /// What the draft gains and loses against the saved talents (sprint 148, N6 a), each in the draft's order or the hero's,
+    /// to be lit before the save.
+    /// </summary>
+    public (IReadOnlyList<string> Gained, IReadOnlyList<string> Lost) TalentsDiff
+    {
+        get
+        {
+            IReadOnlyList<string> saved = Hero.Talents ?? [];
+            return ([.. _talents.Where(id => !saved.Contains(id))], [.. saved.Where(id => !_talents.Contains(id))]);
+        }
+    }
+
     /// <summary>The Transmutation the last talent taken replaced (a Conversion), for the window to say so; null otherwise.</summary>
     public string? Replaced { get; private set; }
 

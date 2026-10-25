@@ -7,5 +7,6 @@
  "journal": "lorc/scroll-unfurled",
  "jobs": "lorc/anvil",
  "minimap": "lorc/radar-sweep",
- "contacts": "delapouite/three-friends"
+ "contacts": "delapouite/three-friends",
+ "talents": "delapouite/skills"
 }

@@ -61,6 +61,28 @@ public class TalentTests
     }
 
     [Fact]
+    public async Task ADraftUndoneInTheTreesWindow_IsNotSent_TheSavedTalentsStay()
+    {
+        // Sprint 148 (I4 a): the tree's window takes a talent and gives a pair back, then undoes it all; what it saves is
+        // the talents the server holds, and the server keeps them.
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("und");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 40, []), Cancel);
+        Hero hero = (await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging", "side-step"]), Cancel)).Hero;
+        var editor = new PointsEditor(hero, GameData.Embedded);
+        editor.Take(GameData.Embedded.Talents["seal"]);
+        editor.Drop(GameData.Embedded.Talents["bogging"]);
+        Assert.Empty(editor.TalentsTaken);
+        editor.UndoTalents();
+        CharacterSummary saved = await server.SavePoints(c.Id, editor.ToPoints(), Cancel);
+        Assert.Equal(["bogging", "side-step"], saved.Talents!);
+        Assert.Equal(["bogging", "side-step"], (await server.Characters(Cancel)).Single().Talents!);
+    }
+
+    [Fact]
     public async Task ASentinelConvertedToLightning_SavesItsDeck_AndTheServerReplaysItsFight()
     {
         // Sprint 138 (T104): the conversion's keys, a deck chosen before turned into Lightning, a fight replayed with it.

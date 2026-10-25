@@ -98,6 +98,43 @@ public sealed class Texts
         ["talents.why.Switch"] = "Une seule grande bascule : {0} est déjà prise.",
         ["talents.why.Elements"] = "Deux éléments hors base au plus.",
         ["talents.why.Points"] = "Pas assez de points : ce talent en coûte {0}.",
+        ["tree.title"] = "Arbre des talents · niveau {0}",
+        ["tree.open"] = "Ouvrir l'arbre (T)",
+        ["tree.left"] = "{0} point(s) à dépenser sur {1}",
+        ["tree.closed"] = "L'arbre s'ouvre au niveau {0} : le tronc s'y allume tout seul.",
+        ["tree.elements"] = "Éléments hors base : {0} / {1}",
+        ["tree.switch"] = "Grande bascule : {0}",
+        ["tree.switch.none"] = "aucune",
+        ["tree.styles"] = "Styles : une clé par style, au niveau 45",
+        ["tree.fork"] = "La fourche : une paire (sa réaction) ou un Cœur (Élément pur)",
+        ["tree.trunk"] = "Tronc, sans point",
+        ["tree.trunk.Damage"] = "+{0} % dégâts",
+        ["tree.trunk.Resistance"] = "+{0} % résist.",
+        ["tree.trunk.Hp"] = "+{0} % PV",
+        ["tree.trunk.detail"] = "Le tronc s'allume tout seul, sans point : {0}.",
+        ["tree.fold"] = "{0} · {1}",
+        ["tree.fold.detail"] = "{0} : clique pour déployer ce style.",
+        ["tree.legend"] = "Légende",
+        ["tree.choice.transmute"] = "Transmutation (au choix)",
+        ["tree.choice.heart"] = "Élément pur : un seul Cœur",
+        ["tree.state.Taken"] = "pris",
+        ["tree.state.Open"] = "disponible",
+        ["tree.state.Locked"] = "verrouillé (porte, parent, points)",
+        ["tree.state.Excluded"] = "exclu (raison au survol)",
+        ["tree.state.Level"] = "hors niveau",
+        ["tree.coming"] = "à venir (autre paire)",
+        ["tree.cost"] = "{0} pts",
+        ["tree.taken"] = "Pris.",
+        ["tree.can"] = "Disponible : un clic ou Entrée le prend.",
+        ["tree.confirm"] = "Rendre {0} rend aussi : {1}.",
+        ["tree.confirm.yes"] = "Rendre",
+        ["tree.confirm.no"] = "Garder",
+        ["tree.gained"] = "Gagnés : {0}",
+        ["tree.lost"] = "Perdus : {0}",
+        ["tree.undo"] = "Annuler les changements",
+        ["tree.undone"] = "Changements annulés : les talents enregistrés sont revenus.",
+        ["tree.keys"] = "Flèches : se déplacer · Entrée : prendre ou rendre · Ctrl+S : enregistrer",
+        ["bar.Talents"] = "Talents",
         ["talents.reset"] = "L'arbre des talents a changé : les talents de {0} lui sont rendus, gratuitement, une fois.",
         ["pair.bogged"] = "Boue",
         ["pair.chilled"] = "Glace",
@@ -694,6 +731,43 @@ public sealed class Texts
         ["talents.why.Switch"] = "One big switch only: {0} is taken already.",
         ["talents.why.Elements"] = "Two elements out of the four at most.",
         ["talents.why.Points"] = "Not enough points: this talent costs {0}.",
+        ["tree.title"] = "Talent tree · level {0}",
+        ["tree.open"] = "Open the tree (T)",
+        ["tree.left"] = "{0} point(s) to spend of {1}",
+        ["tree.closed"] = "The tree opens at level {0}: its trunk lights up by itself.",
+        ["tree.elements"] = "Elements beyond the base: {0} / {1}",
+        ["tree.switch"] = "Big switch: {0}",
+        ["tree.switch.none"] = "none",
+        ["tree.styles"] = "Styles: one key a style, at level 45",
+        ["tree.fork"] = "The fork: a pair (its reaction) or a Heart (Pure element)",
+        ["tree.trunk"] = "Trunk, no point",
+        ["tree.trunk.Damage"] = "+{0}% damage",
+        ["tree.trunk.Resistance"] = "+{0}% resist.",
+        ["tree.trunk.Hp"] = "+{0}% HP",
+        ["tree.trunk.detail"] = "The trunk lights up by itself, with no point: {0}.",
+        ["tree.fold"] = "{0} · {1}",
+        ["tree.fold.detail"] = "{0}: click to deploy this style.",
+        ["tree.legend"] = "Legend",
+        ["tree.choice.transmute"] = "Transmutation (one of)",
+        ["tree.choice.heart"] = "Pure element: one Heart",
+        ["tree.state.Taken"] = "taken",
+        ["tree.state.Open"] = "available",
+        ["tree.state.Locked"] = "locked (door, parent, points)",
+        ["tree.state.Excluded"] = "excluded (reason on hover)",
+        ["tree.state.Level"] = "out of level",
+        ["tree.coming"] = "to come (another pair)",
+        ["tree.cost"] = "{0} pts",
+        ["tree.taken"] = "Taken.",
+        ["tree.can"] = "Available: a click or Enter takes it.",
+        ["tree.confirm"] = "Giving {0} back gives back too: {1}.",
+        ["tree.confirm.yes"] = "Give back",
+        ["tree.confirm.no"] = "Keep",
+        ["tree.gained"] = "Gained: {0}",
+        ["tree.lost"] = "Lost: {0}",
+        ["tree.undo"] = "Undo the changes",
+        ["tree.undone"] = "Changes undone: the saved talents are back.",
+        ["tree.keys"] = "Arrows: move · Enter: take or give back · Ctrl+S: save",
+        ["bar.Talents"] = "Talents",
         ["talents.reset"] = "The talent tree changed: {0}'s talents are given back, for free, once.",
         ["pair.bogged"] = "Mud",
         ["pair.chilled"] = "Ice",
@@ -1573,6 +1647,92 @@ public sealed class Texts
     {
         string Node(TrunkNode n) => this["talents.trunk." + n.Gain, n.Percent, n.Level];
         return this["talents.trunk", string.Join(" · ", Rpg.Core.Talents.Trunk.Select(n => level < n.Level ? this["talents.trunk.unlit", Node(n)] : Node(n)))];
+    }
+
+    /// <summary>
+    /// The short name under a node of the tree's window (sprint 148): a talent's name, the trunk's gain, a folded floor's
+    /// style and floor; nothing under what is still to come (L10 c).
+    /// </summary>
+    public string TreeName(TreeNode node, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(data);
+        if (node.IsTalent)
+        {
+            // A choice's halves by their element alone, the choice's name over them (the Transmutation, the Hearts).
+            TalentSpec t = data.Talents[node.Id];
+            if (t.Branch == Branch.Pure && t.Rules.OfType<ElementRule>().FirstOrDefault() is ElementRule heart)
+                return this["element." + heart.Element];
+            if (t.Id.StartsWith("transmute-", StringComparison.Ordinal) && t.Id.Split('-') is [_, string from, _])
+                return this["element." + Enum.Parse<Element>(from, ignoreCase: true)];
+            return t.Name.In(Lang);
+        }
+        if (node.IsTrunk)
+            return TrunkGain(int.Parse(node.Id["trunk:".Length..], CultureInfo.InvariantCulture));
+        return node.IsFold ? this["tree.fold", this["talents.branch." + node.Branch], this["talents.tier." + node.Tier]] : "";
+    }
+
+    /// <summary>
+    /// What the side panel says of a node (sprint 148, K7 b, H6 a, I1 b): its name, place and cost, what it does, then its
+    /// state: taken (and what giving it back gives back with it), available, or the reason it is refused.
+    /// </summary>
+    public string TreeDetail(TreeNode node, PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(editor);
+        GameData data = editor.Data;
+        if (node.IsTrunk)
+        {
+            int level = int.Parse(node.Id["trunk:".Length..], CultureInfo.InvariantCulture);
+            string gain = this["tree.trunk.detail", TrunkGain(level)];
+            return editor.Hero.Level < level ? gain + "\n" + this["talents.why.Level", level] : gain;
+        }
+        if (node.IsFold)
+            return this["tree.fold.detail", this["talents.branch." + node.Branch]];
+        if (!node.IsTalent)
+            return "";
+        TalentSpec t = data.Talents[node.Id];
+        string state;
+        if (editor.HasTalent(t))
+            state = editor.Losing(t) is { Count: > 0 } lost ? this["talents.losing", string.Join(", ", lost.Select(id => data.Talents[id].Name.In(Lang)))] : this["tree.taken"];
+        else
+            state = TalentReasons.WhyNot(editor.TalentsTaken, t.Id, editor.Hero.Level, data) is TalentRefusal no ? WhyNot(no, data) : this["tree.can"];
+        return Talent(t) + "\n" + state;
+    }
+
+    /// <summary>The panel's summary of the draft (K7 b): the points left of those the level gives, the elements beyond the base, the big switch.</summary>
+    public IReadOnlyList<string> TreeSummary(PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(editor);
+        GameData data = editor.Data;
+        TalentSpec[] taken = [.. editor.TalentsTaken.Select(id => data.Talents[id])];
+        string? big = taken.FirstOrDefault(t => t.IsSwitch)?.Name.In(Lang);
+        return
+        [
+            editor.Hero.Level < Rpg.Core.Talents.Opens ? this["tree.closed", Rpg.Core.Talents.Opens] : this["tree.left", editor.TalentPointsLeft, Rpg.Core.Talents.Points(editor.Hero.Level)],
+            this["tree.elements", Rpg.Core.Talents.ElementsOpened(taken), Rpg.Core.Talents.MaxOpened],
+            this["tree.switch", big ?? this["tree.switch.none"]],
+        ];
+    }
+
+    /// <summary>What the draft gains and loses against the saved talents (N6 a), one line each when there is any.</summary>
+    public IReadOnlyList<string> TreeDiff(PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(editor);
+        (IReadOnlyList<string> gained, IReadOnlyList<string> lost) = editor.TalentsDiff;
+        string Names(IEnumerable<string> ids) => string.Join(", ", ids.Select(id => editor.Data.Talents[id].Name.In(Lang)));
+        var lines = new List<string>();
+        if (gained.Count > 0)
+            lines.Add(this["tree.gained", Names(gained)]);
+        if (lost.Count > 0)
+            lines.Add(this["tree.lost", Names(lost)]);
+        return lines;
+    }
+
+    private string TrunkGain(int level)
+    {
+        TrunkNode n = Rpg.Core.Talents.Trunk.First(x => x.Level == level);
+        return this["tree.trunk." + n.Gain, n.Percent];
     }
 
     public string Spell(Spell s) =>

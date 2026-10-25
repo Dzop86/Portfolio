@@ -6,8 +6,14 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'ouvre l'arbre dans sa fenêtre et je le lis de bas en haut : le tronc, la fourche, ma paire déployée, les autres en pointillés (rpg) ; xUnit sans moteur, auto-test Godot. | 3 | À faire |
-| En tant que joueur, je vois l'état de chaque nœud avant de cliquer, je rends une branche en voyant ce que je perds, et j'annule mon brouillon (rpg) ; xUnit, intégration. | 2 | À faire |
+| En tant que joueur, j'ouvre l'arbre dans sa fenêtre et je le lis de bas en haut : le tronc, la fourche, ma paire déployée, les autres en pointillés (rpg) ; xUnit sans moteur, auto-test Godot. | 3 | Fait |
+| En tant que joueur, je vois l'état de chaque nœud avant de cliquer, je rends une branche en voyant ce que je perds, et j'annule mon brouillon (rpg) ; xUnit, intégration. | 2 | Fait |
+
+## Fait
+- La fenêtre de l'arbre (T115), touche T, icône du panneau Menus, bouton de l'onglet Talents : le tronc, la fourche (couples côte à côte, Cœurs), la tresse de Foudre, les six styles, celui qu'on regarde déployé.
+- Cinq états avant le clic, liens pistache, gris ou pointillés, un panneau (points, éléments, bascule, nœud survolé, gains et pertes), la légende.
+- Rendre un nœud dont d'autres dépendent les montre en rouge et demande ; « Annuler les changements » ; flèches et Entrée.
+- Retours de Charles sur 1.0.134 : la fiche personnage tient dans la fenêtre du jeu, Ctrl+S enregistre, la mini-carte ne cache plus les fenêtres.
 
 ## Rétro (Charles)
 - Ce qui a marché :
