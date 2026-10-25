@@ -178,5 +178,5 @@ Retours de Charles sur la 1.0.131, dans le sprint 144 (2 points de plus, 5 en to
 - Libellé unique entre le CV industriel et le CV analytique.
 - Nom définitif du compte ou de l'organisation GitHub.
 
-## Osmose : l'arbre des talents en vrai arbre (25 octobre 2026, D83)
+## Osmose : l'arbre des talents en vrai arbre (25 octobre 2026, D82)
 Charles a répondu au questionnaire du game designer (`projects/rpg/docs/talents-arbre-questions.md`) : restructurer l'arbre en tronc, paires d'éléments et styles de jeu en recasant les talents (A1 b), un tronc automatique à 30, 35 et 40 (B1 a), des styles partagés (D1 b), 1 point tous les 3 niveaux (G1 b), une vue focalisée montante (K1 d), des paires sans élément commun (C2), la Recommandation pour le reste. Le game designer a tranché F4 contre F2 (un sort combiné n'apparaît qu'avec une Transmutation ou une Conversion, l'Ouverture est retirée). Six sprints, 29 points : S146 (6) le tronc, les points et la Foudre arbitrée ; S147 (5) l'arbre en graphe et 9 builds mesurés ; S148 (5) la fenêtre de l'arbre ; S149 (5) les explications ; S150 (4) la fenêtre des sorts et le combat ; S151 (4) la planification, le partage et un playtest extérieur.

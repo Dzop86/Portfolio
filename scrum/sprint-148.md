@@ -1,8 +1,8 @@
 # Sprint 148 : Osmose : la fenêtre de l'arbre
 
-**Objectif :** l'arbre des talents en vrai arbre (tronc, paires d'éléments, styles de jeu), d'après les réponses de Charles au questionnaire et les arbitrages du game designer (`projects/rpg/docs/talents-arbre-questions.md`, D83).
+**Objectif :** l'arbre des talents en vrai arbre (tronc, paires d'éléments, styles de jeu), d'après les réponses de Charles au questionnaire et les arbitrages du game designer (`projects/rpg/docs/talents-arbre-questions.md`, D82).
 
-**Goal:** the talent tree as a real tree (trunk, element pairs, play styles), from Charles's answers to the questionnaire and the game designer's rulings (`projects/rpg/docs/talents-arbre-questions.md`, D83).
+**Goal:** the talent tree as a real tree (trunk, element pairs, play styles), from Charles's answers to the questionnaire and the game designer's rulings (`projects/rpg/docs/talents-arbre-questions.md`, D82).
 
 | Story | Points | État |
 |---|---|---|

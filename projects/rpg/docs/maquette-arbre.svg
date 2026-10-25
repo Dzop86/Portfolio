@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<rect width="1280" height="720" fill="#1f1f1f"/>
+<rect x="1000" y="16" width="264" height="688" rx="10" fill="#262626" stroke="#3a3a3a"/>
+<text x="1132" y="50" font-size="18" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Talents · niveau 45</text>
+<text x="1132" y="80" font-size="14" fill="#bef374" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">1 point à dépenser sur 7</text>
+<text x="1132" y="110" font-size="13" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Éléments hors base : 1 / 2</text>
+<text x="1132" y="132" font-size="13" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Grande bascule : Conversion : Foudre</text>
+<text x="1132" y="172" font-size="13" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Infobulle du nœud survolé</text>
+<text x="1016" y="200" font-size="12" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Transmutation : Feu → Foudre</text>
+<text x="1016" y="220" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Tes sorts de Feu deviennent</text>
+<text x="1016" y="240" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">leurs jumeaux de Foudre.</text>
+<text x="1016" y="260" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Contrepartie : Électrisé ne se</text>
+<text x="1016" y="280" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">déclenche plus, sauf avec Prisme.</text>
+<text x="1016" y="300" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Choix : Feu ou Air.</text>
+<text x="1016" y="320" font-size="12" fill="#8a8a8a" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">1 point · parent : Électrisation</text>
+<text x="1132" y="380" font-size="14" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Légende</text>
+<circle cx="1036" cy="410" r="14" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="1060" y="415" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">pris</text>
+<circle cx="1036" cy="454" r="14" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<text x="1060" y="459" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">disponible</text>
+<circle cx="1036" cy="498" r="14" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="1060" y="503" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">verrouillé (niveau, parent)</text>
+<circle cx="1036" cy="542" r="14" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<text x="1060" y="547" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">exclu (raison au survol)</text>
+<circle cx="1036" cy="586" r="14" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="1060" y="591" font-size="13" fill="#e8e8e8" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">à venir (autre paire)</text>
+<rect x="1016" y="640" width="112" height="44" rx="8" fill="#bef374"/>
+<text x="1072" y="668" font-size="14" fill="#1f1f1f" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif">Enregistrer</text>
+<rect x="1136" y="640" width="112" height="44" rx="8" fill="none" stroke="#8a8a8a"/>
+<text x="1192" y="668" font-size="14" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Annuler</text>
+<text x="500" y="30" font-size="18" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Arbre des talents · vue focalisée montante (maquette S146, K1 d)</text>
+<text x="500" y="50" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">On lit de bas en haut : le tronc, la fourche des paires, la paire choisie déployée ; les autres paires en pointillés.</text>
+<line x1="500" y1="656" x2="500" y2="662" stroke="#bef374" stroke-width="3"/>
+<line x1="500" y1="606" x2="500" y2="612" stroke="#bef374" stroke-width="3"/>
+<circle cx="500" cy="684" r="22" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="536" y="688" font-size="12" fill="#bef374" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">+3 % dégâts (niv. 30)</text>
+<circle cx="500" cy="634" r="22" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="536" y="638" font-size="12" fill="#bef374" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">+3 % résist. (niv. 35)</text>
+<circle cx="500" cy="584" r="22" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="536" y="588" font-size="12" fill="#bef374" text-anchor="start" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">+5 % PV (niv. 40)</text>
+<text x="464" y="638" font-size="12" fill="#8a8a8a" text-anchor="end" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Tronc, sans point</text>
+<line x1="500" y1="562" x2="140" y2="448" stroke="#bef374" stroke-width="3"/>
+<line x1="500" y1="562" x2="260" y2="448" stroke="#bef374" stroke-width="3"/>
+<line x1="500" y1="562" x2="380" y2="448" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="500" y1="562" x2="500" y2="448" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="500" y1="562" x2="620" y2="448" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="500" y1="562" x2="740" y2="448" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<line x1="500" y1="562" x2="860" y2="448" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="140" cy="420" r="28" fill="#34401f" stroke="#f2d03b" stroke-width="3"/>
+<text x="140" y="425" font-size="15" fill="#bef374" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Fo</text>
+<text x="140" y="464" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Foudre</text>
+<text x="140" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Électrisation</text>
+<circle cx="260" cy="420" r="28" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="260" y="425" font-size="15" fill="#bef374" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Bo</text>
+<text x="260" y="464" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Boue</text>
+<text x="260" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Enlisement</text>
+<circle cx="380" cy="420" r="28" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<path d="M371 411 L389 429 M389 411 L371 429" stroke="#e06c5a" stroke-width="3"/>
+<text x="380" y="464" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Glace</text>
+<text x="380" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">l'Eau est prise</text>
+<circle cx="500" cy="420" r="28" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<path d="M491 411 L509 429 M509 411 L491 429" stroke="#e06c5a" stroke-width="3"/>
+<text x="500" y="464" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Magma</text>
+<text x="500" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">le Feu est pris</text>
+<circle cx="620" cy="420" r="28" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<path d="M611 411 L629 429 M629 411 L611 429" stroke="#e06c5a" stroke-width="3"/>
+<text x="620" y="464" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Vapeur</text>
+<text x="620" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">le Feu est pris</text>
+<circle cx="740" cy="420" r="28" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<path d="M731 411 L749 429 M749 411 L731 429" stroke="#e06c5a" stroke-width="3"/>
+<text x="740" y="464" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Sable</text>
+<text x="740" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">l'Air est pris</text>
+<circle cx="860" cy="420" r="28" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<text x="860" y="425" font-size="15" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Él</text>
+<text x="860" y="464" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Élément pur</text>
+<text x="860" y="478" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Cœur</text>
+<path d="M100 482 q0 10 10 10 h120 q10 0 10 -10" stroke="#5a3a22" stroke-width="2" fill="none"/>
+<path d="M340 482 q0 10 10 10 h120 q10 0 10 -10" stroke="#5a3a22" stroke-width="2" fill="none"/>
+<path d="M580 482 q0 10 10 10 h120 q10 0 10 -10" stroke="#5a3a22" stroke-width="2" fill="none"/>
+<text x="500" y="524" font-size="11" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">couples complémentaires côte à côte : Foudre + Boue · Glace + Magma · Vapeur + Sable</text>
+<line x1="140" y1="392" x2="140" y2="352" stroke="#bef374" stroke-width="3"/>
+<circle cx="106" cy="316" r="28" fill="#34401f" stroke="#ff7a45" stroke-width="3"/>
+<text x="106" y="321" font-size="15" fill="#bef374" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Fe</text>
+<text x="106" y="360" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Feu</text>
+<circle cx="174" cy="316" r="28" fill="#2a1c1a" stroke="#e06c5a" stroke-width="3"/>
+<path d="M165 307 L183 325 M183 307 L165 325" stroke="#e06c5a" stroke-width="3"/>
+<text x="174" y="360" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Air</text>
+<rect x="66" y="282" width="148" height="68" rx="12" fill="none" stroke="#8a8a8a" stroke-dasharray="3 3"/>
+<text x="140" y="274" font-size="11" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Transmutation (choix)</text>
+<line x1="106" y1="288" x2="106" y2="238" stroke="#bef374" stroke-width="3"/>
+<circle cx="106" cy="210" r="28" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<text x="106" y="215" font-size="15" fill="#bef374" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Si</text>
+<text x="106" y="254" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Signature</text>
+<circle cx="174" cy="210" r="28" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<text x="174" y="215" font-size="15" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Pr</text>
+<text x="174" y="254" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Prisme</text>
+<line x1="200" y1="392" x2="200" y2="130" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<rect x="104" y="70" width="72" height="72" rx="14" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="5 4"/>
+<rect x="134" y="102" width="12" height="10" rx="2" fill="#8a8a8a"/><path d="M136 102 v-4 a4 4 0 0 1 8 0 v4" stroke="#8a8a8a" stroke-width="2" fill="none"/>
+<text x="140" y="158" font-size="12" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Conversion</text>
+<text x="140" y="172" font-size="10" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">clé · niv. 45</text>
+<text x="140" y="62" font-size="13" fill="#f2d03b" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Tresse : Foudre</text>
+<line x1="260" y1="392" x2="260" y2="360" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<text x="260" y="350" font-size="11" fill="#8a8a8a" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Tresse repliée</text>
+<line x1="380" y1="360" x2="380" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="380" cy="310" r="20" fill="#34401f" stroke="#bef374" stroke-width="3"/>
+<line x1="380" y1="290" x2="380" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="380" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="380" y1="225" x2="380" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="380" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="354" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="380" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="380" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Mêlée</text>
+<line x1="480" y1="360" x2="480" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="480" cy="310" r="20" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<line x1="480" y1="290" x2="480" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="480" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="480" y1="225" x2="480" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="480" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="454" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="480" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="480" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Distance</text>
+<line x1="580" y1="360" x2="580" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="580" cy="310" r="20" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<line x1="580" y1="290" x2="580" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="580" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="580" y1="225" x2="580" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="580" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="554" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="580" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="580" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Soutien</text>
+<line x1="680" y1="360" x2="680" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="680" cy="310" r="20" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<line x1="680" y1="290" x2="680" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="680" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="680" y1="225" x2="680" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="680" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="654" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="680" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="680" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Terrain</text>
+<line x1="780" y1="360" x2="780" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="780" cy="310" r="20" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<line x1="780" y1="290" x2="780" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="780" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="780" y1="225" x2="780" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="780" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="754" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="780" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="780" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Tempo</text>
+<line x1="880" y1="360" x2="880" y2="390" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="880" cy="310" r="20" fill="#262626" stroke="#e8e8e8" stroke-width="3"/>
+<line x1="880" y1="290" x2="880" y2="260" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="880" cy="245" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<line x1="880" y1="225" x2="880" y2="195" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="6 6"/>
+<circle cx="880" cy="180" r="20" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<rect x="854" y="80" width="52" height="52" rx="12" fill="#202020" stroke="#8a8a8a" stroke-width="3" stroke-dasharray="4 3"/>
+<text x="880" y="140" font-size="10" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round"></text>
+<text x="880" y="352" font-size="12" fill="#e8e8e8" text-anchor="middle" font-weight="normal" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Alchimie</text>
+<text x="630" y="62" font-size="13" fill="#e8e8e8" text-anchor="middle" font-weight="bold" font-family="Inter, Segoe UI, sans-serif" paint-order="stroke" stroke="#1f1f1f" stroke-width="4" stroke-linejoin="round">Styles partagés : une clé par style, au niveau 45</text>
+</svg>
