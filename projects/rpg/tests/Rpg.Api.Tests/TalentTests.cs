@@ -72,7 +72,7 @@ public class TalentTests
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
         // A twin without its talent: refused.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["lightning-fire-arrow"]), Cancel)));
-        string[] talents = ["open-lightning", "full-grimoire", "prism", "convert-lightning"];
+        string[] talents = ["electrifying", "prism", "convert-lightning"];
         CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["fire-arrow", "stone-arrow", "lightning-recoil-shot"], talents), Cancel);
         Hero hero = saved.Hero;
         Assert.Equal(["lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"], hero.DeckOf(GameData.Embedded));

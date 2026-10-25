@@ -588,6 +588,12 @@ public partial class Main
             _chat = await _lobby!.Server.OpenChat(character);
             _chatOf = character;
             _chatLog!.Note(texts["chat.open"]);
+            // Talents of an older tree given back at the sign-in (sprint 146, D82): said once, as it comes into play.
+            if (_lobby.TakeTalentsGivenBack(character) && _character is not null)
+            {
+                _chatLog.Note(texts["talents.reset", _character.Name]);
+                _talkPanel?.ShowNotice(texts["talents.reset", _character.Name]);
+            }
         }
         catch (Exception e) when (e is System.Net.WebSockets.WebSocketException or HttpRequestException or InvalidOperationException)
         {
@@ -2226,6 +2232,10 @@ public partial class Main
             // An element to filter by only when the book has its spells: no Lightning before the talent (Charles, after sprint 144).
             if (!_pointsPanel.ChipsShown.SequenceEqual(new SpellBook(editor).Elements))
                 problems.Add($"the spells tab filters by {string.Join(", ", _pointsPanel.ChipsShown)}");
+            // Lightning shown only as the saved talents give it (sprint 146, D82, R1): a Transmutation or the Conversion.
+            int lightning = Talents.GrimoireOf(_hero, GameData.Embedded).Spells.Count(id => GameData.Embedded.Spells[id].Element == Element.Lightning);
+            if (_pointsPanel.OwnTiles(Element.Lightning) != lightning)
+                problems.Add($"the spells tab shows {_pointsPanel.OwnTiles(Element.Lightning)} Lightning spells, the talents give {lightning}");
             await CheckDeck(problems);
             // The talents tab shows every talent of the tree, those the hero has taken pressed (sprint 137).
             _pointsPanel.ShowTalents();

@@ -82,6 +82,12 @@ public sealed class Character
     /// <summary>The talents of the tree taken (sprint 137, D80), their ids in order separated by commas.</summary>
     public string Talents { get; set; } = "";
 
+    /// <summary>
+    /// The version of the tree its talents were taken in (sprint 146, D82): those of an older one are given back once, for
+    /// free (<see cref="Rpg.Core.Talents.Version"/>); characters made before have the first.
+    /// </summary>
+    public int TalentsVersion { get; set; } = Rpg.Core.Talents.Version;
+
     /// <summary>The talents, without those the tree no longer has.</summary>
     public string[] TalentList => [.. Talents.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(GameData.Embedded.Talents.ContainsKey)];
 

@@ -38,11 +38,11 @@ public class TalentTests
     [Theory]
     [InlineData(29, 0)]
     [InlineData(30, 2)]
-    [InlineData(34, 2)]
-    [InlineData(35, 3)]
-    [InlineData(45, 5)]
-    [InlineData(100, 16)]
-    public void TheTree_GivesTwoPointsAtThirty_ThenOneEveryFiveLevels(int level, int points) => Assert.Equal(points, Talents.Points(level));
+    [InlineData(32, 2)]
+    [InlineData(33, 3)]
+    [InlineData(45, 7)]
+    [InlineData(100, 25)]
+    public void TheTree_GivesTwoPointsAtThirty_ThenOneEveryThreeLevels(int level, int points) => Assert.Equal(points, Talents.Points(level));
 
     [Fact]
     public void TheRealTree_HoldsBoggingAndUpClose_AndTheReactionBogged()
@@ -97,7 +97,7 @@ public class TalentTests
         Assert.Null(P(35, "a1", "a3", "a4"));
         Assert.Contains("asks 3 points", P(45, "a1", "a3", "ak"));
         Assert.Null(P(45, "a1", "a3", "a4", "ak"));
-        Assert.Contains("At most 5", P(45, "a1", "a3", "a4", "ak", "b1"));
+        Assert.Contains("At most 4", P(36, "a1", "a3", "a4", "ak", "b1"));
         Assert.Contains("One key per branch", P(65, "a1", "a3", "a4", "ak", "ak2"));
         // One key of Matter in the whole tree, from two branches of Matter.
         Assert.Null(P(65, "b1", "b2", "b3", "bk", "p1", "p2", "p3"));

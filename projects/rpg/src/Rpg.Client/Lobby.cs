@@ -66,8 +66,15 @@ public sealed class Lobby(GameServer server)
     {
         Servers = await Server.Servers(cancel);
         Characters = await Server.Characters(cancel);
+        _talentsGivenBack = [.. Characters.Where(c => c.TalentsReset).Select(c => c.Id)];
         ChosenServer = Servers.Count == 1 ? Servers[0] : null;
     }
+
+    // The characters whose talents the server gave back as the account signed in (sprint 146, D82): an older tree's.
+    private HashSet<Guid> _talentsGivenBack = [];
+
+    /// <summary>Whether the server gave this character's talents back at the sign-in, once: true the first time it is asked.</summary>
+    public bool TakeTalentsGivenBack(Guid character) => _talentsGivenBack.Remove(character);
 
     public void ChooseServer(string? id) => ChosenServer = Servers.FirstOrDefault(s => s.Id == id);
 

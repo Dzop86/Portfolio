@@ -118,15 +118,17 @@ public static class Progression
     /// <summary>
     /// The reference builds of the talent tree (sprint 144, D80, docs/talents-arbre.md §4.5 and §7.3): for each class one
     /// of Matter and one of Manner, and a support for the duos; the talents in the order they are taken, as the level's
-    /// points allow.
+    /// points allow. Since sprint 146 (D82): Lightning through Electrifying and the Transmutation of Fire, the Conversion
+    /// taking its place at 45; two pairs share no element (Lightning goes with Mud, the Guard's "Rising Tide" is Ice and
+    /// Magma).
     /// </summary>
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Builds = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
     {
-        ["sentinel-matter"] = ["open-lightning", "strong-signature", "prism", "convert-lightning", "cracking"],
+        ["sentinel-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "bogging"],
         ["sentinel-manner"] = ["up-close", "firm-footing", "dancing-step", "first-gesture", "bogging"],
-        ["guard-matter"] = ["open-lightning", "full-grimoire", "prism", "convert-lightning", "bogging"],
-        ["guard-manner"] = ["bogging", "chilling", "lasting-mark", "up-close", "shared-mark"],
-        ["mage-matter"] = ["open-lightning", "strong-signature", "prism", "convert-lightning", "first-gesture"],
+        ["guard-matter"] = ["electrifying", "transmute-fire-lightning", "prism", "convert-lightning", "bogging"],
+        ["guard-manner"] = ["chilling", "cracking", "lasting-mark", "up-close", "shared-mark"],
+        ["mage-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "first-gesture"],
         ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
@@ -147,8 +149,9 @@ public static class Progression
         var talents = new List<string>();
         foreach (string id in build)
         {
-            if (Talents.Problem([.. talents, id], hero.Level, data) is null)
-                talents.Add(id);
+            // A Conversion takes the place of its Transmutation (sprint 146).
+            if (Talents.With(talents, id, data) is var after && Talents.Problem(after, hero.Level, data) is null)
+                talents = after;
         }
         Hero talented = hero with { Talents = talents, Deck = null };
         Grimoire grimoire = Talents.GrimoireOf(talented, data);

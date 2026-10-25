@@ -51,7 +51,31 @@ public static class CharacterEndpoints
         var list = await db.Characters.Where(c => c.AccountId == account)
             .OrderBy(c => c.CreatedAt).ThenBy(c => c.Name)
             .ToArrayAsync(cancel);
-        return TypedResults.Ok(list.Select(c => Summary(c, c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null)).ToArray());
+        bool[] reset = [.. list.Select(Retree)];
+        if (reset.Any(r => r))
+            await db.SaveChangesAsync(cancel);
+        return TypedResults.Ok(list.Select((c, i) => Summary(c, c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null) with { TalentsReset = reset[i] }).ToArray());
+    }
+
+    /// <summary>
+    /// Talents taken in an older tree (sprint 146, D82, I5 a), as the game signs in: given back once, for free, the deck
+    /// keeping the spells the grimoire still has; true when there were talents to give back, for the game to say so.
+    /// </summary>
+    internal static bool Retree(Character c)
+    {
+        if (c.TalentsVersion >= Talents.Version)
+            return false;
+        c.TalentsVersion = Talents.Version;
+        if (c.Talents.Length == 0)
+            return false;
+        c.Talents = "";
+        if (c.Deck is not ("" or Character.EmptyDeck))
+        {
+            Grimoire grimoire = Talents.GrimoireOf(c.Hero, GameData.Embedded);
+            string[] kept = [.. (c.DeckList ?? []).Where(grimoire.Spells.Contains)];
+            c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
+        }
+        return true;
     }
 
     internal static async Task<Results<Created<CharacterSummary>, ValidationProblem, ProblemHttpResult>> Create(
@@ -639,7 +663,7 @@ public static class CharacterEndpoints
         if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck, Talents = talents.Length == 0 ? null : talents }).Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
         // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71); talents from level 41, in a village, out of a fight (sprint 140).
-        long talentCost = Talents.GivesBack(character.TalentList, talents) ? Talents.ChangeCost(character.Level) : 0;
+        long talentCost = Talents.GivesBack(character.TalentList, talents, GameData.Embedded) ? Talents.ChangeCost(character.Level) : 0;
         if (talentCost > 0 && (character.InFight || !Shop.InVillage(character.Town)))
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = ["Talents are given back in a village, out of a fight."] });
         long cost = (Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0) + talentCost;
@@ -651,6 +675,7 @@ public static class CharacterEndpoints
         character.Ranks = string.Join(',', ranks.Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal).Select(r => $"{r.Key}:{r.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}"));
         character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);
         character.Talents = string.Join(',', talents);
+        character.TalentsVersion = Talents.Version;
         if (!character.InFight)
             character.SetLife(lifeBefore, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);

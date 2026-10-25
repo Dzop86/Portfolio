@@ -249,12 +249,19 @@ public sealed class Fight
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         if (HeroTotals(hero, data) is not HeroNumbers n)
             return spec;
-        // Nomad (sprint 142): the maximum, Vitality included, that many percent more or fewer.
-        int hpPercent = (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<HpRule>().Sum(r => r.Percent);
+        // Nomad (sprint 142): the maximum, Vitality included, that many percent more or fewer; and the trunk's (sprint 146).
+        int hpPercent = (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<HpRule>().Sum(r => r.Percent)
+            + Talents.TrunkHp(hero.Level);
         int hp = hpPercent == 0 ? n.Hp : (n.Hp + n.Stats.Vitality) * (100 + hpPercent) / 100 - n.Stats.Vitality;
+        // The trunk's resistance (sprint 146, D82): that many points more to each base element, a compound its parents' average.
+        int resist = Talents.TrunkResistance(hero.Level);
+        IReadOnlyDictionary<Element, int>? resistances = resist == 0 ? f.Resistances
+            : new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.ToDictionary(e => e, e => f.Resistance(e) + resist);
         return spec with
         {
             Hp = hp,
+            Resistances = resistances,
+            TreeDamage = Talents.TrunkDamage(hero.Level),
             Ap = n.Ap,
             Mp = n.Mp,
             Initiative = n.Initiative,
@@ -728,7 +735,8 @@ public sealed class Fight
     /// target's resistance to the element; a hit without points nor bonus is the roll itself. A fighter
     /// weakened (<see cref="FighterSpec.Power"/> below 100, a dungeon's first room) hits that much less.
     /// A spell's <paramref name="direct"/> hit (sprint 137) is also changed by the caster's living talents
-    /// (<see cref="Talents.Percent"/>), apart from its statuses.
+    /// (<see cref="Talents.Percent"/>), apart from its statuses. A hero's trunk (sprint 146, D82) adds its own percent to every
+    /// hit, neutral ones included, outside the talents' ceiling.
     /// </summary>
     /// <param name="guard">The target's resistance from its talents (Backed, sprint 142), within the ceiling of 90.</param>
     public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null, int guard = 0)
@@ -738,8 +746,8 @@ public sealed class Fight
         long raw = roll + Characteristics.Bonus(Strength(caster, element));
         long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
         int resistance = element == Element.Neutral ? 0 : Math.Min(90, target.Resistance(element) + guard);
-        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents;
-        return (int)Math.Max(0, scaled / 100_000_000);
+        long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents * (100 + caster.Spec.TreeDamage);
+        return (int)Math.Max(0, scaled / 10_000_000_000);
     }
 
     /// <summary>Next to an obstacle (sprint 142): one of the four cells around is one.</summary>
@@ -777,7 +785,8 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        return average * (100 + Strength(caster, element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100;
+        return average * (100 + Strength(caster, element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100
+            * (100 + caster.Spec.TreeDamage) / 100;
     }
 
     /// <summary>

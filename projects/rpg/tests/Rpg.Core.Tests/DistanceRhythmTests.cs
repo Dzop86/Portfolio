@@ -102,6 +102,7 @@ public class DistanceRhythmTests
     [Fact]
     public void FirmFooting_RewardsStandingStill_DancingStep_TheCellsWalked()
     {
+        // The trunk's 3 % at 100 on every hit (sprint 146): 10 × 1.15 × 1.03, 11.
         Fight still = Play(["A....B"], Hero("firm-footing"));
         still.Apply(new CastAction("bolt", C(5)));
         Assert.Equal(300 - 11, still.Fighters[1].Hp);
@@ -109,13 +110,13 @@ public class DistanceRhythmTests
         moved.Apply(new MoveAction(C(1)));
         moved.Apply(new CastAction("bolt", C(5)));
         Assert.Equal(300 - 9, moved.Fighters[1].Hp);
-        // With Firm Footing and Long Sight before it: 3 cells walked, +12 % and −5 % (10); then −5 % alone (9).
+        // With Firm Footing and Long Sight before it: 3 cells walked, +12 % and −5 % (11); then −5 % alone (9).
         Fight dance = Play([".A......B"], Hero("firm-footing", "long-sight", "dancing-step"));
         dance.Apply(new MoveAction(C(4)));
         dance.Apply(new CastAction("bolt", C(8)));
-        Assert.Equal(300 - 10, dance.Fighters[1].Hp);
+        Assert.Equal(300 - 11, dance.Fighters[1].Hp);
         dance.Apply(new CastAction("bolt", C(8)));
-        Assert.Equal(300 - 19, dance.Fighters[1].Hp);
+        Assert.Equal(300 - 20, dance.Fighters[1].Hp);
     }
 
     [Fact]
@@ -170,7 +171,8 @@ public class DistanceRhythmTests
         Fighter me = f.HeroFighter!;
         Spell bolt = me.Spells.First(s => s.Id == "bolt");
         Assert.True(Ai.Value(f, me, bolt, me.Cell, C(5)) > Ai.Value(f, me, bolt, C(1), C(5)));
-        Assert.Equal(11, Fight.Expected(10, me, f.Fighters[1], Element.Earth, 10), 6);
+        // 10, +10 %, and the trunk's 3 % (sprint 146).
+        Assert.Equal(11.33, Fight.Expected(10, me, f.Fighters[1], Element.Earth, 10), 6);
         Assert.Equal(Ai.Value(f, me, bolt, me.Cell, C(5)), Fight.Expected(bolt.AverageDamage, me, f.Fighters[1], Element.Earth, 15), 6);
     }
 }

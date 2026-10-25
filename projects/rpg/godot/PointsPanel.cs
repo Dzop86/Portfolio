@@ -33,7 +33,7 @@ public partial class PointsPanel : CanvasLayer
     private Label _name = null!, _level = null!, _spellsLeft = null!, _message = null!, _help = null!;
     private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!;
     private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!;
-    private Label _talentsLeft = null!, _talentsHint = null!;
+    private Label _talentsLeft = null!, _talentsHint = null!, _trunk = null!, _talentsSaid = null!;
     private readonly List<(TalentSpec Talent, Button Tile)> _talentTiles = [];
     private readonly List<(Branch Branch, Label Name)> _branches = [];
     private Portrait? _portrait;
@@ -119,7 +119,8 @@ public partial class PointsPanel : CanvasLayer
         var tiles = new VBoxContainer { CustomMinimumSize = new Vector2(200, 0) };
         tiles.AddThemeConstantOverride("separation", 8);
         page.AddChild(tiles);
-        foreach ((string key, string colour) in new[] { ("hp", ElementStyle.Heal), ("ap", "#6fb6ff"), ("mp", "#9be36b"), ("initiative", "#e0e0e0"), ("left", "#bef374") })
+        // Since sprint 146 (D82, O7 a), what the tree's trunk adds.
+        foreach ((string key, string colour) in new[] { ("hp", ElementStyle.Heal), ("ap", "#6fb6ff"), ("mp", "#9be36b"), ("initiative", "#e0e0e0"), ("tree", "#bef374"), ("left", "#bef374") })
             _tiles[key] = Tile(tiles, colour, big: key is "hp" or "left");
         // Every point back, to spend again (D62).
         _reset = Small(tiles, "", () => Editor.ResetCharacteristics(), 200);
@@ -536,7 +537,7 @@ public partial class PointsPanel : CanvasLayer
     }
 
     /// <summary>
-    /// "My path" (sprint 140, D80): the tree's talents in seven columns, the two of Matter (in pistachio) then the five of
+    /// The Talents tab ("My path" from sprint 140 to 146, renamed at Charles's word): the tree's talents in seven columns, the two of Matter (in pistachio) then the five of
     /// Manner, each branch's tiles by floor (first, second, key); the points left above. A tile's tooltip tells it all; a
     /// talent the rules refuse now is greyed.
     /// </summary>
@@ -549,6 +550,13 @@ public partial class PointsPanel : CanvasLayer
         page.AddChild(_talentsLeft);
         _talentsHint = new Label { Modulate = new Color(1, 1, 1, 0.7f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
         page.AddChild(_talentsHint);
+        // The trunk (sprint 146, D82): lit by itself at 30, 35 and 40, above the branches.
+        _trunk = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        _trunk.AddThemeColorOverride("font_color", new Color("bef374"));
+        page.AddChild(_trunk);
+        // What the last talent taken did besides (a Conversion replacing its Transmutation).
+        _talentsSaid = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f) };
+        page.AddChild(_talentsSaid);
         var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Auto };
         page.AddChild(scroll);
         var columns = new HBoxContainer();
@@ -614,6 +622,8 @@ public partial class PointsPanel : CanvasLayer
         _talentsTab.Text = Texts["points.talents"];
         _talentsLeft.Text = Editor.Hero.Level < Talents.Opens ? Texts["talents.closed", Talents.Opens] : Texts["talents.left", Editor.TalentPointsLeft];
         _talentsHint.Text = Texts["talents.hint"];
+        _trunk.Text = Texts.Trunk(Editor.Hero.Level);
+        _talentsSaid.Text = Editor.Replaced is string replaced ? Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)] : "";
         foreach ((Branch branch, Label name) in _branches)
             name.Text = $"{Texts["talents.branch." + branch]} · {Texts["talents.family." + (branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner)]}";
         foreach (Label floor in _talentsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
@@ -621,7 +631,8 @@ public partial class PointsPanel : CanvasLayer
         foreach ((TalentSpec t, Button tile) in _talentTiles)
         {
             tile.Text = t.Name.In(Texts.Lang);
-            tile.TooltipText = Texts.Talent(t);
+            // A pair that shares an element with one taken says which (sprint 146, C2).
+            tile.TooltipText = Texts.Talent(t) + (Editor.HasTalent(t) ? null : Texts.PairTaken(Editor.TalentsTaken, t, Editor.Data) is string why ? "\n" + why : null);
             tile.SetPressedNoSignal(Editor.HasTalent(t));
             tile.Disabled = !(Editor.HasTalent(t) ? Editor.CanDrop(t) : Editor.CanTake(t));
         }
@@ -629,6 +640,9 @@ public partial class PointsPanel : CanvasLayer
         _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
         _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";
         _tiles["initiative"].Text = $"{Texts["sheet.initiative"]}   {sheet.Initiative}";
+        _tiles["tree"].Text = Texts["sheet.tree", sheet.TreeDamage, sheet.TreeResistance, sheet.TreeHp];
+        _tiles["tree"].TooltipText = Texts.Trunk(Editor.Hero.Level);
+        _tiles["tree"].MouseFilter = Control.MouseFilterEnum.Stop;
         // Who the hero plays before (sprint 95), on hovering the tile.
         _tiles["initiative"].TooltipText = Texts.PlaysBefore(sheet.Initiative);
         _tiles["initiative"].MouseFilter = Control.MouseFilterEnum.Stop;
@@ -676,9 +690,12 @@ public partial class PointsPanel : CanvasLayer
                 tile.Visible = false;
                 continue;
             }
-            tile.Visible = _filter is null || spell.Element == _filter;
-            sub.Text = (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
-            tile.Modulate = b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
+            // A preview (sprint 146, D82, R2): what the draft's talents would give, faded and out of the filter.
+            tile.Visible = _filter is null || (spell.Element == _filter && !b.Preview);
+            sub.Text = b.Preview ? Texts["sd.preview"]
+                : (b.Unlocked ? Texts["sd.rank", b.Rank, spell.MaxRank] : Texts["sd.locked", spell.Level]) + (b.InDeck ? "  ·  " + Texts["deck.in"] : "");
+            tile.Modulate = b.Preview ? new Color(1, 1, 1, 0.5f) : b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
+            tile.SetMeta("preview", b.Preview);
         }
         _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Editor.DeckLimit];
         _clearDeck.Text = Texts["deck.clear"];
@@ -716,6 +733,9 @@ public partial class PointsPanel : CanvasLayer
 
     /// <summary>The spells on the spells tab, unlocked or not, as the self-test counts them.</summary>
     public int SpellTiles => _tiles2.Count;
+
+    /// <summary>The spells of an element shown as the hero's own, previews left out (sprint 146), as the self-test counts them.</summary>
+    public int OwnTiles(Element element) => _tiles2.Count(t => t.Tile.Visible && t.Spell.Element == element && !t.Tile.GetMeta("preview", false).AsBool());
 
     /// <summary>The elements one may filter the book by, as the self-test reads them: a compound's only with its talents.</summary>
     public IEnumerable<Element> ChipsShown => _chips.Where(c => c.Chip.Visible && c.Element is not null).Select(c => c.Element!.Value);

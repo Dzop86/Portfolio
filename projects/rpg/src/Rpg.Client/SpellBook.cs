@@ -6,9 +6,11 @@ namespace Rpg.Client;
 /// One spell of the spells screen: unlocked or not (with the level that unlocks it), its rank and what
 /// the next costs, and its damage at that rank as the hero would do it, the points of its element
 /// counted (2 more for every 10): the normal range, the critical range, and the next rank's range.
-/// A spell that does no damage has (0, 0) everywhere.
+/// A spell that does no damage has (0, 0) everywhere. Since sprint 146 (D82, R2), a <see cref="Preview"/> is a spell only
+/// the draft's talents give: shown dotted, out of the filter and of the deck until the talents are saved.
 /// </summary>
-public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCost, (int Min, int Max) Damage, (int Min, int Max) Critical, (int Min, int Max)? NextRank, bool InDeck = false)
+public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCost, (int Min, int Max) Damage, (int Min, int Max) Critical, (int Min, int Max)? NextRank, bool InDeck = false,
+    bool Preview = false)
 {
     public Element Element => Spell.Element;
 }
@@ -27,7 +29,8 @@ public sealed class SpellBook
         Characteristics stats = Fight.HeroTotals(draft, editor.Data)?.Stats ?? Characteristics.None;
         HeroClass? c = editor.Data.Class(draft.Class);
         IEnumerable<string> twins = Talents.GrimoireOf(draft, editor.Data).Spells.Where(id => editor.Data.Spells[id].Twin is not null);
-        Spells = c is null ? [] : [.. c.Spells.Concat(twins).Select(id => editor.Data.Spells[id]).Select(s => Entry(s, editor, draft, stats))];
+        HashSet<string> previewed = [.. editor.Previewed.Select(s => s.Id)];
+        Spells = c is null ? [] : [.. c.Spells.Concat(twins).Select(id => editor.Data.Spells[id]).Select(s => Entry(s, editor, draft, stats) with { Preview = previewed.Contains(s.Id) })];
     }
 
     private static BookSpell Entry(Spell spell, PointsEditor editor, Hero draft, Characteristics stats)
@@ -45,10 +48,11 @@ public sealed class SpellBook
 
     /// <summary>
     /// The elements of the spells in the book, in order: a compound's only while the talents give its spells (Charles,
-    /// after sprint 144: no Lightning to filter by before the tree's passive changed the elements).
+    /// after sprint 144: no Lightning to filter by before the tree's passive changed the elements); never a preview's
+    /// (sprint 146, D82, R1: a compound only once a Transmutation or the Conversion is saved).
     /// </summary>
-    public IReadOnlyList<Element> Elements => [.. Spells.Select(s => s.Element).Distinct().Order()];
+    public IReadOnlyList<Element> Elements => [.. Spells.Where(s => !s.Preview).Select(s => s.Element).Distinct().Order()];
 
-    /// <summary>The spells of an element; all of them without one.</summary>
-    public IReadOnlyList<BookSpell> Of(Element? element) => element is Element e ? [.. Spells.Where(s => s.Element == e)] : Spells;
+    /// <summary>The spells of an element, previews left out; all of them without one, previews included.</summary>
+    public IReadOnlyList<BookSpell> Of(Element? element) => element is Element e ? [.. Spells.Where(s => s.Element == e && !s.Preview)] : Spells;
 }

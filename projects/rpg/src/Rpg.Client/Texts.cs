@@ -59,10 +59,10 @@ public sealed class Texts
         ["points.title"] = "Caractéristiques et sorts",
         ["points.characteristics"] = "Caractéristiques : {0} point(s) à répartir",
         ["points.spells"] = "Sorts : {0} point(s) de sort",
-        ["points.talents"] = "Ma route",
+        ["points.talents"] = "Talents",
         ["talents.left"] = "Talents : {0} point(s) à dépenser",
         ["talents.closed"] = "L'arbre des talents s'ouvre au niveau {0}.",
-        ["talents.hint"] = "Un clic prend un talent ou le rend. Matière : changer ses éléments ; Manière : changer ses règles. L'étage 2 demande 2 points dans sa branche (1 en Tresses), la clé 3 ; une seule clé de Matière, deux éléments ouverts au plus. Rendre un talent coûte 10 × le niveau en Éclats après le niveau 40, dans un village.",
+        ["talents.hint"] = "Un clic prend un talent ou le rend. Matière : changer ses éléments ; Manière : changer ses règles. L'étage 2 demande 2 points dans sa branche, la clé 3, sauf un talent qui en demande un autre ; une seule clé de Matière, deux paires au plus, sans élément commun. La Foudre passe par Électrisation, puis une Transmutation (du Feu ou de l'Air) ; la Conversion la remplace au niveau 45. Rendre un talent coûte 10 × le niveau en Éclats après le niveau 40, dans un village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
         ["talents.family.Matter"] = "Matière",
         ["talents.family.Manner"] = "Manière",
@@ -76,6 +76,23 @@ public sealed class Texts
         ["talents.tier.First"] = "étage 1",
         ["talents.tier.Second"] = "étage 2",
         ["talents.tier.Key"] = "clé",
+        ["talents.trunk"] = "Tronc, sans point : {0}",
+        ["talents.trunk.Damage"] = "+{0} % de dégâts (niv. {1})",
+        ["talents.trunk.Resistance"] = "+{0} % de résistances (niv. {1})",
+        ["talents.trunk.Hp"] = "+{0} % de PV (niv. {1})",
+        ["talents.trunk.unlit"] = "{0}, à venir",
+        ["talents.taken.Earth"] = "la Terre est déjà prise par {0}",
+        ["talents.taken.Fire"] = "le Feu est déjà pris par {0}",
+        ["talents.taken.Water"] = "l'Eau est déjà prise par {0}",
+        ["talents.taken.Air"] = "l'Air est déjà pris par {0}",
+        ["talents.replaced"] = "La Conversion remplace {0} : son point revient.",
+        ["talents.reset"] = "L'arbre des talents a changé : les talents de {0} lui sont rendus, gratuitement, une fois.",
+        ["pair.bogged"] = "Boue",
+        ["pair.chilled"] = "Glace",
+        ["pair.cracked"] = "Magma",
+        ["pair.electrified"] = "Foudre",
+        ["pair.fogged"] = "Vapeur",
+        ["pair.blinded"] = "Sable",
         ["points.rank"] = "rang {0}/{1}",
         ["points.next"] = "rang suivant : {0} point(s)",
         ["points.max"] = "rang maximum",
@@ -110,10 +127,12 @@ public sealed class Texts
         ["sd.all"] = "Tous",
         ["sd.rank"] = "Rang {0}/{1}",
         ["sd.locked"] = "Niv. {0}",
+        ["sd.preview"] = "Aperçu : enregistre tes talents",
         ["sheet.tab.stats"] = "Caractéristiques",
         ["sheet.tab.spells"] = "Sorts",
         ["sheet.level"] = "Niveau {0} · {1}",
         ["sheet.hp"] = "Points de vie",
+        ["sheet.tree"] = "Arbre : +{0} % de dégâts · +{1} % de résistances · +{2} % de PV",
         ["sheet.ap"] = "PA",
         ["sheet.mp"] = "PM",
         ["sheet.initiative"] = "Initiative",
@@ -624,10 +643,10 @@ public sealed class Texts
         ["points.title"] = "Characteristics and spells",
         ["points.characteristics"] = "Characteristics: {0} point(s) to spend",
         ["points.spells"] = "Spells: {0} spell point(s)",
-        ["points.talents"] = "My path",
+        ["points.talents"] = "Talents",
         ["talents.left"] = "Talents: {0} point(s) to spend",
         ["talents.closed"] = "The talent tree opens at level {0}.",
-        ["talents.hint"] = "A click takes a talent or gives it back. Matter: change your elements; Manner: change your rules. The second floor asks 2 points in its branch (1 in Braids), the key 3; one key of Matter, two elements opened at most. Giving a talent back costs 10 × the level in Éclats after level 40, in a village.",
+        ["talents.hint"] = "A click takes a talent or gives it back. Matter: change your elements; Manner: change your rules. The second floor asks 2 points in its branch, the key 3, unless a talent asks for another; one key of Matter, two pairs at most, with no element in common. Lightning comes through Electrifying, then a Transmutation (of Fire or of Air); the Conversion replaces it at level 45. Giving a talent back costs 10 × the level in Éclats after level 40, in a village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
         ["talents.family.Matter"] = "Matter",
         ["talents.family.Manner"] = "Manner",
@@ -641,6 +660,23 @@ public sealed class Texts
         ["talents.tier.First"] = "first floor",
         ["talents.tier.Second"] = "second floor",
         ["talents.tier.Key"] = "key",
+        ["talents.trunk"] = "Trunk, no point: {0}",
+        ["talents.trunk.Damage"] = "+{0}% damage (lv {1})",
+        ["talents.trunk.Resistance"] = "+{0}% resistances (lv {1})",
+        ["talents.trunk.Hp"] = "+{0}% HP (lv {1})",
+        ["talents.trunk.unlit"] = "{0}, to come",
+        ["talents.taken.Earth"] = "Earth is already taken by {0}",
+        ["talents.taken.Fire"] = "Fire is already taken by {0}",
+        ["talents.taken.Water"] = "Water is already taken by {0}",
+        ["talents.taken.Air"] = "Air is already taken by {0}",
+        ["talents.replaced"] = "The Conversion replaces {0}: its point comes back.",
+        ["talents.reset"] = "The talent tree changed: {0}'s talents are given back, for free, once.",
+        ["pair.bogged"] = "Mud",
+        ["pair.chilled"] = "Ice",
+        ["pair.cracked"] = "Magma",
+        ["pair.electrified"] = "Lightning",
+        ["pair.fogged"] = "Steam",
+        ["pair.blinded"] = "Sand",
         ["points.rank"] = "rank {0}/{1}",
         ["points.next"] = "next rank: {0} point(s)",
         ["points.max"] = "highest rank",
@@ -675,10 +711,12 @@ public sealed class Texts
         ["sd.all"] = "All",
         ["sd.rank"] = "Rank {0}/{1}",
         ["sd.locked"] = "Lv {0}",
+        ["sd.preview"] = "Preview: save your talents",
         ["sheet.tab.stats"] = "Characteristics",
         ["sheet.tab.spells"] = "Spells",
         ["sheet.level"] = "Level {0} · {1}",
         ["sheet.hp"] = "Hit points",
+        ["sheet.tree"] = "Tree: +{0}% damage · +{1}% resistances · +{2}% HP",
         ["sheet.ap"] = "AP",
         ["sheet.mp"] = "MP",
         ["sheet.initiative"] = "Initiative",
@@ -1474,6 +1512,27 @@ public sealed class Texts
     {
         ArgumentNullException.ThrowIfNull(t);
         return this["talents.tile", t.Name.In(Lang), this["talents.branch." + t.Branch], this["talents.tier." + t.Tier], t.Cost] + "\n" + t.Description.In(Lang);
+    }
+
+    /// <summary>
+    /// Why a pair cannot join the talents taken (sprint 146, D82, C2), in the player's language: "l'Eau est déjà prise par
+    /// Boue"; null when it shares no element with them.
+    /// </summary>
+    public string? PairTaken(IReadOnlyList<string> taken, TalentSpec pair, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(pair);
+        ArgumentNullException.ThrowIfNull(data);
+        if (!pair.IsPair || Rpg.Core.Talents.Clash([.. taken.Where(id => id != pair.Id).Select(id => data.Talents[id]), pair], data) is not (Element shared, TalentSpec first))
+            return null;
+        return this["talents.taken." + shared, this["pair." + first.Rules.OfType<ReactionRule>().First().Reaction]];
+    }
+
+    /// <summary>The trunk at a level (sprint 146, D82): "Tronc, sans point : +3 % de dégâts (niv. 30), …", what is to come so said.</summary>
+    public string Trunk(int level)
+    {
+        string Node(TrunkNode n) => this["talents.trunk." + n.Gain, n.Percent, n.Level];
+        return this["talents.trunk", string.Join(" · ", Rpg.Core.Talents.Trunk.Select(n => level < n.Level ? this["talents.trunk.unlit", Node(n)] : Node(n)))];
     }
 
     public string Spell(Spell s) =>

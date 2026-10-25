@@ -242,6 +242,11 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("TalentsVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
                     b.Property<string>("Town")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");

@@ -80,7 +80,8 @@ public class ClassRulesTests
             foreach (int level in new[] { 1, 50, 100 })
             {
                 var f = new Fight(Real, "duel", 1, new Hero("Ondine", "female-e", c.Id, Level: level));
-                Assert.Equal(c.Hp + c.HpPerLevel * (level - 1), f.Fighters[0].MaxHp);
+                // The trunk's 5 % from level 40 (sprint 146, D82).
+                Assert.Equal((c.Hp + c.HpPerLevel * (level - 1)) * (100 + Talents.TrunkHp(level)) / 100, f.Fighters[0].MaxHp);
             }
         }
         // Without a pace of its own, a class takes the rules'.
@@ -93,7 +94,7 @@ public class ClassRulesTests
         var f = new Fight(Real, "duel", 6, new Hero("Ondine", "female-e", "guard", Level: 40), new Hero("Élise", "female-c", "mage", Level: 40));
         Fighter rival = f.Fighters.First(x => x.Team == 1);
         HeroClass mage = Real.Class("mage")!;
-        Assert.Equal(("Élise", mage.Ap, mage.Hp + mage.HpPerLevel * 39), (rival.Name.Fr, rival.Spec.Ap, rival.MaxHp));
+        Assert.Equal(("Élise", mage.Ap, (mage.Hp + mage.HpPerLevel * 39) * 105 / 100), (rival.Name.Fr, rival.Spec.Ap, rival.MaxHp));
         // No deck chosen: the class's first twelve spells unlocked (sprint 68).
         Assert.Equal(mage.Spells.Where(id => Real.Spells[id].Level <= 40).Take(Hero.DeckSize), rival.Spells.Select(s => s.Id));
         Ai.PlayOut(f);

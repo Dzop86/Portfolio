@@ -58,6 +58,8 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             character.Property(c => c.Waystones).HasMaxLength(1000).HasDefaultValue("");
             character.Ignore(c => c.WaystoneList);
             character.Property(c => c.Home).HasMaxLength(40);
+            // Characters made before sprint 146 took their talents in the first tree.
+            character.Property(c => c.TalentsVersion).HasDefaultValue(1);
         });
         modelBuilder.Entity<PendingFight>(fight =>
         {

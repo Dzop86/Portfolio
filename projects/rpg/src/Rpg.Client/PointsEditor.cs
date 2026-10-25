@@ -47,8 +47,11 @@ public sealed class PointsEditor
 
     public bool HasTalent(TalentSpec talent) => _talents.Contains((talent ?? throw new ArgumentNullException(nameof(talent))).Id);
 
-    /// <summary>A talent can be taken when the tree's rules allow it with those already taken (<see cref="Talents.Problem"/>).</summary>
-    public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem([.. _talents, talent.Id], Hero.Level, Data) is null;
+    /// <summary>
+    /// A talent can be taken when the tree's rules allow it with those already taken (<see cref="Talents.Problem"/>); since
+    /// sprint 146 (D82), a Conversion takes the place of the Transmutation of its compound (<see cref="Talents.With"/>).
+    /// </summary>
+    public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem(Talents.With(_talents, talent.Id, Data), Hero.Level, Data) is null;
 
     /// <summary>A talent can be given back unless another one needs it (a floor above, a talent that requires it).</summary>
     public bool CanDrop(TalentSpec talent) => !ReadOnly && HasTalent(talent) && Talents.Problem([.. _talents.Where(id => id != talent.Id)], Hero.Level, Data) is null;
@@ -57,7 +60,10 @@ public sealed class PointsEditor
     {
         if (!CanTake(talent))
             return;
-        _talents.Add(talent.Id);
+        List<string> after = Talents.With(_talents, talent.Id, Data);
+        Replaced = _talents.Except(after, StringComparer.Ordinal).FirstOrDefault();
+        _talents.Clear();
+        _talents.AddRange(after);
         FitDeck();
     }
 
@@ -66,7 +72,24 @@ public sealed class PointsEditor
         if (!CanDrop(talent))
             return;
         _talents.Remove(talent.Id);
+        Replaced = null;
         FitDeck();
+    }
+
+    /// <summary>The Transmutation the last talent taken replaced (a Conversion), for the window to say so; null otherwise.</summary>
+    public string? Replaced { get; private set; }
+
+    /// <summary>
+    /// The spells only the draft's talents give (sprint 146, D82, R2): shown dotted as a preview, out of the filter and of
+    /// the deck until the talents are saved.
+    /// </summary>
+    public IReadOnlyList<Spell> Previewed
+    {
+        get
+        {
+            HashSet<string> saved = [.. Talents.GrimoireOf(Hero, Data).Spells];
+            return [.. Talents.GrimoireOf(Draft, Data).Spells.Where(id => !saved.Contains(id)).Select(id => Data.Spells[id])];
+        }
     }
 
     /// <summary>
@@ -76,7 +99,8 @@ public sealed class PointsEditor
     private void FitDeck()
     {
         Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
-        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(grimoire.Spells.Contains).Distinct().Take(DeckLimit)];
+        HashSet<string> previewed = [.. Previewed.Select(s => s.Id)];
+        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(id => grimoire.Spells.Contains(id) && !previewed.Contains(id)).Distinct().Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(fitted);
     }
@@ -167,7 +191,14 @@ public sealed class PointsEditor
     public int SpellPointsLeft => Progression.SpellPoints(Hero.Level) - _ranks.Values.Sum(Progression.RankCost);
 
     /// <summary>The spells the draft may fight with (sprint 138, <see cref="Talents.GrimoireOf"/>): the class's the level has unlocked, in the class's order, then the compounds'.</summary>
-    public IReadOnlyList<Spell> Spells => [.. Talents.GrimoireOf(Draft, Data).Spells.Select(id => Data.Spells[id])];
+    public IReadOnlyList<Spell> Spells
+    {
+        get
+        {
+            HashSet<string> previewed = [.. Previewed.Select(s => s.Id)];
+            return [.. Talents.GrimoireOf(Draft, Data).Spells.Where(id => !previewed.Contains(id)).Select(id => Data.Spells[id])];
+        }
+    }
 
     /// <summary>A spell's rank; a compound's twin has its class spell's (sprint 138).</summary>
     public int Rank(Spell spell) => _ranks.GetValueOrDefault((spell ?? throw new ArgumentNullException(nameof(spell))).RankKey, 1);
@@ -243,7 +274,7 @@ public sealed class PointsEditor
 
     /// <summary>What saving this draft costs in Éclats (sprint 97): taking back points, from level 11; giving back talents, from level 41 (sprint 140).</summary>
     public long ResetCost => (Shop.TakesBack(Hero.Stats ?? Characteristics.None, Draft.Stats!) ? Shop.ResetCost(Hero.Level) : 0)
-        + (Talents.GivesBack(Hero.Talents, _talents) ? Talents.ChangeCost(Hero.Level) : 0);
+        + (Talents.GivesBack(Hero.Talents, _talents, Data) ? Talents.ChangeCost(Hero.Level) : 0);
 
     /// <summary>What the server receives.</summary>
     public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck, [.. _talents]);

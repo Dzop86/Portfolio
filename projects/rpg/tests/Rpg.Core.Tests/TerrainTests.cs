@@ -108,7 +108,8 @@ public class TerrainTests
         Fight f = Play(["A.B"], Hero("side-step", "backed", "decoy-talent") with { Deck = ["decoy", "bolt"] }, Monster(mp: 0));
         Assert.Equal(ActionError.None, f.Apply(new CastAction("decoy", C(1))));
         Fighter decoy = f.Fighters.Single(x => x.SummonKind == "decoy");
-        Assert.Equal(50, decoy.MaxHp);
+        // A tenth of 525 (the trunk's 5 % since sprint 146).
+        Assert.Equal(52, decoy.MaxHp);
         f.Apply(new EndTurnAction());
         Assert.Equal(decoy, f.Current);
         Assert.Equal(new EndTurnAction(), Ai.Decide(f));
@@ -126,7 +127,7 @@ public class TerrainTests
         Assert.Equal(300 - 7, f.Fighters[1].Hp);
         f.Apply(new CastAction("bolt", C(4)));
         f.Apply(new CastAction("bolt", C(5)));
-        // Inside its Remanence: +20 −5 −10: 10.
+        // Inside its Remanence: +20 −5 −10, and the trunk's 3 % (sprint 146): 10.
         Assert.Equal(300 - 7 - 10, f.Fighters[1].Hp);
     }
 
@@ -134,7 +135,8 @@ public class TerrainTests
     public void Nomad_GivesTwoMovementPoints_ForFifteenPercentOfLife()
     {
         Fight f = Play(["A..B"], Hero("side-step", "backed", "remanence", "nomad"));
-        Assert.Equal((8 - 1, 425), (f.HeroFighter!.Mp, f.HeroFighter.MaxHp));
+        // −15 % and the trunk's +5 % (sprint 146): 90 % of 500.
+        Assert.Equal((8 - 1, 450), (f.HeroFighter!.Mp, f.HeroFighter.MaxHp));
     }
 
     [Fact]

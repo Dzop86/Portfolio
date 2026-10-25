@@ -11,7 +11,8 @@ public sealed record SheetLine(Characteristic Stat, Element? Element, int Invest
 
 /// <summary>
 /// The characteristics sheet, without any engine (sprint 64): a hero, saved or a draft, as a fight
-/// will count it (<see cref="Fight.HeroTotals"/>), with the points the level still gives.
+/// will count it (<see cref="Fight.HeroTotals"/>), with the points the level still gives. Since sprint 146 (D82, O7 a),
+/// what the tree's trunk adds: its damage, its resistance (in each element's line) and its hit points (in the maximum).
 /// </summary>
 public sealed class CharacterSheet
 {
@@ -24,19 +25,22 @@ public sealed class CharacterSheet
         Lines =
         [
             new(Characteristic.Vitality, null, own.Vitality, n.Worn.Vitality, n.Stats.Vitality, n.Stats.Vitality, 0),
-            Line(Characteristic.Earth, Element.Earth, own.Earth, n.Worn.Earth),
-            Line(Characteristic.Fire, Element.Fire, own.Fire, n.Worn.Fire),
-            Line(Characteristic.Water, Element.Water, own.Water, n.Worn.Water),
-            Line(Characteristic.Air, Element.Air, own.Air, n.Worn.Air),
+            Line(Characteristic.Earth, Element.Earth, own.Earth, n.Worn.Earth, hero.Level),
+            Line(Characteristic.Fire, Element.Fire, own.Fire, n.Worn.Fire, hero.Level),
+            Line(Characteristic.Water, Element.Water, own.Water, n.Worn.Water, hero.Level),
+            Line(Characteristic.Air, Element.Air, own.Air, n.Worn.Air, hero.Level),
         ];
-        MaxHp = n.Hp + n.Stats.Vitality;
+        // As a fight counts them: the talents' percent (Nomad) and the trunk's, of the maximum with Vitality.
+        int hpPercent = (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<HpRule>().Sum(r => r.Percent) + Talents.TrunkHp(hero.Level);
+        MaxHp = (n.Hp + n.Stats.Vitality) * (100 + hpPercent) / 100;
+        (TreeDamage, TreeResistance, TreeHp) = (Talents.TrunkDamage(hero.Level), Talents.TrunkResistance(hero.Level), Talents.TrunkHp(hero.Level));
         (Ap, Mp, Initiative) = (n.Ap, n.Mp, n.Initiative);
         PointsLeft = Progression.CharacteristicPoints(hero.Level) - (own.Vitality + own.Earth + own.Fire + own.Water + own.Air);
     }
 
-    // Heroes have no resistance of their own yet, and items give none: the column says 0 until they do.
-    private static SheetLine Line(Characteristic stat, Element element, int invested, int worn) =>
-        new(stat, element, invested, worn, invested + worn, Characteristics.Bonus(invested + worn), 0);
+    // Items give no resistance: the column says the trunk's (sprint 146), 0 before level 35.
+    private static SheetLine Line(Characteristic stat, Element element, int invested, int worn, int level) =>
+        new(stat, element, invested, worn, invested + worn, Characteristics.Bonus(invested + worn), Talents.TrunkResistance(level));
 
     public Hero Hero { get; }
     public IReadOnlyList<SheetLine> Lines { get; }
@@ -45,6 +49,15 @@ public sealed class CharacterSheet
     public int Mp { get; }
     public int Initiative { get; }
     public int PointsLeft { get; }
+
+    /// <summary>The trunk's damage in percent, on every spell (sprint 146): 0 before level 30.</summary>
+    public int TreeDamage { get; }
+
+    /// <summary>The trunk's resistance in percent, to each element: 0 before level 35.</summary>
+    public int TreeResistance { get; }
+
+    /// <summary>The trunk's hit points in percent of the maximum, counted in <see cref="MaxHp"/>: 0 before level 40.</summary>
+    public int TreeHp { get; }
 
     /// <summary>The line of a characteristic.</summary>
     public SheetLine this[Characteristic stat] => Lines.Single(l => l.Stat == stat);

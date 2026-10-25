@@ -15,7 +15,16 @@ public class ReactionTests
     private static readonly Spell Poke = new("poke", Text, 1, 1, 6, false, false, 10, 10, 9);
     private static readonly HeroClass Tester = new("tester", Text, Text, 500, 99, 6, 999, ["clod", "ember", "splash", "gust", "poke"], HpPerLevel: 0);
 
-    private static readonly string[] All = ["bogging", "chilling", "cracking", "electrifying", "fogging", "blinding"];
+    // Each reaction's talent; since sprint 146 (D82, C2) two pairs share no element, so a hero holds two at most.
+    private static readonly Dictionary<string, string> TalentOf = new()
+    {
+        ["bogged"] = "bogging",
+        ["chilled"] = "chilling",
+        ["cracked"] = "cracking",
+        ["electrified"] = "electrifying",
+        ["fogged"] = "fogging",
+        ["blinded"] = "blinding",
+    };
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
         new([.. Spells, .. TreeSpells, Clod, Ember, Splash, Gust, Poke], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
@@ -40,7 +49,7 @@ public class ReactionTests
     [InlineData("clod", "gust", "blinded", Stat.Range, -2, 1)]
     public void EachPair_SetsOffItsReaction(string first, string second, string reaction, Stat stat, int value, int turns)
     {
-        Fight f = Play(["A..B"], Hero(All));
+        Fight f = Play(["A..B"], Hero(TalentOf[reaction]));
         f.Apply(new CastAction(first, C(3)));
         f.Apply(new CastAction(second, C(3)));
         Assert.Contains(new ReactionTriggered(1, reaction, 0), f.Events);
@@ -63,7 +72,7 @@ public class ReactionTests
     [Fact]
     public void Electrified_MakesEveryHitItTakesJump_OnOneTargetAtATimeByCaster()
     {
-        Fight f = Play(["A..BB.B"], Hero(All), Monster(0), Monster(1), Monster(2));
+        Fight f = Play(["A..BB.B"], Hero("electrifying"), Monster(0), Monster(1), Monster(2));
         f.Apply(new CastAction("gust", C(3)));
         f.Apply(new CastAction("ember", C(3)));
         Assert.Contains(f.Fighters[1].Statuses, s => s.Stat == Stat.Electrified);
@@ -82,7 +91,7 @@ public class ReactionTests
     public void Blinded_TakesTwoCellsOfRange_ToSpellsReachingFarther_NeverUnderOne()
     {
         // The monster, blinded, casts its 6-cell spell no farther than 4.
-        Fight f = Play(["A....B"], Hero(All), Monster(spells: ["poke", "strike"]));
+        Fight f = Play(["A....B"], Hero("blinding"), Monster(spells: ["poke", "strike"]));
         f.Apply(new CastAction("clod", C(5)));
         f.Apply(new CastAction("gust", C(5)));
         Fighter monster = f.Fighters[1];
@@ -95,9 +104,12 @@ public class ReactionTests
     [Fact]
     public void AChief_LosesAtMostTwoActionPoints_ToChilledAndBogged_Each()
     {
-        Fight f = Play(["A..B"], Hero(All), Monster(chief: true));
+        // Chilled by the hero, Bogged by its ally (two pairs sharing Water, held by two heroes since sprint 146).
+        Fight f = new(Data(["A..B", "....", "A..."], Spec(0, initiative: 999, spells: ["strike"]), Monster(chief: true)), "s", 1,
+            Hero("chilling"), allies: [Hero("bogging") with { Name = "Romane" }]);
         f.Apply(new CastAction("splash", C(3)));
         f.Apply(new CastAction("gust", C(3)));
+        f.Apply(new EndTurnAction());
         f.Apply(new CastAction("clod", C(3)));
         f.Apply(new CastAction("splash", C(3)));
         Assert.Equal([(Stat.Ap, -2), (Stat.Mp, -2)], f.Fighters[1].Statuses.Select(s => (s.Stat, s.Value)).Order());
@@ -106,13 +118,13 @@ public class ReactionTests
     [Fact]
     public void AHero_OpensTwoElementsAtMost_AndGivingTalentsBack_CostsAfterForty()
     {
-        Assert.Equal(1, Talents.ElementsOpened([Real.Talents["open-lightning"], Real.Talents["convert-lightning"]]));
+        Assert.Equal(1, Talents.ElementsOpened([Real.Talents["transmute-fire-lightning"], Real.Talents["convert-lightning"]]));
         Assert.Equal(0, Talents.ElementsOpened([Real.Talents["bogging"]]));
         Assert.Equal(2, Talents.MaxOpened);
         Assert.Equal((0, 0, 410), (Talents.ChangeCost(30), Talents.ChangeCost(40), Talents.ChangeCost(41)));
-        Assert.True(Talents.GivesBack(["bogging", "up-close"], ["up-close", "chilling"]));
-        Assert.False(Talents.GivesBack(["bogging"], ["bogging", "chilling"]));
-        Assert.False(Talents.GivesBack(null, ["bogging"]));
+        Assert.True(Talents.GivesBack(["bogging", "up-close"], ["up-close", "chilling"], Real));
+        Assert.False(Talents.GivesBack(["bogging"], ["bogging", "chilling"], Real));
+        Assert.False(Talents.GivesBack(null, ["bogging"], Real));
     }
 
     // ---- the second floor and the keys (sprint 144) ----
@@ -120,7 +132,7 @@ public class ReactionTests
     [Fact]
     public void LastingMark_LastsATurnMore_LingeringReaction_StatesTooButTheTriggerIsSofter()
     {
-        Fight f = Play(["A..B"], Hero("bogging", "chilling", "lasting-mark", "lingering-reaction"));
+        Fight f = Play(["A..B"], Hero("bogging", "electrifying", "lasting-mark", "lingering-reaction"));
         f.Apply(new CastAction("clod", C(3)));
         Assert.Equal(3, f.Fighters[1].Mark!.TurnsLeft);
         // The Water that sets Bogged off: −10 % (9); Bogged for 2 turns.
@@ -132,13 +144,13 @@ public class ReactionTests
     [Fact]
     public void Catalysis_HurtsOnTop_ButOnceATurn()
     {
-        Fight f = Play(["A..B"], Hero("bogging", "chilling", "catalysis"));
+        Fight f = Play(["A..B"], Hero("bogging", "electrifying", "catalysis"));
         f.Apply(new CastAction("clod", C(3)));
         f.Apply(new CastAction("splash", C(3)));
         // 10, 10, and 20 % of 10 neutral.
         Assert.Equal(300 - 22, f.Fighters[1].Hp);
         f.Apply(new CastAction("gust", C(3)));
-        f.Apply(new CastAction("splash", C(3)));
+        f.Apply(new CastAction("ember", C(3)));
         Assert.Single(f.Events.OfType<ReactionTriggered>());
     }
 
@@ -149,7 +161,7 @@ public class ReactionTests
         GameData data = new([.. Spells, .. TreeSpells, Clod, Ember, Splash, Gust, Poke, slab], [new MapSpec("m", Text, ["A..BBB"])],
             [new Scenario("s", Text, "m", [Spec(0, initiative: 999, spells: ["strike"]), Monster(0), Monster(1), Monster(2)])], [Tester with { Spells = [.. Tester.Spells, "slab"] }],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
-        var f = new Fight(data, "s", 1, Hero("bogging", "chilling", "lasting-mark", "wave"));
+        var f = new Fight(data, "s", 1, Hero("bogging", "electrifying", "lasting-mark", "wave"));
         foreach (int x in new[] { 3, 4, 5 })
             f.Apply(new CastAction("splash", C(x)));
         f.Apply(new CastAction("slab", C(4)));
@@ -162,14 +174,14 @@ public class ReactionTests
     public void SharedMark_LetsAnAllyReact_Virtuoso_OnlyOnItsOwnMarks()
     {
         Fight f = new(Data(["A..B", "....", "A..."], Spec(0, initiative: 999, spells: ["strike"]), Monster()), "s", 1,
-            Hero("bogging", "chilling", "lasting-mark", "shared-mark"), allies: [Hero() with { Name = "Romane" }]);
+            Hero("bogging", "electrifying", "lasting-mark", "shared-mark"), allies: [Hero() with { Name = "Romane" }]);
         f.Apply(new CastAction("clod", C(3)));
         f.Apply(new EndTurnAction());
         // The ally, without a talent, completes the Earth mark with Water: Bogged.
         f.Apply(new CastAction("splash", C(3)));
         Assert.Single(f.Events.OfType<ReactionTriggered>());
         Fight v = new(Data(["A..B", "....", "A..."], Spec(0, initiative: 999, spells: ["strike"]), Monster()), "s", 1,
-            Hero("bogging"), allies: [Hero("bogging", "chilling", "lasting-mark", "virtuoso") with { Name = "Romane" }]);
+            Hero("bogging"), allies: [Hero("bogging", "electrifying", "lasting-mark", "virtuoso") with { Name = "Romane" }]);
         v.Apply(new CastAction("clod", C(3)));
         v.Apply(new EndTurnAction());
         v.Apply(new CastAction("splash", C(3)));

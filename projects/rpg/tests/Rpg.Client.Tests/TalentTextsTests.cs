@@ -68,29 +68,85 @@ public class TalentTextsTests
     }
 
     [Fact]
-    public void Lightning_HasItsCard_ItsColour_AndItsSpellsInTheBook_WithTheTalents()
+    public void Lightning_HasItsCard_ItsColour_AndItsSpellsInTheBook_OnceATransmutationIsSaved()
     {
-        // Sprint 138 (T104): the Arc on the card, the yellow of Lightning, the spells of the opening in the book and the deck.
+        // Sprint 138 (T104): the Arc on the card, the yellow of Lightning; since sprint 146 (D82, R1 and R2), its spells only
+        // once a Transmutation or the Conversion is saved, a preview before, out of the filter and of the deck.
         Spell storm = Data.Spells["lightning-fire-arrow"];
         Assert.Contains("Arc : 35 % des dégâts sautent sur l'ennemi le plus proche à 2 cases", new Texts("fr").SpellCard(storm), StringComparison.Ordinal);
         Assert.Contains("Lightning", new Texts("en").SpellCard(storm), StringComparison.Ordinal);
         Assert.Equal("#f2d03b", ElementStyle.Colour(Element.Lightning));
         var editor = new PointsEditor(Sentinel(35), Data);
         Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
-        // No Lightning to filter the book by before the talent (Charles, after sprint 144).
         Assert.DoesNotContain(Element.Lightning, new SpellBook(editor).Elements);
-        editor.Take(Data.Talents["open-lightning"]);
-        Assert.Equal(4, new SpellBook(editor).Spells.Count(b => b.Element == Element.Lightning));
-        Assert.Contains(Element.Lightning, new SpellBook(editor).Elements);
-        Assert.True(editor.CanAddToDeck(storm) || editor.Deck.Count == Hero.DeckSize);
-        editor.RemoveFromDeck(Data.Spells["stone-arrow"]);
-        editor.AddToDeck(storm);
-        Assert.Contains("lightning-fire-arrow", editor.Deck);
-        // Its rank is Burning Arrow's; given back, the opening takes its spell out of the deck.
-        Assert.Equal(editor.Rank(Data.Spells["fire-arrow"]), editor.Rank(storm));
-        editor.Drop(Data.Talents["open-lightning"]);
-        Assert.DoesNotContain("lightning-fire-arrow", editor.Deck);
-        Assert.Null(editor.Draft.Problem(Data));
+        editor.Take(Data.Talents["electrifying"]);
+        Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
+        // Taken in the draft: a preview, dotted, neither to filter by nor to put in the deck.
+        editor.Take(Data.Talents["transmute-fire-lightning"]);
+        var book = new SpellBook(editor);
+        BookSpell[] previews = [.. book.Spells.Where(b => b.Element == Element.Lightning)];
+        Assert.NotEmpty(previews);
+        Assert.All(previews, b => Assert.True(b.Preview));
+        Assert.DoesNotContain(Element.Lightning, book.Elements);
+        Assert.Empty(book.Of(Element.Lightning));
+        Assert.Contains(storm, editor.Previewed);
+        Assert.False(editor.CanAddToDeck(storm));
+        Assert.DoesNotContain(editor.Deck, id => Data.Spells[id].Element == Element.Lightning);
+        // Saved: its own spells, in the filter and the deck.
+        var saved = new PointsEditor(editor.Draft, Data);
+        Assert.Empty(saved.Previewed);
+        Assert.Contains(Element.Lightning, new SpellBook(saved).Elements);
+        Assert.All(new SpellBook(saved).Spells.Where(b => b.Element == Element.Lightning), b => Assert.False(b.Preview));
+        Assert.True(saved.CanAddToDeck(storm) || saved.Deck.Count == saved.DeckLimit);
+        saved.RemoveFromDeck(Data.Spells["stone-arrow"]);
+        saved.AddToDeck(storm);
+        Assert.Contains("lightning-fire-arrow", saved.Deck);
+        // Its rank is Burning Arrow's; given back, the Transmutation takes its spell out of the deck.
+        Assert.Equal(saved.Rank(Data.Spells["fire-arrow"]), saved.Rank(storm));
+        saved.Drop(Data.Talents["transmute-fire-lightning"]);
+        Assert.DoesNotContain("lightning-fire-arrow", saved.Deck);
+        Assert.Null(saved.Draft.Problem(Data));
+    }
+
+    [Fact]
+    public void TheConversion_ReplacesTheTransmutation_AndTheWindowSaysSo()
+    {
+        // Sprint 146 (D82, F3 a): the point of the Transmutation comes back, and nothing is paid for it after 40.
+        var editor = new PointsEditor(Sentinel(45, "electrifying", "transmute-fire-lightning"), Data);
+        Assert.True(editor.CanTake(Data.Talents["convert-lightning"]));
+        editor.Take(Data.Talents["convert-lightning"]);
+        Assert.Equal(["electrifying", "convert-lightning"], editor.TalentsTaken);
+        Assert.Equal("transmute-fire-lightning", editor.Replaced);
+        Assert.Equal(0, editor.ResetCost);
+        Assert.Equal(7 - 3, editor.TalentPointsLeft);
+        Assert.Equal("La Conversion remplace Transmutation : Feu → Foudre : son point revient.", new Texts("fr")["talents.replaced", Data.Talents["transmute-fire-lightning"].Name.Fr]);
+    }
+
+    [Fact]
+    public void APair_ThatSharesAnElement_SaysWhichAndWithWhom()
+    {
+        // Sprint 146 (D82, C2): Mud and Ice share Water; Lightning and Mud make a couple.
+        var editor = new PointsEditor(Sentinel(35, "bogging"), Data);
+        Assert.False(editor.CanTake(Data.Talents["chilling"]));
+        Assert.True(editor.CanTake(Data.Talents["electrifying"]));
+        Assert.Equal("l'Eau est déjà prise par Boue", new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["chilling"], Data));
+        Assert.Equal("Water is already taken by Mud", new Texts("en").PairTaken(editor.TalentsTaken, Data.Talents["chilling"], Data));
+        Assert.Null(new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["electrifying"], Data));
+        Assert.Null(new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["up-close"], Data));
+    }
+
+    [Fact]
+    public void TheSheet_ShowsTheTrunk_FromThirty()
+    {
+        // Sprint 146 (D82, O7 a): +3 % damage at 30, +3 % resistances at 35, +5 % hit points at 40.
+        CharacterSheet young = new(Sentinel(29), Data), grown = new(Sentinel(40), Data);
+        Assert.Equal((0, 0, 0), (young.TreeDamage, young.TreeResistance, young.TreeHp));
+        Assert.Equal((3, 3, 5), (grown.TreeDamage, grown.TreeResistance, grown.TreeHp));
+        Assert.All(grown.Lines.Where(l => l.Element is not null), l => Assert.Equal(3, l.Resistance));
+        int bare = Fight.HeroTotals(Sentinel(40), Data)!.Hp;
+        Assert.Equal(bare * 105 / 100, grown.MaxHp);
+        Assert.Equal("Tronc, sans point : +3 % de dégâts (niv. 30) · +3 % de résistances (niv. 35), à venir · +5 % de PV (niv. 40), à venir", new Texts("fr").Trunk(30));
+        Assert.Equal("Trunk, no point: +3% damage (lv 30) · +3% resistances (lv 35) · +5% HP (lv 40)", new Texts("en").Trunk(40));
     }
 
     [Fact]

@@ -196,7 +196,8 @@ public sealed record FighterSpec(
     IReadOnlyList<string>? Passives = null,
     string? Family = null,
     IReadOnlyList<string>? Talents = null,
-    bool Chief = false)
+    bool Chief = false,
+    int TreeDamage = 0)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -579,15 +580,15 @@ public sealed class GameData
         foreach (TalentSpec t in Talents.Values)
         {
             if (t.Rules.Count == 0 || t.Rules.OfType<ReactionRule>().Any(r => !Reactions.ContainsKey(r.Reaction))
-                || (t.Excludes ?? []).Concat(t.Requires ?? []).Any(id => id == t.Id || !Talents.ContainsKey(id)))
+                || (t.Excludes ?? []).Concat(t.Requires ?? []).Concat(t.RequiresAny ?? []).Any(id => id == t.Id || !Talents.ContainsKey(id)))
                 throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
             if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
             if (t.Rules.OfType<GrantRule>().Any(r => !Spells.ContainsKey(r.Spell)))
                 throw new InvalidDataException($"Talent '{t.Id}': a spell given that is known.");
-            if (t.Rules.OfType<OpenRule>().Any(r => !Elements.IsCompound(r.Element)) || t.Rules.OfType<ConvertRule>().Any(r => !Elements.IsCompound(r.Element))
+            if (t.Rules.OfType<ConvertRule>().Any(r => !Elements.IsCompound(r.Element))
                 || t.Rules.OfType<TransmuteRule>().Any(r => !Elements.Parents(r.To).Contains(r.From)))
-                throw new InvalidDataException($"Talent '{t.Id}': a compound opened or converted, a parent transmuted into its compound.");
+                throw new InvalidDataException($"Talent '{t.Id}': a compound converted, a parent transmuted into its compound.");
         }
     }
 

@@ -37,8 +37,6 @@ public enum Tier
 [JsonDerivedType(typeof(ReactionRule), "reaction")]
 [JsonDerivedType(typeof(RangeRule), "range")]
 [JsonDerivedType(typeof(DistanceRule), "distance")]
-[JsonDerivedType(typeof(OpenRule), "open")]
-[JsonDerivedType(typeof(FullGrimoireRule), "full-grimoire")]
 [JsonDerivedType(typeof(TransmuteRule), "transmute")]
 [JsonDerivedType(typeof(ConvertRule), "convert")]
 [JsonDerivedType(typeof(SignatureRule), "signature")]
@@ -207,15 +205,6 @@ public sealed record ApCostRule(int MinAp, int MaxAp, int Percent) : TalentRule;
 /// <summary>Living: the turn's first damage spell <see cref="First"/> %, the following ones <see cref="Others"/> % (First Gesture).</summary>
 public sealed record FirstCastRule(int First, int Others) : TalentRule;
 
-/// <summary>
-/// Compiled (sprint 138): the compound joins the grimoire, its spells transposed from the first two class spells of each
-/// parent (all of them with <see cref="FullGrimoireRule"/>).
-/// </summary>
-public sealed record OpenRule(Element Element) : TalentRule;
-
-/// <summary>Compiled: every spell of the compounds opened, not only the first four.</summary>
-public sealed record FullGrimoireRule : TalentRule;
-
 /// <summary>Compiled: the spells of the base element <see cref="From"/> become their twins of the compound <see cref="To"/>.</summary>
 public sealed record TransmuteRule(Element From, Element To) : TalentRule;
 
@@ -249,11 +238,19 @@ public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : Tal
 
 /// <summary>
 /// A talent of the tree shared by every class (D80), as described in <c>data/talents.json</c>: no talent names a class
-/// or a spell. <see cref="Excludes"/> cannot be taken with it; <see cref="Requires"/> must be taken first.
+/// or a spell. <see cref="Excludes"/> cannot be taken with it; <see cref="Requires"/> must be taken first. Since sprint 146
+/// (D82), one of <see cref="RequiresAny"/> must be (a parent among several, G7 a), and not before <see cref="Level"/>; a
+/// talent with a parent asks no points below it in its branch (G4 a).
 /// </summary>
 public sealed record TalentSpec(string Id, LocalizedText Name, LocalizedText Description, Branch Branch, Tier Tier, IReadOnlyList<TalentRule> Rules,
-    IReadOnlyList<string>? Excludes = null, IReadOnlyList<string>? Requires = null)
+    IReadOnlyList<string>? Excludes = null, IReadOnlyList<string>? Requires = null, IReadOnlyList<string>? RequiresAny = null, int Level = 0)
 {
+    /// <summary>Whether a talent it asks for comes first (<see cref="Requires"/> or <see cref="RequiresAny"/>).</summary>
+    public bool HasParent => Requires is { Count: > 0 } || RequiresAny is { Count: > 0 };
+
+    /// <summary>A pair's node (sprint 146, C2): the talent that gives a reaction, which takes its two elements.</summary>
+    public bool IsPair => Rules.OfType<ReactionRule>().Any();
+
     public TalentFamily Family => Branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner;
 
     /// <summary>1 point, 2 for a key.</summary>
@@ -336,11 +333,33 @@ public static class Talents
     /// <summary>The tree opens at this level: nothing changes before it (chapter 1 and the balance of the fields).</summary>
     public const int Opens = 30;
 
+    /// <summary>
+    /// The version of the tree (sprint 146, D82): 1 the tree of sprints 137 to 144, 2 since the trunk and the arbitrated
+    /// Lightning. Talents taken in an older one are given back once, for free, with a word at the connection (I5 a).
+    /// </summary>
+    public const int Version = 2;
+
     /// <summary>The ceiling of the tree's conditional bonuses on one hit, in percent (§4.4).</summary>
     public const int Ceiling = 35;
 
-    /// <summary>2 points at level 30, then one every 5 levels: 16 at 100.</summary>
-    public static int Points(int level) => level < Opens ? 0 : 2 + (level - Opens) / 5;
+    /// <summary>2 points at level 30, then one every 3 levels (sprint 146, D82, G1 b): 7 at 45, 12 at 60, 25 at 100.</summary>
+    public static int Points(int level) => level < Opens ? 0 : 2 + (level - Opens) / 3;
+
+    /// <summary>
+    /// The trunk (sprint 146, D82, B1 a and B2 b): three nodes that light up by themselves, no point spent, the same for
+    /// every class: more damage at 30 (every spell, neutral included, outside <see cref="Ceiling"/>), more resistance at 35
+    /// (points added to each base element, under the ceiling of 90), more hit points at 40 (of the maximum, Vitality
+    /// included). If they make the fights too easy, the trunk is lowered, not the monsters (J7 b).
+    /// </summary>
+    public static readonly IReadOnlyList<TrunkNode> Trunk = [new(30, TrunkGain.Damage, 3), new(35, TrunkGain.Resistance, 3), new(40, TrunkGain.Hp, 5)];
+
+    public static int TrunkDamage(int level) => TrunkOf(level, TrunkGain.Damage);
+
+    public static int TrunkResistance(int level) => TrunkOf(level, TrunkGain.Resistance);
+
+    public static int TrunkHp(int level) => TrunkOf(level, TrunkGain.Hp);
+
+    private static int TrunkOf(int level, TrunkGain gain) => Trunk.Where(t => t.Gain == gain && level >= t.Level).Sum(t => t.Percent);
 
     /// <summary>Earth, Fire, Water and Air: the elements that leave marks and react.</summary>
     public static bool IsBase(Element element) => element is Element.Earth or Element.Fire or Element.Water or Element.Air;
@@ -348,7 +367,8 @@ public static class Talents
     /// <summary>
     /// Why these talents cannot be held at this level, or null: known and each once, from level 30, within its points;
     /// a second floor after 2 points in the branch's first, a key after 3 below it; one key per branch and one of Matter
-    /// in the whole tree; nothing it excludes, everything it requires.
+    /// in the whole tree; nothing it excludes, everything it requires. Since sprint 146 (D82): a talent with a parent asks
+    /// no points below it, one of its parents among several, its level; two pairs share no element (C2).
     /// </summary>
     public static string? Problem(IReadOnlyList<string> talents, int level, GameData data)
     {
@@ -368,14 +388,20 @@ public static class Talents
         foreach (TalentSpec t in taken)
         {
             int below = taken.Where(o => o.Branch == t.Branch && o.Tier < t.Tier).Sum(o => o.Cost);
-            int asked = t.Tier == Tier.Key ? 3 : t.Tier == Tier.Second ? SecondFloor(t.Branch) : 0;
+            int asked = t.HasParent ? 0 : t.Tier == Tier.Key ? 3 : t.Tier == Tier.Second ? SecondFloor(t.Branch) : 0;
             if (below < asked)
                 return $"'{t.Id}' asks {asked} points spent below it in its branch.";
             if (taken.FirstOrDefault(o => o != t && ((t.Excludes ?? []).Contains(o.Id) || (o.Excludes ?? []).Contains(t.Id))) is TalentSpec other)
                 return $"'{t.Id}' and '{other.Id}' exclude each other.";
             if ((t.Requires ?? []).FirstOrDefault(r => !talents.Contains(r)) is string missing)
                 return $"'{t.Id}' asks for '{missing}'.";
+            if (t.RequiresAny is { Count: > 0 } any && !any.Any(talents.Contains))
+                return $"'{t.Id}' asks for one of {string.Join(", ", any.Select(a => $"'{a}'"))}.";
+            if (level < t.Level)
+                return $"'{t.Id}' opens at level {t.Level}.";
         }
+        if (Clash(taken, data) is (Element shared, TalentSpec pair))
+            return $"{shared} is already taken by '{pair.Id}'.";
         if (taken.Where(t => t.Tier == Tier.Key).GroupBy(t => t.Branch).Any(g => g.Count() > 1))
             return "One key per branch.";
         if (ElementsOpened(taken) > MaxOpened)
@@ -386,12 +412,37 @@ public static class Talents
     /// <summary>The elements a hero may open, at most (sprint 140, §4.1): compounds, and later Light or Darkness.</summary>
     public const int MaxOpened = 2;
 
-    /// <summary>The elements these talents open: each compound opened or converted, once.</summary>
+    /// <summary>
+    /// The first pair that shares an element with one taken before it (sprint 146, D82, C2: "if it has Water-Fire it cannot
+    /// have Water-Air, Water is already taken"): the element shared and the pair that took it first; null when none does.
+    /// </summary>
+    public static (Element Element, TalentSpec Pair)? Clash(IEnumerable<TalentSpec> taken, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(data);
+        var by = new Dictionary<Element, TalentSpec>();
+        foreach (TalentSpec t in taken.Where(t => t.IsPair))
+        {
+            foreach (ReactionRule r in t.Rules.OfType<ReactionRule>())
+            {
+                ReactionSpec reaction = data.Reactions[r.Reaction];
+                foreach (Element e in new[] { reaction.First, reaction.Second })
+                {
+                    if (by.TryGetValue(e, out TalentSpec? first) && first != t)
+                        return (e, first);
+                    by[e] = t;
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>The elements these talents open: each compound transmuted or converted (since sprint 146), once.</summary>
     public static int ElementsOpened(IEnumerable<TalentSpec> talents)
     {
         ArgumentNullException.ThrowIfNull(talents);
         TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
-        return rules.OfType<OpenRule>().Select(r => r.Element).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Count();
+        return rules.OfType<TransmuteRule>().Select(r => r.To).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Count();
     }
 
     /// <summary>Talents are taken back for free up to this level; above, it costs <see cref="ChangeCost"/> Éclats, in a village (§4.2).</summary>
@@ -400,8 +451,29 @@ public static class Talents
     /// <summary>What giving back saved talents costs at a level, in Éclats: nothing up to 40, then 10 × the level.</summary>
     public static long ChangeCost(int level) => level <= FreeChangeUpTo ? 0 : 10L * level;
 
-    /// <summary>Whether new talents give back any saved one (taking more is free).</summary>
-    public static bool GivesBack(IReadOnlyList<string>? before, IReadOnlyList<string>? after) => (before ?? []).Except(after ?? [], StringComparer.Ordinal).Any();
+    /// <summary>
+    /// Whether new talents give back any saved one (taking more is free). A Transmutation the Conversion of its compound
+    /// replaced is not given back (sprint 146, D82, I2 a): it is growing stronger, not a regret.
+    /// </summary>
+    public static bool GivesBack(IReadOnlyList<string>? before, IReadOnlyList<string>? after, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        Element[] converted = [.. (after ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<ConvertRule>().Select(r => r.Element)];
+        return (before ?? []).Except(after ?? [], StringComparer.Ordinal)
+            .Any(id => !(data.Talents.TryGetValue(id, out TalentSpec? t) && t.Rules.OfType<TransmuteRule>().Any(r => converted.Contains(r.To))));
+    }
+
+    /// <summary>
+    /// The talents with <paramref name="taken"/> added, as the tree's window takes it (sprint 146, D82): a Conversion takes
+    /// the place of the Transmutation of its compound, whose point comes back.
+    /// </summary>
+    public static List<string> With(IReadOnlyList<string> talents, string taken, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(talents);
+        ArgumentNullException.ThrowIfNull(data);
+        Element[] converts = [.. data.Talents[taken].Rules.OfType<ConvertRule>().Select(r => r.Element)];
+        return [.. talents.Where(id => !(converts.Length > 0 && data.Talents.TryGetValue(id, out TalentSpec? t) && t.Rules.OfType<TransmuteRule>().Any(r => converts.Contains(r.To)))), taken];
+    }
 
     /// <summary>
     /// The points below a second floor: 2, but 1 in Braids, whose first floor opens elements, two at most; the game
@@ -448,19 +520,6 @@ public static class Talents
         // The spells of the tree (sprint 142): after the class's.
         foreach (GrantRule g in rules.OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
             spells.Add(g.Spell);
-        bool full = rules.OfType<FullGrimoireRule>().Any();
-        foreach (Element compound in rules.OfType<OpenRule>().Select(o => o.Element).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Order())
-        {
-            foreach (Element parent in Elements.Parents(compound))
-            {
-                IEnumerable<string> origins = c.Spells.Where(id => data.Spells[id].Element == parent);
-                foreach (string origin in (full ? origins : origins.Take(2)).Where(unlocked.Contains))
-                {
-                    if (TwinOf(origin, compound) is Spell twin && !spells.Contains(twin.Id))
-                        spells.Add(twin.Id);
-                }
-            }
-        }
         return new Grimoire(spells, replaced);
     }
 
@@ -597,4 +656,16 @@ public static class Talents
             return null;
         return talents.SelectMany(t => t.Rules).OfType<ReactionRule>().Select(r => data.Reactions[r.Reaction]).FirstOrDefault(r => r.Joins(a, b));
     }
+}
+
+/// <summary>A node of the trunk (sprint 146, D82): lit from <see cref="Level"/>, that many <see cref="Percent"/> more of <see cref="Gain"/>.</summary>
+public sealed record TrunkNode(int Level, TrunkGain Gain, int Percent);
+
+/// <summary>What a node of the trunk adds: damage, resistance or hit points.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<TrunkGain>))]
+public enum TrunkGain
+{
+    Damage,
+    Resistance,
+    Hp,
 }

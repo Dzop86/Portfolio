@@ -6,7 +6,9 @@ using Rpg.Core;
 namespace Rpg.Api;
 
 /// <summary>What the server's operator asks for the characters of an account (sprint 79).</summary>
-public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null, IReadOnlyList<Renaming>? Rename = null);
+/// <remarks>Since sprint 146 (D82, I6 b), <see cref="Builds"/> gives each character its class's reference build of Matter.</remarks>
+public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null, IReadOnlyList<Renaming>? Rename = null,
+    bool Builds = false);
 
 /// <summary>A character of the account the operator renames (sprint 94, Charles): its name, then the new one.</summary>
 public sealed record Renaming(string From, string To);
@@ -16,18 +18,19 @@ public sealed record NewHero(string Class, string Name);
 
 /// <summary>
 /// The server's administration command, run where the server runs and never over HTTP:
-/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]...</c> first creates
+/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]... [--builds]</c> first creates
 /// characters for the account (the names and the limit of the sign-up apply), renames some (a name of the
 /// sign-up's rule, free on the server), then brings every character of the
 /// account to a level (its experience with it; the points spent are given back if the level goes down)
-/// and gives them items of the data files. For the operator's tests (D65): no account, password or
+/// and gives them items of the data files; with <c>--builds</c> (sprint 146), each one's points, deck and talents become
+/// its class's reference build of Matter (<see cref="Progression.Builds"/>). For the operator's tests (D65): no account, password or
 /// character is written in the repository.
 /// </summary>
 public static class Admin
 {
     public const string Verb = "admin";
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]...";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]... [--builds]";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -38,6 +41,7 @@ public static class Admin
         var give = new List<ItemCount>();
         var create = new List<NewHero>();
         var rename = new List<Renaming>();
+        bool builds = false;
         for (int i = 2; i < args.Count; i++)
         {
             string value = i + 1 < args.Count ? args[i + 1] : "";
@@ -73,13 +77,16 @@ public static class Admin
                     rename.Add(new Renaming(names[0], names[1]));
                     i++;
                     break;
+                case "--builds":
+                    builds = true;
+                    break;
                 default:
                     return (null, $"Unknown: '{args[i]}'. {Usage}");
             }
         }
-        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0)
-            return (null, "Nothing to do: --create, --rename, --level or --give.");
-        return (new AdminOrder(args[1], level, give, create, rename), null);
+        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0 && !builds)
+            return (null, "Nothing to do: --create, --rename, --level, --give or --builds.");
+        return (new AdminOrder(args[1], level, give, create, rename, builds), null);
     }
 
     /// <summary>Applies the order; says what it did, one line per character.</summary>
@@ -126,7 +133,19 @@ public static class Admin
                 c.Level = level;
             }
             c.Receive(order.Give);
-            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s).");
+            if (order.Builds)
+            {
+                // Its class's reference build of Matter at its level: its points, ranks, deck and talents.
+                Hero built = Progression.Talented(c.Hero with { Stats = null, Ranks = null, Deck = null, Talents = null }, $"{c.Class}-matter", GameData.Embedded, c.WornList);
+                Characteristics st = built.Stats ?? Characteristics.None;
+                (c.Vitality, c.Earth, c.Fire, c.Water, c.Air) = (st.Vitality, st.Earth, st.Fire, st.Water, st.Air);
+                c.Ranks = string.Join(',', (built.Ranks ?? new Dictionary<string, int>()).Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal)
+                    .Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
+                c.Deck = built.Deck is { Count: > 0 } deck ? string.Join(',', deck) : Character.EmptyDeck;
+                c.Talents = string.Join(',', built.Talents ?? []);
+                c.TalentsVersion = Talents.Version;
+            }
+            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s)" + (order.Builds ? $", talents {c.Talents}." : "."));
         }
         await db.SaveChangesAsync(cancel);
         return done.Count == 0 ? [$"'{account.Name}' has no character."] : done;
