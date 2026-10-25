@@ -115,6 +115,64 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0} : clique pour déployer ce style.",
         ["tree.legend"] = "Légende",
+        ["tree.layer.Foundations"] = "Fondations",
+        ["tree.layer.Affinities"] = "Affinités",
+        ["tree.layer.Pure"] = "Élément pur",
+        ["tree.layer.Fusion"] = "Fusion",
+        ["tree.layer.Styles"] = "Styles",
+        ["tree.banner.Foundations"] = "Le tronc s'allume tout seul avec le niveau : rien à choisir, tout à gagner.",
+        ["tree.banner.Affinities"] = "Une paire lie deux éléments et donne sa réaction. Deux paires au plus, sans élément commun.",
+        ["tree.banner.Pure"] = "Un seul élément, plus fort : un Cœur ouvre les styles sans prendre d'élément.",
+        ["tree.banner.Fusion"] = "Les deux éléments d'une paire se fondent en un composé : une Transmutation, puis la Conversion.",
+        ["tree.banner.Styles"] = "Une manière de se battre, partagée par toutes les paires : un étage après l'autre.",
+        ["tree.banner.Melee"] = "Au contact : plus fort de près, au prix de la portée.",
+        ["tree.banner.Distance"] = "De loin : plus de portée, moins de mordant au contact.",
+        ["tree.banner.Support"] = "Pour les autres : tes sorts aident un allié au lieu de le frapper. Fait pour jouer à plusieurs.",
+        ["tree.banner.Terrain"] = "Le sol : glyphes, obstacles et pas comptés.",
+        ["tree.banner.Tempo"] = "Le rythme : PA, relances et place dans le deck.",
+        ["tree.banner.Alchemy"] = "Les réactions : des empreintes qui durent, se partagent ou se propagent. Demande une paire.",
+        ["tree.banner.Key"] = "Une clé par style, au niveau 45 : la plus forte, et elle coûte 2 points.",
+        ["tree.banner.Choice"] = "Un choix : un seul des nœuds encadrés.",
+        ["tree.equation"] = "{0} = {1} + {2}",
+        ["tree.counterpart"] = "En échange : {0}",
+        ["tree.title.heart.Earth"] = "Cœur de Terre",
+        ["tree.title.heart.Fire"] = "Cœur de Feu",
+        ["tree.title.heart.Water"] = "Cœur d'Eau",
+        ["tree.title.heart.Air"] = "Cœur d'Air",
+        ["tree.term.line"] = "{0} : {1}",
+        ["tree.title.and"] = "{0} et {1}",
+        ["tree.title.converted"] = "{0} convertie",
+        ["tree.title.none"] = "Sans talent",
+        ["tree.summary.counterparts"] = "Contreparties : {0}",
+        ["tree.summary.none"] = "Aucune contrepartie.",
+        ["tree.summary.best"] = "Au mieux, +{0} % sur un coup.",
+        ["tree.summary.ceiling"] = "Au mieux, +{0} % sur un coup : au-delà de +{1} %, le surplus est perdu.",
+        ["tree.advice"] = "Conseil : {0} et {1}, tes caractéristiques les plus hautes, vont à {2}.",
+        ["tree.helps"] = "Avec tes éléments : {0}",
+        ["tree.help.Earth"] = "Terre, un bouclier de 60 % des dégâts",
+        ["tree.help.Fire"] = "Feu, un soin de 40 % des dégâts (15 % de ses PV au plus)",
+        ["tree.help.Water"] = "Eau, +5 % de résistance par PA (20 au plus)",
+        ["tree.help.Air"] = "Air, 1 PM tous les 2 PA (2 au plus) et 1 PO",
+        ["tree.group"] = "Pour jouer à plusieurs.",
+        ["tree.help.button"] = "?",
+        ["tree.glossary"] = "Glossaire",
+        ["tree.term.mark"] = "empreinte",
+        ["tree.term.mark.def"] = "le coup direct d'un élément de base laisse sa marque sur l'ennemi jusqu'à la fin de ton prochain tour",
+        ["tree.term.reaction"] = "réaction",
+        ["tree.term.reaction.def"] = "frapper une empreinte d'un autre élément de la paire déclenche son état",
+        ["tree.term.door"] = "porte",
+        ["tree.term.door.def"] = "une paire ou un Cœur : il en faut une avant le premier étage d'un style",
+        ["tree.term.key"] = "clé",
+        ["tree.term.key.def"] = "le dernier étage d'un style, au niveau 45, une par style",
+        ["tree.term.switch"] = "grande bascule",
+        ["tree.term.switch.def"] = "un talent qui change tes éléments pour de bon, comme la Conversion ; une seule dans l'arbre",
+        ["tree.term.beyond"] = "hors base",
+        ["tree.term.beyond.def"] = "un élément autre que Terre, Feu, Eau et Air, comme la Foudre ; deux au plus",
+        ["tree.tuto.1"] = "Le tronc, en bas, s'allume tout seul avec le niveau.",
+        ["tree.tuto.2"] = "Choisis d'abord une porte : une paire (deux éléments et leur réaction) ou un Cœur (un seul élément).",
+        ["tree.tuto.3"] = "Puis monte un style, un étage après l'autre. Survole un nœud pour tout savoir, la légende est derrière « ? ».",
+        ["tree.tuto.next"] = "Suivant",
+        ["tree.tuto.done"] = "Compris",
         ["tree.choice.transmute"] = "Transmutation (au choix)",
         ["tree.choice.heart"] = "Élément pur : un seul Cœur",
         ["tree.state.Taken"] = "pris",
@@ -748,6 +806,64 @@ public sealed class Texts
         ["tree.fold"] = "{0} · {1}",
         ["tree.fold.detail"] = "{0}: click to deploy this style.",
         ["tree.legend"] = "Legend",
+        ["tree.layer.Foundations"] = "Foundations",
+        ["tree.layer.Affinities"] = "Affinities",
+        ["tree.layer.Pure"] = "Pure element",
+        ["tree.layer.Fusion"] = "Fusion",
+        ["tree.layer.Styles"] = "Styles",
+        ["tree.banner.Foundations"] = "The trunk lights up by itself with the level: nothing to choose, all to gain.",
+        ["tree.banner.Affinities"] = "A pair binds two elements and gives its reaction. Two pairs at most, sharing no element.",
+        ["tree.banner.Pure"] = "One element, stronger: a Heart opens the styles without taking an element.",
+        ["tree.banner.Fusion"] = "A pair's two elements melt into a compound: a Transmutation, then the Conversion.",
+        ["tree.banner.Styles"] = "A way of fighting, shared by every pair: one floor after the other.",
+        ["tree.banner.Melee"] = "Up close: stronger near, at the cost of range.",
+        ["tree.banner.Distance"] = "From afar: more range, less bite up close.",
+        ["tree.banner.Support"] = "For the others: your spells help an ally instead of hitting it. Made for playing together.",
+        ["tree.banner.Terrain"] = "The ground: glyphs, obstacles and counted steps.",
+        ["tree.banner.Tempo"] = "The rhythm: AP, cooldowns and room in the deck.",
+        ["tree.banner.Alchemy"] = "The reactions: marks that last, are shared or spread. Asks for a pair.",
+        ["tree.banner.Key"] = "One key a style, at level 45: the strongest, and it costs 2 points.",
+        ["tree.banner.Choice"] = "A choice: only one of the framed nodes.",
+        ["tree.equation"] = "{0} = {1} + {2}",
+        ["tree.counterpart"] = "In exchange: {0}",
+        ["tree.title.heart.Earth"] = "Heart of Earth",
+        ["tree.title.heart.Fire"] = "Heart of Fire",
+        ["tree.title.heart.Water"] = "Heart of Water",
+        ["tree.title.heart.Air"] = "Heart of Air",
+        ["tree.term.line"] = "{0}: {1}",
+        ["tree.title.and"] = "{0} and {1}",
+        ["tree.title.converted"] = "converted {0}",
+        ["tree.title.none"] = "No talent",
+        ["tree.summary.counterparts"] = "Counterparts: {0}",
+        ["tree.summary.none"] = "No counterpart.",
+        ["tree.summary.best"] = "At best, +{0}% on a hit.",
+        ["tree.summary.ceiling"] = "At best, +{0}% on a hit: beyond +{1}%, the rest is lost.",
+        ["tree.advice"] = "Advice: {0} and {1}, your highest characteristics, go with {2}.",
+        ["tree.helps"] = "With your elements: {0}",
+        ["tree.help.Earth"] = "Earth, a shield of 60% of the damage",
+        ["tree.help.Fire"] = "Fire, a heal of 40% of the damage (15% of its HP at most)",
+        ["tree.help.Water"] = "Water, +5% resistance an AP (20 at most)",
+        ["tree.help.Air"] = "Air, 1 MP every 2 AP (2 at most) and 1 range",
+        ["tree.group"] = "For playing together.",
+        ["tree.help.button"] = "?",
+        ["tree.glossary"] = "Glossary",
+        ["tree.term.mark"] = "mark",
+        ["tree.term.mark.def"] = "a direct hit of a base element leaves its mark on the enemy until the end of your next turn",
+        ["tree.term.reaction"] = "reaction",
+        ["tree.term.reaction.def"] = "hitting a mark with the pair's other element sets its state off",
+        ["tree.term.door"] = "door",
+        ["tree.term.door.def"] = "a pair or a Heart: one is needed before a style's first floor",
+        ["tree.term.key"] = "key",
+        ["tree.term.key.def"] = "a style's last floor, at level 45, one a style",
+        ["tree.term.switch"] = "big switch",
+        ["tree.term.switch.def"] = "a talent that changes your elements for good, like the Conversion; one in the whole tree",
+        ["tree.term.beyond"] = "beyond the base",
+        ["tree.term.beyond.def"] = "an element other than Earth, Fire, Water and Air, like Lightning; two at most",
+        ["tree.tuto.1"] = "The trunk, at the bottom, lights up by itself with the level.",
+        ["tree.tuto.2"] = "First choose a door: a pair (two elements and their reaction) or a Heart (one element).",
+        ["tree.tuto.3"] = "Then climb a style, one floor after the other. Hover a node to learn it all; the legend is behind \"?\".",
+        ["tree.tuto.next"] = "Next",
+        ["tree.tuto.done"] = "Got it",
         ["tree.choice.transmute"] = "Transmutation (one of)",
         ["tree.choice.heart"] = "Pure element: one Heart",
         ["tree.state.Taken"] = "taken",
@@ -1665,6 +1781,9 @@ public sealed class Texts
                 return this["element." + heart.Element];
             if (t.Id.StartsWith("transmute-", StringComparison.Ordinal) && t.Id.Split('-') is [_, string from, _])
                 return this["element." + Enum.Parse<Element>(from, ignoreCase: true)];
+            // A pair by its compound, its reaction's name in the panel (sprint 149, C4 c).
+            if (TreeGuide.PairOf(t, data) is ReactionSpec pair)
+                return this["pair." + pair.Id];
             return t.Name.In(Lang);
         }
         if (node.IsTrunk)
@@ -1673,32 +1792,101 @@ public sealed class Texts
     }
 
     /// <summary>
-    /// What the side panel says of a node (sprint 148, K7 b, H6 a, I1 b): its name, place and cost, what it does, then its
-    /// state: taken (and what giving it back gives back with it), available, or the reason it is refused.
+    /// What the side panel says of a node (sprint 148, K7 b, H6 a, I1 b; sprint 149, M2 a to M8 b): its layer and the layer's
+    /// banner, a line of lore, its name, place and cost, a pair's equation ("Foudre = Feu + Air"), what it does, its
+    /// counterpart, then its state: taken (and what giving it back gives back with it), available, or the reason it is
+    /// refused; for Helping Hand, what it does with the hero's elements (D9 a).
     /// </summary>
-    public string TreeDetail(TreeNode node, PointsEditor editor)
+    public TreeCard TreeCard(TreeNode node, PointsEditor editor)
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(editor);
         GameData data = editor.Data;
+        TreeLayer layer = TreeGuide.LayerOf(node, data);
+        string banner = node.Branch is Branch b && TreeLayout.Styles.Contains(b) ? this["tree.banner." + b] : this["tree.banner." + layer];
+        string title = this["tree.layer." + layer] + (node.Branch is Branch s && TreeLayout.Styles.Contains(s) ? " · " + this["talents.branch." + s] : "");
         if (node.IsTrunk)
         {
             int level = int.Parse(node.Id["trunk:".Length..], CultureInfo.InvariantCulture);
             string gain = this["tree.trunk.detail", TrunkGain(level)];
-            return editor.Hero.Level < level ? gain + "\n" + this["talents.why.Level", level] : gain;
+            return new(title, banner, "", this["tree.trunk"], null, gain, "", editor.Hero.Level < level ? this["talents.why.Level", level] : "", null);
         }
-        if (node.IsFold)
-            return this["tree.fold.detail", this["talents.branch." + node.Branch]];
         if (!node.IsTalent)
-            return "";
+            return new(title, banner, "", node.IsFold ? TreeName(node, data) : "", null, node.IsFold ? this["tree.fold.detail", this["talents.branch." + node.Branch]] : "", "", "", null);
         TalentSpec t = data.Talents[node.Id];
+        if (t.Tier == Tier.Key)
+            banner += " " + this["tree.banner.Key"];
+        if (t.Branch is Branch.Pure || t.Id.StartsWith("transmute-", StringComparison.Ordinal))
+            banner += " " + this["tree.banner.Choice"];
         string state;
         if (editor.HasTalent(t))
             state = editor.Losing(t) is { Count: > 0 } lost ? this["talents.losing", string.Join(", ", lost.Select(id => data.Talents[id].Name.In(Lang)))] : this["tree.taken"];
         else
             state = TalentReasons.WhyNot(editor.TalentsTaken, t.Id, editor.Hero.Level, data) is TalentRefusal no ? WhyNot(no, data) : this["tree.can"];
-        return Talent(t) + "\n" + state;
+        string? equation = TreeGuide.PairOf(t, data) is ReactionSpec pair ? this["tree.equation", this["pair." + pair.Id], this["element." + pair.First], this["element." + pair.Second]] : null;
+        string? extra = t.Rules.OfType<SupportRule>().Any() && t.Id == "helping-hand"
+            ? this["tree.helps", string.Join(" ; ", TreeGuide.Helps(editor.TalentsTaken, data).Select(e => this["tree.help." + e]))]
+            : t.Id == "shared-mark" || t.Branch == Branch.Support ? this["tree.group"] : null;
+        string head = this["talents.tile", t.Name.In(Lang), this["talents.branch." + t.Branch], this["talents.tier." + t.Tier], t.Cost];
+        return new(title, banner, t.Lore?.In(Lang) ?? "", head, equation, t.Description.In(Lang), t.Counterpart is { } c ? this["tree.counterpart", c.In(Lang)] : "", state, extra);
     }
+
+    /// <summary>The panel's text of a node, all its lines (<see cref="TreeCard"/>) one after the other.</summary>
+    public string TreeDetail(TreeNode node, PointsEditor editor) =>
+        string.Join("\n", TreeCard(node, editor).Lines);
+
+    /// <summary>The build's title (sprint 149, N8 a): "Foudre · Mêlée", "Cœur de Feu · Terrain", "Glace et Magma · Alchimie".</summary>
+    public string TreeTitle(IReadOnlyList<string> taken, GameData data)
+    {
+        (IReadOnlyList<string> doors, Element? heart, bool converted, Branch? style) = TreeGuide.Title(taken, data);
+        string? door = doors.Count switch
+        {
+            0 => heart is Element h ? this["tree.title.heart." + h] : null,
+            1 => this["pair." + doors[0]],
+            _ => this["tree.title.and", this["pair." + doors[0]], this["pair." + doors[1]]],
+        };
+        if (converted && doors.Contains("electrified"))
+            door = this["tree.title.converted", this["element.Lightning"]] + (doors.Count > 1 ? " · " + this["pair." + doors.First(d => d != "electrified")] : "");
+        string[] parts = [.. new[] { door, style is Branch s ? this["talents.branch." + s] : null }.OfType<string>()];
+        return parts.Length == 0 ? this["tree.title.none"] : string.Join(" · ", parts);
+    }
+
+    /// <summary>
+    /// The build's summary (sprint 149, N1 a): every counterpart it pays, then the best bonus a hit can reach, with a
+    /// warning past the ceiling of +35 %.
+    /// </summary>
+    public IReadOnlyList<string> TreeBuildSummary(IReadOnlyList<string> taken, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(data);
+        string[] paid = [.. taken.Select(id => data.Talents[id]).Where(t => !t.IsPair && t.Branch != Branch.Fork).Select(t => $"{t.Name.In(Lang)} ({t.Counterpart?.In(Lang).TrimEnd('.')})")];
+        int best = TreeGuide.Best(taken, data);
+        return
+        [
+            paid.Length == 0 ? this["tree.summary.none"] : this["tree.summary.counterparts", string.Join(" ; ", paid)],
+            best > Rpg.Core.Talents.Ceiling ? this["tree.summary.ceiling", best, Rpg.Core.Talents.Ceiling] : this["tree.summary.best", best],
+        ];
+    }
+
+    /// <summary>The pair the hero's two highest characteristics point to (sprint 149, C5 b), while no pair is taken; null otherwise.</summary>
+    public string? TreeAdvice(PointsEditor editor)
+    {
+        ArgumentNullException.ThrowIfNull(editor);
+        GameData data = editor.Data;
+        if (editor.TalentsTaken.Any(id => data.Talents[id].IsFork) || TreeGuide.Advice(editor.Draft, data) is not string pair)
+            return null;
+        ReactionSpec r = TreeGuide.PairOf(data.Talents[pair], data)!;
+        return this["tree.advice", this["element." + r.First], this["element." + r.Second], this["pair." + r.Id]];
+    }
+
+    /// <summary>The words the tree uses, and what they mean (sprint 149, M7 a), for the legend and the hover.</summary>
+    public IReadOnlyList<(string Term, string Meaning)> TreeGlossary =>
+        [.. GlossaryKeys.Select(k => (this["tree.term." + k], this[$"tree.term.{k}.def"]))];
+
+    private static readonly string[] GlossaryKeys = ["mark", "reaction", "door", "key", "switch", "beyond"];
+
+    /// <summary>The three guided bubbles of the tree's first opening from level 30 (sprint 149, M6 a).</summary>
+    public IReadOnlyList<string> TreeTutorial => [this["tree.tuto.1"], this["tree.tuto.2"], this["tree.tuto.3"]];
 
     /// <summary>The panel's summary of the draft (K7 b): the points left of those the level gives, the elements beyond the base, the big switch.</summary>
     public IReadOnlyList<string> TreeSummary(PointsEditor editor)

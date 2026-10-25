@@ -2,6 +2,34 @@
    Source unique des couleurs, réutilisée par tous les projets web.
    Thème sombre par défaut ; [data-theme="light"] bascule en clair. */
 :root {
+  /* Osmose, l'arbre des talents (projects/rpg, ElementStyle, sprint 149) : éléments, styles, états d'un nœud. */
+  --osmose-earth: #b07a45;
+  --osmose-fire: #ef4b4b;
+  --osmose-water: #3d9cff;
+  --osmose-air: #52c45a;
+  --osmose-lightning: #f2d03b;
+  --osmose-heal: #ff7eb6;
+  --osmose-shield: #a9c7e8;
+  --osmose-melee: #e8a33d;
+  --osmose-distance: #6bb8f2;
+  --osmose-support: #ff7eb6;
+  --osmose-terrain: #c9a27f;
+  --osmose-tempo: #b48cff;
+  --osmose-alchemy: #4fd1c5;
+  --osmose-taken-fill: #33421f;
+  --osmose-open: #e0e0e0;
+  --osmose-open-fill: #262626;
+  --osmose-excluded: #e07060;
+  --osmose-excluded-fill: #2a1f1f;
+  --osmose-locked: #8a8a8a;
+  --osmose-locked-fill: #202020;
+  --osmose-out-of-level: #5c5c5c;
+  --osmose-out-of-level-fill: #1d1d1d;
+  --osmose-coming: #6a6a6a;
+  --osmose-losing: #f08070;
+  --osmose-losing-fill: #3a2424;
+  --osmose-ground: #1b1b1b;
+  --osmose-cost: #f2d36b;
   --pistache: #bef374;
   --pistache-pale: #e6f8c9;
   --chocolat: #5a3a22;

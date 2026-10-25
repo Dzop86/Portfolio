@@ -93,7 +93,11 @@ test('the method page shows the roadmap by sprint, with done, current and planne
   const html = page('fr', 'method');
   assert.match(html, new RegExp(`--sprints:${scrum.sprintCount}`));
   assert.match(html, /data-state="done"[^>]*>[\s\S]*?S9/);
-  const closed = sprints.filter((sp) => sp.stories.every((st) => st.closed)).length;
+  // The sprints closed one after the other from the first, as the roadmap counts them: a later sprint closed while an
+  // earlier one is open (guilds, S145, after the tree's S146 to S149) does not move the roadmap on.
+  const byNumber = new Map(sprints.map((sp) => [sp.number, sp]));
+  let closed = 0;
+  while (byNumber.get(closed + 1)?.stories.every((st) => st.closed)) closed += 1;
   const finished = closed === scrum.sprintCount;
   // A phase is current while one of its sprints is open: none once every sprint is closed.
   assert.equal(/data-state="current"/.test(html), !finished);

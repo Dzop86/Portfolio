@@ -148,3 +148,10 @@ public static class Accounts
     /// <summary>Characters per account, as in the games of the genre.</summary>
     public const int MaxCharacters = 5;
 }
+
+/// <summary>What an account sees once (sprint 149, M6 a): the server keeps it, the game shows it no more.</summary>
+public static class Seen
+{
+    /// <summary>The tree's three guided bubbles, at its first opening from level 30.</summary>
+    public const string TreeTutorial = "tree-tutorial";
+}

@@ -13,6 +13,10 @@ public sealed class Account
 
     public string PasswordHash { get; set; } = "";
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>What the player has seen once, comma-separated (sprint 149: the tree's tutorial), so as not to show it again.</summary>
+    public string Seen { get; set; } = "";
+
     public List<Character> Characters { get; } = [];
 }
 

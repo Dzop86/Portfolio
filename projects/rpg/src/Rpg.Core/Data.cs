@@ -585,6 +585,10 @@ public sealed class GameData
             // Its texts in both languages (sprint 147): a key missing stops the game from loading, so the build.
             if (string.IsNullOrWhiteSpace(t.Name?.Fr) || string.IsNullOrWhiteSpace(t.Name.En) || string.IsNullOrWhiteSpace(t.Description?.Fr) || string.IsNullOrWhiteSpace(t.Description.En))
                 throw new InvalidDataException($"Talent '{t.Id}': a name and a description in French and in English.");
+            // Since sprint 149 (M4 a, M8 b): its counterpart and its line of lore in both languages, and its icon.
+            if (string.IsNullOrWhiteSpace(t.Counterpart?.Fr) || string.IsNullOrWhiteSpace(t.Counterpart.En) || string.IsNullOrWhiteSpace(t.Lore?.Fr) || string.IsNullOrWhiteSpace(t.Lore.En)
+                || string.IsNullOrWhiteSpace(t.Icon))
+                throw new InvalidDataException($"Talent '{t.Id}': a counterpart and a line of lore in French and in English, and an icon.");
             if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
             if (t.Rules.OfType<GrantRule>().Any(r => !Spells.ContainsKey(r.Spell)))

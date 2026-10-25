@@ -32,8 +32,14 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
 {
     private const float PanelWidth = 280;
     private TreeCanvas _canvas = null!;
-    private Label _title = null!, _detail = null!, _message = null!, _keys = null!, _confirmText = null!, _legendTitle = null!;
-    private readonly List<Label> _summary = [];
+    private Label _title = null!, _message = null!, _keys = null!, _confirmText = null!, _legendTitle = null!, _buildTitle = null!, _glossary = null!;
+    private RichTextLabel _detail = null!;
+    private readonly List<Label> _summary = [], _build = [];
+    private Control _detailBox = null!, _legendBox = null!;
+    private Button _help = null!;
+    private PanelContainer? _bubble;
+    private Label _bubbleText = null!;
+    private Button _bubbleNext = null!;
     private readonly List<(NodeState? State, Label Text)> _legend = [];
     private Button _save = null!, _undo = null!, _close = null!, _yes = null!, _no = null!;
     private Control _confirm = null!;
@@ -56,6 +62,18 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
 
     public event Action<Points>? SavePressed;
     public event Action? ClosePressed;
+
+    /// <summary>The three guided bubbles read to the end (sprint 149, M6 a): the account marks them seen.</summary>
+    public event Action? TutorialDone;
+
+    /// <summary>The bubble of the tutorial shown, from 0; -1 without one.</summary>
+    public int TutorialStep { get; private set; } = -1;
+
+    /// <summary>The legend and the glossary shown in place of the node's card (M5 b, behind "?").</summary>
+    public bool LegendShown => _legendBox.Visible;
+
+    /// <summary>The node's card as the panel shows it, without its formatting (for the self-test).</summary>
+    public string CardText => _detail.GetParsedText();
 
     public void Build(PointsEditor editor, Texts texts)
     {
@@ -96,23 +114,45 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
             var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
             line.AddThemeFontSizeOverride("font_size", i == 0 ? 17 : 14);
             if (i == 0)
-                line.AddThemeColorOverride("font_color", new Color("bef374"));
+                line.AddThemeColorOverride("font_color", new Color(ElementStyle.Taken));
             side2.AddChild(line);
             _summary.Add(line);
         }
-        side2.AddChild(new HSeparator());
-        // The node under the mouse or the keyboard, its text cut to the panel's room.
-        var detailBox = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 200), HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        // The build: its title, what it pays, its best hit against the ceiling, and the pair advised (N8 a, N1 a, C5 b).
+        _buildTitle = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
+        _buildTitle.AddThemeFontSizeOverride("font_size", 16);
+        side2.AddChild(_buildTitle);
+        for (int i = 0; i < 3; i++)
+        {
+            var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0), Modulate = new Color(1, 1, 1, 0.8f) };
+            line.AddThemeFontSizeOverride("font_size", 12);
+            side2.AddChild(line);
+            _build.Add(line);
+        }
+        // The legend behind "?" (M5 b), in place of the node's card.
+        var top = new HBoxContainer();
+        side2.AddChild(top);
+        top.AddChild(new HSeparator { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
+        _help = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(44, 44) };
+        _help.Toggled += shown => ShowLegend(shown);
+        top.AddChild(_help);
+        // The node under the mouse or the keyboard: its card, the glossary's words lit (M7 a).
+        var detailBox = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 120), SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        _detailBox = detailBox;
         side2.AddChild(detailBox);
-        _detail = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth - 12, 0) };
-        _detail.AddThemeFontSizeOverride("font_size", 13);
+        _detail = new RichTextLabel { BbcodeEnabled = true, FitContent = true, ScrollActive = false, CustomMinimumSize = new Vector2(PanelWidth - 12, 0), MetaUnderlined = false };
+        _detail.AddThemeFontSizeOverride("normal_font_size", 13);
+        _detail.AddThemeFontSizeOverride("italics_font_size", 13);
+        _detail.AddThemeFontSizeOverride("bold_font_size", 14);
+        _detail.MetaHoverStarted += meta => _detail.TooltipText = Texts.TreeGlossary.FirstOrDefault(g => g.Term == meta.AsString()).Meaning ?? "";
+        _detail.MetaHoverEnded += _ => _detail.TooltipText = "";
         detailBox.AddChild(_detail);
         // Giving back a node others hang on: asked first (I1 b).
         var confirm = new VBoxContainer { Visible = false };
         _confirm = confirm;
         side2.AddChild(confirm);
         _confirmText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
-        _confirmText.AddThemeColorOverride("font_color", new Color("f08070"));
+        _confirmText.AddThemeColorOverride("font_color", new Color(ElementStyle.Losing));
         confirm.AddChild(_confirmText);
         var yesNo = new HBoxContainer();
         yesNo.AddThemeConstantOverride("separation", 8);
@@ -130,22 +170,29 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _message = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
         _message.AddThemeFontSizeOverride("font_size", 13);
         side2.AddChild(_message);
-        // The legend: the five states and what is to come (L5 b, L10 c).
+        // The legend: the five states and what is to come (L5 b, L10 c), then the glossary (M7 a).
+        var legendScroll = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 120), SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, Visible = false };
+        _legendBox = legendScroll;
+        side2.AddChild(legendScroll);
+        var legend = new VBoxContainer();
+        legendScroll.AddChild(legend);
         _legendTitle = new Label();
         _legendTitle.AddThemeFontSizeOverride("font_size", 14);
-        side2.AddChild(_legendTitle);
+        legend.AddChild(_legendTitle);
         foreach (NodeState? state in Enum.GetValues<NodeState>().Select(s => (NodeState?)s).Append(null))
         {
             var line = new HBoxContainer();
             line.AddThemeConstantOverride("separation", 8);
-            side2.AddChild(line);
+            legend.AddChild(line);
             line.AddChild(new LegendDot { State = state, CustomMinimumSize = new Vector2(20, 20) });
             var text = new Label();
             text.AddThemeFontSizeOverride("font_size", 12);
             line.AddChild(text);
             _legend.Add((state, text));
         }
-        side2.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill });
+        _glossary = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth - 12, 0) };
+        _glossary.AddThemeFontSizeOverride("font_size", 12);
+        legend.AddChild(_glossary);
         _keys = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0), Modulate = new Color(1, 1, 1, 0.6f) };
         _keys.AddThemeFontSizeOverride("font_size", 11);
         side2.AddChild(_keys);
@@ -165,6 +212,80 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         Lay(TreeLayout.FocusOf(editor.TalentsTaken, editor.Data));
         Focused = Layout.Start(editor.TalentsTaken, editor.Data);
         Refresh();
+    }
+
+    /// <summary>The legend and the glossary in place of the node's card, or the card again.</summary>
+    public void ShowLegend(bool shown)
+    {
+        _legendBox.Visible = shown;
+        _detailBox.Visible = !shown;
+        _help.SetPressedNoSignal(shown);
+    }
+
+    /// <summary>
+    /// The three guided bubbles (sprint 149, M6 a), at the tree's first opening from level 30: the trunk, the fork, the
+    /// styles, each pointing at its layer; the legend opened with them (M5 b).
+    /// </summary>
+    public void StartTutorial()
+    {
+        if (_bubble is not null)
+            return;
+        _bubble = new PanelContainer { Size = new Vector2(320, 0) };
+        _bubble.AddThemeStyleboxOverride("panel", new StyleBoxFlat
+        {
+            BgColor = new Color(ElementStyle.OpenFill),
+            BorderColor = new Color(ElementStyle.Taken),
+            BorderWidthLeft = 2,
+            BorderWidthRight = 2,
+            BorderWidthTop = 2,
+            BorderWidthBottom = 2,
+            CornerRadiusTopLeft = 8,
+            CornerRadiusTopRight = 8,
+            CornerRadiusBottomLeft = 8,
+            CornerRadiusBottomRight = 8,
+            ContentMarginLeft = 12,
+            ContentMarginRight = 12,
+            ContentMarginTop = 10,
+            ContentMarginBottom = 10,
+        });
+        AddChild(_bubble);
+        var column = new VBoxContainer();
+        _bubble.AddChild(column);
+        _bubbleText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(296, 0) };
+        column.AddChild(_bubbleText);
+        _bubbleNext = new Button { CustomMinimumSize = new Vector2(120, 44), SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd };
+        _bubbleNext.Pressed += NextBubble;
+        column.AddChild(_bubbleNext);
+        TutorialStep = -1;
+        ShowLegend(true);
+        NextBubble();
+    }
+
+    /// <summary>The next bubble, or the end of the tutorial after the third.</summary>
+    public void NextBubble()
+    {
+        if (_bubble is null)
+            return;
+        TutorialStep++;
+        IReadOnlyList<string> said = Texts.TreeTutorial;
+        if (TutorialStep >= said.Count)
+        {
+            _bubble.QueueFree();
+            _bubble = null;
+            TutorialStep = -1;
+            TutorialDone?.Invoke();
+            return;
+        }
+        _bubbleText.Text = said[TutorialStep];
+        _bubbleNext.Text = Texts[TutorialStep == said.Count - 1 ? "tree.tuto.done" : "tree.tuto.next"];
+        // Over the trunk, then the fork, then the styles.
+        Vector2 at = TutorialStep switch
+        {
+            0 => new Vector2(Layout.Nodes.First(n => n.IsTrunk).Box.X, Layout.Nodes.First(n => n.IsTrunk).Box.Y - 150),
+            1 => new Vector2(Layout.Nodes.First(n => n.Branch == Branch.Fork).Box.X + 160, Layout.ForkTop - 150),
+            _ => new Vector2(Layout.Columns.Values.Min(c => c.X) + 120, Layout.Top + 30),
+        };
+        _bubble.Position = _canvas.GetGlobalRect().Position + at;
     }
 
     /// <summary>Lays the tree out again, <paramref name="focus"/> deployed (a click on a folded style).</summary>
@@ -315,6 +436,12 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         for (int i = 0; i < _summary.Count; i++)
             _summary[i].Text = summary[i];
         _legendTitle.Text = Texts["tree.legend"];
+        _help.Text = Texts["tree.help.button"];
+        _glossary.Text = Texts["tree.glossary"] + "\n" + string.Join("\n", Texts.TreeGlossary.Select(g => Texts["tree.term.line", g.Term, g.Meaning]));
+        _buildTitle.Text = Texts.TreeTitle(Editor.TalentsTaken, Editor.Data);
+        IReadOnlyList<string> build = [.. Texts.TreeBuildSummary(Editor.TalentsTaken, Editor.Data), Texts.TreeAdvice(Editor) ?? ""];
+        for (int i = 0; i < _build.Count; i++)
+            _build[i].Text = build[i];
         foreach ((NodeState? state, Label text) in _legend)
             text.Text = state is NodeState s ? Texts["tree.state." + s] : Texts["tree.coming"];
         _keys.Text = Texts["tree.keys"];
@@ -347,7 +474,32 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     private void ShowDetail()
     {
         TreeNode? node = Layout[_hovered ?? Focused];
-        _detail.Text = node is null ? "" : Texts.TreeDetail(node, Editor);
+        _detail.Text = node is null ? "" : Card(Texts.TreeCard(node, Editor));
+    }
+
+    /// <summary>
+    /// A node's card in BBCode: its layer in the style's colour, the banner, the lore in italics (M8 b), then its lines; the
+    /// glossary's words are links whose meaning shows on hover (M7 a).
+    /// </summary>
+    private string Card(TreeCard card)
+    {
+        static string Escape(string s) => s.Replace("[", "[lb]", StringComparison.Ordinal);
+        string Linked(string s)
+        {
+            string text = Escape(s);
+            foreach ((string term, _) in Texts.TreeGlossary)
+            {
+                int at = text.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                if (at >= 0)
+                    text = text[..at] + $"[url={term}][color={ElementStyle.Cost}]" + text.Substring(at, term.Length) + "[/color][/url]" + text[(at + term.Length)..];
+            }
+            return text;
+        }
+        var lines = new List<string> { $"[color={ElementStyle.Taken}][b]{Escape(card.Layer)}[/b][/color]", $"[color={ElementStyle.Locked}]{Linked(card.Banner)}[/color]" };
+        if (card.Lore.Length > 0)
+            lines.Add($"[i]{Escape(card.Lore)}[/i]");
+        lines.AddRange(card.Lines.Select(Linked));
+        return string.Join("\n", lines);
     }
 }
 
@@ -379,7 +531,7 @@ public partial class TreeCanvas : Control
         _columns.Clear();
         _choices.Clear();
         TreeLayout layout = Panel.Layout;
-        _styles = Caption(new Vector2(layout.Columns.Values.Min(c => c.X), layout.Top - 24), 13, new Color("e0e0e0"));
+        _styles = Caption(new Vector2(layout.Columns.Values.Min(c => c.X), layout.Top - 24), 13, new Color(ElementStyle.Open));
         _fork = Caption(new Vector2(0, layout.ForkTop + TreeLayout.Large + TreeLayout.Label + 8), 12, new Color(1, 1, 1, 0.6f));
         // The two choices' captions: the Transmutation over its two, Pure element over its Hearts.
         foreach ((string key, string[] ids) in Choices(Panel.Editor.Data))
@@ -398,7 +550,7 @@ public partial class TreeCanvas : Control
         _trunk = Caption(new Vector2(Mathf.Max(0, first.Box.X - 150), first.Box.Y + 18), 12, new Color(1, 1, 1, 0.6f));
         foreach ((Branch branch, Box column) in layout.Columns)
         {
-            Label name = Caption(new Vector2(column.X - 10, layout.Top), 13, branch == layout.Focus ? new Color("bef374") : new Color("e0e0e0"));
+            Label name = Caption(new Vector2(column.X - 10, layout.Top), 13, new Color(ElementStyle.StyleColour(branch)));
             name.Size = new Vector2(column.W + 20, 20);
             name.HorizontalAlignment = HorizontalAlignment.Center;
             _columns.Add((branch, name));
@@ -458,7 +610,7 @@ public partial class TreeCanvas : Control
     {
         TreeLayout layout = Panel.Layout;
         // An abstract background in the chart's colours (K9 a): a dark ground, two faint rings round the fork.
-        DrawRect(new Rect2(Vector2.Zero, Size), new Color("1b1b1b"));
+        DrawRect(new Rect2(Vector2.Zero, Size), new Color(ElementStyle.Ground));
         var heart = new Vector2((layout.ForkRight / 2) + 30, layout.ForkTop + 36);
         DrawArc(heart, 240, 0, Mathf.Tau, 96, new Color(0.745f, 0.953f, 0.455f, 0.05f), 40);
         DrawArc(heart, 420, 0, Mathf.Tau, 128, new Color(0.353f, 0.227f, 0.133f, 0.12f), 60);
@@ -476,7 +628,7 @@ public partial class TreeCanvas : Control
         TreeNode[] firsts = [.. layout.Nodes.Where(n => n.Tier == Tier.First && n.Branch is Branch b && b > Branch.Braids)];
         float busLeft = firsts.Select(n => n.Box.CenterX).Concat(doorsTaken.Select(d => d.Box.CenterX)).Min();
         float busRight = firsts.Select(n => n.Box.CenterX).Concat(doorsTaken.Select(d => d.Box.CenterX)).Max();
-        Color lit = new("bef374");
+        Color lit = new(ElementStyle.Taken);
         if (doorsTaken.Length > 0)
             DrawLine(new Vector2(busLeft, bus), new Vector2(busRight, bus), lit, 2, true);
         else
@@ -507,9 +659,9 @@ public partial class TreeCanvas : Control
             NodeState? sa = Panel.StateOf(a), sb = Panel.StateOf(b);
             Vector2 p = new(a.Box.CenterX, a.Box.Y), q = new(b.Box.CenterX, b.Box.Y + b.Box.H);
             if (Panel.Losing(to))
-                DrawLine(p, q, new Color("f08070"), 3, true);
+                DrawLine(p, q, new Color(ElementStyle.Losing), 3, true);
             else if (sa == NodeState.Taken && sb == NodeState.Taken)
-                DrawLine(p, q, new Color("bef374"), 3, true);
+                DrawLine(p, q, lit, 3, true);
             else if (sa == NodeState.Taken && sb == NodeState.Open)
                 DrawLine(p, q, new Color(0.88f, 0.88f, 0.88f, 0.7f), 2, true);
             else
@@ -530,7 +682,7 @@ public partial class TreeCanvas : Control
         {
             Box l = layout[TreeLayout.Pairs[i]]!.Box, r = layout[TreeLayout.Pairs[i + 1]]!.Box;
             float y = l.Y + l.H + TreeLayout.Label + 1;
-            DrawPolyline([new Vector2(l.X, y - 5), new Vector2(l.X, y), new Vector2(r.X + r.W, y), new Vector2(r.X + r.W, y - 5)], new Color("5a3a22"), 2);
+            DrawPolyline([new Vector2(l.X, y - 5), new Vector2(l.X, y), new Vector2(r.X + r.W, y), new Vector2(r.X + r.W, y - 5)], new Color(ElementStyle.Brace), 2);
         }
     }
 
@@ -563,6 +715,21 @@ public partial class TreeNodeView : Control
         }
     }
 
+    // Kept for the whole game, as the spells' icons are (D67: a texture held by nothing was freed, a white square drawn).
+    private static readonly Dictionary<string, Texture2D?> Icons = [];
+
+    /// <summary>A node's drawing (sprint 149, P3 b): the talent's, or the trunk's node's (<c>trunk-30</c>); null without one.</summary>
+    public static Texture2D? IconOf(TreeNode node)
+    {
+        string? name = node.IsTalent ? node.Id : node.IsTrunk ? node.Id.Replace(':', '-') : null;
+        if (name is null)
+            return null;
+        if (Icons.TryGetValue(name, out Texture2D? known))
+            return known;
+        string path = $"res://assets/icons/talents/{name}.svg";
+        return Icons[name] = ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
+    }
+
     public override void _Draw()
     {
         NodeState? state = Panel.StateOf(Node);
@@ -570,37 +737,56 @@ public partial class TreeNodeView : Control
         bool red = Panel.Losing(Node.Id);
         TreeShapes.Draw(this, Node.Shape, state, Size, red);
         if (focused)
-            DrawRect(new Rect2(-4, -4, Size.X + 8, Size.Y + 8), new Color("bef374"), false, 2);
+            DrawRect(new Rect2(-4, -4, Size.X + 8, Size.Y + 8), new Color(ElementStyle.Taken), false, 2);
         if (Node.IsComing)
             return;
-        Font font = ThemeDB.FallbackFont;
         GameData data = Panel.Editor.Data;
-        // Provisional icons until sprint 149: two letters of the name; the trunk its percent; a cross on an excluded node.
-        string text = Node.IsTalent ? Letters(data.Talents[Node.Id].Name.In(Panel.Texts.Lang))
-            : Node.IsTrunk ? Rpg.Core.Talents.Trunk.First(t => $"trunk:{t.Level}" == Node.Id).Percent + "%"
-            : "···";
         if (state == NodeState.Excluded && !red)
         {
             float k = Size.X * 0.22f;
-            DrawLine(new Vector2(k, k), Size - new Vector2(k, k), new Color("f08070"), 3, true);
-            DrawLine(new Vector2(Size.X - k, k), new Vector2(k, Size.Y - k), new Color("f08070"), 3, true);
+            DrawLine(new Vector2(k, k), Size - new Vector2(k, k), new Color(ElementStyle.Excluded), 3, true);
+            DrawLine(new Vector2(Size.X - k, k), new Vector2(k, Size.Y - k), new Color(ElementStyle.Excluded), 3, true);
             return;
         }
-        int fontSize = Node.Shape is NodeShape.Door or NodeShape.Key ? 20 : 17;
-        Vector2 measured = font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize);
-        Color ink = state is NodeState.Taken ? new Color("bef374") : state is NodeState.Open ? Colors.White : new Color(1, 1, 1, 0.45f);
-        DrawString(font, new Vector2((Size.X - measured.X) / 2, (Size.Y / 2) + (fontSize * 0.35f)), text, HorizontalAlignment.Left, -1, fontSize, ink);
+        Color ink = state is NodeState.Taken ? new Color(ElementStyle.Taken) : state is NodeState.Open ? new Color(ElementStyle.Open) : new Color(ElementStyle.Open, 0.4f);
+        if (IconOf(Node) is Texture2D icon)
+        {
+            // The drawing, white in its file, tinted by the state.
+            float side = Size.X * 0.56f;
+            DrawTextureRect(icon, new Rect2((Size - new Vector2(side, side)) / 2, new Vector2(side, side)), false, ink);
+        }
+        else
+        {
+            Font font = ThemeDB.FallbackFont;
+            Vector2 measured = font.GetStringSize("···", HorizontalAlignment.Left, -1, 17);
+            DrawString(font, new Vector2((Size.X - measured.X) / 2, (Size.Y / 2) + 6), "···", HorizontalAlignment.Left, -1, 17, ink);
+        }
+        if (!Node.IsTalent)
+            return;
+        TalentSpec t = data.Talents[Node.Id];
+        Font small = ThemeDB.FallbackFont;
         // The cost only when it is 2 (L7 a); the level a key waits for.
-        if (Node.IsTalent && data.Talents[Node.Id] is { Cost: 2 })
-            DrawString(font, new Vector2(Size.X - 16, 14), "2", HorizontalAlignment.Left, -1, 12, new Color("f2d36b"));
-        if (state == NodeState.Level && Node.IsTalent && data.Talents[Node.Id].Level is int level and > 0)
-            DrawString(font, new Vector2(4, Size.Y - 6), level.ToString(System.Globalization.CultureInfo.InvariantCulture), HorizontalAlignment.Left, -1, 11, new Color(1, 1, 1, 0.6f));
-    }
-
-    private static string Letters(string name)
-    {
-        string[] words = [.. name.Split([' ', ':', '\'', '’', '-'], StringSplitOptions.RemoveEmptyEntries).Where(w => w.Length > 2 || w == name)];
-        return words.Length >= 2 ? $"{char.ToUpperInvariant(words[0][0])}{char.ToLowerInvariant(words[^1][0])}" : name.Length >= 2 ? name[..2] : name;
+        if (t.Cost == 2)
+            DrawString(small, new Vector2(Size.X - 16, 14), "2", HorizontalAlignment.Left, -1, 12, new Color(ElementStyle.Cost));
+        if (state == NodeState.Level && t.Level > 0)
+            DrawString(small, new Vector2(4, Size.Y - 6), t.Level.ToString(System.Globalization.CultureInfo.InvariantCulture), HorizontalAlignment.Left, -1, 11, new Color(ElementStyle.Open, 0.6f));
+        // The elements in colour as well as in words (L9 a): a pair's two, a Heart's one, at the foot of the node.
+        Element[] elements = TreeGuide.PairOf(t, data) is ReactionSpec pair ? [pair.First, pair.Second]
+            : [.. t.Rules.OfType<ElementRule>().Where(_ => t.Branch == Branch.Pure).Select(r => r.Element)];
+        for (int i = 0; i < elements.Length; i++)
+        {
+            var at = new Vector2((Size.X / 2) + ((i - ((elements.Length - 1) / 2f)) * 14), Size.Y - 7);
+            DrawCircle(at, 5, new Color(ElementStyle.Colour(elements[i])));
+            DrawArc(at, 5, 0, Mathf.Tau, 16, new Color(ElementStyle.Ground), 1, true);
+        }
+        // A node made for playing together (A7 a): two small heads at the top left.
+        if (t.Branch == Branch.Support || t.Id == "shared-mark")
+        {
+            Color head = new(ElementStyle.StyleColour(Branch.Support));
+            DrawCircle(new Vector2(8, 9), 3.5f, head);
+            DrawCircle(new Vector2(15, 9), 3.5f, head);
+            DrawArc(new Vector2(11.5f, 17), 6, Mathf.Pi, Mathf.Tau, 8, head, 2);
+        }
     }
 }
 
@@ -617,14 +803,14 @@ public static class TreeShapes
 {
     public static void Draw(Control on, NodeShape shape, NodeState? state, Vector2 size, bool red)
     {
-        (Color fill, Color line, float width, bool dotted) = red ? (new Color("3a2424"), new Color("f08070"), 3f, false) : state switch
+        (Color fill, Color line, float width, bool dotted) = red ? (new Color(ElementStyle.LosingFill), new Color(ElementStyle.Losing), 3f, false) : state switch
         {
-            NodeState.Taken => (new Color("33421f"), new Color("bef374"), 3f, false),
-            NodeState.Open => (new Color("262626"), new Color("e0e0e0"), 2f, false),
-            NodeState.Excluded => (new Color("2a1f1f"), new Color("e07060"), 2f, false),
-            NodeState.Locked => (new Color("202020"), new Color("8a8a8a"), 2f, true),
-            NodeState.Level => (new Color("1d1d1d"), new Color("5c5c5c"), 2f, true),
-            _ => (new Color(0, 0, 0, 0), new Color("6a6a6a"), 2f, true),
+            NodeState.Taken => (new Color(ElementStyle.TakenFill), new Color(ElementStyle.Taken), 3f, false),
+            NodeState.Open => (new Color(ElementStyle.OpenFill), new Color(ElementStyle.Open), 2f, false),
+            NodeState.Excluded => (new Color(ElementStyle.ExcludedFill), new Color(ElementStyle.Excluded), 2f, false),
+            NodeState.Locked => (new Color(ElementStyle.LockedFill), new Color(ElementStyle.Locked), 2f, true),
+            NodeState.Level => (new Color(ElementStyle.OutOfLevelFill), new Color(ElementStyle.OutOfLevel), 2f, true),
+            _ => (new Color(0, 0, 0, 0), new Color(ElementStyle.Coming), 2f, true),
         };
         Vector2 c = size / 2;
         float r = (Mathf.Min(size.X, size.Y) / 2) - width;

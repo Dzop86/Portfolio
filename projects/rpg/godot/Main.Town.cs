@@ -1290,6 +1290,46 @@ public partial class Main
             _windows.Close();
             ShowWindows();
         };
+        // The three guided bubbles at the first opening from level 30, once an account (sprint 149, M6 a).
+        _treePanel.TutorialDone += () => _ = MarkSeen(Seen.TreeTutorial);
+        if (editor.Hero.Level >= Talents.Opens)
+            _ = TutorialIfUnseen(_treePanel);
+    }
+
+    // What this game has seen without a server (offline, or before the server answers).
+    private static readonly HashSet<string> SeenHere = [];
+
+    private async Task TutorialIfUnseen(TreePanel panel)
+    {
+        bool seen = SeenHere.Contains(Seen.TreeTutorial);
+        if (!seen && _lobby?.SignedIn == true)
+        {
+            try
+            {
+                seen = (await _lobby.Server.SeenFlags()).Contains(Seen.TreeTutorial);
+            }
+            catch (Exception e) when (e is ServerException or HttpRequestException)
+            {
+                // Without the server's word, shown: better twice than never.
+            }
+        }
+        if (!seen && _treePanel == panel && IsInstanceValid(panel))
+            panel.StartTutorial();
+    }
+
+    private static async Task MarkSeen(string flag)
+    {
+        SeenHere.Add(flag);
+        if (_lobby?.SignedIn != true)
+            return;
+        try
+        {
+            await _lobby.Server.MarkSeen(flag);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            // Kept here for this game; asked again next time.
+        }
     }
 
     private void CloseTree()
@@ -2581,6 +2621,28 @@ public partial class Main
             tree._Input(new InputEventKey { Pressed = true, Keycode = Key.S, CtrlPressed = true });
             if (saved)
                 problems.Add($"{id}: Ctrl+S saves a tree that did not change");
+            // A node of each kind hovered: its card says its layer and its banner (sprint 149, M2 a); each talent has its icon.
+            foreach (TreeNode n in layout.Nodes.Where(n => !n.IsComing).GroupBy(n => (TreeGuide.LayerOf(n, GameData.Embedded), n.Shape, n.IsFold)).Select(g => g.First()))
+            {
+                tree.Hover(n.Id);
+                TreeCard card = texts.TreeCard(n, tree.Editor);
+                if (!tree.CardText.Contains(card.Layer, StringComparison.Ordinal) || !tree.CardText.Contains(card.Banner, StringComparison.Ordinal))
+                    problems.Add($"{id}: the card of {n.Id} says '{tree.CardText}'");
+            }
+            tree.Hover(null);
+            if (layout.Nodes.FirstOrDefault(n => (n.IsTalent || n.IsTrunk) && TreeNodeView.IconOf(n) is null) is TreeNode bare)
+                problems.Add($"{id}: {bare.Id} has no icon");
+            // The tutorial: three bubbles, the legend open with them, then done (M6 a, M5 b).
+            bool done = false;
+            tree.TutorialDone += () => done = true;
+            tree.StartTutorial();
+            if (tree.TutorialStep != 0 || !tree.LegendShown)
+                problems.Add($"{id}: the tutorial starts on bubble {tree.TutorialStep}, the legend {(tree.LegendShown ? "open" : "shut")}");
+            for (int b = 0; b < 3; b++)
+                tree.NextBubble();
+            if (!done || tree.TutorialStep != -1)
+                problems.Add($"{id}: the tutorial does not end after its three bubbles");
+            tree.ShowLegend(false);
             // The arrow up goes to the neighbour above where the keyboard starts (K5 a).
             string start = tree.Focused;
             tree.Move(Direction.Up);

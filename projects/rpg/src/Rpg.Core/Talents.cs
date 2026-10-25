@@ -248,8 +248,13 @@ public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : Tal
 /// (D82), one of <see cref="RequiresAny"/> must be (a parent among several, G7 a), and not before <see cref="Level"/>; a
 /// talent with a parent asks no points below it in its branch (G4 a).
 /// </summary>
+/// <remarks>
+/// Since sprint 149 (D82, M4 a, M8 b): its <see cref="Counterpart"/> said apart, a line of <see cref="Lore"/>, and its
+/// <see cref="Icon"/> (a game-icons.net drawing, credited in <c>godot/assets/icons/talents/credits.json</c>).
+/// </remarks>
 public sealed record TalentSpec(string Id, LocalizedText Name, LocalizedText Description, Branch Branch, Tier Tier, IReadOnlyList<TalentRule> Rules,
-    IReadOnlyList<string>? Excludes = null, IReadOnlyList<string>? Requires = null, IReadOnlyList<string>? RequiresAny = null, int Level = 0)
+    IReadOnlyList<string>? Excludes = null, IReadOnlyList<string>? Requires = null, IReadOnlyList<string>? RequiresAny = null, int Level = 0,
+    LocalizedText? Counterpart = null, LocalizedText? Lore = null, string? Icon = null)
 {
     /// <summary>Whether a talent it asks for comes first (<see cref="Requires"/> or <see cref="RequiresAny"/>).</summary>
     public bool HasParent => Requires is { Count: > 0 } || RequiresAny is { Count: > 0 };

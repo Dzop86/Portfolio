@@ -104,6 +104,18 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary[]>(Json, cancel))!;
     }
 
+    /// <summary>What the account has seen once (sprint 149): the tree's tutorial.</summary>
+    public async Task<IReadOnlyList<string>> SeenFlags(CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri("api/account/seen", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<string[]>(Json, cancel))!;
+    }
+
+    /// <summary>Marks something seen once on the account (<see cref="Seen"/>).</summary>
+    public async Task MarkSeen(string flag, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PutAsync(new Uri($"api/account/seen/{Uri.EscapeDataString(flag)}", UriKind.Relative), null, cancel), cancel), cancel);
+
     /// <summary>The game servers, to choose from before one's characters.</summary>
     public async Task<IReadOnlyList<ServerInfo>> Servers(CancellationToken cancel = default)
     {

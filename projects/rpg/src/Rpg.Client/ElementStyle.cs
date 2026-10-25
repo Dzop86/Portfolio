@@ -23,4 +23,23 @@ public static class ElementStyle
         Element.Lightning => "#f2d03b",
         _ => "#e0e0e0",
     };
+
+    /// <summary>
+    /// The talent tree's colours (sprint 149, D82, L4 a), each also a token of <c>src/assets/tokens.css</c> (<c>--osmose-*</c>):
+    /// the five states of a node, the links, the couples' brace, the window's ground, and a colour a style.
+    /// </summary>
+    public const string Taken = "#bef374", TakenFill = "#33421f", Open = "#e0e0e0", OpenFill = "#262626", Excluded = "#e07060",
+        ExcludedFill = "#2a1f1f", Locked = "#8a8a8a", LockedFill = "#202020", OutOfLevel = "#5c5c5c", OutOfLevelFill = "#1d1d1d",
+        Coming = "#6a6a6a", Losing = "#f08070", LosingFill = "#3a2424", Brace = "#5a3a22", Ground = "#1b1b1b", Cost = "#f2d36b";
+
+    public static string StyleColour(Branch style) => style switch
+    {
+        Branch.Melee => "#e8a33d",
+        Branch.Distance => "#6bb8f2",
+        Branch.Support => "#ff7eb6",
+        Branch.Terrain => "#c9a27f",
+        Branch.Tempo => "#b48cff",
+        Branch.Alchemy => "#4fd1c5",
+        _ => "#bef374",
+    };
 }

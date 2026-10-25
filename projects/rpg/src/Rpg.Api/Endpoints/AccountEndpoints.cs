@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,34 @@ public static partial class AccountEndpoints
             .WithSummary("Creates an account.");
         group.MapPost("/tokens", CreateToken)
             .WithSummary("Signs in: exchanges a name and password for an access token.");
+        RouteGroupBuilder me = app.MapGroup("/api/account").WithTags("Accounts").RequireAuthorization();
+        me.MapGet("/seen", SeenOf).WithSummary("What the signed-in player has seen once (the tree's tutorial), not to show it again.");
+        me.MapPut("/seen/{flag}", MarkSeen).WithSummary("Marks something seen once on the account (one of the known flags).");
+    }
+
+    /// <summary>What an account may mark as seen (sprint 149, M6 a).</summary>
+    public static readonly IReadOnlyList<string> Flags = [Seen.TreeTutorial];
+
+    internal static async Task<Ok<string[]>> SeenOf(ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        Guid id = CharacterEndpoints.AccountId(user);
+        string seen = await db.Accounts.Where(a => a.Id == id).Select(a => a.Seen).SingleAsync(cancel);
+        return TypedResults.Ok(seen.Split(',', StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    internal static async Task<Results<NoContent, ProblemHttpResult>> MarkSeen(string flag, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (!Flags.Contains(flag))
+            return TypedResults.Problem(statusCode: StatusCodes.Status400BadRequest, title: $"Unknown flag '{flag}'.");
+        Guid id = CharacterEndpoints.AccountId(user);
+        Account account = await db.Accounts.SingleAsync(a => a.Id == id, cancel);
+        string[] seen = account.Seen.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        if (!seen.Contains(flag))
+        {
+            account.Seen = string.Join(',', [.. seen, flag]);
+            await db.SaveChangesAsync(cancel);
+        }
+        return TypedResults.NoContent();
     }
 
     internal static async Task<Results<Created<AccountCreated>, ValidationProblem, ProblemHttpResult>> CreateAccount(
