@@ -569,7 +569,7 @@ public partial class PointsPanel : CanvasLayer
             columns.AddChild(column);
             var name = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(150, 0) };
             name.AddThemeFontSizeOverride("font_size", 16);
-            name.AddThemeColorOverride("font_color", branch is Branch.Braids or Branch.Poles ? new Color("bef374") : new Color("e0e0e0"));
+            name.AddThemeColorOverride("font_color", branch is Branch.Fork or Branch.Pure or Branch.Braids ? new Color("bef374") : new Color("e0e0e0"));
             column.AddChild(name);
             _branches.Add((branch, name));
             foreach (Tier tier in Enum.GetValues<Tier>())
@@ -625,14 +625,19 @@ public partial class PointsPanel : CanvasLayer
         _trunk.Text = Texts.Trunk(Editor.Hero.Level);
         _talentsSaid.Text = Editor.Replaced is string replaced ? Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)] : "";
         foreach ((Branch branch, Label name) in _branches)
-            name.Text = $"{Texts["talents.branch." + branch]} · {Texts["talents.family." + (branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner)]}";
+            name.Text = Texts["talents.branch." + branch];
         foreach (Label floor in _talentsPage.FindChildren("*", "Label", true, false).OfType<Label>().Where(l => l.HasMeta("key")))
             floor.Text = Texts[(string)floor.GetMeta("key")];
         foreach ((TalentSpec t, Button tile) in _talentTiles)
         {
             tile.Text = t.Name.In(Texts.Lang);
             // A pair that shares an element with one taken says which (sprint 146, C2).
-            tile.TooltipText = Texts.Talent(t) + (Editor.HasTalent(t) ? null : Texts.PairTaken(Editor.TalentsTaken, t, Editor.Data) is string why ? "\n" + why : null);
+            // Taken: what giving it back gives back with it (sprint 147, I1 b).
+            string? losing = Editor.HasTalent(t) && Editor.Losing(t) is { Count: > 0 } lost ? Texts["talents.losing", string.Join(", ", lost.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))] : null;
+            // Not to take: why, before the click (sprint 147, H6 a).
+            string? why = Editor.HasTalent(t) || TalentReasons.WhyNot(Editor.TalentsTaken, t.Id, Editor.Hero.Level, Editor.Data) is not TalentRefusal no ? null : Texts.WhyNot(no, Editor.Data);
+            string? said = losing ?? why;
+            tile.TooltipText = Texts.Talent(t) + (said is not null ? "\n" + said : null);
             tile.SetPressedNoSignal(Editor.HasTalent(t));
             tile.Disabled = !(Editor.HasTalent(t) ? Editor.CanDrop(t) : Editor.CanTake(t));
         }

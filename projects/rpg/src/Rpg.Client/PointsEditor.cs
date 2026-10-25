@@ -53,8 +53,19 @@ public sealed class PointsEditor
     /// </summary>
     public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem(Talents.With(_talents, talent.Id, Data), Hero.Level, Data) is null;
 
-    /// <summary>A talent can be given back unless another one needs it (a floor above, a talent that requires it).</summary>
-    public bool CanDrop(TalentSpec talent) => !ReadOnly && HasTalent(talent) && Talents.Problem([.. _talents.Where(id => id != talent.Id)], Hero.Level, Data) is null;
+    /// <summary>
+    /// A talent can be given back, with those that need it (sprint 147, D82, I1 b: the cascade, <see cref="Losing"/>), as
+    /// long as what is left holds.
+    /// </summary>
+    public bool CanDrop(TalentSpec talent) => !ReadOnly && HasTalent(talent) && Talents.Problem(Talents.Without(_talents, talent.Id, Data), Hero.Level, Data) is null;
+
+    /// <summary>The talents giving <paramref name="talent"/> back would give back with it, for the window to show first.</summary>
+    public IReadOnlyList<string> Losing(TalentSpec talent)
+    {
+        ArgumentNullException.ThrowIfNull(talent);
+        List<string> left = Talents.Without(_talents, talent.Id, Data);
+        return [.. _talents.Where(id => id != talent.Id && !left.Contains(id))];
+    }
 
     public void Take(TalentSpec talent)
     {
@@ -71,7 +82,9 @@ public sealed class PointsEditor
     {
         if (!CanDrop(talent))
             return;
-        _talents.Remove(talent.Id);
+        List<string> left = Talents.Without(_talents, talent.Id, Data);
+        _talents.Clear();
+        _talents.AddRange(left);
         Replaced = null;
         FitDeck();
     }

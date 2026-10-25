@@ -17,7 +17,7 @@ public class SupportTests
         new([.. Spells, .. TreeSpells, .. Mine.Take(4), Mine[4] with { Twin = "fire" }], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
 
     private static readonly Hero Friend = new("Romane", "female-b", "tester", Level: 100);
 
@@ -73,7 +73,8 @@ public class SupportTests
         Assert.Null(f.SupportTarget(f.HeroFighter!, f.HeroFighter!.Spells[0], f.HeroFighter.Cell));
         Fight plain = Play(Hero(), friendHp: 300);
         plain.Apply(new CastAction("fire", plain.Fighters[2].Cell));
-        Assert.Equal(280, plain.Fighters[2].Hp);
+        // 20, the trunk's 3 % on the caster and its 3 % of resistance on the ally (sprint 146): 19.
+        Assert.Equal(281, plain.Fighters[2].Hp);
     }
 
     [Fact]

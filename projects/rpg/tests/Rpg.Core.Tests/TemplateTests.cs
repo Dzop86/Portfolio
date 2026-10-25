@@ -279,10 +279,12 @@ public class TemplateTests
             double best = new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Select(e => Large(OfOne(family, id, e, craft.Worn))).Append(Large(craft)).Max();
             var line = new List<string> { $"{id} bare {without:0.0} (best horde {best:0.0})" };
             var families = new List<double>();
-            foreach (string build in new[] { "matter", "manner" })
+            // Since sprint 147 (J4 b), the build of Pure element too: a Heart and a style, held to the same ceilings.
+            foreach (string build in new[] { "matter", "manner", "pure" })
             {
                 double small = Small(Progression.Talented(bare, $"{id}-{build}", family.Data));
-                families.Add(small);
+                if (build != "pure")
+                    families.Add(small);
                 double large = Large(Progression.Talented(craft, $"{id}-{build}", family.Data, craft.Worn));
                 kept &= small >= 27 && small <= without + 3 && large <= best + 1.5;
                 line.Add($"{build} {small:0.0} (hordes {large:0.0})");
@@ -291,6 +293,54 @@ public class TemplateTests
             report.Add(string.Join(", ", line));
         }
         Assert.True(kept, $"level {level}: " + string.Join("; ", report));
+    }
+
+    // Each style on the same door (Chilling, a pair, so that Alchemy has one), a node of each floor up to its key (J3 a): the
+    // key a player alone would take (Clear Line, not Artillery, which strikes nothing at 1 or 2 cells). Support is not here:
+    // up to −30 % of one's own damage to help an ally, it is a false decision alone by design, and measured in a duo
+    // (PartyBalanceTests).
+    private static readonly Dictionary<string, string[]> Styles = new()
+    {
+        ["Alchemy"] = ["chilling", "lasting-mark", "wave"],
+        ["Melee"] = ["chilling", "up-close", "heavy-push", "close-quarters"],
+        ["Distance"] = ["chilling", "long-sight", "tight-zone", "clear-line"],
+        ["Terrain"] = ["chilling", "side-step", "seal", "scorched-earth"],
+        ["Tempo"] = ["chilling", "heavy-blows", "short-cooldown", "one-gesture"],
+    };
+
+    private static readonly string[] Pairs = ["bogging", "chilling", "cracking", "electrifying", "fogging", "blinding"];
+
+    private static readonly Dictionary<string, string[]> Couples = new()
+    {
+        ["Lightning+Mud"] = ["electrifying", "bogging"],
+        ["Ice+Magma"] = ["chilling", "cracking"],
+        ["Steam+Sand"] = ["fogging", "blinding"],
+    };
+
+    [Fact]
+    public void AtFortyFive_TheStyles_ThePairs_AndTheCouples_AreWorthAlike()
+    {
+        // Sprint 147 (D82, J3 c): no style, no pair taken alone, no couple of pairs a false decision: each within 1.5
+        // victories of 30 of the others' average, against the small groups, bare, for each class.
+        var family = new Synthetic(45);
+        var few = family.Groups.Where(g => g.Size <= 3).ToArray();
+        double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
+        var report = new List<string>();
+        bool kept = true;
+        void Even(string id, string what, Dictionary<string, double> values)
+        {
+            foreach ((string name, double v) in values)
+                kept &= Math.Abs(v - values.Where(o => o.Key != name).Average(o => o.Value)) <= 1.5;
+            report.Add($"{id} {what}: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
+        }
+        foreach (string id in Classes)
+        {
+            Hero bare = family.Hero(id, "none");
+            Even(id, "styles", Styles.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data))));
+            Even(id, "pairs", Pairs.ToDictionary(p => p, p => Small(Progression.Talented(bare, [p], family.Data))));
+            Even(id, "couples", Couples.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data))));
+        }
+        Assert.True(kept, string.Join("; ", report));
     }
 
     /// <summary>A hero of one element and no talent: its class's spells of that element and the neutral ones, all its points in it.</summary>

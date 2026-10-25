@@ -26,8 +26,9 @@ public class TalentTextsTests
         Assert.True(editor.Changed);
         Assert.Equal(["bogging", "up-close"], editor.ToPoints().Talents!);
         Assert.Null(editor.Draft.Problem(Data));
+        // Since sprint 147, Mud is Up close's door: given back, it takes Up close with it.
         editor.Drop(bogging);
-        Assert.Equal(["up-close"], editor.ToPoints().Talents!);
+        Assert.Empty(editor.ToPoints().Talents!);
         // Before 30, nothing to take; in a fight, nothing changes; nothing taken, an empty list goes to the server.
         Assert.False(new PointsEditor(Sentinel(29), Data).CanTake(bogging));
         var fight = new PointsEditor(Sentinel(35, "bogging"), Data, readOnly: true);
@@ -39,8 +40,8 @@ public class TalentTextsTests
     [Fact]
     public void ATile_TellsTheTalentsName_ItsBranch_ItsFloor_ItsCost_AndWhatItDoes()
     {
-        Assert.StartsWith("Enlisement · Réactions, étage 1, 1 point(s)\nFrapper en Terre", new Texts("fr").Talent(Data.Talents["bogging"]), StringComparison.Ordinal);
-        Assert.StartsWith("Up close · Distance, first floor, 1 point(s)\n+10% damage", new Texts("en").Talent(Data.Talents["up-close"]), StringComparison.Ordinal);
+        Assert.StartsWith("Enlisement · Paires, étage 1, 1 point(s)\nFrapper en Terre", new Texts("fr").Talent(Data.Talents["bogging"]), StringComparison.Ordinal);
+        Assert.StartsWith("Up close · Melee, first floor, 1 point(s)\n+10% damage", new Texts("en").Talent(Data.Talents["up-close"]), StringComparison.Ordinal);
     }
 
     [Fact]

@@ -24,7 +24,7 @@ public class TalentTests
     private static readonly GameData Tree = Data(["A.B"], Spec(0), Monster());
 
     private static Hero Hero(int level = 30, params string[] talents) =>
-        new("Ondine", "female-a", "tester", Level: level, Talents: talents.Length == 0 ? null : talents);
+        new("Ondine", "female-a", "tester", Level: level, Talents: talents.Length == 0 ? null : WithDoor(talents, "fogging"));
 
     private static FighterSpec Monster(int start = 0, int hp = 200, bool chief = false) => Spec(1, start, hp: hp, initiative: 1, spells: ["strike"]) with { Chief = chief };
 
@@ -49,8 +49,8 @@ public class TalentTests
     {
         Assert.True(Real.Talents.ContainsKey("bogging") && Real.Talents.ContainsKey("up-close"));
         TalentSpec bogging = Real.Talents["bogging"], close = Real.Talents["up-close"];
-        Assert.Equal((Branch.Reactions, Tier.First, TalentFamily.Manner, 1), (bogging.Branch, bogging.Tier, bogging.Family, bogging.Cost));
-        Assert.Equal((Branch.Distance, Tier.First, TalentFamily.Manner, 1), (close.Branch, close.Tier, close.Family, close.Cost));
+        Assert.Equal((Branch.Fork, Tier.First, TalentFamily.Manner, 1), (bogging.Branch, bogging.Tier, bogging.Family, bogging.Cost));
+        Assert.Equal((Branch.Melee, Tier.First, TalentFamily.Manner, 1), (close.Branch, close.Tier, close.Family, close.Cost));
         ReactionSpec bogged = Real.Reactions["bogged"];
         Assert.True(bogged.Joins(Element.Water, Element.Earth));
         Assert.Equal(new StatusEffect(Affects.Enemies, Stat.Mp, -2, 1), Assert.Single(bogged.Statuses));
@@ -79,12 +79,14 @@ public class TalentTests
         // A tree of its own, every floor of two branches.
         static TalentSpec T(string id, Branch b, Tier tier, string[]? excludes = null, string[]? requires = null) =>
             new(id, Text, Text, b, tier, [new RangeRule(0)], excludes, requires);
+        // A big switch (sprint 147): a key that changes the whole grimoire.
+        static TalentSpec Switch(string id, Branch b) => new(id, Text, Text, b, Tier.Key, [new ConvertRule(Element.Lightning)]);
         TalentSpec[] tree =
         [
             T("a1", Branch.Distance, Tier.First, excludes: ["a2"]), T("a2", Branch.Distance, Tier.First), T("a3", Branch.Distance, Tier.First),
             T("a4", Branch.Distance, Tier.Second), T("ak", Branch.Distance, Tier.Key), T("ak2", Branch.Distance, Tier.Key),
-            T("b1", Branch.Braids, Tier.First), T("b2", Branch.Braids, Tier.First), T("b3", Branch.Braids, Tier.First), T("bk", Branch.Braids, Tier.Key),
-            T("p1", Branch.Poles, Tier.First), T("p2", Branch.Poles, Tier.First), T("p3", Branch.Poles, Tier.First), T("pk", Branch.Poles, Tier.Key),
+            T("b1", Branch.Braids, Tier.First), T("b2", Branch.Braids, Tier.First), T("b3", Branch.Braids, Tier.First), Switch("bk", Branch.Braids),
+            T("p1", Branch.Pure, Tier.First), T("p2", Branch.Pure, Tier.First), T("p3", Branch.Pure, Tier.First), Switch("pk", Branch.Pure),
             T("s1", Branch.Support, Tier.First), T("s2", Branch.Support, Tier.First, requires: ["s1"]),
         ];
         var data = new GameData(Spells, [], [], talents: tree);
@@ -99,9 +101,9 @@ public class TalentTests
         Assert.Null(P(45, "a1", "a3", "a4", "ak"));
         Assert.Contains("At most 4", P(36, "a1", "a3", "a4", "ak", "b1"));
         Assert.Contains("One key per branch", P(65, "a1", "a3", "a4", "ak", "ak2"));
-        // One key of Matter in the whole tree, from two branches of Matter.
+        // One big switch in the whole tree (sprint 147, E10 a), from two branches.
         Assert.Null(P(65, "b1", "b2", "b3", "bk", "p1", "p2", "p3"));
-        Assert.Contains("One key of Matter", P(80, "b1", "b2", "b3", "bk", "p1", "p2", "p3", "pk"));
+        Assert.Contains("One big switch", P(80, "b1", "b2", "b3", "bk", "p1", "p2", "p3", "pk"));
         Assert.Contains("asks for 's1'", P(30, "s2"));
         Assert.Null(P(30, "s1", "s2"));
     }

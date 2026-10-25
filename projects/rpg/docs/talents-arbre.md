@@ -200,7 +200,7 @@ Notation : « existe » = le moteur sait déjà le faire ; « nouveau » = une p
 | # | Talent | Étage | Coût | Effet | Contrepartie | Moteur |
 |---|---|---|---|---|---|---|
 | D1 | **Au plus près** | E1 | 1 | **+10 %** sur une cible à 0 à 3 cases | **−2 PO** à tous tes sorts (jamais sous la portée minimale ni sous 1) ; exclu avec D2 | existe, nouveau (selon la distance) |
-| D2 | **Longue vue** | E1 | 1 | **+2 PO** aux sorts de portée max 4 ou plus | **−10 %** à 1 ou 2 cases | idem |
+| D2 | **Longue vue** | E1 | 1 | **+2 PO** aux sorts de portée max 4 ou plus | **−5 %** à 1 ou 2 cases (−10 % jusqu’à S147) | idem |
 | D3 | **Pied ferme** | E1 | 1 | **+15 %** si tu n'as pas dépensé de PM ce tour | **−5 %** sinon | nouveau |
 | D4 | **Zone serrée** | E2 | 1 | tes zones rétrécissent d'un cran, dégâts recalculés au budget | moins de cibles | existe (budget) |
 | D5 | **Poussée lourde** | E2 | 1 | poussées **+1 case**, choc **8 par case** | sorts qui poussent **+1 PA** | existe |

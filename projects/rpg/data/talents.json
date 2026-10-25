@@ -9,7 +9,7 @@
       "fr": "Frapper en Terre un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par la Terre, le rend Enlisé : −2 PM pendant 1 tour. Il faut deux éléments dans son deck.",
       "en": "Striking in Earth an enemy marked by Water, or in Water one marked by Earth, leaves it Bogged: −2 MP for 1 turn. It takes two elements in one's deck."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -28,7 +28,7 @@
       "fr": "Frapper en Eau un ennemi marqué par l'Air, ou en Air un ennemi marqué par l'Eau, le rend Transi : −2 PA pendant 1 tour.",
       "en": "Striking in Water an enemy marked by Air, or in Air one marked by Water, leaves it Chilled: −2 AP for 1 turn."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -47,7 +47,7 @@
       "fr": "Frapper en Terre un ennemi marqué par le Feu, ou en Feu un ennemi marqué par la Terre, le rend Fêlé : −15 % de résistance à tous les éléments pendant 2 tours.",
       "en": "Striking in Earth an enemy marked by Fire, or in Fire one marked by Earth, leaves it Cracked: −15% resistance to every element for 2 turns."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -66,7 +66,7 @@
       "fr": "Frapper en Feu un ennemi marqué par l'Air, ou en Air un ennemi marqué par le Feu, le rend Électrisé : pendant 1 tour, 35 % de chaque coup qu'il reçoit sautent sur l'ennemi le plus proche.",
       "en": "Striking in Fire an enemy marked by Air, or in Air one marked by Fire, leaves it Electrified: for 1 turn, 35% of every hit it takes jumps to the nearest enemy."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -85,7 +85,7 @@
       "fr": "Frapper en Feu un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par le Feu, le rend Embué : −25 % de dégâts infligés pendant 1 tour.",
       "en": "Striking in Fire an enemy marked by Water, or in Water one marked by Fire, leaves it Fogged: −25% damage dealt for 1 turn."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -104,7 +104,7 @@
       "fr": "Frapper en Terre un ennemi marqué par l'Air, ou en Air un ennemi marqué par la Terre, le rend Aveuglé : −2 PO à ses sorts pendant 1 tour.",
       "en": "Striking in Earth an enemy marked by Air, or in Air one marked by Earth, leaves it Blinded: −2 range on its spells for 1 turn."
     },
-    "branch": "Reactions",
+    "branch": "Fork",
     "tier": "First",
     "rules": [
       {
@@ -114,339 +114,107 @@
     ]
   },
   {
-    "id": "lasting-mark",
+    "id": "heart-earth",
     "name": {
-      "fr": "Empreinte tenace",
-      "en": "Lasting Mark"
+      "fr": "Cœur : Terre",
+      "en": "Heart: Earth"
     },
     "description": {
-      "fr": "Tes empreintes durent un tour de plus.",
-      "en": "Your marks last one turn more."
+      "fr": "Tes sorts de Terre frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
+      "en": "Your Earth spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
     },
-    "branch": "Reactions",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "mark",
-        "extraTurns": 1
-      }
-    ]
-  },
-  {
-    "id": "catalysis",
-    "name": {
-      "fr": "Catalyse",
-      "en": "Catalysis"
-    },
-    "description": {
-      "fr": "Tes réactions infligent en plus 20 % des dégâts du coup qui les déclenche, en neutre ; en échange, une réaction par tour au plus.",
-      "en": "Your reactions also deal 20% of the damage of the hit that sets them off, neutral; in exchange, one reaction a turn at most."
-    },
-    "branch": "Reactions",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "catalysis",
-        "percent": 20
-      }
-    ],
-    "excludes": [
-      "shared-mark"
-    ]
-  },
-  {
-    "id": "lingering-reaction",
-    "name": {
-      "fr": "Réaction prolongée",
-      "en": "Lingering Reaction"
-    },
-    "description": {
-      "fr": "Les états que tu déclenches durent un tour de plus ; en échange, tes coups qui déclenchent font 10 % de moins.",
-      "en": "The states you set off last one turn more; in exchange, your hits that set one off deal 10% less."
-    },
-    "branch": "Reactions",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "linger",
-        "extraTurns": 1,
-        "triggerPercent": -10
-      }
-    ]
-  },
-  {
-    "id": "wave",
-    "name": {
-      "fr": "Onde",
-      "en": "Wave"
-    },
-    "description": {
-      "fr": "Tes zones déclenchent sur 2 cibles marquées de plus que celle visée ; en échange, tes zones font 15 % de moins.",
-      "en": "Your areas set reactions off on 2 more marked targets than the one aimed at; in exchange, your areas deal 15% less."
-    },
-    "branch": "Reactions",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "wave",
-        "extra": 2,
-        "zonePercent": -15
-      }
-    ]
-  },
-  {
-    "id": "shared-mark",
-    "name": {
-      "fr": "Empreinte partagée",
-      "en": "Shared Mark"
-    },
-    "description": {
-      "fr": "Ton empreinte porte tes talents : un allié qui la complète déclenche ta réaction, même sans le talent. Exclut la Catalyse.",
-      "en": "Your mark carries your talents: an ally who completes it sets your reaction off, even without the talent. Excludes Catalysis."
-    },
-    "branch": "Reactions",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "shared-mark"
-      }
-    ],
-    "excludes": [
-      "catalysis"
-    ]
-  },
-  {
-    "id": "virtuoso",
-    "name": {
-      "fr": "Virtuose",
-      "en": "Virtuoso"
-    },
-    "description": {
-      "fr": "Compléter ta propre empreinte : 20 % de dégâts en plus ; les empreintes de tes alliés ne réagissent plus pour toi.",
-      "en": "Completing your own mark: 20% more damage; your allies' marks no longer react for you."
-    },
-    "branch": "Reactions",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "virtuoso",
-        "percent": 20
-      }
-    ]
-  },
-  {
-    "id": "up-close",
-    "name": {
-      "fr": "Au plus près",
-      "en": "Up close"
-    },
-    "description": {
-      "fr": "+10 % de dégâts sur une cible à 3 cases ou moins ; en échange, −2 PO à tous ses sorts (jamais sous leur portée minimale ni sous 1).",
-      "en": "+10% damage on a target 3 cells away or closer; in exchange, −2 range on all one's spells (never under their minimum range nor under 1)."
-    },
-    "branch": "Distance",
+    "branch": "Pure",
     "tier": "First",
     "rules": [
       {
-        "kind": "range",
-        "change": -2
-      },
-      {
-        "kind": "distance",
-        "minCells": 0,
-        "maxCells": 3,
-        "percent": 10
+        "kind": "element",
+        "element": "Earth",
+        "percent": 10,
+        "others": -5
       }
     ],
     "excludes": [
-      "long-sight",
-      "artillery"
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
-    "id": "long-sight",
+    "id": "heart-fire",
     "name": {
-      "fr": "Longue vue",
-      "en": "Long Sight"
+      "fr": "Cœur : Feu",
+      "en": "Heart: Fire"
     },
     "description": {
-      "fr": "+2 PO aux sorts qui portent déjà à 4 cases ou plus ; en échange, −10 % de dégâts sur une cible à 1 ou 2 cases.",
-      "en": "+2 range on spells that already reach 4 cells or more; in exchange, −10% damage on a target 1 or 2 cells away."
+      "fr": "Tes sorts de Feu frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
+      "en": "Your Fire spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
     },
-    "branch": "Distance",
+    "branch": "Pure",
     "tier": "First",
     "rules": [
       {
-        "kind": "range",
-        "change": 2,
-        "atLeast": 4
-      },
-      {
-        "kind": "distance",
-        "minCells": 1,
-        "maxCells": 2,
-        "percent": -10
+        "kind": "element",
+        "element": "Fire",
+        "percent": 10,
+        "others": -5
       }
     ],
     "excludes": [
-      "up-close",
-      "close-quarters"
+      "heart-earth",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
-    "id": "firm-footing",
+    "id": "heart-water",
     "name": {
-      "fr": "Pied ferme",
-      "en": "Firm Footing"
+      "fr": "Cœur : Eau",
+      "en": "Heart: Water"
     },
     "description": {
-      "fr": "+15 % de dégâts si tu n'as dépensé aucun PM ce tour ; −5 % sinon.",
-      "en": "+15% damage if you spent no MP this turn; −5% otherwise."
+      "fr": "Tes sorts d'Eau frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
+      "en": "Your Water spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
     },
-    "branch": "Distance",
+    "branch": "Pure",
     "tier": "First",
     "rules": [
       {
-        "kind": "still",
-        "still": 15,
-        "moved": -5
-      }
-    ]
-  },
-  {
-    "id": "tight-zone",
-    "name": {
-      "fr": "Zone serrée",
-      "en": "Tight Zone"
-    },
-    "description": {
-      "fr": "Tes zones rétrécissent d'un cran (une croix de 1 devient une case) et frappent plus fort d'autant : moins de cibles, plus de dégâts sur chacune.",
-      "en": "Your areas shrink a notch (a cross of 1 becomes one cell) and hit that much harder: fewer targets, more damage on each."
-    },
-    "branch": "Distance",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "zone"
-      }
-    ]
-  },
-  {
-    "id": "heavy-push",
-    "name": {
-      "fr": "Poussée lourde",
-      "en": "Heavy Push"
-    },
-    "description": {
-      "fr": "Tes poussées portent une case plus loin et un choc fait 8 dégâts par case au lieu de 4 ; en échange, tes sorts qui poussent coûtent 1 PA de plus.",
-      "en": "Your pushes go one cell farther and a collision deals 8 damage a cell instead of 4; in exchange, your spells that push cost 1 AP more."
-    },
-    "branch": "Distance",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "push",
-        "cells": 1,
-        "apCost": 1,
-        "collision": 8
-      }
-    ]
-  },
-  {
-    "id": "dancing-step",
-    "name": {
-      "fr": "Pas dansant",
-      "en": "Dancing Step"
-    },
-    "description": {
-      "fr": "Chaque case parcourue donne +4 % au prochain sort (au plus +16 %), remis à zéro après le sort.",
-      "en": "Each cell walked gives +4% to the next spell (at most +16%), back to zero after the spell."
-    },
-    "branch": "Distance",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "dance",
-        "perCell": 4,
-        "max": 16
-      }
-    ]
-  },
-  {
-    "id": "close-quarters",
-    "name": {
-      "fr": "Corps à corps",
-      "en": "Close Quarters"
-    },
-    "description": {
-      "fr": "Tes sorts ne portent plus qu'à 2 cases, et frappent 25 % plus fort.",
-      "en": "Your spells reach 2 cells at most, and hit 25% harder."
-    },
-    "branch": "Distance",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "range-cap",
-        "max": 2
-      },
-      {
-        "kind": "bonus",
-        "percent": 25
+        "kind": "element",
+        "element": "Water",
+        "percent": 10,
+        "others": -5
       }
     ],
     "excludes": [
-      "long-sight",
-      "artillery"
+      "heart-earth",
+      "heart-fire",
+      "heart-air"
     ]
   },
   {
-    "id": "artillery",
+    "id": "heart-air",
     "name": {
-      "fr": "Artillerie",
-      "en": "Artillery"
+      "fr": "Cœur : Air",
+      "en": "Heart: Air"
     },
     "description": {
-      "fr": "Tes sorts de dégâts ne frappent plus à moins de 3 cases, portent 2 cases plus loin et frappent 15 % plus fort ; plus rien à 1 ou 2 cases.",
-      "en": "Your damage spells no longer hit closer than 3 cells, reach 2 cells farther and hit 15% harder; nothing at 1 or 2 cells."
+      "fr": "Tes sorts d'Air frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
+      "en": "Your Air spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
     },
-    "branch": "Distance",
-    "tier": "Key",
+    "branch": "Pure",
+    "tier": "First",
     "rules": [
       {
-        "kind": "min-range",
-        "min": 3
-      },
-      {
-        "kind": "range",
-        "change": 2
-      },
-      {
-        "kind": "bonus",
-        "percent": 15
+        "kind": "element",
+        "element": "Air",
+        "percent": 10,
+        "others": -5
       }
     ],
     "excludes": [
-      "up-close",
-      "close-quarters"
-    ]
-  },
-  {
-    "id": "clear-line",
-    "name": {
-      "fr": "Ligne claire",
-      "en": "Clear Line"
-    },
-    "description": {
-      "fr": "Tes sorts lancés en ligne ne demandent plus la ligne de vue ; les autres perdent 1 PO.",
-      "en": "Your spells cast in line no longer need the line of sight; the others lose 1 range."
-    },
-    "branch": "Distance",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "sight",
-        "othersChange": -1
-      }
+      "heart-earth",
+      "heart-fire",
+      "heart-water"
     ]
   },
   {
@@ -591,225 +359,417 @@
     "level": 45
   },
   {
-    "id": "heavy-blows",
+    "id": "lasting-mark",
     "name": {
-      "fr": "Coups appuyés",
-      "en": "Heavy Blows"
+      "fr": "Empreinte tenace",
+      "en": "Lasting Mark"
     },
     "description": {
-      "fr": "Tes sorts de 4 PA ou plus frappent 15 % plus fort ; ceux de 3 PA ou moins, 15 % moins fort.",
-      "en": "Your spells of 4 AP or more hit 15% harder; those of 3 AP or less, 15% softer."
+      "fr": "Tes empreintes durent un tour de plus.",
+      "en": "Your marks last one turn more."
     },
-    "branch": "Rhythm",
+    "branch": "Alchemy",
     "tier": "First",
     "rules": [
       {
-        "kind": "ap-cost",
-        "minAp": 4,
-        "maxAp": 99,
-        "percent": 15
-      },
+        "kind": "mark",
+        "extraTurns": 1
+      }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding"
+    ]
+  },
+  {
+    "id": "catalysis",
+    "name": {
+      "fr": "Catalyse",
+      "en": "Catalysis"
+    },
+    "description": {
+      "fr": "Tes réactions infligent en plus 20 % des dégâts du coup qui les déclenche, en neutre ; en échange, une réaction par tour au plus.",
+      "en": "Your reactions also deal 20% of the damage of the hit that sets them off, neutral; in exchange, one reaction a turn at most."
+    },
+    "branch": "Alchemy",
+    "tier": "First",
+    "rules": [
       {
-        "kind": "ap-cost",
-        "minAp": 0,
-        "maxAp": 3,
-        "percent": -15
+        "kind": "catalysis",
+        "percent": 20
       }
     ],
     "excludes": [
-      "light-blows"
+      "shared-mark"
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding"
     ]
   },
   {
-    "id": "light-blows",
+    "id": "lingering-reaction",
     "name": {
-      "fr": "Petits coups",
-      "en": "Light Blows"
+      "fr": "Réaction prolongée",
+      "en": "Lingering Reaction"
     },
     "description": {
-      "fr": "Tes sorts de 3 PA ou moins frappent 15 % plus fort ; ceux de 4 PA ou plus, 15 % moins fort.",
-      "en": "Your spells of 3 AP or less hit 15% harder; those of 4 AP or more, 15% softer."
+      "fr": "Les états que tu déclenches durent un tour de plus ; en échange, tes coups qui déclenchent font 10 % de moins.",
+      "en": "The states you set off last one turn more; in exchange, your hits that set one off deal 10% less."
     },
-    "branch": "Rhythm",
+    "branch": "Alchemy",
     "tier": "First",
     "rules": [
       {
-        "kind": "ap-cost",
-        "minAp": 0,
-        "maxAp": 3,
-        "percent": 15
-      },
+        "kind": "linger",
+        "extraTurns": 1,
+        "triggerPercent": -10
+      }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding"
+    ]
+  },
+  {
+    "id": "wave",
+    "name": {
+      "fr": "Onde",
+      "en": "Wave"
+    },
+    "description": {
+      "fr": "Tes zones déclenchent sur 2 cibles marquées de plus que celle visée ; en échange, tes zones font 15 % de moins.",
+      "en": "Your areas set reactions off on 2 more marked targets than the one aimed at; in exchange, your areas deal 15% less."
+    },
+    "branch": "Alchemy",
+    "tier": "Key",
+    "rules": [
       {
-        "kind": "ap-cost",
-        "minAp": 4,
-        "maxAp": 99,
-        "percent": -15
+        "kind": "wave",
+        "extra": 2,
+        "zonePercent": -15
+      }
+    ],
+    "requiresAny": [
+      "lasting-mark",
+      "catalysis",
+      "lingering-reaction"
+    ],
+    "level": 45
+  },
+  {
+    "id": "shared-mark",
+    "name": {
+      "fr": "Empreinte partagée",
+      "en": "Shared Mark"
+    },
+    "description": {
+      "fr": "Ton empreinte porte tes talents : un allié qui la complète déclenche ta réaction, même sans le talent. Exclut la Catalyse.",
+      "en": "Your mark carries your talents: an ally who completes it sets your reaction off, even without the talent. Excludes Catalysis."
+    },
+    "branch": "Alchemy",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "shared-mark"
       }
     ],
     "excludes": [
-      "heavy-blows"
-    ]
+      "catalysis"
+    ],
+    "requiresAny": [
+      "lasting-mark",
+      "catalysis",
+      "lingering-reaction"
+    ],
+    "level": 45
   },
   {
-    "id": "first-gesture",
+    "id": "virtuoso",
     "name": {
-      "fr": "Premier geste",
-      "en": "First Gesture"
+      "fr": "Virtuose",
+      "en": "Virtuoso"
     },
     "description": {
-      "fr": "Le premier sort de dégâts de ton tour frappe 20 % plus fort ; les suivants, 5 % moins fort.",
-      "en": "The first damage spell of your turn hits 20% harder; the following ones, 5% softer."
+      "fr": "Compléter ta propre empreinte : 20 % de dégâts en plus ; les empreintes de tes alliés ne réagissent plus pour toi.",
+      "en": "Completing your own mark: 20% more damage; your allies' marks no longer react for you."
     },
-    "branch": "Rhythm",
+    "branch": "Alchemy",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "virtuoso",
+        "percent": 20
+      }
+    ],
+    "requiresAny": [
+      "lasting-mark",
+      "catalysis",
+      "lingering-reaction"
+    ],
+    "level": 45
+  },
+  {
+    "id": "up-close",
+    "name": {
+      "fr": "Au plus près",
+      "en": "Up close"
+    },
+    "description": {
+      "fr": "+10 % de dégâts sur une cible à 3 cases ou moins ; en échange, −2 PO à tous ses sorts (jamais sous leur portée minimale ni sous 1).",
+      "en": "+10% damage on a target 3 cells away or closer; in exchange, −2 range on all one's spells (never under their minimum range nor under 1)."
+    },
+    "branch": "Melee",
     "tier": "First",
     "rules": [
       {
-        "kind": "first-cast",
-        "first": 20,
-        "others": -5
+        "kind": "range",
+        "change": -2
+      },
+      {
+        "kind": "distance",
+        "minCells": 0,
+        "maxCells": 3,
+        "percent": 10
       }
+    ],
+    "excludes": [
+      "long-sight",
+      "artillery"
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
-    "id": "short-cooldown",
+    "id": "firm-footing",
     "name": {
-      "fr": "Relance courte",
-      "en": "Short Cooldown"
+      "fr": "Pied ferme",
+      "en": "Firm Footing"
     },
     "description": {
-      "fr": "Tes sorts à relance attendent un tour de moins, et font 25 % de dégâts en moins par tour retiré.",
-      "en": "Your spells with a cooldown wait one turn less, and deal 25% less damage for each turn taken off."
+      "fr": "+15 % de dégâts si tu n'as dépensé aucun PM ce tour ; −5 % sinon.",
+      "en": "+15% damage if you spent no MP this turn; −5% otherwise."
     },
-    "branch": "Rhythm",
-    "tier": "Second",
+    "branch": "Melee",
+    "tier": "First",
     "rules": [
       {
-        "kind": "cooldown",
-        "change": -1,
-        "percentPerTurn": 25
+        "kind": "still",
+        "still": 15,
+        "moved": -5
       }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
-    "id": "reserve",
+    "id": "heavy-push",
     "name": {
-      "fr": "Réserve",
-      "en": "Reserve"
+      "fr": "Poussée lourde",
+      "en": "Heavy Push"
     },
     "description": {
-      "fr": "Jusqu'à 2 PA non dépensés passent au tour suivant ; en échange, ton premier tour a 1 PA de moins.",
-      "en": "Up to 2 unspent AP carry over to the next turn; in exchange, your first turn has 1 AP less."
+      "fr": "Tes poussées portent une case plus loin et un choc fait 8 dégâts par case au lieu de 4 ; en échange, tes sorts qui poussent coûtent 1 PA de plus.",
+      "en": "Your pushes go one cell farther and a collision deals 8 damage a cell instead of 4; in exchange, your spells that push cost 1 AP more."
     },
-    "branch": "Rhythm",
+    "branch": "Melee",
     "tier": "Second",
     "rules": [
       {
-        "kind": "reserve",
+        "kind": "push",
+        "cells": 1,
+        "apCost": 1,
+        "collision": 8
+      }
+    ],
+    "requiresAny": [
+      "up-close",
+      "firm-footing"
+    ]
+  },
+  {
+    "id": "close-quarters",
+    "name": {
+      "fr": "Corps à corps",
+      "en": "Close Quarters"
+    },
+    "description": {
+      "fr": "Tes sorts ne portent plus qu'à 2 cases, et frappent 25 % plus fort.",
+      "en": "Your spells reach 2 cells at most, and hit 25% harder."
+    },
+    "branch": "Melee",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "range-cap",
         "max": 2
       },
       {
-        "kind": "points",
-        "ap": -1,
-        "fromTurn": 1,
-        "untilTurn": 1
+        "kind": "bonus",
+        "percent": 25
       }
+    ],
+    "excludes": [
+      "long-sight",
+      "artillery"
+    ],
+    "requiresAny": [
+      "heavy-push"
+    ],
+    "level": 45
+  },
+  {
+    "id": "long-sight",
+    "name": {
+      "fr": "Longue vue",
+      "en": "Long Sight"
+    },
+    "description": {
+      "fr": "+2 PO aux sorts qui portent déjà à 4 cases ou plus ; en échange, −5 % de dégâts sur une cible à 1 ou 2 cases.",
+      "en": "+2 range on spells that already reach 4 cells or more; in exchange, −5% damage on a target 1 or 2 cells away."
+    },
+    "branch": "Distance",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "range",
+        "change": 2,
+        "atLeast": 4
+      },
+      {
+        "kind": "distance",
+        "minCells": 1,
+        "maxCells": 2,
+        "percent": -5
+      }
+    ],
+    "excludes": [
+      "up-close",
+      "close-quarters"
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
-    "id": "tight-deck",
+    "id": "tight-zone",
     "name": {
-      "fr": "Deck serré",
-      "en": "Tight Deck"
+      "fr": "Zone serrée",
+      "en": "Tight Zone"
     },
     "description": {
-      "fr": "+1 PA à chaque tour ; en échange, ton deck n'a plus que 10 places.",
-      "en": "+1 AP every turn; in exchange, your deck has only 10 places."
+      "fr": "Tes zones rétrécissent d'un cran (une croix de 1 devient une case) et frappent plus fort d'autant : moins de cibles, plus de dégâts sur chacune.",
+      "en": "Your areas shrink a notch (a cross of 1 becomes one cell) and hit that much harder: fewer targets, more damage on each."
     },
-    "branch": "Rhythm",
+    "branch": "Distance",
     "tier": "Second",
     "rules": [
       {
-        "kind": "points",
-        "ap": 1
-      },
-      {
-        "kind": "deck",
-        "size": 10
+        "kind": "zone"
       }
+    ],
+    "requiresAny": [
+      "long-sight"
     ]
   },
   {
-    "id": "one-gesture",
+    "id": "artillery",
     "name": {
-      "fr": "Un geste par sort",
-      "en": "One Gesture per Spell"
+      "fr": "Artillerie",
+      "en": "Artillery"
     },
     "description": {
-      "fr": "Tes sorts frappent 20 % plus fort, mais chacun ne se lance qu'une fois par tour.",
-      "en": "Your spells hit 20% harder, but each can be cast only once per turn."
+      "fr": "Tes sorts de dégâts ne frappent plus à moins de 3 cases, portent 2 cases plus loin et frappent 15 % plus fort ; plus rien à 1 ou 2 cases.",
+      "en": "Your damage spells no longer hit closer than 3 cells, reach 2 cells farther and hit 15% harder; nothing at 1 or 2 cells."
     },
-    "branch": "Rhythm",
+    "branch": "Distance",
     "tier": "Key",
     "rules": [
+      {
+        "kind": "min-range",
+        "min": 3
+      },
+      {
+        "kind": "range",
+        "change": 2
+      },
       {
         "kind": "bonus",
-        "percent": 20
-      },
-      {
-        "kind": "once-per-turn"
+        "percent": 15
       }
-    ]
+    ],
+    "excludes": [
+      "up-close",
+      "close-quarters"
+    ],
+    "requiresAny": [
+      "tight-zone"
+    ],
+    "level": 45
   },
   {
-    "id": "thrift",
+    "id": "clear-line",
     "name": {
-      "fr": "Économie",
-      "en": "Thrift"
+      "fr": "Ligne claire",
+      "en": "Clear Line"
     },
     "description": {
-      "fr": "Tes sorts coûtent 1 PA de moins (jamais sous 2) ; en échange, ton deck n'a plus que 8 places.",
-      "en": "Your spells cost 1 AP less (never under 2); in exchange, your deck has only 8 places."
+      "fr": "Tes sorts lancés en ligne ne demandent plus la ligne de vue ; les autres perdent 1 PO.",
+      "en": "Your spells cast in line no longer need the line of sight; the others lose 1 range."
     },
-    "branch": "Rhythm",
+    "branch": "Distance",
     "tier": "Key",
     "rules": [
       {
-        "kind": "cost",
-        "change": -1,
-        "floor": 2
-      },
-      {
-        "kind": "deck",
-        "size": 8
+        "kind": "sight",
+        "othersChange": -1
       }
-    ]
-  },
-  {
-    "id": "long-breath",
-    "name": {
-      "fr": "Souffle long",
-      "en": "Long Breath"
-    },
-    "description": {
-      "fr": "+1 PM et +1 PA dès ton 4e tour ; en échange, −1 PA tes 3 premiers tours.",
-      "en": "+1 MP and +1 AP from your 4th turn; in exchange, −1 AP on your first 3 turns."
-    },
-    "branch": "Rhythm",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "points",
-        "ap": 1,
-        "mp": 1,
-        "fromTurn": 4
-      },
-      {
-        "kind": "points",
-        "ap": -1,
-        "fromTurn": 1,
-        "untilTurn": 3
-      }
-    ]
+    ],
+    "requiresAny": [
+      "tight-zone"
+    ],
+    "level": 45
   },
   {
     "id": "side-step",
@@ -831,6 +791,18 @@
         "kind": "points",
         "mp": -1
       }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
@@ -852,6 +824,18 @@
         "resistance": 10,
         "otherwise": -10
       }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
@@ -871,6 +855,43 @@
         "kind": "grant",
         "spell": "relay"
       }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
+    ]
+  },
+  {
+    "id": "dancing-step",
+    "name": {
+      "fr": "Pas dansant",
+      "en": "Dancing Step"
+    },
+    "description": {
+      "fr": "Chaque case parcourue donne +4 % au prochain sort (au plus +16 %), remis à zéro après le sort.",
+      "en": "Each cell walked gives +4% to the next spell (at most +16%), back to zero after the spell."
+    },
+    "branch": "Terrain",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "dance",
+        "perCell": 4,
+        "max": 16
+      }
+    ],
+    "requiresAny": [
+      "side-step",
+      "backed",
+      "relay-talent"
     ]
   },
   {
@@ -902,6 +923,11 @@
         "kind": "grant",
         "spell": "seal-air"
       }
+    ],
+    "requiresAny": [
+      "side-step",
+      "backed",
+      "relay-talent"
     ]
   },
   {
@@ -927,6 +953,11 @@
         "kind": "bonus",
         "percent": -5
       }
+    ],
+    "requiresAny": [
+      "side-step",
+      "backed",
+      "relay-talent"
     ]
   },
   {
@@ -946,6 +977,11 @@
         "kind": "grant",
         "spell": "decoy"
       }
+    ],
+    "requiresAny": [
+      "side-step",
+      "backed",
+      "relay-talent"
     ]
   },
   {
@@ -966,7 +1002,14 @@
         "inside": 20,
         "outside": -10
       }
-    ]
+    ],
+    "requiresAny": [
+      "dancing-step",
+      "seal",
+      "remanence",
+      "decoy-talent"
+    ],
+    "level": 45
   },
   {
     "id": "nomad",
@@ -989,7 +1032,14 @@
         "kind": "hp",
         "percent": -15
       }
-    ]
+    ],
+    "requiresAny": [
+      "dancing-step",
+      "seal",
+      "remanence",
+      "decoy-talent"
+    ],
+    "level": 45
   },
   {
     "id": "echo",
@@ -1009,7 +1059,304 @@
         "percent": 40,
         "cells": 3
       }
+    ],
+    "requiresAny": [
+      "dancing-step",
+      "seal",
+      "remanence",
+      "decoy-talent"
+    ],
+    "level": 45
+  },
+  {
+    "id": "heavy-blows",
+    "name": {
+      "fr": "Coups appuyés",
+      "en": "Heavy Blows"
+    },
+    "description": {
+      "fr": "Tes sorts de 4 PA ou plus frappent 15 % plus fort ; ceux de 3 PA ou moins, 15 % moins fort.",
+      "en": "Your spells of 4 AP or more hit 15% harder; those of 3 AP or less, 15% softer."
+    },
+    "branch": "Tempo",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "ap-cost",
+        "minAp": 4,
+        "maxAp": 99,
+        "percent": 15
+      },
+      {
+        "kind": "ap-cost",
+        "minAp": 0,
+        "maxAp": 3,
+        "percent": -15
+      }
+    ],
+    "excludes": [
+      "light-blows"
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
+  },
+  {
+    "id": "light-blows",
+    "name": {
+      "fr": "Petits coups",
+      "en": "Light Blows"
+    },
+    "description": {
+      "fr": "Tes sorts de 3 PA ou moins frappent 15 % plus fort ; ceux de 4 PA ou plus, 15 % moins fort.",
+      "en": "Your spells of 3 AP or less hit 15% harder; those of 4 AP or more, 15% softer."
+    },
+    "branch": "Tempo",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "ap-cost",
+        "minAp": 0,
+        "maxAp": 3,
+        "percent": 15
+      },
+      {
+        "kind": "ap-cost",
+        "minAp": 4,
+        "maxAp": 99,
+        "percent": -15
+      }
+    ],
+    "excludes": [
+      "heavy-blows"
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
+    ]
+  },
+  {
+    "id": "first-gesture",
+    "name": {
+      "fr": "Premier geste",
+      "en": "First Gesture"
+    },
+    "description": {
+      "fr": "Le premier sort de dégâts de ton tour frappe 20 % plus fort ; les suivants, 5 % moins fort.",
+      "en": "The first damage spell of your turn hits 20% harder; the following ones, 5% softer."
+    },
+    "branch": "Tempo",
+    "tier": "First",
+    "rules": [
+      {
+        "kind": "first-cast",
+        "first": 20,
+        "others": -5
+      }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
+    ]
+  },
+  {
+    "id": "short-cooldown",
+    "name": {
+      "fr": "Relance courte",
+      "en": "Short Cooldown"
+    },
+    "description": {
+      "fr": "Tes sorts à relance attendent un tour de moins, et font 25 % de dégâts en moins par tour retiré.",
+      "en": "Your spells with a cooldown wait one turn less, and deal 25% less damage for each turn taken off."
+    },
+    "branch": "Tempo",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "cooldown",
+        "change": -1,
+        "percentPerTurn": 25
+      }
+    ],
+    "requiresAny": [
+      "heavy-blows",
+      "light-blows",
+      "first-gesture"
+    ]
+  },
+  {
+    "id": "reserve",
+    "name": {
+      "fr": "Réserve",
+      "en": "Reserve"
+    },
+    "description": {
+      "fr": "Jusqu'à 2 PA non dépensés passent au tour suivant ; en échange, ton premier tour a 1 PA de moins.",
+      "en": "Up to 2 unspent AP carry over to the next turn; in exchange, your first turn has 1 AP less."
+    },
+    "branch": "Tempo",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "reserve",
+        "max": 2
+      },
+      {
+        "kind": "points",
+        "ap": -1,
+        "fromTurn": 1,
+        "untilTurn": 1
+      }
+    ],
+    "requiresAny": [
+      "heavy-blows",
+      "light-blows",
+      "first-gesture"
+    ]
+  },
+  {
+    "id": "tight-deck",
+    "name": {
+      "fr": "Deck serré",
+      "en": "Tight Deck"
+    },
+    "description": {
+      "fr": "+1 PA à chaque tour ; en échange, ton deck n'a plus que 10 places.",
+      "en": "+1 AP every turn; in exchange, your deck has only 10 places."
+    },
+    "branch": "Tempo",
+    "tier": "Second",
+    "rules": [
+      {
+        "kind": "points",
+        "ap": 1
+      },
+      {
+        "kind": "deck",
+        "size": 10
+      }
+    ],
+    "requiresAny": [
+      "heavy-blows",
+      "light-blows",
+      "first-gesture"
+    ]
+  },
+  {
+    "id": "one-gesture",
+    "name": {
+      "fr": "Un geste par sort",
+      "en": "One Gesture per Spell"
+    },
+    "description": {
+      "fr": "Tes sorts frappent 20 % plus fort, mais chacun ne se lance qu'une fois par tour.",
+      "en": "Your spells hit 20% harder, but each can be cast only once per turn."
+    },
+    "branch": "Tempo",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "bonus",
+        "percent": 20
+      },
+      {
+        "kind": "once-per-turn"
+      }
+    ],
+    "requiresAny": [
+      "short-cooldown",
+      "reserve",
+      "tight-deck"
+    ],
+    "level": 45
+  },
+  {
+    "id": "thrift",
+    "name": {
+      "fr": "Économie",
+      "en": "Thrift"
+    },
+    "description": {
+      "fr": "Tes sorts coûtent 1 PA de moins (jamais sous 2) ; en échange, ton deck n'a plus que 8 places.",
+      "en": "Your spells cost 1 AP less (never under 2); in exchange, your deck has only 8 places."
+    },
+    "branch": "Tempo",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "cost",
+        "change": -1,
+        "floor": 2
+      },
+      {
+        "kind": "deck",
+        "size": 8
+      }
+    ],
+    "requiresAny": [
+      "short-cooldown",
+      "reserve",
+      "tight-deck"
+    ],
+    "level": 45
+  },
+  {
+    "id": "long-breath",
+    "name": {
+      "fr": "Souffle long",
+      "en": "Long Breath"
+    },
+    "description": {
+      "fr": "+1 PM et +1 PA dès ton 4e tour ; en échange, −1 PA tes 3 premiers tours.",
+      "en": "+1 MP and +1 AP from your 4th turn; in exchange, −1 AP on your first 3 turns."
+    },
+    "branch": "Tempo",
+    "tier": "Key",
+    "rules": [
+      {
+        "kind": "points",
+        "ap": 1,
+        "mp": 1,
+        "fromTurn": 4
+      },
+      {
+        "kind": "points",
+        "ap": -1,
+        "fromTurn": 1,
+        "untilTurn": 3
+      }
+    ],
+    "requiresAny": [
+      "short-cooldown",
+      "reserve",
+      "tight-deck"
+    ],
+    "level": 45
   },
   {
     "id": "helping-hand",
@@ -1033,6 +1380,18 @@
         "kind": "bonus",
         "percent": -5
       }
+    ],
+    "requiresAny": [
+      "bogging",
+      "chilling",
+      "cracking",
+      "electrifying",
+      "fogging",
+      "blinding",
+      "heart-earth",
+      "heart-fire",
+      "heart-water",
+      "heart-air"
     ]
   },
   {
@@ -1046,7 +1405,7 @@
       "en": "At the start of your turn, your allies within 2 cells deal 5% more damage for 1 turn; you, 5% less."
     },
     "branch": "Support",
-    "tier": "First",
+    "tier": "Second",
     "rules": [
       {
         "kind": "banner",
@@ -1057,6 +1416,9 @@
         "kind": "bonus",
         "percent": -5
       }
+    ],
+    "requiresAny": [
+      "helping-hand"
     ]
   },
   {
@@ -1078,7 +1440,7 @@
         "percent": 75
       }
     ],
-    "requires": [
+    "requiresAny": [
       "helping-hand"
     ]
   },
@@ -1101,7 +1463,7 @@
         "self": -10
       }
     ],
-    "requires": [
+    "requiresAny": [
       "helping-hand"
     ]
   },
@@ -1124,7 +1486,7 @@
         "enemy": -1
       }
     ],
-    "requires": [
+    "requiresAny": [
       "helping-hand"
     ]
   },
@@ -1151,9 +1513,13 @@
         "percent": -20
       }
     ],
-    "requires": [
-      "helping-hand"
-    ]
+    "requiresAny": [
+      "banner",
+      "double-hand",
+      "shared-momentum",
+      "long-hand"
+    ],
+    "level": 45
   },
   {
     "id": "harmony",
@@ -1174,9 +1540,13 @@
         "apCost": 1
       }
     ],
-    "requires": [
-      "helping-hand"
-    ]
+    "requiresAny": [
+      "banner",
+      "double-hand",
+      "shared-momentum",
+      "long-hand"
+    ],
+    "level": 45
   },
   {
     "id": "relief",
@@ -1197,8 +1567,12 @@
         "penalty": 2
       }
     ],
-    "requires": [
-      "helping-hand"
-    ]
+    "requiresAny": [
+      "banner",
+      "double-hand",
+      "shared-momentum",
+      "long-hand"
+    ],
+    "level": 45
   }
 ]

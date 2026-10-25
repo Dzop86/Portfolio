@@ -10,16 +10,22 @@ public enum TalentFamily
     Manner,
 }
 
-/// <summary>The tree's seven branches (D80, <c>docs/talents-arbre.md</c> §4.1): two of Matter, five of Manner.</summary>
+/// <summary>
+/// Where a talent stands in the tree (since sprint 147, D82, a graph): the fork (the six pairs, each giving its reaction),
+/// Pure element (its Hearts, the fork's seventh door), the Lightning braid, and the six styles shared by every pair
+/// (Alchemy, Melee, Distance, Terrain, Tempo, Support). Matter is the braid and Pure element; the rest is Manner.
+/// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Branch>))]
 public enum Branch
 {
+    Fork,
+    Pure,
     Braids,
-    Poles,
-    Reactions,
+    Alchemy,
+    Melee,
     Distance,
-    Rhythm,
     Terrain,
+    Tempo,
     Support,
 }
 
@@ -251,7 +257,13 @@ public sealed record TalentSpec(string Id, LocalizedText Name, LocalizedText Des
     /// <summary>A pair's node (sprint 146, C2): the talent that gives a reaction, which takes its two elements.</summary>
     public bool IsPair => Rules.OfType<ReactionRule>().Any();
 
-    public TalentFamily Family => Branch is Branch.Braids or Branch.Poles ? TalentFamily.Matter : TalentFamily.Manner;
+    public TalentFamily Family => Branch is Branch.Braids or Branch.Pure ? TalentFamily.Matter : TalentFamily.Manner;
+
+    /// <summary>A big switch (sprint 147, E10 a): a talent that changes the whole grimoire; one in the whole tree.</summary>
+    public bool IsSwitch => Rules.OfType<ConvertRule>().Any();
+
+    /// <summary>A node of the fork (sprint 147): a pair or a Heart, the doors of the styles.</summary>
+    public bool IsFork => Branch is Branch.Fork or Branch.Pure;
 
     /// <summary>1 point, 2 for a key.</summary>
     public int Cost => Tier == Tier.Key ? 2 : 1;
@@ -337,7 +349,7 @@ public static class Talents
     /// The version of the tree (sprint 146, D82): 1 the tree of sprints 137 to 144, 2 since the trunk and the arbitrated
     /// Lightning. Talents taken in an older one are given back once, for free, with a word at the connection (I5 a).
     /// </summary>
-    public const int Version = 2;
+    public const int Version = 3;
 
     /// <summary>The ceiling of the tree's conditional bonuses on one hit, in percent (§4.4).</summary>
     public const int Ceiling = 35;
@@ -406,7 +418,7 @@ public static class Talents
             return "One key per branch.";
         if (ElementsOpened(taken) > MaxOpened)
             return $"At most {MaxOpened} elements opened.";
-        return taken.Count(t => t.Tier == Tier.Key && t.Family == TalentFamily.Matter) > 1 ? "One key of Matter in the whole tree." : null;
+        return taken.Count(t => t.IsSwitch) > 1 ? "One big switch in the whole tree." : null;
     }
 
     /// <summary>The elements a hero may open, at most (sprint 140, §4.1): compounds, and later Light or Darkness.</summary>
@@ -461,6 +473,21 @@ public static class Talents
         Element[] converted = [.. (after ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<ConvertRule>().Select(r => r.Element)];
         return (before ?? []).Except(after ?? [], StringComparer.Ordinal)
             .Any(id => !(data.Talents.TryGetValue(id, out TalentSpec? t) && t.Rules.OfType<TransmuteRule>().Any(r => converted.Contains(r.To))));
+    }
+
+    /// <summary>
+    /// The talents left once <paramref name="given"/> is given back (sprint 147, D82, I1 b): with it, every talent that
+    /// asked for it and has no other parent taken, and so on down; in the order they were taken.
+    /// </summary>
+    public static List<string> Without(IReadOnlyList<string> talents, string given, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(talents);
+        ArgumentNullException.ThrowIfNull(data);
+        List<string> left = [.. talents.Where(id => id != given)];
+        bool Stands(string id) => data.Talents[id] is TalentSpec t && (t.Requires ?? []).All(left.Contains) && (t.RequiresAny is not { Count: > 0 } any || any.Any(left.Contains));
+        while (left.FirstOrDefault(id => !Stands(id)) is string fallen)
+            left.Remove(fallen);
+        return left;
     }
 
     /// <summary>

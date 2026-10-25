@@ -35,4 +35,12 @@ internal static class Arena
     public static string Fingerprint(Fight f) =>
         string.Join('|', f.Events.Select(e => e is Moved m ? $"Moved {m.Fighter} {string.Join(' ', m.Path)}" : e.ToString()))
         + "|" + string.Join(';', f.Fighters.Select(x => $"{x.Id}:{x.Hp}:{x.Cell}"));
+
+    /// <summary>
+    /// The talents with a door of the fork before them when one of them asks for it and none is there (sprint 147, the
+    /// graph): Chilling, Water and Air, which sets nothing off on boards whose spells are of Earth and Fire.
+    /// </summary>
+    public static string[] WithDoor(string[] talents, string door = "chilling") =>
+        talents.Any(id => Real.Talents.TryGetValue(id, out TalentSpec? t) && t.RequiresAny?.Contains(door) == true)
+            && !talents.Any(id => Real.Talents.TryGetValue(id, out TalentSpec? t) && t.IsFork) ? [door, .. talents] : talents;
 }

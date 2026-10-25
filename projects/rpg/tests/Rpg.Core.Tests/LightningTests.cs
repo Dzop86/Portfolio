@@ -128,7 +128,8 @@ public class LightningTests
         Assert.Equal(["l-ember", "draft", "clod", "l-blaze", "squall"], Talents.GrimoireOf(Hero(45, "electrifying", "transmute-fire-lightning"), Book).Spells);
         Assert.Equal(["l-ember", "l-draft", "clod", "l-blaze", "l-squall"], Talents.GrimoireOf(Hero(45, "electrifying", "convert-lightning"), Book).Spells);
         Assert.False(Real.Talents.ContainsKey("open-lightning") || Real.Talents.ContainsKey("full-grimoire"));
-        Assert.Equal(52, Real.Talents.Count);
+        // 52, and since sprint 147 the four Hearts of Pure element.
+        Assert.Equal(56, Real.Talents.Count);
         // On the real Sentinel at 100, all eight of Lightning once converted; a twin is unlocked with its spell: at 45, not
         // the twins of Gale (50), Ember Rain (65) nor Skyfall (75).
         Hero sentinel = new("Ondine", "female-a", "sentinel", Level: 100, Talents: ["electrifying", "convert-lightning"]);

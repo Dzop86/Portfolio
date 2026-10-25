@@ -104,7 +104,7 @@ public class BattleTests
             foreach (Character c in db.Characters)
             {
                 (c.Xp, c.Level) = (Progression.XpToReach(35), 35);
-                c.Talents = c.Name == "Aube" ? "banner,helping-hand" : "bogging,electrifying";
+                c.Talents = c.Name == "Aube" ? "bogging,helping-hand,banner" : "bogging,electrifying";
             }
             return db.SaveChanges();
         });
@@ -118,7 +118,7 @@ public class BattleTests
         Assert.NotNull(over);
         foreach (Fight f in games.Select(g => g.Fight))
         {
-            Assert.Equal(["banner", "helping-hand"], f.HeroFighters[0].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+            Assert.Equal(["banner", "bogging", "helping-hand"], f.HeroFighters[0].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
             Assert.Equal(["bogging", "electrifying"], f.HeroFighters[1].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
         }
         Assert.Equal(games[0].Fight.History, games[1].Fight.History);

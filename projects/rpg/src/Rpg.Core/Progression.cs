@@ -120,17 +120,21 @@ public static class Progression
     /// of Matter and one of Manner, and a support for the duos; the talents in the order they are taken, as the level's
     /// points allow. Since sprint 146 (D82): Lightning through Electrifying and the Transmutation of Fire, the Conversion
     /// taking its place at 45; two pairs share no element (Lightning goes with Mud, the Guard's "Rising Tide" is Ice and
-    /// Magma).
+    /// Magma). Since sprint 147 (the graph, J4 b), nine: for each class one of Matter (the Lightning braid), one of Manner
+    /// (a pair and a style) and one of Pure element (a Heart and a style); the support opens on Mud.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Builds = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
     {
         ["sentinel-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "bogging"],
-        ["sentinel-manner"] = ["up-close", "firm-footing", "dancing-step", "first-gesture", "bogging"],
+        ["sentinel-manner"] = ["bogging", "up-close", "firm-footing", "heavy-push", "close-quarters"],
+        ["sentinel-pure"] = ["heart-air", "long-sight", "tight-zone", "artillery"],
         ["guard-matter"] = ["electrifying", "transmute-fire-lightning", "prism", "convert-lightning", "bogging"],
-        ["guard-manner"] = ["chilling", "cracking", "lasting-mark", "up-close", "shared-mark"],
+        ["guard-manner"] = ["chilling", "cracking", "lasting-mark", "lingering-reaction", "shared-mark"],
+        ["guard-pure"] = ["heart-earth", "side-step", "backed", "seal", "scorched-earth"],
         ["mage-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "first-gesture"],
-        ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
-        ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
+        ["mage-manner"] = ["fogging", "first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["mage-pure"] = ["heart-fire", "side-step", "remanence", "scorched-earth"],
+        ["support"] = ["bogging", "helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
     /// <summary>

@@ -57,8 +57,9 @@ public class TrunkTests
     {
         // Up close (+10), Firm Footing (+15 standing still) and First Gesture (+20): 45, held to the ceiling of 35; the
         // trunk's 3 % on top: 100 × 1.35 × 1.03.
-        Hero hero = new("Ondine", "female-a", "tester", Level: 33, Talents: ["up-close", "firm-footing", "first-gesture"]);
-        Assert.Null(Talents.Problem(hero.Talents!, 33, Real));
+        // Their door since sprint 147: Chilling, which nothing here sets off (a neutral spell).
+        Hero hero = new("Ondine", "female-a", "tester", Level: 36, Talents: ["chilling", "up-close", "firm-footing", "first-gesture"]);
+        Assert.Null(Talents.Problem(hero.Talents!, 36, Real));
         var data = new GameData([.. Spells, .. TreeSpells, Hundred, Flame], [new MapSpec("m", Text, ["A..B"])],
             [new Scenario("s", Text, "m", [Spec(0, initiative: 999, spells: ["strike"]), Spec(1, hp: 1000, initiative: 1, spells: ["hundred"])])], [Tester],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);

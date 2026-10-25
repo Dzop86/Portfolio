@@ -17,7 +17,7 @@ public class TerrainTests
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     // Two talents of the first floor of Terrain under the others, when they need them.
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
 
     private static FighterSpec Monster(int start = 0, int hp = 300, int mp = 3, params string[] spells) =>
         Spec(1, start, hp: hp, mp: mp, initiative: 1, spells: spells.Length == 0 ? ["strike"] : spells);
@@ -31,7 +31,8 @@ public class TerrainTests
     public void TheBranch_HoldsNineTalents_ThreeByFloor()
     {
         TalentSpec[] terrain = [.. Real.Talents.Values.Where(t => t.Branch == Branch.Terrain)];
-        Assert.Equal([3, 3, 3], terrain.GroupBy(t => t.Tier).OrderBy(g => g.Key).Select(g => g.Count()));
+        // Since sprint 147 (E4 a), Dancing Step on its second floor.
+        Assert.Equal([3, 4, 3], terrain.GroupBy(t => t.Tier).OrderBy(g => g.Key).Select(g => g.Count()));
     }
 
     [Fact]

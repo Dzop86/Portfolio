@@ -62,16 +62,16 @@ public sealed class Texts
         ["points.talents"] = "Talents",
         ["talents.left"] = "Talents : {0} point(s) à dépenser",
         ["talents.closed"] = "L'arbre des talents s'ouvre au niveau {0}.",
-        ["talents.hint"] = "Un clic prend un talent ou le rend. Matière : changer ses éléments ; Manière : changer ses règles. L'étage 2 demande 2 points dans sa branche, la clé 3, sauf un talent qui en demande un autre ; une seule clé de Matière, deux paires au plus, sans élément commun. La Foudre passe par Électrisation, puis une Transmutation (du Feu ou de l'Air) ; la Conversion la remplace au niveau 45. Rendre un talent coûte 10 × le niveau en Éclats après le niveau 40, dans un village.",
+        ["talents.hint"] = "Un clic prend un talent ou le rend (avec ceux qui en dépendent). D'abord une porte : une paire (sa réaction) ou un Cœur (Élément pur) ; puis un style, un étage après l'autre, sa clé au niveau 45, une clé par style ; deux paires au plus, sans élément commun ; une seule grande bascule (la Conversion). La Foudre passe par Électrisation, puis une Transmutation (du Feu ou de l'Air). Rendre un talent coûte 10 × le niveau en Éclats après le niveau 40, dans un village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
-        ["talents.family.Matter"] = "Matière",
-        ["talents.family.Manner"] = "Manière",
-        ["talents.branch.Braids"] = "Tresses",
-        ["talents.branch.Poles"] = "Pôles",
-        ["talents.branch.Reactions"] = "Réactions",
+        ["talents.branch.Fork"] = "Paires",
+        ["talents.branch.Pure"] = "Élément pur",
+        ["talents.branch.Braids"] = "Tresse : Foudre",
+        ["talents.branch.Alchemy"] = "Alchimie",
+        ["talents.branch.Melee"] = "Mêlée",
         ["talents.branch.Distance"] = "Distance",
-        ["talents.branch.Rhythm"] = "Rythme",
         ["talents.branch.Terrain"] = "Terrain",
+        ["talents.branch.Tempo"] = "Tempo",
         ["talents.branch.Support"] = "Soutien",
         ["talents.tier.First"] = "étage 1",
         ["talents.tier.Second"] = "étage 2",
@@ -86,6 +86,18 @@ public sealed class Texts
         ["talents.taken.Water"] = "l'Eau est déjà prise par {0}",
         ["talents.taken.Air"] = "l'Air est déjà pris par {0}",
         ["talents.replaced"] = "La Conversion remplace {0} : son point revient.",
+        ["talents.losing"] = "Le rendre rend aussi : {0}",
+        ["talents.why.Opens"] = "L'arbre s'ouvre au niveau {0}.",
+        ["talents.why.Level"] = "S'ouvre au niveau {0}.",
+        ["talents.why.Door"] = "Demande d'abord une porte : une paire ou un Cœur.",
+        ["talents.why.Parent"] = "Demande d'abord {0}.",
+        ["talents.why.or"] = " ou ",
+        ["talents.why.Excludes"] = "Ne se prend pas avec {0}.",
+        ["talents.why.Pair"] = "Paire impossible : {0}.",
+        ["talents.why.KeyPerStyle"] = "Une clé par style : {0} est déjà prise.",
+        ["talents.why.Switch"] = "Une seule grande bascule : {0} est déjà prise.",
+        ["talents.why.Elements"] = "Deux éléments hors base au plus.",
+        ["talents.why.Points"] = "Pas assez de points : ce talent en coûte {0}.",
         ["talents.reset"] = "L'arbre des talents a changé : les talents de {0} lui sont rendus, gratuitement, une fois.",
         ["pair.bogged"] = "Boue",
         ["pair.chilled"] = "Glace",
@@ -646,16 +658,16 @@ public sealed class Texts
         ["points.talents"] = "Talents",
         ["talents.left"] = "Talents: {0} point(s) to spend",
         ["talents.closed"] = "The talent tree opens at level {0}.",
-        ["talents.hint"] = "A click takes a talent or gives it back. Matter: change your elements; Manner: change your rules. The second floor asks 2 points in its branch, the key 3, unless a talent asks for another; one key of Matter, two pairs at most, with no element in common. Lightning comes through Electrifying, then a Transmutation (of Fire or of Air); the Conversion replaces it at level 45. Giving a talent back costs 10 × the level in Éclats after level 40, in a village.",
+        ["talents.hint"] = "A click takes a talent or gives it back (with those that depend on it). First a door: a pair (its reaction) or a Heart (Pure element); then a style, one floor after the other, its key at level 45, one key a style; two pairs at most, with no element in common; one big switch only (the Conversion). Lightning comes through Electrifying, then a Transmutation (of Fire or of Air). Giving a talent back costs 10 × the level in Éclats after level 40, in a village.",
         ["talents.tile"] = "{0} · {1}, {2}, {3} point(s)",
-        ["talents.family.Matter"] = "Matter",
-        ["talents.family.Manner"] = "Manner",
-        ["talents.branch.Braids"] = "Braids",
-        ["talents.branch.Poles"] = "Poles",
-        ["talents.branch.Reactions"] = "Reactions",
+        ["talents.branch.Fork"] = "Pairs",
+        ["talents.branch.Pure"] = "Pure element",
+        ["talents.branch.Braids"] = "Braid: Lightning",
+        ["talents.branch.Alchemy"] = "Alchemy",
+        ["talents.branch.Melee"] = "Melee",
         ["talents.branch.Distance"] = "Distance",
-        ["talents.branch.Rhythm"] = "Rhythm",
         ["talents.branch.Terrain"] = "Terrain",
+        ["talents.branch.Tempo"] = "Tempo",
         ["talents.branch.Support"] = "Support",
         ["talents.tier.First"] = "first floor",
         ["talents.tier.Second"] = "second floor",
@@ -670,6 +682,18 @@ public sealed class Texts
         ["talents.taken.Water"] = "Water is already taken by {0}",
         ["talents.taken.Air"] = "Air is already taken by {0}",
         ["talents.replaced"] = "The Conversion replaces {0}: its point comes back.",
+        ["talents.losing"] = "Giving it back also gives back: {0}",
+        ["talents.why.Opens"] = "The tree opens at level {0}.",
+        ["talents.why.Level"] = "Opens at level {0}.",
+        ["talents.why.Door"] = "Asks for a door first: a pair or a Heart.",
+        ["talents.why.Parent"] = "Asks for {0} first.",
+        ["talents.why.or"] = " or ",
+        ["talents.why.Excludes"] = "Not taken with {0}.",
+        ["talents.why.Pair"] = "Pair refused: {0}.",
+        ["talents.why.KeyPerStyle"] = "One key a style: {0} is taken already.",
+        ["talents.why.Switch"] = "One big switch only: {0} is taken already.",
+        ["talents.why.Elements"] = "Two elements out of the four at most.",
+        ["talents.why.Points"] = "Not enough points: this talent costs {0}.",
         ["talents.reset"] = "The talent tree changed: {0}'s talents are given back, for free, once.",
         ["pair.bogged"] = "Mud",
         ["pair.chilled"] = "Ice",
@@ -1526,6 +1550,22 @@ public sealed class Texts
         if (!pair.IsPair || Rpg.Core.Talents.Clash([.. taken.Where(id => id != pair.Id).Select(id => data.Talents[id]), pair], data) is not (Element shared, TalentSpec first))
             return null;
         return this["talents.taken." + shared, this["pair." + first.Rules.OfType<ReactionRule>().First().Reaction]];
+    }
+
+    /// <summary>A refusal of the tree (sprint 147, D82) in the player's language: "Demande d'abord Électrisation."</summary>
+    public string WhyNot(TalentRefusal refusal, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(refusal);
+        ArgumentNullException.ThrowIfNull(data);
+        string Name(string id) => data.Talents[id].Name.In(Lang);
+        return refusal.Kind switch
+        {
+            RefusalKind.Opens or RefusalKind.Level or RefusalKind.Points => this["talents.why." + refusal.Kind, refusal.Number],
+            RefusalKind.Parent => this["talents.why.Parent", refusal.Other is string one ? Name(one) : string.Join(this["talents.why.or"], (refusal.Any ?? []).Select(Name))],
+            RefusalKind.Pair => this["talents.why.Pair", this["talents.taken." + refusal.Element, this["pair." + data.Talents[refusal.Other!].Rules.OfType<ReactionRule>().First().Reaction]]],
+            RefusalKind.Excludes or RefusalKind.KeyPerStyle or RefusalKind.Switch => this["talents.why." + refusal.Kind, Name(refusal.Other!)],
+            _ => this["talents.why." + refusal.Kind],
+        };
     }
 
     /// <summary>The trunk at a level (sprint 146, D82): "Tronc, sans point : +3 % de dégâts (niv. 30), …", what is to come so said.</summary>

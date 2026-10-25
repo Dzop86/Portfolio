@@ -23,7 +23,7 @@ public class DistanceRhythmTests
         new([.. Spells, .. TreeSpells, Bolt, Heavy, Jab, Burst, Shove, Lance, Slow], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
 
     private static FighterSpec Monster(int start = 0, int hp = 300) => Spec(1, start, hp: hp, initiative: 1, spells: ["strike"]);
 
@@ -39,13 +39,15 @@ public class DistanceRhythmTests
     [Fact]
     public void TheBranches_HoldNineTalentsEach_AndTheirExclusions()
     {
-        Assert.Equal(9, Real.Talents.Values.Count(t => t.Branch == Branch.Distance));
-        Assert.Equal(9, Real.Talents.Values.Count(t => t.Branch == Branch.Rhythm));
+        // Since sprint 147 (D82, E4 a and E5 a): Distance cut into Melee and Distance, Dancing Step in Terrain, Rhythm as Tempo.
+        Assert.Equal(4, Real.Talents.Values.Count(t => t.Branch == Branch.Melee));
+        Assert.Equal(4, Real.Talents.Values.Count(t => t.Branch == Branch.Distance));
+        Assert.Equal(9, Real.Talents.Values.Count(t => t.Branch == Branch.Tempo));
         GameData data = Data(["A.B"], Spec(0), Monster());
         Assert.Contains("exclude each other", Hero("up-close", "long-sight").Problem(data));
         Assert.Contains("exclude each other", Hero("heavy-blows", "light-blows").Problem(data));
-        Assert.Contains("exclude each other", Hero("long-sight", "firm-footing", "dancing-step", "close-quarters").Problem(data));
-        Assert.Null(Hero("up-close", "firm-footing", "dancing-step", "close-quarters").Problem(data));
+        Assert.Contains("exclude each other", Hero("long-sight", "firm-footing", "side-step", "dancing-step", "close-quarters").Problem(data));
+        Assert.Null(Hero("up-close", "firm-footing", "heavy-push", "side-step", "dancing-step", "close-quarters").Problem(data));
     }
 
     // ---- compiled ----
@@ -111,7 +113,7 @@ public class DistanceRhythmTests
         moved.Apply(new CastAction("bolt", C(5)));
         Assert.Equal(300 - 9, moved.Fighters[1].Hp);
         // With Firm Footing and Long Sight before it: 3 cells walked, +12 % and −5 % (11); then −5 % alone (9).
-        Fight dance = Play([".A......B"], Hero("firm-footing", "long-sight", "dancing-step"));
+        Fight dance = Play([".A......B"], Hero("firm-footing", "long-sight", "side-step", "dancing-step"));
         dance.Apply(new MoveAction(C(4)));
         dance.Apply(new CastAction("bolt", C(8)));
         Assert.Equal(300 - 11, dance.Fighters[1].Hp);

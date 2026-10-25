@@ -99,15 +99,15 @@ public class TalentTests
         });
         await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging"]), Cancel);
         Assert.Equal(["bogging", "up-close"], (await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging", "up-close"]), Cancel)).Talents!);
-        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close"]), Cancel)));
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging"]), Cancel)));
         api.WithDb(db =>
         {
             Character ch = db.Characters.Single();
             (ch.Town, ch.X, ch.Y) = ("clairval-1-1", 5, 5);
             return db.SaveChanges();
         });
-        CharacterSummary after = await server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close"]), Cancel);
-        Assert.Equal(["up-close"], after.Talents!);
+        CharacterSummary after = await server.SavePoints(c.Id, new Points(null, null, Talents: ["bogging"]), Cancel);
+        Assert.Equal(["bogging"], after.Talents!);
         Assert.Equal(550, after.Shards);
     }
 
@@ -122,7 +122,7 @@ public class TalentTests
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 40, []), Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["seal-water"]), Cancel)));
-        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["seal-water", "shield-bash"], ["side-step", "backed", "seal"]), Cancel);
+        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["seal-water", "shield-bash"], ["bogging", "side-step", "backed", "seal"]), Cancel);
         Assert.Equal(["seal-water", "shield-bash"], (await server.Characters(Cancel)).Single().Deck!);
         FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
         await server.ReportFight(c.Id, ticket.Id, Play(ticket, saved.Hero), Cancel);

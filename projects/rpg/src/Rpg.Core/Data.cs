@@ -582,6 +582,9 @@ public sealed class GameData
             if (t.Rules.Count == 0 || t.Rules.OfType<ReactionRule>().Any(r => !Reactions.ContainsKey(r.Reaction))
                 || (t.Excludes ?? []).Concat(t.Requires ?? []).Concat(t.RequiresAny ?? []).Any(id => id == t.Id || !Talents.ContainsKey(id)))
                 throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
+            // Its texts in both languages (sprint 147): a key missing stops the game from loading, so the build.
+            if (string.IsNullOrWhiteSpace(t.Name?.Fr) || string.IsNullOrWhiteSpace(t.Name.En) || string.IsNullOrWhiteSpace(t.Description?.Fr) || string.IsNullOrWhiteSpace(t.Description.En))
+                throw new InvalidDataException($"Talent '{t.Id}': a name and a description in French and in English.");
             if (t.Rules.OfType<DistanceRule>().Any(r => r.MinCells < 0 || r.MaxCells < r.MinCells))
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
             if (t.Rules.OfType<GrantRule>().Any(r => !Spells.ContainsKey(r.Spell)))
