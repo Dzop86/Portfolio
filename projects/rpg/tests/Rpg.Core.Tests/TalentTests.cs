@@ -77,10 +77,11 @@ public class TalentTests
     public void TheRules_CountPoints_Floors_Keys_Exclusions_AndRequirements()
     {
         // A tree of its own, every floor of two branches.
+        // Its counterpart, lore and icon too (sprint 149): the data refuse a talent without them.
         static TalentSpec T(string id, Branch b, Tier tier, string[]? excludes = null, string[]? requires = null) =>
-            new(id, Text, Text, b, tier, [new RangeRule(0)], excludes, requires);
+            new(id, Text, Text, b, tier, [new RangeRule(0)], excludes, requires, Counterpart: Text, Lore: Text, Icon: "lorc/test");
         // A big switch (sprint 147): a key that changes the whole grimoire.
-        static TalentSpec Switch(string id, Branch b) => new(id, Text, Text, b, Tier.Key, [new ConvertRule(Element.Lightning)]);
+        static TalentSpec Switch(string id, Branch b) => new(id, Text, Text, b, Tier.Key, [new ConvertRule(Element.Lightning)], Counterpart: Text, Lore: Text, Icon: "lorc/test");
         TalentSpec[] tree =
         [
             T("a1", Branch.Distance, Tier.First, excludes: ["a2"]), T("a2", Branch.Distance, Tier.First), T("a3", Branch.Distance, Tier.First),
