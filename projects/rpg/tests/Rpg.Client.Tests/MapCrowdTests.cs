@@ -27,6 +27,17 @@ public class MapCrowdTests
     }
 
     [Fact]
+    public void AnotherPlayersGuild_ComesWithThem_AndChangesWhenTheServerSaysItAgain()
+    {
+        var crowd = new MapCrowd();
+        crowd.Apply(new MapNews(MapNewsKind.Here, Plop, "Plop", Look, new Cell(2, 3)), Me);
+        Assert.Null(crowd.Others.Single().Guild);
+        // Plop founds a guild (sprint 145): the server says it is here again, under its guild's name.
+        crowd.Apply(new MapNews(MapNewsKind.Here, Plop, "Plop", Look, new Cell(2, 3), Guild: "Les Veilleurs"), Me);
+        Assert.Equal("Les Veilleurs", crowd.Others.Single().Guild);
+    }
+
+    [Fact]
     public void AGroup_FoughtOrBeaten_IsAway_ThenBack()
     {
         var crowd = new MapCrowd();

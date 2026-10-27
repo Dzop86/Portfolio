@@ -37,6 +37,7 @@ public partial class SideBar : CanvasLayer
         ["journal"] = new Color("f2d36b"),
         ["jobs"] = new Color("a9bccd"),
         ["contacts"] = new Color("6bb8f2"),
+        ["guild"] = new Color("f2876b"),
         ["minimap"] = new Color("4fd1c5"),
         ["menu"] = new Color("cfcfcf"),
     };

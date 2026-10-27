@@ -75,8 +75,10 @@ public class ChatTests
     {
         await using var api = new ApiFactory();
         (_, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
-        (_, _, ChatClient b) = await Player(api, "Brume");
-        await WaitUntilOn(api, "clairval", aube.Id);
+        (_, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
+        // Both on the place before Aube speaks: since sprint 145 a socket opening also writes its last connection.
+        foreach (Guid who in new[] { aube.Id, brume.Id })
+            await WaitUntilOn(api, "clairval", who);
         // Sent raw: the game itself would not send these.
         Assert.False(await a.Say("   ", Cancel));
         for (int i = 0; i < ChatRules.Burst; i++)
@@ -107,8 +109,10 @@ public class ChatTests
         // Sprint 117 (D77): "[item:copper-ring]" in a line, clickable in the game.
         await using var api = new ApiFactory();
         (_, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
-        (_, _, ChatClient b) = await Player(api, "Brume");
-        await WaitUntilOn(api, "clairval", aube.Id);
+        (_, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
+        // Both on the place before Aube speaks: since sprint 145 a socket opening also writes its last connection.
+        foreach (Guid who in new[] { aube.Id, brume.Id })
+            await WaitUntilOn(api, "clairval", who);
         string shared = $"Regardez {ChatLinks.Of("copper-ring")} !";
         await a.Say(shared, Cancel);
         Assert.Equal(shared, (await Heard(a, Wait, Cancel))!.Line!.Text);

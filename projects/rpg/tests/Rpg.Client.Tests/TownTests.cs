@@ -58,6 +58,24 @@ public class TownTests
     }
 
     [Fact]
+    public void Edmee_TheRegistrarOfTheSquare_AsksForAGuildsName()
+    {
+        TownController town = Clairval();
+        Npc edmee = town.Town.Npcs.Single(n => n.Id == GuildRules.Registrar);
+        Assert.Equal("clairval", GuildRules.RegistrarMap(GameData.Embedded));
+        town.Click(edmee.At);
+        // "What is a guild for?", then goodbye: nothing asked.
+        town.Answer(1);
+        town.Answer(1);
+        Assert.False(town.GuildAsked);
+        town.Click(edmee.At);
+        town.Answer(0);
+        Assert.True(town.GuildAsked);
+        town.GuildSeenTo();
+        Assert.False(town.GuildAsked);
+    }
+
+    [Fact]
     public void TheWalkUpToSomeone_EndsOnTheirNearestSide()
     {
         TownController town = Clairval();
@@ -103,8 +121,8 @@ public class TownTests
             if (step.TalkTo is Npc n)
                 talkedTo.Add(n.Id);
         }, talk => read.Add((talk.Dialogue.Id, talk.LineId)));
-        // The square's people (sprint 102: the others live on the village's other maps).
-        Assert.Equal(["aubin", "ysaline"], talkedTo);
+        // The square's people (sprint 102: the others live on the village's other maps), Edmée the registrar since sprint 145.
+        Assert.Equal(["aubin", "ysaline", "registrar"], talkedTo);
         Assert.Equal(town.Town.Npcs.Select(n => GameData.Embedded.Dialogues[n.Dialogue]).Distinct().Sum(d => d.Lines.Count), read.Count);
         Assert.True(lines >= read.Count);
         Assert.Null(town.Fight);

@@ -473,7 +473,8 @@ public static class TownTour
                 IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
                 int next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && !read.Contains(n), -1);
                 if (next < 0)
-                    next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is null && answers[i].Fight is null, 0);
+                    // A goodbye: an answer that ends the talk without a fight, nor a stall or a guild to open (sprint 145).
+                    next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false }, 0);
                 town.Answer(next);
             }
             if (town.Fight is not null)

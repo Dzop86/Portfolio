@@ -291,7 +291,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null || _guildPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -305,6 +305,8 @@ public partial class Main
             CloseJobs();
         if (open != GameWindow.Contacts && _contactsPanel is not null)
             CloseContacts();
+        if (open != GameWindow.Guild && _guildPanel is not null)
+            CloseGuild();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -324,6 +326,9 @@ public partial class Main
                 break;
             case GameWindow.Contacts when _contactsPanel is null:
                 OpenContacts();
+                break;
+            case GameWindow.Guild when _guildPanel is null:
+                OpenGuild();
                 break;
         }
         _bar?.Show(open);
@@ -604,11 +609,9 @@ public partial class Main
             _chatBox?.Refresh();
             return;
         }
-        // "/g" or "/p" first: to the party (sprint 119).
-        if (line.Length > 3 && line[0] == '/' && line[1] is 'g' or 'p' or 'G' or 'P' && line[2] == ' ')
-            await _chat.Say(line[3..], ChatChannels.Party);
-        else
-            await _chat.Say(line);
+        // "/gu" first: to the guild (sprint 145); "/g" or "/p": to the party (sprint 119).
+        (string channel, string text) = ChatCommands.Route(line);
+        await _chat.Say(text, channel);
     }
 
     /// <summary>What the chat brought since the last frame, on screen.</summary>
@@ -626,6 +629,12 @@ public partial class Main
             if (e.Trade is TradeNews trade)
             {
                 OnTrade(trade);
+                continue;
+            }
+            // The guild (sprint 145).
+            if (e.Guild is GuildNews guild)
+            {
+                OnGuild(guild);
                 continue;
             }
             // A friend came into play (sprint 126): a note, unless the player asked not to.
@@ -1346,6 +1355,7 @@ public partial class Main
             _ = RefreshParty();
         }
         _partyBanner.Show(_party, _character?.Id);
+        ShowGuild();
     }
 
     private async Task RefreshParty()
@@ -1390,6 +1400,9 @@ public partial class Main
         _playerMenu.AddSeparator();
         _playerMenu.AddItem(texts["party.invite"], 1);
         _playerMenu.AddItem(texts["party.trade"], 2);
+        // Into one's guild (sprint 145), for its leader and officers.
+        if (_guild is not null && _character is not null && GuildPage.CanInvite(_guild, _character.Id))
+            _playerMenu.AddItem(texts["guild.invite-into", GuildName ?? ""], 3);
         _playerMenu.IdPressed += id =>
         {
             if (id == 1)
@@ -1403,6 +1416,12 @@ public partial class Main
                 {
                     await s.AskTrade(_character!.Id, other.Id);
                     Note(texts["trade.sent", other.Name]);
+                });
+            else if (id == 3)
+                _ = GuildCall(async s =>
+                {
+                    await s.InviteToGuild(_character!.Id, other.Name);
+                    Note(texts["party.sent", other.Name]);
                 });
         };
         AddChild(_playerMenu);
@@ -1988,6 +2007,11 @@ public partial class Main
             _town.ShopSeenTo();
             OpenShop();
         }
+        else if (_town.GuildAsked)
+        {
+            _town.GuildSeenTo();
+            OfferFounding();
+        }
     }
 
     private ShopPanel? _shopPanel;
@@ -2425,6 +2449,27 @@ public partial class Main
         if (!contacts.Lines.SequenceEqual(expected))
             problems.Add($"the contacts show {string.Join(" | ", contacts.Lines)}");
         contacts.QueueFree();
+        // The guild's window (sprint 145): its leader sees the members by rank, its officer offline since two hours, and
+        // may name officers, make members, hand its title over and send out; nothing to itself.
+        Guid me = _character?.Id ?? Guid.NewGuid();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        var guildPanel = new GuildPanel();
+        AddChild(guildPanel);
+        guildPanel.Build(texts);
+        guildPanel.Show(new GuildView(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([new GuildMember(Guid.NewGuid(), "Plouf", GuildRank.Member, 9, "mage", woods.Zone, now),
+            new GuildMember(me, "Moi", GuildRank.Leader, 30, "guard", woods.Zone, now), new GuildMember(Guid.NewGuid(), "Plop", GuildRank.Officer, 12, "guard", null, now.AddHours(-2))])), me, now);
+        string zone = woods.Name.In(texts.Lang);
+        string[] members = [texts["guild.online", "Moi", 30, texts["guild.rank.Leader"], zone], texts["guild.offline", "Plop", 12, texts["guild.rank.Officer"], texts["guild.seen.hours", 2]],
+            texts["guild.online", "Plouf", 9, texts["guild.rank.Member"], zone]];
+        if (!guildPanel.Lines.SequenceEqual(members) || guildPanel.Icons["Moi"].Count != 0 || !guildPanel.Icons["Plop"].SequenceEqual(["demote", "hand-over", "kick"])
+            || !guildPanel.Icons["Plouf"].SequenceEqual(["promote", "hand-over", "kick"]))
+            problems.Add($"the guild shows {string.Join(" | ", guildPanel.Lines)}");
+        // Out of a guild, after Edmée's answer: the name to found one.
+        guildPanel.Show(null, me, now);
+        guildPanel.OfferFounding();
+        if (guildPanel.Lines.Count != 0 || !guildPanel.FoundingOffered || guildPanel.GuildName.Length != 0)
+            problems.Add("out of a guild, the window does not offer to found one");
+        guildPanel.QueueFree();
         // Its line on the banner with its seconds, the question closed or not (sprint 124); swords over a group of this map.
         ShowJoins();
         if (_partyBanner is not null && !_partyBanner.JoinLines.Any(l => l == texts["battle.join-line", "Plop", 15] || l == texts["battle.join-line", "Plop", 14]))
@@ -2449,7 +2494,7 @@ public partial class Main
         foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
             _joinOffers.Remove(o.Fight);
         ShowJoins();
-        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts and waystones checked.";
+        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild and waystones checked.";
     }
 
     private string CheckBarAndMenu(List<string> problems)
@@ -2459,8 +2504,8 @@ public partial class Main
         var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
         if (!_bar!.Tips.SequenceEqual(tips))
             problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
-        // A small grid, the way Dofus does it (Charles, after sprint 144): three rows at most.
-        if (_bar.Rows > 3)
+        // A small grid, the way Dofus does it (Charles, after sprint 144): three a row, four rows since the guild's (sprint 145).
+        if (_bar.Rows > 4)
             problems.Add($"the menus take {_bar.Rows} rows");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
@@ -2474,6 +2519,7 @@ public partial class Main
                 GameWindow.Journal => _journalPanel is not null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Jobs => _jobsPanel is not null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Contacts => _contactsPanel is not null && _jobsPanel is null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
+                GameWindow.Guild => _guildPanel is not null && _contactsPanel is null && _jobsPanel is null && _inventoryPanel is null && _mapPanel is null,
                 _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
@@ -2481,7 +2527,7 @@ public partial class Main
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _guildPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
@@ -2908,9 +2954,14 @@ public partial class Main
         bool drawn = view.Others.TryGetValue(plop.Id, out Node3D? other) && other.Position == BoardView.ToWorld(plop.At);
         view.ShowOthers([plop with { At = plop.At.Neighbours().First(stay.IsFree) }], 4);
         bool walking = view.Others.Count == 1;
+        // In a guild now (sprint 145): its name under Plop's, drawn again; out of it, gone.
+        view.ShowOthers([plop with { Guild = "Les Veilleurs" }], 4);
+        bool guild = view.GuildShownFor(plop.Id) == "‹Les Veilleurs›";
+        view.ShowOthers([plop], 4);
+        guild &= view.GuildShownFor(plop.Id) is null && view.Others.Count == 1;
         view.ShowOthers([], 4);
-        if (!drawn || !walking || view.Others.Count != 0)
-            problems.Add($"another player: drawn {drawn}, walking {walking}, {view.Others.Count} left");
+        if (!drawn || !walking || !guild || view.Others.Count != 0)
+            problems.Add($"another player: drawn {drawn}, walking {walking}, guild's name {guild}, {view.Others.Count} left");
         view.HideGroup(group.Id);
         bool hidden = !view.Groups[group.Id].Visible;
         view.ShowGroup(group.Id, group.Home);

@@ -46,11 +46,12 @@ public class TownTests
         Assert.Equal(12, village.Length);
         Assert.Equal([.. Enumerable.Range(0, 4).SelectMany(x => Enumerable.Range(-1, 3).Select(y => new Cell(x, y)))],
             village.Select(t => t.MapAt).OrderBy(c => c.X).ThenBy(c => c.Y));
-        Assert.Equal(["aubin", "ysaline"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
-        Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "rose", "sidonie", "thibaut", "ysaline"],
+        // Edmée the registrar since sprint 145: guilds are founded at hers.
+        Assert.Equal(["aubin", "ysaline", "registrar"], Real.Towns["clairval"].Npcs.Select(n => n.Id));
+        Assert.Equal(["anselme", "apolline", "aubin", "basile", "eudes", "firmin", "garance", "gaspard", "gautier", "gedeon", "guard", "hortense", "leonie", "mahaut", "odalric", "perrine", "registrar", "rose", "sidonie", "thibaut", "ysaline"],
             village.SelectMany(t => t.Npcs).Select(n => n.Id).Order(StringComparer.Ordinal));
         // Quatre-Chemins's seven since sprint 129 (docs/textes-v7.md); the forest's miners' camp since sprint 136 (docs/textes-v8.md).
-        Assert.Equal(["anatole", "anselme", "apolline", "aristide", "barnabe", "basile", "berold", "berthe", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "ghislaine", "guard", "guide", "hortense", "joachim", "josette", "leonie", "liane", "lucien", "mahaut", "mathurin", "merchant", "odalric", "perrine", "remi", "romane", "scholar", "sidonie", "thibaut", "trainer"],
+        Assert.Equal(["anatole", "anselme", "apolline", "aristide", "barnabe", "basile", "berold", "berthe", "dungeon-keeper", "eglantine", "eudes", "firmin", "fleur", "gaspard", "gautier", "gedeon", "ghislaine", "guard", "guide", "hortense", "joachim", "josette", "leonie", "liane", "lucien", "mahaut", "mathurin", "merchant", "odalric", "perrine", "registrar", "remi", "romane", "scholar", "sidonie", "thibaut", "trainer"],
             Real.Dialogues.Keys.Order(StringComparer.Ordinal));
         foreach (Town t in village)
         {
