@@ -73,7 +73,7 @@ public static class ChatCommands
 /// gone; a group of monsters fighting, beaten until a moment, back; a gathering spot taken, growing back until a moment.
 /// </summary>
 public sealed record MapNews(MapNewsKind Kind, Guid? Character = null, string? Name = null, Hero? Look = null, Cell? At = null,
-    string? Group = null, string? Spot = null, DateTimeOffset? Until = null, string? Guild = null);
+    string? Group = null, string? Spot = null, DateTimeOffset? Until = null, string? Guild = null, string? Title = null);
 
 [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<MapNewsKind>))]
 public enum MapNewsKind

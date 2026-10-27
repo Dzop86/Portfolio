@@ -312,6 +312,22 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    /// <summary>The character's achievements (sprint 155): how far each one has gone, the points, the title worn.</summary>
+    public async Task<AchievementView> Achievements(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/achievements", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<AchievementView>(Json, cancel))!;
+    }
+
+    /// <summary>Wears the title of an achievement earned, or none (sprint 155).</summary>
+    public async Task<AchievementView> WearTitle(Guid id, string? achievement, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/title", UriKind.Relative), new TitleOrder(achievement), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<AchievementView>(Json, cancel))!;
+    }
+
     /// <summary>The character's notice board (sprint 153): three new contracts a day, nine at most.</summary>
     public async Task<ContractBoard> Contracts(Guid id, CancellationToken cancel = default)
     {

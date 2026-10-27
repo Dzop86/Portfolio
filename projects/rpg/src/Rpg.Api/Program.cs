@@ -140,6 +140,7 @@ app.MapCharacterEndpoints();
 app.MapSocialEndpoints();
 app.MapGuildEndpoints();
 app.MapContractEndpoints();
+app.MapAchievementEndpoints();
 app.MapBattleEndpoints();
 app.MapServerEndpoints();
 

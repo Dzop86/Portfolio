@@ -61,6 +61,7 @@ public enum GameWindow
     Talents,
     Guild,
     Bestiary,
+    Achievements,
 }
 
 /// <summary>What the Escape menu offers.</summary>
@@ -94,6 +95,8 @@ public sealed class WindowState
         (GameWindow.Guild, 'G'),
         // The bestiary (sprint 154, D83).
         (GameWindow.Bestiary, 'B'),
+        // The achievements (sprint 155, D83): H, for "hauts faits".
+        (GameWindow.Achievements, 'H'),
     ];
 
     public GameWindow? Open { get; private set; }

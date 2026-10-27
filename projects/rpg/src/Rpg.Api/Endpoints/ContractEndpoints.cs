@@ -77,6 +77,7 @@ public static class ContractEndpoints
             return Refused("This contract is not fulfilled yet.");
         foreach (ItemCount taken in contract.Taken)
             c.Spend(taken);
+        c.ContractsDone++;
         c.Xp += contract.Xp;
         c.Shards += contract.Shards;
         int before = c.Level;

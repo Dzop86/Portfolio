@@ -40,6 +40,7 @@ public partial class SideBar : CanvasLayer
         ["talents"] = new Color("bef374"),
         ["guild"] = new Color("f2876b"),
         ["bestiary"] = new Color("d9b38c"),
+        ["achievements"] = new Color("ffd166"),
         ["minimap"] = new Color("4fd1c5"),
         ["menu"] = new Color("cfcfcf"),
     };

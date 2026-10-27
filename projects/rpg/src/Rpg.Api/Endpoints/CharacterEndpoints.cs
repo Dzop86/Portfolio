@@ -156,7 +156,7 @@ public static class CharacterEndpoints
                            where m.CharacterId == id
                            select new { g.Id, g.Name }).FirstOrDefaultAsync(cancel);
         await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.LastSeenAt, clock.GetUtcNow()), cancel);
-        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name);
+        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name, character.Title);
         return TypedResults.Empty;
     }
 

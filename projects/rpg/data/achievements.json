@@ -1,0 +1,1026 @@
+[
+  {
+    "id": "waystones-1",
+    "category": "Exploration",
+    "name": {
+      "fr": "Premier passage",
+      "en": "First Crossing"
+    },
+    "text": {
+      "fr": "Touchez une pierre de passage pour la première fois.",
+      "en": "Touch a waystone for the first time."
+    },
+    "points": 5,
+    "goal": "Waystones",
+    "count": 1
+  },
+  {
+    "id": "waystones-3",
+    "category": "Exploration",
+    "name": {
+      "fr": "Trois pierres, trois chemins",
+      "en": "Three Stones, Three Roads"
+    },
+    "text": {
+      "fr": "Touchez 3 pierres de passage.",
+      "en": "Touch 3 waystones."
+    },
+    "points": 10,
+    "goal": "Waystones",
+    "count": 3
+  },
+  {
+    "id": "waystones-5",
+    "category": "Exploration",
+    "name": {
+      "fr": "La bougeotte",
+      "en": "Itchy Feet"
+    },
+    "text": {
+      "fr": "Touchez 5 pierres de passage.",
+      "en": "Touch 5 waystones."
+    },
+    "points": 15,
+    "goal": "Waystones",
+    "count": 5
+  },
+  {
+    "id": "waystones-7",
+    "category": "Exploration",
+    "name": {
+      "fr": "Toutes les pierres",
+      "en": "Every Stone"
+    },
+    "text": {
+      "fr": "Touchez les 7 pierres de passage.",
+      "en": "Touch all 7 waystones."
+    },
+    "points": 25,
+    "goal": "Waystones",
+    "count": 7,
+    "title": {
+      "fr": "Passe-chemins",
+      "en": "Wayfarer"
+    }
+  },
+  {
+    "id": "waystone-woods",
+    "category": "Exploration",
+    "name": {
+      "fr": "Premiers pas au Bois",
+      "en": "First Steps in the Woods"
+    },
+    "text": {
+      "fr": "Touchez la pierre de passage du Bois de Clairval.",
+      "en": "Touch the waystone in Clairval Woods."
+    },
+    "points": 5,
+    "goal": "Waystone",
+    "count": 1,
+    "target": "waystone-woods"
+  },
+  {
+    "id": "waystone-mouldy",
+    "category": "Exploration",
+    "name": {
+      "fr": "Sous la moisissure",
+      "en": "Beneath the Mould"
+    },
+    "text": {
+      "fr": "Touchez la pierre de passage du Bois moisi.",
+      "en": "Touch the waystone in the Mouldy Woods."
+    },
+    "points": 5,
+    "goal": "Waystone",
+    "count": 1,
+    "target": "waystone-mouldy"
+  },
+  {
+    "id": "waystone-lake",
+    "category": "Exploration",
+    "name": {
+      "fr": "Les pieds dans les joncs",
+      "en": "Feet in the Reeds"
+    },
+    "text": {
+      "fr": "Touchez la pierre de passage du Lac des Joncs.",
+      "en": "Touch the waystone at Reed Lake."
+    },
+    "points": 5,
+    "goal": "Waystone",
+    "count": 1,
+    "target": "waystone-lake"
+  },
+  {
+    "id": "waystone-fields",
+    "category": "Exploration",
+    "name": {
+      "fr": "Entre les sillons",
+      "en": "Between the Furrows"
+    },
+    "text": {
+      "fr": "Touchez la pierre de passage des Champs de Clairval.",
+      "en": "Touch the waystone in Clairval Fields."
+    },
+    "points": 5,
+    "goal": "Waystone",
+    "count": 1,
+    "target": "waystone-fields"
+  },
+  {
+    "id": "waystone-ancestors",
+    "category": "Exploration",
+    "name": {
+      "fr": "Chez les Aïeux",
+      "en": "Among the Ancestors"
+    },
+    "text": {
+      "fr": "Touchez la pierre de passage de la Forêt des Aïeux.",
+      "en": "Touch the waystone in the Forest of the Ancestors."
+    },
+    "points": 5,
+    "goal": "Waystone",
+    "count": 1,
+    "target": "waystone-ancestors"
+  },
+  {
+    "id": "first-victory",
+    "category": "Hunt",
+    "name": {
+      "fr": "Coup d'essai",
+      "en": "Beginner's Luck"
+    },
+    "text": {
+      "fr": "Vainquez votre premier monstre.",
+      "en": "Defeat your first monster."
+    },
+    "points": 5,
+    "goal": "Victories",
+    "count": 1
+  },
+  {
+    "id": "victories-500",
+    "category": "Hunt",
+    "name": {
+      "fr": "La main sûre",
+      "en": "A Steady Hand"
+    },
+    "text": {
+      "fr": "Vainquez 500 monstres.",
+      "en": "Defeat 500 monsters."
+    },
+    "points": 10,
+    "goal": "Victories",
+    "count": 500
+  },
+  {
+    "id": "victories-1000",
+    "category": "Hunt",
+    "name": {
+      "fr": "Mille fois debout",
+      "en": "Still Standing, a Thousand Times"
+    },
+    "text": {
+      "fr": "Vainquez 1 000 monstres.",
+      "en": "Defeat 1,000 monsters."
+    },
+    "points": 20,
+    "goal": "Victories",
+    "count": 1000,
+    "title": {
+      "fr": "Terreur des sous-bois",
+      "en": "Terror of the Woods"
+    }
+  },
+  {
+    "id": "known-10",
+    "category": "Hunt",
+    "name": {
+      "fr": "Un carnet entamé",
+      "en": "A Notebook Begun"
+    },
+    "text": {
+      "fr": "Inscrivez 10 monstres différents dans votre bestiaire.",
+      "en": "Add 10 different monsters to your bestiary."
+    },
+    "points": 10,
+    "goal": "Known",
+    "count": 10
+  },
+  {
+    "id": "known-25",
+    "category": "Hunt",
+    "name": {
+      "fr": "Des pages bien remplies",
+      "en": "Well-Filled Pages"
+    },
+    "text": {
+      "fr": "Inscrivez 25 monstres différents dans votre bestiaire.",
+      "en": "Add 25 different monsters to your bestiary."
+    },
+    "points": 15,
+    "goal": "Known",
+    "count": 25
+  },
+  {
+    "id": "known-all",
+    "category": "Hunt",
+    "name": {
+      "fr": "Le bestiaire complet",
+      "en": "The Complete Bestiary"
+    },
+    "text": {
+      "fr": "Inscrivez les 50 monstres dans votre bestiaire.",
+      "en": "Add all 50 monsters to your bestiary."
+    },
+    "points": 30,
+    "goal": "Known",
+    "count": 50,
+    "title": {
+      "fr": "Naturaliste",
+      "en": "Naturalist"
+    }
+  },
+  {
+    "id": "family-boar-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Gare aux défenses",
+      "en": "Mind the Tusks"
+    },
+    "text": {
+      "fr": "Vainquez 100 sangliers.",
+      "en": "Defeat 100 boars."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "boar"
+  },
+  {
+    "id": "family-wolf-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Plus fort que la meute",
+      "en": "Stronger Than the Pack"
+    },
+    "text": {
+      "fr": "Vainquez 100 loups.",
+      "en": "Defeat 100 wolves."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "wolf"
+  },
+  {
+    "id": "family-mushroom-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Une cueillette musclée",
+      "en": "Rough Picking"
+    },
+    "text": {
+      "fr": "Vainquez 100 champignons.",
+      "en": "Defeat 100 mushrooms."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "mushroom"
+  },
+  {
+    "id": "family-zombie-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Restez couchés !",
+      "en": "Stay Down!"
+    },
+    "text": {
+      "fr": "Vainquez 100 zombies.",
+      "en": "Defeat 100 zombies."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "zombie"
+  },
+  {
+    "id": "family-frog-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Fini, le coassement",
+      "en": "No More Croaking"
+    },
+    "text": {
+      "fr": "Vainquez 100 grenouilles.",
+      "en": "Defeat 100 frogs."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "frog"
+  },
+  {
+    "id": "family-crab-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Casse-carapaces",
+      "en": "Shell Cracker"
+    },
+    "text": {
+      "fr": "Vainquez 100 crabes.",
+      "en": "Defeat 100 crabs."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "crab"
+  },
+  {
+    "id": "family-bee-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Malgré les dards",
+      "en": "Never Mind the Stings"
+    },
+    "text": {
+      "fr": "Vainquez 100 abeilles.",
+      "en": "Defeat 100 bees."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "bee"
+  },
+  {
+    "id": "family-mole-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Remis au jour",
+      "en": "Back into the Daylight"
+    },
+    "text": {
+      "fr": "Vainquez 100 taupes.",
+      "en": "Defeat 100 moles."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "mole"
+  },
+  {
+    "id": "family-stag-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Cerfs aux abois",
+      "en": "Stags at Bay"
+    },
+    "text": {
+      "fr": "Vainquez 100 Sylvecerfs.",
+      "en": "Defeat 100 Sylvan Stags."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "stag"
+  },
+  {
+    "id": "family-golem-100",
+    "category": "Hunt",
+    "name": {
+      "fr": "Mousse et moellons",
+      "en": "Moss and Masonry"
+    },
+    "text": {
+      "fr": "Vainquez 100 Gardiens moussus.",
+      "en": "Defeat 100 Mossy Keepers."
+    },
+    "points": 15,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "golem"
+  },
+  {
+    "id": "dungeon-boar-wallow",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Un roi dans la boue",
+      "en": "A King in the Mud"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Bauge du Roi sanglier.",
+      "en": "Defeat the chief of the Boar King's Wallow."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "boar"
+  },
+  {
+    "id": "dungeon-wolf-den",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Tête de meute",
+      "en": "Top of the Pack"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Tanière de la meute.",
+      "en": "Defeat the chief of the Pack's Den."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "wolf"
+  },
+  {
+    "id": "dungeon-mushroom-cellar",
+    "category": "Dungeons",
+    "name": {
+      "fr": "La dernière cueillette",
+      "en": "The Last Picking"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Champignonnière.",
+      "en": "Defeat the chief of the Mushroom Cellar."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "mushroom"
+  },
+  {
+    "id": "dungeon-zombie-crypt",
+    "category": "Dungeons",
+    "name": {
+      "fr": "La crypte se tait",
+      "en": "The Crypt Falls Quiet"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Crypte oubliée.",
+      "en": "Defeat the chief of the Forgotten Crypt."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "zombie"
+  },
+  {
+    "id": "dungeon-frog-grotto",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Une couronne mouillée",
+      "en": "A Soggy Crown"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Grotte du Roi grenouille.",
+      "en": "Defeat the chief of the Frog King's Grotto."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "frog"
+  },
+  {
+    "id": "dungeon-crab-reef",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Le récif dégagé",
+      "en": "The Reef Cleared"
+    },
+    "text": {
+      "fr": "Vainquez le chef du Récif des pinces.",
+      "en": "Defeat the chief of the Pincer Reef."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "crab"
+  },
+  {
+    "id": "dungeon-royal-hive",
+    "category": "Dungeons",
+    "name": {
+      "fr": "La ruche au repos",
+      "en": "The Hive at Rest"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Ruche royale.",
+      "en": "Defeat the chief of the Royal Hive."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "bee"
+  },
+  {
+    "id": "dungeon-mole-burrows",
+    "category": "Dungeons",
+    "name": {
+      "fr": "La remontée des galeries",
+      "en": "Up from the Burrows"
+    },
+    "text": {
+      "fr": "Vainquez le chef des Galeries des taupes.",
+      "en": "Defeat the chief of the Mole Burrows."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "mole"
+  },
+  {
+    "id": "dungeon-bellowing-combe",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Le brame s'est tu",
+      "en": "The Bellowing Stops"
+    },
+    "text": {
+      "fr": "Vainquez le chef de la Combe du brame.",
+      "en": "Defeat the chief of the Bellowing Combe."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "stag"
+  },
+  {
+    "id": "dungeon-mother-tree-roots",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Au fond des racines",
+      "en": "Down Among the Roots"
+    },
+    "text": {
+      "fr": "Vainquez le chef des Racines de l'Arbre-Mère.",
+      "en": "Defeat the chief of the Mother Tree's Roots."
+    },
+    "points": 10,
+    "goal": "Chief",
+    "count": 1,
+    "target": "golem"
+  },
+  {
+    "id": "dungeons-all",
+    "category": "Dungeons",
+    "name": {
+      "fr": "Dix chefs tombés",
+      "en": "Ten Chiefs Fallen"
+    },
+    "text": {
+      "fr": "Vainquez les chefs des 10 donjons.",
+      "en": "Defeat the chiefs of all 10 dungeons."
+    },
+    "points": 30,
+    "goal": "Chiefs",
+    "count": 10,
+    "title": {
+      "fr": "Fléau des donjons",
+      "en": "Dungeon Bane"
+    }
+  },
+  {
+    "id": "job-20",
+    "category": "Jobs",
+    "name": {
+      "fr": "Le coup de main",
+      "en": "Getting the Knack"
+    },
+    "text": {
+      "fr": "Montez un métier au niveau 20.",
+      "en": "Raise a trade to level 20."
+    },
+    "points": 5,
+    "goal": "JobLevel",
+    "count": 20
+  },
+  {
+    "id": "job-40",
+    "category": "Jobs",
+    "name": {
+      "fr": "Des gestes sûrs",
+      "en": "Sure Hands"
+    },
+    "text": {
+      "fr": "Montez un métier au niveau 40.",
+      "en": "Raise a trade to level 40."
+    },
+    "points": 10,
+    "goal": "JobLevel",
+    "count": 40
+  },
+  {
+    "id": "job-60",
+    "category": "Jobs",
+    "name": {
+      "fr": "Le tour de main",
+      "en": "Tricks of the Trade"
+    },
+    "text": {
+      "fr": "Montez un métier au niveau 60.",
+      "en": "Raise a trade to level 60."
+    },
+    "points": 15,
+    "goal": "JobLevel",
+    "count": 60
+  },
+  {
+    "id": "job-80",
+    "category": "Jobs",
+    "name": {
+      "fr": "L'œil du métier",
+      "en": "A Trained Eye"
+    },
+    "text": {
+      "fr": "Montez un métier au niveau 80.",
+      "en": "Raise a trade to level 80."
+    },
+    "points": 20,
+    "goal": "JobLevel",
+    "count": 80
+  },
+  {
+    "id": "job-100",
+    "category": "Jobs",
+    "name": {
+      "fr": "Tout un art",
+      "en": "A Fine Art"
+    },
+    "text": {
+      "fr": "Montez un métier au niveau 100.",
+      "en": "Raise a trade to level 100."
+    },
+    "points": 30,
+    "goal": "JobLevel",
+    "count": 100,
+    "title": {
+      "fr": "Mains d'or",
+      "en": "Golden Hands"
+    }
+  },
+  {
+    "id": "three-jobs-20",
+    "category": "Jobs",
+    "name": {
+      "fr": "Plusieurs cordes à son arc",
+      "en": "More Than One String"
+    },
+    "text": {
+      "fr": "Montez 3 métiers au niveau 20.",
+      "en": "Raise 3 trades to level 20."
+    },
+    "points": 10,
+    "goal": "JobsAt",
+    "count": 3
+  },
+  {
+    "id": "gatherer",
+    "category": "Jobs",
+    "name": {
+      "fr": "Toutes les récoltes",
+      "en": "Every Harvest"
+    },
+    "text": {
+      "fr": "Montez les 5 métiers de récolte au niveau 20.",
+      "en": "Raise all 5 gathering trades to level 20."
+    },
+    "points": 15,
+    "goal": "GatherJobsAt",
+    "count": 20,
+    "title": {
+      "fr": "Glane-tout",
+      "en": "Forager"
+    }
+  },
+  {
+    "id": "maker",
+    "category": "Jobs",
+    "name": {
+      "fr": "Tous les établis",
+      "en": "Every Workbench"
+    },
+    "text": {
+      "fr": "Montez les 7 métiers de fabrication au niveau 20.",
+      "en": "Raise all 7 making trades to level 20."
+    },
+    "points": 15,
+    "goal": "CraftJobsAt",
+    "count": 20
+  },
+  {
+    "id": "quests-10",
+    "category": "Quests",
+    "name": {
+      "fr": "On compte sur vous",
+      "en": "People Count on You"
+    },
+    "text": {
+      "fr": "Terminez 10 quêtes.",
+      "en": "Complete 10 quests."
+    },
+    "points": 5,
+    "goal": "QuestsDone",
+    "count": 10
+  },
+  {
+    "id": "quests-25",
+    "category": "Quests",
+    "name": {
+      "fr": "Un nom qui circule",
+      "en": "Your Name Gets Around"
+    },
+    "text": {
+      "fr": "Terminez 25 quêtes.",
+      "en": "Complete 25 quests."
+    },
+    "points": 10,
+    "goal": "QuestsDone",
+    "count": 25
+  },
+  {
+    "id": "quests-50",
+    "category": "Quests",
+    "name": {
+      "fr": "Tout le monde vous connaît",
+      "en": "Everyone Knows You"
+    },
+    "text": {
+      "fr": "Terminez 50 quêtes.",
+      "en": "Complete 50 quests."
+    },
+    "points": 15,
+    "goal": "QuestsDone",
+    "count": 50
+  },
+  {
+    "id": "chapter-1",
+    "category": "Quests",
+    "name": {
+      "fr": "Le premier murmure",
+      "en": "The First Whisper"
+    },
+    "text": {
+      "fr": "Terminez le premier chapitre de l'histoire, à Clairval.",
+      "en": "Finish the first chapter of the story, in Clairval."
+    },
+    "points": 25,
+    "goal": "Quest",
+    "count": 1,
+    "target": "the-disjoint",
+    "title": {
+      "fr": "Fierté de Clairval",
+      "en": "Pride of Clairval"
+    }
+  },
+  {
+    "id": "chapter-2-slice",
+    "category": "Quests",
+    "name": {
+      "fr": "Sous l'Arbre-Mère",
+      "en": "Beneath the Mother Tree"
+    },
+    "text": {
+      "fr": "Terminez la quête « Les Racines de l'Arbre-Mère ».",
+      "en": "Complete the quest \"The Mother Tree's Roots\"."
+    },
+    "points": 25,
+    "goal": "Quest",
+    "count": 1,
+    "target": "roots-of-the-mother-tree",
+    "title": {
+      "fr": "Mémoire des Aïeux",
+      "en": "Memory of the Ancestors"
+    }
+  },
+  {
+    "id": "contracts-10",
+    "category": "Quests",
+    "name": {
+      "fr": "Lu sur le tableau",
+      "en": "Seen on the Board"
+    },
+    "text": {
+      "fr": "Remplissez 10 contrats du tableau d'avis.",
+      "en": "Fulfil 10 contracts from the notice board."
+    },
+    "points": 5,
+    "goal": "Contracts",
+    "count": 10
+  },
+  {
+    "id": "contracts-50",
+    "category": "Quests",
+    "name": {
+      "fr": "Le tableau vous connaît",
+      "en": "The Board Knows Your Name"
+    },
+    "text": {
+      "fr": "Remplissez 50 contrats du tableau d'avis.",
+      "en": "Fulfil 50 contracts from the notice board."
+    },
+    "points": 15,
+    "goal": "Contracts",
+    "count": 50
+  },
+  {
+    "id": "contracts-200",
+    "category": "Quests",
+    "name": {
+      "fr": "Pas un avis sans vous",
+      "en": "No Notice Left Behind"
+    },
+    "text": {
+      "fr": "Remplissez 200 contrats du tableau d'avis.",
+      "en": "Fulfil 200 contracts from the notice board."
+    },
+    "points": 30,
+    "goal": "Contracts",
+    "count": 200,
+    "title": {
+      "fr": "Pilier du tableau",
+      "en": "Pillar of the Board"
+    }
+  },
+  {
+    "id": "first-talent",
+    "category": "Tree",
+    "name": {
+      "fr": "Une première pousse",
+      "en": "A First Shoot"
+    },
+    "text": {
+      "fr": "Prenez votre premier talent dans l'arbre.",
+      "en": "Take your first talent in the tree."
+    },
+    "points": 5,
+    "goal": "Talents",
+    "count": 1
+  },
+  {
+    "id": "a-pair",
+    "category": "Tree",
+    "name": {
+      "fr": "Par deux",
+      "en": "Two by Two"
+    },
+    "text": {
+      "fr": "Prenez une paire dans l'arbre des talents.",
+      "en": "Take a pair in the talent tree."
+    },
+    "points": 5,
+    "goal": "Pair",
+    "count": 1
+  },
+  {
+    "id": "a-heart",
+    "category": "Tree",
+    "name": {
+      "fr": "Un cœur choisi",
+      "en": "A Chosen Heart"
+    },
+    "text": {
+      "fr": "Prenez un Cœur dans l'arbre des talents.",
+      "en": "Take a Heart in the talent tree."
+    },
+    "points": 10,
+    "goal": "Heart",
+    "count": 1
+  },
+  {
+    "id": "a-key",
+    "category": "Tree",
+    "name": {
+      "fr": "La clé en main",
+      "en": "Key in Hand"
+    },
+    "text": {
+      "fr": "Prenez une clé dans l'arbre des talents.",
+      "en": "Take a key in the talent tree."
+    },
+    "points": 15,
+    "goal": "Key",
+    "count": 1,
+    "title": {
+      "fr": "Porte-clé",
+      "en": "Keybearer"
+    }
+  },
+  {
+    "id": "the-conversion",
+    "category": "Tree",
+    "name": {
+      "fr": "La foudre en main",
+      "en": "Lightning in Hand"
+    },
+    "text": {
+      "fr": "Prenez le talent « Conversion : Foudre ».",
+      "en": "Take the talent \"Conversion: Lightning\"."
+    },
+    "points": 15,
+    "goal": "Talent",
+    "count": 1,
+    "target": "convert-lightning"
+  },
+  {
+    "id": "grouped",
+    "category": "Together",
+    "name": {
+      "fr": "À plusieurs",
+      "en": "Strength in Numbers"
+    },
+    "text": {
+      "fr": "Combattez en groupe avec un autre joueur.",
+      "en": "Fight in a group with another player."
+    },
+    "points": 5,
+    "goal": "Feat",
+    "count": 1,
+    "target": "grouped"
+  },
+  {
+    "id": "guild-member",
+    "category": "Together",
+    "name": {
+      "fr": "Sous une bannière",
+      "en": "Under a Banner"
+    },
+    "text": {
+      "fr": "Entrez dans une guilde.",
+      "en": "Join a guild."
+    },
+    "points": 5,
+    "goal": "Guild",
+    "count": 1
+  },
+  {
+    "id": "shared-10",
+    "category": "Together",
+    "name": {
+      "fr": "Épaule contre épaule",
+      "en": "Shoulder to Shoulder"
+    },
+    "text": {
+      "fr": "Gagnez 10 combats à plusieurs.",
+      "en": "Win 10 fights with other players."
+    },
+    "points": 10,
+    "goal": "SharedFights",
+    "count": 10
+  },
+  {
+    "id": "shared-50",
+    "category": "Together",
+    "name": {
+      "fr": "Une équipe soudée",
+      "en": "A Close-Knit Party"
+    },
+    "text": {
+      "fr": "Gagnez 50 combats à plusieurs.",
+      "en": "Win 50 fights with other players."
+    },
+    "points": 15,
+    "goal": "SharedFights",
+    "count": 50,
+    "title": {
+      "fr": "Épaule solide",
+      "en": "Steady Shoulder"
+    }
+  },
+  {
+    "id": "great-horde",
+    "category": "Together",
+    "name": {
+      "fr": "La grande horde",
+      "en": "The Great Horde"
+    },
+    "text": {
+      "fr": "Vainquez à quatre une horde de 9 monstres ou plus.",
+      "en": "With four of you, defeat a horde of 9 monsters or more."
+    },
+    "points": 20,
+    "goal": "Feat",
+    "count": 1,
+    "target": "horde-9-at-4",
+    "title": {
+      "fr": "Brise-horde",
+      "en": "Hordebreaker"
+    }
+  },
+  {
+    "id": "trader",
+    "category": "Together",
+    "name": {
+      "fr": "Marché conclu",
+      "en": "It's a Deal"
+    },
+    "text": {
+      "fr": "Faites un échange avec un autre joueur.",
+      "en": "Trade with another player."
+    },
+    "points": 5,
+    "goal": "Feat",
+    "count": 1,
+    "target": "traded"
+  }
+]

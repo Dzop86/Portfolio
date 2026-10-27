@@ -101,6 +101,12 @@ public sealed record Travel(string? Waystone);
 /// <summary>The waystones a character discovered and the one it chose as home (sprint 127; null: the village's).</summary>
 public sealed record WaystoneView(IReadOnlyList<string> Known, string? Home);
 
+/// <summary>A character's achievements (sprint 155): how far each one has gone, the points earned, the title worn (an achievement's id).</summary>
+public sealed record AchievementView(IReadOnlyList<AchievementProgress> Progress, int Points, string? Title);
+
+/// <summary>The title to wear (sprint 155): the id of an achievement earned that gives one, or null for none.</summary>
+public sealed record TitleOrder(string? Achievement);
+
 /// <summary>One contract of the notice board, by its place on it (sprint 153).</summary>
 public sealed record ContractOrder(int Index);
 

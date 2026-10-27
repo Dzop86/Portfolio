@@ -3,7 +3,7 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>Another player on the map (sprint 118): their name, their look, the cell they stand on or walk to; since sprint 145, their guild.</summary>
-public sealed record OtherPlayer(Guid Id, string Name, Hero Look, Cell At, string? Guild = null);
+public sealed record OtherPlayer(Guid Id, string Name, Hero Look, Cell At, string? Guild = null, string? Title = null);
 
 /// <summary>
 /// The map as the other players share it (sprint 118, D74), from the server's <see cref="MapNews"/>: who else is on
@@ -47,7 +47,7 @@ public sealed class MapCrowd
         switch (news.Kind)
         {
             case MapNewsKind.Here when news is { Character: Guid id, Name: string name, Look: Hero look, At: Cell at }:
-                _others[id] = new OtherPlayer(id, name, look, at, news.Guild);
+                _others[id] = new OtherPlayer(id, name, look, at, news.Guild, news.Title);
                 break;
             case MapNewsKind.Walk when news is { Character: Guid id, At: Cell to } && _others.TryGetValue(id, out OtherPlayer? other):
                 _others[id] = other with { At = to };

@@ -191,6 +191,9 @@ public static class SocialEndpoints
         }
         Give(me, other, v.Mine);
         Give(other, me, v.Theirs);
+        // A trade done (sprint 155): an achievement's feat for both.
+        me.Feat(Achievements.Traded);
+        other.Feat(Achievements.Traded);
         await db.SaveChangesAsync(cancel);
         foreach (Guid who in new[] { id, otherId })
             await hub.TellCharacter(who, new TradeNews(TradeNewsKind.Done), cancel);

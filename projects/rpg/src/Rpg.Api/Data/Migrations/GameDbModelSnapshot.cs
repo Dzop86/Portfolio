@@ -143,6 +143,9 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ContractsDone")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -159,6 +162,10 @@ namespace Rpg.Api.Data.Migrations
 
                     b.Property<int>("Earth")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Feats")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Fire")
                         .HasColumnType("integer");
@@ -250,6 +257,9 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<long>("Shards")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("SharedWins")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Skin")
                         .HasColumnType("integer");
 
@@ -261,6 +271,9 @@ namespace Rpg.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(1);
+
+                    b.Property<string>("Title")
+                        .HasColumnType("text");
 
                     b.Property<string>("Town")
                         .HasMaxLength(20)

@@ -58,6 +58,8 @@ public partial class Main
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _townView.ShowOthers(_crowd.Others, WalkSpeed);
         _townView.ShowOwnGuild(_guild?.Name);
+        // A word for an achievement earned since the last map (sprint 155): after a fight, a contract, a trade.
+        CheckAchievements();
         _townView.ShowMarks(_town.Book);
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
@@ -296,7 +298,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null || _achievementsPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -316,6 +318,8 @@ public partial class Main
             CloseGuild();
         if (open != GameWindow.Bestiary && _bestiaryPanel is not null)
             CloseBestiary();
+        if (open != GameWindow.Achievements && _achievementsPanel is not null)
+            CloseAchievements();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -344,6 +348,9 @@ public partial class Main
                 break;
             case GameWindow.Bestiary when _bestiaryPanel is null:
                 OpenBestiary();
+                break;
+            case GameWindow.Achievements when _achievementsPanel is null:
+                OpenAchievements();
                 break;
         }
         _bar?.Show(open);
@@ -2843,6 +2850,7 @@ public partial class Main
                 GameWindow.Talents => _treePanel is not null && _contactsPanel is null && _pointsPanel is null && _mapPanel is null,
                 GameWindow.Guild => _guildPanel is not null && _contactsPanel is null && _jobsPanel is null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Bestiary => _bestiaryPanel is not null && _guildPanel is null && _inventoryPanel is null && _mapPanel is null,
+                GameWindow.Achievements => _achievementsPanel is not null && _bestiaryPanel is null && _inventoryPanel is null && _mapPanel is null,
                 _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
@@ -2850,7 +2858,7 @@ public partial class Main
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null || _achievementsPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
@@ -3124,8 +3132,8 @@ public partial class Main
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone], []));
             (string waiting, bool glint) = (view.MarkShown("ysaline"), view.ClueShown("old-stone"));
             view.ShowMarks(new QuestBook(GameData.Embedded, 1, [], [stone with { Counts = [1, 1, 1] }], []));
-            // The old stone, and since sprint 127 the village's waystone.
-            if (view.PropsDrawn != 2 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
+            // The old stone, since sprint 127 the village's waystone, and since sprint 153 the notice board.
+            if (view.PropsDrawn != 3 || fresh != "!" || idle || waiting != "?" || !glint || view.ClueShown("old-stone") || view.MarkShown("ysaline") != "?")
                 problems.Add($"the square shows {view.PropsDrawn} props, '{fresh}' over Aubin, the stone glinting {idle}/{glint}, '{waiting}' over Ysaline");
             // The life in a heart (sprint 115): the life over the most, the share below; half filled at half.
             var heart = new HeartGauge();

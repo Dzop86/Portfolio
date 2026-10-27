@@ -107,6 +107,30 @@ public sealed class Character
     /// <summary>The waystones it discovered (sprint 127), their ids separated by commas.</summary>
     public string Waystones { get; set; } = "";
 
+    /// <summary>
+    /// The feats the achievements read that nothing else keeps (sprint 155, D83): a fight in a group, a trade, a great horde
+    /// at four; their ids separated by commas.
+    /// </summary>
+    public string Feats { get; set; } = "";
+
+    public string[] FeatList => Feats.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+    /// <summary>A feat done (sprint 155): kept once.</summary>
+    public void Feat(string feat)
+    {
+        if (!FeatList.Contains(feat))
+            Feats = string.Join(',', FeatList.Append(feat));
+    }
+
+    /// <summary>The fights won with others (sprint 155).</summary>
+    public int SharedWins { get; set; }
+
+    /// <summary>The notice board's contracts handed back (sprint 155).</summary>
+    public int ContractsDone { get; set; }
+
+    /// <summary>The title worn (sprint 155): the id of the achievement that gives it, or none.</summary>
+    public string? Title { get; set; }
+
     /// <summary>Its bestiary (sprint 154, D83): the victories over each monster, a monster met at 0 (<see cref="Rpg.Core.Bestiary.Write"/>).</summary>
     public string Bestiary { get; set; } = "";
 
