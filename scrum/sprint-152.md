@@ -6,8 +6,14 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Charles, `Rpg.Sim --talents` mesure Électrisation sans sa tresse, la ligne du meilleur héros nu et un trio imposé, sur 300 combats ; la règle des 20 % par style remplace celle des 5 % ; la règle écrite d'avance est appliquée si la mesure l'exige (rpg) ; xUnit, rapport v2. | 2 | À faire |
-| En tant que joueur, une guilde ne dépasse jamais 50 membres même à deux acceptations simultanées, je vois mon propre nom de guilde sous mon personnage, et un glyphe neuf m'épargne à son premier tour si j'étais déjà dessus (rpg) ; xUnit, intégration PostgreSQL. | 1 | À faire |
+| En tant que Charles, `Rpg.Sim --talents` mesure Électrisation sans sa tresse, la ligne du meilleur héros nu et un trio imposé, sur 300 combats ; la règle des 20 % par style remplace celle des 5 % ; la règle écrite d'avance est appliquée si la mesure l'exige (rpg) ; xUnit, rapport v2. | 2 | Fait |
+| En tant que joueur, une guilde ne dépasse jamais 50 membres même à deux acceptations simultanées, je vois mon propre nom de guilde sous mon personnage, et un glyphe neuf m'épargne à son premier tour si j'étais déjà dessus (rpg) ; xUnit, intégration PostgreSQL. | 1 | Fait |
+
+## Fait
+- `Rpg.Sim --talents` : les héros nus (mixte et d'un seul élément), `--no-braid`, `--trio`, la règle des 20 % par branche ; rapport v2 dans `projects/rpg/docs/mesures-arbre.md` (T119).
+- La règle d'Électrisation appliquée sur 300 combats : la réaction seule à −0,2 point des autres paires, Électrisé reste à 35 % ; trios saturés, pas de plafond de sauts. L'avance de S151 vient de la tresse.
+- Une guilde ne dépasse plus 50 membres à des acceptations simultanées (verrou de ligne), son propre nom de guilde sous son personnage, un glyphe neuf qui épargne à son premier tour celui qui était déjà dessus.
+- Constat pour S157 : à 45, un héros nu d'un seul élément surclasse les hordes de la Forêt (monstres de 31 à 34).
 
 ## Rétro (Charles)
 - Ce qui a marché :

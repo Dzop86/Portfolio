@@ -97,8 +97,24 @@ public class TreePlanTests
             Assert.True(Talents.Points(45) - b.Sum(id => Data.Talents[id].Cost) <= 1);
             builds.Add(b);
         }
+        // Since sprint 152 (D83): among the builds aiming at the node's branch, 20 %; the doors the measure imposes left out.
         IReadOnlyList<(string Talent, double Share)> rare = TreeDraws.Rare(builds, Data);
-        Assert.Contains(rare, r => r.Talent == "bogging" && r.Share == 0);
-        Assert.DoesNotContain(rare, r => r.Talent == "chilling");
+        Assert.DoesNotContain(rare, r => r.Talent is "bogging" or "chilling" or "heart-fire");
+        Assert.All(rare, r => Assert.True(r.Share < 20));
+        // A braid's node, counted among the builds holding a node of a braid: none here, so none taken, 0 %.
+        Assert.Contains(rare, r => r.Talent == "prism" && r.Share == 0);
+    }
+
+    [Fact]
+    public void ABuildDrawnWithoutTheBraid_HoldsNoNodeOfIt()
+    {
+        // Sprint 152 (D83): Electrifying measured apart from its braid.
+        for (int i = 0; i < 40; i++)
+        {
+            IReadOnlyList<string> b = TreeDraws.Random("electrifying", 45, new Random(i), Data, braid: false);
+            Assert.Null(Talents.Problem(b, 45, Data));
+            Assert.DoesNotContain(b, id => Data.Talents[id].Branch == Branch.Braids);
+        }
+        Assert.Contains(Enumerable.Range(0, 40).Select(i => TreeDraws.Random("electrifying", 45, new Random(i), Data)), b => b.Any(id => Data.Talents[id].Branch == Branch.Braids));
     }
 }

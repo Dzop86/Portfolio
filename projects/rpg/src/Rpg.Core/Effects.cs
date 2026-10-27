@@ -222,6 +222,12 @@ public sealed class Glyph
 
     /// <summary>The fighters it struck during the turn being played: once each.</summary>
     internal readonly HashSet<int> Struck = [];
+
+    /// <summary>
+    /// The fighters standing on its cells when it was laid (sprint 152, D83, the limit of T100): spared at the start of their
+    /// next turn, so they have the time to leave it; a fighter loses this the first time its turn starts.
+    /// </summary>
+    internal readonly HashSet<int> Spared = [];
 }
 
 /// <summary>When a passive fires (sprint 90, D69).</summary>

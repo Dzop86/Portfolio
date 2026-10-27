@@ -133,10 +133,16 @@ public static class GuildEndpoints
             return Refused("from", "No invitation from them, or too late.");
         if (await MembershipOf(id, db, cancel) is not null)
             return Refused("from", "Already in a guild.");
-        if (await db.GuildMembers.CountAsync(m => m.GuildId == guild, cancel) >= GuildRules.Most)
-            return Refused("from", $"The guild is full ({GuildRules.Most}).");
-        db.GuildMembers.Add(new GuildMemberRecord { CharacterId = id, GuildId = guild, Rank = GuildRank.Member, JoinedAt = clock.GetUtcNow() });
-        await db.SaveChangesAsync(cancel);
+        // The guild's row locked while it is counted (sprint 152, D83): two acceptances at once no longer make 51.
+        await using (var transaction = await db.Database.BeginTransactionAsync(cancel))
+        {
+            await db.Guilds.FromSql($"SELECT * FROM guilds WHERE \"Id\" = {guild} FOR UPDATE").ToListAsync(cancel);
+            if (await db.GuildMembers.CountAsync(m => m.GuildId == guild, cancel) >= GuildRules.Most)
+                return Refused("from", $"The guild is full ({GuildRules.Most}).");
+            db.GuildMembers.Add(new GuildMemberRecord { CharacterId = id, GuildId = guild, Rank = GuildRank.Member, JoinedAt = clock.GetUtcNow() });
+            await db.SaveChangesAsync(cancel);
+            await transaction.CommitAsync(cancel);
+        }
         await hub.SetGuild(id, guild, name, cancel);
         await TellGuild(guild, db, hub, cancel);
         return TypedResults.NoContent();

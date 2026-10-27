@@ -75,6 +75,9 @@ public class TerrainTests
     {
         Fight f = Play(["A...B"], Hero("side-step", "backed", "seal", "bogging") with { Deck = ["bolt", "seal-water"] });
         f.Apply(new CastAction("seal-water", C(4)));
+        // Laid under it, the Seal spares it at its next turn (sprint 152); it stays, and starts the turn after on it.
+        f.Apply(new EndTurnAction());
+        f.Apply(new EndTurnAction());
         f.Apply(new CastAction("bolt", C(4)));
         f.Apply(new EndTurnAction());
         // The monster starts its turn on the Seal: marked by the Water, after the Earth's mark of the bolt; no reaction.

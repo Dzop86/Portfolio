@@ -276,7 +276,7 @@ public class TemplateTests
         {
             Hero bare = family.Hero(id, "none"), craft = family.Hero(id, "craft");
             double without = Small(bare);
-            double best = new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Select(e => Large(OfOne(family, id, e, craft.Worn))).Append(Large(craft)).Max();
+            double best = new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Select(e => Large(Progression.OfOne(family.Hero(id, "none"), e, family.Data, craft.Worn))).Append(Large(craft)).Max();
             var line = new List<string> { $"{id} bare {without:0.0} (best horde {best:0.0})" };
             var families = new List<double>();
             // Since sprint 147 (J4 b), the build of Pure element too: a Heart and a style, held to the same ceilings.
@@ -341,18 +341,5 @@ public class TemplateTests
             Even(id, "couples", Couples.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data))));
         }
         Assert.True(kept, string.Join("; ", report));
-    }
-
-    /// <summary>A hero of one element and no talent: its class's spells of that element and the neutral ones, all its points in it.</summary>
-    private static Hero OfOne(Synthetic family, string id, Element element, IReadOnlyDictionary<Slot, string>? worn)
-    {
-        Hero hero = family.Hero(id, "none");
-        string[] deck = [.. family.Data.Class(id)!.Spells.Where(s => family.Data.Spells[s].Element is Element.Neutral || family.Data.Spells[s].Element == element)
-            .Where(s => family.Data.Spells[s].Level <= hero.Level)];
-        Hero built = Progression.Built(hero with { Deck = deck }, family.Data, worn);
-        Characteristics st = built.Stats!;
-        int all = st.Earth + st.Fire + st.Water + st.Air;
-        int In(Element e) => e == element ? all : 0;
-        return built with { Stats = new Characteristics(st.Vitality, In(Element.Earth), In(Element.Fire), In(Element.Water), In(Element.Air)) };
     }
 }

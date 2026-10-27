@@ -80,3 +80,129 @@ Talents pris par moins de 5 % des 1800 builds tirés (une fausse décision à re
 ## Le playtest extérieur (P4 b, P5 a)
 
 À faire par Charles : un joueur qui ne connaît pas l'arbre l'ouvre à 30, et doit pouvoir expliquer son build en une phrase au bout de deux minutes. Le résultat (réussi ou non, et ce qui l'a bloqué) va dans `REVIEW.md`.
+
+---
+
+# v2 : Électrisation décomposée, les héros nus, les trios (sprint 152, D83, T119)
+
+> `dotnet run --project src/Rpg.Sim -c Release -- --talents --simulate 300 --scenario hordes:ancestors --lang fr`, puis la même ligne avec `--no-braid`, puis `--talents --trio --no-braid --simulate 100`. Depuis S152, le glyphe neuf épargne à son premier tour celui qui était déjà dessus. La règle des 5 % devient celle des 20 % des builds qui visent la branche du nœud (les portes, paires et Cœurs, sont imposées par la mesure et laissées de côté).
+
+## Contre les hordes, sans aucune tresse (la réaction seule)
+
+| Classe | Paire | Victoires | Intervalle à 95 % |
+|---|---|---|---|
+| sentinel | bogging | 28.0 % | 23.2 – 33.3 % |
+| sentinel | chilling | 28.7 % | 23.8 – 34.0 % |
+| sentinel | cracking | 25.7 % | 21.1 – 30.9 % |
+| sentinel | electrifying | 24.0 % | 19.5 – 29.1 % |
+| sentinel | fogging | 23.3 % | 18.9 – 28.4 % |
+| sentinel | blinding | 26.0 % | 21.4 – 31.2 % |
+| guard | bogging | 14.7 % | 11.1 – 19.1 % |
+| guard | chilling | 16.3 % | 12.6 – 20.9 % |
+| guard | cracking | 16.0 % | 12.3 – 20.6 % |
+| guard | electrifying | 14.7 % | 11.1 – 19.1 % |
+| guard | fogging | 14.7 % | 11.1 – 19.1 % |
+| guard | blinding | 16.0 % | 12.3 – 20.6 % |
+| mage | bogging | 20.3 % | 16.2 – 25.2 % |
+| mage | chilling | 20.3 % | 16.2 – 25.2 % |
+| mage | cracking | 22.3 % | 18.0 – 27.4 % |
+| mage | electrifying | 23.3 % | 18.9 – 28.4 % |
+| mage | fogging | 20.7 % | 16.5 – 25.6 % |
+| mage | blinding | 23.7 % | 19.2 – 28.8 % |
+| sentinel | nu, mixte | 20.7 % | 16.5 – 25.6 % |
+| sentinel | nu, Terre seul | 62.0 % | 56.4 – 67.3 % |
+| sentinel | nu, Feu seul | 89.0 % | 85.0 – 92.1 % |
+| sentinel | nu, Eau seul | 75.3 % | 70.2 – 79.9 % |
+| sentinel | nu, Air seul | 86.3 % | 82.0 – 89.8 % |
+| guard | nu, mixte | 2.7 % | 1.4 – 5.2 % |
+| guard | nu, Terre seul | 53.0 % | 47.3 – 58.6 % |
+| guard | nu, Feu seul | 62.7 % | 57.1 – 67.9 % |
+| guard | nu, Eau seul | 58.0 % | 52.3 – 63.4 % |
+| guard | nu, Air seul | 74.0 % | 68.8 – 78.6 % |
+| mage | nu, mixte | 18.0 % | 14.1 – 22.7 % |
+| mage | nu, Terre seul | 80.0 % | 75.1 – 84.1 % |
+| mage | nu, Feu seul | 56.0 % | 50.3 – 61.5 % |
+| mage | nu, Eau seul | 70.0 % | 64.6 – 74.9 % |
+| mage | nu, Air seul | 67.7 % | 62.2 – 72.7 % |
+
+Talents pris par moins de 20 % des builds qui visent leur branche, sur 5400 builds tirés (une fausse décision à revoir) :
+- convert-lightning : 0.0 %
+- echo : 13.2 %
+- long-breath : 17.4 %
+- nomad : 15.7 %
+- one-gesture : 16.9 %
+- prism : 0.0 %
+- scorched-earth : 13.8 %
+- shared-mark : 9.4 %
+- strong-signature : 0.0 %
+- thrift : 18.5 %
+- transmute-air-lightning : 0.0 %
+- transmute-fire-lightning : 0.0 %
+
+## Contre les hordes, avec les tresses
+
+| Classe | Paire | Victoires | Intervalle à 95 % |
+|---|---|---|---|
+| sentinel | bogging | 28.0 % | 23.2 – 33.3 % |
+| sentinel | chilling | 28.7 % | 23.8 – 34.0 % |
+| sentinel | cracking | 25.7 % | 21.1 – 30.9 % |
+| sentinel | electrifying | 36.0 % | 30.8 – 41.6 % |
+| sentinel | fogging | 23.3 % | 18.9 – 28.4 % |
+| sentinel | blinding | 26.0 % | 21.4 – 31.2 % |
+| guard | bogging | 14.7 % | 11.1 – 19.1 % |
+| guard | chilling | 16.3 % | 12.6 – 20.9 % |
+| guard | cracking | 16.0 % | 12.3 – 20.6 % |
+| guard | electrifying | 25.7 % | 21.1 – 30.9 % |
+| guard | fogging | 14.7 % | 11.1 – 19.1 % |
+| guard | blinding | 16.0 % | 12.3 – 20.6 % |
+| mage | bogging | 20.7 % | 16.5 – 25.6 % |
+| mage | chilling | 20.3 % | 16.2 – 25.2 % |
+| mage | cracking | 22.3 % | 18.0 – 27.4 % |
+| mage | electrifying | 29.3 % | 24.5 – 34.7 % |
+| mage | fogging | 20.7 % | 16.5 – 25.6 % |
+| mage | blinding | 23.7 % | 19.2 – 28.8 % |
+| sentinel | nu, mixte | 20.7 % | 16.5 – 25.6 % |
+| sentinel | nu, Terre seul | 62.0 % | 56.4 – 67.3 % |
+| sentinel | nu, Feu seul | 89.0 % | 85.0 – 92.1 % |
+| sentinel | nu, Eau seul | 75.3 % | 70.2 – 79.9 % |
+| sentinel | nu, Air seul | 86.3 % | 82.0 – 89.8 % |
+| guard | nu, mixte | 2.7 % | 1.4 – 5.2 % |
+| guard | nu, Terre seul | 53.0 % | 47.3 – 58.6 % |
+| guard | nu, Feu seul | 62.7 % | 57.1 – 67.9 % |
+| guard | nu, Eau seul | 58.0 % | 52.3 – 63.4 % |
+| guard | nu, Air seul | 74.0 % | 68.8 – 78.6 % |
+| mage | nu, mixte | 18.0 % | 14.1 – 22.7 % |
+| mage | nu, Terre seul | 80.0 % | 75.1 – 84.1 % |
+| mage | nu, Feu seul | 56.0 % | 50.3 – 61.5 % |
+| mage | nu, Eau seul | 70.0 % | 64.6 – 74.9 % |
+| mage | nu, Air seul | 67.7 % | 62.2 – 72.7 % |
+
+Talents pris par moins de 20 % des builds qui visent leur branche, sur 5400 builds tirés (une fausse décision à revoir) :
+- echo : 12.6 %
+- long-breath : 16.9 %
+- nomad : 15.4 %
+- one-gesture : 16.4 %
+- scorched-earth : 13.7 %
+- shared-mark : 9.3 %
+- thrift : 18.3 %
+- transmute-air-lightning : 17.2 %
+- transmute-fire-lightning : 10.9 %
+
+## Trios : un héros de chaque classe, l'un avec la paire, les deux autres avec une autre paire tirée (jamais Électrisation), 100 combats par paire
+
+| Paire du premier | Victoires | Intervalle à 95 % |
+|---|---|---|
+| bogging | 100.0 % | 96.3 – 100.0 % |
+| chilling | 100.0 % | 96.3 – 100.0 % |
+| cracking | 100.0 % | 96.3 – 100.0 % |
+| electrifying | 100.0 % | 96.3 – 100.0 % |
+| fogging | 100.0 % | 96.3 – 100.0 % |
+| blinding | 100.0 % | 96.3 – 100.0 % |
+
+## Ce que ça montre, et la règle appliquée (§12.3 de `suite-apres-d69.md`)
+
+- **La réaction seule ne dépasse pas les autres paires.** Sans tresse, Électrisation gagne 24,0, 14,7 et 23,3 % des hordes (Sentinelle, Garde, Mage) contre des médianes de 26,0, 16,0 et 20,7 % pour les cinq autres paires : −2,0, −1,3 et +2,6 points, soit −0,2 point les trois classes réunies, bien sous le seuil de +8. **Électrisé reste à 35 %.** Toute l'avance de S151 (36,0, 25,7 et 29,3 %) vient de la tresse : elle se refermera quand les autres paires auront la leur (la Glace en S161), et l'on remesure alors.
+- **Les trios sont saturés** : trois héros de 45 gagnent toutes les hordes de la Forêt, quelle que soit la paire du premier. L'écart d'un trio de Foudre (0 point) est sous le seuil de +10 : **pas de plafond de sauts.** La mesure à trois ne dira quelque chose que contre des hordes du niveau des héros (le socle 45-60, S157).
+- **Un constat à part : à 45, un héros nu d'un seul élément bat les hordes de la Forêt** (53 à 89 %), loin devant les builds tirés (15 à 36 %) et le héros nu mixte (3 à 21 %). Les monstres de la Forêt sont de niveau 31 à 34 : à 45, un héros qui met tous ses points dans un élément les surclasse, alors que la mesure répartit les points d'un build sur les éléments de son grimoire (`Progression.Built`). Ni l'arbre ni Électrisé n'y sont pour rien ; la comparaison au « meilleur héros nu » (T110) n'a de sens qu'au niveau des monstres. À reprendre avec le socle 45-60 (S157), où les hordes seront du niveau des héros.
+- **Les nœuds rares, par branche :** la moitié d'un choix (les deux Transmutations, 10,9 et 17,2 %) l'est par construction ; restent `shared-mark` (9 %), `echo` et `scorched-earth` (13 %), `nomad`, `one-gesture`, `long-breath` (15 à 17 %) et `thrift` (18 %). Rien n'y est sous 5 % : ce sont des nœuds de fin de branche que le tirage atteint quand il lui reste des points, pas des fausses décisions évidentes. À regarder par le game designer avec les spécialisations.
+

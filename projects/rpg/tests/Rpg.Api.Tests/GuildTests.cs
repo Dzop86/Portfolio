@@ -173,4 +173,50 @@ public class GuildTests
         Assert.Single(api.WithDb(db => db.GuildMembers.ToList()));
         await b.DisposeAsync();
     }
+
+    [Fact]
+    public async Task EightAcceptancesAtOnce_IntoAGuildOf45_LetFiveIn()
+    {
+        // Sprint 152 (D83, the limit of T112): the guild's row locked while it is counted.
+        await using var api = new ApiFactory();
+        var guild = new Rpg.Api.Data.GuildRecord { Name = "Les Veilleurs", NormalizedName = "LES VEILLEURS", CreatedAt = DateTimeOffset.UnixEpoch };
+        Guid leader = Guid.Empty;
+        api.WithDb(db =>
+        {
+            var account = new Rpg.Api.Data.Account { Name = "veille", NormalizedName = "VEILLE" };
+            db.Accounts.Add(account);
+            db.Guilds.Add(guild);
+            for (int i = 0; i < 45; i++)
+            {
+                // Names of letters only, one a member.
+                string name = "Veilleur" + new string((char)('a' + (i / 26)), 1) + (char)('a' + (i % 26));
+                var c = new Rpg.Api.Data.Character { AccountId = account.Id, Name = name, NormalizedName = name.ToUpperInvariant(), Look = "female-c", Class = "guard" };
+                db.Characters.Add(c);
+                db.GuildMembers.Add(new Rpg.Api.Data.GuildMemberRecord { CharacterId = c.Id, GuildId = guild.Id, Rank = i == 0 ? GuildRank.Leader : GuildRank.Member, JoinedAt = DateTimeOffset.UnixEpoch.AddMinutes(i) });
+                if (i == 0)
+                    leader = c.Id;
+            }
+            return db.SaveChanges();
+        });
+        var invites = api.Services.GetRequiredService<GuildInvites>();
+        var joiners = new List<(GameServer Server, Guid Id)>();
+        foreach (string name in new[] { "Aube", "Brume", "Cendre", "Dune", "Ecume", "Flamme", "Givre", "Houle" })
+        {
+            GameServer server = await api.SignedIn(name.ToLowerInvariant());
+            CharacterSummary c = await server.CreateCharacter(name, "female-c", "mage", cancel: Cancel);
+            invites.Invite(leader, c.Id, guild.Id);
+            joiners.Add((server, c.Id));
+        }
+        Task[] accepts = [.. joiners.Select(j => j.Server.JoinGuild(j.Id, leader, Cancel))];
+        try
+        {
+            await Task.WhenAll(accepts);
+        }
+        catch (ServerException)
+        {
+            // The three too late are refused; counted below.
+        }
+        Assert.Equal(5, accepts.Count(t => t.IsCompletedSuccessfully));
+        Assert.Equal(GuildRules.Most, api.WithDb(db => db.GuildMembers.Count(m => m.GuildId == guild.Id)));
+    }
 }

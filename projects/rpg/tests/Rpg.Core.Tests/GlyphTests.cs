@@ -84,17 +84,37 @@ public class GlyphTests
     [Fact]
     public void AGlyph_StrikesAtTheStartOfTheTurn_AfterThePoisons_BeforeThePassives()
     {
-        Fight f = Play(["A.B"], Caster(), Monster() with { Passives = ["mend"] });
-        f.Apply(new CastAction("venom", C(2)));
+        // The glyph laid beside the monster, which steps onto it and stays: its next turn starts there.
+        Fight f = Play(["A..B"], Caster(), Monster(mp: 1) with { Passives = ["mend"] });
         f.Apply(new CastAction("ward", C(2)));
         f.Apply(new EndTurnAction());
-        List<FightEvent> events = [.. f.Events];
+        f.Apply(new MoveAction(C(2)));
+        f.Apply(new EndTurnAction());
+        f.Apply(new CastAction("venom", C(2)));
+        int before = f.Events.Count;
+        f.Apply(new EndTurnAction());
+        List<FightEvent> events = [.. f.Events.Skip(before)];
         int poison = events.FindIndex(e => e is Damaged { Fighter: 1, Amount: 6 });
         int glyph = events.FindIndex(e => e is GlyphTriggered { Fighter: 1 });
         int mend = events.FindIndex(e => e is PassiveTriggered { Fighter: 1, Passive: "mend" });
         Assert.True(poison >= 0 && glyph > poison && mend > glyph, string.Join(" ", events));
-        Assert.Equal(new Damaged(1, 10, 34, Element.Earth), events[glyph + 1]);
-        Assert.Equal(35, f.Fighters[1].Hp);
+        Assert.Equal(f.Fighters[1].Hp - 1, ((Damaged)events[glyph + 1]).HpLeft);
+    }
+
+    [Fact]
+    public void AGlyphLaidUnderAFighter_SparesItAtItsNextTurn_SoItCanWalkOff()
+    {
+        // Sprint 152 (D83, the limit of T100): already there when it was laid, the monster is not struck as its turn starts.
+        Fight f = Play(["A.B."], Caster(), Monster());
+        f.Apply(new CastAction("ward", C(2)));
+        Assert.Equal(ActionError.None, f.Apply(new EndTurnAction()));
+        Assert.Equal(0, Struck(f, 1));
+        Assert.Equal(50, f.Fighters[1].Hp);
+        // It stays: the turn after, it is struck.
+        f.Apply(new EndTurnAction());
+        f.Apply(new EndTurnAction());
+        Assert.Equal(1, Struck(f, 1));
+        Assert.Equal(40, f.Fighters[1].Hp);
     }
 
     [Fact]
@@ -102,6 +122,9 @@ public class GlyphTests
     {
         Fight f = Play(["A.B"], Caster(), Monster() with { Passives = ["low"] });
         f.Apply(new CastAction("ward", C(2)));
+        // Spared at its first turn (sprint 152), struck at its second.
+        f.Apply(new EndTurnAction());
+        f.Apply(new EndTurnAction());
         f.Apply(new EndTurnAction());
         List<FightEvent> events = [.. f.Events];
         int glyph = events.FindIndex(e => e is GlyphTriggered);
@@ -273,7 +296,8 @@ public class GlyphTests
         Fight g = Play([".....A", "B....."], Caster(), Monster(mp: 3, spells: ["hit"]) with { Ap = 0 });
         g.Apply(new CastAction("field", C(0, 1)));
         g.Apply(new EndTurnAction());
-        Assert.Equal(1, Struck(g, 1));
+        // Spared as its turn starts since sprint 152: it has the time to leave.
+        Assert.Equal(0, Struck(g, 1));
         FightAction off = Ai.Decide(g);
         Assert.IsType<MoveAction>(off);
         g.Apply(off);

@@ -9,14 +9,16 @@ public static class TreeDraws
     /// <summary>
     /// A build drawn from <paramref name="door"/> at <paramref name="level"/> the way a player builds one: a branch aimed at,
     /// drawn among those the door opens (a style, the braid of its pair), climbed node after node while it has one to take,
-    /// then any node the rules allow and the points pay for, until none is left.
+    /// then any node the rules allow and the points pay for, until none is left. Without <paramref name="braid"/> (sprint 152,
+    /// D83), no node of a braid: a pair's reaction measured apart from its braid.
     /// </summary>
-    public static IReadOnlyList<string> Random(string door, int level, Random rng, GameData data)
+    public static IReadOnlyList<string> Random(string door, int level, Random rng, GameData data, bool braid = true)
     {
         ArgumentNullException.ThrowIfNull(rng);
         ArgumentNullException.ThrowIfNull(data);
         var taken = new List<string> { door };
-        string[] Open() => [.. data.Talents.Keys.Order(StringComparer.Ordinal).Where(id => !taken.Contains(id) && TalentReasons.WhyNot(taken, id, level, data) is null)];
+        string[] Open() => [.. data.Talents.Keys.Order(StringComparer.Ordinal).Where(id => !taken.Contains(id) && (braid || data.Talents[id].Branch != Branch.Braids)
+            && TalentReasons.WhyNot(taken, id, level, data) is null)];
         Branch[] aims = [.. Open().Select(id => data.Talents[id].Branch).Where(b => b is not Branch.Fork and not Branch.Pure).Distinct().Order()];
         Branch? aim = aims.Length == 0 ? null : aims[rng.Next(aims.Length)];
         while (true)
@@ -31,15 +33,26 @@ public static class TreeDraws
     }
 
     /// <summary>
-    /// The talents, each half of a choice included (the Transmutations, the Hearts), that fewer than
-    /// <paramref name="percent"/> % of the builds take, with their share.
+    /// The talents that fewer than <paramref name="percent"/> % of the builds aiming at their branch take, with their share
+    /// (sprint 152, D83, the game designer's 20 % a style): a node counted among the builds that hold a node of its branch, not
+    /// among them all, where a key or a braid stays rare by the draw's arithmetic alone. The doors (the pairs and the Hearts,
+    /// which the measure imposes) are left out.
     /// </summary>
-    public static IReadOnlyList<(string Talent, double Share)> Rare(IReadOnlyList<IReadOnlyList<string>> builds, GameData data, double percent = 5)
+    public static IReadOnlyList<(string Talent, double Share)> Rare(IReadOnlyList<IReadOnlyList<string>> builds, GameData data, double percent = 20)
     {
         ArgumentNullException.ThrowIfNull(builds);
         ArgumentNullException.ThrowIfNull(data);
-        return [.. data.Talents.Keys.Order(StringComparer.Ordinal)
-            .Select(id => (id, 100.0 * builds.Count(b => b.Contains(id)) / Math.Max(1, builds.Count)))
-            .Where(x => x.Item2 < percent)];
+        var rare = new List<(string, double)>();
+        foreach (string id in data.Talents.Keys.Order(StringComparer.Ordinal))
+        {
+            Branch branch = data.Talents[id].Branch;
+            if (branch is Branch.Fork or Branch.Pure)
+                continue;
+            IReadOnlyList<string>[] aiming = [.. builds.Where(b => b.Any(t => data.Talents.TryGetValue(t, out TalentSpec? x) && x.Branch == branch))];
+            double share = 100.0 * aiming.Count(b => b.Contains(id)) / Math.Max(1, aiming.Length);
+            if (share < percent)
+                rare.Add((id, share));
+        }
+        return rare;
     }
 }

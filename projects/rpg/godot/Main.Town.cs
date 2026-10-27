@@ -57,6 +57,7 @@ public partial class Main
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _townView.ShowOthers(_crowd.Others, WalkSpeed);
+        _townView.ShowOwnGuild(_guild?.Name);
         _townView.ShowMarks(_town.Book);
         _ = RefreshGrowing();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = (float)ExploreCamera.DefaultZoom };
@@ -3216,6 +3217,11 @@ public partial class Main
         bool guild = view.GuildShownFor(plop.Id) == "‹Les Veilleurs›";
         view.ShowOthers([plop], 4);
         guild &= view.GuildShownFor(plop.Id) is null && view.Others.Count == 1;
+        // Its own guild under its own character too (sprint 152), and gone out of it.
+        view.ShowOwnGuild("Les Veilleurs");
+        guild &= view.OwnGuildShown == "‹Les Veilleurs›";
+        view.ShowOwnGuild(null);
+        guild &= view.OwnGuildShown is null;
         view.ShowOthers([], 4);
         if (!drawn || !walking || !guild || view.Others.Count != 0)
             problems.Add($"another player: drawn {drawn}, walking {walking}, guild's name {guild}, {view.Others.Count} left");

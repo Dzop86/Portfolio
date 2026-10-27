@@ -997,6 +997,28 @@ public partial class TownView : Node3D
     private readonly Dictionary<Guid, Cell> _otherAt = [];
     private readonly Dictionary<Guid, string?> _otherGuild = [];
 
+    /// <summary>
+    /// The player's own guild under its own character (sprint 152, D83, the limit of T112), where the others' is drawn under
+    /// their names: the player has no name above it, so the guild's name stands alone; none out of a guild.
+    /// </summary>
+    public void ShowOwnGuild(string? guild)
+    {
+        if (Player.FindChild("Guild", false, false) is Label3D old)
+        {
+            Player.RemoveChild(old);
+            old.QueueFree();
+        }
+        if (guild is null)
+            return;
+        Label3D under = Label($"‹{guild}›", new Vector3(0, 0.98f, 0), 30);
+        under.Name = "Guild";
+        under.Modulate = FighterView.PlayerColour;
+        Player.AddChild(under);
+    }
+
+    /// <summary>The guild's name drawn under the player's own character, or null (for the self-test).</summary>
+    public string? OwnGuildShown => Player.FindChild("Guild", false, false) is Label3D label ? label.Text : null;
+
     /// <summary>The guild's name drawn under another player's, or null (for the self-test).</summary>
     public string? GuildShownFor(Guid id) =>
         Others.TryGetValue(id, out Node3D? person) && person.FindChild("Guild", false, false) is Label3D label ? label.Text : null;

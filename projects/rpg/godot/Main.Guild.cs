@@ -55,12 +55,14 @@ public partial class Main
                     Note(texts[view.Members.Count == 1 ? "guild.founded" : "guild.joined", view.Name]);
                 _guild = view;
                 _guildPanel?.Show(view, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
+                _townView?.ShowOwnGuild(view.Name);
                 break;
             default:
                 if (!quiet && _guild is not null)
                     Note(texts["guild.left"]);
                 _guild = null;
                 _guildPanel?.Show(null, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
+                _townView?.ShowOwnGuild(null);
                 break;
         }
     }

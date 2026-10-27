@@ -17,7 +17,9 @@ namespace Rpg.Sim;
 /// every party of two, three and four heroes of the classes, N fights each, at the level of the scenario's monsters
 /// unless --level says otherwise; each rate with its 95 % interval), --talents (since sprint 151, D82, with --simulate N: the
 /// talent tree out of CI, each class with each pair, N fights a combination, each with a build drawn at random from the pair
-/// at --level, 45 by default; then the talents fewer than 5 % of the builds take).
+/// at --level, 45 by default; then the talents fewer than 5 % of the builds take; since sprint 152, D83: the bare heroes, mixed
+/// and of each element, on the same fights, the rare talents counted among the builds aiming at their branch (20 %), --no-braid
+/// to draw without the braids, and --trio for three heroes of the three classes, one with the pair, two with others drawn).
 /// Exit code 0 on success, 1 for a record that does not replay, 2 for wrong arguments.
 /// </summary>
 public static class Program
@@ -174,7 +176,7 @@ public static class Program
             for (int i = 0; i < options.Simulate; i++)
             {
                 // A draw of its own for each combination and each fight, the same from one run to the next.
-                IReadOnlyList<string> build = TreeDraws.Random(combos[k].Pair, level, new Random(unchecked((int)options.Seed * 1_000_003 + (k * 7_919) + i)), data);
+                IReadOnlyList<string> build = TreeDraws.Random(combos[k].Pair, level, new Random(unchecked((int)options.Seed * 1_000_003 + (k * 7_919) + i)), data, !options.NoBraid);
                 builds[(k * options.Simulate) + i] = build;
                 Hero hero = Progression.Talented(new Hero("Aube", "female-c", combos[k].Class, Level: level), build, data, worn);
                 var fight = new Fight(data, fights[i % fights.Count], options.Seed + (ulong)i, hero);
@@ -192,6 +194,27 @@ public static class Program
             (double low, double high) = Wilson(wins[k], options.Simulate);
             output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"| {combos[k].Class} | {combos[k].Pair} | {100.0 * wins[k] / options.Simulate:0.0} % | {low:0.0} – {high:0.0} % |"));
         }
+        // The bare heroes on the same fights (sprint 152, D83, T110): mixed, then of each element; the tree is held to the best.
+        string[] bares = ["mixed", .. Enum.GetValues<Element>().Where(e => e is Element.Earth or Element.Fire or Element.Water or Element.Air).Select(e => e.ToString().ToLowerInvariant())];
+        foreach (string cls in classes)
+        {
+            foreach (string bare in bares)
+            {
+                var hero = new Hero("Aube", "female-c", cls, Level: level);
+                Hero built = bare == "mixed" ? Progression.Built(hero, data, worn) : Progression.OfOne(hero, Enum.Parse<Element>(bare, ignoreCase: true), data, worn);
+                int won = 0;
+                Parallel.For(0, options.Simulate, () => 0, (i, _, w) =>
+                {
+                    var fight = new Fight(data, fights[i % fights.Count], options.Seed + (ulong)i, built);
+                    Ai.PlayOut(fight);
+                    return fight.WinningTeam == 0 ? w + 1 : w;
+                }, w => Interlocked.Add(ref won, w));
+                (double low, double high) = Wilson(won, options.Simulate);
+                output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"| {cls} | {text.Bare(bare)} | {100.0 * won / options.Simulate:0.0} % | {low:0.0} – {high:0.0} % |"));
+            }
+        }
+        if (options.Trio)
+            SimulateTrios(data, options, text, output, fights, level, worn, classes, pairs);
         output.WriteLine();
         IReadOnlyList<(string Talent, double Share)> rare = TreeDraws.Rare(builds, data);
         output.WriteLine(text.Rare(builds.Length));
@@ -199,6 +222,43 @@ public static class Program
             output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"- {talent} : {share:0.0} %"));
         if (rare.Count == 0)
             output.WriteLine(text.NoneRare);
+    }
+
+    /// <summary>
+    /// Trios (sprint 152, D83, the game designer's §12.3 step 4): for each pair, N fights of three heroes, one of each class
+    /// in turn holding the pair, the two others drawn among the other pairs but Electrifying, every build drawn as a player would.
+    /// </summary>
+    private static void SimulateTrios(GameData data, Options options, Texts text, TextWriter output, IReadOnlyList<string> fights, int level,
+        IReadOnlyDictionary<Slot, string>? worn, string[] classes, string[] pairs)
+    {
+        string[] others = [.. pairs.Where(p => p != "electrifying")];
+        int[] wins = new int[pairs.Length];
+        Parallel.For(0, pairs.Length, k =>
+        {
+            for (int i = 0; i < options.Simulate; i++)
+            {
+                var rng = new Random(unchecked((int)options.Seed * 1_000_003 + (k * 7_919) + i));
+                Hero Drawn(string cls, string pair, string name) =>
+                    Progression.Talented(new Hero(name, "female-c", cls, Level: level), TreeDraws.Random(pair, level, rng, data, !options.NoBraid), data, worn);
+                string lead = classes[i % classes.Length];
+                Hero hero = Drawn(lead, pairs[k], "Aube");
+                Hero[] allies = [.. classes.Where(c => c != lead).Select((c, j) => Drawn(c, others[rng.Next(others.Length)], AllyNames[j]))];
+                var fight = new Fight(data, fights[i % fights.Count], options.Seed + (ulong)i, hero, null, null, allies);
+                Ai.PlayOut(fight);
+                if (fight.WinningTeam == 0)
+                    wins[k]++;
+            }
+        });
+        output.WriteLine();
+        output.WriteLine(text.TrioHeader(options.Simulate));
+        output.WriteLine();
+        output.WriteLine(text.TrioColumns);
+        output.WriteLine("|---|---|---|");
+        for (int k = 0; k < pairs.Length; k++)
+        {
+            (double low, double high) = Wilson(wins[k], options.Simulate);
+            output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"| {pairs[k]} | {100.0 * wins[k] / options.Simulate:0.0} % | {low:0.0} – {high:0.0} % |"));
+        }
     }
 
     /// <summary>
@@ -281,7 +341,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool NoBraid = false, bool Trio = false)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -308,6 +368,8 @@ public static class Program
                     "--level" => o with { Level = int.TryParse(Value(), CultureInfo.InvariantCulture, out int l) && l is >= 1 and <= Hero.MaxLevel ? l : throw new ArgumentException("--level is 1 to 100."), LevelSet = true },
                     "--parties" => o with { Parties = true },
                     "--talents" => o with { Tree = true },
+                    "--no-braid" => o with { NoBraid = true },
+                    "--trio" => o with { Trio = true },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
@@ -316,6 +378,8 @@ public static class Program
                 throw new ArgumentException("--parties goes with --simulate N, without --class, --rival or --party.");
             if (o.Tree && (o.Simulate == 0 || o.Parties || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
                 throw new ArgumentException("--talents goes with --simulate N, without --parties, --class, --rival or --party.");
+            if ((o.NoBraid || o.Trio) && !o.Tree)
+                throw new ArgumentException("--no-braid and --trio go with --talents.");
             return modes == 1 ? o : throw new ArgumentException("Choose one of --simulate N, --record FILE or --replay FILE.");
         }
     }
@@ -350,8 +414,22 @@ public static class Program
         public string TreeColumns => Fr ? "| Classe | Paire | Victoires | Intervalle à 95 % |" : "| Class | Pair | Wins | 95 % interval |";
 
         public string Rare(int builds) => Fr
-            ? $"Talents pris par moins de 5 % des {builds} builds tirés (une fausse décision à revoir) :"
-            : $"Talents taken by fewer than 5 % of the {builds} builds drawn (a false decision to look at):";
+            ? $"Talents pris par moins de 20 % des builds qui visent leur branche, sur {builds} builds tirés (une fausse décision à revoir) :"
+            : $"Talents taken by fewer than 20 % of the builds aiming at their branch, of {builds} builds drawn (a false decision to look at):";
+
+        public string Bare(string kind) => (Fr, kind) switch
+        {
+            (true, "mixed") => "nu, mixte",
+            (false, "mixed") => "bare, mixed",
+            (true, _) => $"nu, {kind switch { "earth" => "Terre", "fire" => "Feu", "water" => "Eau", _ => "Air" }} seul",
+            _ => $"bare, {kind} only",
+        };
+
+        public string TrioHeader(int n) => Fr
+            ? $"## Trios : un héros de chaque classe, l'un avec la paire, les deux autres avec une autre paire tirée (jamais Électrisation), {n} combats par paire"
+            : $"## Trios: one hero of each class, one with the pair, the two others with another pair drawn (never Electrifying), {n} fights a pair";
+
+        public string TrioColumns => Fr ? "| Paire du premier | Victoires | Intervalle à 95 % |" : "| First hero's pair | Wins | 95 % interval |";
 
         public string NoneRare => Fr ? "- aucun" : "- none";
 

@@ -116,6 +116,23 @@ public static class Progression
     }
 
     /// <summary>
+    /// A hero of one element and no talent (sprint 144, T110; in the game since sprint 152 for the tree's measure): its class's
+    /// spells of that element and the neutral ones, all its element points in it, built the simple way.
+    /// </summary>
+    public static Hero OfOne(Hero hero, Element element, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(data);
+        string[] deck = [.. data.Class(hero.Class!)!.Spells.Where(s => data.Spells[s].Element is Element.Neutral || data.Spells[s].Element == element)
+            .Where(s => data.Spells[s].Level <= hero.Level)];
+        Hero built = Built(hero with { Deck = deck }, data, worn);
+        Characteristics st = built.Stats!;
+        int all = st.Earth + st.Fire + st.Water + st.Air;
+        int In(Element e) => e == element ? all : 0;
+        return built with { Stats = new Characteristics(st.Vitality, In(Element.Earth), In(Element.Fire), In(Element.Water), In(Element.Air)) };
+    }
+
+    /// <summary>
     /// The reference builds of the talent tree (sprint 144, D80, docs/talents-arbre.md §4.5 and §7.3): for each class one
     /// of Matter and one of Manner, and a support for the duos; the talents in the order they are taken, as the level's
     /// points allow. Since sprint 146 (D82): Lightning through Electrifying and the Transmutation of Fire, the Conversion

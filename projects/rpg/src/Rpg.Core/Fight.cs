@@ -720,6 +720,7 @@ public sealed class Fight
         if (cells.Length == 0)
             return;
         var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect, zone[0]);
+        glyph.Spared.UnionWith(_fighters.Where(f => f.IsAlive && cells.Contains(f.Cell)).Select(f => f.Id));
         _glyphs.Add(glyph);
         _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns, effect.Element));
     }
@@ -1342,7 +1343,12 @@ public sealed class Fight
                 EndGlyph(g);
         }
         foreach (Glyph g in _glyphs)
+        {
             g.Struck.Clear();
+            // Already on a new glyph when it was laid (sprint 152): not struck this turn, so it can walk off.
+            if (g.Spared.Remove(next.Id) && g.Cells.Contains(next.Cell))
+                g.Struck.Add(next.Id);
+        }
         // Poisons strike at the start of the turn, in their element, against the resistances.
         foreach (Status poison in next.StatusList.Where(st => st.Stat == Stat.Poison).ToList())
         {
