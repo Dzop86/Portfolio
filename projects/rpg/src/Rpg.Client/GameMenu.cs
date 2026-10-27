@@ -60,6 +60,7 @@ public enum GameWindow
     Contacts,
     Talents,
     Guild,
+    Bestiary,
 }
 
 /// <summary>What the Escape menu offers.</summary>
@@ -91,6 +92,8 @@ public sealed class WindowState
         // The talent tree in its own window (sprint 148, K2 b).
         (GameWindow.Talents, 'T'),
         (GameWindow.Guild, 'G'),
+        // The bestiary (sprint 154, D83).
+        (GameWindow.Bestiary, 'B'),
     ];
 
     public GameWindow? Open { get; private set; }

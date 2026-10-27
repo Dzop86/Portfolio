@@ -40,7 +40,8 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     IReadOnlyList<ItemCount>? Inventory = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null, DungeonRun? Run = null,
     IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null,
     int? Hp = null, DateTimeOffset? HpAt = null, bool InFight = false, IReadOnlyList<string>? Talents = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool TalentsReset = false)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool TalentsReset = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? Bestiary = null)
 {
     /// <summary>The character's hit points at a moment (sprint 101): set, grown back since, frozen in a fight.</summary>
     public int LifeAt(DateTimeOffset now, GameData data) => Life.Now(Life.MaxHp(Hero, data), Hp, HpAt, InFight, Place?.Town, now);

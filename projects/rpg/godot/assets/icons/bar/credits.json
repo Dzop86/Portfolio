@@ -9,5 +9,6 @@
  "minimap": "lorc/radar-sweep",
  "contacts": "delapouite/three-friends",
  "talents": "delapouite/skills",
- "guild": "lorc/flying-flag"
+ "guild": "lorc/flying-flag",
+ "bestiary": "lorc/fangs-circle"
 }

@@ -296,7 +296,7 @@ public partial class Main
     private void ShowWindows()
     {
         GameWindow? open = _windows.Open;
-        bool before = _mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null || _guildPanel is not null;
+        bool before = _mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _jobsPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null;
         if (open != GameWindow.Map && _mapPanel is not null)
             ToggleMap();
         bool? spells = open switch { GameWindow.Spells => true, GameWindow.Characteristics => false, _ => null };
@@ -314,6 +314,8 @@ public partial class Main
             CloseTree();
         if (open != GameWindow.Guild && _guildPanel is not null)
             CloseGuild();
+        if (open != GameWindow.Bestiary && _bestiaryPanel is not null)
+            CloseBestiary();
         switch (open)
         {
             case GameWindow.Map when _mapPanel is null:
@@ -339,6 +341,9 @@ public partial class Main
                 break;
             case GameWindow.Guild when _guildPanel is null:
                 OpenGuild();
+                break;
+            case GameWindow.Bestiary when _bestiaryPanel is null:
+                OpenBestiary();
                 break;
         }
         _bar?.Show(open);
@@ -2837,6 +2842,7 @@ public partial class Main
                 GameWindow.Contacts => _contactsPanel is not null && _jobsPanel is null && _journalPanel is null && _inventoryPanel is null && _mapPanel is null,
                 GameWindow.Talents => _treePanel is not null && _contactsPanel is null && _pointsPanel is null && _mapPanel is null,
                 GameWindow.Guild => _guildPanel is not null && _contactsPanel is null && _jobsPanel is null && _inventoryPanel is null && _mapPanel is null,
+                GameWindow.Bestiary => _bestiaryPanel is not null && _guildPanel is null && _inventoryPanel is null && _mapPanel is null,
                 _ => _inventoryPanel is not null && _pointsPanel is null && _mapPanel is null && _journalPanel is null && _jobsPanel is null,
             };
             if (!shown || !_bar.Lit(window))
@@ -2844,7 +2850,7 @@ public partial class Main
             windows++;
         }
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.Escape });
-        if (_mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _guildPanel is not null || _menuPanel is not null)
+        if (_mapPanel is not null || _pointsPanel is not null || _treePanel is not null || _inventoryPanel is not null || _journalPanel is not null || _contactsPanel is not null || _guildPanel is not null || _bestiaryPanel is not null || _menuPanel is not null)
             problems.Add("Escape does not close the window");
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
         TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });

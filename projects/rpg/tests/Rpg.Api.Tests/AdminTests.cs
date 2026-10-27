@@ -31,6 +31,9 @@ public class AdminTests
         Assert.Null(Admin.Parse(["admin", "tester", "--rename", "Plop"]).Order);
         Assert.Null(Admin.Parse(["admin", "--level", "3"]).Order);
         Assert.Null(Admin.Parse(["serve"]).Order);
+        // Sprint 154: every monster known in full, for Plouf.
+        Assert.True(Admin.Parse(["admin", "tester", "--bestiary", "full"]).Order!.Bestiary);
+        Assert.Null(Admin.Parse(["admin", "tester", "--bestiary", "half"]).Order);
     }
 
     [Fact]

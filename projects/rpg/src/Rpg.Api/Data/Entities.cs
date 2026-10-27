@@ -107,6 +107,11 @@ public sealed class Character
     /// <summary>The waystones it discovered (sprint 127), their ids separated by commas.</summary>
     public string Waystones { get; set; } = "";
 
+    /// <summary>Its bestiary (sprint 154, D83): the victories over each monster, a monster met at 0 (<see cref="Rpg.Core.Bestiary.Write"/>).</summary>
+    public string Bestiary { get; set; } = "";
+
+    public Dictionary<string, int> BestiaryList => Rpg.Core.Bestiary.Read(Bestiary);
+
     /// <summary>Its notice board (sprint 153, D83): the contracts offered and how far they went, as JSON (<see cref="Rpg.Core.Contracts.Write"/>).</summary>
     public string Contracts { get; set; } = "";
 

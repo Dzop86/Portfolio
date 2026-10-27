@@ -311,6 +311,8 @@ public static class CharacterEndpoints
             character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
         // The notice board's contracts (sprint 153): a hunt, a horde, a dungeon's room.
         ContractEndpoints.AfterFight(character, played, roomWon);
+        // The bestiary (sprint 154): each monster faced met, a victory more for each one beaten.
+        character.Bestiary = Rpg.Core.Bestiary.Write(Rpg.Core.Bestiary.AfterFight(character.BestiaryList, GameData.Embedded, played));
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;
@@ -699,7 +701,7 @@ public static class CharacterEndpoints
 
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
-            c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList);
+            c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList, Bestiary: c.Bestiary.Length == 0 ? null : c.BestiaryList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

@@ -376,6 +376,8 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
                 c.QuestLog = Rpg.Core.Quests.Write(c.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
             // The notice board's contracts (sprint 153): a group's counts for each member who has it.
             Endpoints.ContractEndpoints.AfterFight(c, f, roomWon);
+            // The bestiary (sprint 154): each hero of the fight counts its victories.
+            c.Bestiary = Rpg.Core.Bestiary.Write(Rpg.Core.Bestiary.AfterFight(c.BestiaryList, GameData.Embedded, f));
             c.Receive(items);
             c.Xp += xp;
             c.Shards += shards;

@@ -57,6 +57,10 @@ public class ContractTests
                 down += boars[i].Monsters.Count;
         }
         Assert.Equal(3, (await server.Contracts(c.Id, Cancel)).Offered[0].Done);
+        // The bestiary too (sprint 154): the boars beaten counted, in the character's summary.
+        IReadOnlyDictionary<string, int> bestiary = (await server.Characters(Cancel)).Single().Bestiary!;
+        Assert.True(boars[0].Monsters.Distinct().All(bestiary.ContainsKey));
+        Assert.True(bestiary.Values.Sum() >= 3);
         // Away from a board: refused; at Clairval's: handed back.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.HandInContract(c.Id, 0, Cancel)));
         Board(api, Contracts.Read(api.WithDb(db => db.Characters.Single().Contracts)), town: "clairval");

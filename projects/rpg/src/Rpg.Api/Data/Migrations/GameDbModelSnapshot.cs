@@ -122,6 +122,10 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Air")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Bestiary")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int>("Build")
                         .HasColumnType("integer");
 
