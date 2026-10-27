@@ -28,8 +28,10 @@ public class ChatTests
     private static async Task WaitUntilOn(ApiFactory api, string map, Guid character)
     {
         var hub = (ChatHub)api.Services.GetService(typeof(ChatHub))!;
-        for (int i = 0; i < 100 && !hub.On(map).Contains(character); i++)
+        for (int i = 0; i < 250 && !hub.On(map).Contains(character); i++)
             await Task.Delay(20, Cancel);
+        // Said, not passed over: a test that goes on without its player on the map fails further, for another reason.
+        Assert.Contains(character, hub.On(map));
     }
 
     // The next line or refusal, the map's news passed over (sprint 118: the same socket tells who is here).
@@ -50,6 +52,8 @@ public class ChatTests
         (_, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
         (_, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
         (GameServer cendreServer, CharacterSummary cendre, ChatClient c) = await Player(api, "Cendre");
+        // In play on the place first: a place saved before its socket is served would be read again from the base too late.
+        await WaitUntilOn(api, "clairval", cendre.Id);
         await cendreServer.SavePlace(cendre.Id, new Place("woods-4-2", 46, 5), Cancel);
         foreach ((string map, Guid who) in new[] { ("clairval", aube.Id), ("clairval", brume.Id), ("woods-4-2", cendre.Id) })
             await WaitUntilOn(api, map, who);
