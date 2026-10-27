@@ -1621,3 +1621,333 @@ Les hordes de taupes lanceuses de la Prairie restent à part, comme en T64 et T7
 | S135 | 3 | 9 | Les recettes 40 et 45 |
 | S136 | 5 | 9 | Les quêtes de la Forêt ; **playtest** |
 | S137 | 5 | 10 | Les guildes |
+
+---
+
+## 12. La suite après S151 *(v8, 27 octobre 2026)*
+
+> Rédigée après lecture de `PLAN.md` (D79 à D82), `projects/rpg/DECISIONS.md` (T96 à T118), `docs/talents-arbre.md` (§7 et §10), `docs/talents-arbre-questions.md` (réponses et arbitrages), `docs/elements.md`, `docs/mesures-arbre.md`, `docs/design-familles.md` §7, `docs/chapitre-2-pistes.md`, `docs/textes-v8.md`, `data/reactions.json`, `data/talents.json` et `scrum/sprint-136.md`, `sprint-144.md` à `sprint-151.md`. Rien n'est planifié : c'est une proposition, à valider par Charles. Les entrées techniques reprendraient à **T119**, la décision serait **D83**.
+
+### 12.1 Le bilan après S151 (build 1.0.137)
+
+**Ce qui est solide.**
+- **Une montée complète de 1 à 45.** Le chapitre 1 : 4 zones, 8 familles, le Disjoint, 49 quêtes. La tranche du chapitre 2 : Quatre-Chemins, la Forêt des Aïeux, deux familles à glyphes, deux donjons, 9 quêtes.
+- **Une économie qui tourne.** Cinq récolteurs et sept artisans, des recettes jusqu'à 45. Les Éclats ont leurs puits : le voyage, les clefs, la guilde, le changement de talents.
+- **Le jeu à plusieurs de bout en bout.** Groupe, échange, combat à quatre avec minuterie, combats repris après un redémarrage, amis, messages privés, guildes.
+- **Un arbre des talents qui est enfin un arbre.** Tronc, fourche, tresse de Foudre, six styles, explications, planification, partage. Il a son outil de mesure hors CI (`Rpg.Sim --talents`).
+- **Une méthode de réglage qui tient.** Gabarits par rôle, T41, `PartyBalanceTests`, 100 combats par cas et intervalles de Wilson.
+
+**Ce qui manque pour qu'un joueur ait envie de revenir**, du plus grave au moins grave :
+1. **Le contenu s'arrête juste quand le build s'accomplit.** La Conversion et les clés des styles s'ouvrent à 45, le chef de la Forêt est de niveau 45, et au-delà il n'y a rien. Le joueur reçoit sa plus belle récompense au moment où il n'a plus rien à en faire. Les trois personnages de Plouf, au niveau 100, n'ont toujours aucun contenu à leur niveau.
+2. **Rien ne donne rendez-vous pour le lendemain.** Les 58 quêtes ne se font qu'une fois. Le reste, c'est du farm sans but. Il n'y a ni objectif répétable ni collection : le bestiaire et les succès, souhaités le 9 octobre, n'existent toujours pas.
+3. **La guilde est une coquille vide.** Elle a un nom, un canal et une liste de membres, mais aucun but commun, rien à partager et rien qui progresse ensemble (T112).
+4. **En solo, le build ne se voit pas.** Contre les petits groupes, les 18 combinaisons gagnent à 100 % (`mesures-arbre.md`). C'est la règle de Charles, mais les décisions de l'arbre ne se sentent donc que dans les hordes et les donjons, c'est-à-dire à plusieurs. Les objectifs répétables doivent y conduire.
+5. **L'arbre est asymétrique.** Une seule paire sur six a sa tresse, la Foudre. C'est la première cause probable de l'avance d'Électrisation (§12.3).
+6. **Des retours restent en attente.** Charles doit encore faire trois playtests : la tranche (S136), les guildes (S145) et le playtest extérieur de l'arbre (S151). Il doit aussi relire `textes-v7.md`, `textes-v8.md` et `textes-v9.md`, le texte d'Edmée, les noms des couches, les 13 bandeaux et les 56 lignes d'ambiance. Les sprints proposés ici écrivent beaucoup de textes (contrats, succès, titres) : mieux vaut solder ces retours d'abord (question 88).
+
+**En une phrase :** le combat (boucle micro) et la montée (boucle méso) tiennent jusqu'à 45. Il manque la boucle macro : rien ne relie une soirée à la suivante, ni un joueur à sa guilde.
+
+### 12.2 Les chantiers dans l'ordre
+
+| Rang | Chantier | Le trou qu'il bouche | Sprints | Points |
+|---|---|---|---|---|
+| 11 | **Mesurer avant de régler** | point 5, reliquats de T100 et T112 | S152 | 3 |
+| 12 | **La boucle de retour** : contrats, bestiaire, succès, guilde qui sert | points 2, 3 et 4 | S153 à S156 | 5 + 3 + 5 + 5 = 18 |
+| 13 | **Le socle 45-60 et les spécialisations** | point 1, en partie | S157 à S160 | 3 + 6 + 3 + 3 = 15 |
+| 14 | **La deuxième tresse : la Glace** | point 5 | S161 | 4 |
+| | **Total** | | **10 sprints** | **40** |
+
+**Pourquoi cet ordre.**
+- **Mesurer d'abord** (3 points). On tranche Électrisation avant que les builds suggérés, Plouf et les joueurs ne s'y installent.
+- **La boucle de retour avant une nouvelle zone.** Une zone coûte environ 30 points et se consomme en quelques soirées. La boucle de retour coûte 18 points et rend rejouables les 45 niveaux qui existent déjà : 10 donjons, 5 zones, 8 + 2 familles. Une zone sans boucle de retour ne se joue qu'une fois. Les contrats font aussi le pont de 45 à 50 en attendant les Mines.
+- **Les spécialisations avant les Mines.** D80 les range « avec les chapitres ». `talents-specialisations.md` disait déjà qu'il fallait régler les familles des Mines *avec* les voies, sinon on les règle deux fois. Le socle 45-60 (S157) est le « sprint de socle du chapitre » que prévoyait D80.
+- **La Glace en dernier.** C'est l'ordre de livraison de `elements.md` §4.3 (Foudre, puis Glace), et c'est l'exemple de Charles. Elle répond aussi à la vraie question que pose la mesure : une tresse de **contrôle** (Morsure, −1 PA) peut-elle tenir face à une tresse de **dégâts** (l'Arc) ?
+- **Les Mines de Sous-Racine (45 à 60) viendraient en v9**, pour environ 30 points sur le modèle de la tranche S129 à S136, sans hameau ni moteur de glyphes : 25 cartes, 2 familles, 2 donjons, des ressources 50 et 55, des recettes et 9 quêtes. `textes-v8.md` les promet déjà.
+- **Point d'arrêt après S156.** Le playtest de la boucle décide si l'on passe à S157 ou si l'on reprend d'abord la boucle.
+
+### 12.3 Électrisation devant contre les hordes : mon avis
+
+**Les chiffres disent vrai.** Les trois classes réunies, Électrisation gagne **93 hordes sur 300 (31 %)** contre **299 sur 1 500 (19,9 %)** pour les cinq autres paires. L'écart est de **+11 points**, environ 3,9 écarts-types : ce n'est pas du bruit. Par classe, l'écart à la médiane des autres paires est de +14 (Sentinelle), +10 (Garde) et +10 (Mage). Qu'une même paire soit première dans les trois classes par hasard n'a qu'une chance sur 36.
+
+**Pourquoi elle est devant : trois causes que la mesure confond.**
+1. **C'est la seule réaction qui fait des dégâts.** Les cinq autres font du contrôle : −2 PM, −2 PA, −15 % de résistance, −25 % de dégâts, −2 PO. Contre une horde, faire sauter 35 % d'un coup sur le voisin revient à une petite zone gratuite. Or le taux de victoire récompense directement les dégâts, et ne récompense le contrôle que si l'IA du héros simulé s'en sert bien. Il y a probablement un biais de mesure en faveur des dégâts.
+2. **C'est la seule paire qui a sa tresse.** Les builds de Foudre tirés par `TreeDraws.Random` peuvent viser la Transmutation, Signature appuyée, le Prisme, puis la Conversion à 45 : +15 %, 2 × la moyenne des caractéristiques, Arc à 52,5 %. Les autres paires mettent ces points dans les styles. La mesure mélange donc la réaction et la tresse.
+3. **Électrisé profite des coups de tous les alliés.** À plusieurs, la réaction vaut davantage, et le rapport, qui ne mesure que le solo, ne le voit pas.
+
+**Est-ce un problème ?** Pas en solo tel quel. À 31 %, un joueur seul perd encore deux hordes sur trois (règle de Charles), la règle J3 tient, et c'est l'identité voulue de la Foudre (« le feu qui court dans l'air »). Électrisé a aussi sa contrepartie naturelle : contre un chef seul ou une cible isolée, il ne vaut rien. Il devient un problème dans deux cas :
+- **(a)** la réaction seule, sans la tresse, garde l'avance. Ce serait alors le choix dominant de quiconque joue des hordes, donc de tout le contenu à plusieurs ;
+- **(b)** à trois ou quatre, chaque groupe voudrait son joueur de Foudre.
+
+**Recommandation : mesurer décomposé en S152, puis appliquer une règle écrite d'avance.**
+
+| Étape | Mesure | Si… | Alors |
+|---|---|---|---|
+| 1 | 300 combats par classe et par cas, au niveau 45, contre les hordes de la Forêt : (i) Électrisation **sans tresse** ; (ii) Électrisation **avec tresse** ; (iii) les cinq autres paires ; (iv) une ligne « meilleur héros nu » (T110) | — | `mesures-arbre.md` v2 |
+| 2 | (i) contre la médiane des autres paires, trois classes réunies | **≤ +8 points** | **on ne touche pas Électrisé.** L'avance vient de la tresse et se refermera avec les autres tresses ; on remesure après la Glace (S161) |
+| 3 | idem | **> +8 points** | **Électrisé passe de 35 à 25 %**, et rien d'autre ne change (1 tour, une cible par lanceur, l'Arc reste à 35 %). Le saut vaut 29 % de moins ; si la réaction porte les 11 points, il en reste environ 8. Si l'écart reste au-dessus de 8 à 25 %, on revient vers Charles plutôt que de descendre sous 20 %, en dessous de quoi la réaction ne se lit plus à l'écran |
+| 4 | Trio avec un joueur de Foudre (réaction seule) contre le meilleur trio sans, hordes de 7 à 10, 100 combats par composition | **> +10 points** | **Au plus 2 sauts par tour de jeu** depuis une même cible électrisée. La synergie de groupe reste, la chaîne à quatre disparaît |
+
+**Pourquoi 8 points.** Au-delà, un joueur le sent : une horde sur douze en plus. Avec 300 combats par classe, le bruit d'une classe (environ 3,5 points d'écart-type sur une différence) ne l'explique plus. Et 8 points restent sous la tolérance de l'arbre contre le héros nu (+1,5 horde sur 10, soit 15 points, T110).
+
+**Mon pronostic.** La moitié de l'écart vient de la tresse, la réaction seule est autour de +5 à +7, et Électrisé reste à 35 %. **J'en profite pour corriger la règle des 5 %** : compter la part d'un nœud parmi les builds qui **visent son style**, pas parmi les 1 800. Le seuil passe alors à 20 %, sinon les clés et la tresse resteront sous 5 % quoi qu'on fasse, pour une simple raison d'arithmétique du tirage (`mesures-arbre.md`, « Lecture »).
+
+### 12.4 Les sprints proposés
+
+#### S152 (3) : mesurer avant de régler
+- **Objectif :** trancher Électrisation sur des chiffres qui séparent la réaction de la tresse, et solder les petites limites restées ouvertes.
+- **Stories :**
+  - (1,5) `Rpg.Sim --talents` gagne `--no-braid`, `--fights 300`, la ligne « meilleur héros nu » et `--party 3` (un héros dont la paire est imposée, deux tirés). La règle des 5 % devient la règle des 20 % par style. Le rapport passe en v2 dans `mesures-arbre.md`.
+  - (0,5) La règle du §12.3 appliquée, seulement si la mesure l'exige : `reactions.json`, ou le plafond de 2 sauts dans `Fight` ; consignée en T119.
+  - (0,5) Les restes des guildes (T112) : un verrou sur le compte des membres (deux acceptations simultanées ne font plus 51) et son propre nom de guilde visible sous son personnage.
+  - (0,5) Si Charles le veut (question 85) : un glyphe neuf épargne, au début de son prochain tour, celui qui se trouvait déjà sur ses cases (limite de T100).
+- **Critère de réussite :** le rapport v2 donne (i) à (iv) et le tableau du trio. La décision est écrite en T119, avec son chiffre. Après la correction éventuelle, aucune mesure de T41, J3 ni `PartyBalanceTests` ne sort de ses bandes.
+- **Tests :** unitaires pour le plafond de sauts (s'il est retenu), pour le tirage `--no-braid` (aucun nœud de tresse) et pour le glyphe qui épargne. Intégration : 20 acceptations parallèles sur une guilde de 45 membres en laissent entrer 5.
+
+#### S153 (5) : le tableau des contrats
+- **Expérience visée :** « je me connecte ; au tableau de Quatre-Chemins, trois avis m'attendent : six biches graveuses, dix brins de sauge, et une horde de la Futaie à faire avec ma guilde ».
+- **Stories :**
+  - Un **tableau d'avis** (un objet à examiner, pas un nouveau PNJ) sur la place de Clairval et sur celle de Quatre-Chemins.
+  - **3 contrats par jour et par personnage**, renouvelés à 4 h (heure du serveur) et **cumulables jusqu'à 9**. Trois jours d'absence ne font rien perdre : pas de peur de manquer. Un changement de contrat est gratuit chaque jour, les suivants coûtent 5 × niveau Éclats (un puits).
+  - **Six types**, tirés parmi les familles de niveau [niveau − 10, niveau] et dans les zones que le personnage peut atteindre (`QuestToReach`) : chasse (6 monstres d'une famille), récolte (10 ressources d'un métier du joueur), fabrication (une pièce ou un consommable de son métier), donjon (la salle 2), horde (6 monstres et plus) et chef. Les deux derniers sont marqués « groupe » : **au plus un sur trois**, échangeable gratuitement.
+  - **Récompense :** 25 × niveau en XP, soit un quart de niveau (750 XP à 30), et 5 × niveau Éclats (150 à 30). Un contrat de groupe vaut le double. Aucune nouvelle monnaie.
+  - Les contrats sont des quêtes générées (`QuestKind.Contract`), avec un onglet « Contrats » dans le journal. Les phrases viennent de modèles, un par type, écrits par le scénariste.
+- **Critère de réussite :**
+  - sur 1 000 tirages par niveau (10, 20, 30, 40 et 45), 100 % des contrats sont faisables dans les zones ouvertes au personnage ;
+  - à 30, une journée de contrats (450 Éclats) vaut **25 à 40 %** des Éclats d'une heure de combats (environ 20 combats de 2 monstres à 32 Éclats, soit 1 280) ;
+  - en playtest, Charles fait ses trois contrats en 30 à 45 minutes au niveau 30.
+- **Tests :** unitaires pour le tirage (la graine vient du personnage et du jour : deux appels donnent le même tableau), le cumul à 9 et le prix du changement. Intégration : un contrat de chasse est rendu après les combats, et un contrat de groupe compte pour chaque membre qui l'a.
+- **Risques :** la corvée (d'où le cumul) ; un contrat impossible (d'où le tirage limité aux zones atteintes) ; l'inflation des Éclats (d'où le critère chiffré et le prix du changement).
+
+#### S154 (3) : le bestiaire
+- **Expérience visée :** « avant la horde, j'ouvre le bestiaire : les gardiens craignent l'Air et leur Cairn protège les voisins ; je change mon paquet ».
+- **Stories :**
+  - La fenêtre **Bestiaire** (panneau Menus ; touche B si elle est libre) montre les familles par zone. Un monstre reste en silhouette tant qu'il n'a pas été combattu.
+  - **Des paliers de connaissance par monstre :**
+    - rencontré : nom, rôle, niveau, zone ;
+    - 1 victoire : PV, résistances, faiblesse ;
+    - 10 victoires : ses sorts et la leçon de la famille ;
+    - 25 victoires : le butin déjà vu tomber (question 80).
+  - Le serveur garde un compteur de victoires par monstre et par personnage, incrémenté à la fin du combat pour chaque héros présent.
+  - On y arrive aussi depuis l'onglet « bestiaire » de la fiche d'objet (T117) et par un clic droit sur un monstre de la frise.
+  - Pour Plouf : `admin … --bestiary full`.
+- **Critère de réussite :** chaque monstre de `monsters.json` a sa fiche (test). En playtest, un joueur trouve la faiblesse d'une famille en moins de 20 secondes depuis un combat.
+- **Tests :** unitaires pour les paliers ; intégration : un combat à deux incrémente les deux compteurs.
+
+#### S155 (5) : les succès et les titres
+- **Expérience visée :** « il me manque le donjon de la Combe à quatre et 40 Gardiens pour le titre de Tailleur de pierre ».
+- **Stories :**
+  - Environ **60 succès** en données (`data/achievements.json`), en sept catégories :
+    - Exploration : zones, pierres de passage ;
+    - Chasse : paliers du bestiaire, 10, 50 et 200 victoires par famille ;
+    - Donjons : chaque donjon, à plusieurs, sans tomber ;
+    - Métiers : niveaux 20, 40, 60, 80 et 100 ;
+    - Quêtes : chapitre 1, tranche, 10, 50 et 200 contrats ;
+    - Arbre : une paire, une clé, chaque style essayé ;
+    - Ensemble : grouper, entrer dans une guilde, une horde de 9 ou plus à quatre.
+  - Des **points de succès** et une **douzaine de titres** cosmétiques ; un titre choisi s'affiche sous le pseudo (question 84).
+  - **Les compteurs sont tenus par le serveur**, pas par le client. Ce qui se déduit de la base (quêtes rendues, niveaux, métiers, donjons finis) est rétroactif, calculé au premier chargement.
+  - **Aucun succès ne se perd pour toujours** et aucun n'exige de jouer un jour donné.
+  - Une fenêtre **Succès** et une annonce discrète quand on en obtient un.
+- **Critère de réussite :**
+  - un test vérifie que chaque succès est atteignable dans le contenu actuel (ids existants, seuils possibles) ;
+  - un personnage qui a fini le chapitre 1, rejoué par l'API, a **entre 20 et 35 %** des succès ;
+  - au moins 3 succès « Ensemble » demandent de jouer à plusieurs.
+- **Tests :** unitaires pour les compteurs et la rétroactivité ; intégration : finir un donjon à deux donne le succès aux deux.
+
+#### S156 (5) : la guilde qui sert, playtest de la boucle
+- **Expérience visée :** « ce soir, à cinq, on a fait passer la guilde au niveau 2 ; j'ai déposé mes surplus de granit au coffre pour le forgeron de la guilde ».
+- **Stories :**
+  - **Le niveau de guilde, de 1 à 10.**
+    - Points : un contrat rendu par un membre rapporte 10 (20 pour un contrat de groupe), un succès 5, une salle 3 finie par au moins deux membres 30.
+    - Passer du niveau n à n + 1 coûte **150 × n** : le niveau 2 en une soirée à cinq, le niveau 10 (6 750 points) en six à sept semaines à cinq joueurs actifs.
+    - **Aucun bonus de combat** (question 79).
+  - **Le coffre de guilde**, chez Edmée.
+    - Des onglets de 40 cases : 1 au niveau 1, 2 au niveau 3, 3 au niveau 6, 4 au niveau 9.
+    - Des droits par rang (question 81) et un journal des 100 derniers mouvements.
+  - **Le blason** (question 82) : une forme parmi 6, un pictogramme game-icons.net parmi 30 et deux couleurs des jetons de la charte. Il s'affiche dans la fenêtre et à côté du nom de guilde. Il passe par un identifiant, donc on pourra le remplacer à la direction artistique sans toucher au code.
+  - Un message du meneur et l'objectif de la semaine (« 120 points : 85 »).
+  - **Le playtest de la boucle :** une semaine, Charles et 2 à 5 joueurs si possible (question 75). Le serveur tient des compteurs anonymes par personnage (jours joués, durée, contrats faits), lisibles par l'admin (question 89).
+- **Critère de réussite :** en intégration à trois clients, le dépôt, le retrait refusé à un membre, le journal et la montée de niveau passent. En playtest, sur 7 jours, chaque testeur revient au moins 3 jours et fait au moins 60 % des contrats offerts. Sinon, on reprend la boucle avant S157 (point d'arrêt).
+- **Risques :**
+  - le coffre vidé par un membre fâché : droits par rang et journal ;
+  - une guilde d'un seul joueur : la boucle marche quand même, puisque les contrats et les succès sont aussi solo.
+
+#### S157 (3) : le socle 45-60
+- **Objectif :** des règles pour 45 à 60, avant tout contenu : les spécialisations s'y règlent, les Mines suivront.
+- **Stories :**
+  - les gabarits par rôle prolongés jusqu'à 60 (pentes de T96, revues si la mesure l'exige) ;
+  - le budget des objets jusqu'à 60 et les kits « zone » et « craft » à 50, 55 et 60 ;
+  - le rythme d'XP (environ 10 monstres de son niveau par niveau) ;
+  - la liste des sorts de classe ouverts entre 50 et 60, et ce que devient le paquet de 12 (T96 : déjà 13 sorts et plus dès 40).
+  - La question restée ouverte en T110 (un héros d'un seul élément passe trop de hordes) mesurée à 50 et à 60.
+- **Critère de réussite :** T41 sur une famille de synthèse à 50, 55 et 60 : petits groupes ≥ 29 sur 30 en moyenne, hordes ≤ 2 sur 10 sans équipement, pour les trois classes.
+- **Tests :** `ItemBudgetTests` jusqu'à 60, T41 aux trois niveaux.
+
+#### S158 (6) : les spécialisations, le moteur et la Sentinelle
+- **Expérience visée :** « à 50, je deviens Affût : mon Faucon joue deux fois de plus et mes Sceaux durent un tour de plus ».
+- **Stories :**
+  - **Le moteur :** `data/specs.json`, `Hero.Spec`, les passifs des héros (`Fight.PassivesOf`), le déclencheur `Kill`, la règle changée (compilée comme un talent), 3 sorts par spécialisation générés au barème ; le rejeu, le serveur, et `admin … --spec` pour Plouf.
+  - La quête « Une route à soi » passe à 50 (`talents-arbre.md` §7.4). La première spécialisation est gratuite, les suivantes coûtent 30 × niveau Éclats.
+  - Un panneau qui montre les trois voies côte à côte : passif, règle, sorts, et la ligne d'ambiance.
+  - **La Sentinelle :** Mire, Affût, Sente (§7.2).
+- **Critère de réussite :** au niveau 50, avec ses builds de Matière et de Manière, chaque voie de la Sentinelle est **à ±8 points de la moyenne des trois** contre les hordes de la Forêt (300 combats), et gagne seule la salle 2 des deux donjons de la Forêt au moins 90 fois sur 100.
+- **Tests :** unitaires pour chaque passif et chaque règle ; intégration : choisir, changer (et payer), rejouer un combat.
+
+#### S159 (3) : la Garde
+- Palissade, Brèche, Étau (§7.2), avec la synergie Palissade et Soutien (§7.3).
+- **Critère de réussite :** même bande de ±8 points. Un duo Palissade et dégâts ne gagne pas plus de 1,5 victoire sur 30 de plus qu'un duo dégâts et dégâts (la règle de S144).
+
+#### S160 (3) : la Mage, les 18 builds mesurés
+- Archimage, Sorcier et Nécromancien. Le nom de ce dernier revient au scénariste (canon, `talents-arbre.md` §9, point 6).
+- `Rpg.Sim --spec` : 3 classes × 3 voies × 2 builds = **18 builds à 50** (§7.3, point 4).
+- **Critère de réussite :** chacun des 18 builds est à ±8 points de la moyenne de sa classe contre les hordes, et aucun ne passe sous le plancher T41 des petits groupes.
+
+#### S161 (4) : la tresse de Glace, playtest
+- **Expérience visée :** « je transmute mon Air en Glace : mes coups mordent un PA, et je garde mon Eau ».
+- **Stories :**
+  - Transmutation Eau → Glace ou Air → Glace (un choix), Signature appuyée et Prisme étendus à la paire, Conversion de Glace (clé ; il n'y a toujours **qu'une seule grande bascule** dans l'arbre).
+  - La signature Morsure (−1 PA, 1 tour), et 24 jumeaux (8 par classe) générés à 80 %. Les noms et les renommages viennent du scénariste, puis de Charles : c'est le point de plus que prévoyait `talents-arbre.md` §10.2.
+  - `TreeLayout` apprend la deuxième tresse : c'est la limite de T115, qui ne prévoyait qu'une tresse.
+  - Remesure complète, `mesures-arbre.md` v3.
+  - **Playtest** : Charles et un joueur extérieur jouent la Glace à 45.
+- **Critère de réussite :** contre les hordes, les trois classes réunies, la Glace avec sa tresse est à moins de 8 points de la Foudre avec la sienne. Aucun nœud de la tresse de Glace ne tombe sous 20 % des builds qui la visent.
+
+### 12.5 Hors classement (à garder en tête)
+
+| Chantier | Pourquoi pas maintenant | Quand |
+|---|---|---|
+| **Les Mines de Sous-Racine** (45-60, environ 30 points) | la boucle de retour d'abord, puis les spécialisations pour les régler | v9, après S161 (question 91) |
+| **Le percepteur** | c'est du JcJ autour d'un objet posé sur la carte ; avec quelques joueurs, il reste seul et n'a pas de sens | jamais dans la Saga I, sauf avis contraire (question 90) |
+| **Hôtel des ventes** (5 points, §11.8) | un marché vide dit « jeu mort » | quand une dizaine de joueurs réguliers jouent sur un serveur ouvert |
+| Les trois autres paires (Boue, Magma, Vapeur, Sable : 3 points chacune, une étant faite), Lumière et Ténèbres (5), triplets (12) | D80 : avec les chapitres ; les triplets après 50, quand les points de clé sont là | une paire par sprint de socle de chapitre |
+| Approfondissement à 75, accomplissements à 100 (3 + 9) | il faut d'abord du contenu à ces niveaux | avec les chapitres concernés |
+| Unisson | Saga II | — |
+| Direction artistique, apparence, barbier | reportées par Charles à la fin du jeu | à la fin |
+| Rejoindre en cours, banque du compte | inchangé depuis §11.8 | — |
+
+### 12.6 Questions à trancher par Charles (v8)
+
+> Réponds « Reco » pour tout prendre, une lettre, ou en texte libre. Les questions **★** sont les plus structurantes : si tu n'as que cinq minutes, réponds à celles-là.
+
+**73 ★. L'ordre des chantiers.**
+- a) mesurer (S152), la boucle de retour (S153 à S156), le socle et les spécialisations (S157 à S160), la Glace (S161), puis les Mines en v9 **(Reco)**
+- b) les Mines tout de suite après S152, la boucle de retour ensuite
+- c) les spécialisations d'abord, puis la boucle de retour
+- d) autre ordre
+
+**74 ★. Électrisation.**
+- a) la règle du §12.3 : mesurer sans la tresse, puis 35 → 25 % seulement si la réaction seule dépasse les autres paires de plus de 8 points, et 2 sauts par tour au plus si un trio de Foudre domine de plus de 10 points **(Reco)**
+- b) 25 % tout de suite, sans mesure de plus
+- c) ne rien changer : c'est l'identité de la Foudre
+- d) le saut ne part que des coups de celui qui a électrisé (la synergie de groupe disparaît)
+
+**75 ★. Jouer avec d'autres.** La boucle de retour se juge avec plusieurs joueurs.
+- a) Charles seul, plus un invité ponctuel
+- b) un cercle fermé de 2 à 5 testeurs pour le playtest de S156, sur un serveur ouvert le temps d'une semaine **(Reco)**
+- c) un serveur ouvert en continu dès maintenant
+- d) personne avant la direction artistique
+
+**76. La cadence des contrats.**
+- a) 3 par jour, cumulables jusqu'à 9 **(Reco)**
+- b) 3 par jour, non cumulables
+- c) seulement à la semaine
+- d) répétables sans limite
+
+**77. La récompense des contrats.**
+- a) XP (un quart de niveau) et Éclats (5 × niveau), sans nouvelle monnaie **(Reco)**
+- b) une monnaie de contrats et un marchand à part
+- c) des objets tirés au sort
+- d) a) plus une petite chance de clef de donjon
+
+**78. Les contrats de groupe.**
+- a) au plus un sur trois, échangeable gratuitement **(Reco)**
+- b) jamais : les contrats restent solo
+- c) un par jour, imposé
+
+**79 ★. Ce que donne le niveau de guilde.**
+- a) seulement du pratique : onglets du coffre, objectif de la semaine, blason ; aucun bonus de combat **(Reco)**
+- b) a) plus +5 % d'XP aux membres
+- c) pas de niveau de guilde
+
+**80. Le butin dans le bestiaire.**
+- a) seulement ce qu'on a vu tomber, avec « commun », « rare » ou « très rare » **(Reco)**
+- b) les taux exacts
+- c) tout le butin dès la première victoire
+
+**81. Les droits du coffre de guilde.**
+- a) tout le monde dépose ; le meneur et les officiers retirent ; le meneur peut ouvrir un onglet aux membres **(Reco)**
+- b) tout le monde dépose et retire
+- c) un plafond de retraits par jour et par rang
+
+**82. Le blason.**
+- a) composé maintenant (forme, pictogramme, deux couleurs de la charte), remplaçable à la direction artistique sans toucher au code **(Reco)**
+- b) attendre la direction artistique
+- c) pas de blason
+
+**83. Ce que rapportent les succès.**
+- a) des points et des titres cosmétiques, aucune puissance **(Reco)**
+- b) a) plus des Éclats
+- c) a) plus des objets cosmétiques, après la direction artistique
+
+**84. Le titre.**
+- a) un seul, choisi, sous le pseudo et au-dessus du nom de guilde, et qu'on peut masquer **(Reco)**
+- b) seulement dans la fiche du personnage
+- c) pas de titres
+
+**85. Le premier coup d'un glyphe (limite de T100).**
+- a) un glyphe neuf épargne, à son prochain début de tour, celui qui s'y trouvait déjà : il a le temps de partir **(Reco)**
+- b) laisser tel quel
+
+**86. Les spécialisations.**
+- a) au niveau 50, avant les Mines (S158 à S160), avec les valeurs de `talents-arbre.md` §7 déjà validées en D80 **(Reco)**
+- b) avec les Mines
+- c) après les Mines
+
+**87. La deuxième tresse.**
+- a) la Glace, dans l'ordre de `elements.md` (c'est ton exemple, et c'est une tresse de contrôle face à une tresse de dégâts) **(Reco)**
+- b) le Sable, la paire la plus faible des mesures, de Terre comme les Mines
+- c) la Boue, complément de la Foudre
+- d) aucune avant les Mines
+
+**88 ★. Les retours en attente.**
+- a) avant S153, Charles fait les trois playtests (tranche, guildes, arbre) et les relectures (textes v7, v8 et v9, Edmée, couches, bandeaux, lignes d'ambiance) **(Reco)**
+- b) au fil de l'eau, sans bloquer les sprints
+- c) le scénariste relit et Charles valide en bloc
+
+**89. Les compteurs de jeu pour le playtest.**
+- a) oui : jours joués, durée et contrats faits, par personnage, sans aucune donnée personnelle, lisibles par l'admin seulement **(Reco)**
+- b) non : les retours oraux suffisent
+
+**90. Le percepteur.**
+- a) jamais dans la Saga I **(Reco)**
+- b) avec un JcJ, plus tard
+- c) une version JcE (des monstres l'attaquent, la guilde le défend)
+
+**91. Après S161.**
+- a) approfondir : les Mines de Sous-Racine (45 à 60), une zone sur le modèle de la tranche **(Reco)**
+- b) élargir : une deuxième région de 30 à 45 (la Côte des Brisants, l'Eau, la copie de sort)
+- c) les deux en alternance
+
+**92. Le panneau Menus**, qui passe à 11 fenêtres avec le Bestiaire et les Succès.
+- a) 4 rangées de 3 (ce que T112 proposait déjà) **(Reco)**
+- b) 3 rangées de 4
+- c) une seule fenêtre « Collection » (bestiaire et succès en onglets), soit 10 fenêtres
+
+### 12.7 Planification v8 (si Charles dit « Go »)
+
+- **Ajoutés :** S152 à S161, soit 10 sprints et **40 points**. Le projet passerait de **614 à 654 points** et de **151 à 161 sprints** ; Osmose, de **393 à 433**.
+- Il faudra mettre à jour `PLAN.md`, `data/scrum.json`, les fichiers `scrum/sprint-152.md` à `sprint-161.md`, R2, R8 et `scopeDecisions` (règle « ajout = gestion de projet à jour »), et écrire D83.
+- **Deux playtests prévus :** S156 (la boucle de retour, une semaine) et S161 (la Glace) ; **un point d'arrêt** après S156.
+
+| Sprint | Pts | Chantier | Contenu |
+|---|---|---|---|
+| S152 | 3 | 11 | Mesurer avant de régler : Électrisation décomposée, la ligne du héros nu, le trio ; restes des guildes et des glyphes |
+| S153 | 5 | 12 | Le tableau des contrats |
+| S154 | 3 | 12 | Le bestiaire |
+| S155 | 5 | 12 | Les succès et les titres |
+| S156 | 5 | 12 | La guilde qui sert (niveau, coffre, blason) ; **playtest de la boucle** |
+| S157 | 3 | 13 | Le socle 45-60 |
+| S158 | 6 | 13 | Les spécialisations : le moteur et la Sentinelle |
+| S159 | 3 | 13 | Les spécialisations de la Garde |
+| S160 | 3 | 13 | Les spécialisations de la Mage, les 18 builds mesurés |
+| S161 | 4 | 14 | La tresse de Glace ; **playtest** |
