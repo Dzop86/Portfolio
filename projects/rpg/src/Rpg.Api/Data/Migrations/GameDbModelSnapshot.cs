@@ -188,6 +188,9 @@ namespace Rpg.Api.Data.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasDefaultValue("");
 
+                    b.Property<DateTimeOffset?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Level")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -312,6 +315,56 @@ namespace Rpg.Api.Data.Migrations
                     b.ToTable("contacts", (string)null);
                 });
 
+            modelBuilder.Entity("Rpg.Api.Data.GuildMemberRecord", b =>
+                {
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GuildId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Rank")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("CharacterId");
+
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("guild_members", (string)null);
+                });
+
+            modelBuilder.Entity("Rpg.Api.Data.GuildRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("guilds", (string)null);
+                });
+
             modelBuilder.Entity("Rpg.Api.Data.PendingFight", b =>
                 {
                     b.Property<Guid>("Id")
@@ -370,6 +423,21 @@ namespace Rpg.Api.Data.Migrations
                     b.HasOne("Rpg.Api.Data.Character", null)
                         .WithMany()
                         .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Rpg.Api.Data.GuildMemberRecord", b =>
+                {
+                    b.HasOne("Rpg.Api.Data.Character", null)
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Rpg.Api.Data.GuildRecord", null)
+                        .WithMany()
+                        .HasForeignKey("GuildId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

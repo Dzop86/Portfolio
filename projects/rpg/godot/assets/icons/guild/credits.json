@@ -1,0 +1,7 @@
+{
+ "promote": "delapouite/sergeant",
+ "demote": "delapouite/private",
+ "hand-over": "lorc/crown",
+ "invite": "delapouite/team-upgrade",
+ "kick": "lorc/cross-mark"
+}

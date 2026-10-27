@@ -16,6 +16,10 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
 
     public DbSet<ContactRecord> Contacts => Set<ContactRecord>();
 
+    public DbSet<GuildRecord> Guilds => Set<GuildRecord>();
+
+    public DbSet<GuildMemberRecord> GuildMembers => Set<GuildMemberRecord>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(account =>
@@ -91,6 +95,23 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             contact.HasOne<Account>().WithMany().HasForeignKey(c => c.AccountId).OnDelete(DeleteBehavior.Cascade);
             contact.HasOne<Character>().WithMany().HasForeignKey(c => c.CharacterId).OnDelete(DeleteBehavior.Cascade);
             contact.HasIndex(c => c.CharacterId);
+        });
+        // The guilds and their members (sprint 145): one guild a character, gone with the character or the guild.
+        modelBuilder.Entity<GuildRecord>(guild =>
+        {
+            guild.ToTable("guilds");
+            guild.Property(g => g.Name).HasMaxLength(20);
+            guild.Property(g => g.NormalizedName).HasMaxLength(20);
+            guild.HasIndex(g => g.NormalizedName).IsUnique();
+        });
+        modelBuilder.Entity<GuildMemberRecord>(member =>
+        {
+            member.ToTable("guild_members");
+            member.HasKey(m => m.CharacterId);
+            member.Property(m => m.Rank).HasConversion<string>().HasMaxLength(10);
+            member.HasOne<Character>().WithMany().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+            member.HasOne<GuildRecord>().WithMany().HasForeignKey(m => m.GuildId).OnDelete(DeleteBehavior.Cascade);
+            member.HasIndex(m => m.GuildId);
         });
     }
 }

@@ -8,5 +8,6 @@
  "jobs": "lorc/anvil",
  "minimap": "lorc/radar-sweep",
  "contacts": "delapouite/three-friends",
- "talents": "delapouite/skills"
+ "talents": "delapouite/skills",
+ "guild": "lorc/flying-flag"
 }

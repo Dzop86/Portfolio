@@ -26,6 +26,7 @@ builder.Services.AddSingleton<Fields>();
 builder.Services.AddSingleton<Hunts>();
 builder.Services.AddSingleton<Parties>();
 builder.Services.AddSingleton<Trades>();
+builder.Services.AddSingleton<GuildInvites>();
 builder.Services.AddSingleton<Battles>();
 builder.Services.AddHostedService<BattleClock>();
 builder.Services.AddSingleton<IPasswordHasher<Account>, PasswordHasher<Account>>();
@@ -137,6 +138,7 @@ app.MapGet("/health", async (GameDb db, CancellationToken cancel) =>
 app.MapAccountEndpoints();
 app.MapCharacterEndpoints();
 app.MapSocialEndpoints();
+app.MapGuildEndpoints();
 app.MapBattleEndpoints();
 app.MapServerEndpoints();
 

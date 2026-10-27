@@ -56,6 +56,9 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
     /// <summary>Whether the last answer opened the stall (sprint 97).</summary>
     public bool Shop { get; private set; }
 
+    /// <summary>Whether the last answer asked to found a guild (sprint 145).</summary>
+    public bool Guild { get; private set; }
+
     public void Choose(int answer)
     {
         if (IsOver)
@@ -67,7 +70,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
             return;
         }
         IsOver = true;
-        (Fight, Taken, HandedIn, Shop) = (a.Fight, a.Take, a.HandIn, a.Shop);
+        (Fight, Taken, HandedIn, Shop, Guild) = (a.Fight, a.Take, a.HandIn, a.Shop, a.Guild);
     }
 }
 
@@ -134,6 +137,11 @@ public sealed class TownController
     public bool ShopOpened { get; private set; }
 
     public void ShopSeenTo() => ShopOpened = false;
+
+    /// <summary>Whether the last talk ended asking the registrar to found a guild (sprint 145); the game asks for its name.</summary>
+    public bool GuildAsked { get; private set; }
+
+    public void GuildSeenTo() => GuildAsked = false;
 
     public string? QuestHandedIn { get; private set; }
 
@@ -405,6 +413,7 @@ public sealed class TownController
             Fight = talk.Fight;
             (QuestTaken, QuestHandedIn) = (talk.Taken, talk.HandedIn);
             ShopOpened = talk.Shop;
+            GuildAsked = talk.Guild;
         }
     }
 }
@@ -464,7 +473,8 @@ public static class TownTour
                 IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
                 int next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && !read.Contains(n), -1);
                 if (next < 0)
-                    next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is null && answers[i].Fight is null, 0);
+                    // A goodbye: an answer that ends the talk without a fight, nor a stall or a guild to open (sprint 145).
+                    next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false }, 0);
                 town.Answer(next);
             }
             if (town.Fight is not null)

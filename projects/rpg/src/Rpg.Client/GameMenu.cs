@@ -59,6 +59,7 @@ public enum GameWindow
     Jobs,
     Contacts,
     Talents,
+    Guild,
 }
 
 /// <summary>What the Escape menu offers.</summary>
@@ -89,6 +90,7 @@ public sealed class WindowState
         (GameWindow.Contacts, 'F'),
         // The talent tree in its own window (sprint 148, K2 b).
         (GameWindow.Talents, 'T'),
+        (GameWindow.Guild, 'G'),
     ];
 
     public GameWindow? Open { get; private set; }

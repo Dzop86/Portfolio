@@ -1,8 +1,8 @@
 namespace Rpg.Core;
 
 /// <summary>
-/// The channels of the chat (sprint 84, D65): the players of the same map first; the group's, the
-/// guild's and the world's are kept for later.
+/// The channels of the chat (sprint 84, D65): the players of the same map first; the party's (sprint 119), the
+/// whispers (sprint 126) and the guild's (sprint 145) since; the world's is kept for later.
 /// </summary>
 public static class ChatChannels
 {
@@ -13,6 +13,9 @@ public static class ChatChannels
 
     /// <summary>One character, by its name, wherever it is (sprint 126): <c>/w Name text</c>.</summary>
     public const string Whisper = "whisper";
+
+    /// <summary>The guild's members in play, wherever they are (sprint 145): <c>/gu text</c>.</summary>
+    public const string Guild = "guild";
 }
 
 /// <summary>A line of the chat: the channel, who said it (a character's name), what, when; since sprint 126, to whom for a whisper.</summary>
@@ -48,12 +51,29 @@ public static class Whispers
 }
 
 /// <summary>
+/// The channel a line typed in the chat goes to (sprint 145): <c>/gu text</c> the guild's, <c>/g text</c> or
+/// <c>/p text</c> the party's (sprint 119), anything else as typed on the map's (a whisper is read later, by its own rule).
+/// </summary>
+public static class ChatCommands
+{
+    public static (string Channel, string Text) Route(string line)
+    {
+        ArgumentNullException.ThrowIfNull(line);
+        if (line.StartsWith("/gu ", StringComparison.OrdinalIgnoreCase))
+            return (ChatChannels.Guild, line[4..]);
+        if (line.Length > 3 && line[0] == '/' && line[1] is 'g' or 'p' or 'G' or 'P' && line[2] == ' ')
+            return (ChatChannels.Party, line[3..]);
+        return (ChatChannels.Map, line);
+    }
+}
+
+/// <summary>
 /// What the server tells the players of a map besides the chat (sprint 118, D74), on the same socket: someone here
-/// (<see cref="MapNewsKind.Here"/>, their name, look and cell), walking to a cell, gone; a group of monsters fighting,
-/// beaten until a moment, back; a gathering spot taken, growing back until a moment.
+/// (<see cref="MapNewsKind.Here"/>, their name, look and cell, since sprint 145 their guild's name), walking to a cell,
+/// gone; a group of monsters fighting, beaten until a moment, back; a gathering spot taken, growing back until a moment.
 /// </summary>
 public sealed record MapNews(MapNewsKind Kind, Guid? Character = null, string? Name = null, Hero? Look = null, Cell? At = null,
-    string? Group = null, string? Spot = null, DateTimeOffset? Until = null);
+    string? Group = null, string? Spot = null, DateTimeOffset? Until = null, string? Guild = null);
 
 [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<MapNewsKind>))]
 public enum MapNewsKind
