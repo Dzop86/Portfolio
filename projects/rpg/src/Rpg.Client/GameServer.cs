@@ -312,6 +312,30 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
+    /// <summary>The character's notice board (sprint 153): three new contracts a day, nine at most.</summary>
+    public async Task<ContractBoard> Contracts(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/contracts", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContractBoard>(Json, cancel))!;
+    }
+
+    /// <summary>Hands a contract back at a notice board (sprint 153): its reward, the character after it, the board left.</summary>
+    public async Task<ContractReward> HandInContract(Guid id, int index, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/contracts/hand-in", UriKind.Relative), new ContractOrder(index), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContractReward>(Json, cancel))!;
+    }
+
+    /// <summary>Changes a contract for another (sprint 153): free once a day and for a group's, else 5 × level Éclats.</summary>
+    public async Task<ContractBoard> ChangeContract(Guid id, int index, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/contracts/change", UriKind.Relative), new ContractOrder(index), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ContractBoard>(Json, cancel))!;
+    }
+
     /// <summary>The waystones the character discovered, and its home (sprint 127).</summary>
     public async Task<WaystoneView> Waystones(Guid id, CancellationToken cancel = default)
     {

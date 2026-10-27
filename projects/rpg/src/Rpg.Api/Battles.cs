@@ -374,6 +374,8 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
             }
             if (defeated.Count > 0 || roomWon is not null || scenarioWon is not null)
                 c.QuestLog = Rpg.Core.Quests.Write(c.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
+            // The notice board's contracts (sprint 153): a group's counts for each member who has it.
+            Endpoints.ContractEndpoints.AfterFight(c, f, roomWon);
             c.Receive(items);
             c.Xp += xp;
             c.Shards += shards;

@@ -100,6 +100,12 @@ public sealed record Travel(string? Waystone);
 /// <summary>The waystones a character discovered and the one it chose as home (sprint 127; null: the village's).</summary>
 public sealed record WaystoneView(IReadOnlyList<string> Known, string? Home);
 
+/// <summary>One contract of the notice board, by its place on it (sprint 153).</summary>
+public sealed record ContractOrder(int Index);
+
+/// <summary>A contract handed back (sprint 153): what it gave, the character after it, the board left.</summary>
+public sealed record ContractReward(long Xp, long Shards, CharacterSummary Character, ContractBoard Board);
+
 /// <summary>A gathering spot to gather (sprint 99), from the cell the character stands on.</summary>
 public sealed record Gather(string? Node, Cell From);
 

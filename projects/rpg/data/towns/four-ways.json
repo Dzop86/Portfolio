@@ -342,6 +342,22 @@
         "fr": "Une pierre de passage plus usée que celle de Clairval : ici, tout le monde arrive de quelque part. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
         "en": "A waystone more worn than Clairval's: here, everyone has come from somewhere. Whoever has touched it once can come back to it from another stone, for a few Éclats."
       }
+    },
+    {
+      "id": "notice-board-four-ways",
+      "at": {
+        "x": 16,
+        "y": 12
+      },
+      "look": "notice-board",
+      "name": {
+        "fr": "Le tableau d'avis",
+        "en": "The notice board"
+      },
+      "text": {
+        "fr": "Un tableau cloué près de la porte du relais. Josette y épingle ce que demandent les voyageurs, et ses propres demandes, écrites plus gros.",
+        "en": "A board nailed up by the inn door. Josette pins up what travellers ask for, and her own requests too, in bigger letters."
+      }
     }
   ]
 }

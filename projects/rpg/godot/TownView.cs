@@ -767,6 +767,16 @@ public partial class TownView : Node3D
                 AddChild(flame);
             }
         }
+        else if (prop.Look == "notice-board")
+        {
+            // The notice board (sprint 153): two posts, a board under a little roof, three notices pinned on it.
+            foreach (float x in new[] { -0.32f, 0.32f })
+                Part(this, new BoxMesh { Size = new Vector3(0.07f, 1.3f, 0.07f) }, new Color("6b4a2b"), at + new Vector3(x, 0.65f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.75f, 0.55f, 0.05f) }, new Color("8a5a34"), at + new Vector3(0, 0.95f, 0));
+            Part(this, new BoxMesh { Size = new Vector3(0.9f, 0.05f, 0.25f) }, new Color("5a3a22"), at + new Vector3(0, 1.32f, 0), new Vector3(12, 0, 0));
+            foreach ((float x, float y) in new[] { (-0.2f, 1.02f), (0.12f, 1.05f), (-0.02f, 0.84f) })
+                Part(this, new BoxMesh { Size = new Vector3(0.18f, 0.2f, 0.01f) }, new Color("efe6cf"), at + new Vector3(x, y, -0.035f));
+        }
         else if (prop.Look == "seal")
         {
             // A dark disc on the floor, cracked across.
@@ -782,7 +792,7 @@ public partial class TownView : Node3D
         {
             Mesh = new SphereMesh { Radius = 0.12f, Height = 0.24f },
             MaterialOverride = new StandardMaterial3D { AlbedoColor = WorldLight, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
-            Position = at + new Vector3(0, prop.Look switch { "stone" => 1.85f, "signpost" => 1.85f, "grave" => 1.05f, _ => 0.6f }, 0),
+            Position = at + new Vector3(0, prop.Look switch { "stone" => 1.85f, "signpost" => 1.85f, "grave" => 1.05f, "notice-board" => 1.6f, _ => 0.6f }, 0),
             Visible = false,
         };
         AddChild(glint);

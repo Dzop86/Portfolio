@@ -107,6 +107,9 @@ public sealed class Character
     /// <summary>The waystones it discovered (sprint 127), their ids separated by commas.</summary>
     public string Waystones { get; set; } = "";
 
+    /// <summary>Its notice board (sprint 153, D83): the contracts offered and how far they went, as JSON (<see cref="Rpg.Core.Contracts.Write"/>).</summary>
+    public string Contracts { get; set; } = "";
+
     public IReadOnlyList<string> WaystoneList => Waystones.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>The waystone the recall scroll takes it to (sprint 127); null: the village's.</summary>

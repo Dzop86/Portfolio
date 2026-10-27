@@ -435,6 +435,22 @@
         "fr": "Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
         "en": "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."
       }
+    },
+    {
+      "id": "notice-board-clairval",
+      "at": {
+        "x": 29,
+        "y": 13
+      },
+      "look": "notice-board",
+      "name": {
+        "fr": "Le tableau d'avis",
+        "en": "The notice board"
+      },
+      "text": {
+        "fr": "Le tableau de la mairie, sous son petit auvent. Edmée y punaise chaque matin les demandes du village, tamponnées et datées ; les vieilles jaunissent en dessous.",
+        "en": "The town hall's board, under its little roof. Every morning Edmée pins up the village's requests, stamped and dated; the old ones yellow underneath."
+      }
     }
   ]
 }

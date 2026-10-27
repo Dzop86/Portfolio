@@ -1004,6 +1004,12 @@ public partial class Main
             await OpenWaystones();
             return;
         }
+        // A notice board (sprint 153): its window, the day's contracts.
+        if (prop.Look == "notice-board")
+        {
+            await OpenContracts();
+            return;
+        }
         _talkPanel.ShowMessage(texts["prop.seen", prop.Name.In(texts.Lang), prop.Text.In(texts.Lang)]);
         if (_lobby?.SignedIn != true || _character is null || _town.Book is not QuestBook book)
             return;
@@ -1116,6 +1122,59 @@ public partial class Main
         {
             _contactsPanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
         }
+    }
+
+    // The notice board's window (sprint 153), opened by examining a board.
+    private ContractsPanel? _contractsPanel;
+
+    private async Task OpenContracts()
+    {
+        Texts texts = _talkPanel!.Texts;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _talkPanel.ShowMessage(texts["contracts.needs-server"]);
+            return;
+        }
+        _contractsPanel?.QueueFree();
+        _contractsPanel = new ContractsPanel();
+        AddChild(_contractsPanel);
+        _contractsPanel.Build(texts);
+        _contractsPanel.ClosePressed += CloseContracts;
+        _contractsPanel.HandInPressed += index => _ = Contract(async s =>
+        {
+            ContractReward reward = await s.HandInContract(_character.Id, index);
+            KeepCharacter(reward.Character);
+            ShowContracts(reward.Board);
+            _contractsPanel?.Tell(texts["contracts.done", reward.Xp, reward.Shards]);
+        });
+        _contractsPanel.ChangePressed += index => _ = Contract(async s =>
+        {
+            ShowContracts(await s.ChangeContract(_character.Id, index));
+            KeepCharacter((await s.Characters()).Single(c => c.Id == _character.Id));
+        });
+        await Contract(async s => ShowContracts(await s.Contracts(_character.Id)));
+    }
+
+    private void ShowContracts(ContractBoard board) => _contractsPanel?.Show(board, _character?.Level ?? 1, _character?.Inventory ?? []);
+
+    // One call about the contracts; what went wrong said in their window.
+    private async Task Contract(Func<GameServer, Task> call)
+    {
+        Texts texts = _talkPanel!.Texts;
+        try
+        {
+            await call(_lobby!.Server);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _contractsPanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
+    private void CloseContracts()
+    {
+        _contractsPanel?.QueueFree();
+        _contractsPanel = null;
     }
 
     // A waystone's window (sprint 127), opened by examining one.
@@ -2888,7 +2947,8 @@ public partial class Main
 
     /// <summary>
     /// Quatre-Chemins (sprint 129): Clairval's east gate shut without "Four Trails", and said why; each of the four maps
-    /// drawn with its people and its things to examine (the signpost, the waystone, what shuts the three roads).
+    /// drawn with its people and its things to examine (the signpost, the waystone, what shuts the three roads, and since
+    /// sprint 153 the notice board).
     /// </summary>
     private string CheckFourWays(List<string> problems, Hero hero)
     {

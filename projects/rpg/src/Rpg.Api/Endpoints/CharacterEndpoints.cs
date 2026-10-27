@@ -309,6 +309,8 @@ public static class CharacterEndpoints
         string? scenarioWon = played.WinningTeam == 0 ? pending.Scenario : null;
         if (defeated.Count > 0 || roomWon is not null || scenarioWon is not null)
             character.QuestLog = Rpg.Core.Quests.Write(character.ActiveQuests.Select(p => Rpg.Core.Quests.AfterFight(GameData.Embedded.Quests[p.Quest], p, defeated, roomWon, scenarioWon)));
+        // The notice board's contracts (sprint 153): a hunt, a horde, a dungeon's room.
+        ContractEndpoints.AfterFight(character, played, roomWon);
         character.Receive(items);
         character.Xp += xp;
         character.Shards += shards;

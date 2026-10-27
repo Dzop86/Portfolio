@@ -135,6 +135,10 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Colour")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Contracts")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
