@@ -2297,7 +2297,8 @@ public partial class Main
     {
         var problems = new List<string>();
         string lang = _options.Lang;
-        int talks = 0;
+        // People, not talks: Edmée is talked to twice for her two branches (after sprint 151).
+        var talked = new HashSet<string>(StringComparer.Ordinal);
         await CheckFreeWalk(problems);
         // The tour reads the inhabitants' own lines; their quests are checked apart (CheckQuests).
         QuestBook? book = _town!.Book;
@@ -2308,8 +2309,8 @@ public partial class Main
                 problems.Add("an instant walk waited");
             if (_townView.Player.Position != BoardView.ToWorld(_town!.Position))
                 problems.Add($"the player is drawn at {_townView.Player.Position}, stands on {_town.Position}");
-            if (step.TalkTo is not null)
-                talks++;
+            if (step.TalkTo is Npc talkTo)
+                talked.Add(talkTo.Id);
             foreach (Npc npc in _town.Town.Npcs)
             {
                 if (_townView.NameShown(npc.Id) != npc.At.DistanceTo(_town.Position) <= TownView.NameDistance)
@@ -2400,7 +2401,7 @@ public partial class Main
         string[] bare = [.. GameData.Embedded.Items.Values.Where(i => ItemIcon.TextureOf(i) is null).Select(i => i.Id)];
         if (bare.Length > 0)
             problems.Add($"no drawing for {string.Join(", ", bare.Take(5))}");
-        string note = $"Town: {talks} people, {lines} lines";
+        string note = $"Town: {talked.Count} people, {lines} lines";
         if (_lobby?.SignedIn == true && _character is not null)
         {
             bool saved = await SavePlace();

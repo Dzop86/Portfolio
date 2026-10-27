@@ -64,9 +64,9 @@ public class TownTests
         Npc edmee = town.Town.Npcs.Single(n => n.Id == GuildRules.Registrar);
         Assert.Equal("clairval", GuildRules.RegistrarMap(GameData.Embedded));
         town.Click(edmee.At);
-        // "What is a guild for?", then goodbye: nothing asked.
+        // "What is a guild for?", then thanks: nothing asked (the screenwriter's lines, after sprint 151).
         town.Answer(1);
-        town.Answer(1);
+        town.Answer(2);
         Assert.False(town.GuildAsked);
         town.Click(edmee.At);
         town.Answer(0);
@@ -122,9 +122,12 @@ public class TownTests
                 talkedTo.Add(n.Id);
         }, talk => read.Add((talk.Dialogue.Id, talk.LineId)));
         // The square's people (sprint 102: the others live on the village's other maps), Edmée the registrar since sprint 145.
-        Assert.Equal(["aubin", "ysaline", "registrar"], talkedTo);
+        // Edmée twice: her two branches, the register's and the rules', end each talk (after sprint 151).
+        Assert.Equal(["aubin", "ysaline", "registrar", "registrar"], talkedTo);
         Assert.Equal(town.Town.Npcs.Select(n => GameData.Embedded.Dialogues[n.Dialogue]).Distinct().Sum(d => d.Lines.Count), read.Count);
         Assert.True(lines >= read.Count);
+        // What the village's self-test says in CI ("Town: 3 people, 12 lines").
+        Assert.Equal(12, lines);
         Assert.Null(town.Fight);
         Assert.Null(town.Travel);
     }

@@ -42,7 +42,7 @@ public class TreePlanTests
         string matter = BuildCode.Write(Progression.Talented(Mage(45), "mage-matter", Data).Talents!, Data);
         CodeRead low = BuildCode.Read(matter, 35, Data);
         Assert.Equal((CodeRefusal.Level, 45), (low.Refusal, low.Number));
-        Assert.Equal("This build asks for level 45.", new Texts("en").CodeRefused(low));
+        Assert.Equal("This build needs level 45.", new Texts("en").CodeRefused(low));
     }
 
     [Fact]

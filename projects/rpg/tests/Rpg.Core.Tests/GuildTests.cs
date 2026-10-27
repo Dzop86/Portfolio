@@ -94,4 +94,14 @@ public class GuildTests
     [InlineData("bonjour", ChatChannels.Map, "bonjour")]
     public void ALineTyped_GoesToItsChannel(string line, string channel, string text) =>
         Assert.Equal((channel, text), ChatCommands.Route(line));
+
+    [Fact]
+    public void Edmée_SaysThePriceTheRulesAsk()
+    {
+        // Her line writes the price out in words (the screenwriter's review, after sprint 151): it must follow GuildRules.
+        Assert.Equal(1000, GuildRules.Price);
+        LocalizedText hello = GameData.Embedded.Dialogues["registrar"].Lines["hello"].Text;
+        Assert.Contains("mille Éclats", hello.Fr, StringComparison.Ordinal);
+        Assert.Contains("a thousand Éclats", hello.En, StringComparison.Ordinal);
+    }
 }

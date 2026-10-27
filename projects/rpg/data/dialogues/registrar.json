@@ -3,15 +3,39 @@
   "start": "hello",
   "lines": {
     "hello": {
-      "text": { "fr": "Edmée, greffière de la mairie. C'est moi qui tiens le registre des guildes de Clairval. Pour en fonder une, il me faut un nom que personne n'a pris, et mille Éclats pour le sceau et l'encre.", "en": "Edmée, clerk of the town hall. I keep the register of Clairval's guilds. To found one I need a name nobody has taken, and a thousand Éclats for the seal and the ink." },
+      "text": { "fr": "Edmée, greffière de la mairie. Je tiens le registre des guildes de Clairval. Pour en inscrire une, il me faut un nom que personne n'a pris, et mille Éclats pour le sceau et l'encre.", "en": "Edmée, town clerk. I keep Clairval's register of guilds. To enter a new one, I need a name nobody has taken, and a thousand Éclats for the seal and the ink." },
       "answers": [
         { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
         { "text": { "fr": "À quoi sert une guilde ?", "en": "What is a guild for?" }, "next": "why" },
+        { "text": { "fr": "Un registre ?", "en": "A register?" }, "next": "registers" },
         { "text": { "fr": "Au revoir.", "en": "Goodbye." } }
       ]
     },
     "why": {
-      "text": { "fr": "On porte son nom sous le sien, on se parle d'où qu'on soit (/gu devant la phrase) et on voit qui est en jeu. Le meneur et ses officiers invitent, cinquante au plus, et chacun part quand il veut. Si le meneur s'en va, le plus ancien officier reprend le registre.", "en": "You wear its name under your own, you talk to each other wherever you are (/gu before the line) and you see who is in play. The leader and the officers invite, fifty at most, and anyone may leave when they like. If the leader goes, the oldest officer takes the register over." },
+      "text": { "fr": "Le nom de la guilde s'inscrit sous le vôtre, et vous vous parlez d'où que vous soyez : commencez la phrase par /gu. Vous savez aussi qui est sur les routes. Et chacun s'en va quand il veut.", "en": "The guild's name is written under yours, and you can talk wherever you are: start the line with /gu. You'll also know who's out on the roads. And anyone may leave when they please." },
+      "answers": [
+        { "text": { "fr": "Et le règlement ?", "en": "And the rules?" }, "next": "rules" },
+        { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
+      ]
+    },
+    "rules": {
+      "text": { "fr": "Article premier : le meneur et ses officiers invitent. Article deux : cinquante membres au plus, la salle des fêtes n'en tient pas davantage. Article trois : si le meneur s'en va, l'officier le plus ancien reprend la plume.", "en": "Article one: the leader and the officers send the invitations. Article two: fifty members at most, as the village hall holds no more. Article three: if the leader leaves, the longest-serving officer takes up the pen." },
+      "answers": [
+        { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
+      ]
+    },
+    "registers": {
+      "text": { "fr": "Le grand registre, c'est Odalric, à la chapelle : naissances, mariages, morts. Moi, je tiens le petit, celui des gens qui choisissent de faire route ensemble.", "en": "The great register is Odalric's, up at the chapel: births, marriages, deaths. Mine is the little one, for people who choose to travel together." },
+      "answers": [
+        { "text": { "fr": "Et quand une guilde disparaît ?", "en": "And when a guild comes to an end?" }, "next": "struck" },
+        { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
+      ]
+    },
+    "struck": {
+      "text": { "fr": "Je la barre d'un trait, et son nom redevient libre. Barrer, jamais gratter : une page grattée, c'est un mensonge qui sèche.", "en": "I strike it through, and the name is free again. Strike, never scrape: a scraped page is a lie left to dry." },
       "answers": [
         { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
         { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }

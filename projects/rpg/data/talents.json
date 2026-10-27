@@ -10,8 +10,8 @@
       "en": "Striking in Earth an enemy marked by Water, or in Water one marked by Earth, leaves it Bogged: −2 MP for 1 turn. It takes two elements in one's deck."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend la Terre et l'Eau.",
-      "en": "No spell: the pair only gives its reaction, and takes Earth and Water."
+      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et l'Eau ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Earth and Water can no longer go into another pair."
     },
     "lore": {
       "fr": "Ce que l'eau mouille, la terre le retient.",
@@ -38,12 +38,12 @@
       "en": "Striking in Water an enemy marked by Air, or in Air one marked by Water, leaves it Chilled: −2 AP for 1 turn."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend l'Eau et l'Air.",
-      "en": "No spell: the pair only gives its reaction, and takes Water and Air."
+      "fr": "Ni sort ni bonus, seulement la réaction ; l'Eau et l'Air ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Water and Air can no longer go into another pair."
     },
     "lore": {
       "fr": "Le vent passe sur l'eau, et l'eau se fige.",
-      "en": "Wind runs over water, and the water sets."
+      "en": "Wind skims the water, and the water sets hard."
     },
     "branch": "Fork",
     "tier": "First",
@@ -66,8 +66,8 @@
       "en": "Striking in Earth an enemy marked by Fire, or in Fire one marked by Earth, leaves it Cracked: −15% resistance to every element for 2 turns."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend le Feu et la Terre.",
-      "en": "No spell: the pair only gives its reaction, and takes Fire and Earth."
+      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et le Feu ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Earth and Fire can no longer go into another pair."
     },
     "lore": {
       "fr": "La pierre chauffée trop vite se fend.",
@@ -94,8 +94,8 @@
       "en": "Striking in Fire an enemy marked by Air, or in Air one marked by Fire, leaves it Electrified: for 1 turn, 35% of every hit it takes jumps to the nearest enemy."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend le Feu et l'Air.",
-      "en": "No spell: the pair only gives its reaction, and takes Fire and Air."
+      "fr": "Ni sort ni bonus, seulement la réaction ; le Feu et l'Air ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Fire and Air can no longer go into another pair."
     },
     "lore": {
       "fr": "Le feu qui court dans l'air ne choisit pas où il tombe.",
@@ -122,12 +122,12 @@
       "en": "Striking in Fire an enemy marked by Water, or in Water one marked by Fire, leaves it Fogged: −25% damage dealt for 1 turn."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend le Feu et l'Eau.",
-      "en": "No spell: the pair only gives its reaction, and takes Fire and Water."
+      "fr": "Ni sort ni bonus, seulement la réaction ; le Feu et l'Eau ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Fire and Water can no longer go into another pair."
     },
     "lore": {
       "fr": "Entre le feu et l'eau, il reste une buée où l'on se perd.",
-      "en": "Between fire and water hangs a mist one gets lost in."
+      "en": "Between fire and water hangs a mist to lose your way in."
     },
     "branch": "Fork",
     "tier": "First",
@@ -150,8 +150,8 @@
       "en": "Striking in Earth an enemy marked by Air, or in Air one marked by Earth, leaves it Blinded: −2 range on its spells for 1 turn."
     },
     "counterpart": {
-      "fr": "Aucun sort : la paire ne donne que sa réaction, et prend la Terre et l'Air.",
-      "en": "No spell: the pair only gives its reaction, and takes Earth and Air."
+      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et l'Air ne peuvent plus entrer dans une autre paire.",
+      "en": "No spell, no bonus, only the reaction; Earth and Air can no longer go into another pair."
     },
     "lore": {
       "fr": "Une poignée de poussière au vent, et l'archer ne voit plus.",
@@ -179,11 +179,11 @@
     },
     "counterpart": {
       "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other element spells hit 5% softer."
+      "en": "Your other elemental spells deal 5% less damage."
     },
     "lore": {
       "fr": "Un seul sol sous les pieds, et l'on ne tombe plus.",
-      "en": "One ground under one's feet, and one falls no more."
+      "en": "One ground beneath your feet, and you never fall."
     },
     "branch": "Pure",
     "tier": "First",
@@ -214,7 +214,7 @@
     },
     "counterpart": {
       "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other element spells hit 5% softer."
+      "en": "Your other elemental spells deal 5% less damage."
     },
     "lore": {
       "fr": "Une flamme qu'on nourrit seule brûle plus haut.",
@@ -249,11 +249,11 @@
     },
     "counterpart": {
       "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other element spells hit 5% softer."
+      "en": "Your other elemental spells deal 5% less damage."
     },
     "lore": {
-      "fr": "L'eau qui ne se partage pas finit par creuser la roche.",
-      "en": "Water that is not shared ends up carving the rock."
+      "fr": "Goutte après goutte, au même endroit, l'eau creuse la roche.",
+      "en": "Drop by drop, always in the same place, water wears through stone."
     },
     "branch": "Pure",
     "tier": "First",
@@ -284,7 +284,7 @@
     },
     "counterpart": {
       "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other element spells hit 5% softer."
+      "en": "Your other elemental spells deal 5% less damage."
     },
     "lore": {
       "fr": "Le vent d'une seule direction pousse plus loin.",
@@ -318,8 +318,8 @@
       "en": "Your Fire spells become their Lightning twins, which strike on the higher of your Fire and Air characteristics. In exchange, you lose Fire: no more Fire mark nor any reaction that needs it, no damage bonus; Electrified no longer goes off, unless with Prism. A choice: the Transmutation of Fire or of Air, not both. Asks for Electrifying; the Conversion replaces it, and the point comes back."
     },
     "counterpart": {
-      "fr": "Tu perds le Feu : ni son empreinte, ni ses réactions, ni ses bonus ; Électrisé ne se déclenche plus, sauf avec Prisme.",
-      "en": "You lose Fire: neither its mark, nor its reactions, nor its bonuses; Electrified no longer goes off, except with Prism."
+      "fr": "Tu perds le Feu, son empreinte et ses réactions, sans aucun bonus de dégâts ; Électrisé ne se déclenche plus, sauf avec Prisme.",
+      "en": "You lose Fire, its mark and its reactions, with no damage bonus; Electrified no longer goes off unless you have Prism."
     },
     "lore": {
       "fr": "La flamme apprend à courir sans bois.",
@@ -354,8 +354,8 @@
       "en": "Your Air spells become their Lightning twins, which strike on the higher of your Fire and Air characteristics. In exchange, you lose Air: no more Air mark nor any reaction that needs it, no damage bonus; Electrified no longer goes off, even with Prism (it leaves only Fire's mark). A choice: the Transmutation of Fire or of Air, not both. Asks for Electrifying; the Conversion replaces it, and the point comes back."
     },
     "counterpart": {
-      "fr": "Tu perds l'Air : ni son empreinte, ni ses réactions, ni ses bonus ; Électrisé ne se déclenche plus, même avec Prisme.",
-      "en": "You lose Air: neither its mark, nor its reactions, nor its bonuses; Electrified no longer goes off, even with Prism."
+      "fr": "Tu perds l'Air, son empreinte et ses réactions, sans aucun bonus de dégâts ; Électrisé ne se déclenche plus, même avec Prisme.",
+      "en": "You lose Air, its mark and its reactions, with no damage bonus; Electrified no longer goes off, even with Prism."
     },
     "lore": {
       "fr": "Le vent se serre jusqu'à mordre.",
@@ -395,7 +395,7 @@
     },
     "lore": {
       "fr": "On reconnaît la main à la trace qu'elle laisse.",
-      "en": "One knows the hand by the trace it leaves."
+      "en": "You can tell a hand by the trace it leaves."
     },
     "branch": "Braids",
     "tier": "Second",
@@ -427,8 +427,8 @@
       "en": "Your pair hits leave the mark of their first parent: Lightning leaves Fire's. They still set off no reaction. Asks for a Transmutation or the Conversion."
     },
     "counterpart": {
-      "fr": "Tes coups de paire ne déclenchent toujours aucune réaction.",
-      "en": "Your pair's hits still set off no reaction."
+      "fr": "Ces coups posent une empreinte, mais n'en déclenchent aucune.",
+      "en": "Those hits leave a mark but never set one off."
     },
     "lore": {
       "fr": "Dans la lumière la plus blanche, une couleur reste.",
@@ -460,11 +460,11 @@
     },
     "counterpart": {
       "fr": "Tu perds tes 8 sorts de Feu et d'Air ; une seule grande bascule dans tout l'arbre.",
-      "en": "You lose your 8 Fire and Air spells; one big switch in the whole tree."
+      "en": "You lose your 8 Fire and Air spells; one great shift in the whole tree."
     },
     "lore": {
-      "fr": "Deux éléments n'en font plus qu'un, et l'on ne sait plus lequel parle.",
-      "en": "Two elements become one, and one no longer knows which speaks."
+      "fr": "Deux éléments dans le même trait, et aucun ne se tait.",
+      "en": "Two elements in a single stroke, and neither falls silent."
     },
     "branch": "Braids",
     "tier": "Key",
@@ -509,7 +509,7 @@
     },
     "lore": {
       "fr": "Une trace qu'on ne lave pas tout de suite.",
-      "en": "A trace that does not wash off at once."
+      "en": "A trace that won't wash off in a hurry."
     },
     "branch": "Alchemy",
     "tier": "First",
@@ -579,7 +579,7 @@
       "en": "The states you set off last one turn more; in exchange, your hits that set one off deal 10% less."
     },
     "counterpart": {
-      "fr": "Tes coups qui déclenchent font 10 % de moins.",
+      "fr": "Tes coups qui déclenchent font 10 % de dégâts en moins.",
       "en": "Your hits that set a reaction off deal 10% less."
     },
     "lore": {
@@ -616,8 +616,8 @@
       "en": "Your areas set reactions off on 2 more marked targets than the one aimed at; in exchange, your areas deal 15% less."
     },
     "counterpart": {
-      "fr": "Tes zones font 15 % de moins.",
-      "en": "Your areas deal 15% less."
+      "fr": "Tes zones font 15 % de dégâts en moins.",
+      "en": "Your areas deal 15% less damage."
     },
     "lore": {
       "fr": "Une pierre dans la mare, et toute la rive tremble.",
@@ -691,8 +691,8 @@
       "en": "Your allies' marks no longer react for you."
     },
     "lore": {
-      "fr": "Elle n'écoute que sa propre musique.",
-      "en": "She listens to her own music only."
+      "fr": "On ne danse jamais si bien que sur sa propre musique.",
+      "en": "Nobody dances better than to their own tune."
     },
     "branch": "Alchemy",
     "tier": "Key",
@@ -726,7 +726,7 @@
     },
     "lore": {
       "fr": "Assez près pour voir les yeux.",
-      "en": "Close enough to see the eyes."
+      "en": "Close enough to see the whites of their eyes."
     },
     "branch": "Melee",
     "tier": "First",
@@ -817,7 +817,7 @@
     },
     "lore": {
       "fr": "On ne pousse pas un mur : on le fait reculer.",
-      "en": "One does not push a wall: one makes it give way."
+      "en": "You don't push a wall: you make it give way."
     },
     "branch": "Melee",
     "tier": "Second",
@@ -850,8 +850,8 @@
       "en": "Your spells reach 2 cells at most."
     },
     "lore": {
-      "fr": "Plus de distance, plus de doute.",
-      "en": "No more distance, no more doubt."
+      "fr": "Au contact, plus de place pour le doute.",
+      "en": "Up close, there is no room for doubt."
     },
     "branch": "Melee",
     "tier": "Key",
@@ -890,7 +890,7 @@
       "en": "−5% damage on a target 1 or 2 cells away."
     },
     "lore": {
-      "fr": "Voir avant d'être vue.",
+      "fr": "Voir avant d'être vu.",
       "en": "See before being seen."
     },
     "branch": "Distance",
@@ -967,12 +967,12 @@
       "en": "Your damage spells no longer hit closer than 3 cells, reach 2 cells farther and hit 15% harder; nothing at 1 or 2 cells."
     },
     "counterpart": {
-      "fr": "Plus rien à 1 ou 2 cases.",
-      "en": "Nothing at all at 1 or 2 cells."
+      "fr": "Tes sorts de dégâts ne touchent plus rien à 1 ou 2 cases.",
+      "en": "Your damage spells can no longer hit anything 1 or 2 cells away."
     },
     "lore": {
-      "fr": "De si loin, le bruit arrive après le coup.",
-      "en": "From that far, the sound comes after the blow."
+      "fr": "De si loin, ils ne voient pas d'où ça vient.",
+      "en": "From that far, they never see where it came from."
     },
     "branch": "Distance",
     "tier": "Key",
@@ -1016,7 +1016,7 @@
     },
     "lore": {
       "fr": "Droit devant, rien ne s'interpose.",
-      "en": "Straight ahead, nothing stands between."
+      "en": "Straight ahead, nothing stands in the way."
     },
     "branch": "Distance",
     "tier": "Key",
@@ -1091,7 +1091,7 @@
     },
     "lore": {
       "fr": "Le dos au mur, on ne recule plus.",
-      "en": "Back to the wall, one gives no more ground."
+      "en": "Back to the wall, there's no ground left to give."
     },
     "branch": "Terrain",
     "tier": "First",
@@ -1169,7 +1169,7 @@
     },
     "counterpart": {
       "fr": "Le bonus retombe à zéro après chaque sort.",
-      "en": "The bonus falls back to nothing after each spell."
+      "en": "The bonus resets to zero after each spell."
     },
     "lore": {
       "fr": "Chaque pas prépare le suivant.",
@@ -1202,12 +1202,12 @@
       "en": "Four more spells, one per element (3 AP, cooldown 3): a glyph for 2 turns that leaves its element's mark on the enemy who walks onto it or starts its turn there. No damage; a place in the deck."
     },
     "counterpart": {
-      "fr": "Aucun dégât ; un sort de plus prend une place de deck.",
-      "en": "No damage; one more spell takes a place of the deck."
+      "fr": "Aucun dégât, et chaque glyphe mis dans le deck y prend une place.",
+      "en": "No damage, and each glyph you put in your deck takes up a slot."
     },
     "lore": {
-      "fr": "Un signe sur le sol, et l'ennemi se marque lui-même.",
-      "en": "A sign on the ground, and the enemy marks itself."
+      "fr": "Un glyphe au sol, et l'ennemi se marque lui-même.",
+      "en": "A glyph on the ground, and the enemy marks itself."
     },
     "branch": "Terrain",
     "tier": "Second",
@@ -1247,8 +1247,8 @@
       "en": "A damage spell cast where it hits nobody leaves a glyph of its element for 2 turns, a diamond of its cost in radius (3 at most; each AP beyond, +10%): 30% of the spell's damage at the centre, 70% of that 1 cell away, 45% at 2, 25% at 3. One at a time. In exchange, your hits deal 5% less."
     },
     "counterpart": {
-      "fr": "Tes coups font 5 % de moins ; un seul glyphe à la fois.",
-      "en": "Your hits deal 5% less; one glyph at a time."
+      "fr": "Tes coups font 5 % de dégâts en moins ; un seul glyphe à la fois.",
+      "en": "Your hits deal 5% less damage; one glyph at a time."
     },
     "lore": {
       "fr": "Le sort manqué n'est pas perdu : il attend.",
@@ -1286,8 +1286,8 @@
       "en": "One more spell, Decoy (2 AP, cooldown 4): a decoy of a tenth of your HP, which does not act and which monsters 2 cells away prefer to strike. A place in the deck."
     },
     "counterpart": {
-      "fr": "Une place de deck.",
-      "en": "A place of the deck."
+      "fr": "Il prend une place dans ton deck.",
+      "en": "It takes up a slot in your deck."
     },
     "lore": {
       "fr": "Un manteau sur un bâton, et ils s'y trompent.",
@@ -1324,7 +1324,7 @@
     },
     "lore": {
       "fr": "Là où tu as marqué la terre, elle se souvient.",
-      "en": "Where you marked the earth, it remembers."
+      "en": "Where you have marked the ground, it remembers."
     },
     "branch": "Terrain",
     "tier": "Key",
@@ -1359,8 +1359,8 @@
       "en": "15% fewer hit points in a fight."
     },
     "lore": {
-      "fr": "Moins de bagages, plus de chemin.",
-      "en": "Less baggage, more road."
+      "fr": "Moins de bagages, et la route s'allonge.",
+      "en": "Travel light, travel far."
     },
     "branch": "Terrain",
     "tier": "Key",
@@ -1398,8 +1398,8 @@
       "en": "The echo leaves no mark."
     },
     "lore": {
-      "fr": "Tu es partie, ton geste est resté.",
-      "en": "You have gone, your gesture stayed."
+      "fr": "Tu es déjà loin, et ton sort est resté.",
+      "en": "You are long gone, but your spell stayed behind."
     },
     "branch": "Terrain",
     "tier": "Key",
@@ -1431,11 +1431,11 @@
     },
     "counterpart": {
       "fr": "Tes sorts de 3 PA ou moins frappent 15 % moins fort.",
-      "en": "Your spells of 3 AP or less hit 15% softer."
+      "en": "Your spells of 3 AP or less deal 15% less damage."
     },
     "lore": {
       "fr": "Prendre le temps, frapper une fois.",
-      "en": "Take one's time, strike once."
+      "en": "Take your time, strike once."
     },
     "branch": "Tempo",
     "tier": "First",
@@ -1482,7 +1482,7 @@
     },
     "counterpart": {
       "fr": "Tes sorts de 4 PA ou plus frappent 15 % moins fort.",
-      "en": "Your spells of 4 AP or more hit 15% softer."
+      "en": "Your spells of 4 AP or more deal 15% less damage."
     },
     "lore": {
       "fr": "Mille piqûres valent une lance.",
@@ -1533,7 +1533,7 @@
     },
     "counterpart": {
       "fr": "Les sorts suivants du tour frappent 5 % moins fort.",
-      "en": "The turn's next spells hit 5% softer."
+      "en": "Your later spells that turn deal 5% less damage."
     },
     "lore": {
       "fr": "Le premier geste dit tout.",
@@ -1578,7 +1578,7 @@
     },
     "lore": {
       "fr": "Plus souvent, moins fort.",
-      "en": "More often, less hard."
+      "en": "Sooner, but softer."
     },
     "branch": "Tempo",
     "tier": "Second",
@@ -1612,7 +1612,7 @@
     },
     "lore": {
       "fr": "Ce qu'on ne dépense pas aujourd'hui sert demain.",
-      "en": "What one does not spend today serves tomorrow."
+      "en": "What you don't spend today will serve tomorrow."
     },
     "branch": "Tempo",
     "tier": "Second",
@@ -1687,8 +1687,8 @@
       "en": "Each spell is cast only once a turn."
     },
     "lore": {
-      "fr": "Un geste, une fois, jusqu'au bout.",
-      "en": "One gesture, once, all the way."
+      "fr": "Une seule fois, mais jusqu'au bout.",
+      "en": "Only once, but all the way through."
     },
     "branch": "Tempo",
     "tier": "Key",
@@ -1759,12 +1759,12 @@
       "en": "+1 MP and +1 AP from your 4th turn; in exchange, −1 AP on your first 3 turns."
     },
     "counterpart": {
-      "fr": "−1 PA tes 3 premiers tours.",
-      "en": "−1 AP your first 3 turns."
+      "fr": "−1 PA pendant tes 3 premiers tours.",
+      "en": "−1 AP on your first 3 turns."
     },
     "lore": {
-      "fr": "Lente à se lever, longue à s'éteindre.",
-      "en": "Slow to rise, long to fade."
+      "fr": "Comme la braise : lente à prendre, longue à s'éteindre.",
+      "en": "Like embers: slow to catch, slow to die."
     },
     "branch": "Tempo",
     "tier": "Key",
@@ -1801,8 +1801,8 @@
       "en": "Your element spells cast on an ally (summons too, never you) help it instead of hitting it: Fire heals (40% of the damage, at most 15% of its HP), Earth shields (60%), Water resists (+5% per AP, 20 at most), Air gives MP (1 every 2 AP, 2 at most) and 1 range; a pair, both its parents at 60%. One support a turn; in exchange, your hits deal 5% less."
     },
     "counterpart": {
-      "fr": "Tes coups font 5 % de moins ; un soutien par tour.",
-      "en": "Your hits deal 5% less; one support a turn."
+      "fr": "Tes coups font 5 % de dégâts en moins ; un soutien par tour.",
+      "en": "Your hits deal 5% less damage; one support a turn."
     },
     "lore": {
       "fr": "Le même feu qui brûle peut réchauffer.",
@@ -1850,8 +1850,8 @@
       "en": "You deal 5% less."
     },
     "lore": {
-      "fr": "On se bat mieux quand on voit la couleur à côté de soi.",
-      "en": "One fights better seeing the colour beside one."
+      "fr": "On se bat mieux quand ses couleurs flottent tout près.",
+      "en": "You fight better with your colours flying close by."
     },
     "branch": "Support",
     "tier": "Second",
@@ -1978,12 +1978,12 @@
       "en": "Your supports are worth 50% more; in exchange, your hits deal 20% less."
     },
     "counterpart": {
-      "fr": "Tes coups font 20 % de moins.",
-      "en": "Your hits deal 20% less."
+      "fr": "Tes coups font 20 % de dégâts en moins.",
+      "en": "Your hits deal 20% less damage."
     },
     "lore": {
-      "fr": "Elle a cessé de compter ce qu'elle donne.",
-      "en": "She stopped counting what she gives."
+      "fr": "À force de donner, on ne compte plus.",
+      "en": "Give long enough, and you stop counting."
     },
     "branch": "Support",
     "tier": "Key",
@@ -2022,8 +2022,8 @@
       "en": "Your supports cost 1 more AP."
     },
     "lore": {
-      "fr": "Deux voix qui chantent juste se protègent.",
-      "en": "Two voices singing true shield each other."
+      "fr": "Un toit pour deux, et la pluie tombe à côté.",
+      "en": "One roof for two, and the rain falls elsewhere."
     },
     "branch": "Support",
     "tier": "Key",
@@ -2055,11 +2055,11 @@
     },
     "counterpart": {
       "fr": "Ton tour suivant, 2 PA de moins.",
-      "en": "Your next turn, 2 AP less."
+      "en": "2 AP fewer on your next turn."
     },
     "lore": {
-      "fr": "Au dernier moment, une main se tend.",
-      "en": "At the last moment, a hand reaches out."
+      "fr": "Au dernier souffle, une épaule se présente.",
+      "en": "At the last gasp, a shoulder is there."
     },
     "branch": "Support",
     "tier": "Key",

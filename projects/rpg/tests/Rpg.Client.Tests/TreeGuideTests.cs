@@ -41,13 +41,13 @@ public partial class TreeGuideTests
     }
 
     [Theory]
-    [InlineData("sentinel-matter", "Foudre convertie · Boue")]
+    [InlineData("sentinel-matter", "Conversion : Foudre · Boue")]
     [InlineData("sentinel-manner", "Boue · Mêlée")]
     [InlineData("sentinel-pure", "Cœur d'Air · Distance")]
-    [InlineData("guard-matter", "Foudre convertie · Boue")]
+    [InlineData("guard-matter", "Conversion : Foudre · Boue")]
     [InlineData("guard-manner", "Glace et Magma · Alchimie")]
     [InlineData("guard-pure", "Cœur de Terre · Terrain")]
-    [InlineData("mage-matter", "Foudre convertie · Tempo")]
+    [InlineData("mage-matter", "Conversion : Foudre · Tempo")]
     [InlineData("mage-manner", "Vapeur · Tempo")]
     [InlineData("mage-pure", "Cœur de Feu · Terrain")]
     public void TheReferenceBuilds_HaveTheirTitle(string build, string title)
@@ -68,7 +68,7 @@ public partial class TreeGuideTests
         // Up close, firm footing, heavy push and close quarters: 10 + 15 + 25 = 50, past the 35 of the ceiling.
         string[] melee = ["bogging", "up-close", "firm-footing", "heavy-push", "close-quarters"];
         Assert.Equal(50, TreeGuide.Best(melee, Data));
-        Assert.Equal("At best, +50% on a hit: beyond +35%, the rest is lost.", new Texts("en").TreeBuildSummary(melee, Data)[1]);
+        Assert.Equal("At best, +50% on a hit: anything above +35% is lost.", new Texts("en").TreeBuildSummary(melee, Data)[1]);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public partial class TreeGuideTests
     {
         var hero = new Hero("Ondine", "female-a", "guard", Level: 30, Stats: new Characteristics(Vitality: 10, Earth: 40, Fire: 5, Water: 30, Air: 0));
         Assert.Equal("bogging", TreeGuide.Advice(hero, Data));
-        Assert.Equal("Conseil : Terre et Eau, tes caractéristiques les plus hautes, vont à Boue.", new Texts("fr").TreeAdvice(new PointsEditor(hero, Data)));
+        Assert.Equal("Conseil : Terre et Eau, tes caractéristiques les plus hautes, désignent Boue.", new Texts("fr").TreeAdvice(new PointsEditor(hero, Data)));
         Assert.Null(new Texts("fr").TreeAdvice(new PointsEditor(hero with { Talents = ["chilling"] }, Data)));
         Assert.Null(TreeGuide.Advice(hero with { Stats = new Characteristics(Earth: 10) }, Data));
     }
@@ -88,14 +88,14 @@ public partial class TreeGuideTests
         var editor = new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: 40, Talents: ["electrifying"]), Data);
         var fr = new Texts("fr");
         TreeCard pair = fr.TreeCard(layout["electrifying"]!, editor);
-        Assert.Equal("Affinités", pair.Layer);
+        Assert.Equal("Paires", pair.Layer);
         Assert.Equal("Foudre = Feu + Air", pair.Equation);
         Assert.Equal("Foudre", fr.TreeName(layout["electrifying"]!, Data));
         Assert.Equal("Le feu qui court dans l'air ne choisit pas où il tombe.", pair.Lore);
         TreeCard hand = fr.TreeCard(layout["helping-hand"]!, editor);
         Assert.Equal("Styles · Soutien", hand.Layer);
         Assert.StartsWith("Pour les autres", hand.Banner, StringComparison.Ordinal);
-        Assert.Equal("En échange : Tes coups font 5 % de moins ; un soutien par tour.", hand.Counterpart);
+        Assert.Equal("En échange : Tes coups font 5 % de dégâts en moins ; un soutien par tour.", hand.Counterpart);
         // Helping Hand said with the hero's elements (D9 a): Electrifying's Fire and Air.
         Assert.Equal("Avec tes éléments : Feu, un soin de 40 % des dégâts (15 % de ses PV au plus) ; Air, 1 PM tous les 2 PA (2 au plus) et 1 PO", hand.Extra!.Split('\n')[0]);
         Assert.Equal([Element.Earth, Element.Fire, Element.Water, Element.Air], TreeGuide.Helps([], Data));

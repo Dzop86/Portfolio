@@ -4,6 +4,7 @@
 > **Ce qui a été relu :** `data/dialogues/registrar.json` et l'entrée d'Edmée dans `data/towns/clairval.json` ; les clés `guild.*` et `tree.*` de `src/Rpg.Client/Texts.cs`, en FR et en EN ; dans `data/talents.json`, les 56 lignes d'ambiance (`lore`) et les 56 contreparties (`counterpart`).
 > **Lu avant d'écrire :** `docs/bible.md` et la bible complète, `docs/talents-canon.md` (mes propositions du 23 octobre), `docs/talents-arbre.md` (§9, le canon à trancher), `docs/talents-arbre-questions.md` (M1 à M10), `docs/elements.md`, `docs/textes-v5.md` (les voix de Clairval), `docs/textes-v9.md`, `DECISIONS.md` (T106 à T118), `data/dialogues/odalric.json`.
 > **Rien n'est modifié dans les données ni dans le code.** Le développeur reporte les corrections lui-même. **[P]** marque ce qui n'est ni dans la bible ni dans le jeu.
+> **Reporté le 27 octobre 2026 par le développeur (D83) :** toutes les corrections C1 à C111 et le dialogue d'Edmée, avec les valeurs par défaut des questions 1, 2, 4 et 5 du §9. Restent à Charles : les renommages Harmonie et Sceau (§8.1, question 3) et la règle du tutoiement (question 6) ; les signalements 2, 3, 5, 6, 8 et 9 du §8 ne sont pas traités (le 7 est couvert par un test).
 > **Comment lire une correction :** l'identifiant, le texte actuel, la version proposée en FR et en EN, puis la raison en une ligne. Quand seul l'anglais change, le français n'est pas recopié.
 
 ## Sommaire

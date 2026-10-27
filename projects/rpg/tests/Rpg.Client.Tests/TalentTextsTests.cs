@@ -147,8 +147,8 @@ public class TalentTextsTests
         Assert.All(grown.Lines.Where(l => l.Element is not null), l => Assert.Equal(3, l.Resistance));
         int bare = Fight.HeroTotals(Sentinel(40), Data)!.Hp;
         Assert.Equal(bare * 105 / 100, grown.MaxHp);
-        Assert.Equal("Tronc, sans point : +3 % de dégâts (niv. 30) · +3 % de résistances (niv. 35), à venir · +5 % de PV (niv. 40), à venir", new Texts("fr").Trunk(30));
-        Assert.Equal("Trunk, no point: +3% damage (lv 30) · +3% resistances (lv 35) · +5% HP (lv 40)", new Texts("en").Trunk(40));
+        Assert.Equal("Tronc, gratuit : +3 % de dégâts (niv. 30) · +3 % de résistances (niv. 35), à venir · +5 % de PV (niv. 40), à venir", new Texts("fr").Trunk(30));
+        Assert.Equal("Trunk, free: +3% damage (lv 30) · +3% resistances (lv 35) · +5% HP (lv 40)", new Texts("en").Trunk(40));
     }
 
     [Fact]

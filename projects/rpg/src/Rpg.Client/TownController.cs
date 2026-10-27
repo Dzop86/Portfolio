@@ -462,23 +462,31 @@ public static class TownTour
         int lines = 0;
         foreach (Npc npc in town.Town.Npcs)
         {
-            TownStep step = town.Click(npc.At) ?? throw new InvalidOperationException($"Cannot walk up to {npc.Id}.");
-            afterClick?.Invoke(step);
             var read = new HashSet<string>(StringComparer.Ordinal);
-            while (town.Talk is Conversation talk)
+            int total = int.MaxValue, before;
+            // Talked to again while a branch is left unread (Edmée's two, after sprint 151): a talk follows one branch to its end.
+            do
             {
-                read.Add(talk.LineId);
-                lines++;
-                afterLine?.Invoke(talk);
-                IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
-                int next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && !read.Contains(n), -1);
-                if (next < 0)
-                    // A goodbye: an answer that ends the talk without a fight, nor a stall or a guild to open (sprint 145).
-                    next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false }, 0);
-                town.Answer(next);
+                before = read.Count;
+                TownStep step = town.Click(npc.At) ?? throw new InvalidOperationException($"Cannot walk up to {npc.Id}.");
+                afterClick?.Invoke(step);
+                while (town.Talk is Conversation talk)
+                {
+                    total = talk.Dialogue.Lines.Count;
+                    read.Add(talk.LineId);
+                    lines++;
+                    afterLine?.Invoke(talk);
+                    IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
+                    int next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && !read.Contains(n), -1);
+                    if (next < 0)
+                        // A goodbye: an answer that ends the talk without a fight, nor a stall or a guild to open (sprint 145).
+                        next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false }, 0);
+                    town.Answer(next);
+                }
+                if (town.Fight is not null)
+                    return lines;
             }
-            if (town.Fight is not null)
-                return lines;
+            while (read.Count > before && read.Count < total);
         }
         // No gate to the training fight any more (sprint 102): the tour ends by the last one talked to.
         return lines;
