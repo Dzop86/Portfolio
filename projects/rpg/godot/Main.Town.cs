@@ -2832,8 +2832,8 @@ public partial class Main
         var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
         if (!_bar!.Tips.SequenceEqual(tips))
             problems.Add($"the side bar says {string.Join(", ", _bar.Tips)}");
-        // A small grid, the way Dofus does it (Charles, after sprint 144): three icons a row, four rows since the tree's (sprint 148) and the guild's (sprint 145).
-        if (_bar.Rows > 4)
+        // A small grid, the way Dofus does it (Charles, after sprint 144): three icons a row, four rows since the tree's (sprint 148) and the guild's (sprint 145), five since the bestiary's (sprint 154) and the achievements' (sprint 155).
+        if (_bar.Rows > 5)
             problems.Add($"the menus take {_bar.Rows} rows");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
