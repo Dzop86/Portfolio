@@ -34,6 +34,11 @@ public class AdminTests
         // Sprint 154: every monster known in full, for Plouf.
         Assert.True(Admin.Parse(["admin", "tester", "--bestiary", "full"]).Order!.Bestiary);
         Assert.Null(Admin.Parse(["admin", "tester", "--bestiary", "half"]).Order);
+        // Sprint 157: Éclats to test the shops, for Plouf.
+        Assert.Equal(1_000_000, Admin.Parse(["admin", "tester", "--shards", "1000000"]).Order!.Shards);
+        Assert.Null(Admin.Parse(["admin", "tester", "--shards", "-5"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--shards", "2000000000"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--shards"]).Order);
     }
 
     [Fact]
@@ -49,6 +54,9 @@ public class AdminTests
         using (IServiceScope scope = api.Services.CreateScope())
             said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account.ToLowerInvariant(), "--level", "100", "--give", "dagger:2"]).Order!, Cancel);
         Assert.Equal(3, said.Count);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, "--shards", "1000000"]).Order!, Cancel);
+        Assert.All(api.WithDb(db => db.Characters.Select(c => c.Shards).ToList()), s => Assert.Equal(1_000_000, s));
         IReadOnlyList<CharacterSummary> all = await server.Characters(Cancel);
         Assert.All(all, c =>
         {
