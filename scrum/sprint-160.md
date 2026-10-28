@@ -8,6 +8,7 @@
 |---|---|---|
 | En tant que membre, l'en-tête de la fenêtre de guilde montre le blason dans son écu, le nom, le niveau, sa barre, le message du meneur, et des onglets Membres, Coffre et Journal (rpg) ; auto-test de la fenêtre. | 2 | À faire |
 | En tant que membre, la liste des membres montre qui est connecté, la classe, le nom, une note, le rang, le niveau, les points apportés et les points de succès, triable et filtrable, avec les membres déconnectés à afficher, le signal de connexion d'un membre, le nombre de membres et leur niveau moyen (rpg) ; xUnit, intégration à trois clients. | 2 | À faire |
+| En tant que joueur sans guilde, je postule à une guilde par son nom avec un mot, et son meneur voit les candidatures, les accepte ou les refuse ; le meneur et les officiers invitent un joueur depuis la fenêtre (rpg) ; xUnit, intégration à trois clients. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
