@@ -7,7 +7,21 @@ namespace Rpg.Client;
 /// (D84), its category and group, the icon in relief it is drawn with (<c>assets/icons/bar</c> or <c>relief</c>), and how far of how much.
 /// </summary>
 public sealed record AchievementLine(string Id, string Name, string Text, string Progress, int Points, bool Earned, string? Title,
-    string Category = "", string? Group = null, string Icon = "achievements", int Reached = 0, int Count = 1);
+    string Category = "", string? Group = null, string Icon = "achievements", int Reached = 0, int Count = 1)
+{
+    /// <summary>What claiming it gives (sprint 159, D84).</summary>
+    public AchievementReward Reward { get; init; } = new(0, 0);
+
+    /// <summary>Its reward already claimed.</summary>
+    public bool Claimed { get; init; }
+
+    public bool Claimable => Earned && !Claimed;
+
+    /// <summary>For a crown (sprint 159), the achievements it asks, each as a line of its own; for a line of quests, the quests' names and whether done.</summary>
+    public IReadOnlyList<AchievementLine> Required { get; init; } = [];
+
+    public IReadOnlyList<(string Name, bool Done)> Quests { get; init; } = [];
+}
 
 /// <summary>A share earned, as the window shows it: the whole percent below (99 % until the last one).</summary>
 public sealed record AchievementShare(int Earned, int Count)
@@ -21,8 +35,8 @@ public sealed record AchievementGroup(string Id, string Name, AchievementShare S
 /// <summary>A category in the window's tree (sprint 158): its name, its icon, its share, its groups (none for some).</summary>
 public sealed record AchievementBranch(string Id, string Name, string Icon, AchievementShare Share, IReadOnlyList<AchievementGroup> Groups);
 
-/// <summary>The window's general progress (sprint 158): the share of every achievement, the points, each category.</summary>
-public sealed record AchievementOverview(AchievementShare Share, int Points, IReadOnlyList<AchievementBranch> Categories);
+/// <summary>The window's general progress (sprint 158): the share of every achievement, the points, each category; since sprint 159, how many to claim.</summary>
+public sealed record AchievementOverview(AchievementShare Share, int Points, IReadOnlyList<AchievementBranch> Categories, int ToClaim = 0);
 
 /// <summary>A category of achievements, with how many are earned.</summary>
 public sealed record AchievementCategory(string Id, string Name, int Earned, IReadOnlyList<AchievementLine> Lines);
@@ -56,7 +70,20 @@ public static class AchievementsPage
         AchievementBranch[] branches = [.. Achievements.All.GroupBy(a => a.Category).Select(c => new AchievementBranch(c.Key,
             texts["achievements.category." + c.Key], Icon(c.Key), Share(c),
             [.. c.Where(a => a.Group is not null).GroupBy(a => a.Group!).Select(g => new AchievementGroup(g.Key, texts["achievements.group." + g.Key], Share(g)))]))];
-        return new AchievementOverview(Share(Achievements.All), view.Points, branches);
+        return new AchievementOverview(Share(Achievements.All), view.Points, branches, ToClaim(view));
+    }
+
+    /// <summary>How many achievements are earned and not yet claimed (sprint 159: the badge on the menu's icon).</summary>
+    public static int ToClaim(AchievementView view) =>
+        Achievements.Claimable((view ?? throw new ArgumentNullException(nameof(view))).Progress.Where(p => p.Earned).Select(p => p.Id), [.. view.Claimed ?? []]).Count;
+
+    /// <summary>One achievement as a line, by its id (sprint 159: a crown's required one, seen from it).</summary>
+    public static AchievementLine? LineOf(AchievementView view, Texts texts, string id)
+    {
+        ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(texts);
+        return Achievements.All.FirstOrDefault(a => a.Id == id) is AchievementSpec a
+            ? Line(a, view.Progress.FirstOrDefault(p => p.Id == id) ?? new AchievementProgress(id, 0, a.Count), texts, view) : null;
     }
 
     /// <summary>
@@ -71,14 +98,27 @@ public static class AchievementsPage
         string wanted = Plain(search ?? "");
         return [.. Achievements.All
             .Where(a => wanted.Length > 0 || (a.Category == category && (group is null || a.Group == group)))
-            .Select(a => Line(a, progress.GetValueOrDefault(a.Id) ?? new AchievementProgress(a.Id, 0, a.Count), texts))
+            .Select(a => Line(a, progress.GetValueOrDefault(a.Id) ?? new AchievementProgress(a.Id, 0, a.Count), texts, view))
             .Where(l => wanted.Length == 0 || Plain(l.Name).Contains(wanted, StringComparison.Ordinal) || Plain(l.Text).Contains(wanted, StringComparison.Ordinal))
             .Where(l => !hideEarned || !l.Earned)];
     }
 
-    private static AchievementLine Line(AchievementSpec a, AchievementProgress p, Texts texts) =>
+    private static AchievementLine Line(AchievementSpec a, AchievementProgress p, Texts texts, AchievementView? view = null) =>
         new(a.Id, a.Name.In(texts.Lang), a.Text.In(texts.Lang), texts["achievements.progress", p.Reached, p.Count], a.Points, p.Earned, a.Title?.In(texts.Lang),
-            a.Category, a.Group, Icon(a.Category), p.Reached, p.Count);
+            a.Category, a.Group, a.Goal == AchievementGoal.Achievements ? "achievements" : Icon(a.Category), p.Reached, p.Count)
+        {
+            Reward = Achievements.Reward(a),
+            Claimed = view?.Claimed?.Contains(a.Id) == true,
+            // A crown's required achievements (never crowns themselves: no loop); a line's quests, done or not.
+            Required = a.Goal == AchievementGoal.Achievements && view is not null
+                ? [.. (a.Targets ?? []).Select(t => Achievements.All.First(o => o.Id == t)).Select(o => Line(o, view.Progress.FirstOrDefault(q => q.Id == o.Id) ?? new AchievementProgress(o.Id, 0, o.Count), texts, null))]
+                : [],
+            Quests = a.Goal == AchievementGoal.Quests
+                ? [.. (a.Targets ?? []).Where(GameData.Embedded.Quests.ContainsKey).Select(q => (GameData.Embedded.Quests[q].Name.In(texts.Lang), view?.Progress is not null && QuestDone(view, a, q)))]
+                : [],
+        };
+
+    private static bool QuestDone(AchievementView view, AchievementSpec a, string quest) => view.Quests?.Contains(quest) == true || view.Progress.Any(p => p.Id == a.Id && p.Earned);
 
     // The letters of French and English with an accent, and theirs without: a table, since the game runs without ICU
     // (invariant globalisation), where string.Normalize leaves the accents on.

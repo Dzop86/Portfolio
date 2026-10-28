@@ -29,14 +29,27 @@ public enum AchievementGoal
     Feat,
     Guild,
     SharedFights,
+
+    /// <summary>Every quest of <see cref="AchievementSpec.Targets"/> handed back (sprint 159, D84: a zone's line of quests).</summary>
+    Quests,
+
+    /// <summary>Every achievement of <see cref="AchievementSpec.Targets"/> earned (sprint 159: a zone's crown, never one of these).</summary>
+    Achievements,
+
+    /// <summary>The dungeon <see cref="AchievementSpec.Target"/> finished: its chief in the bestiary, or its "-cleared" quest handed back (sprint 159).</summary>
+    Dungeon,
 }
 
 /// <summary>
 /// An achievement of <c>data/achievements.json</c> (sprint 155): its category, its words, its points, its goal and, for some, a title;
-/// since sprint 158 (D84), the group of its category it is shown under (none where the category has no groups).
+/// since sprint 158 (D84), the group of its category it is shown under (none where the category has no groups); since
+/// sprint 159, the level its reward is reckoned at and, for a line of quests or a crown, the quests or achievements it asks.
 /// </summary>
 public sealed record AchievementSpec(string Id, string Category, LocalizedText Name, LocalizedText Text, int Points, AchievementGoal Goal, int Count,
-    string? Target = null, LocalizedText? Title = null, string? Group = null);
+    string? Target = null, LocalizedText? Title = null, string? Group = null, int Level = 0, IReadOnlyList<string>? Targets = null);
+
+/// <summary>What an achievement gives once claimed (sprint 159): experience and Éclats, never any power.</summary>
+public sealed record AchievementReward(int Xp, int Shards);
 
 /// <summary>
 /// What the server knows of a character that the achievements read (sprint 155): nothing kept for them alone but the feats
@@ -60,6 +73,26 @@ public sealed record AchievementProgress(string Id, int Reached, int Count)
 /// </summary>
 public static class Achievements
 {
+    /// <summary>
+    /// The rewards' formula (sprint 159, the game designer's <c>docs/succes-recompenses-s159.md</c> §1): at its reference level L
+    /// (10 at least), an achievement of p points gives p × L / 2 experience (p / 2 % of a level there) and p × L / 4 Éclats;
+    /// never at the character's level, so that waiting to claim is no strategy.
+    /// </summary>
+    public const double XpPerPointLevel = 0.5, ShardsPerPointLevel = 0.25;
+
+    public const int RewardFloor = 10;
+
+    public static AchievementReward Reward(AchievementSpec a)
+    {
+        ArgumentNullException.ThrowIfNull(a);
+        int level = Math.Max(RewardFloor, a.Level);
+        return new AchievementReward((int)(a.Points * level * XpPerPointLevel), (int)(a.Points * level * ShardsPerPointLevel));
+    }
+
+    /// <summary>The ids of the achievements earned and not yet claimed.</summary>
+    public static IReadOnlyList<string> Claimable(IEnumerable<string> earned, IReadOnlyCollection<string> claimed) =>
+        [.. (earned ?? throw new ArgumentNullException(nameof(earned))).Where(id => !(claimed ?? throw new ArgumentNullException(nameof(claimed))).Contains(id))];
+
     /// <summary>The feats the server writes when they happen (the only state kept for the achievements alone).</summary>
     public const string Grouped = "grouped", Traded = "traded", GreatHorde = "horde-9-at-4";
 
@@ -83,6 +116,8 @@ public static class Achievements
         ArgumentNullException.ThrowIfNull(data);
         int FamilyWins(string family) => data.Families.TryGetValue(family, out MonsterFamily? f) ? f.Monsters.Sum(m => s.Bestiary.GetValueOrDefault(m.Id)) : 0;
         bool ChiefBeaten(string family) => data.Families.TryGetValue(family, out MonsterFamily? f) && s.Bestiary.GetValueOrDefault(f[MonsterRole.Boss].Id) > 0;
+        // A dungeon finished: its chief only stands in the last room; before the bestiary (sprint 154), its quest says so.
+        bool Finished(Dungeon d) => ChiefBeaten(d.Family) || s.QuestsDone.Contains($"{d.Id}-cleared");
         IEnumerable<TalentSpec> talents = s.Talents.Where(data.Talents.ContainsKey).Select(t => data.Talents[t]);
         int reached = a.Goal switch
         {
@@ -92,7 +127,10 @@ public static class Achievements
             AchievementGoal.Known => s.Bestiary.Count,
             AchievementGoal.FamilyVictories => FamilyWins(a.Target ?? ""),
             AchievementGoal.Chief => ChiefBeaten(a.Target ?? "") ? 1 : 0,
-            AchievementGoal.Chiefs => data.Dungeons.Values.Count(d => ChiefBeaten(d.Family)),
+            AchievementGoal.Chiefs => data.Dungeons.Values.Count(Finished),
+            AchievementGoal.Dungeon => data.Dungeons.TryGetValue(a.Target ?? "", out Dungeon? d) && Finished(d) ? 1 : 0,
+            AchievementGoal.Quests => (a.Targets ?? []).Count(s.QuestsDone.Contains),
+            AchievementGoal.Achievements => (a.Targets ?? []).Count(t => All.FirstOrDefault(o => o.Id == t) is AchievementSpec o && Reached(o, s, data) >= o.Count),
             AchievementGoal.JobLevel => s.JobLevels.Values.DefaultIfEmpty(0).Max(),
             AchievementGoal.JobsAt => s.JobLevels.Values.Count(l => l >= 20),
             AchievementGoal.GatherJobsAt => data.Jobs.Values.Where(j => j.Gathers).All(j => s.JobLevels.GetValueOrDefault(j.Id) >= a.Count) ? a.Count

@@ -129,6 +129,10 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Build")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ClaimedAchievements")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Class")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

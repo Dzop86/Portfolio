@@ -24,6 +24,14 @@ public partial class Main
             ShowWindows();
         };
         _achievementsPanel.TitleChosen += id => _ = AchievementCall(async s => Achieved(await s.WearTitle(_character!.Id, id)));
+        // A reward claimed (sprint 159): the character's experience and Éclats kept, a word said, the window shown again.
+        _achievementsPanel.ClaimPressed += id => _ = AchievementCall(async s =>
+        {
+            AchievementClaim claim = await s.ClaimAchievement(_character!.Id, id);
+            KeepCharacter(claim.Character);
+            _achievementsPanel?.Tell(texts["achievements.claimed-note", claim.Xp, claim.Shards]);
+            Achieved(claim.Achievements);
+        });
         if (_lobby?.SignedIn != true || _character is null)
             _achievementsPanel.Tell(texts["achievements.needs-server"]);
         else
@@ -44,6 +52,9 @@ public partial class Main
             Note(texts["achievements.earned", Achievements.All.First(a => a.Id == id).Name.In(texts.Lang)]);
         _achieved = view;
         _achievementsPanel?.Show(view);
+        // The rewards waiting, on the menu's icon (sprint 159).
+        int toClaim = AchievementsPage.ToClaim(view);
+        _bar?.SetBadge(GameWindow.Achievements, toClaim, texts["achievements.to-claim", toClaim]);
     }
 
     /// <summary>After a fight or a contract: the achievements asked again, quietly (online only).</summary>

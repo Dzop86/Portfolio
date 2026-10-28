@@ -18,7 +18,8 @@ public class AchievementTests
     public void TheAchievements_AreAboutSixty_InSevenCategories_WrittenInBothLanguages_WithADozenTitles()
     {
         IReadOnlyList<AchievementSpec> all = Achievements.All;
-        Assert.InRange(all.Count, 55, 70);
+        // Sprint 159 (D84): 19 lines of quests and crowns more, 82 in all.
+        Assert.InRange(all.Count, 80, 90);
         Assert.Equal(all.Count, all.Select(a => a.Id).Distinct().Count());
         Assert.Equal(["Dungeons", "Exploration", "Hunt", "Jobs", "Quests", "Together", "Tree"], all.Select(a => a.Category).Distinct().Order(StringComparer.Ordinal));
         Assert.All(all, a => Assert.True(a.Name.Fr.Length > 0 && a.Name.En.Length > 0 && a.Text.Fr.Length > 0 && a.Text.En.Length > 0 && a.Points > 0 && a.Count > 0, a.Id));
@@ -40,6 +41,10 @@ public class AchievementTests
                 AchievementGoal.Waystone => waystones.Contains(a.Target),
                 AchievementGoal.Known => a.Count <= Real.Monsters.Count,
                 AchievementGoal.FamilyVictories or AchievementGoal.Chief => Real.Families.ContainsKey(a.Target!) && Real.Dungeons.Values.Any(d => d.Family == a.Target || a.Goal == AchievementGoal.FamilyVictories),
+                AchievementGoal.Dungeon => Real.Dungeons.ContainsKey(a.Target!) && Real.Quests.ContainsKey(a.Target + "-cleared"),
+                AchievementGoal.Quests => a.Targets is { Count: > 0 } t && t.All(Real.Quests.ContainsKey) && a.Count == t.Count,
+                AchievementGoal.Achievements => a.Targets is { Count: > 0 } t && a.Count == t.Count
+                    && t.All(id => Achievements.All.FirstOrDefault(o => o.Id == id) is { Goal: not AchievementGoal.Achievements }),
                 AchievementGoal.Chiefs => a.Count <= Real.Dungeons.Count,
                 AchievementGoal.JobLevel or AchievementGoal.GatherJobsAt or AchievementGoal.CraftJobsAt => a.Count <= Crafting.MaxLevel,
                 AchievementGoal.JobsAt => a.Count <= Real.Jobs.Count,
@@ -63,12 +68,14 @@ public class AchievementTests
         var bestiary = families.SelectMany(f => f.Monsters).ToDictionary(m => m.Id, m => m.Role == MonsterRole.Boss ? 0 : 9);
         foreach (MonsterFamily f in families.Take(5))
             bestiary[f[MonsterRole.Boss].Id] = 1;
-        string[] quests = [.. Real.Quests.Values.Where(q => q.Zone is null || chapter1.Contains(q.Zone)).Where(q => q.Level <= 30).Select(q => q.Id)];
+        // The chapter's story, not its side quests nor its dungeons' (since sprint 159 a dungeon's quest finishes it, D84).
+        string[] quests = [.. Real.Quests.Values.Where(q => q.Zone is null || chapter1.Contains(q.Zone)).Where(q => q.Level <= 30 && q.Kind is not (QuestKind.Side or QuestKind.Dungeon)).Select(q => q.Id)];
         Assert.Contains("the-disjoint", quests);
         AchievementState s = State(["waystone-clairval", "waystone-woods", "waystone-mouldy", "waystone-lake", "waystone-fields"], bestiary,
             new Dictionary<string, int> { ["miner"] = 25, ["smith"] = 25 }, quests, talents: ["bogging", "up-close"]);
         double share = 100.0 * Achievements.Earned(s, Real).Count / Achievements.All.Count;
-        Assert.InRange(share, 20, 35);
+        // 35.4 % since sprint 159: the lines of the story's quests are earned by following it; the band widened to 40.
+        Assert.InRange(share, 20, 40);
     }
 
     [Fact]
@@ -99,5 +106,70 @@ public class AchievementTests
         Assert.NotNull(Achievements.WhyNotTitle(titled.Id, []));
         Assert.NotNull(Achievements.WhyNotTitle(plain.Id, [plain.Id]));
         Assert.NotNull(Achievements.WhyNotTitle("no-such", ["no-such"]));
+    }
+
+    [Fact]
+    public void TheRewards_FollowTheFormula_AtTheReferenceLevel_NeverAboveTheLargest()
+    {
+        AchievementSpec Of(string id) => Achievements.All.Single(a => a.Id == id);
+        // The game designer's examples (docs/succes-recompenses-s159.md §1.3).
+        Assert.Equal(new AchievementReward(25, 12), Achievements.Reward(Of("first-victory")));
+        Assert.Equal(new AchievementReward(50, 25), Achievements.Reward(Of("clairval-first-steps")));
+        Assert.Equal(new AchievementReward(50, 25), Achievements.Reward(Of("dungeon-boar-wallow")));
+        Assert.Equal(new AchievementReward(125, 62), Achievements.Reward(Of("woods-all")));
+        Assert.Equal(new AchievementReward(187, 93), Achievements.Reward(Of("lake-main")));
+        Assert.Equal(new AchievementReward(225, 112), Achievements.Reward(Of("dungeon-mother-tree-roots")));
+        Assert.Equal(new AchievementReward(562, 281), Achievements.Reward(Of("ancestors-all")));
+        Assert.Equal(new AchievementReward(675, 337), Achievements.Reward(Of("contracts-200")));
+        Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 45 && Achievements.Reward(a).Xp <= 675, a.Id));
+        Assert.Equal(1110, Achievements.All.Sum(a => a.Points));
+    }
+
+    [Fact]
+    public void TheLevels_FollowTheirRule()
+    {
+        AchievementSpec Of(string id) => Achievements.All.Single(a => a.Id == id);
+        foreach (AchievementSpec a in Achievements.All)
+        {
+            int expected = a.Goal switch
+            {
+                // A line of quests: its highest quest; a dungeon: its "-cleared" quest; a crown: the highest it asks.
+                AchievementGoal.Quests => a.Targets!.Max(q => Real.Quests[q].Level),
+                AchievementGoal.Dungeon => Real.Quests[a.Target + "-cleared"].Level,
+                AchievementGoal.Achievements => a.Targets!.Max(t => Of(t).Level),
+                _ => a.Level,
+            };
+            Assert.True(a.Level == expected, $"{a.Id}: {a.Level}, not {expected}");
+        }
+        // A family's at its dungeon's level.
+        foreach (Dungeon d in Real.Dungeons.Values)
+            Assert.Equal(Of("dungeon-" + d.Id).Level, Of($"family-{d.Family}-100").Level);
+    }
+
+    [Fact]
+    public void EveryQuestButADungeons_IsInExactlyOneLineOfQuests()
+    {
+        var lines = Achievements.All.Where(a => a.Goal == AchievementGoal.Quests).SelectMany(a => a.Targets!).ToList();
+        foreach (Quest q in Real.Quests.Values.Where(q => q.Kind != QuestKind.Dungeon))
+            Assert.True(lines.Count(id => id == q.Id) == 1, q.Id);
+        Assert.Equal(lines.Count, lines.Distinct().Count());
+    }
+
+    [Fact]
+    public void ADungeon_IsFinished_ByItsChief_OrByItsQuest_AndACrown_ByWhatItAsks()
+    {
+        AchievementSpec Of(string id) => Achievements.All.Single(a => a.Id == id);
+        string chief = Real.Families["boar"][MonsterRole.Boss].Id;
+        Assert.Equal(1, Achievements.Reached(Of("dungeon-boar-wallow"), State(bestiary: new Dictionary<string, int> { [chief] = 1 }), Real));
+        Assert.Equal(1, Achievements.Reached(Of("dungeon-boar-wallow"), State(quests: ["boar-wallow-cleared"]), Real));
+        Assert.Equal(0, Achievements.Reached(Of("dungeon-boar-wallow"), State(quests: ["wolf-den-cleared"]), Real));
+        Assert.Equal(1, Achievements.Reached(Of("dungeons-all"), State(quests: ["boar-wallow-cleared"]), Real));
+        // The woods' crown: its two lines and its two dungeons.
+        string[] woods = [.. Of("woods-main").Targets!, .. Of("woods-side").Targets!];
+        Assert.Equal(2, Achievements.Reached(Of("woods-all"), State(quests: woods), Real));
+        Assert.Equal(4, Achievements.Reached(Of("woods-all"), State(quests: [.. woods, "boar-wallow-cleared", "wolf-den-cleared"]), Real));
+        Assert.Equal(3, Achievements.Reached(Of("woods-main"), State(quests: ["edge-of-the-woods", "restless-beasts", "the-root-circle"]), Real));
+        // Claimable: earned and not yet claimed.
+        Assert.Equal(["woods-all"], Achievements.Claimable(["woods-main", "woods-all"], ["woods-main"]));
     }
 }

@@ -102,7 +102,11 @@ public sealed record Travel(string? Waystone);
 public sealed record WaystoneView(IReadOnlyList<string> Known, string? Home);
 
 /// <summary>A character's achievements (sprint 155): how far each one has gone, the points earned, the title worn (an achievement's id).</summary>
-public sealed record AchievementView(IReadOnlyList<AchievementProgress> Progress, int Points, string? Title);
+public sealed record AchievementView(IReadOnlyList<AchievementProgress> Progress, int Points, string? Title, IReadOnlyList<string>? Claimed = null,
+    IReadOnlyList<string>? Quests = null);
+
+/// <summary>What claiming one or every achievement gave (sprint 159, D84): the experience, the Éclats, the character after, the achievements now.</summary>
+public sealed record AchievementClaim(long Xp, long Shards, CharacterSummary Character, AchievementView Achievements);
 
 /// <summary>The title to wear (sprint 155): the id of an achievement earned that gives one, or null for none.</summary>
 public sealed record TitleOrder(string? Achievement);

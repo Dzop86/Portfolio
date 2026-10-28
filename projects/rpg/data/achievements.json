@@ -12,6 +12,7 @@
       "en": "Touch a waystone for the first time."
     },
     "points": 5,
+    "level": 5,
     "goal": "Waystones",
     "count": 1
   },
@@ -28,6 +29,7 @@
       "en": "Touch 3 waystones."
     },
     "points": 10,
+    "level": 10,
     "goal": "Waystones",
     "count": 3
   },
@@ -44,6 +46,7 @@
       "en": "Touch 5 waystones."
     },
     "points": 15,
+    "level": 25,
     "goal": "Waystones",
     "count": 5
   },
@@ -60,6 +63,7 @@
       "en": "Touch all 7 waystones."
     },
     "points": 25,
+    "level": 31,
     "goal": "Waystones",
     "count": 7,
     "title": {
@@ -80,6 +84,7 @@
       "en": "Touch the waystone in Clairval Woods."
     },
     "points": 5,
+    "level": 5,
     "goal": "Waystone",
     "count": 1,
     "target": "waystone-woods"
@@ -97,6 +102,7 @@
       "en": "Touch the waystone in the Mouldy Woods."
     },
     "points": 5,
+    "level": 10,
     "goal": "Waystone",
     "count": 1,
     "target": "waystone-mouldy"
@@ -114,6 +120,7 @@
       "en": "Touch the waystone at Reed Lake."
     },
     "points": 5,
+    "level": 17,
     "goal": "Waystone",
     "count": 1,
     "target": "waystone-lake"
@@ -131,6 +138,7 @@
       "en": "Touch the waystone in Clairval Fields."
     },
     "points": 5,
+    "level": 25,
     "goal": "Waystone",
     "count": 1,
     "target": "waystone-fields"
@@ -148,6 +156,7 @@
       "en": "Touch the waystone in the Forest of the Ancestors."
     },
     "points": 5,
+    "level": 31,
     "goal": "Waystone",
     "count": 1,
     "target": "waystone-ancestors"
@@ -165,6 +174,7 @@
       "en": "Defeat your first monster."
     },
     "points": 5,
+    "level": 5,
     "goal": "Victories",
     "count": 1
   },
@@ -181,6 +191,7 @@
       "en": "Defeat 500 monsters."
     },
     "points": 10,
+    "level": 25,
     "goal": "Victories",
     "count": 500
   },
@@ -197,6 +208,7 @@
       "en": "Defeat 1,000 monsters."
     },
     "points": 20,
+    "level": 45,
     "goal": "Victories",
     "count": 1000,
     "title": {
@@ -217,6 +229,7 @@
       "en": "Add 10 different monsters to your bestiary."
     },
     "points": 10,
+    "level": 10,
     "goal": "Known",
     "count": 10
   },
@@ -233,6 +246,7 @@
       "en": "Add 25 different monsters to your bestiary."
     },
     "points": 15,
+    "level": 25,
     "goal": "Known",
     "count": 25
   },
@@ -249,6 +263,7 @@
       "en": "Add all 50 monsters to your bestiary."
     },
     "points": 30,
+    "level": 45,
     "goal": "Known",
     "count": 50,
     "title": {
@@ -269,6 +284,7 @@
       "en": "Defeat 100 boars."
     },
     "points": 15,
+    "level": 9,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "boar"
@@ -286,6 +302,7 @@
       "en": "Defeat 100 wolves."
     },
     "points": 15,
+    "level": 10,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "wolf"
@@ -303,6 +320,7 @@
       "en": "Defeat 100 mushrooms."
     },
     "points": 15,
+    "level": 15,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "mushroom"
@@ -320,6 +338,7 @@
       "en": "Defeat 100 zombies."
     },
     "points": 15,
+    "level": 17,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "zombie"
@@ -337,6 +356,7 @@
       "en": "Defeat 100 frogs."
     },
     "points": 15,
+    "level": 24,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "frog"
@@ -354,6 +374,7 @@
       "en": "Defeat 100 crabs."
     },
     "points": 15,
+    "level": 25,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "crab"
@@ -371,6 +392,7 @@
       "en": "Defeat 100 bees."
     },
     "points": 15,
+    "level": 29,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "bee"
@@ -388,6 +410,7 @@
       "en": "Defeat 100 moles."
     },
     "points": 15,
+    "level": 29,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "mole"
@@ -405,6 +428,7 @@
       "en": "Defeat 100 Sylvan Stags."
     },
     "points": 15,
+    "level": 44,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "stag"
@@ -422,6 +446,7 @@
       "en": "Defeat 100 Mossy Keepers."
     },
     "points": 15,
+    "level": 45,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "golem"
@@ -435,13 +460,14 @@
       "en": "A King in the Mud"
     },
     "text": {
-      "fr": "Vainquez le chef de la Bauge du Roi sanglier.",
-      "en": "Defeat the chief of the Boar King's Wallow."
+      "fr": "Finissez la Bauge du Roi sanglier.",
+      "en": "Finish the Boar King's Wallow."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 9,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "boar"
+    "target": "boar-wallow"
   },
   {
     "id": "dungeon-wolf-den",
@@ -452,13 +478,14 @@
       "en": "Top of the Pack"
     },
     "text": {
-      "fr": "Vainquez le chef de la Tanière de la meute.",
-      "en": "Defeat the chief of the Pack's Den."
+      "fr": "Finissez la Tanière de la meute.",
+      "en": "Finish the Pack's Den."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 10,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "wolf"
+    "target": "wolf-den"
   },
   {
     "id": "dungeon-mushroom-cellar",
@@ -469,13 +496,14 @@
       "en": "The Last Picking"
     },
     "text": {
-      "fr": "Vainquez le chef de la Champignonnière.",
-      "en": "Defeat the chief of the Mushroom Cellar."
+      "fr": "Finissez la Champignonnière.",
+      "en": "Finish the Mushroom Cellar."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 15,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "mushroom"
+    "target": "mushroom-cellar"
   },
   {
     "id": "dungeon-zombie-crypt",
@@ -486,13 +514,14 @@
       "en": "The Crypt Falls Quiet"
     },
     "text": {
-      "fr": "Vainquez le chef de la Crypte oubliée.",
-      "en": "Defeat the chief of the Forgotten Crypt."
+      "fr": "Finissez la Crypte oubliée.",
+      "en": "Finish the Forgotten Crypt."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 17,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "zombie"
+    "target": "zombie-crypt"
   },
   {
     "id": "dungeon-frog-grotto",
@@ -503,13 +532,14 @@
       "en": "A Soggy Crown"
     },
     "text": {
-      "fr": "Vainquez le chef de la Grotte du Roi grenouille.",
-      "en": "Defeat the chief of the Frog King's Grotto."
+      "fr": "Finissez la Grotte du Roi grenouille.",
+      "en": "Finish the Frog King's Grotto."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 24,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "frog"
+    "target": "frog-grotto"
   },
   {
     "id": "dungeon-crab-reef",
@@ -520,13 +550,14 @@
       "en": "The Reef Cleared"
     },
     "text": {
-      "fr": "Vainquez le chef du Récif des pinces.",
-      "en": "Defeat the chief of the Pincer Reef."
+      "fr": "Finissez le Récif des pinces.",
+      "en": "Finish the Pincer Reef."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 25,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "crab"
+    "target": "crab-reef"
   },
   {
     "id": "dungeon-royal-hive",
@@ -537,13 +568,14 @@
       "en": "The Hive at Rest"
     },
     "text": {
-      "fr": "Vainquez le chef de la Ruche royale.",
-      "en": "Defeat the chief of the Royal Hive."
+      "fr": "Finissez la Ruche royale.",
+      "en": "Finish the Royal Hive."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 29,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "bee"
+    "target": "royal-hive"
   },
   {
     "id": "dungeon-mole-burrows",
@@ -554,13 +586,14 @@
       "en": "Up from the Burrows"
     },
     "text": {
-      "fr": "Vainquez le chef des Galeries des taupes.",
-      "en": "Defeat the chief of the Mole Burrows."
+      "fr": "Finissez les Galeries des taupes.",
+      "en": "Finish the Mole Burrows."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 29,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "mole"
+    "target": "mole-burrows"
   },
   {
     "id": "dungeon-bellowing-combe",
@@ -571,13 +604,14 @@
       "en": "The Bellowing Stops"
     },
     "text": {
-      "fr": "Vainquez le chef de la Combe du brame.",
-      "en": "Defeat the chief of the Bellowing Combe."
+      "fr": "Finissez la Combe du brame.",
+      "en": "Finish the Bellowing Combe."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 44,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "stag"
+    "target": "bellowing-combe"
   },
   {
     "id": "dungeon-mother-tree-roots",
@@ -588,13 +622,14 @@
       "en": "Down Among the Roots"
     },
     "text": {
-      "fr": "Vainquez le chef des Racines de l'Arbre-Mère.",
-      "en": "Defeat the chief of the Mother Tree's Roots."
+      "fr": "Finissez les Racines de l'Arbre-Mère.",
+      "en": "Finish the Mother Tree's Roots."
     },
     "points": 10,
-    "goal": "Chief",
+    "level": 45,
+    "goal": "Dungeon",
     "count": 1,
-    "target": "golem"
+    "target": "mother-tree-roots"
   },
   {
     "id": "dungeons-all",
@@ -605,10 +640,11 @@
       "en": "Ten Chiefs Fallen"
     },
     "text": {
-      "fr": "Vainquez les chefs des 10 donjons.",
-      "en": "Defeat the chiefs of all 10 dungeons."
+      "fr": "Finissez les 10 donjons.",
+      "en": "Finish all 10 dungeons."
     },
     "points": 30,
+    "level": 45,
     "goal": "Chiefs",
     "count": 10,
     "title": {
@@ -629,6 +665,7 @@
       "en": "Raise a trade to level 20."
     },
     "points": 5,
+    "level": 10,
     "goal": "JobLevel",
     "count": 20
   },
@@ -645,6 +682,7 @@
       "en": "Raise a trade to level 40."
     },
     "points": 10,
+    "level": 20,
     "goal": "JobLevel",
     "count": 40
   },
@@ -661,6 +699,7 @@
       "en": "Raise a trade to level 60."
     },
     "points": 15,
+    "level": 30,
     "goal": "JobLevel",
     "count": 60
   },
@@ -677,6 +716,7 @@
       "en": "Raise a trade to level 80."
     },
     "points": 20,
+    "level": 40,
     "goal": "JobLevel",
     "count": 80
   },
@@ -693,6 +733,7 @@
       "en": "Raise a trade to level 100."
     },
     "points": 30,
+    "level": 45,
     "goal": "JobLevel",
     "count": 100,
     "title": {
@@ -713,6 +754,7 @@
       "en": "Raise 3 trades to level 20."
     },
     "points": 10,
+    "level": 10,
     "goal": "JobsAt",
     "count": 3
   },
@@ -729,6 +771,7 @@
       "en": "Raise all 5 gathering trades to level 20."
     },
     "points": 15,
+    "level": 10,
     "goal": "GatherJobsAt",
     "count": 20,
     "title": {
@@ -749,6 +792,7 @@
       "en": "Raise all 7 making trades to level 20."
     },
     "points": 15,
+    "level": 10,
     "goal": "CraftJobsAt",
     "count": 20
   },
@@ -765,6 +809,7 @@
       "en": "Complete 10 quests."
     },
     "points": 5,
+    "level": 5,
     "goal": "QuestsDone",
     "count": 10
   },
@@ -781,6 +826,7 @@
       "en": "Complete 25 quests."
     },
     "points": 10,
+    "level": 15,
     "goal": "QuestsDone",
     "count": 25
   },
@@ -797,6 +843,7 @@
       "en": "Complete 50 quests."
     },
     "points": 15,
+    "level": 35,
     "goal": "QuestsDone",
     "count": 50
   },
@@ -813,6 +860,7 @@
       "en": "Finish the first chapter of the story, in Clairval."
     },
     "points": 25,
+    "level": 30,
     "goal": "Quest",
     "count": 1,
     "target": "the-disjoint",
@@ -834,6 +882,7 @@
       "en": "Complete the quest \"The Mother Tree's Roots\"."
     },
     "points": 25,
+    "level": 41,
     "goal": "Quest",
     "count": 1,
     "target": "roots-of-the-mother-tree",
@@ -855,6 +904,7 @@
       "en": "Fulfil 10 contracts from the notice board."
     },
     "points": 5,
+    "level": 10,
     "goal": "Contracts",
     "count": 10
   },
@@ -871,6 +921,7 @@
       "en": "Fulfil 50 contracts from the notice board."
     },
     "points": 15,
+    "level": 25,
     "goal": "Contracts",
     "count": 50
   },
@@ -887,12 +938,446 @@
       "en": "Fulfil 200 contracts from the notice board."
     },
     "points": 30,
+    "level": 45,
     "goal": "Contracts",
     "count": 200,
     "title": {
       "fr": "Pilier du tableau",
       "en": "Pillar of the Board"
     }
+  },
+  {
+    "id": "clairval-first-steps",
+    "category": "Quests",
+    "group": "clairval",
+    "name": {
+      "fr": "Du grenier à la palissade",
+      "en": "From Loft to Palisade"
+    },
+    "text": {
+      "fr": "Terminez vos premières quêtes à Clairval, de l'accueil d'Aubin à l'étal de Rose.",
+      "en": "Complete your first quests in Clairval, from Aubin's welcome to Rose's stall."
+    },
+    "points": 10,
+    "level": 3,
+    "goal": "Quests",
+    "count": 6,
+    "targets": [
+      "welcome",
+      "first-lesson",
+      "well-equipped",
+      "cellar-rats",
+      "palisade-stakes",
+      "roses-stall"
+    ]
+  },
+  {
+    "id": "clairval-four-trades",
+    "category": "Quests",
+    "group": "clairval",
+    "name": {
+      "fr": "Quatre poinçons",
+      "en": "Four Makers' Marks"
+    },
+    "text": {
+      "fr": "Terminez les quatre premières commandes de la rue des artisans.",
+      "en": "Complete the first four commissions on Craftsmen's Row."
+    },
+    "points": 10,
+    "level": 3,
+    "goal": "Quests",
+    "count": 4,
+    "targets": [
+      "first-billhook",
+      "first-tunic",
+      "first-band",
+      "first-shoes"
+    ]
+  },
+  {
+    "id": "clairval-story",
+    "category": "Quests",
+    "group": "clairval",
+    "name": {
+      "fr": "La page grattée",
+      "en": "The Scraped Page"
+    },
+    "text": {
+      "fr": "Terminez « La pierre qui murmurait » et « Ce que le registre tait ».",
+      "en": "Complete \"The Whispering Stone\" and \"What the Registry Leaves Out\"."
+    },
+    "points": 10,
+    "level": 4,
+    "goal": "Quests",
+    "count": 2,
+    "targets": [
+      "whispering-stone",
+      "the-registry"
+    ]
+  },
+  {
+    "id": "clairval-all",
+    "category": "Quests",
+    "group": "clairval",
+    "name": {
+      "fr": "Clairval vous adopte",
+      "en": "Clairval Takes You In"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 20,
+    "level": 4,
+    "goal": "Achievements",
+    "count": 3,
+    "targets": [
+      "clairval-first-steps",
+      "clairval-four-trades",
+      "clairval-story"
+    ]
+  },
+  {
+    "id": "woods-main",
+    "category": "Quests",
+    "group": "woods",
+    "name": {
+      "fr": "Ce qui dort sous le bois",
+      "en": "What Sleeps Beneath the Woods"
+    },
+    "text": {
+      "fr": "Terminez les quêtes principales du Bois de Clairval.",
+      "en": "Complete the main quests in Clairval Woods."
+    },
+    "points": 15,
+    "level": 9,
+    "goal": "Quests",
+    "count": 5,
+    "targets": [
+      "edge-of-the-woods",
+      "restless-beasts",
+      "the-root-circle",
+      "rumble-under-the-wallow",
+      "four-signs"
+    ]
+  },
+  {
+    "id": "woods-side",
+    "category": "Quests",
+    "group": "woods",
+    "name": {
+      "fr": "Les haches chantent",
+      "en": "The Axes Sing Again"
+    },
+    "text": {
+      "fr": "Terminez les quêtes secondaires de Mathurin, au Bois de Clairval.",
+      "en": "Complete Mathurin's side quests in Clairval Woods."
+    },
+    "points": 10,
+    "level": 8,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "the-pack",
+      "winter-pelts",
+      "the-old-loner"
+    ]
+  },
+  {
+    "id": "woods-all",
+    "category": "Quests",
+    "group": "woods",
+    "name": {
+      "fr": "De la lisière à la bauge",
+      "en": "From the Edge to the Wallow"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 25,
+    "level": 10,
+    "goal": "Achievements",
+    "count": 4,
+    "targets": [
+      "woods-main",
+      "woods-side",
+      "dungeon-boar-wallow",
+      "dungeon-wolf-den"
+    ]
+  },
+  {
+    "id": "mouldy-main",
+    "category": "Quests",
+    "group": "mouldy",
+    "name": {
+      "fr": "Relier sans mélanger",
+      "en": "Linked, Not Mixed"
+    },
+    "text": {
+      "fr": "Terminez les quêtes principales du Bois moisi.",
+      "en": "Complete the main quests in the Mouldy Woods."
+    },
+    "points": 15,
+    "level": 16,
+    "goal": "Quests",
+    "count": 4,
+    "targets": [
+      "what-grows-between",
+      "the-undug-crypt",
+      "down-into-the-crypt",
+      "the-cracked-seal"
+    ]
+  },
+  {
+    "id": "mouldy-side",
+    "category": "Quests",
+    "group": "mouldy",
+    "name": {
+      "fr": "Les genoux de Barnabé",
+      "en": "Barnabé's Bad Knees"
+    },
+    "text": {
+      "fr": "Terminez les quêtes secondaires de Barnabé, l'ermite du Bois moisi.",
+      "en": "Complete the side quests of Barnabé, the hermit of the Mouldy Woods."
+    },
+    "points": 10,
+    "level": 13,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "spores-for-the-stall",
+      "the-walking-dead",
+      "hermits-remedy"
+    ]
+  },
+  {
+    "id": "mouldy-all",
+    "category": "Quests",
+    "group": "mouldy",
+    "name": {
+      "fr": "Ça colle aux bottes",
+      "en": "It Sticks to Your Boots"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 25,
+    "level": 17,
+    "goal": "Achievements",
+    "count": 4,
+    "targets": [
+      "mouldy-main",
+      "mouldy-side",
+      "dungeon-mushroom-cellar",
+      "dungeon-zombie-crypt"
+    ]
+  },
+  {
+    "id": "lake-main",
+    "category": "Quests",
+    "group": "lake",
+    "name": {
+      "fr": "Sur le même air",
+      "en": "To the Same Tune"
+    },
+    "text": {
+      "fr": "Terminez les quêtes principales du Lac des Joncs.",
+      "en": "Complete the main quests at Reed Lake."
+    },
+    "points": 15,
+    "level": 25,
+    "goal": "Quests",
+    "count": 4,
+    "targets": [
+      "the-unlearned-lullaby",
+      "the-last-verse",
+      "the-washed-name",
+      "the-name-returned"
+    ]
+  },
+  {
+    "id": "lake-side",
+    "category": "Quests",
+    "group": "lake",
+    "name": {
+      "fr": "Plus de mailles que de trous",
+      "en": "More Mesh Than Holes"
+    },
+    "text": {
+      "fr": "Terminez les quêtes secondaires de Liane, la passeuse du Lac des Joncs.",
+      "en": "Complete the side quests of Liane, the ferrywoman of Reed Lake."
+    },
+    "points": 10,
+    "level": 22,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "frog-song",
+      "shells-and-claws",
+      "lianes-nets"
+    ]
+  },
+  {
+    "id": "lake-all",
+    "category": "Quests",
+    "group": "lake",
+    "name": {
+      "fr": "Faux, mais vrai",
+      "en": "Off-Key, but True"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 25,
+    "level": 25,
+    "goal": "Achievements",
+    "count": 4,
+    "targets": [
+      "lake-main",
+      "lake-side",
+      "dungeon-frog-grotto",
+      "dungeon-crab-reef"
+    ]
+  },
+  {
+    "id": "fields-main",
+    "category": "Quests",
+    "group": "fields",
+    "name": {
+      "fr": "Tout fuit à la fois",
+      "en": "Everything Flees at Once"
+    },
+    "text": {
+      "fr": "Terminez les quêtes principales des Champs de Clairval.",
+      "en": "Complete the main quests in Clairval Fields."
+    },
+    "points": 15,
+    "level": 30,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "burning-hives",
+      "under-the-hedges",
+      "the-disjoint"
+    ]
+  },
+  {
+    "id": "fields-side",
+    "category": "Quests",
+    "group": "fields",
+    "name": {
+      "fr": "Le pain rompu en cinq",
+      "en": "Bread Broken in Five"
+    },
+    "text": {
+      "fr": "Terminez les quêtes secondaires d'Églantine, aux Champs de Clairval.",
+      "en": "Complete Églantine's side quests in Clairval Fields."
+    },
+    "points": 10,
+    "level": 30,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "clairval-honey",
+      "under-the-furrows",
+      "harvest-bread"
+    ]
+  },
+  {
+    "id": "fields-all",
+    "category": "Quests",
+    "group": "fields",
+    "name": {
+      "fr": "Après la moisson",
+      "en": "After the Harvest"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 25,
+    "level": 30,
+    "goal": "Achievements",
+    "count": 4,
+    "targets": [
+      "fields-main",
+      "fields-side",
+      "dungeon-royal-hive",
+      "dungeon-mole-burrows"
+    ]
+  },
+  {
+    "id": "ancestors-main",
+    "category": "Quests",
+    "group": "ancestors",
+    "name": {
+      "fr": "La route continue",
+      "en": "The Road Carries On"
+    },
+    "text": {
+      "fr": "Terminez les quêtes principales de Quatre-Chemins et de la Forêt des Aïeux.",
+      "en": "Complete the main quests of Four Ways and the Forest of the Ancestors."
+    },
+    "points": 15,
+    "level": 41,
+    "goal": "Quests",
+    "count": 6,
+    "targets": [
+      "four-trails",
+      "where-roads-part",
+      "the-tree-town",
+      "the-unmapped-passage",
+      "mossy-keepers",
+      "roots-of-the-mother-tree"
+    ]
+  },
+  {
+    "id": "ancestors-side",
+    "category": "Quests",
+    "group": "ancestors",
+    "name": {
+      "fr": "Ceux qui descendent",
+      "en": "Those Who Go Down"
+    },
+    "text": {
+      "fr": "Terminez les quêtes secondaires de Berthe, au camp des mineurs.",
+      "en": "Complete Berthe's side quests at the miners' camp."
+    },
+    "points": 10,
+    "level": 40,
+    "goal": "Quests",
+    "count": 3,
+    "targets": [
+      "burning-ground",
+      "antler-wedges",
+      "the-bellow"
+    ]
+  },
+  {
+    "id": "ancestors-all",
+    "category": "Quests",
+    "group": "ancestors",
+    "name": {
+      "fr": "Nous tiendrons",
+      "en": "We Shall Hold"
+    },
+    "text": {
+      "fr": "Obtenez les succès suivants.",
+      "en": "Earn the following achievements."
+    },
+    "points": 25,
+    "level": 45,
+    "goal": "Achievements",
+    "count": 4,
+    "targets": [
+      "ancestors-main",
+      "ancestors-side",
+      "dungeon-bellowing-combe",
+      "dungeon-mother-tree-roots"
+    ]
   },
   {
     "id": "first-talent",
@@ -906,6 +1391,7 @@
       "en": "Take your first talent in the tree."
     },
     "points": 5,
+    "level": 30,
     "goal": "Talents",
     "count": 1
   },
@@ -921,6 +1407,7 @@
       "en": "Take a pair in the talent tree."
     },
     "points": 5,
+    "level": 30,
     "goal": "Pair",
     "count": 1
   },
@@ -936,6 +1423,7 @@
       "en": "Take a Heart in the talent tree."
     },
     "points": 10,
+    "level": 35,
     "goal": "Heart",
     "count": 1
   },
@@ -951,6 +1439,7 @@
       "en": "Take a key in the talent tree."
     },
     "points": 15,
+    "level": 40,
     "goal": "Key",
     "count": 1,
     "title": {
@@ -970,6 +1459,7 @@
       "en": "Take the talent \"Conversion: Lightning\"."
     },
     "points": 15,
+    "level": 45,
     "goal": "Talent",
     "count": 1,
     "target": "convert-lightning"
@@ -986,6 +1476,7 @@
       "en": "Fight in a group with another player."
     },
     "points": 5,
+    "level": 5,
     "goal": "Feat",
     "count": 1,
     "target": "grouped"
@@ -1002,6 +1493,7 @@
       "en": "Join a guild."
     },
     "points": 5,
+    "level": 10,
     "goal": "Guild",
     "count": 1
   },
@@ -1017,6 +1509,7 @@
       "en": "Win 10 fights with other players."
     },
     "points": 10,
+    "level": 15,
     "goal": "SharedFights",
     "count": 10
   },
@@ -1032,6 +1525,7 @@
       "en": "Win 50 fights with other players."
     },
     "points": 15,
+    "level": 30,
     "goal": "SharedFights",
     "count": 50,
     "title": {
@@ -1051,6 +1545,7 @@
       "en": "With four of you, defeat a horde of 9 monsters or more."
     },
     "points": 20,
+    "level": 30,
     "goal": "Feat",
     "count": 1,
     "target": "horde-9-at-4",
@@ -1071,6 +1566,7 @@
       "en": "Trade with another player."
     },
     "points": 5,
+    "level": 5,
     "goal": "Feat",
     "count": 1,
     "target": "traded"

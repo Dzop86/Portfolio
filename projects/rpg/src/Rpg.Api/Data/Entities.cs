@@ -137,6 +137,14 @@ public sealed class Character
     public int LastDayPlayed { get; set; }
     public long SecondsPlayed { get; set; }
 
+    /// <summary>
+    /// The achievements whose reward it claimed (sprint 159, D84), their ids separated by commas: empty for everyone at
+    /// first, so that every achievement earned before is claimable once.
+    /// </summary>
+    public string ClaimedAchievements { get; set; } = "";
+
+    public string[] ClaimedList => ClaimedAchievements.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
     /// <summary>The title worn (sprint 155): the id of the achievement that gives it, or none.</summary>
     public string? Title { get; set; }
 

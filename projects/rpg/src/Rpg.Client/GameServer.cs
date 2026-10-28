@@ -363,6 +363,15 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<AchievementView>(Json, cancel))!;
     }
 
+    /// <summary>Claims an achievement's reward, or (null) every one earned and not yet claimed (sprint 159, D84).</summary>
+    public async Task<AchievementClaim> ClaimAchievement(Guid id, string? achievement, CancellationToken cancel = default)
+    {
+        string path = achievement is null ? $"api/characters/{id}/achievements/claim" : $"api/characters/{id}/achievements/{Uri.EscapeDataString(achievement)}/claim";
+        HttpResponseMessage response = await Send(() => Http.PostAsync(new Uri(path, UriKind.Relative), null, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<AchievementClaim>(Json, cancel))!;
+    }
+
     /// <summary>The character's notice board (sprint 153): three new contracts a day, nine at most.</summary>
     public async Task<ContractBoard> Contracts(Guid id, CancellationToken cancel = default)
     {

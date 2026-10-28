@@ -25,12 +25,15 @@ public partial class AchievementsPanel : CanvasLayer
     private ProgressBar _bar = null!;
     private LineEdit _search = null!;
     private CheckBox _hide = null!;
-    private Button _remove = null!;
+    private Button _remove = null!, _claimAll = null!;
     private readonly ButtonGroup _rows = new(), _cards = new();
     private readonly HashSet<string> _open = new(StringComparer.Ordinal);
     private string? _group;
 
     public event Action<string?>? TitleChosen;
+
+    /// <summary>A reward claimed (sprint 159): an achievement's, or (null) every one claimable.</summary>
+    public event Action<string?>? ClaimPressed;
     public event Action? ClosePressed;
 
     /// <summary>The view chosen: <see cref="Overall"/> or a category's id (for the self-test); a search shows over it.</summary>
@@ -121,6 +124,10 @@ public partial class AchievementsPanel : CanvasLayer
         _message = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart };
         _message.AddThemeColorOverride("font_color", new Color(UiStyle.CloseHoverText));
         feet.AddChild(_message);
+        // Every reward at once (sprint 159), shown while there is one.
+        _claimAll = new Button { CustomMinimumSize = new Vector2(0, 44), ThemeTypeVariation = OsmoseTheme.Primary, Visible = false };
+        _claimAll.Pressed += () => ClaimPressed?.Invoke(null);
+        feet.AddChild(_claimAll);
         _worn = new Label { VerticalAlignment = VerticalAlignment.Center };
         _worn.AddThemeColorOverride("font_color", new Color(UiStyle.Text));
         feet.AddChild(_worn);
@@ -184,6 +191,9 @@ public partial class AchievementsPanel : CanvasLayer
         string? title = AchievementsPage.TitleOf(view.Title, _texts.Lang);
         _worn.Text = title is null ? _texts["achievements.worn-none"] : _texts["achievements.worn", title];
         _remove.Visible = title is not null;
+        int toClaim = _overview.ToClaim;
+        _claimAll.Visible = toClaim > 0;
+        _claimAll.Text = _texts["achievements.claim-all", toClaim];
         Refresh();
     }
 
@@ -197,6 +207,21 @@ public partial class AchievementsPanel : CanvasLayer
             _open.Add(id);
         Refresh();
     }
+
+    /// <summary>Shows an achievement, chosen in its category and group (sprint 159: a crown's "View").</summary>
+    public void See(string achievement)
+    {
+        if (Achievements.All.FirstOrDefault(a => a.Id == achievement) is not AchievementSpec a)
+            return;
+        _search.Text = "";
+        _hide.SetPressedNoSignal(false);
+        ShowCategory(a.Category, a.Group);
+        Chosen = a.Id;
+        Refresh();
+    }
+
+    /// <summary>The buttons of the chosen achievement's detail, by their text (for the self-test).</summary>
+    public List<string> DetailButtons { get; } = [];
 
     /// <summary>Hides the achievements unlocked, as the box does (for the self-test).</summary>
     public void HideEarned(bool hide) => _hide.ButtonPressed = hide;
@@ -526,8 +551,34 @@ public partial class AchievementsPanel : CanvasLayer
         column.AddChild(head);
         column.AddChild(Text(line.Text, UiStyle.Text));
 
-        Section(column, "achievements.objectives");
-        if (line.Count == 1)
+        DetailButtons.Clear();
+        Section(column, line.Required.Count > 0 ? "achievements.required" : "achievements.objectives");
+        if (line.Required.Count > 0)
+        {
+            // A crown: each achievement it asks, earned or not, and a way to see it.
+            foreach (AchievementLine needed in line.Required)
+            {
+                var row = new HBoxContainer { CustomMinimumSize = new Vector2(0, 44) };
+                row.AddThemeConstantOverride("separation", 8);
+                row.AddChild(Icon(needed.Icon, needed.Earned, 24));
+                var neededName = new Label { Text = needed.Name, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(140, 0) };
+                neededName.AddThemeFontSizeOverride("font_size", 14);
+                neededName.AddThemeColorOverride("font_color", new Color(needed.Earned ? UiStyle.Gold : UiStyle.Text));
+                row.AddChild(neededName);
+                var see = new Button { Text = _texts["achievements.see"], ThemeTypeVariation = OsmoseTheme.Link, CustomMinimumSize = new Vector2(64, 44) };
+                string id = needed.Id;
+                see.Pressed += () => See(id);
+                row.AddChild(see);
+                column.AddChild(row);
+            }
+        }
+        else if (line.Quests.Count > 0)
+        {
+            // A line of quests: each one, ticked once handed back.
+            foreach ((string quest, bool done) in line.Quests)
+                column.AddChild(new CheckBox { Text = quest, ButtonPressed = done, MouseFilter = Control.MouseFilterEnum.Ignore, FocusMode = Control.FocusModeEnum.None, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(240, 0) });
+        }
+        else if (line.Count == 1)
         {
             var box = new CheckBox { Text = line.Name, ButtonPressed = line.Earned, MouseFilter = Control.MouseFilterEnum.Ignore, FocusMode = Control.FocusModeEnum.None };
             column.AddChild(box);
@@ -549,6 +600,27 @@ public partial class AchievementsPanel : CanvasLayer
         points.AddChild(Icon("achievements", true, 20));
         points.AddChild(Text(_texts["achievements.reward.points", line.Points], UiStyle.Text));
         column.AddChild(points);
+        // Experience and Éclats at the achievement's reference level (sprint 159), claimed once.
+        foreach ((string key, int value) in new[] { ("achievements.reward.xp", line.Reward.Xp), ("achievements.reward.shards", line.Reward.Shards) })
+        {
+            var reward = new HBoxContainer();
+            reward.AddThemeConstantOverride("separation", 8);
+            var amount = new Label { Text = _texts[key, value] };
+            amount.AddThemeColorOverride("font_color", new Color(UiStyle.GoldTop));
+            reward.AddChild(new Control { CustomMinimumSize = new Vector2(20, 0) });
+            reward.AddChild(amount);
+            column.AddChild(reward);
+        }
+        if (line.Claimed)
+            column.AddChild(Text(_texts["achievements.claimed"], UiStyle.TextDim));
+        else
+        {
+            var claim = new Button { Text = _texts["achievements.claim"], CustomMinimumSize = new Vector2(0, 44), ThemeTypeVariation = OsmoseTheme.Primary, Disabled = !line.Earned };
+            string id = line.Id;
+            claim.Pressed += () => ClaimPressed?.Invoke(id);
+            column.AddChild(claim);
+            DetailButtons.Add(claim.Text);
+        }
         if (line.Title is string title)
         {
             column.AddChild(Text(_texts["achievements.reward.title", title], UiStyle.Text));

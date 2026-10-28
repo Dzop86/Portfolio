@@ -98,4 +98,24 @@ public class AchievementsPageTests
         crowd.Apply(new MapNews(MapNewsKind.Here, plop, "Plop", new Hero("Plop", "male-a", "guard"), new Cell(3, 3), Title: "dungeons-all"), Guid.NewGuid());
         Assert.Equal("dungeons-all", Assert.Single(crowd.Others).Title);
     }
+
+    [Fact]
+    public void ALine_SaysItsReward_WhetherClaimed_ItsQuests_AndACrown_WhatItAsks()
+    {
+        var texts = new Texts("fr");
+        AchievementView view = View(("woods-main", 5), ("woods-all", 1), ("dungeon-boar-wallow", 1)) with { Claimed = ["woods-main"], Quests = ["edge-of-the-woods"] };
+        AchievementLine main = AchievementsPage.LineOf(view, texts, "woods-main")!;
+        Assert.Equal((true, true, false), (main.Earned, main.Claimed, main.Claimable));
+        Assert.Equal(Achievements.Reward(Achievements.All.Single(a => a.Id == "woods-main")), main.Reward);
+        Assert.Equal(5, main.Quests.Count);
+        Assert.Equal("La lisière", main.Quests[0].Name);
+        AchievementLine side = AchievementsPage.LineOf(view, texts, "woods-side")!;
+        Assert.DoesNotContain(side.Quests, q => q.Done);
+        AchievementLine crown = AchievementsPage.LineOf(view, texts, "woods-all")!;
+        Assert.Equal(("achievements", 4), (crown.Icon, crown.Required.Count));
+        Assert.Equal([true, false, true, false], crown.Required.Select(r => r.Earned));
+        // The badge: earned and not claimed (the boar's dungeon; the woods' crown is not earned).
+        Assert.Equal(1, AchievementsPage.ToClaim(view));
+        Assert.Equal(1, AchievementsPage.Overview(view, texts).ToClaim);
+    }
 }

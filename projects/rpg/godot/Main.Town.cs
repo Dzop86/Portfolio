@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown")
             _ = TownScreenshot();
     }
 
@@ -2577,8 +2577,13 @@ public partial class Main
         panel.Search("zzzz");
         if (found != 2 || panel.Names.Count != 0)
             problems.Add($"the search finds {found}, then {panel.Names.Count} for nothing");
+        // Sprint 159: a crown's achievement seen from the woods' lines, its reward to claim.
+        panel.Search("");
+        panel.See("woods-main");
+        if (panel.Shown != "Quests" || panel.Chosen != "woods-main" || !panel.DetailButtons.Contains(texts["achievements.claim"]))
+            problems.Add($"seeing the woods' main line shows {panel.Shown}, {panel.Chosen}, buttons {string.Join(", ", panel.DetailButtons)}");
         panel.QueueFree();
-        return " Achievements: overview, groups, cards, hiding and search checked.";
+        return " Achievements: overview, groups, cards, hiding, search, a crown's line and its reward checked.";
     }
 
     /// <summary>
@@ -3515,7 +3520,7 @@ public partial class Main
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
             return;
         }
-        if (_options.Shot is "achievements" or "achievements-list")
+        if (_options.Shot is "achievements" or "achievements-list" or "achievements-crown")
         {
             // The achievements' window (sprint 158): a character of the end of chapter 1, its overview or its first dungeons.
             var progress = Achievements.All.Select((a, i) => new AchievementProgress(a.Id, a.Category is "Exploration" || i % 3 == 0 ? a.Count : a.Count / 2, a.Count)).ToList();
@@ -3526,6 +3531,8 @@ public partial class Main
             _achievementsPanel.Show(view);
             if (_options.Shot == "achievements-list")
                 _achievementsPanel.ShowCategory("Dungeons", "levels-1-15");
+            else if (_options.Shot == "achievements-crown")
+                _achievementsPanel.See("woods-all");
             _talkPanel.Visible = false;
             _townView!.ShowPath(null);
             for (int i = 0; i < 30; i++)
