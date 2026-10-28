@@ -1,4 +1,4 @@
-# Sprint 161 : Osmose : la tresse de Glace, playtest
+# Sprint 161 : Osmose : le socle 45-60
 
 **Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
 
@@ -6,8 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je transmute l'Eau ou l'Air en Glace : Morsure (−1 PA), 24 jumeaux, Signature appuyée, Prisme et Conversion de Glace, la fenêtre de l'arbre à deux tresses (rpg) ; xUnit, auto-test. | 3 | À faire |
-| En tant que Charles, la mesure v3 met la Glace à moins de 8 points de la Foudre contre les hordes, et je joue la Glace à 45 avec un joueur extérieur (rpg). | 1 | À faire |
+| En tant que joueur de 45 à 60, mes gabarits, le budget des objets, les kits de zone et d'artisan, le rythme d'XP et les sorts de classe sont réglés, et T41 tient à 50, 55 et 60 pour les trois classes (rpg) ; xUnit, mesures. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

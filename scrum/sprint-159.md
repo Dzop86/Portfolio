@@ -1,12 +1,14 @@
-# Sprint 159 : Osmose : les spécialisations de la Garde
+# Sprint 159 : Osmose : récompenses, suites de quêtes et donjons
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** une refonte graphique de l'interface d'Osmose demandée par Charles après S156, glissée avant le socle 45-60 (D84).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** a graphic overhaul of Osmose's interface asked for by Charles after S156, slipped in before the 45-60 groundwork (D84).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Garde, je choisis Palissade, Brèche ou Étau, chacune à ±8 points de la moyenne, et un duo Palissade et dégâts ne dépasse pas un duo de dégâts de plus de 1,5 victoire sur 30 (rpg) ; xUnit, mesures. | 3 | À faire |
+| En tant que joueur, chaque succès rapporte des Éclats et de l'XP que je réclame d'un bouton dans la fenêtre, une seule fois, y compris pour les succès déjà obtenus (rpg) ; xUnit, intégration PostgreSQL. | 2 | À faire |
+| En tant que joueur, les suites de quêtes d'une zone sont des succès en plusieurs étapes, et les finir toutes donne un méta-succès « Obtenir les succès suivants » avec un lien vers chacun (rpg) ; xUnit, textes du scénariste. | 2 | À faire |
+| En tant que joueur, finir un donjon est un succès, rangé par tranche de niveaux (rpg) ; xUnit. | 1 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

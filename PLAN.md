@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S161), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S165), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S161 | 433 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S165 | 452 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 654 points sur 161 sprints de deux semaines.
+Total : 673 points sur 165 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -183,3 +183,6 @@ Charles a répondu au questionnaire du game designer (`projects/rpg/docs/talents
 
 ## Osmose : la suite après S151 (27 octobre 2026, D83)
 Conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12), recommandations prises par défaut (Charles : « enchaîne tous les sprints dispo dès que possible ») ; ses retours en attente se font au fil de l'eau sans bloquer (question 88 b). S152 (3) mesurer avant de régler (Électrisation décomposée, le héros nu, le trio ; restes des guildes et des glyphes) ; la boucle de retour : S153 (5) le tableau des contrats, S154 (3) le bestiaire, S155 (5) les succès et les titres, S156 (5) la guilde qui sert (niveau, coffre, blason) et un playtest de la boucle ; S157 (3) le socle 45-60 ; S158 (6) les spécialisations, le moteur et la Sentinelle ; S159 (3) la Garde ; S160 (3) la Mage et les 18 builds mesurés ; S161 (4) la tresse de Glace et un playtest. 40 points, 10 sprints. Les Mines de Sous-Racine viendront ensuite (v9).
+
+## Osmose : une refonte graphique de l'interface (28 octobre 2026, D84)
+Après S156, Charles veut une interface plus riche, captures de Wakfu à l'appui (référence d'ergonomie, pas de copie, D54), en priorité sur la suite de D83 : S157 (5) le socle graphique (un thème Godot tiré de `tokens.css`, des icônes en relief composées depuis game-icons.net, le menu refait, un agent graphiste) ; S158 (5) la fenêtre des succès (catégories et sous-catégories avec leur pourcentage, progression générale, total de points, tuiles illustrées, recherche, objectifs et récompenses) ; S159 (5) des succès qui récompensent (Éclats et XP réclamés d'un bouton, rétroactifs), des suites de quêtes par zone et leur méta-succès, les donjons finis ; S160 (4) la fenêtre de guilde (en-tête à écu, onglets, liste des membres). 19 points, 4 sprints ; la suite de D83 passe à S161-S165. Écartés par Charles : les défis de combat en donjon, la vue Compte des succès.

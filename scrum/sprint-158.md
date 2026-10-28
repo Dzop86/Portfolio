@@ -1,13 +1,13 @@
-# Sprint 158 : Osmose : les spécialisations, la Sentinelle
+# Sprint 158 : Osmose : la fenêtre des succès
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** une refonte graphique de l'interface d'Osmose demandée par Charles après S156, glissée avant le socle 45-60 (D84).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** a graphic overhaul of Osmose's interface asked for by Charles after S156, slipped in before the 45-60 groundwork (D84).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur de niveau 50, je choisis une spécialisation par la quête « Une route à soi » : un passif, une règle changée et trois sorts, la première gratuite (rpg) ; xUnit, intégration PostgreSQL. | 4 | À faire |
-| En tant que Sentinelle, je choisis Mire, Affût ou Sente, chacune à ±8 points de la moyenne contre les hordes (rpg) ; xUnit, mesures sur 300 combats. | 2 | À faire |
+| En tant que joueur, la fenêtre des succès a ses catégories et sous-catégories à gauche avec leur pourcentage, une progression générale, le total de mes points dans un bandeau et des tuiles illustrées par catégorie (rendus de nos scènes) (rpg) ; xUnit, auto-test de la fenêtre. | 3 | À faire |
+| En tant que joueur, je cherche un succès, je masque ceux déverrouillés, et un succès montre ses objectifs cochés et ses récompenses (rpg) ; xUnit, auto-test. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -1,12 +1,13 @@
-# Sprint 160 : Osmose : les spécialisations de la Mage
+# Sprint 160 : Osmose : la fenêtre de guilde
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** une refonte graphique de l'interface d'Osmose demandée par Charles après S156, glissée avant le socle 45-60 (D84).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** a graphic overhaul of Osmose's interface asked for by Charles after S156, slipped in before the 45-60 groundwork (D84).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je choisis Archimage, Sorcier ou la troisième voie nommée par le scénariste ; `Rpg.Sim --spec` mesure les 18 builds à 50, chacun à ±8 points de la moyenne de sa classe (rpg) ; xUnit, mesures. | 3 | À faire |
+| En tant que membre, l'en-tête de la fenêtre de guilde montre le blason dans son écu, le nom, le niveau, sa barre, le message du meneur, et des onglets Membres, Coffre et Journal (rpg) ; auto-test de la fenêtre. | 2 | À faire |
+| En tant que membre, la liste des membres montre qui est connecté, la classe, le nom, une note, le rang, le niveau, les points apportés et les points de succès, triable et filtrable, avec les membres déconnectés à afficher, le signal de connexion d'un membre, le nombre de membres et leur niveau moyen (rpg) ; xUnit, intégration à trois clients. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
