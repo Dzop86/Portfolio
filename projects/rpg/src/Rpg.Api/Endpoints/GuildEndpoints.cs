@@ -62,11 +62,11 @@ public static class GuildEndpoints
                           select new { Character = c, m.Rank, m.Note, m.Contributed }).ToListAsync(cancel);
         return new GuildView(guild, record.Name, GuildRules.Ordered(rows.Select(r => new GuildMember(r.Character.Id, r.Character.Name, r.Rank, r.Character.Level, r.Character.Class,
                 hub.MapOf(r.Character.Id) is string map ? Contacts.ZoneOf(map, GameData.Embedded) : null, r.Character.LastSeenAt)
-            {
-                Note = r.Note,
-                Contributed = r.Contributed,
-                AchievementPoints = Achievements.Points(Achievements.Earned(AchievementEndpoints.StateOf(r.Character, true), GameData.Embedded)),
-            })),
+        {
+            Note = r.Note,
+            Contributed = r.Contributed,
+            AchievementPoints = Achievements.Points(Achievements.Earned(AchievementEndpoints.StateOf(r.Character, true), GameData.Embedded)),
+        })),
             GuildRules.Standing(record.Points, record.WeekPoints, record.Week, GuildRules.Week(clock.GetUtcNow()), record.Goal, record.Message, GuildCrests.Read(record.Crest)));
     }
 
