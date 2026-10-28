@@ -1,4 +1,8 @@
 {
  "dungeons": "delapouite/dungeon-gate",
- "search": "lorc/magnifying-glass"
+ "search": "lorc/magnifying-glass",
+ "class-sentinel": "lorc/high-shot",
+ "class-guard": "lorc/checked-shield",
+ "class-mage": "lorc/pointy-hat",
+ "pencil": "delapouite/pencil"
 }

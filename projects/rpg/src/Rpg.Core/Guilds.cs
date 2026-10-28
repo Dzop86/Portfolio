@@ -15,7 +15,18 @@ public enum GuildRank
 /// One member of a guild as the others see it (sprint 145): its name, rank, level and class, the zone it is in when in
 /// play (never the map, as for friends: <see cref="Contacts.ZoneOf"/>), and when it last came into play.
 /// </summary>
-public sealed record GuildMember(Guid Id, string Name, GuildRank Rank, int Level, string? Class, string? Zone, DateTimeOffset? LastSeen);
+public sealed record GuildMember(Guid Id, string Name, GuildRank Rank, int Level, string? Class, string? Zone, DateTimeOffset? LastSeen)
+{
+    /// <summary>Since sprint 160 (D84): its note, the points it brought the guild, its achievement points.</summary>
+    public string? Note { get; init; }
+
+    public long Contributed { get; init; }
+
+    public int AchievementPoints { get; init; }
+
+    /// <summary>In play: the server knows its zone.</summary>
+    public bool Online => Zone is not null;
+}
 
 /// <summary>
 /// A guild as its members see it: its name, its members (the leader first, then the officers, then the others); since
@@ -36,7 +47,45 @@ public enum GuildNewsKind
     Invited,
     Changed,
     Left,
+
+    /// <summary>A member comes into play (sprint 160): its id and name, for those who asked to be told.</summary>
+    Online,
+
+    /// <summary>Someone applies to the guild (sprint 160): its name, told to the leader in play.</summary>
+    Applied,
 }
+
+/// <summary>An application to a guild (sprint 160, D84): who, to which guild, its word, when.</summary>
+public sealed record GuildApplication(Guid Character, string Name, int Level, string? Class, Guid Guild, string GuildName, string? Message, DateTimeOffset At);
+
+/// <summary>To apply to a guild by its name, with a word.</summary>
+public sealed record GuildApply(string? Name, string? Message);
+
+/// <summary>An application withdrawn, by its guild.</summary>
+public sealed record GuildWithdraw(Guid Guild);
+
+/// <summary>The leader's answer to an application.</summary>
+public sealed record GuildAnswer(Guid Character, bool Accept);
+
+/// <summary>A member's note, written by itself (or cleared by the leader and the officers).</summary>
+public sealed record GuildNote(Guid Member, string? Note);
+
+/// <summary>What happened in a guild (sprint 160): a member came, left, was sent out, given a rank, led; a level, a message, a crest.</summary>
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<GuildEventKind>))]
+public enum GuildEventKind
+{
+    Joined,
+    Left,
+    Kicked,
+    Rank,
+    Leader,
+    Level,
+    Message,
+    Crest,
+}
+
+/// <summary>An event of the guild's log: what, who, by whom, its value (a rank, a level), when.</summary>
+public sealed record GuildEvent(GuildEventKind Kind, string Who, string? By, string? Value, DateTimeOffset At);
 
 /// <summary>A guild to found, by its name.</summary>
 public sealed record NewGuild(string? Name);
@@ -83,6 +132,36 @@ public static partial class GuildRules
             : !IsValidName(name) ? "A guild's name has 3 to 20 letters, the first a capital, words parted by a space, a hyphen or an apostrophe."
             : taken ? "A guild already has that name."
             : shards < Price ? $"Founding a guild costs {Price} Éclats."
+            : null;
+    }
+
+    /// <summary>Applications (sprint 160): three waiting at most per character, gone after a week; a word of 140 characters at most.</summary>
+    public const int MostApplications = 3, ApplicationWordLength = 140, NoteLength = 40, LogLength = 100;
+
+    public static readonly TimeSpan ApplicationFor = TimeSpan.FromDays(7);
+
+    /// <summary>Why a character cannot apply to that guild, or null.</summary>
+    public static string? WhyNotApply(bool inGuild, bool guildExists, int waiting, bool alreadyThere, int count, string? word)
+    {
+        return inGuild ? "Already in a guild."
+            : !guildExists ? "No guild by that name."
+            : alreadyThere ? "Already applied to that guild."
+            : waiting >= MostApplications ? $"At most {MostApplications} applications waiting."
+            : count >= Most ? $"The guild is full ({Most})."
+            : word is { Length: > ApplicationWordLength } ? $"A word of {ApplicationWordLength} characters at most."
+            : null;
+    }
+
+    /// <summary>Why a member of that rank cannot answer the applications (the leader alone, Charles), or null.</summary>
+    public static string? WhyNotAnswer(GuildRank by) => by == GuildRank.Leader ? null : "Only the leader answers the applications.";
+
+    /// <summary>Why a member cannot write that note: its own, or another's cleared by the leader or an officer.</summary>
+    public static string? WhyNotNote(GuildRank by, bool oneself, string? note)
+    {
+        return note is { Length: > NoteLength } ? $"A note of {NoteLength} characters at most."
+            : oneself ? null
+            : by == GuildRank.Member ? "Only one's own note."
+            : note is not null ? "Another's note can only be cleared."
             : null;
     }
 

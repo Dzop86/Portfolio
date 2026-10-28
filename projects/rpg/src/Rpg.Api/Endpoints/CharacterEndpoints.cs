@@ -161,6 +161,8 @@ public static class CharacterEndpoints
         await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.LastSeenAt, came)
             .SetProperty(p => p.DaysPlayed, p => p.LastDayPlayed == day ? p.DaysPlayed : p.DaysPlayed + 1)
             .SetProperty(p => p.LastDayPlayed, day), cancel);
+        // Its guild's members in play are told it comes (sprint 160).
+        await GuildEndpoints.TellOnline(character.Id, character.Name, db, hub, cancel);
         await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name, character.Title,
             guild is null ? null : GuildCrests.Write(GuildCrests.Read(guild.Crest)));
         long seconds = (long)(clock.GetUtcNow() - came).TotalSeconds;

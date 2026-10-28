@@ -30,6 +30,12 @@ public static class GuildEndpoints
         group.MapPost("/{id:guid}/guild/chest/deposit", Deposit).WithSummary("Puts items of the bag in a tab of the chest, at Edmée's (every member).");
         group.MapPost("/{id:guid}/guild/chest/withdraw", Withdraw).WithSummary("Takes items out of a tab, at Edmée's: the leader and the officers, the members from a tab opened to them.");
         group.MapPost("/{id:guid}/guild/chest/tab", OpenTab).WithSummary("The leader opens a tab of the chest to the members, or closes it.");
+        group.MapPost("/{id:guid}/guild/note", Note).WithSummary("Writes one's note in the guild's list; the leader and the officers clear another's.");
+        group.MapGet("/{id:guid}/guild/log", Log).WithSummary("The guild's log: its last hundred events, the newest first.");
+        group.MapPost("/{id:guid}/guild/apply", Apply).WithSummary("Applies to a guild by its name, with a word (out of any guild, three applications waiting at most).");
+        group.MapGet("/{id:guid}/guild/applications", Applications).WithSummary("The applications to one's guild (its leader), or one's own (out of a guild).");
+        group.MapPost("/{id:guid}/guild/applications/answer", Answer).WithSummary("The leader accepts an application (the character joins) or refuses it.");
+        group.MapPost("/{id:guid}/guild/applications/withdraw", WithdrawApplication).WithSummary("Withdraws one's application to a guild.");
     }
 
     private static ValidationProblem Refused(string field, string why) => TypedResults.ValidationProblem(new Dictionary<string, string[]> { [field] = [why] });
@@ -49,12 +55,18 @@ public static class GuildEndpoints
     {
         if (await db.Guilds.AsNoTracking().FirstOrDefaultAsync(g => g.Id == guild, cancel) is not GuildRecord record)
             return null;
+        // Since sprint 160 (D84): each one's note, the points it brought, its achievement points.
         var rows = await (from m in db.GuildMembers.AsNoTracking()
                           join c in db.Characters.AsNoTracking() on m.CharacterId equals c.Id
                           where m.GuildId == guild
-                          select new { c.Id, c.Name, m.Rank, c.Level, c.Class, c.LastSeenAt }).ToListAsync(cancel);
-        return new GuildView(guild, record.Name, GuildRules.Ordered(rows.Select(r => new GuildMember(r.Id, r.Name, r.Rank, r.Level, r.Class,
-                hub.MapOf(r.Id) is string map ? Contacts.ZoneOf(map, GameData.Embedded) : null, r.LastSeenAt))),
+                          select new { Character = c, m.Rank, m.Note, m.Contributed }).ToListAsync(cancel);
+        return new GuildView(guild, record.Name, GuildRules.Ordered(rows.Select(r => new GuildMember(r.Character.Id, r.Character.Name, r.Rank, r.Character.Level, r.Character.Class,
+                hub.MapOf(r.Character.Id) is string map ? Contacts.ZoneOf(map, GameData.Embedded) : null, r.Character.LastSeenAt)
+            {
+                Note = r.Note,
+                Contributed = r.Contributed,
+                AchievementPoints = Achievements.Points(Achievements.Earned(AchievementEndpoints.StateOf(r.Character, true), GameData.Embedded)),
+            })),
             GuildRules.Standing(record.Points, record.WeekPoints, record.Week, GuildRules.Week(clock.GetUtcNow()), record.Goal, record.Message, GuildCrests.Read(record.Crest)));
     }
 
@@ -107,6 +119,8 @@ public static class GuildEndpoints
             // The same name founded at the same moment by someone else: the unique index decides.
             return Refused("name", "A guild already has that name.");
         }
+        await AppliedNoMore(id, db, cancel);
+        await Record(guild.Id, GuildEventKind.Joined, me.Name, null, null, db, clock, cancel);
         await hub.SetGuild(id, guild.Id, guild.Name, GuildCrests.Write(GuildCrests.Default), cancel);
         await TellGuild(guild.Id, db, hub, clock, cancel);
         return TypedResults.Ok(CharacterEndpoints.Summary(me));
@@ -143,29 +157,57 @@ public static class GuildEndpoints
             return Refused("from", "No invitation from them, or too late.");
         if (await MembershipOf(id, db, cancel) is not null)
             return Refused("from", "Already in a guild.");
-        // The guild's row locked while it is counted (sprint 152, D83): two acceptances at once no longer make 51.
+        string? by = await db.Characters.Where(c => c.Id == request!.From).Select(c => c.Name).FirstOrDefaultAsync(cancel);
+        return await Enter(me, guild, joined.Name, joined.Crest, by, db, hub, clock, cancel) is string why ? Refused("from", why) : TypedResults.NoContent();
+    }
+
+    /// <summary>
+    /// A character into a guild (invited, or its application accepted, sprint 160): the guild's row locked while it is counted
+    /// (sprint 152, D83: two acceptances at once no longer make 51); its applications gone; the log, its map and the guild told.
+    /// </summary>
+    private static async Task<string?> Enter(Character me, Guid guild, string name, string crest, string? by, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
         await using (var transaction = await db.Database.BeginTransactionAsync(cancel))
         {
             await db.Guilds.FromSql($"SELECT * FROM guilds WHERE \"Id\" = {guild} FOR UPDATE").ToListAsync(cancel);
             if (await db.GuildMembers.CountAsync(m => m.GuildId == guild, cancel) >= GuildRules.Most)
-                return Refused("from", $"The guild is full ({GuildRules.Most}).");
-            db.GuildMembers.Add(new GuildMemberRecord { CharacterId = id, GuildId = guild, Rank = GuildRank.Member, JoinedAt = clock.GetUtcNow(), Credited = await EarnedInGuild(me, db, cancel) });
+                return $"The guild is full ({GuildRules.Most}).";
+            if (await db.GuildMembers.AnyAsync(m => m.CharacterId == me.Id, cancel))
+                return "Already in a guild.";
+            db.GuildMembers.Add(new GuildMemberRecord { CharacterId = me.Id, GuildId = guild, Rank = GuildRank.Member, JoinedAt = clock.GetUtcNow(), Credited = await EarnedInGuild(me, db, cancel) });
             await db.SaveChangesAsync(cancel);
             await transaction.CommitAsync(cancel);
         }
-        await hub.SetGuild(id, guild, joined.Name, GuildCrests.Write(GuildCrests.Read(joined.Crest)), cancel);
+        await AppliedNoMore(me.Id, db, cancel);
+        await Record(guild, GuildEventKind.Joined, me.Name, by, null, db, clock, cancel);
+        await hub.SetGuild(me.Id, guild, name, GuildCrests.Write(GuildCrests.Read(crest)), cancel);
         await TellGuild(guild, db, hub, clock, cancel);
-        return TypedResults.NoContent();
+        return null;
+    }
+
+    // A character in a guild has no application waiting any more.
+    private static Task<int> AppliedNoMore(Guid character, GameDb db, CancellationToken cancel) =>
+        db.GuildApplications.Where(a => a.CharacterId == character).ExecuteDeleteAsync(cancel);
+
+    /// <summary>An event of the guild's log (sprint 160), written once; the oldest beyond the hundred are dropped.</summary>
+    private static async Task Record(Guid guild, GuildEventKind kind, string who, string? by, string? value, GameDb db, TimeProvider clock, CancellationToken cancel)
+    {
+        db.GuildEvents.Add(new GuildEventRecord { GuildId = guild, Kind = kind, Who = who, By = by, Value = value, At = clock.GetUtcNow() });
+        await db.SaveChangesAsync(cancel);
+        long? keep = await db.GuildEvents.Where(e => e.GuildId == guild).OrderByDescending(e => e.Id).Skip(GuildRules.LogLength - 1).Select(e => (long?)e.Id).FirstOrDefaultAsync(cancel);
+        if (keep is long oldest)
+            await db.GuildEvents.Where(e => e.GuildId == guild && e.Id < oldest).ExecuteDeleteAsync(cancel);
     }
 
     /// <summary>
     /// A character out of its guild (it leaves, or is deleted): a leader hands its title over (<see cref="GuildRules.Successor"/>),
     /// the last one ends the guild; it is told it left, the others the guild as it is. Nothing when in no guild.
     /// </summary>
-    internal static async Task Depart(Guid character, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    internal static async Task Depart(Guid character, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel, string? sentOutBy = null)
     {
         if (await MembershipOf(character, db, cancel) is not GuildMemberRecord mine)
             return;
+        string who = await db.Characters.Where(c => c.Id == character).Select(c => c.Name).FirstOrDefaultAsync(cancel) ?? "?";
         db.GuildMembers.Remove(mine);
         List<GuildMemberRecord> others = await db.GuildMembers.Where(m => m.GuildId == mine.GuildId && m.CharacterId != character).ToListAsync(cancel);
         if (mine.Rank == GuildRank.Leader && GuildRules.Successor(others.Select(o => (o.CharacterId, o.Rank, o.JoinedAt))) is Guid next)
@@ -173,6 +215,8 @@ public static class GuildEndpoints
         await db.SaveChangesAsync(cancel);
         if (others.Count == 0)
             await db.Guilds.Where(g => g.Id == mine.GuildId).ExecuteDeleteAsync(cancel);
+        else
+            await Record(mine.GuildId, sentOutBy is null ? GuildEventKind.Left : GuildEventKind.Kicked, who, sentOutBy, null, db, clock, cancel);
         await hub.SetGuild(character, null, null, null, cancel);
         await hub.TellCharacter(character, new GuildNews(GuildNewsKind.Left), cancel);
         await TellGuild(mine.GuildId, db, hub, clock, cancel);
@@ -189,7 +233,7 @@ public static class GuildEndpoints
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Kick(
         Guid id, GuildOrder request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
-        if (await Mine(id, user, db, cancel) is null)
+        if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
         if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
             return Refused("member", "Not in a guild.");
@@ -198,7 +242,7 @@ public static class GuildEndpoints
             return Refused("member", "Not a member of the guild.");
         if (GuildRules.WhyNotKick(mine.Rank, them.Rank, member == id) is string why)
             return Refused("member", why);
-        await Depart(member, db, hub, clock, cancel);
+        await Depart(member, db, hub, clock, cancel, me.Name);
         return TypedResults.NoContent();
     }
 
@@ -206,7 +250,7 @@ public static class GuildEndpoints
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Rank(
         Guid id, GuildOrder request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
-        if (await Mine(id, user, db, cancel) is null)
+        if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
         if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
             return Refused("member", "Not in a guild.");
@@ -220,6 +264,8 @@ public static class GuildEndpoints
         if (rank == GuildRank.Leader)
             mine.Rank = GuildRank.Officer;
         await db.SaveChangesAsync(cancel);
+        string who = await db.Characters.Where(c => c.Id == member).Select(c => c.Name).FirstAsync(cancel);
+        await Record(mine.GuildId, rank == GuildRank.Leader ? GuildEventKind.Leader : GuildEventKind.Rank, who, me.Name, rank.ToString(), db, clock, cancel);
         await TellGuild(mine.GuildId, db, hub, clock, cancel);
         return TypedResults.NoContent();
     }
@@ -236,6 +282,8 @@ public static class GuildEndpoints
     {
         if (points <= 0 || await db.GuildMembers.AsNoTracking().Where(m => m.CharacterId == character).Select(m => (Guid?)m.GuildId).FirstOrDefaultAsync(cancel) is not Guid guild)
             return;
+        // The member's own share (sprint 160), in the same single statements.
+        await db.GuildMembers.Where(m => m.CharacterId == character).ExecuteUpdateAsync(m => m.SetProperty(p => p.Contributed, p => p.Contributed + points), cancel);
         await CreditGuild(guild, points, db, hub, clock, cancel);
     }
 
@@ -243,10 +291,14 @@ public static class GuildEndpoints
     internal static async Task CreditGuild(Guid guild, int points, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
         int week = GuildRules.Week(clock.GetUtcNow());
+        long before = await db.Guilds.Where(g => g.Id == guild).Select(g => g.Points).FirstOrDefaultAsync(cancel);
         await db.Guilds.Where(g => g.Id == guild).ExecuteUpdateAsync(g => g
             .SetProperty(p => p.Points, p => p.Points + points)
             .SetProperty(p => p.WeekPoints, p => p.Week == week ? p.WeekPoints + points : points)
             .SetProperty(p => p.Week, week), cancel);
+        // A level reached goes to the log (sprint 160).
+        if (GuildRules.LevelFor(before + points) is int level && level > GuildRules.LevelFor(before))
+            await Record(guild, GuildEventKind.Level, level.ToString(System.Globalization.CultureInfo.InvariantCulture), null, null, db, clock, cancel);
         await TellGuild(guild, db, hub, clock, cancel);
     }
 
@@ -262,20 +314,25 @@ public static class GuildEndpoints
         if (earned <= m.Credited
             || await db.GuildMembers.Where(x => x.CharacterId == c.Id && x.Credited == m.Credited).ExecuteUpdateAsync(x => x.SetProperty(p => p.Credited, earned), cancel) == 0)
             return;
-        await CreditGuild(m.GuildId, GuildRules.AchievementPoints * (earned - m.Credited), db, hub, clock, cancel);
+        int points = GuildRules.AchievementPoints * (earned - m.Credited);
+        await db.GuildMembers.Where(x => x.CharacterId == c.Id).ExecuteUpdateAsync(x => x.SetProperty(p => p.Contributed, p => p.Contributed + points), cancel);
+        await CreditGuild(m.GuildId, points, db, hub, clock, cancel);
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Notice(
         Guid id, GuildNotice request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
-        if (await Mine(id, user, db, cancel) is null)
+        if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
         if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
             return Refused("message", "Not in a guild.");
         string? message = string.IsNullOrWhiteSpace(request?.Message) ? null : request.Message.Trim();
         if (GuildRules.WhyNotNotice(mine.Rank, message, request?.Goal ?? 0) is string why)
             return Refused("message", why);
+        string? before = await db.Guilds.Where(g => g.Id == mine.GuildId).Select(g => g.Message).FirstAsync(cancel);
         await db.Guilds.Where(g => g.Id == mine.GuildId).ExecuteUpdateAsync(g => g.SetProperty(p => p.Message, message).SetProperty(p => p.Goal, request!.Goal), cancel);
+        if (before != message)
+            await Record(mine.GuildId, GuildEventKind.Message, me.Name, null, null, db, clock, cancel);
         await TellGuild(mine.GuildId, db, hub, clock, cancel);
         return TypedResults.NoContent();
     }
@@ -283,7 +340,7 @@ public static class GuildEndpoints
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Crest(
         Guid id, GuildCrest request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
-        if (await Mine(id, user, db, cancel) is null)
+        if (await Mine(id, user, db, cancel) is not Character me)
             return TypedResults.NotFound();
         if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
             return Refused("crest", "Not in a guild.");
@@ -292,6 +349,7 @@ public static class GuildEndpoints
         string crest = GuildCrests.Write(request);
         await db.Guilds.Where(g => g.Id == mine.GuildId).ExecuteUpdateAsync(g => g.SetProperty(p => p.Crest, crest), cancel);
         await hub.SetCrest(mine.GuildId, crest, cancel);
+        await Record(mine.GuildId, GuildEventKind.Crest, me.Name, null, null, db, clock, cancel);
         await TellGuild(mine.GuildId, db, hub, clock, cancel);
         return TypedResults.NoContent();
     }
@@ -351,5 +409,132 @@ public static class GuildEndpoints
         await db.SaveChangesAsync(cancel);
         await transaction.CommitAsync(cancel);
         return TypedResults.Ok(new ChestView(chest, mine.Rank, CharacterEndpoints.Summary(me)));
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Note(
+        Guid id, GuildNote request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is null)
+            return TypedResults.NotFound();
+        if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
+            return Refused("note", "Not in a guild.");
+        Guid member = request?.Member ?? Guid.Empty;
+        if (await MembershipOf(member, db, cancel) is not GuildMemberRecord them || them.GuildId != mine.GuildId)
+            return Refused("note", "Not a member of the guild.");
+        string? note = string.IsNullOrWhiteSpace(request?.Note) ? null : request.Note.Trim();
+        if (GuildRules.WhyNotNote(mine.Rank, member == id, note) is string why)
+            return Refused("note", why);
+        them.Note = note;
+        await db.SaveChangesAsync(cancel);
+        await TellGuild(mine.GuildId, db, hub, clock, cancel);
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<Ok<IReadOnlyList<GuildEvent>>, NotFound, ValidationProblem>> Log(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is null)
+            return TypedResults.NotFound();
+        if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
+            return Refused("log", "Not in a guild.");
+        IReadOnlyList<GuildEvent> log = await db.GuildEvents.AsNoTracking().Where(e => e.GuildId == mine.GuildId).OrderByDescending(e => e.Id).Take(GuildRules.LogLength)
+            .Select(e => new GuildEvent(e.Kind, e.Who, e.By, e.Value, e.At)).ToListAsync(cancel);
+        return TypedResults.Ok(log);
+    }
+
+    /// <summary>
+    /// An application (sprint 160, D84, Charles: « un joueur peut postuler dans la guilde, le chef a accès aux candidatures »):
+    /// out of any guild, to a guild of its server by its name, three waiting at most, a week long; its leader told if in play.
+    /// </summary>
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Apply(
+        Guid id, GuildApply request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is not Character me)
+            return TypedResults.NotFound();
+        DateTimeOffset now = clock.GetUtcNow();
+        await db.GuildApplications.Where(a => a.At < now - GuildRules.ApplicationFor).ExecuteDeleteAsync(cancel);
+        string name = request?.Name?.Trim() ?? "";
+        GuildRecord? guild = name.Length == 0 ? null : await db.Guilds.AsNoTracking().FirstOrDefaultAsync(g => g.NormalizedName == GuildRules.Normalize(name), cancel);
+        string? word = string.IsNullOrWhiteSpace(request?.Message) ? null : request.Message.Trim();
+        int waiting = await db.GuildApplications.CountAsync(a => a.CharacterId == id, cancel);
+        bool already = guild is not null && await db.GuildApplications.AnyAsync(a => a.CharacterId == id && a.GuildId == guild.Id, cancel);
+        int count = guild is null ? 0 : await db.GuildMembers.CountAsync(m => m.GuildId == guild.Id, cancel);
+        if (GuildRules.WhyNotApply(await MembershipOf(id, db, cancel) is not null, guild is not null, waiting, already, count, word) is string why)
+            return Refused("name", why);
+        db.GuildApplications.Add(new GuildApplicationRecord { CharacterId = id, GuildId = guild!.Id, Message = word, At = now });
+        try
+        {
+            await db.SaveChangesAsync(cancel);
+        }
+        catch (DbUpdateException)
+        {
+            return Refused("name", "Already applied to that guild.");
+        }
+        if (await db.GuildMembers.AsNoTracking().Where(m => m.GuildId == guild.Id && m.Rank == GuildRank.Leader).Select(m => (Guid?)m.CharacterId).FirstOrDefaultAsync(cancel) is Guid leader)
+            await hub.TellCharacter(leader, new GuildNews(GuildNewsKind.Applied, id, me.Name, guild.Name), cancel);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>The applications to one's guild, for its leader; out of a guild, one's own; the oldest first, a week long.</summary>
+    internal static async Task<Results<Ok<IReadOnlyList<GuildApplication>>, NotFound, ValidationProblem>> Applications(
+        Guid id, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is null)
+            return TypedResults.NotFound();
+        DateTimeOffset since = clock.GetUtcNow() - GuildRules.ApplicationFor;
+        GuildMemberRecord? mine = await MembershipOf(id, db, cancel);
+        if (mine is not null && GuildRules.WhyNotAnswer(mine.Rank) is string why)
+            return Refused("guild", why);
+        IReadOnlyList<GuildApplication> list = await (from a in db.GuildApplications.AsNoTracking()
+                                                      join c in db.Characters.AsNoTracking() on a.CharacterId equals c.Id
+                                                      join g in db.Guilds.AsNoTracking() on a.GuildId equals g.Id
+                                                      where a.At >= since && (mine == null ? a.CharacterId == id : a.GuildId == mine.GuildId)
+                                                      orderby a.At
+                                                      select new GuildApplication(c.Id, c.Name, c.Level, c.Class, g.Id, g.Name, a.Message, a.At)).ToListAsync(cancel);
+        return TypedResults.Ok(list);
+    }
+
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Answer(
+        Guid id, GuildAnswer request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is not Character me)
+            return TypedResults.NotFound();
+        if (await MembershipOf(id, db, cancel) is not GuildMemberRecord mine)
+            return Refused("character", "Not in a guild.");
+        if (GuildRules.WhyNotAnswer(mine.Rank) is string why)
+            return Refused("character", why);
+        Guid applicant = request?.Character ?? Guid.Empty;
+        DateTimeOffset since = clock.GetUtcNow() - GuildRules.ApplicationFor;
+        if (await db.GuildApplications.FirstOrDefaultAsync(a => a.CharacterId == applicant && a.GuildId == mine.GuildId && a.At >= since, cancel) is not GuildApplicationRecord application)
+            return Refused("character", "No such application.");
+        db.GuildApplications.Remove(application);
+        await db.SaveChangesAsync(cancel);
+        if (request!.Accept)
+        {
+            Character them = await db.Characters.FirstAsync(c => c.Id == applicant, cancel);
+            GuildRecord guild = await db.Guilds.AsNoTracking().FirstAsync(g => g.Id == mine.GuildId, cancel);
+            if (await Enter(them, guild.Id, guild.Name, guild.Crest, me.Name, db, hub, clock, cancel) is string full)
+                return Refused("character", full);
+        }
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<NoContent, NotFound>> WithdrawApplication(Guid id, GuildWithdraw request, ClaimsPrincipal user, GameDb db, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is null)
+            return TypedResults.NotFound();
+        Guid guild = request?.Guild ?? Guid.Empty;
+        await db.GuildApplications.Where(a => a.CharacterId == id && a.GuildId == guild).ExecuteDeleteAsync(cancel);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>A member comes into play (sprint 160): the others in play are told, its name for those who asked.</summary>
+    internal static async Task TellOnline(Guid character, string name, GameDb db, ChatHub hub, CancellationToken cancel)
+    {
+        if (await MembershipOf(character, db, cancel) is not GuildMemberRecord mine)
+            return;
+        var news = new GuildNews(GuildNewsKind.Online, character, name);
+        foreach (Guid other in await db.GuildMembers.AsNoTracking().Where(m => m.GuildId == mine.GuildId && m.CharacterId != character).Select(m => m.CharacterId).ToListAsync(cancel))
+            if (hub.MapOf(other) is not null)
+                await hub.TellCharacter(other, news, cancel);
     }
 }

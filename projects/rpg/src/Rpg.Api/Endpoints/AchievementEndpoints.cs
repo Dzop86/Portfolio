@@ -24,8 +24,12 @@ public static class AchievementEndpoints
 
     /// <summary>What the achievements read of a character.</summary>
     internal static async Task<AchievementState> StateOf(Character c, GameDb db, CancellationToken cancel) =>
+        StateOf(c, await db.GuildMembers.AnyAsync(m => m.CharacterId == c.Id, cancel));
+
+    /// <summary>The same, its guild known (sprint 160: a guild's members, their achievement points).</summary>
+    internal static AchievementState StateOf(Character c, bool inGuild) =>
         new(c.WaystoneList, c.BestiaryList, c.JobList.ToDictionary(j => j.Key, j => Crafting.LevelFor(j.Value), StringComparer.Ordinal), c.QuestList,
-            c.ContractsDone, c.TalentList, await db.GuildMembers.AnyAsync(m => m.CharacterId == c.Id, cancel), c.SharedWins, c.FeatList);
+            c.ContractsDone, c.TalentList, inGuild, c.SharedWins, c.FeatList);
 
     private static async Task<AchievementView> ViewOf(Character c, GameDb db, CancellationToken cancel)
     {

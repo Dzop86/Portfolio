@@ -104,4 +104,26 @@ public class GuildTests
         Assert.Contains("mille Éclats", hello.Fr, StringComparison.Ordinal);
         Assert.Contains("a thousand Éclats", hello.En, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void AnApplication_ANote_AndAnAnswer_FollowTheirRules()
+    {
+        // Out of a guild, to one that exists, not twice, three waiting at most, not to a full one, a short word.
+        Assert.Null(GuildRules.WhyNotApply(false, true, 2, false, GuildRules.Most - 1, new string('a', GuildRules.ApplicationWordLength)));
+        Assert.NotNull(GuildRules.WhyNotApply(true, true, 0, false, 1, null));
+        Assert.NotNull(GuildRules.WhyNotApply(false, false, 0, false, 0, null));
+        Assert.NotNull(GuildRules.WhyNotApply(false, true, 0, true, 1, null));
+        Assert.NotNull(GuildRules.WhyNotApply(false, true, GuildRules.MostApplications, false, 1, null));
+        Assert.NotNull(GuildRules.WhyNotApply(false, true, 0, false, GuildRules.Most, null));
+        Assert.NotNull(GuildRules.WhyNotApply(false, true, 0, false, 1, new string('a', GuildRules.ApplicationWordLength + 1)));
+        // The leader alone answers (Charles: « le chef a accès aux candidatures »).
+        Assert.Null(GuildRules.WhyNotAnswer(GuildRank.Leader));
+        Assert.NotNull(GuildRules.WhyNotAnswer(GuildRank.Officer));
+        // One's own note; another's only cleared, by the leader or an officer.
+        Assert.Null(GuildRules.WhyNotNote(GuildRank.Member, true, "Cueilleuse"));
+        Assert.NotNull(GuildRules.WhyNotNote(GuildRank.Member, true, new string('a', GuildRules.NoteLength + 1)));
+        Assert.Null(GuildRules.WhyNotNote(GuildRank.Officer, false, null));
+        Assert.NotNull(GuildRules.WhyNotNote(GuildRank.Officer, false, "Autre"));
+        Assert.NotNull(GuildRules.WhyNotNote(GuildRank.Member, false, null));
+    }
 }

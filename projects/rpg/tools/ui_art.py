@@ -171,6 +171,12 @@ def main():
     with open(os.path.join(frames, "..", "grid.svg"), "w") as f:
         f.write('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">'
                 + "".join(f'<rect x="{x}" y="{y}" width="6" height="6" rx="1" fill="#c9a27f"/>' for y in (0, 8) for x in (0, 8)) + "</svg>\n")
+    # The guild's level in a gold hexagon (sprint 160, docs/graphisme/s160-guilde.md): its relief, its edge in chocolate.
+    with open(os.path.join(frames, "..", "level-hex.svg"), "w") as f:
+        f.write('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="44" viewBox="0 0 40 44"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">'
+                '<stop offset="0" stop-color="#ffe6ab"/><stop offset="0.5" stop-color="#ffd166"/><stop offset="1" stop-color="#c9962e"/></linearGradient></defs>'
+                '<path d="M20 3L36 12V32L20 41L4 32V12Z" fill="#000" opacity="0.45" transform="translate(0 2)"/>'
+                '<path d="M20 2L36 11V31L20 40L4 31V11Z" fill="url(#g)" stroke="#5a3a22" stroke-width="2" stroke-linejoin="round"/></svg>\n')
     # The check box (sprint 158): a hollow edged in the dim grey, or pistachio ticked in chocolate.
     for name, body in {
         "check-off": '<rect x="1" y="1" width="18" height="18" rx="4" fill="#141414" stroke="#9d9d9d" stroke-width="2"/>',

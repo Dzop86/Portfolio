@@ -1,3 +1,37 @@
 {
-  "dungeons": { "shape": "delapouite/dungeon-gate", "main": "#b48cff", "light": "#d6c0ff", "dark": "#634d8c", "outline": "#241c33" }
+  "dungeons": {
+    "shape": "delapouite/dungeon-gate",
+    "main": "#b48cff",
+    "light": "#d6c0ff",
+    "dark": "#634d8c",
+    "outline": "#241c33"
+  },
+  "class-sentinel": {
+    "shape": "lorc/high-shot",
+    "main": "#52c45a",
+    "light": "#a0dfa4",
+    "dark": "#2d6c32",
+    "outline": "#102712"
+  },
+  "class-guard": {
+    "shape": "lorc/checked-shield",
+    "main": "#a9c7e8",
+    "light": "#d0e1f2",
+    "dark": "#5d6d80",
+    "outline": "#22282e"
+  },
+  "class-mage": {
+    "shape": "lorc/pointy-hat",
+    "main": "#b48cff",
+    "light": "#d6c0ff",
+    "dark": "#634d8c",
+    "outline": "#241c33"
+  },
+  "pencil": {
+    "shape": "delapouite/pencil",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#282019"
+  }
 }

@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild")
             _ = TownScreenshot();
     }
 
@@ -2708,9 +2708,20 @@ public partial class Main
         string expectedStanding = $"{texts["guild.level", 3]} · {texts["guild.points", 50, 450, 4]} | {texts["guild.week", 85, 120]} | « Ce soir, la Combe ! »";
         if (guildPanel.StandingText != expectedStanding || guildPanel.CrestShown != wolf || !guildPanel.CanEdit || guildPanel.Composed != wolf)
             problems.Add($"the guild stands as {guildPanel.StandingText}, crest {guildPanel.CrestShown}, editor {guildPanel.CanEdit}");
+        // Sprint 160: the leader's recruitment, its applications, the log in words.
+        guildPanel.Open(GuildPanel.Tab.Recruitment);
+        guildPanel.ShowApplications([new GuildApplication(Guid.NewGuid(), "Brume", 12, "mage", standing.Id, "Les Veilleurs", "Je connais le bois.", now)]);
+        guildPanel.ShowLog([new GuildEvent(GuildEventKind.Joined, "Brume", "Moi", null, now), new GuildEvent(GuildEventKind.Level, "3", null, null, now)]);
+        if (!guildPanel.RecruitmentOffered || guildPanel.ApplicationLines.SingleOrDefault() != texts["guild.apply.line", "Brume", 12]
+            || !guildPanel.LogLines.SequenceEqual([texts["guild.log.invited-by", "Brume", "Moi"], texts["guild.log.level", "3"]]))
+            problems.Add($"the guild's recruitment shows {string.Join(" | ", guildPanel.ApplicationLines)}, its log {string.Join(" | ", guildPanel.LogLines)}");
+        guildPanel.Open(GuildPanel.Tab.Members);
         guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Officer, 30, "guard", woods.Zone, now)] }, me, now);
         if (guildPanel.CanEdit)
             problems.Add("an officer may write the guild's message");
+        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Member, 30, "guard", woods.Zone, now)] }, me, now);
+        if (guildPanel.RecruitmentOffered)
+            problems.Add("a member is offered the recruitment");
         // The chest at Edmée's (sprint 156): a member sees its two tabs (the level's), takes nothing out of a closed tab,
         // deposits from its bag; the journal says who.
         var chestPanel = new GuildChestPanel();
@@ -2731,8 +2742,9 @@ public partial class Main
         // Out of a guild, after Edmée's answer: the name to found one.
         guildPanel.Show(null, me, now);
         guildPanel.OfferFounding();
-        if (guildPanel.Lines.Count != 0 || !guildPanel.FoundingOffered || guildPanel.GuildName.Length != 0)
-            problems.Add("out of a guild, the window does not offer to found one");
+        guildPanel.ShowApplications([new GuildApplication(me, "Moi", 30, "guard", Guid.NewGuid(), "Les Brumes", null, now)]);
+        if (guildPanel.Lines.Count != 0 || !guildPanel.FoundingOffered || guildPanel.GuildName.Length != 0 || guildPanel.ApplicationLines.SingleOrDefault() != texts["guild.apply.mine", "Les Brumes"])
+            problems.Add("out of a guild, the window does not offer to found one nor shows its applications");
         guildPanel.QueueFree();
         // Its line on the banner with its seconds, the question closed or not (sprint 124); swords over a group of this map.
         ShowJoins();
@@ -3520,7 +3532,7 @@ public partial class Main
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
             return;
         }
-        if (_options.Shot is "achievements" or "achievements-list" or "achievements-crown")
+        if (_options.Shot is "achievements" or "achievements-list" or "achievements-crown" or "guild")
         {
             // The achievements' window (sprint 158): a character of the end of chapter 1, its overview or its first dungeons.
             var progress = Achievements.All.Select((a, i) => new AchievementProgress(a.Id, a.Category is "Exploration" || i % 3 == 0 ? a.Count : a.Count / 2, a.Count)).ToList();
@@ -3533,6 +3545,24 @@ public partial class Main
                 _achievementsPanel.ShowCategory("Dungeons", "levels-1-15");
             else if (_options.Shot == "achievements-crown")
                 _achievementsPanel.See("woods-all");
+            else if (_options.Shot == "guild")
+            {
+                // The guild's window (sprint 160): a leader, four members, their notes and points.
+                CloseAchievements();
+                Guid me = Guid.NewGuid();
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                string zone = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id)).Zone!;
+                var guild = new GuildView(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([
+                    new GuildMember(me, "Aubépine", GuildRank.Leader, 42, "guard", zone, now) { Note = "Combe le soir", Contributed = 1240, AchievementPoints = 610 },
+                    new GuildMember(Guid.NewGuid(), "Brume", GuildRank.Officer, 38, "mage", zone, now) { Contributed = 860, AchievementPoints = 455 },
+                    new GuildMember(Guid.NewGuid(), "Cendre", GuildRank.Member, 31, "sentinel", null, now.AddHours(-5)) { Note = "Mineur", Contributed = 310, AchievementPoints = 300 },
+                    new GuildMember(Guid.NewGuid(), "Ronce", GuildRank.Member, 17, "mage", zone, now) { Contributed = 90, AchievementPoints = 120 }]),
+                    GuildRules.Standing(1450, 85, 1, 1, 120, "Ce soir, la Combe du brame ! Rendez-vous à Quatre-Chemins.", new GuildCrest("banner", "wolf-head", "gris-fond", "osmose-cost")));
+                _guildPanel = new GuildPanel();
+                AddChild(_guildPanel);
+                _guildPanel.Build(_talkPanel.Texts);
+                _guildPanel.Show(guild, me, now);
+            }
             _talkPanel.Visible = false;
             _townView!.ShowPath(null);
             for (int i = 0; i < 30; i++)

@@ -14,6 +14,9 @@ public partial class Main
     private static GuildView? _guild;
     private GuildPanel? _guildPanel;
 
+    // Whether the player wants a word when a member comes into play (sprint 160): the window's box, kept while the game runs.
+    private static bool _notifyOnline = true;
+
     /// <summary>The guild's name the player carries, or null (for the self-test and the player's menu).</summary>
     private static string? GuildName => _guild?.Name;
 
@@ -57,6 +60,17 @@ public partial class Main
                 _guildPanel?.Show(view, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
                 _townView?.ShowOwnGuild(view.Name, view.Standing?.Crest);
                 break;
+            case GuildNewsKind.Online when news.Name is string came:
+                // A member comes into play (sprint 160), said if the player asked.
+                if (_notifyOnline)
+                    Note(texts["guild.online-now", came]);
+                break;
+            case GuildNewsKind.Applied when news.Name is string applicant:
+                // Someone applies (sprint 160): the leader told, the recruitment's tab refreshed if open.
+                Note(texts["guild.applied", applicant]);
+                if (_guildPanel?.Shown == GuildPanel.Tab.Recruitment)
+                    _ = GuildCall(async s => _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id)));
+                break;
             default:
                 if (!quiet && _guild is not null)
                     Note(texts["guild.left"]);
@@ -98,15 +112,55 @@ public partial class Main
             await s.SetGuildCrest(_character!.Id, crest);
             _guildPanel?.Tell(texts["guild.saved"]);
         });
+        // Sprint 160: notes, applications, the tabs' contents asked of the server when opened.
+        _guildPanel.NotePressed += (member, note) => _ = GuildCall(s => s.SetGuildNote(_character!.Id, member, note));
+        _guildPanel.ApplyPressed += (name, word) => _ = GuildCall(async s =>
+        {
+            await s.ApplyToGuild(_character!.Id, name, word);
+            _guildPanel?.Tell(texts["guild.apply.sent", name]);
+            _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id));
+        });
+        _guildPanel.WithdrawPressed += guild => _ = GuildCall(async s =>
+        {
+            await s.WithdrawApplication(_character!.Id, guild);
+            _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id));
+        });
+        _guildPanel.AnswerPressed += (applicant, accept) => _ = GuildCall(async s =>
+        {
+            await s.AnswerApplication(_character!.Id, applicant, accept);
+            _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id));
+        });
+        _guildPanel.TabOpened += tab => _ = GuildCall(async s =>
+        {
+            _notifyOnline = _guildPanel?.NotifyOnline ?? _notifyOnline;
+            switch (tab)
+            {
+                case GuildPanel.Tab.Chest:
+                    _guildPanel?.ShowChest(await s.GuildChest(_character!.Id));
+                    break;
+                case GuildPanel.Tab.Log:
+                    _guildPanel?.ShowLog(await s.GuildLog(_character!.Id));
+                    break;
+                case GuildPanel.Tab.Recruitment when _guild is not null && GuildPage.CanLead(_guild, _character!.Id):
+                    _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id));
+                    break;
+            }
+        });
         _guildPanel.Show(_guild, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
         if (_lobby?.SignedIn != true || _character is null)
             _guildPanel.Tell(texts["guild.needs-server"]);
         else
+        {
             _ = RefreshGuild();
+            // Out of a guild, one's applications waiting.
+            if (_guild is null)
+                _ = GuildCall(async s => _guildPanel?.ShowApplications(await s.GuildApplications(_character!.Id)));
+        }
     }
 
     private void CloseGuild()
     {
+        _notifyOnline = _guildPanel?.NotifyOnline ?? _notifyOnline;
         _guildPanel?.QueueFree();
         _guildPanel = null;
     }

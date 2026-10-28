@@ -225,6 +225,38 @@ public sealed class GameServer(HttpClient http)
     public async Task SetGuildCrest(Guid id, GuildCrest crest, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/crest", UriKind.Relative), crest, Json, cancel), cancel), cancel);
 
+    /// <summary>Writes one's note in the guild's list, or (leader, officers) clears another's (sprint 160).</summary>
+    public async Task SetGuildNote(Guid id, Guid member, string? note, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/note", UriKind.Relative), new GuildNote(member, note), Json, cancel), cancel), cancel);
+
+    /// <summary>The guild's log, the newest first (sprint 160).</summary>
+    public async Task<IReadOnlyList<GuildEvent>> GuildLog(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/guild/log", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<List<GuildEvent>>(Json, cancel))!;
+    }
+
+    /// <summary>Applies to a guild by its name, with a word (sprint 160).</summary>
+    public async Task ApplyToGuild(Guid id, string name, string? word, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/apply", UriKind.Relative), new GuildApply(name, word), Json, cancel), cancel), cancel);
+
+    /// <summary>The applications to one's guild (its leader), or one's own (out of a guild).</summary>
+    public async Task<IReadOnlyList<GuildApplication>> GuildApplications(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/guild/applications", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<List<GuildApplication>>(Json, cancel))!;
+    }
+
+    /// <summary>The leader accepts or refuses an application.</summary>
+    public async Task AnswerApplication(Guid id, Guid applicant, bool accept, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/applications/answer", UriKind.Relative), new GuildAnswer(applicant, accept), Json, cancel), cancel), cancel);
+
+    /// <summary>Withdraws one's application to a guild.</summary>
+    public async Task WithdrawApplication(Guid id, Guid guild, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/applications/withdraw", UriKind.Relative), new GuildWithdraw(guild), Json, cancel), cancel), cancel);
+
     /// <summary>The guild's chest at Edmée's (sprint 156): its tabs, its journal, one's rank.</summary>
     public async Task<ChestView> GuildChest(Guid id, CancellationToken cancel = default)
     {

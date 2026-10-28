@@ -347,4 +347,32 @@ public sealed class GuildMemberRecord
     /// new one; a member who leaves and comes back brings none twice to the same guild only as long as it stays.
     /// </summary>
     public int Credited { get; set; }
+
+    /// <summary>The points it brought the guild (sprint 160, D84): its contracts and achievements.</summary>
+    public long Contributed { get; set; }
+
+    /// <summary>Its note in the guild's list (sprint 160), written by itself.</summary>
+    public string? Note { get; set; }
+}
+
+/// <summary>An application to a guild (sprint 160, D84): who, to which guild, its word, when; gone after a week or once it joins one.</summary>
+public sealed class GuildApplicationRecord
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid CharacterId { get; set; }
+    public Guid GuildId { get; set; }
+    public string? Message { get; set; }
+    public DateTimeOffset At { get; set; }
+}
+
+/// <summary>An event of a guild's log (sprint 160): written once, the last hundred read (<see cref="Rpg.Core.GuildEvent"/>).</summary>
+public sealed class GuildEventRecord
+{
+    public long Id { get; set; }
+    public Guid GuildId { get; set; }
+    public Rpg.Core.GuildEventKind Kind { get; set; }
+    public required string Who { get; set; }
+    public string? By { get; set; }
+    public string? Value { get; set; }
+    public DateTimeOffset At { get; set; }
 }

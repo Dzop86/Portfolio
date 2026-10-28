@@ -19,6 +19,8 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
     public DbSet<GuildRecord> Guilds => Set<GuildRecord>();
 
     public DbSet<GuildMemberRecord> GuildMembers => Set<GuildMemberRecord>();
+    public DbSet<GuildApplicationRecord> GuildApplications => Set<GuildApplicationRecord>();
+    public DbSet<GuildEventRecord> GuildEvents => Set<GuildEventRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -115,6 +117,27 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             member.HasOne<Character>().WithMany().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
             member.HasOne<GuildRecord>().WithMany().HasForeignKey(m => m.GuildId).OnDelete(DeleteBehavior.Cascade);
             member.HasIndex(m => m.GuildId);
+            member.Property(m => m.Note).HasMaxLength(Rpg.Core.GuildRules.NoteLength);
+        });
+        // Applications and the guild's log (sprint 160): gone with the character or the guild.
+        modelBuilder.Entity<GuildApplicationRecord>(application =>
+        {
+            application.ToTable("guild_applications");
+            application.Property(a => a.Message).HasMaxLength(Rpg.Core.GuildRules.ApplicationWordLength);
+            application.HasOne<Character>().WithMany().HasForeignKey(a => a.CharacterId).OnDelete(DeleteBehavior.Cascade);
+            application.HasOne<GuildRecord>().WithMany().HasForeignKey(a => a.GuildId).OnDelete(DeleteBehavior.Cascade);
+            application.HasIndex(a => new { a.CharacterId, a.GuildId }).IsUnique();
+            application.HasIndex(a => a.GuildId);
+        });
+        modelBuilder.Entity<GuildEventRecord>(e =>
+        {
+            e.ToTable("guild_events");
+            e.Property(x => x.Kind).HasConversion<string>().HasMaxLength(10);
+            e.Property(x => x.Who).HasMaxLength(20);
+            e.Property(x => x.By).HasMaxLength(20);
+            e.Property(x => x.Value).HasMaxLength(20);
+            e.HasOne<GuildRecord>().WithMany().HasForeignKey(x => x.GuildId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.GuildId, x.Id });
         });
     }
 }

@@ -129,6 +129,8 @@ public static class OsmoseTheme
         theme.SetTypeVariation(ListRow, "PanelContainer");
         StyleBoxFlat row = Flat("#00000000", "#ffffff0f", 0, 0, 12);
         row.BorderWidthBottom = 1;
+        // A row is 44 high: its margins on the sides only.
+        (row.ContentMarginTop, row.ContentMarginBottom) = (0, 0);
         theme.SetStylebox("panel", ListRow, row);
         theme.SetTypeVariation(GoldBand, "PanelContainer");
         theme.SetStylebox("panel", GoldBand, Raised("gold-band", 20, 4, 4));
