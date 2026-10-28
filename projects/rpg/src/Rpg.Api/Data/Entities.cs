@@ -128,6 +128,15 @@ public sealed class Character
     /// <summary>The notice board's contracts handed back (sprint 155).</summary>
     public int ContractsDone { get; set; }
 
+    /// <summary>
+    /// The playtest's counters (sprint 156, question 89 a), read by the operator only and without any name: the
+    /// contracts offered by its board, the days it was played (and the last), its time in play in seconds.
+    /// </summary>
+    public int ContractsOffered { get; set; }
+    public int DaysPlayed { get; set; }
+    public int LastDayPlayed { get; set; }
+    public long SecondsPlayed { get; set; }
+
     /// <summary>The title worn (sprint 155): the id of the achievement that gives it, or none.</summary>
     public string? Title { get; set; }
 
@@ -288,6 +297,33 @@ public sealed class GuildRecord
     public required string Name { get; set; }
     public required string NormalizedName { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Its points (sprint 156, D83): its level follows (<see cref="Rpg.Core.GuildRules.LevelFor"/>).</summary>
+    public long Points { get; set; }
+
+    /// <summary>The points of its week (<see cref="Rpg.Core.GuildRules.Week"/>), and which week they are of.</summary>
+    public int WeekPoints { get; set; }
+    public int Week { get; set; }
+
+    /// <summary>The leader's goal for the week, and its message.</summary>
+    public int Goal { get; set; } = Rpg.Core.GuildRules.DefaultGoal;
+    public string? Message { get; set; }
+
+    /// <summary>Its crest (<see cref="Rpg.Core.GuildCrests.Write"/>), "" for the default one.</summary>
+    public string Crest { get; set; } = "";
+
+    /// <summary>Its chest at Edmée's and the chest's journal, as JSON (<see cref="Rpg.Core.GuildChests.Write"/>).</summary>
+    public string Chest { get; set; } = "";
+
+    public int Level => Rpg.Core.GuildRules.LevelFor(Points);
+
+    /// <summary>Points earned by a member: the level's and the week's (those of a past week dropped).</summary>
+    public void Earn(int points, int week)
+    {
+        Points += points;
+        WeekPoints = Week == week ? WeekPoints + points : points;
+        Week = week;
+    }
 }
 
 /// <summary>A character in a guild (sprint 145): one guild at most, its rank, when it joined (who leads after the leader).</summary>
@@ -297,4 +333,10 @@ public sealed class GuildMemberRecord
     public Guid GuildId { get; set; }
     public GuildRank Rank { get; set; } = GuildRank.Member;
     public DateTimeOffset JoinedAt { get; set; }
+
+    /// <summary>
+    /// The achievements of the member already counted for the guild (sprint 156): those it had when it joined, then each
+    /// new one; a member who leaves and comes back brings none twice to the same guild only as long as it stays.
+    /// </summary>
+    public int Credited { get; set; }
 }

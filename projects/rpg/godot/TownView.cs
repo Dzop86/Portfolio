@@ -531,7 +531,7 @@ public partial class TownView : Node3D
 
     /// <summary>A character model facing the viewer, idle, its outfit painted, a name above it (or none).</summary>
     /// <summary>A person of the map: its model, its name above it, and since sprint 145 its guild's name under the name.</summary>
-    private static Node3D Person(Hero appearance, string? name, string? guild = null, string? title = null)
+    private static Node3D Person(Hero appearance, string? name, string? guild = null, string? title = null, GuildCrest? crest = null)
     {
         // A little larger than on the fighting board, next to houses two cells wide.
         var root = new Node3D { Scale = new Vector3(1.5f, 1.5f, 1.5f) };
@@ -560,13 +560,22 @@ public partial class TownView : Node3D
             root.AddChild(worn);
         }
         if (guild is not null)
-        {
-            Label3D under = Label($"‹{guild}›", new Vector3(0, 0.98f, 0), 30);
-            under.Name = "Guild";
-            under.Modulate = FighterView.PlayerColour;
-            root.AddChild(under);
-        }
+            AddGuild(root, guild, crest);
         return root;
+    }
+
+    // The guild's name under a character's, and since sprint 156 its crest beside it, on the left.
+    private static void AddGuild(Node3D root, string guild, GuildCrest? crest)
+    {
+        Label3D under = Label($"‹{guild}›", new Vector3(0, 0.98f, 0), 30);
+        under.Name = "Guild";
+        under.Modulate = FighterView.PlayerColour;
+        root.AddChild(under);
+        if (crest is not null)
+        {
+            float width = ThemeDB.FallbackFont.GetStringSize(under.Text, HorizontalAlignment.Left, -1, under.FontSize).X * under.PixelSize;
+            root.AddChild(CrestView.Sprites(crest, under.Position, width));
+        }
     }
 
     private static Label3D Label(string text, Vector3 at, int size) => new()
@@ -1016,6 +1025,7 @@ public partial class TownView : Node3D
     private readonly Dictionary<Guid, Cell> _otherAt = [];
     private readonly Dictionary<Guid, string?> _otherGuild = [];
     private readonly Dictionary<Guid, string?> _otherTitle = [];
+    private readonly Dictionary<Guid, string?> _otherCrest = [];
 
     /// <summary>The title drawn under another player's name, or null (for the self-test).</summary>
     public string? TitleShownFor(Guid id) =>
@@ -1025,20 +1035,25 @@ public partial class TownView : Node3D
     /// The player's own guild under its own character (sprint 152, D83, the limit of T112), where the others' is drawn under
     /// their names: the player has no name above it, so the guild's name stands alone; none out of a guild.
     /// </summary>
-    public void ShowOwnGuild(string? guild)
+    public void ShowOwnGuild(string? guild, GuildCrest? crest = null)
     {
-        if (Player.FindChild("Guild", false, false) is Label3D old)
+        foreach (string drawn in new[] { "Guild", "Crest" })
         {
-            Player.RemoveChild(old);
-            old.QueueFree();
+            if (Player.FindChild(drawn, false, false) is Node3D old)
+            {
+                Player.RemoveChild(old);
+                old.QueueFree();
+            }
         }
-        if (guild is null)
-            return;
-        Label3D under = Label($"‹{guild}›", new Vector3(0, 0.98f, 0), 30);
-        under.Name = "Guild";
-        under.Modulate = FighterView.PlayerColour;
-        Player.AddChild(under);
+        if (guild is not null)
+            AddGuild(Player, guild, crest);
     }
+
+    /// <summary>Whether a crest is drawn beside the player's own guild (for the self-test).</summary>
+    public bool OwnCrestShown => Player.FindChild("Crest", false, false) is not null;
+
+    /// <summary>Whether a crest is drawn beside another player's guild (for the self-test).</summary>
+    public bool CrestShownFor(Guid id) => Others.TryGetValue(id, out Node3D? person) && person.FindChild("Crest", false, false) is not null;
 
     /// <summary>The guild's name drawn under the player's own character, or null (for the self-test).</summary>
     public string? OwnGuildShown => Player.FindChild("Guild", false, false) is Label3D label ? label.Text : null;
@@ -1066,18 +1081,20 @@ public partial class TownView : Node3D
             _otherAt.Remove(gone);
             _otherGuild.Remove(gone);
             _otherTitle.Remove(gone);
+            _otherCrest.Remove(gone);
         }
         foreach (OtherPlayer other in others)
         {
             // Joined a guild or left it (sprint 145): drawn again with its name, where it stands.
-            if (Others.TryGetValue(other.Id, out Node3D? redrawn) && (_otherGuild.GetValueOrDefault(other.Id) != other.Guild || _otherTitle.GetValueOrDefault(other.Id) != other.Title))
+            if (Others.TryGetValue(other.Id, out Node3D? redrawn) && (_otherGuild.GetValueOrDefault(other.Id) != other.Guild || _otherTitle.GetValueOrDefault(other.Id) != other.Title
+                || _otherCrest.GetValueOrDefault(other.Id) != other.Crest))
             {
                 redrawn.QueueFree();
                 Others.Remove(other.Id);
             }
             if (!Others.TryGetValue(other.Id, out Node3D? person))
             {
-                person = Person(other.Look, other.Name, other.Guild, AchievementsPage.TitleOf(other.Title, _lang));
+                person = Person(other.Look, other.Name, other.Guild, AchievementsPage.TitleOf(other.Title, _lang), GuildPage.CrestOf(other.Crest));
                 person.Position = BoardView.ToWorld(other.At);
                 AddChild(person);
                 Others[other.Id] = person;
@@ -1091,6 +1108,7 @@ public partial class TownView : Node3D
             _otherAt[other.Id] = other.At;
             _otherGuild[other.Id] = other.Guild;
             _otherTitle[other.Id] = other.Title;
+            _otherCrest[other.Id] = other.Crest;
         }
     }
 

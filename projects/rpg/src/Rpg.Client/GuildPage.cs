@@ -48,6 +48,39 @@ public static class GuildPage
             : (Math.Max(1, (int)gone.TotalMinutes), "minutes");
     }
 
+    /// <summary>Whether one writes the message, the goal and the crest: the leader (sprint 156).</summary>
+    public static bool CanLead(GuildView guild, Guid me) => RankOf(guild, me) == GuildRank.Leader;
+
+    /// <summary>How far toward the next level, from 0 to 1 (1 at the top).</summary>
+    public static double Toward(GuildStanding standing)
+    {
+        ArgumentNullException.ThrowIfNull(standing);
+        return standing.ToNext == 0 ? 1 : (double)standing.Into / standing.ToNext;
+    }
+
+    /// <summary>How far toward the week's goal, from 0 to 1.</summary>
+    public static double TowardGoal(GuildStanding standing)
+    {
+        ArgumentNullException.ThrowIfNull(standing);
+        return Math.Clamp((double)standing.Week / Math.Max(1, standing.Goal), 0, 1);
+    }
+
+    /// <summary>The level a guild needs for its tab <paramref name="tab"/> (from 0): 1, 3, 6, 9.</summary>
+    public static int TabLevel(int tab) => Enumerable.Range(1, GuildRules.TopLevel).First(l => GuildChests.TabsAt(l) > tab);
+
+    /// <summary>Whether one may take out of a tab: the leader and the officers, a member from a tab opened to it.</summary>
+    public static bool CanTake(ChestView chest, int tab)
+    {
+        ArgumentNullException.ThrowIfNull(chest);
+        return GuildChests.MayTake(chest.Chest, tab, chest.Rank);
+    }
+
+    /// <summary>The colour of a crest's part, as its token's value ("#bef374").</summary>
+    public static string Colour(string token) => GuildCrests.Colours.TryGetValue(token, out string? hex) ? hex : GuildCrests.Colours[GuildCrests.Default.Field];
+
+    /// <summary>The crest the map's players carry ("shape/icon/field/charge"), or null.</summary>
+    public static GuildCrest? CrestOf(string? kept) => kept is null ? null : GuildCrests.Read(kept);
+
     /// <summary>How many members, against the most a guild may have.</summary>
     public static (int Count, int Most) Room(GuildView guild)
     {

@@ -55,7 +55,7 @@ public partial class Main
                     Note(texts[view.Members.Count == 1 ? "guild.founded" : "guild.joined", view.Name]);
                 _guild = view;
                 _guildPanel?.Show(view, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
-                _townView?.ShowOwnGuild(view.Name);
+                _townView?.ShowOwnGuild(view.Name, view.Standing?.Crest);
                 break;
             default:
                 if (!quiet && _guild is not null)
@@ -88,6 +88,16 @@ public partial class Main
         _guildPanel.LeavePressed += () => _ = GuildCall(s => s.LeaveGuild(_character!.Id));
         _guildPanel.KickPressed += member => _ = GuildCall(s => s.KickFromGuild(_character!.Id, member));
         _guildPanel.RankPressed += (member, rank) => _ = GuildCall(s => s.SetGuildRank(_character!.Id, member, rank));
+        _guildPanel.NoticePressed += (message, goal) => _ = GuildCall(async s =>
+        {
+            await s.SetGuildNotice(_character!.Id, message, goal);
+            _guildPanel?.Tell(texts["guild.saved"]);
+        });
+        _guildPanel.CrestPressed += crest => _ = GuildCall(async s =>
+        {
+            await s.SetGuildCrest(_character!.Id, crest);
+            _guildPanel?.Tell(texts["guild.saved"]);
+        });
         _guildPanel.Show(_guild, _character?.Id ?? Guid.Empty, DateTimeOffset.UtcNow);
         if (_lobby?.SignedIn != true || _character is null)
             _guildPanel.Tell(texts["guild.needs-server"]);
@@ -112,6 +122,55 @@ public partial class Main
         _guildPanel?.OfferFounding();
     }
 
+    private GuildChestPanel? _chestPanel;
+
+    /// <summary>
+    /// Edmée's other answer (sprint 156): the guild's chest, asked of the server; each movement asked of it too, the bag
+    /// beside the chest kept as it answers. Out of a guild or offline, the reason in the window.
+    /// </summary>
+    private GuildChestPanel OpenChest()
+    {
+        _chestPanel?.QueueFree();
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        _chestPanel = new GuildChestPanel();
+        AddChild(_chestPanel);
+        _chestPanel.Build(texts);
+        _chestPanel.ClosePressed += CloseChest;
+        _chestPanel.DepositPressed += (item, count, tab) => _ = ChestCall(s => s.Deposit(_character!.Id, item, count, tab));
+        _chestPanel.WithdrawPressed += (item, count, tab) => _ = ChestCall(s => s.Withdraw(_character!.Id, item, count, tab));
+        _chestPanel.OpenPressed += (tab, open) => _ = ChestCall(s => s.OpenChestTab(_character!.Id, tab, open));
+        _ = ChestCall(s => s.GuildChest(_character!.Id));
+        return _chestPanel;
+    }
+
+    private void CloseChest()
+    {
+        _chestPanel?.QueueFree();
+        _chestPanel = null;
+    }
+
+    private async Task ChestCall(Func<GameServer, Task<ChestView>> call)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _chestPanel?.Tell(texts["guild.needs-server"]);
+            return;
+        }
+        try
+        {
+            ChestView chest = await call(_lobby.Server);
+            if (chest.Character is CharacterSummary after)
+                KeepCharacter(after);
+            _chestPanel?.Tell("");
+            _chestPanel?.Show(chest, _guild?.Name ?? "", _guild?.Standing?.Level ?? 1, _character.Inventory ?? [], DateTimeOffset.UtcNow);
+        }
+        catch (Exception e) when (e is ServerException or HttpRequestException)
+        {
+            _chestPanel?.Tell(e is ServerException refused ? texts["result.refused", refused.Message] : texts["lobby.unreachable"]);
+        }
+    }
+
     // One call about the guild; the news on the socket shows the guild as it is, a refusal is said in the window.
     private async Task GuildCall(Func<GameServer, Task> call)
     {
@@ -123,8 +182,8 @@ public partial class Main
         }
         try
         {
-            await call(_lobby.Server);
             _guildPanel?.Tell("");
+            await call(_lobby.Server);
         }
         catch (Exception e) when (e is ServerException or HttpRequestException)
         {

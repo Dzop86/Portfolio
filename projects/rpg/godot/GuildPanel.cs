@@ -11,6 +11,8 @@ namespace Rpg.Desktop;
 /// (<see cref="GuildPage"/>): name officer, make member, hand the title over, send out; at the bottom, how many of the fifty
 /// and the button to leave. Out of a guild, how to get into one, and after Edmée's answer the name to found one. The zone,
 /// never the map. The icons are game-icons.net's (CC BY 3.0, authors in <c>assets/icons/guild/credits.json</c>).
+/// Since sprint 156 (D83), under the title, the crest, the level and its bar, the week's points against the goal and the
+/// leader's message; the leader's pencil opens what it writes: the message, the goal, the crest's four parts.
 /// </summary>
 public partial class GuildPanel : CanvasLayer
 {
@@ -18,7 +20,15 @@ public partial class GuildPanel : CanvasLayer
 
     private const int StatusWidth = 48, RankWidth = 100, LevelWidth = 64, ClassWidth = 120, WhereWidth = 150, ActionsWidth = 184;
 
-    private Label _title = null!, _room = null!, _message = null!, _none = null!;
+    private Label _title = null!, _room = null!, _message = null!, _none = null!, _level = null!, _week = null!, _notice = null!;
+    private HBoxContainer _standing = null!;
+    private VBoxContainer _editor = null!;
+    private CrestView _crest = null!, _preview = null!;
+    private ProgressBar _levelBar = null!, _weekBar = null!;
+    private Button _edit = null!;
+    private LineEdit _noticeText = null!;
+    private SpinBox _goal = null!;
+    private readonly Dictionary<string, OptionButton> _parts = [];
     private HBoxContainer _invite = null!, _found = null!, _columns = null!;
     private LineEdit _inviteName = null!, _foundName = null!;
     private VBoxContainer _rows = null!;
@@ -30,6 +40,8 @@ public partial class GuildPanel : CanvasLayer
     public event Action? LeavePressed;
     public event Action<Guid>? KickPressed;
     public event Action<Guid, GuildRank>? RankPressed;
+    public event Action<string?, int>? NoticePressed;
+    public event Action<GuildCrest>? CrestPressed;
     public event Action? ClosePressed;
 
     /// <summary>The members' lines as shown (for the self-test), and the guild's name ("" out of a guild).</summary>
@@ -64,6 +76,7 @@ public partial class GuildPanel : CanvasLayer
         head.AddChild(close);
         column.AddChild(head);
         column.AddChild(new HSeparator());
+        BuildStanding(column);
 
         _none = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, HorizontalAlignment = HorizontalAlignment.Center, Modulate = new Color(1, 1, 1, 0.75f), CustomMinimumSize = new Vector2(0, 80), VerticalAlignment = VerticalAlignment.Center };
         column.AddChild(_none);
@@ -93,6 +106,133 @@ public partial class GuildPanel : CanvasLayer
         column.AddChild(_message);
         Show(null, Guid.Empty, DateTimeOffset.UtcNow);
     }
+
+    // Where the guild stands (sprint 156): the crest, the level and the week, the message; the leader's editor under it.
+    private void BuildStanding(VBoxContainer column)
+    {
+        _standing = new HBoxContainer();
+        _standing.AddThemeConstantOverride("separation", 12);
+        column.AddChild(_standing);
+        _crest = new CrestView { CustomMinimumSize = new Vector2(72, 72), MouseFilter = Control.MouseFilterEnum.Ignore };
+        _standing.AddChild(_crest);
+        var bars = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = _texts["guild.points.how"], MouseFilter = Control.MouseFilterEnum.Pass };
+        bars.AddThemeConstantOverride("separation", 2);
+        _standing.AddChild(bars);
+        (_level, _levelBar) = Bar(bars, Gold);
+        (_week, _weekBar) = Bar(bars, FighterView.PlayerColour);
+        _notice = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f) };
+        bars.AddChild(_notice);
+        _edit = new Button { Text = "✎", CustomMinimumSize = new Vector2(44, 44), TooltipText = _texts["guild.edit"], SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
+        _edit.Pressed += () => _editor.Visible = !_editor.Visible;
+        _standing.AddChild(_edit);
+
+        _editor = new VBoxContainer { Visible = false };
+        _editor.AddThemeConstantOverride("separation", 6);
+        column.AddChild(_editor);
+        var notice = new HBoxContainer();
+        notice.AddThemeConstantOverride("separation", 8);
+        _editor.AddChild(notice);
+        _noticeText = new LineEdit { PlaceholderText = _texts["guild.message.edit", GuildRules.MessageLength], MaxLength = GuildRules.MessageLength, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(0, 44) };
+        notice.AddChild(_noticeText);
+        notice.AddChild(new Label { Text = _texts["guild.goal"], VerticalAlignment = VerticalAlignment.Center });
+        _goal = new SpinBox { MinValue = 1, MaxValue = GuildRules.MostGoal, Step = 10, CustomMinimumSize = new Vector2(110, 44) };
+        notice.AddChild(_goal);
+        var saveNotice = new Button { Text = _texts["guild.save"], CustomMinimumSize = new Vector2(120, 44) };
+        saveNotice.Pressed += () => NoticePressed?.Invoke(_noticeText.Text.Trim(), (int)_goal.Value);
+        notice.AddChild(saveNotice);
+        var crest = new HBoxContainer();
+        crest.AddThemeConstantOverride("separation", 6);
+        _editor.AddChild(crest);
+        _preview = new CrestView { CustomMinimumSize = new Vector2(44, 44), MouseFilter = Control.MouseFilterEnum.Ignore };
+        crest.AddChild(_preview);
+        Part(crest, "shape", GuildCrests.Shapes, id => _texts["guild.crest.shape." + id]);
+        Part(crest, "icon", GuildCrests.Icons, id => _texts["guild.crest.icon." + id]);
+        Part(crest, "field", [.. GuildCrests.Colours.Keys], id => _texts["guild.crest.colour." + id]);
+        Part(crest, "charge", [.. GuildCrests.Colours.Keys], id => _texts["guild.crest.colour." + id]);
+        var saveCrest = new Button { Text = _texts["guild.save"], CustomMinimumSize = new Vector2(120, 44) };
+        saveCrest.Pressed += () => CrestPressed?.Invoke(Composed);
+        crest.AddChild(saveCrest);
+    }
+
+    private static (Label Text, ProgressBar Bar) Bar(VBoxContainer into, Color fill)
+    {
+        var text = new Label { Modulate = new Color(1, 1, 1, 0.85f) };
+        text.AddThemeFontSizeOverride("font_size", 14);
+        into.AddChild(text);
+        var bar = new ProgressBar { MinValue = 0, MaxValue = 1, Step = 0.001, ShowPercentage = false, CustomMinimumSize = new Vector2(0, 8), MouseFilter = Control.MouseFilterEnum.Ignore };
+        bar.AddThemeStyleboxOverride("background", Card(new Color(1, 1, 1, 0.1f), 4));
+        bar.AddThemeStyleboxOverride("fill", Card(fill, 4));
+        into.AddChild(bar);
+        return (text, bar);
+    }
+
+    // One part of the crest to choose, by its name in the player's language; the preview follows.
+    private void Part(HBoxContainer into, string part, IReadOnlyList<string> ids, Func<string, string> name)
+    {
+        var choice = new OptionButton { CustomMinimumSize = new Vector2(0, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = _texts["guild.crest." + part], FitToLongestItem = false, ClipText = true };
+        foreach (string id in ids)
+        {
+            choice.AddItem(name(id));
+            choice.SetItemMetadata(choice.ItemCount - 1, id);
+        }
+        choice.ItemSelected += _ => _preview.Crest = Composed;
+        into.AddChild(choice);
+        _parts[part] = choice;
+    }
+
+    private string Chosen(string part) => _parts[part].GetItemMetadata(_parts[part].Selected).AsString();
+
+    /// <summary>The crest the leader composes in the editor.</summary>
+    public GuildCrest Composed => new(Chosen("shape"), Chosen("icon"), Chosen("field"), Chosen("charge"));
+
+    private void Choose(GuildCrest crest)
+    {
+        foreach ((string part, string id) in new[] { ("shape", crest.Shape), ("icon", crest.Icon), ("field", crest.Field), ("charge", crest.Charge) })
+        {
+            OptionButton choice = _parts[part];
+            for (int i = 0; i < choice.ItemCount; i++)
+            {
+                if (choice.GetItemMetadata(i).AsString() == id)
+                    choice.Select(i);
+            }
+        }
+        _preview.Crest = crest;
+    }
+
+    // The standing told: the crest, the level, the week, the message; the editor kept to the leader, filled with what is.
+    private void ShowStanding(GuildView? guild, Guid me)
+    {
+        GuildStanding? s = guild?.Standing;
+        _standing.Visible = s is not null;
+        bool lead = guild is not null && GuildPage.CanLead(guild, me);
+        _edit.Visible = lead;
+        if (!lead)
+            _editor.Visible = false;
+        if (s is null)
+            return;
+        _crest.Crest = s.Crest;
+        _level.Text = _texts["guild.level", s.Level] + " · " + (s.ToNext == 0 ? _texts["guild.points.top", s.Points] : _texts["guild.points", s.Into, s.ToNext, s.Level + 1]);
+        _levelBar.Value = GuildPage.Toward(s);
+        _week.Text = _texts["guild.week", s.Week, s.Goal];
+        _weekBar.Value = GuildPage.TowardGoal(s);
+        _notice.Text = s.Message is string m ? $"« {m} »" : _texts["guild.message.none"];
+        if (!_editor.Visible)
+        {
+            _noticeText.Text = s.Message ?? "";
+            _goal.Value = s.Goal;
+            Choose(s.Crest);
+        }
+    }
+
+    /// <summary>For the self-test: the level's and the week's lines, the message, the crest drawn, whether the pencil is offered.</summary>
+    public string StandingText => $"{_level.Text} | {_week.Text} | {_notice.Text}";
+
+    public GuildCrest? CrestShown => _standing.Visible ? _crest.Crest : null;
+
+    public bool CanEdit => _edit.Visible;
+
+    /// <summary>The leader's editor opened, as the pencil does (for the self-test).</summary>
+    public void OpenEditor() => _editor.Visible = _edit.Visible;
 
     // A name and its button in the accent: to found a guild, or to invite someone.
     private static (HBoxContainer Row, LineEdit Name) NameRow(VBoxContainer into, string placeholder, string text, string icon, Action pressed)
@@ -146,6 +286,7 @@ public partial class GuildPanel : CanvasLayer
         _columns.Visible = guild is not null;
         _leave.Visible = guild is not null;
         _room.Text = guild is null ? _texts["guild.found.title", GuildRules.Price] : _texts["guild.room", GuildPage.Room(guild).Count, GuildPage.Room(guild).Most];
+        ShowStanding(guild, me);
         if (guild is null)
             return;
         Heading(StatusWidth, "");

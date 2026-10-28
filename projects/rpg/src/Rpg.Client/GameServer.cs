@@ -217,6 +217,41 @@ public sealed class GameServer(HttpClient http)
     public async Task SetGuildRank(Guid id, Guid member, GuildRank rank, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/rank", UriKind.Relative), new GuildOrder(member, rank), Json, cancel), cancel), cancel);
 
+    /// <summary>The leader writes the guild's message and the week's goal (sprint 156).</summary>
+    public async Task SetGuildNotice(Guid id, string? message, int goal, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/notice", UriKind.Relative), new GuildNotice(message, goal), Json, cancel), cancel), cancel);
+
+    /// <summary>The leader composes the guild's crest (sprint 156).</summary>
+    public async Task SetGuildCrest(Guid id, GuildCrest crest, CancellationToken cancel = default) =>
+        await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/crest", UriKind.Relative), crest, Json, cancel), cancel), cancel);
+
+    /// <summary>The guild's chest at Edmée's (sprint 156): its tabs, its journal, one's rank.</summary>
+    public async Task<ChestView> GuildChest(Guid id, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.GetAsync(new Uri($"api/characters/{id}/guild/chest", UriKind.Relative), cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ChestView>(Json, cancel))!;
+    }
+
+    /// <summary>Puts items of the bag in the chest (sprint 156): the chest and the bag after.</summary>
+    public Task<ChestView> Deposit(Guid id, string item, int count, int tab, CancellationToken cancel = default) =>
+        ChestCall(id, "deposit", new ChestOrder(item, count, tab), cancel);
+
+    /// <summary>Takes items out of the chest (sprint 156): the chest and the bag after.</summary>
+    public Task<ChestView> Withdraw(Guid id, string item, int count, int tab, CancellationToken cancel = default) =>
+        ChestCall(id, "withdraw", new ChestOrder(item, count, tab), cancel);
+
+    /// <summary>The leader opens a tab of the chest to the members, or closes it (sprint 156).</summary>
+    public Task<ChestView> OpenChestTab(Guid id, int tab, bool open, CancellationToken cancel = default) =>
+        ChestCall(id, "tab", new ChestTabOrder(tab, open), cancel);
+
+    private async Task<ChestView> ChestCall<T>(Guid id, string what, T order, CancellationToken cancel)
+    {
+        HttpResponseMessage response = await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/guild/chest/{what}", UriKind.Relative), order, Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<ChestView>(Json, cancel))!;
+    }
+
     /// <summary>The party's leader sends a member out (sprint 124).</summary>
     public async Task KickFromParty(Guid id, Guid member, CancellationToken cancel = default) =>
         await Check(await Send(() => Http.PostAsJsonAsync(new Uri($"api/characters/{id}/party/kick", UriKind.Relative), new PartyKick(member), Json, cancel), cancel), cancel);

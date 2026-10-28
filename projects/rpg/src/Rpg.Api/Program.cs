@@ -91,6 +91,15 @@ if (app.Configuration.GetValue("Database:Migrate", true))
     scope.ServiceProvider.GetRequiredService<GameDb>().Database.Migrate();
 }
 
+// The playtest's counters (sprint 156), for the operator only, then the program ends without serving.
+if (args is [Admin.Playtest])
+{
+    using IServiceScope scope = app.Services.CreateScope();
+    foreach (string line in await Admin.Counters(scope.ServiceProvider.GetRequiredService<GameDb>()))
+        Console.WriteLine(line);
+    return 0;
+}
+
 // The operator's command (sprint 79): applied to the database, then the program ends without serving.
 if (args is [Admin.Verb, ..])
 {

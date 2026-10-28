@@ -398,6 +398,16 @@ public sealed class Battles(IServiceScopeFactory scopes, ChatHub hub, Hunts hunt
         // Over: its record goes with the rewards, in the same save (sprint 125).
         db.BattleRecords.RemoveRange(db.BattleRecords.Where(r => r.Id == b.Id));
         await db.SaveChangesAsync(cancel);
+        // The guilds' points (sprint 156): a dungeon finished by two of a guild's members or more, once for that guild;
+        // and the achievements the fight brought.
+        if (won && Dungeons.Parse(b.Scenario) is (_, Dungeons.RoomCount))
+        {
+            foreach (Guid guild in await db.GuildMembers.AsNoTracking().Where(m => b.Players.Contains(m.CharacterId))
+                .GroupBy(m => m.GuildId).Where(g => g.Count() >= 2).Select(g => g.Key).ToListAsync(cancel))
+                await Endpoints.GuildEndpoints.CreditGuild(guild, GuildRules.DungeonPoints, db, hub, clock, cancel);
+        }
+        foreach (Character c in heroes)
+            await Endpoints.GuildEndpoints.CreditAchievements(c, db, hub, clock, cancel);
         if (b.Group is MonsterGroup group)
         {
             DateTimeOffset? until = hunts.End(group.Id, b.Starter, won, out bool itsFight);

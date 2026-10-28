@@ -207,6 +207,42 @@ public class BattleTests
         await b.DisposeAsync();
     }
 
+    [Fact]
+    public async Task TwoMembersOfAGuild_FinishingADungeonTogether_BringItThirtyPoints()
+    {
+        await using var api = new ApiFactory();
+        (GameServer sa, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
+        (GameServer sb, CharacterSummary brume, ChatClient b) = await Player(api, "Brume");
+        Dungeon dungeon = GameData.Embedded.Dungeons.Values.First();
+        // Both of the same guild (sprint 156), at the dungeon's last room.
+        api.WithDb(db =>
+        {
+            var guild = new GuildRecord { Name = "Les Veilleurs", NormalizedName = "LES VEILLEURS" };
+            db.Guilds.Add(guild);
+            foreach (Character c in db.Characters)
+            {
+                (c.Xp, c.Level) = (Progression.XpToReach(40), 40);
+                (c.Dungeon, c.DungeonRoom) = (dungeon.Id, Dungeons.RoomCount);
+                db.GuildMembers.Add(new GuildMemberRecord { CharacterId = c.Id, GuildId = guild.Id, Rank = c.Name == "Aube" ? GuildRank.Leader : GuildRank.Member, Credited = 99 });
+            }
+            return db.SaveChanges();
+        });
+        await sa.Invite(aube.Id, "Brume", Cancel);
+        await sb.JoinParty(brume.Id, aube.Id, Cancel);
+        Town hall = GameData.Embedded.Towns[dungeon.Halls![^1].Map];
+        foreach ((GameServer s, Guid id) in new[] { (sa, aube.Id), (sb, brume.Id) })
+            await s.SavePlace(id, new Place(hall.Id, hall.Spawn.X, hall.Spawn.Y), Cancel);
+        SharedFightNews opened = await sa.OpenBattle(aube.Id, dungeon.Scenario(Dungeons.RoomCount), Cancel);
+        await Next(b, SharedFightKind.Opened);
+        await sb.JoinBattle(brume.Id, opened.Fight, Cancel);
+        await sa.GoBattle(aube.Id, opened.Fight, Cancel);
+        (_, SharedFightNews? over) = await PlayToTheEnd([(sa, aube.Id, a), (sb, brume.Id, b)], opened.Fight);
+        Assert.Equal(0, over!.Winner);
+        Assert.Equal(GuildRules.DungeonPoints, api.WithDb(db => db.Guilds.Single().Points));
+        await a.DisposeAsync();
+        await b.DisposeAsync();
+    }
+
     private static async Task<bool> TryAct(GameServer server, Guid id, Guid fight, FightAction action)
     {
         try

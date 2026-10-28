@@ -127,12 +127,12 @@ public static class CharacterEndpoints
         return TypedResults.Created($"/api/characters/{character.Id}", Summary(character, null));
     }
 
-    internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)
+    internal static async Task<Results<NoContent, NotFound>> Delete(Guid id, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
         Guid account = AccountId(user);
         // Its guild first (sprint 145): a leader deleted hands its title over as one who leaves.
         if (await db.Characters.AnyAsync(c => c.Id == id && c.AccountId == account, cancel))
-            await GuildEndpoints.Depart(id, db, hub, cancel);
+            await GuildEndpoints.Depart(id, db, hub, clock, cancel);
         // Someone else's character answers like a missing one: ids of other players stay unknown.
         int deleted = await db.Characters.Where(c => c.Id == id && c.AccountId == account).ExecuteDeleteAsync(cancel);
         return deleted == 0 ? TypedResults.NotFound() : TypedResults.NoContent();
@@ -154,9 +154,17 @@ public static class CharacterEndpoints
         var guild = await (from m in db.GuildMembers.AsNoTracking()
                            join g in db.Guilds.AsNoTracking() on m.GuildId equals g.Id
                            where m.CharacterId == id
-                           select new { g.Id, g.Name }).FirstOrDefaultAsync(cancel);
-        await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.LastSeenAt, clock.GetUtcNow()), cancel);
-        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name, character.Title);
+                           select new { g.Id, g.Name, g.Crest }).FirstOrDefaultAsync(cancel);
+        // The playtest's counters (sprint 156): a day more when the first of the day, the time in play once it ends.
+        DateTimeOffset came = clock.GetUtcNow();
+        int day = Contracts.Day(came);
+        await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.LastSeenAt, came)
+            .SetProperty(p => p.DaysPlayed, p => p.LastDayPlayed == day ? p.DaysPlayed : p.DaysPlayed + 1)
+            .SetProperty(p => p.LastDayPlayed, day), cancel);
+        await hub.Serve(character.Id, character.Name, character.Hero, map, at, socket, context.RequestAborted, guild?.Id, guild?.Name, character.Title,
+            guild is null ? null : GuildCrests.Write(GuildCrests.Read(guild.Crest)));
+        long seconds = (long)(clock.GetUtcNow() - came).TotalSeconds;
+        await db.Characters.Where(c => c.Id == id).ExecuteUpdateAsync(c => c.SetProperty(p => p.SecondsPlayed, p => p.SecondsPlayed + seconds), CancellationToken.None);
         return TypedResults.Empty;
     }
 
@@ -322,6 +330,8 @@ public static class CharacterEndpoints
         DateTimeOffset ended = clock.GetUtcNow();
         character.SetLife(character.Level > before ? int.MaxValue : played.WinningTeam == 0 ? played.HeroFighter!.Hp : 1, ended);
         await db.SaveChangesAsync(cancel);
+        // An achievement the fight brought counts for the guild (sprint 156).
+        await GuildEndpoints.CreditAchievements(character, db, hub, clock, cancel);
         return TypedResults.Ok(new FightResult(xp, character.Xp, character.Level, quest?.Id, items, character.Run, done, shards, character.Shards));
     }
 

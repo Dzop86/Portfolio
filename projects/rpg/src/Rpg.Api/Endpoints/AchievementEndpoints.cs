@@ -36,8 +36,14 @@ public static class AchievementEndpoints
         return db.Characters.FirstOrDefaultAsync(c => c.Id == id && c.AccountId == account, cancel);
     }
 
-    internal static async Task<Results<Ok<AchievementView>, NotFound>> Of(Guid id, ClaimsPrincipal user, GameDb db, CancellationToken cancel) =>
-        await Mine(id, user, db, cancel) is Character c ? TypedResults.Ok(await ViewOf(c, db, cancel)) : TypedResults.NotFound();
+    internal static async Task<Results<Ok<AchievementView>, NotFound>> Of(Guid id, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
+    {
+        if (await Mine(id, user, db, cancel) is not Character c)
+            return TypedResults.NotFound();
+        // Those not yet counted for the guild count now (sprint 156).
+        await GuildEndpoints.CreditAchievements(c, db, hub, clock, cancel);
+        return TypedResults.Ok(await ViewOf(c, db, cancel));
+    }
 
     internal static async Task<Results<Ok<AchievementView>, NotFound, ValidationProblem>> Wear(
         Guid id, TitleOrder request, ClaimsPrincipal user, GameDb db, ChatHub hub, CancellationToken cancel)

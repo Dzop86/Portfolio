@@ -116,7 +116,7 @@ jobs:
         run: |
           godot --headless --path godot -- --lobby-selftest --server http://localhost:8002 --seed 9 --report "$RUNNER_TEMP/lobby.txt"
           cat "$RUNNER_TEMP/lobby.txt"
-          grep -q "SELFTEST OK seed [0-9]*: .* made on server Osméria, shown on its card and chosen. Town: 3 people, 12 lines, place ([0-9]*, [0-9]*) saved on the server, views checked. World: [0-9]* maps, [0-9]* groups of monsters, [0-9]* dungeons, camera, map and mini-map checked. Quatre-Chemins: 7 people, 6 things to examine, its gate shut until Four Trails. Bar: 11 window(s), menu and sound checked. Items: right click, recipes, bestiary and set checked. Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild and waystones checked. Chat: a line heard back, an item shared as a link that opens its sheet. Quests: Aubin's welcome taken, followed in the journal (its card, searched, filtered, folded, hidden and shown again), Garance seen and given it back, her lesson offered. Experience: +[0-9]* kept by the server, level [0-9]*." "$RUNNER_TEMP/lobby.txt"
+          grep -q "SELFTEST OK seed [0-9]*: .* made on server Osméria, shown on its card and chosen. Town: 3 people, 14 lines, place ([0-9]*, [0-9]*) saved on the server, views checked. World: [0-9]* maps, [0-9]* groups of monsters, [0-9]* dungeons, camera, map and mini-map checked. Quatre-Chemins: 7 people, 6 things to examine, its gate shut until Four Trails. Bar: 11 window(s), menu and sound checked. Items: right click, recipes, bestiary and set checked. Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild (standing, crest, chest) and waystones checked. Chat: a line heard back, an item shared as a link that opens its sheet. Quests: Aubin's welcome taken, followed in the journal (its card, searched, filtered, folded, hidden and shown again), Garance seen and given it back, her lesson offered. Experience: +[0-9]* kept by the server, level [0-9]*." "$RUNNER_TEMP/lobby.txt"
       - name: API logs
         if: always()
         working-directory: ${{ github.workspace }}
@@ -162,7 +162,7 @@ jobs:
         run: |
           godot --headless --path godot -- --town-selftest --seed 9 --report "$RUNNER_TEMP/town.txt"
           cat "$RUNNER_TEMP/town.txt"
-          grep -q "SELFTEST OK seed 9: .* Town: 3 people, 12 lines, views checked. World: [0-9]* maps, [0-9]* groups of monsters, [0-9]* dungeons, camera, map and mini-map checked. Quatre-Chemins: 7 people, 6 things to examine, its gate shut until Four Trails. Bar: 1 window(s), menu and sound checked. Items: right click, recipes, bestiary and set checked. Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild and waystones checked." "$RUNNER_TEMP/town.txt"
+          grep -q "SELFTEST OK seed 9: .* Town: 3 people, 14 lines, views checked. World: [0-9]* maps, [0-9]* groups of monsters, [0-9]* dungeons, camera, map and mini-map checked. Quatre-Chemins: 7 people, 6 things to examine, its gate shut until Four Trails. Bar: 1 window(s), menu and sound checked. Items: right click, recipes, bestiary and set checked. Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild (standing, crest, chest) and waystones checked." "$RUNNER_TEMP/town.txt"
       # The tutorial's quest fight (sprint 107): the loft's rats, a model the game builds.
       - name: The loft's rats
         shell: bash

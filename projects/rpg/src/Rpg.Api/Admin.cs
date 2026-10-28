@@ -30,6 +30,24 @@ public static class Admin
 {
     public const string Verb = "admin";
 
+    /// <summary>The playtest's counters (sprint 156): <c>Rpg.Api playtest</c>.</summary>
+    public const string Playtest = "playtest";
+
+    /// <summary>
+    /// The playtest's counters (sprint 156, question 89 a), one line per character played, without any name, account or
+    /// place: a number, its level and class, the days it was played, its time in play, the contracts handed back of those offered.
+    /// </summary>
+    public static async Task<IReadOnlyList<string>> Counters(GameDb db, CancellationToken cancel = default)
+    {
+        var played = await db.Characters.AsNoTracking().Where(c => c.DaysPlayed > 0).OrderBy(c => c.CreatedAt)
+            .Select(c => new { c.Level, c.Class, c.DaysPlayed, c.SecondsPlayed, c.ContractsDone, c.ContractsOffered }).ToListAsync(cancel);
+        if (played.Count == 0)
+            return ["Nobody played yet."];
+        return [.. played.Select((c, i) => string.Create(CultureInfo.InvariantCulture,
+            $"#{i + 1} level {c.Level} {c.Class}: {c.DaysPlayed} day(s), {c.SecondsPlayed / 3600} h {c.SecondsPlayed / 60 % 60:00} min, contracts {c.ContractsDone} of {c.ContractsOffered}")
+            + (c.ContractsOffered > 0 ? string.Create(CultureInfo.InvariantCulture, $" ({100 * c.ContractsDone / c.ContractsOffered} %)") : ""))];
+    }
+
     public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]... [--builds] [--bestiary full]";
 
     /// <summary>The order, or the reason it cannot be one.</summary>

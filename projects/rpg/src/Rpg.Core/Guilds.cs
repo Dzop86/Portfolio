@@ -17,8 +17,11 @@ public enum GuildRank
 /// </summary>
 public sealed record GuildMember(Guid Id, string Name, GuildRank Rank, int Level, string? Class, string? Zone, DateTimeOffset? LastSeen);
 
-/// <summary>A guild as its members see it: its name, its members (the leader first, then the officers, then the others).</summary>
-public sealed record GuildView(Guid Id, string Name, IReadOnlyList<GuildMember> Members);
+/// <summary>
+/// A guild as its members see it: its name, its members (the leader first, then the officers, then the others); since
+/// sprint 156, where it stands (level, week, message, crest).
+/// </summary>
+public sealed record GuildView(Guid Id, string Name, IReadOnlyList<GuildMember> Members, GuildStanding? Standing = null);
 
 /// <summary>
 /// What the server tells a player of its guild (sprint 145), on the map's socket: someone invites it

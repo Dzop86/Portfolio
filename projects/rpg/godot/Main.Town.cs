@@ -57,7 +57,7 @@ public partial class Main
         AddChild(_townView);
         _townView.Build(_town, _options.Lang, _hero ?? new Hero("", "female-d"));
         _townView.ShowOthers(_crowd.Others, WalkSpeed);
-        _townView.ShowOwnGuild(_guild?.Name);
+        _townView.ShowOwnGuild(_guild?.Name, _guild?.Standing?.Crest);
         // A word for an achievement earned since the last map (sprint 155): after a fight, a contract, a trade.
         CheckAchievements();
         _townView.ShowMarks(_town.Book);
@@ -521,7 +521,7 @@ public partial class Main
             return;
         // The camera and the windows answer even during a walk; the wheel zooms the map only with no window
         // open over it (Charles: with the spells or the inventory open, the wheel is theirs).
-        bool covered = _windows.Open is not null || _shopPanel is not null || _jobsPanel is not null;
+        bool covered = _windows.Open is not null || _shopPanel is not null || _jobsPanel is not null || _chestPanel is not null;
         switch (@event)
         {
             case InputEventMouseButton { ButtonIndex: MouseButton.WheelUp or MouseButton.WheelDown } when covered:
@@ -2176,6 +2176,11 @@ public partial class Main
             _town.GuildSeenTo();
             OfferFounding();
         }
+        else if (_town.ChestAsked)
+        {
+            _town.ChestSeenTo();
+            OpenChest();
+        }
     }
 
     private ShopPanel? _shopPanel;
@@ -2656,6 +2661,36 @@ public partial class Main
         if (!guildPanel.Lines.SequenceEqual(members) || guildPanel.Icons["Moi"].Count != 0 || !guildPanel.Icons["Plop"].SequenceEqual(["demote", "hand-over", "kick"])
             || !guildPanel.Icons["Plouf"].SequenceEqual(["promote", "hand-over", "kick"]))
             problems.Add($"the guild shows {string.Join(" | ", guildPanel.Lines)}");
+        // Where it stands (sprint 156): level 3 with 50 of 450 points, 85 of the week's 120, the leader's message and crest;
+        // the leader's pencil, an officer's none.
+        var wolf = new GuildCrest("banner", "wolf-head", "gris-fond", "osmose-cost");
+        GuildView standing = new(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([new GuildMember(me, "Moi", GuildRank.Leader, 30, "guard", woods.Zone, now)]),
+            GuildRules.Standing(500, 85, 1, 1, 120, "Ce soir, la Combe !", wolf));
+        guildPanel.Show(standing, me, now);
+        guildPanel.OpenEditor();
+        string expectedStanding = $"{texts["guild.level", 3]} · {texts["guild.points", 50, 450, 4]} | {texts["guild.week", 85, 120]} | « Ce soir, la Combe ! »";
+        if (guildPanel.StandingText != expectedStanding || guildPanel.CrestShown != wolf || !guildPanel.CanEdit || guildPanel.Composed != wolf)
+            problems.Add($"the guild stands as {guildPanel.StandingText}, crest {guildPanel.CrestShown}, editor {guildPanel.CanEdit}");
+        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Officer, 30, "guard", woods.Zone, now)] }, me, now);
+        if (guildPanel.CanEdit)
+            problems.Add("an officer may write the guild's message");
+        // The chest at Edmée's (sprint 156): a member sees its two tabs (the level's), takes nothing out of a closed tab,
+        // deposits from its bag; the journal says who.
+        var chestPanel = new GuildChestPanel();
+        AddChild(chestPanel);
+        chestPanel.Build(texts);
+        string log = GameData.Embedded.Items.Keys.First();
+        var chest = new GuildChest([new GuildTab(false, [new ItemCount(log, 5)]), new GuildTab(true, [])], [new GuildMove(now.AddHours(-2), "Plop", log, 5, 0)]);
+        string? deposited = null, withdrawn = null;
+        chestPanel.DepositPressed += (item, count, tab) => deposited = $"{item}:{count}:{tab}";
+        chestPanel.WithdrawPressed += (item, count, tab) => withdrawn = $"{item}:{count}:{tab}";
+        chestPanel.Show(new ChestView(chest, GuildRank.Member), "Les Veilleurs", 3, [new ItemCount(log, 2)], now);
+        chestPanel.Click(inBag: false, log);
+        chestPanel.Click(inBag: true, log);
+        if (chestPanel.TabsOpen != 2 || chestPanel.Shown is not [var held] || held != $"{log}:5" || withdrawn is not null || deposited != $"{log}:1:0"
+            || chestPanel.Journal is not [var line] || !line.Contains("Plop", StringComparison.Ordinal))
+            problems.Add($"the chest shows {chestPanel.TabsOpen} tab(s), {string.Join(", ", chestPanel.Shown)}, deposited {deposited}, took {withdrawn}, journal {string.Join(" | ", chestPanel.Journal)}");
+        chestPanel.QueueFree();
         // Out of a guild, after Edmée's answer: the name to found one.
         guildPanel.Show(null, me, now);
         guildPanel.OfferFounding();
@@ -2686,7 +2721,7 @@ public partial class Main
         foreach (JoinOffer o in _joinOffers.Open(DateTimeOffset.UtcNow))
             _joinOffers.Remove(o.Fight);
         ShowJoins();
-        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild and waystones checked.";
+        return " Together: party banner, invitation, trade window, an ally's fight and its line to join, contacts, guild (standing, crest, chest) and waystones checked.";
     }
 
     /// <summary>
@@ -3288,14 +3323,17 @@ public partial class Main
         bool walking = view.Others.Count == 1;
         // In a guild now (sprint 145): its name under Plop's, drawn again; out of it, gone.
         view.ShowOthers([plop with { Guild = "Les Veilleurs" }], 4);
-        bool guild = view.GuildShownFor(plop.Id) == "‹Les Veilleurs›";
+        bool guild = view.GuildShownFor(plop.Id) == "‹Les Veilleurs›" && !view.CrestShownFor(plop.Id);
+        // With its crest beside it (sprint 156), drawn again.
+        view.ShowOthers([plop with { Guild = "Les Veilleurs", Crest = GuildCrests.Write(GuildCrests.Default) }], 4);
+        guild &= view.GuildShownFor(plop.Id) == "‹Les Veilleurs›" && view.CrestShownFor(plop.Id);
         view.ShowOthers([plop], 4);
         guild &= view.GuildShownFor(plop.Id) is null && view.Others.Count == 1;
         // Its own guild under its own character too (sprint 152), and gone out of it.
-        view.ShowOwnGuild("Les Veilleurs");
-        guild &= view.OwnGuildShown == "‹Les Veilleurs›";
+        view.ShowOwnGuild("Les Veilleurs", GuildCrests.Default);
+        guild &= view.OwnGuildShown == "‹Les Veilleurs›" && view.OwnCrestShown;
         view.ShowOwnGuild(null);
-        guild &= view.OwnGuildShown is null;
+        guild &= view.OwnGuildShown is null && !view.OwnCrestShown;
         view.ShowOthers([], 4);
         if (!drawn || !walking || !guild || view.Others.Count != 0)
             problems.Add($"another player: drawn {drawn}, walking {walking}, guild's name {guild}, {view.Others.Count} left");

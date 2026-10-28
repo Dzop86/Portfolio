@@ -103,6 +103,9 @@ public sealed class GameDb(DbContextOptions<GameDb> options) : DbContext(options
             guild.Property(g => g.Name).HasMaxLength(20);
             guild.Property(g => g.NormalizedName).HasMaxLength(20);
             guild.HasIndex(g => g.NormalizedName).IsUnique();
+            guild.Property(g => g.Message).HasMaxLength(Rpg.Core.GuildRules.MessageLength);
+            guild.Property(g => g.Crest).HasMaxLength(80);
+            guild.Ignore(g => g.Level);
         });
         modelBuilder.Entity<GuildMemberRecord>(member =>
         {

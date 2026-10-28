@@ -131,7 +131,7 @@ public sealed record Town(string Id, LocalizedText Name, IReadOnlyList<string> R
 }
 
 /// <summary>One answer of a dialogue: it leads to another line (<see cref="Next"/>), to a fight, opens the stall (sprint 97), asks to found a guild (sprint 145), or ends the talk.</summary>
-public sealed record DialogueAnswer(LocalizedText Text, string? Next = null, string? Fight = null, string? Take = null, string? HandIn = null, bool Shop = false, bool Guild = false);
+public sealed record DialogueAnswer(LocalizedText Text, string? Next = null, string? Fight = null, string? Take = null, string? HandIn = null, bool Shop = false, bool Guild = false, bool Chest = false);
 
 /// <summary>A line an NPC says, and the answers the player may give (1 to 4).</summary>
 public sealed record DialogueLine(LocalizedText Text, IReadOnlyList<DialogueAnswer> Answers);

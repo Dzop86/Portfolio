@@ -25,8 +25,9 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    private sealed class Speaker(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, Guid? guild, string? guildName, string? title)
+    private sealed class Speaker(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, Guid? guild, string? guildName, string? title, string? crest)
     {
+        public string? Crest { get; set; } = crest;
         public string? Title { get; set; } = title;
         public Guid? Guild { get; set; } = guild;
         public string? GuildName { get; set; } = guildName;
@@ -61,13 +62,23 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
         await Tell(s.Map, Here(s), cancel: cancel, but: character);
     }
 
-    /// <summary>A character joined a guild, or left it (null), sprint 145: its map's players see it under its new name.</summary>
-    public async Task SetGuild(Guid character, Guid? guild, string? name, CancellationToken cancel = default)
+    /// <summary>A character joined a guild, or left it (null), sprint 145: its map's players see it under its new name, with the crest (sprint 156).</summary>
+    public async Task SetGuild(Guid character, Guid? guild, string? name, string? crest, CancellationToken cancel = default)
     {
         if (!_speakers.TryGetValue(character, out Speaker? s))
             return;
-        (s.Guild, s.GuildName) = (guild, name);
+        (s.Guild, s.GuildName, s.Crest) = (guild, name, crest);
         await Tell(s.Map, Here(s), cancel: cancel, but: character);
+    }
+
+    /// <summary>A guild's new crest (sprint 156): each of its members in play seen with it on its map.</summary>
+    public async Task SetCrest(Guid guild, string crest, CancellationToken cancel = default)
+    {
+        foreach (Speaker s in _speakers.Values.Where(s => s.Guild == guild))
+        {
+            s.Crest = crest;
+            await Tell(s.Map, Here(s), cancel: cancel, but: s.Character);
+        }
     }
 
     /// <summary>A character wears another title, or none (sprint 155): its map's players see it under its name.</summary>
@@ -117,7 +128,7 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
             await Send(me, JsonSerializer.Serialize(news, Json), cancel);
     }
 
-    private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At, Guild: s.GuildName, Title: s.Title);
+    private static MapNews Here(Speaker s) => new(MapNewsKind.Here, s.Character, s.Name, s.Look, s.At, Guild: s.GuildName, Title: s.Title, Crest: s.Crest);
 
     // The accounts that have it as a friend learn it came into play, on whichever of their characters is (sprint 126).
     private async Task TellFriends(Speaker me, CancellationToken cancel)
@@ -158,9 +169,9 @@ public sealed class ChatHub(TimeProvider clock, Hunts hunts, Parties parties, Tr
 
     /// <summary>Serves one character's socket until it closes: what it says goes to its map; since sprint 145, with its guild.</summary>
     public async Task Serve(Guid character, string name, Hero look, string map, Cell at, WebSocket socket, CancellationToken cancel,
-        Guid? guild = null, string? guildName = null, string? title = null)
+        Guid? guild = null, string? guildName = null, string? title = null, string? crest = null)
     {
-        var me = new Speaker(character, name, look, map, at, socket, guild, guildName, title);
+        var me = new Speaker(character, name, look, map, at, socket, guild, guildName, title, crest);
         // A second connection of the same character replaces the first.
         if (_speakers.TryGetValue(character, out Speaker? old))
             await Close(old);

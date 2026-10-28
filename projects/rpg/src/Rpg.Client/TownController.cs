@@ -59,6 +59,9 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
     /// <summary>Whether the last answer asked to found a guild (sprint 145).</summary>
     public bool Guild { get; private set; }
 
+    /// <summary>Whether the last answer asked for the guild's chest (sprint 156).</summary>
+    public bool Chest { get; private set; }
+
     public void Choose(int answer)
     {
         if (IsOver)
@@ -70,7 +73,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
             return;
         }
         IsOver = true;
-        (Fight, Taken, HandedIn, Shop, Guild) = (a.Fight, a.Take, a.HandIn, a.Shop, a.Guild);
+        (Fight, Taken, HandedIn, Shop, Guild, Chest) = (a.Fight, a.Take, a.HandIn, a.Shop, a.Guild, a.Chest);
     }
 }
 
@@ -142,6 +145,11 @@ public sealed class TownController
     public bool GuildAsked { get; private set; }
 
     public void GuildSeenTo() => GuildAsked = false;
+
+    /// <summary>Whether the last talk ended asking the registrar for the guild's chest (sprint 156); the game opens it.</summary>
+    public bool ChestAsked { get; private set; }
+
+    public void ChestSeenTo() => ChestAsked = false;
 
     public string? QuestHandedIn { get; private set; }
 
@@ -414,6 +422,7 @@ public sealed class TownController
             (QuestTaken, QuestHandedIn) = (talk.Taken, talk.HandedIn);
             ShopOpened = talk.Shop;
             GuildAsked = talk.Guild;
+            ChestAsked = talk.Chest;
         }
     }
 }
@@ -455,6 +464,24 @@ public static class TownTour
         return visited;
     }
 
+    // Whether a line not read yet is reached from that one, answer after answer.
+    private static bool LeadsToUnread(Dialogue dialogue, string from, HashSet<string> read)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal) { from };
+        var queue = new Queue<string>([from]);
+        while (queue.TryDequeue(out string? line))
+        {
+            if (!read.Contains(line))
+                return true;
+            foreach (string n in dialogue.Lines[line].Answers.Select(x => x.Next).OfType<string>())
+            {
+                if (seen.Add(n))
+                    queue.Enqueue(n);
+            }
+        }
+        return false;
+    }
+
     /// <returns>The number of lines read.</returns>
     public static int Run(TownController town, Action<TownStep>? afterClick = null, Action<Conversation>? afterLine = null)
     {
@@ -477,10 +504,13 @@ public static class TownTour
                     lines++;
                     afterLine?.Invoke(talk);
                     IReadOnlyList<DialogueAnswer> answers = talk.Line.Answers;
+                    // An answer to a line not read yet, else to a line read on the way to one (sprint 156: Edmée's register behind "why").
                     int next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && !read.Contains(n), -1);
                     if (next < 0)
-                        // A goodbye: an answer that ends the talk without a fight, nor a stall or a guild to open (sprint 145).
-                        next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false }, 0);
+                        next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i].Next is string n && n != talk.LineId && LeadsToUnread(talk.Dialogue, n, read), -1);
+                    if (next < 0)
+                        // A goodbye: an answer that ends the talk without a fight, nor a stall, a guild or its chest to open (sprints 145, 156).
+                        next = Enumerable.Range(0, answers.Count).FirstOrDefault(i => answers[i] is { Next: null, Fight: null, Shop: false, Guild: false, Chest: false }, 0);
                     town.Answer(next);
                 }
                 if (town.Fight is not null)

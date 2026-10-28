@@ -6,8 +6,8 @@
       "text": { "fr": "Edmée, greffière de la mairie. Je tiens le registre des guildes de Clairval. Pour en inscrire une, il me faut un nom que personne n'a pris, et mille Éclats pour le sceau et l'encre.", "en": "Edmée, town clerk. I keep Clairval's register of guilds. To enter a new one, I need a name nobody has taken, and a thousand Éclats for the seal and the ink." },
       "answers": [
         { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "J'ai affaire au coffre de ma guilde.", "en": "I need my guild's chest." }, "chest": true },
         { "text": { "fr": "À quoi sert une guilde ?", "en": "What is a guild for?" }, "next": "why" },
-        { "text": { "fr": "Un registre ?", "en": "A register?" }, "next": "registers" },
         { "text": { "fr": "Au revoir.", "en": "Goodbye." } }
       ]
     },
@@ -15,6 +15,7 @@
       "text": { "fr": "Le nom de la guilde s'inscrit sous le vôtre, et vous vous parlez d'où que vous soyez : commencez la phrase par /gu. Vous savez aussi qui est sur les routes. Et chacun s'en va quand il veut.", "en": "The guild's name is written under yours, and you can talk wherever you are: start the line with /gu. You'll also know who's out on the roads. And anyone may leave when they please." },
       "answers": [
         { "text": { "fr": "Et le règlement ?", "en": "And the rules?" }, "next": "rules" },
+        { "text": { "fr": "Un registre ?", "en": "A register?" }, "next": "registers" },
         { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
         { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
       ]
@@ -22,7 +23,15 @@
     "rules": {
       "text": { "fr": "Article premier : le meneur et ses officiers invitent. Article deux : cinquante membres au plus, la salle des fêtes n'en tient pas davantage. Article trois : si le meneur s'en va, l'officier le plus ancien reprend la plume.", "en": "Article one: the leader and the officers send the invitations. Article two: fifty members at most, as the village hall holds no more. Article three: if the leader leaves, the longest-serving officer takes up the pen." },
       "answers": [
+        { "text": { "fr": "Et le coffre ?", "en": "And the chest?" }, "next": "chest" },
         { "text": { "fr": "Je veux fonder une guilde.", "en": "I want to found a guild." }, "guild": true },
+        { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
+      ]
+    },
+    "chest": {
+      "text": { "fr": "Article quatre : chacun dépose au coffre, le meneur et ses officiers en retirent, et le meneur peut ouvrir un onglet à tous. Plus la guilde travaille, plus je lui donne d'onglets. Et je note tout dans la marge : qui, quoi, combien.", "en": "Article four: anyone may put things in the chest, the leader and the officers take them out, and the leader may open a tab to everyone. The harder the guild works, the more tabs I give it. And I note everything in the margin: who, what, how many." },
+      "answers": [
+        { "text": { "fr": "J'ai affaire au coffre de ma guilde.", "en": "I need my guild's chest." }, "chest": true },
         { "text": { "fr": "Merci, Edmée.", "en": "Thank you, Edmée." } }
       ]
     },

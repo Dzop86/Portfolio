@@ -923,6 +923,7 @@ public partial class Main : Node3D
         await CloseChat();
         SpellIcon.Forget();
         ItemIcon.Forget();
+        CrestView.Forget();
         foreach (Node child in GetChildren())
         {
             RemoveChild(child);

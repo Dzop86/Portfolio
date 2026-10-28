@@ -146,8 +146,14 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("ContractsDone")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ContractsOffered")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DaysPlayed")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Deck")
                         .IsRequired()
@@ -203,6 +209,9 @@ namespace Rpg.Api.Data.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasDefaultValue("");
 
+                    b.Property<int>("LastDayPlayed")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("LastSeenAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -246,6 +255,9 @@ namespace Rpg.Api.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")
                         .HasDefaultValue("");
+
+                    b.Property<long>("SecondsPlayed")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Server")
                         .IsRequired()
@@ -341,6 +353,9 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<Guid>("CharacterId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Credited")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("GuildId")
                         .HasColumnType("uuid");
 
@@ -365,8 +380,24 @@ namespace Rpg.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Chest")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Crest")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("Goal")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -377,6 +408,15 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<long>("Points")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Week")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WeekPoints")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

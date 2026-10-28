@@ -32,7 +32,10 @@ public static class ContractEndpoints
     /// <summary>The character's board as of today, renewed if a dawn has passed (kept, not saved: the caller saves).</summary>
     internal static ContractBoard Today(Character c, TimeProvider clock)
     {
-        ContractBoard board = Contracts.Renew(Contracts.Read(c.Contracts), Contracts.Day(clock.GetUtcNow()), c.Id, c.Level, ReachOf(c), GameData.Embedded);
+        ContractBoard kept = Contracts.Read(c.Contracts);
+        ContractBoard board = Contracts.Renew(kept, Contracts.Day(clock.GetUtcNow()), c.Id, c.Level, ReachOf(c), GameData.Embedded);
+        // The playtest's counters (sprint 156): the contracts the board offered.
+        c.ContractsOffered += Math.Max(0, board.Offered.Count - kept.Offered.Count);
         c.Contracts = Contracts.Write(board);
         return board;
     }
@@ -61,7 +64,7 @@ public static class ContractEndpoints
     }
 
     internal static async Task<Results<Ok<ContractReward>, NotFound, ValidationProblem>> HandIn(
-        Guid id, ContractOrder request, ClaimsPrincipal user, GameDb db, TimeProvider clock, CancellationToken cancel)
+        Guid id, ContractOrder request, ClaimsPrincipal user, GameDb db, ChatHub hub, TimeProvider clock, CancellationToken cancel)
     {
         if (await Mine(id, user, db, cancel) is not Character c)
             return TypedResults.NotFound();
@@ -89,6 +92,9 @@ public static class ContractEndpoints
         board = board with { Offered = left };
         c.Contracts = Contracts.Write(board);
         await db.SaveChangesAsync(cancel);
+        // The guild's points (sprint 156): the contract's, and those of an achievement it brought.
+        await GuildEndpoints.Credit(c.Id, GuildRules.ContractPoints(contract.IsGroup), db, hub, clock, cancel);
+        await GuildEndpoints.CreditAchievements(c, db, hub, clock, cancel);
         return TypedResults.Ok(new ContractReward(contract.Xp, contract.Shards, CharacterEndpoints.Summary(c), board));
     }
 
