@@ -1,3 +1,4 @@
+using Rpg.Core;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -32,7 +33,7 @@ public partial class InterfaceThemeTests
         Assert.All(Hex().Matches(theme).Select(m => m.Value.ToLowerInvariant()).Distinct(), c =>
             Assert.True(tokens.Contains(c + ";", StringComparison.Ordinal) || c.StartsWith("#000000", StringComparison.Ordinal) || c.StartsWith("#ffffff", StringComparison.Ordinal), c));
         // The Menus panel and the Escape menu take theirs from the theme alone.
-        foreach (string window in new[] { "SideBar.cs", "MenuPanel.cs" })
+        foreach (string window in new[] { "SideBar.cs", "MenuPanel.cs", "AchievementsPanel.cs" })
             Assert.Empty(Hex().Matches(File.ReadAllText(Path.Combine(Rpg, "godot", window))));
     }
 
@@ -88,5 +89,24 @@ public partial class InterfaceThemeTests
         Assert.True(File.Exists(Path.Combine(Rpg, "godot", "assets", "ui", "grid.svg")));
         // The project's theme is the one the game fills at start.
         Assert.Contains("theme/custom=\"res://assets/ui/osmose.theme.tres\"", File.ReadAllText(Path.Combine(Rpg, "godot", "project.godot")), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void EachCategoryOfAchievements_HasItsIconInColourAndInGrey_AndItsBanner()
+    {
+        string relief = Path.Combine(Rpg, "godot", "assets", "icons", "relief");
+        using JsonDocument credits = JsonDocument.Parse(File.ReadAllText(Path.Combine(relief, "credits.json")));
+        Assert.Equal("delapouite/dungeon-gate", credits.RootElement.GetProperty("dungeons").GetString());
+        foreach (string category in Achievements.All.Select(a => a.Category).Distinct())
+        {
+            string icon = AchievementsPage.Icon(category);
+            Assert.True(File.Exists(Path.Combine(icon == "dungeons" ? relief : Bar, icon + ".svg")), icon);
+            string grey = File.ReadAllText(Path.Combine(relief, icon + "-locked.svg"));
+            Assert.Contains("#8a8a8a", grey, StringComparison.Ordinal);
+            string banner = File.ReadAllText(Path.Combine(Rpg, "godot", "assets", "ui", "achievements", $"banner-{category}.svg"));
+            Assert.Contains("width=\"704\" height=\"192\"", banner, StringComparison.Ordinal);
+            Assert.DoesNotContain("<filter", banner, StringComparison.Ordinal);
+        }
+        Assert.True(File.Exists(Path.Combine(relief, "achievements-locked.svg")));
     }
 }

@@ -5,12 +5,27 @@
 #   highlight clipped to the shape, and an optional accent in the top right corner with the same layers.
 # - Frames: godot/assets/ui/frames/<name>.svg, 9-patches of a raised tile (shadow, vertical gradient, highlight, edge,
 #   an optional halo), stretched by the theme (OsmoseTheme.cs) with a texture margin of 12.
+# - Since sprint 158 (docs/graphisme/s158-succes.md): godot/assets/icons/relief/ holds the icons in relief that are not on the
+#   menu (relief/palette.json: the dungeons'), a grey "-locked" variant of each icon an achievement is drawn with, the
+#   search field's magnifier; godot/assets/ui/achievements/banner-<Category>.svg the categories' banners (704 x 192, a
+#   diagonal gradient from the category's colour, its silhouette as a watermark, a veil, its icon); two icon frames.
 # Deterministic; run from projects/rpg:  python3 tools/ui_art.py
 import json, os
 
 here = os.path.dirname(os.path.abspath(__file__))
 bar = os.path.join(here, "..", "godot", "assets", "icons", "bar")
 frames = os.path.join(here, "..", "godot", "assets", "ui", "frames")
+relief = os.path.join(here, "..", "godot", "assets", "icons", "relief")
+banners = os.path.join(here, "..", "godot", "assets", "ui", "achievements")
+
+# The grey of an achievement not yet earned (--osmose-locked and its tones).
+LOCKED = {"main": "#8a8a8a", "light": "#bfbfbf", "dark": "#4c4c4c", "outline": "#1c1c1c"}
+
+# Each category's icon and the colour its banner is drawn from (s158-succes.md §2.2).
+CATEGORIES = {
+    "Exploration": ("map", "#52c45a"), "Hunt": ("bestiary", "#ef4b4b"), "Dungeons": ("dungeons", "#b48cff"), "Jobs": ("jobs", "#a9bccd"),
+    "Quests": ("journal", "#b89a6a"), "Tree": ("talents", "#bef374"), "Together": ("contacts", "#ff7eb6"),
+}
 
 PLACE = "translate(40 28) scale(0.84375)"  # 432 units wide: room for the outline and the shadow
 ACCENT = "translate(272 8) scale(0.44)"     # the top right corner (the badge takes the top left, the key the bottom right)
@@ -39,11 +54,50 @@ def layers(key, tone, place, stroke, shadow):
     )
 
 
-def icon(tone):
-    body = layers("main", tone, PLACE, 48, (12, 28))
+def icon_body(tone, place=PLACE, scale=1.0, suffix=""):
+    body = layers("main" + suffix, tone, place, 48, (12, 28))
     if "accent" in tone:
-        body += layers("acc", tone["accent"], ACCENT, 64, (16, 36))
-    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{body}</svg>\n'
+        body += layers("acc" + suffix, tone["accent"], place + " " + ACCENT if scale != 1.0 else ACCENT, 64, (16, 36))
+    return body
+
+
+def icon(tone):
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{icon_body(tone)}</svg>\n'
+
+
+def grey(tone):
+    """The same icon in the greys of what is locked, its accent too."""
+    out = dict(tone, **LOCKED)
+    if "accent" in tone:
+        out["accent"] = dict(tone["accent"], **LOCKED)
+    return out
+
+
+def mix(a, b, t):
+    """a moved a share t toward b, as #rrggbb."""
+    pa, pb = [int(a[i:i + 2], 16) for i in (1, 3, 5)], [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(pa, pb))
+
+
+def banner(main, tone):
+    """A category's banner, 704 x 192: its colour darkened along the diagonal, its silhouette in white at 10 %, a veil
+    on the lower 40 %, a dark line under it, and its icon in relief at the bottom left; the top corners rounded (14)."""
+    top, bottom = mix(main, "#1f1f1f", 0.55), mix(main, "#1f1f1f", 0.85)
+    d = shape(tone["shape"])
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="704" height="192" viewBox="0 0 704 192">'
+        '<defs><clipPath id="round"><path d="M14 0H690A14 14 0 0 1 704 14V192H0V14A14 14 0 0 1 14 0Z"/></clipPath>'
+        f'<linearGradient id="ground" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bottom}"/></linearGradient>'
+        '<linearGradient id="veil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></linearGradient></defs>'
+        '<g clip-path="url(#round)">'
+        '<rect width="704" height="192" fill="url(#ground)"/>'
+        f'<g transform="translate(520 -24) scale(0.46875)" opacity="0.1"><path d="{d}" fill="#fff"/></g>'
+        '<rect y="115" width="704" height="77" fill="url(#veil)"/>'
+        '<rect y="190" width="704" height="2" fill="#0d0d0d"/>'
+        '</g>'
+        f'<g transform="translate(20 76) scale(0.1875)">{icon_body(tone, suffix="-b")}</g>'
+        '</svg>\n'
+    )
 
 
 # The raised frames: (top, bottom, edge, edge width, radius, highlight?, shadow?, halo).
@@ -63,6 +117,9 @@ FRAMES = {
     "fill-life": ("#f69c9c", "#c23a3a", "#000000", 1, 6, True, False, None),
     "fill-gold": ("#ffe6ab", "#c9962e", "#000000", 1, 6, True, False, None),
     "gold-band": ("#ffe6ab", "#c9962e", "#5a3a22", 2, 4, True, True, None),
+    # The achievements' icon frames (sprint 158): raised and edged in gold when earned, a flat hollow when not.
+    "frame-gold": ("#3a3a3d", "#262628", "#ffd166", 2, 8, True, False, None),
+    "frame-well": ("#141414", "#141414", "#0d0d0d", 1, 8, False, False, None),
 }
 
 
@@ -91,6 +148,21 @@ def main():
     for name, tone in palette.items():
         with open(os.path.join(bar, name + ".svg"), "w") as f:
             f.write(icon(tone))
+    extra = json.load(open(os.path.join(relief, "palette.json")))
+    for name, tone in extra.items():
+        with open(os.path.join(relief, name + ".svg"), "w") as f:
+            f.write(icon(tone))
+    every = {**palette, **extra}
+    for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"}):
+        with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
+            f.write(icon(grey(every[name])))
+    # The search field's magnifier: the silhouette alone, in the dim text's grey.
+    with open(os.path.join(relief, "search.svg"), "w") as f:
+        f.write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="{shape("lorc/magnifying-glass")}" fill="#9d9d9d"/></svg>\n')
+    os.makedirs(banners, exist_ok=True)
+    for category, (name, main) in CATEGORIES.items():
+        with open(os.path.join(banners, f"banner-{category}.svg"), "w") as f:
+            f.write(banner(main, every[name]))
     os.makedirs(frames, exist_ok=True)
     for name, spec in FRAMES.items():
         with open(os.path.join(frames, name + ".svg"), "w") as f:
@@ -99,6 +171,13 @@ def main():
     with open(os.path.join(frames, "..", "grid.svg"), "w") as f:
         f.write('<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">'
                 + "".join(f'<rect x="{x}" y="{y}" width="6" height="6" rx="1" fill="#c9a27f"/>' for y in (0, 8) for x in (0, 8)) + "</svg>\n")
+    # The check box (sprint 158): a hollow edged in the dim grey, or pistachio ticked in chocolate.
+    for name, body in {
+        "check-off": '<rect x="1" y="1" width="18" height="18" rx="4" fill="#141414" stroke="#9d9d9d" stroke-width="2"/>',
+        "check-on": '<rect x="0" y="0" width="20" height="20" rx="4" fill="#bef374"/><path d="M5 10.5l3.2 3.2L15 6.5" fill="none" stroke="#5a3a22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+    }.items():
+        with open(os.path.join(frames, "..", name + ".svg"), "w") as f:
+            f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">{body}</svg>\n')
     print(f"{len(palette)} icons, {len(FRAMES)} frames")
 
 

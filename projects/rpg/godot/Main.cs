@@ -76,7 +76,7 @@ public partial class Main : Node3D
             // The pictures of the project page: a tenth-level sentinel and its deck, icons and colours shown.
             StartFight(new Hero("Aubépine", "female-b", "sentinel", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
         }
-        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "tree" or "zone" or "world")
+        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "tree" or "zone" or "world" or "achievements" or "achievements-list")
         {
             // The pictures of the world: in the woods, a few steps from the way north.
             if (_options.Shot is "zone" or "world")

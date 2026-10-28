@@ -2,6 +2,7 @@
   {
     "id": "waystones-1",
     "category": "Exploration",
+    "group": "general",
     "name": {
       "fr": "Premier passage",
       "en": "First Crossing"
@@ -17,6 +18,7 @@
   {
     "id": "waystones-3",
     "category": "Exploration",
+    "group": "general",
     "name": {
       "fr": "Trois pierres, trois chemins",
       "en": "Three Stones, Three Roads"
@@ -32,6 +34,7 @@
   {
     "id": "waystones-5",
     "category": "Exploration",
+    "group": "general",
     "name": {
       "fr": "La bougeotte",
       "en": "Itchy Feet"
@@ -47,6 +50,7 @@
   {
     "id": "waystones-7",
     "category": "Exploration",
+    "group": "general",
     "name": {
       "fr": "Toutes les pierres",
       "en": "Every Stone"
@@ -66,6 +70,7 @@
   {
     "id": "waystone-woods",
     "category": "Exploration",
+    "group": "zones",
     "name": {
       "fr": "Premiers pas au Bois",
       "en": "First Steps in the Woods"
@@ -82,6 +87,7 @@
   {
     "id": "waystone-mouldy",
     "category": "Exploration",
+    "group": "zones",
     "name": {
       "fr": "Sous la moisissure",
       "en": "Beneath the Mould"
@@ -98,6 +104,7 @@
   {
     "id": "waystone-lake",
     "category": "Exploration",
+    "group": "zones",
     "name": {
       "fr": "Les pieds dans les joncs",
       "en": "Feet in the Reeds"
@@ -114,6 +121,7 @@
   {
     "id": "waystone-fields",
     "category": "Exploration",
+    "group": "zones",
     "name": {
       "fr": "Entre les sillons",
       "en": "Between the Furrows"
@@ -130,6 +138,7 @@
   {
     "id": "waystone-ancestors",
     "category": "Exploration",
+    "group": "zones",
     "name": {
       "fr": "Chez les Aïeux",
       "en": "Among the Ancestors"
@@ -146,6 +155,7 @@
   {
     "id": "first-victory",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "Coup d'essai",
       "en": "Beginner's Luck"
@@ -161,6 +171,7 @@
   {
     "id": "victories-500",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "La main sûre",
       "en": "A Steady Hand"
@@ -176,6 +187,7 @@
   {
     "id": "victories-1000",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "Mille fois debout",
       "en": "Still Standing, a Thousand Times"
@@ -195,6 +207,7 @@
   {
     "id": "known-10",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "Un carnet entamé",
       "en": "A Notebook Begun"
@@ -210,6 +223,7 @@
   {
     "id": "known-25",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "Des pages bien remplies",
       "en": "Well-Filled Pages"
@@ -225,6 +239,7 @@
   {
     "id": "known-all",
     "category": "Hunt",
+    "group": "general",
     "name": {
       "fr": "Le bestiaire complet",
       "en": "The Complete Bestiary"
@@ -244,6 +259,7 @@
   {
     "id": "family-boar-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Gare aux défenses",
       "en": "Mind the Tusks"
@@ -260,6 +276,7 @@
   {
     "id": "family-wolf-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Plus fort que la meute",
       "en": "Stronger Than the Pack"
@@ -276,6 +293,7 @@
   {
     "id": "family-mushroom-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Une cueillette musclée",
       "en": "Rough Picking"
@@ -292,6 +310,7 @@
   {
     "id": "family-zombie-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Restez couchés !",
       "en": "Stay Down!"
@@ -308,6 +327,7 @@
   {
     "id": "family-frog-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Fini, le coassement",
       "en": "No More Croaking"
@@ -324,6 +344,7 @@
   {
     "id": "family-crab-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Casse-carapaces",
       "en": "Shell Cracker"
@@ -340,6 +361,7 @@
   {
     "id": "family-bee-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Malgré les dards",
       "en": "Never Mind the Stings"
@@ -356,6 +378,7 @@
   {
     "id": "family-mole-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Remis au jour",
       "en": "Back into the Daylight"
@@ -372,6 +395,7 @@
   {
     "id": "family-stag-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Cerfs aux abois",
       "en": "Stags at Bay"
@@ -388,6 +412,7 @@
   {
     "id": "family-golem-100",
     "category": "Hunt",
+    "group": "families",
     "name": {
       "fr": "Mousse et moellons",
       "en": "Moss and Masonry"
@@ -404,6 +429,7 @@
   {
     "id": "dungeon-boar-wallow",
     "category": "Dungeons",
+    "group": "levels-1-15",
     "name": {
       "fr": "Un roi dans la boue",
       "en": "A King in the Mud"
@@ -420,6 +446,7 @@
   {
     "id": "dungeon-wolf-den",
     "category": "Dungeons",
+    "group": "levels-1-15",
     "name": {
       "fr": "Tête de meute",
       "en": "Top of the Pack"
@@ -436,6 +463,7 @@
   {
     "id": "dungeon-mushroom-cellar",
     "category": "Dungeons",
+    "group": "levels-1-15",
     "name": {
       "fr": "La dernière cueillette",
       "en": "The Last Picking"
@@ -452,6 +480,7 @@
   {
     "id": "dungeon-zombie-crypt",
     "category": "Dungeons",
+    "group": "levels-1-15",
     "name": {
       "fr": "La crypte se tait",
       "en": "The Crypt Falls Quiet"
@@ -468,6 +497,7 @@
   {
     "id": "dungeon-frog-grotto",
     "category": "Dungeons",
+    "group": "levels-16-30",
     "name": {
       "fr": "Une couronne mouillée",
       "en": "A Soggy Crown"
@@ -484,6 +514,7 @@
   {
     "id": "dungeon-crab-reef",
     "category": "Dungeons",
+    "group": "levels-16-30",
     "name": {
       "fr": "Le récif dégagé",
       "en": "The Reef Cleared"
@@ -500,6 +531,7 @@
   {
     "id": "dungeon-royal-hive",
     "category": "Dungeons",
+    "group": "levels-16-30",
     "name": {
       "fr": "La ruche au repos",
       "en": "The Hive at Rest"
@@ -516,6 +548,7 @@
   {
     "id": "dungeon-mole-burrows",
     "category": "Dungeons",
+    "group": "levels-16-30",
     "name": {
       "fr": "La remontée des galeries",
       "en": "Up from the Burrows"
@@ -532,6 +565,7 @@
   {
     "id": "dungeon-bellowing-combe",
     "category": "Dungeons",
+    "group": "levels-31-45",
     "name": {
       "fr": "Le brame s'est tu",
       "en": "The Bellowing Stops"
@@ -548,6 +582,7 @@
   {
     "id": "dungeon-mother-tree-roots",
     "category": "Dungeons",
+    "group": "levels-31-45",
     "name": {
       "fr": "Au fond des racines",
       "en": "Down Among the Roots"
@@ -564,6 +599,7 @@
   {
     "id": "dungeons-all",
     "category": "Dungeons",
+    "group": "general",
     "name": {
       "fr": "Dix chefs tombés",
       "en": "Ten Chiefs Fallen"
@@ -583,6 +619,7 @@
   {
     "id": "job-20",
     "category": "Jobs",
+    "group": "mastery",
     "name": {
       "fr": "Le coup de main",
       "en": "Getting the Knack"
@@ -598,6 +635,7 @@
   {
     "id": "job-40",
     "category": "Jobs",
+    "group": "mastery",
     "name": {
       "fr": "Des gestes sûrs",
       "en": "Sure Hands"
@@ -613,6 +651,7 @@
   {
     "id": "job-60",
     "category": "Jobs",
+    "group": "mastery",
     "name": {
       "fr": "Le tour de main",
       "en": "Tricks of the Trade"
@@ -628,6 +667,7 @@
   {
     "id": "job-80",
     "category": "Jobs",
+    "group": "mastery",
     "name": {
       "fr": "L'œil du métier",
       "en": "A Trained Eye"
@@ -643,6 +683,7 @@
   {
     "id": "job-100",
     "category": "Jobs",
+    "group": "mastery",
     "name": {
       "fr": "Tout un art",
       "en": "A Fine Art"
@@ -662,6 +703,7 @@
   {
     "id": "three-jobs-20",
     "category": "Jobs",
+    "group": "trades",
     "name": {
       "fr": "Plusieurs cordes à son arc",
       "en": "More Than One String"
@@ -677,6 +719,7 @@
   {
     "id": "gatherer",
     "category": "Jobs",
+    "group": "trades",
     "name": {
       "fr": "Toutes les récoltes",
       "en": "Every Harvest"
@@ -696,6 +739,7 @@
   {
     "id": "maker",
     "category": "Jobs",
+    "group": "trades",
     "name": {
       "fr": "Tous les établis",
       "en": "Every Workbench"
@@ -711,6 +755,7 @@
   {
     "id": "quests-10",
     "category": "Quests",
+    "group": "general",
     "name": {
       "fr": "On compte sur vous",
       "en": "People Count on You"
@@ -726,6 +771,7 @@
   {
     "id": "quests-25",
     "category": "Quests",
+    "group": "general",
     "name": {
       "fr": "Un nom qui circule",
       "en": "Your Name Gets Around"
@@ -741,6 +787,7 @@
   {
     "id": "quests-50",
     "category": "Quests",
+    "group": "general",
     "name": {
       "fr": "Tout le monde vous connaît",
       "en": "Everyone Knows You"
@@ -756,6 +803,7 @@
   {
     "id": "chapter-1",
     "category": "Quests",
+    "group": "story",
     "name": {
       "fr": "Le premier murmure",
       "en": "The First Whisper"
@@ -776,6 +824,7 @@
   {
     "id": "chapter-2-slice",
     "category": "Quests",
+    "group": "story",
     "name": {
       "fr": "Sous l'Arbre-Mère",
       "en": "Beneath the Mother Tree"
@@ -796,6 +845,7 @@
   {
     "id": "contracts-10",
     "category": "Quests",
+    "group": "contracts",
     "name": {
       "fr": "Lu sur le tableau",
       "en": "Seen on the Board"
@@ -811,6 +861,7 @@
   {
     "id": "contracts-50",
     "category": "Quests",
+    "group": "contracts",
     "name": {
       "fr": "Le tableau vous connaît",
       "en": "The Board Knows Your Name"
@@ -826,6 +877,7 @@
   {
     "id": "contracts-200",
     "category": "Quests",
+    "group": "contracts",
     "name": {
       "fr": "Pas un avis sans vous",
       "en": "No Notice Left Behind"

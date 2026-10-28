@@ -31,9 +31,12 @@ public enum AchievementGoal
     SharedFights,
 }
 
-/// <summary>An achievement of <c>data/achievements.json</c> (sprint 155): its category, its words, its points, its goal and, for some, a title.</summary>
+/// <summary>
+/// An achievement of <c>data/achievements.json</c> (sprint 155): its category, its words, its points, its goal and, for some, a title;
+/// since sprint 158 (D84), the group of its category it is shown under (none where the category has no groups).
+/// </summary>
 public sealed record AchievementSpec(string Id, string Category, LocalizedText Name, LocalizedText Text, int Points, AchievementGoal Goal, int Count,
-    string? Target = null, LocalizedText? Title = null);
+    string? Target = null, LocalizedText? Title = null, string? Group = null);
 
 /// <summary>
 /// What the server knows of a character that the achievements read (sprint 155): nothing kept for them alone but the feats

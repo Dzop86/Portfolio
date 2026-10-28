@@ -16,8 +16,19 @@ public static class OsmoseTheme
     public const string MenuTile = "MenuTile", Primary = "ButtonPrimary", WindowPanel = "WindowPanel", HudPanel = "HudPanel", TitleBar = "TitleBar",
         CloseButton = "CloseButton", ListRow = "ListRow", GoldBand = "GoldBand", GoldBandLabel = "GoldBandLabel", LifeBar = "LifeBar", GoldBar = "GoldBar";
 
+    /// <summary>The achievements' window's (sprint 158, <c>docs/graphisme/s158-succes.md</c> §6).</summary>
+    public const string SearchField = "SearchField", TreeRow = "TreeRow", TreeToggle = "TreeToggle", AchievementTile = "AchievementTile",
+        AchievementTileDone = "AchievementTileDone", AchievementCard = "AchievementCard", AchievementCardEarned = "AchievementCardEarned",
+        IconFrame = "IconFrame", IconFrameLocked = "IconFrameLocked", DetailPanel = "DetailPanel", SectionLabel = "SectionLabel", Link = "Link",
+        ProgressBarCompact = "ProgressBarCompact";
+
     /// <summary>Every variation the theme defines (for the self-test).</summary>
-    public static readonly string[] Variations = [MenuTile, Primary, WindowPanel, HudPanel, TitleBar, CloseButton, ListRow, GoldBand, GoldBandLabel, LifeBar, GoldBar];
+    public static readonly string[] Variations = [MenuTile, Primary, WindowPanel, HudPanel, TitleBar, CloseButton, ListRow, GoldBand, GoldBandLabel, LifeBar, GoldBar,
+        SearchField, TreeRow, TreeToggle, AchievementTile, AchievementTileDone, AchievementCard, AchievementCardEarned, IconFrame, IconFrameLocked, DetailPanel,
+        SectionLabel, Link, ProgressBarCompact];
+
+    /// <summary>The bold of the titles: the default font emboldened, spaced a little.</summary>
+    public static FontVariation Bold(int spacing = 0) => new() { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = spacing };
 
     private static Color C(string hex) => new(hex);
 
@@ -181,14 +192,108 @@ public static class OsmoseTheme
             theme.SetStylebox("grabber_pressed", type, Flat(UiStyle.Pistachio, corner: 4, margin: 4));
         }
 
+        FillAchievements(theme);
+        // The check box's own box (sprint 158): a hollow, or pistachio ticked in chocolate.
+        theme.SetIcon("unchecked", "CheckBox", GD.Load<Texture2D>("res://assets/ui/check-off.svg"));
+        theme.SetIcon("checked", "CheckBox", GD.Load<Texture2D>("res://assets/ui/check-on.svg"));
+        theme.SetIcon("unchecked_disabled", "CheckBox", GD.Load<Texture2D>("res://assets/ui/check-off.svg"));
+        theme.SetIcon("checked_disabled", "CheckBox", GD.Load<Texture2D>("res://assets/ui/check-on.svg"));
+
         // The check boxes and buttons: their text in the interface's grey.
+        // Their own boxes, flat: the project's theme is read before Godot's, so without them a check box would take the
+        // Button's relief (seen on the achievements' window, sprint 158).
         foreach (string type in new[] { "CheckBox", "CheckButton" })
         {
+            foreach (string state in new[] { "normal", "hover", "pressed", "hover_pressed", "disabled", "focus" })
+                theme.SetStylebox(state, type, new StyleBoxEmpty { ContentMarginLeft = 4, ContentMarginRight = 4, ContentMarginTop = 4, ContentMarginBottom = 4 });
+            theme.SetConstant("h_separation", type, 8);
             theme.SetColor("font_color", type, C(UiStyle.Text));
             theme.SetColor("font_hover_color", type, C(UiStyle.TextStrong));
             theme.SetColor("font_pressed_color", type, C(UiStyle.TextStrong));
             theme.SetColor("font_disabled_color", type, C(UiStyle.TextOff));
         }
+    }
+
+    /// <summary>The achievements' window's pieces (sprint 158): the tree, the tiles, the cards, the icon frames, the detail.</summary>
+    private static void FillAchievements(Theme theme)
+    {
+        theme.SetTypeVariation(SearchField, "LineEdit");
+        StyleBoxFlat search = Flat(UiStyle.Well, "#ffffff2e", 1, 6, 12);
+        search.ContentMarginLeft = 40;
+        theme.SetStylebox("normal", SearchField, search);
+
+        // A row of the tree: flat, lit in the chosen green with a pistachio line on its left.
+        theme.SetTypeVariation(TreeRow, "Button");
+        StyleBoxFlat chosen = Flat(UiStyle.Selected, UiStyle.Pistachio, 0, 0, 8);
+        chosen.BorderWidthLeft = 3;
+        foreach ((string state, StyleBox box) in new (string, StyleBox)[] { ("normal", Flat("#00000000", margin: 8)), ("hover", Flat(UiStyle.Hover, margin: 8)),
+            ("pressed", chosen), ("hover_pressed", chosen), ("focus", new StyleBoxEmpty()) })
+            theme.SetStylebox(state, TreeRow, box);
+        theme.SetColor("font_color", TreeRow, C(UiStyle.Text));
+        theme.SetColor("font_hover_color", TreeRow, C(UiStyle.TextStrong));
+        theme.SetColor("font_pressed_color", TreeRow, Colors.White);
+        theme.SetColor("font_hover_pressed_color", TreeRow, Colors.White);
+        theme.SetFontSize("font_size", TreeRow, 14);
+        theme.SetTypeVariation(TreeToggle, "Button");
+        theme.SetStylebox("normal", TreeToggle, Flat("#00000000", corner: 6));
+        theme.SetStylebox("hover", TreeToggle, Flat(UiStyle.Hover, corner: 6));
+        theme.SetStylebox("pressed", TreeToggle, Flat(UiStyle.Hover, corner: 6));
+        theme.SetStylebox("focus", TreeToggle, new StyleBoxEmpty());
+        theme.SetColor("font_color", TreeToggle, C(UiStyle.TextDim));
+        theme.SetColor("font_hover_color", TreeToggle, C(UiStyle.TextStrong));
+
+        // A category's tile: a reading surface that one clicks, so a shadow; edged in gold once complete.
+        foreach ((string type, string edge, int width) in new[] { (AchievementTile, UiStyle.Edge, 1), (AchievementTileDone, UiStyle.Gold, 2) })
+        {
+            theme.SetTypeVariation(type, "Button");
+            theme.SetStylebox("normal", type, Shadowed(Flat(UiStyle.Tab, edge, width, 8)));
+            theme.SetStylebox("hover", type, Shadowed(Flat(UiStyle.Hover, UiStyle.ChocolateLight, width, 8)));
+            theme.SetStylebox("pressed", type, Flat(UiStyle.Tab, edge, width, 8));
+            theme.SetStylebox("focus", type, Flat("#00000000", UiStyle.Pistachio, 2, 8));
+        }
+
+        // An achievement's card: grey when locked, edged in a see-through gold when earned, chosen in the green.
+        foreach ((string type, string edge) in new[] { (AchievementCard, "#ffffff0f"), (AchievementCardEarned, UiStyle.Gold + "59") })
+        {
+            theme.SetTypeVariation(type, "Button");
+            theme.SetStylebox("normal", type, Flat(UiStyle.Tab, edge, 1, 8, 12));
+            theme.SetStylebox("hover", type, Flat(UiStyle.Hover, UiStyle.ChocolateLight, 1, 8, 12));
+            theme.SetStylebox("pressed", type, Flat(UiStyle.Selected, UiStyle.Pistachio, 2, 8, 12));
+            theme.SetStylebox("hover_pressed", type, Flat(UiStyle.Selected, UiStyle.Pistachio, 2, 8, 12));
+            theme.SetStylebox("focus", type, new StyleBoxEmpty());
+        }
+
+        // The frame of an achievement's icon: raised and golden when earned, a hollow when not.
+        theme.SetTypeVariation(IconFrame, "PanelContainer");
+        theme.SetStylebox("panel", IconFrame, Raised("frame-gold", 6, 6, 6));
+        theme.SetTypeVariation(IconFrameLocked, "PanelContainer");
+        theme.SetStylebox("panel", IconFrameLocked, Raised("frame-well", 6, 6, 6));
+
+        theme.SetTypeVariation(DetailPanel, "PanelContainer");
+        theme.SetStylebox("panel", DetailPanel, Flat(UiStyle.Tab, UiStyle.FrameDark, 1, 8, 16));
+        theme.SetTypeVariation(SectionLabel, "Label");
+        theme.SetFont("font", SectionLabel, Bold(1));
+        theme.SetFontSize("font_size", SectionLabel, 14);
+        theme.SetColor("font_color", SectionLabel, C(UiStyle.ChocolateLight));
+
+        theme.SetTypeVariation(Link, "Button");
+        foreach (string state in new[] { "normal", "hover", "pressed", "focus" })
+            theme.SetStylebox(state, Link, new StyleBoxEmpty());
+        theme.SetColor("font_color", Link, C(UiStyle.ChocolateLight));
+        theme.SetColor("font_hover_color", Link, C(UiStyle.TextStrong));
+        theme.SetFontSize("font_size", Link, 14);
+
+        theme.SetTypeVariation(ProgressBarCompact, "ProgressBar");
+        theme.SetStylebox("background", ProgressBarCompact, Flat(UiStyle.Well, corner: 4));
+        theme.SetStylebox("fill", ProgressBarCompact, Flat(UiStyle.PrimaryBottom, corner: 4));
+    }
+
+    private static StyleBoxFlat Shadowed(StyleBoxFlat box)
+    {
+        box.ShadowColor = new Color(0, 0, 0, 0.5f);
+        box.ShadowSize = 6;
+        box.ShadowOffset = new Vector2(0, 3);
+        return box;
     }
 
     private static void ButtonStates(Theme theme, string type, string normal, string hover, string pressed, string disabled, string text, float sides)

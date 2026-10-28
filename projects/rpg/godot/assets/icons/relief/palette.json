@@ -1,0 +1,3 @@
+{
+  "dungeons": { "shape": "delapouite/dungeon-gate", "main": "#b48cff", "light": "#d6c0ff", "dark": "#634d8c", "outline": "#241c33" }
+}

@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list")
             _ = TownScreenshot();
     }
 
@@ -2497,7 +2497,7 @@ public partial class Main
         {
             problems.Add($"the tree's window threw {e.GetType().Name}: {e.Message} {e.StackTrace}");
         }
-        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + CheckTogether(problems) + await CheckChat(problems) + await CheckQuests(problems);
+        string world = CheckWorld(problems) + " " + CheckBarAndMenu(problems) + CheckItems(problems) + CheckAchievementsWindow(problems) + CheckTogether(problems) + await CheckChat(problems) + await CheckQuests(problems);
         note += problems.Count == 0 ? ", views checked." : $". TOWN PROBLEMS: {string.Join("; ", problems.Distinct().Take(5))}";
         if (problems.Count == 0)
             note += " " + world;
@@ -2549,6 +2549,38 @@ public partial class Main
     /// window alone and lit, and closes it; Escape closes the window, then opens the menu, whose
     /// sliders set the buses and the file; every sound of the game is there.
     /// </summary>
+    /// <summary>
+    /// The achievements' window (sprint 158, D84) fed a character's progress: a tile per category in the general progress,
+    /// the dungeons' groups in the tree once opened, a group's cards and the first one not earned in the detail, the cards
+    /// earned hidden by the box, a search across the categories, and nothing found for words that are nowhere.
+    /// </summary>
+    private string CheckAchievementsWindow(List<string> problems)
+    {
+        Texts texts = _talkPanel!.Texts;
+        var view = new AchievementView([.. Achievements.All.Select(a => new AchievementProgress(a.Id, a.Id is "dungeon-boar-wallow" or "waystones-1" ? a.Count : 0, a.Count))], 15, "dungeon-boar-wallow");
+        var panel = new AchievementsPanel();
+        AddChild(panel);
+        panel.Build(texts);
+        panel.Show(view);
+        int categories = AchievementsPage.Overview(view, texts).Categories.Count;
+        if (panel.Shown != AchievementsPanel.Overall || panel.Tiles != categories || panel.TreeRows != 1 + categories)
+            problems.Add($"the achievements' overview shows {panel.Tiles} tiles and {panel.TreeRows} rows");
+        panel.ShowCategory("Dungeons", "levels-1-15");
+        if (panel.TreeRows != 1 + categories + 4 || panel.Names.Count != 4 || panel.Chosen != "dungeon-wolf-den")
+            problems.Add($"the dungeons' first group shows {string.Join(", ", panel.Names)}, {panel.Chosen} chosen, in {panel.TreeRows} rows");
+        panel.HideEarned(true);
+        if (panel.Names.Count != 3)
+            problems.Add("the box does not hide the achievements unlocked");
+        panel.HideEarned(false);
+        panel.Search(texts.Lang == "fr" ? "arbre-mere" : "mother tree");
+        int found = panel.Names.Count;
+        panel.Search("zzzz");
+        if (found != 2 || panel.Names.Count != 0)
+            problems.Add($"the search finds {found}, then {panel.Names.Count} for nothing");
+        panel.QueueFree();
+        return " Achievements: overview, groups, cards, hiding and search checked.";
+    }
+
     /// <summary>
     /// An item's right click and sheet (sprint 117, D77): the boar's bristle offers its recipes and its monsters (and to
     /// share it, signed in); its bestiary lists every monster that leaves it; the poacher's cape shows its set; Escape
@@ -3481,6 +3513,26 @@ public partial class Main
             Error picture = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {picture} {_options.Screenshot}");
             GetTree().Quit(picture == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot is "achievements" or "achievements-list")
+        {
+            // The achievements' window (sprint 158): a character of the end of chapter 1, its overview or its first dungeons.
+            var progress = Achievements.All.Select((a, i) => new AchievementProgress(a.Id, a.Category is "Exploration" || i % 3 == 0 ? a.Count : a.Count / 2, a.Count)).ToList();
+            var view = new AchievementView(progress, Achievements.Points(progress.Where(p => p.Earned).Select(p => p.Id)), "dungeon-boar-wallow");
+            _achievementsPanel = new AchievementsPanel();
+            AddChild(_achievementsPanel);
+            _achievementsPanel.Build(_talkPanel!.Texts);
+            _achievementsPanel.Show(view);
+            if (_options.Shot == "achievements-list")
+                _achievementsPanel.ShowCategory("Dungeons", "levels-1-15");
+            _talkPanel.Visible = false;
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error shot = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {shot} {_options.Screenshot}");
+            GetTree().Quit(shot == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "tree")

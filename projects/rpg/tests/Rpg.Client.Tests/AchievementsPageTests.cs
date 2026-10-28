@@ -23,6 +23,54 @@ public class AchievementsPageTests
     }
 
     [Fact]
+    public void TheOverview_GivesEachCategoryAndGroup_ItsShare_InTheDatasOrder()
+    {
+        AchievementOverview o = AchievementsPage.Overview(View(("waystones-1", 1), ("waystone-woods", 1), ("dungeon-boar-wallow", 1)), new Texts("fr"));
+        Assert.Equal((3, Achievements.All.Count), (o.Share.Earned, o.Share.Count));
+        Assert.Equal(3 * 100 / Achievements.All.Count, o.Share.Percent);
+        AchievementBranch exploration = o.Categories[0];
+        Assert.Equal(("Exploration", "map", 2, 9, 22), (exploration.Name, exploration.Icon, exploration.Share.Earned, exploration.Share.Count, exploration.Share.Percent));
+        Assert.Equal(["Général", "Les pierres"], exploration.Groups.Select(g => g.Name));
+        AchievementBranch dungeons = o.Categories.Single(c => c.Id == "Dungeons");
+        Assert.Equal("dungeons", dungeons.Icon);
+        Assert.Equal(["general", "levels-1-15", "levels-16-30", "levels-31-45"], dungeons.Groups.Select(g => g.Id).Order(StringComparer.Ordinal));
+        Assert.Equal((1, 4, 25), (dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Earned, dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Count, dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Percent));
+        // The tree and the trust have no groups; 99 % until the last one.
+        Assert.Empty(o.Categories.Single(c => c.Id == "Tree").Groups);
+        Assert.Equal(99, new AchievementShare(199, 200).Percent);
+    }
+
+    [Fact]
+    public void EachCategoryWithGroups_PutsEveryAchievementInOne_NamedInBothLanguages()
+    {
+        foreach (IGrouping<string, AchievementSpec> c in Achievements.All.GroupBy(a => a.Category))
+        {
+            if (c.Any(a => a.Group is not null))
+                Assert.All(c, a => Assert.NotNull(a.Group));
+            foreach (string g in c.Select(a => a.Group).OfType<string>().Distinct())
+                Assert.All(new[] { Texts.Fr, Texts.En }, table => Assert.True(table.ContainsKey("achievements.group." + g), g));
+        }
+    }
+
+    [Fact]
+    public void TheLines_AreThoseOfACategoryOrGroup_OrThoseFound_LessThoseEarnedWhenHidden()
+    {
+        var texts = new Texts("fr");
+        AchievementView view = View(("dungeon-boar-wallow", 1));
+        Assert.Equal(11, AchievementsPage.Lines(view, texts, "Dungeons").Count);
+        IReadOnlyList<AchievementLine> low = AchievementsPage.Lines(view, texts, "Dungeons", "levels-1-15");
+        Assert.Equal(4, low.Count);
+        Assert.All(low, l => Assert.Equal(("Dungeons", "levels-1-15", "dungeons"), (l.Category, l.Group, l.Icon)));
+        Assert.Equal(3, AchievementsPage.Lines(view, texts, "Dungeons", "levels-1-15", hideEarned: true).Count);
+        // Found in every category, accents and capitals aside.
+        Assert.Equal(["dungeon-mother-tree-roots", "chapter-2-slice"], AchievementsPage.Lines(view, texts, null, search: "ARBRE-MERE").Select(l => l.Id));
+        Assert.Empty(AchievementsPage.Lines(view, texts, "Dungeons", search: "zzz"));
+        Assert.Equal("eleve", AchievementsPage.Plain(" Élève "));
+        // The gold band's total, grouped by thousands without any culture.
+        Assert.Equal(("14\u202f861", "14,861", "320", "1\u202f000\u202f000"), (AchievementsPage.Grouped(14861, "fr"), AchievementsPage.Grouped(14861, "en"), AchievementsPage.Grouped(320, "fr"), AchievementsPage.Grouped(1_000_000, "fr")));
+    }
+
+    [Fact]
     public void TheTitles_AreThoseEarned_InThePlayersLanguage()
     {
         AchievementSpec titled = Achievements.Titled.First();
