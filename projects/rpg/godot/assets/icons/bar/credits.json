@@ -10,6 +10,10 @@
  "contacts": "delapouite/three-friends",
  "talents": "delapouite/skills",
  "guild": "lorc/flying-flag",
- "bestiary": "lorc/fangs-circle",
- "achievements": "drawn for Osmose (a cup), no licence needed"
+ "bestiary": "lorc/wolf-head",
+ "achievements": "lorc/trophy",
+ "accents": {
+  "journal": "lorc/quill-ink",
+  "jobs": "lorc/claw-hammer"
+ }
 }

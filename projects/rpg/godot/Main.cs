@@ -55,6 +55,8 @@ public partial class Main : Node3D
 
     public override void _Ready()
     {
+        // The interface's one theme (sprint 157, D84), before any window.
+        OsmoseTheme.Apply();
         _options = Options.Parse(OS.GetCmdlineUserArgs(), OS.GetLocaleLanguage());
         // The launcher passes the server and the player's token in the environment (RPG_SERVER, RPG_TOKEN).
         string server = System.Environment.GetEnvironmentVariable("RPG_SERVER") is { Length: > 0 } fromLauncher && !_options.ServerGiven

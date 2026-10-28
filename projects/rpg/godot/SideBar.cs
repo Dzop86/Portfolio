@@ -8,7 +8,8 @@ namespace Rpg.Desktop;
 /// "Menus" panel at the bottom of the right edge, three icons a row, one per window of <see cref="WindowState.Bar"/>
 /// then the mini-map and the menu, each in its own colour with its key in a corner; hovering one shows its name and key,
 /// a click opens or closes its window, the open one stays lit. The icons are game-icons.net's (CC BY 3.0, authors in
-/// <c>assets/icons/bar/credits.json</c>).
+/// <c>assets/icons/bar/credits.json</c>); since sprint 157 (D84) they are drawn in relief by <c>tools/ui_art.py</c>, in
+/// their own colours on neutral tiles, the panel and the tiles styled by <see cref="OsmoseTheme"/>.
 /// </summary>
 public partial class SideBar : CanvasLayer
 {
@@ -27,24 +28,6 @@ public partial class SideBar : CanvasLayer
 
     private Button _miniMap = null!;
 
-    // Each icon's colour, so that one finds it by its colour as much as by its drawing.
-    private static readonly Dictionary<string, Color> Hues = new()
-    {
-        ["characteristics"] = new Color("e8a33d"),
-        ["spells"] = new Color("b48cff"),
-        ["inventory"] = new Color("d09a5c"),
-        ["map"] = new Color("7fd06b"),
-        ["journal"] = new Color("f2d36b"),
-        ["jobs"] = new Color("a9bccd"),
-        ["contacts"] = new Color("6bb8f2"),
-        ["talents"] = new Color("bef374"),
-        ["guild"] = new Color("f2876b"),
-        ["bestiary"] = new Color("d9b38c"),
-        ["achievements"] = new Color("ffd166"),
-        ["minimap"] = new Color("4fd1c5"),
-        ["menu"] = new Color("cfcfcf"),
-    };
-
     public void Build(Texts texts, bool withCharacter)
     {
         var panel = new PanelContainer
@@ -58,16 +41,21 @@ public partial class SideBar : CanvasLayer
             GrowHorizontal = Control.GrowDirection.Begin,
             GrowVertical = Control.GrowDirection.Begin,
         };
-        StyleBoxFlat frame = Tile(new Color(0.1f, 0.1f, 0.12f, 0.88f), new Color(1, 1, 1, 0.12f), 8);
-        frame.ContentMarginTop = 4;
-        panel.AddThemeStyleboxOverride("panel", frame);
+        panel.ThemeTypeVariation = OsmoseTheme.HudPanel;
         AddChild(panel);
         var column = new VBoxContainer();
         column.AddThemeConstantOverride("separation", 4);
         panel.AddChild(column);
-        _title = new Label { HorizontalAlignment = HorizontalAlignment.Center, Modulate = new Color(1, 1, 1, 0.7f) };
-        _title.AddThemeFontSizeOverride("font_size", 12);
-        column.AddChild(_title);
+        // Its title: a grid and MENUS, bold, in light chocolate.
+        var heading = new HBoxContainer { CustomMinimumSize = new Vector2(0, 20) };
+        heading.AddThemeConstantOverride("separation", 6);
+        heading.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/grid.svg"), StretchMode = TextureRect.StretchModeEnum.KeepCentered });
+        _title = new Label { VerticalAlignment = VerticalAlignment.Center };
+        _title.AddThemeFontOverride("font", new FontVariation { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = 1 });
+        _title.AddThemeFontSizeOverride("font_size", 14);
+        _title.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
+        heading.AddChild(_title);
+        column.AddChild(heading);
         var grid = new GridContainer { Columns = Columns };
         grid.AddThemeConstantOverride("h_separation", 4);
         grid.AddThemeConstantOverride("v_separation", 4);
@@ -92,7 +80,7 @@ public partial class SideBar : CanvasLayer
 
     public void SetTexts(Texts texts)
     {
-        _title.Text = texts["bar.title"];
+        _title.Text = texts["bar.title"].ToUpperInvariant();
         foreach ((GameWindow window, Button b) in _buttons)
             b.TooltipText = texts["bar.tip", texts["bar." + window], WindowState.Bar.First(w => w.Window == window).Key];
         _miniMap.TooltipText = texts["minimap.tip"];
@@ -127,10 +115,11 @@ public partial class SideBar : CanvasLayer
             return;
         if (b.GetNodeOrNull<Label>("Badge") is not Label badge)
         {
-            badge = new Label { Name = "Badge", MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(2, 0), Size = new Vector2(20, 18), HorizontalAlignment = HorizontalAlignment.Center };
-            badge.AddThemeFontSizeOverride("font_size", 12);
-            badge.AddThemeColorOverride("font_color", new Color("5a3a22"));
-            badge.AddThemeStyleboxOverride("normal", new StyleBoxFlat { BgColor = new Color("bef374"), CornerRadiusTopLeft = 9, CornerRadiusTopRight = 9, CornerRadiusBottomLeft = 9, CornerRadiusBottomRight = 9 });
+            // Over the corner, pistachio with chocolate text, edged in the interface's grey.
+            badge = new Label { Name = "Badge", MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(-4, -4), Size = new Vector2(20, 20), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            badge.AddThemeFontSizeOverride("font_size", 14);
+            badge.AddThemeColorOverride("font_color", new Color(UiStyle.Chocolate));
+            badge.AddThemeStyleboxOverride("normal", OsmoseTheme.Flat(UiStyle.Pistachio, UiStyle.Window, 2, 10));
             b.AddChild(badge);
         }
         badge.Visible = count > 0;
@@ -144,7 +133,7 @@ public partial class SideBar : CanvasLayer
 
     private static Button Icon(GridContainer parent, string name, string key)
     {
-        Color hue = Hues[name];
+        // A neutral tile, the icon in its own colours; lit in pistachio while its window is open.
         var b = new Button
         {
             CustomMinimumSize = new Vector2(48, 48),
@@ -152,23 +141,14 @@ public partial class SideBar : CanvasLayer
             ExpandIcon = true,
             IconAlignment = HorizontalAlignment.Center,
             FocusMode = Control.FocusModeEnum.None,
+            ThemeTypeVariation = OsmoseTheme.MenuTile,
         };
-        // A tile tinted by its colour, its drawing in that colour; lit in the accent when its window is open.
-        b.AddThemeStyleboxOverride("normal", Tile(hue.Darkened(0.78f), hue.Darkened(0.45f), 8));
-        b.AddThemeStyleboxOverride("hover", Tile(hue.Darkened(0.65f), hue, 8));
-        b.AddThemeStyleboxOverride("pressed", Tile(hue.Darkened(0.6f), new Color("bef374"), 8, 2));
-        b.AddThemeStyleboxOverride("hover_pressed", Tile(hue.Darkened(0.55f), new Color("bef374"), 8, 2));
-        foreach (string state in new[] { "icon_normal_color", "icon_pressed_color", "icon_focus_color" })
-            b.AddThemeColorOverride(state, hue);
-        b.AddThemeColorOverride("icon_hover_color", hue.Lightened(0.3f));
-        b.AddThemeColorOverride("icon_hover_pressed_color", hue.Lightened(0.3f));
-        b.AddThemeConstantOverride("icon_max_width", 30);
-        // Its key in the bottom right corner, to learn it without hovering.
+        // Its key in the bottom right corner, to learn it without hovering (12 px: the tooltip says it too).
         if (key.Length > 0)
         {
             var letter = new Label { Text = key, MouseFilter = Control.MouseFilterEnum.Ignore, AnchorLeft = 1, AnchorRight = 1, AnchorTop = 1, AnchorBottom = 1, OffsetLeft = -14, OffsetTop = -17, OffsetRight = -3, OffsetBottom = -1, HorizontalAlignment = HorizontalAlignment.Right };
-            letter.AddThemeFontSizeOverride("font_size", 11);
-            letter.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.75f));
+            letter.AddThemeFontSizeOverride("font_size", 12);
+            letter.AddThemeColorOverride("font_color", new Color(1, 1, 1, 0.85f));
             letter.AddThemeColorOverride("font_outline_color", new Color(0, 0, 0, 0.9f));
             letter.AddThemeConstantOverride("outline_size", 3);
             b.AddChild(letter);
@@ -177,21 +157,6 @@ public partial class SideBar : CanvasLayer
         return b;
     }
 
-    private static StyleBoxFlat Tile(Color bg, Color border, int corner, int width = 1) => new()
-    {
-        BgColor = bg,
-        BorderColor = border,
-        BorderWidthLeft = width,
-        BorderWidthRight = width,
-        BorderWidthTop = width,
-        BorderWidthBottom = width,
-        CornerRadiusTopLeft = corner,
-        CornerRadiusTopRight = corner,
-        CornerRadiusBottomLeft = corner,
-        CornerRadiusBottomRight = corner,
-        ContentMarginLeft = 6,
-        ContentMarginRight = 6,
-        ContentMarginTop = 6,
-        ContentMarginBottom = 6,
-    };
+    /// <summary>The theme's variation of each icon's tile, top to bottom (for the self-test).</summary>
+    public IEnumerable<string> TileStyles => _buttons.Values.Append(_miniMap).Append(_menu).Select(b => b.ThemeTypeVariation.ToString());
 }

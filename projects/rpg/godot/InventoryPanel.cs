@@ -144,20 +144,11 @@ public partial class InventoryPanel : CanvasLayer
         return col;
     }
 
-    /// <summary>The panels over the town: opaque, the interface's dark grey, outlined in the accent colour.</summary>
-    public static StyleBoxFlat Background() => new()
-    {
-        BgColor = new Color("1f1f1f"),
-        BorderColor = FighterView.PlayerColour,
-        BorderWidthLeft = 1,
-        BorderWidthRight = 1,
-        BorderWidthTop = 1,
-        BorderWidthBottom = 1,
-        CornerRadiusTopLeft = 6,
-        CornerRadiusTopRight = 6,
-        CornerRadiusBottomLeft = 6,
-        CornerRadiusBottomRight = 6,
-    };
+    /// <summary>
+    /// The panels over the town: opaque, the interface's dark grey; framed in lightened chocolate with a shadow since
+    /// sprint 157 (D84, the theme's window), where it was outlined in the accent colour.
+    /// </summary>
+    public static StyleBoxFlat Background() => OsmoseTheme.Window(0);
 
     /// <summary>An item put on from its right click (sprint 117), as its left click does.</summary>
     public void Put(Item item)

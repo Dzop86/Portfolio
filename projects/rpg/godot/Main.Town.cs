@@ -2870,6 +2870,12 @@ public partial class Main
         // A small grid, the way Dofus does it (Charles, after sprint 144): three icons a row, four rows since the tree's (sprint 148) and the guild's (sprint 145), five since the bestiary's (sprint 154) and the achievements' (sprint 155).
         if (_bar.Rows > 5)
             problems.Add($"the menus take {_bar.Rows} rows");
+        // Sprint 157 (D84): the tiles in relief of the interface's one theme, every variation of it defined.
+        if (_bar.TileStyles.Any(v => v != OsmoseTheme.MenuTile))
+            problems.Add($"a menu's tile is not the theme's: {string.Join(", ", _bar.TileStyles)}");
+        Theme theme = ThemeDB.GetProjectTheme();
+        if (theme is null || OsmoseTheme.Variations.Any(v => theme.GetTypeVariationBase(v).IsEmpty))
+            problems.Add("the interface's theme lacks a variation");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
         {

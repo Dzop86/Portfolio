@@ -17,6 +17,11 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[gui]
+
+; The interface's one theme (sprint 157, D84), filled at start by OsmoseTheme.cs.
+theme/custom="res://assets/ui/osmose.theme.tres"
+
 [dotnet]
 
 project/assembly_name="Rpg.Godot"

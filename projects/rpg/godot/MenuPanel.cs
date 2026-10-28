@@ -69,7 +69,8 @@ public partial class MenuPanel : CanvasLayer
 
         foreach (MenuChoice choice in Enum.GetValues<MenuChoice>())
         {
-            var b = new Button { CustomMinimumSize = new Vector2(0, 44), Visible = signedIn || choice is MenuChoice.Resume or MenuChoice.Quit };
+            // Back to the game is the one to press (sprint 157: the theme's primary button), the others secondary.
+            var b = new Button { CustomMinimumSize = new Vector2(0, 44), Visible = signedIn || choice is MenuChoice.Resume or MenuChoice.Quit, ThemeTypeVariation = choice == MenuChoice.Resume ? OsmoseTheme.Primary : "" };
             b.Pressed += () => Chosen?.Invoke(choice);
             column.AddChild(b);
             _choices[choice] = b;

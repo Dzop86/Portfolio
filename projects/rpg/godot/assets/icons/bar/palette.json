@@ -1,0 +1,107 @@
+{
+  "characteristics": {
+    "shape": "lorc/muscle-up",
+    "main": "#e8a33d",
+    "light": "#f2cc94",
+    "dark": "#805a22",
+    "outline": "#2e210c"
+  },
+  "spells": {
+    "shape": "delapouite/spell-book",
+    "main": "#b48cff",
+    "light": "#d6c0ff",
+    "dark": "#634d8c",
+    "outline": "#241c33"
+  },
+  "inventory": {
+    "shape": "lorc/knapsack",
+    "main": "#d09a5c",
+    "light": "#e5c7a5",
+    "dark": "#725533",
+    "outline": "#2a1f12"
+  },
+  "map": {
+    "shape": "lorc/treasure-map",
+    "main": "#52c45a",
+    "light": "#a0dfa4",
+    "dark": "#2d6c32",
+    "outline": "#102712"
+  },
+  "journal": {
+    "shape": "lorc/scroll-unfurled",
+    "main": "#f0e6cc",
+    "light": "#fbf6e8",
+    "dark": "#b89a6a",
+    "outline": "#2e2214",
+    "accent": {
+      "shape": "lorc/quill-ink",
+      "main": "#c9a27f",
+      "light": "#e1ccb9",
+      "dark": "#6f5946",
+      "outline": "#282019"
+    }
+  },
+  "jobs": {
+    "shape": "lorc/anvil",
+    "main": "#a9bccd",
+    "light": "#d0dae4",
+    "dark": "#5d6771",
+    "outline": "#222629",
+    "accent": {
+      "shape": "lorc/claw-hammer",
+      "main": "#b07a45",
+      "light": "#d4b699",
+      "dark": "#614326",
+      "outline": "#23180e"
+    }
+  },
+  "contacts": {
+    "shape": "delapouite/three-friends",
+    "main": "#ff7eb6",
+    "light": "#ffb8d7",
+    "dark": "#8c4564",
+    "outline": "#331924"
+  },
+  "talents": {
+    "shape": "delapouite/skills",
+    "main": "#bef374",
+    "light": "#e6f8c9",
+    "dark": "#4d7a1c",
+    "outline": "#1f310b"
+  },
+  "guild": {
+    "shape": "lorc/flying-flag",
+    "main": "#3d9cff",
+    "light": "#94c9ff",
+    "dark": "#22568c",
+    "outline": "#0c1f33"
+  },
+  "bestiary": {
+    "shape": "lorc/wolf-head",
+    "main": "#ef4b4b",
+    "light": "#f69c9c",
+    "dark": "#832929",
+    "outline": "#300f0f"
+  },
+  "achievements": {
+    "shape": "lorc/trophy",
+    "main": "#ffd166",
+    "light": "#ffe6ab",
+    "dark": "#8c7338",
+    "outline": "#332a14"
+  },
+  "minimap": {
+    "shape": "lorc/radar-sweep",
+    "main": "#4fd1c5",
+    "light": "#9ee6df",
+    "dark": "#2b736c",
+    "outline": "#102a27"
+  },
+  "menu": {
+    "shape": "lorc/cog",
+    "main": "#cfcfcf",
+    "light": "#e5e5e5",
+    "dark": "#727272",
+    "outline": "#292929"
+  }
+}
