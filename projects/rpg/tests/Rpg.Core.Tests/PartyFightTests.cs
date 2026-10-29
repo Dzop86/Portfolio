@@ -52,7 +52,7 @@ public class PartyFightTests
         Fight f = Played(new Fight(Real, Group.Scenario, 11, Of("Aube", "guard", 9), null, null, [Of("Brume", "mage", 9)], [30]));
         Assert.True(f.IsOver);
         FightRecord record = FightRecord.Of(f);
-        Assert.Equal(2, record.Version);
+        Assert.Equal(FightRecord.CurrentVersion, record.Version);
         Fight again = FightRecord.FromJson(record.ToJson()).Replay(Real);
         Assert.Equal(f.WinningTeam, again.WinningTeam);
         Assert.Equal(f.HeroFighters.Select(h => h.Hp), again.HeroFighters.Select(h => h.Hp));

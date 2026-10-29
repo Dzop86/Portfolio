@@ -1783,6 +1783,103 @@ Les hordes de taupes lanceuses de la Prairie restent à part, comme en T64 et T7
 - **Critère de réussite :** T41 sur une famille de synthèse à 50, 55 et 60 : petits groupes ≥ 29 sur 30 en moyenne, hordes ≤ 2 sur 10 sans équipement, pour les trois classes.
 - **Tests :** `ItemBudgetTests` jusqu'à 60, T41 aux trois niveaux.
 
+##### Décision du game designer : le paquet de 12 après 45 *(29 octobre 2026, sprint 161 du dépôt)*
+- **Expérience visée :** « à 50, mon nouveau sort arrive dans ma barre à la place d'un vieux sort du même élément ; si j'ai déjà composé mon paquet, rien ne bouge sans moi ».
+- **1. La taille reste 12** jusqu'à 60 (à revoir au plus tôt avec l'approfondissement à 75). À 60, une classe a 17 sorts (20 avec une spécialisation) pour 12 places : choisir, c'est le jeu. Avec 8 PA, un héros lance 2 ou 3 sorts par tour et en utilise 6 à 8 par combat. Un paquet plus grand ajouterait de la puissance pure contre les hordes (plafond T41). Il casserait aussi les deux rangées de six (D62) et le prix de Deck serré et d'Économie (10 et 8 places). *Écartés :* 14 places à 50 (puissance et interface) ; tous les sorts, à la Dofus (le paquet ne serait plus un choix). *Gardé en réserve :* une 13e place réservée aux sorts de la voie, seulement si S158 à S160 montrent qu'aucun build ne les prend.
+- **2. Le paquet par défaut (`Deck == null`) évolue, en place.** Soit L la liste des sorts débloqués (`grimoire.Spells`, dans l'ordre d'aujourd'hui) et N = `DeckLimit`. On part des N premiers de L. On parcourt ensuite les sorts suivants de L, dans l'ordre :
+  - **un sort de dégâts** (`DamageMax > 0`) ne prend une case que **s'il vaut plus que le sort qu'il remplace** (*révisé le 29 octobre, voir ci-dessous*). On regarde les sorts de dégâts **de même élément** du paquet, du plus ancien au plus récent (le niveau le plus bas, puis le premier dans L), en sautant deux sortes de sorts : ceux de niveau 1 (le sort de départ de l'élément, pas cher, souvent 2 fois par tour) et ceux dont le rang dépasse 1 (des points y sont placés). Le nouveau sort prend la case **du premier qu'il bat**. S'il n'en bat aucun, il n'entre pas ;
+  - **un sort utilitaire** (sans dégâts) n'entre jamais tout seul, et aucun utilitaire n'est retiré.
+  - **La valeur d'un sort (révision du 29 octobre).** La première règle disait « le plus ancien est le plus faible », et la mesure l'a démentie. Châtiment (5 PA, contact, 1 fois par tour) remplaçait Fente ardente (4 PA, portée 1 à 3, 2 fois par tour), et la Garde tombait à 66 sur 100 dans la grande salle de la Combe à 41 (seuil 70). Après 35, le barème fait des nouveaux sorts **des outils de côté** (zones, entraves, gros coups à relance), pas des améliorations. La valeur, au rang 1, se calcule ainsi :
+    - V = **moyenne × n + poison**, divisé par **(1 + relance)** ;
+    - moyenne = (min + max) / 2 ;
+    - n = min(fois par tour, ⌊8 / PA⌋) ;
+    - poison = valeur × tours, **compté une fois**, car un poison du même lanceur se renouvelle sans s'empiler (`Fight.SetStatus`) ;
+    - la relance compte, parce qu'un sort à relance 2 ne se lance qu'un tour sur trois (`Spell.Cooldown`) ;
+    - la zone et la portée ne comptent pas, à une exception près : **un sort de contact seul (portée maximale 1) ne remplace jamais un sort qui porte à 2 ou plus**. Ce garde-fou ne joue pour aucun sort d'aujourd'hui, mais il protège les sorts de voie à venir ;
+    - le nouveau sort doit être **strictement** meilleur.
+  - **Les valeurs** (anciens → nouveaux) :
+    - Sentinelle : Salve ardente 12 → Tir brûlant 24 ; Flèche de marée 21 → Flèche empoisonnée 24 ; Flèche perçante 19 → Rafale 12 ; Tir lourd 10,5 et Éboulis 11,5 → Pieu 5,8.
+    - Garde : Fente ardente 26 → Châtiment 20,5 ; Ressac 17 → Vague de fond 10,5 ; Lame du vent 21 → Lame cyclone 11 ; Fauchage 11,5 → Coup de titan 13,3.
+    - Mage : Brûlure 22 → Météore 14 ; Raz-de-marée 11,5 → Gel 7,75 ; Trait de vent 25 → Cyclone 6 ; Racines 6,5 → Faille 16,5.
+  - **Les paquets automatiques qui en résultent** (de 35 à 39 : les 12 premiers sorts, comme avant) :
+    - **Sentinelle :**
+      - à 40, Tir brûlant prend la case de Salve ardente ;
+      - à 45, Flèche empoisonnée prend celle de Flèche de marée ;
+      - à 50, 55 et 60, rien ne change : Rafale, Concentration et Pieu attendent un choix.
+      - À 60 : stone-arrow, fire-arrow, frost-arrow, recoil-shot, sidestep, grapple, heavy-shot, **searing-shot**, **venom-arrow**, piercing-arrow, hawk, rockfall.
+    - **Garde :**
+      - de 40 à 55, les 12 premiers sorts : Châtiment, Vague de fond, Lame cyclone et Cri de guerre attendent ;
+      - à 60, Coup de titan prend la case de Fauchage.
+      - À 60 : shield-bash, burning-blade, ice-blade, slash, taunt, bulwark, **titan-blow**, fire-lunge, undertow, wind-blade, stone-skin, quake.
+    - **Mage :**
+      - de 40 à 55, les 12 premiers sorts : Météore, Gel, Cyclone et Renouveau attendent ;
+      - à 60, Faille prend la case de Racines.
+      - À 60 : pebble, flare, ice-shard, gust, mend, frost-ward, **fault-line**, burn, tidal-wave, bolt, elemental, landslide.
+  - **L'annonce** qui accompagne chaque sort refusé : « Nouveau sort : Rafale. Ton paquet automatique ne le prend pas : ajoute-le toi-même si tu veux ». C'est le moment où l'on apprend que le paquet est un choix.
+  - **Écartés :**
+    - *Le plus ancien remplacé sans condition :* c'est la règle mesurée, qui affaiblit la Garde.
+    - *Le seul calcul de V, sans relance :* Coup de titan (40) et Pieu (17,5) écraseraient leurs rivaux, alors qu'ils ne se lancent qu'un tour sur trois.
+    - *Les dégâts par PA :* Châtiment (4,1) battrait Fente ardente (3,25), c'est-à-dire le cas même qui a échoué.
+    - *« Ne remplacer que si la portée maximale ne baisse pas » :* trop strict. Tir brûlant (portée 6) ne remplacerait jamais Salve ardente (portée 7) alors qu'il vaut le double.
+    - *Compter la zone :* il faudrait supposer un nombre de cibles. C'est l'affaire des hordes et de `OfOne`, pas du paquet par défaut.
+  - **Rien ne change en dessous de 40.** Une barre qui change sans le joueur est acceptable **seulement** pour ce paquet automatique, si trois conditions tiennent. Le changement se fait en place : les autres cases ne bougent pas. Il protège les sorts qui ont des points. Il est annoncé à la montée de niveau (« Paquet automatique : Tir brûlant remplace Salve ardente »). Un paquet enregistré une fois, même vide (D66), n'est plus jamais touché. Aujourd'hui, l'éditeur enregistre le paquet avec les points : ce cas ne concerne que les joueurs qui n'ont jamais rien enregistré.
+  - **Le rejeu (tel que codé) :** le relevé garde `Deck = null`, parce que l'API compare `record.Hero` au héros enregistré. Il passe en version 3. Un relevé de version 1 ou 2 se rejoue avec la règle des N premiers. La révision du 29 octobre change la règle de la version 3 :
+    - si aucun relevé de version 3 avec un paquet `null` au niveau 40 ou plus n'a été stocké (API locale, Plouf), on corrige la version 3 sur place ;
+    - sinon, la règle révisée passe en version 4, et le rendement des éléments en version 5.
+- **3. Le héros des simulations** applique **la même fonction** : `Built` reçoit `Deck = null` et des rangs vides. Tous les sorts sont donc au rang 1, et la protection des rangs ne joue pas. Ce sont les paquets listés au point 2, sans code de plus dans `Progression`. Avec la révision, la Garde et le Mage gardent leurs 12 premiers sorts jusqu'à 55 : la grande salle de la Combe à 41 retrouve le paquet qui passait les 70 sur 100. La Sentinelle change à 40 et à 45 ; on remesure T41 à 40 et à 45 et ses grandes salles à 41. Les points de sort vont ensuite, comme aujourd'hui, sur ses sorts de dégâts.
+- **4. Les seuils s'ajoutent, ils ne remplacent rien.** T41 (≥ 27 de moyenne, au plus 2 groupes sous 18, hordes ≤ 3 sur 10 nu et ≤ 2 avec les kits) reste la règle partout, et pour tout build avec une spécialisation. À 50, 55 et 60, **le héros sans spécialisation** doit aussi tenir ≥ 29 sur 30 de moyenne et ≤ 2 sur 10 nu. Cet écart (2 victoires sur les petits groupes, 1 sur les hordes) est la marge laissée aux voies de S158 à S160, qui ajoutent de la puissance (bande de ±8 points). Les niveaux 35 à 45 ne changent pas. Si le seuil ≤ 2 nu bascule d'une exécution à l'autre (bruit d'environ 1 victoire sur 10 combats), on passe à 20 combats par horde à ces trois niveaux plutôt que de relâcher le seuil.
+- **5. `OfOne` est plafonné à `DeckLimit`**, par cohérence : un joueur ne peut pas faire mieux, et `Hero.Problem` refuserait le paquet. Cela ne change rien aujourd'hui : un élément a 4 sorts et la classe 8 neutres, soit au plus 12 sorts au niveau 95 et 7 ou 8 à 60. Si les sorts de voie le font déborder : d'abord les sorts de dégâts de l'élément, puis les neutres dans l'ordre de la classe. `OfOne` reste la borne haute de la question de T110, mesurée à 50 et 60.
+- **Limites :**
+  - Le Mage perd Racines (−2 PM) dans son paquet automatique à 60, car Faille vaut plus selon V.
+  - V ignore la zone, la portée et les entraves. Un joueur qui compose son paquet fait mieux contre les hordes, et c'est voulu.
+  - Le paquet automatique grandit peu après 35 : c'est le signe que les sorts de 40 à 60 sont des choix, pas des améliorations.
+
+##### Décision du game designer : le héros d'un seul élément et les hordes *(29 octobre 2026)*
+- **Le constat.** Le héros d'un seul élément (`OfOne`) gagne 1,2 à 7,7 hordes sur 10. Le héros mixte en gagne 0 à 2,9. Le plafond T41 est de 3 nu et de 2 avec un kit.
+  - **La cause est la règle des caractéristiques, pas les monstres.** `Characteristics.Bonus` donne +2 dégâts fixes par 10 points, sans limite.
+  - À 50, la moitié des 490 points va à la Vitalité. Les 245 autres donnent :
+    - **+49 par coup** au héros pur ;
+    - environ **+12** au mixte, qui les répartit sur quatre éléments.
+  - Un sort de 50 jette 15 à 25 : le pur frappe donc environ 2,2 fois plus fort. L'écart grandit avec le niveau, puisque les points montent plus vite que le barème des sorts.
+- **1. Oui, c'est un problème.**
+  - Un vrai joueur se concentre sur un ou deux éléments. L'éditeur le lui apprend (« 10 points = +2 dégâts dans cet élément »), et refaire ses points coûte 10 × niveau Éclats.
+  - Le héros mixte de T41 sous-estime donc le joueur, avec un écart de dégâts du simple au double. Le jeu de l'IA, meilleur ou moins bon, ne compense pas un tel écart.
+  - Un joueur seul qui farme des hordes de 6 à 10 monstres casse la règle de Charles (« les hordes sont faites pour le multi »), et donc la raison de se grouper.
+- **2. Ce qu'on change : un rendement décroissant des points d'élément**, dans `Characteristics.Bonus`, qui prend désormais le niveau du combattant.
+  - **Le seuil :** K = **2 × niveau** points.
+  - **La formule :** Bonus(p, niveau) = 2 × ⌊min(p, K) / 10⌋ + 1 × ⌊max(0, p − K) / 10⌋. Jusqu'au seuil, rien ne change ; au-delà, chaque point vaut moitié moins.
+  - **Où :** sur la valeur que rend `Characteristics.For`, équipement compris. Un composé converti, qui prend la somme de ses parents, passe par la même courbe.
+  - **Effet à 50 :**
+    - le mixte, avec environ 60 points par élément, n'est pas touché, et les planchers de T41 non plus, à tous les niveaux ;
+    - le pur passe de +49 à **+34** (20 + 14), soit environ −22 % par coup.
+  - **Réglage dans cet ordre, puis on s'arrête.**
+    - Si `OfOne` dépasse encore le critère du point 3, l'au-delà du seuil passe à 1 par 20 points (pur à +27).
+    - Si ça ne suffit toujours pas, on revient vers Charles. On n'aplatit pas davantage : un élément pur doit rester le build qui frappe le plus fort.
+  - **Les monstres :** si l'un d'eux a plus de 2 × niveau points dans un élément, la courbe ne s'applique qu'aux héros.
+  - **Le rejeu :** `FightRecord` passe en version 4. Un relevé de version 3 ou moins se rejoue avec l'ancien bonus linéaire.
+  - **Écartés :**
+    - *Remonter les gabarits ou les pentes de T96 en mesurant le pur.* Un même gabarit sert aux petits groupes et aux hordes. Des monstres qui arrêtent le pur feraient tomber le mixte, et le joueur qui débute, sous 27 contre les petits groupes. Et le Champs et la Forêt (31-34) restent tels quels.
+    - *Seulement changer de héros de référence.* La mesure deviendrait juste, mais le défaut resterait.
+    - *Multiplier les PV des hordes* (×k à partir de 6 monstres). Ça touche le multi réglé par `PartyBalanceTests` et les hordes du chapitre 1, alors que le défaut est l'écart entre joueurs.
+    - *Des hordes aux résistances mêlées.* C'est un bon levier de contenu, gardé pour les Mines, mais il ne règle pas la règle.
+- **3. Le critère, dans `TemplateTests` à 50 et 60.**
+  - **Planchers, sur le plus faible raisonnable (le mixte avec le paquet automatique) :** moyenne ≥ 29 sur 30 et au plus 2 groupes sous 18 ; hordes ≤ 2 sur 10 nu.
+  - **Plafonds, sur le plus fort raisonnable (`OfOne`), pour chaque classe et chaque élément (12 cas) :** moyenne des hordes **≤ 3 sur 10 avec chacun des kits « none », « zone » et « craft »**.
+    - Le ≤ 2 avec un kit de T41 avait été fixé sur le héros mixte. Le build le plus fort, au mieux équipé, garde une victoire de marge et perd encore 7 hordes sur 10.
+    - Les mesures de T41 aux niveaux 35 à 45 et du chapitre 1 ne changent pas.
+  - **20 combats par horde** à ces deux niveaux (bruit d'environ ±1 sur 10 combats).
+  - **Pour S162 à S164 :** chaque voie doit tenir, en plus de sa bande de ±8 points, **le plafond de 3 sur 10 avec `OfOne`** dans le meilleur élément de la voie, sorts de voie compris et kit « craft ». Le seuil K ne bouge plus pendant les voies.
+- **4. Le découpage.**
+  - **Dans S161 :** cette décision et la mesure `OfOne` à 50 et 60 en **indicateur** dans `TemplateTests` (tableau imprimé, sans assertion, pour garder la CI verte). Les planchers du mixte sont, eux, assertés.
+  - **Une story à part avant S162, « Le rendement des éléments », environ 4 points.** Les voies se règlent sur cette courbe, sinon on les règle deux fois. Elle contient :
+    - la règle et ses tests unitaires : 1 point ;
+    - le relevé de version 4 et le rejeu : 0,5 point ;
+    - la fiche et l'éditeur de points qui montrent le seuil (« Terre 245, efficace 172 », fr et en) : 1 point ;
+    - le réglage et les remesures : 1,5 point. Ce sont `OfOne` à 50 et 60, avec l'assertion du point 3, les builds de l'arbre (`mesures-arbre.md` : la Conversion somme deux parents et peut passer le seuil), les grandes salles des donjons et `PartyBalanceTests`.
+- **Limites :**
+  - Le héros de deux éléments (environ 2,5 × niveau par élément) n'est pas mesuré. Il est un peu touché par le seuil et se place entre le mixte et le pur.
+  - Une famille qui résiste à l'élément d'un joueur pur le punit plus qu'avant. C'est voulu : le bestiaire invite à changer de paquet.
+
 #### S158 (6) : les spécialisations, le moteur et la Sentinelle
 - **Expérience visée :** « à 50, je deviens Affût : mon Faucon joue deux fois de plus et mes Sceaux durent un tour de plus ».
 - **Stories :**

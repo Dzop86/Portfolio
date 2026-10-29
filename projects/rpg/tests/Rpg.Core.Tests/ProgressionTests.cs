@@ -129,7 +129,7 @@ public class ProgressionTests
     public void TheHero_FightsWithItsDeck_InItsOrder_WithinTheRules()
     {
         Hero H(int level, params string[] deck) => new("Élise", "female-c", "guard", Level: level, Deck: deck);
-        // No deck: the class's first unlocked spells, twelve at most.
+        // No deck: the class's first unlocked spells, twelve at most (the automatic deck since sprint 161).
         Assert.Equal(Real.Class("guard")!.Spells.Take(5), new Hero("Élise", "female-c", "guard").DeckOf(Real));
         Assert.Equal(12, new Hero("Élise", "female-c", "guard", Level: 95).DeckOf(Real).Count);
         // A deck is played as chosen, in its order.
@@ -143,5 +143,104 @@ public class ProgressionTests
         // The deck travels with the hero and compares by content.
         Assert.Equal(H(10, "taunt"), H(10, "taunt"));
         Assert.NotEqual(H(10, "taunt"), H(10, "slash"));
+    }
+
+    [Theory]
+    [InlineData("sentinel", 39, "")]
+    [InlineData("sentinel", 40, "ember-volley>searing-shot")]
+    [InlineData("sentinel", 45, "ember-volley>searing-shot tide-arrow>venom-arrow")]
+    [InlineData("sentinel", 60, "ember-volley>searing-shot tide-arrow>venom-arrow")]
+    [InlineData("guard", 41, "")]
+    [InlineData("guard", 55, "")]
+    [InlineData("guard", 60, "cleave>titan-blow")]
+    [InlineData("mage", 55, "")]
+    [InlineData("mage", 60, "roots>fault-line")]
+    public void TheAutomaticDeck_GivesANewSpellTheCellOfTheOldestOfItsElement_ThatItBeatsOnATurn(string id, int level, string swaps)
+    {
+        // Sprint 161 (the game designer's decision, docs/suite-apres-d69.md §12): nothing changes before 40; a spell that
+        // hurts takes in place the cell of the oldest of its element that it beats on a turn, or waits (Smite does not beat
+        // Fire Lunge: the Guard keeps it); a spell that helps (Focus, War Cry, Renewal) waits.
+        var hero = new Hero("Élise", "female-c", id, Level: level);
+        string[] expected = [.. hero.FirstSpells(Real)];
+        foreach (string[] swap in swaps.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Split('>')))
+            expected[Array.IndexOf(expected, swap[0])] = swap[1];
+        Assert.Equal(expected, hero.DeckOf(Real));
+        Assert.Equal(12, expected.Length);
+        Assert.Null((hero with { Deck = expected }).Problem(Real));
+    }
+
+    [Theory]
+    [InlineData("ember-volley", 12, "searing-shot", 24)]
+    [InlineData("tide-arrow", 21, "venom-arrow", 24)]
+    [InlineData("piercing-arrow", 19, "gale", 12)]
+    [InlineData("rockfall", 11.5, "stake", 35.0 / 6)]
+    [InlineData("fire-lunge", 26, "smite", 20.5)]
+    [InlineData("undertow", 17, "groundswell", 10.5)]
+    [InlineData("wind-blade", 21, "cyclone-blade", 11)]
+    [InlineData("cleave", 11.5, "titan-blow", 40.0 / 3)]
+    [InlineData("burn", 22, "meteor", 14)]
+    [InlineData("tidal-wave", 11.5, "freeze", 7.75)]
+    [InlineData("bolt", 25, "cyclone", 6)]
+    [InlineData("roots", 6.5, "fault-line", 16.5)]
+    public void ASpellsWorthOnATurn_CountsItsCasts_ItsPoison_AndItsCooldown(string old, double was, string next, double worth)
+    {
+        // The average times the casts 8 points allow, the poison over its turns, over 1 + the cooldown; areas left out.
+        Assert.Equal(was, Hero.TurnValue(Real.Spells[old]), 3);
+        Assert.Equal(worth, Hero.TurnValue(Real.Spells[next]), 3);
+    }
+
+    [Fact]
+    public void TheAutomaticDeck_KeepsTheSpellsOfLevelOne_TheRaisedOnes_TheFarReaching_AndNeverTouchesAChosenDeck()
+    {
+        // Ember Volley raised above rank 1 keeps its cell: Searing Shot has no other of its element to take, it waits.
+        var hero = new Hero("Élise", "female-c", "sentinel", Level: 40);
+        Hero raised = hero with { Ranks = new Dictionary<string, int> { [Real.Spells["ember-volley"].RankKey] = 2 } };
+        Assert.Equal(hero.FirstSpells(Real), raised.DeckOf(Real));
+        Assert.Contains("stone-arrow", (hero with { Level = 60 }).DeckOf(Real));
+        // A spell that only touches, however strong, never takes the cell of one that reaches farther.
+        Spell blow = Real.Spells["searing-shot"] with { MaxRange = 1, MinRange = 1, DamageMin = 90, DamageMax = 90 };
+        GameData touch = new(Real.Spells.Values.Select(s => s.Id == "searing-shot" ? blow : s), Real.Maps.Values, Real.Scenarios.Values, Real.Classes,
+            Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values, Real.Items.Values, Real.Sets.Values, Real.Families.Values,
+            Real.Dungeons.Values, Real.Jobs.Values, Real.Passives.Values, Real.Talents.Values, Real.Reactions.Values);
+        Assert.Equal(hero.FirstSpells(touch), hero.DeckOf(touch));
+        // A deck saved once, even empty (D66), is the player's.
+        string[] chosen = [.. hero.FirstSpells(Real)];
+        Assert.Equal(chosen, (hero with { Deck = chosen }).DeckOf(Real));
+        Assert.Empty((hero with { Deck = [] }).DeckOf(Real));
+        // The simplest build spends its points on that deck, and fights with it.
+        Hero built = Progression.Built(hero with { Level = 60 }, Real);
+        Assert.Equal((hero with { Level = 60 }).DeckOf(Real), built.DeckOf(Real));
+        Assert.True(built.Ranks!.GetValueOrDefault(Real.Spells["searing-shot"].RankKey, 1) > 1);
+    }
+
+    [Fact]
+    public void ARecordOfVersionTwo_ReplaysAHeroWithoutADeck_WithItsFirstSpells()
+    {
+        // Sprint 161: a record of version 3 replays the automatic deck; one written before, the first twelve spells.
+        var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 60), Real);
+        var now = new Fight(Real, "training", 5, hero);
+        Ai.PlayOut(now);
+        FightRecord r = FightRecord.FromJson(FightRecord.Of(now).ToJson());
+        Assert.Equal(3, r.Version);
+        Assert.Null(r.Hero!.Deck);
+        Assert.Equal(Fingerprint(now), Fingerprint(r.Replay(Real)));
+        var before = new Fight(Real, "training", 5, hero with { Deck = hero.FirstSpells(Real) });
+        Ai.PlayOut(before);
+        FightRecord old = FightRecord.FromJson(FightRecord.Of(before).ToJson()) with { Version = 2, Hero = hero };
+        Assert.Equal(Fingerprint(before), Fingerprint(old.Replay(Real)));
+        Assert.Throws<InvalidFightRecordException>(() => (r with { Version = 4 }).Replay(Real));
+    }
+
+    [Fact]
+    public void AHeroOfOneElement_HoldsNoMoreSpellsThanADeck()
+    {
+        foreach (string id in new[] { "sentinel", "guard", "mage" })
+            foreach (Element e in new[] { Element.Earth, Element.Fire, Element.Water, Element.Air })
+            {
+                Hero one = Progression.OfOne(new Hero("Élise", "female-c", id, Level: 95), e, Real);
+                Assert.True(one.Deck!.Count <= Hero.DeckSize);
+                Assert.Null(one.Problem(Real));
+                Assert.All(Real.Class(id)!.Spells.Where(s => Real.Spells[s].Element == e && Real.Spells[s].DamageMax > 0), s => Assert.Contains(s, one.Deck));
+            }
     }
 }

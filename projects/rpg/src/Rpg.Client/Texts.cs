@@ -317,6 +317,8 @@ public sealed class Texts
         ["end.kills"] = "Achevés",
         ["result.quest"] = "Quête terminée : {0}",
         ["result.level"] = "Niveau {0} !",
+        ["result.deck"] = "Paquet automatique : {0} remplace {1}",
+        ["result.deck.waits"] = "Nouveau sort : {0}. Ton paquet automatique ne le prend pas : ajoute-le toi-même si tu veux",
         ["result.offline"] = "Hors ligne : l'expérience n'est pas gardée.",
         ["result.refused"] = "Le serveur n'a pas compté ce combat : {0}",
         ["card.fighter"] = "{0} · {1}/{2} PV · {3} PA · {4} PM",
@@ -1319,6 +1321,8 @@ public sealed class Texts
         ["end.kills"] = "Finished off",
         ["result.quest"] = "Quest done: {0}",
         ["result.level"] = "Level {0}!",
+        ["result.deck"] = "Automatic deck: {0} replaces {1}",
+        ["result.deck.waits"] = "New spell: {0}. Your automatic deck does not take it: add it yourself if you wish",
         ["result.offline"] = "Offline: the experience is not kept.",
         ["result.refused"] = "The server did not count this fight: {0}",
         ["card.fighter"] = "{0} · {1}/{2} HP · {3} AP · {4} MP",
@@ -2250,6 +2254,30 @@ public sealed class Texts
             parts.Insert(0, this["dungeon.done"]);
         string text = string.Join(" · ", parts);
         return result.Loot is { Count: > 0 } loot ? text + "\n" + this["result.loot", Items(loot)] : text;
+    }
+
+    /// <summary>
+    /// What a new level changes in the deck of a hero who never chose one (sprint 161, the game designer's decision):
+    /// "Automatic deck: Searing Shot replaces Ember Volley", once for each cell; for a new spell it does not take, that the
+    /// player may add it; nothing for a chosen deck.
+    /// </summary>
+    public IEnumerable<string> DeckNews(Hero hero, int level)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        if (hero.Deck is not null || level <= hero.Level || hero.Class is null)
+            yield break;
+        IReadOnlyList<string> before = hero.AutomaticDeck(GameData.Embedded), after = (hero with { Level = level }).AutomaticDeck(GameData.Embedded);
+        for (int i = 0; i < Math.Min(before.Count, after.Count); i++)
+        {
+            if (before[i] != after[i])
+                yield return this["result.deck", GameData.Embedded.Spells[after[i]].Name.In(Lang), GameData.Embedded.Spells[before[i]].Name.In(Lang)];
+        }
+        Hero now = hero with { Level = level };
+        foreach (string id in Rpg.Core.Talents.GrimoireOf(now, GameData.Embedded).Spells.Skip(now.DeckLimit(GameData.Embedded)))
+        {
+            if (GameData.Embedded.Spells[id].Level > hero.Level && !after.Contains(id))
+                yield return this["result.deck.waits", GameData.Embedded.Spells[id].Name.In(Lang)];
+        }
     }
 
     /// <summary>

@@ -52,6 +52,24 @@ public class FightSummaryTests
         Assert.Equal(texts.Name(fight.Fighters[0]), summary.Stats[0].Name);
     }
 
+    [Theory]
+    [InlineData("fr", "Paquet automatique : Tir brûlant remplace Salve ardente")]
+    [InlineData("en", "Automatic deck: Searing Shot replaces Ember Volley")]
+    public void ALevelThatChangesTheAutomaticDeck_SaysWhichSpellTookWhichCell(string lang, string said)
+    {
+        // Sprint 161 (the game designer's decision): from 39 to 40 a Sentinel without a chosen deck gets Searing Shot in the
+        // cell of Ember Volley; the window says it. A chosen deck never moves, and nothing is said.
+        var texts = new Texts(lang);
+        var hero = new Hero("Ronce", "female-c", "sentinel", Level: 39);
+        Assert.Equal([said], texts.DeckNews(hero, 40));
+        Assert.Empty(texts.DeckNews(hero, 39));
+        Assert.Empty(texts.DeckNews(hero with { Deck = hero.DeckOf(Data) }, 40));
+        // From 45 to 60 nothing takes a cell: Gale, Focus and Stake wait for the player.
+        string[] news = [.. texts.DeckNews(hero with { Level = 45 }, 60)];
+        Assert.Equal(3, news.Length);
+        Assert.All(news, n => Assert.Equal(texts["result.deck.waits", "§"].Split('§')[0], n[..texts["result.deck.waits", "§"].IndexOf('§')]));
+    }
+
     [Fact]
     public void Offline_TheRulesSayWhatItWouldGive_AndThatNothingIsKept()
     {

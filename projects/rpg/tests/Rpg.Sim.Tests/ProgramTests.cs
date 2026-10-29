@@ -173,7 +173,7 @@ public class ProgramTests
             (int code, _, _) = Run("--record", file, "--scenario", "training", "--class", "guard", "--party", "mage,sentinel");
             Assert.Equal(0, code);
             string json = File.ReadAllText(file);
-            Assert.Contains("\"version\":2", json, StringComparison.Ordinal);
+            Assert.Contains($"\"version\":{Rpg.Core.FightRecord.CurrentVersion}", json, StringComparison.Ordinal);
             Assert.Contains("\"allies\":[{\"name\":\"Brume\"", json, StringComparison.Ordinal);
             Assert.Equal(0, Run("--replay", file).Code);
         }

@@ -70,7 +70,7 @@ public class FightRecordTests
     }
 
     [Theory]
-    [InlineData("""{"version":3,"scenario":"duel","seed":1,"actions":[]}""")]
+    [InlineData("""{"version":4,"scenario":"duel","seed":1,"actions":[]}""")]
     [InlineData("""{"version":1,"scenario":"nowhere","seed":1,"actions":[]}""")]
     [InlineData("""{"version":1,"scenario":"duel","seed":1,"actions":[{"type":"fly"}]}""")]
     [InlineData("""{"version":1,"scenario":"duel","seed":1}""")]

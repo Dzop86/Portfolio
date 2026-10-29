@@ -117,14 +117,18 @@ public static class Progression
 
     /// <summary>
     /// A hero of one element and no talent (sprint 144, T110; in the game since sprint 152 for the tree's measure): its class's
-    /// spells of that element and the neutral ones, all its element points in it, built the simple way.
+    /// spells of that element and the neutral ones, all its element points in it, built the simple way. Since sprint 161, no
+    /// more than a deck holds: the element's spells that hurt first, then the others in the class's order.
     /// </summary>
     public static Hero OfOne(Hero hero, Element element, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(data);
-        string[] deck = [.. data.Class(hero.Class!)!.Spells.Where(s => data.Spells[s].Element is Element.Neutral || data.Spells[s].Element == element)
+        string[] spells = [.. data.Class(hero.Class!)!.Spells.Where(s => data.Spells[s].Element is Element.Neutral || data.Spells[s].Element == element)
             .Where(s => data.Spells[s].Level <= hero.Level)];
+        HashSet<string> first = [.. spells.Where(s => data.Spells[s].Element == element && data.Spells[s].DamageMax > 0)];
+        string[] kept = [.. spells.Where(first.Contains).Concat(spells.Where(s => !first.Contains(s))).Take(hero.DeckLimit(data))];
+        string[] deck = [.. spells.Where(kept.Contains)];
         Hero built = Built(hero with { Deck = deck }, data, worn);
         Characteristics st = built.Stats!;
         int all = st.Earth + st.Fire + st.Water + st.Air;

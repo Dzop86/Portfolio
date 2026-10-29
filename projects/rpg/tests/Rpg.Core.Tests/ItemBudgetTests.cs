@@ -50,9 +50,12 @@ public class ItemBudgetTests
     [InlineData(35, 22)]
     [InlineData(40, 24)]
     [InlineData(45, 27)]
+    [InlineData(50, 29)]
+    [InlineData(55, 32)]
+    [InlineData(60, 34)]
     public void AfterThirty_ThePiecesBudget_GoesOnTheSame_AndTheLoadingRefusesAPieceOverIt(int level, int budget)
     {
-        // Sprint 128 (D79): the second chapter's pieces, up to 45, keep to the same rule; the loading checks it.
+        // Sprint 128 (D79): the second chapter's pieces, up to 45 (60 since sprint 161), keep to the same rule; the loading checks it.
         Assert.Equal(budget, Templates.Budget(level, ItemSlot.Hat));
         Assert.Equal(2 * budget, Templates.Budget(level, ItemSlot.TwoHanded));
         var hat = new Item("deep-hat", Text, ItemKind.Equipment, ItemSlot.Hat, level, new Characteristics(budget / 2, budget - budget / 2, 0, 0, 0));

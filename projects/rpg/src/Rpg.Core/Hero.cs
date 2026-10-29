@@ -22,17 +22,63 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
 
     /// <summary>
     /// The spells this hero fights with, in the order of its bar: its deck when it has chosen one, of 0 to
-    /// <see cref="DeckSize"/> spells (D66: an empty deck is a choice too); without a choice (null), its
-    /// class's first spells unlocked, up to <see cref="DeckSize"/>. Since sprint 138, the spells its talents
-    /// turned into twins of a compound are those twins (<see cref="Talents.GrimoireOf"/>).
+    /// <see cref="DeckSize"/> spells (D66: an empty deck is a choice too); without a choice (null), the automatic
+    /// deck (<see cref="AutomaticDeck"/>). Since sprint 138, the spells its talents turned into twins of a compound
+    /// are those twins (<see cref="Talents.GrimoireOf"/>).
     /// </summary>
     public IReadOnlyList<string> DeckOf(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
         if (Deck is null)
-            return [.. grimoire.Spells.Take(DeckLimit(data))];
+            return AutomaticDeck(data);
+        Grimoire grimoire = Rpg.Core.Talents.GrimoireOf(this, data);
         return [.. Deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id))];
+    }
+
+    /// <summary>
+    /// The deck of a hero who never chose one (sprint 161, docs/suite-apres-d69.md §12, the game designer's decision): its
+    /// grimoire's first spells, up to <see cref="DeckLimit"/>; then each later spell that hurts takes, in place, the cell of
+    /// the first spell that hurts of the same element, the oldest first (the lowest level, then the first in the grimoire),
+    /// that it beats on a turn (<see cref="TurnValue"/>): neither a spell of level 1 nor one raised above rank 1, nor, for a
+    /// spell that only touches, one that reaches farther. Without one, it waits for the player's choice. A spell that does
+    /// not hurt never comes in alone, and none is taken out. Nothing changes before level 40.
+    /// </summary>
+    public IReadOnlyList<string> AutomaticDeck(GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        List<string> grimoire = [.. Rpg.Core.Talents.GrimoireOf(this, data).Spells];
+        int limit = DeckLimit(data);
+        var deck = grimoire.Take(limit).ToList();
+        foreach (Spell next in grimoire.Skip(limit).Select(id => data.Spells[id]).Where(s => s.DamageMax > 0))
+        {
+            int cell = deck.Select((id, i) => (Spell: data.Spells[id], Cell: i))
+                .Where(x => x.Spell.DamageMax > 0 && x.Spell.Element == next.Element && x.Spell.Level > 1 && (Ranks?.GetValueOrDefault(x.Spell.RankKey, 1) ?? 1) <= 1)
+                .OrderBy(x => x.Spell.Level).ThenBy(x => grimoire.IndexOf(x.Spell.Id))
+                .Where(x => TurnValue(next) > TurnValue(x.Spell) && !(next.MaxRange == 1 && x.Spell.MaxRange >= 2))
+                .Select(x => x.Cell).DefaultIfEmpty(-1).First();
+            if (cell >= 0)
+                deck[cell] = next.Id;
+        }
+        return deck;
+    }
+
+    /// <summary>
+    /// What a spell hurts on a turn of 8 action points, at rank 1, for the automatic deck: its average times the casts the
+    /// turn allows, plus its poison over its turns, divided by the turns it then waits (1 + its cooldown); areas left out.
+    /// </summary>
+    public static double TurnValue(Spell spell)
+    {
+        ArgumentNullException.ThrowIfNull(spell);
+        int casts = Math.Min(spell.PerTurn, 8 / Math.Max(1, spell.ApCost));
+        int poison = (spell.Effects ?? []).OfType<StatusEffect>().Where(e => e.Stat == Stat.Poison).Sum(e => e.Value * e.Turns);
+        return ((spell.DamageMin + spell.DamageMax) / 2.0 * casts + poison) / (1 + spell.Cooldown);
+    }
+
+    /// <summary>The automatic deck before sprint 161: the grimoire's first spells, up to <see cref="DeckLimit"/>; records of version 2 and less replay with it.</summary>
+    public IReadOnlyList<string> FirstSpells(GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return [.. Rpg.Core.Talents.GrimoireOf(this, data).Spells.Take(DeckLimit(data))];
     }
 
     /// <summary>The spells this hero's deck holds at most: <see cref="DeckSize"/>, fewer with some talents (sprint 141).</summary>

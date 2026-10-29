@@ -23,8 +23,12 @@ public sealed record FightRecord(
     IReadOnlyList<Hero>? Allies = null,
     IReadOnlyList<int?>? AlliesHp = null)
 {
-    /// <summary>Version 2 (sprint 120) adds the hero's party; a record of version 1 is a fight alone, read the same.</summary>
-    public const int CurrentVersion = 2;
+    /// <summary>
+    /// Version 2 (sprint 120) adds the hero's party; a record of version 1 is a fight alone, read the same. Version 3
+    /// (sprint 161): a hero without a chosen deck fights with the automatic deck that grows after level 40; a record of
+    /// version 2 or less replays with its first spells (<see cref="Hero.FirstSpells"/>).
+    /// </summary>
+    public const int CurrentVersion = 3;
 
     private static readonly JsonSerializerOptions Compact = new(GameData.Json) { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
@@ -54,16 +58,19 @@ public sealed record FightRecord(
     public Fight Replay(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        if (Version is not (1 or CurrentVersion) || (Version == 1 && Allies is { Count: > 0 }))
+        if (Version is < 1 or > CurrentVersion || (Version == 1 && Allies is { Count: > 0 }))
             throw new InvalidFightRecordException($"Unknown record version {Version}.");
+        Hero? Then(Hero? h) => Version < 3 && h is { Deck: null } ? h with { Deck = h.FirstSpells(data) } : h;
+        Hero? hero = Then(Hero), rival = Then(Rival);
+        IReadOnlyList<Hero>? allies = Allies?.Select(a => Then(a)!).ToList();
         if (data.FindScenario(Scenario) is null)
             throw new InvalidFightRecordException($"Unknown scenario '{Scenario}'.");
-        if ((Hero?.Problem(data) ?? Rival?.Problem(data) ?? (Allies ?? []).Select(a => a.Problem(data)).FirstOrDefault(p => p is not null)) is string problem)
+        if ((hero?.Problem(data) ?? rival?.Problem(data) ?? (allies ?? []).Select(a => a.Problem(data)).FirstOrDefault(p => p is not null)) is string problem)
             throw new InvalidFightRecordException($"Invalid hero: {problem}");
         Fight fight;
         try
         {
-            fight = new Fight(data, Scenario, Seed, Hero, Rival, HeroHp, Allies, AlliesHp);
+            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp);
         }
         catch (ArgumentException e)
         {

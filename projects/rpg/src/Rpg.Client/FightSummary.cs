@@ -62,6 +62,8 @@ public sealed class FightSummary
             notes.Add(texts["result.quest", quest.Name.In(texts.Lang)]);
         if (result is not null && hero is not null && result.Level > fight.Hero!.Level)
             notes.Add(texts["result.level", result.Level]);
+        if (result is not null && hero is not null)
+            notes.AddRange(texts.DeckNews(fight.Hero!, result.Level));
         if (offline && hero is not null && fight.Hero!.Class is not null)
             notes.Add(texts["result.offline"]);
         Notes = string.Join(" · ", notes);
