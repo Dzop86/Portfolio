@@ -1031,7 +1031,8 @@ test('roadmap sprint numbers sit above their columns, on every screen', async ({
       .map((s) => {
         const r = s.getBoundingClientRect();
         const expected = track.left + (Number(s.textContent) - 0.5) * column;
-        return Math.abs(r.left + r.width / 2 - expected) / column;
+        // Within 0.3 of a column, or 1.5 px once columns are a few pixels wide (166 sprints): Firefox rounds grid tracks.
+        return Math.abs(r.left + r.width / 2 - expected) / Math.max(column, 5);
       });
   });
   expect(offsets.length).toBeGreaterThan(4);
