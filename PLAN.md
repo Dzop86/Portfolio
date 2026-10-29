@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S165), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S166), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S165 | 454 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S166 | 458 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 675 points sur 165 sprints de deux semaines.
+Total : 679 points sur 166 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -186,3 +186,6 @@ Conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12
 
 ## Osmose : une refonte graphique de l'interface (28 octobre 2026, D84)
 Après S156, Charles veut une interface plus riche, captures de Wakfu à l'appui (référence d'ergonomie, pas de copie, D54), en priorité sur la suite de D83 : S157 (5) le socle graphique (un thème Godot tiré de `tokens.css`, des icônes en relief composées depuis game-icons.net, le menu refait, un agent graphiste) ; S158 (5) la fenêtre des succès (catégories et sous-catégories avec leur pourcentage, progression générale, total de points, tuiles illustrées, recherche, objectifs et récompenses) ; S159 (5) des succès qui récompensent (Éclats et XP réclamés d'un bouton, rétroactifs), des suites de quêtes par zone et leur méta-succès, les donjons finis ; S160 (6) la fenêtre de guilde (en-tête à écu, onglets, liste des membres), l'invitation depuis la fenêtre et les candidatures que le meneur accepte ou refuse. 21 points, 4 sprints ; la suite de D83 passe à S161-S165. Écartés par Charles : le trésor de guilde, les défis de combat en donjon, la vue Compte des succès.
+
+## Osmose : le rendement des éléments (29 octobre 2026, D85)
+En mesurant le socle 45-60 (S161), un héros d'un seul élément, sans talent, bat 3 à 7,7 hordes sur 10 à hauteur de monstre, là où T41 en permet 2 ou 3 : le bonus d'élément croît sans limite (`points / 10 × 2`). Le game designer (`projects/rpg/docs/suite-apres-d69.md`, §12) glisse un sprint avant les spécialisations, qui sinon se régleraient deux fois : S162 (4) un rendement décroissant (2 par 10 points jusqu'à 2 × niveau, puis 1 par 10), le relevé en version 4, la valeur efficace sur la fiche et dans l'éditeur, les remesures. 4 points, 1 sprint ; la suite de D83 passe à S163-S166. Charles a accepté le plafond de 3 hordes sur 10 avec un kit pour ce héros.

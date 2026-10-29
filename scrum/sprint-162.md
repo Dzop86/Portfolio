@@ -1,13 +1,13 @@
-# Sprint 162 : Osmose : les spécialisations, la Sentinelle
+# Sprint 162 : Osmose : le rendement des éléments
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** un héros d'un seul élément ne vide plus les hordes seul, avant que les spécialisations ne se règlent dessus (D85, décision du game designer dans `projects/rpg/docs/suite-apres-d69.md`, §12).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** a hero of a single element no longer clears hordes alone, before the specialisations are tuned on top of it (D85, the game designer's decision in `projects/rpg/docs/suite-apres-d69.md`, §12).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur de niveau 50, je choisis une spécialisation par la quête « Une route à soi » : un passif, une règle changée et trois sorts, la première gratuite (rpg) ; xUnit, intégration PostgreSQL. | 4 | À faire |
-| En tant que Sentinelle, je choisis Mire, Affût ou Sente, chacune à ±8 points de la moyenne contre les hordes (rpg) ; xUnit, mesures sur 300 combats. | 2 | À faire |
+| En tant que joueur, mes points d'élément rapportent 2 de bonus par 10 points jusqu'à 2 × mon niveau, puis 1 par 10 points au-delà : un héros d'un seul élément gagne au plus 3 hordes sur 10 à 50 et à 60, avec chaque kit, et le héros de T41 retrouve le plafond de 2 avec le kit « craft » (rpg) ; xUnit, relevé de combat en version 4, mesures. | 2 | À faire |
+| En tant que joueur, la fiche et l'éditeur de points montrent la valeur efficace de chaque élément ; les builds de l'arbre, les grandes salles des donjons et le jeu à plusieurs sont remesurés (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
