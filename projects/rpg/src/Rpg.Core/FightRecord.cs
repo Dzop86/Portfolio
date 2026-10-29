@@ -26,9 +26,11 @@ public sealed record FightRecord(
     /// <summary>
     /// Version 2 (sprint 120) adds the hero's party; a record of version 1 is a fight alone, read the same. Version 3
     /// (sprint 161): a hero without a chosen deck fights with the automatic deck that grows after level 40; a record of
-    /// version 2 or less replays with its first spells (<see cref="Hero.FirstSpells"/>).
+    /// version 2 or less replays with its first spells (<see cref="Hero.FirstSpells"/>). Version 4 (sprint 162, D85): a hero's
+    /// element points past 3 × its level + 5 count a quarter (<see cref="Characteristics.Effective"/>); a record of version 3 or
+    /// less replays with the linear bonus.
     /// </summary>
-    public const int CurrentVersion = 3;
+    public const int CurrentVersion = 4;
 
     private static readonly JsonSerializerOptions Compact = new(GameData.Json) { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
@@ -70,7 +72,7 @@ public sealed record FightRecord(
         Fight fight;
         try
         {
-            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp);
+            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp, linearReturns: Version < 4);
         }
         catch (ArgumentException e)
         {

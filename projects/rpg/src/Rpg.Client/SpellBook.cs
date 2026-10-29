@@ -89,7 +89,8 @@ public sealed class SpellBook
     private static BookSpell Entry(Spell spell, PointsEditor editor, Hero draft, Characteristics stats)
     {
         int rank = editor.Rank(spell);
-        int bonus = Characteristics.Bonus(stats.For(spell.Element, Talents.Converts([.. (draft.Talents ?? []).Where(editor.Data.Talents.ContainsKey).Select(id => editor.Data.Talents[id])], spell.Element)));
+        int points = stats.For(spell.Element, Talents.Converts([.. (draft.Talents ?? []).Where(editor.Data.Talents.ContainsKey).Select(id => editor.Data.Talents[id])], spell.Element));
+        int bonus = Characteristics.Bonus(Characteristics.Effective(points, Characteristics.Threshold(draft.Level)));
         Spell now = spell.AtRank(rank);
         (int, int) Range(Spell s, int extra) => s.DamageMax > 0 ? (s.DamageMin + extra + bonus, s.DamageMax + extra + bonus) : (0, 0);
         int crit = Spell.CritBonus(now.DamageMax);

@@ -1862,7 +1862,116 @@ Les hordes de taupes lanceuses de la Prairie restent à part, comme en T64 et T7
     - *Seulement changer de héros de référence.* La mesure deviendrait juste, mais le défaut resterait.
     - *Multiplier les PV des hordes* (×k à partir de 6 monstres). Ça touche le multi réglé par `PartyBalanceTests` et les hordes du chapitre 1, alors que le défaut est l'écart entre joueurs.
     - *Des hordes aux résistances mêlées.* C'est un bon levier de contenu, gardé pour les Mines, mais il ne règle pas la règle.
-- **3. Le critère, dans `TemplateTests` à 50 et 60.**
+  - **Réglage après la mesure de l'étape 2 (S162)** *(29 octobre 2026, choix de Charles : « garder la courbe, viser les sorts »)*
+    - **Où on en est.** L'étape 2 est en place : points efficaces = K + (p − K) / 4, soit +26 au pur de 50 (245 points, 136 efficaces) et +32 à 60 (295 points, 163 efficaces). Quatre cas sur 72 dépassent encore 3 sur 10 : Sentinelle Terre à 50 nue et « zone » (3,9), Sentinelle Air « craft » (3,4 à 50, 3,7 à 60), Garde Air « craft » (3,2 à 60, 3,0 à 50). La Mage reste partout à 1,1 ou moins.
+    - **La cause, en une phrase.** Chaque cas repose sur **un sort bon marché qui ferme un tour de 8 PA** et compte le bonus plat (+26 à +32, deux fois la base d'un sort de rang 5) à chaque coup ou à chaque cible : sans Tir de recul, la Sentinelle Air tombe de 3,7 à 0,0 ; sans Taillade, la Garde Air de 3,2 à 0,0 ; sans Flèche de pierre **ou** sans Éboulis, la Sentinelle Terre de 3,9 à 0,0, parce que Éboulis (5 PA) et Flèche de pierre (3 PA) remplissent exactement les 8 PA.
+    - **Ce que la mesure dit des leviers.** Le bonus est un levier faible : l'étape 2 a retiré 8 points de bonus à **tous** les coups (−24 %), et la Sentinelle Terre n'a perdu que 0,5 horde. Toucher les dégâts ou le bonus d'un seul sort ne suffira donc pas. Le levier fort, c'est **le nombre de coups par tour** : on retire un coup aux tours qui font le dépassement, sans toucher la courbe.
+    - **Le réglage, trois lignes de `data/spells.json`, appliquées ensemble** (chaque ligne vise un cas différent) :
+
+      | Sort | Avant | Après | Cas visé | Niveau du sort |
+      |---|---|---|---|---|
+      | Éboulis (`rockfall`, Sentinelle, Terre) | `apCost` 5 | **`apCost` 6**, dégâts et rangs inchangés | Sentinelle Terre 50 | 35 |
+      | Tir de recul (`recoil-shot`, Sentinelle, Air) | `perTurn` 2 | **`perTurn` 1**, dégâts et poussée de 2 inchangés | Sentinelle Air « craft » | 1 |
+      | Taillade (`slash`, Garde, Air) | `perTurn` 3 | **`perTurn` 2**, dégâts inchangés | Garde Air « craft » | 1 |
+
+      - **Éboulis à 6 PA** casse le tour « Éboulis + Flèche de pierre ». Il reste « Éboulis + Grappin » ou « Éboulis + Dérobade », et le tour perd un coup de Flèche de pierre (environ 40 dégâts à 50). Il passe un cran sous le barème, et c'est voulu : il frappe sans ligne de vue jusqu'à 8 cases. Sa valeur V ne bouge pas (n = min(1, ⌊8 / 6⌋) = 1, toujours 11,5), donc **les paquets automatiques du point 2 du paquet de 12 restent les mêmes** (Pieu, à 5,8, ne le bat toujours pas). Éboulement, le sort jumeau de la Mage, reste à 5 PA, parce que la Mage Terre est à 1,1 ou moins.
+      - **Tir de recul une fois par tour.** La Sentinelle Air garde une poussée de 2 par tour au lieu de deux. Le tour devient « Tir de recul + Flèche perçante + Dérobade » (8 PA). La Flèche perçante, en ligne et à 2 cases minimum, ne sauve pas un tir à bout portant : c'est la raison du 0,0 de la sonde.
+      - **Taillade deux fois par tour.** La Garde Air perd un coup par tour (un tiers des coups de Taillade). Les 2 PA libérés vont à Provocation ou à Rempart, ou bien, avec Lame du vent, le tour devient « 2 Taillades + Lame du vent ».
+      - **Ce qu'on attend (estimation, sans mesure) :** Sentinelle Terre 50 vers 2,5 à 3 ; Sentinelle Air « craft » vers 1,5 à 2,5 ; Garde Air « craft » vers 2 à 2,5. **Les cas visés doivent tenir 2,7 ou moins**, la marge contre le bruit de 40 combats par horde. Les autres des 72 cas ne peuvent que baisser.
+      - **Rien d'autre ne change :** ni la courbe, ni K, ni `Fight.Damage`, ni la version des relevés. Les dégâts des trois sorts restent les mêmes, pour ne pas affaiblir le héros mixte et le joueur qui débute, que les petits coups font vivre.
+    - **Si la remesure échoue encore, dans cet ordre, une étape par remesure, puis on s'arrête :**
+      1. **Le cas en faute seulement :**
+         - Sentinelle Terre : Éboulis prend **une relance de 1** (un tour sur deux). V passe à 5,75, et Pieu (5,8) le remplace dans le paquet automatique de 60. On l'accepte et on l'écrit au point 2 du paquet de 12.
+         - Sentinelle Air : la poussée de Tir de recul passe de **2 à 1** (comme Bourrasque).
+         - Garde Air : Lame du vent passe à **`perTurn` 1**.
+      2. **Une règle par le coût, réservée aux héros :** le bonus d'élément d'un sort vaut bonus × min(PA, 4) / 4. Un sort de 2 PA reçoit la moitié du bonus, un sort de 3 PA les trois quarts, et rien ne change à partir de 4 PA. Elle vise tous les petits sorts, ceux des voies compris, mais touche aussi le mixte et le joueur qui débute : c'est pour ça qu'elle vient en second. Il faut ajouter le texte dans la fiche (fr et en) et passer les relevés en version 5.
+      3. **Si un cas dépasse encore, on revient vers Charles**, avec le tableau des 72 cas. On n'aplatit toujours pas la courbe.
+      - **Si c'est un plancher qui casse** (le mixte sous 29 sur 30 à 50 ou 60, T41 sous 27 entre 1 et 45, `PartyBalanceTests`) : on annule le réglage du sort en cause, on garde les autres, et on passe pour ce cas à l'étape de repli suivante.
+    - **Écartés :**
+      - *Le bonus une seule fois par tour et par sort au-delà du seuil :* la part au-delà du seuil n'est que de 6 (à 50) à 8 (à 60) sur 26 à 32, et le tour de la Sentinelle Terre ne relance aucun sort.
+      - *La règle par le coût en PA, dès la première étape :* elle ne touche pas Éboulis (5 PA) et ne retire à Tir de recul que 25 % de son bonus. Or −24 % de bonus n'a valu que 0,5 horde. Elle reste en repli.
+      - *Baisser les dégâts des petits sorts :* −1 ou −2 sur une base de 8 à 15 ne change presque rien au pur (+26 par coup), mais touche le mixte et le niveau 1 en proportion. C'est le sens inverse de ce qu'on veut.
+      - *Flèche de pierre une fois par tour :* c'est le sort de départ de la Terre, et le tour fautif est « Éboulis + Flèche de pierre », pas deux Flèches de pierre.
+      - *Retirer ou affaiblir Rafale :* sans Rafale, la Sentinelle Air monte (4,2 au lieu de 3,7).
+      - *Aplatir la courbe ou baisser K :* refusé par Charles. Un élément pur doit rester le build qui frappe le plus fort.
+    - **Ce que ça casse ou risque de casser (à remesurer dans la même story) :**
+      - **T41 du chapitre 1 (`BalanceTests`, niveaux 1 à 30) :** Tir de recul et Taillade sont des sorts de niveau 1. Le risque est faible pour le mixte, qui change d'élément d'un coup à l'autre et a toujours un autre sort de 3 ou 4 PA pour finir son tour. On remesure la Sentinelle et la Garde à 1, 10, 20 et 30 : moyenne ≥ 27.
+      - **Le ressenti du joueur Air de 1 à 24 :** une Sentinelle tout Air n'a qu'un sort d'Air (Tir de recul) jusqu'à la Flèche perçante (25), et elle ne pourra plus le lancer qu'une fois par tour. C'est le vrai coût de ce réglage. On le surveille en playtest. Si quelqu'un s'en plaint, on avance la Flèche perçante, plutôt que de rendre le deuxième tir.
+      - **T41 de 35 à 45 et les grandes salles :** Éboulis arrive à 35. On remesure la Sentinelle à 35, 40 et 45 et ses grandes salles de la Combe à 41.
+      - **`PartyBalanceTests` :** les duos et les trios avec une Sentinelle ou une Garde perdent un peu contre les hordes. C'est le sens voulu (« les hordes sont faites pour le multi »), mais il faut vérifier les planchers du multi.
+      - **L'arbre (`mesures-arbre.md`) :** le build de Manière de la Sentinelle (Poussée lourde) vit des poussées, et en aura deux fois moins par tour. Les jumeaux de Tir de recul et de Taillade (sprint 138) reprennent leur `perTurn` : on vérifie qu'ils suivent. La remesure de l'arbre est déjà prévue dans le 1,5 point du point 4.
+      - **Les relevés :** les réglages de données ne changent pas de version. Un relevé stocké en version 4 qui lance deux Tirs de recul dans un tour serait refusé au rejeu. On vérifie qu'aucun relevé de ce type n'existe (API locale, Plouf) ; sinon, on les remplace.
+      - **Rien ne change pour :** le paquet automatique (V inchangé), les textes (le livre de sorts lit les PA et le `perTurn` dans les données, pas de nouvelle clé fr ou en), les monstres (les sorts de synthèse viennent des monstres, pas des classes).
+    - **Limite de la mesure :** le kit « craft » de synthèse donne des points d'Air (le reste du budget dans `Synthetic.Pieces`), mais aucun point de Terre. « Craft Air » est donc le seul cas où le pur porte des pièces de son élément. La Sentinelle Terre bien équipée serait au-dessus de son 2,9 mesuré. Ce réglage la vise déjà par Éboulis, mais on le note pour les Mines, où les pièces de chaque élément existeront.
+    - **Ce que la remesure a donné, et ce qui est appliqué (S162, T129)** *(29 octobre 2026)* :
+      - **Éboulis à 6 PA : gardé.** Sentinelle Terre de 3,9 à 0,0 (nue et « zone » à 50), 0,1 à 1,0 ailleurs. Le barème T27 de `tools/spells_gen.py` calcule les dégâts par PA : Éboulis passe à 12-16, mêmes dégâts par PA.
+      - **Tir de recul `perTurn` 1 et Taillade `perTurn` 2 : annulés.** Aucun effet sur les cas « craft » (3,4, 3,7, 3,0 et 3,2, au dixième près) : avec ce kit, ces héros ne lançaient déjà qu'un Tir de recul ou une Taillade par tour. Les garder n'aurait pénalisé que le joueur Air débutant.
+      - **Repli 1, Sentinelle Air : poussée de Tir de recul 2 → 1, puis annulée.** 3,4 et 3,7 deviennent 2,8 à 50 et à 60, mais quatre planchers cassent (duel du niveau 1 Sentinelle-Mage à 27,8 %, hordes des champs à 26, styles de 45, grande salle du golem à 41) : Tir de recul est un sort de niveau 1. Remis à 2, ces tests repassent.
+      - **Repli 1, Garde Air (Lame du vent `perTurn` 1) : écarté sans essai.** La sonde montrait déjà que retirer Lame du vent ne change rien (3,2 → 3,1).
+      - **La vraie cause des cas « craft », sur 160 combats par horde :** c'est tout ou rien. Sur les 7 hordes, deux sont des hordes de 6 petits monstres sans chef (fields-1-4.0, 6 taupes ; fields-4-3.2, 6 abeilles), et tout héros pur bien équipé (830 PV, Air 387) les gagne 154 à 160 fois sur 160, soit déjà 2,86 sur 10. Les autres ont un chef de 815 PV ou 7 à 8 monstres, et il ne les gagne pas. La Garde Air y ajoute fields-1-2.3, une fois sur quatre (38/160), d'où 3,2 à 60 (2,96 à 50).
+      - **Choix de Charles : accepter, noter, avancer.** Un plafond de 3,5 pour la Garde Air « craft » a d'abord été écrit, puis remplacé par les hordes solides du paquet final ci-dessous. La règle par le coût en PA (repli 2) n'est pas appliquée.
+      - **Pour les Mines :** une horde de 6 et plus a au moins un monstre solide (un chef ou un gabarit au-dessus). C'est un levier de contenu, pas une règle du combat.
+    - **Le paquet final (S162)** *(29 octobre 2026, décision du game designer à la demande de Charles, après les mesures de T129)*
+      - **Ce que les mesures ont appris.**
+        - Le défaut n'est pas où on le cherchait. Avec K = 2 × niveau, la courbe touchait **le héros mixte équipé**, de 2,4 à 3,1 × niveau en « craft » dès le niveau 10. C'est pour ça que le Disjoint du niveau 30 tombait (Mage 18 sur 100, plancher 30).
+        - Les cas « craft » au-dessus de 3 viennent de **deux hordes légères** (6 petits monstres sans chef), que tout héros pur équipé gagne. À elles seules, elles font 2,86 sur 10.
+        - Les plafonds de l'arbre étaient relatifs au meilleur héros nu, donc au pur. Ils ne passaient avec le bonus linéaire que parce que ce pur était trop fort.
+        - Le paquet règle ces trois points, sans toucher le niveau 1 ni le mixte.
+      - **1. Le seuil : K = 3 × niveau + 5.** C'est la plus basse formule simple qui reste toujours au-dessus du héros mixte équipé (kit « craft », élément le plus haut) :
+
+        | Niveau | 10 | 20 | 26 | 30 | 35 | 40 | 45 | 50 | 55 | 60 |
+        |---|---|---|---|---|---|---|---|---|---|---|
+        | K | 35 | 65 | 83 | 95 | 110 | 125 | 140 | 155 | 170 | 185 |
+        | Mixte « craft » | 31 | 52 | 73 | 73 | 87 | 98 | 106 | 130 | 147 | 157 |
+        | Marge | 4 | 13 | 10 | 22 | 23 | 27 | 34 | 25 | 23 | 28 |
+
+        - Le mixte n'est jamais touché, nu, « zone », « craft » ou « fast » (77 à 30, contre K = 95). Tous les planchers qui le mesurent restent donc tels quels : `BalanceTests`, le duel du niveau 1, les hordes des champs, les styles à 45, `PartyBalanceTests`.
+        - Au niveau 1, K vaut 8. Seul un joueur qui met tout dans un élément et porte une pièce de cet élément peut le dépasser, et il y perd au plus 2 de bonus. Aucun plancher ne le mesure, et c'est accepté.
+        - **Écarté, K = 2 × niveau :** il touche le mixte dès 10 et casse le Disjoint.
+        - **Écarté, la courbe sur les seuls points placés, l'équipement en plus et sans courbe :** le pur « craft » de 60 passerait de +36 à +50 par coup.
+      - **2. La part au-delà du seuil : un quart, sans changement** (1 de bonus pour 20 points). Comme le voulait Charles, on n'aplatit pas. Avec un K plus haut, la courbe est même moins plate qu'avec 2 × niveau.
+        - **Le pur à 50** (245 points) a 155 + 90 / 4 = 177 points efficaces, soit **+34 par coup**, contre +12 au mixte.
+        - **Le pur « craft » à 60** (Air 387) a 185 + 202 / 4 = 235 points efficaces, soit **+46 par coup**.
+        - Il reste le build qui frappe le plus fort.
+        - L'exemple de la fiche devient « Terre 245, efficace 177 » (fr et en).
+      - **3. La Conversion ne change pas :** la somme des deux parents, puis la même courbe avec le même K. Le dépassement de la Sentinelle de Matière ne vient pas de la somme. Il vient de l'**Arc** : 35 % de chaque coup sautent sur un ennemi à 2 cases ou moins, et 52 % avec Signature appuyée. La Garde de Matière, sans Signature appuyée, est à 5,0 ; la Sentinelle, avec, à 6,9. L'Arc est un talent, et il se règle dans l'arbre, pas dans la courbe (point 6).
+      - **4. Éboulis : 6 PA, dégâts du barème T27 (12-16), gardé.** C'est le seul réglage de sort qui ait marché : la Sentinelle Terre est passée de 3,9 à 0,0. Avec le K du point 1, elle est à 2,9 au plus (« craft » à 60).
+        - **La grande salle de la Combe (69 sur 100, plancher 70) :**
+          1. **D'abord, 300 combats** (graines 0 à 299), comme le prévoit la règle du bruit (on mesure plus avant de relâcher). Si elle tient 70 % ou plus, c'est fini.
+          2. **Sinon, Éboulis à 13-17**, un cran au-dessus du barème, ses rangs d'autant. On l'écrit comme exception dans `tools/spells_gen.py`, avec la référence D85. +1 de base aide plus le mixte de 41 (+12 de bonus) que le pur (+34) : c'est le bon sens. On remesure ensuite la salle et la Sentinelle Terre `OfOne`.
+          3. **Si la salle reste sous 70,** on la note à 69, et Charles tranche. On ne revient pas à 5 PA, qui rendait 3,9 hordes au pur.
+        - **Tir de recul et Taillade reviennent à leurs valeurs** (poussée 2, `perTurn` 2 et 3). Le paquet ne touche aucun sort de niveau 1.
+      - **5. Les plafonds dans `TemplateTests`.**
+        - **Deux sortes de hordes**, calculées depuis les données (rien n'est écrit en dur) :
+          - une horde (6 monstres ou plus) est **solide** si elle a 7 monstres ou plus, ou un monstre d'au moins 3 fois les PV du plus faible du groupe (un chef) ;
+          - sinon, elle est **légère**. Aujourd'hui, ce sont fields-1-4.0 (6 taupes d'environ 80 PV) et fields-4-3.2 (6 abeilles d'environ 85 PV) : les 5 autres hordes de synthèse sont solides.
+        - **Le héros mixte (T41, `AFamilyMadeFromTheTemplates…`) : rien ne change.** Hordes ≤ 3 nu avant 50, ≤ 2 sinon, sur toutes les hordes, et les mêmes planchers pour les petits groupes.
+        - **Le héros d'un seul élément (`AHeroOfOneElement…`, à 50 et à 60, 12 cas × 3 kits, 40 combats par horde) :** **≤ 3 sur 10 sur les hordes solides, avec chacun des kits.** La moyenne sur les hordes légères est imprimée, sans assertion.
+          - Le cas à part de la Garde Air « craft » (3,5) disparaît : ses 3,2 venaient des deux hordes légères et d'une victoire sur quatre contre fields-1-2.3.
+          - Estimation tirée des mesures à 160 combats : le pire cas (Air « craft », 4,3 sur toutes les hordes) tombe autour de 2 sur les hordes solides.
+        - **L'arbre à 45 (`TheReferenceBuilds…`, kit « craft ») :**
+          - les petits groupes ne changent pas : ≥ 27 et ≤ nu + 3 ;
+          - **les hordes solides : chaque build ≤ max(meilleur héros nu, mixte ou `OfOne`, sur les hordes solides + 1,5 ; 3,0).** Le plancher de 3,0 relie l'arbre au plafond du pur : un talent peut rendre un build aussi fort que le pur le mieux équipé, pas plus. Le meilleur nu n'est donc plus le seul repère ;
+          - **une seule exception, nommée dans le test :** `sentinel-matter`, plafonné à sa mesure + 0,5, avec un message qui renvoie au point 6. Si `guard-matter` ou `mage-manner` dépassent 3,0 sur les hordes solides (à 5,0 et 4,7 sur toutes les hordes, on les estime vers 3 et 2,6), ils rejoignent l'exception, au même titre, plutôt que de relâcher le plafond pour tous.
+      - **6. L'Arc dans les hordes : une story à part avant S163, 1 point**, dans `mesures-arbre.md`. On essaie dans cet ordre, une étape par remesure :
+        1. l'Arc saute avec le jet du coup, sans le bonus d'élément ;
+        2. Signature appuyée passe de +50 % à +25 % (Arc à 44 %) ;
+        3. l'Arc ne saute qu'une fois par sort et par tour.
+        - Le but : `sentinel-matter` ≤ 3,0 sur les hordes solides. L'exception du point 5 est alors retirée.
+        - Les voies de S163 à S165 se mesurent avec le plafond du point 5. Elles ne reçoivent pas d'exception.
+      - **7. Les relevés :** K passe à 3 × niveau + 5 **dans la version 4**, sans nouvelle version, car la version 4 n'est pas encore livrée. On vérifie qu'aucun relevé de version 4 n'est stocké (API locale, Plouf). S'il y en a, on les supprime ou on les refait plutôt que d'ouvrir une version 5. Éboulis à 6 PA est un réglage de données : il ne change pas de version, comme les réglages d'avant.
+      - **Ce qu'on accepte et qu'on note :**
+        - Un héros pur bien équipé gagne seul les hordes légères de 6 petits monstres. C'est un défaut de contenu, pas de règle. La règle pour les Mines est déjà écrite plus haut (un monstre solide dans chaque horde de 6 et plus). Les hordes légères du chapitre 1 restent telles quelles : à leur niveau, le mixte ne les passe pas.
+        - Le pur gagne jusqu'à 3 hordes solides sur 10 avec le meilleur kit. Il en perd encore 7 : les hordes restent faites pour le multi.
+        - La Sentinelle de Matière dépasse le plafond jusqu'à la story du point 6.
+        - La grande salle de la Combe à 41 peut rester à 69, si les étapes 1 et 2 du point 4 échouent. Charles tranche alors.
+        - Le joueur pur de niveau 1 à 10 avec une pièce de son élément perd au plus 2 de bonus.
+        - La Mage garde Éboulement à 5 PA. C'est une incohérence avec Éboulis, acceptée tant que la Mage Terre reste à 2,0 ou moins.
+        - Le kit « craft » de synthèse ne porte que de l'Air. On le refera élément par élément avec les pièces des Mines.
+      - **Appliqué et mesuré (S162, T129)** *(29 octobre 2026)* :
+        - le point 6 est fait dans S162 (1 point de plus), à sa 1re étape : l'Arc d'un héros saute sans le bonus d'élément. Le build de Matière de la Sentinelle passe de 6,9 à 0,8 sur les hordes solides à 45 : **aucune exception** dans `TemplateTests` ;
+        - le héros d'un seul élément, sur les 4 hordes solides à 50 et 60 : 2,5 au plus (Sentinelle Air « craft »), 1,4 ailleurs. Les 3 hordes légères (fields-1-2.3 compte aussi, ses abeilles de 112 PV n'ont pas 3 fois les PV des autres) vont jusqu'à 8,7 sur 10 (Garde Air « craft ») ;
+        - les builds de l'arbre de 35 à 45 : au plus 0,8 sur les hordes solides, petits groupes de 27,0 à 30., dans `TemplateTests` à 50 et 60.**
   - **Planchers, sur le plus faible raisonnable (le mixte avec le paquet automatique) :** moyenne ≥ 29 sur 30 et au plus 2 groupes sous 18 ; hordes ≤ 2 sur 10 nu.
   - **Plafonds, sur le plus fort raisonnable (`OfOne`), pour chaque classe et chaque élément (12 cas) :** moyenne des hordes **≤ 3 sur 10 avec chacun des kits « none », « zone » et « craft »**.
     - Le ≤ 2 avec un kit de T41 avait été fixé sur le héros mixte. Le build le plus fort, au mieux équipé, garde une victoire de marge et perd encore 7 hordes sur 10.

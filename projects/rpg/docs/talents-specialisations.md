@@ -143,7 +143,7 @@ Ce sont les talents de la tranche verticale (rangée 30) et du sprint de la rang
 |---|---|---|---|
 | 30 | a. Dérobade longue | variante | Dérobade : +2 PM → **+3 PM**, relance 2 → **3** |
 | 30 | b. Pas léger | passif | au début de son tour, **+1 PM et −5 % de dégâts** pendant 1 tour (`TurnStart`) |
-| 30 | c. Tir de recul appuyé | variante | Tir de recul : poussée 2 → **3**, dégâts −10 % (la règle ne compte pas la longueur d'une poussée : on la paie à la main) |
+| 30 | c. Tir de recul appuyé | variante | Tir de recul : poussée 1 → **2** (la base est passée de 2 à 1 en S162, T129), dégâts −10 % (la règle ne compte pas la longueur d'une poussée : on la paie à la main) |
 | 45 | a. Bond réflexe | variante | Bond : 2 → **3 PA**, relance 1 → **0** |
 | 45 | b. Dernier saut | passif | sous 40 % de ses PV, **+3 PM et bouclier de 15** pendant 2 tours, une fois (`LowHp` 40) |
 | 45 | c. Collet large | variante | Collet : zone **`Cross 1`**, relance 2 → **3** |

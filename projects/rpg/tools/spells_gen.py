@@ -75,7 +75,7 @@ sentinel = C(
  R("tide-arrow","Flèche de marée","Tide Arrow",4,2,6,1,1,2,"Water","lorc/wave-crest",effects=[push(1)]),
  R("piercing-arrow","Flèche perçante","Piercing Arrow",4,2,8,1,1,2,"Air","lorc/arrow-cluster",line=True,area=("Line",2)),
  R("hawk","Faucon","Hawk",4,1,3,0,0,1,"Neutral","lorc/hawk-emblem",los=False,effects=[summon("hawk")],cd=3),
- R("rockfall","Éboulis","Rockfall",5,3,8,1,1,1,"Earth","lorc/falling-boulder",los=False,area=("Circle",1)),
+ R("rockfall","Éboulis","Rockfall",6,3,8,1,1,1,"Earth","lorc/falling-boulder",los=False,area=("Circle",1)),
  R("searing-shot","Tir brûlant","Searing Shot",3,2,6,1,1,2,"Fire","lorc/burning-round-shot",effects=[status("Enemies","Poison",4,3,"Fire")]),
  R("venom-arrow","Flèche empoisonnée","Venom Arrow",3,2,6,1,1,2,"Water","sbed/poison",effects=[status("Enemies","Poison",4,3,"Water")]),
  R("gale","Rafale","Gale",5,3,8,1,1,1,"Air","lorc/whirlwind",los=False,area=("Circle",1)),
@@ -275,6 +275,12 @@ def budget(sp, scale=1):
 for sp in sentinel + guard + mage:
     if sp["damageMax"] > 0:
         budget(sp)
+# One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
+# its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
+for sp in sentinel:
+    if sp["id"] == "rockfall":
+        sp["damageMin"], sp["damageMax"] = sp["damageMin"] + 1, sp["damageMax"] + 1
+        sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
 # The compounds (sprint 138, D80, docs/elements.md): a pair's spells are its parents' class spells transposed, "twin"
 # naming the spell they come from: the same cost, range, area, effects and level, the compound's element (a poison too),
 # damage from the budget at 80 % for a pair (its signature is paid for). Working names, for the scriptwriter to read.

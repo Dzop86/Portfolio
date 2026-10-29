@@ -88,6 +88,20 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
     public static int Bonus(int points) => points / 10 * 2;
 
     /// <summary>
+    /// Where an element's points start paying a quarter (sprint 162, D85, T129): 3 × level + 5, above the highest element of a
+    /// mixed hero wearing the craftsmen's pieces at every level (2.4 to 3.1 × level, measured), so that only a hero of one element
+    /// pays it; twice the level, the game designer's first threshold, cut the mixed hero (the Disjoint at 30, 45 to 18 of 100).
+    /// </summary>
+    public static int Threshold(int level) => 3 * level + 5;
+
+    /// <summary>
+    /// The points that count (sprint 162, D85): all of them up to <paramref name="threshold"/>, a quarter of those above (1 of
+    /// bonus for every 20 points; half left one hero of one element at 4.4 hordes of 10); no threshold at 0.
+    /// </summary>
+    public static int Effective(int points, int threshold) =>
+        threshold <= 0 || points <= threshold ? points : threshold + (points - threshold) / 4;
+
+    /// <summary>
     /// The characteristic that strengthens an element's damage. A compound strikes on the highest of its parents', or on
     /// twice their average when <paramref name="converted"/> (sprint 144, docs/elements.md §3.4: "with the sum, a mere
     /// opening would give everyone full strength for 1 point").
@@ -197,7 +211,8 @@ public sealed record FighterSpec(
     string? Family = null,
     IReadOnlyList<string>? Talents = null,
     bool Chief = false,
-    int TreeDamage = 0)
+    int TreeDamage = 0,
+    int Threshold = 0)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 

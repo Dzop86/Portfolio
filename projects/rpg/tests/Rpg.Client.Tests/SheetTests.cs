@@ -12,9 +12,10 @@ public class SheetTests
     public void EachLine_AddsWhatIsWorn_ToThePointsPutIn_AndSaysWhatTheTotalGives()
     {
         var sheet = new CharacterSheet(Guard(new() { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club" }), GameData.Embedded);
-        Assert.Equal(new SheetLine(Characteristic.Vitality, null, 20, 5, 25, 25, 0), sheet[Characteristic.Vitality]);
-        // 30 put in, 21 worn (the orc's club counts as two pieces since sprint 109): 51 Earth, 10 more Earth damage.
-        Assert.Equal(new SheetLine(Characteristic.Earth, Element.Earth, 30, 21, 51, 10, 0), sheet[Characteristic.Earth]);
+        Assert.Equal(new SheetLine(Characteristic.Vitality, null, 20, 5, 25, 25, 0, 25), sheet[Characteristic.Vitality]);
+        // 30 put in, 21 worn (the orc's club counts as two pieces since sprint 109): 51 Earth; past 35 (3 × level 10 + 5,
+        // sprint 162) they count a quarter, 39, 6 more Earth damage.
+        Assert.Equal(new SheetLine(Characteristic.Earth, Element.Earth, 30, 21, 51, 6, 0, 39), sheet[Characteristic.Earth]);
         // 9 points: not yet a whole 10, no bonus; nothing else but its own element.
         Assert.Equal((9, 0, Element.Water), (sheet[Characteristic.Water].Total, sheet[Characteristic.Water].Bonus, sheet[Characteristic.Water].Element));
         Assert.Equal((Element.Fire, Element.Air), (sheet[Characteristic.Fire].Element!.Value, sheet[Characteristic.Air].Element!.Value));
@@ -32,6 +33,20 @@ public class SheetTests
         Assert.Equal((me.MaxHp, me.Ap, me.Mp), (sheet.MaxHp, sheet.Ap, sheet.Mp));
         Assert.Equal(5, sheet.Mp);
         Assert.Equal(me.Spec.Characteristics.Earth, sheet[Characteristic.Earth].Total);
+    }
+
+    [Fact]
+    public void PastTwiceTheLevel_TheSheetSaysWhatCounts_AndTheSpellBookAgrees()
+    {
+        // Sprint 162 (D85): at 50, 245 Earth count as 177, +34 damage; the line says "245 (177)" and why, in both languages.
+        Hero hero = new("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Earth: 245));
+        SheetLine earth = new CharacterSheet(hero, GameData.Embedded)[Characteristic.Earth];
+        Assert.Equal((245, 177, 34), (earth.Total, earth.Effective, earth.Bonus));
+        Assert.Equal("245 (177)", new Texts("fr")["sheet.effective", 245, 177]);
+        Assert.StartsWith("245 points, efficace 177 : au-delà de 155 points", new Texts("fr")["sheet.effective.help", 155, 245, 177], StringComparison.Ordinal);
+        Assert.StartsWith("245 points, effective 177: above 155 points", new Texts("en")["sheet.effective.help", 155, 245, 177], StringComparison.Ordinal);
+        var fight = new Fight(GameData.Embedded, "training", 1, hero);
+        Assert.Equal(Characteristics.Threshold(50), fight.Fighters[0].Spec.Threshold);
     }
 
     [Fact]

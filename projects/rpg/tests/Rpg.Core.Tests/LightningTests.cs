@@ -208,6 +208,21 @@ public class LightningTests
     }
 
     [Fact]
+    public void AHerosArc_CarriesTheRoll_WithoutTheElementsBonus_ARecordOfVersionThree_WithIt()
+    {
+        // Sprint 162 (T129): 100 Fire, +20 a hit; the Arc jumps with 35 % of the roll alone (3), not of the hit (10).
+        Hero strong = Hero(45, "electrifying", "transmute-fire-lightning") with { Deck = ["l-ember"], Stats = new Characteristics(Fire: 100) };
+        Fight now = Play(["A..BB"], strong, Monster(0), Monster(1));
+        now.Apply(new CastAction("l-ember", C(3)));
+        Assert.Equal(197, now.Fighters[2].Hp);
+        var data = Data(["A..BB"], [Spec(0, initiative: 999, spells: ["strike"]), Monster(0), Monster(1)]);
+        Fight before = new(data, "s", 1, strong, linearReturns: true);
+        before.Apply(new CastAction("l-ember", C(3)));
+        Assert.True(before.Fighters[2].Hp < 197);
+        Assert.Equal(now.Fighters[1].Hp, before.Fighters[1].Hp);
+    }
+
+    [Fact]
     public void PressedSignature_AndConversion_ChangeTheArcAndTheHit()
     {
         // Pressed Signature: the hit 10 % softer (9), the Arc 50 % stronger (52 % of 9: 4).
@@ -266,7 +281,8 @@ public class LightningTests
         Assert.DoesNotContain(sentinel.DeckOf(Real), id => Real.Spells[id].Element is Element.Fire or Element.Air);
         Assert.True(sentinel.Stats!.Fire > 0 && sentinel.Stats.Air > 0);
         Assert.All(sentinel.Ranks!.Keys, k => Assert.Contains(k, Real.Class("sentinel")!.Spells));
-        var f = new Fight(Real, "group:fields-0-4.0", 3, sentinel);
+        // Without Rockfall: at 6 AP and 13 to 17 since sprint 162 (T129), it is all the AI casts on this group.
+        var f = new Fight(Real, "group:fields-0-4.0", 3, sentinel with { Deck = [.. sentinel.DeckOf(Real).Where(id => id != "rockfall")] });
         Ai.PlayOut(f);
         Assert.Contains(f.Events, e => e is Damaged { Element: Element.Lightning });
         Assert.Equal(Fingerprint(f), Fingerprint(FightRecord.FromJson(FightRecord.Of(f).ToJson()).Replay(Real)));

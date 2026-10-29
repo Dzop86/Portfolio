@@ -248,7 +248,7 @@ public partial class Hud : CanvasLayer
             bool usable = canAct && _controller.CanUse(s);
             icon.Faint = !usable;
             icon.QueueRedraw();
-            tile.TooltipText = $"{(i < 6 ? $"{i + 1}" : $"Ctrl+{i - 5}")} · " + Texts.SpellCard(s, me.Spec.Characteristics);
+            tile.TooltipText = $"{(i < 6 ? $"{i + 1}" : $"Ctrl+{i - 5}")} · " + Texts.SpellCard(s, me.Spec.Characteristics, me.Spec.Threshold);
             tile.Disabled = !usable;
             tile.SetPressedNoSignal(_controller.SelectedSpell == s);
         }

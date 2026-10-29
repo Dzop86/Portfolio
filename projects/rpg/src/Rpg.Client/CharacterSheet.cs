@@ -5,9 +5,10 @@ namespace Rpg.Client;
 /// <summary>
 /// One line of the characteristics sheet: the points put in by the player, those of what the hero
 /// wears, their total, and what the total gives: for an element, 2 more damage for every 10 points
-/// (<see cref="Characteristics.Bonus"/>) and the resistance to it; for Vitality, hit points.
+/// (<see cref="Characteristics.Bonus"/>) of those that count (<see cref="Effective"/>, a quarter past 3 × the level + 5 since
+/// sprint 162) and the resistance to it; for Vitality, hit points.
 /// </summary>
-public sealed record SheetLine(Characteristic Stat, Element? Element, int Invested, int Worn, int Total, int Bonus, int Resistance);
+public sealed record SheetLine(Characteristic Stat, Element? Element, int Invested, int Worn, int Total, int Bonus, int Resistance, int Effective);
 
 /// <summary>
 /// The characteristics sheet, without any engine (sprint 64): a hero, saved or a draft, as a fight
@@ -24,7 +25,7 @@ public sealed class CharacterSheet
         Characteristics own = hero.Stats ?? Characteristics.None;
         Lines =
         [
-            new(Characteristic.Vitality, null, own.Vitality, n.Worn.Vitality, n.Stats.Vitality, n.Stats.Vitality, 0),
+            new(Characteristic.Vitality, null, own.Vitality, n.Worn.Vitality, n.Stats.Vitality, n.Stats.Vitality, 0, n.Stats.Vitality),
             Line(Characteristic.Earth, Element.Earth, own.Earth, n.Worn.Earth, hero.Level),
             Line(Characteristic.Fire, Element.Fire, own.Fire, n.Worn.Fire, hero.Level),
             Line(Characteristic.Water, Element.Water, own.Water, n.Worn.Water, hero.Level),
@@ -39,8 +40,11 @@ public sealed class CharacterSheet
     }
 
     // Items give no resistance: the column says the trunk's (sprint 146), 0 before level 35.
-    private static SheetLine Line(Characteristic stat, Element element, int invested, int worn, int level) =>
-        new(stat, element, invested, worn, invested + worn, Characteristics.Bonus(invested + worn), Talents.TrunkResistance(level));
+    private static SheetLine Line(Characteristic stat, Element element, int invested, int worn, int level)
+    {
+        int effective = Characteristics.Effective(invested + worn, Characteristics.Threshold(level));
+        return new(stat, element, invested, worn, invested + worn, Characteristics.Bonus(effective), Talents.TrunkResistance(level), effective);
+    }
 
     public Hero Hero { get; }
     public IReadOnlyList<SheetLine> Lines { get; }

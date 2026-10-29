@@ -173,7 +173,8 @@ public class ProgressionTests
     [InlineData("ember-volley", 12, "searing-shot", 24)]
     [InlineData("tide-arrow", 21, "venom-arrow", 24)]
     [InlineData("piercing-arrow", 19, "gale", 12)]
-    [InlineData("rockfall", 11.5, "stake", 35.0 / 6)]
+    // Rockfall at 6 AP since sprint 162 (T129): 13 to 17, still one cast a turn, Stake never takes its cell.
+    [InlineData("rockfall", 15, "stake", 35.0 / 6)]
     [InlineData("fire-lunge", 26, "smite", 20.5)]
     [InlineData("undertow", 17, "groundswell", 10.5)]
     [InlineData("wind-blade", 21, "cyclone-blade", 11)]
@@ -216,19 +217,20 @@ public class ProgressionTests
     [Fact]
     public void ARecordOfVersionTwo_ReplaysAHeroWithoutADeck_WithItsFirstSpells()
     {
-        // Sprint 161: a record of version 3 replays the automatic deck; one written before, the first twelve spells.
+        // Sprint 161: a record of version 3 or more replays the automatic deck; one written before, the first twelve spells
+        // (and, from sprint 162, the linear bonus of the elements).
         var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 60), Real);
         var now = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(now);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(now).ToJson());
-        Assert.Equal(3, r.Version);
+        Assert.Equal(FightRecord.CurrentVersion, r.Version);
         Assert.Null(r.Hero!.Deck);
         Assert.Equal(Fingerprint(now), Fingerprint(r.Replay(Real)));
-        var before = new Fight(Real, "training", 5, hero with { Deck = hero.FirstSpells(Real) });
+        var before = new Fight(Real, "training", 5, hero with { Deck = hero.FirstSpells(Real) }, linearReturns: true);
         Ai.PlayOut(before);
         FightRecord old = FightRecord.FromJson(FightRecord.Of(before).ToJson()) with { Version = 2, Hero = hero };
         Assert.Equal(Fingerprint(before), Fingerprint(old.Replay(Real)));
-        Assert.Throws<InvalidFightRecordException>(() => (r with { Version = 4 }).Replay(Real));
+        Assert.Throws<InvalidFightRecordException>(() => (r with { Version = FightRecord.CurrentVersion + 1 }).Replay(Real));
     }
 
     [Fact]

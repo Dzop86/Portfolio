@@ -280,8 +280,10 @@ public sealed class Texts
         ["sheet.col.bonus"] = "Effet",
         ["sheet.col.resist"] = "Résistance",
         ["sheet.bonus.hp"] = "+{0} PV",
+        ["sheet.effective"] = "{0} ({1})",
+        ["sheet.effective.help"] = "{1} points, efficace {2} : au-delà de {0} points (3 × niveau + 5), chaque point compte un quart",
         ["sheet.bonus.damage"] = "+{0} dégâts {1}",
-        ["sheet.help"] = "10 points dans un élément = +2 dégâts dans cet élément, et rien d'autre · tapez une valeur, ou Maj+clic : 10 points d'un coup",
+        ["sheet.help"] = "10 points dans un élément = +2 dégâts dans cet élément (+1 par 20 points au-delà de 3 × niveau + 5), et rien d'autre · tapez une valeur, ou Maj+clic : 10 points d'un coup",
         ["sheet.reset"] = "Réinitialiser",
         ["sheet.min"] = "MIN",
         ["sheet.max"] = "MAX",
@@ -291,10 +293,10 @@ public sealed class Texts
         ["char.Water"] = "Eau",
         ["char.Air"] = "Air",
         ["char.Vitality.help"] = "+1 PV par point",
-        ["char.Earth.help"] = "+2 dégâts Terre par tranche de 10 points, et rien d'autre",
-        ["char.Fire.help"] = "+2 dégâts Feu par tranche de 10 points, et rien d'autre",
-        ["char.Water.help"] = "+2 dégâts Eau par tranche de 10 points, et rien d'autre",
-        ["char.Air.help"] = "+2 dégâts Air par tranche de 10 points, et rien d'autre",
+        ["char.Earth.help"] = "+2 dégâts Terre par tranche de 10 points jusqu'à 3 × niveau + 5, +1 par 20 au-delà, et rien d'autre",
+        ["char.Fire.help"] = "+2 dégâts Feu par tranche de 10 points jusqu'à 3 × niveau + 5, +1 par 20 au-delà, et rien d'autre",
+        ["char.Water.help"] = "+2 dégâts Eau par tranche de 10 points jusqu'à 3 × niveau + 5, +1 par 20 au-delà, et rien d'autre",
+        ["char.Air.help"] = "+2 dégâts Air par tranche de 10 points jusqu'à 3 × niveau + 5, +1 par 20 au-delà, et rien d'autre",
         ["xp.line"] = "Niveau {0} · {1} / {2} XP",
         ["xp.max"] = "Niveau {0} · {1} XP",
         ["result.xp"] = "+{0} XP",
@@ -1284,8 +1286,10 @@ public sealed class Texts
         ["sheet.col.bonus"] = "Effect",
         ["sheet.col.resist"] = "Resistance",
         ["sheet.bonus.hp"] = "+{0} HP",
+        ["sheet.effective"] = "{0} ({1})",
+        ["sheet.effective.help"] = "{1} points, effective {2}: above {0} points (3 × level + 5), each point counts a quarter",
         ["sheet.bonus.damage"] = "+{0} {1} damage",
-        ["sheet.help"] = "10 points in an element = +2 damage in that element, and nothing else · type a value, or Shift+click: 10 points at once",
+        ["sheet.help"] = "10 points in an element = +2 damage in that element (+1 for every 20 points above 3 × level + 5), and nothing else · type a value, or Shift+click: 10 points at once",
         ["sheet.reset"] = "Reset",
         ["sheet.min"] = "MIN",
         ["sheet.max"] = "MAX",
@@ -1295,10 +1299,10 @@ public sealed class Texts
         ["char.Water"] = "Water",
         ["char.Air"] = "Air",
         ["char.Vitality.help"] = "+1 HP a point",
-        ["char.Earth.help"] = "+2 Earth damage for every 10 points, and nothing else",
-        ["char.Fire.help"] = "+2 Fire damage for every 10 points, and nothing else",
-        ["char.Water.help"] = "+2 Water damage for every 10 points, and nothing else",
-        ["char.Air.help"] = "+2 Air damage for every 10 points, and nothing else",
+        ["char.Earth.help"] = "+2 Earth damage for every 10 points up to 3 × level + 5, +1 for every 20 above, and nothing else",
+        ["char.Fire.help"] = "+2 Fire damage for every 10 points up to 3 × level + 5, +1 for every 20 above, and nothing else",
+        ["char.Water.help"] = "+2 Water damage for every 10 points up to 3 × level + 5, +1 for every 20 above, and nothing else",
+        ["char.Air.help"] = "+2 Air damage for every 10 points up to 3 × level + 5, +1 for every 20 above, and nothing else",
         ["xp.line"] = "Level {0} · {1} / {2} XP",
         ["xp.max"] = "Level {0} · {1} XP",
         ["result.xp"] = "+{0} XP",
@@ -2095,12 +2099,12 @@ public sealed class Texts
     /// <summary>What hovering a spell tells: cost, range and its limits; damage, area and effects.</summary>
     /// <summary>
     /// A spell's card; with the caster's characteristics, its damage counts them (2 more for every 10 points
-    /// of its element), as the fight will.
+    /// of its element, a quarter past <paramref name="threshold"/> since sprint 162), as the fight will.
     /// </summary>
-    public string SpellCard(Spell s, Characteristics? stats = null)
+    public string SpellCard(Spell s, Characteristics? stats = null, int threshold = 0)
     {
         ArgumentNullException.ThrowIfNull(s);
-        int bonus = Characteristics.Bonus((stats ?? Characteristics.None).For(s.Element));
+        int bonus = Characteristics.Bonus(Characteristics.Effective((stats ?? Characteristics.None).For(s.Element), threshold));
         string head = this["card.spell", s.Name.In(Lang), s.ApCost, s.MinRange, s.MaxRange]
             + (s.InLine ? this["card.in-line"] : "") + (s.LineOfSight ? "" : this["card.no-sight"])
             + this["card.per-turn", s.PerTurn] + (s.Cooldown > 0 ? this["card.cooldown", s.Cooldown] : "");

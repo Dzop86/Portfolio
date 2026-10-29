@@ -172,7 +172,7 @@ public sealed class Fight
     /// </param>
     /// <param name="alliesHp">Each ally's hit points to start with, in the same order; null for all of them.</param>
     public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null,
-        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null)
+        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
@@ -194,8 +194,8 @@ public sealed class Fight
         int rivalIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 1);
         _fighters = [.. Scenario.Fighters.Select((f, i) =>
         {
-            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data)
-                : rival is not null && i == rivalIndex ? AsHero(f, rival, data)
+            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data, linearReturns)
+                : rival is not null && i == rivalIndex ? AsHero(f, rival, data, linearReturns)
                 : f;
             return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data))
             {
@@ -209,7 +209,7 @@ public sealed class Fight
             throw new ArgumentException($"The board has {freeStarts.Length} free starts for allies.", nameof(allies));
         for (int k = 0; k < Allies.Count; k++)
         {
-            FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data);
+            FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data, linearReturns);
             var ally = new Fighter(_fighters.Count, spec, Board.Starts[0][freeStarts[k]], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data)) { LaysMarks = true };
             if (alliesHp?.ElementAtOrDefault(k) is int hp)
                 ally.Hp = Math.Clamp(hp, 1, ally.MaxHp);
@@ -244,7 +244,7 @@ public sealed class Fight
     /// The scenario's fighter, played by the hero: its name and look, its class's characteristics and
     /// the class's spells its level has unlocked.
     /// </summary>
-    private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data)
+    private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data, bool linearReturns)
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         if (HeroTotals(hero, data) is not HeroNumbers n)
@@ -270,6 +270,8 @@ public sealed class Fight
             SpellRanks = hero.Ranks,
             Level = hero.Level,
             Talents = hero.Talents,
+            // A record of version 3 or less replays with the linear bonus of before sprint 162 (D85).
+            Threshold = linearReturns ? 0 : Characteristics.Threshold(hero.Level),
         };
     }
 
@@ -741,11 +743,12 @@ public sealed class Fight
     /// hit, neutral ones included, outside the talents' ceiling.
     /// </summary>
     /// <param name="guard">The target's resistance from its talents (Backed, sprint 142), within the ceiling of 90.</param>
-    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null, int guard = 0)
+    public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null, int guard = 0,
+        bool bonus = true)
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        long raw = roll + Characteristics.Bonus(Strength(caster, element));
+        long raw = roll + (bonus ? Characteristics.Bonus(Strength(caster, element)) : 0);
         long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
         int resistance = element == Element.Neutral ? 0 : Math.Min(90, target.Resistance(element) + guard);
         long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents * (100 + caster.Spec.TreeDamage);
@@ -776,7 +779,7 @@ public sealed class Fight
 
     /// <summary>The characteristic that strengthens <paramref name="caster"/>'s hits of this element, its Conversion given (sprint 144).</summary>
     private static int Strength(Fighter caster, Element element) =>
-        caster.Spec.Characteristics.For(element, Talents.Converts(caster.Talents, element));
+        Characteristics.Effective(caster.Spec.Characteristics.For(element, Talents.Converts(caster.Talents, element)), caster.Spec.Threshold);
 
     /// <summary>
     /// The damage the AI expects a hit of <paramref name="average"/> to do (sprint 141): the one estimate it uses for spells
@@ -831,7 +834,8 @@ public sealed class Fight
     /// A jump (Lightning's Arc, sprint 138, <c>docs/elements.md</c> §2; Electrified, sprint 140): <paramref name="percent"/>
     /// of the hit jumps once to the nearest fighter of <paramref name="from"/>'s side within <see cref="Elements.ArcCells"/>
     /// cells of it, outside the spell's area (the lowest id on a tie). It is no spell's hit: no passive answers it, no mark
-    /// is left.
+    /// is left. A hero's jump carries the roll without the element's bonus (sprint 162, T129: with it, the Sentinel of Matter
+    /// beat 5 to 7 hordes of 10 at 45); a record of version 3 or less, the bonus too.
     /// </summary>
     private void Arc(Fighter me, Fighter from, int roll, IReadOnlyList<Fighter> area, int percent, Element element, HitContext context)
     {
@@ -840,7 +844,7 @@ public sealed class Fight
         if (to is null)
             return;
         _events.Add(new Arced(from.Id, to.Id));
-        Hurt(to, Damage(roll, me, to, element, true, context) * percent / 100, element);
+        Hurt(to, Damage(roll, me, to, element, true, context, bonus: me.Spec.Threshold == 0) * percent / 100, element);
     }
 
     /// <summary>

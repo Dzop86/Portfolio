@@ -171,6 +171,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
                 cells[i] = new Label { HorizontalAlignment = HorizontalAlignment.Right, CustomMinimumSize = new Vector2(i == 3 ? 150 : 56, 0) };
                 if (i == 2)
                 {
+                    cells[i].MouseFilter = Control.MouseFilterEnum.Stop;
                     cells[i].AddThemeFontSizeOverride("font_size", 18);
                     cells[i].AddThemeColorOverride("font_color", colour);
                 }
@@ -662,7 +663,10 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             if (!value.HasFocus())
                 value.Text = Num(line.Invested);
             cells[1].Text = line.Worn == 0 ? "—" : "+" + Num(line.Worn);
-            cells[2].Text = Num(line.Total);
+            // Past the threshold, what counts (sprint 162, D85): "245 (177)", the sentence on hovering it.
+            cells[2].Text = line.Effective < line.Total ? Texts["sheet.effective", Num(line.Total), Num(line.Effective)] : Num(line.Total);
+            cells[2].TooltipText = line.Effective < line.Total
+                ? Texts["sheet.effective.help", Characteristics.Threshold(Editor.Hero.Level), Num(line.Total), Num(line.Effective)] : "";
             // Below the first 10 points, nothing yet: a dash rather than "+0".
             cells[3].Text = line.Bonus == 0 ? "—" : line.Element is Element e
                 ? Texts["sheet.bonus.damage", line.Bonus, Texts["element." + e]]

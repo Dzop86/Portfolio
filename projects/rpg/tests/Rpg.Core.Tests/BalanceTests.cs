@@ -207,7 +207,8 @@ public class BalanceTests
         // where the guard won the Roots' 59 times in 100 (the rule raises the quest, it does not weaken the room).
         Dungeon dungeon = Real.Dungeons.Values.Single(d => d.Family == family);
         var hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 41), Real);
-        int wins = Results(dungeon.Scenario(2), 100, hero)[0];
-        Assert.True(wins >= 70, $"{id}: {wins} of 100 in {dungeon.Id}'s great hall at level 41");
+        // 300 fights since sprint 162 (T129): Rockfall at 6 AP left the Sentinel at the edge of the Combe's (69 of 100).
+        int wins = Results(dungeon.Scenario(2), 300, hero)[0];
+        Assert.True(wins >= 210, $"{id}: {wins} of 300 in {dungeon.Id}'s great hall at level 41");
     }
 }
