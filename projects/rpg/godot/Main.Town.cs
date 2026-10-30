@@ -234,6 +234,11 @@ public partial class Main
         _mapPanel = new WorldMapPanel();
         AddChild(_mapPanel);
         _mapPanel.Build(GameData.Embedded, _zone, _town!.Position, _talkPanel!.Texts, FollowedGoal());
+        _mapPanel.ClosePressed += () =>
+        {
+            _windows.Close();
+            ShowWindows();
+        };
     }
 
     /// <summary>The side bar, the character's icons only when there is a character (built again when the hero changes).</summary>
@@ -3549,7 +3554,7 @@ public partial class Main
                 problems.Add($"the door of {id} on the world map says \"{map.HoverAt(centre)}\"");
         }
         string here = _talkPanel!.Texts.MapTitle(_town.Town);
-        if (!map.HoverText.StartsWith(here, StringComparison.Ordinal) || map.HoverAt(map.MarkerCentre) != map.HoverText)
+        if (!map.HoverText.StartsWith(here, StringComparison.Ordinal) || map.MapText(map.MarkerCentre) != map.HoverText)
             problems.Add($"the world map names \"{map.HoverText}\" under the player");
         var pointer = new Vector2(300, 200);
         Vector2 under = (pointer - map.PictureAt) / map.Zoom;
@@ -3564,9 +3569,19 @@ public partial class Main
         // Sprint 167 (D87): zoomed out, the atlas alone, every zone's land drawn; zoomed in, the plan of the cells over it.
         if (map.PlanOpacity != 0 || map.AtlasLands < new WorldAtlas(GameData.Embedded).Regions.Count || map.AtlasBroken > 0)
             problems.Add($"the world map zoomed out shows the plan at {map.PlanOpacity}, {map.AtlasLands} lands, {map.AtlasBroken} broken");
+        // Sprint 168: zoomed out, the zones' names and the landmarks but the workshops; Dungeons unticked hides the doors.
+        var atlasMarks = new WorldAtlas(GameData.Embedded).Marks;
+        if (map.NamesOpacity < 1 || map.MarksShown(AtlasMarkKind.Workshop) != 0 || map.MarksShown(AtlasMarkKind.City) != 2
+            || map.MarksShown(AtlasMarkKind.Waystone) != atlasMarks.Count(m => m.Kind == AtlasMarkKind.Waystone))
+            problems.Add($"the atlas shows its names at {map.NamesOpacity}, {map.MarksShown(AtlasMarkKind.Workshop)} workshops, {map.MarksShown(AtlasMarkKind.City)} cities zoomed out");
+        map.LegendBoxes["dungeons"].ButtonPressed = false;
+        bool hidden = map.MarksShown(AtlasMarkKind.Dungeon) == 0 && !map.Doors.Any();
+        map.LegendBoxes["dungeons"].ButtonPressed = true;
+        if (!hidden || map.MarksShown(AtlasMarkKind.Dungeon) != GameData.Embedded.Dungeons.Count)
+            problems.Add("unticking Dungeons in the legend does not hide their doors, or ticking it back does not show them");
         map.ZoomAround(pointer, 100);
-        if (Math.Abs(map.Zoom - 4) > 1e-4f || map.PlanOpacity < 1)
-            problems.Add($"the world map zooms in to {map.Zoom}, its plan at {map.PlanOpacity}");
+        if (Math.Abs(map.Zoom - 4) > 1e-4f || map.PlanOpacity < 1 || map.NamesOpacity > 0)
+            problems.Add($"the world map zooms in to {map.Zoom}, its plan at {map.PlanOpacity}, its names at {map.NamesOpacity}");
     }
 
     /// <summary>

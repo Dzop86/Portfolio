@@ -43,6 +43,7 @@
   --osmose-map-coast: #1d4a75;
   --osmose-map-tree: #2e6b3a;
   --osmose-map-road: #e6e1d2;
+  --osmose-map-label: #f0e6cc;
   /* Osmose, l'interface (projects/rpg, UiStyle et OsmoseTheme, sprint 157, D84) : fenêtres, reliefs, accent, doré. */
   --osmose-ui-window: #1f1f1f;
   --osmose-ui-hud: #1b1b1ceb;

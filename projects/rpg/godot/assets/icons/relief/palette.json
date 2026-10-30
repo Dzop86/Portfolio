@@ -173,5 +173,26 @@
     "light": "#c1eefa",
     "dark": "#4f7b87",
     "outline": "#1c2c31"
+  },
+  "map-city": {
+    "shape": "delapouite/village",
+    "main": "#d09a5c",
+    "light": "#e5c7a5",
+    "dark": "#725533",
+    "outline": "#291e12"
+  },
+  "map-waystone": {
+    "shape": "lorc/magic-portal",
+    "main": "#4fd1c5",
+    "light": "#9ee6df",
+    "dark": "#2b736c",
+    "outline": "#0f2927"
+  },
+  "map-player": {
+    "shape": "delapouite/position-marker",
+    "main": "#bef374",
+    "light": "#e6f8c9",
+    "dark": "#4d7a1c",
+    "outline": "#1f310b"
   }
 }

@@ -88,6 +88,21 @@ public class WorldAtlasTests
     }
 
     [Fact]
+    public void ALandmark_ForEachCity_Dungeon_Waystone_AndWorkshop_OnItsOwnMap()
+    {
+        Assert.Equal(["clairval", "four-ways"], Atlas.Marks.Where(m => m.Kind == AtlasMarkKind.City).Select(m => m.Id));
+        Assert.Equal(Data.Dungeons.Count, Atlas.Marks.Count(m => m.Kind == AtlasMarkKind.Dungeon));
+        Assert.Equal(Waystones.All(Data).Count, Atlas.Marks.Count(m => m.Kind == AtlasMarkKind.Waystone));
+        Assert.Equal(World.Sum(t => t.Workshops?.Count ?? 0), Atlas.Marks.Count(m => m.Kind == AtlasMarkKind.Workshop));
+        foreach (AtlasMark mark in Atlas.Marks.Where(m => m.Kind != AtlasMarkKind.City))
+        {
+            (double l, double t, double r, double b) = Atlas.Bounds(Data.Towns[mark.Map]);
+            Assert.InRange(mark.At.X, l, r);
+            Assert.InRange(mark.At.Y, t, b);
+        }
+    }
+
+    [Fact]
     public void TwoAtlases_OfTheSameWorld_AreTheSame()
     {
         var again = new WorldAtlas(Data);

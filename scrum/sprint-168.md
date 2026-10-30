@@ -6,9 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la carte du monde a ses repères, les noms des zones au dézoom, sa légende et deux niveaux de zoom (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
-| En tant que joueur, chaque monstre passe de « à trouver » à « rencontré », « étudié » (1 victoire), « connu » (5) et « maîtrisé » (25), un chef à 1, 2 et 5, sans rien perdre de mes victoires passées (rpg) ; xUnit, contrat de l'API inchangé. | 1 | À faire |
-| En tant que joueur à plusieurs personnages, mon bestiaire est celui du compte : chaque monstre au meilleur palier de mes personnages (rpg) ; xUnit, intégration PostgreSQL. | 1 | À faire |
+| En tant que joueur, la carte du monde a ses repères, les noms des zones au dézoom, sa légende et deux niveaux de zoom (rpg) ; xUnit, auto-tests du client. | 3 | Fait |
+| En tant que joueur, chaque monstre passe de « à trouver » à « rencontré », « étudié » (1 victoire), « connu » (5) et « maîtrisé » (25), un chef à 1, 2 et 5, sans rien perdre de mes victoires passées (rpg) ; xUnit, contrat de l'API inchangé. | 1 | Fait |
+| En tant que joueur à plusieurs personnages, mon bestiaire est celui du compte : chaque monstre au meilleur palier de mes personnages (rpg) ; xUnit (calculé par le client depuis la liste du salon, sans migration ni appel de plus au serveur). | 1 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

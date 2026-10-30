@@ -32,16 +32,45 @@ public class BestiaryTests
     }
 
     [Theory]
-    [InlineData(-1, Knowledge.Unknown)]
-    [InlineData(0, Knowledge.Met)]
-    [InlineData(1, Knowledge.Numbers)]
-    [InlineData(9, Knowledge.Numbers)]
-    [InlineData(10, Knowledge.Spells)]
-    [InlineData(25, Knowledge.Loot)]
-    public void TheVictories_OpenTheSteps(int wins, Knowledge known)
+    [InlineData("boar-charger", -1, Knowledge.Unknown)]
+    [InlineData("boar-charger", 0, Knowledge.Met)]
+    [InlineData("boar-charger", 1, Knowledge.Studied)]
+    [InlineData("boar-charger", 4, Knowledge.Studied)]
+    [InlineData("boar-charger", 5, Knowledge.Known)]
+    [InlineData("boar-charger", 24, Knowledge.Known)]
+    [InlineData("boar-charger", 25, Knowledge.Mastered)]
+    [InlineData("pack-leader", 1, Knowledge.Studied)]
+    [InlineData("pack-leader", 2, Knowledge.Known)]
+    [InlineData("pack-leader", 5, Knowledge.Mastered)]
+    public void TheVictories_OpenTheSteps_FewerForAChief(string monster, int wins, Knowledge known)
     {
-        var victories = wins < 0 ? new Dictionary<string, int>() : new Dictionary<string, int> { ["boar-charger"] = wins };
-        Assert.Equal(known, Bestiary.Of(victories, "boar-charger"));
+        var victories = wins < 0 ? new Dictionary<string, int>() : new Dictionary<string, int> { [monster] = wins };
+        Assert.Equal(known, Bestiary.Of(victories, Real.Monsters[monster]));
+    }
+
+    [Fact]
+    public void TheNextStep_SaysWhatIsLeft_NoneOnceMastered()
+    {
+        MonsterSpec boar = Real.Monsters["boar-charger"], chief = Real.Monsters["pack-leader"];
+        Assert.Equal(MonsterRole.Boss, chief.Role);
+        Assert.Equal((Knowledge.Met, 0), Bestiary.Next(new Dictionary<string, int>(), boar));
+        Assert.Equal((Knowledge.Studied, 1), Bestiary.Next(new Dictionary<string, int> { ["boar-charger"] = 0 }, boar));
+        Assert.Equal((Knowledge.Known, 2), Bestiary.Next(new Dictionary<string, int> { ["boar-charger"] = 3 }, boar));
+        Assert.Equal((Knowledge.Mastered, 15), Bestiary.Next(new Dictionary<string, int> { ["boar-charger"] = 10 }, boar));
+        Assert.Equal((Knowledge.Mastered, 3), Bestiary.Next(new Dictionary<string, int> { ["pack-leader"] = 2 }, chief));
+        Assert.Null(Bestiary.Next(new Dictionary<string, int> { ["pack-leader"] = 9 }, chief));
+    }
+
+    [Fact]
+    public void TheAccountsLog_KeepsEachMonstersBestCount_AMeetingIncluded()
+    {
+        Dictionary<string, int> best = Bestiary.Best([
+            new Dictionary<string, int> { ["boar-charger"] = 3, ["pack-leader"] = 0 },
+            null,
+            new Dictionary<string, int> { ["boar-charger"] = 1, ["pack-leader"] = 2, ["spitting-frog"] = 0 },
+        ]);
+        Assert.Equal(new Dictionary<string, int> { ["boar-charger"] = 3, ["pack-leader"] = 2, ["spitting-frog"] = 0 }, best);
+        Assert.Empty(Bestiary.Best([]));
     }
 
     [Fact]
@@ -62,6 +91,6 @@ public class BestiaryTests
         Assert.Empty(Bestiary.Read("broken,also:bad"));
         Dictionary<string, int> full = Bestiary.Full(Real);
         Assert.Equal(Real.Monsters.Count, full.Count);
-        Assert.All(full.Keys, m => Assert.Equal(Knowledge.Loot, Bestiary.Of(full, m)));
+        Assert.All(full.Keys, m => Assert.Equal(Knowledge.Mastered, Bestiary.Of(full, Real.Monsters[m])));
     }
 }

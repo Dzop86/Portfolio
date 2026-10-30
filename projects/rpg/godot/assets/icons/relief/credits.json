@@ -24,5 +24,8 @@
  "quest-tutorial": "lorc/open-book",
  "check": "delapouite/check-mark",
  "reward-xp": "delapouite/upgrade",
- "reward-shards": "lorc/crystal-bars"
+ "reward-shards": "lorc/crystal-bars",
+ "map-city": "delapouite/village",
+ "map-waystone": "lorc/magic-portal",
+ "map-player": "delapouite/position-marker"
 }

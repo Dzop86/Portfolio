@@ -1,22 +1,25 @@
 namespace Rpg.Core;
 
-/// <summary>How much a character knows of a monster (sprint 154, D83): met, then its numbers, its spells, its loot.</summary>
+/// <summary>
+/// How much a character knows of a monster (sprint 154, D83): since sprint 168 (D87, <c>docs/bestiaire-encyclopedie.md</c> §3)
+/// the five steps of a hunting log, opened by the same count of victories, so that what was won before still counts.
+/// </summary>
 public enum Knowledge
 {
-    /// <summary>Never fought: a silhouette.</summary>
+    /// <summary>Never fought: a silhouette, its role, level and zone, to go and find it.</summary>
     Unknown,
 
-    /// <summary>Fought once: its name, role, level and zone.</summary>
+    /// <summary>Fought, even lost: its name, family and numbers.</summary>
     Met,
 
-    /// <summary>One victory: its hit points, resistances and weakness.</summary>
-    Numbers,
+    /// <summary>A first victory: its resistances, weakness and loot.</summary>
+    Studied,
 
-    /// <summary>Ten victories: its spells and its family's lesson (its passives).</summary>
-    Spells,
+    /// <summary>Five victories (two for a chief): its spells and its family's lesson.</summary>
+    Known,
 
-    /// <summary>Twenty-five victories: the loot it drops, as common, rare or very rare.</summary>
-    Loot,
+    /// <summary>Twenty-five victories (five for a chief): its story, a golden frame, its family's hunter.</summary>
+    Mastered,
 }
 
 /// <summary>How often an item falls (sprint 154): the game designer's words, never the exact rate (question 80 a).</summary>
@@ -34,16 +37,49 @@ public enum Rarity
 /// </summary>
 public static class Bestiary
 {
-    public const int ForNumbers = 1, ForSpells = 10, ForLoot = 25;
+    /// <summary>The victories each step asks (studied, known, mastered): fewer for a chief, met once a fight.</summary>
+    public static (int Studied, int Known, int Mastered) Steps(MonsterSpec monster) =>
+        (monster ?? throw new ArgumentNullException(nameof(monster))).Role == MonsterRole.Boss ? (1, 2, 5) : (1, 5, 25);
 
-    public static Knowledge Of(IReadOnlyDictionary<string, int> victories, string monster)
+    public static Knowledge Of(IReadOnlyDictionary<string, int> victories, MonsterSpec monster)
     {
         ArgumentNullException.ThrowIfNull(victories);
-        return !victories.TryGetValue(monster, out int wins) ? Knowledge.Unknown
-            : wins >= ForLoot ? Knowledge.Loot
-            : wins >= ForSpells ? Knowledge.Spells
-            : wins >= ForNumbers ? Knowledge.Numbers
+        (int studied, int known, int mastered) = Steps(monster);
+        return !victories.TryGetValue(monster.Id, out int wins) ? Knowledge.Unknown
+            : wins >= mastered ? Knowledge.Mastered
+            : wins >= known ? Knowledge.Known
+            : wins >= studied ? Knowledge.Studied
             : Knowledge.Met;
+    }
+
+    /// <summary>The next step and the victories it still asks; none once mastered (met: a fight, even lost).</summary>
+    public static (Knowledge Step, int Left)? Next(IReadOnlyDictionary<string, int> victories, MonsterSpec monster)
+    {
+        ArgumentNullException.ThrowIfNull(victories);
+        (int studied, int known, int mastered) = Steps(monster);
+        int wins = victories.GetValueOrDefault(monster.Id);
+        return Of(victories, monster) switch
+        {
+            Knowledge.Unknown => (Knowledge.Met, 0),
+            Knowledge.Met => (Knowledge.Studied, studied - wins),
+            Knowledge.Studied => (Knowledge.Known, known - wins),
+            Knowledge.Known => (Knowledge.Mastered, mastered - wins),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// The account's hunting log (sprint 168, D87, B7): each monster at the best count of the account's characters, read
+    /// as it is, nothing written.
+    /// </summary>
+    public static Dictionary<string, int> Best(IEnumerable<IReadOnlyDictionary<string, int>?> logs)
+    {
+        ArgumentNullException.ThrowIfNull(logs);
+        var best = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (IReadOnlyDictionary<string, int>? log in logs)
+            foreach ((string monster, int wins) in log ?? new Dictionary<string, int>())
+                best[monster] = Math.Max(best.GetValueOrDefault(monster, int.MinValue), wins);
+        return best;
     }
 
     /// <summary>The monsters a fight set against the hero: a world group's, a dungeon room's, in their order; none for anything else.</summary>
@@ -75,9 +111,9 @@ public static class Bestiary
 
     public static Rarity RarityOf(int percent) => percent >= 25 ? Rarity.Common : percent >= 8 ? Rarity.Rare : Rarity.VeryRare;
 
-    /// <summary>Every monster known in full (Plouf's "--bestiary full"): each of the game's at the loot's count.</summary>
+    /// <summary>Every monster mastered (Plouf's "--bestiary full"): each of the game's at twenty-five victories.</summary>
     public static Dictionary<string, int> Full(GameData data) =>
-        (data ?? throw new ArgumentNullException(nameof(data))).Families.Values.SelectMany(f => f.Monsters).ToDictionary(m => m.Id, _ => ForLoot, StringComparer.Ordinal);
+        (data ?? throw new ArgumentNullException(nameof(data))).Families.Values.SelectMany(f => f.Monsters).ToDictionary(m => m.Id, _ => 25, StringComparer.Ordinal);
 
     public static string Write(IReadOnlyDictionary<string, int> victories) =>
         string.Join(',', (victories ?? throw new ArgumentNullException(nameof(victories))).OrderBy(v => v.Key, StringComparer.Ordinal)

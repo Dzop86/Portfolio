@@ -8,6 +8,18 @@ public readonly record struct AtlasPoint(double X, double Y);
 /// <summary>A zone of the atlas: its outlines (closed, one or more), its colour's key and where its name goes.</summary>
 public sealed record AtlasRegion(string Zone, IReadOnlyList<IReadOnlyList<AtlasPoint>> Outlines, AtlasPoint Centre, int MinLevel, int MaxLevel);
 
+/// <summary>What a landmark of the atlas marks (sprint 168, s165 §5.5).</summary>
+public enum AtlasMarkKind
+{
+    City,
+    Dungeon,
+    Waystone,
+    Workshop,
+}
+
+/// <summary>A landmark of the atlas: its kind, what it marks (a zone, a dungeon, a waystone, a workshop's trade) and where.</summary>
+public sealed record AtlasMark(AtlasMarkKind Kind, string Id, string Map, AtlasPoint At);
+
 /// <summary>A stamp of trees on the atlas: where, and which of the three drawings.</summary>
 public readonly record struct AtlasTree(AtlasPoint At, int Variant);
 
@@ -49,6 +61,37 @@ public sealed class WorldAtlas
         Waters = BuildWaters();
         Trees = BuildTrees();
         Roads = BuildRoads();
+        Marks = BuildMarks(data);
+    }
+
+    /// <summary>The landmarks: each city at its centre, each dungeon's door, each waystone, each workshop.</summary>
+    public IReadOnlyList<AtlasMark> Marks { get; }
+
+    /// <summary>The cities' zones, marked by a village and paved on the atlas.</summary>
+    public static readonly IReadOnlySet<string> Cities = new HashSet<string>(StringComparer.Ordinal) { "clairval", "four-ways" };
+
+    /// <summary>A cell of a map, in the atlas's pixels: its centre.</summary>
+    public AtlasPoint PointOf(Town map, Cell at)
+    {
+        (double left, double top, _, _) = Bounds(map);
+        return new AtlasPoint(left + (at.X + 0.5) * WorldPicture.CellPixels, top + (at.Y + 0.5) * WorldPicture.CellPixels);
+    }
+
+    private List<AtlasMark> BuildMarks(GameData data)
+    {
+        var marks = new List<AtlasMark>();
+        foreach (AtlasRegion city in Regions.Where(r => Cities.Contains(r.Zone)))
+            marks.Add(new AtlasMark(AtlasMarkKind.City, city.Zone, _world.First(t => Zone(t) == city.Zone).Id, city.Centre));
+        foreach (Dungeon d in data.Dungeons.Values.OrderBy(d => d.Id, StringComparer.Ordinal))
+            if (data.Towns.TryGetValue(d.Map, out Town? map) && !map.IsHall)
+                marks.Add(new AtlasMark(AtlasMarkKind.Dungeon, d.Id, d.Map, PointOf(map, d.Door)));
+        foreach ((string id, string on, Cell at) in Waystones.All(data))
+            if (data.Towns.TryGetValue(on, out Town? map) && !map.IsHall)
+                marks.Add(new AtlasMark(AtlasMarkKind.Waystone, id, on, PointOf(map, at)));
+        foreach (Town map in _world.OrderBy(t => t.Id, StringComparer.Ordinal))
+            foreach (Workshop w in map.Workshops ?? [])
+                marks.Add(new AtlasMark(AtlasMarkKind.Workshop, w.Job, map.Id, PointOf(map, w.At)));
+        return marks;
     }
 
     /// <summary>The maps' extent in pixels; the land spills past it, the sea around it.</summary>
