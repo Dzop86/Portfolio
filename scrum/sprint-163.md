@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, chaque sort de classe, chaque jumeau et chaque sort de l'arbre a sa tuile en relief dans la couleur de son élément, à plat quand il est verrouillé, sans marques en petit : la Foudre et les sorts de l'arbre ont enfin la leur (rpg) ; xUnit sur les 102 sorts, planche de contrôle relue par le graphiste. | 3 | À faire |
-| En tant que joueur, le survol, la sélection (anneau pistache), le sort indisponible en combat et la case vide se lisent pareil dans le livre de sorts, le deck et la barre de combat ; le livre perd son fond teinté (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
+| En tant que joueur, chaque sort de classe, chaque jumeau et chaque sort de l'arbre a sa tuile en relief dans la couleur de son élément, à plat quand il est verrouillé, sans marques en petit : la Foudre et les sorts de l'arbre ont enfin la leur (rpg) ; xUnit sur les 102 sorts, planche de contrôle relue par le graphiste. | 3 | Fait |
+| En tant que joueur, le survol, la sélection (anneau pistache), le sort indisponible en combat et la case vide se lisent pareil dans le livre de sorts, le deck et la barre de combat ; le livre perd son fond teinté (rpg) ; xUnit, auto-tests du client. | 1 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :
