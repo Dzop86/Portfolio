@@ -1,4 +1,4 @@
-# The spells' icons in relief (sprint 164, docs/graphisme/s164-icones-arbre.md §1): a tile in the colour of the spell's element
+# The spells' icons in relief (sprint 163, docs/graphisme/s163-icones-arbre.md §1): a tile in the colour of the spell's element
 # with the frames' relief (shadow, dark edge, rim, diagonal body, bevel), its game-icons.net silhouette (CC BY 3.0) with the
 # menus' layers (tools/ui_art.py), a dark element taking a light silhouette and a light one (Lightning, Ice, Sand) an engraved
 # dark one; a compound's rim a gradient of its parents; a twin's origin dot, a Seal's element accent. Three files a spell:

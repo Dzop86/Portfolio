@@ -1,6 +1,6 @@
-# S164 : maquette visuelle de l'arbre (l'espalier)
+# S164-S166 : maquette visuelle de l'arbre (l'espalier)
 
-Structure : `docs/arbre-lisible.md` (game designer, 30 oct.), qui fixe la grille, les 4 aspects, les 3 signes passagers, les 7 pièces de bois et leurs 3 vies, et l'ordre de saillance pris > ouvert > pas encore > fermé. Ce document en donne le **rendu** : couleurs (jetons), épaisseurs, tailles. Il **remplace le §3 de `s164-icones-arbre.md`** partout où les deux diffèrent (§6).
+Structure : `docs/arbre-lisible.md` (game designer, 30 oct.), qui fixe la grille, les 4 aspects, les 3 signes passagers, les 7 pièces de bois et leurs 3 vies, et l'ordre de saillance pris > ouvert > pas encore > fermé. Ce document en donne le **rendu** : couleurs (jetons), épaisseurs, tailles. Il **remplace le §3 de `s163-icones-arbre.md`** partout où les deux diffèrent (§6).
 Charte : `src/assets/tokens.css`, thème S157 (`s157-maquettes.md` §4). Tout texte fait 14 px au moins ; le pistache n'est jamais du texte sur fond clair.
 
 ---
@@ -23,14 +23,14 @@ Tout le reste du GD est repris tel quel, notamment « fermé » sans contour, à
 
 Jetons existants employés : `--pistache #bef374`, `--chocolat #5a3a22`, `--chocolat-clair #c9a27f`, `--osmose-ui-frame #7a5434`, `--osmose-ui-frame-dark #3a2616`, `--osmose-ground #1b1b1b`, `--osmose-ui-window #1f1f1f`, `--osmose-ui-titlebar #181818`, `--osmose-ui-well #141414`, `--osmose-ui-raised-top #3a3a3d`, `--osmose-ui-raised-bottom #262628`, `--osmose-ui-lit-top #3d4f24`, `--osmose-ui-lit-bottom #25301a`, `--osmose-taken-fill #33421f`, `--osmose-open #e0e0e0`, `--osmose-open-fill #262626`, `--osmose-locked #8a8a8a`, `--osmose-losing #f08070`, `--osmose-losing-fill #3a2424`, `--osmose-cost #f2d36b`, `--osmose-ui-gold-top`, `--osmose-ui-gold-bottom`, `--osmose-ui-gold-text`, `--osmose-ui-text*`, les couleurs d'élément et de style.
 
-**À créer** (bloc « Osmose, l'arbre (S164) ») :
+**À créer** (bloc « Osmose, l'arbre (S164-S166) ») :
 ```css
 --osmose-wood: #7a5434;        /* = --osmose-ui-frame : le bois */
 --osmose-wood-light: #a07850;  /* reflet du bois ; 3,6:1 sur --osmose-ground */
 --osmose-wood-dark: #3a2616;   /* = --osmose-ui-frame-dark : ombre du bois, bord du collet */
 --osmose-tree-guide: #262626;  /* = --osmose-open-fill : lignes guides des étages */
 ```
-Plus les six jetons d'élément de `s164-icones-arbre.md` §1.4 (`--osmose-neutral`, `--osmose-ice`, `--osmose-mud`, `--osmose-magma`, `--osmose-steam`, `--osmose-sand`).
+Plus les six jetons d'élément de `s163-icones-arbre.md` §1.4 (`--osmose-neutral`, `--osmose-ice`, `--osmose-mud`, `--osmose-magma`, `--osmose-steam`, `--osmose-sand`).
 
 **À retirer à l'étape É1** (plus aucun usage) : `--osmose-excluded`, `--osmose-excluded-fill`, `--osmose-out-of-level`, `--osmose-out-of-level-fill`, `--osmose-coming`, et les constantes correspondantes de `ElementStyle`. Le test « aucune couleur en dur » de T116 suit.
 
@@ -109,7 +109,7 @@ Formes et tailles (G8 du GD) : talent rond 56 ; clé carré arrondi 64 (rayon 14
 - **À rendre** : corps `--osmose-losing-fill`, contour 3 px `--osmose-losing`, icône en couleur, nom `--osmose-losing`.
 - **Respiration** : seulement sur la porte **conseillée** à 30, tant que rien n'est pris (C5 b) : halo `--pistache` dont l'opacité va de 0 à 0,35 en 1,6 s. Ailleurs, rien ne bouge. Je retire la respiration de tous les nœuds ouverts (s164 §3.4) : avec dix portes ouvertes, elle ferait du bruit.
 
-Icônes de talents : trois variantes par talent (couleur, `-open`, `-locked`), toutes générées par `ui_art.py`. Couleur par famille (s164 §3.5) : portes et Cœurs dans leur élément ; talents de style dans la couleur du style ; tronc en or ; Fusion dans la couleur de son composé (Foudre `--osmose-lightning`).
+Icônes de talents : trois variantes par talent (couleur, `-open`, `-locked`), toutes générées par `ui_art.py`. Couleur par famille (s163 §3.5) : portes et Cœurs dans leur élément ; talents de style dans la couleur du style ; tronc en or ; Fusion dans la couleur de son composé (Foudre `--osmose-lightning`).
 
 ### 3.5 Les portes
 - **Paire** (64, ronde) : l'aspect s'applique, plus un **liseré intérieur** de 3 px collé au contour, en dégradé diagonal des deux parents (`main` de chacun, comme le liseré des tuiles de sorts composés), et **deux pastilles** d'élément de r 6 au bas du nœud, intérieures, centres à ±9 px de l'axe et à 10 px du bord bas, bord 1,5 px `#0d0d0d`. Pour une porte fermée, liseré et pastilles sont à 25 %, comme le reste.
@@ -273,7 +273,7 @@ Rendu :
 
 ---
 
-## 6. Ce qui remplace le §3 de `s164-icones-arbre.md`
+## 6. Ce qui remplace le §3 de `s163-icones-arbre.md`
 - Le bois : la sève et l'écorce sont gardées ; « jamais de pointillés » est abandonné (le **nu** est pointillé, pour la lecture sans couleur) ; la branche élaguée est abandonnée (le **fermé** est un aspect du nœud, pas du bois) ; plus de lien de nœud à nœud ni de losange de fourche : le cadre « 1 au choix » du GD les remplace.
 - Les aspects : 4 au lieu de 5 ; « trop bas niveau » fusionne dans « pas encore » avec son badge ; les bourgeons « à venir » de 16 px sont supprimés (les tresses `coming:` sortent du canevas).
 - Les icônes de talents : une troisième variante `-open` (claire) s'ajoute à la couleur et à `-locked`.

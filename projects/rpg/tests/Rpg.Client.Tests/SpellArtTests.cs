@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Rpg.Client.Tests;
 
 /// <summary>
-/// The spells' icons in relief (sprint 164, <c>docs/graphisme/s164-icones-arbre.md</c> §1), drawn by <c>tools/spell_art.py</c>:
+/// The spells' icons in relief (sprint 163, <c>docs/graphisme/s163-icones-arbre.md</c> §1), drawn by <c>tools/spell_art.py</c>:
 /// every spell with a silhouette drawn three times (whole, flat when locked, without its marks when small) from its credited
 /// silhouette, without any SVG filter, imported at a quarter with mipmaps; a twin marked with its origin, a Seal with its
 /// element's accent, a compound's rim a gradient of its parents, a light element's silhouette engraved.

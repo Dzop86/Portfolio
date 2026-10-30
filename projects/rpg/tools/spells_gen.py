@@ -303,7 +303,7 @@ NAMES = {
   "cataclysm": ("Fulgurance", "Fulguration"), "tempest": ("Orage", "Thunderstorm"),
  },
 }
-# A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 164, docs/graphisme/s164-icones-arbre.md §1.8).
+# A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 163, docs/graphisme/s163-icones-arbre.md §1.8).
 TWIN_ICONS = {
  "lightning-fire-arrow": "lorc/charged-arrow", "lightning-recoil-shot": "lorc/lightning-bow", "lightning-ember-volley": "lorc/lightning-trio",
  "lightning-piercing-arrow": "lorc/sonic-lightning", "lightning-searing-shot": "lorc/thunderball", "lightning-gale": "lorc/heavy-lightning",
@@ -336,7 +336,7 @@ tree = [
    for el in ("Earth","Fire","Water","Air")],
  S("decoy","Leurre","Decoy",2,1,3,0,0,1,"Neutral",1,los=False,effects=[summon("decoy")],ranks=False,cd=4),
 ]
-# Their icons (sprint 164, §1.9): the Seals share the rune stone, their element as an accent drawn by tools/spell_art.py.
+# Their icons (sprint 163, §1.9): the Seals share the rune stone, their element as an accent drawn by tools/spell_art.py.
 for sp in tree:
     sp["icon"] = {"relay": "lorc/back-forth", "decoy": "lorc/scarecrow"}.get(sp["id"], "lorc/rune-stone")
 twins += tree

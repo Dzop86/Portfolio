@@ -1,12 +1,13 @@
-# Sprint 165 : Osmose : les spécialisations de la Mage
+# Sprint 165 : Osmose : l'arbre en espalier
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** la refonte graphique demandée par Charles le 30 octobre, avant les spécialisations : l'arbre des talents se lit comme un arbre : un tronc, des portes, des branches et du bois (D86 ; maquettes du graphiste dans `projects/rpg/docs/graphisme/s163-icones-arbre.md` et `s164-arbre-maquette.md`, structure de l'arbre du game designer dans `projects/rpg/docs/arbre-lisible.md`).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** the graphic overhaul Charles asked for on 30 October, before the specialisations: the talent tree reads like a tree: a trunk, doors, branches and wood (D86; the graphic designer's mock-ups in `projects/rpg/docs/graphisme/s163-icones-arbre.md` and `s164-arbre-maquette.md`, the game designer's structure of the tree in `projects/rpg/docs/arbre-lisible.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je choisis Archimage, Sorcier ou la troisième voie nommée par le scénariste ; `Rpg.Sim --spec` mesure les 18 builds à 50, chacun à ±8 points de la moyenne de sa classe (rpg) ; xUnit, mesures. | 3 | À faire |
+| En tant que joueur, l'arbre se range en grille d'espalier : le tronc vertical, une ligne de portes, deux étages par branche et les Cœurs, les branches non prises repliées en bourgeons (É2) (rpg) ; xUnit sur un corpus de dispositions (builds de référence et 300 builds tirés). | 3 | À faire |
+| En tant que joueur, des pièces de bois relient les talents (racines, tiges, charpentières, rameaux) et le chemin survolé s'allume comme de la sève, à la place du bus et des accolades (É3) (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

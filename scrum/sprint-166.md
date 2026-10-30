@@ -1,13 +1,13 @@
-# Sprint 166 : Osmose : la tresse de Glace, playtest
+# Sprint 166 : Osmose : l'arbre qui pousse
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** la refonte graphique demandée par Charles le 30 octobre, avant les spécialisations : l'arbre se déploie là où l'on joue et se parcourt au clavier (D86 ; maquettes du graphiste dans `projects/rpg/docs/graphisme/s163-icones-arbre.md` et `s164-arbre-maquette.md`, structure de l'arbre du game designer dans `projects/rpg/docs/arbre-lisible.md`).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** the graphic overhaul Charles asked for on 30 October, before the specialisations: the tree unfolds where one plays and is walked with the keyboard (D86; the graphic designer's mock-ups in `projects/rpg/docs/graphisme/s163-icones-arbre.md` and `s164-arbre-maquette.md`, the game designer's structure of the tree in `projects/rpg/docs/arbre-lisible.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je transmute l'Eau ou l'Air en Glace : Morsure (−1 PA), 24 jumeaux, Signature appuyée, Prisme et Conversion de Glace, la fenêtre de l'arbre à deux tresses (rpg) ; xUnit, auto-test. | 3 | À faire |
-| En tant que Charles, la mesure v3 met la Glace à moins de 8 points de la Foudre contre les hordes, et je joue la Glace à 45 avec un joueur extérieur (rpg). | 1 | À faire |
+| En tant que joueur, les branches prises se déploient, un clic sur un bourgeon le met en avant, l'arbre se resserre quand il est trop large, et je le parcours au clavier, branche par branche et étage par étage (É4) (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, la fenêtre de l'arbre a sa barre du haut (compteur, menu Outils), son panneau en trois blocs et ses bulles d'aide ré-ancrées ; la maquette statique est régénérée (É5) (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

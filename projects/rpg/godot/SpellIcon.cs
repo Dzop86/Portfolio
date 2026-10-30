@@ -5,7 +5,7 @@ using Rpg.Core;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// A spell's icon (sprint 67): since sprint 164 (docs/graphisme/s164-icones-arbre.md §1), a tile in relief in the colour of its
+/// A spell's icon (sprint 67): since sprint 163 (docs/graphisme/s163-icones-arbre.md §1), a tile in relief in the colour of its
 /// element, drawn whole by tools/spell_art.py (<c>assets/icons/spells/&lt;id&gt;.svg</c>, the game-icons.net authors in
 /// <c>credits.json</c>): flat (<c>-locked</c>) when it is not unlocked or not castable now, without its marks (<c>-small</c>)
 /// under 32 pixels; the chosen one ringed in pistachio. A spell without a drawing (the monsters') shows the first letter of

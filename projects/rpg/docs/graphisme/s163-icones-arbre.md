@@ -1,4 +1,4 @@
-# S164 : icônes de sorts et de métiers en relief, langage visuel de l'arbre
+# S163-S164 : icônes de sorts et de métiers en relief, langage visuel de l'arbre
 
 Demande de Charles (30 oct.) : « les icônes de sorts méritent un coup de neuf (à l'image des icônes de menus). D'ailleurs certains sorts élémentaires n'ont pas d'icône (les sorts Foudre par exemple !). Les icônes de métiers aussi ! L'arbre des talents est illisible, il mérite une refonte, de ressembler plus à un arbre. »
 
@@ -96,7 +96,7 @@ Un jaune assombri devient olive : la Foudre en tuile sombre se confondrait avec 
 |---|---|---|---|
 | Accent | haut droit, `<g transform="translate(300 36) scale(0.34)">` (174 unités, environ 15 px à 44) | seconde silhouette, couches des menus (`stroke-width="64"`, ombre `translate(16 36)`) dans les tons de son élément | les 4 Sceaux : la marque d'élément |
 | Pastille d'origine | bas droit, cercle centre (424, 424), r 48 | `fill` dégradé vertical light → dark de l'élément d'origine, `stroke="#0d0d0d" stroke-width="12"`, reflet : ellipse (424, 404) rx 30 ry 18, `#fff` opacité 0,35 | les 24 jumeaux de Foudre : rouge si l'original est de Feu, vert s'il est d'Air |
-| Coin corné | haut gauche, `<path d="M56 52H184L56 180Z"/>` coupé par le clip du corps, plus un trait `#0d0d0d` de 8 sur l'hypoténuse | couleur du style de la voie (`ElementStyle.StyleColour`) | les sorts de voie (S163) |
+| Coin corné | haut gauche, `<path d="M56 52H184L56 180Z"/>` coupé par le clip du corps, plus un trait `#0d0d0d` de 8 sur l'hypoténuse | couleur du style de la voie (`ElementStyle.StyleColour`) | les sorts de voie (S167) |
 
 Ordre de dessin : T1 à T6, puis le coin corné, l'accent, la pastille.
 
@@ -180,7 +180,7 @@ On garde 66 silhouettes. On change :
 
 À juger sur la planche, sans changement d'office : `elemental` (lorc/fire-silhouette, une flamme sur un sort neutre) et `freeze` (lorc/frostfire, mi-feu mi-glace sur un sort d'Eau).
 
-### 1.11 Sorts de voie (S163) et de monstres
+### 1.11 Sorts de voie (S167) et de monstres
 - Voies (9) : même recette ; tuile de l'élément du sort ; coin corné de la couleur du style (§1.5) ; silhouette absente de toutes les listes ci-dessus. Je les choisirai sur la liste du GD.
 - Monstres : pas de dessin par sort pour l'instant. Le repli « première lettre » disparaît au profit d'un **emblème d'élément** : tuile de l'élément et silhouette du Cœur (lorc/stone-sphere, lorc/fire-ring, lorc/drop, lorc/whirlwind ; Neutre : lorc/swirl-ring, libre). Fichiers `spells/_element-<Element>.svg`.
 
@@ -351,4 +351,4 @@ Ce qui ne dépend pas de la structure : les nœuds gardent leur taille (cibles �
 3. **Les métiers** : 12 icônes et leurs `-locked`, nouvelle ligne de `JobsPanel` avec barre d'XP. Indépendant, testable en ouvrant la fenêtre des métiers.
 4. **Les icônes de talents en relief** (59 + `-locked`) et les médaillons d'état (`node-*.svg`, `key-*.svg`) : faisables avant la structure du GD, ils améliorent déjà l'arbre actuel (plus de croix rouges, quatre états lisibles).
 5. **L'arbre** sur la structure du GD : sol, bois et sève en `Line2D`, fourches et losanges, écriteaux, légende réduite, barre d'outils. Je fais la maquette ASCII aux dimensions réelles dès réception de la proposition.
-6. Plus tard : les 9 sorts de voie (S163) et l'emblème d'élément des sorts de monstres.
+6. Plus tard : les 9 sorts de voie (S167) et l'emblème d'élément des sorts de monstres.

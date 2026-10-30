@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S166), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S170), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S166 | 459 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S170 | 479 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 680 points sur 166 sprints de deux semaines.
+Total : 700 points sur 170 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -189,3 +189,6 @@ Après S156, Charles veut une interface plus riche, captures de Wakfu à l'appui
 
 ## Osmose : le rendement des éléments (29 octobre 2026, D85)
 En mesurant le socle 45-60 (S161), un héros d'un seul élément, sans talent, bat 3 à 7,7 hordes sur 10 à hauteur de monstre, là où T41 en permet 2 ou 3 : le bonus d'élément croît sans limite (`points / 10 × 2`). Le game designer (`projects/rpg/docs/suite-apres-d69.md`, §12) glisse un sprint avant les spécialisations, qui sinon se régleraient deux fois : S162 (5) un rendement décroissant (2 par 10 points jusqu'à 3 × niveau + 5, puis 1 par 20, T129), le relevé en version 4, la valeur efficace sur la fiche et dans l'éditeur, les remesures, et l'Arc de la Foudre qui saute sans le bonus d'élément (1 point de plus, après les mesures). 5 points, 1 sprint ; la suite de D83 passe à S163-S166. Charles a accepté le plafond de 3 hordes sur 10 avec un kit pour ce héros.
+
+## Osmose : des icônes en relief et un arbre lisible (30 octobre 2026, D86)
+Après S162, Charles fait passer la refonte graphique avant les spécialisations : la Foudre et les sorts de l'arbre n'avaient pas d'icône, les métiers aucune, et l'arbre des talents ne se lisait pas comme un arbre. Le graphiste (`projects/rpg/docs/graphisme/s163-icones-arbre.md`, `s164-arbre-maquette.md`) et le game designer (`projects/rpg/docs/arbre-lisible.md`, « l'espalier », É1 à É5) découpent : S163 (4) les 102 sorts en tuiles en relief et leurs états ; S164 (6) les 12 métiers et les talents en relief, l'arbre sans son bruit (É1) ; S165 (6) la grille de l'espalier et le bois (É2, É3, livrés ensemble) ; S166 (4) l'arbre qui se déploie et se parcourt au clavier, son cadre (É4, É5). 20 points, 4 sprints ; la suite de D83 passe à S167-S170. Le moteur des talents, les données et l'API ne changent pas.

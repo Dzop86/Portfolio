@@ -298,7 +298,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
                 Take = data => Drop((string)data, null),
             };
             var colour = new Color(ElementStyle.Colour(spell.Element));
-            // Sprint 164 (s164-icones-arbre.md §1.6): the tile says the element, the row stays neutral but for a bar of 3.
+            // Sprint 163 (s163-icones-arbre.md §1.6): the tile says the element, the row stays neutral but for a bar of 3.
             foreach ((string state, string ground) in new[] { ("normal", "262626"), ("hover", "2d2d2d"), ("pressed", "33421f"), ("disabled", "1f1f1f"), ("focus", "2d2d2d") })
             {
                 tile.AddThemeStyleboxOverride(state, new StyleBoxFlat
@@ -709,7 +709,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
                 sub.SetMeta("new", true);
             else if (sub.HasMeta("new"))
                 sub.RemoveMeta("new");
-            // Not unlocked yet: the flat tile and a grey name (sprint 164, §1.6), no longer the whole row at 45 %.
+            // Not unlocked yet: the flat tile and a grey name (sprint 163, §1.6), no longer the whole row at 45 %.
             tile.Modulate = b.Preview ? new Color(1, 1, 1, 0.5f) : Colors.White;
             if (tile.GetChildren().OfType<SpellIcon>().FirstOrDefault() is SpellIcon icon)
             {
