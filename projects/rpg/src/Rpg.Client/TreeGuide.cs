@@ -50,7 +50,6 @@ public static class TreeGuide
             Branch.Fork => TreeLayer.Affinities,
             Branch.Pure => TreeLayer.Pure,
             Branch.Braids => TreeLayer.Fusion,
-            null when node.IsComing => TreeLayer.Fusion,
             _ => TreeLayer.Styles,
         };
     }

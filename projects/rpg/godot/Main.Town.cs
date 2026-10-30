@@ -2783,6 +2783,8 @@ public partial class Main
     /// the game's, each node in the state the build gives it, a node taken then undone, a pair given back asking first for
     /// what hangs on it, Ctrl+S saving nothing unchanged.
     /// </summary>
+    private static readonly string[] ReliefLooks = ["", "-open", "-locked"];
+
     private async Task CheckTree(List<string> problems)
     {
         // The town's self-test has no hero of its own: a sentinel stands in.
@@ -2810,7 +2812,8 @@ public partial class Main
             if (layout.Nodes.Where(n => n.IsTalent).Any(n => tree.StateOf(n) != TreeLayout.State(build, n.Id, 45, GameData.Embedded)))
                 problems.Add($"{id}: a node of the tree shows another state than the rules give");
             // A node taken, then the changes undone: the draft is the build again (I4 a).
-            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && tree.StateOf(n) == NodeState.Open) is TreeNode open)
+            // (Open but short of points stays open since sprint 164: the node pressed is one the points allow.)
+            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && tree.StateOf(n) == NodeState.Open && tree.Editor.CanTake(GameData.Embedded.Talents[n.Id])) is TreeNode open)
             {
                 tree.Press(open.Id);
                 if (!tree.Editor.TalentsTaken.Contains(open.Id))
@@ -2836,7 +2839,7 @@ public partial class Main
             if (saved)
                 problems.Add($"{id}: Ctrl+S saves a tree that did not change");
             // A node of each kind hovered: its card says its layer and its banner (sprint 149, M2 a); each talent has its icon.
-            foreach (TreeNode n in layout.Nodes.Where(n => !n.IsComing).GroupBy(n => (TreeGuide.LayerOf(n, GameData.Embedded), n.Shape, n.IsFold)).Select(g => g.First()))
+            foreach (TreeNode n in layout.Nodes.GroupBy(n => (TreeGuide.LayerOf(n, GameData.Embedded), n.Shape, n.IsFold)).Select(g => g.First()))
             {
                 tree.Hover(n.Id);
                 TreeCard card = texts.TreeCard(n, tree.Editor);
@@ -2846,6 +2849,11 @@ public partial class Main
             tree.Hover(null);
             if (layout.Nodes.FirstOrDefault(n => (n.IsTalent || n.IsTrunk) && TreeNodeView.IconOf(n) is null) is TreeNode bare)
                 problems.Add($"{id}: {bare.Id} has no icon");
+            // In relief in its three looks, and the legend's four lines always on the canvas (sprint 164, É1).
+            if (layout.Nodes.FirstOrDefault(n => (n.IsTalent || n.IsTrunk) && ReliefLooks.Any(v => TreeNodeView.ReliefOf(n, v) is null)) is TreeNode flat)
+                problems.Add($"{id}: {flat.Id} has no icon in relief");
+            if (tree.LooksShown != 4)
+                problems.Add($"{id}: the tree's legend shows {tree.LooksShown} lines");
             // The tutorial: three bubbles, the legend open with them, then done (M6 a, M5 b).
             bool done = false;
             tree.TutorialDone += () => done = true;

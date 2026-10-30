@@ -23,11 +23,11 @@ public class TreeLayoutTests
         var layout = new TreeLayout(Data, focus, W, H);
         Assert.All(layout.Nodes, n => Assert.True(n.Box.Inside(W, H), $"{n.Id} at {n.Box}"));
         // Each node with the name under it: no two of them overlap.
-        Box Named(TreeNode n) => n.IsComing ? n.Box : n.Box with { H = n.Box.H + TreeLayout.Label };
+        Box Named(TreeNode n) => n.Box with { H = n.Box.H + TreeLayout.Label };
         foreach (TreeNode a in layout.Nodes)
             Assert.Null(layout.Nodes.FirstOrDefault(b => b != a && Named(a).Overlaps(Named(b)))?.Id);
-        Assert.All(layout.Nodes.Where(n => !n.IsComing), n => Assert.True(n.Box.W >= 44 && n.Box.H >= 44, n.Id));
-        Assert.All(layout.Nodes, n => Assert.Equal(n.Shape is NodeShape.Key || (n.Shape is NodeShape.Door && n.Branch == Branch.Fork) ? TreeLayout.Large : n.IsComing ? TreeLayout.Coming : TreeLayout.Small, n.Box.W));
+        Assert.All(layout.Nodes, n => Assert.True(n.Box.W >= 44 && n.Box.H >= 44, n.Id));
+        Assert.All(layout.Nodes, n => Assert.Equal(n.Shape is NodeShape.Key || (n.Shape is NodeShape.Door && n.Branch == Branch.Fork) ? TreeLayout.Large : TreeLayout.Small, n.Box.W));
         // The deployed style shows each of its talents, the others one node a floor.
         Assert.Equal(Data.Talents.Values.Where(t => t.Branch == focus).Select(t => t.Id).Order(StringComparer.Ordinal),
             layout.Nodes.Where(n => n.IsTalent && n.Branch == focus).Select(n => n.Id).Order(StringComparer.Ordinal));
@@ -45,10 +45,9 @@ public class TreeLayoutTests
         float fork = layout["bogging"]!.Box.Y;
         float first = layout["side-step"]!.Box.Y, second = layout["seal"]!.Box.Y, key = layout["nomad"]!.Box.Y;
         Assert.True(trunk > fork && fork > first && first > second && second > key);
-        // The braid over its pair; the other pairs a dotted stub, no text.
+        // The braid over its pair; the other pairs' braids, still to come, no longer drawn (sprint 164, É1).
         Assert.True(layout["transmute-fire-lightning"]!.Box.Y < fork);
-        Assert.Equal(5, layout.Nodes.Count(n => n.IsComing));
-        Assert.Equal("", new Texts("fr").TreeName(layout["coming:bogging"]!, Data));
+        Assert.DoesNotContain(layout.Nodes, n => n.Id.StartsWith("coming:", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -70,7 +69,7 @@ public class TreeLayoutTests
     public void TheKeyboard_FindsANeighbour_EachWayThereIsOne(Branch focus)
     {
         var layout = new TreeLayout(Data, focus, W, H);
-        TreeNode[] nodes = [.. layout.Nodes.Where(n => n.Navigable)];
+        TreeNode[] nodes = [.. layout.Nodes];
         foreach (TreeNode n in nodes)
         {
             foreach (Direction d in Enum.GetValues<Direction>())
@@ -83,7 +82,6 @@ public class TreeLayoutTests
             }
         }
         // What is to come is never reached.
-        Assert.DoesNotContain(nodes, n => layout.Neighbour(n.Id, Direction.Up)?.IsComing == true);
     }
 
     private static bool Ahead(TreeNode from, TreeNode to, Direction d)
@@ -121,6 +119,17 @@ public class TreeLayoutTests
         Assert.Equal(NodeState.Open, TreeLayout.FoldState(taken, Branch.Terrain, Tier.Second, 40, Data));
         Assert.Equal(NodeState.Open, TreeLayout.FoldState(taken, Branch.Melee, Tier.First, 40, Data));
         Assert.Equal(NodeState.Locked, TreeLayout.FoldState(taken, Branch.Melee, Tier.Second, 40, Data));
+    }
+
+    [Fact]
+    public void FourLooks_FromTheStates_AndANodeShortOfPointsStaysOpen()
+    {
+        // Sprint 164, É1 (docs/arbre-lisible.md §2.6): locked and out of level both "not yet", excluded "closed".
+        Assert.Equal([NodeLook.Taken, NodeLook.Open, NodeLook.NotYet, NodeLook.Closed, NodeLook.NotYet], Enum.GetValues<NodeState>().Select(TreeLayout.Look));
+        // The two points of 30 spent on two doors: the floor over them, refused for points only, stays open (the tree no
+        // longer goes dark once everything is spent; the counter and a click say the points are missing).
+        Assert.Equal(RefusalKind.Points, TalentReasons.WhyNot(["bogging", "heart-earth"], "side-step", 30, Data)?.Kind);
+        Assert.Equal(NodeState.Open, TreeLayout.State(["bogging", "heart-earth"], "side-step", 30, Data));
     }
 
     [Fact]

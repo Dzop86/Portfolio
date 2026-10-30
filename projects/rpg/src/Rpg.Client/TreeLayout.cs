@@ -33,6 +33,15 @@ public enum NodeState
     Level,
 }
 
+/// <summary>How a node looks (sprint 164, É1): taken (yours), open (a click), not yet (a node or a level missing), closed (a choice of yours shuts it).</summary>
+public enum NodeLook
+{
+    Taken,
+    Open,
+    NotYet,
+    Closed,
+}
+
 /// <summary>A node's shape, one per kind (L1 a): the trunk's, a door of the fork, a node of a floor, a key.</summary>
 public enum NodeShape
 {
@@ -44,7 +53,7 @@ public enum NodeShape
 
 /// <summary>
 /// A node as the window places it: a talent (its id), a node of the trunk (<c>trunk:30</c>), a floor of a folded style
-/// (<c>fold:Melee:Second</c>, a click deploys the style) or a braid still to come (<c>coming:bogging</c>, dotted, no text).
+/// (<c>fold:Melee:Second</c>, a click deploys the style). The braids still to come are no longer drawn (sprint 164, É1).
 /// </summary>
 public sealed record TreeNode(string Id, Box Box, NodeShape Shape, Branch? Branch = null, Tier? Tier = null)
 {
@@ -52,12 +61,7 @@ public sealed record TreeNode(string Id, Box Box, NodeShape Shape, Branch? Branc
 
     public bool IsFold => Id.StartsWith("fold:", StringComparison.Ordinal);
 
-    public bool IsComing => Id.StartsWith("coming:", StringComparison.Ordinal);
-
     public bool IsTrunk => Id.StartsWith("trunk:", StringComparison.Ordinal);
-
-    /// <summary>Reached by the keyboard (K5 a): everything but what is still to come.</summary>
-    public bool Navigable => !IsComing;
 }
 
 /// <summary>A way the keyboard moves from node to node.</summary>
@@ -78,7 +82,7 @@ public enum Direction
 /// </summary>
 public sealed class TreeLayout
 {
-    public const float Small = 56, Large = 72, Label = 20, Coming = 28;
+    public const float Small = 56, Large = 72, Label = 20;
 
     /// <summary>The styles from left to right: Melee and Distance side by side, their exclusions read at a glance.</summary>
     public static readonly IReadOnlyList<Branch> Styles = [Branch.Melee, Branch.Distance, Branch.Support, Branch.Terrain, Branch.Tempo, Branch.Alchemy];
@@ -143,9 +147,6 @@ public sealed class TreeLayout
         // The Lightning braid over its pair: the Transmutation's choice, then the second floor, then the Conversion.
         foreach (Tier tier in Floors)
             Row(nodes, [.. data.Talents.Values.Where(t => t.Branch == Branch.Braids && t.Tier == tier).Select(t => t.Id)], 0, Braid, rowY[tier], tier, Branch.Braids, ChoiceGap);
-        // The other pairs' braids are still to come (L10 c): a dotted stub over each, no text.
-        foreach (TreeNode door in nodes.Where(n => n.Branch == Branch.Fork && n.Id != "electrifying").ToList())
-            nodes.Add(new($"coming:{door.Id}", new Box(door.Box.CenterX - (Coming / 2), forkY - 48, Coming, Coming), NodeShape.Node));
 
         // The styles, right of the braid: the one looked at deployed, the others folded to one node a floor.
         float left = Braid + 36;
@@ -206,7 +207,7 @@ public sealed class TreeLayout
         TreeNode start = _byId[from];
         TreeNode? best = null;
         float bestScore = float.MaxValue;
-        foreach (TreeNode n in Nodes.Where(n => n.Navigable && n.Id != from))
+        foreach (TreeNode n in Nodes.Where(n => n.Id != from))
         {
             float dx = n.Box.CenterX - start.Box.CenterX, dy = n.Box.CenterY - start.Box.CenterY;
             (float along, float across) = direction switch
@@ -298,7 +299,10 @@ public sealed class TreeLayout
         {
             null => NodeState.Open,
             RefusalKind.Opens or RefusalKind.Level => NodeState.Level,
-            RefusalKind.Door or RefusalKind.Parent or RefusalKind.Points => NodeState.Locked,
+            // Points are tested last: a node refused for them passes every other rule, it is reachable (docs/arbre-lisible.md
+            // §2.6): open, the lack of points said once by the counter and by a click.
+            RefusalKind.Points => NodeState.Open,
+            RefusalKind.Door or RefusalKind.Parent => NodeState.Locked,
             _ => NodeState.Excluded,
         };
     }
@@ -314,6 +318,18 @@ public sealed class TreeLayout
             : states.All(s => s == NodeState.Excluded) ? NodeState.Excluded
             : NodeState.Locked;
     }
+
+    /// <summary>
+    /// The look a state shows (sprint 164, É1, <c>docs/arbre-lisible.md</c> §2.6): four, from the most to the least salient;
+    /// locked and out of level are the same answer for the player ("not yet"), the level's badge tells them apart.
+    /// </summary>
+    public static NodeLook Look(NodeState state) => state switch
+    {
+        NodeState.Taken => NodeLook.Taken,
+        NodeState.Open => NodeLook.Open,
+        NodeState.Excluded => NodeLook.Closed,
+        _ => NodeLook.NotYet,
+    };
 
     /// <summary>A node of the trunk: lit from its level on (B10 a: shown, greyed, before).</summary>
     public static NodeState TrunkState(int trunkLevel, int level) => level >= trunkLevel ? NodeState.Taken : NodeState.Level;
