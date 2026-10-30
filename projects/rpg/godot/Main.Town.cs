@@ -1933,6 +1933,11 @@ public partial class Main
         panel.PasteCode(code);
         if (editor.Code != code || !Shows())
             problems.Add($"the code {code} gives the deck {editor.Code}");
+        // The spell open on the right ringed in pistachio in the book, and on the deck when it is there (sprint 163, §1.6).
+        panel.Select(first);
+        string[] ringed = [.. panel.SelectedShown];
+        if (!ringed.All(id => id == first) || ringed.Length != (editor.Deck.Contains(first) ? 2 : 1))
+            problems.Add($"the spell {first} open in the book rings {string.Join(", ", ringed)}");
         // The icons' textures outlive a garbage collection (D67: white squares on Charles's screen).
         foreach (Spell spell in editor.Spells)
             SpellIcon.TextureOf(spell);

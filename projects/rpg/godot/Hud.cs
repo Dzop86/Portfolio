@@ -205,13 +205,17 @@ public partial class Hud : CanvasLayer
         {
             int index = _spells.Count;
             var b = new Button { CustomMinimumSize = new Vector2(52, 52), ToggleMode = true };
-            // No frame of its own (the icon is the tile), but the chosen spell outlined in the accent colour.
-            foreach (string state in new[] { "normal", "hover", "disabled", "focus", "hover_pressed" })
+            // No frame of its own: the icon is the tile, and draws its states as in the book and the deck (sprint 163, §1.6):
+            // ringed in pistachio when chosen, in chocolate under the pointer, a pixel lower when pressed.
+            foreach (string state in new[] { "normal", "hover", "pressed", "disabled", "focus", "hover_pressed" })
                 b.AddThemeStyleboxOverride(state, new StyleBoxEmpty());
-            b.AddThemeStyleboxOverride("pressed", new StyleBoxFlat { DrawCenter = false, BorderColor = FighterView.PlayerColour, BorderWidthLeft = 3, BorderWidthRight = 3, BorderWidthTop = 3, BorderWidthBottom = 3, CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8 });
-            // Inset, so that the outline of the chosen spell shows around it.
+            // Inset, so that the ring and the halo show around it.
             var icon = new SpellIcon { MouseFilter = Control.MouseFilterEnum.Ignore, AnchorRight = 1, AnchorBottom = 1, OffsetLeft = 4, OffsetTop = 4, OffsetRight = -4, OffsetBottom = -4 };
             b.AddChild(icon);
+            b.MouseEntered += () => icon.Hovered = true;
+            b.MouseExited += () => (icon.Hovered, icon.Pressed) = (false, false);
+            b.ButtonDown += () => icon.Pressed = true;
+            b.ButtonUp += () => icon.Pressed = false;
             var key = new Label { Text = index < 6 ? $"{index + 1}" : $"^{index - 5}", Position = new Vector2(3, 33), MouseFilter = Control.MouseFilterEnum.Ignore };
             key.AddThemeFontSizeOverride("font_size", 12);
             key.AddThemeColorOverride("font_outline_color", Colors.Black);
@@ -237,6 +241,7 @@ public partial class Hud : CanvasLayer
             tile.Visible = true;
             int left = s is null ? 0 : me.CooldownLeft(s);
             wait.Text = left > 0 ? left.ToString(System.Globalization.CultureInfo.InvariantCulture) : "";
+            icon.Selected = s is not null && _controller.SelectedSpell == s;
             if (s is null)
             {
                 tile.Disabled = true;
@@ -273,6 +278,9 @@ public partial class Hud : CanvasLayer
             _rings[i].Set(id is not null && id == fighter ? seconds : null, total, alert, id is int a && absent.Contains(a) ? Texts["battle.absent"] : null);
         }
     }
+
+    /// <summary>The places of the combat bar ringed as chosen (for the self-test: the chosen spell's, and no other).</summary>
+    public IEnumerable<int> SelectedShown => _spells.Select((s, i) => (s.Icon.Selected, i)).Where(p => p.Selected).Select(p => p.i);
 
     /// <summary>The seconds shown on the timeline, or null (for the self-test).</summary>
     public int? ClockShown => _rings.FirstOrDefault(r => r.Seconds is not null)?.Seconds;

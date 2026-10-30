@@ -1019,6 +1019,10 @@ public partial class Main : Node3D
                     string forecast = texts.Forecast(fight.Foresee(me.Spells[i], aim.Cell));
                     if (forecast.Length == 0 || _hud.InfoText?.StartsWith(forecast, StringComparison.Ordinal) != true)
                         problems.Add($"aiming {me.Spells[i].Id} at {aim.Name.En} shows '{_hud.InfoText}'");
+                    // The chosen spell ringed in pistachio on the bar, and no other (sprint 163, §1.6).
+                    _hud.Refresh();
+                    if (!_hud.SelectedShown.SequenceEqual([i]))
+                        problems.Add($"choosing the spell {i + 1} rings the places {string.Join(", ", _hud.SelectedShown.Select(p => p + 1))} of the bar");
                 }
                 _controller.CancelSpell();
                 if (aim is not null)

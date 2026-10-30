@@ -8,8 +8,9 @@ namespace Rpg.Desktop;
 /// A spell's icon (sprint 67): since sprint 163 (docs/graphisme/s163-icones-arbre.md §1), a tile in relief in the colour of its
 /// element, drawn whole by tools/spell_art.py (<c>assets/icons/spells/&lt;id&gt;.svg</c>, the game-icons.net authors in
 /// <c>credits.json</c>): flat (<c>-locked</c>) when it is not unlocked or not castable now, without its marks (<c>-small</c>)
-/// under 32 pixels; the chosen one ringed in pistachio. A spell without a drawing (the monsters') shows the first letter of
-/// its name on its element's colour.
+/// under 32 pixels; ringed in chocolate under the pointer and in pistachio when chosen, the same in the book, the deck and the
+/// combat bar (<see cref="SpellIconStates"/>). A spell without a drawing (the monsters') shows the first letter of its name on its
+/// element's colour, flat as well when it is faint.
 /// </summary>
 public partial class SpellIcon : Control
 {
@@ -25,11 +26,42 @@ public partial class SpellIcon : Control
         }
     }
 
-    /// <summary>Drawn again at its new size (in a row or a grid, the size comes after the first drawing).</summary>
+    /// <summary>
+    /// Drawn again at its new size (in a row or a grid, the size comes after the first drawing); ringed under the pointer
+    /// when it takes the mouse itself (a place of the deck), else its parent says so through <see cref="Hovered"/>.
+    /// </summary>
     public override void _Notification(int what)
     {
         if (what == NotificationResized)
             QueueRedraw();
+        else if (what == NotificationMouseEnter)
+            Hovered = true;
+        else if (what == NotificationMouseExit)
+            Hovered = false;
+    }
+
+    private bool _hovered, _pressed;
+
+    /// <summary>The pointer over it (§1.6): a ring of light chocolate, the tile a pixel higher.</summary>
+    public bool Hovered
+    {
+        get => _hovered;
+        set
+        {
+            _hovered = value;
+            QueueRedraw();
+        }
+    }
+
+    /// <summary>Pressed (the combat bar's button held down): the tile a pixel lower.</summary>
+    public bool Pressed
+    {
+        get => _pressed;
+        set
+        {
+            _pressed = value;
+            QueueRedraw();
+        }
     }
 
     /// <summary>A spell not unlocked yet, or not castable now: drawn faint.</summary>
@@ -62,11 +94,11 @@ public partial class SpellIcon : Control
     {
         if (_spell is null)
         {
-            // An empty place of the deck: a faint frame.
+            // An empty place of the deck: a hollow (the theme's "frame-well").
             DrawStyleBox(new StyleBoxFlat
             {
-                BgColor = new Color(1, 1, 1, 0.04f),
-                BorderColor = new Color(1, 1, 1, 0.18f),
+                BgColor = new Color(UiStyle.Well),
+                BorderColor = new Color(UiStyle.Edge),
                 BorderWidthLeft = 1,
                 BorderWidthRight = 1,
                 BorderWidthTop = 1,
@@ -78,24 +110,28 @@ public partial class SpellIcon : Control
             }, new Rect2(Vector2.Zero, Size));
             return;
         }
+        SpellLook look = SpellIconStates.Look(Faint, Mathf.Min(Size.X, Size.Y), _hovered, Selected, _pressed);
         var whole = new Rect2(Vector2.Zero, Size);
-        if (TextureOf(_spell, Faint ? "-locked" : Mathf.Min(Size.X, Size.Y) < 32 ? "-small" : "") is Texture2D tex)
+        if (look.Ring == SpellRing.Selected)
         {
-            DrawTextureRect(tex, whole, false);
-            if (Selected)
-            {
-                // A halo of 3 pixels at 35 %, then a ring of 2 (the theme's "tile-lit").
-                DrawStyleBox(Ring(new Color("bef374", 0.35f), 3, -3), whole);
-                DrawStyleBox(Ring(new Color("bef374"), 2, -1), whole);
-            }
+            // A halo of 3 pixels at 35 %, then a ring of 2 (the theme's "tile-lit").
+            DrawStyleBox(Ring(new Color(SpellIconStates.SelectedRing, 0.35f), 3, -3), whole);
+            DrawStyleBox(Ring(new Color(SpellIconStates.SelectedRing), 2, -1), whole);
+        }
+        else if (look.Ring == SpellRing.Hover)
+            DrawStyleBox(Ring(new Color(SpellIconStates.HoverRing), 1, -2), whole);
+        var tile = new Rect2(new Vector2(0, look.Lift), Size);
+        if (TextureOf(_spell, look.Variant) is Texture2D tex)
+        {
+            DrawTextureRect(tex, tile, false);
             return;
         }
         var colour = new Color(ElementStyle.Colour(_spell.Element));
-        float alpha = Faint ? 0.4f : 1f;
+        // Flat when faint, as the drawn tiles (§1.6): the element's colour kept in the edge, a grey letter.
         DrawStyleBox(new StyleBoxFlat
         {
-            BgColor = new Color(colour.Darkened(0.45f), alpha),
-            BorderColor = new Color(colour, alpha),
+            BgColor = Faint ? colour.Lerp(new Color(UiStyle.Well), 0.85f) : colour.Darkened(0.45f),
+            BorderColor = Faint ? colour.Lerp(new Color(UiStyle.Window), 0.60f) : colour,
             BorderWidthLeft = 2,
             BorderWidthRight = 2,
             BorderWidthTop = 2,
@@ -104,12 +140,12 @@ public partial class SpellIcon : Control
             CornerRadiusTopRight = 8,
             CornerRadiusBottomLeft = 8,
             CornerRadiusBottomRight = 8,
-        }, whole);
+        }, tile);
         Font font = ThemeDB.FallbackFont;
         int size = Mathf.RoundToInt(Size.Y * 0.5f);
         string letter = _spell.Name.En[..1];
-        Vector2 at = new((Size.X - font.GetStringSize(letter, HorizontalAlignment.Left, -1, size).X) / 2, Size.Y * 0.68f);
-        DrawString(font, at, letter, HorizontalAlignment.Left, -1, size, new Color(1, 1, 1, alpha));
+        Vector2 at = new((Size.X - font.GetStringSize(letter, HorizontalAlignment.Left, -1, size).X) / 2, Size.Y * 0.68f + look.Lift);
+        DrawString(font, at, letter, HorizontalAlignment.Left, -1, size, Faint ? new Color(UiStyle.TextDim) : Colors.White);
     }
 
     private static StyleBoxFlat Ring(Color colour, int width, float grow) => new()

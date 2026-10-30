@@ -299,7 +299,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             };
             var colour = new Color(ElementStyle.Colour(spell.Element));
             // Sprint 163 (s163-icones-arbre.md §1.6): the tile says the element, the row stays neutral but for a bar of 3.
-            foreach ((string state, string ground) in new[] { ("normal", "262626"), ("hover", "2d2d2d"), ("pressed", "33421f"), ("disabled", "1f1f1f"), ("focus", "2d2d2d") })
+            foreach ((string state, string ground) in new[] { ("normal", UiStyle.RaisedBottom), ("hover", UiStyle.Hover), ("pressed", UiStyle.Selected), ("disabled", UiStyle.Window), ("focus", UiStyle.Hover) })
             {
                 tile.AddThemeStyleboxOverride(state, new StyleBoxFlat
                 {
@@ -440,6 +440,10 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     /// <summary>The spells the deck's places show, in order (for the self-test: an icon on every place used).</summary>
     public IEnumerable<string?> DeckShown => _deckSlots.Select(s => s.Spell?.Id);
 
+    /// <summary>The spells ringed as chosen, in the book and on the deck (for the self-test: the one open on the right, twice when in the deck).</summary>
+    public IEnumerable<string> SelectedShown => _tiles2.Select(t => t.Tile.GetChildren().OfType<SpellIcon>().FirstOrDefault()).Concat(_deckSlots)
+        .Where(i => i is { Selected: true, Spell: not null }).Select(i => i!.Spell!.Id);
+
     /// <summary>Shows a spell's details as if clicked (the capture of the project page).</summary>
     public void Select(string spell)
     {
@@ -454,8 +458,30 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         return id is null ? null : Editor.Data.Spells[id];
     }
 
+    /// <summary>
+    /// The spell open on the right ringed in pistachio in the book and on the deck, the one under the pointer in chocolate
+    /// (sprint 163, §1.6): marked again at each hover, click and refresh.
+    /// </summary>
+    private void MarkChosen()
+    {
+        string? chosen = _selected ?? _tiles2.FirstOrDefault().Spell?.Id;
+        foreach ((Spell spell, Button tile, _, _) in _tiles2)
+        {
+            if (tile.GetChildren().OfType<SpellIcon>().FirstOrDefault() is not SpellIcon icon)
+                continue;
+            icon.Selected = spell.Id == chosen;
+            icon.Hovered = spell.Id == _hovered;
+        }
+        foreach (DeckSlot slot in _deckSlots)
+        {
+            slot.Selected = slot.Spell?.Id is string id && id == chosen;
+            slot.QueueRedraw();
+        }
+    }
+
     private void ShowDetail()
     {
+        MarkChosen();
         if (Shown() is not Spell spell)
             return;
         var book = new SpellBook(Editor);
@@ -714,7 +740,6 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             if (tile.GetChildren().OfType<SpellIcon>().FirstOrDefault() is SpellIcon icon)
             {
                 icon.Faint = !b.Unlocked && !b.Preview;
-                icon.Selected = spell.Id == (_hovered ?? _selected);
                 icon.QueueRedraw();
             }
             foreach (Label label in tile.GetChildren().OfType<Label>())
