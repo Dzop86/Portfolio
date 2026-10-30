@@ -1,13 +1,13 @@
-# Sprint 170 : Osmose : la fiche du bestiaire
+# Sprint 170 : Osmose : la mer peinte
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : on cherche dans le bestiaire et la fiche d'un monstre a son portrait (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Objectif :** les retours de Charles sur la 1.0.162 (30 octobre), avant les spécialisations : la mer de la carte du monde prend vie (D88 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary can be searched and a monster's sheet has its portrait (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Goal:** Charles's feedback on 1.0.162 (30 October), before the specialisations: the world map's sea comes alive (D88; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, la fiche d'un monstre a son portrait en 3D, la silhouette noire d'un inconnu et une section par palier (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, la mer de la carte a ses vagues, son écume le long des côtes, ses nuages qui passent et ses oiseaux (rpg) ; xUnit sur le semis (déterministe, loin des côtes pour les vagues), auto-tests du client. | 3 | À faire |
+| En tant que joueur, la carte a du relief : ombre portée des terres sur la mer, falaises sur les côtes hautes, et se dézoome jusqu'au monde entier dans sa mer (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -1,13 +1,13 @@
-# Sprint 171 : Osmose : le bestiaire relié
+# Sprint 171 : Osmose : le bestiaire en tableau
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : le bestiaire renvoie à la carte, aux objets et à mes sorts, et raconte ses familles (D87 ; `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : le bestiaire donne des données structurées dans une fenêtre en trois colonnes (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary points to the map, the items and my spells, and tells its families' story (D87; `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary gives structured data in a three-column window (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la loupe d'un monstre ouvre la carte sur sa zone, son butin mène à la fiche de l'objet et retour, et je vois lesquels de mes sorts frappent sa faiblesse (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, un monstre maîtrisé livre une ligne d'histoire et un cadre doré, et chaque famille a son succès « Chasseur de… » (rpg, textes du scénariste) ; xUnit sur les clés FR et EN et les succès. | 2 | À faire |
+| En tant que joueur, la fiche d'un monstre se lit par blocs (identité, combat, butin avec son taux, lieux, histoire) selon son palier, les objets de quête n'y paraissant qu'avec la quête (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, le bestiaire s'ouvre en trois colonnes : filtres, familles avec leurs emblèmes, tableau des monstres (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

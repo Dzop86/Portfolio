@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S179), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S181), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S179 | 527 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S181 | 537 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 748 points sur 179 sprints de deux semaines.
+Total : 758 points sur 181 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -195,3 +195,6 @@ Après S162, Charles fait passer la refonte graphique avant les spécialisations
 
 ## Osmose : les retours sur la 1.0.157 (30 octobre 2026, D87)
 Après avoir joué la 1.0.157, Charles donne huit retours graphiques prioritaires. Le graphiste (`projects/rpg/docs/graphisme/s165-retours-30-oct.md`) et le game designer (`projects/rpg/docs/bestiaire-encyclopedie.md`, `projects/rpg/docs/arbre-lisible.md` §7) les découpent en onze sprints, à la place des deux qui restaient de D86 : S165 (4) le suivi de quête et le panneau Menus repliables, les quêtes en icônes ; S166 (6) les 211 objets en relief ; S167 (6) la fiche de quête et la carte du monde en atlas ; S168 (5) la carte finie et le bestiaire en cinq paliers, par compte ; S169 (6), S170 (5) et S171 (4) le bestiaire en tableau, sa fiche, sa recherche, ses liens et son histoire ; S172 (6) et S173 (6) l'arbre entièrement déployé, sans croisement, qui se zoome et se parcourt ; S174 (6) et S175 (4) un monde moins cubique, aux bordures naturelles. 58 points, soit 48 de plus ; les spécialisations passent à S176-S179.
+
+## Osmose : une carte photographiée et des portraits (30 octobre 2026, D88)
+Après la 1.0.162, Charles veut dézoomer davantage et une carte du monde avec du décor plutôt qu'un tracé, et des icônes de monstres dans le bestiaire : S169 (4) la carte photographiée, chaque carte du jeu rendue vue du ciel et posée sur l'atlas ; S170 (4) la mer peinte (vagues, écume, nuages, oiseaux) et le relief ; 2 points de portraits de monstres rendus depuis leurs modèles en S172. 10 points ; S169-S179 deviennent S171-S181.

@@ -1,4 +1,4 @@
-# S165-S175 : retours graphiques du 30 oct. (1.0.157), maquettes et chiffrage
+# S165-S177 : retours graphiques du 30 oct. (1.0.157), maquettes et chiffrage
 
 Demande de Charles (30 oct., après la 1.0.157, 5 captures), **prioritaire, avant les spécialisations** : icônes des recettes, bestiaire, icônes du livre des quêtes, carte du monde, monde moins cubique, suivi de quête masquable, panneau Menus repliable. L'arbre des talents (retour 8) est traité par le game designer et n'est pas chiffré ici.
 
@@ -422,7 +422,7 @@ Le **contenu** (ce qu'on apprend, à quels paliers, le butin et ses pourcentages
 
 ## 8. Découpage en sprints (gains rapides d'abord)
 
-Numérotation provisoire G1 à G7, placée par D87 avec l'arbre du game designer (retour 8) et le contenu du bestiaire : G1 = S165, G2 = S166, G3 = S167, G4 = S168 (carte) et S169 (fenêtre du bestiaire), G5 = S170 (fiche) et S171 (la loupe et le butin en tuiles rejoignent les liens du game designer, B4), l'arbre en S172-S173, G6 = S174, G7 = S175. Réponses de Charles : Q1 b, Q2 oui, Q3 oui (côtés ouverts compris), Q4 oui, Q5 relief décoratif ; Q7 non pris ; les autres selon tes recommandations (D87, limites).
+Numérotation provisoire G1 à G7, placée par D87 avec l'arbre du game designer (retour 8) et le contenu du bestiaire : G1 = S165, G2 = S166, G3 = S167, G4 = S168 (carte) et S171 (fenêtre du bestiaire), G5 = S172 (fiche) et S173 (la loupe et le butin en tuiles rejoignent les liens du game designer, B4), l'arbre en S174-S175, G6 = S176, G7 = S177 (D88 : la carte photographiée S169 et la mer peinte S170 s'insèrent après S168). Réponses de Charles : Q1 b, Q2 oui, Q3 oui (côtés ouverts compris), Q4 oui, Q5 relief décoratif ; Q7 non pris ; les autres selon tes recommandations (D87, limites).
 
 | Sprint | Stories | Points | Ce que Charles teste |
 |---|---|---|---|

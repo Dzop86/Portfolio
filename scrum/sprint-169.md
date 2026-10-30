@@ -1,13 +1,13 @@
-# Sprint 169 : Osmose : le bestiaire en tableau
+# Sprint 169 : Osmose : la carte photographiée
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : le bestiaire donne des données structurées dans une fenêtre en trois colonnes (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Objectif :** les retours de Charles sur la 1.0.162 (30 octobre), avant les spécialisations : la carte du monde montre le vrai décor de chaque carte, photographié dans le jeu (D88 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary gives structured data in a three-column window (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Goal:** Charles's feedback on 1.0.162 (30 October), before the specialisations: the world map shows each map's real scenery, photographed in the game (D88; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la fiche d'un monstre se lit par blocs (identité, combat, butin avec son taux, lieux, histoire) selon son palier, les objets de quête n'y paraissant qu'avec la quête (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
-| En tant que joueur, le bestiaire s'ouvre en trois colonnes : filtres, familles avec leurs emblèmes, tableau des monstres (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, la terre de l'atlas montre chaque carte du jeu vue du ciel, avec ses arbres, ses maisons, son eau et ses rochers, rendue une fois sans fenêtre par un outil (rpg) ; xUnit sur l'assemblage (chaque carte à sa place, aucune manquante), auto-tests du client. | 3 | À faire |
+| En tant que joueur, les vues se fondent dans les régions : bords adoucis sous la côte ondulée, teinte de biome légère, contours gardés (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

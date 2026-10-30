@@ -485,7 +485,7 @@ Et le critère de T118 (P5 a) : il explique son build en une phrase après deux 
 
 ### 7.6 Le plan révisé (deux sprints de 6 points, après le sprint des retours rapides)
 
-Après les retours graphiques (S165-S171), l'arbre passe en **S172 et S173** (D87). Chaque story arrive avec ses tests xUnit et la mise à jour de l'auto-test du client.
+Après les retours graphiques (S165-S173), l'arbre passe en **S174 et S175** (D87, D88). Chaque story arrive avec ses tests xUnit et la mise à jour de l'auto-test du client.
 
 **Sprint « l'arbre sans croisement » (6 points)**, livrable seul : à la fin, plus aucun croisement, l'arbre est entier et se zoome à la molette.
 
@@ -519,4 +519,4 @@ Après les retours graphiques (S165-S171), l'arbre passe en **S172 et S173** (D8
 6. **Une mini-carte de l'arbre** : je ne la recommande pas, puisque la vue d'ensemble montre tout. D'accord ?
 
 ### 7.8 Les réponses de Charles (30 octobre 2026, D87)
-Tout déployé avec la caméra (K3 a annulé), ouverture cadrée sur son build, molette pour zoomer et glisser pour déplacer, panneau de droite repliable, pas de mini-carte. A1-A3 en S172, A4-A6 en S173.
+Tout déployé avec la caméra (K3 a annulé), ouverture cadrée sur son build, molette pour zoomer et glisser pour déplacer, panneau de droite repliable, pas de mini-carte. A1-A3 en S174, A4-A6 en S175 (D88).

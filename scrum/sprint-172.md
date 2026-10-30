@@ -1,14 +1,13 @@
-# Sprint 172 : Osmose : l'arbre sans croisement
+# Sprint 172 : Osmose : la fiche du bestiaire
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : l'arbre des talents se déploie en entier, sans un lien qui se croise, et se zoome (D87 ; `projects/rpg/docs/arbre-lisible.md` §7, `projects/rpg/docs/graphisme/s164-arbre-maquette.md`).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : chaque monstre a son portrait rendu depuis son modèle, et sa fiche le montre en grand (D87, D88 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the talent tree unfolds in full, with no crossing link, and zooms (D87; `projects/rpg/docs/arbre-lisible.md` §7, `projects/rpg/docs/graphisme/s164-arbre-maquette.md`).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: each monster has its portrait rendered from its model, shown large on its sheet (D87, D88; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, l'arbre se range en espalier entièrement déployé : le tronc, les portes, les sept colonnes et les Cœurs (rpg) ; xUnit sur un corpus de dispositions, auto-tests du client. | 3 | À faire |
-| En tant que joueur, des pièces de bois relient les talents à la place des liens et du bus, sans aucun croisement (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, je zoome l'arbre à la molette, je le glisse, et il s'ouvre cadré sur mon build (rpg) ; xUnit sur `TreeCamera`, auto-tests du client. | 1 | À faire |
+| En tant que joueur, chaque monstre a sa vignette et son portrait rendus depuis son modèle 3D par un outil sans fenêtre, sa silhouette noire tant qu'il est inconnu (rpg, D88) ; xUnit sur l'outil (un portrait par monstre, la silhouette sans couleur), auto-tests du client. | 2 | À faire |
+| En tant que joueur, la fiche d'un monstre montre son portrait en grand, qui tourne, et une section par palier (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
