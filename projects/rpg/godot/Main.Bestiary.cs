@@ -22,7 +22,8 @@ public partial class Main
             _windows.Close();
             ShowWindows();
         };
-        _bestiaryPanel.Show(AccountLog());
+        // A quest's item shows in the loot once the quest is under way or done.
+        _bestiaryPanel.Show(AccountLog(), new HashSet<string>([.. _character?.Quests ?? [], .. (_character?.QuestLog ?? []).Select(p => p.Quest)], StringComparer.Ordinal));
     }
 
     /// <summary>The account's hunting log: the character played (its count up to date) and the others the lobby listed.</summary>

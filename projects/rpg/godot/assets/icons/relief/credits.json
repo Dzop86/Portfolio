@@ -27,5 +27,15 @@
  "reward-shards": "lorc/crystal-bars",
  "map-city": "delapouite/village",
  "map-waystone": "lorc/magic-portal",
- "map-player": "delapouite/position-marker"
+ "map-player": "delapouite/position-marker",
+ "family-boar": "caro-asercion/boar",
+ "family-wolf": "lorc/wolf-howl",
+ "family-mushroom": "lorc/mushroom-gills",
+ "family-zombie": "delapouite/shambling-zombie",
+ "family-frog": "lorc/frog",
+ "family-crab": "lorc/crab",
+ "family-bee": "lorc/bee",
+ "family-mole": "caro-asercion/mole",
+ "family-stag": "lorc/stag-head",
+ "family-golem": "delapouite/rock-golem"
 }

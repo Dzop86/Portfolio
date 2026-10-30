@@ -194,5 +194,75 @@
     "light": "#e6f8c9",
     "dark": "#4d7a1c",
     "outline": "#1f310b"
+  },
+  "family-boar": {
+    "shape": "caro-asercion/boar",
+    "main": "#8a6a52",
+    "light": "#bfada0",
+    "dark": "#4c3a2d",
+    "outline": "#1b1510"
+  },
+  "family-wolf": {
+    "shape": "lorc/wolf-howl",
+    "main": "#9aa3ad",
+    "light": "#c7ccd2",
+    "dark": "#555a5f",
+    "outline": "#1e2022"
+  },
+  "family-mushroom": {
+    "shape": "lorc/mushroom-gills",
+    "main": "#c8705a",
+    "light": "#e1b0a4",
+    "dark": "#6e3e32",
+    "outline": "#281612"
+  },
+  "family-zombie": {
+    "shape": "delapouite/shambling-zombie",
+    "main": "#8fa08a",
+    "light": "#c1cbbf",
+    "dark": "#4f584c",
+    "outline": "#1c201b"
+  },
+  "family-frog": {
+    "shape": "lorc/frog",
+    "main": "#5fa88a",
+    "light": "#a7cfbf",
+    "dark": "#345c4c",
+    "outline": "#13211b"
+  },
+  "family-crab": {
+    "shape": "lorc/crab",
+    "main": "#d0603a",
+    "light": "#e5a893",
+    "dark": "#723520",
+    "outline": "#29130b"
+  },
+  "family-bee": {
+    "shape": "lorc/bee",
+    "main": "#f2c24a",
+    "light": "#f8dd9b",
+    "dark": "#856b29",
+    "outline": "#30260e"
+  },
+  "family-mole": {
+    "shape": "caro-asercion/mole",
+    "main": "#7a6a60",
+    "light": "#b6ada8",
+    "dark": "#433a35",
+    "outline": "#181513"
+  },
+  "family-stag": {
+    "shape": "lorc/stag-head",
+    "main": "#a8743f",
+    "light": "#cfb395",
+    "dark": "#5c4023",
+    "outline": "#21170c"
+  },
+  "family-golem": {
+    "shape": "delapouite/rock-golem",
+    "main": "#b8b0a0",
+    "light": "#d8d4cb",
+    "dark": "#656158",
+    "outline": "#242320"
   }
 }

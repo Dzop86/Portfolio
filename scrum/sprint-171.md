@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la fiche d'un monstre se lit par blocs (identité, combat, butin avec son taux, lieux, histoire) selon son palier, les objets de quête n'y paraissant qu'avec la quête (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
-| En tant que joueur, le bestiaire s'ouvre en trois colonnes : filtres, familles avec leurs emblèmes, tableau des monstres (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, la fiche d'un monstre se lit par blocs (identité, combat, butin avec son taux, lieux, histoire) selon son palier, les objets de quête n'y paraissant qu'avec la quête (rpg) ; xUnit, auto-tests du client. | 3 | Fait |
+| En tant que joueur, le bestiaire s'ouvre en trois colonnes : filtres, familles avec leurs emblèmes, tableau des monstres (rpg) ; xUnit, auto-tests du client. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

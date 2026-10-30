@@ -10,7 +10,8 @@
 #   search field's magnifier; godot/assets/ui/achievements/banner-<Category>.svg the categories' banners (704 x 192, a
 #   diagonal gradient from the category's colour, its silhouette as a watermark, a veil, its icon); two icon frames.
 # - Since sprint 164: relief/palette.json also holds the twelve trades' icons ("job-<id>", a colour each from its matter);
-#   since sprint 165 the quests' five kinds ("quest-<kind>") and the tick of an objective reached ("check").
+#   since sprint 165 the quests' five kinds ("quest-<kind>") and the tick of an objective reached ("check"); since sprint 171
+#   the ten families' emblems ("family-<id>", greyed while none of the family is met).
 # Deterministic; run from projects/rpg:  python3 tools/ui_art.py
 import json, os
 
@@ -158,7 +159,7 @@ def main():
     every = {**palette, **extra}
     # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised;
     # the quests' kinds (sprint 165, docs/graphisme/s165-retours-30-oct.md §3.2): "quest-<kind>", greyed for a kind filtered out.
-    jobs = {n for n in extra if n.startswith(("job-", "quest-"))}
+    jobs = {n for n in extra if n.startswith(("job-", "quest-", "family-"))}
     for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"} | jobs):
         with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
             f.write(icon(grey(every[name])))

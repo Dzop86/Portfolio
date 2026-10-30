@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary")
             _ = TownScreenshot();
     }
 
@@ -2937,8 +2937,27 @@ public partial class Main
         panel.QueueFree();
     }
 
+    /// <summary>
+    /// The bestiary's window (sprint 171, D87): every monster mastered, the first family's every block open and its loot in
+    /// tiles; nothing won, silhouettes alone and every block shut.
+    /// </summary>
+    private void CheckBestiary(List<string> problems)
+    {
+        var bestiary = new BestiaryPanel();
+        AddChild(bestiary);
+        bestiary.Build(_talkPanel?.Texts ?? _hud.Texts);
+        bestiary.Show(Bestiary.Full(GameData.Embedded));
+        if (bestiary.Shown != "boar" || bestiary.Names.Count != GameData.Embedded.Families["boar"].Monsters.Count || bestiary.BlocksReached != 4 || bestiary.LootTiles == 0)
+            problems.Add($"the full bestiary shows {bestiary.Shown}, {bestiary.Names.Count} monsters, {bestiary.BlocksReached} blocks, {bestiary.LootTiles} loot tiles");
+        bestiary.Show(new Dictionary<string, int>());
+        if (bestiary.Names.Any(n => n != "???") || bestiary.BlocksReached != 0 || bestiary.LootTiles != 0)
+            problems.Add($"the empty bestiary names {string.Join(", ", bestiary.Names)} and opens {bestiary.BlocksReached} blocks");
+        bestiary.QueueFree();
+    }
+
     private string CheckBarAndMenu(List<string> problems)
     {
+        CheckBestiary(problems);
         Texts t = _talkPanel!.Texts;
         bool character = _hero?.Class is not null;
         var tips = WindowState.Bar.Where(b => character || b.Window == GameWindow.Map).Select(b => t["bar.tip", t["bar." + b.Window], b.Key]).Append(t["minimap.tip"]).Append(t["bar.tip", t["bar.menu"], t["menu.key"]]);
@@ -3713,6 +3732,22 @@ public partial class Main
             Error journal = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {journal} {_options.Screenshot}");
             GetTree().Quit(journal == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot == "bestiary")
+        {
+            // The bestiary (sprint 171): the boars mastered or on their way, the wolves met, the rest to find.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20);
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch, Level: 20,
+                Bestiary: new Dictionary<string, int> { ["boar-charger"] = 7, ["acorn-piglet"] = 2, ["old-loner"] = 0, ["boar-king"] = 5, ["grey-wolf"] = 1 });
+            ShowBar();
+            ToggleWindow(GameWindow.Bestiary);
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error picture = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {picture} {_options.Screenshot}");
+            GetTree().Quit(picture == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "jobs")
