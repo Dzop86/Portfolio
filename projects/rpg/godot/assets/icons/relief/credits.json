@@ -16,5 +16,11 @@
  "job-jeweller": "lorc/cut-diamond",
  "job-cobbler": "lorc/leather-boot",
  "job-alchemist": "lorc/round-bottom-flask",
- "job-baker": "delapouite/bread"
+ "job-baker": "delapouite/bread",
+ "quest-main": "lorc/laurel-crown",
+ "quest-side": "delapouite/chat-bubble",
+ "quest-trade": "lorc/anvil-impact",
+ "quest-dungeon": "delapouite/dungeon-gate",
+ "quest-tutorial": "lorc/open-book",
+ "check": "delapouite/check-mark"
 }

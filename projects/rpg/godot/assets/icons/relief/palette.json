@@ -117,5 +117,47 @@
     "light": "#f8e3c4",
     "dark": "#857051",
     "outline": "#30291e"
+  },
+  "quest-main": {
+    "shape": "lorc/laurel-crown",
+    "main": "#ffd166",
+    "light": "#ffe6ab",
+    "dark": "#8c7338",
+    "outline": "#332a14"
+  },
+  "quest-side": {
+    "shape": "delapouite/chat-bubble",
+    "main": "#6bb8f2",
+    "light": "#aed8f8",
+    "dark": "#3b6585",
+    "outline": "#152530"
+  },
+  "quest-trade": {
+    "shape": "lorc/anvil-impact",
+    "main": "#a9bccd",
+    "light": "#d0dae4",
+    "dark": "#5d6771",
+    "outline": "#222629"
+  },
+  "quest-dungeon": {
+    "shape": "delapouite/dungeon-gate",
+    "main": "#b48cff",
+    "light": "#d6c0ff",
+    "dark": "#634d8c",
+    "outline": "#241c33"
+  },
+  "quest-tutorial": {
+    "shape": "lorc/open-book",
+    "main": "#4fd1c5",
+    "light": "#9ee6df",
+    "dark": "#2b736c",
+    "outline": "#102a27"
+  },
+  "check": {
+    "shape": "delapouite/check-mark",
+    "main": "#bef374",
+    "light": "#e6f8c9",
+    "dark": "#4d7a1c",
+    "outline": "#1f310b"
   }
 }

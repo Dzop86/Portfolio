@@ -58,6 +58,8 @@ public partial class Main : Node3D
         // The interface's one theme (sprint 157, D84), before any window.
         OsmoseTheme.Apply();
         _options = Options.Parse(OS.GetCmdlineUserArgs(), OS.GetLocaleLanguage());
+        // The self-tests and the captures fold nothing and keep nothing of the folding panels (sprint 165).
+        HudFile.Keep = !(_options.SelfTest || _options.LobbySelfTest || _options.TownSelfTest || _options.Screenshot is not null);
         // The launcher passes the server and the player's token in the environment (RPG_SERVER, RPG_TOKEN).
         string server = System.Environment.GetEnvironmentVariable("RPG_SERVER") is { Length: > 0 } fromLauncher && !_options.ServerGiven
             ? fromLauncher.TrimEnd('/') + "/"

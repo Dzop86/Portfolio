@@ -6,9 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, j'affiche ou je masque le suivi de quête à l'écran, et le jeu s'en souvient sur ce poste (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
-| En tant que joueur, je replie le panneau Menus pour ne voir que « Menus », un badge signale ce qui attend (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
-| En tant que joueur, les cinq types de quête ont leur icône en relief, et le journal ses filtres et sa liste (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, j'affiche ou je masque le suivi de quête à l'écran, et le jeu s'en souvient sur ce poste (rpg) ; xUnit, auto-tests du client. | 1 | Fait |
+| En tant que joueur, je replie le panneau Menus pour ne voir que « Menus », un badge signale ce qui attend (rpg) ; xUnit, auto-tests du client. | 1 | Fait |
+| En tant que joueur, les cinq types de quête ont leur icône en relief, et le journal ses filtres et sa liste (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

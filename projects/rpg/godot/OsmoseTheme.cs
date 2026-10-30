@@ -22,10 +22,13 @@ public static class OsmoseTheme
         IconFrame = "IconFrame", IconFrameLocked = "IconFrameLocked", DetailPanel = "DetailPanel", SectionLabel = "SectionLabel", Link = "Link",
         ProgressBarCompact = "ProgressBarCompact";
 
+    /// <summary>The header the panels laid on the map fold to (sprint 165, <c>docs/graphisme/s165-retours-30-oct.md</c> §1.3).</summary>
+    public const string HudHeader = "HudHeader";
+
     /// <summary>Every variation the theme defines (for the self-test).</summary>
     public static readonly string[] Variations = [MenuTile, Primary, WindowPanel, HudPanel, TitleBar, CloseButton, ListRow, GoldBand, GoldBandLabel, LifeBar, GoldBar,
         SearchField, TreeRow, TreeToggle, AchievementTile, AchievementTileDone, AchievementCard, AchievementCardEarned, IconFrame, IconFrameLocked, DetailPanel,
-        SectionLabel, Link, ProgressBarCompact];
+        SectionLabel, Link, ProgressBarCompact, HudHeader];
 
     /// <summary>The bold of the titles: the default font emboldened, spaced a little.</summary>
     public static FontVariation Bold(int spacing = 0) => new() { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = spacing };
@@ -243,6 +246,14 @@ public static class OsmoseTheme
         theme.SetStylebox("focus", TreeToggle, new StyleBoxEmpty());
         theme.SetColor("font_color", TreeToggle, C(UiStyle.TextDim));
         theme.SetColor("font_hover_color", TreeToggle, C(UiStyle.TextStrong));
+        // A panel's header on the map: flat, 44 high, the hover's grey under the pointer, its content a pixel lower pressed.
+        theme.SetTypeVariation(HudHeader, "Button");
+        theme.SetStylebox("normal", HudHeader, Flat("#00000000", corner: 6, margin: 8));
+        theme.SetStylebox("hover", HudHeader, Flat(UiStyle.Hover, corner: 6, margin: 8));
+        StyleBoxFlat down = Flat(UiStyle.Hover, corner: 6, margin: 8);
+        (down.ContentMarginTop, down.ContentMarginBottom) = (9, 7);
+        theme.SetStylebox("pressed", HudHeader, down);
+        theme.SetStylebox("focus", HudHeader, new StyleBoxEmpty());
 
         // A category's tile: a reading surface that one clicks, so a shadow; edged in gold once complete.
         foreach ((string type, string edge, int width) in new[] { (AchievementTile, UiStyle.Edge, 1), (AchievementTileDone, UiStyle.Gold, 2) })

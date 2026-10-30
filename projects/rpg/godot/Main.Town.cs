@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud")
             _ = TownScreenshot();
     }
 
@@ -2115,7 +2115,12 @@ public partial class Main
         journal.Search("");
         journal.KindButtons[QuestKind.Tutorial].ButtonPressed = false;
         bool kindOut = journal.ListedNames.Count == 0;
+        // Sprint 165 (D87): the kinds on the menus' tiles, the one left out greyed, none faded.
+        bool greyed = journal.KindIcons[QuestKind.Tutorial].Locked && !journal.KindIcons[QuestKind.Main].Locked;
         journal.KindButtons[QuestKind.Tutorial].ButtonPressed = true;
+        if (!greyed || journal.KindIcons[QuestKind.Tutorial].Locked || journal.KindButtons.Values.Any(b => b.ThemeTypeVariation != OsmoseTheme.MenuTile || b.Modulate != Colors.White)
+            || journal.Rows.Values.Any(r => r.ThemeTypeVariation != OsmoseTheme.TreeRow))
+            problems.Add("the journal's kinds are not on the menus' tiles, greyed when left out, or its rows not the list's");
         journal.MinLevel.Value = 2;
         bool levelOut = journal.ListedNames.Count == 0;
         journal.MinLevel.Value = 1;
@@ -2938,6 +2943,21 @@ public partial class Main
         Theme theme = ThemeDB.GetProjectTheme();
         if (theme is null || OsmoseTheme.Variations.Any(v => theme.GetTypeVariationBase(v).IsEmpty))
             problems.Add("the interface's theme lacks a variation");
+        // Sprint 165 (D87): the panel folds to its header, the badges counted on it, the keys still open the windows.
+        _bar.Fold(true);
+        if (character)
+            _bar.SetBadge(GameWindow.Talents, 3, t["tree.badge", 3]);
+        if (_bar.GridShown || !_bar.Folded || _bar.HeaderBadge != (character ? 3 : 0) || HudFile.Settings is not { MenusFolded: true })
+            problems.Add($"the folded menus show their grid {_bar.GridShown}, a badge of {_bar.HeaderBadge}");
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
+        if (_mapPanel is null || !_bar.Folded)
+            problems.Add("M does not open the map with the menus folded, or unfolds them");
+        TownInput(new InputEventKey { Pressed = true, Keycode = Key.M });
+        _bar.Fold(false);
+        if (character)
+            _bar.SetBadge(GameWindow.Talents, 0, "");
+        if (!_bar.GridShown || _bar.HeaderBadge != 0)
+            problems.Add("the menus do not unfold");
         int windows = 0;
         foreach ((GameWindow window, char key) in WindowState.Bar.Where(b => character || b.Window == GameWindow.Map))
         {
@@ -3261,6 +3281,15 @@ public partial class Main
             view.ShowTrail(QuestTrail.Toward(GameData.Embedded, square.Town, goal));
             if (tracker.TitleText != GameData.Embedded.Quests["whispering-stone"].Name.In(t.Lang) || tracker.Lines.Count != 4 || view.TrailAt != GameData.Embedded.FindProp("old-stone")!.Value.Prop.At)
                 problems.Add($"following the stone shows '{tracker.TitleText}' with {tracker.Lines.Count} lines, the ring on {view.TrailAt}");
+            // Sprint 165 (D87): folded to its header, which counts the objectives reached; it stays folded for the next quest.
+            JournalQuest followedStone = book.Journal(t).SelectMany(z => z.Active).Single();
+            tracker.Fold(true);
+            tracker.Show(followedStone, t);
+            if (tracker.BodyShown || tracker.Count != HudLayout.Reached(followedStone) || !HudFile.Settings.TrackerFolded || tracker.HeaderWidth < 150 || tracker.PanelWidth < tracker.HeaderWidth)
+                problems.Add($"the folded tracker shows its lines {tracker.BodyShown}, counts '{tracker.Count}', {tracker.PanelWidth} wide for a header of {tracker.HeaderWidth}");
+            tracker.Fold(false);
+            if (!tracker.BodyShown || tracker.Count != "" || HudFile.Settings.TrackerFolded)
+                problems.Add("the tracker does not unfold");
             tracker.QueueFree();
             var journal = new JournalPanel();
             AddChild(journal);
@@ -3623,6 +3652,33 @@ public partial class Main
             Error sheet = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {sheet} {_options.Screenshot}");
             GetTree().Quit(sheet == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot is "journal" or "hud")
+        {
+            // The quest journal and the quest followed (sprint 165): a quest of each kind under way, the first objective of
+            // each reached, the side quest followed; "hud" folds the tracker and the menus instead of opening the journal.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20);
+            QuestProgress[] log = [.. Enum.GetValues<QuestKind>().Select(k => GameData.Embedded.Quests.Values.Where(q => q.Kind == k && q.Level <= 20 && q.Objectives is { Count: >= 2 }).OrderBy(q => q.Level).FirstOrDefault())
+                .OfType<Quest>().Select(q => new QuestProgress(q.Id, [.. q.Objectives!.Select((o, i) => i == 0 ? o.Count : 0)]))];
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch, Level: 20, QuestLog: log);
+            _town!.Book = QuestBook.Of(_character, GameData.Embedded);
+            _followed = log.FirstOrDefault(p => GameData.Embedded.Quests[p.Quest].Kind == QuestKind.Side)?.Quest;
+            ShowBar();
+            ShowTrail();
+            if (_options.Shot == "journal")
+                ToggleWindow(GameWindow.Journal);
+            else
+            {
+                _tracker!.Fold(true, keep: false);
+                _bar!.Fold(true, keep: false);
+            }
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error journal = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {journal} {_options.Screenshot}");
+            GetTree().Quit(journal == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "jobs")

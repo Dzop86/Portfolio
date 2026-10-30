@@ -23,6 +23,9 @@ public static class UiStyle
     // The gold of the points and the rewards, and the text written on it.
     public const string GoldTop = "#ffe6ab", Gold = "#ffd166", GoldBottom = "#c9962e", GoldText = "#3a2410";
 
+    /// <summary>Where to go and what to hand back (sprint 165, --osmose-cost): the quest followed's hints.</summary>
+    public const string Cost = "#f2d36b";
+
     // The texts, from the strongest to the one switched off.
     public const string TextStrong = "#e0e0e0", Text = "#cccccc", TextDim = "#9d9d9d", TextOff = "#6a6a6a";
 
@@ -34,7 +37,7 @@ public static class UiStyle
     [
         Pistachio, PistachioPale, Chocolate, ChocolateLight, Bamboo, Window, Hud, TitleBar, Frame, FrameDark, RaisedTop, RaisedBottom,
         RaisedHoverTop, RaisedHoverBottom, Edge, PrimaryTop, PrimaryBottom, LitTop, LitBottom, Selected, Well, GoldTop, Gold, GoldBottom,
-        GoldText, TextStrong, Text, TextDim, TextOff, Hover, Tab, Tooltip, CloseHover, CloseHoverText, Scroll, ScrollHover,
+        GoldText, TextStrong, Text, TextDim, TextOff, Hover, Tab, Tooltip, CloseHover, CloseHoverText, Scroll, ScrollHover, Cost,
     ];
 
     /// <summary>The smallest a thing one clicks may be, in pixels (the charter's 44).</summary>

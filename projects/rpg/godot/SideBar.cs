@@ -18,7 +18,6 @@ public partial class SideBar : CanvasLayer
 
     private readonly Dictionary<GameWindow, Button> _buttons = [];
     private Button _menu = null!;
-    private Label _title = null!;
 
     public event Action<GameWindow>? WindowPressed;
     public event Action? MenuPressed;
@@ -46,17 +45,14 @@ public partial class SideBar : CanvasLayer
         var column = new VBoxContainer();
         column.AddThemeConstantOverride("separation", 4);
         panel.AddChild(column);
-        // Its title: a grid and MENUS, bold, in light chocolate.
-        var heading = new HBoxContainer { CustomMinimumSize = new Vector2(0, 20) };
-        heading.AddThemeConstantOverride("separation", 6);
-        heading.AddChild(new TextureRect { Texture = GD.Load<Texture2D>("res://assets/ui/grid.svg"), StretchMode = TextureRect.StretchModeEnum.KeepCentered });
-        _title = new Label { VerticalAlignment = VerticalAlignment.Center };
-        _title.AddThemeFontOverride("font", new FontVariation { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = 1 });
-        _title.AddThemeFontSizeOverride("font_size", 14);
-        _title.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
-        heading.AddChild(_title);
-        column.AddChild(heading);
-        var grid = new GridContainer { Columns = Columns };
+        // Its header (sprint 165, D87, s165-retours-30-oct.md §2): a grid and MENUS, bold, in light chocolate, a click
+        // folds the panel to it, the badges of the tiles counted on it.
+        _header = new HudHeader();
+        _header.Build(GD.Load<Texture2D>("res://assets/ui/grid.svg"));
+        _header.Pressed += () => Fold(!_header.Folded);
+        column.AddChild(_header);
+        _panel = panel;
+        var grid = _grid = new GridContainer { Columns = Columns };
         grid.AddThemeConstantOverride("h_separation", 4);
         grid.AddThemeConstantOverride("v_separation", 4);
         column.AddChild(grid);
@@ -76,11 +72,39 @@ public partial class SideBar : CanvasLayer
         _menu = Icon(grid, "menu", "");
         _menu.Pressed += () => MenuPressed?.Invoke();
         SetTexts(texts);
+        Fold(HudFile.Settings.MenusFolded, keep: false);
     }
+
+    private PanelContainer _panel = null!;
+    private GridContainer _grid = null!;
+    private HudHeader _header = null!;
+    private Texts _texts = null!;
+
+    /// <summary>Folds the panel to its header or unfolds it, kept for the next game; the keys work either way.</summary>
+    public void Fold(bool folded, bool keep = true)
+    {
+        _header.Show(folded, _texts["bar.fold"], _texts["bar.unfold"]);
+        _header.Badge = HudLayout.Badges(Badges.Values);
+        _grid.Visible = !folded;
+        _panel.AddThemeStyleboxOverride("panel", HudHeader.Panel(0, folded ? 0 : HudLayout.Bottom));
+        // As wide folded as unfolded; shrunk back to its content from its bottom right corner.
+        _panel.CustomMinimumSize = new Vector2(Columns * HudLayout.Tile + (Columns - 1) * HudLayout.Gap + 16, 0);
+        (_panel.OffsetLeft, _panel.OffsetTop) = (_panel.OffsetRight, _panel.OffsetBottom);
+        if (keep)
+            HudFile.Save(HudFile.Settings with { MenusFolded = folded });
+    }
+
+    /// <summary>Folded to its header (for the self-test), the grid hidden, the badges counted on the header.</summary>
+    public bool Folded => _header.Folded;
+    public bool GridShown => _grid.Visible;
+    public int HeaderBadge => _header.Badge;
+    public float PanelHeight => _panel.Size.Y;
 
     public void SetTexts(Texts texts)
     {
-        _title.Text = texts["bar.title"].ToUpperInvariant();
+        _texts = texts;
+        _header.Title = texts["bar.title"].ToUpperInvariant();
+        _header.Show(_header.Folded, texts["bar.fold"], texts["bar.unfold"]);
         foreach ((GameWindow window, Button b) in _buttons)
             b.TooltipText = texts["bar.tip", texts["bar." + window], WindowState.Bar.First(w => w.Window == window).Key];
         _miniMap.TooltipText = texts["minimap.tip"];
@@ -126,6 +150,7 @@ public partial class SideBar : CanvasLayer
         badge.Text = count.ToString(System.Globalization.CultureInfo.InvariantCulture);
         badge.TooltipText = tip;
         Badges[window] = count;
+        _header.Badge = HudLayout.Badges(Badges.Values);
     }
 
     /// <summary>The counts on the icons (for the self-test).</summary>

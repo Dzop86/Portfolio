@@ -33,6 +33,9 @@ public partial class JournalPanel : CanvasLayer
     public Dictionary<JournalTab, Button> TabButtons { get; } = [];
     public LineEdit SearchBox { get; private set; } = null!;
     public Dictionary<QuestKind, Button> KindButtons { get; } = [];
+
+    /// <summary>The kinds' icons on their tiles (for the self-test): greyed when the kind is left out (sprint 165).</summary>
+    public Dictionary<QuestKind, QuestKindIcon> KindIcons { get; } = [];
     public SpinBox MinLevel { get; private set; } = null!;
     public SpinBox MaxLevel { get; private set; } = null!;
 
@@ -157,14 +160,16 @@ public partial class JournalPanel : CanvasLayer
         kinds.AddThemeConstantOverride("separation", 4);
         foreach (QuestKind kind in Enum.GetValues<QuestKind>())
         {
-            var b = new Button { ToggleMode = true, ButtonPressed = _view.Kinds.Contains(kind), CustomMinimumSize = new Vector2(44, 44), TooltipText = _texts["questkind." + kind] };
-            b.AddChild(new QuestKindIcon { Kind = kind, MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(10, 10), Size = new Vector2(24, 24) });
+            // A tile of the menus' (sprint 165, s165 §3.3): lit while the kind is kept, its icon greyed once left out.
+            var b = new Button { ToggleMode = true, ButtonPressed = _view.Kinds.Contains(kind), CustomMinimumSize = new Vector2(44, 44), TooltipText = _texts["questkind." + kind], ThemeTypeVariation = OsmoseTheme.MenuTile, FocusMode = Control.FocusModeEnum.None };
+            var icon = new QuestKindIcon { Kind = kind, Locked = !b.ButtonPressed, MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(8, 8), Size = new Vector2(28, 28) };
+            b.AddChild(icon);
+            KindIcons[kind] = icon;
             b.Toggled += on =>
             {
-                b.Modulate = on ? Colors.White : new Color(1, 1, 1, 0.35f);
+                icon.Locked = !on;
                 Keep(kind, on);
             };
-            b.Modulate = b.ButtonPressed ? Colors.White : new Color(1, 1, 1, 0.35f);
             kinds.AddChild(b);
             KindButtons[kind] = b;
         }
@@ -216,9 +221,11 @@ public partial class JournalPanel : CanvasLayer
         foreach (JournalSection section in page)
         {
             bool open = !_view.Folded.Contains(section.Name);
-            var head = new Button { Flat = true, CustomMinimumSize = new Vector2(0, 40), Alignment = HorizontalAlignment.Left, Text = $"      {section.Name} ({section.Quests.Count})" };
-            head.AddThemeColorOverride("font_color", FighterView.PlayerColour);
-            head.AddThemeFontSizeOverride("font_size", 17);
+            var head = new Button { Flat = true, CustomMinimumSize = new Vector2(0, 40), Alignment = HorizontalAlignment.Left, Text = $"      {section.Name.ToUpperInvariant()} ({section.Quests.Count})" };
+            head.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
+            head.AddThemeColorOverride("font_hover_color", new Color(UiStyle.TextStrong));
+            head.AddThemeFontOverride("font", OsmoseTheme.Bold(1));
+            head.AddThemeFontSizeOverride("font_size", 14);
             head.AddChild(new FoldArrow { Open = open, MouseFilter = Control.MouseFilterEnum.Ignore, Position = new Vector2(4, 12), Size = new Vector2(16, 16) });
             string zone = section.Name;
             head.Pressed += () => Fold(zone);
@@ -242,18 +249,29 @@ public partial class JournalPanel : CanvasLayer
 
     private Button Row(JournalQuest q, bool chosen)
     {
-        var row = new Button { Flat = !chosen, CustomMinimumSize = new Vector2(0, 44), ClipText = true };
+        // The list's row of the theme (s157 §4), chosen like the achievements' tree.
+        var row = new Button { CustomMinimumSize = new Vector2(0, 44), ClipText = true, ThemeTypeVariation = OsmoseTheme.TreeRow, ToggleMode = true, ButtonPressed = chosen, FocusMode = Control.FocusModeEnum.None };
         var line = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         line.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         line.OffsetLeft = 22;
         line.OffsetRight = -8;
         line.AddThemeConstantOverride("separation", 8);
-        line.AddChild(new QuestKindIcon { Kind = q.Kind, MouseFilter = Control.MouseFilterEnum.Ignore, CustomMinimumSize = new Vector2(22, 22), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, TooltipText = _texts["questkind." + q.Kind] });
+        line.AddChild(new QuestKindIcon { Kind = q.Kind, MouseFilter = Control.MouseFilterEnum.Ignore, CustomMinimumSize = new Vector2(24, 24), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, TooltipText = _texts["questkind." + q.Kind] });
+        // Its name in the text's grey, brighter when it is to hand back, a dot of the hints' yellow after it then.
         var name = new Label { Text = q.Name, MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis };
-        if (q.Ready)
-            name.AddThemeColorOverride("font_color", Gold);
+        name.AddThemeFontSizeOverride("font_size", 14);
+        name.AddThemeColorOverride("font_color", new Color(q.Ready || chosen ? UiStyle.TextStrong : UiStyle.Text));
         line.AddChild(name);
-        line.AddChild(new Label { Text = _texts["journal.level", q.Level], Modulate = Muted, MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
+        if (q.Ready)
+        {
+            var dot = new Panel { Name = "Ready", MouseFilter = Control.MouseFilterEnum.Ignore, CustomMinimumSize = new Vector2(8, 8), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, TooltipText = _texts["journal.ready", q.Giver] };
+            dot.AddThemeStyleboxOverride("panel", OsmoseTheme.Flat(UiStyle.Cost, corner: 4));
+            line.AddChild(dot);
+        }
+        var level = new Label { Text = _texts["journal.level", q.Level], MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        level.AddThemeFontSizeOverride("font_size", 14);
+        level.AddThemeColorOverride("font_color", new Color(UiStyle.TextDim));
+        line.AddChild(level);
         row.AddChild(line);
         row.Pressed += () => Choose(q.Id);
         Rows[q.Id] = row;

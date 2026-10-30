@@ -23,6 +23,6 @@ public partial class FoldArrow : Control
         float r = Mathf.Min(Size.X, Size.Y) / 2 - 2;
         Vector2[] down = [c + new Vector2(-r, -r * 0.5f), c + new Vector2(r, -r * 0.5f), c + new Vector2(0, r * 0.6f)];
         Vector2[] right = [c + new Vector2(-r * 0.5f, -r), c + new Vector2(-r * 0.5f, r), c + new Vector2(r * 0.6f, 0)];
-        DrawColoredPolygon(_open ? down : right, FighterView.PlayerColour);
+        DrawColoredPolygon(_open ? down : right, new Color(Rpg.Client.UiStyle.ChocolateLight));
     }
 }

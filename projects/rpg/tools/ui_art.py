@@ -9,7 +9,8 @@
 #   menu (relief/palette.json: the dungeons'), a grey "-locked" variant of each icon an achievement is drawn with, the
 #   search field's magnifier; godot/assets/ui/achievements/banner-<Category>.svg the categories' banners (704 x 192, a
 #   diagonal gradient from the category's colour, its silhouette as a watermark, a veil, its icon); two icon frames.
-# - Since sprint 164: relief/palette.json also holds the twelve trades' icons ("job-<id>", a colour each from its matter).
+# - Since sprint 164: relief/palette.json also holds the twelve trades' icons ("job-<id>", a colour each from its matter);
+#   since sprint 165 the quests' five kinds ("quest-<kind>") and the tick of an objective reached ("check").
 # Deterministic; run from projects/rpg:  python3 tools/ui_art.py
 import json, os
 
@@ -154,8 +155,9 @@ def main():
         with open(os.path.join(relief, name + ".svg"), "w") as f:
             f.write(icon(tone))
     every = {**palette, **extra}
-    # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised.
-    jobs = {n for n in extra if n.startswith("job-")}
+    # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised;
+    # the quests' kinds (sprint 165, docs/graphisme/s165-retours-30-oct.md §3.2): "quest-<kind>", greyed for a kind filtered out.
+    jobs = {n for n in extra if n.startswith(("job-", "quest-"))}
     for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"} | jobs):
         with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
             f.write(icon(grey(every[name])))
@@ -187,6 +189,15 @@ def main():
     }.items():
         with open(os.path.join(frames, "..", name + ".svg"), "w") as f:
             f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">{body}</svg>\n')
+    # An objective still to reach (sprint 165, s165-retours-30-oct.md §1.3): a hollow ring in the dim grey; the chevrons
+    # that fold the panels laid on the map, two strokes in light chocolate.
+    for name, body in {
+        "todo": '<circle cx="8" cy="8" r="6" fill="none" stroke="#9d9d9d" stroke-width="2"/>',
+        "chevron-down": '<path d="M3 6l5 5 5-5" fill="none" stroke="#c9a27f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+        "chevron-up": '<path d="M3 10l5-5 5 5" fill="none" stroke="#c9a27f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    }.items():
+        with open(os.path.join(frames, "..", name + ".svg"), "w") as f:
+            f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">{body}</svg>\n')
     print(f"{len(palette)} icons, {len(FRAMES)} frames")
 
 
