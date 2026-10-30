@@ -2484,9 +2484,10 @@ public partial class Main
                 problems.Add("the wheel zooms the map with the inventory open");
             ToggleWindow(GameWindow.Inventory);
         }
-        // Every item's tile, in relief and flat (sprint 98; tiles since sprint 166), and every empty slot's, imported with the game.
+        // Every item's tile, in relief and flat (sprint 98; tiles since sprint 166), and every empty slot's, imported with the
+        // game: known to the resources, not loaded (435 pictures rasterised made the macOS run miss its five minutes).
         string[] bare = [.. GameData.Embedded.Items.Values.SelectMany(i => new[] { ItemStyle.Tile(i), ItemStyle.Tile(i, locked: true) })
-            .Concat(Enum.GetValues<ItemSlot>().Select(ItemStyle.Tile)).Where(t => ItemIcon.TextureOf(t) is null)];
+            .Concat(Enum.GetValues<ItemSlot>().Select(ItemStyle.Tile)).Where(t => !ResourceLoader.Exists($"res://assets/icons/items/tiles/{t}.svg"))];
         if (bare.Length > 0)
             problems.Add($"no drawing for {string.Join(", ", bare.Take(5))}");
         string note = $"Town: {talked.Count} people, {lines} lines";
