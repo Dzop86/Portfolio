@@ -198,6 +198,7 @@ public partial class JobsPanel : CanvasLayer
                 _list.AddChild(ResourceRow(r));
             return;
         }
+        Ingredients.Clear();
         IReadOnlyList<RecipeLine> recipes = _book.Recipes(_job);
         if (recipes.Count == 0)
             _list.AddChild(new Label { Text = Texts["jobs.none"], Modulate = new Color(1, 1, 1, 0.6f) });
@@ -205,38 +206,42 @@ public partial class JobsPanel : CanvasLayer
             _list.AddChild(RecipeRow(r));
     }
 
+    /// <summary>The ingredients' tiles of the recipes listed (for the self-test).</summary>
+    public List<ItemIcon> Ingredients { get; } = [];
+
     private HBoxContainer RecipeRow(RecipeLine r)
     {
         var line = new HBoxContainer();
         line.AddThemeConstantOverride("separation", 8);
         (Button tile, ItemIcon icon) = ItemIcon.Tile(48);
-        (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(r.Item), r.Item, new Color(ItemStyle.Colour(r.Item)));
+        icon.Item = r.Item;
         tile.TooltipText = ItemMenu.Tooltip(r.Item, Texts);
         line.AddChild(tile);
         var text = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         line.AddChild(text);
         var name = new Label { Text = Texts["jobs.recipe", r.Item.Name.In(Texts.Lang), r.Recipe.Level, r.Xp] };
         if (r.TooHigh)
-            name.AddThemeColorOverride("font_color", new Color("ff7a7a"));
+            name.AddThemeColorOverride("font_color", new Color(UiStyle.Losing));
         text.AddChild(name);
-        // Each ingredient as its icon (Charles, sprint 101): how many the recipe needs on it, owned / needed under it, in red if missing.
+        // Each ingredient as its tile (Charles, sprint 101; 40 px since sprint 166, s165 §4.6): owned / needed under it, in the
+        // coral of what is missing, flat if it is; the count needed no longer repeated on the tile.
         var needs = new HBoxContainer();
-        needs.AddThemeConstantOverride("separation", 6);
+        needs.AddThemeConstantOverride("separation", 8);
         text.AddChild(needs);
         foreach (Needed n in r.Ingredients)
         {
             var one = new VBoxContainer();
             one.AddThemeConstantOverride("separation", 0);
             needs.AddChild(one);
-            (Button small, ItemIcon mark) = ItemIcon.Tile(34);
-            (mark.Glyph, mark.Item, mark.Tint, mark.Count, mark.Faint) = (ItemStyle.GlyphOf(n.Item), n.Item, new Color(ItemStyle.Colour(n.Item)), n.Count, n.Missing);
+            (Button small, ItemIcon mark) = ItemIcon.Tile(40);
+            (mark.Item, mark.Faint) = (n.Item, n.Missing);
+            Ingredients.Add(mark);
             // The whole card on an ingredient too (sprint 117, D77), what is owned of it under it.
             small.TooltipText = ItemMenu.Tooltip(n.Item, Texts) + $"\n{n.Owned}/{n.Count}";
             one.AddChild(small);
             var count = new Label { Text = $"{n.Owned}/{n.Count}", HorizontalAlignment = HorizontalAlignment.Center };
-            count.AddThemeFontSizeOverride("font_size", 11);
-            if (n.Missing)
-                count.AddThemeColorOverride("font_color", new Color("ff7a7a"));
+            count.AddThemeFontSizeOverride("font_size", 14);
+            count.AddThemeColorOverride("font_color", new Color(n.Missing ? UiStyle.Losing : UiStyle.TextStrong));
             one.AddChild(count);
         }
         if (_book.Workshop == r.Job.Id)
@@ -258,11 +263,11 @@ public partial class JobsPanel : CanvasLayer
         (Button tile, ItemIcon icon) = ItemIcon.Tile(40);
         if (r.Item is Item item)
         {
-            (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(item), item, new Color(ItemStyle.Colour(item)));
+            icon.Item = item;
             tile.TooltipText = ItemMenu.Tooltip(item, Texts);
         }
         else
-            (icon.Glyph, icon.Faint) = (Rpg.Client.Glyph.Leaf, true);
+            icon.Faint = true;
         line.AddChild(tile);
         string name = r.Item?.Name.In(Texts.Lang) ?? "?";
         line.AddChild(new Label { Text = $"{Texts["jobs.level", r.Level]} · {name} · {r.Where}" + (r.Item is null ? "" : " · " + Texts["jobs.owned", r.Owned]), VerticalAlignment = VerticalAlignment.Center });

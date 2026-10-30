@@ -3,31 +3,11 @@ using Rpg.Core;
 
 namespace Rpg.Client;
 
-/// <summary>The drawing of an item's icon: what its shape shows.</summary>
-public enum Glyph
-{
-    Ring,
-    Amulet,
-    Belt,
-    Cape,
-    Hat,
-    Chest,
-    Shoulders,
-    Sword,
-    Axe,
-    Shield,
-    Pet,
-    Mount,
-    Boots,
-    Potion,
-    Leaf,
-    Scroll,
-}
-
 /// <summary>
-/// How an item looks in the inventory, without any engine (sprint 65): the shape of its icon (its slot,
-/// or its kind) and its colour (the element of the characteristic it gives most, the heal colour for
-/// Vitality, grey for nothing), drawn by the client; and the search through item names.
+/// How an item looks, without any engine (sprint 65): since sprint 166 (D87, <c>docs/graphisme/s165-retours-30-oct.md</c> §4)
+/// a tile in relief drawn by <c>tools/item_art.py</c>, its drawing in the colour of what it is made of, its rim telling
+/// where it comes from (<see cref="Frame"/>), a dot of its element on equipment (<see cref="Element"/>); its colour in the
+/// chat (<see cref="Colour"/>); and the search through item names.
 /// </summary>
 /// <summary>Where an item comes from (sprint 98): common, a craftsman's, a set's piece, a chief's.</summary>
 public enum Provenance
@@ -40,53 +20,45 @@ public enum Provenance
 
 public static class ItemStyle
 {
-    public static Glyph GlyphOf(Item item)
+    /// <summary>The file of an item's tile in <c>assets/icons/items/tiles</c>, without its extension; flat for one not wearable now.</summary>
+    public static string Tile(Item item, bool locked = false)
     {
         ArgumentNullException.ThrowIfNull(item);
-        return item.Slot switch
-        {
-            ItemSlot.Ring => Glyph.Ring,
-            ItemSlot.Amulet => Glyph.Amulet,
-            ItemSlot.Belt => Glyph.Belt,
-            ItemSlot.Cape => Glyph.Cape,
-            ItemSlot.Hat => Glyph.Hat,
-            ItemSlot.Chest => Glyph.Chest,
-            ItemSlot.Shoulders => Glyph.Shoulders,
-            ItemSlot.OneHanded => Glyph.Sword,
-            ItemSlot.TwoHanded => Glyph.Axe,
-            ItemSlot.Shield => Glyph.Shield,
-            ItemSlot.Pet => Glyph.Pet,
-            ItemSlot.Mount => Glyph.Mount,
-            ItemSlot.Boots => Glyph.Boots,
-            _ => item.Kind switch
-            {
-                ItemKind.Consumable => Glyph.Potion,
-                ItemKind.Quest => Glyph.Scroll,
-                _ => Glyph.Leaf,
-            },
-        };
+        return item.Id + (locked ? "-locked" : "");
     }
 
+    /// <summary>The file of an empty slot's tile: the slot's drawing, flat in a hollow.</summary>
+    public static string Tile(ItemSlot slot) => "slot-" + slot.ToString().ToLowerInvariant();
+
     /// <summary>
-    /// The colour of an item: its strongest characteristic's element (ties in the sheet's order); food and
-    /// potions the healing's.
+    /// The dot on an equipment's tile: its strongest characteristic's element (ties in the sheet's order), Vitality the
+    /// heal's; none for an item that gives nothing or is not worn.
     /// </summary>
-    public static string Colour(Item item)
+    public static string? Element(Item item)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (item.Heal > 0)
-            return ElementStyle.Heal;
+        if (item.Kind != ItemKind.Equipment)
+            return null;
         Characteristics st = item.Stats ?? Characteristics.None;
         (int Value, string Colour)[] all =
         [
             (st.Vitality, ElementStyle.Heal),
-            (st.Earth, ElementStyle.Colour(Element.Earth)),
-            (st.Fire, ElementStyle.Colour(Element.Fire)),
-            (st.Water, ElementStyle.Colour(Element.Water)),
-            (st.Air, ElementStyle.Colour(Element.Air)),
+            (st.Earth, ElementStyle.Colour(Rpg.Core.Element.Earth)),
+            (st.Fire, ElementStyle.Colour(Rpg.Core.Element.Fire)),
+            (st.Water, ElementStyle.Colour(Rpg.Core.Element.Water)),
+            (st.Air, ElementStyle.Colour(Rpg.Core.Element.Air)),
         ];
         (int best, string colour) = all.Aggregate((a, b) => b.Value > a.Value ? b : a);
-        return best > 0 ? colour : item.Kind == ItemKind.Quest ? "#f0c060" : "#bdbdbd";
+        return best > 0 ? colour : null;
+    }
+
+    /// <summary>
+    /// The colour of an item's name in the chat: its element's (<see cref="Element"/>); food and potions the healing's.
+    /// </summary>
+    public static string Colour(Item item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        return item.Heal > 0 ? ElementStyle.Heal : Element(item) ?? (item.Kind == ItemKind.Quest ? "#f0c060" : "#bdbdbd");
     }
 
     /// <summary>
@@ -105,13 +77,16 @@ public static class ItemStyle
         return data.Jobs.Values.Any(j => j.RecipeFor(item.Id) is not null) ? Provenance.Craft : Provenance.Common;
     }
 
-    /// <summary>The frame's colour of each provenance: grey, the chart's chocolate, its pistachio, gold.</summary>
+    /// <summary>
+    /// The rim's colour of each provenance (sprint 166, s165 §4.5): a discreet grey, light chocolate, the violet of a set's
+    /// piece (the pistachio is the ring of what is chosen), the top of the gold of a chief's (a gradient on the tile).
+    /// </summary>
     public static string Frame(Provenance provenance) => provenance switch
     {
-        Provenance.Craft => "#8a5a36",
-        Provenance.Set => "#bef374",
-        Provenance.Chief => "#e0b84a",
-        _ => "#7a7a7a",
+        Provenance.Craft => "#c9a27f",
+        Provenance.Set => "#b48cff",
+        Provenance.Chief => UiStyle.GoldTop,
+        _ => "#5c5c5c",
     };
 
     /// <summary>Whether an item's name, in a language, holds the words searched (case and accents aside).</summary>

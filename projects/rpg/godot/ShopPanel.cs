@@ -89,7 +89,7 @@ public partial class ShopPanel : CanvasLayer
             rows.AddChild(line);
             // The item's tile, its card under the mouse and its right click (sprint 117, D77).
             (Button tile, ItemIcon icon) = ItemIcon.Tile(44);
-            (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(row.Item), row.Item, new Color(ItemStyle.Colour(row.Item)));
+            icon.Item = row.Item;
             tile.TooltipText = ItemMenu.Tooltip(row.Item, Texts);
             line.AddChild(tile);
             line.AddChild(new Label { Text = row.Title, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, TooltipText = row.Refusal ?? "", MouseFilter = Control.MouseFilterEnum.Pass });

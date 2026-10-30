@@ -48,19 +48,22 @@ public class BookTests
     }
 
     [Fact]
-    public void AnItem_LooksLikeItsSlotOrKind_InTheColourOfWhatItGivesMost()
+    public void AnItem_HasItsTile_AndAnEquipment_TheDotOfWhatItGivesMost()
     {
-        Assert.Equal([Glyph.Ring, Glyph.Axe, Glyph.Potion, Glyph.Leaf, Glyph.Scroll],
-            Samples.Select(id => ItemStyle.GlyphOf(Data.Items[id])));
-        Assert.Equal(ElementStyle.Colour(Element.Fire), ItemStyle.Colour(Data.Items["ember-ring"]));
-        Assert.Equal(ElementStyle.Heal, ItemStyle.Colour(Data.Items["orc-breastplate"]));
-        Assert.Equal("#bdbdbd", ItemStyle.Colour(Data.Items["donkey"]));
+        Assert.Equal(Samples, Samples.Select(id => ItemStyle.Tile(Data.Items[id])));
+        Assert.Equal("copper-ring-locked", ItemStyle.Tile(Data.Items["copper-ring"], locked: true));
+        Assert.Equal("slot-twohanded", ItemStyle.Tile(ItemSlot.TwoHanded));
+        Assert.Equal(ElementStyle.Colour(Element.Fire), ItemStyle.Element(Data.Items["ember-ring"]));
+        Assert.Equal(ElementStyle.Heal, ItemStyle.Element(Data.Items["orc-breastplate"]));
+        // Nothing given, or not worn: no dot.
+        Assert.Null(ItemStyle.Element(Data.Items["donkey"]));
+        Assert.Null(ItemStyle.Element(Data.Items["bread"]));
+        Assert.Null(ItemStyle.Element(Data.Items["orc-fang"]));
         // A tie goes to the first in the sheet's order: Earth before Water.
         var even = new Item("even", new LocalizedText("x", "x"), ItemKind.Equipment, ItemSlot.Belt, Stats: new Characteristics(Earth: 5, Water: 5));
-        Assert.Equal(ElementStyle.Colour(Element.Earth), ItemStyle.Colour(even));
-        // Every slot has its own shape.
-        ItemSlot[] slots = Enum.GetValues<ItemSlot>();
-        Assert.Equal(slots.Length, slots.Select(s => ItemStyle.GlyphOf(new Item("x", new LocalizedText("x", "x"), ItemKind.Equipment, s))).Distinct().Count());
+        Assert.Equal(ElementStyle.Colour(Element.Earth), ItemStyle.Element(even));
+        // The chat's colour of an item stays that of its element.
+        Assert.Equal(ItemStyle.Element(Data.Items["ember-ring"]), ItemStyle.Colour(Data.Items["ember-ring"]));
     }
 
     [Fact]

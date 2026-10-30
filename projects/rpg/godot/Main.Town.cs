@@ -2484,8 +2484,9 @@ public partial class Main
                 problems.Add("the wheel zooms the map with the inventory open");
             ToggleWindow(GameWindow.Inventory);
         }
-        // Every item's drawing (sprint 98), imported with the game.
-        string[] bare = [.. GameData.Embedded.Items.Values.Where(i => ItemIcon.TextureOf(i) is null).Select(i => i.Id)];
+        // Every item's tile, in relief and flat (sprint 98; tiles since sprint 166), and every empty slot's, imported with the game.
+        string[] bare = [.. GameData.Embedded.Items.Values.SelectMany(i => new[] { ItemStyle.Tile(i), ItemStyle.Tile(i, locked: true) })
+            .Concat(Enum.GetValues<ItemSlot>().Select(ItemStyle.Tile)).Where(t => ItemIcon.TextureOf(t) is null)];
         if (bare.Length > 0)
             problems.Add($"no drawing for {string.Join(", ", bare.Take(5))}");
         string note = $"Town: {talked.Count} people, {lines} lines";
@@ -3202,6 +3203,9 @@ public partial class Main
             // Each trade with its icon in relief (sprint 164).
             if (panel.IconsShown != panel.JobsListed)
                 problems.Add($"{panel.IconsShown} of the {panel.JobsListed} trades show their icon");
+            // Each ingredient a tile in relief of 40, flat when missing (sprint 166, D87): none on the bench's first visit.
+            if (panel.Ingredients.Count == 0 || panel.Ingredients.Any(i => i.Shown != ItemStyle.Tile(i.Item!, locked: true) || ItemIcon.TextureOf(i.Shown!) is null || i.GetParent<Control>().CustomMinimumSize.X != 40))
+                problems.Add($"the {bench.Job}'s ingredients are not their flat tiles of 40: {string.Join(", ", panel.Ingredients.Select(i => i.Shown))}");
             // The forge's first piece teaches 165 (sprint 109).
             if (bench.Job == "smith" && lines.SingleOrDefault(l => l.Item.Id == "copper-billhook")?.Xp != 165)
                 problems.Add("the forge does not offer the copper billhook for 165 experience");

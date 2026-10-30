@@ -96,7 +96,7 @@ public partial class ItemSheet : CanvasLayer
     private Button Tile(Item item, float size)
     {
         (Button tile, ItemIcon icon) = ItemIcon.Tile(size);
-        (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(item), item, new Color(ItemStyle.Colour(item)));
+        icon.Item = item;
         tile.TooltipText = ItemMenu.Tooltip(item, _texts);
         return tile;
     }

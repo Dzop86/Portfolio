@@ -26,6 +26,9 @@ public static class UiStyle
     /// <summary>Where to go and what to hand back (sprint 165, --osmose-cost): the quest followed's hints.</summary>
     public const string Cost = "#f2d36b";
 
+    /// <summary>What is missing or out of reach (sprint 166, --osmose-losing): an ingredient short, a recipe too high.</summary>
+    public const string Losing = "#f08070";
+
     // The texts, from the strongest to the one switched off.
     public const string TextStrong = "#e0e0e0", Text = "#cccccc", TextDim = "#9d9d9d", TextOff = "#6a6a6a";
 
@@ -37,7 +40,7 @@ public static class UiStyle
     [
         Pistachio, PistachioPale, Chocolate, ChocolateLight, Bamboo, Window, Hud, TitleBar, Frame, FrameDark, RaisedTop, RaisedBottom,
         RaisedHoverTop, RaisedHoverBottom, Edge, PrimaryTop, PrimaryBottom, LitTop, LitBottom, Selected, Well, GoldTop, Gold, GoldBottom,
-        GoldText, TextStrong, Text, TextDim, TextOff, Hover, Tab, Tooltip, CloseHover, CloseHoverText, Scroll, ScrollHover, Cost,
+        GoldText, TextStrong, Text, TextDim, TextOff, Hover, Tab, Tooltip, CloseHover, CloseHoverText, Scroll, ScrollHover, Cost, Losing,
     ];
 
     /// <summary>The smallest a thing one clicks may be, in pixels (the charter's 44).</summary>

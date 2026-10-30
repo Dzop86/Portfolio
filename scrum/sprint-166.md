@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, chaque objet a sa tuile en relief et sa version à plat, colorée selon sa matière et bordée selon sa provenance, à la place des formes dessinées par le code (rpg) ; xUnit sur l'outil et `ItemIcon`, auto-tests du client. | 4 | À faire |
-| En tant qu'artisan, la ligne de recette de l'atelier montre l'objet, ses ingrédients et ce qui manque, et deux recettes d'un même métier ne se ressemblent plus (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, chaque objet a sa tuile en relief et sa version à plat, colorée selon sa matière et bordée selon sa provenance, à la place des formes dessinées par le code (rpg) ; xUnit sur l'outil et `ItemIcon`, auto-tests du client. | 4 | Fait |
+| En tant qu'artisan, la ligne de recette de l'atelier montre l'objet, ses ingrédients et ce qui manque, et deux recettes d'un même métier ne se ressemblent plus (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

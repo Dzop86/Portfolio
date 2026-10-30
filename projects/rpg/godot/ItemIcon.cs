@@ -4,147 +4,61 @@ using Rpg.Client;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// An item's icon: since sprint 98 (D72), its game-icons.net drawing (CC BY 3.0, the authors in
-/// <c>assets/icons/items/credits.json</c>) in its colour (<see cref="ItemStyle.Colour"/>) on a dark tile framed
-/// by where it comes from (<see cref="ItemStyle.Frame"/>); without one, a simple shape for its slot or kind
-/// (<see cref="ItemStyle.GlyphOf"/>, sprint 65). Its count in a corner; an empty slot shows its shape, faint.
+/// An item's icon: since sprint 166 (D87, <c>docs/graphisme/s165-retours-30-oct.md</c> §4) its tile in relief drawn by
+/// <c>tools/item_art.py</c> (<see cref="ItemStyle.Tile(Rpg.Core.Item, bool)"/>): its game-icons.net drawing (CC BY 3.0, the
+/// authors in <c>assets/icons/items/credits.json</c>) in the colour of what it is made of, its rim telling where it comes
+/// from, the dot of its element; flat for an item that cannot be worn now; an empty slot shows its slot's drawing in a
+/// hollow. Its count in the bottom right corner from 40 pixels up.
 /// </summary>
 public partial class ItemIcon : Control
 {
-    public Glyph Glyph { get; set; }
-
-    /// <summary>The item drawn, for its drawing and its frame (null: the glyph alone, as for an empty slot).</summary>
+    /// <summary>The item drawn (null: the empty <see cref="Slot"/>, or nothing).</summary>
     public Rpg.Core.Item? Item { get; set; }
+
+    /// <summary>The slot an empty case shows, when no item is drawn.</summary>
+    public Rpg.Core.ItemSlot? Slot { get; set; }
 
     // Kept for the whole game, as the spells' (a texture held by no node was freed, D67).
     private static readonly Dictionary<string, Texture2D?> Textures = [];
 
-    /// <summary>The drawing of an item, from the icons imported with the game; null without one.</summary>
-    public static Texture2D? TextureOf(Rpg.Core.Item item)
+    /// <summary>A tile of <c>assets/icons/items/tiles</c>; null when the game has none of that name.</summary>
+    public static Texture2D? TextureOf(string tile)
     {
-        if (item.Icon is not string icon)
-            return null;
-        string name = icon[(icon.IndexOf('/', StringComparison.Ordinal) + 1)..];
-        if (Textures.TryGetValue(name, out Texture2D? known))
+        if (Textures.TryGetValue(tile, out Texture2D? known))
             return known;
-        string path = $"res://assets/icons/items/{name}.svg";
-        return Textures[name] = ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
+        string path = $"res://assets/icons/items/tiles/{tile}.svg";
+        return Textures[tile] = ResourceLoader.Exists(path) ? GD.Load<Texture2D>(path) : null;
     }
 
     /// <summary>Lets the textures go, before the game quits.</summary>
     public static void Forget() => Textures.Clear();
 
-    /// <summary>The drawings shown so far (for the self-test).</summary>
+    /// <summary>The tiles shown so far (for the self-test).</summary>
     public static int Drawn => Textures.Values.Count(t => t is not null);
-    public Color Tint { get; set; } = Colors.White;
+
     public int Count { get; set; } = 1;
 
-    /// <summary>An empty slot or an item that cannot be worn now: drawn faint.</summary>
+    /// <summary>An empty slot or an item that cannot be worn now: its flat tile.</summary>
     public bool Faint { get; set; }
+
+    /// <summary>The tile drawn now (for the self-test), or none.</summary>
+    public string? Shown => Item is Rpg.Core.Item item ? ItemStyle.Tile(item, Faint) : Slot is Rpg.Core.ItemSlot slot ? ItemStyle.Tile(slot) : null;
 
     public override void _Draw()
     {
+        // Square and centred, whatever the row stretches the control to.
         float s = Mathf.Min(Size.X, Size.Y);
-        var c = new Vector2(Size.X / 2, Size.Y / 2);
-        DrawStyleBox(new StyleBoxFlat
+        var square = new Rect2((Size - new Vector2(s, s)) / 2, new Vector2(s, s));
+        if (Shown is string tile && TextureOf(tile) is Texture2D texture)
+            DrawTextureRect(texture, square, false);
+        // Its count: 14 px, bold white edged in black, in the corner the tile leaves free; none on a tile under 40.
+        if (Count > 1 && s >= 40)
         {
-            BgColor = new Color("2b2b2b"),
-            BorderColor = Faint ? new Color(1, 1, 1, 0.12f)
-                : Item is Rpg.Core.Item framed ? new Color(ItemStyle.Frame(ItemStyle.ProvenanceOf(framed, Rpg.Core.GameData.Embedded)))
-                : new Color(Tint, 0.55f),
-            BorderWidthLeft = 2,
-            BorderWidthRight = 2,
-            BorderWidthTop = 2,
-            BorderWidthBottom = 2,
-            CornerRadiusTopLeft = 8,
-            CornerRadiusTopRight = 8,
-            CornerRadiusBottomLeft = 8,
-            CornerRadiusBottomRight = 8,
-        }, new Rect2(Vector2.Zero, Size));
-        Color col = Faint ? new Color(1, 1, 1, 0.22f) : Tint;
-        float r = s * 0.32f, w = Mathf.Max(2, s * 0.07f);
-        if (Item is not null && TextureOf(Item) is Texture2D drawing)
-        {
-            // The shape in the item's colour, a dark copy a little below and right for relief.
-            float inset = s * 0.16f;
-            var at = new Rect2(new Vector2(inset, inset), Size - new Vector2(inset * 2, inset * 2));
-            DrawTextureRect(drawing, new Rect2(at.Position + new Vector2(1.5f, 2), at.Size), false, new Color(0, 0, 0, Faint ? 0.15f : 0.6f));
-            DrawTextureRect(drawing, at, false, col);
-        }
-        else
-        {
-            switch (Glyph)
-            {
-                case Glyph.Ring:
-                    DrawArc(c + new Vector2(0, r * 0.15f), r * 0.75f, 0, Mathf.Tau, 32, col, w * 1.4f, true);
-                    DrawCircle(c - new Vector2(0, r * 0.65f), r * 0.28f, col);
-                    break;
-                case Glyph.Amulet:
-                    DrawArc(c - new Vector2(0, r * 0.2f), r, Mathf.Pi * 1.05f, Mathf.Pi * 1.95f, 24, col, w * 0.6f, true);
-                    DrawCircle(c + new Vector2(0, r * 0.55f), r * 0.42f, col);
-                    break;
-                case Glyph.Belt:
-                    DrawRect(new Rect2(c.X - r * 1.2f, c.Y - r * 0.3f, r * 2.4f, r * 0.6f), col);
-                    DrawRect(new Rect2(c.X - r * 0.35f, c.Y - r * 0.5f, r * 0.7f, r), new Color("2b2b2b"), false, w);
-                    break;
-                case Glyph.Cape:
-                    DrawColoredPolygon([c + new Vector2(-r * 0.45f, -r), c + new Vector2(r * 0.45f, -r), c + new Vector2(r, r), c + new Vector2(-r, r)], col);
-                    break;
-                case Glyph.Hat:
-                    DrawColoredPolygon([c + new Vector2(0, -r * 1.05f), c + new Vector2(r * 0.65f, r * 0.45f), c + new Vector2(-r * 0.65f, r * 0.45f)], col);
-                    DrawRect(new Rect2(c.X - r * 1.1f, c.Y + r * 0.45f, r * 2.2f, r * 0.3f), col);
-                    break;
-                case Glyph.Chest:
-                    DrawColoredPolygon([c + new Vector2(-r, -r * 0.8f), c + new Vector2(-r * 0.35f, -r), c + new Vector2(r * 0.35f, -r), c + new Vector2(r, -r * 0.8f), c + new Vector2(r * 0.75f, r), c + new Vector2(-r * 0.75f, r)], col);
-                    break;
-                case Glyph.Shoulders:
-                    DrawCircle(c + new Vector2(-r * 0.6f, 0), r * 0.55f, col);
-                    DrawCircle(c + new Vector2(r * 0.6f, 0), r * 0.55f, col);
-                    break;
-                case Glyph.Sword:
-                    DrawLine(c + new Vector2(-r * 0.8f, r * 0.8f), c + new Vector2(r * 0.9f, -r * 0.9f), col, w * 1.5f, true);
-                    DrawLine(c + new Vector2(-r * 0.75f, r * 0.15f), c + new Vector2(-r * 0.15f, r * 0.75f), col, w * 1.3f, true);
-                    break;
-                case Glyph.Axe:
-                    DrawLine(c + new Vector2(-r * 0.9f, r), c + new Vector2(r * 0.5f, -r * 0.9f), col, w * 1.2f, true);
-                    DrawColoredPolygon([c + new Vector2(r * 0.1f, -r * 0.9f), c + new Vector2(r * 1.05f, -r * 0.55f), c + new Vector2(r * 0.65f, r * 0.25f), c + new Vector2(r * 0.15f, -r * 0.15f)], col);
-                    break;
-                case Glyph.Shield:
-                    DrawColoredPolygon([c + new Vector2(-r * 0.85f, -r * 0.9f), c + new Vector2(r * 0.85f, -r * 0.9f), c + new Vector2(r * 0.75f, r * 0.2f), c + new Vector2(0, r), c + new Vector2(-r * 0.75f, r * 0.2f)], col);
-                    break;
-                case Glyph.Pet:
-                    DrawCircle(c + new Vector2(0, r * 0.35f), r * 0.5f, col);
-                    foreach (float x in new[] { -0.7f, -0.25f, 0.25f, 0.7f })
-                        DrawCircle(c + new Vector2(r * x, -r * (Mathf.Abs(x) > 0.5f ? 0.25f : 0.6f)), r * 0.22f, col);
-                    break;
-                case Glyph.Mount:
-                    DrawArc(c + new Vector2(0, r * 0.1f), r * 0.8f, -Mathf.Pi / 2 + 0.7f, Mathf.Pi * 1.5f - 0.7f, 28, col, w * 1.8f, true);
-                    break;
-                case Glyph.Boots:
-                    DrawColoredPolygon([c + new Vector2(-r * 0.6f, -r), c + new Vector2(r * 0.05f, -r), c + new Vector2(r * 0.05f, r * 0.2f), c + new Vector2(r, r * 0.45f), c + new Vector2(r, r), c + new Vector2(-r * 0.6f, r)], col);
-                    break;
-                case Glyph.Potion:
-                    DrawCircle(c + new Vector2(0, r * 0.35f), r * 0.65f, col);
-                    DrawRect(new Rect2(c.X - r * 0.22f, c.Y - r * 0.85f, r * 0.44f, r * 0.7f), col);
-                    break;
-                case Glyph.Leaf:
-                    DrawColoredPolygon([c + new Vector2(0, -r), c + new Vector2(r * 0.6f, 0), c + new Vector2(0, r), c + new Vector2(-r * 0.6f, 0)], col);
-                    DrawLine(c + new Vector2(0, -r * 0.8f), c + new Vector2(0, r * 0.8f), new Color("2b2b2b"), w * 0.6f);
-                    break;
-                default:
-                    DrawRect(new Rect2(c.X - r * 0.8f, c.Y - r * 0.6f, r * 1.6f, r * 1.2f), col);
-                    DrawCircle(c + new Vector2(-r * 0.8f, 0), r * 0.25f, col);
-                    DrawCircle(c + new Vector2(r * 0.8f, 0), r * 0.25f, col);
-                    break;
-            }
-        }
-        if (Count > 1)
-        {
-            Font font = ThemeDB.FallbackFont;
-            int size = Mathf.RoundToInt(s * 0.24f);
+            Font font = OsmoseTheme.Bold();
+            const int size = 14;
             string text = Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            Vector2 at = new(Size.X - 5 - font.GetStringSize(text, HorizontalAlignment.Left, -1, size).X, Size.Y - 6);
-            DrawStringOutline(font, at, text, HorizontalAlignment.Left, -1, size, 4, Colors.Black);
+            Vector2 at = square.End - new Vector2(4 + font.GetStringSize(text, HorizontalAlignment.Left, -1, size).X, 5);
+            DrawStringOutline(font, at, text, HorizontalAlignment.Left, -1, size, 3, Colors.Black);
             DrawString(font, at, text, HorizontalAlignment.Left, -1, size, Colors.White);
         }
     }

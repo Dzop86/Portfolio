@@ -136,9 +136,7 @@ public partial class EndPanel : PanelContainer
                     if (!GameData.Embedded.Items.TryGetValue(loot.Item, out Item? item))
                         continue;
                     (Button tile, ItemIcon icon) = ItemIcon.Tile(40);
-                    icon.Glyph = ItemStyle.GlyphOf(item);
                     icon.Item = item;
-                    icon.Tint = new Color(ItemStyle.Colour(item));
                     icon.Count = loot.Count;
                     tile.TooltipText = ItemMenu.Tooltip(item, _texts);
                     line.AddChild(tile);

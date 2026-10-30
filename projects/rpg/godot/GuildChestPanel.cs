@@ -188,7 +188,7 @@ public partial class GuildChestPanel : CanvasLayer
         (Button tile, ItemIcon icon) = ItemIcon.Tile(TileSize);
         Item? item = GameData.Embedded.Items.GetValueOrDefault(stack.Item);
         if (item is not null)
-            (icon.Glyph, icon.Item, icon.Tint) = (ItemStyle.GlyphOf(item), item, new Color(ItemStyle.Colour(item)));
+            icon.Item = item;
         icon.Count = stack.Count;
         int many() => Math.Min(stack.Count, (int)_count.Value);
         tile.MouseEntered += () => tile.TooltipText = (item is null ? "" : ItemMenu.Tooltip(item, _texts) + "\n") + string.Format(System.Globalization.CultureInfo.InvariantCulture, action, many());

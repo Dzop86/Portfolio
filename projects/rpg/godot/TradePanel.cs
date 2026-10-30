@@ -159,7 +159,7 @@ public partial class TradePanel : CanvasLayer
     {
         Item item = GameData.Embedded.Items[id];
         (Button tile, ItemIcon icon) = ItemIcon.Tile(52);
-        (icon.Glyph, icon.Item, icon.Tint, icon.Count) = (ItemStyle.GlyphOf(item), item, new Color(ItemStyle.Colour(item)), count);
+        (icon.Item, icon.Count) = (item, count);
         tile.TooltipText = ItemMenu.Tooltip(item, _texts);
         if (click is not null)
             tile.Pressed += () => click(id);

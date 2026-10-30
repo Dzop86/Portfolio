@@ -38,8 +38,9 @@ def shape(name):
 
 
 def layers(key, tone, place, stroke, shadow):
-    """The four layers of a silhouette (shadow, outline, gradient, highlight), in the group that places it."""
-    d = shape(tone["shape"])
+    """The four layers of a silhouette (shadow, outline, gradient, highlight), in the group that places it; its path is
+    tone["d"] when given (the items' drawings, tools/item_art.py), else that of tone["shape"]."""
+    d = tone.get("d") or shape(tone["shape"])
     sx, sy = shadow
     return (
         f'<defs><linearGradient id="g-{key}" gradientUnits="userSpaceOnUse" x1="96" y1="32" x2="416" y2="480">'

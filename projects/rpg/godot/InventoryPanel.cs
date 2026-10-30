@@ -213,9 +213,8 @@ public partial class InventoryPanel : CanvasLayer
         foreach ((Slot slot, (Button tile, ItemIcon icon)) in _slots)
         {
             Item? worn = Worn(slot);
-            icon.Glyph = worn is null ? ItemStyle.GlyphOf(new Item("", new LocalizedText("", ""), ItemKind.Equipment, KindOf(slot))) : ItemStyle.GlyphOf(worn);
             icon.Item = worn;
-            icon.Tint = worn is null ? Colors.White : new Color(ItemStyle.Colour(worn));
+            icon.Slot = KindOf(slot);
             icon.Faint = worn is null;
             icon.Count = 1;
             icon.QueueRedraw();
@@ -239,9 +238,7 @@ public partial class InventoryPanel : CanvasLayer
         foreach ((Item item, int count, int free) in items)
         {
             (Button tile, ItemIcon icon) = ItemIcon.Tile(TileSize);
-            icon.Glyph = ItemStyle.GlyphOf(item);
             icon.Item = item;
-            icon.Tint = new Color(ItemStyle.Colour(item));
             icon.Count = count;
             string card = Texts.ItemCard(item) + (free < count ? "\n" + Texts["inventory.free", free] : "");
             tile.TooltipText = card + "\n" + Texts["item.hint"];
