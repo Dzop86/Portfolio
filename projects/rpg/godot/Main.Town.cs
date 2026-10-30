@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far")
             _ = TownScreenshot();
     }
 
@@ -3567,9 +3567,13 @@ public partial class Main
         if (Math.Abs(map.Zoom - map.MinZoom) > 1e-4f || map.PictureAt.X < 0 || map.PictureAt.Y < 0)
             problems.Add($"the world map zooms out to {map.Zoom} and is dragged to {map.PictureAt}");
         // Sprint 167 (D87): zoomed out, the atlas alone, every zone's land drawn; zoomed in, the plan of the cells over it.
-        if (map.PlanOpacity != 0 || map.PhotoOpacity != 0 || map.AtlasLands < new WorldAtlas(GameData.Embedded).Regions.Count || map.AtlasBroken > 0 || map.AtlasPhotos != MapPhotos.World(GameData.Embedded).Count())
+        if (map.PlanOpacity != 0 || map.PhotoOpacity != 0 || map.CloudOpacity != 1 || map.AtlasLands < new WorldAtlas(GameData.Embedded).Regions.Count || map.AtlasBroken > 0 || map.AtlasPhotos != MapPhotos.World(GameData.Embedded).Count())
             problems.Add($"the world map zoomed out shows the plan at {map.PlanOpacity}, {map.AtlasLands} lands, {map.AtlasBroken} broken, {map.AtlasPhotos} photographs");
+        // Sprint 170: the world in its sea, only the cities marked.
+        if (map.MarksShown(AtlasMarkKind.City) != 2 || map.MarksShown(AtlasMarkKind.Waystone) != 0 || map.MarksShown(AtlasMarkKind.Dungeon) != 0)
+            problems.Add($"the whole world shows {map.MarksShown(AtlasMarkKind.Waystone)} waystones and {map.MarksShown(AtlasMarkKind.Dungeon)} dungeons");
         // Sprint 168: zoomed out, the zones' names and the landmarks but the workshops; Dungeons unticked hides the doors.
+        map.ZoomAround(pointer, 0.5f / map.Zoom);
         var atlasMarks = new WorldAtlas(GameData.Embedded).Marks;
         if (map.NamesOpacity < 1 || map.MarksShown(AtlasMarkKind.Workshop) != 0 || map.MarksShown(AtlasMarkKind.City) != 2
             || map.MarksShown(AtlasMarkKind.Waystone) != atlasMarks.Count(m => m.Kind == AtlasMarkKind.Waystone))
@@ -3580,7 +3584,7 @@ public partial class Main
         if (!hidden || map.MarksShown(AtlasMarkKind.Dungeon) != GameData.Embedded.Dungeons.Count)
             problems.Add("unticking Dungeons in the legend does not hide their doors, or ticking it back does not show them");
         map.ZoomAround(pointer, 100);
-        if (Math.Abs(map.Zoom - 4) > 1e-4f || map.PlanOpacity < 1 || map.PhotoOpacity < 1 || map.NamesOpacity > 0)
+        if (Math.Abs(map.Zoom - 4) > 1e-4f || map.PlanOpacity < 1 || map.PhotoOpacity < 1 || map.CloudOpacity > 0 || map.NamesOpacity > 0)
             problems.Add($"the world map zooms in to {map.Zoom}, its plan at {map.PlanOpacity}, its names at {map.NamesOpacity}");
     }
 
@@ -3590,11 +3594,13 @@ public partial class Main
     /// </summary>
     private async Task TownScreenshot()
     {
-        if (_options.Shot is "zone" or "world" or "world-near")
+        if (_options.Shot is "zone" or "world" or "world-near" or "world-far")
         {
             // A zone of the world seen from the explore camera; or the world map over it, closer for "world-near".
-            if (_options.Shot is "world" or "world-near")
+            if (_options.Shot is "world" or "world-near" or "world-far")
                 ToggleWindow(GameWindow.Map);
+            if (_options.Shot == "world-far")
+                _mapPanel!.ZoomAround(new Vector2(464, 246), 0.01f);
             if (_options.Shot == "world-near")
                 _mapPanel!.ZoomAround(new Vector2(464, 246), 1.2f / _mapPanel.Zoom);
             _townView!.ShowPath(null);

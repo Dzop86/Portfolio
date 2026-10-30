@@ -25,12 +25,19 @@ public partial class WorldMapPanel : CanvasLayer
     /// <summary>The zoom the workshops show from: they would crowd the cities zoomed out.</summary>
     public const float WorkshopsFrom = 2f;
 
+    /// <summary>The zoom under which only the cities are marked (Charles, sprint 170: the world in its sea).</summary>
+    public const float FarBelow = 0.3f;
+
     private WorldPicture _world = null!;
     private WorldAtlas _atlasData = null!;
     private Texts _texts = null!;
     private Control _view = null!;
     private TextureRect _picture = null!;
     private AtlasView _atlas = null!, _edges = null!;
+    private CloudLayer _clouds = null!;
+
+    /// <summary>How much the clouds show (for the self-test): over the drawn atlas, gone with the photographs.</summary>
+    public float CloudOpacity => _clouds.Opacity;
     private Control _marker = null!;
     private Label _hover = null!;
     private Vector2 _player;
@@ -73,7 +80,7 @@ public partial class WorldMapPanel : CanvasLayer
     public Vector2? GoalCentre => _goal is null ? null : _goal.Position + _goal.Size / 2;
 
     private readonly List<(AtlasMark Mark, Vector2 Pixel, Control Icon)> _marks = [];
-    private readonly List<(Label Name, Vector2 Pixel)> _names = [];
+    private readonly List<(Label Name, Vector2 Pixel, bool City)> _names = [];
 
     /// <summary>Which kinds of landmarks are shown and whether the legend is folded, for every opening until changed.</summary>
     public static readonly Dictionary<string, bool> Shown = new(StringComparer.Ordinal) { ["dungeons"] = true, ["waystones"] = true, ["workshops"] = true, ["quest"] = true };
@@ -113,6 +120,9 @@ public partial class WorldMapPanel : CanvasLayer
         _atlas = new AtlasView { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore, TextureFilter = CanvasItem.TextureFilterEnum.LinearWithMipmaps };
         _atlas.Build(_atlasData);
         _view.AddChild(_atlas);
+        _clouds = new CloudLayer { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _clouds.Build(_atlasData);
+        _view.AddChild(_clouds);
         // The plan of the cells over it, where no map is see-through. The image is copied into the texture, then let go
         // at once (see Main.QuitCleanly).
         byte[] pixels = (byte[])_world.Pixels.Clone();
@@ -145,7 +155,7 @@ public partial class WorldMapPanel : CanvasLayer
             name.AddThemeColorOverride("font_outline_color", new Color(AtlasStyle.Ink));
             name.AddThemeConstantOverride("outline_size", 4);
             _view.AddChild(name);
-            _names.Add((name, new Vector2((float)region.Centre.X, (float)region.Centre.Y)));
+            _names.Add((name, new Vector2((float)region.Centre.X, (float)region.Centre.Y), WorldAtlas.Cities.Contains(region.Zone)));
         }
         // The landmarks in relief, the same size at every zoom.
         foreach (AtlasMark mark in _atlasData.Marks)
@@ -365,25 +375,32 @@ public partial class WorldMapPanel : CanvasLayer
             layer.QueueRedraw();
         }
         _edges.Modulate = new Color(1, 1, 1, plan);
+        (_clouds.Zoom, _clouds.Offset, _clouds.Opacity) = (Zoom, PictureAt, 1 - _atlas.PhotoOpacity);
+        _clouds.QueueRedraw();
         _grid.Position = PictureAt;
         _grid.Size = size;
         _grid.Zoom = Zoom;
         _grid.QueueRedraw();
         // The zones' names fade as the plan comes.
-        foreach ((Label name, Vector2 pixel) in _names)
+        // Far out, the names smaller and only the cities marked: the world would drown under its landmarks.
+        bool far = Zoom < FarBelow;
+        float shrink = Math.Clamp(Zoom / 0.5f, 0.6f, 1);
+        foreach ((Label name, Vector2 pixel, bool city) in _names)
         {
             name.Size = Vector2.Zero;
-            name.Position = PictureAt + pixel * Zoom - name.Size / 2;
+            name.Scale = new Vector2(shrink, shrink);
+            name.Position = PictureAt + pixel * Zoom - name.Size * shrink / 2;
             name.Modulate = new Color(1, 1, 1, 1 - plan);
-            name.Visible = plan < 1;
+            // A city keeps its village far out, without its name: the two touch.
+            name.Visible = plan < 1 && !(far && city);
         }
         foreach ((AtlasMark mark, Vector2 pixel, Control icon) in _marks)
         {
             icon.Position = PictureAt + pixel * Zoom - icon.Size / 2;
             icon.Visible = mark.Kind switch
             {
-                AtlasMarkKind.Dungeon => Shown["dungeons"],
-                AtlasMarkKind.Waystone => Shown["waystones"],
+                AtlasMarkKind.Dungeon => Shown["dungeons"] && !far,
+                AtlasMarkKind.Waystone => Shown["waystones"] && !far,
                 AtlasMarkKind.Workshop => Shown["workshops"] && Zoom >= WorkshopsFrom,
                 _ => true,
             };

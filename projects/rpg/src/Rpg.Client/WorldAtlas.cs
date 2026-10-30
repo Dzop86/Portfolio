@@ -20,6 +20,9 @@ public enum AtlasMarkKind
 /// <summary>A landmark of the atlas: its kind, what it marks (a zone, a dungeon, a waystone, a workshop's trade) and where.</summary>
 public sealed record AtlasMark(AtlasMarkKind Kind, string Id, string Map, AtlasPoint At);
 
+/// <summary>Something of the painted sea (sprint 170, D88): where, how large (1 is a map's height for a cloud), and a drawing.</summary>
+public readonly record struct AtlasSeaMark(AtlasPoint At, double Size, int Variant);
+
 /// <summary>A stamp of trees on the atlas: where, and which of the three drawings.</summary>
 public readonly record struct AtlasTree(AtlasPoint At, int Variant);
 
@@ -63,6 +66,64 @@ public sealed class WorldAtlas
         Trees = BuildTrees();
         Roads = BuildRoads();
         Marks = BuildMarks(data);
+        (Waves, Clouds, Birds) = BuildSea();
+    }
+
+    /// <summary>How far around the maps the painted sea goes, in pixels: two maps' widths.</summary>
+    public double SeaMargin => 2 * _mapWidth * WorldPicture.CellPixels;
+
+    /// <summary>The waves, always well out at sea; the clouds, anywhere; the flights of birds, over the sea.</summary>
+    public IReadOnlyList<AtlasSeaMark> Waves { get; private set; } = [];
+    public IReadOnlyList<AtlasSeaMark> Clouds { get; private set; } = [];
+    public IReadOnlyList<AtlasSeaMark> Birds { get; private set; } = [];
+
+    /// <summary>How far from the land a wave stays, in pixels: a quarter of a map past the coast.</summary>
+    public const double WaveOffshore = 64;
+
+    /// <summary>Whether the land is within <paramref name="distance"/> pixels of a point (sampled around it).</summary>
+    public bool NearLand(double x, double y, double distance)
+    {
+        if (ZoneAt(x, y) is not null)
+            return true;
+        for (int k = 0; k < 12; k++)
+        {
+            double a = k * Math.PI / 6;
+            if (ZoneAt(x + distance * Math.Cos(a), y + distance * Math.Sin(a)) is not null)
+                return true;
+        }
+        return false;
+    }
+
+    private (List<AtlasSeaMark>, List<AtlasSeaMark>, List<AtlasSeaMark>) BuildSea()
+    {
+        double margin = SeaMargin;
+        var waves = new List<AtlasSeaMark>();
+        var birds = new List<AtlasSeaMark>();
+        var clouds = new List<AtlasSeaMark>();
+        // A lattice over the sea, each point moved a little: a wave where the coast is far, now and then a flight of birds.
+        const double step = 72;
+        for (double y = -margin; y <= Height + margin; y += step)
+            for (double x = -margin; x <= Width + margin; x += step)
+            {
+                int i = (int)Math.Round(x / step), j = (int)Math.Round(y / step);
+                double px = x + (Hash(i, j) - 0.5) * step * 0.8, py = y + (Hash(j + 977, i - 31) - 0.5) * step * 0.8;
+                // Thinner far from the maps, so that the waves fray out instead of stopping on a line.
+                double beyond = Math.Max(Math.Max(-px, px - Width), Math.Max(-py, py - Height));
+                if (NearLand(px, py, WaveOffshore) || beyond > margin * (0.3 + 0.7 * Hash(i + 71, j - 3)))
+                    continue;
+                double roll = Hash(i * 3 + 11, j * 5 - 7);
+                if (roll < 0.05)
+                    birds.Add(new AtlasSeaMark(new AtlasPoint(px, py), 0.6 + roll * 5, (int)(Hash(i, j * 7) * 3)));
+                else if (roll < 0.4)
+                    waves.Add(new AtlasSeaMark(new AtlasPoint(px, py), 0.7 + Hash(i + 5, j + 9) * 0.6, (int)(Hash(i * 13, j) * 3)));
+            }
+        // A few clouds across the whole picture, larger out at sea.
+        for (int k = 0; k < 9; k++)
+        {
+            double cx = -margin + Hash(k, 401) * (Width + 2 * margin), cy = -margin + Hash(613, k) * (Height + 2 * margin);
+            clouds.Add(new AtlasSeaMark(new AtlasPoint(cx, cy), 0.8 + Hash(k, k + 7) * 0.9, k % 3));
+        }
+        return (waves, clouds, birds);
     }
 
     /// <summary>The landmarks: each city at its centre, each dungeon's door, each waystone, each workshop.</summary>

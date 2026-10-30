@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la mer de la carte a ses vagues, son écume le long des côtes, ses nuages qui passent et ses oiseaux (rpg) ; xUnit sur le semis (déterministe, loin des côtes pour les vagues), auto-tests du client. | 3 | À faire |
-| En tant que joueur, la carte a du relief : ombre portée des terres sur la mer, falaises sur les côtes hautes, et se dézoome jusqu'au monde entier dans sa mer (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
+| En tant que joueur, la mer de la carte a ses vagues, son écume le long des côtes, ses nuages qui passent et ses oiseaux (rpg) ; xUnit sur le semis (déterministe, loin des côtes pour les vagues), auto-tests du client. | 3 | Fait |
+| En tant que joueur, la carte a du relief : ombre portée des terres sur la mer, falaises sur les côtes hautes, et se dézoome jusqu'au monde entier dans sa mer (rpg) ; xUnit, auto-tests du client. | 1 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

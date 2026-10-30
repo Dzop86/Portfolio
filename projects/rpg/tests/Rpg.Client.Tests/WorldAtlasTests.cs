@@ -107,6 +107,20 @@ public class WorldAtlasTests
     }
 
     [Fact]
+    public void ThePaintedSea_HasWavesFarFromTheCoasts_CloudsAndBirds()
+    {
+        Assert.True(Atlas.Waves.Count > 20, $"{Atlas.Waves.Count} waves");
+        Assert.All(Atlas.Waves, w => Assert.False(Atlas.NearLand(w.At.X, w.At.Y, WorldAtlas.WaveOffshore), $"a wave at {w.At}"));
+        Assert.All(Atlas.Birds, b => Assert.Null(Atlas.ZoneAt(b.At.X, b.At.Y)));
+        Assert.NotEmpty(Atlas.Birds);
+        Assert.Equal(9, Atlas.Clouds.Count);
+        Assert.All(Atlas.Waves.Concat(Atlas.Clouds).Concat(Atlas.Birds), m => Assert.InRange(m.Variant, 0, 2));
+        // Within the sea painted around the maps.
+        Assert.All(Atlas.Clouds, c => Assert.InRange(c.At.X, -Atlas.SeaMargin, Atlas.Width + Atlas.SeaMargin));
+        Assert.True(Atlas.NearLand(Atlas.Regions[0].Centre.X, Atlas.Regions[0].Centre.Y, 1));
+    }
+
+    [Fact]
     public void TwoAtlases_OfTheSameWorld_AreTheSame()
     {
         var again = new WorldAtlas(Data);
@@ -115,6 +129,8 @@ public class WorldAtlasTests
         Assert.Equal(Atlas.Roads, again.Roads);
         Assert.Equal(Atlas.Waters.SelectMany(w => w), again.Waters.SelectMany(w => w));
         Assert.Equal(Atlas.Forests.SelectMany(w => w), again.Forests.SelectMany(w => w));
+        Assert.Equal(Atlas.Waves, again.Waves);
+        Assert.Equal(Atlas.Clouds, again.Clouds);
     }
 
     [Fact]
