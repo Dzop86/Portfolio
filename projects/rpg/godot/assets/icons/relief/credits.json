@@ -4,5 +4,17 @@
  "class-sentinel": "lorc/high-shot",
  "class-guard": "lorc/checked-shield",
  "class-mage": "lorc/pointy-hat",
- "pencil": "delapouite/pencil"
+ "pencil": "delapouite/pencil",
+ "job-woodcutter": "lorc/wood-axe",
+ "job-miner": "lorc/mining",
+ "job-fisher": "delapouite/fishing-pole",
+ "job-farmer": "lorc/wheat",
+ "job-herbalist": "delapouite/herbs-bundle",
+ "job-locksmith": "lorc/skeleton-key",
+ "job-smith": "lorc/sword-smithing",
+ "job-tailor": "lorc/sewing-needle",
+ "job-jeweller": "lorc/cut-diamond",
+ "job-cobbler": "lorc/leather-boot",
+ "job-alchemist": "lorc/round-bottom-flask",
+ "job-baker": "delapouite/bread"
 }

@@ -5,8 +5,8 @@ using Rpg.Core;
 namespace Rpg.Desktop;
 
 /// <summary>
-/// The trades window (sprint 100, key J, D72): on the left the trades, gathering then making, with their level
-/// and an experience bar; on the right, for the trade chosen, its recipes (searched, filtered by level and kind,
+/// The trades window (sprint 100, key J, D72): on the left the trades, gathering then making, each a row with its icon in
+/// relief, its name, its level and an experience bar (sprint 164, docs/graphisme/s163-icones-arbre.md §2.3); on the right, for the trade chosen, its recipes (searched, filtered by level and kind,
 /// sorted, the possible ones only if asked) or its resources and where they grow. It only draws
 /// <see cref="JobBook"/>; at a workshop, "Make" and "All (n)" on that trade's recipes, the server making them.
 /// </summary>
@@ -159,11 +159,10 @@ public partial class JobsPanel : CanvasLayer
             if (gathering != line.Gathers)
             {
                 gathering = line.Gathers;
-                var head = new Label { Text = Texts[line.Gathers ? "jobs.gathering" : "jobs.making"], Modulate = new Color(1, 1, 1, 0.65f) };
+                var head = new Label { Text = Texts[line.Gathers ? "jobs.gathering" : "jobs.making"].ToUpperInvariant(), ThemeTypeVariation = OsmoseTheme.SectionLabel };
                 _jobs.AddChild(head);
             }
-            var b = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(0, 56), Alignment = HorizontalAlignment.Left, Modulate = line.Practised ? Colors.White : new Color(1, 1, 1, 0.6f) };
-            b.Text = $"{line.Name}   {Texts["jobs.level", line.Level]}\n{Texts["jobs.xp", line.XpIn, line.XpNeeded]}";
+            Button b = Row(line);
             Job job = line.Job;
             b.Pressed += () =>
             {
@@ -274,6 +273,66 @@ public partial class JobsPanel : CanvasLayer
 
     /// <summary>For the self-test: the trades listed, the lines of the list shown.</summary>
     public int JobsListed => _jobButtons.Count;
+
+    /// <summary>The trades' rows that show their icon (for the self-test: every one).</summary>
+    public int IconsShown => _jobButtons.Count(j => j.Button.FindChildren("*", nameof(TextureRect), true, false).OfType<TextureRect>().Any(r => r.Texture is not null));
+
+    /// <summary>
+    /// A trade's row, 64 high (§2.3): its icon on the neutral tile, its name and level, its experience bar; a trade never
+    /// practised greyed in its icon and its name, no longer the whole row at 60 %; chosen, lit as a row of the tree.
+    /// </summary>
+    private Button Row(JobLine line)
+    {
+        var b = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(0, 64), ThemeTypeVariation = OsmoseTheme.TreeRow };
+        var row = new HBoxContainer { AnchorRight = 1, AnchorBottom = 1, OffsetLeft = 12, OffsetRight = -12, MouseFilter = Control.MouseFilterEnum.Ignore };
+        row.AddThemeConstantOverride("separation", 12);
+        b.AddChild(row);
+        var tile = new PanelContainer { CustomMinimumSize = new Vector2(48, 48), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        tile.AddThemeStyleboxOverride("panel", OsmoseTheme.Raised("tile", 6, 6, 6));
+        tile.AddChild(new TextureRect
+        {
+            Texture = GD.Load<Texture2D>($"res://assets/icons/relief/{line.Icon}.svg"),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = new Vector2(36, 36),
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        });
+        row.AddChild(tile);
+        var text = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        text.AddThemeConstantOverride("separation", 6);
+        row.AddChild(text);
+        var top = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        text.AddChild(top);
+        var name = new Label { Text = line.Name, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, MouseFilter = Control.MouseFilterEnum.Ignore };
+        name.AddThemeFontOverride("font", OsmoseTheme.Bold());
+        name.AddThemeFontSizeOverride("font_size", 16);
+        name.AddThemeColorOverride("font_color", new Color(line.Practised ? UiStyle.TextStrong : UiStyle.TextDim));
+        top.AddChild(name);
+        var level = new Label { Text = Texts["jobs.level", line.Level], MouseFilter = Control.MouseFilterEnum.Ignore };
+        level.AddThemeFontSizeOverride("font_size", 14);
+        level.AddThemeColorOverride("font_color", new Color(UiStyle.Text));
+        top.AddChild(level);
+        var bottom = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        bottom.AddThemeConstantOverride("separation", 8);
+        text.AddChild(bottom);
+        bottom.AddChild(new ProgressBar
+        {
+            ThemeTypeVariation = OsmoseTheme.ProgressBarCompact,
+            CustomMinimumSize = new Vector2(0, 8),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+            ShowPercentage = false,
+            MaxValue = 1,
+            Step = 0,
+            Value = line.Progress,
+            MouseFilter = Control.MouseFilterEnum.Ignore,
+        });
+        var xp = new Label { Text = Texts["jobs.xp", line.XpIn, line.XpNeeded], MouseFilter = Control.MouseFilterEnum.Ignore };
+        xp.AddThemeFontSizeOverride("font_size", 14);
+        xp.AddThemeColorOverride("font_color", new Color(UiStyle.TextDim));
+        bottom.AddChild(xp);
+        return b;
+    }
 
     public int Lines => _list.GetChildCount();
 }

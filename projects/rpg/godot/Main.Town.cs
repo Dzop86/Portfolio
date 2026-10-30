@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs")
             _ = TownScreenshot();
     }
 
@@ -3171,6 +3171,9 @@ public partial class Main
             IReadOnlyList<RecipeLine> lines = expected.Recipes(GameData.Embedded.Jobs[bench.Job]);
             if (panel.Shown.Id != bench.Job || panel.JobsListed != expected.Jobs.Count || panel.Lines != lines.Count)
                 problems.Add($"the {bench.Job}'s workshop opens the trades window on {panel.Shown.Id}, {panel.JobsListed} trades and {panel.Lines} lines");
+            // Each trade with its icon in relief (sprint 164).
+            if (panel.IconsShown != panel.JobsListed)
+                problems.Add($"{panel.IconsShown} of the {panel.JobsListed} trades show their icon");
             // The forge's first piece teaches 165 (sprint 109).
             if (bench.Job == "smith" && lines.SingleOrDefault(l => l.Item.Id == "copper-billhook")?.Xp != 165)
                 problems.Add("the forge does not offer the copper billhook for 165 experience");
@@ -3612,6 +3615,22 @@ public partial class Main
             Error sheet = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {sheet} {_options.Screenshot}");
             GetTree().Quit(sheet == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot == "jobs")
+        {
+            // The trades window (sprint 164): a few trades practised, the others greyed.
+            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch,
+                Jobs: new Dictionary<string, long> { ["woodcutter"] = 900, ["miner"] = 340, ["herbalist"] = 60, ["locksmith"] = 2600, ["smith"] = 120 });
+            ShowBar();
+            OpenJobs();
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error jobs = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {jobs} {_options.Screenshot}");
+            GetTree().Quit(jobs == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "inventory")

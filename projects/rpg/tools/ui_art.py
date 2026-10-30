@@ -9,6 +9,7 @@
 #   menu (relief/palette.json: the dungeons'), a grey "-locked" variant of each icon an achievement is drawn with, the
 #   search field's magnifier; godot/assets/ui/achievements/banner-<Category>.svg the categories' banners (704 x 192, a
 #   diagonal gradient from the category's colour, its silhouette as a watermark, a veil, its icon); two icon frames.
+# - Since sprint 164: relief/palette.json also holds the twelve trades' icons ("job-<id>", a colour each from its matter).
 # Deterministic; run from projects/rpg:  python3 tools/ui_art.py
 import json, os
 
@@ -153,7 +154,9 @@ def main():
         with open(os.path.join(relief, name + ".svg"), "w") as f:
             f.write(icon(tone))
     every = {**palette, **extra}
-    for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"}):
+    # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised.
+    jobs = {n for n in extra if n.startswith("job-")}
+    for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"} | jobs):
         with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
             f.write(icon(grey(every[name])))
     # The search field's magnifier: the silhouette alone, in the dim text's grey.

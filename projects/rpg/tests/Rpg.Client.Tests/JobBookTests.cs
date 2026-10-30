@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Rpg.Core;
 
 namespace Rpg.Client.Tests;
@@ -22,6 +23,40 @@ public class JobBookTests
         Assert.Equal((2, 10L, 40L, true, true), (wood.Level, wood.XpIn, wood.XpNeeded, wood.Gathers, wood.Practised));
         Assert.False(book.Jobs.Single(j => j.Job.Id == "miner").Practised);
     }
+
+    [Fact]
+    public void EachTrade_HasItsIconInRelief_GreyWhileNeverPractised_AndItsBarFilledFromItsExperience()
+    {
+        var book = new JobBook(Data, With(30, 0), new Texts("fr"));
+        JobLine wood = book.Jobs[0], miner = book.Jobs.Single(j => j.Job.Id == "miner");
+        Assert.Equal(("job-woodcutter", 0.25), (wood.Icon, wood.Progress));
+        Assert.Equal(("job-miner-locked", 0.0), (miner.Icon, miner.Progress));
+        // Nothing more to gain: the bar full, never a division by zero.
+        Assert.Equal(1, (wood with { XpIn = 0, XpNeeded = 0 }).Progress);
+        Assert.Equal(1, (wood with { XpIn = 90, XpNeeded = 40 }).Progress);
+        // Every trade of the game drawn by tools/ui_art.py, in colour and in grey, from its credited silhouette.
+        string relief = Path.Combine(Rpg(), "godot", "assets", "icons", "relief");
+        using JsonDocument palette = JsonDocument.Parse(File.ReadAllText(Path.Combine(relief, "palette.json")));
+        using JsonDocument credits = JsonDocument.Parse(File.ReadAllText(Path.Combine(relief, "credits.json")));
+        Assert.Equal(12, Data.Jobs.Count);
+        foreach (string id in Data.Jobs.Keys)
+        {
+            string name = "job-" + id;
+            Assert.Equal(palette.RootElement.GetProperty(name).GetProperty("shape").GetString(), credits.RootElement.GetProperty(name).GetString());
+            foreach (string svg in new[] { name, name + "-locked" })
+            {
+                Assert.DoesNotContain("<filter", File.ReadAllText(Path.Combine(relief, svg + ".svg")), StringComparison.Ordinal);
+                // Imported at 72 pixels with mipmaps, as the other icons in relief: sharp on the row's 36.
+                Assert.Contains("svg/scale=0.140625", File.ReadAllText(Path.Combine(relief, svg + ".svg.import")), StringComparison.Ordinal);
+            }
+            Assert.Contains("#8a8a8a", File.ReadAllText(Path.Combine(relief, name + "-locked.svg")), StringComparison.Ordinal);
+        }
+        // A colour a trade: none shared.
+        Assert.Equal(12, Data.Jobs.Keys.Select(id => palette.RootElement.GetProperty("job-" + id).GetProperty("main").GetString()).Distinct().Count());
+    }
+
+    private static string Rpg([System.Runtime.CompilerServices.CallerFilePath] string here = "") =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
 
     [Fact]
     public void TheRecipes_AreSearchedFilteredAndSorted_AndMadeOnlyAtTheWorkshop()

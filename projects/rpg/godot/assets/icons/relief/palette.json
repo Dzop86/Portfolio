@@ -33,5 +33,89 @@
     "light": "#e1ccb9",
     "dark": "#6f5946",
     "outline": "#282019"
+  },
+  "job-woodcutter": {
+    "shape": "lorc/wood-axe",
+    "main": "#d09a5c",
+    "light": "#e5c7a5",
+    "dark": "#725533",
+    "outline": "#2a1f12"
+  },
+  "job-miner": {
+    "shape": "lorc/mining",
+    "main": "#a9bccd",
+    "light": "#d0dae4",
+    "dark": "#5d6771",
+    "outline": "#222629"
+  },
+  "job-fisher": {
+    "shape": "delapouite/fishing-pole",
+    "main": "#6bb8f2",
+    "light": "#aed8f8",
+    "dark": "#3b6585",
+    "outline": "#152530"
+  },
+  "job-farmer": {
+    "shape": "lorc/wheat",
+    "main": "#e3c27a",
+    "light": "#f0ddb6",
+    "dark": "#7d6b43",
+    "outline": "#2d2718"
+  },
+  "job-herbalist": {
+    "shape": "delapouite/herbs-bundle",
+    "main": "#52c45a",
+    "light": "#a0dfa4",
+    "dark": "#2d6c32",
+    "outline": "#102712"
+  },
+  "job-locksmith": {
+    "shape": "lorc/skeleton-key",
+    "main": "#d4a94a",
+    "light": "#e7d09b",
+    "dark": "#755d29",
+    "outline": "#2a220f"
+  },
+  "job-smith": {
+    "shape": "lorc/sword-smithing",
+    "main": "#e8803d",
+    "light": "#f2b994",
+    "dark": "#804622",
+    "outline": "#2e1a0c"
+  },
+  "job-tailor": {
+    "shape": "lorc/sewing-needle",
+    "main": "#ff7eb6",
+    "light": "#ffb8d7",
+    "dark": "#8c4564",
+    "outline": "#331924"
+  },
+  "job-jeweller": {
+    "shape": "lorc/cut-diamond",
+    "main": "#4fd1c5",
+    "light": "#9ee6df",
+    "dark": "#2b736c",
+    "outline": "#102a27"
+  },
+  "job-cobbler": {
+    "shape": "lorc/leather-boot",
+    "main": "#a0522d",
+    "light": "#cba08c",
+    "dark": "#582d19",
+    "outline": "#201009"
+  },
+  "job-alchemist": {
+    "shape": "lorc/round-bottom-flask",
+    "main": "#b48cff",
+    "light": "#d6c0ff",
+    "dark": "#634d8c",
+    "outline": "#241c33"
+  },
+  "job-baker": {
+    "shape": "delapouite/bread",
+    "main": "#f2cc94",
+    "light": "#f8e3c4",
+    "dark": "#857051",
+    "outline": "#30291e"
   }
 }

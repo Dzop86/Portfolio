@@ -3,7 +3,17 @@ using Rpg.Core;
 namespace Rpg.Client;
 
 /// <summary>A trade in the list: its name, its level, the experience gained in the level and needed for the next, whether it gathers, whether it was ever practised.</summary>
-public sealed record JobLine(Job Job, string Name, int Level, long XpIn, long XpNeeded, bool Gathers, bool Practised);
+public sealed record JobLine(Job Job, string Name, int Level, long XpIn, long XpNeeded, bool Gathers, bool Practised)
+{
+    /// <summary>
+    /// Its icon in relief (sprint 164, <c>docs/graphisme/s163-icones-arbre.md</c> §2), in <c>assets/icons/relief/</c>: in
+    /// its matter's colour, grey (<c>-locked</c>) while it was never practised.
+    /// </summary>
+    public string Icon => $"job-{Job.Id}" + (Practised ? "" : "-locked");
+
+    /// <summary>The part of its experience bar filled, from 0 to 1 (full once nothing more is needed).</summary>
+    public double Progress => XpNeeded <= 0 ? 1 : Math.Clamp((double)XpIn / XpNeeded, 0, 1);
+}
 
 /// <summary>An ingredient of a recipe: how many are needed, how many are owned.</summary>
 public sealed record Needed(Item Item, int Count, int Owned)
