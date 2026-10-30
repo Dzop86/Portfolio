@@ -83,11 +83,11 @@ sentinel = C(
  R("stake","Pieu","Stake",4,2,7,1,1,1,"Earth","lorc/barbed-spear",effects=[status("Enemies","Mp",-2,1)],cd=2),
  R("ember-rain","Pluie de braises","Ember Rain",6,2,6,1,1,1,"Fire","lorc/burning-meteor",los=False,area=("Circle",2)),
  R("deluge","Déluge","Deluge",6,3,8,1,1,1,"Water","lorc/big-wave",los=False,area=("Cross",2)),
- R("skyfall","Chute céleste","Skyfall",6,3,9,1,1,1,"Air","lorc/lightning-arc",area=("Circle",1),cd=2),
+ R("skyfall","Chute céleste","Skyfall",6,3,9,1,1,1,"Air","lorc/twister",area=("Circle",1),cd=2),
  R("snare","Collet","Snare",3,1,4,0,0,1,"Neutral","lorc/mantrap",effects=[status("Enemies","Mp",-2,1)],cd=2),
  R("camouflage","Camouflage","Camouflage",2,0,0,0,0,1,"Neutral","lorc/hood",los=False,effects=[status("Caster","Resistance",20,2)],cd=4),
  R("warning-shot","Tir de semonce","Warning Shot",3,2,6,0,0,1,"Neutral","delapouite/human-target",effects=[status("Enemies","Ap",-2,1)],cd=2),
- R("field-dressing","Pansement","Field Dressing",3,0,0,0,0,1,"Neutral","delapouite/healing",los=False,effects=[heal("Caster",12,16)],cd=3),
+ R("field-dressing","Pansement","Field Dressing",3,0,0,0,0,1,"Neutral","lorc/bandage-roll",los=False,effects=[heal("Caster",12,16)],cd=3),
 )
 guard = C(
  R("shield-bash","Coup de bouclier","Shield Bash",3,1,1,1,1,2,"Earth","delapouite/shield-bash",effects=[push(2)]),
@@ -107,8 +107,8 @@ guard = C(
  R("groundswell","Vague de fond","Groundswell",4,1,3,1,1,1,"Water","lorc/water-splash",line=True,area=("Line",2),effects=[push(1)]),
  R("cyclone-blade","Lame cyclone","Cyclone Blade",4,1,3,1,1,1,"Air","lorc/tornado",area=("Circle",1)),
  R("war-cry","Cri de guerre","War Cry",3,0,0,0,0,1,"Neutral","lorc/shouting",los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2)],cd=3),
- R("titan-blow","Coup de titan","Titan Blow",7,1,1,1,1,1,"Earth","lorc/thor-fist",effects=[push(3)],cd=2),
- R("inferno-blade","Lame infernale","Inferno Blade",5,1,1,1,1,1,"Fire","lorc/fire-ring",area=("Cross",1)),
+ R("titan-blow","Coup de titan","Titan Blow",7,1,1,1,1,1,"Earth","lorc/punch-blast",effects=[push(3)],cd=2),
+ R("inferno-blade","Lame infernale","Inferno Blade",5,1,1,1,1,1,"Fire","lorc/fire-axe",area=("Cross",1)),
  R("torrent","Torrent","Torrent",5,1,3,1,1,1,"Water","sbed/water-drop",area=("Circle",1)),
  R("hurricane","Ouragan","Hurricane",6,1,3,1,1,1,"Air","lorc/tornado-discs",area=("Circle",1),cd=1),
  R("iron-grip","Poigne de fer","Iron Grip",3,1,1,0,0,1,"Neutral","lorc/mailed-fist",effects=[status("Enemies","Mp",-2,1)],cd=2),
@@ -126,7 +126,7 @@ mage = C(
  R("roots","Racines","Roots",4,1,5,1,1,1,"Earth","delapouite/tree-roots",effects=[status("Enemies","Mp",-2,1)],cd=1),
  R("burn","Brûlure","Burn",3,1,5,1,1,2,"Fire","lorc/flame-spin",effects=[status("Enemies","Poison",5,2,"Fire")]),
  R("tidal-wave","Raz-de-marée","Tidal Wave",5,2,5,1,1,1,"Water","lorc/wave-strike",line=True,area=("Line",2),effects=[push(1)]),
- R("bolt","Trait de vent","Wind Dart",4,2,6,1,1,2,"Air","lorc/focused-lightning",line=True),
+ R("bolt","Trait de vent","Wind Dart",4,2,6,1,1,2,"Air","lorc/crossed-air-flows",line=True),
  R("elemental","Élémentaire","Elemental",4,1,2,0,0,1,"Neutral","lorc/fire-silhouette",los=False,effects=[summon("ember")],cd=3),
  R("landslide","Éboulement","Landslide",5,2,6,1,1,1,"Earth","delapouite/falling-rocks",los=False,area=("Circle",1)),
  R("meteor","Météore","Meteor",6,3,7,1,1,1,"Fire","lorc/meteor-impact",los=False,area=("Circle",1)),
@@ -136,7 +136,7 @@ mage = C(
  R("fault-line","Faille","Fault Line",5,1,5,1,1,1,"Earth","lorc/earth-crack",line=True,area=("Line",2)),
  R("cataclysm","Cataclysme","Cataclysm",8,3,8,1,1,1,"Fire","lorc/bright-explosion",los=False,area=("Circle",2),cd=2),
  R("glacier","Glacier","Glacier",6,2,6,1,1,1,"Water","lorc/icicles-aura",los=False,area=("Cross",2)),
- R("tempest","Tempête","Tempest",6,2,6,1,1,1,"Air","lorc/lightning-storm",los=False,area=("Circle",2)),
+ R("tempest","Tempête","Tempest",6,2,6,1,1,1,"Air","lorc/entangled-typhoon",los=False,area=("Circle",2)),
  R("mana-surge","Afflux","Mana Surge",1,0,0,0,0,1,"Neutral","delapouite/sparkles",los=False,effects=[status("Caster","Ap",2,1)],cd=3),
  R("sanctuary","Sanctuaire","Sanctuary",4,0,4,0,0,1,"Neutral","lorc/aura",los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
  R("rebirth","Renaissance","Rebirth",6,0,5,0,0,1,"Neutral","lorc/angel-wings",los=False,area=("Circle",2),effects=[heal("Allies",22,28)],cd=4),
@@ -303,6 +303,17 @@ NAMES = {
   "cataclysm": ("Fulgurance", "Fulguration"), "tempest": ("Orage", "Thunderstorm"),
  },
 }
+# A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 164, docs/graphisme/s164-icones-arbre.md §1.8).
+TWIN_ICONS = {
+ "lightning-fire-arrow": "lorc/charged-arrow", "lightning-recoil-shot": "lorc/lightning-bow", "lightning-ember-volley": "lorc/lightning-trio",
+ "lightning-piercing-arrow": "lorc/sonic-lightning", "lightning-searing-shot": "lorc/thunderball", "lightning-gale": "lorc/heavy-lightning",
+ "lightning-ember-rain": "lorc/lightning-branches", "lightning-skyfall": "lorc/thunder-struck", "lightning-burning-blade": "lorc/thunder-blade",
+ "lightning-slash": "lorc/lightning-slashes", "lightning-fire-lunge": "lorc/deadly-strike", "lightning-wind-blade": "lorc/lightning-saber",
+ "lightning-smite": "lorc/thor-fist", "lightning-cyclone-blade": "lorc/lightning-helix", "lightning-inferno-blade": "lorc/zeus-sword",
+ "lightning-hurricane": "lorc/lightning-dissipation", "lightning-flare": "lorc/static", "lightning-gust": "lorc/static-waves",
+ "lightning-burn": "lorc/lightning-shadow", "lightning-bolt": "lorc/focused-lightning", "lightning-meteor": "lorc/power-lightning",
+ "lightning-cyclone": "lorc/bolt-eye", "lightning-cataclysm": "delapouite/bolt-bomb", "lightning-tempest": "willdabeast/chain-lightning",
+}
 twins = []
 for el, parents in COMPOUNDS.items():
     for sp in sentinel + guard + mage:
@@ -314,6 +325,7 @@ for el, parents in COMPOUNDS.items():
                 if e.get("stat") == "Poison":
                     e["element"] = el
             budget(t, SCALE[el])
+            t["icon"] = TWIN_ICONS[t["id"]]
             t["twin"] = sp["id"]
             twins.append(t)
 # The spells of the tree (sprint 142, the branch Terrain, docs/talents-arbre.md §4.3): given by a talent, of no class.
@@ -324,6 +336,9 @@ tree = [
    for el in ("Earth","Fire","Water","Air")],
  S("decoy","Leurre","Decoy",2,1,3,0,0,1,"Neutral",1,los=False,effects=[summon("decoy")],ranks=False,cd=4),
 ]
+# Their icons (sprint 164, §1.9): the Seals share the rune stone, their element as an accent drawn by tools/spell_art.py.
+for sp in tree:
+    sp["icon"] = {"relay": "lorc/back-forth", "decoy": "lorc/scarecrow"}.get(sp["id"], "lorc/rune-stone")
 twins += tree
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
 for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree]:

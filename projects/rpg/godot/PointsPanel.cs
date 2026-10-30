@@ -298,13 +298,14 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
                 Take = data => Drop((string)data, null),
             };
             var colour = new Color(ElementStyle.Colour(spell.Element));
-            foreach ((string state, float mix) in new[] { ("normal", 0.78f), ("hover", 0.62f), ("pressed", 0.55f), ("disabled", 0.9f), ("focus", 0.62f) })
+            // Sprint 164 (s164-icones-arbre.md §1.6): the tile says the element, the row stays neutral but for a bar of 3.
+            foreach ((string state, string ground) in new[] { ("normal", "262626"), ("hover", "2d2d2d"), ("pressed", "33421f"), ("disabled", "1f1f1f"), ("focus", "2d2d2d") })
             {
                 tile.AddThemeStyleboxOverride(state, new StyleBoxFlat
                 {
-                    BgColor = colour.Lerp(new Color("1c1c1c"), mix),
+                    BgColor = new Color(ground),
                     BorderColor = colour,
-                    BorderWidthLeft = 5,
+                    BorderWidthLeft = 3,
                     CornerRadiusTopLeft = 6,
                     CornerRadiusTopRight = 6,
                     CornerRadiusBottomLeft = 6,
@@ -708,7 +709,16 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
                 sub.SetMeta("new", true);
             else if (sub.HasMeta("new"))
                 sub.RemoveMeta("new");
-            tile.Modulate = b.Preview ? new Color(1, 1, 1, 0.5f) : b.Unlocked ? Colors.White : new Color(1, 1, 1, 0.45f);
+            // Not unlocked yet: the flat tile and a grey name (sprint 164, §1.6), no longer the whole row at 45 %.
+            tile.Modulate = b.Preview ? new Color(1, 1, 1, 0.5f) : Colors.White;
+            if (tile.GetChildren().OfType<SpellIcon>().FirstOrDefault() is SpellIcon icon)
+            {
+                icon.Faint = !b.Unlocked && !b.Preview;
+                icon.Selected = spell.Id == (_hovered ?? _selected);
+                icon.QueueRedraw();
+            }
+            foreach (Label label in tile.GetChildren().OfType<Label>())
+                label.SelfModulate = b.Unlocked || b.Preview ? Colors.White : new Color("9d9d9d");
             tile.SetMeta("preview", b.Preview);
         }
         _deckCount.Text = Texts["deck.count", Editor.Deck.Count, Editor.DeckLimit];
