@@ -12,14 +12,13 @@ namespace Rpg.Desktop;
 /// </summary>
 public partial class JournalPanel : CanvasLayer
 {
-    private static readonly Color Muted = new(1, 1, 1, 0.6f), Gold = new("ffd85a");
-
     private Texts _texts = null!;
     private JournalView _view = null!;
     private IReadOnlyList<JournalZone> _journal = [];
     private IReadOnlySet<string> _hidden = new HashSet<string>();
     private string? _followed;
     private VBoxContainer _list = null!, _card = null!;
+    private PanelContainer _window = null!;
 
     public event Action? ClosePressed;
 
@@ -54,12 +53,18 @@ public partial class JournalPanel : CanvasLayer
     public Button? FollowButton { get; private set; }
     public Button? HideButton { get; private set; }
 
+    /// <summary>The card's rewards, a tile each (for the self-test, sprint 167).</summary>
+    public List<Control> RewardTiles { get; } = [];
+
+    /// <summary>The window's width (for the self-test): its 960, whatever the card holds.</summary>
+    public float Width => _window.GetCombinedMinimumSize().X;
+
     public void Build(QuestBook book, Texts texts, JournalView view, IReadOnlySet<string> hidden, string? followed = null)
     {
         _texts = texts;
         _view = view;
         Layer = 15;
-        var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -480, OffsetRight = 480, OffsetTop = -300, OffsetBottom = 300 };
+        var panel = _window = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -480, OffsetRight = 480, OffsetTop = -300, OffsetBottom = 300 };
         panel.AddThemeStyleboxOverride("panel", InventoryPanel.Background());
         AddChild(panel);
         WindowDrag.Make(panel, "journal");
@@ -242,7 +247,9 @@ public partial class JournalPanel : CanvasLayer
         if (page.Count == 0)
         {
             bool filtered = _view.Counts(_journal, _hidden)[_view.Tab] > 0;
-            _list.AddChild(new Label { Text = _texts[filtered ? "journal.nomatch" : "journal.empty"], Modulate = Muted, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(360, 0) });
+            Label none = Text(_texts[filtered ? "journal.nomatch" : "journal.empty"], UiStyle.TextDim);
+            none.CustomMinimumSize = new Vector2(360, 0);
+            _list.AddChild(none);
         }
         Card(card);
     }
@@ -287,40 +294,82 @@ public partial class JournalPanel : CanvasLayer
         FollowButton = HideButton = null;
         if (q is null)
             return;
+        // Its head (sprint 167, s165 §3.4): the kind's icon, the name, the kind, level and zone in the kind's colour, the giver.
         var top = new HBoxContainer();
-        top.AddThemeConstantOverride("separation", 10);
-        top.AddChild(new QuestKindIcon { Kind = q.Kind, CustomMinimumSize = new Vector2(36, 36), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
-        var name = new Label { Text = q.Name, AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        top.AddThemeConstantOverride("separation", 12);
+        top.AddChild(new QuestKindIcon { Kind = q.Kind, CustomMinimumSize = new Vector2(40, 40), SizeFlagsVertical = Control.SizeFlags.ShrinkBegin });
+        var head = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        head.AddThemeConstantOverride("separation", 2);
+        top.AddChild(head);
+        var name = new Label { Text = q.Name, AutowrapMode = TextServer.AutowrapMode.WordSmart };
+        name.AddThemeFontOverride("font", OsmoseTheme.Bold());
         name.AddThemeFontSizeOverride("font_size", 22);
-        top.AddChild(name);
+        name.AddThemeColorOverride("font_color", Colors.White);
+        head.AddChild(name);
+        head.AddChild(Text($"{_texts["questkind." + q.Kind]} · {_texts["journal.level", q.Level]} · {q.Zone}", QuestKindStyle.Colour(q.Kind)));
+        head.AddChild(Text(q.Done ? _texts["journal.finished"] + " · " + _texts["journal.giver", q.Giver] : _texts["journal.giver", q.Giver], UiStyle.TextDim));
         _card.AddChild(top);
-        var kind = new Label { Text = $"{_texts["questkind." + q.Kind]} · {_texts["journal.level", q.Level]} · {q.Zone}" };
-        kind.AddThemeColorOverride("font_color", QuestKindIcon.Colour(q.Kind));
-        _card.AddChild(kind);
-        _card.AddChild(new Label { Text = q.Done ? _texts["journal.finished"] + " · " + _texts["journal.giver", q.Giver] : q.Ready ? _texts["journal.ready", q.Giver] : _texts["journal.giver", q.Giver], Modulate = q.Ready ? Gold : Muted });
-        // Where to go next (sprint 105, D75).
+        // To hand back, and where to go next (sprint 105, D75), in the hints' yellow.
+        if (!q.Done && q.Ready)
+            _card.AddChild(Text(_texts["journal.ready", q.Giver], UiStyle.Cost));
         if (!q.Done && q.Where is string where)
-            _card.AddChild(new Label { Text = _texts["journal.where", where], Modulate = Gold });
-        _card.AddChild(new Label { Text = q.Text, AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f), CustomMinimumSize = new Vector2(480, 0) });
+            _card.AddChild(Text(_texts["journal.where", where], UiStyle.Cost));
+        _card.AddChild(Text(q.Text, UiStyle.Text));
         Heading(_texts["journal.objectives"]);
         foreach ((string line, bool reached) in q.Objectives)
         {
-            var l = new Label { Text = (reached ? "✓ " : "– ") + line, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(480, 0) };
-            if (reached)
-                l.AddThemeColorOverride("font_color", FighterView.PlayerColour);
-            _card.AddChild(l);
+            // Reached: ticked in relief, in the dim grey; still to do: a hollow ring, in the strong text.
+            var row = new HBoxContainer();
+            row.AddThemeConstantOverride("separation", 8);
+            row.AddChild(new TextureRect { Texture = GD.Load<Texture2D>(reached ? "res://assets/icons/relief/check.svg" : "res://assets/ui/todo.svg"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, CustomMinimumSize = new Vector2(16, 16), StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
+            row.AddChild(Text(line, reached ? UiStyle.TextDim : UiStyle.TextStrong));
+            _card.AddChild(row);
             ObjectiveLines.Add(line);
         }
         Heading(_texts["journal.rewards"]);
-        foreach (string reward in q.Rewards ?? [])
-            _card.AddChild(new Label { Text = "– " + reward });
+        // Each reward a tile of 48, its amount under it: the experience's and the Éclats' icons in relief, an item's tile.
+        var rewards = new HBoxContainer();
+        rewards.AddThemeConstantOverride("separation", 12);
+        RewardTiles.Clear();
+        foreach (JournalReward reward in q.Rewards ?? [])
+        {
+            var one = new VBoxContainer();
+            one.AddThemeConstantOverride("separation", 2);
+            Control tile;
+            if (reward.Item is string id && GameData.Embedded.Items.TryGetValue(id, out Item? item))
+            {
+                (Button button, ItemIcon icon) = ItemIcon.Tile(48);
+                icon.Item = item;
+                button.TooltipText = ItemMenu.Tooltip(item, _texts);
+                tile = button;
+            }
+            else
+            {
+                var frame = new Panel { CustomMinimumSize = new Vector2(48, 48), TooltipText = reward.Text };
+                frame.AddThemeStyleboxOverride("panel", OsmoseTheme.Raised("tile", 6, 6, 6));
+                var picture = new TextureRect { Texture = GD.Load<Texture2D>($"res://assets/icons/relief/reward-{(reward.Kind == RewardKind.Xp ? "xp" : "shards")}.svg"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, MouseFilter = Control.MouseFilterEnum.Ignore };
+                picture.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                (picture.OffsetLeft, picture.OffsetTop, picture.OffsetRight, picture.OffsetBottom) = (6, 6, -6, -6);
+                frame.AddChild(picture);
+                tile = frame;
+            }
+            one.AddChild(tile);
+            var amount = Text((reward.Kind == RewardKind.Item ? "×" : "") + reward.Amount.ToString(System.Globalization.CultureInfo.InvariantCulture), UiStyle.TextStrong);
+            (amount.HorizontalAlignment, amount.CustomMinimumSize, amount.AutowrapMode) = (HorizontalAlignment.Center, new Vector2(48, 0), TextServer.AutowrapMode.Off);
+            amount.AddThemeFontOverride("font", OsmoseTheme.Bold());
+            one.AddChild(amount);
+            rewards.AddChild(one);
+            RewardTiles.Add(tile);
+        }
+        _card.AddChild(rewards);
         var buttons = new HBoxContainer();
         buttons.AddThemeConstantOverride("separation", 8);
         bool hidden = _hidden.Contains(q.Id);
         // Followed on the left of the screen, with an arrow (sprint 106): a quest under way, not hidden.
         if (!q.Done && !hidden)
         {
-            FollowButton = new Button { Text = _texts[q.Id == _followed ? "journal.followed" : "journal.follow"], Disabled = q.Id == _followed, CustomMinimumSize = new Vector2(140, 44) };
+            // The card's focal point (s165 §3.4): the theme's primary button; "Followed", the same switched off.
+            FollowButton = new Button { Text = _texts[q.Id == _followed ? "journal.followed" : "journal.follow"], Disabled = q.Id == _followed, CustomMinimumSize = new Vector2(140, 44), ThemeTypeVariation = OsmoseTheme.Primary };
             FollowButton.Pressed += () => FollowPressed?.Invoke(q.Id);
             buttons.AddChild(FollowButton);
         }
@@ -333,10 +382,21 @@ public partial class JournalPanel : CanvasLayer
 
     private void Heading(string text)
     {
-        var l = new Label { Text = text };
-        l.AddThemeFontSizeOverride("font_size", 17);
-        l.AddThemeColorOverride("font_color", FighterView.PlayerColour);
-        _card.AddChild(new Control { CustomMinimumSize = new Vector2(0, 4) });
+        // Bold capitals of light chocolate, as the achievements' sections.
+        var l = new Label { Text = text.ToUpperInvariant() };
+        l.AddThemeFontOverride("font", OsmoseTheme.Bold(1));
+        l.AddThemeFontSizeOverride("font_size", 14);
+        l.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
+        _card.AddChild(new Control { CustomMinimumSize = new Vector2(0, 6) });
         _card.AddChild(l);
+    }
+
+    /// <summary>A line of the card: 14 px, wrapped, in one of the interface's greys or the kind's colour.</summary>
+    private static Label Text(string text, string colour)
+    {
+        var l = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(440, 0) };
+        l.AddThemeFontSizeOverride("font_size", 14);
+        l.AddThemeColorOverride("font_color", new Color(colour));
+        return l;
     }
 }

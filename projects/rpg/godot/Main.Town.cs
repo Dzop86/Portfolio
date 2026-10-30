@@ -2105,9 +2105,12 @@ public partial class Main
     private void CheckJournal(JournalPanel journal, Quest welcome, Texts texts, List<string> problems)
     {
         string name = welcome.Name.In(texts.Lang);
-        if (journal.CardQuest?.Id != welcome.Id || journal.CardQuest.Kind != QuestKind.Tutorial || journal.CardQuest.Rewards?.Contains(texts["journal.xp", welcome.Xp]) != true
+        if (journal.CardQuest?.Id != welcome.Id || journal.CardQuest.Kind != QuestKind.Tutorial || journal.CardQuest.Rewards?.Any(r => r.Kind == RewardKind.Xp && r.Amount == welcome.Xp) != true
             || journal.FollowButton is not { Disabled: true } || journal.HideButton is null)
             problems.Add("the journal's card does not show the welcome, its kind, its rewards, Follow and Hide");
+        // Sprint 167 (D87): a tile a reward, Follow the theme's primary button.
+        if (journal.RewardTiles.Count != journal.CardQuest?.Rewards?.Count || journal.FollowButton?.ThemeTypeVariation != OsmoseTheme.Primary || journal.RewardTiles.Any(t => t.Size.X > 64) || journal.Width > 960)
+            problems.Add($"the journal's card shows {journal.RewardTiles.Count} reward tiles for {journal.CardQuest?.Rewards?.Count} rewards");
         journal.Search("aubin");
         bool found = journal.ListedNames.SequenceEqual([name]);
         journal.Search("zzzz");

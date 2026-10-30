@@ -159,5 +159,19 @@
     "light": "#e6f8c9",
     "dark": "#4d7a1c",
     "outline": "#1f310b"
+  },
+  "reward-xp": {
+    "shape": "delapouite/upgrade",
+    "main": "#ffd166",
+    "light": "#ffe6ab",
+    "dark": "#8c7338",
+    "outline": "#332a14"
+  },
+  "reward-shards": {
+    "shape": "lorc/crystal-bars",
+    "main": "#8fe0f5",
+    "light": "#c1eefa",
+    "dark": "#4f7b87",
+    "outline": "#1c2c31"
   }
 }

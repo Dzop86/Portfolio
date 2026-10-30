@@ -96,7 +96,9 @@ public class JournalPageTests
         JournalQuest card = view.Card(page)!;
         Quest edge = Data.Quests["edge-of-the-woods"];
         Assert.Equal((QuestKind.Tutorial, 4, Data.Towns["woods-0-0"].Name.In(lang)), (card.Kind, card.Level, card.Zone));
-        Assert.Equal([texts["journal.xp", edge.Xp], texts["journal.shards", edge.Shards], texts["journal.item", Data.Items["bread"].Name.In(lang), 2]], card.Rewards);
+        Assert.Equal([texts["journal.xp", edge.Xp], texts["journal.shards", edge.Shards], texts["journal.item", Data.Items["bread"].Name.In(lang), 2]], card.Rewards!.Select(r => r.Text));
+        // Typed for their tiles (sprint 167): the experience, the Éclats, then each item with its id and count.
+        Assert.Equal([(RewardKind.Xp, edge.Xp, (string?)null), (RewardKind.Shards, edge.Shards, null), (RewardKind.Item, 2L, "bread")], card.Rewards!.Select(r => (r.Kind, r.Amount, r.Item)));
         Assert.Equal(QuestKind.Trade, journal.SelectMany(z => z.Active).Single(q => q.Id == "first-billhook").Kind);
         // The quest chosen gone from the page (a filter, or hidden): the page's first.
         view.Kinds.Remove(QuestKind.Tutorial);

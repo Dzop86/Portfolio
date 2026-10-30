@@ -8,7 +8,21 @@ namespace Rpg.Client;
 /// since sprint 116 (D77), its kind, level, zone and rewards ("120 XP", "20 Éclats", "Bread ×2") for its card.
 /// </summary>
 public sealed record JournalQuest(string Id, string Name, string Giver, string Text, IReadOnlyList<(string Line, bool Reached)> Objectives, bool Done, bool Ready, string? Where = null,
-    QuestKind Kind = QuestKind.Side, int Level = 1, string Zone = "", IReadOnlyList<string>? Rewards = null);
+    QuestKind Kind = QuestKind.Side, int Level = 1, string Zone = "", IReadOnlyList<JournalReward>? Rewards = null);
+
+/// <summary>What a quest gives (sprint 167, D87): experience, Éclats or an item.</summary>
+public enum RewardKind
+{
+    Xp,
+    Shards,
+    Item,
+}
+
+/// <summary>
+/// A quest's reward as the journal's card shows it (sprint 167, <c>docs/graphisme/s165-retours-30-oct.md</c> §3.4): a tile
+/// (the XP's or the Éclats' icon in relief, or the item's), the amount under it, and its words for the tooltip.
+/// </summary>
+public sealed record JournalReward(RewardKind Kind, long Amount, string Text, string? Item = null);
 
 /// <summary>What shows over an inhabitant (sprint 105, D75): "!" a quest to take, "?" a quest to hand back, grey "?" one under way.</summary>
 public enum QuestMark
@@ -152,10 +166,10 @@ public sealed class QuestBook(GameData data, int level, IReadOnlyCollection<stri
                 int reached = p is null ? o.Count : Quests.Reached(o, p.Counts[i], _owned, _worn);
                 return (texts.Objective(o, reached), reached >= o.Count);
             }).ToList();
-            List<string> rewards = [texts["journal.xp", q.Xp]];
+            List<JournalReward> rewards = [new(RewardKind.Xp, q.Xp, texts["journal.xp", q.Xp])];
             if (q.Shards > 0)
-                rewards.Add(texts["journal.shards", q.Shards]);
-            rewards.AddRange((q.Items ?? []).Select(i => texts["journal.item", Data.Items[i.Item].Name.In(texts.Lang), i.Count]));
+                rewards.Add(new(RewardKind.Shards, q.Shards, texts["journal.shards", q.Shards]));
+            rewards.AddRange((q.Items ?? []).Select(i => new JournalReward(RewardKind.Item, i.Count, texts["journal.item", Data.Items[i.Item].Name.In(texts.Lang), i.Count], i.Item)));
             return new JournalQuest(q.Id, q.Name.In(texts.Lang), giver, q.Text!.In(texts.Lang), lines, p is null, p is not null && Quests.IsComplete(q, p, _owned, _worn),
                 p is null ? null : Where(p, texts), q.Kind, q.Level, ZoneName(q.Zone), rewards);
         }

@@ -22,5 +22,7 @@
  "quest-trade": "lorc/anvil-impact",
  "quest-dungeon": "delapouite/dungeon-gate",
  "quest-tutorial": "lorc/open-book",
- "check": "delapouite/check-mark"
+ "check": "delapouite/check-mark",
+ "reward-xp": "delapouite/upgrade",
+ "reward-shards": "lorc/crystal-bars"
 }
