@@ -79,6 +79,14 @@ public partial class Main : Node3D
             _ = photographer.Run(photos);
             return;
         }
+        // The monsters' portraits (sprint 172, D88): the same.
+        if (_options.RenderPortraits is string portraits)
+        {
+            var photographer = new MonsterPhotographer();
+            AddChild(photographer);
+            _ = photographer.Run(portraits);
+            return;
+        }
         if (_options.SelfTest || _options.Demo)
             StartFight(_hero, _options.Scenario);
         else if (_options.Shot is "move" or "spell" && _options.Screenshot is not null)
@@ -1200,7 +1208,7 @@ public partial class Main : Node3D
         GetTree().Quit(saved == Error.Ok ? 0 : 1);
     }
 
-    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false, bool ServerGiven = false, bool Demo = false, string? RenderMaps = null)
+    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false, bool ServerGiven = false, bool Demo = false, string? RenderMaps = null, string? RenderPortraits = null)
     {
         public static Options Parse(string[] args, string locale)
         {
@@ -1223,6 +1231,7 @@ public partial class Main : Node3D
                     "--town-selftest" => o with { TownSelfTest = true },
                     "--demo" => o with { Demo = true },
                     "--render-maps" => o with { RenderMaps = Next() },
+                    "--render-portraits" => o with { RenderPortraits = Next() },
                     _ => o,
                 };
             }

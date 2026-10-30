@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, chaque monstre a sa vignette et son portrait rendus depuis son modèle 3D par un outil sans fenêtre, sa silhouette noire tant qu'il est inconnu (rpg, D88) ; xUnit sur l'outil (un portrait par monstre, la silhouette sans couleur), auto-tests du client. | 2 | À faire |
-| En tant que joueur, la fiche d'un monstre montre son portrait en grand, qui tourne, et une section par palier (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, chaque monstre a sa vignette et son portrait rendus depuis son modèle 3D par un outil sans fenêtre, sa silhouette noire tant qu'il est inconnu (rpg, D88) ; xUnit sur l'outil (un portrait par monstre, la silhouette sans couleur), auto-tests du client. | 2 | Fait |
+| En tant que joueur, la fiche d'un monstre montre son portrait en grand, qui tourne, et une section par palier (rpg) ; xUnit, auto-tests du client. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

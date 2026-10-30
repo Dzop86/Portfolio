@@ -32,6 +32,12 @@ public partial class BestiaryPanel : CanvasLayer
     public int BlocksReached { get; private set; }
     public int LootTiles { get; private set; }
 
+    /// <summary>The look turning on the card, none for a silhouette (for the self-test).</summary>
+    public string? Turning { get; private set; }
+
+    /// <summary>The pictures shown, the rows' then the card's silhouette, each loaded or not (for the self-test).</summary>
+    public List<(string Path, bool Loaded)> Pictures { get; } = [];
+
     public void Build(Texts texts)
     {
         _texts = texts;
@@ -156,6 +162,7 @@ public partial class BestiaryPanel : CanvasLayer
             n.QueueFree();
         _monsterRows.Clear();
         Names.Clear();
+        Pictures.Clear();
         Shown = id;
         foreach ((string family, Button row) in _familyRows)
             row.SetPressedNoSignal(family == id);
@@ -164,13 +171,13 @@ public partial class BestiaryPanel : CanvasLayer
         _monsterFoot.Text = _texts["bestiary.monsters", shown.Monsters.Count];
         foreach (BestiaryMonster m in shown.Monsters)
         {
-            _monsters.AddChild(MonsterRow(id, m));
+            _monsters.AddChild(MonsterRow(m));
             Names.Add(m.Name);
         }
         ShowMonster((shown.Monsters.FirstOrDefault(m => m.Known != Knowledge.Unknown) ?? shown.Monsters[0]).Id);
     }
 
-    private Button MonsterRow(string family, BestiaryMonster m)
+    private Button MonsterRow(BestiaryMonster m)
     {
         bool unknown = m.Known == Knowledge.Unknown;
         var row = new Button { CustomMinimumSize = new Vector2(0, 64), ThemeTypeVariation = OsmoseTheme.TreeRow, ToggleMode = true, FocusMode = Control.FocusModeEnum.None };
@@ -178,7 +185,7 @@ public partial class BestiaryPanel : CanvasLayer
         line.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         (line.OffsetLeft, line.OffsetRight) = (8, -8);
         line.AddThemeConstantOverride("separation", 10);
-        line.AddChild(Picture($"res://assets/icons/relief/family-{family}{(unknown ? "-locked" : "")}.svg", 44));
+        line.AddChild(Still(m, 52));
         var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
         words.AddThemeConstantOverride("separation", 2);
         var top = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -207,17 +214,30 @@ public partial class BestiaryPanel : CanvasLayer
             child.QueueFree();
         Chosen = id;
         LootTiles = 0;
+        // The rows' portraits stay, the card's silhouette goes with the card.
+        Pictures.RemoveRange(_monsterRows.Count, Pictures.Count - _monsterRows.Count);
         foreach ((string monster, Button row) in _monsterRows)
             row.SetPressedNoSignal(monster == id);
         BestiaryFamily family = _page.First(f => f.Monsters.Any(m => m.Id == id));
         BestiaryMonster m = family.Monsters.First(x => x.Id == id);
         bool unknown = m.Known == Knowledge.Unknown;
-        // The picture in a hollow: the family's emblem until the portraits of sprint 172.
-        var well = new PanelContainer { CustomMinimumSize = new Vector2(272, 120) };
+        // In a hollow, its model as in a fight, turning slowly; while unknown, its silhouette, still (sprint 172, D88).
+        var well = new PanelContainer { CustomMinimumSize = new Vector2(272, 160) };
         well.AddThemeStyleboxOverride("panel", OsmoseTheme.Flat(UiStyle.Well, corner: 8));
-        var emblem = Picture($"res://assets/icons/relief/family-{family.Id}{(unknown ? "-locked" : "")}.svg", 88);
-        emblem.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-        well.AddChild(emblem);
+        if (unknown)
+        {
+            TextureRect shadow = Still(m, 140);
+            shadow.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+            well.AddChild(shadow);
+            Turning = null;
+        }
+        else
+        {
+            Portrait model = Portrait.Make(new Vector2(272, 160), turning: true).Fit();
+            model.Show(new Hero("", m.Look), paint: false);
+            well.AddChild(model);
+            Turning = m.Look;
+        }
         _card.AddChild(well);
         _card.AddChild(Text(m.Name, 18, unknown ? UiStyle.TextDim : UiStyle.TextStrong, bold: true, wrap: true));
         _card.AddChild(Text($"{(unknown ? _texts["role." + m.Role] : m.Family)} · {_texts["bestiary.level", m.Level]} · {m.Zone}", 14, UiStyle.TextDim, wrap: true));
@@ -335,6 +355,15 @@ public partial class BestiaryPanel : CanvasLayer
         (icon.Item, icon.Count) = (item, loot.Count);
         tile.TooltipText = ItemMenu.Tooltip(item, _texts) + $"\n{loot.Percent} %" + (loot.Quest is string quest && GameData.Embedded.Quests.TryGetValue(quest, out Quest? q) ? $" · {_texts["bestiary.for-quest"]} « {q.Name.In(_texts.Lang)} »" : "");
         return tile;
+    }
+
+    /// <summary>A monster's portrait rendered from its model (<see cref="MonsterPortraits"/>), its silhouette while unknown.</summary>
+    private TextureRect Still(BestiaryMonster m, float size)
+    {
+        string path = "res://" + MonsterPortraits.Picture(m.Id, m.Known);
+        TextureRect picture = Picture(path, size);
+        Pictures.Add((path, picture.Texture is not null));
+        return picture;
     }
 
     private static TextureRect Picture(string path, float size) => new()

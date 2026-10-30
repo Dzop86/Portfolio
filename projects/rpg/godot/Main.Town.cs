@@ -2939,7 +2939,8 @@ public partial class Main
 
     /// <summary>
     /// The bestiary's window (sprint 171, D87): every monster mastered, the first family's every block open and its loot in
-    /// tiles; nothing won, silhouettes alone and every block shut.
+    /// tiles; nothing won, silhouettes alone and every block shut. Since sprint 172 (D88), each monster's portrait, its
+    /// silhouette while unknown, every one loaded; the card's model turning, or its silhouette still.
     /// </summary>
     private void CheckBestiary(List<string> problems)
     {
@@ -2949,9 +2950,13 @@ public partial class Main
         bestiary.Show(Bestiary.Full(GameData.Embedded));
         if (bestiary.Shown != "boar" || bestiary.Names.Count != GameData.Embedded.Families["boar"].Monsters.Count || bestiary.BlocksReached != 4 || bestiary.LootTiles == 0)
             problems.Add($"the full bestiary shows {bestiary.Shown}, {bestiary.Names.Count} monsters, {bestiary.BlocksReached} blocks, {bestiary.LootTiles} loot tiles");
+        if (bestiary.Turning != GameData.Embedded.Monsters[bestiary.Chosen!].Look || bestiary.Pictures.Count != bestiary.Names.Count || bestiary.Pictures.Any(p => !p.Loaded || p.Path.EndsWith("-unknown.webp", StringComparison.Ordinal)))
+            problems.Add($"the full bestiary's portraits: {bestiary.Turning} turning, {string.Join(", ", bestiary.Pictures)}");
         bestiary.Show(new Dictionary<string, int>());
         if (bestiary.Names.Any(n => n != "???") || bestiary.BlocksReached != 0 || bestiary.LootTiles != 0)
             problems.Add($"the empty bestiary names {string.Join(", ", bestiary.Names)} and opens {bestiary.BlocksReached} blocks");
+        if (bestiary.Turning is not null || bestiary.Pictures.Count != bestiary.Names.Count + 1 || bestiary.Pictures.Any(p => !p.Loaded || !p.Path.EndsWith("-unknown.webp", StringComparison.Ordinal)))
+            problems.Add($"the empty bestiary's silhouettes: {string.Join(", ", bestiary.Pictures)}");
         bestiary.QueueFree();
     }
 
