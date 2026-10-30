@@ -71,6 +71,14 @@ public partial class Main : Node3D
         }
         AddEnvironment();
         ItemIcon.RightClicked += ItemRightClicked;
+        // The world map's photographs (sprint 169, D88): rendered, written, then the game quits.
+        if (_options.RenderMaps is string photos)
+        {
+            var photographer = new MapPhotographer();
+            AddChild(photographer);
+            _ = photographer.Run(photos);
+            return;
+        }
         if (_options.SelfTest || _options.Demo)
             StartFight(_hero, _options.Scenario);
         else if (_options.Shot is "move" or "spell" && _options.Screenshot is not null)
@@ -81,7 +89,7 @@ public partial class Main : Node3D
         else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild")
         {
             // The pictures of the world: in the woods, a few steps from the way north.
-            if (_options.Shot is "zone" or "world")
+            if (_options.Shot is "zone" or "world" or "world-near")
                 (_zone, _place) = ("woods-2-2", new Cell(8, 5));
             ShowTown();
         }
@@ -1192,7 +1200,7 @@ public partial class Main : Node3D
         GetTree().Quit(saved == Error.Ok ? 0 : 1);
     }
 
-    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false, bool ServerGiven = false, bool Demo = false)
+    private sealed record Options(string Lang, string Scenario, ulong? Seed, bool SelfTest, string? Report, string? Screenshot, string Shot, string Server, bool Offline, bool LobbySelfTest, bool TownSelfTest = false, bool ServerGiven = false, bool Demo = false, string? RenderMaps = null)
     {
         public static Options Parse(string[] args, string locale)
         {
@@ -1214,6 +1222,7 @@ public partial class Main : Node3D
                     "--lobby-selftest" => o with { LobbySelfTest = true },
                     "--town-selftest" => o with { TownSelfTest = true },
                     "--demo" => o with { Demo = true },
+                    "--render-maps" => o with { RenderMaps = Next() },
                     _ => o,
                 };
             }

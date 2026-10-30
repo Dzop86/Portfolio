@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la terre de l'atlas montre chaque carte du jeu vue du ciel, avec ses arbres, ses maisons, son eau et ses rochers, rendue une fois sans fenêtre par un outil (rpg) ; xUnit sur l'assemblage (chaque carte à sa place, aucune manquante), auto-tests du client. | 3 | À faire |
-| En tant que joueur, les vues se fondent dans les régions : bords adoucis sous la côte ondulée, teinte de biome légère, contours gardés (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
+| En tant que joueur, la terre de l'atlas montre chaque carte du jeu vue du ciel, avec ses arbres, ses maisons, son eau et ses rochers, rendue une fois sans fenêtre par un outil (rpg) ; xUnit sur l'assemblage (chaque carte à sa place, aucune manquante), auto-tests du client. | 3 | Fait |
+| En tant que joueur, les vues se fondent dans les régions : bords adoucis sous la côte ondulée, teinte de biome légère, contours gardés (rpg) ; xUnit, auto-tests du client. | 1 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -40,6 +40,9 @@ public partial class TownView : Node3D
     /// <summary>An inhabitant's name shows only within this many steps of the player.</summary>
     public const int NameDistance = 3;
 
+    /// <summary>The ground in one tone, without the checks that count the cells (the world map's photographs, sprint 169).</summary>
+    public bool PlainGround { get; set; }
+
     public void Build(TownController controller, string lang, Hero player)
     {
         Controller = controller;
@@ -59,7 +62,7 @@ public partial class TownView : Node3D
             ground.Position = BoardView.ToWorld(c);
             Tiles++;
             if (k is not '=' and not '~')
-                BoardView.Paint(ground, grass[(c.X + c.Y) % 2]);
+                BoardView.Paint(ground, grass[PlainGround ? 0 : (c.X + c.Y) % 2]);
             AddChild(ground);
             Decorate(c, k);
         }

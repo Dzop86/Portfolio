@@ -59,6 +59,12 @@ public partial class WorldMapPanel : CanvasLayer
     public int AtlasLands => _atlas.Lands;
     public int AtlasBroken => _atlas.Broken;
 
+    /// <summary>The maps' photographs on the atlas (for the self-test).</summary>
+    public int AtlasPhotos => _atlas.Photos;
+
+    /// <summary>How much the photographs show over the drawn atlas, 0 to 1 (for the self-test).</summary>
+    public float PhotoOpacity => _atlas.PhotoOpacity;
+
     // The place of the quest followed (sprint 106): a ring in the hints' yellow, if any.
     private Control? _goal;
     private Vector2 _goalPixel;
@@ -104,7 +110,7 @@ public partial class WorldMapPanel : CanvasLayer
         _view = new Control { Size = ViewSize, ClipContents = true, MouseFilter = Control.MouseFilterEnum.Stop, MouseDefaultCursorShape = Control.CursorShape.Drag };
         area.AddChild(_view);
         // The atlas, the sea all around (sprint 167).
-        _atlas = new AtlasView { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _atlas = new AtlasView { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore, TextureFilter = CanvasItem.TextureFilterEnum.LinearWithMipmaps };
         _atlas.Build(_atlasData);
         _view.AddChild(_atlas);
         // The plan of the cells over it, where no map is see-through. The image is copied into the texture, then let go

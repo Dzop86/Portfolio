@@ -59,6 +59,7 @@ public sealed class WorldAtlas
         Height = (_world.Max(t => t.MapAt.Y) - _origin.Y + 1) * _mapHeight * WorldPicture.CellPixels;
         Regions = BuildRegions();
         Waters = BuildWaters();
+        Forests = BuildForests();
         Trees = BuildTrees();
         Roads = BuildRoads();
         Marks = BuildMarks(data);
@@ -99,6 +100,12 @@ public sealed class WorldAtlas
     public int Height { get; }
 
     public IReadOnlyList<AtlasRegion> Regions { get; }
+
+    /// <summary>The woods: where the maps' trees stand thick, as closed outlines (sprint 169, D88).</summary>
+    public IReadOnlyList<IReadOnlyList<AtlasPoint>> Forests { get; }
+
+    /// <summary>The share of a sample's surroundings in trees that makes a wood.</summary>
+    public const double Thick = 0.2;
 
     /// <summary>The maps' water as closed outlines.</summary>
     public IReadOnlyList<IReadOnlyList<AtlasPoint>> Waters { get; }
@@ -178,6 +185,44 @@ public sealed class WorldAtlas
         double least = Math.Pow(5 * WorldPicture.CellPixels, 2);
         return [.. Contours(cols, rows, (i, j) => water[i, j])
             .Select(l => (IReadOnlyList<AtlasPoint>)Smooth([.. l.Select(p => new AtlasPoint((p.X - 1) * px + px / 2, (p.Y - 1) * px + px / 2))], 1, false))
+            .Where(l => Area(l) >= least)];
+    }
+
+    private List<IReadOnlyList<AtlasPoint>> BuildForests()
+    {
+        // Every third cell, the share of trees in the five cells around it each way: a wood where it is thick.
+        const int step = 3, reach = 2;
+        int cellsX = Width / WorldPicture.CellPixels, cellsY = Height / WorldPicture.CellPixels;
+        var tree = new bool[cellsX, cellsY];
+        foreach (Town t in _world)
+        {
+            int ox = (t.MapAt.X - _origin.X) * _mapWidth, oy = (t.MapAt.Y - _origin.Y) * _mapHeight;
+            for (int y = 0; y < t.Rows.Count; y++)
+                for (int x = 0; x < t.Width; x++)
+                    tree[ox + x, oy + y] = t[new Cell(x, y)] == 'T';
+        }
+        int cols = cellsX / step + 3, rows = cellsY / step + 3;
+        var thick = new bool[cols, rows];
+        for (int i = 1; i < cols - 1; i++)
+            for (int j = 1; j < rows - 1; j++)
+            {
+                int cx = (i - 1) * step, cy = (j - 1) * step, trees = 0, all = 0;
+                for (int dx = -reach * step; dx <= reach * step; dx++)
+                    for (int dy = -reach * step; dy <= reach * step; dy++)
+                    {
+                        int x = cx + dx, y = cy + dy;
+                        if (x < 0 || y < 0 || x >= cellsX || y >= cellsY)
+                            continue;
+                        all++;
+                        trees += tree[x, y] ? 1 : 0;
+                    }
+                thick[i, j] = all > 0 && trees >= Thick * all;
+            }
+        double px = step * WorldPicture.CellPixels;
+        // A wood of about eight cells across or more.
+        double least = Math.Pow(8 * WorldPicture.CellPixels, 2);
+        return [.. Contours(cols, rows, (i, j) => thick[i, j])
+            .Select(l => (IReadOnlyList<AtlasPoint>)Smooth([.. l.Select(p => new AtlasPoint((p.X - 1) * px, (p.Y - 1) * px))], 2, true))
             .Where(l => Area(l) >= least)];
     }
 

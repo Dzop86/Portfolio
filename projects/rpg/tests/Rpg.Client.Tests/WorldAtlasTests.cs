@@ -80,6 +80,10 @@ public class WorldAtlasTests
         Assert.All(Atlas.Trees, t => Assert.InRange(t.Variant, 0, 2));
         // Every stamp and dot on a map.
         Assert.All(Atlas.Trees.Select(t => t.At).Concat(Atlas.Roads), p => Assert.InRange(p.X, 0, Atlas.Width));
+        // Woods where the trees stand thick: the ancestors' forest holds one, each of eight cells across or more.
+        Assert.NotEmpty(Atlas.Forests);
+        Assert.Contains(Atlas.Forests, f => Atlas.RegionAt(f[0]) == "ancestors");
+        Assert.All(Atlas.Forests, f => Assert.True(WorldAtlas.Area(f) >= 1024));
         // No puddle: a pool of five cells across or more.
         Assert.All(Atlas.Waters, w => Assert.True(WorldAtlas.Area(w) >= 400));
         Assert.Equal(12, WorldAtlas.Area([new(0, 0), new(4, 0), new(4, 3), new(0, 3)]));
@@ -110,6 +114,7 @@ public class WorldAtlasTests
         Assert.Equal(Atlas.Trees, again.Trees);
         Assert.Equal(Atlas.Roads, again.Roads);
         Assert.Equal(Atlas.Waters.SelectMany(w => w), again.Waters.SelectMany(w => w));
+        Assert.Equal(Atlas.Forests.SelectMany(w => w), again.Forests.SelectMany(w => w));
     }
 
     [Fact]
