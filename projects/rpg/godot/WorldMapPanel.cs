@@ -8,12 +8,26 @@ namespace Rpg.Desktop;
 /// The world map, over the map the player is on (sprint 71): the world seen from the sky, every map in
 /// its place as one big map (<see cref="WorldPicture"/>), dragged with the mouse and zoomed with the
 /// wheel around the pointer; a ring marks the player, the map under the pointer is named below with
-/// its level. M or its icon opens and closes it.
+/// its level. M or its icon opens and closes it. Since sprint 167 (D87, <c>docs/graphisme/s165-retours-30-oct.md</c> §5)
+/// an illustrated atlas zoomed out (<see cref="AtlasView"/>), the plan of the cells fading in over it from
+/// <see cref="PlanFrom"/> to <see cref="PlanFull"/>, the zones' edges kept over the plan.
 /// </summary>
 public partial class WorldMapPanel : CanvasLayer
 {
     private static readonly Vector2 ViewSize = new(800, 420);
     private const float MaxZoom = 4;
+
+    /// <summary>The zooms the plan of the cells starts to show at, and covers the atlas from.</summary>
+    public const float PlanFrom = 1.5f, PlanFull = 2.5f;
+
+    private AtlasView _atlas = null!, _edges = null!;
+
+    /// <summary>How much the plan of the cells shows over the atlas, 0 to 1 (for the self-test).</summary>
+    public float PlanOpacity => _picture.Modulate.A;
+
+    /// <summary>The atlas's lands drawn, and those that would not draw (for the self-test).</summary>
+    public int AtlasLands => _atlas.Lands;
+    public int AtlasBroken => _atlas.Broken;
 
     private WorldPicture _world = null!;
     private Texts _texts = null!;
@@ -67,18 +81,30 @@ public partial class WorldMapPanel : CanvasLayer
 
         _view = new Control { Position = new Vector2(20, 54), Size = ViewSize, ClipContents = true, MouseFilter = Control.MouseFilterEnum.Stop, MouseDefaultCursorShape = Control.CursorShape.Drag };
         area.AddChild(_view);
-        _view.AddChild(new ColorRect { Size = ViewSize, Color = new Color(0.094f, 0.094f, 0.094f), MouseFilter = Control.MouseFilterEnum.Ignore });
-        // The image is copied into the texture, then let go at once (see Main.QuitCleanly).
-        using Image image = Image.CreateFromData(_world.Width, _world.Height, false, Image.Format.Rgba8, _world.Pixels);
+        // The atlas, the sea all around (sprint 167).
+        var atlas = new WorldAtlas(data);
+        _atlas = new AtlasView { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _atlas.Build(atlas);
+        _view.AddChild(_atlas);
+        // The plan of the cells over it, where no map is see-through. The image is copied into the texture, then let go
+        // at once (see Main.QuitCleanly).
+        byte[] pixels = (byte[])_world.Pixels.Clone();
+        for (int i = 0; i < pixels.Length; i += 4)
+            if (pixels[i] == WorldPicture.Void.R && pixels[i + 1] == WorldPicture.Void.G && pixels[i + 2] == WorldPicture.Void.B)
+                pixels[i + 3] = 0;
+        using Image image = Image.CreateFromData(_world.Width, _world.Height, false, Image.Format.Rgba8, pixels);
         _picture = new TextureRect
         {
             Texture = ImageTexture.CreateFromImage(image),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.Scale,
-            TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+            TextureFilter = CanvasItem.TextureFilterEnum.Linear,
             MouseFilter = Control.MouseFilterEnum.Ignore,
         };
         _view.AddChild(_picture);
+        _edges = new AtlasView { Size = ViewSize, MouseFilter = Control.MouseFilterEnum.Ignore, EdgesOnly = true };
+        _edges.Build(atlas);
+        _view.AddChild(_edges);
         // A light grid on the maps' edges (sprint 85, D67), shown or not, the choice kept.
         _grid = new MapGrid { MouseFilter = Control.MouseFilterEnum.Ignore, Cell = new Vector2(_world.MapWidth, _world.MapHeight) * WorldPicture.CellPixels, Visible = ShowGrid };
         _view.AddChild(_grid);
@@ -142,8 +168,8 @@ public partial class WorldMapPanel : CanvasLayer
 
         _hover = new Label { Position = new Vector2(20, 486), Size = new Vector2(800, 30) };
         area.AddChild(_hover);
-        // Opened on the player, zoomed in enough to see the map around them.
-        Zoom = Math.Max(1.5f, MinZoom);
+        // Opened on the player, zoomed out on the atlas: their zone and its neighbours.
+        Zoom = Math.Max(0.5f, MinZoom);
         PictureAt = ViewSize / 2 - _player * Zoom;
         Place();
         ShowHover(MarkerCentre);
@@ -219,6 +245,15 @@ public partial class WorldMapPanel : CanvasLayer
         PictureAt = new Vector2(Keep(PictureAt.X, size.X, ViewSize.X), Keep(PictureAt.Y, size.Y, ViewSize.Y));
         _picture.Position = PictureAt;
         _picture.Size = size;
+        // The atlas alone zoomed out, the plan fading in over it, then covering it but for the zones' edges.
+        float plan = Math.Clamp((Zoom - PlanFrom) / (PlanFull - PlanFrom), 0, 1);
+        _picture.Modulate = new Color(1, 1, 1, plan);
+        foreach (AtlasView layer in new[] { _atlas, _edges })
+        {
+            (layer.Zoom, layer.Offset) = (Zoom, PictureAt);
+            layer.QueueRedraw();
+        }
+        _edges.Modulate = new Color(1, 1, 1, plan);
         _grid.Position = PictureAt;
         _grid.Size = size;
         _grid.Zoom = Zoom;

@@ -30,6 +30,19 @@
   --osmose-losing-fill: #3a2424;
   --osmose-ground: #1b1b1b;
   --osmose-cost: #f2d36b;
+  /* Osmose, la carte du monde en atlas (projects/rpg, AtlasStyle, sprint 167, D87) : biomes, mer, côte, contours. */
+  --osmose-map-woods: #6fae5a;
+  --osmose-map-mouldy: #8f9862;
+  --osmose-map-lake: #72bd7c;
+  --osmose-map-fields: #c4c76a;
+  --osmose-map-ancestors: #4f7f48;
+  --osmose-map-town: #d9c39a;
+  --osmose-map-sea: #3f86c4;
+  --osmose-map-sea-deep: #2a5f94;
+  --osmose-map-shore: #e8d9a8;
+  --osmose-map-coast: #1d4a75;
+  --osmose-map-tree: #2e6b3a;
+  --osmose-map-road: #e6e1d2;
   /* Osmose, l'interface (projects/rpg, UiStyle et OsmoseTheme, sprint 157, D84) : fenêtres, reliefs, accent, doré. */
   --osmose-ui-window: #1f1f1f;
   --osmose-ui-hud: #1b1b1ceb;

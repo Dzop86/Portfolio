@@ -7,7 +7,7 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, la fiche d'une quête montre ses objectifs cochés, ses récompenses en tuiles et ses boutons (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
-| En tant que joueur, la carte du monde dézoomée montre les régions colorées par biome, leurs contours, la mer, les forêts, l'eau et les routes (rpg) ; xUnit sur `WorldAtlas`, auto-tests du client. | 4 | À faire |
+| En tant que joueur, la carte du monde dézoomée montre les régions colorées par biome, leurs contours, la mer, les forêts, l'eau et les routes (rpg) ; xUnit sur `WorldAtlas`, auto-tests du client. | 4 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

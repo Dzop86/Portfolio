@@ -3561,9 +3561,12 @@ public partial class Main
         map.Drag(new Vector2(5000, 5000));
         if (Math.Abs(map.Zoom - map.MinZoom) > 1e-4f || map.PictureAt.X < 0 || map.PictureAt.Y < 0)
             problems.Add($"the world map zooms out to {map.Zoom} and is dragged to {map.PictureAt}");
+        // Sprint 167 (D87): zoomed out, the atlas alone, every zone's land drawn; zoomed in, the plan of the cells over it.
+        if (map.PlanOpacity != 0 || map.AtlasLands < new WorldAtlas(GameData.Embedded).Regions.Count || map.AtlasBroken > 0)
+            problems.Add($"the world map zoomed out shows the plan at {map.PlanOpacity}, {map.AtlasLands} lands, {map.AtlasBroken} broken");
         map.ZoomAround(pointer, 100);
-        if (Math.Abs(map.Zoom - 4) > 1e-4f)
-            problems.Add($"the world map zooms in to {map.Zoom}");
+        if (Math.Abs(map.Zoom - 4) > 1e-4f || map.PlanOpacity < 1)
+            problems.Add($"the world map zooms in to {map.Zoom}, its plan at {map.PlanOpacity}");
     }
 
     /// <summary>
