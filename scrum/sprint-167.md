@@ -1,13 +1,13 @@
-# Sprint 167 : Osmose : les spécialisations, la Sentinelle
+# Sprint 167 : Osmose : la fiche de quête, l'atlas
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : la fiche de quête se lit d'un coup d'œil et la carte du monde devient un atlas (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the quest sheet reads at a glance and the world map becomes an atlas (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur de niveau 50, je choisis une spécialisation par la quête « Une route à soi » : un passif, une règle changée et trois sorts, la première gratuite (rpg) ; xUnit, intégration PostgreSQL. | 4 | À faire |
-| En tant que Sentinelle, je choisis Mire, Affût ou Sente, chacune à ±8 points de la moyenne contre les hordes (rpg) ; xUnit, mesures sur 300 combats. | 2 | À faire |
+| En tant que joueur, la fiche d'une quête montre ses objectifs cochés, ses récompenses en tuiles et ses boutons (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, la carte du monde dézoomée montre les régions colorées par biome, leurs contours, la mer, les forêts, l'eau et les routes (rpg) ; xUnit sur `WorldAtlas`, auto-tests du client. | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

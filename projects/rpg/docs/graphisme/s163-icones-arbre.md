@@ -180,7 +180,7 @@ On garde 66 silhouettes. On change :
 
 À juger sur la planche, sans changement d'office : `elemental` (lorc/fire-silhouette, une flamme sur un sort neutre) et `freeze` (lorc/frostfire, mi-feu mi-glace sur un sort d'Eau).
 
-### 1.11 Sorts de voie (S167) et de monstres
+### 1.11 Sorts de voie (S176) et de monstres
 - Voies (9) : même recette ; tuile de l'élément du sort ; coin corné de la couleur du style (§1.5) ; silhouette absente de toutes les listes ci-dessus. Je les choisirai sur la liste du GD.
 - Monstres : pas de dessin par sort pour l'instant. Le repli « première lettre » disparaît au profit d'un **emblème d'élément** : tuile de l'élément et silhouette du Cœur (lorc/stone-sphere, lorc/fire-ring, lorc/drop, lorc/whirlwind ; Neutre : lorc/swirl-ring, libre). Fichiers `spells/_element-<Element>.svg`.
 
@@ -351,4 +351,4 @@ Ce qui ne dépend pas de la structure : les nœuds gardent leur taille (cibles �
 3. **Les métiers** : 12 icônes et leurs `-locked`, nouvelle ligne de `JobsPanel` avec barre d'XP. Indépendant, testable en ouvrant la fenêtre des métiers.
 4. **Les icônes de talents en relief** (59 + `-locked`) et les médaillons d'état (`node-*.svg`, `key-*.svg`) : faisables avant la structure du GD, ils améliorent déjà l'arbre actuel (plus de croix rouges, quatre états lisibles).
 5. **L'arbre** sur la structure du GD : sol, bois et sève en `Line2D`, fourches et losanges, écriteaux, légende réduite, barre d'outils. Je fais la maquette ASCII aux dimensions réelles dès réception de la proposition.
-6. Plus tard : les 9 sorts de voie (S167) et l'emblème d'élément des sorts de monstres.
+6. Plus tard : les 9 sorts de voie (S176) et l'emblème d'élément des sorts de monstres.

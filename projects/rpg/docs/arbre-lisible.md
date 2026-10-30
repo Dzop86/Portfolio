@@ -397,3 +397,126 @@ Et le critère de T118 (P5 a) : il explique son build en une phrase après deux 
 **É1 (2 points) est à livrer tout de suite.** Elle traite les deux plaintes exactes de Charles : les « chemins verts » (le bus éteint, l'état « points » qui n'éteint plus l'arbre) et les « chemins rouges » (plus de croix rouges, le rouge réservé à la confirmation). Elle retire aussi 5 tiges sans texte et affiche une légende de 4 lignes. Elle est jugeable dans la journée, sans attendre la refonte de la disposition.
 
 **É2 et É3 font le reste de la demande, « ressembler à un arbre » :** un tronc étroit, une couronne, des branches qui poussent quand on y met des points, et un bois dont l'épaisseur dit la hiérarchie et dont la vie dit le build. La grille garantit, tests à l'appui, qu'aucun lien ne se croise et que chaque nœud est au-dessus de son parent.
+
+---
+
+## 7. Révision après la 1.0.157 *(game designer, 30 octobre 2026)*
+
+> **Retour de Charles sur la 1.0.157 (avec É1)** : « trop de liens qui se croisent ; un arbre plus grand qu'on peut zoomer / dézoomer, plus lisible ». À faire **dans un second temps**, après un premier sprint de retours graphiques plus rapides.
+
+### 7.1 Ce que Charles a vu, et pourquoi les liens se croisent encore
+
+É1 n'a changé que les **états** (4 aspects, plus de croix ni de rouge, légende permanente). La **disposition** et les **liens** sont toujours ceux de S148 (`TreeLayout.Links()` et `TreeCanvas._Draw`, relus aujourd'hui) :
+
+- `Links()` trace toujours **chaque** arête parent-enfant d'un `requiresAny` : 24 arêtes dans un Terrain déployé, 18 dans le Tempo, 16 dans le Soutien. Ce sont ces éventails de traits qui se croisent (§1.2).
+- Le bus au-dessus de la fourche est toujours là : il est éteint, mais il est encore dessiné, et chaque style y descend par un trait vertical.
+- Les étages repliés des cinq autres styles (`fold:`) sont toujours reliés entre eux.
+
+**Sa critique des croisements vise donc exactement ce que É2 et É3 remplacent.** Elle ne remet pas en cause l'espalier : elle confirme qu'il faut le faire.
+
+### 7.2 Est-ce que É2 à É5 répondent à la critique ?
+
+| Critique | Le plan D86 (É2 à É5) | Verdict |
+|---|---|---|
+| **Croisements** | plus aucun lien de nœud à nœud ; un bois implicite (axe et rameaux) par branche, chaque branche dans son couloir ; garantie G5 testée sur 300 tirages et les builds de référence | **oui, entièrement**, à condition de livrer É2 et É3 ensemble |
+| **« Plus grand »** | non : l'espalier fait tout tenir dans 932 × 644 en **repliant** les branches non prises en bourgeons et en **compactant** les branches fournies (§2.5, R1) | **non**. Le repli est précisément ce qui rend l'arbre petit |
+| **Zoom / dézoom** | exclu par K3 a (« ni zoom ni déplacement », le choix de Charles en S146), rappelé en R1 | **non**. Charles revient sur K3 a : c'est son droit, et c'est un bon choix maintenant que l'arbre a 59 nœuds |
+
+**Conclusion :** la **structure** de l'espalier (grille, couloirs, bois, 4 aspects) reste. Ce qui change, c'est la **manière de la faire tenir à l'écran** : on remplace le repli (bourgeons, focus, compact) par une **caméra** (zoom et panoramique) sur un arbre **entièrement déployé**.
+
+### 7.3 Les bourgeons ou tout déployé ?
+
+| | A. Garder les bourgeons, ajouter le zoom | **B. Tout déployé, avec le zoom** (reco) |
+|---|---|---|
+| Ce qu'on voit | les branches non prises repliées ; on zoome sur un arbre déjà petit | les 7 branches et leurs 59 nœuds, toujours à la même place |
+| Plus grand ? | peu : il y a peu à agrandir | oui : le monde fait environ 1 760 × 780 px à 100 % |
+| Découverte | il faut cliquer un bourgeon pour voir ce qu'il contient | on survole n'importe quel nœud, d'emblée ; on planifie sans rien déplier |
+| Stabilité | une branche qui se déploie fait glisser ses voisines (R6) | rien ne bouge jamais, sauf la caméra |
+| Code | bourgeons, focus, compact, fiche de branche, **et** la caméra | la caméra seulement : bourgeons, focus, compact et fiche de branche disparaissent |
+| Risques retirés | aucun | R1 (largeur à 100), R6 (glissement), G7 devient trivial |
+| Ce qu'on perd | rien | l'image de « l'arbre qui pousse » par le repli |
+
+**Recommandation : B.** Les bourgeons étaient une **béquille contre le manque de place** ; avec une caméra, ils ajoutent un clic sans rien apporter. On garde l'image de l'arbre qui pousse **par le bois** : la sève (le bois vivant) ne monte que là où l'on a mis des points, et le reste de l'arbre est en bois nu, en pointillé. À 30, on voit un arbre sec avec un tronc vert ; à 100, une couronne pleine de sève. La forme résume toujours le build, sans rien cacher.
+
+### 7.4 La caméra : ce qu'il faut, et ce qu'il ne faut pas
+
+**Le monde.** L'espalier entièrement déployé, en coordonnées du monde : 7 colonnes de 196, 188, 122, 138, 188, 254 et 254 px (1 340 px), 6 écarts de 48 px, la gouttière de 72 px et des marges de 24 px, soit environ **1 760 × 780 px** (la hauteur prend les noms en 14 px du graphiste). À 100 %, les nœuds ont les tailles de G8 (56, 64, 48, 44).
+
+**L'écran.** Le canevas fait 932 × 644 avec le panneau de droite et **1 248 × 644 avec le panneau replié** (un bouton ‹ › sur son bord, comme les encarts masquables que Charles a demandés le même jour).
+
+| Réglage | Valeur | Pourquoi |
+|---|---|---|
+| Zoom minimum | **« Vue d'ensemble »** : tout l'arbre tient dans le canevas (environ 53 % avec le panneau, 71 % sans) | on ne dézoome jamais au-delà de l'arbre entier : rien à voir plus loin |
+| Zoom maximum | **150 %** (nœuds de 84 px, noms en 21 px) | au-delà, on ne voit plus qu'un nœud et le contexte se perd |
+| Pas | × 1,2 par cran de molette, centré **sur le curseur** | le point visé reste sous la souris : c'est ce qui rend un zoom agréable |
+| À l'ouverture | **cadré sur mon build** : la boîte des nœuds pris et ouverts, à 80 % au moins ; à 30 sans rien de pris, les portes, le tronc et l'étage 1 | on ouvre l'arbre pour agir, pas pour admirer ; on ne garde pas le zoom d'une ouverture à l'autre (prévisible) |
+| Panoramique | **glisser sur le fond** (bouton gauche hors d'un nœud), ou bouton du milieu, ou bouton droit | un clic sur un nœud reste un clic : un glissé ne commence qu'après 6 px de mouvement |
+| Pavé tactile | pincer pour zoomer (`InputEventMagnifyGesture`), deux doigts pour déplacer (`InputEventPanGesture`) | portables Windows de Charles |
+| Clavier | **+** et **−** (zoom au centre), **0** : vue d'ensemble, **Origine** : recentrer sur mon build ; les **flèches** restent la navigation de nœud en nœud, et la caméra **suit le focus** (le nœud gardé à 48 px des bords) | l'arbre reste jouable sans souris (G12) |
+| Boutons | en bas à gauche du canevas, en surimpression, 44 × 44 : **[+] [−] [Vue d'ensemble] [Recentrer]**, avec infobulles et raccourcis | découvrable sans lire l'aide |
+| Bornes | l'arbre ne peut pas sortir de plus de la moitié du canevas | on ne se perd jamais dans le vide |
+| Animation | 150 ms pour les boutons et le recentrage ; immédiat pour la molette et le glissé | les sauts se suivent à l'œil, la souris reste directe |
+
+**Ce qui ne zoome pas** (dessiné à l'échelle de l'écran) : la **gouttière** (ses libellés suivent la hauteur de leur ligne, à gauche), la **légende** (en bas à droite du canevas), les boutons de caméra, les bulles du tutoriel (ancrées sur un point du monde, mais à taille fixe), les infobulles.
+
+**Niveau de détail** : sous 65 %, les noms sous les nœuds se cachent (ils feraient moins de 9 px) et apparaissent au survol ; les noms de branche restent, en taille d'écran fixe. On lit la silhouette de l'arbre, les icônes et les aspects.
+
+**Une mini-carte ? Non.** La vue d'ensemble montre déjà tout l'arbre à 53 % ou 71 %. Une mini-carte n'est utile que si le monde dépasse 2 à 3 fois l'écran ; ce n'est pas le cas. À revoir au temps 2 (six tresses), si la Fusion s'élargit beaucoup.
+
+**Un clic à petit zoom ?** Il prend le nœud, comme à 100 %. Je ne propose pas de mode « à petit zoom, un clic centre au lieu de prendre » : ce serait une règle cachée. Le brouillon s'annule, et la fiche au survol dit ce qu'on va prendre.
+
+### 7.5 Ce qui change dans le plan de l'espalier
+
+| Élément | Avant (D86) | Après |
+|---|---|---|
+| §2.5 Montrer et cacher | bourgeons, focus, compact, fiche de branche | **retiré** : tout est déployé ; à l'ouverture, cadrage sur mon build |
+| §2.4 Grille | 932 × 644, colonnes réparties à l'écran | coordonnées **du monde** (~1 760 × 780), colonnes de largeur fixe |
+| K3 a | ni zoom ni déplacement | **annulé** par Charles (30 octobre) : à noter dans la décision D87 |
+| G6 | tout tient dans 932 × 644 | tout tient dans le monde, sans chevauchement, **à 100 %** ; à la vue d'ensemble, aucun nom n'est affiché sous 65 % |
+| G7 | le chemin pris n'est jamais replié | trivial (rien ne se replie) : gardé comme garde-fou |
+| G8 | aucun nœud sous 44 px | aucun nœud sous 44 px **à 100 %** ; le cadrage d'ouverture est à 80 % au moins (nœuds de 45 px et plus) |
+| G13 | pas de `coming:` ni de `fold:`, un `bud:` par branche repliée | ni `coming:`, ni `fold:`, ni `bud:` |
+| R1, R6 | largeur à 100, glissement des colonnes | **disparus** |
+| Nouveau R12 | | **texte flou au zoom** : un `Label` mis à l'échelle se pixellise. Parade : police MSDF (ou suréchantillonnage) dans le thème, vérifiée par une capture sans fenêtre à 150 % |
+| Nouveau R13 | | **glisser ou cliquer** : un glissé démarré sur un nœud le prendrait. Parade : le seuil de 6 px, testé |
+| Maquette du graphiste | positions en x et y de l'écran (§3.2, §4) | à **refaire en coordonnées du monde** (colonnes de largeur fixe, couronne et tronc placés une fois pour toutes) ; ses jetons, ses aspects et son bois ne changent pas |
+
+**La contrainte de mise en page à surveiller :** la Fusion doit rester au-dessus de Foudre (G2), alors que la couronne est au centre des six styles. Les tiges des portes arrivent donc à la couronne par la gauche et par le bas, et les charpentières en partent par le haut (un collet vertical de 16 px sépare les deux). G5 le vérifie.
+
+### 7.6 Le plan révisé (deux sprints de 6 points, après le sprint des retours rapides)
+
+Après les retours graphiques (S165-S171), l'arbre passe en **S172 et S173** (D87). Chaque story arrive avec ses tests xUnit et la mise à jour de l'auto-test du client.
+
+**Sprint « l'arbre sans croisement » (6 points)**, livrable seul : à la fin, plus aucun croisement, l'arbre est entier et se zoome à la molette.
+
+| # | Story | Tests | Pts |
+|---|---|---|---|
+| **A1** | **La grille complète.** `TreeLayout` refait en coordonnées du monde : `Row`, `RowOf` (Fusion rangée selon le §2.4), les 7 colonnes dans l'ordre fixe et **entièrement déployées**, tronc vertical, portes en couples, Cœurs à 48 px, données de la gouttière. Plus de `fold:` ni de focus | xUnit sur le corpus : G1, G2, G3, G4, G6, G8, G9, G13. Auto-test : 59 nœuds et 3 cernes posés, aucun hors du monde | **3** |
+| **A2** | **Le bois, en traits simples.** `TreeLayout.Wood(taken, stateOf)` rend des `WoodPiece(Kind, Points, Life)` ; il remplace `Links()`, le bus, les accolades, les anneaux et le cadre de la Transmutation. Godot trace chaque pièce par épaisseur et par vie (plein, fin, pointillé), en lignes et courbes simples | xUnit : G5 (aucun croisement, Bézier en 16 segments), G11 (bois vivant). Auto-test : aucun bus, une tige par porte prise | **2** |
+| **A3** | **Zoomer et glisser.** `TreeCamera` sans moteur (comme `ExploreCamera`) : `Zoom`, `Offset`, `ZoomAt(point, crans)`, `PanBy`, `Fit`, `Frame(boîtes)`, `ToWorld` et `ToScreen`, bornes. Molette centrée sur le curseur, glissé sur le fond (seuil de 6 px), ouverture cadrée sur mon build | xUnit : le point sous le curseur ne bouge pas au zoom ; bornes min et max ; `Fit` contient le monde ; `Frame` contient les nœuds pris à 80 % au moins ; un mouvement de 5 px est un clic, de 7 px un glissé. Auto-test : un cran de molette change le zoom, un clic sur un nœud zoomé le prend encore | **1** |
+
+**Sprint « l'arbre qu'on parcourt » (6 points)** :
+
+| # | Story | Tests | Pts |
+|---|---|---|---|
+| **A4** | **Naviguer.** Boutons [+] [−] [Vue d'ensemble] [Recentrer] ; touches +, −, 0, Origine ; pincement et deux doigts au pavé ; la caméra suit le focus clavier ; animations de 150 ms ; niveau de détail sous 65 % ; gouttière et légende à l'échelle de l'écran ; police lisible à 150 % (R12) | xUnit : `TreeCamera.Follow` garde le nœud à 48 px des bords ; les seuils du niveau de détail ; G12 (clavier) sur le corpus. Auto-test : chaque bouton change la caméra comme prévu, la légende ne bouge pas au zoom | **2** |
+| **A5** | **La sève.** Courbes de Bézier, ombre et reflet du graphiste, chemin survolé en sève, « à rendre » en rouge sur le bois | xUnit : le chemin survolé (`TreePlan.Path`) donne les bonnes pièces ; aucune pièce rouge hors confirmation. Auto-test : survol d'un nœud ouvert, ses pièces passent en sève | **1** |
+| **A6** | **Le cadre.** Barre du haut (compteur, menu Outils, ×), panneau de droite en trois blocs et **repliable** (état gardé dans `WindowState`, le canevas passe à 1 248 px), aperçu des nœuds fermés au survol, bulles du tutoriel ancrées dans le monde (la caméra va vers chacune), clé `Seen` renouvelée (`tree2`), maquette SVG régénérée sans fenêtre | xUnit : textes FR et EN (G14), ancrages des bulles hors des portes, aperçu des fermetures. Auto-test : replier le panneau élargit le canevas et la vue d'ensemble se recalcule ; les bulles s'enchaînent | **3** |
+
+**Total : 12 points** (le plan D86 restant faisait 10 points avec É2 à É5). La caméra coûte 3 points, et retirer les bourgeons, le focus et le compact en rend 1.
+
+**Pourquoi cet ordre :** A1 sans bois afficherait les anciens liens sur la nouvelle grille, et A1 sans caméra ne tiendrait pas à l'écran (le monde fait près de deux fois le canevas). D'où la caméra minimale A3 (1 point) dès le premier sprint : Charles juge les trois points de sa critique (croisements, taille, zoom) dès la première livraison. Le confort (boutons, pavé, clavier, sève, cadre) vient au second.
+
+**Le test de jeu (§5.1) s'enrichit d'une question :** « Montre-moi tout ton arbre, puis reviens à ton build. » Il doit trouver la vue d'ensemble puis le recentrage (bouton ou molette) en moins de 10 secondes.
+
+### 7.7 Les questions pour Charles
+
+1. **Tout déployé ou bourgeons ?** Je recommande de voir les 7 branches en entier, toujours à la même place, et de zoomer pour lire (§7.3 B), plutôt que de garder les branches non prises repliées.
+2. **K3 a** : en S146, tu avais choisi « ni zoom ni déplacement ». On l'annule bien ?
+3. **À l'ouverture** : cadré sur ton build, à 80 % au moins (reco), ou vue d'ensemble de tout l'arbre ?
+4. **La souris** : molette = zoom et glisser sur le fond = déplacer (reco) ? Ou préfères-tu la molette pour défiler et Ctrl+molette pour zoomer ?
+5. **Le panneau de droite repliable**, pour donner 1 248 px à l'arbre (reco : oui, replié ou non selon ton dernier choix) ?
+6. **Une mini-carte de l'arbre** : je ne la recommande pas, puisque la vue d'ensemble montre tout. D'accord ?
+
+### 7.8 Les réponses de Charles (30 octobre 2026, D87)
+Tout déployé avec la caméra (K3 a annulé), ouverture cadrée sur son build, molette pour zoomer et glisser pour déplacer, panneau de droite repliable, pas de mini-carte. A1-A3 en S172, A4-A6 en S173.

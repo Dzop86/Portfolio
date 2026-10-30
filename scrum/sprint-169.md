@@ -1,12 +1,13 @@
-# Sprint 169 : Osmose : les spécialisations de la Mage
+# Sprint 169 : Osmose : le bestiaire en tableau
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : le bestiaire donne des données structurées dans une fenêtre en trois colonnes (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary gives structured data in a three-column window (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je choisis Archimage, Sorcier ou la troisième voie nommée par le scénariste ; `Rpg.Sim --spec` mesure les 18 builds à 50, chacun à ±8 points de la moyenne de sa classe (rpg) ; xUnit, mesures. | 3 | À faire |
+| En tant que joueur, la fiche d'un monstre se lit par blocs (identité, combat, butin avec son taux, lieux, histoire) selon son palier, les objets de quête n'y paraissant qu'avec la quête (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, le bestiaire s'ouvre en trois colonnes : filtres, familles avec leurs emblèmes, tableau des monstres (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

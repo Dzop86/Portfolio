@@ -1,13 +1,13 @@
-# Sprint 170 : Osmose : la tresse de Glace, playtest
+# Sprint 170 : Osmose : la fiche du bestiaire
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : on cherche dans le bestiaire et la fiche d'un monstre a son portrait (D87 ; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary can be searched and a monster's sheet has its portrait (D87; `projects/rpg/docs/graphisme/s165-retours-30-oct.md`, `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je transmute l'Eau ou l'Air en Glace : Morsure (−1 PA), 24 jumeaux, Signature appuyée, Prisme et Conversion de Glace, la fenêtre de l'arbre à deux tresses (rpg) ; xUnit, auto-test. | 3 | À faire |
-| En tant que Charles, la mesure v3 met la Glace à moins de 8 points de la Foudre contre les hordes, et je joue la Glace à 45 avec un joueur extérieur (rpg). | 1 | À faire |
+| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, la fiche d'un monstre a son portrait en 3D, la silhouette noire d'un inconnu et une section par palier (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
