@@ -49,7 +49,10 @@ public partial class TownView : Node3D
         _lang = lang;
         Town town = controller.Town;
         (string light, string dark) = ZoneStyle.Ground(town.Zone);
-        StandardMaterial3D[] grass = [.. new[] { light, dark }.Select(g => new StandardMaterial3D { AlbedoColor = new Color(g), Roughness = 1 })];
+        // Since sprint 178 (D87, Q1 b) no chequerboard out of a fight: the zone's two tones in patches, a drier
+        // tone along the roads. The fights keep their checks (BoardView).
+        StandardMaterial3D[] grass = [.. Enumerable.Range(0, DecorScatter.Tones).Select(t => Grass(new Color(light).Lerp(new Color(dark), t / (DecorScatter.Tones - 1f))))];
+        StandardMaterial3D[] dry = [.. grass.Select(g => Grass(g.AlbedoColor.Lerp(DryGrass, 0.3f)))];
         foreach (Cell c in controller.Board.Cells())
         {
             char k = town[c];
@@ -62,10 +65,12 @@ public partial class TownView : Node3D
             ground.Position = BoardView.ToWorld(c);
             Tiles++;
             if (k is not '=' and not '~')
-                BoardView.Paint(ground, grass[PlainGround ? 0 : (c.X + c.Y) % 2]);
+                BoardView.Paint(ground, PlainGround ? grass[0] : (DecorScatter.Dry(town, c) ? dry : grass)[DecorScatter.Tone(c)]);
             AddChild(ground);
             Decorate(c, k);
         }
+        foreach (Sprig bush in DecorScatter.Rim(town, 2))
+            Shade(Place(Nature + "plant_bushSmall.glb", BoardView.ToWorld(bush.At) + new Vector3(bush.Dx, 0, bush.Dz), bush.Turn, bush.Variant == 0 ? 1.4f : 1.8f), Foliage);
         foreach (Prop prop in town.Props ?? [])
             AddProp(prop);
         // The village's beasts (sprint 104), each where the map says, turned a little at random.
@@ -181,6 +186,14 @@ public partial class TownView : Node3D
                 _ when decor == 'M' => Stump(at, new Color("e8e0cc")),
                 _ => null,
             };
+            // A tree or a rock of the decor stands off its cell's middle (sprint 178): its stump and gem follow it.
+            if (node.Kind is NodeKind.Tree or NodeKind.Rock && _decor.ContainsKey(node.At))
+            {
+                Vector3 shift = new(resource.Position.X - at.X, 0, resource.Position.Z - at.Z);
+                if (remnant is not null)
+                    remnant.Position += shift;
+                at += shift;
+            }
             if (remnant is not null && node.Kind != NodeKind.Plot)
                 remnant.Visible = false;
             var material = new StandardMaterial3D { AlbedoColor = new Color(NodeColour(node.Kind)), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
@@ -194,6 +207,7 @@ public partial class TownView : Node3D
             AddChild(gem);
             _nodes[node.Id] = (gem, resource, remnant, node.Kind);
         }
+        Tufts(town, controller);
         Player = Person(player, null);
         // The player's own words over it (sprint 173, D89): its name, its guild's set apart by ShowOwnGuild; on hovering it only.
         _playerName = string.IsNullOrEmpty(player.Name) ? null : player.Name;
@@ -356,13 +370,13 @@ public partial class TownView : Node3D
                 _decor[c] = Ancestor(c, at);
                 break;
             case 'T':
-                _decor[c] = Place(Kit + ((c.X + c.Y) % 2 == 0 ? "tree.glb" : "tree-high.glb"), at, 0, 1);
+                _decor[c] = Scattered(c, k, at, Trees);
                 break;
             case 'R' when Ancestral:
                 _decor[c] = MossyRock(c, at);
                 break;
             case 'R':
-                _decor[c] = Place(Kit + "rock-large.glb", at, (c.X * 37) % 360, 0.6f);
+                _decor[c] = Scattered(c, k, at, Rocks);
                 break;
             case 'S':
                 Place(Kit + ((c.X + c.Y) % 2 == 0 ? "stall-red.glb" : "stall-green.glb"), at, -90, 1);
@@ -374,10 +388,10 @@ public partial class TownView : Node3D
                 Place(Kit + "cart.glb", at, 30, 1);
                 break;
             case 'M':
-                _decor[c] = Place(Nature + "mushroom_tan.glb", at, (c.X * 53) % 360, 2.4f);
+                _decor[c] = Scattered(c, k, at, [(Nature + "mushroom_tan.glb", 2.4f)]);
                 break;
             case 'B':
-                Place(Nature + "plant_bushSmall.glb", at, (c.X * 41) % 360, 1.8f);
+                Scattered(c, k, at, [(Nature + "plant_bushSmall.glb", 1.8f)]);
                 break;
             case 'P':
                 Stakes(at);
@@ -392,7 +406,7 @@ public partial class TownView : Node3D
                 Stable(block);
                 break;
             case ',':
-                _decor[c] = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, (c.Y * 29) % 360, 1.2f);
+                _decor[c] = Scattered(c, k, at, Flowers);
                 break;
         }
     }
@@ -409,11 +423,12 @@ public partial class TownView : Node3D
     /// </summary>
     private Node3D Ancestor(Cell c, Vector3 at)
     {
-        float turn = (c.X * 53 + c.Y * 29) % 360;
+        Scatter s = DecorScatter.For(c, 'T', 1);
+        at += new Vector3(s.Dx, 0, s.Dz);
         if (!Giant(c))
-            return Place(Nature + "tree_pineDefaultA.glb", at, turn, 1.5f);
+            return Place(Nature + "tree_pineDefaultA.glb", at, s.Turn, 1.5f * s.Scale);
         Giants++;
-        Node3D tree = Place(Nature + "tree_default.glb", at, turn, 2.4f);
+        Node3D tree = Place(Nature + "tree_default.glb", at, s.Turn, 2.4f * Math.Clamp(s.Scale, 0.95f, 1.15f));
         Part(tree, new CylinderMesh { TopRadius = 0.09f, BottomRadius = 0.16f, Height = 0.7f, RadialSegments = 10 }, new Color("4a3524"), new Vector3(0, 0.35f, 0));
         return tree;
     }
@@ -424,9 +439,122 @@ public partial class TownView : Node3D
     /// <summary>A boulder of the forest: the nature kit's rock, its top under a cushion of moss.</summary>
     private Node3D MossyRock(Cell c, Vector3 at)
     {
-        Node3D rock = Place(Nature + ((c.X + c.Y) % 2 == 0 ? "rock_largeA.glb" : "rock_largeB.glb"), at, (c.X * 37) % 360, 0.8f);
+        Scatter s = DecorScatter.For(c, 'R', 2);
+        Node3D rock = Place(Nature + (s.Variant == 0 ? "rock_largeA.glb" : "rock_largeB.glb"), at + new Vector3(s.Dx, 0, s.Dz), s.Turn, 0.8f * s.Scale);
         Part(rock, new SphereMesh { Radius = 0.32f, Height = 0.22f, RadialSegments = 10, Rings = 4 }, new Color("4f7a34"), new Vector3(0.04f, 0.42f, -0.03f));
         return rock;
+    }
+
+    // The models a piece of decor is drawn among (sprint 178), each with the scale that fits it to a cell.
+    private static readonly (string Path, float Scale)[] Trees =
+        [(Kit + "tree.glb", 1), (Kit + "tree-high.glb", 1), (Nature + "tree_default.glb", 1.3f), (Nature + "tree_pineDefaultA.glb", 1.1f)];
+
+    private static readonly (string Path, float Scale)[] Rocks =
+        [(Kit + "rock-large.glb", 0.6f), (Nature + "rock_largeA.glb", 0.7f), (Nature + "rock_largeB.glb", 0.7f)];
+
+    private static readonly (string Path, float Scale)[] Flowers = [(Nature + "flower_yellowA.glb", 1.2f), (Nature + "flower_redA.glb", 1.2f)];
+
+    private static readonly Color DryGrass = new("9a9050");
+
+    private static readonly Color Foliage = new(1.5f, 1.6f, 1.45f);
+
+    private static readonly Dictionary<Material, Material> _shaded = [];
+
+    /// <summary>Multiplies the green surfaces of a model by a colour (its trunk untouched), one material per original (one colour for all, <see cref="Foliage"/>).</summary>
+    private static void Shade(Node node, Color by)
+    {
+        if (node is MeshInstance3D mesh && mesh.Mesh is not null)
+        {
+            for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
+            {
+                if (mesh.Mesh.SurfaceGetMaterial(i) is not StandardMaterial3D m || m.AlbedoColor.G <= m.AlbedoColor.R)
+                    continue;
+                if (!_shaded.TryGetValue(m, out Material? dark))
+                {
+                    var copy = (StandardMaterial3D)m.Duplicate();
+                    copy.AlbedoColor = m.AlbedoColor * by;
+                    _shaded[m] = dark = copy;
+                }
+                mesh.SetSurfaceOverrideMaterial(i, dark);
+            }
+        }
+        foreach (Node child in node.GetChildren())
+            Shade(child, by);
+    }
+
+    private static StandardMaterial3D Grass(Color colour) => new() { AlbedoColor = colour, Roughness = 1 };
+
+    /// <summary>The tree models drawn on this map, and how many trees stand at the exact middle of their cell (for the self-test).</summary>
+    public HashSet<string> TreeModels { get; } = [];
+
+    public int CentredTrees { get; private set; }
+
+    /// <summary>How many tufts of grass and small flowers grow on the walkable grass (for the self-test).</summary>
+    public int TuftCount { get; private set; }
+
+    /// <summary>A piece of decor shifted, turned and scaled in its cell, its model drawn among several (sprint 178, <see cref="DecorScatter"/>).</summary>
+    private Node3D Scattered(Cell c, char kind, Vector3 at, (string Path, float Scale)[] models)
+    {
+        Scatter s = DecorScatter.For(c, kind, models.Length);
+        (string path, float scale) = models[s.Variant];
+        Node3D piece = Place(path, at + new Vector3(s.Dx, 0, s.Dz), s.Turn, scale * s.Scale);
+        if (kind == 'T')
+        {
+            // The nature kit's foliage is a deep green beside the town kit's pale mint: lightened to sit together.
+            if (path.StartsWith(Nature, StringComparison.Ordinal))
+                Shade(piece, Foliage);
+            TreeModels.Add(path);
+            if (s.Dx == 0 && s.Dz == 0)
+                CentredTrees++;
+        }
+        return piece;
+    }
+
+    private static ArrayMesh? _tuft;
+    private static StandardMaterial3D? _tuftMaterial;
+
+    /// <summary>
+    /// The tufts of grass and the small flowers on one walkable cell in eight (sprint 178), never where something
+    /// stands or is to be clicked; lower than a sixth of a cell, they hide nothing. One mesh for every tuft.
+    /// </summary>
+    private void Tufts(Town town, TownController controller)
+    {
+        HashSet<Cell> taken = [.. town.Npcs.Select(n => n.At), .. town.Exits.Select(e => e.At), .. (town.Links ?? []).Select(l => l.At),
+            .. town.Doors.Select(d => d.At), .. (town.Props ?? []).Select(p => p.At), .. (town.Workshops ?? []).Select(w => w.At),
+            .. controller.Nodes.Select(n => n.At), .. controller.Groups.Values];
+        _tuft ??= TuftMesh();
+        _tuftMaterial ??= new StandardMaterial3D { AlbedoColor = new Color("7aa84a"), Roughness = 1, CullMode = BaseMaterial3D.CullModeEnum.Disabled };
+        foreach (Sprig t in DecorScatter.Tufts(town, taken.Contains, 3))
+        {
+            Vector3 at = BoardView.ToWorld(t.At) + new Vector3(t.Dx, 0, t.Dz);
+            if (t.Variant == 2)
+                Place(Nature + (t.At.X % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, t.Turn, 0.7f);
+            else
+                AddChild(new MeshInstance3D { Mesh = _tuft, MaterialOverride = _tuftMaterial, Position = at, RotationDegrees = new Vector3(0, t.Turn, 0), Scale = Vector3.One * (t.Variant == 0 ? 1 : 0.75f) });
+            TuftCount++;
+        }
+    }
+
+    /// <summary>A tuft: seven thin blades leaning out from a point, 0.14 high at most, lit from above.</summary>
+    private static ArrayMesh TuftMesh()
+    {
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+        for (int i = 0; i < 7; i++)
+        {
+            float a = i * Mathf.Tau / 7 + 0.4f * (i % 2);
+            float h = 0.1f + 0.04f * (i % 3) / 2f;
+            Vector3 lean = new(Mathf.Cos(a) * 0.08f, h, Mathf.Sin(a) * 0.08f);
+            Vector3 side = new Vector3(-Mathf.Sin(a), 0, Mathf.Cos(a)) * 0.018f;
+            Vector3 foot = new(Mathf.Cos(a) * 0.02f, 0, Mathf.Sin(a) * 0.02f);
+            // Seen from both sides (no culling), lit like the grass under it.
+            foreach (Vector3 v in new[] { foot - side, foot + side, foot + lean })
+            {
+                st.SetNormal(Vector3.Up);
+                st.AddVertex(v);
+            }
+        }
+        return st.Commit();
     }
 
     /// <summary>
