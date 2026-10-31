@@ -74,13 +74,14 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         var header = new HBoxContainer();
         header.AddThemeConstantOverride("separation", 16);
         column.AddChild(header);
-        _portrait = Portrait.Make(new Vector2(96, 112), turning: false, distance: 1.5f);
+        // Smaller since sprint 174 (D89): the page has the height.
+        _portrait = Portrait.Make(new Vector2(72, 84), turning: false, distance: 1.5f);
         header.AddChild(_portrait);
         _portrait.Show(editor.Hero);
         var who = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = BoxContainer.AlignmentMode.Center };
         header.AddChild(who);
         _name = new Label();
-        _name.AddThemeFontSizeOverride("font_size", 26);
+        _name.AddThemeFontSizeOverride("font_size", 22);
         who.AddChild(_name);
         _level = new Label { Modulate = new Color(1, 1, 1, 0.8f) };
         who.AddChild(_level);
@@ -121,21 +122,23 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         var page = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         page.AddThemeConstantOverride("separation", 18);
         // The tiles: hit points, action and movement points, initiative, points left.
-        var tiles = new VBoxContainer { CustomMinimumSize = new Vector2(200, 0) };
-        tiles.AddThemeConstantOverride("separation", 8);
+        // Compact since sprint 174 (D89, Charles: « qu'il n'y ait pas besoin de scroller ») : action and movement points on one tile,
+        // the tree's on two lines, nothing wider than the column.
+        var tiles = new VBoxContainer { CustomMinimumSize = new Vector2(TileWidth, 0) };
+        tiles.AddThemeConstantOverride("separation", 6);
         page.AddChild(tiles);
         // Since sprint 146 (D82, O7 a), what the tree's trunk adds.
-        foreach ((string key, string colour) in new[] { ("hp", ElementStyle.Heal), ("ap", "#6fb6ff"), ("mp", "#9be36b"), ("initiative", "#e0e0e0"), ("tree", "#bef374"), ("left", "#bef374") })
-            _tiles[key] = Tile(tiles, colour, big: key is "hp" or "left");
+        foreach ((string key, string colour) in new[] { ("hp", ElementStyle.Heal), ("ap", "#6fb6ff"), ("initiative", "#e0e0e0"), ("tree", "#bef374"), ("left", "#bef374") })
+            _tiles[key] = Tile(tiles, colour, big: key is "hp" or "left", wrap: key == "tree");
         // Every point back, to spend again (D62).
-        _reset = Small(tiles, "", () => Editor.ResetCharacteristics(), 200);
+        _reset = Small(tiles, "", () => Editor.ResetCharacteristics(), TileWidth);
 
         var right = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         right.AddThemeConstantOverride("separation", 8);
         page.AddChild(right);
         var grid = new GridContainer { Columns = 10 };
         grid.AddThemeConstantOverride("h_separation", 8);
-        grid.AddThemeConstantOverride("v_separation", 10);
+        grid.AddThemeConstantOverride("v_separation", 6);
         right.AddChild(grid);
         foreach (string col in new[] { "stat", "invested", "worn", "total", "bonus", "resist" })
         {
@@ -149,12 +152,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         foreach (Characteristic stat in Enum.GetValues<Characteristic>())
         {
             Color colour = new(Colour(stat));
-            var name = new Label { CustomMinimumSize = new Vector2(110, 0), MouseFilter = Control.MouseFilterEnum.Stop };
+            var name = new Label { CustomMinimumSize = new Vector2(90, 0), MouseFilter = Control.MouseFilterEnum.Stop };
             name.AddThemeColorOverride("font_color", colour);
-            name.AddThemeFontSizeOverride("font_size", 18);
+            name.AddThemeFontSizeOverride("font_size", 17);
             grid.AddChild(name);
             // The points put in, typed or changed by the buttons; a typed value is kept within what is left.
-            var value = new LineEdit { CustomMinimumSize = new Vector2(70, 40), Alignment = HorizontalAlignment.Right };
+            var value = new LineEdit { CustomMinimumSize = new Vector2(64, RowHeight), Alignment = HorizontalAlignment.Right };
             void Apply(string text)
             {
                 if (int.TryParse(text, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int n))
@@ -168,22 +171,23 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             cells[0] = name;
             for (int i = 1; i < 5; i++)
             {
-                cells[i] = new Label { HorizontalAlignment = HorizontalAlignment.Right, CustomMinimumSize = new Vector2(i == 3 ? 150 : 56, 0) };
+                cells[i] = new Label { HorizontalAlignment = HorizontalAlignment.Right, CustomMinimumSize = new Vector2(i == 3 ? 120 : 52, 0) };
                 if (i == 2)
                 {
                     cells[i].MouseFilter = Control.MouseFilterEnum.Stop;
-                    cells[i].AddThemeFontSizeOverride("font_size", 18);
+                    cells[i].AddThemeFontSizeOverride("font_size", 17);
                     cells[i].AddThemeColorOverride("font_color", colour);
                 }
                 grid.AddChild(cells[i]);
             }
-            Button min = Small(grid, "", () => Editor.Set(stat, 0), 56);
-            Button minus = Small(grid, "−", () => Editor.Remove(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1));
-            Button plus = Small(grid, "+", () => Editor.Add(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1));
-            Button max = Small(grid, "", () => Editor.Set(stat, Editor.Max(stat)), 56);
+            Button min = Small(grid, "", () => Editor.Set(stat, 0), 52, RowHeight);
+            Button minus = Small(grid, "−", () => Editor.Remove(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1), 40, RowHeight);
+            Button plus = Small(grid, "+", () => Editor.Add(stat, Input.IsKeyPressed(Key.Shift) ? 10 : 1), 40, RowHeight);
+            Button max = Small(grid, "", () => Editor.Set(stat, Editor.Max(stat)), 52, RowHeight);
             _stats.Add((stat, cells, value, [min, minus, plus, max]));
         }
-        _help = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.65f) };
+        // One short line; the whole rule on hovering it (sprint 174).
+        _help = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.65f), MouseFilter = Control.MouseFilterEnum.Stop };
         _help.AddThemeFontSizeOverride("font_size", 13);
         right.AddChild(_help);
         return page;
@@ -521,9 +525,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _ => ElementStyle.Heal,
     };
 
-    private static Label Tile(VBoxContainer parent, string colour, bool big)
+    /// <summary>The tiles' column and a row of the table, in pixels (sprint 174: the page fits at 1280 × 720).</summary>
+    private const float TileWidth = 190, RowHeight = 36;
+
+    private static Label Tile(VBoxContainer parent, string colour, bool big, bool wrap = false)
     {
-        var box = new PanelContainer { CustomMinimumSize = new Vector2(200, big ? 78 : 54) };
+        var box = new PanelContainer { CustomMinimumSize = new Vector2(TileWidth, big ? 46 : 36) };
         box.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
             BgColor = new Color("2a2a2a"),
@@ -533,14 +540,14 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             CornerRadiusTopRight = 6,
             CornerRadiusBottomLeft = 6,
             CornerRadiusBottomRight = 6,
-            ContentMarginLeft = 12,
-            ContentMarginRight = 12,
-            ContentMarginTop = 6,
-            ContentMarginBottom = 6,
+            ContentMarginLeft = 10,
+            ContentMarginRight = 8,
+            ContentMarginTop = 3,
+            ContentMarginBottom = 3,
         });
         parent.AddChild(box);
-        var label = new Label { VerticalAlignment = VerticalAlignment.Center };
-        label.AddThemeFontSizeOverride("font_size", big ? 20 : 17);
+        var label = new Label { VerticalAlignment = VerticalAlignment.Center, AutowrapMode = wrap ? TextServer.AutowrapMode.WordSmart : TextServer.AutowrapMode.Off };
+        label.AddThemeFontSizeOverride("font_size", big ? 18 : 15);
         box.AddChild(label);
         return label;
     }
@@ -670,8 +677,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
             .Select(g => $"{Texts["talents.branch." + g.Key]} : {string.Join(", ", g.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))}"));
         _openTree.Text = Texts["tree.open"];
         _tiles["hp"].Text = $"{Texts["sheet.hp"]}   {sheet.MaxHp}";
-        _tiles["ap"].Text = $"{Texts["sheet.ap"]}   {sheet.Ap}";
-        _tiles["mp"].Text = $"{Texts["sheet.mp"]}   {sheet.Mp}";
+        _tiles["ap"].Text = $"{Texts["sheet.ap"]} {sheet.Ap}  ·  {Texts["sheet.mp"]} {sheet.Mp}";
         _tiles["initiative"].Text = $"{Texts["sheet.initiative"]}   {sheet.Initiative}";
         _tiles["tree"].Text = Texts["sheet.tree", sheet.TreeDamage, sheet.TreeResistance, sheet.TreeHp];
         _tiles["tree"].TooltipText = Texts.Trunk(Editor.Hero.Level);
@@ -707,6 +713,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _reset.Text = Texts["sheet.reset"];
         _reset.Disabled = Editor.CharacteristicPointsLeft == Progression.CharacteristicPoints(Editor.Hero.Level);
         _help.Text = Texts["sheet.help"];
+        _help.TooltipText = Texts["sheet.help.more"];
         _spellsLeft.Text = Texts["points.spells", Editor.SpellPointsLeft];
         var bookNow = new SpellBook(Editor);
         // A compound's chip only while the talents give its spells (Charles, after sprint 144).
@@ -777,6 +784,15 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
 
     public void ShowMessage(string message) => _message.Text = message;
 
+    /// <summary>
+    /// Whether the characteristics page fits its window without scrolling, either way (sprint 174, D89), as the self-test reads it
+    /// once laid out.
+    /// </summary>
+    public bool StatsFit => _statsPage.GetChild<Control>(0).GetCombinedMinimumSize() is Vector2 need && need.X <= _statsPage.Size.X + 0.5f && need.Y <= _statsPage.Size.Y + 0.5f;
+
+    /// <summary>What the characteristics page needs and has, for the self-test's message.</summary>
+    public string StatsRoom => $"{_statsPage.GetChild<Control>(0).GetCombinedMinimumSize()} in {_statsPage.Size}";
+
     /// <summary>The totals shown, as the self-test reads them.</summary>
     public IEnumerable<string> StatsText => _stats.Select(s => s.Value.Text);
 
@@ -791,9 +807,9 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
 
     public string MessageText => _message.Text;
 
-    private Button Small(Container parent, string text, Action act, float width = 44)
+    private Button Small(Container parent, string text, Action act, float width = 44, float height = 44)
     {
-        var b = new Button { Text = text, CustomMinimumSize = new Vector2(width, 44) };
+        var b = new Button { Text = text, CustomMinimumSize = new Vector2(width, height) };
         b.Pressed += () =>
         {
             act();

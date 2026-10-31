@@ -38,11 +38,18 @@ public sealed class WorldAtlas
     /// <summary>The cells between two samples of the zones' field.</summary>
     public const int Step = 4;
 
-    /// <summary>How far the land spills past the maps, in cells: a quarter of a map's width.</summary>
-    public const int Spill = 12;
+    /// <summary>How far the land spills past the maps on average, in cells: a third of a map's width (sprint 174).</summary>
+    public const int Spill = 16;
 
     /// <summary>The most an outline waves off its place, in cells (≤ 3, s165 §5.4).</summary>
     public const double Wave = 2.5;
+
+    /// <summary>
+    /// The regions' shapes (sprint 174, D89, Charles: « moins rectangulaire, des formes un peu aléatoires, cohérentes avec la zone ») :
+    /// how far a border between two zones bends off the maps' edge, in cells, and how much the land's spill past the maps
+    /// changes along the coast (a share of <see cref="Spill"/>), both on the scale of <see cref="Swell"/> cells.
+    /// </summary>
+    public const double Bend = 20, Reach = 0.85, Swell = 64;
 
     private readonly Town[] _world;
     private readonly Cell _origin;
@@ -184,21 +191,49 @@ public sealed class WorldAtlas
         return (left, top, left + _mapWidth * WorldPicture.CellPixels, top + _mapHeight * WorldPicture.CellPixels);
     }
 
-    /// <summary>The zone the land at a pixel belongs to: its map's, or within the spill the nearest map's; null at sea.</summary>
+    /// <summary>
+    /// The zone the land at a pixel belongs to; null at sea. Land is within the spill of a map, a spill that swells and
+    /// shrinks along the coast (never under a fifth of <see cref="Spill"/>, so that no coast cuts a map); its zone is that of
+    /// the map nearest to the pixel moved by a smooth bend of the place (at most <see cref="Bend"/> cells at a map's edge,
+    /// fading to nothing at its middle), so that the borders between zones meander instead of following the maps' straight
+    /// edges, and never take a map's heart from its zone (sprint 174).
+    /// </summary>
     public string? ZoneAt(double x, double y)
     {
-        double spill = Spill * WorldPicture.CellPixels;
-        Town? best = null;
+        double cell = WorldPicture.CellPixels, scale = Swell * cell;
+        double spill = Spill * cell * (1 + (Reach * Rough(x, y, 13, scale)));
+        (Town own, double distance) = Nearest(x, y);
+        if (distance > spill)
+            return null;
+        // The bend fades towards the middle of a map, gone there: a border never reaches a map's heart.
+        double bend = Bend * cell;
+        if (distance == 0)
+        {
+            (double l, double t, double r, double b) = Bounds(own);
+            double inset = Math.Min(Math.Min(x - l, r - x), Math.Min(y - t, b - y)), half = Math.Min(r - l, b - t) / 2;
+            bend *= Math.Max(0, 1 - (inset / half));
+        }
+        return Zone(Nearest(x + (bend * Rough(x, y, 11, scale)), y + (bend * Rough(x, y, 12, scale))).Map);
+    }
+
+    /// <summary>Two octaves of <see cref="Noise"/>, stretched to reach nearly -1 and 1: large swells and smaller coves.</summary>
+    private static double Rough(double x, double y, int seed, double scale) =>
+        Math.Clamp(1.6 * ((0.7 * Noise(x, y, seed, scale)) + (0.3 * Noise(x, y, seed + 50, scale / 3))), -1, 1);
+
+    /// <summary>The map nearest to a pixel (0 inside it), and how far, in pixels: rounded around the maps' corners.</summary>
+    private (Town Map, double Distance) Nearest(double x, double y)
+    {
+        Town best = _world[0];
         double nearest = double.MaxValue;
         foreach (Town t in _world)
         {
             (double l, double top, double r, double b) = Bounds(t);
             double dx = Math.Max(0, Math.Max(l - x, x - r)), dy = Math.Max(0, Math.Max(top - y, y - b));
-            double d = Math.Max(dx, dy);
+            double d = Math.Sqrt((dx * dx) + (dy * dy));
             if (d < nearest)
                 (nearest, best) = (d, t);
         }
-        return nearest <= spill ? Zone(best!) : null;
+        return (best, nearest);
     }
 
     /// <summary>A map's zone; the village's maps have none of their own: Clairval's.</summary>
@@ -208,7 +243,7 @@ public sealed class WorldAtlas
     {
         double px = Step * WorldPicture.CellPixels;
         // The field of zones, sampled from a step beyond the spill on each side.
-        int pad = Spill / Step + 2;
+        int pad = (int)Math.Ceiling(Spill * (1 + Reach) / Step) + 2;
         int cols = Width / (int)px + 2 * pad + 1, rows = Height / (int)px + 2 * pad + 1;
         var field = new string?[cols, rows];
         for (int i = 0; i < cols; i++)
@@ -395,10 +430,9 @@ public sealed class WorldAtlas
         return loop;
     }
 
-    /// <summary>A smooth noise of the place, -1 to 1: two neighbouring zones wave their shared edge alike.</summary>
-    private static double Noise(double x, double y, int seed)
+    /// <summary>A smooth noise of the place, -1 to 1, on the scale of <paramref name="cell"/> pixels: two neighbouring zones wave their shared edge alike.</summary>
+    private static double Noise(double x, double y, int seed, double cell = 96)
     {
-        const double cell = 96;
         double gx = x / cell, gy = y / cell;
         int x0 = (int)Math.Floor(gx), y0 = (int)Math.Floor(gy);
         double fx = gx - x0, fy = gy - y0;

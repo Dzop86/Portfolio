@@ -2431,6 +2431,11 @@ public partial class Main
                 problems.Add("the characteristics screen does not show the hero's");
             if (_hero.Level == 1 && (editor.CharacteristicPointsLeft != 0 || editor.SpellPointsLeft != 0 || editor.Changed))
                 problems.Add("a first-level hero has points to spend");
+            // Without scrolling, either way (sprint 174, D89), once laid out.
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (!_pointsPanel.StatsFit)
+                problems.Add($"the characteristics page scrolls: {_pointsPanel.StatsRoom}");
             // The spells tab shows every spell of the class, the locked ones too.
             _pointsPanel.ShowTab(spells: true);
             // With every compound's twin of them (sprint 138), shown with the talents only.

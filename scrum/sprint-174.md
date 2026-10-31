@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, l'onglet Caractéristiques tient sans défilement, ni vertical ni horizontal, à 1280 × 720 : tuiles compactes, textes raccourcis, l'aide en infobulle (rpg) ; auto-tests du client. | 2 | À faire |
-| En tant que joueur, les régions de la carte du monde ont des contours irréguliers, déformés à grande échelle et arrondis, sans jamais quitter leurs cartes ni s'en éloigner (rpg) ; xUnit sur l'atlas, auto-tests du client. | 3 | À faire |
+| En tant que joueur, l'onglet Caractéristiques tient sans défilement, ni vertical ni horizontal, à 1280 × 720 : tuiles compactes, textes raccourcis, l'aide en infobulle (rpg) ; auto-tests du client. | 2 | Fait |
+| En tant que joueur, les régions de la carte du monde ont des contours irréguliers, déformés à grande échelle et arrondis, sans jamais quitter leurs cartes ni s'en éloigner (rpg) ; xUnit sur l'atlas, auto-tests du client. | 3 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

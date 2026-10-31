@@ -58,6 +58,42 @@ public class WorldAtlasTests
     }
 
     [Fact]
+    public void TheBorders_Meander_AndTheCoastSwells_InsteadOfFollowingTheMaps()
+    {
+        // Sprint 174 (D89): along each edge between two maps of different zones, a few cells inside one, some places already
+        // belong to the other zone; never as far as the middle of a map.
+        double cell = WorldPicture.CellPixels;
+        int crossed = 0, samples = 0;
+        foreach (Town a in World)
+            foreach (Town b in World.Where(b => b.MapAt == a.MapAt + new Cell(1, 0) && WorldAtlas.Zone(b) != WorldAtlas.Zone(a)))
+            {
+                (_, double top, double right, double bottom) = Atlas.Bounds(a);
+                for (double y = top; y <= bottom; y += cell)
+                {
+                    samples++;
+                    crossed += Atlas.ZoneAt(right - (3 * cell), y) == WorldAtlas.Zone(b) ? 1 : 0;
+                }
+            }
+        Assert.True(samples > 0);
+        Assert.InRange(crossed, samples / 20, samples / 2);
+        // The coast: how far the land spills past a map's open side changes along it, from about half the spill to more.
+        var spills = new List<double>();
+        foreach (Town map in World.Where(m => !World.Any(o => o.MapAt == m.MapAt + new Cell(0, -1))))
+        {
+            (double l, double t, double r, _) = Atlas.Bounds(map);
+            for (double x = l + (6 * cell); x < r - (6 * cell); x += 6 * cell)
+            {
+                double d = 0;
+                while (d < 3 * WorldAtlas.Spill * cell && Atlas.ZoneAt(x, t - d) is not null)
+                    d += cell;
+                spills.Add(d / cell);
+            }
+        }
+        Assert.True(spills.Min() >= WorldAtlas.Spill * (1 - WorldAtlas.Reach) - 1, $"{spills.Min()}");
+        Assert.True(spills.Max() - spills.Min() >= WorldAtlas.Spill / 2.0, $"{spills.Min()} to {spills.Max()}");
+    }
+
+    [Fact]
     public void TheMarchingSquares_CloseEveryLoop_ASaddleIncluded()
     {
         // A cross of five samples and two corners touching at a saddle: every loop closed, the inside kept.
