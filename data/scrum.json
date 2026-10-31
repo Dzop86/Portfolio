@@ -1,6 +1,6 @@
 {
   "sprintLengthWeeks": 2,
-  "sprintCount": 181,
+  "sprintCount": 183,
   "scopeDecisions": [
     "D25",
     "D31",
@@ -47,7 +47,8 @@
     "D85",
     "D86",
     "D87",
-    "D88"
+    "D88",
+    "D89"
   ],
   "scopeSteps": [
     {
@@ -428,10 +429,10 @@
         155,
         156,
         161,
-        178,
-        179,
         180,
-        181
+        181,
+        182,
+        183
       ],
       "decisions": [
         "D83"
@@ -477,11 +478,11 @@
         168,
         171,
         172,
-        173,
-        174,
         175,
         176,
-        177
+        177,
+        178,
+        179
       ],
       "decisions": [
         "D87"
@@ -495,6 +496,16 @@
       ],
       "decisions": [
         "D88"
+      ]
+    },
+    {
+      "after": 172,
+      "sprints": [
+        173,
+        174
+      ],
+      "decisions": [
+        "D89"
       ]
     }
   ],
@@ -1735,12 +1746,28 @@
       "sprints": "S173",
       "kind": "build",
       "label": {
+        "fr": "Osmose : Plop complet et les noms au survol",
+        "en": "Osmose: a complete Plop and names on hover"
+      }
+    },
+    {
+      "sprints": "S174",
+      "kind": "build",
+      "label": {
+        "fr": "Osmose : la fiche sans défilement, les zones aux formes naturelles",
+        "en": "Osmose: the sheet without scrolling, zones with natural shapes"
+      }
+    },
+    {
+      "sprints": "S175",
+      "kind": "build",
+      "label": {
         "fr": "Osmose : le bestiaire cherché et relié",
         "en": "Osmose: the bestiary searched and linked"
       }
     },
     {
-      "sprints": "S174",
+      "sprints": "S176",
       "kind": "build",
       "label": {
         "fr": "Osmose : l'arbre sans croisement",
@@ -1748,7 +1775,7 @@
       }
     },
     {
-      "sprints": "S175",
+      "sprints": "S177",
       "kind": "build",
       "label": {
         "fr": "Osmose : l'arbre qu'on parcourt",
@@ -1756,7 +1783,7 @@
       }
     },
     {
-      "sprints": "S176",
+      "sprints": "S178",
       "kind": "build",
       "label": {
         "fr": "Osmose : le monde adouci",
@@ -1764,7 +1791,7 @@
       }
     },
     {
-      "sprints": "S177",
+      "sprints": "S179",
       "kind": "build",
       "label": {
         "fr": "Osmose : les bordures naturelles",
@@ -1772,7 +1799,7 @@
       }
     },
     {
-      "sprints": "S178",
+      "sprints": "S180",
       "kind": "build",
       "label": {
         "fr": "Osmose : les spécialisations, la Sentinelle",
@@ -1780,7 +1807,7 @@
       }
     },
     {
-      "sprints": "S179",
+      "sprints": "S181",
       "kind": "build",
       "label": {
         "fr": "Osmose : les spécialisations de la Garde",
@@ -1788,7 +1815,7 @@
       }
     },
     {
-      "sprints": "S180",
+      "sprints": "S182",
       "kind": "build",
       "label": {
         "fr": "Osmose : les spécialisations de la Mage",
@@ -1796,7 +1823,7 @@
       }
     },
     {
-      "sprints": "S181",
+      "sprints": "S183",
       "kind": "build",
       "label": {
         "fr": "Osmose : la tresse de Glace, playtest",
@@ -1835,8 +1862,8 @@
         "en": "MoSCoW prioritisation, project order revised with Charles (6 October), Spring and ASP.NET dropped from scope, \"Could\" projects can be dropped"
       },
       "outcome": {
-        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), puis un RPG tactique à la manière de Dofus (D54 : 26 points de plus, 232 en tout, six sprints), puis, après l'essai du jeu par Charles, le launcher, le choix du serveur et la création de personnage refaits (D55 : 9 points de plus, 241 en tout, trois sprints), puis, après un second questionnaire, les éléments, les effets, les classes, la progression, l'équipement et le monde (D56 : 24 points de plus, 265 en tout, huit sprints), puis un schéma d'architecture sur chaque fiche (D57 : 5 points de plus, 270 en tout, un sprint), puis un assistant documentaire avec RAG, Osmose mis en pause pour lui (D58 : 10 points de plus, 280 en tout, deux sprints), puis les schémas passés avant la reprise d'Osmose (D59, sans point de plus), puis, après que Charles a essayé le jeu, les caractéristiques, les sorts et l'inventaire refaits (D61 : 6 points de plus, 286 en tout, deux sprints), puis, après un second essai, éléments, sorts, deck, menus et déplacement (D62 : 12 points de plus, 298 en tout, quatre sprints), puis un monde en zones de 5 × 5 cartes, une carte vue du ciel et huit familles de monstres (D63 : 18 points de plus, 316 en tout, six sprints), puis, après un essai du monde, des cartes plus grandes, la frise du tour en cours et le combat au clic droit (D64 : 6 points de plus, 322 en tout, deux sprints), puis, après un essai du sprint 78, les retours d'essai, les donjons, le métier de serrurier, le chat de proximité et les quêtes (D65 : 20 points de plus, 342 en tout, six sprints), puis, après un essai du sprint 80, le deck et le passage d'une carte à l'autre (D66 : 8 points de plus, 350 en tout, deux sprints), puis des cartes plus lisibles et de vrais donjons (D67 : 8 points de plus, 358 en tout, deux sprints), puis les icônes, le chat discret, les fenêtres mobiles et la fin du combat (D68 : 4 points de plus, 362 en tout, un sprint), puis des familles de monstres qui se jouent chacune autrement, avec des passifs, des sauts, des échanges et des faiblesses (D69 : 17 points de plus, 379 en tout, cinq sprints), puis, après un essai du sprint 93, les pseudos, le compte d'essai et les fenêtres en combat (D70 : 2 points de plus, 381 en tout, dans le sprint 94), puis la suite conçue par le game designer : le butin et l'initiative, les Éclats, les métiers de récolte et d'artisanat, le jeu à plusieurs et la fin du chapitre 1 (D71 : 52 points de plus, 433 en tout, quatorze sprints), puis les icônes des objets, la fenêtre Métiers et une ressource tous les 5 niveaux (D72 : 6 points de plus, 439 en tout, deux sprints), puis la vie qui se garde entre les combats et le boulanger (D73 : 7 points de plus, 446 en tout, un sprint), puis un fil conducteur des quêtes, Clairval en douze cartes, le tuto et une mini-carte (D74 : 13 points de plus, 459 en tout, trois sprints), puis, après un essai du sprint 102, une récolte qu'on voit, un vrai village vivant et le suivi d'une quête à l'écran (D75 : 11 points de plus, 470 en tout, trois sprints), puis un métier pour chaque pièce d'équipement, avec le bijoutier et le cordonnier (D76 : 5 points de plus, 475 en tout, un sprint), puis, après un essai du build 1.0.92, les consommables hors combat seulement, un village plus vivant, le journal de quêtes et les fiches d'objet avec leur clic droit (D77 : 13 points de plus, 488 en tout, trois sprints), puis la vie dans un cœur et les tours de relance sur les sorts (D78 : 1 point de plus, 489 en tout, dans le sprint 115), puis la suite conçue par le game designer après le jeu à plusieurs : finir le jeu à plusieurs, les amis et le voyage, une tranche du chapitre 2 et les guildes (D79 : 62 points de plus, 551 en tout, seize sprints), puis l'arbre des talents commun aux classes, avec les éléments composés, Lumière et Ténèbres, le soutien et la glyphe sur sort raté (D80 : 32 points de plus, 583 en tout, huit sprints), puis, après le playtest du sprint 144, une fenêtre d'amis et un panneau de menus à la manière de Dofus et Foudre retirée du filtre des sorts sans talent (D81 : 2 points de plus, 585 en tout, dans le sprint 144), puis l'arbre des talents en vrai arbre, d'après les réponses de Charles au questionnaire du game designer : un tronc, des paires d'éléments, des styles de jeu, sa fenêtre et ses explications (D82 : 29 points de plus, 614 en tout, six sprints), puis la suite après S151 conçue par le game designer : des contrats, un bestiaire, des succès, une guilde qui sert, le socle 45-60, les spécialisations et la tresse de Glace (D83 : 40 points de plus, 654 en tout, dix sprints), puis, après S156, une refonte graphique de l'interface : un thème et des icônes en relief, les fenêtres des succès et de la guilde avec ses candidatures, des succès qui récompensent, en suites de quêtes et en donjons (D84 : 21 points de plus, 675 en tout, quatre sprints), puis, après la mesure du socle 45-60, un rendement décroissant des points d'élément avant les spécialisations (D85 : 5 points de plus, 680 en tout, un sprint), puis, à la demande de Charles, des icônes de sorts et de métiers en relief et un arbre des talents lisible comme un arbre (D86 : 20 points de plus, 700 en tout, quatre sprints), puis, après avoir joué la 1.0.157, des icônes d'objets et de quêtes en relief, une carte du monde illustrée, un bestiaire en carnet de chasse, un arbre qui se zoome et un monde moins cubique (D87 : 48 points de plus, 748 en tout, onze sprints à la place de deux), puis, après la 1.0.162, une carte du monde photographiée dans le jeu et des portraits de monstres (D88 : 10 points de plus, 758 en tout, deux sprints), chaque fois avec Charles et dans des sprints à part, sans rien décaler, sauf les guildes passées de S137 à S145 (D80) et la suite de D83 passée de S157-S161 à S161-S165 (D84), puis de S162-S165 à S163-S166 (D85), puis de S163-S166 à S167-S170 (D86), puis de S167-S170 à S176-S179 (D87), puis de S176-S179 à S178-S181 (D88).",
-        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), then a tactical RPG in the style of Dofus (D54: 26 more points, 232 in all, six sprints), then, after Charles tried the game, the launcher, the server choice and character creation redone (D55: 9 more points, 241 in all, three sprints), then, after a second questionnaire, elements, effects, classes, progression, equipment and world (D56: 24 more points, 265 in all, eight sprints), then an architecture diagram on each project page (D57: 5 more points, 270 in all, one sprint), then a documentation assistant with RAG, Osmose paused for it (D58: 10 more points, 280 in all, two sprints), then the diagrams moved ahead of Osmose's return (D59, no extra points), then, after Charles tried the game, characteristics, spells and inventory redone (D61: 6 more points, 286 in all, two sprints), then, after a second try, elements, spells, deck, menus and movement (D62: 12 more points, 298 in all, four sprints), then a world in zones of 5 × 5 maps, a map seen from the sky and eight monster families (D63: 18 more points, 316 in all, six sprints), then, after Charles tried the world, larger maps, the current round's timeline and the right-click fight (D64: 6 more points, 322 in all, two sprints), then, after a try of sprint 78, the feedback, dungeons, the locksmith's trade, the proximity chat and quests (D65: 20 more points, 342 in all, six sprints), then, after a try of sprint 80, the deck and moving from one map to the next (D66: 8 more points, 350 in all, two sprints), then clearer maps and real dungeons (D67: 8 more points, 358 in all, two sprints), then the icons, a discreet chat, movable windows and the end of the fight (D68: 4 more points, 362 in all, one sprint), then monster families that each play differently, with passives, leaps, swaps and weaknesses (D69: 17 more points, 379 in all, five sprints), then, after a try of sprint 93, character names, the test account and the windows in a fight (D70: 2 more points, 381 in all, within sprint 94), then the sequel designed by the game designer: loot and initiative, Shards, gathering and crafting trades, playing together and the end of chapter 1 (D71: 52 more points, 433 in all, fourteen sprints), then item icons, the trades window and a resource every 5 levels (D72: 6 more points, 439 in all, two sprints), then life carried between fights and the baker (D73: 7 more points, 446 in all, one sprint), then a thread through the quests, Clairval on twelve maps, the tutorial and a minimap (D74: 13 more points, 459 in all, three sprints), then, after trying sprint 102, a harvest one can see, a real living village and following a quest on screen (D75: 11 more points, 470 in all, three sprints), then a trade for every piece of equipment, with the jeweller and the cobbler (D76: 5 more points, 475 in all, one sprint), then, after a try of build 1.0.92, consumables out of fights only, a livelier village, the quest journal and item cards with their right click (D77: 13 more points, 488 in all, three sprints), then life in a heart and the turns left on the spells (D78: 1 more point, 489 in all, within sprint 115), then the sequel designed by the game designer after playing together: finishing multiplayer, friends and travel, a slice of chapter 2 and guilds (D79: 62 more points, 551 in all, sixteen sprints), then the talent tree shared by all classes, with compound elements, Light and Darkness, support and the glyph left by a missed spell (D80: 32 more points, 583 in all, eight sprints), then, after the playtest of sprint 144, a friends window and a menus panel in the style of Dofus and Lightning taken out of the spells' filter without its talent (D81: 2 more points, 585 in all, within sprint 144), then the talent tree as a real tree, from Charles's answers to the game designer's questionnaire: a trunk, element pairs, play styles, its window and its explanations (D82: 29 more points, 614 in all, six sprints), then what follows S151, designed by the game designer: contracts, a bestiary, achievements, a guild that serves, the 45-60 groundwork, specialisations and the Ice braid (D83: 40 more points, 654 in all, ten sprints), then, after S156, a graphic overhaul of the interface: a theme and icons with depth, the achievements and guild windows with the guild's applications, achievements that reward, in quest chains and in dungeons (D84: 21 more points, 675 in all, four sprints), then, after measuring the 45-60 groundwork, diminishing returns on element points before the specialisations (D85: 5 more points, 680 in all, one sprint), then, at Charles's request, spell and trade icons in relief and a talent tree that reads like a tree (D86: 20 more points, 700 in all, four sprints), then, after playing 1.0.157, items and quests in relief, an illustrated world map, a bestiary as a hunting log, a zoomable tree and a less blocky world (D87: 48 more points, 748 in all, eleven sprints instead of two), then, after 1.0.162, a world map photographed in the game and monsters' portraits (D88: 10 more points, 758 in all, two sprints), each time with Charles and in sprints of their own, delaying nothing but guilds, moved from S137 to S145 (D80), and what D83 planned, moved from S157-S161 to S161-S165 (D84), then from S162-S165 to S163-S166 (D85), then from S163-S166 to S167-S170 (D86), then from S167-S170 to S176-S179 (D87), then from S176-S179 to S178-S181 (D88)."
+        "fr": "S'est produit, et a été piloté : Spring et ASP.NET retirés (D25), deux jeux ajoutés (D31, D32), Bootstrap remplacé par le lancer de rayons (D45), puis, après la livraison, l'interface du carrefour Ada, les rôles des technologies et la hauteur de la topologie (D46, D47 : 9 points de plus, de 170 à 179), puis la persistance et le graphe de Reeb (D48 : 8 points de plus, 187 en tout), puis la relecture de la persistance, les temps de calcul et le cours G-cartes (D49 : 9 points de plus, 196 en tout), puis la persistance étendue (D50 : 5 points de plus, 201 en tout), puis le comptage d'arêtes de lib-c (D51 : 2 points de plus, 203 en tout), puis le repère de la visionneuse (D52 : 1 point de plus, 204 en tout), puis les résumés sans jargon (D53 : 2 points de plus, 206 en tout), puis un RPG tactique à la manière de Dofus (D54 : 26 points de plus, 232 en tout, six sprints), puis, après l'essai du jeu par Charles, le launcher, le choix du serveur et la création de personnage refaits (D55 : 9 points de plus, 241 en tout, trois sprints), puis, après un second questionnaire, les éléments, les effets, les classes, la progression, l'équipement et le monde (D56 : 24 points de plus, 265 en tout, huit sprints), puis un schéma d'architecture sur chaque fiche (D57 : 5 points de plus, 270 en tout, un sprint), puis un assistant documentaire avec RAG, Osmose mis en pause pour lui (D58 : 10 points de plus, 280 en tout, deux sprints), puis les schémas passés avant la reprise d'Osmose (D59, sans point de plus), puis, après que Charles a essayé le jeu, les caractéristiques, les sorts et l'inventaire refaits (D61 : 6 points de plus, 286 en tout, deux sprints), puis, après un second essai, éléments, sorts, deck, menus et déplacement (D62 : 12 points de plus, 298 en tout, quatre sprints), puis un monde en zones de 5 × 5 cartes, une carte vue du ciel et huit familles de monstres (D63 : 18 points de plus, 316 en tout, six sprints), puis, après un essai du monde, des cartes plus grandes, la frise du tour en cours et le combat au clic droit (D64 : 6 points de plus, 322 en tout, deux sprints), puis, après un essai du sprint 78, les retours d'essai, les donjons, le métier de serrurier, le chat de proximité et les quêtes (D65 : 20 points de plus, 342 en tout, six sprints), puis, après un essai du sprint 80, le deck et le passage d'une carte à l'autre (D66 : 8 points de plus, 350 en tout, deux sprints), puis des cartes plus lisibles et de vrais donjons (D67 : 8 points de plus, 358 en tout, deux sprints), puis les icônes, le chat discret, les fenêtres mobiles et la fin du combat (D68 : 4 points de plus, 362 en tout, un sprint), puis des familles de monstres qui se jouent chacune autrement, avec des passifs, des sauts, des échanges et des faiblesses (D69 : 17 points de plus, 379 en tout, cinq sprints), puis, après un essai du sprint 93, les pseudos, le compte d'essai et les fenêtres en combat (D70 : 2 points de plus, 381 en tout, dans le sprint 94), puis la suite conçue par le game designer : le butin et l'initiative, les Éclats, les métiers de récolte et d'artisanat, le jeu à plusieurs et la fin du chapitre 1 (D71 : 52 points de plus, 433 en tout, quatorze sprints), puis les icônes des objets, la fenêtre Métiers et une ressource tous les 5 niveaux (D72 : 6 points de plus, 439 en tout, deux sprints), puis la vie qui se garde entre les combats et le boulanger (D73 : 7 points de plus, 446 en tout, un sprint), puis un fil conducteur des quêtes, Clairval en douze cartes, le tuto et une mini-carte (D74 : 13 points de plus, 459 en tout, trois sprints), puis, après un essai du sprint 102, une récolte qu'on voit, un vrai village vivant et le suivi d'une quête à l'écran (D75 : 11 points de plus, 470 en tout, trois sprints), puis un métier pour chaque pièce d'équipement, avec le bijoutier et le cordonnier (D76 : 5 points de plus, 475 en tout, un sprint), puis, après un essai du build 1.0.92, les consommables hors combat seulement, un village plus vivant, le journal de quêtes et les fiches d'objet avec leur clic droit (D77 : 13 points de plus, 488 en tout, trois sprints), puis la vie dans un cœur et les tours de relance sur les sorts (D78 : 1 point de plus, 489 en tout, dans le sprint 115), puis la suite conçue par le game designer après le jeu à plusieurs : finir le jeu à plusieurs, les amis et le voyage, une tranche du chapitre 2 et les guildes (D79 : 62 points de plus, 551 en tout, seize sprints), puis l'arbre des talents commun aux classes, avec les éléments composés, Lumière et Ténèbres, le soutien et la glyphe sur sort raté (D80 : 32 points de plus, 583 en tout, huit sprints), puis, après le playtest du sprint 144, une fenêtre d'amis et un panneau de menus à la manière de Dofus et Foudre retirée du filtre des sorts sans talent (D81 : 2 points de plus, 585 en tout, dans le sprint 144), puis l'arbre des talents en vrai arbre, d'après les réponses de Charles au questionnaire du game designer : un tronc, des paires d'éléments, des styles de jeu, sa fenêtre et ses explications (D82 : 29 points de plus, 614 en tout, six sprints), puis la suite après S151 conçue par le game designer : des contrats, un bestiaire, des succès, une guilde qui sert, le socle 45-60, les spécialisations et la tresse de Glace (D83 : 40 points de plus, 654 en tout, dix sprints), puis, après S156, une refonte graphique de l'interface : un thème et des icônes en relief, les fenêtres des succès et de la guilde avec ses candidatures, des succès qui récompensent, en suites de quêtes et en donjons (D84 : 21 points de plus, 675 en tout, quatre sprints), puis, après la mesure du socle 45-60, un rendement décroissant des points d'élément avant les spécialisations (D85 : 5 points de plus, 680 en tout, un sprint), puis, à la demande de Charles, des icônes de sorts et de métiers en relief et un arbre des talents lisible comme un arbre (D86 : 20 points de plus, 700 en tout, quatre sprints), puis, après avoir joué la 1.0.157, des icônes d'objets et de quêtes en relief, une carte du monde illustrée, un bestiaire en carnet de chasse, un arbre qui se zoome et un monde moins cubique (D87 : 48 points de plus, 748 en tout, onze sprints à la place de deux), puis, après la 1.0.162, une carte du monde photographiée dans le jeu et des portraits de monstres (D88 : 10 points de plus, 758 en tout, deux sprints), puis, après la 1.0.165, un personnage d'essai complet, les noms des joueurs au survol, l'onglet Caractéristiques sans défilement et des régions aux formes naturelles (D89 : 9 points de plus, 767 en tout, deux sprints), chaque fois avec Charles et dans des sprints à part, sans rien décaler, sauf les guildes passées de S137 à S145 (D80) et la suite de D83 passée de S157-S161 à S161-S165 (D84), puis de S162-S165 à S163-S166 (D85), puis de S163-S166 à S167-S170 (D86), puis de S167-S170 à S176-S179 (D87), puis de S176-S179 à S178-S181 (D88), puis de S178-S181 à S180-S183 (D89).",
+        "en": "Happened, and was steered: Spring and ASP.NET dropped (D25), two games added (D31, D32), Bootstrap replaced by the ray tracer (D45), then, after delivery, the Ada crossroads interface, the technology roles and the topology height (D46, D47: 9 more points, from 170 to 179), then persistence and the Reeb graph (D48: 8 more points, 187 in all), then the persistence review, the computing times and the G-maps course (D49: 9 more points, 196 in all), then extended persistence (D50: 5 more points, 201 in all), then lib-c's edge counting (D51: 2 more points, 203 in all), then the viewer's orientation gizmo (D52: 1 more point, 204 in all), then the plain-language summaries (D53: 2 more points, 206 in all), then a tactical RPG in the style of Dofus (D54: 26 more points, 232 in all, six sprints), then, after Charles tried the game, the launcher, the server choice and character creation redone (D55: 9 more points, 241 in all, three sprints), then, after a second questionnaire, elements, effects, classes, progression, equipment and world (D56: 24 more points, 265 in all, eight sprints), then an architecture diagram on each project page (D57: 5 more points, 270 in all, one sprint), then a documentation assistant with RAG, Osmose paused for it (D58: 10 more points, 280 in all, two sprints), then the diagrams moved ahead of Osmose's return (D59, no extra points), then, after Charles tried the game, characteristics, spells and inventory redone (D61: 6 more points, 286 in all, two sprints), then, after a second try, elements, spells, deck, menus and movement (D62: 12 more points, 298 in all, four sprints), then a world in zones of 5 × 5 maps, a map seen from the sky and eight monster families (D63: 18 more points, 316 in all, six sprints), then, after Charles tried the world, larger maps, the current round's timeline and the right-click fight (D64: 6 more points, 322 in all, two sprints), then, after a try of sprint 78, the feedback, dungeons, the locksmith's trade, the proximity chat and quests (D65: 20 more points, 342 in all, six sprints), then, after a try of sprint 80, the deck and moving from one map to the next (D66: 8 more points, 350 in all, two sprints), then clearer maps and real dungeons (D67: 8 more points, 358 in all, two sprints), then the icons, a discreet chat, movable windows and the end of the fight (D68: 4 more points, 362 in all, one sprint), then monster families that each play differently, with passives, leaps, swaps and weaknesses (D69: 17 more points, 379 in all, five sprints), then, after a try of sprint 93, character names, the test account and the windows in a fight (D70: 2 more points, 381 in all, within sprint 94), then the sequel designed by the game designer: loot and initiative, Shards, gathering and crafting trades, playing together and the end of chapter 1 (D71: 52 more points, 433 in all, fourteen sprints), then item icons, the trades window and a resource every 5 levels (D72: 6 more points, 439 in all, two sprints), then life carried between fights and the baker (D73: 7 more points, 446 in all, one sprint), then a thread through the quests, Clairval on twelve maps, the tutorial and a minimap (D74: 13 more points, 459 in all, three sprints), then, after trying sprint 102, a harvest one can see, a real living village and following a quest on screen (D75: 11 more points, 470 in all, three sprints), then a trade for every piece of equipment, with the jeweller and the cobbler (D76: 5 more points, 475 in all, one sprint), then, after a try of build 1.0.92, consumables out of fights only, a livelier village, the quest journal and item cards with their right click (D77: 13 more points, 488 in all, three sprints), then life in a heart and the turns left on the spells (D78: 1 more point, 489 in all, within sprint 115), then the sequel designed by the game designer after playing together: finishing multiplayer, friends and travel, a slice of chapter 2 and guilds (D79: 62 more points, 551 in all, sixteen sprints), then the talent tree shared by all classes, with compound elements, Light and Darkness, support and the glyph left by a missed spell (D80: 32 more points, 583 in all, eight sprints), then, after the playtest of sprint 144, a friends window and a menus panel in the style of Dofus and Lightning taken out of the spells' filter without its talent (D81: 2 more points, 585 in all, within sprint 144), then the talent tree as a real tree, from Charles's answers to the game designer's questionnaire: a trunk, element pairs, play styles, its window and its explanations (D82: 29 more points, 614 in all, six sprints), then what follows S151, designed by the game designer: contracts, a bestiary, achievements, a guild that serves, the 45-60 groundwork, specialisations and the Ice braid (D83: 40 more points, 654 in all, ten sprints), then, after S156, a graphic overhaul of the interface: a theme and icons with depth, the achievements and guild windows with the guild's applications, achievements that reward, in quest chains and in dungeons (D84: 21 more points, 675 in all, four sprints), then, after measuring the 45-60 groundwork, diminishing returns on element points before the specialisations (D85: 5 more points, 680 in all, one sprint), then, at Charles's request, spell and trade icons in relief and a talent tree that reads like a tree (D86: 20 more points, 700 in all, four sprints), then, after playing 1.0.157, items and quests in relief, an illustrated world map, a bestiary as a hunting log, a zoomable tree and a less blocky world (D87: 48 more points, 748 in all, eleven sprints instead of two), then, after 1.0.162, a world map photographed in the game and monsters' portraits (D88: 10 more points, 758 in all, two sprints), then, after 1.0.165, a complete test character, players' names on hover, the Characteristics tab without scrolling and regions with natural shapes (D89: 9 more points, 767 in all, two sprints), each time with Charles and in sprints of their own, delaying nothing but guilds, moved from S137 to S145 (D80), and what D83 planned, moved from S157-S161 to S161-S165 (D84), then from S162-S165 to S163-S166 (D85), then from S163-S166 to S167-S170 (D86), then from S167-S170 to S176-S179 (D87), then from S176-S179 to S178-S181 (D88), then from S178-S181 to S180-S183 (D89)."
       }
     },
     {
@@ -1937,8 +1964,8 @@
         "en": "Two buffer sprints, one project in progress at a time"
       },
       "outcome": {
-        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 181 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59, D61, D62, D63, D64, D65, D66, D67, D68, D69, D70, D71, D72, D73, D74, D75, D76, D77, D78, D79, D80, D81, D82, D83, D84, D85, D86, D87, D88).",
-        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 181 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59, D61, D62, D63, D64, D65, D66, D67, D68, D69, D70, D71, D72, D73, D74, D75, D76, D77, D78, D79, D80, D81, D82, D83, D84, D85, D86, D87, D88)."
+        "fr": "Ne s'est pas produit : les deux sprints de marge n'ont pas servi. Les sprints 35 à 183 ne sont pas du retard : ce sont des demandes ajoutées après la livraison, estimées et planifiées comme les autres (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59, D61, D62, D63, D64, D65, D66, D67, D68, D69, D70, D71, D72, D73, D74, D75, D76, D77, D78, D79, D80, D81, D82, D83, D84, D85, D86, D87, D88, D89).",
+        "en": "Did not happen: the two spare sprints were not needed. Sprints 35 to 183 are not delays: they are requests added after delivery, estimated and planned like the others (D46, D47, D48, D49, D50, D51, D52, D53, D54, D55, D56, D57, D58, D59, D61, D62, D63, D64, D65, D66, D67, D68, D69, D70, D71, D72, D73, D74, D75, D76, D77, D78, D79, D80, D81, D82, D83, D84, D85, D86, D87, D88, D89)."
       }
     },
     {

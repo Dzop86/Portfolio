@@ -1,4 +1,4 @@
-# S164, S174-S175 : maquette visuelle de l'arbre (l'espalier)
+# S164, S176-S177 : maquette visuelle de l'arbre (l'espalier)
 
 Structure : `docs/arbre-lisible.md` (game designer, 30 oct.), qui fixe la grille, les 4 aspects, les 3 signes passagers, les 7 pièces de bois et leurs 3 vies, et l'ordre de saillance pris > ouvert > pas encore > fermé. Ce document en donne le **rendu** : couleurs (jetons), épaisseurs, tailles. Il **remplace le §3 de `s163-icones-arbre.md`** partout où les deux diffèrent (§6).
 Charte : `src/assets/tokens.css`, thème S157 (`s157-maquettes.md` §4). Tout texte fait 14 px au moins ; le pistache n'est jamais du texte sur fond clair.
@@ -23,7 +23,7 @@ Tout le reste du GD est repris tel quel, notamment « fermé » sans contour, à
 
 Jetons existants employés : `--pistache #bef374`, `--chocolat #5a3a22`, `--chocolat-clair #c9a27f`, `--osmose-ui-frame #7a5434`, `--osmose-ui-frame-dark #3a2616`, `--osmose-ground #1b1b1b`, `--osmose-ui-window #1f1f1f`, `--osmose-ui-titlebar #181818`, `--osmose-ui-well #141414`, `--osmose-ui-raised-top #3a3a3d`, `--osmose-ui-raised-bottom #262628`, `--osmose-ui-lit-top #3d4f24`, `--osmose-ui-lit-bottom #25301a`, `--osmose-taken-fill #33421f`, `--osmose-open #e0e0e0`, `--osmose-open-fill #262626`, `--osmose-locked #8a8a8a`, `--osmose-losing #f08070`, `--osmose-losing-fill #3a2424`, `--osmose-cost #f2d36b`, `--osmose-ui-gold-top`, `--osmose-ui-gold-bottom`, `--osmose-ui-gold-text`, `--osmose-ui-text*`, les couleurs d'élément et de style.
 
-**À créer** (bloc « Osmose, l'arbre (S164, S174-S175) ») :
+**À créer** (bloc « Osmose, l'arbre (S164, S176-S177) ») :
 ```css
 --osmose-wood: #7a5434;        /* = --osmose-ui-frame : le bois */
 --osmose-wood-light: #a07850;  /* reflet du bois ; 3,6:1 sur --osmose-ground */

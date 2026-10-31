@@ -1,14 +1,13 @@
-# Sprint 173 : Osmose : le bestiaire relié
+# Sprint 173 : Osmose : Plop complet et les noms au survol
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : on cherche dans le bestiaire, il renvoie à la carte, aux objets et à mes sorts, et raconte ses familles (D87, D88 ; `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Objectif :** les retours de Charles sur la 1.0.165 (31 octobre) : un personnage d'essai qui a tout, pour tout tester, et les noms des joueurs seulement au survol, la guilde au-dessus du nom (D89).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary can be searched, points to the map, the items and my spells, and tells its families' story (D87, D88; `projects/rpg/docs/bestiaire-encyclopedie.md`).
+**Goal:** Charles's feedback on 1.0.165 (31 October): a test character that has everything, to test everything, and players' names only on hovering them, the guild above the name (D89).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, la loupe d'un monstre ouvre la carte sur sa zone, son butin mène à la fiche de l'objet et retour, et je vois lesquels de mes sorts frappent sa faiblesse (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, un monstre maîtrisé livre une ligne d'histoire et un cadre doré, et chaque famille a son succès « Chasseur de… » (rpg, textes du scénariste) ; xUnit sur les clés FR et EN et les succès. | 2 | À faire |
+| En tant qu'opérateur, la commande d'administration donne à un seul personnage (`--only`) tous les objets et panoplies (`--give all`), ses métiers au niveau maximal (`--jobs max`) et de quoi gagner chaque succès (`--achievements full`) ; xUnit et test d'intégration de la commande. | 2 | À faire |
+| En tant que joueur, au survol d'un joueur (moi compris), je lis le nom de sa guilde puis, juste dessous, son nom ; sans survol, rien (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

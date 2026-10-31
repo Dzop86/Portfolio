@@ -1,14 +1,14 @@
-# Sprint 175 : Osmose : l'arbre qu'on parcourt
+# Sprint 175 : Osmose : le bestiaire relié
 
-**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : l'arbre se parcourt aux boutons, au pavé et au clavier, et sa fenêtre a son cadre (D87 ; `projects/rpg/docs/arbre-lisible.md` §7, `projects/rpg/docs/graphisme/s164-arbre-maquette.md`).
+**Objectif :** les retours de Charles sur la 1.0.157 (30 octobre), avant les spécialisations : on cherche dans le bestiaire, il renvoie à la carte, aux objets et à mes sorts, et raconte ses familles (D87, D88 ; `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
-**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the tree is walked with buttons, touchpad and keyboard, and its window gets its frame (D87; `projects/rpg/docs/arbre-lisible.md` §7, `projects/rpg/docs/graphisme/s164-arbre-maquette.md`).
+**Goal:** Charles's feedback on 1.0.157 (30 October), before the specialisations: the bestiary can be searched, points to the map, the items and my spells, and tells its families' story (D87, D88; `projects/rpg/docs/bestiaire-encyclopedie.md`).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je navigue dans l'arbre par les boutons + − « Vue d'ensemble » « Recentrer », le pavé tactile et le clavier, et les noms se cachent quand il est trop petit (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, le chemin que je survole s'allume comme de la sève (rpg) ; xUnit, auto-tests du client. | 1 | À faire |
-| En tant que joueur, la fenêtre de l'arbre a sa barre du haut, son panneau de droite repliable et ses bulles d'aide ancrées dans l'arbre (rpg) ; xUnit, auto-tests du client. | 3 | À faire |
+| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, la loupe d'un monstre ouvre la carte sur sa zone, son butin mène à la fiche de l'objet et retour, et je vois lesquels de mes sorts frappent sa faiblesse (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant que joueur, un monstre maîtrisé livre une ligne d'histoire et un cadre doré, et chaque famille a son succès « Chasseur de… » (rpg, textes du scénariste) ; xUnit sur les clés FR et EN et les succès. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
