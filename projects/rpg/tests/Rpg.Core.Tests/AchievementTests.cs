@@ -18,8 +18,8 @@ public class AchievementTests
     public void TheAchievements_AreAboutSixty_InSevenCategories_WrittenInBothLanguages_WithADozenTitles()
     {
         IReadOnlyList<AchievementSpec> all = Achievements.All;
-        // Sprint 159 (D84): 19 lines of quests and crowns more, 82 in all.
-        Assert.InRange(all.Count, 80, 90);
+        // Sprint 159 (D84): 19 lines of quests and crowns more, 82 in all; sprint 175 (D87, B5): ten hunters, 92.
+        Assert.InRange(all.Count, 88, 100);
         Assert.Equal(all.Count, all.Select(a => a.Id).Distinct().Count());
         Assert.Equal(["Dungeons", "Exploration", "Hunt", "Jobs", "Quests", "Together", "Tree"], all.Select(a => a.Category).Distinct().Order(StringComparer.Ordinal));
         Assert.All(all, a => Assert.True(a.Name.Fr.Length > 0 && a.Name.En.Length > 0 && a.Text.Fr.Length > 0 && a.Text.En.Length > 0 && a.Points > 0 && a.Count > 0, a.Id));
@@ -40,6 +40,7 @@ public class AchievementTests
                 AchievementGoal.Waystones => a.Count <= waystones.Length,
                 AchievementGoal.Waystone => waystones.Contains(a.Target),
                 AchievementGoal.Known => a.Count <= Real.Monsters.Count,
+                AchievementGoal.FamilyMastered => Real.Families.TryGetValue(a.Target!, out MonsterFamily? f) && a.Count == f.Monsters.Count,
                 AchievementGoal.FamilyVictories or AchievementGoal.Chief => Real.Families.ContainsKey(a.Target!) && Real.Dungeons.Values.Any(d => d.Family == a.Target || a.Goal == AchievementGoal.FamilyVictories),
                 AchievementGoal.Dungeon => Real.Dungeons.ContainsKey(a.Target!) && Real.Quests.ContainsKey(a.Target + "-cleared"),
                 AchievementGoal.Quests => a.Targets is { Count: > 0 } t && t.All(Real.Quests.ContainsKey) && a.Count == t.Count,
@@ -122,7 +123,8 @@ public class AchievementTests
         Assert.Equal(new AchievementReward(562, 281), Achievements.Reward(Of("ancestors-all")));
         Assert.Equal(new AchievementReward(675, 337), Achievements.Reward(Of("contracts-200")));
         Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 45 && Achievements.Reward(a).Xp <= 675, a.Id));
-        Assert.Equal(1110, Achievements.All.Sum(a => a.Points));
+        // Sprint 175: ten hunters of 20 points.
+        Assert.Equal(1310, Achievements.All.Sum(a => a.Points));
     }
 
     [Fact]
@@ -171,5 +173,25 @@ public class AchievementTests
         Assert.Equal(3, Achievements.Reached(Of("woods-main"), State(quests: ["edge-of-the-woods", "restless-beasts", "the-root-circle"]), Real));
         // Claimable: earned and not yet claimed.
         Assert.Equal(["woods-all"], Achievements.Claimable(["woods-main", "woods-all"], ["woods-main"]));
+    }
+
+    [Fact]
+    public void EachFamily_HasItsHunter_EarnedAtItsFifthMonsterMastered_NotBefore()
+    {
+        AchievementSpec[] hunters = [.. Achievements.All.Where(a => a.Goal == AchievementGoal.FamilyMastered)];
+        Assert.Equal(Real.Families.Keys.Order(StringComparer.Ordinal), hunters.Select(a => a.Target!).Order(StringComparer.Ordinal));
+        Assert.All(hunters, a => Assert.Equal(("Hunt", "hunters", 5), (a.Category, a.Group, a.Count)));
+        AchievementSpec boars = hunters.Single(a => a.Target == "boar");
+        MonsterFamily family = Real.Families["boar"];
+        // Four mastered and the chief one victory short of his five; then the fifth.
+        var log = family.Monsters.ToDictionary(m => m.Id, m => m.Role == MonsterRole.Boss ? 4 : 25);
+        Assert.Equal(4, Achievements.Reached(boars, State(bestiary: log), Real));
+        log[family[MonsterRole.Boss].Id] = 5;
+        Assert.Equal(5, Achievements.Reached(boars, State(bestiary: log), Real));
+        Assert.Contains(boars.Id, Achievements.Earned(State(bestiary: log), Real));
+        // Victories elsewhere count for nothing; every hunter with the whole bestiary.
+        Assert.Equal(0, Achievements.Reached(hunters.Single(a => a.Target == "wolf"), State(bestiary: log), Real));
+        Assert.All(hunters, a => Assert.Contains(a.Id, Achievements.Earned(State(bestiary: Bestiary.Full(Real)), Real)));
+        Assert.All(hunters, a => Assert.True(Achievements.Reward(a).Shards > 0, a.Id));
     }
 }

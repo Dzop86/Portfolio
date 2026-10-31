@@ -22,7 +22,10 @@ public enum MonsterRole
     Boss,
 }
 
-/// <summary>A monster, as described in <c>data/monsters.json</c>: a fighter of team B, with its level, role and loot.</summary>
+/// <summary>
+/// A monster, as described in <c>data/monsters.json</c>: a fighter of team B, with its level, role and loot; since sprint 175
+/// (D87, B5), the line of its story the bestiary tells once it is mastered.
+/// </summary>
 public sealed record MonsterSpec(
     string Id,
     MonsterRole Role,
@@ -36,7 +39,8 @@ public sealed record MonsterSpec(
     IReadOnlyList<string> Spells,
     IReadOnlyDictionary<Element, int>? Resistances = null,
     IReadOnlyList<LootDrop>? Loot = null,
-    IReadOnlyList<string>? Passives = null)
+    IReadOnlyList<string>? Passives = null,
+    LocalizedText? Lore = null)
 {
     /// <summary>
     /// The monster as a fighter of team B on start cell <paramref name="start"/>, at <paramref name="power"/>
@@ -50,10 +54,11 @@ public sealed record MonsterSpec(
 /// <summary>
 /// A family of monsters (sprint 72, D63): five monsters of the same kind, one per role, living in a
 /// zone; their fights take place on <see cref="Battle"/>, or since sprint 90 on one of <see cref="Battles"/>
-/// (which starts with it), drawn from the group's name; the boss is met on <see cref="BossMap"/>.
+/// (which starts with it), drawn from the group's name; the boss is met on <see cref="BossMap"/>. Since sprint 175 (D87, B5),
+/// its story, a paragraph the bestiary tells once its five monsters are met.
 /// </summary>
 public sealed record MonsterFamily(string Id, LocalizedText Name, string Zone, string Battle, string BossMap, IReadOnlyList<MonsterSpec> Monsters,
-    IReadOnlyList<string>? Battles = null)
+    IReadOnlyList<string>? Battles = null, LocalizedText? Lore = null)
 {
     public MonsterSpec this[MonsterRole role] => Monsters.First(m => m.Role == role);
 

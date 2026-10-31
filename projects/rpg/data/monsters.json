@@ -54,7 +54,11 @@
             "item": "boar-wallow-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il charge d'abord et réfléchit après, quand il réfléchit.",
+          "en": "It charges first and thinks afterwards, if it thinks at all."
+        }
       },
       {
         "id": "acorn-piglet",
@@ -93,7 +97,11 @@
         "passives": [
           "herd-grudge",
           "scamper"
-        ]
+        ],
+        "lore": {
+          "fr": "Il lance des glands faute d'avoir encore des défenses, et il vise mieux qu'on ne croit.",
+          "en": "It throws acorns for want of tusks yet, and aims better than you would think."
+        }
       },
       {
         "id": "old-loner",
@@ -137,7 +145,11 @@
             "item": "boar-wallow-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Chassé de la harde, il revient pourtant se battre pour elle, couvert de la boue qui le protège.",
+          "en": "Driven from the herd, it still comes back to fight for it, caked in the mud that shields it."
+        }
       },
       {
         "id": "boar-sow",
@@ -176,7 +188,11 @@
         },
         "passives": [
           "herd-grudge"
-        ]
+        ],
+        "lore": {
+          "fr": "Elle grogne doucement, et la harde se relève.",
+          "en": "She grunts softly, and the herd gets back on its feet."
+        }
       },
       {
         "id": "boar-king",
@@ -236,9 +252,17 @@
             "item": "boar-wallow-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Un éclat de pierre gravée est fiché dans sa défense ; quand il saigne, le signe s'allume.",
+          "en": "A shard of carved stone is lodged in his tusk; when he bleeds, the sign lights up."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les sangliers du Bois de Clairval fouillent la terre en quête d'éclats de pierre gravée, qu'ils mâchent comme d'autres mâchent des glands. Les éclats vibrent sous la dent, et la harde se bat pour eux plus que pour sa nourriture. Les bûcherons disent qu'un sanglier qui a goûté la pierre ne revient jamais aux glands.",
+      "en": "The boars of Clairval Woods root through the earth for shards of carved stone, which they chew as others chew acorns. The shards hum under their teeth, and the herd fights harder for them than for its food. Woodcutters say a boar that has tasted the stone never goes back to acorns."
+    }
   },
   {
     "id": "wolf",
@@ -300,7 +324,11 @@
             "item": "wolf-den-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il ne mord jamais seul : il attend que la meute ait pris sa place.",
+          "en": "It never bites alone: it waits until the pack has taken its place."
+        }
       },
       {
         "id": "howling-wolf",
@@ -343,7 +371,11 @@
         },
         "passives": [
           "pack-instinct"
-        ]
+        ],
+        "lore": {
+          "fr": "Son hurlement glace les jambes avant les cœurs.",
+          "en": "Its howl chills the legs before the heart."
+        }
       },
       {
         "id": "great-wolf",
@@ -392,7 +424,11 @@
             "item": "wolf-den-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il se met en travers du chemin, et ce chemin mène toujours aux racines.",
+          "en": "It stands across the path, and that path always leads to the roots."
+        }
       },
       {
         "id": "she-wolf",
@@ -436,7 +472,11 @@
         },
         "passives": [
           "pack-instinct"
-        ]
+        ],
+        "lore": {
+          "fr": "Elle garde les flancs de la meute et rappelle ceux qui s'égarent.",
+          "en": "She guards the pack's flanks and calls back those who stray."
+        }
       },
       {
         "id": "pack-leader",
@@ -501,9 +541,17 @@
             "item": "wolf-den-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Sa fourrure a la couleur de l'écorce ; quand il appelle, les louveteaux sortent des racines.",
+          "en": "His fur is the colour of bark; when he calls, the cubs come out of the roots."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les loups gardent le cercle de racines du Bois depuis plus longtemps que Clairval n'a de mémoire. Ils n'y chassent pas, n'y dorment pas : ils y tournent, une nuit sur deux, comme on fait sa ronde. Le chef de meute a pris la couleur de l'écorce à force de veiller sous les arbres.",
+      "en": "The wolves have guarded the Woods' ring of roots for longer than Clairval can remember. They neither hunt nor sleep there: they circle it every other night, as one walks a round. The pack leader has taken on the colour of bark from watching so long beneath the trees."
+    }
   },
   {
     "id": "mushroom",
@@ -560,7 +608,11 @@
             "item": "mushroom-cellar-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il frappe de son chapeau, et le réseau sent chaque coup qu'il reçoit.",
+          "en": "It strikes with its cap, and the web feels every blow it takes."
+        }
       },
       {
         "id": "spore-puffer",
@@ -598,7 +650,11 @@
             "item": "mushroom-cellar-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il éclate quand on le touche, et c'est sa façon de semer.",
+          "en": "It bursts when touched, and that is how it sows."
+        }
       },
       {
         "id": "great-cap",
@@ -638,7 +694,11 @@
             "item": "mushroom-cellar-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Son chapeau abrite les plus petits, comme un toit qui marche.",
+          "en": "Its cap shelters the smaller ones, like a roof that walks."
+        }
       },
       {
         "id": "healing-morel",
@@ -677,7 +737,11 @@
             "item": "mushroom-cellar-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle recoud le mycélium là où il a été tranché.",
+          "en": "It mends the mycelium wherever it has been cut."
+        }
       },
       {
         "id": "elder-fungus",
@@ -737,9 +801,17 @@
             "item": "mushroom-cellar-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Le plus vieux nœud du réseau : blessé, il se rétracte, et toute la forêt avec lui.",
+          "en": "The oldest knot of the web: wounded, it draws back, and the whole forest with it."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Sous le Bois moisi, un seul réseau de mycélium relie chaque chapeau à tous les autres, sans qu'aucun ne se fonde dans son voisin. Blesser un champignon, c'est faire frémir la forêt entière. Ils ne défendent pas leur vie : ils défendent les fils qui les tiennent ensemble.",
+      "en": "Beneath the Mouldy Woods, a single web of mycelium links every cap to all the others, without any of them melting into its neighbour. Wound one mushroom and the whole forest shivers. They do not defend their lives: they defend the threads that hold them together."
+    }
   },
   {
     "id": "zombie",
@@ -801,7 +873,11 @@
             "item": "zombie-crypt-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Un bras de braise, l'autre trempé : il ne sait plus lequel est le sien.",
+          "en": "One arm of embers, the other soaked: it no longer knows which is its own."
+        }
       },
       {
         "id": "bile-spitter",
@@ -843,7 +919,11 @@
             "item": "zombie-crypt-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il crache l'eau croupie de l'aile où on l'avait couché.",
+          "en": "It spits the stagnant water of the wing where it was laid to rest."
+        }
       },
       {
         "id": "bloated-zombie",
@@ -889,7 +969,11 @@
             "item": "zombie-crypt-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Gonflé de terre de tombe, il finit toujours par éclater.",
+          "en": "Swollen with grave earth, it always bursts in the end."
+        }
       },
       {
         "id": "bonesetter",
@@ -933,7 +1017,11 @@
             "item": "zombie-crypt-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il remet les os à leur place, mais pas toujours dans le bon corps.",
+          "en": "It sets the bones back in place, though not always in the right body."
+        }
       },
       {
         "id": "zombie-overlord",
@@ -999,9 +1087,17 @@
             "item": "zombie-crypt-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Fait des morts des quatre ailes à la fois, il se défait en morceaux quand on le blesse.",
+          "en": "Made of the dead of all four wings at once, it falls apart in pieces when wounded."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "La Crypte oubliée enterrait ses morts séparés, chacun dans l'aile de son élément. Ils se sont relevés mêlés, la braise d'un bras contre l'eau d'un autre, sans que rien ne tienne vraiment. Chaque zombie frappe d'un élément qui n'est pas tout à fait le sien.",
+      "en": "The Forgotten Crypt buried its dead apart, each in the wing of its element. They rose again mingled, the embers of one arm against the water of another, with nothing truly holding. Each zombie strikes with an element that is not quite its own."
+    }
   },
   {
     "id": "frog",
@@ -1063,7 +1159,11 @@
             "item": "frog-grotto-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle cogne à coups de langue et saute avant qu'on ne réponde.",
+          "en": "It lashes with its tongue and leaps away before you can answer."
+        }
       },
       {
         "id": "spitting-frog",
@@ -1106,7 +1206,11 @@
             "item": "frog-grotto-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Son venin a le goût de la vase du lac.",
+          "en": "Its venom tastes of the lake's mud."
+        }
       },
       {
         "id": "bullfrog",
@@ -1152,7 +1256,11 @@
             "item": "frog-grotto-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il rebondit sur tout ce qui le frappe, et beugle pour qu'on le sache.",
+          "en": "It bounces off everything that strikes it, and bellows so you know it."
+        }
       },
       {
         "id": "healing-treefrog",
@@ -1197,7 +1305,11 @@
             "item": "frog-grotto-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle soigne d'une goutte de rosée, prise aux joncs avant l'aube.",
+          "en": "It heals with a drop of dew, taken from the reeds before dawn."
+        }
       },
       {
         "id": "toad-king",
@@ -1261,9 +1373,17 @@
             "item": "frog-grotto-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il chante le dernier couplet de la berceuse, et ceux qui l'entendent oublient de se battre.",
+          "en": "He sings the lullaby's last verse, and those who hear it forget to fight."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les nuits calmes, les grenouilles du Lac des Joncs chantent une berceuse que tout Clairval fredonne sans se souvenir de l'avoir apprise. Les anciens en connaissent les premiers couplets. Le dernier, seul le crapaud-roi le chante, et personne ne l'a jamais entendu jusqu'au bout.",
+      "en": "On quiet nights, the frogs of Reed Lake sing a lullaby all of Clairval hums without remembering ever learning it. The elders know its first verses. The last one only the Toad King sings, and no one has ever heard it to the end."
+    }
   },
   {
     "id": "crab",
@@ -1322,7 +1442,11 @@
             "item": "crab-reef-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Ce qu'il a pris dans sa pince, il ne le rend pas.",
+          "en": "What it has caught in its claw, it does not give back."
+        }
       },
       {
         "id": "bubble-crab",
@@ -1363,7 +1487,11 @@
             "item": "crab-reef-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Ses bulles repoussent tout ce qui s'approche de son tas.",
+          "en": "Its bubbles push away anything that comes near its heap."
+        }
       },
       {
         "id": "armoured-crab",
@@ -1404,7 +1532,11 @@
             "item": "crab-reef-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Sa carapace est faite pour moitié de clous rouillés.",
+          "en": "Half its shell is made of rusty nails."
+        }
       },
       {
         "id": "hermit-crab",
@@ -1451,7 +1583,11 @@
             "item": "crab-reef-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il change de coquille comme d'avis, et en prête aux autres.",
+          "en": "It changes shells as often as its mind, and lends them to the others."
+        }
       },
       {
         "id": "giant-crab",
@@ -1510,9 +1646,17 @@
             "item": "crab-reef-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il porte une proue gravée au nom effacé, et s'en couvre quand le combat tourne mal.",
+          "en": "He wears a carved figurehead whose name is worn away, and hides behind it when the fight turns."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les crabes ramassent tout ce que le lac rejette sur ses berges : planches, clous, tessons, et ils en font leurs abris. Ils ne jettent rien, ne trient rien, et défendent leur tas comme un trésor. Le plus grand d'entre eux porte une proue de bateau dont le nom a été effacé.",
+      "en": "The crabs gather all the lake casts up on its shores, planks, nails, shards, and make their shelters of it. They throw nothing away, sort nothing, and guard their heap like a treasure. The largest of them wears a ship's figurehead whose name has been worn away."
+    }
   },
   {
     "id": "bee",
@@ -1568,7 +1712,11 @@
             "item": "royal-hive-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle pique pour la ruche, jamais pour elle.",
+          "en": "It stings for the hive, never for itself."
+        }
       },
       {
         "id": "archer-bee",
@@ -1606,7 +1754,11 @@
             "item": "royal-hive-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle tire son dard de loin et retourne au travail.",
+          "en": "It shoots its sting from afar and goes back to work."
+        }
       },
       {
         "id": "drone",
@@ -1646,7 +1798,11 @@
             "item": "royal-hive-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Le seul de la ruche qui soit devenu tout à fait de Feu, et sa cire brûle.",
+          "en": "The only one in the hive to have turned wholly to Fire, and its wax burns."
+        }
       },
       {
         "id": "nurse-bee",
@@ -1686,7 +1842,11 @@
             "item": "royal-hive-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle nourrit de gelée royale celles qui se battent.",
+          "en": "It feeds royal jelly to those who fight."
+        }
       },
       {
         "id": "queen-bee",
@@ -1746,9 +1906,17 @@
             "item": "royal-hive-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Quand on la menace, la ruche entière surchauffe pour elle.",
+          "en": "When she is threatened, the whole hive overheats for her."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les ruches des Champs ont surchauffé un été et ne sont jamais redescendues. Les abeilles y sont devenues à la fois d'Air et de Feu, et elles n'en sont pas mortes, parce qu'aucune ne travaille seule. Les paysans disent que leur miel brûle un peu la langue.",
+      "en": "One summer the hives of the Fields overheated and never cooled again. The bees there became both Air and Fire, and did not die of it, because none of them works alone. Farmers say their honey burns the tongue a little."
+    }
   },
   {
     "id": "mole",
@@ -1810,7 +1978,11 @@
             "item": "mole-burrows-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle surgit sous vos pieds, puis repart creuser dans la même direction.",
+          "en": "It bursts up under your feet, then goes back to digging the same way."
+        }
       },
       {
         "id": "clod-mole",
@@ -1854,7 +2026,11 @@
             "item": "mole-burrows-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle vise les yeux avec la terre qu'elle remonte.",
+          "en": "It aims for the eyes with the earth it brings up."
+        }
       },
       {
         "id": "old-mole",
@@ -1898,7 +2074,11 @@
             "item": "mole-burrows-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle fait crouler les galeries sur ceux qui la suivent.",
+          "en": "It brings the tunnels down on those who follow it."
+        }
       },
       {
         "id": "mole-mother",
@@ -1943,7 +2123,11 @@
             "item": "mole-burrows-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle protège les petits d'un rempart de terre tassée.",
+          "en": "It shields the young behind a wall of packed earth."
+        }
       },
       {
         "id": "mole-king",
@@ -2008,9 +2192,17 @@
             "item": "mole-burrows-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il a déterré le débris de métal, et il le garde contre lui.",
+          "en": "He dug up the piece of metal, and he keeps it close."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Toutes les taupes des Champs creusent dans la même direction, nuit après nuit, quelle que soit leur galerie de départ. Les laboureurs suivent leurs taupinières comme une flèche tracée dans les sillons. Au bout, elles ont trouvé un débris de métal que nul forgeron ne sait nommer.",
+      "en": "Every mole in the Fields digs the same way, night after night, whatever tunnel it set out from. Ploughmen follow their molehills like an arrow drawn across the furrows. At the end, they found a piece of metal no smith can name."
+    }
   },
   {
     "id": "stag",
@@ -2067,7 +2259,11 @@
             "item": "bellowing-combe-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Ses bois de pierre sont encore courts, mais déjà gravés.",
+          "en": "Its stone antlers are still short, but already carved."
+        }
       },
       {
         "id": "carving-hind",
@@ -2106,7 +2302,11 @@
             "item": "bellowing-combe-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle n'a pas de bois : elle gratte la pierre et lance ce qu'elle en arrache.",
+          "en": "It has no antlers: it scrapes the stone and throws what it tears off."
+        }
       },
       {
         "id": "old-hart",
@@ -2146,7 +2346,11 @@
             "item": "bellowing-combe-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il a frotté sa ramure au même arbre pendant tant d'années que l'arbre en porte la marque.",
+          "en": "It has rubbed its antlers on the same tree for so many years that the tree bears the mark."
+        }
       },
       {
         "id": "lead-doe",
@@ -2186,7 +2390,11 @@
             "item": "bellowing-combe-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Elle mène la harde par des chemins que les marques allument devant elle.",
+          "en": "She leads the herd along paths the marks light up before her."
+        }
       },
       {
         "id": "elder-stag",
@@ -2246,9 +2454,17 @@
             "item": "bellowing-combe-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Quand sa ramure se fend, on y voit quatre signes autour d'un creux gratté.",
+          "en": "When his antlers split, four signs show around a scraped-out hollow."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les Sylvecerfs portent des bois de pierre gravée qui ne tombent jamais. Comme tous les cerfs, ils grattent le sol et y frottent leur ramure pour marquer leur territoire ; dans la Forêt des Aïeux, leurs grattis s'allument de marques. Les plus vieux gardent la place depuis plus longtemps que les arbres.",
+      "en": "The Sylvan Stags bear antlers of carved stone that never fall. Like every stag, they scrape the ground and rub their antlers on it to mark their ground; in the Forest of the Ancestors, their scrapes light up with marks. The oldest have held their place longer than the trees."
+    }
   },
   {
     "id": "golem",
@@ -2310,7 +2526,11 @@
             "item": "mother-tree-roots-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Une poignée de moellons tenus par la mousse, qui frappe comme un mur.",
+          "en": "A handful of cobbles held together by moss, that strikes like a wall."
+        }
       },
       {
         "id": "pebble-keeper",
@@ -2354,7 +2574,11 @@
             "item": "mother-tree-roots-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il lance les galets dont il est fait, et la mousse en fait repousser d'autres.",
+          "en": "It throws the pebbles it is made of, and the moss grows others back."
+        }
       },
       {
         "id": "slab-keeper",
@@ -2399,7 +2623,11 @@
             "item": "mother-tree-roots-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Une dalle debout qui ne recule devant aucun mineur.",
+          "en": "A standing slab that gives way to no miner."
+        }
       },
       {
         "id": "moss-tender",
@@ -2444,7 +2672,11 @@
             "item": "mother-tree-roots-key",
             "percent": 2
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Il soigne la mousse des autres, qui est tout ce qui les tient.",
+          "en": "It tends the others' moss, which is all that holds them."
+        }
       },
       {
         "id": "menhir-keeper",
@@ -2509,8 +2741,16 @@
             "item": "mother-tree-roots-key",
             "percent": 10
           }
-        ]
+        ],
+        "lore": {
+          "fr": "Un menhir qui marche ; sous sa mousse, un cœur gravé bat lentement.",
+          "en": "A menhir that walks; beneath its moss, a carved heart beats slowly."
+        }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les Gardiens moussus sont de petites pierres que la mousse tient ensemble. Ils tracent des cercles et s'y tiennent, et ils chassent les mineurs depuis que le passage a été ouvert. Sous la mousse du plus vieux bat un cœur gravé que Bérold seul sait lire.",
+      "en": "The Mossy Keepers are small stones held together by moss. They trace rings and stand in them, and they have driven off the miners ever since the passage was opened. Beneath the oldest one's moss beats a carved heart only Bérold can read."
+    }
   }
 ]

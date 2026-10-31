@@ -6,9 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, la loupe d'un monstre ouvre la carte sur sa zone, son butin mène à la fiche de l'objet et retour, et je vois lesquels de mes sorts frappent sa faiblesse (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, un monstre maîtrisé livre une ligne d'histoire et un cadre doré, et chaque famille a son succès « Chasseur de… » (rpg, textes du scénariste) ; xUnit sur les clés FR et EN et les succès. | 2 | À faire |
+| En tant que joueur, je cherche un monstre ou un objet (« croc » trouve qui le lâche) et je filtre par zone, niveau, rôle et palier (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
+| En tant que joueur, la loupe d'un monstre ouvre la carte sur sa zone, son butin mène à la fiche de l'objet et retour, et je vois lesquels de mes sorts frappent sa faiblesse (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
+| En tant que joueur, un monstre maîtrisé livre une ligne d'histoire et un cadre doré, et chaque famille a son succès « Chasseur de… » (rpg, textes du scénariste) ; xUnit sur les clés FR et EN et les succès. | 2 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

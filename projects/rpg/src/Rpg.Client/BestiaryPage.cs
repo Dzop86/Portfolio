@@ -15,16 +15,27 @@ public sealed record BestiarySection(Knowledge Step, bool Reached, int Left, str
 /// A monster as the bestiary shows it (sprint 154; by blocks since sprint 171, D87, <c>docs/bestiaire-encyclopedie.md</c>
 /// §4.3): who it is, always (a silhouette's role, level and zone until met); then, each with its step, its numbers and
 /// the maps it lives on (met), its resistances, weakness and loot (studied), its spells, its family's lesson and how it
-/// fights (known). What a step does not open yet is null.
+/// fights (known); since sprint 175 (D87, B5), the line of its story (mastered). What a step does not open yet is null.
 /// </summary>
 public sealed record BestiaryMonster(string Id, string Name, string Family, MonsterRole Role, int Level, string Zone, string Look, Knowledge Known, int Victories,
     (Knowledge Step, int Left)? Next, IReadOnlyList<BestiarySection> Sections, BestiaryNumbers? Numbers = null, IReadOnlyList<string>? Maps = null,
     IReadOnlyDictionary<Element, int>? Resistances = null, Element? Weakness = null, IReadOnlyList<BestiaryLoot>? Loot = null,
-    IReadOnlyList<string>? Spells = null, IReadOnlyList<string>? Lessons = null, string? Behaviour = null);
+    IReadOnlyList<string>? Spells = null, IReadOnlyList<string>? Lessons = null, string? Behaviour = null, string? Story = null);
 
-/// <summary>A family in the bestiary, under its zone's name: its monsters, how many met and mastered.</summary>
-public sealed record BestiaryFamily(string Id, string Zone, string Name, IReadOnlyList<BestiaryMonster> Monsters)
+/// <summary>
+/// The spells of the hero's deck against a monster (sprint 175, D87, B4): of those that hurt, the ones of its weakness and
+/// the ones it resists; known once the monster is studied, as its resistances are.
+/// </summary>
+public sealed record BestiarySpells(int Hurting, Element? Weakness, IReadOnlyList<string> Weak, IReadOnlyList<string> Resisted);
+
+/// <summary>
+/// A family in the bestiary, under its zone's name: its monsters, how many met and mastered; since sprint 175 (D87, B5),
+/// its story once its five monsters are met, and whether they are all mastered (its hunter's achievement).
+/// </summary>
+public sealed record BestiaryFamily(string Id, string Zone, string Name, IReadOnlyList<BestiaryMonster> Monsters, string? Story = null)
 {
+    public bool Hunted => Monsters.All(m => m.Known == Knowledge.Mastered);
+
     public int Met => Monsters.Count(m => m.Known != Knowledge.Unknown);
     public int Mastered => Monsters.Count(m => m.Known == Knowledge.Mastered);
 }
@@ -46,7 +57,8 @@ public static class BestiaryPage
         ArgumentNullException.ThrowIfNull(texts);
         return [.. data.Families.Values.OrderBy(f => f.Monsters.Min(m => m.Level)).ThenBy(f => f.Id, StringComparer.Ordinal)
             .Select(f => new BestiaryFamily(f.Id, texts.ZoneName(f.Zone, data), f.Name.In(texts.Lang),
-                [.. f.Monsters.OrderBy(m => m.Role).Select(m => Monster(data, f, m, victories, texts, quests))]))];
+                [.. f.Monsters.OrderBy(m => m.Role).Select(m => Monster(data, f, m, victories, texts, quests))],
+                f.Monsters.All(m => victories.ContainsKey(m.Id)) ? f.Lore?.In(texts.Lang) : null))];
     }
 
     public static BestiaryMonster Monster(GameData data, MonsterFamily family, MonsterSpec m, IReadOnlyDictionary<string, int> victories, Texts texts, IReadOnlySet<string>? quests = null)
@@ -77,7 +89,7 @@ public static class BestiaryPage
         monster = monster with
         {
             Numbers = new BestiaryNumbers(m.Hp, m.Ap, m.Mp, m.Initiative),
-            Maps = [.. data.Groups.Values.Where(g => g.Monsters.Contains(m.Id) && data.Towns.ContainsKey(g.Map)).Select(g => texts.MapTitle(data.Towns[g.Map])).Distinct().Order(StringComparer.Ordinal)],
+            Maps = [.. MapsOf(data, m.Id).Select(id => texts.MapTitle(data.Towns[id])).Distinct().Order(StringComparer.Ordinal)],
         };
         if (known >= Knowledge.Studied)
             monster = monster with
@@ -94,6 +106,29 @@ public static class BestiaryPage
                 Lessons = [.. (m.Passives ?? []).Where(data.Passives.ContainsKey)],
                 Behaviour = texts["bestiary.behaviour." + m.Role],
             };
+        if (known == Knowledge.Mastered)
+            monster = monster with { Story = m.Lore?.In(texts.Lang) };
         return monster;
+    }
+
+    /// <summary>The maps a monster lives on, by their groups (the bestiary's magnifier frames them on the world map).</summary>
+    public static IReadOnlyList<string> MapsOf(GameData data, string monster)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return [.. data.Groups.Values.Where(g => g.Monsters.Contains(monster) && data.Towns.ContainsKey(g.Map)).Select(g => g.Map).Distinct().Order(StringComparer.Ordinal)];
+    }
+
+    /// <summary>The deck's spells against a monster: none until it is studied (its resistances unknown); a spell that heals or only moves does not count.</summary>
+    public static BestiarySpells? YourSpells(GameData data, BestiaryMonster monster, IEnumerable<string> deck)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(monster);
+        ArgumentNullException.ThrowIfNull(deck);
+        if (monster.Resistances is not { } resistances)
+            return null;
+        Spell[] hurting = [.. deck.Where(data.Spells.ContainsKey).Distinct().Select(id => data.Spells[id]).Where(s => s.DamageMax > 0)];
+        return new BestiarySpells(hurting.Length, monster.Weakness,
+            [.. hurting.Where(s => s.Element == monster.Weakness).Select(s => s.Id)],
+            [.. hurting.Where(s => resistances.GetValueOrDefault(s.Element) > 0).Select(s => s.Id)]);
     }
 }

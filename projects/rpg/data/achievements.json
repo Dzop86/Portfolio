@@ -452,6 +452,186 @@
     "target": "golem"
   },
   {
+    "id": "hunter-boar",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de sangliers",
+      "en": "Boar Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 sangliers dans votre bestiaire.",
+      "en": "Master all 5 boars in your bestiary."
+    },
+    "points": 20,
+    "level": 6,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "boar"
+  },
+  {
+    "id": "hunter-wolf",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de loups",
+      "en": "Wolf Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 loups dans votre bestiaire.",
+      "en": "Master all 5 wolves in your bestiary."
+    },
+    "points": 20,
+    "level": 6,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "wolf"
+  },
+  {
+    "id": "hunter-mushroom",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de champignons",
+      "en": "Mushroom Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 champignons dans votre bestiaire.",
+      "en": "Master all 5 mushrooms in your bestiary."
+    },
+    "points": 20,
+    "level": 13,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "mushroom"
+  },
+  {
+    "id": "hunter-zombie",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de zombies",
+      "en": "Zombie Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 zombies dans votre bestiaire.",
+      "en": "Master all 5 zombies in your bestiary."
+    },
+    "points": 20,
+    "level": 13,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "zombie"
+  },
+  {
+    "id": "hunter-frog",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de grenouilles",
+      "en": "Frog Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 grenouilles dans votre bestiaire.",
+      "en": "Master all 5 frogs in your bestiary."
+    },
+    "points": 20,
+    "level": 22,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "frog"
+  },
+  {
+    "id": "hunter-crab",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de crabes",
+      "en": "Crab Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 crabes dans votre bestiaire.",
+      "en": "Master all 5 crabs in your bestiary."
+    },
+    "points": 20,
+    "level": 22,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "crab"
+  },
+  {
+    "id": "hunter-bee",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de abeilles",
+      "en": "Bee Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 abeilles dans votre bestiaire.",
+      "en": "Master all 5 bees in your bestiary."
+    },
+    "points": 20,
+    "level": 30,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "bee"
+  },
+  {
+    "id": "hunter-mole",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de taupes",
+      "en": "Mole Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 taupes dans votre bestiaire.",
+      "en": "Master all 5 moles in your bestiary."
+    },
+    "points": 20,
+    "level": 30,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "mole"
+  },
+  {
+    "id": "hunter-stag",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de sylvecerfs",
+      "en": "Sylvan Stag Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 sylvecerfs dans votre bestiaire.",
+      "en": "Master all 5 sylvan stags in your bestiary."
+    },
+    "points": 20,
+    "level": 45,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "stag"
+  },
+  {
+    "id": "hunter-golem",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de gardiens moussus",
+      "en": "Mossy Keeper Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 gardiens moussus dans votre bestiaire.",
+      "en": "Master all 5 mossy keepers in your bestiary."
+    },
+    "points": 20,
+    "level": 45,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "golem"
+  },
+  {
     "id": "dungeon-boar-wallow",
     "category": "Dungeons",
     "group": "levels-1-15",

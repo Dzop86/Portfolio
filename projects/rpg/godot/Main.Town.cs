@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search")
             _ = TownScreenshot();
     }
 
@@ -1874,6 +1874,12 @@ public partial class Main
         AddChild(_itemSheet);
         _itemSheet.Build(item, tab, _talkPanel?.Texts ?? _hud.Texts);
         _itemSheet.ClosePressed += CloseItemSheet;
+        // A monster of its Bestiary tab: its card, the sheet closed (sprint 175, B4).
+        _itemSheet.MonsterPressed += monster =>
+        {
+            CloseItemSheet();
+            ShowCard(monster);
+        };
     }
 
     private void CloseItemSheet()
@@ -2947,19 +2953,53 @@ public partial class Main
     /// <summary>
     /// The bestiary's window (sprint 171, D87): every monster mastered, the first family's every block open and its loot in
     /// tiles; nothing won, silhouettes alone and every block shut. Since sprint 172 (D88), each monster's portrait, its
-    /// silhouette while unknown, every one loaded; the card's model turning, or its silhouette still.
+    /// silhouette while unknown, every one loaded; the card's model turning, or its silhouette still. Since sprint 175 (B3 to
+    /// B5): a search narrows the list and a reset brings the families back; mastered, every portrait framed in gold, the story
+    /// and the family's told, the deck's spells against the weakness; the magnifier names the zone and the map focuses it;
+    /// an item's Bestiary tab links to its monsters.
     /// </summary>
     private void CheckBestiary(List<string> problems)
     {
         var bestiary = new BestiaryPanel();
         AddChild(bestiary);
         bestiary.Build(_talkPanel?.Texts ?? _hud.Texts);
-        bestiary.Show(Bestiary.Full(GameData.Embedded));
+        bestiary.Show(Bestiary.Full(GameData.Embedded), deck: ["arrow", "sling", "strike"]);
         if (bestiary.Shown != "boar" || bestiary.Names.Count != GameData.Embedded.Families["boar"].Monsters.Count || bestiary.BlocksReached != 4 || bestiary.LootTiles == 0)
             problems.Add($"the full bestiary shows {bestiary.Shown}, {bestiary.Names.Count} monsters, {bestiary.BlocksReached} blocks, {bestiary.LootTiles} loot tiles");
         if (bestiary.Turning != GameData.Embedded.Monsters[bestiary.Chosen!].Look || bestiary.Pictures.Count != bestiary.Names.Count || bestiary.Pictures.Any(p => !p.Loaded || p.Path.EndsWith("-unknown.webp", StringComparison.Ordinal)))
             problems.Add($"the full bestiary's portraits: {bestiary.Turning} turning, {string.Join(", ", bestiary.Pictures)}");
+        int boars = GameData.Embedded.Families["boar"].Monsters.Count;
+        if (bestiary.Framed != boars + 1 || bestiary.Story is null || bestiary.FamilyStory is null || bestiary.SpellsLine is null)
+            problems.Add($"the full bestiary frames {bestiary.Framed} portraits, tells {bestiary.Story} and {bestiary.FamilyStory}, says {bestiary.SpellsLine}");
+        (string Zone, int Maps)? located = null;
+        bestiary.LocatePressed += (zone, maps) => located = (zone, maps.Count);
+        bestiary.PressLocate();
+        if (located is not ("woods", > 0))
+            problems.Add($"the magnifier of {bestiary.Chosen} names {located}");
+        // The wolves' fangs, in the game's language.
+        string fang = (_talkPanel?.Texts ?? _hud.Texts).Lang == "fr" ? "croc" : "fang";
+        bestiary.Search(fang);
+        if (bestiary.Found != 4 || bestiary.Names.Count != 4 || bestiary.Shown is not null || bestiary.Chosen is null)
+            problems.Add($"the search for « {fang} » finds {bestiary.Found}, lists {string.Join(", ", bestiary.Names)}");
+        bestiary.Apply(new BestiaryFilter());
+        if (bestiary.Shown is null || bestiary.Names.Count != boars)
+            problems.Add($"the reset bestiary shows {bestiary.Shown} and {bestiary.Names.Count} monsters");
+        var world = new WorldMapPanel();
+        AddChild(world);
+        world.Build(GameData.Embedded, "clairval-3-2", new Cell(24, 16), _talkPanel?.Texts ?? _hud.Texts);
+        world.Focus("lake", BestiaryPage.MapsOf(GameData.Embedded, "toad-king"));
+        if (world.Focused != "lake" || world.Framed == 0 || world.FocusedCentre is not Vector2 centre || !new Rect2(Vector2.Zero, WorldMapPanel.View).HasPoint(centre))
+            problems.Add($"the map focused on the lake frames {world.Framed} maps, its middle at {world.FocusedCentre}");
+        world.QueueFree();
+        var sheet = new ItemSheet();
+        AddChild(sheet);
+        sheet.Build(GameData.Embedded.Items["wolf-fang"], ItemAction.Bestiary, _talkPanel?.Texts ?? _hud.Texts);
+        if (!sheet.MonsterLinks.Contains("grey-wolf") || sheet.MonsterLinks.Count != sheet.Lines[ItemAction.Bestiary].Count)
+            problems.Add($"the wolf fang's sheet links to {string.Join(", ", sheet.MonsterLinks)}");
+        sheet.QueueFree();
         bestiary.Show(new Dictionary<string, int>());
+        if (bestiary.Framed != 0 || bestiary.Story is not null || bestiary.FamilyStory is not null || bestiary.SpellsLine is not null)
+            problems.Add($"the empty bestiary frames {bestiary.Framed}, tells {bestiary.Story ?? bestiary.FamilyStory}, says {bestiary.SpellsLine}");
         if (bestiary.Names.Any(n => n != "???") || bestiary.BlocksReached != 0 || bestiary.LootTiles != 0)
             problems.Add($"the empty bestiary names {string.Join(", ", bestiary.Names)} and opens {bestiary.BlocksReached} blocks");
         if (bestiary.Turning is not null || bestiary.Pictures.Count != bestiary.Names.Count + 1 || bestiary.Pictures.Any(p => !p.Loaded || !p.Path.EndsWith("-unknown.webp", StringComparison.Ordinal)))
@@ -3756,14 +3796,17 @@ public partial class Main
             GetTree().Quit(journal == Error.Ok ? 0 : 1);
             return;
         }
-        if (_options.Shot == "bestiary")
+        if (_options.Shot is "bestiary" or "bestiary-search")
         {
-            // The bestiary (sprint 171): the boars mastered or on their way, the wolves met, the rest to find.
+            // The bestiary (sprint 171): the boars mastered or on their way, the wolves met, the rest to find; since sprint 175,
+            // the charging boar mastered, its family met whole, and a search for the wolves' fangs.
             _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20);
             _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch, Level: 20,
-                Bestiary: new Dictionary<string, int> { ["boar-charger"] = 7, ["acorn-piglet"] = 2, ["old-loner"] = 0, ["boar-king"] = 5, ["grey-wolf"] = 1 });
+                Bestiary: new Dictionary<string, int> { ["boar-charger"] = 25, ["acorn-piglet"] = 2, ["old-loner"] = 0, ["boar-sow"] = 0, ["boar-king"] = 5, ["grey-wolf"] = 1 });
             ShowBar();
             ToggleWindow(GameWindow.Bestiary);
+            if (_options.Shot == "bestiary-search")
+                _bestiaryPanel?.Search(_talkPanel?.Texts.Lang == "fr" ? "croc" : "fang");
             _townView!.ShowPath(null);
             for (int i = 0; i < 30; i++)
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);

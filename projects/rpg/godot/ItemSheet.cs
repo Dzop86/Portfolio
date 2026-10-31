@@ -8,7 +8,7 @@ namespace Rpg.Desktop;
 /// An item's sheet (sprint 117, D77), opened by its right click or its link in the chat: its icon and card on top,
 /// then three tabs, the recipes that make it or need it, the monsters that leave it and at what chance, its set with
 /// its pieces and bonuses. Each item on it is a tile of its own, with its card and its right click. It only draws
-/// <see cref="ItemInfo"/>.
+/// <see cref="ItemInfo"/>. Since sprint 175 (D87, B4) each monster of the Bestiary tab leads to its card in the bestiary.
 /// </summary>
 public partial class ItemSheet : CanvasLayer
 {
@@ -18,6 +18,12 @@ public partial class ItemSheet : CanvasLayer
     private TabContainer _tabs = null!;
 
     public event Action? ClosePressed;
+
+    /// <summary>A monster's link on the Bestiary tab: its card in the bestiary (sprint 175, D87, B4).</summary>
+    public event Action<string>? MonsterPressed;
+
+    /// <summary>The monsters the Bestiary tab links to, in its order (for the self-test).</summary>
+    public List<string> MonsterLinks { get; } = [];
 
     /// <summary>The item shown, the tab open, how many lines each tab has (for the self-test).</summary>
     public Item Item { get; private set; } = null!;
@@ -58,7 +64,7 @@ public partial class ItemSheet : CanvasLayer
             return ((Item?)made, text);
         }));
         Fill(ItemAction.Bestiary, info.Drops(item.Id).Select(d => ((Item?)null, texts[d.ForQuest ? "item.drop-quest" : "item.drop", d.Monster.Name.In(texts.Lang), d.Monster.Level,
-            d.Family?.Name.In(texts.Lang) ?? "", d.Percent])));
+            d.Family?.Name.In(texts.Lang) ?? "", d.Percent])), [.. info.Drops(item.Id).Select(d => d.Monster.Id)]);
         Fill(ItemAction.Set, info.Set(item) is (ItemSet set, IReadOnlyList<Item> pieces)
             ? [(null, set.Name.In(texts.Lang)), .. pieces.Select(p => ((Item?)p, texts["item.piece", p.Name.In(texts.Lang), texts["slot." + p.Slot], p.Level])),
                .. set.Bonuses.Select(b => ((Item?)null, texts["inventory.pieces", b.Pieces, Bonus(b)]))]
@@ -71,7 +77,8 @@ public partial class ItemSheet : CanvasLayer
 
     private string Bonus(SetBonus b) => _texts.Gives(b.Stats, b.Ap, b.Mp, b.Initiative);
 
-    private void Fill(ItemAction tab, IEnumerable<(Item? Item, string Text)> rows)
+    /// <summary>A tab's lines; <paramref name="monsters"/>, the monster each line is about, a button to its card at the end.</summary>
+    private void Fill(ItemAction tab, IEnumerable<(Item? Item, string Text)> rows, IReadOnlyList<string>? monsters = null)
     {
         var scroll = new ScrollContainer { Name = _texts["item." + tab], HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _tabs.AddChild(scroll);
@@ -86,6 +93,14 @@ public partial class ItemSheet : CanvasLayer
             if (item is not null)
                 line.AddChild(Tile(item, 40));
             line.AddChild(new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, VerticalAlignment = VerticalAlignment.Center });
+            if (monsters is not null)
+            {
+                string monster = monsters[lines.Count];
+                var open = new Button { Icon = GD.Load<Texture2D>("res://assets/icons/bar/bestiary.svg"), ExpandIcon = true, CustomMinimumSize = new Vector2(44, 44), TooltipText = _texts["bestiary.open-card"], FocusMode = Control.FocusModeEnum.None };
+                open.Pressed += () => MonsterPressed?.Invoke(monster);
+                line.AddChild(open);
+                MonsterLinks.Add(monster);
+            }
             box.AddChild(line);
             lines.Add(text);
         }

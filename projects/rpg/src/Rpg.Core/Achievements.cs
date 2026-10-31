@@ -38,6 +38,9 @@ public enum AchievementGoal
 
     /// <summary>The dungeon <see cref="AchievementSpec.Target"/> finished: its chief in the bestiary, or its "-cleared" quest handed back (sprint 159).</summary>
     Dungeon,
+
+    /// <summary>The monsters of the family <see cref="AchievementSpec.Target"/> mastered in the bestiary (sprint 175, D87, B5: its hunter).</summary>
+    FamilyMastered,
 }
 
 /// <summary>
@@ -126,6 +129,8 @@ public static class Achievements
             AchievementGoal.Victories => s.Bestiary.Values.Sum(),
             AchievementGoal.Known => s.Bestiary.Count,
             AchievementGoal.FamilyVictories => FamilyWins(a.Target ?? ""),
+            AchievementGoal.FamilyMastered => data.Families.TryGetValue(a.Target ?? "", out MonsterFamily? hunted)
+                ? hunted.Monsters.Count(m => Bestiary.Of(s.Bestiary, m) == Knowledge.Mastered) : 0,
             AchievementGoal.Chief => ChiefBeaten(a.Target ?? "") ? 1 : 0,
             AchievementGoal.Chiefs => data.Dungeons.Values.Count(Finished),
             AchievementGoal.Dungeon => data.Dungeons.TryGetValue(a.Target ?? "", out Dungeon? d) && Finished(d) ? 1 : 0,

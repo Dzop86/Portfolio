@@ -73,4 +73,59 @@ public class BestiaryPageTests
         Assert.DoesNotContain(Card(1, id: giver.Id).Loot!, l => l.Quest is not null);
         Assert.Contains(Card(1, quests: new HashSet<string> { quest }, id: giver.Id).Loot!, l => l.Quest == quest);
     }
+
+    [Fact]
+    public void TheDecksSpells_HitTheWeakness_OrMeetTheResistances_OnceTheMonsterIsStudied()
+    {
+        // The charging boar: Air −15 (its weakness), Earth +10; a spell that hurts nothing does not count.
+        string heal = Data.Spells.Values.First(s => s.DamageMax == 0).Id;
+        string[] deck = ["arrow", "sling", "strike", "spear", "fireball", heal, "unknown-spell"];
+        Assert.Null(BestiaryPage.YourSpells(Data, Card(0), deck));
+        BestiarySpells spells = BestiaryPage.YourSpells(Data, Card(1), deck)!;
+        Assert.Equal(Element.Air, spells.Weakness);
+        Assert.Equal(["arrow", "sling"], spells.Weak);
+        Assert.Equal(["strike", "spear"], spells.Resisted);
+        Assert.Equal(deck.Count(id => Data.Spells.TryGetValue(id, out Spell? s) && s.DamageMax > 0), spells.Hurting);
+        // The same spell twice counts once; an empty deck hurts nothing.
+        Assert.Single(BestiaryPage.YourSpells(Data, Card(1), ["arrow", "arrow"])!.Weak);
+        Assert.Equal(0, BestiaryPage.YourSpells(Data, Card(1), [])!.Hurting);
+    }
+
+    [Fact]
+    public void AMonstersStory_IsTold_OnceMastered_AndAFamilys_OnceItsFiveAreMet()
+    {
+        Assert.Null(Card(24).Story);
+        Assert.Equal(Charger.Lore!.Fr, Card(25).Story);
+        Assert.Equal(Charger.Lore.En, Card(25, "en").Story);
+        BestiaryFamily Family(Dictionary<string, int> log) => BestiaryPage.Families(Data, log, new Texts("en")).First(f => f.Id == "boar");
+        var four = Boars.Monsters.Skip(1).ToDictionary(m => m.Id, _ => 0);
+        Assert.Null(Family(four).Story);
+        four[Charger.Id] = 0;
+        Assert.Equal(Boars.Lore!.En, Family(four).Story);
+        Assert.False(Family(four).Hunted);
+        Assert.True(Family(Bestiary.Full(Data)).Hunted);
+    }
+
+    [Fact]
+    public void EveryFamilyAndMonster_HasItsStory_InBothLanguages_WithoutWhatTheCanonKeepsForLater()
+    {
+        string[] later = ["Accord", "Dhoram", "Névara", "Kaor", "Élyon", "Disjonction", "Disjunction", "cinquième", "fifth"];
+        foreach (MonsterFamily f in Data.Families.Values)
+        {
+            Assert.True(f.Lore is { Fr.Length: > 40, En.Length: > 40 }, f.Id);
+            Assert.All(f.Monsters, m => Assert.True(m.Lore is { Fr.Length: > 10 and <= 140, En.Length: > 10 and <= 140 }, m.Id));
+            Assert.All(f.Monsters.Select(m => m.Lore!).Append(f.Lore!), l => Assert.DoesNotContain(later, w => l.Fr.Contains(w, StringComparison.Ordinal) || l.En.Contains(w, StringComparison.Ordinal)));
+        }
+    }
+
+    [Fact]
+    public void TheMapsAMonsterLivesOn_AreTheMapsOfItsGroups()
+    {
+        IReadOnlyList<string> maps = BestiaryPage.MapsOf(Data, Charger.Id);
+        Assert.NotEmpty(maps);
+        Assert.All(maps, id => Assert.Contains(Data.Groups.Values, g => g.Map == id && g.Monsters.Contains(Charger.Id)));
+        Assert.Contains(maps, id => Data.Towns[id].Zone == Boars.Zone);
+        Assert.Equal(Card(0).Maps!.Count, maps.Select(id => new Texts("fr").MapTitle(Data.Towns[id])).Distinct().Count());
+        Assert.Empty(BestiaryPage.MapsOf(Data, "no-such-monster"));
+    }
 }

@@ -45,6 +45,23 @@ public partial class WorldMapPanel : CanvasLayer
 
     public event Action? ClosePressed;
 
+    /// <summary>"Back to the bestiary", shown when its magnifier opened the map (sprint 175, D87, B4).</summary>
+    public event Action? BackPressed;
+
+    private Button _back = null!;
+    private readonly List<(Vector2 At, Vector2 Size, Panel Frame)> _haunts = [];
+
+    /// <summary>The zone the bestiary's magnifier opened the map on, and how many of its maps are framed (for the self-test).</summary>
+    public string? Focused { get; private set; }
+
+    public int Framed => _haunts.Count;
+
+    /// <summary>Where the focused zone's middle stands in the view (for the self-test: inside it).</summary>
+    public Vector2? FocusedCentre { get; private set; }
+
+    /// <summary>The view's size (for the self-test).</summary>
+    public static Vector2 View => ViewSize;
+
     public string Current { get; private set; } = "";
 
     /// <summary>The picture's pixels per screen pixel, and where its top-left corner is in the view.</summary>
@@ -225,6 +242,9 @@ public partial class WorldMapPanel : CanvasLayer
         title.AddThemeFontOverride("font", OsmoseTheme.Bold());
         title.AddThemeFontSizeOverride("font_size", 18);
         row.AddChild(title);
+        _back = new Button { Text = "← " + texts["map.back-bestiary"], CustomMinimumSize = new Vector2(0, 44), FocusMode = Control.FocusModeEnum.None, Visible = false };
+        _back.Pressed += () => BackPressed?.Invoke();
+        row.AddChild(_back);
         var close = new Button { Text = "×", CustomMinimumSize = new Vector2(44, 44), ThemeTypeVariation = OsmoseTheme.CloseButton, FocusMode = Control.FocusModeEnum.None };
         close.Pressed += () => ClosePressed?.Invoke();
         row.AddChild(close);
@@ -405,6 +425,8 @@ public partial class WorldMapPanel : CanvasLayer
                 _ => true,
             };
         }
+        foreach ((Vector2 at, Vector2 extent, Panel frame) in _haunts)
+            (frame.Position, frame.Size) = (PictureAt + at * Zoom, extent * Zoom);
         // The marker's point on where the player stands.
         _marker.Position = PictureAt + _player * Zoom - new Vector2(_marker.Size.X / 2, _marker.Size.Y);
         if (_goal is not null)
@@ -415,6 +437,41 @@ public partial class WorldMapPanel : CanvasLayer
     }
 
     private void ShowHover(Vector2? at) => _hover.Text = at is Vector2 p ? HoverAt(p) : "";
+
+    /// <summary>
+    /// The map opened from the bestiary's magnifier (sprint 175, D87, <c>docs/bestiaire-encyclopedie.md</c> §4.5): zoomed to
+    /// hold the whole zone, centred on it, the maps the monster lives on framed in the hints' yellow, and a button back.
+    /// </summary>
+    public void Focus(string zone, IEnumerable<string> maps)
+    {
+        ArgumentNullException.ThrowIfNull(maps);
+        if (_atlasData.Regions.FirstOrDefault(r => r.Zone == zone) is not AtlasRegion region)
+            return;
+        Focused = zone;
+        AtlasPoint[] points = [.. region.Outlines.SelectMany(o => o)];
+        (double left, double top, double right, double bottom) = (points.Min(p => p.X), points.Min(p => p.Y), points.Max(p => p.X), points.Max(p => p.Y));
+        var centre = new Vector2((float)(left + right) / 2, (float)(top + bottom) / 2);
+        Zoom = Math.Clamp(0.9f * Math.Min(ViewSize.X / (float)(right - left), ViewSize.Y / (float)(bottom - top)), MinZoom, MaxZoom);
+        PictureAt = ViewSize / 2 - centre * Zoom;
+        foreach ((_, _, Panel old) in _haunts)
+            old.QueueFree();
+        _haunts.Clear();
+        foreach (string id in maps.Distinct())
+        {
+            if (!GameData.Embedded.Towns.TryGetValue(id, out Town? map))
+                continue;
+            (double l, double t, double r, double b) = _atlasData.Bounds(map);
+            var frame = new Panel { MouseFilter = Control.MouseFilterEnum.Ignore };
+            frame.AddThemeStyleboxOverride("panel", OsmoseTheme.Flat("#00000000", UiStyle.Cost, 3, 4));
+            _view.AddChild(frame);
+            _view.MoveChild(frame, _marker.GetIndex());
+            _haunts.Add((new Vector2((float)l, (float)t), new Vector2((float)(r - l), (float)(b - t)), frame));
+        }
+        _back.Visible = true;
+        Place();
+        FocusedCentre = PictureAt + centre * Zoom;
+        _hover.Text = _texts.ZoneName(zone, GameData.Embedded);
+    }
 }
 
 /// <summary>The edges of the maps over the world's picture: thin and faint, not to spoil it.</summary>
