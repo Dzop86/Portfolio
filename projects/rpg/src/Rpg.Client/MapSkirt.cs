@@ -20,6 +20,11 @@ public static class MapSkirt
     /// <summary>How many cells the skirt reaches past each edge.</summary>
     public const int Depth = 6;
 
+    /// <summary>A decorative cliff, only in a made-up skirt, only this deep or deeper.</summary>
+    public const char Cliff = '^';
+
+    public const int CliffDepth = 4;
+
     /// <summary>The kinds of the neighbour that are drawn in a skirt; the rest (a house's other cells, a stall, a lantern...) become grass.</summary>
     private const string Drawn = ".=,~TRBMH";
 
@@ -78,7 +83,7 @@ public static class MapSkirt
 
     /// <summary>
     /// A made-up cell where the world has no map: an obstacle more and more likely outwards (a third next to the
-    /// map, nearly all at the far edge), of the zone's kind.
+    /// map, nearly all at the far edge), of the zone's kind; from <see cref="CliffDepth"/> on, now and then a cliff.
     /// </summary>
     public static char MadeUp(string zone, Cell c, int depth)
     {
@@ -87,6 +92,9 @@ public static class MapSkirt
         if (roll >= thick)
             return zone == "fields" && DecorScatter.Unit(c, 0x5C1A8) < 0.15f ? ',' : '.';
         float pick = DecorScatter.Unit(c, 0x5C1A9);
+        // Far out, decorative cliffs and hills (Q5: off the board, no effect on the game).
+        if (depth >= CliffDepth && DecorScatter.Unit(c, 0x5C1AA) < 0.18f)
+            return Cliff;
         return zone switch
         {
             "fields" => pick < 0.55f ? 'B' : pick < 0.85f ? 'T' : 'R',

@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, le décor est dispersé et varié (une trentaine de modèles du Nature Kit de Kenney en plus) et le sol n'est plus un damier hors combat (rpg) ; xUnit, auto-tests du client. | 3 | En cours : dispersion, sol en taches, touffes et lisière des bosquets faits (1eac996, T136) ; les modèles du Nature Kit attendent le zip du kit |
-| En tant que joueur, au bord d'une carte je vois le début de la carte voisine, estompé (rpg) ; xUnit, auto-tests du client. | 3 | Fait (T137) ; falaises décoratives avec les modèles du kit |
+| En tant que joueur, le décor est dispersé et varié (une trentaine de modèles du Nature Kit de Kenney en plus) et le sol n'est plus un damier hors combat (rpg) ; xUnit, auto-tests du client. | 3 | Fait (1eac996 et la suite, T136) : 29 modèles du Nature Kit importés |
+| En tant que joueur, au bord d'une carte je vois le début de la carte voisine, estompé (rpg) ; xUnit, auto-tests du client. | 3 | Fait (7a33794, T137), falaises décoratives comprises |
 
 ## Rétro (Charles)
 - Ce qui a marché :

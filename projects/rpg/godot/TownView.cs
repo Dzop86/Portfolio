@@ -71,8 +71,11 @@ public partial class TownView : Node3D
         }
         if (!PlainGround)
             Skirt(controller, grass);
-        foreach (Sprig bush in DecorScatter.Rim(town, 2))
-            Shade(Place(Nature + "plant_bushSmall.glb", BoardView.ToWorld(bush.At) + new Vector3(bush.Dx, 0, bush.Dz), bush.Turn, bush.Variant == 0 ? 1.4f : 1.8f), Foliage);
+        foreach (Sprig bush in DecorScatter.Rim(town, RimPieces.Length))
+        {
+            (string path, float scale) = RimPieces[bush.Variant];
+            Shade(Place(path, BoardView.ToWorld(bush.At) + new Vector3(bush.Dx, 0, bush.Dz), bush.Turn, scale), Foliage);
+        }
         foreach (Prop prop in town.Props ?? [])
             AddProp(prop);
         // The village's beasts (sprint 104), each where the map says, turned a little at random.
@@ -372,7 +375,7 @@ public partial class TownView : Node3D
                 _decor[c] = Ancestor(c, at);
                 break;
             case 'T':
-                _decor[c] = Scattered(c, k, at, Trees);
+                _decor[c] = Scattered(c, k, at, TreesOf(Controller.Town.ZoneId));
                 break;
             case 'R' when Ancestral:
                 _decor[c] = MossyRock(c, at);
@@ -390,10 +393,10 @@ public partial class TownView : Node3D
                 Place(Kit + "cart.glb", at, 30, 1);
                 break;
             case 'M':
-                _decor[c] = Scattered(c, k, at, [(Nature + "mushroom_tan.glb", 2.4f)]);
+                _decor[c] = Scattered(c, k, at, Mushrooms);
                 break;
             case 'B':
-                Scattered(c, k, at, [(Nature + "plant_bushSmall.glb", 1.8f)]);
+                Scattered(c, k, at, Hedges);
                 break;
             case 'P':
                 Stakes(at);
@@ -447,14 +450,62 @@ public partial class TownView : Node3D
         return rock;
     }
 
-    // The models a piece of decor is drawn among (sprint 178), each with the scale that fits it to a cell.
-    private static readonly (string Path, float Scale)[] Trees =
-        [(Kit + "tree.glb", 1), (Kit + "tree-high.glb", 1), (Nature + "tree_default.glb", 1.3f), (Nature + "tree_pineDefaultA.glb", 1.1f)];
+    // The models a piece of decor is drawn among (sprint 178), each with the scale that fits it to a cell: the
+    // nature kit's trees (1.15 to 1.7 high) brought to about 2.1, like the town kit's; tufts under 0.15.
+    private static readonly (string Path, float Scale)[] TownTrees = [(Kit + "tree.glb", 1), (Kit + "tree-high.glb", 1)];
+
+    private static (string, float) Tree(string name, float height) => (Nature + name + ".glb", 2.1f / height);
+
+    private static readonly (string Path, float Scale)[] WoodsTrees =
+    [
+        .. TownTrees, Tree("tree_default", 1.71f), (Nature + "tree_pineDefaultA.glb", 1.1f), Tree("tree_oak", 1.23f),
+        Tree("tree_cone", 1.43f), Tree("tree_pineRoundA", 1.37f), Tree("tree_pineTallA", 1.53f), Tree("tree_tall", 1.69f),
+    ];
+
+    /// <summary>
+    /// The trees of a zone: the woods have them all; the fields, broad leaves; the lake, tall and slender ones. The
+    /// kit's tree_detailed (a cluster of cubes) is left out: its style is not the others'.
+    /// </summary>
+    private static (string Path, float Scale)[] TreesOf(string zone) => zone switch
+    {
+        "fields" => [TownTrees[0], Tree("tree_oak", 1.23f), Tree("tree_fat", 1.15f), Tree("tree_default", 1.71f), Tree("tree_simple", 1.52f)],
+        "lake" => [TownTrees[1], Tree("tree_oak", 1.23f), Tree("tree_tall", 1.69f), Tree("tree_simple", 1.52f), Tree("tree_pineRoundA", 1.37f)],
+        "mouldy" => [TownTrees[0], Tree("tree_fat", 1.15f), Tree("tree_oak", 1.23f), Tree("tree_pineRoundA", 1.37f), Tree("tree_cone", 1.43f)],
+        "woods" => WoodsTrees,
+        _ => [.. TownTrees, Tree("tree_oak", 1.23f), Tree("tree_fat", 1.15f), Tree("tree_default", 1.71f)],
+    };
 
     private static readonly (string Path, float Scale)[] Rocks =
-        [(Kit + "rock-large.glb", 0.6f), (Nature + "rock_largeA.glb", 0.7f), (Nature + "rock_largeB.glb", 0.7f)];
+    [
+        (Kit + "rock-large.glb", 0.6f), (Nature + "rock_largeA.glb", 0.7f), (Nature + "rock_largeB.glb", 0.7f),
+        (Nature + "rock_largeC.glb", 0.65f), (Nature + "rock_largeD.glb", 0.6f), (Nature + "rock_tallA.glb", 0.5f),
+    ];
 
-    private static readonly (string Path, float Scale)[] Flowers = [(Nature + "flower_yellowA.glb", 1.2f), (Nature + "flower_redA.glb", 1.2f)];
+    private static readonly (string Path, float Scale)[] Flowers =
+        [(Nature + "flower_yellowA.glb", 1.2f), (Nature + "flower_redA.glb", 1.2f), (Nature + "flower_purpleA.glb", 1.1f), (Nature + "flower_yellowB.glb", 1.4f)];
+
+    private static readonly (string Path, float Scale)[] Hedges =
+        [(Nature + "plant_bushSmall.glb", 1.8f), (Nature + "plant_bush.glb", 1.8f), (Nature + "plant_bushLarge.glb", 1.9f)];
+
+    private static readonly (string Path, float Scale)[] Mushrooms = [(Nature + "mushroom_tan.glb", 2.4f), (Nature + "mushroom_redGroup.glb", 1.6f)];
+
+    // On a grove's rim: bushes, a fern, an old stump, a fallen log.
+    private static readonly (string Path, float Scale)[] RimPieces =
+    [
+        (Nature + "plant_bushSmall.glb", 1.5f), (Nature + "plant_bush.glb", 1.4f), (Nature + "plant_bushDetailed.glb", 1.0f),
+        (Nature + "plant_flatTall.glb", 1.3f), (Nature + "stump_old.glb", 1.2f), (Nature + "log.glb", 1.1f),
+    ];
+
+    // On the walkable grass, under 0.15 high.
+    private static readonly (string Path, float Scale)[] Grasses =
+    [
+        (Nature + "grass.glb", 0.55f), (Nature + "grass_large.glb", 0.55f), (Nature + "grass_leafs.glb", 1.0f), (Nature + "plant_flatShort.glb", 0.6f),
+        (Nature + "flower_yellowA.glb", 0.75f), (Nature + "flower_purpleA.glb", 0.6f), (Nature + "flower_yellowB.glb", 0.9f), (Nature + "stump_round.glb", 0.6f),
+    ];
+
+    // Far in a made-up skirt, decorative cliffs and hills.
+    private static readonly (string Path, float Scale)[] Cliffs =
+        [(Nature + "cliff_block_rock.glb", 1), (Nature + "cliff_large_rock.glb", 1), (Nature + "cliff_half_rock.glb", 1), (Nature + "cliff_blockHalf_rock.glb", 1)];
 
     private static readonly Color DryGrass = new("9a9050");
 
@@ -512,51 +563,22 @@ public partial class TownView : Node3D
         return piece;
     }
 
-    private static ArrayMesh? _tuft;
-    private static StandardMaterial3D? _tuftMaterial;
-
     /// <summary>
-    /// The tufts of grass and the small flowers on one walkable cell in eight (sprint 178), never where something
-    /// stands or is to be clicked; lower than a sixth of a cell, they hide nothing. One mesh for every tuft.
+    /// The tufts of grass, the ferns and the small flowers on one walkable cell in eight (sprint 178), never where
+    /// something stands or is to be clicked; lower than a sixth of a cell, they hide nothing.
     /// </summary>
     private void Tufts(Town town, TownController controller)
     {
         HashSet<Cell> taken = [.. town.Npcs.Select(n => n.At), .. town.Exits.Select(e => e.At), .. (town.Links ?? []).Select(l => l.At),
             .. town.Doors.Select(d => d.At), .. (town.Props ?? []).Select(p => p.At), .. (town.Workshops ?? []).Select(w => w.At),
             .. controller.Nodes.Select(n => n.At), .. controller.Groups.Values];
-        _tuft ??= TuftMesh();
-        _tuftMaterial ??= new StandardMaterial3D { AlbedoColor = new Color("7aa84a"), Roughness = 1, CullMode = BaseMaterial3D.CullModeEnum.Disabled };
-        foreach (Sprig t in DecorScatter.Tufts(town, taken.Contains, 3))
+        (string Path, float Scale)[] tufts = town.ZoneId == "mouldy" ? [.. Grasses, (Nature + "mushroom_redGroup.glb", 0.55f)] : Grasses;
+        foreach (Sprig t in DecorScatter.Tufts(town, taken.Contains, tufts.Length))
         {
-            Vector3 at = BoardView.ToWorld(t.At) + new Vector3(t.Dx, 0, t.Dz);
-            if (t.Variant == 2)
-                Place(Nature + (t.At.X % 2 == 0 ? "flower_yellowA.glb" : "flower_redA.glb"), at, t.Turn, 0.7f);
-            else
-                AddChild(new MeshInstance3D { Mesh = _tuft, MaterialOverride = _tuftMaterial, Position = at, RotationDegrees = new Vector3(0, t.Turn, 0), Scale = Vector3.One * (t.Variant == 0 ? 1 : 0.75f) });
+            (string path, float scale) = tufts[t.Variant];
+            Shade(Place(path, BoardView.ToWorld(t.At) + new Vector3(t.Dx, 0, t.Dz), t.Turn, scale), Foliage);
             TuftCount++;
         }
-    }
-
-    /// <summary>A tuft: seven thin blades leaning out from a point, 0.14 high at most, lit from above.</summary>
-    private static ArrayMesh TuftMesh()
-    {
-        var st = new SurfaceTool();
-        st.Begin(Mesh.PrimitiveType.Triangles);
-        for (int i = 0; i < 7; i++)
-        {
-            float a = i * Mathf.Tau / 7 + 0.4f * (i % 2);
-            float h = 0.1f + 0.04f * (i % 3) / 2f;
-            Vector3 lean = new(Mathf.Cos(a) * 0.08f, h, Mathf.Sin(a) * 0.08f);
-            Vector3 side = new Vector3(-Mathf.Sin(a), 0, Mathf.Cos(a)) * 0.018f;
-            Vector3 foot = new(Mathf.Cos(a) * 0.02f, 0, Mathf.Sin(a) * 0.02f);
-            // Seen from both sides (no culling), lit like the grass under it.
-            foreach (Vector3 v in new[] { foot - side, foot + side, foot + lean })
-            {
-                st.SetNormal(Vector3.Up);
-                st.AddVertex(v);
-            }
-        }
-        return st.Commit();
     }
 
     /// <summary>The cells of the skirt drawn past the edges, and the pieces of decor on them (for the self-test).</summary>
@@ -661,18 +683,20 @@ public partial class TownView : Node3D
         (string Path, float Scale)[]? models = s.Kind switch
         {
             'T' when s.From?.StartsWith("ancestors", StringComparison.Ordinal) == true => [(Nature + "tree_pineDefaultA.glb", 1.5f)],
-            'T' => Trees,
+            'T' => TreesOf(s.From is null ? Controller.Town.ZoneId : Controller.Data.Towns[s.From].ZoneId),
             'R' => Rocks,
-            'B' => [(Nature + "plant_bushSmall.glb", 1.8f)],
-            'M' => [(Nature + "mushroom_tan.glb", 2.4f)],
+            'B' => Hedges,
+            'M' => Mushrooms,
             ',' => Flowers,
+            '^' => Cliffs,
             _ => null,
         };
         Node3D? piece = null;
         if (models is not null)
         {
             (string path, float scale) = models[sc.Variant % models.Length];
-            piece = Place(path, spot, sc.Turn, scale * sc.Scale);
+            // A cliff squarely on its cell, turned by quarters, at its size; the rest scattered.
+            piece = s.Kind == '^' ? Place(path, at, 90 * (sc.Variant % 4), scale) : Place(path, spot, sc.Turn, scale * sc.Scale);
             if (s.Kind == 'T' && path.StartsWith(Nature, StringComparison.Ordinal))
                 Shade(piece, Foliage);
         }

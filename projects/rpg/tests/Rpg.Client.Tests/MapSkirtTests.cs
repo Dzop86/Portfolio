@@ -57,6 +57,7 @@ public class MapSkirtTests
                         Assert.Equal(k + 1, s.Depth);
                         char kind = next[theirs];
                         Assert.Equal(".=,~TRBMH".Contains(kind, StringComparison.Ordinal) ? kind : '.', s.Kind);
+                        Assert.NotEqual(MapSkirt.Cliff, s.Kind);
                     }
                 }
             }
@@ -72,13 +73,17 @@ public class MapSkirtTests
             .SelectMany(t => Sides.Select(s => (t, s))).First(p => !World.ContainsKey(p.t.MapAt + p.s));
         SkirtCell[] top = [.. MapSkirt.Side(MapSkirt.Around(Data, edge), edge, side)];
         Assert.All(top, s => Assert.Null(s.From));
-        Assert.All(top, s => Assert.Contains(s.Kind, ".TRB"));
+        Assert.All(top, s => Assert.Contains(s.Kind, ".TRB^"));
+        // The cliffs, far out only.
+        Assert.Contains(top, s => s.Kind == MapSkirt.Cliff);
+        Assert.All(top.Where(s => s.Kind == MapSkirt.Cliff), s => Assert.True(s.Depth >= MapSkirt.CliffDepth));
         double Thick(int depth) => top.Where(s => s.Depth == depth).Average(s => s.Kind == '.' ? 0 : 1);
         Assert.True(Thick(1) < Thick(MapSkirt.Depth), $"{Thick(1)} {Thick(MapSkirt.Depth)}");
         Assert.InRange(Thick(1), 0.1, 0.5);
         Assert.True(Thick(MapSkirt.Depth) > 0.7);
         // The fields' skirt is mostly hedges, the lake's has water.
         Assert.Contains(Enumerable.Range(0, 400).Select(i => MapSkirt.MadeUp("fields", new Cell(i, -6), 6)), k => k == 'B');
+        Assert.DoesNotContain(Enumerable.Range(0, 400).Select(i => MapSkirt.MadeUp("woods", new Cell(i, -3), 3)), k => k == MapSkirt.Cliff);
         Assert.Contains(Enumerable.Range(0, 400).Select(i => MapSkirt.MadeUp("lake", new Cell(i, -6), 6)), k => k == '~');
     }
 
