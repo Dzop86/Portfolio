@@ -69,6 +69,8 @@ public partial class TownView : Node3D
             AddChild(ground);
             Decorate(c, k);
         }
+        if (!PlainGround)
+            Skirt(controller, grass);
         foreach (Sprig bush in DecorScatter.Rim(town, 2))
             Shade(Place(Nature + "plant_bushSmall.glb", BoardView.ToWorld(bush.At) + new Vector3(bush.Dx, 0, bush.Dz), bush.Turn, bush.Variant == 0 ? 1.4f : 1.8f), Foliage);
         foreach (Prop prop in town.Props ?? [])
@@ -555,6 +557,176 @@ public partial class TownView : Node3D
             }
         }
         return st.Commit();
+    }
+
+    /// <summary>The cells of the skirt drawn past the edges, and the pieces of decor on them (for the self-test).</summary>
+    public IReadOnlyList<SkirtCell> SkirtCells { get; private set; } = [];
+
+    public int SkirtPieces { get; private set; }
+
+    private static readonly Color Background = new("1f1f1f");
+    private static readonly Dictionary<(Material, int), Material> _faded = [];
+    private static float? _tileTop;
+
+    /// <summary>
+    /// The skirt past the map's edges (sprint 178, <see cref="MapSkirt"/>): the neighbour's first six cells, or a
+    /// made-up wood, darker and greyer outwards until it melts into the background. Its ground is one mesh, a
+    /// quad a cell coloured at its corners; its decor the map's own models, faded. Nothing on it is picked.
+    /// </summary>
+    private void Skirt(TownController controller, StandardMaterial3D[] grass)
+    {
+        SkirtCells = MapSkirt.Around(controller.Data, controller.Town);
+        if (SkirtCells.Count == 0)
+            return;
+        _tileTop ??= TileTop();
+        Dictionary<Cell, SkirtCell> at = SkirtCells.ToDictionary(s => s.At);
+        Color Ground(SkirtCell s) => s.Kind switch
+        {
+            '=' => new Color("8a7a5c"),
+            '~' => new Color("3d7fa6"),
+            _ => grass[DecorScatter.Tone(s.At)].AlbedoColor,
+        };
+        int w = controller.Town.Width, h = controller.Town.Rows.Count;
+        // A corner's colour: the cells around it (the map's own unfaded), faded as far as the corner lies from the
+        // map, so that the ground darkens smoothly from the edge, without a step.
+        Color Corner(int x, int y)
+        {
+            Color sum = new(0, 0, 0);
+            int n = 0;
+            foreach (Cell c in new Cell[] { new(x - 1, y - 1), new(x, y - 1), new(x - 1, y), new(x, y) })
+            {
+                if (at.TryGetValue(c, out SkirtCell s))
+                    sum += Ground(s);
+                else if (controller.Board.Contains(c))
+                    sum += grass[DecorScatter.Tone(c)].AlbedoColor;
+                else
+                    continue;
+                n++;
+            }
+            float away = Math.Max(Math.Max(-x, x - w), Math.Max(-y, y - h));
+            return n == 0 ? Background : Faded(sum / n, MapSkirt.Fade(away));
+        }
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+        foreach (SkirtCell s in SkirtCells)
+        {
+            // Corners at the cell's edges (a cell is centred on its integer position).
+            int x = s.At.X, y = s.At.Y;
+            (Vector3 p, Color c)[] quad =
+            [
+                (new Vector3(x - 0.5f, _tileTop.Value, y - 0.5f), Corner(x, y)),
+                (new Vector3(x + 0.5f, _tileTop.Value, y - 0.5f), Corner(x + 1, y)),
+                (new Vector3(x + 0.5f, _tileTop.Value, y + 0.5f), Corner(x + 1, y + 1)),
+                (new Vector3(x - 0.5f, _tileTop.Value, y + 0.5f), Corner(x, y + 1)),
+            ];
+            foreach (int i in new[] { 0, 1, 2, 0, 2, 3 })
+            {
+                st.SetNormal(Vector3.Up);
+                st.SetColor(quad[i].c);
+                st.AddVertex(quad[i].p);
+            }
+            SkirtDecor(s);
+        }
+        AddChild(new MeshInstance3D
+        {
+            Mesh = st.Commit(),
+            MaterialOverride = new StandardMaterial3D { VertexColorUseAsAlbedo = true, Roughness = 1 },
+            Name = "Skirt",
+        });
+    }
+
+    /// <summary>The height of a ground tile's top, where the skirt's ground lies to meet it.</summary>
+    private static float TileTop()
+    {
+        Node3D tile = Looks.Nature("ground_grass").Instantiate<Node3D>();
+        // Through every node down to the mesh: the kit's tile is lowered under its root.
+        float Top(MeshInstance3D m)
+        {
+            Transform3D t = Transform3D.Identity;
+            for (Node3D? n = m; n is not null && n != tile; n = n.GetParent() as Node3D)
+                t = n.Transform * t;
+            return (t * m.GetAabb()).End.Y;
+        }
+        float top = tile.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Select(Top).DefaultIfEmpty(0).Max();
+        tile.Free();
+        return top;
+    }
+
+    /// <summary>The decor of a skirt cell: the map's models, scattered as on a map, then faded as deep as it lies.</summary>
+    private void SkirtDecor(SkirtCell s)
+    {
+        Vector3 at = BoardView.ToWorld(s.At);
+        Scatter sc = DecorScatter.For(s.At, s.Kind, 4);
+        Vector3 spot = at + new Vector3(sc.Dx, 0, sc.Dz);
+        (string Path, float Scale)[]? models = s.Kind switch
+        {
+            'T' when s.From?.StartsWith("ancestors", StringComparison.Ordinal) == true => [(Nature + "tree_pineDefaultA.glb", 1.5f)],
+            'T' => Trees,
+            'R' => Rocks,
+            'B' => [(Nature + "plant_bushSmall.glb", 1.8f)],
+            'M' => [(Nature + "mushroom_tan.glb", 2.4f)],
+            ',' => Flowers,
+            _ => null,
+        };
+        Node3D? piece = null;
+        if (models is not null)
+        {
+            (string path, float scale) = models[sc.Variant % models.Length];
+            piece = Place(path, spot, sc.Turn, scale * sc.Scale);
+            if (s.Kind == 'T' && path.StartsWith(Nature, StringComparison.Ordinal))
+                Shade(piece, Foliage);
+        }
+        else if (s.Kind == 'H')
+        {
+            piece = new Node3D { Position = at + new Vector3(0.5f, 0, 0.5f) };
+            AddChild(piece);
+            foreach ((string part, float turn) in new[] { ("wall-door", -90f), ("wall-window-shutters", 0f), ("wall", 90f), ("wall-window-shutters", 180f) })
+                piece.AddChild(Positioned(Model(Kit + part + ".glb"), Vector3.Zero, turn, 2));
+            piece.AddChild(Positioned(Model(Kit + "roof-point.glb"), new Vector3(0, 2, 0), 0, 2));
+        }
+        if (piece is null)
+            return;
+        Fade(piece, s.Depth);
+        SkirtPieces++;
+    }
+
+    private static Node3D Positioned(Node3D model, Vector3 at, float turn, float scale)
+    {
+        model.Position = at;
+        model.RotationDegrees = new Vector3(0, turn, 0);
+        model.Scale = new Vector3(scale, scale, scale);
+        return model;
+    }
+
+    /// <summary>A colour greyed and darkened towards the background by <paramref name="fade"/> (0 none, 1 the background).</summary>
+    private static Color Faded(Color c, float fade)
+    {
+        fade = Math.Clamp(fade, 0, 1);
+        float grey = c.R * 0.3f + c.G * 0.59f + c.B * 0.11f;
+        Color greyed = c.Lerp(new Color(grey, grey, grey), fade * 0.7f);
+        return greyed.Lerp(Background, fade);
+    }
+
+    /// <summary>Every surface of a model faded as deep in the skirt as it stands: one material per original and depth.</summary>
+    private static void Fade(Node node, int depth)
+    {
+        if (node is MeshInstance3D mesh && mesh.Mesh is not null)
+        {
+            for (int i = 0; i < mesh.Mesh.GetSurfaceCount(); i++)
+            {
+                if ((mesh.GetSurfaceOverrideMaterial(i) ?? mesh.Mesh.SurfaceGetMaterial(i)) is not BaseMaterial3D m)
+                    continue;
+                if (!_faded.TryGetValue((m, depth), out Material? faded))
+                {
+                    var copy = (BaseMaterial3D)m.Duplicate();
+                    copy.AlbedoColor = Faded(m.AlbedoColor, MapSkirt.Fade(depth - 0.5f));
+                    _faded[(m, depth)] = faded = copy;
+                }
+                mesh.SetSurfaceOverrideMaterial(i, faded);
+            }
+        }
+        foreach (Node child in node.GetChildren())
+            Fade(child, depth);
     }
 
     /// <summary>

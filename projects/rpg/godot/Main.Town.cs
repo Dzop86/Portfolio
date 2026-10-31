@@ -3209,6 +3209,17 @@ public partial class Main
                 problems.Add($"{id} draws its trees with {view.TreeModels.Count} models");
             if (view.CentredTrees > 0 || view.TuftCount == 0)
                 problems.Add($"{id} has {view.CentredTrees} trees at the middle of their cells and {view.TuftCount} tufts");
+            // The skirt past the edges (sprint 178): six cells deep all around, decor on it, nothing on it to walk to.
+            int skirt = (t.Width + 2 * MapSkirt.Depth) * (t.Rows.Count + 2 * MapSkirt.Depth) - t.Width * t.Rows.Count;
+            if (view.SkirtCells.Count != skirt || view.SkirtPieces == 0)
+                problems.Add($"{id} has a skirt of {view.SkirtCells.Count} cells and {view.SkirtPieces} pieces");
+            foreach (Cell side in new Cell[] { new(-1, 0), new(0, -1), new(1, 0), new(0, 1) })
+            {
+                if (MapSkirt.Side(view.SkirtCells, t, side).Count() != (side.X == 0 ? t.Width : t.Rows.Count) * MapSkirt.Depth)
+                    problems.Add($"{id}'s skirt towards {side} is not {MapSkirt.Depth} cells deep");
+            }
+            if (view.SkirtCells.Where((_, i) => i % 53 == 0).Any(s => controller.IsFree(s.At) || controller.PathTo(s.At) is not null))
+                problems.Add($"{id}'s skirt can be walked on");
             RemoveChild(view);
             view.QueueFree();
         }
