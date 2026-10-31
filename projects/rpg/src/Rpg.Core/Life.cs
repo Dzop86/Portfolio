@@ -20,6 +20,13 @@ public static class Life
     /// <summary>The village heals twice as fast.</summary>
     public static int Factor(string? map) => Shop.InVillage(map) ? 2 : 1;
 
+    /// <summary>Why food or a potion cannot be taken now: nothing to heal, its hit points already full (Charles, sprint 179).</summary>
+    public const string Full = "Already at full health.";
+
+    /// <summary>Why an item that heals cannot be used at <paramref name="life"/> of <paramref name="maxHp"/> hit points, or null.</summary>
+    public static string? WhyNotHeal(Item item, int life, int maxHp) =>
+        (item ?? throw new ArgumentNullException(nameof(item))).Heal > 0 && life >= maxHp ? Full : null;
+
     /// <summary>A hero's maximum hit points out of a fight: its class's at its level and its Vitality, what it wears included.</summary>
     public static int MaxHp(Hero hero, GameData data) =>
         Fight.HeroTotals(hero ?? throw new ArgumentNullException(nameof(hero)), data) is HeroNumbers n ? n.Hp + n.Stats.Vitality : 1;

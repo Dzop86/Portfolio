@@ -30,6 +30,16 @@ public class ConsumableTests
         int max = Life.MaxHp(healed.Hero, GameData.Embedded);
         Assert.Equal(Math.Min(max, 10 + GameData.Embedded.Items["healing-potion"].Heal), healed.LifeAt(api.Clock.GetUtcNow(), GameData.Embedded));
         Assert.Equal(1, healed.Inventory!.Single(i => i.Item == "healing-potion").Count);
+        // At full life (sprint 179, Charles), refused, the potion kept.
+        api.WithDb(db =>
+        {
+            db.Characters.Single().SetLife(int.MaxValue, api.Clock.GetUtcNow());
+            return db.SaveChanges();
+        });
+        var full = await Assert.ThrowsAsync<ServerException>(() => server.Eat(c.Id, "healing-potion", Cancel));
+        Assert.Equal(HttpStatusCode.BadRequest, full.Status);
+        Assert.Contains(Life.Full, full.Message, StringComparison.Ordinal);
+        Assert.Equal(1, (await server.Characters(Cancel)).Single().Inventory!.Single(i => i.Item == "healing-potion").Count);
         // In a fight, not at all.
         await server.StartFight(c.Id, "training", Cancel);
         var refused = await Assert.ThrowsAsync<ServerException>(() => server.Eat(c.Id, "healing-potion", Cancel));

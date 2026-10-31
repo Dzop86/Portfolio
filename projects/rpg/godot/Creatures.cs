@@ -141,14 +141,29 @@ public static class Creatures
         return root;
     }
 
-    private static Node3D Horse()
+    private static Node3D Horse() => Equine("Horse", new Color("8a5a34"), new Color("3b2a1e"), new Color("d9c3a5"), 1.25f, 0.10f);
+
+    /// <summary>A mount, by its item (sprint 179): the donkey, grey with long ears; any other, a horse.</summary>
+    public static Node3D Mount(string item) => item switch
     {
-        var root = new Node3D { Name = "Horse" };
-        var model = new Node3D { Name = "Model", Scale = new Vector3(1.25f, 1.25f, 1.25f) };
+        "donkey" => Donkey(),
+        _ => Horse(),
+    };
+
+    /// <summary>A donkey: the horse's build, sized to carry a character, grey with a pale muzzle, its ears twice as long.</summary>
+    private static Node3D Donkey() => Equine("Donkey", new Color("6e665c"), new Color("3a332c"), new Color("d8cfc2"), 1.45f, 0.22f);
+
+    /// <summary>The height of a mount's back above the ground, at a model scale of 1 (the top of its body).</summary>
+    public const float BackHeight = 0.77f;
+
+    /// <summary>A horse or a donkey, of blocks: a coat, a mane and tail, a muzzle, its size and its ears' length.</summary>
+    private static Node3D Equine(string kind, Color coat, Color mane, Color muzzle, float size, float ears)
+    {
+        var root = new Node3D { Name = kind };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
         root.AddChild(model);
         var body = new Node3D { Name = "Body" };
         model.AddChild(body);
-        Color coat = new("8a5a34"), mane = new("3b2a1e"), muzzle = new("d9c3a5");
         Block(body, new Vector3(0.30f, 0.30f, 0.72f), new Vector3(0, 0.62f, 0), coat);
         // The neck raised forward, the long head at its end.
         var neck = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.18f, 0.40f, 0.18f) }, Position = new Vector3(0, 0.86f, 0.36f), RotationDegrees = new Vector3(30, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = coat, Roughness = 0.9f } };
@@ -157,8 +172,8 @@ public static class Creatures
         Block(body, new Vector3(0.14f, 0.10f, 0.08f), new Vector3(0, 0.99f, 0.74f), muzzle);
         Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.08f, 1.08f, 0.58f), Colors.Black);
         Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.08f, 1.08f, 0.58f), Colors.Black);
-        Block(body, new Vector3(0.05f, 0.10f, 0.04f), new Vector3(-0.05f, 1.16f, 0.44f), coat.Darkened(0.2f));
-        Block(body, new Vector3(0.05f, 0.10f, 0.04f), new Vector3(0.05f, 1.16f, 0.44f), coat.Darkened(0.2f));
+        Block(body, new Vector3(0.05f, ears, 0.04f), new Vector3(-0.05f, 1.11f + ears / 2, 0.44f), coat.Darkened(0.2f));
+        Block(body, new Vector3(0.05f, ears, 0.04f), new Vector3(0.05f, 1.11f + ears / 2, 0.44f), coat.Darkened(0.2f));
         Block(body, new Vector3(0.06f, 0.30f, 0.10f), new Vector3(0, 1.0f, 0.30f), mane);
         var tail = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.07f, 0.07f, 0.36f) }, Position = new Vector3(0, 0.58f, -0.46f), RotationDegrees = new Vector3(55, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = mane, Roughness = 0.9f } };
         body.AddChild(tail);

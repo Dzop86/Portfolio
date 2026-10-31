@@ -229,6 +229,8 @@ public partial class TownView : Node3D
         _playerName = string.IsNullOrEmpty(player.Name) ? null : player.Name;
         Tag(Player, _playerName, null, null, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        _riderModel = Player.GetChild<Node3D>(0);
+        Ride(Mounts.Ridden(player));
         Player.Position = W(controller.Position);
         _onRelief.Add(Player);
         ShowNamesNear(controller.Position);
@@ -243,6 +245,71 @@ public partial class TownView : Node3D
         }
     }
 
+    /// <summary>The mount the player rides (sprint 179), or null on foot.</summary>
+    public string? Riding { get; private set; }
+
+    private Node3D? _riderModel, _saddle;
+    private float _rise;
+
+    // How far the seated character sinks below its feet's height (the sit pose lowers its hips to a chair).
+    private const float SeatDrop = -0.02f;
+
+    /// <summary>
+    /// The player on its mount, or back on foot (sprint 179, Charles): the character and the mount on one saddle
+    /// that turns with the walk, the character seated on the mount's back, the mount walking under it; the words
+    /// over the player raised as high. Called on building the map and when the mount is put on or taken off.
+    /// </summary>
+    public void Ride(string? mount)
+    {
+        if (mount == Riding || _riderModel is null)
+            return;
+        Node3D model = _riderModel;
+        AnimationPlayer? feet = model.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        if (_saddle is not null)
+        {
+            // Down from the mount: the character back where it stood, turned as the saddle was.
+            float turn = _saddle.Rotation.Y;
+            _saddle.RemoveChild(model);
+            Player.RemoveChild(_saddle);
+            _saddle.QueueFree();
+            _saddle = null;
+            model.Position = Vector3.Zero;
+            model.Rotation = new Vector3(0, turn, 0);
+            Player.AddChild(model);
+            Player.MoveChild(model, 0);
+            foreach (Node3D words in Player.GetChildren().OfType<Node3D>().Where(n => n != model))
+                words.Position -= new Vector3(0, _rise, 0);
+            _rise = 0;
+            _anim = feet;
+            feet?.Play("idle");
+        }
+        Riding = mount;
+        if (mount is null)
+            return;
+        Node3D beast = Creatures.Mount(mount);
+        // The player's root is half as large again as the world (Person): the mount keeps its own size.
+        beast.Scale = Vector3.One / Player.Scale.X;
+        float size = beast.GetNode<Node3D>("Model").Scale.Y;
+        _rise = Creatures.BackHeight * size / Player.Scale.X - SeatDrop;
+        _saddle = new Node3D { Name = "Saddle", Rotation = model.Rotation };
+        Player.RemoveChild(model);
+        foreach (Node3D words in Player.GetChildren().OfType<Node3D>())
+            words.Position += new Vector3(0, _rise, 0);
+        Player.AddChild(_saddle);
+        Player.MoveChild(_saddle, 0);
+        _saddle.AddChild(beast);
+        model.Rotation = Vector3.Zero;
+        model.Position = new Vector3(0, _rise, -0.03f);
+        _saddle.AddChild(model);
+        if (feet is not null && feet.HasAnimation("sit"))
+        {
+            feet.GetAnimation("sit").LoopMode = Animation.LoopModeEnum.Linear;
+            feet.Play("sit");
+        }
+        _anim = beast.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        _anim?.Play("idle");
+    }
+
     /// <summary>The ground's heights (sprint 179, D90): hills in the forests, flat elsewhere.</summary>
     public Relief Relief { get; private set; } = null!;
 
@@ -251,6 +318,14 @@ public partial class TownView : Node3D
 
     /// <summary>A cell's middle, on the ground (at the height of the relief).</summary>
     public Vector3 W(Cell c) => BoardView.ToWorld(c) + new Vector3(0, Relief.At(c), 0);
+
+    /// <summary>
+    /// One stride towards a point, over the relief (sprint 179, Charles: the player walked under a hill): along the
+    /// flat ground, then set on the ground under it, so a long straight line climbs and goes down the slopes
+    /// instead of cutting through them. It ends exactly on the point when the point is on the ground.
+    /// </summary>
+    private Vector3 Step(Vector3 from, Vector3 to, float stride) =>
+        Lift(new Vector3(from.X, 0, from.Z).MoveToward(new Vector3(to.X, 0, to.Z), stride));
 
     /// <summary>A point raised by the height of the relief under it.</summary>
     public Vector3 Lift(Vector3 v) => v + new Vector3(0, Relief.At(v.X, v.Z), 0);
@@ -1450,7 +1525,7 @@ public partial class TownView : Node3D
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 if (!IsInstanceValid(beast) || _beastWalks[i] != me)
                     return;
-                beast.Position = beast.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+                beast.Position = Step(beast.Position, to, (float)(speed * GetProcessDeltaTime()));
             }
         }
         Animate(beast, "idle");
@@ -1522,7 +1597,7 @@ public partial class TownView : Node3D
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 if (_groupWalks[id] != me || !IsInstanceValid(root))
                     return;
-                root.Position = root.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+                root.Position = Step(root.Position, to, (float)(speed * GetProcessDeltaTime()));
             }
             ShowNamesNear(Standing);
         }
@@ -1690,7 +1765,7 @@ public partial class TownView : Node3D
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 if (_otherWalks.GetValueOrDefault(id) != me || !IsInstanceValid(root))
                     return;
-                root.Position = root.Position.MoveToward(to, (float)(speed * GetProcessDeltaTime()));
+                root.Position = Step(root.Position, to, (float)(speed * GetProcessDeltaTime()));
             }
         }
         Animate(model, "idle");
@@ -1760,7 +1835,7 @@ public partial class TownView : Node3D
                     if (me != _walk)
                         return false;
                     float stride = (float)(speed * GetProcessDeltaTime());
-                    Player.Position = Player.Position.MoveToward(to, stride);
+                    Player.Position = Step(Player.Position, to, stride);
                     ShowNamesNear(Standing);
                     walked += stride;
                     if (walked >= StepLength)

@@ -39,4 +39,14 @@ public class LifeTests
         Assert.Equal(40, Real.Items["bread"].Heal);
         Assert.Equal(10L, Shop.SellPrice(Real.Items["bread"], Real));
     }
+
+    [Fact]
+    public void FoodAndPotions_AreRefused_AtFullLife_AndOnlyThen()
+    {
+        Item potion = GameData.Embedded.Items["healing-potion"], ring = GameData.Embedded.Items["copper-ring"];
+        Assert.Equal(Life.Full, Life.WhyNotHeal(potion, 120, 120));
+        Assert.Equal(Life.Full, Life.WhyNotHeal(potion, 130, 120));
+        Assert.Null(Life.WhyNotHeal(potion, 119, 120));
+        Assert.Null(Life.WhyNotHeal(ring, 120, 120));
+    }
 }

@@ -379,11 +379,13 @@ public static class CharacterEndpoints
             character.Spend(new ItemCount(itemId, 1));
             return await MoveTo(character, Waystones.Home(character.Home, GameData.Embedded), db, hub, clock, cancel);
         }
+        DateTimeOffset now = clock.GetUtcNow();
+        // Nothing to heal at full life (sprint 179): the food or the potion is kept.
         string? why = character.InFight ? "Not in a fight."
-            : character.InventoryList.Where(i => i.Item == itemId).Sum(i => i.Count) < 1 ? "None owned." : null;
+            : character.InventoryList.Where(i => i.Item == itemId).Sum(i => i.Count) < 1 ? "None owned."
+            : Life.WhyNotHeal(item, character.LifeNow(now), Life.MaxHp(character.Hero, GameData.Embedded));
         if (why is not null)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["item"] = [why] });
-        DateTimeOffset now = clock.GetUtcNow();
         character.SetLife(character.LifeNow(now) + item.Heal, now);
         character.Spend(new ItemCount(itemId, 1));
         await db.SaveChangesAsync(cancel);

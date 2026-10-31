@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search")
+        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search" or "ride")
             _ = TownScreenshot();
     }
 
@@ -844,7 +844,7 @@ public partial class Main
             _ = TellWalk(chat, step.Waypoints[^1]);
         _gatherTicket++;
         _walking = true;
-        if (!await _townView!.Walk(step, WalkSpeed))
+        if (!await _townView!.Walk(step, Mounts.Speed(_hero, WalkSpeed)))
             return;
         _walking = false;
         _talkPanel!.Refresh();
@@ -1478,6 +1478,12 @@ public partial class Main
             else
                 _talkPanel?.ShowNotice(text);
         }
+        // At full life, nothing to heal (sprint 179, Charles): said at once, the food kept, the server not asked.
+        if (Life.WhyNotHeal(item, _character.LifeAt(DateTimeOffset.UtcNow, GameData.Embedded), Life.MaxHp(_character.Hero, GameData.Embedded)) is not null)
+        {
+            Tell(texts["life.full"]);
+            return;
+        }
         try
         {
             CharacterSummary after = await _lobby.Server.Eat(_character.Id, item.Id);
@@ -1898,6 +1904,7 @@ public partial class Main
         {
             _hero = panel.Editor.Draft;
             panel.Saved(_hero, panel.Editor.Owned, panel.Texts["points.offline"]);
+            _townView?.Ride(Mounts.Ridden(_hero));
             return;
         }
         try
@@ -1905,6 +1912,8 @@ public partial class Main
             _character = await _lobby.Server.SaveEquipment(_character.Id, worn);
             _hero = _character.Hero;
             panel.Saved(_hero, _character.Inventory ?? [], panel.Texts["inventory.saved"]);
+            // On its mount, or back on foot (sprint 179).
+            _townView?.Ride(Mounts.Ridden(_hero));
         }
         catch (ServerException e)
         {
@@ -2405,6 +2414,9 @@ public partial class Main
         // People, not talks: Edmée is talked to twice for her two branches (after sprint 151).
         var talked = new HashSet<string>(StringComparer.Ordinal);
         await CheckFreeWalk(problems);
+        // On the hills (sprint 179, Charles): a long straight walk stays on the ground all the way, never under it.
+        if (!await CheckHillWalk())
+            problems.Add("on the hills, the player walks under the ground");
         // The tour reads the inhabitants' own lines; their quests are checked apart (CheckQuests).
         QuestBook? book = _town!.Book;
         _town.Book = null;
@@ -2556,6 +2568,35 @@ public partial class Main
     /// four; a new click mid-walk stops the first where the player is drawn, on a free cell. The player
     /// is then put back where they started, for the town tour.
     /// </summary>
+    /// <summary>A walk across a map of the Ancestors, its height checked against the relief at every frame.</summary>
+    private async Task<bool> CheckHillWalk()
+    {
+        var controller = new TownController(GameData.Embedded, "ancestors-2-2");
+        var view = new TownView();
+        AddChild(view);
+        view.Build(controller, _options.Lang, new Hero("", "female-d"));
+        Cell from = controller.Position;
+        // The farthest cell in a straight line that can be walked to, for one long stride over the slopes.
+        Cell? far = controller.Board.Cells().Where(c => controller.IsFree(c) && Math.Abs(c.X - from.X) + Math.Abs(c.Y - from.Y) > 8)
+            .OrderByDescending(c => view.Relief.At(c)).Cast<Cell?>().FirstOrDefault();
+        bool ok = false;
+        if (far is Cell to && controller.Click(to) is TownStep step && step.Waypoints.Count > 0)
+        {
+            ok = true;
+            Task<bool> walk = view.Walk(step, 12);
+            while (!walk.IsCompleted)
+            {
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                Vector3 p = view.Player.Position;
+                if (Math.Abs(p.Y - view.Relief.At(p.X, p.Z)) > 0.01f)
+                    ok = false;
+            }
+        }
+        RemoveChild(view);
+        view.QueueFree();
+        return ok;
+    }
+
     private async Task CheckFreeWalk(List<string> problems)
     {
         TownController town = _town!;
@@ -2566,7 +2607,7 @@ public partial class Main
         TownStep step = town.Click(far)!;
         if (step.Waypoints.Count > step.Path.Count || step.Waypoints[^1] != far || Wander.Length(start, step.Waypoints) > Wander.Length(start, step.Path) + 1e-9)
             problems.Add($"the walk to {far} is {step.Waypoints.Count} straight lines for {step.Path.Count} cells");
-        Task<bool> first = _townView!.Walk(step, WalkSpeed);
+        Task<bool> first = _townView!.Walk(step, Mounts.Speed(_hero, WalkSpeed));
         for (int i = 0; i < 6; i++)
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         Cell here = _townView.Standing;
@@ -3255,6 +3296,13 @@ public partial class Main
                 problems.Add($"zoomed {_explore.Zoom:0.0}, the camera shows the player at {_camera.UnprojectPosition(player)}");
             _explore.ZoomBy(-zoom);
         }
+        // Riding (sprint 179): on the donkey the player sits on a saddle with the mount under it, and gets down again.
+        _townView!.Ride("donkey");
+        if (_townView.Player.GetChild(0) is not Node3D saddle || saddle.Name != "Saddle" || saddle.GetChildCount() != 2 || saddle.GetChild<Node3D>(0).Name != "Donkey")
+            problems.Add("on the donkey, the player has no saddle");
+        _townView.Ride(null);
+        if (_townView.Player.GetChild(0).Name == "Saddle" || _townView.Riding is not null)
+            problems.Add("down from the donkey, the player still rides");
         ToggleMap();
         CheckWorldMap(problems);
         ToggleMap();
@@ -3777,8 +3825,17 @@ public partial class Main
     /// </summary>
     private async Task TownScreenshot()
     {
-        if (_options.Shot is "zone" or "world" or "world-near" or "world-far")
+        if (_options.Shot is "zone" or "world" or "world-near" or "world-far" or "ride")
         {
+            // On the donkey (sprint 179): closer, to see the rider.
+            if (_options.Shot == "ride")
+            {
+                _explore!.ZoomBy(8);
+                _townView!.Player.GetChild<Node3D>(0).RotationDegrees = new Vector3(0, 100, 0);
+                Vector3 me = _townView!.Player.Position;
+                _explore.Jump(me.X, me.Z);
+                PlaceCamera();
+            }
             // A zone of the world seen from the explore camera; or the world map over it, closer for "world-near".
             if (_options.Shot is "world" or "world-near" or "world-far")
                 ToggleWindow(GameWindow.Map);
