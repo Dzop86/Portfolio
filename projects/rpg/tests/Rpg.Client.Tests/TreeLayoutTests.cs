@@ -203,6 +203,24 @@ public class TreeLayoutTests
     }
 
     [Fact]
+    public void Hovering_SaysWhatTakingANodeWouldClose()
+    {
+        // Sprint 177 (A6): a pair closes the pairs sharing one of its elements, a Heart the other Hearts; a taken node nothing.
+        IReadOnlyList<string> door = TreePlan.Closes([], "bogging", Data);
+        Assert.Contains("chilling", door);
+        Assert.DoesNotContain("bogging", door);
+        Assert.DoesNotContain("heart-fire", door);
+        Assert.Equal(["heart-air", "heart-earth", "heart-water"], TreePlan.Closes([], "heart-fire", Data).Where(id => Data.Talents[id].Branch == Branch.Pure));
+        Assert.Empty(TreePlan.Closes(["bogging"], "bogging", Data));
+        Assert.All(door, id => Assert.NotEqual(NodeState.Excluded, TreeLayout.State([], id, Hero.MaxLevel, Data)));
+        // Each closed node is closed once the path is taken.
+        string[] seal = ["bogging", "side-step"];
+        IReadOnlyList<string> key = TreePlan.Closes(seal, "nomad", Data);
+        string[] after = [.. seal, .. TreePlan.Path(seal, "nomad", Data)!];
+        Assert.All(key, id => Assert.Equal(NodeState.Excluded, TreeLayout.State(after, id, Hero.MaxLevel, Data)));
+    }
+
+    [Fact]
     public void TheCurves_LeaveAndReachTheirEndsUpright()
     {
         TreePoint[] curve = TreeLayout.Curve(new(100, 600), new(400, 560));

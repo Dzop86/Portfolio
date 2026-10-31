@@ -2876,6 +2876,23 @@ public partial class Main
                 problems.Add($"{id}: recentred at {camera.Zoom:P0}, {canvas.NamesShown} names shown");
             if (tree.LostPieces != 0)
                 problems.Add($"{id}: {tree.LostPieces} pieces of wood in red with nothing given back");
+            // Sprint 177 (A6): the panel folded gives the tree the width and a larger overview, unfolded it comes back; what
+            // a node would close is slashed and named before the click.
+            float narrow = canvas.Size.X, overview = tree.Camera.MinZoom;
+            tree.Fold(true);
+            if (!tree.Folded || canvas.Size.X <= narrow || tree.Camera.MinZoom <= overview)
+                problems.Add($"{id}: the folded panel leaves the tree {canvas.Size.X} wide, its overview at {tree.Camera.MinZoom:P0}");
+            tree.Fold(false);
+            if (tree.Folded || Math.Abs(canvas.Size.X - narrow) > 0.5f)
+                problems.Add($"{id}: the unfolded panel leaves the tree {canvas.Size.X} wide");
+            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && !build.Contains(n.Id) && TreePlan.Closes(build, n.Id, GameData.Embedded).Count > 0) is TreeNode closer)
+            {
+                tree.Hover(closer.Id);
+                string shut = GameData.Embedded.Talents[tree.Closing.Count > 0 ? tree.Closing[0] : "bogging"].Name.In(texts.Lang);
+                if (!tree.Closing.SequenceEqual(TreePlan.Closes(build, closer.Id, GameData.Embedded)) || !tree.CardText.Contains(shut, StringComparison.Ordinal))
+                    problems.Add($"{id}: hovering {closer.Id} names {string.Join(", ", tree.Closing)} as closed");
+                tree.Hover(null);
+            }
             int expected = layout.Nodes.Count(n => n.IsTalent ? build.Contains(n.Id) : n.IsTrunk);
             if (tree.Counted.GetValueOrDefault(NodeState.Taken) != expected)
                 problems.Add($"{id}: the tree shows {tree.Counted.GetValueOrDefault(NodeState.Taken)} nodes taken, not {expected}");
@@ -2930,6 +2947,10 @@ public partial class Main
             tree.StartTutorial();
             if (tree.TutorialStep != 0 || !tree.LegendShown)
                 problems.Add($"{id}: the tutorial starts on bubble {tree.TutorialStep}, the legend {(tree.LegendShown ? "open" : "shut")}");
+            // The first bubble, on the doors, never covers one (sprint 177, A6).
+            if (tree.BubbleRect is Rect2 bubble && layout.Nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure)
+                .Any(n => bubble.Intersects(new Rect2(tree.Canvas.GetGlobalRect().Position + tree.Canvas.ToView(n.Box.X, n.Box.Y), new Vector2(n.Box.W, n.Box.H) * tree.Camera.Zoom))))
+                problems.Add($"{id}: the doors' bubble covers a door");
             for (int b = 0; b < 3; b++)
                 tree.NextBubble();
             if (!done || tree.TutorialStep != -1)

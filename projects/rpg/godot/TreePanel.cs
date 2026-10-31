@@ -31,17 +31,21 @@ public interface IPointsWindow
 /// </summary>
 public partial class TreePanel : CanvasLayer, IPointsWindow
 {
-    private const float PanelWidth = 280;
+    private const float PanelWidth = 304, FoldWidth = 28;
     private TreeCanvas _canvas = null!;
-    private Label _title = null!, _message = null!, _keys = null!, _confirmText = null!, _legendTitle = null!, _buildTitle = null!, _glossary = null!;
+    private Label _title = null!, _counter = null!, _message = null!, _keys = null!, _confirmText = null!, _legendTitle = null!, _buildTitle = null!, _glossary = null!;
     private RichTextLabel _detail = null!;
     private readonly List<Label> _summary = [], _build = [];
-    private Control _detailBox = null!, _legendBox = null!;
-    private Button _help = null!;
+    private readonly List<(string Key, Label Head)> _heads = [];
+    private Control _detailBox = null!, _legendBox = null!, _side = null!, _codeRow = null!;
+    private Button _help = null!, _fold = null!, _load = null!;
+    private MenuButton _tools = null!;
     private PanelContainer? _bubble;
-    private Button _plan = null!, _copy = null!, _load = null!;
-    private OptionButton _suggested = null!;
     private LineEdit _code = null!;
+    private Vector2 _narrow;
+
+    // The tools' menu: a suggested build each from 0, then planning, copying and loading a code.
+    private const int ToolPlan = 100, ToolCopy = 101, ToolCode = 102;
     private PointsEditor? _real;
     private Label _bubbleText = null!;
     private Button _bubbleNext = null!;
@@ -108,94 +112,82 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         WindowDrag.Make(panel, "tree");
         Window = panel;
         var margin = new MarginContainer();
-        foreach (string side in new[] { "left", "right", "top", "bottom" })
-            margin.AddThemeConstantOverride("margin_" + side, 12);
+        foreach (string edge in new[] { "left", "right", "top", "bottom" })
+            margin.AddThemeConstantOverride("margin_" + edge, 12);
         panel.AddChild(margin);
-        var row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 12);
-        margin.AddChild(row);
+        var column = new VBoxContainer();
+        column.AddThemeConstantOverride("separation", 8);
+        margin.AddChild(column);
 
-        var left = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        row.AddChild(left);
-        // The title, then planning, the suggested builds and the build's code (sprint 151, N2 a, N3 a, N4 a).
-        var head = new HBoxContainer();
-        head.AddThemeConstantOverride("separation", 6);
-        left.AddChild(head);
-        _title = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis };
+        // The top bar (sprint 177, A6, s164-arbre-maquette.md §3.12): the title, the points to place in large, then the tools,
+        // "?", undo, save and close.
+        var bar = new HBoxContainer { CustomMinimumSize = new Vector2(0, 44) };
+        bar.AddThemeConstantOverride("separation", 8);
+        column.AddChild(bar);
+        _title = new Label { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true, TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis, VerticalAlignment = VerticalAlignment.Center };
         _title.AddThemeFontSizeOverride("font_size", 18);
-        head.AddChild(_title);
-        _suggested = new OptionButton { CustomMinimumSize = new Vector2(170, 44) };
-        _suggested.ItemSelected += i => Suggest((int)i);
-        head.AddChild(_suggested);
-        _plan = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(150, 44) };
-        _plan.Toggled += on => Plan(on);
-        head.AddChild(_plan);
-        _code = new LineEdit { CustomMinimumSize = new Vector2(120, 44) };
-        head.AddChild(_code);
-        _load = new Button { CustomMinimumSize = new Vector2(70, 44) };
-        _load.Pressed += () => LoadCode(_code.Text);
-        head.AddChild(_load);
-        _copy = new Button { CustomMinimumSize = new Vector2(70, 44) };
-        _copy.Pressed += () => CopyCode();
-        head.AddChild(_copy);
-        var area = new Vector2(size.X - PanelWidth - 12 - 24, size.Y - 24 - 50);
-        _canvas = new TreeCanvas { Panel = this, CustomMinimumSize = area, ClipContents = true };
-        left.AddChild(_canvas);
+        _title.AddThemeFontOverride("font", OsmoseTheme.Bold());
+        bar.AddChild(_title);
+        _counter = new Label { VerticalAlignment = VerticalAlignment.Center };
+        _counter.AddThemeFontSizeOverride("font_size", 17);
+        _counter.AddThemeColorOverride("font_color", new Color(ElementStyle.Taken));
+        bar.AddChild(_counter);
+        _tools = new MenuButton { CustomMinimumSize = new Vector2(110, 44), Flat = false, FocusMode = Control.FocusModeEnum.None };
+        _tools.GetPopup().IdPressed += id => Tool((int)id);
+        bar.AddChild(_tools);
+        _help = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(44, 44), FocusMode = Control.FocusModeEnum.None };
+        _help.Toggled += shown => ShowLegend(shown);
+        bar.AddChild(_help);
+        _undo = new Button { CustomMinimumSize = new Vector2(120, 44), FocusMode = Control.FocusModeEnum.None };
+        _undo.Pressed += Undo;
+        bar.AddChild(_undo);
+        _save = new Button { CustomMinimumSize = new Vector2(120, 44), ThemeTypeVariation = OsmoseTheme.Primary, FocusMode = Control.FocusModeEnum.None };
+        _save.Pressed += Save;
+        bar.AddChild(_save);
+        _close = new Button { Text = "×", CustomMinimumSize = new Vector2(44, 44), ThemeTypeVariation = OsmoseTheme.CloseButton, FocusMode = Control.FocusModeEnum.None };
+        _close.Pressed += () => ClosePressed?.Invoke();
+        bar.AddChild(_close);
 
-        var side2 = new VBoxContainer { CustomMinimumSize = new Vector2(PanelWidth, 0) };
-        side2.AddThemeConstantOverride("separation", 6);
-        row.AddChild(side2);
-        for (int i = 0; i < 3; i++)
-        {
-            var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
-            line.AddThemeFontSizeOverride("font_size", i == 0 ? 17 : 14);
-            if (i == 0)
-                line.AddThemeColorOverride("font_color", new Color(ElementStyle.Taken));
-            side2.AddChild(line);
-            _summary.Add(line);
-        }
-        // The build: its title, what it pays, its best hit against the ceiling, and the pair advised (N8 a, N1 a, C5 b).
+        // The tree, the fold's button, and the right panel (it folds to give the tree the window's width).
+        var row = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+        row.AddThemeConstantOverride("separation", 4);
+        column.AddChild(row);
+        _narrow = new Vector2(size.X - 24 - PanelWidth - FoldWidth - 8, size.Y - 24 - 44 - 8);
+        _canvas = new TreeCanvas { Panel = this, CustomMinimumSize = CanvasSize(WindowState.TreeSideFolded), ClipContents = true };
+        row.AddChild(_canvas);
+        _fold = new Button { CustomMinimumSize = new Vector2(FoldWidth, 44), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, FocusMode = Control.FocusModeEnum.None };
+        _fold.Pressed += () => Fold(!WindowState.TreeSideFolded);
+        row.AddChild(_fold);
+        var side = new VBoxContainer { CustomMinimumSize = new Vector2(PanelWidth, 0), Visible = !WindowState.TreeSideFolded };
+        side.AddThemeConstantOverride("separation", 6);
+        _side = side;
+        row.AddChild(side);
+
+        // 1. My build: its title, beyond the base, the big switch, what it pays, its best hit, the pair advised (N8 a, N1 a, C5 b).
+        side.AddChild(Head("tree.block.build"));
         _buildTitle = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
         _buildTitle.AddThemeFontSizeOverride("font_size", 16);
-        side2.AddChild(_buildTitle);
+        _buildTitle.AddThemeFontOverride("font", OsmoseTheme.Bold());
+        side.AddChild(_buildTitle);
+        for (int i = 0; i < 2; i++)
+        {
+            var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
+            line.AddThemeFontSizeOverride("font_size", 13);
+            side.AddChild(line);
+            _summary.Add(line);
+        }
         for (int i = 0; i < 3; i++)
         {
             var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0), Modulate = new Color(1, 1, 1, 0.8f) };
             line.AddThemeFontSizeOverride("font_size", 12);
-            side2.AddChild(line);
+            side.AddChild(line);
             _build.Add(line);
         }
-        // The four looks' legend, always there (sprint 164, É1, docs/arbre-lisible.md §2.8): a line a look. (On the canvas,
-        // by the trunk, once the trunk stands upright with É2.)
-        var looks = new VBoxContainer();
-        looks.AddThemeConstantOverride("separation", 2);
-        side2.AddChild(looks);
-        _legendTitle = new Label();
-        _legendTitle.AddThemeFontSizeOverride("font_size", 14);
-        looks.AddChild(_legendTitle);
-        foreach (NodeLook look in Enum.GetValues<NodeLook>())
-        {
-            var line = new HBoxContainer();
-            line.AddThemeConstantOverride("separation", 8);
-            line.AddChild(new LegendDot { Look = look, CustomMinimumSize = new Vector2(18, 18), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
-            var text = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            text.AddThemeFontSizeOverride("font_size", 12);
-            text.AddThemeColorOverride("font_color", new Color(UiStyle.Text));
-            line.AddChild(text);
-            looks.AddChild(line);
-            _looks.Add((look, text));
-        }
-        // The glossary behind "?" (M5 b), in place of the node's card.
-        var top = new HBoxContainer();
-        side2.AddChild(top);
-        top.AddChild(new HSeparator { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
-        _help = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(44, 44) };
-        _help.Toggled += shown => ShowLegend(shown);
-        top.AddChild(_help);
-        // The node under the mouse or the keyboard: its card, the glossary's words lit (M7 a).
+        // 2. The node under the mouse or the keyboard: its card, the glossary's words lit (M7 a); behind "?", the glossary.
+        side.AddChild(Head("tree.block.node"));
         var detailBox = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 64), SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _detailBox = detailBox;
-        side2.AddChild(detailBox);
+        side.AddChild(detailBox);
         _detail = new RichTextLabel { BbcodeEnabled = true, FitContent = true, ScrollActive = false, CustomMinimumSize = new Vector2(PanelWidth - 12, 0), MetaUnderlined = false };
         _detail.AddThemeFontSizeOverride("normal_font_size", 13);
         _detail.AddThemeFontSizeOverride("italics_font_size", 13);
@@ -203,59 +195,124 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _detail.MetaHoverStarted += meta => _detail.TooltipText = Texts.TreeGlossary.FirstOrDefault(g => g.Term == meta.AsString()).Meaning ?? "";
         _detail.MetaHoverEnded += _ => _detail.TooltipText = "";
         detailBox.AddChild(_detail);
-        // Giving back a node others hang on: asked first (I1 b).
+        var legendScroll = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 64), SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, Visible = false };
+        _legendBox = legendScroll;
+        side.AddChild(legendScroll);
+        _glossary = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth - 12, 0) };
+        _glossary.AddThemeFontSizeOverride("font_size", 12);
+        legendScroll.AddChild(_glossary);
+        // 3. To save: what the save would gain and lose (N6 a), a message, the giving back asked (I1 b), a build's code to load.
+        side.AddChild(Head("tree.block.save"));
+        _message = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
+        _message.AddThemeFontSizeOverride("font_size", 13);
+        side.AddChild(_message);
         var confirm = new VBoxContainer { Visible = false };
         _confirm = confirm;
-        side2.AddChild(confirm);
+        side.AddChild(confirm);
         _confirmText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
         _confirmText.AddThemeColorOverride("font_color", new Color(ElementStyle.Losing));
         confirm.AddChild(_confirmText);
         var yesNo = new HBoxContainer();
         yesNo.AddThemeConstantOverride("separation", 8);
         confirm.AddChild(yesNo);
-        _yes = new Button { CustomMinimumSize = new Vector2(130, 44) };
+        _yes = new Button { CustomMinimumSize = new Vector2(140, 44) };
         _yes.Pressed += Confirm;
         yesNo.AddChild(_yes);
-        _no = new Button { CustomMinimumSize = new Vector2(130, 44) };
+        _no = new Button { CustomMinimumSize = new Vector2(140, 44) };
         _no.Pressed += () =>
         {
             Asking = null;
             Refresh();
         };
         yesNo.AddChild(_no);
-        _message = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
-        _message.AddThemeFontSizeOverride("font_size", 13);
-        side2.AddChild(_message);
-        // Behind "?": the glossary (M7 a); the four looks' legend stays on the canvas (sprint 164, É1).
-        var legendScroll = new ScrollContainer { CustomMinimumSize = new Vector2(PanelWidth, 64), SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, Visible = false };
-        _legendBox = legendScroll;
-        side2.AddChild(legendScroll);
-        var legend = new VBoxContainer();
-        legendScroll.AddChild(legend);
-        _glossary = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth - 12, 0) };
-        _glossary.AddThemeFontSizeOverride("font_size", 12);
-        legend.AddChild(_glossary);
-        _keys = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0), Modulate = new Color(1, 1, 1, 0.6f) };
-        _keys.AddThemeFontSizeOverride("font_size", 11);
-        side2.AddChild(_keys);
-        var buttons = new HBoxContainer();
-        buttons.AddThemeConstantOverride("separation", 8);
-        side2.AddChild(buttons);
-        _save = new Button { CustomMinimumSize = new Vector2(136, 44) };
-        _save.Pressed += Save;
-        buttons.AddChild(_save);
-        _close = new Button { CustomMinimumSize = new Vector2(136, 44) };
-        _close.Pressed += () => ClosePressed?.Invoke();
-        buttons.AddChild(_close);
-        _undo = new Button { CustomMinimumSize = new Vector2(PanelWidth, 44) };
-        _undo.Pressed += Undo;
-        side2.AddChild(_undo);
+        var codeRow = new HBoxContainer { Visible = false };
+        codeRow.AddThemeConstantOverride("separation", 6);
+        _codeRow = codeRow;
+        side.AddChild(codeRow);
+        _code = new LineEdit { CustomMinimumSize = new Vector2(0, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        codeRow.AddChild(_code);
+        _load = new Button { CustomMinimumSize = new Vector2(90, 44) };
+        _load.Pressed += () => LoadCode(_code.Text);
+        codeRow.AddChild(_load);
 
+        // The four looks' legend, always there, over the tree at its bottom right (docs/arbre-lisible.md §2.8), the keys under it.
+        var legendCard = new PanelContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        legendCard.AddThemeStyleboxOverride("panel", OsmoseTheme.Flat(UiStyle.Well, corner: 8, margin: 10));
+        var looks = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        looks.AddThemeConstantOverride("separation", 2);
+        legendCard.AddChild(looks);
+        _legendTitle = new Label();
+        _legendTitle.AddThemeFontSizeOverride("font_size", 13);
+        _legendTitle.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
+        looks.AddChild(_legendTitle);
+        foreach (NodeLook look in Enum.GetValues<NodeLook>())
+        {
+            var line = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+            line.AddThemeConstantOverride("separation", 8);
+            line.AddChild(new LegendDot { Look = look, CustomMinimumSize = new Vector2(18, 18), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter });
+            var text = new Label();
+            text.AddThemeFontSizeOverride("font_size", 12);
+            text.AddThemeColorOverride("font_color", new Color(UiStyle.Text));
+            line.AddChild(text);
+            looks.AddChild(line);
+            _looks.Add((look, text));
+        }
+        _keys = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(260, 0), Modulate = new Color(1, 1, 1, 0.6f) };
+        _keys.AddThemeFontSizeOverride("font_size", 11);
+        looks.AddChild(_keys);
         Layout = new TreeLayout(editor.Data);
         Focused = Layout.Start(editor.TalentsTaken, editor.Data);
         Refresh();
         _canvas.Rebuild();
+        _canvas.Legend = legendCard;
         Refresh();
+    }
+
+    /// <summary>The canvas's size, the panel folded or not.</summary>
+    private Vector2 CanvasSize(bool folded) => folded ? _narrow + new Vector2(PanelWidth + 4, 0) : _narrow;
+
+    private Label Head(string key)
+    {
+        var head = new Label();
+        head.AddThemeFontSizeOverride("font_size", 13);
+        head.AddThemeFontOverride("font", OsmoseTheme.Bold());
+        head.AddThemeColorOverride("font_color", new Color(UiStyle.ChocolateLight));
+        _heads.Add((key, head));
+        return head;
+    }
+
+    /// <summary>The right panel folded or not (sprint 177, A6), for the whole game: the tree gets the width, the overview recomputed.</summary>
+    public void Fold(bool folded)
+    {
+        WindowState.TreeSideFolded = folded;
+        _side.Visible = !folded;
+        _canvas.Resize(CanvasSize(folded));
+        Refresh();
+    }
+
+    /// <summary>Whether the right panel is folded (for the self-test).</summary>
+    public bool Folded => !_side.Visible;
+
+    /// <summary>An item of the tools' menu: a suggested build, planning, the code copied, the code's field.</summary>
+    public void Tool(int id)
+    {
+        switch (id)
+        {
+            case ToolPlan:
+                Plan(!Planning);
+                break;
+            case ToolCopy:
+                CopyCode();
+                _codeRow.Visible = true;
+                break;
+            case ToolCode:
+                _codeRow.Visible = true;
+                _code.GrabFocus();
+                break;
+            default:
+                Suggest(id + 1);
+                break;
+        }
     }
 
     /// <summary>
@@ -278,7 +335,6 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
             _real = null;
             _message.Text = "";
         }
-        _plan.SetPressedNoSignal(on);
         Asking = null;
         Refresh();
     }
@@ -291,7 +347,6 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
             return;
         Editor.LoadTalents(Progression.Builds[builds[index - 1]]);
         _message.Text = Texts["tree.suggested.loaded", Texts.TreeTitle(Progression.Builds[builds[index - 1]], Editor.Data)];
-        _suggested.Select(0);
         Asking = null;
         Refresh();
     }
@@ -382,16 +437,23 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         }
         _bubbleText.Text = said[TutorialStep];
         _bubbleNext.Text = Texts[TutorialStep == said.Count - 1 ? "tree.tuto.done" : "tree.tuto.next"];
-        // Over the trunk, then the doors, then the styles, where the camera shows them.
+        // The doors first, then the branches, then the trunk (§2.9): the camera brings each to the middle, the bubble over the
+        // doors' crown (never on a door), under the first floor, right of the trunk.
         Vector2 at = TutorialStep switch
         {
-            0 => _canvas.ToView(Layout.Crown.X + 40, TreeLayout.TrunkTop) - new Vector2(0, 150),
-            1 => _canvas.ToView(Layout[TreeLayout.Pairs[2]]!.Box.X, TreeLayout.DoorsY) - new Vector2(0, 190),
-            _ => _canvas.ToView(Layout.Columns[Branch.Melee].X, TreeLayout.SecondY),
+            0 => _canvas.Show(Layout.Crown.X, TreeLayout.DoorsY) - new Vector2(160, (TreeLayout.DoorsY - TreeLayout.Foot + 8) * _canvas.Camera.Zoom),
+            1 => _canvas.Show(Layout.Columns[Branch.Tempo].CenterX, TreeLayout.SecondY) + new Vector2(-160, (TreeLayout.Foot - TreeLayout.SecondY + 8) * _canvas.Camera.Zoom),
+            _ => _canvas.Show(Layout.Crown.X, TreeLayout.TrunkTop) + new Vector2(150, 0),
         };
-        Vector2 room = _canvas.Size - new Vector2(320, 160);
+        _bubble.ResetSize();
+        Vector2 room = _canvas.Size - _bubble.Size;
+        if (TutorialStep == 0)
+            at.Y -= _bubble.Size.Y - 60;
         _bubble.Position = _canvas.GetGlobalRect().Position + new Vector2(Math.Clamp(at.X, 0, Math.Max(0, room.X)), Math.Clamp(at.Y, 0, Math.Max(0, room.Y)));
     }
+
+    /// <summary>The bubble shown, in the window (for the self-test: never over a door).</summary>
+    public Rect2? BubbleRect => _bubble?.GetGlobalRect();
 
     /// <summary>The camera on the tree (for the self-test).</summary>
     public TreeCamera Camera => _canvas.Camera;
@@ -498,10 +560,15 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _hovered = id;
         // The path a node not taken asks, lit, its cost in the card (L8 a).
         Path = id is not null && Layout[id] is { IsTalent: true } && !Editor.TalentsTaken.Contains(id) ? TreePlan.Path(Editor.TalentsTaken, id, Editor.Data) ?? [] : [];
+        // What taking it would close, shown before the click (sprint 177, A6).
+        Closing = Path.Count > 0 ? TreePlan.Closes(Editor.TalentsTaken, id!, Editor.Data) : [];
         ShowDetail();
         Wood = Layout.Wood(Editor.TalentsTaken, StateOf, Path);
         _canvas.Refresh();
     }
+
+    /// <summary>The nodes taking the one under the mouse would close: slashed in light chocolate, named in the panel.</summary>
+    public IReadOnlyList<string> Closing { get; private set; } = [];
 
     /// <summary>The node under the mouse (its name shows at any zoom).</summary>
     public string? Hovered => _hovered;
@@ -571,9 +638,13 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         string cls = Editor.Data.Class(Editor.Hero.Class)?.Name.In(Texts.Lang) ?? "";
         _title.Text = $"{Texts["tree.title", Editor.Hero.Level]} · {Editor.Hero.Name}, {cls}";
         IReadOnlyList<string> summary = Texts.TreeSummary(Editor);
+        // The points to place, the focus of the bar; the rest in the panel.
+        _counter.Text = Planning ? Texts["tree.plan.on", Editor.Hero.Level] : summary[0];
         for (int i = 0; i < _summary.Count; i++)
-            _summary[i].Text = summary[i];
-        _legendTitle.Text = Texts["tree.legend"];
+            _summary[i].Text = summary[i + 1];
+        foreach ((string key, Label head) in _heads)
+            head.Text = Texts[key].ToUpperInvariant();
+        _legendTitle.Text = Texts["tree.legend"].ToUpperInvariant();
         foreach ((NodeLook look, Label text) in _looks)
             text.Text = Texts["tree.look." + look];
         _help.Text = Texts["tree.help.button"];
@@ -584,23 +655,34 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
             _build[i].Text = build[i];
         _keys.Text = Texts["tree.keys"];
         _save.Text = Texts["points.save"];
-        _close.Text = Texts["points.close"];
         _undo.Text = Texts["tree.undo"];
         _yes.Text = Texts["tree.confirm.yes"];
         _no.Text = Texts["tree.confirm.no"];
+        _fold.Text = _side.Visible ? "›" : "‹";
+        _fold.TooltipText = Texts[_side.Visible ? "tree.fold" : "tree.unfold"];
         // A plan is never saved (N2 a).
         _save.Disabled = Editor.ReadOnly || Planning || !Editor.TalentsChanged;
-        _plan.Text = Planning ? Texts["tree.plan.leave"] : Texts["tree.plan", TreePlan.PlanLevel];
-        _plan.Disabled = (_real ?? Editor).ReadOnly;
-        _copy.Text = Texts["tree.code.copy"];
+        // The tools: the class's suggested builds, planning at 60, the code copied or loaded.
+        bool readOnly = (_real ?? Editor).ReadOnly;
+        _tools.Text = Texts["tree.tools"];
+        PopupMenu tools = _tools.GetPopup();
+        tools.Clear();
+        IReadOnlyList<string> suggested = TreePlan.Suggested(Editor.Hero.Class);
+        for (int i = 0; i < suggested.Count; i++)
+        {
+            tools.AddItem(Texts["tree.tools.suggested", Texts.TreeTitle(Progression.Builds[suggested[i]], Editor.Data)], i);
+            tools.SetItemDisabled(i, Editor.ReadOnly);
+        }
+        tools.AddSeparator();
+        tools.AddCheckItem(Planning ? Texts["tree.plan.leave"] : Texts["tree.plan", TreePlan.PlanLevel], ToolPlan);
+        tools.SetItemChecked(tools.GetItemIndex(ToolPlan), Planning);
+        tools.SetItemDisabled(tools.GetItemIndex(ToolPlan), readOnly);
+        tools.AddItem(Texts["tree.code.copy"], ToolCopy);
+        tools.AddItem(Texts["tree.tools.code"], ToolCode);
+        tools.SetItemDisabled(tools.GetItemIndex(ToolCode), Editor.ReadOnly);
         _load.Text = Texts["tree.code.load"];
         _load.Disabled = Editor.ReadOnly;
         _code.PlaceholderText = Texts["tree.code.placeholder"];
-        _suggested.Clear();
-        _suggested.AddItem(Texts["tree.suggested"]);
-        foreach (string suggested in TreePlan.Suggested(Editor.Hero.Class))
-            _suggested.AddItem(Texts.TreeTitle(Progression.Builds[suggested], Editor.Data));
-        _suggested.Disabled = Editor.ReadOnly;
         _undo.Disabled = Editor.ReadOnly || !Editor.TalentsChanged;
         _confirm.Visible = Asking is not null;
         if (Asking is { } a)
@@ -629,7 +711,8 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     {
         TreeNode? node = Layout[_hovered ?? Focused];
         _detail.Text = node is null ? "" : Card(Texts.TreeCard(node, Editor))
-            + (node is { IsTalent: true } && _hovered == node.Id && !Editor.TalentsTaken.Contains(node.Id) ? "\n" + Texts.TreePath(TreePlan.Path(Editor.TalentsTaken, node.Id, Editor.Data), Editor.Data) : "");
+            + (node is { IsTalent: true } && _hovered == node.Id && !Editor.TalentsTaken.Contains(node.Id) ? "\n" + Texts.TreePath(TreePlan.Path(Editor.TalentsTaken, node.Id, Editor.Data), Editor.Data) : "")
+            + (Closing.Count > 0 ? "\n" + Texts["tree.closes", string.Join(", ", Closing.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))] : "");
     }
 
     /// <summary>
@@ -689,6 +772,23 @@ public partial class TreeCanvas : Control
 
     /// <summary>The camera's buttons, bottom left: closer, further, the whole tree, back to the build (for the self-test).</summary>
     public Dictionary<string, Button> Buttons { get; } = [];
+
+    private ColorRect _strip = null!;
+    private HBoxContainer _buttons = null!;
+    private Control? _legend;
+
+    /// <summary>The legend, over the tree at its bottom right, at the screen's size.</summary>
+    public Control? Legend
+    {
+        get => _legend;
+        set
+        {
+            _legend = value;
+            if (value is not null)
+                AddChild(value);
+            Place();
+        }
+    }
 
     /// <summary>The tree's choices, framed together: the Fusion's first floor (one of three), the four Hearts of Pure element.</summary>
     public static IEnumerable<(string Key, string[] Ids)> Choices(GameData data)
@@ -762,7 +862,8 @@ public partial class TreeCanvas : Control
             _views[n.Id] = (view, name);
         }
         // The camera's buttons, bottom left over the tree, at the screen's size.
-        var buttons = new HBoxContainer { Position = new Vector2(96, CustomMinimumSize.Y - 52) };
+        var buttons = new HBoxContainer();
+        _buttons = buttons;
         buttons.AddThemeConstantOverride("separation", 4);
         foreach ((string key, string text, string tip, Action act) in new (string, string, string, Action)[]
         {
@@ -778,7 +879,8 @@ public partial class TreeCanvas : Control
             Buttons[key] = button;
         }
         // The gutter: each line's name at the left edge, the screen's size whatever the zoom, on a strip of the ground.
-        AddChild(new ColorRect { Color = new Color(ElementStyle.Ground, 0.85f), Size = new Vector2(88, CustomMinimumSize.Y), MouseFilter = MouseFilterEnum.Ignore });
+        _strip = new ColorRect { Color = new Color(ElementStyle.Ground, 0.85f), MouseFilter = MouseFilterEnum.Ignore };
+        AddChild(_strip);
         foreach (TreeRow row in Enum.GetValues<TreeRow>())
         {
             var name = new Label { Size = new Vector2(84, 32), AutowrapMode = TextServer.AutowrapMode.WordSmart, VerticalAlignment = VerticalAlignment.Center, MouseFilter = MouseFilterEnum.Ignore };
@@ -824,6 +926,44 @@ public partial class TreeCanvas : Control
             name.Visible = names || Panel.Hovered == id;
         foreach (Label choice in _choices)
             choice.Visible = names;
+        // The screen's pieces: the gutter's strip, the buttons bottom left, the legend bottom right.
+        var view = new Vector2(Camera.ViewWidth, Camera.ViewHeight);
+        _strip.Size = new Vector2(88, view.Y);
+        _buttons.Position = new Vector2(96, view.Y - 52);
+        if (_legend is not null)
+        {
+            _legend.Size = Vector2.Zero;
+            _legend.Position = view - _legend.GetCombinedMinimumSize() - new Vector2(8, 8);
+        }
+    }
+
+    /// <summary>
+    /// The canvas at a new size (the right panel folded or not): the same point of the tree in the middle at the same zoom, or
+    /// the overview again if it was on it.
+    /// </summary>
+    public void Resize(Vector2 size)
+    {
+        Settle();
+        bool overview = Math.Abs(Camera.Zoom - Camera.MinZoom) < 0.001f;
+        (float cx, float cy) = Camera.ToWorld(Camera.ViewWidth / 2, Camera.ViewHeight / 2);
+        float zoom = Camera.Zoom;
+        (CustomMinimumSize, Size) = (size, size);
+        Camera = new TreeCamera(Camera.WorldWidth, Camera.WorldHeight, size.X, size.Y);
+        if (!overview)
+        {
+            Camera.Set((zoom, 0, 0));
+            Camera.Centre(cx, cy);
+        }
+        Place();
+    }
+
+    /// <summary>A point of the tree brought to the middle of the view at once (a bubble of the tutorial points at it), where it then stands.</summary>
+    public Vector2 Show(float x, float y)
+    {
+        Settle();
+        Camera.Centre(x, y);
+        Place();
+        return ToView(x, y);
     }
 
     /// <summary>The camera moved by <paramref name="change"/> in <see cref="MoveTime"/> (a button, a key, the keyboard followed).</summary>
@@ -1169,6 +1309,9 @@ public partial class TreeNodeView : Control
         }
         if (focused)
             DrawRect(new Rect2(-4, -4, Size.X + 8, Size.Y + 8), new Color(ElementStyle.Taken), false, 2);
+        // What taking the node under the mouse would close: a light chocolate slash (sprint 177, A6).
+        if (Panel.Closing.Contains(Node.Id))
+            DrawLine(new Vector2(Size.X * 0.25f, Size.Y * 0.75f), new Vector2(Size.X * 0.75f, Size.Y * 0.25f), new Color(UiStyle.ChocolateLight), 3, true);
         GameData data = Panel.Editor.Data;
         // The icon, 57 % of the node: closed at 25 %, never crossed nor red (docs/arbre-lisible.md §2.6).
         string variant = red || look == NodeLook.Taken ? "" : look == NodeLook.Open ? "-open" : "-locked";

@@ -145,6 +145,23 @@ public static class TreePlan
         return best;
     }
 
+    /// <summary>
+    /// The nodes taking <paramref name="id"/> would close (sprint 177, A6, <c>docs/arbre-lisible.md</c> §2.7): those not
+    /// closed now that its path, once taken, shuts out (an exclusion, a pair's element, a key of the style, the switch), the
+    /// levels aside; none for a node taken or out of reach. The window shows them before the click.
+    /// </summary>
+    public static IReadOnlyList<string> Closes(IReadOnlyList<string> taken, string id, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(data);
+        if (Path(taken, id, data) is not { Count: > 0 } path)
+            return [];
+        string[] after = [.. taken, .. path];
+        // At the last level: what shuts a node out, never a level not reached yet.
+        bool Shut(IReadOnlyList<string> have, string t) => TreeLayout.State(have, t, Hero.MaxLevel, data) == NodeState.Excluded;
+        return [.. data.Talents.Keys.Where(t => !after.Contains(t) && !Shut(taken, t) && Shut(after, t)).Order(StringComparer.Ordinal)];
+    }
+
     /// <summary>The points a path costs: the sum of its nodes'.</summary>
     public static int Cost(IEnumerable<string> path, GameData data) => path.Sum(id => data.Talents[id].Cost);
 

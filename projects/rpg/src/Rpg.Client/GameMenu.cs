@@ -102,6 +102,9 @@ public sealed class WindowState
     public GameWindow? Open { get; private set; }
     public bool MenuOpen { get; private set; }
 
+    /// <summary>The tree's right panel folded, for the whole game (sprint 177, A6): the tree gets the window's width.</summary>
+    public static bool TreeSideFolded { get; set; }
+
     /// <summary>The window a key opens, if any (either case).</summary>
     public static GameWindow? ForKey(char key)
     {

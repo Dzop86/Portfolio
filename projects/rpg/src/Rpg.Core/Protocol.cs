@@ -170,5 +170,6 @@ public static class Accounts
 public static class Seen
 {
     /// <summary>The tree's three guided bubbles, at its first opening from level 30.</summary>
-    public const string TreeTutorial = "tree-tutorial";
+    // "tree2" since sprint 177 (A6): the bubbles moved with the espalier, every player sees them once more.
+    public const string TreeTutorial = "tree2";
 }

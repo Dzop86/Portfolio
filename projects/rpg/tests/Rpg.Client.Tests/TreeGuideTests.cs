@@ -117,7 +117,7 @@ public partial class TreeGuideTests
             Assert.Equal(3, t.TreeTutorial.Count);
             Assert.All(Enum.GetValues<TreeLayer>(), l => Assert.False(string.IsNullOrWhiteSpace(t["tree.layer." + l] + t["tree.banner." + l])));
         }
-        Assert.Equal("tree-tutorial", Seen.TreeTutorial);
+        Assert.Equal("tree2", Seen.TreeTutorial);
     }
 
     [GeneratedRegex("#[0-9a-fA-F]{6}")]
