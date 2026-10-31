@@ -109,7 +109,9 @@ public partial class Main
         ExploreCamera cam = _explore!;
         _camera.Size = (float)cam.Zoom;
         _camera.RotationDegrees = new Vector3(-30, (float)ExploreCamera.Yaw, 0);
-        _camera.Position = new Vector3((float)cam.X, 0, (float)cam.Z) + _camera.Transform.Basis.Z * 30f;
+        // On the relief (sprint 179): the camera looks at the ground's height there, so the player stays in the middle.
+        float ground = _townView?.Relief is { } relief ? relief.At((float)cam.X, (float)cam.Z) : 0;
+        _camera.Position = new Vector3((float)cam.X, ground, (float)cam.Z) + _camera.Transform.Basis.Z * 30f;
     }
 
     /// <summary>The groups of monsters beaten in this session, away for a while (sprint 72).</summary>
@@ -564,11 +566,11 @@ public partial class Main
                 // A player's guild and name on hovering it (sprint 173, D89).
                 _townView.HoverAt(_camera, motion.Position);
                 break;
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when (SpotUnder(click.Position) ?? BoardView.Pick(_camera, click.Position)) is Cell cell:
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when (SpotUnder(click.Position) ?? _townView!.Pick(_camera, click.Position)) is Cell cell:
                 _ = Walk(cell);
                 break;
             // A right click on another player (sprint 119): invite them, offer a trade.
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when BoardView.Pick(_camera, click.Position) is Cell cell
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Right } click when _townView!.Pick(_camera, click.Position) is Cell cell
                 && _townView.OtherAt(cell) is Guid someone && _crowd.Others.FirstOrDefault(o => o.Id == someone) is OtherPlayer other:
                 OpenPlayerMenu(other, click.Position);
                 break;
@@ -723,12 +725,12 @@ public partial class Main
     {
         if (_edgeArrow is null || _town is null)
             return;
-        if (SpotUnder(at) is not null || BoardView.Pick(_camera, at) is not Cell cell || _town.EdgeWay(cell) is not ({ } way, Cell step))
+        if (SpotUnder(at) is not null || _townView!.Pick(_camera, at) is not Cell cell || _town.EdgeWay(cell) is not ({ } way, Cell step))
         {
             _edgeArrow.Hide();
             return;
         }
-        Vector2 direction = _camera.UnprojectPosition(BoardView.ToWorld(cell + step)) - _camera.UnprojectPosition(BoardView.ToWorld(cell));
+        Vector2 direction = _camera.UnprojectPosition(_townView!.W(cell + step)) - _camera.UnprojectPosition(_townView.W(cell));
         _edgeArrow.Point(at, direction, way.Name?.In(_talkPanel!.Texts.Lang));
     }
 
@@ -748,7 +750,7 @@ public partial class Main
         {
             if (_growing.Contains(node.Id))
                 continue;
-            Vector3 feet = BoardView.ToWorld(node.At);
+            Vector3 feet = _townView!.W(node.At);
             float d = new[] { 0f, 0.4f, TownView.GemHeight(node, _town.Town) }.Min(h => _camera.UnprojectPosition(feet + new Vector3(0, h, 0)).DistanceTo(click));
             if (d <= SpotReach && (best is null || d < best.Value.Distance))
                 best = (node.At, d);
@@ -773,14 +775,14 @@ public partial class Main
         (Cell At, float Distance)? best = null;
         foreach ((string id, Cell at) in _town.Groups)
         {
-            Vector3 feet = BoardView.ToWorld(at);
+            Vector3 feet = _townView!.W(at);
             float d = BodyHeights.Min(h => _camera.UnprojectPosition(feet + new Vector3(0, h, 0)).DistanceTo(click));
             if (d <= GroupReach && (best is null || d < best.Value.Distance))
                 best = (at, d);
         }
         if (best is not null)
             return best.Value.At;
-        return BoardView.Pick(_camera, click) is Cell cell && _town.GroupAt(cell) is not null ? cell : null;
+        return _townView!.Pick(_camera, click) is Cell cell && _town.GroupAt(cell) is not null ? cell : null;
     }
 
     private PopupMenu? _groupMenu;
@@ -997,9 +999,9 @@ public partial class Main
             _talkPanel.AddChild(_trailArrow);
         }
         Vector2 size = GetViewport().GetVisibleRect().Size;
-        Vector2 screen = _camera.UnprojectPosition(BoardView.ToWorld(at));
+        Vector2 screen = _camera.UnprojectPosition(_townView!.W(at));
         var inside = new Rect2(new Vector2(40, 40), size - new Vector2(80, 80));
-        if (inside.HasPoint(screen) && !_camera.IsPositionBehind(BoardView.ToWorld(at)))
+        if (inside.HasPoint(screen) && !_camera.IsPositionBehind(_townView.W(at)))
         {
             _trailArrow.Hide();
             return;
@@ -2410,7 +2412,7 @@ public partial class Main
         {
             if (!_townView!.Walk(step, 0).IsCompleted)
                 problems.Add("an instant walk waited");
-            if (_townView.Player.Position != BoardView.ToWorld(_town!.Position))
+            if (_townView.Player.Position != _townView.W(_town!.Position))
                 problems.Add($"the player is drawn at {_townView.Player.Position}, stands on {_town.Position}");
             if (step.TalkTo is Npc talkTo)
                 talked.Add(talkTo.Id);
@@ -2571,10 +2573,10 @@ public partial class Main
         _townView.Stop();
         town.Interrupt(here);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        if (!first.IsCompleted || first.Result || here == far || _townView.Player.Position.DistanceTo(BoardView.ToWorld(here)) > 0.71f)
+        if (!first.IsCompleted || first.Result || here == far || _townView.Player.Position.DistanceTo(_townView.W(here)) > 0.71f)
             problems.Add($"a walk cut short at {here} went on, or the player is drawn at {_townView.Player.Position}");
         town.Interrupt(start);
-        _townView.Player.Position = BoardView.ToWorld(start);
+        _townView.Player.Position = _townView.W(start);
     }
 
     /// <summary>
@@ -3198,7 +3200,7 @@ public partial class Main
             {
                 int models = view.Groups.TryGetValue(g, out Node3D? node) ? node.GetChildren().OfType<Node3D>().Count(n => n.FindChild("AnimationPlayer", true, false) is not null) : 0;
                 // Three at most on a cell; the label tells how many more.
-                if (models != Math.Min(3, GameData.Embedded.Groups[g].Monsters.Count) || node!.Position != BoardView.ToWorld(at))
+                if (models != Math.Min(3, GameData.Embedded.Groups[g].Monsters.Count) || node!.Position != view.W(at))
                     problems.Add($"the group {g} is drawn with {models} monsters");
             }
             // The Forest of the Ancestors' own trees (sprint 131): giant trunks among its pines.
@@ -3220,6 +3222,25 @@ public partial class Main
             }
             if (view.SkirtCells.Where((_, i) => i % 53 == 0).Any(s => controller.IsFree(s.At) || controller.PathTo(s.At) is not null))
                 problems.Add($"{id}'s skirt can be walked on");
+            // The relief, the water and the ways (sprint 179, D90): hills in the forests only, every water cell drawn
+            // rounded, no ring on a way but a hall's shut door, and a click finds the cell under the relief.
+            if ((Relief.Amplitude(t.Zone) > 0) == view.Relief.Flat)
+                problems.Add($"{id} is drawn {(view.Relief.Flat ? "flat" : "with hills")}");
+            int water = t.Rows.Sum(r => r.Count(k => k == '~')) + view.SkirtCells.Count(s => s.Kind == '~');
+            if (view.WaterShown.Cells != water)
+                problems.Add($"{id} draws {view.WaterShown.Cells} cells of water out of {water}");
+            if (view.ShutRings != controller.ShutWays.Count)
+                problems.Add($"{id} rings {view.ShutRings} ways");
+            if (!view.Relief.Flat)
+            {
+                Cell centre = _town!.Position;
+                foreach (Cell d in new Cell[] { new(0, 0), new(3, 2), new(-4, 1), new(2, -3), new(-2, -2) })
+                {
+                    Cell c = centre + d;
+                    if (view.Pick(_camera, _camera.UnprojectPosition(view.W(c))) != c)
+                        problems.Add($"on the hills of {id}, a click on {c} finds {view.Pick(_camera, _camera.UnprojectPosition(view.W(c)))}");
+                }
+            }
             RemoveChild(view);
             view.QueueFree();
         }
@@ -3287,7 +3308,7 @@ public partial class Main
             _town = town;
             return;
         }
-        Vector2 Screen(Cell c) => _camera.UnprojectPosition(BoardView.ToWorld(c));
+        Vector2 Screen(Cell c) => _camera.UnprojectPosition(_townView!.W(c));
         ShowEdge(Screen(link.At));
         (ZoneLink, Cell)? expected = _town.EdgeWay(link.At);
         if (expected is not ({ } way, Cell step) || !_edgeArrow!.Visible || _edgeArrow.ZoneText != (way.Name?.In(_talkPanel!.Texts.Lang) ?? ""))
@@ -3555,7 +3576,7 @@ public partial class Main
         menu.QueueFree();
         _groupMenu = null;
         // A right click on the monster's head, a little off, still finds it (D68).
-        Vector2 head = _camera.UnprojectPosition(BoardView.ToWorld(group.Home) + new Vector3(0, 1.2f, 0)) + new Vector2(20, -10);
+        Vector2 head = _camera.UnprojectPosition(_townView!.W(group.Home) + new Vector3(0, 1.2f, 0)) + new Vector2(20, -10);
         if (GroupUnder(head) != group.Home)
             problems.Add($"a right click near the head of the group {group.Id} does not reach it");
         _town = town;
@@ -3575,7 +3596,7 @@ public partial class Main
         {
             stay.MoveGroup(group.Id, roamed);
             view.PlaceGroup(group.Id, roamed);
-            if (view.Groups[group.Id].Position != BoardView.ToWorld(roamed))
+            if (view.Groups[group.Id].Position != view.W(roamed))
                 problems.Add($"the group {group.Id} is not drawn where it roamed");
         }
         else
@@ -3583,7 +3604,7 @@ public partial class Main
         // Another player (sprint 118): drawn where the server says, walking on, gone; a group fought hidden, then back.
         var plop = new OtherPlayer(Guid.NewGuid(), "Plop", new Hero("Plop", "male-a", "guard"), stay.Town.Spawn);
         view.ShowOthers([plop], 4);
-        bool drawn = view.Others.TryGetValue(plop.Id, out Node3D? other) && other.Position == BoardView.ToWorld(plop.At);
+        bool drawn = view.Others.TryGetValue(plop.Id, out Node3D? other) && other.Position == view.W(plop.At);
         view.ShowOthers([plop with { At = plop.At.Neighbours().First(stay.IsFree) }], 4);
         bool walking = view.Others.Count == 1;
         // In a guild now (sprint 145): its name under Plop's, drawn again; out of it, gone.

@@ -31,6 +31,9 @@ public partial class TownView : Node3D
     public Node3D Player { get; private set; } = null!;
     public Dictionary<string, Node3D> People { get; } = [];
 
+    /// <summary>The rings drawn on ways between maps: only a hall's shut doors since sprint 179 (for the self-test).</summary>
+    public int ShutRings { get; private set; }
+
     /// <summary>The dungeons' keeps drawn (sprint 86), for the self-test.</summary>
     public int Keeps { get; private set; }
 
@@ -53,24 +56,25 @@ public partial class TownView : Node3D
         // tone along the roads. The fights keep their checks (BoardView).
         StandardMaterial3D[] grass = [.. Enumerable.Range(0, DecorScatter.Tones).Select(t => Grass(new Color(light).Lerp(new Color(dark), t / (DecorScatter.Tones - 1f))))];
         StandardMaterial3D[] dry = [.. grass.Select(g => Grass(g.AlbedoColor.Lerp(DryGrass, 0.3f)))];
+        // Since sprint 179 (D90) the ground is one mesh over the map and its skirt, following the relief; the water
+        // is drawn over it in rounded puddles and ponds; only the roads keep their tiles (they lie on flat ground).
+        Relief = new Relief(controller.Data, town);
+        SkirtCells = PlainGround ? [] : MapSkirt.Around(controller.Data, town);
+        Ground(controller, grass, dry);
         foreach (Cell c in controller.Board.Cells())
         {
             char k = town[c];
-            Node3D ground = k switch
+            if (k == '=')
             {
-                '=' => Model(Kit + "road.glb"),
-                '~' => Looks.Nature("ground_riverTile").Instantiate<Node3D>(),
-                _ => Looks.Nature("ground_grass").Instantiate<Node3D>(),
-            };
-            ground.Position = BoardView.ToWorld(c);
+                Node3D road = Model(Kit + "road.glb");
+                road.Position = BoardView.ToWorld(c);
+                AddChild(road);
+            }
             Tiles++;
-            if (k is not '=' and not '~')
-                BoardView.Paint(ground, PlainGround ? grass[0] : (DecorScatter.Dry(town, c) ? dry : grass)[DecorScatter.Tone(c)]);
-            AddChild(ground);
             Decorate(c, k);
         }
-        if (!PlainGround)
-            Skirt(controller, grass);
+        foreach (SkirtCell s in SkirtCells)
+            SkirtDecor(s);
         foreach (Sprig bush in DecorScatter.Rim(town, RimPieces.Length))
         {
             (string path, float scale) = RimPieces[bush.Variant];
@@ -83,7 +87,8 @@ public partial class TownView : Node3D
         for (int i = 0; i < Herd.Animals.Count; i++)
         {
             Node3D beast = Creatures.Beast(Herd.Animals[i].Kind);
-            beast.Position = BoardView.ToWorld(Herd.At(i));
+            beast.Position = W(Herd.At(i));
+            _onRelief.Add(beast);
             beast.RotationDegrees = new Vector3(0, (Herd.At(i).X * 67 + Herd.At(i).Y * 31) % 360, 0);
             AddChild(beast);
             Animate(beast, "idle");
@@ -93,7 +98,8 @@ public partial class TownView : Node3D
         foreach (Npc npc in town.Npcs)
         {
             Node3D person = Person(new Hero("", npc.Look, null, npc.Colour), npc.Name.In(lang));
-            person.Position = BoardView.ToWorld(npc.At);
+            person.Position = W(npc.At);
+            _onRelief.Add(person);
             AddChild(person);
             People[npc.Id] = person;
         }
@@ -114,16 +120,21 @@ public partial class TownView : Node3D
         // zone's name once, above its middle cell; a way inside the zone, none (D64).
         IReadOnlyList<ZoneLink> links = town.Links ?? [];
         var named = links.Where(l => l.Name is not null).GroupBy(l => l.To).Select(g => g.OrderBy(l => l.At.X).ThenBy(l => l.At.Y).ElementAt(g.Count() / 2)).ToHashSet();
-        // A hall's far door while its group stands (sprint 86): ringed in the enemies' colour.
+        // Since sprint 179 (Charles, D90) the ways between maps have no ring: the zone's name and the edge's arrow
+        // say enough. Only a hall's door still shut keeps its ring, in the enemies' colour.
         foreach (ZoneLink link in links)
         {
-            AddChild(new MeshInstance3D
+            if (controller.ShutWays.Contains(link))
             {
-                Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
-                MaterialOverride = new StandardMaterial3D { AlbedoColor = controller.ShutWays.Contains(link) ? FighterView.EnemyColour : FighterView.PlayerColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
-                Scale = new Vector3(1, 0.15f, 1),
-                Position = BoardView.ToWorld(link.At) + new Vector3(0, 0.05f, 0),
-            });
+                AddChild(new MeshInstance3D
+                {
+                    Mesh = new TorusMesh { InnerRadius = 0.32f, OuterRadius = 0.45f, Rings = 24 },
+                    MaterialOverride = new StandardMaterial3D { AlbedoColor = FighterView.EnemyColour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+                    Scale = new Vector3(1, 0.15f, 1),
+                    Position = BoardView.ToWorld(link.At) + new Vector3(0, 0.05f, 0),
+                });
+                ShutRings++;
+            }
             if (!named.Contains(link))
                 continue;
             Label3D label = Label(link.Name!.In(lang), BoardView.ToWorld(link.At) + new Vector3(0, 0.7f, 0), 36);
@@ -218,10 +229,50 @@ public partial class TownView : Node3D
         _playerName = string.IsNullOrEmpty(player.Name) ? null : player.Name;
         Tag(Player, _playerName, null, null, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
-        Player.Position = BoardView.ToWorld(controller.Position);
+        Player.Position = W(controller.Position);
+        _onRelief.Add(Player);
         ShowNamesNear(controller.Position);
         AddChild(Player);
         _pathMaterial = new StandardMaterial3D { AlbedoColor = new Color(1f, 0.9f, 0.35f, 0.8f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+        // Everything laid on the ground above, at the height of the relief under it (sprint 179); what moves was
+        // placed on it already.
+        foreach (Node3D child in GetChildren().OfType<Node3D>())
+        {
+            if (_onRelief.Add(child))
+                child.Position = Lift(child.Position);
+        }
+    }
+
+    /// <summary>The ground's heights (sprint 179, D90): hills in the forests, flat elsewhere.</summary>
+    public Relief Relief { get; private set; } = null!;
+
+    // The nodes already standing on the relief: the ground itself, and what moves.
+    private readonly HashSet<Node3D> _onRelief = [];
+
+    /// <summary>A cell's middle, on the ground (at the height of the relief).</summary>
+    public Vector3 W(Cell c) => BoardView.ToWorld(c) + new Vector3(0, Relief.At(c), 0);
+
+    /// <summary>A point raised by the height of the relief under it.</summary>
+    public Vector3 Lift(Vector3 v) => v + new Vector3(0, Relief.At(v.X, v.Z), 0);
+
+    /// <summary>
+    /// The cell under a point of the screen, where the camera's ray meets the relief: from the flat ground, a few
+    /// steps up to the height found under the last hit (the slopes are gentle, it settles at once).
+    /// </summary>
+    public Cell? Pick(Camera3D camera, Vector2 screen)
+    {
+        ArgumentNullException.ThrowIfNull(camera);
+        Vector3 from = camera.ProjectRayOrigin(screen), dir = camera.ProjectRayNormal(screen);
+        if (Mathf.IsZeroApprox(dir.Y))
+            return null;
+        float h = 0;
+        Vector3 hit = from;
+        for (int i = 0; i < 8; i++)
+        {
+            hit = from + dir * ((h - from.Y) / dir.Y);
+            h = Relief.At(hit.X, hit.Z);
+        }
+        return new Cell(Mathf.RoundToInt(hit.X), Mathf.RoundToInt(hit.Z));
     }
 
     private readonly Dictionary<string, (MeshInstance3D Gem, Node3D Resource, Node3D? Remnant, NodeKind Kind)> _nodes = [];
@@ -590,71 +641,194 @@ public partial class TownView : Node3D
     private static readonly Dictionary<(Material, int), Material> _faded = [];
     private static float? _tileTop;
 
+    private static readonly Color Mud = new("5a4630");
+    private static readonly Color Road = new("8a7a5c");
+
     /// <summary>
-    /// The skirt past the map's edges (sprint 178, <see cref="MapSkirt"/>): the neighbour's first six cells, or a
-    /// made-up wood, darker and greyer outwards until it melts into the background. Its ground is one mesh, a
-    /// quad a cell coloured at its corners; its decor the map's own models, faded. Nothing on it is picked.
+    /// The ground (sprint 179, D90): one mesh over the map and its skirt (sprint 178), a quad a cell, its corners at
+    /// the relief's heights and lit by its slope, coloured by the cells around them (the zone's tones in patches,
+    /// drier along the roads, mud along the water), the skirt's darker and greyer outwards until it melts into the
+    /// background. Then the water over it, and reeds and water lilies.
     /// </summary>
-    private void Skirt(TownController controller, StandardMaterial3D[] grass)
+    private void Ground(TownController controller, StandardMaterial3D[] grass, StandardMaterial3D[] dry)
     {
-        SkirtCells = MapSkirt.Around(controller.Data, controller.Town);
-        if (SkirtCells.Count == 0)
-            return;
-        _tileTop ??= TileTop();
-        Dictionary<Cell, SkirtCell> at = SkirtCells.ToDictionary(s => s.At);
-        Color Ground(SkirtCell s) => s.Kind switch
+        Town town = controller.Town;
+        float tileTop = _tileTop ??= TileTop();
+        int w = town.Width, h = town.Rows.Count;
+        Dictionary<Cell, SkirtCell> skirt = SkirtCells.ToDictionary(s => s.At);
+        int margin = SkirtCells.Count == 0 ? 0 : MapSkirt.Depth;
+        bool OnMap(Cell c) => c.X >= 0 && c.X < w && c.Y >= 0 && c.Y < h;
+        char? Kind(Cell c) => OnMap(c) ? town[c] : skirt.TryGetValue(c, out SkirtCell s) ? s.Kind : null;
+        bool IsWater(Cell c) => Kind(c) == '~';
+        Color? CellColour(Cell c) => Kind(c) switch
         {
-            '=' => new Color("8a7a5c"),
-            '~' => new Color("3d7fa6"),
-            _ => grass[DecorScatter.Tone(s.At)].AlbedoColor,
+            null => null,
+            '~' => Mud,
+            '=' => Road,
+            _ when PlainGround => grass[0].AlbedoColor,
+            _ when OnMap(c) && DecorScatter.Dry(town, c) => dry[DecorScatter.Tone(c)].AlbedoColor,
+            _ => grass[DecorScatter.Tone(c)].AlbedoColor,
         };
-        int w = controller.Town.Width, h = controller.Town.Rows.Count;
-        // A corner's colour: the cells around it (the map's own unfaded), faded as far as the corner lies from the
-        // map, so that the ground darkens smoothly from the edge, without a step.
+        // A corner's colour: the cells around it, faded as far as the corner lies from the map.
         Color Corner(int x, int y)
         {
             Color sum = new(0, 0, 0);
             int n = 0;
             foreach (Cell c in new Cell[] { new(x - 1, y - 1), new(x, y - 1), new(x - 1, y), new(x, y) })
             {
-                if (at.TryGetValue(c, out SkirtCell s))
-                    sum += Ground(s);
-                else if (controller.Board.Contains(c))
-                    sum += grass[DecorScatter.Tone(c)].AlbedoColor;
-                else
-                    continue;
-                n++;
+                if (CellColour(c) is Color colour)
+                {
+                    sum += colour;
+                    n++;
+                }
             }
             float away = Math.Max(Math.Max(-x, x - w), Math.Max(-y, y - h));
             return n == 0 ? Background : Faded(sum / n, MapSkirt.Fade(away));
         }
+        Vector3 Point(int x, int y) => new(x - 0.5f, tileTop + Relief.Corner(x, y), y - 0.5f);
+        Vector3 Normal(int x, int y) => new Vector3(Relief.Corner(x - 1, y) - Relief.Corner(x + 1, y), 2, Relief.Corner(x, y - 1) - Relief.Corner(x, y + 1)).Normalized();
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
-        foreach (SkirtCell s in SkirtCells)
+        for (int y = -margin; y < h + margin; y++)
         {
-            // Corners at the cell's edges (a cell is centred on its integer position).
-            int x = s.At.X, y = s.At.Y;
-            (Vector3 p, Color c)[] quad =
-            [
-                (new Vector3(x - 0.5f, _tileTop.Value, y - 0.5f), Corner(x, y)),
-                (new Vector3(x + 0.5f, _tileTop.Value, y - 0.5f), Corner(x + 1, y)),
-                (new Vector3(x + 0.5f, _tileTop.Value, y + 0.5f), Corner(x + 1, y + 1)),
-                (new Vector3(x - 0.5f, _tileTop.Value, y + 0.5f), Corner(x, y + 1)),
-            ];
-            foreach (int i in new[] { 0, 1, 2, 0, 2, 3 })
+            for (int x = -margin; x < w + margin; x++)
             {
-                st.SetNormal(Vector3.Up);
-                st.SetColor(quad[i].c);
-                st.AddVertex(quad[i].p);
+                (int X, int Y)[] quad = [(x, y), (x + 1, y), (x + 1, y + 1), (x, y + 1)];
+                foreach (int i in new[] { 0, 1, 2, 0, 2, 3 })
+                {
+                    st.SetNormal(Normal(quad[i].X, quad[i].Y));
+                    st.SetColor(Corner(quad[i].X, quad[i].Y));
+                    st.AddVertex(Point(quad[i].X, quad[i].Y));
+                }
             }
-            SkirtDecor(s);
         }
-        AddChild(new MeshInstance3D
+        var ground = new MeshInstance3D
         {
             Mesh = st.Commit(),
-            MaterialOverride = new StandardMaterial3D { VertexColorUseAsAlbedo = true, Roughness = 1 },
-            Name = "Skirt",
-        });
+            MaterialOverride = new StandardMaterial3D { VertexColorUseAsAlbedo = true, VertexColorIsSrgb = true, Roughness = 1 },
+            Name = "Ground",
+        };
+        AddChild(ground);
+        _onRelief.Add(ground);
+        Water(controller, IsWater, margin);
+    }
+
+    /// <summary>How many water cells are drawn as rounded puddles and ponds, and how many reeds and lilies (for the self-test).</summary>
+    public (int Cells, int Reeds, int Lilies) WaterShown { get; private set; }
+
+    /// <summary>
+    /// The water (sprint 179, D90): every water cell of the map and its skirt a rounded polygon (<see cref="Waters"/>)
+    /// a little over the ground, all in one glossy mesh, the skirt's faded; reeds on the shore and water lilies on the
+    /// map's own water, never where something stands or is to be clicked.
+    /// </summary>
+    private void Water(TownController controller, Func<Cell, bool> isWater, int margin)
+    {
+        Town town = controller.Town;
+        int w = town.Width, h = town.Rows.Count;
+        Color deep = town.ZoneId == "lake" ? new Color("4f9cc4") : new Color("4f93a3");
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+        int cells = 0;
+        for (int y = -margin; y < h + margin; y++)
+        {
+            for (int x = -margin; x < w + margin; x++)
+            {
+                Cell c = new(x, y);
+                if (!isWater(c))
+                    continue;
+                cells++;
+                float away = Math.Max(Math.Max(-x, x - w + 1), Math.Max(-y, y - h + 1)) - 0.5f;
+                Color colour = Faded(deep, MapSkirt.Fade(away));
+                float top = _tileTop!.Value + Relief.At(c) + 0.035f;
+                IReadOnlyList<(float X, float Z)> outline = Waters.Outline(isWater, c);
+                for (int i = 0; i < outline.Count; i++)
+                {
+                    (float ax, float az) = outline[i];
+                    (float bx, float bz) = outline[(i + 1) % outline.Count];
+                    foreach (Vector3 v in new[] { new Vector3(x, top, y), new Vector3(x + ax, top, y + az), new Vector3(x + bx, top, y + bz) })
+                    {
+                        st.SetNormal(Vector3.Up);
+                        st.SetColor(colour);
+                        st.AddVertex(v);
+                    }
+                }
+            }
+        }
+        if (cells == 0)
+            return;
+        var water = new MeshInstance3D
+        {
+            Mesh = st.Commit(),
+            MaterialOverride = new StandardMaterial3D
+            {
+                VertexColorUseAsAlbedo = true,
+                VertexColorIsSrgb = true,
+                Roughness = 0.2f,
+                MetallicSpecular = 0.8f,
+                CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+            },
+            Name = "Water",
+        };
+        AddChild(water);
+        _onRelief.Add(water);
+        HashSet<Cell> taken = [.. town.Npcs.Select(n => n.At), .. town.Exits.Select(e => e.At), .. (town.Links ?? []).Select(l => l.At),
+            .. town.Doors.Select(d => d.At), .. (town.Props ?? []).Select(p => p.At), .. (town.Workshops ?? []).Select(k => k.At),
+            .. controller.Nodes.Select(n => n.At), .. controller.Groups.Values, town.Spawn];
+        int reeds = 0, lilies = 0;
+        foreach (Cell c in controller.Board.Cells())
+        {
+            if (Waters.Reeds(isWater, c, x => town[x] == '.' && !taken.Contains(x)))
+            {
+                Reeds(c, isWater);
+                reeds++;
+            }
+            else if (Waters.Lily(isWater, c, taken.Contains))
+            {
+                Lily(c);
+                lilies++;
+            }
+        }
+        WaterShown = (cells, reeds, lilies);
+    }
+
+    private static StandardMaterial3D? _reed, _lily;
+
+    /// <summary>A clump of reeds on the shore, leaning out over the water from the side of the cell that faces it.</summary>
+    private void Reeds(Cell c, Func<Cell, bool> isWater)
+    {
+        _reed ??= new StandardMaterial3D { AlbedoColor = new Color("8fa85a"), Roughness = 0.9f };
+        Cell toward = new[] { new Cell(1, 0), new Cell(-1, 0), new Cell(0, 1), new Cell(0, -1) }.First(d => isWater(c + d));
+        var clump = new Node3D { Position = BoardView.ToWorld(c) + new Vector3(toward.X * 0.36f, 0, toward.Y * 0.36f) };
+        AddChild(clump);
+        for (int i = 0; i < 6; i++)
+        {
+            float a = i * 1.1f + DecorScatter.Unit(c, (uint)i) * 0.6f, r = 0.04f + 0.05f * (i % 3);
+            float height = 0.38f + 0.14f * DecorScatter.Unit(c, 10 + (uint)i);
+            clump.AddChild(new MeshInstance3D
+            {
+                Mesh = new CylinderMesh { TopRadius = 0.006f, BottomRadius = 0.016f, Height = height, RadialSegments = 5, Rings = 1 },
+                MaterialOverride = _reed,
+                Position = new Vector3(Mathf.Cos(a) * r, height / 2, Mathf.Sin(a) * r),
+                RotationDegrees = new Vector3(toward.Y * 8 + (i % 2 == 0 ? 4 : -4), 0, -toward.X * 8),
+            });
+        }
+    }
+
+    /// <summary>A water lily: a round leaf with its notch, floating, now and then a white flower on it.</summary>
+    private void Lily(Cell c)
+    {
+        _lily ??= new StandardMaterial3D { AlbedoColor = new Color("4f8a3a"), Roughness = 0.6f };
+        Vector3 at = BoardView.ToWorld(c) + new Vector3((DecorScatter.Unit(c, 0x1112) - 0.5f) * 0.4f, 0.04f, (DecorScatter.Unit(c, 0x1113) - 0.5f) * 0.4f);
+        var leaf = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh { TopRadius = 0.13f, BottomRadius = 0.13f, Height = 0.012f, RadialSegments = 14, Rings = 1 },
+            MaterialOverride = _lily,
+            Position = at,
+            RotationDegrees = new Vector3(0, DecorScatter.Unit(c, 0x1114) * 360, 0),
+        };
+        AddChild(leaf);
+        if (DecorScatter.Hash(c, 0x1115) % 3 == 0)
+            Part(leaf, new SphereMesh { Radius = 0.045f, Height = 0.06f, RadialSegments = 8, Rings = 4 }, new Color("f2efe6"), new Vector3(0.03f, 0.03f, 0));
     }
 
     /// <summary>The height of a ground tile's top, where the skirt's ground lies to meet it.</summary>
@@ -1014,7 +1188,7 @@ public partial class TownView : Node3D
             QuestMark mark = book?.Mark(GameData.Embedded.RefOf(Controller.Town, npc)) ?? QuestMark.None;
             if (!_marks.TryGetValue(npc.Id, out Label3D? label))
             {
-                label = Label("", BoardView.ToWorld(npc.At) + new Vector3(0, 1.9f, 0), 72);
+                label = Label("", W(npc.At) + new Vector3(0, 1.9f, 0), 72);
                 AddChild(label);
                 _marks[npc.Id] = label;
             }
@@ -1047,7 +1221,7 @@ public partial class TownView : Node3D
             AddChild(_trail);
         _trail.Visible = at is not null;
         if (at is Cell c)
-            _trail.Position = BoardView.ToWorld(c) + new Vector3(0, 0.07f, 0);
+            _trail.Position = W(c) + new Vector3(0, 0.07f, 0);
     }
 
     /// <summary>The yellow of the marks, of the lanterns' light on the world map.</summary>
@@ -1269,7 +1443,7 @@ public partial class TownView : Node3D
         Animate(beast, "walk");
         foreach (Cell c in path)
         {
-            Vector3 to = BoardView.ToWorld(c);
+            Vector3 to = W(c);
             beast.Rotation = new Vector3(0, Mathf.Atan2(to.X - beast.Position.X, to.Z - beast.Position.Z), 0);
             while (beast.Position != to)
             {
@@ -1295,7 +1469,8 @@ public partial class TownView : Node3D
 
     private void AddGroup(MonsterGroup group, Cell at, string lang)
     {
-        var root = new Node3D { Position = BoardView.ToWorld(at), Name = "Group " + group.Id };
+        var root = new Node3D { Position = W(at), Name = "Group " + group.Id };
+        _onRelief.Add(root);
         root.AddChild(new MeshInstance3D
         {
             Mesh = new TorusMesh { InnerRadius = 0.4f, OuterRadius = 0.48f, Rings = 24 },
@@ -1339,7 +1514,7 @@ public partial class TownView : Node3D
             Animate(m, "walk");
         foreach (Cell c in path)
         {
-            Vector3 to = BoardView.ToWorld(c);
+            Vector3 to = W(c);
             foreach (Node3D m in models)
                 m.Rotation = new Vector3(0, Mathf.Atan2(to.X - root.Position.X, to.Z - root.Position.Z), 0);
             while (root.Position != to)
@@ -1482,7 +1657,8 @@ public partial class TownView : Node3D
             if (!Others.TryGetValue(other.Id, out Node3D? person))
             {
                 person = Person(other.Look, other.Name, other.Guild, AchievementsPage.TitleOf(other.Title, _lang), GuildPage.CrestOf(other.Crest), player: true);
-                person.Position = BoardView.ToWorld(other.At);
+                person.Position = W(other.At);
+                _onRelief.Add(person);
                 AddChild(person);
                 Others[other.Id] = person;
             }
@@ -1507,7 +1683,7 @@ public partial class TownView : Node3D
         Animate(model, "walk");
         foreach (Cell c in path)
         {
-            Vector3 to = BoardView.ToWorld(c);
+            Vector3 to = W(c);
             Face(root, to - root.Position);
             while (root.Position != to)
             {
@@ -1524,7 +1700,7 @@ public partial class TownView : Node3D
     public void PlaceGroup(string id, Cell at)
     {
         _groupWalks[id] = _groupWalks.GetValueOrDefault(id) + 1;
-        Groups[id].Position = BoardView.ToWorld(at);
+        Groups[id].Position = W(at);
     }
 
     /// <summary>Whether a group's label is shown (for the self-test).</summary>
@@ -1538,7 +1714,7 @@ public partial class TownView : Node3D
         _pathMarks.Clear();
         foreach (Cell c in path ?? [])
         {
-            var mark = new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(0.9f, 0.9f) }, MaterialOverride = _pathMaterial, Position = BoardView.ToWorld(c) + new Vector3(0, 0.05f, 0) };
+            var mark = new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(0.9f, 0.9f) }, MaterialOverride = _pathMaterial, Position = W(c) + new Vector3(0, 0.05f, 0) };
             AddChild(mark);
             _pathMarks.Add(mark);
         }
@@ -1570,7 +1746,7 @@ public partial class TownView : Node3D
             double walked = 0;
             foreach (Cell c in move.Waypoints)
             {
-                Vector3 to = BoardView.ToWorld(c);
+                Vector3 to = W(c);
                 Face(Player, to - Player.Position);
                 if (speed <= 0)
                 {
@@ -1598,7 +1774,7 @@ public partial class TownView : Node3D
         }
         if (move.TalkTo is Npc npc)
         {
-            Face(Player, BoardView.ToWorld(npc.At) - Player.Position);
+            Face(Player, W(npc.At) - Player.Position);
             Face(People[npc.Id], Player.Position - People[npc.Id].Position);
         }
         return true;
