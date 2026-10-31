@@ -17,6 +17,12 @@ public sealed class TreeCamera
     /// <summary>How far, in pixels, a press moves before it is a drag rather than a click.</summary>
     public const float DragThreshold = 6;
 
+    /// <summary>How close to the view's edge the node the keyboard is on may come before the camera follows it.</summary>
+    public const float FollowMargin = 48;
+
+    /// <summary>The zoom under which the names under the nodes hide (they would be under 9 px).</summary>
+    public const float NamesFrom = 0.65f;
+
     private const float FrameMargin = 48;
 
     public TreeCamera(float worldWidth, float worldHeight, float viewWidth, float viewHeight)
@@ -89,6 +95,37 @@ public sealed class TreeCamera
     public (float X, float Y) ToWorld(float viewX, float viewY) => ((viewX - X) / Zoom, (viewY - Y) / Zoom);
 
     public (float X, float Y) ToView(float worldX, float worldY) => (X + (worldX * Zoom), Y + (worldY * Zoom));
+
+    /// <summary>Whether the names under the nodes show at this zoom.</summary>
+    public bool ShowsNames => Zoom >= NamesFrom;
+
+    /// <summary>The camera as it stands, to move it back there or towards another.</summary>
+    public (float Zoom, float X, float Y) State => (Zoom, X, Y);
+
+    /// <summary>The camera put at a state, within its bounds.</summary>
+    public void Set((float Zoom, float X, float Y) state)
+    {
+        Zoom = Math.Clamp(state.Zoom, MinZoom, MaxZoom);
+        (X, Y) = (state.X, state.Y);
+        Keep();
+    }
+
+    /// <summary>The camera a share <paramref name="t"/> of the way from one state to another (the buttons' 150 ms).</summary>
+    public static (float Zoom, float X, float Y) Between((float Zoom, float X, float Y) from, (float Zoom, float X, float Y) to, float t)
+    {
+        t = Math.Clamp(t, 0, 1);
+        return (from.Zoom + ((to.Zoom - from.Zoom) * t), from.X + ((to.X - from.X) * t), from.Y + ((to.Y - from.Y) * t));
+    }
+
+    /// <summary>Moved just enough for a box of the world (the node the keyboard is on) to stand <see cref="FollowMargin"/> from the view's edges.</summary>
+    public void Follow(Box box)
+    {
+        (float left, float top) = ToView(box.X, box.Y);
+        (float right, float bottom) = ToView(box.X + box.W, box.Y + box.H);
+        float dx = left < FollowMargin ? FollowMargin - left : right > ViewWidth - FollowMargin ? ViewWidth - FollowMargin - right : 0;
+        float dy = top < FollowMargin ? FollowMargin - top : bottom > ViewHeight - FollowMargin ? ViewHeight - FollowMargin - bottom : 0;
+        PanBy(dx, dy);
+    }
 
     /// <summary>Whether a press that moved this far is a drag (more than <see cref="DragThreshold"/>), not a click.</summary>
     public static bool IsDrag(float dx, float dy) => (dx * dx) + (dy * dy) > DragThreshold * DragThreshold;

@@ -30,6 +30,9 @@
   --osmose-losing-fill: #3a2424;
   --osmose-ground: #1b1b1b;
   --osmose-cost: #f2d36b;
+  --osmose-wood: #7a5434;
+  --osmose-wood-light: #a8794f;
+  --osmose-wood-dark: #3a2616;
   /* Osmose, la carte du monde en atlas (projects/rpg, AtlasStyle, sprint 167, D87) : biomes, mer, côte, contours. */
   --osmose-map-woods: #6fae5a;
   --osmose-map-mouldy: #8f9862;

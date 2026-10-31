@@ -488,6 +488,8 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         {
             Focused = next.Id;
             Refresh();
+            // The camera follows the keyboard (sprint 177, A4).
+            _canvas.Follow(next.Box);
         }
     }
 
@@ -497,8 +499,18 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         // The path a node not taken asks, lit, its cost in the card (L8 a).
         Path = id is not null && Layout[id] is { IsTalent: true } && !Editor.TalentsTaken.Contains(id) ? TreePlan.Path(Editor.TalentsTaken, id, Editor.Data) ?? [] : [];
         ShowDetail();
+        Wood = Layout.Wood(Editor.TalentsTaken, StateOf, Path);
         _canvas.Refresh();
     }
+
+    /// <summary>The node under the mouse (its name shows at any zoom).</summary>
+    public string? Hovered => _hovered;
+
+    /// <summary>The pieces of wood a giving back would lose, lit red: none unless one is asked (for the self-test).</summary>
+    public int LostPieces => Wood.Count(p => TreeLayout.Lost(p, Editor.TalentsTaken, Losing()));
+
+    /// <summary>The talents a giving back asked would lose: the one asked and those hanging on it.</summary>
+    public IReadOnlyList<string> Losing() => Asking is { } a ? [a.Talent, .. a.Losing] : [];
 
     public override void _Input(InputEvent @event)
     {
@@ -523,6 +535,19 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
                 break;
             case Key.Enter or Key.KpEnter or Key.Space when !key.Echo:
                 Press(Focused);
+                break;
+            // The camera (sprint 177, A4): + and − at the middle, 0 the whole tree, Home back to the build.
+            case Key.Plus or Key.Equal or Key.KpAdd:
+                _canvas.Step(closer: true);
+                break;
+            case Key.Minus or Key.KpSubtract:
+                _canvas.Step(closer: false);
+                break;
+            case Key.Key0 or Key.Kp0:
+                _canvas.Overview();
+                break;
+            case Key.Home:
+                _canvas.Recentre();
                 break;
             default:
                 return;
@@ -595,7 +620,7 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         ShowDetail();
         if (Layout is not null && _canvas.Camera is not null)
         {
-            Wood = Layout.Wood(Editor.TalentsTaken, StateOf);
+            Wood = Layout.Wood(Editor.TalentsTaken, StateOf, Path);
             _canvas.Refresh();
         }
     }
@@ -656,6 +681,14 @@ public partial class TreeCanvas : Control
     private Vector2? _pressedAt;
     private Vector2 _last;
     private bool _dragging;
+    private ((float Zoom, float X, float Y) From, (float Zoom, float X, float Y) To)? _move;
+    private float _moved;
+
+    /// <summary>How long a button's or a key's move of the camera takes (§7.4: the wheel and the drag are immediate).</summary>
+    public const float MoveTime = 0.15f;
+
+    /// <summary>The camera's buttons, bottom left: closer, further, the whole tree, back to the build (for the self-test).</summary>
+    public Dictionary<string, Button> Buttons { get; } = [];
 
     /// <summary>The tree's choices, framed together: the Fusion's first floor (one of three), the four Hearts of Pure element.</summary>
     public static IEnumerable<(string Key, string[] Ids)> Choices(GameData data)
@@ -728,6 +761,22 @@ public partial class TreeCanvas : Control
             _world.AddChild(name);
             _views[n.Id] = (view, name);
         }
+        // The camera's buttons, bottom left over the tree, at the screen's size.
+        var buttons = new HBoxContainer { Position = new Vector2(96, CustomMinimumSize.Y - 52) };
+        buttons.AddThemeConstantOverride("separation", 4);
+        foreach ((string key, string text, string tip, Action act) in new (string, string, string, Action)[]
+        {
+            ("in", "+", "tree.camera.in", () => Step(closer: true)),
+            ("out", "−", "tree.camera.out", () => Step(closer: false)),
+            ("all", Panel.Texts["tree.camera.all"], "tree.camera.all.tip", Overview),
+            ("build", Panel.Texts["tree.camera.build"], "tree.camera.build.tip", Recentre),
+        })
+        {
+            var button = new Button { Text = text, TooltipText = Panel.Texts[tip], CustomMinimumSize = new Vector2(44, 44), FocusMode = FocusModeEnum.None };
+            button.Pressed += act;
+            buttons.AddChild(button);
+            Buttons[key] = button;
+        }
         // The gutter: each line's name at the left edge, the screen's size whatever the zoom, on a strip of the ground.
         AddChild(new ColorRect { Color = new Color(ElementStyle.Ground, 0.85f), Size = new Vector2(88, CustomMinimumSize.Y), MouseFilter = MouseFilterEnum.Ignore });
         foreach (TreeRow row in Enum.GetValues<TreeRow>())
@@ -740,6 +789,7 @@ public partial class TreeCanvas : Control
             AddChild(name);
             _gutter.Add((row, name));
         }
+        AddChild(buttons);
         FrameBuild();
     }
 
@@ -759,13 +809,89 @@ public partial class TreeCanvas : Control
         Place();
     }
 
-    /// <summary>The world where the camera says; the gutter's names at their lines' heights.</summary>
+    /// <summary>
+    /// The world where the camera says; the gutter's names at their lines' heights; under 65 % the names under the nodes
+    /// hidden but the one under the mouse (§7.4, the level of detail), the branches' names kept.
+    /// </summary>
     public void Place()
     {
         _world.Position = new Vector2(Camera.X, Camera.Y);
         _world.Scale = new Vector2(Camera.Zoom, Camera.Zoom);
         foreach ((TreeRow row, Label name) in _gutter)
             name.Position = new Vector2(4, Camera.ToView(0, TreeLayout.RowY(row)).Y - 16);
+        bool names = Camera.ShowsNames;
+        foreach ((string id, (_, Label name)) in _views)
+            name.Visible = names || Panel.Hovered == id;
+        foreach (Label choice in _choices)
+            choice.Visible = names;
+    }
+
+    /// <summary>The camera moved by <paramref name="change"/> in <see cref="MoveTime"/> (a button, a key, the keyboard followed).</summary>
+    private void Animate(Action<TreeCamera> change)
+    {
+        Settle();
+        (float, float, float) from = Camera.State;
+        change(Camera);
+        (float, float, float) to = Camera.State;
+        Camera.Set(from);
+        (_move, _moved) = ((from, to), 0);
+    }
+
+    /// <summary>The move under way finished at once (for the self-test).</summary>
+    public void Settle()
+    {
+        if (_move is not { } move)
+            return;
+        Camera.Set(move.To);
+        _move = null;
+        Place();
+    }
+
+    public override void _Process(double delta)
+    {
+        if (_move is not { } move)
+            return;
+        _moved += (float)delta;
+        Camera.Set(TreeCamera.Between(move.From, move.To, _moved / MoveTime));
+        if (_moved >= MoveTime)
+            _move = null;
+        Place();
+    }
+
+    /// <summary>A step closer or further, around the view's middle (+, −).</summary>
+    public void Step(bool closer) => Animate(c => c.ZoomAt(c.ViewWidth / 2, c.ViewHeight / 2, closer ? 1 : -1));
+
+    /// <summary>The whole tree (0).</summary>
+    public void Overview() => Animate(c => c.Fit());
+
+    /// <summary>Back to the build (Home).</summary>
+    public void Recentre() => Animate(c => c.Frame(Panel.Layout.Build(Panel.Editor.TalentsTaken, Panel.StateOf)));
+
+    /// <summary>The node the keyboard went to, kept 48 px from the edges.</summary>
+    public void Follow(Box box) => Animate(c => c.Follow(box));
+
+    /// <summary>The wheel and the touchpad, on the ground or a node: whether the event was one of them.</summary>
+    public bool Gesture(InputEvent @event)
+    {
+        switch (@event)
+        {
+            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp or MouseButton.WheelDown } wheel:
+                Wheel(wheel.ButtonIndex == MouseButton.WheelUp);
+                return true;
+            case InputEventMagnifyGesture pinch:
+                Vector2 at = GetLocalMousePosition();
+                Settle();
+                Camera.ZoomAt(at.X, at.Y, MathF.Log(pinch.Factor) / MathF.Log(TreeCamera.Step));
+                Place();
+                return true;
+            case InputEventPanGesture pan:
+                Settle();
+                Camera.PanBy(-pan.Delta.X * 16, -pan.Delta.Y * 16);
+                Place();
+                return true;
+            default:
+                return false;
+        }
     }
 
     /// <summary>A point of the world, in the canvas.</summary>
@@ -774,6 +900,7 @@ public partial class TreeCanvas : Control
     /// <summary>A notch of the wheel at the mouse: closer up, or further out.</summary>
     public void Wheel(bool closer)
     {
+        Settle();
         Vector2 at = GetLocalMousePosition();
         Camera.ZoomAt(at.X, at.Y, closer ? 1 : -1);
         Place();
@@ -794,6 +921,7 @@ public partial class TreeCanvas : Control
         _dragging |= TreeCamera.IsDrag(now.X - at.X, now.Y - at.Y);
         if (_dragging)
         {
+            Settle();
             Camera.PanBy(now.X - _last.X, now.Y - _last.Y);
             Place();
         }
@@ -810,11 +938,13 @@ public partial class TreeCanvas : Control
 
     public override void _GuiInput(InputEvent @event)
     {
+        if (Gesture(@event))
+        {
+            AcceptEvent();
+            return;
+        }
         switch (@event)
         {
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp or MouseButton.WheelDown } wheel:
-                Wheel(wheel.ButtonIndex == MouseButton.WheelUp);
-                break;
             case InputEventMouseButton { ButtonIndex: MouseButton.Left or MouseButton.Middle or MouseButton.Right } button:
                 if (button.Pressed)
                     PointerDown();
@@ -862,6 +992,7 @@ public partial class TreeCanvas : Control
             view.QueueRedraw();
         }
         _wood.QueueRedraw();
+        Place();
         QueueRedraw();
     }
 
@@ -869,47 +1000,70 @@ public partial class TreeCanvas : Control
     public override void _Draw() => DrawRect(new Rect2(Vector2.Zero, Size), new Color(ElementStyle.Ground));
 }
 
-/// <summary>The tree's wood (sprint 176, D87), drawn under the nodes in the world: the choices' frames over it.</summary>
+/// <summary>
+/// The tree's wood (sprint 176, D87), drawn under the nodes in the world; since sprint 177 (A5, s164-arbre-maquette.md §3.3)
+/// in layers: alive, a shadow, a glow, the wood and its pistachio sap; reachable, the wood and its highlight; bare, a dotted
+/// chocolate line. The path to the node under the mouse carries sap at 60 %; what a giving back would lose, red sap. The
+/// crown's collar a disc of wood, its heart lit once a door is taken; the choices' frames over it.
+/// </summary>
 public partial class TreeWood : Control
 {
     public TreePanel Panel { get; set; } = null!;
 
-    /// <summary>A piece's width by its kind, from the trunk, the thickest, to the twigs (§2.7).</summary>
+    /// <summary>A piece's width by its kind, from the trunk, the thickest, to the twigs (§3.3).</summary>
     public static float Width(WoodKind kind) => kind switch
     {
-        WoodKind.Trunk => 10,
-        WoodKind.Root => 4,
-        WoodKind.Axis => 5,
-        WoodKind.Twig => 3,
-        _ => 6,
+        WoodKind.Trunk => 18,
+        WoodKind.Root => 6,
+        WoodKind.Axis => 8,
+        WoodKind.Twig => 4,
+        _ => 10,
     };
 
     public override void _Draw()
     {
         TreeLayout layout = Panel.Layout;
         GameData data = Panel.Editor.Data;
+        IReadOnlyList<string> taken = Panel.Editor.TalentsTaken, losing = Panel.Losing();
+        Color sap = new(ElementStyle.Taken), wood = new(ElementStyle.Wood), light = new(ElementStyle.WoodLight), shadow = new(Colors.Black, 0.35f);
         foreach (WoodPiece piece in Panel.Wood)
         {
-            // Alive in pistachio, reachable in a fine grey, bare dotted; red what giving back would lose.
-            bool red = piece.Life == WoodLife.Alive && piece.Leads.Where(Panel.Editor.TalentsTaken.Contains).All(Panel.Losing) && piece.Leads.Any(Panel.Losing);
-            float width = Width(piece.Kind) * (piece.Life == WoodLife.Alive ? 1 : 0.6f);
-            Color colour = red ? new Color(ElementStyle.Losing)
-                : piece.Life switch
-                {
-                    WoodLife.Alive => new Color(ElementStyle.Taken),
-                    WoodLife.Reachable => new Color(0.88f, 0.88f, 0.88f, 0.6f),
-                    _ => new Color(1, 1, 1, 0.22f),
-                };
-            for (int i = 0; i + 1 < piece.Points.Count; i++)
+            Vector2[] points = [.. piece.Points.Select(p => new Vector2(p.X, p.Y))];
+            float w = Width(piece.Kind);
+            bool thick = w >= 8, lost = TreeLayout.Lost(piece, taken, losing);
+            Vector2[] Moved(Vector2 by) => [.. points.Select(p => p + by)];
+            if (piece.Life == WoodLife.Bare && !piece.Sap)
             {
-                var a = new Vector2(piece.Points[i].X, piece.Points[i].Y);
-                var b = new Vector2(piece.Points[i + 1].X, piece.Points[i + 1].Y);
-                if (piece.Life == WoodLife.Bare && !red)
-                    DrawDashedLine(a, b, colour, Math.Max(2, width), 6);
-                else
-                    DrawLine(a, b, colour, width, true);
+                for (int i = 0; i + 1 < points.Length; i++)
+                    DrawDashedLine(points[i], points[i + 1], new Color(UiStyle.Chocolate), 2, 6);
+                continue;
             }
+            if (piece.Kind is WoodKind.Twig or WoodKind.Root && piece.Life != WoodLife.Alive)
+                DrawPolyline(points, light, w, true);
+            else if (piece.Life == WoodLife.Alive && piece.Kind == WoodKind.Twig)
+                DrawPolyline(points, lost ? new Color(ElementStyle.Losing) : sap, w, true);
+            else
+            {
+                if (thick)
+                    DrawPolyline(Moved(new Vector2(0, 2)), shadow, w + 4, true);
+                if (thick && piece.Life == WoodLife.Alive)
+                    DrawPolyline(points, new Color(sap, 0.12f), w + 6, true);
+                DrawPolyline(points, wood, w, true);
+                if (piece.Life == WoodLife.Alive)
+                    DrawPolyline(points, lost ? new Color(ElementStyle.Losing) : sap, Math.Max(3, w / 2), true);
+                else
+                    DrawPolyline(Moved(new Vector2(-0.2f * w, 0)), light, 0.35f * w, true);
+            }
+            // The path under the mouse: sap at 60 % up to the node.
+            if (piece.Sap && piece.Life != WoodLife.Alive)
+                DrawPolyline(points, new Color(sap, 0.6f), Math.Max(3, w / 2), true);
         }
+        // The crown's collar: a disc of wood, its heart lit once a door is taken.
+        var crown = new Vector2(layout.Crown.X, layout.Crown.Y);
+        DrawCircle(crown, 10, light);
+        DrawArc(crown, 10, 0, Mathf.Tau, 32, new Color(ElementStyle.WoodDark), 2, true);
+        if (taken.Any(id => data.Talents.TryGetValue(id, out TalentSpec? t) && t.IsFork))
+            DrawCircle(crown, 4, sap);
         // The choices (the Fusion's first floor, the Hearts) framed together.
         foreach ((_, string[] choice) in TreeCanvas.Choices(data))
         {
@@ -917,7 +1071,7 @@ public partial class TreeWood : Control
             if (boxes.Length < 2)
                 continue;
             float x0 = boxes.Min(b => b.X) - 5, y0 = boxes.Min(b => b.Y) - 5, x1 = boxes.Max(b => b.X + b.W) + 5, y1 = boxes.Max(b => b.Y + b.H) + 5;
-            DrawStyleBox(new StyleBoxFlat { BgColor = new Color(1, 1, 1, 0.03f), BorderColor = new Color(1, 1, 1, 0.25f), BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1, CornerRadiusTopLeft = 8, CornerRadiusTopRight = 8, CornerRadiusBottomLeft = 8, CornerRadiusBottomRight = 8 }, new Rect2(x0, y0, x1 - x0, y1 - y0));
+            DrawStyleBox(new StyleBoxFlat { DrawCenter = false, BorderColor = wood, BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1, CornerRadiusTopLeft = 10, CornerRadiusTopRight = 10, CornerRadiusBottomLeft = 10, CornerRadiusBottomRight = 10 }, new Rect2(x0, y0, x1 - x0, y1 - y0));
         }
     }
 }
@@ -942,11 +1096,13 @@ public partial class TreeNodeView : Control
     /// <summary>A click takes or gives back the node when let go without a drag (sprint 176, R13); a drag from it moves the tree; the wheel zooms.</summary>
     public override void _GuiInput(InputEvent @event)
     {
+        if (Canvas.Gesture(@event))
+        {
+            AcceptEvent();
+            return;
+        }
         switch (@event)
         {
-            case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.WheelUp or MouseButton.WheelDown } wheel:
-                Canvas.Wheel(wheel.ButtonIndex == MouseButton.WheelUp);
-                break;
             case InputEventMouseButton { ButtonIndex: MouseButton.Left } button:
                 if (button.Pressed)
                     Canvas.PointerDown();
@@ -1005,14 +1161,12 @@ public partial class TreeNodeView : Control
         bool focused = Panel.Focused == Node.Id;
         bool red = Panel.Losing(Node.Id);
         TreeShapes.Draw(this, Node.Shape, look, Size, red);
-        // A plan's ghost (N2 a): a dotted pistachio ring; the path under the mouse (L8 a): a ring of light.
+        // A plan's ghost (N2 a): a dotted pistachio ring (the path under the mouse runs in the wood's sap since sprint 177).
         if (Panel.Ghosts.Contains(Node.Id))
         {
             for (int i = 0; i < 16; i++)
                 DrawArc(Size / 2, (Size.X / 2) + 3, i * Mathf.Tau / 16, (i + 0.5f) * Mathf.Tau / 16, 4, new Color(ElementStyle.Taken), 2, true);
         }
-        if (Panel.Path.Contains(Node.Id))
-            DrawArc(Size / 2, (Size.X / 2) + 5, 0, Mathf.Tau, 48, new Color(ElementStyle.Cost, 0.8f), 3, true);
         if (focused)
             DrawRect(new Rect2(-4, -4, Size.X + 8, Size.Y + 8), new Color(ElementStyle.Taken), false, 2);
         GameData data = Panel.Editor.Data;

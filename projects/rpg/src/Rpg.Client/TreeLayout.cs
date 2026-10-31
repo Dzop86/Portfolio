@@ -100,8 +100,11 @@ public enum WoodLife
     Bare,
 }
 
-/// <summary>A piece of wood: its kind, its points (straight segments from one to the next), the nodes it leads to, its life.</summary>
-public sealed record WoodPiece(WoodKind Kind, IReadOnlyList<TreePoint> Points, IReadOnlyList<string> Leads, WoodLife Life);
+/// <summary>
+/// A piece of wood: its kind, its points (straight segments from one to the next, a curve sampled in 16), the nodes it leads
+/// to, its life; and whether the path the mouse is on runs through it (sprint 177: the sap).
+/// </summary>
+public sealed record WoodPiece(WoodKind Kind, IReadOnlyList<TreePoint> Points, IReadOnlyList<string> Leads, WoodLife Life, bool Sap = false);
 
 /// <summary>A direction the keyboard moves from node to node.</summary>
 public enum Direction
@@ -248,23 +251,26 @@ public sealed class TreeLayout
     public float AxisX(Branch branch) => Columns[branch].X - 12;
 
     /// <summary>
-    /// The tree's wood for a draft (§2.7, straight segments until the sap of the next sprint): the trunk from ring to ring,
-    /// a root from the trunk's top to each door (under its name), a stem from each door taken up to the crown, the collar,
-    /// a limb from the collar to each style's foot, the arrow from Lightning to the Fusion's foot, each branch's axis from
-    /// line to line and its twigs along each line from node to node. Each piece is alive if it leads to a node taken,
-    /// reachable if to a node open, bare otherwise (<paramref name="stateOf"/> gives a node's state).
+    /// The tree's wood for a draft (§2.7): the trunk from ring to ring, a root from the trunk's top to each door (under its
+    /// name), a stem from each door taken up to the crown, the collar, a limb from the collar to each style's foot, the arrow
+    /// from Lightning to the Fusion's foot, each branch's axis from line to line and its twigs along each line from node to
+    /// node; since sprint 177 the roots, the stems and the limbs are curves leaving and reaching their ends upright, all of a
+    /// kind at the same heights, so that they fan out and never cross. Each piece is alive if it leads to a node taken,
+    /// reachable if to a node open, bare otherwise (<paramref name="stateOf"/> gives a node's state); the sap runs through
+    /// those that lead to a node of <paramref name="path"/> (the path to the node under the mouse, its door's stem drawn too).
     /// </summary>
-    public IReadOnlyList<WoodPiece> Wood(IReadOnlyList<string> taken, Func<TreeNode, NodeState?> stateOf)
+    public IReadOnlyList<WoodPiece> Wood(IReadOnlyList<string> taken, Func<TreeNode, NodeState?> stateOf, IReadOnlyList<string>? path = null)
     {
         ArgumentNullException.ThrowIfNull(taken);
         ArgumentNullException.ThrowIfNull(stateOf);
+        path ??= [];
         var pieces = new List<WoodPiece>();
         WoodLife Life(IEnumerable<string> leads)
         {
             NodeState?[] states = [.. leads.Select(id => _byId.TryGetValue(id, out TreeNode? n) ? stateOf(n) : null)];
             return states.Contains(NodeState.Taken) ? WoodLife.Alive : states.Contains(NodeState.Open) ? WoodLife.Reachable : WoodLife.Bare;
         }
-        void Add(WoodKind kind, string[] leads, params TreePoint[] points) => pieces.Add(new(kind, points, leads, Life(leads)));
+        void Add(WoodKind kind, string[] leads, params TreePoint[] points) => pieces.Add(new(kind, points, leads, Life(leads), leads.Any(path.Contains)));
         static TreePoint P(float x, float y) => new(x, y);
 
         // The trunk, from ring to ring, up to the fork; alive as far as the rings are reached.
@@ -274,15 +280,16 @@ public sealed class TreeLayout
         // A root to each door, under its name.
         TreeNode[] doors = [.. Nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure)];
         foreach (TreeNode d in doors)
-            Add(WoodKind.Root, [d.Id], P(Crown.X, TrunkTop), P(d.Box.CenterX, RootEnd));
-        // The doors taken up to the crown: straight up a little, then across over the others.
-        foreach (TreeNode d in doors.Where(d => taken.Contains(d.Id)))
-            Add(WoodKind.Stem, [d.Id], P(d.Box.CenterX, d.Box.Y), P(d.Box.CenterX, DoorsY - (Large / 2) - StemRise), P(Crown.X, Crown.Y));
+            Add(WoodKind.Root, [d.Id], Curve(P(Crown.X, TrunkTop), P(d.Box.CenterX, RootEnd)));
+        // The doors taken (or on the path) up to the crown: straight up to the same height, then curving over the others.
+        float stemY = DoorsY - (Large / 2) - StemRise;
+        foreach (TreeNode d in doors.Where(d => taken.Contains(d.Id) || path.Contains(d.Id)))
+            Add(WoodKind.Stem, [d.Id], [P(d.Box.CenterX, d.Box.Y), .. Curve(P(d.Box.CenterX, stemY), P(Crown.X, Crown.Y))]);
         string[] Lane(Branch b) => [.. Nodes.Where(n => n.Branch == b).Select(n => n.Id)];
         string[] styles = [.. Branches.Skip(1).SelectMany(Lane)];
         Add(WoodKind.Collar, styles, P(Crown.X, Crown.Y), P(Crown.X, CollarTop));
         foreach (Branch b in Branches.Skip(1))
-            Add(WoodKind.Limb, Lane(b), P(Crown.X, CollarTop), P(AxisX(b), Foot));
+            Add(WoodKind.Limb, Lane(b), Curve(P(Crown.X, CollarTop), P(AxisX(b), Foot)));
         TreeNode lightning = _byId[Pairs[0]];
         Add(WoodKind.Arrow, Lane(Branch.Braids), P(lightning.Box.CenterX, lightning.Box.Y), P(AxisX(Branch.Braids), Foot));
         // Each branch: its axis up from line to line, the twigs along each line, behind its nodes.
@@ -306,6 +313,41 @@ public sealed class TreeLayout
             }
         }
         return pieces;
+    }
+
+    /// <summary>The points a curve is drawn and tested by (G5).</summary>
+    public const int CurveSegments = 16;
+
+    /// <summary>
+    /// A curve from <paramref name="a"/> to <paramref name="b"/>, leaving and reaching them upright (a cubic Bézier whose
+    /// handles are halfway up), sampled in <see cref="CurveSegments"/>: its height at each sample depends on its ends' heights
+    /// alone, so that curves with the same heights never cross.
+    /// </summary>
+    public static TreePoint[] Curve(TreePoint a, TreePoint b)
+    {
+        float middle = (a.Y + b.Y) / 2;
+        var points = new TreePoint[CurveSegments + 1];
+        for (int i = 0; i <= CurveSegments; i++)
+        {
+            float t = (float)i / CurveSegments, u = 1 - t;
+            float x = (u * u * u * a.X) + (3 * u * u * t * a.X) + (3 * u * t * t * b.X) + (t * t * t * b.X);
+            float y = (u * u * u * a.Y) + (3 * u * u * t * middle) + (3 * u * t * t * middle) + (t * t * t * b.Y);
+            points[i] = new TreePoint(x, y);
+        }
+        return points;
+    }
+
+    /// <summary>
+    /// Whether a piece would be lost by the giving back asked (the window's only red, §2.6): alive, and every node taken it
+    /// leads to among those <paramref name="losing"/>; none without a giving back asked.
+    /// </summary>
+    public static bool Lost(WoodPiece piece, IReadOnlyCollection<string> taken, IReadOnlyCollection<string> losing)
+    {
+        ArgumentNullException.ThrowIfNull(piece);
+        ArgumentNullException.ThrowIfNull(taken);
+        ArgumentNullException.ThrowIfNull(losing);
+        string[] held = [.. piece.Leads.Where(taken.Contains)];
+        return losing.Count > 0 && piece.Life == WoodLife.Alive && held.Length > 0 && held.All(losing.Contains);
     }
 
     /// <summary>

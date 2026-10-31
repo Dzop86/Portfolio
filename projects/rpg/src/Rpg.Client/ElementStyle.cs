@@ -32,6 +32,9 @@ public static class ElementStyle
         ExcludedFill = "#2a1f1f", Locked = "#8a8a8a", LockedFill = "#202020", OutOfLevel = "#5c5c5c", OutOfLevelFill = "#1d1d1d",
         Coming = "#6a6a6a", Losing = "#f08070", LosingFill = "#3a2424", Brace = "#5a3a22", Ground = "#1b1b1b", Cost = "#f2d36b";
 
+    /// <summary>The tree's wood (sprint 177, s164-arbre-maquette.md §3.3): its body, its highlight, its edge.</summary>
+    public const string Wood = "#7a5434", WoodLight = "#a8794f", WoodDark = "#3a2616";
+
     public static string StyleColour(Branch style) => style switch
     {
         Branch.Melee => "#e8a33d",

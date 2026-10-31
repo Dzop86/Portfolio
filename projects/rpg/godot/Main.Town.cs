@@ -2857,6 +2857,25 @@ public partial class Main
                     problems.Add($"{id}: a click on {clicked.Id}, zoomed at {camera.Zoom:P0}, does not take it");
                 tree.Undo();
             }
+            // Sprint 177 (A4, A5): each button moves the camera as said, the names hidden under 65 %, the path in sap, red only
+            // when giving back.
+            TreeCanvas canvas = tree.Canvas;
+            canvas.Buttons["all"].EmitSignal(BaseButton.SignalName.Pressed);
+            canvas.Settle();
+            if (Math.Abs(camera.Zoom - camera.MinZoom) > 0.001f || canvas.NamesShown != 0)
+                problems.Add($"{id}: the overview stands at {camera.Zoom:P0}, {canvas.NamesShown} names shown");
+            canvas.Buttons["in"].EmitSignal(BaseButton.SignalName.Pressed);
+            canvas.Settle();
+            if (camera.Zoom <= camera.MinZoom)
+                problems.Add($"{id}: the + button leaves the zoom at {camera.Zoom:P0}");
+            canvas.Buttons["out"].EmitSignal(BaseButton.SignalName.Pressed);
+            canvas.Settle();
+            canvas.Buttons["build"].EmitSignal(BaseButton.SignalName.Pressed);
+            canvas.Settle();
+            if (camera.Zoom < TreeCamera.FrameZoom - 0.001f || canvas.NamesShown != layout.Nodes.Count)
+                problems.Add($"{id}: recentred at {camera.Zoom:P0}, {canvas.NamesShown} names shown");
+            if (tree.LostPieces != 0)
+                problems.Add($"{id}: {tree.LostPieces} pieces of wood in red with nothing given back");
             int expected = layout.Nodes.Count(n => n.IsTalent ? build.Contains(n.Id) : n.IsTrunk);
             if (tree.Counted.GetValueOrDefault(NodeState.Taken) != expected)
                 problems.Add($"{id}: the tree shows {tree.Counted.GetValueOrDefault(NodeState.Taken)} nodes taken, not {expected}");
@@ -2939,6 +2958,8 @@ public partial class Main
                 tree.Hover(far.Id);
                 if (tree.Path.Count == 0 && TreePlan.Path(build, far.Id, GameData.Embedded) is { Count: > 0 })
                     problems.Add($"{id}: hovering {far.Id} lights no path");
+                if (tree.Path.Count > 0 && !tree.Wood.Any(p => p.Sap))
+                    problems.Add($"{id}: the path to {far.Id} runs no sap");
                 tree.Hover(null);
             }
             // The arrow up goes to the neighbour above where the keyboard starts (K5 a).

@@ -75,4 +75,36 @@ public class TreeCameraTests
         Assert.True(TreeCamera.IsDrag(7, 0));
         Assert.True(TreeCamera.IsDrag(0, -7));
     }
+
+    [Fact]
+    public void TheCamera_FollowsTheKeyboard_KeepingTheNode48PxFromTheEdges()
+    {
+        TreeCamera camera = Camera();
+        camera.ZoomAt(466, 322, 4);
+        camera.Centre(900, 390);
+        var near = new Box(900, 390, 56, 56);
+        (float, float, float) before = camera.State;
+        camera.Follow(near);
+        Assert.Equal(before, camera.State);
+        var far = new Box(1500, 700, 56, 56);
+        camera.Follow(far);
+        (float right, float bottom) = camera.ToView(far.X + far.W, far.Y + far.H);
+        Assert.Equal(932 - TreeCamera.FollowMargin, right, 0.01f);
+        Assert.Equal(644 - TreeCamera.FollowMargin, bottom, 0.01f);
+    }
+
+    [Fact]
+    public void TheNames_HideUnder65Percent_AndAButtonMovesIn150Ms()
+    {
+        TreeCamera camera = Camera();
+        Assert.False(camera.ShowsNames);
+        camera.ZoomAt(466, 322, 2);
+        Assert.Equal(camera.Zoom >= TreeCamera.NamesFrom, camera.ShowsNames);
+        camera.Set((1, 0, 0));
+        Assert.True(camera.ShowsNames);
+        (float Zoom, float X, float Y) from = (0.5f, 0, 0), to = (1.5f, -100, 40);
+        Assert.Equal(from, TreeCamera.Between(from, to, 0));
+        Assert.Equal((1f, -50f, 20f), TreeCamera.Between(from, to, 0.5f));
+        Assert.Equal(to, TreeCamera.Between(from, to, 2));
+    }
 }

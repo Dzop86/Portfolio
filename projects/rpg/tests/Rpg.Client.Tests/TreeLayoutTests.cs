@@ -179,6 +179,41 @@ public class TreeLayoutTests
     }
 
     [Fact]
+    public void TheSap_RunsUpThePathToTheNodeUnderTheMouse_AndRedOnlyWhenGivingBack()
+    {
+        // Sprint 177 (A5): from an empty tree, the path to Nomad goes through a door, Terrain's first and second floors.
+        IReadOnlyList<string> path = TreePlan.Path([], "nomad", Data)!;
+        IReadOnlyList<WoodPiece> wood = Layout.Wood([], StateOf([], 45), path);
+        string door = path.Single(id => Data.Talents[id].IsFork);
+        Assert.Contains(wood, p => p.Kind == WoodKind.Stem && p.Sap && p.Leads.Contains(door));
+        Assert.Contains(wood, p => p.Kind == WoodKind.Root && p.Sap && p.Leads.Contains(door));
+        Assert.Contains(wood, p => p.Kind == WoodKind.Limb && p.Sap && p.Leads.Contains("nomad"));
+        Assert.Equal(3, wood.Count(p => p.Kind == WoodKind.Axis && p.Sap));
+        // Nothing of another branch, nor the twigs right of Nomad on its line.
+        Assert.DoesNotContain(wood, p => p.Sap && p.Leads.All(id => Layout[id]!.Branch is Branch.Melee or Branch.Braids));
+        Assert.All(wood.Where(p => p.Kind == WoodKind.Twig && p.Sap), p => Assert.Contains(p.Leads, path.Contains));
+        // Without a path, no sap; without a giving back asked, nothing lost; asked, the wood of what goes.
+        Assert.DoesNotContain(Layout.Wood([], StateOf([], 45)), p => p.Sap);
+        string[] seal = ["bogging", "side-step", "seal"];
+        IReadOnlyList<WoodPiece> built = Layout.Wood(seal, StateOf(seal, 45));
+        Assert.DoesNotContain(built, p => TreeLayout.Lost(p, seal, []));
+        WoodPiece[] lost = [.. built.Where(p => TreeLayout.Lost(p, seal, ["seal"]))];
+        Assert.NotEmpty(lost);
+        Assert.All(lost, p => Assert.DoesNotContain("side-step", p.Leads));
+    }
+
+    [Fact]
+    public void TheCurves_LeaveAndReachTheirEndsUpright()
+    {
+        TreePoint[] curve = TreeLayout.Curve(new(100, 600), new(400, 560));
+        Assert.Equal(TreeLayout.CurveSegments + 1, curve.Length);
+        Assert.Equal((new TreePoint(100, 600), new TreePoint(400, 560)), (curve[0], curve[^1]));
+        // Never going back down; the same heights for any two curves between the same heights.
+        Assert.All(curve.Zip(curve.Skip(1)), p => Assert.True(p.Second.Y <= p.First.Y && p.Second.X >= p.First.X));
+        Assert.Equal(curve.Select(p => p.Y), TreeLayout.Curve(new(100, 600), new(900, 560)).Select(p => p.Y));
+    }
+
+    [Fact]
     public void TheWindow_OpensOnTheBuild_ElseOnTheDoorsTrunkAndFirstFloor()
     {
         IReadOnlyList<Box> start = Layout.Build([], StateOf([], 30));
