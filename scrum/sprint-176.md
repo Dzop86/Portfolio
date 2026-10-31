@@ -6,9 +6,9 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, l'arbre se range en espalier entièrement déployé : le tronc, les portes, les sept colonnes et les Cœurs (rpg) ; xUnit sur un corpus de dispositions, auto-tests du client. | 3 | À faire |
-| En tant que joueur, des pièces de bois relient les talents à la place des liens et du bus, sans aucun croisement (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
-| En tant que joueur, je zoome l'arbre à la molette, je le glisse, et il s'ouvre cadré sur mon build (rpg) ; xUnit sur `TreeCamera`, auto-tests du client. | 1 | À faire |
+| En tant que joueur, l'arbre se range en espalier entièrement déployé : le tronc, les portes, les sept colonnes et les Cœurs (rpg) ; xUnit sur un corpus de dispositions, auto-tests du client. | 3 | Fait |
+| En tant que joueur, des pièces de bois relient les talents à la place des liens et du bus, sans aucun croisement (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
+| En tant que joueur, je zoome l'arbre à la molette, je le glisse, et il s'ouvre cadré sur mon build (rpg) ; xUnit sur `TreeCamera`, auto-tests du client. | 1 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -112,8 +112,11 @@ public sealed class Texts
         ["tree.trunk.Resistance"] = "+{0} % résist.",
         ["tree.trunk.Hp"] = "+{0} % PV",
         ["tree.trunk.detail"] = "Le tronc s'allume tout seul, sans point : {0}.",
-        ["tree.fold"] = "{0} · {1}",
-        ["tree.fold.detail"] = "{0} : clique pour déployer ce style.",
+        ["tree.row.Key"] = "Clés · niv. 45 · 2 pts",
+        ["tree.row.Second"] = "Étage 2",
+        ["tree.row.First"] = "Étage 1",
+        ["tree.row.Doors"] = "Portes",
+        ["tree.row.Trunk"] = "Tronc",
         ["tree.legend"] = "Légende",
         ["tree.plan"] = "Planifier au niveau {0}",
         ["tree.plan.leave"] = "Revenir à mon arbre",
@@ -199,7 +202,7 @@ public sealed class Texts
         ["tree.tuto.3"] = "Puis monte un style, un étage après l'autre. Survole un nœud pour tout savoir, la légende est derrière « ? ».",
         ["tree.tuto.next"] = "Suivant",
         ["tree.tuto.done"] = "Compris",
-        ["tree.choice.transmute"] = "Transmutation (au choix)",
+        ["tree.choice.transmute"] = "Fusion : 1 au choix",
         ["tree.choice.heart"] = "Élément pur : un seul Cœur",
         ["tree.look.Taken"] = "pris : à toi",
         ["tree.look.Open"] = "ouvert : un clic",
@@ -1187,8 +1190,11 @@ public sealed class Texts
         ["tree.trunk.Resistance"] = "+{0}% resist.",
         ["tree.trunk.Hp"] = "+{0}% HP",
         ["tree.trunk.detail"] = "The trunk lights up on its own, without spending a point: {0}.",
-        ["tree.fold"] = "{0} · {1}",
-        ["tree.fold.detail"] = "{0}: click to expand this style.",
+        ["tree.row.Key"] = "Keys · lv. 45 · 2 pts",
+        ["tree.row.Second"] = "Floor 2",
+        ["tree.row.First"] = "Floor 1",
+        ["tree.row.Doors"] = "Doors",
+        ["tree.row.Trunk"] = "Trunk",
         ["tree.legend"] = "Legend",
         ["tree.plan"] = "Plan at level {0}",
         ["tree.plan.leave"] = "Back to my tree",
@@ -1274,7 +1280,7 @@ public sealed class Texts
         ["tree.tuto.3"] = "Then climb a style, one floor at a time. Hover over a node for every detail; the legend is behind \"?\".",
         ["tree.tuto.next"] = "Next",
         ["tree.tuto.done"] = "Got it",
-        ["tree.choice.transmute"] = "Transmutation (pick one)",
+        ["tree.choice.transmute"] = "Fusion: pick one",
         ["tree.choice.heart"] = "Pure element: one Heart",
         ["tree.look.Taken"] = "taken: yours",
         ["tree.look.Open"] = "open: one click",
@@ -2577,8 +2583,7 @@ public sealed class Texts
     }
 
     /// <summary>
-    /// The short name under a node of the tree's window (sprint 148): a talent's name, the trunk's gain, a folded floor's
-    /// style and floor; nothing under what is still to come (L10 c).
+    /// The short name under a node of the tree's window (sprint 148): a talent's name, the trunk's gain.
     /// </summary>
     public string TreeName(TreeNode node, GameData data)
     {
@@ -2599,7 +2604,7 @@ public sealed class Texts
         }
         if (node.IsTrunk)
             return TrunkGain(int.Parse(node.Id["trunk:".Length..], CultureInfo.InvariantCulture));
-        return node.IsFold ? this["tree.fold", this["talents.branch." + node.Branch], this["talents.tier." + node.Tier]] : "";
+        return "";
     }
 
     /// <summary>
@@ -2623,7 +2628,7 @@ public sealed class Texts
             return new(title, banner, "", this["tree.trunk"], null, gain, "", editor.Hero.Level < level ? this["talents.why.Level", level] : "", null);
         }
         if (!node.IsTalent)
-            return new(title, banner, "", node.IsFold ? TreeName(node, data) : "", null, node.IsFold ? this["tree.fold.detail", this["talents.branch." + node.Branch]] : "", "", "", null);
+            return new(title, banner, "", "", null, "", "", "", null);
         TalentSpec t = data.Talents[node.Id];
         if (t.Tier == Tier.Key)
             banner += " " + this["tree.banner.Key"];

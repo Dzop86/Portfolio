@@ -113,7 +113,7 @@ public class SpellOriginTests
         var taken = new PointsEditor(hero with { Talents = ["bogging", "up-close", "firm-footing"] }, Data);
         Assert.Equal((10, 25), TreeGuide.BeforeAfter(taken.TalentsTaken, "firm-footing", taken.Draft, Data));
         Assert.Null(new Texts("fr").BeforeAfter("side-step", editor));
-        Assert.Contains("0 % → +10 %", new Texts("fr").TreeCard(new TreeLayout(Data, Branch.Melee, 934, 642)["up-close"]!, editor).Extra, StringComparison.Ordinal);
+        Assert.Contains("0 % → +10 %", new Texts("fr").TreeCard(new TreeLayout(Data)["up-close"]!, editor).Extra, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -84,7 +84,7 @@ public partial class TreeGuideTests
     [Fact]
     public void TheCard_SaysTheLayer_TheBanner_ThePairsEquation_TheCounterpart_AndTheLore()
     {
-        var layout = new TreeLayout(Data, Branch.Support, 934, 642);
+        var layout = new TreeLayout(Data);
         var editor = new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: 40, Talents: ["electrifying"]), Data);
         var fr = new Texts("fr");
         TreeCard pair = fr.TreeCard(layout["electrifying"]!, editor);

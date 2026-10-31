@@ -2834,7 +2834,30 @@ public partial class Main
             TreeLayout layout = tree.Layout;
             if (layout.Nodes.Any(n => !n.Box.Inside(layout.Width, layout.Height)))
                 problems.Add($"{id}: a node of the tree leaves its area");
-            int expected = layout.Nodes.Count(n => n.IsTalent ? build.Contains(n.Id) : n.IsTrunk || (n.IsFold && build.Any(b => GameData.Embedded.Talents[b].Branch == n.Branch && GameData.Embedded.Talents[b].Tier == n.Tier)));
+            // Sprint 176 (D87): the whole tree, deployed, its 56 talents and 3 rings; one stem a door taken, no bus; opened
+            // framed on the build at 80 % at least, the wheel zooming, a click on a node zoomed still pressing it.
+            if (layout.Nodes.Count(n => n.IsTalent) != GameData.Embedded.Talents.Count || layout.Nodes.Count(n => n.IsTrunk) != 3)
+                problems.Add($"{id}: the tree lays out {layout.Nodes.Count} nodes");
+            int stems = tree.Wood.Count(p => p.Kind == WoodKind.Stem), doors = build.Count(b => GameData.Embedded.Talents[b].IsFork);
+            if (stems != doors || tree.Wood.Any(p => p.Kind == WoodKind.Stem && p.Life != WoodLife.Alive))
+                problems.Add($"{id}: {stems} stems for {doors} doors taken");
+            TreeCamera camera = tree.Camera;
+            if (camera.Zoom < TreeCamera.FrameZoom - 0.001f)
+                problems.Add($"{id}: the tree opens at {camera.Zoom:P0}");
+            float before = camera.Zoom;
+            tree.Canvas.Wheel(closer: before < TreeCamera.MaxZoom);
+            if (Math.Abs(camera.Zoom - before) < 0.001f)
+                problems.Add($"{id}: the wheel leaves the zoom at {camera.Zoom:P0}");
+            if (layout.Nodes.FirstOrDefault(n => n.IsTalent && tree.StateOf(n) == NodeState.Open && tree.Editor.CanTake(GameData.Embedded.Talents[n.Id])) is TreeNode clicked
+                && tree.Canvas.ViewOf(clicked.Id) is TreeNodeView view)
+            {
+                view._GuiInput(new InputEventMouseButton { Pressed = true, ButtonIndex = MouseButton.Left });
+                view._GuiInput(new InputEventMouseButton { Pressed = false, ButtonIndex = MouseButton.Left });
+                if (!tree.Editor.TalentsTaken.Contains(clicked.Id))
+                    problems.Add($"{id}: a click on {clicked.Id}, zoomed at {camera.Zoom:P0}, does not take it");
+                tree.Undo();
+            }
+            int expected = layout.Nodes.Count(n => n.IsTalent ? build.Contains(n.Id) : n.IsTrunk);
             if (tree.Counted.GetValueOrDefault(NodeState.Taken) != expected)
                 problems.Add($"{id}: the tree shows {tree.Counted.GetValueOrDefault(NodeState.Taken)} nodes taken, not {expected}");
             if (layout.Nodes.Where(n => n.IsTalent).Any(n => tree.StateOf(n) != TreeLayout.State(build, n.Id, 45, GameData.Embedded)))
@@ -2867,7 +2890,7 @@ public partial class Main
             if (saved)
                 problems.Add($"{id}: Ctrl+S saves a tree that did not change");
             // A node of each kind hovered: its card says its layer and its banner (sprint 149, M2 a); each talent has its icon.
-            foreach (TreeNode n in layout.Nodes.GroupBy(n => (TreeGuide.LayerOf(n, GameData.Embedded), n.Shape, n.IsFold)).Select(g => g.First()))
+            foreach (TreeNode n in layout.Nodes.GroupBy(n => (TreeGuide.LayerOf(n, GameData.Embedded), n.Shape)).Select(g => g.First()))
             {
                 tree.Hover(n.Id);
                 TreeCard card = texts.TreeCard(n, tree.Editor);
