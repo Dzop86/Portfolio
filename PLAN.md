@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S184 | 552 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S184 | 555 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 773 points sur 184 sprints de deux semaines.
+Total : 776 points sur 184 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -204,3 +204,6 @@ Après la 1.0.165, Charles demande un personnage d'essai qui a tout et quatre re
 
 ## Osmose : le relief et les eaux (31 octobre 2026, D90)
 Après la 1.0.172, Charles veut des hauteurs dans les forêts (les champs restent plats), de plus belles flaques et plus d'anneaux aux bords des cartes : S179 (6) le relief doux des bois, des bois moisis et des Ancêtres sur un sol continu, des flaques et des étangs aux bords arrondis avec berge, roseaux et nénuphars, les anneaux des passages retirés. 6 points ; S179-S183 deviennent S180-S184.
+
+## Osmose : la monture et les soins à vie pleine (31 octobre 2026, D91)
+Pendant le sprint 179, Charles demande de voir son personnage sur la monture équipée, 30 % plus rapide hors combat, et qu'un consommable de soin soit refusé quand les PV sont au maximum ; il signale aussi le personnage qui marchait sous une colline. Ajoutés au sprint 179 : 3 points (monture 2, soins 1), sans sprint de plus.
