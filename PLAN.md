@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S183), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S184), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S183 | 546 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S184 | 552 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 767 points sur 183 sprints de deux semaines.
+Total : 773 points sur 184 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -201,3 +201,6 @@ Après la 1.0.162, Charles veut dézoomer davantage et une carte du monde avec d
 
 ## Osmose : les retours sur la 1.0.165 (31 octobre 2026, D89)
 Après la 1.0.165, Charles demande un personnage d'essai qui a tout et quatre retouches : S173 (4) la commande d'administration qui complète un seul personnage (tous les objets et panoplies, métiers au niveau maximal, chaque succès gagné) et les noms des joueurs au survol seulement, la guilde au-dessus du nom ; S174 (5) l'onglet Caractéristiques sans défilement et des régions de la carte du monde aux formes naturelles. 9 points ; S173-S181 deviennent S175-S183.
+
+## Osmose : le relief et les eaux (31 octobre 2026, D90)
+Après la 1.0.172, Charles veut des hauteurs dans les forêts (les champs restent plats), de plus belles flaques et plus d'anneaux aux bords des cartes : S179 (6) le relief doux des bois, des bois moisis et des Ancêtres sur un sol continu, des flaques et des étangs aux bords arrondis avec berge, roseaux et nénuphars, les anneaux des passages retirés. 6 points ; S179-S183 deviennent S180-S184.
