@@ -561,6 +561,8 @@ public partial class Main
         {
             case InputEventMouseMotion motion:
                 ShowEdge(motion.Position);
+                // A player's guild and name on hovering it (sprint 173, D89).
+                _townView.HoverAt(_camera, motion.Position);
                 break;
             case InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left } click when (SpotUnder(click.Position) ?? BoardView.Pick(_camera, click.Position)) is Cell cell:
                 _ = Walk(cell);
@@ -3462,13 +3464,23 @@ public partial class Main
         view.ShowOthers([plop with { Guild = "Les Veilleurs" }], 4);
         bool guild = view.GuildShownFor(plop.Id) == "‹Les Veilleurs›" && !view.CrestShownFor(plop.Id);
         // With its crest beside it (sprint 156), drawn again.
-        view.ShowOthers([plop with { Guild = "Les Veilleurs", Crest = GuildCrests.Write(GuildCrests.Default) }], 4);
+        // Away from the player's own character, so that the mouse finds Plop alone.
+        Cell apart = Enumerable.Range(3, 6).SelectMany(d => new[] { plop.At + new Cell(d, 0), plop.At + new Cell(-d, 0), plop.At + new Cell(0, d) }).First(stay.IsFree);
+        view.ShowOthers([plop with { Guild = "Les Veilleurs", Crest = GuildCrests.Write(GuildCrests.Default), At = apart }], 4);
         guild &= view.GuildShownFor(plop.Id) == "‹Les Veilleurs›" && view.CrestShownFor(plop.Id);
+        // Its guild above its name (sprint 173, D89), shown on hovering it only.
+        bool tags = view.TagLines(plop.Id).SequenceEqual(["‹Les Veilleurs›", "Plop"]) && !view.TagShown(plop.Id);
+        Node3D drawnPlop = view.Others[plop.Id];
+        Vector2 onPlop = _camera.UnprojectPosition(drawnPlop.GlobalPosition + (Vector3.Up * 0.6f * drawnPlop.Scale.Y));
+        tags &= view.HoverAt(_camera, onPlop) == drawnPlop && view.TagShown(plop.Id) && !view.TagShown();
+        tags &= view.HoverAt(_camera, onPlop + new Vector2(0, 400)) != drawnPlop && !view.TagShown(plop.Id);
+        if (!tags)
+            problems.Add($"another player's words: {string.Join(" / ", view.TagLines(plop.Id))}, shown {view.TagShown(plop.Id)}, at {drawnPlop.Position}, the player at {view.Player.Position}");
         view.ShowOthers([plop], 4);
         guild &= view.GuildShownFor(plop.Id) is null && view.Others.Count == 1;
-        // Its own guild under its own character too (sprint 152), and gone out of it.
+        // Its own guild over its own character too (sprint 152), and gone out of it.
         view.ShowOwnGuild("Les Veilleurs", GuildCrests.Default);
-        guild &= view.OwnGuildShown == "‹Les Veilleurs›" && view.OwnCrestShown;
+        guild &= view.OwnGuildShown == "‹Les Veilleurs›" && view.OwnCrestShown && view.TagLines()[0] == "‹Les Veilleurs›";
         view.ShowOwnGuild(null);
         guild &= view.OwnGuildShown is null && !view.OwnCrestShown;
         view.ShowOthers([], 4);

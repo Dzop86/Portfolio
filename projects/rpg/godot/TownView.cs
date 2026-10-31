@@ -195,6 +195,9 @@ public partial class TownView : Node3D
             _nodes[node.Id] = (gem, resource, remnant, node.Kind);
         }
         Player = Person(player, null);
+        // The player's own words over it (sprint 173, D89): its name, its guild's set apart by ShowOwnGuild; on hovering it only.
+        _playerName = string.IsNullOrEmpty(player.Name) ? null : player.Name;
+        Tag(Player, _playerName, null, null, null);
         _anim = Player.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         Player.Position = BoardView.ToWorld(controller.Position);
         ShowNamesNear(controller.Position);
@@ -532,9 +535,11 @@ public partial class TownView : Node3D
 
     private static Node3D Model(string path) => GD.Load<PackedScene>(path).Instantiate<Node3D>();
 
-    /// <summary>A character model facing the viewer, idle, its outfit painted, a name above it (or none).</summary>
-    /// <summary>A person of the map: its model, its name above it, and since sprint 145 its guild's name under the name.</summary>
-    private static Node3D Person(Hero appearance, string? name, string? guild = null, string? title = null, GuildCrest? crest = null)
+    /// <summary>
+    /// A person of the map: its model and, an inhabitant, its name above it; a player (<paramref name="player"/>), since sprint 173
+    /// (D89) its guild's name, its name under it and its title, shown on hovering it only (<see cref="Tag"/>).
+    /// </summary>
+    private static Node3D Person(Hero appearance, string? name, string? guild = null, string? title = null, GuildCrest? crest = null, bool player = false)
     {
         // A little larger than on the fighting board, next to houses two cells wide.
         var root = new Node3D { Scale = new Vector3(1.5f, 1.5f, 1.5f) };
@@ -551,35 +556,102 @@ public partial class TownView : Node3D
             }
             anim.Play("idle");
         }
-        // The name, then since sprint 155 the title worn, then the guild's, from the top.
-        int lines = (guild is null ? 0 : 1) + (title is null ? 0 : 1);
-        if (name is not null)
-            root.AddChild(Label(name, new Vector3(0, 1.0f + (0.12f * lines), 0), 40));
-        if (title is not null)
-        {
-            Label3D worn = Label(title, new Vector3(0, guild is null ? 0.98f : 1.1f, 0), 30);
-            worn.Name = "Title";
-            worn.Modulate = new Color("d9b38c");
-            root.AddChild(worn);
-        }
-        if (guild is not null)
-            AddGuild(root, guild, crest);
+        if (player)
+            Tag(root, name, guild, title, crest);
+        else if (name is not null)
+            root.AddChild(Label(name, new Vector3(0, (float)NameTags.Lowest, 0), 40));
         return root;
     }
 
-    // The guild's name under a character's, and since sprint 156 its crest beside it, on the left.
-    private static void AddGuild(Node3D root, string guild, GuildCrest? crest)
+    /// <summary>The words over a player, drawn again: from the top its guild (its crest on the left), its name, its title; hidden unless hovered.</summary>
+    private static void Tag(Node3D root, string? name, string? guild, string? title, GuildCrest? crest)
     {
-        Label3D under = Label($"‹{guild}›", new Vector3(0, 0.98f, 0), 30);
-        under.Name = "Guild";
-        under.Modulate = FighterView.PlayerColour;
-        root.AddChild(under);
-        if (crest is not null)
+        foreach (string drawn in Tags)
         {
-            float width = ThemeDB.FallbackFont.GetStringSize(under.Text, HorizontalAlignment.Left, -1, under.FontSize).X * under.PixelSize;
-            root.AddChild(CrestView.Sprites(crest, under.Position, width));
+            if (root.FindChild(drawn, false, false) is Node3D old)
+            {
+                root.RemoveChild(old);
+                old.QueueFree();
+            }
+        }
+        bool shown = root.HasMeta(Hovered);
+        foreach ((NameTagLine line, double at) in NameTags.Layout(guild is not null, name is not null, title is not null))
+        {
+            var y = new Vector3(0, (float)at, 0);
+            Label3D label = line switch
+            {
+                NameTagLine.Guild => Label($"‹{guild}›", y, 30),
+                NameTagLine.Name => Label(name!, y, 40),
+                _ => Label(title!, y, 30),
+            };
+            label.Name = line.ToString();
+            label.Visible = shown;
+            if (line == NameTagLine.Guild)
+                label.Modulate = FighterView.PlayerColour;
+            else if (line == NameTagLine.Title)
+                label.Modulate = new Color("d9b38c");
+            root.AddChild(label);
+            if (line == NameTagLine.Guild && crest is not null)
+            {
+                float width = ThemeDB.FallbackFont.GetStringSize(label.Text, HorizontalAlignment.Left, -1, label.FontSize).X * label.PixelSize;
+                Node3D sprites = CrestView.Sprites(crest, label.Position, width);
+                sprites.Visible = shown;
+                root.AddChild(sprites);
+            }
         }
     }
+
+    private static readonly string[] Tags = [nameof(NameTagLine.Guild), nameof(NameTagLine.Name), nameof(NameTagLine.Title), "Crest"];
+    private const string Hovered = "hovered";
+
+    private static void ShowTag(Node3D root, bool shown)
+    {
+        if (shown)
+            root.SetMeta(Hovered, true);
+        else if (root.HasMeta(Hovered))
+            root.RemoveMeta(Hovered);
+        foreach (string drawn in Tags)
+        {
+            if (root.FindChild(drawn, false, false) is Node3D node)
+                node.Visible = shown;
+        }
+    }
+
+    /// <summary>
+    /// The player under the mouse, if any (the player's own character among them, the nearest to the camera first), its words
+    /// shown and every other player's hidden (sprint 173, D89).
+    /// </summary>
+    public Node3D? HoverAt(Camera3D camera, Vector2 mouse)
+    {
+        ArgumentNullException.ThrowIfNull(camera);
+        Node3D? over = null;
+        float nearest = float.MaxValue;
+        foreach (Node3D person in Others.Values.Prepend(Player))
+        {
+            Vector3 feet = person.GlobalPosition, head = feet + (Vector3.Up * (float)NameTags.Height * person.Scale.Y);
+            if (camera.IsPositionBehind(feet))
+                continue;
+            Vector2 f = camera.UnprojectPosition(feet), h = camera.UnprojectPosition(head);
+            float distance = camera.GlobalPosition.DistanceTo(feet);
+            if (NameTags.Over(f.X, f.Y, h.Y, mouse.X, mouse.Y) && distance < nearest)
+                (over, nearest) = (person, distance);
+        }
+        foreach (Node3D person in Others.Values.Prepend(Player))
+            ShowTag(person, person == over);
+        return over;
+    }
+
+    /// <summary>Whether a player's words are shown (for the self-test): the player's own with null.</summary>
+    public bool TagShown(Guid? other = null) =>
+        (other is Guid id ? Others.GetValueOrDefault(id) : Player) is Node3D person && person.FindChild(nameof(NameTagLine.Name), false, false) is Label3D { Visible: true };
+
+    /// <summary>The words over a player from the top, shown or not (for the self-test): the player's own with null.</summary>
+    public IReadOnlyList<string> TagLines(Guid? other = null) =>
+        (other is Guid id ? Others.GetValueOrDefault(id) : Player) is Node3D person
+            ? [.. person.GetChildren().OfType<Label3D>().Where(l => Tags.Contains((string)l.Name)).OrderByDescending(l => l.Position.Y).Select(l => l.Text)]
+            : [];
+
+    private string? _playerName;
 
     private static Label3D Label(string text, Vector3 at, int size) => new()
     {
@@ -1035,22 +1107,10 @@ public partial class TownView : Node3D
         Others.TryGetValue(id, out Node3D? person) && person.FindChild("Title", false, false) is Label3D label ? label.Text : null;
 
     /// <summary>
-    /// The player's own guild under its own character (sprint 152, D83, the limit of T112), where the others' is drawn under
-    /// their names: the player has no name above it, so the guild's name stands alone; none out of a guild.
+    /// The player's own guild over its own character (sprint 152, D83, the limit of T112); since sprint 173 (D89), above its
+    /// name, both on hovering it only, as the other players'; none out of a guild.
     /// </summary>
-    public void ShowOwnGuild(string? guild, GuildCrest? crest = null)
-    {
-        foreach (string drawn in new[] { "Guild", "Crest" })
-        {
-            if (Player.FindChild(drawn, false, false) is Node3D old)
-            {
-                Player.RemoveChild(old);
-                old.QueueFree();
-            }
-        }
-        if (guild is not null)
-            AddGuild(Player, guild, crest);
-    }
+    public void ShowOwnGuild(string? guild, GuildCrest? crest = null) => Tag(Player, _playerName, guild, null, crest);
 
     /// <summary>Whether a crest is drawn beside the player's own guild (for the self-test).</summary>
     public bool OwnCrestShown => Player.FindChild("Crest", false, false) is not null;
@@ -1097,7 +1157,7 @@ public partial class TownView : Node3D
             }
             if (!Others.TryGetValue(other.Id, out Node3D? person))
             {
-                person = Person(other.Look, other.Name, other.Guild, AchievementsPage.TitleOf(other.Title, _lang), GuildPage.CrestOf(other.Crest));
+                person = Person(other.Look, other.Name, other.Guild, AchievementsPage.TitleOf(other.Title, _lang), GuildPage.CrestOf(other.Crest), player: true);
                 person.Position = BoardView.ToWorld(other.At);
                 AddChild(person);
                 Others[other.Id] = person;

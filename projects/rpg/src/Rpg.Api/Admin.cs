@@ -1,14 +1,17 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Rpg.Api.Data;
+using Rpg.Api.Endpoints;
 using Rpg.Core;
 
 namespace Rpg.Api;
 
 /// <summary>What the server's operator asks for the characters of an account (sprint 79).</summary>
-/// <remarks>Since sprint 146 (D82, I6 b), <see cref="Builds"/> gives each character its class's reference build of Matter; since sprint 157, <see cref="Shards"/> sets its Éclats.</remarks>
+/// <remarks>Since sprint 146 (D82, I6 b), <see cref="Builds"/> gives each character its class's reference build of Matter; since sprint 157, <see cref="Shards"/> sets its Éclats;
+/// since sprint 173 (D89), <see cref="Only"/> keeps the order to one character, <see cref="GiveAll"/> gives one of every item, <see cref="JobsMax"/> brings
+/// every trade to its last level and <see cref="Achievements"/> gives what earns every achievement.</remarks>
 public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null, IReadOnlyList<Renaming>? Rename = null,
-    bool Builds = false, bool Bestiary = false, long? Shards = null);
+    bool Builds = false, bool Bestiary = false, long? Shards = null, string? Only = null, bool GiveAll = false, bool JobsMax = false, bool Achievements = false);
 
 /// <summary>A character of the account the operator renames (sprint 94, Charles): its name, then the new one.</summary>
 public sealed record Renaming(string From, string To);
@@ -18,12 +21,16 @@ public sealed record NewHero(string Class, string Name);
 
 /// <summary>
 /// The server's administration command, run where the server runs and never over HTTP:
-/// <c>Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]... [--builds] [--bestiary full] [--shards N]</c> first creates
+/// <c>Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full]</c> first creates
 /// characters for the account (the names and the limit of the sign-up apply), renames some (a name of the
 /// sign-up's rule, free on the server), then brings every character of the
 /// account to a level (its experience with it; the points spent are given back if the level goes down)
 /// and gives them items of the data files; with <c>--builds</c> (sprint 146), each one's points, deck and talents become
-/// its class's reference build of Matter (<see cref="Progression.Builds"/>); with <c>--bestiary full</c> (sprint 154), every monster known in full; with <c>--shards N</c> (sprint 157, Charles), each one owns N Éclats. For the operator's tests (D65): no account, password or
+/// its class's reference build of Matter (<see cref="Progression.Builds"/>); with <c>--bestiary full</c> (sprint 154), every monster known in full; with <c>--shards N</c> (sprint 157, Charles), each one owns N Éclats. Since sprint 173 (D89, Charles): <c>--only Name</c>
+/// applies all this to that character alone; <c>--give all</c> gives one of every item of the data files, every set's pieces among them;
+/// <c>--jobs max</c> brings every trade to its last level; <c>--achievements full</c> gives what earns every achievement (every waystone,
+/// every monster known in full, every trade at its last level, every quest handed back, the contracts, the shared fights, the feats),
+/// and says those its talents or its guild still leave out. For the operator's tests (D65): no account, password or
 /// character is written in the repository.
 /// </summary>
 public static class Admin
@@ -51,7 +58,7 @@ public static class Admin
     /// <summary>The most Éclats the operator gives a character: a billion, far from the column's limit.</summary>
     public const long MaxShards = 1_000_000_000;
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]]... [--builds] [--bestiary full] [--shards N]";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full]";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -62,8 +69,9 @@ public static class Admin
         var give = new List<ItemCount>();
         var create = new List<NewHero>();
         var rename = new List<Renaming>();
-        bool builds = false, bestiary = false;
+        bool builds = false, bestiary = false, giveAll = false, jobsMax = false, achievements = false;
         long? shards = null;
+        string? only = null;
         for (int i = 2; i < args.Count; i++)
         {
             string value = i + 1 < args.Count ? args[i + 1] : "";
@@ -75,6 +83,10 @@ public static class Admin
                     break;
                 case "--level":
                     return (null, $"--level: 1 to {Hero.MaxLevel}.");
+                case "--give" when value == "all":
+                    giveAll = true;
+                    i++;
+                    break;
                 case "--give":
                     string[] parts = value.Split(':');
                     int count = 1;
@@ -114,13 +126,31 @@ public static class Admin
                     break;
                 case "--shards":
                     return (null, $"--shards: 0 to {MaxShards}.");
+                case "--only" when value.Length > 0 && !value.StartsWith("--", StringComparison.Ordinal):
+                    only = value;
+                    i++;
+                    break;
+                case "--only":
+                    return (null, "--only: a character's name.");
+                case "--jobs":
+                    if (value != "max")
+                        return (null, "--jobs: only 'max' (every trade at its last level).");
+                    jobsMax = true;
+                    i++;
+                    break;
+                case "--achievements":
+                    if (value != "full")
+                        return (null, "--achievements: only 'full' (what earns every achievement).");
+                    achievements = true;
+                    i++;
+                    break;
                 default:
                     return (null, $"Unknown: '{args[i]}'. {Usage}");
             }
         }
-        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0 && !builds && !bestiary && shards is null)
-            return (null, "Nothing to do: --create, --rename, --level, --give, --builds, --bestiary full or --shards N.");
-        return (new AdminOrder(args[1], level, give, create, rename, builds, bestiary, shards), null);
+        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0 && !builds && !bestiary && shards is null && !giveAll && !jobsMax && !achievements)
+            return (null, "Nothing to do: --create, --rename, --level, --give, --builds, --bestiary full, --shards N, --jobs max or --achievements full.");
+        return (new AdminOrder(args[1], level, give, create, rename, builds, bestiary, shards, only, giveAll, jobsMax, achievements), null);
     }
 
     /// <summary>Applies the order; says what it did, one line per character.</summary>
@@ -154,7 +184,10 @@ public static class Admin
             else
                 (c.Name, c.NormalizedName) = (r.To, to);
         }
-        foreach (Character c in account.Characters.OrderBy(c => c.CreatedAt).ThenBy(c => c.Name))
+        string? onlyName = order.Only?.ToUpperInvariant();
+        if (onlyName is not null && account.Characters.All(c => c.NormalizedName != onlyName))
+            return [$"{order.Only}: no such character on '{account.Name}'."];
+        foreach (Character c in account.Characters.Where(c => onlyName is null || c.NormalizedName == onlyName).OrderBy(c => c.CreatedAt).ThenBy(c => c.Name))
         {
             if (order.Level is int level)
             {
@@ -167,6 +200,8 @@ public static class Admin
                 c.Level = level;
             }
             c.Receive(order.Give);
+            if (order.GiveAll)
+                c.Receive(GameData.Embedded.Items.Keys.Order(StringComparer.Ordinal).Select(id => new ItemCount(id, 1)));
             if (order.Builds)
             {
                 // Its class's reference build of Matter at its level: its points, ranks, deck and talents.
@@ -181,11 +216,41 @@ public static class Admin
             }
             if (order.Shards is long owned)
                 c.Shards = owned;
-            if (order.Bestiary)
+            if (order.Bestiary || order.Achievements)
                 c.Bestiary = Rpg.Core.Bestiary.Write(Rpg.Core.Bestiary.Full(GameData.Embedded));
-            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s), {c.Shards} Éclats" + (order.Builds ? $", talents {c.Talents}." : "."));
+            if (order.JobsMax || order.Achievements)
+                c.Jobs = string.Join(',', GameData.Embedded.Jobs.Keys.Order(StringComparer.Ordinal)
+                    .Select(j => $"{j}:{Crafting.XpToReach(Crafting.MaxLevel).ToString(CultureInfo.InvariantCulture)}"));
+            string missing = "";
+            if (order.Achievements)
+            {
+                EarnEverything(c);
+                bool inGuild = await db.GuildMembers.AnyAsync(m => m.CharacterId == c.Id, cancel);
+                IReadOnlyList<AchievementProgress> progress = Rpg.Core.Achievements.Progress(AchievementEndpoints.StateOf(c, inGuild), GameData.Embedded);
+                List<string> left = [.. progress.Where(p => !p.Earned).Select(p => p.Id)];
+                missing = $", achievements {progress.Count - left.Count}/{progress.Count}" + (left.Count > 0 ? $" (still to earn: {string.Join(", ", left)})" : "");
+            }
+            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s), {c.Shards} Éclats" + (order.Builds ? $", talents {c.Talents}" : "") + missing + ".");
         }
         await db.SaveChangesAsync(cancel);
         return done.Count == 0 ? [$"'{account.Name}' has no character."] : done;
+    }
+
+    /// <summary>
+    /// What earns every achievement that reads what the server keeps (sprint 173, D89): every waystone, every quest handed back
+    /// (none under way), the most contracts and shared fights an achievement asks, every feat. The talents and the guild are the
+    /// player's own choices: left as they are.
+    /// </summary>
+    private static void EarnEverything(Character c)
+    {
+        GameData data = GameData.Embedded;
+        int Most(AchievementGoal goal) => Rpg.Core.Achievements.All.Where(a => a.Goal == goal).Select(a => a.Count).DefaultIfEmpty(0).Max();
+        c.Waystones = string.Join(',', Waystones.All(data).Select(w => w.Id).Distinct().Order(StringComparer.Ordinal));
+        c.Quests = string.Join(',', data.Quests.Keys.Order(StringComparer.Ordinal));
+        c.QuestLog = "";
+        c.ContractsDone = Math.Max(c.ContractsDone, Most(AchievementGoal.Contracts));
+        c.SharedWins = Math.Max(c.SharedWins, Most(AchievementGoal.SharedFights));
+        foreach (string feat in Rpg.Core.Achievements.All.Where(a => a.Goal == AchievementGoal.Feat && a.Target is not null).Select(a => a.Target!))
+            c.Feat(feat);
     }
 }

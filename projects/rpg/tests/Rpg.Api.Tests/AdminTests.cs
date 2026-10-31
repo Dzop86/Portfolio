@@ -39,6 +39,52 @@ public class AdminTests
         Assert.Null(Admin.Parse(["admin", "tester", "--shards", "-5"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--shards", "2000000000"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--shards"]).Order);
+        // Sprint 173 (D89): one character, every item, every trade at its last level, every achievement.
+        AdminOrder plop = Admin.Parse(["admin", "tester", "--only", "Plop", "--give", "all", "--jobs", "max", "--achievements", "full"]).Order!;
+        Assert.Equal(("Plop", true, true, true), (plop.Only, plop.GiveAll, plop.JobsMax, plop.Achievements));
+        Assert.Empty(plop.Give);
+        Assert.Null(Admin.Parse(["admin", "tester", "--only"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--only", "--level", "3"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--jobs", "50"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--achievements", "some"]).Order);
+    }
+
+    [Fact]
+    public async Task OneCharacter_GetsEveryItem_EveryTradeAtItsLastLevel_AndWhatEarnsEveryAchievement()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("adm");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        await server.CreateCharacter("Aube", "female-c", "mage", cancel: Cancel);
+        await server.CreateCharacter("Brume", "female-c", "guard", cancel: Cancel);
+        IReadOnlyList<string> said;
+        using (IServiceScope scope = api.Services.CreateScope())
+            said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(),
+                Admin.Parse(["admin", account, "--only", "aube", "--give", "all", "--jobs", "max", "--achievements", "full"]).Order!, Cancel);
+        Assert.Single(said);
+        GameData data = GameData.Embedded;
+        Character aube = api.WithDb(db => db.Characters.Single(c => c.Name == "Aube"));
+        // One of every item, every set's pieces among them.
+        Assert.Equal(data.Items.Keys.Order(StringComparer.Ordinal), aube.InventoryList.Select(i => i.Item));
+        Assert.All(aube.InventoryList, i => Assert.Equal(1, i.Count));
+        Assert.All(data.Sets.Keys, set => Assert.Contains(aube.InventoryList, i => data.Items[i.Item].Set == set));
+        // Every trade at its last level.
+        Assert.Equal(data.Jobs.Count, aube.JobList.Count);
+        Assert.All(aube.JobList.Values, xp => Assert.Equal(Crafting.MaxLevel, Crafting.LevelFor(xp)));
+        // Every achievement but those of its own talents and guild, which the command leaves to the player, and the crowns that ask them.
+        AchievementGoal[] own = [AchievementGoal.Talents, AchievementGoal.Pair, AchievementGoal.Heart, AchievementGoal.Key, AchievementGoal.Talent, AchievementGoal.Guild];
+        HashSet<string> chosen = [.. Achievements.All.Where(a => own.Contains(a.Goal)).Select(a => a.Id)];
+        chosen.UnionWith(Achievements.All.Where(a => a.Goal == AchievementGoal.Achievements && (a.Targets ?? []).Any(chosen.Contains)).Select(a => a.Id));
+        IReadOnlyList<string> earned = Achievements.Earned(Rpg.Api.Endpoints.AchievementEndpoints.StateOf(aube, inGuild: false), data);
+        Assert.Equal(Achievements.All.Select(a => a.Id).Where(id => !chosen.Contains(id)).Order(StringComparer.Ordinal), earned.Order(StringComparer.Ordinal));
+        Assert.Contains("still to earn", said[0], StringComparison.Ordinal);
+        Assert.Equal(Bestiary.Full(data).Count, aube.BestiaryList.Count);
+        // The other character is left as it was.
+        Character brume = api.WithDb(db => db.Characters.Single(c => c.Name == "Brume"));
+        Assert.Equal(("", "", ""), (brume.Inventory, brume.Jobs, brume.Bestiary));
+        using (IServiceScope scope = api.Services.CreateScope())
+            Assert.Equal([$"Cendre: no such character on '{account}'."], await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(),
+                Admin.Parse(["admin", account, "--only", "Cendre", "--level", "3"]).Order!, Cancel));
     }
 
     [Fact]

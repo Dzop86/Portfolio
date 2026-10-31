@@ -6,8 +6,8 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant qu'opérateur, la commande d'administration donne à un seul personnage (`--only`) tous les objets et panoplies (`--give all`), ses métiers au niveau maximal (`--jobs max`) et de quoi gagner chaque succès (`--achievements full`) ; xUnit et test d'intégration de la commande. | 2 | À faire |
-| En tant que joueur, au survol d'un joueur (moi compris), je lis le nom de sa guilde puis, juste dessous, son nom ; sans survol, rien (rpg) ; xUnit, auto-tests du client. | 2 | À faire |
+| En tant qu'opérateur, la commande d'administration donne à un seul personnage (`--only`) tous les objets et panoplies (`--give all`), ses métiers au niveau maximal (`--jobs max`) et de quoi gagner chaque succès (`--achievements full`) ; xUnit et test d'intégration de la commande. | 2 | Fait |
+| En tant que joueur, au survol d'un joueur (moi compris), je lis le nom de sa guilde puis, juste dessous, son nom ; sans survol, rien (rpg) ; xUnit, auto-tests du client. | 2 | Fait |
 
 ## Rétro (Charles)
 - Ce qui a marché :
