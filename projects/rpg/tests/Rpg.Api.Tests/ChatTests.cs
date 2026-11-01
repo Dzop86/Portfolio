@@ -54,7 +54,9 @@ public class ChatTests
         (GameServer cendreServer, CharacterSummary cendre, ChatClient c) = await Player(api, "Cendre");
         // In play on the place first: a place saved before its socket is served would be read again from the base too late.
         await WaitUntilOn(api, "clairval", cendre.Id);
-        await cendreServer.SavePlace(cendre.Id, new Place("woods-4-2", 46, 5), Cancel);
+        // On the map's arrival: a cell of its edge may be a tree since the natural borders (sprint 180).
+        Cell arrival = GameData.Embedded.Towns["woods-4-2"].Spawn;
+        await cendreServer.SavePlace(cendre.Id, new Place("woods-4-2", arrival.X, arrival.Y), Cancel);
         foreach ((string map, Guid who) in new[] { ("clairval", aube.Id), ("clairval", brume.Id), ("woods-4-2", cendre.Id) })
             await WaitUntilOn(api, map, who);
 

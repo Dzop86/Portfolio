@@ -47,7 +47,7 @@ public class PartyBalanceTests
     [InlineData("group:mouldy-0-1.2", 8)]
     [InlineData("group:mouldy-0-1.0", 10)]
     [InlineData("group:lake-0-3.0", 6)]
-    [InlineData("group:lake-2-1.1", 8)]
+    [InlineData("group:lake-4-0.0", 8)] // lake-2-1.1 until sprint 180: its group grew to 9 when the borders changed
     [InlineData("group:fields-1-2.3", 6)]
     [InlineData("group:fields-4-4.2", 8)]
     // The Forest of the Ancestors' stags (sprint 132) and keepers (sprint 133).
