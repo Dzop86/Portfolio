@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S184), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S185), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S184 | 555 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S185 | 560 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 776 points sur 184 sprints de deux semaines.
+Total : 781 points sur 185 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -207,3 +207,6 @@ Après la 1.0.172, Charles veut des hauteurs dans les forêts (les champs resten
 
 ## Osmose : la monture et les soins à vie pleine (31 octobre 2026, D91)
 Pendant le sprint 179, Charles demande de voir son personnage sur la monture équipée, 30 % plus rapide hors combat, et qu'un consommable de soin soit refusé quand les PV sont au maximum ; il signale aussi le personnage qui marchait sous une colline. Ajoutés au sprint 179 : 3 points (monture 2, soins 1), sans sprint de plus.
+
+## Osmose : l'inventaire trié et le familier qui suit (1er novembre 2026, D92)
+Après la 1.0.176, Charles veut des onglets d'inventaire lisibles, des tris de l'équipement (panoplie, niveau…), choisir un objet en cliquant sur son emplacement et voir son familier le suivre en courant, à pied comme à cheval : S181 (5) en gains rapides, avant les pages Éléments et Spécialisation qui remplacent la page Talents (conçues par le game designer, chiffrées à part). 5 points ; S181-S184 deviennent S182-S185.

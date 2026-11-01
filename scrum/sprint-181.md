@@ -1,13 +1,14 @@
-# Sprint 181 : Osmose : les spécialisations, la Sentinelle
+# Sprint 181 : Osmose : l'inventaire trié, le familier qui suit
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les retours de Charles sur la 1.0.176 (1er novembre), en gains rapides avant les pages Éléments et Spécialisation : un inventaire qu'on lit et qu'on trie, un objet choisi depuis son emplacement, un familier qu'on voit (D92).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** Charles's feedback on 1.0.176 (1 November), quick wins before the Elements and Specialisation pages: an inventory one can read and sort, an item picked from its slot, a pet one can see (D92).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur de niveau 50, je choisis une spécialisation par la quête « Une route à soi » : un passif, une règle changée et trois sorts, la première gratuite (rpg) ; xUnit, intégration PostgreSQL. | 4 | À faire |
-| En tant que Sentinelle, je choisis Mire, Affût ou Sente, chacune à ±8 points de la moyenne contre les hordes (rpg) ; xUnit, mesures sur 300 combats. | 2 | À faire |
+| En tant que joueur, les onglets de l'inventaire (Équipement, Consommables…) se lisent en entier, et je trie l'équipement par panoplie, par niveau, par emplacement, par rareté ou par nom (rpg) ; xUnit sur le tri, auto-test du client. | 2 | À faire |
+| En tant que joueur, un clic sur un emplacement de mon personnage, vide ou occupé, me propose les objets de mon inventaire qui vont dans cet emplacement (rpg) ; xUnit, auto-test du client. | 1 | À faire |
+| En tant que joueur, mon familier équipé me suit en courant à côté de moi, à pied comme sur ma monture (rpg) ; xUnit sur la place du suiveur, auto-test du client. | 2 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
