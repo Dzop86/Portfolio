@@ -94,14 +94,14 @@ public partial class Main : Node3D
             // The pictures of the project page: a tenth-level sentinel and its deck, icons and colours shown.
             StartFight(new Hero("Aubépine", "female-b", "sentinel", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
         }
-        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "ride")
+        else if (_options.TownSelfTest || _options.Shot is "town" or "banner" or "menu" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "ride" or "inventory")
         {
             // The pictures of the world: in the woods, a few steps from the way north.
             if (_options.Shot is "zone" or "world" or "world-near" or "ride")
                 (_zone, _place) = ("woods-2-2", new Cell(8, 5));
-            // On the donkey (sprint 179).
+            // On the donkey (sprint 179), the kitten at its side (sprint 181).
             if (_options.Shot == "ride")
-                _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey" });
+                _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey", [Slot.Pet] = "kitten" });
             ShowTown();
         }
         else if (_options.LobbySelfTest || _options.Shot is "lobby" or "create")

@@ -153,6 +153,8 @@ public partial class JournalPanel : CanvasLayer
         foreach (JournalTab tab in Enum.GetValues<JournalTab>())
         {
             var b = new Button { ToggleMode = true, ButtonGroup = group, ButtonPressed = tab == _view.Tab, CustomMinimumSize = new Vector2(0, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            // 14 px: in French, « En cours », « Terminées » and « Masquées » with their counts widened the window past its 960 (sprint 181).
+            b.AddThemeFontSizeOverride("font_size", 14);
             b.Pressed += () => ChooseTab(tab);
             tabs.AddChild(b);
             TabButtons[tab] = b;

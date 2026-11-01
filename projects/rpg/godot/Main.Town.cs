@@ -1905,6 +1905,7 @@ public partial class Main
             _hero = panel.Editor.Draft;
             panel.Saved(_hero, panel.Editor.Owned, panel.Texts["points.offline"]);
             _townView?.Ride(Mounts.Ridden(_hero));
+            _townView?.Accompany(Pets.Worn(_hero));
             return;
         }
         try
@@ -1914,6 +1915,7 @@ public partial class Main
             panel.Saved(_hero, _character.Inventory ?? [], panel.Texts["inventory.saved"]);
             // On its mount, or back on foot (sprint 179).
             _townView?.Ride(Mounts.Ridden(_hero));
+            _townView?.Accompany(Pets.Worn(_hero));
         }
         catch (ServerException e)
         {
@@ -2134,7 +2136,8 @@ public partial class Main
             problems.Add("the journal's card does not show the welcome, its kind, its rewards, Follow and Hide");
         // Sprint 167 (D87): a tile a reward, Follow the theme's primary button.
         if (journal.RewardTiles.Count != journal.CardQuest?.Rewards?.Count || journal.FollowButton?.ThemeTypeVariation != OsmoseTheme.Primary || journal.RewardTiles.Any(t => t.Size.X > 64) || journal.Width > 960)
-            problems.Add($"the journal's card shows {journal.RewardTiles.Count} reward tiles for {journal.CardQuest?.Rewards?.Count} rewards");
+            problems.Add($"the journal's card shows {journal.RewardTiles.Count} reward tiles for {journal.CardQuest?.Rewards?.Count} rewards, "
+                + $"Follow '{journal.FollowButton?.ThemeTypeVariation}', widest tile {journal.RewardTiles.Select(t => t.Size.X).DefaultIfEmpty(0).Max()}, window {journal.Width}");
         journal.Search("aubin");
         bool found = journal.ListedNames.SequenceEqual([name]);
         journal.Search("zzzz");
@@ -2502,6 +2505,32 @@ public partial class Main
                 int listed = inv.Editor.Page(page).Count;
                 if (inv.ListText.Count() != listed)
                     problems.Add($"the {page} page lists {inv.ListText.Count()} items, not {listed}");
+            }
+            // Every tab's whole name shown (sprint 181, D92: « Équipement » and « Consommables » were cut off).
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (!inv.TabsReadable)
+                problems.Add("an inventory tab cuts its name off");
+            // Sorted by level, the highest first (sprint 181).
+            inv.ShowPage(InventoryPage.Equipment);
+            inv.SortBy(InventorySort.Level);
+            if (inv.Editor.Page(InventoryPage.Equipment).Select(p => p.Item.Level).DefaultIfEmpty(0).Max() is int top
+                && inv.ListText.FirstOrDefault() is string first && !first.StartsWith(inv.Editor.Page(InventoryPage.Equipment, InventorySort.Level, inv.Texts.Lang)[0].Item.Name.In(inv.Texts.Lang), StringComparison.Ordinal))
+                problems.Add($"sorted by level, the equipment starts with '{first}', not an item of level {top}");
+            inv.SortBy(InventorySort.Kind);
+            // A click on a slot offers what goes in it; a click on one puts it in that very slot (sprint 181, D92).
+            foreach (Slot slot in Enum.GetValues<Slot>())
+            {
+                inv.OpenPicker(slot);
+                IReadOnlyList<string> offered = inv.PickerItems ?? [];
+                if (!offered.SequenceEqual(inv.Editor.For(slot).Select(i => i.Id)))
+                    problems.Add($"the {slot} slot offers {string.Join(", ", offered)}");
+                if (offered.Select(id => GameData.Embedded.Items[id]).FirstOrDefault(i => inv.Editor.WhyNot(i) is null) is Item wearable)
+                {
+                    inv.Choose(wearable);
+                    if (!inv.Editor.Worn.TryGetValue(slot, out string? on) || on != wearable.Id)
+                        problems.Add($"{wearable.Id}, chosen for the {slot} slot, is not worn there");
+                }
+                inv.ClosePicker();
             }
             // The Éclats owned, by the title (sprint 103).
             if (inv.ShardsText != inv.Texts["inventory.shards", _character?.Shards ?? 0])
@@ -3303,6 +3332,33 @@ public partial class Main
         _townView.Ride(null);
         if (_townView.Player.GetChild(0).Name == "Saddle" || _townView.Riding is not null)
             problems.Add("down from the donkey, the player still rides");
+        // The pet (sprint 181, D92): by the player's side; left behind, it runs back there, on foot and riding.
+        string? worn = _townView.Accompanied;
+        foreach (string? mount in new[] { null, "donkey" })
+        {
+            _townView.Ride(mount);
+            _townView.Accompany(null);
+            _townView.Accompany("kitten");
+            if (_townView.Pet is not Node3D pet || pet.Name != "Pet")
+            {
+                problems.Add("the kitten worn does not follow the player");
+                break;
+            }
+            Vector3 beside = pet.Position;
+            float near = new Vector2(beside.X - _townView.Player.Position.X, beside.Z - _townView.Player.Position.Z).Length();
+            if (Math.Abs(near - new Vector2(Pets.Side, Pets.Behind).Length()) > 0.05f)
+                problems.Add($"the pet stands {near:0.00} cells from the player, not at its side");
+            pet.Position += new Vector3(3, 0, 0);
+            _townView.FollowPet(0.1);
+            float after = new Vector2(pet.Position.X - beside.X, pet.Position.Z - beside.Z).Length();
+            if (after >= 3 || (pet.FindChild("AnimationPlayer", true, false) as AnimationPlayer)?.CurrentAnimation != "walk")
+                problems.Add($"left 3 cells behind{(mount is null ? "" : " by a rider")}, the pet stays {after:0.00} away without running");
+        }
+        _townView.Ride(null);
+        _townView.Accompany(null);
+        if (_townView.Pet is not null)
+            problems.Add("the pet taken off still follows");
+        _townView.Accompany(worn);
         ToggleMap();
         CheckWorldMap(problems);
         ToggleMap();

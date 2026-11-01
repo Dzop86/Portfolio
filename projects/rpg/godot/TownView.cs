@@ -232,6 +232,8 @@ public partial class TownView : Node3D
         _riderModel = Player.GetChild<Node3D>(0);
         Ride(Mounts.Ridden(player));
         Player.Position = W(controller.Position);
+        // The pet worn, at its master's side (sprint 181, D92).
+        Accompany(Pets.Worn(player));
         _onRelief.Add(Player);
         ShowNamesNear(controller.Position);
         AddChild(Player);
@@ -309,6 +311,78 @@ public partial class TownView : Node3D
         _anim = beast.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         _anim?.Play("idle");
     }
+
+    /// <summary>The pet that follows the player (sprint 181), or null.</summary>
+    public string? Accompanied { get; private set; }
+
+    /// <summary>The pet's model, by the player, or null.</summary>
+    public Node3D? Pet { get; private set; }
+
+    private AnimationPlayer? _petAnim;
+    private bool _petRunning;
+
+    // How fast the player goes now, in cells a second (0 standing): the pet keeps pace.
+    private float _pace;
+
+    /// <summary>
+    /// The pet worn, drawn at the player's side and following it (sprint 181, D92, <see cref="Pets"/>), or none. Called on
+    /// building the map and when the pet is put on or taken off.
+    /// </summary>
+    public void Accompany(string? pet)
+    {
+        if (pet == Accompanied && (pet is null) == (Pet is null))
+            return;
+        if (Pet is not null)
+        {
+            // Out of the tree at once: the next pet takes its name in the same frame.
+            _onRelief.Remove(Pet);
+            RemoveChild(Pet);
+            Pet.QueueFree();
+        }
+        Pet = null;
+        _petAnim = null;
+        Accompanied = pet;
+        if (pet is null || Player is null)
+            return;
+        Pet = Creatures.Pet(pet);
+        Pet.Name = "Pet";
+        // At the people's scale (Person draws them half as large again as the world).
+        Pet.Scale = Player.Scale;
+        AddChild(Pet);
+        _onRelief.Add(Pet);
+        System.Numerics.Vector2 spot = Pets.Spot(new(Player.Position.X, Player.Position.Z), Facing);
+        Pet.Position = Lift(new Vector3(spot.X, 0, spot.Y));
+        Pet.GetChild<Node3D>(0).Rotation = new Vector3(0, Facing, 0);
+        _petAnim = Pet.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
+        _petAnim?.Play("idle");
+        _petRunning = false;
+    }
+
+    /// <summary>Where the player looks, about the vertical (on its mount, the saddle's way).</summary>
+    public float Facing => (_saddle ?? (Player.GetChildCount() > 0 ? Player.GetChild<Node3D>(0) : null))?.Rotation.Y ?? 0;
+
+    /// <summary>The pet one moment on (<paramref name="seconds"/>): it runs to its spot by the player, or stands.</summary>
+    public void FollowPet(double seconds)
+    {
+        if (Pet is null || !IsInstanceValid(Pet))
+            return;
+        var from = new System.Numerics.Vector2(Pet.Position.X, Pet.Position.Z);
+        (System.Numerics.Vector2 at, bool running) = Pets.Follow(from, new(Player.Position.X, Player.Position.Z), Facing, _pace, (float)seconds);
+        Vector3 to = new(at.X, 0, at.Y);
+        if (running)
+            Face(Pet, to - new Vector3(from.X, 0, from.Y));
+        else if (_pace == 0 && !_petRunning)
+            Pet.GetChild<Node3D>(0).Rotation = new Vector3(0, Mathf.LerpAngle(Pet.GetChild<Node3D>(0).Rotation.Y, Facing, (float)Math.Min(1, seconds * 4)), 0);
+        Pet.Position = Lift(to);
+        if (running != _petRunning)
+        {
+            _petRunning = running;
+            // Running: its walk, quicker (Charles: « en courant »).
+            _petAnim?.Play(running ? "walk" : "idle", customSpeed: running ? 2f : 1f);
+        }
+    }
+
+    public override void _Process(double delta) => FollowPet(delta);
 
     /// <summary>The ground's heights (sprint 179, D90): hills in the forests, flat elsewhere.</summary>
     public Relief Relief { get; private set; } = null!;
@@ -1818,6 +1892,7 @@ public partial class TownView : Node3D
         if (move.Waypoints.Count > 0)
         {
             _anim?.Play("walk");
+            _pace = (float)Math.Max(0, speed);
             double walked = 0;
             foreach (Cell c in move.Waypoints)
             {
@@ -1846,6 +1921,7 @@ public partial class TownView : Node3D
                 }
             }
             _anim?.Play("idle");
+            _pace = 0;
         }
         if (move.TalkTo is Npc npc)
         {
@@ -1860,6 +1936,7 @@ public partial class TownView : Node3D
     {
         _walk++;
         _anim?.Play("idle");
+        _pace = 0;
     }
 
     /// <summary>The cell under the player as drawn, mid-walk too.</summary>

@@ -23,10 +23,17 @@ public partial class InventoryPanel : CanvasLayer
     private LineEdit _search = null!;
     private Label _title = null!, _message = null!, _details = null!, _empty = null!;
     private Button _save = null!, _close = null!;
+    private OptionButton _sort = null!;
+    private Label _sortLabel = null!;
+    private Control? _picker;
+    private Slot? _pickerSlot;
 
     public InventoryEditor Editor { get; private set; } = null!;
     public Texts Texts { get; private set; } = new("en");
     public InventoryPage Page { get; private set; }
+
+    /// <summary>How the page is ordered (sprint 181, D92).</summary>
+    public InventorySort Sort { get; private set; }
 
     public event Action<IReadOnlyDictionary<Slot, string>>? SavePressed;
 
@@ -36,6 +43,8 @@ public partial class InventoryPanel : CanvasLayer
 
     public void Build(InventoryEditor editor, Texts texts)
     {
+        // Over the mini-map (layer 6) like the other windows (sprint 181: the mini-map covered the inventory's tabs).
+        Layer = 15;
         Editor = editor;
         Texts = texts;
         var panel = new PanelContainer { AnchorLeft = 0.5f, AnchorRight = 0.5f, AnchorTop = 0.5f, AnchorBottom = 0.5f, OffsetLeft = -520, OffsetRight = 520, OffsetTop = -290, OffsetBottom = 300 };
@@ -88,12 +97,25 @@ public partial class InventoryPanel : CanvasLayer
         right.AddChild(tabs);
         foreach (InventoryPage page in Enum.GetValues<InventoryPage>())
         {
-            var tab = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(0, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, ClipText = true };
-            tab.AddThemeFontSizeOverride("font_size", 12);
+            // Each tab as wide as its name (sprint 181, D92: « Équipement » and « Consommables » were cut off).
+            var tab = new Button { ToggleMode = true, CustomMinimumSize = new Vector2(0, 44), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            tab.AddThemeFontSizeOverride("font_size", 13);
             tab.Pressed += () => ShowPage(page);
             tabs.AddChild(tab);
             _pages.Add(tab);
         }
+        // The order of the page: by kind, set, level, slot or name (sprint 181, D92).
+        var sortRow = new HBoxContainer();
+        sortRow.AddThemeConstantOverride("separation", 8);
+        right.AddChild(sortRow);
+        _sortLabel = new Label { VerticalAlignment = VerticalAlignment.Center };
+        _sortLabel.AddThemeFontSizeOverride("font_size", 14);
+        sortRow.AddChild(_sortLabel);
+        _sort = new OptionButton { CustomMinimumSize = new Vector2(180, 44) };
+        foreach (InventorySort sort in Enum.GetValues<InventorySort>())
+            _sort.AddItem(sort.ToString(), (int)sort);
+        _sort.ItemSelected += i => SortBy((InventorySort)_sort.GetItemId((int)i));
+        sortRow.AddChild(_sort);
         var scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         right.AddChild(scroll);
         var holder = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -132,11 +154,8 @@ public partial class InventoryPanel : CanvasLayer
         foreach (Slot slot in slots)
         {
             (Button tile, ItemIcon icon) = ItemIcon.Tile(TileSize);
-            tile.Pressed += () =>
-            {
-                Editor.TakeOff(slot);
-                Refresh();
-            };
+            // What can go there, offered (sprint 181, D92), where a click took it off.
+            tile.Pressed += () => OpenPicker(slot);
             tile.MouseEntered += () => _details.Text = SlotText(slot).Replace("\n", " · ", StringComparison.Ordinal) + (Worn(slot) is Item it ? "\n" + Texts.ItemCard(it) : "");
             col.AddChild(tile);
             _slots[slot] = (tile, icon);
@@ -166,6 +185,105 @@ public partial class InventoryPanel : CanvasLayer
         Refresh();
     }
 
+    public void SortBy(InventorySort sort)
+    {
+        Sort = sort;
+        Refresh();
+    }
+
+    /// <summary>
+    /// The items of the inventory that go in a slot, by its side (sprint 181, D92: « quand je clique sur l'item équipé,
+    /// qu'il n'y ait rien ou quelque chose, ça me propose les équipements dans mon inventaire »): a click puts one there;
+    /// « Take off » when something is worn; a click elsewhere closes it.
+    /// </summary>
+    public void OpenPicker(Slot slot)
+    {
+        ClosePicker();
+        _pickerSlot = slot;
+        var shade = new Control { MouseFilter = Control.MouseFilterEnum.Stop };
+        shade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        shade.GuiInput += e =>
+        {
+            if (e is InputEventMouseButton { Pressed: true })
+                ClosePicker();
+        };
+        AddChild(shade);
+        _picker = shade;
+        var box = new PanelContainer();
+        box.AddThemeStyleboxOverride("panel", OsmoseTheme.Window(0));
+        shade.AddChild(box);
+        var margin = new MarginContainer();
+        foreach (string side in new[] { "left", "right", "top", "bottom" })
+            margin.AddThemeConstantOverride("margin_" + side, 10);
+        box.AddChild(margin);
+        var column = new VBoxContainer();
+        column.AddThemeConstantOverride("separation", 8);
+        margin.AddChild(column);
+        var title = new Label { Text = Texts["slot.offer", Texts["slot." + slot]] };
+        title.AddThemeFontSizeOverride("font_size", 16);
+        column.AddChild(title);
+        IReadOnlyList<Item> offered = Editor.ReadOnly ? [] : Editor.For(slot);
+        if (offered.Count == 0)
+            column.AddChild(new Label { Text = Texts["slot.none"] });
+        var grid = new GridContainer { Columns = Math.Clamp(offered.Count, 1, 5) };
+        grid.AddThemeConstantOverride("h_separation", 6);
+        grid.AddThemeConstantOverride("v_separation", 6);
+        column.AddChild(grid);
+        foreach (Item item in offered)
+        {
+            (Button tile, ItemIcon icon) = ItemIcon.Tile(TileSize);
+            icon.Item = item;
+            icon.Faint = Editor.WhyNot(item) is not null;
+            tile.Disabled = Editor.WhyNot(item) is not null;
+            tile.TooltipText = Texts.ItemCard(item);
+            tile.MouseEntered += () => _details.Text = Texts.ItemCard(item);
+            tile.Pressed += () => Choose(item);
+            grid.AddChild(tile);
+        }
+        if (Worn(slot) is not null && !Editor.ReadOnly)
+        {
+            var off = new Button { Text = Texts["slot.take-off"], CustomMinimumSize = new Vector2(0, 44) };
+            off.Pressed += () =>
+            {
+                Editor.TakeOff(slot);
+                ClosePicker();
+                Refresh();
+            };
+            column.AddChild(off);
+        }
+        // By the slot, inside the game's window.
+        Rect2 at = _slots[slot].Tile.GetGlobalRect();
+        Vector2 size = box.GetCombinedMinimumSize();
+        Vector2 screen = GetViewport().GetVisibleRect().Size;
+        bool left = Array.IndexOf(Left, slot) >= 0;
+        float x = left ? at.End.X + 8 : at.Position.X - size.X - 8;
+        box.Position = new Vector2(Math.Clamp(x, 0, Math.Max(0, screen.X - size.X)), Math.Clamp(at.Position.Y, 0, Math.Max(0, screen.Y - size.Y)));
+    }
+
+    /// <summary>The item clicked in the slot's offer, put in that very slot.</summary>
+    public void Choose(Item item)
+    {
+        if (_pickerSlot is Slot slot)
+            Editor.PutIn(slot, item);
+        ClosePicker();
+        Refresh();
+    }
+
+    public void ClosePicker()
+    {
+        _picker?.QueueFree();
+        _picker = null;
+        _pickerSlot = null;
+    }
+
+    /// <summary>What the open offer lists (the self-test reads it), or null when none is open.</summary>
+    public IReadOnlyList<string>? PickerItems => _pickerSlot is Slot s ? [.. Editor.For(s).Select(i => i.Id)] : null;
+
+    /// <summary>Whether every tab shows its whole name (none narrower than its text needs).</summary>
+    public bool TabsReadable => _pages.All(t =>
+        t.Size.X + 0.5f >= t.GetThemeFont("font").GetStringSize(t.Text, HorizontalAlignment.Left, -1, t.GetThemeFontSize("font_size")).X
+            + t.GetThemeStylebox("normal").GetMinimumSize().X);
+
     public void ShowPage(InventoryPage page)
     {
         Page = page;
@@ -191,7 +309,7 @@ public partial class InventoryPanel : CanvasLayer
 
     /// <summary>The items of the page that the search finds, with their counts.</summary>
     private IReadOnlyList<(Item Item, int Count, int Free)> Shown() =>
-        [.. Editor.Page(Page).Where(i => ItemStyle.Matches(i.Item, _search.Text, Texts.Lang))];
+        [.. Editor.Page(Page, Sort, Texts.Lang).Where(i => ItemStyle.Matches(i.Item, _search.Text, Texts.Lang))];
 
     private Label _shards = null!;
     private long _owned;
@@ -219,14 +337,21 @@ public partial class InventoryPanel : CanvasLayer
             icon.Count = 1;
             icon.QueueRedraw();
             tile.TooltipText = SlotText(slot) + (worn is null ? "" : "\n" + ItemMenu.Tooltip(worn, Texts));
-            tile.Disabled = worn is null;
+            // Empty or not, a slot offers what can go in it (sprint 181); in a fight it only shows.
+            tile.Disabled = Editor.ReadOnly && worn is null;
         }
         InventoryPage[] pages = Enum.GetValues<InventoryPage>();
         for (int i = 0; i < _pages.Count; i++)
         {
             _pages[i].Text = Texts["page." + pages[i]];
             _pages[i].SetPressedNoSignal(pages[i] == Page);
+            // Room by the length of the name: the long ones get more of the row.
+            _pages[i].SizeFlagsStretchRatio = Math.Max(3, _pages[i].Text.Length);
         }
+        _sortLabel.Text = Texts["inventory.sort"];
+        foreach (InventorySort sort in Enum.GetValues<InventorySort>())
+            _sort.SetItemText(_sort.GetItemIndex((int)sort), Texts["sort." + sort]);
+        _sort.Select(_sort.GetItemIndex((int)Sort));
         foreach (Node child in _grid.GetChildren())
         {
             _grid.RemoveChild(child);

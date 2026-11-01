@@ -153,6 +153,49 @@ public static class Creatures
     /// <summary>A donkey: the horse's build, sized to carry a character, grey with a pale muzzle, its ears twice as long.</summary>
     private static Node3D Donkey() => Equine("Donkey", new Color("6e665c"), new Color("3a332c"), new Color("d8cfc2"), 1.45f, 0.22f);
 
+    /// <summary>A pet, by its item (sprint 181, D92): the kitten; any other, a kitten too until it has its own.</summary>
+    public static Node3D Pet(string item) => item switch
+    {
+        _ => Kitten(),
+    };
+
+    /// <summary>A kitten (sprint 181): a small ginger tabby, its stripes darker, white paws and chest, pointed ears, its tail up.</summary>
+    private static Node3D Kitten()
+    {
+        var root = new Node3D { Name = "Kitten" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(0.62f, 0.62f, 0.62f) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color fur = new("c8661e"), stripe = new("7e3f12"), white = new("efe6d8"), nose = new("d98a8a");
+        Block(body, new Vector3(0.26f, 0.22f, 0.50f), new Vector3(0, 0.32f, 0), fur);
+        foreach (float z in new[] { -0.14f, 0.0f, 0.14f })
+            Block(body, new Vector3(0.27f, 0.04f, 0.05f), new Vector3(0, 0.43f, z), stripe);
+        Block(body, new Vector3(0.18f, 0.14f, 0.06f), new Vector3(0, 0.30f, 0.24f), white);
+        // The head, round-ish, its ears up, a pink nose and green eyes.
+        Block(body, new Vector3(0.26f, 0.22f, 0.22f), new Vector3(0, 0.48f, 0.30f), fur);
+        Block(body, new Vector3(0.12f, 0.07f, 0.04f), new Vector3(0, 0.42f, 0.42f), white);
+        Block(body, new Vector3(0.04f, 0.03f, 0.02f), new Vector3(0, 0.45f, 0.445f), nose);
+        Block(body, new Vector3(0.04f, 0.05f, 0.02f), new Vector3(-0.06f, 0.51f, 0.415f), new Color("5aa83a"));
+        Block(body, new Vector3(0.04f, 0.05f, 0.02f), new Vector3(0.06f, 0.51f, 0.415f), new Color("5aa83a"));
+        foreach (float x in new[] { -0.08f, 0.08f })
+        {
+            var ear = new MeshInstance3D { Mesh = new PrismMesh { Size = new Vector3(0.09f, 0.10f, 0.05f) }, Position = new Vector3(x, 0.64f, 0.28f), MaterialOverride = new StandardMaterial3D { AlbedoColor = fur, Roughness = 0.9f } };
+            body.AddChild(ear);
+        }
+        var tail = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(0.05f, 0.05f, 0.34f) }, Position = new Vector3(0, 0.50f, -0.32f), RotationDegrees = new Vector3(-55, 0, 0), MaterialOverride = new StandardMaterial3D { AlbedoColor = stripe, Roughness = 0.9f } };
+        body.AddChild(tail);
+        foreach ((string name, float x, float z) in new[] { ("LegFL", -0.08f, 0.16f), ("LegFR", 0.08f, 0.16f), ("LegBL", -0.08f, -0.16f), ("LegBR", 0.08f, -0.16f) })
+        {
+            var leg = new Node3D { Name = name, Position = new Vector3(x, 0.21f, z) };
+            model.AddChild(leg);
+            Block(leg, new Vector3(0.07f, 0.17f, 0.07f), new Vector3(0, -0.085f, 0), fur);
+            Block(leg, new Vector3(0.075f, 0.04f, 0.08f), new Vector3(0, -0.19f, 0.01f), white);
+        }
+        root.AddChild(Animations(FourLegs));
+        return root;
+    }
+
     /// <summary>The height of a mount's back above the ground, at a model scale of 1 (the top of its body).</summary>
     public const float BackHeight = 0.77f;
 

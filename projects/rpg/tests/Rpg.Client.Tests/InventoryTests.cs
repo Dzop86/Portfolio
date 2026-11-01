@@ -21,6 +21,53 @@ public class InventoryTests
         Assert.Equal(["garance-badge"], editor.Page(InventoryPage.Quest).Select(p => p.Item.Id));
     }
 
+    // Pieces of three sets and of none (sprint 181).
+    private static readonly ItemCount[] Wardrobe =
+        [new("wolf-cape", 1), new("howl-ring", 1), new("poacher-hat", 1), new("boar-boots", 1), new("copper-ring", 2), new("dagger", 1), new("orc-club", 1), new("donkey", 1), new("bread", 3)];
+
+    [Fact]
+    public void TheEquipment_SortsBySet_ByLevel_BySlot_OrByName()
+    {
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data);
+        string[] Ids(InventorySort sort, string lang = "fr") => [.. editor.Page(InventoryPage.Equipment, sort, lang).Select(p => p.Item.Id)];
+        // By kind then level, as before.
+        Assert.Equal(Ids(InventorySort.Kind), editor.Page(InventoryPage.Equipment).Select(p => p.Item.Id));
+        // Each set's pieces together, sets by name (« de la meute », « du braconnier », « du sanglier »), head to feet; no set last.
+        Assert.Equal(["wolf-cape", "howl-ring", "poacher-hat", "boar-boots", "copper-ring", "dagger", "orc-club", "donkey"], Ids(InventorySort.Set));
+        Assert.Equal(["donkey", "orc-club", "wolf-cape", "boar-boots", "howl-ring", "copper-ring", "dagger", "poacher-hat"], Ids(InventorySort.Level));
+        Assert.Equal(["poacher-hat", "wolf-cape", "boar-boots", "copper-ring", "howl-ring", "dagger", "orc-club", "donkey"], Ids(InventorySort.Slot));
+        // By the name read, in the language read.
+        Assert.Equal(Ids(InventorySort.Name).Select(id => Data.Items[id].Name.Fr).Order(StringComparer.InvariantCultureIgnoreCase), Ids(InventorySort.Name).Select(id => Data.Items[id].Name.Fr));
+        Assert.Equal(Ids(InventorySort.Name, "en").Select(id => Data.Items[id].Name.En).Order(StringComparer.InvariantCultureIgnoreCase), Ids(InventorySort.Name, "en").Select(id => Data.Items[id].Name.En));
+        // The other pages sort too; nothing is lost.
+        Assert.Equal(9, editor.Page(InventoryPage.All, InventorySort.Name).Count);
+    }
+
+    [Fact]
+    public void ASlot_OffersWhatGoesInIt_WhatCanBeWornFirst_AndPutsItThere()
+    {
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data);
+        Assert.True(editor.PutIn(Slot.Ring1, Data.Items["copper-ring"]));
+        // The other finger: the howler's ring, then the copper one (the same ring never on both hands).
+        Assert.Equal(["howl-ring", "copper-ring"], editor.For(Slot.Ring2).Select(i => i.Id));
+        // The finger wearing it offers the others, not itself.
+        Assert.Equal(["howl-ring"], editor.For(Slot.Ring1).Select(i => i.Id));
+        Assert.True(editor.PutIn(Slot.Ring2, Data.Items["howl-ring"]));
+        Assert.Equal("howl-ring", editor.Worn[Slot.Ring2]);
+        // An empty slot offers too; an item too high is offered, but cannot be put.
+        Assert.Equal(["donkey"], editor.For(Slot.Mount).Select(i => i.Id));
+        Assert.False(editor.PutIn(Slot.Mount, Data.Items["donkey"]));
+        Assert.Empty(editor.For(Slot.Shield));
+        // Never in a slot it does not fit; the club takes both hands off the dagger.
+        Assert.False(editor.PutIn(Slot.Hat, Data.Items["dagger"]));
+        Assert.True(editor.PutIn(Slot.OneHanded, Data.Items["dagger"]));
+        Assert.True(editor.PutIn(Slot.TwoHanded, Data.Items["orc-club"]));
+        Assert.False(editor.Worn.ContainsKey(Slot.OneHanded));
+        // In a fight, nothing.
+        var shown = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data, readOnly: true);
+        Assert.False(shown.PutIn(Slot.Hat, Data.Items["poacher-hat"]));
+    }
+
     [Fact]
     public void PuttingOn_FindsTheSlot_TakesOffWhatCannotStay_AndNeverWearsMoreThanOwned()
     {
