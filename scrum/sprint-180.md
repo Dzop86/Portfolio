@@ -6,7 +6,12 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, les cartes ont des bordures irrégulières, et deux cartes d'une même zone s'ouvrent l'une sur l'autre, les cités gardant leur contour (rpg) ; xUnit sur `world_gen.py` et les données régénérées, PNJ, groupes, récoltes et sorties à leur place. | 4 | À faire |
+| En tant que joueur, les cartes ont des bordures irrégulières, et deux cartes d'une même zone s'ouvrent l'une sur l'autre, les cités gardant leur contour (rpg) ; xUnit sur `world_gen.py` et les données régénérées, PNJ, groupes, récoltes et sorties à leur place. | 4 | Fait (T140) |
+
+## Ce qui est fait
+- `tools/border_soften.py` sur les 125 cartes des cinq zones : côtés internes ouverts sur 56 à 92 % du côté (le lac moins, là où l'eau barre), jamais plus de 8 obstacles d'affilée ; bande irrégulière de 1 à 3 cases, mêlée selon le style ; le lac continue jusqu'au bord ; rien de posé n'est touché, tout reste accessible ; cités et donjons intacts ; idempotent.
+- xUnit `BorderTests` (5 tests), `WorldTests` et empreintes des groupes mis à jour ; photos de l'atlas refaites ; auto-test du client vert (141 cartes, 383 groupes).
+- Limite : les groupes et les points de récolte changent de case (tirés parmi les cases accessibles), avec les mêmes identifiants.
 
 ## Rétro (Charles)
 - Ce qui a marché :

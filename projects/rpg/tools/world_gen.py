@@ -7,6 +7,8 @@
 # house by one map (tools/hamlet.py writes the other side). Deterministic: the same seed gives the same
 # maps; every opening and exit is checked reachable from the map's arrival. Run from projects/rpg:
 #   python3 tools/world_gen.py data [mouldy] [lake] [fields] [ancestors]   (the woods always)
+# The maps written are then hand-placed upon (people, props, dungeon doors: other tools) and their borders
+# softened by tools/border_soften.py (sprint 180): running this again loses both.
 import collections, glob, json, os, random, sys
 
 root = sys.argv[1]

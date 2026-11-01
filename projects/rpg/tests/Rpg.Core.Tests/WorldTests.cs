@@ -45,9 +45,10 @@ public class WorldTests
         {
             foreach (Town b in woods.Where(b => (b.MapAt - a.MapAt) is { X: 1, Y: 0 } or { X: 0, Y: 1 }))
             {
-                // Neighbours open on each other by the same gaps, a third to a half of the side (sprint 85), both ways.
+                // Neighbours open on each other by the same gaps, both ways: a third to a half of the side (sprint 85),
+                // half of it or more since sprint 180 (natural borders), all of it but the corners at most.
                 int side = (b.MapAt - a.MapAt).X == 1 ? a.Rows.Count : a.Width;
-                Assert.InRange(a.Links!.Count(l => l.To == b.Id), side / 3, side / 2 + 7);
+                Assert.InRange(a.Links!.Count(l => l.To == b.Id), side / 2, side - 4);
                 Assert.Equal(a.Links!.Count(l => l.To == b.Id), b.Links!.Count(l => l.To == a.Id));
             }
         }
