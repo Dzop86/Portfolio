@@ -1,4 +1,4 @@
-# Les pages Éléments et Spécialisation *(game designer, 1er novembre 2026)*
+# Les pages Éléments et Voie *(game designer, 1er novembre 2026 ; v3 en tête, v2 et v1 en historique)*
 
 > **La demande de Charles (1er novembre)** : « Dans les caractéristiques, j'ai une page Talent, qui ne sert à rien actuellement. On va la remplacer par une page "Spécialisation de classe" (ou un autre nom) avec un arbre de spécialisation de classe (en gros un mage qui peut choisir 2/3 spécialisations qui auront chacune 2/3 évolutions et on verra plus tard). L'arbre doit se lire de gauche à droite. Il faudra rajouter une page "Éléments" (ou un autre nom) pour que le personnage choisisse ses éléments ici (feu, eau, terre, air, foudre etc.) et retirer les éléments de l'arbre des talents (on refera l'arbre des talents de A à Z plus tard). »
 >
@@ -10,7 +10,242 @@
 
 ---
 
-## 0. En bref
+## v3, la décision de Charles : trois paliers *(1er novembre 2026, validée)*
+
+> **Ses mots** : « 30 on peut créer toutes les paires et on a la première évolution de classe. 50 on peut créer les trios (par exemple eau/feu/air) et une nouvelle évolution de classe. 100 ensuite la dernière évolution de classe. » ; « 50 c'est l'accès aux éléments qui en fusionnent 3 de base. » ; « Un mage peut rester mage en soi, mais niveau 30, il peut évoluer dans 3 branches différentes. »
+>
+> **Ce qui en découle** : tout le monde a les quatre éléments de base dès le niveau 1, et il n'y a que **trois paliers : 30, 50 et 100**. Les emplacements, le « second élément » et les évolutions à 60, 75 et 90 (v1, v2) disparaissent. La v2 et la v1, plus bas, sont de l'historique ; on en garde le contenu des 9 voies (§2.2), la maquette de la page Voie (§2.3, avec 3 colonnes) et ce que l'arbre des talents perd (§3).
+>
+> **Ses réponses aux deux dernières questions (§v3.8)** : Q9 b, « rester mage », c'est **simplement ne pas encore avoir choisi** (il n'y a pas de voie généraliste) ; Q10 a, les composés se **créent un à un**, gratuitement et de façon réversible ; les onglets s'appellent « Éléments » et « Voie ». Le plan est validé : c'est la décision D93.
+
+### v3.1 La table des paliers
+
+| Palier | Éléments | Voie (évolution de classe) | Titre (Mage, en exemple) |
+|---|---|---|---|
+| **1** | Terre, Feu, Eau, Air, pour tous | la classe de base | Mage |
+| **30 · l'Éveil** | **Les 6 paires** : les **6 réactions** s'activent pour tous, et chaque **composé de paire** peut être **créé** sur la page Éléments (gratuit, sans limite, réversible), ce qui ajoute ses 8 sorts au grimoire | **Évolution I** : par la quête « Une route à soi », on prend **1 des 3 branches**. Tant qu'on n'a pas choisi, on reste dans sa classe de base, sans évolution, et le premier choix reste gratuit | Archimage, Sorcier, Nécromancien (Mage tant qu'il n'a pas choisi) |
+| **50 · l'Affirmation** | **Les 4 trios** : leurs **réactions à trois** s'activent, et chaque trio peut être **créé** (4 sorts par classe) | **Évolution II** de la voie prise | Haut archimage… |
+| **100 · l'Accomplissement** | rien de plus dans la Saga I (Unisson, le quadruplet, reste à la Saga II) | **Évolution III**, la dernière | Archimage souverain… |
+
+**L'arbre des talents ne fait pas partie des paliers** : il garde son rythme (un point tous les 3 niveaux) en attendant sa refonte (§v3.5).
+
+### v3.2 Les éléments : ce qu'on garde, renomme ou retire
+
+**La règle des composés** (reprise d'`elements.md` §0, point 8) : un composé frappe sur la **plus haute** caractéristique de ses parents ; ses sorts sont des **jumeaux** transposés par `spells_gen.py` (même forme, nouvel élément, budget × 0,8 pour une paire, × 0,75 pour un trio, signature comptée comme un effet). « Créer » un composé ne remplace aucun sort : il **ajoute** ses jumeaux au grimoire. Le deck reste le frein (12 places). Avec tout créé, un Mage a 24 + 48 + 16 = **88 sorts** : c'est pour cela que la création est un geste, pour que le livre de sorts reste lisible.
+
+**Les 6 paires** (ouvertes à 30 ; réactions et signatures d'`elements.md` §2, déjà dans `data/reactions.json` pour les réactions) :
+
+| Paire | Parents | Signature des sorts | Réaction (frapper l'un sur l'empreinte de l'autre) | État |
+|---|---|---|---|---|
+| **Foudre** | Feu + Air | Arc : 35 % sautent sur l'ennemi le plus proche | Électrisé : 35 % de chaque coup reçu sautent, 1 tour | sorts **existent** (24 jumeaux) |
+| **Glace** | Eau + Air | Morsure : −1 PA, 1 tour | Transi : −2 PA, 1 tour | conçue (S184), à générer |
+| **Boue** | Terre + Eau | Engluement : −1 PM, 1 tour | Enlisé : −2 PM, 1 tour | à générer |
+| **Magma** | Terre + Feu | Fonte : −8 % de résistance, 1 tour | Fêlé : −15 % de résistance, 2 tours | à générer |
+| **Vapeur** | Feu + Eau | Voile : −10 % de dégâts infligés, 1 tour | Embué : −25 % de dégâts infligés, 1 tour | à générer |
+| **Sable** | Terre + Air | Grain : −1 PO, 1 tour | Aveuglé : −2 PO, 1 tour | à générer |
+
+**Les 4 trios** (ouverts à 50 ; noms et signatures d'`elements.md` §2, réactions nouvelles). Chacun se nomme par l'élément absent. **La réaction d'un trio** : un sort du trio qui frappe un ennemi portant l'empreinte d'**un de ses trois parents** la consomme et déclenche la réaction du trio (à la place de celle de la paire). C'est plus fort qu'une paire, mais cela demande d'avoir créé le trio et de le mettre dans son deck.
+
+| Trio | Parents (sans…) | Signature | Réaction (nouvelle) |
+|---|---|---|---|
+| **Éther** | Feu + Eau + Air (sans Terre) | Traversée : le sort ne demande pas la ligne de vue | **Dispersé** : la cible perd ses boucliers, et sa case ne bloque plus ni le passage ni la vue pendant 1 tour |
+| **Cendre** | Terre + Feu + Air (sans Eau) | Retombée : la case de la cible devient une glyphe de cendre 2 tours | **Enseveli** : la case de la cible **et ses 4 voisines** deviennent une glyphe de cendre 2 tours (dégâts à qui y commence son tour, au barème) |
+| **Sève** | Terre + Feu + Eau (sans Air) | Bourgeon : l'allié le plus blessé à 2 cases est soigné de 20 % des dégâts | **Enraciné** : la cible a 0 PM pendant 1 tour, et les alliés à 2 cases sont soignés de 10 % des dégâts |
+| **Sel** | Terre + Eau + Air (sans Feu) | Salure : −50 % de soins reçus, 2 tours | **Desséché** : ni soin ni bouclier reçu pendant 2 tours |
+
+**Ce qu'on garde, renomme ou retire**
+
+| Existant | Sort |
+|---|---|
+| Les 6 réactions (`reactions.json`) | **gardées**, mais elles ne sont plus des talents : elles sont actives pour tous dès 30 |
+| Les 6 nœuds de paire de l'arbre (Enlisement…) | **retirés** de l'arbre |
+| Les 4 Cœurs (Élément pur) | **retirés** (un « +x % » de plus ; la refonte de l'arbre en décidera) |
+| La tresse de Foudre : Transmutations, Conversion, Prisme, Signature appuyée | **retirée**. Le grimoire ne remplace plus rien (tout composé créé s'ajoute) ; la Conversion n'a plus de sens quand tout est ouvert. Prisme et Signature appuyée sont des idées à reprendre dans la refonte de l'arbre |
+| Les 24 jumeaux de Foudre | **gardés** tels quels (noms, icônes, rangs partagés avec leur sort d'origine) |
+| La règle « 2 éléments ouverts au plus », C2 (paires disjointes), « une seule grande bascule » | **retirées** |
+| Lumière et Ténèbres (D80, branche Pôles, Crépuscule) | **hors des paliers** : reportées à la refonte de l'arbre ou à la Saga II. Ce ne sont pas des fusions de base, et Charles ne les cite pas |
+| Unisson (le quadruplet) | **Saga II**, inchangé (D80) |
+| Les points d'élément, le rendement décroissant (D85) | **inchangés** ; la page Éléments les affiche |
+
+**L'équilibre à surveiller.** Les réactions, gratuites pour tous à 30, sont **un gain de puissance pour tout le monde**. Contre les petits groupes, rien ne bouge, c'est déjà saturé ; contre les hordes, il faut mesurer (§v3.7, E4). Règle écrite d'avance : si les hordes de la Forêt passent au-dessus du plafond de T41 (3 sur 10 sans kit), alors **une réaction par lanceur et par tour** ; si cela ne suffit pas, les durées sont retirées d'un tour.
+
+### v3.3 La page Éléments (inchangée dans l'esprit, simplifiée)
+
+À gauche, les 4 éléments de base avec leurs points et le seuil de D85. Au centre, une **roue des fusions** : les 6 paires (verrouillées avant 30), puis les 4 trios (verrouillés avant 50), chacune avec sa réaction, sa signature et un bouton **Créer** ou **Dissoudre**. Ces deux actions sont gratuites, se font hors combat, et le deck est revu par le serveur. En haut, la **frise des paliers 30, 50, 100**, commune avec la page Voie.
+
+### v3.4 L'arbre de voie, par classe
+
+**La structure.** À gauche la racine (la classe), puis **3 lignes**, les **3 branches**. Les colonnes sont **30, 50 et 100**. On ne prend qu'une ligne. Les évolutions II et III viennent seules avec le niveau. Le prix est inchangé : la première voie est gratuite, les suivantes coûtent 30 × niveau Éclats, chez l'habitant des voies, et les rangs sont transférés.
+
+**« Rester mage » (Q9 b).** Ce n'est pas une ligne de l'arbre : c'est l'état d'un héros qui n'a pas encore choisi. Il garde sa classe de base et ses 24 sorts, sans évolution, et la page Voie lui montre les 3 branches ouvertes. Son premier choix reste gratuit, quel que soit son niveau, et il reçoit d'un coup les évolutions de son niveau (I à 30, II à 50, III à 100). *(La voie généraliste proposée en v3, Q9 a, n'est pas retenue : ses lignes sont retirées des tableaux ci-dessous.)*
+
+Notation des sorts : PA, PO, relance ; « au barème » = `spells_gen.py`. Les noms sont **des noms de travail**, à reprendre par le scénariste.
+
+**Mage**
+
+| Voie | 30 (évolution I) | 50 (évolution II) | 100 (évolution III) |
+|---|---|---|---|
+| **Archimage** | passif : +1 PA au tour suivant s'il n'a pas bougé ; règle : sorts de 6 PA ou plus, relance −1 ; sorts **Comète** (7 PA, PO 3 à 7, cercle de 1, relance 3) et **Recueillement** (2 PA, le prochain sort +25 %, relance 3) | **Rayon** (5 PA, ligne de 4, sans vue, relance 2) ; le passif tient même après un pas | une fois par combat, un sort de 6 PA ou plus coûte 3 PA de moins ; Comète laisse une zone de −1 PM |
+| **Sorcier** | passif : ses états durent +1 tour ; règle : 2 poisons cumulables ; **Malédiction** (3 PA, PO 1 à 6, −15 % de dégâts infligés 2 tours) et **Fiel** (3 PA, poison au barème 3 tours) | **Contagion** (4 PA, copie les états de la cible sur les ennemis à 1 case, relance 3) ; 3 poisons cumulables | un ennemi sous 2 états ou plus reçoit +15 % de ses coups ; Malédiction en croix de 1 |
+| **Nécromancien** *(nom au scénariste)* | passif : une ombre d'un ennemi tombé, une fois par combat ; règle : 2 invocations ; **Lever une ombre** (4 PA, ombre de 25 % de ses PV, relance 3) et **Lien funeste** (2 PA, une invocation lui cède 20 % de ses PV) | **Éclat d'ombre** (3 PA, une invocation explose, au barème, en croix de 1) ; ombres +25 % de PV | 3 invocations ; le passif joue deux fois par combat |
+
+**Garde**
+
+| Voie | 30 | 50 | 100 |
+|---|---|---|---|
+| **Palissade** | passif : bouclier de 6 (+1 tous les 10 niveaux) aux alliés à 1 case ; règle : boucliers sur alliés +25 % ; **Interposition** (2 PA, PO 1 à 3, échange de place et bouclier sur soi, relance 2) et **Ancrage** (2 PA, indéplaçable et +15 % de résistance 1 tour, relance 2) | **Mur de boucliers** (4 PA, croix de 1, bouclier aux alliés, relance 3) ; le passif porte à 2 cases | une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV ; Interposition se relance en 1 tour |
+| **Brèche** | passif : ennemi achevé, +1 PM (déclencheur `Kill`) ; règle : attirances +1 case ; **Charge** (3 PA, ligne de 2 à 4, saut au contact et dégâts au barème, relance 2) et **Arrachement** (3 PA, PO 1 à 4, attire de 2, −1 PM) | **Fauchage** (4 PA, contact, croix de 1, au barème × 0,7) ; ennemi achevé : +1 PM et +1 PA | une attirance contre un obstacle fait 6 dégâts par case ; Charge se relance en 1 tour |
+| **Étau** | passif : qui la frappe au contact perd 1 PM ; règle : retraits de PA et de PM +1 tour ; **Prise** (3 PA, contact, au barème, −2 PM 2 tours) et **Verrou** (2 PA, contact, plus de déplacement volontaire 1 tour, relance 3) | **Écrasement** (5 PA, contact, au barème, +30 % sur un ennemi à 0 PM) ; le passif retire aussi 1 PA, une fois par tour | les ennemis au contact perdent 1 PM au début de leur tour ; Verrou se relance en 2 tours |
+
+**Sentinelle**
+
+| Voie | 30 | 50 | 100 |
+|---|---|---|---|
+| **Mire** | passif : aucun ennemi à 3 cases, +15 % pendant 1 tour ; règle : sorts en vue +1 PO ; **Tir visé** (5 PA, PO 4 à 9, relance 2) et **Visée** (2 PA, le prochain sort ignore 15 % de résistance, relance 3) | **Tir de barrage** (4 PA, PO 3 à 8, ligne de 3, −1 PM, relance 2) ; règle à +2 PO pour les sorts de 6 PO ou plus | le passif monte à +25 % sur 2 tours ; Tir visé traverse (une case de plus, à 50 %) |
+| **Affût** | passif : le Faucon reste 2 tours de plus ; règle : ses glyphes durent +1 tour ; **Mâchoires** (3 PA, glyphe 2 tours, −3 PM et dégâts au barème, relance 2) et **Piqué** (3 PA, le Faucon frappe à 4 cases de lui, relance 1) | **Appât** (2 PA, glyphe 2 tours, −1 PA à qui y commence son tour, relance 3) ; Faucon +30 % de PV | deux Mâchoires à la fois ; un ennemi piégé prend +15 % de ses coups pendant 2 tours |
+| **Sente** | passif : frappée au contact, +2 PM 1 tour ; règle : sauts sans la vue ; **Bond** (2 PA, PO 2 à 4, saut, relance 1) et **Coup de talon** (3 PA, contact, au barème, puis recul de 2) | **Feinte** (2 PA, le prochain qui la frappe au contact perd 2 PM, relance 3) ; Bond sans relance (une fois par tour) | passif à +3 PM ; une fois par combat, le premier coup au contact est esquivé ; après un saut, +10 % au prochain sort |
+
+**Équilibre.** Chacune des 9 voies reste à **±8 points** de la moyenne de sa classe contre les hordes (300 combats), à **35, 45 et 50** ; les planchers T41 des petits groupes tiennent dès 35 ; à 30, une voie vaut au plus +10 % de puissance par rapport à un héros qui n'a pas encore choisi.
+
+### v3.5 L'arbre des talents en attendant sa refonte, et la quête
+
+- **Il perd les 15 nœuds d'éléments** (6 paires, 4 Cœurs, 5 de la tresse) : il en reste **41**, les 6 styles. Ils partent du tronc. L'Alchimie, qui demandait une paire, s'ouvre comme les autres, puisque tout le monde a les réactions dès 30.
+- **Les points** : `1 + (niveau − 30) / 3`, soit 1 à 30, 6 à 45, 24 à 100. C'est **un point de moins** : celui que coûtait la porte. Les clés restent à 45. Rien d'autre ne change (le plafond, les « % » et les doublons attendent la refonte, `arbre-refonte-questions.md`).
+- **L'espalier** perd la ligne des portes et la colonne Fusion : 6 couloirs depuis le tronc.
+- **La quête « Une route à soi »** revient à **30**, son niveau d'origine, à Quatre-Chemins, « là où les routes se séparent ». Elle ouvre la page Voie, et l'habitant des voies (scénariste) présente les 3 chemins ; on peut repartir sans choisir et revenir plus tard. **À 50 et à 100**, il n'y a pas de quête : une annonce de palier (bandeau, journal, titre) et l'évolution qui s'allume. Une quête par palier serait du contenu à écrire au-delà de 60, où il n'y a pas encore de zone.
+
+### v3.6 La migration
+
+1. `Talents.Version` passe à **4**. À la connexion, les nœuds d'éléments sont **retirés** de `Talents`, et leurs points reviennent. Les nœuds de style restent s'ils tiennent avec la nouvelle formule (`Talents.Problem`) ; sinon, les derniers pris tombent d'abord (`Talents.Without`). Un mot l'annonce, et le changement de talents est gratuit pendant 7 jours.
+2. **Les composés** : un héros qui avait Électrisation (avec ou sans Transmutation ou Conversion) a la **Foudre créée** d'office. Ses sorts de base reviennent (plus rien n'est remplacé), et les jumeaux restent dans le grimoire et dans le deck (`Grimoire.Replaced` sert une dernière fois). Les rangs ne bougent pas : un jumeau partage le rang de son sort d'origine.
+3. **La voie** : `Spec` est vide pour tout le monde. Un héros de 30 ou plus voit la page Voie s'allumer et la quête s'ouvrir ; son premier choix est gratuit.
+4. **Plouf** (3 × niveau 100) et **Plop** : la commande d'administration gagne `--spec` et `--create all`, pour les restaurer sans SQL.
+
+### v3.7 Le découpage
+
+| Sprint | Story | Tests | Pts |
+|---|---|---|---|
+| **SE1** (5) | **E1. Le cœur des éléments** : réactions actives pour tout héros de 30 ou plus (au lieu du talent de paire) ; `Hero.Created` (les composés créés) et `GrimoireOf` qui **ajoute** leurs jumeaux (paires dès 30, trios dès 50) ; retrait des nœuds Fork, Pure et Braids et de leurs règles (`Clash`, `MaxOpened`, bascule) ; points `1 + (niveau − 30) / 3` ; styles sans porte | xUnit : à 29 aucune réaction, à 30 les six ; créer un trio refusé à 49, accepté à 50 ; un composé non créé n'a aucun sort dans le grimoire ; un combat de Foudre identique avant et après pour un héros migré (même graine) ; `Talents.Problem` accepte un style sans porte | **3** |
+| | **E2. Serveur et migration** : colonnes `Created` et version 4 (migration EF), créer et dissoudre (`PUT …/points`), `admin --create` | intégration PostgreSQL : un personnage en version 3 (Foudre convertie, Boue, Mêlée) passe en version 4 avec la Foudre créée, son deck valide et ses points rendus ; le rejeu serveur accepte un combat avec un composé créé et refuse un sort de composé non créé | **2** |
+| **SE2** (5) | **E3. La page Éléments** (base, roue des 6 paires et 4 trios, Créer et Dissoudre, frise 30-50-100) et **l'espalier sans portes** ; textes FR et EN | xUnit client : `PointsEditor` (créer, dissoudre, verrou par niveau), `TreeLayout` G1 à G13 sans portes ; clés FR et EN ; auto-test Godot : créer la Glace à 30, la page tient à 1280 × 720 | **3** |
+| | **E4. Remesurer** : réactions pour tous, T41 à 35, 40 et 45, hordes, builds de référence découpés, `mesures-arbre.md` v3, la règle écrite d'avance (§v3.2) appliquée si besoin | `TemplateTests`, J3, `BalanceTests` (Disjoint à 30) verts ; mesure hors CI écrite | **2** |
+| **SC1** (4) | **C1. Les 5 paires restantes** : Glace, Boue, Magma, Vapeur, Sable, soit 120 jumeaux (`spells_gen.py`, icônes `spell_art.py`), 5 signatures (des états existants : −PA, −PM, −résistance, −dégâts, −PO), noms proposés par le générateur puis relus par le scénariste | xUnit : chaque jumeau au budget × 0,8 de son sort d'origine ; chaque signature appliquée ; les jumeaux frappent sur la plus haute caractéristique des parents | **4** |
+| **SC2** (5) | **C1 bis.** Remesure des 6 paires contre les hordes (aucune à plus de 8 points de la médiane des autres) | mesure hors CI | **1** |
+| | **C2. Les 4 trios** : 48 sorts (4 par classe et par trio, budget × 0,75), 4 signatures (Traversée, Retombée, Bourgeon, Salure) et **4 réactions à trois** (Dispersé, Enseveli, Enraciné, Desséché), dont 3 effets nouveaux (case qui ne bloque plus, zone de glyphe, soins et boucliers refusés) | xUnit : chaque réaction et chaque signature ; un sort de trio sur l'empreinte d'un parent déclenche la réaction du trio et pas celle de la paire ; mesure à 50 | **4** |
+| **SV1** (5) | **V1. Le moteur des voies** (reprise de `s163-specialisations`) : `data/specs.json` (3 branches par classe, évolutions à 30, 50 et 100), `Hero.Spec`, passifs des héros, déclencheur `Kill`, un héros sans voie (aucune évolution, choix gratuit qui donne d'un coup les évolutions de son niveau), rejeu | xUnit : voie refusée avant 30 ou d'une autre classe ; évolution II absente à 49, présente à 50 ; un héros de 60 sans voie qui choisit reçoit les évolutions I et II ; `Kill` qui finit le combat sans effet ; combat rejoué à l'identique | **3** |
+| | **V2. Serveur et quête** : colonne `Spec` (migration EF), `PUT …/spec`, prix 30 × niveau, rangs transférés, quête « Une route à soi » à 30, annonces de palier à 50 et 100, `admin --spec` | intégration PostgreSQL : choisir, changer et payer, rangs transférés ; un combat joué avec une autre voie est refusé ; la quête ouvre le choix | **2** |
+| **SV2** (6) | **V3. La page Voie** : racine de classe, 3 lignes, colonnes 30, 50 et 100, fiche à droite, frise commune ; remplace l'onglet Talents (l'arbre reste sur la touche T et dans le panneau Menus) ; textes FR et EN | xUnit client : disposition (aucun chevauchement, nœuds ≥ 44 px, lignes dans un ordre fixe) ; auto-test Godot : choisir une branche à 30, évolutions allumées à 100 (Plouf) | **3** |
+| | **V4. La Sentinelle** : ses 3 branches, 9 sorts, évolutions, titres | xUnit par passif, règle et évolution ; ±8 points à 35, 45 et 50 | **3** |
+| **SV3** (7) | **V5. La Garde** (et un duo Palissade et dégâts à moins de 1,5 victoire sur 30 de plus qu'un duo dégâts et dégâts) ; **V6. La Mage** (le nom du Nécromancien vient du scénariste) | les mêmes | **3 + 3** |
+| | **V7. La mesure croisée** : les 9 voies × 2 builds à 35, 45 et 50, `Rpg.Sim --spec`, et le playtest de Charles à 30 (la quête, une voie, une paire créée) | mesure hors CI ; résultat dans `REVIEW.md` | **1** |
+| | **Total** | | **37 points, 7 sprints** |
+
+**Le plan** (D93) : ces 37 points remplacent S182 à S185 (12 points de spécialisations et 4 de la Glace, qui est absorbée par C1), soit **+21 points** et **3 sprints de plus**, de S182 (SE1) à S188 (SV3). Le sprint de gains rapides (S181, D92) est fait. *(La v3 comptait 38 points avec la voie généraliste : V1 perd les places de deck et l'Emprunt. La mesure croisée des voies et le playtest, V7, passent de SC2 à la fin de SV3 : en SC2, les voies n'existaient pas encore.)*
+
+**Les risques** : **les noms**, avec 168 sorts nouveaux (120 jumeaux de paires et 48 de trios), soit 336 noms FR et EN : le générateur propose (« Flèche de Glace »), le scénariste relit par lots, et rien ne bloque un sprint. **La puissance des réactions pour tous**, traitée par la règle écrite d'avance (§v3.2). **Un livre de 88 sorts**, traité par la création comme geste, et le filtre par élément qui existe déjà.
+
+### v3.8 Les questions restantes *(répondues : Q9 b, Q10 a)*
+
+**Q9. « Rester mage » à 30.**
+- a) La voie généraliste : +1 place de deck à 30 et +1 à 50, un petit passif polyvalent, et à 100 un sort emprunté à une branche de sa classe (Reco)
+- b) **Rester mage, c'est ne pas encore choisir : aucune évolution, mais une branche reste choisissable gratuitement plus tard (choix de Charles)**
+- c) La classe de base reçoit les mêmes évolutions chiffrées qu'une branche, sur ses 24 sorts actuels (un sort amélioré par palier)
+
+**Q10. Les composés à 30 et 50.**
+- a) **On les crée un à un sur la page Éléments**, gratuitement et de façon réversible : leurs sorts n'arrivent dans le grimoire qu'une fois créés (le livre reste lisible, et c'est ton verbe « créer ») **(Reco, choix de Charles)**
+- b) Tous créés d'office au palier : les 48 sorts de paires (puis les 16 de trios) arrivent d'un coup, le deck fait le tri
+- c) Créer un composé coûte quelque chose (Éclats, ressources de récolte, une petite quête par composé) : un vrai geste, mais du contenu en plus (environ 3 points)
+
+---
+
+## v2, après les réponses de Charles *(1er novembre 2026, remplacée par la v3)*
+
+> **Ses réponses** : « de base les persos ont tous les éléments. Il faut harmoniser avec la spécialisation de classe. Par exemple, niveau 30, on débloque la possibilité du bi-élément (foudre par exemple) et on débloque le passage de mage en archimage et un autre truc, par exemple. Puis 50 » (la phrase s'arrête là). **3 voies par classe** (Q4 a), **3 évolutions automatiques** (Q3 a, niveaux à revoir pour l'harmonisation), onglets « **Éléments** » et « **Voie** » (Q5 a). Q1 a est confirmée : tout le monde a les quatre éléments de base, sans choix. Q2 (les points de talent) n'a pas eu de réponse : je la reprends en v2.1.
+>
+> **Ce qui reste valable de la v1** (sections 1 à 5 plus bas, gardées comme historique) : les règles des liens (§1.3, sauf les niveaux), la migration sans perte (§1.5), les changements dans le cœur (§1.6), le contenu des 9 voies (§2.2, réparti autrement ci-dessous), la maquette de la page Voie (§2.3, avec d'autres en-têtes de colonnes), et ce que perd l'arbre des talents (§3). **Les niveaux et le chiffrage de la v1 sont remplacés** par ceux de cette section.
+
+### v2.1 Une échelle de paliers commune
+
+**L'idée.** Un seul calendrier pour tout le personnage : **un palier tous les 20 niveaux, à 30, 50, 70 et 90, puis 100**. Chaque palier ouvre **une chose côté Éléments, une chose côté Voie, et une chose dans l'arbre des talents** (« l'autre truc »). Entre deux paliers, on joue avec ce qu'on vient de recevoir. Au palier, on reçoit trois nouveautés d'un coup, avec une annonce, un titre et une ligne dans les deux pages : c'est un moment fort, à la manière d'une promotion. Les deux pages affichent la même **frise des paliers** en haut (« prochain palier : 50, dans 6 niveaux »).
+
+**Pourquoi tous les 20 niveaux** : Charles pose 30 puis 50. Garder le même pas jusqu'à 90 donne 4 paliers, donc 1 voie et 3 évolutions, ce qui colle exactement à ses « 3 évolutions ». L'écart laisse 20 niveaux pour profiter de chaque palier, et 100 reste le palier final.
+
+| Palier | Éléments | Voie | Arbre des talents (l'autre truc) | Titre (Mage / Archimage, en exemple) |
+|---|---|---|---|---|
+| **30 · l'Éveil** | **Le bi-élément** : un premier **lien** (une paire et sa réaction, ou la prédilection). Le lien Feu + Air ouvre la **Foudre** : Transmutation (Feu → Foudre ou Air → Foudre) | **La voie** : la quête « Une route à soi » (ramenée de 50 à 30, son niveau d'origine) fait choisir 1 voie sur 3. Le Mage devient **Archimage**, Sorcier ou Nécromancien : **passif, règle changée, 1er sort** | **L'arbre s'ouvre** : le premier cerne du tronc (+3 % de dégâts) et **1 point de talent** | Archimage |
+| **50 · l'Affirmation** | **Le second lien** et la **Conversion** (la grande bascule, de 45 à 50) ; un **premier affinage** de la tresse (Prisme ou Signature appuyée) | **Évolution I** et le **2e sort** de la voie | **Les clés** de l'arbre (de 45 à 50, 2 points chacune) | Haut archimage |
+| **70 · la Maîtrise** | **Le second affinage** (les deux) | **Évolution II** et le **3e sort** | un **cerne du tronc** (le « tronc à 60 et 80 » de D82, ramené à 70 : +5 % de résistance) | Arcaniste majeur |
+| **90 · l'Apogée** | une case **« à venir »** : les triplets, la Lumière et les Ténèbres (D80, avec les chapitres) | **Évolution III** | un **cerne du tronc** (+5 % de PV) | Archimage souverain |
+| **100 · l'Accomplissement** | à venir (Unisson, Saga II) | **Accomplissement** : 1 choix sur 2 (un sort majeur et une seconde règle), plus tard | aucun | à venir |
+
+**Les cernes du tronc existants** (35 : +3 % de résistance ; 40 : +5 % de PV) restent où ils sont : les déplacer changerait l'équilibre mesuré de 30 à 45 sans rien apporter. Les deux nouveaux cernes (70, 90) sont du contenu futur, et ce sont les seuls ajouts de puissance pure de la frise.
+
+**Les points de talent (Q2 de la v1, revue)** : **`1 + (niveau − 30) / 3`**, soit 1 à 30, 6 à 45, 7 à 50, 24 à 100, **un point de moins qu'aujourd'hui** (et non deux, comme le proposait la v1). Ce point unique à 30 est le « troisième déblocage » du palier. Un build Manière qui payait 1 point de porte retrouve son compte ; la Foudre gagne ses nœuds de tresse gratuitement, mais sa Conversion recule de 45 à 50. La règle des leviers de la v1 (§1.4) reste prête si la mesure la met devant.
+
+**Les titres de rang** (noms de travail, à reprendre par le scénariste avec leurs formes au féminin) ; ils s'affichent sous le pseudo (le titre de succès choisi reste prioritaire si le joueur le préfère) :
+
+| Classe | Voie | 30 | 50 | 70 | 90 |
+|---|---|---|---|---|---|
+| Mage | Archimage | Archimage | Haut archimage | Arcaniste majeur | Archimage souverain |
+| Mage | Sorcier | Sorcier | Envoûteur | Maître des fléaux | Grand sorcier |
+| Mage | Nécromancien *(nom au scénariste)* | Nécromancien | Lieur d'ombres | Seigneur des tombes | Nécromancien ancien |
+| Garde | Palissade | Rempart | Bouclier vivant | Bastion | Muraille |
+| Garde | Brèche | Brise-ligne | Bélier | Fléau des rangs | Avant-garde |
+| Garde | Étau | Geôlier | Tenaille | Poigne de fer | Étau |
+| Sentinelle | Mire | Viseur | Tireur d'élite | Œil sûr | Mire absolue |
+| Sentinelle | Affût | Trappeur | Fauconnier | Maître piégeur | Affût |
+| Sentinelle | Sente | Coureur des sentes | Bondisseur | Ombre légère | Sente |
+
+**Les 3 sorts de chaque voie, répartis sur les paliers** (les contenus de §2.2 ne changent pas, seul le moment change) : à 30, le sort qui porte la fantaisie (Tir visé, Mâchoires, Bond, Interposition, Charge, Prise, Comète, Malédiction, Lever une ombre) ; à 50, le deuxième de la liste du §2.2, avec l'Évolution I ; à 70, le troisième, avec l'Évolution II. Ce découpage **rend la voie moins forte à 30** qu'un bloc de 3 sorts d'un coup, ce qui compte puisqu'elle arrive au début du contenu de la Forêt (31 à 45).
+
+### v2.2 Ce qui change par rapport à la v1
+
+| Sujet | v1 | v2 | Conséquence |
+|---|---|---|---|
+| Choix de la voie | 50 | **30** (la quête « Une route à soi » revient à son niveau d'origine) | les voies se mesurent dès **35, 40 et 45** (T96, `TemplateTests`, sur 9 voies au lieu de 3 classes), en plus de 50 ; le Disjoint (30) reste mesuré sans voie |
+| Sorts de voie | 3 à 50 | **1 à 30, 1 à 50, 1 à 70** | moins de puissance à l'entrée, une récompense à chaque palier |
+| Évolutions | 60, 75, 90 | **50, 70, 90** | la page Voie a 4 colonnes : 30, 50, 70, 90, plus 100 grisé |
+| Second lien | 45 | **50** | un héros de 45 à 49 n'a qu'un lien : la migration retire le second (annoncé, changement gratuit 7 jours) |
+| Conversion | 45 | **50** | les builds de référence Matière à 45 redeviennent des Transmutations ; l'avance de la Foudre à 45 devrait baisser |
+| Affinages | 40 et 55 | **50 et 70** | |
+| Clés de l'arbre | 45 | **50** | 16 valeurs `level` à changer dans `talents.json` ; les builds de référence à 45 perdent leur clé, et les mesures de 45 sont refaites. **Avantage** : au niveau 45 du chef de la Forêt, le build n'est plus « accompli juste quand le contenu s'arrête » (`suite-apres-d69.md` §12.1, point 1). Le socle 45-60 le porte |
+| Points de talent | −2 (0 à 30) | **−1** (1 à 30) | à 30, l'arbre a un point à poser, comme dans l'esquisse de Charles |
+| Nouveau | | une **frise des paliers** commune aux pages Éléments et Voie, des **titres de rang**, l'annonce au passage d'un palier | une story de plus (H1, 2 points) |
+
+### v2.3 Le nouveau chiffrage
+
+| Sprint | Stories | Pts |
+|---|---|---|
+| **SE1** (6) | E1, le cœur des éléments (aux niveaux v2 : liens à 30 et 50, Conversion 50, affinages 50 et 70), 4 ; E2, serveur et migration (le second lien retiré entre 45 et 49), 2 | 6 |
+| **SE2** (5) | E3, la page Éléments et l'arbre sans portes, 3 ; E4, remesurer (clés à 50, points `1 + (niveau − 30) / 3`, builds de référence découpés), 2 | 5 |
+| **SV1** (6) | V1, le moteur des voies (sorts et évolutions par palier : 30, 50, 70, 90), 4 ; V2, serveur, quête « Une route à soi » à 30, prix, `admin --spec`, 2 | 6 |
+| **SV2** (5) | V3, la page Voie (colonnes 30, 50, 70, 90, et 100 grisé), 3 ; **H1, l'harmonisation** : la frise commune aux deux pages, les titres de rang, l'annonce du palier (bandeau et ligne du journal), les cernes de 70 et 90 (xUnit : chaque palier ouvre ses trois choses au bon niveau, et rien avant ; auto-test : la frise de chaque page dit le même prochain palier), 2 | 5 |
+| **SV3** (6) | V4, la Sentinelle, 3 ; V5, la Garde, 3 (chacune mesurée à **35, 40, 45 et 50** : ±8 points de la moyenne de la classe contre les hordes, les planchers T41 des petits groupes tenus dès 35) | 6 |
+| **SV4** (4) | V6, la Mage, 3 ; V7, la mesure croisée des 18 builds (9 voies × 2) à 45 et à 70, `mesures-arbre.md` v4, et le playtest de Charles à 30 (choisir sa voie et son lien dans la Forêt), 1 | 4 |
+| **Total** | | **32 points, 6 sprints** |
+
+Ces 32 points remplacent S181 à S183 (12 points), soit **+20 points au plan** (+17 en v1 : +2 pour l'harmonisation, +1 pour les mesures de 35 à 45). La Glace (S184) passe après SV4 et se pose dans la page Éléments, au palier 30 (lien Eau + Air) puis 50 (sa Conversion). Le sprint de gains rapides (inventaire, familier) reste avant SE1.
+
+### v2.4 Les questions pour compléter « Puis 50… »
+
+**Q6. Le rythme des paliers.**
+- a) **30, 50, 70, 90, puis 100** : un pas de 20, 1 voie et 3 évolutions **(Reco)**
+- b) 30, 50, 65, 80, puis 100 : le pas se resserre, les dernières évolutions viennent plus vite
+- c) 30, 45, 60, 75, 90 : un pas de 15, qui suit les tranches de contenu (Forêt 30-45, Mines 45-60), mais 50 disparaît
+
+**Q7. Ce que le palier 50 ouvre côté Éléments.**
+- a) **Le second lien, la Conversion et le premier affinage de la tresse** : la « grande bascule » est le cadeau de 50 **(Reco)**
+- b) Seulement la Conversion (le second lien passe à 70)
+- c) Seulement le second lien (la Conversion passe à 70 : la Foudre convertie devient une récompense tardive)
+
+**Q8. Le « passage de mage à archimage » à 30.**
+- a) **À 30, on choisit sa voie parmi les 3** (Archimage, Sorcier ou Nécromancien) : passif, règle et 1er sort ; les évolutions suivent à 50, 70 et 90 **(Reco)**
+- b) À 30, tous les mages deviennent « Archimage » (un rang commun, un passif léger) ; **le choix des 3 voies se fait à 50**
+- c) Tout à 30 : la voie avec ses 3 sorts d'un coup, et des évolutions seules ensuite
+
+---
+
+## 0. En bref (v1)
 
 | | Recommandation |
 |---|---|

@@ -1,13 +1,13 @@
-# Sprint 185 : Osmose : la tresse de Glace, playtest
+# Sprint 185 : Osmose : les quatre trios d'éléments
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les pages Éléments et Voie à la place de la page Talents, conçues par le game designer (`projects/rpg/docs/elements-specialisations.md`, v3) et validées par Charles : trois paliers à 30, 50 et 100 (D93).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** the Elements and Path pages in place of the Talents page, designed by the game designer (`projects/rpg/docs/elements-specialisations.md`, v3) and approved by Charles: three tiers at 30, 50 and 100 (D93).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je transmute l'Eau ou l'Air en Glace : Morsure (−1 PA), 24 jumeaux, Signature appuyée, Prisme et Conversion de Glace, la fenêtre de l'arbre à deux tresses (rpg) ; xUnit, auto-test. | 3 | À faire |
-| En tant que Charles, la mesure v3 met la Glace à moins de 8 points de la Foudre contre les hordes, et je joue la Glace à 45 avec un joueur extérieur (rpg). | 1 | À faire |
+| En tant que Charles, aucune des six paires n'est à plus de 8 points de la médiane des autres contre les hordes (rpg) ; mesure hors CI. | 1 | À faire |
+| En tant que joueur de niveau 50, je crée l'Éther, la Cendre, la Sève et le Sel : 48 sorts, 4 signatures et 4 réactions à trois (Dispersé, Enseveli, Enraciné, Desséché) (rpg) ; xUnit : chaque réaction et signature, un sort de trio sur l'empreinte d'un parent déclenche la réaction du trio et pas celle de la paire. | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

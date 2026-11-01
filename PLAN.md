@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S185), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S188), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S185 | 560 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S188 | 581 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 781 points sur 185 sprints de deux semaines.
+Total : 802 points sur 188 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -210,3 +210,6 @@ Pendant le sprint 179, Charles demande de voir son personnage sur la monture éq
 
 ## Osmose : l'inventaire trié et le familier qui suit (1er novembre 2026, D92)
 Après la 1.0.176, Charles veut des onglets d'inventaire lisibles, des tris de l'équipement (panoplie, niveau…), choisir un objet en cliquant sur son emplacement et voir son familier le suivre en courant, à pied comme à cheval : S181 (5) en gains rapides, avant les pages Éléments et Spécialisation qui remplacent la page Talents (conçues par le game designer, chiffrées à part). 5 points ; S181-S184 deviennent S182-S185.
+
+## Osmose : les pages Éléments et Voie (1er novembre 2026, D93)
+La page Talents des caractéristiques est remplacée par deux onglets, conçus par le game designer (`projects/rpg/docs/elements-specialisations.md`, v3) et validés par Charles : trois paliers, 30, 50 et 100. Dès 30, les six réactions s'activent pour tous et chaque paire d'éléments se crée sur la page Éléments, gratuitement et de façon réversible ; à 50, les quatre trios ; la page Voie fait choisir une des trois branches de sa classe à 30 (rester dans sa classe, c'est ne pas encore avoir choisi), avec deux évolutions automatiques à 50 et 100. Les éléments quittent l'arbre des talents, dont la refonte est reportée. S182 (5) le cœur des éléments et la migration ; S183 (5) la page Éléments et la remesure ; S184 (4) les cinq paires restantes ; S185 (5) les quatre trios ; S186 (5) le moteur des voies et sa quête ; S187 (6) la page Voie et la Sentinelle ; S188 (7) la Garde, la Mage et le playtest. 37 points à la place des 16 de S182-S185 (D83) : 21 points et 3 sprints de plus.

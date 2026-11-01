@@ -1,12 +1,12 @@
-# Sprint 184 : Osmose : les spécialisations de la Mage
+# Sprint 184 : Osmose : les cinq paires d'éléments
 
-**Objectif :** la suite d'Osmose après S151, conçue par le game designer (v8 de `projects/rpg/docs/suite-apres-d69.md`, §12) et prise avec ses recommandations (D83).
+**Objectif :** les pages Éléments et Voie à la place de la page Talents, conçues par le game designer (`projects/rpg/docs/elements-specialisations.md`, v3) et validées par Charles : trois paliers à 30, 50 et 100 (D93).
 
-**Goal:** Osmose after S151, designed by the game designer (v8 of `projects/rpg/docs/suite-apres-d69.md`, §12) and taken with its recommendations (D83).
+**Goal:** the Elements and Path pages in place of the Talents page, designed by the game designer (`projects/rpg/docs/elements-specialisations.md`, v3) and approved by Charles: three tiers at 30, 50 and 100 (D93).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je choisis Archimage, Sorcier ou la troisième voie nommée par le scénariste ; `Rpg.Sim --spec` mesure les 18 builds à 50, chacun à ±8 points de la moyenne de sa classe (rpg) ; xUnit, mesures. | 3 | À faire |
+| En tant que joueur, je crée la Glace, la Boue, le Magma, la Vapeur et le Sable : 120 sorts jumeaux avec leurs icônes et leurs signatures (−PA, −PM, −résistance, −dégâts, −PO), noms relus par le scénariste (rpg) ; xUnit : budget × 0,8, signatures appliquées, plus haute caractéristique des parents. | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
