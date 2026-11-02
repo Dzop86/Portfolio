@@ -152,7 +152,7 @@ public partial class PointsPanel
             ThemeTypeVariation = OsmoseTheme.DetailPanel,
         };
         var column = new VBoxContainer();
-        column.AddThemeConstantOverride("separation", 3);
+        column.AddThemeConstantOverride("separation", 2);
         _reading.AddChild(column);
         var head = new HBoxContainer();
         head.AddThemeConstantOverride("separation", 10);
@@ -368,7 +368,9 @@ public partial class PointsPanel
             _readParents.Text = fusion.Parents.Count == 3
                 ? Texts["elements.parents.trio", parents, Texts["element." + ElementsAtelier.ElementOrder.First(e => !fusion.Parents.Contains(e))]]
                 : parents;
-            _readReaction.Text = fusion.Reaction?.Name.In(Texts.Lang) ?? "";
+            // The section and the reaction's name on one line: the panel has no room for two (§5.7, measured by the self-test).
+            _readReactionTitle.Text = $"{Texts["elements.section.reaction"]} · {fusion.Reaction?.Name.In(Texts.Lang) ?? ""}";
+            _readReaction.Visible = false;
             _readReactionText.Text = fusion.Reaction?.Description.In(Texts.Lang) ?? "";
             _readTrigger.Text = Texts["elements.reaction.trigger"];
             _readSignatureTitle.Visible = _readSignature.Visible = true;
@@ -388,6 +390,7 @@ public partial class PointsPanel
         _readParents.Text = Texts["elements.bar", bar.Total, bar.Threshold, bar.Bonus];
         _readReactionTitle.Text = name.ToUpperInvariant();
         _readReaction.Text = bar.ConsumedBy is Element by ? Texts["elements.consumed", Texts[$"fusion.{IdOf(by)}.the"]] : "";
+        _readReaction.Visible = bar.ConsumedBy is not null;
         _readReactionText.Text = bar.ConsumedBy is null ? Texts["elements.reaction.base"] : Texts["elements.base.consumed"];
         _readTrigger.Text = "";
         _readSignatureTitle.Visible = _readSignature.Visible = false;
