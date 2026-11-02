@@ -6,7 +6,11 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la page Éléments suit la maquette du graphiste (`projects/rpg/docs/maquette-elements.md`) : elle montre ce que chaque composé consomme, ce qui le bloque et ce que je peux créer, en français et en anglais (rpg) ; xUnit client, auto-test Godot : les 10 composés dans les deux langues tiennent à 1280 × 720, cibles de 44 px. | 4 | À faire |
+| En tant que joueur, la page Éléments suit la maquette du graphiste (`projects/rpg/docs/maquette-elements.md`) : elle montre ce que chaque composé consomme, ce qui le bloque et ce que je peux créer, en français et en anglais (rpg) ; xUnit client, auto-test Godot : les 10 composés dans les deux langues tiennent à 1280 × 720, cibles de 44 px. | 4 | Fait (T148) |
+
+**Ce qui est fait.** L'atelier des fusions : colonnes, fils aux couleurs des parents, accolades des couples, sceaux, tuiles à quatre états avec leur bouton, panneau de lecture et frise en chevrons.
+
+**Ce qui a bougé.** Sans Godot en local, personne n'a vu la page avant Charles. Le contour au survol des parents et des responsables n'est pas fait.
 
 ## Rétro (Charles)
 - Ce qui a marché :

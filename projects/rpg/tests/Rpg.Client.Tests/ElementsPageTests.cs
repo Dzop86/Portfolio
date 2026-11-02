@@ -138,40 +138,94 @@ public class ElementsPageTests
     }
 
     [Fact]
-    public void TheWheel_FitsItsArea_NoNodeOverlaps_AndEachCanBeTouched()
+    public void TheColumns_RangeThePairsByDisjointCouples_AndAllFusions()
     {
-        (string Id, float X, float Y)[] nodes = [.. ElementsWheel.Nodes];
-        Assert.Equal(14, nodes.Length);
-        Assert.True(ElementsWheel.NodeHeight >= 44);
-        foreach ((string id, float x, float y) in nodes)
+        Assert.Equal(new ElementsPage(Editor(50)).Fusions.Select(f => f.Id).Order(), ElementsAtelier.PairOrder.Concat(ElementsAtelier.TrioOrder).Order());
+        for (int i = 0; i < 6; i += 2)
         {
-            Assert.InRange(x - ElementsWheel.NodeWidth / 2, 0, ElementsWheel.Width);
-            Assert.InRange(x + ElementsWheel.NodeWidth / 2, 0, ElementsWheel.Width);
-            Assert.InRange(y - ElementsWheel.NodeHeight / 2, 0, ElementsWheel.Height);
-            Assert.InRange(y + ElementsWheel.NodeHeight / 2, 0, ElementsWheel.Height);
+            Element a = Enum.Parse<Element>(ElementsAtelier.PairOrder[i], ignoreCase: true), b = Enum.Parse<Element>(ElementsAtelier.PairOrder[i + 1], ignoreCase: true);
+            Assert.Empty(Elements.BlockedBy(a, [b]));
         }
-        for (int i = 0; i < nodes.Length; i++)
-            for (int j = i + 1; j < nodes.Length; j++)
-                Assert.False(Math.Abs(nodes[i].X - nodes[j].X) < ElementsWheel.NodeWidth && Math.Abs(nodes[i].Y - nodes[j].Y) < ElementsWheel.NodeHeight, $"{nodes[i].Id} on {nodes[j].Id}");
     }
 
     [Fact]
-    public void AWheelNode_SitsBetweenItsParents_AndEveryFusionHasOne()
+    public void ThePiles_FallTheSameHeight_AndEachTargetCanBeTouched()
     {
-        (string Id, float X, float Y)[] nodes = [.. ElementsWheel.Nodes];
-        (float X, float Y) At(string id) { var n = nodes.Single(x => x.Id == id); return (n.X, n.Y); }
-        foreach (Fusion f in new ElementsPage(Editor(50)).Fusions.Where(x => x.Parents.Count == 2))
+        Assert.Equal(ElementsAtelier.Height, ElementsAtelier.ElementY(3) + ElementsAtelier.ElementHeight + ElementsAtelier.StatsButtonGap + ElementsAtelier.StatsButtonHeight);
+        Assert.Equal(ElementsAtelier.Height, ElementsAtelier.PairY(5) + ElementsAtelier.PairHeight);
+        Assert.Equal(ElementsAtelier.Height, ElementsAtelier.TrioY(3) + ElementsAtelier.TrioHeight);
+        Assert.Equal(ElementsAtelier.Width, ElementsAtelier.PanelX + ElementsAtelier.PanelWidth);
+        Assert.True(ElementsAtelier.ActionHeight >= 44 && ElementsAtelier.PairHeight >= 44 && ElementsAtelier.StatsButtonHeight >= 44);
+        Assert.True(ElementsAtelier.ActionHeight <= ElementsAtelier.PairHeight);
+        for (int i = 0; i < 5; i++)
+            Assert.True(ElementsAtelier.PairY(i) + ElementsAtelier.PairHeight <= ElementsAtelier.PairY(i + 1));
+    }
+
+    [Fact]
+    public void TheStrands_LeaveEachRowApart_AndEnterEachPairSideBySide()
+    {
+        foreach (string pair in ElementsAtelier.PairOrder)
         {
-            (float ax, float ay) = At(f.Parents[0].ToString());
-            (float bx, float by) = At(f.Parents[1].ToString());
-            (float x, float y) = At(f.Id);
-            // On the line between its two parents.
-            float cross = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
-            Assert.True(Math.Abs(cross) < 1, $"{f.Id} off the line of its parents: {cross}");
-            Assert.InRange(x, Math.Min(ax, bx), Math.Max(ax, bx));
-            Assert.InRange(y, Math.Min(ay, by), Math.Max(ay, by));
+            IReadOnlyList<Element> parents = Elements.Parents(Enum.Parse<Element>(pair, ignoreCase: true));
+            Assert.Equal(14, Math.Abs(ElementsAtelier.StrandTo(pair, parents[0]) - ElementsAtelier.StrandTo(pair, parents[1])));
+            Assert.All(parents, e => Assert.InRange(ElementsAtelier.StrandFrom(e, pair), 0, ElementsAtelier.Height));
         }
-        Assert.All(new ElementsPage(Editor(50)).Fusions, f => At(f.Id));
+        foreach (Element e in ElementsAtelier.ElementOrder)
+        {
+            float[] starts = [.. ElementsAtelier.PairOrder.Where(p => Elements.Parents(Enum.Parse<Element>(p, ignoreCase: true)).Contains(e)).Select(p => ElementsAtelier.StrandFrom(e, p))];
+            Assert.Equal(3, starts.Distinct().Count());
+        }
+    }
+
+    [Fact]
+    public void WithLightning_OnlyMudRemains_AndWithMudNothing_TwoThenNoElementFree()
+    {
+        PointsEditor editor = Editor(60, compounds: Element.Lightning);
+        var page = new ElementsPage(editor);
+        Assert.Equal(2, page.FreeElements);
+        Assert.Equal(["mud"], page.Fusions.Where(f => f.State == FusionState.Open).Select(f => f.Id));
+        Assert.Equal(8, page.Fusions.Count(f => f.State == FusionState.Blocked));
+        Assert.Equal(Element.Lightning, page.Bars.Single(b => b.Element == Element.Air).ConsumedBy);
+        Assert.Null(page.Bars.Single(b => b.Element == Element.Earth).ConsumedBy);
+        Assert.True(page.Press(page.Fusions.Single(f => f.Id == "mud")));
+        Assert.Equal(0, page.FreeElements);
+        Assert.DoesNotContain(page.Fusions, f => f.State == FusionState.Open);
+    }
+
+    [Fact]
+    public void ATrio_LeavesOneElementFree_AndBlocksEverythingElse()
+    {
+        var page = new ElementsPage(Editor(60, compounds: Element.Ether));
+        Assert.Equal(1, page.FreeElements);
+        Assert.Equal(9, page.Fusions.Count(f => f.State == FusionState.Blocked));
+        Assert.Null(page.Bars.Single(b => b.Element == Element.Earth).ConsumedBy);
+    }
+
+    [Fact]
+    public void TheFoot_SaysWhatIsExchanged_WhatBlocks_AndAtWhichLevel()
+    {
+        var fr = new Texts("fr");
+        var page = new ElementsPage(Editor(100, compounds: Element.Lightning));
+        Fusion F(string id) => page.Fusions.Single(f => f.Id == id);
+        Assert.Equal("Feu dans la Foudre", ElementsPage.BlockedLine(F("magma"), fr));
+        (string first, string second, bool blocked) = page.Foot(F("magma"), fr);
+        Assert.Equal(("Bloqué : Feu dans la Foudre.", "Dissoudre rend les éléments.", true), (first, second, blocked));
+        Assert.Equal("Feu + Air dans la Foudre", ElementsPage.BlockedLine(F("ether"), fr));
+        Assert.Equal("Change 8 sorts de Terre + Eau en Boue.", page.Foot(F("mud"), fr).First);
+        Assert.Equal("8 sorts de Foudre à la place de Feu + Air.", page.Foot(F("lightning"), fr).First);
+        Assert.Equal("Livre : 24 sorts, quoi que tu crées.", page.Foot(F("mud"), fr).Second);
+        var young = new ElementsPage(Editor(29));
+        Assert.Equal("Ouvert au niveau 30.", young.Foot(young.Fusions.Single(f => f.Id == "mud"), fr).First);
+        var two = new ElementsPage(Editor(100, compounds: [Element.Lightning, Element.Mud]));
+        Assert.Equal("Feu dans la Foudre, Terre dans la Boue", ElementsPage.BlockedLine(two.Fusions.Single(f => f.Id == "magma"), fr));
+    }
+
+    [Fact]
+    public void TheNextTier_IsMarked_OnlyOne()
+    {
+        Assert.Equal([30], new ElementsPage(Editor(29)).Tiers.Where(t => t.Next).Select(t => t.Level));
+        Assert.Equal([50], new ElementsPage(Editor(30)).Tiers.Where(t => t.Next).Select(t => t.Level));
+        Assert.DoesNotContain(new ElementsPage(Editor(100)).Tiers, t => t.Next);
     }
 
     [Theory]

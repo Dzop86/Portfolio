@@ -8,10 +8,10 @@
 # Deterministic, no <filter> (Godot draws with ThorVG). Run from projects/rpg after tools/spells_gen.py:
 #   python3 tools/spell_art.py [--fetch]
 # With new spells, then: python3 tools/spell_art.py --imports writes their .import files, which godot --import then reads.
-import hashlib, json, os, re, sys, urllib.request
+import json, os, re, sys, urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ui_art import layers, mix, bar  # noqa: E402
+from ui_art import layers, mix, bar, write_missing_imports  # noqa: E402
 
 here = os.path.dirname(os.path.abspath(__file__))
 root = os.path.join(here, "..")
@@ -125,32 +125,10 @@ def icon(spell, origin, flat, marks):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{body}</svg>\n'
 
 
-def write_missing_imports():
-    """The .import of an icon without one, from a neighbour's: Godot's own format, its path the MD5 of the source and a UID drawn from it, so that no Godot is needed."""
-    names = sorted(os.listdir(out))
-    model = next(n for n in names if n.endswith(".svg.import"))
-    template = open(os.path.join(out, model)).read()
-    old_svg = model[:-len(".import")]
-    old_hash = hashlib.md5(f"res://assets/icons/spells/{old_svg}".encode()).hexdigest()
-    old_uid = re.search(r'uid="(uid://[a-z0-9]+)"', template).group(1)
-    written = 0
-    for svg in names:
-        if svg.endswith(".svg") and svg + ".import" not in names:
-            digest = hashlib.md5(f"res://assets/icons/spells/{svg}".encode()).hexdigest()
-            n, uid = int(digest[:15], 16), ""
-            while n:
-                uid = "abcdefghijklmnopqrstuvwxy012345678"[n % 34] + uid
-                n //= 34
-            text = template.replace(old_svg, svg).replace(old_hash, digest).replace(old_uid, "uid://" + uid)
-            open(os.path.join(out, svg + ".import"), "w").write(text)
-            written += 1
-    return written
-
-
 def imports():
     """The new icons' Godot import settings (after a first `godot --import`): 128 pixels with mipmaps, sharp in the deck's 32-pixel places and the book's 48."""
     changed = 0
-    written = write_missing_imports()
+    written = write_missing_imports(out, "res://assets/icons/spells")
     for name in sorted(os.listdir(out)):
         if name.endswith(".svg.import"):
             path = os.path.join(out, name)

@@ -264,5 +264,103 @@
     "light": "#d8d4cb",
     "dark": "#656158",
     "outline": "#242320"
+  },
+  "element-earth": {
+    "shape": "lorc/stone-sphere",
+    "main": "#b07a45",
+    "light": "#d4b699",
+    "dark": "#614326",
+    "outline": "#1a120a"
+  },
+  "element-fire": {
+    "shape": "lorc/fire-ring",
+    "main": "#ef4b4b",
+    "light": "#f69c9c",
+    "dark": "#832929",
+    "outline": "#240b0b"
+  },
+  "element-water": {
+    "shape": "lorc/drop",
+    "main": "#3d9cff",
+    "light": "#94c9ff",
+    "dark": "#22568c",
+    "outline": "#091726"
+  },
+  "element-air": {
+    "shape": "lorc/whirlwind",
+    "main": "#52c45a",
+    "light": "#a0dfa4",
+    "dark": "#2d6c32",
+    "outline": "#0c1d0e"
+  },
+  "element-magma": {
+    "shape": "sbed/lava",
+    "main": "#ff7a2e",
+    "light": "#ffb68c",
+    "dark": "#8c4319",
+    "outline": "#261207"
+  },
+  "element-ice": {
+    "shape": "lorc/frozen-orb",
+    "main": "#8fe0f5",
+    "light": "#c1eefa",
+    "dark": "#4f7b87",
+    "outline": "#152225"
+  },
+  "element-mud": {
+    "shape": "delapouite/swamp",
+    "main": "#8c7a3a",
+    "light": "#c0b693",
+    "dark": "#4d4320",
+    "outline": "#151209"
+  },
+  "element-lightning": {
+    "shape": "lorc/power-lightning",
+    "main": "#f2d03b",
+    "light": "#f8e593",
+    "dark": "#857220",
+    "outline": "#241f09"
+  },
+  "element-sand": {
+    "shape": "lorc/sands-of-time",
+    "main": "#d6bc84",
+    "light": "#e8dabb",
+    "dark": "#766749",
+    "outline": "#201c14"
+  },
+  "element-steam": {
+    "shape": "delapouite/steam",
+    "main": "#c3a6e0",
+    "light": "#deceee",
+    "dark": "#6b5b7b",
+    "outline": "#1d1922"
+  },
+  "element-ether": {
+    "shape": "lorc/aura",
+    "main": "#b8c4ff",
+    "light": "#d8dfff",
+    "dark": "#656c8c",
+    "outline": "#1c1d26"
+  },
+  "element-salt": {
+    "shape": "lorc/crystal-growth",
+    "main": "#eef2f5",
+    "light": "#f6f8fa",
+    "dark": "#838587",
+    "outline": "#242425"
+  },
+  "element-ash": {
+    "shape": "lorc/burning-embers",
+    "main": "#a89f98",
+    "light": "#cfcac6",
+    "dark": "#5c5754",
+    "outline": "#191817"
+  },
+  "element-sap": {
+    "shape": "delapouite/tree-roots",
+    "main": "#9ccc3d",
+    "light": "#c9e394",
+    "dark": "#567022",
+    "outline": "#171f09"
   }
 }

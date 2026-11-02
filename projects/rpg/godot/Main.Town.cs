@@ -3075,7 +3075,7 @@ public partial class Main
 
     /// <summary>
     /// The Elements tab (sprint 183, D93): it fits the window at 1280 × 720 unscrolled; at 30, Lightning created from the wheel
-    /// joins the draft, its twins shown as a preview until saved, then is dissolved; a trio is shut at 30, opens at 50; in a fight, no button to press; every node as tall as a finger.
+    /// joins the draft, its twins at once, blocks Magma and leaves Mud, then is dissolved; a trio is shut at 30, opens at 50; each reading holds; in a fight, no button to press; every node as tall as a finger.
     /// </summary>
     private async Task CheckElements(List<string> problems)
     {
@@ -3093,37 +3093,47 @@ public partial class Main
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         if (!panel.ElementsFit)
             problems.Add($"the elements page scrolls: {panel.ElementsRoom}");
-        if (panel.WheelNodes.Count != 14 || panel.WheelNodes.Values.Any(n => n.Size.Y < 44))
-            problems.Add($"the wheel has {panel.WheelNodes.Count} nodes, the smallest {panel.WheelNodes.Values.Min(n => n.Size.Y)} tall");
-        panel.PickFusion("lightning");
-        if (panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.create"])
-            problems.Add($"Lightning at 30 offers '{panel.FusionButton.Text}'");
-        panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
-        if (!panel.Editor.CompoundsCreated.Contains(Element.Lightning) || panel.Editor.Previewed.Count != 0 || panel.FusionButton.Text != texts["elements.dissolve"])
-            problems.Add($"Lightning created previews {panel.Editor.Previewed.Count} spells, the button '{panel.FusionButton.Text}'");
+        if (panel.FusionTiles.Count != 10 || panel.FusionTiles.Values.Any(n => n.Size.Y < 44))
+            problems.Add($"the workshop has {panel.FusionTiles.Count} tiles, the smallest {panel.FusionTiles.Values.Min(n => n.Size.Y)} tall");
+        if (panel.FusionAction("lightning").Disabled || panel.FusionAction("lightning").Text != texts["elements.create"] || panel.FusionAction("lightning").Size.Y < 44)
+            problems.Add($"Lightning at 30 offers '{panel.FusionAction("lightning").Text}'");
+        panel.FusionAction("lightning").EmitSignal(BaseButton.SignalName.Pressed);
+        if (!panel.Editor.CompoundsCreated.Contains(Element.Lightning) || panel.Editor.Previewed.Count != 0 || panel.FusionAction("lightning").Text != texts["elements.dissolve"])
+            problems.Add($"Lightning created previews {panel.Editor.Previewed.Count} spells, the button '{panel.FusionAction("lightning").Text}'");
         // It holds Fire and Air (sprint 187, D94): Magma is blocked, Mud open.
-        panel.PickFusion("magma");
-        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.blocked"])
-            problems.Add($"Magma beside Lightning offers '{panel.FusionButton.Text}'");
-        panel.PickFusion("mud");
-        if (panel.FusionButton.Disabled)
+        if (!panel.FusionAction("magma").Disabled || panel.FusionAction("magma").Text != texts["elements.blocked"])
+            problems.Add($"Magma beside Lightning offers '{panel.FusionAction("magma").Text}'");
+        if (panel.FusionAction("mud").Disabled)
             problems.Add("Mud beside Lightning is not offered");
-        panel.PickFusion("lightning");
-        panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
+        panel.FusionAction("lightning").EmitSignal(BaseButton.SignalName.Pressed);
         if (panel.Editor.CompoundsCreated.Count != 0 || panel.Editor.Changed)
             problems.Add("Lightning dissolved leaves something to save");
-        panel.PickFusion("ether");
-        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.locked", 50])
-            problems.Add($"a trio at 30 offers '{panel.FusionButton.Text}'");
+        if (panel.FusionAction("ether").Visible)
+            problems.Add("a trio at 30 offers a button");
         panel.QueueFree();
         panel = Open(50, readOnly: false);
-        panel.PickFusion("ether");
-        if (panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.create"])
-            problems.Add($"a trio at 50 offers '{panel.FusionButton.Text}'");
+        if (panel.FusionAction("ether").Disabled || panel.FusionAction("ether").Text != texts["elements.create"])
+            problems.Add($"a trio at 50 offers '{panel.FusionAction("ether").Text}'");
+        // Each compound's reading holds in the panel (docs/maquette-elements.md §5.7), in the states that say the most.
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        foreach (string id in panel.FusionTiles.Keys)
+        {
+            panel.PickFusion(id);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (!panel.ReadingFits)
+                problems.Add($"the elements' reading overflows: {panel.ReadingRoom}");
+        }
+        panel.FusionAction("lightning").EmitSignal(BaseButton.SignalName.Pressed);
+        foreach (string id in panel.FusionTiles.Keys)
+        {
+            panel.PickFusion(id);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            if (!panel.ReadingFits)
+                problems.Add($"the elements' reading overflows beside Lightning: {panel.ReadingRoom}");
+        }
         panel.QueueFree();
         panel = Open(30, readOnly: true);
-        panel.PickFusion("lightning");
-        if (panel.FusionButton.Visible)
+        if (panel.FusionAction("lightning").Visible)
             problems.Add("the elements page offers a button in a fight");
         panel.QueueFree();
     }

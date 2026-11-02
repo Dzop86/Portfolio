@@ -13,7 +13,7 @@
 #   since sprint 165 the quests' five kinds ("quest-<kind>") and the tick of an objective reached ("check"); since sprint 171
 #   the ten families' emblems ("family-<id>", greyed while none of the family is met).
 # Deterministic; run from projects/rpg:  python3 tools/ui_art.py
-import json, os
+import hashlib, json, os, re
 
 here = os.path.dirname(os.path.abspath(__file__))
 bar = os.path.join(here, "..", "godot", "assets", "icons", "bar")
@@ -147,6 +147,28 @@ def frame(top, bottom, edge, width, r, highlight, shadow, halo):
     return '<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56">' + "".join(parts) + "</svg>\n"
 
 
+def write_missing_imports(folder, res):
+    """The .import of an icon without one, from a neighbour's: Godot's own format, its path the MD5 of the source and a UID drawn from it, so that no Godot is needed."""
+    names = sorted(os.listdir(folder))
+    model = next(n for n in names if n.endswith(".svg.import"))
+    template = open(os.path.join(folder, model)).read()
+    old_svg = model[:-len(".import")]
+    old_hash = hashlib.md5(f"{res}/{old_svg}".encode()).hexdigest()
+    old_uid = re.search(r'uid="(uid://[a-z0-9]+)"', template).group(1)
+    written = 0
+    for svg in names:
+        if svg.endswith(".svg") and svg + ".import" not in names:
+            digest = hashlib.md5(f"{res}/{svg}".encode()).hexdigest()
+            n, uid = int(digest[:15], 16), ""
+            while n:
+                uid = "abcdefghijklmnopqrstuvwxy012345678"[n % 34] + uid
+                n //= 34
+            text = template.replace(old_svg, svg).replace(old_hash, digest).replace(old_uid, "uid://" + uid)
+            open(os.path.join(folder, svg + ".import"), "w").write(text)
+            written += 1
+    return written
+
+
 def main():
     palette = json.load(open(os.path.join(bar, "palette.json")))
     for name, tone in palette.items():
@@ -159,7 +181,7 @@ def main():
     every = {**palette, **extra}
     # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised;
     # the quests' kinds (sprint 165, docs/graphisme/s165-retours-30-oct.md §3.2): "quest-<kind>", greyed for a kind filtered out.
-    jobs = {n for n in extra if n.startswith(("job-", "quest-", "family-"))}
+    jobs = {n for n in extra if n.startswith(("job-", "quest-", "family-", "element-"))}
     for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"} | jobs):
         with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
             f.write(icon(grey(every[name])))
@@ -200,7 +222,8 @@ def main():
     }.items():
         with open(os.path.join(frames, "..", name + ".svg"), "w") as f:
             f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">{body}</svg>\n')
-    print(f"{len(palette)} icons, {len(FRAMES)} frames")
+    written = write_missing_imports(relief, "res://assets/icons/relief")
+    print(f"{len(palette)} icons, {len(FRAMES)} frames, {written} imports written")
 
 
 if __name__ == "__main__":

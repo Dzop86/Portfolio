@@ -25,10 +25,14 @@ public static class OsmoseTheme
     /// <summary>The header the panels laid on the map fold to (sprint 165, <c>docs/graphisme/s165-retours-30-oct.md</c> §1.3).</summary>
     public const string HudHeader = "HudHeader";
 
+    /// <summary>The Elements page's tiles and their buttons (sprint 189, D94, docs/maquette-elements.md §5.6).</summary>
+    public const string CompoundOpen = "CompoundOpen", CompoundCreated = "CompoundCreated", CompoundLocked = "CompoundLocked", CompoundBlocked = "CompoundBlocked",
+        ElementConsumed = "ElementConsumed", CompoundCreate = "CompoundCreate", CompoundDissolve = "CompoundDissolve";
+
     /// <summary>Every variation the theme defines (for the self-test).</summary>
     public static readonly string[] Variations = [MenuTile, Primary, WindowPanel, HudPanel, TitleBar, CloseButton, ListRow, GoldBand, GoldBandLabel, LifeBar, GoldBar,
         SearchField, TreeRow, TreeToggle, AchievementTile, AchievementTileDone, AchievementCard, AchievementCardEarned, IconFrame, IconFrameLocked, DetailPanel,
-        SectionLabel, Link, ProgressBarCompact, HudHeader];
+        SectionLabel, Link, ProgressBarCompact, HudHeader, CompoundOpen, CompoundCreated, CompoundLocked, CompoundBlocked, ElementConsumed, CompoundCreate, CompoundDissolve];
 
     /// <summary>The bold of the titles: the default font emboldened, spaced a little.</summary>
     public static FontVariation Bold(int spacing = 0) => new() { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = spacing };
@@ -275,6 +279,47 @@ public static class OsmoseTheme
             theme.SetStylebox("hover_pressed", type, Flat(UiStyle.Selected, UiStyle.Pistachio, 2, 8, 12));
             theme.SetStylebox("focus", type, new StyleBoxEmpty());
         }
+
+        // A compound's tile (sprint 189): a clear edge of 2 pixels always says "shown in the panel".
+        void Tile(string type, StyleBoxFlat normal, StyleBoxFlat hover, StyleBoxFlat shown)
+        {
+            theme.SetTypeVariation(type, "Button");
+            theme.SetStylebox("normal", type, normal);
+            theme.SetStylebox("hover", type, hover);
+            theme.SetStylebox("pressed", type, shown);
+            theme.SetStylebox("hover_pressed", type, shown);
+            theme.SetStylebox("disabled", type, normal);
+            theme.SetStylebox("focus", type, new StyleBoxEmpty());
+        }
+        Tile(CompoundOpen, Shadowed(Flat(UiStyle.Tab, UiStyle.Edge, 1, 8)), Shadowed(Flat(UiStyle.Hover, UiStyle.ChocolateLight, 1, 8)), Flat(UiStyle.Hover, UiStyle.ChocolateLight, 2, 8));
+        Tile(CompoundCreated, Shadowed(Flat(UiStyle.Selected, UiStyle.Pistachio, 1, 8)), Shadowed(Flat(UiStyle.LitTop, UiStyle.Pistachio, 1, 8)), Flat(UiStyle.Selected, UiStyle.ChocolateLight, 2, 8));
+        Tile(CompoundLocked, Flat(ElementStyle.OutOfLevelFill, "#ffffff0f", 1, 8), Flat(ElementStyle.LockedFill, "#ffffff2e", 1, 8), Flat(ElementStyle.LockedFill, UiStyle.ChocolateLight, 2, 8));
+        Tile(CompoundBlocked, Flat(ElementStyle.LockedFill, UiStyle.Edge, 1, 8), Flat(UiStyle.Tab, "#ffffff2e", 1, 8), Flat(UiStyle.Tab, UiStyle.ChocolateLight, 2, 8));
+        Tile(ElementConsumed, Flat(UiStyle.Well, UiStyle.Edge, 1, 8), Flat(ElementStyle.LockedFill, "#ffffff2e", 1, 8), Flat(ElementStyle.LockedFill, UiStyle.ChocolateLight, 2, 8));
+        theme.SetTypeVariation(CompoundCreate, "Button");
+        theme.SetStylebox("normal", CompoundCreate, Raised("secondary", 6));
+        theme.SetStylebox("hover", CompoundCreate, Raised("primary-hover", 6));
+        theme.SetStylebox("pressed", CompoundCreate, Raised("primary-pressed", 6, 7, 5));
+        theme.SetStylebox("hover_pressed", CompoundCreate, Raised("primary-pressed", 6, 7, 5));
+        theme.SetStylebox("disabled", CompoundCreate, Flat(UiStyle.Well, "#ffffff14", 1, 6, 6));
+        theme.SetStylebox("focus", CompoundCreate, new StyleBoxEmpty());
+        theme.SetFontSize("font_size", CompoundCreate, 14);
+        theme.SetColor("font_color", CompoundCreate, C(UiStyle.TextStrong));
+        theme.SetColor("font_hover_color", CompoundCreate, C(UiStyle.Chocolate));
+        theme.SetColor("font_pressed_color", CompoundCreate, C(UiStyle.Chocolate));
+        theme.SetColor("font_hover_pressed_color", CompoundCreate, C(UiStyle.Chocolate));
+        theme.SetColor("font_disabled_color", CompoundCreate, C(ElementStyle.Locked));
+        theme.SetTypeVariation(CompoundDissolve, "Button");
+        theme.SetStylebox("normal", CompoundDissolve, Flat("#00000000", "#ffffff2e", 1, 6, 6));
+        theme.SetStylebox("hover", CompoundDissolve, Flat(UiStyle.Hover, "#ffffff2e", 1, 6, 6));
+        theme.SetStylebox("pressed", CompoundDissolve, Flat(UiStyle.Hover, "#ffffff2e", 1, 6, 6));
+        theme.SetStylebox("hover_pressed", CompoundDissolve, Flat(UiStyle.Hover, "#ffffff2e", 1, 6, 6));
+        theme.SetStylebox("focus", CompoundDissolve, new StyleBoxEmpty());
+        theme.SetFontSize("font_size", CompoundDissolve, 14);
+        theme.SetColor("font_color", CompoundDissolve, C(UiStyle.Text));
+        theme.SetColor("font_hover_color", CompoundDissolve, Colors.White);
+        theme.SetColor("font_pressed_color", CompoundDissolve, Colors.White);
+        theme.SetColor("font_hover_pressed_color", CompoundDissolve, Colors.White);
 
         // The frame of an achievement's icon: raised and golden when earned, a hollow when not.
         theme.SetTypeVariation(IconFrame, "PanelContainer");

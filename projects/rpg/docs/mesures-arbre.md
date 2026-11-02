@@ -280,3 +280,21 @@ Mesure hors CI, sans kit, builds tirés au hasard, 100 combats par classe et par
 - **Décision de Charles :** la limite est retirée, puisqu'elle contraint le joueur sans effet mesuré. Les chiffres entre parenthèses sont donc ceux du jeu. Le dépassement reste à traiter à part.
 - **À remesurer** avec les 12 sorts par trio de S188, qui n'existaient pas lors de cette mesure.
 
+## v4 bis : les trios à 12 sorts (sprint 188, D94)
+
+Mêmes réglages que la v4, sur les hordes de la Forêt, sans la limite de réactions :
+
+| Niveau | Classe | Aucun | Foudre | Glace | Boue | Magma | Vapeur | Sable | Éther | Cendre | Sève | Sel |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 50 | Sentinelle | 38 | 66 | 64 | 32 | 36 | 53 | 36 | 50 | 44 | 34 | 25 |
+| 50 | Garde | 32 | 42 | 53 | 25 | 32 | 38 | 36 | 22 | 28 | 27 | 22 |
+| 50 | Mage | 28 | 44 | 51 | 39 | 31 | 33 | 42 | 35 | 43 | 38 | 42 |
+| 60 | Sentinelle | 58 | 80 | 77 | 61 | 53 | 67 | 62 | 69 | 65 | 56 | 57 |
+| 60 | Garde | 50 | 64 | 69 | 47 | 42 | 61 | 51 | 50 | 46 | 49 | 38 |
+| 60 | Mage | 50 | 65 | 67 | 66 | 58 | 55 | 64 | 59 | 63 | 62 | 54 |
+
+**Ce que ça montre.**
+- **Un trio ne domine pas une paire** : au mieux dans le haut du panier selon la classe, souvent en dessous de la Foudre et de la Glace.
+- **La Foudre et la Glace restent devant** pour les trois classes, surtout pour la Sentinelle.
+- **Ces hordes sont celles d'une zone de niveau 40 à 45** : à 50 et 60, les chiffres montent avec le niveau et ne se comparent pas au plafond de T41, qui vaut à 45. Il n'y a pas encore de zone au niveau 50 pour mesurer mieux.
+
