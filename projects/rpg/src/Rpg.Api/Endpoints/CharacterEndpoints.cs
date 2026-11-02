@@ -59,24 +59,37 @@ public static class CharacterEndpoints
 
     /// <summary>
     /// Talents taken in an older tree (sprint 146, D82, I5 a), as the game signs in: given back once, for free, the deck
-    /// keeping the spells the grimoire still has; true when there were talents to give back, for the game to say so.
+    /// keeping the spells the grimoire still has; true when there were talents to give back, for the game to say so. Since
+    /// sprint 182 (D93), a tree of version 3 loses only its elements: Lightning is created for a hero who had Electrifying
+    /// (its twins stay in the grimoire, its spells of Fire and Air come back), and its styles stay while the points, one
+    /// fewer, pay for them, the last taken falling first.
     /// </summary>
     internal static bool Retree(Character c)
     {
         if (c.TalentsVersion >= Talents.Version)
             return false;
+        int from = c.TalentsVersion;
         c.TalentsVersion = Talents.Version;
         if (c.Talents.Length == 0)
             return false;
-        c.Talents = "";
+        string[] saved = c.Talents.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        List<string> kept = from == 3 ? [.. c.TalentList] : [];
+        if (from == 3 && saved.Contains(ElectrifyingV3) && c.Level >= Elements.Pairs && !c.CompoundList.Contains(Element.Lightning))
+            c.Compounds = string.Join(',', [.. c.CompoundList.Select(e => e.ToString()), nameof(Element.Lightning)]);
+        while (kept.Count > 0 && Talents.Problem(kept, c.Level, GameData.Embedded) is not null)
+            kept = Talents.Without(kept, kept[^1], GameData.Embedded);
+        c.Talents = string.Join(',', kept);
         if (c.Deck is not ("" or Character.EmptyDeck))
         {
             Grimoire grimoire = Talents.GrimoireOf(c.Hero, GameData.Embedded);
-            string[] kept = [.. (c.DeckList ?? []).Where(grimoire.Spells.Contains)];
-            c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
+            string[] spells = [.. (c.DeckList ?? []).Where(grimoire.Spells.Contains)];
+            c.Deck = spells.Length == 0 ? Character.EmptyDeck : string.Join(',', spells);
         }
         return true;
     }
+
+    /// <summary>The pair of Fire and Air in the tree of version 3, which gave Lightning its reaction and its braid.</summary>
+    internal const string ElectrifyingV3 = "electrifying";
 
     internal static async Task<Results<Created<CharacterSummary>, ValidationProblem, ProblemHttpResult>> Create(
         NewCharacter request, ClaimsPrincipal user, GameDb db, GameServers servers, TimeProvider clock, CancellationToken cancel)
@@ -684,13 +697,15 @@ public static class CharacterEndpoints
         var ranks = new Dictionary<string, int>(points?.Ranks ?? new Dictionary<string, int>(), StringComparer.Ordinal);
         // No deck sent: the class's first spells; a deck sent empty is kept empty (D66).
         string[]? deck = points?.Deck is null ? null : [.. points.Deck];
-        // The talents (sprint 137): none sent, those saved.
+        // The talents (sprint 137): none sent, those saved; the compounds (sprint 182, D93) the same.
         string[] talents = points?.Talents is null ? character.TalentList : [.. points.Talents.Order(StringComparer.Ordinal)];
-        // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them, the tree's rules.
-        if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck, Talents = talents.Length == 0 ? null : talents }).Problem(GameData.Embedded) is string problem)
+        Element[] compounds = points?.Compounds is null ? character.CompoundList : [.. points.Compounds];
+        // The rules decide: within the level's points, ranks of the class's unlocked spells, a deck of them, the tree's rules, compounds open at the level.
+        if ((character.Hero with { Stats = stats, Ranks = ranks, Deck = deck, Talents = talents.Length == 0 ? null : talents, Compounds = compounds.Length == 0 ? null : compounds })
+            .Problem(GameData.Embedded) is string problem)
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = [problem] });
         // Taking characteristic points back costs Éclats from level 11 (sprint 97, D71); talents from level 41, in a village, out of a fight (sprint 140).
-        long talentCost = Talents.GivesBack(character.TalentList, talents, GameData.Embedded) ? Talents.ChangeCost(character.Level) : 0;
+        long talentCost = Talents.GivesBack(character.TalentList, talents) ? Talents.ChangeCost(character.Level) : 0;
         if (talentCost > 0 && (character.InFight || !Shop.InVillage(character.Town)))
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["points"] = ["Talents are given back in a village, out of a fight."] });
         long cost = (Shop.TakesBack(character.Stats, stats) ? Shop.ResetCost(character.Level) : 0) + talentCost;
@@ -703,6 +718,8 @@ public static class CharacterEndpoints
         character.Deck = deck is null ? "" : deck.Length == 0 ? Character.EmptyDeck : string.Join(',', deck);
         character.Talents = string.Join(',', talents);
         character.TalentsVersion = Talents.Version;
+        // Created or undone for free (sprint 182, D93, Q10 a), a fight going on or not: the deck the server just checked holds.
+        character.Compounds = string.Join(',', compounds);
         if (!character.InFight)
             character.SetLife(lifeBefore, clock.GetUtcNow());
         await db.SaveChangesAsync(cancel);
@@ -715,7 +732,8 @@ public static class CharacterEndpoints
 
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
-            c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList, Bestiary: c.Bestiary.Length == 0 ? null : c.BestiaryList);
+            c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList, Bestiary: c.Bestiary.Length == 0 ? null : c.BestiaryList,
+            Compounds: c.CompoundList.Length == 0 ? null : c.CompoundList);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

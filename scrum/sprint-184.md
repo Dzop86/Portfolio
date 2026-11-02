@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, je crée la Glace, la Boue, le Magma, la Vapeur et le Sable : 120 sorts jumeaux avec leurs icônes et leurs signatures (−PA, −PM, −résistance, −dégâts, −PO), noms relus par le scénariste (rpg) ; xUnit : budget × 0,8, signatures appliquées, plus haute caractéristique des parents. | 4 | À faire |
+| En tant que joueur, je crée la Glace, la Boue, le Magma, la Vapeur et le Sable : 120 sorts jumeaux avec leurs icônes et leurs signatures (−PA, −PM, −résistance, −dégâts, −PO), noms relus par le scénariste (rpg) ; xUnit : budget × 0,8, signatures appliquées, plus haute caractéristique des parents, chaque paire à 1,5 victoire sur 30 de la moyenne des autres (retirée de `TemplateTests` en S182, faute de sorts à mesurer). | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

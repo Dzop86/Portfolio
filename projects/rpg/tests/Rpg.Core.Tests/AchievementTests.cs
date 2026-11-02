@@ -73,7 +73,7 @@ public class AchievementTests
         string[] quests = [.. Real.Quests.Values.Where(q => q.Zone is null || chapter1.Contains(q.Zone)).Where(q => q.Level <= 30 && q.Kind is not (QuestKind.Side or QuestKind.Dungeon)).Select(q => q.Id)];
         Assert.Contains("the-disjoint", quests);
         AchievementState s = State(["waystone-clairval", "waystone-woods", "waystone-mouldy", "waystone-lake", "waystone-fields"], bestiary,
-            new Dictionary<string, int> { ["miner"] = 25, ["smith"] = 25 }, quests, talents: ["bogging", "up-close"]);
+            new Dictionary<string, int> { ["miner"] = 25, ["smith"] = 25 }, quests, talents: ["up-close"]);
         double share = 100.0 * Achievements.Earned(s, Real).Count / Achievements.All.Count;
         // 35.4 % since sprint 159: the lines of the story's quests are earned by following it; the band widened to 40.
         Assert.InRange(share, 20, 40);

@@ -35,7 +35,7 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
     private TreeCanvas _canvas = null!;
     private Label _title = null!, _counter = null!, _message = null!, _keys = null!, _confirmText = null!, _legendTitle = null!, _buildTitle = null!, _glossary = null!;
     private RichTextLabel _detail = null!;
-    private readonly List<Label> _summary = [], _build = [];
+    private readonly List<Label> _build = [];
     private readonly List<(string Key, Label Head)> _heads = [];
     private Control _detailBox = null!, _legendBox = null!, _side = null!, _codeRow = null!;
     private Button _help = null!, _fold = null!, _load = null!;
@@ -163,20 +163,13 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _side = side;
         row.AddChild(side);
 
-        // 1. My build: its title, beyond the base, the big switch, what it pays, its best hit, the pair advised (N8 a, N1 a, C5 b).
+        // 1. My build: its title, what it pays, its best hit (N8 a, N1 a; since sprint 182, D93, the elements are the Elements page's).
         side.AddChild(Head("tree.block.build"));
         _buildTitle = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
         _buildTitle.AddThemeFontSizeOverride("font_size", 16);
         _buildTitle.AddThemeFontOverride("font", OsmoseTheme.Bold());
         side.AddChild(_buildTitle);
         for (int i = 0; i < 2; i++)
-        {
-            var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0) };
-            line.AddThemeFontSizeOverride("font_size", 13);
-            side.AddChild(line);
-            _summary.Add(line);
-        }
-        for (int i = 0; i < 3; i++)
         {
             var line = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(PanelWidth, 0), Modulate = new Color(1, 1, 1, 0.8f) };
             line.AddThemeFontSizeOverride("font_size", 12);
@@ -437,11 +430,11 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         }
         _bubbleText.Text = said[TutorialStep];
         _bubbleNext.Text = Texts[TutorialStep == said.Count - 1 ? "tree.tuto.done" : "tree.tuto.next"];
-        // The doors first, then the branches, then the trunk (§2.9): the camera brings each to the middle, the bubble over the
-        // doors' crown (never on a door), under the first floor, right of the trunk.
+        // The first floor, then the branches, then the trunk (§2.9): the camera brings each to the middle, the bubble under the
+        // first floor's feet (never on a node), under the second floor, right of the trunk.
         Vector2 at = TutorialStep switch
         {
-            0 => _canvas.Show(Layout.Crown.X, TreeLayout.DoorsY) - new Vector2(160, (TreeLayout.DoorsY - TreeLayout.Foot + 8) * _canvas.Camera.Zoom),
+            0 => _canvas.Show(Layout.Crown.X, TreeLayout.Foot) + new Vector2(-160, 8 * _canvas.Camera.Zoom),
             1 => _canvas.Show(Layout.Columns[Branch.Tempo].CenterX, TreeLayout.SecondY) + new Vector2(-160, (TreeLayout.Foot - TreeLayout.SecondY + 8) * _canvas.Camera.Zoom),
             _ => _canvas.Show(Layout.Crown.X, TreeLayout.TrunkTop) + new Vector2(150, 0),
         };
@@ -507,10 +500,8 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
                 Refresh();
                 return;
             }
-            // What the change did besides: a Conversion in its Transmutation's place, twins in the deck (sprint 150, F7 a).
-            IEnumerable<string> said = (Editor.Replaced is string replaced ? [Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)]] : Array.Empty<string>())
-                .Concat(Texts.DeckChanges(Editor));
-            _message.Text = string.Join("\n", said);
+            // What the change did besides: spells out of the deck (sprint 150, F7 a).
+            _message.Text = string.Join("\n", Texts.DeckChanges(Editor));
             if (_message.HasMeta("diff"))
                 _message.RemoveMeta("diff");
         }
@@ -640,8 +631,6 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         IReadOnlyList<string> summary = Texts.TreeSummary(Editor);
         // The points to place, the focus of the bar; the rest in the panel.
         _counter.Text = Planning ? Texts["tree.plan.on", Editor.Hero.Level] : summary[0];
-        for (int i = 0; i < _summary.Count; i++)
-            _summary[i].Text = summary[i + 1];
         foreach ((string key, Label head) in _heads)
             head.Text = Texts[key].ToUpperInvariant();
         _legendTitle.Text = Texts["tree.legend"].ToUpperInvariant();
@@ -650,7 +639,7 @@ public partial class TreePanel : CanvasLayer, IPointsWindow
         _help.Text = Texts["tree.help.button"];
         _glossary.Text = Texts["tree.glossary"] + "\n" + string.Join("\n", Texts.TreeGlossary.Select(g => Texts["tree.term.line", g.Term, g.Meaning]));
         _buildTitle.Text = Texts.TreeTitle(Editor.TalentsTaken, Editor.Data);
-        IReadOnlyList<string> build = [.. Texts.TreeBuildSummary(Editor.TalentsTaken, Editor.Data), Texts.TreeAdvice(Editor) ?? ""];
+        IReadOnlyList<string> build = Texts.TreeBuildSummary(Editor.TalentsTaken, Editor.Data);
         for (int i = 0; i < _build.Count; i++)
             _build[i].Text = build[i];
         _keys.Text = Texts["tree.keys"];
@@ -756,7 +745,6 @@ public partial class TreeCanvas : Control
 
     private readonly Dictionary<string, (TreeNodeView View, Label Name)> _views = [];
     private readonly List<(Branch Branch, Label Name)> _columns = [];
-    private readonly List<Label> _choices = [];
     private readonly List<(TreeRow Row, Label Name)> _gutter = [];
     private Control _world = null!;
     private TreeWood _wood = null!;
@@ -790,13 +778,6 @@ public partial class TreeCanvas : Control
         }
     }
 
-    /// <summary>The tree's choices, framed together: the Fusion's first floor (one of three), the four Hearts of Pure element.</summary>
-    public static IEnumerable<(string Key, string[] Ids)> Choices(GameData data)
-    {
-        yield return ("tree.choice.transmute", ["transmute-air-lightning", "transmute-fire-lightning", "convert-lightning"]);
-        yield return ("tree.choice.heart", [.. data.Talents.Values.Where(t => t.Branch == Branch.Pure).Select(t => t.Id)]);
-    }
-
     /// <summary>A node's view (for the self-test: a click through it).</summary>
     public TreeNodeView? ViewOf(string id) => _views.TryGetValue(id, out (TreeNodeView View, Label Name) v) ? v.View : null;
 
@@ -812,7 +793,6 @@ public partial class TreeCanvas : Control
         }
         _views.Clear();
         _columns.Clear();
-        _choices.Clear();
         _gutter.Clear();
         TreeLayout layout = Panel.Layout;
         Camera = new TreeCamera(layout.Width, layout.Height, CustomMinimumSize.X, CustomMinimumSize.Y);
@@ -827,16 +807,6 @@ public partial class TreeCanvas : Control
             name.Size = new Vector2(column.W + 24, 20);
             name.HorizontalAlignment = HorizontalAlignment.Center;
             _columns.Add((branch, name));
-        }
-        // The two choices' captions, under their names.
-        foreach ((string key, string[] ids) in Choices(Panel.Editor.Data))
-        {
-            Box[] boxes = [.. ids.Select(id => layout[id]).OfType<TreeNode>().Select(n => n.Box)];
-            if (boxes.Length == 0)
-                continue;
-            Label choice = Caption(new Vector2(boxes.Min(b => b.X) - 6, boxes.Max(b => b.Y + b.H) + TreeLayout.Label + 2), 11, new Color(1, 1, 1, 0.75f));
-            choice.SetMeta("key", key);
-            _choices.Add(choice);
         }
         TreeNode top = layout.Nodes.Where(n => n.IsTrunk).MinBy(n => n.Box.Y)!;
         _trunk = Caption(new Vector2(top.Box.X + top.Box.W + 160, top.Box.Y + 12), 12, new Color(1, 1, 1, 0.6f));
@@ -924,8 +894,6 @@ public partial class TreeCanvas : Control
         bool names = Camera.ShowsNames;
         foreach ((string id, (_, Label name)) in _views)
             name.Visible = names || Panel.Hovered == id;
-        foreach (Label choice in _choices)
-            choice.Visible = names;
         // The screen's pieces: the gutter's strip, the buttons bottom left, the legend bottom right.
         var view = new Vector2(Camera.ViewWidth, Camera.ViewHeight);
         _strip.Size = new Vector2(88, view.Y);
@@ -1113,8 +1081,6 @@ public partial class TreeCanvas : Control
         }
         foreach ((TreeRow row, Label name) in _gutter)
             name.Text = texts["tree.row." + row];
-        foreach (Label choice in _choices)
-            choice.Text = texts[(string)choice.GetMeta("key")];
         foreach ((string id, (TreeNodeView view, Label name)) in _views)
         {
             TreeNode n = layout[id]!;
@@ -1154,7 +1120,6 @@ public partial class TreeWood : Control
     public static float Width(WoodKind kind) => kind switch
     {
         WoodKind.Trunk => 18,
-        WoodKind.Root => 6,
         WoodKind.Axis => 8,
         WoodKind.Twig => 4,
         _ => 10,
@@ -1178,7 +1143,7 @@ public partial class TreeWood : Control
                     DrawDashedLine(points[i], points[i + 1], new Color(UiStyle.Chocolate), 2, 6);
                 continue;
             }
-            if (piece.Kind is WoodKind.Twig or WoodKind.Root && piece.Life != WoodLife.Alive)
+            if (piece.Kind == WoodKind.Twig && piece.Life != WoodLife.Alive)
                 DrawPolyline(points, light, w, true);
             else if (piece.Life == WoodLife.Alive && piece.Kind == WoodKind.Twig)
                 DrawPolyline(points, lost ? new Color(ElementStyle.Losing) : sap, w, true);
@@ -1198,21 +1163,12 @@ public partial class TreeWood : Control
             if (piece.Sap && piece.Life != WoodLife.Alive)
                 DrawPolyline(points, new Color(sap, 0.6f), Math.Max(3, w / 2), true);
         }
-        // The crown's collar: a disc of wood, its heart lit once a door is taken.
+        // The crown's collar: a disc of wood, its heart lit once a talent is taken.
         var crown = new Vector2(layout.Crown.X, layout.Crown.Y);
         DrawCircle(crown, 10, light);
         DrawArc(crown, 10, 0, Mathf.Tau, 32, new Color(ElementStyle.WoodDark), 2, true);
-        if (taken.Any(id => data.Talents.TryGetValue(id, out TalentSpec? t) && t.IsFork))
+        if (taken.Count > 0)
             DrawCircle(crown, 4, sap);
-        // The choices (the Fusion's first floor, the Hearts) framed together.
-        foreach ((_, string[] choice) in TreeCanvas.Choices(data))
-        {
-            Box[] boxes = [.. choice.Select(id => layout[id]).OfType<TreeNode>().Select(n => n.Box)];
-            if (boxes.Length < 2)
-                continue;
-            float x0 = boxes.Min(b => b.X) - 5, y0 = boxes.Min(b => b.Y) - 5, x1 = boxes.Max(b => b.X + b.W) + 5, y1 = boxes.Max(b => b.Y + b.H) + 5;
-            DrawStyleBox(new StyleBoxFlat { DrawCenter = false, BorderColor = wood, BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1, BorderWidthBottom = 1, CornerRadiusTopLeft = 10, CornerRadiusTopRight = 10, CornerRadiusBottomLeft = 10, CornerRadiusBottomRight = 10 }, new Rect2(x0, y0, x1 - x0, y1 - y0));
-        }
     }
 }
 
@@ -1363,15 +1319,6 @@ public partial class TreeNodeView : Control
             float w = bold.GetStringSize(text, HorizontalAlignment.Left, -1, 14).X;
             DrawString(bold, new Vector2(badge.Position.X + ((badge.Size.X - w) / 2), badge.Position.Y + 15), text, HorizontalAlignment.Left, -1, 14, new Color(UiStyle.TextDim));
             return;
-        }
-        // The elements in colour as well as in words (L9 a): a pair's two, a Heart's one, at the foot of the node.
-        Element[] elements = TreeGuide.PairOf(t, data) is ReactionSpec pair ? [pair.First, pair.Second]
-            : [.. t.Rules.OfType<ElementRule>().Where(_ => t.Branch == Branch.Pure).Select(r => r.Element)];
-        for (int i = 0; i < elements.Length; i++)
-        {
-            var at = new Vector2((Size.X / 2) + ((i - ((elements.Length - 1) / 2f)) * 14), Size.Y - 7);
-            DrawCircle(at, 5, new Color(ElementStyle.Colour(elements[i])));
-            DrawArc(at, 5, 0, Mathf.Tau, 16, new Color(ElementStyle.Ground), 1, true);
         }
         // A node made for playing together (A7 a): two small heads at the top left.
         if (t.Branch == Branch.Support || t.Id == "shared-mark")

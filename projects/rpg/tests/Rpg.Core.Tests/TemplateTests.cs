@@ -300,12 +300,12 @@ public class TemplateTests
     [Fact]
     public void TheTalentsOfTheSlice_KeepT41AtThirtyFive_AndGiveTheSentinelAtMostTenPercentMore()
     {
-        // Sprint 137 (D80, T103): the Sentinel of 35 with Bogging and Up close, bare against the small groups, wearing the
+        // Sprint 137 (D80, T103): the Sentinel of 35 with Up close (Bogging, the slice's other talent, is every hero's since sprint 182), bare against the small groups, wearing the
         // kits against the hordes; the tree is worth at most +10 % of victories against the small groups (§2.3).
         var family = new Synthetic(35);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         Hero bare = family.Hero("sentinel", "none");
-        Hero tree = bare with { Talents = ["bogging", "up-close"] };
+        Hero tree = bare with { Talents = ["up-close"] };
         int[] without = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, bare, 30))];
         int[] with = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, tree, 30))];
         string report = $"small {without.Average():0.0} without, {with.Average():0.0} with ({with.Count(w => w < 18)} under 18)";
@@ -313,7 +313,7 @@ public class TemplateTests
         Assert.True(with.Average() <= without.Average() + 3, report);
         foreach (string kit in new[] { "none", "zone", "craft" })
         {
-            Hero worn = family.Hero("sentinel", kit) with { Talents = ["bogging", "up-close"] };
+            Hero worn = family.Hero("sentinel", kit) with { Talents = ["up-close"] };
             double large = family.Groups.Where(g => g.Size >= 6 && !(kit == "craft" && g.InTheOpen)).AsParallel().Select(g => family.Wins(g.Scenario, worn, 10)).Average();
             Assert.True(large <= (kit == "none" ? 3 : 2), $"hordes, kit {kit}, {large:0.0} of 10; {report}");
         }
@@ -362,50 +362,36 @@ public class TemplateTests
         Assert.True(kept, $"level {level}: " + string.Join("; ", report));
     }
 
-    // Each style on the same door (Chilling, a pair, so that Alchemy has one), a node of each floor up to its key (J3 a): the
-    // key a player alone would take (Clear Line, not Artillery, which strikes nothing at 1 or 2 cells). Support is not here:
-    // up to −30 % of one's own damage to help an ally, it is a false decision alone by design, and measured in a duo
-    // (PartyBalanceTests).
+    // Each style with a node of each floor up to its key (J3 a): the key a player alone would take (Clear Line, not Artillery,
+    // which strikes nothing at 1 or 2 cells). Support is not here: up to -30 % of one's own damage to help an ally, it is a
+    // false decision alone by design, and measured in a duo (PartyBalanceTests). The styles have no door since sprint 182;
+    // the pairs left the tree with it and are held to the same band again when they have their spells (sprint 184).
     private static readonly Dictionary<string, string[]> Styles = new()
     {
-        ["Alchemy"] = ["chilling", "lasting-mark", "wave"],
-        ["Melee"] = ["chilling", "up-close", "heavy-push", "close-quarters"],
-        ["Distance"] = ["chilling", "long-sight", "tight-zone", "clear-line"],
-        ["Terrain"] = ["chilling", "side-step", "seal", "scorched-earth"],
-        ["Tempo"] = ["chilling", "heavy-blows", "short-cooldown", "one-gesture"],
-    };
-
-    private static readonly string[] Pairs = ["bogging", "chilling", "cracking", "electrifying", "fogging", "blinding"];
-
-    private static readonly Dictionary<string, string[]> Couples = new()
-    {
-        ["Lightning+Mud"] = ["electrifying", "bogging"],
-        ["Ice+Magma"] = ["chilling", "cracking"],
-        ["Steam+Sand"] = ["fogging", "blinding"],
+        ["Alchemy"] = ["lasting-mark", "wave"],
+        ["Melee"] = ["up-close", "heavy-push", "close-quarters"],
+        ["Distance"] = ["long-sight", "tight-zone", "clear-line"],
+        ["Terrain"] = ["side-step", "seal", "scorched-earth"],
+        ["Tempo"] = ["heavy-blows", "short-cooldown", "one-gesture"],
     };
 
     [Fact]
-    public void AtFortyFive_TheStyles_ThePairs_AndTheCouples_AreWorthAlike()
+    public void AtFortyFive_TheStyles_AreWorthAlike()
     {
-        // Sprint 147 (D82, J3 c): no style, no pair taken alone, no couple of pairs a false decision: each within 1.5
-        // victories of 30 of the others' average, against the small groups, bare, for each class.
+        // Sprint 147 (D82, J3 c): no style a false decision: each within 1.5 victories of 30 of the others' average, against
+        // the small groups, bare, for each class.
         var family = new Synthetic(45);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
         var report = new List<string>();
         bool kept = true;
-        void Even(string id, string what, Dictionary<string, double> values)
-        {
-            foreach ((string name, double v) in values)
-                kept &= Math.Abs(v - values.Where(o => o.Key != name).Average(o => o.Value)) <= 1.5;
-            report.Add($"{id} {what}: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
-        }
         foreach (string id in Classes)
         {
             Hero bare = family.Hero(id, "none");
-            Even(id, "styles", Styles.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data))));
-            Even(id, "pairs", Pairs.ToDictionary(p => p, p => Small(Progression.Talented(bare, [p], family.Data))));
-            Even(id, "couples", Couples.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data))));
+            Dictionary<string, double> values = Styles.ToDictionary(x => x.Key, x => Small(Progression.Talented(bare, x.Value, family.Data)));
+            foreach ((string name, double v) in values)
+                kept &= Math.Abs(v - values.Where(o => o.Key != name).Average(o => o.Value)) <= 1.5;
+            report.Add($"{id} styles: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
         }
         Assert.True(kept, string.Join("; ", report));
     }

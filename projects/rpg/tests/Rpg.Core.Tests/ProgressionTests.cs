@@ -218,7 +218,7 @@ public class ProgressionTests
     public void ARecordOfVersionTwo_ReplaysAHeroWithoutADeck_WithItsFirstSpells()
     {
         // Sprint 161: a record of version 3 or more replays the automatic deck; one written before, the first twelve spells
-        // (and, from sprint 162, the linear bonus of the elements).
+        // (and, from sprint 162, the linear bonus of the elements; from sprint 182, the reactions of its talents only: none).
         var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 60), Real);
         var now = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(now);
@@ -226,7 +226,7 @@ public class ProgressionTests
         Assert.Equal(FightRecord.CurrentVersion, r.Version);
         Assert.Null(r.Hero!.Deck);
         Assert.Equal(Fingerprint(now), Fingerprint(r.Replay(Real)));
-        var before = new Fight(Real, "training", 5, hero with { Deck = hero.FirstSpells(Real) }, linearReturns: true);
+        var before = new Fight(Real, "training", 5, hero with { Deck = hero.FirstSpells(Real) }, linearReturns: true, freeReactions: false);
         Ai.PlayOut(before);
         FightRecord old = FightRecord.FromJson(FightRecord.Of(before).ToJson()) with { Version = 2, Hero = hero };
         Assert.Equal(Fingerprint(before), Fingerprint(old.Replay(Real)));

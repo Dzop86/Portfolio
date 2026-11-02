@@ -2,25 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace Rpg.Core;
 
-/// <summary>The two families of the talent tree (D80): Matter changes what the hero strikes with, Manner the rules it strikes by.</summary>
-[JsonConverter(typeof(JsonStringEnumConverter<TalentFamily>))]
-public enum TalentFamily
-{
-    Matter,
-    Manner,
-}
-
 /// <summary>
-/// Where a talent stands in the tree (since sprint 147, D82, a graph): the fork (the six pairs, each giving its reaction),
-/// Pure element (its Hearts, the fork's seventh door), the Lightning braid, and the six styles shared by every pair
-/// (Alchemy, Melee, Distance, Terrain, Tempo, Support). Matter is the braid and Pure element; the rest is Manner.
+/// Where a talent stands in the tree: one of the six styles (Alchemy, Melee, Distance, Terrain, Tempo, Support). Since
+/// sprint 182 (D93) the elements left the tree for the Elements page: no pair, no Heart, no braid.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<Branch>))]
 public enum Branch
 {
-    Fork,
-    Pure,
-    Braids,
     Alchemy,
     Melee,
     Distance,
@@ -40,15 +28,8 @@ public enum Tier
 
 /// <summary>What a talent changes (sprint 137): each kind is a piece of the engine, read before the fight (compiled) or during it (living).</summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
-[JsonDerivedType(typeof(ReactionRule), "reaction")]
 [JsonDerivedType(typeof(RangeRule), "range")]
 [JsonDerivedType(typeof(DistanceRule), "distance")]
-[JsonDerivedType(typeof(TransmuteRule), "transmute")]
-[JsonDerivedType(typeof(ConvertRule), "convert")]
-[JsonDerivedType(typeof(SignatureRule), "signature")]
-[JsonDerivedType(typeof(ElementRule), "element")]
-[JsonDerivedType(typeof(CompoundRule), "compound")]
-[JsonDerivedType(typeof(PrismRule), "prism")]
 [JsonDerivedType(typeof(RangeCapRule), "range-cap")]
 [JsonDerivedType(typeof(MinRangeRule), "min-range")]
 [JsonDerivedType(typeof(SightRule), "sight")]
@@ -211,27 +192,6 @@ public sealed record ApCostRule(int MinAp, int MaxAp, int Percent) : TalentRule;
 /// <summary>Living: the turn's first damage spell <see cref="First"/> %, the following ones <see cref="Others"/> % (First Gesture).</summary>
 public sealed record FirstCastRule(int First, int Others) : TalentRule;
 
-/// <summary>Compiled: the spells of the base element <see cref="From"/> become their twins of the compound <see cref="To"/>.</summary>
-public sealed record TransmuteRule(Element From, Element To) : TalentRule;
-
-/// <summary>Compiled: the spells of both parents become their twins of the compound (a key of Matter).</summary>
-public sealed record ConvertRule(Element Element) : TalentRule;
-
-/// <summary>Living: the compounds' signatures (the Arc) <see cref="Percent"/> % stronger.</summary>
-public sealed record SignatureRule(int Percent) : TalentRule;
-
-/// <summary>Living: the spells of an element hit <see cref="Percent"/> % harder, the other elements' (not the neutral) <see cref="Others"/> %.</summary>
-public sealed record ElementRule(Element Element, int Percent, int Others = 0) : TalentRule;
-
-/// <summary>Living: the compounds' spells hit <see cref="Percent"/> % harder (or softer).</summary>
-public sealed record CompoundRule(int Percent) : TalentRule;
-
-/// <summary>Living: a pair's hit leaves the mark of its first parent; it still sets off nothing.</summary>
-public sealed record PrismRule : TalentRule;
-
-/// <summary>The bearer's hit of another base element on a fighter it did not mark itself sets off this reaction (<see cref="ReactionSpec"/>).</summary>
-public sealed record ReactionRule(string Reaction) : TalentRule;
-
 /// <summary>
 /// Compiled: every spell reaching farther than 1 cell reaches <see cref="Change"/> cells more (or fewer), never under
 /// its minimum range nor under 1.
@@ -259,25 +219,14 @@ public sealed record TalentSpec(string Id, LocalizedText Name, LocalizedText Des
     /// <summary>Whether a talent it asks for comes first (<see cref="Requires"/> or <see cref="RequiresAny"/>).</summary>
     public bool HasParent => Requires is { Count: > 0 } || RequiresAny is { Count: > 0 };
 
-    /// <summary>A pair's node (sprint 146, C2): the talent that gives a reaction, which takes its two elements.</summary>
-    public bool IsPair => Rules.OfType<ReactionRule>().Any();
-
-    public TalentFamily Family => Branch is Branch.Braids or Branch.Pure ? TalentFamily.Matter : TalentFamily.Manner;
-
-    /// <summary>A big switch (sprint 147, E10 a): a talent that changes the whole grimoire; one in the whole tree.</summary>
-    public bool IsSwitch => Rules.OfType<ConvertRule>().Any();
-
-    /// <summary>A node of the fork (sprint 147): a pair or a Heart, the doors of the styles.</summary>
-    public bool IsFork => Branch is Branch.Fork or Branch.Pure;
-
     /// <summary>1 point, 2 for a key.</summary>
     public int Cost => Tier == Tier.Key ? 2 : 1;
 }
 
 /// <summary>
 /// An elemental reaction (D80, <c>docs/talents-arbre.md</c> §6), as described in <c>data/reactions.json</c>: a hit of
-/// <see cref="First"/> on a fighter marked by <see cref="Second"/>, or the other way round, by a hero with the talent,
-/// sets <see cref="Statuses"/> on it, named after the reaction.
+/// <see cref="First"/> on a fighter marked by <see cref="Second"/>, or the other way round, sets <see cref="Statuses"/> on
+/// it, named after the reaction. Since sprint 182 (D93), every hero of level 30 or more sets the six off, no talent asked.
 /// </summary>
 public sealed record ReactionSpec(string Id, LocalizedText Name, LocalizedText Description, Element First, Element Second, IReadOnlyList<StatusEffect> Statuses)
 {
@@ -341,8 +290,8 @@ public sealed record SupportEffect(int Heal, int Shield, int Resistance, int Mp,
     }
 }
 
-/// <summary>A hero's grimoire (sprint 138): the spells it may fight with, and the class spells its talents changed into twins.</summary>
-public sealed record Grimoire(IReadOnlyList<string> Spells, IReadOnlyDictionary<string, string> Replaced);
+/// <summary>A hero's grimoire (sprint 138): the spells it may fight with. Since sprint 182 (D93), a compound adds its twins and replaces nothing.</summary>
+public sealed record Grimoire(IReadOnlyList<string> Spells);
 
 /// <summary>The tree's rules (D80): its points by level, what a choice of talents may hold, the bonuses it gives.</summary>
 public static class Talents
@@ -353,14 +302,18 @@ public static class Talents
     /// <summary>
     /// The version of the tree (sprint 146, D82): 1 the tree of sprints 137 to 144, 2 since the trunk and the arbitrated
     /// Lightning. Talents taken in an older one are given back once, for free, with a word at the connection (I5 a).
+    /// Version 4 (sprint 182, D93): the elements left the tree; a hero of version 3 keeps its styles that still hold.
     /// </summary>
-    public const int Version = 3;
+    public const int Version = 4;
 
     /// <summary>The ceiling of the tree's conditional bonuses on one hit, in percent (§4.4).</summary>
     public const int Ceiling = 35;
 
-    /// <summary>2 points at level 30, then one every 3 levels (sprint 146, D82, G1 b): 7 at 45, 12 at 60, 25 at 100.</summary>
-    public static int Points(int level) => level < Opens ? 0 : 2 + (level - Opens) / 3;
+    /// <summary>
+    /// 1 point at level 30, then one every 3 levels (sprint 182, D93): 6 at 45, 11 at 60, 24 at 100; the point a door cost
+    /// is gone with the doors (before, 2 at 30, sprint 146, D82, G1 b).
+    /// </summary>
+    public static int Points(int level) => level < Opens ? 0 : 1 + (level - Opens) / 3;
 
     /// <summary>
     /// The trunk (sprint 146, D82, B1 a and B2 b): three nodes that light up by themselves, no point spent, the same for
@@ -383,9 +336,9 @@ public static class Talents
 
     /// <summary>
     /// Why these talents cannot be held at this level, or null: known and each once, from level 30, within its points;
-    /// a second floor after 2 points in the branch's first, a key after 3 below it; one key per branch and one of Matter
-    /// in the whole tree; nothing it excludes, everything it requires. Since sprint 146 (D82): a talent with a parent asks
-    /// no points below it, one of its parents among several, its level; two pairs share no element (C2).
+    /// a second floor after 2 points in the branch's first, a key after 3 below it; one key per branch; nothing it
+    /// excludes, everything it requires. Since sprint 146 (D82): a talent with a parent asks no points below it, one of
+    /// its parents among several, its level.
     /// </summary>
     public static string? Problem(IReadOnlyList<string> talents, int level, GameData data)
     {
@@ -405,7 +358,7 @@ public static class Talents
         foreach (TalentSpec t in taken)
         {
             int below = taken.Where(o => o.Branch == t.Branch && o.Tier < t.Tier).Sum(o => o.Cost);
-            int asked = t.HasParent ? 0 : t.Tier == Tier.Key ? 3 : t.Tier == Tier.Second ? SecondFloor(t.Branch) : 0;
+            int asked = t.HasParent ? 0 : t.Tier == Tier.Key ? 3 : t.Tier == Tier.Second ? 2 : 0;
             if (below < asked)
                 return $"'{t.Id}' asks {asked} points spent below it in its branch.";
             if (taken.FirstOrDefault(o => o != t && ((t.Excludes ?? []).Contains(o.Id) || (o.Excludes ?? []).Contains(t.Id))) is TalentSpec other)
@@ -417,49 +370,7 @@ public static class Talents
             if (level < t.Level)
                 return $"'{t.Id}' opens at level {t.Level}.";
         }
-        if (Clash(taken, data) is (Element shared, TalentSpec pair))
-            return $"{shared} is already taken by '{pair.Id}'.";
-        if (taken.Where(t => t.Tier == Tier.Key).GroupBy(t => t.Branch).Any(g => g.Count() > 1))
-            return "One key per branch.";
-        if (ElementsOpened(taken) > MaxOpened)
-            return $"At most {MaxOpened} elements opened.";
-        return taken.Count(t => t.IsSwitch) > 1 ? "One big switch in the whole tree." : null;
-    }
-
-    /// <summary>The elements a hero may open, at most (sprint 140, §4.1): compounds, and later Light or Darkness.</summary>
-    public const int MaxOpened = 2;
-
-    /// <summary>
-    /// The first pair that shares an element with one taken before it (sprint 146, D82, C2: "if it has Water-Fire it cannot
-    /// have Water-Air, Water is already taken"): the element shared and the pair that took it first; null when none does.
-    /// </summary>
-    public static (Element Element, TalentSpec Pair)? Clash(IEnumerable<TalentSpec> taken, GameData data)
-    {
-        ArgumentNullException.ThrowIfNull(taken);
-        ArgumentNullException.ThrowIfNull(data);
-        var by = new Dictionary<Element, TalentSpec>();
-        foreach (TalentSpec t in taken.Where(t => t.IsPair))
-        {
-            foreach (ReactionRule r in t.Rules.OfType<ReactionRule>())
-            {
-                ReactionSpec reaction = data.Reactions[r.Reaction];
-                foreach (Element e in new[] { reaction.First, reaction.Second })
-                {
-                    if (by.TryGetValue(e, out TalentSpec? first) && first != t)
-                        return (e, first);
-                    by[e] = t;
-                }
-            }
-        }
-        return null;
-    }
-
-    /// <summary>The elements these talents open: each compound transmuted or converted (since sprint 146), once.</summary>
-    public static int ElementsOpened(IEnumerable<TalentSpec> talents)
-    {
-        ArgumentNullException.ThrowIfNull(talents);
-        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
-        return rules.OfType<TransmuteRule>().Select(r => r.To).Concat(rules.OfType<ConvertRule>().Select(r => r.Element)).Distinct().Count();
+        return taken.Where(t => t.Tier == Tier.Key).GroupBy(t => t.Branch).Any(g => g.Count() > 1) ? "One key per branch." : null;
     }
 
     /// <summary>Talents are taken back for free up to this level; above, it costs <see cref="ChangeCost"/> Éclats, in a village (§4.2).</summary>
@@ -468,17 +379,9 @@ public static class Talents
     /// <summary>What giving back saved talents costs at a level, in Éclats: nothing up to 40, then 10 × the level.</summary>
     public static long ChangeCost(int level) => level <= FreeChangeUpTo ? 0 : 10L * level;
 
-    /// <summary>
-    /// Whether new talents give back any saved one (taking more is free). A Transmutation the Conversion of its compound
-    /// replaced is not given back (sprint 146, D82, I2 a): it is growing stronger, not a regret.
-    /// </summary>
-    public static bool GivesBack(IReadOnlyList<string>? before, IReadOnlyList<string>? after, GameData data)
-    {
-        ArgumentNullException.ThrowIfNull(data);
-        Element[] converted = [.. (after ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<ConvertRule>().Select(r => r.Element)];
-        return (before ?? []).Except(after ?? [], StringComparer.Ordinal)
-            .Any(id => !(data.Talents.TryGetValue(id, out TalentSpec? t) && t.Rules.OfType<TransmuteRule>().Any(r => converted.Contains(r.To))));
-    }
+    /// <summary>Whether new talents give back any saved one (taking more is free).</summary>
+    public static bool GivesBack(IReadOnlyList<string>? before, IReadOnlyList<string>? after) =>
+        (before ?? []).Except(after ?? [], StringComparer.Ordinal).Any();
 
     /// <summary>
     /// The talents left once <paramref name="given"/> is given back (sprint 147, D82, I1 b): with it, every talent that
@@ -496,76 +399,35 @@ public static class Talents
     }
 
     /// <summary>
-    /// The talents with <paramref name="taken"/> added, as the tree's window takes it (sprint 146, D82): a Conversion takes
-    /// the place of the Transmutation of its compound, whose point comes back.
-    /// </summary>
-    public static List<string> With(IReadOnlyList<string> talents, string taken, GameData data)
-    {
-        ArgumentNullException.ThrowIfNull(talents);
-        ArgumentNullException.ThrowIfNull(data);
-        Element[] converts = [.. data.Talents[taken].Rules.OfType<ConvertRule>().Select(r => r.Element)];
-        return [.. talents.Where(id => !(converts.Length > 0 && data.Talents.TryGetValue(id, out TalentSpec? t) && t.Rules.OfType<TransmuteRule>().Any(r => converts.Contains(r.To)))), taken];
-    }
-
-    /// <summary>
-    /// The points below a second floor: 2, but 1 in Braids, whose first floor opens elements, two at most; the game
-    /// designer's builds (§4.5) take a second floor of Braids after one opening (sprint 138).
-    /// </summary>
-    public static int SecondFloor(Branch branch) => branch == Branch.Braids ? 1 : 2;
-
-    /// <summary>
-    /// The spells a hero may put in its deck (sprint 138): its class's that its level has unlocked, in the class's order,
-    /// those of a transmuted or converted element replaced by their twins; then the twins of the compounds it opened.
-    /// <see cref="Grimoire.Replaced"/> says what became what, for a deck chosen before.
+    /// The spells a hero may put in its deck (sprint 138): its class's that its level has unlocked, in the class's order;
+    /// since sprint 182 (D93), then for each compound it created (<see cref="Hero.Compounds"/>, in that order) the twins of
+    /// those of its parents' elements, in the class's order, none replacing its origin; then the spells of the tree.
     /// </summary>
     public static Grimoire GrimoireOf(Hero hero, GameData data)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(data);
         if (data.Class(hero.Class) is not HeroClass c)
-            return new Grimoire([], new Dictionary<string, string>());
-        TalentRule[] rules = [.. (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules)];
-        var into = new Dictionary<Element, Element>();
-        foreach (TransmuteRule t in rules.OfType<TransmuteRule>())
-            into[t.From] = t.To;
-        foreach (ConvertRule cv in rules.OfType<ConvertRule>())
+            return new Grimoire([]);
+        List<string> spells = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)];
+        string[] unlocked = [.. spells];
+        foreach (Element compound in (hero.Compounds ?? []).Where(e => Elements.IsCompound(e) && hero.Level >= Elements.CreatedFrom(e)).Distinct())
         {
-            foreach (Element parent in Elements.Parents(cv.Element))
-                into[parent] = cv.Element;
-        }
-        Spell? TwinOf(string origin, Element compound) => data.Spells.Values.FirstOrDefault(s => s.Twin == origin && s.Element == compound);
-        var spells = new List<string>();
-        var replaced = new Dictionary<string, string>(StringComparer.Ordinal);
-        string[] unlocked = [.. c.Spells.Where(id => data.Spells[id].Level <= hero.Level)];
-        foreach (string id in unlocked)
-        {
-            if (into.TryGetValue(data.Spells[id].Element, out Element compound) && TwinOf(id, compound) is Spell twin)
+            IReadOnlyList<Element> parents = Elements.Parents(compound);
+            foreach (string id in unlocked.Where(id => parents.Contains(data.Spells[id].Element)))
             {
-                replaced[id] = twin.Id;
-                spells.Add(twin.Id);
-            }
-            else
-            {
-                spells.Add(id);
+                if (data.Spells.Values.FirstOrDefault(s => s.Twin == id && s.Element == compound) is Spell twin && !spells.Contains(twin.Id))
+                    spells.Add(twin.Id);
             }
         }
         // The spells of the tree (sprint 142): after the class's.
-        foreach (GrantRule g in rules.OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
+        foreach (GrantRule g in (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
             spells.Add(g.Spell);
-        return new Grimoire(spells, replaced);
+        return new Grimoire(spells);
     }
 
     /// <summary>The resistance in percent the talents give a fighter next to an obstacle (Backed, sprint 142); 0 elsewhere.</summary>
     public static int Guard(IReadOnlyList<TalentSpec> talents, bool backed) => backed ? talents.SelectMany(t => t.Rules).OfType<BackedRule>().Sum(r => r.Resistance) : 0;
-
-    /// <summary>The compounds' signatures' bonus, in percent: the strongest, they do not add up (Pressed Signature and Conversion, §4.5: "Arc at 50 %").</summary>
-    public static int SignatureBonus(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<SignatureRule>().Select(r => r.Percent).DefaultIfEmpty(0).Max();
-
-    /// <summary>Whether the talents convert their holder's spells to this compound (<see cref="ConvertRule"/>): it then strikes on twice its parents' average.</summary>
-    public static bool Converts(IReadOnlyList<TalentSpec> talents, Element element) => talents.SelectMany(t => t.Rules).OfType<ConvertRule>().Any(r => r.Element == element);
-
-    /// <summary>A pair's hit leaves its first parent's mark (<see cref="PrismRule"/>).</summary>
-    public static bool HasPrism(IReadOnlyList<TalentSpec> talents) => talents.SelectMany(t => t.Rules).OfType<PrismRule>().Any();
 
     /// <summary>A spell as the talents compile it before the fight: its range changed (<see cref="RangeRule"/>).</summary>
     /// <remarks>
@@ -664,8 +526,6 @@ public static class Talents
             return 0;
         HitContext c = context ?? new HitContext();
         int sum = rules.OfType<DistanceRule>().Where(r => distance >= r.MinCells && distance <= r.MaxCells).Sum(r => r.Percent)
-            + rules.OfType<ElementRule>().Sum(r => r.Element == element ? r.Percent : element == Element.Neutral ? 0 : r.Others)
-            + (Elements.IsCompound(element) ? rules.OfType<CompoundRule>().Sum(r => r.Percent) : 0)
             + rules.OfType<BonusRule>().Sum(r => r.Percent)
             + rules.OfType<StillRule>().Sum(r => c.Walked ? r.Moved : r.Still)
             + rules.OfType<DanceRule>().Sum(r => Math.Min(r.Max, r.PerCell * c.CellsSinceSpell))
@@ -718,14 +578,13 @@ public static class Talents
         return lights;
     }
 
-    /// <summary>The reaction these talents set off between two elements, or null.</summary>
-    public static ReactionSpec? ReactionOf(IReadOnlyList<TalentSpec> talents, Element a, Element b, GameData data)
+    /// <summary>The reaction between two different base elements (since sprint 182, D93, no talent asked), or null.</summary>
+    public static ReactionSpec? ReactionOf(Element a, Element b, GameData data)
     {
-        ArgumentNullException.ThrowIfNull(talents);
         ArgumentNullException.ThrowIfNull(data);
         if (a == b || !IsBase(a) || !IsBase(b))
             return null;
-        return talents.SelectMany(t => t.Rules).OfType<ReactionRule>().Select(r => data.Reactions[r.Reaction]).FirstOrDefault(r => r.Joins(a, b));
+        return data.Reactions.Values.FirstOrDefault(r => r.Joins(a, b));
     }
 }
 

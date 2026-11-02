@@ -7,8 +7,8 @@ namespace Rpg.Client.Tests;
 /// <summary>
 /// The tree explained (sprint 149, D82): every node with its name, effect, counterpart, line of lore and icon in both
 /// languages, the icons credited; the layers and their banners; the build's title for the reference builds, its summary
-/// and the ceiling's warning; the pair the characteristics point to; Helping Hand's elements; the glossary and the
-/// tutorial; the tree's colours only in <c>tokens.css</c> and <c>ElementStyle</c>.
+/// and the ceiling's warning; Helping Hand's elements; the glossary and the tutorial; the tree's colours only in
+/// <c>tokens.css</c> and <c>ElementStyle</c>. Since sprint 182 (D93), no pair, no Heart, no advice: the Elements page's.
 /// </summary>
 public partial class TreeGuideTests
 {
@@ -41,15 +41,15 @@ public partial class TreeGuideTests
     }
 
     [Theory]
-    [InlineData("sentinel-matter", "Conversion : Foudre · Boue")]
-    [InlineData("sentinel-manner", "Boue · Mêlée")]
-    [InlineData("sentinel-pure", "Cœur d'Air · Distance")]
-    [InlineData("guard-matter", "Conversion : Foudre · Boue")]
-    [InlineData("guard-manner", "Glace et Magma · Alchimie")]
-    [InlineData("guard-pure", "Cœur de Terre · Terrain")]
-    [InlineData("mage-matter", "Conversion : Foudre · Tempo")]
-    [InlineData("mage-manner", "Vapeur · Tempo")]
-    [InlineData("mage-pure", "Cœur de Feu · Terrain")]
+    [InlineData("sentinel-matter", "Tempo")]
+    [InlineData("sentinel-manner", "Mêlée")]
+    [InlineData("sentinel-pure", "Distance")]
+    [InlineData("guard-matter", "Tempo")]
+    [InlineData("guard-manner", "Alchimie")]
+    [InlineData("guard-pure", "Terrain")]
+    [InlineData("mage-matter", "Tempo")]
+    [InlineData("mage-manner", "Tempo")]
+    [InlineData("mage-pure", "Terrain")]
     public void TheReferenceBuilds_HaveTheirTitle(string build, string title)
     {
         Hero hero = Progression.Talented(new Hero("Ondine", "female-a", build.Split('-')[0], Level: 45), build, Data);
@@ -61,49 +61,35 @@ public partial class TreeGuideTests
     public void TheSummary_SaysEveryCounterpart_AndWarnsPastTheCeiling()
     {
         var fr = new Texts("fr");
-        Assert.Equal(["Aucune contrepartie.", "Au mieux, +0 % sur un coup."], fr.TreeBuildSummary(["bogging"], Data));
-        IReadOnlyList<string> two = fr.TreeBuildSummary(["bogging", "up-close", "firm-footing"], Data);
+        Assert.Equal(["Aucune contrepartie.", "Au mieux, +0 % sur un coup."], fr.TreeBuildSummary([], Data));
+        IReadOnlyList<string> two = fr.TreeBuildSummary(["up-close", "firm-footing"], Data);
         Assert.Equal("Contreparties : Au plus près (−2 PO à tous tes sorts) ; Pied ferme (−5 % de dégâts dès que tu as bougé ce tour)", two[0]);
         Assert.Equal("Au mieux, +25 % sur un coup.", two[1]);
         // Up close, firm footing, heavy push and close quarters: 10 + 15 + 25 = 50, past the 35 of the ceiling.
-        string[] melee = ["bogging", "up-close", "firm-footing", "heavy-push", "close-quarters"];
+        string[] melee = ["up-close", "firm-footing", "heavy-push", "close-quarters"];
         Assert.Equal(50, TreeGuide.Best(melee, Data));
         Assert.Equal("At best, +50% on a hit: anything above +35% is lost.", new Texts("en").TreeBuildSummary(melee, Data)[1]);
     }
 
     [Fact]
-    public void TheAdvice_PointsToThePairOfTheTwoHighest_UntilAPairIsTaken()
-    {
-        var hero = new Hero("Ondine", "female-a", "guard", Level: 30, Stats: new Characteristics(Vitality: 10, Earth: 40, Fire: 5, Water: 30, Air: 0));
-        Assert.Equal("bogging", TreeGuide.Advice(hero, Data));
-        Assert.Equal("Conseil : Terre et Eau, tes caractéristiques les plus hautes, désignent Boue.", new Texts("fr").TreeAdvice(new PointsEditor(hero, Data)));
-        Assert.Null(new Texts("fr").TreeAdvice(new PointsEditor(hero with { Talents = ["chilling"] }, Data)));
-        Assert.Null(TreeGuide.Advice(hero with { Stats = new Characteristics(Earth: 10) }, Data));
-    }
-
-    [Fact]
-    public void TheCard_SaysTheLayer_TheBanner_ThePairsEquation_TheCounterpart_AndTheLore()
+    public void TheCard_SaysTheLayer_TheBanner_TheCounterpart_AndTheLore()
     {
         var layout = new TreeLayout(Data);
-        var editor = new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: 40, Talents: ["electrifying"]), Data);
+        var editor = new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: 40), Data);
         var fr = new Texts("fr");
-        TreeCard pair = fr.TreeCard(layout["electrifying"]!, editor);
-        Assert.Equal("Paires", pair.Layer);
-        Assert.Equal("Foudre = Feu + Air", pair.Equation);
-        Assert.Equal("Foudre", fr.TreeName(layout["electrifying"]!, Data));
-        Assert.Equal("Le feu qui court dans l'air ne choisit pas où il tombe.", pair.Lore);
         TreeCard hand = fr.TreeCard(layout["helping-hand"]!, editor);
         Assert.Equal("Styles · Soutien", hand.Layer);
         Assert.StartsWith("Pour les autres", hand.Banner, StringComparison.Ordinal);
         Assert.Equal("En échange : Tes coups font 5 % de dégâts en moins ; un soutien par tour.", hand.Counterpart);
-        // Helping Hand said with the hero's elements (D9 a): Electrifying's Fire and Air.
-        Assert.Equal("Avec tes éléments : Feu, un soin de 40 % des dégâts (15 % de ses PV au plus) ; Air, 1 PM tous les 2 PA (2 au plus) et 1 PO", hand.Extra!.Split('\n')[0]);
-        Assert.Equal([Element.Earth, Element.Fire, Element.Water, Element.Air], TreeGuide.Helps([], Data));
+        Assert.False(string.IsNullOrWhiteSpace(hand.Lore));
+        Assert.Equal(Data.Talents["helping-hand"].Name.Fr, fr.TreeName(layout["helping-hand"]!, Data));
+        // Helping Hand said with the four elements every hero has (D9 a, sprint 182).
+        Assert.StartsWith("Avec tes éléments : Terre, un bouclier de 60 % des dégâts ; Feu,", hand.Extra!.Split('\n')[0], StringComparison.Ordinal);
+        Assert.Equal([Element.Earth, Element.Fire, Element.Water, Element.Air], TreeGuide.Helps);
         TreeCard key = fr.TreeCard(layout["devotion"]!, editor);
         Assert.Contains("une clé par style", key.Banner, StringComparison.OrdinalIgnoreCase);
         Assert.Equal("Fondations", fr.TreeCard(layout["trunk:30"]!, editor).Layer);
-        Assert.Equal("Heart: Fire", new Texts("en").TreeCard(layout["heart-fire"]!, editor).Name.Split(" · ")[0]);
-        Assert.Equal("Fire", new Texts("en").TreeName(layout["heart-fire"]!, Data));
+        Assert.Equal([TreeLayer.Foundations, TreeLayer.Styles], Enum.GetValues<TreeLayer>());
     }
 
     [Fact]
@@ -112,7 +98,7 @@ public partial class TreeGuideTests
         foreach (string lang in new[] { "fr", "en" })
         {
             var t = new Texts(lang);
-            Assert.Equal(6, t.TreeGlossary.Count);
+            Assert.Equal(3, t.TreeGlossary.Count);
             Assert.All(t.TreeGlossary, g => Assert.False(string.IsNullOrWhiteSpace(g.Term) || string.IsNullOrWhiteSpace(g.Meaning)));
             Assert.Equal(3, t.TreeTutorial.Count);
             Assert.All(Enum.GetValues<TreeLayer>(), l => Assert.False(string.IsNullOrWhiteSpace(t["tree.layer." + l] + t["tree.banner." + l])));

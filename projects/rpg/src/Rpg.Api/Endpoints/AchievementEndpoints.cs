@@ -29,7 +29,7 @@ public static class AchievementEndpoints
     /// <summary>The same, its guild known (sprint 160: a guild's members, their achievement points).</summary>
     public static AchievementState StateOf(Character c, bool inGuild) =>
         new(c.WaystoneList, c.BestiaryList, c.JobList.ToDictionary(j => j.Key, j => Crafting.LevelFor(j.Value), StringComparer.Ordinal), c.QuestList,
-            c.ContractsDone, c.TalentList, inGuild, c.SharedWins, c.FeatList);
+            c.ContractsDone, c.TalentList, inGuild, c.SharedWins, c.FeatList, c.CompoundList);
 
     private static async Task<AchievementView> ViewOf(Character c, GameDb db, CancellationToken cancel)
     {

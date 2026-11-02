@@ -22,8 +22,12 @@ public enum AchievementGoal
     Quest,
     Contracts,
     Talents,
-    Pair,
-    Heart,
+
+    /// <summary>Compounds created on the Elements page (sprint 182, D93; before, a pair taken in the tree).</summary>
+    Compounds,
+
+    /// <summary>The compound <see cref="AchievementSpec.Target"/> created (sprint 182, D93: Lightning, before its Conversion).</summary>
+    Compound,
     Key,
     Talent,
     Feat,
@@ -60,7 +64,8 @@ public sealed record AchievementReward(int Xp, int Shards);
 /// what the game already keeps, so that every achievement is retroactive.
 /// </summary>
 public sealed record AchievementState(IReadOnlyCollection<string> Waystones, IReadOnlyDictionary<string, int> Bestiary, IReadOnlyDictionary<string, int> JobLevels,
-    IReadOnlyCollection<string> QuestsDone, int Contracts, IReadOnlyCollection<string> Talents, bool InGuild, int SharedWins, IReadOnlyCollection<string> Feats);
+    IReadOnlyCollection<string> QuestsDone, int Contracts, IReadOnlyCollection<string> Talents, bool InGuild, int SharedWins, IReadOnlyCollection<string> Feats,
+    IReadOnlyCollection<Element>? Compounds = null);
 
 /// <summary>An achievement as a character stands toward it: how far, of how much.</summary>
 public sealed record AchievementProgress(string Id, int Reached, int Count)
@@ -146,8 +151,8 @@ public static class Achievements
             AchievementGoal.Quest => s.QuestsDone.Contains(a.Target) ? 1 : 0,
             AchievementGoal.Contracts => s.Contracts,
             AchievementGoal.Talents => s.Talents.Count,
-            AchievementGoal.Pair => talents.Any(t => t.IsPair) ? 1 : 0,
-            AchievementGoal.Heart => talents.Any(t => t.Branch == Branch.Pure) ? 1 : 0,
+            AchievementGoal.Compounds => (s.Compounds ?? []).Count,
+            AchievementGoal.Compound => (s.Compounds ?? []).Any(e => e.ToString() == a.Target) ? 1 : 0,
             AchievementGoal.Key => talents.Any(t => t.Tier == Tier.Key) ? 1 : 0,
             AchievementGoal.Talent => s.Talents.Contains(a.Target) ? 1 : 0,
             AchievementGoal.Feat => s.Feats.Contains(a.Target) ? 1 : 0,

@@ -16,43 +16,43 @@ public class TalentTextsTests
     [Fact]
     public void TheList_TakesAndGivesBackTalents_WithinThePointsOfTheLevel()
     {
-        var editor = new PointsEditor(Sentinel(30), Data);
-        TalentSpec bogging = Data.Talents["bogging"], close = Data.Talents["up-close"];
+        var editor = new PointsEditor(Sentinel(33), Data);
+        TalentSpec close = Data.Talents["up-close"], footing = Data.Talents["firm-footing"];
         Assert.Equal(2, editor.TalentPointsLeft);
-        editor.Take(bogging);
         editor.Take(close);
+        editor.Take(footing);
         Assert.Equal(0, editor.TalentPointsLeft);
-        Assert.Equal(["bogging", "up-close"], editor.TalentsTaken);
+        Assert.Equal(["up-close", "firm-footing"], editor.TalentsTaken);
         Assert.True(editor.Changed);
-        Assert.Equal(["bogging", "up-close"], editor.ToPoints().Talents!);
+        Assert.Equal(["up-close", "firm-footing"], editor.ToPoints().Talents!);
         Assert.Null(editor.Draft.Problem(Data));
-        // Since sprint 147, Mud is Up close's door: given back, it takes Up close with it.
-        editor.Drop(bogging);
+        editor.Drop(close);
+        editor.Drop(footing);
         Assert.Empty(editor.ToPoints().Talents!);
         // Before 30, nothing to take; in a fight, nothing changes; nothing taken, an empty list goes to the server.
-        Assert.False(new PointsEditor(Sentinel(29), Data).CanTake(bogging));
-        var fight = new PointsEditor(Sentinel(35, "bogging"), Data, readOnly: true);
-        Assert.False(fight.CanDrop(bogging) || fight.CanTake(close));
+        Assert.False(new PointsEditor(Sentinel(29), Data).CanTake(close));
+        var fight = new PointsEditor(Sentinel(35, "up-close"), Data, readOnly: true);
+        Assert.False(fight.CanDrop(close) || fight.CanTake(footing));
         Assert.Empty(new PointsEditor(Sentinel(40), Data).ToPoints().Talents!);
-        Assert.False(new PointsEditor(Sentinel(40, "bogging"), Data).Changed);
+        Assert.False(new PointsEditor(Sentinel(40, "up-close"), Data).Changed);
     }
 
     [Fact]
     public void ATile_TellsTheTalentsName_ItsBranch_ItsFloor_ItsCost_AndWhatItDoes()
     {
-        Assert.StartsWith("Enlisement · Paires, étage 1, 1 point(s)\nFrapper en Terre", new Texts("fr").Talent(Data.Talents["bogging"]), StringComparison.Ordinal);
+        Assert.StartsWith($"{Data.Talents["side-step"].Name.Fr} · Terrain, étage 1, 1 point(s)\n", new Texts("fr").Talent(Data.Talents["side-step"]), StringComparison.Ordinal);
         Assert.StartsWith("Up close · Melee, first floor, 1 point(s)\n+10% damage", new Texts("en").Talent(Data.Talents["up-close"]), StringComparison.Ordinal);
     }
 
     [Fact]
     public void TheForecast_AndTheLog_TellTheMarkAndTheReaction()
     {
-        // The Sentinel of 35 with Bogging, a wolf 3 cells away: an Earth arrow, then the forecast of a Water one.
+        // The Sentinel of 35, a wolf 3 cells away: an Earth arrow, then the forecast of a Water one (sprint 182: no talent asked).
         var text = new LocalizedText("loup", "wolf");
         FighterSpec me = new(text, "female-a", 0, 50, 6, 3, 200, 0, ["strike"]), wolf = new(text, "orc", 1, 900, 6, 3, 0, 0, ["frost-arrow"]);
         var data = new GameData(Data.Spells.Values, [new MapSpec("m", text, ["A..B"])], [new Scenario("s", text, "m", [me, wolf])], Data.Classes,
             summons: Data.Summons.Values, passives: Data.Passives.Values, talents: Data.Talents.Values, reactions: Data.Reactions.Values);
-        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(35, "bogging"), data));
+        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(35), data));
         Fighter hero = fight.HeroFighter!, target = fight.Fighters[1];
         Spell stone = hero.Spells.First(s => s.Id == "stone-arrow"), frost = hero.Spells.First(s => s.Id == "frost-arrow");
         Assert.Equal(ActionError.None, fight.Apply(new CastAction(stone.Id, target.Cell)));
@@ -70,10 +70,10 @@ public class TalentTextsTests
     }
 
     [Fact]
-    public void Lightning_HasItsCard_ItsColour_AndItsSpellsInTheBook_OnceATransmutationIsSaved()
+    public void Lightning_HasItsCard_ItsColour_AndItsSpellsInTheBook_OnceCreatedAndSaved()
     {
-        // Sprint 138 (T104): the Arc on the card, the yellow of Lightning; since sprint 146 (D82, R1 and R2), its spells only
-        // once a Transmutation or the Conversion is saved, a preview before, out of the filter and of the deck.
+        // Sprint 138 (T104): the Arc on the card, the yellow of Lightning; since sprint 182 (D93), its spells only once it
+        // is created and saved, a preview before, out of the filter and of the deck.
         Spell storm = Data.Spells["lightning-fire-arrow"];
         Assert.Contains("Arc : 35 % des dégâts sautent sur l'ennemi le plus proche à 2 cases", new Texts("fr").SpellCard(storm), StringComparison.Ordinal);
         Assert.Contains("Lightning", new Texts("en").SpellCard(storm), StringComparison.Ordinal);
@@ -81,10 +81,8 @@ public class TalentTextsTests
         var editor = new PointsEditor(Sentinel(35), Data);
         Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
         Assert.DoesNotContain(Element.Lightning, new SpellBook(editor).Elements);
-        editor.Take(Data.Talents["electrifying"]);
-        Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
-        // Taken in the draft: a preview, dotted, neither to filter by nor to put in the deck.
-        editor.Take(Data.Talents["transmute-fire-lightning"]);
+        // Created in the draft: a preview, dotted, neither to filter by nor to put in the deck.
+        editor.Create(Element.Lightning);
         var book = new SpellBook(editor);
         BookSpell[] previews = [.. book.Spells.Where(b => b.Element == Element.Lightning)];
         Assert.NotEmpty(previews);
@@ -103,38 +101,13 @@ public class TalentTextsTests
         saved.RemoveFromDeck(Data.Spells["stone-arrow"]);
         saved.AddToDeck(storm);
         Assert.Contains("lightning-fire-arrow", saved.Deck);
-        // Its rank is Burning Arrow's; given back, the Transmutation takes its spell out of the deck.
+        // Its rank is Burning Arrow's; undone, Lightning takes its spell out of the deck.
         Assert.Equal(saved.Rank(Data.Spells["fire-arrow"]), saved.Rank(storm));
-        saved.Drop(Data.Talents["transmute-fire-lightning"]);
+        saved.Dissolve(Element.Lightning);
         Assert.DoesNotContain("lightning-fire-arrow", saved.Deck);
         Assert.Null(saved.Draft.Problem(Data));
-    }
-
-    [Fact]
-    public void TheConversion_ReplacesTheTransmutation_AndTheWindowSaysSo()
-    {
-        // Sprint 146 (D82, F3 a): the point of the Transmutation comes back, and nothing is paid for it after 40.
-        var editor = new PointsEditor(Sentinel(45, "electrifying", "transmute-fire-lightning"), Data);
-        Assert.True(editor.CanTake(Data.Talents["convert-lightning"]));
-        editor.Take(Data.Talents["convert-lightning"]);
-        Assert.Equal(["electrifying", "convert-lightning"], editor.TalentsTaken);
-        Assert.Equal("transmute-fire-lightning", editor.Replaced);
-        Assert.Equal(0, editor.ResetCost);
-        Assert.Equal(7 - 3, editor.TalentPointsLeft);
-        Assert.Equal("La Conversion remplace Transmutation : Feu → Foudre : son point revient.", new Texts("fr")["talents.replaced", Data.Talents["transmute-fire-lightning"].Name.Fr]);
-    }
-
-    [Fact]
-    public void APair_ThatSharesAnElement_SaysWhichAndWithWhom()
-    {
-        // Sprint 146 (D82, C2): Mud and Ice share Water; Lightning and Mud make a couple.
-        var editor = new PointsEditor(Sentinel(35, "bogging"), Data);
-        Assert.False(editor.CanTake(Data.Talents["chilling"]));
-        Assert.True(editor.CanTake(Data.Talents["electrifying"]));
-        Assert.Equal("l'Eau est déjà prise par Boue", new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["chilling"], Data));
-        Assert.Equal("Water is already taken by Mud", new Texts("en").PairTaken(editor.TalentsTaken, Data.Talents["chilling"], Data));
-        Assert.Null(new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["electrifying"], Data));
-        Assert.Null(new Texts("fr").PairTaken(editor.TalentsTaken, Data.Talents["up-close"], Data));
+        // Undone for free, whatever the level (Q10 a).
+        Assert.Equal(0, saved.ResetCost);
     }
 
     [Fact]
@@ -155,13 +128,13 @@ public class TalentTextsTests
     public void GivingATalentBack_AfterForty_SaysItsPrice_TakingOneDoesNot()
     {
         // Sprint 140 (T106): 10 × the level in Éclats, before saving.
-        var editor = new PointsEditor(Sentinel(45, "bogging"), Data);
-        editor.Take(Data.Talents["chilling"]);
+        var editor = new PointsEditor(Sentinel(45, "side-step"), Data);
+        editor.Take(Data.Talents["backed"]);
         Assert.Equal(0, editor.ResetCost);
-        editor.Drop(Data.Talents["bogging"]);
+        editor.Drop(Data.Talents["side-step"]);
         Assert.Equal(450, editor.ResetCost);
-        var at40 = new PointsEditor(Sentinel(40, "bogging"), Data);
-        at40.Drop(Data.Talents["bogging"]);
+        var at40 = new PointsEditor(Sentinel(40, "side-step"), Data);
+        at40.Drop(Data.Talents["side-step"]);
         Assert.Equal((0, 0L), (at40.TalentsTaken.Count, at40.ResetCost));
     }
 

@@ -1583,29 +1583,29 @@
       "en": "Two by Two"
     },
     "text": {
-      "fr": "Prenez une paire dans l'arbre des talents.",
-      "en": "Take a pair in the talent tree."
+      "fr": "Créez un élément composé sur la page Éléments.",
+      "en": "Create a compound element on the Elements page."
     },
     "points": 5,
     "level": 30,
-    "goal": "Pair",
+    "goal": "Compounds",
     "count": 1
   },
   {
     "id": "a-heart",
     "category": "Tree",
     "name": {
-      "fr": "Un cœur choisi",
-      "en": "A Chosen Heart"
+      "fr": "Deux fusions",
+      "en": "Two Fusions"
     },
     "text": {
-      "fr": "Prenez un Cœur dans l'arbre des talents.",
-      "en": "Take a Heart in the talent tree."
+      "fr": "Créez deux éléments composés sur la page Éléments.",
+      "en": "Create two compound elements on the Elements page."
     },
     "points": 10,
-    "level": 35,
-    "goal": "Heart",
-    "count": 1
+    "level": 30,
+    "goal": "Compounds",
+    "count": 2
   },
   {
     "id": "a-key",
@@ -1635,14 +1635,14 @@
       "en": "Lightning in Hand"
     },
     "text": {
-      "fr": "Prenez le talent « Conversion : Foudre ».",
-      "en": "Take the talent \"Conversion: Lightning\"."
+      "fr": "Créez la Foudre sur la page Éléments.",
+      "en": "Create Lightning on the Elements page."
     },
     "points": 15,
-    "level": 45,
-    "goal": "Talent",
+    "level": 30,
+    "goal": "Compound",
     "count": 1,
-    "target": "convert-lightning"
+    "target": "Lightning"
   },
   {
     "id": "grouped",

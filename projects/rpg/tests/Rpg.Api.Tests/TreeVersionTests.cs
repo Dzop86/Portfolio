@@ -7,9 +7,10 @@ using Rpg.Core;
 namespace Rpg.Api.Tests;
 
 /// <summary>
-/// The tree of sprints 146 and 147 (D82) by the API, on PostgreSQL: talents of an older tree given back once, for free, at the
-/// sign-in, the deck keeping what it can; a tree the new rules refuse (two pairs sharing an element, a Conversion before
-/// 45) refused from any client; the operator's <c>--builds</c> giving each class its reference build, legal.
+/// The tree's versions by the API, on PostgreSQL: talents of an older tree given back once, for free, at the sign-in, the
+/// deck keeping what it can; since sprint 182 (D93), a tree of version 3 losing only its elements, Lightning created for who
+/// had Electrifying; compounds the level does not open refused from any client; the operator's <c>--builds</c> giving each
+/// class its reference build, legal, and <c>--compounds</c>.
 /// </summary>
 public class TreeVersionTests
 {
@@ -63,20 +64,57 @@ public class TreeVersionTests
     }
 
     [Fact]
-    public async Task ATreeTheNewRulesRefuse_IsRefused_FromAnyClient()
+    public async Task ATreeOfVersionThree_LosesItsElementsOnly_LightningCreated_TheDeckKept_TheStylesWhileThePointsPay()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("t3");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        CharacterSummary guard = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
+        CharacterSummary mage = await server.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
+        await Level(api, account, 45);
+        string deck = "lightning-burning-blade,shield-bash";
+        api.WithDb(db =>
+        {
+            // A Guard of Lightning: Electrifying, its Transmutation and Prism, a style of Melee; its twin in the deck.
+            Character g = db.Characters.Single(x => x.Id == guard.Id);
+            (g.Talents, g.Deck, g.TalentsVersion) = ("electrifying,transmute-fire-lightning,prism,up-close,firm-footing,heavy-push", deck, 3);
+            // A Mage of Mud at 30: one point now, its two styles' nodes too many.
+            Character m = db.Characters.Single(x => x.Id == mage.Id);
+            (m.Talents, m.TalentsVersion, m.Level, m.Xp) = ("bogging,side-step,up-close", 3, 30, Progression.XpToReach(30));
+            return db.SaveChanges();
+        });
+        CharacterSummary[] after = [.. await server.Characters(Cancel)];
+        CharacterSummary g = after.Single(x => x.Id == guard.Id), m = after.Single(x => x.Id == mage.Id);
+        Assert.True(g.TalentsReset && m.TalentsReset);
+        Assert.Equal([Element.Lightning], g.Compounds);
+        Assert.Equal(["up-close", "firm-footing", "heavy-push"], g.Talents!);
+        Assert.Equal(deck.Split(','), g.Deck!);
+        Assert.Null(g.Hero.Problem(GameData.Embedded));
+        Assert.Null(m.Compounds);
+        Assert.Equal(["side-step"], m.Talents!);
+        Assert.Null(m.Hero.Problem(GameData.Embedded));
+        // Once.
+        Assert.All(await server.Characters(Cancel), x => Assert.False(x.TalentsReset));
+        Assert.Equal(4, api.WithDb(db => db.Characters.Single(x => x.Id == guard.Id).TalentsVersion));
+    }
+
+    [Fact]
+    public async Task CompoundsTheLevelDoesNotOpen_AreRefused_FromAnyClient()
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tr");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
-        await Level(api, account, 44);
-        // Mud and Ice share Water; a Conversion before 45; Prism without a Transmutation; both Transmutations.
-        foreach (string[] tree in new[] { new[] { "bogging", "chilling" }, ["electrifying", "convert-lightning"], ["electrifying", "prism"],
-                     ["electrifying", "transmute-fire-lightning", "transmute-air-lightning"] })
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: tree), Cancel)));
-        // Lightning and Mud make a couple.
-        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, Talents: ["electrifying", "transmute-fire-lightning", "prism", "bogging"]), Cancel);
-        Assert.Equal(4, saved.Talents!.Count);
+        await Level(api, account, 29);
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Compounds: [Element.Lightning]), Cancel)));
+        await Level(api, account, 30);
+        // A base element, twice the same: refused.
+        foreach (Element[] compounds in new[] { new[] { Element.Fire }, [Element.Lightning, Element.Lightning] })
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Compounds: compounds), Cancel)));
+        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, Compounds: [Element.Lightning]), Cancel);
+        Assert.Equal([Element.Lightning], saved.Compounds);
+        // A client that sends none keeps them.
+        Assert.Equal([Element.Lightning], (await server.SavePoints(c.Id, new Points(null, null), Cancel)).Compounds);
     }
 
     [Fact]
@@ -93,7 +131,7 @@ public class TreeVersionTests
         IReadOnlyList<string> said;
         using (IServiceScope scope = api.Services.CreateScope())
             said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), order, Cancel);
-        Assert.All(said, line => Assert.Contains("convert-lightning", line, StringComparison.Ordinal));
+        Assert.All(said, line => Assert.Contains("compounds Lightning", line, StringComparison.Ordinal));
         foreach (CharacterSummary s in await server.Characters(Cancel))
         {
             Assert.Null(s.Hero.Problem(GameData.Embedded));
@@ -101,5 +139,14 @@ public class TreeVersionTests
                 s.Talents!.Order(StringComparer.Ordinal));
             Assert.Contains(s.Hero.DeckOf(GameData.Embedded), id => GameData.Embedded.Spells[id].Element == Element.Lightning);
         }
+        // --compounds none, then all: as far as the level opens them, the deck keeping what its grimoire still has.
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, "--compounds", "none"]).Order!, Cancel);
+        Assert.All(await server.Characters(Cancel), s => Assert.True(s.Compounds is null && s.Hero.Problem(GameData.Embedded) is null));
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, "--compounds", "all"]).Order!, Cancel);
+        Assert.All(await server.Characters(Cancel), s => Assert.Equal(Elements.Compounds, s.Compounds!));
+        Assert.Equal([Element.Lightning], Admin.Parse(["admin", account, "--compounds", "lightning"]).Order!.Compounds);
+        Assert.NotNull(Admin.Parse(["admin", account, "--compounds", "fire"]).Error);
     }
 }

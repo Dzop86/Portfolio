@@ -671,7 +671,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _talentsLeft.Text = Editor.Hero.Level < Talents.Opens ? Texts["talents.closed", Talents.Opens] : Texts["talents.left", Editor.TalentPointsLeft];
         _talentsHint.Text = Texts["talents.hint"];
         _trunk.Text = Texts.Trunk(Editor.Hero.Level);
-        _talentsSaid.Text = Editor.Replaced is string replaced ? Texts["talents.replaced", Editor.Data.Talents[replaced].Name.In(Texts.Lang)] : "";
+        _talentsSaid.Text = string.Join("\n", Texts.DeckChanges(Editor));
         // The talents taken, layer by layer (sprint 148): the tree itself is in its window.
         _talentsTaken.Text = string.Join("\n", Editor.TalentsTaken.GroupBy(id => Editor.Data.Talents[id].Branch).OrderBy(g => g.Key)
             .Select(g => $"{Texts["talents.branch." + g.Key]} : {string.Join(", ", g.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))}"));

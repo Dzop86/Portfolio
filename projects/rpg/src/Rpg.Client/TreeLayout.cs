@@ -23,10 +23,10 @@ public enum NodeState
     /// <summary>It can be taken now.</summary>
     Open,
 
-    /// <summary>A parent, a door or points are missing.</summary>
+    /// <summary>A parent or points are missing.</summary>
     Locked,
 
-    /// <summary>A rule of the tree shuts it out (an exclusion, a pair, a key, the switch, the elements).</summary>
+    /// <summary>A rule of the tree shuts it out (an exclusion, a key).</summary>
     Excluded,
 
     /// <summary>Its level is not reached (the tree's 30, a key's 45).</summary>
@@ -42,20 +42,21 @@ public enum NodeLook
     Closed,
 }
 
-/// <summary>A node's shape, one per kind (L1 a): the trunk's, a door of the fork, a node of a floor, a key.</summary>
+/// <summary>A node's shape, one per kind (L1 a): the trunk's, a node of a floor, a key (since sprint 182, D93, no door).</summary>
 public enum NodeShape
 {
     Trunk,
-    Door,
     Node,
     Key,
 }
 
-/// <summary>The espalier's lines, bottom up (sprint 176, D87, <c>docs/arbre-lisible.md</c> §2.2): the trunk, the doors, the first and second floors, the keys.</summary>
+/// <summary>
+/// The espalier's lines, bottom up (sprint 176, D87, <c>docs/arbre-lisible.md</c> §2.2): the trunk, the first and second
+/// floors, the keys; since sprint 182 (D93) the doors' line is gone with the elements.
+/// </summary>
 public enum TreeRow
 {
     Trunk,
-    Doors,
     First,
     Second,
     Key,
@@ -76,18 +77,15 @@ public sealed record TreeNode(string Id, Box Box, NodeShape Shape, Branch? Branc
 public readonly record struct TreePoint(float X, float Y);
 
 /// <summary>
-/// The pieces of the tree's wood, from the thickest (sprint 176, D87, <c>docs/arbre-lisible.md</c> §2.7): the trunk, the fork's
-/// roots to the doors, a door taken's stem to the crown, the crown's collar, the limbs from it to each style's foot, the
-/// arrow from Lightning to the Fusion, a branch's axis from floor to floor, the twigs along a floor to its nodes.
+/// The pieces of the tree's wood, from the thickest (sprint 176, D87, <c>docs/arbre-lisible.md</c> §2.7): the trunk, the
+/// crown's collar, the limbs from it to each style's foot, a branch's axis from floor to floor, the twigs along a floor to
+/// its nodes (since sprint 182, D93, no roots, stems nor arrow: the doors are gone).
 /// </summary>
 public enum WoodKind
 {
     Trunk,
-    Root,
-    Stem,
     Collar,
     Limb,
-    Arrow,
     Axis,
     Twig,
 }
@@ -117,16 +115,15 @@ public enum Direction
 
 /// <summary>
 /// The talent tree laid out as an espalier, without any engine (sprint 176, D87, <c>docs/arbre-lisible.md</c> §2 and §7):
-/// in the coordinates of a world of its own, read from the bottom up, the trunk standing under the doors' middle, the doors
-/// in couples then the Hearts, the crown over them, then the seven branches side by side in a fixed order, each in its own lane and
-/// deployed whole (the Fusion over Lightning, its Transmutations and Conversion on its first floor). The camera
-/// (<see cref="TreeCamera"/>) shows what the window can hold. No link goes from node to node: the wood
-/// (<see cref="Wood"/>) is made of pieces that never cross.
+/// in the coordinates of a world of its own, read from the bottom up, the trunk standing under the styles' middle, the
+/// crown over it, then the six styles side by side in a fixed order, each in its own lane and deployed whole (since sprint
+/// 182, D93, no doors nor Fusion: the elements have their own page). The camera (<see cref="TreeCamera"/>) shows what the
+/// window can hold. No link goes from node to node: the wood (<see cref="Wood"/>) is made of pieces that never cross.
 /// </summary>
 public sealed class TreeLayout
 {
-    /// <summary>The nodes' sizes at 100 % (G8): a node, a pair or a key, a Heart, a ring of the trunk; a node's names under it, two lines.</summary>
-    public const float Small = 56, Large = 64, Heart = 48, Ring = 44, Label = 32;
+    /// <summary>The nodes' sizes at 100 % (G8): a node, a key, a ring of the trunk; a node's names under it, two lines.</summary>
+    public const float Small = 56, Large = 64, Ring = 44, Label = 32;
 
     /// <summary>The gaps: between two nodes of a floor, between two branches; the margins and the gutter that names the lines.</summary>
     public const float NodeGap = 16, ColumnGap = 48, Margin = 24, Gutter = 72;
@@ -135,21 +132,17 @@ public sealed class TreeLayout
     public static readonly IReadOnlyList<Branch> Styles = [Branch.Melee, Branch.Distance, Branch.Support, Branch.Terrain, Branch.Tempo, Branch.Alchemy];
 
     /// <summary>
-    /// The branches from left to right, whatever is taken (G9): the Fusion over its door, Alchemy which lives on the pairs
-    /// next to it, Melee and Distance side by side, Tempo, Terrain, and Support, the group's style, at the edge.
+    /// The branches from left to right, whatever is taken (G9): Alchemy, Melee and Distance side by side, Tempo, Terrain,
+    /// and Support, the group's style, at the edge.
     /// </summary>
-    public static readonly IReadOnlyList<Branch> Branches = [Branch.Braids, Branch.Alchemy, Branch.Melee, Branch.Distance, Branch.Tempo, Branch.Terrain, Branch.Support];
-
-    /// <summary>The fork's pairs, the complementary couples side by side (C7): Lightning and Mud, Ice and Magma, Steam and Sand.</summary>
-    public static readonly IReadOnlyList<string> Pairs = ["electrifying", "bogging", "chilling", "cracking", "fogging", "blinding"];
+    public static readonly IReadOnlyList<Branch> Branches = [Branch.Alchemy, Branch.Melee, Branch.Distance, Branch.Tempo, Branch.Terrain, Branch.Support];
 
     /// <summary>The trunk's levels (B1 a), bottom up.</summary>
     public static readonly IReadOnlyList<int> TrunkLevels = [30, 35, 40];
 
-    /// <summary>The lines' middles, top down: the keys, the second floor, the first, the doors; then the branches' feet, the crown and its collar.</summary>
-    public const float KeyY = 88, SecondY = 200, FirstY = 304, Foot = 376, CollarTop = 428, CrownY = 448, DoorsY = 512, RootEnd = 584, TrunkTop = 628;
+    /// <summary>The lines' middles, top down: the keys, the second floor, the first; then the branches' feet, the collar, the crown and the trunk's top.</summary>
+    public const float KeyY = 88, SecondY = 200, FirstY = 304, Foot = 376, CollarTop = 428, CrownY = 448, TrunkTop = 472;
 
-    private const float CoupleGap = NodeGap, CouplesGap = 36, StemRise = 12;
     private readonly Dictionary<string, TreeNode> _byId;
     private readonly GameData _data;
 
@@ -161,7 +154,7 @@ public sealed class TreeLayout
         float x = Margin + Gutter;
         foreach (Branch branch in Branches)
         {
-            float w = Math.Max(Small, Enum.GetValues<TreeRow>().Where(r => r > TreeRow.Doors).Max(r => RowWidth(Of(branch, r))));
+            float w = Math.Max(Small, Enum.GetValues<TreeRow>().Where(r => r > TreeRow.Trunk).Max(r => RowWidth(Of(branch, r))));
             Columns[branch] = new Box(x, Margin, w, Foot - Margin);
             foreach (TreeRow row in new[] { TreeRow.First, TreeRow.Second, TreeRow.Key })
             {
@@ -177,21 +170,8 @@ public sealed class TreeLayout
             x += w + ColumnGap;
         }
         Width = x - ColumnGap + Margin;
-        // The doors: Lightning under the Fusion's middle, the couples side by side, then the Hearts.
-        x = Columns[Branch.Braids].CenterX - (Large / 2);
-        for (int i = 0; i < Pairs.Count; i++)
-        {
-            nodes.Add(new(Pairs[i], new Box(x, DoorsY - (Large / 2), Large, Large), NodeShape.Door, Branch.Fork, Tier.First));
-            x += Large + (i % 2 == 0 ? CoupleGap : CouplesGap);
-        }
-        foreach (TalentSpec heart in data.Talents.Values.Where(t => t.Branch == Branch.Pure).OrderBy(t => t.Id, StringComparer.Ordinal))
-        {
-            nodes.Add(new(heart.Id, new Box(x, DoorsY - (Heart / 2), Heart, Heart), NodeShape.Door, Branch.Pure, Tier.First));
-            x += Heart + CoupleGap;
-        }
-        // The crown over the doors' middle, the trunk under it: the doors' stems and roots short, the limbs fanning out to the styles.
-        TreeNode[] doors = [.. nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure)];
-        Crown = new TreePoint((doors.Min(n => n.Box.X) + doors.Max(n => n.Box.X + n.Box.W)) / 2, CrownY);
+        // The crown over the styles' middle, the trunk under it, the limbs fanning out to the styles.
+        Crown = new TreePoint((Columns.Values.Min(c => c.X) + Columns.Values.Max(c => c.X + c.W)) / 2, CrownY);
         // The trunk's rings, 40 at the top, 30 at the bottom.
         for (int i = 0; i < TrunkLevels.Count; i++)
             nodes.Add(new($"trunk:{TrunkLevels[i]}", new Box(Crown.X - (Ring / 2), TrunkTop + ((TrunkLevels.Count - 1 - i) * (Ring + 8)), Ring, Ring), NodeShape.Trunk));
@@ -221,25 +201,18 @@ public sealed class TreeLayout
         TreeRow.Key => KeyY,
         TreeRow.Second => SecondY,
         TreeRow.First => FirstY,
-        TreeRow.Doors => DoorsY,
         _ => TrunkTop + Ring + 8 + (Ring / 2),
     };
 
-    /// <summary>
-    /// The line a talent stands on (§2.4): the fork and the Hearts on the doors'; its tier's otherwise, but the Fusion's
-    /// Conversion on the first floor with the two Transmutations it excludes (one choice, "how much Lightning").
-    /// </summary>
+    /// <summary>The line a talent stands on (§2.4): its tier's.</summary>
     public static TreeRow RowOf(TalentSpec t)
     {
         ArgumentNullException.ThrowIfNull(t);
-        return t.IsFork ? TreeRow.Doors
-            : t.Branch == Branch.Braids && t.Tier == Tier.Key ? TreeRow.First
-            : t.Tier switch { Tier.First => TreeRow.First, Tier.Second => TreeRow.Second, _ => TreeRow.Key };
+        return t.Tier switch { Tier.First => TreeRow.First, Tier.Second => TreeRow.Second, _ => TreeRow.Key };
     }
 
-    /// <summary>A talent's size: a key 64, a pair 64, a Heart 48, any other node 56.</summary>
-    public static float SizeOf(TalentSpec t) =>
-        (t ?? throw new ArgumentNullException(nameof(t))).Tier == Tier.Key || t.Branch == Branch.Fork ? Large : t.Branch == Branch.Pure ? Heart : Small;
+    /// <summary>A talent's size: a key 64, any other node 56.</summary>
+    public static float SizeOf(TalentSpec t) => (t ?? throw new ArgumentNullException(nameof(t))).Tier == Tier.Key ? Large : Small;
 
     // A branch's talents on a line, the keys last, then by id.
     private TalentSpec[] Of(Branch branch, TreeRow row) =>
@@ -251,13 +224,12 @@ public sealed class TreeLayout
     public float AxisX(Branch branch) => Columns[branch].X - 12;
 
     /// <summary>
-    /// The tree's wood for a draft (§2.7): the trunk from ring to ring, a root from the trunk's top to each door (under its
-    /// name), a stem from each door taken up to the crown, the collar, a limb from the collar to each style's foot, the arrow
-    /// from Lightning to the Fusion's foot, each branch's axis from line to line and its twigs along each line from node to
-    /// node; since sprint 177 the roots, the stems and the limbs are curves leaving and reaching their ends upright, all of a
-    /// kind at the same heights, so that they fan out and never cross. Each piece is alive if it leads to a node taken,
-    /// reachable if to a node open, bare otherwise (<paramref name="stateOf"/> gives a node's state); the sap runs through
-    /// those that lead to a node of <paramref name="path"/> (the path to the node under the mouse, its door's stem drawn too).
+    /// The tree's wood for a draft (§2.7): the trunk from ring to ring, the collar from its top, a limb from the collar to
+    /// each style's foot, each branch's axis from line to line and its twigs along each line from node to node; since sprint
+    /// 177 the limbs are curves leaving and reaching their ends upright, all at the same heights, so that they fan out and
+    /// never cross. Each piece is alive if it leads to a node taken, reachable if to a node open, bare otherwise
+    /// (<paramref name="stateOf"/> gives a node's state); the sap runs through those that lead to a node of
+    /// <paramref name="path"/> (the path to the node under the mouse).
     /// </summary>
     public IReadOnlyList<WoodPiece> Wood(IReadOnlyList<string> taken, Func<TreeNode, NodeState?> stateOf, IReadOnlyList<string>? path = null)
     {
@@ -277,21 +249,11 @@ public sealed class TreeLayout
         TreeNode[] rings = [.. Nodes.Where(n => n.IsTrunk).OrderByDescending(n => n.Box.Y)];
         for (int i = 0; i < rings.Length; i++)
             Add(WoodKind.Trunk, [rings[i].Id], P(Crown.X, rings[i].Box.CenterY + (i == 0 ? Ring / 2 : 0)), P(Crown.X, i + 1 < rings.Length ? rings[i + 1].Box.CenterY : TrunkTop));
-        // A root to each door, under its name.
-        TreeNode[] doors = [.. Nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure)];
-        foreach (TreeNode d in doors)
-            Add(WoodKind.Root, [d.Id], Curve(P(Crown.X, TrunkTop), P(d.Box.CenterX, RootEnd)));
-        // The doors taken (or on the path) up to the crown: straight up to the same height, then curving over the others.
-        float stemY = DoorsY - (Large / 2) - StemRise;
-        foreach (TreeNode d in doors.Where(d => taken.Contains(d.Id) || path.Contains(d.Id)))
-            Add(WoodKind.Stem, [d.Id], [P(d.Box.CenterX, d.Box.Y), .. Curve(P(d.Box.CenterX, stemY), P(Crown.X, Crown.Y))]);
         string[] Lane(Branch b) => [.. Nodes.Where(n => n.Branch == b).Select(n => n.Id)];
-        string[] styles = [.. Branches.Skip(1).SelectMany(Lane)];
-        Add(WoodKind.Collar, styles, P(Crown.X, Crown.Y), P(Crown.X, CollarTop));
-        foreach (Branch b in Branches.Skip(1))
+        string[] styles = [.. Branches.SelectMany(Lane)];
+        Add(WoodKind.Collar, styles, P(Crown.X, TrunkTop), P(Crown.X, CollarTop));
+        foreach (Branch b in Branches)
             Add(WoodKind.Limb, Lane(b), Curve(P(Crown.X, CollarTop), P(AxisX(b), Foot)));
-        TreeNode lightning = _byId[Pairs[0]];
-        Add(WoodKind.Arrow, Lane(Branch.Braids), P(lightning.Box.CenterX, lightning.Box.Y), P(AxisX(Branch.Braids), Foot));
         // Each branch: its axis up from line to line, the twigs along each line, behind its nodes.
         foreach (Branch b in Branches)
         {
@@ -352,8 +314,8 @@ public sealed class TreeLayout
 
     /// <summary>
     /// The boxes the window opens framed on (§7.4, Charles's answer): the nodes taken, and those open in the branches where
-    /// one is (a door taken opens every style's first floor: the whole tree is not the build); with no branch begun, the
-    /// doors, the trunk and the first floor.
+    /// one is (every style's first floor is open: the whole tree is not the build); with no branch begun, the trunk and the
+    /// first floor.
     /// </summary>
     public IReadOnlyList<Box> Build(IReadOnlyList<string> taken, Func<TreeNode, NodeState?> stateOf)
     {
@@ -362,7 +324,7 @@ public sealed class TreeLayout
         HashSet<Branch> begun = [.. Nodes.Where(n => n.IsTalent && taken.Contains(n.Id) && Branches.Contains(n.Branch!.Value)).Select(n => n.Branch!.Value)];
         return begun.Count > 0
             ? [.. Nodes.Where(n => n.IsTalent && (taken.Contains(n.Id) || (begun.Contains(n.Branch!.Value) && stateOf(n) == NodeState.Open))).Select(n => n.Box)]
-            : [.. Nodes.Where(n => !n.IsTalent || n.Branch is Branch.Fork or Branch.Pure || RowOf(_data.Talents[n.Id]) == TreeRow.First).Select(n => n.Box)];
+            : [.. Nodes.Where(n => !n.IsTalent || RowOf(_data.Talents[n.Id]) == TreeRow.First).Select(n => n.Box)];
     }
 
     /// <summary>
@@ -394,17 +356,12 @@ public sealed class TreeLayout
         return best;
     }
 
-    /// <summary>
-    /// The node the keyboard starts on (K4 a): the pair taken whose braid holds the most nodes, else the first pair taken,
-    /// else a Heart taken, else the trunk.
-    /// </summary>
+    /// <summary>The node the keyboard starts on (K4 a; since sprint 182, D93, no door): the first talent taken laid out, else the trunk.</summary>
     public string Start(IReadOnlyList<string> taken, GameData data)
     {
         ArgumentNullException.ThrowIfNull(taken);
         ArgumentNullException.ThrowIfNull(data);
-        int Braided(string pair) => taken.Count(id => data.Talents[id].Branch == Branch.Braids && (data.Talents[id].Requires ?? []).Contains(pair));
-        string? pair = taken.Where(id => data.Talents[id].IsPair).OrderByDescending(Braided).FirstOrDefault();
-        return pair ?? taken.FirstOrDefault(id => data.Talents[id].Branch == Branch.Pure) ?? $"trunk:{TrunkLevels[0]}";
+        return taken.FirstOrDefault(id => data.Talents.ContainsKey(id) && _byId.ContainsKey(id)) ?? $"trunk:{TrunkLevels[0]}";
     }
 
     /// <summary>The state a talent shows (L5 b), from the reason it would be refused (<see cref="TalentReasons.WhyNot"/>).</summary>
@@ -420,7 +377,7 @@ public sealed class TreeLayout
             // Points are tested last: a node refused for them passes every other rule, it is reachable (docs/arbre-lisible.md
             // §2.6): open, the lack of points said once by the counter and by a click.
             RefusalKind.Points => NodeState.Open,
-            RefusalKind.Door or RefusalKind.Parent => NodeState.Locked,
+            RefusalKind.Parent => NodeState.Locked,
             _ => NodeState.Excluded,
         };
     }

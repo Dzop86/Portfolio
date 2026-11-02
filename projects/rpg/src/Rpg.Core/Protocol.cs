@@ -41,13 +41,14 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     IReadOnlyDictionary<string, long>? Jobs = null, long Shards = 0, IReadOnlyList<QuestProgress>? QuestLog = null,
     int? Hp = null, DateTimeOffset? HpAt = null, bool InFight = false, IReadOnlyList<string>? Talents = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool TalentsReset = false,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? Bestiary = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? Bestiary = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<Element>? Compounds = null)
 {
     /// <summary>The character's hit points at a moment (sprint 101): set, grown back since, frozen in a fight.</summary>
     public int LifeAt(DateTimeOffset now, GameData data) => Life.Now(Life.MaxHp(Hero, data), Hp, HpAt, InFight, Place?.Town, now);
 
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck, Talents);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck, Talents, Compounds);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
@@ -152,7 +153,12 @@ public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);
 
 /// <summary>How a character spends its points: characteristics, and the ranks of its spells (rank 1 when not listed).</summary>
 /// <param name="Talents">The talents of the tree (sprint 137); null keeps those saved (a client from before them).</param>
-public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null, IReadOnlyList<string>? Talents = null);
+/// <summary>
+/// The points a player spends (sprint 97), the deck (sprint 68), the talents (sprint 137) and, since sprint 182 (D93), the
+/// compounds created on the Elements page; null: those saved.
+/// </summary>
+public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null, IReadOnlyList<string>? Talents = null,
+    IReadOnlyList<Element>? Compounds = null);
 
 public static class Servers
 {

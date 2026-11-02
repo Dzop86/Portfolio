@@ -2,24 +2,20 @@
 # talent's game-icons.net silhouette (CC BY 3.0, its author in talents/credits.json) with the menus' layers (tools/ui_art.py),
 # no tile (the tree's node is the tile), in three files: godot/assets/icons/talents/relief/<id>.svg in its family's colour
 # (taken), <id>-open.svg in the light greys of the menu (open), <id>-locked.svg flat grey (not yet, closed).
-# The colour of a family, never pistachio (pistachio says "taken"): a Fork's choice in its compound's, a Heart in its element's,
-# the Braids (the Fusion) in Lightning's, a style in its branch's (ElementStyle.StyleColour), the trunk in the achievements'
-# gold, anything else in the journal's parchment. The silhouettes' paths in godot/assets/icons/bar/shapes/, taken from the
+# The colour of a family, never pistachio (pistachio says "taken"): a style in its branch's (ElementStyle.StyleColour), the
+# trunk in the achievements' gold, anything else in the journal's parchment (since sprint 182, D93, no pair, Heart nor braid). The silhouettes' paths in godot/assets/icons/bar/shapes/, taken from the
 # white drawings of sprint 149 (talents/<id>.svg) when missing. Deterministic, no <filter>. Run from projects/rpg:
 #   python3 tools/talent_art.py
 import json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from ui_art import layers, mix, bar, PLACE  # noqa: E402
-from spell_art import MAIN  # noqa: E402
 
 here = os.path.dirname(os.path.abspath(__file__))
 root = os.path.join(here, "..")
 talents = os.path.join(root, "godot", "assets", "icons", "talents")
 out = os.path.join(talents, "relief")
 
-# A Fork's choice and the compound it makes (data/reactions: Earth + Water is Mud, and so on).
-FORK = {"bogging": "Mud", "chilling": "Ice", "cracking": "Magma", "electrifying": "Lightning", "fogging": "Steam", "blinding": "Sand"}
 STYLE = {"Melee": "#e8a33d", "Distance": "#6bb8f2", "Support": "#ff7eb6", "Terrain": "#c9a27f", "Tempo": "#b48cff", "Alchemy": "#4fd1c5"}
 GOLD = {"main": "#ffd166", "light": "#ffe6ab", "dark": "#8c7338", "outline": "#332a14"}
 PARCHMENT = "#f0e6cc"
@@ -38,12 +34,6 @@ def colour(talent):
     branch, tid = talent.get("branch"), talent["id"]
     if tid.startswith("trunk-"):
         return GOLD
-    if tid in FORK:
-        return tones(MAIN[FORK[tid]])
-    if branch == "Pure":
-        return tones(MAIN[next(r["element"] for r in talent["rules"] if r.get("kind") == "element")])
-    if branch == "Braids":
-        return tones(MAIN["Lightning"])
     return tones(STYLE.get(branch, PARCHMENT))
 
 

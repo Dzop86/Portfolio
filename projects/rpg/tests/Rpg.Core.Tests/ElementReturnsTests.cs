@@ -51,9 +51,9 @@ public class ElementReturnsTests
         var now = new Fight(Real, "training", 7, hero);
         Ai.PlayOut(now);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(now).ToJson());
-        Assert.Equal(4, r.Version);
+        Assert.Equal(FightRecord.CurrentVersion, r.Version);
         Assert.Equal(Fingerprint(now), Fingerprint(r.Replay(Real)));
-        var before = new Fight(Real, "training", 7, hero, linearReturns: true);
+        var before = new Fight(Real, "training", 7, hero, linearReturns: true, freeReactions: false);
         Ai.PlayOut(before);
         FightRecord old = FightRecord.FromJson(FightRecord.Of(before).ToJson()) with { Version = 3 };
         Assert.Equal(Fingerprint(before), Fingerprint(old.Replay(Real)));

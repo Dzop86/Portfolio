@@ -17,7 +17,7 @@ public class TerrainTests
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
     // Two talents of the first floor of Terrain under the others, when they need them.
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
 
     private static FighterSpec Monster(int start = 0, int hp = 300, int mp = 3, params string[] spells) =>
         Spec(1, start, hp: hp, mp: mp, initiative: 1, spells: spells.Length == 0 ? ["strike"] : spells);
@@ -73,7 +73,7 @@ public class TerrainTests
     [Fact]
     public void ASeal_MarksTheEnemyWhoStartsItsTurnOnIt_WithoutReacting()
     {
-        Fight f = Play(["A...B"], Hero("side-step", "backed", "seal", "bogging") with { Deck = ["bolt", "seal-water"] });
+        Fight f = Play(["A...B"], Hero("side-step", "backed", "seal") with { Deck = ["bolt", "seal-water"] });
         f.Apply(new CastAction("seal-water", C(4)));
         // Laid under it, the Seal spares it at its next turn (sprint 152); it stays, and starts the turn after on it.
         f.Apply(new EndTurnAction());

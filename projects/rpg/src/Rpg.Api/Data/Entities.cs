@@ -98,6 +98,13 @@ public sealed class Character
     /// <summary>The talents, without those the tree no longer has.</summary>
     public string[] TalentList => [.. Talents.Split(',', StringSplitOptions.RemoveEmptyEntries).Where(GameData.Embedded.Talents.ContainsKey)];
 
+    /// <summary>The compounds created on the Elements page (sprint 182, D93), their names in order separated by commas.</summary>
+    public string Compounds { get; set; } = "";
+
+    /// <summary>The compounds, without those the game no longer has.</summary>
+    public Element[] CompoundList => [.. Compounds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        .Select(n => Enum.TryParse(n, out Element e) && Elements.IsCompound(e) ? e : (Element?)null).OfType<Element>()];
+
     /// <summary>The experience of each trade (sprint 81), as "job:xp" separated by commas.</summary>
     public string Jobs { get; set; } = "";
 
@@ -245,7 +252,8 @@ public sealed class Character
     public string[] QuestList => Quests.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>The character as the rules see it.</summary>
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList, TalentList.Length == 0 ? null : TalentList);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList, TalentList.Length == 0 ? null : TalentList,
+        CompoundList.Length == 0 ? null : CompoundList);
 }
 
 /// <summary>

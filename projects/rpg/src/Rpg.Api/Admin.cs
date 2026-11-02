@@ -9,9 +9,11 @@ namespace Rpg.Api;
 /// <summary>What the server's operator asks for the characters of an account (sprint 79).</summary>
 /// <remarks>Since sprint 146 (D82, I6 b), <see cref="Builds"/> gives each character its class's reference build of Matter; since sprint 157, <see cref="Shards"/> sets its Éclats;
 /// since sprint 173 (D89), <see cref="Only"/> keeps the order to one character, <see cref="GiveAll"/> gives one of every item, <see cref="JobsMax"/> brings
-/// every trade to its last level and <see cref="Achievements"/> gives what earns every achievement.</remarks>
+/// every trade to its last level and <see cref="Achievements"/> gives what earns every achievement; since sprint 182 (D93), <see cref="Compounds"/>
+/// creates compounds (null: none touched; <see cref="AllCompounds"/>: every one its level opens).</remarks>
 public sealed record AdminOrder(string Account, int? Level, IReadOnlyList<ItemCount> Give, IReadOnlyList<NewHero>? Create = null, IReadOnlyList<Renaming>? Rename = null,
-    bool Builds = false, bool Bestiary = false, long? Shards = null, string? Only = null, bool GiveAll = false, bool JobsMax = false, bool Achievements = false);
+    bool Builds = false, bool Bestiary = false, long? Shards = null, string? Only = null, bool GiveAll = false, bool JobsMax = false, bool Achievements = false,
+    IReadOnlyList<Element>? Compounds = null, bool AllCompounds = false);
 
 /// <summary>A character of the account the operator renames (sprint 94, Charles): its name, then the new one.</summary>
 public sealed record Renaming(string From, string To);
@@ -21,7 +23,7 @@ public sealed record NewHero(string Class, string Name);
 
 /// <summary>
 /// The server's administration command, run where the server runs and never over HTTP:
-/// <c>Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full]</c> first creates
+/// <c>Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full] [--compounds all|none|NAME,NAME...]</c> first creates
 /// characters for the account (the names and the limit of the sign-up apply), renames some (a name of the
 /// sign-up's rule, free on the server), then brings every character of the
 /// account to a level (its experience with it; the points spent are given back if the level goes down)
@@ -58,7 +60,7 @@ public static class Admin
     /// <summary>The most Éclats the operator gives a character: a billion, far from the column's limit.</summary>
     public const long MaxShards = 1_000_000_000;
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full]";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full] [--compounds all|none|NAME,NAME...]";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -69,7 +71,8 @@ public static class Admin
         var give = new List<ItemCount>();
         var create = new List<NewHero>();
         var rename = new List<Renaming>();
-        bool builds = false, bestiary = false, giveAll = false, jobsMax = false, achievements = false;
+        bool builds = false, bestiary = false, giveAll = false, jobsMax = false, achievements = false, allCompounds = false;
+        Element[]? compounds = null;
         long? shards = null;
         string? only = null;
         for (int i = 2; i < args.Count; i++)
@@ -144,13 +147,30 @@ public static class Admin
                     achievements = true;
                     i++;
                     break;
+                case "--compounds" when value == "all":
+                    (allCompounds, compounds) = (true, []);
+                    i++;
+                    break;
+                case "--compounds" when value == "none":
+                    (allCompounds, compounds) = (false, []);
+                    i++;
+                    break;
+                case "--compounds":
+                    // Sprint 182 (D93): compounds by name, created as far as each character's level opens them.
+                    Element[] named = [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(n => Enum.TryParse(n, ignoreCase: true, out Element e) && Elements.IsCompound(e) ? e : (Element?)null).OfType<Element>()];
+                    if (value.Length == 0 || named.Length != value.Split(',', StringSplitOptions.RemoveEmptyEntries).Length)
+                        return (null, $"--compounds: all, none, or compounds of the game ({string.Join(", ", Elements.Compounds)}), with commas ('{value}').");
+                    (allCompounds, compounds) = (false, [.. named.Distinct()]);
+                    i++;
+                    break;
                 default:
                     return (null, $"Unknown: '{args[i]}'. {Usage}");
             }
         }
-        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0 && !builds && !bestiary && shards is null && !giveAll && !jobsMax && !achievements)
-            return (null, "Nothing to do: --create, --rename, --level, --give, --builds, --bestiary full, --shards N, --jobs max or --achievements full.");
-        return (new AdminOrder(args[1], level, give, create, rename, builds, bestiary, shards, only, giveAll, jobsMax, achievements), null);
+        if (level is null && give.Count == 0 && create.Count == 0 && rename.Count == 0 && !builds && !bestiary && shards is null && !giveAll && !jobsMax && !achievements && compounds is null)
+            return (null, "Nothing to do: --create, --rename, --level, --give, --builds, --bestiary full, --shards N, --jobs max, --achievements full or --compounds.");
+        return (new AdminOrder(args[1], level, give, create, rename, builds, bestiary, shards, only, giveAll, jobsMax, achievements, compounds, allCompounds), null);
     }
 
     /// <summary>Applies the order; says what it did, one line per character.</summary>
@@ -194,7 +214,7 @@ public static class Admin
                 if (level < c.Level)
                 {
                     // Fewer points than were spent: all of them come back, to be spent again.
-                    (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck, c.Talents) = (0, 0, 0, 0, 0, "", "", "");
+                    (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck, c.Talents, c.Compounds) = (0, 0, 0, 0, 0, "", "", "", "");
                 }
                 c.Xp = Progression.XpToReach(level);
                 c.Level = level;
@@ -213,6 +233,19 @@ public static class Admin
                 c.Deck = built.Deck is { Count: > 0 } deck ? string.Join(',', deck) : Character.EmptyDeck;
                 c.Talents = string.Join(',', built.Talents ?? []);
                 c.TalentsVersion = Talents.Version;
+                c.Compounds = string.Join(',', built.Compounds ?? []);
+            }
+            if (order.Compounds is IReadOnlyList<Element> asked)
+            {
+                // Each compound its level opens (a pair from 30, a trio from 50); the deck keeps what its grimoire still has.
+                IEnumerable<Element> wanted = order.AllCompounds ? Elements.Compounds : asked;
+                c.Compounds = string.Join(',', wanted.Where(e => c.Level >= Elements.CreatedFrom(e)));
+                if (c.Deck is not ("" or Character.EmptyDeck))
+                {
+                    Grimoire grimoire = Talents.GrimoireOf(c.Hero, GameData.Embedded);
+                    string[] kept = [.. (c.DeckList ?? []).Where(grimoire.Spells.Contains)];
+                    c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
+                }
             }
             if (order.Shards is long owned)
                 c.Shards = owned;
@@ -230,7 +263,8 @@ public static class Admin
                 List<string> left = [.. progress.Where(p => !p.Earned).Select(p => p.Id)];
                 missing = $", achievements {progress.Count - left.Count}/{progress.Count}" + (left.Count > 0 ? $" (still to earn: {string.Join(", ", left)})" : "");
             }
-            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s), {c.Shards} Éclats" + (order.Builds ? $", talents {c.Talents}" : "") + missing + ".");
+            done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s), {c.Shards} Éclats" + (order.Builds ? $", talents {c.Talents}" : "")
+                + (order.Builds || order.Compounds is not null ? $", compounds {(c.Compounds.Length == 0 ? "none" : c.Compounds)}" : "") + missing + ".");
         }
         await db.SaveChangesAsync(cancel);
         return done.Count == 0 ? [$"'{account.Name}' has no character."] : done;

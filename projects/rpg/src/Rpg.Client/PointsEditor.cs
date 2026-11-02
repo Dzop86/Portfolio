@@ -37,7 +37,40 @@ public sealed class PointsEditor
             _ranks[spell] = rank;
         _deck = [.. hero.DeckOf(data)];
         _talents = [.. hero.Talents ?? []];
+        _compounds = [.. hero.Compounds ?? []];
     }
+
+    private readonly List<Element> _compounds;
+
+    /// <summary>The compounds of the draft (sprint 182, D93), in the order they were created.</summary>
+    public IReadOnlyList<Element> CompoundsCreated => _compounds;
+
+    /// <summary>A compound can be created when the level opens it (a pair from 30, a trio from 50) and it is not yet; for free.</summary>
+    public bool CanCreate(Element compound) => !ReadOnly && Elements.IsCompound(compound) && !_compounds.Contains(compound) && Hero.Level >= Elements.CreatedFrom(compound);
+
+    /// <summary>A compound created can be undone, for free (Q10 a): its twins leave the grimoire, and the deck.</summary>
+    public bool CanDissolve(Element compound) => !ReadOnly && _compounds.Contains(compound);
+
+    /// <summary>Creates a compound: its twins join the grimoire, the deck is left as it is.</summary>
+    public void Create(Element compound)
+    {
+        if (!CanCreate(compound))
+            return;
+        _compounds.Add(compound);
+        FitDeck();
+    }
+
+    /// <summary>Undoes a compound: its twins leave the grimoire, and the deck (<see cref="DeckChanges"/> says which).</summary>
+    public void Dissolve(Element compound)
+    {
+        if (!CanDissolve(compound))
+            return;
+        _compounds.Remove(compound);
+        FitDeck();
+    }
+
+    /// <summary>The draft's compounds differ from the hero's: something to save.</summary>
+    public bool CompoundsChanged => !_compounds.Order().SequenceEqual((Hero.Compounds ?? []).Order());
 
     /// <summary>The talents of the draft (sprint 137, D80), in the order they were taken.</summary>
     public IReadOnlyList<string> TalentsTaken => _talents;
@@ -47,11 +80,8 @@ public sealed class PointsEditor
 
     public bool HasTalent(TalentSpec talent) => _talents.Contains((talent ?? throw new ArgumentNullException(nameof(talent))).Id);
 
-    /// <summary>
-    /// A talent can be taken when the tree's rules allow it with those already taken (<see cref="Talents.Problem"/>); since
-    /// sprint 146 (D82), a Conversion takes the place of the Transmutation of its compound (<see cref="Talents.With"/>).
-    /// </summary>
-    public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem(Talents.With(_talents, talent.Id, Data), Hero.Level, Data) is null;
+    /// <summary>A talent can be taken when the tree's rules allow it with those already taken (<see cref="Talents.Problem"/>).</summary>
+    public bool CanTake(TalentSpec talent) => !ReadOnly && !HasTalent(talent) && Talents.Problem([.. _talents, talent.Id], Hero.Level, Data) is null;
 
     /// <summary>
     /// A talent can be given back, with those that need it (sprint 147, D82, I1 b: the cascade, <see cref="Losing"/>), as
@@ -71,18 +101,15 @@ public sealed class PointsEditor
     {
         if (!CanTake(talent))
             return;
-        List<string> after = Talents.With(_talents, talent.Id, Data);
-        Replaced = _talents.Except(after, StringComparer.Ordinal).FirstOrDefault();
-        _talents.Clear();
-        _talents.AddRange(after);
+        _talents.Add(talent.Id);
         FitDeck();
     }
 
     /// <summary>
-    /// What the last change of talents did to the deck (sprint 150, F7 a): each spell a twin took the place of, and the
-    /// spells that left it (a preview's parent until the save, a spell the grimoire no longer holds).
+    /// What the last change of talents or compounds did to the deck (sprint 150, F7 a): the spells that left it, a spell
+    /// the grimoire no longer holds (since sprint 182, D93, a twin takes no spell's place any more).
     /// </summary>
-    public (IReadOnlyList<(string From, string To)> Swapped, IReadOnlyList<string> Left) DeckChanges { get; private set; } = ([], []);
+    public IReadOnlyList<string> DeckChanges { get; private set; } = [];
 
     public void Drop(TalentSpec talent)
     {
@@ -91,7 +118,6 @@ public sealed class PointsEditor
         List<string> left = Talents.Without(_talents, talent.Id, Data);
         _talents.Clear();
         _talents.AddRange(left);
-        Replaced = null;
         FitDeck();
     }
 
@@ -108,14 +134,13 @@ public sealed class PointsEditor
         var left = new List<string>();
         foreach (string id in build)
         {
-            if (Data.Talents.ContainsKey(id) && Talents.With(taken, id, Data) is var after && Talents.Problem(after, Hero.Level, Data) is null)
-                taken = after;
+            if (Data.Talents.ContainsKey(id) && Talents.Problem([.. taken, id], Hero.Level, Data) is null)
+                taken.Add(id);
             else
                 left.Add(id);
         }
         _talents.Clear();
         _talents.AddRange(taken);
-        Replaced = null;
         FitDeck();
         return left;
     }
@@ -135,7 +160,6 @@ public sealed class PointsEditor
         _talents.AddRange(Hero.Talents ?? []);
         _deck.Clear();
         _deck.AddRange(Hero.DeckOf(Data));
-        Replaced = null;
     }
 
     /// <summary>
@@ -151,9 +175,6 @@ public sealed class PointsEditor
         }
     }
 
-    /// <summary>The Transmutation the last talent taken replaced (a Conversion), for the window to say so; null otherwise.</summary>
-    public string? Replaced { get; private set; }
-
     /// <summary>
     /// The spells only the draft's talents give (sprint 146, D82, R2): shown dotted as a preview, out of the filter and of
     /// the deck until the talents are saved.
@@ -168,19 +189,18 @@ public sealed class PointsEditor
     }
 
     /// <summary>
-    /// The deck after a change of talents (sprint 138): each spell as the grimoire has it now (a transmuted spell, its
-    /// twin), once, without those the grimoire no longer holds.
+    /// The deck after a change of talents or compounds (sprint 138): its spells once, without those the grimoire no longer
+    /// holds nor a preview's.
     /// </summary>
     private void FitDeck()
     {
         Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
         HashSet<string> previewed = [.. Previewed.Select(s => s.Id)];
         string[] before = [.. _deck];
-        string[] fitted = [.. _deck.Select(id => grimoire.Replaced.GetValueOrDefault(id, id)).Where(id => grimoire.Spells.Contains(id) && !previewed.Contains(id)).Distinct().Take(DeckLimit)];
+        string[] fitted = [.. _deck.Where(id => grimoire.Spells.Contains(id) && !previewed.Contains(id)).Distinct().Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(fitted);
-        (string, string)[] swapped = [.. before.Where(id => grimoire.Replaced.TryGetValue(id, out string? twin) && fitted.Contains(twin)).Select(id => (id, grimoire.Replaced[id]))];
-        DeckChanges = (swapped, [.. before.Where(id => !fitted.Contains(id) && !swapped.Any(x => x.Item1 == id))]);
+        DeckChanges = [.. before.Where(id => !fitted.Contains(id))];
     }
 
     /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>
@@ -345,6 +365,7 @@ public sealed class PointsEditor
         Ranks = new Dictionary<string, int>(_ranks, StringComparer.Ordinal),
         Deck = [.. _deck],
         Talents = _talents.Count == 0 ? null : [.. _talents],
+        Compounds = _compounds.Count == 0 ? null : [.. _compounds],
     };
 
     /// <summary>Whether the draft differs from what is saved (a deck left as it comes is no change).</summary>
@@ -352,8 +373,8 @@ public sealed class PointsEditor
 
     /// <summary>What saving this draft costs in Éclats (sprint 97): taking back points, from level 11; giving back talents, from level 41 (sprint 140).</summary>
     public long ResetCost => (Shop.TakesBack(Hero.Stats ?? Characteristics.None, Draft.Stats!) ? Shop.ResetCost(Hero.Level) : 0)
-        + (Talents.GivesBack(Hero.Talents, _talents, Data) ? Talents.ChangeCost(Hero.Level) : 0);
+        + (Talents.GivesBack(Hero.Talents, _talents) ? Talents.ChangeCost(Hero.Level) : 0);
 
     /// <summary>What the server receives.</summary>
-    public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck, [.. _talents]);
+    public Points ToPoints() => new(Draft.Stats, Draft.Ranks, Draft.Deck, [.. _talents], [.. _compounds]);
 }

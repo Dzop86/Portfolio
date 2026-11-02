@@ -17,7 +17,7 @@ public class SupportTests
         new([.. Spells, .. TreeSpells, .. Mine.Take(4), Mine[4] with { Twin = "fire" }], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
 
     private static readonly Hero Friend = new("Romane", "female-b", "tester", Level: 100);
 

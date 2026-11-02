@@ -112,33 +112,32 @@ public class ProgramTests
     [InlineData("--simulate", "3", "--scenario", "nowhere")]
     [InlineData("--talents", "--simulate", "1", "--class", "mage")]
     [InlineData("--talents", "--simulate", "1", "--scenario", "zone:nowhere")]
-    [InlineData("--simulate", "1", "--no-braid")]
+    [InlineData("--talents", "--simulate", "1", "--no-braid")]
     [InlineData("--simulate", "1", "--trio")]
     public void WrongArguments_ExitWith2(params string[] args) => Assert.Equal(2, Run(args).Code);
 
     [Fact]
-    public void TheTree_IsMeasured_ForEachClassAndPair_WithTheRareTalents()
+    public void TheTree_IsMeasured_ForEachClassAndCompound_WithTheRareTalents()
     {
-        // Sprint 151 (D82, J5 b, J6 a): the 18 combinations, one fight each here, against the Forest's small groups.
+        // Sprint 151 (D82, J5 b, J6 a), sprint 182 (D93): each class without a compound and with Lightning, one fight each here.
         (int code, string output, _) = Run("--talents", "--simulate", "1", "--scenario", "zone:ancestors", "--lang", "fr");
         Assert.Equal(0, code);
         Assert.StartsWith("# L'arbre des talents hors CI : zone:ancestors, niveau 45", output, StringComparison.Ordinal);
-        // Since sprint 152 (D83): five bare heroes a class beside the 18, mixed and of each element.
-        Assert.Equal(18 + 15, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
+        // Since sprint 152 (D83): five bare heroes a class beside the 6, mixed and of each element.
+        Assert.Contains("| mage | Lightning |", output, StringComparison.Ordinal);
+        Assert.Equal(6 + 15, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
         Assert.Contains("| mage | nu, Feu seul |", output, StringComparison.Ordinal);
-        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 18 builds tirés", output, StringComparison.Ordinal);
+        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 6 builds tirés", output, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void TheTrios_AreMeasured_ForEachPair_WithoutTheBraid()
+    public void TheTrios_AreMeasured_ForEachCompound()
     {
-        // Sprint 152 (D83, §12.3 step 4): a trio for each pair, without the braids here.
-        (int code, string output, _) = Run("--talents", "--trio", "--no-braid", "--simulate", "1", "--scenario", "zone:ancestors");
+        // Sprint 152 (D83, §12.3 step 4), sprint 182 (D93): a trio without a compound, and one whose first hero has Lightning.
+        (int code, string output, _) = Run("--talents", "--trio", "--simulate", "1", "--scenario", "zone:ancestors");
         Assert.Equal(0, code);
         Assert.Contains("## Trios: one hero of each class", output, StringComparison.Ordinal);
-        Assert.Equal(6, output.Split('\n').Count(l => l.StartsWith("| bogging |", StringComparison.Ordinal) || l.StartsWith("| chilling |", StringComparison.Ordinal)
-            || l.StartsWith("| cracking |", StringComparison.Ordinal) || l.StartsWith("| electrifying |", StringComparison.Ordinal) || l.StartsWith("| fogging |", StringComparison.Ordinal)
-            || l.StartsWith("| blinding |", StringComparison.Ordinal)));
+        Assert.Equal(2, output.Split('\n').Count(l => l.StartsWith("| none |", StringComparison.Ordinal) || l.StartsWith("| Lightning |", StringComparison.Ordinal)));
     }
 
     [Fact]

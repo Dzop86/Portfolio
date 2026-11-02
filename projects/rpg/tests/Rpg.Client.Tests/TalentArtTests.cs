@@ -27,7 +27,8 @@ public class TalentArtTests
     {
         var credits = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Relief, "..", "credits.json")))!;
         string[] nodes = [.. Data.Talents.Keys, .. TreeLayout.TrunkLevels.Select(l => $"trunk-{l}")];
-        Assert.Equal(59, nodes.Length);
+        // 41 talents and the trunk's 3 rings since sprint 182 (D93): the 15 nodes of the elements gone, with their drawings.
+        Assert.Equal(44, nodes.Length);
         foreach (string id in nodes)
         {
             string path = ShapeOf(credits[id]);
@@ -49,10 +50,6 @@ public class TalentArtTests
     }
 
     [Theory]
-    [InlineData("heart-fire", "#ef4b4b")]
-    [InlineData("electrifying", "#f2d03b")]
-    [InlineData("bogging", "#8c7a3a")]
-    [InlineData("convert-lightning", "#f2d03b")]
     [InlineData("artillery", "#6bb8f2")]
     [InlineData("devotion", "#ff7eb6")]
     [InlineData("seal", "#c9a27f")]

@@ -28,9 +28,11 @@ public sealed record FightRecord(
     /// (sprint 161): a hero without a chosen deck fights with the automatic deck that grows after level 40; a record of
     /// version 2 or less replays with its first spells (<see cref="Hero.FirstSpells"/>). Version 4 (sprint 162, D85): a hero's
     /// element points past 3 × its level + 5 count a quarter (<see cref="Characteristics.Effective"/>); a record of version 3 or
-    /// less replays with the linear bonus.
+    /// less replays with the linear bonus. Version 5 (sprint 182, D93): every hero of level 30 or more sets the six reactions
+    /// off, no talent asked (<see cref="FighterSpec.Reacts"/>); a record of version 4 or less replays with the reactions of
+    /// its talents, which the tree no longer has: none.
     /// </summary>
-    public const int CurrentVersion = 4;
+    public const int CurrentVersion = 5;
 
     private static readonly JsonSerializerOptions Compact = new(GameData.Json) { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
@@ -72,7 +74,7 @@ public sealed record FightRecord(
         Fight fight;
         try
         {
-            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp, linearReturns: Version < 4);
+            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp, linearReturns: Version < 4, freeReactions: Version >= 5);
         }
         catch (ArgumentException e)
         {

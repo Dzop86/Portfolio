@@ -138,35 +138,43 @@ public static class Progression
 
     /// <summary>
     /// The reference builds of the talent tree (sprint 144, D80, docs/talents-arbre.md §4.5 and §7.3): for each class one
-    /// of Matter and one of Manner, and a support for the duos; the talents in the order they are taken, as the level's
-    /// points allow. Since sprint 146 (D82): Lightning through Electrifying and the Transmutation of Fire, the Conversion
-    /// taking its place at 45; two pairs share no element (Lightning goes with Mud, the Guard's "Rising Tide" is Ice and
-    /// Magma). Since sprint 147 (the graph, J4 b), nine: for each class one of Matter (the Lightning braid), one of Manner
-    /// (a pair and a style) and one of Pure element (a Heart and a style); the support opens on Mud.
+    /// of Matter, one of Manner and one of Pure element, and a support for the duos; the talents in the order they are
+    /// taken, as the level's points allow. Since sprint 182 (D93) the elements left the tree: Matter is Lightning created
+    /// on the Elements page (<see cref="BuildCompounds"/>) with a style of Tempo, Pure element the four base elements alone,
+    /// and no build opens on a pair any more (they are cut anew with the measure of sprint 183).
     /// </summary>
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Builds = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
     {
-        ["sentinel-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "bogging"],
-        ["sentinel-manner"] = ["bogging", "up-close", "firm-footing", "heavy-push", "close-quarters"],
-        ["sentinel-pure"] = ["heart-air", "long-sight", "tight-zone", "artillery"],
-        ["guard-matter"] = ["electrifying", "transmute-fire-lightning", "prism", "convert-lightning", "bogging"],
-        ["guard-manner"] = ["chilling", "cracking", "lasting-mark", "lingering-reaction", "shared-mark"],
-        ["guard-pure"] = ["heart-earth", "side-step", "backed", "seal", "scorched-earth"],
-        ["mage-matter"] = ["electrifying", "transmute-fire-lightning", "strong-signature", "prism", "convert-lightning", "first-gesture"],
-        ["mage-manner"] = ["fogging", "first-gesture", "heavy-blows", "tight-deck", "thrift"],
-        ["mage-pure"] = ["heart-fire", "side-step", "remanence", "scorched-earth"],
-        ["support"] = ["bogging", "helping-hand", "banner", "double-hand", "long-hand", "devotion"],
+        ["sentinel-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["sentinel-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
+        ["sentinel-pure"] = ["long-sight", "tight-zone", "artillery"],
+        ["guard-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["guard-manner"] = ["lasting-mark", "lingering-reaction", "shared-mark"],
+        ["guard-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
+        ["mage-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["mage-pure"] = ["side-step", "remanence", "scorched-earth"],
+        ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
+    };
+
+    /// <summary>The compounds a reference build creates (sprint 182, D93): Lightning for the builds of Matter, none for the others.</summary>
+    public static readonly IReadOnlyDictionary<string, IReadOnlyList<Element>> BuildCompounds = new Dictionary<string, IReadOnlyList<Element>>(StringComparer.Ordinal)
+    {
+        ["sentinel-matter"] = [Element.Lightning],
+        ["guard-matter"] = [Element.Lightning],
+        ["mage-matter"] = [Element.Lightning],
     };
 
     /// <summary>
-    /// A hero with a reference build's talents (sprint 144): each in turn if the tree's rules allow it at its level, its
-    /// deck the spells the talents give first (the twins, the tree's spells), then its class's, then built the simple way.
+    /// A hero with a reference build's talents (sprint 144) and its compounds (sprint 182): each talent in turn if the tree's
+    /// rules allow it at its level, its deck the spells the build gives first (the twins, the tree's spells), then its
+    /// class's, then built the simple way.
     /// </summary>
     public static Hero Talented(Hero hero, string build, GameData data, IReadOnlyDictionary<Slot, string>? worn = null) =>
-        Talented(hero, Builds[build], data, worn);
+        Talented(hero, Builds[build], data, worn, BuildCompounds.GetValueOrDefault(build));
 
-    /// <summary>A hero with these talents, taken as <see cref="Talented(Hero, string, GameData, IReadOnlyDictionary{Slot, string}?)"/> takes a build's.</summary>
-    public static Hero Talented(Hero hero, IReadOnlyList<string> build, GameData data, IReadOnlyDictionary<Slot, string>? worn = null)
+    /// <summary>A hero with these talents and compounds, taken as <see cref="Talented(Hero, string, GameData, IReadOnlyDictionary{Slot, string}?)"/> takes a build's.</summary>
+    public static Hero Talented(Hero hero, IReadOnlyList<string> build, GameData data, IReadOnlyDictionary<Slot, string>? worn = null, IReadOnlyList<Element>? compounds = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(build);
@@ -174,11 +182,11 @@ public static class Progression
         var talents = new List<string>();
         foreach (string id in build)
         {
-            // A Conversion takes the place of its Transmutation (sprint 146).
-            if (Talents.With(talents, id, data) is var after && Talents.Problem(after, hero.Level, data) is null)
-                talents = after;
+            if (Talents.Problem([.. talents, id], hero.Level, data) is null)
+                talents.Add(id);
         }
-        Hero talented = hero with { Talents = talents, Deck = null };
+        Element[] created = [.. (compounds ?? []).Where(e => hero.Level >= Elements.CreatedFrom(e))];
+        Hero talented = hero with { Talents = talents, Compounds = created.Length == 0 ? null : created, Deck = null };
         Grimoire grimoire = Talents.GrimoireOf(talented, data);
         string[] deck = [.. grimoire.Spells.Where(id => !(data.Class(hero.Class)?.Spells.Contains(id) ?? false)), .. grimoire.Spells.Where(id => data.Class(hero.Class)?.Spells.Contains(id) ?? false)];
         return Built(talented with { Deck = [.. deck.Take(talented.DeckLimit(data))] }, data, worn);

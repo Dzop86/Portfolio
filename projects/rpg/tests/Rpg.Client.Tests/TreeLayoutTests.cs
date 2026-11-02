@@ -7,7 +7,7 @@ namespace Rpg.Client.Tests;
 /// §4.2 and §7): every node on its line, in its lane, above its parents, none overlapping another, at its size; the lanes in
 /// their order; on a corpus of drafts, wood that never crosses and lives only where it leads to a node taken; the window
 /// framed on the build; a neighbour for the keyboard each way there is one; the five states on a tree of each; the draft
-/// undone, what a save would gain and lose.
+/// undone, what a save would gain and lose. Since sprint 182 (D93), no doors: six lanes over the trunk.
 /// </summary>
 public class TreeLayoutTests
 {
@@ -16,7 +16,7 @@ public class TreeLayoutTests
 
     /// <summary>
     /// The corpus (docs/arbre-lisible.md §4.2): the empty tree at 30, the reference builds at 45, 60 and 100, and 300 drafts
-    /// drawn from every door at 30, 45, 60 and 100.
+    /// drawn at 30, 45, 60 and 100.
     /// </summary>
     private static IEnumerable<(IReadOnlyList<string> Taken, int Level)> Corpus()
     {
@@ -25,12 +25,11 @@ public class TreeLayoutTests
             foreach (int level in new[] { 45, 60, 100 })
                 yield return (build, level);
         var rng = new Random(176);
-        string[] doors = [.. Data.Talents.Values.Where(t => t.IsFork).Select(t => t.Id)];
         int[] levels = [30, 45, 60, 100];
         for (int i = 0; i < 300; i++)
         {
             int level = levels[i % levels.Length];
-            yield return (TreeDraws.Random(doors[i % doors.Length], level, rng, Data), level);
+            yield return (TreeDraws.Random(level, rng, Data), level);
         }
     }
 
@@ -56,13 +55,10 @@ public class TreeLayoutTests
             foreach (string parent in (t.Requires ?? []).Concat(t.RequiresAny ?? []))
                 Assert.True(n.Box.CenterY < Layout[parent]!.Box.CenterY, $"{n.Id} under {parent}");
         }
-        // The Fusion over Lightning; the Conversion on the first floor with the Transmutations it excludes.
-        Assert.InRange(Math.Abs(Layout.Columns[Branch.Braids].CenterX - Layout["electrifying"]!.Box.CenterX), 0, 60);
-        Assert.Equal(TreeRow.First, TreeLayout.RowOf(Data.Talents["convert-lightning"]));
-        Assert.Equal(TreeRow.Second, TreeLayout.RowOf(Data.Talents["prism"]));
-        // Read bottom up: the trunk, the doors, the floors, the keys.
-        Assert.True(Layout["trunk:40"]!.Box.Y > Layout["bogging"]!.Box.Y && Layout["bogging"]!.Box.Y > Layout["side-step"]!.Box.Y
+        // Read bottom up: the trunk, the floors, the keys; the trunk under the lanes' middle.
+        Assert.True(Layout["trunk:40"]!.Box.Y > Layout["side-step"]!.Box.Y
             && Layout["side-step"]!.Box.Y > Layout["seal"]!.Box.Y && Layout["seal"]!.Box.Y > Layout["nomad"]!.Box.Y);
+        Assert.Equal((Layout.Columns.Values.Min(c => c.X) + Layout.Columns.Values.Max(c => c.X + c.W)) / 2, Layout["trunk:30"]!.Box.CenterX, 0.01f);
         Assert.True(Layout["trunk:30"]!.Box.Y > Layout["trunk:40"]!.Box.Y);
     }
 
@@ -70,14 +66,14 @@ public class TreeLayoutTests
     public void ThePairsOfEachBranch_AreTheNonEmptyLineUnderIt()
     {
         // G4: the data's shape the wood relies on: a node asks for any node of the non-empty line under it in its branch
-        // (the doors for a first floor; Lightning for the Fusion's first, which asks it outright).
-        foreach (TalentSpec t in Data.Talents.Values.Where(t => !t.IsFork))
+        // (a first floor for nothing, since sprint 182).
+        foreach (TalentSpec t in Data.Talents.Values)
         {
             TreeRow row = TreeLayout.RowOf(t);
             string[] parents = [.. (t.Requires ?? []).Concat(t.RequiresAny ?? []).Order(StringComparer.Ordinal)];
-            TreeRow under = Enum.GetValues<TreeRow>().Where(r => r < row && r > TreeRow.Doors && Data.Talents.Values.Any(o => o.Branch == t.Branch && TreeLayout.RowOf(o) == r)).DefaultIfEmpty(TreeRow.Doors).Max();
-            if (under == TreeRow.Doors)
-                Assert.All(parents, p => Assert.True(Data.Talents[p].IsFork, $"{t.Id} asks {p}"));
+            TreeRow under = Enum.GetValues<TreeRow>().Where(r => r < row && r > TreeRow.Trunk && Data.Talents.Values.Any(o => o.Branch == t.Branch && TreeLayout.RowOf(o) == r)).DefaultIfEmpty(TreeRow.Trunk).Max();
+            if (under == TreeRow.Trunk)
+                Assert.Empty(parents);
             else
                 Assert.Equal(Data.Talents.Values.Where(o => o.Branch == t.Branch && TreeLayout.RowOf(o) == under).Select(o => o.Id).Order(StringComparer.Ordinal), parents);
         }
@@ -95,27 +91,21 @@ public class TreeLayoutTests
         Assert.All(boxes, b => Assert.True(b.Inside(Layout.Width, Layout.Height), b.ToString()));
         Assert.All(Layout.Nodes, n => Assert.True(n.Box.W >= 44 && n.Box.H >= 44, n.Id));
         Assert.All(Layout.Nodes, n => Assert.Equal(n.IsTrunk ? TreeLayout.Ring : TreeLayout.SizeOf(Data.Talents[n.Id]), n.Box.W));
-        Assert.Equal(TreeLayout.Heart, Layout["heart-fire"]!.Box.W);
         Assert.Equal(TreeLayout.Large, Layout["nomad"]!.Box.W);
-        // About 1 760 × 780 (§7.4).
-        Assert.InRange(Layout.Width, 1500, 2000);
-        Assert.InRange(Layout.Height, 700, 820);
+        Assert.Equal(TreeLayout.Small, Layout["seal"]!.Box.W);
+        // Since sprint 182, the six lanes over the trunk, without the doors' line nor the Fusion's lane.
+        Assert.InRange(Layout.Width, 1200, 1800);
+        Assert.InRange(Layout.Height, 560, 720);
     }
 
     [Fact]
-    public void TheLanes_KeepTheirOrder_AndTheCouplesStandSideBySide()
+    public void TheLanes_KeepTheirOrder()
     {
-        // G9: the seven lanes left to right, nothing reordered by what is taken (the layout knows nothing of it).
+        // G9: the six lanes left to right, nothing reordered by what is taken (the layout knows nothing of it).
+        Assert.Equal([Branch.Alchemy, Branch.Melee, Branch.Distance, Branch.Tempo, Branch.Terrain, Branch.Support], Layout.Columns.OrderBy(c => c.Value.X).Select(c => c.Key));
         Assert.Equal(TreeLayout.Branches, Layout.Columns.OrderBy(c => c.Value.X).Select(c => c.Key));
         Assert.Equal(Layout.Nodes, new TreeLayout(Data).Nodes);
-        TreeNode[] row = [.. Layout.Nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure).OrderBy(n => n.Box.X)];
-        Assert.Equal(TreeLayout.Pairs, row.Take(6).Select(n => n.Id));
-        Assert.All(row.Skip(6), n => Assert.Equal(Branch.Pure, n.Branch));
-        // Inside a couple, closer than between two couples (C7).
-        float Gap(int i) => row[i + 1].Box.X - (row[i].Box.X + row[i].Box.W);
-        Assert.True(Gap(0) < Gap(1) && Gap(2) < Gap(3) && Gap(4) < Gap(5));
-        foreach ((string a, string b) in new[] { ("electrifying", "bogging"), ("chilling", "cracking"), ("fogging", "blinding") })
-            Assert.Null(Talents.Problem([a, b], 35, Data));
+        Assert.DoesNotContain(Layout.Nodes, n => n.Shape == NodeShape.Trunk && n.IsTalent);
     }
 
     [Fact]
@@ -156,45 +146,41 @@ public class TreeLayoutTests
     [Fact]
     public void TheWood_IsAlive_OnlyWhereItLeadsToANodeTaken()
     {
-        // G11: an empty tree has no living wood but its trunk; each door taken its stem; an axis alive up to its last line taken.
+        // G11: an empty tree has no living wood but its trunk; a limb to each lane; an axis alive up to its last line taken.
         Assert.All(Layout.Wood([], StateOf([], 30)), p => Assert.True(p.Kind == WoodKind.Trunk || p.Life != WoodLife.Alive, p.ToString()));
-        Assert.DoesNotContain(Layout.Wood([], StateOf([], 30)), p => p.Kind == WoodKind.Stem);
+        Assert.Equal(TreeLayout.Branches.Count, Layout.Wood([], StateOf([], 30)).Count(p => p.Kind == WoodKind.Limb));
         foreach ((IReadOnlyList<string> taken, int level) in Corpus())
         {
             Func<TreeNode, NodeState?> state = StateOf(taken, level);
             IReadOnlyList<WoodPiece> wood = Layout.Wood(taken, state);
             Assert.All(wood, p => Assert.Equal(p.Leads.Any(taken.Contains) || (p.Kind == WoodKind.Trunk && p.Leads.Any(id => state(Layout[id]!) == NodeState.Taken)), p.Life == WoodLife.Alive));
-            Assert.Equal(taken.Count(id => Data.Talents[id].IsFork), wood.Count(p => p.Kind == WoodKind.Stem));
         }
-        string[] seal = ["bogging", "side-step", "seal"];
+        string[] seal = ["side-step", "seal"];
         IReadOnlyList<WoodPiece> terrain = Layout.Wood(seal, StateOf(seal, 45));
         WoodPiece Axis(TreeRow row) => terrain.Single(p => p.Kind == WoodKind.Axis && p.Points[^1].X == Layout.AxisX(Branch.Terrain) && p.Points[^1].Y == TreeLayout.RowY(row));
         Assert.Equal(WoodLife.Alive, Axis(TreeRow.First).Life);
         Assert.Equal(WoodLife.Alive, Axis(TreeRow.Second).Life);
         Assert.Equal(WoodLife.Reachable, Axis(TreeRow.Key).Life);
-        // A style nothing of which is taken is reachable from a door taken, bare without one (Alchemy asks a pair).
+        // A style nothing of which is taken is reachable (its first floor open), bare when the points are all spent... still
+        // reachable: a node short of points stays open (§2.6).
         Assert.Equal(WoodLife.Reachable, terrain.Single(p => p.Kind == WoodKind.Limb && p.Points[^1].X == Layout.AxisX(Branch.Melee)).Life);
-        string[] heart = ["heart-fire"];
-        Assert.Equal(WoodLife.Bare, Layout.Wood(heart, StateOf(heart, 45)).Single(p => p.Kind == WoodKind.Limb && p.Points[^1].X == Layout.AxisX(Branch.Alchemy)).Life);
+        Assert.Equal(WoodLife.Bare, Layout.Wood([], StateOf([], 29)).Single(p => p.Kind == WoodKind.Limb && p.Points[^1].X == Layout.AxisX(Branch.Alchemy)).Life);
     }
 
     [Fact]
     public void TheSap_RunsUpThePathToTheNodeUnderTheMouse_AndRedOnlyWhenGivingBack()
     {
-        // Sprint 177 (A5): from an empty tree, the path to Nomad goes through a door, Terrain's first and second floors.
+        // Sprint 177 (A5): from an empty tree, the path to Nomad goes through Terrain's first and second floors.
         IReadOnlyList<string> path = TreePlan.Path([], "nomad", Data)!;
         IReadOnlyList<WoodPiece> wood = Layout.Wood([], StateOf([], 45), path);
-        string door = path.Single(id => Data.Talents[id].IsFork);
-        Assert.Contains(wood, p => p.Kind == WoodKind.Stem && p.Sap && p.Leads.Contains(door));
-        Assert.Contains(wood, p => p.Kind == WoodKind.Root && p.Sap && p.Leads.Contains(door));
         Assert.Contains(wood, p => p.Kind == WoodKind.Limb && p.Sap && p.Leads.Contains("nomad"));
         Assert.Equal(3, wood.Count(p => p.Kind == WoodKind.Axis && p.Sap));
-        // Nothing of another branch, nor the twigs right of Nomad on its line.
-        Assert.DoesNotContain(wood, p => p.Sap && p.Leads.All(id => Layout[id]!.Branch is Branch.Melee or Branch.Braids));
+        // Nothing of another branch alone, nor the twigs right of Nomad on its line.
+        Assert.DoesNotContain(wood, p => p.Sap && p.Leads.All(id => Layout[id]!.Branch is Branch.Melee));
         Assert.All(wood.Where(p => p.Kind == WoodKind.Twig && p.Sap), p => Assert.Contains(p.Leads, path.Contains));
         // Without a path, no sap; without a giving back asked, nothing lost; asked, the wood of what goes.
         Assert.DoesNotContain(Layout.Wood([], StateOf([], 45)), p => p.Sap);
-        string[] seal = ["bogging", "side-step", "seal"];
+        string[] seal = ["side-step", "seal"];
         IReadOnlyList<WoodPiece> built = Layout.Wood(seal, StateOf(seal, 45));
         Assert.DoesNotContain(built, p => TreeLayout.Lost(p, seal, []));
         WoodPiece[] lost = [.. built.Where(p => TreeLayout.Lost(p, seal, ["seal"]))];
@@ -205,17 +191,16 @@ public class TreeLayoutTests
     [Fact]
     public void Hovering_SaysWhatTakingANodeWouldClose()
     {
-        // Sprint 177 (A6): a pair closes the pairs sharing one of its elements, a Heart the other Hearts; a taken node nothing.
-        IReadOnlyList<string> door = TreePlan.Closes([], "bogging", Data);
-        Assert.Contains("chilling", door);
-        Assert.DoesNotContain("bogging", door);
-        Assert.DoesNotContain("heart-fire", door);
-        Assert.Equal(["heart-air", "heart-earth", "heart-water"], TreePlan.Closes([], "heart-fire", Data).Where(id => Data.Talents[id].Branch == Branch.Pure));
-        Assert.Empty(TreePlan.Closes(["bogging"], "bogging", Data));
-        Assert.All(door, id => Assert.NotEqual(NodeState.Excluded, TreeLayout.State([], id, Hero.MaxLevel, Data)));
+        // Sprint 177 (A6): a node closes what it excludes (Heavy Blows, Light Blows), a key the other keys of its style; a taken node nothing.
+        IReadOnlyList<string> blows = TreePlan.Closes([], "heavy-blows", Data);
+        Assert.Contains("light-blows", blows);
+        Assert.DoesNotContain("heavy-blows", blows);
+        Assert.Empty(TreePlan.Closes(["heavy-blows"], "heavy-blows", Data));
+        Assert.All(blows, id => Assert.NotEqual(NodeState.Excluded, TreeLayout.State([], id, Hero.MaxLevel, Data)));
         // Each closed node is closed once the path is taken.
-        string[] seal = ["bogging", "side-step"];
+        string[] seal = ["side-step"];
         IReadOnlyList<string> key = TreePlan.Closes(seal, "nomad", Data);
+        Assert.NotEmpty(key);
         string[] after = [.. seal, .. TreePlan.Path(seal, "nomad", Data)!];
         Assert.All(key, id => Assert.Equal(NodeState.Excluded, TreeLayout.State(after, id, Hero.MaxLevel, Data)));
     }
@@ -232,21 +217,18 @@ public class TreeLayoutTests
     }
 
     [Fact]
-    public void TheWindow_OpensOnTheBuild_ElseOnTheDoorsTrunkAndFirstFloor()
+    public void TheWindow_OpensOnTheBuild_ElseOnTheTrunkAndFirstFloor()
     {
         IReadOnlyList<Box> start = Layout.Build([], StateOf([], 30));
-        Assert.Contains(Layout["bogging"]!.Box, start);
         Assert.Contains(Layout["trunk:30"]!.Box, start);
         Assert.Contains(Layout["side-step"]!.Box, start);
         Assert.DoesNotContain(Layout["seal"]!.Box, start);
-        string[] seal = ["bogging", "side-step", "seal"];
+        string[] seal = ["side-step", "seal"];
         IReadOnlyList<Box> built = Layout.Build(seal, StateOf(seal, 45));
         Assert.All(seal, id => Assert.Contains(Layout[id]!.Box, built));
         Assert.Contains(Layout["nomad"]!.Box, built);
-        Assert.DoesNotContain(Layout["chilling"]!.Box, built);
-        // The other styles' first floors, open from the door, are not the build; a door alone frames like an empty tree.
+        // The other styles' first floors, open too, are not the build.
         Assert.DoesNotContain(Layout["up-close"]!.Box, built);
-        Assert.Equal(start.Count, Layout.Build(["bogging"], StateOf(["bogging"], 45)).Count);
     }
 
     [Fact]
@@ -282,18 +264,17 @@ public class TreeLayoutTests
     [Fact]
     public void EachState_OnATreeOfIt()
     {
-        string[] taken = ["bogging", "side-step"];
-        Assert.Equal(NodeState.Taken, TreeLayout.State(taken, "bogging", 40, Data));
+        string[] taken = ["heavy-blows", "side-step"];
+        Assert.Equal(NodeState.Taken, TreeLayout.State(taken, "side-step", 40, Data));
         Assert.Equal(NodeState.Open, TreeLayout.State(taken, "seal", 40, Data));
-        // A parent missing, a door missing: locked.
+        Assert.Equal(NodeState.Open, TreeLayout.State([], "up-close", 40, Data));
+        // A parent missing: locked.
         Assert.Equal(NodeState.Locked, TreeLayout.State(taken, "heavy-push", 40, Data));
-        Assert.Equal(NodeState.Locked, TreeLayout.State([], "up-close", 40, Data));
-        // A pair sharing the Water of Mud, a Heart besides one: excluded.
-        Assert.Equal(NodeState.Excluded, TreeLayout.State(taken, "chilling", 40, Data));
-        Assert.Equal(NodeState.Excluded, TreeLayout.State(["heart-fire"], "heart-air", 40, Data));
+        // What a node taken excludes: excluded.
+        Assert.Equal(NodeState.Excluded, TreeLayout.State(taken, "light-blows", 40, Data));
         // A key before 45, the tree before 30: out of level.
-        Assert.Equal(NodeState.Level, TreeLayout.State(["bogging", "side-step", "seal"], "nomad", 44, Data));
-        Assert.Equal(NodeState.Level, TreeLayout.State([], "bogging", 29, Data));
+        Assert.Equal(NodeState.Level, TreeLayout.State(["side-step", "seal"], "nomad", 44, Data));
+        Assert.Equal(NodeState.Level, TreeLayout.State([], "side-step", 29, Data));
         // The trunk, lit from its level on.
         Assert.Equal(NodeState.Level, TreeLayout.TrunkState(35, 34));
         Assert.Equal(NodeState.Taken, TreeLayout.TrunkState(35, 35));
@@ -304,26 +285,24 @@ public class TreeLayoutTests
     {
         // Sprint 164, É1 (docs/arbre-lisible.md §2.6): locked and out of level both "not yet", excluded "closed".
         Assert.Equal([NodeLook.Taken, NodeLook.Open, NodeLook.NotYet, NodeLook.Closed, NodeLook.NotYet], Enum.GetValues<NodeState>().Select(TreeLayout.Look));
-        // The two points of 30 spent on two doors: the floor over them, refused for points only, stays open (the tree no
-        // longer goes dark once everything is spent; the counter and a click say the points are missing).
-        Assert.Equal(RefusalKind.Points, TalentReasons.WhyNot(["bogging", "heart-earth"], "side-step", 30, Data)?.Kind);
-        Assert.Equal(NodeState.Open, TreeLayout.State(["bogging", "heart-earth"], "side-step", 30, Data));
+        // The point of 30 spent: another first floor, refused for points only, stays open (the tree no longer goes dark
+        // once everything is spent; the counter and a click say the points are missing).
+        Assert.Equal(RefusalKind.Points, TalentReasons.WhyNot(["up-close"], "side-step", 30, Data)?.Kind);
+        Assert.Equal(NodeState.Open, TreeLayout.State(["up-close"], "side-step", 30, Data));
     }
 
     [Fact]
-    public void TheKeyboard_StartsOnThePairTaken_ElseTheTrunk()
+    public void TheKeyboard_StartsOnTheFirstTalentTaken_ElseTheTrunk()
     {
         Assert.Equal("trunk:30", Layout.Start([], Data));
-        Assert.Equal("heart-fire", Layout.Start(Progression.Builds["mage-pure"], Data));
-        // With two pairs, the one whose braid has the most nodes (K4 a).
-        Assert.Equal("electrifying", Layout.Start(["bogging", "electrifying", "transmute-fire-lightning"], Data));
-        Assert.Equal("bogging", Layout.Start(["bogging", "electrifying"], Data));
+        Assert.Equal("side-step", Layout.Start(Progression.Builds["mage-pure"], Data));
+        Assert.Equal("trunk:30", Layout.Start(["gone"], Data));
     }
 
     [Fact]
     public void TheDraft_IsUndone_AndWhatASaveChangesIsSaid()
     {
-        var hero = new Hero("Ondine", "female-a", "sentinel", Level: 45, Talents: ["bogging", "side-step", "seal"]);
+        var hero = new Hero("Ondine", "female-a", "sentinel", Level: 45, Talents: ["side-step", "seal"]);
         var editor = new PointsEditor(hero, Data);
         Assert.False(editor.TalentsChanged);
         Assert.Empty(new Texts("fr").TreeDiff(editor));

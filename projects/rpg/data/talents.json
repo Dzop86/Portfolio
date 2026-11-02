@@ -1,499 +1,5 @@
 [
   {
-    "id": "bogging",
-    "name": {
-      "fr": "Enlisement",
-      "en": "Bogging"
-    },
-    "description": {
-      "fr": "Frapper en Terre un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par la Terre, le rend Enlisé : −2 PM pendant 1 tour. Il faut deux éléments dans son deck.",
-      "en": "Striking in Earth an enemy marked by Water, or in Water one marked by Earth, leaves it Bogged: −2 MP for 1 turn. It takes two elements in one's deck."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et l'Eau ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Earth and Water can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "Ce que l'eau mouille, la terre le retient.",
-      "en": "What water soaks, earth holds fast."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "bogged"
-      }
-    ],
-    "icon": "delapouite/swamp"
-  },
-  {
-    "id": "chilling",
-    "name": {
-      "fr": "Transissement",
-      "en": "Chilling"
-    },
-    "description": {
-      "fr": "Frapper en Eau un ennemi marqué par l'Air, ou en Air un ennemi marqué par l'Eau, le rend Transi : −2 PA pendant 1 tour.",
-      "en": "Striking in Water an enemy marked by Air, or in Air one marked by Water, leaves it Chilled: −2 AP for 1 turn."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; l'Eau et l'Air ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Water and Air can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "Le vent passe sur l'eau, et l'eau se fige.",
-      "en": "Wind skims the water, and the water sets hard."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "chilled"
-      }
-    ],
-    "icon": "lorc/frozen-orb"
-  },
-  {
-    "id": "cracking",
-    "name": {
-      "fr": "Fêlure",
-      "en": "Cracking"
-    },
-    "description": {
-      "fr": "Frapper en Terre un ennemi marqué par le Feu, ou en Feu un ennemi marqué par la Terre, le rend Fêlé : −15 % de résistance à tous les éléments pendant 2 tours.",
-      "en": "Striking in Earth an enemy marked by Fire, or in Fire one marked by Earth, leaves it Cracked: −15% resistance to every element for 2 turns."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et le Feu ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Earth and Fire can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "La pierre chauffée trop vite se fend.",
-      "en": "Stone heated too fast will split."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "cracked"
-      }
-    ],
-    "icon": "sbed/lava"
-  },
-  {
-    "id": "electrifying",
-    "name": {
-      "fr": "Électrisation",
-      "en": "Electrifying"
-    },
-    "description": {
-      "fr": "Frapper en Feu un ennemi marqué par l'Air, ou en Air un ennemi marqué par le Feu, le rend Électrisé : pendant 1 tour, 35 % de chaque coup qu'il reçoit sautent sur l'ennemi le plus proche.",
-      "en": "Striking in Fire an enemy marked by Air, or in Air one marked by Fire, leaves it Electrified: for 1 turn, 35% of every hit it takes jumps to the nearest enemy."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; le Feu et l'Air ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Fire and Air can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "Le feu qui court dans l'air ne choisit pas où il tombe.",
-      "en": "Fire running through the air does not choose where it falls."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "electrified"
-      }
-    ],
-    "icon": "lorc/lightning-arc"
-  },
-  {
-    "id": "fogging",
-    "name": {
-      "fr": "Buée",
-      "en": "Fogging"
-    },
-    "description": {
-      "fr": "Frapper en Feu un ennemi marqué par l'Eau, ou en Eau un ennemi marqué par le Feu, le rend Embué : −25 % de dégâts infligés pendant 1 tour.",
-      "en": "Striking in Fire an enemy marked by Water, or in Water one marked by Fire, leaves it Fogged: −25% damage dealt for 1 turn."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; le Feu et l'Eau ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Fire and Water can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "Entre le feu et l'eau, il reste une buée où l'on se perd.",
-      "en": "Between fire and water hangs a mist to lose your way in."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "fogged"
-      }
-    ],
-    "icon": "delapouite/steam"
-  },
-  {
-    "id": "blinding",
-    "name": {
-      "fr": "Poudroiement",
-      "en": "Blinding"
-    },
-    "description": {
-      "fr": "Frapper en Terre un ennemi marqué par l'Air, ou en Air un ennemi marqué par la Terre, le rend Aveuglé : −2 PO à ses sorts pendant 1 tour.",
-      "en": "Striking in Earth an enemy marked by Air, or in Air one marked by Earth, leaves it Blinded: −2 range on its spells for 1 turn."
-    },
-    "counterpart": {
-      "fr": "Ni sort ni bonus, seulement la réaction ; la Terre et l'Air ne peuvent plus entrer dans une autre paire.",
-      "en": "No spell, no bonus, only the reaction; Earth and Air can no longer go into another pair."
-    },
-    "lore": {
-      "fr": "Une poignée de poussière au vent, et l'archer ne voit plus.",
-      "en": "A handful of dust on the wind, and the archer sees no more."
-    },
-    "branch": "Fork",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "reaction",
-        "reaction": "blinded"
-      }
-    ],
-    "icon": "lorc/sands-of-time"
-  },
-  {
-    "id": "heart-earth",
-    "name": {
-      "fr": "Cœur : Terre",
-      "en": "Heart: Earth"
-    },
-    "description": {
-      "fr": "Tes sorts de Terre frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
-      "en": "Your Earth spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
-    },
-    "counterpart": {
-      "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other elemental spells deal 5% less damage."
-    },
-    "lore": {
-      "fr": "Un seul sol sous les pieds, et l'on ne tombe plus.",
-      "en": "One ground beneath your feet, and you never fall."
-    },
-    "branch": "Pure",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "element",
-        "element": "Earth",
-        "percent": 10,
-        "others": -5
-      }
-    ],
-    "excludes": [
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
-    "icon": "lorc/stone-sphere"
-  },
-  {
-    "id": "heart-fire",
-    "name": {
-      "fr": "Cœur : Feu",
-      "en": "Heart: Fire"
-    },
-    "description": {
-      "fr": "Tes sorts de Feu frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
-      "en": "Your Fire spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
-    },
-    "counterpart": {
-      "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other elemental spells deal 5% less damage."
-    },
-    "lore": {
-      "fr": "Une flamme qu'on nourrit seule brûle plus haut.",
-      "en": "A flame fed alone burns higher."
-    },
-    "branch": "Pure",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "element",
-        "element": "Fire",
-        "percent": 10,
-        "others": -5
-      }
-    ],
-    "excludes": [
-      "heart-earth",
-      "heart-water",
-      "heart-air"
-    ],
-    "icon": "lorc/fire-ring"
-  },
-  {
-    "id": "heart-water",
-    "name": {
-      "fr": "Cœur : Eau",
-      "en": "Heart: Water"
-    },
-    "description": {
-      "fr": "Tes sorts d'Eau frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
-      "en": "Your Water spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
-    },
-    "counterpart": {
-      "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other elemental spells deal 5% less damage."
-    },
-    "lore": {
-      "fr": "Goutte après goutte, au même endroit, l'eau creuse la roche.",
-      "en": "Drop by drop, always in the same place, water wears through stone."
-    },
-    "branch": "Pure",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "element",
-        "element": "Water",
-        "percent": 10,
-        "others": -5
-      }
-    ],
-    "excludes": [
-      "heart-earth",
-      "heart-fire",
-      "heart-air"
-    ],
-    "icon": "lorc/drop"
-  },
-  {
-    "id": "heart-air",
-    "name": {
-      "fr": "Cœur : Air",
-      "en": "Heart: Air"
-    },
-    "description": {
-      "fr": "Tes sorts d'Air frappent 10 % plus fort, tes autres sorts d'élément 5 % moins fort. La porte de l'Élément pur : elle ouvre les styles sans paire et ne prend aucun élément. Un choix : un seul Cœur.",
-      "en": "Your Air spells hit 10% harder, your other element spells 5% softer. The door of Pure element: it opens the styles without a pair and takes no element. A choice: one Heart only."
-    },
-    "counterpart": {
-      "fr": "Tes autres sorts d'élément frappent 5 % moins fort.",
-      "en": "Your other elemental spells deal 5% less damage."
-    },
-    "lore": {
-      "fr": "Le vent d'une seule direction pousse plus loin.",
-      "en": "A wind from one quarter only carries further."
-    },
-    "branch": "Pure",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "element",
-        "element": "Air",
-        "percent": 10,
-        "others": -5
-      }
-    ],
-    "excludes": [
-      "heart-earth",
-      "heart-fire",
-      "heart-water"
-    ],
-    "icon": "lorc/whirlwind"
-  },
-  {
-    "id": "transmute-fire-lightning",
-    "name": {
-      "fr": "Transmutation : Feu → Foudre",
-      "en": "Transmutation: Fire → Lightning"
-    },
-    "description": {
-      "fr": "Tes sorts de Feu deviennent leurs jumeaux de Foudre, qui frappent sur la plus haute de tes caractéristiques de Feu et d'Air. En échange, tu perds le Feu : plus d'empreinte de Feu ni de réaction qui le demande, aucun bonus de dégâts ; Électrisé ne se déclenche plus, sauf avec Prisme. Un choix : Transmutation du Feu ou de l'Air, pas les deux. Demande Électrisation ; la Conversion la remplace, et le point revient.",
-      "en": "Your Fire spells become their Lightning twins, which strike on the higher of your Fire and Air characteristics. In exchange, you lose Fire: no more Fire mark nor any reaction that needs it, no damage bonus; Electrified no longer goes off, unless with Prism. A choice: the Transmutation of Fire or of Air, not both. Asks for Electrifying; the Conversion replaces it, and the point comes back."
-    },
-    "counterpart": {
-      "fr": "Tu perds le Feu, son empreinte et ses réactions, sans aucun bonus de dégâts ; Électrisé ne se déclenche plus, sauf avec Prisme.",
-      "en": "You lose Fire, its mark and its reactions, with no damage bonus; Electrified no longer goes off unless you have Prism."
-    },
-    "lore": {
-      "fr": "La flamme apprend à courir sans bois.",
-      "en": "The flame learns to run without wood."
-    },
-    "branch": "Braids",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "transmute",
-        "from": "Fire",
-        "to": "Lightning"
-      }
-    ],
-    "excludes": [
-      "transmute-air-lightning",
-      "convert-lightning"
-    ],
-    "requires": [
-      "electrifying"
-    ],
-    "icon": "lorc/fire-ray"
-  },
-  {
-    "id": "transmute-air-lightning",
-    "name": {
-      "fr": "Transmutation : Air → Foudre",
-      "en": "Transmutation: Air → Lightning"
-    },
-    "description": {
-      "fr": "Tes sorts d'Air deviennent leurs jumeaux de Foudre, qui frappent sur la plus haute de tes caractéristiques de Feu et d'Air. En échange, tu perds l'Air : plus d'empreinte d'Air ni de réaction qui le demande, aucun bonus de dégâts ; Électrisé ne se déclenche plus, même avec Prisme (il ne pose que l'empreinte du Feu). Un choix : Transmutation du Feu ou de l'Air, pas les deux. Demande Électrisation ; la Conversion la remplace, et le point revient.",
-      "en": "Your Air spells become their Lightning twins, which strike on the higher of your Fire and Air characteristics. In exchange, you lose Air: no more Air mark nor any reaction that needs it, no damage bonus; Electrified no longer goes off, even with Prism (it leaves only Fire's mark). A choice: the Transmutation of Fire or of Air, not both. Asks for Electrifying; the Conversion replaces it, and the point comes back."
-    },
-    "counterpart": {
-      "fr": "Tu perds l'Air, son empreinte et ses réactions, sans aucun bonus de dégâts ; Électrisé ne se déclenche plus, même avec Prisme.",
-      "en": "You lose Air, its mark and its reactions, with no damage bonus; Electrified no longer goes off, even with Prism."
-    },
-    "lore": {
-      "fr": "Le vent se serre jusqu'à mordre.",
-      "en": "The wind tightens until it bites."
-    },
-    "branch": "Braids",
-    "tier": "First",
-    "rules": [
-      {
-        "kind": "transmute",
-        "from": "Air",
-        "to": "Lightning"
-      }
-    ],
-    "excludes": [
-      "transmute-fire-lightning",
-      "convert-lightning"
-    ],
-    "requires": [
-      "electrifying"
-    ],
-    "icon": "lorc/lightning-storm"
-  },
-  {
-    "id": "strong-signature",
-    "name": {
-      "fr": "Signature appuyée",
-      "en": "Pressed Signature"
-    },
-    "description": {
-      "fr": "Les signatures de tes sorts composés valent 50 % de plus (l'Arc passe de 35 à 52 %) ; en échange, tes sorts composés font 10 % de dégâts directs en moins. Demande une Transmutation ou la Conversion.",
-      "en": "The signatures of your compound spells are worth 50% more (the Arc goes from 35 to 52%); in exchange, your compound spells deal 10% less direct damage. Asks for a Transmutation or the Conversion."
-    },
-    "counterpart": {
-      "fr": "Tes sorts composés font 10 % de dégâts directs en moins.",
-      "en": "Your compound spells deal 10% less direct damage."
-    },
-    "lore": {
-      "fr": "On reconnaît la main à la trace qu'elle laisse.",
-      "en": "You can tell a hand by the trace it leaves."
-    },
-    "branch": "Braids",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "signature",
-        "percent": 50
-      },
-      {
-        "kind": "compound",
-        "percent": -10
-      }
-    ],
-    "requiresAny": [
-      "transmute-fire-lightning",
-      "transmute-air-lightning",
-      "convert-lightning"
-    ],
-    "icon": "lorc/quill-ink"
-  },
-  {
-    "id": "prism",
-    "name": {
-      "fr": "Prisme",
-      "en": "Prism"
-    },
-    "description": {
-      "fr": "Tes coups de paire posent l'empreinte de leur premier parent : la Foudre pose celle du Feu. Ils ne déclenchent toujours aucune réaction. Demande une Transmutation ou la Conversion.",
-      "en": "Your pair hits leave the mark of their first parent: Lightning leaves Fire's. They still set off no reaction. Asks for a Transmutation or the Conversion."
-    },
-    "counterpart": {
-      "fr": "Ces coups posent une empreinte, mais n'en déclenchent aucune.",
-      "en": "Those hits leave a mark but never set one off."
-    },
-    "lore": {
-      "fr": "Dans la lumière la plus blanche, une couleur reste.",
-      "en": "In the whitest light, one colour remains."
-    },
-    "branch": "Braids",
-    "tier": "Second",
-    "rules": [
-      {
-        "kind": "prism"
-      }
-    ],
-    "requiresAny": [
-      "transmute-fire-lightning",
-      "transmute-air-lightning",
-      "convert-lightning"
-    ],
-    "icon": "delapouite/prism"
-  },
-  {
-    "id": "convert-lightning",
-    "name": {
-      "fr": "Conversion : Foudre",
-      "en": "Conversion: Lightning"
-    },
-    "description": {
-      "fr": "Tu perds tes 8 sorts de Feu et d'Air et tu gagnes les 8 sorts de Foudre, qui frappent 15 % plus fort sur deux fois la moyenne de tes caractéristiques de Feu et d'Air, et dont l'Arc vaut 50 % de plus. Il te reste la Terre et l'Eau. Demande Électrisation et le niveau 45 ; elle remplace ta Transmutation, dont le point revient. Clé de Matière : une seule dans tout l'arbre.",
-      "en": "You lose your 8 Fire and Air spells and gain the 8 Lightning spells, which hit 15% harder on twice the average of your Fire and Air characteristics, and whose Arc is worth 50% more. You keep Earth and Water. Asks for Electrifying and level 45; it replaces your Transmutation, whose point comes back. A key of Matter: only one in the whole tree."
-    },
-    "counterpart": {
-      "fr": "Tu perds tes 8 sorts de Feu et d'Air ; une seule grande bascule dans tout l'arbre.",
-      "en": "You lose your 8 Fire and Air spells; one great shift in the whole tree."
-    },
-    "lore": {
-      "fr": "Deux éléments dans le même trait, et aucun ne se tait.",
-      "en": "Two elements in a single stroke, and neither falls silent."
-    },
-    "branch": "Braids",
-    "tier": "Key",
-    "rules": [
-      {
-        "kind": "convert",
-        "element": "Lightning"
-      },
-      {
-        "kind": "element",
-        "element": "Lightning",
-        "percent": 15
-      },
-      {
-        "kind": "signature",
-        "percent": 50
-      }
-    ],
-    "excludes": [
-      "transmute-fire-lightning",
-      "transmute-air-lightning"
-    ],
-    "requires": [
-      "electrifying"
-    ],
-    "level": 45,
-    "icon": "lorc/lightning-tree"
-  },
-  {
     "id": "lasting-mark",
     "name": {
       "fr": "Empreinte tenace",
@@ -518,14 +24,6 @@
         "kind": "mark",
         "extraTurns": 1
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding"
     ],
     "icon": "lorc/target-arrows"
   },
@@ -558,14 +56,6 @@
     "excludes": [
       "shared-mark"
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding"
-    ],
     "icon": "lorc/fizzing-flask"
   },
   {
@@ -594,14 +84,6 @@
         "extraTurns": 1,
         "triggerPercent": -10
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding"
     ],
     "icon": "lorc/hourglass"
   },
@@ -746,18 +228,6 @@
       "long-sight",
       "artillery"
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
     "icon": "lorc/punch"
   },
   {
@@ -786,18 +256,6 @@
         "still": 15,
         "moved": -5
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
     ],
     "icon": "lorc/boot-stomp"
   },
@@ -911,18 +369,6 @@
     "excludes": [
       "up-close",
       "close-quarters"
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
     ],
     "icon": "lorc/spyglass"
   },
@@ -1061,18 +507,6 @@
         "mp": -1
       }
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
     "icon": "lorc/sprint"
   },
   {
@@ -1103,18 +537,6 @@
         "otherwise": -10
       }
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
     "icon": "delapouite/stone-wall"
   },
   {
@@ -1142,18 +564,6 @@
         "kind": "grant",
         "spell": "relay"
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
     ],
     "icon": "lorc/back-forth"
   },
@@ -1456,18 +866,6 @@
     "excludes": [
       "light-blows"
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
     "icon": "lorc/hammer-drop"
   },
   {
@@ -1507,18 +905,6 @@
     "excludes": [
       "heavy-blows"
     ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
-    ],
     "icon": "lorc/feather"
   },
   {
@@ -1547,18 +933,6 @@
         "first": 20,
         "others": -5
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
     ],
     "icon": "lorc/stopwatch"
   },
@@ -1820,18 +1194,6 @@
         "kind": "bonus",
         "percent": -5
       }
-    ],
-    "requiresAny": [
-      "bogging",
-      "chilling",
-      "cracking",
-      "electrifying",
-      "fogging",
-      "blinding",
-      "heart-earth",
-      "heart-fire",
-      "heart-water",
-      "heart-air"
     ],
     "icon": "delapouite/hand-of-god"
   },

@@ -396,7 +396,7 @@ public static class Ai
                 // Lightning's Arc (sprint 138): a part of the hit on a neighbour of the target.
                 if (spell.Element == Element.Lightning && f.Team != me.Team
                     && fight.Fighters.Any(o => o.IsAlive && o != f && o.Team == f.Team && !area.Contains(o) && o.Cell.DistanceTo(f.Cell) <= Elements.ArcCells))
-                    value += hit * Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 10_000;
+                    value += hit * Elements.Arc / 100;
             }
         }
         foreach (SpellEffect effect in spell.AllEffects)
@@ -442,18 +442,19 @@ public static class Ai
 
     /// <summary>
     /// What a hit leaves on an enemy that survives it (sprint 137, greedy, one cast ahead): the reaction it sets off, worth
-    /// its statuses; or, laying a mark one of the caster's reactions could use, half of that reaction. 0 without talents.
+    /// its statuses; or, laying a mark one of the caster's reactions could use, half of that reaction. 0 for a caster that
+    /// does not react (under level 30, sprint 182, D93).
     /// </summary>
     private static double MarkWorth(Fight fight, Fighter me, Element element, Fighter f, bool aimed)
     {
-        if (me.Talents.Count == 0 || !me.LaysMarks || !Talents.IsBase(element))
+        if (!me.Spec.Reacts || !me.LaysMarks || !Talents.IsBase(element))
             return 0;
         if (aimed && fight.ReactionOn(me, f, element) is ReactionSpec reaction)
             return reaction.Statuses.Sum(st => StatusWorth(st, f));
         if (f.Mark?.Element == element)
             return 0;
-        ReactionSpec? next = Talents.ReactionOf(me.Talents, element, Element.Earth, fight.Data) ?? Talents.ReactionOf(me.Talents, element, Element.Fire, fight.Data)
-            ?? Talents.ReactionOf(me.Talents, element, Element.Water, fight.Data) ?? Talents.ReactionOf(me.Talents, element, Element.Air, fight.Data);
+        ReactionSpec? next = Talents.ReactionOf(element, Element.Earth, fight.Data) ?? Talents.ReactionOf(element, Element.Fire, fight.Data)
+            ?? Talents.ReactionOf(element, Element.Water, fight.Data) ?? Talents.ReactionOf(element, Element.Air, fight.Data);
         return next is null ? 0 : 0.5 * next.Statuses.Sum(st => StatusWorth(st, f));
     }
 

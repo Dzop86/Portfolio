@@ -10,12 +10,12 @@ namespace Rpg.Client;
 /// the draft's talents give: shown dotted, out of the filter and of the deck until the talents are saved.
 /// </summary>
 /// <remarks>
-/// Since sprint 150 (D82, F5 a, O2 a, O3 a): the talent a spell comes from (<see cref="Origin"/>), the spell it took the
-/// place of (<see cref="Replaces"/>), the talents that change it (<see cref="ModifiedBy"/>), and whether it is
-/// <see cref="New"/> (a spell of the tree not yet looked at in this game).
+/// Since sprint 150 (D82, F5 a, O2 a, O3 a): the talent a spell comes from (<see cref="Origin"/>), the talents that change
+/// it (<see cref="ModifiedBy"/>), and whether it is <see cref="New"/> (a spell of the tree not yet looked at in this game);
+/// since sprint 182 (D93), the compound a twin comes from (<see cref="Compound"/>), created on the Elements page.
 /// </remarks>
 public sealed record BookSpell(Spell Spell, bool Unlocked, int Rank, int NextCost, (int Min, int Max) Damage, (int Min, int Max) Critical, (int Min, int Max)? NextRank, bool InDeck = false,
-    bool Preview = false, string? Origin = null, string? Replaces = null, IReadOnlyList<string>? ModifiedBy = null, bool New = false)
+    bool Preview = false, string? Origin = null, Element? Compound = null, IReadOnlyList<string>? ModifiedBy = null, bool New = false)
 {
     public Element Element => Spell.Element;
 }
@@ -37,20 +37,17 @@ public sealed class SpellBook
         Grimoire grimoire = Talents.GrimoireOf(draft, data);
         IEnumerable<string> twins = grimoire.Spells.Where(id => data.Spells[id].Twin is not null);
         HashSet<string> previewed = [.. editor.Previewed.Select(s => s.Id)];
-        // A spell a saved Transmutation or Conversion replaced is gone from the book (Charles, after 1.0.134): its twin says so.
-        Grimoire saved = Talents.GrimoireOf(editor.Hero, data);
-        HashSet<string> gone = [.. grimoire.Replaced.Keys.Where(saved.Replaced.ContainsKey)];
         TalentSpec[] talents = [.. editor.TalentsTaken.Select(id => data.Talents[id])];
-        Spells = c is null ? [] : [.. c.Spells.Where(id => !gone.Contains(id)).Concat(twins).Select(id => data.Spells[id]).Select(s =>
+        Spells = c is null ? [] : [.. c.Spells.Concat(twins).Select(id => data.Spells[id]).Select(s =>
         {
             string? origin = OriginOf(s, talents, data);
             return Entry(s, editor, draft, stats) with
             {
                 Preview = previewed.Contains(s.Id),
                 Origin = origin,
-                Replaces = s.Twin is string parent && grimoire.Replaced.GetValueOrDefault(parent) == s.Id ? parent : null,
+                Compound = s.Twin is null ? null : s.Element,
                 ModifiedBy = ModifiedBy(s, talents),
-                New = origin is not null && !previewed.Contains(s.Id) && !Seen.Contains(s.Id),
+                New = (origin is not null || s.Twin is not null) && !previewed.Contains(s.Id) && !Seen.Contains(s.Id),
             };
         })];
     }
@@ -61,18 +58,12 @@ public sealed class SpellBook
     /// <summary>A spell of the tree looked at: no longer new.</summary>
     public static void Look(string spell) => Seen.Add(spell);
 
-    /// <summary>The talent a spell comes from: the Transmutation or the Conversion of a twin, the talent that grants it; null for a class's.</summary>
+    /// <summary>The talent that grants a spell; null for a class's, or a twin (its compound says where it comes from, since sprint 182).</summary>
     public static string? OriginOf(Spell spell, IReadOnlyList<TalentSpec> talents, GameData data)
     {
         ArgumentNullException.ThrowIfNull(spell);
         ArgumentNullException.ThrowIfNull(talents);
         ArgumentNullException.ThrowIfNull(data);
-        if (spell.Twin is string parent)
-        {
-            Element from = data.Spells[parent].Element;
-            return talents.FirstOrDefault(t => t.Rules.OfType<ConvertRule>().Any(r => r.Element == spell.Element))?.Id
-                ?? talents.FirstOrDefault(t => t.Rules.OfType<TransmuteRule>().Any(r => r.From == from && r.To == spell.Element))?.Id;
-        }
         return talents.FirstOrDefault(t => t.Rules.OfType<GrantRule>().Any(r => r.Spell == spell.Id))?.Id;
     }
 
@@ -89,7 +80,7 @@ public sealed class SpellBook
     private static BookSpell Entry(Spell spell, PointsEditor editor, Hero draft, Characteristics stats)
     {
         int rank = editor.Rank(spell);
-        int points = stats.For(spell.Element, Talents.Converts([.. (draft.Talents ?? []).Where(editor.Data.Talents.ContainsKey).Select(id => editor.Data.Talents[id])], spell.Element));
+        int points = stats.For(spell.Element);
         int bonus = Characteristics.Bonus(Characteristics.Effective(points, Characteristics.Threshold(draft.Level)));
         Spell now = spell.AtRank(rank);
         (int, int) Range(Spell s, int extra) => s.DamageMax > 0 ? (s.DamageMin + extra + bonus, s.DamageMax + extra + bonus) : (0, 0);

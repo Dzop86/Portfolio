@@ -94,7 +94,7 @@ public class BattleTests
     [Fact]
     public async Task TwoPlayersWithTalents_FightTogether_TheTalentsOnBothGames_TheSameFight()
     {
-        // Sprint 143 (T109): Aube with Helping Hand and Banner, Brume with Bogging and Chilling; both games build the
+        // Sprint 143 (T109): Aube with Helping Hand and Banner, Brume with Up close and Lightning (sprint 182); both games build the
         // heroes with their talents from the server's start, and play the same fight to the end.
         await using var api = new ApiFactory();
         (GameServer sa, CharacterSummary aube, ChatClient a) = await Player(api, "Aube");
@@ -104,7 +104,8 @@ public class BattleTests
             foreach (Character c in db.Characters)
             {
                 (c.Xp, c.Level) = (Progression.XpToReach(35), 35);
-                c.Talents = c.Name == "Aube" ? "bogging,helping-hand,banner" : "bogging,electrifying";
+                c.Talents = c.Name == "Aube" ? "helping-hand,banner" : "up-close,firm-footing";
+                c.Compounds = c.Name == "Aube" ? "" : "Lightning";
             }
             return db.SaveChanges();
         });
@@ -118,8 +119,9 @@ public class BattleTests
         Assert.NotNull(over);
         foreach (Fight f in games.Select(g => g.Fight))
         {
-            Assert.Equal(["banner", "bogging", "helping-hand"], f.HeroFighters[0].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
-            Assert.Equal(["bogging", "electrifying"], f.HeroFighters[1].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+            Assert.Equal(["banner", "helping-hand"], f.HeroFighters[0].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+            Assert.Equal(["firm-footing", "up-close"], f.HeroFighters[1].Talents.Select(t => t.Id).Order(StringComparer.Ordinal));
+            Assert.Equal([Element.Lightning], new[] { f.Hero! }.Concat(f.Allies).Single(h => h.Name == "Brume").Compounds);
         }
         Assert.Equal(games[0].Fight.History, games[1].Fight.History);
         await a.DisposeAsync();

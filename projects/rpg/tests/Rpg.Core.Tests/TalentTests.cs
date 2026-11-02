@@ -4,8 +4,9 @@ namespace Rpg.Core.Tests;
 
 /// <summary>
 /// The talent tree's vertical slice (sprint 137, D80, T103): its points and rules, the marks a hero's hits leave, the
-/// reaction Bogged (Earth then Water, or the other way) and Up close (−2 range, +10 % within 3 cells); on small boards
-/// written here, with a class of their own, then on the real data.
+/// reaction Bogged (Earth then Water, or the other way; since sprint 182, D93, every hero of 30 or more, no talent asked)
+/// and Up close (−2 range, +10 % within 3 cells); on small boards written here, with a class of their own, then on the
+/// real data.
 /// </summary>
 public class TalentTests
 {
@@ -24,7 +25,7 @@ public class TalentTests
     private static readonly GameData Tree = Data(["A.B"], Spec(0), Monster());
 
     private static Hero Hero(int level = 30, params string[] talents) =>
-        new("Ondine", "female-a", "tester", Level: level, Talents: talents.Length == 0 ? null : WithDoor(talents, "fogging"));
+        new("Ondine", "female-a", "tester", Level: level, Talents: talents.Length == 0 ? null : talents);
 
     private static FighterSpec Monster(int start = 0, int hp = 200, bool chief = false) => Spec(1, start, hp: hp, initiative: 1, spells: ["strike"]) with { Chief = chief };
 
@@ -37,20 +38,19 @@ public class TalentTests
 
     [Theory]
     [InlineData(29, 0)]
-    [InlineData(30, 2)]
-    [InlineData(32, 2)]
-    [InlineData(33, 3)]
-    [InlineData(45, 7)]
-    [InlineData(100, 25)]
-    public void TheTree_GivesTwoPointsAtThirty_ThenOneEveryThreeLevels(int level, int points) => Assert.Equal(points, Talents.Points(level));
+    [InlineData(30, 1)]
+    [InlineData(32, 1)]
+    [InlineData(33, 2)]
+    [InlineData(45, 6)]
+    [InlineData(100, 24)]
+    public void TheTree_GivesOnePointAtThirty_ThenOneEveryThreeLevels(int level, int points) => Assert.Equal(points, Talents.Points(level));
 
     [Fact]
-    public void TheRealTree_HoldsBoggingAndUpClose_AndTheReactionBogged()
+    public void TheRealTree_HoldsUpClose_AndTheReactionBogged()
     {
-        Assert.True(Real.Talents.ContainsKey("bogging") && Real.Talents.ContainsKey("up-close"));
-        TalentSpec bogging = Real.Talents["bogging"], close = Real.Talents["up-close"];
-        Assert.Equal((Branch.Fork, Tier.First, TalentFamily.Manner, 1), (bogging.Branch, bogging.Tier, bogging.Family, bogging.Cost));
-        Assert.Equal((Branch.Melee, Tier.First, TalentFamily.Manner, 1), (close.Branch, close.Tier, close.Family, close.Cost));
+        Assert.False(Real.Talents.ContainsKey("bogging"));
+        TalentSpec close = Real.Talents["up-close"];
+        Assert.Equal((Branch.Melee, Tier.First, 1), (close.Branch, close.Tier, close.Cost));
         ReactionSpec bogged = Real.Reactions["bogged"];
         Assert.True(bogged.Joins(Element.Water, Element.Earth));
         Assert.Equal(new StatusEffect(Affects.Enemies, Stat.Mp, -2, 1), Assert.Single(bogged.Statuses));
@@ -64,9 +64,9 @@ public class TalentTests
     [Fact]
     public void AHero_HoldsTalents_FromLevelThirty_WithinItsPoints_EachOnce_KnownOnes()
     {
-        Assert.Null(Hero(30, "bogging", "up-close").Problem(Tree));
-        Assert.Contains("level 30", Hero(29, "bogging").Problem(Tree));
-        Assert.Contains("once", Hero(35, "bogging", "bogging").Problem(Tree));
+        Assert.Null(Hero(30, "up-close").Problem(Tree));
+        Assert.Contains("level 30", Hero(29, "up-close").Problem(Tree));
+        Assert.Contains("once", Hero(35, "up-close", "up-close").Problem(Tree));
         Assert.Contains("Unknown talent", Hero(35, "flight").Problem(Tree));
         // No talent at all: as before the tree.
         Assert.Null(Hero(29).Problem(Tree));
@@ -80,52 +80,45 @@ public class TalentTests
         // Its counterpart, lore and icon too (sprint 149): the data refuse a talent without them.
         static TalentSpec T(string id, Branch b, Tier tier, string[]? excludes = null, string[]? requires = null) =>
             new(id, Text, Text, b, tier, [new RangeRule(0)], excludes, requires, Counterpart: Text, Lore: Text, Icon: "lorc/test");
-        // A big switch (sprint 147): a key that changes the whole grimoire.
-        static TalentSpec Switch(string id, Branch b) => new(id, Text, Text, b, Tier.Key, [new ConvertRule(Element.Lightning)], Counterpart: Text, Lore: Text, Icon: "lorc/test");
         TalentSpec[] tree =
         [
             T("a1", Branch.Distance, Tier.First, excludes: ["a2"]), T("a2", Branch.Distance, Tier.First), T("a3", Branch.Distance, Tier.First),
             T("a4", Branch.Distance, Tier.Second), T("ak", Branch.Distance, Tier.Key), T("ak2", Branch.Distance, Tier.Key),
-            T("b1", Branch.Braids, Tier.First), T("b2", Branch.Braids, Tier.First), T("b3", Branch.Braids, Tier.First), Switch("bk", Branch.Braids),
-            T("p1", Branch.Pure, Tier.First), T("p2", Branch.Pure, Tier.First), T("p3", Branch.Pure, Tier.First), Switch("pk", Branch.Pure),
+            T("b1", Branch.Tempo, Tier.First),
             T("s1", Branch.Support, Tier.First), T("s2", Branch.Support, Tier.First, requires: ["s1"]),
         ];
         var data = new GameData(Spells, [], [], talents: tree);
         string? P(int level, params string[] ids) => Talents.Problem(ids, level, data);
-        Assert.Null(P(30, "a1", "a3"));
-        Assert.Contains("At most 2 talent points", P(30, "a1", "a3", "b1"));
+        Assert.Null(P(33, "a1", "a3"));
+        Assert.Contains("At most 2 talent points", P(33, "a1", "a3", "b1"));
         Assert.Contains("exclude each other", P(35, "a1", "a2"));
         // The second floor after 2 points of the first; the key after 3, and it costs 2.
         Assert.Contains("asks 2 points", P(35, "a1", "a4"));
-        Assert.Null(P(35, "a1", "a3", "a4"));
+        Assert.Null(P(36, "a1", "a3", "a4"));
         Assert.Contains("asks 3 points", P(45, "a1", "a3", "ak"));
         Assert.Null(P(45, "a1", "a3", "a4", "ak"));
-        Assert.Contains("At most 4", P(36, "a1", "a3", "a4", "ak", "b1"));
+        Assert.Contains("At most 3", P(36, "a1", "a3", "a4", "ak", "b1"));
         Assert.Contains("One key per branch", P(65, "a1", "a3", "a4", "ak", "ak2"));
-        // One big switch in the whole tree (sprint 147, E10 a), from two branches.
-        Assert.Null(P(65, "b1", "b2", "b3", "bk", "p1", "p2", "p3"));
-        Assert.Contains("One big switch", P(80, "b1", "b2", "b3", "bk", "p1", "p2", "p3", "pk"));
-        Assert.Contains("asks for 's1'", P(30, "s2"));
-        Assert.Null(P(30, "s1", "s2"));
+        Assert.Contains("asks for 's1'", P(33, "s2"));
+        Assert.Null(P(33, "s1", "s2"));
     }
 
     [Fact]
-    public void TheData_RefuseAReactionOfOneElement_TwoReactionsOfAPair_AndATalentOfAnUnknownReaction()
+    public void TheData_RefuseAReactionOfOneElement_TwoReactionsOfAPair_AndATalentOfAnUnknownOne()
     {
         ReactionSpec bogged = Real.Reactions["bogged"];
         Assert.Throws<InvalidDataException>(() => new GameData(Spells, [], [], reactions: [bogged with { Second = Element.Earth }]));
         Assert.Throws<InvalidDataException>(() => new GameData(Spells, [], [], reactions: [bogged, bogged with { Id = "again", First = Element.Water, Second = Element.Earth }]));
         Assert.Throws<InvalidDataException>(() => new GameData(Spells, [], [], reactions: [bogged with { First = Element.Neutral }]));
-        Assert.Throws<InvalidDataException>(() => new GameData(Spells, [], [], talents: [Real.Talents["bogging"]]));
         Assert.Throws<InvalidDataException>(() => new GameData(Spells, [], [], talents: [Real.Talents["up-close"] with { Excludes = ["nothing"] }]));
     }
 
     // ---- the marks ----
 
     [Fact]
-    public void AHerosHit_MarksTheEnemy_UntilTheEndOfItsNextTurn_EvenWithoutTalents()
+    public void AHerosHit_MarksTheEnemy_UntilTheEndOfItsNextTurn_EvenUnderThirty()
     {
-        Fight f = Play(["A..B"], Hero());
+        Fight f = Play(["A..B"], Hero(29));
         Fighter hero = f.HeroFighter!, monster = f.Fighters[1];
         Assert.Equal(ActionError.None, f.Apply(new CastAction("clod", C(3))));
         Assert.Equal(new Mark(Element.Earth, hero.Id, 2), monster.Mark);
@@ -163,9 +156,9 @@ public class TalentTests
     // ---- Bogged ----
 
     [Fact]
-    public void WithBogging_WaterOnAnEarthMark_Bogs_TheMarkUsedUp_MinusTwoMovementPointsForOneTurn()
+    public void FromThirty_WaterOnAnEarthMark_Bogs_TheMarkUsedUp_MinusTwoMovementPointsForOneTurn()
     {
-        Fight f = Play(["A....B"], Hero(30, "bogging"));
+        Fight f = Play(["A....B"], Hero(30));
         Fighter monster = f.Fighters[1];
         f.Apply(new CastAction("clod", C(5)));
         Assert.Equal(ActionError.None, f.Apply(new CastAction("splash", C(5))));
@@ -186,18 +179,19 @@ public class TalentTests
     }
 
     [Fact]
-    public void Bogging_GoesBothWays_ButNotWithFire_NorWithoutTheTalent()
+    public void Bogging_GoesBothWays_FireOnEarthCracks_NothingUnderThirty()
     {
-        Fight water = Play(["A..B"], Hero(30, "bogging"));
+        Fight water = Play(["A..B"], Hero(30));
         water.Apply(new CastAction("splash", C(3)));
         water.Apply(new CastAction("clod", C(3)));
         Assert.Single(water.Events.OfType<ReactionTriggered>());
-        Fight fire = Play(["A..B"], Hero(30, "bogging"));
+        Fight fire = Play(["A..B"], Hero(30));
         fire.Apply(new CastAction("clod", C(3)));
         fire.Apply(new CastAction("spark", C(3)));
-        Assert.Empty(fire.Events.OfType<ReactionTriggered>());
-        Assert.Equal(Element.Fire, fire.Fighters[1].Mark!.Element);
-        Fight none = Play(["A..B"], Hero(30, "up-close"));
+        // Since sprint 182 (D93), every pair reacts: Fire on Earth is Magma's Cracked, not Bogged.
+        Assert.Equal("cracked", Assert.Single(fire.Events.OfType<ReactionTriggered>()).Reaction);
+        Assert.Null(fire.Fighters[1].Mark);
+        Fight none = Play(["A..B"], Hero(29));
         none.Apply(new CastAction("clod", C(3)));
         none.Apply(new CastAction("splash", C(3)));
         Assert.Empty(none.Events.OfType<ReactionTriggered>());
@@ -206,7 +200,7 @@ public class TalentTests
     [Fact]
     public void AZone_ReactsOnTheFighterAimedAt_Only_AndMarksTheOthers()
     {
-        Fight f = Play(["A...BB"], Hero(30, "bogging"), Monster(0), Monster(1));
+        Fight f = Play(["A...BB"], Hero(30), Monster(0), Monster(1));
         f.Apply(new CastAction("splash", C(4)));
         f.Apply(new CastAction("splash", C(5)));
         Assert.Equal(Element.Water, f.Fighters[1].Mark!.Element);
@@ -223,7 +217,7 @@ public class TalentTests
     {
         // Two heroes' reactions on a chief: the second adds nothing beyond −2.
         Fight f = new(Data(["A..B.", ".....", "A...."], Spec(0, initiative: 999, spells: ["strike"]), Monster(0, chief: true)), "s", 1,
-            Hero(30, "bogging"), allies: [Hero(30, "bogging") with { Name = "Romane" }]);
+            Hero(30), allies: [Hero(30) with { Name = "Romane" }]);
         Fighter chief = f.Fighters[1];
         f.Apply(new CastAction("clod", chief.Cell));
         f.Apply(new CastAction("splash", chief.Cell));
@@ -239,11 +233,12 @@ public class TalentTests
     [Fact]
     public void TheForecast_TellsTheReaction_BeforeTheCast()
     {
-        Fight f = Play(["A..B"], Hero(30, "bogging"));
+        Fight f = Play(["A..B"], Hero(30));
         Assert.Null(Assert.Single(f.Foresee(Splash, C(3))).Reaction);
         f.Apply(new CastAction("clod", C(3)));
         Assert.Equal("bogged", Assert.Single(f.Foresee(f.HeroFighter!.Spells.First(s => s.Id == "splash"), C(3))).Reaction);
-        Assert.Null(Assert.Single(f.Foresee(f.HeroFighter!.Spells.First(s => s.Id == "spark"), C(3))).Reaction);
+        Assert.Equal("cracked", Assert.Single(f.Foresee(f.HeroFighter!.Spells.First(s => s.Id == "spark"), C(3))).Reaction);
+        Assert.Null(Assert.Single(Play(["A..B"], Hero(29)).Foresee(Splash, C(3))).Reaction);
     }
 
     // ---- Up close ----
@@ -287,11 +282,13 @@ public class TalentTests
     [Fact]
     public void AFightWithTalents_IsReplayedTheSame_FromItsRecord()
     {
-        Fight f = new(Real, "group:fields-0-4.0", 4, Progression.Built(new Rpg.Core.Hero("Ondine", "female-a", "sentinel", Level: 35, Talents: ["bogging", "up-close"]), Real));
+        Fight f = new(Real, "group:fields-0-4.0", 4, Progression.Built(new Rpg.Core.Hero("Ondine", "female-a", "sentinel", Level: 35, Talents: ["up-close", "firm-footing"],
+            Compounds: [Element.Lightning]), Real));
         Ai.PlayOut(f);
         Assert.True(f.IsOver);
         string json = FightRecord.Of(f).ToJson();
-        Assert.Contains("\"talents\":[\"bogging\",\"up-close\"]", json);
+        Assert.Contains("\"talents\":[\"up-close\",\"firm-footing\"]", json);
+        Assert.Contains("\"compounds\":[\"Lightning\"]", json);
         Assert.DoesNotContain("talentsTaken", json);
         Assert.Equal(Fingerprint(f), Fingerprint(FightRecord.FromJson(json).Replay(Real)));
     }
@@ -300,7 +297,7 @@ public class TalentTests
     public void TheAI_SetsOffTheReaction_WhenItCan()
     {
         // Marked by the Earth, the monster out of the hero's reach to walk: Water is worth the reaction.
-        Fight f = Play(["A....B"], Hero(30, "bogging"));
+        Fight f = Play(["A....B"], Hero(30));
         f.Apply(new CastAction("clod", C(5)));
         Assert.Equal(new CastAction("splash", C(5)), Ai.Decide(f));
     }
@@ -308,8 +305,11 @@ public class TalentTests
     [Fact]
     public void TheHeroEquality_IgnoresTheOrderOfTheTalents()
     {
-        Assert.Equal(Hero(35, "bogging", "up-close"), Hero(35, "up-close", "bogging"));
-        Assert.NotEqual(Hero(35, "bogging"), Hero(35, "up-close"));
+        Assert.Equal(Hero(35, "firm-footing", "up-close"), Hero(35, "up-close", "firm-footing"));
+        Assert.NotEqual(Hero(35, "firm-footing"), Hero(35, "up-close"));
         Assert.Equal(Hero(35), Hero(35) with { Talents = [] });
+        // The compounds the same (sprint 182).
+        Assert.NotEqual(Hero(35), Hero(35) with { Compounds = [Element.Lightning] });
+        Assert.Equal(Hero(35) with { Compounds = [Element.Lightning] }, Hero(35) with { Compounds = [Element.Lightning] });
     }
 }

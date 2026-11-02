@@ -172,7 +172,7 @@ public sealed class Fight
     /// </param>
     /// <param name="alliesHp">Each ally's hit points to start with, in the same order; null for all of them.</param>
     public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null,
-        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false)
+        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false, bool freeReactions = true)
     {
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
@@ -194,8 +194,8 @@ public sealed class Fight
         int rivalIndex = Scenario.Fighters.ToList().FindIndex(f => f.Team == 1);
         _fighters = [.. Scenario.Fighters.Select((f, i) =>
         {
-            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data, linearReturns)
-                : rival is not null && i == rivalIndex ? AsHero(f, rival, data, linearReturns)
+            FighterSpec spec = hero is not null && i == heroIndex ? AsHero(f, hero, data, linearReturns, freeReactions)
+                : rival is not null && i == rivalIndex ? AsHero(f, rival, data, linearReturns, freeReactions)
                 : f;
             return new Fighter(i, spec, Board.Starts[f.Team][f.Start], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data))
             {
@@ -209,7 +209,7 @@ public sealed class Fight
             throw new ArgumentException($"The board has {freeStarts.Length} free starts for allies.", nameof(allies));
         for (int k = 0; k < Allies.Count; k++)
         {
-            FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data, linearReturns);
+            FighterSpec spec = AsHero(Scenario.Fighters[heroIndex] with { Start = freeStarts[k], Loot = null }, Allies[k], data, linearReturns, freeReactions);
             var ally = new Fighter(_fighters.Count, spec, Board.Starts[0][freeStarts[k]], SpellsOf(spec, data), PassivesOf(spec.Passives, data), talents: TalentsOf(spec, data)) { LaysMarks = true };
             if (alliesHp?.ElementAtOrDefault(k) is int hp)
                 ally.Hp = Math.Clamp(hp, 1, ally.MaxHp);
@@ -244,7 +244,7 @@ public sealed class Fight
     /// The scenario's fighter, played by the hero: its name and look, its class's characteristics and
     /// the class's spells its level has unlocked.
     /// </summary>
-    private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data, bool linearReturns)
+    private static FighterSpec AsHero(FighterSpec f, Hero hero, GameData data, bool linearReturns, bool freeReactions)
     {
         FighterSpec spec = f with { Name = new LocalizedText(hero.Name, hero.Name), Look = hero.Look };
         if (HeroTotals(hero, data) is not HeroNumbers n)
@@ -272,6 +272,8 @@ public sealed class Fight
             Talents = hero.Talents,
             // A record of version 3 or less replays with the linear bonus of before sprint 162 (D85).
             Threshold = linearReturns ? 0 : Characteristics.Threshold(hero.Level),
+            // The six reactions from level 30 (sprint 182, D93), no talent asked.
+            Reacts = freeReactions && hero.Level >= Elements.Pairs,
         };
     }
 
@@ -779,7 +781,7 @@ public sealed class Fight
 
     /// <summary>The characteristic that strengthens <paramref name="caster"/>'s hits of this element, its Conversion given (sprint 144).</summary>
     private static int Strength(Fighter caster, Element element) =>
-        Characteristics.Effective(caster.Spec.Characteristics.For(element, Talents.Converts(caster.Talents, element)), caster.Spec.Threshold);
+        Characteristics.Effective(caster.Spec.Characteristics.For(element), caster.Spec.Threshold);
 
     /// <summary>
     /// The damage the AI expects a hit of <paramref name="average"/> to do (sprint 141): the one estimate it uses for spells
@@ -796,7 +798,8 @@ public sealed class Fight
 
     /// <summary>
     /// The reaction <paramref name="caster"/>'s direct hit in <paramref name="element"/> would set off on <paramref name="f"/>
-    /// (sprint 137): an enemy marked by another base element, a caster who lays marks and has the reaction's talent.
+    /// (sprint 137): an enemy marked by another base element, a caster who lays marks and reacts (a hero of level 30 or more,
+    /// sprint 182, D93), or the one who laid the mark reacts and shares its marks (Shared Mark).
     /// </summary>
     public ReactionSpec? ReactionOn(Fighter caster, Fighter f, Element element)
     {
@@ -809,8 +812,8 @@ public sealed class Fight
         if (rules.OfType<VirtuosoRule>().Any() && m.Source != caster.Id || rules.OfType<CatalysisRule>().Any() && caster.ReactionsThisTurn > 0)
             return null;
         Fighter source = _fighters[m.Source];
-        return Talents.ReactionOf(caster.Talents, m.Element, element, _data)
-            ?? (source != caster && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any() ? Talents.ReactionOf(source.Talents, m.Element, element, _data) : null);
+        bool reacts = caster.Spec.Reacts || (source != caster && source.Spec.Reacts && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any());
+        return reacts ? Talents.ReactionOf(m.Element, element, _data) : null;
     }
 
     /// <summary>
@@ -856,12 +859,6 @@ public sealed class Fight
     /// <param name="dealt">The hit's damage, for Catalysis (sprint 144).</param>
     private void Imprint(Fighter me, Fighter f, Element element, bool aimed, int dealt = 0)
     {
-        // A pair's hit leaves its first parent's mark with Prism (sprint 138), and sets nothing off.
-        if (Elements.Parents(element) is [Element first, _] && Talents.HasPrism(me.Talents))
-        {
-            element = first;
-            aimed = false;
-        }
         if (!me.LaysMarks || !Talents.IsBase(element) || f.Team == me.Team || IsOver || !f.IsAlive)
             return;
         if (aimed && ReactionOn(me, f, element) is ReactionSpec reaction)
@@ -975,7 +972,7 @@ public sealed class Fight
                 }
                 Imprint(me, hit, spell.Element, reacts, dealt);
                 // Lightning's Arc (sprint 138), an Electrified fighter (sprint 140): part of the hit jumps on, once.
-                int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc * (100 + Talents.SignatureBonus(me.Talents)) / 100 : 0,
+                int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc : 0,
                     hit.StatusList.Where(s => s.Stat == Stat.Electrified).Select(s => s.Value).DefaultIfEmpty(0).Max());
                 if (jump > 0 && !IsOver)
                     Arc(me, hit, roll, area, jump, spell.Element, context);

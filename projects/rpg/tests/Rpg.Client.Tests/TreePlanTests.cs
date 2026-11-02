@@ -5,7 +5,7 @@ namespace Rpg.Client.Tests;
 /// <summary>
 /// Planning and sharing the tree (sprint 151, D82): a build's code there and back, an unreadable, old or too high one refused
 /// with its reason; the path a node asks and its cost; a plan's ghosts, never saved; a suggested build loaded as a draft; the
-/// builds drawn for the measure out of CI, always legal, and the rare talents.
+/// builds drawn for the measure out of CI, always legal, and the rare talents (since sprint 182, D93, a tree with no door).
 /// </summary>
 public class TreePlanTests
 {
@@ -38,8 +38,8 @@ public class TreePlanTests
         CodeRead old = BuildCode.Read("OSM2-0102", 45, Data);
         Assert.Equal((CodeRefusal.OldVersion, 2), (old.Refusal, old.Number));
         Assert.Equal("Ce code vient d'une ancienne version de l'arbre (2) : il ne se charge plus.", fr.CodeRefused(old));
-        // Matter's build at 45 read at 35: the Conversion asks 45.
-        string matter = BuildCode.Write(Progression.Talented(Mage(45), "mage-matter", Data).Talents!, Data);
+        // Manner's build at 45 read at 35: Thrift, a key, asks 45.
+        string matter = BuildCode.Write(Progression.Talented(Mage(45), "mage-manner", Data).Talents!, Data);
         CodeRead low = BuildCode.Read(matter, 35, Data);
         Assert.Equal((CodeRefusal.Level, 45), (low.Refusal, low.Number));
         Assert.Equal("This build needs level 45.", new Texts("en").CodeRefused(low));
@@ -48,25 +48,25 @@ public class TreePlanTests
     [Fact]
     public void APath_IsWhatANodeAsks_ItsCostTheSumOfItsNodes()
     {
-        // From nothing to Nomad: a door, a first floor, a second, the key.
+        // From nothing to Nomad: a first floor, a second, the key (since sprint 182, D93, no door).
         IReadOnlyList<string> path = TreePlan.Path([], "nomad", Data)!;
-        Assert.Equal(4, path.Count);
-        Assert.True(Data.Talents[path[0]].IsFork);
+        Assert.Equal(3, path.Count);
+        Assert.Equal(Tier.First, Data.Talents[path[0]].Tier);
         Assert.Equal("nomad", path[^1]);
         Assert.Equal(path.Sum(id => Data.Talents[id].Cost), TreePlan.Cost(path, Data));
-        Assert.Equal(5, TreePlan.Cost(path, Data));
+        Assert.Equal(4, TreePlan.Cost(path, Data));
         Assert.Null(Talents.Problem([.. path], Hero.MaxLevel, Data));
-        // From a door and a first floor, only what is missing; nothing for a node taken; no way past an exclusion.
-        Assert.Equal(["dancing-step", "nomad"], TreePlan.Path(["bogging", "side-step"], "nomad", Data));
-        Assert.Empty(TreePlan.Path(["bogging"], "bogging", Data)!);
-        Assert.Null(TreePlan.Path(["bogging", "up-close"], "long-sight", Data));
+        // From a first floor, only what is missing; nothing for a node taken; no way past an exclusion.
+        Assert.Equal(["dancing-step", "nomad"], TreePlan.Path(["side-step"], "nomad", Data));
+        Assert.Empty(TreePlan.Path(["side-step"], "side-step", Data)!);
+        Assert.Null(TreePlan.Path(["up-close"], "long-sight", Data));
         Assert.Equal("Chemin : Sceau → Nomade (3 point(s))", new Texts("fr").TreePath(["seal", "nomad"], Data));
     }
 
     [Fact]
     public void APlansGhosts_AreNeverSaved_ASuggestedBuild_StaysADraft()
     {
-        Hero hero = Mage(45, "bogging", "side-step");
+        Hero hero = Mage(45, "side-step");
         var editor = new PointsEditor(hero, Data);
         // A plan at 60 from the draft: what it adds is a ghost, and the server refuses it at 45 (TalentTests).
         var plan = new PointsEditor(editor.Draft with { Level = TreePlan.PlanLevel, Talents = [.. editor.TalentsTaken] }, Data);
@@ -77,8 +77,8 @@ public class TreePlanTests
         // A suggested build: the class's three, loaded in the draft, the hero's talents untouched until the save.
         Assert.Equal(["mage-matter", "mage-manner", "mage-pure"], TreePlan.Suggested("mage"));
         Assert.Empty(editor.LoadTalents(Progression.Builds["mage-pure"]));
-        Assert.Equal(["heart-fire", "side-step", "remanence", "scorched-earth"], editor.TalentsTaken);
-        Assert.Equal(["bogging", "side-step"], editor.Hero.Talents);
+        Assert.Equal(["side-step", "remanence", "scorched-earth"], editor.TalentsTaken);
+        Assert.Equal(["side-step"], editor.Hero.Talents);
         Assert.True(editor.TalentsChanged);
         // At 35, the key stays out.
         Assert.Equal(["scorched-earth"], new PointsEditor(Mage(35), Data).LoadTalents(Progression.Builds["mage-pure"]));
@@ -90,31 +90,15 @@ public class TreePlanTests
         var builds = new List<IReadOnlyList<string>>();
         for (int i = 0; i < 60; i++)
         {
-            IReadOnlyList<string> b = TreeDraws.Random("chilling", 45, new Random(i), Data);
+            IReadOnlyList<string> b = TreeDraws.Random(45, new Random(i), Data);
             Assert.Null(Talents.Problem(b, 45, Data));
-            Assert.Equal("chilling", b[0]);
             // Every point spent, or nothing left to take.
             Assert.True(Talents.Points(45) - b.Sum(id => Data.Talents[id].Cost) <= 1);
             builds.Add(b);
         }
-        // Since sprint 152 (D83): among the builds aiming at the node's branch, 20 %; the doors the measure imposes left out.
+        // Since sprint 152 (D83): among the builds aiming at the node's branch, 20 %.
         IReadOnlyList<(string Talent, double Share)> rare = TreeDraws.Rare(builds, Data);
-        Assert.DoesNotContain(rare, r => r.Talent is "bogging" or "chilling" or "heart-fire");
         Assert.All(rare, r => Assert.True(r.Share < 20));
-        // A braid's node, counted among the builds holding a node of a braid: none here, so none taken, 0 %.
-        Assert.Contains(rare, r => r.Talent == "prism" && r.Share == 0);
-    }
-
-    [Fact]
-    public void ABuildDrawnWithoutTheBraid_HoldsNoNodeOfIt()
-    {
-        // Sprint 152 (D83): Electrifying measured apart from its braid.
-        for (int i = 0; i < 40; i++)
-        {
-            IReadOnlyList<string> b = TreeDraws.Random("electrifying", 45, new Random(i), Data, braid: false);
-            Assert.Null(Talents.Problem(b, 45, Data));
-            Assert.DoesNotContain(b, id => Data.Talents[id].Branch == Branch.Braids);
-        }
-        Assert.Contains(Enumerable.Range(0, 40).Select(i => TreeDraws.Random("electrifying", 45, new Random(i), Data)), b => b.Any(id => Data.Talents[id].Branch == Branch.Braids));
+        Assert.All(rare, r => Assert.True(Data.Talents.ContainsKey(r.Talent)));
     }
 }

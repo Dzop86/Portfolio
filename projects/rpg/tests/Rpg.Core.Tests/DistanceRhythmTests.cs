@@ -23,7 +23,7 @@ public class DistanceRhythmTests
         new([.. Spells, .. TreeSpells, Bolt, Heavy, Jab, Burst, Shove, Lance, Slow], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], [Tester],
             summons: TreeSummons, talents: Real.Talents.Values, reactions: Real.Reactions.Values);
 
-    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: WithDoor(talents));
+    private static Hero Hero(params string[] talents) => new("Ondine", "female-a", "tester", Level: 100, Talents: talents);
 
     private static FighterSpec Monster(int start = 0, int hp = 300) => Spec(1, start, hp: hp, initiative: 1, spells: ["strike"]);
 
@@ -168,8 +168,9 @@ public class DistanceRhythmTests
     [Fact]
     public void TheAI_ReadsTheLivingTalents_FromWhereItWouldCast()
     {
-        // With Firm Footing, the same hit is worth more from where it stands than after walking.
-        Fight f = Play(["A....B"], Hero("firm-footing"));
+        // With Firm Footing, the same hit is worth more from where it stands than after walking; replayed as before sprint
+        // 182, so that the reactions (free from 30) add nothing to the hit's worth.
+        Fight f = new(Data(["A....B"], [Spec(0, initiative: 999, spells: ["strike"]), Monster()]), "s", 1, Hero("firm-footing"), freeReactions: false);
         Fighter me = f.HeroFighter!;
         Spell bolt = me.Spells.First(s => s.Id == "bolt");
         Assert.True(Ai.Value(f, me, bolt, me.Cell, C(5)) > Ai.Value(f, me, bolt, C(1), C(5)));

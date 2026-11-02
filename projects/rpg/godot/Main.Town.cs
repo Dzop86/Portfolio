@@ -2892,7 +2892,7 @@ public partial class Main
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
         foreach (string id in Progression.Builds.Keys)
         {
-            // The build as a player takes it, a Conversion in its Transmutation's place.
+            // The build as a player takes it, with its compounds (sprint 182, D93).
             Hero built = Progression.Talented(hero with { Level = 45 }, id, GameData.Embedded);
             IReadOnlyList<string> build = built.Talents ?? [];
             var tree = new TreePanel();
@@ -2906,13 +2906,14 @@ public partial class Main
             TreeLayout layout = tree.Layout;
             if (layout.Nodes.Any(n => !n.Box.Inside(layout.Width, layout.Height)))
                 problems.Add($"{id}: a node of the tree leaves its area");
-            // Sprint 176 (D87): the whole tree, deployed, its 56 talents and 3 rings; one stem a door taken, no bus; opened
-            // framed on the build at 80 % at least, the wheel zooming, a click on a node zoomed still pressing it.
+            // Sprint 176 (D87): the whole tree, deployed, its talents and 3 rings (since sprint 182, D93, 41 talents without
+            // doors: a limb to each of the six styles); opened framed on the build at 80 % at least, the wheel zooming, a
+            // click on a node zoomed still pressing it.
             if (layout.Nodes.Count(n => n.IsTalent) != GameData.Embedded.Talents.Count || layout.Nodes.Count(n => n.IsTrunk) != 3)
                 problems.Add($"{id}: the tree lays out {layout.Nodes.Count} nodes");
-            int stems = tree.Wood.Count(p => p.Kind == WoodKind.Stem), doors = build.Count(b => GameData.Embedded.Talents[b].IsFork);
-            if (stems != doors || tree.Wood.Any(p => p.Kind == WoodKind.Stem && p.Life != WoodLife.Alive))
-                problems.Add($"{id}: {stems} stems for {doors} doors taken");
+            int limbs = tree.Wood.Count(p => p.Kind == WoodKind.Limb);
+            if (limbs != TreeLayout.Branches.Count)
+                problems.Add($"{id}: {limbs} limbs for {TreeLayout.Branches.Count} styles");
             TreeCamera camera = tree.Camera;
             if (camera.Zoom < TreeCamera.FrameZoom - 0.001f)
                 problems.Add($"{id}: the tree opens at {camera.Zoom:P0}");
@@ -2960,8 +2961,8 @@ public partial class Main
             if (layout.Nodes.FirstOrDefault(n => n.IsTalent && !build.Contains(n.Id) && TreePlan.Closes(build, n.Id, GameData.Embedded).Count > 0) is TreeNode closer)
             {
                 tree.Hover(closer.Id);
-                string shut = GameData.Embedded.Talents[tree.Closing.Count > 0 ? tree.Closing[0] : "bogging"].Name.In(texts.Lang);
-                if (!tree.Closing.SequenceEqual(TreePlan.Closes(build, closer.Id, GameData.Embedded)) || !tree.CardText.Contains(shut, StringComparison.Ordinal))
+                string shut = tree.Closing.Count > 0 ? GameData.Embedded.Talents[tree.Closing[0]].Name.In(texts.Lang) : "";
+                if (tree.Closing.Count == 0 || !tree.Closing.SequenceEqual(TreePlan.Closes(build, closer.Id, GameData.Embedded)) || !tree.CardText.Contains(shut, StringComparison.Ordinal))
                     problems.Add($"{id}: hovering {closer.Id} names {string.Join(", ", tree.Closing)} as closed");
                 tree.Hover(null);
             }
@@ -2981,9 +2982,8 @@ public partial class Main
                 if (tree.Editor.TalentsChanged)
                     problems.Add($"{id}: undoing leaves {string.Join(", ", tree.Editor.TalentsTaken)}");
             }
-            // A door others hang on asks before it is given back with them (I1 b).
-            // (With two pairs, no door alone holds anything up.)
-            if (build.FirstOrDefault(b => GameData.Embedded.Talents[b].IsFork && tree.Editor.Losing(GameData.Embedded.Talents[b]).Count > 0) is string door)
+            // A node others hang on asks before it is given back with them (I1 b).
+            if (build.FirstOrDefault(b => tree.Editor.Losing(GameData.Embedded.Talents[b]).Count > 0) is string door)
             {
                 tree.Press(door);
                 if (tree.Asking?.Talent != door || !tree.Editor.TalentsTaken.Contains(door))
@@ -3019,10 +3019,10 @@ public partial class Main
             tree.StartTutorial();
             if (tree.TutorialStep != 0 || !tree.LegendShown)
                 problems.Add($"{id}: the tutorial starts on bubble {tree.TutorialStep}, the legend {(tree.LegendShown ? "open" : "shut")}");
-            // The first bubble, on the doors, never covers one (sprint 177, A6).
-            if (tree.BubbleRect is Rect2 bubble && layout.Nodes.Where(n => n.Branch is Branch.Fork or Branch.Pure)
+            // The first bubble, under the first floor, never covers one of its nodes (sprint 177, A6).
+            if (tree.BubbleRect is Rect2 bubble && layout.Nodes.Where(n => n.IsTalent && TreeLayout.RowOf(GameData.Embedded.Talents[n.Id]) == TreeRow.First)
                 .Any(n => bubble.Intersects(new Rect2(tree.Canvas.GetGlobalRect().Position + tree.Canvas.ToView(n.Box.X, n.Box.Y), new Vector2(n.Box.W, n.Box.H) * tree.Camera.Zoom))))
-                problems.Add($"{id}: the doors' bubble covers a door");
+                problems.Add($"{id}: the first bubble covers a node of the first floor");
             for (int b = 0; b < 3; b++)
                 tree.NextBubble();
             if (!done || tree.TutorialStep != -1)
@@ -3065,25 +3065,28 @@ public partial class Main
     }
 
     /// <summary>
-    /// The spells window after a Transmutation saved (sprint 150, D82): the Fire spells it replaced gone, their Lightning
-    /// twins there and marked new until looked at, each saying where it comes from.
+    /// The spells window with Lightning created (sprint 150, D82; since sprint 182, D93, on the Elements page): the Fire and
+    /// Air spells still there, their Lightning twins beside them and marked new until looked at, each saying where it
+    /// comes from.
     /// </summary>
     private void CheckTransmuted(List<string> problems)
     {
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
-        Hero hero = Progression.Talented(new Hero("Ondine", "female-a", "sentinel", Level: 35), ["electrifying", "transmute-fire-lightning"], GameData.Embedded);
+        Hero hero = Progression.Talented(new Hero("Ondine", "female-a", "sentinel", Level: 35), [], GameData.Embedded, compounds: [Element.Lightning]);
         var panel = new PointsPanel();
         AddChild(panel);
         panel.Build(new PointsEditor(hero, GameData.Embedded), texts, only: true);
         panel.Refresh();
         Grimoire grimoire = Talents.GrimoireOf(hero, GameData.Embedded);
-        if (grimoire.Replaced.Count == 0 || grimoire.Replaced.Keys.Any(panel.ShownSpells.Contains))
-            problems.Add($"the spells window still shows the spells a Transmutation replaced: {string.Join(", ", grimoire.Replaced.Keys.Where(panel.ShownSpells.Contains))}");
-        if (!grimoire.Replaced.Values.All(panel.NewSpells.Contains))
+        string[] twins = [.. grimoire.Spells.Where(id => GameData.Embedded.Spells[id].Twin is not null)];
+        string[] origins = [.. twins.Select(id => GameData.Embedded.Spells[id].Twin!)];
+        if (twins.Length == 0 || origins.Any(o => !panel.ShownSpells.Contains(o)))
+            problems.Add($"the spells window hides the spells Lightning's twins come from: {string.Join(", ", origins.Where(o => !panel.ShownSpells.Contains(o)))}");
+        if (!twins.All(panel.NewSpells.Contains))
             problems.Add($"the twins are not marked new: {string.Join(", ", panel.NewSpells)}");
         var book = new SpellBook(panel.Editor);
-        if (grimoire.Replaced.Values.Any(t => texts.SpellOrigin(book.Spells.Single(b => b.Spell.Id == t), GameData.Embedded).Count < 2))
-            problems.Add("a twin does not say where it comes from and what it replaced");
+        if (twins.Any(t => texts.SpellOrigin(book.Spells.Single(b => b.Spell.Id == t), GameData.Embedded).Count < 1))
+            problems.Add("a twin does not say where it comes from");
         panel.QueueFree();
     }
 

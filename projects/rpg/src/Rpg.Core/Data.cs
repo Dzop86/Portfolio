@@ -102,11 +102,10 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
         threshold <= 0 || points <= threshold ? points : threshold + (points - threshold) / 4;
 
     /// <summary>
-    /// The characteristic that strengthens an element's damage. A compound strikes on the highest of its parents', or on
-    /// twice their average when <paramref name="converted"/> (sprint 144, docs/elements.md §3.4: "with the sum, a mere
-    /// opening would give everyone full strength for 1 point").
+    /// The characteristic that strengthens an element's damage. A compound strikes on the highest of its parents' (since
+    /// sprint 182, D93, the Conversion and its twice their average are gone with the tree's elements).
     /// </summary>
-    public int For(Element element, bool converted = false) => element switch
+    public int For(Element element) => element switch
     {
         Element.Earth => Earth,
         Element.Fire => Fire,
@@ -114,7 +113,7 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
         Element.Air => Air,
         // Neutral damage grows with no characteristic (D62).
         _ => Elements.Parents(element) is { Count: > 0 } parents
-            ? converted ? 2 * parents.Sum(e => For(e)) / parents.Count : parents.Max(e => For(e))
+            ? parents.Max(e => For(e))
             : 0,
     };
 }
@@ -212,7 +211,8 @@ public sealed record FighterSpec(
     IReadOnlyList<string>? Talents = null,
     bool Chief = false,
     int TreeDamage = 0,
-    int Threshold = 0)
+    int Threshold = 0,
+    bool Reacts = false)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -594,9 +594,9 @@ public sealed class GameData
         }
         foreach (TalentSpec t in Talents.Values)
         {
-            if (t.Rules.Count == 0 || t.Rules.OfType<ReactionRule>().Any(r => !Reactions.ContainsKey(r.Reaction))
+            if (t.Rules.Count == 0
                 || (t.Excludes ?? []).Concat(t.Requires ?? []).Concat(t.RequiresAny ?? []).Any(id => id == t.Id || !Talents.ContainsKey(id)))
-                throw new InvalidDataException($"Talent '{t.Id}': rules, known reactions, other known talents it excludes or requires.");
+                throw new InvalidDataException($"Talent '{t.Id}': rules, other known talents it excludes or requires.");
             // Its texts in both languages (sprint 147): a key missing stops the game from loading, so the build.
             if (string.IsNullOrWhiteSpace(t.Name?.Fr) || string.IsNullOrWhiteSpace(t.Name.En) || string.IsNullOrWhiteSpace(t.Description?.Fr) || string.IsNullOrWhiteSpace(t.Description.En))
                 throw new InvalidDataException($"Talent '{t.Id}': a name and a description in French and in English.");
@@ -608,9 +608,6 @@ public sealed class GameData
                 throw new InvalidDataException($"Talent '{t.Id}': a distance from 0 up.");
             if (t.Rules.OfType<GrantRule>().Any(r => !Spells.ContainsKey(r.Spell)))
                 throw new InvalidDataException($"Talent '{t.Id}': a spell given that is known.");
-            if (t.Rules.OfType<ConvertRule>().Any(r => !Elements.IsCompound(r.Element))
-                || t.Rules.OfType<TransmuteRule>().Any(r => !Elements.Parents(r.To).Contains(r.From)))
-                throw new InvalidDataException($"Talent '{t.Id}': a compound converted, a parent transmuted into its compound.");
         }
     }
 

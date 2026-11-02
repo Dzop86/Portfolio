@@ -72,7 +72,7 @@ public class AdminTests
         Assert.Equal(data.Jobs.Count, aube.JobList.Count);
         Assert.All(aube.JobList.Values, xp => Assert.Equal(Crafting.MaxLevel, Crafting.LevelFor(xp)));
         // Every achievement but those of its own talents and guild, which the command leaves to the player, and the crowns that ask them.
-        AchievementGoal[] own = [AchievementGoal.Talents, AchievementGoal.Pair, AchievementGoal.Heart, AchievementGoal.Key, AchievementGoal.Talent, AchievementGoal.Guild];
+        AchievementGoal[] own = [AchievementGoal.Talents, AchievementGoal.Compounds, AchievementGoal.Compound, AchievementGoal.Key, AchievementGoal.Talent, AchievementGoal.Guild];
         HashSet<string> chosen = [.. Achievements.All.Where(a => own.Contains(a.Goal)).Select(a => a.Id)];
         chosen.UnionWith(Achievements.All.Where(a => a.Goal == AchievementGoal.Achievements && (a.Targets ?? []).Any(chosen.Contains)).Select(a => a.Id));
         IReadOnlyList<string> earned = Achievements.Earned(Rpg.Api.Endpoints.AchievementEndpoints.StateOf(aube, inGuild: false), data);

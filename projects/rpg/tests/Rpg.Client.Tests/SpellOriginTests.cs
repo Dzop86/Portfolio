@@ -3,10 +3,10 @@ using Rpg.Core;
 namespace Rpg.Client.Tests;
 
 /// <summary>
-/// The spells window and the fight after the tree (sprint 150, D82): a spell replaced by a saved Transmutation gone from the
-/// book (Charles, after 1.0.134), its twin saying where it comes from and what it replaced, the talents that change a spell,
-/// "new" until looked at; the twin in the deck, said; the forecast's part of the tree, its sum the hit's bonus; a node's
-/// line before and after; the talents of the turn lit, then off.
+/// The spells window and the fight after the tree (sprint 150, D82): since sprint 182 (D93), Lightning created adds its
+/// twins beside their origins, each saying where it comes from, "new" until looked at; the talents that change a spell; a
+/// compound undone, its twins out of the deck, said; the forecast's part of the tree, its sum the hit's bonus; a node's line
+/// before and after; the talents of the turn lit, then off.
 /// </summary>
 public class SpellOriginTests
 {
@@ -14,6 +14,8 @@ public class SpellOriginTests
 
     private static Hero Sentinel(int level, params string[] talents) =>
         new("Ondine", "female-a", "sentinel", Level: level, Talents: talents.Length == 0 ? null : talents);
+
+    private static Hero Lightning(int level) => Sentinel(level) with { Compounds = [Element.Lightning] };
 
     // A wolf 3 cells away on an open row, as in the talents' texts.
     private static GameData Arena()
@@ -25,16 +27,16 @@ public class SpellOriginTests
     }
 
     [Fact]
-    public void ASavedTransmutation_TakesTheParentOut_AndItsTwinSaysWhereItComesFrom()
+    public void LightningSaved_KeepsTheParent_AndItsTwinSaysWhereItComesFrom()
     {
-        var editor = new PointsEditor(Sentinel(35, "electrifying", "transmute-fire-lightning"), Data);
+        var editor = new PointsEditor(Lightning(35), Data);
         var book = new SpellBook(editor);
-        Assert.DoesNotContain(book.Spells, b => b.Spell.Id == "fire-arrow");
+        Assert.Contains(book.Spells, b => b.Spell.Id == "fire-arrow");
         BookSpell twin = book.Spells.Single(b => b.Spell.Id == "lightning-fire-arrow");
-        Assert.Equal("transmute-fire-lightning", twin.Origin);
-        Assert.Equal("fire-arrow", twin.Replaces);
-        Assert.Equal(["Donné par Transmutation : Feu → Foudre", "Prend la place de Flèche ardente"], new Texts("fr").SpellOrigin(twin, Data));
-        Assert.Equal(["Given by Transmutation: Fire → Lightning", "Takes the place of Burning Arrow"], new Texts("en").SpellOrigin(twin, Data));
+        Assert.Null(twin.Origin);
+        Assert.Equal(Element.Lightning, twin.Compound);
+        Assert.Equal(["Jumeau en Foudre, créé sur la page Éléments"], new Texts("fr").SpellOrigin(twin, Data));
+        Assert.Equal(["Lightning twin, created on the Elements page"], new Texts("en").SpellOrigin(twin, Data));
         // New until looked at (O2 a); a class's spell is never new.
         Assert.True(twin.New);
         SpellBook.Look(twin.Spell.Id);
@@ -43,52 +45,59 @@ public class SpellOriginTests
     }
 
     [Fact]
-    public void ADraftsTransmutation_IsAPreview_TheParentStaysUntilTheSave()
+    public void ADraftsLightning_IsAPreview_UntilTheSave_AndOnlyFromThirty()
     {
-        var editor = new PointsEditor(Sentinel(35, "electrifying"), Data);
-        editor.Take(Data.Talents["transmute-fire-lightning"]);
+        var editor = new PointsEditor(Sentinel(35), Data);
+        Assert.True(editor.CanCreate(Element.Lightning));
+        editor.Create(Element.Lightning);
+        Assert.Equal([Element.Lightning], editor.CompoundsCreated);
+        Assert.True(editor.CompoundsChanged);
         var book = new SpellBook(editor);
         Assert.Contains(book.Spells, b => b.Spell.Id == "fire-arrow");
         BookSpell twin = book.Spells.Single(b => b.Spell.Id == "lightning-fire-arrow");
         Assert.True(twin.Preview);
         Assert.False(twin.New);
+        Assert.Equal([Element.Lightning], editor.ToPoints().Compounds);
+        // Not twice, not a base element, not under 30, never shown only (in a fight).
+        Assert.False(editor.CanCreate(Element.Lightning));
+        Assert.False(editor.CanCreate(Element.Fire));
+        Assert.False(new PointsEditor(Sentinel(29), Data).CanCreate(Element.Lightning));
+        Assert.False(new PointsEditor(Sentinel(35), Data, readOnly: true).CanCreate(Element.Lightning));
     }
 
     [Fact]
     public void TheTreesChanges_AreSaid_OnTheSpellsTheyTouch()
     {
-        var editor = new PointsEditor(Sentinel(35, "bogging", "up-close"), Data);
+        var editor = new PointsEditor(Sentinel(35, "up-close"), Data);
         BookSpell arrow = new SpellBook(editor).Spells.First(b => b.Spell.Id == "stone-arrow");
         Assert.Equal(["up-close"], arrow.ModifiedBy);
         Assert.Equal(["Modifié par l'arbre : Au plus près"], new Texts("fr").SpellOrigin(arrow, Data));
-        Assert.Empty(new Texts("fr").SpellOrigin(new SpellBook(new PointsEditor(Sentinel(35, "bogging"), Data)).Spells.First(b => b.Spell.Id == "stone-arrow"), Data));
+        Assert.Empty(new Texts("fr").SpellOrigin(new SpellBook(new PointsEditor(Sentinel(35), Data)).Spells.First(b => b.Spell.Id == "stone-arrow"), Data));
     }
 
     [Fact]
-    public void TheDeck_SaysWhatTheTalentsDidToIt()
+    public void TheDeck_SaysWhatACompoundUndoneDidToIt()
     {
-        Hero hero = Sentinel(45, "electrifying", "transmute-fire-lightning") with { Deck = ["lightning-fire-arrow", "stone-arrow", "frost-arrow"] };
+        Hero hero = Lightning(45) with { Deck = ["lightning-fire-arrow", "stone-arrow", "fire-arrow"] };
         var editor = new PointsEditor(hero, Data);
-        // The Conversion takes the Transmutation's place: Lightning's twins stay, the Air spells' twins are previews until the save.
-        editor.Take(Data.Talents["convert-lightning"]);
-        Assert.Empty(editor.DeckChanges.Swapped);
-        // Giving the pair back: the twin goes, its parent comes back in the deck's place.
-        var back = new PointsEditor(hero, Data);
-        back.Drop(Data.Talents["electrifying"]);
-        Assert.Equal(["lightning-fire-arrow"], back.DeckChanges.Left);
-        Assert.Equal(["Flèche d'orage quitte ton deck jusqu'à l'enregistrement."], new Texts("fr").DeckChanges(back));
-        // A saved deck of class spells, a Transmutation saved: the twin in the parent's place.
-        var saved = new PointsEditor(Sentinel(35, "electrifying") with { Deck = ["fire-arrow", "stone-arrow"] }, Data);
-        saved.Take(Data.Talents["transmute-fire-lightning"]);
-        Assert.Equal(["stone-arrow"], saved.Deck);
-        Assert.Equal(["fire-arrow"], saved.DeckChanges.Left);
+        Assert.True(editor.CanDissolve(Element.Lightning));
+        // Undone (for free, Q10 a): the twin leaves the deck, its origin stays.
+        editor.Dissolve(Element.Lightning);
+        Assert.Empty(editor.CompoundsCreated);
+        Assert.Equal(["stone-arrow", "fire-arrow"], editor.Deck);
+        Assert.Equal(["lightning-fire-arrow"], editor.DeckChanges);
+        Assert.Equal(["Flèche d'orage quitte ton deck jusqu'à l'enregistrement."], new Texts("fr").DeckChanges(editor));
+        Assert.Empty(editor.ToPoints().Compounds!);
+        // Created again: nothing leaves.
+        editor.Create(Element.Lightning);
+        Assert.Empty(editor.DeckChanges);
     }
 
     [Fact]
     public void TheForecast_DetailsTheTree_ItsSumTheHitsBonus()
     {
         GameData data = Arena();
-        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(35, "bogging", "up-close", "firm-footing"), data));
+        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(35, "up-close", "firm-footing"), data));
         Fighter hero = fight.HeroFighter!, target = fight.Fighters[1];
         Spell stone = hero.Spells.First(s => s.Id == "stone-arrow");
         Forecast fc = fight.Foresee(stone, target.Cell).Single(f => f.Fighter == target);
@@ -104,13 +113,13 @@ public class SpellOriginTests
     [Fact]
     public void ANodesLine_BeforeAndAfter_IsThePercentsDifference()
     {
-        Hero hero = Sentinel(40, "bogging") with { Stats = new Characteristics(Earth: 50) };
+        Hero hero = Sentinel(40) with { Stats = new Characteristics(Earth: 50) };
         var editor = new PointsEditor(hero, Data);
         (int before, int after) = TreeGuide.BeforeAfter(editor.TalentsTaken, "up-close", hero, Data);
         Assert.Equal((0, 10), (before, after));
         Assert.Equal("Sur un coup type (à 2 cases, sans bouger, premier sort de 3 PA) : 0 % → +10 %", new Texts("fr").BeforeAfter("up-close", editor));
         // A taken node: the bonus without it, then with it; a node that changes nothing at that hit says nothing.
-        var taken = new PointsEditor(hero with { Talents = ["bogging", "up-close", "firm-footing"] }, Data);
+        var taken = new PointsEditor(hero with { Talents = ["up-close", "firm-footing"] }, Data);
         Assert.Equal((10, 25), TreeGuide.BeforeAfter(taken.TalentsTaken, "firm-footing", taken.Draft, Data));
         Assert.Null(new Texts("fr").BeforeAfter("side-step", editor));
         Assert.Contains("0 % → +10 %", new Texts("fr").TreeCard(new TreeLayout(Data)["up-close"]!, editor).Extra, StringComparison.Ordinal);
@@ -120,7 +129,7 @@ public class SpellOriginTests
     public void TheTalentsOfTheTurn_AreLit_ThenOff_AsTheHeroMoves()
     {
         GameData data = Arena();
-        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(40, "bogging", "firm-footing", "side-step", "dancing-step"), data));
+        var fight = new Fight(data, "s", 1, Progression.Built(Sentinel(40, "firm-footing", "side-step", "dancing-step"), data));
         Fighter hero = fight.HeroFighter!;
         IReadOnlyList<TalentLight> still = Talents.Lights(hero.Talents, fight.ContextOf(hero, null, hero.Cell, hero));
         Assert.Equal([new TalentLight("firm-footing", true, 15), new TalentLight("dancing-step", false, 0)], still);
