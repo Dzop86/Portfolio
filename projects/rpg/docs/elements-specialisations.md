@@ -31,6 +31,8 @@
 
 ### v3.2 Les éléments : ce qu'on garde, renomme ou retire
 
+> **Remplacé par D94 (2 novembre 2026) :** créer un composé consomme ses parents : leurs sorts quittent le grimoire et ces éléments ne servent plus à une autre fusion. Au plus 2 paires disjointes ou 1 trio ; 12 sorts par trio ; un sort de composé pose son empreinte, le suivant déclenche la réaction. Ce qui suit dit le contraire sur ces points.
+
 **La règle des composés** (reprise d'`elements.md` §0, point 8) : un composé frappe sur la **plus haute** caractéristique de ses parents ; ses sorts sont des **jumeaux** transposés par `spells_gen.py` (même forme, nouvel élément, budget × 0,8 pour une paire, × 0,75 pour un trio, signature comptée comme un effet). « Créer » un composé ne remplace aucun sort : il **ajoute** ses jumeaux au grimoire. Le deck reste le frein (12 places). Avec tout créé, un Mage a 24 + 48 + 16 = **88 sorts** : c'est pour cela que la création est un geste, pour que le livre de sorts reste lisible.
 
 **Les 6 paires** (ouvertes à 30 ; réactions et signatures d'`elements.md` §2, déjà dans `data/reactions.json` pour les réactions) :
