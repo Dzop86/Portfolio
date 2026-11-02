@@ -3080,11 +3080,11 @@ public partial class Main
     private async Task CheckElements(List<string> problems)
     {
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
-        PointsPanel Open(int level, bool readOnly)
+        PointsPanel Open(int level, bool readOnly, Texts? language = null)
         {
             var built = new PointsPanel();
             AddChild(built);
-            built.Build(new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: level), GameData.Embedded, readOnly), texts);
+            built.Build(new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: level), GameData.Embedded, readOnly), language ?? texts);
             built.ShowElements();
             return built;
         }
@@ -3111,26 +3111,28 @@ public partial class Main
         if (panel.FusionAction("ether").Visible)
             problems.Add("a trio at 30 offers a button");
         panel.QueueFree();
+        // In both languages (docs/maquette-elements.md §5.7).
+        foreach (Texts language in new[] { new Texts("fr"), new Texts("en") })
+        {
+            panel = Open(50, readOnly: false, language);
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            foreach (bool created in new[] { false, true })
+            {
+                if (created)
+                    panel.FusionAction("lightning").EmitSignal(BaseButton.SignalName.Pressed);
+                foreach (string id in panel.FusionTiles.Keys)
+                {
+                    panel.PickFusion(id);
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    if (!panel.ReadingFits)
+                        problems.Add($"the elements' reading overflows in {language.Lang}{(created ? " beside Lightning" : "")}: {panel.ReadingRoom}");
+                }
+            }
+            panel.QueueFree();
+        }
         panel = Open(50, readOnly: false);
         if (panel.FusionAction("ether").Disabled || panel.FusionAction("ether").Text != texts["elements.create"])
             problems.Add($"a trio at 50 offers '{panel.FusionAction("ether").Text}'");
-        // Each compound's reading holds in the panel (docs/maquette-elements.md §5.7), in the states that say the most.
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        foreach (string id in panel.FusionTiles.Keys)
-        {
-            panel.PickFusion(id);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            if (!panel.ReadingFits)
-                problems.Add($"the elements' reading overflows: {panel.ReadingRoom}");
-        }
-        panel.FusionAction("lightning").EmitSignal(BaseButton.SignalName.Pressed);
-        foreach (string id in panel.FusionTiles.Keys)
-        {
-            panel.PickFusion(id);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            if (!panel.ReadingFits)
-                problems.Add($"the elements' reading overflows beside Lightning: {panel.ReadingRoom}");
-        }
         panel.QueueFree();
         panel = Open(30, readOnly: true);
         if (panel.FusionAction("lightning").Visible)

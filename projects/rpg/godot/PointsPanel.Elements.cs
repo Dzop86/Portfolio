@@ -152,7 +152,7 @@ public partial class PointsPanel
             ThemeTypeVariation = OsmoseTheme.DetailPanel,
         };
         var column = new VBoxContainer();
-        column.AddThemeConstantOverride("separation", 4);
+        column.AddThemeConstantOverride("separation", 3);
         _reading.AddChild(column);
         var head = new HBoxContainer();
         head.AddThemeConstantOverride("separation", 10);
