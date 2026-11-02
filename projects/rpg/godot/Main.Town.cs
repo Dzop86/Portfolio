@@ -2304,6 +2304,9 @@ public partial class Main
             _talkPanel.ShowNotice(string.Join("  ", gained.Select(g => _talkPanel.Texts["job.levelup", GameData.Embedded.Jobs[g.Job].Name.In(_talkPanel.Texts.Lang), g.Level])));
             _sound?.Play("victory");
         }
+        // A tier of the path passed (sprint 186, D93, §v3.5).
+        if (_talkPanel is not null && _character?.Id == character.Id && PathNews.Of(character.Hero, _character.Level, GameData.Embedded, _talkPanel.Texts) is string news)
+            _talkPanel.ShowNotice(news);
         _character = character;
         _hero = character.Hero;
         _inventoryPanel?.SetShards(character.Shards);

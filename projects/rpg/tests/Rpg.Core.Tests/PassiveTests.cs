@@ -30,7 +30,8 @@ public class PassiveTests
     private static readonly PassiveSpec Boom = Passive("boom", Trigger.Death) with { Area = new Area(AreaShape.Circle, 1), DamageMin = 10, DamageMax = 10 };
     private static readonly PassiveSpec Aura = Passive("aura", Trigger.TurnStart, new StatusEffect(Affects.Allies, Stat.Damage, 10, 3)) with { Area = new Area(AreaShape.Circle, 2) };
     private static readonly PassiveSpec Pups = Passive("pups", Trigger.LowHp, new SummonEffect(Affects.All, "pup", Count: 2)) with { Percent = 50 };
-    private static readonly PassiveSpec[] Passives = [Mend, Struck, Thorns, Low, Grudge, Boom, Aura, Pups];
+    private static readonly PassiveSpec Felled = Passive("felled", Trigger.Kill, new StatusEffect(Affects.Caster, Stat.Damage, 5, 1));
+    private static readonly PassiveSpec[] Passives = [Mend, Struck, Thorns, Low, Grudge, Boom, Aura, Pups, Felled];
     private static readonly SummonSpec Pup = new("pup", Text, "wolf-melee", 10, 6, 3, 50, ["strike"], Scale: 70);
 
     private static GameData Data(string[] rows, params FighterSpec[] fighters) =>
@@ -231,7 +232,7 @@ public class PassiveTests
     public void AFightWithPassives_ReplaysTheSame()
     {
         // Two heroes who strike up close, three boars who play first and only walk.
-        GameData data = Data(["A..BB", ".A..B", "....B"], Spec(0, initiative: 1, spells: ["strike", "venom"]), Spec(0, 1, initiative: 1, spells: ["strike"]),
+        GameData data = Data(["A..BB", ".A..B", "....B"], Spec(0, initiative: 1, spells: ["strike", "venom"]) with { Passives = ["felled"] }, Spec(0, 1, initiative: 1, spells: ["strike"]) with { Passives = ["felled"] },
             Monster(0, hp: 30, family: "boar", passives: ["boom", "struck"]), Monster(1, hp: 40, family: "boar", passives: ["thorns", "low", "pups"]),
             Monster(2, hp: 40, family: "boar", passives: ["mend", "aura", "grudge"]));
         var fight = new Fight(data, "s", 42);

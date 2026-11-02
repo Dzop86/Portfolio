@@ -91,7 +91,8 @@ public static class Progression
         int points = CharacteristicPoints(hero.Level);
         int vitality = points / 2;
         // A compound's spell counts for each of its parents (sprint 138).
-        Element[] elements = [.. damaging.SelectMany(s => s.Element == Element.Neutral ? [Element.Earth] : Elements.IsCompound(s.Element) ? Elements.Parents(s.Element) : [s.Element])];
+        // An adaptive spell (sprint 186) follows the others' elements: it counts for none.
+        Element[] elements = [.. damaging.Where(s => !s.Adaptive).SelectMany(s => s.Element == Element.Neutral ? [Element.Earth] : Elements.IsCompound(s.Element) ? Elements.Parents(s.Element) : [s.Element])];
         int Share(Element e) => elements.Length == 0 ? 0 : (points - vitality) * elements.Count(x => x == e) / elements.Length;
         var stats = new Characteristics(points - Share(Element.Earth) - Share(Element.Fire) - Share(Element.Water) - Share(Element.Air),
             Share(Element.Earth), Share(Element.Fire), Share(Element.Water), Share(Element.Air));

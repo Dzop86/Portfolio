@@ -61,7 +61,11 @@ public sealed class FightSummary
         if (result?.Quest is string id && GameData.Embedded.Quests.TryGetValue(id, out Quest? quest))
             notes.Add(texts["result.quest", quest.Name.In(texts.Lang)]);
         if (result is not null && hero is not null && result.Level > fight.Hero!.Level)
+        {
             notes.Add(texts["result.level", result.Level]);
+            if (PathNews.Of(fight.Hero! with { Level = result.Level }, fight.Hero!.Level, fight.Data, texts) is string news)
+                notes.Add(news);
+        }
         if (result is not null && hero is not null)
             notes.AddRange(texts.DeckNews(fight.Hero!, result.Level));
         if (offline && hero is not null && fight.Hero!.Class is not null)

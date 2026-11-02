@@ -283,6 +283,9 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Skin")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Spec")
+                        .HasColumnType("text");
+
                     b.Property<string>("Talents")
                         .IsRequired()
                         .HasColumnType("text");

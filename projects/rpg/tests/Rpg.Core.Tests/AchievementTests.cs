@@ -123,8 +123,8 @@ public class AchievementTests
         Assert.Equal(new AchievementReward(562, 281), Achievements.Reward(Of("ancestors-all")));
         Assert.Equal(new AchievementReward(675, 337), Achievements.Reward(Of("contracts-200")));
         Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 45 && Achievements.Reward(a).Xp <= 675, a.Id));
-        // Sprint 175: ten hunters of 20 points.
-        Assert.Equal(1310, Achievements.All.Sum(a => a.Points));
+        // Sprint 175: ten hunters of 20 points; sprint 186: the paths' quest, 5.
+        Assert.Equal(1315, Achievements.All.Sum(a => a.Points));
     }
 
     [Fact]

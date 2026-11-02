@@ -1515,6 +1515,26 @@
     ]
   },
   {
+    "id": "written-in-pencil",
+    "category": "Quests",
+    "group": "ancestors",
+    "name": {
+      "fr": "Écrit au crayon",
+      "en": "Written in Pencil"
+    },
+    "text": {
+      "fr": "Terminez la quête d'Anatole, à Quatre-Chemins : une route à soi.",
+      "en": "Complete Anatole's quest at Four Ways: a road of your own."
+    },
+    "points": 5,
+    "level": 30,
+    "goal": "Quests",
+    "count": 1,
+    "targets": [
+      "a-road-of-ones-own"
+    ]
+  },
+  {
     "id": "ancestors-side",
     "category": "Quests",
     "group": "ancestors",

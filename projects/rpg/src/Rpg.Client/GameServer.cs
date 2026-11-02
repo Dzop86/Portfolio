@@ -378,6 +378,14 @@ public sealed class GameServer(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }
 
+    /// <summary>Takes a path (sprint 186, D93); the server checks the level, the quest and the price.</summary>
+    public async Task<CharacterSummary> ChooseSpec(Guid id, string spec, CancellationToken cancel = default)
+    {
+        HttpResponseMessage response = await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/spec", UriKind.Relative), new SpecChoice(spec), Json, cancel), cancel);
+        await Check(response, cancel);
+        return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
+    }
+
     /// <summary>Makes items at a trade's workshop (sprint 81); the server checks the level and the ingredients.</summary>
     /// <summary>The character's achievements (sprint 155): how far each one has gone, the points, the title worn.</summary>
     public async Task<AchievementView> Achievements(Guid id, CancellationToken cancel = default)

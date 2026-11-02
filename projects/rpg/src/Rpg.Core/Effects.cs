@@ -282,6 +282,12 @@ public enum Trigger
     /// <summary>Once per fight, the first time its hit points fall below a percentage of its maximum.</summary>
     LowHp,
 
+    /// <summary>
+    /// It fells an enemy that is not a summon (sprint 186, a path's): by its spell, Arc, glyph, passive, poison or push. Nothing
+    /// fires once the fight is over.
+    /// </summary>
+    Kill,
+
     /// <summary>A fighter of its team and family (not a summon) dies, within some steps.</summary>
     AllyDies,
 
@@ -297,6 +303,7 @@ public enum Trigger
 /// <param name="Melee">Hit only: the attacker stands next to the bearer.</param>
 /// <param name="Percent">LowHp only: 1 to 99.</param>
 /// <param name="Range">AllyDies only: the ally died within that many steps (0: anywhere).</param>
+/// <param name="Clear">TurnStart only (sprint 186): it fires only with no living fighter of the other side within that many steps (0: always).</param>
 public sealed record PassiveSpec(
     string Id,
     LocalizedText Name,
@@ -309,7 +316,8 @@ public sealed record PassiveSpec(
     int Range = 0,
     int DamageMin = 0,
     int DamageMax = 0,
-    Element Element = Element.Neutral)
+    Element Element = Element.Neutral,
+    int Clear = 0)
 {
     public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
 }

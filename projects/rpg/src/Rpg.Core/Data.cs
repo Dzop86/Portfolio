@@ -35,7 +35,8 @@ public sealed record Spell(
     int Cooldown = 0,
     int Crit = 0,
     string? Icon = null,
-    string? Twin = null)
+    string? Twin = null,
+    bool Adaptive = false)
 {
     /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
     public string RankKey => Twin ?? Id;
@@ -212,7 +213,9 @@ public sealed record FighterSpec(
     bool Chief = false,
     int TreeDamage = 0,
     int Threshold = 0,
-    bool Reacts = false)
+    bool Reacts = false,
+    IReadOnlyList<TalentRule>? SpecRules = null,
+    Element SpecElement = Element.Neutral)
 {
     public Characteristics Characteristics => Stats ?? Characteristics.None;
 
@@ -303,6 +306,9 @@ public sealed class GameData
     /// <summary>The elemental reactions (sprint 137), by id.</summary>
     public IReadOnlyDictionary<string, ReactionSpec> Reactions { get; }
 
+    /// <summary>The classes' paths (sprint 186, D93), by id, in the data file's order.</summary>
+    public IReadOnlyDictionary<string, Specialisation> Specs { get; }
+
     private readonly Dictionary<string, Scenario> _groupFights = new(StringComparer.Ordinal);
 
     /// <summary>The groups of monsters living on a map, in their order.</summary>
@@ -319,7 +325,7 @@ public sealed class GameData
         IEnumerable<Town>? towns = null, IEnumerable<Dialogue>? dialogues = null, IEnumerable<SummonSpec>? summons = null, IEnumerable<Quest>? quests = null,
         IEnumerable<Item>? items = null, IEnumerable<ItemSet>? sets = null, IEnumerable<MonsterFamily>? families = null,
         IEnumerable<Dungeon>? dungeons = null, IEnumerable<Job>? jobs = null, IEnumerable<PassiveSpec>? passives = null,
-        IEnumerable<TalentSpec>? talents = null, IEnumerable<ReactionSpec>? reactions = null)
+        IEnumerable<TalentSpec>? talents = null, IEnumerable<ReactionSpec>? reactions = null, IEnumerable<Specialisation>? specs = null)
     {
         Items = Index(items ?? [], i => i.Id, "item");
         Sets = Index(sets ?? [], s => s.Id, "set");
@@ -375,6 +381,8 @@ public sealed class GameData
             Check(s);
         foreach (HeroClass c in Classes)
             Check(c);
+        Specs = Index(specs ?? [], s => s.Id, "path");
+        CheckSpecs();
         Dialogues = Index(dialogues ?? [], d => d.Id, "dialogue");
         Towns = Index(towns ?? [], t => t.Id, "town");
         foreach (Dialogue d in Dialogues.Values)
@@ -643,7 +651,8 @@ public sealed class GameData
             File.Exists(Path.Combine(folder, "jobs.json")) ? Read<List<Job>>(Path.Combine(folder, "jobs.json")) : null,
             File.Exists(Path.Combine(folder, "passives.json")) ? Read<List<PassiveSpec>>(Path.Combine(folder, "passives.json")) : null,
             File.Exists(Path.Combine(folder, "talents.json")) ? Read<List<TalentSpec>>(Path.Combine(folder, "talents.json")) : null,
-            File.Exists(Path.Combine(folder, "reactions.json")) ? Read<List<ReactionSpec>>(Path.Combine(folder, "reactions.json")) : null);
+            File.Exists(Path.Combine(folder, "reactions.json")) ? Read<List<ReactionSpec>>(Path.Combine(folder, "reactions.json")) : null,
+            File.Exists(Path.Combine(folder, "specs.json")) ? Read<List<Specialisation>>(Path.Combine(folder, "specs.json")) : null);
     }
 
     /// <summary>
@@ -678,7 +687,8 @@ public sealed class GameData
             files.TryGetValue("data/jobs.json", out string? jobs) ? Parse<List<Job>>("jobs.json", jobs) : null,
             files.TryGetValue("data/passives.json", out string? passives) ? Parse<List<PassiveSpec>>("passives.json", passives) : null,
             files.TryGetValue("data/talents.json", out string? talents) ? Parse<List<TalentSpec>>("talents.json", talents) : null,
-            files.TryGetValue("data/reactions.json", out string? reactions) ? Parse<List<ReactionSpec>>("reactions.json", reactions) : null);
+            files.TryGetValue("data/reactions.json", out string? reactions) ? Parse<List<ReactionSpec>>("reactions.json", reactions) : null,
+            files.TryGetValue("data/specs.json", out string? specs) ? Parse<List<Specialisation>>("specs.json", specs) : null);
     }
 
     public Board Board(string mapId) =>
@@ -747,6 +757,34 @@ public sealed class GameData
     };
 
     /// <summary>
+    /// The paths (sprint 186, D93): of a known class, three at most each; one evolution at each of the levels of
+    /// <see cref="Core.Specs.TierLevels"/>, in order; spells known, of no class, of the level of their evolution; known
+    /// passives; kept spells of its class; compiled rules only (a living one would escape the forecast).
+    /// </summary>
+    private void CheckSpecs()
+    {
+        HashSet<string> ofClasses = [.. Classes.SelectMany(c => c.Spells)];
+        foreach (Specialisation s in Specs.Values)
+        {
+            if (Class(s.Class) is not HeroClass c || Specs.Values.Count(o => o.Class == s.Class) > 3)
+                throw new InvalidDataException($"Path '{s.Id}': of a known class, three at most each.");
+            if (!s.Tiers.Select(t => t.Level).SequenceEqual(Core.Specs.TierLevels))
+                throw new InvalidDataException($"Path '{s.Id}': one evolution at each of {string.Join(", ", Core.Specs.TierLevels)}.");
+            foreach (SpecTier t in s.Tiers)
+            {
+                if ((t.Spells ?? []).Any(id => !Spells.TryGetValue(id, out Spell? sp) || sp.Level != t.Level || ofClasses.Contains(id)))
+                    throw new InvalidDataException($"Path '{s.Id}': spells known, of level {t.Level}, of no class.");
+                if ((t.Passives ?? []).Concat(t.Replaces ?? []).Any(id => !Passives.ContainsKey(id)))
+                    throw new InvalidDataException($"Path '{s.Id}': known passives.");
+                if ((t.Rules ?? []).Any(r => r is not (RangeRule or LeapSightRule or GlyphTurnsRule)))
+                    throw new InvalidDataException($"Path '{s.Id}': compiled rules only.");
+            }
+            if ((s.Keeps ?? []).Any(id => !c.Spells.Contains(id)))
+                throw new InvalidDataException($"Path '{s.Id}': kept spells of its class.");
+        }
+    }
+
+    /// <summary>
     /// A passive (sprint 90): a percentage for a low-health one only, "melee" and the attacker for a hit
     /// only, a range for an ally's death only, effects in the bounds of a spell's (no leap nor swap),
     /// damage in bounds, an area of 1 to 5.
@@ -754,6 +792,7 @@ public sealed class GameData
     private void Check(PassiveSpec p)
     {
         bool ok = (p.Trigger == Trigger.LowHp ? p.Percent is >= 1 and <= 99 : p.Percent == 0)
+            && (p.Trigger == Trigger.TurnStart ? p.Clear >= 0 : p.Clear == 0)
             && (p.Trigger == Trigger.Hit || (!p.Melee && p.AllEffects.All(e => e.Affects != Affects.Attacker)))
             && (p.Trigger == Trigger.AllyDies ? p.Range >= 0 : p.Range == 0)
             && p.DamageMin >= 0 && p.DamageMax >= p.DamageMin && (p.Area is null || (p.Area.Shape != AreaShape.Point && ValidArea(p.Area)))

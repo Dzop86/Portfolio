@@ -1,0 +1,389 @@
+[
+  {
+    "id": "archmage",
+    "class": "mage",
+    "name": {
+      "fr": "Archimage",
+      "en": "Archmage"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Archimage",
+          "en": "Archmage"
+        },
+        "description": {
+          "fr": "+1 PA au tour suivant si tu n'as pas bougé. Tes sorts de 6 PA ou plus se relancent un tour plus tôt. Sorts : Comète et Recueillement.",
+          "en": "+1 AP next turn if you did not move. Your spells of 6 AP or more come back a turn sooner. Spells: Comet and Composure."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut archimage",
+          "en": "High Archmage"
+        },
+        "description": {
+          "fr": "Le passif tient même après un pas. Sort : Rayon.",
+          "en": "The passive holds even after a step. Spell: Ray."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Archimage souverain",
+          "en": "Sovereign Archmage"
+        },
+        "description": {
+          "fr": "Une fois par combat, un sort de 6 PA ou plus coûte 3 PA de moins. Comète laisse une zone de −1 PM.",
+          "en": "Once per fight, a spell of 6 AP or more costs 3 AP less. Comet leaves an area of −1 MP."
+        }
+      }
+    ]
+  },
+  {
+    "id": "sorcerer",
+    "class": "mage",
+    "name": {
+      "fr": "Sorcier",
+      "en": "Sorcerer"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Sorcier",
+          "en": "Sorcerer"
+        },
+        "description": {
+          "fr": "Tes états durent un tour de plus. 2 poisons cumulables. Sorts : Malédiction et Fiel.",
+          "en": "Your states last a turn longer. 2 poisons stack. Spells: Curse and Gall."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut sorcier",
+          "en": "High Sorcerer"
+        },
+        "description": {
+          "fr": "3 poisons cumulables. Sort : Contagion.",
+          "en": "3 poisons stack. Spell: Contagion."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Sorcier souverain",
+          "en": "Sovereign Sorcerer"
+        },
+        "description": {
+          "fr": "Un ennemi sous 2 états ou plus reçoit +15 % de tes coups. Malédiction frappe en croix de 1.",
+          "en": "An enemy under 2 states or more takes +15% from your blows. Curse strikes in a cross of 1."
+        }
+      }
+    ]
+  },
+  {
+    "id": "necromancer",
+    "class": "mage",
+    "name": {
+      "fr": "Nécromancien",
+      "en": "Necromancer"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Nécromancien",
+          "en": "Necromancer"
+        },
+        "description": {
+          "fr": "Une ombre se lève d'un ennemi tombé, une fois par combat. 2 invocations. Sorts : Lever une ombre et Lien funeste.",
+          "en": "A shade rises from a fallen enemy, once per fight. 2 summons. Spells: Raise a Shade and Grim Bond."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut nécromancien",
+          "en": "High Necromancer"
+        },
+        "description": {
+          "fr": "Tes ombres ont +25 % de PV. Sort : Éclat d'ombre.",
+          "en": "Your shades have +25% HP. Spell: Shade Burst."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Nécromancien souverain",
+          "en": "Sovereign Necromancer"
+        },
+        "description": {
+          "fr": "3 invocations. Le passif joue deux fois par combat.",
+          "en": "3 summons. The passive works twice per fight."
+        }
+      }
+    ]
+  },
+  {
+    "id": "palisade",
+    "class": "guard",
+    "name": {
+      "fr": "Palissade",
+      "en": "Palisade"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Garde de la Palissade",
+          "en": "Palisade Guard"
+        },
+        "description": {
+          "fr": "Un bouclier aux alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Ancrage.",
+          "en": "A shield on allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Anchor."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut garde de la Palissade",
+          "en": "High Palisade Guard"
+        },
+        "description": {
+          "fr": "Le passif porte à 2 cases. Sort : Mur de boucliers.",
+          "en": "The passive reaches 2 cells. Spell: Shield Wall."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Garde souverain de la Palissade",
+          "en": "Sovereign Palisade Guard"
+        },
+        "description": {
+          "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Interposition se relance en 1 tour.",
+          "en": "Once per fight, an ally 2 cells away who would fall stays at 1 HP. Interpose comes back in 1 turn."
+        }
+      }
+    ]
+  },
+  {
+    "id": "breach",
+    "class": "guard",
+    "name": {
+      "fr": "Brèche",
+      "en": "Breach"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Garde de la Brèche",
+          "en": "Breach Guard"
+        },
+        "description": {
+          "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Charge et Arrachement.",
+          "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Charge and Wrench."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut garde de la Brèche",
+          "en": "High Breach Guard"
+        },
+        "description": {
+          "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Fauchage.",
+          "en": "An enemy finished off: +1 MP and +1 AP. Spell: Reaping."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Garde souverain de la Brèche",
+          "en": "Sovereign Breach Guard"
+        },
+        "description": {
+          "fr": "Une attirance contre un obstacle fait 6 dégâts par case. Charge se relance en 1 tour.",
+          "en": "A pull against an obstacle does 6 damage per cell. Charge comes back in 1 turn."
+        }
+      }
+    ]
+  },
+  {
+    "id": "grip",
+    "class": "guard",
+    "name": {
+      "fr": "Étau",
+      "en": "Grip"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Garde de l'Étau",
+          "en": "Grip Guard"
+        },
+        "description": {
+          "fr": "Qui te frappe au contact perd 1 PM. Tes retraits de PA et de PM durent un tour de plus. Sorts : Prise et Verrou.",
+          "en": "Whoever strikes you in melee loses 1 MP. Your AP and MP losses last a turn longer. Spells: Hold and Lock."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haut garde de l'Étau",
+          "en": "High Grip Guard"
+        },
+        "description": {
+          "fr": "Le passif retire aussi 1 PA, une fois par tour. Sort : Écrasement.",
+          "en": "The passive also takes 1 AP, once per turn. Spell: Crush."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Garde souverain de l'Étau",
+          "en": "Sovereign Grip Guard"
+        },
+        "description": {
+          "fr": "Les ennemis à ton contact perdent 1 PM au début de leur tour. Verrou se relance en 2 tours.",
+          "en": "Enemies next to you lose 1 MP at the start of their turn. Lock comes back in 2 turns."
+        }
+      }
+    ]
+  },
+  {
+    "id": "sightline",
+    "class": "sentinel",
+    "name": {
+      "fr": "Mire",
+      "en": "Sightline"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Sentinelle de la Mire",
+          "en": "Sightline Sentinel"
+        },
+        "description": {
+          "fr": "Aucun ennemi à 3 cases : +15 % de dégâts pendant 1 tour. Tes sorts en vue portent à +1 PO. Sorts : Tir visé et Visée.",
+          "en": "No enemy within 3 cells: +15% damage for 1 turn. Your spells in sight reach +1 range. Spells: Aimed Shot and Aim."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haute sentinelle de la Mire",
+          "en": "High Sightline Sentinel"
+        },
+        "description": {
+          "fr": "Tes sorts de 6 PO ou plus portent à +2 PO. Sort : Tir de barrage.",
+          "en": "Your spells of 6 range or more reach +2 range. Spell: Barrage."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Sentinelle souveraine de la Mire",
+          "en": "Sovereign Sightline Sentinel"
+        },
+        "description": {
+          "fr": "Le passif monte à +25 % sur 2 tours. Tir visé traverse : une case de plus, à 50 %.",
+          "en": "The passive rises to +25% over 2 turns. Aimed Shot pierces: one cell more, at 50%."
+        }
+      }
+    ]
+  },
+  {
+    "id": "ambush",
+    "class": "sentinel",
+    "name": {
+      "fr": "Affût",
+      "en": "Ambush"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Sentinelle de l'Affût",
+          "en": "Ambush Sentinel"
+        },
+        "description": {
+          "fr": "Le Faucon reste 2 tours de plus. Tes glyphes durent un tour de plus. Sorts : Mâchoires et Piqué.",
+          "en": "The Hawk stays 2 turns longer. Your glyphs last a turn longer. Spells: Jaw Trap and Dive."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haute sentinelle de l'Affût",
+          "en": "High Ambush Sentinel"
+        },
+        "description": {
+          "fr": "Le Faucon a +30 % de PV. Sort : Appât.",
+          "en": "The Hawk has +30% HP. Spell: Bait."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Sentinelle souveraine de l'Affût",
+          "en": "Sovereign Ambush Sentinel"
+        },
+        "description": {
+          "fr": "Deux Mâchoires à la fois. Un ennemi piégé prend +15 % de tes coups pendant 2 tours.",
+          "en": "Two Jaw Traps at once. A trapped enemy takes +15% from your blows for 2 turns."
+        }
+      }
+    ]
+  },
+  {
+    "id": "trail",
+    "class": "sentinel",
+    "name": {
+      "fr": "Sente",
+      "en": "Trail"
+    },
+    "tiers": [
+      {
+        "level": 30,
+        "title": {
+          "fr": "Sentinelle de la Sente",
+          "en": "Trail Sentinel"
+        },
+        "description": {
+          "fr": "Frappée au contact : +2 PM pendant 1 tour. Tes sauts n'ont pas besoin de la vue. Sorts : Bond et Coup de talon.",
+          "en": "Struck in melee: +2 MP for 1 turn. Your leaps need no sight. Spells: Vault and Heel Kick."
+        }
+      },
+      {
+        "level": 50,
+        "title": {
+          "fr": "Haute sentinelle de la Sente",
+          "en": "High Trail Sentinel"
+        },
+        "description": {
+          "fr": "Bond n'a plus de relance, une fois par tour. Sort : Feinte.",
+          "en": "Vault has no cooldown, once per turn. Spell: Feint."
+        }
+      },
+      {
+        "level": 100,
+        "title": {
+          "fr": "Sentinelle souveraine de la Sente",
+          "en": "Sovereign Trail Sentinel"
+        },
+        "description": {
+          "fr": "Le passif monte à +3 PM. Une fois par combat, le premier coup au contact est esquivé. Après un saut, +10 % au prochain sort.",
+          "en": "The passive rises to +3 MP. Once per fight, the first melee blow is dodged. After a leap, +10% on the next spell."
+        }
+      }
+    ]
+  }
+]

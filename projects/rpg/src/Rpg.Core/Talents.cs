@@ -61,6 +61,8 @@ public enum Tier
 [JsonDerivedType(typeof(RelieveRule), "relieve")]
 [JsonDerivedType(typeof(MarkRule), "mark")]
 [JsonDerivedType(typeof(CatalysisRule), "catalysis")]
+[JsonDerivedType(typeof(LeapSightRule), "leap-sight")]
+[JsonDerivedType(typeof(GlyphTurnsRule), "glyph-turns")]
 [JsonDerivedType(typeof(LingerRule), "linger")]
 [JsonDerivedType(typeof(WaveRule), "wave")]
 [JsonDerivedType(typeof(SharedMarkRule), "shared-mark")]
@@ -197,7 +199,14 @@ public sealed record FirstCastRule(int First, int Others) : TalentRule;
 /// its minimum range nor under 1.
 /// </summary>
 /// <param name="AtLeast">Only the spells reaching that far already (Long Sight: 4).</param>
-public sealed record RangeRule(int Change, int AtLeast = 0) : TalentRule;
+/// <param name="Sight">Only the spells that ask for a line of sight (sprint 186, the Sightline).</param>
+public sealed record RangeRule(int Change, int AtLeast = 0, bool Sight = false) : TalentRule;
+
+/// <summary>A path's (sprint 186, the Trail): its spells that leap ask for no line of sight.</summary>
+public sealed record LeapSightRule : TalentRule;
+
+/// <summary>A path's (sprint 186, the Ambush): the glyphs its spells lay last that many turns more.</summary>
+public sealed record GlyphTurnsRule(int Extra) : TalentRule;
 
 /// <summary>Living: the bearer's spells hit <see cref="Percent"/> % harder (or softer) on a target <see cref="MinCells"/> to <see cref="MaxCells"/> cells away.</summary>
 public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : TalentRule;
@@ -401,7 +410,7 @@ public static class Talents
     /// <summary>
     /// The spells a hero may put in its deck (sprint 138): its class's that its level has unlocked, in the class's order;
     /// since sprint 182 (D93), then for each compound it created (<see cref="Hero.Compounds"/>, in that order) the twins of
-    /// those of its parents' elements, in the class's order, none replacing its origin; then the spells of the tree.
+    /// those of its parents' elements, in the class's order, none replacing its origin; then its path's (sprint 186); then the spells of the tree.
     /// </summary>
     public static Grimoire GrimoireOf(Hero hero, GameData data)
     {
@@ -420,6 +429,8 @@ public static class Talents
                     spells.Add(twin.Id);
             }
         }
+        // Its path's (sprint 186): after the compounds', before the tree's.
+        spells.AddRange(Specs.SpellsOf(hero, data).Where(id => !spells.Contains(id)));
         // The spells of the tree (sprint 142): after the class's.
         foreach (GrantRule g in (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
             spells.Add(g.Spell);
@@ -435,17 +446,18 @@ public static class Talents
     /// the range (never under 1 nor under the minimum, for a spell reaching farther than 1), its cap, the line of sight,
     /// the area, the push, the cooldown, the cost, the casts per turn.
     /// </remarks>
-    public static Spell Compile(Spell spell, IReadOnlyList<TalentSpec> talents)
+    /// <param name="extra">Rules that are not a talent's: a path's (sprint 186).</param>
+    public static Spell Compile(Spell spell, IReadOnlyList<TalentSpec> talents, IEnumerable<TalentRule>? extra = null)
     {
         ArgumentNullException.ThrowIfNull(spell);
         ArgumentNullException.ThrowIfNull(talents);
-        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
+        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules), .. extra ?? []];
         if (rules.Length == 0)
             return spell;
         Spell s = spell;
         foreach (MinRangeRule m in rules.OfType<MinRangeRule>().Where(_ => s.DamageMax > 0 && s.MaxRange > 0))
             s = s with { MinRange = Math.Max(s.MinRange, m.Min), MaxRange = Math.Max(s.MaxRange, m.Min) };
-        int change = rules.OfType<RangeRule>().Where(r => spell.MaxRange >= r.AtLeast).Sum(r => r.Change)
+        int change = rules.OfType<RangeRule>().Where(r => spell.MaxRange >= r.AtLeast && (!r.Sight || spell.LineOfSight)).Sum(r => r.Change)
             + (s.InLine ? 0 : rules.OfType<SightRule>().Sum(r => r.OthersChange));
         if (change != 0 && s.MaxRange > 1)
             s = s with { MaxRange = Math.Max(Math.Max(1, s.MinRange), s.MaxRange + change) };
@@ -476,6 +488,12 @@ public static class Talents
             s = s with { ApCost = Math.Max(c.Floor, s.ApCost + c.Change) };
         if (rules.OfType<OncePerTurnRule>().Any())
             s = s with { PerTurn = 1 };
+        // The paths' (sprint 186).
+        if (rules.OfType<LeapSightRule>().Any() && s.AllEffects.Any(e => e is LeapEffect))
+            s = s with { LineOfSight = false };
+        int extraTurns = rules.OfType<GlyphTurnsRule>().Sum(r => r.Extra);
+        if (extraTurns > 0 && s.AllEffects.Any(e => e is GlyphEffect))
+            s = s with { Effects = [.. s.AllEffects.Select(e => e is GlyphEffect g ? g with { Turns = g.Turns + extraTurns } : e)] };
         return s;
     }
 

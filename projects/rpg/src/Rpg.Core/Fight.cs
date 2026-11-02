@@ -251,10 +251,14 @@ public sealed class Fight
         (Current.Ap, Current.Mp) = (Math.Max(0, Current.Ap + firstAp), Math.Max(0, Current.Mp + firstMp));
         _events.Add(new TurnStarted(Current.Id, Round));
         Rally(Current);
-        foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart))
+        foreach (PassiveSpec p in Current.Passives.Where(p => p.Trigger == Trigger.TurnStart && IsClear(Current, p)))
             _pending.Enqueue((Current, p, null));
         Resolve();
     }
+
+    /// <summary>A passive of the start of a turn with <see cref="PassiveSpec.Clear"/> (sprint 186): no living enemy, summons too, that close.</summary>
+    private bool IsClear(Fighter bearer, PassiveSpec p) =>
+        p.Clear == 0 || !Fighters.Any(f => f.IsAlive && f.Team != bearer.Team && f.Cell.DistanceTo(bearer.Cell) <= p.Clear);
 
     /// <summary>
     /// The scenario's fighter, played by the hero: its name and look, its class's characteristics and
@@ -290,6 +294,10 @@ public sealed class Fight
             Threshold = linearReturns ? 0 : Characteristics.Threshold(hero.Level),
             // The six reactions from level 30 (sprint 182, D93), no talent asked.
             Reacts = freeReactions && hero.Level >= Elements.Pairs,
+            // Its path's evolutions (sprint 186): passives, rules compiled into its spells (SpellsOf), adaptive spells in its strongest element.
+            Passives = Specs.PassivesOf(hero, data) is { Count: > 0 } passives ? [.. f.Passives ?? [], .. passives] : f.Passives,
+            SpecRules = Specs.RulesOf(hero, data),
+            SpecElement = Specs.Of(hero, data) is null ? Element.Neutral : Specs.AdaptiveElement(n.Stats, Talents.GrimoireOf(hero, data).Spells.Select(id => data.Spells[id]), linearReturns ? 0 : Characteristics.Threshold(hero.Level)),
         };
     }
 
@@ -314,7 +322,7 @@ public sealed class Fight
     private static List<Spell> SpellsOf(FighterSpec spec, GameData data)
     {
         List<TalentSpec> talents = TalentsOf(spec, data);
-        return [.. spec.Spells.Select(id => Talents.Compile(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(data.Spells[id].RankKey, 1) ?? 1), talents))];
+        return [.. spec.Spells.Select(id => Talents.Compile(Specs.Adapted(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(data.Spells[id].RankKey, 1) ?? 1), spec.SpecElement), talents, spec.SpecRules))];
     }
 
     private static List<TalentSpec> TalentsOf(FighterSpec spec, GameData data) => [.. (spec.Talents ?? []).Select(id => data.Talents[id])];
@@ -725,7 +733,7 @@ public sealed class Fight
             _events.Add(new GlyphTriggered(g.Id, f.Id));
             Fighter caster = _fighters[g.Caster];
             if (g.Effect.DamageMax > 0)
-                Hurt(f, Damage(_rng.Next(g.Effect.DamageMin, g.Effect.DamageMax), caster, f, g.Effect.Element) * g.PercentAt(f.Cell) / 100, g.Effect.Element);
+                Hurt(f, Damage(_rng.Next(g.Effect.DamageMin, g.Effect.DamageMax), caster, f, g.Effect.Element) * g.PercentAt(f.Cell) / 100, g.Effect.Element, caster);
             if (!IsOver && f.IsAlive && g.Effect.AsStatus is StatusEffect status)
                 SetStatus(caster, f, status);
             // A Seal's mark (sprint 142): it never sets a reaction off.
@@ -872,7 +880,7 @@ public sealed class Fight
         if (to is null)
             return;
         _events.Add(new Arced(from.Id, to.Id));
-        Hurt(to, Damage(roll, me, to, element, true, context, bonus: me.Spec.Threshold == 0) * percent / 100, element);
+        Hurt(to, Damage(roll, me, to, element, true, context, bonus: me.Spec.Threshold == 0) * percent / 100, element, me);
     }
 
     /// <summary>
@@ -909,7 +917,7 @@ public sealed class Fight
             }
             int catalysis = rules.OfType<CatalysisRule>().Sum(r => r.Percent);
             if (catalysis > 0 && dealt > 0 && f.IsAlive && !IsOver)
-                Hurt(f, dealt * catalysis / 100);
+                Hurt(f, dealt * catalysis / 100, by: me);
             TrioAftermath(me, f, reaction, dealt, spell);
             return;
         }
@@ -1022,7 +1030,7 @@ public sealed class Fight
                     Zone = spell.Zone.Radius > 0,
                 };
                 int dealt = Damage(roll, me, hit, spell.Element, true, here, GuardOf(hit));
-                if (Hurt(hit, dealt, spell.Element) > 0 && hit.IsAlive)
+                if (Hurt(hit, dealt, spell.Element, me) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
@@ -1127,7 +1135,7 @@ public sealed class Fight
                         _events.Add(new Shielded(f.Id, shield.Amount, shield.Turns));
                         break;
                     case PushEffect push:
-                        Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true, Talents.Collision(me.Talents));
+                        Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true, Talents.Collision(me.Talents), me);
                         break;
                     case PullEffect pull:
                         Shove(f, Cell.Direction(f.Cell, me.Cell), Math.Min(pull.Cells, f.Cell.DistanceTo(me.Cell) - 1), collide: false);
@@ -1201,7 +1209,7 @@ public sealed class Fight
 
     /// <summary>Moves a fighter cell by cell; what stops a push hurts, per cell left.</summary>
     /// <param name="collision">The damage a cell not travelled does (Heavy Push, sprint 141).</param>
-    private void Shove(Fighter f, Cell direction, int cells, bool collide, int collision = CollisionDamage)
+    private void Shove(Fighter f, Cell direction, int cells, bool collide, int collision = CollisionDamage, Fighter? by = null)
     {
         if (direction == new Cell(0, 0) || cells <= 0)
             return;
@@ -1219,7 +1227,7 @@ public sealed class Fight
         f.Cell = at;
         _events.Add(new Pushed(f.Id, path, blocked));
         if (blocked > 0)
-            Hurt(f, blocked * collision);
+            Hurt(f, blocked * collision, by: by);
         // Where it lands, a glyph strikes (sprint 130), after the collision.
         if (path.Count > 0)
             StrikeAt(f);
@@ -1229,7 +1237,8 @@ public sealed class Fight
     /// Damage through the shields first, then the hit points; a death may end the fight. Returns what was
     /// taken, shield and hit points. Queues the passives a loss of hit points or a death sets off (sprint 90).
     /// </summary>
-    private int Hurt(Fighter hit, int damage, Element element = Element.Neutral)
+    /// <param name="by">Who struck, if anyone: when it fells an enemy that is not a summon, its passives of <see cref="Trigger.Kill"/> (sprint 186).</param>
+    private int Hurt(Fighter hit, int damage, Element element = Element.Neutral, Fighter? by = null)
     {
         int absorbed = 0;
         for (int i = 0; i < hit.Shields.Count && damage > 0; i++)
@@ -1287,6 +1296,12 @@ public sealed class Fight
                 _events.Add(new MarkEnded(marked.Id));
             }
         }
+        // The one who felled it, an enemy that is not a summon (sprint 186).
+        if (by is { IsAlive: true } && by.Team != hit.Team && !hit.IsSummon)
+        {
+            foreach (PassiveSpec p in by.Passives.Where(p => p.Trigger == Trigger.Kill))
+                _pending.Enqueue((by, p, null));
+        }
         // An ally of the same family falls (not a summon), within the passive's range.
         if (!hit.IsSummon && hit.Spec.Family is string family)
         {
@@ -1329,7 +1344,7 @@ public sealed class Fight
                 foreach (Fighter f in cells.Skip(p.Area is null ? 0 : 1).Select(At).OfType<Fighter>().ToList())
                 {
                     if (!IsOver && f.IsAlive)
-                        Hurt(f, Damage(roll, bearer, f, p.Element), p.Element);
+                        Hurt(f, Damage(roll, bearer, f, p.Element), p.Element, bearer);
                 }
             }
             if (IsOver)
@@ -1422,7 +1437,7 @@ public sealed class Fight
             if (IsOver || !next.IsAlive)
                 break;
             long damage = (long)poison.Value * (100 - next.Resistance(poison.Element)) / 100;
-            Hurt(next, (int)Math.Max(0, damage), poison.Element);
+            Hurt(next, (int)Math.Max(0, damage), poison.Element, poison.Source >= 0 && poison.Source < _fighters.Count ? _fighters[poison.Source] : null);
         }
         // Then the glyphs under it, then its passives of the start of a turn (the order of T98), if it still stands (sprint 90).
         if (!IsOver && next.IsAlive)
@@ -1434,12 +1449,12 @@ public sealed class Fight
         {
             int percent = next.Talents.SelectMany(t => t.Rules).OfType<EchoRule>().Select(r => r.Percent).DefaultIfEmpty(0).Max();
             _events.Add(new Echoed(next.Id, echoTarget2.Id, echoFrom));
-            Hurt(echoTarget2, Damage(_rng.Next(echoed2.DamageMin, echoed2.DamageMax), next, echoTarget2, echoed2.Element) * percent / 100, echoed2.Element);
+            Hurt(echoTarget2, Damage(_rng.Next(echoed2.DamageMin, echoed2.DamageMax), next, echoTarget2, echoed2.Element) * percent / 100, echoed2.Element, next);
         }
         next.Echo = null;
         if (!IsOver && next.IsAlive)
         {
-            foreach (PassiveSpec p in next.Passives.Where(p => p.Trigger == Trigger.TurnStart))
+            foreach (PassiveSpec p in next.Passives.Where(p => p.Trigger == Trigger.TurnStart && IsClear(next, p)))
                 _pending.Enqueue((next, p, null));
         }
         Resolve();

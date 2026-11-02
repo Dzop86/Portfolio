@@ -11,11 +11,12 @@ namespace Rpg.Core;
 /// the characteristics it was given (<see cref="Stats"/>) and the ranks of its spells
 /// (<see cref="Ranks"/>, rank 1 when not listed); what it wears (<see cref="Worn"/>, sprint 59); and the
 /// spells it fights with (<see cref="Deck"/>, sprint 68); from level 30, the talents of the tree shared by every
-/// class (<see cref="Talents"/>, sprint 137, D80) and the compounds it created (<see cref="Compounds"/>, sprint 182, D93).
+/// class (<see cref="Talents"/>, sprint 137, D80), the compounds it created (<see cref="Compounds"/>, sprint 182, D93) and its path
+/// (<see cref="Spec"/>, sprint 186, D93; none while it has not chosen).
 /// </summary>
 public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1,
     Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null,
-    IReadOnlyList<string>? Talents = null, IReadOnlyList<Element>? Compounds = null)
+    IReadOnlyList<string>? Talents = null, IReadOnlyList<Element>? Compounds = null, string? Spec = null)
 {
     /// <summary>The spells a hero fights with: twelve, in two rows of six (D62).</summary>
     public const int DeckSize = 12;
@@ -42,8 +43,11 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     public IReadOnlyList<string> AutomaticDeck(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        List<string> grimoire = [.. Rpg.Core.Talents.GrimoireOf(this, data).Spells];
-        int limit = DeckLimit(data);
+        List<string> all = [.. Rpg.Core.Talents.GrimoireOf(this, data).Spells];
+        // A path's spells and those it keeps close the bar (sprint 186); the rest as before, in what is left.
+        IReadOnlyList<string> reserved = Specs.Reserved(this, data, all);
+        List<string> grimoire = [.. all.Where(id => !reserved.Contains(id))];
+        int limit = Math.Max(0, DeckLimit(data) - reserved.Count);
         var deck = grimoire.Take(limit).ToList();
         foreach (Spell next in grimoire.Skip(limit).Select(id => data.Spells[id]).Where(s => s.DamageMax > 0))
         {
@@ -55,7 +59,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             if (cell >= 0)
                 deck[cell] = next.Id;
         }
-        return deck;
+        return [.. deck, .. reserved];
     }
 
     /// <summary>
@@ -89,7 +93,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
         other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
         && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems)
         && (Deck is null) == (other.Deck is null) && (Deck ?? []).SequenceEqual(other.Deck ?? [])
-        && TalentsTaken.SequenceEqual(other.TalentsTaken) && (Compounds ?? []).Order().SequenceEqual((other.Compounds ?? []).Order());
+        && TalentsTaken.SequenceEqual(other.TalentsTaken) && (Compounds ?? []).Order().SequenceEqual((other.Compounds ?? []).Order()) && Spec == other.Spec;
 
     /// <summary>The talents taken, by id in order: the order they were taken in does not matter.</summary>
     [JsonIgnore]
@@ -151,8 +155,16 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             : Class is not null && data.Class(Class) is null ? $"Unknown class '{Class}'."
             : PointsProblem(data) ?? DeckProblem(data) ?? (Worn is null ? null : Equipment.Problem(Worn, Level, data))
                 ?? (Talents is null ? null : Rpg.Core.Talents.Problem(Talents, Level, data))
-                ?? (Compounds is null ? null : Elements.Problem(Compounds, Level));
+                ?? (Compounds is null ? null : Elements.Problem(Compounds, Level)) ?? SpecProblem(data);
     }
+
+    /// <summary>A path (sprint 186): a known one, of its class, from level 30. The quest and the price are the server's to check.</summary>
+    private string? SpecProblem(GameData data) =>
+        Spec is not string id ? null
+            : !data.Specs.TryGetValue(id, out Specialisation? s) ? $"Unknown path '{id}'."
+            : s.Class != Class ? $"'{id}' is not a path of this class."
+            : Level < Specs.Opens ? $"Paths open at level {Specs.Opens}."
+            : null;
 
     /// <summary>At most twelve spells, each once, each of its grimoire: a spell of the class the level has unlocked, or a compound's its talents give (sprint 138).</summary>
     private string? DeckProblem(GameData data)
@@ -177,9 +189,11 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
         if (Ranks is null || Ranks.Count == 0)
             return null;
         HeroClass? c = Class is null ? null : data.Class(Class);
+        string[] ofPath = [.. Specs.SpellsOf(this, data)];
         foreach ((string spell, int rank) in Ranks)
         {
-            if (c is null || !c.Spells.Contains(spell) || data.Spells[spell].Level > Level)
+            // A spell of the class, or of its path's evolutions (sprint 186).
+            if (c is null || !(c.Spells.Contains(spell) || ofPath.Contains(spell)) || data.Spells[spell].Level > Level)
                 return $"The spell '{spell}' is not one this hero has.";
             if (rank < 1 || rank > data.Spells[spell].MaxRank)
                 return $"The spell '{spell}' has ranks 1 to {data.Spells[spell].MaxRank}.";
