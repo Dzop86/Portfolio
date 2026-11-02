@@ -47,7 +47,11 @@ public class ElementsPageTests
         var at50 = new ElementsPage(Editor(50, compounds: Element.Lightning));
         Assert.Equal(FusionState.Created, State(at50, "lightning"));
         Assert.Equal(FusionState.Open, State(at30, "ice"));
-        Assert.Equal(FusionState.Open, State(at50, "ether"));
+        // Sprint 187 (D94): Lightning holds Fire and Air.
+        Assert.Equal(FusionState.Blocked, State(at50, "ether"));
+        Assert.Equal(FusionState.Blocked, State(at50, "ice"));
+        Assert.Equal(FusionState.Open, State(at50, "mud"));
+        Assert.Equal(FusionState.Open, State(new ElementsPage(Editor(50)), "ether"));
     }
 
     [Fact]
@@ -60,7 +64,9 @@ public class ElementsPageTests
         Assert.Equal([Element.Lightning], editor.CompoundsCreated);
         Assert.True(editor.Changed);
         Assert.Equal(0, editor.ResetCost);
-        Assert.NotEmpty(editor.Previewed);
+        // Sprint 187 (D94): the twins come at once, no preview.
+        Assert.Empty(editor.Previewed);
+        Assert.Contains(editor.Spells, s => s.Element == Element.Lightning);
         Assert.Equal(FusionState.Created, page.Fusions.Single(f => f.Id == "lightning").State);
         Assert.True(page.Press(page.Fusions.Single(f => f.Id == "lightning")));
         Assert.Empty(editor.CompoundsCreated);
@@ -71,7 +77,7 @@ public class ElementsPageTests
     [InlineData("mage")]
     [InlineData("guard")]
     [InlineData("sentinel")]
-    public void ACompound_GivesTheTwinsOfWhatTheLevelUnlocked_ShownAsAPreviewUntilSaved(string id)
+    public void ACompound_GivesTheTwinsOfWhatTheLevelUnlocked_AtOnce(string id)
     {
         var at30 = new PointsEditor(new Hero("Ondine", "female-a", id, Level: 30), Data);
         var page = new ElementsPage(at30);
@@ -79,10 +85,11 @@ public class ElementsPageTests
         int said = page.SpellsOf(lightning);
         Assert.InRange(said, 1, 8);
         page.Press(lightning);
-        Assert.Equal(said, at30.Previewed.Count);
+        Assert.Empty(at30.Previewed);
+        Assert.Equal(said, at30.Spells.Count(s => s.Element == Element.Lightning));
         // The number stays what the fusion gives once created, and the book has them once saved.
         Assert.Equal(said, page.SpellsOf(page.Fusions.Single(f => f.Id == "lightning")));
-        Assert.Equal(said, new PointsEditor(at30.Hero with { Compounds = [Element.Lightning] }, Data).Spells.Count - at30.Spells.Count);
+        Assert.Equal(said, new PointsEditor(at30.Hero with { Compounds = [Element.Lightning] }, Data).Spells.Count(s => s.Element == Element.Lightning));
         // At 100, all eight (docs/elements-specialisations.md §v3.1).
         var top = new ElementsPage(new PointsEditor(new Hero("Ondine", "female-a", id, Level: 100), Data));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "lightning")));
@@ -181,5 +188,51 @@ public class ElementsPageTests
         }
         foreach (ElementTier tier in new ElementsPage(Editor(50)).Tiers)
             Assert.False(string.IsNullOrWhiteSpace(texts[$"elements.tier.{tier.Level}"]));
+    }
+
+    // Sprint 187, D94: a compound consumes its parents.
+    private static PointsEditor Mage100(params Element[] compounds) => new(new Hero("Ronce", "female-c", "mage", Level: 100, Compounds: compounds.Length == 0 ? null : compounds), GameData.Embedded);
+
+    [Fact]
+    public void ACreatedPair_BlocksTheFusionsOfItsParents_AndLeavesTheOtherOne()
+    {
+        var page = new ElementsPage(Mage100(Element.Lightning));
+        Assert.Equal(["lightning"], page.Fusions.Where(f => f.State == FusionState.Created).Select(f => f.Id));
+        Assert.Equal(["mud"], page.Fusions.Where(f => f.State == FusionState.Open).Select(f => f.Id));
+        Fusion magma = page.Fusions.Single(f => f.Id == "magma");
+        Assert.Equal((FusionState.Blocked, Element.Lightning), (magma.State, magma.BlockedBy.Single()));
+        Assert.False(page.Press(magma));
+    }
+
+    [Fact]
+    public void DissolvingOpensThemAgain_AndACompound_CountsItsSpells()
+    {
+        PointsEditor editor = Mage100(Element.Lightning);
+        var page = new ElementsPage(editor);
+        Assert.True(page.Press(page.Fusions.Single(f => f.Id == "lightning")));
+        Assert.Equal(FusionState.Open, page.Fusions.Single(f => f.Id == "magma").State);
+        Assert.Equal(8, page.SpellsOf(page.Fusions.Single(f => f.Id == "magma")));
+        Assert.Equal(8, new ElementsPage(Mage100(Element.Lightning)).SpellsOf(new ElementsPage(Mage100(Element.Lightning)).Fusions.Single(f => f.Id == "mud")));
+    }
+
+    [Fact]
+    public void TheBook_HidesTheParents_AndTheTwinsComeAtOnce_InPlaceInTheDeck()
+    {
+        PointsEditor editor = Mage100();
+        Spell fire = editor.Spells.First(s => s.Element == Element.Fire);
+        editor.ClearDeck();
+        editor.AddToDeck(fire);
+        var page = new ElementsPage(editor);
+        Assert.True(page.Press(page.Fusions.Single(f => f.Id == "lightning")));
+        var book = new SpellBook(editor);
+        Assert.DoesNotContain(book.Spells, s => s.Element is Element.Fire or Element.Air);
+        Assert.Equal(8, book.Spells.Count(s => s.Element == Element.Lightning && !s.Preview));
+        Assert.Contains(Element.Lightning, book.Elements);
+        Spell twin = GameData.Embedded.Spells.Values.Single(s => s.Twin == fire.Id && s.Element == Element.Lightning);
+        Assert.Equal([twin.Id], editor.Deck);
+        Assert.Empty(editor.DeckChanges);
+        Assert.Null(editor.Draft.Problem(GameData.Embedded));
+        Assert.True(page.Press(page.Fusions.Single(f => f.Id == "lightning")));
+        Assert.Equal([fire.Id], editor.Deck);
     }
 }

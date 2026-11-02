@@ -4,7 +4,8 @@ namespace Rpg.Core;
 /// The elements beyond the four (sprint 138, D80, <c>docs/elements.md</c>): a compound is made of its parents, strikes on
 /// the highest of their characteristics, is resisted by the average of their resistances, and bears a signature. Since
 /// sprint 182 (D93, <c>docs/elements-specialisations.md</c> §v3), a hero creates it on the Elements page: a pair from
-/// level <see cref="Pairs"/>, a trio from level <see cref="Trios"/>, for free and undone as freely.
+/// level <see cref="Pairs"/>, a trio from level <see cref="Trios"/>, for free and undone as freely. Since sprint 187 (D94), a
+/// compound consumes its parents: their spells leave the grimoire and they serve no other fusion, so at most two pairs or one trio.
 /// </summary>
 public static class Elements
 {
@@ -54,7 +55,7 @@ public static class Elements
         _ => 0,
     };
 
-    /// <summary>Why these compounds cannot be created at this level, or null: compounds, each once, each open at the level.</summary>
+    /// <summary>Why these compounds cannot be created at this level, or null: compounds, each once, each open at the level, no two sharing a parent (D94).</summary>
     public static string? Problem(IReadOnlyList<Element> compounds, int level)
     {
         ArgumentNullException.ThrowIfNull(compounds);
@@ -65,7 +66,36 @@ public static class Elements
             if (level < CreatedFrom(e))
                 return $"'{e}' is created from level {CreatedFrom(e)}.";
         }
-        return compounds.Distinct().Count() != compounds.Count ? "A compound is created once." : null;
+        if (compounds.Distinct().Count() != compounds.Count)
+            return "A compound is created once.";
+        return compounds.Where(e => BlockedBy(e, compounds).Count > 0).Select(e => $"'{e}' shares an element with '{BlockedBy(e, compounds)[0]}'.").FirstOrDefault();
+    }
+
+    /// <summary>The compounds among <paramref name="created"/> that hold a parent of <paramref name="compound"/> (D94), in their order.</summary>
+    public static IReadOnlyList<Element> BlockedBy(Element compound, IEnumerable<Element> created)
+    {
+        ArgumentNullException.ThrowIfNull(created);
+        return [.. created.Where(c => c != compound && Parents(c).Intersect(Parents(compound)).Any())];
+    }
+
+    /// <summary>The base elements these compounds consume (D94).</summary>
+    public static IReadOnlyList<Element> ConsumedBy(IEnumerable<Element> compounds)
+    {
+        ArgumentNullException.ThrowIfNull(compounds);
+        return [.. compounds.SelectMany(Parents).Distinct()];
+    }
+
+    /// <summary>What can stay of these compounds at this level (D94): in their order, each one the level opens and the ones before leave free.</summary>
+    public static IReadOnlyList<Element> Legal(IEnumerable<Element> compounds, int level)
+    {
+        ArgumentNullException.ThrowIfNull(compounds);
+        var kept = new List<Element>();
+        foreach (Element e in compounds.Where(c => IsCompound(c) && level >= CreatedFrom(c)).Distinct())
+        {
+            if (BlockedBy(e, kept).Count == 0)
+                kept.Add(e);
+        }
+        return kept;
     }
 
     /// <summary>The compounds, in the order of the enumeration.</summary>

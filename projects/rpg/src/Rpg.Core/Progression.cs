@@ -186,7 +186,7 @@ public static class Progression
             if (Talents.Problem([.. talents, id], hero.Level, data) is null)
                 talents.Add(id);
         }
-        Element[] created = [.. (compounds ?? []).Where(e => hero.Level >= Elements.CreatedFrom(e))];
+        Element[] created = [.. Elements.Legal(compounds ?? [], hero.Level)];
         Hero talented = hero with { Talents = talents, Compounds = created.Length == 0 ? null : created, Deck = null };
         Grimoire grimoire = Talents.GrimoireOf(talented, data);
         string[] deck = [.. grimoire.Spells.Where(id => !(data.Class(hero.Class)?.Spells.Contains(id) ?? false)), .. grimoire.Spells.Where(id => data.Class(hero.Class)?.Spells.Contains(id) ?? false)];

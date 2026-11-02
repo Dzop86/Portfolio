@@ -81,17 +81,16 @@ public class TalentTextsTests
         var editor = new PointsEditor(Sentinel(35), Data);
         Assert.DoesNotContain(new SpellBook(editor).Spells, b => b.Element == Element.Lightning);
         Assert.DoesNotContain(Element.Lightning, new SpellBook(editor).Elements);
-        // Created in the draft: a preview, dotted, neither to filter by nor to put in the deck.
+        // Created in the draft.
         editor.Create(Element.Lightning);
         var book = new SpellBook(editor);
-        BookSpell[] previews = [.. book.Spells.Where(b => b.Element == Element.Lightning)];
-        Assert.NotEmpty(previews);
-        Assert.All(previews, b => Assert.True(b.Preview));
-        Assert.DoesNotContain(Element.Lightning, book.Elements);
-        Assert.Empty(book.Of(Element.Lightning));
-        Assert.Contains(storm, editor.Previewed);
-        Assert.False(editor.CanAddToDeck(storm));
-        Assert.DoesNotContain(editor.Deck, id => Data.Spells[id].Element == Element.Lightning);
+        // Sprint 187 (D94): at once, in the filter, and they take their origins' place in the deck.
+        BookSpell[] twins = [.. book.Spells.Where(b => b.Element == Element.Lightning)];
+        Assert.NotEmpty(twins);
+        Assert.All(twins, b => Assert.False(b.Preview));
+        Assert.Contains(Element.Lightning, book.Elements);
+        Assert.NotEmpty(book.Of(Element.Lightning));
+        Assert.DoesNotContain(storm, editor.Previewed);
         // Saved: its own spells, in the filter and the deck.
         var saved = new PointsEditor(editor.Draft, Data);
         Assert.Empty(saved.Previewed);

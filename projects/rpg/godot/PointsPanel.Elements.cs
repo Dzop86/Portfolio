@@ -158,7 +158,7 @@ public partial class PointsPanel
         if (page.Fusions.SingleOrDefault(f => f.Id == _picked) is not Fusion fusion || !page.Press(fusion))
             return;
         string name = Texts[$"fusion.{fusion.Id}.name"];
-        _message.Text = fusion.State != FusionState.Created ? Texts["elements.created", name]
+        _message.Text = fusion.State != FusionState.Created ? (Editor.DeckChanges.Count > 0 ? Texts["elements.created.deck", name, Editor.DeckChanges.Count] : Texts["elements.created", name])
             : Editor.DeckChanges.Count > 0 ? Texts["elements.dissolved.deck", name, Editor.DeckChanges.Count]
             : Texts["elements.dissolved", name];
         Refresh();
@@ -241,16 +241,18 @@ public partial class PointsPanel
         _fusionSignature.Text = Texts["elements.signature", Texts[$"fusion.{fusion.Id}.signature"]];
         _fusionReaction.Text = fusion.Reaction is ReactionSpec r ? Texts["elements.reaction", r.Name.In(Texts.Lang), r.Description.In(Texts.Lang)] : "";
         int spells = page.SpellsOf(fusion);
-        _fusionSpells.Text = spells > 0 ? Texts["elements.spells", spells] : "";
+        _fusionSpells.Text = spells > 0 ? Texts["elements.spells", spells, string.Join(" + ", fusion.Parents.Select(e => Texts["element." + e])), _fusionName.Text] : "";
         _fusionPress.Visible = !Editor.ReadOnly;
-        _fusionPress.Disabled = fusion.State == FusionState.Locked;
+        _fusionPress.Disabled = fusion.State is FusionState.Locked or FusionState.Blocked;
         _fusionPress.Text = fusion.State switch
         {
             FusionState.Created => Texts["elements.dissolve"],
             FusionState.Open => Texts["elements.create"],
+            FusionState.Blocked => Texts["elements.blocked"],
             _ => Texts["elements.locked", fusion.Level],
         };
-        _fusionNote.Text = fusion.State is FusionState.Open or FusionState.Created && !Editor.ReadOnly ? Texts["elements.free"] : "";
+        _fusionNote.Text = fusion.State == FusionState.Blocked ? Texts["elements.blocked.by", string.Join(", ", fusion.BlockedBy.Select(e => Texts[$"fusion.{e.ToString().ToLowerInvariant()}.name"]))]
+            : fusion.State is FusionState.Open or FusionState.Created && !Editor.ReadOnly ? Texts["elements.free"] : "";
     }
 
     /// <summary>Whether the Elements page fits its window without scrolling, as the self-test reads it once laid out.</summary>

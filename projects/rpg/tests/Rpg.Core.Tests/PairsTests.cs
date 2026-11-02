@@ -132,7 +132,10 @@ public class PairsTests
         Assert.DoesNotContain(Talents.GrimoireOf(bare, Real).Spells, id => Real.Spells[id].Element == Element.Ice);
         Assert.Equal(8, Talents.GrimoireOf(bare with { Compounds = [Element.Ice] }, Real).Spells.Count(id => Real.Spells[id].Element == Element.Ice));
         Assert.NotNull(Elements.Problem([Element.Ice], 29));
-        Assert.Null(Elements.Problem([Element.Lightning, Element.Ice, Element.Mud, Element.Magma, Element.Steam, Element.Sand], 30));
-        Assert.Null((bare with { Compounds = [.. Elements.Compounds] }).Problem(Real));
+        // Sprint 187 (D94): at most two pairs, that share no element; each of the six alone.
+        Assert.All(Elements.Compounds.Where(e => Elements.Parents(e).Count == 2), e => Assert.Null(Elements.Problem([e], 30)));
+        Assert.Null(Elements.Problem([Element.Lightning, Element.Mud], 30));
+        Assert.NotNull(Elements.Problem([Element.Lightning, Element.Ice], 30));
+        Assert.NotNull((bare with { Compounds = [.. Elements.Compounds] }).Problem(Real));
     }
 }

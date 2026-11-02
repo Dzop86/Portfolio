@@ -313,7 +313,7 @@ public static class Talents
     /// Lightning. Talents taken in an older one are given back once, for free, with a word at the connection (I5 a).
     /// Version 4 (sprint 182, D93): the elements left the tree; a hero of version 3 keeps its styles that still hold.
     /// </summary>
-    public const int Version = 4;
+    public const int Version = 5;
 
     /// <summary>The ceiling of the tree's conditional bonuses on one hit, in percent (§4.4).</summary>
     public const int Ceiling = 35;
@@ -410,7 +410,7 @@ public static class Talents
     /// <summary>
     /// The spells a hero may put in its deck (sprint 138): its class's that its level has unlocked, in the class's order;
     /// since sprint 182 (D93), then for each compound it created (<see cref="Hero.Compounds"/>, in that order) the twins of
-    /// those of its parents' elements, in the class's order, none replacing its origin; then its path's (sprint 186); then the spells of the tree.
+    /// those of its parents' elements, in the class's order, which take the place of their parents' spells (sprint 187, D94); then its path's (sprint 186); then the spells of the tree.
     /// </summary>
     public static Grimoire GrimoireOf(Hero hero, GameData data)
     {
@@ -429,12 +429,37 @@ public static class Talents
                     spells.Add(twin.Id);
             }
         }
+        // A compound consumes its parents (sprint 187, D94): their spells leave the grimoire.
+        IReadOnlyList<Element> consumed = ConsumedBy(hero, data);
+        spells.RemoveAll(id => unlocked.Contains(id) && consumed.Contains(data.Spells[id].Element));
         // Its path's (sprint 186): after the compounds', before the tree's.
         spells.AddRange(Specs.SpellsOf(hero, data).Where(id => !spells.Contains(id)));
         // The spells of the tree (sprint 142): after the class's.
         foreach (GrantRule g in (hero.Talents ?? []).Where(data.Talents.ContainsKey).SelectMany(id => data.Talents[id].Rules).OfType<GrantRule>().Where(g => !spells.Contains(g.Spell)))
             spells.Add(g.Spell);
         return new Grimoire(spells);
+    }
+
+    /// <summary>The base elements the compounds this hero has at its level consume (sprint 187, D94).</summary>
+    public static IReadOnlyList<Element> ConsumedBy(Hero hero, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(data);
+        return Elements.ConsumedBy((hero.Compounds ?? []).Where(e => Elements.IsCompound(e) && hero.Level >= Elements.CreatedFrom(e)));
+    }
+
+    /// <summary>
+    /// A deck fitted to this hero's grimoire (sprint 187, D94), in its order: a spell it has stays, a spell its compounds took
+    /// gives its place to its twin, a twin of a compound undone to its origin; what has no heir leaves.
+    /// </summary>
+    public static IReadOnlyList<string> FitDeck(IEnumerable<string> deck, Hero hero, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(deck);
+        IReadOnlyList<string> grimoire = GrimoireOf(hero, data).Spells;
+        string? Heir(string id) => grimoire.Contains(id) ? id
+            : data.Spells.TryGetValue(id, out Spell? s) && grimoire.FirstOrDefault(g => data.Spells[g].RankKey == s.RankKey) is string other ? other
+            : null;
+        return [.. deck.Select(Heir).OfType<string>().Distinct(StringComparer.Ordinal)];
     }
 
     /// <summary>The resistance in percent the talents give a fighter next to an obstacle (Backed, sprint 142); 0 elsewhere.</summary>

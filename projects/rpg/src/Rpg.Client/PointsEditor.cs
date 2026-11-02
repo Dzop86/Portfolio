@@ -46,7 +46,8 @@ public sealed class PointsEditor
     public IReadOnlyList<Element> CompoundsCreated => _compounds;
 
     /// <summary>A compound can be created when the level opens it (a pair from 30, a trio from 50) and it is not yet; for free.</summary>
-    public bool CanCreate(Element compound) => !ReadOnly && Elements.IsCompound(compound) && !_compounds.Contains(compound) && Hero.Level >= Elements.CreatedFrom(compound);
+    public bool CanCreate(Element compound) => !ReadOnly && Elements.IsCompound(compound) && !_compounds.Contains(compound) && Hero.Level >= Elements.CreatedFrom(compound)
+        && Elements.BlockedBy(compound, _compounds).Count == 0;
 
     /// <summary>A compound created can be undone, for free (Q10 a): its twins leave the grimoire, and the deck.</summary>
     public bool CanDissolve(Element compound) => !ReadOnly && _compounds.Contains(compound);
@@ -184,7 +185,9 @@ public sealed class PointsEditor
         get
         {
             HashSet<string> saved = [.. Talents.GrimoireOf(Hero, Data).Spells];
-            return [.. Talents.GrimoireOf(Draft, Data).Spells.Where(id => !saved.Contains(id)).Select(id => Data.Spells[id])];
+            // A compound's twins are no preview (sprint 187, D94): they take their origins' place at once, and its parents' come back as freely.
+            IReadOnlyList<string> ofClass = Data.Class(Hero.Class)?.Spells ?? [];
+            return [.. Talents.GrimoireOf(Draft, Data).Spells.Where(id => !saved.Contains(id) && !ofClass.Contains(id)).Select(id => Data.Spells[id]).Where(s => s.Twin is null)];
         }
     }
 
@@ -194,13 +197,13 @@ public sealed class PointsEditor
     /// </summary>
     private void FitDeck()
     {
-        Grimoire grimoire = Talents.GrimoireOf(Draft, Data);
         HashSet<string> previewed = [.. Previewed.Select(s => s.Id)];
         string[] before = [.. _deck];
-        string[] fitted = [.. _deck.Where(id => grimoire.Spells.Contains(id) && !previewed.Contains(id)).Distinct().Take(DeckLimit)];
+        string[] fitted = [.. Talents.FitDeck(_deck, Draft with { Deck = null }, Data).Where(id => !previewed.Contains(id)).Take(DeckLimit)];
         _deck.Clear();
         _deck.AddRange(fitted);
-        DeckChanges = [.. before.Where(id => !fitted.Contains(id))];
+        // A spell that gave its place to its twin or its origin has not left.
+        DeckChanges = [.. before.Where(id => !fitted.Any(f => Data.Spells[f].RankKey == Data.Spells[id].RankKey))];
     }
 
     /// <summary>Shown only (in a fight, sprint 93): nothing can change.</summary>

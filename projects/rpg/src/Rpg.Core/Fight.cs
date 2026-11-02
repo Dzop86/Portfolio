@@ -188,8 +188,9 @@ public sealed class Fight
     /// </param>
     /// <param name="alliesHp">Each ally's hit points to start with, in the same order; null for all of them.</param>
     public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null,
-        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false, bool freeReactions = true)
+        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false, bool freeReactions = true, bool compoundMarks = true)
     {
+        _compoundMarks = compoundMarks;
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
         if (hero?.Problem(data) is string problem)
@@ -843,6 +844,16 @@ public sealed class Fight
         bool reacts = caster.Spec.Reacts || (source != caster && source.Spec.Reacts && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any());
         if (!reacts)
             return null;
+        // One reaction a caster and a turn (sprint 187, D94): the rule written ahead in §v3.2 once the hordes passed T41's ceiling;
+        // Wave, whose point is several in one cast, is left out.
+        if (_compoundMarks && caster.ReactionsThisTurn > 0 && !rules.OfType<WaveRule>().Any())
+            return null;
+        // A compound suffices (sprint 187, D94): its spell on its own mark sets off its reaction.
+        if (_compoundMarks && Elements.IsCompound(element) && m.Element == element)
+        {
+            IReadOnlyList<Element> parents = Elements.Parents(element);
+            return parents.Count == 3 ? Talents.TrioReactionOf(element, _data) : Talents.ReactionOf(parents[0], parents[1], _data);
+        }
         // A trio's spell (sprint 185): the mark of any of its parents sets off the trio's reaction, in place of a pair's.
         return Elements.Parents(element).Count == 3
             ? Elements.Parents(element).Contains(m.Element) ? Talents.TrioReactionOf(element, _data) : null
@@ -921,12 +932,16 @@ public sealed class Fight
             TrioAftermath(me, f, reaction, dealt, spell);
             return;
         }
-        if (!Talents.IsBase(element))
+        // A compound's spell leaves its own mark since sprint 187 (D94); before, a base element's only.
+        if (!Talents.IsBase(element) && !(_compoundMarks && Elements.IsCompound(element)))
             return;
         f.Mark = new Mark(element, me.Id, 2 + me.Talents.SelectMany(t => t.Rules).OfType<MarkRule>().Sum(r => r.ExtraTurns));
         _events.Add(new Marked(f.Id, element, me.Id));
     }
 
+
+    /// <summary>A record of version 5 or less: a compound's spell left no mark (D94).</summary>
+    private readonly bool _compoundMarks;
 
     private const string RootedReaction = "rooted";
 

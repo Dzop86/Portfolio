@@ -631,6 +631,11 @@ public partial class Main
             _chatOf = character;
             _chatLog!.Note(texts["chat.open"]);
             // Talents of an older tree given back at the sign-in (sprint 146, D82): said once, as it comes into play.
+            if (_lobby.TakeCompoundsReset(character) && _character is not null)
+            {
+                _chatLog.Note(texts["compounds.reset", _character.Name]);
+                _talkPanel?.ShowNotice(texts["compounds.reset", _character.Name]);
+            }
             if (_lobby.TakeTalentsGivenBack(character) && _character is not null)
             {
                 _chatLog.Note(texts["talents.reset", _character.Name]);

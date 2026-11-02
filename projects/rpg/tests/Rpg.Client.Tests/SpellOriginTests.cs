@@ -27,11 +27,11 @@ public class SpellOriginTests
     }
 
     [Fact]
-    public void LightningSaved_KeepsTheParent_AndItsTwinSaysWhereItComesFrom()
+    public void LightningSaved_TakesTheParentsPlace_AndItsTwinSaysWhereItComesFrom()
     {
         var editor = new PointsEditor(Lightning(35), Data);
         var book = new SpellBook(editor);
-        Assert.Contains(book.Spells, b => b.Spell.Id == "fire-arrow");
+        Assert.DoesNotContain(book.Spells, b => b.Spell.Id == "fire-arrow");
         BookSpell twin = book.Spells.Single(b => b.Spell.Id == "lightning-fire-arrow");
         Assert.Null(twin.Origin);
         Assert.Equal(Element.Lightning, twin.Compound);
@@ -45,7 +45,7 @@ public class SpellOriginTests
     }
 
     [Fact]
-    public void ADraftsLightning_IsAPreview_UntilTheSave_AndOnlyFromThirty()
+    public void ADraftsLightning_ComesAtOnce_AndOnlyFromThirty()
     {
         var editor = new PointsEditor(Sentinel(35), Data);
         Assert.True(editor.CanCreate(Element.Lightning));
@@ -53,10 +53,9 @@ public class SpellOriginTests
         Assert.Equal([Element.Lightning], editor.CompoundsCreated);
         Assert.True(editor.CompoundsChanged);
         var book = new SpellBook(editor);
-        Assert.Contains(book.Spells, b => b.Spell.Id == "fire-arrow");
+        Assert.DoesNotContain(book.Spells, b => b.Spell.Id == "fire-arrow");
         BookSpell twin = book.Spells.Single(b => b.Spell.Id == "lightning-fire-arrow");
-        Assert.True(twin.Preview);
-        Assert.False(twin.New);
+        Assert.False(twin.Preview);
         Assert.Equal([Element.Lightning], editor.ToPoints().Compounds);
         // Not twice, not a base element, not under 30, never shown only (in a fight).
         Assert.False(editor.CanCreate(Element.Lightning));
@@ -78,15 +77,15 @@ public class SpellOriginTests
     [Fact]
     public void TheDeck_SaysWhatACompoundUndoneDidToIt()
     {
-        Hero hero = Lightning(45) with { Deck = ["lightning-fire-arrow", "stone-arrow", "fire-arrow"] };
+        Hero hero = Lightning(45) with { Deck = ["lightning-fire-arrow", "stone-arrow"] };
         var editor = new PointsEditor(hero, Data);
         Assert.True(editor.CanDissolve(Element.Lightning));
-        // Undone (for free, Q10 a): the twin leaves the deck, its origin stays.
+        // Undone (for free, Q10 a): the twin gives its place back to its origin, and nothing has left the deck (D94).
         editor.Dissolve(Element.Lightning);
         Assert.Empty(editor.CompoundsCreated);
-        Assert.Equal(["stone-arrow", "fire-arrow"], editor.Deck);
-        Assert.Equal(["lightning-fire-arrow"], editor.DeckChanges);
-        Assert.Equal(["Flèche d'orage quitte ton deck jusqu'à l'enregistrement."], new Texts("fr").DeckChanges(editor));
+        Assert.Equal(["fire-arrow", "stone-arrow"], editor.Deck);
+        Assert.Empty(editor.DeckChanges);
+        Assert.Empty(new Texts("fr").DeckChanges(editor));
         Assert.Empty(editor.ToPoints().Compounds!);
         // Created again: nothing leaves.
         editor.Create(Element.Lightning);

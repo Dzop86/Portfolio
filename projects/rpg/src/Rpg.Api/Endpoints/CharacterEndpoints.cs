@@ -52,11 +52,32 @@ public static class CharacterEndpoints
         var list = await db.Characters.Where(c => c.AccountId == account)
             .OrderBy(c => c.CreatedAt).ThenBy(c => c.Name)
             .ToArrayAsync(cancel);
+        bool[] recompounded = [.. list.Select(Recompound)];
         bool[] reset = [.. list.Select(Retree)];
-        if (reset.Any(r => r))
+        if (reset.Any(r => r) || recompounded.Any(r => r))
             await db.SaveChangesAsync(cancel);
-        return TypedResults.Ok(list.Select((c, i) => Summary(c, c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null) with { TalentsReset = reset[i] }).ToArray());
+        return TypedResults.Ok(list.Select((c, i) => Summary(c, c.Town is string town && c.X is int x && c.Y is int y ? new Place(town, x, y) : null) with { TalentsReset = reset[i], CompoundsReset = recompounded[i] }).ToArray());
     }
+
+    /// <summary>
+    /// Compounds created before they consumed their parents (sprint 187, D94), as the game signs in: those that still fit stay,
+    /// the first created first, and the deck follows; true when it had some, for the game to say so once.
+    /// </summary>
+    internal static bool Recompound(Character c)
+    {
+        if (c.TalentsVersion >= CompoundsConsumeFrom || c.CompoundList.Length == 0)
+            return false;
+        c.Compounds = string.Join(',', Elements.Legal(c.CompoundList, c.Level));
+        if (c.Deck is not ("" or Character.EmptyDeck))
+        {
+            IReadOnlyList<string> deck = Talents.FitDeck(c.DeckList ?? [], c.Hero, GameData.Embedded);
+            c.Deck = deck.Count == 0 ? Character.EmptyDeck : string.Join(',', deck);
+        }
+        return true;
+    }
+
+    /// <summary>The version of the tree from which compounds consume their parents.</summary>
+    internal const int CompoundsConsumeFrom = 5;
 
     /// <summary>
     /// Talents taken in an older tree (sprint 146, D82, I5 a), as the game signs in: given back once, for free, the deck
@@ -71,6 +92,9 @@ public static class CharacterEndpoints
             return false;
         int from = c.TalentsVersion;
         c.TalentsVersion = Talents.Version;
+        // Version 5 (sprint 187, D94) changes the compounds only: Recompound saw to them, the talents stay.
+        if (from >= 4)
+            return false;
         if (c.Talents.Length == 0)
             return false;
         string[] saved = c.Talents.Split(',', StringSplitOptions.RemoveEmptyEntries);

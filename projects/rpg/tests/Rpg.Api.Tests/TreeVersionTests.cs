@@ -95,7 +95,7 @@ public class TreeVersionTests
         Assert.Null(m.Hero.Problem(GameData.Embedded));
         // Once.
         Assert.All(await server.Characters(Cancel), x => Assert.False(x.TalentsReset));
-        Assert.Equal(4, api.WithDb(db => db.Characters.Single(x => x.Id == guard.Id).TalentsVersion));
+        Assert.Equal(Talents.Version, api.WithDb(db => db.Characters.Single(x => x.Id == guard.Id).TalentsVersion));
     }
 
     [Fact]
@@ -145,7 +145,8 @@ public class TreeVersionTests
         Assert.All(await server.Characters(Cancel), s => Assert.True(s.Compounds is null && s.Hero.Problem(GameData.Embedded) is null));
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, "--compounds", "all"]).Order!, Cancel);
-        Assert.All(await server.Characters(Cancel), s => Assert.Equal(Elements.Compounds, s.Compounds!));
+        // Sprint 187 (D94): only what fits together, the first of the game's order first.
+        Assert.All(await server.Characters(Cancel), s => Assert.Equal(Elements.Legal(Elements.Compounds, 100), s.Compounds!));
         Assert.Equal([Element.Lightning], Admin.Parse(["admin", account, "--compounds", "lightning"]).Order!.Compounds);
         Assert.NotNull(Admin.Parse(["admin", account, "--compounds", "fire"]).Error);
     }

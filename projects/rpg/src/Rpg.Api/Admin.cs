@@ -246,14 +246,13 @@ public static class Admin
             }
             if (order.Compounds is IReadOnlyList<Element> asked)
             {
-                // Each compound its level opens (a pair from 30, a trio from 50); the deck keeps what its grimoire still has.
+                // Each compound its level opens and the ones before leave free (D94); the deck follows its grimoire.
                 IEnumerable<Element> wanted = order.AllCompounds ? Elements.Compounds : asked;
-                c.Compounds = string.Join(',', wanted.Where(e => c.Level >= Elements.CreatedFrom(e)));
+                c.Compounds = string.Join(',', Elements.Legal(wanted, c.Level));
                 if (c.Deck is not ("" or Character.EmptyDeck))
                 {
-                    Grimoire grimoire = Talents.GrimoireOf(c.Hero, GameData.Embedded);
-                    string[] kept = [.. (c.DeckList ?? []).Where(grimoire.Spells.Contains)];
-                    c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
+                    IReadOnlyList<string> kept = Talents.FitDeck(c.DeckList ?? [], c.Hero, GameData.Embedded);
+                    c.Deck = kept.Count == 0 ? Character.EmptyDeck : string.Join(',', kept);
                 }
             }
             if (order.Specs is IReadOnlyList<string> paths)

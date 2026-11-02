@@ -38,7 +38,9 @@ public sealed class SpellBook
         IEnumerable<string> twins = grimoire.Spells.Where(id => data.Spells[id].Twin is not null);
         HashSet<string> previewed = [.. editor.Previewed.Select(s => s.Id)];
         TalentSpec[] talents = [.. editor.TalentsTaken.Select(id => data.Talents[id])];
-        Spells = c is null ? [] : [.. c.Spells.Concat(twins).Select(id => data.Spells[id]).Select(s =>
+        // A compound's parents leave the book with their spells (sprint 187, D94).
+        IReadOnlyList<Element> consumed = Talents.ConsumedBy(draft, data);
+        Spells = c is null ? [] : [.. c.Spells.Where(id => !consumed.Contains(data.Spells[id].Element)).Concat(twins).Select(id => data.Spells[id]).Select(s =>
         {
             string? origin = OriginOf(s, talents, data);
             return Entry(s, editor, draft, stats) with

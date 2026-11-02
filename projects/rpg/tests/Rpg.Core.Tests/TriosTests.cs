@@ -87,7 +87,7 @@ public class TriosTests
     [InlineData(Element.Ash, Element.Water)]
     [InlineData(Element.Sap, Element.Air)]
     [InlineData(Element.Salt, Element.Fire)]
-    public void ATrioSpell_OnTheMarkOfTheElementItLacks_DoesNothing(Element e, Element absent)
+    public void ATrioSpell_OnTheMarkOfTheElementItLacks_SetsNothingOff_AndLeavesItsOwn(Element e, Element absent)
     {
         Spell twin = Reaching(e);
         Fight fight = Duel(twin.Id);
@@ -95,7 +95,8 @@ public class TriosTests
         foe.Mark = new Mark(absent, fight.Fighters[0].Id, 2);
         fight.Apply(new CastAction(twin.Id, foe.Cell));
         Assert.Empty(fight.Events.OfType<ReactionTriggered>());
-        Assert.Equal(absent, foe.Mark?.Element);
+        // Sprint 187 (D94): a compound leaves its mark.
+        Assert.Equal(e, foe.Mark?.Element);
     }
 
     [Fact]

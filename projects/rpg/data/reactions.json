@@ -6,8 +6,8 @@
       "en": "Bogged"
     },
     "description": {
-      "fr": "La Terre et l'Eau mêlées dans la cible : elle perd 2 PM pendant 1 tour.",
-      "en": "Earth and Water mixed in the target: it loses 2 MP for 1 turn."
+      "fr": "Elle perd 2 PM pendant 1 tour.",
+      "en": "It loses 2 MP for 1 turn."
     },
     "first": "Earth",
     "second": "Water",
@@ -27,8 +27,8 @@
       "en": "Chilled"
     },
     "description": {
-      "fr": "L'Eau et l'Air mêlés dans la cible : elle perd 2 PA pendant 1 tour.",
-      "en": "Water and Air mixed in the target: it loses 2 AP for 1 turn."
+      "fr": "Elle perd 2 PA pendant 1 tour.",
+      "en": "It loses 2 AP for 1 turn."
     },
     "first": "Water",
     "second": "Air",
@@ -48,8 +48,8 @@
       "en": "Cracked"
     },
     "description": {
-      "fr": "La Terre et le Feu mêlés dans la cible : −15 % de résistance à tous les éléments pendant 2 tours.",
-      "en": "Earth and Fire mixed in the target: −15% resistance to every element for 2 turns."
+      "fr": "−15 % de résistance à tous les éléments pendant 2 tours.",
+      "en": "−15% resistance to every element for 2 turns."
     },
     "first": "Earth",
     "second": "Fire",
@@ -69,8 +69,8 @@
       "en": "Electrified"
     },
     "description": {
-      "fr": "Le Feu et l'Air mêlés dans la cible : pendant 1 tour, 35 % de chaque coup qu'elle reçoit sautent sur l'ennemi le plus proche à 2 cases. Une seule cible électrisée à la fois par lanceur.",
-      "en": "Fire and Air mixed in the target: for 1 turn, 35% of every hit it takes jumps to the nearest enemy within 2 cells. One target electrified at a time by each caster."
+      "fr": "Pendant 1 tour, 35 % de chaque coup qu'elle reçoit sautent sur l'ennemi le plus proche à 2 cases. Une seule cible électrisée à la fois par lanceur.",
+      "en": "For 1 turn, 35% of every hit it takes jumps to the nearest enemy within 2 cells. One target electrified at a time by each caster."
     },
     "first": "Fire",
     "second": "Air",
@@ -90,8 +90,8 @@
       "en": "Fogged"
     },
     "description": {
-      "fr": "Le Feu et l'Eau mêlés dans la cible : −25 % de dégâts infligés pendant 1 tour.",
-      "en": "Fire and Water mixed in the target: −25% damage dealt for 1 turn."
+      "fr": "−25 % de dégâts infligés pendant 1 tour.",
+      "en": "−25% damage dealt for 1 turn."
     },
     "first": "Fire",
     "second": "Water",
@@ -111,8 +111,8 @@
       "en": "Blinded"
     },
     "description": {
-      "fr": "La Terre et l'Air mêlés dans la cible : −2 PO à ses sorts pendant 1 tour (jamais sous 1).",
-      "en": "Earth and Air mixed in the target: −2 range on its spells for 1 turn (never under 1)."
+      "fr": "−2 PO à ses sorts pendant 1 tour (jamais sous 1).",
+      "en": "−2 range on its spells for 1 turn (never under 1)."
     },
     "first": "Earth",
     "second": "Air",
@@ -132,8 +132,8 @@
       "en": "Scattered"
     },
     "description": {
-      "fr": "Un sort d'Éther sur l'empreinte d'un de ses parents : la cible perd ses boucliers, et sa case ne bloque plus ni le passage ni la vue pendant 1 tour.",
-      "en": "An Ether spell on the mark of one of its parents: the target loses its shields, and its cell blocks neither way nor sight for 1 turn."
+      "fr": "La cible perd ses boucliers, et sa case ne bloque plus ni le passage ni la vue pendant 1 tour.",
+      "en": "The target loses its shields, and its cell blocks neither way nor sight for 1 turn."
     },
     "first": "Neutral",
     "second": "Neutral",
@@ -154,8 +154,8 @@
       "en": "Buried"
     },
     "description": {
-      "fr": "Un sort de Cendre sur l'empreinte d'un de ses parents : la case de la cible et ses 4 voisines deviennent une glyphe de cendre pendant 2 tours.",
-      "en": "An Ash spell on the mark of one of its parents: the target's cell and its 4 neighbours become a glyph of ash for 2 turns."
+      "fr": "La case de la cible et ses 4 voisines deviennent une glyphe de cendre pendant 2 tours.",
+      "en": "The target's cell and its 4 neighbours become a glyph of ash for 2 turns."
     },
     "first": "Neutral",
     "second": "Neutral",
@@ -169,8 +169,8 @@
       "en": "Rooted"
     },
     "description": {
-      "fr": "Un sort de Sève sur l'empreinte d'un de ses parents : la cible a 0 PM pendant 1 tour, et tes alliés à 2 cases sont soignés de 10 % des dégâts.",
-      "en": "A Sap spell on the mark of one of its parents: the target has 0 MP for 1 turn, and your allies within 2 cells are healed 10% of the damage."
+      "fr": "La cible a 0 PM pendant 1 tour, et tes alliés à 2 cases sont soignés de 10 % des dégâts.",
+      "en": "The target has 0 MP for 1 turn, and your allies within 2 cells are healed 10% of the damage."
     },
     "first": "Neutral",
     "second": "Neutral",
@@ -191,8 +191,8 @@
       "en": "Parched"
     },
     "description": {
-      "fr": "Un sort de Sel sur l'empreinte d'un de ses parents : ni soin ni bouclier reçu pendant 2 tours.",
-      "en": "A Salt spell on the mark of one of its parents: no healing or shield received for 2 turns."
+      "fr": "Ni soin ni bouclier reçu pendant 2 tours.",
+      "en": "No healing or shield received for 2 turns."
     },
     "first": "Neutral",
     "second": "Neutral",

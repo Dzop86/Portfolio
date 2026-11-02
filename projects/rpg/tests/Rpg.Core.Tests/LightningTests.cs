@@ -97,13 +97,13 @@ public class LightningTests
     [Theory]
     [InlineData("guard")]
     [InlineData("mage")]
-    public void TheGuardsAndTheMagesLightning_AddsTheTwinsOfTheirFireAndAirSpellsUnlocked_AndPlaysAndReplays(string id)
+    public void TheGuardsAndTheMagesLightning_TurnsTheirFireAndAirSpellsUnlockedIntoTwins_AndPlaysAndReplays(string id)
     {
         Hero hero = new("Ondine", "female-a", id, Level: 45, Compounds: [Element.Lightning]);
         string[] parents = [.. Real.Class(id)!.Spells.Where(s => Real.Spells[s].Element is Element.Fire or Element.Air && Real.Spells[s].Level <= 45)];
         Grimoire grimoire = Talents.GrimoireOf(hero, Real);
         Assert.Equal(parents, grimoire.Spells.Where(s => Real.Spells[s].Twin is not null).Select(s => Real.Spells[s].Twin));
-        Assert.All(parents, p => Assert.Contains(p, grimoire.Spells));
+        Assert.All(parents, p => Assert.DoesNotContain(p, grimoire.Spells));
         Hero played = Progression.Talented(hero, [], Real, compounds: [Element.Lightning]);
         Assert.Null(played.Problem(Real));
         var f = new Fight(Real, "group:fields-0-4.0", 5, played);
@@ -125,9 +125,9 @@ public class LightningTests
     [Fact]
     public void NoCompoundSpell_WithoutLightningCreated_ThenItsTwinsAfterTheClasss()
     {
-        // Sprint 182 (D93, Q10 a): created, Lightning adds the twins of its parents' spells after the class's, in its order.
+        // Sprint 187 (D94): created, Lightning's twins take the place of its parents' spells, after what is left of the class's, in its order.
         Assert.Equal(["ember", "draft", "clod", "blaze", "squall"], Talents.GrimoireOf(Hero(45, lightning: false), Book).Spells);
-        Assert.Equal(["ember", "draft", "clod", "blaze", "squall", "l-ember", "l-draft", "l-blaze", "l-squall"], Talents.GrimoireOf(Hero(45), Book).Spells);
+        Assert.Equal(["clod", "l-ember", "l-draft", "l-blaze", "l-squall"], Talents.GrimoireOf(Hero(45), Book).Spells);
         // Under 30, nothing comes, and the hero is refused; on the real Sentinel at 100, all eight of Lightning; a twin is
         // unlocked with its spell: at 45, not the twins of Gale (50), Ember Rain (65) nor Skyfall (75).
         Assert.Equal(5, Talents.GrimoireOf(Hero(29), Book).Spells.Count);
@@ -138,11 +138,13 @@ public class LightningTests
     }
 
     [Fact]
-    public void ATwin_SitsBesideItsOrigin_InADeck_AndLightningIsCreatedOnce()
+    public void ATwin_TakesItsOriginsPlace_InADeck_AndLightningIsCreatedOnce()
     {
-        Hero hero = Hero(45) with { Deck = ["draft", "l-draft", "clod"] };
+        Hero hero = Hero(45) with { Deck = ["l-draft", "clod"] };
         Assert.Null(hero.Problem(Book));
-        Assert.Equal(["draft", "l-draft", "clod"], hero.DeckOf(Book));
+        Assert.Equal(["l-draft", "clod"], hero.DeckOf(Book));
+        // Sprint 187 (D94): its origin is no longer one of the hero's spells.
+        Assert.Contains("not one this hero has", (hero with { Deck = ["draft", "l-draft"] }).Problem(Book));
         // Without Lightning, a twin is not one of the hero's spells.
         Assert.Contains("not one this hero has", (Hero(45, lightning: false) with { Deck = ["l-draft"] }).Problem(Book));
         Assert.Equal("A compound is created once.", (Hero(45) with { Compounds = [Element.Lightning, Element.Lightning] }).Problem(Book));
@@ -210,16 +212,19 @@ public class LightningTests
     }
 
     [Fact]
-    public void ALightningHit_LeavesNoMark_AndNeverReacts()
+    public void ALightningHit_LeavesItsMark_AndReactsOnlyOnIt()
     {
+        // Sprint 187 (D94): its mark, then on it its reaction.
         Fight plain = Play(["A..B"], Hero(45) with { Deck = ["l-ember"] });
         plain.Apply(new CastAction("l-ember", C(3)));
-        Assert.Null(plain.Fighters[1].Mark);
-        // On an Earth mark, a hero who reacts (sprint 182): the mark stays, nothing reacts.
+        Assert.Equal(Element.Lightning, plain.Fighters[1].Mark!.Element);
+        plain.Apply(new CastAction("l-ember", C(3)));
+        Assert.Equal("electrified", plain.Events.OfType<ReactionTriggered>().Single().Reaction);
+        // On an Earth mark: nothing reacts, its own takes the place.
         Fight marked = Play(["A..B"], Hero(45) with { Deck = ["clod", "l-ember"] });
         marked.Apply(new CastAction("clod", C(3)));
         marked.Apply(new CastAction("l-ember", C(3)));
-        Assert.Equal(Element.Earth, marked.Fighters[1].Mark!.Element);
+        Assert.Equal(Element.Lightning, marked.Fighters[1].Mark!.Element);
         Assert.Empty(marked.Events.OfType<ReactionTriggered>());
     }
 

@@ -11,12 +11,15 @@ public enum FusionState
     /// <summary>It can be created.</summary>
     Open,
 
+    /// <summary>A compound the draft has holds one of its parents (sprint 187, D94).</summary>
+    Blocked,
+
     /// <summary>The draft has it: it can be dissolved.</summary>
     Created,
 }
 
 /// <summary>A pair or a trio of the wheel: its parents, the level that opens it, its reaction, its compound.</summary>
-public sealed record Fusion(string Id, IReadOnlyList<Element> Parents, int Level, Element Compound, ReactionSpec? Reaction, FusionState State);
+public sealed record Fusion(string Id, IReadOnlyList<Element> Parents, int Level, Element Compound, ReactionSpec? Reaction, FusionState State, IReadOnlyList<Element> BlockedBy);
 
 /// <summary>A base element's bar: its points with the equipment's, the threshold of D85, the bonus they give.</summary>
 public sealed record ElementBar(Element Element, int Total, int Threshold, int Bonus, double Fill, bool Over);
@@ -61,8 +64,9 @@ public sealed class ElementsPage(PointsEditor editor)
         ReactionSpec? reaction = f.Parents.Length == 2 ? Talents.ReactionOf(f.Parents[0], f.Parents[1], _editor.Data) : Talents.TrioReactionOf(compound, _editor.Data);
         FusionState state = _editor.CompoundsCreated.Contains(compound) ? FusionState.Created
             : _editor.Hero.Level < level ? FusionState.Locked
+            : Elements.BlockedBy(compound, _editor.CompoundsCreated).Count > 0 ? FusionState.Blocked
             : FusionState.Open;
-        return new Fusion(f.Id, f.Parents, level, compound, reaction, state);
+        return new Fusion(f.Id, f.Parents, level, compound, reaction, state, Elements.BlockedBy(compound, _editor.CompoundsCreated));
     }
 
     /// <summary>Create or Dissolve pressed: true when the draft changed (never on a locked fusion, nor in a fight).</summary>
@@ -88,10 +92,7 @@ public sealed class ElementsPage(PointsEditor editor)
     {
         ArgumentNullException.ThrowIfNull(fusion);
         Element compound = fusion.Compound;
-        Hero draft = _editor.Draft;
-        Element[] others = [.. (draft.Compounds ?? []).Where(e => e != compound)];
-        return Talents.GrimoireOf(draft with { Compounds = [.. others, compound] }, _editor.Data).Spells.Count
-            - Talents.GrimoireOf(draft with { Compounds = others }, _editor.Data).Spells.Count;
+        return Talents.GrimoireOf(_editor.Draft with { Compounds = [compound] }, _editor.Data).Spells.Count(id => _editor.Data.Spells[id].Element == compound);
     }
 
     /// <summary>The four base elements of the draft.</summary>
