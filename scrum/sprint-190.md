@@ -1,13 +1,13 @@
-# Sprint 190 : Osmose : la page Voie, la Sentinelle
+# Sprint 190 : Osmose : l'arbre des spécialisations
 
-**Objectif :** les pages Éléments et Voie à la place de la page Talents, conçues par le game designer (`projects/rpg/docs/elements-specialisations.md`, v3) et validées par Charles : trois paliers à 30, 50 et 100 (D93).
+**Objectif :** l'onglet Talents devient Spécialisation, un arbre lu de gauche à droite qui se divise : 3 choix à 30, 2 choix pour chacun à 50, une dernière évolution à 100 (D95).
 
-**Goal:** the Elements and Path pages in place of the Talents page, designed by the game designer (`projects/rpg/docs/elements-specialisations.md`, v3) and approved by Charles: three tiers at 30, 50 and 100 (D93).
+**Goal:** the Talents tab becomes Specialisation, a tree read from left to right that divides: 3 choices at 30, 2 choices each at 50, a last evolution at 100 (D95).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, l'onglet « Voie » remplace l'onglet Talents : la racine de ma classe, ses 3 branches lues de gauche à droite en colonnes 30, 50 et 100, la fiche de l'évolution et la frise commune ; l'arbre des talents reste sur la touche T ; textes FR et EN (rpg) ; xUnit client (aucun chevauchement, nœuds de 44 px), auto-test Godot : choisir une branche à 30, évolutions allumées à 100 avec Plouf. | 3 | À faire |
-| En tant que Sentinelle, je deviens Mire, Affût ou Sente, avec leurs sorts, leurs passifs, leurs évolutions et leurs titres (rpg) ; xUnit par passif, règle et évolution, ±8 points de la moyenne contre les hordes à 35, 45 et 50. | 3 | À faire |
+| En tant que Charles, les 6 évolutions à 50 et leurs 6 évolutions à 100 de chaque classe sont conçues par le game designer et relues par le scénariste, et je valide la liste (rpg) ; document `docs/elements-specialisations.md`, v4. | 1 | À faire |
+| En tant que joueur, je choisis à 50 une des 2 évolutions de ma branche, et la suivante vient seule à 100 ; un héros de 60 qui n'a jamais choisi passe par ses deux choix (rpg) ; xUnit : choix refusé avant 50 ou hors de sa branche, évolution III de la bonne ligne, combat rejoué à l'identique ; intégration PostgreSQL : choisir, changer et payer, rangs transférés. | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

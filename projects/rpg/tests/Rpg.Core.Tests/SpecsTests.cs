@@ -5,7 +5,7 @@ namespace Rpg.Core.Tests;
 /// <summary>
 /// The paths' engine (sprint 186, D93, docs/elements-specialisations.md §v3.4): the nine branches of the data, a hero who has not
 /// chosen, the three evolutions that come alone with the level, the trigger <see cref="Trigger.Kill"/>, the replay. Their spells
-/// and passives come in sprints 190 and 191: the engine is tried on two paths written here, over the real data.
+/// and passives come in sprints 191 to 193: the engine is tried on two paths written here, over the real data.
 /// </summary>
 public class SpecsTests
 {

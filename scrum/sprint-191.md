@@ -1,14 +1,13 @@
-# Sprint 191 : Osmose : les voies de la Garde et de la Mage, playtest
+# Sprint 191 : Osmose : la page Spécialisation, la Sentinelle
 
-**Objectif :** les pages Éléments et Voie à la place de la page Talents, conçues par le game designer (`projects/rpg/docs/elements-specialisations.md`, v3) et validées par Charles : trois paliers à 30, 50 et 100 (D93).
+**Objectif :** l'onglet Talents devient Spécialisation, un arbre lu de gauche à droite qui se divise : 3 choix à 30, 2 choix pour chacun à 50, une dernière évolution à 100 (D95).
 
-**Goal:** the Elements and Path pages in place of the Talents page, designed by the game designer (`projects/rpg/docs/elements-specialisations.md`, v3) and approved by Charles: three tiers at 30, 50 and 100 (D93).
+**Goal:** the Talents tab becomes Specialisation, a tree read from left to right that divides: 3 choices at 30, 2 choices each at 50, a last evolution at 100 (D95).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Garde, je deviens Palissade, Brèche ou Étau (rpg) ; xUnit, ±8 points à 35, 45 et 50, un duo Palissade et dégâts à moins de 1,5 victoire sur 30 d'un duo dégâts et dégâts. | 3 | À faire |
-| En tant que Mage, je deviens Archimage, Sorcier ou Nécromancien, dont le nom vient du scénariste (rpg) ; xUnit, ±8 points à 35, 45 et 50. | 3 | À faire |
-| En tant que Charles, la mesure croisée des 9 voies × 2 builds à 35, 45 et 50 tient ses bornes, et je joue à 30 la quête, une voie et une paire créée (rpg) ; mesure hors CI, résultat dans `REVIEW.md`. | 1 | À faire |
+| En tant que joueur, l'onglet « Spécialisation » remplace l'onglet Talents : la racine de ma classe, 3 branches, 6 évolutions, lues de gauche à droite en colonnes 30, 50 et 100, la fiche de l'évolution et la frise commune ; l'arbre des talents reste sur la touche T ; textes FR et EN (rpg) ; xUnit client (aucun chevauchement, nœuds de 44 px), auto-test Godot : choisir une branche à 30 puis une évolution à 50. | 3 | À faire |
+| En tant que Sentinelle, je deviens Mire, Affût ou Sente, puis une de leurs 2 évolutions, avec leurs sorts, leurs passifs et leurs titres (rpg) ; xUnit par passif, règle et évolution, ±8 points de la moyenne contre les hordes à 35, 45 et 50. | 4 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

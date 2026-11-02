@@ -77,6 +77,8 @@
 
 ### v3.4 L'arbre de voie, par classe
 
+> **Remplacé par D95 (3 novembre 2026) :** l'onglet s'appelle « Spécialisation » et l'arbre se divise : 3 choix à 30, 2 choix pour chacun à 50, une dernière évolution à 100, sans nouveau choix. Les tableaux ci-dessous ne décrivent qu'une ligne par branche : ils servent de base à la conception de S190.
+
 **La structure.** À gauche la racine (la classe), puis **3 lignes**, les **3 branches**. Les colonnes sont **30, 50 et 100**. On ne prend qu'une ligne. Les évolutions II et III viennent seules avec le niveau. Le prix est inchangé : la première voie est gratuite, les suivantes coûtent 30 × niveau Éclats, chez l'habitant des voies, et les rangs sont transférés.
 
 **« Rester mage » (Q9 b).** Ce n'est pas une ligne de l'arbre : c'est l'état d'un héros qui n'a pas encore choisi. Il garde sa classe de base et ses 24 sorts, sans évolution, et la page Voie lui montre les 3 branches ouvertes. Son premier choix reste gratuit, quel que soit son niveau, et il reçoit d'un coup les évolutions de son niveau (I à 30, II à 50, III à 100). *(La voie généraliste proposée en v3, Q9 a, n'est pas retenue : ses lignes sont retirées des tableaux ci-dessous.)*

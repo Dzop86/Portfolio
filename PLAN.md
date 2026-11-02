@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S191), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S193), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S191 | 594 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S193 | 602 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 815 points sur 191 sprints de deux semaines.
+Total : 823 points sur 193 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -216,3 +216,6 @@ La page Talents des caractéristiques est remplacée par deux onglets, conçus p
 
 ## Osmose : les composés consomment leurs parents (2 novembre 2026, D94)
 Après la 1.0.183, Charles attend qu'un composé remplace ses parents : avec la Foudre, plus de sorts de Feu ni d'Air, et ces éléments ne servent plus à une autre fusion. Au plus 2 paires disjointes ou 1 trio, gratuitement et de façon réversible. Pour que le livre reste à 24 sorts, un trio passe à 12 sorts par classe ; pour que les réactions vivent en solo, un sort de composé pose son empreinte et le suivant la déclenche. S187 (5) la règle, les réactions, la migration et la remesure ; S188 (4) les 96 sorts de trios ; S189 (4) la nouvelle page Éléments du graphiste. Les voies passent de S187-S188 à S190-S191 : 13 points et 3 sprints de plus.
+
+## Osmose : l'arbre des spécialisations (3 novembre 2026, D95)
+Charles veut que l'onglet Talents s'appelle Spécialisation et que l'arbre se divise : 3 choix à 30, 2 choix pour chacun à 50, une dernière évolution à 100, soit 15 évolutions par classe au lieu de 9. S189 reste la nouvelle page Éléments. S190 (5) la conception et le moteur de l'arbre ; S191 (7) la page Spécialisation et la Sentinelle ; S192 (4) la Garde ; S193 (5) la Mage, la mesure croisée et le playtest. 21 points au lieu de 13 : 8 points et 2 sprints de plus.
