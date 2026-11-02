@@ -232,6 +232,8 @@ public static class Ai
         // Range lost keeps a fighter from striking (sprint 140); an electrified one spreads the hits it takes.
         Stat.Range => -1.0 * st.Value * st.Turns,
         Stat.Electrified => 0.1 * st.Value * st.Turns,
+        // The trios' reactions (sprint 185): the turns a fighter stands bare.
+        Stat.Parched or Stat.Incorporeal => 1.0 * st.Turns,
         _ => -0.05 * st.Value * st.Turns,
     };
 
@@ -447,10 +449,12 @@ public static class Ai
     /// </summary>
     private static double MarkWorth(Fight fight, Fighter me, Element element, Fighter f, bool aimed)
     {
-        if (!me.Spec.Reacts || !me.LaysMarks || !Talents.IsBase(element))
+        if (!me.Spec.Reacts || !me.LaysMarks)
             return 0;
         if (aimed && fight.ReactionOn(me, f, element) is ReactionSpec reaction)
             return reaction.Statuses.Sum(st => StatusWorth(st, f));
+        if (!Talents.IsBase(element))
+            return 0;
         if (f.Mark?.Element == element)
             return 0;
         ReactionSpec? next = Talents.ReactionOf(element, Element.Earth, fight.Data) ?? Talents.ReactionOf(element, Element.Fire, fight.Data)

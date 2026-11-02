@@ -216,7 +216,6 @@ public partial class PointsPanel
         {
             FusionState.Created => (ElementStyle.TakenFill, ElementStyle.Taken, ElementStyle.Taken),
             FusionState.Open => (ElementStyle.OpenFill, ElementStyle.Open, ElementStyle.Open),
-            FusionState.Coming => (ElementStyle.LockedFill, ElementStyle.Coming, ElementStyle.Locked),
             _ => (ElementStyle.OutOfLevelFill, ElementStyle.OutOfLevel, ElementStyle.Locked),
         };
         foreach (string state in new[] { "normal", "hover", "pressed", "focus" })
@@ -240,18 +239,15 @@ public partial class PointsPanel
         _fusionName.Text = Texts[$"fusion.{fusion.Id}.name"];
         _fusionParents.Text = string.Join(" + ", fusion.Parents.Select(e => Texts["element." + e]));
         _fusionSignature.Text = Texts["elements.signature", Texts[$"fusion.{fusion.Id}.signature"]];
-        _fusionReaction.Text = fusion.Reaction is ReactionSpec r
-            ? Texts["elements.reaction", r.Name.In(Texts.Lang), r.Description.In(Texts.Lang)]
-            : Texts["elements.reaction.trio", Texts[$"fusion.{fusion.Id}.reaction"]];
+        _fusionReaction.Text = fusion.Reaction is ReactionSpec r ? Texts["elements.reaction", r.Name.In(Texts.Lang), r.Description.In(Texts.Lang)] : "";
         int spells = page.SpellsOf(fusion);
         _fusionSpells.Text = spells > 0 ? Texts["elements.spells", spells] : "";
         _fusionPress.Visible = !Editor.ReadOnly;
-        _fusionPress.Disabled = fusion.State is FusionState.Locked or FusionState.Coming;
+        _fusionPress.Disabled = fusion.State == FusionState.Locked;
         _fusionPress.Text = fusion.State switch
         {
             FusionState.Created => Texts["elements.dissolve"],
             FusionState.Open => Texts["elements.create"],
-            FusionState.Coming => Texts["elements.coming"],
             _ => Texts["elements.locked", fusion.Level],
         };
         _fusionNote.Text = fusion.State is FusionState.Open or FusionState.Created && !Editor.ReadOnly ? Texts["elements.free"] : "";

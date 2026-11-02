@@ -228,7 +228,7 @@ public sealed record TalentSpec(string Id, LocalizedText Name, LocalizedText Des
 /// <see cref="First"/> on a fighter marked by <see cref="Second"/>, or the other way round, sets <see cref="Statuses"/> on
 /// it, named after the reaction. Since sprint 182 (D93), every hero of level 30 or more sets the six off, no talent asked.
 /// </summary>
-public sealed record ReactionSpec(string Id, LocalizedText Name, LocalizedText Description, Element First, Element Second, IReadOnlyList<StatusEffect> Statuses)
+public sealed record ReactionSpec(string Id, LocalizedText Name, LocalizedText Description, Element First, Element Second, IReadOnlyList<StatusEffect> Statuses, Element? Trio = null)
 {
     public bool Joins(Element a, Element b) => (a == First && b == Second) || (a == Second && b == First);
 }
@@ -584,7 +584,14 @@ public static class Talents
         ArgumentNullException.ThrowIfNull(data);
         if (a == b || !IsBase(a) || !IsBase(b))
             return null;
-        return data.Reactions.Values.FirstOrDefault(r => r.Joins(a, b));
+        return data.Reactions.Values.FirstOrDefault(r => r.Trio is null && r.Joins(a, b));
+    }
+
+    /// <summary>The reaction a trio's spell sets off on the mark of one of its parents (sprint 185, D93), in place of a pair's.</summary>
+    public static ReactionSpec? TrioReactionOf(Element trio, GameData data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        return data.Reactions.Values.FirstOrDefault(r => r.Trio == trio);
     }
 }
 

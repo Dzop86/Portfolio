@@ -8,9 +8,6 @@ public enum FusionState
     /// <summary>The level has not opened it yet.</summary>
     Locked,
 
-    /// <summary>Its spells are not in the game yet (the trios, in sprint 185).</summary>
-    Coming,
-
     /// <summary>It can be created.</summary>
     Open,
 
@@ -18,8 +15,8 @@ public enum FusionState
     Created,
 }
 
-/// <summary>A pair or a trio of the wheel: its parents, the level that opens it, its reaction, and the compound once the game has its spells.</summary>
-public sealed record Fusion(string Id, IReadOnlyList<Element> Parents, int Level, Element? Compound, ReactionSpec? Reaction, FusionState State);
+/// <summary>A pair or a trio of the wheel: its parents, the level that opens it, its reaction, its compound.</summary>
+public sealed record Fusion(string Id, IReadOnlyList<Element> Parents, int Level, Element Compound, ReactionSpec? Reaction, FusionState State);
 
 /// <summary>A base element's bar: its points with the equipment's, the threshold of D85, the bonus they give.</summary>
 public sealed record ElementBar(Element Element, int Total, int Threshold, int Bonus, double Fill, bool Over);
@@ -29,8 +26,8 @@ public sealed record ElementTier(int Level, bool Reached);
 
 /// <summary>
 /// The Elements page (sprint 183, D93, <c>docs/elements-specialisations.md</c> §v3.3), everything but the drawing: the base
-/// elements and the threshold of D85, the wheel of the 6 pairs and the 4 trios, the frieze of tiers. A fusion becomes
-/// creatable by itself the day <see cref="Elements"/> has its compound (the enumeration's name is the fusion's id).
+/// elements and the threshold of D85, the wheel of the 6 pairs and the 4 trios, the frieze of tiers. A fusion's id
+/// is its compound's name.
 /// </summary>
 public sealed class ElementsPage(PointsEditor editor)
 {
@@ -60,21 +57,19 @@ public sealed class ElementsPage(PointsEditor editor)
     private Fusion Of((string Id, Element[] Parents) f)
     {
         int level = f.Parents.Length == 2 ? Elements.Pairs : Elements.Trios;
-        Element? compound = Enum.TryParse(f.Id, ignoreCase: true, out Element e) && Elements.IsCompound(e) ? e : null;
-        ReactionSpec? reaction = f.Parents.Length == 2 ? Talents.ReactionOf(f.Parents[0], f.Parents[1], _editor.Data) : null;
-        FusionState state = compound is Element c && _editor.CompoundsCreated.Contains(c) ? FusionState.Created
+        Element compound = Enum.Parse<Element>(f.Id, ignoreCase: true);
+        ReactionSpec? reaction = f.Parents.Length == 2 ? Talents.ReactionOf(f.Parents[0], f.Parents[1], _editor.Data) : Talents.TrioReactionOf(compound, _editor.Data);
+        FusionState state = _editor.CompoundsCreated.Contains(compound) ? FusionState.Created
             : _editor.Hero.Level < level ? FusionState.Locked
-            : compound is null ? FusionState.Coming
             : FusionState.Open;
         return new Fusion(f.Id, f.Parents, level, compound, reaction, state);
     }
 
-    /// <summary>Create or Dissolve pressed: true when the draft changed (never on a locked or coming fusion, nor in a fight).</summary>
+    /// <summary>Create or Dissolve pressed: true when the draft changed (never on a locked fusion, nor in a fight).</summary>
     public bool Press(Fusion fusion)
     {
         ArgumentNullException.ThrowIfNull(fusion);
-        if (fusion.Compound is not Element compound)
-            return false;
+        Element compound = fusion.Compound;
         if (_editor.CanDissolve(compound))
         {
             _editor.Dissolve(compound);
@@ -88,12 +83,11 @@ public sealed class ElementsPage(PointsEditor editor)
         return false;
     }
 
-    /// <summary>The spells this fusion gives this hero at its level: the twins of the class's spells it has unlocked; none before it is in the game.</summary>
+    /// <summary>The spells this fusion gives this hero at its level: the twins of the class's spells it has unlocked.</summary>
     public int SpellsOf(Fusion fusion)
     {
         ArgumentNullException.ThrowIfNull(fusion);
-        if (fusion.Compound is not Element compound)
-            return 0;
+        Element compound = fusion.Compound;
         Hero draft = _editor.Draft;
         Element[] others = [.. (draft.Compounds ?? []).Where(e => e != compound)];
         return Talents.GrimoireOf(draft with { Compounds = [.. others, compound] }, _editor.Data).Spells.Count

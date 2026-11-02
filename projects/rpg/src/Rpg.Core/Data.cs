@@ -587,6 +587,12 @@ public sealed class GameData
     {
         foreach (ReactionSpec r in Reactions.Values)
         {
+            if (r.Trio is Element trio)
+            {
+                if (Elements.Parents(trio).Count != 3 || r.Statuses.Any(st => st.Affects != Affects.Enemies || st.Turns < 1) || Reactions.Values.Any(o => o != r && o.Trio == trio))
+                    throw new InvalidDataException($"Reaction '{r.Id}': a trio that no other reaction has, statuses on the enemy.");
+                continue;
+            }
             if (r.First == r.Second || !Rpg.Core.Talents.IsBase(r.First) || !Rpg.Core.Talents.IsBase(r.Second) || r.Statuses.Count == 0
                 || r.Statuses.Any(st => st.Affects != Affects.Enemies || st.Turns < 1)
                 || Reactions.Values.Any(o => o != r && o.Joins(r.First, r.Second)))

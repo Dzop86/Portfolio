@@ -30,7 +30,8 @@ public class ElementsPageTests
             Assert.NotNull(f.Reaction);
             Assert.True(f.Reaction!.Joins(f.Parents[0], f.Parents[1]));
         });
-        Assert.All(page.Fusions.Where(f => f.Parents.Count == 3), f => Assert.Null(f.Reaction));
+        // A trio's reaction is its own, not a pair's (sprint 185).
+        Assert.All(page.Fusions.Where(f => f.Parents.Count == 3), f => Assert.Equal(f.Compound, f.Reaction!.Trio));
     }
 
     [Fact]
@@ -45,10 +46,8 @@ public class ElementsPageTests
         Assert.Equal(FusionState.Locked, State(at30, "ether"));
         var at50 = new ElementsPage(Editor(50, compounds: Element.Lightning));
         Assert.Equal(FusionState.Created, State(at50, "lightning"));
-        // The ones whose spells are not in the game yet: the trios, in sprint 185.
         Assert.Equal(FusionState.Open, State(at30, "ice"));
-        Assert.All(at50.Fusions.Where(f => f.Parents.Count == 3), f => Assert.Null(f.Compound));
-        Assert.All(at50.Fusions.Where(f => f.Compound is null), f => Assert.Equal(FusionState.Coming, f.State));
+        Assert.Equal(FusionState.Open, State(at50, "ether"));
     }
 
     [Fact]
@@ -88,7 +87,7 @@ public class ElementsPageTests
         var top = new ElementsPage(new PointsEditor(new Hero("Ondine", "female-a", id, Level: 100), Data));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "lightning")));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "ice")));
-        Assert.Equal(0, top.SpellsOf(top.Fusions.Single(f => f.Id == "ether")));
+        Assert.Equal(4, top.SpellsOf(top.Fusions.Single(f => f.Id == "ether")));
     }
 
     [Theory]
@@ -104,7 +103,8 @@ public class ElementsPageTests
         var shown = new ElementsPage(fight);
         Assert.False(shown.Press(shown.Fusions.Single(f => f.Id == "lightning")));
         Assert.Empty(fight.CompoundsCreated);
-        Assert.False(page.Press(page.Fusions.Single(f => f.Id == "ether")));
+        // A trio at 30.
+        Assert.False(new ElementsPage(Editor(30)).Press(new ElementsPage(Editor(30)).Fusions.Single(f => f.Id == "ether")));
     }
 
     [Fact]
@@ -177,8 +177,7 @@ public class ElementsPageTests
         {
             Assert.False(string.IsNullOrWhiteSpace(texts[$"fusion.{f.Id}.name"]));
             Assert.False(string.IsNullOrWhiteSpace(texts[$"fusion.{f.Id}.signature"]));
-            if (f.Parents.Count == 3)
-                Assert.False(string.IsNullOrWhiteSpace(texts[$"fusion.{f.Id}.reaction"]));
+            Assert.False(string.IsNullOrWhiteSpace(texts[$"element.{f.Compound}"]));
         }
         foreach (ElementTier tier in new ElementsPage(Editor(50)).Tiers)
             Assert.False(string.IsNullOrWhiteSpace(texts[$"elements.tier.{tier.Level}"]));

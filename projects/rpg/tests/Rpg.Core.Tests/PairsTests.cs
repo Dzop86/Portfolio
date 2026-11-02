@@ -19,14 +19,15 @@ public class PairsTests
     [Fact]
     public void TheSixPairs_AreCompounds_WithTheParentsOfTheirReactions()
     {
-        Assert.Equal(6, Elements.Compounds.Count());
-        Assert.All(Elements.Compounds, e =>
+        Element[] pairs = [.. Elements.Compounds.Where(e => Elements.CreatedFrom(e) == Elements.Pairs)];
+        Assert.Equal(6, pairs.Length);
+        Assert.All(pairs, e =>
         {
             Assert.Equal(2, Elements.Parents(e).Count);
             Assert.NotNull(Talents.ReactionOf(Elements.Parents(e)[0], Elements.Parents(e)[1], Real));
             Assert.Equal(Elements.Pairs, Elements.CreatedFrom(e));
         });
-        Assert.Equal(6, Elements.Compounds.Select(e => string.Join('+', Elements.Parents(e).Order())).Distinct().Count());
+        Assert.Equal(6, pairs.Select(e => string.Join('+', Elements.Parents(e).Order())).Distinct().Count());
     }
 
     [Theory]

@@ -408,7 +408,7 @@ public class TemplateTests
         foreach (string id in Classes)
         {
             Hero bare = family.Hero(id, "none");
-            Dictionary<Element, double> values = Elements.Compounds.ToDictionary(e => e, e => Small(Progression.Talented(bare, [], family.Data, compounds: [e])));
+            Dictionary<Element, double> values = Elements.Compounds.Where(e => Elements.CreatedFrom(e) == Elements.Pairs).ToDictionary(e => e, e => Small(Progression.Talented(bare, [], family.Data, compounds: [e])));
             foreach ((Element e, double v) in values)
                 kept &= Math.Abs(v - values.Where(o => o.Key != e).Average(o => o.Value)) <= 1.5;
             report.Add($"{id}: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));

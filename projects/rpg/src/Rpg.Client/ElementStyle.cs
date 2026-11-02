@@ -26,6 +26,10 @@ public static class ElementStyle
         Element.Magma => "#ff7a2e",
         Element.Steam => "#c3a6e0",
         Element.Sand => "#d6bc84",
+        Element.Ether => "#b8c4ff",
+        Element.Ash => "#a89f98",
+        Element.Sap => "#9ccc3d",
+        Element.Salt => "#eef2f5",
         _ => "#e0e0e0",
     };
 

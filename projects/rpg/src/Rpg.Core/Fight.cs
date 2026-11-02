@@ -113,6 +113,22 @@ public sealed class Fighter
     /// How far a spell reaches now (sprint 140): its range changed by the fighter's range statuses (Blinded) for a spell
     /// reaching farther than 1, never under 1 nor under its minimum.
     /// </summary>
+    public bool Parched => StatusList.Any(s => s.Stat == Stat.Parched);
+
+    /// <summary>The cell of a Scattered fighter blocks neither way nor sight (sprint 185).</summary>
+    public bool Incorporeal => StatusList.Any(s => s.Stat == Stat.Incorporeal);
+
+    /// <summary>Heals up to <paramref name="amount"/>: the percent of Brine taken off, nothing while Parched (sprint 185); what was healed.</summary>
+    internal int HealFor(int amount)
+    {
+        if (Parched)
+            return 0;
+        int change = StatusList.Where(s => s.Stat == Stat.Healing).Select(s => s.Value).DefaultIfEmpty(0).Min();
+        int healed = Math.Min(amount * Math.Max(0, 100 + change) / 100, MaxHp - Hp);
+        Hp += healed;
+        return healed;
+    }
+
     public int MaxRangeOf(Spell spell)
     {
         ArgumentNullException.ThrowIfNull(spell);
@@ -442,10 +458,10 @@ public sealed class Fight
     public IReadOnlyList<Cell>? PathTo(Cell to)
     {
         Fighter me = Current;
-        IReadOnlyList<Cell>? shortest = Pathfinding.FindPath(Board, me.Cell, to, IsFree);
+        IReadOnlyList<Cell>? shortest = Pathfinding.FindPath(Board, me.Cell, to, IsPassable);
         if (shortest is null || !_glyphs.Any(g => Strikes(g, me)))
             return shortest;
-        return Pathfinding.FindPath(Board, me.Cell, to, IsFree, me.Mp, c => _glyphs.Count(g => g.Cells.Contains(c) && Strikes(g, me))) ?? shortest;
+        return Pathfinding.FindPath(Board, me.Cell, to, IsPassable, me.Mp, c => _glyphs.Count(g => g.Cells.Contains(c) && Strikes(g, me))) ?? shortest;
     }
 
     /// <summary>The living fighter on a cell, if any.</summary>
@@ -454,10 +470,14 @@ public sealed class Fight
     public bool IsFree(Cell cell) => Board.IsFloor(cell) && At(cell) is null;
 
     /// <summary>Obstacles and living fighters block the view; holes do not.</summary>
-    public bool BlocksSight(Cell cell) => Board[cell] == Terrain.Obstacle || At(cell) is not null;
+    public bool BlocksSight(Cell cell) => Board[cell] == Terrain.Obstacle || At(cell) is { Incorporeal: false };
+
+    /// <summary>A cell one may walk through: free, or that of a Scattered fighter (sprint 185), where one may not stop.</summary>
+    private bool IsPassable(Cell cell) => Board.IsFloor(cell) && At(cell) is null or { Incorporeal: true };
 
     /// <summary>The cells the current fighter can walk to this turn, with their cost in movement points.</summary>
-    public IReadOnlyDictionary<Cell, int> ReachableCells() => Pathfinding.Reachable(Board, Current.Cell, Current.Mp, IsFree);
+    public IReadOnlyDictionary<Cell, int> ReachableCells() =>
+        Pathfinding.Reachable(Board, Current.Cell, Current.Mp, IsPassable).Where(c => At(c.Key) is null || c.Key == Current.Cell).ToDictionary();
 
     /// <summary>
     /// Whether <paramref name="caster"/> could cast <paramref name="spell"/> on <paramref name="target"/>
@@ -582,11 +602,10 @@ public sealed class Fight
         _events.Add(new Supported(me.Id, ally.Id));
         if (s.Heal > 0)
         {
-            int healed = Math.Min(s.Heal, ally.MaxHp - ally.Hp);
-            ally.Hp += healed;
+            int healed = ally.HealFor(s.Heal);
             _events.Add(new Healed(ally.Id, healed, ally.Hp));
         }
-        if (s.Shield > 0)
+        if (s.Shield > 0 && !ally.Parched)
         {
             ally.Shields.Add((s.Shield, 1));
             _events.Add(new Shielded(ally.Id, s.Shield, 1));
@@ -622,7 +641,7 @@ public sealed class Fight
                     return ActionError.NotFloor;
                 if (move.To == me.Cell || At(move.To) is not null)
                     return ActionError.Occupied;
-                IReadOnlyList<Cell>? path = Pathfinding.FindPath(Board, me.Cell, move.To, IsFree);
+                IReadOnlyList<Cell>? path = Pathfinding.FindPath(Board, me.Cell, move.To, IsPassable);
                 if (path is null)
                     return ActionError.Unreachable;
                 return path.Count > me.Mp ? ActionError.NotEnoughMp : ActionError.None;
@@ -670,7 +689,7 @@ public sealed class Fight
         var walked = new List<Cell>();
         foreach (Cell next in path)
         {
-            if (!IsFree(next) || me.Mp <= 0)
+            if (!IsPassable(next) || me.Mp <= 0)
                 break;
             me.Mp--;
             me.StepsThisTurn++;
@@ -716,14 +735,15 @@ public sealed class Fight
     }
 
     /// <summary>Lays a glyph on the floor cells of a spell's area (sprint 130), in place of the caster's last one of that spell.</summary>
-    private void Lay(Fighter me, GlyphEffect effect, IReadOnlyList<Cell> zone, string spell)
+    private void Lay(Fighter me, GlyphEffect effect, IReadOnlyList<Cell> zone, string spell, bool buried = false)
     {
-        foreach (Glyph old in _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell).ToList())
+        // A spell's glyph replaces that spell's; the reaction Buried's (sprint 185), its own.
+        foreach (Glyph old in _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell && g.Buried == buried).ToList())
             EndGlyph(old);
         Cell[] cells = [.. zone.Where(Board.IsFloor).Distinct()];
         if (cells.Length == 0)
             return;
-        var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect, zone[0]);
+        var glyph = new Glyph(_glyphsLaid++, me.Id, spell, cells, effect, zone[0]) { Buried = buried };
         glyph.Spared.UnionWith(_fighters.Where(f => f.IsAlive && cells.Contains(f.Cell)).Select(f => f.Id));
         _glyphs.Add(glyph);
         _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns, effect.Element));
@@ -813,7 +833,12 @@ public sealed class Fight
             return null;
         Fighter source = _fighters[m.Source];
         bool reacts = caster.Spec.Reacts || (source != caster && source.Spec.Reacts && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any());
-        return reacts ? Talents.ReactionOf(m.Element, element, _data) : null;
+        if (!reacts)
+            return null;
+        // A trio's spell (sprint 185): the mark of any of its parents sets off the trio's reaction, in place of a pair's.
+        return Elements.Parents(element).Count == 3
+            ? Elements.Parents(element).Contains(m.Element) ? Talents.TrioReactionOf(element, _data) : null
+            : Talents.ReactionOf(m.Element, element, _data);
     }
 
     /// <summary>
@@ -857,9 +882,9 @@ public sealed class Fight
     /// </summary>
     /// <param name="aimed">Whether this hit may set a reaction off: the fighter aimed at, or with Wave one of the first marked in the area.</param>
     /// <param name="dealt">The hit's damage, for Catalysis (sprint 144).</param>
-    private void Imprint(Fighter me, Fighter f, Element element, bool aimed, int dealt = 0)
+    private void Imprint(Fighter me, Fighter f, Element element, bool aimed, int dealt = 0, string? spell = null)
     {
-        if (!me.LaysMarks || !Talents.IsBase(element) || f.Team == me.Team || IsOver || !f.IsAlive)
+        if (!me.LaysMarks || f.Team == me.Team || IsOver || !f.IsAlive)
             return;
         if (aimed && ReactionOn(me, f, element) is ReactionSpec reaction)
         {
@@ -874,6 +899,9 @@ public sealed class Fight
                 StatusEffect status = s with { Turns = s.Turns + longer };
                 // A chief loses at most 2 action and 2 movement points to the reactions (§6.1).
                 int value = status.Value;
+                // Rooted (sprint 185): all of its movement, however much that is.
+                if (reaction.Id == RootedReaction && status.Stat == Stat.Mp)
+                    value = -Math.Max(f.Spec.Mp, f.Mp);
                 if (f.Spec.Chief && status.Stat is Stat.Ap or Stat.Mp && value < 0)
                     value = Math.Max(value, -2 - f.StatusList.Where(st => st.Stat == status.Stat && st.Reaction is not null && st.Value < 0 && st.Source != me.Id).Sum(st => st.Value));
                 if (value != 0)
@@ -882,12 +910,41 @@ public sealed class Fight
             int catalysis = rules.OfType<CatalysisRule>().Sum(r => r.Percent);
             if (catalysis > 0 && dealt > 0 && f.IsAlive && !IsOver)
                 Hurt(f, dealt * catalysis / 100);
+            TrioAftermath(me, f, reaction, dealt, spell);
             return;
         }
+        if (!Talents.IsBase(element))
+            return;
         f.Mark = new Mark(element, me.Id, 2 + me.Talents.SelectMany(t => t.Rules).OfType<MarkRule>().Sum(r => r.ExtraTurns));
         _events.Add(new Marked(f.Id, element, me.Id));
     }
 
+
+    private const string RootedReaction = "rooted";
+
+    /// <summary>What a trio's reaction does besides its statuses (sprint 185, D93): Scattered takes the shields, Buried lays its glyph, Rooted heals around the caster.</summary>
+    private void TrioAftermath(Fighter me, Fighter f, ReactionSpec reaction, int dealt, string? spell)
+    {
+        switch (reaction.Id)
+        {
+            case "scattered":
+                f.Shields.Clear();
+                break;
+            case "buried":
+                int hit = Math.Max(1, dealt / 3);
+                Cell[] cross = [f.Cell, f.Cell + new Cell(1, 0), f.Cell + new Cell(-1, 0), f.Cell + new Cell(0, 1), f.Cell + new Cell(0, -1)];
+                Lay(me, new GlyphEffect(Affects.Enemies, 2, hit, hit, Element.Ash), [.. cross.Where(Board.Contains)], spell ?? reaction.Id, buried: true);
+                break;
+            case RootedReaction:
+                foreach (Fighter ally in _fighters.Where(a => a.IsAlive && a.Team == me.Team && a.Cell.DistanceTo(me.Cell) <= Elements.BudCells && a.Hp < a.MaxHp).ToList())
+                {
+                    int healed = ally.HealFor(dealt * Elements.RootedHeal / 100);
+                    if (healed > 0)
+                        _events.Add(new Healed(ally.Id, healed, ally.Hp));
+                }
+                break;
+        }
+    }
 
     /// <summary>The living fighters on the cells of a spell's area, in the area's order, each once.</summary>
     public IReadOnlyList<Fighter> InArea(Spell spell, Cell from, Cell target)
@@ -970,7 +1027,15 @@ public sealed class Fight
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
                 }
-                Imprint(me, hit, spell.Element, reacts, dealt);
+                Imprint(me, hit, spell.Element, reacts, dealt, spell.Id);
+                // Sap's Bud (sprint 185): the most wounded ally around the caster, the caster too.
+                if (spell.Element == Element.Sap && dealt > 0 && !IsOver
+                    && _fighters.Where(a => a.IsAlive && a.Team == me.Team && a.Cell.DistanceTo(me.Cell) <= Elements.BudCells && a.Hp < a.MaxHp).OrderBy(a => (double)a.Hp / a.MaxHp).ThenBy(a => a.Id).FirstOrDefault() is Fighter wounded)
+                {
+                    int budded = wounded.HealFor(dealt * Elements.Bud / 100);
+                    if (budded > 0)
+                        _events.Add(new Healed(wounded.Id, budded, wounded.Hp));
+                }
                 // Lightning's Arc (sprint 138), an Electrified fighter (sprint 140): part of the hit jumps on, once.
                 int jump = Math.Max(spell.Element == Element.Lightning ? Elements.Arc : 0,
                     hit.StatusList.Where(s => s.Stat == Stat.Electrified).Select(s => s.Value).DefaultIfEmpty(0).Max());
@@ -1052,11 +1117,12 @@ public sealed class Fight
                 switch (effect)
                 {
                     case HealEffect:
-                        int healed = Math.Min(effectRoll, f.MaxHp - f.Hp);
-                        f.Hp += healed;
+                        int healed = f.HealFor(effectRoll);
                         _events.Add(new Healed(f.Id, healed, f.Hp));
                         break;
                     case ShieldEffect shield:
+                        if (f.Parched)
+                            break;
                         f.Shields.Add((shield.Amount, shield.Turns));
                         _events.Add(new Shielded(f.Id, shield.Amount, shield.Turns));
                         break;

@@ -3067,8 +3067,7 @@ public partial class Main
 
     /// <summary>
     /// The Elements tab (sprint 183, D93): it fits the window at 1280 × 720 unscrolled; at 30, Lightning created from the wheel
-    /// joins the draft, its twins shown as a preview until saved, then is dissolved; a trio is shut at 30, opens at 50 as "coming" while
-    /// its spells are not in the game; in a fight, no button to press; every node as tall as a finger.
+    /// joins the draft, its twins shown as a preview until saved, then is dissolved; a trio is shut at 30, opens at 50; in a fight, no button to press; every node as tall as a finger.
     /// </summary>
     private async Task CheckElements(List<string> problems)
     {
@@ -3103,7 +3102,7 @@ public partial class Main
         panel.QueueFree();
         panel = Open(50, readOnly: false);
         panel.PickFusion("ether");
-        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.coming"])
+        if (panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.create"])
             problems.Add($"a trio at 50 offers '{panel.FusionButton.Text}'");
         panel.QueueFree();
         panel = Open(30, readOnly: true);

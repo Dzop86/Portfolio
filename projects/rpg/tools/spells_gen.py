@@ -284,11 +284,14 @@ for sp in sentinel:
 # The compounds (sprint 138, D80, docs/elements.md): a pair's spells are its parents' class spells transposed, "twin"
 # naming the spell they come from: the same cost, range, area, effects and level, the compound's element (a poison too),
 # damage from the budget at 80 % for a pair (its signature is paid for). Working names, for the scriptwriter to read.
-COMPOUNDS = {"Lightning": ("Fire", "Air"), "Ice": ("Water", "Air"), "Mud": ("Earth", "Water"), "Magma": ("Earth", "Fire"), "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air")}
-SCALE = {el: 0.8 for el in COMPOUNDS}
+COMPOUNDS = {"Lightning": ("Fire", "Air"), "Ice": ("Water", "Air"), "Mud": ("Earth", "Water"), "Magma": ("Earth", "Fire"), "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air"),
+ "Ether": ("Fire", "Water", "Air"), "Ash": ("Earth", "Fire", "Air"), "Sap": ("Earth", "Fire", "Water"), "Salt": ("Earth", "Water", "Air")}
+# A pair at 80 % of the budget, a trio at 75 % (sprint 185); a trio takes 4 spells a class, one of a parent at each step of the level.
+SCALE = {el: 0.8 if len(p) == 2 else 0.75 for el, p in COMPOUNDS.items()}
 # The five pairs after Lightning (sprint 184, D93, docs/elements-specialisations.md §v3.2): what a hit leaves on the enemies it strikes.
 SIGNATURES = {"Ice": ("Ap", -1), "Mud": ("Mp", -1), "Magma": ("Resistance", -8), "Steam": ("Damage", -10), "Sand": ("Range", -1)}
-MATTER = {"Ice": ("glace", "Ice"), "Mud": ("boue", "Mud"), "Magma": ("magma", "Magma"), "Steam": ("vapeur", "Steam"), "Sand": ("sable", "Sand")}
+MATTER = {"Ice": ("de glace", "Ice"), "Mud": ("de boue", "Mud"), "Magma": ("de magma", "Magma"), "Steam": ("de vapeur", "Steam"), "Sand": ("de sable", "Sand"),
+ "Ether": ("d'éther", "Ether"), "Ash": ("de cendre", "Ash"), "Sap": ("de sève", "Sap"), "Salt": ("de sel", "Salt")}
 # Each spell's gesture, to which a pair gives its matter: "Carreau de glace", "Ice Bolt". Working names, for the scriptwriter to read in batches.
 GESTURES = {
  "stone-arrow": ("Carreau", "Bolt"), "fire-arrow": ("Flèche", "Arrow"), "frost-arrow": ("Dard", "Dart"), "recoil-shot": ("Recul", "Recoil"),
@@ -335,11 +338,19 @@ TWIN_ICONS = {
  "lightning-cyclone": "lorc/bolt-eye", "lightning-cataclysm": "delapouite/bolt-bomb", "lightning-tempest": "willdabeast/chain-lightning",
 }
 twins = []
+def trio_spells(parents):
+    chosen = set()
+    for spells_of in (sentinel, guard, mage):
+        for step in range(4):
+            parent = parents[step % 3]
+            chosen.add([sp["id"] for sp in spells_of if sp["element"] == parent][step])
+    return chosen
 for el, parents in COMPOUNDS.items():
+    trio = trio_spells(parents) if len(parents) == 3 else None
     for sp in sentinel + guard + mage:
-        if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
+        if sp["element"] in parents and (trio is None or sp["id"] in trio) and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
-            named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} de {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
+            named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
             t["id"], t["name"] = f"{el.lower()}-{sp['id']}", O([("fr", named[0]), ("en", named[1])])
             t["element"] = el
             for e in t.get("effects", []):
@@ -352,6 +363,13 @@ for el, parents in COMPOUNDS.items():
                 stat, value = SIGNATURES[el]
                 if not any(e.get("stat") == stat and e.get("affects") == "Enemies" for e in t.get("effects", [])):
                     t.setdefault("effects", []).append(status("Enemies", stat, value, 1))
+            # The trios' signatures (sprint 185): Sap's Bud is in the fight, the others in the spell.
+            if el == "Ether":
+                t["lineOfSight"] = False
+            if el == "Ash":
+                t.setdefault("effects", []).append(glyph("Enemies", 2, max(1, t["damageMin"] // 3), max(1, t["damageMax"] // 3), el="Ash"))
+            if el == "Salt":
+                t.setdefault("effects", []).append(status("Enemies", "Healing", -50, 2))
             # Lightning has its own silhouettes; the five pairs keep their origin's, in the colours of their tile, for now.
             t["icon"] = TWIN_ICONS.get(t["id"], sp["icon"])
             t["twin"] = sp["id"]

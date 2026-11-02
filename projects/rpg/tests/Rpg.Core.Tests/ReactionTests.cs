@@ -65,7 +65,8 @@ public class ReactionTests
     [Fact]
     public void TheRealReactions_AreTheSixPairs_EachBetweenTwoBaseElements()
     {
-        Assert.Equal(6, Real.Reactions.Count);
+        Assert.Equal(6, Real.Reactions.Values.Count(r => r.Trio is null));
+        Assert.Equal(4, Real.Reactions.Values.Count(r => r.Trio is not null));
         Element[] four = [Element.Earth, Element.Fire, Element.Water, Element.Air];
         foreach (Element a in four)
         {

@@ -33,6 +33,18 @@ public enum Element
 
     /// <summary>Earth and Air (sprint 184): its signature, Grit (−1 range).</summary>
     Sand,
+
+    /// <summary>Fire, Water and Air (sprint 185): its signature, Crossing (no line of sight needed).</summary>
+    Ether,
+
+    /// <summary>Earth, Fire and Air (sprint 185): its signature, Fallout (a glyph of ash).</summary>
+    Ash,
+
+    /// <summary>Earth, Fire and Water (sprint 185): its signature, Bud (the most wounded ally healed).</summary>
+    Sap,
+
+    /// <summary>Earth, Water and Air (sprint 185): its signature, Brine (half the healing received).</summary>
+    Salt,
 }
 
 /// <summary>Who an effect touches among the fighters in the spell's area.</summary>
@@ -131,6 +143,15 @@ public enum Stat
     /// <see cref="Elements.ArcCells"/> cells; one fighter electrified at a time by each caster.
     /// </summary>
     Electrified,
+
+    /// <summary>Healing received, in percent (Salt's Brine, sprint 185).</summary>
+    Healing,
+
+    /// <summary>Neither healing nor shield received (the reaction Parched, sprint 185).</summary>
+    Parched,
+
+    /// <summary>The fighter's cell blocks neither way nor sight (the reaction Scattered, sprint 185).</summary>
+    Incorporeal,
 }
 
 /// <summary>
@@ -231,6 +252,9 @@ public sealed class Glyph
     public string Spell { get; }
     public IReadOnlyList<Cell> Cells { get; }
     public GlyphEffect Effect { get; }
+
+    /// <summary>Laid by the reaction Buried (sprint 185), not by its spell's own effect.</summary>
+    internal bool Buried { get; init; }
 
     /// <summary>Counted down at the start of each of its caster's turns; it vanishes at 0.</summary>
     public int TurnsLeft { get; internal set; }

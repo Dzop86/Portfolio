@@ -119,15 +119,15 @@ public class ProgramTests
     [Fact]
     public void TheTree_IsMeasured_ForEachClassAndCompound_WithTheRareTalents()
     {
-        // Sprint 151 (D82, J5 b, J6 a), sprint 182 (D93): each class without a compound and with each pair (sprint 184), one fight each here.
+        // Sprint 151 (D82, J5 b, J6 a), sprint 182 (D93): each class without a compound and with each pair and trio (sprints 184 and 185), one fight each here.
         (int code, string output, _) = Run("--talents", "--simulate", "1", "--scenario", "zone:ancestors", "--lang", "fr");
         Assert.Equal(0, code);
         Assert.StartsWith("# L'arbre des talents hors CI : zone:ancestors, niveau 45", output, StringComparison.Ordinal);
         // Since sprint 152 (D83): five bare heroes a class beside the 6, mixed and of each element.
         Assert.Contains("| mage | Lightning |", output, StringComparison.Ordinal);
-        Assert.Equal(6 + 15 + 15, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
+        Assert.Equal(6 + 15 + 27, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
         Assert.Contains("| mage | nu, Feu seul |", output, StringComparison.Ordinal);
-        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 21 builds tirés", output, StringComparison.Ordinal);
+        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 33 builds tirés", output, StringComparison.Ordinal);
     }
 
     [Fact]

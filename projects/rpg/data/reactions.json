@@ -124,5 +124,86 @@
         "turns": 1
       }
     ]
+  },
+  {
+    "id": "scattered",
+    "name": {
+      "fr": "Dispersé",
+      "en": "Scattered"
+    },
+    "description": {
+      "fr": "Un sort d'Éther sur l'empreinte d'un de ses parents : la cible perd ses boucliers, et sa case ne bloque plus ni le passage ni la vue pendant 1 tour.",
+      "en": "An Ether spell on the mark of one of its parents: the target loses its shields, and its cell blocks neither way nor sight for 1 turn."
+    },
+    "first": "Neutral",
+    "second": "Neutral",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Incorporeal",
+        "value": 1,
+        "turns": 1
+      }
+    ],
+    "trio": "Ether"
+  },
+  {
+    "id": "buried",
+    "name": {
+      "fr": "Enseveli",
+      "en": "Buried"
+    },
+    "description": {
+      "fr": "Un sort de Cendre sur l'empreinte d'un de ses parents : la case de la cible et ses 4 voisines deviennent une glyphe de cendre pendant 2 tours.",
+      "en": "An Ash spell on the mark of one of its parents: the target's cell and its 4 neighbours become a glyph of ash for 2 turns."
+    },
+    "first": "Neutral",
+    "second": "Neutral",
+    "statuses": [],
+    "trio": "Ash"
+  },
+  {
+    "id": "rooted",
+    "name": {
+      "fr": "Enraciné",
+      "en": "Rooted"
+    },
+    "description": {
+      "fr": "Un sort de Sève sur l'empreinte d'un de ses parents : la cible a 0 PM pendant 1 tour, et tes alliés à 2 cases sont soignés de 10 % des dégâts.",
+      "en": "A Sap spell on the mark of one of its parents: the target has 0 MP for 1 turn, and your allies within 2 cells are healed 10% of the damage."
+    },
+    "first": "Neutral",
+    "second": "Neutral",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Mp",
+        "value": -1,
+        "turns": 1
+      }
+    ],
+    "trio": "Sap"
+  },
+  {
+    "id": "parched",
+    "name": {
+      "fr": "Desséché",
+      "en": "Parched"
+    },
+    "description": {
+      "fr": "Un sort de Sel sur l'empreinte d'un de ses parents : ni soin ni bouclier reçu pendant 2 tours.",
+      "en": "A Salt spell on the mark of one of its parents: no healing or shield received for 2 turns."
+    },
+    "first": "Neutral",
+    "second": "Neutral",
+    "statuses": [
+      {
+        "affects": "Enemies",
+        "stat": "Parched",
+        "value": 1,
+        "turns": 2
+      }
+    ],
+    "trio": "Salt"
   }
 ]

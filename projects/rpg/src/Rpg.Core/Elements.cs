@@ -16,12 +16,24 @@ public static class Elements
         [Element.Magma] = [Element.Earth, Element.Fire],
         [Element.Steam] = [Element.Fire, Element.Water],
         [Element.Sand] = [Element.Earth, Element.Air],
+        [Element.Ether] = [Element.Fire, Element.Water, Element.Air],
+        [Element.Ash] = [Element.Earth, Element.Fire, Element.Air],
+        [Element.Sap] = [Element.Earth, Element.Fire, Element.Water],
+        [Element.Salt] = [Element.Earth, Element.Water, Element.Air],
     };
 
     /// <summary>Arc (Lightning's signature): this percent of a hit jumps to the nearest enemy within <see cref="ArcCells"/> cells of the target.</summary>
     public const int Arc = 35;
 
     public const int ArcCells = 2;
+
+    /// <summary>Bud (Sap's signature, sprint 185): the most wounded ally within <see cref="BudCells"/> cells of the caster, the caster too, is healed this percent of the hit.</summary>
+    public const int Bud = 20;
+
+    public const int BudCells = 2;
+
+    /// <summary>Rooted (the reaction of Sap): the caster's allies within <see cref="BudCells"/> cells are healed this percent of the hit.</summary>
+    public const int RootedHeal = 10;
 
     /// <summary>A compound's parents, in the order of its name ("Fire and Air"); none for a base element or the neutral.</summary>
     public static IReadOnlyList<Element> Parents(Element element) => ParentsOf.TryGetValue(element, out Element[]? p) ? p : [];

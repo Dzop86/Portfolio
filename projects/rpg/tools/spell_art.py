@@ -20,9 +20,11 @@ shapes = os.path.join(bar, "shapes")
 
 # Each element's colour (src/assets/tokens.css, --osmose-*), and a compound's parents in the order of its reaction.
 MAIN = {"Earth": "#b07a45", "Fire": "#ef4b4b", "Water": "#3d9cff", "Air": "#52c45a", "Neutral": "#b0b0b0", "Lightning": "#f2d03b",
-        "Ice": "#8fe0f5", "Mud": "#8c7a3a", "Magma": "#ff7a2e", "Steam": "#c3a6e0", "Sand": "#d6bc84"}
+        "Ice": "#8fe0f5", "Mud": "#8c7a3a", "Magma": "#ff7a2e", "Steam": "#c3a6e0", "Sand": "#d6bc84",
+        "Ether": "#b8c4ff", "Ash": "#a89f98", "Sap": "#9ccc3d", "Salt": "#eef2f5"}
 PARENTS = {"Lightning": ("Fire", "Air"), "Ice": ("Water", "Air"), "Mud": ("Earth", "Water"), "Magma": ("Earth", "Fire"),
-           "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air")}
+           "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air"), "Ether": ("Fire", "Water", "Air"), "Ash": ("Earth", "Fire", "Air"),
+           "Sap": ("Earth", "Fire", "Water"), "Salt": ("Earth", "Water", "Air")}
 # A Seal's accent: its element's Heart (§1.9).
 SEALS = {"seal-earth": ("Earth", "lorc/stone-sphere"), "seal-fire": ("Fire", "lorc/fire-ring"), "seal-water": ("Water", "lorc/drop"),
          "seal-air": ("Air", "lorc/whirlwind")}
@@ -72,7 +74,7 @@ def tile(key, element, flat):
             f'<stop offset="0" stop-color="#fff" stop-opacity="0.22"/><stop offset="0.45" stop-color="#fff" stop-opacity="0"/></linearGradient>')
     rim_fill = rim
     if element in PARENTS and not flat:
-        a, b = (MAIN[p] for p in PARENTS[element])
+        a, b = MAIN[PARENTS[element][0]], MAIN[PARENTS[element][-1]]
         defs += (f'<linearGradient id="rim-{key}" gradientUnits="userSpaceOnUse" x1="36" y1="32" x2="476" y2="472">'
                  f'<stop offset="0" stop-color="{a}"/><stop offset="1" stop-color="{b}"/></linearGradient>')
         rim_fill = f"url(#rim-{key})"

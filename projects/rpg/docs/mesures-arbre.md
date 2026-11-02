@@ -228,3 +228,33 @@ Le plafond de T41 tient : la règle écrite d'avance (une réaction par lanceur 
 
 **La Disjointe à 30, kit des artisans, 1000 combats** : Sentinelle 1000/1000, Garde 410/442, Mage 520/904, soit une moyenne de 78 %. Mage sans Aveuglé : 158 sur 400. L'IA n'est pas en cause : aveuglée au contact, elle lance bien ses deux sorts par tour (200 combats relevés), et son seul tour perdu est le premier, à 5 cases avec 1 PM.
 
+## v3 bis : les six paires contre les hordes (sprint 185, C1 bis)
+
+Hordes solides de synthèse (4 groupes, 75 combats chacun, soit 300 par case), kit des artisans, en % de victoires ; le jumeau d'abord dans le paquet.
+
+| Niveau | Classe | sans | Foudre | Glace | Boue | Magma | Vapeur | Sable |
+|---|---|---|---|---|---|---|---|---|
+| 35 | Sentinelle | 0 | 0 | 0 | 0 | 0 | 0 | **15** |
+| 35 | Garde | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 35 | Mage | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 45 | Sentinelle | 0 | 0,7 | 0 | 0 | 0 | 0 | 0,7 |
+| 45 | Garde | 0 | 0 | 0 | 0 | 0 | 0 | 7 |
+| 45 | Mage | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+Cinq paires tiennent. **Le Sable dépasse l'écart de 8 points** une fois (Sentinelle à 35, 15 contre une médiane de 0), tout en restant sous le plafond de T41 (30 %). Baisser son budget n'y répond pas : à × 0,72, Sentinelle 11,3 à 35 et 8,7 à 45, Garde 6,7 et 7 ; à × 0,65, Sentinelle 0 mais Garde 11 à 45. La cause est la même que pour le Mage contre la Disjointe (T143) : −1 PO prive de leurs sorts les monstres de courte portée, et les dégâts n'y sont pour rien. Budget laissé à × 0,8, décision à Charles.
+
+## v3 ter : les trios (sprint 185)
+
+Petits groupes sans kit (20 combats par groupe, sur 20) / hordes solides avec le kit des artisans (50 combats par horde, en %) :
+
+| Niveau | Classe | sans | Éther | Cendre | Sève | Sel |
+|---|---|---|---|---|---|---|
+| 50 | Sentinelle | 19,8 / 0 | 19,9 / 0 | 19,7 / 8 | 19,9 / 0 | 20 / 0 |
+| 50 | Garde | 20 / 0 | 19,6 / 0 | 19,6 / 0 | 19,7 / 0 | 19,7 / 0 |
+| 50 | Mage | 19,4 / 0 | 19,7 / 0 | 19,9 / 0 | 19,4 / 0 | 19,3 / 0 |
+| 60 | Sentinelle | 19,6 / 0 | 19,9 / 0 | 20 / **28** | 19,9 / 4 | 19,9 / 1 |
+| 60 | Garde | 19,9 / 0 | 20 / 0 | 19,7 / 0 | 19,6 / 0 | 19,8 / 0 |
+| 60 | Mage | 19,7 / 0 | 19,5 / 0 | 19,8 / 5 | 19,9 / 0 | 19,7 / 1 |
+
+Le plafond de T41 (30 %) tient partout ; la Cendre de la Sentinelle à 60 en est proche, à surveiller.
+
