@@ -1,6 +1,6 @@
 namespace Rpg.Core.Tests;
 
-/// <summary>The four trios (sprint 185, D93, docs/elements-specialisations.md §v3.2): 4 spells a class, a signature, a reaction of three on a parent's mark.</summary>
+/// <summary>The four trios (sprint 185, D93, docs/elements-specialisations.md §v3.2; sprint 188, D94): 12 spells a class, a signature, a reaction of three on a parent's mark.</summary>
 public class TriosTests
 {
     private static GameData Real => GameData.Embedded;
@@ -33,15 +33,15 @@ public class TriosTests
 
     [Theory]
     [MemberData(nameof(Trios))]
-    public void EachTrio_HasFourSpellsAClass_OfItsThreeParents_At75PercentOfTheBudget(Element e, string reaction)
+    public void EachTrio_HasTwelveSpellsAClass_OfItsThreeParents_At75PercentOfTheBudget(Element e, string reaction)
     {
         _ = reaction;
         Assert.Equal(3, Elements.Parents(e).Count);
         Assert.Equal(Elements.Trios, Elements.CreatedFrom(e));
         Spell[] twins = Twins(e);
-        Assert.Equal(12, twins.Length);
+        Assert.Equal(36, twins.Length);
         foreach (HeroClass c in Real.Classes)
-            Assert.Equal(4, twins.Count(t => c.Spells.Contains(t.Twin!)));
+            Assert.Equal(12, twins.Count(t => c.Spells.Contains(t.Twin!)));
         Assert.All(twins, t =>
         {
             Spell origin = Real.Spells[t.Twin!];

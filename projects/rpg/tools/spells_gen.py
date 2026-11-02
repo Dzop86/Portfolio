@@ -286,7 +286,7 @@ for sp in sentinel:
 # damage from the budget at 80 % for a pair (its signature is paid for). Working names, for the scriptwriter to read.
 COMPOUNDS = {"Lightning": ("Fire", "Air"), "Ice": ("Water", "Air"), "Mud": ("Earth", "Water"), "Magma": ("Earth", "Fire"), "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air"),
  "Ether": ("Fire", "Water", "Air"), "Ash": ("Earth", "Fire", "Air"), "Sap": ("Earth", "Fire", "Water"), "Salt": ("Earth", "Water", "Air")}
-# A pair at 80 % of the budget, a trio at 75 % (sprint 185); a trio takes 4 spells a class, one of a parent at each step of the level.
+# A pair at 80 % of the budget, a trio at 75 % (sprint 185); a trio takes all its parents' spells, 12 a class (sprint 188, D94), for a book that stays at 24.
 SCALE = {el: 0.8 if len(p) == 2 else 0.75 for el, p in COMPOUNDS.items()}
 # The five pairs after Lightning (sprint 184, D93, docs/elements-specialisations.md §v3.2): what a hit leaves on the enemies it strikes.
 SIGNATURES = {"Ice": ("Ap", -1), "Mud": ("Mp", -1), "Magma": ("Resistance", -8), "Steam": ("Damage", -10), "Sand": ("Range", -1)}
@@ -338,17 +338,9 @@ TWIN_ICONS = {
  "lightning-cyclone": "lorc/bolt-eye", "lightning-cataclysm": "delapouite/bolt-bomb", "lightning-tempest": "willdabeast/chain-lightning",
 }
 twins = []
-def trio_spells(parents):
-    chosen = set()
-    for spells_of in (sentinel, guard, mage):
-        for step in range(4):
-            parent = parents[step % 3]
-            chosen.add([sp["id"] for sp in spells_of if sp["element"] == parent][step])
-    return chosen
 for el, parents in COMPOUNDS.items():
-    trio = trio_spells(parents) if len(parents) == 3 else None
     for sp in sentinel + guard + mage:
-        if sp["element"] in parents and (trio is None or sp["id"] in trio) and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
+        if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
             t["id"], t["name"] = f"{el.lower()}-{sp['id']}", O([("fr", named[0]), ("en", named[1])])

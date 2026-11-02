@@ -35,6 +35,22 @@ public class CompoundsConsumeTests
         Assert.Equal(count, Talents.GrimoireOf(hero with { Compounds = [Element.Lightning, Element.Mud] }, Real).Spells.Count);
     }
 
+    [Theory]
+    [InlineData("mage")]
+    [InlineData("guard")]
+    [InlineData("sentinel")]
+    public void ATrio_LeavesABookOfTwentyFourSpells_Too(string cls)
+    {
+        var hero = new Hero("Ondine", "female-a", cls, Level: 100);
+        int count = Talents.GrimoireOf(hero, Real).Spells.Count;
+        foreach (Element trio in new[] { Element.Ether, Element.Ash, Element.Sap, Element.Salt })
+        {
+            IReadOnlyList<string> book = Talents.GrimoireOf(hero with { Compounds = [trio] }, Real).Spells;
+            Assert.Equal(count, book.Count);
+            Assert.Equal(12, book.Count(id => Real.Spells[id].Element == trio));
+        }
+    }
+
     [Fact]
     public void TwoCompoundsSharingAnElement_AreRefused_TwoDisjointPairsAccepted()
     {

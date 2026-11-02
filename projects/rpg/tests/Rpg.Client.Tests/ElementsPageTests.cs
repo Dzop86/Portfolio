@@ -94,7 +94,7 @@ public class ElementsPageTests
         var top = new ElementsPage(new PointsEditor(new Hero("Ondine", "female-a", id, Level: 100), Data));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "lightning")));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "ice")));
-        Assert.Equal(4, top.SpellsOf(top.Fusions.Single(f => f.Id == "ether")));
+        Assert.Equal(12, top.SpellsOf(top.Fusions.Single(f => f.Id == "ether")));
     }
 
     [Theory]
