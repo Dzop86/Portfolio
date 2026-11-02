@@ -119,22 +119,6 @@ public class CompoundsConsumeTests
     }
 
     [Fact]
-    public void ACaster_SetsOffOneReactionATurn()
-    {
-        Fight f = Struck();
-        Cast(f, "bolt");
-        Cast(f, "bolt");
-        Cast(f, "bolt");
-        Cast(f, "bolt");
-        Assert.Single(f.Events.OfType<ReactionTriggered>());
-        // The next turn, again: its mark is still there.
-        f.Apply(new EndTurnAction());
-        f.Apply(new EndTurnAction());
-        Cast(f, "bolt");
-        Assert.Equal(2, f.Events.OfType<ReactionTriggered>().Count());
-    }
-
-    [Fact]
     public void AnotherCompound_ReplacesTheMark_WithoutAReaction()
     {
         Fight f = Struck();

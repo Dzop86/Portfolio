@@ -80,8 +80,7 @@ public class ReactionTests
     [Fact]
     public void Electrified_MakesEveryHitItTakesJump_OnOneTargetAtATimeByCaster()
     {
-        // Wave, the one talent past the limit of one reaction a turn (sprint 187, D94), to set off two in this turn.
-        Fight f = Play(["A..BB.B"], Hero("lasting-mark", "wave"), Monster(0), Monster(1), Monster(2));
+        Fight f = Play(["A..BB.B"], Hero(), Monster(0), Monster(1), Monster(2));
         f.Apply(new CastAction("gust", C(3)));
         f.Apply(new CastAction("ember", C(3)));
         Assert.Contains(f.Fighters[1].Statuses, s => s.Stat == Stat.Electrified);

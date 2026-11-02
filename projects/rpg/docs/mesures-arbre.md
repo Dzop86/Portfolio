@@ -277,5 +277,6 @@ Mesure hors CI, sans kit, builds tirés au hasard, 100 combats par classe et par
 - **Le plafond est dépassé** : Sentinelle en Foudre, Glace et Vapeur, Garde en Foudre et Glace, Mage en Boue. L'écart de 8 points à la médiane est dépassé aussi.
 - **La limite d'une réaction par tour, appliquée comme le prévoit le §v3.2, ne change presque rien** : au plus 1 point. Les réactions ne sont donc pas la cause, et raccourcir leurs durées, l'étape suivante de la règle, n'aiderait sans doute pas plus.
 - **La cause probable, non démontrée** : pour la Sentinelle et la Garde, les composés qui gagnent sont ceux sans Terre, comme chez les héros nus (Sentinelle à 45 : Terre seule 26 %, Feu 78 %, Air 76 %). Une paire regroupe aussi les points sur moins d'éléments qu'un héros sans composé.
+- **Décision de Charles :** la limite est retirée, puisqu'elle contraint le joueur sans effet mesuré. Les chiffres entre parenthèses sont donc ceux du jeu. Le dépassement reste à traiter à part.
 - **À remesurer** avec les 12 sorts par trio de S188, qui n'existaient pas lors de cette mesure.
 

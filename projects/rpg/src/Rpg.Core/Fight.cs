@@ -844,10 +844,6 @@ public sealed class Fight
         bool reacts = caster.Spec.Reacts || (source != caster && source.Spec.Reacts && source.Talents.SelectMany(t => t.Rules).OfType<SharedMarkRule>().Any());
         if (!reacts)
             return null;
-        // One reaction a caster and a turn (sprint 187, D94): the rule written ahead in §v3.2 once the hordes passed T41's ceiling;
-        // Wave, whose point is several in one cast, is left out.
-        if (_compoundMarks && caster.ReactionsThisTurn > 0 && !rules.OfType<WaveRule>().Any())
-            return null;
         // A compound suffices (sprint 187, D94): its spell on its own mark sets off its reaction.
         if (_compoundMarks && Elements.IsCompound(element) && m.Element == element)
         {
