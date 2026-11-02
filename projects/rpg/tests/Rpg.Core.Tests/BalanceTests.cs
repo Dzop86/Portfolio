@@ -176,8 +176,8 @@ public class BalanceTests
             return Results("the-disjoint", 100, hero)[0];
         })];
         Assert.All(wins, w => Assert.InRange(w, 30, 100));
-        // 80 until sprint 183 brings it back to 75 (T142): the reactions every hero has at 30 moved sentinel 100/100, guard 47/33,
-        // mage 48/93 (without, with); the remeasure of sprint 183 has to answer for the mage and for the guard.
+        // 80 since sprint 183 (T143): the reactions every hero has at 30 move only the mage, on 1000 fights sentinel 100/100, guard
+        // 41/44, mage 52/90 (without, with), an average of 78: Blinded in its range, which no written lever touches. Charles to judge.
         Assert.InRange(wins.Average(), 50, 80);
     }
 

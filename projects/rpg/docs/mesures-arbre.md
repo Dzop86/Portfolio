@@ -206,3 +206,25 @@ Talents pris par moins de 20 % des builds qui visent leur branche, sur 5400 buil
 - **Un constat à part : à 45, un héros nu d'un seul élément bat les hordes de la Forêt** (53 à 89 %), loin devant les builds tirés (15 à 36 %) et le héros nu mixte (3 à 21 %). Les monstres de la Forêt sont de niveau 31 à 34 : à 45, un héros qui met tous ses points dans un élément les surclasse, alors que la mesure répartit les points d'un build sur les éléments de son grimoire (`Progression.Built`). Ni l'arbre ni Électrisé n'y sont pour rien ; la comparaison au « meilleur héros nu » (T110) n'a de sens qu'au niveau des monstres. À reprendre avec le socle 45-60 (S157), où les hordes seront du niveau des héros.
 - **Les nœuds rares, par branche :** la moitié d'un choix (les deux Transmutations, 10,9 et 17,2 %) l'est par construction ; restent `shared-mark` (9 %), `echo` et `scorched-earth` (13 %), `nomad`, `one-gesture`, `long-breath` (15 à 17 %) et `thrift` (18 %). Rien n'y est sous 5 % : ce sont des nœuds de fin de branche que le tirage atteint quand il lui reste des points, pas des fausses décisions évidentes. À regarder par le game designer avec les spécialisations.
 
+## v3 : les réactions pour tous (sprint 183, D93, T143)
+
+Mesure hors CI, sur `Fight(…, freeReactions)`, avec les mêmes graines : à gauche sans les réactions, à droite avec.
+
+**T41, sans kit, héros de synthèse** (57 petits groupes, 30 combats ; 4 hordes solides, 30 combats, ramenés sur 10) :
+
+| Niveau | Classe | Petits groupes, sur 30 | Hordes, sur 10 |
+|---|---|---|---|
+| 35 | Sentinelle | 29,3 / 29,6 | 0 / 0 |
+| 35 | Garde | 29,9 / 29,8 | 0 / 0 |
+| 35 | Mage | 29,4 / 29,4 | 0 / 0 |
+| 40 | Sentinelle | 29,8 / 29,8 | 0 / 0 |
+| 40 | Garde | 29,9 / 30,0 | 0 / 0 |
+| 40 | Mage | 29,9 / 29,7 | 0 / 0 |
+| 45 | Sentinelle | 29,6 / 29,7 | 0 / 0 |
+| 45 | Garde | 29,9 / 30,0 | 0 / 0 |
+| 45 | Mage | 29,4 / 29,6 | 0 / 0 |
+
+Le plafond de T41 tient : la règle écrite d'avance (une réaction par lanceur et par tour) ne s'applique pas. Les hordes avec un kit et les builds de référence restent gardés par `TemplateTests`.
+
+**La Disjointe à 30, kit des artisans, 1000 combats** : Sentinelle 1000/1000, Garde 410/442, Mage 520/904, soit une moyenne de 78 %. Mage sans Aveuglé : 158 sur 400. L'IA n'est pas en cause : aveuglée au contact, elle lance bien ses deux sorts par tour (200 combats relevés), et son seul tour perdu est le premier, à 5 cases avec 1 PM.
+

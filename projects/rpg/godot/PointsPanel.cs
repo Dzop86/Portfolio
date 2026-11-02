@@ -31,8 +31,8 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
     private Label _name = null!, _level = null!, _spellsLeft = null!, _message = null!, _help = null!;
-    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!;
-    private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!;
+    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!, _elementsTab = null!;
+    private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!, _elementsPage = null!;
     private Label _talentsLeft = null!, _talentsHint = null!, _trunk = null!, _talentsSaid = null!;
     private Label _talentsTaken = null!;
     private Button _openTree = null!;
@@ -90,15 +90,18 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         header.AddChild(tabs);
         _statsTab = Tab(tabs, () => ShowTab(spells: false));
         _spellsTab = Tab(tabs, () => ShowTab(spells: true));
+        _elementsTab = Tab(tabs, ShowElements);
         _talentsTab = Tab(tabs, ShowTalents);
         _statsTab.Visible = only != true;
         _spellsTab.Visible = only != false;
         // The talents go with the characteristics (sprint 137).
         _talentsTab.Visible = only != true;
+        _elementsTab.Visible = only != true;
 
         _statsPage = Scrolled(column, BuildStats());
         _spellsPage = Scrolled(column, BuildSpells(editor));
         _talentsPage = Scrolled(column, BuildTalents());
+        _elementsPage = Scrolled(column, BuildElements());
 
         _message = new Label();
         column.AddChild(_message);
@@ -564,21 +567,23 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     {
         _statsPage.Visible = !spells;
         _spellsPage.Visible = spells;
-        _talentsPage.Visible = false;
+        _talentsPage.Visible = _elementsPage.Visible = false;
         _statsTab.SetPressedNoSignal(!spells);
         _spellsTab.SetPressedNoSignal(spells);
         _talentsTab.SetPressedNoSignal(false);
+        _elementsTab.SetPressedNoSignal(false);
         Refresh();
     }
 
     /// <summary>The talents' tab (sprint 137).</summary>
     public void ShowTalents()
     {
-        _statsPage.Visible = _spellsPage.Visible = false;
+        _statsPage.Visible = _spellsPage.Visible = _elementsPage.Visible = false;
         _talentsPage.Visible = true;
         _statsTab.SetPressedNoSignal(false);
         _spellsTab.SetPressedNoSignal(false);
         _talentsTab.SetPressedNoSignal(true);
+        _elementsTab.SetPressedNoSignal(false);
         Refresh();
     }
 
@@ -668,6 +673,8 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _statsTab.Text = Texts["sheet.tab.stats"];
         _spellsTab.Text = Texts["sheet.tab.spells"];
         _talentsTab.Text = Texts["points.talents"];
+        _elementsTab.Text = Texts["sheet.tab.elements"];
+        RefreshElements();
         _talentsLeft.Text = Editor.Hero.Level < Talents.Opens ? Texts["talents.closed", Talents.Opens] : Texts["talents.left", Editor.TalentPointsLeft];
         _talentsHint.Text = Texts["talents.hint"];
         _trunk.Text = Texts.Trunk(Editor.Hero.Level);

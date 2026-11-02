@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search" or "ride")
+        else if (_options.Shot is "elements" or "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search" or "ride")
             _ = TownScreenshot();
     }
 
@@ -2568,6 +2568,7 @@ public partial class Main
         {
             await CheckTree(problems);
             CheckTransmuted(problems);
+            await CheckElements(problems);
         }
         catch (Exception e) when (e is InvalidOperationException or ArgumentException or KeyNotFoundException or NullReferenceException)
         {
@@ -3062,6 +3063,54 @@ public partial class Main
                 problems.Add($"{id}: the arrow up goes from {start} to {tree.Focused}");
             tree.QueueFree();
         }
+    }
+
+    /// <summary>
+    /// The Elements tab (sprint 183, D93): it fits the window at 1280 × 720 unscrolled; at 30, Lightning created from the wheel
+    /// joins the draft, its twins shown as a preview until saved, then is dissolved; a trio is shut at 30, opens at 50 as "coming" while
+    /// its spells are not in the game; in a fight, no button to press; every node as tall as a finger.
+    /// </summary>
+    private async Task CheckElements(List<string> problems)
+    {
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        PointsPanel Open(int level, bool readOnly)
+        {
+            var built = new PointsPanel();
+            AddChild(built);
+            built.Build(new PointsEditor(new Hero("Ondine", "female-a", "mage", Level: level), GameData.Embedded, readOnly), texts);
+            built.ShowElements();
+            return built;
+        }
+        PointsPanel panel = Open(30, readOnly: false);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!panel.ElementsFit)
+            problems.Add($"the elements page scrolls: {panel.ElementsRoom}");
+        if (panel.WheelNodes.Count != 14 || panel.WheelNodes.Values.Any(n => n.Size.Y < 44))
+            problems.Add($"the wheel has {panel.WheelNodes.Count} nodes, the smallest {panel.WheelNodes.Values.Min(n => n.Size.Y)} tall");
+        panel.PickFusion("lightning");
+        if (panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.create"])
+            problems.Add($"Lightning at 30 offers '{panel.FusionButton.Text}'");
+        panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
+        if (!panel.Editor.CompoundsCreated.Contains(Element.Lightning) || panel.Editor.Previewed.Count == 0 || panel.FusionButton.Text != texts["elements.dissolve"])
+            problems.Add($"Lightning created previews {panel.Editor.Previewed.Count} spells, the button '{panel.FusionButton.Text}'");
+        panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
+        if (panel.Editor.CompoundsCreated.Count != 0 || panel.Editor.Changed)
+            problems.Add("Lightning dissolved leaves something to save");
+        panel.PickFusion("ether");
+        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.locked", 50])
+            problems.Add($"a trio at 30 offers '{panel.FusionButton.Text}'");
+        panel.QueueFree();
+        panel = Open(50, readOnly: false);
+        panel.PickFusion("ether");
+        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.coming"])
+            problems.Add($"a trio at 50 offers '{panel.FusionButton.Text}'");
+        panel.QueueFree();
+        panel = Open(30, readOnly: true);
+        panel.PickFusion("lightning");
+        if (panel.FusionButton.Visible)
+            problems.Add("the elements page offers a button in a fight");
+        panel.QueueFree();
     }
 
     /// <summary>
@@ -3962,6 +4011,22 @@ public partial class Main
             Error tree = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {tree} {_options.Screenshot}");
             GetTree().Quit(tree == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot == "elements")
+        {
+            // The Elements page (sprint 183): a mage past the second tier, Lightning created, a pair opened.
+            _hero = new Hero("Aubépine", "female-b", "mage", 5, 5, 4, -1, 1, Level: 52,
+                Stats: new Characteristics(Vitality: 80, Earth: 40, Fire: 170, Water: 60, Air: 130), Compounds: [Element.Lightning]);
+            ShowBar();
+            ToggleWindow(GameWindow.Characteristics);
+            _pointsPanel!.ShowElements();
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error page = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {page} {_options.Screenshot}");
+            GetTree().Quit(page == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot is "points" or "spells")
