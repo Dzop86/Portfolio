@@ -258,3 +258,24 @@ Petits groupes sans kit (20 combats par groupe, sur 20) / hordes solides avec le
 
 Le plafond de T41 (30 %) tient partout ; la Cendre de la Sentinelle à 60 en est proche, à surveiller.
 
+## v4 : les composés consomment leurs parents (sprint 187, D94, T147)
+
+Mesure hors CI, sans kit, builds tirés au hasard, 100 combats par classe et par composé (± 10 points environ) :
+`dotnet run --project src/Rpg.Sim -c Release -- --talents --simulate 100 --scenario hordes:ancestors --level 45 --lang fr`. Les trios y ont encore 4 sorts par classe (S188 n'était pas fait). Plafond de T41 : 30 %.
+
+**Hordes de la Forêt à 45, avec une réaction par lanceur et par tour** (entre parenthèses, sans cette limite) :
+
+| Classe | Aucun | Foudre | Glace | Boue | Magma | Vapeur | Sable |
+|---|---|---|---|---|---|---|---|
+| Sentinelle | 23 | 45 (44) | 48 (48) | 17 (17) | 16 (16) | 41 (41) | 27 (27) |
+| Garde | 14 (15) | 31 (31) | 35 (35) | 11 (11) | 17 (16) | 20 (20) | 16 (15) |
+| Mage | 22 | 17 (17) | 30 (30) | 33 (32) | 19 (19) | 18 (18) | 20 (20) |
+
+À 35, tout reste entre 0 et 5 %.
+
+**Ce que ça montre.**
+- **Le plafond est dépassé** : Sentinelle en Foudre, Glace et Vapeur, Garde en Foudre et Glace, Mage en Boue. L'écart de 8 points à la médiane est dépassé aussi.
+- **La limite d'une réaction par tour, appliquée comme le prévoit le §v3.2, ne change presque rien** : au plus 1 point. Les réactions ne sont donc pas la cause, et raccourcir leurs durées, l'étape suivante de la règle, n'aiderait sans doute pas plus.
+- **La cause probable, non démontrée** : pour la Sentinelle et la Garde, les composés qui gagnent sont ceux sans Terre, comme chez les héros nus (Sentinelle à 45 : Terre seule 26 %, Feu 78 %, Air 76 %). Une paire regroupe aussi les points sur moins d'éléments qu'un héros sans composé.
+- **À remesurer** avec les 12 sorts par trio de S188, qui n'existaient pas lors de cette mesure.
+

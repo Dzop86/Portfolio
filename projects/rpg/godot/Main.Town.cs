@@ -3099,8 +3099,16 @@ public partial class Main
         if (panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.create"])
             problems.Add($"Lightning at 30 offers '{panel.FusionButton.Text}'");
         panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
-        if (!panel.Editor.CompoundsCreated.Contains(Element.Lightning) || panel.Editor.Previewed.Count == 0 || panel.FusionButton.Text != texts["elements.dissolve"])
+        if (!panel.Editor.CompoundsCreated.Contains(Element.Lightning) || panel.Editor.Previewed.Count != 0 || panel.FusionButton.Text != texts["elements.dissolve"])
             problems.Add($"Lightning created previews {panel.Editor.Previewed.Count} spells, the button '{panel.FusionButton.Text}'");
+        // It holds Fire and Air (sprint 187, D94): Magma is blocked, Mud open.
+        panel.PickFusion("magma");
+        if (!panel.FusionButton.Disabled || panel.FusionButton.Text != texts["elements.blocked"])
+            problems.Add($"Magma beside Lightning offers '{panel.FusionButton.Text}'");
+        panel.PickFusion("mud");
+        if (panel.FusionButton.Disabled)
+            problems.Add("Mud beside Lightning is not offered");
+        panel.PickFusion("lightning");
         panel.FusionButton.EmitSignal(BaseButton.SignalName.Pressed);
         if (panel.Editor.CompoundsCreated.Count != 0 || panel.Editor.Changed)
             problems.Add("Lightning dissolved leaves something to save");
@@ -3136,8 +3144,9 @@ public partial class Main
         Grimoire grimoire = Talents.GrimoireOf(hero, GameData.Embedded);
         string[] twins = [.. grimoire.Spells.Where(id => GameData.Embedded.Spells[id].Twin is not null)];
         string[] origins = [.. twins.Select(id => GameData.Embedded.Spells[id].Twin!)];
-        if (twins.Length == 0 || origins.Any(o => !panel.ShownSpells.Contains(o)))
-            problems.Add($"the spells window hides the spells Lightning's twins come from: {string.Join(", ", origins.Where(o => !panel.ShownSpells.Contains(o)))}");
+        // Sprint 187 (D94): a compound takes its parents' place.
+        if (twins.Length == 0 || origins.Any(panel.ShownSpells.Contains))
+            problems.Add($"the spells window still shows the spells Lightning replaces: {string.Join(", ", origins.Where(panel.ShownSpells.Contains))}");
         if (!twins.All(panel.NewSpells.Contains))
             problems.Add($"the twins are not marked new: {string.Join(", ", panel.NewSpells)}");
         var book = new SpellBook(panel.Editor);

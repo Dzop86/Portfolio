@@ -105,7 +105,7 @@ public class TalentTests
     [Fact]
     public async Task ASentinelOfLightning_SavesItsDeck_AndTheServerReplaysItsFight_ARecordWithoutLightningRefused()
     {
-        // Sprint 138 (T104), sprint 182 (D93): Lightning created with the points, a deck of twins beside their origins, a
+        // Sprint 138 (T104), sprint 182 (D93): Lightning created with the points, a deck of twins (their origins refused since sprint 187, D94), a
         // fight replayed with it; the same fight sent without Lightning is not this character's.
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("lgt");
@@ -115,11 +115,12 @@ public class TalentTests
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
         // A twin without Lightning: refused.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["lightning-fire-arrow"]), Cancel)));
-        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["fire-arrow", "lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"],
+        Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["fire-arrow", "lightning-fire-arrow"], Compounds: [Element.Lightning]), Cancel)));
+        CharacterSummary saved = await server.SavePoints(c.Id, new Points(null, null, ["lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"],
             Compounds: [Element.Lightning]), Cancel);
         Hero hero = saved.Hero;
         Assert.Equal([Element.Lightning], hero.Compounds);
-        Assert.Equal(["fire-arrow", "lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"], hero.DeckOf(GameData.Embedded));
+        Assert.Equal(["lightning-fire-arrow", "stone-arrow", "lightning-recoil-shot"], hero.DeckOf(GameData.Embedded));
         FightTicket cheat = await server.StartFight(c.Id, "training", Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ReportFight(c.Id, cheat.Id, Play(cheat, hero with { Compounds = null, Deck = ["stone-arrow"] }), Cancel)));
         FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
