@@ -45,7 +45,9 @@ public class ElementsPageTests
         Assert.Equal(FusionState.Locked, State(at30, "ether"));
         var at50 = new ElementsPage(Editor(50, compounds: Element.Lightning));
         Assert.Equal(FusionState.Created, State(at50, "lightning"));
-        // The ones whose spells are not in the game yet: sprints 184 and 185 turn them on.
+        // The ones whose spells are not in the game yet: the trios, in sprint 185.
+        Assert.Equal(FusionState.Open, State(at30, "ice"));
+        Assert.All(at50.Fusions.Where(f => f.Parents.Count == 3), f => Assert.Null(f.Compound));
         Assert.All(at50.Fusions.Where(f => f.Compound is null), f => Assert.Equal(FusionState.Coming, f.State));
     }
 
@@ -85,7 +87,8 @@ public class ElementsPageTests
         // At 100, all eight (docs/elements-specialisations.md §v3.1).
         var top = new ElementsPage(new PointsEditor(new Hero("Ondine", "female-a", id, Level: 100), Data));
         Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "lightning")));
-        Assert.Equal(0, top.SpellsOf(top.Fusions.Single(f => f.Id == "ice")));
+        Assert.Equal(8, top.SpellsOf(top.Fusions.Single(f => f.Id == "ice")));
+        Assert.Equal(0, top.SpellsOf(top.Fusions.Single(f => f.Id == "ether")));
     }
 
     [Theory]
@@ -101,7 +104,7 @@ public class ElementsPageTests
         var shown = new ElementsPage(fight);
         Assert.False(shown.Press(shown.Fusions.Single(f => f.Id == "lightning")));
         Assert.Empty(fight.CompoundsCreated);
-        Assert.False(page.Press(page.Fusions.Single(f => f.Id == "ice")));
+        Assert.False(page.Press(page.Fusions.Single(f => f.Id == "ether")));
     }
 
     [Fact]

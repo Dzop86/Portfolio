@@ -11,6 +11,11 @@ public static class Elements
     private static readonly Dictionary<Element, Element[]> ParentsOf = new()
     {
         [Element.Lightning] = [Element.Fire, Element.Air],
+        [Element.Ice] = [Element.Water, Element.Air],
+        [Element.Mud] = [Element.Earth, Element.Water],
+        [Element.Magma] = [Element.Earth, Element.Fire],
+        [Element.Steam] = [Element.Fire, Element.Water],
+        [Element.Sand] = [Element.Earth, Element.Air],
     };
 
     /// <summary>Arc (Lightning's signature): this percent of a hit jumps to the nearest enemy within <see cref="ArcCells"/> cells of the target.</summary>

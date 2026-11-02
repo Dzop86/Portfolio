@@ -7,6 +7,7 @@
 # spells/credits.json. The silhouettes' paths in godot/assets/icons/bar/shapes/; --fetch downloads those missing.
 # Deterministic, no <filter> (Godot draws with ThorVG). Run from projects/rpg after tools/spells_gen.py:
 #   python3 tools/spell_art.py [--fetch]
+# With new spells, then: godot --headless --path godot --import; python3 tools/spell_art.py --imports; godot --import again.
 import json, os, re, sys, urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -122,6 +123,20 @@ def icon(spell, origin, flat, marks):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{body}</svg>\n'
 
 
+def imports():
+    """The new icons' Godot import settings (after a first `godot --import`): 128 pixels with mipmaps, sharp in the deck's 32-pixel places and the book's 48."""
+    changed = 0
+    for name in sorted(os.listdir(out)):
+        if name.endswith(".svg.import"):
+            path = os.path.join(out, name)
+            text = open(path).read()
+            fixed = text.replace("mipmaps/generate=false", "mipmaps/generate=true").replace("svg/scale=1.0", "svg/scale=0.25")
+            if fixed != text:
+                open(path, "w").write(fixed)
+                changed += 1
+    print(changed, "imports set")
+
+
 def main():
     fetch = "--fetch" in sys.argv
     spells = {s["id"]: s for s in json.load(open(os.path.join(root, "data", "spells.json")))}
@@ -144,4 +159,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    imports() if "--imports" in sys.argv else main()

@@ -364,8 +364,7 @@ public class TemplateTests
 
     // Each style with a node of each floor up to its key (J3 a): the key a player alone would take (Clear Line, not Artillery,
     // which strikes nothing at 1 or 2 cells). Support is not here: up to -30 % of one's own damage to help an ally, it is a
-    // false decision alone by design, and measured in a duo (PartyBalanceTests). The styles have no door since sprint 182;
-    // the pairs left the tree with it and are held to the same band again when they have their spells (sprint 184).
+    // false decision alone by design, and measured in a duo (PartyBalanceTests). The styles have no door since sprint 182.
     private static readonly Dictionary<string, string[]> Styles = new()
     {
         ["Alchemy"] = ["lasting-mark", "wave"],
@@ -392,6 +391,27 @@ public class TemplateTests
             foreach ((string name, double v) in values)
                 kept &= Math.Abs(v - values.Where(o => o.Key != name).Average(o => o.Value)) <= 1.5;
             report.Add($"{id} styles: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
+        }
+        Assert.True(kept, string.Join("; ", report));
+    }
+
+    [Fact]
+    public void AtFortyFive_ThePairs_AreWorthAlike()
+    {
+        // Sprint 184 (D93, the J3 c of sprint 147 again, on the compounds): no pair created a false decision: each within 1.5
+        // victories of 30 of the others' average, against the small groups, bare, its twins first in the deck, for each class.
+        var family = new Synthetic(45);
+        var few = family.Groups.Where(g => g.Size <= 3).ToArray();
+        double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
+        var report = new List<string>();
+        bool kept = true;
+        foreach (string id in Classes)
+        {
+            Hero bare = family.Hero(id, "none");
+            Dictionary<Element, double> values = Elements.Compounds.ToDictionary(e => e, e => Small(Progression.Talented(bare, [], family.Data, compounds: [e])));
+            foreach ((Element e, double v) in values)
+                kept &= Math.Abs(v - values.Where(o => o.Key != e).Average(o => o.Value)) <= 1.5;
+            report.Add($"{id}: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
         }
         Assert.True(kept, string.Join("; ", report));
     }

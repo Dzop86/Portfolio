@@ -284,8 +284,28 @@ for sp in sentinel:
 # The compounds (sprint 138, D80, docs/elements.md): a pair's spells are its parents' class spells transposed, "twin"
 # naming the spell they come from: the same cost, range, area, effects and level, the compound's element (a poison too),
 # damage from the budget at 80 % for a pair (its signature is paid for). Working names, for the scriptwriter to read.
-COMPOUNDS = {"Lightning": ("Fire", "Air")}
-SCALE = {"Lightning": 0.8}
+COMPOUNDS = {"Lightning": ("Fire", "Air"), "Ice": ("Water", "Air"), "Mud": ("Earth", "Water"), "Magma": ("Earth", "Fire"), "Steam": ("Fire", "Water"), "Sand": ("Earth", "Air")}
+SCALE = {el: 0.8 for el in COMPOUNDS}
+# The five pairs after Lightning (sprint 184, D93, docs/elements-specialisations.md §v3.2): what a hit leaves on the enemies it strikes.
+SIGNATURES = {"Ice": ("Ap", -1), "Mud": ("Mp", -1), "Magma": ("Resistance", -8), "Steam": ("Damage", -10), "Sand": ("Range", -1)}
+MATTER = {"Ice": ("glace", "Ice"), "Mud": ("boue", "Mud"), "Magma": ("magma", "Magma"), "Steam": ("vapeur", "Steam"), "Sand": ("sable", "Sand")}
+# Each spell's gesture, to which a pair gives its matter: "Carreau de glace", "Ice Bolt". Working names, for the scriptwriter to read in batches.
+GESTURES = {
+ "stone-arrow": ("Carreau", "Bolt"), "fire-arrow": ("Flèche", "Arrow"), "frost-arrow": ("Dard", "Dart"), "recoil-shot": ("Recul", "Recoil"),
+ "heavy-shot": ("Boulet", "Ball"), "ember-volley": ("Salve", "Volley"), "tide-arrow": ("Flot", "Flow"), "piercing-arrow": ("Percée", "Pierce"),
+ "rockfall": ("Éboulis", "Rockfall"), "searing-shot": ("Tir", "Shot"), "venom-arrow": ("Venin", "Venom"), "gale": ("Souffle", "Breath"),
+ "stake": ("Pieu", "Stake"), "ember-rain": ("Pluie", "Rain"), "deluge": ("Déluge", "Deluge"), "skyfall": ("Chute", "Fall"),
+ "shield-bash": ("Heurt", "Bash"), "burning-blade": ("Lame", "Blade"), "ice-blade": ("Tranchant", "Edge"), "slash": ("Taillade", "Slash"),
+ "cleave": ("Fauchage", "Cleave"), "fire-lunge": ("Fente", "Lunge"), "undertow": ("Ressac", "Undertow"), "wind-blade": ("Sabre", "Sabre"),
+ "quake": ("Secousse", "Tremor"), "smite": ("Châtiment", "Smite"), "groundswell": ("Houle", "Swell"), "cyclone-blade": ("Tourbillon", "Whirl"),
+ "titan-blow": ("Frappe", "Strike"), "inferno-blade": ("Grande lame", "Greatblade"), "torrent": ("Torrent", "Torrent"), "hurricane": ("Ouragan", "Hurricane"),
+ "pebble": ("Caillou", "Pebble"), "flare": ("Étincelle", "Spark"), "ice-shard": ("Éclat", "Shard"), "gust": ("Bourrasque", "Gust"),
+ "roots": ("Entrave", "Bind"), "burn": ("Brûlure", "Burn"), "tidal-wave": ("Vague", "Wave"), "bolt": ("Trait", "Shaft"),
+ "landslide": ("Glissement", "Slide"), "meteor": ("Météore", "Meteor"), "freeze": ("Prise", "Grip"), "cyclone": ("Cyclone", "Cyclone"),
+ "fault-line": ("Faille", "Rift"), "cataclysm": ("Cataclysme", "Cataclysm"), "glacier": ("Bloc", "Block"), "tempest": ("Tempête", "Tempest"),
+}
+# Where a gesture and a matter would give the name of a spell of the game.
+NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
 NAMES = {
  "Lightning": {
   "fire-arrow": ("Flèche d'orage", "Storm Arrow"), "ember-volley": ("Salve d'éclairs", "Lightning Volley"),
@@ -317,15 +337,23 @@ TWIN_ICONS = {
 twins = []
 for el, parents in COMPOUNDS.items():
     for sp in sentinel + guard + mage:
-        if sp["element"] in parents and sp["id"] in NAMES[el]:
+        if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
-            t["id"], t["name"] = f"{el.lower()}-{sp['id']}", O([("fr", NAMES[el][sp["id"]][0]), ("en", NAMES[el][sp["id"]][1])])
+            named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} de {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
+            t["id"], t["name"] = f"{el.lower()}-{sp['id']}", O([("fr", named[0]), ("en", named[1])])
             t["element"] = el
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
             budget(t, SCALE[el])
-            t["icon"] = TWIN_ICONS[t["id"]]
+            # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
+            # stronger (one caster's statuses of a kind do not add up).
+            if el in SIGNATURES:
+                stat, value = SIGNATURES[el]
+                if not any(e.get("stat") == stat and e.get("affects") == "Enemies" for e in t.get("effects", [])):
+                    t.setdefault("effects", []).append(status("Enemies", stat, value, 1))
+            # Lightning has its own silhouettes; the five pairs keep their origin's, in the colours of their tile, for now.
+            t["icon"] = TWIN_ICONS.get(t["id"], sp["icon"])
             t["twin"] = sp["id"]
             twins.append(t)
 # The spells of the tree (sprint 142, the branch Terrain, docs/talents-arbre.md §4.3): given by a talent, of no class.
@@ -340,6 +368,10 @@ tree = [
 for sp in tree:
     sp["icon"] = {"relay": "lorc/back-forth", "decoy": "lorc/scarecrow"}.get(sp["id"], "lorc/rune-stone")
 twins += tree
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
+assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
+assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
 for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree]:
     sp["crit"] = 10

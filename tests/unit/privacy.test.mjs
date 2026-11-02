@@ -31,6 +31,10 @@ const ALLOWED = ['0123456789', 'i@izs.me', '03-08-2025 13', '128x128@2x.png'];
 // digits look like phone numbers at every update. Nothing else is left out.
 const GENERATED = /[\\/]Cargo\.lock$/;
 
+// Godot names an imported file with the MD5 of its path ("icon.svg-<32 hex>.ctex"), whose digits look like phone numbers at
+// random. That hash alone is taken out of a text before scanning; the rest of the .import file is still read.
+const withoutImportHash = (text) => text.replace(/-[0-9a-f]{32}\.ctex/g, '.ctex');
+
 const extraTerms = (process.env.PRIVATE_TERMS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 function files(dir) {
@@ -60,7 +64,7 @@ test('the scan covers the technical projects', () => {
 
 for (const file of [...published, ...sources]) {
   test(`no private data in ${file.replace(ROOT, '').replace(dist, 'dist')}`, () => {
-    const text = readFileSync(file, 'utf8');
+    const text = withoutImportHash(readFileSync(file, 'utf8'));
     for (const { name, re } of PATTERNS) {
       const m = [...text.matchAll(new RegExp(re.source, `${re.flags}g`))].find((x) => !ALLOWED.includes(x[0]));
       assert.equal(m, undefined, `${name} found: "${m?.[0]}"`);
@@ -71,6 +75,14 @@ for (const file of [...published, ...sources]) {
     }
   });
 }
+
+test('only the hash of a Godot import is left out: a phone number beside it is still caught', () => {
+  const french = PATTERNS[0].re;
+  assert.ok(french.test('svg-2d2f02be823e3a0196052144f449c848.ctex'), 'this hash looks like a phone number');
+  assert.ok(!french.test(withoutImportHash('path="res://.godot/imported/a.svg-2d2f02be823e3a0196052144f449c848.ctex"')));
+  assert.ok(french.test(withoutImportHash('source_file="01 23 45 67 89" a.svg-2d2f02be823e3a0196052144f449c848.ctex')));
+  assert.ok(french.test(withoutImportHash('-0123456789x.ctex')), 'not a hash of 32 hexadecimal digits');
+});
 
 test('the allow list is exact: a phone number next to it is still caught', () => {
   const phone = PATTERNS[0].re;

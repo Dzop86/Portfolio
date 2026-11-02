@@ -18,6 +18,21 @@ public enum Element
 
     /// <summary>Fire and Air (sprint 138): its signature, the Arc.</summary>
     Lightning,
+
+    /// <summary>Water and Air (sprint 184): its signature, Bite (−1 AP).</summary>
+    Ice,
+
+    /// <summary>Earth and Water (sprint 184): its signature, Mire (−1 MP).</summary>
+    Mud,
+
+    /// <summary>Earth and Fire (sprint 184): its signature, Melt (−8 % resistance).</summary>
+    Magma,
+
+    /// <summary>Fire and Water (sprint 184): its signature, Veil (−10 % damage dealt).</summary>
+    Steam,
+
+    /// <summary>Earth and Air (sprint 184): its signature, Grit (−1 range).</summary>
+    Sand,
 }
 
 /// <summary>Who an effect touches among the fighters in the spell's area.</summary>

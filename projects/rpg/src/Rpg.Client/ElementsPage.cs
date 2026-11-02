@@ -8,7 +8,7 @@ public enum FusionState
     /// <summary>The level has not opened it yet.</summary>
     Locked,
 
-    /// <summary>Its spells are not in the game yet (the five pairs in sprint 184, the trios in sprint 185).</summary>
+    /// <summary>Its spells are not in the game yet (the trios, in sprint 185).</summary>
     Coming,
 
     /// <summary>It can be created.</summary>

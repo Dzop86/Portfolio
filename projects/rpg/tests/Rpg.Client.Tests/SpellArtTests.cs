@@ -35,7 +35,7 @@ public class SpellArtTests
         Dictionary<string, JsonElement> spells = Catalog();
         using JsonDocument credits = JsonDocument.Parse(File.ReadAllText(Path.Combine(Spells, "credits.json")));
         string[] drawn = [.. spells.Where(s => Text(s.Value, "icon") is not null).Select(s => s.Key)];
-        Assert.Equal(102, drawn.Length);
+        Assert.Equal(222, drawn.Length);
         Assert.Equal(drawn.Order(), credits.RootElement.EnumerateObject().Select(p => p.Name).Order());
         // The classes' spells and the tree's are all drawn (the monsters' show a letter).
         using JsonDocument classes = JsonDocument.Parse(File.ReadAllText(Path.Combine(Rpg(), "data", "classes.json")));
@@ -90,10 +90,12 @@ public class SpellArtTests
             Assert.Equal(twin ? 1 : 0, Regex.Count(whole, "<circle cx=\"424\" cy=\"424\""));
             Assert.Equal(twin ? 1 : 0, Regex.Count(Svg(id, "-locked"), "<circle cx=\"424\" cy=\"424\""));
             twins += twin ? 1 : 0;
-            // Lightning, the one light compound drawn: its rim from Fire to Air, its silhouette engraved.
+            // Each compound's rim a gradient of its parents; Lightning's from Fire to Air, its silhouette engraved.
             bool lightning = Text(spell, "element") == "Lightning";
-            Assert.Equal(lightning, whole.Contains("url(#rim-s)", StringComparison.Ordinal));
-            Assert.Equal(lightning, whole.Contains("url(#gf-s)", StringComparison.Ordinal));
+            bool compound = Enum.TryParse(Text(spell, "element"), out global::Rpg.Core.Element element) && global::Rpg.Core.Elements.IsCompound(element);
+            Assert.Equal(compound, whole.Contains("url(#rim-s)", StringComparison.Ordinal));
+            if (lightning)
+                Assert.Contains("url(#gf-s)", whole, StringComparison.Ordinal);
             if (lightning)
             {
                 Assert.Contains("stop-color=\"#ef4b4b\"", whole, StringComparison.Ordinal);

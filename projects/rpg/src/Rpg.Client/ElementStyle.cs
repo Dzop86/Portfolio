@@ -21,6 +21,11 @@ public static class ElementStyle
         Element.Air => "#52c45a",
         // The compounds (sprint 138): Lightning in yellow, between the Fire's red and the Air's green.
         Element.Lightning => "#f2d03b",
+        Element.Ice => "#8fe0f5",
+        Element.Mud => "#8c7a3a",
+        Element.Magma => "#ff7a2e",
+        Element.Steam => "#c3a6e0",
+        Element.Sand => "#d6bc84",
         _ => "#e0e0e0",
     };
 
