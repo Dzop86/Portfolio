@@ -60,7 +60,7 @@ public static class Admin
     /// <summary>The most Éclats the operator gives a character: a billion, far from the column's limit.</summary>
     public const long MaxShards = 1_000_000_000;
 
-    public const string Usage = "Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full] [--compounds all|none|NAME,NAME...] [--spec none|PATH,PATH...]";
+    public const string Usage = "Rpg.Api admin ACCOUNT [--only Name] [--create CLASS:Name]... [--rename Old:New]... [--level N] [--give ITEM[:COUNT]|all]... [--builds] [--bestiary full] [--shards N] [--jobs max] [--achievements full] [--compounds all|none|NAME,NAME...] [--spec none|BRANCH[:LINEAGE],...]";
 
     /// <summary>The order, or the reason it cannot be one.</summary>
     public static (AdminOrder? Order, string? Error) Parse(IReadOnlyList<string> args)
@@ -166,10 +166,11 @@ public static class Admin
                     i++;
                     break;
                 case "--spec":
-                    // Sprint 186 (D93): each character takes the named path of its class, if its level opens it; none: back to no path.
+                    // Sprint 186 (D93), sprint 190 (D95): each character takes the named branch of its class, and its lineage if its level opens it; none: back to no path.
                     string[] paths = value == "none" ? [] : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    if (value.Length == 0 || paths.FirstOrDefault(p => !GameData.Embedded.Specs.ContainsKey(p)) is not null)
-                        return (null, $"--spec: none, or paths of the game ({string.Join(", ", GameData.Embedded.Specs.Keys)}), with commas ('{value}').");
+                    static bool Known(string p) => p.Split(':') is [string b, .. var f] && GameData.Embedded.Specs.TryGetValue(b, out Specialisation? s) && f.Length <= 1 && (f.Length == 0 || s.ForkOf(f[0]) is not null);
+                    if (value.Length == 0 || paths.Any(p => !Known(p)))
+                        return (null, $"--spec: none, or branch[:lineage] of the game ({string.Join(", ", GameData.Embedded.Specs.Keys)}), with commas ('{value}').");
                     specs = paths;
                     i++;
                     break;
@@ -224,6 +225,7 @@ public static class Admin
                 {
                     // Fewer points than were spent: all of them come back, to be spent again.
                     (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck, c.Talents, c.Compounds, c.Spec) = (0, 0, 0, 0, 0, "", "", "", "", null);
+                    c.Fork = null;
                 }
                 c.Xp = Progression.XpToReach(level);
                 c.Level = level;
@@ -260,17 +262,19 @@ public static class Admin
                 // Its class's among those named, its ranks and deck following; none named: back to no path, its path's spells gone.
                 if (paths.Count == 0 && c.Spec is not null)
                 {
-                    string[] gone = [.. GameData.Embedded.Specs[c.Spec].AllSpells];
+                    string[] gone = [.. GameData.Embedded.Specs[c.Spec].SpellsWith(c.Fork)];
                     string[] kept = [.. (c.DeckList ?? []).Where(id => !gone.Contains(id))];
                     c.Ranks = string.Join(',', c.RankList.Where(r => !gone.Contains(r.Key)).Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
                     if (c.Deck is not ("" or Character.EmptyDeck))
                         c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
-                    c.Spec = null;
+                    (c.Spec, c.Fork) = (null, null);
                 }
-                else if (paths.FirstOrDefault(p => GameData.Embedded.Specs[p].Class == c.Class) is string path && c.Level >= Specs.Opens)
+                else if (paths.FirstOrDefault(p => GameData.Embedded.Specs[p.Split(':')[0]].Class == c.Class) is string path && c.Level >= Specs.Opens)
                 {
-                    Hero moved = Specs.Transferred(c.Hero, path, GameData.Embedded);
-                    c.Spec = path;
+                    string branch = path.Split(':')[0];
+                    string? lineage = path.Contains(':') && c.Level >= Specs.Forks ? path.Split(':')[1] : null;
+                    Hero moved = Specs.Transferred(c.Hero, branch, lineage, GameData.Embedded);
+                    (c.Spec, c.Fork) = (branch, lineage);
                     c.Ranks = string.Join(',', (moved.Ranks ?? new Dictionary<string, int>()).Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal)
                         .Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
                     if (c.Deck is not ("" or Character.EmptyDeck))
@@ -295,7 +299,7 @@ public static class Admin
             }
             done.Add($"{c.Name} ({c.Class}): level {c.Level}, {c.InventoryList.Sum(i => i.Count)} item(s), {c.Shards} Éclats" + (order.Builds ? $", talents {c.Talents}" : "")
                 + (order.Builds || order.Compounds is not null ? $", compounds {(c.Compounds.Length == 0 ? "none" : c.Compounds)}" : "")
-                + (order.Specs is not null ? $", path {c.Spec ?? "none"}" : "") + missing + ".");
+                + (order.Specs is not null ? $", path {c.Spec ?? "none"}{(c.Fork is null ? "" : ":" + c.Fork)}" : "") + missing + ".");
         }
         await db.SaveChangesAsync(cancel);
         return done.Count == 0 ? [$"'{account.Name}' has no character."] : done;

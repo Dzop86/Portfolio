@@ -6,127 +6,259 @@
       "fr": "Archimage",
       "en": "Archmage"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Archimage",
+        "en": "Archmage"
+      },
+      "description": {
+        "fr": "+1 PA au tour suivant si tu n'as pas bougé. Tes sorts de 6 PA ou plus se relancent un tour plus tôt. Sorts : Comète et Recueillement.",
+        "en": "+1 AP next turn if you did not move. Your spells of 6 AP or more come back a turn sooner. Spells: Comet and Composure."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Archimage",
-          "en": "Archmage"
-        },
-        "description": {
-          "fr": "+1 PA au tour suivant si tu n'as pas bougé. Tes sorts de 6 PA ou plus se relancent un tour plus tôt. Sorts : Comète et Recueillement.",
-          "en": "+1 AP next turn if you did not move. Your spells of 6 AP or more come back a turn sooner. Spells: Comet and Composure."
+        "id": "high-archmage",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Astromage",
+              "en": "Astromage"
+            },
+            "description": {
+              "fr": "Le passif de +1 PA tient même après un pas. Sort : Rayon.",
+              "en": "The +1 AP passive holds even after one step. Spell: Ray."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Mage du zénith",
+              "en": "Zenith Mage"
+            },
+            "description": {
+              "fr": "+3 PA au premier tour du combat. Comète laisse au sol, pendant 1 tour, une glyphe de −1 PM.",
+              "en": "+3 AP on the first turn of the fight. Comet leaves a glyph of −1 MP on the ground for 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Trouve ta place, vise, et laisse le plafond se débrouiller.",
+          "en": "Find your spot, take aim, and let the ceiling look after itself."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut archimage",
-          "en": "High Archmage"
-        },
-        "description": {
-          "fr": "Le passif tient même après un pas. Sort : Rayon.",
-          "en": "The passive holds even after a step. Spell: Ray."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Archimage souverain",
-          "en": "Sovereign Archmage"
-        },
-        "description": {
-          "fr": "Une fois par combat, un sort de 6 PA ou plus coûte 3 PA de moins. Comète laisse une zone de −1 PM.",
-          "en": "Once per fight, a spell of 6 AP or more costs 3 AP less. Comet leaves an area of −1 MP."
+        "id": "patient",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Thaumaturge",
+              "en": "Thaumaturge"
+            },
+            "description": {
+              "fr": "Tu gardes jusqu'à 3 PA d'un tour au suivant. Sort : Point d'orgue.",
+              "en": "You keep up to 3 AP from one turn to the next. Spell: Crescendo."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Grand œuvre",
+              "en": "Magnum Opus"
+            },
+            "description": {
+              "fr": "Tu gardes jusqu'à 5 PA. Ton premier sort de dégâts du tour fait +15 %.",
+              "en": "You keep up to 5 AP. Your first damage spell of the turn does +15%."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Une meule, ça couve des jours. Puis ça part d'un coup. Celui qui ouvre trop tôt n'a que de la fumée.",
+          "en": "A charcoal stack smoulders for days. Then it goes all at once. Open it too early and all you get is smoke."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Un sort, ça se prépare debout et ça se lance une fois. Le reste, c'est de la gesticulation.",
+      "en": "A spell is prepared standing still and cast once. The rest is flapping about."
+    }
   },
   {
     "id": "sorcerer",
     "class": "mage",
     "name": {
-      "fr": "Sorcier",
-      "en": "Sorcerer"
+      "fr": "Maléfice",
+      "en": "Hex"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Maléfice",
+        "en": "Hex"
+      },
+      "description": {
+        "fr": "Tes états durent 1 tour de plus, sauf ceux des sorts de composés. 2 poisons se cumulent. Sorts : Malédiction et Fiel.",
+        "en": "Your states last 1 turn longer, except those of compound spells. 2 poisons stack. Spells: Curse and Gall."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Sorcier",
-          "en": "Sorcerer"
-        },
-        "description": {
-          "fr": "Tes états durent un tour de plus. 2 poisons cumulables. Sorts : Malédiction et Fiel.",
-          "en": "Your states last a turn longer. 2 poisons stack. Spells: Curse and Gall."
+        "id": "plague",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Fléau",
+              "en": "Plague"
+            },
+            "description": {
+              "fr": "3 poisons se cumulent. Sort : Miasme.",
+              "en": "3 poisons stack. Spell: Miasma."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Pestilence",
+              "en": "Pestilence"
+            },
+            "description": {
+              "fr": "4 poisons se cumulent. Fiel frappe en croix de 1 (dégâts × 0,8). Miasme se relance en 1 tour.",
+              "en": "4 poisons stack. Gall strikes in a cross of 1 (damage × 0.8). Miasma comes back in 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Un coup, ça se pare. Une mauvaise fièvre prend son temps, et elle gagne.",
+          "en": "A blow can be parried. A bad fever takes its time, and it wins."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut sorcier",
-          "en": "High Sorcerer"
-        },
-        "description": {
-          "fr": "3 poisons cumulables. Sort : Contagion.",
-          "en": "3 poisons stack. Spell: Contagion."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Sorcier souverain",
-          "en": "Sovereign Sorcerer"
-        },
-        "description": {
-          "fr": "Un ennemi sous 2 états ou plus reçoit +15 % de tes coups. Malédiction frappe en croix de 1.",
-          "en": "An enemy under 2 states or more takes +15% from your blows. Curse strikes in a cross of 1."
+        "id": "hexer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Mauvais œil",
+              "en": "Evil Eye"
+            },
+            "description": {
+              "fr": "Malédiction se relance en 1 tour. Sort : Flétrissure.",
+              "en": "Curse comes back in 1 turn. Spell: Blight."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Augure funeste",
+              "en": "Dire Omen"
+            },
+            "description": {
+              "fr": "Un ennemi sous 2 états ou plus reçoit +15 % de tes coups. Malédiction touche en croix de 1.",
+              "en": "An enemy under 2 states or more takes +15% from your blows. Curse reaches a cross of 1."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Je ne le frappe pas. Je le montre du doigt, et tes amis font le reste.",
+          "en": "I don't hit him. I point, and your friends do the rest."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Je n'ai touché personne. Demande-lui donc comment il se sent, demain.",
+      "en": "I never laid a finger on him. Ask him how he's feeling tomorrow."
+    }
   },
   {
     "id": "necromancer",
     "class": "mage",
     "name": {
-      "fr": "Nécromancien",
-      "en": "Necromancer"
+      "fr": "Lève-ombres",
+      "en": "Shadecaller"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Lève-ombres",
+        "en": "Shadecaller"
+      },
+      "description": {
+        "fr": "Une fois par combat, un ennemi qui tombe laisse une ombre qui se bat pour toi. 2 invocations à la fois. Sorts : Lever une ombre et Dîme d'ombre.",
+        "en": "Once per fight, a fallen enemy leaves a shade that fights for you. 2 summons at once. Spells: Raise a Shade and Shade's Tithe."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Nécromancien",
-          "en": "Necromancer"
-        },
-        "description": {
-          "fr": "Une ombre se lève d'un ennemi tombé, une fois par combat. 2 invocations. Sorts : Lever une ombre et Lien funeste.",
-          "en": "A shade rises from a fallen enemy, once per fight. 2 summons. Spells: Raise a Shade and Grim Bond."
+        "id": "binder",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Mène-ombres",
+              "en": "Shade Marshal"
+            },
+            "description": {
+              "fr": "Tes ombres ont +25 % de PV. Sort : Marche funèbre.",
+              "en": "Your shades have +25% HP. Spell: Funeral March."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Grand cortège",
+              "en": "Grand Procession"
+            },
+            "description": {
+              "fr": "3 invocations à la fois. Le passif joue 2 fois par combat.",
+              "en": "3 summons at once. The passive works twice per fight."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Une ombre ne pèse rien. Essaie donc de passer dans un couloir qui en est plein.",
+          "en": "A shade weighs nothing. Try walking down a corridor full of them."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut nécromancien",
-          "en": "High Necromancer"
-        },
-        "description": {
-          "fr": "Tes ombres ont +25 % de PV. Sort : Éclat d'ombre.",
-          "en": "Your shades have +25% HP. Spell: Shade Burst."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Nécromancien souverain",
-          "en": "Sovereign Necromancer"
-        },
-        "description": {
-          "fr": "3 invocations. Le passif joue deux fois par combat.",
-          "en": "3 summons. The passive works twice per fight."
+        "id": "reaper",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Sème-ombres",
+              "en": "Shadesower"
+            },
+            "description": {
+              "fr": "Lever une ombre se relance en 2 tours. Sort : Détonation.",
+              "en": "Raise a Shade comes back in 2 turns. Spell: Detonation."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Moisson noire",
+              "en": "Black Harvest"
+            },
+            "description": {
+              "fr": "Toute ombre qui meurt explose à 2 cases, alliés compris : 30 à 40 dégâts neutres. Détonation n'a plus de relance, une fois par tour.",
+              "en": "Any shade that dies explodes within 2 cells, allies included: 30 to 40 neutral damage. Detonation has no cooldown, once per turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Pose-la où il va marcher. Et recule un peu : elle ne fait pas la différence.",
+          "en": "Set it where he's going to walk. And step back a bit: it can't tell friend from foe."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Les morts restent où ils sont. Moi, je lève ce qu'ils ont laissé sur le mur.",
+      "en": "The dead stay where they are. What I raise is what they left on the wall."
+    }
   },
   {
     "id": "palisade",
@@ -135,41 +267,85 @@
       "fr": "Palissade",
       "en": "Palisade"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Garde de la Palissade",
+        "en": "Palisade Guard"
+      },
+      "description": {
+        "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Tenir bon.",
+        "en": "At the start of your turn, a shield of 9 on you and allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Stand Fast."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Garde de la Palissade",
-          "en": "Palisade Guard"
-        },
-        "description": {
-          "fr": "Un bouclier aux alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Ancrage.",
-          "en": "A shield on allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Anchor."
+        "id": "rampart",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Garde-corps",
+              "en": "Bodyguard"
+            },
+            "description": {
+              "fr": "Le passif vaut 12 et porte à 2 cases. Sort : Mur de boucliers.",
+              "en": "The passive is worth 12 and reaches 2 cells. Spell: Shield Wall."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Muraille",
+              "en": "Rampart"
+            },
+            "description": {
+              "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Le passif vaut 17. Interposition se relance en 1 tour.",
+              "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. The passive is worth 17. Interpose comes back in 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Reste derrière moi. Non, plus à gauche. Voilà : maintenant, tu vivras.",
+          "en": "Get behind me. No, further left. There: now you'll live."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut garde de la Palissade",
-          "en": "High Palisade Guard"
-        },
-        "description": {
-          "fr": "Le passif porte à 2 cases. Sort : Mur de boucliers.",
-          "en": "The passive reaches 2 cells. Spell: Shield Wall."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Garde souverain de la Palissade",
-          "en": "Sovereign Palisade Guard"
-        },
-        "description": {
-          "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Interposition se relance en 1 tour.",
-          "en": "Once per fight, an ally 2 cells away who would fall stays at 1 HP. Interpose comes back in 1 turn."
+        "id": "bastion",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Bastion d'épines",
+              "en": "Thorn Bastion"
+            },
+            "description": {
+              "fr": "Tenir bon te donne aussi un bouclier de 15. Sort : Rétorsion.",
+              "en": "Stand Fast also gives you a shield of 15. Spell: Retaliation."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Citadelle d'épines",
+              "en": "Thorn Citadel"
+            },
+            "description": {
+              "fr": "Rétorsion frappe aussi la case derrière la cible (dégâts × 0,8). Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.",
+              "en": "Retaliation also strikes the cell behind the target (damage × 0.8). Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Vas-y, frappe encore. Plus tu m'en donnes, plus je t'en rends.",
+          "en": "Go on, hit me again. The more you give me, the more you get back."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Un pieu tout seul, c'est un bâton. Dix pieux qui se tiennent, c'est une palissade. Moi, je fais le pieu du milieu : je bouge pas.",
+      "en": "One stake on its own is a stick. Ten stakes holding each other up, that's a palisade. Me, I'm the middle stake: I don't move."
+    }
   },
   {
     "id": "breach",
@@ -178,41 +354,85 @@
       "fr": "Brèche",
       "en": "Breach"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Garde de la Brèche",
+        "en": "Breach Guard"
+      },
+      "description": {
+        "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Assaut et Arrachement.",
+        "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Assault and Wrench."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Garde de la Brèche",
-          "en": "Breach Guard"
-        },
-        "description": {
-          "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Charge et Arrachement.",
-          "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Charge and Wrench."
+        "id": "ram",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Bélier",
+              "en": "Ram"
+            },
+            "description": {
+              "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Trouée.",
+              "en": "An enemy finished off: +1 MP and +1 AP. Spell: Breakthrough."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Brise-rangs",
+              "en": "Rank-Breaker"
+            },
+            "description": {
+              "fr": "Un ennemi achevé : +1 PM et +2 PA. Assaut se relance en 1 tour.",
+              "en": "An enemy finished off: +1 MP and +2 AP. Assault comes back in 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Un de moins, et il me reste du souffle. Au suivant.",
+          "en": "One down, and I've breath left. Next."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut garde de la Brèche",
-          "en": "High Breach Guard"
-        },
-        "description": {
-          "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Fauchage.",
-          "en": "An enemy finished off: +1 MP and +1 AP. Spell: Reaping."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Garde souverain de la Brèche",
-          "en": "Sovereign Breach Guard"
-        },
-        "description": {
-          "fr": "Une attirance contre un obstacle fait 6 dégâts par case. Charge se relance en 1 tour.",
-          "en": "A pull against an obstacle does 6 damage per cell. Charge comes back in 1 turn."
+        "id": "harpooner",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Croc-de-fer",
+              "en": "Ironhook"
+            },
+            "description": {
+              "fr": "+15 % de dégâts sur une cible à ton contact. Sort : Harpon.",
+              "en": "+15% damage on a target next to you. Spell: Harpoon."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Cloue-au-mur",
+              "en": "Wallcrusher"
+            },
+            "description": {
+              "fr": "Tes reculs contre un obstacle font 15 dégâts par case. Harpon n'a plus de relance, une fois par tour.",
+              "en": "Your pushes into an obstacle do 15 damage per cell. Harpoon has no cooldown, once per turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Pourquoi lui courir après ? J'ai une corde, et il a un mur dans le dos.",
+          "en": "Why chase him? I've got a rope, and he's got a wall behind him."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Vingt ans à enfoncer des lignes, et maintenant je déblaie des routes. C'est le même métier, sauf que les cailloux, eux, se plaignent pas.",
+      "en": "Twenty years breaking lines, and now I clear roads. Same trade, except the stones don't complain."
+    }
   },
   {
     "id": "grip",
@@ -221,41 +441,85 @@
       "fr": "Étau",
       "en": "Grip"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Garde de l'Étau",
+        "en": "Grip Guard"
+      },
+      "description": {
+        "fr": "Qui te frappe au contact perd 1 PM. Tes retraits de PA et de PM durent 1 tour de plus, sauf ceux des sorts de composés. Sorts : Prise et Verrou.",
+        "en": "Whoever strikes you in melee loses 1 MP. Your AP and MP losses last 1 turn longer, except those of compound spells. Spells: Hold and Lock."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Garde de l'Étau",
-          "en": "Grip Guard"
-        },
-        "description": {
-          "fr": "Qui te frappe au contact perd 1 PM. Tes retraits de PA et de PM durent un tour de plus. Sorts : Prise et Verrou.",
-          "en": "Whoever strikes you in melee loses 1 MP. Your AP and MP losses last a turn longer. Spells: Hold and Lock."
+        "id": "jailer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Carcan",
+              "en": "Shackle"
+            },
+            "description": {
+              "fr": "Le passif retire aussi 1 PA, une fois par tour. Sort : Écrasement.",
+              "en": "The passive also takes 1 AP, once per turn. Spell: Crush."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Oubliette",
+              "en": "Oubliette"
+            },
+            "description": {
+              "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 2 tours.",
+              "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 2 turns."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Celui-là ne jouera plus. Les autres, on verra après.",
+          "en": "That one's done playing. We'll see about the rest later."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haut garde de l'Étau",
-          "en": "High Grip Guard"
-        },
-        "description": {
-          "fr": "Le passif retire aussi 1 PA, une fois par tour. Sort : Écrasement.",
-          "en": "The passive also takes 1 AP, once per turn. Spell: Crush."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Garde souverain de l'Étau",
-          "en": "Sovereign Grip Guard"
-        },
-        "description": {
-          "fr": "Les ennemis à ton contact perdent 1 PM au début de leur tour. Verrou se relance en 2 tours.",
-          "en": "Enemies next to you lose 1 MP at the start of their turn. Lock comes back in 2 turns."
+        "id": "pincer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Tenaille",
+              "en": "Pincer"
+            },
+            "description": {
+              "fr": "Provocation porte à +2 PO. Sort : Cercle de fer.",
+              "en": "Taunt reaches +2 range. Spell: Iron Ring."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Étau vivant",
+              "en": "Living Grip"
+            },
+            "description": {
+              "fr": "Les ennemis à ton contact perdent 1 PM au début de leur tour. Cercle de fer se relance en 1 tour.",
+              "en": "Enemies next to you lose 1 MP at the start of their turn. Iron Ring comes back in 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Tous autour de moi, c'est ça. Maintenant, essayez donc de sortir.",
+          "en": "All round me, that's it. Now try leaving."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Tu voulais partir ? C'est gentil de me prévenir.",
+      "en": "Leaving, were you? How kind of you to say."
+    }
   },
   {
     "id": "sightline",
@@ -264,41 +528,85 @@
       "fr": "Mire",
       "en": "Sightline"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Sentinelle de la Mire",
+        "en": "Sightline Sentinel"
+      },
+      "description": {
+        "fr": "Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour. Tes sorts en vue portent à +1 PO. Sorts : Tir visé et Point faible.",
+        "en": "No enemy within 3 cells at the start of your turn: +15% damage for 1 turn. Your spells in sight reach +1 range. Spells: Aimed Shot and Weak Spot."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Sentinelle de la Mire",
-          "en": "Sightline Sentinel"
-        },
-        "description": {
-          "fr": "Aucun ennemi à 3 cases : +15 % de dégâts pendant 1 tour. Tes sorts en vue portent à +1 PO. Sorts : Tir visé et Visée.",
-          "en": "No enemy within 3 cells: +15% damage for 1 turn. Your spells in sight reach +1 range. Spells: Aimed Shot and Aim."
+        "id": "marksman",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Longue-vue",
+              "en": "Longsight"
+            },
+            "description": {
+              "fr": "Tes sorts de 6 PO ou plus portent à +2 PO au lieu de +1. Sort : Coup au but.",
+              "en": "Your spells of 6 range or more reach +2 range instead of +1. Spell: Bullseye."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Dernière semonce",
+              "en": "Final Warning"
+            },
+            "description": {
+              "fr": "Le passif monte à +25 % pendant 2 tours. Tir visé touche aussi la case derrière la cible.",
+              "en": "The passive rises to +25% for 2 turns. Aimed Shot also hits the cell behind the target."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Une flèche. Si j'ai bien compté, il n'en faudra pas d'autre.",
+          "en": "One arrow. If I've counted right, there won't need to be another."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haute sentinelle de la Mire",
-          "en": "High Sightline Sentinel"
-        },
-        "description": {
-          "fr": "Tes sorts de 6 PO ou plus portent à +2 PO. Sort : Tir de barrage.",
-          "en": "Your spells of 6 range or more reach +2 range. Spell: Barrage."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Sentinelle souveraine de la Mire",
-          "en": "Sovereign Sightline Sentinel"
-        },
-        "description": {
-          "fr": "Le passif monte à +25 % sur 2 tours. Tir visé traverse : une case de plus, à 50 %.",
-          "en": "The passive rises to +25% over 2 turns. Aimed Shot pierces: one cell more, at 50%."
+        "id": "barrage",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Herse",
+              "en": "Portcullis"
+            },
+            "description": {
+              "fr": "Le passif joue dès qu'aucun ennemi n'est à 2 cases, au lieu de 3. Sort : Tir de barrage.",
+              "en": "The passive works as soon as no enemy is within 2 cells, instead of 3. Spell: Barrage."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Route barrée",
+              "en": "Road Closed"
+            },
+            "description": {
+              "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et se relance en 1 tour.",
+              "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and comes back in 1 turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Je n'ai pas besoin de te toucher. Il suffit que tu ne passes pas.",
+          "en": "I don't need to hit you. You only need not to get through."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Tu tires la semonce d'abord. Celui qui avance quand même, il a choisi. Toi, tu as juste visé.",
+      "en": "Warning shot first. Anyone who keeps coming has made their choice. You've only taken aim."
+    }
   },
   {
     "id": "ambush",
@@ -307,41 +615,85 @@
       "fr": "Affût",
       "en": "Ambush"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Sentinelle de l'Affût",
+        "en": "Ambush Sentinel"
+      },
+      "description": {
+        "fr": "Ton Faucon a 12 % de tes PV et profite de tes caractéristiques. Tes glyphes durent 1 tour de plus, sauf celles des sorts de composés. Sorts : Mâchoires et Piqué.",
+        "en": "Your Hawk has 12% of your HP and draws on your characteristics. Your glyphs last 1 turn longer, except those of compound spells. Spells: Jaw Trap and Dive."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Sentinelle de l'Affût",
-          "en": "Ambush Sentinel"
-        },
-        "description": {
-          "fr": "Le Faucon reste 2 tours de plus. Tes glyphes durent un tour de plus. Sorts : Mâchoires et Piqué.",
-          "en": "The Hawk stays 2 turns longer. Your glyphs last a turn longer. Spells: Jaw Trap and Dive."
+        "id": "falconer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Porte-faucon",
+              "en": "Hawkbearer"
+            },
+            "description": {
+              "fr": "Ton Faucon a 20 % de tes PV. Sort : Chassé-croisé.",
+              "en": "Your Hawk has 20% of your HP. Spell: Changeover."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Deux-Ailes",
+              "en": "Twin Wings"
+            },
+            "description": {
+              "fr": "Deux Faucons à la fois. Piqué n'a plus de relance, une fois par tour.",
+              "en": "Two Hawks at once. Dive has no cooldown, once per turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Il voit ce que je ne vois pas, et il revient quand je l'appelle. C'est tout le secret.",
+          "en": "He sees what I can't, and he comes back when I call. That's the whole secret."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haute sentinelle de l'Affût",
-          "en": "High Ambush Sentinel"
-        },
-        "description": {
-          "fr": "Le Faucon a +30 % de PV. Sort : Appât.",
-          "en": "The Hawk has +30% HP. Spell: Bait."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Sentinelle souveraine de l'Affût",
-          "en": "Sovereign Ambush Sentinel"
-        },
-        "description": {
-          "fr": "Deux Mâchoires à la fois. Un ennemi piégé prend +15 % de tes coups pendant 2 tours.",
-          "en": "Two Jaw Traps at once. A trapped enemy takes +15% from your blows for 2 turns."
+        "id": "trapper",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Tend-pièges",
+              "en": "Trapsetter"
+            },
+            "description": {
+              "fr": "Mâchoires se relance en 1 tour. Sort : Appât.",
+              "en": "Jaw Trap comes back in 1 turn. Spell: Bait."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Chausse-trape",
+              "en": "Deadfall"
+            },
+            "description": {
+              "fr": "Deux Mâchoires à la fois. +15 % de dégâts sur un ennemi dans une de tes glyphes.",
+              "en": "Two Jaw Traps at once. +15% damage on an enemy in one of your glyphs."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Ce combat, je l'ai gagné hier, avec une pelle. Aujourd'hui, je regarde.",
+          "en": "I won this fight yesterday, with a spade. Today I'm just watching."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Chut. Le bois te parle, si tu te tais assez longtemps. Mon faucon l'a compris avant toi.",
+      "en": "Hush. The woods will talk to you, if you keep quiet long enough. My hawk worked that out before you did."
+    }
   },
   {
     "id": "trail",
@@ -350,40 +702,84 @@
       "fr": "Sente",
       "en": "Trail"
     },
-    "tiers": [
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Sentinelle de la Sente",
+        "en": "Trail Sentinel"
+      },
+      "description": {
+        "fr": "Si on te frappe au contact : +2 PM pendant 1 tour. Tes sauts n'ont pas besoin de la vue. Sorts : Cabriole et Coup de talon.",
+        "en": "If you are struck in melee: +2 MP for 1 turn. Your leaps need no sight. Spells: Vault and Heel Kick."
+      }
+    },
+    "forks": [
       {
-        "level": 30,
-        "title": {
-          "fr": "Sentinelle de la Sente",
-          "en": "Trail Sentinel"
-        },
-        "description": {
-          "fr": "Frappée au contact : +2 PM pendant 1 tour. Tes sauts n'ont pas besoin de la vue. Sorts : Bond et Coup de talon.",
-          "en": "Struck in melee: +2 MP for 1 turn. Your leaps need no sight. Spells: Vault and Heel Kick."
+        "id": "leaper",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Saute-haie",
+              "en": "Hedgehopper"
+            },
+            "description": {
+              "fr": "Cabriole n'a plus de relance, une fois par tour. Sort : Feinte.",
+              "en": "Vault has no cooldown, once per turn. Spell: Feint."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Hors d'atteinte",
+              "en": "Out of Reach"
+            },
+            "description": {
+              "fr": "Le passif monte à +3 PM. Une fois par combat, un coup au contact te donne un bouclier de 40. Cabriole donne +10 % de dégâts pour le tour.",
+              "en": "The passive rises to +3 MP. Once per fight, a melee blow gives you a shield of 40. Vault gives +10% damage for the turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Tu frappes, je suis là. Tu regardes, je n'y suis plus.",
+          "en": "You strike, I'm there. You look, I'm gone."
         }
       },
       {
-        "level": 50,
-        "title": {
-          "fr": "Haute sentinelle de la Sente",
-          "en": "High Trail Sentinel"
-        },
-        "description": {
-          "fr": "Bond n'a plus de relance, une fois par tour. Sort : Feinte.",
-          "en": "Vault has no cooldown, once per turn. Spell: Feint."
-        }
-      },
-      {
-        "level": 100,
-        "title": {
-          "fr": "Sentinelle souveraine de la Sente",
-          "en": "Sovereign Trail Sentinel"
-        },
-        "description": {
-          "fr": "Le passif monte à +3 PM. Une fois par combat, le premier coup au contact est esquivé. Après un saut, +10 % au prochain sort.",
-          "en": "The passive rises to +3 MP. Once per fight, the first melee blow is dodged. After a leap, +10% on the next spell."
+        "id": "runner",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Court-sentes",
+              "en": "Trail Runner"
+            },
+            "description": {
+              "fr": "+3 % de dégâts par case marchée depuis ton dernier sort, 15 % au plus. Sort : Tir en course.",
+              "en": "+3% damage per cell walked since your last spell, 15% at most. Spell: Running Shot."
+            }
+          },
+          {
+            "level": 100,
+            "title": {
+              "fr": "Cours-toujours",
+              "en": "Never Caught"
+            },
+            "description": {
+              "fr": "+5 % par case, 25 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
+              "en": "+5% per cell, 25% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
+            }
+          }
+        ],
+        "lore": {
+          "fr": "Reste planté là si tu veux viser. Moi, je tire en passant.",
+          "en": "Stand still to aim if you like. I shoot in passing."
         }
       }
-    ]
+    ],
+    "lore": {
+      "fr": "Une sente ne va jamais tout droit. C'est pour ça qu'on ne t'y rattrape pas.",
+      "en": "A trail never runs straight. That's why nobody catches you on it."
+    }
   }
 ]

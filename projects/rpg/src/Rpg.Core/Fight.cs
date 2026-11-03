@@ -73,6 +73,23 @@ public sealed class Fighter
     /// <summary>The low-health passives that have fired: once per fight each.</summary>
     internal readonly HashSet<string> LowHpFired = new(StringComparer.Ordinal);
 
+    // Sprint 190 (D95, brick D): what a passive's limits count.
+    internal readonly HashSet<string> FiredThisTurn = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _firedInFight = new(StringComparer.Ordinal);
+
+    /// <summary>Whether its limits let a passive fire now, and counts it if so.</summary>
+    internal bool MayFire(PassiveSpec passive)
+    {
+        if ((passive.OncePerTurn && FiredThisTurn.Contains(passive.Id)) || (passive.PerFight > 0 && _firedInFight.GetValueOrDefault(passive.Id) >= passive.PerFight))
+            return false;
+        FiredThisTurn.Add(passive.Id);
+        _firedInFight[passive.Id] = _firedInFight.GetValueOrDefault(passive.Id) + 1;
+        return true;
+    }
+
+    /// <summary>Whether it walked on its turn before (<see cref="PassiveSpec.Still"/>).</summary>
+    internal bool WalkedLastTurn { get; set; }
+
     public bool IsAlive => Hp > 0;
 
     /// <summary>Hit points at most: the description's, plus Vitality, minus the erosion.</summary>
@@ -259,7 +276,7 @@ public sealed class Fight
 
     /// <summary>A passive of the start of a turn with <see cref="PassiveSpec.Clear"/> (sprint 186): no living enemy, summons too, that close.</summary>
     private bool IsClear(Fighter bearer, PassiveSpec p) =>
-        p.Clear == 0 || !Fighters.Any(f => f.IsAlive && f.Team != bearer.Team && f.Cell.DistanceTo(bearer.Cell) <= p.Clear);
+        (p.Clear == 0 || !Fighters.Any(f => f.IsAlive && f.Team != bearer.Team && f.Cell.DistanceTo(bearer.Cell) <= p.Clear)) && !(p.Still && bearer.WalkedLastTurn);
 
     /// <summary>
     /// The scenario's fighter, played by the hero: its name and look, its class's characteristics and
@@ -323,10 +340,12 @@ public sealed class Fight
     private static List<Spell> SpellsOf(FighterSpec spec, GameData data)
     {
         List<TalentSpec> talents = TalentsOf(spec, data);
-        return [.. spec.Spells.Select(id => Talents.Compile(Specs.Adapted(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(data.Spells[id].RankKey, 1) ?? 1), spec.SpecElement), talents, spec.SpecRules))];
+        return [.. spec.Spells.Select(id => Talents.Compile(Specs.Adapted(data.Spells[id].AtRank(spec.SpellRanks?.GetValueOrDefault(data.Spells[id].RankKey, 1) ?? 1), spec.SpecElement), talents))];
     }
 
-    private static List<TalentSpec> TalentsOf(FighterSpec spec, GameData data) => [.. (spec.Talents ?? []).Select(id => data.Talents[id])];
+    // A path's rules, compiled and living, come as one more talent (sprint 190, D95, brick B).
+    private static List<TalentSpec> TalentsOf(FighterSpec spec, GameData data) =>
+        [.. (spec.Talents ?? []).Select(id => data.Talents[id]), .. spec.SpecRules is { Count: > 0 } rules ? [Specs.AsTalent(rules)] : Array.Empty<TalentSpec>()];
 
     private static List<PassiveSpec> PassivesOf(IReadOnlyList<string>? ids, GameData data) => [.. (ids ?? []).Select(id => data.Passives[id])];
 
@@ -1344,7 +1363,7 @@ public sealed class Fight
         while (_pending.TryDequeue(out (Fighter Bearer, PassiveSpec Passive, Fighter? Attacker) next))
         {
             (Fighter bearer, PassiveSpec p, Fighter? attacker) = next;
-            if (IsOver || (p.Trigger != Trigger.Death && !bearer.IsAlive))
+            if (IsOver || (p.Trigger != Trigger.Death && !bearer.IsAlive) || !bearer.MayFire(p))
                 continue;
             _events.Add(new PassiveTriggered(bearer.Id, p.Id));
             // Around the bearer; without an area, its own cell.
@@ -1415,9 +1434,11 @@ public sealed class Fight
         next.Ap = Math.Max(0, next.Spec.Ap + next.StatusList.Where(st => st.Stat == Stat.Ap).Sum(st => st.Value) + talentAp + next.CarriedAp);
         next.Mp = Math.Max(0, next.Spec.Mp + next.StatusList.Where(st => st.Stat == Stat.Mp).Sum(st => st.Value) + talentMp);
         next.CarriedAp = 0;
+        next.WalkedLastTurn = next.StepsThisTurn > 0;
         next.StepsThisTurn = next.DamageCastsThisTurn = 0;
         next.SideStepped = false;
         next.SupportsThisTurn = next.ReactionsThisTurn = 0;
+        next.FiredThisTurn.Clear();
         next.Ap = Math.Max(0, next.Ap - next.NextTurnPenalty);
         next.NextTurnPenalty = 0;
         next.TurnStart = next.Cell;

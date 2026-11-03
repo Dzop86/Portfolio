@@ -1910,20 +1910,20 @@
     "level": 30,
     "kind": "Side",
     "text": {
-      "fr": "Trois façons de prendre la route, pour chaque métier : c'est ce que dit ma colonne, celle que personne ne remplit. Demande à Josette ce qu'en disent ceux qui dorment chez elle, puis reviens. La tienne, je l'écrirai au crayon : une route, ça se change, et mon livre aime mieux une rature qu'un mensonge.",
-      "en": "Three ways of taking the road, for every trade: that's what my column says, the one nobody fills in. Ask Josette what the people who sleep at her inn make of it, then come back. Yours I'll write in pencil: a road can be changed, and my book prefers a crossing-out to a lie."
+      "fr": "Dans mon livre, chaque voyageur a une ligne : nom, route, et façon de la prendre. Cette dernière colonne, personne ne la remplit. Demande à Josette ce qu'en disaient ceux qui dormaient chez elle, puis reviens. La tienne, je l'écrirai au crayon : une route, ça se change, et mon livre aime mieux une rature qu'un mensonge.",
+      "en": "In my book, every traveller has a line: name, road, and the way they mean to take it. Nobody fills in that last column. Ask Josette what the people who slept at her inn made of it, then come back. Yours I'll write in pencil: a road can be changed, and my book prefers a crossing-out to a lie."
     },
     "thanks": {
-      "fr": "Une case en blanc dans mon livre, à ton nom. À toi de la remplir : ouvre ta fiche (C), page « Spécialisation », et choisis. Rien ne presse : la case attendra, et le premier choix ne coûte rien.",
-      "en": "A blank box in my book, with your name on it. It's yours to fill: open your character sheet (C), the Specialisation page, and choose. No hurry: the box will wait, and the first choice costs nothing."
+      "fr": "Voilà ta ligne, et la case en blanc au bout. À toi de la remplir : ouvre ta fiche (C), page « Spécialisation », et choisis. Rien ne presse : la case attend, le premier choix ne coûte rien, et seules les ratures se paient.",
+      "en": "There's your line, and the blank box at the end of it. It's yours to fill: open your character sheet (C), the Specialisation page, and choose. No hurry: the box will wait, the first choice costs nothing, and only crossings-out are paid for."
     },
     "objectives": [
       {
         "goal": "Talk",
         "target": "four-ways/josette",
         "line": {
-          "fr": "Les routes d'Anatole ? Ceux qui dorment ici en parlent tous, et jamais pareil. Prends celle qui te va, ou aucune pour l'instant : la soupe sera chaude quand même. Et retourne le lui dire, il s'inquiète pour sa colonne.",
-          "en": "Anatole's roads? Everyone who sleeps here talks about them, no two the same. Take the one that suits you, or none for now: the soup will be hot either way. And go back and tell him, he frets about his column."
+          "fr": "Les routes d'Anatole ? Tu as mangé ? Mes derniers voyageurs en parlaient tous, à table : ceux qui tirent, ceux qui tiennent, ceux qui lancent, trois façons chacun, et pas deux du même avis. Prends celle qui te va, ou aucune pour l'instant : la soupe sera chaude quand même. Et retourne le lui dire, il s'inquiète pour sa colonne.",
+          "en": "Anatole's roads? Have you eaten? My last travellers all talked about them at table: those who shoot, those who stand, those who cast, three ways apiece, and no two of the same mind. Take the one that suits you, or none for now: the soup will be hot either way. And go back and tell him, he frets about his column."
         }
       }
     ],

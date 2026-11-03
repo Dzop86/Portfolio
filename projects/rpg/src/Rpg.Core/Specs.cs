@@ -9,17 +9,23 @@ public sealed record SpecTier(int Level, LocalizedText Title, LocalizedText Desc
     IReadOnlyList<TalentRule>? Rules = null, IReadOnlyList<string>? Spells = null);
 
 /// <summary>
-/// A path of a class (sprint 186, D93): one of its three branches, with its evolutions in the order of <see cref="Specs.TierLevels"/>;
+/// A lineage (sprint 190, D95, docs/elements-specialisations.md §v4): one of the two ways a branch divides into at level 50, its
+/// evolutions at 50 and 100.
+/// </summary>
+public sealed record SpecFork(string Id, IReadOnlyList<SpecTier> Tiers, LocalizedText? Lore = null, string? Icon = null);
+
+/// <summary>
+/// A branch of a class's tree (sprint 186, D93; sprint 190, D95): its evolution at 30 and its two lineages;
 /// <see cref="Keeps"/>, class spells the automatic deck always keeps with it (the Ambush's Hawk).
 /// </summary>
-public sealed record Specialisation(string Id, string Class, LocalizedText Name, IReadOnlyList<SpecTier> Tiers, LocalizedText? Lore = null,
+public sealed record Specialisation(string Id, string Class, LocalizedText Name, SpecTier Base, IReadOnlyList<SpecFork> Forks, LocalizedText? Lore = null,
     IReadOnlyList<string>? Keeps = null, string? Icon = null)
 {
-    /// <summary>The evolutions a level has reached, the first first.</summary>
-    public IEnumerable<SpecTier> ReachedAt(int level) => Tiers.Where(t => t.Level <= level);
+    /// <summary>The lineage of this id, or null.</summary>
+    public SpecFork? ForkOf(string? id) => Forks.FirstOrDefault(f => f.Id == id);
 
-    /// <summary>All its spells, evolution by evolution, whatever the level.</summary>
-    public IEnumerable<string> AllSpells => Tiers.SelectMany(t => t.Spells ?? []);
+    /// <summary>The spells of this leaf, evolution by evolution, whatever the level: the branch's, then the lineage's.</summary>
+    public IEnumerable<string> SpellsWith(string? fork) => (Base.Spells ?? []).Concat(ForkOf(fork)?.Tiers.SelectMany(t => t.Spells ?? []) ?? []);
 }
 
 /// <summary>The rules of the paths (sprint 186, D93, docs/elements-specialisations.md §v3).</summary>
@@ -34,8 +40,24 @@ public static class Specs
     /// <summary>The quest that opens the choice (§v3.5).</summary>
     public const string Quest = "a-road-of-ones-own";
 
-    /// <summary>What taking this path costs: the first is free at any level (Q9 b), the next 30 × the level in Éclats (§v3.4).</summary>
-    public static long ChangeCost(int level, bool hadOne) => hadOne ? 30L * level : 0;
+    /// <summary>The level a branch divides at (D95).</summary>
+    public const int Forks = 50;
+
+    /// <summary>
+    /// What this hero pays to take this branch and lineage (§v4.5): the first branch and the first lineage are free at any level;
+    /// another lineage 10 × the level in Éclats, another branch 30 × the level.
+    /// </summary>
+    public static long ChangeCost(Hero hero, string spec, string? fork)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        return hero.Spec is null ? 0
+            : hero.Spec != spec ? 30L * hero.Level
+            : hero.Fork is null || hero.Fork == fork ? 0
+            : 10L * hero.Level;
+    }
+
+    /// <summary>The hero's lineage, if it has one its branch knows and its level opens.</summary>
+    public static SpecFork? ForkOf(Hero hero, GameData data) => hero?.Level >= Forks ? Of(hero, data)?.ForkOf(hero.Fork) : null;
 
     /// <summary>The hero's path, if this data knows it, of its class, and its level opens it; null for a hero who has not chosen.</summary>
     public static Specialisation? Of(Hero hero, GameData data)
@@ -45,8 +67,13 @@ public static class Specs
         return hero.Spec is string id && hero.Level >= Opens && data.Specs.TryGetValue(id, out Specialisation? s) && s.Class == hero.Class ? s : null;
     }
 
-    /// <summary>The evolutions the hero has: none without a path, all those of its level at once when it chooses late (§v3.4).</summary>
-    public static IReadOnlyList<SpecTier> TiersOf(Hero hero, GameData data) => Of(hero, data)?.ReachedAt(hero.Level).ToList() ?? [];
+    /// <summary>The evolutions the hero has: none without a branch, the branch's without a lineage, all those of its level at once when it chooses late (§v4.5).</summary>
+    public static IReadOnlyList<SpecTier> TiersOf(Hero hero, GameData data)
+    {
+        if (Of(hero, data) is not Specialisation branch)
+            return [];
+        return [branch.Base, .. ForkOf(hero, data)?.Tiers.Where(t => t.Level <= hero.Level) ?? []];
+    }
 
     /// <summary>The spells its evolutions give it.</summary>
     public static IEnumerable<string> SpellsOf(Hero hero, GameData data) => TiersOf(hero, data).SelectMany(t => t.Spells ?? []);
@@ -68,6 +95,9 @@ public static class Specs
         IReadOnlyList<SpecTier> tiers = TiersOf(hero, data);
         return tiers.Count == 0 ? null : tiers[^1].Title;
     }
+
+    /// <summary>A path's rules as a talent of the fight (sprint 190, D95, brick B): the compiled ones and the living ones, read like a talent's.</summary>
+    public static TalentSpec AsTalent(IReadOnlyList<TalentRule> rules) => new("path", new LocalizedText("", ""), new LocalizedText("", ""), default, default, rules);
 
     /// <summary>The highest tier a gain of levels has just passed, or null: what the game announces (§v3.5).</summary>
     public static int? TierPassed(int before, int after) => TierLevels.Where(l => before < l && l <= after).Cast<int?>().LastOrDefault();
@@ -110,15 +140,15 @@ public static class Specs
     /// the order of the evolutions, to the new path's that its level has; what has no heir leaves the deck and gives its
     /// points back. Its class's spells do not move.
     /// </summary>
-    public static Hero Transferred(Hero hero, string to, GameData data)
+    public static Hero Transferred(Hero hero, string to, string? fork, GameData data)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(data);
-        Hero moved = hero with { Spec = to };
+        Hero moved = hero with { Spec = to, Fork = fork };
         if (Of(hero, data) is not Specialisation from)
             return moved;
-        string[] old = [.. from.AllSpells];
-        string[] heirs = Of(moved, data)?.AllSpells.ToArray() ?? [];
+        string[] old = [.. from.SpellsWith(hero.Fork)];
+        string[] heirs = Of(moved, data)?.SpellsWith(fork).ToArray() ?? [];
         string? HeirOf(string spell)
         {
             int i = Array.IndexOf(old, spell);

@@ -38,7 +38,7 @@ public static class CharacterEndpoints
         group.MapPost("/{id:guid}/quests/{quest}/done", HandIn).WithSummary("Hands a quest back to its giver, its objectives reached: the items it asks are taken, its rewards given.");
         group.MapDelete("/{id:guid}/dungeon", Leave).WithSummary("Takes one of the player's characters out of its dungeon; the key is not given back.");
         group.Map("/{id:guid}/chat", Chat).WithSummary("The proximity chat of one of the player's characters, as a WebSocket: lines in, the lines said on its map out.");
-        group.MapPut("/{id:guid}/spec", ChooseSpec).WithSummary("Takes a path of the character's class, from level 30, its quest handed back and out of a fight: the first is free; then 30 × the level in Éclats, in a village, its ranks and deck following.");
+        group.MapPut("/{id:guid}/spec", ChooseSpec).WithSummary("Takes a path of the character's class, from level 30, its quest handed back and out of a fight: with its lineage from level 50: the first of each is free; another lineage 10 × the level in Éclats, another branch 30 × the level, in a village, its ranks and deck following.");
         group.MapPut("/{id:guid}/points", SavePoints).WithSummary("Spends a character's characteristic and spell points, within what its level gives.");
     }
 
@@ -770,23 +770,30 @@ public static class CharacterEndpoints
         static ValidationProblem Refused(string why) => TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["spec"] = [why] });
         if (choice?.Spec is not string spec)
             return Refused("A path to take.");
+        string? fork = choice.Fork;
+        // The same branch keeps its lineage when none is named.
         if (spec == character.Spec)
+            fork ??= character.Fork;
+        if (spec == character.Spec && fork == character.Fork)
             return TypedResults.Ok(Summary(character));
-        if ((character.Hero with { Spec = spec }).Problem(GameData.Embedded) is string problem)
+        if ((character.Hero with { Spec = spec, Fork = fork }).Problem(GameData.Embedded) is string problem)
             return Refused(problem);
+        // Another branch at 50 or more names its lineage too: a hero who pays never has a hole (§v4.5).
+        if (character.Spec is not null && spec != character.Spec && character.Level >= Specs.Forks && fork is null)
+            return Refused("Changing branch at this level names a lineage too.");
         if (!character.QuestList.Contains(Specs.Quest))
             return Refused("The quest of the paths opens the choice.");
         if (character.InFight)
             return Refused("A path is taken out of a fight.");
-        bool hadOne = character.Spec is not null;
-        if (hadOne && !Shop.InVillage(character.Town))
+        long cost = Specs.ChangeCost(character.Hero, spec, fork);
+        if (cost > 0 && !Shop.InVillage(character.Town))
             return Refused("A path is changed in a village.");
-        long cost = Specs.ChangeCost(character.Level, hadOne);
         if (cost > character.Shards)
             return Refused($"Changing path costs {cost} Éclats.");
-        Hero moved = Specs.Transferred(character.Hero, spec, GameData.Embedded);
+        Hero moved = Specs.Transferred(character.Hero, spec, fork, GameData.Embedded);
         character.Shards -= cost;
         character.Spec = spec;
+        character.Fork = fork;
         character.Ranks = RanksText(moved.Ranks ?? new Dictionary<string, int>());
         character.Deck = DeckText(moved.Deck);
         await db.SaveChangesAsync(cancel);
@@ -800,7 +807,7 @@ public static class CharacterEndpoints
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
             c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList, Bestiary: c.Bestiary.Length == 0 ? null : c.BestiaryList,
-            Compounds: c.CompoundList.Length == 0 ? null : c.CompoundList, Spec: c.Spec);
+            Compounds: c.CompoundList.Length == 0 ? null : c.CompoundList, Spec: c.Spec, Fork: c.Fork);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

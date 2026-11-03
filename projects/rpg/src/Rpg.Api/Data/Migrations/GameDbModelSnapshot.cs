@@ -184,6 +184,9 @@ namespace Rpg.Api.Data.Migrations
                     b.Property<int>("Fire")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Fork")
+                        .HasColumnType("text");
+
                     b.Property<int>("Hair")
                         .HasColumnType("integer");
 

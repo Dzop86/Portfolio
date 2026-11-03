@@ -54,17 +54,17 @@ public class SpecTests
         await using (api)
         {
             Assert.Null((await server.Characters(Cancel)).Single().Spec);
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", cancel: Cancel)));
             await DoTheQuest(api, server, c.Id);
             long shards = (await server.Characters(Cancel)).Single().Shards;
             Change(api, c.Id, x => x.Town = "fields-0-0");
-            CharacterSummary chosen = await server.ChooseSpec(c.Id, "archmage", Cancel);
+            CharacterSummary chosen = await server.ChooseSpec(c.Id, "archmage", cancel: Cancel);
             Assert.Equal("archmage", chosen.Spec);
             Assert.Equal(shards, chosen.Shards);
             Assert.Equal("archmage", chosen.Hero.Spec);
             Assert.Equal("archmage", (await server.Characters(Cancel)).Single().Spec);
             // The same again changes nothing, and costs nothing.
-            Assert.Equal(shards, (await server.ChooseSpec(c.Id, "archmage", Cancel)).Shards);
+            Assert.Equal(shards, (await server.ChooseSpec(c.Id, "archmage", cancel: Cancel)).Shards);
         }
     }
 
@@ -75,11 +75,11 @@ public class SpecTests
         await using (api)
         {
             Change(api, c.Id, x => x.Quests = Specs.Quest);
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", cancel: Cancel)));
             await Level(api, account, 30);
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "palisade", Cancel)));
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "nowhere", Cancel)));
-            Assert.Equal("archmage", (await server.ChooseSpec(c.Id, "archmage", Cancel)).Spec);
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "palisade", cancel: Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "nowhere", cancel: Cancel)));
+            Assert.Equal("archmage", (await server.ChooseSpec(c.Id, "archmage", cancel: Cancel)).Spec);
         }
     }
 
@@ -90,22 +90,61 @@ public class SpecTests
         await using (api)
         {
             Change(api, c.Id, x => (x.Quests, x.Shards, x.Town) = (Specs.Quest, 2000, "clairval"));
-            await server.ChooseSpec(c.Id, "archmage", Cancel);
+            await server.ChooseSpec(c.Id, "archmage", cancel: Cancel);
             // Out of a village.
             Change(api, c.Id, x => x.Town = "fields-0-0");
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", "plague", Cancel)));
             Change(api, c.Id, x => x.Town = "clairval");
             // In a fight.
             Change(api, c.Id, x => x.InFight = true);
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", "plague", Cancel)));
             Change(api, c.Id, x => x.InFight = false);
             // Too poor: 30 × 50 = 1500.
             Change(api, c.Id, x => x.Shards = 1499);
-            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", Cancel)));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", "plague", Cancel)));
             Assert.Equal("archmage", (await server.Characters(Cancel)).Single().Spec);
             Change(api, c.Id, x => x.Shards = 2000);
-            CharacterSummary changed = await server.ChooseSpec(c.Id, "sorcerer", Cancel);
-            Assert.Equal(("sorcerer", 500L), (changed.Spec, changed.Shards));
+            CharacterSummary changed = await server.ChooseSpec(c.Id, "sorcerer", "plague", Cancel);
+            Assert.Equal(("sorcerer", "plague", 500L), (changed.Spec, changed.Fork, changed.Shards));
+        }
+    }
+
+    [Fact]
+    public async Task ALineage_IsFreeTheFirstTime_ThenPaid_AndABranchChange_NamesOne()
+    {
+        (ApiFactory api, GameServer server, CharacterSummary c, _) = await Mage("sp6", 60);
+        await using (api)
+        {
+            Change(api, c.Id, x => (x.Quests, x.Shards, x.Town) = (Specs.Quest, 3000, "fields-0-0"));
+            // A hero of 60 takes both in one gesture, out of a village, for free.
+            CharacterSummary chosen = await server.ChooseSpec(c.Id, "archmage", "patient", Cancel);
+            Assert.Equal(("archmage", "patient", 3000L), (chosen.Spec, chosen.Fork, chosen.Shards));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", "plague", Cancel)));
+            // The other lineage: in a village, 10 × the level.
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", "high-archmage", Cancel)));
+            Change(api, c.Id, x => x.Town = "clairval");
+            CharacterSummary other = await server.ChooseSpec(c.Id, "archmage", "high-archmage", Cancel);
+            Assert.Equal(("high-archmage", 2400L), (other.Fork, other.Shards));
+            // Naming none keeps it, and costs nothing.
+            Assert.Equal(("high-archmage", 2400L), ((await server.ChooseSpec(c.Id, "archmage", cancel: Cancel)).Fork, (await server.Characters(Cancel)).Single().Shards));
+            // Another branch at 50 or more names its lineage, at 30 × the level.
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "sorcerer", cancel: Cancel)));
+            CharacterSummary branch = await server.ChooseSpec(c.Id, "sorcerer", "hexer", Cancel);
+            Assert.Equal(("sorcerer", "hexer", 600L), (branch.Spec, branch.Fork, branch.Shards));
+        }
+    }
+
+    [Fact]
+    public async Task ALineage_WaitsForFifty_AndAHeroWithABranch_ChoosesItLater()
+    {
+        (ApiFactory api, GameServer server, CharacterSummary c, string account) = await Mage("sp7", 49);
+        await using (api)
+        {
+            Change(api, c.Id, x => (x.Quests, x.Town) = (Specs.Quest, "fields-0-0"));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", "patient", Cancel)));
+            Assert.Null((await server.ChooseSpec(c.Id, "archmage", cancel: Cancel)).Fork);
+            await Level(api, account, 50);
+            Assert.Equal("patient", (await server.ChooseSpec(c.Id, "archmage", "patient", Cancel)).Fork);
         }
     }
 
@@ -116,7 +155,7 @@ public class SpecTests
         await using (api)
         {
             Change(api, c.Id, x => x.Quests = Specs.Quest);
-            CharacterSummary chosen = await server.ChooseSpec(c.Id, "archmage", Cancel);
+            CharacterSummary chosen = await server.ChooseSpec(c.Id, "archmage", cancel: Cancel);
             FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
             var other = new Fight(GameData.Embedded, ticket.Scenario, ticket.Seed, chosen.Hero with { Spec = "sorcerer" }, heroHp: ticket.HeroHp);
             Ai.PlayOut(other);
@@ -133,7 +172,8 @@ public class SpecTests
     {
         Assert.Null(Admin.Parse(["admin", "x", "--spec", "nowhere"]).Order);
         Assert.Null(Admin.Parse(["admin", "x", "--spec"]).Order);
-        Assert.Equal(["archmage", "palisade"], Admin.Parse(["admin", "x", "--spec", "archmage,palisade"]).Order!.Specs!);
+        Assert.Equal(["archmage:patient", "palisade"], Admin.Parse(["admin", "x", "--spec", "archmage:patient,palisade"]).Order!.Specs!);
+        Assert.Null(Admin.Parse(["admin", "x", "--spec", "archmage:plague"]).Order);
         Assert.Empty(Admin.Parse(["admin", "x", "--spec", "none"]).Order!.Specs!);
 
         await using var api = new ApiFactory();
@@ -148,7 +188,8 @@ public class SpecTests
             using IServiceScope scope = api.Services.CreateScope();
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, .. args]).Order!, Cancel);
         }
-        await Run("--spec", "archmage,palisade");
+        await Run("--spec", "archmage:patient,palisade");
+        Assert.Equal("patient", (await server.Characters(Cancel)).Single(x => x.Name == "Plop").Fork);
         Dictionary<string, string?> specs = (await server.Characters(Cancel)).ToDictionary(x => x.Name, x => x.Spec);
         Assert.Equal(("archmage", "palisade", (string?)null), (specs["Plop"], specs["Pluf"], specs["Plif"]));
         Assert.All(await server.Characters(Cancel), x => Assert.Null(x.Hero.Problem(GameData.Embedded)));

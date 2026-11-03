@@ -61,6 +61,7 @@ public enum Tier
 [JsonDerivedType(typeof(RelieveRule), "relieve")]
 [JsonDerivedType(typeof(MarkRule), "mark")]
 [JsonDerivedType(typeof(CatalysisRule), "catalysis")]
+[JsonDerivedType(typeof(PatchRule), "patch")]
 [JsonDerivedType(typeof(LeapSightRule), "leap-sight")]
 [JsonDerivedType(typeof(GlyphTurnsRule), "glyph-turns")]
 [JsonDerivedType(typeof(LingerRule), "linger")]
@@ -201,6 +202,12 @@ public sealed record FirstCastRule(int First, int Others) : TalentRule;
 /// <param name="AtLeast">Only the spells reaching that far already (Long Sight: 4).</param>
 /// <param name="Sight">Only the spells that ask for a line of sight (sprint 186, the Sightline).</param>
 public sealed record RangeRule(int Change, int AtLeast = 0, bool Sight = false) : TalentRule;
+
+/// <summary>
+/// A path's (sprint 190, D95, brick C): what changes one spell, its twins too (by <see cref="Spell.RankKey"/>), the ranks following.
+/// </summary>
+public sealed record PatchRule(string Spell, int? Cooldown = null, int? ApCost = null, int? MaxRange = null, int? PerTurn = null, Area? Area = null, int DamagePercent = 100,
+    IReadOnlyList<SpellEffect>? AddEffects = null) : TalentRule;
 
 /// <summary>A path's (sprint 186, the Trail): its spells that leap ask for no line of sight.</summary>
 public sealed record LeapSightRule : TalentRule;
@@ -471,12 +478,11 @@ public static class Talents
     /// the range (never under 1 nor under the minimum, for a spell reaching farther than 1), its cap, the line of sight,
     /// the area, the push, the cooldown, the cost, the casts per turn.
     /// </remarks>
-    /// <param name="extra">Rules that are not a talent's: a path's (sprint 186).</param>
-    public static Spell Compile(Spell spell, IReadOnlyList<TalentSpec> talents, IEnumerable<TalentRule>? extra = null)
+    public static Spell Compile(Spell spell, IReadOnlyList<TalentSpec> talents)
     {
         ArgumentNullException.ThrowIfNull(spell);
         ArgumentNullException.ThrowIfNull(talents);
-        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules), .. extra ?? []];
+        TalentRule[] rules = [.. talents.SelectMany(t => t.Rules)];
         if (rules.Length == 0)
             return spell;
         Spell s = spell;
@@ -519,6 +525,20 @@ public static class Talents
         int extraTurns = rules.OfType<GlyphTurnsRule>().Sum(r => r.Extra);
         if (extraTurns > 0 && s.AllEffects.Any(e => e is GlyphEffect))
             s = s with { Effects = [.. s.AllEffects.Select(e => e is GlyphEffect g ? g with { Turns = g.Turns + extraTurns } : e)] };
+        foreach (PatchRule p in rules.OfType<PatchRule>().Where(p => p.Spell == spell.RankKey))
+        {
+            s = s with
+            {
+                Cooldown = p.Cooldown ?? s.Cooldown,
+                ApCost = p.ApCost ?? s.ApCost,
+                MaxRange = p.MaxRange ?? s.MaxRange,
+                PerTurn = p.PerTurn ?? s.PerTurn,
+                Area = p.Area ?? s.Area,
+                DamageMin = s.DamageMin * p.DamagePercent / 100,
+                DamageMax = s.DamageMax * p.DamagePercent / 100,
+                Effects = p.AddEffects is null ? s.Effects : [.. s.AllEffects, .. p.AddEffects],
+            };
+        }
         return s;
     }
 

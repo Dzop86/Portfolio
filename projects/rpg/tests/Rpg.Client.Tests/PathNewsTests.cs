@@ -8,12 +8,12 @@ public class PathNewsTests
     private static readonly GameData Data = GameData.Embedded;
 
     [Theory]
-    [InlineData("fr", "Te voici : Haut archimage")]
-    [InlineData("en", "You are now: High Archmage")]
+    [InlineData("fr", "Te voici : Astromage")]
+    [InlineData("en", "You are now: Astromage")]
     public void ATier_SaysItsWord_AndTheEvolution_OfWhoHasAPath(string lang, string evolution)
     {
         var texts = new Texts(lang);
-        var mage = new Hero("Ronce", "female-c", "mage", Level: 50, Spec: "archmage");
+        var mage = new Hero("Ronce", "female-c", "mage", Level: 50, Spec: "archmage", Fork: "high-archmage");
         string news = PathNews.Of(mage, 49, Data, texts)!;
         Assert.StartsWith(texts["path.tier.50"], news, StringComparison.Ordinal);
         Assert.Contains(evolution, news, StringComparison.Ordinal);
@@ -28,13 +28,13 @@ public class PathNewsTests
         var texts = new Texts("fr");
         for (ulong seed = 1; ; seed++)
         {
-            var fight = new Fight(Data, "training", seed, new Hero("Ronce", "female-c", "mage", Level: 49, Spec: "archmage"));
+            var fight = new Fight(Data, "training", seed, new Hero("Ronce", "female-c", "mage", Level: 49, Spec: "archmage", Fork: null));
             Ai.PlayOut(fight);
             if (fight.WinningTeam != 0)
                 continue;
             var summary = new FightSummary(fight, 0, new FightResult(10, Progression.XpToReach(50), 50), texts);
-            Assert.Contains("Haut archimage", summary.Notes, StringComparison.Ordinal);
-            Assert.DoesNotContain("Haut archimage", new FightSummary(fight, 0, new FightResult(10, Progression.XpToReach(49), 49), texts).Notes, StringComparison.Ordinal);
+            Assert.Contains(texts["path.tier.50"], summary.Notes, StringComparison.Ordinal);
+            Assert.DoesNotContain(texts["path.tier.50"], new FightSummary(fight, 0, new FightResult(10, Progression.XpToReach(49), 49), texts).Notes, StringComparison.Ordinal);
             return;
         }
     }

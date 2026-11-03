@@ -303,6 +303,9 @@ public enum Trigger
 /// <param name="Melee">Hit only: the attacker stands next to the bearer.</param>
 /// <param name="Percent">LowHp only: 1 to 99.</param>
 /// <param name="Range">AllyDies only: the ally died within that many steps (0: anywhere).</param>
+/// <param name="PerFight">Sprint 190 (D95, brick D): it fires at most that many times a fight (0: no limit).</param>
+/// <param name="OncePerTurn">It fires at most once a turn of the bearer's.</param>
+/// <param name="Still">TurnStart only: only if the bearer did not walk on its turn before.</param>
 /// <param name="Clear">TurnStart only (sprint 186): it fires only with no living fighter of the other side within that many steps (0: always).</param>
 public sealed record PassiveSpec(
     string Id,
@@ -317,7 +320,10 @@ public sealed record PassiveSpec(
     int DamageMin = 0,
     int DamageMax = 0,
     Element Element = Element.Neutral,
-    int Clear = 0)
+    int Clear = 0,
+    int PerFight = 0,
+    bool OncePerTurn = false,
+    bool Still = false)
 {
     public IReadOnlyList<SpellEffect> AllEffects => Effects ?? [];
 }

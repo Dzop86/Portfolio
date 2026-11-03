@@ -108,6 +108,9 @@ public sealed class Character
     /// <summary>The path it took (sprint 186, D93), or null while it has not chosen: it stays of its class, its first choice free.</summary>
     public string? Spec { get; set; }
 
+    /// <summary>The lineage of its branch (sprint 190, D95), or null while it has not chosen: it keeps its branch's evolution.</summary>
+    public string? Fork { get; set; }
+
     /// <summary>The experience of each trade (sprint 81), as "job:xp" separated by commas.</summary>
     public string Jobs { get; set; } = "";
 
@@ -256,7 +259,7 @@ public sealed class Character
 
     /// <summary>The character as the rules see it.</summary>
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList, TalentList.Length == 0 ? null : TalentList,
-        CompoundList.Length == 0 ? null : CompoundList, Spec);
+        CompoundList.Length == 0 ? null : CompoundList, Spec, Fork);
 }
 
 /// <summary>

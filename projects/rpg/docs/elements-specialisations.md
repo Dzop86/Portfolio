@@ -10,6 +10,207 @@
 
 ---
 
+## v4, l'arbre qui se divise *(game designer, 3 novembre 2026, D95 : validée par Charles le 3 novembre, Q11 a, Q12 a, Q13 a)*
+
+> **La demande de Charles** : « La page talent dans caractéristique doit être rename Spécialisation (avec l'arbre de gauche à droite et les spécialisations de chaque classe (un mage peut devenir 3 trucs différents, puis chaque truc peut devenir 2 trucs...) ». À 30, 3 choix ; à 50, 2 choix pour chacun ; à 100, une dernière évolution de ce qu'on a pris, sans nouveau choix. Soit 15 évolutions par classe, 45 en tout.
+>
+> **Ce que cette section remplace** : la colonne 50 et la colonne 100 du §v3.4, et le changement de voie. Elle garde les 9 branches à 30, sauf les retouches du §v4.2. Les noms sont des noms de travail. Un second choix s'appelle ici une **lignée**.
+>
+> **Lu dans le code, et qui change le chiffrage :** `data/specs.json` ne contient que des titres et des descriptions, `data/passives.json` aucun passif de héros et `data/spells.json` aucun sort de voie. Le moteur de S186 existe, mais **aucune des 9 branches n'est encore jouable** : les 45 évolutions sont à écrire, celles de 30 comprises.
+
+### v4.1 La règle de construction
+
+- **Ce que dit chaque palier.** À 30 : quel métier je fais. À 50 : comment je le fais, donc ce que je regarde à chaque tour. À 100 : ma signature, un changement qui se voit, sans nouveau choix.
+- **Deux lignées d'une même branche diffèrent par une décision de tour**, jamais par un chiffre. Le test : un joueur doit pouvoir dire la différence en une phrase.
+- **Une feuille a toujours 3 sorts** : 2 à 30, 1 à 50, 0 à 100, et le niveau 100 modifie des sorts existants. Ce nombre fixe garde `Specs.Transferred` juste (transfert case par case), un paquet de 12 places vivable (3 places au plus pour la voie, 4 pour l'Affût avec son Faucon) et un livre à 27 sorts (D94 : 24 + 3).
+- **Une voie ne nomme aucun élément.** Ses sorts de dégâts sont `Adaptive` : ils frappent dans l'élément le plus fort du héros, à × 0,8 sur un composé (`Specs.Adapted`).
+- **Barème.** Niveau 50 : 3,9 dégâts par PA (`BUDGET × (1 + GROWTH × 0,5)`), avec les facteurs de `spells_gen.py` (zone, poussée, retrait, portée de 6 ou plus, contact, relance). Les dégâts indiqués sont ceux du rang 1 avant caractéristiques. Les boucliers et les poisons sont plats, comme tous ceux du jeu.
+
+### v4.2 Les problèmes trouvés dans le §v3.4
+
+Les branches et leur identité ne changent pas. Ces retouches corrigent ce qui ne marcherait pas tel qu'écrit.
+
+| # | Problème (vu dans le code) | Correction proposée |
+|---|---|---|
+| 1 | **Affût, passif « le Faucon reste 2 tours de plus »** : une invocation n'a pas de durée (`SummonSpec`), elle reste jusqu'à sa mort. Le passif ne ferait rien | Le Faucon de l'Affût a **12 % des PV du héros** et frappe avec ses caractéristiques (brique E) |
+| 2 | **Les invocations ne suivent pas le niveau** : `Summon` crée un combattant sans caractéristiques, le Faucon garde 30 PV et Coup de bec 5 à 8 dégâts, quand une Sentinelle de 50 a plus de 300 PV. « Faucon +30 % de PV » vaudrait 9 PV | Brique E pour le Faucon et les ombres. Le Faucon de classe, sans voie, ne bouge pas |
+| 3 | **Brèche, Fauchage** : la Garde a déjà ce sort, même nom, 4 PA, contact, croix de 1, depuis le niveau 10 (`cleave`) | Remplacé par **Trouée** (Bélier) |
+| 4 | **Mire, Visée** : la classe a déjà Concentration (`focus`), 2 PA, relance 3, +30 % pendant 2 tours, qui l'écrase. C'est une fausse décision | **Visée** : 2 PA, PO 1 à 9, sans dégâts, la cible perd 15 % de résistance pendant 2 tours, relance 3. Elle sert aussi les alliés. Moteur suffisant |
+| 5 | **Étau et Sorcier × composés** : « retraits +1 tour » et « états +1 tour » s'appliqueraient aussi aux signatures de la Glace (−1 PA sur chaque sort) et de la Boue, soit un verrouillage quasi permanent | La règle ne prolonge que les sorts qui ne sont pas des jumeaux (`Twin` vide) : sorts neutres et sorts de voie (brique O) |
+| 6 | **Sorcier, Contagion** : effet nouveau (copier des états), et le nom est déjà pris par les passifs `contagion-*` des monstres | Remplacée par **Miasme**, une zone de poison, sans moteur |
+| 7 | **Le « prochain sort »** (Recueillement, le +10 % de la Sente) demande un état consommé | **Pour le tour en cours** : statut `Damage` d'un tour, moteur suffisant |
+| 8 | **Affût, Piqué** : frapper « à 4 cases du Faucon » change la vérification de portée, l'IA et le ciblage du client | PO 1 à 7, sans vue, **demande un Faucon en jeu** (brique F) |
+| 9 | **`AREA` n'a pas de ligne de 4 cases** : le Rayon ferait planter `budget()` | Ajouter `("Line", 3): 0.7` à `spells_gen.py` et à `Talents.AreaFactor` |
+| 10 | **Charge** : un saut demande une case libre et les dégâts partent avant le saut. L'identifiant `charge` est déjà un sort de monstre | On vise la case libre où l'on atterrit, dégâts en croix de 1 autour. Moteur suffisant. Identifiants préfixés `path-` |
+| 11 | **Palissade, « +1 tous les 10 niveaux »** : un bouclier de passif est un chiffre fixe. Et `Allies` compte le porteur, dont la case est dans la zone : il se protège lui aussi | Trois passifs liés par `Replaces` : **9** à 30, **12** à 50, **17** à 100. On garde le bouclier sur soi : sans lui, la branche ne fait rien en solo |
+| 12 | **`Fight.InArea` n'exclut pas le lanceur** : d'après le code, un sort de dégâts en zone autour de soi le toucherait. Pas testé en jeu, et c'est sans doute déjà le cas de Fauchage à contact | Aucun sort de voie ci-dessous ne frappe autour du lanceur (Tenaille ne fait pas de dégâts). À vérifier à part |
+
+### v4.3 Les briques de moteur
+
+« Moteur » renvoie à ces lettres dans les tableaux ; **OK** veut dire des données seulement, une fois le socle A à D posé. Estimations en points, à ± 20 %.
+
+| Brique | Ce qu'elle ajoute | Pts | Sprint |
+|---|---|---|---|
+| **A** | **L'arbre en données** : `Specialisation.Forks`, `Hero.Fork`, `SpecProblem`, `TiersOf`, `AllSpells`, `Transferred`, validation (3 branches, 2 lignées, 3 sorts par feuille), colonne et migration EF, `PUT …/spec`, prix, `admin --spec branche:lignée` | 2,5 | S190 |
+| **B** | **Les règles vivantes sur une voie** : une fausse `TalentSpec` ajoutée à `TalentsOf`, et `Data.cs` lève son refus. Cela ouvre sans code `StillRule`, `ReserveRule`, `FirstCastRule`, `DanceRule`, `EchoRule`, `DistanceRule`, `PointsRule`, `GlyphTargetRule`, sous le plafond de +35 % | 0,25 | S190 |
+| **C** | **`PatchRule(sort, …)`** : règle compilée qui change la relance, le coût, la portée, la zone, les effets ou les dégâts d'un sort, jumeaux compris (`RankKey`). Elle porte presque toutes les évolutions de 100, et les rangs suivent | 0,5 | S190 |
+| **D** | **Passifs** : `PerFight` (1 ou 2 par combat), `OncePerTurn`, et « n'a pas marché à son tour précédent » | 0,5 | S190 |
+| **E** | **Invocation indexée** : `SummonSpec` reçoit une part des caractéristiques de l'invocateur | 0,5 | S191 |
+| **F** | **Sort lié à une invocation** : il en demande une en jeu, ou la vise elle | 0,25 | S191 |
+| **G** | `MaxGlyphs` : plusieurs glyphes du même sort (`Fight.Lay` remplace l'ancienne) | 0,25 | S191 |
+| **H** | `GlyphTargetRule` ne compte pas les glyphes de signature (sinon la Cendre donne le bonus en permanence) | 0,25 | S191 |
+| **I** | **Feinte** : un état consommé au prochain coup au contact | 0,25 | S191 |
+| **J** | `ShieldRule` : boucliers sur alliés +25 % | 0,25 | S192 |
+| **K** | **Indéplaçable** : un état lu par `Shove` | 0,25 | S192 |
+| **L** | **Sauvetage** : une fois par combat, un allié à 2 cases reste à 1 PV (dans `Hurt`) | 0,5 | S192 |
+| **M** | **Rétorsion** : les dégâts d'un sort montent du bouclier du lanceur, qu'il consomme | 0,5 | S192 |
+| **N** | `PullRule` : attirances +N cases | 0,25 | S192 |
+| **O** | `StatusTurnsRule` : retraits ou états +N tours, sauf jumeaux | 0,25 | S192 |
+| **P** | `TargetStateRule` : +x % sur une cible à 0 PM ou sous N états | 0,25 | S192 |
+| **Q** | **Poisons cumulables** : `SetStatus` renouvelle aujourd'hui au lieu de cumuler | 0,5 | S193 |
+| **R** | **Prix du sang** : un sort ôte N % de ses PV à une de ses invocations (Lien funeste, Éclat d'ombre) | 0,5 | S193 |
+| **S** | **IA** : `Ai.Value` et une politique de réserve, pour que la mesure joue ces lignées (§v4.6) | 0,5 | S193 |
+
+**Les branches à 30, ce qu'il leur faut** : Archimage C, D ; Sorcier O, Q ; Nécromancien D, E, F, R ; Palissade J, K ; Brèche N ; Étau O ; Mire OK ; Affût E, F ; Sente OK.
+
+### v4.4 L'arbre, classe par classe
+
+Notation : PA, PO, relance ; dégâts au barème du niveau 50, rang 1. **(v3.4)** signale ce qui vient du §v3.4. Le titre de 30 ne change pas.
+
+**Mage**
+
+| Branche | Lignée `id` (titre 50 → 100) | 50 | 100 | Identité de jeu | Moteur |
+|---|---|---|---|---|---|
+| **Archimage** | **Haut archimage** `high-archmage` (Haut archimage → Archimage souverain) | **Rayon** (5 PA, PO 1 à 5 en ligne, ligne de 4 cases, sans vue, relance 2, 17 à 24) ; le passif de +1 PA tient même après un pas **(v3.4)** | +3 PA au premier tour du combat ; Comète laisse au sol une glyphe de 1 tour, −1 PM **(v3.4, simplifié)** | Je choisis ma place et je tire le plus gros sort possible chaque tour. | OK |
+| | **Thaumaturge** `patient` (Thaumaturge → Thaumaturge ancien) | **Déferlante** (10 PA, PO 3 à 7, cercle de 2, sans vue, relance 2, 27 à 36) ; garde jusqu'à **3 PA** d'un tour au suivant (`ReserveRule`) | garde jusqu'à **5 PA** ; le premier sort de dégâts du tour fait +15 % (`FirstCastRule`) | Je renonce à une partie de ce tour pour lancer au suivant un sort que personne d'autre ne peut payer. | OK ; S pour la mesure |
+| **Sorcier** | **Fléau** `plague` (Fléau → Grand fléau) | **Miasme** (4 PA, PO 1 à 5, croix de 1, relance 2, 10 à 13 et poison 5 pendant 3 tours) ; **3 poisons** cumulables **(v3.4)** | Fiel frappe en croix de 1 (dégâts × 0,8) ; Miasme se relance en 1 tour ; **4 poisons** | Je contamine tout le terrain, puis je tiens jusqu'à ce que le temps les tue. | Q |
+| | **Envoûteur** `hexer` (Envoûteur → Grand envoûteur) | **Flétrissure** (3 PA, PO 1 à 6, sans dégâts, −15 % de résistance 2 tours, relance 1) ; Malédiction se relance en 1 tour | un ennemi sous 2 états ou plus reçoit **+15 %** de ses coups ; Malédiction en croix de 1 **(v3.4)** | Je ne frappe presque pas : je désigne qui tombe, et tout le groupe en profite. | P |
+| **Nécromancien** | **Lieur d'ombres** `binder` (Lieur d'ombres → Seigneur des tombes) | **Marche funèbre** (3 PA, cercle de 2 autour de soi, alliés +20 % de dégâts et +1 PM 1 tour, relance 3) ; ombres **+25 % de PV** **(v3.4)** | **3 invocations** ; le passif joue **deux fois** par combat **(v3.4)** | Je tiens le terrain par le nombre : mes ombres bloquent les couloirs et je les fais avancer. | E, D |
+| | **Moissonneur** `reaper` (Moissonneur → Moissonneur ancien) | **Éclat d'ombre** **(v3.4)** (3 PA, PO 1 à 6, vise une de ses ombres, qui meurt, croix de 1, relance 1, 23 à 31 : budget compté sur 7 PA, car l'ombre en a coûté 4) ; Lever une ombre se relance en 2 tours | toute ombre qui meurt explose à 2 cases, **alliés compris** (30 à 40, neutre, passif `Death`) ; Éclat d'ombre sans relance, une fois par tour | Mes ombres sont des bombes : je les pose où l'ennemi va passer, et je choisis quand elles sautent. | E, F, R |
+
+**Garde**
+
+| Branche | Lignée `id` (titre 50 → 100) | 50 | 100 | Identité de jeu | Moteur |
+|---|---|---|---|---|---|
+| **Palissade** | **Rempart** `rampart` (Rempart → Muraille) | **Mur de boucliers** (4 PA, croix de 1 autour de soi, bouclier de 30 aux alliés, 37 avec la règle, relance 3) ; le passif porte à **2 cases** **(v3.4)** | une fois par combat, un allié à 2 cases qui tomberait reste à **1 PV** ; Interposition se relance en 1 tour ; passif à 17 **(v3.4)** | Je me place pour les autres : c'est ma position qui décide qui survit. | L |
+| | **Bastion d'épines** `bastion` (Bastion d'épines → Citadelle d'épines) | **Rétorsion** (3 PA, contact, relance 1, 14 à 19, plus tout son bouclier, qu'il consomme, au plus 38 en tout) ; Ancrage donne aussi un bouclier de 15 | Rétorsion frappe aussi la case derrière la cible (dégâts × 0,8) ; qui le frappe au contact est empoisonné (8 pendant 2 tours, neutre) | J'encaisse pour rendre : plus j'ai de bouclier, plus mon coup fait mal, et je décide quand le dépenser. | M, J |
+| **Brèche** | **Bélier** `ram` (Bélier → Brise-rangs) | **Trouée** (4 PA, contact, ligne de 3 cases, recul de 1, relance 1, 12 à 17) ; ennemi achevé : +1 PM et +1 PA **(v3.4)** | ennemi achevé : +1 PM et **+2 PA** ; Charge se relance en 1 tour **(v3.4)** | J'entre dans la ligne, je finis le plus faible et je repars sur le suivant avec ce que ça me rend. | OK |
+| | **Harponneur** `harpooner` (Harponneur → Grand harponneur) | **Harpon** (3 PA, PO 2 à 6 en ligne, attire de 3, 4 avec la règle, relance 1, 10 à 13) ; +15 % sur une cible au contact (`DistanceRule`) | ses reculs contre un obstacle font **15 par case** (`PushRule` ; la v3.4 disait 6 par case, sur une attirance, ce que le moteur ne sait pas faire) ; Harpon sans relance, une fois par tour | Je reste en place et je choisis qui vient : j'arrache la bonne cible et je l'écrase contre un mur. | N |
+| **Étau** | **Geôlier** `jailer` (Geôlier → Geôlier souverain) | **Écrasement** (5 PA, contact, 18 à 25, +30 % sur un ennemi à 0 PM) ; le passif retire aussi 1 PA, une fois par tour **(v3.4)** | Écrasement à **+50 %** ; Verrou se relance en 2 tours **(v3.4)** | Je choisis une cible, surtout la plus dangereuse, et elle ne joue plus. | P, D |
+| | **Tenaille** `pincer` (Tenaille → Étau vivant) | **Tenaille** (3 PA, cercle de 1 autour de soi, sans dégâts, −2 PM, relance 2) ; Provocation porte à +2 PO | les ennemis à son contact perdent 1 PM au début de leur tour **(v3.4)** ; Tenaille se relance en 1 tour | Je vais au milieu de la meute et personne n'en sort : le groupe vise, je retiens. | OK |
+
+**Sentinelle**
+
+| Branche | Lignée `id` (titre 50 → 100) | 50 | 100 | Identité de jeu | Moteur |
+|---|---|---|---|---|---|
+| **Mire** | **Tireur d'élite** `marksman` (Tireur d'élite → Œil sûr) | **Coup au but** (6 PA, PO 5 à 10, une cible, relance 3, 31 à 42) ; les sorts de 6 PO ou plus portent à **+2 PO** **(v3.4)** | passif à **+25 %** sur 2 tours ; Tir visé touche aussi la case derrière la cible **(v3.4, sans la perte de 50 %)** | Je reste hors de portée et chaque tir compte : je retire une cible du combat avant qu'elle n'arrive. | OK |
+| | **Artilleur** `barrage` (Artilleur → Maître artilleur) | **Tir de barrage** (4 PA, PO 3 à 8, ligne de 3 cases, −1 PM, relance 2, 11 à 16) **(v3.4)** ; le passif demande 2 cases libres au lieu de 3 | Tir de barrage laisse une glyphe de −1 PM sur sa ligne pendant 1 tour, et se relance en 1 tour | Je ferme des couloirs : ce que je touche importe moins que là où l'ennemi ne peut plus passer. | OK |
+| **Affût** | **Fauconnier** `falconer` (Fauconnier → Maître fauconnier) | **Vol d'échange** (2 PA, PO 1 à 6, sans vue, échange de place avec le Faucon, relance 2) ; Faucon à **20 %** de ses PV | **deux Faucons** ; Piqué sans relance, une fois par tour | Mon Faucon est mon second corps : il harcèle, et il me sort de là en un geste. | E, F |
+| | **Trappeur** `trapper` (Trappeur → Maître piégeur) | **Appât** (2 PA, PO 1 à 4, glyphe de 2 tours, −1 PA à qui y commence son tour, relance 3) **(v3.4)** ; Mâchoires se relance en 1 tour | **deux Mâchoires** à la fois ; +15 % sur un ennemi dans une de ses glyphes **(v3.4, sans les 2 tours)** | Je prépare le terrain avant le combat, puis je pousse l'ennemi dedans. | G, H |
+| **Sente** | **Bondisseur** `leaper` (Bondisseur → Ombre légère) | **Feinte** (2 PA, sur soi, le prochain qui la frappe au contact perd 2 PM, relance 3) ; Bond sans relance, une fois par tour **(v3.4)** | passif à **+3 PM** ; une fois par combat, un coup au contact donne un bouclier de 40 ; Bond donne +10 % pour le tour **(v3.4, bouclier au lieu de l'esquive)** | J'entre au contact pour frapper et je ressors en PA : je dépense mes sauts. | I, D |
+| | **Coureur** `runner` (Coureur → Coureur des sentes) | **Tir en course** (3 PA, PO 2 à 5, +2 PM pour le tour, 8 à 11) ; +3 % par case marchée depuis le dernier sort, 15 % au plus (`DanceRule`) | +5 % par case, 25 % au plus ; ayant marché 3 cases, elle laisse un écho de son dernier sort, à 50 % au tour suivant (`EchoRule`) | Je ne m'arrête jamais : je dépense mes PM, et plus je cours entre deux tirs, plus ils font mal. | OK ; S pour la mesure |
+
+**Ce que coûte la liste en contenu** : 36 sorts (18 à 30, 18 à 50, pour 27 au §v3.4), une vingtaine de passifs, 5 invocations nouvelles (2 Faucons, 3 ombres), 36 titres, soit 72 noms de sorts et 72 titres FR et EN à relire par le scénariste, formes féminines comprises.
+
+### v4.5 Le changement, et le héros qui choisit tard
+
+**Les prix**
+
+| Geste | Prix | Où |
+|---|---|---|
+| Premier choix de branche | gratuit, à tout niveau (après la quête « Une route à soi ») | chez l'habitant des voies |
+| Premier choix de lignée | **gratuit**, à tout niveau, sans quête | sur la page, partout hors combat |
+| Autre lignée de la même branche | **10 × niveau** Éclats (500 à 50, 1 000 à 100) | dans un village, hors combat |
+| Autre branche | **30 × niveau** Éclats (1 500 à 50, 3 000 à 100), inchangé | dans un village, hors combat |
+
+**Pourquoi 10 × niveau.** Changer de lignée ne déplace qu'un sort et une règle : c'est le prix de `Talents.ChangeCost`, un ajustement et non un changement de personnage. Dans un jeu de groupe, on doit pouvoir passer de Rempart à Bastion pour un donjon sans y penser à deux fois.
+
+**Un changement de branche à 50 ou plus désigne aussi la lignée**, dans le même geste et pour un seul prix. Un héros qui paie n'a jamais de trou. `PUT …/spec` reçoit `{ spec, fork }`, et le serveur refuse une autre branche sans lignée à 50 ou plus.
+
+**Le transfert des rangs**, case par case sur les 3 sorts d'une feuille :
+- **Autre lignée** : seul le sort de 50 passe son rang à celui de l'autre lignée.
+- **Autre branche** : les 3 sorts passent le leur, comme aujourd'hui.
+- **Sous 50** : le sort de 50 n'a pas d'héritier, rien à transférer.
+- **Paquet** : suit de la même façon. Les évolutions de 100 ne déplacent rien, puisqu'elles modifient des sorts par `PatchRule`.
+
+**La migration** : un héros qui a déjà une branche garde `Spec`, `Fork` est vide, son choix de lignée est gratuit. Il ne perd rien, puisque aucun contenu de 50 n'existait. Aucun combat enregistré n'a de sort de voie, donc les rejeux ne bougent pas. **Plouf et Plop** se restaurent par `admin --spec branche:lignée`, à ajouter avant de les toucher.
+
+**Ce que voit un héros de 60**
+
+| Son état | La page Spécialisation | Ce qu'il a |
+|---|---|---|
+| **Sans branche, quête non faite** | les 3 branches et leurs 6 lignées lisibles, en « pas encore » ; une ligne : « Rends-toi à Quatre-Chemins » | classe de base |
+| **Sans branche, quête faite** | un clic sur une branche allume ses 2 lignées et grise le reste ; un clic sur une lignée ouvre **une seule** confirmation : tout ce qu'il reçoit d'un coup (I et II) et le prix des changements suivants | classe de base, puis I et II d'un coup, 3 sorts |
+| **Branche sans lignée** | la colonne 50 de sa branche clignote, un point sur l'onglet, un bandeau au passage de 50 ; pas de rappel à chaque connexion | I seule : attendre ne fait rien perdre d'autre |
+| **Branche et lignée** | sa ligne en bois vivant, la colonne 100 en « dans 40 niveaux » avec son texte ; le prix des deux changements en bas | I et II |
+
+Un héros de 100 qui choisit tard reçoit de même II et III d'un coup. **Le paquet** : si le joueur a composé le sien, le nouveau sort n'y entre pas tout seul (il n'y a pas de place à prendre sans lui demander). La confirmation le dit et ouvre le livre. Le paquet automatique le réserve déjà (`Specs.Reserved`).
+
+**La maquette** : 1 racine, 3 nœuds, 6, 6, sur 410 px de haut. Six lignes tiennent à 68 px, soit des nœuds de 56 px, au-dessus des 44 px exigés. La maquette de détail revient au graphiste.
+
+### v4.6 L'équilibre
+
+**Le principe : mesurer des gains appariés.** Les composés sans Terre sont déjà en tête (`mesures-arbre.md` v4), et ce dépassement reste à traiter à part. On compare donc chaque lignée au même héros sans voie, même composé, mêmes graines. La mesure reste valable quand les composés seront réglés.
+
+| # | Mesure | Où | Seuil |
+|---|---|---|---|
+| **M1** | Branche seule (I) | hordes de la Forêt à 35 et 45, 300 combats | ±8 points de la moyenne de la classe ; gain d'au plus +5 points à 45, car le plafond de T41 est déjà dépassé par les composés ; planchers T41 des petits groupes tenus |
+| **M2** | Lignée (I + II) | hordes de la Forêt à 50 et 60, 300 combats, relatif seulement (`mesures-arbre.md` v4 bis) | **8 points au plus entre les 2 lignées d'une branche** ; ±8 points de la moyenne des 6 lignées de la classe ; gain de **+3 à +15 points** (en dessous, elle ne sert à rien ; au-dessus, elle devient obligatoire) |
+| **M3** | Lignée × composé | les 18 lignées × 3 cas (aucun, meilleur et pire composé de la classe) à 60 | aucun couple à plus de **+20 points** de gain ; l'écart entre le meilleur et le pire composé ne s'élargit pas de plus de 5 points |
+| **M4** | Feuille complète (I + II + III) | familles de synthèse (`Templates`) calibrées pour qu'un héros sans voie de 100 gagne environ 50 % | gain d'au plus +25 points ; 10 points au plus entre 2 lignées. Indicatif : il n'y a pas de zone à ce niveau |
+| **M5** | Lignées de groupe : Rempart, Envoûteur, Tenaille | en duo | moins de 1,5 victoire sur 30 de plus qu'un duo dégâts et dégâts ; elles passent M1 et le plancher solo, sans le seuil de gain de M2 |
+| **M6** | Verrouillage : deux Étau sur un chef | duo, Verrou et Tenaille | l'ennemi perd tous ses PM moins d'un tour sur deux. Les chefs ne sont protégés que contre les réactions (`Fight.Imprint`), pas contre les sorts |
+
+**Le bruit.** À 300 combats, l'intervalle est de ±5,7 points autour de 50 % : 8 points d'écart sont à la limite du signal, d'où les mêmes graines. M2 et M3 font environ 32 000 combats, hors CI.
+
+**La limite de la mesure.** L'IA est gourmande, sur un seul lancer (`Ai.Value`) : elle dépense tous ses PA, et les monstres évitent les glyphes (`GlyphRisk`). Elle sous-estimera **Thaumaturge, Bastion, Moissonneur, Trappeur et Coureur**. La brique S corrige le plus gros (une politique de réserve, la valeur du bouclier). Si une de ces lignées reste basse, le résultat se lit « non concluant » et le playtest tranche.
+
+**Les leviers, écrits d'avance, dans cet ordre** : (1) le sort de 50 à −10 % de budget ; (2) le bonus de 100 baissé d'un cran ; (3) la règle de 50 retirée. On ne touche jamais aux composés depuis cette mesure : c'est un autre chantier.
+
+**Les combinaisons à surveiller en premier**
+- **Bélier** : +2 PA par ennemi achevé s'ajoutent tout de suite. Contre une horde affaiblie, le tour peut ne plus finir.
+- **Fléau en Glace ou en Foudre** : les zones de poison, plus l'Arc de la Foudre, qui saute sur les sorts adaptatifs.
+- **Trappeur en Cendre** : déjà 28 % à 60 pour la Sentinelle en Cendre (`mesures-arbre.md` v3 ter), d'où les briques H et O, et `GlyphTurnsRule` à faire passer lui aussi par « sauf jumeaux ».
+- **Moissonneur** : une ombre tuée par Éclat explose deux fois au niveau 100 ; c'est voulu, à mesurer.
+
+**Le playtest de Charles** (Plouf, puis un personnage de 50) : pour chaque classe, il doit pouvoir dire en une phrase ce qui sépare les 2 lignées d'une branche. S'il ne trouve pas, c'est une fausse décision, quel que soit le chiffre.
+
+### v4.7 Ce que ça coûte
+
+| Sprint | Contenu | Détail | Pts | D95 |
+|---|---|---|---|---|
+| **S190** | Socle | A, B, C, D (3,75) ; validation des données, identifiants, tests du socle (1) | 4,75 | 5 |
+| **S191** | Page et Sentinelle | page Spécialisation, arbre et états du §v4.5 (3,5) ; E, F, G, H, I (1,5) ; 12 sorts, passifs, icônes, textes, tests (2) | 7 | 7 |
+| **S192** | Garde | J à P (2,25) ; contenu (2) | 4,25 | 4 |
+| **S193** | Mage, mesure, playtest | Q, R, S (1,5) ; contenu (2) ; M1 à M6 (1) ; playtest (0,5) | 5 | 5 |
+| | **Total** | | **21** | **21** |
+
+**Les 21 points tiennent, sans marge**, pour tout construire et mesurer **une fois**. C'est possible parce que les retouches du §v4.2 et la brique C retirent des effets sur mesure, et que 7 lignées sur 18 ne demandent rien de plus que le socle. Ce sont des estimations, pas des mesures.
+
+**Ce que les 21 points ne couvrent pas** : une seconde passe d'équilibrage si M2 ou M3 dépasse (1 à 2 points, surtout pour les trois combinaisons ci-dessus). La relecture des noms ne bloque aucun sprint, comme pour les composés.
+
+**Si S192 déborde, on coupe dans cet ordre** : K (Ancrage garde sa résistance, sans « indéplaçable »), puis L (le Rempart garde sa position et son passif de 17, mais perd son moment fort, donc en dernier recours).
+
+**Les tests de chaque évolution** : xUnit par passif, règle et patch. La validation des données refuse une feuille qui n'a pas 3 sorts. `SpecsTests` passe aux 9 branches, 18 lignées et aux prix. L'intégration PostgreSQL couvre premier choix gratuit, lignée payée, branche payée avec lignée imposée à 50 ou plus, et combat refusé avec une autre lignée que celle du serveur.
+
+### v4.8 Les questions pour Charles
+
+**Q11. Les retouches à 30 (§v4.2).** Le Faucon sans durée, le Fauchage en double, Visée et Contagion remplacées.
+- a) **Oui, toutes** : les branches gardent leur identité **(Reco)**
+- b) Garder Contagion (la copie des états) : +0,5 point, S193 déborde
+- c) Une autre retouche : à préciser
+
+**Q12. Changer de lignée.**
+- a) **10 × niveau**, dans un village : un ajustement, facile pour un groupe **(Reco)**
+- b) 30 × niveau, comme une branche : le choix pèse plus, mais on essaie moins
+- c) Gratuit dans un village : on change à chaque donjon, mais le second choix ne pèse plus rien
+
+**Q13. Si la mesure de S193 dépasse les seuils.**
+- a) **On applique les leviers écrits, et si cela ne suffit pas, 1 à 2 points de plus au plan** (R2, R8, `PLAN.md` à mettre à jour alors) **(Reco)**
+- b) On livre avec l'écart noté dans `mesures-arbre.md` et on règle plus tard, comme pour les composés
+
+---
+
 ## v3, la décision de Charles : trois paliers *(1er novembre 2026, validée)*
 
 > **Ses mots** : « 30 on peut créer toutes les paires et on a la première évolution de classe. 50 on peut créer les trios (par exemple eau/feu/air) et une nouvelle évolution de classe. 100 ensuite la dernière évolution de classe. » ; « 50 c'est l'accès aux éléments qui en fusionnent 3 de base. » ; « Un mage peut rester mage en soi, mais niveau 30, il peut évoluer dans 3 branches différentes. »

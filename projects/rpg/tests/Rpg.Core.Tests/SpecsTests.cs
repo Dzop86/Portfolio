@@ -14,6 +14,8 @@ public class SpecsTests
     private static readonly Spell Volley = new("t-volley", Text, 4, 2, 6, true, false, 12, 16, 1, Level: 50, Adaptive: true);
     private static readonly Spell Near = new("o-near", Text, 3, 1, 2, true, false, 10, 14, 1, Level: 30);
     private static readonly Spell Step = new("o-step", Text, 2, 2, 4, true, false, 0, 0, 1, Effects: [new LeapEffect(Affects.Caster)], Level: 30);
+    private static readonly Spell Hush = new("t-hush", Text, 2, 1, 4, true, false, 5, 6, 1, Level: 50);
+    private static readonly Spell PlainShot = new("o-plain-shot", Text, 2, 1, 4, true, false, 5, 6, 1, Level: 50);
     private static readonly Spell Trap = new("o-trap", Text, 2, 1, 4, true, false, 0, 0, 1, Effects: [new GlyphEffect(Affects.Enemies, 2, 5, 6, Element.Earth)], Level: 50);
 
     private static readonly PassiveSpec Held = new("t-held", Text, Text, Trigger.TurnStart, [new StatusEffect(Affects.Caster, Stat.Damage, 15, 1)], Clear: 3);
@@ -23,46 +25,54 @@ public class SpecsTests
     private static SpecTier Tier(int level, string[]? spells = null, string[]? passives = null, string[]? replaces = null, TalentRule[]? rules = null) =>
         new(level, new LocalizedText($"titre {level}", $"title {level}"), Text, passives, replaces, rules, spells);
 
-    private static readonly Specialisation Aim = new("t-aim", "sentinel", Text,
-        [Tier(30, ["t-shot", "t-calm"], ["t-held"], rules: [new RangeRule(1, 2, Sight: true)]), Tier(50, ["t-volley"], ["t-run"]), Tier(100, passives: ["t-steady"], replaces: ["t-held"])],
+    private static readonly SpecFork Quiet = new("t-quiet", [Tier(50, passives: ["t-run"]), Tier(100)]);
+
+    private static readonly Specialisation Aim = new("t-aim", "sentinel", Text, Tier(30, ["t-shot", "t-calm"], ["t-held"], rules: [new RangeRule(1, 2, Sight: true)]),
+        [new SpecFork("t-loud", [Tier(50, ["t-volley"], ["t-run"]), Tier(100, passives: ["t-steady"], replaces: ["t-held"])]), new SpecFork("t-quiet", [Tier(50, ["t-hush"]), Tier(100)])],
         Keeps: ["hawk"]);
 
-    private static readonly Specialisation Other = new("o-other", "sentinel", Text,
-        [Tier(30, ["o-near", "o-step"], rules: [new LeapSightRule()]), Tier(50, ["o-trap"], rules: [new GlyphTurnsRule(1)]), Tier(100)]);
+    private static readonly Specialisation Other = new("o-other", "sentinel", Text, Tier(30, ["o-near", "o-step"], rules: [new LeapSightRule()]),
+        [new SpecFork("o-traps", [Tier(50, ["o-trap"], rules: [new GlyphTurnsRule(1)]), Tier(100)]), new SpecFork("o-plain", [Tier(50, ["o-plain-shot"]), Tier(100, rules: [new PatchRule("t-shot", DamagePercent: 50)])])]);
 
     private static GameData With(params Specialisation[] specs) =>
-        new([.. Real.Spells.Values, Shot, Calm, Volley, Near, Step, Trap], Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values,
+        new([.. Real.Spells.Values, Shot, Calm, Volley, Hush, PlainShot, Near, Step, Trap], Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values, Real.Quests.Values,
             Real.Items.Values, Real.Sets.Values, Real.Families.Values, Real.Dungeons.Values, Real.Jobs.Values, [.. Real.Passives.Values, Held, Steady, Run], Real.Talents.Values, Real.Reactions.Values, specs);
 
     private static readonly GameData Two = With(Aim, Other);
 
-    private static Hero Sentinel(string? spec, int level = 50) =>
-        new("Ondine", "female-a", "sentinel", Level: level, Stats: new Characteristics(Earth: 60, Fire: 40), Spec: spec);
+    private static Hero Sentinel(string? spec, int level = 50, string? fork = null) =>
+        new("Ondine", "female-a", "sentinel", Level: level, Stats: new Characteristics(Earth: 60, Fire: 40), Spec: spec,
+            Fork: fork ?? (level >= 50 ? spec switch { "t-aim" => "t-loud", "o-other" => "o-traps", _ => null } : null));
 
     private static Fighter Fought(Hero hero, GameData? data = null) => new Fight(data ?? Two, "training", 1, hero).HeroFighter!;
 
     [Fact]
-    public void TheData_HasThreeBranchesPerClass_WithTheirThreeEvolutions_InBothLanguages()
+    public void TheData_HasThreeBranchesPerClass_TwoLineagesEach_FifteenEvolutions_InBothLanguages()
     {
         Assert.Equal(9, Real.Specs.Count);
         Assert.All(Real.Classes, c => Assert.Equal(3, Real.Specs.Values.Count(s => s.Class == c.Id)));
         Assert.All(Real.Specs.Values, s =>
         {
-            Assert.Equal(Specs.TierLevels, s.Tiers.Select(t => t.Level));
-            Assert.All(s.Tiers.SelectMany(t => new[] { t.Title, t.Description }).Append(s.Name), x => Assert.False(string.IsNullOrWhiteSpace(x.Fr) || string.IsNullOrWhiteSpace(x.En)));
+            Assert.Equal(2, s.Forks.Count);
+            Assert.All(s.Forks, f => Assert.Equal([50, 100], f.Tiers.Select(t => t.Level)));
+            Assert.All(s.Forks.SelectMany(f => f.Tiers).Prepend(s.Base).SelectMany(t => new[] { t.Title, t.Description }).Append(s.Name), x => Assert.False(string.IsNullOrWhiteSpace(x.Fr) || string.IsNullOrWhiteSpace(x.En)));
         });
-        Assert.Equal(["Archimage", "Haut archimage", "Archimage souverain"], Real.Specs["archmage"].Tiers.Select(t => t.Title.Fr));
+        Assert.Equal(18, Real.Specs.Values.SelectMany(s => s.Forks).Select(f => f.Id).Distinct().Count());
     }
 
     [Fact]
     public void BadPaths_AreRefusedByTheData()
     {
         Assert.Throws<InvalidDataException>(() => With(Aim with { Class = "dragon" }));
-        Assert.Throws<InvalidDataException>(() => With(Aim with { Tiers = [.. Aim.Tiers.Take(2)] }));
-        Assert.Throws<InvalidDataException>(() => With(Aim with { Tiers = [Tier(30, ["t-volley"]), Aim.Tiers[1], Aim.Tiers[2]] }));
-        Assert.Throws<InvalidDataException>(() => With(Aim with { Tiers = [Tier(30, ["no-spell"]), Aim.Tiers[1], Aim.Tiers[2]] }));
-        Assert.Throws<InvalidDataException>(() => With(Aim with { Tiers = [Tier(30, passives: ["no-passive"]), Aim.Tiers[1], Aim.Tiers[2]] }));
-        Assert.Throws<InvalidDataException>(() => With(Aim with { Tiers = [Tier(30, rules: [new DistanceRule(1, 2, 10)]), Aim.Tiers[1], Aim.Tiers[2]] }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Forks = [Aim.Forks[0]] }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Forks = [Aim.Forks[0], Quiet with { Tiers = [Tier(50), Tier(90)] }] }));
+        // A leaf has 3 spells, or none while its content is to come.
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Forks = [Aim.Forks[0], Quiet] }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Base = Tier(30, ["t-volley", "t-calm"]) }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Base = Tier(30, ["no-spell", "t-calm"]) }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Base = Tier(30, ["t-shot", "t-calm"], ["no-passive"]) }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Base = Tier(30, ["t-shot", "t-calm"], rules: [new HpRule(10)]) }));
+        Assert.Throws<InvalidDataException>(() => With(Aim with { Base = Tier(30, ["t-shot", "t-calm"], rules: [new PatchRule("no-spell")]) }));
         Assert.Throws<InvalidDataException>(() => With(Aim with { Keeps = ["fireball-of-no-class"] }));
     }
 
@@ -70,6 +80,13 @@ public class SpecsTests
     public void APath_IsRefusedBeforeThirty_OrOfAnotherClass_AndMakesAnotherHero()
     {
         Assert.Null(Sentinel("t-aim", 30).Problem(Two));
+        // A lineage: of its branch, from 50, never without a branch; a branch without one stays legal.
+        Assert.Null(Sentinel("t-aim", 60, "t-quiet").Problem(Two));
+        Assert.Null((Sentinel("t-aim", 60) with { Fork = null }).Problem(Two));
+        Assert.Equal("'o-traps' is not a lineage of 't-aim'.", Sentinel("t-aim", 60, "o-traps").Problem(Two));
+        Assert.Equal("Lineages open at level 50.", Sentinel("t-aim", 49, "t-loud").Problem(Two));
+        Assert.Equal("A lineage needs its branch.", (Sentinel(null) with { Fork = "t-loud" }).Problem(Two));
+        Assert.NotEqual(Sentinel("t-aim", 60, "t-loud"), Sentinel("t-aim", 60, "t-quiet"));
         Assert.Equal("Paths open at level 30.", Sentinel("t-aim", 29).Problem(Two));
         Assert.Equal("Unknown path 'nowhere'.", Sentinel("nowhere").Problem(Two));
         Assert.Equal("'t-aim' is not a path of this class.", (Sentinel("t-aim") with { Class = "guard" }).Problem(Two));
@@ -82,6 +99,8 @@ public class SpecsTests
     [Fact]
     public void TheEvolutions_ComeAloneWithTheLevel_AndAll_ToWhoChoosesLate()
     {
+        Assert.Equal([30], Specs.TiersOf(Sentinel("t-aim", 60) with { Fork = null }, Two).Select(t => t.Level));
+        Assert.Equal(["t-shot", "t-calm", "t-hush"], Specs.SpellsOf(Sentinel("t-aim", 60, "t-quiet"), Two));
         Assert.Equal([30], Specs.TiersOf(Sentinel("t-aim", 49), Two).Select(t => t.Level));
         Assert.DoesNotContain("t-volley", Talents.GrimoireOf(Sentinel("t-aim", 49), Two).Spells);
         Assert.Equal([30, 50], Specs.TiersOf(Sentinel("t-aim", 50), Two).Select(t => t.Level));
@@ -127,12 +146,12 @@ public class SpecsTests
         Assert.Equal(Real.Spells["stone-arrow"].MaxRange, Of(Sentinel("o-other"), "stone-arrow").MaxRange);
         Assert.Equal(Real.Spells["stone-arrow"].MaxRange, Of(Sentinel(null), "stone-arrow").MaxRange);
         // The Sight flag: a spell that asks for none does not gain it.
-        Spell blind = Talents.Compile(Shot with { LineOfSight = false }, [], [new RangeRule(1, 2, Sight: true)]);
+        Spell blind = Talents.Compile(Shot with { LineOfSight = false }, [Specs.AsTalent([new RangeRule(1, 2, Sight: true)])]);
         Assert.Equal(Shot.MaxRange, blind.MaxRange);
         // Leaps without sight, glyphs a turn more, only from its evolution II.
         Assert.False(Of(Sentinel("o-other"), "o-step").LineOfSight);
         Assert.Equal(3, Of(Sentinel("o-other"), "o-trap").AllEffects.OfType<GlyphEffect>().Single().Turns);
-        Assert.Equal(2, Talents.Compile(Trap, [], Specs.RulesOf(Sentinel("o-other", 49), Two)).AllEffects.OfType<GlyphEffect>().Single().Turns);
+        Assert.Equal(2, Talents.Compile(Trap, [Specs.AsTalent(Specs.RulesOf(Sentinel("o-other", 49), Two))]).AllEffects.OfType<GlyphEffect>().Single().Turns);
     }
 
     [Fact]
@@ -156,7 +175,7 @@ public class SpecsTests
     public void ChangingPath_MovesRanksAndDeck_OneForOne_AndCosts()
     {
         Hero hero = Sentinel("t-aim") with { Ranks = new Dictionary<string, int> { ["t-shot"] = 1, ["t-volley"] = 1, ["stone-arrow"] = 2 }, Deck = ["stone-arrow", "t-shot", "t-volley"] };
-        Hero moved = Specs.Transferred(hero, "o-other", Two);
+        Hero moved = Specs.Transferred(hero, "o-other", "o-traps", Two);
         Assert.Equal("o-other", moved.Spec);
         Assert.Equal(["stone-arrow", "o-near", "o-trap"], moved.Deck!);
         Assert.Equal(2, moved.Ranks!["stone-arrow"]);
@@ -164,11 +183,21 @@ public class SpecsTests
         Assert.False(moved.Ranks!.ContainsKey("t-shot"));
         Assert.Null(moved.Problem(Two));
         // A first choice moves nothing; a hero with no deck chosen keeps none.
-        Hero first = Specs.Transferred(Sentinel(null) with { Deck = ["stone-arrow"] }, "t-aim", Two);
+        Hero first = Specs.Transferred(Sentinel(null) with { Deck = ["stone-arrow"] }, "t-aim", "t-loud", Two);
         Assert.Equal(["stone-arrow"], first.Deck!);
-        Assert.Null(Specs.Transferred(Sentinel("t-aim"), "o-other", Two).Deck);
-        Assert.Equal((0, 1500, 3000), (Specs.ChangeCost(50, false), Specs.ChangeCost(50, true), Specs.ChangeCost(100, true)));
-        Assert.Equal(0, Specs.ChangeCost(100, false));
+        Assert.Null(Specs.Transferred(Sentinel("t-aim"), "o-other", "o-traps", Two).Deck);
+        // Another lineage moves only the spell of 50.
+        Hero loud = Sentinel("t-aim", 60, "t-loud") with { Deck = ["t-shot", "t-volley"], Ranks = null };
+        Assert.Equal(["t-shot", "t-hush"], Specs.Transferred(loud, "t-aim", "t-quiet", Two).Deck!);
+        // No heir under 50 or without a lineage: it leaves the deck.
+        Assert.Equal(["o-near"], Specs.Transferred(Sentinel("t-aim", 60, "t-loud") with { Deck = ["t-shot", "t-volley"] }, "o-other", null, Two).Deck!);
+        // The first branch and lineage free, another lineage 10 × the level, another branch 30 ×.
+        Assert.Equal(0, Specs.ChangeCost(Sentinel(null, 100), "t-aim", "t-loud"));
+        Assert.Equal(0, Specs.ChangeCost(Sentinel("t-aim", 100) with { Fork = null }, "t-aim", "t-loud"));
+        Assert.Equal(1000, Specs.ChangeCost(Sentinel("t-aim", 100, "t-loud"), "t-aim", "t-quiet"));
+        Assert.Equal(0, Specs.ChangeCost(Sentinel("t-aim", 100, "t-loud"), "t-aim", "t-loud"));
+        Assert.Equal(3000, Specs.ChangeCost(Sentinel("t-aim", 100, "t-loud"), "o-other", "o-traps"));
+        Assert.Equal(1500, Specs.ChangeCost(Sentinel("t-aim", 50, "t-loud"), "o-other", "o-traps"));
     }
 
     [Fact]
@@ -217,6 +246,71 @@ public class SpecsTests
     }
 
     [Fact]
+    public void APatch_ChangesItsSpell_AndItsTwins()
+    {
+        Spell origin = Real.Spells["fire-arrow"], twin = Real.Spells["lightning-fire-arrow"];
+        var patch = new PatchRule("fire-arrow", Cooldown: 1, ApCost: 2, MaxRange: 9, PerTurn: 1, Area: new Area(AreaShape.Cross, 1), DamagePercent: 50, AddEffects: [new StatusEffect(Affects.Enemies, Stat.Mp, -1, 1)]);
+        TalentSpec[] talents = [Specs.AsTalent([patch])];
+        Spell s = Talents.Compile(origin, talents);
+        Assert.Equal((1, 2, 9, 1, origin.DamageMax / 2), (s.Cooldown, s.ApCost, s.MaxRange, s.PerTurn, s.DamageMax));
+        Assert.Equal(AreaShape.Cross, s.Zone.Shape);
+        Assert.Contains(s.AllEffects, e => e is StatusEffect { Stat: Stat.Mp });
+        Assert.Equal(2, Talents.Compile(twin, talents).ApCost);
+        Assert.Equal(Real.Spells["frost-arrow"], Talents.Compile(Real.Spells["frost-arrow"], talents));
+    }
+
+    [Fact]
+    public void ALivingRule_OfAPath_PlaysLikeATalents()
+    {
+        var talent = Specs.AsTalent([new FirstCastRule(15, 0)]);
+        Assert.Single(talent.Rules);
+        Hero hero = Sentinel("o-other", 100, "o-plain") with { Deck = ["stone-arrow"] };
+        Fighter f = new Fight(Two, "training", 1, hero).HeroFighter!;
+        // Its rules reach the fighter as one talent.
+        Assert.Contains(f.Talents, t => t.Rules.OfType<PatchRule>().Any());
+    }
+
+    private static readonly PassiveSpec Twice = new("t-twice", Text, Text, Trigger.Hit, [new ShieldEffect(Affects.Caster, 1, 1)], PerFight: 2);
+    private static readonly PassiveSpec OnceATurn = new("t-once", Text, Text, Trigger.Hit, [new ShieldEffect(Affects.Caster, 1, 1)], OncePerTurn: true);
+    private static readonly PassiveSpec Calmly = new("t-calmly", Text, Text, Trigger.TurnStart, [new ShieldEffect(Affects.Caster, 1, 1)], Still: true);
+
+    private static Fight Limited(string[] rows, params FighterSpec[] fighters) =>
+        new(new GameData([.. Spells, Hit, Venom], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], passives: [Twice, OnceATurn, Calmly]), "s", 1);
+
+    [Fact]
+    public void APassive_KeepsItsLimits_PerFight_AndPerTurn()
+    {
+        Fight twice = Limited(["AB"], Spec(0, ap: 99, initiative: 999, spells: ["hit"]), Spec(1, 0, hp: 500) with { Passives = ["t-twice"] });
+        for (int i = 0; i < 4; i++)
+            twice.Apply(new CastAction("hit", new Cell(1, 0)));
+        Assert.Equal(2, twice.Events.OfType<PassiveTriggered>().Count());
+        // Its bearer's turn opens a new count: only one until then.
+        Fight once = Limited(["AB"], Spec(0, ap: 99, initiative: 999, spells: ["hit"]), Spec(1, 0, hp: 500) with { Passives = ["t-once"] });
+        once.Apply(new CastAction("hit", new Cell(1, 0)));
+        once.Apply(new CastAction("hit", new Cell(1, 0)));
+        Assert.Single(once.Events.OfType<PassiveTriggered>());
+        once.Apply(new EndTurnAction());
+        once.Apply(new EndTurnAction());
+        once.Apply(new CastAction("hit", new Cell(1, 0)));
+        Assert.Equal(2, once.Events.OfType<PassiveTriggered>().Count());
+    }
+
+    [Fact]
+    public void AStillPassive_WaitsForATurnWithoutWalking()
+    {
+        Fight f = Limited(["A...B", "....."], Spec(0, mp: 3, initiative: 999, spells: ["hit"]) with { Passives = ["t-calmly"] }, Spec(1, 0, hp: 500));
+        Assert.Single(f.Events.OfType<PassiveTriggered>());
+        f.Apply(new MoveAction(new Cell(1, 0)));
+        f.Apply(new EndTurnAction());
+        f.Apply(new EndTurnAction());
+        // It walked: nothing more this turn.
+        Assert.Single(f.Events.OfType<PassiveTriggered>());
+        f.Apply(new EndTurnAction());
+        f.Apply(new EndTurnAction());
+        Assert.Equal(2, f.Events.OfType<PassiveTriggered>().Count());
+    }
+
+    [Fact]
     public void AClearPassive_FiresOnlyWithNoEnemyThatClose()
     {
         Fight near = Small(["A.B....."], Spec(0, initiative: 999) with { Passives = ["t-held"] }, Spec(1));
@@ -232,7 +326,7 @@ public class SpecsTests
         var fight = new Fight(Two, "training", 3, aim);
         Ai.PlayOut(fight);
         FightRecord record = FightRecord.FromJson(FightRecord.Of(fight).ToJson());
-        Assert.Equal("t-aim", record.Hero!.Spec);
+        Assert.Equal(("t-aim", "t-loud"), (record.Hero!.Spec, record.Hero.Fork));
         Assert.Equal(Fingerprint(fight), Fingerprint(record.Replay(Two)));
         Assert.Null(FightRecord.FromJson(FightRecord.Of(new Fight(Real, "training", 3, Sentinel(null))).ToJson()).Hero!.Spec);
     }

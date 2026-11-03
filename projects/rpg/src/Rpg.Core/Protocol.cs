@@ -44,13 +44,14 @@ public sealed record CharacterSummary(Guid Id, string Name, string Look, string 
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyDictionary<string, int>? Bestiary = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<Element>? Compounds = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Spec = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CompoundsReset = false)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool CompoundsReset = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Fork = null)
 {
     /// <summary>The character's hit points at a moment (sprint 101): set, grown back since, frozen in a fight.</summary>
     public int LifeAt(DateTimeOffset now, GameData data) => Life.Now(Life.MaxHp(Hero, data), Hp, HpAt, InFight, Place?.Town, now);
 
     [JsonIgnore]
-    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck, Talents, Compounds, Spec);
+    public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, Ranks, Worn, Deck, Talents, Compounds, Spec, Fork);
 
     /// <summary>The same summary: ranks and quests compare by content.</summary>
     public bool Equals(CharacterSummary? other) =>
@@ -162,8 +163,8 @@ public sealed record Wear(IReadOnlyDictionary<Slot, string>? Worn);
 public sealed record Points(Characteristics? Stats, IReadOnlyDictionary<string, int>? Ranks, IReadOnlyList<string>? Deck = null, IReadOnlyList<string>? Talents = null,
     IReadOnlyList<Element>? Compounds = null);
 
-/// <summary>The path a character takes (sprint 186, D93).</summary>
-public sealed record SpecChoice(string? Spec);
+/// <summary>The branch and the lineage a character takes (sprint 186, D93; sprint 190, D95).</summary>
+public sealed record SpecChoice(string? Spec, string? Fork = null);
 
 public static class Servers
 {

@@ -768,16 +768,22 @@ public sealed class GameData
         {
             if (Class(s.Class) is not HeroClass c || Specs.Values.Count(o => o.Class == s.Class) > 3)
                 throw new InvalidDataException($"Path '{s.Id}': of a known class, three at most each.");
-            if (!s.Tiers.Select(t => t.Level).SequenceEqual(Core.Specs.TierLevels))
-                throw new InvalidDataException($"Path '{s.Id}': one evolution at each of {string.Join(", ", Core.Specs.TierLevels)}.");
-            foreach (SpecTier t in s.Tiers)
+            if (s.Base.Level != Core.Specs.Opens || s.Forks.Count != 2 || s.Forks.Any(f => !f.Tiers.Select(t => t.Level).SequenceEqual([Core.Specs.Forks, 100])))
+                throw new InvalidDataException($"Path '{s.Id}': an evolution at {Core.Specs.Opens}, two lineages, each with an evolution at {Core.Specs.Forks} and 100.");
+            // A leaf has 3 spells: 2 at 30, 1 at 50, none at 100 (§v4.1); none yet where its content is still to come (S191-S193).
+            if (s.Forks.Any(f => s.SpellsWith(f.Id).Count() is not (0 or 3)) || s.Forks.Any(f => s.SpellsWith(f.Id).Distinct(StringComparer.Ordinal).Count() != s.SpellsWith(f.Id).Count()))
+                throw new InvalidDataException($"Path '{s.Id}': a leaf has 3 spells.");
+            foreach (SpecTier t in s.Forks.SelectMany(f => f.Tiers).Prepend(s.Base))
             {
                 if ((t.Spells ?? []).Any(id => !Spells.TryGetValue(id, out Spell? sp) || sp.Level != t.Level || ofClasses.Contains(id)))
                     throw new InvalidDataException($"Path '{s.Id}': spells known, of level {t.Level}, of no class.");
                 if ((t.Passives ?? []).Concat(t.Replaces ?? []).Any(id => !Passives.ContainsKey(id)))
                     throw new InvalidDataException($"Path '{s.Id}': known passives.");
-                if ((t.Rules ?? []).Any(r => r is not (RangeRule or LeapSightRule or GlyphTurnsRule)))
-                    throw new InvalidDataException($"Path '{s.Id}': compiled rules only.");
+                // Living rules too since sprint 190 (brick B); not those read from the hero's talents outside a fight.
+                if ((t.Rules ?? []).Any(r => r is GrantRule or DeckRule or HpRule))
+                    throw new InvalidDataException($"Path '{s.Id}': no rule read outside a fight.");
+                if ((t.Rules ?? []).OfType<PatchRule>().Any(r => !Spells.ContainsKey(r.Spell)))
+                    throw new InvalidDataException($"Path '{s.Id}': a patch of a known spell.");
             }
             if ((s.Keeps ?? []).Any(id => !c.Spells.Contains(id)))
                 throw new InvalidDataException($"Path '{s.Id}': kept spells of its class.");
@@ -792,7 +798,7 @@ public sealed class GameData
     private void Check(PassiveSpec p)
     {
         bool ok = (p.Trigger == Trigger.LowHp ? p.Percent is >= 1 and <= 99 : p.Percent == 0)
-            && (p.Trigger == Trigger.TurnStart ? p.Clear >= 0 : p.Clear == 0)
+            && (p.Trigger == Trigger.TurnStart ? p.Clear >= 0 : p.Clear == 0 && !p.Still) && p.PerFight >= 0
             && (p.Trigger == Trigger.Hit || (!p.Melee && p.AllEffects.All(e => e.Affects != Affects.Attacker)))
             && (p.Trigger == Trigger.AllyDies ? p.Range >= 0 : p.Range == 0)
             && p.DamageMin >= 0 && p.DamageMax >= p.DamageMin && (p.Area is null || (p.Area.Shape != AreaShape.Point && ValidArea(p.Area)))
