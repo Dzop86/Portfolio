@@ -28,6 +28,8 @@
 
 Le fait qui compte le plus pour le canon : **chaque classe a des sorts dans les quatre éléments** (T34). Le héros les manie ensemble sans qu'ils se mélangent. Le jeu l'a déjà dit une fois, par Garance, à la fin de « Bien équipé » (`well-equipped`) : « tu passes d'un élément à l'autre sans qu'ils se marchent dessus. Chez la plupart des gens, l'un étouffe l'autre. » C'est l'indice discret de la Saga I. **Les voies ne doivent pas l'abîmer.**
 
+*Note du 3 novembre 2026 : depuis D94 le héros fusionne ses éléments ; Garance dit désormais « chez toi, les éléments n'en viennent pas aux mains » (`data/quests.json`). Formule à reprendre : chez le héros, les éléments ne se battent pas, séparés ou réunis. Elle est dite une seule fois.*
+
 ### 1.2 Ce que la bible en dit
 
 Rien. La bible parle de cultures (Enracinés, Maréens, Forgelames, Hauts-Vents, « pas forcément des races jouables », §6), de Fragments (§9) et de quatre représentants (§10), jamais des classes. Les noms des classes sont épicènes en français (T13), et aucun texte du jeu ne dit ce qu'est une Sentinelle, une Garde ou une Mage dans le monde. Je propose donc **[P]** :

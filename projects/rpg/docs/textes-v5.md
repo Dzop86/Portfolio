@@ -265,6 +265,7 @@ Une quête = un système appris. Chaque remerciement dit où aller ensuite.
   - en : "A ring at the bottom of a bag protects nobody. Open your bag (I) and put it on. Then look at your characteristics (C): you have points to spend, so spend them to suit the way you fight."
 - **Objectif :** Porter l'anneau de cuivre / Wear the copper ring
 - **Remerciement :**
+  - *Note du 3 novembre 2026 : réplique réécrite depuis D94, le texte à jour est dans `data/quests.json`.*
   - fr : « Là, tu ressembles à quelqu'un. Prends ceci aussi, c'est ce qui va le mieux à ta façon de te battre. Et dis donc : tu passes d'un élément à l'autre sans qu'ils se marchent dessus. Chez la plupart des gens, l'un étouffe l'autre. Bon, Firmin a des rats, et Hortense manque de bras : va les voir. »
   - en : "Now you look like somebody. Take this too, it suits the way you fight. And I must say: you go from one element to another without them treading on each other. In most people, one smothers the other. Right, Firmin has rats and Hortense needs a hand: go and see them."
 - *Le seul indice sur le héros aux quatre éléments dans le tuto : une remarque de Garance, que personne ne reprend.*
