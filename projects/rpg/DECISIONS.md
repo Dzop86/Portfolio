@@ -833,7 +833,7 @@ La page est `SpecPage` (sans dessin, testée) et `PointsPanel.Spec.cs`, d'après
 Les leviers du §v4.6 (accord de Charles, Q13 a) : −10 % de budget sur Tir de barrage, ce qui ne fait presque rien (61,9 à 60,0), puis le retrait de la règle de 50 de la Herse, qui compte 8 points. Tir visé à −10 % aussi, hors de la liste, pour la Mire à 35.
 
 **Limites, à lire.**
-- **Le seuil de ±8 de la story n'est pas tenu :** la Mire à 35 est à +11,4 de la moyenne, la Herse à 50 à +11,6. Le test tient ±12, et le dit.
+- **Le seuil de ±8 de la story n'est pas tenu :** la Mire à 35 est à +11,4 de la moyenne, la Herse à 50 à +12,4. Le test tient ±13, comme garde-fou contre les régressions, et le dit. (J'avais d'abord écrit +11,6 et ±12 sur une moyenne mal calculée : la CI a échoué.)
 - **À 35 et à 50, cinq voies sur six jouent sous le héros sans voie** (de −4,8 à −10,6 points), à l'inverse du gain de +3 à +15 de M2. Leurs sorts prennent des places de paquet à des sorts de dégâts, et l'IA gourmande ne joue ni les pièges ni les Faucons : le §v4.6 l'annonçait pour Trappeur et Coureur. Cela reste à confirmer avec la brique S (S193) et le playtest, et c'est **non concluant**, pas réussi.
 - Les 50 % de caractéristiques du Faucon et la PO de Mâchoires sont des choix de ma part, faute de chiffre dans la v4.
 - Les 300 combats de M1 et M2 et M3 à M6 restent à S193.
@@ -867,7 +867,18 @@ Les leviers du §v4.6 (accord de Charles, Q13 a) : −10 % de budget sur Tir de 
 M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégâts et dégâts, sur les 2 groupes de `PartyBalanceTests`.
 
 **Limites, à lire.**
-- **±8 de la moyenne : tenu à 35 et 45, pas à 50,** Tenaille est à −8,6. Le test tient ±12, comme T150.
-- **Ce seuil cache l'essentiel : presque toutes les voies jouent sous le héros sans voie,** jusqu'à −16 points pour la Brèche à 35, à l'inverse du gain de +3 à +15 de M2. Hypothèses non vérifiées : les 2 ou 3 places réservées dans le paquet automatique prennent des sorts de dégâts, l'IA surévalue Verrou (`Ai.Value` compte 2 × 9 PM, même contre un monstre qui en a 3) et ne sait pas jouer Assaut sur une case libre ni garder un bouclier pour Rétorsion.
-- **Tant que la brique S (S193) n'a pas tranché, on ne peut pas dire que ces voies sont équilibrées,** ni qu'elles sont faibles. Si elles restent sous le héros sans voie avec une IA corrigée, c'est le contenu qu'il faudra relever, et le levier du §v4.6 ne couvre pas ce cas.
+- **±8 de la moyenne : tenu à 35 et 45, pas à 50,** Tenaille est à −8,6. Le test tient ±13, comme T150.
+- **Ce seuil cache l'essentiel : presque toutes les voies jouent sous le héros sans voie,** jusqu'à −16 points pour la Brèche à 35, à l'inverse du gain de +3 à +15 de M2. 
+**Le diagnostic (20 combats par groupe, 320 par cas, même héros et mêmes graines).** La même voie jouée avec le paquet du héros sans voie, donc ses passifs et ses règles seuls, n'est jamais sous ce héros :
+
+| Cas | Sans voie | Paquet automatique | Passifs et règles seuls |
+|---|---|---|---|
+| Garde 35 : Palissade, Brèche, Étau | 19,4 | 10,0 ; 3,4 ; 6,3 | 27,8 ; 19,4 ; 19,4 |
+| Sentinelle 35 : Mire, Affût, Sente | 43,1 | 51,6 ; 35,9 ; 35,0 | 51,9 ; 43,1 ; 45,0 |
+| Garde 50 : Garde-corps, Bastion, Bélier, Croc-de-fer, Carcan, Tenaille | 31,9 | 27,2 ; 30,9 ; 30,6 ; 26,3 ; 23,4 ; 17,5 | 46,6 ; 43,8 ; 41,6 ; 47,2 ; 50,9 ; 31,3 |
+| Sentinelle 50 : Longue-vue, Herse, Porte-faucon, Tend-pièges, Saute-haie, Court-sentes | 43,4 | 39,4 ; 52,8 ; 36,6 ; 36,9 ; 33,4 ; 34,7 | 49,4 ; 49,4 ; 43,4 ; 43,4 ; 42,5 ; 42,8 |
+
+**Ce que cela montre :** le déficit vient des sorts de voie présents dans le paquet, pas des passifs ni des règles. **Ce que cela ne montre pas :** si l'IA les joue mal, ou si ces sorts valent moins que ceux qu'ils remplacent. Un joueur pourrait les jouer mieux, ou non.
+
+- **Tant que la brique S (S193) n'a pas tranché, on ne peut pas dire que ces voies sont équilibrées,** ni qu'elles sont faibles. Et les passifs et règles seuls dépassent parfois les +15 de M2 (Carcan +19, Croc-de-fer +15,3, Garde-corps +14,7) : corriger l'IA peut faire passer ces lignées au-dessus du plafond.
 

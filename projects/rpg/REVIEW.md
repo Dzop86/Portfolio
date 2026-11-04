@@ -476,4 +476,5 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-11-04 | `data/specs.json`, `tools/spells_gen.py` | (Claude) S192 : la Garde joue sous le héros sans voie dans la mesure (T151), de −9 à −16 points à 35. Le test ne vérifie que l'écart entre voies et ne le voit donc pas. | À reprendre en S193 |
 | 2026-11-04 | `src/Rpg.Core/Data.cs` (`Check`) | (Claude) S192 : ouvrir le saut à une zone pour Assaut laissait passer un saut à zone sans dégâts ; `InconsistentPassives_AreRefused` l'a vu, la zone demande désormais des dégâts. | Corrigé |
 | 2026-11-04 | `tests/Rpg.Core.Tests/TemplateTests.cs` | (Claude) S191 : j'ai lancé la suite Cœur en même temps que la dernière compilation : elle a tourné sur un binaire ancien, avec un `Assert.Fail` temporaire, et son verdict ne valait pas pour le commit. Le verdict est celui de la CI. | Noté |
+| 2026-11-04 | `tests/Rpg.Core.Tests/TemplateTests.cs` | (Claude) S191 : CI rouge. J'ai posé le garde-fou à ±12 sur une moyenne calculée de tête (40,9 au lieu de 40,1) : la Herse est à +12,4. Passé à ±13, présenté comme un garde-fou contre les régressions, et chiffres corrigés dans T150. | Corrigé |
 

@@ -10,7 +10,7 @@
 
 **Ce qui est fait.** Les briques J à P ; les 12 sorts, les passifs et les règles de la Garde ; le duo Palissade (M5) tenu.
 
-**Ce qui n'est pas tenu.** ±8 à 50 : Tenaille à −8,6. Surtout, presque toutes les voies jouent sous le héros sans voie, jusqu'à −16 points à 35. Rien ne dit encore si c'est l'IA ou le contenu : c'est la première question de S193 (T151).
+**Ce qui n'est pas tenu.** ±8 à 50 : Tenaille à −8,6. Surtout, presque toutes les voies jouent sous le héros sans voie, jusqu'à −16 points à 35. Le déficit vient des sorts de voie dans le paquet, pas des passifs ni des règles (diagnostic de T151). Reste à savoir si l'IA les joue mal ou s'ils valent moins : la première question de S193.
 
 ## Rétro (Charles)
 - Ce qui a marché :
