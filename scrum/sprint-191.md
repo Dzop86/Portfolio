@@ -11,7 +11,7 @@
 
 **Ce qui est fait.** La page Spécialisation, sa confirmation et son branchement sur le serveur ; les briques E à I ; les 12 sorts, les passifs et les règles de la Sentinelle ; les 27 icônes de l'arbre. Garde et Mage lisent leur arbre, avec un bouton « Bientôt ».
 
-**Ce qui n'est pas tenu.** Le seuil de ±8 : la Mire à 35 et la Herse à 50 sont à +11 et +12 après les leviers écrits, et cinq voies sur six jouent sous le héros sans voie, en partie à cause de l'IA. À reprendre avec la brique S en S193 (T150).
+**Ce qui n'est pas tenu.** Le seuil de ±8 : la Mire à 35 et la Herse à 50 sont à +11 et +12 après les leviers écrits, et cinq voies sur six jouent sous le héros sans voie, en partie à cause de l'IA. À reprendre avec la brique S en S194 (T150).
 
 **Corrigé ensuite (T152).** Les écarts ci-dessus venaient d'un défaut du paquet automatique, et la Herse a retrouvé son passif. La Sentinelle reste à ±22, pour une autre raison.
 

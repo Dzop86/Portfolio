@@ -1,13 +1,13 @@
-# Sprint 193 : Osmose : les spécialisations de la Mage, playtest
+# Sprint 193 : Osmose : le cadrage des dix classes, le banc de mesure
 
-**Objectif :** l'onglet Talents devient Spécialisation, un arbre lu de gauche à droite qui se divise : 3 choix à 30, 2 choix pour chacun à 50, une dernière évolution à 100 (D95).
+**Objectif :** Dix classes remplacent la Mage, la Garde et la Sentinelle : 220 classes en tout, 3 choix à 30, 2 à 50, 2 à 100, livrées par vagues de 4, 7 et 10 classes (D96).
 
-**Goal:** the Talents tab becomes Specialisation, a tree read from left to right that divides: 3 choices at 30, 2 choices each at 50, a last evolution at 100 (D95).
+**Goal:** Ten classes replace the Mage, the Guard and the Sentinel: 220 classes in all, 3 choices at 30, 2 at 50, 2 at 100, delivered in waves of 4, 7 and 10 classes (D96).
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je deviens Archimage, Sorcier ou Nécromancien, dont le nom vient du scénariste, puis une de leurs 2 évolutions (rpg) ; xUnit, ±8 points à 35, 45 et 50. | 4 | À faire |
-| En tant que Charles, la mesure croisée des 15 évolutions × 2 builds à 35, 45 et 50 tient ses bornes, et je joue à 30 la quête, une spécialisation et une paire créée (rpg) ; mesure hors CI, résultat dans `REVIEW.md`. | 1 | À faire |
+| En tant que Charles, le tableau des chiffres des 10 classes, les gabarits du rang 4 et un canon des classes réécrit par le scénariste, où mes noms l'emportent, sont écrits et relus (rpg) ; documents relus, scan de confidentialité. | 2 | À faire |
+| En tant que développeur, un budget de combats fixe en CI (20 000 au plus), un banc hors CI aux jalons (`Rpg.Sim --matrix`), la couverture des sorts et des paquets de référence par classe (rpg) ; xUnit, mesure hors CI. | 3 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :
