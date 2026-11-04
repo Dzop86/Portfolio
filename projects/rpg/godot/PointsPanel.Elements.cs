@@ -206,11 +206,11 @@ public partial class PointsPanel
     /// <summary>The Elements tab, as the player opens it or the self-test does.</summary>
     public void ShowElements()
     {
-        _statsPage.Visible = _spellsPage.Visible = _talentsPage.Visible = false;
+        _statsPage.Visible = _spellsPage.Visible = _specPage.Visible = false;
         _elementsPage.Visible = true;
         _statsTab.SetPressedNoSignal(false);
         _spellsTab.SetPressedNoSignal(false);
-        _talentsTab.SetPressedNoSignal(false);
+        _specTab.SetPressedNoSignal(false);
         _elementsTab.SetPressedNoSignal(true);
         var page = new ElementsPage(Editor);
         // On opening, the first compound created in the columns' order, or else the first open, or else the first (§5.7).
@@ -423,6 +423,9 @@ public partial class PointsPanel
     private sealed partial class TierFrieze : Control
     {
         private (string Title, string Line, string Value) _root;
+        private float _rootWidth = ElementsAtelier.PairX;
+        private bool _valueBelow;
+        private string _valueColour = UiStyle.Pistachio;
         private readonly List<(float X, float Width, string Level, string Title, string Line, bool Reached, bool Next, string Tip)> _cells = [];
 
         public void Set(ElementsPage page, Texts texts)
@@ -436,6 +439,26 @@ public partial class PointsPanel
                 ElementTier t = tiers[i];
                 string level = t.Level.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 _cells.Add((xs[i], xs[i + 1] - xs[i], level, texts[$"tier.{level}.name"], texts[$"elements.tier.{level}.short"], t.Reached, t.Next, texts[$"elements.tier.{level}"]));
+            }
+            QueueRedraw();
+        }
+
+        /// <summary>The Specialisation page's (sprint 191, maquette §5.1): narrower cells, the counter under the class's name.</summary>
+        public void Set(SpecPage page, string className, Texts texts)
+        {
+            (int done, int total) = page.Choices;
+            _rootWidth = SpecTree.BranchX;
+            _valueBelow = true;
+            _valueColour = total == 0 ? UiStyle.TextDim : done >= total ? UiStyle.Pistachio : UiStyle.Cost;
+            _root = (className, "", total == 0 ? texts["spec.choices.none"] : texts["spec.choices", done, total]);
+            _cells.Clear();
+            IReadOnlyList<ElementTier> tiers = page.Tiers;
+            IReadOnlyList<float> xs = SpecTree.FriezeCells;
+            for (int i = 0; i < tiers.Count; i++)
+            {
+                ElementTier t = tiers[i];
+                string level = t.Level.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                _cells.Add((xs[i + 1], xs[i + 2] - xs[i + 1], level, texts[$"tier.{level}.name"], texts[$"spec.tier.{level}.short"], t.Reached, t.Next, texts[$"path.tier.{level}"]));
             }
             QueueRedraw();
         }
@@ -466,10 +489,17 @@ public partial class PointsPanel
             Font font = GetThemeDefaultFont(), bold = OsmoseTheme.Bold();
             var strong = new Color(UiStyle.TextStrong);
             Color top = new(UiStyle.LitTop), bottom = new(UiStyle.LitBottom), well = new(UiStyle.Well), dim = new(UiStyle.TextDim);
-            Chevron(0, ElementsAtelier.PairX, top, bottom, first: true);
-            DrawString(bold, new Vector2(10, 18), _root.Title, HorizontalAlignment.Left, 120, 14, strong);
-            DrawString(font, new Vector2(10, 36), _root.Line, HorizontalAlignment.Left, 226, 14, new Color(UiStyle.Text));
-            DrawString(bold, new Vector2(120, 18), _root.Value, HorizontalAlignment.Right, 112, 14, new Color(UiStyle.Pistachio));
+            Chevron(0, _rootWidth, top, bottom, first: true);
+            DrawString(bold, new Vector2(10, 18), _root.Title, HorizontalAlignment.Left, _valueBelow ? 100 : 120, 14, strong);
+            if (_valueBelow)
+            {
+                DrawString(bold, new Vector2(10, 36), _root.Value, HorizontalAlignment.Left, 100, 14, new Color(_valueColour));
+            }
+            else
+            {
+                DrawString(font, new Vector2(10, 36), _root.Line, HorizontalAlignment.Left, 226, 14, new Color(UiStyle.Text));
+                DrawString(bold, new Vector2(120, 18), _root.Value, HorizontalAlignment.Right, 112, 14, new Color(_valueColour));
+            }
             foreach (var c in _cells)
             {
                 if (c.Reached)

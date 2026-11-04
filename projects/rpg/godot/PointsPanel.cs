@@ -9,8 +9,8 @@ namespace Rpg.Desktop;
 /// "Characteristics" tab, hit points, action and movement points, initiative and the points left, then
 /// each characteristic in the colour of its element with the points put in, those of the equipment,
 /// the total and what it gives, and its − and + buttons (+10 with Shift); on the "Spells" tab, the
-/// spells the level has unlocked with their rank; on the "Talents" tab (sprint 137), the tree's talents by branch,
-/// a click taking or giving one back. It only draws <see cref="PointsEditor"/> and <see cref="CharacterSheet"/>.
+/// spells the level has unlocked with their rank; on the "Elements" tab, the workshop of fusions; on the "Specialisation" tab (sprint 191),
+/// the tree of the class's paths. It only draws <see cref="PointsEditor"/> and <see cref="CharacterSheet"/>.
 /// </summary>
 public partial class PointsPanel : CanvasLayer, IPointsWindow
 {
@@ -31,10 +31,8 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     private Button _rankMinus = null!, _rankPlus = null!;
     private readonly Dictionary<string, Label> _tiles = [];
     private Label _name = null!, _level = null!, _spellsLeft = null!, _message = null!, _help = null!;
-    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _talentsTab = null!, _elementsTab = null!;
-    private Control _statsPage = null!, _spellsPage = null!, _talentsPage = null!, _elementsPage = null!;
-    private Label _talentsLeft = null!, _talentsHint = null!, _trunk = null!, _talentsSaid = null!;
-    private Label _talentsTaken = null!;
+    private Button _save = null!, _close = null!, _statsTab = null!, _spellsTab = null!, _specTab = null!, _elementsTab = null!;
+    private Control _statsPage = null!, _spellsPage = null!, _specPage = null!, _elementsPage = null!;
     private Button _openTree = null!;
     private Portrait? _portrait;
 
@@ -44,7 +42,7 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     public event Action<Points>? SavePressed;
     public event Action? ClosePressed;
 
-    /// <summary>The Talents tab's button: the tree in its own window (sprint 148, K2 b), the draft carried over.</summary>
+    /// <summary>The Specialisation tab's button: the tree of the talents in its own window (sprint 148, K2 b), the draft carried over.</summary>
     public event Action? TreePressed;
 
     /// <summary>The screen with its two tabs; or, <paramref name="only"/> given, one window, the spells or the characteristics (sprint 69).</summary>
@@ -91,16 +89,15 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _statsTab = Tab(tabs, () => ShowTab(spells: false));
         _spellsTab = Tab(tabs, () => ShowTab(spells: true));
         _elementsTab = Tab(tabs, ShowElements);
-        _talentsTab = Tab(tabs, ShowTalents);
+        _specTab = Tab(tabs, ShowSpec);
         _statsTab.Visible = only != true;
         _spellsTab.Visible = only != false;
-        // The talents go with the characteristics (sprint 137).
-        _talentsTab.Visible = only != true;
+        _specTab.Visible = only != true;
         _elementsTab.Visible = only != true;
 
         _statsPage = Scrolled(column, BuildStats());
         _spellsPage = Scrolled(column, BuildSpells(editor));
-        _talentsPage = Scrolled(column, BuildTalents());
+        _specPage = Scrolled(column, BuildSpec());
         _elementsPage = Scrolled(column, BuildElements());
 
         _message = new Label();
@@ -205,7 +202,9 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         HeroClass? c = editor.Data.Class(editor.Hero.Class);
         if (c is null)
             return [];
-        return [.. c.Spells.Select(id => editor.Data.Spells[id]), .. editor.Data.Spells.Values.Where(sp => sp.Twin is string t && c.Spells.Contains(t))];
+        // The spells of all its class's paths (sprint 191): a tile shows only while the hero's path gives it, whichever it takes.
+        return [.. c.Spells.Select(id => editor.Data.Spells[id]), .. editor.Data.Spells.Values.Where(sp => sp.Twin is string t && c.Spells.Contains(t)),
+            .. editor.Data.Specs.Values.Where(s => s.Class == c.Id).SelectMany(s => s.Forks.SelectMany(f => s.SpellsWith(f.Id))).Distinct(StringComparer.Ordinal).Select(id => editor.Data.Spells[id])];
     }
 
     private VBoxContainer BuildSpells(PointsEditor editor)
@@ -567,54 +566,12 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     {
         _statsPage.Visible = !spells;
         _spellsPage.Visible = spells;
-        _talentsPage.Visible = _elementsPage.Visible = false;
+        _specPage.Visible = _elementsPage.Visible = false;
         _statsTab.SetPressedNoSignal(!spells);
         _spellsTab.SetPressedNoSignal(spells);
-        _talentsTab.SetPressedNoSignal(false);
+        _specTab.SetPressedNoSignal(false);
         _elementsTab.SetPressedNoSignal(false);
         Refresh();
-    }
-
-    /// <summary>The talents' tab (sprint 137).</summary>
-    public void ShowTalents()
-    {
-        _statsPage.Visible = _spellsPage.Visible = _elementsPage.Visible = false;
-        _talentsPage.Visible = true;
-        _statsTab.SetPressedNoSignal(false);
-        _spellsTab.SetPressedNoSignal(false);
-        _talentsTab.SetPressedNoSignal(true);
-        _elementsTab.SetPressedNoSignal(false);
-        Refresh();
-    }
-
-    /// <summary>
-    /// The Talents tab (\"My path\" from sprint 140 to 146, renamed at Charles's word): since sprint 148 (K2 b), a summary of
-    /// the draft, the points left, the trunk and the talents taken by layer, and the button that opens the tree in its own
-    /// window (the T key too). The seven columns of sprint 137 are gone: they made the window taller than the game's.
-    /// </summary>
-    private VBoxContainer BuildTalents()
-    {
-        var page = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill, SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        page.AddThemeConstantOverride("separation", 10);
-        _talentsLeft = new Label();
-        _talentsLeft.AddThemeFontSizeOverride("font_size", 20);
-        page.AddChild(_talentsLeft);
-        _talentsHint = new Label { Modulate = new Color(1, 1, 1, 0.7f), AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        page.AddChild(_talentsHint);
-        // The trunk (sprint 146, D82): lit by itself at 30, 35 and 40.
-        _trunk = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        _trunk.AddThemeColorOverride("font_color", new Color("bef374"));
-        page.AddChild(_trunk);
-        // What the last talent taken did besides (a Conversion replacing its Transmutation).
-        _talentsSaid = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart, Modulate = new Color(1, 1, 1, 0.85f) };
-        page.AddChild(_talentsSaid);
-        _talentsTaken = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
-        page.AddChild(_talentsTaken);
-        _openTree = new Button { CustomMinimumSize = new Vector2(260, 52), SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
-        _openTree.AddThemeFontSizeOverride("font_size", 18);
-        _openTree.Pressed += () => TreePressed?.Invoke();
-        page.AddChild(_openTree);
-        return page;
     }
 
     /// <summary>A page that scrolls inside the window, so that the window never grows past the game's (Charles, after 1.0.134).</summary>
@@ -634,14 +591,22 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
     /// <summary>The spells' tiles shown, by id (for the self-test: a spell replaced is gone, sprint 150).</summary>
     public IEnumerable<string> ShownSpells => _tiles2.Where(t => t.Tile.Visible).Select(t => t.Spell.Id);
 
-    /// <summary>The Talents tab's summary as the self-test reads it, and its button pressed as the player would.</summary>
-    public string TalentsSummary => _talentsTaken.Text;
-
+    /// <summary>The tree's button pressed as the player would.</summary>
     public void PressOpenTree() => _openTree.EmitSignal(BaseButton.SignalName.Pressed);
 
     /// <summary>Ctrl+S saves the draft from any tab (Charles, after 1.0.134).</summary>
     public override void _Input(InputEvent @event)
     {
+        if (_confirm is not null)
+        {
+            // The confirmation holds the window: Escape answers no, Ctrl+S does nothing.
+            if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Escape })
+            {
+                CloseConfirm();
+                GetViewport().SetInputAsHandled();
+            }
+            return;
+        }
         if (@event is InputEventKey { Pressed: true, Echo: false, Keycode: Key.S, CtrlPressed: true } && Window is not null && Window.IsVisibleInTree())
         {
             PressSave();
@@ -672,17 +637,10 @@ public partial class PointsPanel : CanvasLayer, IPointsWindow
         _level.Text = Texts["sheet.level", Editor.Hero.Level, cls];
         _statsTab.Text = Texts["sheet.tab.stats"];
         _spellsTab.Text = Texts["sheet.tab.spells"];
-        _talentsTab.Text = Texts["points.talents"];
+        _specTab.Text = Texts["sheet.tab.spec"];
         _elementsTab.Text = Texts["sheet.tab.elements"];
         RefreshElements();
-        _talentsLeft.Text = Editor.Hero.Level < Talents.Opens ? Texts["talents.closed", Talents.Opens] : Texts["talents.left", Editor.TalentPointsLeft];
-        _talentsHint.Text = Texts["talents.hint"];
-        _trunk.Text = Texts.Trunk(Editor.Hero.Level);
-        _talentsSaid.Text = string.Join("\n", Texts.DeckChanges(Editor));
-        // The talents taken, layer by layer (sprint 148): the tree itself is in its window.
-        _talentsTaken.Text = string.Join("\n", Editor.TalentsTaken.GroupBy(id => Editor.Data.Talents[id].Branch).OrderBy(g => g.Key)
-            .Select(g => $"{Texts["talents.branch." + g.Key]} : {string.Join(", ", g.Select(id => Editor.Data.Talents[id].Name.In(Texts.Lang)))}"));
-        _openTree.Text = Texts["tree.open"];
+        RefreshSpec();
         _tiles["hp"].Text = $"{Texts["sheet.hp"]}   {sheet.MaxHp}";
         _tiles["ap"].Text = $"{Texts["sheet.ap"]} {sheet.Ap}  ·  {Texts["sheet.mp"]} {sheet.Mp}";
         _tiles["initiative"].Text = $"{Texts["sheet.initiative"]}   {sheet.Initiative}";

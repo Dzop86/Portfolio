@@ -362,5 +362,201 @@
     "light": "#c9e394",
     "dark": "#567022",
     "outline": "#171f09"
+  },
+  "spec-sightline": {
+    "shape": "delapouite/eye-target",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-marksman": {
+    "shape": "lorc/spyglass",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-barrage": {
+    "shape": "delapouite/dungeon-gate",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-ambush": {
+    "shape": "lorc/hood",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-falconer": {
+    "shape": "lorc/hawk-emblem",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-trapper": {
+    "shape": "lorc/mantrap",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-trail": {
+    "shape": "lorc/walking-boot",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-leaper": {
+    "shape": "lorc/sprint",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-runner": {
+    "shape": "delapouite/running-shoe",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-palisade": {
+    "shape": "lorc/bordered-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-rampart": {
+    "shape": "delapouite/cross-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-bastion": {
+    "shape": "delapouite/spiked-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-breach": {
+    "shape": "delapouite/shield-bash",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-ram": {
+    "shape": "lorc/anvil-impact",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-harpooner": {
+    "shape": "lorc/barbed-spear",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-grip": {
+    "shape": "lorc/grab",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-jailer": {
+    "shape": "lorc/linked-rings",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-pincer": {
+    "shape": "lorc/grapple",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-archmage": {
+    "shape": "lorc/pointy-hat",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-high-archmage": {
+    "shape": "lorc/burning-meteor",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-patient": {
+    "shape": "lorc/hourglass",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-sorcerer": {
+    "shape": "lorc/candle-flame",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-plague": {
+    "shape": "sbed/poison",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-hexer": {
+    "shape": "lorc/bolt-eye",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-necromancer": {
+    "shape": "lorc/two-shadows",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-binder": {
+    "shape": "delapouite/three-friends",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-reaper": {
+    "shape": "delapouite/bolt-bomb",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "padlock": {
+    "shape": "lorc/padlock",
+    "main": "#8a8a8a",
+    "light": "#bfbfbf",
+    "dark": "#4c4c4c",
+    "outline": "#1c1c1c"
   }
 }

@@ -35,7 +35,7 @@ Graphiste, 3 novembre 2026, version 1, sprint 191, D95. **À valider par Charles
 +------------------------------------------------------------------------------------------------+
 ```
 
-### 2.2 La page (exemple : Sentinelle de niveau 62, route Mire puis Longue-vue, Herse affichée dans la fiche)
+### 2.2 La page (exemple : Sentinelle de niveau 62 sur la route Mire puis Longue-vue, Herse affichée dans la fiche)
 
 Une colonne de caractères vaut environ 9 px ; la hauteur du schéma n'est pas à l'échelle, les vraies valeurs sont au §4.
 
@@ -550,7 +550,7 @@ Nouveaux, **à relire par le scénariste.** Le mot « lignée » reste hors de l
   - La fiche tient pour les 45 évolutions dans ses états, comme `ReadingFits` (échec si elle dépasse).
   - Aucun titre de tuile ne dépasse 2 lignes ; les cellules de frise tiennent.
   - Le scénario de la story : choisir une branche à 30, puis une évolution à 50. Plus une rature, refusée hors village.
-- **Capture :** Sentinelle de niveau 62, route choisie, une lignée écartée affichée. Elle reste à relire, en particulier la lisibilité d'une page à 12 tuiles grises. Si elle est trop terne, on monte les tuiles écartées à `--osmose-ui-text` avant de toucher à la géométrie.
+- **Capture :** Sentinelle de niveau 62 dont la route est choisie, une lignée écartée affichée. Elle reste à relire, en particulier la lisibilité d'une page à 12 tuiles grises. Si elle est trop terne, on monte les tuiles écartées à `--osmose-ui-text` avant de toucher à la géométrie.
 
 ## 11. Mes désaccords avec la conception, à ne pas trancher ici
 

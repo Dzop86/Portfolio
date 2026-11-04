@@ -181,7 +181,7 @@ def main():
     every = {**palette, **extra}
     # The trades' icons (sprint 164, docs/graphisme/s163-icones-arbre.md §2): "job-<id>", greyed for a trade not practised;
     # the quests' kinds (sprint 165, docs/graphisme/s165-retours-30-oct.md §3.2): "quest-<kind>", greyed for a kind filtered out.
-    jobs = {n for n in extra if n.startswith(("job-", "quest-", "family-", "element-"))}
+    jobs = {n for n in extra if n.startswith(("job-", "quest-", "family-", "element-", "spec-"))}
     for name in sorted({c[0] for c in CATEGORIES.values()} | {"achievements"} | jobs):
         with open(os.path.join(relief, name + "-locked.svg"), "w") as f:
             f.write(icon(grey(every[name])))

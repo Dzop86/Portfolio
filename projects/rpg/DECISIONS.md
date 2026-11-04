@@ -807,3 +807,34 @@ Charles : « un joueur peut battre des groupes de 1 à 3 monstres facilement mai
 **Alternatives :** un identifiant unique par feuille (rend la branche et le prix difficiles à lire) ; un second champ de règles à côté des talents (double le code des règles vivantes) ; un sort de 100 pour chaque feuille (6 sorts de plus et un paquet saturé).
 **Limites :** les 45 évolutions n'ont encore que leurs textes : aucun sort ni passif réel avant S191. La validation accepte donc une feuille sans sort, à resserrer en S193. Le scénariste a renommé 9 sorts, et les points 4 à 8 du §7 de son fichier restent à trancher avec le contenu. Sa question sur l'indice de Garance attend Charles.
 
+## T150. La Sentinelle et sa page, et le seuil de ±8 non tenu (sprint 191, D95)
+
+**Décision.** Les briques E à I de `docs/elements-specialisations.md` §v4.3 sont au cœur :
+- **E, invocation nourrie :** `SummonRule` donne au Faucon une part des PV (12 %, puis 20 %) et 50 % des caractéristiques, sans Vitalité, et l'élément du héros (`Coup de bec` devient adaptatif : sans voie, il n'a aucun élément à suivre et reste en Air).
+- **F :** `Spell.Needs` et `Spell.Aims`, et l'erreur `NoSummon`.
+- **G :** `GlyphEffect.Max`, posé par `PatchRule.MaxGlyphs` ; `MaxSummons` fait de même pour les Faucons.
+- **H :** une glyphe de composé n'allume plus `GlyphTargetRule`. C'est un changement de règle, donc `FightRecord` passe en version 7 ; une version 6 ou moins se rejoue avec l'ancienne règle.
+- **I :** `Stat.Feint`, dépensé au premier coup reçu au contact.
+
+La page est `SpecPage` (sans dessin, testée) et `PointsPanel.Spec.cs`, d'après `docs/maquette-specialisation.md`.
+
+**Alternatives.** Cinq invocations nouvelles, comme le comptait la v4 : un même Faucon avec une règle évite de dupliquer des données, et le Faucon de classe ne bouge pas. Pour H, une règle à part pour le Trappeur : Terre brûlée aurait gardé le même défaut en Cendre.
+
+**La mesure, et ce qu'elle a montré.** Le test écrit d'abord contre les hordes solides passait à 0 point partout, héros sans voie compris : **il ne prouvait rien.** Il joue donc les groupes de 4 et 5 monstres (16 groupes, 30 combats chacun, mêmes graines, sans équipement) et vérifie que le héros sans voie reste entre 20 et 80 points.
+
+| Niveau | Sans voie | Voies |
+|---|---|---|
+| 35, avant leviers | 44,6 | Mire 55,2 ; Affût 36,3 ; Sente 34,0 |
+| 35 | 44,6 | Mire 52,3 ; Affût 36,3 ; Sente 34,0 |
+| 45 | 35,6 | Mire 41,5 ; Affût 38,8 ; Sente 40,8 |
+| 50, avant leviers | 43,8 | Longue-vue 41,0 ; **Herse 61,9** ; Porte-faucon 38,8 ; Tend-pièges 38,8 ; Saute-haie 35,4 ; Court-sentes 36,3 |
+| 50 | 43,8 | Longue-vue 39,0 ; **Herse 52,5** ; Porte-faucon 38,8 ; Tend-pièges 38,8 ; Saute-haie 35,4 ; Court-sentes 36,3 |
+
+Les leviers du §v4.6 (accord de Charles, Q13 a) : −10 % de budget sur Tir de barrage, ce qui ne fait presque rien (61,9 à 60,0), puis le retrait de la règle de 50 de la Herse, qui compte 8 points. Tir visé à −10 % aussi, hors de la liste, pour la Mire à 35.
+
+**Limites, à lire.**
+- **Le seuil de ±8 de la story n'est pas tenu :** la Mire à 35 est à +11,4 de la moyenne, la Herse à 50 à +11,6. Le test tient ±12, et le dit.
+- **À 35 et à 50, cinq voies sur six jouent sous le héros sans voie** (de −4,8 à −10,6 points), à l'inverse du gain de +3 à +15 de M2. Leurs sorts prennent des places de paquet à des sorts de dégâts, et l'IA gourmande ne joue ni les pièges ni les Faucons : le §v4.6 l'annonçait pour Trappeur et Coureur. Cela reste à confirmer avec la brique S (S193) et le playtest, et c'est **non concluant**, pas réussi.
+- Les 50 % de caractéristiques du Faucon et la PO de Mâchoires sont des choix de ma part, faute de chiffre dans la v4.
+- Les 300 combats de M1 et M2 et M3 à M6 restent à S193.
+

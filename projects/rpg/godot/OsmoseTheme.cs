@@ -27,12 +27,12 @@ public static class OsmoseTheme
 
     /// <summary>The Elements page's tiles and their buttons (sprint 189, D94, docs/maquette-elements.md §5.6).</summary>
     public const string CompoundOpen = "CompoundOpen", CompoundCreated = "CompoundCreated", CompoundLocked = "CompoundLocked", CompoundBlocked = "CompoundBlocked",
-        ElementConsumed = "ElementConsumed", CompoundCreate = "CompoundCreate", CompoundDissolve = "CompoundDissolve";
+        ElementConsumed = "ElementConsumed", CompoundCreate = "CompoundCreate", CompoundDissolve = "CompoundDissolve", SpecAhead = "SpecAhead";
 
     /// <summary>Every variation the theme defines (for the self-test).</summary>
     public static readonly string[] Variations = [MenuTile, Primary, WindowPanel, HudPanel, TitleBar, CloseButton, ListRow, GoldBand, GoldBandLabel, LifeBar, GoldBar,
         SearchField, TreeRow, TreeToggle, AchievementTile, AchievementTileDone, AchievementCard, AchievementCardEarned, IconFrame, IconFrameLocked, DetailPanel,
-        SectionLabel, Link, ProgressBarCompact, HudHeader, CompoundOpen, CompoundCreated, CompoundLocked, CompoundBlocked, ElementConsumed, CompoundCreate, CompoundDissolve];
+        SectionLabel, Link, ProgressBarCompact, HudHeader, CompoundOpen, CompoundCreated, CompoundLocked, CompoundBlocked, ElementConsumed, CompoundCreate, CompoundDissolve, SpecAhead];
 
     /// <summary>The bold of the titles: the default font emboldened, spaced a little.</summary>
     public static FontVariation Bold(int spacing = 0) => new() { BaseFont = ThemeDB.FallbackFont, VariationEmbolden = 0.6f, SpacingGlyph = spacing };
@@ -296,6 +296,8 @@ public static class OsmoseTheme
         Tile(CompoundLocked, Flat(ElementStyle.OutOfLevelFill, "#ffffff0f", 1, 8), Flat(ElementStyle.LockedFill, "#ffffff2e", 1, 8), Flat(ElementStyle.LockedFill, UiStyle.ChocolateLight, 2, 8));
         Tile(CompoundBlocked, Flat(ElementStyle.LockedFill, UiStyle.Edge, 1, 8), Flat(UiStyle.Tab, "#ffffff2e", 1, 8), Flat(UiStyle.Tab, UiStyle.ChocolateLight, 2, 8));
         Tile(ElementConsumed, Flat(UiStyle.Well, UiStyle.Edge, 1, 8), Flat(ElementStyle.LockedFill, "#ffffff2e", 1, 8), Flat(ElementStyle.LockedFill, UiStyle.ChocolateLight, 2, 8));
+        // The Specialisation page's (docs/maquette-specialisation.md §6): an evolution to come on the hero's road.
+        Tile(SpecAhead, Flat(ElementStyle.OutOfLevelFill, ElementStyle.WoodLight, 1, 8), Flat(ElementStyle.LockedFill, ElementStyle.WoodLight, 1, 8), Flat(ElementStyle.LockedFill, UiStyle.ChocolateLight, 2, 8));
         theme.SetTypeVariation(CompoundCreate, "Button");
         theme.SetStylebox("normal", CompoundCreate, Raised("secondary", 6));
         theme.SetStylebox("hover", CompoundCreate, Raised("primary-hover", 6));

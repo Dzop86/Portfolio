@@ -99,7 +99,7 @@ public partial class Main
             ShowHallHp();
         if (_options.TownSelfTest || _options.LobbySelfTest)
             Callable.From(() => { _ = RunTownSelfTest(); }).CallDeferred();
-        else if (_options.Shot is "elements" or "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search" or "ride")
+        else if (_options.Shot is "spec" or "spec-confirm" or "elements" or "town" or "banner" or "menu" or "inventory" or "points" or "spells" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "jobs" or "journal" or "hud" or "world-near" or "world-far" or "bestiary" or "bestiary-search" or "ride")
             _ = TownScreenshot();
     }
 
@@ -1360,7 +1360,9 @@ public partial class Main
         AddChild(_pointsPanel);
         // In a fight, to look at only (sprint 93).
         _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts, spells);
+        _pointsPanel.SpecContext = _lobby?.SignedIn == true && _character is not null ? SpecContext.Of(_character) : new SpecContext(true, 1_000_000, true);
         _pointsPanel.SavePressed += p => _ = SavePoints(p, _pointsPanel);
+        _pointsPanel.SpecChosen += (spec, fork) => _ = ChooseSpec(spec, fork);
         _pointsPanel.ClosePressed += () =>
         {
             _windows.Close();
@@ -2203,6 +2205,34 @@ public partial class Main
         return false;
     }
 
+    /// <summary>A road confirmed on the Specialisation page (sprint 191, D95): the server checks and writes it; offline, only in memory.</summary>
+    private async Task ChooseSpec(string spec, string? fork)
+    {
+        if (_pointsPanel is not PointsPanel panel || _hero is null)
+            return;
+        long price = Specs.ChangeCost(_hero, spec, fork);
+        if (_lobby?.SignedIn != true || _character is null)
+        {
+            _hero = Specs.Transferred(_hero, spec, fork, GameData.Embedded);
+            panel.SpecSaved(_hero, panel.SpecContext with { Shards = panel.SpecContext.Shards - price }, price);
+            return;
+        }
+        try
+        {
+            _character = await _lobby.Server.ChooseSpec(_character.Id, spec, fork);
+            _hero = _character.Hero;
+            panel.SpecSaved(_hero, SpecContext.Of(_character), price);
+        }
+        catch (ServerException)
+        {
+            panel.SpecRefused();
+        }
+        catch (HttpRequestException)
+        {
+            panel.ShowMessage(panel.Texts["lobby.unreachable"]);
+        }
+    }
+
     private void Answer(int index)
     {
         _town!.Answer(index);
@@ -2481,12 +2511,8 @@ public partial class Main
             if (_pointsPanel.OwnTiles(Element.Lightning) != lightning)
                 problems.Add($"the spells tab shows {_pointsPanel.OwnTiles(Element.Lightning)} Lightning spells, the talents give {lightning}");
             await CheckDeck(problems);
-            // The talents tab sums the hero's talents up, its button opens the tree's window with the draft (sprint 148, K2 b).
-            _pointsPanel.ShowTalents();
-            if ((_hero.Talents ?? []).Any(id => !_pointsPanel.TalentsSummary.Contains(GameData.Embedded.Talents[id].Name.In(_pointsPanel.Texts.Lang), StringComparison.Ordinal)))
-                problems.Add($"the talents tab sums up '{_pointsPanel.TalentsSummary}'");
             // Each tab inside the game's window, its save button in reach (Charles, after 1.0.134).
-            foreach (Action show in new Action[] { () => _pointsPanel.ShowTab(spells: false), () => _pointsPanel.ShowTab(spells: true), _pointsPanel.ShowTalents })
+            foreach (Action show in new Action[] { () => _pointsPanel.ShowTab(spells: false), () => _pointsPanel.ShowTab(spells: true), _pointsPanel.ShowElements, _pointsPanel.ShowSpec })
             {
                 show();
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -2494,10 +2520,11 @@ public partial class Main
                 if (!GetViewport().GetVisibleRect().Encloses(_pointsPanel.Window.GetGlobalRect()))
                     problems.Add($"the character's window ({_pointsPanel.Window.GetGlobalRect()}) leaves the game's ({GetViewport().GetVisibleRect()})");
             }
-            _pointsPanel.ShowTalents();
+            // The Specialisation tab's button opens the tree's window with the draft (sprint 148, K2 b; sprint 191, Q1).
+            _pointsPanel.ShowSpec();
             _pointsPanel.PressOpenTree();
             if (_treePanel is null || _pointsPanel is not null || _treePanel.Editor.Hero != _hero)
-                problems.Add("the talents tab's button does not open the tree's window alone");
+                problems.Add("the specialisation tab's button does not open the tree's window alone");
             _windows.Close();
             ShowWindows();
             _pointsPanel?.QueueFree();
@@ -2577,6 +2604,7 @@ public partial class Main
             await CheckTree(problems);
             CheckTransmuted(problems);
             await CheckElements(problems);
+            await CheckSpec(problems);
         }
         catch (Exception e) when (e is InvalidOperationException or ArgumentException or KeyNotFoundException or NullReferenceException)
         {
@@ -3137,6 +3165,94 @@ public partial class Main
         panel = Open(30, readOnly: true);
         if (panel.FusionAction("lightning").Visible)
             problems.Add("the elements page offers a button in a fight");
+        panel.QueueFree();
+    }
+
+    /// <summary>
+    /// The Specialisation page (sprint 191, D95, docs/maquette-specialisation.md §10): it fits without scrolling in both languages, for each class; no title takes more than two
+    /// lines; the panel holds every evolution; a branch at 30, then a lineage at 50, each through its confirmation; a crossing-out refused out of a village; nothing in a fight.
+    /// </summary>
+    private async Task CheckSpec(List<string> problems)
+    {
+        PointsPanel Open(Hero hero, Texts language, SpecContext context, bool readOnly = false)
+        {
+            var built = new PointsPanel();
+            AddChild(built);
+            built.SpecContext = context;
+            built.Build(new PointsEditor(hero, GameData.Embedded, readOnly), language);
+            built.SpecChosen += (spec, fork) => built.SpecSaved(Specs.Transferred(built.Editor.Hero, spec, fork, GameData.Embedded), built.SpecContext, Specs.ChangeCost(built.Editor.Hero, spec, fork));
+            built.ShowSpec();
+            return built;
+        }
+        var free = new SpecContext(true, 100_000, true);
+        foreach (Texts language in new[] { new Texts("fr"), new Texts("en") })
+        {
+            foreach (HeroClass c in GameData.Embedded.Classes)
+            {
+                PointsPanel page = Open(new Hero("Ondine", "female-a", c.Id, Level: 62), language, free);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (!page.SpecFits)
+                    problems.Add($"the specialisation page scrolls in {language.Lang}: {page.SpecRoom}");
+                if (!page.SpecTreeButtonFits)
+                    problems.Add($"the tree's button leaves its place in {language.Lang}");
+                if (page.SpecButtons.Count != 15 || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
+                    problems.Add($"the tree of {c.Id} has {page.SpecButtons.Count} tiles, the smallest {page.SpecButtons.Values.Min(b => b.Size.Y)} tall");
+                foreach (string key in page.SpecButtons.Keys.Prepend("root"))
+                {
+                    page.PickSpec(key);
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    if (!page.SpecCardFits)
+                        problems.Add($"the specialisation's panel overflows in {language.Lang}: {page.SpecCardRoom}");
+                    if (!page.SpecTitleFits)
+                        problems.Add($"the specialisation's title of {key} overflows in {language.Lang}");
+                }
+                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                if (page.SpecLongTitles.Any())
+                    problems.Add($"titles past two lines in {language.Lang}: {string.Join(", ", page.SpecLongTitles)}");
+                page.QueueFree();
+            }
+        }
+        Texts texts = _talkPanel?.Texts ?? _hud.Texts;
+        // A branch at 30, then at 50 its lineage: the story's scenario.
+        PointsPanel panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 30), texts, free);
+        panel.PickSpec("sightline");
+        if (panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.take"])
+            problems.Add($"a branch at 30 offers '{panel.SpecCardAction.Text}'");
+        panel.SpecCardAction.EmitSignal(BaseButton.SignalName.Pressed);
+        if (!panel.Confirming)
+            problems.Add("a branch at 30 asks for no confirmation");
+        panel.PressConfirmYes();
+        if (panel.Editor.Hero.Spec != "sightline" || panel.Confirming)
+            problems.Add($"the branch taken at 30 gives '{panel.Editor.Hero.Spec}'");
+        panel.QueueFree();
+        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 50, Spec: "sightline"), texts, free);
+        panel.PickSpec("marksman");
+        panel.SpecCardAction.EmitSignal(BaseButton.SignalName.Pressed);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!panel.ConfirmFits)
+            problems.Add($"the confirmation does not hold: {panel.ConfirmRoom}");
+        panel.PressConfirmYes();
+        if (panel.Editor.Hero.Fork != "marksman")
+            problems.Add($"the lineage taken at 50 gives '{panel.Editor.Hero.Fork}'");
+        panel.QueueFree();
+        // A crossing-out out of a village says so, and does nothing.
+        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 60, Spec: "sightline", Fork: "marksman"), texts, new SpecContext(true, 100_000, false));
+        panel.PickSpec("barrage");
+        if (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.need.village"])
+            problems.Add($"a crossing-out out of a village offers '{panel.SpecCardAction.Text}'");
+        panel.QueueFree();
+        // Soon, for a class whose spells are still to come; nothing in a fight.
+        panel = Open(new Hero("Ondine", "female-a", "guard", Level: 40), texts, free);
+        panel.PickSpec("palisade");
+        if (GameData.Embedded.Specs["palisade"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
+            problems.Add($"a branch without its spells offers '{panel.SpecCardAction.Text}'");
+        panel.QueueFree();
+        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 40), texts, free, readOnly: true);
+        panel.PickSpec("sightline");
+        if (panel.SpecCardAction.Visible)
+            problems.Add("the specialisation page offers a button in a fight");
         panel.QueueFree();
     }
 
@@ -4039,6 +4155,24 @@ public partial class Main
             Error tree = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
             GD.Print($"SCREENSHOT {tree} {_options.Screenshot}");
             GetTree().Quit(tree == Error.Ok ? 0 : 1);
+            return;
+        }
+        if (_options.Shot is "spec" or "spec-confirm")
+        {
+            // The Specialisation page (sprint 191, §10): a Sentinel of 62, its road taken, a lineage left shown.
+            _hero = new Hero("Ondine", "female-a", "sentinel", 5, 5, 4, -1, 1, Level: 62, Stats: new Characteristics(Vitality: 80, Earth: 170, Fire: 60, Water: 40, Air: 40), Spec: "sightline", Fork: "marksman");
+            ShowBar();
+            ToggleWindow(GameWindow.Characteristics);
+            _pointsPanel!.ShowSpec();
+            _pointsPanel.PickSpec("barrage");
+            if (_options.Shot == "spec-confirm")
+                _pointsPanel.SpecCardAction.EmitSignal(BaseButton.SignalName.Pressed);
+            _townView!.ShowPath(null);
+            for (int i = 0; i < 30; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            Error page = GetViewport().GetTexture().GetImage().SavePng(_options.Screenshot!);
+            GD.Print($"SCREENSHOT {page} {_options.Screenshot}");
+            GetTree().Quit(page == Error.Ok ? 0 : 1);
             return;
         }
         if (_options.Shot == "elements")
