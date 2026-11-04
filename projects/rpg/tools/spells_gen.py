@@ -422,12 +422,9 @@ paths = [
  path("crush","Écrasement","Crush",5,1,1,50,"lorc/hammer-drop",damage=True),
  path("iron-ring","Cercle de fer","Iron Ring",3,0,0,50,"lorc/linked-rings",los=False,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],cd=2),
 ]
-# The levers of §v4.6, by measure against the groups of 4 and 5 (sprint 191, T150): the Aimed Shot and the Barrage a tenth under the budget. The Portcullis lost its
-# passive at 2 cells too, which gave it 8 points.
-PATH_SCALE = {"path-aimed-shot": 0.9, "path-barrage": 0.9}
 for sp in paths:
     if sp["damageMax"] > 0:
-        budget(sp, PATH_SCALE.get(sp["id"], 1))
+        budget(sp)
 _names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
 _names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
@@ -539,6 +536,8 @@ passives = [
  # The Sentinel's paths (sprint 191, D95, words of docs/textes-specialisations.md §3.1); those of one name take each other's place (Replaces).
  P("spec-calm-eye","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour.","No enemy within 3 cells at the start of your turn: +15% damage for 1 turn.",
    "TurnStart",[status("Caster","Damage",15,1)],clear=3),
+ P("spec-calm-eye-near","Œil calme","Calm Eye","Aucun ennemi à 2 cases au début de ton tour : +15 % de dégâts pendant 1 tour.","No enemy within 2 cells at the start of your turn: +15% damage for 1 turn.",
+   "TurnStart",[status("Caster","Damage",15,1)],clear=2),
  P("spec-calm-eye-long","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours.","No enemy within 3 cells at the start of your turn: +25% damage for 2 turns.",
    "TurnStart",[status("Caster","Damage",25,2)],clear=3),
  # The Guard's (sprint 192).

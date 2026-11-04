@@ -112,7 +112,7 @@ Notation : PA, PO, relance ; dégâts au barème du niveau 50, rang 1. **(v3.4)*
 
 **Ce que coûte la liste en contenu** : 36 sorts (18 à 30, 18 à 50, pour 27 au §v3.4), une vingtaine de passifs, 5 invocations nouvelles (2 Faucons, 3 ombres), 36 titres, soit 72 noms de sorts et 72 titres FR et EN à relire par le scénariste, formes féminines comprises.
 
-**Écarts au sprint 191 (T150).** Herse : le passif garde ses 3 cases (levier 3), Tir visé et Tir de barrage à −10 % de budget. Mâchoires : PO 1 à 5 sur une case, que la v4 ne fixait pas. Le Faucon nourri reçoit 50 % des caractéristiques de la Sentinelle : la v4 disait « une part » sans chiffre.
+**Écarts au sprint 191 (T150).** Mâchoires : PO 1 à 5 sur une case, que la v4 ne fixait pas. Le Faucon nourri reçoit 50 % des caractéristiques de la Sentinelle : la v4 disait « une part » sans chiffre.
 
 ### v4.5 Le changement, et le héros qui choisit tard
 

@@ -882,3 +882,34 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 
 - **Tant que la brique S (S193) n'a pas tranché, on ne peut pas dire que ces voies sont équilibrées,** ni qu'elles sont faibles. Et les passifs et règles seuls dépassent parfois les +15 de M2 (Carcan +19, Croc-de-fer +15,3, Garde-corps +14,7) : corriger l'IA peut faire passer ces lignées au-dessus du plafond.
 
+## T152. Le paquet automatique jetait le meilleur sort du héros (sprint 193, D95)
+
+**Ce qui était faux.** Les sorts d'une voie réservaient leurs places à la fin du paquet, et `AutomaticDeck` ne gardait que les premiers sorts du grimoire. Les derniers débloqués partaient donc, et ce sont les meilleures zones de la classe : Séisme (53 dégâts par lancer, 1,7 fois par combat) et Éboulis (84, 2 fois). Une Garde de la Brèche tombait à 3 victoires sur 80, contre 16 sans voie.
+
+**Tout ce que T150 et T151 disent des voies « sous le héros sans voie » et des leviers vient de ce défaut.** Leurs chiffres sont gardés comme historique et ne valent plus.
+
+**Décision.** Les sorts d'une voie prennent la place des sorts qui rapportent le moins (`Hero.LeastWorth`) : parmi ceux qui font des dégâts, avec un autre de leur élément dans le paquet, quel que soit leur rang, le plus faible sur un tour, une zone comptant davantage. Un sort sans dégâts reste. Un héros sans voie garde exactement le même paquet.
+
+**Ma première version filtrait sur le rang 1 :** elle ne trouvait aucun candidat chez un héros construit, retombait sur le dernier sort et ne changeait rien en jeu, alors que son test passait sur un héros sans rang. Le test construit maintenant son héros.
+
+**Les leviers de S191 sont retirés :** la Herse retrouve son passif à 2 cases et sa description, Tir visé et Tir de barrage leur budget. Ils compensaient une mesure faussée.
+
+**Alternatives.** Choisir d'après la mesure, sort par sort : trop cher à maintenir. Garder les derniers débloqués : mêmes résultats tant que le classement par tour reste juste, mais un sort tardif n'est pas toujours le meilleur.
+
+**La mesure** (groupes de 4 et 5, 480 combats par voie, sans équipement).
+
+| Niveau | Sans voie | Voies | Écart à la moyenne |
+|---|---|---|---|
+| Garde 35 | 19,8 | Palissade 26,0 ; Brèche 17,3 ; Étau 13,1 | +7,2 à −5,7 |
+| Garde 45 | 22,9 | Palissade 29,2 ; Brèche 18,1 ; Étau 16,7 | +7,9 à −4,6 |
+| Garde 50 | 30,8 | Garde-corps 34,8 ; Bastion 40,8 ; Bélier 29,0 ; Croc-de-fer 31,9 ; Carcan 37,3 ; Tenaille 25,4 | +7,6 à −7,8 |
+| Sentinelle 35 | 44,6 | Mire 41,9 ; Affût 24,8 ; Sente 36,0 | +7,7 à −9,4 |
+| Sentinelle 45 | 35,6 | Mire 43,8 ; Affût 23,1 ; Sente 29,6 | +11,6 à −9,1 |
+| Sentinelle 50 | 43,8 | Longue-vue 49,8 ; Herse 51,9 ; Porte-faucon 23,3 ; Tend-pièges 19,4 ; Saute-haie 17,9 ; Court-sentes 24,0 | +20,9 à −13,2 |
+
+**Limites, à lire.**
+- **La Garde tient le ±8 de la story** à 35, 45 et 50, et le test l'exige.
+- **La Sentinelle ne le tient pas :** ±22 dans le test, simple garde-fou. Les lignées de dégâts montent, l'Affût et la Sente s'effondrent. Hypothèse non vérifiée : l'IA ne pose presque pas Cabriole (0,1 fois par combat) et joue mal les pièges et le Faucon, qui prennent maintenant la place de sorts de dégâts. La brique S doit le confirmer.
+- **Aucune voie ne dépasse le +15 de M2,** et le test l'exige. **Le +3 du bas n'est pas tenu :** Brèche, Étau, Bélier, Tenaille, Affût et Sente restent sous le héros sans voie.
+- Un joueur compose son paquet : tout cela mesure le paquet automatique et cette IA, pas ce qu'une voie vaut entre de bonnes mains. Le playtest reste à faire.
+

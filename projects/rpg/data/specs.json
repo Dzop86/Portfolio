@@ -830,11 +830,17 @@
               "en": "Portcullis"
             },
             "description": {
-              "fr": "Sort : Tir de barrage, une ligne de 3 cases qui retire 1 PM.",
-              "en": "Spell: Barrage, a line of 3 cells that takes 1 MP."
+              "fr": "Le passif joue dès qu'aucun ennemi n'est à 2 cases, au lieu de 3. Sort : Tir de barrage.",
+              "en": "The passive works as soon as no enemy is within 2 cells, instead of 3. Spell: Barrage."
             },
             "spells": [
               "path-barrage"
+            ],
+            "passives": [
+              "spec-calm-eye-near"
+            ],
+            "replaces": [
+              "spec-calm-eye"
             ]
           },
           {

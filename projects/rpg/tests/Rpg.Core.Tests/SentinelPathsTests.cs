@@ -56,9 +56,10 @@ public class SentinelPathsTests
         Assert.Equal(15, Bonus(Sentinel("sightline", null, 30), 4));
         Assert.Null(Bonus(Sentinel("sightline", null, 30), 3));
         Assert.Equal(25, Bonus(Sentinel("sightline", "marksman", 100), 4));
-        Assert.Null(Bonus(Sentinel("sightline", "barrage", 50), 3));
+        Assert.Equal(15, Bonus(Sentinel("sightline", "barrage", 50), 3));
+        Assert.Null(Bonus(Sentinel("sightline", "barrage", 50), 2));
         Assert.Null(Bonus(Sentinel(null, null, 50), 9));
-        Assert.Equal(["spec-calm-eye"], Specs.PassivesOf(Sentinel("sightline", "barrage", 50), Real));
+        Assert.Equal(["spec-calm-eye-near"], Specs.PassivesOf(Sentinel("sightline", "barrage", 50), Real));
         Assert.Equal(["spec-calm-eye-long"], Specs.PassivesOf(Sentinel("sightline", "marksman", 100), Real));
     }
 

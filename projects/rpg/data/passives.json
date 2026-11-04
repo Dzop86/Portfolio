@@ -775,6 +775,28 @@
     "clear": 3
   },
   {
+    "id": "spec-calm-eye-near",
+    "name": {
+      "fr": "Œil calme",
+      "en": "Calm Eye"
+    },
+    "description": {
+      "fr": "Aucun ennemi à 2 cases au début de ton tour : +15 % de dégâts pendant 1 tour.",
+      "en": "No enemy within 2 cells at the start of your turn: +15% damage for 1 turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 15,
+        "turns": 1
+      }
+    ],
+    "clear": 2
+  },
+  {
     "id": "spec-calm-eye-long",
     "name": {
       "fr": "Œil calme",

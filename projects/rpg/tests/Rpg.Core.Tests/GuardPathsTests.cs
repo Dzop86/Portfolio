@@ -301,6 +301,32 @@ public class GuardPathsTests
         Assert.DoesNotContain(f.HeroFighter!.Statuses, s => s.Stat == Stat.Mp);
     }
 
+    [Theory]
+    [InlineData("guard", "breach", null, 35, "quake")]
+    [InlineData("guard", "grip", "jailer", 50, "quake")]
+    [InlineData("sentinel", "trail", null, 35, "rockfall")]
+    [InlineData("sentinel", "sightline", "marksman", 50, "rockfall")]
+    public void APathsSpells_DoNotPushTheClasssBestAreaOutOfTheAutomaticDeck(string cls, string spec, string? fork, int level, string area)
+    {
+        // Sprint 193 (T152): they took the places of the last spells unlocked, Quake and Rockfall, 3 wins of 80 against 16 for a Guard of the Breach.
+        // Built, ranks and all: with no rank, the first version of this rule looked right and did nothing in play.
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", cls, Level: level), Real);
+        Assert.NotEmpty(hero.Ranks!);
+        Assert.Contains(area, hero.DeckOf(Real));
+        IReadOnlyList<string> deck = (hero with { Spec = spec, Fork = fork }).DeckOf(Real);
+        Assert.Contains(area, deck);
+        Assert.Equal(Hero.DeckSize, deck.Count);
+        Assert.All(Specs.SpellsOf(hero with { Spec = spec, Fork = fork }, Real), id => Assert.Contains(id, deck));
+    }
+
+    [Fact]
+    public void WithoutAPath_TheAutomaticDeck_DoesNotChange()
+    {
+        var hero = new Hero("Ondine", "female-a", "guard", Level: 60);
+        Assert.Equal(hero.FirstSpells(Real).Count, hero.DeckOf(Real).Count);
+        Assert.Equal(Hero.DeckSize, hero.DeckOf(Real).Count);
+    }
+
     public static TheoryData<string, string?, int> Leaves()
     {
         var leaves = new TheoryData<string, string?, int>();

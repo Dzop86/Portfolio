@@ -38,16 +38,16 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     /// the first spell that hurts of the same element, the oldest first (the lowest level, then the first in the grimoire),
     /// that it beats on a turn (<see cref="TurnValue"/>): neither a spell of level 1 nor one raised above rank 1, nor, for a
     /// spell that only touches, one that reaches farther. Without one, it waits for the player's choice. A spell that does
-    /// not hurt never comes in alone, and none is taken out. Nothing changes before level 40.
+    /// not hurt never comes in alone, and none is taken out. Nothing changes before level 40. A path's spells and those it keeps
+    /// close the bar (sprint 186), in the places of the spells worth least (sprint 193, D95, T152: <see cref="LeastWorth"/>).
     /// </summary>
     public IReadOnlyList<string> AutomaticDeck(GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
         List<string> all = [.. Rpg.Core.Talents.GrimoireOf(this, data).Spells];
-        // A path's spells and those it keeps close the bar (sprint 186); the rest as before, in what is left.
         IReadOnlyList<string> reserved = Specs.Reserved(this, data, all);
         List<string> grimoire = [.. all.Where(id => !reserved.Contains(id))];
-        int limit = Math.Max(0, DeckLimit(data) - reserved.Count);
+        int limit = DeckLimit(data);
         var deck = grimoire.Take(limit).ToList();
         foreach (Spell next in grimoire.Skip(limit).Select(id => data.Spells[id]).Where(s => s.DamageMax > 0))
         {
@@ -59,7 +59,21 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             if (cell >= 0)
                 deck[cell] = next.Id;
         }
+        // Not the last ones unlocked, as until sprint 192: they were the class's best areas, Quake and Rockfall, and a hero on a path won a third of what it won without.
+        while (deck.Count > Math.Max(0, limit - reserved.Count))
+            deck.Remove(LeastWorth(deck, data));
         return [.. deck, .. reserved];
+    }
+
+    /// <summary>
+    /// The spell a path's takes the place of (sprint 193, T152): among those that hurt, with another of their element left in the deck, whatever their rank (a built hero has none left at 1), the one worth least on a turn,
+    /// an area counting for more than a single target; the last of the deck if there is none. A spell that does not hurt stays: the AI plays those it has by their effects.
+    /// </summary>
+    private static string LeastWorth(IReadOnlyList<string> deck, GameData data)
+    {
+        Spell[] spells = [.. deck.Select(id => data.Spells[id])];
+        return spells.Where(s => s.DamageMax > 0 && spells.Count(o => o.DamageMax > 0 && o.Element == s.Element) > 1)
+            .OrderBy(s => TurnValue(s) * (1 + s.Zone.Radius)).ThenBy(s => s.Level).Select(s => s.Id).FirstOrDefault() ?? deck[^1];
     }
 
     /// <summary>
