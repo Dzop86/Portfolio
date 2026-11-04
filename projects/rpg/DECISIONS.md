@@ -838,3 +838,36 @@ Les leviers du §v4.6 (accord de Charles, Q13 a) : −10 % de budget sur Tir de 
 - Les 50 % de caractéristiques du Faucon et la PO de Mâchoires sont des choix de ma part, faute de chiffre dans la v4.
 - Les 300 combats de M1 et M2 et M3 à M6 restent à S193.
 
+## T151. La Garde, et des voies qui jouent sous le héros sans voie (sprint 192, D95)
+
+**Décision.** Les briques J à P de `docs/elements-specialisations.md` §v4.3 sont au cœur :
+- **J :** `ShieldRule`, boucliers sur alliés +25 %, jamais sur soi.
+- **K :** `Stat.Anchored`, lu par `Shove`.
+- **L :** `Trigger.AllyFalls`, joué dans `Hurt` : ni le porteur ni une invocation ne sont sauvés.
+- **M :** `Spell.SpendsShield`, tout le bouclier est consommé si le sort touche un ennemi.
+- **N :** `PullRule`, seulement sur les ennemis. **O :** `StatusTurnsRule`, jamais sur un jumeau.
+- **P :** `TargetStateRule`, compté **hors du plafond de +35 %** : sinon les +50 % d'Écrasement seraient impossibles.
+
+**Choix faits faute de chiffre ou de moteur.**
+- Rétorsion ajoute 19 au plus au jet : 38 en tout au jet maximal de son rang 1, et davantage aux rangs suivants, au lieu d'un plafond absolu de 38.
+- Interposition donne un bouclier de 15, et Verrou retire 9 PM pour 1 tour, soit tous ceux d'un monstre.
+- Tenir bon dure 2 tours du porteur, sinon il finirait avant le tour ennemi.
+- Personne ne sort joue au début du tour du porteur : l'ennemi au contact perd 1 PM à son prochain tour.
+- Carcan est un second passif de 1 PA, une fois par tour, au lieu de remplacer le premier.
+- La règle d'Étau prolonge aussi Verrou : 2 tours sur 4, puis 2 sur 3 à 100. **M6 reste à mesurer en S193.**
+
+**La mesure** (mêmes règles que T150 : groupes de 4 et 5, 480 combats par voie, sans équipement).
+
+| Niveau | Sans voie | Voies |
+|---|---|---|
+| 35 | 19,8 | Palissade 11,0 ; Brèche 3,8 ; Étau 6,9 |
+| 45 | 22,9 | Palissade 15,0 ; Brèche 9,6 ; Étau 12,9 |
+| 50 | 30,8 | Garde-corps 26,3 ; Bastion 31,7 ; Bélier 30,0 ; Croc-de-fer 25,6 ; Carcan 24,4 ; Tenaille 17,1 |
+
+M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégâts et dégâts, sur les 2 groupes de `PartyBalanceTests`.
+
+**Limites, à lire.**
+- **±8 de la moyenne : tenu à 35 et 45, pas à 50,** Tenaille est à −8,6. Le test tient ±12, comme T150.
+- **Ce seuil cache l'essentiel : presque toutes les voies jouent sous le héros sans voie,** jusqu'à −16 points pour la Brèche à 35, à l'inverse du gain de +3 à +15 de M2. Hypothèses non vérifiées : les 2 ou 3 places réservées dans le paquet automatique prennent des sorts de dégâts, l'IA surévalue Verrou (`Ai.Value` compte 2 × 9 PM, même contre un monstre qui en a 3) et ne sait pas jouer Assaut sur une case libre ni garder un bouclier pour Rétorsion.
+- **Tant que la brique S (S193) n'a pas tranché, on ne peut pas dire que ces voies sont équilibrées,** ni qu'elles sont faibles. Si elles restent sous le héros sans voie avec une IA corrigée, c'est le contenu qu'il faudra relever, et le levier du §v4.6 ne couvre pas ce cas.
+

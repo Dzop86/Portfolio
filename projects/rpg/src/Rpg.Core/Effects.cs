@@ -158,6 +158,9 @@ public enum Stat
     /// and the status is spent.
     /// </summary>
     Feint,
+
+    /// <summary>Neither a push nor a pull moves the fighter (sprint 192, D95, brick K): Stand Fast.</summary>
+    Anchored,
 }
 
 /// <summary>
@@ -300,6 +303,12 @@ public enum Trigger
 
     /// <summary>At its death, unless that death ends the fight.</summary>
     Death,
+
+    /// <summary>
+    /// Another fighter of its team, not a summon, would fall within <see cref="PassiveSpec.Range"/> steps (sprint 192, D95, brick L): it stays at 1 hit point instead. The
+    /// passive has no effect of its own.
+    /// </summary>
+    AllyFalls,
 }
 
 /// <summary>
@@ -309,7 +318,7 @@ public enum Trigger
 /// </summary>
 /// <param name="Melee">Hit only: the attacker stands next to the bearer.</param>
 /// <param name="Percent">LowHp only: 1 to 99.</param>
-/// <param name="Range">AllyDies only: the ally died within that many steps (0: anywhere).</param>
+/// <param name="Range">AllyDies and AllyFalls only: the ally fell within that many steps (0: anywhere).</param>
 /// <param name="PerFight">Sprint 190 (D95, brick D): it fires at most that many times a fight (0: no limit).</param>
 /// <param name="OncePerTurn">It fires at most once a turn of the bearer's.</param>
 /// <param name="Still">TurnStart only: only if the bearer did not walk on its turn before.</param>

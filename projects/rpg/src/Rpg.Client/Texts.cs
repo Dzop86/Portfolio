@@ -519,6 +519,9 @@ public sealed class Texts
         ["stat.Parched"] = "ni soin ni bouclier",
         ["stat.Incorporeal"] = "case traversable",
         ["stat.Feint"] = "le prochain qui frappe au contact perd {0} PM",
+        ["stat.Anchored"] = "indéplaçable",
+        ["stat.Mp.all"] = "plus de déplacement",
+        ["sd.spends-shield"] = "Consomme ton bouclier, jusqu'à {0} de dégâts en plus.",
         ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
         ["element.Neutral"] = "neutre",
         ["element.Earth"] = "Terre",
@@ -1734,6 +1737,9 @@ public sealed class Texts
         ["stat.Parched"] = "no healing or shield",
         ["stat.Incorporeal"] = "cell passable",
         ["stat.Feint"] = "the next to strike in melee loses {0} MP",
+        ["stat.Anchored"] = "cannot be moved",
+        ["stat.Mp.all"] = "no more moving",
+        ["sd.spends-shield"] = "Uses up your shield, for up to {0} more damage.",
         ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
         ["element.Neutral"] = "neutral",
         ["element.Earth"] = "Earth",
@@ -2619,6 +2625,8 @@ public sealed class Texts
             lines.Add(this["sd.needs", GameData.Embedded.Summons.TryGetValue(needed, out SummonSpec? kind) ? kind.Name.In(Lang) : needed]);
         if (s.Aims is string aimed)
             lines.Add(this["sd.aims", GameData.Embedded.Summons.TryGetValue(aimed, out SummonSpec? on) ? on.Name.In(Lang) : aimed]);
+        if (s.SpendsShield > 0)
+            lines.Add(this["sd.spends-shield", s.SpendsShield]);
         if (!b.Unlocked)
             lines.Add(this["sd.unlock", b.Spell.Level]);
         else if (b.NextCost == 0)
@@ -3028,6 +3036,9 @@ public sealed class Texts
     {
         string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
         string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
+        // The Lock (sprint 192): all of its movement, whatever the number.
+        if (stat == Stat.Mp && value <= -9)
+            return this["stat.Mp.all"];
         return this["stat." + stat, signed, elem];
     }
 

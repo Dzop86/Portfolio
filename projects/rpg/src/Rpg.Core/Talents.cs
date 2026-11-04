@@ -63,6 +63,10 @@ public enum Tier
 [JsonDerivedType(typeof(CatalysisRule), "catalysis")]
 [JsonDerivedType(typeof(PatchRule), "patch")]
 [JsonDerivedType(typeof(SummonRule), "summon-share")]
+[JsonDerivedType(typeof(ShieldRule), "ally-shield")]
+[JsonDerivedType(typeof(PullRule), "pull")]
+[JsonDerivedType(typeof(StatusTurnsRule), "status-turns")]
+[JsonDerivedType(typeof(TargetStateRule), "target-state")]
 [JsonDerivedType(typeof(LeapSightRule), "leap-sight")]
 [JsonDerivedType(typeof(GlyphTurnsRule), "glyph-turns")]
 [JsonDerivedType(typeof(LingerRule), "linger")]
@@ -218,6 +222,21 @@ public sealed record PatchRule(string Spell, int? Cooldown = null, int? ApCost =
 /// </summary>
 public sealed record SummonRule(string Summon, int HpPercent, int StatsPercent) : TalentRule;
 
+/// <summary>Living, a path's (sprint 192, D95, brick J): the bearer's shields on its allies, not on itself, are worth <see cref="Percent"/> % more.</summary>
+public sealed record ShieldRule(int Percent) : TalentRule;
+
+/// <summary>Compiled, a path's (sprint 192, brick N): the spells that pull an enemy pull it <see cref="Cells"/> farther.</summary>
+public sealed record PullRule(int Cells) : TalentRule;
+
+/// <summary>Compiled, a path's (sprint 192, brick O): what the spells set on enemies among <see cref="Stats"/> lasts <see cref="Extra"/> turns more, on all but a compound's spells.</summary>
+public sealed record StatusTurnsRule(int Extra, IReadOnlyList<Stat> Stats) : TalentRule;
+
+/// <summary>
+/// Living, a path's (sprint 192, brick P): <see cref="Percent"/> % more on a target with no movement point for its next turn, or under <see cref="States"/> states or more
+/// when given; with <see cref="Spell"/>, on that spell alone. Past <see cref="Talents.Ceiling"/>: a path's reward for a hard condition (the Crush's +50 %).
+/// </summary>
+public sealed record TargetStateRule(int Percent, int States = 0, string? Spell = null) : TalentRule;
+
 /// <summary>A path's (sprint 186, the Trail): its spells that leap ask for no line of sight.</summary>
 public sealed record LeapSightRule : TalentRule;
 
@@ -271,8 +290,9 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="Backed">The caster stands next to an obstacle (sprint 142).</param>
 /// <param name="InMyGlyph">The target stands in one of the caster's glyphs (sprint 142).</param>
 /// <param name="Triggers">The hit sets a reaction off (sprint 144); <paramref name="OwnMark"/>, on the caster's own mark; <paramref name="Zone"/>, a spell with an area.</param>
+/// <param name="TargetStill">The target has no movement point for its next turn (sprint 192); <paramref name="TargetStates"/>, the states on it; <paramref name="Spell"/>, the spell's rank key.</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
-    bool Triggers = false, bool OwnMark = false, bool Zone = false);
+    bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -531,6 +551,15 @@ public static class Talents
         // The paths' (sprint 186).
         if (rules.OfType<LeapSightRule>().Any() && s.AllEffects.Any(e => e is LeapEffect))
             s = s with { LineOfSight = false };
+        // The paths' (sprint 192, bricks N and O).
+        int pulled = rules.OfType<PullRule>().Sum(r => r.Cells);
+        if (pulled > 0)
+            s = s with { Effects = s.Effects?.Select(e => e is PullEffect { Affects: Affects.Enemies } p ? p with { Cells = p.Cells + pulled } : e).ToList() };
+        if (s.Twin is null)
+        {
+            foreach (StatusTurnsRule longer in rules.OfType<StatusTurnsRule>())
+                s = s with { Effects = s.Effects?.Select(e => e is StatusEffect { Affects: Affects.Enemies } st && longer.Stats.Contains(st.Stat) ? st with { Turns = st.Turns + longer.Extra } : e).ToList() };
+        }
         // A compound's glyph, Ash's signature, does not last longer (sprint 191, §v4.6).
         int extraTurns = rules.OfType<GlyphTurnsRule>().Sum(r => r.Extra);
         if (extraTurns > 0 && s.Twin is null && s.AllEffects.Any(e => e is GlyphEffect))
@@ -613,7 +642,8 @@ public static class Talents
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);
-        return Math.Clamp(sum, -100, Ceiling);
+        int beyond = rules.OfType<TargetStateRule>().Where(r => (r.Spell is null || r.Spell == c.Spell) && (r.States > 0 ? c.TargetStates >= r.States : c.TargetStill)).Sum(r => r.Percent);
+        return Math.Clamp(sum, -100, Ceiling) + beyond;
     }
 
     /// <summary>

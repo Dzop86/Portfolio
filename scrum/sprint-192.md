@@ -6,7 +6,11 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Garde, je deviens Palissade, Brèche ou Étau, puis une de leurs 2 évolutions (rpg) ; xUnit, ±8 points à 35, 45 et 50, un duo Palissade et dégâts à moins de 1,5 victoire sur 30 d'un duo dégâts et dégâts. | 4 | À faire |
+| En tant que Garde, je deviens Palissade, Brèche ou Étau, puis une de leurs 2 évolutions (rpg) ; xUnit, ±8 points à 35, 45 et 50, un duo Palissade et dégâts à moins de 1,5 victoire sur 30 d'un duo dégâts et dégâts. | 4 | Fait, sauf le seuil à 50 : Tenaille à −8,6 (T151) |
+
+**Ce qui est fait.** Les briques J à P ; les 12 sorts, les passifs et les règles de la Garde ; le duo Palissade (M5) tenu.
+
+**Ce qui n'est pas tenu.** ±8 à 50 : Tenaille à −8,6. Surtout, presque toutes les voies jouent sous le héros sans voie, jusqu'à −16 points à 35. Rien ne dit encore si c'est l'IA ou le contenu : c'est la première question de S193 (T151).
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -4,7 +4,7 @@
 import json, collections, sys
 root = sys.argv[1]
 O = collections.OrderedDict
-def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None):
+def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None, spends=0):
     d = O([("id", id), ("name", O([("fr", fr), ("en", en)])), ("apCost", ap), ("minRange", mn), ("maxRange", mx),
            ("lineOfSight", los), ("inLine", line), ("damageMin", dmin), ("damageMax", dmax), ("perTurn", per), ("element", el)])
     if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
@@ -15,6 +15,7 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
     if adaptive: d["adaptive"] = True
     if needs: d["needs"] = needs
     if aims: d["aims"] = aims
+    if spends: d["spendsShield"] = spends
     if ranks and dmax > 0:
         d["ranks"] = [O([("damageMin", round(dmin * f)), ("damageMax", round(dmax * f))]) for f in (1.2, 1.4, 1.6, 1.8)]
     return d
@@ -405,6 +406,21 @@ paths = [
  path("heel-kick","Coup de talon","Heel Kick",3,1,1,30,"lorc/boot-stomp",damage=True,effects=[push(2)]),
  path("feint","Feinte","Feint",2,0,0,50,"lorc/dodging",los=False,effects=[status("Caster","Feint",2,2)],cd=3),
  path("running-shot","Tir en course","Running Shot",3,2,5,50,"lorc/run",damage=True,effects=[status("Caster","Mp",2,1)]),
+ # The Palisade (sprint 192, D95): Stand Fast lasts through the enemies' turns, hence 2 of its own, as the Feint.
+ path("interpose","Interposition","Interpose",2,1,3,30,"lorc/back-forth",los=False,effects=[swap(),shield("Caster",15,2)],cd=2),
+ path("stand-fast","Tenir bon","Stand Fast",2,0,0,30,"lorc/checked-shield",los=False,effects=[status("Caster","Anchored",1,2),status("Caster","Resistance",15,2)],cd=2),
+ path("shield-wall","Mur de boucliers","Shield Wall",4,0,0,50,"lorc/bordered-shield",los=False,area=("Cross",1),effects=[shield("Allies",30,2)],cd=3),
+ path("retaliation","Rétorsion","Retaliation",3,1,1,50,"lorc/punch",damage=True,cd=1,spends=19),
+ # The Breach.
+ path("assault","Assaut","Assault",3,2,4,30,"lorc/quick-slash",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
+ path("wrench","Arrachement","Wrench",3,1,4,30,"delapouite/push",effects=[pull(2),status("Enemies","Mp",-1,1)]),
+ path("breakthrough","Trouée","Breakthrough",4,1,1,50,"lorc/anvil-impact",damage=True,area=("Line",2),effects=[push(1)],cd=1),
+ path("harpoon","Harpon","Harpoon",3,2,6,50,"lorc/barbed-spear",damage=True,line=True,effects=[pull(3)],cd=1),
+ # The Grip: the Lock takes all the movement any monster has.
+ path("hold","Prise","Hold",3,1,1,30,"lorc/fist",damage=True,effects=[status("Enemies","Mp",-2,2)]),
+ path("lock","Verrou","Lock",2,1,1,30,"lorc/skeleton-key",effects=[status("Enemies","Mp",-9,1)],cd=3),
+ path("crush","Écrasement","Crush",5,1,1,50,"lorc/hammer-drop",damage=True),
+ path("iron-ring","Cercle de fer","Iron Ring",3,0,0,50,"lorc/linked-rings",los=False,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],cd=2),
 ]
 # The levers of §v4.6, by measure against the groups of 4 and 5 (sprint 191, T150): the Aimed Shot and the Barrage a tenth under the budget. The Portcullis lost its
 # passive at 2 cells too, which gave it 8 points.
@@ -525,6 +541,19 @@ passives = [
    "TurnStart",[status("Caster","Damage",15,1)],clear=3),
  P("spec-calm-eye-long","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours.","No enemy within 3 cells at the start of your turn: +25% damage for 2 turns.",
    "TurnStart",[status("Caster","Damage",25,2)],clear=3),
+ # The Guard's (sprint 192).
+ P("spec-close-ranks-9","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case.","At the start of your turn, a shield of 9 on you and allies 1 cell away.","TurnStart",[shield("Allies",9,2)],area=("Circle",1)),
+ P("spec-close-ranks-12","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 12 sur toi et tes alliés à 2 cases.","At the start of your turn, a shield of 12 on you and allies within 2 cells.","TurnStart",[shield("Allies",12,2)],area=("Circle",2)),
+ P("spec-close-ranks-17","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 17 sur toi et tes alliés à 2 cases.","At the start of your turn, a shield of 17 on you and allies within 2 cells.","TurnStart",[shield("Allies",17,2)],area=("Circle",2)),
+ P("spec-not-today","Pas aujourd'hui","Not Today","Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV.","Once per fight, an ally within 2 cells who would fall stays at 1 HP.","AllyFalls",range=2,perFight=1),
+ P("spec-thorns","Épines","Thorns","Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.","Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral.","Hit",[status("Attacker","Poison",8,2)],melee=True),
+ P("spec-carried-through-1","Sur la lancée","Carried Through","Un ennemi achevé : +1 PM.","An enemy finished off: +1 MP.","Kill",[status("Caster","Mp",1,1)]),
+ P("spec-carried-through-2","Sur la lancée","Carried Through","Un ennemi achevé : +1 PM et +1 PA.","An enemy finished off: +1 MP and +1 AP.","Kill",[status("Caster","Mp",1,1),status("Caster","Ap",1,1)]),
+ P("spec-carried-through-3","Sur la lancée","Carried Through","Un ennemi achevé : +1 PM et +2 PA.","An enemy finished off: +1 MP and +2 AP.","Kill",[status("Caster","Mp",1,1),status("Caster","Ap",2,1)]),
+ P("spec-hands-off","Qui s'y frotte","Hands Off","Qui te frappe au contact perd 1 PM.","Whoever strikes you in melee loses 1 MP.","Hit",[status("Attacker","Mp",-1,1)],melee=True),
+ P("spec-hands-off-ap","Qui s'y frotte","Hands Off","Qui te frappe au contact perd aussi 1 PA, une fois par tour.","Whoever strikes you in melee also loses 1 AP, once per turn.","Hit",[status("Attacker","Ap",-1,1)],melee=True,oncePerTurn=True),
+ P("spec-no-way-out","Personne ne sort","No Way Out","Les ennemis à ton contact au début de ton tour perdent 1 PM à leur prochain tour.","Enemies next to you at the start of your turn lose 1 MP on their next turn.","TurnStart",[status("Enemies","Mp",-1,1)],area=("Circle",1)),
+ # The Sentinel's.
  P("spec-quick-heels","Talons vifs","Quick Heels","Si on te frappe au contact : +2 PM pendant 1 tour.","If you are struck in melee: +2 MP for 1 turn.","Hit",[status("Caster","Mp",2,1)],melee=True),
  P("spec-quick-heels-3","Talons vifs","Quick Heels","Si on te frappe au contact : +3 PM pendant 1 tour.","If you are struck in melee: +3 MP for 1 turn.","Hit",[status("Caster","Mp",3,1)],melee=True),
  P("spec-saw-it-coming","Vu venir","Saw It Coming","Une fois par combat, un coup au contact te donne un bouclier de 40.","Once per fight, a melee blow gives you a shield of 40.",

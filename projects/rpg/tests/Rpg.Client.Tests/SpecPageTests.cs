@@ -271,12 +271,13 @@ public class SpecPageTests
     }
 
     [Fact]
-    public void BeforeTheirSprints_TheGuardAndTheMage_ReadTheirTree_ButAreToldSoon()
+    public void BeforeItsSprint_TheMage_ReadsItsTree_ButIsToldSoon()
     {
-        SpecPage page = Page(Hero("guard", 40));
-        Assert.False(SpecPage.Playable(Data.Specs["palisade"]));
+        SpecPage page = Page(Hero("mage", 40));
+        Assert.False(SpecPage.Playable(Data.Specs["archmage"]));
+        Assert.True(SpecPage.Playable(Data.Specs["palisade"]));
         Assert.True(SpecPage.Playable(Data.Specs["sightline"]));
-        SpecAction action = page.Foot(page["palisade"], Fr).Action!;
+        SpecAction action = page.Foot(page["archmage"], Fr).Action!;
         Assert.Equal((Fr["spec.soon"], false), (action.Text, action.Enabled));
         Assert.False(page.Pending);
     }
@@ -388,7 +389,7 @@ public class SpecPageTests
     public void EveryKeyOfThePage_ExistsInBothLanguages()
     {
         var en = new Texts("en");
-        foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon" })
+        foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon", "stat.Anchored", "stat.Mp.all" })
         {
             Assert.NotEqual(key, Fr[key]);
             Assert.NotEqual(key, en[key]);

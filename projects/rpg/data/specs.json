@@ -285,7 +285,20 @@
       "description": {
         "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Tenir bon.",
         "en": "At the start of your turn, a shield of 9 on you and allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Stand Fast."
-      }
+      },
+      "spells": [
+        "path-interpose",
+        "path-stand-fast"
+      ],
+      "passives": [
+        "spec-close-ranks-9"
+      ],
+      "rules": [
+        {
+          "kind": "ally-shield",
+          "percent": 25
+        }
+      ]
     },
     "forks": [
       {
@@ -300,7 +313,16 @@
             "description": {
               "fr": "Le passif vaut 12 et porte à 2 cases. Sort : Mur de boucliers.",
               "en": "The passive is worth 12 and reaches 2 cells. Spell: Shield Wall."
-            }
+            },
+            "spells": [
+              "path-shield-wall"
+            ],
+            "passives": [
+              "spec-close-ranks-12"
+            ],
+            "replaces": [
+              "spec-close-ranks-9"
+            ]
           },
           {
             "level": 100,
@@ -311,7 +333,21 @@
             "description": {
               "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Le passif vaut 17. Interposition se relance en 1 tour.",
               "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. The passive is worth 17. Interpose comes back in 1 turn."
-            }
+            },
+            "passives": [
+              "spec-close-ranks-17",
+              "spec-not-today"
+            ],
+            "replaces": [
+              "spec-close-ranks-12"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-interpose",
+                "cooldown": 1
+              }
+            ]
           }
         ],
         "lore": {
@@ -332,7 +368,24 @@
             "description": {
               "fr": "Tenir bon te donne aussi un bouclier de 15. Sort : Rétorsion.",
               "en": "Stand Fast also gives you a shield of 15. Spell: Retaliation."
-            }
+            },
+            "spells": [
+              "path-retaliation"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-stand-fast",
+                "addEffects": [
+                  {
+                    "kind": "shield",
+                    "affects": "Caster",
+                    "amount": 15,
+                    "turns": 2
+                  }
+                ]
+              }
+            ]
           },
           {
             "level": 100,
@@ -343,7 +396,21 @@
             "description": {
               "fr": "Rétorsion frappe aussi la case derrière la cible (dégâts × 0,8). Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.",
               "en": "Retaliation also strikes the cell behind the target (damage × 0.8). Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral."
-            }
+            },
+            "passives": [
+              "spec-thorns"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-retaliation",
+                "area": {
+                  "shape": "Line",
+                  "radius": 1
+                },
+                "damagePercent": 80
+              }
+            ]
           }
         ],
         "lore": {
@@ -375,7 +442,20 @@
       "description": {
         "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Assaut et Arrachement.",
         "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Assault and Wrench."
-      }
+      },
+      "spells": [
+        "path-assault",
+        "path-wrench"
+      ],
+      "passives": [
+        "spec-carried-through-1"
+      ],
+      "rules": [
+        {
+          "kind": "pull",
+          "cells": 1
+        }
+      ]
     },
     "forks": [
       {
@@ -390,7 +470,16 @@
             "description": {
               "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Trouée.",
               "en": "An enemy finished off: +1 MP and +1 AP. Spell: Breakthrough."
-            }
+            },
+            "spells": [
+              "path-breakthrough"
+            ],
+            "passives": [
+              "spec-carried-through-2"
+            ],
+            "replaces": [
+              "spec-carried-through-1"
+            ]
           },
           {
             "level": 100,
@@ -401,7 +490,20 @@
             "description": {
               "fr": "Un ennemi achevé : +1 PM et +2 PA. Assaut se relance en 1 tour.",
               "en": "An enemy finished off: +1 MP and +2 AP. Assault comes back in 1 turn."
-            }
+            },
+            "passives": [
+              "spec-carried-through-3"
+            ],
+            "replaces": [
+              "spec-carried-through-2"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-assault",
+                "cooldown": 1
+              }
+            ]
           }
         ],
         "lore": {
@@ -422,7 +524,18 @@
             "description": {
               "fr": "+15 % de dégâts sur une cible à ton contact. Sort : Harpon.",
               "en": "+15% damage on a target next to you. Spell: Harpoon."
-            }
+            },
+            "spells": [
+              "path-harpoon"
+            ],
+            "rules": [
+              {
+                "kind": "distance",
+                "minCells": 1,
+                "maxCells": 1,
+                "percent": 15
+              }
+            ]
           },
           {
             "level": 100,
@@ -433,7 +546,21 @@
             "description": {
               "fr": "Tes reculs contre un obstacle font 15 dégâts par case. Harpon n'a plus de relance, une fois par tour.",
               "en": "Your pushes into an obstacle do 15 damage per cell. Harpoon has no cooldown, once per turn."
-            }
+            },
+            "rules": [
+              {
+                "kind": "push",
+                "cells": 0,
+                "apCost": 0,
+                "collision": 15
+              },
+              {
+                "kind": "patch",
+                "spell": "path-harpoon",
+                "cooldown": 0,
+                "perTurn": 1
+              }
+            ]
           }
         ],
         "lore": {
@@ -465,7 +592,24 @@
       "description": {
         "fr": "Qui te frappe au contact perd 1 PM. Tes retraits de PA et de PM durent 1 tour de plus, sauf ceux des sorts de composés. Sorts : Prise et Verrou.",
         "en": "Whoever strikes you in melee loses 1 MP. Your AP and MP losses last 1 turn longer, except those of compound spells. Spells: Hold and Lock."
-      }
+      },
+      "spells": [
+        "path-hold",
+        "path-lock"
+      ],
+      "passives": [
+        "spec-hands-off"
+      ],
+      "rules": [
+        {
+          "kind": "status-turns",
+          "extra": 1,
+          "stats": [
+            "Ap",
+            "Mp"
+          ]
+        }
+      ]
     },
     "forks": [
       {
@@ -480,7 +624,20 @@
             "description": {
               "fr": "Le passif retire aussi 1 PA, une fois par tour. Sort : Écrasement.",
               "en": "The passive also takes 1 AP, once per turn. Spell: Crush."
-            }
+            },
+            "spells": [
+              "path-crush"
+            ],
+            "passives": [
+              "spec-hands-off-ap"
+            ],
+            "rules": [
+              {
+                "kind": "target-state",
+                "percent": 30,
+                "spell": "path-crush"
+              }
+            ]
           },
           {
             "level": 100,
@@ -491,7 +648,19 @@
             "description": {
               "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 2 tours.",
               "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 2 turns."
-            }
+            },
+            "rules": [
+              {
+                "kind": "target-state",
+                "percent": 20,
+                "spell": "path-crush"
+              },
+              {
+                "kind": "patch",
+                "spell": "path-lock",
+                "cooldown": 2
+              }
+            ]
           }
         ],
         "lore": {
@@ -512,7 +681,17 @@
             "description": {
               "fr": "Provocation porte à +2 PO. Sort : Cercle de fer.",
               "en": "Taunt reaches +2 range. Spell: Iron Ring."
-            }
+            },
+            "spells": [
+              "path-iron-ring"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "taunt",
+                "maxRange": 7
+              }
+            ]
           },
           {
             "level": 100,
@@ -523,7 +702,17 @@
             "description": {
               "fr": "Les ennemis à ton contact perdent 1 PM au début de leur tour. Cercle de fer se relance en 1 tour.",
               "en": "Enemies next to you lose 1 MP at the start of their turn. Iron Ring comes back in 1 turn."
-            }
+            },
+            "passives": [
+              "spec-no-way-out"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-iron-ring",
+                "cooldown": 1
+              }
+            ]
           }
         ],
         "lore": {

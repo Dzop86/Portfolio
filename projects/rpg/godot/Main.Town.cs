@@ -3244,9 +3244,9 @@ public partial class Main
             problems.Add($"a crossing-out out of a village offers '{panel.SpecCardAction.Text}'");
         panel.QueueFree();
         // Soon, for a class whose spells are still to come; nothing in a fight.
-        panel = Open(new Hero("Ondine", "female-a", "guard", Level: 40), texts, free);
-        panel.PickSpec("palisade");
-        if (GameData.Embedded.Specs["palisade"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
+        panel = Open(new Hero("Ondine", "female-a", "mage", Level: 40), texts, free);
+        panel.PickSpec("archmage");
+        if (GameData.Embedded.Specs["archmage"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
             problems.Add($"a branch without its spells offers '{panel.SpecCardAction.Text}'");
         panel.QueueFree();
         panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 40), texts, free, readOnly: true);

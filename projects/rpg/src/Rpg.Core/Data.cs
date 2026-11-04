@@ -15,7 +15,8 @@ public sealed record LocalizedText(string Fr, string En)
 /// <see cref="Area"/> (one cell by default) in its <see cref="Element"/>; its other
 /// <see cref="Effects"/> follow, in order. After a cast, the caster waits <see cref="Cooldown"/> of
 /// its turns before casting it again (0: no wait, only the limit per turn). Since sprint 191 (D95, brick F), it may be bound to a
-/// creature: <see cref="Needs"/> one of the caster's in play, <see cref="Aims"/> cast on one of them.
+/// creature: <see cref="Needs"/> one of the caster's in play, <see cref="Aims"/> cast on one of them. Since sprint 192 (brick M), <see cref="SpendsShield"/>: striking, it
+/// uses up the caster's whole shield, up to that much of it added to its roll.
 /// </summary>
 public sealed record Spell(
     string Id,
@@ -39,7 +40,8 @@ public sealed record Spell(
     string? Twin = null,
     bool Adaptive = false,
     string? Needs = null,
-    string? Aims = null)
+    string? Aims = null,
+    int SpendsShield = 0)
 {
     /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
     public string RankKey => Twin ?? Id;
@@ -713,7 +715,7 @@ public sealed class GameData
     private void Check(Spell s)
     {
         if (s.ApCost < 1 || s.MinRange < 0 || s.MaxRange < s.MinRange || s.DamageMin < 0
-            || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0 || s.Crit is < 0 or > 100)
+            || s.DamageMax < s.DamageMin || s.PerTurn < 1 || s.Cooldown < 0 || s.Crit is < 0 or > 100 || s.SpendsShield < 0)
             throw new InvalidDataException($"Spell '{s.Id}': cost, ranges, damage, casts per turn or critical chance out of bounds.");
         if (s.Level is < 1 or > 100 || (s.Ranks?.Count ?? 0) > 4
             || (s.Ranks ?? []).Any(r => r.DamageMin < 0 || r.DamageMax < r.DamageMin || r.ApCost < 1 || r.MaxRange < s.MinRange || r.PerTurn < 1))
@@ -725,7 +727,8 @@ public sealed class GameData
             // A leap lands the caster, a swap trades places with one fighter: on a single cell (sprint 90).
             bool ok = e switch
             {
-                LeapEffect l => l.Affects == Affects.Caster && s.Zone.Shape == AreaShape.Point,
+                // Damage may fall around where it lands (sprint 192, the Assault); without damage, an area would mean nothing.
+                LeapEffect l => l.Affects == Affects.Caster && (s.Zone.Shape == AreaShape.Point || s.DamageMax > 0),
                 SwapEffect w => w.Affects is not (Affects.Caster or Affects.Attacker) && s.Zone.Shape == AreaShape.Point,
                 SummonEffect sm => sm.Count == 1 && ValidEffect(e),
                 GlyphEffect g => ValidGlyph(g),
@@ -805,7 +808,7 @@ public sealed class GameData
         bool ok = (p.Trigger == Trigger.LowHp ? p.Percent is >= 1 and <= 99 : p.Percent == 0)
             && (p.Trigger == Trigger.TurnStart ? p.Clear >= 0 : p.Clear == 0 && !p.Still) && p.PerFight >= 0
             && (p.Trigger == Trigger.Hit || (!p.Melee && p.AllEffects.All(e => e.Affects != Affects.Attacker)))
-            && (p.Trigger == Trigger.AllyDies ? p.Range >= 0 : p.Range == 0)
+            && (p.Trigger is Trigger.AllyDies or Trigger.AllyFalls ? p.Range >= 0 : p.Range == 0)
             && p.DamageMin >= 0 && p.DamageMax >= p.DamageMin && (p.Area is null || (p.Area.Shape != AreaShape.Point && ValidArea(p.Area)))
             && p.AllEffects.All(ValidEffect);
         if (!ok)

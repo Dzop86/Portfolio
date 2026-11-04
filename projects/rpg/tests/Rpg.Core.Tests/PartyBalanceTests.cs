@@ -90,6 +90,37 @@ public class PartyBalanceTests
         return won;
     }
 
+    /// <summary>The same duos, the second a Guard: of the Palisade, or a striker of Matter (sprint 192, D95).</summary>
+    private static int GuardDuo(string scenario, bool palisade)
+    {
+        Scenario s = Real.FindScenario(scenario)!;
+        int level = s.Fighters.Where(f => f.Team == 1).Max(f => f.Level);
+        IReadOnlyDictionary<Slot, string> worn = Progression.Kit("zone", "ancestors", level, Real);
+        string[] classes = [.. Real.Classes.Select(c => c.Id)];
+        int won = 0;
+        Parallel.For(0, Fights, i =>
+        {
+            string first = classes[i % classes.Length];
+            Hero striker = Progression.Talented(new Hero(Names[0], "female-c", first, Level: level), $"{first}-{(i % 2 == 0 ? "matter" : "manner")}", Real, worn);
+            Hero guard = Progression.Talented(new Hero(Names[1], "female-c", "guard", Level: level), "guard-matter", Real, worn);
+            var fight = new Fight(Real, scenario, 1 + (ulong)i, striker, null, null, [palisade ? guard with { Spec = "palisade" } : guard]);
+            Ai.PlayOut(fight);
+            if (fight.WinningTeam == 0)
+                Interlocked.Increment(ref won);
+        });
+        return won;
+    }
+
+    [Theory]
+    [InlineData("group:ancestors-3-2.1")]
+    [InlineData("group:ancestors-4-2.0")]
+    public void APalisade_DoesNotWinADuoMoreThanASecondStriker(string group)
+    {
+        // Sprint 192 (D95, §v4.6, M5): at most 1.5 fights of 30 more than a duo of two strikers.
+        int strikers = GuardDuo(group, palisade: false), palisade = GuardDuo(group, palisade: true);
+        Assert.True(palisade <= strikers + 1.5, $"{group}: strikers {strikers}, with a Palisade {palisade} of {Fights}");
+    }
+
     [Theory]
     [InlineData("group:ancestors-3-2.1")]
     [InlineData("group:ancestors-4-2.0")]

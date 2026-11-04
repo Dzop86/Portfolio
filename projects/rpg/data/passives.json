@@ -797,6 +797,261 @@
     "clear": 3
   },
   {
+    "id": "spec-close-ranks-9",
+    "name": {
+      "fr": "Serrez les rangs",
+      "en": "Close Ranks"
+    },
+    "description": {
+      "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case.",
+      "en": "At the start of your turn, a shield of 9 on you and allies 1 cell away."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Allies",
+        "amount": 9,
+        "turns": 2
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 1
+    }
+  },
+  {
+    "id": "spec-close-ranks-12",
+    "name": {
+      "fr": "Serrez les rangs",
+      "en": "Close Ranks"
+    },
+    "description": {
+      "fr": "Au début de ton tour, bouclier de 12 sur toi et tes alliés à 2 cases.",
+      "en": "At the start of your turn, a shield of 12 on you and allies within 2 cells."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Allies",
+        "amount": 12,
+        "turns": 2
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    }
+  },
+  {
+    "id": "spec-close-ranks-17",
+    "name": {
+      "fr": "Serrez les rangs",
+      "en": "Close Ranks"
+    },
+    "description": {
+      "fr": "Au début de ton tour, bouclier de 17 sur toi et tes alliés à 2 cases.",
+      "en": "At the start of your turn, a shield of 17 on you and allies within 2 cells."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Allies",
+        "amount": 17,
+        "turns": 2
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    }
+  },
+  {
+    "id": "spec-not-today",
+    "name": {
+      "fr": "Pas aujourd'hui",
+      "en": "Not Today"
+    },
+    "description": {
+      "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV.",
+      "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP."
+    },
+    "trigger": "AllyFalls",
+    "range": 2,
+    "perFight": 1
+  },
+  {
+    "id": "spec-thorns",
+    "name": {
+      "fr": "Épines",
+      "en": "Thorns"
+    },
+    "description": {
+      "fr": "Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.",
+      "en": "Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Poison",
+        "value": 8,
+        "turns": 2
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "spec-carried-through-1",
+    "name": {
+      "fr": "Sur la lancée",
+      "en": "Carried Through"
+    },
+    "description": {
+      "fr": "Un ennemi achevé : +1 PM.",
+      "en": "An enemy finished off: +1 MP."
+    },
+    "trigger": "Kill",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 1,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "spec-carried-through-2",
+    "name": {
+      "fr": "Sur la lancée",
+      "en": "Carried Through"
+    },
+    "description": {
+      "fr": "Un ennemi achevé : +1 PM et +1 PA.",
+      "en": "An enemy finished off: +1 MP and +1 AP."
+    },
+    "trigger": "Kill",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 1,
+        "turns": 1
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 1,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "spec-carried-through-3",
+    "name": {
+      "fr": "Sur la lancée",
+      "en": "Carried Through"
+    },
+    "description": {
+      "fr": "Un ennemi achevé : +1 PM et +2 PA.",
+      "en": "An enemy finished off: +1 MP and +2 AP."
+    },
+    "trigger": "Kill",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 1,
+        "turns": 1
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 2,
+        "turns": 1
+      }
+    ]
+  },
+  {
+    "id": "spec-hands-off",
+    "name": {
+      "fr": "Qui s'y frotte",
+      "en": "Hands Off"
+    },
+    "description": {
+      "fr": "Qui te frappe au contact perd 1 PM.",
+      "en": "Whoever strikes you in melee loses 1 MP."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Mp",
+        "value": -1,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "spec-hands-off-ap",
+    "name": {
+      "fr": "Qui s'y frotte",
+      "en": "Hands Off"
+    },
+    "description": {
+      "fr": "Qui te frappe au contact perd aussi 1 PA, une fois par tour.",
+      "en": "Whoever strikes you in melee also loses 1 AP, once per turn."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Attacker",
+        "stat": "Ap",
+        "value": -1,
+        "turns": 1
+      }
+    ],
+    "melee": true,
+    "oncePerTurn": true
+  },
+  {
+    "id": "spec-no-way-out",
+    "name": {
+      "fr": "Personne ne sort",
+      "en": "No Way Out"
+    },
+    "description": {
+      "fr": "Les ennemis à ton contact au début de ton tour perdent 1 PM à leur prochain tour.",
+      "en": "Enemies next to you at the start of your turn lose 1 MP on their next turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Enemies",
+        "stat": "Mp",
+        "value": -1,
+        "turns": 1
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 1
+    }
+  },
+  {
     "id": "spec-quick-heels",
     "name": {
       "fr": "Talons vifs",

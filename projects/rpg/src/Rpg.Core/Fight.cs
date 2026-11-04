@@ -68,7 +68,13 @@ public sealed class Fighter
 
     /// <summary>What its living talents would read of a hit with <paramref name="spell"/> now (sprint 141).</summary>
     public HitContext Context(Spell? spell, bool walking = false) =>
-        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0);
+        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0, Spell: spell?.RankKey);
+
+    /// <summary>The movement points its statuses leave it for its next turn (sprint 192): none, a target the Crush waits for.</summary>
+    public bool HeldStill => Spec.Mp + StatusList.Where(s => s.Stat == Stat.Mp).Sum(s => s.Value) <= 0;
+
+    /// <summary>The states on it (sprint 192): one by kind of status each caster set.</summary>
+    public int States => StatusList.Count;
 
     /// <summary>The low-health passives that have fired: once per fight each.</summary>
     internal readonly HashSet<string> LowHpFired = new(StringComparer.Ordinal);
@@ -447,9 +453,10 @@ public sealed class Fight
                 int crit = Spell.CritBonus(spell.DamageMax);
                 bool canCrit = hit && spell.Crit > 0;
                 HitContext context = ContextOf(me, spell, me.Cell, f);
-                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin, me, f, spell.Element, true, context) : 0, hit ? Damage(spell.DamageMax, me, f, spell.Element, true, context) : 0,
+                int spent = Math.Min(me.Shield, spell.SpendsShield);
+                forecasts.Add(new Forecast(f, hit ? Damage(spell.DamageMin + spent, me, f, spell.Element, true, context) : 0, hit ? Damage(spell.DamageMax + spent, me, f, spell.Element, true, context) : 0,
                     Math.Min(healMin, missing), Math.Min(healMax, missing), spell.Element,
-                    canCrit ? Damage(spell.DamageMin + crit, me, f, spell.Element, true, context) : 0, canCrit ? Damage(spell.DamageMax + crit, me, f, spell.Element, true, context) : 0,
+                    canCrit ? Damage(spell.DamageMin + spent + crit, me, f, spell.Element, true, context) : 0, canCrit ? Damage(spell.DamageMax + spent + crit, me, f, spell.Element, true, context) : 0,
                     hit && f.Cell == target ? ReactionOn(me, f, spell.Element)?.Id : null,
                     hit ? Talents.Shares(me.Talents, me.Cell, f.Cell, spell.Element, context) : null, hit ? me.Spec.TreeDamage : 0));
             }
@@ -828,6 +835,8 @@ public sealed class Fight
         {
             Backed = caster.Talents.Count > 0 && IsBacked(from),
             InMyGlyph = caster.Talents.Count > 0 && _glyphs.Any(g => g.Caster == caster.Id && g.Cells.Contains(target.Cell) && (_signatureGlyphsCount || !IsSignature(g))),
+            TargetStill = target.HeldStill,
+            TargetStates = target.States,
         };
     }
 
@@ -1045,6 +1054,13 @@ public sealed class Fight
         _events.Add(new SpellCast(me.Id, spell.Id, target, critical));
         int roll = _rng.Next(spell.DamageMin, spell.DamageMax) + (critical ? Spell.CritBonus(spell.DamageMax) : 0);
         IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
+        // The Retaliation (sprint 192, brick M): its shield goes into the blow, all of it used up, if it strikes anyone.
+        if (spell.SpendsShield > 0 && me.Shield > 0 && area.Any(f => f.Team != me.Team))
+        {
+            roll += Math.Min(me.Shield, spell.SpendsShield);
+            _events.Add(new ShieldAbsorbed(me.Id, me.Shield, 0));
+            me.Shields.Clear();
+        }
         // What the living talents read (sprint 141), as the turn stood before this spell; then counted.
         HitContext context = me.Context(spell);
         me.CellsSinceSpell = 0;
@@ -1176,8 +1192,10 @@ public sealed class Fight
                     case ShieldEffect shield:
                         if (f.Parched)
                             break;
-                        f.Shields.Add((shield.Amount, shield.Turns));
-                        _events.Add(new Shielded(f.Id, shield.Amount, shield.Turns));
+                        // Worth more on an ally (sprint 192, brick J).
+                        int worth = f == me || f.Team != me.Team ? shield.Amount : shield.Amount * (100 + me.Talents.SelectMany(t => t.Rules).OfType<ShieldRule>().Sum(r => r.Percent)) / 100;
+                        f.Shields.Add((worth, shield.Turns));
+                        _events.Add(new Shielded(f.Id, worth, shield.Turns));
                         break;
                     case PushEffect push:
                         Shove(f, Cell.Direction(me.Cell, f.Cell), push.Cells, collide: true, Talents.Collision(me.Talents), me);
@@ -1274,7 +1292,8 @@ public sealed class Fight
     /// <param name="collision">The damage a cell not travelled does (Heavy Push, sprint 141).</param>
     private void Shove(Fighter f, Cell direction, int cells, bool collide, int collision = CollisionDamage, Fighter? by = null)
     {
-        if (direction == new Cell(0, 0) || cells <= 0)
+        // Stand Fast (sprint 192, brick K): nothing moves it, and it hits nothing.
+        if (direction == new Cell(0, 0) || cells <= 0 || f.StatusList.Any(s => s.Stat == Stat.Anchored))
             return;
         var path = new List<Cell>();
         Cell at = f.Cell;
@@ -1317,6 +1336,19 @@ public sealed class Fight
             _events.Add(new ShieldAbsorbed(hit.Id, absorbed, hit.Shield));
         if (damage == 0 && absorbed > 0)
             return absorbed;
+        // Not Today (sprint 192, brick L): an ally near stands in the way of what would fell it.
+        if (damage >= hit.Hp && !hit.IsSummon)
+        {
+            foreach (Fighter friend in Fighters.Where(f => f.IsAlive && f != hit && f.Team == hit.Team))
+            {
+                if (friend.Passives.FirstOrDefault(p => p.Trigger == Trigger.AllyFalls && (p.Range == 0 || friend.Cell.DistanceTo(hit.Cell) <= p.Range)) is PassiveSpec saving && friend.MayFire(saving))
+                {
+                    _events.Add(new PassiveTriggered(friend.Id, saving.Id));
+                    damage = hit.Hp - 1;
+                    break;
+                }
+            }
+        }
         hit.Hp = Math.Max(0, hit.Hp - damage);
         hit.Eroded += damage * Erosion / 100;
         _events.Add(new Damaged(hit.Id, damage, hit.Hp, element));
