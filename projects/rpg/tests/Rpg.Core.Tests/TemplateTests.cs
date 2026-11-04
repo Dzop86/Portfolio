@@ -170,7 +170,7 @@ public class TemplateTests
             Groups = groups;
             Data = new GameData([.. Real.Spells.Values, .. spells.Values], Real.Maps.Values, [.. Real.Scenarios.Values, .. scenarios], Real.Classes,
                 summons: Real.Summons.Values, items: [.. Real.Items.Values, .. Pieces(level)], sets: Real.Sets.Values, passives: Real.Passives.Values,
-                talents: Real.Talents.Values, reactions: Real.Reactions.Values);
+                talents: Real.Talents.Values, reactions: Real.Reactions.Values, specs: Real.Specs.Values);
         }
 
         /// <summary>
@@ -393,6 +393,31 @@ public class TemplateTests
             report.Add($"{id} styles: " + string.Join(", ", values.Select(x => $"{x.Key} {x.Value:0.0}")));
         }
         Assert.True(kept, string.Join("; ", report));
+    }
+
+    [Theory]
+    [InlineData(35)]
+    [InlineData(45)]
+    [InlineData(50)]
+    public void TheSentinelsPaths_AreWorthAlike_AgainstTheMiddleGroups(int level)
+    {
+        // Sprint 191 (D95, §v4.6, M1 and M2 cut down to what runs in the CI, T150): each branch, each lineage from 50, near the average of the Sentinel's paths, bare, on the
+        // same seeds. Against the groups of 4 and 5: the solid hordes, which §v4.6 names, are won by no bare hero of these levels, path or not (0 of 120 at 35, 45 and 50), so
+        // a test on them would hold whatever the paths did. WITHIN 12 POINTS, NOT THE 8 OF THE STORY: not held after the written levers, the other paths playing under
+        // a hero without one, as §v4.6 expected of this AI. To bring back to 8 with the AI's brick S (sprint 193).
+        var family = new Synthetic(level);
+        var groups = family.Groups.Where(g => g.Size is 4 or 5).ToArray();
+        Hero bare = family.Hero("sentinel", "none");
+        double Points(Hero h) => groups.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average() * 100 / 30;
+        (string Spec, string? Fork)[] paths = level < Specs.Forks
+            ? [.. Real.Specs.Values.Where(s => s.Class == "sentinel").Select(s => (s.Id, (string?)null))]
+            : [.. Real.Specs.Values.Where(s => s.Class == "sentinel").SelectMany(s => s.Forks.Select(f => (s.Id, (string?)f.Id)))];
+        Dictionary<string, double> points = paths.ToDictionary(p => p.Fork ?? p.Spec, p => Points(bare with { Spec = p.Spec, Fork = p.Fork }));
+        double mean = points.Values.Average(), plain = Points(bare);
+        string report = $"level {level}, {groups.Length} groups: no path {plain:0.0}; " + string.Join(", ", points.Select(p => $"{p.Key} {p.Value:0.0}"));
+        Assert.True(points.Values.All(v => Math.Abs(v - mean) <= 12), report);
+        // It would prove nothing at either end.
+        Assert.True(plain is > 20 and < 80, report);
     }
 
     [Fact]

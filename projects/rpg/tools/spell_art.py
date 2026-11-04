@@ -145,7 +145,7 @@ def main():
     spells = {s["id"]: s for s in json.load(open(os.path.join(root, "data", "spells.json")))}
     classes = json.load(open(os.path.join(root, "data", "classes.json")))
     tree = ["relay", "seal-earth", "seal-fire", "seal-water", "seal-air", "decoy"]
-    drawn = [i for c in classes for i in c["spells"]] + [i for i, s in spells.items() if "twin" in s] + tree
+    drawn = [i for c in classes for i in c["spells"]] + [i for i, s in spells.items() if "twin" in s] + tree + [i for i in spells if i.startswith("path-")]
     credits = {}
     for i in drawn:
         s = spells[i]

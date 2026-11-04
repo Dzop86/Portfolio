@@ -62,6 +62,7 @@ public enum Tier
 [JsonDerivedType(typeof(MarkRule), "mark")]
 [JsonDerivedType(typeof(CatalysisRule), "catalysis")]
 [JsonDerivedType(typeof(PatchRule), "patch")]
+[JsonDerivedType(typeof(SummonRule), "summon-share")]
 [JsonDerivedType(typeof(LeapSightRule), "leap-sight")]
 [JsonDerivedType(typeof(GlyphTurnsRule), "glyph-turns")]
 [JsonDerivedType(typeof(LingerRule), "linger")]
@@ -206,8 +207,16 @@ public sealed record RangeRule(int Change, int AtLeast = 0, bool Sight = false) 
 /// <summary>
 /// A path's (sprint 190, D95, brick C): what changes one spell, its twins too (by <see cref="Spell.RankKey"/>), the ranks following.
 /// </summary>
+/// <param name="MaxSummons">Sprint 191: how many of its creatures at once (Twin Wings).</param>
+/// <param name="MaxGlyphs">Sprint 191, brick G: how many of its glyphs at once (Deadfall).</param>
 public sealed record PatchRule(string Spell, int? Cooldown = null, int? ApCost = null, int? MaxRange = null, int? PerTurn = null, Area? Area = null, int DamagePercent = 100,
-    IReadOnlyList<SpellEffect>? AddEffects = null) : TalentRule;
+    IReadOnlyList<SpellEffect>? AddEffects = null, int? MaxSummons = null, int? MaxGlyphs = null) : TalentRule;
+
+/// <summary>
+/// A path's (sprint 191, D95, brick E): this creature, summoned by the bearer, has <see cref="HpPercent"/> % of its maximum hit points and
+/// <see cref="StatsPercent"/> % of its element characteristics, and strikes in its element. The highest of these rules wins; without one, the creature's own numbers.
+/// </summary>
+public sealed record SummonRule(string Summon, int HpPercent, int StatsPercent) : TalentRule;
 
 /// <summary>A path's (sprint 186, the Trail): its spells that leap ask for no line of sight.</summary>
 public sealed record LeapSightRule : TalentRule;
@@ -522,8 +531,9 @@ public static class Talents
         // The paths' (sprint 186).
         if (rules.OfType<LeapSightRule>().Any() && s.AllEffects.Any(e => e is LeapEffect))
             s = s with { LineOfSight = false };
+        // A compound's glyph, Ash's signature, does not last longer (sprint 191, §v4.6).
         int extraTurns = rules.OfType<GlyphTurnsRule>().Sum(r => r.Extra);
-        if (extraTurns > 0 && s.AllEffects.Any(e => e is GlyphEffect))
+        if (extraTurns > 0 && s.Twin is null && s.AllEffects.Any(e => e is GlyphEffect))
             s = s with { Effects = [.. s.AllEffects.Select(e => e is GlyphEffect g ? g with { Turns = g.Turns + extraTurns } : e)] };
         foreach (PatchRule p in rules.OfType<PatchRule>().Where(p => p.Spell == spell.RankKey))
         {
@@ -538,6 +548,10 @@ public static class Talents
                 DamageMax = s.DamageMax * p.DamagePercent / 100,
                 Effects = p.AddEffects is null ? s.Effects : [.. s.AllEffects, .. p.AddEffects],
             };
+            if (p.MaxSummons is int summons)
+                s = s with { Effects = [.. s.AllEffects.Select(e => e is SummonEffect m ? m with { Max = summons } : e)] };
+            if (p.MaxGlyphs is int glyphs)
+                s = s with { Effects = [.. s.AllEffects.Select(e => e is GlyphEffect g ? g with { Max = glyphs } : e)] };
         }
         return s;
     }

@@ -14,7 +14,8 @@ public sealed record LocalizedText(string Fr, string En)
 /// a spell may be cast on an empty cell, it then hits nobody. Its damage strikes the enemies in its
 /// <see cref="Area"/> (one cell by default) in its <see cref="Element"/>; its other
 /// <see cref="Effects"/> follow, in order. After a cast, the caster waits <see cref="Cooldown"/> of
-/// its turns before casting it again (0: no wait, only the limit per turn).
+/// its turns before casting it again (0: no wait, only the limit per turn). Since sprint 191 (D95, brick F), it may be bound to a
+/// creature: <see cref="Needs"/> one of the caster's in play, <see cref="Aims"/> cast on one of them.
 /// </summary>
 public sealed record Spell(
     string Id,
@@ -36,7 +37,9 @@ public sealed record Spell(
     int Crit = 0,
     string? Icon = null,
     string? Twin = null,
-    bool Adaptive = false)
+    bool Adaptive = false,
+    string? Needs = null,
+    string? Aims = null)
 {
     /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
     public string RankKey => Twin ?? Id;
@@ -738,7 +741,7 @@ public sealed class GameData
     /// the bounds of a spell's; a spell's only, never a passive's.
     /// </summary>
     private bool ValidGlyph(GlyphEffect g) =>
-        g.Affects is Affects.Enemies or Affects.Allies or Affects.All && g.Turns is >= 1 and <= 10
+        g.Affects is Affects.Enemies or Affects.Allies or Affects.All && g.Turns is >= 1 and <= 10 && g.Max is >= 1 and <= 4
         && g.DamageMin >= 0 && g.DamageMax >= g.DamageMin && (g.DamageMax > 0 || g.Status is not null || g.Marks)
         && (g.AsStatus is not StatusEffect st ? g.Value == 0 && g.StatusTurns == 0 : ValidEffect(st));
 
@@ -784,6 +787,8 @@ public sealed class GameData
                     throw new InvalidDataException($"Path '{s.Id}': no rule read outside a fight.");
                 if ((t.Rules ?? []).OfType<PatchRule>().Any(r => !Spells.ContainsKey(r.Spell)))
                     throw new InvalidDataException($"Path '{s.Id}': a patch of a known spell.");
+                if ((t.Rules ?? []).OfType<SummonRule>().Any(r => !Summons.ContainsKey(r.Summon) || r.HpPercent is < 1 or > 100 || r.StatsPercent is < 0 or > 100))
+                    throw new InvalidDataException($"Path '{s.Id}': a summon's share of a known summon, in percent.");
             }
             if ((s.Keeps ?? []).Any(id => !c.Spells.Contains(id)))
                 throw new InvalidDataException($"Path '{s.Id}': kept spells of its class.");

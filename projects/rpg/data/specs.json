@@ -47,7 +47,8 @@
         "lore": {
           "fr": "Trouve ta place, vise, et laisse le plafond se débrouiller.",
           "en": "Find your spot, take aim, and let the ceiling look after itself."
-        }
+        },
+        "icon": "spec-high-archmage"
       },
       {
         "id": "patient",
@@ -78,13 +79,15 @@
         "lore": {
           "fr": "Une meule, ça couve des jours. Puis ça part d'un coup. Celui qui ouvre trop tôt n'a que de la fumée.",
           "en": "A charcoal stack smoulders for days. Then it goes all at once. Open it too early and all you get is smoke."
-        }
+        },
+        "icon": "spec-patient"
       }
     ],
     "lore": {
       "fr": "Un sort, ça se prépare debout et ça se lance une fois. Le reste, c'est de la gesticulation.",
       "en": "A spell is prepared standing still and cast once. The rest is flapping about."
-    }
+    },
+    "icon": "spec-archmage"
   },
   {
     "id": "sorcerer",
@@ -134,7 +137,8 @@
         "lore": {
           "fr": "Un coup, ça se pare. Une mauvaise fièvre prend son temps, et elle gagne.",
           "en": "A blow can be parried. A bad fever takes its time, and it wins."
-        }
+        },
+        "icon": "spec-plague"
       },
       {
         "id": "hexer",
@@ -165,13 +169,15 @@
         "lore": {
           "fr": "Je ne le frappe pas. Je le montre du doigt, et tes amis font le reste.",
           "en": "I don't hit him. I point, and your friends do the rest."
-        }
+        },
+        "icon": "spec-hexer"
       }
     ],
     "lore": {
       "fr": "Je n'ai touché personne. Demande-lui donc comment il se sent, demain.",
       "en": "I never laid a finger on him. Ask him how he's feeling tomorrow."
-    }
+    },
+    "icon": "spec-sorcerer"
   },
   {
     "id": "necromancer",
@@ -221,7 +227,8 @@
         "lore": {
           "fr": "Une ombre ne pèse rien. Essaie donc de passer dans un couloir qui en est plein.",
           "en": "A shade weighs nothing. Try walking down a corridor full of them."
-        }
+        },
+        "icon": "spec-binder"
       },
       {
         "id": "reaper",
@@ -252,13 +259,15 @@
         "lore": {
           "fr": "Pose-la où il va marcher. Et recule un peu : elle ne fait pas la différence.",
           "en": "Set it where he's going to walk. And step back a bit: it can't tell friend from foe."
-        }
+        },
+        "icon": "spec-reaper"
       }
     ],
     "lore": {
       "fr": "Les morts restent où ils sont. Moi, je lève ce qu'ils ont laissé sur le mur.",
       "en": "The dead stay where they are. What I raise is what they left on the wall."
-    }
+    },
+    "icon": "spec-necromancer"
   },
   {
     "id": "palisade",
@@ -308,7 +317,8 @@
         "lore": {
           "fr": "Reste derrière moi. Non, plus à gauche. Voilà : maintenant, tu vivras.",
           "en": "Get behind me. No, further left. There: now you'll live."
-        }
+        },
+        "icon": "spec-rampart"
       },
       {
         "id": "bastion",
@@ -339,13 +349,15 @@
         "lore": {
           "fr": "Vas-y, frappe encore. Plus tu m'en donnes, plus je t'en rends.",
           "en": "Go on, hit me again. The more you give me, the more you get back."
-        }
+        },
+        "icon": "spec-bastion"
       }
     ],
     "lore": {
       "fr": "Un pieu tout seul, c'est un bâton. Dix pieux qui se tiennent, c'est une palissade. Moi, je fais le pieu du milieu : je bouge pas.",
       "en": "One stake on its own is a stick. Ten stakes holding each other up, that's a palisade. Me, I'm the middle stake: I don't move."
-    }
+    },
+    "icon": "spec-palisade"
   },
   {
     "id": "breach",
@@ -395,7 +407,8 @@
         "lore": {
           "fr": "Un de moins, et il me reste du souffle. Au suivant.",
           "en": "One down, and I've breath left. Next."
-        }
+        },
+        "icon": "spec-ram"
       },
       {
         "id": "harpooner",
@@ -426,13 +439,15 @@
         "lore": {
           "fr": "Pourquoi lui courir après ? J'ai une corde, et il a un mur dans le dos.",
           "en": "Why chase him? I've got a rope, and he's got a wall behind him."
-        }
+        },
+        "icon": "spec-harpooner"
       }
     ],
     "lore": {
       "fr": "Vingt ans à enfoncer des lignes, et maintenant je déblaie des routes. C'est le même métier, sauf que les cailloux, eux, se plaignent pas.",
       "en": "Twenty years breaking lines, and now I clear roads. Same trade, except the stones don't complain."
-    }
+    },
+    "icon": "spec-breach"
   },
   {
     "id": "grip",
@@ -482,7 +497,8 @@
         "lore": {
           "fr": "Celui-là ne jouera plus. Les autres, on verra après.",
           "en": "That one's done playing. We'll see about the rest later."
-        }
+        },
+        "icon": "spec-jailer"
       },
       {
         "id": "pincer",
@@ -513,13 +529,15 @@
         "lore": {
           "fr": "Tous autour de moi, c'est ça. Maintenant, essayez donc de sortir.",
           "en": "All round me, that's it. Now try leaving."
-        }
+        },
+        "icon": "spec-pincer"
       }
     ],
     "lore": {
       "fr": "Tu voulais partir ? C'est gentil de me prévenir.",
       "en": "Leaving, were you? How kind of you to say."
-    }
+    },
+    "icon": "spec-grip"
   },
   {
     "id": "sightline",
@@ -537,7 +555,21 @@
       "description": {
         "fr": "Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour. Tes sorts en vue portent à +1 PO. Sorts : Tir visé et Point faible.",
         "en": "No enemy within 3 cells at the start of your turn: +15% damage for 1 turn. Your spells in sight reach +1 range. Spells: Aimed Shot and Weak Spot."
-      }
+      },
+      "spells": [
+        "path-aimed-shot",
+        "path-weak-spot"
+      ],
+      "passives": [
+        "spec-calm-eye"
+      ],
+      "rules": [
+        {
+          "kind": "range",
+          "change": 1,
+          "sight": true
+        }
+      ]
     },
     "forks": [
       {
@@ -552,7 +584,18 @@
             "description": {
               "fr": "Tes sorts de 6 PO ou plus portent à +2 PO au lieu de +1. Sort : Coup au but.",
               "en": "Your spells of 6 range or more reach +2 range instead of +1. Spell: Bullseye."
-            }
+            },
+            "spells": [
+              "path-bullseye"
+            ],
+            "rules": [
+              {
+                "kind": "range",
+                "change": 1,
+                "atLeast": 6,
+                "sight": true
+              }
+            ]
           },
           {
             "level": 100,
@@ -563,13 +606,30 @@
             "description": {
               "fr": "Le passif monte à +25 % pendant 2 tours. Tir visé touche aussi la case derrière la cible.",
               "en": "The passive rises to +25% for 2 turns. Aimed Shot also hits the cell behind the target."
-            }
+            },
+            "passives": [
+              "spec-calm-eye-long"
+            ],
+            "replaces": [
+              "spec-calm-eye"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-aimed-shot",
+                "area": {
+                  "shape": "Line",
+                  "radius": 1
+                }
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Une flèche. Si j'ai bien compté, il n'en faudra pas d'autre.",
           "en": "One arrow. If I've counted right, there won't need to be another."
-        }
+        },
+        "icon": "spec-marksman"
       },
       {
         "id": "barrage",
@@ -581,9 +641,12 @@
               "en": "Portcullis"
             },
             "description": {
-              "fr": "Le passif joue dès qu'aucun ennemi n'est à 2 cases, au lieu de 3. Sort : Tir de barrage.",
-              "en": "The passive works as soon as no enemy is within 2 cells, instead of 3. Spell: Barrage."
-            }
+              "fr": "Sort : Tir de barrage, une ligne de 3 cases qui retire 1 PM.",
+              "en": "Spell: Barrage, a line of 3 cells that takes 1 MP."
+            },
+            "spells": [
+              "path-barrage"
+            ]
           },
           {
             "level": 100,
@@ -594,19 +657,38 @@
             "description": {
               "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et se relance en 1 tour.",
               "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and comes back in 1 turn."
-            }
+            },
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-barrage",
+                "cooldown": 1,
+                "addEffects": [
+                  {
+                    "kind": "glyph",
+                    "affects": "Enemies",
+                    "turns": 1,
+                    "status": "Mp",
+                    "value": -1,
+                    "statusTurns": 1
+                  }
+                ]
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Je n'ai pas besoin de te toucher. Il suffit que tu ne passes pas.",
           "en": "I don't need to hit you. You only need not to get through."
-        }
+        },
+        "icon": "spec-barrage"
       }
     ],
     "lore": {
       "fr": "Tu tires la semonce d'abord. Celui qui avance quand même, il a choisi. Toi, tu as juste visé.",
       "en": "Warning shot first. Anyone who keeps coming has made their choice. You've only taken aim."
-    }
+    },
+    "icon": "spec-sightline"
   },
   {
     "id": "ambush",
@@ -624,7 +706,23 @@
       "description": {
         "fr": "Ton Faucon a 12 % de tes PV et profite de tes caractéristiques. Tes glyphes durent 1 tour de plus, sauf celles des sorts de composés. Sorts : Mâchoires et Piqué.",
         "en": "Your Hawk has 12% of your HP and draws on your characteristics. Your glyphs last 1 turn longer, except those of compound spells. Spells: Jaw Trap and Dive."
-      }
+      },
+      "spells": [
+        "path-jaws",
+        "path-dive"
+      ],
+      "rules": [
+        {
+          "kind": "glyph-turns",
+          "extra": 1
+        },
+        {
+          "kind": "summon-share",
+          "summon": "hawk",
+          "hpPercent": 12,
+          "statsPercent": 50
+        }
+      ]
     },
     "forks": [
       {
@@ -639,7 +737,18 @@
             "description": {
               "fr": "Ton Faucon a 20 % de tes PV. Sort : Chassé-croisé.",
               "en": "Your Hawk has 20% of your HP. Spell: Changeover."
-            }
+            },
+            "spells": [
+              "path-changeover"
+            ],
+            "rules": [
+              {
+                "kind": "summon-share",
+                "summon": "hawk",
+                "hpPercent": 20,
+                "statsPercent": 50
+              }
+            ]
           },
           {
             "level": 100,
@@ -650,13 +759,27 @@
             "description": {
               "fr": "Deux Faucons à la fois. Piqué n'a plus de relance, une fois par tour.",
               "en": "Two Hawks at once. Dive has no cooldown, once per turn."
-            }
+            },
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "hawk",
+                "maxSummons": 2
+              },
+              {
+                "kind": "patch",
+                "spell": "path-dive",
+                "cooldown": 0,
+                "perTurn": 1
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Il voit ce que je ne vois pas, et il revient quand je l'appelle. C'est tout le secret.",
           "en": "He sees what I can't, and he comes back when I call. That's the whole secret."
-        }
+        },
+        "icon": "spec-falconer"
       },
       {
         "id": "trapper",
@@ -670,7 +793,17 @@
             "description": {
               "fr": "Mâchoires se relance en 1 tour. Sort : Appât.",
               "en": "Jaw Trap comes back in 1 turn. Spell: Bait."
-            }
+            },
+            "spells": [
+              "path-bait"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-jaws",
+                "cooldown": 1
+              }
+            ]
           },
           {
             "level": 100,
@@ -681,19 +814,36 @@
             "description": {
               "fr": "Deux Mâchoires à la fois. +15 % de dégâts sur un ennemi dans une de tes glyphes.",
               "en": "Two Jaw Traps at once. +15% damage on an enemy in one of your glyphs."
-            }
+            },
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-jaws",
+                "maxGlyphs": 2
+              },
+              {
+                "kind": "glyph-target",
+                "inside": 15,
+                "outside": 0
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Ce combat, je l'ai gagné hier, avec une pelle. Aujourd'hui, je regarde.",
           "en": "I won this fight yesterday, with a spade. Today I'm just watching."
-        }
+        },
+        "icon": "spec-trapper"
       }
     ],
     "lore": {
       "fr": "Chut. Le bois te parle, si tu te tais assez longtemps. Mon faucon l'a compris avant toi.",
       "en": "Hush. The woods will talk to you, if you keep quiet long enough. My hawk worked that out before you did."
-    }
+    },
+    "icon": "spec-ambush",
+    "keeps": [
+      "hawk"
+    ]
   },
   {
     "id": "trail",
@@ -711,7 +861,19 @@
       "description": {
         "fr": "Si on te frappe au contact : +2 PM pendant 1 tour. Tes sauts n'ont pas besoin de la vue. Sorts : Cabriole et Coup de talon.",
         "en": "If you are struck in melee: +2 MP for 1 turn. Your leaps need no sight. Spells: Vault and Heel Kick."
-      }
+      },
+      "spells": [
+        "path-vault",
+        "path-heel-kick"
+      ],
+      "passives": [
+        "spec-quick-heels"
+      ],
+      "rules": [
+        {
+          "kind": "leap-sight"
+        }
+      ]
     },
     "forks": [
       {
@@ -726,7 +888,18 @@
             "description": {
               "fr": "Cabriole n'a plus de relance, une fois par tour. Sort : Feinte.",
               "en": "Vault has no cooldown, once per turn. Spell: Feint."
-            }
+            },
+            "spells": [
+              "path-feint"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-vault",
+                "cooldown": 0,
+                "perTurn": 1
+              }
+            ]
           },
           {
             "level": 100,
@@ -737,13 +910,36 @@
             "description": {
               "fr": "Le passif monte à +3 PM. Une fois par combat, un coup au contact te donne un bouclier de 40. Cabriole donne +10 % de dégâts pour le tour.",
               "en": "The passive rises to +3 MP. Once per fight, a melee blow gives you a shield of 40. Vault gives +10% damage for the turn."
-            }
+            },
+            "passives": [
+              "spec-quick-heels-3",
+              "spec-saw-it-coming"
+            ],
+            "replaces": [
+              "spec-quick-heels"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-vault",
+                "addEffects": [
+                  {
+                    "kind": "status",
+                    "affects": "Caster",
+                    "stat": "Damage",
+                    "value": 10,
+                    "turns": 1
+                  }
+                ]
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Tu frappes, je suis là. Tu regardes, je n'y suis plus.",
           "en": "You strike, I'm there. You look, I'm gone."
-        }
+        },
+        "icon": "spec-leaper"
       },
       {
         "id": "runner",
@@ -757,7 +953,17 @@
             "description": {
               "fr": "+3 % de dégâts par case marchée depuis ton dernier sort, 15 % au plus. Sort : Tir en course.",
               "en": "+3% damage per cell walked since your last spell, 15% at most. Spell: Running Shot."
-            }
+            },
+            "spells": [
+              "path-running-shot"
+            ],
+            "rules": [
+              {
+                "kind": "dance",
+                "perCell": 3,
+                "max": 15
+              }
+            ]
           },
           {
             "level": 100,
@@ -768,18 +974,32 @@
             "description": {
               "fr": "+5 % par case, 25 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
               "en": "+5% per cell, 25% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
-            }
+            },
+            "rules": [
+              {
+                "kind": "dance",
+                "perCell": 2,
+                "max": 10
+              },
+              {
+                "kind": "echo",
+                "percent": 50,
+                "cells": 3
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Reste planté là si tu veux viser. Moi, je tire en passant.",
           "en": "Stand still to aim if you like. I shoot in passing."
-        }
+        },
+        "icon": "spec-runner"
       }
     ],
     "lore": {
       "fr": "Une sente ne va jamais tout droit. C'est pour ça qu'on ne t'y rattrape pas.",
       "en": "A trail never runs straight. That's why nobody catches you on it."
-    }
+    },
+    "icon": "spec-trail"
   }
 ]

@@ -222,7 +222,7 @@ Style des fiches du jeu, chiffres de la v4. Un même nom sur plusieurs lignes ve
 | id proposé | Où | Type | FR : nom | FR : texte | EN : nom | EN : texte |
 |---|---|---|---|---|---|---|
 | `spec-calm-eye` | `sightline` | passif | Œil calme | Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour. | Calm Eye | No enemy within 3 cells at the start of your turn: +15% damage for 1 turn. |
-| `spec-calm-eye-near` | `barrage@50` | passif | Œil calme | Aucun ennemi à 2 cases au début de ton tour : +15 % de dégâts pendant 1 tour. | Calm Eye | No enemy within 2 cells at the start of your turn: +15% damage for 1 turn. |
+| ~~`spec-calm-eye-near`~~ | ~~`barrage@50`~~ | retiré | | Retiré au sprint 191 (levier 3 du §v4.6, T150) : il donnait 8 points à la Herse. | | |
 | `spec-calm-eye-long` | `marksman@100` | passif | Œil calme | Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours. | Calm Eye | No enemy within 3 cells at the start of your turn: +25% damage for 2 turns. |
 | | `sightline` | règle | | Tes sorts en vue portent à +1 PO. | | Your spells in sight reach +1 range. |
 | | `marksman@50` | règle | | Tes sorts de 6 PO ou plus portent à +2 PO au lieu de +1. | | Your spells of 6 range or more reach +2 range instead of +1. |

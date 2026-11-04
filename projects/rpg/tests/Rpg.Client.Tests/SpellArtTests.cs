@@ -35,7 +35,7 @@ public class SpellArtTests
         Dictionary<string, JsonElement> spells = Catalog();
         using JsonDocument credits = JsonDocument.Parse(File.ReadAllText(Path.Combine(Spells, "credits.json")));
         string[] drawn = [.. spells.Where(s => Text(s.Value, "icon") is not null).Select(s => s.Key)];
-        Assert.Equal(366, drawn.Length);
+        Assert.Equal(378, drawn.Length);
         Assert.Equal(drawn.Order(), credits.RootElement.EnumerateObject().Select(p => p.Name).Order());
         // The classes' spells and the tree's are all drawn (the monsters' show a letter).
         using JsonDocument classes = JsonDocument.Parse(File.ReadAllText(Path.Combine(Rpg(), "data", "classes.json")));

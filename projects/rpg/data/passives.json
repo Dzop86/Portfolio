@@ -751,5 +751,115 @@
     "damageMin": 15,
     "damageMax": 20,
     "element": "Neutral"
+  },
+  {
+    "id": "spec-calm-eye",
+    "name": {
+      "fr": "Œil calme",
+      "en": "Calm Eye"
+    },
+    "description": {
+      "fr": "Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour.",
+      "en": "No enemy within 3 cells at the start of your turn: +15% damage for 1 turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 15,
+        "turns": 1
+      }
+    ],
+    "clear": 3
+  },
+  {
+    "id": "spec-calm-eye-long",
+    "name": {
+      "fr": "Œil calme",
+      "en": "Calm Eye"
+    },
+    "description": {
+      "fr": "Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours.",
+      "en": "No enemy within 3 cells at the start of your turn: +25% damage for 2 turns."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 25,
+        "turns": 2
+      }
+    ],
+    "clear": 3
+  },
+  {
+    "id": "spec-quick-heels",
+    "name": {
+      "fr": "Talons vifs",
+      "en": "Quick Heels"
+    },
+    "description": {
+      "fr": "Si on te frappe au contact : +2 PM pendant 1 tour.",
+      "en": "If you are struck in melee: +2 MP for 1 turn."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "spec-quick-heels-3",
+    "name": {
+      "fr": "Talons vifs",
+      "en": "Quick Heels"
+    },
+    "description": {
+      "fr": "Si on te frappe au contact : +3 PM pendant 1 tour.",
+      "en": "If you are struck in melee: +3 MP for 1 turn."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 3,
+        "turns": 1
+      }
+    ],
+    "melee": true
+  },
+  {
+    "id": "spec-saw-it-coming",
+    "name": {
+      "fr": "Vu venir",
+      "en": "Saw It Coming"
+    },
+    "description": {
+      "fr": "Une fois par combat, un coup au contact te donne un bouclier de 40.",
+      "en": "Once per fight, a melee blow gives you a shield of 40."
+    },
+    "trigger": "Hit",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Caster",
+        "amount": 40,
+        "turns": 2
+      }
+    ],
+    "melee": true,
+    "perFight": 1
   }
 ]

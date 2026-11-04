@@ -31,9 +31,10 @@ public sealed record FightRecord(
     /// less replays with the linear bonus. Version 5 (sprint 182, D93): every hero of level 30 or more sets the six reactions
     /// off, no talent asked (<see cref="FighterSpec.Reacts"/>); a record of version 4 or less replays with the reactions of
     /// its talents, which the tree no longer has: none. Version 6 (sprint 187, D94): a compound's spell leaves its mark, and its
-    /// next one sets off its reaction; a record of version 5 or less replays without.
+    /// next one sets off its reaction; a record of version 5 or less replays without. Version 7 (sprint 191, D95): a compound's own
+    /// glyph no longer lights <see cref="GlyphTargetRule"/>; a record of version 6 or less replays with it.
     /// </summary>
-    public const int CurrentVersion = 6;
+    public const int CurrentVersion = 7;
 
     private static readonly JsonSerializerOptions Compact = new(GameData.Json) { WriteIndented = false, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
 
@@ -75,7 +76,7 @@ public sealed record FightRecord(
         Fight fight;
         try
         {
-            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp, linearReturns: Version < 4, freeReactions: Version >= 5, compoundMarks: Version >= 6);
+            fight = new Fight(data, Scenario, Seed, hero, rival, HeroHp, allies, AlliesHp, linearReturns: Version < 4, freeReactions: Version >= 5, compoundMarks: Version >= 6, signatureGlyphsCount: Version < 7);
         }
         catch (ArgumentException e)
         {

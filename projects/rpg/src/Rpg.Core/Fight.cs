@@ -205,9 +205,10 @@ public sealed class Fight
     /// </param>
     /// <param name="alliesHp">Each ally's hit points to start with, in the same order; null for all of them.</param>
     public Fight(GameData data, string scenarioId, ulong seed, Hero? hero = null, Hero? rival = null, int? heroHp = null,
-        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false, bool freeReactions = true, bool compoundMarks = true)
+        IReadOnlyList<Hero>? allies = null, IReadOnlyList<int?>? alliesHp = null, bool linearReturns = false, bool freeReactions = true, bool compoundMarks = true, bool signatureGlyphsCount = false)
     {
         _compoundMarks = compoundMarks;
+        _signatureGlyphsCount = signatureGlyphsCount;
         ArgumentNullException.ThrowIfNull(data);
         Scenario = data.FindScenario(scenarioId) is Scenario s ? s : throw new KeyNotFoundException($"Unknown scenario '{scenarioId}'.");
         if (hero?.Problem(data) is string problem)
@@ -537,6 +538,11 @@ public sealed class Fight
             return ActionError.NotInLine;
         if (spell.LineOfSight && !LineOfSight.IsClear(from, target, c => c != caster.Cell && BlocksSight(c)))
             return ActionError.NoLineOfSight;
+        // Bound to a creature (sprint 191, D95, brick F): one of the caster's in play, or the very one aimed at.
+        if (spell.Needs is string needed && !Fighters.Any(f => f.IsAlive && f.Summoner == caster.Id && f.SummonKind == needed))
+            return ActionError.NoSummon;
+        if (spell.Aims is string aimed && (At(target) is not Fighter creature || creature.SummonKind != aimed || creature.Summoner != caster.Id))
+            return ActionError.NoValidTarget;
         foreach (SummonEffect summon in spell.AllEffects.OfType<SummonEffect>())
         {
             if (At(target) is not null && At(target) != caster)
@@ -765,8 +771,9 @@ public sealed class Fight
     /// <summary>Lays a glyph on the floor cells of a spell's area (sprint 130), in place of the caster's last one of that spell.</summary>
     private void Lay(Fighter me, GlyphEffect effect, IReadOnlyList<Cell> zone, string spell, bool buried = false)
     {
-        // A spell's glyph replaces that spell's; the reaction Buried's (sprint 185), its own.
-        foreach (Glyph old in _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell && g.Buried == buried).ToList())
+        // A spell's glyph replaces that spell's; the reaction Buried's (sprint 185), its own; past its Max (sprint 191, brick G), the oldest.
+        Glyph[] laid = [.. _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell && g.Buried == buried)];
+        foreach (Glyph old in laid.Take(Math.Max(0, laid.Length - effect.Max + 1)))
             EndGlyph(old);
         Cell[] cells = [.. zone.Where(Board.IsFloor).Distinct()];
         if (cells.Length == 0)
@@ -820,9 +827,15 @@ public sealed class Fight
         return caster.Context(spell, walking: from != caster.Cell) with
         {
             Backed = caster.Talents.Count > 0 && IsBacked(from),
-            InMyGlyph = caster.Talents.Count > 0 && _glyphs.Any(g => g.Caster == caster.Id && g.Cells.Contains(target.Cell)),
+            InMyGlyph = caster.Talents.Count > 0 && _glyphs.Any(g => g.Caster == caster.Id && g.Cells.Contains(target.Cell) && (_signatureGlyphsCount || !IsSignature(g))),
         };
     }
+
+    /// <summary>A compound's own glyph (sprint 191, D95, brick H): Ash's Fallout or Buried, which would light Scorched Earth and the Deadfall all the time.</summary>
+    private bool IsSignature(Glyph g) => g.Buried || (_data.Spells.TryGetValue(g.Spell, out Spell? spell) && spell.Twin is not null);
+
+    /// <summary>A record of version 6 or less: a compound's glyph lit <see cref="GlyphTargetRule"/> too.</summary>
+    private readonly bool _signatureGlyphsCount;
 
     /// <summary>The resistance a fighter's talents give it where it stands (Backed, sprint 142).</summary>
     public int GuardOf(Fighter f) => f.Talents.Count == 0 ? 0 : Talents.Guard((f ?? throw new ArgumentNullException(nameof(f))).Talents, IsBacked(f.Cell));
@@ -1064,6 +1077,8 @@ public sealed class Fight
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
                         _pending.Enqueue((hit, p, me));
+                    if (melee && hit.StatusList.FirstOrDefault(s => s.Stat == Stat.Feint) is Status feint)
+                        Feinted(hit, me, feint);
                 }
                 Imprint(me, hit, spell.Element, reacts, dealt, spell.Id);
                 // Sap's Bud (sprint 185): the most wounded ally around the caster, the caster too.
@@ -1198,13 +1213,31 @@ public sealed class Fight
             f.Mp = Math.Max(0, f.Mp + status.Value);
     }
 
+    /// <summary>A Feint is spent (sprint 191, D95, brick I): the one who struck from next to it loses its movement points for a turn.</summary>
+    private void Feinted(Fighter bearer, Fighter striker, Status feint)
+    {
+        bearer.StatusList.Remove(feint);
+        _events.Add(new StatusEnded(bearer.Id, Stat.Feint));
+        if (!striker.IsAlive || IsOver)
+            return;
+        SetStatus(bearer, striker, new StatusEffect(Affects.Enemies, Stat.Mp, -feint.Value, 1));
+    }
+
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
     private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null)
     {
         if (!IsFree(cell))
             return null;
-        int hp = m.HpOfSummoner > 0 ? Math.Max(1, me.MaxHp * m.HpOfSummoner / 100) : m.Hp;
+        // Fed by its summoner's path (sprint 191, D95, brick E): a share of its hit points and characteristics, in its element.
+        SummonRule? fed = me.Talents.SelectMany(t => t.Rules).OfType<SummonRule>().Where(r => r.Summon == m.Id).OrderByDescending(r => r.HpPercent).FirstOrDefault();
+        int hp = fed is not null ? Math.Max(1, me.MaxHp * fed.HpPercent / 100) : m.HpOfSummoner > 0 ? Math.Max(1, me.MaxHp * m.HpOfSummoner / 100) : m.Hp;
         var spec = new FighterSpec(m.Name, m.Look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
+        if (fed is not null)
+        {
+            Characteristics c = me.Spec.Characteristics;
+            int Part(int points) => points * fed.StatsPercent / 100;
+            spec = spec with { Stats = new Characteristics(0, Part(c.Earth), Part(c.Fire), Part(c.Water), Part(c.Air)), Threshold = me.Spec.Threshold, SpecElement = me.Spec.SpecElement };
+        }
         var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id) { LaysMarks = me.LaysMarks };
         _fighters.Add(summoned);
         // Right after its summoner in the order of play, or after the one summoned just before.

@@ -152,6 +152,12 @@ public enum Stat
 
     /// <summary>The fighter's cell blocks neither way nor sight (the reaction Scattered, sprint 185).</summary>
     Incorporeal,
+
+    /// <summary>
+    /// A Feint (sprint 191, D95, brick I): the next fighter whose spell hurts it from next to it loses this many movement points,
+    /// and the status is spent.
+    /// </summary>
+    Feint,
 }
 
 /// <summary>
@@ -211,8 +217,9 @@ public sealed record SwapEffect(Affects Affects) : SpellEffect(Affects);
 /// <param name="Status">The status it sets, if any, with <paramref name="Value"/> for <paramref name="StatusTurns"/> turns.</param>
 /// <param name="Marks">A Seal's (sprint 142): it leaves its element's mark on whom it strikes, if its caster lays marks.</param>
 /// <param name="Decays">A Remanence's (sprint 142): its damage falls away from its centre, 100, 70, 45 then 25 %.</param>
+/// <param name="Max">How many of this spell's glyphs its caster keeps at once (sprint 191, brick G): a new one past that replaces the oldest.</param>
 public sealed record GlyphEffect(Affects Affects, int Turns, int DamageMin = 0, int DamageMax = 0, Element Element = Element.Neutral,
-    Stat? Status = null, int Value = 0, int StatusTurns = 0, bool Marks = false, bool Decays = false) : SpellEffect(Affects)
+    Stat? Status = null, int Value = 0, int StatusTurns = 0, bool Marks = false, bool Decays = false, int Max = 1) : SpellEffect(Affects)
 {
     /// <summary>The status the glyph sets, as a spell's status effect, or null.</summary>
     public StatusEffect? AsStatus => Status is Stat stat ? new StatusEffect(Affects, stat, Value, StatusTurns, Element) : null;

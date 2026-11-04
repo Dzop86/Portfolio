@@ -123,16 +123,23 @@ public static class Specs
             : elements.OrderByDescending(e => Characteristics.Effective(stats.For(e), threshold)).ThenBy(e => e).First();
     }
 
-    /// <summary>An adaptive spell given its element, a compound's damage times 0.8 as a twin's; any other spell as it is.</summary>
+    /// <summary>
+    /// An adaptive spell given its element, a compound's damage times 0.8 as a twin's, the damage of its glyph too (sprint 191, Jaw Trap); any other
+    /// spell as it is.
+    /// </summary>
     public static Spell Adapted(Spell spell, Element element)
     {
         ArgumentNullException.ThrowIfNull(spell);
         if (!spell.Adaptive || element == Element.Neutral)
             return spell;
-        Spell s = spell with { Element = element };
-        return Elements.IsCompound(element) && s.DamageMax > 0
-            ? s with { DamageMin = Math.Max(1, (int)Math.Round(s.DamageMin * 0.8)), DamageMax = Math.Max(1, (int)Math.Round(s.DamageMax * 0.8)) }
-            : s;
+        bool compound = Elements.IsCompound(element);
+        int Scaled(int damage) => compound ? Math.Max(1, (int)Math.Round(damage * 0.8)) : damage;
+        Spell s = spell with
+        {
+            Element = element,
+            Effects = spell.Effects?.Select(e => e is GlyphEffect { DamageMax: > 0 } g ? g with { Element = element, DamageMin = Scaled(g.DamageMin), DamageMax = Scaled(g.DamageMax) } : e).ToList(),
+        };
+        return s.DamageMax > 0 ? s with { DamageMin = Scaled(s.DamageMin), DamageMax = Scaled(s.DamageMax) } : s;
     }
 
     /// <summary>

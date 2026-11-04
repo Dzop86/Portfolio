@@ -4,13 +4,17 @@
 import json, collections, sys
 root = sys.argv[1]
 O = collections.OrderedDict
-def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0):
+def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None):
     d = O([("id", id), ("name", O([("fr", fr), ("en", en)])), ("apCost", ap), ("minRange", mn), ("maxRange", mx),
            ("lineOfSight", los), ("inLine", line), ("damageMin", dmin), ("damageMax", dmax), ("perTurn", per), ("element", el)])
     if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
     if effects: d["effects"] = effects
     if level != 1: d["level"] = level
     if cd: d["cooldown"] = cd
+    # A path's spell (D95): in the hero's strongest element; bound to a creature (sprint 191, brick F).
+    if adaptive: d["adaptive"] = True
+    if needs: d["needs"] = needs
+    if aims: d["aims"] = aims
     if ranks and dmax > 0:
         d["ranks"] = [O([("damageMin", round(dmin * f)), ("damageMax", round(dmax * f))]) for f in (1.2, 1.4, 1.6, 1.8)]
     return d
@@ -143,7 +147,8 @@ mage = C(
  R("light-step","Pas léger","Light Step",1,0,0,0,0,1,"Neutral","delapouite/running-shoe",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
 creatures = [
- S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False),
+ # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
+ S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
  S("ember-bolt","Trait de braise","Ember Bolt",3,1,3,4,7,1,"Fire",1,ranks=False),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
@@ -378,14 +383,43 @@ tree = [
 for sp in tree:
     sp["icon"] = {"relay": "lorc/back-forth", "decoy": "lorc/scarecrow"}.get(sp["id"], "lorc/rune-stone")
 twins += tree
+# The paths' spells (sprint 191, D95, docs/elements-specialisations.md §v4.4, names of docs/textes-specialisations.md §2): of no class, at the
+# budget of their level, 2 at 30 and 1 at 50 a leaf. The Sentinel's first; the Guard's in sprint 192, the Mage's in 193.
+def path(id, fr, en, ap, mn, mx, level, icon, damage=False, **kw):
+    sp = S(f"path-{id}", fr, en, ap, mn, mx, 1 if damage else 0, 1 if damage else 0, kw.pop("per", 1), "Neutral", level, adaptive=True, **kw)
+    sp["icon"] = icon
+    return sp
+paths = [
+ # The Sightline.
+ path("aimed-shot","Tir visé","Aimed Shot",5,4,9,30,"lorc/target-arrows",damage=True,cd=2),
+ path("weak-spot","Point faible","Weak Spot",2,1,9,30,"delapouite/convergence-target",effects=[status("Enemies","Resistance",-15,2)],cd=3),
+ path("bullseye","Coup au but","Bullseye",6,5,10,50,"lorc/high-shot",damage=True,cd=3),
+ path("barrage","Tir de barrage","Barrage",4,3,8,50,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=2),
+ # The Ambush: its glyph at the budget by hand, the budget does not read a glyph's status (3 AP at level 30, cooldown 2, a loss of points).
+ path("jaws","Mâchoires","Jaw Trap",3,1,5,30,"lorc/mantrap",effects=[glyph("Enemies",2,11,15,stat="Mp",v=-3,st=1)],cd=2),
+ path("dive","Piqué","Dive",3,1,7,30,"lorc/feather",damage=True,los=False,cd=1,needs="hawk"),
+ path("changeover","Chassé-croisé","Changeover",2,1,6,50,"lorc/magic-portal",los=False,effects=[swap()],cd=2,aims="hawk"),
+ path("bait","Appât","Bait",2,1,4,50,"delapouite/bread",effects=[glyph("Enemies",2,stat="Ap",v=-1,st=1)],cd=3),
+ # The Trail.
+ path("vault","Cabriole","Vault",2,2,4,30,"delapouite/quick-man",effects=[leap()],cd=1),
+ path("heel-kick","Coup de talon","Heel Kick",3,1,1,30,"lorc/boot-stomp",damage=True,effects=[push(2)]),
+ path("feint","Feinte","Feint",2,0,0,50,"lorc/dodging",los=False,effects=[status("Caster","Feint",2,2)],cd=3),
+ path("running-shot","Tir en course","Running Shot",3,2,5,50,"lorc/run",damage=True,effects=[status("Caster","Mp",2,1)]),
+]
+# The levers of §v4.6, by measure against the groups of 4 and 5 (sprint 191, T150): the Aimed Shot and the Barrage a tenth under the budget. The Portcullis lost its
+# passive at 2 cells too, which gave it 8 points.
+PATH_SCALE = {"path-aimed-shot": 0.9, "path-barrage": 0.9}
+for sp in paths:
+    if sp["damageMax"] > 0:
+        budget(sp, PATH_SCALE.get(sp["id"], 1))
 _names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
 _names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree]:
+for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + creatures + beasts + twins
+spells = base + sentinel + guard + mage + creatures + beasts + twins + paths
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
@@ -422,7 +456,7 @@ def P(id, fr, en, dfr, den, trigger, effects=None, area=None, **kw):
     d = O([("id",id),("name",O([("fr",fr),("en",en)])),("description",O([("fr",dfr),("en",den)])),("trigger",trigger)])
     if effects: d["effects"] = effects
     if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
-    for k in ("melee", "percent", "range", "damageMin", "damageMax", "element"):
+    for k in ("melee", "percent", "range", "damageMin", "damageMax", "element", "clear", "perFight", "oncePerTurn", "still"):
         if k in kw: d[k] = kw[k]
     return d
 passives = [
@@ -486,6 +520,15 @@ passives = [
  # A death that ends the fight sets off no passive: alone, it bursts as it is about to fall, below a tenth of its hit points.
  P("rupture","Rupture","Rupture","Sous un dixième de ses PV, se fend : 15 à 20 dégâts neutres à 2 cases, lui compris.","Below a tenth of its HP, it splits: 15 to 20 neutral damage 2 cells around, itself included.",
    "LowHp",area=("Circle",2),damageMin=15,damageMax=20,element="Neutral",percent=10),
+ # The Sentinel's paths (sprint 191, D95, words of docs/textes-specialisations.md §3.1); those of one name take each other's place (Replaces).
+ P("spec-calm-eye","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour.","No enemy within 3 cells at the start of your turn: +15% damage for 1 turn.",
+   "TurnStart",[status("Caster","Damage",15,1)],clear=3),
+ P("spec-calm-eye-long","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours.","No enemy within 3 cells at the start of your turn: +25% damage for 2 turns.",
+   "TurnStart",[status("Caster","Damage",25,2)],clear=3),
+ P("spec-quick-heels","Talons vifs","Quick Heels","Si on te frappe au contact : +2 PM pendant 1 tour.","If you are struck in melee: +2 MP for 1 turn.","Hit",[status("Caster","Mp",2,1)],melee=True),
+ P("spec-quick-heels-3","Talons vifs","Quick Heels","Si on te frappe au contact : +3 PM pendant 1 tour.","If you are struck in melee: +3 MP for 1 turn.","Hit",[status("Caster","Mp",3,1)],melee=True),
+ P("spec-saw-it-coming","Vu venir","Saw It Coming","Une fois par combat, un coup au contact te donne un bouclier de 40.","Once per fight, a melee blow gives you a shield of 40.",
+   "Hit",[shield("Caster",40,2)],melee=True,perFight=1),
 ]
 open(f"{root}/passives.json", "w").write(json.dumps(passives, ensure_ascii=False, indent=2) + "\n")
 print(len(spells), {k: len(v) for k, v in lists.items()})

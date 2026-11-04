@@ -40,10 +40,14 @@ public sealed class SpellBook
         TalentSpec[] talents = [.. editor.TalentsTaken.Select(id => data.Talents[id])];
         // A compound's parents leave the book with their spells (sprint 187, D94).
         IReadOnlyList<Element> consumed = Talents.ConsumedBy(draft, data);
-        Spells = c is null ? [] : [.. c.Spells.Where(id => !consumed.Contains(data.Spells[id].Element)).Concat(twins).Select(id => data.Spells[id]).Select(s =>
+        // Its path's after them (sprint 191, D95), as they fight: in its element, its rules compiled; its class's spells its path changes too.
+        IReadOnlyList<TalentRule> rules = Specs.RulesOf(draft, data);
+        Element adapted = Specs.Of(draft, data) is null ? Element.Neutral : Specs.AdaptiveElement(stats, grimoire.Spells.Select(id => data.Spells[id]), Characteristics.Threshold(draft.Level));
+        Spell Fought(Spell s) => rules.Count == 0 ? s : Talents.Compile(Specs.Adapted(s, adapted), [Specs.AsTalent(rules)]);
+        Spells = c is null ? [] : [.. c.Spells.Where(id => !consumed.Contains(data.Spells[id].Element)).Concat(twins).Concat(Specs.SpellsOf(draft, data)).Select(id => data.Spells[id]).Select(s =>
         {
             string? origin = OriginOf(s, talents, data);
-            return Entry(s, editor, draft, stats) with
+            return Entry(Fought(s), editor, draft, stats) with
             {
                 Preview = previewed.Contains(s.Id),
                 Origin = origin,
