@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics.Metrics;
 
 [assembly: AssemblyFixture(typeof(Rpg.Core.Tests.FightBudget))]
@@ -18,6 +19,7 @@ public sealed class FightBudget : IDisposable
     public const long Limit = 240_000;
 
     private static long _played;
+    private static readonly ConcurrentDictionary<string, long> ByTest = new(StringComparer.Ordinal);
     private readonly MeterListener _listener = new();
 
     public FightBudget()
@@ -27,9 +29,19 @@ public sealed class FightBudget : IDisposable
             if (instrument.Meter.Name == Ai.MeterName)
                 listener.EnableMeasurementEvents(instrument);
         };
-        _listener.SetMeasurementEventCallback<long>((_, value, _, _) => Interlocked.Add(ref _played, value));
+        _listener.SetMeasurementEventCallback<long>((_, value, _, _) =>
+        {
+            Interlocked.Add(ref _played, value);
+            // Sprint 195 (D97): which test played it, theories counted together; the context flows into the tests' parallel loops.
+            if (TestContext.Current.TestMethod is { } method)
+                ByTest.AddOrUpdate($"{TestContext.Current.TestClass?.TestClassName}.{method.MethodName}", value, (_, n) => n + value);
+        });
         _listener.Start();
     }
+
+    /// <summary>The fights each test has played out so far in this run, the costliest first.</summary>
+    public static IReadOnlyList<(string Test, long Fights)> Costs =>
+        [.. ByTest.OrderByDescending(p => p.Value).ThenBy(p => p.Key, StringComparer.Ordinal).Select(p => (p.Key, p.Value))];
 
     /// <summary>The fights played out so far in this run.</summary>
     public static long Played => Interlocked.Read(ref _played);
@@ -40,6 +52,8 @@ public sealed class FightBudget : IDisposable
         string? report = Environment.GetEnvironmentVariable("RPG_FIGHT_BUDGET_REPORT");
         if (report is not null)
             File.WriteAllText(report, Played.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (Environment.GetEnvironmentVariable("RPG_FIGHT_BUDGET_COSTS") is string costs)
+            File.WriteAllLines(costs, Costs.Select(c => $"{c.Fights}\t{c.Test}"));
         if (Played > Limit)
             throw new InvalidOperationException($"This run played out {Played} fights, over the budget of {Limit} (D96).");
     }
