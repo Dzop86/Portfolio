@@ -774,12 +774,15 @@ public sealed class GameData
         {
             if (Class(s.Class) is not HeroClass c || Specs.Values.Count(o => o.Class == s.Class) > 3)
                 throw new InvalidDataException($"Path '{s.Id}': of a known class, three at most each.");
-            if (s.Base.Level != Core.Specs.Opens || s.Forks.Count != 2 || s.Forks.Any(f => !f.Tiers.Select(t => t.Level).SequenceEqual([Core.Specs.Forks, 100])))
-                throw new InvalidDataException($"Path '{s.Id}': an evolution at {Core.Specs.Opens}, two lineages, each with an evolution at {Core.Specs.Forks} and 100.");
+            if (s.Base.Level != Core.Specs.Opens || s.Forks.Count != 2 || s.Forks.Any(f => !f.Tiers.Select(t => t.Level).SequenceEqual(f.Finals is null ? [Core.Specs.Forks, Core.Specs.Finals] : [Core.Specs.Forks])))
+                throw new InvalidDataException($"Path '{s.Id}': an evolution at {Core.Specs.Opens}, two lineages, each with an evolution at {Core.Specs.Forks} and, unless it has final classes, at {Core.Specs.Finals}.");
+            // Two final classes a lineage, of level 100, without a spell: a leaf has its 3 by then (docs/classes-conception.md §2.2).
+            if (s.Forks.Any(f => f.Finals is { } finals && (finals.Count != 2 || finals[0].Id == finals[1].Id || finals.Any(x => x.Tier.Level != Core.Specs.Finals || x.Tier.Spells is { Count: > 0 }))))
+                throw new InvalidDataException($"Path '{s.Id}': a lineage's final classes are two, different, of level {Core.Specs.Finals}, without a spell.");
             // A leaf has 3 spells: 2 at 30, 1 at 50, none at 100 (§v4.1); none yet where its content is still to come (S191-S193).
             if (s.Forks.Any(f => s.SpellsWith(f.Id).Count() is not (0 or 3)) || s.Forks.Any(f => s.SpellsWith(f.Id).Distinct(StringComparer.Ordinal).Count() != s.SpellsWith(f.Id).Count()))
                 throw new InvalidDataException($"Path '{s.Id}': a leaf has 3 spells.");
-            foreach (SpecTier t in s.Forks.SelectMany(f => f.Tiers).Prepend(s.Base))
+            foreach (SpecTier t in s.Forks.SelectMany(f => f.Tiers.Concat((f.Finals ?? []).Select(x => x.Tier))).Prepend(s.Base))
             {
                 if ((t.Spells ?? []).Any(id => !Spells.TryGetValue(id, out Spell? sp) || sp.Level != t.Level || ofClasses.Contains(id)))
                     throw new InvalidDataException($"Path '{s.Id}': spells known, of level {t.Level}, of no class.");

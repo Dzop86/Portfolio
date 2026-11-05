@@ -181,6 +181,9 @@ namespace Rpg.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Final")
+                        .HasColumnType("text");
+
                     b.Property<int>("Fire")
                         .HasColumnType("integer");
 

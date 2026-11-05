@@ -12,7 +12,17 @@ public sealed record SpecTier(int Level, LocalizedText Title, LocalizedText Desc
 /// A lineage (sprint 190, D95, docs/elements-specialisations.md §v4): one of the two ways a branch divides into at level 50, its
 /// evolutions at 50 and 100.
 /// </summary>
-public sealed record SpecFork(string Id, IReadOnlyList<SpecTier> Tiers, LocalizedText? Lore = null, string? Icon = null);
+public sealed record SpecFork(string Id, IReadOnlyList<SpecTier> Tiers, LocalizedText? Lore = null, string? Icon = null, IReadOnlyList<SpecFinal>? Finals = null)
+{
+    /// <summary>The final class of this id, or null.</summary>
+    public SpecFinal? FinalOf(string? id) => Finals?.FirstOrDefault(f => f.Id == id);
+}
+
+/// <summary>
+/// A final class (sprint 194, D96, docs/classes-conception.md §2.2): one of the two a lineage ends in at level 100, a signature without
+/// a spell. A lineage without <see cref="SpecFork.Finals"/> keeps its one evolution at 100, until its class is converted (S197 on).
+/// </summary>
+public sealed record SpecFinal(string Id, SpecTier Tier, LocalizedText? Lore = null, string? Icon = null);
 
 /// <summary>
 /// A branch of a class's tree (sprint 186, D93; sprint 190, D95): its evolution at 30 and its two lineages;
@@ -43,6 +53,9 @@ public static class Specs
     /// <summary>The level a branch divides at (D95).</summary>
     public const int Forks = 50;
 
+    /// <summary>The level a lineage ends in its final class (D96).</summary>
+    public const int Finals = 100;
+
     /// <summary>
     /// What this hero pays to take this branch and lineage (§v4.5): the first branch and the first lineage are free at any level;
     /// another lineage 10 × the level in Éclats, another branch 30 × the level.
@@ -59,6 +72,9 @@ public static class Specs
     /// <summary>The hero's lineage, if it has one its branch knows and its level opens.</summary>
     public static SpecFork? ForkOf(Hero hero, GameData data) => hero?.Level >= Forks ? Of(hero, data)?.ForkOf(hero.Fork) : null;
 
+    /// <summary>The hero's final class, if it has one its lineage knows and its level opens.</summary>
+    public static SpecFinal? FinalOf(Hero hero, GameData data) => hero?.Level >= Finals ? ForkOf(hero, data)?.FinalOf(hero.Final) : null;
+
     /// <summary>The hero's path, if this data knows it, of its class, and its level opens it; null for a hero who has not chosen.</summary>
     public static Specialisation? Of(Hero hero, GameData data)
     {
@@ -72,7 +88,7 @@ public static class Specs
     {
         if (Of(hero, data) is not Specialisation branch)
             return [];
-        return [branch.Base, .. ForkOf(hero, data)?.Tiers.Where(t => t.Level <= hero.Level) ?? []];
+        return [branch.Base, .. ForkOf(hero, data)?.Tiers.Where(t => t.Level <= hero.Level) ?? [], .. FinalOf(hero, data) is SpecFinal final ? [final.Tier] : Array.Empty<SpecTier>()];
     }
 
     /// <summary>The spells its evolutions give it.</summary>

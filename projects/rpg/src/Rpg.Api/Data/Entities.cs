@@ -111,6 +111,9 @@ public sealed class Character
     /// <summary>The lineage of its branch (sprint 190, D95), or null while it has not chosen: it keeps its branch's evolution.</summary>
     public string? Fork { get; set; }
 
+    /// <summary>The final class of its lineage (sprint 194, D96), or null while it has not chosen.</summary>
+    public string? Final { get; set; }
+
     /// <summary>The experience of each trade (sprint 81), as "job:xp" separated by commas.</summary>
     public string Jobs { get; set; } = "";
 
@@ -259,7 +262,7 @@ public sealed class Character
 
     /// <summary>The character as the rules see it.</summary>
     public Hero Hero => new(Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats, RankList, WornList, DeckList, TalentList.Length == 0 ? null : TalentList,
-        CompoundList.Length == 0 ? null : CompoundList, Spec, Fork);
+        CompoundList.Length == 0 ? null : CompoundList, Spec, Fork, Final);
 }
 
 /// <summary>

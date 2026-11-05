@@ -226,6 +226,7 @@ public static class Admin
                     // Fewer points than were spent: all of them come back, to be spent again.
                     (c.Vitality, c.Earth, c.Fire, c.Water, c.Air, c.Ranks, c.Deck, c.Talents, c.Compounds, c.Spec) = (0, 0, 0, 0, 0, "", "", "", "", null);
                     c.Fork = null;
+                    c.Final = null;
                 }
                 c.Xp = Progression.XpToReach(level);
                 c.Level = level;
@@ -267,14 +268,14 @@ public static class Admin
                     c.Ranks = string.Join(',', c.RankList.Where(r => !gone.Contains(r.Key)).Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
                     if (c.Deck is not ("" or Character.EmptyDeck))
                         c.Deck = kept.Length == 0 ? Character.EmptyDeck : string.Join(',', kept);
-                    (c.Spec, c.Fork) = (null, null);
+                    (c.Spec, c.Fork, c.Final) = (null, null, null);
                 }
                 else if (paths.FirstOrDefault(p => GameData.Embedded.Specs[p.Split(':')[0]].Class == c.Class) is string path && c.Level >= Specs.Opens)
                 {
                     string branch = path.Split(':')[0];
                     string? lineage = path.Contains(':') && c.Level >= Specs.Forks ? path.Split(':')[1] : null;
                     Hero moved = Specs.Transferred(c.Hero, branch, lineage, GameData.Embedded);
-                    (c.Spec, c.Fork) = (branch, lineage);
+                    (c.Spec, c.Fork, c.Final) = (branch, lineage, null);
                     c.Ranks = string.Join(',', (moved.Ranks ?? new Dictionary<string, int>()).Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal)
                         .Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
                     if (c.Deck is not ("" or Character.EmptyDeck))

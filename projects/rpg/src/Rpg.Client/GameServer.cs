@@ -379,9 +379,12 @@ public sealed class GameServer(HttpClient http)
     }
 
     /// <summary>Takes a path (sprint 186, D93); the server checks the level, the quest and the price.</summary>
-    public async Task<CharacterSummary> ChooseSpec(Guid id, string spec, string? fork = null, CancellationToken cancel = default)
+    public Task<CharacterSummary> ChooseSpec(Guid id, string spec, string? fork = null, CancellationToken cancel = default) => ChooseSpec(id, spec, fork, null, cancel);
+
+    /// <summary>The same, naming a final class of the lineage (sprint 194, D96).</summary>
+    public async Task<CharacterSummary> ChooseSpec(Guid id, string spec, string? fork, string? final, CancellationToken cancel = default)
     {
-        HttpResponseMessage response = await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/spec", UriKind.Relative), new SpecChoice(spec, fork), Json, cancel), cancel);
+        HttpResponseMessage response = await Send(() => Http.PutAsJsonAsync(new Uri($"api/characters/{id}/spec", UriKind.Relative), new SpecChoice(spec, fork, final), Json, cancel), cancel);
         await Check(response, cancel);
         return (await response.Content.ReadFromJsonAsync<CharacterSummary>(Json, cancel))!;
     }

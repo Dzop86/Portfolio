@@ -48,6 +48,27 @@ public class SpecTests
     }
 
     [Fact]
+    public async Task AFinalClass_IsCheckedByTheRules_StoredByTheColumn_AndLostWithItsLineage()
+    {
+        // Sprint 194 (D96): no lineage has final classes before the Warrior (S197), so the refusals and the column, not a choice that succeeds: FinalsTests has that one, on its own data.
+        (ApiFactory api, GameServer server, CharacterSummary c, _) = await Mage("Finale", 100);
+        using (api)
+        {
+            await DoTheQuest(api, server, c.Id);
+            await server.ChooseSpec(c.Id, "archmage", "patient", Cancel);
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "archmage", "patient", "nowhere", Cancel)));
+            Assert.Null((await server.Characters(Cancel)).Single().Final);
+            // Stored, and handed back; naming the same lineage keeps it.
+            Change(api, c.Id, x => x.Final = "stored");
+            Assert.Equal("stored", (await server.Characters(Cancel)).Single().Final);
+            Assert.Equal("stored", (await server.ChooseSpec(c.Id, "archmage", cancel: Cancel)).Final);
+            // Another lineage does not carry it over.
+            Change(api, c.Id, x => (x.Town, x.Shards) = ("clairval", 100_000));
+            Assert.Null((await server.ChooseSpec(c.Id, "archmage", "high-archmage", Cancel)).Final);
+        }
+    }
+
+    [Fact]
     public async Task TheQuestOpensTheChoice_TheFirstPathIsFree_AtAnyLevel_AndShows()
     {
         (ApiFactory api, GameServer server, CharacterSummary c, _) = await Mage("sp1", 60);

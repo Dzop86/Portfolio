@@ -7,7 +7,11 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, l'IA sait valoir une glyphe posée, un saut, une réserve, un bouclier et une invocation, et la mesure dit enfin si la Sentinelle à ±22 vient de l'IA ou des sorts (rpg) ; xUnit, résultat dans `DECISIONS.md`. | 3 | Fait en partie : bouclier et invocation faits, glyphe et saut essayés puis retirés (l'IA y perd jusqu'à 19 points), réserve non faite, elle attend le Mage ; diagnostic partiel (T154) |
-| En tant que joueur, je choisis à 100 une des 2 classes finales de ma lignée : données, validation et serveur (rpg) ; xUnit, un test d'intégration de l'API. | 2 | À faire |
+| En tant que joueur, je choisis à 100 une des 2 classes finales de ma lignée : données, validation et serveur (rpg) ; xUnit, un test d'intégration de l'API. | 2 | Fait en partie : moteur, validation, colonne et serveur faits, aucune finale dans les données avant S197, donc le choix réussi n'est testé qu'au niveau du Cœur (T155) |
+
+**Ce qui est fait.** `Ai.Incoming`, valeur des créatures, boucliers et résistances pour un héros, `Hero.LeastWorth` selon ses points, garde-fou de la Sentinelle ramené de ±22 à ±15, `docs/mesures-classes.md` (T154). `SpecFinal`, `Hero.Final`, validation, `PUT …/spec`, migration `AddFinal`, `FinalsTests` (T155).
+
+**Ce qui n'est pas fait.** Valeur de la glyphe et du saut (essayées, retirées : l'IA y perd jusqu'à 19 points), réserve (attend le Mage). 7 lignes sur 24 concluantes avec le paquet automatique, comme en S193. En jeu, ces valeurs d'IA ne servent pas : l'IA n'y joue pas les héros.
 
 ## Rétro (Charles)
 - Ce qui a marché :

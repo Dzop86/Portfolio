@@ -774,9 +774,13 @@ public static class CharacterEndpoints
         // The same branch keeps its lineage when none is named.
         if (spec == character.Spec)
             fork ??= character.Fork;
+        // The same lineage keeps its final class when none is named; another lineage has none of its own yet.
+        string? final = choice.Final;
         if (spec == character.Spec && fork == character.Fork)
+            final ??= character.Final;
+        if (spec == character.Spec && fork == character.Fork && final == character.Final)
             return TypedResults.Ok(Summary(character));
-        if ((character.Hero with { Spec = spec, Fork = fork }).Problem(GameData.Embedded) is string problem)
+        if ((character.Hero with { Spec = spec, Fork = fork, Final = final }).Problem(GameData.Embedded) is string problem)
             return Refused(problem);
         // Another branch at 50 or more names its lineage too: a hero who pays never has a hole (§v4.5).
         if (character.Spec is not null && spec != character.Spec && character.Level >= Specs.Forks && fork is null)
@@ -794,6 +798,7 @@ public static class CharacterEndpoints
         character.Shards -= cost;
         character.Spec = spec;
         character.Fork = fork;
+        character.Final = final;
         character.Ranks = RanksText(moved.Ranks ?? new Dictionary<string, int>());
         character.Deck = DeckText(moved.Deck);
         await db.SaveChangesAsync(cancel);
@@ -807,7 +812,7 @@ public static class CharacterEndpoints
     private static CharacterSummary Summary(Character c, Place? place) =>
         new(c.Id, c.Name, c.Look, c.Class, c.Colour, c.CreatedAt, place, c.Server, c.Level, c.Hair, c.Skin, c.Height, c.Build, c.Xp, c.Stats, c.RankList, c.QuestList, c.InventoryList, c.WornList, c.DeckList, c.Run, c.JobList, c.Shards, c.ActiveQuests,
             c.Hp, c.HpAt, c.InFight, c.TalentList.Length == 0 ? null : c.TalentList, Bestiary: c.Bestiary.Length == 0 ? null : c.BestiaryList,
-            Compounds: c.CompoundList.Length == 0 ? null : c.CompoundList, Spec: c.Spec, Fork: c.Fork);
+            Compounds: c.CompoundList.Length == 0 ? null : c.CompoundList, Spec: c.Spec, Fork: c.Fork, Final: c.Final);
 
     private static ProblemHttpResult NameTaken() =>
         TypedResults.Problem(statusCode: StatusCodes.Status409Conflict, title: "This character name is already taken.");

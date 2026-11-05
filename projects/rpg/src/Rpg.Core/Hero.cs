@@ -16,7 +16,7 @@ namespace Rpg.Core;
 /// </summary>
 public sealed partial record Hero(string Name, string Look, string? Class = null, int Colour = 0, int Hair = 0, int Skin = 0, int Height = 0, int Build = 0, int Level = 1,
     Characteristics? Stats = null, IReadOnlyDictionary<string, int>? Ranks = null, IReadOnlyDictionary<Slot, string>? Worn = null, IReadOnlyList<string>? Deck = null,
-    IReadOnlyList<string>? Talents = null, IReadOnlyList<Element>? Compounds = null, string? Spec = null, string? Fork = null)
+    IReadOnlyList<string>? Talents = null, IReadOnlyList<Element>? Compounds = null, string? Spec = null, string? Fork = null, string? Final = null)
 {
     /// <summary>The spells a hero fights with: twelve, in two rows of six (D62).</summary>
     public const int DeckSize = 12;
@@ -109,7 +109,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
         other is not null && (Name, Look, Class, Colour, Hair, Skin, Height, Build, Level, Stats ?? Characteristics.None) == (other.Name, other.Look, other.Class, other.Colour, other.Hair, other.Skin, other.Height, other.Build, other.Level, other.Stats ?? Characteristics.None)
         && RanksGiven.SequenceEqual(other.RanksGiven) && WornItems.SequenceEqual(other.WornItems)
         && (Deck is null) == (other.Deck is null) && (Deck ?? []).SequenceEqual(other.Deck ?? [])
-        && TalentsTaken.SequenceEqual(other.TalentsTaken) && (Compounds ?? []).Order().SequenceEqual((other.Compounds ?? []).Order()) && Spec == other.Spec && Fork == other.Fork;
+        && TalentsTaken.SequenceEqual(other.TalentsTaken) && (Compounds ?? []).Order().SequenceEqual((other.Compounds ?? []).Order()) && Spec == other.Spec && Fork == other.Fork && Final == other.Final;
 
     /// <summary>The talents taken, by id in order: the order they were taken in does not matter.</summary>
     [JsonIgnore]
@@ -176,13 +176,16 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
 
     /// <summary>A path (sprint 186): a known one, of its class, from level 30. The quest and the price are the server's to check.</summary>
     private string? SpecProblem(GameData data) =>
-        Spec is not string id ? (Fork is null ? null : "A lineage needs its branch.")
+        Spec is not string id ? (Fork is null && Final is null ? null : "A lineage needs its branch.")
             : !data.Specs.TryGetValue(id, out Specialisation? s) ? $"Unknown path '{id}'."
             : s.Class != Class ? $"'{id}' is not a path of this class."
             : Level < Specs.Opens ? $"Paths open at level {Specs.Opens}."
-            : Fork is not string fork ? null
-            : s.ForkOf(fork) is null ? $"'{fork}' is not a lineage of '{id}'."
+            : Fork is not string fork ? (Final is null ? null : "A final class needs its lineage.")
+            : s.ForkOf(fork) is not SpecFork lineage ? $"'{fork}' is not a lineage of '{id}'."
             : Level < Specs.Forks ? $"Lineages open at level {Specs.Forks}."
+            : Final is not string final ? null
+            : lineage.FinalOf(final) is null ? $"'{final}' is not a final class of '{fork}'."
+            : Level < Specs.Finals ? $"Final classes open at level {Specs.Finals}."
             : null;
 
     /// <summary>At most twelve spells, each once, each of its grimoire: a spell of the class the level has unlocked, or a compound's its talents give (sprint 138).</summary>

@@ -941,3 +941,15 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Ce qui touche le jeu.** En jeu, l'IA ne joue que les monstres et les créatures (`FightController.IsPlayerTurn`, `Battles.Monsters`), les héros sont aux joueurs. **Les valeurs de créature, de bouclier et de résistance ne servent donc qu'à la mesure** : banc, `Rpg.Sim`, auto-tests. Seul `LeastWorth` change le jeu, le paquet automatique d'un héros en voie.
 
 **Limites.** Le jeu réel d'une voie reste au playtest. Un combat enregistré se rejoue par ses actions, l'IA ne le change pas ; mais un héros en voie au paquet automatique a un paquet différent d'avant, sans nouvelle version du relevé, comme en T152 : un client plus ancien que le serveur peut voir un tel combat refusé. L'empreinte `SoloFingerprint` de `TeamAiTests` est mise à jour : elle change par construction, elle n'a pas été vérifiée combat par combat. Le coefficient de ×2 du push et du pull est choisi après mesure, sur la Sentinelle et la Garde, à revoir avec les classes suivantes.
+
+## T155. La classe finale, le rang 4 sans contenu (sprint 194, D96)
+
+**Décision.** Une lignée peut porter 2 classes finales (`SpecFork.Finals`, `SpecFinal`), niveau 100, sans sort (`classes-conception.md` §2.2). Un héros en porte une (`Hero.Final`, colonne `Final`, migration `AddFinal`). `Specs.TiersOf` y ajoute son palier, donc le titre, les passifs et les règles suivent par le code existant. `Hero.Problem` refuse une finale inconnue, d'une autre lignée, sans lignée ou sous 100. `PUT …/spec` accepte `Final` : nommer la même lignée la garde, en changer la perd. Une lignée sans finales garde son palier à 100, ce qui reste le cas de toutes jusqu'au Guerrier (S197).
+
+**ÉCART À LA STORY : le choix réussi n'est pas testé de bout en bout.** Aucune lignée n'a de finale dans les données embarquées, que l'API lit directement. Le test d'intégration couvre donc le refus, la colonne, sa lecture, sa conservation et sa perte au changement de lignée, en écrivant la colonne en base. Le choix réussi n'est testé qu'au niveau du Cœur (`FinalsTests`, sur ses propres données). **À ajouter en S197, avec les premières finales.**
+
+**Pas fait, prévu en S195 :** le prix (changer de finale reste gratuit pour l'instant, sans effet puisqu'aucune n'existe), la commande admin, le gabarit nommé. **La migration annoncée par la story de S195 est faite ici**, parce que la colonne était nécessaire au serveur. Le client n'affiche ni ne propose encore de finale, et `SpecPage` ne les lit pas : à faire avant S197.
+
+**Alternatives.** Des finales provisoires dans les données : elles auraient permis le test complet, mais auraient changé le jeu à 100 pour rien. Injecter `GameData` dans le point d'entrée : une réécriture pour un seul test, qui deviendra inutile en S197. Une finale comme troisième palier de `Tiers` : `SpecPage`, `SpellsWith` et la validation comptent ces paliers comme une suite, pas comme un choix.
+
+**Limites.** `FightRecord` ne change pas de version : `Final` est nul partout, et le relevé devra en changer quand une finale changera un combat.
