@@ -107,7 +107,7 @@ Liste donnée par Charles le 4 novembre 2026 ; elle remplace la Garde et la Sent
   - 5.1.2 — Empoisonneur
     - 5.1.2.1 — Maître des toxines
     - 5.1.2.2 — Alchimiste mortel
-- 5.2 — Roublard
+- 5.2 — Malandrin
   - 5.2.1 — Bretteur
     - 5.2.1.1 — Duelliste
     - 5.2.1.2 — Lame dansante

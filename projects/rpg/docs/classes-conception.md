@@ -86,7 +86,7 @@ Ce n'est pas encore la conception détaillée : celle-ci se fait au sprint de ch
 | Paladin | **Templier** : frappe qui marque et qui rend | **Protecteur** : tenir une position autour des alliés | **Vengeur** : frappe d'autant plus que les siens ont souffert |
 | Mage | **Arcaniste** : runes et gros sorts préparés | **Illusionniste** : images, attention des monstres détournée | **Chronomancien** : tours, relances, PA empruntés |
 | Prêtre | **Clerc** : le soin | **Inquisiteur** : retirer états et boucliers, punir | **Oracle** : poser ce qui se déclenchera au tour suivant |
-| Voleur | **Assassin** : isoler, empoisonner, achever | **Roublard** : sauts, feintes, pièges | **Ombremage** : disparaître, frapper depuis l'ombre |
+| Voleur | **Assassin** : isoler, empoisonner, achever | **Malandrin** : sauts, feintes, pièges | **Ombremage** : disparaître, frapper depuis l'ombre |
 | Archer | **Tireur d'élite** : un tir, une cible | **Rôdeur** : Faucon et pièges | **Artilleur** : tenir ou courir (Arbalétrier contre Tireur mobile) |
 | Druide | **Gardien de la nature** : terrain qui protège | **Métamorphe** : formes, au contact | **Chaman** : esprits sans corps, terrain qui frappe |
 | Nécromancien | **Maître des morts** : un seul grand mort, ou se faire mort soi-même | **Invocateur macabre** : beaucoup de morts jetables | **Occultiste** : aucune invocation, sang et âmes |
@@ -275,7 +275,7 @@ Le nouvel arbre ne suit pas l'ancien : la Sente n'a pas d'équivalent, et Artill
 | | | | **Tireur mobile** | Tir en course ; règle `DanceRule` | **Voltigeur** (ex-Cours-toujours, l'écho) ; **Faucon de guerre** (neuve) |
 
 - **Ce que ce schéma gagne :** Arbalétrier et Tireur mobile s'opposent sur une vraie décision, rester ou bouger. C'est la meilleure lignée double de l'arbre.
-- **Ce qui part chez le Voleur :** **Cabriole** et **Feinte** (brique I), pour le Roublard, à qui elles vont mieux. La Cabriole était jouée 0,1 fois par combat [V, T152] : on ne perd rien de mesuré.
+- **Ce qui part chez le Voleur :** **Cabriole** et **Feinte** (brique I), pour le Malandrin, à qui elles vont mieux. La Cabriole était jouée 0,1 fois par combat [V, T152] : on ne perd rien de mesuré.
 - **Le kit reste entier**, Faucon compris. Les poisons de l'Archer aussi : le Voleur se distingue par le cumul.
 - **Le nom à clarifier :** Faucon de guerre (6.3.2.2) est sous Tireur mobile, loin du Faucon du Rôdeur. Je le lis comme un titre (celui qui fond et tire), sans lien avec l'oiseau. **Question ouverte, §8.**
 

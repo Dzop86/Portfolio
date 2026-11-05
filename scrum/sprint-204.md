@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Voleur, mon kit se cache et frappe de dos, et je deviens Assassin ou Roublard, avec Cabriole et Feinte (rpg) ; xUnit. PloufVoleur créé. | 6 | À faire |
+| En tant que Voleur, mon kit se cache et frappe de dos, et je deviens Assassin ou Malandrin, avec Cabriole et Feinte (rpg) ; xUnit. PloufVoleur créé. | 6 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

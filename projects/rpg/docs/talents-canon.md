@@ -1,5 +1,7 @@
 # Osmose : les voies de spécialisation dans le canon
 
+> **D96 (4 novembre 2026) :** dix classes remplacent la Mage, la Garde et la Sentinelle. Ce qui devient caduc ici, paragraphe par paragraphe, est dans `classes-canon.md`, qui l'emporte en cas de contradiction.
+
 > **Proposition du scénariste, 23 octobre 2026, à relire par Charles.** Elle répond à la demande notée dans `suite-apres-d69.md` §11.8 (arbre de talents et spécialisations de classe). Elle fixe **le sens de chaque voie dans le monde**. Elle laisse au game designer (`docs/talents-specialisations.md`, écrit en parallèle) les mécaniques, les chiffres, le niveau exact du choix, le coût des talents et l'effet sur T41 et T96.
 > **Convention :** **[P]** = proposition, absente de la bible et du jeu. Tout ce qui touche aux voies est **[P]** : la bible ne dit rien des classes. Le canon de la bible n'est pas modifié.
 > **Sources lues :** `docs/bible.md` (et la bible complète transmise par Charles), `DECISIONS.md` (T13, T27, T34, T35, T96 à T99), `data/classes.json`, `tools/spells_gen.py`, `data/quests.json`, `data/towns/clairval-*.json` et `four-ways-*.json`, `docs/trame-saga-1.md`, `docs/chapitre-2-pistes.md` (avec les réponses de Charles, D79), `docs/textes-v5.md`, `textes-v6.md`, `textes-v7.md`, `docs/familles-foret.md`.
