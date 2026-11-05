@@ -99,5 +99,6 @@ public class TeamAiTests
     }
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
-    private const string SoloFingerprint = "02BD78F479FCD1A6";
+    // Sprint 194 (T154): the worth of its creatures, shields and resistances, and the deck of a hero on a path, change what a hero alone plays.
+    private const string SoloFingerprint = "F40050A59C01522C";
 }

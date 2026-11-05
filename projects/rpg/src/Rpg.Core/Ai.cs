@@ -42,6 +42,9 @@ public static class Ai
     /// <summary>What one step closer to an enemy is worth against a glyph's damage, when the AI only walks (sprint 130).</summary>
     internal const double StepWorth = 4;
 
+    /// <summary>The turns a hero's creature is counted as striking (sprint 194, T154): the flat 8 of before was worth less than one of the hero's spells from level 30 on.</summary>
+    internal const double SummonTurns = 2;
+
     /// <summary>The summon of the talent Decoy (sprint 142), and how much more hitting it is worth to a monster near it.</summary>
     internal const string DecoyKind = "decoy";
     internal const double DecoyPull = 6;
@@ -208,6 +211,26 @@ public static class Ai
             }
         }
         return best;
+    }
+
+    private static bool IsHero(Fight fight, Fighter me) => fight.HeroFighters.Contains(me);
+
+    /// <summary>What <paramref name="e"/>'s strongest spell would do to <paramref name="f"/>.</summary>
+    private static double BestBlow(Fighter e, Fighter f) =>
+        e.Spells.Where(s => s.DamageMax > 0).Select(s => Fight.Expected(s.AverageDamage, e, f, s.Element)).DefaultIfEmpty(0).Max();
+
+    /// <summary>What the enemies within reach of <paramref name="f"/> would do to it in a round (sprint 194, T154): what a shield or a resistance has to hold.</summary>
+    internal static double Incoming(Fight fight, Fighter f) => fight.Fighters
+        .Where(e => e.IsAlive && e.Team != f.Team && e.Spells.Any(s => s.DamageMax > 0 && e.Cell.DistanceTo(f.Cell) <= e.Mp + e.MaxRangeOf(s)))
+        .Sum(e => BestBlow(e, f));
+
+    /// <summary>What a creature would strike for in <see cref="SummonTurns"/>, by its strongest spell, as often as its action points allow.</summary>
+    private static double SummonValue(Fight fight, SummonEffect summon)
+    {
+        SummonSpec spec = fight.Data.Summons[summon.Summon];
+        double round = spec.Spells.Select(id => fight.Data.Spells[id]).Where(s => s.DamageMax > 0)
+            .Select(s => s.AverageDamage * Math.Min(s.PerTurn, spec.Ap / Math.Max(1, s.ApCost))).DefaultIfEmpty(0).Max();
+        return SummonTurns * round;
     }
 
     /// <summary>
@@ -417,7 +440,7 @@ public static class Ai
             // ally out of reach (only cast then, see NeedsRescue).
             if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
-                value += 8;
+                value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, summon)) : 8;
                 continue;
             }
             IEnumerable<Fighter> touched = effect.Affects switch
@@ -434,7 +457,10 @@ public static class Ai
                 {
                     HealEffect h => sign * Math.Min((h.Min + h.Max) / 2.0, f.MaxHp - f.Hp),
                     // Shields and statuses pay off later: worth a part of what they hold.
+                    // A hero's on its own side (sprint 194, T154): what the blows within reach would really take of it.
+                    ShieldEffect sh when f.Team == me.Team && IsHero(fight, me) => Math.Min(sh.Amount, Math.Max(0, Incoming(fight, f) * sh.Turns - f.Shield)),
                     ShieldEffect sh => sign * 0.3 * sh.Amount,
+                    StatusEffect { Stat: Stat.Resistance } st when f.Team == me.Team && IsHero(fight, me) => Renewed(me, f, st) * st.Value / 100.0 * Incoming(fight, f) * st.Turns,
                     StatusEffect st => Renewed(me, f, st) * st.Stat switch
                     {
                         Stat.Poison => -sign * 0.6 * Math.Min(st.Value * st.Turns, f.Hp),

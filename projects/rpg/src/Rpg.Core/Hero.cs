@@ -67,13 +67,15 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
 
     /// <summary>
     /// The spell a path's takes the place of (sprint 193, T152): among those that hurt, with another of their element left in the deck, whatever their rank (a built hero has none left at 1), the one worth least on a turn,
-    /// an area counting for more than a single target; the last of the deck if there is none. A spell that does not hurt stays: the AI plays those it has by their effects.
+    /// an area counting for more than a single target, and its element weighed by the points this hero has in it (sprint 194, T154: without them every path of a Sentinel of Earth lost Heavy Shot, 4 to 20 points of 100);
+    /// the last of the deck if there is none. A spell that does not hurt stays: the AI plays those it has by their effects.
     /// </summary>
-    private static string LeastWorth(IReadOnlyList<string> deck, GameData data)
+    private string LeastWorth(IReadOnlyList<string> deck, GameData data)
     {
+        Characteristics stats = Stats ?? Characteristics.None;
         Spell[] spells = [.. deck.Select(id => data.Spells[id])];
         return spells.Where(s => s.DamageMax > 0 && spells.Count(o => o.DamageMax > 0 && o.Element == s.Element) > 1)
-            .OrderBy(s => TurnValue(s) * (1 + s.Zone.Radius)).ThenBy(s => s.Level).Select(s => s.Id).FirstOrDefault() ?? deck[^1];
+            .OrderBy(s => TurnValue(s) * (1 + s.Zone.Radius) * (100 + stats.For(s.Element)) * (s.AllEffects.Any(e => e is PushEffect or PullEffect) ? 2 : 1)).ThenBy(s => s.Level).Select(s => s.Id).FirstOrDefault() ?? deck[^1];
     }
 
     /// <summary>

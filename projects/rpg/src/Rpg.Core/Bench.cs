@@ -80,7 +80,9 @@ public static class Bench
         foreach ((string spec, string? fork) in PathsOf(cls, family.Level, family.Data))
         {
             Hero hero = With(bare with { Spec = spec, Fork = fork });
-            rows.Add(Row(fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)]));
+            // A swap with an ally cannot be played alone: its absence says nothing here; the party measures judge it.
+            rows.Add(Row(fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
+                .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect))]));
         }
         return new BenchReport(cls, family.Level, groups.Count, fights, Row(null, With(bare), []), rows);
     }

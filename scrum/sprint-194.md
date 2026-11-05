@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, l'IA sait valoir une glyphe posée, un saut, une réserve, un bouclier et une invocation, et la mesure dit enfin si la Sentinelle à ±22 vient de l'IA ou des sorts (rpg) ; xUnit, résultat dans `DECISIONS.md`. | 3 | À faire |
+| En tant que joueur, l'IA sait valoir une glyphe posée, un saut, une réserve, un bouclier et une invocation, et la mesure dit enfin si la Sentinelle à ±22 vient de l'IA ou des sorts (rpg) ; xUnit, résultat dans `DECISIONS.md`. | 3 | Fait en partie : bouclier et invocation faits, glyphe et saut essayés puis retirés (l'IA y perd jusqu'à 19 points), réserve non faite, elle attend le Mage ; diagnostic partiel (T154) |
 | En tant que joueur, je choisis à 100 une des 2 classes finales de ma lignée : données, validation et serveur (rpg) ; xUnit, un test d'intégration de l'API. | 2 | À faire |
 
 ## Rétro (Charles)

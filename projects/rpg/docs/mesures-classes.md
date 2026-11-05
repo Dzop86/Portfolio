@@ -120,3 +120,129 @@ Les noms entre guillemets inversés sont les identifiants de `data/specs.json`.
 | mage | 50 | hexer | 52.3 | 0.0 | 0.0 | no spell yet |
 | mage | 50 | binder | 52.3 | 0.0 | 0.0 | no spell yet |
 | mage | 50 | reaper | 52.3 | 0.0 | 0.0 | no spell yet |
+
+## 5 novembre 2026 : après l'IA de S194 (T154)
+
+**Conditions.** Les mêmes que ci-dessus : 480 combats par ligne, mêmes graines, intervalle d'environ ±4,5 points. Ce qui a changé : ce que l'IA d'un héros compte pour ses créatures, ses boucliers et ses résistances, le sort que le paquet automatique retire pour faire place aux sorts de voie, et le banc qui ignore les échanges avec un allié. Le Mage ne bouge pas d'un dixième sur aucune ligne, paquets compris : son héros sans voie ne doit donc rien à ces changements.
+
+### Ce qu'on peut en dire
+
+1. **Le ±22 de la Sentinelle venait surtout de l'IA et du paquet, pas des sorts, pour ses lignes basses.** Avec le paquet automatique : `ambush` à 35 passe de 24,8 à 60,0, `ambush` à 45 de 23,1 à 54,2, `falconer` de 23,3 à 60,6, `trapper` de 19,4 à 64,4. Le garde-fou de CI tient maintenant ±15, comme la Garde.
+2. **La question de T153 (`trapper`, 19,4 contre 44,0) a sa réponse, pour l'essentiel.** Le paquet automatique retirait Tir lourd sur toutes les voies d'une Sentinelle de Terre. L'écart entre paquets se resserre pour `trapper` (64,4 et 58,8), `leaper` (37,9 et 43,1) et `ambush` (54,2 et 54,8). **Il se creuse pour `falconer`** (60,6 et 31,7), sans explication à ce jour.
+3. **Les lignes ne sont pas plus concluantes.** 7 sur 24 avec le paquet automatique, comme avant, mais pas les mêmes : `palisade` à 35 et 45 et `bastion` à 50 entrent, `sightline` à 35, `marksman` et `jailer` à 50 sortent, juste sous 0,5. 8 sur 24 avec les paquets de référence, contre 5. Mâchoires, Cabriole, Coup de talon, Assaut et Arrachement restent à 0,5 fois par combat ou moins : **les lignes hautes de `trapper`, `falconer` et `ambush` disent ce que vaut leur Faucon et leurs passifs, pas leur piège.**
+4. **±8, avec le paquet automatique.** La Sentinelle ne les tient qu'à 35 : 4,7 à 35, 11,1 à 45 (`trail`), 15,8 à 50 (`leaper`). La Garde les tient à 35 (5,7) et 45 (7,2), **plus à 50** (`bastion` 14,8), où elle les tenait avant.
+5. **Plafond de +15 sur le héros sans voie : `barrage` à 50 le dépasse dans les deux cas** (+22,1 et +20,0), et ces lignes sont concluantes : c'est le cas le plus net à imputer aux sorts. `jailer` à 50 le dépasse aussi avec les paquets de référence (+16,7, concluant) mais pas avec le paquet automatique. `trapper` (+20,2) et `falconer` (+16,5) le dépassent sans être concluants. Rien n'est réglé ici : la Garde et la Sentinelle sont reprises en Guerrier (S197) et Archer (S198).
+6. **Le plancher de −3 sur le héros sans voie reste non tenu** : `grip` −7,7 à 35 et −6,7 à 45, `pincer` −10,8 à 50, `trail` −10,0 à 45. Seuls `grip` sont concluants.
+
+### Deux essais retirés : l'IA qui joue ces sorts y perd
+
+| Essai | Lignes | Sans | Avec | Le sort est-il joué ? |
+|---|---|---|---|---|
+| Glyphe du héros : le retrait de PM vaut le coup qu'il évite | `trapper` à 50 | 64,4 | 45,2 | oui, Mâchoires passe au-dessus de 0,5 |
+| | `falconer` à 50 | 60,6 | 45,6 | oui |
+| | `ambush` à 45 | 54,2 | 43,5 | oui |
+| | `ambush` à 35 | 60,0 | 56,5 | oui |
+| Valeur du saut | `breach` | 22 | 13 | |
+| | `ram` | 29 | 17 | |
+
+Une IA qui saurait s'en servir ne ferait jamais moins bien qu'en ne les jouant pas. Ces baisses mesurent donc son jeu glouton, et non ces sorts. Rien de cela ne touche un joueur : en jeu, cette IA ne joue que les monstres et les créatures. Les chiffres de saut viennent de mes notes d'essai, je n'ai pas gardé leur sortie complète.
+
+### Avec le paquet automatique
+
+| Class | Level | Path | Points | Over no path | From the mean | Reads |
+|---|---|---|---|---|---|---|
+| sentinel | 35 | (none) | 53.5 | | | |
+| sentinel | 35 | sightline | 54.8 | +1.3 | -0.6 | NOT CONCLUSIVE: path-weak-spot 0.5 |
+| sentinel | 35 | ambush | 60.0 | +6.5 | +4.7 | NOT CONCLUSIVE: path-jaws 0.1 |
+| sentinel | 35 | trail | 51.3 | -2.3 | -4.1 | NOT CONCLUSIVE: path-vault 0.2, path-heel-kick 0.1 |
+| guard | 35 | (none) | 24.0 | | | |
+| guard | 35 | palisade | 27.3 | +3.3 | +5.3 | conclusive |
+| guard | 35 | breach | 22.3 | -1.7 | +0.3 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 35 | grip | 16.3 | -7.7 | -5.7 | conclusive |
+| mage | 35 | (none) | 41.5 | | | |
+| mage | 35 | archmage | 41.5 | 0.0 | 0.0 | no spell yet |
+| mage | 35 | sorcerer | 41.5 | 0.0 | 0.0 | no spell yet |
+| mage | 35 | necromancer | 41.5 | 0.0 | 0.0 | no spell yet |
+| sentinel | 45 | (none) | 47.7 | | | |
+| sentinel | 45 | sightline | 54.6 | +6.9 | +5.8 | conclusive |
+| sentinel | 45 | ambush | 54.2 | +6.5 | +5.3 | NOT CONCLUSIVE: path-jaws 0.0 |
+| sentinel | 45 | trail | 37.7 | -10.0 | -11.1 | NOT CONCLUSIVE: path-vault 0.1, path-heel-kick 0.2 |
+| guard | 45 | (none) | 25.4 | | | |
+| guard | 45 | palisade | 32.7 | +7.3 | +6.8 | conclusive |
+| guard | 45 | breach | 26.3 | +0.8 | +0.3 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 45 | grip | 18.8 | -6.7 | -7.2 | conclusive |
+| mage | 45 | (none) | 57.7 | | | |
+| mage | 45 | archmage | 57.7 | 0.0 | 0.0 | no spell yet |
+| mage | 45 | sorcerer | 57.7 | 0.0 | 0.0 | no spell yet |
+| mage | 45 | necromancer | 57.7 | 0.0 | 0.0 | no spell yet |
+| sentinel | 50 | (none) | 44.2 | | | |
+| sentinel | 50 | marksman | 53.8 | +9.6 | 0.0 | NOT CONCLUSIVE: path-aimed-shot 0.5 |
+| sentinel | 50 | barrage | 66.3 | +22.1 | +12.5 | conclusive |
+| sentinel | 50 | falconer | 60.6 | +16.5 | +6.9 | NOT CONCLUSIVE: path-jaws 0.0, path-changeover 0.1 |
+| sentinel | 50 | trapper | 64.4 | +20.2 | +10.6 | NOT CONCLUSIVE: path-jaws 0.0, path-dive 0.4 |
+| sentinel | 50 | leaper | 37.9 | -6.3 | -15.8 | NOT CONCLUSIVE: path-vault 0.1, path-heel-kick 0.3 |
+| sentinel | 50 | runner | 39.6 | -4.6 | -14.2 | NOT CONCLUSIVE: path-vault 0.1, path-heel-kick 0.3, path-running-shot 0.3 |
+| guard | 50 | (none) | 32.3 | | | |
+| guard | 50 | rampart | 27.1 | -5.2 | -5.2 | NOT CONCLUSIVE: path-shield-wall 0.2 |
+| guard | 50 | bastion | 47.1 | +14.8 | +14.8 | conclusive |
+| guard | 50 | ram | 29.0 | -3.3 | -3.3 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 50 | harpooner | 33.3 | +1.0 | +1.0 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0, path-harpoon 0.5 |
+| guard | 50 | jailer | 35.8 | +3.5 | +3.5 | NOT CONCLUSIVE: path-crush 0.5 |
+| guard | 50 | pincer | 21.5 | -10.8 | -10.8 | NOT CONCLUSIVE: path-iron-ring 0.0 |
+| mage | 50 | (none) | 55.4 | | | |
+| mage | 50 | high-archmage | 55.4 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | patient | 55.4 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | plague | 55.4 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | hexer | 55.4 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | binder | 55.4 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | reaper | 55.4 | 0.0 | 0.0 | no spell yet |
+
+### Avec les paquets de référence (`tools/bench-decks.json`)
+
+| Class | Level | Path | Points | Over no path | From the mean | Reads |
+|---|---|---|---|---|---|---|
+| sentinel | 35 | (none) | 52.7 | | | |
+| sentinel | 35 | sightline | 55.6 | +2.9 | -0.2 | NOT CONCLUSIVE: path-weak-spot 0.5 |
+| sentinel | 35 | ambush | 60.0 | +7.3 | +4.2 | NOT CONCLUSIVE: path-jaws 0.1 |
+| sentinel | 35 | trail | 51.9 | -0.8 | -4.0 | NOT CONCLUSIVE: path-vault 0.2, path-heel-kick 0.2 |
+| guard | 35 | (none) | 24.4 | | | |
+| guard | 35 | palisade | 27.1 | +2.7 | +5.3 | conclusive |
+| guard | 35 | breach | 22.5 | -1.9 | +0.7 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 35 | grip | 15.8 | -8.5 | -6.0 | conclusive |
+| mage | 35 | (none) | 40.4 | | | |
+| mage | 35 | archmage | 40.4 | 0.0 | 0.0 | no spell yet |
+| mage | 35 | sorcerer | 40.4 | 0.0 | 0.0 | no spell yet |
+| mage | 35 | necromancer | 40.4 | 0.0 | 0.0 | no spell yet |
+| sentinel | 45 | (none) | 41.3 | | | |
+| sentinel | 45 | sightline | 50.6 | +9.4 | +0.4 | conclusive |
+| sentinel | 45 | ambush | 54.8 | +13.5 | +4.6 | NOT CONCLUSIVE: path-jaws 0.0, path-dive 0.4 |
+| sentinel | 45 | trail | 45.2 | +4.0 | -5.0 | NOT CONCLUSIVE: path-vault 0.2, path-heel-kick 0.3 |
+| guard | 45 | (none) | 19.2 | | | |
+| guard | 45 | palisade | 16.3 | -2.9 | +3.5 | conclusive |
+| guard | 45 | breach | 12.3 | -6.9 | -0.5 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 45 | grip | 9.8 | -9.4 | -3.0 | conclusive |
+| mage | 45 | (none) | 49.4 | | | |
+| mage | 45 | archmage | 49.4 | 0.0 | 0.0 | no spell yet |
+| mage | 45 | sorcerer | 49.4 | 0.0 | 0.0 | no spell yet |
+| mage | 45 | necromancer | 49.4 | 0.0 | 0.0 | no spell yet |
+| sentinel | 50 | (none) | 41.0 | | | |
+| sentinel | 50 | marksman | 43.1 | +2.1 | -1.8 | NOT CONCLUSIVE: path-aimed-shot 0.4 |
+| sentinel | 50 | barrage | 61.0 | +20.0 | +16.1 | conclusive |
+| sentinel | 50 | falconer | 31.7 | -9.4 | -13.3 | NOT CONCLUSIVE: path-jaws 0.2, path-changeover 0.1 |
+| sentinel | 50 | trapper | 58.8 | +17.7 | +13.8 | NOT CONCLUSIVE: path-jaws 0.0 |
+| sentinel | 50 | leaper | 43.1 | +2.1 | -1.8 | NOT CONCLUSIVE: path-vault 0.2, path-heel-kick 0.5 |
+| sentinel | 50 | runner | 32.1 | -9.0 | -12.9 | NOT CONCLUSIVE: path-vault 0.2, path-running-shot 0.3 |
+| guard | 50 | (none) | 22.5 | | | |
+| guard | 50 | rampart | 21.9 | -0.6 | -5.3 | NOT CONCLUSIVE: path-shield-wall 0.3 |
+| guard | 50 | bastion | 30.6 | +8.1 | +3.5 | conclusive |
+| guard | 50 | ram | 29.6 | +7.1 | +2.4 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 50 | harpooner | 21.5 | -1.0 | -5.7 | NOT CONCLUSIVE: path-assault 0.0, path-wrench 0.0 |
+| guard | 50 | jailer | 39.2 | +16.7 | +12.0 | conclusive |
+| guard | 50 | pincer | 20.2 | -2.3 | -6.9 | NOT CONCLUSIVE: path-iron-ring 0.0 |
+| mage | 50 | (none) | 52.3 | | | |
+| mage | 50 | high-archmage | 52.3 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | patient | 52.3 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | plague | 52.3 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | hexer | 52.3 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | binder | 52.3 | 0.0 | 0.0 | no spell yet |
+| mage | 50 | reaper | 52.3 | 0.0 | 0.0 | no spell yet |

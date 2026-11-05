@@ -319,6 +319,30 @@ public class GuardPathsTests
         Assert.All(Specs.SpellsOf(hero with { Spec = spec, Fork = fork }, Real), id => Assert.Contains(id, deck));
     }
 
+    [Theory]
+    [InlineData("ambush", null, 35)]
+    [InlineData("trail", null, 45)]
+    [InlineData("ambush", "trapper", 50)]
+    [InlineData("trail", "leaper", 50)]
+    public void APathsSpells_LeaveTheSpellsOfTheHerosBestElement(string spec, string? fork, int level)
+    {
+        // Sprint 194 (T154): a Sentinel built on Earth lost Heavy Shot on every path; given back, it won 4 to 20 points more of 100.
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "sentinel", Level: level), Real);
+        Assert.True(hero.Stats!.Earth > hero.Stats.Fire);
+        Assert.Contains("heavy-shot", (hero with { Spec = spec, Fork = fork }).DeckOf(Real));
+    }
+
+    [Fact]
+    public void APathsSpells_LeaveWhatTheHeroHasPointsIn_NotAFixedList()
+    {
+        // The same path, the same level: all the points in Fire, and Heavy Shot is no longer what is kept over Fire's spells.
+        Hero built = Progression.Built(new Hero("Ondine", "female-a", "sentinel", Level: 50), Real);
+        Hero fire = built with { Stats = new Characteristics(Fire: built.Stats!.Earth + built.Stats.Fire + built.Stats.Water + built.Stats.Air), Spec = "ambush", Fork = "trapper" };
+        IReadOnlyList<string> deck = fire.DeckOf(Real);
+        Assert.Contains("fire-arrow", deck);
+        Assert.DoesNotContain("heavy-shot", deck);
+    }
+
     [Fact]
     public void WithoutAPath_TheAutomaticDeck_DoesNotChange()
     {
