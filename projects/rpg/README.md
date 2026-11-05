@@ -117,9 +117,9 @@ scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscri
 La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
-Sprint 195 : 19 tests de plus (`Rpg.Core` : `FinalsTests`, le prix et le gabarit d'une finale ; `Rpg.Api` : `ConvertClassesTests`, la migration dans les deux sens, `--spec` avec finale ; `Rpg.Client` : les 10 classes de la création, les anciens codes de paquet). La Garde devient le Guerrier (`warrior`) et la Sentinelle l'Archer (`archer`), 10 personnages par compte (T156, T157).
+Sprint 195 : 13 tests de plus (`Rpg.Core` : `FinalsTests`, le prix et le gabarit d'une finale ; `Rpg.Api` : `ConvertClassesTests`, la migration dans les deux sens, `--spec` avec finale ; `Rpg.Client` : les 10 classes de la création, les anciens codes de paquet). La Garde devient le Guerrier (`warrior`) et la Sentinelle l'Archer (`archer`), 10 personnages par compte (T156, T157).
 
-Sprint 194 : 18 tests de plus (`Rpg.Core` : `AiWorthTests`, `FinalsTests`, le paquet d'un héros en voie selon ses points ; `Rpg.Api` : la finale par `PUT …/spec`). La classe finale existe dans le moteur, sans contenu (T154, T155).
+Sprint 194 : 22 tests de plus (`Rpg.Core` : `AiWorthTests`, `FinalsTests`, le paquet d'un héros en voie selon ses points ; `Rpg.Api` : la finale par `PUT …/spec`). La classe finale existe dans le moteur, sans contenu (T154, T155).
 
 Sprint 193 : 12 tests de plus (`Rpg.Core` : `BenchTests`, `FightBudgetTests` ; `Rpg.Sim` : `--matrix`, `--decks` et les paquets de référence). Un run du Cœur échoue s'il joue plus de 240 000 combats (`FightBudget`, T153).
 

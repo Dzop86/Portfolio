@@ -493,3 +493,4 @@ Claude y ajoute aussi ses constats au fil de l'eau, préfixés « (Claude) » ; 
 | 2026-11-05 | `src/Rpg.Client/DeckCode.cs` | (Claude) S195 : le renommage cassait les codes de paquet déjà partagés (`GUARD-…`), vu grâce à un test de `DeckTests`. `GUARD` et `SENTINEL` restent lus, avec un test. |
 | 2026-11-05 | `tests/Rpg.Api.Tests/DungeonTests.cs` | (Claude) S195 : `AWonRoom_KeepsTheHitPointsLeft…` a échoué une fois sur le code d'avant la conversion lancé seul, puis passé : instable, cause non cherchée. Non corrigé. |
 | 2026-11-05 | `godot/LobbyView.cs` | (Claude) S195 : la grille 5 × 2 de la création n'a été vérifiée ni en capture ni en jeu, seulement par la compilation et les auto-tests. Non vérifié à l'œil. |
+| 2026-11-05 | `README.md` | (Claude) S195 : j'avais écrit les nombres de tests de S194 et S195 (18 et 19) sans les compter ; recomptés sur les diffs : 22 et 13. |
