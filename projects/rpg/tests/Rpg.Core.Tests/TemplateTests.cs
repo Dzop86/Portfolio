@@ -114,7 +114,7 @@ public class TemplateTests
 
     // ---- T41 on a family made from the templates ----
 
-    [Theory]
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData(35)]
     [InlineData(40)]
     [InlineData(45)]
@@ -147,7 +147,7 @@ public class TemplateTests
         Assert.True(kept, $"level {level}: " + string.Join("; ", report));
     }
 
-    [Theory]
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData(50)]
     [InlineData(60)]
     public void AHeroOfOneElement_AtTheMonstersLevel_BeatsNoMoreHordesThanT41Allows(int level)
@@ -180,7 +180,7 @@ public class TemplateTests
         Assert.True(kept, $"level {level}, {hordes.Length} solid hordes: " + string.Join("; ", report));
     }
 
-    [Fact]
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     public void TheTalentsOfTheSlice_KeepT41AtThirtyFive_AndGiveTheSentinelAtMostTenPercentMore()
     {
         // Sprint 137 (D80, T103): the Sentinel of 35 with Up close (Bogging, the slice's other talent, is every hero's since sprint 182), bare against the small groups, wearing the
@@ -202,7 +202,7 @@ public class TemplateTests
         }
     }
 
-    [Theory]
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData(35)]
     [InlineData(40)]
     [InlineData(45)]
@@ -257,7 +257,7 @@ public class TemplateTests
         ["Tempo"] = ["heavy-blows", "short-cooldown", "one-gesture"],
     };
 
-    [Fact]
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     public void AtFortyFive_TheStyles_AreWorthAlike()
     {
         // Sprint 147 (D82, J3 c): no style a false decision: each within 1.5 victories of 30 of the others' average, against
@@ -299,7 +299,7 @@ public class TemplateTests
         Assert.True(bench.Plain.Points is > 5 and < 85, report);
     }
 
-    [Fact]
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     public void AtFortyFive_ThePairs_AreWorthAlike()
     {
         // Sprint 184 (D93, the J3 c of sprint 147 again, on the compounds): no pair created a false decision: each within 1.5

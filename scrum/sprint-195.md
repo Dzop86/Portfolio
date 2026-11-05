@@ -8,7 +8,7 @@
 |---|---|---|
 | En tant que joueur, le choix du rang 4 a son prix, sa migration et sa commande admin, avec un gabarit nommé par finale (rpg) ; xUnit, un test d'intégration. | 1 | Fait en partie : prix, commande et gabarit faits, migration faite en S194, le choix payant ne passe par l'API qu'en S197, faute de finale dans les données (T156) |
 | En tant que joueur, ma Garde devient Guerrier et ma Sentinelle Archer sans rien perdre ; la création montre 10 classes, les classes à venir grisées ; la limite passe à 10 personnages pour la phase de test (rpg) ; xUnit, test de migration, auto-test Godot. | 3 | Fait : identifiants, migration dans les deux sens, création à 10 classes grisées, 10 personnages, anciens codes de paquet lus ; titres des voies et récit restent pour S197-S198 et le scénariste, grille non vue à l'œil (T157) |
-| En tant que développeur, le coût en combats de chaque test d'équilibre est connu, les plus gros passent au banc, la suite en joue au plus 20 000, avec le niveau de fumée N0, les 12 compositions de N1 et les duels hors CI (rpg) ; xUnit, budget ramené à 20 000 dans `FightBudget`. | 3 | À faire |
+| En tant que développeur, le coût en combats de chaque test d'équilibre est connu, les plus gros passent au banc, la suite en joue au plus 20 000, avec le niveau de fumée N0, les 12 compositions de N1 et les duels hors CI (rpg) ; xUnit, budget ramené à 20 000 dans `FightBudget`. | 3 | Fait : 234 362 combats et 52 min avant, 17 496 et 14 min après ; 9 tests au banc (`Explicit`), N0 et N1 dans `CiLevelsTests` ; 4 sorts que l'IA ne joue jamais, listés, l'IA reste à réparer ; le banc se lance à la main (T158) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

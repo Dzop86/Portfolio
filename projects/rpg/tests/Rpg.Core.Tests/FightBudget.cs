@@ -13,10 +13,10 @@ namespace Rpg.Core.Tests;
 public sealed class FightBudget : IDisposable
 {
     /// <summary>
-    /// What a whole run may play out: the 244 635 fights measured at 3 classes (sprint 193, T153), less those the path fence gave up. It does not
-    /// grow with the classes: a test that loops on them takes a sample instead. The 20 000 of the design counted only some of the tests, and is a goal, not yet held.
+    /// What a whole run of the CI may play out (sprint 195, D97, §7.2): N0 and N1. It does not grow with the classes: a test that loops on them
+    /// takes a sample instead. The bench (N2), the tests marked <c>Explicit</c>, is not counted: it plays 220 000 fights at 3 classes, off the CI.
     /// </summary>
-    public const long Limit = 240_000;
+    public const long Limit = 20_000;
 
     private static long _played;
     private static readonly ConcurrentDictionary<string, long> ByTest = new(StringComparer.Ordinal);
@@ -31,7 +31,8 @@ public sealed class FightBudget : IDisposable
         };
         _listener.SetMeasurementEventCallback<long>((_, value, _, _) =>
         {
-            Interlocked.Add(ref _played, value);
+            if (TestContext.Current.TestCase?.Explicit != true)
+                Interlocked.Add(ref _played, value);
             // Sprint 195 (D97): which test played it, theories counted together; the context flows into the tests' parallel loops.
             if (TestContext.Current.TestMethod is { } method)
                 ByTest.AddOrUpdate($"{TestContext.Current.TestClass?.TestClassName}.{method.MethodName}", value, (_, n) => n + value);
@@ -43,7 +44,7 @@ public sealed class FightBudget : IDisposable
     public static IReadOnlyList<(string Test, long Fights)> Costs =>
         [.. ByTest.OrderByDescending(p => p.Value).ThenBy(p => p.Key, StringComparer.Ordinal).Select(p => (p.Key, p.Value))];
 
-    /// <summary>The fights played out so far in this run.</summary>
+    /// <summary>The fights played out so far in this run, the bench's left out.</summary>
     public static long Played => Interlocked.Read(ref _played);
 
     public void Dispose()

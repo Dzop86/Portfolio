@@ -30,7 +30,7 @@ public class BalanceTests
         Assert.Equal(0, r[2]);
     }
 
-    [Fact]
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     public void Duel_NeitherSideAlwaysWins()
     {
         // About one in two since the AI plans its turns (sprint 56); the second to play won two in three before.
@@ -55,7 +55,7 @@ public class BalanceTests
         Assert.Equal(0, r[2]);
     }
 
-    [Theory]
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData("archer", "warrior")]
     [InlineData("archer", "mage")]
     [InlineData("warrior", "mage")]
@@ -104,7 +104,7 @@ public class BalanceTests
         Results(MonsterGroup.Prefix + group, fights, Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real,
             Progression.Kit(kit, Real.Families[Real.Groups[group].Family].Zone, level, Real)))[0];
 
-    [Theory]
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData("woods", 3)]
     [InlineData("mouldy", 10)]
     [InlineData("lake", 18)]
