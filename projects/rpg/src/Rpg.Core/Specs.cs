@@ -22,7 +22,51 @@ public sealed record SpecFork(string Id, IReadOnlyList<SpecTier> Tiers, Localize
 /// A final class (sprint 194, D96, docs/classes-conception.md §2.2): one of the two a lineage ends in at level 100, a signature without
 /// a spell. A lineage without <see cref="SpecFork.Finals"/> keeps its one evolution at 100, until its class is converted (S197 on).
 /// </summary>
-public sealed record SpecFinal(string Id, SpecTier Tier, LocalizedText? Lore = null, string? Icon = null);
+public sealed record SpecFinal(string Id, FinalTemplate Template, SpecTier Tier, LocalizedText? Lore = null, string? Icon = null);
+
+/// <summary>
+/// What kind of signature a final class is (sprint 195, D96, docs/classes-conception.md §2.3): two sisters of two kinds, so that
+/// the choice is a decision and never "+15 % or +20 %".
+/// </summary>
+[System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<FinalTemplate>))]
+public enum FinalTemplate
+{
+    /// <summary>A spell reaches further.</summary>
+    Extends,
+
+    /// <summary>A spell leaves something on the ground.</summary>
+    Trace,
+
+    /// <summary>A spell comes back sooner.</summary>
+    Faster,
+
+    /// <summary>A second creature, a second trap.</summary>
+    Second,
+
+    /// <summary>Once a fight, it saves someone.</summary>
+    Saves,
+
+    /// <summary>An effect under a threshold of hit points.</summary>
+    LowHp,
+
+    /// <summary>Finishing an enemy pays.</summary>
+    Kill,
+
+    /// <summary>The first turn of the fight.</summary>
+    FirstTurn,
+
+    /// <summary>A bonus for standing still, or for each cell walked.</summary>
+    StayOrMove,
+
+    /// <summary>More against a target in a given state.</summary>
+    TargetState,
+
+    /// <summary>What dies pays.</summary>
+    Death,
+
+    /// <summary>A lasting transformation.</summary>
+    Form,
+}
 
 /// <summary>
 /// A branch of a class's tree (sprint 186, D93; sprint 190, D95): its evolution at 30 and its two lineages;
@@ -58,15 +102,16 @@ public static class Specs
 
     /// <summary>
     /// What this hero pays to take this branch and lineage (§v4.5): the first branch and the first lineage are free at any level;
-    /// another lineage 10 × the level in Éclats, another branch 30 × the level.
+    /// another final class 5 × the level (D96), another lineage 10 × the level in Éclats, another branch 30 × the level.
     /// </summary>
-    public static long ChangeCost(Hero hero, string spec, string? fork)
+    public static long ChangeCost(Hero hero, string spec, string? fork, string? final = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         return hero.Spec is null ? 0
             : hero.Spec != spec ? 30L * hero.Level
-            : hero.Fork is null || hero.Fork == fork ? 0
-            : 10L * hero.Level;
+            : hero.Fork is not null && hero.Fork != fork ? 10L * hero.Level
+            : hero.Final is null || final is null || hero.Final == final ? 0
+            : 5L * hero.Level;
     }
 
     /// <summary>The hero's lineage, if it has one its branch knows and its level opens.</summary>

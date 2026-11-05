@@ -48,11 +48,16 @@ public class SpecTests
     }
 
     [Fact]
+    public void TheOperators_Spec_RefusesAnUnknownFinalClass() =>
+        // Sprint 195 (D96): the form branch:lineage:final is parsed; none exists yet to give (S197).
+        Assert.Contains("branch[:lineage[:final]]", Admin.Parse(["admin", "x", "--spec", "archmage:patient:nowhere"]).Error, StringComparison.Ordinal);
+
+    [Fact]
     public async Task AFinalClass_IsCheckedByTheRules_StoredByTheColumn_AndLostWithItsLineage()
     {
         // Sprint 194 (D96): no lineage has final classes before the Warrior (S197), so the refusals and the column, not a choice that succeeds: FinalsTests has that one, on its own data.
         (ApiFactory api, GameServer server, CharacterSummary c, _) = await Mage("Finale", 100);
-        using (api)
+        await using (api)
         {
             await DoTheQuest(api, server, c.Id);
             await server.ChooseSpec(c.Id, "archmage", "patient", Cancel);

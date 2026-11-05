@@ -8,7 +8,7 @@ public class FinalsTests
     private static readonly LocalizedText Text = new("Texte", "Text");
 
     private static SpecFinal Final(string id, string? title = null, string? spell = null) =>
-        new(id, new SpecTier(100, new LocalizedText(title ?? id, title ?? id), Text, Spells: spell is null ? null : [spell]));
+        new(id, id == "one" ? FinalTemplate.Kill : FinalTemplate.Extends, new SpecTier(100, new LocalizedText(title ?? id, title ?? id), Text, Spells: spell is null ? null : [spell]));
 
     /// <summary>The real data, the Palisade's first lineage ending in the given final classes, its evolution at 100 gone.</summary>
     private static GameData With(params SpecFinal[] finals)
@@ -103,9 +103,36 @@ public class FinalsTests
     }
 
     [Fact]
+    public void TwoSisters_OfTheSameTemplate_AreRefused() =>
+        Assert.Throws<InvalidDataException>(() => With(Final("one"), Final("two") with { Template = FinalTemplate.Kill }));
+
+    [Fact]
+    public void AFinalClass_ReadsItsTemplateFromTheData()
+    {
+        string json = """{ "id": "x", "template": "StayOrMove", "tier": { "level": 100, "title": { "fr": "T", "en": "T" }, "description": { "fr": "D", "en": "D" } } }""";
+        Assert.Equal(FinalTemplate.StayOrMove, System.Text.Json.JsonSerializer.Deserialize<SpecFinal>(json, GameData.Json)!.Template);
+    }
+
+    [Fact]
+    public void AnotherFinalClass_Costs5TimesTheLevel_TheFirstNothing()
+    {
+        Assert.Equal(0, Specs.ChangeCost(Guard(100, null), "palisade", Lineage, "one"));
+        Assert.Equal(0, Specs.ChangeCost(Guard(100, "one"), "palisade", Lineage, "one"));
+        Assert.Equal(500, Specs.ChangeCost(Guard(100, "one"), "palisade", Lineage, "two"));
+    }
+
+    [Fact]
+    public void AnotherLineageOrBranch_CostsItsOwnPrice_WhateverTheFinalClass()
+    {
+        string other = Real.Specs["palisade"].Forks[1].Id;
+        Assert.Equal(1000, Specs.ChangeCost(Guard(100, "one"), "palisade", other, "two"));
+        Assert.Equal(3000, Specs.ChangeCost(Guard(100, "one"), "breach", Real.Specs["breach"].Forks[0].Id));
+    }
+
+    [Fact]
     public void AFinalsPassive_IsCheckedLikeAnyTiers()
     {
-        SpecFinal bad = new("two", new SpecTier(100, Text, Text, Passives: ["nowhere"]));
+        SpecFinal bad = new("two", FinalTemplate.Extends, new SpecTier(100, Text, Text, Passives: ["nowhere"]));
         Assert.Throws<InvalidDataException>(() => With(Final("one"), bad));
     }
 

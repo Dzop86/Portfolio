@@ -166,11 +166,11 @@ public static class Admin
                     i++;
                     break;
                 case "--spec":
-                    // Sprint 186 (D93), sprint 190 (D95): each character takes the named branch of its class, and its lineage if its level opens it; none: back to no path.
+                    // Sprint 186 (D93), sprint 190 (D95): each character takes the named branch of its class, and its lineage and final class if its level opens them; none: back to no path.
                     string[] paths = value == "none" ? [] : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                    static bool Known(string p) => p.Split(':') is [string b, .. var f] && GameData.Embedded.Specs.TryGetValue(b, out Specialisation? s) && f.Length <= 1 && (f.Length == 0 || s.ForkOf(f[0]) is not null);
+                    static bool Known(string p) => p.Split(':') is [string b, .. var f] && GameData.Embedded.Specs.TryGetValue(b, out Specialisation? s) && f.Length <= 2 && (f.Length == 0 || s.ForkOf(f[0]) is SpecFork l && (f.Length == 1 || l.FinalOf(f[1]) is not null));
                     if (value.Length == 0 || paths.Any(p => !Known(p)))
-                        return (null, $"--spec: none, or branch[:lineage] of the game ({string.Join(", ", GameData.Embedded.Specs.Keys)}), with commas ('{value}').");
+                        return (null, $"--spec: none, or branch[:lineage[:final]] of the game ({string.Join(", ", GameData.Embedded.Specs.Keys)}), with commas ('{value}').");
                     specs = paths;
                     i++;
                     break;
@@ -274,8 +274,9 @@ public static class Admin
                 {
                     string branch = path.Split(':')[0];
                     string? lineage = path.Contains(':') && c.Level >= Specs.Forks ? path.Split(':')[1] : null;
+                    string? final = path.Split(':') is [_, _, string named] && c.Level >= Specs.Finals ? named : null;
                     Hero moved = Specs.Transferred(c.Hero, branch, lineage, GameData.Embedded);
-                    (c.Spec, c.Fork, c.Final) = (branch, lineage, null);
+                    (c.Spec, c.Fork, c.Final) = (branch, lineage, final);
                     c.Ranks = string.Join(',', (moved.Ranks ?? new Dictionary<string, int>()).Where(r => r.Value > 1).OrderBy(r => r.Key, StringComparer.Ordinal)
                         .Select(r => $"{r.Key}:{r.Value.ToString(CultureInfo.InvariantCulture)}"));
                     if (c.Deck is not ("" or Character.EmptyDeck))

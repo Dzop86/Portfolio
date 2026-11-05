@@ -789,7 +789,7 @@ public static class CharacterEndpoints
             return Refused("The quest of the paths opens the choice.");
         if (character.InFight)
             return Refused("A path is taken out of a fight.");
-        long cost = Specs.ChangeCost(character.Hero, spec, fork);
+        long cost = Specs.ChangeCost(character.Hero, spec, fork, final);
         if (cost > 0 && !Shop.InVillage(character.Town))
             return Refused("A path is changed in a village.");
         if (cost > character.Shards)

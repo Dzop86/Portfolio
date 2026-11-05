@@ -953,3 +953,13 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Des finales provisoires dans les données : elles auraient permis le test complet, mais auraient changé le jeu à 100 pour rien. Injecter `GameData` dans le point d'entrée : une réécriture pour un seul test, qui deviendra inutile en S197. Une finale comme troisième palier de `Tiers` : `SpecPage`, `SpellsWith` et la validation comptent ces paliers comme une suite, pas comme un choix.
 
 **Limites.** `FightRecord` ne change pas de version : `Final` est nul partout, et le relevé devra en changer quand une finale changera un combat.
+
+## T156. Le prix de la finale, sa commande et son gabarit (sprint 195, D96)
+
+**Décision.** Changer de finale coûte 5 × le niveau (`Specs.ChangeCost`), le premier choix reste gratuit ; changer de lignée ou de branche garde son propre prix et ne s'y ajoute pas. `admin --spec` accepte `branche:lignée:finale`, la finale n'étant donnée qu'à 100. Chaque finale nomme son gabarit (`FinalTemplate`, les 12 de `classes-conception.md` §2.3), et la validation refuse deux sœurs du même gabarit.
+
+**Écart à la story.** La migration de la story a été faite en S194 (T155). Le choix payant et le `--spec` qui réussit ne passent pas par l'API dans les tests, faute de finale dans les données embarquées : le Cœur teste le prix, l'API seulement le refus d'une finale inconnue. Comme T155, à ajouter en S197.
+
+**Alternatives.** Le gabarit en simple texte : une faute de frappe ferait deux gabarits différents et passerait la validation. Additionner les prix quand on change aussi de finale : la finale se perd au changement de lignée, il n'y a rien à payer en plus.
+
+**Limites.** Le gabarit est déclaré, pas vérifié : rien ne contrôle qu'une finale `Kill` soit bien construite sur un déclencheur d'achèvement.
