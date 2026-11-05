@@ -360,7 +360,7 @@ Le nouvel arbre ne suit pas l'ancien : la Sente n'a pas d'équivalent, et Artill
 |---|---|---|---|
 | **S193** | A. Cadrage ; C. Banc de mesure | 5 | 5 |
 | **S194** | B. IA ; D. Moteur (début) | 5 | 10 |
-| **S195** | D. Moteur (fin) ; F. Conversion | 4 | 14 |
+| **S195** | D. Moteur (fin) ; F. Conversion ; réduction du budget de combats (D97 : 3 points pris sur la marge, non comptés dans le cumul de cette table) | 7 | 14 |
 | **S196** | E. Page ; G. Récit | 4 | 18 |
 | **S197** | **Guerrier** | 5 | 23 |
 | **S198** | **Archer** | 6 | 29 |
