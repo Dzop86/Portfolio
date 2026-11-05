@@ -1,3 +1,4 @@
+using System.Diagnostics.Metrics;
 namespace Rpg.Core;
 
 /// <summary>
@@ -12,6 +13,14 @@ namespace Rpg.Core;
 /// </summary>
 public static class Ai
 {
+    /// <summary>The name of the meter that counts the fights played out, which the tests hold to a budget (D96).</summary>
+    public const string MeterName = "Rpg.Core";
+
+    private static readonly Meter Meter = new(MeterName);
+
+    /// <summary>Costs nothing without a listener. The test suite listens, to keep its fights independent of the number of classes.</summary>
+    private static readonly Counter<long> FightsPlayedOut = Meter.CreateCounter<long>("fights.played_out");
+
     /// <summary>How much more a turn from another cell must be worth to walk there before casting.</summary>
     internal const double StepAwayGain = 1.5;
 
@@ -113,6 +122,7 @@ public static class Ai
     public static int PlayOut(Fight fight)
     {
         ArgumentNullException.ThrowIfNull(fight);
+        FightsPlayedOut.Add(1);
         int actions = 0;
         while (!fight.IsOver)
         {

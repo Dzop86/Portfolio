@@ -1,0 +1,79 @@
+using static Rpg.Core.Tests.Arena;
+
+namespace Rpg.Core.Tests;
+
+public class BenchTests
+{
+    private static readonly SyntheticFamily At35 = new(35), At50 = new(50);
+
+    [Fact]
+    public void ThePaths_AreTheBranchesBeforeFifty_AndTheLineagesFromIt()
+    {
+        Assert.Equal(3, Bench.PathsOf("guard", 35, Real).Count);
+        Assert.All(Bench.PathsOf("guard", 35, Real), p => Assert.Null(p.Fork));
+        Assert.Equal(6, Bench.PathsOf("guard", 50, Real).Count);
+        Assert.All(Bench.PathsOf("guard", 50, Real), p => Assert.NotNull(p.Fork));
+    }
+
+    [Fact]
+    public void AClass_IsMeasured_ThePlainHeroAndEachPath_TheSameFromOneRunToTheNext()
+    {
+        BenchReport report = Bench.Run(At35, "guard", 2, sample: 2);
+        Assert.Equal(2, report.Groups);
+        Assert.Null(report.Plain.Path);
+        Assert.Equal(3, report.Paths.Count);
+        Assert.All(report.Paths, p => Assert.InRange(p.Points, 0, 100));
+        BenchReport again = Bench.Run(At35, "guard", 2, sample: 2);
+        Assert.Equal(report.Paths.Select(p => p.Points), again.Paths.Select(p => p.Points));
+        Assert.Equal(report.Paths.Select(p => p.Casts.Values.Sum()), again.Paths.Select(p => p.Casts.Values.Sum()));
+    }
+
+    [Fact]
+    public void AGroupSample_IsEven_AndNeverMoreThanTheGroups()
+    {
+        IReadOnlyList<string> all = Bench.MiddleGroups(At50);
+        Assert.Equal(all, Bench.MiddleGroups(At50, all.Count + 5));
+        IReadOnlyList<string> some = Bench.MiddleGroups(At50, 4);
+        Assert.Equal(4, some.Count);
+        Assert.Equal(4, some.Distinct().Count());
+        Assert.Equal(all[0], some[0]);
+    }
+
+    [Fact]
+    public void ASpellHardlyPlayed_MakesItsPathNotConclusive()
+    {
+        var played = new BenchRow("a", 40, new Dictionary<string, double> { ["x"] = 1.2, ["y"] = 0.5 });
+        Assert.True(played.Conclusive);
+        var unplayed = new BenchRow("b", 10, new Dictionary<string, double> { ["x"] = 1.2, ["y"] = 0.1 });
+        Assert.False(unplayed.Conclusive);
+        Assert.Equal(["y"], unplayed.Unplayed);
+    }
+
+    [Fact]
+    public void TheSpread_IsTheWidestDistanceFromTheMean()
+    {
+        var empty = new Dictionary<string, double>();
+        BenchRow Row(double points) => new("p", points, empty);
+        var report = new BenchReport("guard", 35, 1, 1, Row(20), [Row(10), Row(20), Row(60)]);
+        Assert.Equal(30, report.Mean);
+        Assert.Equal(30, report.Spread);
+    }
+
+    [Fact]
+    public void AReferenceDeck_ReplacesTheAutomaticOne_ThePathsSpellsAdded()
+    {
+        string[] deck = [.. Real.Class("guard")!.Spells.Where(s => Real.Spells[s].Level <= 10).Take(4)];
+        BenchReport report = Bench.Run(At35, "guard", 1, sample: 1, deck: deck);
+        Assert.All(report.Paths, p => Assert.NotEmpty(p.Casts));
+    }
+
+    [Fact]
+    public void AReferenceDeck_LeavesOutWhatTheLevelHasNotUnlocked_AndStillPlays()
+    {
+        // Titan Blow comes at 60: the same list serves at every level of the bench, instead of a refused hero.
+        string[] deck = ["titan-blow", .. Real.Class("guard")!.Spells.Where(s => Real.Spells[s].Level <= 10)];
+        BenchReport report = Bench.Run(At35, "guard", 1, sample: 1, deck: deck);
+        Assert.All(report.Paths, p => Assert.DoesNotContain("titan-blow", p.Casts.Keys));
+        Assert.InRange(report.Plain.Points, 0, 100);
+    }
+}

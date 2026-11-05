@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Rpg.Core;
+
 namespace Rpg.Sim.Tests;
 
 public class ProgramTests
@@ -244,5 +247,48 @@ public class ProgramTests
         Assert.Contains("niveau 12", Run([.. args, "--level", "12", "--lang", "fr"]).Out, StringComparison.Ordinal);
         Assert.Equal(2, Run("--simulate", "2", "--parties", "--class", "guard").Code);
         Assert.Equal(2, Run("--record", "x.json", "--parties").Code);
+    }
+
+    [Fact]
+    public void TheMatrix_IsATableOfAClasssPaths_WithWhatItsSpellsWereWorth()
+    {
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "guard", "--level", "35");
+        Assert.Equal(0, code);
+        Assert.Contains("| guard | 35 | (none) |", output, StringComparison.Ordinal);
+        Assert.Equal(4, output.Split('\n').Count(l => l.StartsWith("| guard | 35 |", StringComparison.Ordinal)));
+        Assert.Contains("onclusive", output, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void TheMatrix_DoesNotCallConclusive_APathWithoutASpell()
+    {
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "mage", "--level", "35");
+        Assert.Equal(0, code);
+        Assert.Contains("no spell yet", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("| conclusive |", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheReferenceDecks_NameOnlyTheirClasssSpells_AndTheMatrixPlaysThem()
+    {
+        // The bench drops what a level has not unlocked: a misspelt spell would vanish without a word, so the file is checked here.
+        string root = AppContext.BaseDirectory;
+        while (!File.Exists(Path.Combine(root, "Rpg.slnx")))
+            root = Directory.GetParent(root)!.FullName;
+        string file = Path.Combine(root, "tools", "bench-decks.json");
+        Dictionary<string, string[]> decks = JsonSerializer.Deserialize<Dictionary<string, string[]>>(File.ReadAllText(file))!;
+        foreach (HeroClass cls in GameData.Embedded.Classes)
+            Assert.All(decks[cls.Id], spell => Assert.Contains(spell, cls.Spells));
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "guard", "--level", "35", "--decks", file);
+        Assert.Equal(0, code);
+        Assert.Contains("| guard | 35 | (none) |", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheMatrix_RefusesAnUnknownClass_AndGoesWithSimulate()
+    {
+        Assert.Equal(2, Run("--matrix", "--simulate", "1", "--class", "dragon").Code);
+        Assert.Equal(2, Run("--matrix").Code);
+        Assert.Equal(2, Run("--simulate", "1", "--decks", "x.json").Code);
     }
 }

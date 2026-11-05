@@ -105,6 +105,7 @@ dotnet run --project src/Rpg.Sim -- --simulate 1000 --scenario duel
 dotnet run --project src/Rpg.Sim -- --record combat.json --scenario training --seed 7 --lang fr
 dotnet run --project src/Rpg.Sim -- --replay combat.json --show --lang fr
 dotnet run -c Release --project src/Rpg.Sim -- --simulate 100 --scenario group:fields-0-4.0 --parties --kit zone   # tous les groupes de 2, 3 et 4 héros
+dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --decks tools/bench-decks.json   # le banc des voies, hors CI : docs/mesures-classes.md
 ```
 Le serveur et ses tests demandent PostgreSQL :
 ```sh
@@ -116,6 +117,8 @@ scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscri
 La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
+Sprint 193 : 12 tests de plus (`Rpg.Core` : `BenchTests`, `FightBudgetTests` ; `Rpg.Sim` : `--matrix`, `--decks` et les paquets de référence). Un run du Cœur échoue s'il joue plus de 240 000 combats (`FightBudget`, T153).
+
 Sprint 151 : 8 tests de plus (`Rpg.Client` : `TreePlanTests`, le code d'un build aller et retour, un code refusé et sa raison, le chemin d'un nœud et son coût, un plan et ses fantômes, un build suggéré qui reste un brouillon, les builds tirés toujours légaux et les talents rares ; `Rpg.Api` : un plan du niveau 60 refusé au niveau 45 ; `Rpg.Sim` : `--talents` et ses refus ; auto-test du village : le code, la planification, le build suggéré et le chemin dans la fenêtre de l'arbre).
 
 Sprint 150 : 7 tests de plus (`Rpg.Client` : `SpellOriginTests`, la Transmutation enregistrée qui retire le sort d'origine et ce que dit son jumeau, l'aperçu d'un brouillon, les talents qui changent un sort, ce que les talents font au deck, la prévision détaillée dont la somme est le bonus du coup, la ligne avant et après, les talents du tour allumés puis éteints ; auto-test du village : la fenêtre des sorts après une Transmutation, ses jumeaux nouveaux et leur origine).

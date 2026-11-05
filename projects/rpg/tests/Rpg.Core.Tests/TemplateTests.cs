@@ -114,123 +114,6 @@ public class TemplateTests
 
     // ---- T41 on a family made from the templates ----
 
-    /// <summary>A family made from the templates at a zone's level, as the fields' are at 26: its groups, its spells, its kits.</summary>
-    private sealed class Synthetic
-    {
-        public GameData Data { get; }
-        public int Level { get; }
-        public IReadOnlyList<(string Scenario, int Size, bool InTheOpen)> Groups { get; }
-
-        public Synthetic(int level)
-        {
-            Level = level;
-            int by = level - Fields;
-            var spells = new Dictionary<string, Spell>(StringComparer.Ordinal);
-            var monsters = new Dictionary<string, FighterSpec>(StringComparer.Ordinal);
-            // Each monster of the fields' families, as many levels higher, given its role's template at its new level: hit
-            // points and initiative; its main spell (its first that hurts) the template's roll, its other spells in the same
-            // proportion, a support's heal the template's; its resistances the template's, on the same elements; its passives.
-            foreach ((MonsterFamily family, MonsterSpec m) in Real.Families.Values.Where(f => f.Zone == "fields").SelectMany(f => f.Monsters.Select(m => (f, m))))
-            {
-                int at = m.Level + by;
-                MonsterTemplate t = Templates.Monster(m.Role, at);
-                Spell main = m.Spells.Select(id => Real.Spells[id]).First(s => s.DamageMax > 0);
-                double ratio = t.Damage / ((main.DamageMin + main.DamageMax) / 2.0);
-                var cast = new List<string>();
-                foreach (Spell s in m.Spells.Select(id => Real.Spells[id]))
-                {
-                    IReadOnlyList<SpellEffect>? effects = s.Effects?.Select(e => e switch
-                    {
-                        HealEffect h => h with { Min = t.Heal - t.Heal / 7, Max = t.Heal + t.Heal / 7 },
-                        ShieldEffect sh => sh with { Amount = (int)Math.Round(sh.Amount * ratio) },
-                        _ => e,
-                    }).ToList();
-                    Spell made = s == main
-                        ? s with { DamageMin = t.Roll.Min, DamageMax = t.Roll.Max }
-                        : s with { DamageMin = (int)Math.Round(s.DamageMin * ratio), DamageMax = (int)Math.Round(s.DamageMax * ratio) };
-                    made = made with { Id = $"synth-{m.Id}-{s.Id}", Effects = effects };
-                    spells[made.Id] = made;
-                    cast.Add(made.Id);
-                }
-                Dictionary<Element, int> resistances = (m.Resistances ?? new Dictionary<Element, int>()).ToDictionary(r => r.Key, r => r.Value > 0 ? t.Resistance : t.Weakness);
-                monsters[m.Id] = m.Fighter(0, family: family.Id) with { Hp = t.Hp, Initiative = t.Initiative, Spells = cast, Resistances = resistances, Level = at };
-            }
-            // The fields' groups, on the same battle maps.
-            FighterSpec hero = new(Text, "female-d", 0, 80, 6, 3, 120, 0, ["strike"]);
-            var scenarios = new List<Scenario>();
-            var groups = new List<(string, int, bool)>();
-            foreach (MonsterGroup g in Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == "fields" && g.Fight is null).OrderBy(g => g.Id, StringComparer.Ordinal))
-            {
-                string id = $"synth:{g.Id}";
-                scenarios.Add(new Scenario(id, Text, Real.Families[g.Family].BattleOf(g.Id), [hero, .. g.Monsters.Select((m, i) => monsters[m] with { Start = i })]));
-                // The Meadow's hordes of clod moles, left out of the "craft" kit's ceiling as in the fields (T64, T77).
-                bool open = Real.Families[g.Family].BattleOf(g.Id) == "meadow" && g.Monsters.Count(m => m == "clod-mole") >= 3;
-                groups.Add((id, g.Monsters.Count, open));
-            }
-            Groups = groups;
-            Data = new GameData([.. Real.Spells.Values, .. spells.Values], Real.Maps.Values, [.. Real.Scenarios.Values, .. scenarios], Real.Classes,
-                summons: Real.Summons.Values, items: [.. Real.Items.Values, .. Pieces(level)], sets: Real.Sets.Values, passives: Real.Passives.Values,
-                talents: Real.Talents.Values, reactions: Real.Reactions.Values, specs: Real.Specs.Values);
-        }
-
-        /// <summary>
-        /// A solid horde (sprint 162, T129): seven monsters or more, or one with three times the hit points of the weakest. The
-        /// others, six small monsters without a chief, fall to any hero of one element well equipped (2.9 of 10 alone); a
-        /// content flaw, left to the Mines (a solid monster in every horde), and printed without a ceiling.
-        /// </summary>
-        public bool Solid(string scenario)
-        {
-            int[] hp = [.. Data.FindScenario(scenario)!.Fighters.Where(f => f.Team == 1).Select(f => f.Hp)];
-            return hp.Length >= 7 || hp.Max() >= 3 * hp.Min();
-        }
-
-        /// <summary>The level the fields' kits are measured at (T41), which the kits of the synthetic family are carried from.</summary>
-        private const int Fields = 26;
-
-        private static readonly string[] Kits = ["zone", "craft"];
-
-        /// <summary>
-        /// The pieces of the kits "zone" and "craft" at the fields' level (T41), carried to this level: the same slots and
-        /// elements, each piece as many levels higher, its characteristics brought to the budget of its new level in the same
-        /// proportions, its initiative kept.
-        /// </summary>
-        private static IEnumerable<Item> Pieces(int level)
-        {
-            int by = level - Fields;
-            foreach (string id in Kits.SelectMany(k => Progression.Kit(k, "fields", Fields, Real).Values).Distinct())
-            {
-                Item real = Real.Items[id];
-                int budget = Templates.Budget(real.Level + by, real.Slot!.Value) - (int)Math.Ceiling(0.3 * real.Initiative);
-                Characteristics c = real.Stats!;
-                double total = c.Vitality + c.Earth + c.Fire + c.Water + c.Air;
-                int Part(int v) => (int)Math.Round(v * budget / total);
-                int vitality = Part(c.Vitality), earth = Part(c.Earth), fire = Part(c.Fire), water = Part(c.Water);
-                int air = c.Air > 0 ? budget - vitality - earth - fire - water : 0;
-                yield return real with { Id = "synth-" + id, Level = real.Level + by, Stats = new Characteristics(vitality, earth, fire, water, air) };
-            }
-        }
-
-        /// <summary>The hero of a class at the level, its points spent the simple way, wearing a kit ("none", "zone" or "craft") carried from the fields'.</summary>
-        public Hero Hero(string id, string kit)
-        {
-            var worn = Progression.Kit(kit, "fields", Fields, Real).ToDictionary(w => w.Key, w => "synth-" + w.Value);
-            Assert.Null(Equipment.Problem(worn, Level, Data));
-            return Progression.Built(new Hero("Essai", "female-d", id, Level: Level), Data, worn);
-        }
-
-        public int Wins(string scenario, Hero hero, int fights)
-        {
-            int wins = 0;
-            for (ulong seed = 0; seed < (ulong)fights; seed++)
-            {
-                var f = new Fight(Data, scenario, seed, hero);
-                Ai.PlayOut(f);
-                wins += f.WinningTeam == 0 ? 1 : 0;
-            }
-            return wins;
-        }
-    }
-
     [Theory]
     [InlineData(35)]
     [InlineData(40)]
@@ -240,7 +123,7 @@ public class TemplateTests
     [InlineData(60)]
     public void AFamilyMadeFromTheTemplates_KeepsT41_SmallGroupsForOnePlayer_HordesForSeveral(int level)
     {
-        var family = new Synthetic(level);
+        var family = new SyntheticFamily(level);
         var report = new List<string>();
         bool kept = true;
         foreach (string id in Classes)
@@ -274,7 +157,7 @@ public class TemplateTests
         // with each kit, it beat too many (1.2 to 7.7 of 10). The ceiling of this strongest hero (D85): 3 of 10 with each kit
         // against the solid hordes, held since the elements' returns (sprint 162, T129: a quarter past 3 × level + 5, Rockfall
         // at 6 AP); the light ones are printed.
-        var family = new Synthetic(level);
+        var family = new SyntheticFamily(level);
         var hordes = family.Groups.Where(g => g.Size >= 6 && family.Solid(g.Scenario)).ToArray();
         var light = family.Groups.Where(g => g.Size >= 6 && !family.Solid(g.Scenario)).ToArray();
         var report = new List<string>();
@@ -302,7 +185,7 @@ public class TemplateTests
     {
         // Sprint 137 (D80, T103): the Sentinel of 35 with Up close (Bogging, the slice's other talent, is every hero's since sprint 182), bare against the small groups, wearing the
         // kits against the hordes; the tree is worth at most +10 % of victories against the small groups (§2.3).
-        var family = new Synthetic(35);
+        var family = new SyntheticFamily(35);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         Hero bare = family.Hero("sentinel", "none");
         Hero tree = bare with { Talents = ["up-close"] };
@@ -330,7 +213,7 @@ public class TemplateTests
         // horde with the craftsmen's kit. A Conversion makes a hero strike on all its points, like one who plays a single
         // element without a talent, who already beats more hordes than T41's mixed hero (Charles, sprint 144): the tree is
         // held to the best bare hero, mixed or of one element, give or take 1.5 (the noise of 10 fights a horde).
-        var family = new Synthetic(level);
+        var family = new SyntheticFamily(level);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         // Against the solid hordes since sprint 162 (T129), and no lower than 3 of 10: held to the hero of one element alone,
         // the tree followed it down when the elements' returns brought it under the ceiling.
@@ -379,7 +262,7 @@ public class TemplateTests
     {
         // Sprint 147 (D82, J3 c): no style a false decision: each within 1.5 victories of 30 of the others' average, against
         // the small groups, bare, for each class.
-        var family = new Synthetic(45);
+        var family = new SyntheticFamily(45);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
         var report = new List<string>();
@@ -404,25 +287,16 @@ public class TemplateTests
     [InlineData("guard", 50)]
     public void AClasssPaths_AreWorthAlike_AgainstTheMiddleGroups(string cls, int level)
     {
-        // Sprint 191 (D95, §v4.6, M1 and M2 cut down to what runs in the CI, T150, T152): each branch, each lineage from 50, near the average of its class's paths, bare, on the same
-        // seeds, and never more than the +15 of M2 over a hero without one. Against the groups of 4 and 5: the solid hordes, which §v4.6 names, are won by no bare hero of these
-        // levels, path or not (0 of 120), so a test on them would hold whatever the paths did. The Guard holds the story's 8 points. THE SENTINEL DOES NOT: its 22 are a fence
-        // against regressions, the AI playing neither traps, leaps nor Hawks well (T152), to bring back to 8 with brick S.
-        var family = new Synthetic(level);
-        var groups = family.Groups.Where(g => g.Size is 4 or 5).ToArray();
-        Hero bare = family.Hero(cls, "none");
-        double Points(Hero h) => groups.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average() * 100 / 30;
-        (string Spec, string? Fork)[] paths = level < Specs.Forks
-            ? [.. Real.Specs.Values.Where(s => s.Class == cls).Select(s => (s.Id, (string?)null))]
-            : [.. Real.Specs.Values.Where(s => s.Class == cls).SelectMany(s => s.Forks.Select(f => (s.Id, (string?)f.Id)))];
-        Dictionary<string, double> points = paths.ToDictionary(p => p.Fork ?? p.Spec, p => Points(bare with { Spec = p.Spec, Fork = p.Fork }));
-        double mean = points.Values.Average(), plain = Points(bare);
-        string report = $"{cls} level {level}, {groups.Length} groups: no path {plain:0.0}; " + string.Join(", ", points.Select(p => $"{p.Key} {p.Value:0.0}"));
-        double fence = cls == "guard" ? 8 : 22;
-        Assert.True(points.Values.All(v => Math.Abs(v - mean) <= fence), report);
-        Assert.True(points.Values.All(v => v - plain <= 15), report);
+        // Sprint 193 (D96, `docs/classes-conception.md` §7.2): the CI's fence, on a sample of 8 groups and 15 fights a group, whatever the number of classes: about 9 points of
+        // noise at 120 fights, so 15 points from the mean. The story's 8 points are judged on the bench, at 480 fights (`Rpg.Sim --matrix`, `docs/mesures-classes.md`). THE SENTINEL
+        // STAYS AT 22 until the AI plays its traps, leaps and Hawks (T152, sprint 194). Against the groups of 4 and 5: no bare hero of these levels wins the solid hordes,
+        // path or not, so a test on them would hold whatever the paths did. Never more than the +15 of M2 over a hero without a path, with the same noise allowed for.
+        BenchReport bench = Bench.Run(new SyntheticFamily(level), cls, 15, sample: 8);
+        string report = $"{cls} level {level}, {bench.Groups} groups: no path {bench.Plain.Points:0.0}; " + string.Join(", ", bench.Paths.Select(p => $"{p.Path} {p.Points:0.0}"));
+        Assert.True(bench.Spread <= (cls == "guard" ? 15 : 22), report);
+        Assert.True(bench.Paths.All(p => p.Points - bench.Plain.Points <= 24), report);
         // It would prove nothing at either end.
-        Assert.True(plain is > 10 and < 80, report);
+        Assert.True(bench.Plain.Points is > 5 and < 85, report);
     }
 
     [Fact]
@@ -430,7 +304,7 @@ public class TemplateTests
     {
         // Sprint 184 (D93, the J3 c of sprint 147 again, on the compounds): no pair created a false decision: each within 1.5
         // victories of 30 of the others' average, against the small groups, bare, its twins first in the deck, for each class.
-        var family = new Synthetic(45);
+        var family = new SyntheticFamily(45);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
         double Small(Hero h) => few.AsParallel().Select(g => family.Wins(g.Scenario, h, 30)).Average();
         var report = new List<string>();

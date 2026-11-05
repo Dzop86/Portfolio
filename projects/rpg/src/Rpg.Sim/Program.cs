@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using Rpg.Core;
 
 namespace Rpg.Sim;
@@ -15,7 +16,8 @@ namespace Rpg.Sim;
 /// the simplest way: Progression.Built), --party ID,ID... (since sprint 121, up to three allies of these classes beside the
 /// hero, at the same level with the same kit, all played by the AI), --parties (since sprint 122, with --simulate N:
 /// every party of two, three and four heroes of the classes, N fights each, at the level of the scenario's monsters
-/// unless --level says otherwise; each rate with its 95 % interval), --talents (since sprint 151, D82, with --simulate N: the
+/// unless --level says otherwise; each rate with its 95 % interval), --matrix (since sprint 193, D96, with --simulate N, optionally --class,
+/// --level and --decks FILE: the bench of each class's paths, a Markdown table), --talents (since sprint 151, D82, with --simulate N: the
 /// talent tree out of CI, each class with no compound or one created, N fights a combination, each with a build drawn at
 /// random at --level, 45 by default; then the talents fewer than 5 % of the builds take; since sprint 152, D83: the bare
 /// heroes, mixed and of each element, on the same fights, the rare talents counted among the builds aiming at their branch
@@ -58,6 +60,16 @@ public static class Program
             {
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
+            }
+            if (options.Matrix)
+            {
+                if (options.Class is string only && data.Class(only) is null)
+                {
+                    error.WriteLine($"Unknown class '{only}'.");
+                    return 2;
+                }
+                SimulateMatrix(data, options, output);
+                return 0;
             }
             if (options.Tree)
             {
@@ -154,6 +166,34 @@ public static class Program
         double p = (double)wins / n, d = 1 + z * z / n;
         double centre = (p + z * z / (2 * n)) / d, half = z * Math.Sqrt(p * (1 - p) / n + z * z / (4.0 * n * n)) / d;
         return (100 * Math.Max(0, centre - half), 100 * Math.Min(1, centre + half));
+    }
+
+    /// <summary>The measuring bench (D96): each class's paths at each level, as a Markdown table for `docs/mesures-classes.md`.</summary>
+    private static void SimulateMatrix(GameData data, Options options, TextWriter output)
+    {
+        string[] classes = options.Class is string only ? [only] : [.. data.Classes.Select(c => c.Id).Where(c => data.Specs.Values.Any(s => s.Class == c))];
+        int[] levels = options.LevelSet ? [options.Level] : [35, 45, 50];
+        Dictionary<string, string[]> decks = options.Decks is string file
+            ? JsonSerializer.Deserialize<Dictionary<string, string[]>>(File.ReadAllText(file)) ?? []
+            : [];
+        output.WriteLine($"{options.Simulate} fights per group, {Bench.MiddleGroups(new SyntheticFamily(levels[0])).Count} groups of 4 and 5 monsters, bare heroes, the same seeds.");
+        output.WriteLine();
+        output.WriteLine("| Class | Level | Path | Points | Over no path | From the mean | Reads |");
+        output.WriteLine("|---|---|---|---|---|---|---|");
+        foreach (int level in levels)
+        {
+            var family = new SyntheticFamily(level);
+            foreach (string cls in classes)
+            {
+                BenchReport report = Bench.Run(family, cls, options.Simulate, deck: decks.GetValueOrDefault(cls));
+                output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | (none) | {report.Plain.Points:0.0} | | | |"));
+                foreach (BenchRow row in report.Paths)
+                {
+                    string reads = row.Casts.Count == 0 ? "no spell yet" : row.Conclusive ? "conclusive" : "NOT CONCLUSIVE: " + string.Join(", ", row.Unplayed.Select(s => FormattableString.Invariant($"{s} {row.Casts[s]:0.0}")));
+                    output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | {row.Path} | {row.Points:0.0} | {row.Points - report.Plain.Points:+0.0;-0.0;0.0} | {row.Points - report.Mean:+0.0;-0.0;0.0} | {reads} |"));
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -348,7 +388,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -376,6 +416,8 @@ public static class Program
                     "--parties" => o with { Parties = true },
                     "--talents" => o with { Tree = true },
                     "--trio" => o with { Trio = true },
+                    "--matrix" => o with { Matrix = true },
+                    "--decks" => o with { Decks = Value() },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
@@ -384,6 +426,10 @@ public static class Program
                 throw new ArgumentException("--parties goes with --simulate N, without --class, --rival or --party.");
             if (o.Tree && (o.Simulate == 0 || o.Parties || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
                 throw new ArgumentException("--talents goes with --simulate N, without --parties, --class, --rival or --party.");
+            if (o.Matrix && (o.Simulate == 0 || o.Parties || o.Tree || o.Rival is not null || o.Party.Count > 0))
+                throw new ArgumentException("--matrix goes with --simulate N, without --parties, --talents, --rival or --party.");
+            if (o.Decks is not null && !o.Matrix)
+                throw new ArgumentException("--decks goes with --matrix.");
             if (o.Trio && !o.Tree)
                 throw new ArgumentException("--trio goes with --talents.");
             return modes == 1 ? o : throw new ArgumentException("Choose one of --simulate N, --record FILE or --replay FILE.");
