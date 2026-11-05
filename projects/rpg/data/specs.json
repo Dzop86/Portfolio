@@ -271,7 +271,7 @@
   },
   {
     "id": "palisade",
-    "class": "guard",
+    "class": "warrior",
     "name": {
       "fr": "Palissade",
       "en": "Palisade"
@@ -428,7 +428,7 @@
   },
   {
     "id": "breach",
-    "class": "guard",
+    "class": "warrior",
     "name": {
       "fr": "Brèche",
       "en": "Breach"
@@ -578,7 +578,7 @@
   },
   {
     "id": "grip",
-    "class": "guard",
+    "class": "warrior",
     "name": {
       "fr": "Étau",
       "en": "Grip"
@@ -730,7 +730,7 @@
   },
   {
     "id": "sightline",
-    "class": "sentinel",
+    "class": "archer",
     "name": {
       "fr": "Mire",
       "en": "Sightline"
@@ -887,7 +887,7 @@
   },
   {
     "id": "ambush",
-    "class": "sentinel",
+    "class": "archer",
     "name": {
       "fr": "Affût",
       "en": "Ambush"
@@ -1042,7 +1042,7 @@
   },
   {
     "id": "trail",
-    "class": "sentinel",
+    "class": "archer",
     "name": {
       "fr": "Sente",
       "en": "Trail"

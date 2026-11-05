@@ -8,7 +8,7 @@ public class GuildPageTests
     private static readonly GuildMember Odon = M("Odon", GuildRank.Leader), Brune = M("Brune", GuildRank.Officer), Anne = M("Anne", GuildRank.Member);
     private static readonly GuildView Guild = new(Guid.NewGuid(), "Les Veilleurs", [Odon, Brune, Anne]);
 
-    private static GuildMember M(string name, GuildRank rank) => new(Guid.NewGuid(), name, rank, 30, "guard", null, null);
+    private static GuildMember M(string name, GuildRank rank) => new(Guid.NewGuid(), name, rank, 30, "warrior", null, null);
 
     [Fact]
     public void TheLeader_NamesOfficers_SendsOut_AndHandsTheTitleOver_NeverToItself()

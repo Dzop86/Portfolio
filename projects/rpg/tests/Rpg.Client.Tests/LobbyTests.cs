@@ -1,3 +1,4 @@
+using Rpg.Core;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -7,6 +8,22 @@ namespace Rpg.Client.Tests;
 /// <summary>The lobby against a stand-in server (the real one is in Rpg.Api.Tests): refusals, server down.</summary>
 public partial class LobbyTests
 {
+    [Fact]
+    public void TheRoster_HasTenClasses_ThoseOfTheGamePlayable_TheOthersToCome()
+    {
+        Assert.Equal(10, Lobby.Roster.Select(c => c.Id).Distinct().Count());
+        Assert.All(GameData.Embedded.Classes, c => Assert.Contains(c.Id, Lobby.Roster.Select(r => r.Id)));
+        Assert.Equal(["warrior", "mage", "archer"], Lobby.Roster.Where(c => c.Playable(GameData.Embedded)).Select(c => c.Id));
+        Assert.All(Lobby.Roster, c => Assert.False(string.IsNullOrEmpty(c.Name.Fr) || string.IsNullOrEmpty(c.Name.En)));
+    }
+
+    [Fact]
+    public void TheRoster_NamesAPlayableClass_AsTheGameDoes()
+    {
+        foreach (ClassChoice c in Lobby.Roster.Where(c => c.Playable(GameData.Embedded)))
+            Assert.Equal(GameData.Embedded.Class(c.Id)!.Name, c.Name);
+    }
+
     private static CancellationToken Cancel => TestContext.Current.CancellationToken;
 
     /// <summary>Answers every request with <paramref name="answer"/>, and counts them.</summary>
@@ -86,7 +103,7 @@ public partial class LobbyTests
         (Lobby lobby, _) = Make(r => expired ? Json(HttpStatusCode.Unauthorized, "{}") : SignedInWithCharacters(r));
         Assert.True(await lobby.SignIn("ada", "correct horse battery", create: false, Cancel));
         expired = true;
-        Assert.False(await lobby.Create("Élise", "female-c", "sentinel", cancel: Cancel));
+        Assert.False(await lobby.Create("Élise", "female-c", "archer", cancel: Cancel));
         Assert.Equal("lobby.session-expired", lobby.Problem);
         Assert.False(lobby.SignedIn);
     }
@@ -96,7 +113,7 @@ public partial class LobbyTests
     {
         (Lobby lobby, StandIn server) = Make(r => SignedInWithCharacters(r));
         await lobby.SignIn("ada", "correct horse battery", create: false, Cancel);
-        Assert.False(await lobby.Create("R2D2", "female-c", "sentinel", cancel: Cancel));
+        Assert.False(await lobby.Create("R2D2", "female-c", "archer", cancel: Cancel));
         Assert.Equal("lobby.name-invalid", lobby.Problem);
         Assert.Equal(3, server.Requests.Count);
     }
@@ -117,7 +134,7 @@ public partial class LobbyTests
     [Fact]
     public async Task OneServer_IsChosenAtOnce_SeveralWaitForTheChoice()
     {
-        const string characters = """[{"id":"6f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Élise","look":"female-c","class":"mage","colour":3,"createdAt":"2026-10-09T12:00:00Z","server":"osmeria","level":1},{"id":"7f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Jean-Luc","look":"male-a","class":"guard","colour":0,"createdAt":"2026-10-09T12:00:00Z","server":"brume","level":1}]""";
+        const string characters = """[{"id":"6f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Élise","look":"female-c","class":"mage","colour":3,"createdAt":"2026-10-09T12:00:00Z","server":"osmeria","level":1},{"id":"7f9619ff-8b86-d011-b42d-00c04fc964ff","name":"Jean-Luc","look":"male-a","class":"warrior","colour":0,"createdAt":"2026-10-09T12:00:00Z","server":"brume","level":1}]""";
         (Lobby one, _) = Make(r => SignedInWithCharacters(r, characters));
         await one.SignIn("ada", "correct horse battery", create: false, Cancel);
         Assert.Equal("osmeria", one.ChosenServer!.Id);
@@ -127,7 +144,7 @@ public partial class LobbyTests
         await two.SignIn("ada", "correct horse battery", create: false, Cancel);
         Assert.Null(two.ChosenServer);
         Assert.Empty(two.Here);
-        Assert.False(await two.Create("Ondine", "female-e", "sentinel", cancel: Cancel));
+        Assert.False(await two.Create("Ondine", "female-e", "archer", cancel: Cancel));
         Assert.Equal("lobby.choose-server", two.Problem);
         two.ChooseServer("brume");
         Assert.Equal("Jean-Luc", Assert.Single(two.Here).Name);

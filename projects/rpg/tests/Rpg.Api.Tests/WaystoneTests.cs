@@ -15,7 +15,7 @@ public class WaystoneTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("ws");
-        CharacterSummary c = await server.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         api.WithDb(db =>
         {
             Character me = db.Characters.First();

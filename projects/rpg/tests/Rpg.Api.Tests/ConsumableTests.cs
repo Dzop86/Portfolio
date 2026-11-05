@@ -15,7 +15,7 @@ public class ConsumableTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("pot");
-        CharacterSummary c = await server.CreateCharacter("Fiole", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Fiole", "female-c", "warrior", cancel: Cancel);
         api.WithDb(db =>
         {
             Character ch = db.Characters.Single();

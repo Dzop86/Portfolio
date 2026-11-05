@@ -963,3 +963,15 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Le gabarit en simple texte : une faute de frappe ferait deux gabarits différents et passerait la validation. Additionner les prix quand on change aussi de finale : la finale se perd au changement de lignée, il n'y a rien à payer en plus.
 
 **Limites.** Le gabarit est déclaré, pas vérifié : rien ne contrôle qu'une finale `Kill` soit bien construite sur un déclencheur d'achèvement.
+
+## T157. La Garde devient le Guerrier, la Sentinelle l'Archer (sprint 195, D96)
+
+**Décision.** Les identifiants changent partout d'un coup, comme le demande `classes-conception.md` §4.5 : `guard` devient `warrior`, `sentinel` devient `archer`, de même que les gabarits de construction (`warrior-matter`...) et les icônes (`class-warrior.svg`). Le PNJ `guard` de Clairval, un sort de test nommé `guard` et les migrations EF déjà écrites restent tels quels. La migration `ConvertClasses` renomme la classe des personnages en base et change la valeur par défaut de la colonne ; elle se défait dans l'autre sens. Le reste du personnage ne bouge pas : sorts, rangs, paquet, talents, voie, niveau et Éclats, puisque le kit, ses sorts et leur ordre sont les mêmes. La création montre les 10 classes du canon en grille de 5 × 2 (`Lobby.Roster`), celles que les données n'ont pas encore sont grisées, avec « Bientôt » au survol. Un compte peut avoir 10 personnages.
+
+**Ce que la story ne disait pas et qui est fait.** Les codes de paquet partagés commencent par la classe (`GUARD-…`) : sans rien de plus, un code donné à un ami avant la conversion ne marchait plus. `DeckCode` lit encore `GUARD` et `SENTINEL`.
+
+**Pas fait.** Les titres des voies (« Sentinelle de la Mire »...) et leurs textes restent ceux d'avant : ils changent avec le Guerrier et l'Archer (S197, S198). Le récit (les « 3 chemins » d'Anatole, Garance qui « forme les trois classes ») est à reprendre par le scénariste. La grille de création n'a été vue ni en capture ni en jeu : seuls la compilation de Godot et ses auto-tests en CI la vérifient. Plouf aura ses personnages convertis par la migration, mais pas encore un personnage par classe : il n'y a encore que 3 classes jouables.
+
+**Alternatives.** Garder `guard` et `sentinel` comme identifiants, en ne changeant que les noms affichés : moins de travail, mais `guard` voudrait dire Guerrier alors qu'un titre « Sentinelle » existe sous le Guerrier. Une table de correspondance lue à chaque chargement : elle durerait pour toujours.
+
+**Limites.** Un client d'avant la conversion ne peut plus créer de Garde ni de Sentinelle (refus du serveur), et le serveur lui renvoie des classes qu'il ne connaît pas : il faut mettre à jour le jeu en même temps que l'API. L'ordre des classes dans `classes.json` est gardé (Archer, Guerrier, Mage), si bien que les empreintes et les graines des tests ne changent pas. Le test `DungeonTests.AWonRoom_KeepsTheHitPointsLeft…` a échoué une fois sur le code d'avant la conversion lancé seul, puis passé sur le nouveau : il est instable par lui-même, cause non cherchée.

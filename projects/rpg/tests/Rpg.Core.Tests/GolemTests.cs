@@ -77,7 +77,7 @@ public class GolemTests
     {
         MonsterGroup group = Real.Groups.Values.Where(g => g.Family == "golem" && g.Monsters.Contains("slab-keeper") && g.Monsters.Contains("moss-tender"))
             .OrderBy(g => g.Monsters.Count).ThenBy(g => g.Id, StringComparer.Ordinal).First();
-        Hero hero = Progression.Built(new Hero("Essai", "female-d", "guard", Level: 35), Real);
+        Hero hero = Progression.Built(new Hero("Essai", "female-d", "warrior", Level: 35), Real);
         int strengthened = 0;
         for (ulong seed = 1; seed <= 10; seed++)
         {

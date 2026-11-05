@@ -6,7 +6,7 @@ namespace Rpg.Client.Tests;
 public class StallTests
 {
     private static CharacterSummary Someone(long shards, ItemCount[] inventory, Dictionary<Slot, string>? worn = null, int level = 20) =>
-        new(Guid.Empty, "Élise", "female-c", "guard", 0, DateTimeOffset.UnixEpoch, Level: level, Inventory: inventory, Worn: worn, Shards: shards);
+        new(Guid.Empty, "Élise", "female-c", "warrior", 0, DateTimeOffset.UnixEpoch, Level: level, Inventory: inventory, Worn: worn, Shards: shards);
 
     [Fact]
     public void TheStall_SaysTheÉclats_WhatTheyBuy_AndWhatRoseWouldTake()
@@ -27,7 +27,7 @@ public class StallTests
     [Fact]
     public void TheSheet_SaysWhatTakingPointsBackWillCost()
     {
-        var hero = new Hero("Élise", "female-c", "guard", Level: 20, Stats: new Characteristics(Vitality: 20));
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 20, Stats: new Characteristics(Vitality: 20));
         var editor = new PointsEditor(hero, GameData.Embedded);
         editor.Add(Characteristic.Earth, 5);
         Assert.Equal(0, editor.ResetCost);

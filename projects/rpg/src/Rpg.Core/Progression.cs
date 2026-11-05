@@ -146,12 +146,12 @@ public static class Progression
     /// </summary>
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> Builds = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
     {
-        ["sentinel-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
-        ["sentinel-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
-        ["sentinel-pure"] = ["long-sight", "tight-zone", "artillery"],
-        ["guard-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
-        ["guard-manner"] = ["lasting-mark", "lingering-reaction", "shared-mark"],
-        ["guard-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
+        ["archer-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["archer-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
+        ["archer-pure"] = ["long-sight", "tight-zone", "artillery"],
+        ["warrior-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["warrior-manner"] = ["lasting-mark", "lingering-reaction", "shared-mark"],
+        ["warrior-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
         ["mage-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["mage-pure"] = ["side-step", "remanence", "scorched-earth"],
@@ -161,8 +161,8 @@ public static class Progression
     /// <summary>The compounds a reference build creates (sprint 182, D93): Lightning for the builds of Matter, none for the others.</summary>
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<Element>> BuildCompounds = new Dictionary<string, IReadOnlyList<Element>>(StringComparer.Ordinal)
     {
-        ["sentinel-matter"] = [Element.Lightning],
-        ["guard-matter"] = [Element.Lightning],
+        ["archer-matter"] = [Element.Lightning],
+        ["warrior-matter"] = [Element.Lightning],
         ["mage-matter"] = [Element.Lightning],
     };
 

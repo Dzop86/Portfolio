@@ -19,7 +19,7 @@ public class AchievementTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("succes");
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         AchievementView fresh = await server.Achievements(c.Id, Cancel);
         Assert.Equal(Achievements.All.Count, fresh.Progress.Count);
         Assert.DoesNotContain(fresh.Progress, p => p.Earned);
@@ -51,7 +51,7 @@ public class AchievementTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("reclame");
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ClaimAchievement(c.Id, "woods-all", Cancel)));
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ClaimAchievement(c.Id, null, Cancel)));
         // Clairval's first steps, done before the rewards existed: claimable all the same.
@@ -83,7 +83,7 @@ public class AchievementTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("deuxfois");
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         api.WithDb(db =>
         {
             db.Characters.Single().ContractsDone = 10;

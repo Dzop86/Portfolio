@@ -187,7 +187,7 @@ public class MonsterTests
         Assert.Null(Real.FindScenario("group:nowhere.0"));
         Assert.Same(Real.Scenarios["training"], Real.FindScenario("training"));
 
-        Hero hero = Progression.Built(new Hero("Essai", "female-d", "guard", Level: 5), Real);
+        Hero hero = Progression.Built(new Hero("Essai", "female-d", "warrior", Level: 5), Real);
         var fight = new Fight(Real, g.Scenario, 4, hero);
         Ai.PlayOut(fight);
         FightRecord record = FightRecord.Of(fight);

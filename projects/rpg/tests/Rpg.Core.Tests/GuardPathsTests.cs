@@ -13,7 +13,7 @@ public class GuardPathsTests
     private static readonly Spell Shove = new("t-shove", Text, 1, 1, 3, false, false, 0, 0, 9, Effects: [new PushEffect(Affects.Enemies, 2)]);
 
     private static Hero Guard(string? spec, string? fork, int level, params string[] deck) =>
-        new("Ondine", "female-a", "guard", Level: level, Stats: new Characteristics(Earth: 50), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
+        new("Ondine", "female-a", "warrior", Level: level, Stats: new Characteristics(Earth: 50), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
 
     private static GameData With(string[] rows, FighterSpec[] fighters) =>
         new([.. Real.Spells.Values, Blow, Slam, Shove], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], Real.Classes,
@@ -33,7 +33,7 @@ public class GuardPathsTests
     [Fact]
     public void EveryLeaf_HasItsThreeSpells_AndItsTitle()
     {
-        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "guard"))
+        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "warrior"))
         {
             Assert.Equal(2, s.Base.Spells!.Count);
             Assert.All(s.Forks, f => Assert.Equal(3, s.SpellsWith(f.Id).Count()));
@@ -302,10 +302,10 @@ public class GuardPathsTests
     }
 
     [Theory]
-    [InlineData("guard", "breach", null, 35, "quake")]
-    [InlineData("guard", "grip", "jailer", 50, "quake")]
-    [InlineData("sentinel", "trail", null, 35, "rockfall")]
-    [InlineData("sentinel", "sightline", "marksman", 50, "rockfall")]
+    [InlineData("warrior", "breach", null, 35, "quake")]
+    [InlineData("warrior", "grip", "jailer", 50, "quake")]
+    [InlineData("archer", "trail", null, 35, "rockfall")]
+    [InlineData("archer", "sightline", "marksman", 50, "rockfall")]
     public void APathsSpells_DoNotPushTheClasssBestAreaOutOfTheAutomaticDeck(string cls, string spec, string? fork, int level, string area)
     {
         // Sprint 193 (T152): they took the places of the last spells unlocked, Quake and Rockfall, 3 wins of 80 against 16 for a Guard of the Breach.
@@ -327,7 +327,7 @@ public class GuardPathsTests
     public void APathsSpells_LeaveTheSpellsOfTheHerosBestElement(string spec, string? fork, int level)
     {
         // Sprint 194 (T154): a Sentinel built on Earth lost Heavy Shot on every path; given back, it won 4 to 20 points more of 100.
-        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "sentinel", Level: level), Real);
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "archer", Level: level), Real);
         Assert.True(hero.Stats!.Earth > hero.Stats.Fire);
         Assert.Contains("heavy-shot", (hero with { Spec = spec, Fork = fork }).DeckOf(Real));
     }
@@ -336,7 +336,7 @@ public class GuardPathsTests
     public void APathsSpells_LeaveWhatTheHeroHasPointsIn_NotAFixedList()
     {
         // The same path, the same level: all the points in Fire, and Heavy Shot is no longer what is kept over Fire's spells.
-        Hero built = Progression.Built(new Hero("Ondine", "female-a", "sentinel", Level: 50), Real);
+        Hero built = Progression.Built(new Hero("Ondine", "female-a", "archer", Level: 50), Real);
         Hero fire = built with { Stats = new Characteristics(Fire: built.Stats!.Earth + built.Stats.Fire + built.Stats.Water + built.Stats.Air), Spec = "ambush", Fork = "trapper" };
         IReadOnlyList<string> deck = fire.DeckOf(Real);
         Assert.Contains("fire-arrow", deck);
@@ -346,7 +346,7 @@ public class GuardPathsTests
     [Fact]
     public void WithoutAPath_TheAutomaticDeck_DoesNotChange()
     {
-        var hero = new Hero("Ondine", "female-a", "guard", Level: 60);
+        var hero = new Hero("Ondine", "female-a", "warrior", Level: 60);
         Assert.Equal(hero.FirstSpells(Real).Count, hero.DeckOf(Real).Count);
         Assert.Equal(Hero.DeckSize, hero.DeckOf(Real).Count);
     }
@@ -354,7 +354,7 @@ public class GuardPathsTests
     public static TheoryData<string, string?, int> Leaves()
     {
         var leaves = new TheoryData<string, string?, int>();
-        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "guard"))
+        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "warrior"))
         {
             leaves.Add(s.Id, null, 40);
             foreach (SpecFork f in s.Forks)
@@ -370,7 +370,7 @@ public class GuardPathsTests
     [MemberData(nameof(Leaves))]
     public void EveryLeaf_PlaysOut_AndReplaysTheSame(string spec, string? fork, int level)
     {
-        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "guard", Level: level, Spec: spec, Fork: fork), Real);
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "warrior", Level: level, Spec: spec, Fork: fork), Real);
         Assert.Null(hero.Problem(Real));
         var fight = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(fight);

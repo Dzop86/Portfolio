@@ -60,7 +60,7 @@ public class FightSummaryTests
         // Sprint 161 (the game designer's decision): from 39 to 40 a Sentinel without a chosen deck gets Searing Shot in the
         // cell of Ember Volley; the window says it. A chosen deck never moves, and nothing is said.
         var texts = new Texts(lang);
-        var hero = new Hero("Ronce", "female-c", "sentinel", Level: 39);
+        var hero = new Hero("Ronce", "female-c", "archer", Level: 39);
         Assert.Equal([said], texts.DeckNews(hero, 40));
         Assert.Empty(texts.DeckNews(hero, 39));
         Assert.Empty(texts.DeckNews(hero with { Deck = hero.DeckOf(Data) }, 40));
@@ -113,7 +113,7 @@ public class FightSummaryTests
     public void TheEndWindow_SaysTheLifeKept_1IfLost()
     {
         // Sprint 101 (D73): the hit points the hero keeps for the next fight.
-        var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 5), GameData.Embedded);
+        var hero = Progression.Built(new Hero("Élise", "female-c", "warrior", Level: 5), GameData.Embedded);
         var fight = new Fight(GameData.Embedded, "training", 1, hero);
         Ai.PlayOut(fight);
         SummaryRow row = new FightSummary(fight, 0, null, new Texts("fr")).Winners.Concat(new FightSummary(fight, 0, null, new Texts("fr")).Losers).Single(r => r.IsPlayer);

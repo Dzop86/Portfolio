@@ -5,7 +5,7 @@ namespace Rpg.Client.Tests;
 /// <summary>The characteristics sheet (sprint 64): points put in, points worn, and what they give.</summary>
 public class SheetTests
 {
-    private static Hero Guard(Dictionary<Slot, string>? worn = null) => new("Élise", "female-c", "guard", Level: 10,
+    private static Hero Guard(Dictionary<Slot, string>? worn = null) => new("Élise", "female-c", "warrior", Level: 10,
         Stats: new Characteristics(Vitality: 20, Earth: 30, Water: 9), Worn: worn);
 
     [Fact]
@@ -39,7 +39,7 @@ public class SheetTests
     public void PastTwiceTheLevel_TheSheetSaysWhatCounts_AndTheSpellBookAgrees()
     {
         // Sprint 162 (D85): at 50, 245 Earth count as 177, +34 damage; the line says "245 (177)" and why, in both languages.
-        Hero hero = new("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Earth: 245));
+        Hero hero = new("Élise", "female-c", "warrior", Level: 50, Stats: new Characteristics(Earth: 245));
         SheetLine earth = new CharacterSheet(hero, GameData.Embedded)[Characteristic.Earth];
         Assert.Equal((245, 177, 34), (earth.Total, earth.Effective, earth.Bonus));
         Assert.Equal("245 (177)", new Texts("fr")["sheet.effective", 245, 177]);

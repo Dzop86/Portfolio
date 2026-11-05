@@ -806,7 +806,7 @@ public sealed class Fight
     /// (<see cref="Talents.Percent"/>), apart from its statuses. A hero's trunk (sprint 146, D82) adds its own percent to every
     /// hit, neutral ones included, outside the talents' ceiling.
     /// </summary>
-    /// <param name="guard">The target's resistance from its talents (Backed, sprint 142), within the ceiling of 90.</param>
+    /// <param name="warrior">The target's resistance from its talents (Backed, sprint 142), within the ceiling of 90.</param>
     public static int Damage(int roll, Fighter caster, Fighter target, Element element, bool direct = false, HitContext? context = null, int guard = 0,
         bool bonus = true)
     {

@@ -17,7 +17,7 @@ public class HarvestTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("har");
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         HarvestNode oak = GameData.Embedded.Nodes.Values.First(n => n.Level == 1 && n.Kind == NodeKind.Tree);
         HarvestNode? hazel = GameData.Embedded.Nodes.Values.FirstOrDefault(n => n.Level == 5 && n.Map == oak.Map);
         Cell next = oak.At.Neighbours().First(GameData.Embedded.Towns[oak.Map].CanStand);

@@ -22,10 +22,10 @@ public class AdminTests
         Assert.Null(Admin.Parse(["admin", "tester", "--give", "dagger:0"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--fly"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester"]).Order);
-        Assert.Equal([new NewHero("guard", "Ondine")], Admin.Parse(["admin", "tester", "--create", "guard:Ondine"]).Order!.Create);
+        Assert.Equal([new NewHero("warrior", "Ondine")], Admin.Parse(["admin", "tester", "--create", "warrior:Ondine"]).Order!.Create);
         Assert.Null(Admin.Parse(["admin", "tester", "--create", "dragon:Ondine"]).Order);
-        Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard:ondine"]).Order);
-        Assert.Null(Admin.Parse(["admin", "tester", "--create", "guard"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--create", "warrior:ondine"]).Order);
+        Assert.Null(Admin.Parse(["admin", "tester", "--create", "warrior"]).Order);
         Assert.Equal([new Renaming("plop", "Plop")], Admin.Parse(["admin", "tester", "--rename", "plop:Plop"]).Order!.Rename);
         Assert.Null(Admin.Parse(["admin", "tester", "--rename", "Plop:pl0p"]).Order);
         Assert.Null(Admin.Parse(["admin", "tester", "--rename", "Plop"]).Order);
@@ -56,7 +56,7 @@ public class AdminTests
         GameServer server = await api.SignedIn("adm");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         await server.CreateCharacter("Aube", "female-c", "mage", cancel: Cancel);
-        await server.CreateCharacter("Brume", "female-c", "guard", cancel: Cancel);
+        await server.CreateCharacter("Brume", "female-c", "warrior", cancel: Cancel);
         IReadOnlyList<string> said;
         using (IServiceScope scope = api.Services.CreateScope())
             said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(),
@@ -94,7 +94,7 @@ public class AdminTests
         GameServer server = await api.SignedIn("adm");
         // Its own database: the only account there.
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        foreach ((string name, string cls) in new[] { ("Aube", "sentinel"), ("Brume", "guard"), ("Cendre", "mage") })
+        foreach ((string name, string cls) in new[] { ("Aube", "archer"), ("Brume", "warrior"), ("Cendre", "mage") })
             await server.CreateCharacter(name, "female-c", cls, cancel: Cancel);
         IReadOnlyList<string> said;
         using (IServiceScope scope = api.Services.CreateScope())
@@ -127,15 +127,15 @@ public class AdminTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("adm");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        await server.CreateCharacter("Aube", "female-c", "sentinel", cancel: Cancel);
-        AdminOrder order = Admin.Parse(["admin", account, "--create", "guard:Brume", "--create", "mage:Aube", "--level", "100", "--give", "admin-keyring"]).Order!;
+        await server.CreateCharacter("Aube", "female-c", "archer", cancel: Cancel);
+        AdminOrder order = Admin.Parse(["admin", account, "--create", "warrior:Brume", "--create", "mage:Aube", "--level", "100", "--give", "admin-keyring"]).Order!;
         IReadOnlyList<string> said;
         using (IServiceScope scope = api.Services.CreateScope())
             said = await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), order, Cancel);
-        // Aube is taken: the guard alone is created, and both reach the level with the keyring.
+        // Aube is taken: the warrior alone is created, and both reach the level with the keyring.
         Assert.Contains("Aube: not created, the name is taken.", said);
         IReadOnlyList<CharacterSummary> all = await server.Characters(Cancel);
-        Assert.Equal([("Aube", "sentinel"), ("Brume", "guard")], all.Select(c => (c.Name, c.Class)));
+        Assert.Equal([("Aube", "archer"), ("Brume", "warrior")], all.Select(c => (c.Name, c.Class)));
         Assert.All(all, c =>
         {
             Assert.Equal(100, c.Level);
@@ -149,8 +149,8 @@ public class AdminTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("adm");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        await server.CreateCharacter("Aube", "female-c", "sentinel", cancel: Cancel);
-        await server.CreateCharacter("Brume", "female-c", "guard", cancel: Cancel);
+        await server.CreateCharacter("Aube", "female-c", "archer", cancel: Cancel);
+        await server.CreateCharacter("Brume", "female-c", "warrior", cancel: Cancel);
         // A name of the old rule, as some characters still have: changed in the base for the test.
         api.WithDb(db =>
         {

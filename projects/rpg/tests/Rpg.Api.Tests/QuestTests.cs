@@ -26,7 +26,7 @@ public class QuestTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("que");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "no-such-quest", Cancel)));
         // Garance's first lesson comes after Aubin's welcome (sprint 107); her edge of the woods, at level 4 after the registry.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.TakeQuest(c.Id, "first-lesson", Cancel)));
@@ -87,7 +87,7 @@ public class QuestTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("key");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         await Give(api, account, 8);
         api.WithDb(db =>
         {
@@ -108,7 +108,7 @@ public class QuestTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("clu");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         // After the loft's rats and Rose's stall, from level 3 (sprint 107).
         await Give(api, account, 3);
         api.WithDb(db =>
@@ -154,7 +154,7 @@ public class QuestTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("rat");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         await Give(api, account, 30);
         async Task<FightResult> Rats()
         {

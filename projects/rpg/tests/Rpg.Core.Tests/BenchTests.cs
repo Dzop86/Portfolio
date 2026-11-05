@@ -9,21 +9,21 @@ public class BenchTests
     [Fact]
     public void ThePaths_AreTheBranchesBeforeFifty_AndTheLineagesFromIt()
     {
-        Assert.Equal(3, Bench.PathsOf("guard", 35, Real).Count);
-        Assert.All(Bench.PathsOf("guard", 35, Real), p => Assert.Null(p.Fork));
-        Assert.Equal(6, Bench.PathsOf("guard", 50, Real).Count);
-        Assert.All(Bench.PathsOf("guard", 50, Real), p => Assert.NotNull(p.Fork));
+        Assert.Equal(3, Bench.PathsOf("warrior", 35, Real).Count);
+        Assert.All(Bench.PathsOf("warrior", 35, Real), p => Assert.Null(p.Fork));
+        Assert.Equal(6, Bench.PathsOf("warrior", 50, Real).Count);
+        Assert.All(Bench.PathsOf("warrior", 50, Real), p => Assert.NotNull(p.Fork));
     }
 
     [Fact]
     public void AClass_IsMeasured_ThePlainHeroAndEachPath_TheSameFromOneRunToTheNext()
     {
-        BenchReport report = Bench.Run(At35, "guard", 2, sample: 2);
+        BenchReport report = Bench.Run(At35, "warrior", 2, sample: 2);
         Assert.Equal(2, report.Groups);
         Assert.Null(report.Plain.Path);
         Assert.Equal(3, report.Paths.Count);
         Assert.All(report.Paths, p => Assert.InRange(p.Points, 0, 100));
-        BenchReport again = Bench.Run(At35, "guard", 2, sample: 2);
+        BenchReport again = Bench.Run(At35, "warrior", 2, sample: 2);
         Assert.Equal(report.Paths.Select(p => p.Points), again.Paths.Select(p => p.Points));
         Assert.Equal(report.Paths.Select(p => p.Casts.Values.Sum()), again.Paths.Select(p => p.Casts.Values.Sum()));
     }
@@ -54,7 +54,7 @@ public class BenchTests
     {
         var empty = new Dictionary<string, double>();
         BenchRow Row(double points) => new("p", points, empty);
-        var report = new BenchReport("guard", 35, 1, 1, Row(20), [Row(10), Row(20), Row(60)]);
+        var report = new BenchReport("warrior", 35, 1, 1, Row(20), [Row(10), Row(20), Row(60)]);
         Assert.Equal(30, report.Mean);
         Assert.Equal(30, report.Spread);
     }
@@ -62,8 +62,8 @@ public class BenchTests
     [Fact]
     public void AReferenceDeck_ReplacesTheAutomaticOne_ThePathsSpellsAdded()
     {
-        string[] deck = [.. Real.Class("guard")!.Spells.Where(s => Real.Spells[s].Level <= 10).Take(4)];
-        BenchReport report = Bench.Run(At35, "guard", 1, sample: 1, deck: deck);
+        string[] deck = [.. Real.Class("warrior")!.Spells.Where(s => Real.Spells[s].Level <= 10).Take(4)];
+        BenchReport report = Bench.Run(At35, "warrior", 1, sample: 1, deck: deck);
         Assert.All(report.Paths, p => Assert.NotEmpty(p.Casts));
     }
 
@@ -71,8 +71,8 @@ public class BenchTests
     public void AReferenceDeck_LeavesOutWhatTheLevelHasNotUnlocked_AndStillPlays()
     {
         // Titan Blow comes at 60: the same list serves at every level of the bench, instead of a refused hero.
-        string[] deck = ["titan-blow", .. Real.Class("guard")!.Spells.Where(s => Real.Spells[s].Level <= 10)];
-        BenchReport report = Bench.Run(At35, "guard", 1, sample: 1, deck: deck);
+        string[] deck = ["titan-blow", .. Real.Class("warrior")!.Spells.Where(s => Real.Spells[s].Level <= 10)];
+        BenchReport report = Bench.Run(At35, "warrior", 1, sample: 1, deck: deck);
         Assert.All(report.Paths, p => Assert.DoesNotContain("titan-blow", p.Casts.Keys));
         Assert.InRange(report.Plain.Points, 0, 100);
     }

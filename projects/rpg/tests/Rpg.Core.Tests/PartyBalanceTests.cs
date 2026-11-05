@@ -102,7 +102,7 @@ public class PartyBalanceTests
         {
             string first = classes[i % classes.Length];
             Hero striker = Progression.Talented(new Hero(Names[0], "female-c", first, Level: level), $"{first}-{(i % 2 == 0 ? "matter" : "manner")}", Real, worn);
-            Hero guard = Progression.Talented(new Hero(Names[1], "female-c", "guard", Level: level), "guard-matter", Real, worn);
+            Hero guard = Progression.Talented(new Hero(Names[1], "female-c", "warrior", Level: level), "warrior-matter", Real, worn);
             var fight = new Fight(Real, scenario, 1 + (ulong)i, striker, null, null, [palisade ? guard with { Spec = "palisade" } : guard]);
             Ai.PlayOut(fight);
             if (fight.WinningTeam == 0)

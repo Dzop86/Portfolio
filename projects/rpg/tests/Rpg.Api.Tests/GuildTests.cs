@@ -56,7 +56,7 @@ public class GuildTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("gu"), sb = await api.SignedIn("gu");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         string square = GuildRules.RegistrarMap(GameData.Embedded)!;
         Assert.Equal("clairval", square);
@@ -114,7 +114,7 @@ public class GuildTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("gr"), sb = await api.SignedIn("gr"), sc = await api.SignedIn("gr");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         CharacterSummary cendre = await sc.CreateCharacter("Cendre", "male-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id), b = await Connect(api, sb, brume.Id), c = await Connect(api, sc, cendre.Id);
@@ -159,7 +159,7 @@ public class GuildTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("gd"), sb = await api.SignedIn("gd");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         ChatClient b = await Connect(api, sb, brume.Id);
         GiveShards(api, "Aube", GuildRules.Price);
@@ -190,7 +190,7 @@ public class GuildTests
             {
                 // Names of letters only, one a member.
                 string name = "Veilleur" + new string((char)('a' + (i / 26)), 1) + (char)('a' + (i % 26));
-                var c = new Rpg.Api.Data.Character { AccountId = account.Id, Name = name, NormalizedName = name.ToUpperInvariant(), Look = "female-c", Class = "guard" };
+                var c = new Rpg.Api.Data.Character { AccountId = account.Id, Name = name, NormalizedName = name.ToUpperInvariant(), Look = "female-c", Class = "warrior" };
                 db.Characters.Add(c);
                 db.GuildMembers.Add(new Rpg.Api.Data.GuildMemberRecord { CharacterId = c.Id, GuildId = guild.Id, Rank = i == 0 ? GuildRank.Leader : GuildRank.Member, JoinedAt = DateTimeOffset.UnixEpoch.AddMinutes(i) });
                 if (i == 0)

@@ -8,7 +8,7 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class TemplateTests
 {
-    private static readonly string[] Classes = ["sentinel", "guard", "mage"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage"];
 
     [Theory]
     [InlineData(MonsterRole.Melee, 70)]
@@ -88,8 +88,8 @@ public class TemplateTests
     }
 
     [Theory]
-    [InlineData("sentinel", "rockfall", "searing-shot", "venom-arrow")]
-    [InlineData("guard", "quake", "smite", "groundswell")]
+    [InlineData("archer", "rockfall", "searing-shot", "venom-arrow")]
+    [InlineData("warrior", "quake", "smite", "groundswell")]
     [InlineData("mage", "landslide", "meteor", "freeze")]
     public void EveryClass_OpensASpellAtThirtyFive_Forty_AndFortyFive(string id, string at35, string at40, string at45)
     {
@@ -100,8 +100,8 @@ public class TemplateTests
     }
 
     [Theory]
-    [InlineData("sentinel", "gale", "focus", "stake")]
-    [InlineData("guard", "cyclone-blade", "war-cry", "titan-blow")]
+    [InlineData("archer", "gale", "focus", "stake")]
+    [InlineData("warrior", "cyclone-blade", "war-cry", "titan-blow")]
     [InlineData("mage", "cyclone", "renewal", "fault-line")]
     public void EveryClass_OpensASpellAtFifty_FiftyFive_AndSixty(string id, string at50, string at55, string at60)
     {
@@ -187,7 +187,7 @@ public class TemplateTests
         // kits against the hordes; the tree is worth at most +10 % of victories against the small groups (§2.3).
         var family = new SyntheticFamily(35);
         var few = family.Groups.Where(g => g.Size <= 3).ToArray();
-        Hero bare = family.Hero("sentinel", "none");
+        Hero bare = family.Hero("archer", "none");
         Hero tree = bare with { Talents = ["up-close"] };
         int[] without = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, bare, 30))];
         int[] with = [.. few.AsParallel().AsOrdered().Select(g => family.Wins(g.Scenario, tree, 30))];
@@ -196,7 +196,7 @@ public class TemplateTests
         Assert.True(with.Average() <= without.Average() + 3, report);
         foreach (string kit in new[] { "none", "zone", "craft" })
         {
-            Hero worn = family.Hero("sentinel", kit) with { Talents = ["up-close"] };
+            Hero worn = family.Hero("archer", kit) with { Talents = ["up-close"] };
             double large = family.Groups.Where(g => g.Size >= 6 && !(kit == "craft" && g.InTheOpen)).AsParallel().Select(g => family.Wins(g.Scenario, worn, 10)).Average();
             Assert.True(large <= (kit == "none" ? 3 : 2), $"hordes, kit {kit}, {large:0.0} of 10; {report}");
         }
@@ -279,12 +279,12 @@ public class TemplateTests
     }
 
     [Theory]
-    [InlineData("sentinel", 35)]
-    [InlineData("sentinel", 45)]
-    [InlineData("sentinel", 50)]
-    [InlineData("guard", 35)]
-    [InlineData("guard", 45)]
-    [InlineData("guard", 50)]
+    [InlineData("archer", 35)]
+    [InlineData("archer", 45)]
+    [InlineData("archer", 50)]
+    [InlineData("warrior", 35)]
+    [InlineData("warrior", 45)]
+    [InlineData("warrior", 50)]
     public void AClasssPaths_AreWorthAlike_AgainstTheMiddleGroups(string cls, int level)
     {
         // Sprint 193 (D96, `docs/classes-conception.md` §7.2): the CI's fence, on a sample of 8 groups and 15 fights a group, whatever the number of classes: about 9 points of

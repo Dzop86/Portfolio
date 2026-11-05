@@ -25,8 +25,8 @@ public class CompoundsConsumeTests
 
     [Theory]
     [InlineData("mage")]
-    [InlineData("guard")]
-    [InlineData("sentinel")]
+    [InlineData("warrior")]
+    [InlineData("archer")]
     public void ThePairs_LeaveABookOfTwentyFourSpells(string cls)
     {
         var hero = new Hero("Ondine", "female-a", cls, Level: 100);
@@ -37,8 +37,8 @@ public class CompoundsConsumeTests
 
     [Theory]
     [InlineData("mage")]
-    [InlineData("guard")]
-    [InlineData("sentinel")]
+    [InlineData("warrior")]
+    [InlineData("archer")]
     public void ATrio_LeavesABookOfTwentyFourSpells_Too(string cls)
     {
         var hero = new Hero("Ondine", "female-a", cls, Level: 100);

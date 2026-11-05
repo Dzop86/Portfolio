@@ -92,7 +92,7 @@ public partial class Main : Node3D
         else if (_options.Shot is "move" or "spell" && _options.Screenshot is not null)
         {
             // The pictures of the project page: a tenth-level sentinel and its deck, icons and colours shown.
-            StartFight(new Hero("Aubépine", "female-b", "sentinel", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
+            StartFight(new Hero("Aubépine", "female-b", "archer", 5, 5, 4, -1, 1, Level: 10, Stats: new Characteristics(Earth: 30, Fire: 40)), _options.Scenario);
         }
         else if (_options.TownSelfTest || _options.Shot is "spec" or "spec-confirm" or "elements" or "town" or "banner" or "menu" or "tree" or "zone" or "world" or "achievements" or "achievements-list" or "achievements-crown" or "guild" or "ride" or "inventory")
         {
@@ -101,7 +101,7 @@ public partial class Main : Node3D
                 (_zone, _place) = ("woods-2-2", new Cell(8, 5));
             // On the donkey (sprint 179), the kitten at its side (sprint 181).
             if (_options.Shot == "ride")
-                _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey", [Slot.Pet] = "kitten" });
+                _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey", [Slot.Pet] = "kitten" });
             ShowTown();
         }
         else if (_options.LobbySelfTest || _options.Shot is "lobby" or "create")
@@ -830,7 +830,7 @@ public partial class Main : Node3D
     private void CheckFightWindows(List<string> problems)
     {
         Hero? before = _hero;
-        _hero ??= _controller.Fight.Hero ?? new Hero("Essai", "female-b", "guard", Level: 10);
+        _hero ??= _controller.Fight.Hero ?? new Hero("Essai", "female-b", "warrior", Level: 10);
         _UnhandledInput(new InputEventKey { Pressed = true, Keycode = Key.C });
         if (_pointsPanel?.Editor.ReadOnly != true)
             problems.Add("C does not show the characteristics, to look at only, in a fight");
@@ -1179,7 +1179,7 @@ public partial class Main : Node3D
     {
         LobbyView view = _lobbyView!;
         await _lobby!.SignIn("capture_" + Guid.NewGuid().ToString("N")[..8], "screenshot password", create: true);
-        foreach (Hero h in new[] { new Hero("Ondine", "female-e", "sentinel", 0, 3, 0, 0, 0), new Hero("Élise", "female-c", "mage", 4, 7, 1, -1, 0), new Hero("Bastien", "male-c", "guard", 2, 1, 4, 2, 2) })
+        foreach (Hero h in new[] { new Hero("Ondine", "female-e", "archer", 0, 3, 0, 0, 0), new Hero("Élise", "female-c", "mage", 4, 7, 1, -1, 0), new Hero("Bastien", "male-c", "warrior", 2, 1, 4, 2, 2) })
         {
             view.OpenCreate();
             view.CharacterField.Text = h.Name;
@@ -1198,7 +1198,7 @@ public partial class Main : Node3D
             view.OpenCreate();
             view.CharacterField.Text = "Aubépine";
             view.SelectLook("female-b");
-            view.SelectClass("guard");
+            view.SelectClass("warrior");
             view.ChooseColour(5);
             view.ChooseHair(5);
             view.ChooseSkin(4);

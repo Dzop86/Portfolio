@@ -8,14 +8,14 @@ public class BookTests
     private static GameData Data => GameData.Embedded;
     private static readonly string[] Samples = ["copper-ring", "orc-club", "bread", "orc-fang", "garance-badge"];
 
-    private static PointsEditor Guard() => new(new Hero("Élise", "female-c", "guard", Level: 10,
+    private static PointsEditor Guard() => new(new Hero("Élise", "female-c", "warrior", Level: 10,
         Stats: new Characteristics(Earth: 25), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 }), Data);
 
     [Fact]
     public void TheBook_ListsEveryClassSpell_TheLockedOnesToo_InTheOrderTheyUnlock()
     {
         var book = new SpellBook(Guard());
-        Assert.Equal(Data.Class("guard")!.Spells, book.Spells.Select(s => s.Spell.Id));
+        Assert.Equal(Data.Class("warrior")!.Spells, book.Spells.Select(s => s.Spell.Id));
         // Five at level 1, one at 5, one at 10: seven for a tenth-level hero.
         Assert.Equal(7, book.Spells.Count(s => s.Unlocked));
         Assert.All(book.Spells.Where(s => !s.Unlocked), s => Assert.True(s.Spell.Level > 10));
@@ -98,7 +98,7 @@ public class BookTests
         Assert.DoesNotContain(new Texts("en").SpellDetails(wind, new Characteristics(Fire: 20)), l => l.Contains("damage", StringComparison.Ordinal));
         Assert.Contains(new Texts("en").SpellDetails(wind, new Characteristics(Fire: 20)), l => l.StartsWith("heal 10 to 14", StringComparison.Ordinal));
         // Every spell of every class has its details in both languages.
-        foreach (string c in new[] { "sentinel", "guard", "mage" })
+        foreach (string c in new[] { "archer", "warrior", "mage" })
         {
             var b = new SpellBook(new PointsEditor(new Hero("x", "female-a", c, Level: 100), Data));
             foreach (BookSpell s in b.Spells)

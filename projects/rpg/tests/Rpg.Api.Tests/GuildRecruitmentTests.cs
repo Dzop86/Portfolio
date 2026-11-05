@@ -50,7 +50,7 @@ public class GuildRecruitmentTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("rc"), sb = await api.SignedIn("rc"), sc = await api.SignedIn("rc");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         CharacterSummary cendre = await sc.CreateCharacter("Cendre", "male-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id);
@@ -115,7 +115,7 @@ public class GuildRecruitmentTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("pt");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         api.WithDb(db =>
         {
             Rpg.Api.Data.Character ch = db.Characters.Single();

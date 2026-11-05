@@ -9,8 +9,8 @@ public class PetsTests
     [Fact]
     public void ThePetWorn_IsTheOneInItsSlot()
     {
-        Assert.Equal("kitten", Pets.Worn(new Hero("Élise", "female-c", "guard", Worn: new Dictionary<Slot, string> { [Slot.Pet] = "kitten", [Slot.Mount] = "donkey" })));
-        Assert.Null(Pets.Worn(new Hero("Élise", "female-c", "guard")));
+        Assert.Equal("kitten", Pets.Worn(new Hero("Élise", "female-c", "warrior", Worn: new Dictionary<Slot, string> { [Slot.Pet] = "kitten", [Slot.Mount] = "donkey" })));
+        Assert.Null(Pets.Worn(new Hero("Élise", "female-c", "warrior")));
         Assert.Null(Pets.Worn(null));
     }
 

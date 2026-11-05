@@ -41,12 +41,12 @@ public partial class TreeGuideTests
     }
 
     [Theory]
-    [InlineData("sentinel-matter", "Tempo")]
-    [InlineData("sentinel-manner", "Mêlée")]
-    [InlineData("sentinel-pure", "Distance")]
-    [InlineData("guard-matter", "Tempo")]
-    [InlineData("guard-manner", "Alchimie")]
-    [InlineData("guard-pure", "Terrain")]
+    [InlineData("archer-matter", "Tempo")]
+    [InlineData("archer-manner", "Mêlée")]
+    [InlineData("archer-pure", "Distance")]
+    [InlineData("warrior-matter", "Tempo")]
+    [InlineData("warrior-manner", "Alchimie")]
+    [InlineData("warrior-pure", "Terrain")]
     [InlineData("mage-matter", "Tempo")]
     [InlineData("mage-manner", "Tempo")]
     [InlineData("mage-pure", "Terrain")]

@@ -91,7 +91,7 @@ public class ClassRulesTests
     [Fact]
     public void ARival_PlaysTeamB_AndTheRecordKeepsIt()
     {
-        var f = new Fight(Real, "duel", 6, new Hero("Ondine", "female-e", "guard", Level: 40), new Hero("Élise", "female-c", "mage", Level: 40));
+        var f = new Fight(Real, "duel", 6, new Hero("Ondine", "female-e", "warrior", Level: 40), new Hero("Élise", "female-c", "mage", Level: 40));
         Fighter rival = f.Fighters.First(x => x.Team == 1);
         HeroClass mage = Real.Class("mage")!;
         Assert.Equal(("Élise", mage.Ap, (mage.Hp + mage.HpPerLevel * 39) * 105 / 100), (rival.Name.Fr, rival.Spec.Ap, rival.MaxHp));

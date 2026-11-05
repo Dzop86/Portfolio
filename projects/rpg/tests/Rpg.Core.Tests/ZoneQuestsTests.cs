@@ -89,7 +89,7 @@ public class ZoneQuestsTests
     public void TheOldLoners_AreCountedByTheirKind()
     {
         MonsterGroup loners = Real.Groups.Values.First(g => g.Monsters.Contains("old-loner") && g.Fight is null);
-        var won = new Fight(Real, loners.Scenario, 1, Progression.Built(new Hero("Essai", "female-d", "guard", Level: 30), Real));
+        var won = new Fight(Real, loners.Scenario, 1, Progression.Built(new Hero("Essai", "female-d", "warrior", Level: 30), Real));
         Ai.PlayOut(won);
         Assert.Equal(0, won.WinningTeam);
         Quest quest = Real.Quests["the-old-loner"];

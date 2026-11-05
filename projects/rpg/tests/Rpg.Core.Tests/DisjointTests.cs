@@ -8,7 +8,7 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class DisjointTests
 {
-    private static readonly Hero Guard = Progression.Built(new Hero("Essai", "female-d", "guard", Level: 30), Real);
+    private static readonly Hero Guard = Progression.Built(new Hero("Essai", "female-d", "warrior", Level: 30), Real);
 
     [Fact]
     public void TheDisjoint_LosesFifteenHitPointsAtTheStartOfEachOfItsTurns()
@@ -31,7 +31,7 @@ public class DisjointTests
         // A death that ends the fight sets off no passive (sprint 90): it splits below a tenth of its hit points.
         PassiveSpec rupture = Real.Passives["rupture"];
         Assert.Equal((Trigger.LowHp, 10, AreaShape.Circle, 2, 15, 20), (rupture.Trigger, rupture.Percent, rupture.Area!.Shape, rupture.Area.Radius, rupture.DamageMin, rupture.DamageMax));
-        var fight = new Fight(Real, "the-disjoint", 2, Progression.Built(new Hero("Essai", "female-d", "sentinel", Level: 30), Real, Progression.Kit("craft", "fields", 30, Real)));
+        var fight = new Fight(Real, "the-disjoint", 2, Progression.Built(new Hero("Essai", "female-d", "archer", Level: 30), Real, Progression.Kit("craft", "fields", 30, Real)));
         Ai.PlayOut(fight);
         Assert.Equal(0, fight.WinningTeam);
         Assert.Contains(fight.Events, e => e is PassiveTriggered { Passive: "rupture" });

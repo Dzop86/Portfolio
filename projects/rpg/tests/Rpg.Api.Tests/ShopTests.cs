@@ -18,7 +18,7 @@ public class ShopTests
         var api = new ApiFactory();
         GameServer server = await api.SignedIn("sho");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, level, items), Cancel);
         api.WithDb(db =>

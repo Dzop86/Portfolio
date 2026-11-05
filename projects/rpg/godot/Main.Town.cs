@@ -2774,11 +2774,11 @@ public partial class Main
         AddChild(banner);
         banner.Build(texts);
         Guid lead = Guid.NewGuid();
-        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "guard", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]));
+        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "warrior", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]));
         if (!banner.Shown || banner.Lines.Count != 3 || banner.Lines[1] != texts["party.leader", "Plop", 12] || banner.Lines[2] != texts["party.offline", "Plouf"])
             problems.Add($"the party's banner shows {string.Join(" | ", banner.Lines)}");
         // Leading it (sprint 124): a cross to send Plouf out.
-        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "guard", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]), lead);
+        banner.Show(new PartyNews(PartyNewsKind.Changed, Leader: lead, Members: [new PartyMember(lead, "Plop", 12, "warrior", "clairval"), new PartyMember(Guid.NewGuid(), "Plouf", 9, "mage", null)]), lead);
         if (banner.Kicks is not ["Plouf"])
             problems.Add($"the leader can send out {string.Join(", ", banner.Kicks)}");
         banner.Show(null);
@@ -2819,7 +2819,7 @@ public partial class Main
         AddChild(contacts);
         contacts.Build(texts, true);
         Town woods = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id));
-        contacts.Show(new ContactList([new Contact(Guid.NewGuid(), "Plop", 12, "guard", woods.Zone), new Contact(Guid.NewGuid(), "Plouf", 9, "mage", null)],
+        contacts.Show(new ContactList([new Contact(Guid.NewGuid(), "Plop", 12, "warrior", woods.Zone), new Contact(Guid.NewGuid(), "Plouf", 9, "mage", null)],
             [new Contact(Guid.NewGuid(), "Grincheux", 3, "mage", null)]));
         string[] expected = [texts["contacts.online", "Plop", 12, woods.Name.In(texts.Lang)], texts["contacts.offline", "Plouf", 9], "Grincheux"];
         if (!contacts.Lines.SequenceEqual(expected))
@@ -2833,7 +2833,7 @@ public partial class Main
         AddChild(guildPanel);
         guildPanel.Build(texts);
         guildPanel.Show(new GuildView(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([new GuildMember(Guid.NewGuid(), "Plouf", GuildRank.Member, 9, "mage", woods.Zone, now),
-            new GuildMember(me, "Moi", GuildRank.Leader, 30, "guard", woods.Zone, now), new GuildMember(Guid.NewGuid(), "Plop", GuildRank.Officer, 12, "guard", null, now.AddHours(-2))])), me, now);
+            new GuildMember(me, "Moi", GuildRank.Leader, 30, "warrior", woods.Zone, now), new GuildMember(Guid.NewGuid(), "Plop", GuildRank.Officer, 12, "warrior", null, now.AddHours(-2))])), me, now);
         string zone = woods.Name.In(texts.Lang);
         string[] members = [texts["guild.online", "Moi", 30, texts["guild.rank.Leader"], zone], texts["guild.offline", "Plop", 12, texts["guild.rank.Officer"], texts["guild.seen.hours", 2]],
             texts["guild.online", "Plouf", 9, texts["guild.rank.Member"], zone]];
@@ -2843,7 +2843,7 @@ public partial class Main
         // Where it stands (sprint 156): level 3 with 50 of 450 points, 85 of the week's 120, the leader's message and crest;
         // the leader's pencil, an officer's none.
         var wolf = new GuildCrest("banner", "wolf-head", "gris-fond", "osmose-cost");
-        GuildView standing = new(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([new GuildMember(me, "Moi", GuildRank.Leader, 30, "guard", woods.Zone, now)]),
+        GuildView standing = new(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([new GuildMember(me, "Moi", GuildRank.Leader, 30, "warrior", woods.Zone, now)]),
             GuildRules.Standing(500, 85, 1, 1, 120, "Ce soir, la Combe !", wolf));
         guildPanel.Show(standing, me, now);
         guildPanel.OpenEditor();
@@ -2858,10 +2858,10 @@ public partial class Main
             || !guildPanel.LogLines.SequenceEqual([texts["guild.log.invited-by", "Brume", "Moi"], texts["guild.log.level", "3"]]))
             problems.Add($"the guild's recruitment shows {string.Join(" | ", guildPanel.ApplicationLines)}, its log {string.Join(" | ", guildPanel.LogLines)}");
         guildPanel.Open(GuildPanel.Tab.Members);
-        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Officer, 30, "guard", woods.Zone, now)] }, me, now);
+        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Officer, 30, "warrior", woods.Zone, now)] }, me, now);
         if (guildPanel.CanEdit)
             problems.Add("an officer may write the guild's message");
-        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Member, 30, "guard", woods.Zone, now)] }, me, now);
+        guildPanel.Show(standing with { Members = [new GuildMember(me, "Moi", GuildRank.Member, 30, "warrior", woods.Zone, now)] }, me, now);
         if (guildPanel.RecruitmentOffered)
             problems.Add("a member is offered the recruitment");
         // The chest at Edmée's (sprint 156): a member sees its two tabs (the level's), takes nothing out of a closed tab,
@@ -2884,7 +2884,7 @@ public partial class Main
         // Out of a guild, after Edmée's answer: the name to found one.
         guildPanel.Show(null, me, now);
         guildPanel.OfferFounding();
-        guildPanel.ShowApplications([new GuildApplication(me, "Moi", 30, "guard", Guid.NewGuid(), "Les Brumes", null, now)]);
+        guildPanel.ShowApplications([new GuildApplication(me, "Moi", 30, "warrior", Guid.NewGuid(), "Les Brumes", null, now)]);
         if (guildPanel.Lines.Count != 0 || !guildPanel.FoundingOffered || guildPanel.GuildName.Length != 0 || guildPanel.ApplicationLines.SingleOrDefault() != texts["guild.apply.mine", "Les Brumes"])
             problems.Add("out of a guild, the window does not offer to found one nor shows its applications");
         guildPanel.QueueFree();
@@ -2925,7 +2925,7 @@ public partial class Main
     private async Task CheckTree(List<string> problems)
     {
         // The town's self-test has no hero of its own: a sentinel stands in.
-        Hero hero = _hero?.Class is null ? new Hero("Ondine", "female-a", "sentinel") : _hero;
+        Hero hero = _hero?.Class is null ? new Hero("Ondine", "female-a", "archer") : _hero;
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
         foreach (string id in Progression.Builds.Keys)
         {
@@ -3215,7 +3215,7 @@ public partial class Main
         }
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
         // A branch at 30, then at 50 its lineage: the story's scenario.
-        PointsPanel panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 30), texts, free);
+        PointsPanel panel = Open(new Hero("Ondine", "female-a", "archer", Level: 30), texts, free);
         panel.PickSpec("sightline");
         if (panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.take"])
             problems.Add($"a branch at 30 offers '{panel.SpecCardAction.Text}'");
@@ -3226,7 +3226,7 @@ public partial class Main
         if (panel.Editor.Hero.Spec != "sightline" || panel.Confirming)
             problems.Add($"the branch taken at 30 gives '{panel.Editor.Hero.Spec}'");
         panel.QueueFree();
-        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 50, Spec: "sightline"), texts, free);
+        panel = Open(new Hero("Ondine", "female-a", "archer", Level: 50, Spec: "sightline"), texts, free);
         panel.PickSpec("marksman");
         panel.SpecCardAction.EmitSignal(BaseButton.SignalName.Pressed);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -3238,7 +3238,7 @@ public partial class Main
             problems.Add($"the lineage taken at 50 gives '{panel.Editor.Hero.Fork}'");
         panel.QueueFree();
         // A crossing-out out of a village says so, and does nothing.
-        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 60, Spec: "sightline", Fork: "marksman"), texts, new SpecContext(true, 100_000, false));
+        panel = Open(new Hero("Ondine", "female-a", "archer", Level: 60, Spec: "sightline", Fork: "marksman"), texts, new SpecContext(true, 100_000, false));
         panel.PickSpec("barrage");
         if (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.need.village"])
             problems.Add($"a crossing-out out of a village offers '{panel.SpecCardAction.Text}'");
@@ -3249,7 +3249,7 @@ public partial class Main
         if (GameData.Embedded.Specs["archmage"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
             problems.Add($"a branch without its spells offers '{panel.SpecCardAction.Text}'");
         panel.QueueFree();
-        panel = Open(new Hero("Ondine", "female-a", "sentinel", Level: 40), texts, free, readOnly: true);
+        panel = Open(new Hero("Ondine", "female-a", "archer", Level: 40), texts, free, readOnly: true);
         panel.PickSpec("sightline");
         if (panel.SpecCardAction.Visible)
             problems.Add("the specialisation page offers a button in a fight");
@@ -3264,7 +3264,7 @@ public partial class Main
     private void CheckTransmuted(List<string> problems)
     {
         Texts texts = _talkPanel?.Texts ?? _hud.Texts;
-        Hero hero = Progression.Talented(new Hero("Ondine", "female-a", "sentinel", Level: 35), [], GameData.Embedded, compounds: [Element.Lightning]);
+        Hero hero = Progression.Talented(new Hero("Ondine", "female-a", "archer", Level: 35), [], GameData.Embedded, compounds: [Element.Lightning]);
         var panel = new PointsPanel();
         AddChild(panel);
         panel.Build(new PointsEditor(hero, GameData.Embedded), texts, only: true);
@@ -3902,7 +3902,7 @@ public partial class Main
         else
             problems.Add($"the group {group.Id} cannot roam");
         // Another player (sprint 118): drawn where the server says, walking on, gone; a group fought hidden, then back.
-        var plop = new OtherPlayer(Guid.NewGuid(), "Plop", new Hero("Plop", "male-a", "guard"), stay.Town.Spawn);
+        var plop = new OtherPlayer(Guid.NewGuid(), "Plop", new Hero("Plop", "male-a", "warrior"), stay.Town.Spawn);
         view.ShowOthers([plop], 4);
         bool drawn = view.Others.TryGetValue(plop.Id, out Node3D? other) && other.Position == view.W(plop.At);
         view.ShowOthers([plop with { At = plop.At.Neighbours().First(stay.IsFree) }], 4);
@@ -4124,9 +4124,9 @@ public partial class Main
                 DateTimeOffset now = DateTimeOffset.UtcNow;
                 string zone = GameData.Embedded.Towns.Values.First(t => t.Zone is not null && !Shop.InVillage(t.Id)).Zone!;
                 var guild = new GuildView(Guid.NewGuid(), "Les Veilleurs", GuildRules.Ordered([
-                    new GuildMember(me, "Aubépine", GuildRank.Leader, 42, "guard", zone, now) { Note = "Combe le soir", Contributed = 1240, AchievementPoints = 610 },
+                    new GuildMember(me, "Aubépine", GuildRank.Leader, 42, "warrior", zone, now) { Note = "Combe le soir", Contributed = 1240, AchievementPoints = 610 },
                     new GuildMember(Guid.NewGuid(), "Brume", GuildRank.Officer, 38, "mage", zone, now) { Contributed = 860, AchievementPoints = 455 },
-                    new GuildMember(Guid.NewGuid(), "Cendre", GuildRank.Member, 31, "sentinel", null, now.AddHours(-5)) { Note = "Mineur", Contributed = 310, AchievementPoints = 300 },
+                    new GuildMember(Guid.NewGuid(), "Cendre", GuildRank.Member, 31, "archer", null, now.AddHours(-5)) { Note = "Mineur", Contributed = 310, AchievementPoints = 300 },
                     new GuildMember(Guid.NewGuid(), "Ronce", GuildRank.Member, 17, "mage", zone, now) { Contributed = 90, AchievementPoints = 120 }]),
                     GuildRules.Standing(1450, 85, 1, 1, 120, "Ce soir, la Combe du brame ! Rendez-vous à Quatre-Chemins.", new GuildCrest("banner", "wolf-head", "gris-fond", "osmose-cost")));
                 _guildPanel = new GuildPanel();
@@ -4146,7 +4146,7 @@ public partial class Main
         if (_options.Shot == "tree")
         {
             // The tree's window (sprint 148): a guard at 45 with its build of Matter, the Lightning braid taken.
-            _hero = Progression.Talented(new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 45), "guard-matter", GameData.Embedded);
+            _hero = Progression.Talented(new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 45), "warrior-matter", GameData.Embedded);
             ShowBar();
             ToggleWindow(GameWindow.Talents);
             _townView!.ShowPath(null);
@@ -4160,7 +4160,7 @@ public partial class Main
         if (_options.Shot is "spec" or "spec-confirm")
         {
             // The Specialisation page (sprint 191, §10): a Sentinel of 62, its road taken, a lineage left shown.
-            _hero = new Hero("Ondine", "female-a", "sentinel", 5, 5, 4, -1, 1, Level: 62, Stats: new Characteristics(Vitality: 80, Earth: 170, Fire: 60, Water: 40, Air: 40), Spec: "sightline", Fork: "marksman");
+            _hero = new Hero("Ondine", "female-a", "archer", 5, 5, 4, -1, 1, Level: 62, Stats: new Characteristics(Vitality: 80, Earth: 170, Fire: 60, Water: 40, Air: 40), Spec: "sightline", Fork: "marksman");
             ShowBar();
             ToggleWindow(GameWindow.Characteristics);
             _pointsPanel!.ShowSpec();
@@ -4194,7 +4194,7 @@ public partial class Main
         if (_options.Shot is "points" or "spells")
         {
             // The character sheet for the project page: a tenth-level guard, points spent, a few items worn.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10,
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 10,
                 Stats: new Characteristics(Vitality: 20, Earth: 40, Fire: 0, Water: 9, Air: 10),
                 Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring", [Slot.Amulet] = "pebble-amulet", [Slot.TwoHanded] = "orc-club", [Slot.Boots] = "poacher-boots", [Slot.Pet] = "kitten" });
             ShowBar();
@@ -4218,10 +4218,10 @@ public partial class Main
         {
             // The quest journal and the quest followed (sprint 165): a quest of each kind under way, the first objective of
             // each reached, the side quest followed; "hud" folds the tracker and the menus instead of opening the journal.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20);
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 20);
             QuestProgress[] log = [.. Enum.GetValues<QuestKind>().Select(k => GameData.Embedded.Quests.Values.Where(q => q.Kind == k && q.Level <= 20 && q.Objectives is { Count: >= 2 }).OrderBy(q => q.Level).FirstOrDefault())
                 .OfType<Quest>().Select(q => new QuestProgress(q.Id, [.. q.Objectives!.Select((o, i) => i == 0 ? o.Count : 0)]))];
-            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch, Level: 20, QuestLog: log);
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "warrior", 0, DateTimeOffset.UnixEpoch, Level: 20, QuestLog: log);
             _town!.Book = QuestBook.Of(_character, GameData.Embedded);
             _followed = log.FirstOrDefault(p => GameData.Embedded.Quests[p.Quest].Kind == QuestKind.Side)?.Quest;
             ShowBar();
@@ -4245,8 +4245,8 @@ public partial class Main
         {
             // The bestiary (sprint 171): the boars mastered or on their way, the wolves met, the rest to find; since sprint 175,
             // the charging boar mastered, its family met whole, and a search for the wolves' fangs.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 20);
-            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch, Level: 20,
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 20);
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "warrior", 0, DateTimeOffset.UnixEpoch, Level: 20,
                 Bestiary: new Dictionary<string, int> { ["boar-charger"] = 25, ["acorn-piglet"] = 2, ["old-loner"] = 0, ["boar-sow"] = 0, ["boar-king"] = 5, ["grey-wolf"] = 1 });
             ShowBar();
             ToggleWindow(GameWindow.Bestiary);
@@ -4263,8 +4263,8 @@ public partial class Main
         if (_options.Shot == "jobs")
         {
             // The trades window (sprint 164): a few trades practised, the others greyed.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
-            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "guard", 0, DateTimeOffset.UnixEpoch,
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 10);
+            _character = new CharacterSummary(Guid.NewGuid(), "Aubépine", "female-b", "warrior", 0, DateTimeOffset.UnixEpoch,
                 Jobs: new Dictionary<string, long> { ["woodcutter"] = 900, ["miner"] = 340, ["herbalist"] = 60, ["locksmith"] = 2600, ["smith"] = 120 });
             ShowBar();
             OpenJobs();
@@ -4279,7 +4279,7 @@ public partial class Main
         if (_options.Shot == "inventory")
         {
             // A showcase for the project page: a tenth-level guard with what training fights leave.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 10);
             ShowBar();
             _bar!.Show(GameWindow.Inventory);
             ItemCount[] bag = [new("copper-ring", 2), new("pebble-amulet", 1), new("poacher-hat", 1), new("poacher-cape", 1), new("poacher-boots", 1), new("dagger", 1), new("wooden-shield", 1), new("orc-club", 1), new("kitten", 1), new("bread", 3), new("healing-potion", 2), new("orc-fang", 5), new("leather", 4), new("garance-badge", 1)];
@@ -4307,7 +4307,7 @@ public partial class Main
         else if (_options.Shot == "menu")
         {
             // The Escape menu over the village, a character's four icons on the side bar.
-            _hero = new Hero("Aubépine", "female-b", "guard", 5, 5, 4, -1, 1, Level: 10);
+            _hero = new Hero("Aubépine", "female-b", "warrior", 5, 5, 4, -1, 1, Level: 10);
             ShowBar();
             Escape(menuOnly: false);
         }

@@ -282,7 +282,7 @@ public class TalentTests
     [Fact]
     public void AFightWithTalents_IsReplayedTheSame_FromItsRecord()
     {
-        Fight f = new(Real, "group:fields-0-4.0", 4, Progression.Built(new Rpg.Core.Hero("Ondine", "female-a", "sentinel", Level: 35, Talents: ["up-close", "firm-footing"],
+        Fight f = new(Real, "group:fields-0-4.0", 4, Progression.Built(new Rpg.Core.Hero("Ondine", "female-a", "archer", Level: 35, Talents: ["up-close", "firm-footing"],
             Compounds: [Element.Lightning]), Real));
         Ai.PlayOut(f);
         Assert.True(f.IsOver);

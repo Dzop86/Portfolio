@@ -20,7 +20,7 @@ public class CraftTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("cra");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Serrure", "male-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Serrure", "male-c", "warrior", cancel: Cancel);
         // Nothing yet: refused, and nothing changes.
         var refused = await Assert.ThrowsAsync<ServerException>(() => server.Craft(c.Id, "locksmith", "boar-wallow-key", cancel: Cancel));
         Assert.Equal(HttpStatusCode.BadRequest, refused.Status);
@@ -57,7 +57,7 @@ public class CraftTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("smi");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Forge", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Forge", "female-c", "warrior", cancel: Cancel);
         Recipe billhook = GameData.Embedded.Jobs["smith"].RecipeFor("copper-billhook")!;
         // The oaks and the copper gathered on Clairval's spots, the fangs from the wolves (given here).
         foreach (ItemCount wanted in billhook.Ingredients.Take(2))
@@ -107,7 +107,7 @@ public class CraftTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("jew");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Joncs", "male-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Joncs", "male-c", "warrior", cancel: Cancel);
         Recipe band = GameData.Embedded.Jobs["jeweller"].RecipeFor("copper-band")!;
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, null, [.. band.Ingredients]), Cancel);

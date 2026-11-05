@@ -1,13 +1,13 @@
 [
   {
-    "id": "sentinel",
+    "id": "archer",
     "name": {
-      "fr": "Sentinelle",
-      "en": "Sentinel"
+      "fr": "Archer",
+      "en": "Archer"
     },
     "description": {
-      "fr": "Tire de loin, repousse et entrave ; mobile, elle garde ses distances.",
-      "en": "Shoots from afar, pushes back and hinders; mobile, she keeps her distance."
+      "fr": "Tire de loin, repousse et entrave ; mobile, il garde ses distances.",
+      "en": "Shoots from afar, pushes back and hinders; mobile, keeps away from the fray."
     },
     "hp": 62,
     "ap": 8,
@@ -42,14 +42,14 @@
     "hpPerLevel": 5
   },
   {
-    "id": "guard",
+    "id": "warrior",
     "name": {
-      "fr": "Garde",
-      "en": "Guard"
+      "fr": "Guerrier",
+      "en": "Warrior"
     },
     "description": {
-      "fr": "Attire, bloque et frappe fort au corps à corps ; se protège elle-même.",
-      "en": "Pulls, holds and hits hard up close; shields herself."
+      "fr": "Attire, bloque et frappe fort au corps à corps ; se protège lui-même.",
+      "en": "Pulls, holds and hits hard up close; carries its own shield."
     },
     "hp": 74,
     "ap": 8,

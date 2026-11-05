@@ -108,7 +108,7 @@ public class TrunkTests
     {
         foreach ((string build, IReadOnlyList<string> talents) in Progression.Builds)
         {
-            Hero cls = new("Ondine", "female-a", build.Split('-')[0] is "support" ? "guard" : build.Split('-')[0], Level: 45);
+            Hero cls = new("Ondine", "female-a", build.Split('-')[0] is "support" ? "warrior" : build.Split('-')[0], Level: 45);
             Hero at45 = Progression.Talented(cls, build, Real);
             Assert.Null(at45.Problem(Real));
             Assert.Equal(build.EndsWith("-matter", StringComparison.Ordinal) ? [Element.Lightning] : null, at45.Compounds);

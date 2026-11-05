@@ -27,11 +27,11 @@ public class SpecsTests
 
     private static readonly SpecFork Quiet = new("t-quiet", [Tier(50, passives: ["t-run"]), Tier(100)]);
 
-    private static readonly Specialisation Aim = new("t-aim", "sentinel", Text, Tier(30, ["t-shot", "t-calm"], ["t-held"], rules: [new RangeRule(1, 2, Sight: true)]),
+    private static readonly Specialisation Aim = new("t-aim", "archer", Text, Tier(30, ["t-shot", "t-calm"], ["t-held"], rules: [new RangeRule(1, 2, Sight: true)]),
         [new SpecFork("t-loud", [Tier(50, ["t-volley"], ["t-run"]), Tier(100, passives: ["t-steady"], replaces: ["t-held"])]), new SpecFork("t-quiet", [Tier(50, ["t-hush"]), Tier(100)])],
         Keeps: ["hawk"]);
 
-    private static readonly Specialisation Other = new("o-other", "sentinel", Text, Tier(30, ["o-near", "o-step"], rules: [new LeapSightRule()]),
+    private static readonly Specialisation Other = new("o-other", "archer", Text, Tier(30, ["o-near", "o-step"], rules: [new LeapSightRule()]),
         [new SpecFork("o-traps", [Tier(50, ["o-trap"], rules: [new GlyphTurnsRule(1)]), Tier(100)]), new SpecFork("o-plain", [Tier(50, ["o-plain-shot"]), Tier(100, rules: [new PatchRule("t-shot", DamagePercent: 50)])])]);
 
     private static GameData With(params Specialisation[] specs) =>
@@ -41,7 +41,7 @@ public class SpecsTests
     private static readonly GameData Two = With(Aim, Other);
 
     private static Hero Sentinel(string? spec, int level = 50, string? fork = null) =>
-        new("Ondine", "female-a", "sentinel", Level: level, Stats: new Characteristics(Earth: 60, Fire: 40), Spec: spec,
+        new("Ondine", "female-a", "archer", Level: level, Stats: new Characteristics(Earth: 60, Fire: 40), Spec: spec,
             Fork: fork ?? (level >= 50 ? spec switch { "t-aim" => "t-loud", "o-other" => "o-traps", _ => null } : null));
 
     private static Fighter Fought(Hero hero, GameData? data = null) => new Fight(data ?? Two, "training", 1, hero).HeroFighter!;
@@ -89,7 +89,7 @@ public class SpecsTests
         Assert.NotEqual(Sentinel("t-aim", 60, "t-loud"), Sentinel("t-aim", 60, "t-quiet"));
         Assert.Equal("Paths open at level 30.", Sentinel("t-aim", 29).Problem(Two));
         Assert.Equal("Unknown path 'nowhere'.", Sentinel("nowhere").Problem(Two));
-        Assert.Equal("'t-aim' is not a path of this class.", (Sentinel("t-aim") with { Class = "guard" }).Problem(Two));
+        Assert.Equal("'t-aim' is not a path of this class.", (Sentinel("t-aim") with { Class = "warrior" }).Problem(Two));
         // The server compares the hero of a record with its own: another path is another hero.
         Assert.NotEqual(Sentinel("t-aim"), Sentinel("o-other"));
         Assert.NotEqual(Sentinel("t-aim"), Sentinel(null));

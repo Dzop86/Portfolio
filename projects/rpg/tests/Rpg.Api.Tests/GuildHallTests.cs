@@ -52,7 +52,7 @@ public class GuildHallTests
     private static async Task<(GameServer Sa, GameServer Sb, GameServer Sc, CharacterSummary Aube, CharacterSummary Brume, CharacterSummary Cendre, ChatClient A, ChatClient B, ChatClient C)> Guild(ApiFactory api)
     {
         GameServer sa = await api.SignedIn("gh"), sb = await api.SignedIn("gh"), sc = await api.SignedIn("gh");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         CharacterSummary cendre = await sc.CreateCharacter("Cendre", "male-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id), b = await Connect(api, sb, brume.Id), c = await Connect(api, sc, cendre.Id);
@@ -183,7 +183,7 @@ public class GuildHallTests
         DateTimeOffset dawn = DateTimeOffset.FromUnixTimeSeconds((Contracts.Day(now) + 1) * 86_400L) + Contracts.Dawn;
         api.Clock.Advance(dawn - now - TimeSpan.FromHours(1));
         GameServer server = await api.SignedIn("compteurs");
-        CharacterSummary ronce = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary ronce = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         await server.Contracts(ronce.Id, Cancel);
         var hub = api.Services.GetRequiredService<ChatHub>();
         for (int evening = 0; evening < 2; evening++)
@@ -198,7 +198,7 @@ public class GuildHallTests
             await Task.Delay(20, Cancel);
         using IServiceScope scope = api.Services.CreateScope();
         IReadOnlyList<string> lines = await Admin.Counters(scope.ServiceProvider.GetRequiredService<GameDb>(), Cancel);
-        Assert.Equal(["#1 level 1 guard: 2 day(s), 3 h 00 min, contracts 0 of 3 (0 %)"], lines);
+        Assert.Equal(["#1 level 1 warrior: 2 day(s), 3 h 00 min, contracts 0 of 3 (0 %)"], lines);
         Assert.DoesNotContain(lines, l => l.Contains("Ronce", StringComparison.Ordinal) || l.Contains("compteurs", StringComparison.Ordinal));
     }
 }

@@ -15,7 +15,7 @@ public class FourWaysTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("qc");
-        CharacterSummary c = await server.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         Town square = GameData.Embedded.Towns[Shop.Hamlet];
         var place = new Place(square.Id, square.Spawn.X, square.Spawn.Y);
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, place, Cancel))).Status);

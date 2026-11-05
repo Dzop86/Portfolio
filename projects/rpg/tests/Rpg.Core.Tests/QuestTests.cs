@@ -144,7 +144,7 @@ public class QuestTests
         GameData data = new(Real.Spells.Values, Real.Maps.Values, Real.Scenarios.Values, Real.Classes, Real.Towns.Values, Real.Dialogues.Values, Real.Summons.Values,
             [.. Real.Quests.Values.Where(x => x.Id != q.Id), q], Real.Items.Values, Real.Sets.Values, [.. Real.Families.Values.Select(f => f.Id == "boar" ? marked : f)],
             Real.Dungeons.Values, Real.Jobs.Values, Real.Passives.Values);
-        var fight = new Fight(data, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), data));
+        var fight = new Fight(data, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "warrior", Level: 60), data));
         Ai.PlayOut(fight);
         Assert.Equal(0, fight.WinningTeam);
         // No quest under way: the other loot only, drawn as it always was.
@@ -178,7 +178,7 @@ public class QuestTests
     /// <summary>A fight of the scenario won by a hero far stronger, played by the AI.</summary>
     private static Fight Won(string scenario)
     {
-        var fight = new Fight(Real, scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), Real));
+        var fight = new Fight(Real, scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "warrior", Level: 60), Real));
         Ai.PlayOut(fight);
         Assert.Equal(0, fight.WinningTeam);
         return fight;

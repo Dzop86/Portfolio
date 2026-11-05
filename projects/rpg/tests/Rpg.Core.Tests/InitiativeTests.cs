@@ -14,7 +14,7 @@ public class InitiativeTests
     [Fact]
     public void TheInitiativeWorn_AndTheSetsBonus_AddToTheClasss()
     {
-        var hero = new Hero("Élise", "female-c", "sentinel", Level: 4);
+        var hero = new Hero("Élise", "female-c", "archer", Level: 4);
         int bare = Rpg.Core.Fight.HeroTotals(hero, Real)!.Initiative;
         Assert.Equal(10, bare);
         // Two pieces of the pack: theirs, and the set's +10 from two.
@@ -105,7 +105,7 @@ public class InitiativeTests
         IReadOnlyDictionary<Slot, string> fast = Progression.Kit("fast", "woods", 6, Real);
         Assert.Equal(2, zone.Count);
         Assert.Null(Equipment.Problem(fast, 6, Real));
-        var hero = new Hero("Élise", "female-c", "guard", Level: 6);
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 6);
         int Initiative(IReadOnlyDictionary<Slot, string> worn) => Rpg.Core.Fight.HeroTotals(hero with { Worn = worn }, Real)!.Initiative;
         Assert.True(Initiative(fast) > Initiative(zone) && Initiative(zone) > 10);
         // The Woods' "fast" kit: the pack's boots, ring and cape and their bonus, as the design says (50).

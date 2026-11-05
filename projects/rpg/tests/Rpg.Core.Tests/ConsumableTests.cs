@@ -8,7 +8,7 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class ConsumableTests
 {
-    private static readonly Hero Guard = new("Essai", "female-d", "guard", Level: 10);
+    private static readonly Hero Guard = new("Essai", "female-d", "warrior", Level: 10);
 
     [Fact]
     public void TheAlchemist_MakesFiveHealingPotions_DrunkOutOfAFight()

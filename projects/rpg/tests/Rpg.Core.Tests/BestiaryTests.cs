@@ -9,13 +9,13 @@ public class BestiaryTests
     public void AWonFight_CountsAVictory_ForEachMonsterEachTimeItStood_ALostOne_MetOnly()
     {
         MonsterGroup boars = Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null && g.Monsters.Count == 2);
-        var won = new Fight(Real, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), Real));
+        var won = new Fight(Real, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "warrior", Level: 60), Real));
         Ai.PlayOut(won);
         Dictionary<string, int> after = Bestiary.AfterFight(new Dictionary<string, int>(), Real, won);
         Assert.All(boars.Monsters.Distinct(), m => Assert.Equal(boars.Monsters.Count(x => x == m), after[m]));
         // A horde of zombies against a hero of level 1: lost.
         MonsterGroup horde = Real.Groups.Values.Where(g => g.Family == "zombie" && g.Fight is null).MaxBy(g => g.Monsters.Count)!;
-        var lost = new Fight(Real, horde.Scenario, 1, new Hero("Ronce", "female-c", "guard", Level: 1));
+        var lost = new Fight(Real, horde.Scenario, 1, new Hero("Ronce", "female-c", "warrior", Level: 1));
         Ai.PlayOut(lost);
         Assert.NotEqual(0, lost.WinningTeam);
         Assert.All(Bestiary.AfterFight(new Dictionary<string, int>(), Real, lost), m => Assert.Equal(0, m.Value));

@@ -29,7 +29,7 @@ public class BattleTests
     private static async Task<(GameServer Server, CharacterSummary Character, ChatClient Chat)> Player(ApiFactory api, string name)
     {
         GameServer server = await api.SignedIn("ba");
-        CharacterSummary c = await server.CreateCharacter(name, "female-c", name == "Aube" ? "guard" : "mage", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter(name, "female-c", name == "Aube" ? "warrior" : "mage", cancel: Cancel);
         ChatClient chat = await server.OpenChat(c.Id, Through(api), Cancel);
         var hub = (ChatHub)api.Services.GetService(typeof(ChatHub))!;
         for (int i = 0; i < 100 && hub.MapOf(c.Id) is null; i++)

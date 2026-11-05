@@ -24,7 +24,7 @@ public class LifeTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("lif");
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         // A first fight from full life: the ticket says so.
         (FightTicket first, Fight fight) = await Play(server, c);
         Assert.Null(first.HeroHp);
@@ -52,7 +52,7 @@ public class LifeTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("lif");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, null, [new ItemCount("bread", 2)]), Cancel);
         await server.StartFight(c.Id, "training", Cancel);

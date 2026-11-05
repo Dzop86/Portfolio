@@ -30,7 +30,7 @@ public class TalentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tal");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "archer", cancel: Cancel);
         Assert.Null(c.Talents);
         // Before 30: refused.
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close"]), Cancel)));
@@ -72,7 +72,7 @@ public class TalentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("und");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "archer", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 40, []), Cancel);
         Hero hero = (await server.SavePoints(c.Id, new Points(null, null, Talents: ["up-close", "side-step"]), Cancel)).Hero;
@@ -110,7 +110,7 @@ public class TalentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("lgt");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "archer", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
         // A twin without Lightning: refused.
@@ -140,7 +140,7 @@ public class TalentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tpr");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "archer", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 45, []), Cancel);
         api.WithDb(db =>
@@ -170,7 +170,7 @@ public class TalentTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("trs");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "warrior", cancel: Cancel);
         using (IServiceScope scope = api.Services.CreateScope())
             await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), new AdminOrder(account, 40, []), Cancel);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, ["seal-water"]), Cancel)));

@@ -206,8 +206,8 @@ public class SpecTests
         GameServer server = await api.SignedIn("sp5");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         await server.CreateCharacter("Plop", "female-a", "mage", cancel: Cancel);
-        await server.CreateCharacter("Pluf", "female-a", "guard", cancel: Cancel);
-        await server.CreateCharacter("Plif", "female-a", "sentinel", cancel: Cancel);
+        await server.CreateCharacter("Pluf", "female-a", "warrior", cancel: Cancel);
+        await server.CreateCharacter("Plif", "female-a", "archer", cancel: Cancel);
         await Level(api, account, 100);
         async Task Run(params string[] args)
         {

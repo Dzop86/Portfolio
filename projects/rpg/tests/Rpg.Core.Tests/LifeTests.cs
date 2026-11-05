@@ -33,7 +33,7 @@ public class LifeTests
     [Fact]
     public void TheMaximum_IsTheFightersOutOfAFight()
     {
-        var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 10), Real);
+        var hero = Progression.Built(new Hero("Élise", "female-c", "warrior", Level: 10), Real);
         var fight = new Fight(Real, "training", 1, hero);
         Assert.Equal(fight.HeroFighter!.MaxHp, Life.MaxHp(hero, Real));
         Assert.Equal(40, Real.Items["bread"].Heal);

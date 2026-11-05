@@ -13,7 +13,7 @@ public class SpellOriginTests
     private static GameData Data => GameData.Embedded;
 
     private static Hero Sentinel(int level, params string[] talents) =>
-        new("Ondine", "female-a", "sentinel", Level: level, Talents: talents.Length == 0 ? null : talents);
+        new("Ondine", "female-a", "archer", Level: level, Talents: talents.Length == 0 ? null : talents);
 
     private static Hero Lightning(int level) => Sentinel(level) with { Compounds = [Element.Lightning] };
 

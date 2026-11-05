@@ -33,7 +33,7 @@ public class GraphTextsTests
     {
         // I1 b: Up close takes Heavy Push with it, which nothing else holds up; the Terrain stays.
         string[] tree = ["side-step", "seal", "up-close", "heavy-push"];
-        var editor = new PointsEditor(new Hero("Ondine", "female-a", "sentinel", Level: 45, Talents: tree), Data);
+        var editor = new PointsEditor(new Hero("Ondine", "female-a", "archer", Level: 45, Talents: tree), Data);
         Assert.Equal(["heavy-push"], editor.Losing(Data.Talents["up-close"]));
         Assert.Empty(editor.Losing(Data.Talents["heavy-push"]));
         Assert.True(editor.CanDrop(Data.Talents["up-close"]));

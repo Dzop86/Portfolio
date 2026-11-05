@@ -79,7 +79,7 @@ public class GuildTests
     [Fact]
     public void TheGuildsTab_ListsByRank_ThenThoseInPlay_ThenByName()
     {
-        GuildMember M(string name, GuildRank rank, string? zone) => new(Guid.NewGuid(), name, rank, 30, "guard", zone, null);
+        GuildMember M(string name, GuildRank rank, string? zone) => new(Guid.NewGuid(), name, rank, 30, "warrior", zone, null);
         IReadOnlyList<GuildMember> ordered = GuildRules.Ordered([M("Zélie", GuildRank.Member, "clairval"), M("Anne", GuildRank.Member, null),
             M("Brune", GuildRank.Officer, null), M("Odon", GuildRank.Leader, null), M("Basile", GuildRank.Member, "woods")]);
         Assert.Equal(["Odon", "Brune", "Basile", "Zélie", "Anne"], ordered.Select(m => m.Name));

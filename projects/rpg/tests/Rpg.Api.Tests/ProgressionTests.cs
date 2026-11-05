@@ -22,7 +22,7 @@ public class ProgressionTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "archer", cancel: Cancel);
         Assert.Equal((0L, 1, 0), (c.Xp, c.Level, c.Quests?.Count ?? 0));
         long total = 0, shards = 0;
         bool wonOnce = false;
@@ -59,7 +59,7 @@ public class ProgressionTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "warrior", cancel: Cancel);
         // A lone boar next to the village (sprint 72): the server knows the group, replays and rewards it.
         MonsterGroup boar = GameData.Embedded.GroupsOn("woods-4-2")[0];
         Assert.InRange(boar.Scenario.Length, 1, 40);
@@ -79,7 +79,7 @@ public class ProgressionTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "warrior", cancel: Cancel);
         async Task Refused(Func<FightTicket, FightRecord> cheat, string why)
         {
             FightTicket ticket = await server.StartFight(c.Id, "training", Cancel);
@@ -114,7 +114,7 @@ public class ProgressionTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn();
-        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Élise", "female-c", "warrior", cancel: Cancel);
         // Level 1: no point to spend yet.
         var e = await Assert.ThrowsAsync<ServerException>(() => server.SavePoints(c.Id, new Points(new Characteristics(Vitality: 1), null), Cancel));
         Assert.Contains("points: At most 0 characteristic points", e.Message, StringComparison.Ordinal);

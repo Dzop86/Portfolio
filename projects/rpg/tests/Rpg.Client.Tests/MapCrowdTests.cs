@@ -6,7 +6,7 @@ namespace Rpg.Client.Tests;
 public class MapCrowdTests
 {
     private static readonly Guid Me = Guid.NewGuid(), Plop = Guid.NewGuid();
-    private static readonly Hero Look = new("Plop", "male-a", "guard");
+    private static readonly Hero Look = new("Plop", "male-a", "warrior");
     private static readonly DateTimeOffset T0 = new(2026, 10, 21, 12, 0, 0, TimeSpan.Zero);
 
     [Fact]

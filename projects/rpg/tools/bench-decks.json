@@ -1,5 +1,5 @@
 {
-  "guard": ["smite", "quake", "cyclone-blade", "groundswell", "fire-lunge", "cleave", "wind-blade", "undertow", "taunt", "bulwark", "stone-skin", "shield-bash", "burning-blade", "ice-blade", "slash"],
-  "sentinel": ["rockfall", "gale", "tide-arrow", "ember-volley", "searing-shot", "venom-arrow", "piercing-arrow", "heavy-shot", "hawk", "grapple", "recoil-shot", "sidestep", "frost-arrow", "fire-arrow", "stone-arrow"],
+  "warrior": ["smite", "quake", "cyclone-blade", "groundswell", "fire-lunge", "cleave", "wind-blade", "undertow", "taunt", "bulwark", "stone-skin", "shield-bash", "burning-blade", "ice-blade", "slash"],
+  "archer": ["rockfall", "gale", "tide-arrow", "ember-volley", "searing-shot", "venom-arrow", "piercing-arrow", "heavy-shot", "hawk", "grapple", "recoil-shot", "sidestep", "frost-arrow", "fire-arrow", "stone-arrow"],
   "mage": ["meteor", "freeze", "cyclone", "landslide", "bolt", "roots", "tidal-wave", "burn", "elemental", "mend", "frost-ward", "gust", "flare", "pebble", "ice-shard"]
 }

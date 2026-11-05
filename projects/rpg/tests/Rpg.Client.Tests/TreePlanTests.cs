@@ -15,8 +15,8 @@ public class TreePlanTests
         new("Ondine", "female-a", "mage", Level: level, Talents: talents.Length == 0 ? null : talents);
 
     [Theory]
-    [InlineData("sentinel-matter")]
-    [InlineData("guard-manner")]
+    [InlineData("archer-matter")]
+    [InlineData("warrior-manner")]
     [InlineData("mage-pure")]
     public void ABuildsCode_GoesThereAndBack(string build)
     {

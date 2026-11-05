@@ -436,7 +436,7 @@ spells = base + sentinel + guard + mage + creatures + beasts + twins + paths
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"sentinel": [s["id"] for s in sentinel], "guard": [s["id"] for s in guard], "mage": [s["id"] for s in mage]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")

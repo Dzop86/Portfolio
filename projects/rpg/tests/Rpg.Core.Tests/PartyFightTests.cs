@@ -25,8 +25,8 @@ public class PartyFightTests
     [Fact]
     public void TheAllies_StandOnTheFreeStartsOfTeamA_AfterTheScenariosFighters()
     {
-        Hero[] allies = [Of("Brume", "mage"), Of("Cendre", "guard"), Of("Dune", "mage")];
-        var f = new Fight(Real, Group.Scenario, 7, Of("Aube", "guard"), null, null, allies, [null, 10, null]);
+        Hero[] allies = [Of("Brume", "mage"), Of("Cendre", "warrior"), Of("Dune", "mage")];
+        var f = new Fight(Real, Group.Scenario, 7, Of("Aube", "warrior"), null, null, allies, [null, 10, null]);
         int scenario = Real.FindScenario(Group.Scenario)!.Fighters.Count;
         Assert.Equal(scenario + 3, f.Fighters.Count);
         Assert.Equal(4, f.HeroFighters.Count);
@@ -39,17 +39,17 @@ public class PartyFightTests
         Fight played = Played(new Fight(Real, Group.Scenario, 3, Of("Aube", "mage", 20), null, null, [Of("Brume", "mage", 20)]));
         Assert.Equal(["Aube", "Brume"], played.HeroFighters.Select(h => h.Spec.Name.In("fr")));
         // Without allies, the fight alone is the same as before.
-        var alone = new Fight(Real, Group.Scenario, 7, Of("Aube", "guard"));
+        var alone = new Fight(Real, Group.Scenario, 7, Of("Aube", "warrior"));
         Assert.Equal(scenario, alone.Fighters.Count);
         Assert.Equal([alone.HeroFighter!], alone.HeroFighters);
-        Assert.Throws<ArgumentException>(() => new Fight(Real, Group.Scenario, 7, Of("Aube", "guard"), allies: [.. allies, Of("Écume", "mage")]));
+        Assert.Throws<ArgumentException>(() => new Fight(Real, Group.Scenario, 7, Of("Aube", "warrior"), allies: [.. allies, Of("Écume", "mage")]));
         Assert.Throws<ArgumentException>(() => new Fight(Real, Group.Scenario, 7, null, allies: allies));
     }
 
     [Fact]
     public void ARecordOfVersion2_ReplaysTheParty_AndAVersion1_TheHeroAlone()
     {
-        Fight f = Played(new Fight(Real, Group.Scenario, 11, Of("Aube", "guard", 9), null, null, [Of("Brume", "mage", 9)], [30]));
+        Fight f = Played(new Fight(Real, Group.Scenario, 11, Of("Aube", "warrior", 9), null, null, [Of("Brume", "mage", 9)], [30]));
         Assert.True(f.IsOver);
         FightRecord record = FightRecord.Of(f);
         Assert.Equal(FightRecord.CurrentVersion, record.Version);
@@ -57,17 +57,17 @@ public class PartyFightTests
         Assert.Equal(f.WinningTeam, again.WinningTeam);
         Assert.Equal(f.HeroFighters.Select(h => h.Hp), again.HeroFighters.Select(h => h.Hp));
         // A fight alone, written as before, still replays; version 1 with allies does not.
-        Fight alone = Played(new Fight(Real, Group.Scenario, 11, Of("Aube", "guard", 9)));
+        Fight alone = Played(new Fight(Real, Group.Scenario, 11, Of("Aube", "warrior", 9)));
         FightRecord old = FightRecord.Of(alone) with { Version = 1 };
         Assert.Equal(alone.WinningTeam, old.Replay(Real).WinningTeam);
         Assert.Throws<InvalidFightRecordException>(() => (record with { Version = 1 }).Replay(Real));
-        Assert.Throws<InvalidFightRecordException>(() => (record with { Allies = [Of("A", "guard"), Of("B", "guard"), Of("C", "guard"), Of("D", "guard")] }).Replay(Real));
+        Assert.Throws<InvalidFightRecordException>(() => (record with { Allies = [Of("A", "warrior"), Of("B", "warrior"), Of("C", "warrior"), Of("D", "warrior")] }).Replay(Real));
     }
 
     [Fact]
     public void EachHero_EarnsItsOwnExperience_ByItsLevel_AndDrawsItsOwnLoot()
     {
-        Fight won = Enumerable.Range(0, 40).Select(s => Played(new Fight(Real, Group.Scenario, (ulong)s, Of("Aube", "guard", 60), null, null, [Of("Brume", "mage", 1)])))
+        Fight won = Enumerable.Range(0, 40).Select(s => Played(new Fight(Real, Group.Scenario, (ulong)s, Of("Aube", "warrior", 60), null, null, [Of("Brume", "mage", 1)])))
             .First(f => f.WinningTeam == 0);
         Hero high = won.Hero!, low = won.Allies[0];
         // A hero far above the monsters (more than LevelGap levels) earns nothing from them; the other one does, +10 % for its ally.

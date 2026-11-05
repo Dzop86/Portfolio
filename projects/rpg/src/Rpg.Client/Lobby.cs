@@ -3,6 +3,12 @@ using Rpg.Core;
 
 namespace Rpg.Client;
 
+/// <summary>A class of the creation page: playable once the game's data has it.</summary>
+public sealed record ClassChoice(string Id, LocalizedText Name)
+{
+    public bool Playable(GameData data) => data.Class(Id) is not null;
+}
+
 /// <summary>
 /// What the screens before the game can do, without an engine: sign in (or up; the launcher usually
 /// does it and hands a token), choose a server (at once when there is only one), list, create and
@@ -29,6 +35,24 @@ public sealed class Lobby(GameServer server)
     public string? Problem { get; private set; }
 
     public bool SignedIn => Server.SignedIn;
+
+    /// <summary>
+    /// The classes of the creation page (sprint 195, D96), in the order of the canon: those the data has can be played, the others
+    /// stay greyed until they are written.
+    /// </summary>
+    public static readonly IReadOnlyList<ClassChoice> Roster =
+    [
+        new("warrior", new LocalizedText("Guerrier", "Warrior")),
+        new("paladin", new LocalizedText("Paladin", "Paladin")),
+        new("mage", new LocalizedText("Mage", "Mage")),
+        new("priest", new LocalizedText("Prêtre", "Priest")),
+        new("rogue", new LocalizedText("Voleur", "Rogue")),
+        new("archer", new LocalizedText("Archer", "Archer")),
+        new("druid", new LocalizedText("Druide", "Druid")),
+        new("necromancer", new LocalizedText("Nécromancien", "Necromancer")),
+        new("berserker", new LocalizedText("Berserker", "Berserker")),
+        new("summoner", new LocalizedText("Invocateur", "Summoner")),
+    ];
 
     public bool CanCreate => SignedIn && Characters.Count < Accounts.MaxCharacters;
 

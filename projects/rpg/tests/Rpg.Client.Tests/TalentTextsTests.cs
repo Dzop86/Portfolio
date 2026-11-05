@@ -11,7 +11,7 @@ public class TalentTextsTests
     private static GameData Data => GameData.Embedded;
 
     private static Hero Sentinel(int level, params string[] talents) =>
-        new("Ondine", "female-a", "sentinel", Level: level, Talents: talents.Length == 0 ? null : talents);
+        new("Ondine", "female-a", "archer", Level: level, Talents: talents.Length == 0 ? null : talents);
 
     [Fact]
     public void TheList_TakesAndGivesBackTalents_WithinThePointsOfTheLevel()

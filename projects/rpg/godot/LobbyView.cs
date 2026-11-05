@@ -232,14 +232,16 @@ public partial class LobbyView : CanvasLayer
         _createTitle.AddThemeFontSizeOverride("font_size", 28);
         form.AddChild(_createTitle);
         _classLabel = Caption(form);
-        var classes = new HBoxContainer();
-        classes.AddThemeConstantOverride("separation", 8);
+        var classes = new GridContainer { Columns = 5 };
+        classes.AddThemeConstantOverride("h_separation", 8);
+        classes.AddThemeConstantOverride("v_separation", 8);
         form.AddChild(classes);
-        foreach (HeroClass c in GameData.Embedded.Classes)
+        foreach (ClassChoice c in Lobby.Roster)
         {
             Button b = Button(classes, () => SelectClass(c.Id));
             b.ToggleMode = true;
-            b.CustomMinimumSize = new Vector2(150, 44);
+            b.CustomMinimumSize = new Vector2(130, 44);
+            b.Disabled = !c.Playable(GameData.Embedded);
             _classButtons.Add(b);
         }
         _classText = new Label { AutowrapMode = TextServer.AutowrapMode.WordSmart };
@@ -480,8 +482,10 @@ public partial class LobbyView : CanvasLayer
         _classLabel.Text = Texts["lobby.class"];
         for (int i = 0; i < _classButtons.Count; i++)
         {
-            _classButtons[i].Text = GameData.Embedded.Classes[i].Name.In(Texts.Lang);
-            _classButtons[i].SetPressedNoSignal(i == _class);
+            ClassChoice choice = Lobby.Roster[i];
+            _classButtons[i].Text = choice.Name.In(Texts.Lang);
+            _classButtons[i].TooltipText = choice.Playable(GameData.Embedded) ? "" : Texts["spec.soon"];
+            _classButtons[i].SetPressedNoSignal(choice.Id == Class.Id);
         }
         _classText.Text = Texts.Class(Class);
         _spellsLabel.Text = Texts["lobby.spells"];

@@ -302,7 +302,7 @@ public class TreeLayoutTests
     [Fact]
     public void TheDraft_IsUndone_AndWhatASaveChangesIsSaid()
     {
-        var hero = new Hero("Ondine", "female-a", "sentinel", Level: 45, Talents: ["side-step", "seal"]);
+        var hero = new Hero("Ondine", "female-a", "archer", Level: 45, Talents: ["side-step", "seal"]);
         var editor = new PointsEditor(hero, Data);
         Assert.False(editor.TalentsChanged);
         Assert.Empty(new Texts("fr").TreeDiff(editor));

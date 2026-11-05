@@ -5,7 +5,7 @@ namespace Rpg.Client.Tests;
 /// <summary>The contacts window's lists (Charles, after sprint 144): in play first, then offline, each by name.</summary>
 public class ContactsViewTests
 {
-    private static Contact C(string name, string? zone) => new(Guid.NewGuid(), name, 10, "guard", zone);
+    private static Contact C(string name, string? zone) => new(Guid.NewGuid(), name, 10, "warrior", zone);
 
     private static readonly ContactList List = new(
         [C("plouf", null), C("Zed", "village"), C("Ana", null), C("bob", "lake")],

@@ -50,10 +50,10 @@ public class ProgramTests
         string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
         try
         {
-            (int code, _, _) = Run("--record", file, "--scenario", "duel", "--class", "guard", "--rival", "mage", "--level", "50");
+            (int code, _, _) = Run("--record", file, "--scenario", "duel", "--class", "warrior", "--rival", "mage", "--level", "50");
             Assert.Equal(0, code);
             string json = File.ReadAllText(file);
-            Assert.Contains("\"class\":\"guard\",", json, StringComparison.Ordinal);
+            Assert.Contains("\"class\":\"warrior\",", json, StringComparison.Ordinal);
             Assert.Contains("\"rival\":{\"name\":\"Mage\",\"look\":\"male-d\",\"class\":\"mage\"", json, StringComparison.Ordinal);
             Assert.Contains("\"level\":50", json, StringComparison.Ordinal);
             Assert.Equal(0, Run("--replay", file).Code);
@@ -128,7 +128,7 @@ public class ProgramTests
         Assert.StartsWith("# L'arbre des talents hors CI : zone:ancestors, niveau 45", output, StringComparison.Ordinal);
         // Since sprint 152 (D83): five bare heroes a class beside the 6, mixed and of each element.
         Assert.Contains("| mage | Lightning |", output, StringComparison.Ordinal);
-        Assert.Equal(6 + 15 + 27, output.Split('\n').Count(l => l.StartsWith("| sentinel |", StringComparison.Ordinal) || l.StartsWith("| guard |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
+        Assert.Equal(6 + 15 + 27, output.Split('\n').Count(l => l.StartsWith("| archer |", StringComparison.Ordinal) || l.StartsWith("| warrior |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
         Assert.Contains("| mage | nu, Feu seul |", output, StringComparison.Ordinal);
         Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 33 builds tirés", output, StringComparison.Ordinal);
     }
@@ -151,10 +151,10 @@ public class ProgramTests
         string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
         try
         {
-            (int code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "guard", "--level", "6", "--kit", "fast");
+            (int code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "warrior", "--level", "6", "--kit", "fast");
             Assert.Equal(0, code);
             Assert.Contains("wolf-boots", File.ReadAllText(file), StringComparison.Ordinal);
-            (code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "guard", "--level", "6");
+            (code, _, _) = Run("--record", file, "--scenario", "group:" + group, "--class", "warrior", "--level", "6");
             Assert.Equal(0, code);
             Assert.DoesNotContain("wolf-boots", File.ReadAllText(file), StringComparison.Ordinal);
         }
@@ -172,7 +172,7 @@ public class ProgramTests
         string file = Path.Combine(Path.GetTempPath(), $"rpg-{Guid.NewGuid():N}.json");
         try
         {
-            (int code, _, _) = Run("--record", file, "--scenario", "training", "--class", "guard", "--party", "mage,sentinel");
+            (int code, _, _) = Run("--record", file, "--scenario", "training", "--class", "warrior", "--party", "mage,archer");
             Assert.Equal(0, code);
             string json = File.ReadAllText(file);
             Assert.Contains($"\"version\":{Rpg.Core.FightRecord.CurrentVersion}", json, StringComparison.Ordinal);
@@ -184,8 +184,8 @@ public class ProgramTests
             File.Delete(file);
         }
         Assert.Equal(2, Run("--simulate", "3", "--party", "mage").Code);
-        Assert.Equal(2, Run("--simulate", "3", "--class", "guard", "--party", "mage,mage,mage,mage").Code);
-        Assert.Equal(2, Run("--simulate", "3", "--class", "guard", "--party", "dragon").Code);
+        Assert.Equal(2, Run("--simulate", "3", "--class", "warrior", "--party", "mage,mage,mage,mage").Code);
+        Assert.Equal(2, Run("--simulate", "3", "--class", "warrior", "--party", "dragon").Code);
     }
 
     [Fact]
@@ -196,9 +196,9 @@ public class ProgramTests
         Rpg.Core.GameData data = Rpg.Core.GameData.Embedded;
         Rpg.Core.Dungeon wallow = data.Dungeons["boar-wallow"];
         string level = data.Towns.Values.Where(t => t.Zone == data.Families[wallow.Family].Zone).Min(t => t.Level).ToString(System.Globalization.CultureInfo.InvariantCulture);
-        foreach ((string party, int least) in new[] { ("mage,sentinel", 7), ("mage,sentinel,guard", 9) })
+        foreach ((string party, int least) in new[] { ("mage,archer", 7), ("mage,archer,warrior", 9) })
         {
-            (int code, string output, _) = Run("--simulate", "10", "--scenario", wallow.Scenario(3), "--class", "guard", "--party", party, "--level", level, "--kit", "zone");
+            (int code, string output, _) = Run("--simulate", "10", "--scenario", wallow.Scenario(3), "--class", "warrior", "--party", party, "--level", level, "--kit", "zone");
             Assert.Equal(0, code);
             int won = int.Parse(System.Text.RegularExpressions.Regex.Match(output, @"team A (\d+)").Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(won >= least, $"{party}: {output}");
@@ -209,7 +209,7 @@ public class ProgramTests
     public void ThePartiesOfEachSize_AreTheClassesCombinations_HeroFirst()
     {
         // Sprint 122: 6 parties of two, 10 of three and 15 of four with three classes, none twice.
-        string[] classes = ["guard", "mage", "sentinel"];
+        string[] classes = ["warrior", "mage", "archer"];
         foreach ((int size, int count) in new[] { (2, 6), (3, 10), (4, 15) })
         {
             IReadOnlyList<string>[] parties = [.. Program.Parties(classes, size)];
@@ -217,7 +217,7 @@ public class ProgramTests
             Assert.All(parties, p => Assert.Equal(size, p.Count));
             Assert.Equal(count, parties.Select(p => string.Join('+', p.Order(StringComparer.Ordinal))).Distinct().Count());
         }
-        Assert.Equal(["guard", "guard"], Program.Parties(classes, 2).First());
+        Assert.Equal(["warrior", "warrior"], Program.Parties(classes, 2).First());
     }
 
     [Theory]
@@ -241,21 +241,21 @@ public class ProgramTests
         Assert.Matches(@"level 30, kit none, 2 fights per party", output);
         foreach (string size in new[] { "2 heroes", "3 heroes", "4 heroes" })
             Assert.Contains(size, output, StringComparison.Ordinal);
-        Assert.Matches(@"sentinel\+guard\+mage\+mage +\d/2 ", output);
+        Assert.Matches(@"archer\+warrior\+mage\+mage +\d/2 ", output);
         Assert.Equal(3, System.Text.RegularExpressions.Regex.Count(output, @"  all "));
         Assert.Equal(output, Run(args).Out);
         Assert.Contains("niveau 12", Run([.. args, "--level", "12", "--lang", "fr"]).Out, StringComparison.Ordinal);
-        Assert.Equal(2, Run("--simulate", "2", "--parties", "--class", "guard").Code);
+        Assert.Equal(2, Run("--simulate", "2", "--parties", "--class", "warrior").Code);
         Assert.Equal(2, Run("--record", "x.json", "--parties").Code);
     }
 
     [Fact]
     public void TheMatrix_IsATableOfAClasssPaths_WithWhatItsSpellsWereWorth()
     {
-        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "guard", "--level", "35");
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "warrior", "--level", "35");
         Assert.Equal(0, code);
-        Assert.Contains("| guard | 35 | (none) |", output, StringComparison.Ordinal);
-        Assert.Equal(4, output.Split('\n').Count(l => l.StartsWith("| guard | 35 |", StringComparison.Ordinal)));
+        Assert.Contains("| warrior | 35 | (none) |", output, StringComparison.Ordinal);
+        Assert.Equal(4, output.Split('\n').Count(l => l.StartsWith("| warrior | 35 |", StringComparison.Ordinal)));
         Assert.Contains("onclusive", output, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -279,9 +279,9 @@ public class ProgramTests
         Dictionary<string, string[]> decks = JsonSerializer.Deserialize<Dictionary<string, string[]>>(File.ReadAllText(file))!;
         foreach (HeroClass cls in GameData.Embedded.Classes)
             Assert.All(decks[cls.Id], spell => Assert.Contains(spell, cls.Spells));
-        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "guard", "--level", "35", "--decks", file);
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "warrior", "--level", "35", "--decks", file);
         Assert.Equal(0, code);
-        Assert.Contains("| guard | 35 | (none) |", output, StringComparison.Ordinal);
+        Assert.Contains("| warrior | 35 | (none) |", output, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -89,16 +89,16 @@ public class HeroTests
         Assert.Throws<ArgumentException>(() => new Fight(Real, "training", 1, new Hero("Élise", "female-c", "dragon")));
         Assert.Throws<ArgumentException>(() => new Fight(Real, "training", 1, new Hero("Élise", "female-c", "mage", Hero.Colours)));
         Assert.Throws<ArgumentException>(() => new Fight(Real, "training", 1, new Hero("Élise", "female-c", "mage", -1)));
-        Assert.Null(new Hero("Élise", "female-c", "guard", Hero.Colours - 1).Problem(Real));
+        Assert.Null(new Hero("Élise", "female-c", "warrior", Hero.Colours - 1).Problem(Real));
     }
 
     [Fact]
     public void TheRecord_KeepsTheClassAndColour_AndReplaysTheSameFight()
     {
-        var f = new Fight(Real, "training", 8, new Hero("Ondine", "female-e", "guard", 5));
+        var f = new Fight(Real, "training", 8, new Hero("Ondine", "female-e", "warrior", 5));
         Ai.PlayOut(f);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(f).ToJson());
-        Assert.Equal(new Hero("Ondine", "female-e", "guard", 5), r.Hero);
+        Assert.Equal(new Hero("Ondine", "female-e", "warrior", 5), r.Hero);
         Assert.Equal(Fingerprint(f), Fingerprint(r.Replay(Real)));
         // Another class does not accept the same actions: the axe is the guard's.
         Assert.Throws<InvalidFightRecordException>(() => (r with { Hero = r.Hero! with { Class = "mage" } }).Replay(Real));

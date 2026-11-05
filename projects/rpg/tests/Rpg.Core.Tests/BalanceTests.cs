@@ -40,8 +40,8 @@ public class BalanceTests
     }
 
     [Theory]
-    [InlineData("sentinel", 450, 650)]
-    [InlineData("guard", 880, 980)]
+    [InlineData("archer", 450, 650)]
+    [InlineData("warrior", 880, 980)]
     [InlineData("mage", 700, 930)]
     public void Training_EveryClass_WinsMostFights_ButNotAll(string id, int least, int most)
     {
@@ -56,9 +56,9 @@ public class BalanceTests
     }
 
     [Theory]
-    [InlineData("sentinel", "guard")]
-    [InlineData("sentinel", "mage")]
-    [InlineData("guard", "mage")]
+    [InlineData("archer", "warrior")]
+    [InlineData("archer", "mage")]
+    [InlineData("warrior", "mage")]
     public void AtLevel1_EveryClassDuel_IsWonByEitherSide(string a, string b)
     {
         // Both orders of play, 300 fights each; measured on 400 (sprint 56): 52 %, 38 %, 54 %; on 600 after
@@ -75,7 +75,7 @@ public class BalanceTests
     {
         // Erosion takes back a tenth of each blow from the maximum: no duel reaches the round limit,
         // with points spent (sprint 58) or not.
-        string[] classes = ["sentinel", "guard", "mage"];
+        string[] classes = ["archer", "warrior", "mage"];
         foreach (string a in classes)
         {
             foreach (string b in classes.Where(c => c != a))
@@ -88,7 +88,7 @@ public class BalanceTests
         }
     }
 
-    private static readonly string[] Classes = ["sentinel", "guard", "mage"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage"];
 
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
@@ -119,7 +119,7 @@ public class BalanceTests
         // four cases (16 to 22 of 30); the lake at level 18 (sprint 75, T42), 96 to 100 %, four cases,
         // one under 18 of 30 (13); the fields at level 26 (sprint 76, T43), 100 %; the hordes and the chiefs, 0 to 2 %.
         MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == zone)];
-        foreach (string id in new[] { "sentinel", "guard", "mage" })
+        foreach (string id in new[] { "archer", "warrior", "mage" })
         {
             int[] small = [.. here.Where(g => g.Monsters.Count <= 3).AsParallel().Select(g => Wins(g.Id, id, level, 30))];
             Assert.True(small.Average() >= 27, $"{id}: {small.Average():0.0} of 30 against the small groups of {zone}");
@@ -182,8 +182,8 @@ public class BalanceTests
     }
 
     [Theory]
-    [InlineData("sentinel")]
-    [InlineData("guard")]
+    [InlineData("archer")]
+    [InlineData("warrior")]
     [InlineData("mage")]
     public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
     {
@@ -196,11 +196,11 @@ public class BalanceTests
     }
 
     [Theory]
-    [InlineData("stag", "sentinel")]
-    [InlineData("stag", "guard")]
+    [InlineData("stag", "archer")]
+    [InlineData("stag", "warrior")]
     [InlineData("stag", "mage")]
-    [InlineData("golem", "sentinel")]
-    [InlineData("golem", "guard")]
+    [InlineData("golem", "archer")]
+    [InlineData("golem", "warrior")]
     [InlineData("golem", "mage")]
     public void AForestDungeonsGreatHall_IsWonAloneAtLevel41(string family, string id)
     {

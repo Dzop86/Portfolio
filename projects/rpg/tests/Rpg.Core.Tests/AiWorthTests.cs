@@ -11,7 +11,7 @@ public class AiWorthTests
     [Fact]
     public void AHerosCreature_IsWorthWhatItWouldStrike_AMonstersStaysAtItsFlatWorth()
     {
-        Fight fight = Training("sentinel", 35);
+        Fight fight = Training("archer", 35);
         Fighter hero = fight.HeroFighter!;
         Fighter monster = fight.Fighters.First(f => f.Team != hero.Team);
         Spell hawk = Real.Spells["hawk"];
@@ -24,7 +24,7 @@ public class AiWorthTests
     [Fact]
     public void AHerosShield_IsWorthWhatTheBlowsInReachWouldTake_AtMostItsAmount()
     {
-        Fight fight = Training("guard", 35);
+        Fight fight = Training("warrior", 35);
         Fighter hero = fight.HeroFighter!;
         Spell spell = Real.Spells.Values.First(s => s.DamageMax == 0 && s.AllEffects.Count == 1 && s.AllEffects[0] is ShieldEffect { Affects: Affects.Caster });
         ShieldEffect shield = (ShieldEffect)spell.AllEffects[0];
@@ -35,7 +35,7 @@ public class AiWorthTests
     [Fact]
     public void WithNoBlowInReach_NothingIsComing()
     {
-        Fight fight = Training("guard", 35);
+        Fight fight = Training("warrior", 35);
         Fighter hero = fight.HeroFighter!;
         double all = Ai.Incoming(fight, hero);
         foreach (Fighter enemy in fight.Fighters.Where(f => f.Team != hero.Team))
@@ -48,14 +48,14 @@ public class AiWorthTests
     public void TheAmbush_NowCallsItsHawk_AndDives()
     {
         // Before: the Hawk 0.0 times a fight, so the Dive, which needs it, 0.0 too, and the line said nothing of either.
-        BenchReport report = Bench.Run(new SyntheticFamily(35), "sentinel", 15, sample: 8);
+        BenchReport report = Bench.Run(new SyntheticFamily(35), "archer", 15, sample: 8);
         Assert.True(report.Paths.Single(p => p.Path == "ambush").Casts["path-dive"] >= BenchRow.LeastCasts);
     }
 
     [Fact]
     public void ASwapWithAnAlly_DoesNotMakeASoloLineNotConclusive()
     {
-        BenchReport report = Bench.Run(new SyntheticFamily(35), "guard", 1, sample: 1);
+        BenchReport report = Bench.Run(new SyntheticFamily(35), "warrior", 1, sample: 1);
         Assert.DoesNotContain("path-interpose", report.Paths.Single(p => p.Path == "palisade").Casts.Keys);
     }
 }

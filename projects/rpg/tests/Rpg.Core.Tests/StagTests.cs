@@ -88,7 +88,7 @@ public class StagTests
         // A group with the hind and the hart, played out by the AI against a hero of 31.
         MonsterGroup group = Real.Groups.Values.Where(g => g.Family == "stag" && g.Monsters.Contains("carving-hind") && g.Monsters.Contains("old-hart"))
             .OrderBy(g => g.Monsters.Count).ThenBy(g => g.Id, StringComparer.Ordinal).First();
-        Hero hero = Progression.Built(new Hero("Essai", "female-d", "guard", Level: 31), Real);
+        Hero hero = Progression.Built(new Hero("Essai", "female-d", "warrior", Level: 31), Real);
         bool laid = false;
         for (ulong seed = 1; seed <= 10; seed++)
         {

@@ -138,7 +138,7 @@ namespace Rpg.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasDefaultValue("sentinel");
+                        .HasDefaultValue("archer");
 
                     b.Property<int>("Colour")
                         .HasColumnType("integer");

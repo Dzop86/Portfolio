@@ -25,7 +25,7 @@ public class ElementReturnsTests
         Assert.Equal(Characteristics.Bonus(60), Characteristics.Bonus(Characteristics.Effective(60, Characteristics.Threshold(50))));
     }
 
-    private static Hero OfEarth(int earth) => new("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Earth: earth));
+    private static Hero OfEarth(int earth) => new("Élise", "female-c", "warrior", Level: 50, Stats: new Characteristics(Earth: earth));
 
     [Fact]
     public void AFight_CountsAHerosPointsWithTheCurve_AndAMonstersWithout()

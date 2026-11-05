@@ -10,7 +10,7 @@ public class JobBookTests
     private static readonly Job Locksmith = Data.Jobs["locksmith"], Woodcutter = Data.Jobs["woodcutter"];
 
     private static CharacterSummary With(long locksmith, long shards, params ItemCount[] owned) =>
-        new(Guid.NewGuid(), "Serrure", "male-c", "guard", 0, DateTimeOffset.UnixEpoch, Inventory: owned, Shards: shards,
+        new(Guid.NewGuid(), "Serrure", "male-c", "warrior", 0, DateTimeOffset.UnixEpoch, Inventory: owned, Shards: shards,
             Jobs: new Dictionary<string, long> { ["locksmith"] = locksmith, ["woodcutter"] = 30 });
 
     [Fact]

@@ -50,7 +50,7 @@ public class DeckTests
         Assert.True(editor.PlaceInDeck(fire[1], 5) && editor.PlaceInDeck(fire[3], 5));
         Assert.Null(editor.Draft.Problem(Data));
         // Not another class's, not locked, not a thirteenth.
-        Assert.False(editor.PlaceInDeck(Data.Class("guard")!.Spells[0], 0));
+        Assert.False(editor.PlaceInDeck(Data.Class("warrior")!.Spells[0], 0));
         Assert.False(Editor(level: 1, deck: []).PlaceInDeck(Mage.Spells[^1], 0));
         PointsEditor full = Editor();
         string outside = Mage.Spells.First(id => !full.Deck.Contains(id));
@@ -80,8 +80,19 @@ public class DeckTests
         Assert.Null(friend.UseCode("MAGE-Z"));
         Assert.Null(friend.UseCode("MAGE-ABCDEFGHIJKLM"));
         Assert.Null(DeckCode.Decode(null, Data));
-        (string cls, IReadOnlyList<string> spells) = DeckCode.Decode("Guard-b", Data)!.Value;
-        Assert.Equal("guard", cls);
-        Assert.Equal([Data.Class("guard")!.Spells[1]], spells);
+        (string cls, IReadOnlyList<string> spells) = DeckCode.Decode("Warrior-b", Data)!.Value;
+        Assert.Equal("warrior", cls);
+        Assert.Equal([Data.Class("warrior")!.Spells[1]], spells);
+    }
+
+    [Theory]
+    [InlineData("Guard-b", "warrior")]
+    [InlineData("SENTINEL-B", "archer")]
+    public void ACodeSharedBeforeTheConversion_StillGivesItsSpells(string code, string cls)
+    {
+        // Sprint 195 (D96): the classes changed their names, not their spells.
+        (string decoded, IReadOnlyList<string> spells) = DeckCode.Decode(code, Data)!.Value;
+        Assert.Equal(cls, decoded);
+        Assert.Equal([Data.Class(cls)!.Spells[1]], spells);
     }
 }

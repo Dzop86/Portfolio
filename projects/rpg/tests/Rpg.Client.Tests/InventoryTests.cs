@@ -13,7 +13,7 @@ public class InventoryTests
     [Fact]
     public void ThePages_SortTheItemsByKind()
     {
-        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Bag, Data);
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "warrior", Level: 10), Bag, Data);
         Assert.Equal(8, editor.Page(InventoryPage.All).Count);
         Assert.Equal(["copper-ring", "dagger", "wooden-shield", "orc-club", "donkey"], editor.Page(InventoryPage.Equipment).Select(p => p.Item.Id));
         Assert.Equal([("bread", 3)], editor.Page(InventoryPage.Consumable).Select(p => (p.Item.Id, p.Count)));
@@ -28,7 +28,7 @@ public class InventoryTests
     [Fact]
     public void TheEquipment_SortsBySet_ByLevel_BySlot_OrByName()
     {
-        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data);
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "warrior", Level: 10), Wardrobe, Data);
         string[] Ids(InventorySort sort, string lang = "fr") => [.. editor.Page(InventoryPage.Equipment, sort, lang).Select(p => p.Item.Id)];
         // By kind then level, as before.
         Assert.Equal(Ids(InventorySort.Kind), editor.Page(InventoryPage.Equipment).Select(p => p.Item.Id));
@@ -46,7 +46,7 @@ public class InventoryTests
     [Fact]
     public void ASlot_OffersWhatGoesInIt_WhatCanBeWornFirst_AndPutsItThere()
     {
-        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data);
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "warrior", Level: 10), Wardrobe, Data);
         Assert.True(editor.PutIn(Slot.Ring1, Data.Items["copper-ring"]));
         // The other finger: the howler's ring, then the copper one (the same ring never on both hands).
         Assert.Equal(["howl-ring", "copper-ring"], editor.For(Slot.Ring2).Select(i => i.Id));
@@ -64,14 +64,14 @@ public class InventoryTests
         Assert.True(editor.PutIn(Slot.TwoHanded, Data.Items["orc-club"]));
         Assert.False(editor.Worn.ContainsKey(Slot.OneHanded));
         // In a fight, nothing.
-        var shown = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Wardrobe, Data, readOnly: true);
+        var shown = new InventoryEditor(new Hero("Élise", "female-c", "warrior", Level: 10), Wardrobe, Data, readOnly: true);
         Assert.False(shown.PutIn(Slot.Hat, Data.Items["poacher-hat"]));
     }
 
     [Fact]
     public void PuttingOn_FindsTheSlot_TakesOffWhatCannotStay_AndNeverWearsMoreThanOwned()
     {
-        var editor = new InventoryEditor(new Hero("Élise", "female-c", "guard", Level: 10), Bag, Data);
+        var editor = new InventoryEditor(new Hero("Élise", "female-c", "warrior", Level: 10), Bag, Data);
         Item ring = Data.Items["copper-ring"];
         Assert.True(editor.Put(ring));
         // Two copper rings owned, but the same ring never on both hands (sprint 110, D76).
@@ -121,7 +121,7 @@ public class InventoryTests
     [Fact]
     public void InAFight_TheEquipmentIsShown_NothingIsPutOnOrTakenOff()
     {
-        var hero = new Hero("Élise", "female-c", "guard", Level: 10, Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring" });
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 10, Worn: new Dictionary<Slot, string> { [Slot.Ring1] = "copper-ring" });
         var editor = new InventoryEditor(hero, Bag, Data, readOnly: true);
         Assert.Equal("in a fight", editor.WhyNot(Data.Items["dagger"]));
         Assert.False(editor.Put(Data.Items["dagger"]));

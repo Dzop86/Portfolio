@@ -48,7 +48,7 @@ public class ContactTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("ct"), sb = await api.SignedIn("ct");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id), b = await Connect(api, sb, brume.Id);
         // A zone anyone may stand in (not the Forest of the Ancestors, past Clairval's east gate, sprint 131).
@@ -82,7 +82,7 @@ public class ContactTests
     {
         await using var api = new ApiFactory();
         GameServer sa = await api.SignedIn("ct"), sb = await api.SignedIn("ct");
-        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "guard", cancel: Cancel);
+        CharacterSummary aube = await sa.CreateCharacter("Aube", "female-c", "warrior", cancel: Cancel);
         CharacterSummary brume = await sb.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         ChatClient a = await Connect(api, sa, aube.Id), b = await Connect(api, sb, brume.Id);
         ContactList list = await sb.AddContact(brume.Id, "Aube", ignore: true, cancel: Cancel);

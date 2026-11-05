@@ -40,10 +40,10 @@ public class ProgressionTests
     [Fact]
     public void ALostFight_ARivalAndSummons_GiveNothing_AlliesGiveTheGroupBonus()
     {
-        var lost = new Fight(Real, "training", 1, new Hero("Élise", "female-c", "guard"));
+        var lost = new Fight(Real, "training", 1, new Hero("Élise", "female-c", "warrior"));
         Ai.PlayOut(lost);
         Assert.Equal(lost.WinningTeam == 0 ? Progression.MonsterXp(1) * 2 : 0, Progression.FightXp(lost));
-        var duel = new Fight(Real, "duel", 2, new Hero("Élise", "female-c", "guard"), new Hero("Ondine", "female-e", "mage"));
+        var duel = new Fight(Real, "duel", 2, new Hero("Élise", "female-c", "warrior"), new Hero("Ondine", "female-e", "mage"));
         Ai.PlayOut(duel);
         Assert.Equal(0, Progression.FightXp(duel));
         Assert.Equal(0, Progression.FightXp(new Fight(Real, "training", 1)));
@@ -62,19 +62,19 @@ public class ProgressionTests
     [InlineData(11, 101, "characteristic")]
     public void CharacteristicPoints_AreTenALevel(int level, int vitality, string? problem)
     {
-        string? p = new Hero("Élise", "female-c", "guard", Level: level, Stats: new Characteristics(Vitality: vitality)).Problem(Real);
+        string? p = new Hero("Élise", "female-c", "warrior", Level: level, Stats: new Characteristics(Vitality: vitality)).Problem(Real);
         if (problem is null)
             Assert.Null(p);
         else
             Assert.Contains(problem, p, StringComparison.Ordinal);
-        Assert.NotNull(new Hero("Élise", "female-c", "guard", Level: 50, Stats: new Characteristics(Earth: -1)).Problem(Real));
+        Assert.NotNull(new Hero("Élise", "female-c", "warrior", Level: 50, Stats: new Characteristics(Earth: -1)).Problem(Real));
     }
 
     [Fact]
     public void SpellPoints_AreOneALevel_AndARankCostsMoreTheHigherItGoes()
     {
         Assert.Equal([0, 0, 1, 3, 6, 10], Enumerable.Range(0, 6).Select(Progression.RankCost));
-        Hero Ranked(int level, string spell, int rank) => new("Élise", "female-c", "guard", Level: level, Ranks: new Dictionary<string, int> { [spell] = rank });
+        Hero Ranked(int level, string spell, int rank) => new("Élise", "female-c", "warrior", Level: level, Ranks: new Dictionary<string, int> { [spell] = rank });
         Assert.Null(Ranked(4, "shield-bash", 3).Problem(Real));
         Assert.Contains("spell points", Ranked(3, "shield-bash", 3).Problem(Real), StringComparison.Ordinal);
         Assert.Contains("ranks 1 to 5", Ranked(50, "shield-bash", 6).Problem(Real), StringComparison.Ordinal);
@@ -86,8 +86,8 @@ public class ProgressionTests
     [Fact]
     public void InAFight_TheHerosPointsCount()
     {
-        HeroClass guard = Real.Class("guard")!;
-        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40, Earth: 60), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
+        HeroClass guard = Real.Class("warrior")!;
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 11, Stats: new Characteristics(Vitality: 40, Earth: 60), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
         Assert.Equal(guard.Hp + guard.HpPerLevel * 10 + 40, f.MaxHp);
         Assert.Equal(60, f.Spec.Characteristics.Earth);
@@ -115,7 +115,7 @@ public class ProgressionTests
     [Fact]
     public void TheHerosPoints_TravelInTheRecord_AndCompareByContent()
     {
-        var hero = new Hero("Élise", "female-c", "guard", Level: 11, Stats: new Characteristics(Vitality: 40), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 11, Stats: new Characteristics(Vitality: 40), Ranks: new Dictionary<string, int> { ["shield-bash"] = 3 });
         Assert.Equal(hero, hero with { Ranks = new Dictionary<string, int> { ["shield-bash"] = 3 } });
         Assert.NotEqual(hero, hero with { Ranks = new Dictionary<string, int> { ["shield-bash"] = 2 } });
         var f = new Fight(Real, "training", 3, hero);
@@ -128,16 +128,16 @@ public class ProgressionTests
     [Fact]
     public void TheHero_FightsWithItsDeck_InItsOrder_WithinTheRules()
     {
-        Hero H(int level, params string[] deck) => new("Élise", "female-c", "guard", Level: level, Deck: deck);
+        Hero H(int level, params string[] deck) => new("Élise", "female-c", "warrior", Level: level, Deck: deck);
         // No deck: the class's first unlocked spells, twelve at most (the automatic deck since sprint 161).
-        Assert.Equal(Real.Class("guard")!.Spells.Take(5), new Hero("Élise", "female-c", "guard").DeckOf(Real));
-        Assert.Equal(12, new Hero("Élise", "female-c", "guard", Level: 95).DeckOf(Real).Count);
+        Assert.Equal(Real.Class("warrior")!.Spells.Take(5), new Hero("Élise", "female-c", "warrior").DeckOf(Real));
+        Assert.Equal(12, new Hero("Élise", "female-c", "warrior", Level: 95).DeckOf(Real).Count);
         // A deck is played as chosen, in its order.
         Fighter f = new Fight(Real, "duel", 1, H(10, "taunt", "slash")).Fighters[0];
         Assert.Equal(["taunt", "slash"], f.Spells.Select(s => s.Id));
         Assert.Null(H(10, "taunt", "slash").Problem(Real));
         Assert.Contains("each once", H(10, "slash", "slash").Problem(Real), StringComparison.Ordinal);
-        Assert.Contains("at most 12", H(95, [.. Real.Class("guard")!.Spells.Take(13)]).Problem(Real), StringComparison.Ordinal);
+        Assert.Contains("at most 12", H(95, [.. Real.Class("warrior")!.Spells.Take(13)]).Problem(Real), StringComparison.Ordinal);
         Assert.Contains("not one this hero has", H(4, "bulwark").Problem(Real), StringComparison.Ordinal);
         Assert.Contains("not one this hero has", H(10, "pebble").Problem(Real), StringComparison.Ordinal);
         // The deck travels with the hero and compares by content.
@@ -146,13 +146,13 @@ public class ProgressionTests
     }
 
     [Theory]
-    [InlineData("sentinel", 39, "")]
-    [InlineData("sentinel", 40, "ember-volley>searing-shot")]
-    [InlineData("sentinel", 45, "ember-volley>searing-shot tide-arrow>venom-arrow")]
-    [InlineData("sentinel", 60, "ember-volley>searing-shot tide-arrow>venom-arrow")]
-    [InlineData("guard", 41, "")]
-    [InlineData("guard", 55, "")]
-    [InlineData("guard", 60, "cleave>titan-blow")]
+    [InlineData("archer", 39, "")]
+    [InlineData("archer", 40, "ember-volley>searing-shot")]
+    [InlineData("archer", 45, "ember-volley>searing-shot tide-arrow>venom-arrow")]
+    [InlineData("archer", 60, "ember-volley>searing-shot tide-arrow>venom-arrow")]
+    [InlineData("warrior", 41, "")]
+    [InlineData("warrior", 55, "")]
+    [InlineData("warrior", 60, "cleave>titan-blow")]
     [InlineData("mage", 55, "")]
     [InlineData("mage", 60, "roots>fault-line")]
     public void TheAutomaticDeck_GivesANewSpellTheCellOfTheOldestOfItsElement_ThatItBeatsOnATurn(string id, int level, string swaps)
@@ -194,7 +194,7 @@ public class ProgressionTests
     public void TheAutomaticDeck_KeepsTheSpellsOfLevelOne_TheRaisedOnes_TheFarReaching_AndNeverTouchesAChosenDeck()
     {
         // Ember Volley raised above rank 1 keeps its cell: Searing Shot has no other of its element to take, it waits.
-        var hero = new Hero("Élise", "female-c", "sentinel", Level: 40);
+        var hero = new Hero("Élise", "female-c", "archer", Level: 40);
         Hero raised = hero with { Ranks = new Dictionary<string, int> { [Real.Spells["ember-volley"].RankKey] = 2 } };
         Assert.Equal(hero.FirstSpells(Real), raised.DeckOf(Real));
         Assert.Contains("stone-arrow", (hero with { Level = 60 }).DeckOf(Real));
@@ -219,7 +219,7 @@ public class ProgressionTests
     {
         // Sprint 161: a record of version 3 or more replays the automatic deck; one written before, the first twelve spells
         // (and, from sprint 162, the linear bonus of the elements; from sprint 182, the reactions of its talents only: none).
-        var hero = Progression.Built(new Hero("Élise", "female-c", "guard", Level: 60), Real);
+        var hero = Progression.Built(new Hero("Élise", "female-c", "warrior", Level: 60), Real);
         var now = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(now);
         FightRecord r = FightRecord.FromJson(FightRecord.Of(now).ToJson());
@@ -236,7 +236,7 @@ public class ProgressionTests
     [Fact]
     public void AHeroOfOneElement_HoldsNoMoreSpellsThanADeck()
     {
-        foreach (string id in new[] { "sentinel", "guard", "mage" })
+        foreach (string id in new[] { "archer", "warrior", "mage" })
             foreach (Element e in new[] { Element.Earth, Element.Fire, Element.Water, Element.Air })
             {
                 Hero one = Progression.OfOne(new Hero("Élise", "female-c", id, Level: 95), e, Real);

@@ -100,7 +100,7 @@ public class ContractTests
     public void AHunt_CountsItsFamily_AGatheringTheItemsOwned_TheRewardsByLevel()
     {
         MonsterGroup boars = Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null && g.Monsters.Count == 2);
-        var fight = new Fight(Real, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), Real));
+        var fight = new Fight(Real, boars.Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "warrior", Level: 60), Real));
         Ai.PlayOut(fight);
         Contract hunt = new(ContractKind.Hunt, "boar", 6, 30);
         hunt = Contracts.AfterFight(hunt, Real, fight, null);
@@ -120,7 +120,7 @@ public class ContractTests
     [Fact]
     public void ADungeon_CountsFromItsSecondRoom_AChief_ItsLastOnly()
     {
-        var fight = new Fight(Real, Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null).Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "guard", Level: 60), Real));
+        var fight = new Fight(Real, Real.Groups.Values.First(g => g.Family == "boar" && g.Fight is null).Scenario, 1, Progression.Built(new Hero("Ronce", "female-c", "warrior", Level: 60), Real));
         Ai.PlayOut(fight);
         Contract scout = new(ContractKind.Dungeon, "boar-wallow", 1, 10), boss = new(ContractKind.Boss, "boar-wallow", 1, 10);
         Assert.Equal(0, Contracts.AfterFight(scout, Real, fight, ("boar-wallow", 1)).Done);

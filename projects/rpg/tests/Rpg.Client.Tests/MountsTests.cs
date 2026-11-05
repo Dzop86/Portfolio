@@ -10,7 +10,7 @@ public class MountsTests
     [Fact]
     public void AHeroWithAMount_Rides_ThirtyPercentFaster()
     {
-        var rider = new Hero("Aubépine", "female-b", "guard", Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey" });
+        var rider = new Hero("Aubépine", "female-b", "warrior", Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Mount] = "donkey" });
         Assert.Equal("donkey", Mounts.Ridden(rider));
         Assert.Equal(5.544 * 1.3, Mounts.Speed(rider, 5.544), 6);
     }
@@ -18,7 +18,7 @@ public class MountsTests
     [Fact]
     public void AHeroOnFoot_WalksAtItsOwnPace()
     {
-        var walker = new Hero("Aubépine", "female-b", "guard", Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Pet] = "kitten" });
+        var walker = new Hero("Aubépine", "female-b", "warrior", Level: 20, Worn: new Dictionary<Slot, string> { [Slot.Pet] = "kitten" });
         Assert.Null(Mounts.Ridden(walker));
         Assert.Null(Mounts.Ridden(new Hero("Aubépine", "female-b")));
         Assert.Null(Mounts.Ridden(null));

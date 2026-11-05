@@ -37,7 +37,7 @@ public class CompoundsConsumeTests
         GameServer server = await api.SignedIn("cc2");
         string account = api.WithDb(db => db.Accounts.Single().Name);
         CharacterSummary plop = await server.CreateCharacter("Plop", "female-a", "mage", cancel: Cancel);
-        CharacterSummary plif = await server.CreateCharacter("Plif", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary plif = await server.CreateCharacter("Plif", "female-a", "archer", cancel: Cancel);
         await Level(api, account, 100);
         string[] plifDeck = ["lightning-fire-arrow", "fire-arrow", "stone-arrow"];
         api.WithDb(db =>

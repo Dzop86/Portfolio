@@ -56,8 +56,8 @@ public class LightningTests
     }
 
     [Theory]
-    [InlineData("sentinel")]
-    [InlineData("guard")]
+    [InlineData("archer")]
+    [InlineData("warrior")]
     [InlineData("mage")]
     public void EachClass_HasEightLightningSpells_TwinsOfItsFireAndAirOnes_AtFourFifthsOfTheBudget(string id)
     {
@@ -95,7 +95,7 @@ public class LightningTests
     }
 
     [Theory]
-    [InlineData("guard")]
+    [InlineData("warrior")]
     [InlineData("mage")]
     public void TheGuardsAndTheMagesLightning_TurnsTheirFireAndAirSpellsUnlockedIntoTwins_AndPlaysAndReplays(string id)
     {
@@ -132,7 +132,7 @@ public class LightningTests
         // unlocked with its spell: at 45, not the twins of Gale (50), Ember Rain (65) nor Skyfall (75).
         Assert.Equal(5, Talents.GrimoireOf(Hero(29), Book).Spells.Count);
         Assert.Equal("'Lightning' is created from level 30.", Hero(29).Problem(Book));
-        Hero sentinel = new("Ondine", "female-a", "sentinel", Level: 100, Compounds: [Element.Lightning]);
+        Hero sentinel = new("Ondine", "female-a", "archer", Level: 100, Compounds: [Element.Lightning]);
         Assert.Equal(8, Talents.GrimoireOf(sentinel, Real).Spells.Count(id => Real.Spells[id].Element == Element.Lightning));
         Assert.Equal(5, Talents.GrimoireOf(sentinel with { Level = 45 }, Real).Spells.Count(id => Real.Spells[id].Twin is not null));
     }
@@ -231,11 +231,11 @@ public class LightningTests
     [Fact]
     public void ASentinelOfLightning_PlaysAndReplaysTheSame_AndItsPointsGoToFireAndAir()
     {
-        Hero sentinel = Progression.Talented(new Rpg.Core.Hero("Ondine", "female-a", "sentinel", Level: 45), [], Real, compounds: [Element.Lightning]);
+        Hero sentinel = Progression.Talented(new Rpg.Core.Hero("Ondine", "female-a", "archer", Level: 45), [], Real, compounds: [Element.Lightning]);
         Assert.Null(sentinel.Problem(Real));
         Assert.Contains(sentinel.DeckOf(Real), id => Real.Spells[id].Element == Element.Lightning);
         Assert.True(sentinel.Stats!.Fire > 0 && sentinel.Stats.Air > 0);
-        Assert.All(sentinel.Ranks!.Keys, k => Assert.Contains(k, Real.Class("sentinel")!.Spells));
+        Assert.All(sentinel.Ranks!.Keys, k => Assert.Contains(k, Real.Class("archer")!.Spells));
         // Without Rockfall: at 6 AP and 13 to 17 since sprint 162 (T129), it is all the AI casts on this group.
         var f = new Fight(Real, "group:fields-0-4.0", 3, sentinel with { Deck = [.. sentinel.DeckOf(Real).Where(id => id != "rockfall")] });
         Ai.PlayOut(f);

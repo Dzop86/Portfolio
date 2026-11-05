@@ -24,7 +24,7 @@ public class FinalsTests
     private static string Lineage => Real.Specs["palisade"].Forks[0].Id;
 
     private static Hero Guard(int level, string? final) =>
-        new("Ondine", "female-a", "guard", Level: level, Spec: "palisade", Fork: Lineage, Final: final);
+        new("Ondine", "female-a", "warrior", Level: level, Spec: "palisade", Fork: Lineage, Final: final);
 
     [Fact]
     public void AFinalClass_GivesItsTierAndTitle_AtLevel100()
@@ -81,7 +81,7 @@ public class FinalsTests
     public void AValidFinalClass_LeavesNoProblemOfItsOwn()
     {
         GameData data = With(Final("one"), Final("two"));
-        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "guard", Level: 100), data) with { Spec = "palisade", Fork = Lineage, Final = "one", Deck = null };
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "warrior", Level: 100), data) with { Spec = "palisade", Fork = Lineage, Final = "one", Deck = null };
         Assert.Null(hero.Problem(data));
     }
 
@@ -140,7 +140,7 @@ public class FinalsTests
     public void ALineageWithoutFinals_KeepsItsEvolutionAt100_UntilItsClassIsConverted()
     {
         Assert.All(Real.Specs.Values.SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
-        Hero hero = new("Ondine", "female-a", "guard", Level: 100, Spec: "palisade", Fork: Lineage);
+        Hero hero = new("Ondine", "female-a", "warrior", Level: 100, Spec: "palisade", Fork: Lineage);
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
     }
 }

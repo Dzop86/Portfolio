@@ -95,7 +95,7 @@ public class AchievementsPageTests
     {
         var crowd = new MapCrowd();
         Guid plop = Guid.NewGuid();
-        crowd.Apply(new MapNews(MapNewsKind.Here, plop, "Plop", new Hero("Plop", "male-a", "guard"), new Cell(3, 3), Title: "dungeons-all"), Guid.NewGuid());
+        crowd.Apply(new MapNews(MapNewsKind.Here, plop, "Plop", new Hero("Plop", "male-a", "warrior"), new Cell(3, 3), Title: "dungeons-all"), Guid.NewGuid());
         Assert.Equal("dungeons-all", Assert.Single(crowd.Others).Title);
     }
 

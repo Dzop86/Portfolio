@@ -13,7 +13,7 @@ public class SentinelPathsTests
     private static readonly Spell Far = new("t-far", Text, 1, 2, 9, false, false, 10, 10, 9);
 
     private static Hero Sentinel(string? spec, string? fork, int level, params string[] deck) =>
-        new("Ondine", "female-a", "sentinel", Level: level, Stats: new Characteristics(Earth: 90, Fire: 20), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
+        new("Ondine", "female-a", "archer", Level: level, Stats: new Characteristics(Earth: 90, Fire: 20), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
 
     /// <summary>A board where the hero plays first against the given monsters.</summary>
     private static Fight On(string[] rows, Hero hero, params FighterSpec[] monsters)
@@ -31,7 +31,7 @@ public class SentinelPathsTests
     [Fact]
     public void EveryLeaf_HasItsThreeSpells_TwoAtThirty_OneAtFifty()
     {
-        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "sentinel"))
+        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "archer"))
         {
             Assert.Equal(2, s.Base.Spells!.Count);
             Assert.All(s.Forks, f =>
@@ -341,7 +341,7 @@ public class SentinelPathsTests
     public static TheoryData<string, string?, int> Leaves()
     {
         var leaves = new TheoryData<string, string?, int>();
-        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "sentinel"))
+        foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "archer"))
         {
             leaves.Add(s.Id, null, 40);
             foreach (SpecFork f in s.Forks)
@@ -357,7 +357,7 @@ public class SentinelPathsTests
     [MemberData(nameof(Leaves))]
     public void EveryLeaf_PlaysOut_AndReplaysTheSame(string spec, string? fork, int level)
     {
-        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "sentinel", Level: level, Spec: spec, Fork: fork), Real);
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "archer", Level: level, Spec: spec, Fork: fork), Real);
         Assert.Null(hero.Problem(Real));
         var fight = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(fight);

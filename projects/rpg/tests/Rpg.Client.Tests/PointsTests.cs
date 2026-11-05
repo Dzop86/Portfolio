@@ -10,7 +10,7 @@ public class PointsTests
     [Fact]
     public void TheButtons_SpendThePointsTheLevelGives_NeverMore()
     {
-        var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 3), Data);
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "warrior", Level: 3), Data);
         Assert.Equal((20, 2), (editor.CharacteristicPointsLeft, editor.SpellPointsLeft));
         editor.Add(Characteristic.Vitality, 15);
         editor.Add(Characteristic.Earth, 10);
@@ -25,7 +25,7 @@ public class PointsTests
     [Fact]
     public void ARank_CostsMoreTheHigherItGoes_OnlyForUnlockedSpells()
     {
-        var editor = new PointsEditor(new Hero("Élise", "female-c", "guard", Level: 4), Data);
+        var editor = new PointsEditor(new Hero("Élise", "female-c", "warrior", Level: 4), Data);
         Spell bash = Data.Spells["shield-bash"];
         Assert.Equal(["shield-bash", "burning-blade", "ice-blade", "slash", "taunt"], editor.Spells.Select(s => s.Id));
         Assert.Equal((1, 1), (editor.Rank(bash), editor.NextRankCost(bash)));
@@ -118,7 +118,7 @@ public class PointsTests
     [Fact]
     public void InAFight_ThePointsAndTheDeck_AreShownButNeverChanged()
     {
-        var hero = new Hero("Élise", "female-c", "guard", Level: 20, Stats: new Characteristics(10, 5, 0, 0, 0));
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 20, Stats: new Characteristics(10, 5, 0, 0, 0));
         var editor = new PointsEditor(hero, Data, readOnly: true);
         Spell bash = Data.Spells["shield-bash"];
         Assert.Equal(10, editor[Characteristic.Vitality]);

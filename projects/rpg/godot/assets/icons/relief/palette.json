@@ -6,14 +6,14 @@
     "dark": "#634d8c",
     "outline": "#241c33"
   },
-  "class-sentinel": {
+  "class-archer": {
     "shape": "lorc/high-shot",
     "main": "#52c45a",
     "light": "#a0dfa4",
     "dark": "#2d6c32",
     "outline": "#102712"
   },
-  "class-guard": {
+  "class-warrior": {
     "shape": "lorc/checked-shield",
     "main": "#a9c7e8",
     "light": "#d0e1f2",

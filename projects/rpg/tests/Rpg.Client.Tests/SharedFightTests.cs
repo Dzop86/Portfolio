@@ -12,7 +12,7 @@ public class SharedFightTests
     private static readonly MonsterGroup Group = Data.Groups.Values.First(g => Data.Towns[g.Map].Dungeon is null);
     private static readonly Guid Aube = Guid.NewGuid(), Brume = Guid.NewGuid();
 
-    private static SharedFightStart Start() => new(Guid.NewGuid(), Group.Scenario, 5, Progression.Built(new Hero("Aube", "female-c", "guard", Level: 20), Data), null,
+    private static SharedFightStart Start() => new(Guid.NewGuid(), Group.Scenario, 5, Progression.Built(new Hero("Aube", "female-c", "warrior", Level: 20), Data), null,
         [Progression.Built(new Hero("Brume", "female-c", "mage", Level: 20), Data)], [null], [Aube, Brume]);
 
     [Fact]

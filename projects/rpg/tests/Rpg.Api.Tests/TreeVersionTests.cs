@@ -30,9 +30,9 @@ public class TreeVersionTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tv");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "archer", cancel: Cancel);
         CharacterSummary other = await server.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
-        CharacterSummary second = await server.CreateCharacter("Cendre", "female-b", "guard", cancel: Cancel);
+        CharacterSummary second = await server.CreateCharacter("Cendre", "female-b", "warrior", cancel: Cancel);
         await Level(api, account, 45);
         // A character of before sprint 146: the opening of Lightning, its twin in the deck; another without talents.
         api.WithDb(db =>
@@ -69,7 +69,7 @@ public class TreeVersionTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("t3");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary guard = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
+        CharacterSummary guard = await server.CreateCharacter("Ondine", "female-a", "warrior", cancel: Cancel);
         CharacterSummary mage = await server.CreateCharacter("Brume", "female-c", "mage", cancel: Cancel);
         await Level(api, account, 45);
         string deck = "lightning-burning-blade,shield-bash";
@@ -104,7 +104,7 @@ public class TreeVersionTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tr");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "warrior", cancel: Cancel);
         await Level(api, account, 29);
         Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.SavePoints(c.Id, new Points(null, null, Compounds: [Element.Lightning]), Cancel)));
         await Level(api, account, 30);
@@ -123,7 +123,7 @@ public class TreeVersionTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("tb");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        foreach ((string cls, string name) in new[] { ("mage", "Plop"), ("guard", "Pluf"), ("sentinel", "Plif") })
+        foreach ((string cls, string name) in new[] { ("mage", "Plop"), ("warrior", "Pluf"), ("archer", "Plif") })
             await server.CreateCharacter(name, "female-a", cls, cancel: Cancel);
         Assert.Null(Admin.Parse(["admin", account, "--builds"]).Error);
         AdminOrder order = Admin.Parse(["admin", account, "--level", "100", "--builds"]).Order!;

@@ -17,7 +17,7 @@ public class SpecPageTests
         new(new PointsEditor(hero, Data, readOnly), context ?? Free, preview);
 
     private static SpecPage Sentinel(int level, string? spec = null, string? fork = null, SpecContext? context = null, string? preview = null) =>
-        Page(Hero("sentinel", level, spec, fork), context, preview);
+        Page(Hero("archer", level, spec, fork), context, preview);
 
     private static SpecState State(SpecPage page, string key) => page[key].State;
 
@@ -76,8 +76,8 @@ public class SpecPageTests
     }
 
     [Theory]
-    [InlineData("sentinel", "sightline", "marksman", "barrage")]
-    [InlineData("guard", "palisade", "rampart", "bastion")]
+    [InlineData("archer", "sightline", "marksman", "barrage")]
+    [InlineData("warrior", "palisade", "rampart", "bastion")]
     [InlineData("mage", "archmage", "high-archmage", "patient")]
     public void TheNodes_FollowTheData_FifteenByClass(string cls, string first, string fork1, string fork2)
     {
@@ -208,7 +208,7 @@ public class SpecPageTests
     [Fact]
     public void ACrossing_ShowsThePricesOfSpecsChangeCost_AtEachPlaceOfTheRoad()
     {
-        Hero hero = Hero("sentinel", 62, "sightline", "marksman");
+        Hero hero = Hero("archer", 62, "sightline", "marksman");
         SpecPage page = Page(hero);
         SpecFoot chosen = page.Foot(page["marksman"], Fr);
         Assert.Equal(Fr["spec.price.fork", "620"], chosen.First);
@@ -249,7 +249,7 @@ public class SpecPageTests
     [Fact]
     public void TheButton_SaysWhatStopsIt_ByPriority()
     {
-        Hero hero = Hero("sentinel", 62, "sightline", "marksman");
+        Hero hero = Hero("archer", 62, "sightline", "marksman");
         static SpecAction Of(SpecPage p) => p.Foot(p["barrage"], Fr).Action!;
         SpecAction away = Of(Page(hero, new SpecContext(true, 100_000, InVillage: false)));
         Assert.Equal((Fr["spec.need.village"], false), (away.Text, away.Enabled));
@@ -264,7 +264,7 @@ public class SpecPageTests
         // The first choice asks neither a village nor Éclats, but a draft stops it too.
         SpecPage poorFirst = Sentinel(40, context: new SpecContext(true, 0, false));
         Assert.True(poorFirst.Foot(poorFirst["trail"], Fr).Action!.Enabled);
-        var firstEditor = new PointsEditor(Hero("sentinel", 40), Data);
+        var firstEditor = new PointsEditor(Hero("archer", 40), Data);
         firstEditor.Add(Characteristic.Earth, 1);
         SpecPage firstDraft = new(firstEditor, Free);
         Assert.Equal(Fr["spec.need.save"], firstDraft.Foot(firstDraft["trail"], Fr).Action!.Text);
@@ -338,7 +338,7 @@ public class SpecPageTests
     [Fact]
     public void ACrossingOut_SaysWhatLeaves_WhichRanksFollow_AndThePrice()
     {
-        Hero hero = Hero("sentinel", 62, "sightline", "marksman") with { Ranks = new Dictionary<string, int> { ["path-bullseye"] = 3, ["path-aimed-shot"] = 2 } };
+        Hero hero = Hero("archer", 62, "sightline", "marksman") with { Ranks = new Dictionary<string, int> { ["path-bullseye"] = 3, ["path-aimed-shot"] = 2 } };
         SpecConfirm fork = Page(hero).Confirm("sightline", "barrage", Fr);
         Assert.Equal(Fr["spec.confirm.cross", "Longue-vue"], fork.Title);
         Assert.Null(fork.Leaves);
@@ -355,16 +355,16 @@ public class SpecPageTests
     [Fact]
     public void AHandMadeDeck_IsToldItsNewSpellsWait_ForOneOrSeveral()
     {
-        Hero hero = Hero("sentinel", 40) with { Deck = ["stone-arrow"] };
+        Hero hero = Hero("archer", 40) with { Deck = ["stone-arrow"] };
         Assert.Equal(Fr["spec.deck.many"], Page(hero).Confirm("trail", null, Fr).Deck);
-        Assert.Equal(Fr["spec.deck"], Page(Hero("sentinel", 55, "trail") with { Deck = ["stone-arrow", "path-vault", "path-heel-kick"] }).Confirm("trail", "leaper", Fr).Deck);
-        Assert.Null(Page(Hero("sentinel", 40)).Confirm("trail", null, Fr).Deck);
+        Assert.Equal(Fr["spec.deck"], Page(Hero("archer", 55, "trail") with { Deck = ["stone-arrow", "path-vault", "path-heel-kick"] }).Confirm("trail", "leaper", Fr).Deck);
+        Assert.Null(Page(Hero("archer", 40)).Confirm("trail", null, Fr).Deck);
     }
 
     [Fact]
     public void TheCharacter_GivesTheContext()
     {
-        var c = new CharacterSummary(Guid.NewGuid(), "Ondine", "female-a", "sentinel", 0, DateTimeOffset.UnixEpoch, new Place("clairval", 1, 1), Quests: [Specs.Quest], Shards: 42);
+        var c = new CharacterSummary(Guid.NewGuid(), "Ondine", "female-a", "archer", 0, DateTimeOffset.UnixEpoch, new Place("clairval", 1, 1), Quests: [Specs.Quest], Shards: 42);
         SpecContext context = SpecContext.Of(c);
         Assert.True(context.QuestDone);
         Assert.Equal(42, context.Shards);
@@ -376,13 +376,13 @@ public class SpecPageTests
     [Fact]
     public void TheBook_ShowsThePathsSpells_AsTheyFight()
     {
-        Hero hero = Hero("sentinel", 100, "sightline", "barrage") with { Stats = new Characteristics(Earth: 90) };
+        Hero hero = Hero("archer", 100, "sightline", "barrage") with { Stats = new Characteristics(Earth: 90) };
         var book = new SpellBook(new PointsEditor(hero, Data));
         BookSpell barrage = book.Spells.Single(b => b.Spell.Id == "path-barrage");
         Assert.Equal(Element.Earth, barrage.Element);
         Assert.Equal(1, barrage.Spell.Cooldown);
         Assert.Equal(27, book.Spells.Count);
-        Assert.DoesNotContain(new SpellBook(new PointsEditor(Hero("sentinel", 100), Data)).Spells, b => b.Spell.Id.StartsWith("path-", StringComparison.Ordinal));
+        Assert.DoesNotContain(new SpellBook(new PointsEditor(Hero("archer", 100), Data)).Spells, b => b.Spell.Id.StartsWith("path-", StringComparison.Ordinal));
     }
 
     [Fact]

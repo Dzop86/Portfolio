@@ -75,8 +75,8 @@ public class ElementsPageTests
 
     [Theory]
     [InlineData("mage")]
-    [InlineData("guard")]
-    [InlineData("sentinel")]
+    [InlineData("warrior")]
+    [InlineData("archer")]
     public void ACompound_GivesTheTwinsOfWhatTheLevelUnlocked_AtOnce(string id)
     {
         var at30 = new PointsEditor(new Hero("Ondine", "female-a", id, Level: 30), Data);

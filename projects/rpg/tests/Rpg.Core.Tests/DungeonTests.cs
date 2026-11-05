@@ -176,7 +176,7 @@ public class DungeonTests
     [Fact]
     public void AFight_StartsWithTheHitPointsKeptFromTheRoomBefore_AndTheRecordSaysSo()
     {
-        var hero = new Hero("Ronce", "female-c", "guard", Level: 20);
+        var hero = new Hero("Ronce", "female-c", "warrior", Level: 20);
         var fight = new Fight(Real, Real.Dungeons["boar-wallow"].Scenario(2), 3, hero, heroHp: 25);
         Assert.Equal((25, 25), (fight.HeroFighter!.Hp, fight.StartHeroHp!.Value));
         Assert.True(fight.HeroFighter.MaxHp > 25);

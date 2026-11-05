@@ -46,8 +46,8 @@ public class ItemsTests
     [Fact]
     public void InAFight_WhatTheHeroWearsCounts()
     {
-        HeroClass guard = Real.Class("guard")!;
-        var hero = new Hero("Élise", "female-c", "guard", Level: 20, Stats: new Characteristics(Vitality: 10),
+        HeroClass guard = Real.Class("warrior")!;
+        var hero = new Hero("Élise", "female-c", "warrior", Level: 20, Stats: new Characteristics(Vitality: 10),
             Worn: Worn((Slot.Cape, "poacher-cape"), (Slot.Boots, "poacher-boots"), (Slot.Hat, "poacher-hat"), (Slot.Mount, "donkey")));
         Assert.Null(hero.Problem(Real));
         Fighter f = new Fight(Real, "duel", 1, hero).Fighters[0];
@@ -63,7 +63,7 @@ public class ItemsTests
         int wins = 0;
         for (ulong seed = 0; seed < 400; seed++)
         {
-            var f = new Fight(Real, "training", seed, new Hero("Élise", "female-c", "sentinel"));
+            var f = new Fight(Real, "training", seed, new Hero("Élise", "female-c", "archer"));
             Ai.PlayOut(f);
             IReadOnlyList<ItemCount> loot = Equipment.Loot(f);
             Assert.Equal(loot, Equipment.Loot(FightRecord.FromJson(FightRecord.Of(f).ToJson()).Replay(Real)));

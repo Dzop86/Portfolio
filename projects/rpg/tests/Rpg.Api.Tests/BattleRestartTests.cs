@@ -31,7 +31,7 @@ public class BattleRestartTests
     [Fact]
     public void AFightRebuiltFromItsStartAndActions_IsTheOneInMemory_AndAWrongActionIsRefused()
     {
-        Hero aube = Progression.Built(new Hero("Aube", "female-c", "guard", Level: 20), GameData.Embedded);
+        Hero aube = Progression.Built(new Hero("Aube", "female-c", "warrior", Level: 20), GameData.Embedded);
         Hero brume = Progression.Built(new Hero("Brume", "female-c", "mage", Level: 20), GameData.Embedded);
         var start = new SharedFightStart(Guid.NewGuid(), Group.Scenario, 42, aube, null, [brume], [null], [Guid.NewGuid(), Guid.NewGuid()]);
         Fight played = start.Build(GameData.Embedded);
@@ -52,7 +52,7 @@ public class BattleRestartTests
         foreach (string name in new[] { "Aube", "Brume" })
         {
             GameServer server = await api.SignedIn("br");
-            CharacterSummary c = await server.CreateCharacter(name, "female-c", name == "Aube" ? "guard" : "mage", cancel: Cancel);
+            CharacterSummary c = await server.CreateCharacter(name, "female-c", name == "Aube" ? "warrior" : "mage", cancel: Cancel);
             ChatClient chat = await server.OpenChat(c.Id, Through(api), Cancel);
             var hub = api.Services.GetRequiredService<ChatHub>();
             for (int i = 0; i < 100 && hub.MapOf(c.Id) is null; i++)

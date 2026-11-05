@@ -39,7 +39,7 @@ public class ContractTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("avis");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         // A first board: three contracts.
         Assert.Equal(Contracts.PerDay, (await server.Contracts(c.Id, Cancel)).Offered.Count);
         await Give(api, account, 40);
@@ -77,7 +77,7 @@ public class ContractTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("avis");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         await Give(api, account, 20, new ItemCount("oak-log", 12));
         int today = Contracts.Day(DateTimeOffset.UtcNow);
         var gather = new Contract(ContractKind.Gather, "oak-log", 10, 20);

@@ -24,7 +24,11 @@ public static class DeckCode
     {
         ArgumentNullException.ThrowIfNull(data);
         string[] parts = (code ?? "").Trim().Split('-');
-        if (parts.Length != 2 || data.Classes.FirstOrDefault(c => c.Id.Equals(parts[0].Trim(), StringComparison.OrdinalIgnoreCase)) is not HeroClass c)
+        if (parts.Length != 2)
+            return null;
+        // A code shared before the classes were converted (sprint 195, D96): the Warrior kept the Guard's spells in their order, the Archer the Sentinel's.
+        string named = parts[0].Trim().ToUpperInvariant() switch { "GUARD" => "warrior", "SENTINEL" => "archer", string other => other };
+        if (data.Classes.FirstOrDefault(c => c.Id.Equals(named, StringComparison.OrdinalIgnoreCase)) is not HeroClass c)
             return null;
         string letters = parts[1].Trim().ToUpperInvariant();
         if (letters.Length > Hero.DeckSize || letters.Any(l => l < 'A' || l - 'A' >= c.Spells.Count) || letters.Distinct().Count() != letters.Length)

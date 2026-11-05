@@ -176,7 +176,7 @@ public static class Servers
 public static class Accounts
 {
     /// <summary>Characters per account, as in the games of the genre.</summary>
-    public const int MaxCharacters = 5;
+    public const int MaxCharacters = 10;
 }
 
 /// <summary>What an account sees once (sprint 149, M6 a): the server keeps it, the game shows it no more.</summary>

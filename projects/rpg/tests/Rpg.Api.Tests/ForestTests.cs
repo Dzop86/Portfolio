@@ -15,7 +15,7 @@ public class ForestTests
     {
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("aieux");
-        CharacterSummary c = await server.CreateCharacter("Mousse", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Mousse", "female-c", "warrior", cancel: Cancel);
         Town entry = GameData.Embedded.Towns["ancestors-1-0"];
         var arrival = new Place(entry.Id, entry.Spawn.X, entry.Spawn.Y);
         Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => server.SavePlace(c.Id, arrival, Cancel))).Status);

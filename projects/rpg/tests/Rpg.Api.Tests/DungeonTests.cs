@@ -33,7 +33,7 @@ public class DungeonTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("dun");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         Dungeon wallow = GameData.Embedded.Dungeons["boar-wallow"];
         // Without its key, the door stays shut.
         var shut = await Assert.ThrowsAsync<ServerException>(() => server.EnterDungeon(c.Id, wallow.Id, Cancel));
@@ -101,7 +101,7 @@ public class DungeonTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("dun");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "sentinel", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "archer", cancel: Cancel);
         await Give(api, account, 100, new ItemCount(Dungeons.Keyring, 1));
         foreach (Dungeon d in GameData.Embedded.Dungeons.Values)
         {
@@ -121,7 +121,7 @@ public class DungeonTests
         await using var api = new ApiFactory();
         GameServer server = await api.SignedIn("dun");
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "guard", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ronce", "female-c", "warrior", cancel: Cancel);
         Dungeon wallow = GameData.Embedded.Dungeons["boar-wallow"];
         await Give(api, account, 20, new ItemCount(wallow.Key, 1));
         // Outside, neither a hall nor the fountain.
