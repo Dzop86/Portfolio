@@ -7,7 +7,7 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que joueur, la page Spécialisation montre les classes finales de la branche ouverte, leur panneau et leur confirmation, d'après une maquette du graphiste (rpg) ; xUnit sur la géométrie, capture relue. | 3 | À faire |
-| En tant que joueur, la quête « Une route à soi » et Anatole parlent de 10 classes, sans nommer les anciennes (rpg) ; xUnit, FR et EN. | 1 | À faire |
+| En tant que joueur, la quête « Une route à soi » et Anatole parlent de 10 classes, sans nommer les anciennes (rpg) ; xUnit, FR et EN. | 1 | Fait : scène générique (`own`, `ways`, `later`), Josette parle de dix façons de se battre, un test refuse en FR et en EN tout nom de branche ou de titre des données |
 
 ## Rétro (Charles)
 - Ce qui a marché :

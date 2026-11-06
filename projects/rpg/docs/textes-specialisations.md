@@ -383,6 +383,8 @@ Rien ne change hors de ces trois champs : donneur, objectif, niveau, récompense
 
 ### 5.3 Ce qu'Anatole ajoute pour présenter les 3 chemins
 
+> **Dépassé (sprint 196, D96) :** les nœuds `own` et `ways-*` ci-dessous ont été remplacés par une scène générique à dix classes (`own`, `ways`, `later` dans `data/dialogues/anatole.json`), qui ne nomme aucune branche. Gardé pour l'historique.
+
 **Oui, le dialogue en a besoin**, mais la page dit déjà tout : ce dialogue reste facultatif, et la quête ne le demande pas. **Sans code :** une réponse ne peut pas dépendre de la classe (`DialogueAnswer` n'a pas de condition). C'est donc le joueur qui répond, et il peut aussi lire les chemins des autres classes.
 
 **Une seule modification à `hello` :** il a déjà 4 réponses, le maximum. « Une route à soi ? » y prend donc la place de « Pourquoi par l'est ? », qui reste proposé par `topic1` et `topic2` : `topic3` reste atteignable.

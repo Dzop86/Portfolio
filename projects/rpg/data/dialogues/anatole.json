@@ -123,30 +123,23 @@
     },
     "own": {
       "text": {
-        "fr": "Nom, route, et façon de la prendre. J'ai ajouté cette dernière colonne l'an dernier, et personne ne la remplit. Toi, comment tu te bats ?",
-        "en": "Name, road, and the way you mean to take it. I added that last column a year ago, and nobody fills it in. You, how do you fight?"
+        "fr": "Nom, route, et façon de la prendre. J'ai ajouté cette dernière colonne l'an dernier, et personne ne la remplit. J'en ai compté dix, des façons de se battre : la tienne doit bien y être.",
+        "en": "Name, road, and the way you mean to take it. I added that last column a year ago, and nobody fills it in. I've counted ten ways of fighting: yours must be in there somewhere."
       },
       "answers": [
         {
           "text": {
-            "fr": "Je tire de loin.",
-            "en": "I shoot from afar."
+            "fr": "Dix ?",
+            "en": "Ten?"
           },
-          "next": "ways-sentinel"
+          "next": "ways"
         },
         {
           "text": {
-            "fr": "Je tiens devant.",
-            "en": "I stand in front."
+            "fr": "Et plus loin ?",
+            "en": "And further on?"
           },
-          "next": "ways-guard"
-        },
-        {
-          "text": {
-            "fr": "Je lance des sorts.",
-            "en": "I cast spells."
-          },
-          "next": "ways-mage"
+          "next": "later"
         },
         {
           "text": {
@@ -156,10 +149,10 @@
         }
       ]
     },
-    "ways-sentinel": {
+    "ways": {
       "text": {
-        "fr": "Qui tire a trois façons. Mire : voir loin, compter, ne rien laisser arriver. Affût : préparer le terrain, avec un piège ou un faucon. Sente : ne jamais être là où on t'attend.",
-        "en": "Those who shoot have three ways. Sightline: see far, count, let nothing arrive. Ambush: ready the ground, with a trap or a hawk. Trail: never be where you're expected."
+        "fr": "Dix, en haut de la page, et j'ai dû la tourner dans le sens de la largeur. Chacune se partage en trois routes dès le premier carrefour, et pas deux voyageurs ne s'accordent sur la meilleure. Ta façon, tu l'as apportée avec toi ; la route, c'est à toi de la choisir.",
+        "en": "Ten, across the top of the page, and I had to turn it sideways to fit them in. Each one splits into three roads at the very first crossroads, and no two travellers agree on the best. Your way you brought with you; the road is yours to choose."
       },
       "answers": [
         {
@@ -168,69 +161,6 @@
             "en": "And further on?"
           },
           "next": "later"
-        },
-        {
-          "text": {
-            "fr": "Une autre façon de se battre ?",
-            "en": "Another way of fighting?"
-          },
-          "next": "own"
-        },
-        {
-          "text": {
-            "fr": "Merci.",
-            "en": "Thanks."
-          }
-        }
-      ]
-    },
-    "ways-guard": {
-      "text": {
-        "fr": "Qui tient devant a trois façons. Palissade : rester debout pour ceux d'à côté. Brèche : passer en premier, pour que les autres passent. Étau : attraper, et ne plus lâcher.",
-        "en": "Those who stand in front have three ways. Palisade: stay on your feet for whoever's beside you. Breach: go through first, so the others can follow. Grip: catch hold and don't let go."
-      },
-      "answers": [
-        {
-          "text": {
-            "fr": "Et plus loin ?",
-            "en": "And further on?"
-          },
-          "next": "later"
-        },
-        {
-          "text": {
-            "fr": "Une autre façon de se battre ?",
-            "en": "Another way of fighting?"
-          },
-          "next": "own"
-        },
-        {
-          "text": {
-            "fr": "Merci.",
-            "en": "Thanks."
-          }
-        }
-      ]
-    },
-    "ways-mage": {
-      "text": {
-        "fr": "Qui lance a trois façons. Archimage : choisir sa place, et le plus gros sort qu'on peut payer. Maléfice : presque rien sur le moment, beaucoup le lendemain. Lève-ombres : ne plus jamais se battre seul.",
-        "en": "Those who cast have three ways. Archmage: pick your spot, and the biggest spell you can pay for. Hex: next to nothing at the time, a great deal the morning after. Shadecaller: never fight alone again."
-      },
-      "answers": [
-        {
-          "text": {
-            "fr": "Et plus loin ?",
-            "en": "And further on?"
-          },
-          "next": "later"
-        },
-        {
-          "text": {
-            "fr": "Une autre façon de se battre ?",
-            "en": "Another way of fighting?"
-          },
-          "next": "own"
         },
         {
           "text": {
@@ -242,16 +172,16 @@
     },
     "later": {
       "text": {
-        "fr": "Plus loin, chaque route se sépare encore en deux. Quand ta case sera ouverte, ça se choisit sur ta fiche, page « Spécialisation ». Le premier trait est gratuit ; les ratures se paient en Éclats : un crayon, ça s'use.",
-        "en": "Further on, each road splits in two again. Once your box is open, you choose on your character sheet, the Specialisation page. The first stroke is free; crossings-out cost Éclats: pencils wear down."
+        "fr": "Plus loin, chaque route se sépare encore en deux, et tout au bout, une dernière fois. Quand ta case sera ouverte, ça se choisit sur ta fiche, page « Spécialisation ». Le premier trait est gratuit ; les ratures se paient en Éclats : un crayon, ça s'use.",
+        "en": "Further on, each road splits in two again, and right at the far end, one last time. Once your box is open, you choose on your character sheet, the Specialisation page. The first stroke is free; crossings-out cost Éclats: pencils wear down."
       },
       "answers": [
         {
           "text": {
-            "fr": "Une autre façon de se battre ?",
-            "en": "Another way of fighting?"
+            "fr": "Dix façons, disais-tu ?",
+            "en": "Ten ways, you said?"
           },
-          "next": "own"
+          "next": "ways"
         },
         {
           "text": {

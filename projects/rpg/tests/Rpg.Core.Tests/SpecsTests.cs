@@ -351,4 +351,22 @@ public class SpecsTests
         Assert.Equal("From level 30.", Quests.WhyNot(road, 29, ["where-roads-part"], []));
         Assert.Equal("After the quest 'where-roads-part'.", Quests.WhyNot(road, 30, [], []));
     }
+
+    // Sprint 196, D96: Anatole and Josette speak of ten ways of fighting, and name neither a branch nor the three classes that went.
+    [Theory]
+    [InlineData("fr")]
+    [InlineData("en")]
+    public void TheRoadsScene_SpeaksOfTenClasses_AndNamesNoBranch(string lang)
+    {
+        Dialogue anatole = Real.Dialogues["anatole"];
+        Quest road = Real.Quests[Specs.Quest];
+        string[] said = [.. anatole.Lines.Values.SelectMany(l => l.Answers.Select(a => a.Text).Prepend(l.Text)).Concat([road.Text!, road.Thanks!]).Concat(road.Objectives!.Select(o => o.Line!))
+            .Select(t => t.In(lang))];
+        string[] names = [.. Real.Specs.Values.SelectMany(s => s.Forks.SelectMany(f => f.Tiers).Prepend(s.Base).Select(t => t.Title).Prepend(s.Name)).Select(t => t.In(lang)),
+            .. lang == "fr" ? new[] { "Garde", "Sentinelle", "trois façons" } : ["Guard", "Sentinel", "three ways"]];
+        Assert.All(said, line => Assert.DoesNotContain(names, n => line.Contains(n, StringComparison.Ordinal)));
+        Assert.Contains(said, line => line.Contains(lang == "fr" ? "dix façons de se battre" : "ten ways of fighting", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(anatole.Lines.Keys, k => k.StartsWith("ways-", StringComparison.Ordinal));
+        Assert.Contains("ways", anatole.Lines["own"].Answers.Select(a => a.Next));
+    }
 }
