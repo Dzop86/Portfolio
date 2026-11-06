@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Guerrier, je deviens Chevalier, Maître d'armes ou Gladiateur, d'après la Palissade, l'Étau et la Brèche, puis leurs lignées et leurs finales (rpg) ; xUnit, bornes du banc. PloufGuerrier reprend Pluf. | 5 | À faire |
+| En tant que Guerrier, je deviens Chevalier, Maître d'armes ou Gladiateur, d'après la Palissade, l'Étau et la Brèche, puis leurs lignées et leurs finales (rpg) ; xUnit, bornes du banc. PloufGuerrier reprend Pluf. | 5 | Fait en partie : 3 branches et 6 lignées renommées, 12 finales (6 reprises, 6 neuves, 3 passifs neufs, 12 silhouettes), migration des Guerriers de 100, choix d'une finale par l'API et `admin --spec`, fumée à 100 ; banc à 100 sans ligne concluante (l'IA ne joue pas les sorts de lignée à 100), duo non mesuré (T160) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

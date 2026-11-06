@@ -246,3 +246,19 @@ Une IA qui saurait s'en servir ne ferait jamais moins bien qu'en ne les jouant p
 | mage | 50 | hexer | 52.3 | 0.0 | 0.0 | no spell yet |
 | mage | 50 | binder | 52.3 | 0.0 | 0.0 | no spell yet |
 | mage | 50 | reaper | 52.3 | 0.0 | 0.0 | no spell yet |
+
+## 6 novembre 2026 : le Guerrier à 100 et ses finales (S197, T160)
+
+`WarriorBenchTests` (test `Explicit`, `-- --explicit only`, 2 min 40) : le Guerrier de 100 seul, contre les groupes de 4 et 5 de la famille de synthèse au niveau 100, 30 combats par groupe, mêmes graines, paquet automatique. Une ligne par lignée sans finale (la référence), puis par finale ; l'écart entre parenthèses est pris sur la lignée.
+
+| Lignée | Sans finale | Reprise | Neuve |
+|---|---|---|---|
+| (sans voie) | 20,8 | | |
+| Gardien `rampart` | 18,1 | Croisé 19,4 (+1,3) | Sentinelle 20,8 (+2,7) |
+| Champion `bastion` | 24,8 | Duelliste 31,0 (+6,3) | Seigneur de guerre 39,4 (+14,6) |
+| Bretteur `jailer` | 32,7 | Maître des lames 32,9 (+0,2) | Lame fantôme 27,1 (−5,6) |
+| Tacticien `pincer` | 18,8 | Stratège 19,4 (+0,6) | Général 18,8 (0,0) |
+| Briseur `ram` | 13,5 | Exécuteur 17,9 (+4,4) | Destructeur 15,6 (+2,1) |
+| Combattant `harpooner` | 26,5 | Champion d'arène 31,3 (+4,8) | Pugiliste 29,4 (+2,9) |
+
+**Aucune ligne n'est concluante** : à 100, l'IA d'un héros seul ne joue presque jamais Écrasement, Harpon ni Rétorsion, et toujours pas Assaut, Cercle de fer ni Arrachement (T158). Les bornes F1 à F4 de `docs/classes-guerrier.md` §7.3 ne jugent donc rien, et le test passe sans rien vérifier. Ce qu'on peut lire quand même : le Seigneur de guerre (+14,6) dépasse la borne de +10, et son effet passe par un passif et des PA, pas par un sort que l'IA néglige ; la Lame fantôme (−5,6) passe sous le plancher de −3. Le Général ne change aucun combat de la fumée (Cercle de fer jamais joué) : il est dans `CiLevelsTests.Unchanged`. La mesure en duo (M100-duo), qui jugerait le Croisé et le Seigneur, n'est pas faite.
