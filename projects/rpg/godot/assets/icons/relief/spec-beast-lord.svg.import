@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://mteghli1clq6"
-path="res://.godot/imported/spec-leaper-locked.svg-c3c94d4ce48f1db14c20d075fd173a61.ctex"
+uid="uid://oaq8ifdr6483"
+path="res://.godot/imported/spec-beast-lord.svg-da6b6e01022d09af816b8643a6590cea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/relief/spec-leaper-locked.svg"
-dest_files=["res://.godot/imported/spec-leaper-locked.svg-c3c94d4ce48f1db14c20d075fd173a61.ctex"]
+source_file="res://assets/icons/relief/spec-beast-lord.svg"
+dest_files=["res://.godot/imported/spec-beast-lord.svg-da6b6e01022d09af816b8643a6590cea.ctex"]
 
 [params]
 

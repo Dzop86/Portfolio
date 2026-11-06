@@ -139,8 +139,9 @@ public class FinalsTests
     [Fact]
     public void ALineageWithoutFinals_KeepsItsEvolutionAt100_UntilItsClassIsConverted()
     {
-        Assert.All(Real.Specs.Values.Where(s => s.Class != "warrior").SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
-        Hero hero = new("Ondine", "female-a", "archer", Level: 100, Spec: "sightline", Fork: "marksman");
+        // The Mage, since the Warrior (sprint 197) and the Archer (sprint 198).
+        Assert.All(Real.Specs.Values.Where(s => s.Class is not ("warrior" or "archer")).SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
+        Hero hero = new("Ondine", "female-a", "mage", Level: 100, Spec: "archmage", Fork: "high-archmage");
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
     }
 
@@ -220,6 +221,6 @@ public class FinalsTests
         }
         Assert.NotNull(Made("one-more"));
         Assert.Throws<InvalidDataException>(() => Made("one"));
-        Assert.Equal(12, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
+        Assert.Equal(24, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
     }
 }

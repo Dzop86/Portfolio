@@ -4,8 +4,8 @@ namespace Rpg.Client.Tests;
 
 /// <summary>
 /// The final classes on the Specialisation page (sprint 196, D96, docs/maquette-specialisation.md §14): the column 100 of the open branch, its places and links, the states,
-/// the foot, the confirmation, the counter. No lineage of the data has final classes before S197: the Archer's are made up here, Sightline's first lineage with two and its
-/// second without (the mixed case), Ambush's two with two each, Trail's none.
+/// the foot, the confirmation, the counter. The Archer's final classes are made up here, whatever the real ones (S198): Sharpshooter's first lineage with two and its second
+/// without, an evolution at 100 instead (the mixed case), Ranger's two with two each, Artillerist's none.
 /// </summary>
 public class SpecFinalsPageTests
 {
@@ -23,12 +23,16 @@ public class SpecFinalsPageTests
         GameData real = GameData.Embedded;
         static SpecFork Ends(SpecFork fork, string a, string b) =>
             fork with { Tiers = [.. fork.Tiers.Where(t => t.Level == Specs.Forks)], Finals = [Final(a, FinalTemplate.Extends), Final(b, FinalTemplate.Faster)] };
-        Specialisation sightline = real.Specs["sightline"], ambush = real.Specs["ambush"];
-        // In the order of the data, which is the page's.
+        // A lineage of before: its evolution at 100, no final class.
+        static SpecFork Alone(SpecFork fork) =>
+            fork with { Tiers = [.. fork.Tiers.Where(t => t.Level == Specs.Forks), new SpecTier(100, new LocalizedText($"Titre {fork.Id}", $"Title {fork.Id}"), new LocalizedText("Texte", "Text"))], Finals = null };
+        Specialisation sightline = real.Specs["sightline"], ambush = real.Specs["ambush"], trail = real.Specs["trail"];
+        // In the order of the data, which is the page's: Ranger's Scout, then its Wild Hunter.
         Specialisation Changed(Specialisation s) => s.Id switch
         {
-            "sightline" => sightline with { Forks = [Ends(sightline.Forks[0], "eye", "relentless"), sightline.Forks[1]] },
-            "ambush" => ambush with { Forks = [Ends(ambush.Forks[0], "hawk-lord", "two-hawks"), Ends(ambush.Forks[1], "snare-lord", "two-snares")] },
+            "sightline" => sightline with { Forks = [Ends(sightline.Forks[0], "eye", "relentless"), Alone(sightline.Forks[1])] },
+            "ambush" => ambush with { Forks = [Ends(ambush.Forks[0], "snare-lord", "two-snares"), Ends(ambush.Forks[1], "hawk-lord", "two-hawks")] },
+            "trail" => trail with { Forks = [.. trail.Forks.Select(Alone)] },
             _ => s,
         };
         return new GameData(real.Spells.Values, real.Maps.Values, real.Scenarios.Values, real.Classes, real.Towns.Values, real.Dialogues.Values, real.Summons.Values,
@@ -47,10 +51,11 @@ public class SpecFinalsPageTests
     // ---- The column 100 (§14.1, §14.2) ----
 
     [Fact]
-    public void TheMadeUpData_IsValid_AndTheRealArcherHasNoFinalYet()
+    public void TheMadeUpData_IsValid_AndTheRealArcherHasItsOwn()
     {
         Assert.Equal(2, Data.Specs["sightline"].Forks[0].Finals!.Count);
-        Assert.DoesNotContain(GameData.Embedded.Specs.Values.Where(s => s.Class == "archer").SelectMany(s => s.Forks), f => f.Finals is { Count: > 0 });
+        Assert.Null(Data.Specs["trail"].Forks[0].Finals);
+        Assert.All(GameData.Embedded.Specs.Values.Where(s => s.Class == "archer").SelectMany(s => s.Forks), f => Assert.Equal(2, f.Finals!.Count));
     }
 
     // Sprint 197: the Warrior's real final classes, their four tiles a branch, their template on the panel.
@@ -66,9 +71,9 @@ public class SpecFinalsPageTests
     }
 
     [Theory]
-    [InlineData("sightline", new[] { "marksman:eye", "marksman:relentless", "barrage@100" })]
-    [InlineData("ambush", new[] { "falconer:hawk-lord", "falconer:two-hawks", "trapper:snare-lord", "trapper:two-snares" })]
-    [InlineData("trail", new[] { "leaper@100", "runner@100" })]
+    [InlineData("sightline", new[] { "marksman:eye", "marksman:relentless", "bounty-hunter@100" })]
+    [InlineData("ambush", new[] { "trapper:snare-lord", "trapper:two-snares", "falconer:hawk-lord", "falconer:two-hawks" })]
+    [InlineData("trail", new[] { "barrage@100", "runner@100" })]
     public void TheColumn100_ShowsTheOpenBranch_FourThreeOrTwoTiles(string open, string[] keys)
     {
         SpecPage page = Page(Archer(100), open: open);
@@ -81,9 +86,9 @@ public class SpecFinalsPageTests
     public void TheOpenBranch_IsTheOneClicked_ElseTheOneLookedAt_TheHeros_OrTheFirst()
     {
         Assert.Equal("sightline", Page(Archer(60)).OpenBranch);
-        Assert.Equal("trail", Page(Archer(60, "trail", "leaper")).OpenBranch);
-        Assert.Equal("ambush", Page(Archer(60, "trail", "leaper"), preview: "ambush").OpenBranch);
-        Assert.Equal("sightline", Page(Archer(60, "trail", "leaper"), preview: "ambush", open: "sightline").OpenBranch);
+        Assert.Equal("trail", Page(Archer(60, "trail", "runner")).OpenBranch);
+        Assert.Equal("ambush", Page(Archer(60, "trail", "runner"), preview: "ambush").OpenBranch);
+        Assert.Equal("sightline", Page(Archer(60, "trail", "runner"), preview: "ambush", open: "sightline").OpenBranch);
         Assert.Equal("trail", Page(Archer(60, "trail"), open: "nowhere").OpenBranch);
     }
 
@@ -181,7 +186,7 @@ public class SpecFinalsPageTests
         SpecPage page = Page(Archer(62, "sightline", "marksman"));
         Assert.Equal(SpecState.Ahead, State(page, "marksman:eye"));
         Assert.Equal(SpecState.Ahead, State(page, "marksman:relentless"));
-        Assert.Equal(SpecState.Crossed, State(page, "barrage@100"));
+        Assert.Equal(SpecState.Crossed, State(page, "bounty-hunter@100"));
         Assert.Equal(SpecState.Locked, State(Page(Archer(62)), "marksman:eye"));
         SpecPage other = Page(Archer(62, "sightline", "marksman"), open: "ambush");
         Assert.All(other.Last, n => Assert.Equal(SpecState.Crossed, n.State));
@@ -206,7 +211,7 @@ public class SpecFinalsPageTests
         SpecPage page = Page(Archer(100, "sightline", "marksman", "eye"));
         Assert.Equal(SpecState.Chosen, State(page, "marksman:eye"));
         Assert.Equal(SpecState.Crossed, State(page, "marksman:relentless"));
-        Assert.Equal(["barrage", "ambush", "trail", "marksman:relentless"], page.Nodes.Where(n => n.Head).Select(n => n.Key));
+        Assert.Equal(["bounty-hunter", "ambush", "trail", "marksman:relentless"], page.Nodes.Where(n => n.Head).Select(n => n.Key));
         Assert.Equal((3, 3), page.Choices);
         Assert.False(page.Pending);
         Assert.Equal("marksman:eye", page.Opening);
@@ -216,10 +221,10 @@ public class SpecFinalsPageTests
     [Fact]
     public void TheSisterLineage_AndAnotherBranch_HaveTheirFinalsCrossed_ALookOpensThem()
     {
-        SpecPage page = Page(Archer(100, "sightline", "barrage"), open: "ambush");
+        SpecPage page = Page(Archer(100, "sightline", "bounty-hunter"), open: "ambush");
         Assert.All(page.Last, n => Assert.Equal(SpecState.Crossed, n.State));
-        Assert.Equal(SpecState.Crossed, State(Page(Archer(100, "sightline", "barrage")), "marksman:eye"));
-        SpecPage looking = Page(Archer(100, "sightline", "barrage"), preview: "ambush");
+        Assert.Equal(SpecState.Crossed, State(Page(Archer(100, "sightline", "bounty-hunter")), "marksman:eye"));
+        SpecPage looking = Page(Archer(100, "sightline", "bounty-hunter"), preview: "ambush");
         Assert.All(looking.Last, n => Assert.Equal(SpecState.Open, n.State));
     }
 
@@ -236,12 +241,13 @@ public class SpecFinalsPageTests
     [Fact]
     public void WithoutAnyFinal_TheCounterStaysAtTwo_AtHundred()
     {
-        Assert.Equal((2, 2), Page(Archer(100, "trail", "leaper")).Choices);
-        Assert.Equal((2, 2), Page(Archer(100, "sightline", "barrage")).Choices);
+        Assert.Equal((2, 2), Page(Archer(100, "trail", "runner")).Choices);
+        Assert.Equal((2, 2), Page(Archer(100, "sightline", "bounty-hunter")).Choices);
         Assert.Equal((0, 3), Page(Archer(100)).Choices);
         Assert.Equal((1, 3), Page(Archer(100, "sightline")).Choices);
-        Assert.Equal((0, 2), new SpecPage(new PointsEditor(Archer(100), GameData.Embedded), Free).Choices);
-        Assert.False(Page(Archer(100, "sightline", "barrage")).Pending);
+        // The Mage of the real data, whose lineages have no final class yet.
+        Assert.Equal((0, 2), new SpecPage(new PointsEditor(Archer(100) with { Class = "mage" }, GameData.Embedded), Free).Choices);
+        Assert.False(Page(Archer(100, "sightline", "bounty-hunter")).Pending);
     }
 
     // ---- The foot (§14.7), at level 100: 500, 1 000 and 3 000 Éclats ----
@@ -260,11 +266,11 @@ public class SpecFinalsPageTests
         SpecFoot sister = taken.Foot(taken["marksman:relentless"], Fr);
         Assert.Equal((Fr["spec.price.final", "500"], Fr["spec.final.same"], Fr["spec.cross", "500"], 500L), (sister.First, sister.Second, sister.Action!.Text, sister.Action.Cost));
 
-        SpecPage fromSister = Page(Archer(100, "sightline", "barrage"));
+        SpecPage fromSister = Page(Archer(100, "sightline", "bounty-hunter"));
         SpecFoot withFork = fromSister.Foot(fromSister["marksman:eye"], Fr);
         Assert.Equal((Fr["spec.price.fork", "1 000"], Fr["spec.final.with-fork"], 1000L, "marksman"), (withFork.First, withFork.Second, withFork.Action!.Cost, withFork.Action.Fork));
 
-        SpecPage other = Page(Archer(100, "trail", "leaper"), open: "ambush");
+        SpecPage other = Page(Archer(100, "trail", "runner"), open: "ambush");
         SpecFoot withBranch = other.Foot(other["trapper:two-snares"], Fr);
         Assert.Equal((Fr["spec.price.branch", "3 000"], Fr["spec.final.with-branch"], Fr["spec.cross", "3 000"]), (withBranch.First, withBranch.Second, withBranch.Action!.Text));
 
@@ -321,11 +327,11 @@ public class SpecFinalsPageTests
     public void ALineageCrossed_AtHundred_DropsTheFinal_OrBringsOne_AndSaysWhatLeaves()
     {
         Hero hero = Archer(100, "sightline", "marksman", "eye");
-        SpecConfirm drop = Page(hero).Confirm("sightline", "barrage", Fr);
-        Assert.Equal(Fr["spec.confirm.leave", "Longue-vue, Titre eye"], drop.Leaves);
+        SpecConfirm drop = Page(hero).Confirm("sightline", "bounty-hunter", Fr);
+        Assert.Equal(Fr["spec.confirm.leave", "Sniper, Titre eye"], drop.Leaves);
         Assert.Equal(Fr["spec.confirm.final.after"], drop.Ranks[^1]);
         SpecConfirm branch = Page(hero).Confirm("ambush", "falconer", "two-hawks", Fr);
-        Assert.Equal(Fr["spec.confirm.leave", "Mire, Longue-vue, Titre eye"], branch.Leaves);
+        Assert.Equal(Fr["spec.confirm.leave", "Tireur d'élite, Sniper, Titre eye"], branch.Leaves);
         Assert.DoesNotContain(Fr["spec.confirm.final.after"], branch.Ranks);
         Assert.Equal(Fr["spec.confirm.cost", "3 000", "97 000"], branch.Price);
         Assert.Contains(branch.Gifts, g => g.Title == "Titre two-hawks");

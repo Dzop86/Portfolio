@@ -998,14 +998,14 @@
     "id": "sightline",
     "class": "archer",
     "name": {
-      "fr": "Mire",
-      "en": "Sightline"
+      "fr": "Tireur d'élite",
+      "en": "Sharpshooter"
     },
     "base": {
       "level": 30,
       "title": {
-        "fr": "Sentinelle de la Mire",
-        "en": "Sightline Sentinel"
+        "fr": "Tireur d'élite",
+        "en": "Sharpshooter"
       },
       "description": {
         "fr": "Aucun ennemi à 3 cases au début de ton tour : +15 % de dégâts pendant 1 tour. Tes sorts en vue portent à +1 PO. Sorts : Tir visé et Point faible.",
@@ -1033,8 +1033,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Longue-vue",
-              "en": "Longsight"
+              "fr": "Sniper",
+              "en": "Sniper"
             },
             "description": {
               "fr": "Tes sorts de 6 PO ou plus portent à +2 PO au lieu de +1. Sort : Coup au but.",
@@ -1051,98 +1051,171 @@
                 "sight": true
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Dernière semonce",
-              "en": "Final Warning"
-            },
-            "description": {
-              "fr": "Le passif monte à +25 % pendant 2 tours. Tir visé touche aussi la case derrière la cible.",
-              "en": "The passive rises to +25% for 2 turns. Aimed Shot also hits the cell behind the target."
-            },
-            "passives": [
-              "spec-calm-eye-long"
-            ],
-            "replaces": [
-              "spec-calm-eye"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-aimed-shot",
-                "area": {
-                  "shape": "Line",
-                  "radius": 1
-                }
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Une flèche. Si j'ai bien compté, il n'en faudra pas d'autre.",
           "en": "One arrow. If I've counted right, there won't need to be another."
         },
-        "icon": "spec-marksman"
+        "icon": "spec-marksman",
+        "finals": [
+          {
+            "id": "dragon-eye",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Œil du dragon",
+                "en": "Dragon Eye"
+              },
+              "description": {
+                "fr": "Le passif monte à +25 % pendant 2 tours. Tir visé touche aussi la case derrière la cible.",
+                "en": "The passive rises to +25% for 2 turns. Aimed Shot also hits the cell behind the target."
+              },
+              "passives": [
+                "spec-calm-eye-long"
+              ],
+              "replaces": [
+                "spec-calm-eye"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-aimed-shot",
+                  "area": {
+                    "shape": "Line",
+                    "radius": 1
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il ne cligne pas. Il attend que tu bouges, et tu finis toujours par bouger.",
+              "en": "He doesn't blink. He waits for you to move, and you always end up moving."
+            },
+            "icon": "spec-dragon-eye"
+          },
+          {
+            "id": "perfect-shot",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Tir parfait",
+                "en": "Perfect Shot"
+              },
+              "description": {
+                "fr": "Ton premier sort de dégâts du tour fait +20 %. Coup au but se relance en 2 tours.",
+                "en": "Your first damage spell of the turn deals +20%. Bullseye comes back in 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "first-cast",
+                  "first": 20,
+                  "others": 0
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-bullseye",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "La première flèche est la seule qui compte. Les autres, c'est pour la forme.",
+              "en": "The first arrow is the only one that counts. The rest are for show."
+            },
+            "icon": "spec-perfect-shot"
+          }
+        ]
       },
       {
-        "id": "barrage",
+        "id": "bounty-hunter",
         "tiers": [
           {
             "level": 50,
             "title": {
-              "fr": "Herse",
-              "en": "Portcullis"
+              "fr": "Chasseur de primes",
+              "en": "Bounty Hunter"
             },
             "description": {
-              "fr": "Le passif joue dès qu'aucun ennemi n'est à 2 cases, au lieu de 3. Sort : Tir de barrage.",
-              "en": "The passive works as soon as no enemy is within 2 cells, instead of 3. Spell: Barrage."
+              "fr": "+15 % de dégâts sur une cible sous 3 états ou plus. Sort : Désigner la proie.",
+              "en": "+15% damage on a target under 3 states or more. Spell: Mark the Quarry."
             },
             "spells": [
-              "path-barrage"
+              "path-prey"
             ],
-            "passives": [
-              "spec-calm-eye-near"
-            ],
-            "replaces": [
-              "spec-calm-eye"
-            ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Route barrée",
-              "en": "Road Closed"
-            },
-            "description": {
-              "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et se relance en 1 tour.",
-              "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and comes back in 1 turn."
-            },
             "rules": [
               {
-                "kind": "patch",
-                "spell": "path-barrage",
-                "cooldown": 1,
-                "addEffects": [
-                  {
-                    "kind": "glyph",
-                    "affects": "Enemies",
-                    "turns": 1,
-                    "status": "Mp",
-                    "value": -1,
-                    "statusTurns": 1
-                  }
-                ]
+                "kind": "target-state",
+                "percent": 15,
+                "states": 3
               }
             ]
           }
         ],
         "lore": {
-          "fr": "Je n'ai pas besoin de te toucher. Il suffit que tu ne passes pas.",
-          "en": "I don't need to hit you. You only need not to get through."
+          "fr": "Je ne te hais pas. Ta tête a un prix, c'est tout. Rien de personnel.",
+          "en": "I don't hate you. Your head has a price on it, that's all. Nothing personal."
         },
-        "icon": "spec-barrage"
+        "icon": "spec-bounty-hunter",
+        "finals": [
+          {
+            "id": "legendary-tracker",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Traqueur légendaire",
+                "en": "Legendary Stalker"
+              },
+              "description": {
+                "fr": "Sur une cible sous 3 états ou plus : +30 % au lieu de +15 %. Désigner la proie se relance en 1 tour.",
+                "en": "On a target under 3 states or more: +30% instead of +15%. Mark the Quarry comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 15,
+                  "states": 3
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-prey",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Trois jours que je le suis. Il est fatigué. Moi, pas encore.",
+              "en": "Three days I've been on his trail. He's tired. I'm not, yet."
+            },
+            "icon": "spec-legendary-tracker"
+          },
+          {
+            "id": "bounty-killer",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Exécuteur",
+                "en": "Executioner"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Une prime touchée, une autre affichée. Le tableau n'est jamais vide.",
+              "en": "One bounty collected, another posted. The board is never empty."
+            },
+            "icon": "spec-bounty-killer"
+          }
+        ]
       }
     ],
     "lore": {
@@ -1155,14 +1228,14 @@
     "id": "ambush",
     "class": "archer",
     "name": {
-      "fr": "Affût",
-      "en": "Ambush"
+      "fr": "Rôdeur",
+      "en": "Ranger"
     },
     "base": {
       "level": 30,
       "title": {
-        "fr": "Sentinelle de l'Affût",
-        "en": "Ambush Sentinel"
+        "fr": "Rôdeur",
+        "en": "Ranger"
       },
       "description": {
         "fr": "Ton Faucon a 12 % de tes PV et profite de tes caractéristiques. Tes glyphes durent 1 tour de plus, sauf celles des sorts de composés. Sorts : Mâchoires et Piqué.",
@@ -1187,13 +1260,116 @@
     },
     "forks": [
       {
+        "id": "trapper",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Éclaireur",
+              "en": "Scout"
+            },
+            "description": {
+              "fr": "Mâchoires se relance en 1 tour. Sort : Appât.",
+              "en": "Jaw Trap comes back in 1 turn. Spell: Bait."
+            },
+            "spells": [
+              "path-bait"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-jaws",
+                "cooldown": 1
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ce combat, je l'ai gagné hier, avec une pelle. Aujourd'hui, je regarde.",
+          "en": "I won this fight yesterday, with a spade. Today I'm just watching."
+        },
+        "icon": "spec-trapper",
+        "finals": [
+          {
+            "id": "forest-master",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître forestier",
+                "en": "Forest Master"
+              },
+              "description": {
+                "fr": "Deux Mâchoires à la fois. +15 % de dégâts sur un ennemi dans une de tes glyphes.",
+                "en": "Two Jaw Traps at once. +15% damage on an enemy in one of your glyphs."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-jaws",
+                  "maxGlyphs": 2
+                },
+                {
+                  "kind": "glyph-target",
+                  "inside": 15,
+                  "outside": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque racine de ce bois sait où je l'ai enterrée. Toi, non.",
+              "en": "Every root in these woods knows where I buried it. You don't."
+            },
+            "icon": "spec-forest-master"
+          },
+          {
+            "id": "tracker",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Pisteur",
+                "en": "Pathfinder"
+              },
+              "description": {
+                "fr": "Mâchoires porte à 8 cases, Appât à 7. +10 % de dégâts sur une cible à 6 cases ou plus.",
+                "en": "Jaw Trap reaches 8 cells, Bait 7. +10% damage on a target 6 cells away or more."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-jaws",
+                  "maxRange": 8
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-bait",
+                  "maxRange": 7
+                },
+                {
+                  "kind": "distance",
+                  "minCells": 6,
+                  "maxCells": 99,
+                  "percent": 10
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le piège est posé là où tu iras demain. Je le sais, j'ai lu tes traces.",
+              "en": "The trap is set where you'll go tomorrow. I know, I read your tracks."
+            },
+            "icon": "spec-tracker"
+          }
+        ]
+      },
+      {
         "id": "falconer",
         "tiers": [
           {
             "level": 50,
             "title": {
-              "fr": "Porte-faucon",
-              "en": "Hawkbearer"
+              "fr": "Chasseur sauvage",
+              "en": "Wild Hunter"
             },
             "description": {
               "fr": "Ton Faucon a 20 % de tes PV. Sort : Chassé-croisé.",
@@ -1210,91 +1386,82 @@
                 "statsPercent": 50
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Deux-Ailes",
-              "en": "Twin Wings"
-            },
-            "description": {
-              "fr": "Deux Faucons à la fois. Piqué n'a plus de relance, une fois par tour.",
-              "en": "Two Hawks at once. Dive has no cooldown, once per turn."
-            },
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "hawk",
-                "maxSummons": 2
-              },
-              {
-                "kind": "patch",
-                "spell": "path-dive",
-                "cooldown": 0,
-                "perTurn": 1
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Il voit ce que je ne vois pas, et il revient quand je l'appelle. C'est tout le secret.",
           "en": "He sees what I can't, and he comes back when I call. That's the whole secret."
         },
-        "icon": "spec-falconer"
-      },
-      {
-        "id": "trapper",
-        "tiers": [
+        "icon": "spec-falconer",
+        "finals": [
           {
-            "level": 50,
-            "title": {
-              "fr": "Tend-pièges",
-              "en": "Trapsetter"
+            "id": "beast-lord",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des bêtes",
+                "en": "Beast Lord"
+              },
+              "description": {
+                "fr": "Deux Faucons à la fois. Piqué n'a plus de relance, une fois par tour.",
+                "en": "Two Hawks at once. Dive has no cooldown, once per turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "hawk",
+                  "maxSummons": 2
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-dive",
+                  "cooldown": 0,
+                  "perTurn": 1
+                }
+              ]
             },
-            "description": {
-              "fr": "Mâchoires se relance en 1 tour. Sort : Appât.",
-              "en": "Jaw Trap comes back in 1 turn. Spell: Bait."
+            "lore": {
+              "fr": "L'un voit, l'autre frappe. Moi, je n'ai plus qu'à choisir.",
+              "en": "One sees, the other strikes. All that's left for me is to choose."
             },
-            "spells": [
-              "path-bait"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-jaws",
-                "cooldown": 1
-              }
-            ]
+            "icon": "spec-beast-lord"
           },
           {
-            "level": 100,
-            "title": {
-              "fr": "Chausse-trape",
-              "en": "Deadfall"
-            },
-            "description": {
-              "fr": "Deux Mâchoires à la fois. +15 % de dégâts sur un ennemi dans une de tes glyphes.",
-              "en": "Two Jaw Traps at once. +15% damage on an enemy in one of your glyphs."
-            },
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-jaws",
-                "maxGlyphs": 2
+            "id": "ancestral-predator",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Prédateur ancestral",
+                "en": "Ancestral Predator"
               },
-              {
-                "kind": "glyph-target",
-                "inside": 15,
-                "outside": 0
-              }
-            ]
+              "description": {
+                "fr": "Ton Faucon a 35 % de tes PV et 75 % de tes caractéristiques. Chassé-croisé n'a plus de relance, une fois par tour.",
+                "en": "Your Hawk has 35% of your HP and 75% of your characteristics. Changeover has no cooldown, once per turn."
+              },
+              "rules": [
+                {
+                  "kind": "summon-share",
+                  "summon": "hawk",
+                  "hpPercent": 35,
+                  "statsPercent": 75
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-changeover",
+                  "cooldown": 0,
+                  "perTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il n'y en a qu'un. Il a vu tomber plus de loups que moi.",
+              "en": "There's only one. He's seen more wolves fall than I have."
+            },
+            "icon": "spec-ancestral-predator"
           }
-        ],
-        "lore": {
-          "fr": "Ce combat, je l'ai gagné hier, avec une pelle. Aujourd'hui, je regarde.",
-          "en": "I won this fight yesterday, with a spade. Today I'm just watching."
-        },
-        "icon": "spec-trapper"
+        ]
       }
     ],
     "lore": {
@@ -1310,21 +1477,21 @@
     "id": "trail",
     "class": "archer",
     "name": {
-      "fr": "Sente",
-      "en": "Trail"
+      "fr": "Artilleur",
+      "en": "Artillerist"
     },
     "base": {
       "level": 30,
       "title": {
-        "fr": "Sentinelle de la Sente",
-        "en": "Trail Sentinel"
+        "fr": "Artilleur",
+        "en": "Artillerist"
       },
       "description": {
-        "fr": "Si on te frappe au contact : +2 PM pendant 1 tour. Tes sauts n'ont pas besoin de la vue. Sorts : Cabriole et Coup de talon.",
-        "en": "If you are struck in melee: +2 MP for 1 turn. Your leaps need no sight. Spells: Vault and Heel Kick."
+        "fr": "Si on te frappe au contact : +2 PM pendant 1 tour. Tes reculs portent d'une case de plus. Sorts : Tir de barrage et Coup de talon.",
+        "en": "If you are struck in melee: +2 MP for 1 turn. Your pushes reach one cell farther. Spells: Barrage and Heel Kick."
       },
       "spells": [
-        "path-vault",
+        "path-barrage",
         "path-heel-kick"
       ],
       "passives": [
@@ -1332,75 +1499,117 @@
       ],
       "rules": [
         {
-          "kind": "leap-sight"
+          "kind": "push",
+          "cells": 1,
+          "apCost": 0,
+          "collision": 0
         }
       ]
     },
     "forks": [
       {
-        "id": "leaper",
+        "id": "barrage",
         "tiers": [
           {
             "level": 50,
             "title": {
-              "fr": "Saute-haie",
-              "en": "Hedgehopper"
+              "fr": "Arbalétrier",
+              "en": "Arbalist"
             },
             "description": {
-              "fr": "Cabriole n'a plus de relance, une fois par tour. Sort : Feinte.",
-              "en": "Vault has no cooldown, once per turn. Spell: Feint."
+              "fr": "+5 % de dégâts si tu n'as pas marché ce tour. Sort : Carreau lourd.",
+              "en": "+5% damage if you have not walked this turn. Spell: Heavy Bolt."
             },
             "spells": [
-              "path-feint"
+              "path-heavy-bolt"
             ],
             "rules": [
               {
-                "kind": "patch",
-                "spell": "path-vault",
-                "cooldown": 0,
-                "perTurn": 1
-              }
-            ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Hors d'atteinte",
-              "en": "Out of Reach"
-            },
-            "description": {
-              "fr": "Le passif monte à +3 PM. Une fois par combat, un coup au contact te donne un bouclier de 40. Cabriole donne +10 % de dégâts pour le tour.",
-              "en": "The passive rises to +3 MP. Once per fight, a melee blow gives you a shield of 40. Vault gives +10% damage for the turn."
-            },
-            "passives": [
-              "spec-quick-heels-3",
-              "spec-saw-it-coming"
-            ],
-            "replaces": [
-              "spec-quick-heels"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-vault",
-                "addEffects": [
-                  {
-                    "kind": "status",
-                    "affects": "Caster",
-                    "stat": "Damage",
-                    "value": 10,
-                    "turns": 1
-                  }
-                ]
+                "kind": "still",
+                "still": 5,
+                "moved": 0
               }
             ]
           }
         ],
         "lore": {
-          "fr": "Tu frappes, je suis là. Tu regardes, je n'y suis plus.",
-          "en": "You strike, I'm there. You look, I'm gone."
+          "fr": "Je n'ai pas besoin de te toucher. Il suffit que tu ne passes pas.",
+          "en": "I don't need to hit you. You only need not to get through."
         },
-        "icon": "spec-leaper"
+        "icon": "spec-barrage",
+        "finals": [
+          {
+            "id": "living-ballista",
+            "template": "Trace",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Baliste vivante",
+                "en": "Living Ballista"
+              },
+              "description": {
+                "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et se relance en 1 tour.",
+                "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-barrage",
+                  "cooldown": 1,
+                  "addEffects": [
+                    {
+                      "kind": "glyph",
+                      "affects": "Enemies",
+                      "turns": 1,
+                      "status": "Mp",
+                      "value": -1,
+                      "statusTurns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On m'a demandé de tenir le pont. Personne n'a dit qu'il fallait le laisser debout.",
+              "en": "I was asked to hold the bridge. Nobody said it had to stay standing."
+            },
+            "icon": "spec-living-ballista"
+          },
+          {
+            "id": "crossbow-master",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître arbalétrier",
+                "en": "Master Arbalist"
+              },
+              "description": {
+                "fr": "Carreau lourd porte à 10 cases et repousse sa cible de 2 cases.",
+                "en": "Heavy Bolt reaches 10 cells and pushes its target back 2 cells."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-heavy-bolt",
+                  "maxRange": 10,
+                  "addEffects": [
+                    {
+                      "kind": "push",
+                      "affects": "Enemies",
+                      "cells": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un carreau, un pas en arrière. Compte tes pas : tu n'en as plus beaucoup.",
+              "en": "One bolt, one step back. Count your steps: you haven't many left."
+            },
+            "icon": "spec-crossbow-master"
+          }
+        ]
       },
       {
         "id": "runner",
@@ -1408,8 +1617,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Court-sentes",
-              "en": "Trail Runner"
+              "fr": "Tireur mobile",
+              "en": "Skirmisher"
             },
             "description": {
               "fr": "+3 % de dégâts par case marchée depuis ton dernier sort, 15 % au plus. Sort : Tir en course.",
@@ -1425,41 +1634,79 @@
                 "max": 15
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Cours-toujours",
-              "en": "Never Caught"
-            },
-            "description": {
-              "fr": "+5 % par case, 25 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
-              "en": "+5% per cell, 25% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
-            },
-            "rules": [
-              {
-                "kind": "dance",
-                "perCell": 2,
-                "max": 10
-              },
-              {
-                "kind": "echo",
-                "percent": 50,
-                "cells": 3
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Reste planté là si tu veux viser. Moi, je tire en passant.",
           "en": "Stand still to aim if you like. I shoot in passing."
         },
-        "icon": "spec-runner"
+        "icon": "spec-runner",
+        "finals": [
+          {
+            "id": "vaulter",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Voltigeur",
+                "en": "Vaulter"
+              },
+              "description": {
+                "fr": "+5 % par case, 25 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
+                "en": "+5% per cell, 25% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
+              },
+              "rules": [
+                {
+                  "kind": "dance",
+                  "perCell": 2,
+                  "max": 10
+                },
+                {
+                  "kind": "echo",
+                  "percent": 50,
+                  "cells": 3
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ma flèche arrive encore là où j'étais. Moi, je suis déjà ailleurs.",
+              "en": "My arrow still lands where I was. I'm already somewhere else."
+            },
+            "icon": "spec-vaulter"
+          },
+          {
+            "id": "war-hawk",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Faucon de guerre",
+                "en": "War Hawk"
+              },
+              "description": {
+                "fr": "Tir en course se lance deux fois par tour.",
+                "en": "Running Shot can be cast twice a turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-running-shot",
+                  "perTurn": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je fonds, je tire, je remonte. Puis je recommence.",
+              "en": "I dive, I shoot, I climb. Then I do it again."
+            },
+            "icon": "spec-war-hawk"
+          }
+        ]
       }
     ],
     "lore": {
-      "fr": "Une sente ne va jamais tout droit. C'est pour ça qu'on ne t'y rattrape pas.",
-      "en": "A trail never runs straight. That's why nobody catches you on it."
+      "fr": "Reste où tu es. Si tu avances, c'est la distance qui te repoussera, pas moi.",
+      "en": "Stay where you are. If you come on, it's the distance that'll push you back, not me."
     },
     "icon": "spec-trail"
   }

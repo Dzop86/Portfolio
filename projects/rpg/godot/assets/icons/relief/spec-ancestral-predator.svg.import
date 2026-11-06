@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c0d5nyko1amh"
-path="res://.godot/imported/spec-leaper.svg-2aaea52fd62140f95f5a092130c2c35c.ctex"
+uid="uid://cvwi6tikj3vb"
+path="res://.godot/imported/spec-ancestral-predator.svg-2918a7f1d4a5ce3574add2a0aaeedc73.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/relief/spec-leaper.svg"
-dest_files=["res://.godot/imported/spec-leaper.svg-2aaea52fd62140f95f5a092130c2c35c.ctex"]
+source_file="res://assets/icons/relief/spec-ancestral-predator.svg"
+dest_files=["res://.godot/imported/spec-ancestral-predator.svg-2918a7f1d4a5ce3574add2a0aaeedc73.ctex"]
 
 [params]
 

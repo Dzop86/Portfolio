@@ -3,17 +3,21 @@ using static Rpg.Core.Tests.Arena;
 namespace Rpg.Core.Tests;
 
 /// <summary>
-/// The Sentinel's three branches and six lineages (sprint 191, D95, docs/elements-specialisations.md §v4.4), evolution by evolution, on the real data
-/// and small boards; with the bricks they ask for: a creature fed by its summoner (E), a spell bound to a creature (F), several glyphs of a spell (G),
-/// a compound's glyph that lights nothing (H), the Feint (I).
+/// The Archer's three branches and six lineages (sprint 191, D95; its tree of four ranks since sprint 198, docs/classes-archer.md), evolution by evolution, on the
+/// real data and small boards; with the bricks they ask for: a creature fed by its summoner (E), a spell bound to a creature (F), several glyphs of a spell (G),
+/// a compound's glyph that lights nothing (H). The evolutions of 100 of before are its final classes taken back.
 /// </summary>
-public class SentinelPathsTests
+public class ArcherPathsTests
 {
     private static readonly Spell Blow = new("t-blow", Text, 1, 1, 1, true, false, 10, 10, 9);
     private static readonly Spell Far = new("t-far", Text, 1, 2, 9, false, false, 10, 10, 9);
 
     private static Hero Sentinel(string? spec, string? fork, int level, params string[] deck) =>
-        new("Ondine", "female-a", "archer", Level: level, Stats: new Characteristics(Earth: 90, Fire: 20), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
+        new("Ondine", "female-a", "archer", Level: level, Stats: new Characteristics(Earth: 90, Fire: 20), Spec: spec, Fork: fork, Final: level < 100 ? null : TakenBack(fork),
+            Deck: deck.Length == 0 ? null : deck);
+
+    /// <summary>A lineage's first final class, the one taken back from its evolution of 100 of before.</summary>
+    private static string? TakenBack(string? fork) => fork is null ? null : Real.Specs.Values.SelectMany(s => s.Forks).Single(f => f.Id == fork).Finals![0].Id;
 
     /// <summary>A board where the hero plays first against the given monsters.</summary>
     private static Fight On(string[] rows, Hero hero, params FighterSpec[] monsters)
@@ -37,12 +41,16 @@ public class SentinelPathsTests
             Assert.All(s.Forks, f =>
             {
                 Assert.Single(f.Tiers[0].Spells!);
-                Assert.Null(f.Tiers[1].Spells);
+                Assert.Single(f.Tiers);
+                Assert.All(f.Finals!, x => Assert.Null(x.Tier.Spells));
                 Assert.Equal(3, s.SpellsWith(f.Id).Count());
             });
         }
-        Assert.Equal("Dernière semonce", Specs.TitleOf(Sentinel("sightline", "marksman", 100), Real)!.Fr);
-        Assert.Equal("Sentinelle de l'Affût", Specs.TitleOf(Sentinel("ambush", null, 40), Real)!.Fr);
+        Assert.Equal("Œil du dragon", Specs.TitleOf(Sentinel("sightline", "marksman", 100), Real)!.Fr);
+        Assert.Equal("Rôdeur", Specs.TitleOf(Sentinel("ambush", null, 40), Real)!.Fr);
+        Assert.Equal(["Tireur d'élite", "Rôdeur", "Artilleur"], Real.Specs.Values.Where(s => s.Class == "archer").Select(s => s.Name.Fr));
+        Assert.Equal(["Sniper", "Chasseur de primes", "Éclaireur", "Chasseur sauvage", "Arbalétrier", "Tireur mobile"],
+            Real.Specs.Values.Where(s => s.Class == "archer").SelectMany(s => s.Forks).Select(f => f.Tiers[0].Title.Fr));
     }
 
     [Fact]
@@ -56,10 +64,8 @@ public class SentinelPathsTests
         Assert.Equal(15, Bonus(Sentinel("sightline", null, 30), 4));
         Assert.Null(Bonus(Sentinel("sightline", null, 30), 3));
         Assert.Equal(25, Bonus(Sentinel("sightline", "marksman", 100), 4));
-        Assert.Equal(15, Bonus(Sentinel("sightline", "barrage", 50), 3));
-        Assert.Null(Bonus(Sentinel("sightline", "barrage", 50), 2));
         Assert.Null(Bonus(Sentinel(null, null, 50), 9));
-        Assert.Equal(["spec-calm-eye-near"], Specs.PassivesOf(Sentinel("sightline", "barrage", 50), Real));
+        Assert.Equal(["spec-calm-eye"], Specs.PassivesOf(Sentinel("sightline", "bounty-hunter", 50), Real));
         Assert.Equal(["spec-calm-eye-long"], Specs.PassivesOf(Sentinel("sightline", "marksman", 100), Real));
     }
 
@@ -69,7 +75,7 @@ public class SentinelPathsTests
         // Stone Arrow reaches 6, Gale needs no sight.
         Assert.Equal(7, Compiled(Sentinel("sightline", null, 50), "stone-arrow").MaxRange);
         Assert.Equal(8, Compiled(Sentinel("sightline", "marksman", 50), "stone-arrow").MaxRange);
-        Assert.Equal(7, Compiled(Sentinel("sightline", "barrage", 50), "stone-arrow").MaxRange);
+        Assert.Equal(7, Compiled(Sentinel("sightline", "bounty-hunter", 50), "stone-arrow").MaxRange);
         Assert.Equal(Real.Spells["gale"].MaxRange, Compiled(Sentinel("sightline", "marksman", 50), "gale").MaxRange);
     }
 
@@ -78,11 +84,12 @@ public class SentinelPathsTests
     {
         Assert.Equal(AreaShape.Point, Compiled(Sentinel("sightline", "marksman", 50), "path-aimed-shot").Zone.Shape);
         Assert.Equal(new Area(AreaShape.Line, 1), Compiled(Sentinel("sightline", "marksman", 100), "path-aimed-shot").Zone);
-        Spell barrage = Compiled(Sentinel("sightline", "barrage", 100), "path-barrage");
+        Assert.Equal(AreaShape.Point, Compiled(Sentinel("sightline", "marksman", 100) with { Final = null }, "path-aimed-shot").Zone.Shape);
+        Spell barrage = Compiled(Sentinel("trail", "barrage", 100), "path-barrage");
         Assert.Equal(1, barrage.Cooldown);
         GlyphEffect glyph = barrage.AllEffects.OfType<GlyphEffect>().Single();
         Assert.Equal((1, Stat.Mp, -1), (glyph.Turns, glyph.Status, glyph.Value));
-        Assert.Empty(Compiled(Sentinel("sightline", "barrage", 50), "path-barrage").AllEffects.OfType<GlyphEffect>());
+        Assert.Empty(Compiled(Sentinel("trail", "barrage", 50), "path-barrage").AllEffects.OfType<GlyphEffect>());
     }
 
     [Fact]
@@ -240,9 +247,9 @@ public class SentinelPathsTests
     }
 
     [Fact]
-    public void TheQuickHeels_GivePoints_WhenStruckUpClose_ThreeAtAHundred()
+    public void TheQuickHeels_GivePoints_WhenStruckUpClose()
     {
-        foreach ((Hero hero, int more) in new[] { (Sentinel("trail", null, 40, "stone-arrow"), 2), (Sentinel("trail", "leaper", 100, "stone-arrow"), 3) })
+        foreach ((Hero hero, int more) in new[] { (Sentinel("trail", null, 40, "stone-arrow"), 2), (Sentinel("trail", "runner", 100, "stone-arrow"), 2) })
         {
             Fight f = On(["AB........."], hero, Foe(spells: ["t-blow"]));
             int mp = f.Fighters[0].Spec.Mp;
@@ -254,47 +261,13 @@ public class SentinelPathsTests
     }
 
     [Fact]
-    public void SawItComing_ShieldsOnce_AFight()
+    public void TheVaultAndTheFeint_HaveNoPathLeft_KeptForTheThief()
     {
-        Fight f = On(["AB........."], Sentinel("trail", "leaper", 100, "stone-arrow"), Foe(spells: ["t-blow"]));
-        f.Apply(new EndTurnAction());
-        f.Apply(new CastAction("t-blow", f.Fighters[0].Cell));
-        Assert.Equal(40, f.Fighters[0].Shield);
-        f.Apply(new CastAction("t-blow", f.Fighters[0].Cell));
-        Assert.Equal(1, f.Events.OfType<PassiveTriggered>().Count(p => p.Passive == "spec-saw-it-coming"));
-        Assert.DoesNotContain("spec-saw-it-coming", Specs.PassivesOf(Sentinel("trail", "leaper", 50), Real));
-    }
-
-    [Fact]
-    public void AFeint_CostsTheNextToStrikeUpClose_OnceOnly_NotFromAfar()
-    {
-        Fight f = On(["AB........."], Sentinel("trail", "leaper", 50, "path-feint"), Foe(spells: ["t-blow", "t-far"]));
-        Assert.Equal(ActionError.None, f.Apply(new CastAction("path-feint", f.Fighters[0].Cell)));
-        Assert.Contains(f.Fighters[0].Statuses, s => s.Stat == Stat.Feint);
-        f.Apply(new EndTurnAction());
-        Fighter foe = f.Fighters[1];
-        foe.Cell = new Cell(5, 0);
-        Assert.Equal(ActionError.None, f.Apply(new CastAction("t-far", f.Fighters[0].Cell)));
-        Assert.Contains(f.Fighters[0].Statuses, s => s.Stat == Stat.Feint);
-        foe.Cell = new Cell(1, 0);
-        int mp = foe.Mp;
-        Assert.Equal(ActionError.None, f.Apply(new CastAction("t-blow", f.Fighters[0].Cell)));
-        Assert.Equal(mp - 2, foe.Mp);
-        Assert.DoesNotContain(f.Fighters[0].Statuses, s => s.Stat == Stat.Feint);
-        Assert.Equal(ActionError.None, f.Apply(new CastAction("t-blow", f.Fighters[0].Cell)));
-        Assert.Equal(mp - 2, foe.Mp);
-    }
-
-    [Fact]
-    public void TheVault_LeapsWithoutSight_ThenWithoutACooldown_ThenGivesDamage()
-    {
-        Assert.False(Compiled(Sentinel("trail", null, 40), "path-vault").LineOfSight);
-        Assert.Equal(1, Compiled(Sentinel("trail", null, 40), "path-vault").Cooldown);
-        Spell at50 = Compiled(Sentinel("trail", "leaper", 50), "path-vault");
-        Assert.Equal((0, 1), (at50.Cooldown, at50.PerTurn));
-        Assert.Empty(at50.AllEffects.OfType<StatusEffect>());
-        StatusEffect damage = Compiled(Sentinel("trail", "leaper", 100), "path-vault").AllEffects.OfType<StatusEffect>().Single();
-        Assert.Equal((Stat.Damage, 10, 1), (damage.Stat, damage.Value, damage.Turns));
+        string[] used = [.. Real.Specs.Values.SelectMany(s => s.SpellsWith(null).Concat(s.Forks.SelectMany(f => s.SpellsWith(f.Id))))];
+        Assert.DoesNotContain("path-vault", used);
+        Assert.DoesNotContain("path-feint", used);
+        Assert.True(Real.Spells.ContainsKey("path-vault") && Real.Spells.ContainsKey("path-feint"));
+        Assert.DoesNotContain(Real.Specs.Values.SelectMany(s => s.Forks), f => f.Id == "leaper");
     }
 
     [Theory]
@@ -330,24 +303,25 @@ public class SentinelPathsTests
     [Fact]
     public void ChangingLineage_HandsItsRankOn_AndItsPlaceInTheDeck()
     {
-        Hero hero = Sentinel("sightline", "marksman", 60) with { Ranks = new Dictionary<string, int> { ["path-bullseye"] = 3, ["path-aimed-shot"] = 2 }, Deck = ["path-aimed-shot", "path-bullseye"] };
-        Hero moved = Specs.Transferred(hero, "sightline", "barrage", Real);
-        Assert.Equal(3, moved.Ranks!["path-barrage"]);
-        Assert.Equal(2, moved.Ranks["path-aimed-shot"]);
-        Assert.Equal(["path-aimed-shot", "path-barrage"], moved.Deck!);
+        Hero hero = Sentinel("trail", "barrage", 60) with { Ranks = new Dictionary<string, int> { ["path-heavy-bolt"] = 3, ["path-barrage"] = 2 }, Deck = ["path-barrage", "path-heavy-bolt"] };
+        Hero moved = Specs.Transferred(hero, "trail", "runner", Real);
+        Assert.Equal(3, moved.Ranks!["path-running-shot"]);
+        Assert.Equal(2, moved.Ranks["path-barrage"]);
+        Assert.Equal(["path-barrage", "path-running-shot"], moved.Deck!);
         Assert.Null(moved.Problem(Real));
     }
 
-    public static TheoryData<string, string?, int> Leaves()
+    public static TheoryData<string, string?, int, string?> Leaves()
     {
-        var leaves = new TheoryData<string, string?, int>();
+        var leaves = new TheoryData<string, string?, int, string?>();
         foreach (Specialisation s in Real.Specs.Values.Where(s => s.Class == "archer"))
         {
-            leaves.Add(s.Id, null, 40);
+            leaves.Add(s.Id, null, 40, null);
             foreach (SpecFork f in s.Forks)
             {
-                leaves.Add(s.Id, f.Id, 60);
-                leaves.Add(s.Id, f.Id, 100);
+                leaves.Add(s.Id, f.Id, 60, null);
+                foreach (SpecFinal x in f.Finals!)
+                    leaves.Add(s.Id, f.Id, 100, x.Id);
             }
         }
         return leaves;
@@ -355,9 +329,9 @@ public class SentinelPathsTests
 
     [Theory]
     [MemberData(nameof(Leaves))]
-    public void EveryLeaf_PlaysOut_AndReplaysTheSame(string spec, string? fork, int level)
+    public void EveryLeaf_PlaysOut_AndReplaysTheSame(string spec, string? fork, int level, string? final)
     {
-        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "archer", Level: level, Spec: spec, Fork: fork), Real);
+        Hero hero = Progression.Built(new Hero("Ondine", "female-a", "archer", Level: level, Spec: spec, Fork: fork, Final: final), Real);
         Assert.Null(hero.Problem(Real));
         var fight = new Fight(Real, "training", 5, hero);
         Ai.PlayOut(fight);

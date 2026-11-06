@@ -378,7 +378,7 @@
     "outline": "#1e1813"
   },
   "spec-barrage": {
-    "shape": "delapouite/dungeon-gate",
+    "shape": "carl-olsen/crossbow",
     "main": "#c9a27f",
     "light": "#e1ccb9",
     "dark": "#6f5946",
@@ -406,14 +406,7 @@
     "outline": "#1e1813"
   },
   "spec-trail": {
-    "shape": "lorc/walking-boot",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-leaper": {
-    "shape": "lorc/sprint",
+    "shape": "heavenly-dog/catapult",
     "main": "#c9a27f",
     "light": "#e1ccb9",
     "dark": "#6f5946",
@@ -638,6 +631,97 @@
   },
   "spec-pugilist": {
     "shape": "lorc/boxing-glove",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-bounty-hunter": {
+    "shape": "delapouite/wanted-reward",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-dragon-eye": {
+    "shape": "lorc/dragon-head",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-perfect-shot": {
+    "shape": "lorc/on-target",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-legendary-tracker": {
+    "shape": "lorc/footprint",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-bounty-killer": {
+    "shape": "lorc/archery-target",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-forest-master": {
+    "shape": "lorc/pine-tree",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-tracker": {
+    "shape": "delapouite/sniffing-dog",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-beast-lord": {
+    "shape": "lorc/eagle-emblem",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-ancestral-predator": {
+    "shape": "lorc/bird-claw",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-living-ballista": {
+    "shape": "lorc/cannon-shot",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-crossbow-master": {
+    "shape": "lorc/arrow-flights",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-vaulter": {
+    "shape": "delapouite/jump-across",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-war-hawk": {
+    "shape": "lorc/swallow",
     "main": "#c9a27f",
     "light": "#e1ccb9",
     "dark": "#6f5946",

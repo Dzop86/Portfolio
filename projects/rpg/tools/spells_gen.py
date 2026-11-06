@@ -395,13 +395,17 @@ paths = [
  path("aimed-shot","Tir visé","Aimed Shot",5,4,9,30,"lorc/target-arrows",damage=True,cd=2),
  path("weak-spot","Point faible","Weak Spot",2,1,9,30,"delapouite/convergence-target",effects=[status("Enemies","Resistance",-15,2)],cd=3),
  path("bullseye","Coup au but","Bullseye",6,5,10,50,"lorc/high-shot",damage=True,cd=3),
- path("barrage","Tir de barrage","Barrage",4,3,8,50,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=2),
+ # The Bounty Hunter's (sprint 198, docs/classes-archer.md §2): the quarry carries two states of its own, Weak Spot's resistance a third.
+ path("prey","Désigner la proie","Mark the Quarry",2,1,8,50,"delapouite/human-target",effects=[status("Enemies","Mp",-1,3),status("Enemies","Damage",-10,3)],cd=2),
  # The Ambush: its glyph at the budget by hand, the budget does not read a glyph's status (3 AP at level 30, cooldown 2, a loss of points).
  path("jaws","Mâchoires","Jaw Trap",3,1,5,30,"lorc/mantrap",effects=[glyph("Enemies",2,11,15,stat="Mp",v=-3,st=1)],cd=2),
  path("dive","Piqué","Dive",3,1,7,30,"lorc/feather",damage=True,los=False,cd=1,needs="hawk"),
  path("changeover","Chassé-croisé","Changeover",2,1,6,50,"lorc/magic-portal",los=False,effects=[swap()],cd=2,aims="hawk"),
  path("bait","Appât","Bait",2,1,4,50,"delapouite/bread",effects=[glyph("Enemies",2,stat="Ap",v=-1,st=1)],cd=3),
- # The Trail.
+ # The Artillerist (sprint 198, docs/classes-archer.md §3.3): Barrage comes down from 50 to 30, its budget redone; the Crossbowman's heavy bolt.
+ path("barrage","Tir de barrage","Barrage",4,3,8,30,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=2),
+ path("heavy-bolt","Carreau lourd","Heavy Bolt",5,3,8,50,"lorc/arrowhead",damage=True,cd=1),
+ # The Trail's of before: Vault and Feint have no path since sprint 198, kept for the Thief's Rogue.
  path("vault","Cabriole","Vault",2,2,4,30,"delapouite/quick-man",effects=[leap()],cd=1),
  path("heel-kick","Coup de talon","Heel Kick",3,1,1,30,"lorc/boot-stomp",damage=True,effects=[push(2)]),
  path("feint","Feinte","Feint",2,0,0,50,"lorc/dodging",los=False,effects=[status("Caster","Feint",2,2)],cd=3),
@@ -556,6 +560,8 @@ passives = [
  P("spec-sentry","Poste tenu","At My Post","Au début de ton tour, si tu n'as pas marché au tour précédent : bouclier de 12 sur toi et tes alliés à 2 cases.","At the start of your turn, if you did not walk last turn: a shield of 12 on you and allies within 2 cells.","TurnStart",[shield("Allies",12,2)],area=("Circle",2),still=True),
  P("spec-charge","Sonner la charge","Sound the Charge","Au premier tour du combat : toi et tes alliés à 2 cases, +2 PM pendant 1 tour et +15 % de dégâts pendant 2 tours.","On the first turn of the fight: you and allies within 2 cells, +2 MP for 1 turn and +15% damage for 2 turns.","TurnStart",[status("Allies","Mp",2,1),status("Allies","Damage",15,2)],area=("Circle",2),perFight=1),
  P("spec-on-the-ropes","Dans les cordes","On the Ropes","Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.","Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn.","LowHp",[push(2),status("Caster","Ap",2,1)],area=("Circle",1),percent=50),
+ # The Archer's final (sprint 198, docs/classes-archer.md §3.1): the bounty paid.
+ P("spec-bounty","Prime touchée","Bounty Collected","Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.","An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns.","Kill",[status("Caster","Ap",2,1),status("Caster","Damage",15,2)]),
  # The Sentinel's.
  P("spec-quick-heels","Talons vifs","Quick Heels","Si on te frappe au contact : +2 PM pendant 1 tour.","If you are struck in melee: +2 MP for 1 turn.","Hit",[status("Caster","Mp",2,1)],melee=True),
  P("spec-quick-heels-3","Talons vifs","Quick Heels","Si on te frappe au contact : +3 PM pendant 1 tour.","If you are struck in melee: +3 MP for 1 turn.","Hit",[status("Caster","Mp",3,1)],melee=True),
