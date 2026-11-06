@@ -262,3 +262,33 @@ Une IA qui saurait s'en servir ne ferait jamais moins bien qu'en ne les jouant p
 | Combattant `harpooner` | 26,5 | Champion d'arène 31,3 (+4,8) | Pugiliste 29,4 (+2,9) |
 
 **Aucune ligne n'est concluante** : à 100, l'IA d'un héros seul ne joue presque jamais Écrasement, Harpon ni Rétorsion, et toujours pas Assaut, Cercle de fer ni Arrachement (T158). Les bornes F1 à F4 de `docs/classes-guerrier.md` §7.3 ne jugent donc rien, et le test passe sans rien vérifier. Ce qu'on peut lire quand même : le Seigneur de guerre (+14,6) dépasse la borne de +10, et son effet passe par un passif et des PA, pas par un sort que l'IA néglige ; la Lame fantôme (−5,6) passe sous le plancher de −3. Le Général ne change aucun combat de la fumée (Cercle de fer jamais joué) : il est dans `CiLevelsTests.Unchanged`. La mesure en duo (M100-duo), qui jugerait le Croisé et le Seigneur, n'est pas faite.
+
+## 6 novembre 2026 : l'Archer à quatre rangs (S198, T161)
+
+**À 50**, `Rpg.Sim --matrix --simulate 30 --level 50 --class archer`, paquet automatique, 16 groupes de 4 et 5 monstres, mêmes graines :
+
+| Lignée | Points | Sur l'Archer sans voie | Lecture |
+|---|---|---|---|
+| (sans voie) | 44,2 | | |
+| Sniper `marksman` | 53,8 | +9,6 | non concluant : Tir visé 0,5 |
+| Chasseur de primes `bounty-hunter` | 50,8 | +6,7 | non concluant : Point faible 0,2 |
+| Éclaireur `trapper` | 64,4 | +20,2 | non concluant : Mâchoires 0,0 |
+| Chasseur sauvage `falconer` | 60,6 | +16,5 | non concluant : Chassé-croisé 0,1 |
+| Arbalétrier `barrage` (+5 % sans marcher) | 62,5 | +18,3 | non concluant : Coup de talon 0,1 |
+| Tireur mobile `runner` | 53,5 | +9,4 | non concluant : Tir en course 0,3 |
+
+L'Arbalétrier, selon son bonus « sans marcher » : 0 % → 56,5 ; 3 % → 62,7 ; 5 % → 62,5 ; 8 % → 69,4 ; 15 % → 74,0. À 15 %, la barrière de la CI (`TemplateTests`, 8 groupes, 15 combats) le lisait à 84,2 et refusait l'écart. Retenu : 5 %.
+
+**À 100**, `FinalsBenchTests.AtHundred_TheArchersFinals…` (explicite, 3 min) :
+
+| Lignée | Sans finale | Reprise | Neuve |
+|---|---|---|---|
+| (sans voie) | 37,7 | | |
+| Sniper `marksman` | 26,7 | Œil du dragon 44,4 (+17,7) | Tir parfait 51,0 (+24,4) |
+| Chasseur de primes `bounty-hunter` | 42,3 | (pas de reprise) Traqueur légendaire 42,3 (0,0) | Exécuteur 60,2 (+17,9) |
+| Éclaireur `trapper` | 35,2 | Maître forestier 35,2 (0,0) | Pisteur 39,4 (+4,2) |
+| Chasseur sauvage `falconer` | 34,6 | Seigneur des bêtes 34,6 (0,0) | Prédateur ancestral 34,6 (0,0) |
+| Arbalétrier `barrage` | 49,2 | Baliste vivante 55,6 (+6,5) | Maître arbalétrier 49,4 (+0,2) |
+| Tireur mobile `runner` | 47,5 | Voltigeur 51,0 (+3,5) | Faucon de guerre 47,5 (0,0) |
+
+**Aucune ligne n'est concluante**, comme pour le Guerrier : à 100, l'IA d'un héros seul ne joue presque pas les sorts de lignée. Sept finales ne changent rien au banc (0,0) : leur effet passe par un sort que l'IA ne joue pas ici (la proie, Mâchoires, Chassé-croisé, le second Faucon, Carreau lourd, Tir en course). Ce qu'on peut lire : Tir parfait, l'Exécuteur et Œil du dragon dépassent la borne de +10, et leur effet passe par une règle ou un passif, pas par un sort négligé ; le Sniper seul fait moins bien que l'Archer sans voie, à vérifier quand l'IA jouera Coup au but.

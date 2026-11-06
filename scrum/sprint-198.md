@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant qu'Archer, je deviens Tireur d'élite, Rôdeur ou Artilleur, puis leurs lignées et leurs finales ; 2 sorts neufs, Cabriole et Feinte réservés au Voleur (rpg) ; xUnit, bornes du banc. PloufArcher reprend Plif. | 6 | À faire |
+| En tant qu'Archer, je deviens Tireur d'élite, Rôdeur ou Artilleur, puis leurs lignées et leurs finales ; 2 sorts neufs, Cabriole et Feinte réservés au Voleur (rpg) ; xUnit, bornes du banc. PloufArcher reprend Plif. | 6 | Fait en partie : 3 branches, 6 lignées (la Herse passe à l'Artilleur, le Saute-haie part, le Chasseur de primes naît), 12 finales (5 reprises, 7 neuves, 1 passif neuf), 2 sorts neufs, Tir de barrage à 30, Arbalétrier réglé par mesure (+5 %), migration des Archers, 15 silhouettes ; banc à 100 sans ligne concluante, 2 sorts excusés à 50 dans la fumée, auto-test Godot en CI seulement (T161) |
 
 ## Rétro (Charles)
 - Ce qui a marché :
