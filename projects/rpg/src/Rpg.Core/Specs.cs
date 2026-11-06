@@ -206,13 +206,14 @@ public static class Specs
     /// <summary>
     /// The hero on another path, its ranks and deck following (§v3.4): the old path's spells give their place, one for one in
     /// the order of the evolutions, to the new path's that its level has; what has no heir leaves the deck and gives its
-    /// points back. Its class's spells do not move.
+    /// points back. Its class's spells do not move. A final class names no spell (D96): <paramref name="final"/> replaces the
+    /// hero's; left out, the same lineage keeps its own, another lineage has none, as the server writes it (sprint 196).
     /// </summary>
-    public static Hero Transferred(Hero hero, string to, string? fork, GameData data)
+    public static Hero Transferred(Hero hero, string to, string? fork, GameData data, string? final = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(data);
-        Hero moved = hero with { Spec = to, Fork = fork };
+        Hero moved = hero with { Spec = to, Fork = fork, Final = final ?? (to == hero.Spec && fork == hero.Fork ? hero.Final : null) };
         if (Of(hero, data) is not Specialisation from)
             return moved;
         string[] old = [.. from.SpellsWith(hero.Fork)];

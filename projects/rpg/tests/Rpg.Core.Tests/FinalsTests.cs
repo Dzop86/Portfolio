@@ -143,4 +143,18 @@ public class FinalsTests
         Hero hero = new("Ondine", "female-a", "warrior", Level: 100, Spec: "palisade", Fork: Lineage);
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
     }
+
+    // Sprint 196: the page's road written offline, as the server writes it; before, another lineage kept a final class it does not know.
+    [Fact]
+    public void AnotherLineage_DropsTheFinalClass_TheSameKeepsIt_AndOneNamedIsTaken()
+    {
+        GameData data = With(Final("one"), Final("two"));
+        Hero hero = Guard(100, "one");
+        string sister = Real.Specs["palisade"].Forks[1].Id;
+        Assert.Null(Specs.Transferred(hero, "palisade", sister, data).Final);
+        Assert.Equal("one", Specs.Transferred(hero, "palisade", Lineage, data).Final);
+        Assert.Equal("two", Specs.Transferred(hero, "palisade", Lineage, data, "two").Final);
+        Assert.Null(Specs.Transferred(hero, "palisade", sister, data).Problem(data));
+        Assert.Equal(hero.Deck, Specs.Transferred(hero, "palisade", Lineage, data, "two").Deck);
+    }
 }
