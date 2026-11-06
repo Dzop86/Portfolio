@@ -411,7 +411,7 @@ public class SpecPageTests
         foreach (string key in FinalFormats)
             Assert.NotEqual(Fr[key, 1], en[key, 1]);
         Assert.NotEqual(Fr["spec.confirm.later.all", 1, 2, 3], en["spec.confirm.later.all", 1, 2, 3]);
-                foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon", "stat.Anchored", "stat.Mp.all" })
+        foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon", "stat.Anchored", "stat.Mp.all" })
         {
             Assert.NotEqual(key, Fr[key]);
             Assert.NotEqual(key, en[key]);
