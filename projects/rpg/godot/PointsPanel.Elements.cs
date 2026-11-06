@@ -458,7 +458,11 @@ public partial class PointsPanel
             {
                 ElementTier t = tiers[i];
                 string level = t.Level.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                _cells.Add((xs[i + 1], xs[i + 2] - xs[i + 1], level, texts[$"tier.{level}.name"], texts[$"spec.tier.{level}.short"], t.Reached, t.Next, texts[$"path.tier.{level}"]));
+                // The cell 100 says what its column shows: the final classes of the open branch (§14.9).
+                bool last = t.Level == Specs.Finals;
+                string line = last && page.OpenHasFinals ? texts["spec.tier.100.finals"] : texts[$"spec.tier.{level}.short"];
+                string tip = last ? $"{texts[$"path.tier.{level}"]} {texts["spec.tier.100.tip"]}" : texts[$"path.tier.{level}"];
+                _cells.Add((xs[i + 1], xs[i + 2] - xs[i + 1], level, texts[$"tier.{level}.name"], line, t.Reached, t.Next, tip));
             }
             QueueRedraw();
         }

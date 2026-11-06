@@ -118,6 +118,8 @@ scripts/smoke.sh http://localhost:8002     # contre docker compose : de l'inscri
 La clé qui signe les jetons vient de `Jwt__Key` (base64, 32 octets, variable d'environnement ; `RPG_JWT_KEY` pour docker compose). Sans clé, le serveur en tire une au démarrage, et les jetons ne survivent pas à un redémarrage.
 
 ## Tests
+Sprint 196 : 21 tests de plus (`Rpg.Client` : `SpecFinalsPageTests`, la colonne 100 de la branche ouverte, ses places, ses liaisons qui ne se croisent pas, les états, le pied, la confirmation et le compteur d'une finale, sur des données inventées ; `Rpg.Core` : la scène d'Anatole qui ne nomme aucune branche, en FR et EN ; la finale qui tombe quand la lignée change). La page Spécialisation ne montre plus que la colonne 100 de la branche cliquée (T159).
+
 Sprint 195 : 19 tests de plus (`Rpg.Core` : `FinalsTests`, le prix et le gabarit d'une finale ; `CiLevelsTests`, la fumée N0 et les 12 compositions de N1 ; `FightBudgetTests`, le coût de chaque test et la liste du banc ; `Rpg.Api` : `ConvertClassesTests`, la migration dans les deux sens, `--spec` avec finale ; `Rpg.Client` : les 10 classes de la création, les anciens codes de paquet). La Garde devient le Guerrier (`warrior`) et la Sentinelle l'Archer (`archer`), 10 personnages par compte (T156, T157). La suite du Cœur en CI passe de 234 362 combats et 52 minutes à 17 496 et 14 minutes, le reste au banc (T158).
 
 Sprint 194 : 22 tests de plus (`Rpg.Core` : `AiWorthTests`, `FinalsTests`, le paquet d'un héros en voie selon ses points ; `Rpg.Api` : la finale par `PUT …/spec`). La classe finale existe dans le moteur, sans contenu (T154, T155).

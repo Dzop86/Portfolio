@@ -13,8 +13,8 @@ public class SpecPageTests
 
     private static Hero Hero(string cls, int level, string? spec = null, string? fork = null) => new("Ondine", "female-a", cls, Level: level, Spec: spec, Fork: fork);
 
-    private static SpecPage Page(Hero hero, SpecContext? context = null, string? preview = null, bool readOnly = false) =>
-        new(new PointsEditor(hero, Data, readOnly), context ?? Free, preview);
+    private static SpecPage Page(Hero hero, SpecContext? context = null, string? preview = null, bool readOnly = false, string? open = null) =>
+        new(new PointsEditor(hero, Data, readOnly), context ?? Free, preview, open);
 
     private static SpecPage Sentinel(int level, string? spec = null, string? fork = null, SpecContext? context = null, string? preview = null) =>
         Page(Hero("archer", level, spec, fork), context, preview);
@@ -34,11 +34,11 @@ public class SpecPageTests
         {
             rects.Add((SpecTree.BranchX, SpecTree.BranchY(b), SpecTree.TileWidth, SpecTree.TileHeight));
             for (int f = 0; f < 2; f++)
-            {
                 rects.Add((SpecTree.ForkX, SpecTree.ForkY((b * 2) + f), SpecTree.TileWidth, SpecTree.TileHeight));
-                rects.Add((SpecTree.LastX, SpecTree.ForkY((b * 2) + f), SpecTree.TileWidth, SpecTree.TileHeight));
-            }
         }
+        // The column 100 of the open branch (sprint 196, §14.2): two final classes or one evolution by lineage, at the same places whichever branch is open.
+        foreach (float top in new[] { SpecTree.FinalY(0, 0), SpecTree.FinalY(0, 1), SpecTree.FinalY(1, 0), SpecTree.FinalY(1, 1) })
+            rects.Add((SpecTree.FinalX, top, SpecTree.FinalWidth, SpecTree.TileHeight));
         return [.. rects];
     }
 
@@ -46,7 +46,8 @@ public class SpecPageTests
     public void TheTree_HasNoOverlap_NoTargetUnder44_AndHoldsInItsRoom()
     {
         var rects = Rects();
-        Assert.Equal(17, rects.Length);
+        Assert.Equal(15, rects.Length);
+        Assert.Equal([SpecTree.SoleY(0), SpecTree.SoleY(1)], [SpecTree.FinalY(0, 0), SpecTree.FinalY(1, 1)]);
         Assert.All(rects, r =>
         {
             Assert.True(r.H >= 44 && r.W >= 44);
@@ -79,13 +80,16 @@ public class SpecPageTests
     [InlineData("archer", "sightline", "marksman", "barrage")]
     [InlineData("warrior", "palisade", "rampart", "bastion")]
     [InlineData("mage", "archmage", "high-archmage", "patient")]
-    public void TheNodes_FollowTheData_FifteenByClass(string cls, string first, string fork1, string fork2)
+    public void TheNodes_FollowTheData_ElevenByClass_TheColumn100OfTheOpenBranchOnly(string cls, string first, string fork1, string fork2)
     {
         SpecPage page = Page(Hero(cls, 60));
-        Assert.Equal(15, page.Nodes.Count);
-        Assert.Equal([first, fork1, fork1 + "@100", fork2, fork2 + "@100"], page.Nodes.Take(5).Select(n => n.Key));
-        Assert.Equal([30, 50, 100, 50, 100], page.Nodes.Take(5).Select(n => n.Level));
+        Assert.Equal(11, page.Nodes.Count);
+        Assert.Equal(first, page.OpenBranch);
+        Assert.Equal([first, fork1, fork2], page.Nodes.Take(3).Select(n => n.Key));
+        Assert.Equal([fork1 + "@100", fork2 + "@100"], page.Last.Select(n => n.Key));
+        Assert.Equal([30, 50, 50], page.Nodes.Take(3).Select(n => n.Level));
         Assert.All(page.Nodes, n => Assert.NotNull(n.Icon));
+        Assert.Null(page.Find(fork1 + ":x"));
     }
 
     // ---- The states (§6, the seven situations of §7.1) ----
@@ -118,7 +122,7 @@ public class SpecPageTests
         SpecPage page = Sentinel(40);
         Assert.Equal(SpecState.Open, State(page, "ambush"));
         Assert.Equal(SpecState.Locked, State(page, "falconer"));
-        Assert.Equal(SpecState.Locked, State(page, "falconer@100"));
+        Assert.Equal(SpecState.Locked, State(Page(Hero("archer", 40), open: "ambush"), "falconer@100"));
         Assert.True(page.Pending);
         Assert.Equal((0, 1), page.Choices);
     }
@@ -227,7 +231,8 @@ public class SpecPageTests
         Assert.Equal(Fr["spec.needs-fork.paid"], head.First);
         Assert.Null(head.Action);
         // A last evolution not reached.
-        SpecFoot later = page.Foot(page["falconer@100"], Fr);
+        SpecPage otherOpen = Page(hero, open: "ambush");
+        SpecFoot later = otherOpen.Foot(otherOpen["falconer@100"], Fr);
         Assert.Equal((Fr["spec.opens", "100"], Fr["spec.pick-at-50"]), (later.First, later.Second));
         Assert.Null(later.Action);
         // To come on its road.
@@ -311,7 +316,8 @@ public class SpecPageTests
         Assert.Equal((SpecTree.RootWidth, SpecTree.RootCentre), SpecTree.ToBranch(1)[0]);
         Assert.Equal(SpecTree.BranchX, SpecTree.ToBranch(2)[^1].X);
         Assert.Equal((SpecTree.ForkX, SpecTree.ForkY(3) + (SpecTree.TileHeight / 2)), SpecTree.ToFork(1, 1)[^1]);
-        Assert.Equal(SpecTree.LastX, SpecTree.ToLast(5)[^1].X);
+        Assert.Equal((SpecTree.FinalX, SpecTree.SoleY(1) + (SpecTree.TileHeight / 2)), SpecTree.ToFinal(2, 1, SpecTree.SoleY(1))[^1]);
+        Assert.Equal(SpecTree.ForkX + SpecTree.TileWidth, SpecTree.ToFinal(0, 0, SpecTree.FinalY(0, 0))[0].X);
     }
 
     // ---- The confirmation (§5.6) ----
@@ -385,11 +391,27 @@ public class SpecPageTests
         Assert.DoesNotContain(new SpellBook(new PointsEditor(Hero("archer", 100), Data)).Spells, b => b.Spell.Id.StartsWith("path-", StringComparison.Ordinal));
     }
 
+    // The final classes' words (sprint 196, maquette §14.10).
+    private static readonly string[] FinalKeys = ["spec.tier.100.finals", "spec.tier.100.tip", "spec.final.pick", "spec.final.ahead", "spec.final.same", "spec.final.with-fork",
+        "spec.final.with-branch", "spec.final.due", "spec.take.final", "spec.confirm.final", "spec.confirm.final.yes", "spec.confirm.final.keep", "spec.confirm.final.same",
+        "spec.confirm.final.after", "spec.summary.final", "spec.summary.final.due"];
+
+    private static readonly string[] FinalFormats = ["spec.final.then-cost", "spec.price.final", "spec.confirm.signature", "spec.confirm.later.final"];
+
     [Fact]
     public void EveryKeyOfThePage_ExistsInBothLanguages()
     {
         var en = new Texts("en");
-        foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon", "stat.Anchored", "stat.Mp.all" })
+        foreach (string key in FinalKeys.Concat(Enum.GetNames<FinalTemplate>().Select(t => $"spec.template.{t}")))
+        {
+            Assert.NotEqual(key, Fr[key]);
+            Assert.NotEqual(key, en[key]);
+            Assert.NotEqual(Fr[key], en[key]);
+        }
+        foreach (string key in FinalFormats)
+            Assert.NotEqual(Fr[key, 1], en[key, 1]);
+        Assert.NotEqual(Fr["spec.confirm.later.all", 1, 2, 3], en["spec.confirm.later.all", 1, 2, 3]);
+                foreach (string key in new[] { "sheet.tab.spec", "spec.hint", "spec.quest", "spec.splits", "spec.deck", "spec.deck.many", "spec.branch-first", "spec.open-book", "spec.refused", "error.NoSummon", "stat.Anchored", "stat.Mp.all" })
         {
             Assert.NotEqual(key, Fr[key]);
             Assert.NotEqual(key, en[key]);

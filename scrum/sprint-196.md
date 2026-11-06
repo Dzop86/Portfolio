@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, la page Spécialisation montre les classes finales de la branche ouverte, leur panneau et leur confirmation, d'après une maquette du graphiste (rpg) ; xUnit sur la géométrie, capture relue. | 3 | À faire |
+| En tant que joueur, la page Spécialisation montre les classes finales de la branche ouverte, leur panneau et leur confirmation, d'après une maquette du graphiste (rpg) ; xUnit sur la géométrie, capture relue. | 3 | Fait en partie : maquette §14 (Q8 à Q15 tranchées par Charles), colonne 100 de la branche ouverte, fiche, confirmation, compteur et point, finale envoyée au serveur, 19 tests sur des données inventées ; pas de capture (consigne du 14 octobre), finales jamais dessinées par l'auto-test faute de données avant S197 (T159) |
 | En tant que joueur, la quête « Une route à soi » et Anatole parlent de 10 classes, sans nommer les anciennes (rpg) ; xUnit, FR et EN. | 1 | Fait : scène générique (`own`, `ways`, `later`), Josette parle de dix façons de se battre, un test refuse en FR et en EN tout nom de branche ou de titre des données |
 
 ## Rétro (Charles)

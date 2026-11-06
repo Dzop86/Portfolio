@@ -1362,7 +1362,7 @@ public partial class Main
         _pointsPanel.Build(new PointsEditor(_hero, GameData.Embedded, readOnly: !InTown), _talkPanel?.Texts ?? _hud.Texts, spells);
         _pointsPanel.SpecContext = _lobby?.SignedIn == true && _character is not null ? SpecContext.Of(_character) : new SpecContext(true, 1_000_000, true);
         _pointsPanel.SavePressed += p => _ = SavePoints(p, _pointsPanel);
-        _pointsPanel.SpecChosen += (spec, fork) => _ = ChooseSpec(spec, fork);
+        _pointsPanel.SpecChosen += (spec, fork, final) => _ = ChooseSpec(spec, fork, final);
         _pointsPanel.ClosePressed += () =>
         {
             _windows.Close();
@@ -2206,20 +2206,20 @@ public partial class Main
     }
 
     /// <summary>A road confirmed on the Specialisation page (sprint 191, D95): the server checks and writes it; offline, only in memory.</summary>
-    private async Task ChooseSpec(string spec, string? fork)
+    private async Task ChooseSpec(string spec, string? fork, string? final)
     {
         if (_pointsPanel is not PointsPanel panel || _hero is null)
             return;
-        long price = Specs.ChangeCost(_hero, spec, fork);
+        long price = Specs.ChangeCost(_hero, spec, fork, final);
         if (_lobby?.SignedIn != true || _character is null)
         {
-            _hero = Specs.Transferred(_hero, spec, fork, GameData.Embedded);
+            _hero = Specs.Transferred(_hero, spec, fork, GameData.Embedded, final);
             panel.SpecSaved(_hero, panel.SpecContext with { Shards = panel.SpecContext.Shards - price }, price);
             return;
         }
         try
         {
-            _character = await _lobby.Server.ChooseSpec(_character.Id, spec, fork);
+            _character = await _lobby.Server.ChooseSpec(_character.Id, spec, fork, final);
             _hero = _character.Hero;
             panel.SpecSaved(_hero, SpecContext.Of(_character), price);
         }
@@ -3180,7 +3180,8 @@ public partial class Main
             AddChild(built);
             built.SpecContext = context;
             built.Build(new PointsEditor(hero, GameData.Embedded, readOnly), language);
-            built.SpecChosen += (spec, fork) => built.SpecSaved(Specs.Transferred(built.Editor.Hero, spec, fork, GameData.Embedded), built.SpecContext, Specs.ChangeCost(built.Editor.Hero, spec, fork));
+            built.SpecChosen += (spec, fork, final) => built.SpecSaved(Specs.Transferred(built.Editor.Hero, spec, fork, GameData.Embedded, final), built.SpecContext,
+                Specs.ChangeCost(built.Editor.Hero, spec, fork, final));
             built.ShowSpec();
             return built;
         }
@@ -3196,20 +3197,29 @@ public partial class Main
                     problems.Add($"the specialisation page scrolls in {language.Lang}: {page.SpecRoom}");
                 if (!page.SpecTreeButtonFits)
                     problems.Add($"the tree's button leaves its place in {language.Lang}");
-                if (page.SpecButtons.Count != 15 || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
+                // Three branches, six lineages and the column 100 of the open branch (sprint 196, §14.1): two evolutions until the classes have final classes.
+                if (page.SpecButtons.Count != 11 || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
                     problems.Add($"the tree of {c.Id} has {page.SpecButtons.Count} tiles, the smallest {page.SpecButtons.Values.Min(b => b.Size.Y)} tall");
-                foreach (string key in page.SpecButtons.Keys.Prepend("root"))
+                // Each branch opened in turn, its column 100 read: a click changes the column, the keys are read again after each.
+                foreach (Specialisation branch in GameData.Embedded.Specs.Values.Where(s => s.Class == c.Id))
                 {
-                    page.PickSpec(key);
+                    page.PickSpec(branch.Id);
                     await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-                    if (!page.SpecCardFits)
-                        problems.Add($"the specialisation's panel overflows in {language.Lang}: {page.SpecCardRoom}");
-                    if (!page.SpecTitleFits)
-                        problems.Add($"the specialisation's title of {key} overflows in {language.Lang}");
+                    foreach (string key in page.SpecButtons.Keys.Prepend("root").ToArray())
+                    {
+                        page.PickSpec(key);
+                        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                        if (!page.SpecCardFits)
+                            problems.Add($"the specialisation's panel overflows in {language.Lang}: {page.SpecCardRoom}");
+                        if (!page.SpecTitleFits)
+                            problems.Add($"the specialisation's title of {key} overflows in {language.Lang}");
+                        if (key != "root")
+                            page.PickSpec(branch.Id);
+                    }
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    if (page.SpecLongTitles.Any())
+                        problems.Add($"titles past two lines in {language.Lang}: {string.Join(", ", page.SpecLongTitles)}");
                 }
-                await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-                if (page.SpecLongTitles.Any())
-                    problems.Add($"titles past two lines in {language.Lang}: {string.Join(", ", page.SpecLongTitles)}");
                 page.QueueFree();
             }
         }

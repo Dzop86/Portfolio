@@ -23,9 +23,11 @@ public partial class PointsPanel
     private Label _rootName = null!;
     private PanelContainer _specCard = null!;
     private SpecSigil _cardSigil = null!;
-    private Label _cardTitle = null!, _cardSub = null!, _cardText = null!, _cardLore = null!, _cardFirst = null!, _cardSecond = null!;
+    private Label _cardTitle = null!, _cardSub = null!, _cardSignature = null!, _cardText = null!, _cardLore = null!, _cardFirst = null!, _cardSecond = null!;
     private Button _cardAction = null!;
-    private string? _specPicked, _specHovered, _specPreview;
+    private string? _specPicked, _specHovered, _specPreview, _specOpen;
+    private Control _specTree = null!;
+    private readonly List<string> _lastKeys = [];
     private SpecAction? _shownAction;
     private bool _offerBook;
     private Control? _confirm;
@@ -34,10 +36,10 @@ public partial class PointsPanel
     /// <summary>What the page reads of the character: the quest, the Éclats, the place. The server checks it all again.</summary>
     public SpecContext SpecContext { get; set; } = new(QuestDone: false, Shards: 0, InVillage: false);
 
-    /// <summary>A road confirmed: its branch and its lineage; the game sends it and answers with <see cref="SpecSaved"/> or <see cref="SpecRefused"/>.</summary>
-    public event Action<string, string?>? SpecChosen;
+    /// <summary>A road confirmed: its branch, its lineage and its final class; the game sends it and answers with <see cref="SpecSaved"/> or <see cref="SpecRefused"/>.</summary>
+    public event Action<string, string?, string?>? SpecChosen;
 
-    private SpecPage SpecView() => new(Editor, SpecContext, _specPreview);
+    private SpecPage SpecView() => new(Editor, SpecContext, _specPreview, _specOpen);
 
     private Control BuildSpec()
     {
@@ -46,6 +48,7 @@ public partial class PointsPanel
         page.AddChild(_specFrieze);
         var tree = new Control { Position = new Vector2(0, SpecTree.TreeY), Size = new Vector2(SpecTree.Width, SpecTree.Height) };
         page.AddChild(tree);
+        _specTree = tree;
         _specWood = new SpecWoodView { Panel = this, Size = tree.Size, MouseFilter = Control.MouseFilterEnum.Ignore };
         tree.AddChild(_specWood);
 
@@ -74,7 +77,7 @@ public partial class PointsPanel
             _openTree.AddThemeStyleboxOverride(state, box);
         }
 
-        // By the class's branches of the data, read at each refresh: the same three once built.
+        // By the class's branches of the data: the same three once built; the column 100 follows the open branch (§14.1), at each refresh.
         var view = new SpecPage(Editor, SpecContext);
         IReadOnlyList<Specialisation> branches = view.Branches;
         for (int b = 0; b < branches.Count; b++)
@@ -82,26 +85,21 @@ public partial class PointsPanel
             Specialisation branch = branches[b];
             AddSpecTile(tree, branch.Id, new Vector2(SpecTree.BranchX, SpecTree.BranchY(b)));
             for (int f = 0; f < branch.Forks.Count; f++)
-            {
-                SpecFork fork = branch.Forks[f];
-                float y = SpecTree.ForkY((b * 2) + f);
-                AddSpecTile(tree, fork.Id, new Vector2(SpecTree.ForkX, y));
-                AddSpecTile(tree, fork.Id + "@100", new Vector2(SpecTree.LastX, y));
-            }
+                AddSpecTile(tree, branch.Forks[f].Id, new Vector2(SpecTree.ForkX, SpecTree.ForkY((b * 2) + f)));
         }
         page.AddChild(BuildSpecCard());
         return page;
     }
 
-    private void AddSpecTile(Control tree, string key, Vector2 at)
+    private void AddSpecTile(Control tree, string key, Vector2 at, float width = SpecTree.TileWidth)
     {
-        var tile = new Button { Position = at, Size = new Vector2(SpecTree.TileWidth, SpecTree.TileHeight), ToggleMode = true, ThemeTypeVariation = OsmoseTheme.CompoundOpen };
+        var tile = new Button { Position = at, Size = new Vector2(width, SpecTree.TileHeight), ToggleMode = true, ThemeTypeVariation = OsmoseTheme.CompoundOpen };
         tile.Pressed += () => PickSpec(key);
         HoverSpec(tile, key);
         tree.AddChild(tile);
         var sigil = new SpecSigil { Position = new Vector2(8, 8), Size = new Vector2(36, 36), MouseFilter = Control.MouseFilterEnum.Ignore };
         tile.AddChild(sigil);
-        var title = new Label { Position = new Vector2(52, 0), Size = new Vector2(128, SpecTree.TileHeight), VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore };
+        var title = new Label { Position = new Vector2(52, 0), Size = new Vector2(width - 60, SpecTree.TileHeight), VerticalAlignment = VerticalAlignment.Center, AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore };
         title.AddThemeFontSizeOverride("font_size", 14);
         title.AddThemeFontOverride("font", OsmoseTheme.Bold());
         title.AddThemeConstantOverride("line_spacing", 0);
@@ -111,6 +109,26 @@ public partial class PointsPanel
         breath.AddThemeStyleboxOverride("panel", OsmoseTheme.Flat("#00000000", UiStyle.Pistachio, 2, 8));
         tile.AddChild(breath);
         _specTiles[key] = new SpecTile(tile, sigil, title, breath);
+    }
+
+    // The column 100 (§14.2): the open branch's two final classes by lineage, or its one evolution, rebuilt when the branch changes.
+    private void SyncLastColumn(SpecPage page)
+    {
+        IReadOnlyList<SpecNode> last = page.Last;
+        if (last.Select(n => n.Key).SequenceEqual(_lastKeys))
+            return;
+        foreach (string key in _lastKeys)
+        {
+            _specTiles[key].Button.QueueFree();
+            _specTiles.Remove(key);
+        }
+        _lastKeys.Clear();
+        Specialisation branch = Editor.Data.Specs[page.OpenBranch];
+        foreach (SpecNode node in last)
+        {
+            AddSpecTile(_specTree, node.Key, new Vector2(SpecTree.FinalX, SpecTree.LastY(branch, node)), SpecTree.FinalWidth);
+            _lastKeys.Add(node.Key);
+        }
     }
 
     private void HoverSpec(Control control, string key)
@@ -160,6 +178,9 @@ public partial class PointsPanel
         _cardSub.ClipText = true;
         who.AddChild(_cardSub);
         column.AddChild(SpecRule());
+        // A final class's signature, before its words: what tells two sisters apart (§14.6).
+        _cardSignature = new Label { ThemeTypeVariation = OsmoseTheme.SectionLabel, Visible = false };
+        column.AddChild(_cardSignature);
         _cardText = SpecLine(UiStyle.Text);
         column.AddChild(_cardText);
         _cardLore = SpecLine(UiStyle.TextDim);
@@ -196,6 +217,7 @@ public partial class PointsPanel
         _elementsTab.SetPressedNoSignal(false);
         _specTab.SetPressedNoSignal(true);
         _specPreview = null;
+        _specOpen = null;
         _offerBook = false;
         _specPicked = SpecView().Opening;
         Refresh();
@@ -210,22 +232,30 @@ public partial class PointsPanel
             : hero.Level < Specs.Opens ? Texts["spec.hint.closed", Specs.Opens]
             : !SpecContext.QuestDone && hero.Spec is null ? Texts["spec.quest"]
             : hero.Spec is not null && hero.Fork is null && hero.Level >= Specs.Forks ? Texts["spec.splits"]
+            : SpecView().FinalDue ? Texts["spec.final.due"]
             : Texts["spec.hint"];
     }
 
-    /// <summary>Shows a tile in the panel; from 50, a branch looked at opens its lineages (§7.2) before its road is written.</summary>
+    /// <summary>
+    /// Shows a tile in the panel; from 50, a branch looked at opens its lineages (§7.2) before its road is written. Its branch becomes the open one, whose column 100 shows
+    /// (§14.1); the root brings back the hero's.
+    /// </summary>
     public void PickSpec(string key)
     {
+        Hero hero = Editor.Hero;
+        SpecNode? picked = key == RootKey ? null : SpecView().Find(key);
+        if (key != RootKey && picked is null)
+            return;
         _specPicked = key;
         _offerBook = false;
-        Hero hero = Editor.Hero;
+        _specOpen = picked?.Spec ?? hero.Spec ?? _specOpen;
         if (key == RootKey)
         {
             _specPreview = null;
         }
         else if (hero.Level >= Specs.Forks && !Editor.ReadOnly)
         {
-            SpecNode node = new SpecPage(Editor, SpecContext)[key];
+            SpecNode node = picked!;
             // A branch: the look it opens. A lineage of the branch looked at keeps it; of another, the look follows.
             if (node.Spec != hero.Spec && node.Fork is null)
                 _specPreview = _specPreview == node.Spec ? null : node.Spec;
@@ -249,6 +279,7 @@ public partial class PointsPanel
         _rootSigil.Paint(RootIcon(), new SpecLook(new Color(Editor.Hero.Spec is null ? ElementStyle.WoodLight : UiStyle.Pistachio), Editor.Hero.Spec is null ? 2 : 3, Halo: Editor.Hero.Spec is null ? default : new Color(UiStyle.Pistachio)));
         _specRoot.ThemeTypeVariation = Editor.Hero.Spec is null ? OsmoseTheme.CompoundOpen : OsmoseTheme.CompoundCreated;
         _specRoot.SetPressedNoSignal(_specPicked == RootKey);
+        SyncLastColumn(page);
         foreach (SpecNode node in page.Nodes)
             RefreshSpecTile(node);
         _specWood.QueueRedraw();
@@ -306,7 +337,9 @@ public partial class PointsPanel
         }));
         SpecLook look = LookOf(node);
         tile.Sigil.Paint(SpecIcon(node.Icon, look.Grey), look);
-        bool breathes = node.State == SpecState.Open && node.Fork is not null && node.Level == Specs.Forks && Editor.Hero.Spec == node.Spec && Editor.Hero.Fork is null && !Editor.ReadOnly;
+        // The lineages due breathe, then the final classes due (§14.5); a final class taken directly from a branch does not.
+        bool breathes = !Editor.ReadOnly && node.State == SpecState.Open && Editor.Hero.Spec == node.Spec
+            && (node.Final is null ? node.Fork is not null && node.Level == Specs.Forks && Editor.Hero.Fork is null : Editor.Hero.Fork == node.Fork && Editor.Hero.Final is null);
         if (breathes && !tile.Breath.Visible)
         {
             tile.Breath.Visible = true;
@@ -328,9 +361,12 @@ public partial class PointsPanel
             RefreshSpecRoot(page);
             return;
         }
-        SpecNode node = page[shown];
+        // A tile of a column 100 left behind: the opening, else the open branch.
+        SpecNode node = page.Find(shown) ?? page.Find(page.Opening) ?? page[page.OpenBranch];
         Specialisation branch = Editor.Data.Specs[node.Spec];
         SpecLook look = LookOf(node);
+        _cardSignature.Visible = node.Template is not null;
+        _cardSignature.Text = node.Template is FinalTemplate template ? Texts["spec.signature", SpecPage.TemplateName(template, Texts).ToUpper(System.Globalization.CultureInfo.GetCultureInfo(Texts.Lang))] : "";
         _cardSigil.Paint(SpecIcon(node.Icon, look.Grey), look);
         string level = Texts["spec.level", node.Level], lang = Texts.Lang;
         if (node.Fork is null)
@@ -338,6 +374,12 @@ public partial class PointsPanel
             _cardTitle.Text = branch.Name.In(lang);
             string title = node.Tier.Title.In(lang);
             _cardSub.Text = $"{level} · {(title == branch.Name.In(lang) ? Editor.Data.Class(branch.Class)?.Name.In(lang) : title)}";
+        }
+        else if (node.Final is not null)
+        {
+            // Under a final class, the lineage it ends (§14.6).
+            _cardTitle.Text = node.Tier.Title.In(lang);
+            _cardSub.Text = $"{level} · {branch.ForkOf(node.Fork)?.Tiers[0].Title.In(lang)}";
         }
         else
         {
@@ -358,6 +400,7 @@ public partial class PointsPanel
         _cardTitle.Text = Specs.TitleOf(hero, Editor.Data)?.In(lang) ?? cls;
         _cardSub.Text = Texts["sheet.level", hero.Level, cls];
         _cardLore.Text = "";
+        _cardSignature.Visible = false;
         if (hero.Spec is null || !Editor.Data.Specs.TryGetValue(hero.Spec, out Specialisation? branch))
         {
             _cardText.Text = Texts["spec.summary.none"];
@@ -369,9 +412,15 @@ public partial class PointsPanel
         {
             foreach (SpecTier tier in fork.Tiers)
                 road.Add(tier.Level <= hero.Level ? tier.Title.In(lang) : Texts["spec.summary.later", tier.Title.In(lang), tier.Level]);
+            // Its third line, on a lineage that ends in final classes (§14.6).
+            if (fork.Finals is { Count: > 0 })
+            {
+                road.Add(hero.Level < Specs.Finals ? Texts["spec.summary.later", Texts["spec.summary.final"], Specs.Finals]
+                    : fork.FinalOf(hero.Final) is SpecFinal final ? final.Tier.Title.In(lang) : Texts["spec.summary.final.due"]);
+            }
         }
         _cardText.Text = string.Join("\n", road);
-        SpecFoot foot = page.Foot(page[page.Opening], Texts);
+        SpecFoot foot = page.Foot(page.Find(page.Opening) ?? page[page.OpenBranch], Texts);
         ShowSpecFoot(foot.First, foot.Second, null);
     }
 
@@ -408,7 +457,7 @@ public partial class PointsPanel
     /// <summary>The confirmation (§5.6): over the whole window, Escape or its first button to refuse.</summary>
     private void OpenConfirm(SpecAction action)
     {
-        SpecConfirm words = SpecView().Confirm(action.Spec, action.Fork, Texts);
+        SpecConfirm words = SpecView().Confirm(action.Spec, action.Fork, action.Final, Texts);
         var veil = new ColorRect { Color = new Color(0, 0, 0, 0.5f), Position = Window.Position, Size = Window.Size, MouseFilter = Control.MouseFilterEnum.Stop };
         AddChild(veil);
         _confirm = veil;
@@ -458,7 +507,7 @@ public partial class PointsPanel
         _confirmYes.Pressed += () =>
         {
             CloseConfirm();
-            SpecChosen?.Invoke(action.Spec, action.Fork);
+            SpecChosen?.Invoke(action.Spec, action.Fork, action.Final);
         };
         buttons.AddChild(_confirmYes);
     }
@@ -519,14 +568,17 @@ public partial class PointsPanel
         ArgumentNullException.ThrowIfNull(hero);
         SpecContext = context;
         _specPreview = null;
+        _specOpen = null;
         string evolved = Texts["path.evolved", "", Specs.TitleOf(hero, Editor.Data)?.In(Texts.Lang) ?? ""].TrimStart();
         Saved(hero, paid > 0 ? Texts["spec.crossed", SpecPage.Price(paid, Texts), evolved] : evolved);
         _message.RemoveThemeColorOverride("font_color");
         _specPicked = SpecView().Opening;
         RefreshSpec();
-        Button tile = _specTiles[_specPicked].Button;
-        tile.Modulate = new Color(1.25f, 1.25f, 1.25f);
-        CreateTween().TweenProperty(tile, "modulate", Colors.White, 0.3);
+        if (_specTiles.TryGetValue(_specPicked, out SpecTile? lit))
+        {
+            lit.Button.Modulate = new Color(1.25f, 1.25f, 1.25f);
+            CreateTween().TweenProperty(lit.Button, "modulate", Colors.White, 0.3);
+        }
     }
 
     /// <summary>The server refused (§7.4): nothing moved, and the message says so.</summary>
@@ -622,6 +674,7 @@ public partial class PointsPanel
             IReadOnlyList<Specialisation> branches = page.Branches;
             IReadOnlyList<SpecNode> nodes = page.Nodes;
             SpecNode Node(string key) => nodes.Single(n => n.Key == key);
+            Specialisation open = Panel.Editor.Data.Specs[page.OpenBranch];
             List<(SpecWood Wood, Vector2[] Line)> links = [];
             Vector2[] LineTo(SpecNode node)
             {
@@ -629,15 +682,14 @@ public partial class PointsPanel
                 if (node.Fork is null)
                     return Points(SpecTree.ToBranch(b));
                 int f = branches[b].Forks.ToList().FindIndex(x => x.Id == node.Fork);
-                return Points(node.Level == Specs.Forks ? SpecTree.ToFork(b, f) : SpecTree.ToLast((b * 2) + f));
+                return Points(node.Level == Specs.Forks ? SpecTree.ToFork(b, f) : SpecTree.ToFinal(b, f, SpecTree.LastY(open, node)));
             }
             links.AddRange(nodes.Select(n => (page.WoodTo(n), LineTo(n))));
             foreach ((SpecWood wood, Vector2[] line) in links.OrderByDescending(l => l.Wood))
                 DrawLink(wood, line);
             string? shown = Panel._specHovered ?? Panel._specPicked;
-            if (shown is null || shown == RootKey)
+            if (shown is null || shown == RootKey || page.Find(shown) is not SpecNode target)
                 return;
-            SpecNode target = Node(shown);
             // Under the pointer: the road to it, in sap at 60 %.
             if (Panel._specHovered == shown && target.State != SpecState.Chosen)
             {
@@ -645,7 +697,7 @@ public partial class PointsPanel
                     Sap(LineTo(Node(key)), new Color(UiStyle.Pistachio, 0.6f), 3);
             }
             // Shown while it would be paid for: the road offered, dashed; the old one keeps its sap, nothing has changed.
-            if (target.State is SpecState.Crossed or SpecState.Open && Specs.ChangeCost(Panel.Editor.Hero, target.Spec, target.Fork) > 0)
+            if (target.State is SpecState.Crossed or SpecState.Open && Specs.ChangeCost(Panel.Editor.Hero, target.Spec, target.Fork, target.Final) > 0)
             {
                 foreach (string key in SpecPage.RoadTo(target).Where(k => Node(k).State != SpecState.Chosen))
                     Dashes(LineTo(Node(key)), new Color(UiStyle.Cost));
