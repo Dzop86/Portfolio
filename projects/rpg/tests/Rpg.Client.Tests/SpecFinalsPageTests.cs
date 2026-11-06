@@ -47,10 +47,22 @@ public class SpecFinalsPageTests
     // ---- The column 100 (§14.1, §14.2) ----
 
     [Fact]
-    public void TheMadeUpData_IsValid_AndTheRealDataHasNoFinalYet()
+    public void TheMadeUpData_IsValid_AndTheRealArcherHasNoFinalYet()
     {
         Assert.Equal(2, Data.Specs["sightline"].Forks[0].Finals!.Count);
-        Assert.DoesNotContain(GameData.Embedded.Specs.Values.SelectMany(s => s.Forks), f => f.Finals is { Count: > 0 });
+        Assert.DoesNotContain(GameData.Embedded.Specs.Values.Where(s => s.Class == "archer").SelectMany(s => s.Forks), f => f.Finals is { Count: > 0 });
+    }
+
+    // Sprint 197: the Warrior's real final classes, their four tiles a branch, their template on the panel.
+    [Fact]
+    public void TheRealWarrior_ShowsFourFinalsForItsBranch_AndAConvertedHeroItsOwnChosen()
+    {
+        SpecPage page = new(new PointsEditor(Archer(100) with { Class = "warrior", Spec = "palisade", Fork = "rampart", Final = "crusader" }, GameData.Embedded), Free);
+        Assert.Equal(["rampart:crusader", "rampart:sentry", "bastion:duelist", "bastion:warlord"], page.Last.Select(n => n.Key));
+        Assert.Equal(SpecState.Chosen, page["rampart:crusader"].State);
+        Assert.Equal((3, 3), page.Choices);
+        Assert.Equal(FinalTemplate.StayOrMove, page["rampart:sentry"].Template);
+        Assert.Equal("rampart:crusader", page.Opening);
     }
 
     [Theory]

@@ -83,10 +83,12 @@ public class SpecPageTests
     public void TheNodes_FollowTheData_ElevenByClass_TheColumn100OfTheOpenBranchOnly(string cls, string first, string fork1, string fork2)
     {
         SpecPage page = Page(Hero(cls, 60));
-        Assert.Equal(11, page.Nodes.Count);
+        Assert.Equal(cls == "warrior" ? 13 : 11, page.Nodes.Count);
         Assert.Equal(first, page.OpenBranch);
         Assert.Equal([first, fork1, fork2], page.Nodes.Take(3).Select(n => n.Key));
-        Assert.Equal([fork1 + "@100", fork2 + "@100"], page.Last.Select(n => n.Key));
+        // The Warrior's lineages end in two final classes since sprint 197; the others keep their evolution at 100.
+        Assert.Equal(cls == "warrior" ? 4 : 2, page.Last.Count);
+        Assert.Equal(cls == "warrior" ? [fork1 + ":crusader", fork1 + ":sentry"] : [fork1 + "@100", fork2 + "@100"], page.Last.Take(2).Select(n => n.Key));
         Assert.Equal([30, 50, 50], page.Nodes.Take(3).Select(n => n.Level));
         Assert.All(page.Nodes, n => Assert.NotNull(n.Icon));
         Assert.Null(page.Find(fork1 + ":x"));

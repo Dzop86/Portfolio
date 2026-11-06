@@ -79,5 +79,17 @@
   "spec-necromancer": "lorc/two-shadows",
   "spec-binder": "delapouite/three-friends",
   "spec-reaper": "delapouite/bolt-bomb",
-  "padlock": "lorc/padlock"
+  "padlock": "lorc/padlock",
+  "spec-arena-champion": "delapouite/spartan-helmet",
+  "spec-blade-master": "lorc/sword-array",
+  "spec-crusader": "delapouite/templar-shield",
+  "spec-destroyer": "delapouite/hammer-break",
+  "spec-duelist": "delapouite/fencer",
+  "spec-executioner": "delapouite/executioner-hood",
+  "spec-general": "lorc/medal",
+  "spec-ghost-blade": "lorc/ghost",
+  "spec-pugilist": "lorc/boxing-glove",
+  "spec-sentry": "delapouite/watchtower",
+  "spec-strategist": "lorc/surrounded-shield",
+  "spec-warlord": "lorc/crested-helmet"
 }

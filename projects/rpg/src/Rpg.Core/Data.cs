@@ -770,6 +770,10 @@ public sealed class GameData
     private void CheckSpecs()
     {
         HashSet<string> ofClasses = [.. Classes.SelectMany(c => c.Spells)];
+        // A final class's id names it alone in the whole game (sprint 197): the operator's "--spec branch:lineage:final" and the page's keys read it.
+        string[] finals = [.. Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id)];
+        if (finals.Distinct(StringComparer.Ordinal).Count() != finals.Length)
+            throw new InvalidDataException("Final classes: each of its own id in the whole game.");
         foreach (Specialisation s in Specs.Values)
         {
             if (Class(s.Class) is not HeroClass c || Specs.Values.Count(o => o.Class == s.Class) > 3)

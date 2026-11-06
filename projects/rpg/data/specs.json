@@ -273,14 +273,14 @@
     "id": "palisade",
     "class": "warrior",
     "name": {
-      "fr": "Palissade",
-      "en": "Palisade"
+      "fr": "Chevalier",
+      "en": "Knight"
     },
     "base": {
       "level": 30,
       "title": {
-        "fr": "Garde de la Palissade",
-        "en": "Palisade Guard"
+        "fr": "Chevalier",
+        "en": "Knight"
       },
       "description": {
         "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Tenir bon.",
@@ -307,8 +307,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Garde-corps",
-              "en": "Bodyguard"
+              "fr": "Gardien",
+              "en": "Warden"
             },
             "description": {
               "fr": "Le passif vaut 12 et porte à 2 cases. Sort : Mur de boucliers.",
@@ -323,38 +323,79 @@
             "replaces": [
               "spec-close-ranks-9"
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Muraille",
-              "en": "Rampart"
-            },
-            "description": {
-              "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Le passif vaut 17. Interposition se relance en 1 tour.",
-              "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. The passive is worth 17. Interpose comes back in 1 turn."
-            },
-            "passives": [
-              "spec-close-ranks-17",
-              "spec-not-today"
-            ],
-            "replaces": [
-              "spec-close-ranks-12"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-interpose",
-                "cooldown": 1
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Reste derrière moi. Non, plus à gauche. Voilà : maintenant, tu vivras.",
           "en": "Get behind me. No, further left. There: now you'll live."
         },
-        "icon": "spec-rampart"
+        "icon": "spec-rampart",
+        "finals": [
+          {
+            "id": "crusader",
+            "template": "Saves",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Croisé",
+                "en": "Crusader"
+              },
+              "description": {
+                "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Le passif vaut 17. Interposition se relance en 1 tour.",
+                "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. The passive is worth 17. Interpose comes back in 1 turn."
+              },
+              "passives": [
+                "spec-close-ranks-17",
+                "spec-not-today"
+              ],
+              "replaces": [
+                "spec-close-ranks-12"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-interpose",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Debout. Tu tomberas un autre jour, quand je ne serai pas là pour te l'interdire.",
+              "en": "Up you get. You can fall another day, when I'm not there to forbid it."
+            },
+            "icon": "spec-crusader"
+          },
+          {
+            "id": "sentry",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Sentinelle",
+                "en": "Sentry"
+              },
+              "description": {
+                "fr": "Au début de ton tour, si tu n'as pas marché au tour précédent : bouclier de 12 de plus sur toi et tes alliés à 2 cases. Tenir bon se relance en 1 tour.",
+                "en": "At the start of your turn, if you did not walk last turn: a further shield of 12 on you and allies within 2 cells. Stand Fast comes back in 1 turn."
+              },
+              "passives": [
+                "spec-sentry"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-stand-fast",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je n'ai pas bougé de la nuit. C'est pour ça que vous avez dormi.",
+              "en": "I haven't moved all night. That's why the rest of you slept."
+            },
+            "icon": "spec-sentry"
+          }
+        ]
       },
       {
         "id": "bastion",
@@ -362,8 +403,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Bastion d'épines",
-              "en": "Thorn Bastion"
+              "fr": "Champion",
+              "en": "Champion"
             },
             "description": {
               "fr": "Tenir bon te donne aussi un bouclier de 15. Sort : Rétorsion.",
@@ -386,208 +427,100 @@
                 ]
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Citadelle d'épines",
-              "en": "Thorn Citadel"
-            },
-            "description": {
-              "fr": "Rétorsion frappe aussi la case derrière la cible (dégâts × 0,8). Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.",
-              "en": "Retaliation also strikes the cell behind the target (damage × 0.8). Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral."
-            },
-            "passives": [
-              "spec-thorns"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-retaliation",
-                "area": {
-                  "shape": "Line",
-                  "radius": 1
-                },
-                "damagePercent": 80
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Vas-y, frappe encore. Plus tu m'en donnes, plus je t'en rends.",
           "en": "Go on, hit me again. The more you give me, the more you get back."
         },
-        "icon": "spec-bastion"
+        "icon": "spec-bastion",
+        "finals": [
+          {
+            "id": "duelist",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Duelliste",
+                "en": "Duellist"
+              },
+              "description": {
+                "fr": "Rétorsion frappe aussi la case derrière la cible (dégâts × 0,8). Qui te frappe au contact est empoisonné : 8 pendant 2 tours, neutre.",
+                "en": "Retaliation also strikes the cell behind the target (damage × 0.8). Whoever strikes you in melee is poisoned: 8 for 2 turns, neutral."
+              },
+              "passives": [
+                "spec-thorns"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-retaliation",
+                  "area": {
+                    "shape": "Line",
+                    "radius": 1
+                  },
+                  "damagePercent": 80
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Tu as frappé le premier. Retiens-le bien : c'est la dernière chose que tu auras faite en premier.",
+              "en": "You struck first. Remember that: it's the last thing you'll ever do first."
+            },
+            "icon": "spec-duelist"
+          },
+          {
+            "id": "warlord",
+            "template": "FirstTurn",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur de guerre",
+                "en": "Warlord"
+              },
+              "description": {
+                "fr": "Au premier tour du combat : +2 PA. Toi et tes alliés à 2 cases : +2 PM pendant 1 tour, +15 % de dégâts pendant 2 tours.",
+                "en": "On the first turn of the fight: +2 AP. You and allies within 2 cells: +2 MP for 1 turn, +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-charge"
+              ],
+              "rules": [
+                {
+                  "kind": "points",
+                  "ap": 2,
+                  "fromTurn": 1,
+                  "untilTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Tout le monde avec moi, maintenant. Après, chacun se débrouille.",
+              "en": "Everyone with me, now. After that, you're on your own."
+            },
+            "icon": "spec-warlord"
+          }
+        ]
       }
     ],
     "lore": {
-      "fr": "Un pieu tout seul, c'est un bâton. Dix pieux qui se tiennent, c'est une palissade. Moi, je fais le pieu du milieu : je bouge pas.",
-      "en": "One stake on its own is a stick. Ten stakes holding each other up, that's a palisade. Me, I'm the middle stake: I don't move."
+      "fr": "Un cheval ? J'en ai jamais eu. Chevalier, c'est une promesse : moi devant, vous derrière, et je bouge pas.",
+      "en": "A horse? Never had one. Being a knight is a promise: me in front, you lot behind, and I don't move."
     },
     "icon": "spec-palisade"
-  },
-  {
-    "id": "breach",
-    "class": "warrior",
-    "name": {
-      "fr": "Brèche",
-      "en": "Breach"
-    },
-    "base": {
-      "level": 30,
-      "title": {
-        "fr": "Garde de la Brèche",
-        "en": "Breach Guard"
-      },
-      "description": {
-        "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Assaut et Arrachement.",
-        "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Assault and Wrench."
-      },
-      "spells": [
-        "path-assault",
-        "path-wrench"
-      ],
-      "passives": [
-        "spec-carried-through-1"
-      ],
-      "rules": [
-        {
-          "kind": "pull",
-          "cells": 1
-        }
-      ]
-    },
-    "forks": [
-      {
-        "id": "ram",
-        "tiers": [
-          {
-            "level": 50,
-            "title": {
-              "fr": "Bélier",
-              "en": "Ram"
-            },
-            "description": {
-              "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Trouée.",
-              "en": "An enemy finished off: +1 MP and +1 AP. Spell: Breakthrough."
-            },
-            "spells": [
-              "path-breakthrough"
-            ],
-            "passives": [
-              "spec-carried-through-2"
-            ],
-            "replaces": [
-              "spec-carried-through-1"
-            ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Brise-rangs",
-              "en": "Rank-Breaker"
-            },
-            "description": {
-              "fr": "Un ennemi achevé : +1 PM et +2 PA. Assaut se relance en 1 tour.",
-              "en": "An enemy finished off: +1 MP and +2 AP. Assault comes back in 1 turn."
-            },
-            "passives": [
-              "spec-carried-through-3"
-            ],
-            "replaces": [
-              "spec-carried-through-2"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-assault",
-                "cooldown": 1
-              }
-            ]
-          }
-        ],
-        "lore": {
-          "fr": "Un de moins, et il me reste du souffle. Au suivant.",
-          "en": "One down, and I've breath left. Next."
-        },
-        "icon": "spec-ram"
-      },
-      {
-        "id": "harpooner",
-        "tiers": [
-          {
-            "level": 50,
-            "title": {
-              "fr": "Croc-de-fer",
-              "en": "Ironhook"
-            },
-            "description": {
-              "fr": "+15 % de dégâts sur une cible à ton contact. Sort : Harpon.",
-              "en": "+15% damage on a target next to you. Spell: Harpoon."
-            },
-            "spells": [
-              "path-harpoon"
-            ],
-            "rules": [
-              {
-                "kind": "distance",
-                "minCells": 1,
-                "maxCells": 1,
-                "percent": 15
-              }
-            ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Cloue-au-mur",
-              "en": "Wallcrusher"
-            },
-            "description": {
-              "fr": "Tes reculs contre un obstacle font 15 dégâts par case. Harpon n'a plus de relance, une fois par tour.",
-              "en": "Your pushes into an obstacle do 15 damage per cell. Harpoon has no cooldown, once per turn."
-            },
-            "rules": [
-              {
-                "kind": "push",
-                "cells": 0,
-                "apCost": 0,
-                "collision": 15
-              },
-              {
-                "kind": "patch",
-                "spell": "path-harpoon",
-                "cooldown": 0,
-                "perTurn": 1
-              }
-            ]
-          }
-        ],
-        "lore": {
-          "fr": "Pourquoi lui courir après ? J'ai une corde, et il a un mur dans le dos.",
-          "en": "Why chase him? I've got a rope, and he's got a wall behind him."
-        },
-        "icon": "spec-harpooner"
-      }
-    ],
-    "lore": {
-      "fr": "Vingt ans à enfoncer des lignes, et maintenant je déblaie des routes. C'est le même métier, sauf que les cailloux, eux, se plaignent pas.",
-      "en": "Twenty years breaking lines, and now I clear roads. Same trade, except the stones don't complain."
-    },
-    "icon": "spec-breach"
   },
   {
     "id": "grip",
     "class": "warrior",
     "name": {
-      "fr": "Étau",
-      "en": "Grip"
+      "fr": "Maître d'armes",
+      "en": "Weapon Master"
     },
     "base": {
       "level": 30,
       "title": {
-        "fr": "Garde de l'Étau",
-        "en": "Grip Guard"
+        "fr": "Maître d'armes",
+        "en": "Weapon Master"
       },
       "description": {
         "fr": "Qui te frappe au contact perd 1 PM. Tes retraits de PA et de PM durent 1 tour de plus, sauf ceux des sorts de composés. Sorts : Prise et Verrou.",
@@ -618,8 +551,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Carcan",
-              "en": "Shackle"
+              "fr": "Bretteur",
+              "en": "Fencer"
             },
             "description": {
               "fr": "Le passif retire aussi 1 PA, une fois par tour. Sort : Écrasement.",
@@ -638,36 +571,79 @@
                 "spell": "path-crush"
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Oubliette",
-              "en": "Oubliette"
-            },
-            "description": {
-              "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 2 tours.",
-              "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 2 turns."
-            },
-            "rules": [
-              {
-                "kind": "target-state",
-                "percent": 20,
-                "spell": "path-crush"
-              },
-              {
-                "kind": "patch",
-                "spell": "path-lock",
-                "cooldown": 2
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Celui-là ne jouera plus. Les autres, on verra après.",
           "en": "That one's done playing. We'll see about the rest later."
         },
-        "icon": "spec-jailer"
+        "icon": "spec-jailer",
+        "finals": [
+          {
+            "id": "blade-master",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des lames",
+                "en": "Blade Master"
+              },
+              "description": {
+                "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 2 tours.",
+                "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 20,
+                  "spell": "path-crush"
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-lock",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il ne bouge plus ? Bien. Maintenant, on peut parler sérieusement.",
+              "en": "Stopped moving, has he? Good. Now we can talk properly."
+            },
+            "icon": "spec-blade-master"
+          },
+          {
+            "id": "ghost-blade",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Lame fantôme",
+                "en": "Ghost Blade"
+              },
+              "description": {
+                "fr": "Prise et Écrasement portent à 2 cases au lieu d'1 : tu frappes ta cible sans être à son contact.",
+                "en": "Hold and Crush reach 2 cells instead of 1: you strike your target without standing next to it."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-hold",
+                  "maxRange": 2
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-crush",
+                  "maxRange": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Tu me cherches au bout de ton bras. Je suis au bout du mien, un peu plus loin.",
+              "en": "You're looking for me at the end of your arm. I'm at the end of mine, a little further off."
+            },
+            "icon": "spec-ghost-blade"
+          }
+        ]
       },
       {
         "id": "pincer",
@@ -675,8 +651,8 @@
           {
             "level": 50,
             "title": {
-              "fr": "Tenaille",
-              "en": "Pincer"
+              "fr": "Tacticien",
+              "en": "Tactician"
             },
             "description": {
               "fr": "Provocation porte à +2 PO. Sort : Cercle de fer.",
@@ -692,41 +668,331 @@
                 "maxRange": 7
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Étau vivant",
-              "en": "Living Grip"
-            },
-            "description": {
-              "fr": "Les ennemis à ton contact perdent 1 PM au début de leur tour. Cercle de fer se relance en 1 tour.",
-              "en": "Enemies next to you lose 1 MP at the start of their turn. Iron Ring comes back in 1 turn."
-            },
-            "passives": [
-              "spec-no-way-out"
-            ],
-            "rules": [
-              {
-                "kind": "patch",
-                "spell": "path-iron-ring",
-                "cooldown": 1
-              }
-            ]
           }
         ],
         "lore": {
           "fr": "Tous autour de moi, c'est ça. Maintenant, essayez donc de sortir.",
           "en": "All round me, that's it. Now try leaving."
         },
-        "icon": "spec-pincer"
+        "icon": "spec-pincer",
+        "finals": [
+          {
+            "id": "strategist",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Stratège",
+                "en": "Strategist"
+              },
+              "description": {
+                "fr": "Les ennemis à ton contact au début de ton tour perdent 1 PM à leur tour suivant. Cercle de fer se relance en 1 tour.",
+                "en": "Enemies next to you at the start of your turn lose 1 MP on their next turn. Iron Ring comes back in 1 turn."
+              },
+              "passives": [
+                "spec-no-way-out"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-iron-ring",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne cours après personne. Je me mets au milieu, et le combat vient à moi.",
+              "en": "I chase no one. I stand in the middle, and the fight comes to me."
+            },
+            "icon": "spec-strategist"
+          },
+          {
+            "id": "general",
+            "template": "Trace",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Général",
+                "en": "General"
+              },
+              "description": {
+                "fr": "Cercle de fer porte à 3 cases et laisse au sol, pendant 3 tours, une glyphe de −2 PM.",
+                "en": "Iron Ring reaches 3 cells and leaves a glyph of −2 MP on the ground for 3 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-iron-ring",
+                  "maxRange": 3,
+                  "addEffects": [
+                    {
+                      "kind": "glyph",
+                      "affects": "Enemies",
+                      "turns": 3,
+                      "status": "Mp",
+                      "value": -2,
+                      "statusTurns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "J'ai choisi le terrain hier soir. Ils croient qu'ils avancent : ils vont là où je l'ai décidé.",
+              "en": "I chose the ground last night. They think they're advancing: they're going where I decided."
+            },
+            "icon": "spec-general"
+          }
+        ]
       }
     ],
     "lore": {
-      "fr": "Tu voulais partir ? C'est gentil de me prévenir.",
-      "en": "Leaving, were you? How kind of you to say."
+      "fr": "À l'école d'armes, frapper s'apprend le dernier jour. Avant, on apprend où l'autre va poser le pied.",
+      "en": "In the training yard, striking is the last lesson. Before that, you learn where the other fellow will put his feet."
     },
     "icon": "spec-grip"
+  },
+  {
+    "id": "breach",
+    "class": "warrior",
+    "name": {
+      "fr": "Gladiateur",
+      "en": "Gladiator"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Gladiateur",
+        "en": "Gladiator"
+      },
+      "description": {
+        "fr": "Un ennemi achevé : +1 PM. Tes attirances portent d'une case de plus. Sorts : Assaut et Arrachement.",
+        "en": "An enemy finished off: +1 MP. Your pulls reach one cell farther. Spells: Assault and Wrench."
+      },
+      "spells": [
+        "path-assault",
+        "path-wrench"
+      ],
+      "passives": [
+        "spec-carried-through-1"
+      ],
+      "rules": [
+        {
+          "kind": "pull",
+          "cells": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "ram",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Briseur",
+              "en": "Breaker"
+            },
+            "description": {
+              "fr": "Un ennemi achevé : +1 PM et +1 PA. Sort : Trouée.",
+              "en": "An enemy finished off: +1 MP and +1 AP. Spell: Breakthrough."
+            },
+            "spells": [
+              "path-breakthrough"
+            ],
+            "passives": [
+              "spec-carried-through-2"
+            ],
+            "replaces": [
+              "spec-carried-through-1"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Un de moins, et il me reste du souffle. Au suivant.",
+          "en": "One down, and I've breath left. Next."
+        },
+        "icon": "spec-ram",
+        "finals": [
+          {
+            "id": "executioner",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Exécuteur",
+                "en": "Executioner"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +1 PM et +2 PA. Assaut se relance en 1 tour.",
+                "en": "An enemy finished off: +1 MP and +2 AP. Assault comes back in 1 turn."
+              },
+              "passives": [
+                "spec-carried-through-3"
+              ],
+              "replaces": [
+                "spec-carried-through-2"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-assault",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne frappe jamais deux fois le même. Je n'en ai jamais eu besoin.",
+              "en": "I never hit the same one twice. Never needed to."
+            },
+            "icon": "spec-executioner"
+          },
+          {
+            "id": "destroyer",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Destructeur",
+                "en": "Destroyer"
+              },
+              "description": {
+                "fr": "Trouée frappe une ligne de 4 cases au lieu de 3. Assaut frappe en croix de 2 (dégâts × 0,8).",
+                "en": "Breakthrough strikes a line of 4 cells instead of 3. Assault strikes in a cross of 2 (damage × 0.8)."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-breakthrough",
+                  "area": {
+                    "shape": "Line",
+                    "radius": 3
+                  }
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-assault",
+                  "area": {
+                    "shape": "Cross",
+                    "radius": 2
+                  },
+                  "damagePercent": 80
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ils se sont mis en rang pour me barrer la route. C'était bien aimable de leur part.",
+              "en": "They lined up to bar my way. Very thoughtful of them."
+            },
+            "icon": "spec-destroyer"
+          }
+        ]
+      },
+      {
+        "id": "harpooner",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Combattant",
+              "en": "Fighter"
+            },
+            "description": {
+              "fr": "+15 % de dégâts sur une cible à ton contact. Sort : Harpon.",
+              "en": "+15% damage on a target next to you. Spell: Harpoon."
+            },
+            "spells": [
+              "path-harpoon"
+            ],
+            "rules": [
+              {
+                "kind": "distance",
+                "minCells": 1,
+                "maxCells": 1,
+                "percent": 15
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Pourquoi lui courir après ? J'ai une corde, et il a un mur dans le dos.",
+          "en": "Why chase him? I've got a rope, and he's got a wall behind him."
+        },
+        "icon": "spec-harpooner",
+        "finals": [
+          {
+            "id": "arena-champion",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Champion d'arène",
+                "en": "Arena Champion"
+              },
+              "description": {
+                "fr": "Ce que tu repousses contre un obstacle prend 15 dégâts par case. Harpon n'a plus de relance, une fois par tour.",
+                "en": "Whatever you push into an obstacle takes 15 damage per cell. Harpoon has no cooldown, once per turn."
+              },
+              "rules": [
+                {
+                  "kind": "push",
+                  "cells": 0,
+                  "apCost": 0,
+                  "collision": 15
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-harpoon",
+                  "cooldown": 0,
+                  "perTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Dans l'arène, le mur ne rate jamais son coup. Moi, je n'ai qu'à lui amener du monde.",
+              "en": "In the arena, the wall never misses. All I have to do is bring it company."
+            },
+            "icon": "spec-arena-champion"
+          },
+          {
+            "id": "pugilist",
+            "template": "LowHp",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Pugiliste",
+                "en": "Pugilist"
+              },
+              "description": {
+                "fr": "Au contact, +25 % au lieu de +15 %. Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.",
+                "en": "In melee, +25% instead of +15%. Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn."
+              },
+              "passives": [
+                "spec-on-the-ropes"
+              ],
+              "rules": [
+                {
+                  "kind": "distance",
+                  "minCells": 1,
+                  "maxCells": 1,
+                  "percent": 10
+                }
+              ]
+            },
+            "lore": {
+              "fr": "C'est dans les cordes qu'on voit qui sait se battre. Recule, toi. Toi aussi.",
+              "en": "It's on the ropes you find out who can fight. Back off, you. You too."
+            },
+            "icon": "spec-pugilist"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Dans l'arène, on n'attend pas que l'autre vienne. On va le chercher, et on le ramène au milieu.",
+      "en": "In the arena, you don't wait for him to come to you. You go and fetch him, and you bring him back to the middle."
+    },
+    "icon": "spec-breach"
   },
   {
     "id": "sightline",

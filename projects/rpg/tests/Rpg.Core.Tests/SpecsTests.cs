@@ -54,8 +54,11 @@ public class SpecsTests
         Assert.All(Real.Specs.Values, s =>
         {
             Assert.Equal(2, s.Forks.Count);
-            Assert.All(s.Forks, f => Assert.Equal([50, 100], f.Tiers.Select(t => t.Level)));
-            Assert.All(s.Forks.SelectMany(f => f.Tiers).Prepend(s.Base).SelectMany(t => new[] { t.Title, t.Description }).Append(s.Name), x => Assert.False(string.IsNullOrWhiteSpace(x.Fr) || string.IsNullOrWhiteSpace(x.En)));
+            // A lineage ends in its evolution at 100, or in two final classes once its class is converted (sprint 197: the Warrior).
+            Assert.All(s.Forks, f => Assert.Equal(f.Finals is null ? [50, 100] : [50], f.Tiers.Select(t => t.Level)));
+            Assert.All(s.Forks, f => Assert.Equal(s.Class == "warrior" ? 2 : 0, f.Finals?.Count ?? 0));
+            Assert.All(s.Forks.SelectMany(f => f.Tiers.Concat((f.Finals ?? []).Select(x => x.Tier))).Prepend(s.Base).SelectMany(t => new[] { t.Title, t.Description }).Append(s.Name),
+                x => Assert.False(string.IsNullOrWhiteSpace(x.Fr) || string.IsNullOrWhiteSpace(x.En)));
         });
         Assert.Equal(18, Real.Specs.Values.SelectMany(s => s.Forks).Select(f => f.Id).Distinct().Count());
     }

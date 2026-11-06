@@ -139,9 +139,58 @@ public class FinalsTests
     [Fact]
     public void ALineageWithoutFinals_KeepsItsEvolutionAt100_UntilItsClassIsConverted()
     {
-        Assert.All(Real.Specs.Values.SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
-        Hero hero = new("Ondine", "female-a", "warrior", Level: 100, Spec: "palisade", Fork: Lineage);
+        Assert.All(Real.Specs.Values.Where(s => s.Class != "warrior").SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
+        Hero hero = new("Ondine", "female-a", "archer", Level: 100, Spec: "sightline", Fork: "marksman");
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
+    }
+
+    // ---- The Warrior's twelve final classes (sprint 197, docs/classes-guerrier.md) ----
+
+    [Theory]
+    [InlineData("rampart", "crusader", "sentry")]
+    [InlineData("bastion", "duelist", "warlord")]
+    [InlineData("jailer", "blade-master", "ghost-blade")]
+    [InlineData("pincer", "strategist", "general")]
+    [InlineData("ram", "executioner", "destroyer")]
+    [InlineData("harpooner", "arena-champion", "pugilist")]
+    public void EachWarriorLineage_EndsInItsTakenBackFinal_ThenANewOne_OfAnotherTemplate(string lineage, string takenBack, string fresh)
+    {
+        SpecFork fork = Real.Specs.Values.SelectMany(s => s.Forks).Single(f => f.Id == lineage);
+        Assert.Equal([takenBack, fresh], fork.Finals!.Select(f => f.Id));
+        Assert.NotEqual(fork.Finals![0].Template, fork.Finals[1].Template);
+        Assert.Equal([Specs.Forks], fork.Tiers.Select(t => t.Level));
+        Assert.All(fork.Finals, f => Assert.InRange(f.Tier.Description.Fr.Length, 20, 160));
+    }
+
+    // The evolutions at 100 the Warrior had, written out since they left the data: a hero converted to its taken-back final fights as before.
+    [Fact]
+    public void TheTakenBackFinals_CarryExactlyTheOldEvolutionsAt100()
+    {
+        SpecFinal F(string id) => Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Single(f => f.Id == id);
+        SpecTier crusader = F("crusader").Tier, duelist = F("duelist").Tier, master = F("blade-master").Tier, strategist = F("strategist").Tier,
+            executioner = F("executioner").Tier, arena = F("arena-champion").Tier;
+        Assert.Equal(["spec-close-ranks-17", "spec-not-today"], crusader.Passives);
+        Assert.Equal(["spec-close-ranks-12"], crusader.Replaces);
+        Assert.Equal([new PatchRule("path-interpose", Cooldown: 1)], crusader.Rules!);
+        Assert.Equal(["spec-thorns"], duelist.Passives);
+        Assert.Equal([new PatchRule("path-retaliation", Area: new Area(AreaShape.Line, 1), DamagePercent: 80)], duelist.Rules!, new RuleText());
+        Assert.Equal([new TargetStateRule(20, Spell: "path-crush"), new PatchRule("path-lock", Cooldown: 2)], master.Rules!, new RuleText());
+        Assert.Null(master.Passives);
+        Assert.Equal(["spec-no-way-out"], strategist.Passives);
+        Assert.Equal([new PatchRule("path-iron-ring", Cooldown: 1)], strategist.Rules!, new RuleText());
+        Assert.Equal(["spec-carried-through-3"], executioner.Passives);
+        Assert.Equal(["spec-carried-through-2"], executioner.Replaces);
+        Assert.Equal([new PatchRule("path-assault", Cooldown: 1)], executioner.Rules!, new RuleText());
+        Assert.Equal([new PushRule(0, 0, 15), new PatchRule("path-harpoon", Cooldown: 0, PerTurn: 1)], arena.Rules!, new RuleText());
+        Assert.Null(arena.Passives);
+    }
+
+    // Rules hold lists, compared by reference: their text compares them by value.
+    private sealed class RuleText : IEqualityComparer<TalentRule>
+    {
+        public bool Equals(TalentRule? x, TalentRule? y) => System.Text.Json.JsonSerializer.Serialize(x) == System.Text.Json.JsonSerializer.Serialize(y);
+
+        public int GetHashCode(TalentRule obj) => System.Text.Json.JsonSerializer.Serialize(obj).GetHashCode(StringComparison.Ordinal);
     }
 
     // Sprint 196: the page's road written offline, as the server writes it; before, another lineage kept a final class it does not know.
@@ -156,5 +205,21 @@ public class FinalsTests
         Assert.Equal("two", Specs.Transferred(hero, "palisade", Lineage, data, "two").Final);
         Assert.Null(Specs.Transferred(hero, "palisade", sister, data).Problem(data));
         Assert.Equal(hero.Deck, Specs.Transferred(hero, "palisade", Lineage, data, "two").Deck);
+    }
+
+    [Fact]
+    public void TwoFinalClassesOfOneId_AreRefused_EvenInTwoLineages()
+    {
+        Specialisation path = Real.Specs["palisade"];
+        GameData Made(string sisterFirst)
+        {
+            SpecFork[] forks = [.. path.Forks.Select((f, i) => f with { Tiers = [.. f.Tiers.Where(t => t.Level == Specs.Forks)], Finals = i == 0 ? [Final("one"), Final("two")] : [Final(sisterFirst) with { Template = FinalTemplate.Kill }, Final("four")] })];
+            return new GameData(Real.Spells.Values, [new MapSpec("m", Text, ["AB"])], [new Scenario("s", Text, "m", [Spec(0), Spec(1)])], Real.Classes,
+                summons: Real.Summons.Values, passives: Real.Passives.Values, talents: Real.Talents.Values, reactions: Real.Reactions.Values,
+                specs: [.. Real.Specs.Values.Where(s => s.Id != path.Id), path with { Forks = forks }]);
+        }
+        Assert.NotNull(Made("one-more"));
+        Assert.Throws<InvalidDataException>(() => Made("one"));
+        Assert.Equal(12, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
     }
 }

@@ -12,8 +12,10 @@ public class GuardPathsTests
     private static readonly Spell Slam = new("t-slam", Text, 1, 1, 1, true, false, 500, 500, 9);
     private static readonly Spell Shove = new("t-shove", Text, 1, 1, 3, false, false, 0, 0, 9, Effects: [new PushEffect(Affects.Enemies, 2)]);
 
+    // From 100, the hero of a lineage takes its final class taken back from the old evolution, as the conversion of sprint 197 writes it.
     private static Hero Guard(string? spec, string? fork, int level, params string[] deck) =>
-        new("Ondine", "female-a", "warrior", Level: level, Stats: new Characteristics(Earth: 50), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck);
+        new("Ondine", "female-a", "warrior", Level: level, Stats: new Characteristics(Earth: 50), Spec: spec, Fork: fork, Deck: deck.Length == 0 ? null : deck,
+            Final: level >= Specs.Finals && fork is not null ? Real.Specs.Values.SelectMany(s => s.Forks).Single(f => f.Id == fork).Finals![0].Id : null);
 
     private static GameData With(string[] rows, FighterSpec[] fighters) =>
         new([.. Real.Spells.Values, Blow, Slam, Shove], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], Real.Classes,
@@ -38,7 +40,7 @@ public class GuardPathsTests
             Assert.Equal(2, s.Base.Spells!.Count);
             Assert.All(s.Forks, f => Assert.Equal(3, s.SpellsWith(f.Id).Count()));
         }
-        Assert.Equal("Muraille", Specs.TitleOf(Guard("palisade", "rampart", 100), Real)!.Fr);
+        Assert.Equal("Croisé", Specs.TitleOf(Guard("palisade", "rampart", 100), Real)!.Fr);
     }
 
     [Fact]

@@ -3198,7 +3198,9 @@ public partial class Main
                 if (!page.SpecTreeButtonFits)
                     problems.Add($"the tree's button leaves its place in {language.Lang}");
                 // Three branches, six lineages and the column 100 of the open branch (sprint 196, §14.1): two evolutions until the classes have final classes.
-                if (page.SpecButtons.Count != 11 || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
+                // The first branch's column 100: two final classes a lineage once the class is converted (sprint 197: the Warrior), else one evolution.
+                int last = GameData.Embedded.Specs.Values.First(s => s.Class == c.Id).Forks.Sum(f => f.Finals?.Count ?? 1);
+                if (page.SpecButtons.Count != 9 + last || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
                     problems.Add($"the tree of {c.Id} has {page.SpecButtons.Count} tiles, the smallest {page.SpecButtons.Values.Min(b => b.Size.Y)} tall");
                 // Each branch opened in turn, its column 100 read: a click changes the column, the keys are read again after each.
                 foreach (Specialisation branch in GameData.Embedded.Specs.Values.Where(s => s.Class == c.Id))
@@ -3263,6 +3265,32 @@ public partial class Main
         panel.PickSpec("sightline");
         if (panel.SpecCardAction.Visible)
             problems.Add("the specialisation page offers a button in a fight");
+        panel.QueueFree();
+        // A Warrior of 100 completes its road for free, then its sister is refused out of a village (sprint 197, maquette §14.12).
+        panel = Open(new Hero("Ondine", "female-a", "warrior", Level: 100, Spec: "palisade", Fork: "rampart"), texts, new SpecContext(true, 100_000, false));
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!panel.SpecButtons.ContainsKey("rampart:crusader") || !panel.SpecFits)
+            problems.Add($"the Warrior's column 100 shows {string.Join(", ", panel.SpecButtons.Keys.Where(k => k.Contains(':', StringComparison.Ordinal)))}");
+        panel.PickSpec("rampart:crusader");
+        if (panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.take.final"])
+            problems.Add($"a final class at 100 offers '{panel.SpecCardAction.Text}'");
+        panel.SpecCardAction.EmitSignal(BaseButton.SignalName.Pressed);
+        // Two frames, for the confirmation to be laid out before it is measured.
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (!panel.Confirming || !panel.ConfirmFits)
+            problems.Add($"a final class asks no confirmation that fits: {panel.ConfirmRoom}");
+        panel.PressConfirmYes();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        if (panel.Editor.Hero.Final != "crusader")
+            problems.Add($"the final class taken gives '{panel.Editor.Hero.Final}'");
+        panel.PickSpec("rampart:sentry");
+        if (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.need.village"])
+            problems.Add($"a final class crossed out of a village offers '{panel.SpecCardAction.Text}'");
+        if (!panel.SpecCardFits || !panel.SpecTitleFits)
+            problems.Add($"the panel of a final class overflows: {panel.SpecCardRoom}");
+        if (panel.SpecLongTitles.Any())
+            problems.Add($"final titles past two lines: {string.Join(", ", panel.SpecLongTitles)}");
         panel.QueueFree();
     }
 

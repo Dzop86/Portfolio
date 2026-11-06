@@ -1074,6 +1074,95 @@
     }
   },
   {
+    "id": "spec-sentry",
+    "name": {
+      "fr": "Poste tenu",
+      "en": "At My Post"
+    },
+    "description": {
+      "fr": "Au début de ton tour, si tu n'as pas marché au tour précédent : bouclier de 12 sur toi et tes alliés à 2 cases.",
+      "en": "At the start of your turn, if you did not walk last turn: a shield of 12 on you and allies within 2 cells."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "shield",
+        "affects": "Allies",
+        "amount": 12,
+        "turns": 2
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "still": true
+  },
+  {
+    "id": "spec-charge",
+    "name": {
+      "fr": "Sonner la charge",
+      "en": "Sound the Charge"
+    },
+    "description": {
+      "fr": "Au premier tour du combat : toi et tes alliés à 2 cases, +2 PM pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+      "en": "On the first turn of the fight: you and allies within 2 cells, +2 MP for 1 turn and +15% damage for 2 turns."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Allies",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      },
+      {
+        "kind": "status",
+        "affects": "Allies",
+        "stat": "Damage",
+        "value": 15,
+        "turns": 2
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "perFight": 1
+  },
+  {
+    "id": "spec-on-the-ropes",
+    "name": {
+      "fr": "Dans les cordes",
+      "en": "On the Ropes"
+    },
+    "description": {
+      "fr": "Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.",
+      "en": "Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "push",
+        "affects": "Enemies",
+        "cells": 2
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "area": {
+      "shape": "Circle",
+      "radius": 1
+    },
+    "percent": 50
+  },
+  {
     "id": "spec-quick-heels",
     "name": {
       "fr": "Talons vifs",
