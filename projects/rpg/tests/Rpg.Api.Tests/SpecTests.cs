@@ -29,12 +29,14 @@ public class SpecTests
             return db.SaveChanges();
         });
 
-    private static async Task<(ApiFactory Api, GameServer Server, CharacterSummary Hero, string Account)> Mage(string name, int level)
+    private static Task<(ApiFactory Api, GameServer Server, CharacterSummary Hero, string Account)> Mage(string name, int level) => Hero(name, level, "mage");
+
+    private static async Task<(ApiFactory Api, GameServer Server, CharacterSummary Hero, string Account)> Hero(string name, int level, string cls)
     {
         var api = new ApiFactory();
         GameServer server = await api.SignedIn(name);
         string account = api.WithDb(db => db.Accounts.Single().Name);
-        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", "mage", cancel: Cancel);
+        CharacterSummary c = await server.CreateCharacter("Ondine", "female-a", cls, cancel: Cancel);
         await Level(api, account, level);
         return (api, server, c, account);
     }
@@ -71,6 +73,48 @@ public class SpecTests
             Change(api, c.Id, x => (x.Town, x.Shards) = ("clairval", 100_000));
             Assert.Null((await server.ChooseSpec(c.Id, "archmage", "high-archmage", Cancel)).Final);
         }
+    }
+
+    // Sprint 197: the Warrior's lineages end in final classes, the first choice of one succeeds (T155 put it off to here).
+    [Fact]
+    public async Task AWarriorsFinalClass_IsFreeTheFirstTime_ThenFiveTimesTheLevel_InAVillage()
+    {
+        (ApiFactory api, GameServer server, CharacterSummary c, _) = await Hero("Finales", 100, "warrior");
+        await using (api)
+        {
+            await DoTheQuest(api, server, c.Id);
+            Change(api, c.Id, x => (x.Town, x.Shards) = ("clairval", 1_000));
+            await server.ChooseSpec(c.Id, "palisade", "rampart", Cancel);
+            CharacterSummary taken = await server.ChooseSpec(c.Id, "palisade", "rampart", "crusader", Cancel);
+            Assert.Equal(("crusader", 1_000L), (taken.Final, taken.Shards));
+            Assert.Equal("Croisé", Specs.TitleOf(taken.Hero, GameData.Embedded)!.Fr);
+            // Its sister: 5 × 100, in a village.
+            CharacterSummary sister = await server.ChooseSpec(c.Id, "palisade", "rampart", "sentry", Cancel);
+            Assert.Equal(("sentry", 500L), (sister.Final, sister.Shards));
+            Change(api, c.Id, x => x.Town = null);
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "palisade", "rampart", "crusader", Cancel)));
+            // A final class of the sister lineage, taken with it at its price, from a village.
+            Change(api, c.Id, x => (x.Town, x.Shards) = ("clairval", 1_000));
+            CharacterSummary both = await server.ChooseSpec(c.Id, "palisade", "bastion", "warlord", Cancel);
+            Assert.Equal(("bastion", "warlord", 0L), (both.Fork, both.Final, both.Shards));
+            Assert.Equal(HttpStatusCode.BadRequest, await Refused(() => server.ChooseSpec(c.Id, "palisade", "bastion", "crusader", Cancel)));
+        }
+    }
+
+    [Fact]
+    public async Task TheOperators_Spec_GivesAWarriorItsFinalClass()
+    {
+        await using var api = new ApiFactory();
+        GameServer server = await api.SignedIn("sp6");
+        string account = api.WithDb(db => db.Accounts.Single().Name);
+        await server.CreateCharacter("Pluf", "female-a", "warrior", cancel: Cancel);
+        await Level(api, account, 100);
+        using (IServiceScope scope = api.Services.CreateScope())
+            await Admin.Apply(scope.ServiceProvider.GetRequiredService<GameDb>(), Admin.Parse(["admin", account, "--spec", "breach:harpooner:pugilist"]).Order!, Cancel);
+        CharacterSummary pluf = (await server.Characters(Cancel)).Single();
+        Assert.Equal(("breach", "harpooner", "pugilist"), (pluf.Spec, pluf.Fork, pluf.Final));
+        Assert.Null(pluf.Hero.Problem(GameData.Embedded));
+        Assert.Null(Admin.Parse(["admin", account, "--spec", "breach:harpooner:crusader"]).Order);
     }
 
     [Fact]
