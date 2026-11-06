@@ -57,7 +57,8 @@ public class WarriorFinalsMigrationTests
                 migrator.Migrate(Before);
                 Assert.All(Finals(db), Assert.Null);
                 db.Database.Migrate();
-                Assert.Equal(["crusader", "arena-champion", null, null, null], Finals(db));
+                // Dune, an Archer, has its own since sprint 198 (ArcherFinals).
+                Assert.Equal(["crusader", "arena-champion", null, "dragon-eye", null], Finals(db));
                 migrator.Migrate(Before);
                 Assert.All(Finals(db), Assert.Null);
                 db.Database.Migrate();
