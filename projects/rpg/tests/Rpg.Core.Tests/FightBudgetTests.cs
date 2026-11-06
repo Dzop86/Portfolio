@@ -30,13 +30,14 @@ public class FightBudgetTests
             "BalanceTests.AZone_GroupsOfOneToThree_AreForOnePlayerAtItsLevel_OfSixAndMore_ForSeveral",
             "BalanceTests.AtLevel1_EveryClassDuel_IsWonByEitherSide",
             "BalanceTests.Duel_NeitherSideAlwaysWins",
+            "FinalsBenchTests.AtHundred_TheArchersFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
+            "FinalsBenchTests.AtHundred_TheWarriorsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "TemplateTests.AFamilyMadeFromTheTemplates_KeepsT41_SmallGroupsForOnePlayer_HordesForSeveral",
             "TemplateTests.AHeroOfOneElement_AtTheMonstersLevel_BeatsNoMoreHordesThanT41Allows",
             "TemplateTests.AtFortyFive_ThePairs_AreWorthAlike",
             "TemplateTests.AtFortyFive_TheStyles_AreWorthAlike",
             "TemplateTests.TheReferenceBuilds_KeepT41_TheTreeWorthAtMostTenPercent_TheFamiliesEven",
             "TemplateTests.TheTalentsOfTheSlice_KeepT41AtThirtyFive_AndGiveTheSentinelAtMostTenPercentMore",
-            "WarriorBenchTests.AtHundred_TheWarriorsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
         ], explicitTests);
     }
 }

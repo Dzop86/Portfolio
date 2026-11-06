@@ -93,8 +93,9 @@ public class CiLevelsTests
             // are judged there by the fights they change.
             if (h.Level < Specs.Finals)
             {
-                found.AddRange(path.Except(cast).Where(s => !Unplayed.Contains(s)).Select(s => $"{who}: {s} never played"));
-                found.AddRange(path.Intersect(cast).Where(Unplayed.Contains).Select(s => $"{who}: {s} is played now, take it off the list"));
+                bool Excused(string s) => Unplayed.Contains(s) || (h.Level >= Specs.Forks && UnplayedOn.Contains((h.Fork ?? "", s)));
+                found.AddRange(path.Except(cast).Where(s => !Excused(s)).Select(s => $"{who}: {s} never played"));
+                found.AddRange(path.Intersect(cast).Where(Excused).Select(s => $"{who}: {s} is played now, take it off the list"));
             }
             return found;
         })];
@@ -112,6 +113,17 @@ public class CiLevelsTests
     public static readonly IReadOnlySet<string> Unchanged = new HashSet<string>(StringComparer.Ordinal)
     {
         "general",
+        // The Archer (sprint 198, docs/classes-archer.md §5): the AI calls no second Hawk, and does not cast Running Shot at 100.
+        "beast-lord", "war-hawk",
+    };
+
+    /// <summary>
+    /// A path spell the AI plays elsewhere but not on this lineage, at 50 (sprint 198): the Bounty Hunter's AI prefers the quarry to Weak Spot, the Skirmisher's the
+    /// Barrage come down to 30 to Running Shot. Not conclusive, as <see cref="Unplayed"/>; the smoke fails when one is played.
+    /// </summary>
+    public static readonly IReadOnlySet<(string Fork, string Spell)> UnplayedOn = new HashSet<(string, string)>
+    {
+        ("bounty-hunter", "path-weak-spot"), ("runner", "path-running-shot"),
     };
 
     /// <summary>
