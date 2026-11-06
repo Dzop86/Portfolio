@@ -9,64 +9,110 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class CiLevelsTests
 {
-    /// <summary>The smoke's fights, split between every class and path.</summary>
+    /// <summary>The smoke's fights, split between every class and path at 35 and 50.</summary>
     public const int SmokeFights = 960;
+
+    /// <summary>The smoke's fights at 100, split between the final classes and their lineages alone (sprint 197): a budget of their own, the first one's untouched.</summary>
+    public const int FinalSmokeFights = 760;
 
     /// <summary>The fights of each reference party.</summary>
     public const int PartyFights = 40;
 
     private static readonly string[] Names = ["Aube", "Brume", "Cendre", "Dune"];
 
-    /// <summary>Every class at 35 and 50: the hero without a path, each branch, each lineage.</summary>
-    public static IReadOnlyList<(string Class, int Level, string? Spec, string? Fork)> Heroes(GameData data) =>
-        [.. data.Classes.SelectMany(c => new[] { 35, Specs.Forks }.SelectMany(level =>
-            Bench.PathsOf(c.Id, level, data).Select(p => (c.Id, level, (string?)p.Spec, p.Fork)).Prepend((c.Id, level, null, null))))];
+    /// <summary>
+    /// Every class at 35 and 50: the hero without a path, each branch, each lineage; at 100 too once its lineages end in final classes (sprint 197, docs/classes-guerrier.md
+    /// §7.4): the hero, each lineage without its final class, each final class.
+    /// </summary>
+    public static IReadOnlyList<(string Class, int Level, string? Spec, string? Fork, string? Final)> Heroes(GameData data) =>
+        [.. data.Classes.SelectMany(c => new[] { 35, Specs.Forks, Specs.Finals }
+            .Where(level => level < Specs.Finals || data.Specs.Values.Any(s => s.Class == c.Id && s.Forks.Any(f => f.Finals is { Count: > 0 })))
+            .SelectMany(level => Bench.PathsOf(c.Id, level, data).Select(p => (c.Id, level, (string?)p.Spec, p.Fork, p.Final)).Prepend((c.Id, level, null, null, null))))];
 
-    /// <summary>How many fights each hero of the smoke plays on each group: the budget split, at least one.</summary>
-    public static int SmokeFightsEach(int heroes, int groups) => Math.Max(1, SmokeFights / (heroes * groups));
+    /// <summary>The groups a hero of the smoke plays: four, two at 100, where the heroes are many.</summary>
+    public static int SmokeGroups(int level) => level < Specs.Finals ? 4 : 2;
+
+    /// <summary>How many fights each pair of a hero and a group of the smoke plays: its budget split between the pairs, at least one.</summary>
+    public static int SmokeFightsEach(int pairs, int budget = SmokeFights) => Math.Max(1, budget / pairs);
+
+    private static int EachAt(int level, IReadOnlyList<(string Class, int Level, string? Spec, string? Fork, string? Final)> heroes)
+    {
+        bool last = level >= Specs.Finals;
+        return SmokeFightsEach(heroes.Where(h => h.Level >= Specs.Finals == last).Sum(h => SmokeGroups(h.Level)), last ? FinalSmokeFights : SmokeFights);
+    }
 
     [Fact]
     public void TheSmoke_StaysWithinItsBudget_WhateverTheNumberOfClasses()
     {
-        Assert.Equal(8, SmokeFightsEach(30, 4));
-        Assert.True(SmokeFightsEach(100, 4) * 100 * 4 <= SmokeFights);
-        Assert.Equal(1, SmokeFightsEach(1000, 4));
+        Assert.Equal(8, SmokeFightsEach(30 * 4));
+        Assert.True(SmokeFightsEach(100 * 4) * 100 * 4 <= SmokeFights);
+        Assert.Equal(1, SmokeFightsEach(1000 * 4));
+        var heroes = Heroes(Real);
+        int below = heroes.Where(h => h.Level < Specs.Finals).Sum(h => SmokeGroups(h.Level)), at = heroes.Where(h => h.Level >= Specs.Finals).Sum(h => SmokeGroups(h.Level));
+        Assert.True(EachAt(35, heroes) * below <= SmokeFights && EachAt(Specs.Finals, heroes) * at <= FinalSmokeFights, $"{below} and {at} pairs");
+        // Ten classes of 30 heroes, 11 below 100 and 19 at it: within the two budgets, one fight a pair.
+        Assert.True(10 * 11 * 4 <= SmokeFights && 10 * 19 * 2 <= FinalSmokeFights);
     }
 
     [Fact]
     public void TheSmoke_EveryClassAndPath_FinishesItsFights_AndPlaysEachOfItsSpells()
     {
-        var families = new Dictionary<int, SyntheticFamily> { [35] = new(35), [Specs.Forks] = new(Specs.Forks) };
+        var families = new Dictionary<int, SyntheticFamily> { [35] = new(35), [Specs.Forks] = new(Specs.Forks), [Specs.Finals] = new(Specs.Finals) };
         var heroes = Heroes(Real);
-        // 3 classes: the hero without a path, 3 branches at 35, the hero and 6 lineages at 50.
-        Assert.Equal(Real.Classes.Count * 11, heroes.Count);
-        int each = SmokeFightsEach(heroes.Count, 4);
+        // Each class: the hero without a path, 3 branches at 35, the hero and 6 lineages at 50; a class converted, at 100 the hero, 6 lineages and 12 final classes.
+        int converted = Real.Classes.Count(c => Real.Specs.Values.Any(s => s.Class == c.Id && s.Forks.Any(f => f.Finals is { Count: > 0 })));
+        Assert.Equal((Real.Classes.Count * 11) + (converted * 19), heroes.Count);
+
+        // Each hero's fights, to tell whether a final class changes any against its lineage alone.
+        var prints = new System.Collections.Concurrent.ConcurrentDictionary<(string, int, string?, string?), string[]>();
         string[] problems = [.. heroes.AsParallel().AsOrdered().SelectMany(h =>
         {
             SyntheticFamily family = families[h.Level];
-            Hero hero = family.Hero(h.Class, "none") with { Spec = h.Spec, Fork = h.Fork };
-            string who = $"{h.Class} {h.Level} {h.Fork ?? h.Spec ?? "-"}";
+            Hero hero = family.Hero(h.Class, "none") with { Spec = h.Spec, Fork = h.Fork, Final = h.Final };
+            string who = $"{h.Class} {h.Level} {h.Final ?? h.Fork ?? h.Spec ?? "-"}";
+            var seen = new List<string>();
             var path = Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
                 .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect)).ToHashSet(StringComparer.Ordinal);
             var cast = new HashSet<string>(StringComparer.Ordinal);
             var found = new List<string>();
-            foreach (string group in Bench.MiddleGroups(family, 4))
+            foreach (string group in Bench.MiddleGroups(family, SmokeGroups(h.Level)))
             {
-                for (ulong seed = 0; seed < (ulong)each; seed++)
+                for (ulong seed = 0; seed < (ulong)EachAt(h.Level, heroes); seed++)
                 {
                     var fight = new Fight(family.Data, group, seed, hero);
                     Ai.PlayOut(fight);
                     if (!fight.IsOver || fight.WinningTeam is null)
                         found.Add($"{who}: {group} seed {seed} never ends");
                     cast.UnionWith(fight.History.OfType<CastAction>().Select(c => c.Spell));
+                    seen.Add(Fingerprint(fight));
                 }
             }
-            found.AddRange(path.Except(cast).Where(s => !Unplayed.Contains(s)).Select(s => $"{who}: {s} never played"));
-            found.AddRange(path.Intersect(cast).Where(Unplayed.Contains).Select(s => $"{who}: {s} is played now, take it off the list"));
+            if (h.Level >= Specs.Finals && h.Fork is not null)
+                prints[(h.Class, h.Level, h.Fork, h.Final)] = [.. seen];
+            // Each spell played, below 100 only: at 100 the AI hardly plays Crush, Harpoon nor Retaliation, its lineages alone included (sprint 197, T160); the final classes
+            // are judged there by the fights they change.
+            if (h.Level < Specs.Finals)
+            {
+                found.AddRange(path.Except(cast).Where(s => !Unplayed.Contains(s)).Select(s => $"{who}: {s} never played"));
+                found.AddRange(path.Intersect(cast).Where(Unplayed.Contains).Select(s => $"{who}: {s} is played now, take it off the list"));
+            }
             return found;
         })];
-        Assert.True(problems.Length == 0, string.Join("; ", problems));
+        // A final class changes at least one fight of its lineage alone, on the same seeds: a rule that never plays is caught (docs/classes-guerrier.md §7.4).
+        string[] dead = [.. heroes.Where(h => h.Final is not null).Where(h => prints[(h.Class, h.Level, h.Fork, h.Final)].SequenceEqual(prints[(h.Class, h.Level, h.Fork, null)]))
+            .Select(h => h.Final!)];
+        string[] still = [.. dead.Except(Unchanged).Select(f => $"{f} changes no fight"), .. Unchanged.Except(dead).Select(f => $"{f} changes a fight now, take it off the list")];
+        Assert.True(problems.Length == 0 && still.Length == 0, string.Join("; ", problems.Concat(still)));
     }
+
+    /// <summary>
+    /// The final classes whose whole effect goes through a spell of <see cref="Unplayed"/>: they cannot change a fight of the smoke until the AI plays it. The smoke
+    /// fails when one does, so that the list only shrinks.
+    /// </summary>
+    public static readonly IReadOnlySet<string> Unchanged = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "general",
+    };
 
     /// <summary>
     /// The path spells the AI never plays alone, NOT CONCLUSIVE on the bench (`docs/mesures-classes.md`): a trap that does no damage on the

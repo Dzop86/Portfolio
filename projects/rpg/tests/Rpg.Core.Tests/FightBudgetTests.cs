@@ -36,6 +36,7 @@ public class FightBudgetTests
             "TemplateTests.AtFortyFive_TheStyles_AreWorthAlike",
             "TemplateTests.TheReferenceBuilds_KeepT41_TheTreeWorthAtMostTenPercent_TheFamiliesEven",
             "TemplateTests.TheTalentsOfTheSlice_KeepT41AtThirtyFive_AndGiveTheSentinelAtMostTenPercentMore",
+            "WarriorBenchTests.AtHundred_TheWarriorsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
         ], explicitTests);
     }
 }

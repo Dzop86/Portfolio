@@ -1,7 +1,7 @@
 namespace Rpg.Core;
 
 /// <summary>What one path of a class is worth on the bench: its points, its gain over the hero without a path, and whether its spells were played.</summary>
-/// <param name="Path">The branch's id, or from level 50 its lineage's; null for the hero without a path.</param>
+/// <param name="Path">The branch's id, or from level 50 its lineage's, or from 100 its final class's; null for the hero without a path.</param>
 /// <param name="Points">Fights won, in percent.</param>
 /// <param name="Casts">Each of the path's spells, cast this many times per fight.</param>
 public sealed record BenchRow(string? Path, double Points, IReadOnlyDictionary<string, double> Casts)
@@ -45,14 +45,18 @@ public static class Bench
         return [.. Enumerable.Range(0, n).Select(i => groups[i * groups.Length / n])];
     }
 
-    /// <summary>The paths of a class at a level: its branches, from <see cref="Specs.Forks"/> their lineages.</summary>
-    public static IReadOnlyList<(string Spec, string? Fork)> PathsOf(string cls, int level, GameData data)
+    /// <summary>
+    /// The paths of a class at a level: its branches, from <see cref="Specs.Forks"/> their lineages; from <see cref="Specs.Finals"/>, a lineage that ends in final classes
+    /// comes without one, the reference, then with each (sprint 197, docs/classes-guerrier.md §7.1).
+    /// </summary>
+    public static IReadOnlyList<(string Spec, string? Fork, string? Final)> PathsOf(string cls, int level, GameData data)
     {
         ArgumentNullException.ThrowIfNull(data);
         IEnumerable<Specialisation> specs = data.Specs.Values.Where(s => s.Class == cls);
-        return level < Specs.Forks
-            ? [.. specs.Select(s => (s.Id, (string?)null))]
-            : [.. specs.SelectMany(s => s.Forks.Select(f => (s.Id, (string?)f.Id)))];
+        if (level < Specs.Forks)
+            return [.. specs.Select(s => (s.Id, (string?)null, (string?)null))];
+        return [.. specs.SelectMany(s => s.Forks.SelectMany(f => new[] { (s.Id, (string?)f.Id, (string?)null) }
+            .Concat(level >= Specs.Finals ? (f.Finals ?? []).Select(x => (s.Id, (string?)f.Id, (string?)x.Id)) : [])))];
     }
 
     /// <summary>One class at the family's level. <paramref name="deck"/>, a reference deck in order of preference, replaces the automatic deck: the path's spells, then its spells the level has unlocked, up to the bar's size.</summary>
@@ -77,11 +81,11 @@ public static class Bench
             return h with { Deck = [.. Specs.SpellsOf(h, family.Data).Concat(deck).Distinct(StringComparer.Ordinal).Where(known.Contains).Take(Hero.DeckSize)] };
         }
         var rows = new List<BenchRow>();
-        foreach ((string spec, string? fork) in PathsOf(cls, family.Level, family.Data))
+        foreach ((string spec, string? fork, string? final) in PathsOf(cls, family.Level, family.Data))
         {
-            Hero hero = With(bare with { Spec = spec, Fork = fork });
+            Hero hero = With(bare with { Spec = spec, Fork = fork, Final = final });
             // A swap with an ally cannot be played alone: its absence says nothing here; the party measures judge it.
-            rows.Add(Row(fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
+            rows.Add(Row(final ?? fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
                 .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect))]));
         }
         return new BenchReport(cls, family.Level, groups.Count, fights, Row(null, With(bare), []), rows);

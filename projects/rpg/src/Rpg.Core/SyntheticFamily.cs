@@ -22,6 +22,7 @@ public sealed class SyntheticFamily
         // proportion, a support's heal the template's; its resistances the template's, on the same elements; its passives.
         foreach ((MonsterFamily family, MonsterSpec m) in Real.Families.Values.Where(f => f.Zone == "fields").SelectMany(f => f.Monsters.Select(m => (f, m))))
         {
+            // Its template at its own level, beyond 100 at a family of 100 (sprint 197); its level written within the game's, which the data checks.
             int at = m.Level + by;
             MonsterTemplate t = Templates.Monster(m.Role, at);
             Spell main = m.Spells.Select(id => Real.Spells[id]).First(s => s.DamageMax > 0);
@@ -43,7 +44,7 @@ public sealed class SyntheticFamily
                 cast.Add(made.Id);
             }
             Dictionary<Element, int> resistances = (m.Resistances ?? new Dictionary<Element, int>()).ToDictionary(r => r.Key, r => r.Value > 0 ? t.Resistance : t.Weakness);
-            monsters[m.Id] = m.Fighter(0, family: family.Id) with { Hp = t.Hp, Initiative = t.Initiative, Spells = cast, Resistances = resistances, Level = at };
+            monsters[m.Id] = m.Fighter(0, family: family.Id) with { Hp = t.Hp, Initiative = t.Initiative, Spells = cast, Resistances = resistances, Level = Math.Min(at, Core.Hero.MaxLevel) };
         }
         // The fields' groups, on the same battle maps.
         FighterSpec hero = new(Text, "female-d", 0, 80, 6, 3, 120, 0, ["strike"]);
@@ -96,7 +97,7 @@ public sealed class SyntheticFamily
             int Part(int v) => (int)Math.Round(v * budget / total);
             int vitality = Part(c.Vitality), earth = Part(c.Earth), fire = Part(c.Fire), water = Part(c.Water);
             int air = c.Air > 0 ? budget - vitality - earth - fire - water : 0;
-            yield return real with { Id = "synth-" + id, Level = real.Level + by, Stats = new Characteristics(vitality, earth, fire, water, air) };
+            yield return real with { Id = "synth-" + id, Level = Math.Min(real.Level + by, Core.Hero.MaxLevel), Stats = new Characteristics(vitality, earth, fire, water, air) };
         }
     }
 
