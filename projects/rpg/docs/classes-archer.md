@@ -97,7 +97,7 @@ Neuf : Talons vifs (+2 PM si on te frappe au contact, venu de la Sente), **tes r
 ## 4. Les Archers déjà en base (migration `ArcherFinals`)
 
 1. Un Archer de 100 sur une lignée **qui reste** reçoit sa finale reprise : `marksman` → `dragon-eye`, `trapper` → `forest-master`, `falconer` → `beast-lord`, `runner` → `vaulter`. Il se bat comme la veille [V par test].
-2. **On garde la branche** quand la lignée part (Q1 ci-dessous) : `sightline:barrage` → `sightline:bounty-hunter`, `trail:leaper` → `trail:runner`. Leur finale reste à choisir, gratuitement (premier choix). Le point de l'onglet les prévient (T159).
+2. **On garde la branche** quand la lignée part (Q1 ci-dessous, choisie par Charles) : `sightline:barrage` → `sightline:bounty-hunter`, `trail:leaper` → `trail:runner`. Leur finale reste à choisir, gratuitement (premier choix). Le point de l'onglet les prévient (T159).
 3. Retour arrière : les finales des Archers sont effacées et `sightline:bounty-hunter` revient à `sightline:barrage` ; un ancien `leaper` reste `runner` (on ne sait plus qui l'était).
 
 ## 5. Banc et fumée
@@ -108,7 +108,7 @@ Neuf : Talons vifs (+2 PM si on te frappe au contact, venu de la Sente), **tes r
 
 ## 6. À trancher par Charles
 
-- **Q1. Les héros d'une lignée qui part.** a) **on garde la branche, la lignée sœur la plus proche, finale au choix gratuit (Reco)** ; b) on suit le sort : `sightline:barrage` → `trail:barrage`, avec sa reprise, mais le héros change de sorts de 30.
+- **Q1. Les héros d'une lignée qui part.** **Tranché par Charles le 6 novembre : a).** a) **on garde la branche, la lignée sœur la plus proche, finale au choix gratuit (Reco)** ; b) on suit le sort : `sightline:barrage` → `trail:barrage`, avec sa reprise, mais le héros change de sorts de 30.
 - **Q2. Les deux `Second` cousins** (Maître forestier, Seigneur des bêtes) : acceptés, ce sont deux reprises. **Reco : oui.**
 - **Q3. Œil calme à 2 cases** (`spec-calm-eye-near`) n'est plus porté par personne. **Reco : on le garde dans `passives.json`**, sans voie, comme la Cabriole.
 - **Q4. Les noms de travail** (Désigner la proie, Carreau lourd, « Proie marquée ») et les anglais sont au scénariste.
