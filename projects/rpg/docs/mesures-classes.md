@@ -296,3 +296,8 @@ L'Arbalétrier, selon son bonus « sans marcher » : 0 % → 56,5 ; 3 % → 62,7
 ## 6 novembre 2026 : le Mage, Arcaniste et Chronomancien (S199, T162)
 
 Voir `docs/classes-mage.md` §4 : premier jet, recherche de la cause, réglage. Retenu, à 35 : sans voie 41,5, Arcaniste 58,5 (conclusif), Chronomancien 58,8 (conclusif), Illusionniste 41,5 (sans sort). À 50 : sans voie 55,4, Manipulateur arcanique 63,3 (non concluant : Rune 0,0), Érudit mystique 62,3 (conclusif), Manipulateur temporel 63,3 (non concluant : Accélération 0,1), Distorsionniste 61,9 (non concluant : Point d'orgue 0,2).
+
+## 7 novembre 2026 : le Mage, Illusionniste et finales (S200, T163)
+
+Voir `docs/classes-mage-2.md` §5 : premier jet, valeur du Leurre pour l'IA, réglage. Retenu, à 35 : sans voie 41,5, Arcaniste 58,5, Illusionniste 52,7, Chronomancien 58,8 (tous conclusifs). À 50 : sans voie 55,4, Manipulateur arcanique 63,3 (non concluant : Rune 0,0), Érudit mystique 62,3, Maître des illusions 70,0 (non concluant : Éblouissement 0,5), Mentaliste 67,5 (non concluant : Éblouissement 0,5), Manipulateur temporel 63,3 (non concluant), Distorsionniste 61,9 (non concluant). À 100 (banc des finales, indicatif) : Seigneur des illusions +15,4 sur sa lignée, hors de F1 ; Mentaliste +12 de la moyenne, hors de F4.
+
