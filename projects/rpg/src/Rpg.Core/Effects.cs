@@ -177,7 +177,24 @@ public enum Stat
 [JsonDerivedType(typeof(LeapEffect), "leap")]
 [JsonDerivedType(typeof(SwapEffect), "swap")]
 [JsonDerivedType(typeof(GlyphEffect), "glyph")]
+[JsonDerivedType(typeof(BorrowEffect), "borrow")]
+[JsonDerivedType(typeof(DelayEffect), "delay")]
+[JsonDerivedType(typeof(HasteEffect), "haste")]
 public abstract record SpellEffect(Affects Affects);
+
+// The Chronomancer's time (sprint 199, docs/classes-mage.md §3).
+
+/// <summary>The caster takes <see cref="Ap"/> action points from its next turn: it has them at once, and that many fewer when its next turn starts.</summary>
+public sealed record BorrowEffect(Affects Affects, int Ap) : SpellEffect(Affects);
+
+/// <summary>
+/// Each fighter touched changes place in the order of play: <see cref="Places"/> living fighters later, or earlier when negative. It never passes the fighter
+/// playing: one yet to play stays after it, one that has played stays before it (its new place counts from the next round); the fighter playing does not move.
+/// </summary>
+public sealed record DelayEffect(Affects Affects, int Places) : SpellEffect(Affects);
+
+/// <summary>Each fighter touched has its cooldowns <see cref="Turns"/> shorter; one down to nothing is over.</summary>
+public sealed record HasteEffect(Affects Affects, int Turns) : SpellEffect(Affects);
 
 /// <summary>Gives back hit points, never above the maximum.</summary>
 public sealed record HealEffect(Affects Affects, int Min, int Max) : SpellEffect(Affects);

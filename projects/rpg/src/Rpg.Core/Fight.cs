@@ -1172,6 +1172,11 @@ public sealed class Fight
                     if (zone is not null && spell is not null && !IsOver)
                         Lay(me, glyph, zone, spell);
                     continue;
+                // The Chronomancer's loan (sprint 199): its points at once, paid back when its next turn starts.
+                case BorrowEffect borrow:
+                    me.Ap += borrow.Ap;
+                    me.NextTurnPenalty += borrow.Ap;
+                    continue;
             }
             IEnumerable<Fighter> touched = effect.Affects switch
             {
@@ -1206,9 +1211,46 @@ public sealed class Fight
                     case StatusEffect status:
                         SetStatus(me, f, status);
                         break;
+                    case DelayEffect delay:
+                        Shift(f, delay.Places);
+                        break;
+                    case HasteEffect haste:
+                        foreach (string id in f.Cooldowns.Keys.ToList())
+                        {
+                            if ((f.Cooldowns[id] -= haste.Turns) <= 0)
+                                f.Cooldowns.Remove(id);
+                        }
+                        break;
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Moves <paramref name="f"/> in the order of play by <paramref name="places"/> living fighters (sprint 199, <see cref="DelayEffect"/>), never past the fighter
+    /// playing: the round's order stays whole, nobody plays twice in it nor misses it.
+    /// </summary>
+    private void Shift(Fighter f, int places)
+    {
+        int at = _order.IndexOf(f);
+        if (f == Current || at < 0)
+            return;
+        // The side of the fighter playing it stands on: yet to play (after it), or played (before it).
+        (int low, int high) = at > _current ? (_current + 1, _order.Count - 1) : (0, _current - 1);
+        int to = at, moved = 0, step = Math.Sign(places);
+        for (int i = at + step; moved < Math.Abs(places) && i >= low && i <= high; i += step)
+        {
+            if (_order[i].IsAlive)
+            {
+                to = i;
+                moved++;
+            }
+        }
+        if (moved == 0)
+            return;
+        _order.RemoveAt(at);
+        _order.Insert(to, f);
+        _events.Add(new OrderChanged(f.Id, step * moved));
     }
 
     /// <param name="reaction">The reaction setting it (sprint 137): the status bears its name, and renews only its own.</param>

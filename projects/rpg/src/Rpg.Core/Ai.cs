@@ -468,6 +468,10 @@ public static class Ai
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },
                     PushEffect or PullEffect => -sign * 1.0,
+                    // The Chronomancer's (sprint 199): a place later for an enemy, earlier for an ally, is worth 3; a turn of cooldown given back to an ally, 2 a spell.
+                    DelayEffect d => -sign * 3.0 * d.Places,
+                    BorrowEffect b => BorrowWorth(fight, me, spell, from, b),
+                    HasteEffect h => sign * 2.0 * f.Cooldowns.Values.Sum(c => Math.Min(c, h.Turns)),
                     // A glyph under a fighter strikes at its next turn, unless it walks away (sprint 130).
                     GlyphEffect g => -sign * GlyphOdds * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
@@ -476,6 +480,30 @@ public static class Ai
             }
         }
         return value;
+    }
+
+    [ThreadStatic]
+    private static bool _borrowing;
+
+    /// <summary>
+    /// A loan of points (sprint 199, docs/classes-mage.md §3): what the turn is worth with them over what it is worth without, less what the points taken from the
+    /// next turn would have been worth there, at this turn's worth a point. A loan is never weighed within a loan's turn.
+    /// </summary>
+    private static double BorrowWorth(Fight fight, Fighter me, Spell spell, Cell from, BorrowEffect b)
+    {
+        if (_borrowing)
+            return -100;
+        _borrowing = true;
+        try
+        {
+            double without = BestTurn(fight, me, from, me.Ap)?.Turn ?? 0;
+            double with = BestTurn(fight, me, from, me.Ap - spell.ApCost + b.Ap)?.Turn ?? 0;
+            return with - without - (without / Math.Max(1, me.Ap) * b.Ap);
+        }
+        finally
+        {
+            _borrowing = false;
+        }
     }
 
     /// <summary>

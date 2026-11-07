@@ -759,6 +759,10 @@ public sealed class GameData
         PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
         StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat != Stat.Poison || st.Value > 0),
         SummonEffect sm => sm.Max is >= 1 and <= 4 && sm.Count is >= 1 and <= 4 && Summons.ContainsKey(sm.Summon),
+        // The Chronomancer's (sprint 199): a loan of the caster's own points, a shift in the order of anyone but the caster, cooldowns shortened.
+        BorrowEffect b => b.Ap is >= 1 and <= 4 && b.Affects == Affects.Caster,
+        DelayEffect d => d.Places is >= -3 and <= 3 && d.Places != 0 && d.Affects != Affects.Caster,
+        HasteEffect h => h.Turns is >= 1 and <= 3,
         _ => false,
     };
 

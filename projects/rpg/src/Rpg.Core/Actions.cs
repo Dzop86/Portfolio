@@ -115,6 +115,9 @@ public sealed record Leaped(int Fighter, Cell From, Cell To) : FightEvent;
 /// <summary>Two fighters trade places (sprint 90): <see cref="A"/> cast the spell.</summary>
 public sealed record Swapped(int A, int B) : FightEvent;
 
+/// <summary>A fighter changes place in the order of play (sprint 199): <see cref="Places"/> later, or earlier when negative, as far as it could go.</summary>
+public sealed record OrderChanged(int Fighter, int Places) : FightEvent;
+
 /// <summary>A glyph is laid on <see cref="Cells"/> (sprint 130); it is <c>Glyphs</c>' glyph of that id.</summary>
 public sealed record GlyphPlaced(int Glyph, int Caster, string Spell, IReadOnlyList<Cell> Cells, int Turns, Element Element = Element.Neutral) : FightEvent;
 
