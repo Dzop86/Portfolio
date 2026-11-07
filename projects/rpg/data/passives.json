@@ -1163,6 +1163,28 @@
     "percent": 50
   },
   {
+    "id": "spec-steady-mind",
+    "name": {
+      "fr": "Esprit posé",
+      "en": "Steady Mind"
+    },
+    "description": {
+      "fr": "Au début de ton tour, si tu n'as pas marché au tour précédent : +1 PA.",
+      "en": "At the start of your turn, if you did not walk last turn: +1 AP."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 1,
+        "turns": 1
+      }
+    ],
+    "still": true
+  },
+  {
     "id": "spec-bounty",
     "name": {
       "fr": "Prime touchée",

@@ -141,7 +141,7 @@ public class FinalsTests
     {
         // The Mage, since the Warrior (sprint 197) and the Archer (sprint 198).
         Assert.All(Real.Specs.Values.Where(s => s.Class is not ("warrior" or "archer")).SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
-        Hero hero = new("Ondine", "female-a", "mage", Level: 100, Spec: "archmage", Fork: "high-archmage");
+        Hero hero = new("Ondine", "female-a", "mage", Level: 100, Spec: "arcanist", Fork: "scholar");
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
     }
 

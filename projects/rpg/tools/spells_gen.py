@@ -39,6 +39,10 @@ def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0, marks=False):
     # A Seal's glyph (sprint 142) leaves its element's mark.
     if marks: d["marks"] = True
     return d
+# The Chronomancer's time (sprint 199, docs/classes-mage.md §3): points borrowed from the next turn, a place in the order, cooldowns shortened.
+def borrow(n): return O([("kind", "borrow"), ("affects", "Caster"), ("ap", n)])
+def delay(a, n): return O([("kind", "delay"), ("affects", a), ("places", n)])
+def haste(a, n): return O([("kind", "haste"), ("affects", a), ("turns", n)])
 def summon(id, mx=1, count=1):
     d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
     if count != 1: d["count"] = count
@@ -263,7 +267,7 @@ beasts = [
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
 BUDGET, GROWTH = 3, 0.6
-AREA = {("Cross", 1): 0.8, ("Line", 2): 0.8, ("Circle", 1): 0.7, ("Circle", 2): 0.6, ("Cross", 2): 0.6}
+AREA = {("Cross", 1): 0.8, ("Line", 2): 0.8, ("Line", 3): 0.7, ("Circle", 1): 0.7, ("Circle", 2): 0.6, ("Cross", 2): 0.6}
 def budget(sp, scale=1):
     f = BUDGET * (1 + GROWTH * sp.get("level", 1) / 100) * scale
     if "area" in sp: f *= AREA[(sp["area"]["shape"], sp["area"]["radius"])]
@@ -425,6 +429,16 @@ paths = [
  path("lock","Verrou","Lock",2,1,1,30,"lorc/skeleton-key",effects=[status("Enemies","Mp",-9,1)],cd=3),
  path("crush","Écrasement","Crush",5,1,1,50,"lorc/hammer-drop",damage=True),
  path("iron-ring","Cercle de fer","Iron Ring",3,0,0,50,"lorc/linked-rings",los=False,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],cd=2),
+ # The Mage's (sprint 199, docs/classes-mage.md §2, designed in docs/textes-specialisations.md): the Arcanist prepares, its rune marks the ground.
+ path("comet","Comète","Comet",7,3,7,30,"lorc/burning-meteor",damage=True,area=("Circle",1),cd=3),
+ path("composure","Recueillement","Composure",2,0,0,30,"lorc/candle-flame",los=False,effects=[status("Caster","Damage",25,1)],cd=3),
+ path("rune","Rune","Rune",3,1,6,50,"lorc/rune-stone",effects=[glyph("Enemies",2,10,14,marks=True)],cd=2),
+ path("ray","Rayon","Ray",5,1,5,50,"lorc/fire-ray",damage=True,los=False,line=True,area=("Line",3),cd=2),
+ # The Chronomancer plays with turns: points borrowed, an enemy put back, an ally hurried, the big spell they make room for.
+ path("borrowed-time","Temps emprunté","Borrowed Time",1,0,0,30,"lorc/sands-of-time",los=False,effects=[borrow(3)],cd=3),
+ path("offbeat","Contretemps","Offbeat",3,1,6,30,"lorc/stopwatch",damage=True,effects=[delay("Enemies",1)],cd=1),
+ path("quicken","Accélération","Quicken",2,1,5,50,"lorc/hourglass",los=False,effects=[haste("Allies",1),delay("Allies",-1)],cd=3),
+ path("crescendo","Point d'orgue","Crescendo",10,3,7,50,"lorc/echo-ripples",damage=True,los=False,area=("Circle",2),cd=2),
 ]
 for sp in paths:
     if sp["damageMax"] > 0:
@@ -560,6 +574,8 @@ passives = [
  P("spec-sentry","Poste tenu","At My Post","Au début de ton tour, si tu n'as pas marché au tour précédent : bouclier de 12 sur toi et tes alliés à 2 cases.","At the start of your turn, if you did not walk last turn: a shield of 12 on you and allies within 2 cells.","TurnStart",[shield("Allies",12,2)],area=("Circle",2),still=True),
  P("spec-charge","Sonner la charge","Sound the Charge","Au premier tour du combat : toi et tes alliés à 2 cases, +2 PM pendant 1 tour et +15 % de dégâts pendant 2 tours.","On the first turn of the fight: you and allies within 2 cells, +2 MP for 1 turn and +15% damage for 2 turns.","TurnStart",[status("Allies","Mp",2,1),status("Allies","Damage",15,2)],area=("Circle",2),perFight=1),
  P("spec-on-the-ropes","Dans les cordes","On the Ropes","Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.","Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn.","LowHp",[push(2),status("Caster","Ap",2,1)],area=("Circle",1),percent=50),
+ # The Arcanist's (sprint 199, docs/classes-mage.md §1): still, it gathers a point.
+ P("spec-steady-mind","Esprit posé","Steady Mind","Au début de ton tour, si tu n'as pas marché au tour précédent : +1 PA.","At the start of your turn, if you did not walk last turn: +1 AP.","TurnStart",[status("Caster","Ap",1,1)],still=True),
  # The Archer's final (sprint 198, docs/classes-archer.md §3.1): the bounty paid.
  P("spec-bounty","Prime touchée","Bounty Collected","Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.","An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns.","Kill",[status("Caster","Ap",2,1),status("Caster","Damage",15,2)]),
  # The Sentinel's.

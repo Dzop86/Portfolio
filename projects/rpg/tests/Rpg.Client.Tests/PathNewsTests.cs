@@ -8,12 +8,12 @@ public class PathNewsTests
     private static readonly GameData Data = GameData.Embedded;
 
     [Theory]
-    [InlineData("fr", "Te voici : Astromage")]
-    [InlineData("en", "You are now: Astromage")]
+    [InlineData("fr", "Te voici : Manipulateur arcanique")]
+    [InlineData("en", "You are now: Arcane Shaper")]
     public void ATier_SaysItsWord_AndTheEvolution_OfWhoHasAPath(string lang, string evolution)
     {
         var texts = new Texts(lang);
-        var mage = new Hero("Ronce", "female-c", "mage", Level: 50, Spec: "archmage", Fork: "high-archmage");
+        var mage = new Hero("Ronce", "female-c", "mage", Level: 50, Spec: "arcanist", Fork: "rune-weaver");
         string news = PathNews.Of(mage, 49, Data, texts)!;
         Assert.StartsWith(texts["path.tier.50"], news, StringComparison.Ordinal);
         Assert.Contains(evolution, news, StringComparison.Ordinal);
@@ -28,7 +28,7 @@ public class PathNewsTests
         var texts = new Texts("fr");
         for (ulong seed = 1; ; seed++)
         {
-            var fight = new Fight(Data, "training", seed, new Hero("Ronce", "female-c", "mage", Level: 49, Spec: "archmage", Fork: null));
+            var fight = new Fight(Data, "training", seed, new Hero("Ronce", "female-c", "mage", Level: 49, Spec: "arcanist", Fork: null));
             Ai.PlayOut(fight);
             if (fight.WinningTeam != 0)
                 continue;

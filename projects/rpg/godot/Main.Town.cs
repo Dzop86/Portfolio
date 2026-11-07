@@ -3257,8 +3257,8 @@ public partial class Main
         panel.QueueFree();
         // Soon, for a class whose spells are still to come; nothing in a fight.
         panel = Open(new Hero("Ondine", "female-a", "mage", Level: 40), texts, free);
-        panel.PickSpec("archmage");
-        if (GameData.Embedded.Specs["archmage"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
+        panel.PickSpec("illusionist");
+        if (GameData.Embedded.Specs["illusionist"].Base.Spells is null && (!panel.SpecCardAction.Disabled || panel.SpecCardAction.Text != texts["spec.soon"]))
             problems.Add($"a branch without its spells offers '{panel.SpecCardAction.Text}'");
         panel.QueueFree();
         panel = Open(new Hero("Ondine", "female-a", "archer", Level: 40), texts, free, readOnly: true);

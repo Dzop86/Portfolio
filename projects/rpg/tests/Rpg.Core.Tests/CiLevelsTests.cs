@@ -133,6 +133,8 @@ public class CiLevelsTests
     public static readonly IReadOnlySet<string> Unplayed = new HashSet<string>(StringComparer.Ordinal)
     {
         "path-jaws", "path-assault", "path-wrench", "path-iron-ring",
+        // The Mage (sprint 199, docs/classes-mage.md §3): the Rune, a trap as the Jaws; the Crescendo, 10 AP the AI never saves nor borrows for.
+        "path-rune", "path-crescendo",
     };
 
     /// <summary>

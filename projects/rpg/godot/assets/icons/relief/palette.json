@@ -482,69 +482,6 @@
     "dark": "#6f5946",
     "outline": "#1e1813"
   },
-  "spec-archmage": {
-    "shape": "lorc/pointy-hat",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-high-archmage": {
-    "shape": "lorc/burning-meteor",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-patient": {
-    "shape": "lorc/hourglass",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-sorcerer": {
-    "shape": "lorc/candle-flame",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-plague": {
-    "shape": "sbed/poison",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-hexer": {
-    "shape": "lorc/bolt-eye",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-necromancer": {
-    "shape": "lorc/two-shadows",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-binder": {
-    "shape": "delapouite/three-friends",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
-  "spec-reaper": {
-    "shape": "delapouite/bolt-bomb",
-    "main": "#c9a27f",
-    "light": "#e1ccb9",
-    "dark": "#6f5946",
-    "outline": "#1e1813"
-  },
   "padlock": {
     "shape": "lorc/padlock",
     "main": "#8a8a8a",
@@ -722,6 +659,69 @@
   },
   "spec-war-hawk": {
     "shape": "lorc/swallow",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-arcanist": {
+    "shape": "lorc/pointy-hat",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-rune-weaver": {
+    "shape": "lorc/rune-stone",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-scholar": {
+    "shape": "lorc/open-book",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-illusionist": {
+    "shape": "lorc/two-shadows",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-mirage-master": {
+    "shape": "lorc/juggler",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-mentalist": {
+    "shape": "lorc/bolt-eye",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-chronomancer": {
+    "shape": "lorc/hourglass",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-time-weaver": {
+    "shape": "lorc/stopwatch",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-distorter": {
+    "shape": "lorc/sands-of-time",
     "main": "#c9a27f",
     "light": "#e1ccb9",
     "dark": "#6f5946",

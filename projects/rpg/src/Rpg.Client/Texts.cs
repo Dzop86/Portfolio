@@ -504,6 +504,10 @@ public sealed class Texts
         ["effect.summon"] = "invoque {0}",
         ["effect.leap"] = "bond sur la case",
         ["effect.swap"] = "échange de place",
+        ["effect.borrow"] = "{0} PA empruntés au tour suivant",
+        ["effect.delay"] = "joue {0} place(s) plus tard",
+        ["effect.hasten"] = "joue {0} place(s) plus tôt",
+        ["effect.haste"] = "relances −{0}",
         ["effect.glyph"] = "glyphe de {0} tour(s) : {1}",
         ["effect.glyph-damage"] = "{0} à {1} dégâts, {2}",
         ["card.glyph"] = "Glyphe de {0} ({1}) : {2}, {3} ; encore {4} tour(s)",
@@ -535,6 +539,8 @@ public sealed class Texts
         ["log.passive"] = "{0} : {1} !",
         ["log.leap"] = "{0} bondit.",
         ["log.swap"] = "{0} et {1} échangent leurs places.",
+        ["log.later"] = "{0} jouera {1} place(s) plus tard.",
+        ["log.sooner"] = "{0} jouera {1} place(s) plus tôt.",
         ["log.marked"] = "{0} porte l'empreinte {1}.",
         ["log.reaction"] = "{0} : {1} !",
         ["log.reaction-status"] = "{0} : {1}, {2} pendant {3} tour(s).",
@@ -1756,6 +1762,10 @@ public sealed class Texts
         ["effect.summon"] = "summons {0}",
         ["effect.leap"] = "leap onto the cell",
         ["effect.swap"] = "swap places",
+        ["effect.borrow"] = "{0} AP borrowed from the next turn",
+        ["effect.delay"] = "plays {0} place(s) later",
+        ["effect.hasten"] = "plays {0} place(s) sooner",
+        ["effect.haste"] = "cooldowns −{0}",
         ["effect.glyph"] = "glyph for {0} turn(s): {1}",
         ["effect.glyph-damage"] = "{0} to {1} damage, {2}",
         ["card.glyph"] = "{0}'s glyph ({1}): {2}, {3}; {4} turn(s) left",
@@ -1787,6 +1797,8 @@ public sealed class Texts
         ["log.passive"] = "{0}: {1}!",
         ["log.leap"] = "{0} leaps.",
         ["log.swap"] = "{0} and {1} swap places.",
+        ["log.later"] = "{0} will play {1} place(s) later.",
+        ["log.sooner"] = "{0} will play {1} place(s) sooner.",
         ["log.marked"] = "{0} bears the {1} mark.",
         ["log.reaction"] = "{0}: {1}!",
         ["log.reaction-status"] = "{0}: {1}, {2} for {3} turn(s).",
@@ -2656,10 +2668,15 @@ public sealed class Texts
                 StatusEffect st => this["card.turns", Status(st.Stat, st.Value, st.Element), st.Turns],
                 LeapEffect => this["effect.leap"],
                 SwapEffect => this["effect.swap"],
+                // The Chronomancer's (sprint 199).
+                BorrowEffect b => this["effect.borrow", b.Ap],
+                DelayEffect { Places: > 0 } d => this["effect.delay", d.Places],
+                DelayEffect d => this["effect.hasten", -d.Places],
+                HasteEffect h => this["effect.haste", h.Turns],
                 GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect or LeapEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -3137,6 +3154,8 @@ public sealed class Texts
             PassiveTriggered p => this["log.passive", Name(fight.Fighters[p.Fighter]), fight.Fighters[p.Fighter].Passives.First(x => x.Id == p.Passive).Name.In(Lang)],
             Leaped l => this["log.leap", Name(fight.Fighters[l.Fighter])],
             Swapped w => this["log.swap", Name(fight.Fighters[w.A]), Name(fight.Fighters[w.B])],
+            OrderChanged { Places: > 0 } o => this["log.later", Name(fight.Fighters[o.Fighter]), o.Places],
+            OrderChanged o => this["log.sooner", Name(fight.Fighters[o.Fighter]), -o.Places],
             GlyphTriggered g => this["log.glyph", Name(fight.Fighters[g.Fighter])],
             _ => null,
         };

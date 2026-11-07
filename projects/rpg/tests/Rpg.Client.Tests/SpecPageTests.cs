@@ -93,7 +93,7 @@ public class SpecPageTests
     [Theory]
     [InlineData("archer", "sightline", "marksman", "bounty-hunter")]
     [InlineData("warrior", "palisade", "rampart", "bastion")]
-    [InlineData("mage", "archmage", "high-archmage", "patient")]
+    [InlineData("mage", "arcanist", "rune-weaver", "scholar")]
     public void TheNodes_FollowTheData_ElevenByClass_TheColumn100OfTheOpenBranchOnly(string cls, string first, string fork1, string fork2)
     {
         SpecPage page = Page(Hero(cls, 60));
@@ -295,12 +295,13 @@ public class SpecPageTests
     public void BeforeItsSprint_TheMage_ReadsItsTree_ButIsToldSoon()
     {
         SpecPage page = Page(Hero("mage", 40));
-        Assert.False(SpecPage.Playable(Data.Specs["archmage"]));
+        Assert.False(SpecPage.Playable(Data.Specs["illusionist"]));
         Assert.True(SpecPage.Playable(Data.Specs["palisade"]));
         Assert.True(SpecPage.Playable(Data.Specs["sightline"]));
-        SpecAction action = page.Foot(page["archmage"], Fr).Action!;
+        SpecAction action = page.Foot(page["illusionist"], Fr).Action!;
         Assert.Equal((Fr["spec.soon"], false), (action.Text, action.Enabled));
-        Assert.False(page.Pending);
+        // Since sprint 199 its Arcanist and Chronomancer are playable: the choice waits.
+        Assert.True(page.Pending);
     }
 
     [Theory]
