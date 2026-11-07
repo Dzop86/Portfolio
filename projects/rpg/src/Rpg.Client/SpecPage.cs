@@ -109,7 +109,8 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
     {
         get
         {
-            Specialisation branch = Data.Specs[OpenBranch];
+            if (!Data.Specs.TryGetValue(OpenBranch, out Specialisation? branch))
+                return [];
             return [.. branch.Forks.SelectMany(f => f.Finals is { Count: > 0 } finals
                 ? finals.Select(x => FinalNode(branch, f, x))
                 : f.Tiers.Where(t => t.Level == Specs.Finals).Select(t => Node(branch, f, t)))];
