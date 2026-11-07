@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Prêtre, je deviens Clerc, Inquisiteur ou Oracle, avec la résurrection, puis leurs lignées et leurs finales (rpg) ; xUnit, bornes du banc. | 5 | À faire |
+| En tant que Prêtre, je deviens Clerc, Inquisiteur ou Oracle, avec la résurrection, puis leurs lignées et leurs finales (rpg) ; xUnit, bornes du banc. | 5 | Fait en partie : 2 briques (résurrection, bonus de soin d'une voie) et leur valeur pour l'IA, 12 sorts de voie, 3 branches, 6 lignées, 12 finales sans passif neuf, 33 icônes ; réglé au banc de 35 et 50 (chaque voie au-dessus du Prêtre sans voie) ; à 100 le Prêtre seul est trop faible (6,7), au jalon 1 ; la page d'une classe sans branche ne plante plus (T165) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

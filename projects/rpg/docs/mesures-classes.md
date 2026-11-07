@@ -304,3 +304,7 @@ Voir `docs/classes-mage-2.md` §5 : premier jet, valeur du Leurre pour l'IA, ré
 ## 7 novembre 2026 : le Prêtre, et le Mage sans soins (S201, T164)
 
 Voir `docs/classes-pretre.md` §6. Seul, sans voie : Prêtre 24,4 à 35 et 35,6 à 50 (Guerrier 24,0 et 32,3, Mage 41,5 et 55,4 inchangés, Archer 53,5 et 44,2). Disjoint seul à 30 : 4 sur 100 au premier jet, 35 avec des soins qui grandissent. Groupes de référence à 45 : les 12 d'avant inchangés ; Guerrier + Prêtre 57, Archer + Prêtre 72, Mage + Prêtre 62, Guerrier + Archer + Prêtre 95, Guerrier + Mage + Prêtre 87, les quatre 100.
+
+## 7 novembre 2026 : le Prêtre, Clerc, Inquisiteur et Oracle (S202, T165)
+
+Voir `docs/classes-pretre-2.md` §4. Retenu, à 35 : sans voie 24,4, Clerc 39,2, Inquisiteur 40,8, Oracle 40,4. À 50 : sans voie 35,6, Guérisseur 37,5, Médecin sacré 41,9, Exorciste 40,0, Fanatique 42,7, Prophète 39,0, Mystique 40,0. À 100 (indicatif) : sans voie 6,7, finales de 8,5 à 26,3 ; le Prêtre seul de 100 est à reprendre au jalon 1.
