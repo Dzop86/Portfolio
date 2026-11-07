@@ -173,6 +173,7 @@ public partial class PointsPanel
         _cardTitle.AddThemeFontOverride("font", OsmoseTheme.Bold());
         _cardTitle.AddThemeColorOverride("font_color", new Color(UiStyle.TextStrong));
         who.AddChild(_cardTitle);
+        _cardTitle.Resized += FitCardTitle;
         _cardSub = SpecLine(UiStyle.TextDim);
         _cardSub.AutowrapMode = TextServer.AutowrapMode.Off;
         _cardSub.ClipText = true;
@@ -371,19 +372,19 @@ public partial class PointsPanel
         string level = Texts["spec.level", node.Level], lang = Texts.Lang;
         if (node.Fork is null)
         {
-            _cardTitle.Text = branch.Name.In(lang);
+            SetCardTitle(branch.Name.In(lang));
             string title = node.Tier.Title.In(lang);
             _cardSub.Text = $"{level} · {(title == branch.Name.In(lang) ? Editor.Data.Class(branch.Class)?.Name.In(lang) : title)}";
         }
         else if (node.Final is not null)
         {
             // Under a final class, the lineage it ends (§14.6).
-            _cardTitle.Text = node.Tier.Title.In(lang);
+            SetCardTitle(node.Tier.Title.In(lang));
             _cardSub.Text = $"{level} · {branch.ForkOf(node.Fork)?.Tiers[0].Title.In(lang)}";
         }
         else
         {
-            _cardTitle.Text = node.Tier.Title.In(lang);
+            SetCardTitle(node.Tier.Title.In(lang));
             _cardSub.Text = $"{level} · {branch.Name.In(lang)}";
         }
         _cardText.Text = node.Tier.Description.In(lang);
@@ -397,7 +398,7 @@ public partial class PointsPanel
         Hero hero = Editor.Hero;
         string lang = Texts.Lang, cls = Editor.Data.Class(hero.Class)?.Name.In(lang) ?? "";
         _cardSigil.Paint(RootIcon(), new SpecLook(new Color(hero.Spec is null ? ElementStyle.WoodLight : UiStyle.Pistachio), 3));
-        _cardTitle.Text = Specs.TitleOf(hero, Editor.Data)?.In(lang) ?? cls;
+        SetCardTitle(Specs.TitleOf(hero, Editor.Data)?.In(lang) ?? cls);
         _cardSub.Text = Texts["sheet.level", hero.Level, cls];
         _cardLore.Text = "";
         _cardSignature.Visible = false;
@@ -614,7 +615,24 @@ public partial class PointsPanel
     public string SpecCardRoom => $"{_specPicked}: {_specCard.GetCombinedMinimumSize().Y}";
 
     /// <summary>Whether the panel's title fits its width, for the self-test.</summary>
-    public bool SpecTitleFits => _cardTitle.GetThemeFont("font").GetStringSize(_cardTitle.Text, HorizontalAlignment.Left, -1, 22).X <= _cardTitle.Size.X + 0.5f;
+    public bool SpecTitleFits => _cardTitle.GetThemeFont("font").GetStringSize(_cardTitle.Text, HorizontalAlignment.Left, -1, _cardTitle.GetThemeFontSize("font_size")).X <= _cardTitle.Size.X + 0.5f;
+
+    /// <summary>The card's title, at 22 points, smaller down to 17 when a long one would be cut (sprint 199: « Manipulateur arcanique »).</summary>
+    private void SetCardTitle(string text)
+    {
+        _cardTitle.Text = text;
+        FitCardTitle();
+    }
+
+    private void FitCardTitle()
+    {
+        Font font = _cardTitle.GetThemeFont("font");
+        float room = _cardTitle.Size.X + 0.5f;
+        int size = 22;
+        while (size > 17 && room > 1f && font.GetStringSize(_cardTitle.Text, HorizontalAlignment.Left, -1, size).X > room)
+            size--;
+        _cardTitle.AddThemeFontSizeOverride("font_size", size);
+    }
 
     /// <summary>The confirmation's yes, pressed as the player would.</summary>
     public void PressConfirmYes() => _confirmYes?.EmitSignal(BaseButton.SignalName.Pressed);

@@ -264,8 +264,10 @@ public class ProgramTests
     {
         (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "mage", "--level", "35");
         Assert.Equal(0, code);
-        Assert.Contains("no spell yet", output, StringComparison.Ordinal);
-        Assert.DoesNotContain("| conclusive |", output, StringComparison.Ordinal);
+        // The Illusionist has no spell until sprint 200; the Arcanist and the Chronomancer have theirs since sprint 199.
+        string[] spellless = [.. output.Split('\n').Where(l => l.Contains("no spell yet", StringComparison.Ordinal))];
+        Assert.Contains(spellless, l => l.StartsWith("| mage | 35 | illusionist |", StringComparison.Ordinal));
+        Assert.All(spellless, l => Assert.DoesNotContain("| conclusive |", l, StringComparison.Ordinal));
     }
 
     [Fact]

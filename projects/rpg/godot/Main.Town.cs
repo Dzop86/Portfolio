@@ -2501,7 +2501,9 @@ public partial class Main
             _pointsPanel.ShowTab(spells: true);
             // With every compound's twin of them (sprint 138), shown with the talents only.
             int twins = GameData.Embedded.Spells.Values.Count(sp => sp.Twin is string t && GameData.Embedded.Class(_hero.Class)?.Spells.Contains(t) == true);
-            if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0) + twins)
+            // And every spell of its class's paths (sprint 191), the Mage's since sprint 199.
+            int paths = GameData.Embedded.Specs.Values.Where(s => s.Class == _hero.Class).SelectMany(s => s.Forks.SelectMany(f => s.SpellsWith(f.Id))).Distinct(StringComparer.Ordinal).Count();
+            if (_pointsPanel.SpellTiles != (GameData.Embedded.Class(_hero.Class)?.Spells.Count ?? 0) + twins + paths)
                 problems.Add($"the spells tab shows {_pointsPanel.SpellTiles} spells");
             // An element to filter by only when the book has its spells: no Lightning before the talent (Charles, after sprint 144).
             if (!_pointsPanel.ChipsShown.SequenceEqual(new SpellBook(editor).Elements))
