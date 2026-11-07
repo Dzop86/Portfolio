@@ -301,3 +301,6 @@ Voir `docs/classes-mage.md` §4 : premier jet, recherche de la cause, réglage. 
 
 Voir `docs/classes-mage-2.md` §5 : premier jet, valeur du Leurre pour l'IA, réglage. Retenu, à 35 : sans voie 41,5, Arcaniste 58,5, Illusionniste 52,7, Chronomancien 58,8 (tous conclusifs). À 50 : sans voie 55,4, Manipulateur arcanique 63,3 (non concluant : Rune 0,0), Érudit mystique 62,3, Maître des illusions 70,0 (non concluant : Éblouissement 0,5), Mentaliste 67,5 (non concluant : Éblouissement 0,5), Manipulateur temporel 63,3 (non concluant), Distorsionniste 61,9 (non concluant). À 100 (banc des finales, indicatif) : Seigneur des illusions +15,4 sur sa lignée, hors de F1 ; Mentaliste +12 de la moyenne, hors de F4.
 
+## 7 novembre 2026 : le Prêtre, et le Mage sans soins (S201, T164)
+
+Voir `docs/classes-pretre.md` §6. Seul, sans voie : Prêtre 24,4 à 35 et 35,6 à 50 (Guerrier 24,0 et 32,3, Mage 41,5 et 55,4 inchangés, Archer 53,5 et 44,2). Disjoint seul à 30 : 4 sur 100 au premier jet, 35 avec des soins qui grandissent. Groupes de référence à 45 : les 12 d'avant inchangés ; Guerrier + Prêtre 57, Archer + Prêtre 72, Mage + Prêtre 62, Guerrier + Archer + Prêtre 95, Guerrier + Mage + Prêtre 87, les quatre 100.

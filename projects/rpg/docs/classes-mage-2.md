@@ -109,6 +109,8 @@ Entre les deux : la valeur du Leurre pour l'IA (d'abord entière : Illusionniste
 
 ## 6. À trancher par Charles
 
+**Tranché le 7 novembre :** Q1 a, Q2 a, Q3 acceptée (noms de travail gardés, relecture du scénariste à venir), Q4 a, Q5 a.
+
 - **Q1. Le contrôle mental** (un monstre qui frappe les siens pendant un tour, chefs exclus) : a) **plus tard, quand une autre classe en aura besoin (Reco)** : il touche le choix des cibles de l'IA et le camp de chaque sort, 0,75 point à lui seul ; b) maintenant, au Dominateur mental, à la place de son +20 %.
 - **Q2. Le retour dans le temps** (revenir à sa case et à ses PV d'un tour avant, une fois par combat) : a) **plus tard, comme Q1 (Reco)** ; b) au Voyageur temporel, à la place de sa portée.
 - **Q3. Les noms** des 5 sorts neufs (Image, Éblouissement, Double, Emprise, Frappe du reflet) et l'anglais : noms de travail, au scénariste.

@@ -124,6 +124,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
+Sprint 201 : 20 tests de plus (`Rpg.Core` : `PriestTests`, le soin en trop devenu bouclier, le soin dans la durée, la purge d'un allié et d'un ennemi, ce qu'en fait l'IA, les soins qui grandissent, le kit du Prêtre, ses dégâts à 0,8 du barème, les sorts neufs du Mage ; `Rpg.Api` : un Prêtre créé, un Mage relu sans les soins partis, ses points libres). Le Prêtre entre dans la fumée, les groupes de référence et les exigences en solo de la CI (T164).
+
 Sprint 200 : 17 tests de plus (`Rpg.Core` : `MageIllusionTests`, l'Image à l'apparence de son lanceur, le Leurre devenu une donnée, un monstre qui frappe l'Image plutôt que le Mage, le bonus près d'elle, le Double qui frappe, Emprise, puis les 12 finales du Mage). Le Mage de 100 entre dans la fumée et au banc des finales (T163).
 
 Sprint 196 : 21 tests de plus (`Rpg.Client` : `SpecFinalsPageTests`, la colonne 100 de la branche ouverte, ses places, ses liaisons qui ne se croisent pas, les états, le pied, la confirmation et le compteur d'une finale, sur des données inventées ; `Rpg.Core` : la scène d'Anatole qui ne nomme aucune branche, en FR et EN ; la finale qui tombe quand la lignée change). La page Spécialisation ne montre plus que la colonne 100 de la branche cliquée (T159).
