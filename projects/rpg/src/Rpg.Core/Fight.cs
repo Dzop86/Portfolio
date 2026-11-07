@@ -145,12 +145,18 @@ public sealed class Fighter
     public bool Incorporeal => StatusList.Any(s => s.Stat == Stat.Incorporeal);
 
     /// <summary>Heals up to <paramref name="amount"/>: the percent of Brine taken off, nothing while Parched (sprint 185); what was healed.</summary>
-    internal int HealFor(int amount)
+    internal int HealFor(int amount) => HealFor(amount, out _);
+
+    /// <summary>Heals, and says in <paramref name="over"/> what went past the maximum (the Priest's overflow, sprint 201).</summary>
+    internal int HealFor(int amount, out int over)
     {
+        over = 0;
         if (Parched)
             return 0;
         int change = StatusList.Where(s => s.Stat == Stat.Healing).Select(s => s.Value).DefaultIfEmpty(0).Min();
-        int healed = Math.Min(amount * Math.Max(0, 100 + change) / 100, MaxHp - Hp);
+        int given = amount * Math.Max(0, 100 + change) / 100;
+        int healed = Math.Min(given, MaxHp - Hp);
+        over = given - healed;
         Hp += healed;
         return healed;
     }
@@ -1147,7 +1153,7 @@ public sealed class Fight
         foreach (SpellEffect effect in effects)
         {
             // Healing grows with a critical hit, as damage does, and with no characteristic (D62).
-            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) : 0;
+            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) + (heal.Grows ? HealBonus(me) : 0) : 0;
             switch (effect)
             {
                 case SummonEffect summon when passive:
@@ -1196,9 +1202,18 @@ public sealed class Fight
                     continue;
                 switch (effect)
                 {
-                    case HealEffect:
-                        int healed = f.HealFor(effectRoll);
+                    case HealEffect healing:
+                        int healed = f.HealFor(effectRoll, out int over);
                         _events.Add(new Healed(f.Id, healed, f.Hp));
+                        // The Priest's (sprint 201): what went past the maximum shields the healed fighter.
+                        if (healing.Overflow && over > 0)
+                        {
+                            f.Shields.Add((over, OverflowTurns));
+                            _events.Add(new Shielded(f.Id, over, OverflowTurns));
+                        }
+                        break;
+                    case PurgeEffect:
+                        Purge(f, ally: f.Team == me.Team);
                         break;
                     case ShieldEffect shield:
                         if (f.Parched)
@@ -1257,6 +1272,42 @@ public sealed class Fight
         _order.RemoveAt(at);
         _order.Insert(to, f);
         _events.Add(new OrderChanged(f.Id, step * moved));
+    }
+
+    /// <summary>
+    /// What a growing heal adds to its roll (sprint 201): the flat bonus a hit takes from a characteristic, of the caster's strongest element; the
+    /// Priest's heals thus keep up with its level as its blows do.
+    /// </summary>
+    public static int HealBonus(Fighter caster)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        return Characteristics.Bonus(new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Max(e => Strength(caster, e)));
+    }
+
+    /// <summary>The turns of the healed fighter a heal's excess shields it (sprint 201).</summary>
+    public const int OverflowTurns = 2;
+
+    /// <summary>What a purge takes (sprint 201): from an ally its ailments, from an enemy its boons and its shields.</summary>
+    internal static bool Ailment(Status st) => st.Stat switch
+    {
+        Stat.Poison or Stat.Parched or Stat.Electrified => true,
+        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen => false,
+        _ => st.Value < 0,
+    };
+
+    private void Purge(Fighter f, bool ally)
+    {
+        foreach (Status st in f.StatusList.Where(st => Ailment(st) == ally).ToList())
+        {
+            f.StatusList.Remove(st);
+            if (!f.StatusList.Any(o => o.Stat == st.Stat))
+                _events.Add(new StatusEnded(f.Id, st.Stat));
+        }
+        if (!ally && f.Shield > 0)
+        {
+            _events.Add(new ShieldAbsorbed(f.Id, f.Shield, 0));
+            f.Shields.Clear();
+        }
     }
 
     /// <param name="reaction">The reaction setting it (sprint 137): the status bears its name, and renews only its own.</param>
@@ -1576,6 +1627,12 @@ public sealed class Fight
             // Already on a new glyph when it was laid (sprint 152): not struck this turn, so it can walk off.
             if (g.Spared.Remove(next.Id) && g.Cells.Contains(next.Cell))
                 g.Struck.Add(next.Id);
+        }
+        // Healing over time first (sprint 201), then the poisons.
+        foreach (Status regen in next.StatusList.Where(st => st.Stat == Stat.Regen).ToList())
+        {
+            int given = next.HealFor(regen.Value);
+            _events.Add(new Healed(next.Id, given, next.Hp));
         }
         // Poisons strike at the start of the turn, in their element, against the resistances.
         foreach (Status poison in next.StatusList.Where(st => st.Stat == Stat.Poison).ToList())

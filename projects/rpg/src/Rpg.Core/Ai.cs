@@ -266,10 +266,25 @@ public static class Ai
         return hit + (e.AsStatus is StatusEffect st ? StatusWorth(st, f) : 0);
     }
 
+    /// <summary>
+    /// A heal's excess as a shield (the Priest's, sprint 201): on a hero's side, what the blows within reach would really take of the healed fighter
+    /// over the turns it lasts; a tenth of it otherwise.
+    /// </summary>
+    private static double HealAverage(Fighter me, HealEffect h) => ((h.Min + h.Max) / 2.0) + (h.Grows ? Fight.HealBonus(me) : 0);
+
+    private static double OverflowWorth(Fight fight, Fighter me, Fighter f, HealEffect h)
+    {
+        double over = HealAverage(me, h) - (f.MaxHp - f.Hp);
+        if (!h.Overflow || over <= 0 || f.Team != me.Team || f.Parched)
+            return 0;
+        return IsHero(fight, me) ? Math.Min(over, Math.Max(0, Incoming(fight, f) * Fight.OverflowTurns - f.Shield)) : 0.3 * over;
+    }
+
     /// <summary>A status's worth on a fighter, whichever side it is on: what <see cref="Value"/> counts for it.</summary>
     private static double StatusWorth(StatusEffect st, Fighter f) => st.Stat switch
     {
         Stat.Poison => 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
+        Stat.Regen => -0.6 * Math.Min(st.Value * st.Turns, f.MaxHp - f.Hp),
         Stat.Ap or Stat.Mp => -2.0 * st.Value * st.Turns,
         // Range lost keeps a fighter from striking (sprint 140); an electrified one spreads the hits it takes.
         Stat.Range => -1.0 * st.Value * st.Turns,
@@ -464,7 +479,11 @@ public static class Ai
                 double sign = f.Team == me.Team ? 1 : -1;
                 value += effect switch
                 {
-                    HealEffect h => sign * Math.Min((h.Min + h.Max) / 2.0, f.MaxHp - f.Hp),
+                    HealEffect h => sign * Math.Min(HealAverage(me, h), f.MaxHp - f.Hp) + OverflowWorth(fight, me, f, h),
+                    // The purge (sprint 201): what the statuses taken would have done, and an enemy's shields.
+                    PurgeEffect => sign * f.Statuses.Where(st => Fight.Ailment(st) == (f.Team == me.Team))
+                        .Sum(st => StatusWorth(new StatusEffect(Affects.All, st.Stat, st.Value, st.TurnsLeft, st.Element), f))
+                        + (f.Team == me.Team ? 0 : 0.5 * f.Shield),
                     // Shields and statuses pay off later: worth a part of what they hold.
                     // A hero's on its own side (sprint 194, T154): what the blows within reach would really take of it.
                     ShieldEffect sh when f.Team == me.Team && IsHero(fight, me) => Math.Min(sh.Amount, Math.Max(0, Incoming(fight, f) * sh.Turns - f.Shield)),
@@ -473,6 +492,8 @@ public static class Ai
                     StatusEffect st => Renewed(me, f, st) * st.Stat switch
                     {
                         Stat.Poison => -sign * 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
+                        // Healing over time (sprint 201): what it will really give back, a poison the other way.
+                        Stat.Regen => sign * 0.6 * Math.Min(st.Value * st.Turns, f.MaxHp - f.Hp),
                         Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },

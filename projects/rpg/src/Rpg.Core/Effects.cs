@@ -161,6 +161,9 @@ public enum Stat
 
     /// <summary>Neither a push nor a pull moves the fighter (sprint 192, D95, brick K): Stand Fast.</summary>
     Anchored,
+
+    /// <summary>Hit points given back at the start of each of the fighter's turns, before the poisons (the Priest's Prayer, sprint 201): a poison the other way.</summary>
+    Regen,
 }
 
 /// <summary>
@@ -180,6 +183,7 @@ public enum Stat
 [JsonDerivedType(typeof(BorrowEffect), "borrow")]
 [JsonDerivedType(typeof(DelayEffect), "delay")]
 [JsonDerivedType(typeof(HasteEffect), "haste")]
+[JsonDerivedType(typeof(PurgeEffect), "purge")]
 public abstract record SpellEffect(Affects Affects);
 
 // The Chronomancer's time (sprint 199, docs/classes-mage.md §3).
@@ -196,8 +200,18 @@ public sealed record DelayEffect(Affects Affects, int Places) : SpellEffect(Affe
 /// <summary>Each fighter touched has its cooldowns <see cref="Turns"/> shorter; one down to nothing is over.</summary>
 public sealed record HasteEffect(Affects Affects, int Turns) : SpellEffect(Affects);
 
-/// <summary>Gives back hit points, never above the maximum.</summary>
-public sealed record HealEffect(Affects Affects, int Min, int Max) : SpellEffect(Affects);
+/// <summary>
+/// Gives back hit points, never above the maximum; with <see cref="Overflow"/> (the Priest's, sprint 201), what would go past it becomes a shield
+/// for <see cref="Fight.OverflowTurns"/> of the healed fighter's turns. With <see cref="Grows"/> (the Priest's too), the roll gains what a hit gains from the
+/// caster's strongest element (<see cref="Fight.HealBonus"/>), so that a healer's heals keep up with the blows.
+/// </summary>
+public sealed record HealEffect(Affects Affects, int Min, int Max, bool Overflow = false, bool Grows = false) : SpellEffect(Affects);
+
+/// <summary>
+/// The purge (sprint 201): an ally loses its ailments (poisons, values below zero, Parched, Electrified); an enemy its boons (values above zero,
+/// Incorporeal, Anchored, a Feint) and its shields.
+/// </summary>
+public sealed record PurgeEffect(Affects Affects) : SpellEffect(Affects);
 
 /// <summary>Absorbs the next damage, up to <see cref="Amount"/>, for some turns of the fighter.</summary>
 public sealed record ShieldEffect(Affects Affects, int Amount, int Turns) : SpellEffect(Affects);

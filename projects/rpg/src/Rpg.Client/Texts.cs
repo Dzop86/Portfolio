@@ -508,6 +508,11 @@ public sealed class Texts
         ["effect.delay"] = "joue {0} place(s) plus tard",
         ["effect.hasten"] = "joue {0} place(s) plus tôt",
         ["effect.haste"] = "relances −{0}",
+        ["effect.heal-overflow"] = "soin {0} à {1}, l'excédent en bouclier ({2} tours)",
+        ["effect.heal-grows"] = ", plus le bonus de ton meilleur élément",
+        ["effect.purge-Allies"] = "retire les malus des alliés",
+        ["effect.purge-Enemies"] = "retire les bonus et les boucliers des ennemis",
+        ["effect.purge-All"] = "retire les malus des alliés, les bonus et les boucliers des ennemis",
         ["effect.glyph"] = "glyphe de {0} tour(s) : {1}",
         ["effect.glyph-damage"] = "{0} à {1} dégâts, {2}",
         ["card.glyph"] = "Glyphe de {0} ({1}) : {2}, {3} ; encore {4} tour(s)",
@@ -560,6 +565,7 @@ public sealed class Texts
         ["stat.Incorporeal"] = "case traversable",
         ["stat.Feint"] = "le prochain qui frappe au contact perd {0} PM",
         ["stat.Anchored"] = "indéplaçable",
+        ["stat.Regen"] = "soin de {0} par tour",
         ["stat.Mp.all"] = "plus de déplacement",
         ["sd.spends-shield"] = "Consomme ton bouclier, jusqu'à {0} de dégâts en plus.",
         ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
@@ -1766,6 +1772,11 @@ public sealed class Texts
         ["effect.delay"] = "plays {0} place(s) later",
         ["effect.hasten"] = "plays {0} place(s) sooner",
         ["effect.haste"] = "cooldowns −{0}",
+        ["effect.heal-overflow"] = "heal {0} to {1}, the excess as a shield ({2} turns)",
+        ["effect.heal-grows"] = ", plus your best element's bonus",
+        ["effect.purge-Allies"] = "removes the allies' ailments",
+        ["effect.purge-Enemies"] = "removes the enemies' boons and shields",
+        ["effect.purge-All"] = "removes the allies' ailments, the enemies' boons and shields",
         ["effect.glyph"] = "glyph for {0} turn(s): {1}",
         ["effect.glyph-damage"] = "{0} to {1} damage, {2}",
         ["card.glyph"] = "{0}'s glyph ({1}): {2}, {3}; {4} turn(s) left",
@@ -1818,6 +1829,7 @@ public sealed class Texts
         ["stat.Incorporeal"] = "cell passable",
         ["stat.Feint"] = "the next to strike in melee loses {0} MP",
         ["stat.Anchored"] = "cannot be moved",
+        ["stat.Regen"] = "heals {0} a turn",
         ["stat.Mp.all"] = "no more moving",
         ["sd.spends-shield"] = "Uses up your shield, for up to {0} more damage.",
         ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
@@ -2660,7 +2672,10 @@ public sealed class Texts
         {
             string text = e switch
             {
+                HealEffect { Overflow: true } h => this["effect.heal-overflow", h.Min, h.Max, Fight.OverflowTurns] + (h.Grows ? this["effect.heal-grows"] : ""),
                 HealEffect h => this["effect.heal", h.Min, h.Max],
+                // The Priest's purge (sprint 201): whose statuses go, in the words.
+                PurgeEffect p => this["effect.purge-" + (p.Affects is Affects.Allies or Affects.Enemies ? p.Affects : Affects.All)],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
                 PullEffect p => this["effect.pull", p.Cells],
@@ -2676,7 +2691,7 @@ public sealed class Texts
                 GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -3119,7 +3134,7 @@ public sealed class Texts
     /// <summary>A status as the log shows it: "-2 PA", "+50 % de dégâts", "poison 6 (Eau)".</summary>
     public string Status(Stat stat, int value, Element element)
     {
-        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
+        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint or Stat.Regen ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
         string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
         // The Lock (sprint 192): all of its movement, whatever the number.
         if (stat == Stat.Mp && value <= -9)
