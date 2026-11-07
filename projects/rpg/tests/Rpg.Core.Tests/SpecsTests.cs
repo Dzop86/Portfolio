@@ -50,7 +50,9 @@ public class SpecsTests
     public void TheData_HasThreeBranchesPerClass_TwoLineagesEach_FifteenEvolutions_InBothLanguages()
     {
         Assert.Equal(9, Real.Specs.Count);
-        Assert.All(Real.Classes, c => Assert.Equal(3, Real.Specs.Values.Count(s => s.Class == c.Id)));
+        // The Priest's branches come in sprint 202 (docs/classes-pretre.md): none until then.
+        Assert.All(Real.Classes.Where(c => c.Id != "priest"), c => Assert.Equal(3, Real.Specs.Values.Count(s => s.Class == c.Id)));
+        Assert.DoesNotContain(Real.Specs.Values, s => s.Class == "priest");
         Assert.All(Real.Specs.Values, s =>
         {
             Assert.Equal(2, s.Forks.Count);

@@ -36,7 +36,7 @@ public class SpellArtTests
         using JsonDocument credits = JsonDocument.Parse(File.ReadAllText(Path.Combine(Spells, "credits.json")));
         string[] drawn = [.. spells.Where(s => Text(s.Value, "icon") is not null).Select(s => s.Key)];
         // Sprint 198: the Archer's quarry and heavy bolt; sprint 199, the Mage's eight; sprint 200, the Illusionist's four.
-        Assert.Equal(404, drawn.Length);
+        Assert.Equal(524, drawn.Length);
         Assert.Equal(drawn.Order(), credits.RootElement.EnumerateObject().Select(p => p.Name).Order());
         // The classes' spells and the tree's are all drawn (the monsters' show a letter).
         using JsonDocument classes = JsonDocument.Parse(File.ReadAllText(Path.Combine(Rpg(), "data", "classes.json")));

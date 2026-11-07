@@ -39,7 +39,7 @@ public class TriosTests
         Assert.Equal(3, Elements.Parents(e).Count);
         Assert.Equal(Elements.Trios, Elements.CreatedFrom(e));
         Spell[] twins = Twins(e);
-        Assert.Equal(36, twins.Length);
+        Assert.Equal(12 * Real.Classes.Count, twins.Length);
         foreach (HeroClass c in Real.Classes)
             Assert.Equal(12, twins.Count(t => c.Spells.Contains(t.Twin!)));
         Assert.All(twins, t =>

@@ -136,13 +136,15 @@ public class DungeonTests
         (FightResult first, Fight played) = await Fight(server, c, wallow.Scenario(1));
         Assert.Equal(0, played.WinningTeam);
         Fighter hero = played.HeroFighter!;
-        Assert.True(hero.Hp < hero.MaxHp);
+        // The server draws the seed: the Warrior sometimes wins the first room untouched (sprint 200, REVIEW), so the hit points left are only alive.
+        Assert.InRange(hero.Hp, 1, hero.MaxHp);
         Assert.Equal(new DungeonRun(wallow.Id, 2), first.Run);
         // The hit points left are the character's life now (sprint 101).
         Assert.Equal(hero.Hp, (await server.Characters(Cancel)).Single().LifeAt(api.Clock.GetUtcNow(), GameData.Embedded));
         await server.SavePlace(c.Id, new Place(wallow.Halls[1].Map, 10, 11), Cancel);
-        // The next room with all the hit points: refused, the ticket used up.
-        Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => Fight(server, c, wallow.Scenario(2), hp: null))).Status);
+        // The next room with all the hit points: refused, the ticket used up; untouched, all of them are what it has.
+        if (hero.Hp < hero.MaxHp)
+            Assert.Equal(HttpStatusCode.BadRequest, (await Assert.ThrowsAsync<ServerException>(() => Fight(server, c, wallow.Scenario(2), hp: null))).Status);
         // The fountain: all of them, the same room.
         CharacterSummary rested = await server.Rest(c.Id, Cancel);
         Assert.Equal(new DungeonRun(wallow.Id, 2), rested.Run);

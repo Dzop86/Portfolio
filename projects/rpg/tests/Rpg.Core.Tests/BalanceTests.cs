@@ -88,7 +88,7 @@ public class BalanceTests
         }
     }
 
-    private static readonly string[] Classes = ["archer", "warrior", "mage"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest"];
 
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
@@ -185,6 +185,7 @@ public class BalanceTests
     [InlineData("archer")]
     [InlineData("warrior")]
     [InlineData("mage")]
+    [InlineData("priest")]
     public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
     {
         // Sprint 95 (D71): "rumble-under-the-wallow" asks for the great hall, at least 7 times in 10 alone,

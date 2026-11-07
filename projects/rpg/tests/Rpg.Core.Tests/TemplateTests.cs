@@ -91,6 +91,7 @@ public class TemplateTests
     [InlineData("archer", "rockfall", "searing-shot", "venom-arrow")]
     [InlineData("warrior", "quake", "smite", "groundswell")]
     [InlineData("mage", "landslide", "meteor", "freeze")]
+    [InlineData("priest", "stone-column", "sacred-pyre", "baptism")]
     public void EveryClass_OpensASpellAtThirtyFive_Forty_AndFortyFive(string id, string at35, string at40, string at45)
     {
         HeroClass c = Real.Class(id)!;
@@ -102,7 +103,8 @@ public class TemplateTests
     [Theory]
     [InlineData("archer", "gale", "focus", "stake")]
     [InlineData("warrior", "cyclone-blade", "war-cry", "titan-blow")]
-    [InlineData("mage", "cyclone", "renewal", "fault-line")]
+    [InlineData("mage", "cyclone", "slow", "fault-line")]
+    [InlineData("priest", "halo", "renewal", "judgement")]
     public void EveryClass_OpensASpellAtFifty_FiftyFive_AndSixty(string id, string at50, string at55, string at60)
     {
         // Sprint 161 (D83): a spell of a fourth element at 50, a spell that helps at 55, a heavy blow of Earth at 60.

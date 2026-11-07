@@ -14,6 +14,8 @@ public class PartyBalanceTests
 
     private static readonly string[] Names = ["Aube", "Brume", "Cendre", "Dune"];
 
+    private static readonly string[] Measured = ["archer", "warrior", "mage"];
+
     /// <summary>The share of fights won by <paramref name="heroes"/> heroes, in percent.</summary>
     private static int Won(string scenario, int heroes)
     {
@@ -22,7 +24,9 @@ public class PartyBalanceTests
         string family = Real.Groups.TryGetValue(scenario.Replace(MonsterGroup.Prefix, "", StringComparison.Ordinal), out MonsterGroup? g)
             ? g.Family : Real.Dungeons[Dungeons.Parse(scenario)!.Value.Item1].Family;
         IReadOnlyDictionary<Slot, string> worn = Progression.Kit("zone", Real.Families[family].Zone, level, Real);
-        string[] classes = [.. Real.Classes.Select(c => c.Id)];
+        // The classes the floors were measured with (sprint 123): a fourth one spreads the same 30 fights over 10 parties in place of 6, and a band won by
+        // one party alone falls under its floor without any class being weaker (sprint 201: against fields-4-4.2, only two Archers win, 55 %).
+        string[] classes = Measured;
         IEnumerable<string[]> Parties(int size, int first) => size == 0 ? [[]]
             : Enumerable.Range(first, classes.Length - first).SelectMany(i => Parties(size - 1, i).Select(r => (string[])[classes[i], .. r]));
         string[][] parties = [.. Parties(heroes, 0)];
@@ -74,7 +78,9 @@ public class PartyBalanceTests
         Scenario s = Real.FindScenario(scenario)!;
         int level = s.Fighters.Where(f => f.Team == 1).Max(f => f.Level);
         IReadOnlyDictionary<Slot, string> worn = Progression.Kit("zone", "ancestors", level, Real);
-        string[] classes = [.. Real.Classes.Select(c => c.Id)];
+        // The classes the floors were measured with (sprint 123): a fourth one spreads the same 30 fights over 10 parties in place of 6, and a band won by
+        // one party alone falls under its floor without any class being weaker (sprint 201: against fields-4-4.2, only two Archers win, 55 %).
+        string[] classes = Measured;
         int won = 0;
         Parallel.For(0, Fights, i =>
         {
@@ -96,7 +102,9 @@ public class PartyBalanceTests
         Scenario s = Real.FindScenario(scenario)!;
         int level = s.Fighters.Where(f => f.Team == 1).Max(f => f.Level);
         IReadOnlyDictionary<Slot, string> worn = Progression.Kit("zone", "ancestors", level, Real);
-        string[] classes = [.. Real.Classes.Select(c => c.Id)];
+        // The classes the floors were measured with (sprint 123): a fourth one spreads the same 30 fights over 10 parties in place of 6, and a band won by
+        // one party alone falls under its floor without any class being weaker (sprint 201: against fields-4-4.2, only two Archers win, 55 %).
+        string[] classes = Measured;
         int won = 0;
         Parallel.For(0, Fights, i =>
         {

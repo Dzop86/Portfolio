@@ -59,9 +59,11 @@ public class CiLevelsTests
     {
         var families = new Dictionary<int, SyntheticFamily> { [35] = new(35), [Specs.Forks] = new(Specs.Forks), [Specs.Finals] = new(Specs.Finals) };
         var heroes = Heroes(Real);
-        // Each class: the hero without a path, 3 branches at 35, the hero and 6 lineages at 50; a class converted, at 100 the hero, 6 lineages and 12 final classes.
+        // Each class: the hero without a path, 3 branches at 35, the hero and 6 lineages at 50; a class converted, at 100 the hero, 6 lineages and 12 final classes;
+        // a class without its paths yet (the Priest of sprint 201), the hero at 35 and at 50.
         int converted = Real.Classes.Count(c => Real.Specs.Values.Any(s => s.Class == c.Id && s.Forks.Any(f => f.Finals is { Count: > 0 })));
-        Assert.Equal((Real.Classes.Count * 11) + (converted * 19), heroes.Count);
+        int pathless = Real.Classes.Count(c => !Real.Specs.Values.Any(s => s.Class == c.Id));
+        Assert.Equal(((Real.Classes.Count - pathless) * 11) + (pathless * 2) + (converted * 19), heroes.Count);
 
         // Each hero's fights, to tell whether a final class changes any against its lineage alone.
         var prints = new System.Collections.Concurrent.ConcurrentDictionary<(string, int, string?, string?), string[]>();
@@ -144,7 +146,7 @@ public class CiLevelsTests
     };
 
     /// <summary>
-    /// The twelve reference parties of N1, four duos, five trios, three of four, with what they won against the hordes at 45 when measured
+    /// The twelve reference parties of N1, four duos, five trios, three of four, and six more with each class written since (the Priest, sprint 201), with what they won against the hordes at 45 when measured
     /// (sprint 195, 40 fights, the same seeds): the band is ±15 points around it.
     /// </summary>
     public static readonly (string[] Classes, int Measured)[] Parties =
@@ -153,6 +155,9 @@ public class CiLevelsTests
         (["warrior", "archer", "mage"], 92), (["warrior", "warrior", "archer"], 90), (["warrior", "warrior", "mage"], 95),
         (["archer", "archer", "mage"], 97), (["mage", "mage", "warrior"], 100),
         (["warrior", "archer", "mage", "mage"], 100), (["warrior", "warrior", "archer", "mage"], 100), (["warrior", "archer", "archer", "mage"], 100),
+        // The Priest's (sprint 201, measured the same way; the twelve above measured again, unchanged).
+        (["warrior", "priest"], 57), (["archer", "priest"], 72), (["mage", "priest"], 62),
+        (["warrior", "archer", "priest"], 95), (["warrior", "mage", "priest"], 87), (["warrior", "archer", "mage", "priest"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>
@@ -176,9 +181,9 @@ public class CiLevelsTests
     }
 
     [Fact]
-    public void TheReferenceParties_AreTwelve_AndEachClassIsInSeveral()
+    public void TheReferenceParties_AreTwelve_AndSixForEachNewClass_AndEachClassIsInSeveral()
     {
-        Assert.Equal(12, Parties.Length);
+        Assert.Equal(12 + (6 * (Real.Classes.Count - 3)), Parties.Length);
         Assert.All(Parties, p => Assert.InRange(p.Classes.Length, 2, 4));
         Assert.All(Parties, p => Assert.All(p.Classes, c => Assert.Contains(Real.Classes, k => k.Id == c)));
         Assert.All(Real.Classes, c => Assert.True(Parties.Count(p => p.Classes.Contains(c.Id)) >= 6, c.Id));

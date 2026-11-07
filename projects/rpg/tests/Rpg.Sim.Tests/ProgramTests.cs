@@ -130,7 +130,7 @@ public class ProgramTests
         Assert.Contains("| mage | Lightning |", output, StringComparison.Ordinal);
         Assert.Equal(6 + 15 + 27, output.Split('\n').Count(l => l.StartsWith("| archer |", StringComparison.Ordinal) || l.StartsWith("| warrior |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
         Assert.Contains("| mage | nu, Feu seul |", output, StringComparison.Ordinal);
-        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 33 builds tirés", output, StringComparison.Ordinal);
+        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 44 builds tirés", output, StringComparison.Ordinal);
     }
 
     [Fact]

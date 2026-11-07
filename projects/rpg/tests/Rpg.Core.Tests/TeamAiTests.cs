@@ -100,5 +100,7 @@ public class TeamAiTests
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
     // Sprint 194 (T154): the worth of its creatures, shields and resistances, and the deck of a hero on a path, change what a hero alone plays.
-    private const string SoloFingerprint = "F40050A59C01522C";
+    // Sprint 201: the Priest fights too (its heals growing), and the Mage plays its new neutral spells in place of its heals; the Archer's and the
+    // Warrior's fights unchanged (measured alone, the same fingerprint before and after).
+    private const string SoloFingerprint = "3283C395472D31C8";
 }

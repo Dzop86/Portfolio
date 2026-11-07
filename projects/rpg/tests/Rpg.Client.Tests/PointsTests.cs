@@ -95,13 +95,13 @@ public class PointsTests
         // At level 1, the five spells unlocked; left as it is, the deck is no change.
         Assert.Equal(Data.Class("mage")!.Spells.Take(5), editor.Deck);
         Assert.False(editor.Changed);
-        Spell mend = Data.Spells["mend"], ward = Data.Spells["frost-ward"];
-        editor.RemoveFromDeck(mend);
+        Spell blink = Data.Spells["blink"], ward = Data.Spells["frost-ward"];
+        editor.RemoveFromDeck(blink);
         Assert.Equal(4, editor.Deck.Count);
         Assert.True(editor.Changed);
         Assert.False(editor.CanAddToDeck(ward));
-        editor.AddToDeck(mend);
-        Assert.Equal("mend", editor.Deck[^1]);
+        editor.AddToDeck(blink);
+        Assert.Equal("blink", editor.Deck[^1]);
         Assert.Equal(editor.Deck, editor.ToPoints().Deck);
         // A hero of level 95 has every spell, but only twelve go in the deck.
         var high = new PointsEditor(new Hero("Élise", "female-c", "mage", Level: 95), Data);

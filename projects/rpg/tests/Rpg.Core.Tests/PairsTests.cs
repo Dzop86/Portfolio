@@ -36,7 +36,7 @@ public class PairsTests
     {
         _ = (stat, value);
         Spell[] twins = Twins(e);
-        Assert.Equal(24, twins.Length);
+        Assert.Equal(8 * Real.Classes.Count, twins.Length);
         Assert.All(twins, t => Assert.Contains(Real.Spells[t.Twin!].Element, Elements.Parents(e)));
         foreach (HeroClass c in Real.Classes)
             Assert.Equal(8, twins.Count(t => c.Spells.Contains(t.Twin!)));
