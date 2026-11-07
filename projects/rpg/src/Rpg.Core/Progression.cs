@@ -155,6 +155,10 @@ public static class Progression
         ["mage-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["mage-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["mage-pure"] = ["side-step", "remanence", "scorched-earth"],
+        // The Priest's (sprint 201): the Mage's, a support of range.
+        ["priest-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["priest-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["priest-pure"] = ["side-step", "remanence", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -164,6 +168,7 @@ public static class Progression
         ["archer-matter"] = [Element.Lightning],
         ["warrior-matter"] = [Element.Lightning],
         ["mage-matter"] = [Element.Lightning],
+        ["priest-matter"] = [Element.Lightning],
     };
 
     /// <summary>

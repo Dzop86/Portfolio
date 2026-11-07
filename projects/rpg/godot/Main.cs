@@ -1135,9 +1135,10 @@ public partial class Main : Node3D
             view.OpenCreate();
             view.CharacterField.Text = hero;
             view.SelectLook("male-b");
-            view.SelectClass("mage");
+            // The newest class (sprint 201): the Priest, its button no longer greyed.
+            view.SelectClass("priest");
             // The creation screen lists the class's twenty spells, by level.
-            string[] missing = [.. GameData.Embedded.Class("mage")!.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(view.Texts.Lang)).Where(n => !view.SpellsText.Contains(n, StringComparison.Ordinal))];
+            string[] missing = [.. GameData.Embedded.Class("priest")!.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(view.Texts.Lang)).Where(n => !view.SpellsText.Contains(n, StringComparison.Ordinal))];
             if (missing.Length > 0)
                 problem = $"the creation screen does not list {string.Join(", ", missing)}";
             view.ChooseColour(3);
@@ -1145,7 +1146,7 @@ public partial class Main : Node3D
             view.ChooseSkin(2);
             view.SetShape(1, -1);
             await view.Create();
-            string expected = $"{hero} · {GameData.Embedded.Class("mage")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
+            string expected = $"{hero} · {GameData.Embedded.Class("priest")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
             problem ??= view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
                 : !view.CardTexts.SequenceEqual([expected]) ? $"the cards show {string.Join(" | ", view.CardTexts)}, not {expected}"
                 : view.PlayButton.Disabled ? "the new character is not chosen"

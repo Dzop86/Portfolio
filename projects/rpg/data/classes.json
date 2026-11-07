@@ -90,8 +90,8 @@
       "en": "Mage"
     },
     "description": {
-      "fr": "Fragile, mais frappe en zone, soigne ses alliés et invoque une braise.",
-      "en": "Frail, but strikes in areas, heals allies and summons an ember."
+      "fr": "Fragile, mais frappe en zone, bondit, ralentit et invoque une braise.",
+      "en": "Frail, but strikes in areas, blinks, slows and summons an ember."
     },
     "hp": 86,
     "ap": 8,
@@ -102,7 +102,7 @@
       "flare",
       "ice-shard",
       "gust",
-      "mend",
+      "blink",
       "frost-ward",
       "roots",
       "burn",
@@ -113,15 +113,57 @@
       "meteor",
       "freeze",
       "cyclone",
-      "renewal",
+      "slow",
       "fault-line",
       "cataclysm",
       "glacier",
       "tempest",
       "mana-surge",
-      "sanctuary",
-      "rebirth",
+      "mana-barrier",
+      "siphon",
       "light-step"
+    ],
+    "hpPerLevel": 3
+  },
+  {
+    "id": "priest",
+    "name": {
+      "fr": "Prêtre",
+      "en": "Priest"
+    },
+    "description": {
+      "fr": "Soigne de loin, et le soin en trop protège ; frappe peu, jamais au contact.",
+      "en": "Heals from afar, and the excess of a heal shields; strikes little, never up close."
+    },
+    "hp": 66,
+    "ap": 8,
+    "mp": 4,
+    "initiative": 10,
+    "spells": [
+      "blessed-stone",
+      "holy-flame",
+      "holy-water",
+      "sacred-breath",
+      "mend",
+      "prayer",
+      "stone-verdict",
+      "censer",
+      "blessed-tide",
+      "zephyr",
+      "purify",
+      "stone-column",
+      "sacred-pyre",
+      "baptism",
+      "halo",
+      "renewal",
+      "judgement",
+      "heavenly-blaze",
+      "holy-flood",
+      "wrath-of-heaven",
+      "sanctuary",
+      "grace",
+      "blessing",
+      "serene-step"
     ],
     "hpPerLevel": 3
   }

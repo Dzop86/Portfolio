@@ -19,7 +19,9 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
     if ranks and dmax > 0:
         d["ranks"] = [O([("damageMin", round(dmin * f)), ("damageMax", round(dmax * f))]) for f in (1.2, 1.4, 1.6, 1.8)]
     return d
-def heal(a, mn, mx): return O([("kind", "heal"), ("affects", a), ("min", mn), ("max", mx)])
+def heal(a, mn, mx, overflow=False): return O([("kind", "heal"), ("affects", a), ("min", mn), ("max", mx)] + ([("overflow", True), ("grows", True)] if overflow else []))
+# The Priest's (sprint 201, docs/classes-pretre.md §2): an ally's ailments taken, an enemy's boons and shields.
+def purge(a): return O([("kind", "purge"), ("affects", a)])
 def shield(a, n, t): return O([("kind", "shield"), ("affects", a), ("amount", n), ("turns", t)])
 def push(n, affects="Enemies"): return O([("kind", "push"), ("affects", affects), ("cells", n)])
 def pull(n, affects="Enemies"): return O([("kind", "pull"), ("affects", affects), ("cells", n)])
@@ -130,7 +132,8 @@ mage = C(
  R("flare","Flammèche","Flare",3,1,5,1,1,2,"Fire","lorc/candle-flame"),
  R("ice-shard","Éclat de glace","Ice Shard",3,1,5,1,1,2,"Water","lorc/frozen-orb"),
  R("gust","Bourrasque","Gust",3,1,5,1,1,2,"Air","lorc/wind-hole",effects=[push(1)]),
- R("mend","Soin","Mend",3,0,5,0,0,1,"Neutral","delapouite/healing",effects=[heal("Allies",7,10)],cd=1),
+ # The Priest took its heals (sprint 201, docs/classes-pretre.md §4): four neutral spells of its own in their places.
+ R("blink","Clignement","Blink",2,1,3,0,0,1,"Neutral","lorc/teleport",effects=[leap()],cd=2),
  R("frost-ward","Bouclier de givre","Frost Ward",3,0,4,0,0,1,"Neutral","lorc/ice-shield",effects=[shield("Allies",10,1)],cd=2),
  R("roots","Racines","Roots",4,1,5,1,1,1,"Earth","delapouite/tree-roots",effects=[status("Enemies","Mp",-2,1)],cd=1),
  R("burn","Brûlure","Burn",3,1,5,1,1,2,"Fire","lorc/flame-spin",effects=[status("Enemies","Poison",5,2,"Fire")]),
@@ -141,15 +144,43 @@ mage = C(
  R("meteor","Météore","Meteor",6,3,7,1,1,1,"Fire","lorc/meteor-impact",los=False,area=("Circle",1)),
  R("freeze","Gel","Freeze",4,1,5,1,1,1,"Water","lorc/frostfire",effects=[status("Enemies","Mp",-2,1)],cd=1),
  R("cyclone","Cyclone","Cyclone",5,2,6,1,1,1,"Air","lorc/stomp-tornado",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
- R("renewal","Renouveau","Renewal",4,0,5,0,0,1,"Neutral","sbed/health-increase",area=("Circle",1),effects=[heal("Allies",10,14)],cd=2),
+ R("slow","Lenteur","Slow",3,1,6,0,0,1,"Neutral","lorc/snail",area=("Circle",1),effects=[status("Enemies","Mp",-2,1),status("Enemies","Ap",-1,1)],cd=2),
  R("fault-line","Faille","Fault Line",5,1,5,1,1,1,"Earth","lorc/earth-crack",line=True,area=("Line",2)),
  R("cataclysm","Cataclysme","Cataclysm",8,3,8,1,1,1,"Fire","lorc/bright-explosion",los=False,area=("Circle",2),cd=2),
  R("glacier","Glacier","Glacier",6,2,6,1,1,1,"Water","lorc/icicles-aura",los=False,area=("Cross",2)),
  R("tempest","Tempête","Tempest",6,2,6,1,1,1,"Air","lorc/entangled-typhoon",los=False,area=("Circle",2)),
  R("mana-surge","Afflux","Mana Surge",1,0,0,0,0,1,"Neutral","delapouite/sparkles",los=False,effects=[status("Caster","Ap",2,1)],cd=3),
- R("sanctuary","Sanctuaire","Sanctuary",4,0,4,0,0,1,"Neutral","lorc/aura",los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
- R("rebirth","Renaissance","Rebirth",6,0,5,0,0,1,"Neutral","lorc/angel-wings",los=False,area=("Circle",2),effects=[heal("Allies",22,28)],cd=4),
+ R("mana-barrier","Barrière de mana","Mana Barrier",3,0,0,0,0,1,"Neutral","lorc/magic-shield",los=False,effects=[shield("Caster",30,2)],cd=3),
+ R("siphon","Siphon","Siphon",2,1,5,0,0,1,"Neutral","lorc/magic-swirl",effects=[status("Enemies","Ap",-2,1),status("Caster","Ap",2,1)],cd=3),
  R("light-step","Pas léger","Light Step",1,0,0,0,0,1,"Neutral","delapouite/running-shoe",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
+# The Priest (sprint 201, docs/classes-pretre.md §3): heals whose excess shields, never a blow from next to its target, damage at 0.8 of the
+# budget. Mend, Renewal, Sanctuary and Grace (the Mage's Rebirth, renamed) came from the Mage. Working names, for the scriptwriter.
+priest = C(
+ R("blessed-stone","Pierre bénie","Blessed Stone",3,2,5,1,1,2,"Earth","lorc/stone-tablet"),
+ R("holy-flame","Flamme sainte","Holy Flame",3,2,5,1,1,2,"Fire","lorc/candlebright"),
+ R("holy-water","Eau bénite","Holy Water",3,2,5,1,1,2,"Water","lorc/splash"),
+ R("sacred-breath","Souffle sacré","Sacred Breath",3,2,5,1,1,2,"Air","lorc/feathered-wing",effects=[push(1)]),
+ R("mend","Soin","Mend",3,0,5,0,0,1,"Neutral","delapouite/healing",effects=[heal("Allies",7,10,overflow=True)],cd=1),
+ R("prayer","Prière","Prayer",2,0,5,0,0,1,"Neutral","lorc/prayer",effects=[status("Allies","Regen",5,3)],cd=2),
+ R("stone-verdict","Verdict de pierre","Stone Verdict",4,2,5,1,1,1,"Earth","lorc/scales",effects=[status("Enemies","Mp",-2,1)],cd=1),
+ R("censer","Encensoir","Censer",3,2,5,1,1,2,"Fire","lorc/incense",effects=[status("Enemies","Poison",4,3,"Fire")]),
+ R("blessed-tide","Marée bénite","Blessed Tide",4,2,5,1,1,1,"Water","delapouite/water-fountain",area=("Circle",1),effects=[heal("Allies",5,7,overflow=True)]),
+ R("zephyr","Zéphyr","Zephyr",4,2,6,1,1,2,"Air","lorc/fluffy-cloud",line=True,area=("Line",2)),
+ R("purify","Purification","Purify",2,0,5,0,0,1,"Neutral","lorc/beams-aura",los=False,area=("Circle",1),effects=[purge("Allies"),heal("Allies",6,8,overflow=True)],cd=2),
+ R("stone-column","Colonne de pierre","Stone Column",5,2,6,1,1,1,"Earth","lorc/stone-tower",los=False,area=("Circle",1)),
+ R("sacred-pyre","Bûcher sacré","Sacred Pyre",5,2,6,1,1,1,"Fire","lorc/fire-bowl",cd=1),
+ R("baptism","Baptême","Baptism",5,2,5,1,1,1,"Water","lorc/holy-grail",area=("Cross",1),effects=[status("Enemies","Mp",-1,1)]),
+ R("halo","Auréole","Halo",5,2,6,1,1,1,"Air","lorc/sun-radiations",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
+ R("renewal","Renouveau","Renewal",4,0,5,0,0,1,"Neutral","sbed/health-increase",area=("Circle",1),effects=[heal("Allies",10,14,overflow=True)],cd=2),
+ R("judgement","Jugement","Judgement",6,2,6,1,1,1,"Earth","lorc/broken-tablet",los=False,area=("Circle",1)),
+ R("heavenly-blaze","Brasier céleste","Heavenly Blaze",6,2,6,1,1,1,"Fire","lorc/sunbeams",los=False,area=("Circle",2)),
+ R("holy-flood","Crue sacrée","Holy Flood",6,2,6,1,1,1,"Water","lorc/at-sea",los=False,area=("Cross",2)),
+ R("wrath-of-heaven","Courroux du ciel","Wrath of Heaven",6,2,6,1,1,1,"Air","lorc/cloudy-fork",area=("Circle",1),cd=2),
+ R("sanctuary","Sanctuaire","Sanctuary",4,0,4,0,0,1,"Neutral","lorc/aura",los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
+ R("grace","Grâce","Grace",6,0,5,0,0,1,"Neutral","lorc/angel-wings",los=False,area=("Circle",2),effects=[heal("Allies",22,28,overflow=True)],cd=4),
+ R("blessing","Bénédiction","Blessing",3,0,5,0,0,1,"Neutral","lorc/glowing-hands",area=("Circle",1),effects=[status("Allies","Damage",20,2)],cd=3),
+ R("serene-step","Pas serein","Serene Step",1,0,0,0,0,1,"Neutral","lorc/dove",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
@@ -287,6 +318,11 @@ def budget(sp, scale=1):
 for sp in sentinel + guard + mage:
     if sp["damageMax"] > 0:
         budget(sp)
+# The Priest strikes at 0.8 of the budget (docs/classes-conception.md §1.2): its worth is in its heals.
+PRIEST_BUDGET = 0.8
+for sp in priest:
+    if sp["damageMax"] > 0:
+        budget(sp, PRIEST_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -318,6 +354,11 @@ GESTURES = {
  "roots": ("Entrave", "Bind"), "burn": ("Brûlure", "Burn"), "tidal-wave": ("Vague", "Wave"), "bolt": ("Trait", "Shaft"),
  "landslide": ("Glissement", "Slide"), "meteor": ("Météore", "Meteor"), "freeze": ("Prise", "Grip"), "cyclone": ("Cyclone", "Cyclone"),
  "fault-line": ("Faille", "Rift"), "cataclysm": ("Cataclysme", "Cataclysm"), "glacier": ("Bloc", "Block"), "tempest": ("Tempête", "Tempest"),
+ # The Priest's (sprint 201).
+ "blessed-stone": ("Pierre", "Stone"), "holy-flame": ("Flamme", "Flame"), "holy-water": ("Onction", "Unction"), "sacred-breath": ("Haleine", "Exhale"),
+ "stone-verdict": ("Verdict", "Verdict"), "censer": ("Encens", "Incense"), "blessed-tide": ("Marée", "Tide"), "zephyr": ("Zéphyr", "Zephyr"),
+ "stone-column": ("Colonne", "Column"), "sacred-pyre": ("Bûcher", "Pyre"), "baptism": ("Baptême", "Baptism"), "halo": ("Auréole", "Halo"),
+ "judgement": ("Jugement", "Judgement"), "heavenly-blaze": ("Brasier", "Blaze"), "holy-flood": ("Crue", "Flood"), "wrath-of-heaven": ("Courroux", "Wrath"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
@@ -336,6 +377,11 @@ NAMES = {
   "burn": ("Électrocution", "Electrocution"), "bolt": ("Éclair", "Lightning Bolt"),
   "meteor": ("Foudre céleste", "Heaven's Lightning"), "cyclone": ("Œil de l'orage", "Eye of the Storm"),
   "cataclysm": ("Fulgurance", "Fulguration"), "tempest": ("Orage", "Thunderstorm"),
+  # The Priest's (sprint 201).
+  "holy-flame": ("Flamme d'orage", "Storm Flame"), "sacred-breath": ("Haleine d'orage", "Storm Exhale"),
+  "censer": ("Encens crépitant", "Crackling Incense"), "zephyr": ("Zéphyr électrique", "Electric Zephyr"),
+  "sacred-pyre": ("Bûcher foudroyé", "Thunderstruck Pyre"), "halo": ("Auréole d'éclairs", "Lightning Halo"),
+  "heavenly-blaze": ("Foudre divine", "Divine Lightning"), "wrath-of-heaven": ("Courroux de l'orage", "Wrath of the Storm"),
  },
 }
 # A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 163, docs/graphisme/s163-icones-arbre.md §1.8).
@@ -351,7 +397,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage:
+    for sp in sentinel + guard + mage + priest:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -360,7 +406,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el])
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -450,18 +496,18 @@ paths = [
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + creatures + beasts + twins + paths
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")
