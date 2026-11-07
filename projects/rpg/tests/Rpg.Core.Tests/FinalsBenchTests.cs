@@ -23,6 +23,11 @@ public class FinalsBenchTests
         // The Time Keeper saves an ally: judged in a party (F3), as the Warden.
         Check("mage", ["time-weaver"]);
 
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
+    public void AtHundred_ThePriestsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem() =>
+        // The Life Warden saves an ally and its lineage raises them: judged in a party (F3).
+        Check("priest", ["sacred-medic"]);
+
     private static void Check(string cls, string[] partyJudged)
     {
         BenchReport report = Bench.Run(new SyntheticFamily(Specs.Finals), cls, Fights);

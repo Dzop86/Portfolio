@@ -57,8 +57,9 @@ public class PriestTests
         Fight f = new(Real, "training", 1, priest);
         Assert.Equal(16, Fight.HealBonus(f.HeroFighter!));
         Assert.All(Real.Class("priest")!.Spells.SelectMany(id => Real.Spells[id].AllEffects).OfType<HealEffect>(), h => Assert.True(h.Grows));
-        // Nobody else's heals grow (its spells' twins, a compound's, are its own).
-        Assert.All(Real.Spells.Values.Where(s => !Real.Class("priest")!.Spells.Contains(s.Twin ?? s.Id)).SelectMany(s => s.AllEffects).OfType<HealEffect>(), h => Assert.False(h.Grows));
+        // Nobody else's heals grow (its spells' twins, a compound's, and its paths' are its own).
+        string[] paths = [.. Real.Specs.Values.Where(s => s.Class == "priest").SelectMany(s => s.Forks.SelectMany(f => s.SpellsWith(f.Id)))];
+        Assert.All(Real.Spells.Values.Where(s => !Real.Class("priest")!.Spells.Contains(s.Twin ?? s.Id) && !paths.Contains(s.Id)).SelectMany(s => s.AllEffects).OfType<HealEffect>(), h => Assert.False(h.Grows));
     }
 
     [Fact]

@@ -121,6 +121,9 @@ public class CiLevelsTests
         "blade-master",
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
+        // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
+        // late (Healing Wave, Remedy, Exorcism, Zeal, Vision) or an ally (Life Warden) change none of them.
+        "vaulter", "saint", "divine-surgeon", "life-warden", "purifier", "zealot", "divine-sage",
     };
 
     /// <summary>
@@ -132,6 +135,8 @@ public class CiLevelsTests
         ("bounty-hunter", "path-weak-spot"), ("runner", "path-running-shot"),
         // Sprint 200: the Master of Illusions' AI spends its points on the Image and the Double before Dazzle.
         ("mirage-master", "path-dazzle"),
+        // Sprint 202: with fewer fights each, the Time Weaver's Quicken, played for allies, no longer comes up alone.
+        ("time-weaver", "path-quicken"),
     };
 
     /// <summary>
@@ -143,6 +148,8 @@ public class CiLevelsTests
         "path-jaws", "path-assault", "path-wrench", "path-iron-ring",
         // The Mage (sprint 199, docs/classes-mage.md §3): the Rune, a trap as the Jaws; the Crescendo, 10 AP the AI never saves nor borrows for.
         "path-rune", "path-crescendo",
+        // The Priest (sprint 202, docs/classes-pretre-2.md §4): the Resurrection raises a fallen ally, and the smoke fights alone.
+        "path-resurrect",
     };
 
     /// <summary>
