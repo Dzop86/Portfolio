@@ -184,6 +184,7 @@ public enum Stat
 [JsonDerivedType(typeof(DelayEffect), "delay")]
 [JsonDerivedType(typeof(HasteEffect), "haste")]
 [JsonDerivedType(typeof(PurgeEffect), "purge")]
+[JsonDerivedType(typeof(ReviveEffect), "revive")]
 public abstract record SpellEffect(Affects Affects);
 
 // The Chronomancer's time (sprint 199, docs/classes-mage.md §3).
@@ -212,6 +213,12 @@ public sealed record HealEffect(Affects Affects, int Min, int Max, bool Overflow
 /// Incorporeal, Anchored, a Feint) and its shields.
 /// </summary>
 public sealed record PurgeEffect(Affects Affects) : SpellEffect(Affects);
+
+/// <summary>
+/// The resurrection (the Cleric's, sprint 202): a fallen ally of the caster, not a creature, rises on its cell if it is free, with <see cref="Percent"/> % of its
+/// hit points, its statuses and shields gone; once a fight for each caster and spell.
+/// </summary>
+public sealed record ReviveEffect(Affects Affects, int Percent) : SpellEffect(Affects);
 
 /// <summary>Absorbs the next damage, up to <see cref="Amount"/>, for some turns of the fighter.</summary>
 public sealed record ShieldEffect(Affects Affects, int Amount, int Turns) : SpellEffect(Affects);

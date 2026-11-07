@@ -510,6 +510,8 @@ public sealed class Texts
         ["effect.haste"] = "relances −{0}",
         ["effect.heal-overflow"] = "soin {0} à {1}, l'excédent en bouclier ({2} tours)",
         ["effect.heal-grows"] = ", plus le bonus de ton meilleur élément",
+        ["effect.revive"] = "relève un allié tombé avec {0} % de ses PV, une fois par combat",
+        ["log.revived"] = "{0} se relève ({1} PV).",
         ["effect.purge-Allies"] = "retire les malus des alliés",
         ["effect.purge-Enemies"] = "retire les bonus et les boucliers des ennemis",
         ["effect.purge-All"] = "retire les malus des alliés, les bonus et les boucliers des ennemis",
@@ -1774,6 +1776,8 @@ public sealed class Texts
         ["effect.haste"] = "cooldowns −{0}",
         ["effect.heal-overflow"] = "heal {0} to {1}, the excess as a shield ({2} turns)",
         ["effect.heal-grows"] = ", plus your best element's bonus",
+        ["effect.revive"] = "raises a fallen ally with {0}% of its HP, once a fight",
+        ["log.revived"] = "{0} gets back up ({1} HP).",
         ["effect.purge-Allies"] = "removes the allies' ailments",
         ["effect.purge-Enemies"] = "removes the enemies' boons and shields",
         ["effect.purge-All"] = "removes the allies' ailments, the enemies' boons and shields",
@@ -2675,6 +2679,7 @@ public sealed class Texts
                 HealEffect { Overflow: true } h => this["effect.heal-overflow", h.Min, h.Max, Fight.OverflowTurns] + (h.Grows ? this["effect.heal-grows"] : ""),
                 HealEffect h => this["effect.heal", h.Min, h.Max],
                 // The Priest's purge (sprint 201): whose statuses go, in the words.
+                ReviveEffect r => this["effect.revive", r.Percent],
                 PurgeEffect p => this["effect.purge-" + (p.Affects is Affects.Allies or Affects.Enemies ? p.Affects : Affects.All)],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
@@ -2691,7 +2696,7 @@ public sealed class Texts
                 GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect or ReviveEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -3152,6 +3157,7 @@ public sealed class Texts
             SpellCast c => this["log.cast", Name(fight.Fighters[c.Fighter]), fight.Fighters[c.Fighter].Spells.First(s => s.Id == c.Spell).Name.In(Lang)],
             Damaged d => this["log.damage", Name(fight.Fighters[d.Fighter]), d.Amount],
             Died d => this["log.died", Name(fight.Fighters[d.Fighter])],
+            Revived r => this["log.revived", Name(fight.Fighters[r.Fighter]), r.Hp],
             Healed h => this["log.heal", Name(fight.Fighters[h.Fighter]), h.Amount],
             Summoned m => this["log.summon", Name(fight.Fighters[m.Summoner]), Name(fight.Fighters[m.Fighter])],
             Shielded s => this["log.shield", Name(fight.Fighters[s.Fighter]), s.Amount],

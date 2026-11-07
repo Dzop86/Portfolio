@@ -92,6 +92,9 @@ public sealed record Healed(int Fighter, int Amount, int HpLeft) : FightEvent;
 
 public sealed record Shielded(int Fighter, int Amount, int Turns) : FightEvent;
 
+/// <summary>A fallen fighter rises (the resurrection, sprint 202), with these hit points.</summary>
+public sealed record Revived(int Fighter, int Hp) : FightEvent;
+
 /// <summary>Damage a shield took instead of the fighter's hit points.</summary>
 public sealed record ShieldAbsorbed(int Fighter, int Amount, int ShieldLeft) : FightEvent;
 

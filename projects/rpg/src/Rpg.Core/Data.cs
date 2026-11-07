@@ -766,6 +766,7 @@ public sealed class GameData
         DelayEffect d => d.Places is >= -3 and <= 3 && d.Places != 0 && d.Affects != Affects.Caster,
         HasteEffect h => h.Turns is >= 1 and <= 3,
         PurgeEffect => true,
+        ReviveEffect r => r.Percent is >= 1 and <= 100 && r.Affects == Affects.Allies,
         _ => false,
     };
 

@@ -645,6 +645,10 @@ public partial class Main : Node3D
             case Died d:
                 _views[d.Fighter].Die(animate: !instant);
                 return Task.CompletedTask;
+            // The resurrection (sprint 202): back on its cell.
+            case Revived r:
+                _views[r.Fighter].Revive();
+                return Task.CompletedTask;
             case Summoned m:
                 Fighter summoned = _controller.Fight.Fighters[m.Fighter];
                 var view = new FighterView();

@@ -385,10 +385,14 @@ public static class Ai
         (double Value, int Hp, int Id) bestKey = (0, int.MaxValue, int.MaxValue);
         foreach (Fighter aim in fight.Fighters)
         {
-            if (!aim.IsAlive)
+            // A fallen friend is aimed at only to be raised (sprint 202).
+            bool fallen = !aim.IsAlive;
+            if (fallen && (aim.Team != me.Team || aim.IsSummon))
                 continue;
             foreach (Spell spell in me.Spells)
             {
+                if (fallen != spell.AllEffects.Any(e => e is ReviveEffect))
+                    continue;
                 if ((only is not null && spell != only) || fight.CheckCast(me, spell, from, aim.Cell) != ActionError.None
                     || (MovesAnAlly(spell) && !NeedsRescue(fight, me, spell, aim)))
                     continue;
@@ -462,6 +466,12 @@ public static class Ai
         {
             // A creature on our side is worth a few hits, once, whoever stands nearby; so is getting a hurt
             // ally out of reach (only cast then, see NeedsRescue).
+            // A friend raised (sprint 202): its hit points back, and a fighter more on our side.
+            if (effect is ReviveEffect revive)
+            {
+                value += fight.Revivable(me, spell.Id, target) is Fighter risen ? RaisedWorth + (risen.MaxHp * revive.Percent / 100.0) : 0;
+                continue;
+            }
             if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
                 value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, summon) + LureValue(fight, me, summon)) : 8;
@@ -491,7 +501,8 @@ public static class Ai
                     StatusEffect { Stat: Stat.Resistance } st when f.Team == me.Team && IsHero(fight, me) => Renewed(me, f, st) * st.Value / 100.0 * Incoming(fight, f) * st.Turns,
                     StatusEffect st => Renewed(me, f, st) * st.Stat switch
                     {
-                        Stat.Poison => -sign * 0.6 * Math.Min(st.Value * st.Turns, f.Hp),
+                        // A poison of one turn (the Oracle's Omen, sprint 202) strikes for sure at the target's next turn: nearly a blow.
+                        Stat.Poison => -sign * (st.Turns == 1 ? 0.9 : 0.6) * Math.Min(st.Value * st.Turns, f.Hp),
                         // Healing over time (sprint 201): what it will really give back, a poison the other way.
                         Stat.Regen => sign * 0.6 * Math.Min(st.Value * st.Turns, f.MaxHp - f.Hp),
                         Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
@@ -511,6 +522,9 @@ public static class Ai
         }
         return value;
     }
+
+    /// <summary>What a fighter back on our side is worth besides its hit points (sprint 202): more than any single blow of the early levels.</summary>
+    internal const double RaisedWorth = 40;
 
     [ThreadStatic]
     private static bool _borrowing;

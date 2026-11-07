@@ -357,7 +357,8 @@ public partial class PointsPanel
     private void RefreshSpecCard(SpecPage page)
     {
         string shown = _specHovered ?? _specPicked ?? page.Opening;
-        if (shown == RootKey)
+        // A class whose branches are not yet written (sprint 201): its own card only.
+        if (shown == RootKey || page.Branches.Count == 0)
         {
             RefreshSpecRoot(page);
             return;
@@ -421,6 +422,11 @@ public partial class PointsPanel
             }
         }
         _cardText.Text = string.Join("\n", road);
+        if (page.Branches.Count == 0)
+        {
+            ShowSpecFoot("", "", null);
+            return;
+        }
         SpecFoot foot = page.Foot(page.Find(page.Opening) ?? page[page.OpenBranch], Texts);
         ShowSpecFoot(foot.First, foot.Second, null);
     }
@@ -690,6 +696,8 @@ public partial class PointsPanel
         {
             SpecPage page = Panel.SpecView();
             IReadOnlyList<Specialisation> branches = page.Branches;
+            if (branches.Count == 0)
+                return;
             IReadOnlyList<SpecNode> nodes = page.Nodes;
             SpecNode Node(string key) => nodes.Single(n => n.Key == key);
             Specialisation open = Panel.Editor.Data.Specs[page.OpenBranch];

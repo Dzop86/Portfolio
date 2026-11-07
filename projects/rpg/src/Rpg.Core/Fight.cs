@@ -206,6 +206,21 @@ public sealed class Fight
     private int _current;
 
     private readonly List<Glyph> _glyphs = [];
+
+    /// <summary>Who raised the fallen with which spell (sprint 202): once a fight each.</summary>
+    private readonly HashSet<(int Caster, string Spell)> _revived = [];
+
+    /// <summary>
+    /// The fallen ally <paramref name="caster"/> may raise on <paramref name="target"/> with <paramref name="spell"/> (sprint 202): of its side, not a creature, its cell
+    /// free, the spell not yet used so this fight; null otherwise.
+    /// </summary>
+    public Fighter? Revivable(Fighter caster, string spell, Cell target)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        if (_revived.Contains((caster.Id, spell)) || !IsFree(target))
+            return null;
+        return _fighters.FirstOrDefault(f => !f.IsAlive && !f.IsSummon && f.Team == caster.Team && f.Cell == target);
+    }
     private int _glyphsLaid;
 
     /// <summary>The passives set off during the action being played, with their bearer and, for a hit, the attacker (sprint 90).</summary>
@@ -574,6 +589,9 @@ public sealed class Fight
             if (At(target) is not Fighter other || other == caster || !Touches(swap.Affects, caster, other))
                 return ActionError.NoValidTarget;
         }
+        // The resurrection (sprint 202): a fallen ally there, once a fight.
+        if (spell.AllEffects.Any(e => e is ReviveEffect) && Revivable(caster, spell.Id, target) is null)
+            return ActionError.NoValidTarget;
         return ActionError.None;
     }
 
@@ -1154,6 +1172,9 @@ public sealed class Fight
         {
             // Healing grows with a critical hit, as damage does, and with no characteristic (D62).
             int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) + (heal.Grows ? HealBonus(me) : 0) : 0;
+            // The Cleric's heals (sprint 202): its path's percent more.
+            if (effect is HealEffect && me.Talents.SelectMany(t => t.Rules).OfType<HealRule>().Sum(r => r.Percent) is int more and not 0)
+                effectRoll = effectRoll * (100 + more) / 100;
             switch (effect)
             {
                 case SummonEffect summon when passive:
@@ -1183,6 +1204,17 @@ public sealed class Fight
                 case GlyphEffect glyph:
                     if (zone is not null && spell is not null && !IsOver)
                         Lay(me, glyph, zone, spell);
+                    continue;
+                // The resurrection (sprint 202): the fallen ally on the target cell rises.
+                case ReviveEffect revive:
+                    if (spell is not null && Revivable(me, spell, target) is Fighter fallen)
+                    {
+                        _revived.Add((me.Id, spell));
+                        fallen.StatusList.Clear();
+                        fallen.Shields.Clear();
+                        fallen.Hp = Math.Max(1, fallen.MaxHp * revive.Percent / 100);
+                        _events.Add(new Revived(fallen.Id, fallen.Hp));
+                    }
                     continue;
                 // The Chronomancer's loan (sprint 199): its points at once, paid back when its next turn starts.
                 case BorrowEffect borrow:

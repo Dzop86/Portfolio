@@ -52,6 +52,7 @@ public enum Tier
 [JsonDerivedType(typeof(RemanenceRule), "remanence")]
 [JsonDerivedType(typeof(GlyphTargetRule), "glyph-target")]
 [JsonDerivedType(typeof(LureTargetRule), "lure-target")]
+[JsonDerivedType(typeof(HealRule), "heal")]
 [JsonDerivedType(typeof(HpRule), "hp")]
 [JsonDerivedType(typeof(EchoRule), "echo")]
 [JsonDerivedType(typeof(SupportRule), "support")]
@@ -228,6 +229,9 @@ public sealed record SummonRule(string Summon, int HpPercent, int StatsPercent) 
 
 /// <summary>Living, a path's (sprint 192, D95, brick J): the bearer's shields on its allies, not on itself, are worth <see cref="Percent"/> % more.</summary>
 public sealed record ShieldRule(int Percent) : TalentRule;
+
+/// <summary>Compiled, a path's (the Cleric's, sprint 202): the bearer's heals <see cref="Percent"/> % bigger.</summary>
+public sealed record HealRule(int Percent) : TalentRule;
 
 /// <summary>Compiled, a path's (sprint 192, brick N): the spells that pull an enemy pull it <see cref="Cells"/> farther.</summary>
 public sealed record PullRule(int Cells) : TalentRule;

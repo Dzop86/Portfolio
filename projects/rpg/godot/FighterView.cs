@@ -15,6 +15,7 @@ public partial class FighterView : Node3D
     private MeshInstance3D _ring = null!;
     private MeshInstance3D _mark = null!;
     private Node3D _model = null!;
+    private Vector3 _modelScale = Vector3.One, _modelPosition;
 
     public Fighter Fighter { get; private set; } = null!;
 
@@ -26,6 +27,7 @@ public partial class FighterView : Node3D
         // A monster's young are drawn smaller (sprint 90).
         if (fighter.SummonKind is string kind && GameData.Embedded.Summons.TryGetValue(kind, out SummonSpec? summon) && summon.Scale != 100)
             _model.Scale *= summon.Scale / 100f;
+        (_modelScale, _modelPosition) = (_model.Scale, _model.Position);
         AddChild(_model);
         _anim = _model.FindChild("AnimationPlayer", true, false) as AnimationPlayer;
         foreach (string loop in new[] { "idle", "walk" })
@@ -202,6 +204,16 @@ public partial class FighterView : Node3D
         tween.TweenProperty(_model, "scale", Vector3.One * 0.01f, 0.45).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.In);
         tween.Parallel().TweenProperty(_model, "position:y", -0.4f, 0.45);
         tween.TweenCallback(Callable.From(() => Visible = false));
+    }
+
+    /// <summary>A fallen fighter raised (sprint 202): back on its cell, its model as it was before the fall.</summary>
+    public void Revive()
+    {
+        _model.Scale = _modelScale;
+        _model.Position = _modelPosition;
+        Visible = true;
+        Play("idle");
+        Refresh();
     }
 
     private void Face(Vector3 direction)
