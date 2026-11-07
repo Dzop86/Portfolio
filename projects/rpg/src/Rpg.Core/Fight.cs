@@ -44,6 +44,9 @@ public sealed class Fighter
     /// <summary>A hero, or a hero's summon: its direct hits of a base element mark the enemies (monsters never do, §6.3).</summary>
     public bool LaysMarks { get; internal set; }
 
+    /// <summary>A creature that draws the monsters' blows (sprint 200, <see cref="SummonSpec.Lure"/>): the Decoy, the Illusionist's Image and Double.</summary>
+    public bool Lure { get; internal set; }
+
     /// <summary>The turns it started (sprint 141): 1 during its first.</summary>
     public int Turn { get; internal set; }
 
@@ -837,6 +840,9 @@ public sealed class Fight
             InMyGlyph = caster.Talents.Count > 0 && _glyphs.Any(g => g.Caster == caster.Id && g.Cells.Contains(target.Cell) && (_signatureGlyphsCount || !IsSignature(g))),
             TargetStill = target.HeldStill,
             TargetStates = target.States,
+            // The Illusionist's (sprint 200): how far the target stands from the nearest of the caster's lures.
+            LureCells = caster.Talents.Count == 0 ? int.MaxValue
+                : _fighters.Where(f => f.IsAlive && f.Lure && f.Summoner == caster.Id).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),
         };
     }
 
@@ -1291,14 +1297,15 @@ public sealed class Fight
         // Fed by its summoner's path (sprint 191, D95, brick E): a share of its hit points and characteristics, in its element.
         SummonRule? fed = me.Talents.SelectMany(t => t.Rules).OfType<SummonRule>().Where(r => r.Summon == m.Id).OrderByDescending(r => r.HpPercent).FirstOrDefault();
         int hp = fed is not null ? Math.Max(1, me.MaxHp * fed.HpPercent / 100) : m.HpOfSummoner > 0 ? Math.Max(1, me.MaxHp * m.HpOfSummoner / 100) : m.Hp;
-        var spec = new FighterSpec(m.Name, m.Look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
+        // An Image wears its summoner's look (sprint 200).
+        var spec = new FighterSpec(m.Name, m.Mirror ? me.Spec.Look : m.Look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
         if (fed is not null)
         {
             Characteristics c = me.Spec.Characteristics;
             int Part(int points) => points * fed.StatsPercent / 100;
             spec = spec with { Stats = new Characteristics(0, Part(c.Earth), Part(c.Fire), Part(c.Water), Part(c.Air)), Threshold = me.Spec.Threshold, SpecElement = me.Spec.SpecElement };
         }
-        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id) { LaysMarks = me.LaysMarks };
+        var summoned = new Fighter(_fighters.Count, spec, cell, SpellsOf(spec, _data), PassivesOf(m.Passives, _data), me.Id, m.Id) { LaysMarks = me.LaysMarks, Lure = m.Lure };
         _fighters.Add(summoned);
         // Right after its summoner in the order of play, or after the one summoned just before.
         int at = _order.IndexOf(after ?? me) + 1;

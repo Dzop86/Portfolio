@@ -45,8 +45,7 @@ public static class Ai
     /// <summary>The turns a hero's creature is counted as striking (sprint 194, T154): the flat 8 of before was worth less than one of the hero's spells from level 30 on.</summary>
     internal const double SummonTurns = 2;
 
-    /// <summary>The summon of the talent Decoy (sprint 142), and how much more hitting it is worth to a monster near it.</summary>
-    internal const string DecoyKind = "decoy";
+    /// <summary>How much more hitting a lure (the Decoy, sprint 142; the Illusionist's Image, sprint 200) is worth to a monster near it.</summary>
     internal const double DecoyPull = 6;
 
     // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
@@ -223,6 +222,16 @@ public static class Ai
     internal static double Incoming(Fight fight, Fighter f) => fight.Fighters
         .Where(e => e.IsAlive && e.Team != f.Team && e.Spells.Any(s => s.DamageMax > 0 && e.Cell.DistanceTo(f.Cell) <= e.Mp + e.MaxRangeOf(s)))
         .Sum(e => BestBlow(e, f));
+
+    /// <summary>
+    /// A lure's (sprint 200, docs/classes-mage-2.md §3): half the blows within reach of its summoner, at most its hit points; 0 for a creature that draws none.
+    /// </summary>
+    private static double LureValue(Fight fight, Fighter me, SummonEffect summon)
+    {
+        SummonSpec spec = fight.Data.Summons[summon.Summon];
+        // Half of it: it draws only the monsters within 2 cells of it.
+        return spec.Lure ? 0.5 * Math.Min(spec.HpOfSummoner > 0 ? me.MaxHp * spec.HpOfSummoner / 100.0 : spec.Hp, Incoming(fight, me)) : 0;
+    }
 
     /// <summary>What a creature would strike for in <see cref="SummonTurns"/>, by its strongest spell, as often as its action points allow.</summary>
     private static double SummonValue(Fight fight, SummonEffect summon)
@@ -422,8 +431,8 @@ public static class Ai
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1)
-                    // A Decoy (sprint 142) draws the blows of those within 2 cells of it.
-                    * (f.SummonKind == DecoyKind && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1);
+                    // A lure (the Decoy, sprint 142; the Illusionist's Image and Double, sprint 200) draws the blows of those within 2 cells of it.
+                    * (f.Lure && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1);
                 if (f.Team != me.Team && !f.IsSummon && hit >= f.Hp + f.Shield)
                     value += KillBonus;
                 else if (f.Team != me.Team && hit < f.Hp + f.Shield)
@@ -440,7 +449,7 @@ public static class Ai
             // ally out of reach (only cast then, see NeedsRescue).
             if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
-                value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, summon)) : 8;
+                value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, summon) + LureValue(fight, me, summon)) : 8;
                 continue;
             }
             IEnumerable<Fighter> touched = effect.Affects switch

@@ -187,8 +187,10 @@ public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1
 /// young have passives and are drawn at <see cref="Scale"/> percent of their size (sprint 90).
 /// </summary>
 /// <param name="HpOfSummoner">A Decoy's (sprint 142): its hit points, this percent of its summoner's maximum (0: <paramref name="Hp"/>).</param>
+/// <param name="Mirror">The Illusionist's Image and Double (sprint 200): drawn with its summoner's look, not <paramref name="Look"/>.</param>
+/// <param name="Lure">It draws the blows of the monsters near it (the Decoy's since sprint 142, data since sprint 200).</param>
 public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells,
-    IReadOnlyList<string>? Passives = null, int Scale = 100, int HpOfSummoner = 0);
+    IReadOnlyList<string>? Passives = null, int Scale = 100, int HpOfSummoner = 0, bool Mirror = false, bool Lure = false);
 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team

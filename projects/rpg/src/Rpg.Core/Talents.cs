@@ -51,6 +51,7 @@ public enum Tier
 [JsonDerivedType(typeof(BackedRule), "backed")]
 [JsonDerivedType(typeof(RemanenceRule), "remanence")]
 [JsonDerivedType(typeof(GlyphTargetRule), "glyph-target")]
+[JsonDerivedType(typeof(LureTargetRule), "lure-target")]
 [JsonDerivedType(typeof(HpRule), "hp")]
 [JsonDerivedType(typeof(EchoRule), "echo")]
 [JsonDerivedType(typeof(SupportRule), "support")]
@@ -139,6 +140,9 @@ public sealed record RemanenceRule(int Percent, int Turns, int MaxRadius) : Tale
 
 /// <summary>Living: the hits on a fighter standing in one of the bearer's glyphs <see cref="Inside"/> %, on the others <see cref="Outside"/> % (Scorched Earth).</summary>
 public sealed record GlyphTargetRule(int Inside, int Outside) : TalentRule;
+
+/// <summary>Living, the Illusionist's (sprint 200): <see cref="Percent"/> % more on a target within <see cref="Cells"/> cells of one of the bearer's lures (Image, Double).</summary>
+public sealed record LureTargetRule(int Percent, int Cells = 2) : TalentRule;
 
 /// <summary>The bearer's maximum hit points <see cref="Percent"/> % more (or fewer) in a fight (Nomad).</summary>
 public sealed record HpRule(int Percent) : TalentRule;
@@ -291,8 +295,9 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="InMyGlyph">The target stands in one of the caster's glyphs (sprint 142).</param>
 /// <param name="Triggers">The hit sets a reaction off (sprint 144); <paramref name="OwnMark"/>, on the caster's own mark; <paramref name="Zone"/>, a spell with an area.</param>
 /// <param name="TargetStill">The target has no movement point for its next turn (sprint 192); <paramref name="TargetStates"/>, the states on it; <paramref name="Spell"/>, the spell's rank key.</param>
+/// <param name="LureCells">Sprint 200: the cells between the target and the nearest of the caster's lures (<see cref="int.MaxValue"/>: none).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
-    bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null);
+    bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -639,6 +644,7 @@ public static class Talents
             + rules.OfType<FirstCastRule>().Sum(r => c.DamageCasts == 0 ? r.First : r.Others)
             + rules.OfType<BackedRule>().Sum(r => c.Backed ? r.Damage : r.Otherwise)
             + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside)
+            + rules.OfType<LureTargetRule>().Sum(r => c.LureCells <= r.Cells ? r.Percent : 0)
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);
