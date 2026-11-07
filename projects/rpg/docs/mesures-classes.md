@@ -292,3 +292,7 @@ L'Arbalétrier, selon son bonus « sans marcher » : 0 % → 56,5 ; 3 % → 62,7
 | Tireur mobile `runner` | 47,5 | Voltigeur 51,0 (+3,5) | Faucon de guerre 47,5 (0,0) |
 
 **Aucune ligne n'est concluante**, comme pour le Guerrier : à 100, l'IA d'un héros seul ne joue presque pas les sorts de lignée. Sept finales ne changent rien au banc (0,0) : leur effet passe par un sort que l'IA ne joue pas ici (la proie, Mâchoires, Chassé-croisé, le second Faucon, Carreau lourd, Tir en course). Ce qu'on peut lire : Tir parfait, l'Exécuteur et Œil du dragon dépassent la borne de +10, et leur effet passe par une règle ou un passif, pas par un sort négligé ; le Sniper seul fait moins bien que l'Archer sans voie, à vérifier quand l'IA jouera Coup au but.
+
+## 6 novembre 2026 : le Mage, Arcaniste et Chronomancien (S199, T162)
+
+Voir `docs/classes-mage.md` §4 : premier jet, recherche de la cause, réglage. Retenu, à 35 : sans voie 41,5, Arcaniste 58,5 (conclusif), Chronomancien 58,8 (conclusif), Illusionniste 41,5 (sans sort). À 50 : sans voie 55,4, Manipulateur arcanique 63,3 (non concluant : Rune 0,0), Érudit mystique 62,3 (conclusif), Manipulateur temporel 63,3 (non concluant : Accélération 0,1), Distorsionniste 61,9 (non concluant : Point d'orgue 0,2).

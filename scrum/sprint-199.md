@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Mage, je deviens Chronomancien ou Arcaniste, avec les mécaniques du temps (rpg) ; xUnit par mécanique. PloufMage reprend Plop, sans rien perdre. | 5 | À faire |
+| En tant que Mage, je deviens Chronomancien ou Arcaniste, avec les mécaniques du temps (rpg) ; xUnit par mécanique. PloufMage reprend Plop, sans rien perdre. | 5 | Fait en partie : 3 effets du temps dans le moteur (emprunt, décalage, relances) et leur valeur pour l'IA, Arcaniste et Chronomancien jouables (8 sorts, 1 passif, 4 lignées), Illusionniste écrit sans sort, évolutions d'attente à 100, Chronomancien réglé par mesure (+1 PA par tour) ; Rune et Point d'orgue non joués par l'IA, Mage pas encore dans la barrière de la CI, PloufMage à la livraison (T162) |
 
 ## Rétro (Charles)
 - Ce qui a marché :
