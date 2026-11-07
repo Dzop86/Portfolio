@@ -13,11 +13,11 @@ public class BenchTests
         Assert.All(Bench.PathsOf("warrior", 35, Real), p => Assert.Null(p.Fork));
         Assert.Equal(6, Bench.PathsOf("warrior", 50, Real).Count);
         Assert.All(Bench.PathsOf("warrior", 50, Real), p => Assert.NotNull(p.Fork));
-        // From 100 (sprint 197), each lineage of the Warrior without its final class, then with each of its two; the Archer's too since sprint 198, the Mage's keep their evolution.
+        // From 100 (sprint 197), each lineage of the Warrior without its final class, then with each of its two; the Archer's too since sprint 198, the Mage's since sprint 200.
         Assert.Equal(18, Bench.PathsOf("warrior", 100, Real).Count);
         Assert.Equal(["rampart", "crusader", "sentry"], Bench.PathsOf("warrior", 100, Real).Take(3).Select(p => p.Final ?? p.Fork));
         Assert.Equal(18, Bench.PathsOf("archer", 100, Real).Count);
-        Assert.Equal(6, Bench.PathsOf("mage", 100, Real).Count);
+        Assert.Equal(18, Bench.PathsOf("mage", 100, Real).Count);
         Assert.All(Bench.PathsOf("warrior", 99, Real), p => Assert.Null(p.Final));
     }
 

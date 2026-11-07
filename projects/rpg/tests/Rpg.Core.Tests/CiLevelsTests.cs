@@ -115,6 +115,10 @@ public class CiLevelsTests
         "general",
         // The Archer (sprint 198, docs/classes-archer.md §5): the AI calls no second Hawk, and does not cast Running Shot at 100.
         "beast-lord", "war-hawk",
+        // Sprint 200: the Blade Master's Crush, hardly played at 100, changes none of the 6 fights a hero has left since the Mage's 18 heroes of 100 share the budget (10 before).
+        "blade-master",
+        // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
+        "rune-master", "distortion-master", "time-keeper", "instant-lord",
     };
 
     /// <summary>
@@ -124,6 +128,8 @@ public class CiLevelsTests
     public static readonly IReadOnlySet<(string Fork, string Spell)> UnplayedOn = new HashSet<(string, string)>
     {
         ("bounty-hunter", "path-weak-spot"), ("runner", "path-running-shot"),
+        // Sprint 200: the Master of Illusions' AI spends its points on the Image and the Double before Dazzle.
+        ("mirage-master", "path-dazzle"),
     };
 
     /// <summary>

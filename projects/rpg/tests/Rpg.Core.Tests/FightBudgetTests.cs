@@ -31,6 +31,7 @@ public class FightBudgetTests
             "BalanceTests.AtLevel1_EveryClassDuel_IsWonByEitherSide",
             "BalanceTests.Duel_NeitherSideAlwaysWins",
             "FinalsBenchTests.AtHundred_TheArchersFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
+            "FinalsBenchTests.AtHundred_TheMagesFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "FinalsBenchTests.AtHundred_TheWarriorsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "TemplateTests.AFamilyMadeFromTheTemplates_KeepsT41_SmallGroupsForOnePlayer_HordesForSeveral",
             "TemplateTests.AHeroOfOneElement_AtTheMonstersLevel_BeatsNoMoreHordesThanT41Allows",

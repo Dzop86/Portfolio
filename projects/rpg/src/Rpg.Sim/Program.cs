@@ -189,7 +189,7 @@ public static class Program
                 output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | (none) | {report.Plain.Points:0.0} | | | |"));
                 foreach (BenchRow row in report.Paths)
                 {
-                    string reads = row.Casts.Count == 0 ? "no spell yet" : row.Conclusive ? "conclusive" : "NOT CONCLUSIVE: " + string.Join(", ", row.Unplayed.Select(s => FormattableString.Invariant($"{s} {row.Casts[s]:0.0}")));
+                    string reads = Reads(row);
                     output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | {row.Path} | {row.Points:0.0} | {row.Points - report.Plain.Points:+0.0;-0.0;0.0} | {row.Points - report.Mean:+0.0;-0.0;0.0} | {reads} |"));
                 }
             }
@@ -493,4 +493,8 @@ public static class Program
                 : $"{s.Name.En}, {n} fights: team A {wins[0]}, team B {wins[1]}, draws {draws}; {r} rounds and {a} actions on average.";
         }
     }
+
+    /// <summary>A matrix row's reading: a path without a spell of its own is never called conclusive (sprint 199), whatever its points.</summary>
+    internal static string Reads(BenchRow row) => row.Casts.Count == 0 ? "no spell yet" : row.Conclusive ? "conclusive"
+        : "NOT CONCLUSIVE: " + string.Join(", ", row.Unplayed.Select(s => FormattableString.Invariant($"{s} {row.Casts[s]:0.0}")));
 }

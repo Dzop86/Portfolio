@@ -1,7 +1,7 @@
 namespace Rpg.Core.Tests;
 
 /// <summary>
-/// The classes of four ranks at 100 on the bench (sprint 197, D96, docs/classes-guerrier.md §7; the Archer since sprint 198, docs/classes-archer.md §5): their final classes
+/// The classes of four ranks at 100 on the bench (sprint 197, D96, docs/classes-guerrier.md §7; the Archer since sprint 198, docs/classes-archer.md §5; the Mage since sprint 200, docs/classes-mage-2.md §5): their final classes
 /// against their lineages alone, alone against the groups of 4 and 5 of a family made from the templates at 100. Off the CI (N2), at the jalons; its bounds are indicative
 /// while no zone goes past 60.
 /// </summary>
@@ -17,6 +17,11 @@ public class FinalsBenchTests
 
     [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     public void AtHundred_TheArchersFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem() => Check("archer", []);
+
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
+    public void AtHundred_TheMagesFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem() =>
+        // The Time Keeper saves an ally: judged in a party (F3), as the Warden.
+        Check("mage", ["time-weaver"]);
 
     private static void Check(string cls, string[] partyJudged)
     {

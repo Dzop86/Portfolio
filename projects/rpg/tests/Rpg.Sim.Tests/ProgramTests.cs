@@ -262,12 +262,13 @@ public class ProgramTests
     [Fact]
     public void TheMatrix_DoesNotCallConclusive_APathWithoutASpell()
     {
+        // No path is without its spells since sprint 200: the reading itself, on rows made here.
+        Assert.Equal("no spell yet", Program.Reads(new BenchRow("illusionist", 41.5, new Dictionary<string, double>())));
+        Assert.Equal("conclusive", Program.Reads(new BenchRow("arcanist", 58.5, new Dictionary<string, double> { ["path-comet"] = 1.2 })));
+        Assert.Equal("NOT CONCLUSIVE: path-rune 0.0", Program.Reads(new BenchRow("rune-weaver", 63.3, new Dictionary<string, double> { ["path-rune"] = 0 })));
         (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "mage", "--level", "35");
         Assert.Equal(0, code);
-        // The Illusionist has no spell until sprint 200; the Arcanist and the Chronomancer have theirs since sprint 199.
-        string[] spellless = [.. output.Split('\n').Where(l => l.Contains("no spell yet", StringComparison.Ordinal))];
-        Assert.Contains(spellless, l => l.StartsWith("| mage | 35 | illusionist |", StringComparison.Ordinal));
-        Assert.All(spellless, l => Assert.DoesNotContain("| conclusive |", l, StringComparison.Ordinal));
+        Assert.DoesNotContain("no spell yet", output, StringComparison.Ordinal);
     }
 
     [Fact]
