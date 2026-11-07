@@ -1162,7 +1162,7 @@ public partial class Main : Node3D
             return;
         }
         Hero kept = _lobby.Here.Single().Hero;
-        if (kept != new Hero(hero, "male-b", "mage", 3, 4, 2, 1, -1))
+        if (kept != new Hero(hero, "male-b", "priest", 3, 4, 2, 1, -1))
         {
             string report = $"SELFTEST FAILED lobby: the server keeps {kept}";
             GD.Print(report);
@@ -1171,7 +1171,7 @@ public partial class Main : Node3D
             GetTree().Quit(1);
             return;
         }
-        _selfTestNote = $"Hero {hero} (male-b, mage, colour 3, hair 4, skin 2, height 1, build -1) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
+        _selfTestNote = $"Hero {hero} (male-b, priest, colour 3, hair 4, skin 2, height 1, build -1) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
         view.PlayButton.EmitSignal(BaseButton.SignalName.Pressed);
     }
 

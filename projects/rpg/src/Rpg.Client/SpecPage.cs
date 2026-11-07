@@ -94,8 +94,11 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
     /// <summary>A branch whose content exists: before S192 and S193, the Guard's and the Mage's are read but not taken.</summary>
     public static bool Playable(Specialisation branch) => (branch ?? throw new ArgumentNullException(nameof(branch))).Base.Spells is { Count: > 0 };
 
-    /// <summary>The branch whose column 100 shows (§14.1): the one clicked, the one looked at, the hero's, or the first.</summary>
-    public string OpenBranch => new[] { open, preview, Hero.Spec }.FirstOrDefault(id => id is not null && Branches.Any(b => b.Id == id)) ?? Branches[0].Id;
+    /// <summary>
+    /// The branch whose column 100 shows (§14.1): the one clicked, the one looked at, the hero's, or the first; "" for a class whose branches are not yet
+    /// written (the Priest of sprint 201).
+    /// </summary>
+    public string OpenBranch => new[] { open, preview, Hero.Spec }.FirstOrDefault(id => id is not null && Branches.Any(b => b.Id == id)) ?? Branches.FirstOrDefault()?.Id ?? "";
 
     /// <summary>The tiles, branch by branch: its own, then each lineage's at 50; then the column 100 of the open branch (§14.1).</summary>
     public IReadOnlyList<SpecNode> Nodes =>
@@ -208,7 +211,7 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
     }
 
     /// <summary>Whether the open branch ends in final classes: the frieze's cell 100 says so (§14.9).</summary>
-    public bool OpenHasFinals => Data.Specs[OpenBranch].Forks.Any(f => f.Finals is { Count: > 0 });
+    public bool OpenHasFinals => Data.Specs.TryGetValue(OpenBranch, out Specialisation? open) && open.Forks.Any(f => f.Finals is { Count: > 0 });
 
     /// <summary>The tiers, for the frieze: reached, or the next to come.</summary>
     public IReadOnlyList<ElementTier> Tiers
@@ -234,7 +237,7 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
                 // At 100 (§14.6): the final class taken, or the first to take.
                 return mine.ForkOf(Hero.Fork) is { Finals: { Count: > 0 } finals } fork ? $"{fork.Id}:{(fork.FinalOf(Hero.Final) ?? finals[0]).Id}" : $"{Hero.Fork}@100";
             }
-            return Branches[0].Id;
+            return Branches.FirstOrDefault()?.Id ?? "";
         }
     }
 

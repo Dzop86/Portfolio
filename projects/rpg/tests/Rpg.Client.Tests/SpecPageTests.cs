@@ -35,6 +35,20 @@ public class SpecPageTests
 
     private static SpecState State(SpecPage page, string key) => page[key].State;
 
+    [Fact]
+    public void AClassWithoutItsBranchesYet_HasAnEmptyPage_ThatDoesNotThrow()
+    {
+        // A class written a sprint before its paths (the Priest in sprint 201, the next ones too).
+        GameData real = GameData.Embedded;
+        GameData bare = new(real.Spells.Values, real.Maps.Values, real.Scenarios.Values, real.Classes, summons: real.Summons.Values, passives: real.Passives.Values,
+            talents: real.Talents.Values, reactions: real.Reactions.Values, specs: real.Specs.Values.Where(s => s.Class != "priest"));
+        var page = new SpecPage(new PointsEditor(Hero("priest", 62), bare), Free);
+        Assert.Empty(page.Branches);
+        Assert.Equal(("", false, ""), (page.OpenBranch, page.OpenHasFinals, page.Opening));
+        Assert.Empty(page.Nodes);
+        Assert.False(page.Pending);
+    }
+
     // ---- The layout (§4) ----
 
     private static (float X, float Y, float W, float H)[] Rects()
