@@ -155,6 +155,8 @@ creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
  S("ember-bolt","Trait de braise","Ember Bolt",3,1,3,4,7,1,"Fire",1,ranks=False),
+ # The Illusionist's Double (sprint 200, docs/classes-mage-2.md §2): in its summoner's strongest element, fed or not.
+ S("mirror-strike","Frappe du reflet","Mirror Strike",3,1,2,6,9,2,"Neutral",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -439,6 +441,11 @@ paths = [
  path("offbeat","Contretemps","Offbeat",3,1,6,30,"lorc/stopwatch",damage=True,effects=[delay("Enemies",1)],cd=1),
  path("quicken","Accélération","Quicken",2,1,5,50,"lorc/hourglass",los=False,effects=[haste("Allies",1),delay("Allies",-1)],cd=3),
  path("crescendo","Point d'orgue","Crescendo",10,3,7,50,"lorc/echo-ripples",damage=True,los=False,area=("Circle",2),cd=2),
+ # The Illusionist (sprint 200, docs/classes-mage-2.md §2): an image that draws the blows, a dazzle; the Double that strikes; the mind's grip.
+ path("image","Image","Image",2,1,4,30,"lorc/two-shadows",los=False,effects=[summon("mirror-image")],cd=3),
+ path("dazzle","Éblouissement","Dazzle",3,1,6,30,"lorc/sun",damage=True,effects=[status("Enemies","Range",-2,1)],cd=1),
+ path("double","Double","Double",3,1,4,50,"lorc/ghost",los=False,effects=[summon("mirror-double")],cd=3),
+ path("grip","Emprise","Mind Grip",3,1,6,50,"lorc/psychic-waves",damage=True,effects=[status("Enemies","Ap",-2,1),status("Enemies","Damage",-15,2)],cd=2),
 ]
 for sp in paths:
     if sp["damageMax"] > 0:
@@ -469,7 +476,11 @@ def young(id, fr, en, look, scale, hp, ap, mp, ini, spells, passives=None):
     d["scale"] = scale
     return d
 # The Decoy of the talent (sprint 142): it does not act; a tenth of its summoner's hit points.
-summons.append(O([("id","decoy"),("name",O([("fr","Leurre"),("en","Decoy")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",10)]))
+# It draws the blows of the monsters near it (a lure, data since sprint 200).
+summons.append(O([("id","decoy"),("name",O([("fr","Leurre"),("en","Decoy")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",10),("lure",True)]))
+# The Illusionist's (sprint 200, docs/classes-mage-2.md §2-3): its summoner's look, lures both; the Image does not act, the Double strikes.
+summons.append(O([("id","mirror-image"),("name",O([("fr","Image"),("en","Image")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",30),("mirror",True),("lure",True)]))
+summons.append(O([("id","mirror-double"),("name",O([("fr","Double"),("en","Double")])),("look","female-d"),("hp",1),("ap",3),("mp",3),("initiative",80),("spells",["mirror-strike"]),("hpOfSummoner",15),("mirror",True),("lure",True)]))
 summons += [
  young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
  young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),

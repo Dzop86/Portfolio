@@ -109,12 +109,12 @@ public class MageTimeTests
     // ---- The nodes (§1, §2) ----
 
     [Fact]
-    public void TheTree_IsArcanistIllusionistChronomancer_TheIllusionistToCome()
+    public void TheTree_IsArcanistIllusionistChronomancer_EachLineageWithItsThreeSpells()
     {
         Assert.Equal(["Arcaniste", "Illusionniste", "Chronomancien"], Real.Specs.Values.Where(s => s.Class == "mage").Select(s => s.Name.Fr));
         Assert.Equal(["rune-weaver", "scholar", "mirage-master", "mentalist", "time-weaver", "distorter"], Real.Specs.Values.Where(s => s.Class == "mage").SelectMany(s => s.Forks).Select(f => f.Id));
-        Assert.Null(Real.Specs["illusionist"].Base.Spells);
-        Assert.All(Real.Specs.Values.Where(s => s.Base.Spells is not null && s.Class == "mage").Select(s => s.Id), id => Assert.All(Real.Specs[id].Forks, f => Assert.Equal(3, Real.Specs[id].SpellsWith(f.Id).Count())));
+        // The Illusionist's since sprint 200.
+        Assert.All(Real.Specs.Values.Where(s => s.Class == "mage").Select(s => s.Id), id => Assert.All(Real.Specs[id].Forks, f => Assert.Equal(3, Real.Specs[id].SpellsWith(f.Id).Count())));
     }
 
     [Fact]

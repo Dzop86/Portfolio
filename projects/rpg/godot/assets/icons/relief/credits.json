@@ -103,5 +103,17 @@
   "spec-mentalist": "lorc/bolt-eye",
   "spec-chronomancer": "lorc/hourglass",
   "spec-time-weaver": "lorc/stopwatch",
-  "spec-distorter": "lorc/sands-of-time"
+  "spec-distorter": "lorc/sands-of-time",
+  "spec-rune-master": "lorc/rune-sword",
+  "spec-magic-architect": "lorc/magic-palm",
+  "spec-arcane-sage": "lorc/book-aura",
+  "spec-archmage": "lorc/wizard-staff",
+  "spec-mirage-weaver": "lorc/mirror-mirror",
+  "spec-illusion-lord": "lorc/domino-mask",
+  "spec-supreme-telepath": "lorc/third-eye",
+  "spec-mind-dominator": "lorc/puppet",
+  "spec-time-keeper": "lorc/time-trap",
+  "spec-instant-lord": "lorc/sprint",
+  "spec-time-traveller": "lorc/portal",
+  "spec-distortion-master": "lorc/vortex"
 }

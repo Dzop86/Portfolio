@@ -41,7 +41,42 @@
     "mp": 0,
     "initiative": 0,
     "spells": [],
-    "hpOfSummoner": 10
+    "hpOfSummoner": 10,
+    "lure": true
+  },
+  {
+    "id": "mirror-image",
+    "name": {
+      "fr": "Image",
+      "en": "Image"
+    },
+    "look": "female-d",
+    "hp": 1,
+    "ap": 0,
+    "mp": 0,
+    "initiative": 0,
+    "spells": [],
+    "hpOfSummoner": 30,
+    "mirror": true,
+    "lure": true
+  },
+  {
+    "id": "mirror-double",
+    "name": {
+      "fr": "Double",
+      "en": "Double"
+    },
+    "look": "female-d",
+    "hp": 1,
+    "ap": 3,
+    "mp": 3,
+    "initiative": 80,
+    "spells": [
+      "mirror-strike"
+    ],
+    "hpOfSummoner": 15,
+    "mirror": true,
+    "lure": true
   },
   {
     "id": "wolf-cub",

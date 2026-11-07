@@ -245,8 +245,8 @@ public class SpecFinalsPageTests
         Assert.Equal((2, 2), Page(Archer(100, "sightline", "bounty-hunter")).Choices);
         Assert.Equal((0, 3), Page(Archer(100)).Choices);
         Assert.Equal((1, 3), Page(Archer(100, "sightline")).Choices);
-        // The Mage of the real data, whose lineages have no final class yet.
-        Assert.Equal((0, 2), new SpecPage(new PointsEditor(Archer(100) with { Class = "mage" }, GameData.Embedded), Free).Choices);
+        // The Mage of the real data has its final classes since sprint 200: three choices ahead, as the Archer.
+        Assert.Equal((0, 3), new SpecPage(new PointsEditor(Archer(100) with { Class = "mage" }, GameData.Embedded), Free).Choices);
         Assert.False(Page(Archer(100, "sightline", "bounty-hunter")).Pending);
     }
 

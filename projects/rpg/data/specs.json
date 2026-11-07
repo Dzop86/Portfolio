@@ -1496,24 +1496,78 @@
                 "outside": 0
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
-            },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
           }
         ],
         "lore": {
           "fr": "Le sol se souvient de ce que j'y ai écrit. Toi, tu vas l'apprendre.",
           "en": "The ground remembers what I wrote on it. You're about to learn it."
         },
-        "icon": "spec-rune-weaver"
+        "icon": "spec-rune-weaver",
+        "finals": [
+          {
+            "id": "rune-master",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des runes",
+                "en": "Rune Master"
+              },
+              "description": {
+                "fr": "Deux Runes à la fois. Rune se relance en 1 tour.",
+                "en": "Two Runes at once. Rune comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-rune",
+                  "maxGlyphs": 2,
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Une rune, c'est un mot. Deux, c'est une phrase. Tu vas l'entendre jusqu'au bout.",
+              "en": "One rune is a word. Two make a sentence. You'll hear it to the end."
+            },
+            "icon": "spec-rune-master"
+          },
+          {
+            "id": "magic-architect",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Architecte magique",
+                "en": "Arcane Architect"
+              },
+              "description": {
+                "fr": "Rune porte à 8 cases et couvre un cercle de 1. Tes glyphes durent 1 tour de plus.",
+                "en": "Rune reaches 8 cells and covers a circle of 1. Your glyphs last 1 turn longer."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-rune",
+                  "maxRange": 8,
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 1
+                  }
+                },
+                {
+                  "kind": "glyph-turns",
+                  "extra": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne pose pas des pièges. Je dessine le terrain où tu vas perdre.",
+              "en": "I don't lay traps. I draw the ground you're going to lose on."
+            },
+            "icon": "spec-magic-architect"
+          }
+        ]
       },
       {
         "id": "scholar",
@@ -1539,24 +1593,77 @@
                 "percent": 10
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
-            },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
           }
         ],
         "lore": {
           "fr": "Trois ans pour apprendre ce sort. Une seconde pour le lancer. Ça vaut le coup.",
           "en": "Three years to learn this spell. One second to cast it. Worth it."
         },
-        "icon": "spec-scholar"
+        "icon": "spec-scholar",
+        "finals": [
+          {
+            "id": "arcane-sage",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Sage des arcanes",
+                "en": "Arcane Sage"
+              },
+              "description": {
+                "fr": "Rayon se relance en 1 tour et coûte 4 PA.",
+                "en": "Ray comes back in 1 turn and costs 4 AP."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-ray",
+                  "cooldown": 1,
+                  "apCost": 4
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le sort le plus difficile, je le connais par cœur. C'est le seul que je lance.",
+              "en": "The hardest spell, I know by heart. It's the only one I cast."
+            },
+            "icon": "spec-arcane-sage"
+          },
+          {
+            "id": "archmage",
+            "template": "FirstTurn",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Archimage",
+                "en": "Archmage"
+              },
+              "description": {
+                "fr": "Au premier tour du combat : +3 PA. Tes sorts de 6 PA ou plus font +20 % au lieu de +10 %.",
+                "en": "On the first turn of the fight: +3 AP. Your spells of 6 AP or more deal +20% instead of +10%."
+              },
+              "rules": [
+                {
+                  "kind": "points",
+                  "ap": 3,
+                  "fromTurn": 1,
+                  "untilTurn": 1
+                },
+                {
+                  "kind": "ap-cost",
+                  "minAp": 6,
+                  "maxAp": 99,
+                  "percent": 10
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On m'a demandé de tenir trois tours. Il en a fallu un.",
+              "en": "They asked me to hold for three turns. It took one."
+            },
+            "icon": "spec-archmage"
+          }
+        ]
       }
     ],
     "lore": {
@@ -1579,9 +1686,20 @@
         "en": "Illusionist"
       },
       "description": {
-        "fr": "Tes images détournent l'attention des monstres. Bientôt.",
-        "en": "Your images draw the monsters' attention. Coming soon."
-      }
+        "fr": "+10 % de dégâts sur un ennemi à 2 cases ou moins de ton Image ou de ton Double. Sorts : Image et Éblouissement.",
+        "en": "+10% damage on an enemy within 2 cells of your Image or your Double. Spells: Image and Dazzle."
+      },
+      "spells": [
+        "path-image",
+        "path-dazzle"
+      ],
+      "rules": [
+        {
+          "kind": "lure-target",
+          "percent": 10,
+          "cells": 2
+        }
+      ]
     },
     "forks": [
       {
@@ -1594,27 +1712,87 @@
               "en": "Master of Illusions"
             },
             "description": {
-              "fr": "Bientôt.",
-              "en": "Coming soon."
-            }
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
+              "fr": "Ton image frappe. Sort : Double.",
+              "en": "Your image strikes. Spell: Double."
             },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
+            "spells": [
+              "path-double"
+            ]
           }
         ],
         "lore": {
           "fr": "Lequel est le vrai ? Moi non plus, je ne sais plus.",
           "en": "Which one is real? I'm not sure myself any more."
         },
-        "icon": "spec-mirage-master"
+        "icon": "spec-mirage-master",
+        "finals": [
+          {
+            "id": "mirage-weaver",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Tisseur de mirages",
+                "en": "Mirage Weaver"
+              },
+              "description": {
+                "fr": "Deux Images à la fois. Image se relance en 2 tours. Près d'elles : +15 % au lieu de +10 %.",
+                "en": "Two Images at once. Image comes back in 2 turns. Near them: +15% instead of +10%."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-image",
+                  "maxSummons": 2,
+                  "cooldown": 2
+                },
+                {
+                  "kind": "lure-target",
+                  "percent": 5,
+                  "cells": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Compte-nous. Tu trouveras trois. Tu te tromperas trois fois.",
+              "en": "Count us. You'll find three. You'll be wrong three times."
+            },
+            "icon": "spec-mirage-weaver"
+          },
+          {
+            "id": "illusion-lord",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des illusions",
+                "en": "Lord of Illusions"
+              },
+              "description": {
+                "fr": "Ton Double a 25 % de tes PV. Double se relance en 2 tours.",
+                "en": "Your Double has 25% of your HP. Double comes back in 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "summon-share",
+                  "summon": "mirror-double",
+                  "hpPercent": 25,
+                  "statsPercent": 0
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-double",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il frappe comme moi, il saigne comme moi. Lequel de nous deux est le reflet ?",
+              "en": "He strikes like me, he bleeds like me. Which of us is the reflection?"
+            },
+            "icon": "spec-illusion-lord"
+          }
+        ]
       },
       {
         "id": "mentalist",
@@ -1626,27 +1804,88 @@
               "en": "Mentalist"
             },
             "description": {
-              "fr": "Bientôt.",
-              "en": "Coming soon."
-            }
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
+              "fr": "+10 % de dégâts sur une cible sous 2 états ou plus. Sort : Emprise.",
+              "en": "+10% damage on a target under 2 states or more. Spell: Mind Grip."
             },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
+            "spells": [
+              "path-grip"
+            ],
+            "rules": [
+              {
+                "kind": "target-state",
+                "percent": 10,
+                "states": 2
+              }
+            ]
           }
         ],
         "lore": {
           "fr": "Tu crois vouloir frapper l'autre. C'est moi qui le crois pour toi.",
           "en": "You think you want to hit the other one. I'm thinking it for you."
         },
-        "icon": "spec-mentalist"
+        "icon": "spec-mentalist",
+        "finals": [
+          {
+            "id": "supreme-telepath",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Télépathe suprême",
+                "en": "Supreme Telepath"
+              },
+              "description": {
+                "fr": "Emprise coûte 2 PA et porte à 9 cases.",
+                "en": "Mind Grip costs 2 AP and reaches 9 cells."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-grip",
+                  "maxRange": 9,
+                  "apCost": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je n'ai pas besoin de vous voir. Je vous entends penser, tous.",
+              "en": "I don't need to see you. I hear you all thinking."
+            },
+            "icon": "spec-supreme-telepath"
+          },
+          {
+            "id": "mind-dominator",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Dominateur mental",
+                "en": "Mind Dominator"
+              },
+              "description": {
+                "fr": "Sur une cible sous 2 états ou plus : +20 % au lieu de +10 %. Emprise se relance en 1 tour.",
+                "en": "On a target under 2 states or more: +20% instead of +10%. Mind Grip comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 10,
+                  "states": 2
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-grip",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Tu veux lever ton arme. Tu y penses très fort. Et pourtant.",
+              "en": "You want to raise your weapon. You think about it very hard. And yet."
+            },
+            "icon": "spec-mind-dominator"
+          }
+        ]
       }
     ],
     "lore": {
@@ -1710,24 +1949,72 @@
                 "max": 1
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
-            },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
           }
         ],
         "lore": {
           "fr": "Ton tour, c'est maintenant. Remercie-moi plus tard. Enfin, plus tôt.",
           "en": "It's your turn now. Thank me later. Well, sooner."
         },
-        "icon": "spec-time-weaver"
+        "icon": "spec-time-weaver",
+        "finals": [
+          {
+            "id": "time-keeper",
+            "template": "Saves",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Gardien du temps",
+                "en": "Time Keeper"
+              },
+              "description": {
+                "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Accélération porte à 7 cases.",
+                "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. Quicken reaches 7 cells."
+              },
+              "passives": [
+                "spec-not-today"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-quicken",
+                  "maxRange": 7
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Pas encore. J'ai vu la suite, et tu y es.",
+              "en": "Not yet. I've seen what comes next, and you're in it."
+            },
+            "icon": "spec-time-keeper"
+          },
+          {
+            "id": "instant-lord",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des instants",
+                "en": "Lord of Moments"
+              },
+              "description": {
+                "fr": "Accélération se relance en 1 tour.",
+                "en": "Quicken comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-quicken",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un instant de plus, à chacun, à chaque tour. Ça finit par faire une bataille.",
+              "en": "One more moment, for each of you, every turn. It adds up to a battle."
+            },
+            "icon": "spec-instant-lord"
+          }
+        ]
       },
       {
         "id": "distorter",
@@ -1752,24 +2039,80 @@
                 "cooldown": 2
               }
             ]
-          },
-          {
-            "level": 100,
-            "title": {
-              "fr": "Classe finale à venir",
-              "en": "Final class to come"
-            },
-            "description": {
-              "fr": "Ses deux classes finales arrivent bientôt.",
-              "en": "Its two final classes are coming soon."
-            }
           }
         ],
         "lore": {
           "fr": "Demain me doit trois secondes. Je les prends aujourd'hui.",
           "en": "Tomorrow owes me three seconds. I'm taking them today."
         },
-        "icon": "spec-distorter"
+        "icon": "spec-distorter",
+        "finals": [
+          {
+            "id": "time-traveller",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Voyageur temporel",
+                "en": "Time Traveller"
+              },
+              "description": {
+                "fr": "Point d'orgue porte à 9 cases. Contretemps retarde de 2 places au lieu d'une.",
+                "en": "Crescendo reaches 9 cells. Offbeat delays by 2 places instead of one."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-crescendo",
+                  "maxRange": 9
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-offbeat",
+                  "addEffects": [
+                    {
+                      "kind": "delay",
+                      "affects": "Enemies",
+                      "places": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "J'arrive toujours un peu avant toi. C'est que je suis déjà passé par là.",
+              "en": "I always get there a little before you. I've been this way before."
+            },
+            "icon": "spec-time-traveller"
+          },
+          {
+            "id": "distortion-master",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître de la distorsion",
+                "en": "Master of Distortion"
+              },
+              "description": {
+                "fr": "Point d'orgue se relance en 1 tour.",
+                "en": "Crescendo comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-crescendo",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le temps plie. Pas beaucoup. Juste assez pour que ça tombe deux fois.",
+              "en": "Time bends. Not much. Just enough for it to fall twice."
+            },
+            "icon": "spec-distortion-master"
+          }
+        ]
       }
     ],
     "lore": {

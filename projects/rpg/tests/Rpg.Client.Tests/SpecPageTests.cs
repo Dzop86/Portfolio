@@ -91,18 +91,18 @@ public class SpecPageTests
     }
 
     [Theory]
-    [InlineData("archer", "sightline", "marksman", "bounty-hunter")]
-    [InlineData("warrior", "palisade", "rampart", "bastion")]
-    [InlineData("mage", "arcanist", "rune-weaver", "scholar")]
-    public void TheNodes_FollowTheData_ElevenByClass_TheColumn100OfTheOpenBranchOnly(string cls, string first, string fork1, string fork2)
+    [InlineData("archer", "sightline", "marksman", "bounty-hunter", null, null)]
+    [InlineData("warrior", "palisade", "rampart", "bastion", "crusader", "sentry")]
+    [InlineData("mage", "arcanist", "rune-weaver", "scholar", "rune-master", "magic-architect")]
+    public void TheNodes_FollowTheData_ElevenByClass_TheColumn100OfTheOpenBranchOnly(string cls, string first, string fork1, string fork2, string? final1, string? final2)
     {
         SpecPage page = Page(Hero(cls, 60));
-        Assert.Equal(cls == "warrior" ? 13 : 11, page.Nodes.Count);
+        Assert.Equal(final1 is null ? 11 : 13, page.Nodes.Count);
         Assert.Equal(first, page.OpenBranch);
         Assert.Equal([first, fork1, fork2], page.Nodes.Take(3).Select(n => n.Key));
-        // The Warrior's lineages end in two final classes since sprint 197; the others keep their evolution at 100.
-        Assert.Equal(cls == "warrior" ? 4 : 2, page.Last.Count);
-        Assert.Equal(cls == "warrior" ? [fork1 + ":crusader", fork1 + ":sentry"] : [fork1 + "@100", fork2 + "@100"], page.Last.Take(2).Select(n => n.Key));
+        // Two final classes a lineage (the Warrior since sprint 197, the Mage since 200); the Archer of this page's data keeps its evolution at 100.
+        Assert.Equal(final1 is null ? 2 : 4, page.Last.Count);
+        Assert.Equal(final1 is null ? [fork1 + "@100", fork2 + "@100"] : [fork1 + ":" + final1, fork1 + ":" + final2], page.Last.Take(2).Select(n => n.Key));
         Assert.Equal([30, 50, 50], page.Nodes.Take(3).Select(n => n.Level));
         Assert.All(page.Nodes, n => Assert.NotNull(n.Icon));
         Assert.Null(page.Find(fork1 + ":x"));
@@ -292,10 +292,18 @@ public class SpecPageTests
     }
 
     [Fact]
-    public void BeforeItsSprint_TheMage_ReadsItsTree_ButIsToldSoon()
+    public void ABranchBeforeItsSprint_IsReadInTheTree_ButToldSoon()
     {
-        SpecPage page = Page(Hero("mage", 40));
-        Assert.False(SpecPage.Playable(Data.Specs["illusionist"]));
+        // Every branch has its spells since sprint 200: the Illusionist of before, without its own.
+        GameData real = GameData.Embedded;
+        Specialisation illusionist = real.Specs["illusionist"];
+        Specialisation soon = illusionist with { Base = illusionist.Base with { Spells = null }, Forks = [.. illusionist.Forks.Select(f => f with { Tiers = [.. f.Tiers.Select(t => t with { Spells = null })] })] };
+        GameData data = new(real.Spells.Values, real.Maps.Values, real.Scenarios.Values, real.Classes, real.Towns.Values, real.Dialogues.Values, real.Summons.Values,
+            real.Quests.Values, real.Items.Values, real.Sets.Values, real.Families.Values, real.Dungeons.Values, real.Jobs.Values, passives: real.Passives.Values,
+            talents: real.Talents.Values, reactions: real.Reactions.Values, specs: real.Specs.Values.Select(s => s.Id == soon.Id ? soon : s));
+        SpecPage page = new(new PointsEditor(Hero("mage", 40), data, false), Free, null, null);
+        Assert.True(SpecPage.Playable(real.Specs["illusionist"]));
+        Assert.False(SpecPage.Playable(data.Specs["illusionist"]));
         Assert.True(SpecPage.Playable(Data.Specs["palisade"]));
         Assert.True(SpecPage.Playable(Data.Specs["sightline"]));
         SpecAction action = page.Foot(page["illusionist"], Fr).Action!;

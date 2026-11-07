@@ -137,11 +137,12 @@ public class FinalsTests
     }
 
     [Fact]
-    public void ALineageWithoutFinals_KeepsItsEvolutionAt100_UntilItsClassIsConverted()
+    public void EveryLineage_HasItsTwoFinals_SinceTheMage()
     {
-        // The Mage, since the Warrior (sprint 197) and the Archer (sprint 198).
-        Assert.All(Real.Specs.Values.Where(s => s.Class is not ("warrior" or "archer")).SelectMany(s => s.Forks), f => Assert.Null(f.Finals));
-        Hero hero = new("Ondine", "female-a", "mage", Level: 100, Spec: "arcanist", Fork: "scholar");
+        // The Warrior (sprint 197), the Archer (sprint 198), the Mage (sprint 200): no lineage keeps a waiting evolution.
+        Assert.All(Real.Specs.Values.SelectMany(s => s.Forks), f => Assert.Equal(2, f.Finals!.Count));
+        Assert.All(Real.Specs.Values.SelectMany(s => s.Forks), f => Assert.Equal([Specs.Forks], f.Tiers.Select(t => t.Level)));
+        Hero hero = new("Ondine", "female-a", "mage", Level: 100, Spec: "arcanist", Fork: "scholar", Final: "archmage");
         Assert.Equal([30, 50, 100], Specs.TiersOf(hero, Real).Select(t => t.Level));
     }
 
@@ -221,6 +222,6 @@ public class FinalsTests
         }
         Assert.NotNull(Made("one-more"));
         Assert.Throws<InvalidDataException>(() => Made("one"));
-        Assert.Equal(24, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
+        Assert.Equal(36, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
     }
 }

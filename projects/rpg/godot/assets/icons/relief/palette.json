@@ -726,5 +726,89 @@
     "light": "#e1ccb9",
     "dark": "#6f5946",
     "outline": "#1e1813"
+  },
+  "spec-rune-master": {
+    "shape": "lorc/rune-sword",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-magic-architect": {
+    "shape": "lorc/magic-palm",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-arcane-sage": {
+    "shape": "lorc/book-aura",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-archmage": {
+    "shape": "lorc/wizard-staff",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-mirage-weaver": {
+    "shape": "lorc/mirror-mirror",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-illusion-lord": {
+    "shape": "lorc/domino-mask",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-supreme-telepath": {
+    "shape": "lorc/third-eye",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-mind-dominator": {
+    "shape": "lorc/puppet",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-time-keeper": {
+    "shape": "lorc/time-trap",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-instant-lord": {
+    "shape": "lorc/sprint",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-time-traveller": {
+    "shape": "lorc/portal",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-distortion-master": {
+    "shape": "lorc/vortex",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
   }
 }
