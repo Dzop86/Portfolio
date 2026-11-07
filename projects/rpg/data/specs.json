@@ -2120,5 +2120,630 @@
       "en": "Time doesn't pass. You do, and I choose when."
     },
     "icon": "spec-chronomancer"
+  },
+  {
+    "id": "cleric",
+    "class": "priest",
+    "name": {
+      "fr": "Clerc",
+      "en": "Cleric"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Clerc",
+        "en": "Cleric"
+      },
+      "description": {
+        "fr": "Tes soins +15 %, et +1 PA à chaque tour. Sorts : Résurrection et Imposition des mains.",
+        "en": "Your heals +15%, and +1 AP every turn. Spells: Resurrection and Laying On of Hands."
+      },
+      "spells": [
+        "path-resurrect",
+        "path-laying-hands"
+      ],
+      "rules": [
+        {
+          "kind": "heal",
+          "percent": 15
+        },
+        {
+          "kind": "points",
+          "ap": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "healer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Guérisseur",
+              "en": "Healer"
+            },
+            "description": {
+              "fr": "Tes soins +10 % de plus. Sort : Vague de soin.",
+              "en": "Your heals a further +10%. Spell: Healing Wave."
+            },
+            "spells": [
+              "path-healing-wave"
+            ],
+            "rules": [
+              {
+                "kind": "heal",
+                "percent": 10
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Une blessure, c'est une question. J'ai toujours la réponse.",
+          "en": "A wound is a question. I always have the answer."
+        },
+        "icon": "spec-healer",
+        "finals": [
+          {
+            "id": "saint",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Saint",
+                "en": "Saint"
+              },
+              "description": {
+                "fr": "Vague de soin porte à 7 cases, en cercle de 3.",
+                "en": "Healing Wave reaches 7 cells, in a circle of 3."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-healing-wave",
+                  "maxRange": 7,
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 3
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Approchez. Tous. Il y en a assez pour chacun.",
+              "en": "Come closer. All of you. There is enough for everyone."
+            },
+            "icon": "spec-saint"
+          },
+          {
+            "id": "living-miracle",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Miracle vivant",
+                "en": "Living Miracle"
+              },
+              "description": {
+                "fr": "Vague de soin se relance en 1 tour.",
+                "en": "Healing Wave comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-healing-wave",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On me demande comment je fais. Je ne m'arrête jamais, voilà tout.",
+              "en": "They ask me how I do it. I just never stop."
+            },
+            "icon": "spec-living-miracle"
+          }
+        ]
+      },
+      {
+        "id": "sacred-medic",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Médecin sacré",
+              "en": "Sacred Physician"
+            },
+            "description": {
+              "fr": "Sort : Remède, qui purge un allié et le soigne pendant 2 tours.",
+              "en": "Spell: Remedy, which purges an ally and heals it for 2 turns."
+            },
+            "spells": [
+              "path-remedy"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Le poison, la fièvre, la peur : tout se soigne, avec la bonne main.",
+          "en": "Poison, fever, fear: it all heals, with the right hand."
+        },
+        "icon": "spec-sacred-medic",
+        "finals": [
+          {
+            "id": "divine-surgeon",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Chirurgien divin",
+                "en": "Divine Surgeon"
+              },
+              "description": {
+                "fr": "Remède se lance deux fois par tour, sans relance.",
+                "en": "Remedy is cast twice a turn, with no cooldown."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-remedy",
+                  "cooldown": 0,
+                  "perTurn": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Deux mains, deux patients. Le troisième attendra son tour.",
+              "en": "Two hands, two patients. The third will wait."
+            },
+            "icon": "spec-divine-surgeon"
+          },
+          {
+            "id": "life-warden",
+            "template": "Saves",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Gardien de vie",
+                "en": "Life Warden"
+              },
+              "description": {
+                "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV. Résurrection porte à 6 cases.",
+                "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP. Resurrection reaches 6 cells."
+              },
+              "passives": [
+                "spec-not-today"
+              ],
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-resurrect",
+                  "maxRange": 6
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Pas lui. Pas aujourd'hui. Je l'ai décidé.",
+              "en": "Not him. Not today. I've decided."
+            },
+            "icon": "spec-life-warden"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Personne ne tombe pour de bon tant que je tiens debout.",
+      "en": "Nobody falls for good while I'm still standing."
+    },
+    "icon": "spec-cleric"
+  },
+  {
+    "id": "inquisitor",
+    "class": "priest",
+    "name": {
+      "fr": "Inquisiteur",
+      "en": "Inquisitor"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Inquisiteur",
+        "en": "Inquisitor"
+      },
+      "description": {
+        "fr": "+10 % de dégâts sur une cible sous un état ou plus. Sorts : Censure et Marque de l'hérétique.",
+        "en": "+10% damage on a target under one state or more. Spells: Censure and Heretic's Brand."
+      },
+      "spells": [
+        "path-censure",
+        "path-brand"
+      ],
+      "rules": [
+        {
+          "kind": "target-state",
+          "percent": 10,
+          "states": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "exorcist",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Exorciste",
+              "en": "Exorcist"
+            },
+            "description": {
+              "fr": "Sort : Exorcisme, qui purge les ennemis d'une zone.",
+              "en": "Spell: Exorcism, which purges the enemies of an area."
+            },
+            "spells": [
+              "path-exorcism"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ce qui te tient debout n'est pas à toi. Je le reprends.",
+          "en": "What keeps you standing isn't yours. I'm taking it back."
+        },
+        "icon": "spec-exorcist",
+        "finals": [
+          {
+            "id": "purifier",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Purificateur",
+                "en": "Purifier"
+              },
+              "description": {
+                "fr": "Exorcisme porte à 7 cases, en cercle de 2.",
+                "en": "Exorcism reaches 7 cells, in a circle of 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-exorcism",
+                  "maxRange": 7,
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 2
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "La lumière ne choisit pas. Elle tombe partout.",
+              "en": "Light doesn't choose. It falls everywhere."
+            },
+            "icon": "spec-purifier"
+          },
+          {
+            "id": "demon-hunter",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Chasseur de démons",
+                "en": "Demon Hunter"
+              },
+              "description": {
+                "fr": "Sur une cible sous un état ou plus : +20 % au lieu de +10 %. Marque de l'hérétique se relance en 1 tour.",
+                "en": "On a target under one state or more: +20% instead of +10%. Heretic's Brand comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 10,
+                  "states": 1
+                },
+                {
+                  "kind": "patch",
+                  "spell": "path-brand",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je sais ce que tu es. Je l'ai marqué sur toi.",
+              "en": "I know what you are. I've marked it on you."
+            },
+            "icon": "spec-demon-hunter"
+          }
+        ]
+      },
+      {
+        "id": "fanatic",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Fanatique",
+              "en": "Fanatic"
+            },
+            "description": {
+              "fr": "Sort : Zèle, +25 % de dégâts et −10 % de résistance pendant 2 tours.",
+              "en": "Spell: Zeal, +25% damage and −10% resistance for 2 turns."
+            },
+            "spells": [
+              "path-zeal"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne recule pas. Je ne sais même plus comment on fait.",
+          "en": "I don't back down. I've forgotten how."
+        },
+        "icon": "spec-fanatic",
+        "finals": [
+          {
+            "id": "zealot",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Zélote",
+                "en": "Zealot"
+              },
+              "description": {
+                "fr": "Zèle se relance en 1 tour.",
+                "en": "Zeal comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-zeal",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Encore. Toujours. Jusqu'au bout.",
+              "en": "Again. Always. To the very end."
+            },
+            "icon": "spec-zealot"
+          },
+          {
+            "id": "faith-crusader",
+            "template": "FirstTurn",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Croisé de la foi",
+                "en": "Crusader of Faith"
+              },
+              "description": {
+                "fr": "Au premier tour du combat : +2 PA.",
+                "en": "On the first turn of the fight: +2 AP."
+              },
+              "rules": [
+                {
+                  "kind": "points",
+                  "ap": 2,
+                  "fromTurn": 1,
+                  "untilTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je frappe le premier. La foi n'attend pas.",
+              "en": "I strike first. Faith doesn't wait."
+            },
+            "icon": "spec-faith-crusader"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Tes protections ne te sauveront pas. Rien ne te sauvera.",
+      "en": "Your wards won't save you. Nothing will."
+    },
+    "icon": "spec-inquisitor"
+  },
+  {
+    "id": "oracle",
+    "class": "priest",
+    "name": {
+      "fr": "Oracle",
+      "en": "Oracle"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Oracle",
+        "en": "Oracle"
+      },
+      "description": {
+        "fr": "Tu gardes 1 PA d'un tour au suivant. Sorts : Présage (frappe au tour suivant de la cible) et Prévoyance (soigne au tour suivant de l'allié).",
+        "en": "You keep 1 AP from one turn to the next. Spells: Omen (strikes on the target's next turn) and Foresight (heals on the ally's next turn)."
+      },
+      "spells": [
+        "path-omen",
+        "path-foresight"
+      ],
+      "rules": [
+        {
+          "kind": "reserve",
+          "max": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "prophet",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Prophète",
+              "en": "Prophet"
+            },
+            "description": {
+              "fr": "Sort : Prophétie, un présage sur toute une zone.",
+              "en": "Spell: Prophecy, an omen over a whole area."
+            },
+            "spells": [
+              "path-prophecy"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ce que j'annonce arrive. Toujours au tour suivant.",
+          "en": "What I foretell comes to pass. Always on the next turn."
+        },
+        "icon": "spec-prophet",
+        "finals": [
+          {
+            "id": "supreme-seer",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Voyant suprême",
+                "en": "Supreme Seer"
+              },
+              "description": {
+                "fr": "Prophétie porte à 8 cases, en cercle de 2.",
+                "en": "Prophecy reaches 8 cells, in a circle of 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-prophecy",
+                  "maxRange": 8,
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 2
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Plus loin. Plus large. Je vois tout le champ de bataille, et la suite.",
+              "en": "Farther. Wider. I see the whole battlefield, and what comes next."
+            },
+            "icon": "spec-supreme-seer"
+          },
+          {
+            "id": "celestial-chosen",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Élu céleste",
+                "en": "Celestial Chosen"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Le ciel m'a montré sa fin. Je n'ai fait que tenir la promesse.",
+              "en": "The sky showed me his end. I only kept the promise."
+            },
+            "icon": "spec-celestial-chosen"
+          }
+        ]
+      },
+      {
+        "id": "mystic",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Mystique",
+              "en": "Mystic"
+            },
+            "description": {
+              "fr": "Tu gardes 1 PA de plus, et +15 % de dégâts sur un ennemi à 4 cases ou plus. Sort : Vision, +2 PO et un soin au tour suivant pour les alliés autour de la cible.",
+              "en": "You keep 1 more AP, and +15% damage on an enemy 4 cells away or more. Spell: Vision, +2 range and a heal on the next turn for the allies around the target."
+            },
+            "spells": [
+              "path-vision"
+            ],
+            "rules": [
+              {
+                "kind": "reserve",
+                "max": 1
+              },
+              {
+                "kind": "distance",
+                "percent": 15,
+                "minCells": 4,
+                "maxCells": 99
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Fermez les yeux. Maintenant, regardez.",
+          "en": "Close your eyes. Now, look."
+        },
+        "icon": "spec-mystic",
+        "finals": [
+          {
+            "id": "augur",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Augure",
+                "en": "Augur"
+              },
+              "description": {
+                "fr": "Au début de ton tour, si tu n'as pas marché au tour précédent : +1 PA.",
+                "en": "At the start of your turn, if you did not walk last turn: +1 AP."
+              },
+              "passives": [
+                "spec-steady-mind"
+              ]
+            },
+            "lore": {
+              "fr": "Je ne bouge pas. Les signes viennent à moi.",
+              "en": "I don't move. The signs come to me."
+            },
+            "icon": "spec-augur"
+          },
+          {
+            "id": "divine-sage",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Sage divin",
+                "en": "Divine Sage"
+              },
+              "description": {
+                "fr": "Vision se relance en 1 tour.",
+                "en": "Vision comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-vision",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque tour, une vision nouvelle. Le monde ne cesse jamais de parler.",
+              "en": "Every turn, a new vision. The world never stops speaking."
+            },
+            "icon": "spec-divine-sage"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Je l'ai déjà vu arriver. Toi, pas encore.",
+      "en": "I've already seen it happen. You haven't, yet."
+    },
+    "icon": "spec-oracle"
   }
 ]

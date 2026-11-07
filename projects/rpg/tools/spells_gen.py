@@ -22,6 +22,8 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
 def heal(a, mn, mx, overflow=False): return O([("kind", "heal"), ("affects", a), ("min", mn), ("max", mx)] + ([("overflow", True), ("grows", True)] if overflow else []))
 # The Priest's (sprint 201, docs/classes-pretre.md §2): an ally's ailments taken, an enemy's boons and shields.
 def purge(a): return O([("kind", "purge"), ("affects", a)])
+# The Cleric's (sprint 202, docs/classes-pretre-2.md §2): a fallen ally raised with a share of its hit points, once a fight.
+def revive(a, percent): return O([("kind", "revive"), ("affects", a), ("percent", percent)])
 def shield(a, n, t): return O([("kind", "shield"), ("affects", a), ("amount", n), ("turns", t)])
 def push(n, affects="Enemies"): return O([("kind", "push"), ("affects", affects), ("cells", n)])
 def pull(n, affects="Enemies"): return O([("kind", "pull"), ("affects", affects), ("cells", n)])
@@ -492,7 +494,23 @@ paths = [
  path("dazzle","Éblouissement","Dazzle",3,1,6,30,"lorc/sun",damage=True,effects=[status("Enemies","Range",-2,1)],cd=1),
  path("double","Double","Double",3,1,4,50,"lorc/ghost",los=False,effects=[summon("mirror-double")],cd=3),
  path("grip","Emprise","Mind Grip",3,1,6,50,"lorc/psychic-waves",damage=True,effects=[status("Enemies","Ap",-2,1),status("Enemies","Damage",-15,2)],cd=2),
+ # The Priest (sprint 202, docs/classes-pretre-2.md §2), never a blow from next to its target. The Cleric raises and heals.
+ path("resurrect","Résurrection","Resurrection",3,1,4,30,"lorc/sunrise",los=False,effects=[revive("Allies",30)]),
+ path("laying-hands","Imposition des mains","Laying On of Hands",2,0,2,30,"lorc/hand",effects=[heal("Allies",12,16,overflow=True)],cd=1),
+ path("healing-wave","Vague de soin","Healing Wave",4,0,5,50,"lorc/beam-wake",los=False,area=("Circle",2),effects=[heal("Allies",10,14,overflow=True)],cd=2),
+ path("remedy","Remède","Remedy",2,0,5,50,"lorc/bandaged",effects=[purge("Allies"),status("Allies","Regen",8,2)],cd=1),
+ # The Inquisitor strips and punishes.
+ path("censure","Censure","Censure",3,2,6,30,"lorc/hammer-drop",damage=True,effects=[purge("Enemies")],cd=1),
+ path("brand","Marque de l'hérétique","Heretic's Brand",3,2,6,30,"lorc/bleeding-eye",damage=True,effects=[status("Enemies","Resistance",-15,2),status("Enemies","Healing",-50,2)],cd=2),
+ path("exorcism","Exorcisme","Exorcism",4,2,5,50,"lorc/haunting",damage=True,area=("Circle",1),effects=[purge("Enemies")],cd=2),
+ path("zeal","Zèle","Zeal",1,0,0,50,"lorc/fire-ray",los=False,effects=[status("Caster","Ap",2,1),status("Caster","Damage",25,2),status("Caster","Resistance",-10,2)],cd=3),
+ # The Oracle lays now what strikes or heals at the target's next turn: a poison or a heal of one turn.
+ path("omen","Présage","Omen",3,2,6,30,"lorc/comet-spark",effects=[status("Enemies","Poison",42,1)],cd=1),
+ path("foresight","Prévoyance","Foresight",2,0,5,30,"lorc/star-swirl",effects=[status("Allies","Regen",20,1)],cd=1),
+ path("prophecy","Prophétie","Prophecy",4,2,6,50,"lorc/death-zone",los=False,area=("Circle",1),effects=[status("Enemies","Poison",56,1)],cd=2),
+ path("vision","Vision","Vision",1,0,5,50,"lorc/moon",area=("Circle",1),effects=[status("Allies","Range",2,1),status("Allies","Regen",16,1)],cd=2),
 ]
+# The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
