@@ -98,7 +98,7 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
     /// The branch whose column 100 shows (§14.1): the one clicked, the one looked at, the hero's, or the first; "" for a class whose branches are not yet
     /// written (the Priest of sprint 201).
     /// </summary>
-    public string OpenBranch => new[] { open, preview, Hero.Spec }.FirstOrDefault(id => id is not null && Branches.Any(b => b.Id == id)) ?? Branches.FirstOrDefault()?.Id ?? "";
+    public string OpenBranch => new[] { open, preview, Hero.Spec }.FirstOrDefault(id => id is not null && Branches.Any(b => b.Id == id)) ?? (Branches.Count > 0 ? Branches[0].Id : "");
 
     /// <summary>The tiles, branch by branch: its own, then each lineage's at 50; then the column 100 of the open branch (§14.1).</summary>
     public IReadOnlyList<SpecNode> Nodes =>
@@ -237,7 +237,7 @@ public sealed class SpecPage(PointsEditor editor, SpecContext context, string? p
                 // At 100 (§14.6): the final class taken, or the first to take.
                 return mine.ForkOf(Hero.Fork) is { Finals: { Count: > 0 } finals } fork ? $"{fork.Id}:{(fork.FinalOf(Hero.Final) ?? finals[0]).Id}" : $"{Hero.Fork}@100";
             }
-            return Branches.FirstOrDefault()?.Id ?? "";
+            return Branches.Count > 0 ? Branches[0].Id : "";
         }
     }
 
