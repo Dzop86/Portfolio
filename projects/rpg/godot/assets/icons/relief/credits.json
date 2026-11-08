@@ -136,5 +136,19 @@
   "spec-supreme-seer": "lorc/eyeball",
   "spec-celestial-chosen": "lorc/star-prominences",
   "spec-augur": "lorc/night-sky",
-  "spec-divine-sage": "lorc/burning-book"
+  "spec-divine-sage": "lorc/burning-book",
+  "spec-assassin": "lorc/hood",
+  "spec-black-blade": "lorc/broad-dagger",
+  "spec-deadly-shadow": "lorc/cowled",
+  "spec-silent-reaper": "lorc/scythe",
+  "spec-poisoner": "delapouite/plague-doctor-profile",
+  "spec-toxin-master": "lorc/fizzing-flask",
+  "spec-deadly-alchemist": "lorc/potion-ball",
+  "spec-scoundrel": "lorc/rogue",
+  "spec-swashbuckler": "lorc/sword-clash",
+  "spec-rogue-duelist": "delapouite/fencer",
+  "spec-dancing-blade": "lorc/sword-spin",
+  "spec-saboteur": "lorc/time-bomb",
+  "spec-demolisher": "lorc/wrecking-ball",
+  "spec-trap-master": "lorc/wolf-trap"
 }

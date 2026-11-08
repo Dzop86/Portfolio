@@ -184,6 +184,33 @@ priest = C(
  R("blessing","Bénédiction","Blessing",3,0,5,0,0,1,"Neutral","lorc/glowing-hands",area=("Circle",1),effects=[status("Allies","Damage",20,2)],cd=3),
  R("serene-step","Pas serein","Serene Step",1,0,0,0,0,1,"Neutral","lorc/dove",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
+# The Rogue (Voleur) (sprint 204, docs/classes-voleur.md §4): one target, from next to it, then away; Stealth; at 1.05 of the budget. Working names.
+rogue = C(
+ R("pommel-strike","Coup de pommeau","Pommel Strike",3,1,1,1,1,2,"Earth","lorc/sword-hilt"),
+ R("ember-dagger","Dague ardente","Ember Dagger",4,1,1,1,1,2,"Fire","lorc/curvy-knife"),
+ R("gash","Entaille","Gash",3,1,2,1,1,2,"Water","lorc/bleeding-wound",effects=[status("Enemies","Poison",3,2,"Water")]),
+ R("thrown-knife","Couteau lancé","Thrown Knife",3,1,3,1,1,2,"Air","lorc/thrown-knife"),
+ R("dodge","Esquive","Dodge",2,1,3,0,0,1,"Neutral","delapouite/jump-across",effects=[leap()],cd=1),
+ R("fade","Fondu","Fade",2,0,0,0,0,1,"Neutral","lorc/cloak-dagger",los=False,effects=[status("Caster","Hidden",1,2)],cd=3),
+ R("trip","Croc-en-jambe","Trip",3,1,1,1,1,1,"Earth","lorc/foot-trip",effects=[status("Enemies","Mp",-2,1)],cd=1),
+ R("fire-vial","Fiole ardente","Fire Vial",3,1,3,1,1,2,"Fire","lorc/bubbling-flask",effects=[status("Enemies","Poison",4,3,"Fire")]),
+ R("bleed","Saignée","Bleed",4,1,1,1,1,2,"Water","lorc/bloody-sword",effects=[status("Enemies","Poison",5,3,"Water")]),
+ R("pounce","Bond fendant","Pounce",4,2,3,1,1,1,"Air","lorc/backstab",line=True,area=("Cross",1),effects=[leap()],cd=1),
+ R("smoke-bomb","Fumigène","Smoke Bomb",3,0,0,0,0,1,"Neutral","lorc/ninja-mask",los=False,area=("Circle",1),effects=[status("Enemies","Range",-2,1),status("Caster","Hidden",1,2)],cd=3),
+ R("cosh","Assommoir","Cosh",5,1,1,1,1,1,"Earth","lorc/mace-head",effects=[status("Enemies","Ap",-1,1)]),
+ R("red-blade","Lame rouge","Red Blade",5,1,1,1,1,1,"Fire","lorc/bowie-knife",cd=1),
+ R("slow-venom","Venin lent","Slow Venom",4,1,2,1,1,1,"Water","lorc/poison-bottle",effects=[status("Enemies","Poison",6,3,"Water"),status("Enemies","Mp",-1,1)]),
+ R("volte","Volte","Volte",5,1,2,1,1,1,"Air","lorc/spinning-sword",effects=[status("Caster","Mp",2,1)]),
+ R("contract","Contrat","Contract",2,1,4,0,0,1,"Neutral","lorc/scroll-unfurled",effects=[status("Enemies","Resistance",-15,2)],cd=3),
+ R("kneecap","Brise-genou","Kneecap",6,1,1,1,1,1,"Earth","lorc/broken-bone",effects=[status("Enemies","Mp",-2,1)],cd=2),
+ R("greek-fire","Feu grégeois","Greek Fire",6,1,2,1,1,1,"Fire","lorc/fire-bottle",effects=[status("Enemies","Poison",8,3,"Fire")]),
+ R("drown","Noyade","Drown",6,1,1,1,1,1,"Water","lorc/drowning",cd=1),
+ R("blade-storm","Tempête de lames","Blade Storm",6,1,3,1,1,1,"Air","lorc/spinning-blades",cd=2),
+ R("shadow-swap","Ombre portée","Shadow Swap",2,1,4,0,0,1,"Neutral","lorc/shadow-follower",effects=[swap("Enemies")],cd=2),
+ R("antidote","Antidote","Antidote",3,0,0,0,0,1,"Neutral","lorc/round-bottom-flask",los=False,effects=[purge("Caster"),heal("Caster",12,16)],cd=4),
+ R("killers-eye","Œil du tueur","Killer's Eye",2,0,0,0,0,1,"Neutral","lorc/eyeball",los=False,effects=[status("Caster","Damage",30,2)],cd=3),
+ R("velvet-step","Pas de velours","Velvet Step",1,0,0,0,0,1,"Neutral","lorc/boot-prints",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
@@ -325,6 +352,12 @@ PRIEST_BUDGET = 0.8
 for sp in priest:
     if sp["damageMax"] > 0:
         budget(sp, PRIEST_BUDGET)
+# The Rogue (Voleur) at 1.15 (docs/classes-voleur.md §6): one target, close by, with little to protect it. 1.05 in the design (§1.2);
+# at 1.1 it beat the Disjoint alone 17 times in 100 (the CI asks 30).
+ROGUE_BUDGET = 1.15
+for sp in rogue:
+    if sp["damageMax"] > 0:
+        budget(sp, ROGUE_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -361,6 +394,11 @@ GESTURES = {
  "stone-verdict": ("Verdict", "Verdict"), "censer": ("Encens", "Incense"), "blessed-tide": ("Marée", "Tide"), "zephyr": ("Zéphyr", "Zephyr"),
  "stone-column": ("Colonne", "Column"), "sacred-pyre": ("Bûcher", "Pyre"), "baptism": ("Baptême", "Baptism"), "halo": ("Auréole", "Halo"),
  "judgement": ("Jugement", "Judgement"), "heavenly-blaze": ("Brasier", "Blaze"), "holy-flood": ("Crue", "Flood"), "wrath-of-heaven": ("Courroux", "Wrath"),
+ # The Rogue (Voleur)'s (sprint 204).
+ "pommel-strike": ("Pommeau", "Pommel"), "ember-dagger": ("Dague", "Dagger"), "gash": ("Entaille", "Gash"), "thrown-knife": ("Couteau", "Knife"),
+ "trip": ("Croche-pied", "Trip"), "fire-vial": ("Fiole", "Vial"), "bleed": ("Saignée", "Bleed"), "pounce": ("Bond", "Pounce"),
+ "cosh": ("Gourdin", "Cudgel"), "red-blade": ("Estoc", "Thrust"), "slow-venom": ("Toxine", "Toxin"), "volte": ("Volte", "Volte"),
+ "kneecap": ("Brise-genou", "Kneecap"), "greek-fire": ("Brûlot", "Firepot"), "drown": ("Noyade", "Drowning"), "blade-storm": ("Rafale", "Flurry"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
@@ -384,6 +422,11 @@ NAMES = {
   "censer": ("Encens crépitant", "Crackling Incense"), "zephyr": ("Zéphyr électrique", "Electric Zephyr"),
   "sacred-pyre": ("Bûcher foudroyé", "Thunderstruck Pyre"), "halo": ("Auréole d'éclairs", "Lightning Halo"),
   "heavenly-blaze": ("Foudre divine", "Divine Lightning"), "wrath-of-heaven": ("Courroux de l'orage", "Wrath of the Storm"),
+  # The Rogue (Voleur)'s (sprint 204).
+  "ember-dagger": ("Dague d'orage", "Storm Dagger"), "thrown-knife": ("Couteau foudroyant", "Thunder Knife"),
+  "fire-vial": ("Fiole d'éclairs", "Lightning Vial"), "pounce": ("Bond fulgurant", "Flash Pounce"),
+  "red-blade": ("Lame électrique", "Electric Blade"), "volte": ("Volte d'orage", "Storm Volte"),
+  "greek-fire": ("Feu de foudre", "Lightning Fire"), "blade-storm": ("Rafale d'éclairs", "Lightning Flurry"),
  },
 }
 # A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 163, docs/graphisme/s163-icones-arbre.md §1.8).
@@ -399,7 +442,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest:
+    for sp in sentinel + guard + mage + priest + rogue:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -408,7 +451,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else 1))
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -459,7 +502,7 @@ paths = [
  # The Artillerist (sprint 198, docs/classes-archer.md §3.3): Barrage comes down from 50 to 30, its budget redone; the Crossbowman's heavy bolt.
  path("barrage","Tir de barrage","Barrage",4,3,8,30,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=2),
  path("heavy-bolt","Carreau lourd","Heavy Bolt",5,3,8,50,"lorc/arrowhead",damage=True,cd=1),
- # The Trail's of before: Vault and Feint have no path since sprint 198, kept for the Thief's Rogue.
+ # The Trail's of before: Vault and Feint have no path since sprint 198, kept for the Rogue's Malandrin (Voleur, sprint 205).
  path("vault","Cabriole","Vault",2,2,4,30,"delapouite/quick-man",effects=[leap()],cd=1),
  path("heel-kick","Coup de talon","Heel Kick",3,1,1,30,"lorc/boot-stomp",damage=True,effects=[push(2)]),
  path("feint","Feinte","Feint",2,0,0,50,"lorc/dodging",los=False,effects=[status("Caster","Feint",2,2)],cd=3),
@@ -509,23 +552,31 @@ paths = [
  path("foresight","Prévoyance","Foresight",2,0,5,30,"lorc/star-swirl",effects=[status("Allies","Regen",20,1)],cd=1),
  path("prophecy","Prophétie","Prophecy",4,2,6,50,"lorc/death-zone",los=False,area=("Circle",1),effects=[status("Enemies","Poison",56,1)],cd=2),
  path("vision","Vision","Vision",1,0,5,50,"lorc/moon",area=("Circle",1),effects=[status("Allies","Range",2,1),status("Allies","Regen",16,1)],cd=2),
+ # The Rogue (sprint 204, docs/classes-voleur.md §5). The Assassin isolates, poisons, finishes off.
+ path("backstab","Coup bas","Low Blow",3,1,1,30,"lorc/dripping-knife",damage=True,cd=1),
+ path("envenom","Lame enduite","Coated Blade",2,1,2,30,"lorc/poison-gas",effects=[status("Enemies","Poison",7,3)],cd=1),
+ path("execute","Exécution","Execution",5,1,1,50,"lorc/decapitation",damage=True,cd=2),
+ path("plague","Fiole de peste","Plague Vial",3,1,3,50,"lorc/bottled-bolt",effects=[status("Enemies","Poison",12,3)],cd=2),
+ # The Malandrin leaps, feints and lays traps where it stands: the Vault and the Feint of before, the Hamstring, the Caltrops (their glyph by hand, as the Jaws').
+ path("hamstring","Coup de jarret","Hamstring",3,1,1,30,"delapouite/achilles-heel",damage=True,effects=[status("Enemies","Mp",-1,1)]),
+ path("caltrops","Chausse-trappes","Caltrops",3,0,1,50,"delapouite/caltrops",area=("Cross",1),effects=[glyph("Enemies",2,10,13,stat="Mp",v=-2,st=1)],cd=2),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins + paths
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")

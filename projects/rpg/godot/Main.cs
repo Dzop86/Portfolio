@@ -1139,10 +1139,10 @@ public partial class Main : Node3D
             view.OpenCreate();
             view.CharacterField.Text = hero;
             view.SelectLook("male-b");
-            // The newest class (sprint 201): the Priest, its button no longer greyed.
-            view.SelectClass("priest");
+            // The newest class (sprint 204): the Rogue, its button no longer greyed.
+            view.SelectClass("rogue");
             // The creation screen lists the class's twenty spells, by level.
-            string[] missing = [.. GameData.Embedded.Class("priest")!.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(view.Texts.Lang)).Where(n => !view.SpellsText.Contains(n, StringComparison.Ordinal))];
+            string[] missing = [.. GameData.Embedded.Class("rogue")!.Spells.Select(id => GameData.Embedded.Spells[id].Name.In(view.Texts.Lang)).Where(n => !view.SpellsText.Contains(n, StringComparison.Ordinal))];
             if (missing.Length > 0)
                 problem = $"the creation screen does not list {string.Join(", ", missing)}";
             view.ChooseColour(3);
@@ -1150,7 +1150,7 @@ public partial class Main : Node3D
             view.ChooseSkin(2);
             view.SetShape(1, -1);
             await view.Create();
-            string expected = $"{hero} · {GameData.Embedded.Class("priest")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
+            string expected = $"{hero} · {GameData.Embedded.Class("rogue")!.Name.In(view.Texts.Lang)} · {view.Texts["lobby.level", 1]}";
             problem ??= view.CreateOpen ? $"the creation panel stayed open: {view.MessageText}"
                 : !view.CardTexts.SequenceEqual([expected]) ? $"the cards show {string.Join(" | ", view.CardTexts)}, not {expected}"
                 : view.PlayButton.Disabled ? "the new character is not chosen"
@@ -1166,7 +1166,7 @@ public partial class Main : Node3D
             return;
         }
         Hero kept = _lobby.Here.Single().Hero;
-        if (kept != new Hero(hero, "male-b", "priest", 3, 4, 2, 1, -1))
+        if (kept != new Hero(hero, "male-b", "rogue", 3, 4, 2, 1, -1))
         {
             string report = $"SELFTEST FAILED lobby: the server keeps {kept}";
             GD.Print(report);
@@ -1175,7 +1175,7 @@ public partial class Main : Node3D
             GetTree().Quit(1);
             return;
         }
-        _selfTestNote = $"Hero {hero} (male-b, priest, colour 3, hair 4, skin 2, height 1, build -1) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
+        _selfTestNote = $"Hero {hero} (male-b, rogue, colour 3, hair 4, skin 2, height 1, build -1) made on server {_lobby.ChosenServer!.Name}, shown on its card and chosen.";
         view.PlayButton.EmitSignal(BaseButton.SignalName.Pressed);
     }
 

@@ -166,5 +166,54 @@
       "serene-step"
     ],
     "hpPerLevel": 3
+  },
+  {
+    "id": "rogue",
+    "name": {
+      "fr": "Voleur",
+      "en": "Rogue"
+    },
+    "description": {
+      "fr": "Isole une cible et la frappe vite, de près ; se cache pour ressortir.",
+      "en": "Cuts one target off and strikes it fast, up close; hides to slip away."
+    },
+    "hp": 58,
+    "ap": 8,
+    "mp": 5,
+    "initiative": 30,
+    "spells": [
+      "pommel-strike",
+      "ember-dagger",
+      "gash",
+      "thrown-knife",
+      "dodge",
+      "fade",
+      "trip",
+      "fire-vial",
+      "bleed",
+      "pounce",
+      "smoke-bomb",
+      "cosh",
+      "red-blade",
+      "slow-venom",
+      "volte",
+      "contract",
+      "kneecap",
+      "greek-fire",
+      "drown",
+      "blade-storm",
+      "shadow-swap",
+      "antidote",
+      "killers-eye",
+      "velvet-step"
+    ],
+    "hpPerLevel": 3,
+    "rules": [
+      {
+        "kind": "isolated",
+        "cells": 2,
+        "percent": 15
+      }
+    ]
   }
 ]

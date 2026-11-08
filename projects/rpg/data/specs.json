@@ -2745,5 +2745,414 @@
       "en": "I've already seen it happen. You haven't, yet."
     },
     "icon": "spec-oracle"
+  },
+  {
+    "id": "assassin",
+    "class": "rogue",
+    "name": {
+      "fr": "Assassin",
+      "en": "Assassin"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Assassin",
+        "en": "Assassin"
+      },
+      "description": {
+        "fr": "+10 % de dégâts sur une cible sous un état. Sorts : Coup bas et Lame enduite.",
+        "en": "+10% damage on a target under a state. Spells: Low Blow and Coated Blade."
+      },
+      "spells": [
+        "path-backstab",
+        "path-envenom"
+      ],
+      "rules": [
+        {
+          "kind": "target-state",
+          "percent": 10,
+          "states": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "black-blade",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Lame noire",
+              "en": "Black Blade"
+            },
+            "description": {
+              "fr": "Sort : Exécution, un coup lourd au contact.",
+              "en": "Spell: Execution, a heavy blow up close."
+            },
+            "spells": [
+              "path-execute"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne frappe qu'une fois. On ne m'a jamais demandé de recommencer.",
+          "en": "I strike once. Nobody has ever asked me to do it again."
+        },
+        "icon": "spec-black-blade",
+        "finals": [
+          {
+            "id": "deadly-shadow",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Ombre mortelle",
+                "en": "Deadly Shadow"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Il tombe, et je suis déjà sur le suivant.",
+              "en": "He falls, and I am already on the next one."
+            },
+            "icon": "spec-deadly-shadow"
+          },
+          {
+            "id": "silent-reaper",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Faucheur silencieux",
+                "en": "Silent Reaper"
+              },
+              "description": {
+                "fr": "Exécution se relance en 1 tour.",
+                "en": "Execution comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-execute",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le silence, c'est le bruit que je fais.",
+              "en": "Silence is the sound I make."
+            },
+            "icon": "spec-silent-reaper"
+          }
+        ]
+      },
+      {
+        "id": "poisoner",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Empoisonneur",
+              "en": "Poisoner"
+            },
+            "description": {
+              "fr": "Tes poisons durent 1 tour de plus. Sort : Fiole de peste.",
+              "en": "Your poisons last 1 more turn. Spell: Plague Vial."
+            },
+            "spells": [
+              "path-plague"
+            ],
+            "rules": [
+              {
+                "kind": "status-turns",
+                "extra": 1,
+                "stats": [
+                  "Poison"
+                ]
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je n'ai pas besoin de rester. Le poison, lui, reste.",
+          "en": "I need not stay. The poison does."
+        },
+        "icon": "spec-poisoner",
+        "finals": [
+          {
+            "id": "toxin-master",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des toxines",
+                "en": "Toxin Master"
+              },
+              "description": {
+                "fr": "+20 % de dégâts sur une cible sous deux états.",
+                "en": "+20% damage on a target under two states."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 20,
+                  "states": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Deux venins se parlent. Je les écoute.",
+              "en": "Two venoms talk to each other. I listen."
+            },
+            "icon": "spec-toxin-master"
+          },
+          {
+            "id": "deadly-alchemist",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Alchimiste mortel",
+                "en": "Deadly Alchemist"
+              },
+              "description": {
+                "fr": "Fiole de peste porte à 4 cases, en cercle de 1.",
+                "en": "Plague Vial reaches 4 cells, in a circle of 1."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-plague",
+                  "maxRange": 4,
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 1
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un flacon, un geste, et toute la pièce tousse.",
+              "en": "One flask, one gesture, and the whole room coughs."
+            },
+            "icon": "spec-deadly-alchemist"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Isoler, empoisonner, achever.",
+      "en": "Isolate, poison, finish off."
+    },
+    "icon": "spec-assassin"
+  },
+  {
+    "id": "scoundrel",
+    "class": "rogue",
+    "name": {
+      "fr": "Malandrin",
+      "en": "Scoundrel"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Malandrin",
+        "en": "Scoundrel"
+      },
+      "description": {
+        "fr": "+3 % de dégâts par case marchée depuis ton dernier sort, 15 % au plus. Sorts : Cabriole et Coup de jarret.",
+        "en": "+3% damage per cell walked since your last spell, 15% at most. Spells: Vault and Hamstring."
+      },
+      "spells": [
+        "path-vault",
+        "path-hamstring"
+      ],
+      "rules": [
+        {
+          "kind": "dance",
+          "perCell": 3,
+          "max": 15
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "swashbuckler",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Bretteur",
+              "en": "Swashbuckler"
+            },
+            "description": {
+              "fr": "+1 PM à chaque tour. Sort : Feinte.",
+              "en": "+1 MP every turn. Spell: Feint."
+            },
+            "spells": [
+              "path-feint"
+            ],
+            "rules": [
+              {
+                "kind": "points",
+                "mp": 1
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je saute, je frappe, je ne suis plus là.",
+          "en": "I leap, I strike, I am gone."
+        },
+        "icon": "spec-swashbuckler",
+        "finals": [
+          {
+            "id": "rogue-duelist",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Duelliste",
+                "en": "Duelist"
+              },
+              "description": {
+                "fr": "+2 % de plus par case marchée depuis ton dernier sort, 10 % de plus au plus : 5 % par case, 25 % en tout.",
+                "en": "A further +2% per cell walked since your last spell, 10% more at most: 5% a cell, 25% in all."
+              },
+              "rules": [
+                {
+                  "kind": "dance",
+                  "perCell": 2,
+                  "max": 10
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un pas de côté, et la lame trouve le jour.",
+              "en": "A step aside, and the blade finds the gap."
+            },
+            "icon": "spec-rogue-duelist"
+          },
+          {
+            "id": "dancing-blade",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Lame dansante",
+                "en": "Dancing Blade"
+              },
+              "description": {
+                "fr": "Cabriole se lance sans relance.",
+                "en": "Vault has no cooldown."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-vault",
+                  "cooldown": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ils frappent là où j'étais. Toujours.",
+              "en": "They strike where I was. Always."
+            },
+            "icon": "spec-dancing-blade"
+          }
+        ]
+      },
+      {
+        "id": "saboteur",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Saboteur",
+              "en": "Saboteur"
+            },
+            "description": {
+              "fr": "Sort : Chausse-trappes, posées autour de toi.",
+              "en": "Spell: Caltrops, laid around you."
+            },
+            "spells": [
+              "path-caltrops"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Le terrain travaille pour moi. Il ne demande pas de part.",
+          "en": "The ground works for me. It asks no share."
+        },
+        "icon": "spec-saboteur",
+        "finals": [
+          {
+            "id": "demolisher",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Démolisseur",
+                "en": "Demolisher"
+              },
+              "description": {
+                "fr": "+25 % de dégâts sur une cible qui n'aura aucun PM à son prochain tour.",
+                "en": "+25% damage on a target with no MP for its next turn."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 25
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ce qui ne bouge plus, je le démonte.",
+              "en": "What no longer moves, I take apart."
+            },
+            "icon": "spec-demolisher"
+          },
+          {
+            "id": "trap-master",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des pièges",
+                "en": "Trap Master"
+              },
+              "description": {
+                "fr": "Chausse-trappes deux fois par tour, deux à la fois.",
+                "en": "Caltrops twice a turn, two at once."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-caltrops",
+                  "perTurn": 2,
+                  "maxGlyphs": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un piège, on l'évite. Deux, on choisit dans lequel tomber.",
+              "en": "One trap, you avoid. Two, you choose which to fall into."
+            },
+            "icon": "spec-trap-master"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Sauter, feinter, piéger.",
+      "en": "Leap, feint, trap."
+    },
+    "icon": "spec-scoundrel"
   }
 ]
