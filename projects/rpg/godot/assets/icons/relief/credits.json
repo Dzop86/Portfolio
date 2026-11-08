@@ -150,5 +150,12 @@
   "spec-dancing-blade": "lorc/sword-spin",
   "spec-saboteur": "lorc/time-bomb",
   "spec-demolisher": "lorc/wrecking-ball",
-  "spec-trap-master": "lorc/wolf-trap"
+  "spec-trap-master": "lorc/wolf-trap",
+  "spec-shadowmage": "lorc/eclipse",
+  "spec-night-stalker": "lorc/night-sky",
+  "spec-spectre": "lorc/spectre",
+  "spec-shadow-lord": "lorc/evil-moon",
+  "spec-shadow-illusionist": "lorc/hidden",
+  "spec-illusion-master": "lorc/dark-squad",
+  "spec-phantom": "lorc/haunting"
 }

@@ -1185,6 +1185,35 @@
     "still": true
   },
   {
+    "id": "spec-vanish",
+    "name": {
+      "fr": "Évanouissement",
+      "en": "Vanishing"
+    },
+    "description": {
+      "fr": "Une fois par combat, sous 30 % de tes PV : Discrétion pendant 2 tours et +2 PM pendant 1 tour.",
+      "en": "Once per fight, below 30% of your HP: Stealth for 2 turns and +2 MP for 1 turn."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Hidden",
+        "value": 1,
+        "turns": 2
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Mp",
+        "value": 2,
+        "turns": 1
+      }
+    ],
+    "percent": 30
+  },
+  {
     "id": "spec-bounty",
     "name": {
       "fr": "Prime touchée",

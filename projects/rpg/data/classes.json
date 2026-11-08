@@ -174,8 +174,8 @@
       "en": "Rogue"
     },
     "description": {
-      "fr": "Isole une cible et la frappe vite, de près ; se cache pour ressortir.",
-      "en": "Cuts one target off and strikes it fast, up close; hides to slip away."
+      "fr": "Isole une cible et la frappe vite, de près ; ses poisons se cumulent ; se cache pour ressortir.",
+      "en": "Cuts one target off and strikes it fast, up close; its poisons stack; hides to slip away."
     },
     "hp": 58,
     "ap": 8,
@@ -213,6 +213,10 @@
         "kind": "isolated",
         "cells": 2,
         "percent": 15
+      },
+      {
+        "kind": "stack",
+        "max": 3
       }
     ]
   }

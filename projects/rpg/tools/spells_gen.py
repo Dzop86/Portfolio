@@ -560,6 +560,11 @@ paths = [
  # The Malandrin leaps, feints and lays traps where it stands: the Vault and the Feint of before, the Hamstring, the Caltrops (their glyph by hand, as the Jaws').
  path("hamstring","Coup de jarret","Hamstring",3,1,1,30,"delapouite/achilles-heel",damage=True,effects=[status("Enemies","Mp",-1,1)]),
  path("caltrops","Chausse-trappes","Caltrops",3,0,1,50,"delapouite/caltrops",area=("Cross",1),effects=[glyph("Enemies",2,10,13,stat="Mp",v=-2,st=1)],cd=2),
+ # The Shadowmage (sprint 205, docs/classes-voleur-2.md §2) vanishes and strikes from the shadow; one target, close by, no wide area.
+ path("shadow-step","Pas de l'ombre","Shadow Step",2,1,4,30,"delapouite/invisible",effects=[leap(),status("Caster","Hidden",1,1)],cd=2),
+ path("shadow-blade","Lame d'ombre","Shadow Blade",3,1,2,30,"lorc/shadow-grasp",damage=True,cd=1),
+ path("waylay","Guet-apens","Waylay",5,1,1,50,"lorc/moon-claws",damage=True,cd=2),
+ path("false-front","Faux-semblant","False Front",2,1,4,50,"lorc/mirror-mirror",los=False,effects=[summon("mirror-image"),status("Caster","Hidden",1,2)],cd=3),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
@@ -703,6 +708,8 @@ passives = [
  # The Arcanist's (sprint 199, docs/classes-mage.md §1): still, it gathers a point.
  P("spec-steady-mind","Esprit posé","Steady Mind","Au début de ton tour, si tu n'as pas marché au tour précédent : +1 PA.","At the start of your turn, if you did not walk last turn: +1 AP.","TurnStart",[status("Caster","Ap",1,1)],still=True),
  # The Archer's final (sprint 198, docs/classes-archer.md §3.1): the bounty paid.
+ # The Rogue's Phantom (sprint 205, docs/classes-voleur-2.md §2): it vanishes once a fight when nearly down.
+ P("spec-vanish","Évanouissement","Vanishing","Une fois par combat, sous 30 % de tes PV : Discrétion pendant 2 tours et +2 PM pendant 1 tour.","Once per fight, below 30% of your HP: Stealth for 2 turns and +2 MP for 1 turn.","LowHp",[status("Caster","Hidden",1,2),status("Caster","Mp",2,1)],percent=30),
  P("spec-bounty","Prime touchée","Bounty Collected","Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.","An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns.","Kill",[status("Caster","Ap",2,1),status("Caster","Damage",15,2)]),
  # The Sentinel's.
  P("spec-quick-heels","Talons vifs","Quick Heels","Si on te frappe au contact : +2 PM pendant 1 tour.","If you are struck in melee: +2 MP for 1 turn.","Hit",[status("Caster","Mp",2,1)],melee=True),

@@ -3154,5 +3154,206 @@
       "en": "Leap, feint, trap."
     },
     "icon": "spec-scoundrel"
+  },
+  {
+    "id": "shadowmage",
+    "class": "rogue",
+    "name": {
+      "fr": "Ombremage",
+      "en": "Shadowmage"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Ombremage",
+        "en": "Shadowmage"
+      },
+      "description": {
+        "fr": "+20 % de dégâts sur un coup porté caché. Sorts : Pas de l'ombre et Lame d'ombre.",
+        "en": "+20% damage on a blow struck while hidden. Spells: Shadow Step and Shadow Blade."
+      },
+      "spells": [
+        "path-shadow-step",
+        "path-shadow-blade"
+      ],
+      "rules": [
+        {
+          "kind": "shadow",
+          "percent": 20
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "night-stalker",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Traqueur nocturne",
+              "en": "Night Stalker"
+            },
+            "description": {
+              "fr": "Ta Discrétion dure 1 tour de plus. Sort : Guet-apens.",
+              "en": "Your Stealth lasts 1 more turn. Spell: Waylay."
+            },
+            "spells": [
+              "path-waylay"
+            ],
+            "rules": [
+              {
+                "kind": "status-turns",
+                "extra": 1,
+                "stats": [
+                  "Hidden"
+                ]
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La nuit ne me cache pas. Elle m'attend.",
+          "en": "The night does not hide me. It waits for me."
+        },
+        "icon": "spec-night-stalker",
+        "finals": [
+          {
+            "id": "spectre",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Spectre",
+                "en": "Spectre"
+              },
+              "description": {
+                "fr": "Pas de l'ombre porte à 6 cases.",
+                "en": "Shadow Step reaches 6 cells."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-shadow-step",
+                  "maxRange": 6
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On me cherche là où j'étais. Je suis déjà derrière.",
+              "en": "They look for me where I was. I am already behind."
+            },
+            "icon": "spec-spectre"
+          },
+          {
+            "id": "shadow-lord",
+            "template": "FirstTurn",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des ombres",
+                "en": "Shadow Lord"
+              },
+              "description": {
+                "fr": "+2 PA à ton premier tour.",
+                "en": "+2 AP on your first turn."
+              },
+              "rules": [
+                {
+                  "kind": "points",
+                  "ap": 2,
+                  "untilTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Avant qu'ils ne comprennent, c'est déjà fini.",
+              "en": "Before they understand, it is already over."
+            },
+            "icon": "spec-shadow-lord"
+          }
+        ]
+      },
+      {
+        "id": "shadow-illusionist",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Illusionniste",
+              "en": "Illusionist"
+            },
+            "description": {
+              "fr": "Sort : Faux-semblant, une image à ta place, et tu disparais.",
+              "en": "Spell: False Front, an image in your place, and you vanish."
+            },
+            "spells": [
+              "path-false-front"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ils frappent mon reflet. Moi, je sors par la porte.",
+          "en": "They strike my reflection. I leave by the door."
+        },
+        "icon": "spec-shadow-illusionist",
+        "finals": [
+          {
+            "id": "illusion-master",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des illusions",
+                "en": "Master of Illusions"
+              },
+              "description": {
+                "fr": "Faux-semblant laisse deux images à la fois.",
+                "en": "False Front leaves two images at once."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-false-front",
+                  "maxSummons": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Lequel est le vrai ? Aucun, peut-être.",
+              "en": "Which one is real? None, perhaps."
+            },
+            "icon": "spec-illusion-master"
+          },
+          {
+            "id": "phantom",
+            "template": "LowHp",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Fantôme",
+                "en": "Phantom"
+              },
+              "description": {
+                "fr": "Une fois par combat, sous 30 % de tes PV : Discrétion pendant 2 tours et +2 PM pendant 1 tour.",
+                "en": "Once per fight, below 30% of your HP: Stealth for 2 turns and +2 MP for 1 turn."
+              },
+              "passives": [
+                "spec-vanish"
+              ]
+            },
+            "lore": {
+              "fr": "On m'a vu tomber. Personne ne m'a vu partir.",
+              "en": "They saw me fall. No one saw me leave."
+            },
+            "icon": "spec-phantom"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Disparaître, frapper depuis l'ombre.",
+      "en": "Vanish, strike from the shadow."
+    },
+    "icon": "spec-shadowmage"
   }
 ]
