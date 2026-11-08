@@ -100,7 +100,8 @@ public class TeamAiTests
             return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16];
         }
         // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks; sprint 206, the Berserker's too.
-        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker"))));
+        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker" or "paladin"))));
+        Assert.Equal(PaladinFingerprint, Of(Real.Classes.Where(c => c.Id == "paladin")));
         Assert.Equal(RogueFingerprint, Of(Real.Classes.Where(c => c.Id == "rogue")));
         Assert.Equal(BerserkerFingerprint, Of(Real.Classes.Where(c => c.Id == "berserker")));
     }
@@ -117,4 +118,7 @@ public class TeamAiTests
 
     // Sprint 206 (docs/classes-berserker.md): the Berserker of level 10, its Rage and its blood.
     private const string BerserkerFingerprint = "DF16BE2880C09200";
+
+    // Sprint 208 (docs/classes-paladin.md): the Paladin of level 10, its ward.
+    private const string PaladinFingerprint = "034A32D1C6AE01F2";
 }

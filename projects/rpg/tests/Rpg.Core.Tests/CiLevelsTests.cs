@@ -15,8 +15,14 @@ public class CiLevelsTests
     /// <summary>The smoke's fights at 100, split between the final classes and their lineages alone (sprint 197): a budget of their own, the first one's untouched.</summary>
     public const int FinalSmokeFights = 760;
 
-    /// <summary>The fights of each reference party.</summary>
-    public const int PartyFights = 40;
+    /// <summary>
+    /// The fights of each reference party: 40 until sprint 207; since sprint 208 (D97, the budget does not grow with the classes) a fixed budget of
+    /// <see cref="PartyBudget"/> shared between them, the same first seeds.
+    /// </summary>
+    public static int PartyFights => Math.Min(40, PartyBudget / Parties.Length);
+
+    /// <summary>What the reference parties play in all (sprint 208).</summary>
+    public const int PartyBudget = 1000;
 
     private static readonly string[] Names = ["Aube", "Brume", "Cendre", "Dune"];
 
@@ -138,6 +144,8 @@ public class CiLevelsTests
         "devourer",
         // Sprint 207: the King of the Clans' Clan Cry unplayed; the Beheader's Beheading a turn sooner changes none of a hero's fights.
         "clan-king", "beheader",
+        // Sprint 208: the Protector's finals act on allies, or on a hero falling, that the smoke has not.
+        "holy-bastion", "eternal-guardian", "paladin-aegis",
     };
 
     /// <summary>
@@ -157,6 +165,8 @@ public class CiLevelsTests
         ("ravager", "path-ravage"),
         // Sprint 207: with 3 fights a hero and a group, the Poisoner's AI no longer comes to its poisons.
         ("poisoner", "path-envenom"), ("poisoner", "path-plague"),
+        // Sprint 208: the Protector at 35 does not lay its Hallowed Ground yet; its lineages at 50 do.
+        ("protector", "path-hallowed-ground"),
     };
 
     /// <summary>
@@ -180,6 +190,8 @@ public class CiLevelsTests
         // Sprint 207 (docs/classes-berserker-2.md §3): with six classes, 3 fights a hero and a group (4 before); the Barbarian's and the Gladiator's
         // spells under the kit's ranked ones, the Clan Cry for allies the smoke has not, the Feral Leap a leap. To be mended at the second milestone.
         "path-clan-cry", "path-savage-blow", "path-feral-leap", "path-arena-strike", "path-blood-duel",
+        // Sprint 208 (docs/classes-paladin.md §4): the Defender's Shield of Faith serves allies the smoke has not.
+        "path-shield-of-faith",
     };
 
     /// <summary>
@@ -201,6 +213,9 @@ public class CiLevelsTests
         // The Berserker's (sprint 206, measured the same way).
         (["warrior", "berserker"], 62), (["archer", "berserker"], 72), (["priest", "berserker"], 60),
         (["mage", "rogue", "berserker"], 100), (["warrior", "priest", "berserker"], 100), (["archer", "mage", "rogue", "berserker"], 100),
+        // The Paladin's (sprint 208, measured the same way).
+        (["mage", "paladin"], 55), (["archer", "paladin"], 60), (["rogue", "paladin"], 60),
+        (["archer", "mage", "paladin"], 100), (["priest", "berserker", "paladin"], 95), (["warrior", "mage", "rogue", "paladin"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>

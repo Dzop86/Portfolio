@@ -88,7 +88,7 @@ public class BalanceTests
         }
     }
 
-    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest", "rogue", "berserker"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest", "rogue", "berserker", "paladin"];
 
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
@@ -158,7 +158,9 @@ public class BalanceTests
         double Wins(string id, IReadOnlyDictionary<Slot, string> worn)
         {
             Hero hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 45), Real, worn);
-            return hordes.AsParallel().Select(g => Results(MonsterGroup.Prefix + g.Id, 10, hero)[0]).Average();
+            // A sample since sprint 208 (D97): 60 fights a horde and a kit shared between the classes, 6 at least; in tenths, as measured.
+            int fights = Math.Max(6, 60 / Classes.Length);
+            return hordes.AsParallel().Select(g => 10.0 * Results(MonsterGroup.Prefix + g.Id, fights, hero)[0] / fights).Average();
         }
         double[] gain = [.. Classes.Select(id => Wins(id, now) - Wins(id, before))];
         // 3 a class since the first milestone (sprint 203, docs/jalon-1.md §2): the Priest's heals grown with its level gain 2.6 with these
@@ -195,6 +197,7 @@ public class BalanceTests
     [InlineData("priest")]
     [InlineData("rogue")]
     [InlineData("berserker")]
+    [InlineData("paladin")]
     public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
     {
         // Sprint 95 (D71): "rumble-under-the-wallow" asks for the great hall, at least 7 times in 10 alone,

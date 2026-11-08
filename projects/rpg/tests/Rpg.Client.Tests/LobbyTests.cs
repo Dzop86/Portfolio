@@ -13,7 +13,7 @@ public partial class LobbyTests
     {
         Assert.Equal(10, Lobby.Roster.Select(c => c.Id).Distinct().Count());
         Assert.All(GameData.Embedded.Classes, c => Assert.Contains(c.Id, Lobby.Roster.Select(r => r.Id)));
-        Assert.Equal(["warrior", "mage", "priest", "rogue", "archer", "berserker"], Lobby.Roster.Where(c => c.Playable(GameData.Embedded)).Select(c => c.Id));
+        Assert.Equal(["warrior", "paladin", "mage", "priest", "rogue", "archer", "berserker"], Lobby.Roster.Where(c => c.Playable(GameData.Embedded)).Select(c => c.Id));
         Assert.All(Lobby.Roster, c => Assert.False(string.IsNullOrEmpty(c.Name.Fr) || string.IsNullOrEmpty(c.Name.En)));
     }
 

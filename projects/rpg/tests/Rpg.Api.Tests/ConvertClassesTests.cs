@@ -52,7 +52,8 @@ public class ConvertClassesTests
     [Theory]
     [InlineData("guard")]
     [InlineData("sentinel")]
-    [InlineData("paladin")]
+    // Sprint 208: the Paladin is in the game, the Druid not yet.
+    [InlineData("druid")]
     public async Task AClassNoLongerOrNotYetInTheGame_IsRefused(string id)
     {
         var api = new ApiFactory();

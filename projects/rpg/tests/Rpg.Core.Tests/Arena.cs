@@ -24,10 +24,10 @@ internal static class Arena
     public static GameData Real => GameData.Embedded;
 
     /// <summary>
-    /// The branches written so far of a class written over two sprints (D96): the Berserker had its Ravager alone in sprint 206. Every other class has
-    /// its three; none is being written since sprint 207.
+    /// The branches written so far of a class written over two sprints (D96): the Berserker had its Ravager alone in sprint 206; the Paladin its
+    /// Protector in sprint 208, its Templar and Avenger in 209. Every other class has its three.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal);
+    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal) { ["paladin"] = 1 };
 
     /// <summary>The branches a class has in the data: three, or those written so far.</summary>
     public static int BranchesOf(string id) => Writing.GetValueOrDefault(id, 3);

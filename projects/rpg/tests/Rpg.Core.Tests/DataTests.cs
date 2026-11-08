@@ -10,7 +10,7 @@ public class DataTests
     {
         // The nine spells of the first sprints, still there for the monsters and the recorded fights.
         Assert.Subset(Real.Spells.Keys.ToHashSet(), new HashSet<string>(["arrow", "axe", "club", "fireball", "sling", "spark", "spear", "staff", "strike"]));
-        Assert.Equal(["archer", "warrior", "mage", "priest", "rogue", "berserker"], Real.Classes.Select(c => c.Id));
+        Assert.Equal(["archer", "warrior", "mage", "priest", "rogue", "berserker", "paladin"], Real.Classes.Select(c => c.Id));
         foreach (HeroClass c in Real.Classes)
             Assert.False(string.IsNullOrWhiteSpace(c.Description.Fr) || string.IsNullOrWhiteSpace(c.Description.En), c.Id);
         Assert.Equal(["duel", "loft-rats", "the-disjoint", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
