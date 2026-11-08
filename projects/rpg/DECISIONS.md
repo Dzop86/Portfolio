@@ -1077,3 +1077,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Des poisons qui se cumulent sans plafond : un boss empoisonné à l'infini (Q3). La consommation des poisons dès maintenant : aucun sort de l'arbre du Voleur pour la porter, elle ira à l'Occultiste (Q2). Rallonger tout état posé sur soi : aurait changé les combats d'autres voies.
 
 **Limites.** L'IA ne joue pas les bonds (Cabriole, Pas de l'ombre) ni le Coup bas, et six finales du Voleur ne changent aucun combat de la fumée : à reprendre au jalon 2. La valeur du cumul pour l'IA est estimée, non mesurée seule.
+
+## T169. Le Berserker, première moitié : le sang, la Rage et le Ravageur (sprint 206, D96)
+
+**Décision.** `docs/classes-berserker.md`, écrit par moi. Le Berserker (`berserker`) : 90 + 5 PV, 8 PA, 5 PM, initiative 20, budget 1,1, au contact. **Son moteur, la fureur** (règle de classe `fury`) : la moitié de la part de PV qui lui manque en dégâts de plus, 40 % au plus, **au-delà du plafond des talents**. **Trois briques** : un sort payé en PV (`hpCost`, les PV d'abord, jamais le dernier, `HpPaid`), le vol de vie (`drain`) et la forme (la **Rage** : +25 % de dégâts pour tout le combat, 5 sorts qui la demandent, aucune purge ne la prend, le modèle grandi d'un cinquième). Ses zones de mêlée se lancent sur sa propre case et l'épargnent (`Fight.Spares`, portée 0 seulement). 24 sorts et 96 jumeaux ; le Ravageur, 2 lignées et 4 finales dès ce sprint. Les deux exigences en solo de la CI jouent un échantillon de 300 combats partagé entre les classes (D97).
+
+**Alternatives.** La fureur sous le plafond : 40 % inutiles au-delà de 35. Une Rage à durée : la conception la veut sans retour. Épargner le lanceur de toute zone : aurait changé le Fendage du Guerrier et des combats en place. Relever le budget de 20 000 combats : contraire à D97.
+
+**Limites.** L'IA ne joue pas les sorts du Ravageur payés en PV : un sort de voie reste sous les sorts du kit et leurs rangs (Q5, comme le Coup bas du Voleur). Le Fendage du Guerrier touche toujours son lanceur sur une case voisine : à juger au jalon 2. La Rage grandit le modèle, aucun corps neuf (direction artistique reportée) ; non vu par moi (Godot sans écran).

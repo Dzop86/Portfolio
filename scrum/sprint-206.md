@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Berserker, mon kit paie en PV et change de forme, et je deviens Ravageur (rpg) ; xUnit. PloufBerserker créé. | 5 | À faire |
+| En tant que Berserker, mon kit paie en PV et change de forme, et je deviens Ravageur (rpg) ; xUnit. PloufBerserker créé. | 5 | Fait : 3 briques (sort payé en PV, vol de vie, la Rage) et sa fureur hors plafond, les zones autour de soi qui l'épargnent, 24 sorts et leurs 96 jumeaux, leurs icônes ; le Ravageur, ses 2 lignées et ses 4 finales ; exigences en solo tenues et passées à un échantillon partagé (budget de D97 dépassé à 6 classes), 6 groupes de référence ; l'IA ne joue pas les sorts du Ravageur payés en PV (Q5) ; PloufBerserker à la livraison du sprint 219 (T169) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

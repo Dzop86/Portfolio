@@ -320,3 +320,7 @@ Voir `docs/classes-voleur.md` §6. Disjoint seul au niveau 30 : 0 sur 100 au bud
 ## 8 novembre 2026 : le Voleur, les poisons et l'Ombremage (S205, T168)
 
 Voir `docs/classes-voleur-2.md` §3. Exigences en solo, groupes de référence et empreintes inchangés ; l'IA ne joue pas le Pas de l'ombre (un bond).
+
+## 8 novembre 2026 : le Berserker (S206, T169)
+
+Voir `docs/classes-berserker.md` §5. Exigences en solo tenues ; groupes : Guerrier + Berserker 62 %, Archer + Berserker 72 %, Prêtre + Berserker 60 %, trios et groupe de quatre 100 %. Disjoint seul et grande salle passés à un échantillon de 300 combats partagés (D97).
