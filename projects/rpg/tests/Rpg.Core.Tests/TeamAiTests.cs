@@ -85,17 +85,23 @@ public class TeamAiTests
     [Fact]
     public void AHeroAlone_PlaysTheSameFightsAsBeforeSprint122()
     {
-        var all = new StringBuilder();
-        foreach (HeroClass c in Real.Classes)
+        static string Of(IEnumerable<HeroClass> classes)
         {
-            for (ulong seed = 0; seed < 10; seed++)
+            var all = new StringBuilder();
+            foreach (HeroClass c in classes)
             {
-                var f = new Fight(Real, "training", seed, Progression.Built(new Hero("Aube", "female-c", c.Id, Level: 10), Real));
-                Ai.PlayOut(f);
-                all.Append(Fingerprint(f)).Append('\n');
+                for (ulong seed = 0; seed < 10; seed++)
+                {
+                    var f = new Fight(Real, "training", seed, Progression.Built(new Hero("Aube", "female-c", c.Id, Level: 10), Real));
+                    Ai.PlayOut(f);
+                    all.Append(Fingerprint(f)).Append('\n');
+                }
             }
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16];
         }
-        Assert.Equal(SoloFingerprint, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16]);
+        // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks.
+        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id != "rogue")));
+        Assert.Equal(RogueFingerprint, Of(Real.Classes.Where(c => c.Id == "rogue")));
     }
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
@@ -104,4 +110,7 @@ public class TeamAiTests
     // Warrior's fights unchanged (measured alone, the same fingerprint before and after).
     // Sprint 203 (docs/jalon-1.md): the Warrior's hit points swept to 74 + 5, the Priest's heals growing with its level.
     private const string SoloFingerprint = "E6B69159D0E58685";
+
+    // Sprint 204 (docs/classes-voleur.md): the Rogue of level 10, its engine and its Stealth.
+    private const string RogueFingerprint = "A15F1685850AA85E";
 }

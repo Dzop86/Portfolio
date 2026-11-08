@@ -222,6 +222,7 @@ public class FinalsTests
         }
         Assert.NotNull(Made("one-more"));
         Assert.Throws<InvalidDataException>(() => Made("one"));
-        Assert.Equal(12 * Real.Classes.Count, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
+        // The Rogue's Shadowmage and its 4 finals come in sprint 205.
+        Assert.Equal((12 * (Real.Classes.Count - 1)) + 8, Real.Specs.Values.SelectMany(s => s.Forks).SelectMany(f => f.Finals ?? []).Select(f => f.Id).Distinct().Count());
     }
 }

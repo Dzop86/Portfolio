@@ -261,11 +261,13 @@ public class ArcherPathsTests
     }
 
     [Fact]
-    public void TheVaultAndTheFeint_HaveNoPathLeft_KeptForTheThief()
+    public void TheVaultAndTheFeint_LeftTheArcher_ForTheRoguesMalandrin()
     {
-        string[] used = [.. Real.Specs.Values.SelectMany(s => s.SpellsWith(null).Concat(s.Forks.SelectMany(f => s.SpellsWith(f.Id))))];
+        // Sprint 204: they are the Malandrin's, none of the Archer's paths has them.
+        string[] used = [.. Real.Specs.Values.Where(s => s.Class == "archer").SelectMany(s => s.SpellsWith(null).Concat(s.Forks.SelectMany(f => s.SpellsWith(f.Id))))];
         Assert.DoesNotContain("path-vault", used);
         Assert.DoesNotContain("path-feint", used);
+        Assert.Equal("scoundrel", Real.Specs.Values.Single(s => s.SpellsWith(null).Contains("path-vault")).Id);
         Assert.True(Real.Spells.ContainsKey("path-vault") && Real.Spells.ContainsKey("path-feint"));
         Assert.DoesNotContain(Real.Specs.Values.SelectMany(s => s.Forks), f => f.Id == "leaper");
     }

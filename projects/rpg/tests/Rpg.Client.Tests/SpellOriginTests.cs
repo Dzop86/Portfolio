@@ -110,6 +110,20 @@ public class SpellOriginTests
     }
 
     [Fact]
+    public void TheForecast_NamesTheClassAndPathsShare_TheRoguesEngineOnAnIsolatedTarget()
+    {
+        // Sprint 204: the Rogue's rules come as the talent "path", of no tree; the forecast named it from the tree and failed.
+        GameData data = Arena();
+        var fight = new Fight(data, "s", 1, Progression.Built(new Hero("Ondine", "female-c", "rogue", Level: 5), data));
+        Fighter hero = fight.HeroFighter!, target = fight.Fighters[1];
+        Spell knife = hero.Spells.First(s => s.Id == "thrown-knife");
+        Forecast fc = fight.Foresee(knife, target.Cell).Single(f => f.Fighter == target);
+        Assert.Equal([new TalentShare("path", 15)], fc.Tree);
+        Assert.Contains("classe et voie +15 %", new Texts("fr").TreeShares(fc), StringComparison.Ordinal);
+        Assert.Contains("class and path +15%", new Texts("en").TreeShares(fc), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ANodesLine_BeforeAndAfter_IsThePercentsDifference()
     {
         Hero hero = Sentinel(40) with { Stats = new Characteristics(Earth: 50) };

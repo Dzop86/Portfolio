@@ -287,9 +287,10 @@ public static class Program
                 var rng = new Random(unchecked((int)options.Seed * 1_000_003 + (k * 7_919) + i));
                 Hero Drawn(string cls, string pair, string name) =>
                     Progression.Talented(new Hero(name, "female-c", cls, Level: level), TreeDraws.Random(level, rng, data), data, worn, Created(pair));
+                // Three heroes of three classes (sprint 204): the lead in turn, and the two classes after it, whatever the number of classes.
                 string lead = classes[i % classes.Length];
                 Hero hero = Drawn(lead, pairs[k], "Aube");
-                Hero[] allies = [.. classes.Where(c => c != lead).Select((c, j) => Drawn(c, "none", AllyNames[j]))];
+                Hero[] allies = [.. Enumerable.Range(1, Math.Min(2, classes.Length - 1)).Select(j => Drawn(classes[(i + j) % classes.Length], "none", AllyNames[j - 1]))];
                 var fight = new Fight(data, fights[i % fights.Count], options.Seed + (ulong)i, hero, null, null, allies);
                 Ai.PlayOut(fight);
                 if (fight.WinningTeam == 0)
@@ -478,8 +479,8 @@ public static class Program
         };
 
         public string TrioHeader(int n) => Fr
-            ? $"## Trios : un héros de chaque classe, l'un avec le composé, les deux autres sans, {n} combats par composé"
-            : $"## Trios: one hero of each class, one with the compound, the two others without, {n} fights a compound";
+            ? $"## Trios : trois héros de trois classes, l'un avec le composé, les deux autres sans, {n} combats par composé"
+            : $"## Trios: three heroes of three classes, one with the compound, the two others without, {n} fights a compound";
 
         public string TrioColumns => Fr ? "| Composé du premier | Victoires | Intervalle à 95 % |" : "| First hero's compound | Wins | 95 % interval |";
 

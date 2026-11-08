@@ -88,7 +88,7 @@ public class BalanceTests
         }
     }
 
-    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest", "rogue"];
 
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
@@ -163,7 +163,8 @@ public class BalanceTests
         double[] gain = [.. Classes.Select(id => Wins(id, now) - Wins(id, before))];
         // 3 a class since the first milestone (sprint 203, docs/jalon-1.md §2): the Priest's heals grown with its level gain 2.6 with these
         // pieces (archer 1.8, warrior 0.5, mage 0.7, an average of 1.4); the average stays capped at 1.5.
-        Assert.True(gain.All(g => g <= 3) && gain.Average() <= 1.5, $"gains of {string.Join(", ", gain.Select(g => g.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10");
+        // The average at 1.7 since the Rogue (sprint 204, docs/classes-voleur.md §6): it gains 2.4, an average of 1.6 for the five classes.
+        Assert.True(gain.All(g => g <= 3) && gain.Average() <= 1.7, $"gains of {string.Join(", ", gain.Select(g => g.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10");
     }
 
     [Fact]
@@ -190,6 +191,7 @@ public class BalanceTests
     [InlineData("warrior")]
     [InlineData("mage")]
     [InlineData("priest")]
+    [InlineData("rogue")]
     public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
     {
         // Sprint 95 (D71): "rumble-under-the-wallow" asks for the great hall, at least 7 times in 10 alone,

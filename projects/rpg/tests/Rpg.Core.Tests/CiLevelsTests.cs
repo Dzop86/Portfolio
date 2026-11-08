@@ -60,10 +60,14 @@ public class CiLevelsTests
         var families = new Dictionary<int, SyntheticFamily> { [35] = new(35), [Specs.Forks] = new(Specs.Forks), [Specs.Finals] = new(Specs.Finals) };
         var heroes = Heroes(Real);
         // Each class: the hero without a path, 3 branches at 35, the hero and 6 lineages at 50; a class converted, at 100 the hero, 6 lineages and 12 final classes;
-        // a class without its paths yet (the Priest of sprint 201), the hero at 35 and at 50.
-        int converted = Real.Classes.Count(c => Real.Specs.Values.Any(s => s.Class == c.Id && s.Forks.Any(f => f.Finals is { Count: > 0 })));
-        int pathless = Real.Classes.Count(c => !Real.Specs.Values.Any(s => s.Class == c.Id));
-        Assert.Equal(((Real.Classes.Count - pathless) * 11) + (pathless * 2) + (converted * 19), heroes.Count);
+        // a class without its paths yet (the Priest of sprint 201), the hero at 35 and at 50; with 2 branches of 3 (the Rogue of sprint 204), 8 and 13.
+        int Expected(HeroClass c)
+        {
+            int branches = Real.Specs.Values.Count(s => s.Class == c.Id);
+            bool converted = Real.Specs.Values.Any(s => s.Class == c.Id && s.Forks.Any(f => f.Finals is { Count: > 0 }));
+            return 2 + (3 * branches) + (converted ? 1 + (6 * branches) : 0);
+        }
+        Assert.Equal(Real.Classes.Sum(Expected), heroes.Count);
 
         // Each hero's fights, to tell whether a final class changes any against its lineage alone.
         var prints = new System.Collections.Concurrent.ConcurrentDictionary<(string, int, string?, string?), string[]>();
@@ -124,6 +128,9 @@ public class CiLevelsTests
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
         // late (Healing Wave, Exorcism, Zeal, Vision) or an ally (Life Warden) change none of them. Sprint 203: the Remedy, its heals grown with the level, now does.
         "vaulter", "saint", "life-warden", "purifier", "zealot", "divine-sage",
+        // The Rogue (sprint 204, docs/classes-voleur.md §6): the Dancing Blade's Vault and the Trap Master's second Caltrops unplayed; the Demolisher's
+        // target without movement points hardly met alone; the Silent Reaper's Execution a turn sooner changes none of a hero's 5 fights.
+        "dancing-blade", "demolisher", "trap-master", "silent-reaper",
     };
 
     /// <summary>
@@ -150,6 +157,9 @@ public class CiLevelsTests
         "path-rune", "path-crescendo",
         // The Priest (sprint 202, docs/classes-pretre-2.md §4): the Resurrection raises a fallen ally, and the smoke fights alone.
         "path-resurrect",
+        // The Rogue (sprint 204): the Vault, a leap, as the Assault (its 0.1 a fight of T152); the Low Blow, weaker a point of action than the kit's
+        // spells and their ranks, even at 3 AP.
+        "path-vault", "path-backstab",
     };
 
     /// <summary>
@@ -165,6 +175,9 @@ public class CiLevelsTests
         // The Priest's (sprint 201, measured the same way; the twelve above measured again, unchanged).
         (["warrior", "priest"], 57), (["archer", "priest"], 72), (["mage", "priest"], 62),
         (["warrior", "archer", "priest"], 95), (["warrior", "mage", "priest"], 87), (["warrior", "archer", "mage", "priest"], 100),
+        // The Rogue's (sprint 204, measured the same way).
+        (["warrior", "rogue"], 60), (["archer", "rogue"], 60), (["mage", "rogue"], 57),
+        (["warrior", "archer", "rogue"], 100), (["warrior", "priest", "rogue"], 97), (["archer", "mage", "priest", "rogue"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>
