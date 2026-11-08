@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Voleur, les poisons se cumulent, je deviens aussi Ombremage, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 5 | À faire |
+| En tant que Voleur, les poisons se cumulent, je deviens aussi Ombremage, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 5 | Fait : 2 briques (poisons cumulés jusqu'à 3 doses et leur valeur pour l'IA, coup porté caché), l'Ombremage, ses 2 lignées, 4 sorts de voie et 4 finales dont le passif « Évanouissement » ; le Voleur a ses 12 finales (8 écrites dès le sprint 204) ; exigences en solo et groupes tenus sans retouche ; l'IA ne joue pas le Pas de l'ombre (Q5 de `classes-voleur.md`) ; consommer les poisons laissé à l'Occultiste (Q2) ; l'auto-test Godot de l'arbre suit les données (CI rouge au sprint 204) (T168) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

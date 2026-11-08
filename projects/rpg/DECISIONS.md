@@ -1069,3 +1069,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Les PV à 58 + 5 pour battre le Disjoint seul : 19 sur 20, mais aussi solide que le Guerrier, contraire à sa fiche. Le budget 1,1 : 17 sur 100 (la CI en veut 30). Des finales provisoires à 100 en attendant le sprint 205 : une lignée sans finales n'est pas valide, elles auraient été jetées. Une invisibilité totale : un monstre de loin n'aurait plus rien à faire.
 
 **Limites.** Effet de seuil contre le Disjoint : à 1,15, il le bat presque toujours (un point de dés décide). L'IA ne joue ni le Coup bas ni la Cabriole (`Unplayed`), et quatre finales ne changent aucun combat de la fumée (`Unchanged`). La prévision nommait les parts de bonus par leur talent de l'arbre et aurait échoué sur une règle vivante de voie : corrigé (« classe et voie »). Le client dessine le porteur caché, non vu par moi (Godot sans écran).
+
+## T168. Le Voleur, seconde moitié : les poisons cumulés et l'Ombremage (sprint 205, D96)
+
+**Décision.** `docs/classes-voleur-2.md`, écrit par moi. **Les poisons du Voleur se cumulent** (règle de classe `stack`, 3 doses au plus, même lanceur et même élément, les tours les plus longs), et l'IA compte la part de dose qui s'ajoute. **L'Ombremage** : +20 % sur un coup porté caché (règle `shadow`, le contexte d'un coup sait si le lanceur est caché), Pas de l'ombre et Lame d'ombre ; le Traqueur nocturne (Discrétion +1 tour, Guet-apens), l'Illusionniste (Faux-semblant : l'Image du Mage à sa place, et il disparaît) ; 4 finales, dont le Fantôme et son passif « Évanouissement ». La règle « +1 tour d'état » rallonge aussi la Discrétion posée sur soi, aucun autre bonus. Le Voleur a ses 12 finales.
+
+**Alternatives.** Des poisons qui se cumulent sans plafond : un boss empoisonné à l'infini (Q3). La consommation des poisons dès maintenant : aucun sort de l'arbre du Voleur pour la porter, elle ira à l'Occultiste (Q2). Rallonger tout état posé sur soi : aurait changé les combats d'autres voies.
+
+**Limites.** L'IA ne joue pas les bonds (Cabriole, Pas de l'ombre) ni le Coup bas, et six finales du Voleur ne changent aucun combat de la fumée : à reprendre au jalon 2. La valeur du cumul pour l'IA est estimée, non mesurée seule.

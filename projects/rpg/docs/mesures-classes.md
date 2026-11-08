@@ -316,3 +316,7 @@ Voir `docs/jalon-1.md`. Guerrier à 74 + 5 : 37,9 / 50,2 / 47,3 à 35 / 50 / 100
 ## 8 novembre 2026 : le Voleur, la discrétion (S204, T167)
 
 Voir `docs/classes-voleur.md` §6. Disjoint seul au niveau 30 : 0 sur 100 au budget 1,05 (21 PV laissés au boss sur 449), 17 à 1,1, 25 à 1,12 et 1,13, 20 sur 20 à 1,15 (retenu) ; 58 + 5 PV essayé et rejeté (aussi solide que le Guerrier). Groupes de référence : Guerrier + Voleur 60 %, Archer + Voleur 60 %, Mage + Voleur 57 %, trios 100 et 97 %, à quatre 100 %. Les quatre autres classes, mêmes combats en solo qu'avant (empreinte E6B69159D0E58685).
+
+## 8 novembre 2026 : le Voleur, les poisons et l'Ombremage (S205, T168)
+
+Voir `docs/classes-voleur-2.md` §3. Exigences en solo, groupes de référence et empreintes inchangés ; l'IA ne joue pas le Pas de l'ombre (un bond).

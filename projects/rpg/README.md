@@ -124,6 +124,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
+Sprint 205 : 9 tests de plus (`Rpg.Core` : `ShadowmageTests`, les poisons du Voleur qui se cumulent jusqu'à 3 doses, la règle de sa classe et ce qu'en fait l'IA, le coup porté caché, le Pas de l'ombre, la Discrétion rallongée du Traqueur, le Faux-semblant, les finales et l'Évanouissement du Fantôme). L'Ombremage et les poisons cumulés (T168, `docs/classes-voleur-2.md`).
+
 Sprint 204 : 17 tests de plus (`Rpg.Core` : `RogueTests`, la cible isolée et les règles d'une classe, la Discrétion visée de 2 cases au plus, qui tombe quand le Voleur blesse et que la purge arrache, le kit et son barème, la valeur de la Discrétion pour l'IA ; `RoguePathsTests`, l'Assassin et le Malandrin, leurs lignées et leurs 8 finales ; `Rpg.Api` : un Voleur créé avec son moteur ; `Rpg.Client` : la prévision nomme la part « classe et voie »). Le Voleur (T167, `docs/classes-voleur.md`).
 
 Sprint 203 : jalon 1, 1 test de plus (`Rpg.Core` : un soin du Prêtre suit son niveau). Les PV du Guerrier balayés à 74 + 5, la mesure des 4 classes dans `REVIEW.md` et `docs/jalon-1.md` (T166).
