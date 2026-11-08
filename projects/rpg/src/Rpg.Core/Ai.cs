@@ -589,6 +589,12 @@ public static class Ai
     /// </summary>
     private static double Renewed(Fighter me, Fighter f, StatusEffect st)
     {
+        // A poison that stacks (sprint 205): the share of the dose that adds to what is there.
+        if (st.Stat == Stat.Poison && st.Value > 0 && Fight.StackOf(me) is int max)
+        {
+            int there = f.Statuses.Where(s => s.Stat == Stat.Poison && s.Element == st.Element && s.Source == me.Id && s.Reaction is null).Select(s => s.Value).DefaultIfEmpty(0).Max();
+            return Math.Max(0, Math.Min(there + st.Value, max * st.Value) - there) / (double)st.Value;
+        }
         int left = f.Statuses.Where(s => s.Stat == st.Stat && s.Element == st.Element && s.Source == me.Id).Select(s => s.TurnsLeft).DefaultIfEmpty(0).Max();
         return Math.Max(0, st.Turns - left) / (double)st.Turns;
     }

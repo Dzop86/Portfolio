@@ -71,7 +71,7 @@ public sealed class Fighter
 
     /// <summary>What its living talents would read of a hit with <paramref name="spell"/> now (sprint 141).</summary>
     public HitContext Context(Spell? spell, bool walking = false) =>
-        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0, Spell: spell?.RankKey);
+        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0, Spell: spell?.RankKey, Hidden: Hidden);
 
     /// <summary>The movement points its statuses leave it for its next turn (sprint 192): none, a target the Crush waits for.</summary>
     public bool HeldStill => Spec.Mp + StatusList.Where(s => s.Stat == Stat.Mp).Sum(s => s.Value) <= 0;
@@ -1343,6 +1343,10 @@ public sealed class Fight
     /// <summary>The turns of the healed fighter a heal's excess shields it (sprint 201).</summary>
     public const int OverflowTurns = 2;
 
+    /// <summary>How many doses a fighter's poisons stack to (sprint 205), or null: they are renewed.</summary>
+    public static int? StackOf(Fighter f) =>
+        (f ?? throw new ArgumentNullException(nameof(f))).Talents.SelectMany(t => t.Rules).OfType<StackRule>().Select(r => (int?)r.Max).DefaultIfEmpty(null).Max();
+
     /// <summary>The cells from which an enemy may still aim at a hidden fighter (the Rogue's Stealth, sprint 204).</summary>
     public const int HiddenCells = 2;
 
@@ -1378,6 +1382,10 @@ public sealed class Fight
     /// <param name="reaction">The reaction setting it (sprint 137): the status bears its name, and renews only its own.</param>
     private void SetStatus(Fighter me, Fighter f, StatusEffect status, string? reaction = null)
     {
+        // The Rogue's poisons stack (sprint 205): added to the one of their element it left there, up to its rule's times the new dose, the longer turns.
+        if (status.Stat == Stat.Poison && reaction is null && StackOf(me) is int max
+            && f.StatusList.FirstOrDefault(st => st.Stat == Stat.Poison && st.Element == status.Element && st.Source == me.Id && st.Reaction is null) is Status before)
+            status = status with { Value = Math.Min(before.Value + status.Value, max * status.Value), Turns = Math.Max(before.TurnsLeft, status.Turns) };
         // The same status from the same caster is renewed, not stacked; one fighter electrified by each caster (sprint 140).
         f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id && st.Reaction == reaction);
         if (status.Stat == Stat.Electrified)

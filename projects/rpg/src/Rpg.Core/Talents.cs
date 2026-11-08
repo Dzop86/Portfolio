@@ -76,6 +76,8 @@ public enum Tier
 [JsonDerivedType(typeof(SharedMarkRule), "shared-mark")]
 [JsonDerivedType(typeof(VirtuosoRule), "virtuoso")]
 [JsonDerivedType(typeof(IsolatedRule), "isolated")]
+[JsonDerivedType(typeof(StackRule), "stack")]
+[JsonDerivedType(typeof(ShadowRule), "shadow")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -255,6 +257,15 @@ public sealed record GlyphTurnsRule(int Extra) : TalentRule;
 /// <summary>Living, the Rogue's engine (sprint 204, docs/classes-voleur.md §2): <see cref="Percent"/> % more on a target with no fighter of its side within <see cref="Cells"/> cells.</summary>
 public sealed record IsolatedRule(int Cells, int Percent) : TalentRule;
 
+/// <summary>
+/// Living, the Rogue's (sprint 205, docs/classes-voleur-2.md §1): the bearer's poisons stack. A poison of an element it already left on a fighter adds
+/// its value to that one's, up to <see cref="Max"/> times the new one's, and lasts the longer of the two.
+/// </summary>
+public sealed record StackRule(int Max) : TalentRule;
+
+/// <summary>Living, the Shadowmage's (sprint 205): <see cref="Percent"/> % more on a hit cast while the bearer is hidden.</summary>
+public sealed record ShadowRule(int Percent) : TalentRule;
+
 /// <summary>Living: the bearer's spells hit <see cref="Percent"/> % harder (or softer) on a target <see cref="MinCells"/> to <see cref="MaxCells"/> cells away.</summary>
 public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : TalentRule;
 
@@ -305,9 +316,10 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="TargetStill">The target has no movement point for its next turn (sprint 192); <paramref name="TargetStates"/>, the states on it; <paramref name="Spell"/>, the spell's rank key.</param>
 /// <param name="LureCells">Sprint 200: the cells between the target and the nearest of the caster's lures (<see cref="int.MaxValue"/>: none).</param>
 /// <param name="AllyCells">Sprint 204: the cells between the target and the nearest fighter of its side (<see cref="int.MaxValue"/>: none).</param>
+/// <param name="Hidden">Sprint 205: the caster is hidden as it casts (the Shadowmage's).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
     bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue,
-    int AllyCells = int.MaxValue);
+    int AllyCells = int.MaxValue, bool Hidden = false);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -573,7 +585,8 @@ public static class Talents
         if (s.Twin is null)
         {
             foreach (StatusTurnsRule longer in rules.OfType<StatusTurnsRule>())
-                s = s with { Effects = s.Effects?.Select(e => e is StatusEffect { Affects: Affects.Enemies } st && longer.Stats.Contains(st.Stat) ? st with { Turns = st.Turns + longer.Extra } : e).ToList() };
+                // The enemies' statuses; and Stealth on oneself (the Night Stalker's, sprint 205), no other boon.
+                s = s with { Effects = s.Effects?.Select(e => e is StatusEffect st && (st.Affects == Affects.Enemies || st is { Affects: Affects.Caster, Stat: Stat.Hidden }) && longer.Stats.Contains(st.Stat) ? st with { Turns = st.Turns + longer.Extra } : e).ToList() };
         }
         // A compound's glyph, Ash's signature, does not last longer (sprint 191, §v4.6).
         int extraTurns = rules.OfType<GlyphTurnsRule>().Sum(r => r.Extra);
@@ -656,6 +669,7 @@ public static class Talents
             + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside)
             + rules.OfType<LureTargetRule>().Sum(r => c.LureCells <= r.Cells ? r.Percent : 0)
             + rules.OfType<IsolatedRule>().Sum(r => c.AllyCells > r.Cells ? r.Percent : 0)
+            + rules.OfType<ShadowRule>().Sum(r => c.Hidden ? r.Percent : 0)
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);

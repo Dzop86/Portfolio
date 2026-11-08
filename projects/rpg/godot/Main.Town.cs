@@ -3201,8 +3201,10 @@ public partial class Main
                     problems.Add($"the tree's button leaves its place in {language.Lang}");
                 // Three branches, six lineages and the column 100 of the open branch (sprint 196, §14.1): two evolutions until the classes have final classes.
                 // The first branch's column 100: two final classes a lineage once the class is converted (sprint 197: the Warrior), else one evolution.
-                int last = GameData.Embedded.Specs.Values.First(s => s.Class == c.Id).Forks.Sum(f => f.Finals?.Count ?? 1);
-                if (page.SpecButtons.Count != 9 + last || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
+                // Its branches and lineages as the data has them (sprint 204: the Rogue had two branches of three for a sprint).
+                Specialisation[] branches = [.. GameData.Embedded.Specs.Values.Where(s => s.Class == c.Id)];
+                int last = branches.Length == 0 ? 0 : branches[0].Forks.Sum(f => f.Finals?.Count ?? 1);
+                if (page.SpecButtons.Count != branches.Length + branches.Sum(b => b.Forks.Count) + last || page.SpecButtons.Values.Any(b => b.Size.Y < 44))
                     problems.Add($"the tree of {c.Id} has {page.SpecButtons.Count} tiles, the smallest {page.SpecButtons.Values.Min(b => b.Size.Y)} tall");
                 // Each branch opened in turn, its column 100 read: a click changes the column, the keys are read again after each.
                 foreach (Specialisation branch in GameData.Embedded.Specs.Values.Where(s => s.Class == c.Id))
