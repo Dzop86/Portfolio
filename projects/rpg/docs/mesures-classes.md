@@ -312,3 +312,7 @@ Voir `docs/classes-pretre-2.md` §4. Retenu, à 35 : sans voie 24,4, Clerc 39,2,
 ## 7 novembre 2026 : jalon 1, les PV balayés (S203, T166)
 
 Voir `docs/jalon-1.md`. Guerrier à 74 + 5 : 37,9 / 50,2 / 47,3 à 35 / 50 / 100 (24,0 / 32,3 / 20,8 avant). Mage à 72 + 3 essayé et rejeté (entraînement 320 sur 1000). Archer à 62 + 4 essayé et rejeté (31,9 à 50). Prêtre de 100 : environ 7 sans voie, quelque réglage qu'on essaie.
+
+## 8 novembre 2026 : le Voleur, la discrétion (S204, T167)
+
+Voir `docs/classes-voleur.md` §6. Disjoint seul au niveau 30 : 0 sur 100 au budget 1,05 (21 PV laissés au boss sur 449), 17 à 1,1, 25 à 1,12 et 1,13, 20 sur 20 à 1,15 (retenu) ; 58 + 5 PV essayé et rejeté (aussi solide que le Guerrier). Groupes de référence : Guerrier + Voleur 60 %, Archer + Voleur 60 %, Mage + Voleur 57 %, trios 100 et 97 %, à quatre 100 %. Les quatre autres classes, mêmes combats en solo qu'avant (empreinte E6B69159D0E58685).
