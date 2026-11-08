@@ -554,6 +554,7 @@ public sealed class Texts
         ["forecast.reaction"] = " — {0} !",
         ["forecast.tree"] = "   arbre : {0}",
         ["forecast.trunk"] = "tronc +{0} %",
+        ["forecast.path"] = "classe et voie",
         ["forecast.share"] = "{0} {1} %",
         ["forecast.ceiling"] = " (plafonné à +{0} %)",
         ["stat.Poison"] = "poison {0}{1}",
@@ -568,6 +569,7 @@ public sealed class Texts
         ["stat.Feint"] = "le prochain qui frappe au contact perd {0} PM",
         ["stat.Anchored"] = "indéplaçable",
         ["stat.Regen"] = "soin de {0} par tour",
+        ["stat.Hidden"] = "invisible au-delà de 2 cases",
         ["stat.Mp.all"] = "plus de déplacement",
         ["sd.spends-shield"] = "Consomme ton bouclier, jusqu'à {0} de dégâts en plus.",
         ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
@@ -609,6 +611,7 @@ public sealed class Texts
         ["error.NoValidTarget"] = "Ce sort vise un autre combattant, du bon camp.",
         ["error.SupportSpent"] = "Plus de soutien ce tour : un sort sur un allié attendra le prochain.",
         ["error.NoSummon"] = "Ce sort demande ta créature en jeu.",
+        ["error.Hidden"] = "Cette cible est cachée : approche-toi à 2 cases.",
         ["sd.needs"] = "Demande : {0} en jeu.",
         ["sd.aims"] = "Se lance sur : {0}.",
         ["lobby.title"] = "Osmose",
@@ -1820,6 +1823,7 @@ public sealed class Texts
         ["forecast.reaction"] = " — {0}!",
         ["forecast.tree"] = "   tree: {0}",
         ["forecast.trunk"] = "trunk +{0}%",
+        ["forecast.path"] = "class and path",
         ["forecast.share"] = "{0} {1}%",
         ["forecast.ceiling"] = " (capped at +{0}%)",
         ["stat.Poison"] = "poison {0}{1}",
@@ -1834,6 +1838,7 @@ public sealed class Texts
         ["stat.Feint"] = "the next to strike in melee loses {0} MP",
         ["stat.Anchored"] = "cannot be moved",
         ["stat.Regen"] = "heals {0} a turn",
+        ["stat.Hidden"] = "unseen beyond 2 cells",
         ["stat.Mp.all"] = "no more moving",
         ["sd.spends-shield"] = "Uses up your shield, for up to {0} more damage.",
         ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
@@ -1875,6 +1880,7 @@ public sealed class Texts
         ["error.NoValidTarget"] = "This spell aims at another fighter, of the right side.",
         ["error.SupportSpent"] = "No more support this turn: a spell on an ally will wait for the next.",
         ["error.NoSummon"] = "This spell needs your creature in play.",
+        ["error.Hidden"] = "This target is hidden: come within 2 cells.",
         ["sd.needs"] = "Needs: {0} in play.",
         ["sd.aims"] = "Cast on: {0}.",
         ["lobby.title"] = "Osmose",
@@ -2925,7 +2931,9 @@ public sealed class Texts
         var parts = new List<string>();
         if (fc.Trunk != 0)
             parts.Add(this["forecast.trunk", fc.Trunk]);
-        parts.AddRange(shares.Select(sh => this["forecast.share", GameData.Embedded.Talents[sh.Talent].Name.In(Lang), sh.Percent.ToString("+0;-0", CultureInfo.InvariantCulture)]));
+        // The rules of the class and the path come as one talent "path" (sprints 190 and 204), of no tree.
+        parts.AddRange(shares.Select(sh => this["forecast.share", GameData.Embedded.Talents.TryGetValue(sh.Talent, out TalentSpec? t) ? t.Name.In(Lang) : this["forecast.path"],
+            sh.Percent.ToString("+0;-0", CultureInfo.InvariantCulture)]));
         int sum = shares.Sum(sh => sh.Percent);
         return this["forecast.tree", string.Join(", ", parts)] + (sum > Rpg.Core.Talents.Ceiling ? this["forecast.ceiling", Rpg.Core.Talents.Ceiling] : "");
     }

@@ -250,7 +250,8 @@ public sealed record HeroClass(
     int Mp,
     int Initiative,
     IReadOnlyList<string> Spells,
-    int HpPerLevel = Fight.HpPerLevel);
+    int HpPerLevel = Fight.HpPerLevel,
+    IReadOnlyList<TalentRule>? Rules = null);
 
 /// <summary>A board, as described in <c>data/maps/*.json</c>.</summary>
 public sealed record MapSpec(string Id, LocalizedText Name, IReadOnlyList<string> Rows);

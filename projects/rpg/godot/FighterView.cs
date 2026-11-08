@@ -79,7 +79,19 @@ public partial class FighterView : Node3D
         _hp.Visible = Fighter.IsAlive;
         _ring.Visible = Fighter.IsAlive;
         _ring.Scale = current ? new Vector3(1.25f, 0.2f, 1.25f) : new Vector3(1, 0.15f, 1);
+        // The Rogue's Stealth (sprint 204): drawn half see-through while it lasts.
+        if (Fighter.Hidden != _seeThrough)
+        {
+            _seeThrough = Fighter.Hidden;
+            foreach (Node n in _model.FindChildren("*", "GeometryInstance3D", true, false))
+                ((GeometryInstance3D)n).Transparency = _seeThrough ? 0.55f : 0f;
+        }
     }
+
+    private bool _seeThrough;
+
+    /// <summary>Whether the model is drawn see-through (a hidden fighter, sprint 204).</summary>
+    public bool SeeThrough => _seeThrough;
 
     public string HpText => _hp.Text;
 

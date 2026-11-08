@@ -164,6 +164,12 @@ public enum Stat
 
     /// <summary>Hit points given back at the start of each of the fighter's turns, before the poisons (the Priest's Prayer, sprint 201): a poison the other way.</summary>
     Regen,
+
+    /// <summary>
+    /// Stealth (the Rogue's, sprint 204): an enemy can aim a spell at the bearer's cell from <see cref="Fight.HiddenCells"/> cells or less only;
+    /// it ends when the bearer hurts an enemy.
+    /// </summary>
+    Hidden,
 }
 
 /// <summary>

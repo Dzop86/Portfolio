@@ -75,6 +75,7 @@ public enum Tier
 [JsonDerivedType(typeof(WaveRule), "wave")]
 [JsonDerivedType(typeof(SharedMarkRule), "shared-mark")]
 [JsonDerivedType(typeof(VirtuosoRule), "virtuoso")]
+[JsonDerivedType(typeof(IsolatedRule), "isolated")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -251,6 +252,9 @@ public sealed record LeapSightRule : TalentRule;
 /// <summary>A path's (sprint 186, the Ambush): the glyphs its spells lay last that many turns more.</summary>
 public sealed record GlyphTurnsRule(int Extra) : TalentRule;
 
+/// <summary>Living, the Rogue's engine (sprint 204, docs/classes-voleur.md §2): <see cref="Percent"/> % more on a target with no fighter of its side within <see cref="Cells"/> cells.</summary>
+public sealed record IsolatedRule(int Cells, int Percent) : TalentRule;
+
 /// <summary>Living: the bearer's spells hit <see cref="Percent"/> % harder (or softer) on a target <see cref="MinCells"/> to <see cref="MaxCells"/> cells away.</summary>
 public sealed record DistanceRule(int MinCells, int MaxCells, int Percent) : TalentRule;
 
@@ -300,8 +304,10 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="Triggers">The hit sets a reaction off (sprint 144); <paramref name="OwnMark"/>, on the caster's own mark; <paramref name="Zone"/>, a spell with an area.</param>
 /// <param name="TargetStill">The target has no movement point for its next turn (sprint 192); <paramref name="TargetStates"/>, the states on it; <paramref name="Spell"/>, the spell's rank key.</param>
 /// <param name="LureCells">Sprint 200: the cells between the target and the nearest of the caster's lures (<see cref="int.MaxValue"/>: none).</param>
+/// <param name="AllyCells">Sprint 204: the cells between the target and the nearest fighter of its side (<see cref="int.MaxValue"/>: none).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
-    bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue);
+    bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue,
+    int AllyCells = int.MaxValue);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -649,6 +655,7 @@ public static class Talents
             + rules.OfType<BackedRule>().Sum(r => c.Backed ? r.Damage : r.Otherwise)
             + rules.OfType<GlyphTargetRule>().Sum(r => c.InMyGlyph ? r.Inside : r.Outside)
             + rules.OfType<LureTargetRule>().Sum(r => c.LureCells <= r.Cells ? r.Percent : 0)
+            + rules.OfType<IsolatedRule>().Sum(r => c.AllyCells > r.Cells ? r.Percent : 0)
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);

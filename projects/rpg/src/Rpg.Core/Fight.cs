@@ -144,6 +144,9 @@ public sealed class Fighter
     /// <summary>The cell of a Scattered fighter blocks neither way nor sight (sprint 185).</summary>
     public bool Incorporeal => StatusList.Any(s => s.Stat == Stat.Incorporeal);
 
+    /// <summary>Stealth (sprint 204): enemies aim at it from <see cref="Fight.HiddenCells"/> cells or less only.</summary>
+    public bool Hidden => StatusList.Any(s => s.Stat == Stat.Hidden);
+
     /// <summary>Heals up to <paramref name="amount"/>: the percent of Brine taken off, nothing while Parched (sprint 185); what was healed.</summary>
     internal int HealFor(int amount) => HealFor(amount, out _);
 
@@ -345,7 +348,8 @@ public sealed class Fight
             Reacts = freeReactions && hero.Level >= Elements.Pairs,
             // Its path's evolutions (sprint 186): passives, rules compiled into its spells (SpellsOf), adaptive spells in its strongest element.
             Passives = Specs.PassivesOf(hero, data) is { Count: > 0 } passives ? [.. f.Passives ?? [], .. passives] : f.Passives,
-            SpecRules = Specs.RulesOf(hero, data),
+            // The class's own rules (sprint 204, the Rogue's engine) come before its path's, read the same way.
+            SpecRules = [.. data.Class(hero.Class)?.Rules ?? [], .. Specs.RulesOf(hero, data)],
             SpecElement = Specs.Of(hero, data) is null ? Element.Neutral : Specs.AdaptiveElement(n.Stats, Talents.GrimoireOf(hero, data).Spells.Select(id => data.Spells[id]), linearReturns ? 0 : Characteristics.Threshold(hero.Level)),
         };
     }
@@ -565,6 +569,9 @@ public sealed class Fight
             return ActionError.OutOfRange;
         if (ally is not null && caster.SupportsThisTurn >= SupportOf(caster)!.PerTurn)
             return ActionError.SupportSpent;
+        // Stealth (sprint 204): a hidden enemy is aimed at from close by only.
+        if (At(target) is Fighter hidden && hidden.Team != caster.Team && hidden.Hidden && distance > HiddenCells)
+            return ActionError.Hidden;
         if (spell.InLine && !from.IsInLineWith(target))
             return ActionError.NotInLine;
         if (spell.LineOfSight && !LineOfSight.IsClear(from, target, c => c != caster.Cell && BlocksSight(c)))
@@ -867,6 +874,9 @@ public sealed class Fight
             // The Illusionist's (sprint 200): how far the target stands from the nearest of the caster's lures.
             LureCells = caster.Talents.Count == 0 ? int.MaxValue
                 : _fighters.Where(f => f.IsAlive && f.Lure && f.Summoner == caster.Id).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),
+            // The Rogue's engine (sprint 204): how far the nearest fighter of the target's side stands, its creatures too.
+            AllyCells = caster.Talents.Count == 0 ? int.MaxValue
+                : _fighters.Where(f => f.IsAlive && f != target && f.Team == target.Team).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),
         };
     }
 
@@ -1142,6 +1152,9 @@ public sealed class Fight
                     Arc(me, hit, roll, area, jump, spell.Element, context);
             }
         }
+        // Stealth ends as its bearer hurts an enemy (sprint 204), after the blow, before the spell's effects (one that hides again keeps it).
+        if (me.Hidden && area.Any(f => f.Team != me.Team) && (spell.DamageMax > 0 || spell.AllEffects.Any(e => e is StatusEffect { Stat: Stat.Poison, Affects: Affects.Enemies })))
+            Unhide(me);
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
         // Terrain (sprint 142): the last damage spell and its target, for an Echo; a spell that strikes nobody leaves its
         // Remanence; Side Step's free cell, once a turn.
@@ -1330,11 +1343,20 @@ public sealed class Fight
     /// <summary>The turns of the healed fighter a heal's excess shields it (sprint 201).</summary>
     public const int OverflowTurns = 2;
 
+    /// <summary>The cells from which an enemy may still aim at a hidden fighter (the Rogue's Stealth, sprint 204).</summary>
+    public const int HiddenCells = 2;
+
+    private void Unhide(Fighter f)
+    {
+        f.StatusList.RemoveAll(st => st.Stat == Stat.Hidden);
+        _events.Add(new StatusEnded(f.Id, Stat.Hidden));
+    }
+
     /// <summary>What a purge takes (sprint 201): from an ally its ailments, from an enemy its boons and its shields.</summary>
     internal static bool Ailment(Status st) => st.Stat switch
     {
         Stat.Poison or Stat.Parched or Stat.Electrified => true,
-        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen => false,
+        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden => false,
         _ => st.Value < 0,
     };
 

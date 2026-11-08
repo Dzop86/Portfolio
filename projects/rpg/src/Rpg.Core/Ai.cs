@@ -224,6 +224,15 @@ public static class Ai
         .Sum(e => BestBlow(e, f));
 
     /// <summary>
+    /// Stealth's (sprint 204, docs/classes-voleur.md §3): the blows within reach of <paramref name="f"/> from enemies who could not walk within
+    /// <see cref="Fight.HiddenCells"/> cells of it, half of them (they may still come closer next turn).
+    /// </summary>
+    internal static double Unreached(Fight fight, Fighter f) => 0.5 * fight.Fighters
+        .Where(e => e.IsAlive && e.Team != f.Team && e.Cell.DistanceTo(f.Cell) > Fight.HiddenCells + e.Mp
+            && e.Spells.Any(s => s.DamageMax > 0 && e.Cell.DistanceTo(f.Cell) <= e.Mp + e.MaxRangeOf(s)))
+        .Sum(e => BestBlow(e, f));
+
+    /// <summary>
     /// A lure's (sprint 200, docs/classes-mage-2.md §3): half the blows within reach of its summoner, at most its hit points; 0 for a creature that draws none.
     /// </summary>
     private static double LureValue(Fight fight, Fighter me, SummonEffect summon)
@@ -291,6 +300,8 @@ public static class Ai
         Stat.Electrified => 0.1 * st.Value * st.Turns,
         // The trios' reactions (sprint 185): the turns a fighter stands bare.
         Stat.Parched or Stat.Incorporeal => 1.0 * st.Turns,
+        // The Rogue's Stealth (sprint 204): a boon, as a turn bare the other way.
+        Stat.Hidden => -1.0 * st.Turns,
         _ => -0.05 * st.Value * st.Turns,
     };
 
@@ -506,6 +517,8 @@ public static class Ai
                         // Healing over time (sprint 201): what it will really give back, a poison the other way.
                         Stat.Regen => sign * 0.6 * Math.Min(st.Value * st.Turns, f.MaxHp - f.Hp),
                         Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
+                        // Stealth (sprint 204): the blows of the enemies too far to come within reach of it, at least 1 a turn.
+                        Stat.Hidden => sign * Math.Max(1, Unreached(fight, f)) * st.Turns,
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },
                     PushEffect or PullEffect => -sign * 1.0,

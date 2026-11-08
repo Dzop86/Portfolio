@@ -159,6 +159,10 @@ public static class Progression
         ["priest-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["priest-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["priest-pure"] = ["side-step", "remanence", "scorched-earth"],
+        // The Rogue's (sprint 204): the Warrior's, a fighter up close.
+        ["rogue-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["rogue-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
+        ["rogue-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -169,6 +173,7 @@ public static class Progression
         ["warrior-matter"] = [Element.Lightning],
         ["mage-matter"] = [Element.Lightning],
         ["priest-matter"] = [Element.Lightning],
+        ["rogue-matter"] = [Element.Lightning],
     };
 
     /// <summary>

@@ -52,6 +52,9 @@ public enum ActionError
 
     /// <summary>The spell asks for one of the caster's creatures in play (sprint 191, D95, brick F).</summary>
     NoSummon,
+
+    /// <summary>The target is hidden (the Rogue's Stealth, sprint 204): it can only be aimed at from close by.</summary>
+    Hidden,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
