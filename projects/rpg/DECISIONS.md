@@ -1093,3 +1093,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** L'exécution sous le plafond : elle ne vaudrait rien avec un arbre déjà à +35 %. Un passif neuf par finale : environ 1 point par classe, laissé à une décision (Q3).
 
 **Limites.** La fumée ne joue plus assez de combats pour dire si un sort de voie sert : une quinzaine sont rangés comme non concluants. Premier sujet du jalon 2, avec la place des sorts de voie sous les sorts du kit.
+
+## T171. Le Paladin, première moitié : la protection, Égide et le Protecteur (sprint 208, D96)
+
+**Décision.** `docs/classes-paladin.md`, écrit par moi. Le Paladin (`paladin`) : 80 + 4 PV, 8 PA, 3 PM, initiative 10, budget 0,85. **Son moteur, la protection** (règle de classe `ward`) : un coup au contact donne un bouclier de 30 % des dégâts à l'allié le plus blessé à 2 cases, lui compris, 2 tours. Aucune autre brique. **Égide quitte le Guerrier** pour son niveau 5 ; le Guerrier reçoit Provocation de masse (attire les ennemis autour de lui). Aucun soin à plus de 2 cases, aucun soin sans coup porté (vérifié). Le Protecteur, 2 lignées, 4 finales. **Les groupes de référence et les hordes de la Forêt jouent un budget fixe partagé** (D97).
+
+**Alternatives.** Une protection sur les seuls alliés : inutile seul (Q2). Relever le budget de combats : contraire à D97. Remesurer les 36 groupes à 27 combats : inutile, toutes les bandes tiennent.
+
+**Limites.** La fumée se joue seul : les sorts et les finales du Protecteur tournés vers les alliés n'y sont pas jugés. La valeur d'une protection pour l'IA est estimée (la moitié de la part). Le Paladin seul n'est pas mesuré au banc.

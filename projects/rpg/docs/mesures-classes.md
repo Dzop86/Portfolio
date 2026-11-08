@@ -328,3 +328,7 @@ Voir `docs/classes-berserker.md` §5. Exigences en solo tenues ; groupes : Guerr
 ## 8 novembre 2026 : le Barbare et le Gladiateur (S207, T170)
 
 Voir `docs/classes-berserker-2.md` §3. Exigences, groupes et empreintes inchangés. La fumée ne laisse plus que 3 combats par héros et par groupe : une quinzaine de sorts de voie non joués, au jalon 2.
+
+## 8 novembre 2026 : le Paladin (S208, T171)
+
+Voir `docs/classes-paladin.md` §4. Exigences en solo tenues ; groupes : Mage + Paladin 55 %, Archer + Paladin 60 %, Voleur + Paladin 60 %, trios 100 et 95 %, quatre 100 %. Groupes et hordes de la Forêt sur un budget fixe partagé : 19 629 combats.
