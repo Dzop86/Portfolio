@@ -49,11 +49,8 @@ public class SpecsTests
     [Fact]
     public void TheData_HasThreeBranchesPerClass_TwoLineagesEach_FifteenEvolutions_InBothLanguages()
     {
-        // The Rogue's Shadowmage comes in sprint 205 (docs/classes-voleur.md): the Assassin and the Malandrin until then.
-        HeroClass[] branched = [.. Real.Classes.Where(c => c.Id != "rogue")];
-        Assert.Equal((3 * branched.Length) + 2, Real.Specs.Count);
-        Assert.All(branched, c => Assert.Equal(3, Real.Specs.Values.Count(s => s.Class == c.Id)));
-        Assert.Equal(2, Real.Specs.Values.Count(s => s.Class == "rogue"));
+        Assert.Equal(3 * Real.Classes.Count, Real.Specs.Count);
+        Assert.All(Real.Classes, c => Assert.Equal(3, Real.Specs.Values.Count(s => s.Class == c.Id)));
         Assert.All(Real.Specs.Values, s =>
         {
             Assert.Equal(2, s.Forks.Count);
@@ -63,7 +60,7 @@ public class SpecsTests
             Assert.All(s.Forks.SelectMany(f => f.Tiers.Concat((f.Finals ?? []).Select(x => x.Tier))).Prepend(s.Base).SelectMany(t => new[] { t.Title, t.Description }).Append(s.Name),
                 x => Assert.False(string.IsNullOrWhiteSpace(x.Fr) || string.IsNullOrWhiteSpace(x.En)));
         });
-        Assert.Equal((6 * branched.Length) + 4, Real.Specs.Values.SelectMany(s => s.Forks).Select(f => f.Id).Distinct().Count());
+        Assert.Equal(6 * Real.Classes.Count, Real.Specs.Values.SelectMany(s => s.Forks).Select(f => f.Id).Distinct().Count());
     }
 
     [Fact]

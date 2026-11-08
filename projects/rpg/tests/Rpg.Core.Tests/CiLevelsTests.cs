@@ -131,6 +131,8 @@ public class CiLevelsTests
         // The Rogue (sprint 204, docs/classes-voleur.md §6): the Dancing Blade's Vault and the Trap Master's second Caltrops unplayed; the Demolisher's
         // target without movement points hardly met alone; the Silent Reaper's Execution a turn sooner changes none of a hero's 5 fights.
         "dancing-blade", "demolisher", "trap-master", "silent-reaper",
+        // Sprint 205: the Spectre's Shadow Step and the Master of Illusions' second Image, unplayed.
+        "spectre", "illusion-master",
     };
 
     /// <summary>
@@ -144,6 +146,8 @@ public class CiLevelsTests
         ("mirage-master", "path-dazzle"),
         // Sprint 202: with fewer fights each, the Time Weaver's Quicken, played for allies, no longer comes up alone.
         ("time-weaver", "path-quicken"),
+        // Sprint 205: the Night Stalker's AI spends its points on the Waylay before the Shadow Blade.
+        ("night-stalker", "path-shadow-blade"),
     };
 
     /// <summary>
@@ -160,6 +164,8 @@ public class CiLevelsTests
         // The Rogue (sprint 204): the Vault, a leap, as the Assault (its 0.1 a fight of T152); the Low Blow, weaker a point of action than the kit's
         // spells and their ranks, even at 3 AP.
         "path-vault", "path-backstab",
+        // Sprint 205 (docs/classes-voleur-2.md §3): the Shadow Step, a leap as the Vault.
+        "path-shadow-step",
     };
 
     /// <summary>

@@ -4,7 +4,7 @@ namespace Rpg.Core.Tests;
 
 /// <summary>
 /// The Rogue's paths (sprint 204, docs/classes-voleur.md §5): the Assassin and the Malandrin, their four lineages and eight final classes on the
-/// real data, with no brick of their own; the Shadowmage comes in sprint 205.
+/// real data, with no brick of their own; the Shadowmage of sprint 205 (docs/classes-voleur-2.md) in <see cref="ShadowmageTests"/>.
 /// </summary>
 public class RoguePathsTests
 {
@@ -18,15 +18,17 @@ public class RoguePathsTests
             summons: Real.Summons.Values, passives: Real.Passives.Values, talents: Real.Talents.Values, reactions: Real.Reactions.Values, specs: Real.Specs.Values);
 
     [Fact]
-    public void TheTree_IsAssassinAndMalandrin_TwoLineagesEach_EightFinals()
+    public void TheTree_IsAssassinMalandrinShadowmage_TwoLineagesEach_TwelveFinals()
     {
         Specialisation[] branches = [.. Real.Specs.Values.Where(s => s.Class == "rogue")];
-        Assert.Equal(["assassin", "scoundrel"], branches.Select(b => b.Id));
-        Assert.Equal(["black-blade", "poisoner", "swashbuckler", "saboteur"], branches.SelectMany(b => b.Forks).Select(f => f.Id));
-        Assert.Equal(8, branches.SelectMany(b => b.Forks).SelectMany(f => f.Finals!).Count());
+        Assert.Equal(["assassin", "scoundrel", "shadowmage"], branches.Select(b => b.Id));
+        Assert.Equal(["black-blade", "poisoner", "swashbuckler", "saboteur", "night-stalker", "shadow-illusionist"], branches.SelectMany(b => b.Forks).Select(f => f.Id));
+        Assert.Equal(12, branches.SelectMany(b => b.Forks).SelectMany(f => f.Finals!).Count());
         Assert.All(branches, b => Assert.Equal(2, b.SpellsWith(null).Count()));
         Spell[] paths = [.. branches.SelectMany(b => b.Forks.SelectMany(f => b.SpellsWith(f.Id))).Distinct().Select(id => Real.Spells[id])];
-        Assert.Equal(8, paths.Length);
+        Assert.Equal(12, paths.Length);
+        // The Shadowmage strikes one target: no area of its own (docs/classes-conception.md §1.4).
+        Assert.All(Real.Specs["shadowmage"].Forks.SelectMany(f => Real.Specs["shadowmage"].SpellsWith(f.Id)), id => Assert.Equal(AreaShape.Point, Real.Spells[id].Zone.Shape));
         // The Vault and the Feint of before are the Malandrin's; every path spell reaches 4 cells at most.
         Assert.Equal(["path-vault", "path-hamstring"], Real.Specs["scoundrel"].Base.Spells);
         Assert.Equal(["path-feint"], Real.Specs["scoundrel"].ForkOf("swashbuckler")!.Tiers[0].Spells);

@@ -50,7 +50,7 @@ public class RogueTests
     public void TheRoguesRules_ComeFromItsClass_NoOtherClassHasAny()
     {
         HeroClass rogue = Real.Class("rogue")!;
-        Assert.Equal([new IsolatedRule(2, 15)], rogue.Rules);
+        Assert.Equal([new IsolatedRule(2, 15), new StackRule(3)], rogue.Rules);
         Assert.All(Real.Classes.Where(c => c.Id != "rogue"), c => Assert.Null(c.Rules));
         // A Rogue of level 1, with no path, fights with them; a Warrior of level 1 with nothing.
         Fight f = new(Real, "training", 1, new Hero("Ondine", "female-c", "rogue"));
