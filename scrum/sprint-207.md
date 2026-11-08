@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Berserker, je deviens aussi Barbare ou Gladiateur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | À faire |
+| En tant que Berserker, je deviens aussi Barbare ou Gladiateur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | Fait : 2 règles (flanc, exécution hors plafond), 8 sorts de voie, 4 lignées, 8 finales dont l'Avatar primal (gabarit Forme) ; le Berserker a ses 12 finales ; exigences, groupes et empreintes inchangés ; la fumée à 3 combats par héros ne voit plus jouer une quinzaine de sorts de voie : premier sujet du jalon 2 (T170) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

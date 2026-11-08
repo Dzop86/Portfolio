@@ -124,6 +124,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
+Sprint 207 : 5 tests de plus (`Rpg.Core` : `BerserkerPathsTests`, l'exécution au-delà du plafond, le flanc du Barbare, l'arbre complet sans bouclier ni attirance, les 8 finales). Le Barbare et le Gladiateur (T170, `docs/classes-berserker-2.md`).
+
 Sprint 206 : 8 tests de plus (`Rpg.Core` : `BerserkerTests`, un sort payé en PV sans jamais le dernier, la fureur hors plafond, le vol de vie, la zone autour de soi qui épargne son lanceur, la Rage qui ouvre ses sorts et qu'aucune purge ne prend, le kit et le Ravageur). Le Berserker (T169, `docs/classes-berserker.md`).
 
 Sprint 205 : 9 tests de plus (`Rpg.Core` : `ShadowmageTests`, les poisons du Voleur qui se cumulent jusqu'à 3 doses, la règle de sa classe et ce qu'en fait l'IA, le coup porté caché, le Pas de l'ombre, la Discrétion rallongée du Traqueur, le Faux-semblant, les finales et l'Évanouissement du Fantôme). L'Ombremage et les poisons cumulés (T168, `docs/classes-voleur-2.md`).

@@ -1085,3 +1085,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** La fureur sous le plafond : 40 % inutiles au-delà de 35. Une Rage à durée : la conception la veut sans retour. Épargner le lanceur de toute zone : aurait changé le Fendage du Guerrier et des combats en place. Relever le budget de 20 000 combats : contraire à D97.
 
 **Limites.** L'IA ne joue pas les sorts du Ravageur payés en PV : un sort de voie reste sous les sorts du kit et leurs rangs (Q5, comme le Coup bas du Voleur). Le Fendage du Guerrier touche toujours son lanceur sur une case voisine : à juger au jalon 2. La Rage grandit le modèle, aucun corps neuf (direction artistique reportée) ; non vu par moi (Godot sans écran).
+
+## T170. Le Berserker, seconde moitié : le Barbare et le Gladiateur (sprint 207, D96)
+
+**Décision.** `docs/classes-berserker-2.md`, écrit par moi. Deux règles de voie : **le flanc** (`flank`, +10 % sur une cible qu'un allié touche aussi) et **l'exécution** (`execute`, +25 % sous 30 % des PV de la cible, au-delà du plafond des talents). 8 sorts de voie, 4 lignées, 8 finales ; l'Avatar primal, première finale du gabarit « Forme », ajoute +2 PA et +2 PM à l'entrée en Rage. Le Berserker a ses 12 finales ; plus aucune classe en cours d'écriture (`Arena.Writing` vide).
+
+**Alternatives.** L'exécution sous le plafond : elle ne vaudrait rien avec un arbre déjà à +35 %. Un passif neuf par finale : environ 1 point par classe, laissé à une décision (Q3).
+
+**Limites.** La fumée ne joue plus assez de combats pour dire si un sort de voie sert : une quinzaine sont rangés comme non concluants. Premier sujet du jalon 2, avec la place des sorts de voie sous les sorts du kit.

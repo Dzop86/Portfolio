@@ -324,3 +324,7 @@ Voir `docs/classes-voleur-2.md` §3. Exigences en solo, groupes de référence e
 ## 8 novembre 2026 : le Berserker (S206, T169)
 
 Voir `docs/classes-berserker.md` §5. Exigences en solo tenues ; groupes : Guerrier + Berserker 62 %, Archer + Berserker 72 %, Prêtre + Berserker 60 %, trios et groupe de quatre 100 %. Disjoint seul et grande salle passés à un échantillon de 300 combats partagés (D97).
+
+## 8 novembre 2026 : le Barbare et le Gladiateur (S207, T170)
+
+Voir `docs/classes-berserker-2.md` §3. Exigences, groupes et empreintes inchangés. La fumée ne laisse plus que 3 combats par héros et par groupe : une quinzaine de sorts de voie non joués, au jalon 2.
