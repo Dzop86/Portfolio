@@ -99,9 +99,10 @@ public class TeamAiTests
             }
             return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16];
         }
-        // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks.
-        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id != "rogue")));
+        // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks; sprint 206, the Berserker's too.
+        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker"))));
         Assert.Equal(RogueFingerprint, Of(Real.Classes.Where(c => c.Id == "rogue")));
+        Assert.Equal(BerserkerFingerprint, Of(Real.Classes.Where(c => c.Id == "berserker")));
     }
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
@@ -113,4 +114,7 @@ public class TeamAiTests
 
     // Sprint 204 (docs/classes-voleur.md): the Rogue of level 10, its engine and its Stealth.
     private const string RogueFingerprint = "A15F1685850AA85E";
+
+    // Sprint 206 (docs/classes-berserker.md): the Berserker of level 10, its Rage and its blood.
+    private const string BerserkerFingerprint = "DF16BE2880C09200";
 }

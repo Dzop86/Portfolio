@@ -88,7 +88,7 @@ public class BalanceTests
         }
     }
 
-    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest", "rogue"];
+    private static readonly string[] Classes = ["archer", "warrior", "mage", "priest", "rogue", "berserker"];
 
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
@@ -173,10 +173,12 @@ public class BalanceTests
         // Sprint 114 (design-familles.md §4.9): the chapter's boss, four beasts forced into one, wearing itself out (15 hit
         // points a turn) and bursting as it falls. Measured on 100 fights a class, with the "craft" kit (what a player alone
         // is sure to have): sentinel 100, guard 39, mage 45, three in five on average; every class can beat it alone.
+        // A sample since sprint 206 (D97: a test that loops on the classes does not grow with them): 300 fights shared, in percent.
+        int fights = Share(300);
         int[] wins = [.. Classes.Select(id =>
         {
             Hero hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 30), Real, Progression.Kit("craft", "fields", 30, Real));
-            return Results("the-disjoint", 100, hero)[0];
+            return 100 * Results("the-disjoint", fights, hero)[0] / fights;
         })];
         Assert.All(wins, w => Assert.InRange(w, 30, 100));
         // 80 since sprint 183 (T143): the reactions every hero has at 30 move only the mage, on 1000 fights sentinel 100/100, guard
@@ -192,15 +194,21 @@ public class BalanceTests
     [InlineData("mage")]
     [InlineData("priest")]
     [InlineData("rogue")]
+    [InlineData("berserker")]
     public void TheWallowsGreatHall_TheMainQuestsStep_IsWonAloneAtItsLevel(string id)
     {
         // Sprint 95 (D71): "rumble-under-the-wallow" asks for the great hall, at least 7 times in 10 alone,
         // at the quest's level, with nothing worn.
         Quest quest = Real.Quests["rumble-under-the-wallow"];
         var hero = Progression.Built(new Hero("Essai", "female-d", id, Level: quest.Level), Real);
-        int wins = Results(Real.Dungeons["boar-wallow"].Scenario(2), 100, hero)[0];
-        Assert.True(wins >= 70, $"{id}: {wins} of 100 in the great hall at level {quest.Level}");
+        // A sample since sprint 206 (D97): 300 fights shared between the classes, in percent.
+        int fights = Share(300);
+        int wins = 100 * Results(Real.Dungeons["boar-wallow"].Scenario(2), fights, hero)[0] / fights;
+        Assert.True(wins >= 70, $"{id}: {wins} % of {fights} in the great hall at level {quest.Level}");
     }
+
+    /// <summary>A test's fights shared between the classes (sprint 206, D97), 50 each at least: the budget does not grow with the classes.</summary>
+    private static int Share(int total) => Math.Max(50, total / Classes.Length);
 
     [Theory]
     [InlineData("stag", "archer")]

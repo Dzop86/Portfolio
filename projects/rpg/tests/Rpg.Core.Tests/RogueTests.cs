@@ -51,7 +51,7 @@ public class RogueTests
     {
         HeroClass rogue = Real.Class("rogue")!;
         Assert.Equal([new IsolatedRule(2, 15), new StackRule(3)], rogue.Rules);
-        Assert.All(Real.Classes.Where(c => c.Id != "rogue"), c => Assert.Null(c.Rules));
+        Assert.All(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker")), c => Assert.Null(c.Rules));
         // A Rogue of level 1, with no path, fights with them; a Warrior of level 1 with nothing.
         Fight f = new(Real, "training", 1, new Hero("Ondine", "female-c", "rogue"));
         Assert.Contains(f.HeroFighter!.Talents.SelectMany(t => t.Rules), r => r is IsolatedRule { Cells: 2, Percent: 15 });

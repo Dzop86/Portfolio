@@ -23,6 +23,15 @@ internal static class Arena
 
     public static GameData Real => GameData.Embedded;
 
+    /// <summary>
+    /// The branches written so far of a class written over two sprints (D96): the Berserker's Ravager in sprint 206, its Barbarian and Gladiator in 207.
+    /// Every other class has its three.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal) { ["berserker"] = 1 };
+
+    /// <summary>The branches a class has in the data: three, or those written so far.</summary>
+    public static int BranchesOf(string id) => Writing.GetValueOrDefault(id, 3);
+
     /// <summary>The spells the talent tree gives (sprint 142) and the summons they call, for small data with the real talents.</summary>
     public static readonly Spell[] TreeSpells = [.. Real.Talents.Values.SelectMany(t => t.Rules).OfType<GrantRule>().Select(g => Real.Spells[g.Spell]).Distinct()];
 

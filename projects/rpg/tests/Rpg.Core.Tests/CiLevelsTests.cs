@@ -99,7 +99,8 @@ public class CiLevelsTests
             // are judged there by the fights they change.
             if (h.Level < Specs.Finals)
             {
-                bool Excused(string s) => Unplayed.Contains(s) || (h.Level >= Specs.Forks && UnplayedOn.Contains((h.Fork ?? "", s)));
+                // UnplayedOn names a lineage, or a branch for its hero at 35 without a lineage yet (sprint 206).
+                bool Excused(string s) => Unplayed.Contains(s) || UnplayedOn.Contains((h.Fork ?? h.Spec ?? "", s));
                 found.AddRange(path.Except(cast).Where(s => !Excused(s)).Select(s => $"{who}: {s} never played"));
                 found.AddRange(path.Intersect(cast).Where(Excused).Select(s => $"{who}: {s} is played now, take it off the list"));
             }
@@ -133,6 +134,8 @@ public class CiLevelsTests
         "dancing-blade", "demolisher", "trap-master", "silent-reaper",
         // Sprint 205: the Spectre's Shadow Step and the Master of Illusions' second Image, unplayed.
         "spectre", "illusion-master",
+        // Sprint 206: the Devourer's Devour without a cooldown changes none of a hero's fights.
+        "devourer",
     };
 
     /// <summary>
@@ -148,6 +151,8 @@ public class CiLevelsTests
         ("time-weaver", "path-quicken"),
         // Sprint 205: the Night Stalker's AI spends its points on the Waylay before the Shadow Blade.
         ("night-stalker", "path-shadow-blade"),
+        // Sprint 206: the Ravager at 35, its Ravage paid in hit points under the kit's spells; played from 50.
+        ("ravager", "path-ravage"),
     };
 
     /// <summary>
@@ -166,6 +171,8 @@ public class CiLevelsTests
         "path-vault", "path-backstab",
         // Sprint 205 (docs/classes-voleur-2.md §3): the Shadow Step, a leap as the Vault.
         "path-shadow-step",
+        // Sprint 206 (docs/classes-berserker.md §5): the Ravager's blows paid in hit points, under the kit's spells and their ranks a point of action.
+        "path-gore-charge", "path-crushing-blow",
     };
 
     /// <summary>
@@ -184,6 +191,9 @@ public class CiLevelsTests
         // The Rogue's (sprint 204, measured the same way).
         (["warrior", "rogue"], 60), (["archer", "rogue"], 60), (["mage", "rogue"], 57),
         (["warrior", "archer", "rogue"], 100), (["warrior", "priest", "rogue"], 97), (["archer", "mage", "priest", "rogue"], 100),
+        // The Berserker's (sprint 206, measured the same way).
+        (["warrior", "berserker"], 62), (["archer", "berserker"], 72), (["priest", "berserker"], 60),
+        (["mage", "rogue", "berserker"], 100), (["warrior", "priest", "berserker"], 100), (["archer", "mage", "rogue", "berserker"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>

@@ -130,7 +130,8 @@ public class ProgramTests
         Assert.Contains("| mage | Lightning |", output, StringComparison.Ordinal);
         Assert.Equal(6 + 15 + 27, output.Split('\n').Count(l => l.StartsWith("| archer |", StringComparison.Ordinal) || l.StartsWith("| warrior |", StringComparison.Ordinal) || l.StartsWith("| mage |", StringComparison.Ordinal)));
         Assert.Contains("| mage | nu, Feu seul |", output, StringComparison.Ordinal);
-        Assert.Contains("Talents pris par moins de 20 % des builds qui visent leur branche, sur 55 builds tirés", output, StringComparison.Ordinal);
+        // One build a class and a compound or none (sprint 206: whatever the number of classes).
+        Assert.Contains($"Talents pris par moins de 20 % des builds qui visent leur branche, sur {11 * Rpg.Core.GameData.Embedded.Classes.Count} builds tirés", output, StringComparison.Ordinal);
     }
 
     [Fact]
