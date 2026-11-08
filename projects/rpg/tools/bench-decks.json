@@ -3,5 +3,6 @@
   "archer": ["rockfall", "gale", "tide-arrow", "ember-volley", "searing-shot", "venom-arrow", "piercing-arrow", "heavy-shot", "hawk", "grapple", "recoil-shot", "sidestep", "frost-arrow", "fire-arrow", "stone-arrow"],
   "mage": ["meteor", "freeze", "cyclone", "landslide", "bolt", "roots", "tidal-wave", "burn", "elemental", "blink", "frost-ward", "gust", "flare", "pebble", "ice-shard"],
   "priest": ["holy-flame", "censer", "stone-verdict", "blessed-tide", "zephyr", "blessed-stone", "holy-water", "sacred-breath", "mend", "prayer", "purify", "sacred-pyre", "stone-column", "baptism", "halo"],
-  "rogue": ["red-blade", "cosh", "volte", "slow-venom", "bleed", "pounce", "fire-vial", "trip", "fade", "dodge", "smoke-bomb", "pommel-strike", "ember-dagger", "gash", "thrown-knife"]
+  "rogue": ["red-blade", "cosh", "volte", "slow-venom", "bleed", "pounce", "fire-vial", "trip", "fade", "dodge", "smoke-bomb", "pommel-strike", "ember-dagger", "gash", "thrown-knife"],
+  "berserker": ["inferno-axe", "earthshaker", "storm-axe", "ember-cleave", "rend", "war-whirl", "blood-fury", "bone-breaker", "rage", "rush", "breaker", "cleaver", "blood-axe", "tide-blow", "whirl"]
 }

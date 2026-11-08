@@ -157,5 +157,12 @@
   "spec-shadow-lord": "lorc/evil-moon",
   "spec-shadow-illusionist": "lorc/hidden",
   "spec-illusion-master": "lorc/dark-squad",
-  "spec-phantom": "lorc/haunting"
+  "spec-phantom": "lorc/haunting",
+  "spec-ravager": "delapouite/war-axe",
+  "spec-skullcracker": "lorc/skull-bolt",
+  "spec-ravager-destroyer": "lorc/earth-crack",
+  "spec-brutal-titan": "lorc/spiked-mace",
+  "spec-carnivore": "lorc/bestial-fangs",
+  "spec-butcher": "lorc/meat",
+  "spec-devourer": "lorc/gluttony"
 }

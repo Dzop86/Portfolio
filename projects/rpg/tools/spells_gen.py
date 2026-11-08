@@ -4,7 +4,7 @@
 import json, collections, sys
 root = sys.argv[1]
 O = collections.OrderedDict
-def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None, spends=0):
+def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None, spends=0, hp=0, form=False):
     d = O([("id", id), ("name", O([("fr", fr), ("en", en)])), ("apCost", ap), ("minRange", mn), ("maxRange", mx),
            ("lineOfSight", los), ("inLine", line), ("damageMin", dmin), ("damageMax", dmax), ("perTurn", per), ("element", el)])
     if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
@@ -16,6 +16,9 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
     if needs: d["needs"] = needs
     if aims: d["aims"] = aims
     if spends: d["spendsShield"] = spends
+    # The Berserker's (sprint 206, docs/classes-berserker.md §1): paid in hit points; asking for its Rage.
+    if hp: d["hpCost"] = hp
+    if form: d["form"] = True
     if ranks and dmax > 0:
         d["ranks"] = [O([("damageMin", round(dmin * f)), ("damageMax", round(dmax * f))]) for f in (1.2, 1.4, 1.6, 1.8)]
     return d
@@ -24,6 +27,8 @@ def heal(a, mn, mx, overflow=False): return O([("kind", "heal"), ("affects", a),
 def purge(a): return O([("kind", "purge"), ("affects", a)])
 # The Cleric's (sprint 202, docs/classes-pretre-2.md §2): a fallen ally raised with a share of its hit points, once a fight.
 def revive(a, percent): return O([("kind", "revive"), ("affects", a), ("percent", percent)])
+# The Berserker's (sprint 206): a share of the damage done to enemies, back as hit points.
+def drain(percent): return O([("kind", "drain"), ("affects", "Caster"), ("percent", percent)])
 def shield(a, n, t): return O([("kind", "shield"), ("affects", a), ("amount", n), ("turns", t)])
 def push(n, affects="Enemies"): return O([("kind", "push"), ("affects", affects), ("cells", n)])
 def pull(n, affects="Enemies"): return O([("kind", "pull"), ("affects", affects), ("cells", n)])
@@ -211,6 +216,34 @@ rogue = C(
  R("killers-eye","Œil du tueur","Killer's Eye",2,0,0,0,0,1,"Neutral","lorc/eyeball",los=False,effects=[status("Caster","Damage",30,2)],cd=3),
  R("velvet-step","Pas de velours","Velvet Step",1,0,0,0,0,1,"Neutral","lorc/boot-prints",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
+# The Berserker (sprint 206, docs/classes-berserker.md §2): raw damage up close, paid in hit points; its Rage, a form for the rest of the fight, opens
+# its biggest blows; its areas all around it spare it (Fight.Spares); no shield, no pull, no movement taken (§1.4, what sets it apart from the Warrior). At 1.1 of the budget. Working names.
+berserker = C(
+ R("cleaver","Fendoir","Cleaver",4,1,1,1,1,2,"Earth","lorc/meat-cleaver"),
+ R("blood-axe","Hache de sang","Blood Axe",3,1,1,1,1,2,"Fire","lorc/bloody-sword",hp=6),
+ R("tide-blow","Coup de ressac","Tide Blow",3,1,2,1,1,2,"Water","lorc/wave-strike"),
+ R("whirl","Moulinet","Whirl",4,0,0,1,1,1,"Air","lorc/whirlwind",area=("Circle",1)),
+ R("rush","Ruée","Rush",2,2,4,0,0,1,"Neutral","lorc/run",line=True,effects=[leap()],cd=1),
+ R("rage","Rage","Rage",2,0,0,0,0,1,"Neutral","lorc/screaming",los=False,effects=[status("Caster","Rage",25,99)],hp=10),
+ R("bone-breaker","Brise-os","Bone Breaker",4,1,1,1,1,1,"Earth","lorc/broken-skull",hp=6),
+ R("blood-fury","Furie sanglante","Blood Fury",5,1,1,1,1,1,"Fire","lorc/burning-passion",hp=10,form=True),
+ R("breaker","Déferlante","Breaker",4,1,2,1,1,1,"Water","lorc/water-splash",line=True,area=("Line",2)),
+ R("war-whirl","Tourbillon de guerre","War Whirl",5,0,0,1,1,1,"Air","lorc/tornado",area=("Circle",1),form=True),
+ R("war-howl","Hurlement","War Howl",3,0,0,0,0,1,"Neutral","lorc/wolf-howl",los=False,area=("Circle",2),effects=[status("Enemies","Damage",-15,2)],cd=3),
+ R("rend","Déchirure","Rend",5,1,1,1,1,1,"Earth","lorc/claw-slashes",effects=[drain(30)]),
+ R("ember-cleave","Fendoir ardent","Ember Cleave",5,0,0,1,1,1,"Fire","lorc/fire-axe",area=("Cross",1),hp=8),
+ R("blood-tide","Marée de sang","Blood Tide",5,1,2,1,1,1,"Water","lorc/heart-drop",effects=[drain(30)],form=True),
+ R("storm-axe","Hache-tempête","Storm Axe",5,1,3,1,1,1,"Air","lorc/axe-swing",line=True),
+ R("blood-pact","Pacte de sang","Blood Pact",2,0,0,0,0,1,"Neutral","lorc/scar-wound",los=False,effects=[status("Caster","Ap",2,1)],hp=15,cd=3),
+ R("earthshaker","Ébranlement","Earthshaker",6,0,0,1,1,1,"Earth","lorc/punch-blast",area=("Circle",1),hp=10,form=True,cd=1),
+ R("inferno-axe","Hache infernale","Inferno Axe",6,1,1,1,1,1,"Fire","lorc/fire-breath",hp=12,cd=1),
+ R("maelstrom","Maelström","Maelstrom",6,0,0,1,1,1,"Water","lorc/drop",area=("Cross",1),effects=[drain(30)]),
+ R("tempest-blow","Coup de tempête","Tempest Blow",6,1,1,1,1,1,"Air","lorc/crossed-axes",hp=12,form=True,cd=2),
+ R("blood-rush","Ivresse du sang","Blood Rush",3,0,0,0,0,1,"Neutral","lorc/bone-gnawer",los=False,effects=[heal("Caster",15,20)],cd=4),
+ R("unbreakable","Inébranlable","Unbreakable",3,0,0,0,0,1,"Neutral","lorc/muscle-up",los=False,effects=[status("Caster","Resistance",20,2)],hp=15,cd=4),
+ R("frenzy","Frénésie","Frenzy",2,0,0,0,0,1,"Neutral","lorc/strong",los=False,effects=[status("Caster","Damage",30,2)],cd=3),
+ R("onrush","Élan furieux","Onrush",1,0,0,0,0,1,"Neutral","lorc/sprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
@@ -340,6 +373,10 @@ def budget(sp, scale=1):
     if sp["maxRange"] >= 6: f *= 0.9
     if sp["maxRange"] == 1: f *= 1.1
     f *= 1 + 0.25 * sp.get("cooldown", 0)
+    # Blood (sprint 206): a hit point paid is worth a tenth of an action point; a form asked, 15 %; life drawn costs 15 %.
+    f *= 1 + sp.get("hpCost", 0) / (10 * sp["apCost"])
+    if sp.get("form"): f *= 1.15
+    if any(k == "drain" for k, _ in kinds): f *= 0.85
     avg = f * sp["apCost"]
     sp["damageMin"], sp["damageMax"] = max(1, round(avg * 0.85)), max(1, round(avg * 1.15))
     sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
@@ -358,6 +395,11 @@ ROGUE_BUDGET = 1.15
 for sp in rogue:
     if sp["damageMax"] > 0:
         budget(sp, ROGUE_BUDGET)
+# The Berserker at 1.1 (docs/classes-conception.md §1.2): raw damage, paid in hit points.
+BERSERKER_BUDGET = 1.1
+for sp in berserker:
+    if sp["damageMax"] > 0:
+        budget(sp, BERSERKER_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -399,6 +441,11 @@ GESTURES = {
  "trip": ("Croche-pied", "Trip"), "fire-vial": ("Fiole", "Vial"), "bleed": ("Saignée", "Bleed"), "pounce": ("Bond", "Pounce"),
  "cosh": ("Gourdin", "Cudgel"), "red-blade": ("Estoc", "Thrust"), "slow-venom": ("Toxine", "Toxin"), "volte": ("Volte", "Volte"),
  "kneecap": ("Brise-genou", "Kneecap"), "greek-fire": ("Brûlot", "Firepot"), "drown": ("Noyade", "Drowning"), "blade-storm": ("Rafale", "Flurry"),
+ # The Berserker's (sprint 206).
+ "cleaver": ("Fendoir", "Cleaver"), "blood-axe": ("Hache", "Axe"), "tide-blow": ("Reflux", "Ebb"), "whirl": ("Moulinet", "Windmill"),
+ "bone-breaker": ("Brise-os", "Bonebreak"), "blood-fury": ("Furie", "Fury"), "breaker": ("Déferlante", "Breaker"), "war-whirl": ("Tournoiement", "Spin"),
+ "rend": ("Déchirure", "Rend"), "ember-cleave": ("Taille", "Hew"), "blood-tide": ("Marée rouge", "Red Tide"), "storm-axe": ("Hache volante", "Flying Axe"),
+ "earthshaker": ("Ébranlement", "Quake"), "inferno-axe": ("Hachereau", "Hatchet"), "maelstrom": ("Maelström", "Maelstrom"), "tempest-blow": ("Coup", "Blow"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
@@ -427,6 +474,11 @@ NAMES = {
   "fire-vial": ("Fiole d'éclairs", "Lightning Vial"), "pounce": ("Bond fulgurant", "Flash Pounce"),
   "red-blade": ("Lame électrique", "Electric Blade"), "volte": ("Volte d'orage", "Storm Volte"),
   "greek-fire": ("Feu de foudre", "Lightning Fire"), "blade-storm": ("Rafale d'éclairs", "Lightning Flurry"),
+  # The Berserker's (sprint 206).
+  "blood-axe": ("Hache d'orage", "Storm Axe Blow"), "blood-fury": ("Furie électrique", "Electric Fury"),
+  "ember-cleave": ("Fendoir foudroyant", "Thunder Cleave"), "inferno-axe": ("Hache de foudre", "Lightning Axe"),
+  "whirl": ("Moulinet d'orage", "Storm Whirl Blow"), "war-whirl": ("Tourbillon fulgurant", "Flash Vortex"),
+  "storm-axe": ("Hache crépitante", "Crackling Axe"), "tempest-blow": ("Coup de foudre", "Lightning Strike"),
  },
 }
 # A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 163, docs/graphisme/s163-icones-arbre.md §1.8).
@@ -442,7 +494,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest + rogue:
+    for sp in sentinel + guard + mage + priest + rogue + berserker:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -451,7 +503,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else 1))
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -565,23 +617,31 @@ paths = [
  path("shadow-blade","Lame d'ombre","Shadow Blade",3,1,2,30,"lorc/shadow-grasp",damage=True,cd=1),
  path("waylay","Guet-apens","Waylay",5,1,1,50,"lorc/moon-claws",damage=True,cd=2),
  path("false-front","Faux-semblant","False Front",2,1,4,50,"lorc/mirror-mirror",los=False,effects=[summon("mirror-image"),status("Caster","Hidden",1,2)],cd=3),
+ # The Berserker's Ravager (sprint 206, docs/classes-berserker.md §3): areas, hit points spent.
+ path("ravage","Ravage","Ravage",5,0,0,30,"lorc/slashed-shield",damage=True,area=("Circle",1),cd=1,hp=10),
+ path("gore-charge","Charge sanglante","Bloody Charge",3,2,4,30,"lorc/sword-wound",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2,hp=6),
+ path("crushing-blow","Coup écrasant","Crushing Blow",6,1,1,50,"lorc/skull-crack",damage=True,cd=1,hp=12),
+ path("devour","Dévorer","Devour",4,1,1,50,"lorc/carnivore-mouth",damage=True,effects=[drain(50)],cd=1),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + rogue + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + rogue + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins + paths
+# One id a spell (sprint 206: the Berserker's Howl took a monster's id, and its class listed the monster's spell).
+_ids = [sp["id"] for sp in spells]
+assert len(_ids) == len(set(_ids)), [i for i in set(_ids) if _ids.count(i) > 1]
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")

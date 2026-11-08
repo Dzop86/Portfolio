@@ -219,5 +219,54 @@
         "max": 3
       }
     ]
+  },
+  {
+    "id": "berserker",
+    "name": {
+      "fr": "Berserker",
+      "en": "Berserker"
+    },
+    "description": {
+      "fr": "Frappe fort au contact et paie en PV ; plus il est blessé, plus il frappe ; sa Rage ne se quitte pas.",
+      "en": "Hits hard up close and pays in HP; the more wounded, the harder it hits; its Rage is never shed."
+    },
+    "hp": 90,
+    "ap": 8,
+    "mp": 5,
+    "initiative": 20,
+    "spells": [
+      "cleaver",
+      "blood-axe",
+      "tide-blow",
+      "whirl",
+      "rush",
+      "rage",
+      "bone-breaker",
+      "blood-fury",
+      "breaker",
+      "war-whirl",
+      "war-howl",
+      "rend",
+      "ember-cleave",
+      "blood-tide",
+      "storm-axe",
+      "blood-pact",
+      "earthshaker",
+      "inferno-axe",
+      "maelstrom",
+      "tempest-blow",
+      "blood-rush",
+      "unbreakable",
+      "frenzy",
+      "onrush"
+    ],
+    "hpPerLevel": 5,
+    "rules": [
+      {
+        "kind": "fury",
+        "ratio": 50,
+        "max": 40
+      }
+    ]
   }
 ]

@@ -3355,5 +3355,197 @@
       "en": "Vanish, strike from the shadow."
     },
     "icon": "spec-shadowmage"
+  },
+  {
+    "id": "ravager",
+    "class": "berserker",
+    "name": {
+      "fr": "Ravageur",
+      "en": "Ravager"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Ravageur",
+        "en": "Ravager"
+      },
+      "description": {
+        "fr": "Ta fureur monte plus vite : un quart de plus de la part de PV qui te manque, 20 % de plus au plus. Sorts : Ravage et Charge sanglante.",
+        "en": "Your fury rises faster: a further quarter of the share of HP you miss, 20% more at most. Spells: Ravage and Bloody Charge."
+      },
+      "spells": [
+        "path-ravage",
+        "path-gore-charge"
+      ],
+      "rules": [
+        {
+          "kind": "fury",
+          "ratio": 25,
+          "max": 20
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "skullcracker",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Brise-crâne",
+              "en": "Skullcracker"
+            },
+            "description": {
+              "fr": "Sort : Coup écrasant, payé en PV.",
+              "en": "Spell: Crushing Blow, paid in HP."
+            },
+            "spells": [
+              "path-crushing-blow"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Un coup. Pas deux. Le deuxième, c'est pour le suivant.",
+          "en": "One blow. Not two. The second is for the next one."
+        },
+        "icon": "spec-skullcracker",
+        "finals": [
+          {
+            "id": "ravager-destroyer",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Destructeur",
+                "en": "Destroyer"
+              },
+              "description": {
+                "fr": "Ravage frappe en cercle de 2.",
+                "en": "Ravage strikes in a circle of 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-ravage",
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 2
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Autour de moi, il ne reste que de la place.",
+              "en": "Around me, there is only room left."
+            },
+            "icon": "spec-ravager-destroyer"
+          },
+          {
+            "id": "brutal-titan",
+            "template": "LowHp",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Titan brutal",
+                "en": "Brutal Titan"
+              },
+              "description": {
+                "fr": "Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.",
+                "en": "Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn."
+              },
+              "passives": [
+                "spec-on-the-ropes"
+              ]
+            },
+            "lore": {
+              "fr": "Plus je saigne, plus je suis grand.",
+              "en": "The more I bleed, the bigger I am."
+            },
+            "icon": "spec-brutal-titan"
+          }
+        ]
+      },
+      {
+        "id": "carnivore",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Carnassier",
+              "en": "Carnivore"
+            },
+            "description": {
+              "fr": "Sort : Dévorer, qui rend la moitié des dégâts en PV.",
+              "en": "Spell: Devour, which gives back half the damage as HP."
+            },
+            "spells": [
+              "path-devour"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ce que je prends, je le garde.",
+          "en": "What I take, I keep."
+        },
+        "icon": "spec-carnivore",
+        "finals": [
+          {
+            "id": "butcher",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Boucher",
+                "en": "Butcher"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Au suivant.",
+              "en": "Next."
+            },
+            "icon": "spec-butcher"
+          },
+          {
+            "id": "devourer",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Dévoreur",
+                "en": "Devourer"
+              },
+              "description": {
+                "fr": "Dévorer se lance sans relance.",
+                "en": "Devour has no cooldown."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-devour",
+                  "cooldown": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "J'ai toujours faim.",
+              "en": "I am always hungry."
+            },
+            "icon": "spec-devourer"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Frapper large, payer en sang.",
+      "en": "Strike wide, pay in blood."
+    },
+    "icon": "spec-ravager"
   }
 ]
