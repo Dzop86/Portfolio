@@ -129,7 +129,7 @@ public class BerserkerTests
     public void TheRavager_ItsLineagesAndFinals()
     {
         Specialisation ravager = Real.Specs["ravager"];
-        Assert.Equal(["ravager"], Real.Specs.Values.Where(s => s.Class == "berserker").Select(s => s.Id));
+        Assert.Equal(["ravager", "barbarian", "berserker-gladiator"], Real.Specs.Values.Where(s => s.Class == "berserker").Select(s => s.Id));
         Assert.Equal(["skullcracker", "carnivore"], ravager.Forks.Select(f => f.Id));
         Assert.Equal(new FuryRule(25, 20), Specs.RulesOf(Berserker("ravager", level: 40), Real).OfType<FuryRule>().Single());
         Assert.All(ravager.SpellsWith(null).Concat(ravager.Forks.SelectMany(f => ravager.SpellsWith(f.Id))).Distinct().Where(id => id != "path-devour"), id => Assert.True(Real.Spells[id].HpCost > 0, id));

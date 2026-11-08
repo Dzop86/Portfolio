@@ -136,6 +136,8 @@ public class CiLevelsTests
         "spectre", "illusion-master",
         // Sprint 206: the Devourer's Devour without a cooldown changes none of a hero's fights.
         "devourer",
+        // Sprint 207: the King of the Clans' Clan Cry unplayed; the Beheader's Beheading a turn sooner changes none of a hero's fights.
+        "clan-king", "beheader",
     };
 
     /// <summary>
@@ -153,6 +155,8 @@ public class CiLevelsTests
         ("night-stalker", "path-shadow-blade"),
         // Sprint 206: the Ravager at 35, its Ravage paid in hit points under the kit's spells; played from 50.
         ("ravager", "path-ravage"),
+        // Sprint 207: with 3 fights a hero and a group, the Poisoner's AI no longer comes to its poisons.
+        ("poisoner", "path-envenom"), ("poisoner", "path-plague"),
     };
 
     /// <summary>
@@ -173,6 +177,9 @@ public class CiLevelsTests
         "path-shadow-step",
         // Sprint 206 (docs/classes-berserker.md §5): the Ravager's blows paid in hit points, under the kit's spells and their ranks a point of action.
         "path-gore-charge", "path-crushing-blow",
+        // Sprint 207 (docs/classes-berserker-2.md §3): with six classes, 3 fights a hero and a group (4 before); the Barbarian's and the Gladiator's
+        // spells under the kit's ranked ones, the Clan Cry for allies the smoke has not, the Feral Leap a leap. To be mended at the second milestone.
+        "path-clan-cry", "path-savage-blow", "path-feral-leap", "path-arena-strike", "path-blood-duel",
     };
 
     /// <summary>
