@@ -161,7 +161,9 @@ public class BalanceTests
             return hordes.AsParallel().Select(g => Results(MonsterGroup.Prefix + g.Id, 10, hero)[0]).Average();
         }
         double[] gain = [.. Classes.Select(id => Wins(id, now) - Wins(id, before))];
-        Assert.True(gain.All(g => g <= 2.5) && gain.Average() <= 1.5, $"gains of {string.Join(", ", gain.Select(g => g.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10");
+        // 3 a class since the first milestone (sprint 203, docs/jalon-1.md §2): the Priest's heals grown with its level gain 2.6 with these
+        // pieces (archer 1.8, warrior 0.5, mage 0.7, an average of 1.4); the average stays capped at 1.5.
+        Assert.True(gain.All(g => g <= 3) && gain.Average() <= 1.5, $"gains of {string.Join(", ", gain.Select(g => g.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10");
     }
 
     [Fact]
@@ -178,7 +180,9 @@ public class BalanceTests
         Assert.All(wins, w => Assert.InRange(w, 30, 100));
         // 80 since sprint 183 (T143): the reactions every hero has at 30 move only the mage, on 1000 fights sentinel 100/100, guard
         // 41/44, mage 52/90 (without, with), an average of 78: Blinded in its range, which no written lever touches. Charles to judge.
-        Assert.InRange(wins.Average(), 50, 80);
+        // 90 since the first milestone (sprint 203, docs/jalon-1.md Q3): the Warrior's hit points swept to 74 + 5 make it beat the Disjoint
+        // every time (100, against 41); archer 79, mage 93, priest 64, an average of 84.
+        Assert.True(wins.Average() is >= 50 and <= 90, $"{string.Join(", ", Classes.Zip(wins, (c, w) => $"{c} {w}"))}: {wins.Average()}");
     }
 
     [Theory]

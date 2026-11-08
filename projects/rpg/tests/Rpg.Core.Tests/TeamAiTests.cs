@@ -102,5 +102,6 @@ public class TeamAiTests
     // Sprint 194 (T154): the worth of its creatures, shields and resistances, and the deck of a hero on a path, change what a hero alone plays.
     // Sprint 201: the Priest fights too (its heals growing), and the Mage plays its new neutral spells in place of its heals; the Archer's and the
     // Warrior's fights unchanged (measured alone, the same fingerprint before and after).
-    private const string SoloFingerprint = "3283C395472D31C8";
+    // Sprint 203 (docs/jalon-1.md): the Warrior's hit points swept to 74 + 5, the Priest's heals growing with its level.
+    private const string SoloFingerprint = "E6B69159D0E58685";
 }

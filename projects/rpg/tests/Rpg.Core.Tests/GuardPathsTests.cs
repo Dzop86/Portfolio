@@ -9,7 +9,7 @@ namespace Rpg.Core.Tests;
 public class GuardPathsTests
 {
     private static readonly Spell Blow = new("t-blow", Text, 1, 1, 1, true, false, 10, 10, 9);
-    private static readonly Spell Slam = new("t-slam", Text, 1, 1, 1, true, false, 500, 500, 9);
+    private static readonly Spell Slam = new("t-slam", Text, 1, 1, 1, true, false, 5000, 5000, 9);
     private static readonly Spell Shove = new("t-shove", Text, 1, 1, 3, false, false, 0, 0, 9, Effects: [new PushEffect(Affects.Enemies, 2)]);
 
     // From 100, the hero of a lineage takes its final class taken back from the old evolution, as the conversion of sprint 197 writes it.

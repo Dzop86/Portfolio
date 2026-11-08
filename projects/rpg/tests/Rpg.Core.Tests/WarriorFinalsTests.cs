@@ -8,7 +8,7 @@ namespace Rpg.Core.Tests;
 /// </summary>
 public class WarriorFinalsTests
 {
-    private static readonly Spell Slam = new("t-slam", Text, 1, 1, 1, true, false, 40, 40, 9);
+    private static readonly Spell Slam = new("t-slam", Text, 1, 1, 1, true, false, 80, 80, 9);
 
     private static Hero Warrior(string spec, string fork, string? final, int level = 100, params string[] deck) =>
         new("Ondine", "female-a", "warrior", Level: level, Stats: new Characteristics(Earth: 50), Spec: spec, Fork: fork, Final: final, Deck: deck.Length == 0 ? null : deck);

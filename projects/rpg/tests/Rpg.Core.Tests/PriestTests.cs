@@ -56,6 +56,10 @@ public class PriestTests
         Hero priest = new("Ondine", "female-c", "priest", Level: 30, Stats: new Characteristics(Fire: 80, Water: 40), Deck: ["mend"]);
         Fight f = new(Real, "training", 1, priest);
         Assert.Equal(16, Fight.HealBonus(f.HeroFighter!));
+        // And its dice with its level, as a blow's ranks raise it (sprint 203): 10 at level 30, 13, then the bonus.
+        HealEffect mend = Real.Spells["mend"].AllEffects.OfType<HealEffect>().Single();
+        Assert.Equal(13 + 16, Fight.Grown(mend, f.HeroFighter!, 10));
+        Assert.Equal(10, Fight.Grown(mend with { Grows = false }, f.HeroFighter!, 10));
         Assert.All(Real.Class("priest")!.Spells.SelectMany(id => Real.Spells[id].AllEffects).OfType<HealEffect>(), h => Assert.True(h.Grows));
         // Nobody else's heals grow (its spells' twins, a compound's, and its paths' are its own).
         string[] paths = [.. Real.Specs.Values.Where(s => s.Class == "priest").SelectMany(s => s.Forks.SelectMany(f => s.SpellsWith(f.Id)))];

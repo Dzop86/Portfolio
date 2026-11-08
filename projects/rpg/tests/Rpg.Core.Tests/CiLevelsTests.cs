@@ -122,8 +122,8 @@ public class CiLevelsTests
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
-        // late (Healing Wave, Remedy, Exorcism, Zeal, Vision) or an ally (Life Warden) change none of them.
-        "vaulter", "saint", "divine-surgeon", "life-warden", "purifier", "zealot", "divine-sage",
+        // late (Healing Wave, Exorcism, Zeal, Vision) or an ally (Life Warden) change none of them. Sprint 203: the Remedy, its heals grown with the level, now does.
+        "vaulter", "saint", "life-warden", "purifier", "zealot", "divine-sage",
     };
 
     /// <summary>
