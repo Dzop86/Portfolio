@@ -477,6 +477,9 @@ public static class Ai
                     value += hit * Elements.Arc / 100;
             }
         }
+        // A ward (sprint 208): a blow from next to its target shields one of its side, at half the worth of the share.
+        if (Fight.Ward(me) is WardRule ward && target.DistanceTo(from) == 1)
+            value += 0.5 * drawnHit * ward.Percent / 100;
         foreach (SpellEffect effect in spell.AllEffects)
         {
             // A creature on our side is worth a few hits, once, whoever stands nearby; so is getting a hurt

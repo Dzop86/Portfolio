@@ -1181,6 +1181,14 @@ public sealed class Fight
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
         if (me.IsAlive && spell.AllEffects.OfType<DrainEffect>().Sum(d => d.Percent) is int percent and > 0 && drawn > 0 && me.HealFor(drawn * percent / 100) is int life and > 0)
             _events.Add(new Healed(me.Id, life, me.Hp));
+        // The Paladin's ward (sprint 208): a blow from next to its target shields the most wounded of its side around it.
+        if (me.IsAlive && !IsOver && drawn > 0 && target.DistanceTo(me.Cell) == 1 && Ward(me) is WardRule ward
+            && _fighters.Where(a => a.IsAlive && a.Team == me.Team && !a.Parched && a.Cell.DistanceTo(me.Cell) <= ward.Cells).OrderBy(a => (double)a.Hp / a.MaxHp).ThenBy(a => a.Id).FirstOrDefault() is Fighter guarded)
+        {
+            int amount = Math.Max(1, drawn * ward.Percent / 100);
+            guarded.Shields.Add((amount, WardTurns));
+            _events.Add(new Shielded(guarded.Id, amount, WardTurns));
+        }
         // Terrain (sprint 142): the last damage spell and its target, for an Echo; a spell that strikes nobody leaves its
         // Remanence; Side Step's free cell, once a turn.
         if (spell.DamageMax > 0 && area.FirstOrDefault(f => f.Team != me.Team) is Fighter aimed)
@@ -1370,6 +1378,16 @@ public sealed class Fight
 
     /// <summary>The turns of the healed fighter a heal's excess shields it (sprint 201).</summary>
     public const int OverflowTurns = 2;
+
+    /// <summary>The turns a ward's shield lasts (sprint 208).</summary>
+    public const int WardTurns = 2;
+
+    /// <summary>A fighter's ward (sprint 208): its rules' percents added, the widest reach; or null.</summary>
+    public static WardRule? Ward(Fighter f)
+    {
+        WardRule[] rules = [.. (f ?? throw new ArgumentNullException(nameof(f))).Talents.SelectMany(t => t.Rules).OfType<WardRule>()];
+        return rules.Length == 0 ? null : new WardRule(rules.Sum(r => r.Percent), rules.Max(r => r.Cells));
+    }
 
     /// <summary>How many doses a fighter's poisons stack to (sprint 205), or null: they are renewed.</summary>
     public static int? StackOf(Fighter f) =>

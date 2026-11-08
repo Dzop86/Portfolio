@@ -81,6 +81,7 @@ public enum Tier
 [JsonDerivedType(typeof(FuryRule), "fury")]
 [JsonDerivedType(typeof(ExecuteRule), "execute")]
 [JsonDerivedType(typeof(FlankRule), "flank")]
+[JsonDerivedType(typeof(WardRule), "ward")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -277,6 +278,12 @@ public sealed record FuryRule(int Ratio, int Max) : TalentRule;
 /// beyond the talents' ceiling, as a target's state.
 /// </summary>
 public sealed record ExecuteRule(int Below, int Percent) : TalentRule;
+
+/// <summary>
+/// The Paladin's engine (sprint 208, docs/classes-paladin.md §1): a blow from next to its target shields the most wounded fighter of its side within
+/// <see cref="Cells"/> cells of it, itself too, for <see cref="Percent"/> % of the damage done to enemies, for 2 turns.
+/// </summary>
+public sealed record WardRule(int Percent, int Cells) : TalentRule;
 
 /// <summary>Living, the Barbarian's (sprint 207): <see cref="Percent"/> % more on a target another fighter of the bearer's side stands next to (the clan up close).</summary>
 public sealed record FlankRule(int Percent) : TalentRule;

@@ -167,6 +167,10 @@ public static class Progression
         ["berserker-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["berserker-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
         ["berserker-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
+        // The Paladin's (sprint 208): the Warrior's.
+        ["paladin-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["paladin-manner"] = ["lasting-mark", "lingering-reaction", "shared-mark"],
+        ["paladin-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -179,6 +183,7 @@ public static class Progression
         ["priest-matter"] = [Element.Lightning],
         ["rogue-matter"] = [Element.Lightning],
         ["berserker-matter"] = [Element.Lightning],
+        ["paladin-matter"] = [Element.Lightning],
     };
 
     /// <summary>
