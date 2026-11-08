@@ -3547,5 +3547,419 @@
       "en": "Strike wide, pay in blood."
     },
     "icon": "spec-ravager"
+  },
+  {
+    "id": "barbarian",
+    "class": "berserker",
+    "name": {
+      "fr": "Barbare",
+      "en": "Barbarian"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Barbare",
+        "en": "Barbarian"
+      },
+      "description": {
+        "fr": "+10 % de dégâts sur une cible qu'un allié touche aussi. Sorts : Cri du clan et Coup sauvage.",
+        "en": "+10% damage on a target an ally is next to as well. Spells: Clan Cry and Savage Blow."
+      },
+      "spells": [
+        "path-clan-cry",
+        "path-savage-blow"
+      ],
+      "rules": [
+        {
+          "kind": "flank",
+          "percent": 10
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "tribal-warrior",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Guerrier tribal",
+              "en": "Tribal Warrior"
+            },
+            "description": {
+              "fr": "Sort : Étendard de guerre, +15 % de résistance aux alliés autour.",
+              "en": "Spell: War Standard, +15% resistance to the allies around."
+            },
+            "spells": [
+              "path-war-standard"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Le clan d'abord. Moi ensuite, s'il reste quelque chose.",
+          "en": "The clan first. Me after, if anything is left."
+        },
+        "icon": "spec-tribal-warrior",
+        "finals": [
+          {
+            "id": "warchief",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Chef de guerre",
+                "en": "Warchief"
+              },
+              "description": {
+                "fr": "Étendard de guerre se relance en 2 tours.",
+                "en": "War Standard comes back in 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-war-standard",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Debout. Encore une fois.",
+              "en": "On your feet. Once more."
+            },
+            "icon": "spec-warchief"
+          },
+          {
+            "id": "clan-king",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Roi des clans",
+                "en": "King of the Clans"
+              },
+              "description": {
+                "fr": "Cri du clan en cercle de 3.",
+                "en": "Clan Cry in a circle of 3."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-clan-cry",
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 3
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ma voix porte jusqu'au dernier des miens.",
+              "en": "My voice carries to the last of mine."
+            },
+            "icon": "spec-clan-king"
+          }
+        ]
+      },
+      {
+        "id": "savage",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Sauvage",
+              "en": "Savage"
+            },
+            "description": {
+              "fr": "Sort : Bond sauvage, qui frappe autour de la case d'arrivée.",
+              "en": "Spell: Feral Leap, which strikes around where it lands."
+            },
+            "spells": [
+              "path-feral-leap"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je n'ai pas appris à me battre. J'ai appris à chasser.",
+          "en": "I never learnt to fight. I learnt to hunt."
+        },
+        "icon": "spec-savage",
+        "finals": [
+          {
+            "id": "predator",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Prédateur",
+                "en": "Predator"
+              },
+              "description": {
+                "fr": "+20 % de dégâts sur une cible sous un état.",
+                "en": "+20% damage on a target under a state."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 20,
+                  "states": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Blessé, il sent la peur. Moi aussi.",
+              "en": "Wounded, it smells of fear. So do I."
+            },
+            "icon": "spec-predator"
+          },
+          {
+            "id": "primal-avatar",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Avatar primal",
+                "en": "Primal Avatar"
+              },
+              "description": {
+                "fr": "Entrer en Rage donne aussi +2 PA et +2 PM pendant 1 tour.",
+                "en": "Going into Rage also gives +2 AP and +2 MP for 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "rage",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Ap",
+                      "value": 2,
+                      "turns": 1
+                    },
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Mp",
+                      "value": 2,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "La bête n'attendait que moi.",
+              "en": "The beast was only waiting for me."
+            },
+            "icon": "spec-primal-avatar"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Le clan au contact, ou la bête.",
+      "en": "The clan up close, or the beast."
+    },
+    "icon": "spec-barbarian"
+  },
+  {
+    "id": "berserker-gladiator",
+    "class": "berserker",
+    "name": {
+      "fr": "Gladiateur",
+      "en": "Gladiator"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Gladiateur",
+        "en": "Gladiator"
+      },
+      "description": {
+        "fr": "+25 % de dégâts sur une cible sous 30 % de ses PV. Sorts : Défi et Coup d'arène.",
+        "en": "+25% damage on a target below 30% of its HP. Spells: Challenge and Arena Strike."
+      },
+      "spells": [
+        "path-challenge",
+        "path-arena-strike"
+      ],
+      "rules": [
+        {
+          "kind": "execute",
+          "below": 30,
+          "percent": 25
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "blood-champion",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Champion",
+              "en": "Champion"
+            },
+            "description": {
+              "fr": "Sort : Duel sanglant, payé en PV, qui en rend une part.",
+              "en": "Spell: Blood Duel, paid in HP, which gives a share back."
+            },
+            "spells": [
+              "path-blood-duel"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La foule ne crie pas mon nom. Elle crie le sien, juste avant.",
+          "en": "The crowd does not shout my name. It shouts his, just before."
+        },
+        "icon": "spec-blood-champion",
+        "finals": [
+          {
+            "id": "arena-legend",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Légende de l'arène",
+                "en": "Arena Legend"
+              },
+              "description": {
+                "fr": "Duel sanglant porte à 2 cases.",
+                "en": "Blood Duel reaches 2 cells."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-blood-duel",
+                  "maxRange": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On raconte mes combats. Moi, je ne m'en souviens pas.",
+              "en": "They tell of my fights. I do not remember them."
+            },
+            "icon": "spec-arena-legend"
+          },
+          {
+            "id": "blood-hero",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Héros du sang",
+                "en": "Hero of Blood"
+              },
+              "description": {
+                "fr": "+15 % de dégâts si tu n'as pas bougé ce tour.",
+                "en": "+15% damage if you have not moved this turn."
+              },
+              "rules": [
+                {
+                  "kind": "still",
+                  "still": 15,
+                  "moved": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne recule pas. Je n'avance pas. J'attends qu'ils viennent.",
+              "en": "I do not step back. I do not step forward. I wait for them to come."
+            },
+            "icon": "spec-blood-hero"
+          }
+        ]
+      },
+      {
+        "id": "executor",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Exécuteur",
+              "en": "Executor"
+            },
+            "description": {
+              "fr": "+15 % de plus sur une cible sous 30 % de ses PV. Sort : Décapitation.",
+              "en": "A further +15% on a target below 30% of its HP. Spell: Beheading."
+            },
+            "spells": [
+              "path-behead"
+            ],
+            "rules": [
+              {
+                "kind": "execute",
+                "below": 30,
+                "percent": 15
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne commence rien. Je finis.",
+          "en": "I start nothing. I finish."
+        },
+        "icon": "spec-executor",
+        "finals": [
+          {
+            "id": "headsman",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Bourreau",
+                "en": "Headsman"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Le suivant monte.",
+              "en": "The next one steps up."
+            },
+            "icon": "spec-headsman"
+          },
+          {
+            "id": "beheader",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Décapiteur",
+                "en": "Beheader"
+              },
+              "description": {
+                "fr": "Décapitation se relance en 1 tour.",
+                "en": "Beheading comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-behead",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Une tête. Puis une autre.",
+              "en": "One head. Then another."
+            },
+            "icon": "spec-beheader"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Une cible, l'exécution.",
+      "en": "One target, the execution."
+    },
+    "icon": "spec-berserker-gladiator"
   }
 ]

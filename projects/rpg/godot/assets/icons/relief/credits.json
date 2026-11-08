@@ -164,5 +164,19 @@
   "spec-brutal-titan": "lorc/spiked-mace",
   "spec-carnivore": "lorc/bestial-fangs",
   "spec-butcher": "lorc/meat",
-  "spec-devourer": "lorc/gluttony"
+  "spec-devourer": "lorc/gluttony",
+  "spec-barbarian": "lorc/horned-helm",
+  "spec-tribal-warrior": "lorc/tribal-mask",
+  "spec-warchief": "delapouite/viking-helmet",
+  "spec-clan-king": "lorc/crown",
+  "spec-savage": "delapouite/bear-head",
+  "spec-predator": "lorc/animal-skull",
+  "spec-primal-avatar": "lorc/lion",
+  "spec-berserker-gladiator": "lorc/swords-emblem",
+  "spec-blood-champion": "lorc/laurels",
+  "spec-arena-legend": "lorc/laurel-crown",
+  "spec-blood-hero": "lorc/heart-tower",
+  "spec-executor": "lorc/axe-in-stump",
+  "spec-headsman": "lorc/skull-mask",
+  "spec-beheader": "lorc/headshot"
 }

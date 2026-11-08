@@ -622,6 +622,16 @@ paths = [
  path("gore-charge","Charge sanglante","Bloody Charge",3,2,4,30,"lorc/sword-wound",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2,hp=6),
  path("crushing-blow","Coup écrasant","Crushing Blow",6,1,1,50,"lorc/skull-crack",damage=True,cd=1,hp=12),
  path("devour","Dévorer","Devour",4,1,1,50,"lorc/carnivore-mouth",damage=True,effects=[drain(50)],cd=1),
+ # The Barbarian (sprint 207, docs/classes-berserker-2.md §2): the clan up close, or the beast.
+ path("clan-cry","Cri du clan","Clan Cry",3,0,0,30,"lorc/wolf-howl",los=False,area=("Circle",2),effects=[status("Allies","Damage",15,2)],cd=3),
+ path("savage-blow","Coup sauvage","Savage Blow",4,1,1,30,"lorc/paw",damage=True,cd=1),
+ path("war-standard","Étendard de guerre","War Standard",3,0,0,50,"lorc/totem-mask",los=False,area=("Circle",2),effects=[status("Allies","Resistance",15,2)],cd=3),
+ path("feral-leap","Bond sauvage","Feral Leap",4,2,4,50,"lorc/beast-eye",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
+ # The Gladiator: one target, the execution, paid in blood.
+ path("challenge","Défi","Challenge",2,1,4,30,"lorc/crossed-swords",effects=[status("Enemies","Resistance",-10,2)],cd=2),
+ path("arena-strike","Coup d'arène","Arena Strike",4,1,1,30,"lorc/fist",damage=True,cd=1),
+ path("blood-duel","Duel sanglant","Blood Duel",5,1,1,50,"lorc/bloody-stash",damage=True,effects=[drain(30)],cd=1,hp=10),
+ path("behead","Décapitation","Beheading",6,1,1,50,"lorc/guillotine",damage=True,cd=2,hp=12),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
