@@ -55,6 +55,12 @@ public enum ActionError
 
     /// <summary>The target is hidden (the Rogue's Stealth, sprint 204): it can only be aimed at from close by.</summary>
     Hidden,
+
+    /// <summary>The spell costs more hit points than the caster has left (the Berserker's, sprint 206): it never kills itself.</summary>
+    NotEnoughHp,
+
+    /// <summary>The spell asks for the caster's form (the Berserker's Rage, sprint 206).</summary>
+    NoForm,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -65,6 +71,9 @@ public sealed record TurnStarted(int Fighter, int Round) : FightEvent;
 public sealed record Moved(int Fighter, IReadOnlyList<Cell> Path) : FightEvent;
 
 public sealed record SpellCast(int Fighter, string Spell, Cell Target, bool Critical = false) : FightEvent;
+
+/// <summary>Hit points a spell cost its caster (the Berserker's, sprint 206).</summary>
+public sealed record HpPaid(int Fighter, int Amount, int Hp) : FightEvent;
 
 /// <summary>
 /// What a cast would do to one fighter (<see cref="Fight.Foresee"/>): damage before shields, from

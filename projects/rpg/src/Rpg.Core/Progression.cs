@@ -163,6 +163,10 @@ public static class Progression
         ["rogue-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["rogue-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
         ["rogue-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
+        // The Berserker's (sprint 206): the Warrior's, a fighter up close.
+        ["berserker-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["berserker-manner"] = ["up-close", "firm-footing", "heavy-push", "close-quarters"],
+        ["berserker-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -174,6 +178,7 @@ public static class Progression
         ["mage-matter"] = [Element.Lightning],
         ["priest-matter"] = [Element.Lightning],
         ["rogue-matter"] = [Element.Lightning],
+        ["berserker-matter"] = [Element.Lightning],
     };
 
     /// <summary>

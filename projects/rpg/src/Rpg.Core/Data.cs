@@ -41,7 +41,9 @@ public sealed record Spell(
     bool Adaptive = false,
     string? Needs = null,
     string? Aims = null,
-    int SpendsShield = 0)
+    int SpendsShield = 0,
+    int HpCost = 0,
+    bool Form = false)
 {
     /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
     public string RankKey => Twin ?? Id;
@@ -760,7 +762,8 @@ public sealed class GameData
         ShieldEffect sh => sh.Amount > 0 && sh.Turns is >= 1 and <= 10,
         PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
         PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
-        StatusEffect st => st.Value != 0 && st.Turns is >= 1 and <= 10 && (st.Stat is not (Stat.Poison or Stat.Regen) || st.Value > 0),
+        // A form lasts the fight (the Berserker's Rage, sprint 206): 99 turns; any other status 10 at most.
+        StatusEffect st => st.Value != 0 && st.Turns >= 1 && st.Turns <= (st.Stat == Stat.Rage ? 99 : 10) && (st.Stat is not (Stat.Poison or Stat.Regen) || st.Value > 0),
         SummonEffect sm => sm.Max is >= 1 and <= 4 && sm.Count is >= 1 and <= 4 && Summons.ContainsKey(sm.Summon),
         // The Chronomancer's (sprint 199): a loan of the caster's own points, a shift in the order of anyone but the caster, cooldowns shortened.
         BorrowEffect b => b.Ap is >= 1 and <= 4 && b.Affects == Affects.Caster,
@@ -768,6 +771,7 @@ public sealed class GameData
         HasteEffect h => h.Turns is >= 1 and <= 3,
         PurgeEffect => true,
         ReviveEffect r => r.Percent is >= 1 and <= 100 && r.Affects == Affects.Allies,
+        DrainEffect d => d.Percent is >= 1 and <= 100 && d.Affects == Affects.Caster,
         _ => false,
     };
 

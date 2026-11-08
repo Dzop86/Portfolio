@@ -170,6 +170,12 @@ public enum Stat
     /// it ends when the bearer hurts an enemy.
     /// </summary>
     Hidden,
+
+    /// <summary>
+    /// A form (the Berserker's Rage, sprint 206, docs/classes-berserker.md §2): this percent more damage, as long as the fight lasts; spells marked
+    /// "form" ask for it. Nothing takes it away, not even a purge.
+    /// </summary>
+    Rage,
 }
 
 /// <summary>
@@ -191,6 +197,7 @@ public enum Stat
 [JsonDerivedType(typeof(HasteEffect), "haste")]
 [JsonDerivedType(typeof(PurgeEffect), "purge")]
 [JsonDerivedType(typeof(ReviveEffect), "revive")]
+[JsonDerivedType(typeof(DrainEffect), "drain")]
 public abstract record SpellEffect(Affects Affects);
 
 // The Chronomancer's time (sprint 199, docs/classes-mage.md §3).
@@ -225,6 +232,9 @@ public sealed record PurgeEffect(Affects Affects) : SpellEffect(Affects);
 /// hit points, its statuses and shields gone; once a fight for each caster and spell.
 /// </summary>
 public sealed record ReviveEffect(Affects Affects, int Percent) : SpellEffect(Affects);
+
+/// <summary>Life drawn (the Berserker's, sprint 206): the caster heals this percent of the damage the spell did to its enemies.</summary>
+public sealed record DrainEffect(Affects Affects, int Percent) : SpellEffect(Affects);
 
 /// <summary>Absorbs the next damage, up to <see cref="Amount"/>, for some turns of the fighter.</summary>
 public sealed record ShieldEffect(Affects Affects, int Amount, int Turns) : SpellEffect(Affects);

@@ -78,6 +78,7 @@ public enum Tier
 [JsonDerivedType(typeof(IsolatedRule), "isolated")]
 [JsonDerivedType(typeof(StackRule), "stack")]
 [JsonDerivedType(typeof(ShadowRule), "shadow")]
+[JsonDerivedType(typeof(FuryRule), "fury")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -263,6 +264,12 @@ public sealed record IsolatedRule(int Cells, int Percent) : TalentRule;
 /// </summary>
 public sealed record StackRule(int Max) : TalentRule;
 
+/// <summary>
+/// Living, the Berserker's engine (sprint 206, docs/classes-berserker.md §1): <see cref="Ratio"/> % of the share of its hit points it misses, in percent more
+/// damage, <see cref="Max"/> at most.
+/// </summary>
+public sealed record FuryRule(int Ratio, int Max) : TalentRule;
+
 /// <summary>Living, the Shadowmage's (sprint 205): <see cref="Percent"/> % more on a hit cast while the bearer is hidden.</summary>
 public sealed record ShadowRule(int Percent) : TalentRule;
 
@@ -317,9 +324,10 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="LureCells">Sprint 200: the cells between the target and the nearest of the caster's lures (<see cref="int.MaxValue"/>: none).</param>
 /// <param name="AllyCells">Sprint 204: the cells between the target and the nearest fighter of its side (<see cref="int.MaxValue"/>: none).</param>
 /// <param name="Hidden">Sprint 205: the caster is hidden as it casts (the Shadowmage's).</param>
+/// <param name="Missing">Sprint 206: the share of its hit points the caster misses, in percent (the Berserker's fury).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
     bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue,
-    int AllyCells = int.MaxValue, bool Hidden = false);
+    int AllyCells = int.MaxValue, bool Hidden = false, int Missing = 0);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -670,10 +678,13 @@ public static class Talents
             + rules.OfType<LureTargetRule>().Sum(r => c.LureCells <= r.Cells ? r.Percent : 0)
             + rules.OfType<IsolatedRule>().Sum(r => c.AllyCells > r.Cells ? r.Percent : 0)
             + rules.OfType<ShadowRule>().Sum(r => c.Hidden ? r.Percent : 0)
+
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);
-        int beyond = rules.OfType<TargetStateRule>().Where(r => (r.Spell is null || r.Spell == c.Spell) && (r.States > 0 ? c.TargetStates >= r.States : c.TargetStill)).Sum(r => r.Percent);
+        int beyond = rules.OfType<TargetStateRule>().Where(r => (r.Spell is null || r.Spell == c.Spell) && (r.States > 0 ? c.TargetStates >= r.States : c.TargetStill)).Sum(r => r.Percent)
+            // The Berserker's fury (sprint 206), its engine: beyond the talents' ceiling, as a target's state.
+            + rules.OfType<FuryRule>().Sum(r => Math.Min(r.Max, c.Missing * r.Ratio / 100));
         return Math.Clamp(sum, -100, Ceiling) + beyond;
     }
 

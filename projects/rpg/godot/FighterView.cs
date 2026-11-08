@@ -79,6 +79,12 @@ public partial class FighterView : Node3D
         _hp.Visible = Fighter.IsAlive;
         _ring.Visible = Fighter.IsAlive;
         _ring.Scale = current ? new Vector3(1.25f, 0.2f, 1.25f) : new Vector3(1, 0.15f, 1);
+        // The Berserker's Rage (sprint 206): a size bigger for the rest of the fight.
+        if (Fighter.Raging != _raging && Fighter.IsAlive)
+        {
+            _raging = Fighter.Raging;
+            _model.Scale = _modelScale * (_raging ? RageScale : 1f);
+        }
         // The Rogue's Stealth (sprint 204): drawn half see-through while it lasts.
         if (Fighter.Hidden != _seeThrough)
         {
@@ -89,6 +95,14 @@ public partial class FighterView : Node3D
     }
 
     private bool _seeThrough;
+
+    /// <summary>Drawn a size bigger in its Rage (the Berserker's form, sprint 206): its model's scale at setup, times this.</summary>
+    public const float RageScale = 1.2f;
+
+    private bool _raging;
+
+    /// <summary>Whether the model is drawn bigger (a fighter in its Rage, sprint 206).</summary>
+    public bool Enraged => _raging;
 
     /// <summary>Whether the model is drawn see-through (a hidden fighter, sprint 204).</summary>
     public bool SeeThrough => _seeThrough;

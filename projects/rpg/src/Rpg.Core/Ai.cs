@@ -451,15 +451,19 @@ public static class Ai
             return Math.Min(s.Heal, ally.MaxHp - ally.Hp) + 0.3 * s.Shield + 0.05 * s.Resistance + 2.0 * s.Mp + 1.0 * s.Range;
         }
         IReadOnlyList<Fighter> area = fight.InArea(spell, from, target);
-        double value = 0;
+        // Blood (sprint 206): the hit points a spell costs, at half their worth (they feed the fury).
+        double value = -0.5 * spell.HpCost;
+        double drawnHit = 0;
         if (spell.DamageMax > 0)
         {
-            foreach (Fighter f in area)
+            foreach (Fighter f in area.Where(f => !(f == me && from == target && spell.MaxRange == 0 && spell.Zone.Radius > 0)))
             {
                 // The one estimate (sprint 141): the rule of a hit, the living talents read from where it would be cast.
                 double hit = Math.Min(Fight.Expected(spell.AverageDamage, me, f, spell.Element, Talents.Percent(me.Talents, from, f.Cell, spell.Element, fight.ContextOf(me, spell, from, f))), f.Hp + f.Shield);
                 // A summon dies with its summoner: hitting it is worth half. An enemy finished off
                 // hits back no more: a sure kill is worth a bonus.
+                if (f.Team != me.Team)
+                    drawnHit += hit;
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1)
                     // A lure (the Decoy, sprint 142; the Illusionist's Image and Double, sprint 200) draws the blows of those within 2 cells of it.
                     * (f.Lure && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1);
@@ -477,6 +481,12 @@ public static class Ai
         {
             // A creature on our side is worth a few hits, once, whoever stands nearby; so is getting a hurt
             // ally out of reach (only cast then, see NeedsRescue).
+            // Life drawn (sprint 206): the share of the blows, at most what it misses.
+            if (effect is DrainEffect drain)
+            {
+                value += Math.Min(drawnHit * drain.Percent / 100, me.MaxHp - me.Hp + spell.HpCost);
+                continue;
+            }
             // A friend raised (sprint 202): its hit points back, and a fighter more on our side.
             if (effect is ReviveEffect revive)
             {
@@ -502,7 +512,7 @@ public static class Ai
                 {
                     HealEffect h => sign * Math.Min(HealAverage(me, h), f.MaxHp - f.Hp) + OverflowWorth(fight, me, f, h),
                     // The purge (sprint 201): what the statuses taken would have done, and an enemy's shields.
-                    PurgeEffect => sign * f.Statuses.Where(st => Fight.Ailment(st) == (f.Team == me.Team))
+                    PurgeEffect => sign * f.Statuses.Where(st => Fight.Ailment(st) == (f.Team == me.Team) && st.Stat != Stat.Rage)
                         .Sum(st => StatusWorth(new StatusEffect(Affects.All, st.Stat, st.Value, st.TurnsLeft, st.Element), f))
                         + (f.Team == me.Team ? 0 : 0.5 * f.Shield),
                     // Shields and statuses pay off later: worth a part of what they hold.
@@ -519,6 +529,8 @@ public static class Ai
                         Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
                         // Stealth (sprint 204): the blows of the enemies too far to come within reach of it, at least 1 a turn.
                         Stat.Hidden => sign * Math.Max(1, Unreached(fight, f)) * st.Turns,
+                        // A form (sprint 206): a damage bonus for the rest of the fight, counted over 8 turns.
+                        Stat.Rage => sign * 0.05 * st.Value * Math.Min(st.Turns, 8) * 4,
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },
                     PushEffect or PullEffect => -sign * 1.0,

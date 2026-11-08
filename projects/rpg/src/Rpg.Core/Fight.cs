@@ -71,7 +71,8 @@ public sealed class Fighter
 
     /// <summary>What its living talents would read of a hit with <paramref name="spell"/> now (sprint 141).</summary>
     public HitContext Context(Spell? spell, bool walking = false) =>
-        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0, Spell: spell?.RankKey, Hidden: Hidden);
+        new(walking || StepsThisTurn > 0, CellsSinceSpell, DamageCastsThisTurn, spell?.ApCost ?? 0, Spell: spell?.RankKey, Hidden: Hidden,
+            Missing: MaxHp <= 0 ? 0 : (MaxHp - Hp) * 100 / MaxHp);
 
     /// <summary>The movement points its statuses leave it for its next turn (sprint 192): none, a target the Crush waits for.</summary>
     public bool HeldStill => Spec.Mp + StatusList.Where(s => s.Stat == Stat.Mp).Sum(s => s.Value) <= 0;
@@ -131,7 +132,10 @@ public sealed class Fighter
     /// <summary>Extra damage the fighter deals now, in percent (statuses), at least -100.</summary>
     /// <summary>The damage bonus in percent of the statuses on the fighter: a neutral one for every element, an element's (an oil, sprint 111) for its own.</summary>
     public int DamageBonusFor(Element element) =>
-        Math.Max(-100, StatusList.Where(s => s.Stat == Stat.Damage && (s.Element == Element.Neutral || s.Element == element)).Sum(s => s.Value));
+        Math.Max(-100, StatusList.Where(s => (s.Stat is Stat.Damage or Stat.Rage) && (s.Element == Element.Neutral || s.Element == element)).Sum(s => s.Value));
+
+    /// <summary>In its form (the Berserker's Rage, sprint 206).</summary>
+    public bool Raging => StatusList.Any(s => s.Stat == Stat.Rage);
 
     public int CastsLeft(Spell spell) => spell.PerTurn - CastsThisTurn.GetValueOrDefault(spell.Id);
 
@@ -468,7 +472,7 @@ public sealed class Fight
         HealEffect[] heals = [.. spell.AllEffects.OfType<HealEffect>()];
         foreach (Fighter f in area.Concat(heals.Any(h => h.Affects == Affects.Caster) && !area.Contains(me) ? [me] : []))
         {
-            bool hit = spell.DamageMax > 0 && area.Contains(f);
+            bool hit = spell.DamageMax > 0 && area.Contains(f) && !Spares(spell, me, target, f);
             int healMin = 0, healMax = 0;
             foreach (HealEffect h in heals.Where(h => h.Affects == Affects.Caster ? f == me : area.Contains(f) && Touches(h.Affects, me, f)))
             {
@@ -558,6 +562,11 @@ public sealed class Fight
             return ActionError.NotEnoughAp;
         if (caster.CastsLeft(spell) <= 0)
             return ActionError.CastLimit;
+        // The Berserker's (sprint 206): paid in hit points, never the last one; or asking for its Rage.
+        if (spell.HpCost > 0 && caster.Hp <= spell.HpCost)
+            return ActionError.NotEnoughHp;
+        if (spell.Form && !caster.Raging)
+            return ActionError.NoForm;
         if (caster.CooldownLeft(spell) > 0)
             return ActionError.Cooldown;
         if (!Board.Contains(target))
@@ -1084,6 +1093,12 @@ public sealed class Fight
             return;
         }
         me.Ap -= spell.ApCost;
+        // Blood (sprint 206): the hit points first, so that the blow already feels them (the Berserker's fury).
+        if (spell.HpCost > 0)
+        {
+            me.Hp -= Math.Min(spell.HpCost, me.Hp - 1);
+            _events.Add(new HpPaid(me.Id, spell.HpCost, me.Hp));
+        }
         me.CastsThisTurn[spell.Id] = me.CastsThisTurn.GetValueOrDefault(spell.Id) + 1;
         // Counted down at the start of each of the caster's turns, so one more than the turns to skip.
         if (spell.Cooldown > 0)
@@ -1103,6 +1118,8 @@ public sealed class Fight
         }
         // What the living talents read (sprint 141), as the turn stood before this spell; then counted.
         HitContext context = me.Context(spell);
+        // The damage done to enemies, for a spell that draws life (sprint 206).
+        int drawn = 0;
         me.CellsSinceSpell = 0;
         if (spell.DamageMax > 0)
             me.DamageCastsThisTurn++;
@@ -1114,7 +1131,7 @@ public sealed class Fight
                 .OrderBy(f => f.Cell == target ? 0 : 1).Take(1 + wave)];
             foreach (Fighter hit in area)
             {
-                if (!hit.IsAlive)
+                if (!hit.IsAlive || Spares(spell, me, target, hit))
                     continue;
                 // Next to the caster at the moment of the hit, for a passive that answers blows (sprint 90).
                 bool melee = hit.Cell.DistanceTo(me.Cell) == 1;
@@ -1129,6 +1146,8 @@ public sealed class Fight
                     Zone = spell.Zone.Radius > 0,
                 };
                 int dealt = Damage(roll, me, hit, spell.Element, true, here, GuardOf(hit));
+                if (hit.Team != me.Team)
+                    drawn += dealt;
                 if (Hurt(hit, dealt, spell.Element, me) > 0 && hit.IsAlive)
                 {
                     foreach (PassiveSpec p in hit.Passives.Where(p => p.Trigger == Trigger.Hit && (!p.Melee || melee)))
@@ -1156,6 +1175,8 @@ public sealed class Fight
         if (me.Hidden && area.Any(f => f.Team != me.Team) && (spell.DamageMax > 0 || spell.AllEffects.Any(e => e is StatusEffect { Stat: Stat.Poison, Affects: Affects.Enemies })))
             Unhide(me);
         Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
+        if (me.IsAlive && spell.AllEffects.OfType<DrainEffect>().Sum(d => d.Percent) is int percent and > 0 && drawn > 0 && me.HealFor(drawn * percent / 100) is int life and > 0)
+            _events.Add(new Healed(me.Id, life, me.Hp));
         // Terrain (sprint 142): the last damage spell and its target, for an Echo; a spell that strikes nobody leaves its
         // Remanence; Side Step's free cell, once a turn.
         if (spell.DamageMax > 0 && area.FirstOrDefault(f => f.Team != me.Team) is Fighter aimed)
@@ -1230,6 +1251,9 @@ public sealed class Fight
                     }
                     continue;
                 // The Chronomancer's loan (sprint 199): its points at once, paid back when its next turn starts.
+                // Drawn after the blows, in Cast (sprint 206).
+                case DrainEffect:
+                    continue;
                 case BorrowEffect borrow:
                     me.Ap += borrow.Ap;
                     me.NextTurnPenalty += borrow.Ap;
@@ -1347,6 +1371,13 @@ public sealed class Fight
     public static int? StackOf(Fighter f) =>
         (f ?? throw new ArgumentNullException(nameof(f))).Talents.SelectMany(t => t.Rules).OfType<StackRule>().Select(r => (int?)r.Max).DefaultIfEmpty(null).Max();
 
+    /// <summary>
+    /// A blow all around its caster spares it (sprint 206, the Berserker's Whirl and Ravage): an area of range 0, cast on the caster's own cell, does it no
+    /// damage. No spell was such before; an area that may reach further still hurts its caster on its cell, a spell without an area (a sacrifice) too.
+    /// </summary>
+    public static bool Spares(Spell spell, Fighter caster, Cell target, Fighter hit) =>
+        hit == caster && target == caster.Cell && (spell ?? throw new ArgumentNullException(nameof(spell))).MaxRange == 0 && spell.Zone.Radius > 0;
+
     /// <summary>The cells from which an enemy may still aim at a hidden fighter (the Rogue's Stealth, sprint 204).</summary>
     public const int HiddenCells = 2;
 
@@ -1360,13 +1391,14 @@ public sealed class Fight
     internal static bool Ailment(Status st) => st.Stat switch
     {
         Stat.Poison or Stat.Parched or Stat.Electrified => true,
-        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden => false,
+        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden or Stat.Rage => false,
         _ => st.Value < 0,
     };
 
     private void Purge(Fighter f, bool ally)
     {
-        foreach (Status st in f.StatusList.Where(st => Ailment(st) == ally).ToList())
+        // A form is never taken (sprint 206).
+        foreach (Status st in f.StatusList.Where(st => Ailment(st) == ally && st.Stat != Stat.Rage).ToList())
         {
             f.StatusList.Remove(st);
             if (!f.StatusList.Any(o => o.Stat == st.Stat))

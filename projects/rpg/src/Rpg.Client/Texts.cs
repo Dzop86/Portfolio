@@ -570,6 +570,7 @@ public sealed class Texts
         ["stat.Anchored"] = "indéplaçable",
         ["stat.Regen"] = "soin de {0} par tour",
         ["stat.Hidden"] = "invisible au-delà de 2 cases",
+        ["stat.Rage"] = "Rage : {0} % de dégâts",
         ["stat.Mp.all"] = "plus de déplacement",
         ["sd.spends-shield"] = "Consomme ton bouclier, jusqu'à {0} de dégâts en plus.",
         ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
@@ -612,6 +613,13 @@ public sealed class Texts
         ["error.SupportSpent"] = "Plus de soutien ce tour : un sort sur un allié attendra le prochain.",
         ["error.NoSummon"] = "Ce sort demande ta créature en jeu.",
         ["error.Hidden"] = "Cette cible est cachée : approche-toi à 2 cases.",
+        ["error.NotEnoughHp"] = "Pas assez de PV pour payer ce sort.",
+        ["error.NoForm"] = "Ce sort demande ta Rage.",
+        ["log.paid"] = "{0} paie {1} PV",
+        ["effect.drain"] = "rend {0} % des dégâts en PV",
+        ["effect.purge-Caster"] = "retire tes malus",
+        ["sd.hp-cost"] = "Coûte {0} PV.",
+        ["sd.form"] = "Demande ta Rage.",
         ["sd.needs"] = "Demande : {0} en jeu.",
         ["sd.aims"] = "Se lance sur : {0}.",
         ["lobby.title"] = "Osmose",
@@ -1839,6 +1847,7 @@ public sealed class Texts
         ["stat.Anchored"] = "cannot be moved",
         ["stat.Regen"] = "heals {0} a turn",
         ["stat.Hidden"] = "unseen beyond 2 cells",
+        ["stat.Rage"] = "Rage: {0}% damage",
         ["stat.Mp.all"] = "no more moving",
         ["sd.spends-shield"] = "Uses up your shield, for up to {0} more damage.",
         ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
@@ -1881,6 +1890,13 @@ public sealed class Texts
         ["error.SupportSpent"] = "No more support this turn: a spell on an ally will wait for the next.",
         ["error.NoSummon"] = "This spell needs your creature in play.",
         ["error.Hidden"] = "This target is hidden: come within 2 cells.",
+        ["error.NotEnoughHp"] = "Not enough HP to pay for this spell.",
+        ["error.NoForm"] = "This spell needs your Rage.",
+        ["log.paid"] = "{0} pays {1} HP",
+        ["effect.drain"] = "gives back {0}% of the damage as HP",
+        ["effect.purge-Caster"] = "removes your ailments",
+        ["sd.hp-cost"] = "Costs {0} HP.",
+        ["sd.form"] = "Needs your Rage.",
         ["sd.needs"] = "Needs: {0} in play.",
         ["sd.aims"] = "Cast on: {0}.",
         ["lobby.title"] = "Osmose",
@@ -2686,7 +2702,8 @@ public sealed class Texts
                 HealEffect h => this["effect.heal", h.Min, h.Max],
                 // The Priest's purge (sprint 201): whose statuses go, in the words.
                 ReviveEffect r => this["effect.revive", r.Percent],
-                PurgeEffect p => this["effect.purge-" + (p.Affects is Affects.Allies or Affects.Enemies ? p.Affects : Affects.All)],
+                PurgeEffect p => this["effect.purge-" + (p.Affects is Affects.Allies or Affects.Enemies or Affects.Caster ? p.Affects : Affects.All)],
+                DrainEffect d => this["effect.drain", d.Percent],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
                 PullEffect p => this["effect.pull", p.Cells],
@@ -2702,7 +2719,7 @@ public sealed class Texts
                 GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect or ReviveEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect or ReviveEffect or DrainEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -2738,6 +2755,11 @@ public sealed class Texts
             lines.Add(this["sd.aims", GameData.Embedded.Summons.TryGetValue(aimed, out SummonSpec? on) ? on.Name.In(Lang) : aimed]);
         if (s.SpendsShield > 0)
             lines.Add(this["sd.spends-shield", s.SpendsShield]);
+        // The Berserker's (sprint 206).
+        if (s.HpCost > 0)
+            lines.Add(this["sd.hp-cost", s.HpCost]);
+        if (s.Form)
+            lines.Add(this["sd.form"]);
         if (!b.Unlocked)
             lines.Add(this["sd.unlock", b.Spell.Level]);
         else if (b.NextCost == 0)
@@ -3147,7 +3169,7 @@ public sealed class Texts
     /// <summary>A status as the log shows it: "-2 PA", "+50 % de dégâts", "poison 6 (Eau)".</summary>
     public string Status(Stat stat, int value, Element element)
     {
-        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint or Stat.Regen ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
+        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint or Stat.Regen or Stat.Rage ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
         string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
         // The Lock (sprint 192): all of its movement, whatever the number.
         if (stat == Stat.Mp && value <= -9)
@@ -3167,6 +3189,7 @@ public sealed class Texts
             Died d => this["log.died", Name(fight.Fighters[d.Fighter])],
             Revived r => this["log.revived", Name(fight.Fighters[r.Fighter]), r.Hp],
             Healed h => this["log.heal", Name(fight.Fighters[h.Fighter]), h.Amount],
+            HpPaid p => this["log.paid", Name(fight.Fighters[p.Fighter]), p.Amount],
             Summoned m => this["log.summon", Name(fight.Fighters[m.Summoner]), Name(fight.Fighters[m.Fighter])],
             Shielded s => this["log.shield", Name(fight.Fighters[s.Fighter]), s.Amount],
             ShieldAbsorbed a => this["log.absorbed", Name(fight.Fighters[a.Fighter]), a.Amount],
