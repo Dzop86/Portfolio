@@ -308,3 +308,7 @@ Voir `docs/classes-pretre.md` §6. Seul, sans voie : Prêtre 24,4 à 35 et 35,6 
 ## 7 novembre 2026 : le Prêtre, Clerc, Inquisiteur et Oracle (S202, T165)
 
 Voir `docs/classes-pretre-2.md` §4. Retenu, à 35 : sans voie 24,4, Clerc 39,2, Inquisiteur 40,8, Oracle 40,4. À 50 : sans voie 35,6, Guérisseur 37,5, Médecin sacré 41,9, Exorciste 40,0, Fanatique 42,7, Prophète 39,0, Mystique 40,0. À 100 (indicatif) : sans voie 6,7, finales de 8,5 à 26,3 ; le Prêtre seul de 100 est à reprendre au jalon 1.
+
+## 7 novembre 2026 : jalon 1, les PV balayés (S203, T166)
+
+Voir `docs/jalon-1.md`. Guerrier à 74 + 5 : 37,9 / 50,2 / 47,3 à 35 / 50 / 100 (24,0 / 32,3 / 20,8 avant). Mage à 72 + 3 essayé et rejeté (entraînement 320 sur 1000). Archer à 62 + 4 essayé et rejeté (31,9 à 50). Prêtre de 100 : environ 7 sans voie, quelque réglage qu'on essaie.

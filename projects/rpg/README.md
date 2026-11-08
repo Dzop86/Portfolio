@@ -124,6 +124,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
+Sprint 203 : jalon 1, 1 test de plus (`Rpg.Core` : un soin du Prêtre suit son niveau). Les PV du Guerrier balayés à 74 + 5, la mesure des 4 classes dans `REVIEW.md` et `docs/jalon-1.md` (T166).
+
 Sprint 202 : 13 tests de plus (`Rpg.Core` : `PriestPathsTests`, un allié relevé sur sa case une fois par combat, ni ennemi ni invocation, l'IA qui relève d'abord, les soins du Clerc plus gros, l'arbre et ses 12 finales, le Présage qui frappe au tour suivant ; `Rpg.Client` : la page d'une classe sans branche). Le Prêtre entre dans la fumée et au banc des finales (T165).
 
 Sprint 201 : 20 tests de plus (`Rpg.Core` : `PriestTests`, le soin en trop devenu bouclier, le soin dans la durée, la purge d'un allié et d'un ennemi, ce qu'en fait l'IA, les soins qui grandissent, le kit du Prêtre, ses dégâts à 0,8 du barème, les sorts neufs du Mage ; `Rpg.Api` : un Prêtre créé, un Mage relu sans les soins partis, ses points libres). Le Prêtre entre dans la fumée, les groupes de référence et les exigences en solo de la CI (T164).

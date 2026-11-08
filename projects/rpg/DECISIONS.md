@@ -1053,3 +1053,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Une brique « effet différé » pour l'Oracle : le poison d'un tour fait la même chose. La résurrection une fois par allié : plus généreuse à plusieurs Prêtres (Q2). Le Clerc sans PA de plus : 8,3 au banc de 35, contre 24,4 sans voie.
 
 **Limites.** Le Prêtre seul de 100 est trop faible (6,7 sans voie, l'Archer 37,7) : poisons et soins d'un tour fixes, coups à 0,8. Au jalon 1 (sprint 203). La fumée laisse 5 combats à chaque héros de 100 (6 avant) : sept finales de plus n'y changent rien (`Unchanged`), et Accélération du Manipulateur temporel n'y est plus jouée (`UnplayedOn`). La Résurrection n'est jouée qu'en groupe (`Unplayed`). Le client montre le combattant relevé, non vu par moi (auto-test Godot en CI).
+
+## T166. Jalon 1 : les PV balayés, le Prêtre de 100 mesuré (sprint 203, D96)
+
+**Décision.** `docs/jalon-1.md`. **Le Guerrier passe à 74 + 5 PV** (74 + 3) : il cesse d'être moins résistant que l'Archer et que le Mage, ce que voulait `classes-conception.md` §1.2. Le Mage (86 + 3), l'Archer (62 + 5) et le Prêtre (66 + 3) gardent leurs PV : leurs cibles essayées (72 + 3, 62 + 4, 66 + 5) cassaient une exigence de la CI ou n'apportaient rien. **Les soins du Prêtre grandissent avec son niveau** (× (100 + niveau) %), comme les rangs font grandir un coup.
+
+**Alternatives.** Le Mage à 72 + 3 : 320 entraînements sur 1000 (la CI en veut 700). Le budget du Prêtre à 0,9 : 2,5 points de plus au banc de 100, mais la grande salle de la Bauge tombe à 68 sur 100 au niveau 8 (70 demandés). Le bouclier du soin en trop compté à moitié par l'IA : aucun effet mesuré, retiré.
+
+**Limites.** Le Prêtre seul de 100 reste très bas au banc (environ 7, le Guerrier 47) : il consacre un tiers de ses PA au soutien (Q1). Le Disjoint est battu seul en moyenne 84 fois sur 100 : plafond de la CI relevé de 80 à 90 (Q3). Plusieurs lignées du Guerrier passent sous son héros sans voie à 100 (Q2). Aucun playtest : Godot sans écran chez moi.
