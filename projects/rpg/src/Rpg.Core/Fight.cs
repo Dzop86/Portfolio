@@ -1171,7 +1171,7 @@ public sealed class Fight
         foreach (SpellEffect effect in effects)
         {
             // Healing grows with a critical hit, as damage does, and with no characteristic (D62).
-            int effectRoll = effect is HealEffect heal ? _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0) + (heal.Grows ? HealBonus(me) : 0) : 0;
+            int effectRoll = effect is HealEffect heal ? Grown(heal, me, _rng.Next(heal.Min, heal.Max) + (critical ? Spell.CritBonus(heal.Max) : 0)) : 0;
             // The Cleric's heals (sprint 202): its path's percent more.
             if (effect is HealEffect && me.Talents.SelectMany(t => t.Rules).OfType<HealRule>().Sum(r => r.Percent) is int more and not 0)
                 effectRoll = effectRoll * (100 + more) / 100;
@@ -1314,6 +1314,17 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         return Characteristics.Bonus(new[] { Element.Earth, Element.Fire, Element.Water, Element.Air }.Max(e => Strength(caster, e)));
+    }
+
+    /// <summary>
+    /// A growing heal's roll (sprint 203): its dice times (100 + the caster's level) %, as a damage spell's ranks raise its blows up to 1.8 times, then the
+    /// bonus of its strongest element (sprint 201). Any other heal as it is.
+    /// </summary>
+    public static int Grown(HealEffect heal, Fighter caster, int roll)
+    {
+        ArgumentNullException.ThrowIfNull(heal);
+        ArgumentNullException.ThrowIfNull(caster);
+        return heal.Grows ? (roll * (100 + caster.Spec.Level) / 100) + HealBonus(caster) : roll;
     }
 
     /// <summary>The turns of the healed fighter a heal's excess shields it (sprint 201).</summary>

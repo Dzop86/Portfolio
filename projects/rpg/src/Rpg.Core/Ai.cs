@@ -270,7 +270,7 @@ public static class Ai
     /// A heal's excess as a shield (the Priest's, sprint 201): on a hero's side, what the blows within reach would really take of the healed fighter
     /// over the turns it lasts; a tenth of it otherwise.
     /// </summary>
-    private static double HealAverage(Fighter me, HealEffect h) => ((h.Min + h.Max) / 2.0) + (h.Grows ? Fight.HealBonus(me) : 0);
+    private static double HealAverage(Fighter me, HealEffect h) => h.Grows ? ((h.Min + h.Max) / 2.0 * (100 + me.Spec.Level) / 100) + Fight.HealBonus(me) : (h.Min + h.Max) / 2.0;
 
     private static double OverflowWorth(Fight fight, Fighter me, Fighter f, HealEffect h)
     {
