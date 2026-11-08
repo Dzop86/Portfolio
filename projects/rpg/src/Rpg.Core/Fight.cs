@@ -883,6 +883,10 @@ public sealed class Fight
             // The Illusionist's (sprint 200): how far the target stands from the nearest of the caster's lures.
             LureCells = caster.Talents.Count == 0 ? int.MaxValue
                 : _fighters.Where(f => f.IsAlive && f.Lure && f.Summoner == caster.Id).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),
+            // The Barbarian's (sprint 207): another of the caster's side next to the target.
+            Flanked = caster.Talents.Count > 0 && _fighters.Any(f => f.IsAlive && f != caster && f.Team == caster.Team && f.Cell.DistanceTo(target.Cell) == 1),
+            // The Gladiator's (sprint 207): the share of its hit points the target has left.
+            TargetHp = target.MaxHp <= 0 ? 100 : target.Hp * 100 / target.MaxHp,
             // The Rogue's engine (sprint 204): how far the nearest fighter of the target's side stands, its creatures too.
             AllyCells = caster.Talents.Count == 0 ? int.MaxValue
                 : _fighters.Where(f => f.IsAlive && f != target && f.Team == target.Team).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),

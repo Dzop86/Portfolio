@@ -79,6 +79,8 @@ public enum Tier
 [JsonDerivedType(typeof(StackRule), "stack")]
 [JsonDerivedType(typeof(ShadowRule), "shadow")]
 [JsonDerivedType(typeof(FuryRule), "fury")]
+[JsonDerivedType(typeof(ExecuteRule), "execute")]
+[JsonDerivedType(typeof(FlankRule), "flank")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -270,6 +272,15 @@ public sealed record StackRule(int Max) : TalentRule;
 /// </summary>
 public sealed record FuryRule(int Ratio, int Max) : TalentRule;
 
+/// <summary>
+/// Living, the Gladiator's (sprint 207, docs/classes-berserker-2.md §1): <see cref="Percent"/> % more on a target under <see cref="Below"/> % of its hit points,
+/// beyond the talents' ceiling, as a target's state.
+/// </summary>
+public sealed record ExecuteRule(int Below, int Percent) : TalentRule;
+
+/// <summary>Living, the Barbarian's (sprint 207): <see cref="Percent"/> % more on a target another fighter of the bearer's side stands next to (the clan up close).</summary>
+public sealed record FlankRule(int Percent) : TalentRule;
+
 /// <summary>Living, the Shadowmage's (sprint 205): <see cref="Percent"/> % more on a hit cast while the bearer is hidden.</summary>
 public sealed record ShadowRule(int Percent) : TalentRule;
 
@@ -325,9 +336,11 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="AllyCells">Sprint 204: the cells between the target and the nearest fighter of its side (<see cref="int.MaxValue"/>: none).</param>
 /// <param name="Hidden">Sprint 205: the caster is hidden as it casts (the Shadowmage's).</param>
 /// <param name="Missing">Sprint 206: the share of its hit points the caster misses, in percent (the Berserker's fury).</param>
+/// <param name="TargetHp">Sprint 207: the share of its hit points the target has left, in percent (the Gladiator's execution).</param>
+/// <param name="Flanked">Sprint 207: another fighter of the caster's side stands next to the target (the Barbarian's).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
     bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue,
-    int AllyCells = int.MaxValue, bool Hidden = false, int Missing = 0);
+    int AllyCells = int.MaxValue, bool Hidden = false, int Missing = 0, int TargetHp = 100, bool Flanked = false);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -678,13 +691,16 @@ public static class Talents
             + rules.OfType<LureTargetRule>().Sum(r => c.LureCells <= r.Cells ? r.Percent : 0)
             + rules.OfType<IsolatedRule>().Sum(r => c.AllyCells > r.Cells ? r.Percent : 0)
             + rules.OfType<ShadowRule>().Sum(r => c.Hidden ? r.Percent : 0)
+            + rules.OfType<FlankRule>().Sum(r => c.Flanked ? r.Percent : 0)
 
             + (c.Triggers ? rules.OfType<LingerRule>().Sum(r => r.TriggerPercent) : 0)
             + (c.Triggers && c.OwnMark ? rules.OfType<VirtuosoRule>().Sum(r => r.Percent) : 0)
             + (c.Zone ? rules.OfType<WaveRule>().Sum(r => r.ZonePercent) : 0);
         int beyond = rules.OfType<TargetStateRule>().Where(r => (r.Spell is null || r.Spell == c.Spell) && (r.States > 0 ? c.TargetStates >= r.States : c.TargetStill)).Sum(r => r.Percent)
             // The Berserker's fury (sprint 206), its engine: beyond the talents' ceiling, as a target's state.
-            + rules.OfType<FuryRule>().Sum(r => Math.Min(r.Max, c.Missing * r.Ratio / 100));
+            + rules.OfType<FuryRule>().Sum(r => Math.Min(r.Max, c.Missing * r.Ratio / 100))
+            // The Gladiator's execution (sprint 207), beyond the ceiling too.
+            + rules.OfType<ExecuteRule>().Where(r => c.TargetHp < r.Below).Sum(r => r.Percent);
         return Math.Clamp(sum, -100, Ceiling) + beyond;
     }
 
