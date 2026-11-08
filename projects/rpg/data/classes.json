@@ -78,7 +78,7 @@
       "hurricane",
       "iron-grip",
       "second-wind",
-      "aegis",
+      "mass-taunt",
       "momentum"
     ],
     "hpPerLevel": 5
@@ -266,6 +266,55 @@
         "kind": "fury",
         "ratio": 50,
         "max": 40
+      }
+    ]
+  },
+  {
+    "id": "paladin",
+    "name": {
+      "fr": "Paladin",
+      "en": "Paladin"
+    },
+    "description": {
+      "fr": "Protège en frappant : ses coups au contact couvrent d'un bouclier l'allié le plus blessé à 2 cases.",
+      "en": "Protects by striking: its blows up close shield the most wounded ally within 2 cells."
+    },
+    "hp": 80,
+    "ap": 8,
+    "mp": 3,
+    "initiative": 10,
+    "spells": [
+      "holy-hammer",
+      "radiant-blade",
+      "purifying-strike",
+      "light-lance",
+      "steadfast",
+      "aegis",
+      "rampart-strike",
+      "sun-strike",
+      "tide-of-faith",
+      "judgement-lance",
+      "oath",
+      "crushing-faith",
+      "dawn-blade",
+      "mercy-strike",
+      "heavens-spear",
+      "sacred-guard",
+      "judgement-hammer",
+      "blazing-oath",
+      "grace-flood",
+      "zenith",
+      "divine-shield",
+      "rally",
+      "penance",
+      "guarded-step"
+    ],
+    "hpPerLevel": 4,
+    "rules": [
+      {
+        "kind": "ward",
+        "percent": 30,
+        "cells": 2
       }
     ]
   }

@@ -4,5 +4,6 @@
   "mage": ["meteor", "freeze", "cyclone", "landslide", "bolt", "roots", "tidal-wave", "burn", "elemental", "blink", "frost-ward", "gust", "flare", "pebble", "ice-shard"],
   "priest": ["holy-flame", "censer", "stone-verdict", "blessed-tide", "zephyr", "blessed-stone", "holy-water", "sacred-breath", "mend", "prayer", "purify", "sacred-pyre", "stone-column", "baptism", "halo"],
   "rogue": ["red-blade", "cosh", "volte", "slow-venom", "bleed", "pounce", "fire-vial", "trip", "fade", "dodge", "smoke-bomb", "pommel-strike", "ember-dagger", "gash", "thrown-knife"],
-  "berserker": ["inferno-axe", "earthshaker", "storm-axe", "ember-cleave", "rend", "war-whirl", "blood-fury", "bone-breaker", "rage", "rush", "breaker", "cleaver", "blood-axe", "tide-blow", "whirl"]
+  "berserker": ["inferno-axe", "earthshaker", "storm-axe", "ember-cleave", "rend", "war-whirl", "blood-fury", "bone-breaker", "rage", "rush", "breaker", "cleaver", "blood-axe", "tide-blow", "whirl"],
+  "paladin": ["blazing-oath", "judgement-hammer", "heavens-spear", "dawn-blade", "crushing-faith", "judgement-lance", "sun-strike", "rampart-strike", "aegis", "steadfast", "oath", "holy-hammer", "radiant-blade", "purifying-strike", "light-lance"]
 }

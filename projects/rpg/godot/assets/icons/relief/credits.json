@@ -178,5 +178,12 @@
   "spec-blood-hero": "lorc/heart-tower",
   "spec-executor": "lorc/axe-in-stump",
   "spec-headsman": "lorc/skull-mask",
-  "spec-beheader": "lorc/headshot"
+  "spec-beheader": "lorc/headshot",
+  "spec-protector": "delapouite/templar-shield",
+  "spec-paladin-rampart": "lorc/guarded-tower",
+  "spec-holy-bastion": "lorc/castle",
+  "spec-eternal-guardian": "lorc/angel-outfit",
+  "spec-defender": "lorc/bordered-shield",
+  "spec-paladin-aegis": "lorc/winged-shield",
+  "spec-protector-champion": "lorc/sword-clash"
 }

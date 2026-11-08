@@ -3961,5 +3961,201 @@
       "en": "One target, the execution."
     },
     "icon": "spec-berserker-gladiator"
+  },
+  {
+    "id": "protector",
+    "class": "paladin",
+    "name": {
+      "fr": "Protecteur",
+      "en": "Protector"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Protecteur",
+        "en": "Protector"
+      },
+      "description": {
+        "fr": "Tes coups au contact protègent mieux : 20 % des dégâts de plus en bouclier. Sorts : Terre sacrée et Frappe gardienne.",
+        "en": "Your blows up close protect better: a further 20% of the damage as a shield. Spells: Hallowed Ground and Guardian Strike."
+      },
+      "spells": [
+        "path-hallowed-ground",
+        "path-guardian-strike"
+      ],
+      "rules": [
+        {
+          "kind": "ward",
+          "percent": 20,
+          "cells": 2
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "paladin-rampart",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Rempart",
+              "en": "Rampart"
+            },
+            "description": {
+              "fr": "Sort : Muraille de foi, un bouclier de 20 autour de toi.",
+              "en": "Spell: Wall of Faith, a shield of 20 around you."
+            },
+            "spells": [
+              "path-wall-of-faith"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Derrière moi. Tous. Maintenant.",
+          "en": "Behind me. All of you. Now."
+        },
+        "icon": "spec-paladin-rampart",
+        "finals": [
+          {
+            "id": "holy-bastion",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Bastion",
+                "en": "Bastion"
+              },
+              "description": {
+                "fr": "Muraille de foi en cercle de 2.",
+                "en": "Wall of Faith in a circle of 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-wall-of-faith",
+                  "area": {
+                    "shape": "Circle",
+                    "radius": 2
+                  }
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ma foi a des murs. Vous êtes dedans.",
+              "en": "My faith has walls. You are inside them."
+            },
+            "icon": "spec-holy-bastion"
+          },
+          {
+            "id": "eternal-guardian",
+            "template": "Saves",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Gardien éternel",
+                "en": "Eternal Guardian"
+              },
+              "description": {
+                "fr": "Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV.",
+                "en": "Once per fight, an ally within 2 cells who would fall stays at 1 HP."
+              },
+              "passives": [
+                "spec-not-today"
+              ]
+            },
+            "lore": {
+              "fr": "Pas sous ma garde.",
+              "en": "Not on my watch."
+            },
+            "icon": "spec-eternal-guardian"
+          }
+        ]
+      },
+      {
+        "id": "defender",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Défenseur",
+              "en": "Defender"
+            },
+            "description": {
+              "fr": "Sort : Bouclier de la foi, 25 sur un allié à 2 cases.",
+              "en": "Spell: Shield of Faith, 25 on an ally within 2 cells."
+            },
+            "spells": [
+              "path-shield-of-faith"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne frappe pas pour gagner. Je frappe pour qu'ils restent debout.",
+          "en": "I do not strike to win. I strike so that they stay standing."
+        },
+        "icon": "spec-defender",
+        "finals": [
+          {
+            "id": "paladin-aegis",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Égide",
+                "en": "Aegis"
+              },
+              "description": {
+                "fr": "Bouclier de la foi deux fois par tour.",
+                "en": "Shield of Faith twice a turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-shield-of-faith",
+                  "perTurn": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Un bouclier pour toi. Un autre pour lui.",
+              "en": "A shield for you. Another for him."
+            },
+            "icon": "spec-paladin-aegis"
+          },
+          {
+            "id": "protector-champion",
+            "template": "StayOrMove",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Champion protecteur",
+                "en": "Protecting Champion"
+              },
+              "description": {
+                "fr": "+15 % de dégâts si tu n'as pas bougé ce tour.",
+                "en": "+15% damage if you have not moved this turn."
+              },
+              "rules": [
+                {
+                  "kind": "still",
+                  "still": 15,
+                  "moved": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je tiens ma place. Elle est devant eux.",
+              "en": "I hold my place. It is in front of them."
+            },
+            "icon": "spec-protector-champion"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Tenir une position autour des siens.",
+      "en": "Hold a place around one's own."
+    },
+    "icon": "spec-protector"
   }
 ]

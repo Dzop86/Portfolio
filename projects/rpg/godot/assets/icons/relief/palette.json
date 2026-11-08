@@ -1251,5 +1251,54 @@
     "light": "#e1ccb9",
     "dark": "#6f5946",
     "outline": "#1e1813"
+  },
+  "spec-protector": {
+    "shape": "delapouite/templar-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-paladin-rampart": {
+    "shape": "lorc/guarded-tower",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-holy-bastion": {
+    "shape": "lorc/castle",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-eternal-guardian": {
+    "shape": "lorc/angel-outfit",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-defender": {
+    "shape": "lorc/bordered-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-paladin-aegis": {
+    "shape": "lorc/winged-shield",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-protector-champion": {
+    "shape": "lorc/sword-clash",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
   }
 }

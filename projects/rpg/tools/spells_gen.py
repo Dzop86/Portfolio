@@ -131,7 +131,8 @@ guard = C(
  R("hurricane","Ouragan","Hurricane",6,1,3,1,1,1,"Air","lorc/tornado-discs",area=("Circle",1),cd=1),
  R("iron-grip","Poigne de fer","Iron Grip",3,1,1,0,0,1,"Neutral","lorc/mailed-fist",effects=[status("Enemies","Mp",-2,1)],cd=2),
  R("second-wind","Second souffle","Second Wind",3,0,0,0,0,1,"Neutral","delapouite/healing-shield",los=False,effects=[heal("Caster",10,14)],cd=4),
- R("aegis","Égide","Aegis",4,0,3,0,0,1,"Neutral","delapouite/cross-shield",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
+ # Sprint 208 (docs/classes-paladin.md §3): the Aegis went to the Paladin; the Warrior draws the enemies around it in its place.
+ R("mass-taunt","Provocation de masse","Mass Taunt",4,0,0,0,0,1,"Neutral","lorc/divert",los=False,area=("Circle",2),effects=[pull(2)],cd=3),
  R("momentum","Élan","Momentum",1,0,0,0,0,1,"Neutral","lorc/run",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
 mage = C(
@@ -243,6 +244,34 @@ berserker = C(
  R("unbreakable","Inébranlable","Unbreakable",3,0,0,0,0,1,"Neutral","lorc/muscle-up",los=False,effects=[status("Caster","Resistance",20,2)],hp=15,cd=4),
  R("frenzy","Frénésie","Frenzy",2,0,0,0,0,1,"Neutral","lorc/strong",los=False,effects=[status("Caster","Damage",30,2)],cd=3),
  R("onrush","Élan furieux","Onrush",1,0,0,0,0,1,"Neutral","lorc/sprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
+# The Paladin (sprint 208, docs/classes-paladin.md §3): protects by striking, up close, its effects within 2 cells; no heal but on a blow, none further
+# than 2 cells (§1.4, what sets it apart from the Priest). The Aegis came from the Warrior. At 0.85 of the budget. Working names.
+paladin = C(
+ R("holy-hammer","Marteau consacré","Hallowed Hammer",4,1,1,1,1,2,"Earth","lorc/hammer-drop"),
+ R("radiant-blade","Lame radieuse","Radiant Blade",3,1,1,1,1,2,"Fire","lorc/winged-sword",effects=[heal("Caster",4,6)]),
+ R("purifying-strike","Coup purifiant","Purifying Strike",3,1,2,1,1,2,"Water","lorc/beam-wake"),
+ R("light-lance","Lance de lumière","Light Lance",3,1,2,1,1,2,"Air","lorc/spear-hook",line=True),
+ R("steadfast","Constance","Steadfast",2,0,0,0,0,1,"Neutral","lorc/checked-shield",los=False,effects=[status("Caster","Resistance",10,2)],cd=2),
+ R("aegis","Égide","Aegis",4,0,2,0,0,1,"Neutral","delapouite/cross-shield",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
+ R("rampart-strike","Frappe du rempart","Rampart Strike",4,1,1,1,1,1,"Earth","lorc/shield-reflect",effects=[shield("Caster",10,2)]),
+ R("sun-strike","Frappe solaire","Sun Strike",4,1,2,1,1,1,"Fire","lorc/sun",effects=[heal("Caster",6,8)]),
+ R("tide-of-faith","Flot de foi","Tide of Faith",4,1,2,1,1,1,"Water","lorc/ringed-beam",effects=[status("Enemies","Damage",-15,2)]),
+ R("judgement-lance","Lance du jugement","Judgement Lance",4,1,2,1,1,1,"Air","lorc/halberd",line=True),
+ R("oath","Serment","Oath",3,0,0,0,0,1,"Neutral","lorc/aura",los=False,area=("Circle",2),effects=[status("Allies","Resistance",10,2)],cd=3),
+ R("crushing-faith","Foi écrasante","Crushing Faith",5,1,1,1,1,1,"Earth","lorc/hammer-nails"),
+ R("dawn-blade","Lame de l'aube","Dawn Blade",5,1,1,1,1,1,"Fire","lorc/sunrise",effects=[heal("Caster",8,10)],cd=1),
+ R("mercy-strike","Frappe de miséricorde","Mercy Strike",5,1,2,1,1,1,"Water","lorc/magic-palm",effects=[purge("Enemies")]),
+ R("heavens-spear","Lance céleste","Heaven's Spear",5,1,3,1,1,1,"Air","lorc/sunbeams",line=True),
+ R("sacred-guard","Garde sacrée","Sacred Guard",3,0,2,0,0,1,"Neutral","delapouite/heart-shield",los=False,effects=[shield("Allies",25,2)],cd=3),
+ R("judgement-hammer","Marteau du jugement","Judgement Hammer",6,1,1,1,1,1,"Earth","lorc/crowned-explosion",effects=[status("Enemies","Ap",-1,1)],cd=1),
+ R("blazing-oath","Serment ardent","Blazing Oath",6,1,1,1,1,1,"Fire","lorc/barbed-sun",effects=[heal("Caster",12,16)],cd=1),
+ R("grace-flood","Flot de grâce","Flood of Grace",6,1,2,1,1,1,"Water","lorc/holy-symbol",effects=[status("Enemies","Damage",-20,2)],cd=1),
+ R("zenith","Zénith","Zenith",6,1,2,1,1,1,"Air","lorc/templar-eye",cd=2),
+ R("divine-shield","Bouclier divin","Divine Shield",3,0,0,0,0,1,"Neutral","lorc/winged-shield",los=False,effects=[shield("Caster",30,2)],cd=4),
+ R("rally","Ralliement","Rally",3,0,0,0,0,1,"Neutral","lorc/medal",los=False,area=("Circle",2),effects=[status("Allies","Ap",1,1)],cd=4),
+ R("penance","Pénitence","Penance",3,1,2,0,0,1,"Neutral","lorc/scales",effects=[status("Enemies","Damage",-25,2)],cd=3),
+ R("guarded-step","Pas gardé","Guarded Step",1,0,0,0,0,1,"Neutral","lorc/boot-prints",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
@@ -400,6 +429,11 @@ BERSERKER_BUDGET = 1.1
 for sp in berserker:
     if sp["damageMax"] > 0:
         budget(sp, BERSERKER_BUDGET)
+# The Paladin at 0.85 (docs/classes-conception.md §1.2): its worth is in what it shields.
+PALADIN_BUDGET = 0.85
+for sp in paladin:
+    if sp["damageMax"] > 0:
+        budget(sp, PALADIN_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -446,6 +480,11 @@ GESTURES = {
  "bone-breaker": ("Brise-os", "Bonebreak"), "blood-fury": ("Furie", "Fury"), "breaker": ("Déferlante", "Breaker"), "war-whirl": ("Tournoiement", "Spin"),
  "rend": ("Déchirure", "Rend"), "ember-cleave": ("Taille", "Hew"), "blood-tide": ("Marée rouge", "Red Tide"), "storm-axe": ("Hache volante", "Flying Axe"),
  "earthshaker": ("Ébranlement", "Quake"), "inferno-axe": ("Hachereau", "Hatchet"), "maelstrom": ("Maelström", "Maelstrom"), "tempest-blow": ("Coup", "Blow"),
+ # The Paladin's (sprint 208).
+ "holy-hammer": ("Marteau", "Hammer"), "radiant-blade": ("Lame claire", "Bright Blade"), "purifying-strike": ("Purification", "Cleansing"), "light-lance": ("Lance", "Lance"),
+ "rampart-strike": ("Rempart", "Rampart"), "sun-strike": ("Soleil", "Sunstrike"), "tide-of-faith": ("Onde", "Ripple"), "judgement-lance": ("Pique", "Pike"),
+ "crushing-faith": ("Foi", "Faith"), "dawn-blade": ("Aube", "Dawn"), "mercy-strike": ("Miséricorde", "Mercy"), "heavens-spear": ("Épieu", "Boar Spear"),
+ "judgement-hammer": ("Maillet", "Mallet"), "blazing-oath": ("Serment", "Oath Blow"), "grace-flood": ("Grâce", "Grace"), "zenith": ("Zénith", "Zenith"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
@@ -479,6 +518,10 @@ NAMES = {
   "ember-cleave": ("Fendoir foudroyant", "Thunder Cleave"), "inferno-axe": ("Hache de foudre", "Lightning Axe"),
   "whirl": ("Moulinet d'orage", "Storm Whirl Blow"), "war-whirl": ("Tourbillon fulgurant", "Flash Vortex"),
   "storm-axe": ("Hache crépitante", "Crackling Axe"), "tempest-blow": ("Coup de foudre", "Lightning Strike"),
+  # The Paladin's (sprint 208).
+  "radiant-blade": ("Lame d'éclairs", "Storm Edge"), "sun-strike": ("Soleil d'orage", "Storm Sun"), "dawn-blade": ("Aube électrique", "Electric Dawn"),
+  "blazing-oath": ("Serment foudroyant", "Thunder Oath"), "light-lance": ("Lance d'orage", "Storm Lance"), "judgement-lance": ("Pique foudroyante", "Thunder Pike"),
+  "heavens-spear": ("Épieu de foudre", "Lightning Spear"), "zenith": ("Zénith d'orage", "Storm Zenith"),
  },
 }
 # A twin's own silhouette, the gesture of its spell in its compound's matter (sprint 163, docs/graphisme/s163-icones-arbre.md §1.8).
@@ -494,7 +537,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest + rogue + berserker:
+    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -503,7 +546,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else 1))
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -632,26 +675,31 @@ paths = [
  path("arena-strike","Coup d'arène","Arena Strike",4,1,1,30,"lorc/fist",damage=True,cd=1),
  path("blood-duel","Duel sanglant","Blood Duel",5,1,1,50,"lorc/bloody-stash",damage=True,effects=[drain(30)],cd=1,hp=10),
  path("behead","Décapitation","Beheading",6,1,1,50,"lorc/guillotine",damage=True,cd=2,hp=12),
+ # The Paladin's Protector (sprint 208, docs/classes-paladin.md §4): holding a place around its allies.
+ path("hallowed-ground","Terre sacrée","Hallowed Ground",3,0,0,30,"lorc/rosa-shield",los=False,area=("Circle",1),effects=[glyph("Allies",2,stat="Resistance",v=15,st=1)],cd=3),
+ path("guardian-strike","Frappe gardienne","Guardian Strike",4,1,1,30,"lorc/shield-echoes",damage=True,effects=[shield("Caster",12,2)],cd=1),
+ path("wall-of-faith","Muraille de foi","Wall of Faith",4,0,0,50,"lorc/castle",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
+ path("shield-of-faith","Bouclier de la foi","Shield of Faith",2,1,2,50,"lorc/surrounded-shield",effects=[shield("Allies",25,2)],cd=1),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + rogue + berserker + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins + paths
 # One id a spell (sprint 206: the Berserker's Howl took a monster's id, and its class listed the monster's spell).
 _ids = [sp["id"] for sp in spells]
 assert len(_ids) == len(set(_ids)), [i for i in set(_ids) if _ids.count(i) > 1]
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")
