@@ -146,6 +146,9 @@ public class CiLevelsTests
         "clan-king", "beheader",
         // Sprint 208: the Protector's finals act on allies, or on a hero falling, that the smoke has not.
         "holy-bastion", "eternal-guardian", "paladin-aegis",
+        // Sprint 209: the Paladin's 19 heroes of 100 leave each hero fewer fights. The Living Ballista's Barrage without a cooldown changes none of them; the
+        // Purifier's Sentence and the Hand of Judgement's Verdict sooner neither; the Zealot's Holy Fury, played for its points, a turn sooner neither.
+        "living-ballista", "paladin-purifier", "hand-of-judgement", "paladin-zealot",
     };
 
     /// <summary>
@@ -167,6 +170,8 @@ public class CiLevelsTests
         ("poisoner", "path-envenom"), ("poisoner", "path-plague"),
         // Sprint 208: the Protector at 35 does not lay its Hallowed Ground yet; its lineages at 50 do.
         ("protector", "path-hallowed-ground"),
+        // Sprint 209: the Avenger at 35 and its Justiciar spend their points on Retribution and the Verdict before the Vow; the Fanatic plays it.
+        ("avenger", "path-vow"), ("justiciar", "path-vow"),
     };
 
     /// <summary>
