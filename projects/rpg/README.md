@@ -106,7 +106,7 @@ dotnet run --project src/Rpg.Sim -- --simulate 1000 --scenario duel
 dotnet run --project src/Rpg.Sim -- --record combat.json --scenario training --seed 7 --lang fr
 dotnet run --project src/Rpg.Sim -- --replay combat.json --show --lang fr
 dotnet run -c Release --project src/Rpg.Sim -- --simulate 100 --scenario group:fields-0-4.0 --parties --kit zone   # tous les groupes de 2, 3 et 4 héros
-dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --decks tools/bench-decks.json   # le banc des voies, hors CI : docs/mesures-classes.md
+dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --decks tools/bench-decks.json   # le banc des voies, hors CI : docs/mesures-classes.md ; --ranked-paths : sorts de voie rangés (S210)
 ```
 Le serveur et ses tests demandent PostgreSQL :
 ```sh
@@ -123,6 +123,8 @@ Sprint 197 : 16 tests de plus (`Rpg.Core` : `WarriorFinalsTests`, les 6 finales 
 Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la proie, l'Arbalétrier et les finales neuves sur l'arène ; `ArcherPathsTests`, ex-`SentinelPathsTests`, le nouvel arbre et chaque finale jouée puis rejouée ; `FinalsBenchTests`, ex-`WarriorBenchTests`, le banc à 100 du Guerrier et de l'Archer, hors CI ; `Rpg.Api` : la migration `ArcherFinals` dans les deux sens). La fumée N0 joue aussi l'Archer à 100 (T161).
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
+
+Sprint 210 : jalon 2, 2 tests de plus (`Rpg.Core` : un héros de voie dépense ses points en connaissant sa voie ; `Rpg.Sim` : `--matrix --ranked-paths`). La mesure des 84 voies des 7 classes dans `REVIEW.md` et `docs/jalon-2.md`, Q1-Q5 à trancher (T173).
 
 Sprint 209 : 4 tests de plus (`Rpg.Core` : `PaladinPathsTests`, la vengeance au-delà du plafond qui grandit avec les blessures du camp, l'arbre Protecteur, Templier, Vengeur et ses 12 finales, ce que chaque finale change à sa lignée, l'Égide du Porte-lumière qui relève un allié tombé). Le Templier et le Vengeur (T172, `docs/classes-paladin-2.md`).
 

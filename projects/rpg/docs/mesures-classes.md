@@ -336,3 +336,7 @@ Voir `docs/classes-paladin.md` §4. Exigences en solo tenues ; groupes : Mage + 
 ## 9 novembre 2026 : le Templier et le Vengeur (S209, T172)
 
 Voir `docs/classes-paladin-2.md` §2. Exigences, groupes et hordes inchangés ; 19 507 combats. Le Vœu de vengeance et quatre finales de plus non concluants à la fumée, au jalon 2.
+
+## 9 novembre 2026 : jalon 2, les sorts de voie rangés (S210, T173)
+
+Voir `docs/jalon-2.md`. `Rpg.Sim --matrix --simulate 30`, 84 voies à 35, 45 et 50. Défaut : 25 concluantes, +5,9 en moyenne sur le héros sans voie, 16 au-delà de +15, aucune au-delà de +24. `--ranked-paths` : 32 concluantes, +14,9, 45 au-delà de +15, 17 au-delà de +24 (Geôlier à 50 : +44,2). Héros sans voie à 35 : Prêtre 18,8 (24,4 au jalon 1), Berserker 66,9. Voleur et Berserker : aucune voie concluante dans les deux modèles.

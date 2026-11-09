@@ -1109,3 +1109,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Une vengeance sur les seuls alliés : nulle seul (Q2). Un passif « Pas aujourd'hui » pour le Porte-lumière : doublon du Gardien éternel (Q3). Des ids neufs pour les doublons : contraire à la conception (§8).
 
 **Limites.** La fumée ne joue plus que peu de combats par héros à 100 : le Vœu de vengeance n'est pas joué par le Vengeur à 35 ni par le Justicier, et quatre finales de plus (dont la Baliste vivante de l'Archer, dont le budget a baissé) ne changent aucun combat. La vengeance se mesure en groupe, que la fumée n'a pas. Premier sujet du jalon 2 (S210).
+
+## T173. Jalon 2 : sept classes, les sorts de voie rangés au banc (sprint 210, D96)
+
+**Décision.** `docs/jalon-2.md`. Le banc et la fumée construisaient le héros sans voie puis lui donnaient sa voie : ses sorts de voie restaient au rang 1, sous les sorts du kit, et l'IA ne les jouait pas. `Bench.Run(..., rankedPaths)` et l'option `--ranked-paths` de `Rpg.Sim --matrix` font dépenser au héros ses points en connaissant sa voie (`Progression.Built`). Le défaut ne change pas, pour garder les mesures comparables ; la CI ne change pas. Mesuré sur 84 voies à 35, 45 et 50 : concluantes 25 → 32, moyenne sur le héros sans voie +5,9 → +14,9, 17 voies au-delà de la clôture de +24. Le choix du modèle et de la clôture revient à Charles (Q1).
+
+**Alternatives.** Ranger les sorts de voie dans la fumée tout de suite : casse la clôture de +24 de `TemplateTests` (Geôlier à 94 contre 50) avant la décision de Charles. Baisser les sorts de voie de 20 % ou les mettre au barème de leur classe : essayés sur une copie des données, encore 12 et 16 voies au-delà de +24.
+
+**Limites.** Le banc lit `GameData.Embedded` et ignore `--data` : les essais sur les données se font en copiant le fichier puis en le restaurant. Seize sorts de voie restent à 0,0 dans les deux modèles (bonds, pièges, sorts d'alliés : Q2). Le Fauchage et la Lame infernale touchent toujours leur lanceur (Q3). Mesuré à 35, 45 et 50, pas à 100.

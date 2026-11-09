@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Charles, je joue 7 classes, la mesure est dans `REVIEW.md`, et je décide si on continue, classes ou zones de 60 à 100 (rpg) ; banc hors CI, build livrée. | 4 | À faire |
+| En tant que Charles, je joue 7 classes, la mesure est dans `REVIEW.md`, et je décide si on continue, classes ou zones de 60 à 100 (rpg) ; banc hors CI, build livrée. | 4 | Fait, sauf la décision : banc `--ranked-paths` (sorts de voie rangés), mesure de 84 voies dans `REVIEW.md` et `docs/jalon-2.md`, Q1-Q5 à trancher par Charles ; build attendue au sprint 219 (T173) |
 
 ## Rétro (Charles)
 - Ce qui a marché :
