@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S219 | 728 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S219 | 733 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 949 points sur 219 sprints de deux semaines.
+Total : 954 points sur 219 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -224,3 +224,5 @@ Charles veut que l'onglet Talents s'appelle Spécialisation et que l'arbre se di
 Charles remplace la Mage, la Garde et la Sentinelle par dix classes : Guerrier, Paladin, Mage, Prêtre, Voleur, Archer, Druide, Nécromancien, Berserker, Invocateur, soit 220 classes avec 3 choix à 30, 2 à 50 et 2 à 100 (`projects/rpg/docs/classes-liste.md`). La Garde devient Guerrier, la Sentinelle Archer. Conception du game designer : `projects/rpg/docs/classes-conception.md`. S193-S196 (18) le cadrage, le banc de mesure, l'IA, le moteur à 4 rangs, la conversion et la page ; S197-S203 (35) Guerrier, Archer, Mage, Prêtre et le jalon 1 ; S204-S210 (33) Voleur, Berserker, Paladin et le jalon 2 ; S211-S219 (42) Invocateur, Nécromancien, Druide et le jalon 3. Charles décide à chaque jalon si l'on continue. 128 points à la place des 5 de S193 : 123 points et 26 sprints de plus, et 15 points de marge non planifiés.
 
 **D97 (5 novembre 2026) :** S195 reçoit 3 points de plus pour ramener la suite du Cœur de 233 875 combats à 20 000, ce que S193 n'a pas tenu (T153) : 949 points, et 12 points de marge.
+
+**D98 (9 novembre 2026) :** au jalon 2 (`projects/rpg/docs/jalon-2.md`), Charles valide les cinq recommandations : S210 reçoit une seconde story de 5 points prise sur la marge, sans nouveau sprint : le banc range les sorts de voie et la CI compare les voies d'une classe entre elles, l'IA apprend les bonds, les pièges et les sorts d'alliés, le Fauchage et la Lame infernale épargnent le Guerrier, la fumée est allégée. Les classes continuent en S211 : 954 points, et 7 points de marge.

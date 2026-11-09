@@ -370,7 +370,7 @@ Le nouvel arbre ne suit pas l'ancien : la Sente n'a pas d'équivalent, et Artill
 | **S204-S205** | **Voleur** : discrétion, poisons cumulés | 11 | 64 |
 | **S206-S207** | **Berserker** : sang, forme | 9 | 73 |
 | **S208-S209** | **Paladin** : réemploi | 9 | 82 |
-| **S210** | **Jalon 2** : mesure, playtest. **Décision de Charles** | 4 | **86** |
+| **S210** | **Jalon 2** : mesure, playtest. **Décision de Charles** ; IA des bonds, pièges et sorts d'alliés, banc rangé (D98 : 5 points pris sur la marge, non comptés dans le cumul de cette table) | 9 | **86** |
 | **S211-S213** | **Invocateur** : invocations commandées, fusion | 13 | 99 |
 | **S214-S215** | **Nécromancien** : cadavres | 11 | 110 |
 | **S216-S218** | **Druide** : glyphes partagées, formes | 12 | 122 |
