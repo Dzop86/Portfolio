@@ -59,8 +59,12 @@ public static class Bench
             .Concat(level >= Specs.Finals ? (f.Finals ?? []).Select(x => (s.Id, (string?)f.Id, (string?)x.Id)) : [])))];
     }
 
-    /// <summary>One class at the family's level. <paramref name="deck"/>, a reference deck in order of preference, replaces the automatic deck: the path's spells, then its spells the level has unlocked, up to the bar's size.</summary>
-    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null)
+    /// <summary>
+    /// One class at the family's level. <paramref name="deck"/>, a reference deck in order of preference, replaces the automatic deck: the path's spells, then its spells the level has unlocked, up to the bar's size.
+    /// <paramref name="rankedPaths"/> (sprint 210, the second milestone): each path's hero spends its spell points knowing its path, its path spells ranked as the kit's;
+    /// by default it keeps the bare hero's ranks, its path spells at rank 1.
+    /// </summary>
+    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null, bool rankedPaths = false)
     {
         ArgumentNullException.ThrowIfNull(family);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fights);
@@ -84,6 +88,8 @@ public static class Bench
         foreach ((string spec, string? fork, string? final) in PathsOf(cls, family.Level, family.Data))
         {
             Hero hero = With(bare with { Spec = spec, Fork = fork, Final = final });
+            if (rankedPaths)
+                hero = Progression.Built(hero, family.Data);
             // A swap with an ally cannot be played alone: its absence says nothing here; the party measures judge it.
             rows.Add(Row(final ?? fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
                 .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect))]));
