@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Paladin, je deviens aussi Templier ou Vengeur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | À faire |
+| En tant que Paladin, je deviens aussi Templier ou Vengeur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | Fait : la vengeance (règle de voie au-delà du plafond, sur tout le camp), 8 sorts de voie, 4 lignées, 8 finales, le Porte-lumière dont l'Égide relève ; les 7 classes de la vague 2 complètes ; exigences, bandes et hordes tenues, 19 507 combats ; Vœu de vengeance et 4 finales non concluants à la fumée (T172) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

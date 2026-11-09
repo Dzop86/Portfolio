@@ -124,6 +124,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
+Sprint 209 : 4 tests de plus (`Rpg.Core` : `PaladinPathsTests`, la vengeance au-delà du plafond qui grandit avec les blessures du camp, l'arbre Protecteur, Templier, Vengeur et ses 12 finales, ce que chaque finale change à sa lignée, l'Égide du Porte-lumière qui relève un allié tombé). Le Templier et le Vengeur (T172, `docs/classes-paladin-2.md`).
+
 Sprint 208 : 7 tests de plus (`Rpg.Core` : `PaladinTests`, la protection au contact sur le plus blessé à 2 cases, rien de loin, le kit sans soin à distance ni sans coup, Égide prise au Guerrier, le Protecteur ; `Rpg.Api` : un Paladin créé, un Guerrier qui avait Égide la perd à la lecture). Le Paladin (T171, `docs/classes-paladin.md`).
 
 Sprint 207 : 5 tests de plus (`Rpg.Core` : `BerserkerPathsTests`, l'exécution au-delà du plafond, le flanc du Barbare, l'arbre complet sans bouclier ni attirance, les 8 finales). Le Barbare et le Gladiateur (T170, `docs/classes-berserker-2.md`).

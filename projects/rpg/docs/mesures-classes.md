@@ -332,3 +332,7 @@ Voir `docs/classes-berserker-2.md` §3. Exigences, groupes et empreintes inchang
 ## 8 novembre 2026 : le Paladin (S208, T171)
 
 Voir `docs/classes-paladin.md` §4. Exigences en solo tenues ; groupes : Mage + Paladin 55 %, Archer + Paladin 60 %, Voleur + Paladin 60 %, trios 100 et 95 %, quatre 100 %. Groupes et hordes de la Forêt sur un budget fixe partagé : 19 629 combats.
+
+## 9 novembre 2026 : le Templier et le Vengeur (S209, T172)
+
+Voir `docs/classes-paladin-2.md` §2. Exigences, groupes et hordes inchangés ; 19 507 combats. Le Vœu de vengeance et quatre finales de plus non concluants à la fumée, au jalon 2.

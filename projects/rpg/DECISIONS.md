@@ -1101,3 +1101,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Une protection sur les seuls alliés : inutile seul (Q2). Relever le budget de combats : contraire à D97. Remesurer les 36 groupes à 27 combats : inutile, toutes les bandes tiennent.
 
 **Limites.** La fumée se joue seul : les sorts et les finales du Protecteur tournés vers les alliés n'y sont pas jugés. La valeur d'une protection pour l'IA est estimée (la moitié de la part). Le Paladin seul n'est pas mesuré au banc.
+
+## T172. Le Paladin, seconde moitié : le Templier, le Vengeur et la vengeance (sprint 209, D96)
+
+**Décision.** `docs/classes-paladin-2.md`, écrit par moi. Une règle de voie : **la vengeance** (`vengeance`, le Vengeur) : la moitié de la part de PV que son camp, lui compris, manque en moyenne, en dégâts de plus, 30 % au plus, au-delà du plafond des talents comme la fureur du Berserker. 8 sorts de voie, 4 lignées, 8 finales ; **le Porte-lumière** ajoute à Égide une résurrection (30 % des PV, une fois par combat, la brique du Prêtre). Les doublons de noms avec le Prêtre (Inquisiteur, Purificateur, Fanatique, Zélote) prennent `paladin-` devant. Les 7 classes de la vague 2 sont complètes : `Arena.Writing` est vide.
+
+**Alternatives.** Une vengeance sur les seuls alliés : nulle seul (Q2). Un passif « Pas aujourd'hui » pour le Porte-lumière : doublon du Gardien éternel (Q3). Des ids neufs pour les doublons : contraire à la conception (§8).
+
+**Limites.** La fumée ne joue plus que peu de combats par héros à 100 : le Vœu de vengeance n'est pas joué par le Vengeur à 35 ni par le Justicier, et quatre finales de plus (dont la Baliste vivante de l'Archer, dont le budget a baissé) ne changent aucun combat. La vengeance se mesure en groupe, que la fumée n'a pas. Premier sujet du jalon 2 (S210).
