@@ -185,5 +185,19 @@
   "spec-eternal-guardian": "lorc/angel-outfit",
   "spec-defender": "lorc/bordered-shield",
   "spec-paladin-aegis": "lorc/winged-shield",
-  "spec-protector-champion": "lorc/sword-clash"
+  "spec-protector-champion": "lorc/sword-clash",
+  "spec-templar": "lorc/cross-mark",
+  "spec-paladin-inquisitor": "lorc/burning-book",
+  "spec-holy-judge": "lorc/open-book",
+  "spec-paladin-purifier": "lorc/fire-ring",
+  "spec-paladin-crusader": "lorc/rally-the-troops",
+  "spec-divine-crusader": "lorc/wing-cloak",
+  "spec-lightbearer": "lorc/lantern-flame",
+  "spec-avenger": "lorc/broken-heart",
+  "spec-justiciar": "lorc/pointing",
+  "spec-divine-executioner": "lorc/death-note",
+  "spec-hand-of-judgement": "lorc/fist",
+  "spec-paladin-fanatic": "lorc/heartburn",
+  "spec-paladin-zealot": "lorc/candle-light",
+  "spec-holy-avatar": "lorc/angel-wings"
 }

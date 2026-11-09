@@ -4157,5 +4157,409 @@
       "en": "Hold a place around one's own."
     },
     "icon": "spec-protector"
+  },
+  {
+    "id": "templar",
+    "class": "paladin",
+    "name": {
+      "fr": "Templier",
+      "en": "Templar"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Templier",
+        "en": "Templar"
+      },
+      "description": {
+        "fr": "+10 % de dégâts sur une cible sous un état. Sorts : Sceau de lumière et Retour sacré.",
+        "en": "+10% damage on a target under a state. Spells: Seal of Light and Sacred Return."
+      },
+      "spells": [
+        "path-seal-of-light",
+        "path-sacred-return"
+      ],
+      "rules": [
+        {
+          "kind": "target-state",
+          "percent": 10,
+          "states": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "paladin-inquisitor",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Inquisiteur",
+              "en": "Inquisitor"
+            },
+            "description": {
+              "fr": "Sort : Sentence, qui arrache à l'ennemi ses bonus et ses boucliers.",
+              "en": "Spell: Sentence, which strips the enemy of its boons and shields."
+            },
+            "spells": [
+              "path-sentence"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La lumière ne demande pas. Elle constate.",
+          "en": "The light does not ask. It finds."
+        },
+        "icon": "spec-paladin-inquisitor",
+        "finals": [
+          {
+            "id": "holy-judge",
+            "template": "TargetState",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Juge sacré",
+                "en": "Holy Judge"
+              },
+              "description": {
+                "fr": "+20 % de dégâts sur une cible sous deux états.",
+                "en": "+20% damage on a target under two states."
+              },
+              "rules": [
+                {
+                  "kind": "target-state",
+                  "percent": 20,
+                  "states": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "J'ai lu tes fautes. Il y en a deux de trop.",
+              "en": "I have read your sins. Two too many."
+            },
+            "icon": "spec-holy-judge"
+          },
+          {
+            "id": "paladin-purifier",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Purificateur",
+                "en": "Purifier"
+              },
+              "description": {
+                "fr": "Sentence se lance sans relance.",
+                "en": "Sentence has no cooldown."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-sentence",
+                  "cooldown": 0
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Encore. Jusqu'à ce qu'il ne reste rien à purifier.",
+              "en": "Again. Until nothing is left to cleanse."
+            },
+            "icon": "spec-paladin-purifier"
+          }
+        ]
+      },
+      {
+        "id": "paladin-crusader",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Croisé",
+              "en": "Crusader"
+            },
+            "description": {
+              "fr": "Sort : Croisade, un bond qui frappe autour de la case d'arrivée.",
+              "en": "Spell: Crusade, a leap that strikes around where it lands."
+            },
+            "spells": [
+              "path-crusade"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne marche pas vers la bataille. J'y tombe.",
+          "en": "I do not walk into battle. I fall upon it."
+        },
+        "icon": "spec-paladin-crusader",
+        "finals": [
+          {
+            "id": "divine-crusader",
+            "template": "FirstTurn",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Croisé divin",
+                "en": "Divine Crusader"
+              },
+              "description": {
+                "fr": "+2 PA à ton premier tour.",
+                "en": "+2 AP on your first turn."
+              },
+              "rules": [
+                {
+                  "kind": "points",
+                  "ap": 2,
+                  "untilTurn": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "La première charge décide de tout.",
+              "en": "The first charge decides everything."
+            },
+            "icon": "spec-divine-crusader"
+          },
+          {
+            "id": "lightbearer",
+            "template": "Saves",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Porte-lumière",
+                "en": "Lightbearer"
+              },
+              "description": {
+                "fr": "Égide relève aussi un allié tombé sur sa case, avec 30 % de ses PV, une fois par combat.",
+                "en": "Aegis also raises a fallen ally on its cell, with 30% of its HP, once a fight."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "aegis",
+                  "addEffects": [
+                    {
+                      "kind": "revive",
+                      "affects": "Allies",
+                      "percent": 30
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Debout. La lumière n'a pas fini avec toi.",
+              "en": "Get up. The light is not done with you."
+            },
+            "icon": "spec-lightbearer"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Frapper, marquer, rendre.",
+      "en": "Strike, mark, give back."
+    },
+    "icon": "spec-templar"
+  },
+  {
+    "id": "avenger",
+    "class": "paladin",
+    "name": {
+      "fr": "Vengeur",
+      "en": "Avenger"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Vengeur",
+        "en": "Avenger"
+      },
+      "description": {
+        "fr": "Plus les tiens ont souffert, plus tu frappes : la moitié de la part de PV qui leur manque en moyenne, 30 % au plus. Sorts : Rétribution et Vœu de vengeance.",
+        "en": "The more your own have suffered, the harder you strike: half the share of HP they miss on average, 30% at most. Spells: Retribution and Vow of Vengeance."
+      },
+      "spells": [
+        "path-retribution",
+        "path-vow"
+      ],
+      "rules": [
+        {
+          "kind": "vengeance",
+          "ratio": 50,
+          "max": 30
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "justiciar",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Justicier",
+              "en": "Justiciar"
+            },
+            "description": {
+              "fr": "Sort : Coup du verdict.",
+              "en": "Spell: Verdict Blow."
+            },
+            "spells": [
+              "path-verdict-blow"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Chaque blessure des miens a un prix. Je le fixe.",
+          "en": "Every wound of my own has a price. I set it."
+        },
+        "icon": "spec-justiciar",
+        "finals": [
+          {
+            "id": "divine-executioner",
+            "template": "Kill",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Exécuteur divin",
+                "en": "Divine Executioner"
+              },
+              "description": {
+                "fr": "Un ennemi achevé : +2 PA pendant 1 tour et +15 % de dégâts pendant 2 tours.",
+                "en": "An enemy finished off: +2 AP for 1 turn and +15% damage for 2 turns."
+              },
+              "passives": [
+                "spec-bounty"
+              ]
+            },
+            "lore": {
+              "fr": "Justice est faite. La suivante attend.",
+              "en": "Justice is done. The next one waits."
+            },
+            "icon": "spec-divine-executioner"
+          },
+          {
+            "id": "hand-of-judgement",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Main du jugement",
+                "en": "Hand of Judgement"
+              },
+              "description": {
+                "fr": "Coup du verdict se relance en 1 tour.",
+                "en": "Verdict Blow comes back in 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-verdict-blow",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le verdict tombe. Et retombe.",
+              "en": "The verdict falls. And falls again."
+            },
+            "icon": "spec-hand-of-judgement"
+          }
+        ]
+      },
+      {
+        "id": "paladin-fanatic",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Fanatique",
+              "en": "Fanatic"
+            },
+            "description": {
+              "fr": "Sort : Fureur sacrée, +2 PA tout de suite, au prix de ta résistance.",
+              "en": "Spell: Holy Fury, +2 AP at once, at the cost of your resistance."
+            },
+            "spells": [
+              "path-holy-fury"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ma foi ne recule devant rien. Moi non plus.",
+          "en": "My faith backs down from nothing. Neither do I."
+        },
+        "icon": "spec-paladin-fanatic",
+        "finals": [
+          {
+            "id": "paladin-zealot",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Zélote",
+                "en": "Zealot"
+              },
+              "description": {
+                "fr": "Fureur sacrée se relance en 2 tours.",
+                "en": "Holy Fury comes back in 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-holy-fury",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Encore une prière. Encore un coup.",
+              "en": "One more prayer. One more blow."
+            },
+            "icon": "spec-paladin-zealot"
+          },
+          {
+            "id": "holy-avatar",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Avatar sacré",
+                "en": "Holy Avatar"
+              },
+              "description": {
+                "fr": "Fureur sacrée donne aussi +20 % de dégâts pendant 2 tours.",
+                "en": "Holy Fury also gives +20% damage for 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-holy-fury",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Damage",
+                      "value": 20,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne suis plus moi. Je suis la colère du ciel.",
+              "en": "I am no longer myself. I am the wrath of heaven."
+            },
+            "icon": "spec-holy-avatar"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Frapper d'autant plus que les siens ont souffert.",
+      "en": "Strike all the harder as one's own have suffered."
+    },
+    "icon": "spec-avenger"
   }
 ]

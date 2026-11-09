@@ -680,6 +680,16 @@ paths = [
  path("guardian-strike","Frappe gardienne","Guardian Strike",4,1,1,30,"lorc/shield-echoes",damage=True,effects=[shield("Caster",12,2)],cd=1),
  path("wall-of-faith","Muraille de foi","Wall of Faith",4,0,0,50,"lorc/castle",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=3),
  path("shield-of-faith","Bouclier de la foi","Shield of Faith",2,1,2,50,"lorc/surrounded-shield",effects=[shield("Allies",25,2)],cd=1),
+ # The Templar (sprint 209, docs/classes-paladin-2.md §2): a blow that marks, a blow that gives back.
+ path("seal-of-light","Sceau de lumière","Seal of Light",3,1,2,30,"lorc/sun-radiations",damage=True,effects=[status("Enemies","Resistance",-10,2)],cd=1),
+ path("sacred-return","Retour sacré","Sacred Return",4,1,1,30,"lorc/shining-sword",damage=True,effects=[drain(30)],cd=1),
+ path("sentence","Sentence","Sentence",4,1,2,50,"lorc/gavel",damage=True,effects=[purge("Enemies")],cd=1),
+ path("crusade","Croisade","Crusade",3,2,3,50,"delapouite/knight-banner",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
+ # The Avenger: the more its own have suffered, the harder.
+ path("retribution","Rétribution","Retribution",4,1,1,30,"lorc/flaming-claw",damage=True,cd=1),
+ path("vow","Vœu de vengeance","Vow of Vengeance",2,0,0,30,"lorc/bleeding-heart",los=False,effects=[status("Caster","Damage",20,2)],cd=3),
+ path("verdict-blow","Coup du verdict","Verdict Blow",5,1,1,50,"lorc/cross-flare",damage=True,cd=2),
+ path("holy-fury","Fureur sacrée","Holy Fury",1,0,0,50,"lorc/flame-spin",los=False,effects=[status("Caster","Ap",2,1),status("Caster","Resistance",-10,2)],cd=3),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:

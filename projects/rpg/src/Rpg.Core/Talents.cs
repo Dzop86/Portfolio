@@ -82,6 +82,7 @@ public enum Tier
 [JsonDerivedType(typeof(ExecuteRule), "execute")]
 [JsonDerivedType(typeof(FlankRule), "flank")]
 [JsonDerivedType(typeof(WardRule), "ward")]
+[JsonDerivedType(typeof(VengeanceRule), "vengeance")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -285,6 +286,12 @@ public sealed record ExecuteRule(int Below, int Percent) : TalentRule;
 /// </summary>
 public sealed record WardRule(int Percent, int Cells) : TalentRule;
 
+/// <summary>
+/// Living, the Avenger's (sprint 209, docs/classes-paladin-2.md §1): <see cref="Ratio"/> % of the share of their hit points the bearer's side misses on
+/// average, in percent more damage, <see cref="Max"/> at most, beyond the ceiling as the Berserker's fury.
+/// </summary>
+public sealed record VengeanceRule(int Ratio, int Max) : TalentRule;
+
 /// <summary>Living, the Barbarian's (sprint 207): <see cref="Percent"/> % more on a target another fighter of the bearer's side stands next to (the clan up close).</summary>
 public sealed record FlankRule(int Percent) : TalentRule;
 
@@ -345,9 +352,10 @@ public sealed record Mark(Element Element, int Source, int TurnsLeft);
 /// <param name="Missing">Sprint 206: the share of its hit points the caster misses, in percent (the Berserker's fury).</param>
 /// <param name="TargetHp">Sprint 207: the share of its hit points the target has left, in percent (the Gladiator's execution).</param>
 /// <param name="Flanked">Sprint 207: another fighter of the caster's side stands next to the target (the Barbarian's).</param>
+/// <param name="SideMissing">Sprint 209: the share of their hit points the caster's side misses on average, in percent (the Avenger's).</param>
 public sealed record HitContext(bool Walked = false, int CellsSinceSpell = 0, int DamageCasts = 0, int ApCost = 0, bool Backed = false, bool InMyGlyph = false,
     bool Triggers = false, bool OwnMark = false, bool Zone = false, bool TargetStill = false, int TargetStates = 0, string? Spell = null, int LureCells = int.MaxValue,
-    int AllyCells = int.MaxValue, bool Hidden = false, int Missing = 0, int TargetHp = 100, bool Flanked = false);
+    int AllyCells = int.MaxValue, bool Hidden = false, int Missing = 0, int TargetHp = 100, bool Flanked = false, int SideMissing = 0);
 
 /// <summary>
 /// What a spell cast on an ally does instead of hurting it (sprint 143, §4.6): a heal at most the maximum's share, a
@@ -707,7 +715,9 @@ public static class Talents
             // The Berserker's fury (sprint 206), its engine: beyond the talents' ceiling, as a target's state.
             + rules.OfType<FuryRule>().Sum(r => Math.Min(r.Max, c.Missing * r.Ratio / 100))
             // The Gladiator's execution (sprint 207), beyond the ceiling too.
-            + rules.OfType<ExecuteRule>().Where(r => c.TargetHp < r.Below).Sum(r => r.Percent);
+            + rules.OfType<ExecuteRule>().Where(r => c.TargetHp < r.Below).Sum(r => r.Percent)
+            // The Avenger's (sprint 209), beyond the ceiling too.
+            + rules.OfType<VengeanceRule>().Sum(r => Math.Min(r.Max, c.SideMissing * r.Ratio / 100));
         return Math.Clamp(sum, -100, Ceiling) + beyond;
     }
 

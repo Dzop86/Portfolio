@@ -883,6 +883,9 @@ public sealed class Fight
             // The Illusionist's (sprint 200): how far the target stands from the nearest of the caster's lures.
             LureCells = caster.Talents.Count == 0 ? int.MaxValue
                 : _fighters.Where(f => f.IsAlive && f.Lure && f.Summoner == caster.Id).Select(f => f.Cell.DistanceTo(target.Cell)).DefaultIfEmpty(int.MaxValue).Min(),
+            // The Avenger's (sprint 209): what its side misses of its hit points, on average.
+            SideMissing = caster.Talents.Count == 0 ? 0
+                : (int)_fighters.Where(f => f.IsAlive && f.Team == caster.Team && f.MaxHp > 0).Select(f => (f.MaxHp - f.Hp) * 100.0 / f.MaxHp).DefaultIfEmpty(0).Average(),
             // The Barbarian's (sprint 207): another of the caster's side next to the target.
             Flanked = caster.Talents.Count > 0 && _fighters.Any(f => f.IsAlive && f != caster && f.Team == caster.Team && f.Cell.DistanceTo(target.Cell) == 1),
             // The Gladiator's (sprint 207): the share of its hit points the target has left.
