@@ -289,6 +289,17 @@ public class ProgramTests
     }
 
     [Fact]
+    public void TheMatrix_RanksThePathSpells_OnDemand_AndOnlyTheMatrix()
+    {
+        // Sprint 210: --ranked-paths, each path's hero spending its spell points knowing its path.
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "warrior", "--level", "35", "--ranked-paths");
+        Assert.Equal(0, code);
+        Assert.Contains("path spells ranked", output, StringComparison.Ordinal);
+        Assert.Contains("| warrior | 35 | palisade |", output, StringComparison.Ordinal);
+        Assert.Equal(2, Run("--simulate", "1", "--ranked-paths").Code);
+    }
+
+    [Fact]
     public void TheMatrix_RefusesAnUnknownClass_AndGoesWithSimulate()
     {
         Assert.Equal(2, Run("--matrix", "--simulate", "1", "--class", "dragon").Code);
