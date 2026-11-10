@@ -106,7 +106,7 @@ dotnet run --project src/Rpg.Sim -- --simulate 1000 --scenario duel
 dotnet run --project src/Rpg.Sim -- --record combat.json --scenario training --seed 7 --lang fr
 dotnet run --project src/Rpg.Sim -- --replay combat.json --show --lang fr
 dotnet run -c Release --project src/Rpg.Sim -- --simulate 100 --scenario group:fields-0-4.0 --parties --kit zone   # tous les groupes de 2, 3 et 4 héros
-dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --decks tools/bench-decks.json   # le banc des voies, hors CI : docs/mesures-classes.md ; --ranked-paths : sorts de voie rangés (S210)
+dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --decks tools/bench-decks.json   # le banc des voies, hors CI : docs/mesures-classes.md ; sorts de voie rangés depuis S210 (D98), --unranked-paths pour l'ancien banc
 ```
 Le serveur et ses tests demandent PostgreSQL :
 ```sh
@@ -125,6 +125,8 @@ Sprint 198 : 17 tests de plus (`Rpg.Core` : `ArcherFinalsTests`, l'Artilleur, la
 Sprint 199 : 19 tests de plus (`Rpg.Core` : `MageTimeTests`, l'emprunt de PA, le décalage dans l'ordre de jeu sans jamais passer celui qui joue, les relances raccourcies, leurs bornes, puis chaque nœud de l'Arcaniste et du Chronomancien, joué et rejoué). Les sorts du Mage entrent dans la fumée N0 (T162).
 
 Sprint 210 : jalon 2, 2 tests de plus (`Rpg.Core` : un héros de voie dépense ses points en connaissant sa voie ; `Rpg.Sim` : `--matrix --ranked-paths`). La mesure des 84 voies des 7 classes dans `REVIEW.md` et `docs/jalon-2.md`, Q1-Q5 à trancher (T173).
+
+Sprint 210, seconde story (D98) : 3 tests de plus (`Rpg.Core` : une zone de dégâts d'un héros ne touche jamais son lanceur ; le risque d'atterrissage d'un bond ; `TheBench_PlaysEachPathSpell_ButTheUnplayedOnes`, hors CI). Le banc range les sorts de voie, l'IA joue les bonds, le Fauchage et la Lame infernale épargnent le Guerrier, la fumée ne vérifie plus que ce qu'elle peut (T174, `docs/jalon-2.md` §5).
 
 Sprint 209 : 4 tests de plus (`Rpg.Core` : `PaladinPathsTests`, la vengeance au-delà du plafond qui grandit avec les blessures du camp, l'arbre Protecteur, Templier, Vengeur et ses 12 finales, ce que chaque finale change à sa lignée, l'Égide du Porte-lumière qui relève un allié tombé). Le Templier et le Vengeur (T172, `docs/classes-paladin-2.md`).
 

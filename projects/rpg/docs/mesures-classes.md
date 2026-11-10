@@ -340,3 +340,7 @@ Voir `docs/classes-paladin-2.md` §2. Exigences, groupes et hordes inchangés ; 
 ## 9 novembre 2026 : jalon 2, les sorts de voie rangés (S210, T173)
 
 Voir `docs/jalon-2.md`. `Rpg.Sim --matrix --simulate 30`, 84 voies à 35, 45 et 50. Défaut : 25 concluantes, +5,9 en moyenne sur le héros sans voie, 16 au-delà de +15, aucune au-delà de +24. `--ranked-paths` : 32 concluantes, +14,9, 45 au-delà de +15, 17 au-delà de +24 (Geôlier à 50 : +44,2). Héros sans voie à 35 : Prêtre 18,8 (24,4 au jalon 1), Berserker 66,9. Voleur et Berserker : aucune voie concluante dans les deux modèles.
+
+## 10 novembre 2026 : les suites du jalon 2 (S210, T174)
+
+Voir `docs/jalon-2.md` §5. `Rpg.Sim --matrix --simulate 30`, sorts de voie rangés (le défaut désormais), l'IA des bonds avec risque d'atterrissage : 33 voies concluantes sur 84, +14,3 sur le héros sans voie, 42 au-delà de +15, 17 au-delà de +24, 12 sorts à 0,0. Guerrier sans voie à 50 : 61,3 (50,2), son Fauchage l'épargnant. Écart le plus large entre voies d'une classe : Vengeur à 45, 15,0. Voleur + Paladin face aux hordes à 45 : 55 sur 100 (60 mesuré au sprint 208).
