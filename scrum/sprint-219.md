@@ -7,6 +7,7 @@
 | Story | Points | État |
 |---|---|---|
 | En tant que Charles, je joue 10 classes, la mesure croisée et la durée des combats sont dans `REVIEW.md` (rpg) ; banc hors CI, build livrée. | 6 | À faire |
+| En tant que joueur seul, le Disjoint au niveau 30 me résiste encore quand je le tiens à distance : Tenir bon ou un coup à distance, le plafond de la mesure rétabli (rpg) ; xUnit (D100). | 1 | À faire |
 
 ## Rétro (Charles)
 - Ce qui a marché :

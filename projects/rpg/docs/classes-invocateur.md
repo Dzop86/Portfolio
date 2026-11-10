@@ -1,4 +1,4 @@
-# L'Invocateur, première partie : les créatures et l'ordre *(10 novembre 2026, sprint 211, à valider par Charles)*
+# L'Invocateur, première partie : les créatures et l'ordre *(10 novembre 2026, sprint 211, validé par Charles : recommandations, D100)*
 
 Ce document prépare la première story du sprint 211 : « En tant qu'Invocateur, l'IA joue mes créatures et un sort marque leur cible, 3 créatures au plus ; xUnit. PloufInvocateur créé. » Le Familieriste vient au sprint 212, le Démoniste et le Conjurateur au sprint 213. Il part de `classes-conception.md` (§1.2 la fiche et le moteur, §1.4 ce qui le sépare du Nécromancien, §4 les invocations commandées, Q4 a) et de `classes-liste.md` §10.
 
@@ -80,7 +80,7 @@ Les dégâts suivent le barème (`tools/spells_gen.py`) à 0,75. Noms de travail
 - **Les groupes de référence** (hordes au niveau 45) : Guerrier + Invocateur 70 %, Prêtre + Invocateur 70 %, Berserker + Invocateur 66 %, Archer + Voleur + Invocateur, Paladin + Mage + Invocateur et Guerrier + Prêtre + Archer + Invocateur 100 %.
 - **Les autres classes** : leurs combats de niveau 10 ne bougent pas avec l'Invocateur seul ; l'IA de D99 (seconde story) change ceux de l'Archer, du Guerrier, du Mage et du Prêtre.
 
-## 6. À trancher par Charles
+## 6. Tranché par Charles (« go reco », D100)
 
 - **Q1. Les noms** des 24 sorts, des 3 créatures et de l'état « Ordre » : noms de travail, au scénariste.
 - **Q2. La limite de 3 créatures** : a) **par héros, toutes classes (Reco)** : la durée d'un tour, et un Illusionniste ne perd que son 4ᵉ ; b) pour l'Invocateur seulement.

@@ -189,7 +189,7 @@ public class BalanceTests
         // every time (100, against 41); archer 79, mage 93, priest 64, an average of 84.
         // No ceiling since sprint 211 (D99, docs/classes-invocateur.md Q4): a hero now weighs the movement it takes by the blow it keeps away, and the Archer
         // (76 to 100) and the Priest (62 to 98) hold the lone boss off while it wears itself out, as a player would; the Summoner's creatures take its
-        // blows (100). The eight classes average 98.75: the Disjoint is too easy for good play. Charles to judge (Q4).
+        // blows (100). The eight classes average 98.75: the Disjoint is too easy for good play; made harder at the third milestone, the ceiling back (D100).
         Assert.True(wins.Average() >= 50, $"{string.Join(", ", Classes.Zip(wins, (c, w) => $"{c} {w}"))}: {wins.Average()}");
     }
 

@@ -374,7 +374,7 @@ Le nouvel arbre ne suit pas l'ancien : la Sente n'a pas d'équivalent, et Artill
 | **S211-S213** | **Invocateur** : invocations commandées, fusion ; IA des pièges, retraits de PM, tractions et sorts d'alliés (D99 : 3 points pris sur la marge, non comptés dans le cumul de cette table) | 16 | 99 |
 | **S214-S215** | **Nécromancien** : cadavres | 11 | 110 |
 | **S216-S218** | **Druide** : glyphes partagées, formes | 12 | 122 |
-| **S219** | **Jalon 3** : mesure croisée, durée des combats, playtest | 6 | **128** |
+| **S219** | **Jalon 3** : mesure croisée, durée des combats, playtest ; le Disjoint plus dur (D100 : 1 point pris sur la marge, non compté dans le cumul de cette table) | 7 | **128** |
 | | Marge, à placer là où les jalons le demanderont | 15 | 143 |
 
 Le S193 actuel (Mage, Archimage, Sorcier, Nécromancien) est remplacé. M1 à M6 passent au banc de mesure et aux jalons.
