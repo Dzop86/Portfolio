@@ -344,3 +344,9 @@ Voir `docs/jalon-2.md`. `Rpg.Sim --matrix --simulate 30`, 84 voies à 35, 45 et 
 ## 10 novembre 2026 : les suites du jalon 2 (S210, T174)
 
 Voir `docs/jalon-2.md` §5. `Rpg.Sim --matrix --simulate 30`, sorts de voie rangés (le défaut désormais), l'IA des bonds avec risque d'atterrissage : 33 voies concluantes sur 84, +14,3 sur le héros sans voie, 42 au-delà de +15, 17 au-delà de +24, 12 sorts à 0,0. Guerrier sans voie à 50 : 61,3 (50,2), son Fauchage l'épargnant. Écart le plus large entre voies d'une classe : Vengeur à 45, 15,0. Voleur + Paladin face aux hordes à 45 : 55 sur 100 (60 mesuré au sprint 208).
+
+## 10 novembre 2026 : l'Invocateur et l'IA des effets différés (S211, T175, T176)
+
+`Rpg.Sim --matrix --simulate 30`, sorts de voie rangés, l'IA de D99 : **36 voies concluantes sur 84** (33 au sprint 210), +13,6 en moyenne sur le héros sans voie (+14,3), 38 au-delà de +15 (42), 16 au-delà de +24 (17), 10 sous −3 (8), **9 sorts à 0,0** (12). Sortis de 0,0 : les Mâchoires (jouées), la Rune (0,1), le Cri du clan (0,1 à 0,3) ; ces deux-là restent sous les 0,5 lancer par combat d'un sort jugé. Encore à 0,0 : Arrachement (0,0 à 0,4 selon la voie), Cercle de fer, Résurrection, Bouclier de la foi, Cabriole, Feinte, Lame enduite, Fiole de peste, Coup d'arène. Écart entre voies d'une classe : le Vengeur à 45 et le Bastion à 50 à 15,0 de leur moyenne, à la limite.
+
+L'Invocateur sans voie (la matrice saute une classe sans voie ; `--class summoner`) : 7,5 au niveau 10, 34 au 30, 57 au 35, 62 au 45 et au 50, 54 au 70, 29 au 100. Les autres classes à 50 : de 30 (Prêtre) à 73 (Berserker).

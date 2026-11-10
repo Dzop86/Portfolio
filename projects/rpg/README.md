@@ -128,6 +128,10 @@ Sprint 210 : jalon 2, 2 tests de plus (`Rpg.Core` : un héros de voie dépense s
 
 Sprint 210, seconde story (D98) : 3 tests de plus (`Rpg.Core` : une zone de dégâts d'un héros ne touche jamais son lanceur ; le risque d'atterrissage d'un bond ; `TheBench_PlaysEachPathSpell_ButTheUnplayedOnes`, hors CI). Le banc range les sorts de voie, l'IA joue les bonds, le Fauchage et la Lame infernale épargnent le Guerrier, la fumée ne vérifie plus que ce qu'elle peut (T174, `docs/jalon-2.md` §5).
 
+Sprint 211 : 10 tests de plus (`Rpg.Core` : `SummonerTests`, l'ordre et ses 25 %, une cible à la fois, les créatures qui la visent et marchent vers elle, ce que vaut l'ordre, les créatures nourries dans l'élément du héros, deux Molosses puis 3 créatures au plus, le kit ; `Rpg.Api` : un Invocateur créé, son Molosse nourri). L'Invocateur (T175, `docs/classes-invocateur.md`).
+
+Sprint 211, seconde story (D99) : 4 tests de plus (`Rpg.Core` : `DeferredAiTests`, un retrait de PM vaut le coup qu'il empêche, un piège sous un ennemi qui frappe déjà, une traction le coup qu'elle met à portée, un bonus de dégâts une part des coups de son camp). L'IA des pièges, des retraits de PM, des tractions et des sorts d'alliés (T176).
+
 Sprint 209 : 4 tests de plus (`Rpg.Core` : `PaladinPathsTests`, la vengeance au-delà du plafond qui grandit avec les blessures du camp, l'arbre Protecteur, Templier, Vengeur et ses 12 finales, ce que chaque finale change à sa lignée, l'Égide du Porte-lumière qui relève un allié tombé). Le Templier et le Vengeur (T172, `docs/classes-paladin-2.md`).
 
 Sprint 208 : 7 tests de plus (`Rpg.Core` : `PaladinTests`, la protection au contact sur le plus blessé à 2 cases, rien de loin, le kit sans soin à distance ni sans coup, Égide prise au Guerrier, le Protecteur ; `Rpg.Api` : un Paladin créé, un Guerrier qui avait Égide la perd à la lecture). Le Paladin (T171, `docs/classes-paladin.md`).
