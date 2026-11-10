@@ -61,10 +61,10 @@ public static class Bench
 
     /// <summary>
     /// One class at the family's level. <paramref name="deck"/>, a reference deck in order of preference, replaces the automatic deck: the path's spells, then its spells the level has unlocked, up to the bar's size.
-    /// <paramref name="rankedPaths"/> (sprint 210, the second milestone): each path's hero spends its spell points knowing its path, its path spells ranked as the kit's;
-    /// by default it keeps the bare hero's ranks, its path spells at rank 1.
+    /// <paramref name="rankedPaths"/> (sprint 210, the second milestone, D98): each path's hero spends its spell points knowing its path, its path spells ranked as the kit's,
+    /// as a player would; false keeps the bare hero's ranks, its path spells at rank 1 under the kit's, the bench of sprints 193 to 209.
     /// </summary>
-    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null, bool rankedPaths = false)
+    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null, bool rankedPaths = true)
     {
         ArgumentNullException.ThrowIfNull(family);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fights);

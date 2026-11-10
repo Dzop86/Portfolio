@@ -292,11 +292,11 @@ public class TemplateTests
         // Sprint 193 (D96, `docs/classes-conception.md` §7.2): the CI's fence, on a sample of 8 groups and 15 fights a group, whatever the number of classes: about 9 points of
         // noise at 120 fights, so 15 points from the mean. The story's 8 points are judged on the bench, at 480 fights (`Rpg.Sim --matrix`, `docs/mesures-classes.md`). The Sentinel's
         // exception of 22 went with sprint 194 (T154), though the AI still does not play its traps and leaps. Against the groups of 4 and 5: no bare hero of these levels wins the solid hordes,
-        // path or not, so a test on them would hold whatever the paths did. Never more than the +15 of M2 over a hero without a path, with the same noise allowed for.
+        // path or not, so a test on them would hold whatever the paths did. Since sprint 210 (D98, Q1 of docs/jalon-2.md), the paths' spells ranked as a player would, the paths are
+        // weighed against each other only: the +24 over a hero without a path is gone, that hero a fragile reference (the Priest too low, the Berserker too high).
         BenchReport bench = Bench.Run(new SyntheticFamily(level), cls, 15, sample: 8);
         string report = $"{cls} level {level}, {bench.Groups} groups: no path {bench.Plain.Points:0.0}; " + string.Join(", ", bench.Paths.Select(p => $"{p.Path} {p.Points:0.0}"));
         Assert.True(bench.Spread <= 15, report);
-        Assert.True(bench.Paths.All(p => p.Points - bench.Plain.Points <= 24), report);
         // It would prove nothing at either end.
         Assert.True(bench.Plain.Points is > 5 and < 85, report);
     }

@@ -35,7 +35,7 @@ public class BenchTests
     }
 
     [Fact]
-    public void APathsHero_SpendsItsSpellPointsKnowingItsPath_WhenAskedTo()
+    public void APathsHero_SpendsItsSpellPointsKnowingItsPath_OnTheBench()
     {
         // Sprint 210 (the second milestone, docs/jalon-2.md §1): built bare then given a path, a hero's path spells stay at rank 1, under the kit's ranks.
         Hero bare = At35.Hero("archer", "none");
@@ -45,8 +45,8 @@ public class BenchTests
         Assert.All(path, s => Assert.Equal(1, onPath.Ranks?.GetValueOrDefault(s, 1) ?? 1));
         Hero ranked = Progression.Built(onPath, At35.Data);
         Assert.Contains(path, s => ranked.Ranks!.GetValueOrDefault(s, 1) > 1);
-        // The bench keeps the bare hero's ranks by default, so that its measures stay comparable; it plays the ranked hero on demand, the plain hero untouched.
-        BenchReport plain = Bench.Run(At35, "warrior", 2, sample: 2), rankedReport = Bench.Run(At35, "warrior", 2, sample: 2, rankedPaths: true);
+        // The bench plays the ranked hero (D98), the bare hero's ranks on demand, the hero without a path untouched.
+        BenchReport plain = Bench.Run(At35, "warrior", 2, sample: 2, rankedPaths: false), rankedReport = Bench.Run(At35, "warrior", 2, sample: 2);
         Assert.Equal(plain.Plain.Points, rankedReport.Plain.Points);
         Assert.NotEqual(plain.Paths.Select(p => p.Casts.Values.Sum()), rankedReport.Paths.Select(p => p.Casts.Values.Sum()));
     }
