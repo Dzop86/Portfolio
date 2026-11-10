@@ -189,7 +189,10 @@ public static class Ai
     /// <summary>
     /// The leap worth taking (sprint 90): among the free cells a leaping spell reaches, the one whose turn,
     /// with the action points left after the leap, is worth more than <paramref name="toBeat"/>; the
-    /// nearest, then in reading order, on a tie. Null when no leap beats it.
+    /// nearest, then in reading order, on a tie. Null when no leap beats it. Since sprint 210 (D98), the leap's own worth counts too:
+    /// a blow around where it lands (the Assault, the Crusade), a stealth taken (the Shadow Step); until then the AI saw a leap that strikes as a walk that costs
+    /// action points, and never played one. A hero also counts the blows its landing brings within reach (<see cref="IncomingAt"/>): without them, the Rogue's
+    /// Pounce into a horde cost a Rogue and a Paladin 11 victories in 100.
     /// </summary>
     private static (Spell Spell, Cell Landing)? BestLeap(Fight fight, Fighter me, double toBeat)
     {
@@ -202,10 +205,12 @@ public static class Ai
                 .OrderBy(c => c.DistanceTo(me.Cell)).ThenBy(c => c.Y).ThenBy(c => c.X)];
             foreach (Cell landing in cells)
             {
-                if (BestTurn(fight, me, landing, me.Ap - leap.ApCost) is (_, _, _, double value) && value - GlyphRisk(fight, me, landing, [landing]) > toBeat)
+                double worth = Value(fight, me, leap, me.Cell, landing) + (BestTurn(fight, me, landing, me.Ap - leap.ApCost) is (_, _, _, double value) ? value : 0)
+                    - GlyphRisk(fight, me, landing, [landing]) - (IsHero(fight, me) ? Math.Max(0, IncomingAt(fight, me, landing) - IncomingAt(fight, me, me.Cell)) : 0);
+                if (worth > toBeat)
                 {
                     best = (leap, landing);
-                    toBeat = value - GlyphRisk(fight, me, landing, [landing]);
+                    toBeat = worth;
                 }
             }
         }
@@ -219,9 +224,13 @@ public static class Ai
         e.Spells.Where(s => s.DamageMax > 0).Select(s => Fight.Expected(s.AverageDamage, e, f, s.Element)).DefaultIfEmpty(0).Max();
 
     /// <summary>What the enemies within reach of <paramref name="f"/> would do to it in a round (sprint 194, T154): what a shield or a resistance has to hold.</summary>
-    internal static double Incoming(Fight fight, Fighter f) => fight.Fighters
-        .Where(e => e.IsAlive && e.Team != f.Team && e.Spells.Any(s => s.DamageMax > 0 && e.Cell.DistanceTo(f.Cell) <= e.Mp + e.MaxRangeOf(s)))
+    internal static double Incoming(Fight fight, Fighter f) => IncomingAt(fight, f, f.Cell);
+
+    /// <summary>What <see cref="Incoming"/> would be were <paramref name="f"/> on <paramref name="cell"/> (sprint 210): what a leap brings upon its hero.</summary>
+    internal static double IncomingAt(Fight fight, Fighter f, Cell cell) => fight.Fighters
+        .Where(e => e.IsAlive && e.Team != f.Team && e.Spells.Any(s => s.DamageMax > 0 && e.Cell.DistanceTo(cell) <= e.Mp + e.MaxRangeOf(s)))
         .Sum(e => BestBlow(e, f));
+
 
     /// <summary>
     /// Stealth's (sprint 204, docs/classes-voleur.md §3): the blows within reach of <paramref name="f"/> from enemies who could not walk within

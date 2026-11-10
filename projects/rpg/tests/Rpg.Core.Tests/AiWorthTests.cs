@@ -45,6 +45,18 @@ public class AiWorthTests
     }
 
     [Fact]
+    public void ALeapsLanding_WeighsTheBlowsItBringsWithinReach()
+    {
+        // Sprint 210 (D98): a leap counts what its hero would take where it lands; Incoming is the same, on the hero's own cell.
+        Fight fight = Training("rogue", 45);
+        Fighter hero = fight.HeroFighter!;
+        Fighter enemy = fight.Fighters.First(f => f.Team != hero.Team);
+        Assert.Equal(Ai.Incoming(fight, hero), Ai.IncomingAt(fight, hero, hero.Cell));
+        Assert.Equal(0, Ai.IncomingAt(fight, hero, enemy.Cell + new Cell(100, 100)));
+        Assert.True(Ai.IncomingAt(fight, hero, enemy.Cell) > 0);
+    }
+
+    [Fact]
     public void TheAmbush_NowCallsItsHawk_AndDives()
     {
         // Before: the Hawk 0.0 times a fight, so the Dive, which needs it, 0.0 too, and the line said nothing of either.
