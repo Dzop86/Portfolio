@@ -30,6 +30,7 @@ public class FightBudgetTests
             "BalanceTests.AZone_GroupsOfOneToThree_AreForOnePlayerAtItsLevel_OfSixAndMore_ForSeveral",
             "BalanceTests.AtLevel1_EveryClassDuel_IsWonByEitherSide",
             "BalanceTests.Duel_NeitherSideAlwaysWins",
+            "CiLevelsTests.TheBench_PlaysEachPathSpell_ButTheUnplayedOnes",
             "FinalsBenchTests.AtHundred_TheArchersFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "FinalsBenchTests.AtHundred_TheMagesFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "FinalsBenchTests.AtHundred_ThePriestsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",

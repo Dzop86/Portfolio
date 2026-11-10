@@ -60,8 +60,24 @@ public class CiLevelsTests
         Assert.True(10 * 11 * 4 <= SmokeFights && 10 * 19 * 2 <= FinalSmokeFights);
     }
 
+    /// <summary>
+    /// What a hero of the smoke is (sprint 210, D98): the family's hero given its path, then its spell points spent knowing it, as a player would; the same hero as the bench's.
+    /// </summary>
+    public static Hero HeroOf(SyntheticFamily family, (string Class, int Level, string? Spec, string? Fork, string? Final) h)
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        Hero bare = family.Hero(h.Class, "none");
+        return h.Spec is null ? bare : Progression.Built(bare with { Spec = h.Spec, Fork = h.Fork, Final = h.Final }, family.Data);
+    }
+
+    /// <summary>
+    /// The hero a path is weighed against in the smoke: a final class against its lineage alone, a branch or a lineage against the hero without a path, at the same level.
+    /// </summary>
+    public static (string Class, int Level, string? Spec, string? Fork, string? Final) ParentOf((string Class, int Level, string? Spec, string? Fork, string? Final) h) =>
+        h.Final is not null ? h with { Final = null } : (h.Class, h.Level, null, null, null);
+
     [Fact]
-    public void TheSmoke_EveryClassAndPath_FinishesItsFights_AndPlaysEachOfItsSpells()
+    public void TheSmoke_EveryClassAndPath_FinishesItsFights_AndChangesOne()
     {
         var families = new Dictionary<int, SyntheticFamily> { [35] = new(35), [Specs.Forks] = new(Specs.Forks), [Specs.Finals] = new(Specs.Finals) };
         var heroes = Heroes(Real);
@@ -75,17 +91,15 @@ public class CiLevelsTests
         }
         Assert.Equal(Real.Classes.Sum(Expected), heroes.Count);
 
-        // Each hero's fights, to tell whether a final class changes any against its lineage alone.
-        var prints = new System.Collections.Concurrent.ConcurrentDictionary<(string, int, string?, string?), string[]>();
+        // Each hero's fights, to tell whether a path changes any against the hero it is weighed against. Whether each path spell is played, the smoke cannot say
+        // on a few fights a hero: the bench says it, off the CI (sprint 210, D98, Q4 of docs/jalon-2.md).
+        var prints = new System.Collections.Concurrent.ConcurrentDictionary<(string, int, string?, string?, string?), string[]>();
         string[] problems = [.. heroes.AsParallel().AsOrdered().SelectMany(h =>
         {
             SyntheticFamily family = families[h.Level];
-            Hero hero = family.Hero(h.Class, "none") with { Spec = h.Spec, Fork = h.Fork, Final = h.Final };
+            Hero hero = HeroOf(family, h);
             string who = $"{h.Class} {h.Level} {h.Final ?? h.Fork ?? h.Spec ?? "-"}";
             var seen = new List<string>();
-            var path = Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
-                .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect)).ToHashSet(StringComparer.Ordinal);
-            var cast = new HashSet<string>(StringComparer.Ordinal);
             var found = new List<string>();
             foreach (string group in Bench.MiddleGroups(family, SmokeGroups(h.Level)))
             {
@@ -95,108 +109,96 @@ public class CiLevelsTests
                     Ai.PlayOut(fight);
                     if (!fight.IsOver || fight.WinningTeam is null)
                         found.Add($"{who}: {group} seed {seed} never ends");
-                    cast.UnionWith(fight.History.OfType<CastAction>().Select(c => c.Spell));
                     seen.Add(Fingerprint(fight));
                 }
             }
-            if (h.Level >= Specs.Finals && h.Fork is not null)
-                prints[(h.Class, h.Level, h.Fork, h.Final)] = [.. seen];
-            // Each spell played, below 100 only: at 100 the AI hardly plays Crush, Harpoon nor Retaliation, its lineages alone included (sprint 197, T160); the final classes
-            // are judged there by the fights they change.
-            if (h.Level < Specs.Finals)
-            {
-                // UnplayedOn names a lineage, or a branch for its hero at 35 without a lineage yet (sprint 206).
-                bool Excused(string s) => Unplayed.Contains(s) || UnplayedOn.Contains((h.Fork ?? h.Spec ?? "", s));
-                found.AddRange(path.Except(cast).Where(s => !Excused(s)).Select(s => $"{who}: {s} never played"));
-                found.AddRange(path.Intersect(cast).Where(Excused).Select(s => $"{who}: {s} is played now, take it off the list"));
-            }
+            prints[h] = [.. seen];
             return found;
         })];
-        // A final class changes at least one fight of its lineage alone, on the same seeds: a rule that never plays is caught (docs/classes-guerrier.md §7.4).
-        string[] dead = [.. heroes.Where(h => h.Final is not null).Where(h => prints[(h.Class, h.Level, h.Fork, h.Final)].SequenceEqual(prints[(h.Class, h.Level, h.Fork, null)]))
-            .Select(h => h.Final!)];
+        // A path changes at least one fight of the hero it is weighed against, on the same seeds: a rule that never plays is caught (docs/classes-guerrier.md §7.4).
+        string[] dead = [.. heroes.Where(h => h.Spec is not null).Where(h => prints[h].SequenceEqual(prints[ParentOf(h)])).Select(h => h.Final ?? h.Fork ?? h.Spec!)];
         string[] still = [.. dead.Except(Unchanged).Select(f => $"{f} changes no fight"), .. Unchanged.Except(dead).Select(f => $"{f} changes a fight now, take it off the list")];
         Assert.True(problems.Length == 0 && still.Length == 0, string.Join("; ", problems.Concat(still)));
     }
 
+    [Fact(Explicit = true)] // The bench (N2, D98): off the CI, run with -- --explicit only
+    public void TheBench_PlaysEachPathSpell_ButTheUnplayedOnes()
+    {
+        // Sprint 210 (Q4 of docs/jalon-2.md): what the smoke checked until sprint 209 on too few fights. A path spell no hero of its paths ever casts, at 35 and 50 on the
+        // bench, is in Unplayed; one of Unplayed cast at all is to be taken off.
+        var casts = new Dictionary<string, double>(StringComparer.Ordinal);
+        foreach (int level in new[] { 35, Specs.Forks })
+        {
+            var family = new SyntheticFamily(level);
+            foreach (HeroClass c in Real.Classes)
+            {
+                foreach (BenchRow row in Bench.Run(family, c.Id, 15, sample: 8).Paths)
+                {
+                    foreach ((string spell, double n) in row.Casts)
+                        casts[spell] = casts.GetValueOrDefault(spell) + n;
+                }
+            }
+        }
+        string[] wrong = [.. casts.Where(c => c.Value == 0 && !Unplayed.Contains(c.Key)).Select(c => $"{c.Key} never played"),
+            .. Unplayed.Where(s => casts.GetValueOrDefault(s) > 0).Select(s => $"{s} is played now ({casts[s]:0.00} a fight), take it off the list")];
+        Assert.True(wrong.Length == 0, string.Join("; ", wrong));
+    }
+
     /// <summary>
-    /// The final classes whose whole effect goes through a spell of <see cref="Unplayed"/>: they cannot change a fight of the smoke until the AI plays it. The smoke
-    /// fails when one does, so that the list only shrinks.
+    /// The paths, mostly final classes, whose whole effect goes through a spell the AI hardly plays, or on allies the smoke has not: they change no fight of the smoke.
+    /// The smoke fails when one does, so that the list only shrinks.
     /// </summary>
     public static readonly IReadOnlySet<string> Unchanged = new HashSet<string>(StringComparer.Ordinal)
     {
         "general",
         // The Archer (sprint 198, docs/classes-archer.md §5): the AI calls no second Hawk, and does not cast Running Shot at 100.
         "beast-lord", "war-hawk",
-        // Sprint 200: the Blade Master's Crush, hardly played at 100, changes none of the 6 fights a hero has left since the Mage's 18 heroes of 100 share the budget (10 before).
-        "blade-master",
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
         // late (Healing Wave, Exorcism, Zeal, Vision) or an ally (Life Warden) change none of them. Sprint 203: the Remedy, its heals grown with the level, now does.
-        "vaulter", "saint", "life-warden", "purifier", "zealot", "divine-sage",
+        "saint", "life-warden", "zealot", "divine-sage",
         // The Rogue (sprint 204, docs/classes-voleur.md §6): the Dancing Blade's Vault and the Trap Master's second Caltrops unplayed; the Demolisher's
         // target without movement points hardly met alone; the Silent Reaper's Execution a turn sooner changes none of a hero's 5 fights.
         "dancing-blade", "demolisher", "trap-master", "silent-reaper",
         // Sprint 205: the Spectre's Shadow Step and the Master of Illusions' second Image, unplayed.
         "spectre", "illusion-master",
-        // Sprint 206: the Devourer's Devour without a cooldown changes none of a hero's fights.
-        "devourer",
         // Sprint 207: the King of the Clans' Clan Cry unplayed; the Beheader's Beheading a turn sooner changes none of a hero's fights.
         "clan-king", "beheader",
         // Sprint 208: the Protector's finals act on allies, or on a hero falling, that the smoke has not.
         "holy-bastion", "eternal-guardian", "paladin-aegis",
         // Sprint 209: the Paladin's 19 heroes of 100 leave each hero fewer fights. The Living Ballista's Barrage without a cooldown changes none of them; the
         // Purifier's Sentence and the Hand of Judgement's Verdict sooner neither; the Zealot's Holy Fury, played for its points, a turn sooner neither.
-        "living-ballista", "paladin-purifier", "hand-of-judgement", "paladin-zealot",
-    };
-
-    /// <summary>
-    /// A path spell the AI plays elsewhere but not on this lineage, at 50 (sprint 198): the Bounty Hunter's AI prefers the quarry to Weak Spot, the Skirmisher's the
-    /// Barrage come down to 30 to Running Shot. Not conclusive, as <see cref="Unplayed"/>; the smoke fails when one is played.
-    /// </summary>
-    public static readonly IReadOnlySet<(string Fork, string Spell)> UnplayedOn = new HashSet<(string, string)>
-    {
-        ("bounty-hunter", "path-weak-spot"), ("runner", "path-running-shot"),
-        // Sprint 200: the Master of Illusions' AI spends its points on the Image and the Double before Dazzle.
-        ("mirage-master", "path-dazzle"),
-        // Sprint 202: with fewer fights each, the Time Weaver's Quicken, played for allies, no longer comes up alone.
-        ("time-weaver", "path-quicken"),
-        // Sprint 205: the Night Stalker's AI spends its points on the Waylay before the Shadow Blade.
-        ("night-stalker", "path-shadow-blade"),
-        // Sprint 206: the Ravager at 35, its Ravage paid in hit points under the kit's spells; played from 50.
-        ("ravager", "path-ravage"),
-        // Sprint 207: with 3 fights a hero and a group, the Poisoner's AI no longer comes to its poisons.
-        ("poisoner", "path-envenom"), ("poisoner", "path-plague"),
-        // Sprint 208: the Protector at 35 does not lay its Hallowed Ground yet; its lineages at 50 do.
-        ("protector", "path-hallowed-ground"),
-        // Sprint 209: the Avenger at 35 and its Justiciar spend their points on Retribution and the Verdict before the Vow; the Fanatic plays it.
-        ("avenger", "path-vow"), ("justiciar", "path-vow"),
+        "hand-of-judgement", "paladin-zealot",
+        // Sprint 210 (D98): the smoke's heroes rank their path spells. The Blade Master, the Vaulter, the Purifier, the Devourer, the Living Ballista and the Paladin's
+        // Purifier change a fight now, the Destroyer too since the AI plays its Assault (a leap); the Forest Master's second Jaws and the Arcane Architect's Rune (traps
+        // unplayed) and the Warchief's War Standard sooner change none.
+        "forest-master", "magic-architect", "warchief",
     };
 
     /// <summary>
     /// The path spells the AI never plays alone, NOT CONCLUSIVE on the bench (`docs/mesures-classes.md`): a trap that does no damage on the
-    /// spot, a leap, a pull, a loss of movement. The AI is to be mended, not the spells; the smoke fails on any other, and when one of these is played.
+    /// spot, a leap, a pull, a loss of movement. The AI is to be mended, not the spells; the bench fails on any other, and when one of these is played (sprint 210, D98:
+    /// the smoke until sprint 209).
     /// </summary>
     public static readonly IReadOnlySet<string> Unplayed = new HashSet<string>(StringComparer.Ordinal)
     {
-        "path-jaws", "path-assault", "path-wrench", "path-iron-ring",
-        // The Mage (sprint 199, docs/classes-mage.md §3): the Rune, a trap as the Jaws; the Crescendo, 10 AP the AI never saves nor borrows for.
-        "path-rune", "path-crescendo",
-        // The Priest (sprint 202, docs/classes-pretre-2.md §4): the Resurrection raises a fallen ally, and the smoke fights alone.
+        // The Warrior's (sprint 195): the Breach's Wrench, a pull, and the Pincer's Iron Ring, a loss of movement.
+        "path-wrench", "path-iron-ring",
+        // The Mage (sprint 199, docs/classes-mage.md §3): the Rune, a trap.
+        "path-rune",
+        // The Priest (sprint 202, docs/classes-pretre-2.md §4): the Resurrection raises a fallen ally, and the bench fights alone.
         "path-resurrect",
-        // The Rogue (sprint 204): the Vault, a leap, as the Assault (its 0.1 a fight of T152); the Low Blow, weaker a point of action than the kit's
-        // spells and their ranks, even at 3 AP.
-        "path-vault", "path-backstab",
-        // Sprint 205 (docs/classes-voleur-2.md §3): the Shadow Step, a leap as the Vault.
-        "path-shadow-step",
-        // Sprint 206 (docs/classes-berserker.md §5): the Ravager's blows paid in hit points, under the kit's spells and their ranks a point of action.
-        "path-gore-charge", "path-crushing-blow",
-        // Sprint 207 (docs/classes-berserker-2.md §3): with six classes, 3 fights a hero and a group (4 before); the Barbarian's and the Gladiator's
-        // spells under the kit's ranked ones, the Clan Cry for allies the smoke has not, the Feral Leap a leap. To be mended at the second milestone.
-        "path-clan-cry", "path-savage-blow", "path-feral-leap", "path-arena-strike", "path-blood-duel",
-        // Sprint 208 (docs/classes-paladin.md §4): the Defender's Shield of Faith serves allies the smoke has not.
+        // The Rogue (sprint 204): the Vault, a leap that strikes nothing.
+        "path-vault",
+        // Sprint 207: the Clan Cry, for allies the bench has not.
+        "path-clan-cry",
+        // Sprint 208 (docs/classes-paladin.md §4): the Defender's Shield of Faith serves allies the bench has not.
         "path-shield-of-faith",
+        // Sprint 210 (D98): ranked, the Poisoner spends its points on Envenom; the Plague Vial, a poison over turns, never comes before it.
+        "path-plague",
+        // Played since sprint 210, their path spells ranked and the leaps worth their blow (D98): the Jaws and the Crescendo, rarely, the Assault, the Low Blow, the
+        // Shadow Step, the Ravager's blows paid in hit points, the Barbarian's and the Gladiator's spells and the Feral Leap.
     };
 
     /// <summary>
