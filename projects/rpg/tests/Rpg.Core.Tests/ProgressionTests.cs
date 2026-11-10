@@ -178,7 +178,8 @@ public class ProgressionTests
     [InlineData("fire-lunge", 26, "smite", 20.5)]
     [InlineData("undertow", 17, "groundswell", 10.5)]
     [InlineData("wind-blade", 21, "cyclone-blade", 11)]
-    [InlineData("cleave", 11.5, "titan-blow", 40.0 / 3)]
+    // Cleave cast on its caster's cell since sprint 210 (D98): 11.5 to 10.5, the scale's price for an area that goes around its caster (10-13 to 9-12).
+    [InlineData("cleave", 10.5, "titan-blow", 40.0 / 3)]
     [InlineData("burn", 22, "meteor", 14)]
     [InlineData("tidal-wave", 11.5, "freeze", 7.75)]
     [InlineData("bolt", 25, "cyclone", 6)]

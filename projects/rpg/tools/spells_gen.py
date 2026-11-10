@@ -115,7 +115,7 @@ guard = C(
  # The guard fights up close: at level 1 it can already bring an enemy to it.
  R("taunt","Provocation","Taunt",2,2,5,0,0,1,"Neutral","lorc/grab",line=True,effects=[pull(3)],cd=1),
  R("bulwark","Rempart","Bulwark",2,0,0,0,0,1,"Neutral","lorc/shield-reflect",los=False,effects=[shield("Caster",10,2)],cd=3),
- R("cleave","Fauchage","Cleave",4,1,1,1,1,1,"Earth","lorc/sword-spin",area=("Cross",1)),
+ R("cleave","Fauchage","Cleave",4,0,0,1,1,1,"Earth","lorc/sword-spin",area=("Cross",1)),
  R("fire-lunge","Fente ardente","Fire Lunge",4,1,3,1,1,2,"Fire","lorc/fire-dash",line=True),
  R("undertow","Ressac","Undertow",3,1,3,1,1,2,"Water","delapouite/high-tide",line=True,effects=[pull(1)]),
  R("wind-blade","Lame du vent","Wind Blade",3,1,2,1,1,2,"Air","lorc/wind-slap"),
@@ -126,7 +126,7 @@ guard = C(
  R("cyclone-blade","Lame cyclone","Cyclone Blade",4,1,3,1,1,1,"Air","lorc/tornado",area=("Circle",1)),
  R("war-cry","Cri de guerre","War Cry",3,0,0,0,0,1,"Neutral","lorc/shouting",los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2)],cd=3),
  R("titan-blow","Coup de titan","Titan Blow",7,1,1,1,1,1,"Earth","lorc/punch-blast",effects=[push(3)],cd=2),
- R("inferno-blade","Lame infernale","Inferno Blade",5,1,1,1,1,1,"Fire","lorc/fire-axe",area=("Cross",1)),
+ R("inferno-blade","Lame infernale","Inferno Blade",5,0,0,1,1,1,"Fire","lorc/fire-axe",area=("Cross",1)),
  R("torrent","Torrent","Torrent",5,1,3,1,1,1,"Water","sbed/water-drop",area=("Circle",1)),
  R("hurricane","Ouragan","Hurricane",6,1,3,1,1,1,"Air","lorc/tornado-discs",area=("Circle",1),cd=1),
  R("iron-grip","Poigne de fer","Iron Grip",3,1,1,0,0,1,"Neutral","lorc/mailed-fist",effects=[status("Enemies","Mp",-2,1)],cd=2),

@@ -30,6 +30,20 @@ public class DataTests
     }
 
     [Fact]
+    public void AHerosAreaOfDamage_CanAlwaysBeCast_WithoutHurtingItsCaster()
+    {
+        // Sprint 210 (D98, the second milestone's Q3): the Warrior's Cleave and Inferno Blade, of range 1 and a cross of 1, always struck him too; like the Berserker's
+        // blows (sprint 206), they are now cast on his own cell and spare him. A circle or a cross either goes around its caster or can be aimed far enough away;
+        // a line goes on away from the caster. The class spells, their twins in the compounds and the path spells.
+        string[] kit = [.. Real.Classes.SelectMany(c => c.Spells).Distinct()];
+        Spell[] heroes = [.. Real.Spells.Values.Where(s => s.Id.StartsWith("path-", StringComparison.Ordinal) || kit.Any(k => s.Id == k || s.Id.EndsWith("-" + k, StringComparison.Ordinal)))];
+        Assert.Contains(heroes, s => s.Id == "magma-cleave");
+        Assert.All(heroes.Where(s => s.DamageMax > 0 && s.Zone.Radius > 0 && s.Zone.Shape is AreaShape.Circle or AreaShape.Cross),
+            s => Assert.True(s.MaxRange == 0 || s.MaxRange > s.Zone.Radius, $"{s.Id}: range {s.MinRange}-{s.MaxRange}, area {s.Zone.Shape} {s.Zone.Radius}"));
+        Assert.Equal((0, 0), (Real.Spells["cleave"].MinRange, Real.Spells["inferno-blade"].MaxRange));
+    }
+
+    [Fact]
     public void TheBuiltInData_IsTheDataFolder()
     {
         GameData files = GameData.Load(Path.Combine(AppContext.BaseDirectory, "data"));
