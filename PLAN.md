@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S219 | 733 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S219 | 736 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 954 points sur 219 sprints de deux semaines.
+Total : 957 points sur 219 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -226,3 +226,5 @@ Charles remplace la Mage, la Garde et la Sentinelle par dix classes : Guerrier, 
 **D97 (5 novembre 2026) :** S195 reçoit 3 points de plus pour ramener la suite du Cœur de 233 875 combats à 20 000, ce que S193 n'a pas tenu (T153) : 949 points, et 12 points de marge.
 
 **D98 (9 novembre 2026) :** au jalon 2 (`projects/rpg/docs/jalon-2.md`), Charles valide les cinq recommandations : S210 reçoit une seconde story de 5 points prise sur la marge, sans nouveau sprint : le banc range les sorts de voie et la CI compare les voies d'une classe entre elles, l'IA apprend les bonds, les pièges et les sorts d'alliés, le Fauchage et la Lame infernale épargnent le Guerrier, la fumée est allégée. Les classes continuent en S211 : 954 points, et 7 points de marge.
+
+**D99 (10 novembre 2026) :** Q6 du jalon 2, Charles choisit a) : l'IA donne une valeur aux pièges, aux retraits de PM, aux tractions et aux sorts d'alliés au sprint de l'Invocateur, dont les créatures demandent le même travail. S211 reçoit une seconde story de 3 points prise sur la marge, sans nouveau sprint : 957 points, et 4 points de marge.

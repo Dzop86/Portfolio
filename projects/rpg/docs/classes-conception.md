@@ -371,7 +371,7 @@ Le nouvel arbre ne suit pas l'ancien : la Sente n'a pas d'équivalent, et Artill
 | **S206-S207** | **Berserker** : sang, forme | 9 | 73 |
 | **S208-S209** | **Paladin** : réemploi | 9 | 82 |
 | **S210** | **Jalon 2** : mesure, playtest. **Décision de Charles** ; IA des bonds, pièges et sorts d'alliés, banc rangé (D98 : 5 points pris sur la marge, non comptés dans le cumul de cette table) | 9 | **86** |
-| **S211-S213** | **Invocateur** : invocations commandées, fusion | 13 | 99 |
+| **S211-S213** | **Invocateur** : invocations commandées, fusion ; IA des pièges, retraits de PM, tractions et sorts d'alliés (D99 : 3 points pris sur la marge, non comptés dans le cumul de cette table) | 16 | 99 |
 | **S214-S215** | **Nécromancien** : cadavres | 11 | 110 |
 | **S216-S218** | **Druide** : glyphes partagées, formes | 12 | 122 |
 | **S219** | **Jalon 3** : mesure croisée, durée des combats, playtest | 6 | **128** |
