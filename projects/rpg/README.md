@@ -132,6 +132,8 @@ Sprint 211 : 10 tests de plus (`Rpg.Core` : `SummonerTests`, l'ordre et ses 25 %
 
 Sprint 211, seconde story (D99) : 4 tests de plus (`Rpg.Core` : `DeferredAiTests`, un retrait de PM vaut le coup qu'il empêche, un piège sous un ennemi qui frappe déjà, une traction le coup qu'elle met à portée, un bonus de dégâts une part des coups de son camp). L'IA des pièges, des retraits de PM, des tractions et des sorts d'alliés (T176).
 
+Sprint 212 : 6 tests de plus (`Rpg.Core` : `FamiliaristTests`, la croissance tour après tour jusqu'à son plafond et qu'aucune purge ne retire, une croissance de toutes les créatures, la fusion et son bouclier, l'IA qui prend une créature sur le point de tomber, la branche, ses lignées et ses finales, un Familier nourri qui grandit dans un vrai combat). Le Familieriste (T177, `docs/classes-invocateur-2.md`).
+
 Sprint 209 : 4 tests de plus (`Rpg.Core` : `PaladinPathsTests`, la vengeance au-delà du plafond qui grandit avec les blessures du camp, l'arbre Protecteur, Templier, Vengeur et ses 12 finales, ce que chaque finale change à sa lignée, l'Égide du Porte-lumière qui relève un allié tombé). Le Templier et le Vengeur (T172, `docs/classes-paladin-2.md`).
 
 Sprint 208 : 7 tests de plus (`Rpg.Core` : `PaladinTests`, la protection au contact sur le plus blessé à 2 cases, rien de loin, le kit sans soin à distance ni sans coup, Égide prise au Guerrier, le Protecteur ; `Rpg.Api` : un Paladin créé, un Guerrier qui avait Égide la perd à la lecture). Le Paladin (T171, `docs/classes-paladin.md`).

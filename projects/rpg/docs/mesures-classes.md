@@ -350,3 +350,7 @@ Voir `docs/jalon-2.md` §5. `Rpg.Sim --matrix --simulate 30`, sorts de voie rang
 `Rpg.Sim --matrix --simulate 30`, sorts de voie rangés, l'IA de D99 : **36 voies concluantes sur 84** (33 au sprint 210), +13,6 en moyenne sur le héros sans voie (+14,3), 38 au-delà de +15 (42), 16 au-delà de +24 (17), 10 sous −3 (8), **9 sorts à 0,0** (12). Sortis de 0,0 : les Mâchoires (jouées), la Rune (0,1), le Cri du clan (0,1 à 0,3) ; ces deux-là restent sous les 0,5 lancer par combat d'un sort jugé. Encore à 0,0 : Arrachement (0,0 à 0,4 selon la voie), Cercle de fer, Résurrection, Bouclier de la foi, Cabriole, Feinte, Lame enduite, Fiole de peste, Coup d'arène. Écart entre voies d'une classe : le Vengeur à 45 et le Bastion à 50 à 15,0 de leur moyenne, à la limite.
 
 L'Invocateur sans voie (la matrice saute une classe sans voie ; `--class summoner`) : 7,5 au niveau 10, 34 au 30, 57 au 35, 62 au 45 et au 50, 54 au 70, 29 au 100. Les autres classes à 50 : de 30 (Prêtre) à 73 (Berserker).
+
+## 10 novembre 2026 : le Familieriste (S212, T177)
+
+Voir `docs/classes-invocateur-2.md` §4. `--class summoner --simulate 30` : Familieriste +19,0 au niveau 35 ; Dompteur +24,6 et Fusionniste +4,6 au 50 (±10,0 de leur moyenne) ; au 100, de +11,9 (Chimériste) à +27,1 (Maître des familiers), toutes à ±10 de leur moyenne.

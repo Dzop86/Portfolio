@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant qu'Invocateur, je deviens Familieriste, avec la fusion (rpg) ; xUnit. | 4 | À faire |
+| En tant qu'Invocateur, je deviens Familieriste, avec la fusion (rpg) ; xUnit. | 4 | Fait : le Familier qui grandit (`growth`, `Grown`), la fusion (`fuse`), le Dompteur et le Fusionniste, 4 finales, réglés au banc ; le Maître des familiers relancé en 2 tours au lieu de deux Familiers (limite de 3) ; Q1-Q3 de `docs/classes-invocateur-2.md` (T177) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

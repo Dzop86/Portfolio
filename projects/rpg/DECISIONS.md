@@ -1141,3 +1141,11 @@ M5, duo Palissade et dégâts : à moins de 1,5 victoire sur 30 d'un duo dégât
 **Alternatives.** Compter aussi la collision d'une poussée contre un mur : essayé et retiré, l'Archer gagnait 999 combats d'entraînement sur 1 000 (450 à 650 attendus) et cinq bandes de la CI cassaient. Baisser la valeur d'un retrait de PM pour garder le Disjoint difficile : l'IA jouerait moins bien que le joueur (Q4).
 
 **Limites.** Les combats en solo de l'Archer, du Guerrier, du Mage et du Prêtre changent (empreinte relevée) ; ceux du Voleur, du Berserker et du Paladin au niveau 10 non. L'Archer et le Prêtre tiennent désormais le Disjoint à distance : 100 et 98 sur 100, moyenne 98,75, plafond de 90 levé en attendant Charles. La Résurrection et le Bouclier de la foi ne se jouent qu'avec des alliés : le banc, seul, ne les voit pas. Le Cercle de fer retire des PM à des ennemis déjà au contact : il n'empêche aucun coup, seul.
+
+## T177. L'Invocateur, deuxième partie : le Familieriste, la croissance et la fusion (sprint 212, D96)
+
+**Décision.** `docs/classes-invocateur-2.md`, écrit par moi. La branche Familieriste : un Familier nourri (20 % des PV, 30 % des caractéristiques) qui **grandit** (règle `growth`, état `Grown` posé à chacun de ses tours, ni retiré ni purgé, lu par `DamageBonusFor`) ; la Becquée le soigne. Le Dompteur le fait grandir plus vite et échange sa place avec lui ; le Fusionniste le **fusionne** (effet `fuse` : la créature visée meurt, l'Invocateur prend ses PV en bouclier et 35 % de dégâts, sa croissance en plus, 3 tours). Quatre finales. L'IA compte la fusion moins ce que la créature aurait frappé, à proportion de ce qu'elle vivrait.
+
+**Alternatives.** Deux Familiers pour le Maître des familiers : impossibles avec 3 créatures au plus, la finale ne changeait rien (Q2). La fusion comptée sans la survie de la créature : l'IA ne fusionnait jamais. Une croissance par état `Rage` : le texte et l'agrandissement du modèle sont ceux du Berserker.
+
+**Limites.** Réglé au banc en deux essais (+19 au niveau 35, lignées à ±10 de leur moyenne). Le Rappel et la Becquée sont peu joués seul. La croissance n'agrandit pas le modèle de la créature. Aucune nouvelle phrase de PNJ pour le Fusionniste (canon, Q5 : après le jalon 3).
