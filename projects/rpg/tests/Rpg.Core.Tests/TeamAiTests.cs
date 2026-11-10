@@ -100,10 +100,11 @@ public class TeamAiTests
             return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16];
         }
         // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks; sprint 206, the Berserker's too.
-        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker" or "paladin"))));
+        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker" or "paladin" or "summoner"))));
         Assert.Equal(PaladinFingerprint, Of(Real.Classes.Where(c => c.Id == "paladin")));
         Assert.Equal(RogueFingerprint, Of(Real.Classes.Where(c => c.Id == "rogue")));
         Assert.Equal(BerserkerFingerprint, Of(Real.Classes.Where(c => c.Id == "berserker")));
+        Assert.Equal(SummonerFingerprint, Of(Real.Classes.Where(c => c.Id == "summoner")));
     }
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
@@ -111,7 +112,9 @@ public class TeamAiTests
     // Sprint 201: the Priest fights too (its heals growing), and the Mage plays its new neutral spells in place of its heals; the Archer's and the
     // Warrior's fights unchanged (measured alone, the same fingerprint before and after).
     // Sprint 203 (docs/jalon-1.md): the Warrior's hit points swept to 74 + 5, the Priest's heals growing with its level.
-    private const string SoloFingerprint = "E6B69159D0E58685";
+    // Sprint 211 (D99): a hero weighs the movement it takes, its traps, its pulls and the bonuses it gives its side by what they bring; the Rogue's, the
+    // Berserker's and the Paladin's fights of level 10 unchanged.
+    private const string SoloFingerprint = "848CF1CDC45CEC99";
 
     // Sprint 204 (docs/classes-voleur.md): the Rogue of level 10, its engine and its Stealth.
     private const string RogueFingerprint = "A15F1685850AA85E";
@@ -121,4 +124,7 @@ public class TeamAiTests
 
     // Sprint 208 (docs/classes-paladin.md): the Paladin of level 10, its ward.
     private const string PaladinFingerprint = "034A32D1C6AE01F2";
+
+    // Sprint 211 (docs/classes-invocateur.md, D99): the Summoner of level 10, its Hounds and its order.
+    private const string SummonerFingerprint = "3E82C27280236ABE";
 }

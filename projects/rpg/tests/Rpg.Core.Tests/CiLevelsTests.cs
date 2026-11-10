@@ -150,9 +150,9 @@ public class CiLevelsTests
     /// </summary>
     public static readonly IReadOnlySet<string> Unchanged = new HashSet<string>(StringComparer.Ordinal)
     {
-        "general",
-        // The Archer (sprint 198, docs/classes-archer.md §5): the AI calls no second Hawk, and does not cast Running Shot at 100.
-        "beast-lord", "war-hawk",
+        // The Archer (sprint 198, docs/classes-archer.md §5): the AI does not cast Running Shot at 100. Its Beast Lord's second Hawk is called since sprint 211,
+        // a fed creature worth its share of the Archer's characteristics.
+        "war-hawk",
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
@@ -174,6 +174,9 @@ public class CiLevelsTests
         // Purifier change a fight now, the Destroyer too since the AI plays its Assault (a leap); the Forest Master's second Jaws and the Arcane Architect's Rune (traps
         // unplayed) and the Warchief's War Standard sooner change none.
         "forest-master", "magic-architect", "warchief",
+        // Sprint 211 (D99): with movement taken, traps and pulls weighed by what they bring, the General changes a fight now; the Blade Master and the Destroyer
+        // (its Breakthrough driving 2 cells) none of the few a hero of 100 plays.
+        "blade-master", "destroyer",
     };
 
     /// <summary>
@@ -223,13 +226,16 @@ public class CiLevelsTests
         // The Paladin's (sprint 208, measured the same way).
         (["mage", "paladin"], 55), (["archer", "paladin"], 60), (["rogue", "paladin"], 60),
         (["archer", "mage", "paladin"], 100), (["priest", "berserker", "paladin"], 95), (["warrior", "mage", "rogue", "paladin"], 100),
+        // The Summoner's (sprint 211, measured the same way, 27 fights a party).
+        (["warrior", "summoner"], 70), (["priest", "summoner"], 70), (["berserker", "summoner"], 66),
+        (["archer", "rogue", "summoner"], 100), (["paladin", "mage", "summoner"], 100), (["warrior", "priest", "archer", "summoner"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>
     public const int Band = 15;
 
     /// <summary>The share of fights a party at 45, bare, wins against the hordes of six and more, in percent.</summary>
-    private static int Won(SyntheticFamily family, string[] classes)
+    internal static int Won(SyntheticFamily family, string[] classes)
     {
         string[] hordes = [.. family.Groups.Where(g => g.Size >= 6).Select(g => g.Scenario)];
         Hero[] party = [.. classes.Select((c, k) => family.Hero(c, "none") with { Name = Names[k] })];
