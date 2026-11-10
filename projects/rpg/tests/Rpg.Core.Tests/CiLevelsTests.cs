@@ -200,6 +200,8 @@ public class CiLevelsTests
         "path-shield-of-faith",
         // Sprint 210 (D98): ranked, the Poisoner spends its points on Envenom; the Plague Vial, a poison over turns, never comes before it.
         "path-plague",
+        // Sprint 212 (docs/classes-invocateur-2.md §4): the Tamer's Recall, a swap the AI makes only to rescue; the Titbit, a heal of a creature seldom hurt alone.
+        "path-recall", "path-titbit",
         // Played since sprint 210, their path spells ranked and the leaps worth their blow (D98): the Jaws and the Crescendo, rarely, the Assault, the Low Blow, the
         // Shadow Step, the Ravager's blows paid in hit points, the Barbarian's and the Gladiator's spells and the Feral Leap.
     };
