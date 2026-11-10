@@ -273,12 +273,44 @@ paladin = C(
  R("penance","Pénitence","Penance",3,1,2,0,0,1,"Neutral","lorc/scales",effects=[status("Enemies","Damage",-25,2)],cd=3),
  R("guarded-step","Pas gardé","Guarded Step",1,0,0,0,0,1,"Neutral","lorc/boot-prints",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
+# The Summoner (Invocateur) (sprint 211, docs/classes-invocateur.md §4): plays through its creatures, fed by its class's rules; an order marks their target;
+# weak blows of 1 to 5 cells, at 0.75 of the budget; no heal (what sets it apart from the Priest). Working names.
+summoner = C(
+ R("clod","Motte","Clod",3,1,5,1,1,2,"Earth","delapouite/stone-pile"),
+ R("cinder","Escarbille","Cinder",3,1,5,1,1,2,"Fire","lorc/small-fire"),
+ R("droplet","Goutte","Droplet",3,1,5,1,1,2,"Water","lorc/drop"),
+ R("murmur","Murmure","Murmur",3,1,5,1,1,2,"Air","lorc/swirl-string",effects=[push(1)]),
+ R("call-hound","Appel du molosse","Call the Hound",3,1,2,0,0,1,"Neutral","lorc/wolf-head",los=False,effects=[summon("hound",2)],cd=1),
+ R("command","Ordre","Command",2,1,6,0,0,1,"Neutral","lorc/pointing",los=False,effects=[status("Enemies","Ordered",25,2)],cd=1),
+ R("binding-stone","Pierre de lien","Binding Stone",4,1,4,1,1,2,"Earth","lorc/stone-sphere",effects=[status("Enemies","Mp",-1,1)]),
+ R("searing-brand","Marque ardente","Searing Brand",4,1,4,1,1,2,"Fire","lorc/brandy-bottle",effects=[status("Enemies","Poison",4,3,"Fire")]),
+ R("mire","Bourbier","Mire",4,1,4,1,1,2,"Water","lorc/bubbles",effects=[status("Enemies","Mp",-1,1)]),
+ R("breath","Souffle","Breath",4,1,5,1,1,2,"Air","lorc/wind-slap",line=True),
+ R("call-wisp","Feu follet","Will-o'-Wisp",3,1,3,0,0,1,"Neutral","lorc/spark-spirit",los=False,effects=[summon("wisp")],cd=2),
+ R("rumble","Grondement","Rumble",5,2,5,1,1,1,"Earth","lorc/earth-spit",area=("Circle",1)),
+ R("pyre","Bûcher","Pyre",5,2,5,1,1,1,"Fire","lorc/campfire",area=("Cross",1)),
+ R("far-undertow","Ressac lointain","Far Undertow",5,1,4,1,1,1,"Water","lorc/waves",line=True,effects=[pull(1)]),
+ R("squall","Grain","Squall",5,2,5,1,1,1,"Air","lorc/fluffy-cloud",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
+ R("call-colossus","Colosse","Colossus",5,1,2,0,0,1,"Neutral","delapouite/rock-golem",los=False,effects=[summon("colossus")],cd=4),
+ R("obelisk","Obélisque","Obelisk",6,2,5,1,1,1,"Earth","delapouite/obelisk",cd=1),
+ R("firestorm","Tempête de feu","Firestorm",6,2,5,1,1,1,"Fire","lorc/fire-wave",area=("Circle",1),cd=1),
+ R("deep-call","Appel des fonds","Call of the Deep",6,2,5,1,1,1,"Water","lorc/at-sea",area=("Cross",1),cd=1),
+ R("vortex","Vortex","Vortex",6,2,6,1,1,1,"Air","lorc/vortex",cd=2),
+ R("rouse","Exhortation","Rouse",3,0,5,0,0,1,"Neutral","lorc/shouting",los=False,area=("Circle",1),effects=[status("Allies","Damage",25,2)],cd=3),
+ R("switch","Permutation","Switch",2,1,6,0,0,1,"Neutral","lorc/magic-portal",los=False,effects=[swap()],cd=2),
+ R("veil","Voile","Veil",3,0,0,0,0,1,"Neutral","lorc/magic-shield",los=False,effects=[shield("Caster",30,2)],cd=4),
+ R("calling-step","Pas d'appel","Calling Step",1,0,0,0,0,1,"Neutral","lorc/footprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
  S("ember-bolt","Trait de braise","Ember Bolt",3,1,3,4,7,1,"Fire",1,ranks=False),
  # The Illusionist's Double (sprint 200, docs/classes-mage-2.md §2): in its summoner's strongest element, fed or not.
  S("mirror-strike","Frappe du reflet","Mirror Strike",3,1,2,6,9,2,"Neutral",1,ranks=False,adaptive=True),
+ # The Summoner's creatures (sprint 211, docs/classes-invocateur.md §2): in its strongest element, fed by its class's rules.
+ S("hound-fang","Croc","Fang",3,1,1,6,9,2,"Earth",1,ranks=False,adaptive=True),
+ S("wisp-glow","Lueur","Glow",3,1,4,5,8,2,"Fire",1,ranks=False,adaptive=True),
+ S("colossus-fist","Poing du colosse","Colossus Fist",4,1,1,10,14,1,"Earth",1,effects=[push(1)],ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -434,6 +466,11 @@ PALADIN_BUDGET = 0.85
 for sp in paladin:
     if sp["damageMax"] > 0:
         budget(sp, PALADIN_BUDGET)
+# The Summoner at 0.75 (docs/classes-conception.md §1.2): its worth is in its creatures.
+SUMMONER_BUDGET = 0.75
+for sp in summoner:
+    if sp["damageMax"] > 0:
+        budget(sp, SUMMONER_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -485,11 +522,20 @@ GESTURES = {
  "rampart-strike": ("Rempart", "Rampart"), "sun-strike": ("Soleil", "Sunstrike"), "tide-of-faith": ("Onde", "Ripple"), "judgement-lance": ("Pique", "Pike"),
  "crushing-faith": ("Foi", "Faith"), "dawn-blade": ("Aube", "Dawn"), "mercy-strike": ("Miséricorde", "Mercy"), "heavens-spear": ("Épieu", "Boar Spear"),
  "judgement-hammer": ("Maillet", "Mallet"), "blazing-oath": ("Serment", "Oath Blow"), "grace-flood": ("Grâce", "Grace"), "zenith": ("Zénith", "Zenith"),
+ # The Summoner's (sprint 211).
+ "clod": ("Motte", "Clod"), "cinder": ("Escarbille", "Cinder"), "droplet": ("Goutte", "Droplet"), "murmur": ("Murmure", "Murmur"),
+ "binding-stone": ("Lien", "Bond"), "searing-brand": ("Marque", "Brand"), "mire": ("Enlisement", "Sinking"), "breath": ("Exhalaison", "Exhalation"),
+ "rumble": ("Grondement", "Rumble"), "pyre": ("Fournaise", "Furnace"), "far-undertow": ("Reflux lointain", "Far Ebb"), "squall": ("Grain", "Squall"),
+ "obelisk": ("Obélisque", "Obelisk"), "firestorm": ("Embrasement", "Blaze Storm"), "deep-call": ("Abîme", "Abyss"), "vortex": ("Vortex", "Vortex"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
 NAMES = {
  "Lightning": {
+  # The Summoner's (sprint 211).
+  "cinder": ("Grésil d'orage", "Storm Sleet"), "murmur": ("Grondement sourd", "Low Thunder"), "searing-brand": ("Marque d'orage", "Storm Brand"),
+  "breath": ("Bise d'orage", "Thunder Breeze"), "pyre": ("Bûcher d'éclairs", "Lightning Pyre"), "squall": ("Grain d'orage", "Thundersquall"),
+  "firestorm": ("Tempête d'éclairs", "Lightning Storm"), "vortex": ("Vortex d'orage", "Storm Vortex"),
   "fire-arrow": ("Flèche d'orage", "Storm Arrow"), "ember-volley": ("Salve d'éclairs", "Lightning Volley"),
   "searing-shot": ("Tir fulgurant", "Flash Shot"), "ember-rain": ("Pluie d'éclairs", "Rain of Bolts"),
   "recoil-shot": ("Tir tonnant", "Thunder Shot"), "piercing-arrow": ("Flèche filante", "Streaking Arrow"),
@@ -537,7 +583,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin:
+    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin + summoner:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -546,7 +592,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else 1))
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else SUMMONER_BUDGET if sp in summoner else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -610,7 +656,7 @@ paths = [
  # The Breach.
  path("assault","Assaut","Assault",3,2,4,30,"lorc/quick-slash",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
  path("wrench","Arrachement","Wrench",3,1,4,30,"delapouite/push",effects=[pull(2),status("Enemies","Mp",-1,1)]),
- path("breakthrough","Trouée","Breakthrough",4,1,1,50,"lorc/anvil-impact",damage=True,area=("Line",2),effects=[push(1)],cd=1),
+ path("breakthrough","Trouée","Breakthrough",4,1,1,50,"lorc/anvil-impact",damage=True,area=("Line",2),effects=[push(2)],cd=1),
  path("harpoon","Harpon","Harpoon",3,2,6,50,"lorc/barbed-spear",damage=True,line=True,effects=[pull(3)],cd=1),
  # The Grip: the Lock takes all the movement any monster has.
  path("hold","Prise","Hold",3,1,1,30,"lorc/fist",damage=True,effects=[status("Enemies","Mp",-2,2)]),
@@ -695,21 +741,21 @@ paths = [
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins + paths
 # One id a spell (sprint 206: the Berserker's Howl took a monster's id, and its class listed the monster's spell).
 _ids = [sp["id"] for sp in spells]
 assert len(_ids) == len(set(_ids)), [i for i in set(_ids) if _ids.count(i) > 1]
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin], "summoner": [s["id"] for s in summoner]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")
@@ -729,6 +775,12 @@ summons.append(O([("id","decoy"),("name",O([("fr","Leurre"),("en","Decoy")])),("
 # The Illusionist's (sprint 200, docs/classes-mage-2.md §2-3): its summoner's look, lures both; the Image does not act, the Double strikes.
 summons.append(O([("id","mirror-image"),("name",O([("fr","Image"),("en","Image")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",30),("mirror",True),("lure",True)]))
 summons.append(O([("id","mirror-double"),("name",O([("fr","Double"),("en","Double")])),("look","female-d"),("hp",1),("ap",3),("mp",3),("initiative",80),("spells",["mirror-strike"]),("hpOfSummoner",15),("mirror",True),("lure",True)]))
+# The Summoner's (sprint 211, docs/classes-invocateur.md §2): their hit points and characteristics a share of its own (its class's rules).
+summons += [
+ young("hound","Molosse","Hound","wolf-melee",80,30,6,4,60,["hound-fang"]),
+ young("wisp","Feu follet","Will-o'-Wisp","bee-melee",60,20,6,3,70,["wisp-glow"]),
+ young("colossus","Colosse","Colossus","golem-melee",85,60,4,3,40,["colossus-fist"]),
+]
 summons += [
  young("wolf-cub","Louveteau","Wolf Cub","wolf-melee",70,12,6,4,90,["cub-bite"]),
  young("spore-sprout","Pousse de vesse","Puffball Sprout","mushroom-ranged",70,20,6,2,80,["spore-burst"],["final-spores"]),

@@ -171,6 +171,10 @@ public static class Progression
         ["paladin-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["paladin-manner"] = ["lasting-mark", "lingering-reaction", "shared-mark"],
         ["paladin-pure"] = ["side-step", "backed", "seal", "scorched-earth"],
+        // The Summoner's (sprint 211): the Mage's, a caster of range.
+        ["summoner-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["summoner-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["summoner-pure"] = ["side-step", "remanence", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -184,6 +188,7 @@ public static class Progression
         ["rogue-matter"] = [Element.Lightning],
         ["berserker-matter"] = [Element.Lightning],
         ["paladin-matter"] = [Element.Lightning],
+        ["summoner-matter"] = [Element.Lightning],
     };
 
     /// <summary>

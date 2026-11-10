@@ -176,6 +176,12 @@ public enum Stat
     /// "form" ask for it. Nothing takes it away, not even a purge.
     /// </summary>
     Rage,
+
+    /// <summary>
+    /// The Summoner's order (sprint 211, docs/classes-invocateur.md §3): the creatures of the status's source strike the bearer for this percent more,
+    /// and go for it first. One fighter ordered by each summoner at a time.
+    /// </summary>
+    Ordered,
 }
 
 /// <summary>

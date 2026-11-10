@@ -317,5 +317,67 @@
         "cells": 2
       }
     ]
+  },
+  {
+    "id": "summoner",
+    "name": {
+      "fr": "Invocateur",
+      "en": "Summoner"
+    },
+    "description": {
+      "fr": "Joue par ses créatures, nourries de ses PV et de sa force ; un ordre marque leur cible.",
+      "en": "Plays through its creatures, fed by its hit points and strength; an order marks their target."
+    },
+    "hp": 54,
+    "ap": 8,
+    "mp": 4,
+    "initiative": 10,
+    "spells": [
+      "clod",
+      "cinder",
+      "droplet",
+      "murmur",
+      "call-hound",
+      "command",
+      "binding-stone",
+      "searing-brand",
+      "mire",
+      "breath",
+      "call-wisp",
+      "rumble",
+      "pyre",
+      "far-undertow",
+      "squall",
+      "call-colossus",
+      "obelisk",
+      "firestorm",
+      "deep-call",
+      "vortex",
+      "rouse",
+      "switch",
+      "veil",
+      "calling-step"
+    ],
+    "hpPerLevel": 3,
+    "rules": [
+      {
+        "kind": "summon-share",
+        "summon": "hound",
+        "hpPercent": 20,
+        "statsPercent": 30
+      },
+      {
+        "kind": "summon-share",
+        "summon": "wisp",
+        "hpPercent": 12,
+        "statsPercent": 30
+      },
+      {
+        "kind": "summon-share",
+        "summon": "colossus",
+        "hpPercent": 40,
+        "statsPercent": 30
+      }
+    ]
   }
 ]

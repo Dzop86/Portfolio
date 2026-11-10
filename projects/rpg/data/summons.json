@@ -79,6 +79,54 @@
     "lure": true
   },
   {
+    "id": "hound",
+    "name": {
+      "fr": "Molosse",
+      "en": "Hound"
+    },
+    "look": "wolf-melee",
+    "hp": 30,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 60,
+    "spells": [
+      "hound-fang"
+    ],
+    "scale": 80
+  },
+  {
+    "id": "wisp",
+    "name": {
+      "fr": "Feu follet",
+      "en": "Will-o'-Wisp"
+    },
+    "look": "bee-melee",
+    "hp": 20,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 70,
+    "spells": [
+      "wisp-glow"
+    ],
+    "scale": 60
+  },
+  {
+    "id": "colossus",
+    "name": {
+      "fr": "Colosse",
+      "en": "Colossus"
+    },
+    "look": "golem-melee",
+    "hp": 60,
+    "ap": 4,
+    "mp": 3,
+    "initiative": 40,
+    "spells": [
+      "colossus-fist"
+    ],
+    "scale": 85
+  },
+  {
     "id": "wolf-cub",
     "name": {
       "fr": "Louveteau",

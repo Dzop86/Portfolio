@@ -48,6 +48,17 @@ public static class Ai
     /// <summary>How much more hitting a lure (the Decoy, sprint 142; the Illusionist's Image, sprint 200) is worth to a monster near it.</summary>
     internal const double DecoyPull = 6;
 
+    /// <summary>How much more a creature's blow on the enemy its summoner ordered is worth to it (sprint 211, docs/classes-invocateur.md §3): it goes for that one first.</summary>
+    internal const double OrderFocus = 2;
+
+    /// <summary>
+    /// The odds a glyph strikes an enemy who can already strike one of the hero's side from where it stands (sprint 211, D99): it has no reason to walk off.
+    /// </summary>
+    internal const double StayOdds = 0.9;
+
+    /// <summary>The share of an ally's round of blows a damage bonus given to it is worth a turn (sprint 211, D99): not every blow lands.</summary>
+    internal const double BoostShare = 0.5;
+
     // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Fight, Tuple<int, int, HashSet<int>>> HitThisRound = [];
 
@@ -251,12 +262,22 @@ public static class Ai
         return spec.Lure ? 0.5 * Math.Min(spec.HpOfSummoner > 0 ? me.MaxHp * spec.HpOfSummoner / 100.0 : spec.Hp, Incoming(fight, me)) : 0;
     }
 
-    /// <summary>What a creature would strike for in <see cref="SummonTurns"/>, by its strongest spell, as often as its action points allow.</summary>
-    private static double SummonValue(Fight fight, SummonEffect summon)
+    /// <summary>
+    /// What a creature would strike for in <see cref="SummonTurns"/>, by its strongest spell, as often as its action points allow. Fed by its summoner
+    /// (sprint 211, the Summoner's creatures; the Hawk of the Archer's paths), with its share of the summoner's characteristics in the element it
+    /// strikes in: until then a creature was worth its spell's bare damage, and from level 60 the Summoner's own blows outweighed raising one.
+    /// </summary>
+    private static double SummonValue(Fight fight, Fighter me, SummonEffect summon)
     {
         SummonSpec spec = fight.Data.Summons[summon.Summon];
+        SummonRule? fed = me.Talents.SelectMany(t => t.Rules).OfType<SummonRule>().Where(r => r.Summon == spec.Id).OrderByDescending(r => r.HpPercent).FirstOrDefault();
+        double Strength(Spell s)
+        {
+            Element element = s.Adaptive && me.Spec.SpecElement != Element.Neutral ? me.Spec.SpecElement : s.Element;
+            return fed is null ? 0 : Characteristics.Effective(me.Spec.Characteristics.For(element) * fed.StatsPercent / 100, me.Spec.Threshold);
+        }
         double round = spec.Spells.Select(id => fight.Data.Spells[id]).Where(s => s.DamageMax > 0)
-            .Select(s => s.AverageDamage * Math.Min(s.PerTurn, spec.Ap / Math.Max(1, s.ApCost))).DefaultIfEmpty(0).Max();
+            .Select(s => s.AverageDamage * (100 + Strength(s)) / 100 * Math.Min(s.PerTurn, spec.Ap / Math.Max(1, s.ApCost))).DefaultIfEmpty(0).Max();
         return SummonTurns * round;
     }
 
@@ -475,7 +496,9 @@ public static class Ai
                     drawnHit += hit;
                 value += f.Team == me.Team ? -1.5 * hit : (f.IsSummon ? 0.5 * hit : hit) * (focus ? Focus(fight, me, f, hit >= f.Hp + f.Shield) : 1)
                     // A lure (the Decoy, sprint 142; the Illusionist's Image and Double, sprint 200) draws the blows of those within 2 cells of it.
-                    * (f.Lure && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1);
+                    * (f.Lure && f.Cell.DistanceTo(me.Cell) <= 2 ? DecoyPull : 1)
+                    // The Summoner's order (sprint 211): its creatures go for the one it marked.
+                    * (f.Team != me.Team && Fight.OrderOn(me, f) > 0 ? OrderFocus : 1);
                 if (f.Team != me.Team && !f.IsSummon && hit >= f.Hp + f.Shield)
                     value += KillBonus;
                 else if (f.Team != me.Team && hit < f.Hp + f.Shield)
@@ -507,7 +530,7 @@ public static class Ai
             }
             if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
-                value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, summon) + LureValue(fight, me, summon)) : 8;
+                value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, me, summon) + LureValue(fight, me, summon)) : 8;
                 continue;
             }
             IEnumerable<Fighter> touched = effect.Affects switch
@@ -532,6 +555,10 @@ public static class Ai
                     ShieldEffect sh when f.Team == me.Team && IsHero(fight, me) => Math.Min(sh.Amount, Math.Max(0, Incoming(fight, f) * sh.Turns - f.Shield)),
                     ShieldEffect sh => sign * 0.3 * sh.Amount,
                     StatusEffect { Stat: Stat.Resistance } st when f.Team == me.Team && IsHero(fight, me) => Renewed(me, f, st) * st.Value / 100.0 * Incoming(fight, f) * st.Turns,
+                    // A hero's (sprint 211, D99): movement taken is worth the blow it keeps from the hero's side; a damage bonus to its side, a share of their blows.
+                    StatusEffect { Stat: Stat.Mp } st when st.Value < 0 && f.Team != me.Team && IsHero(fight, me) => Renewed(me, f, st) * Math.Max(-2.0 * st.Value, Denied(fight, me, f, -st.Value)) * st.Turns,
+                    StatusEffect { Stat: Stat.Damage } st when st.Value > 0 && effect.Affects == Affects.Allies && f.Team == me.Team && IsHero(fight, me)
+                        => Renewed(me, f, st) * Math.Max(0.05 * st.Value, BoostShare * st.Value / 100.0 * RoundOf(fight, f)) * st.Turns,
                     StatusEffect st => Renewed(me, f, st) * st.Stat switch
                     {
                         // A poison of one turn (the Oracle's Omen, sprint 202) strikes for sure at the target's next turn: nearly a blow.
@@ -543,14 +570,21 @@ public static class Ai
                         Stat.Hidden => sign * Math.Max(1, Unreached(fight, f)) * st.Turns,
                         // A form (sprint 206): a damage bonus for the rest of the fight, counted over 8 turns.
                         Stat.Rage => sign * 0.05 * st.Value * Math.Min(st.Turns, 8) * 4,
+                        // The Summoner's order (sprint 211): what its creatures would strike the bearer for more.
+                        Stat.Ordered => -sign * OrderWorth(fight, me, f, st),
                         _ => sign * 0.05 * st.Value * st.Turns,
                     },
+                    // A hero's pull (sprint 211, D99): what the enemy's landing gives, a glyph of the hero's there or one of its blows now within reach.
+                    PullEffect pull when f.Team != me.Team && IsHero(fight, me) => 1.0 + PullWorth(fight, me, spell, from, f, pull),
                     PushEffect or PullEffect => -sign * 1.0,
                     // The Chronomancer's (sprint 199): a place later for an enemy, earlier for an ally, is worth 3; a turn of cooldown given back to an ally, 2 a spell.
                     DelayEffect d => -sign * 3.0 * d.Places,
                     BorrowEffect b => BorrowWorth(fight, me, spell, from, b),
                     HasteEffect h => sign * 2.0 * f.Cooldowns.Values.Sum(c => Math.Min(c, h.Turns)),
                     // A glyph under a fighter strikes at its next turn, unless it walks away (sprint 130).
+                    // A hero's trap under an enemy that will not walk off (sprint 211, D99), and the movement it takes.
+                    GlyphEffect g when f.Team != me.Team && IsHero(fight, me) => (Stays(fight, me, f) ? StayOdds : GlyphOdds) * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
+                        + (g.AsStatus is StatusEffect { Stat: Stat.Mp, Value: < 0 } gm ? Math.Max(StatusWorth(gm, f), Denied(fight, me, f, -gm.Value) * gm.Turns) : g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
                     GlyphEffect g => -sign * GlyphOdds * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
                     _ => 0,
@@ -559,6 +593,64 @@ public static class Ai
         }
         return value;
     }
+
+    /// <summary>
+    /// Movement taken from an enemy (sprint 211, D99): what the strongest blow it could bring to the hero's side at its next turn loses, those of the
+    /// hero's side it could still reach then striking in its place; 0 when it reaches the same, or none before.
+    /// </summary>
+    private static double Denied(Fight fight, Fighter me, Fighter f, int removed)
+    {
+        Spell[] blows = [.. f.Spells.Where(s => s.DamageMax > 0)];
+        if (blows.Length == 0)
+            return 0;
+        int range = blows.Max(f.MaxRangeOf);
+        int mp = Math.Max(0, f.Spec.Mp + f.StatusList.Where(s => s.Stat == Stat.Mp).Sum(s => s.Value));
+        double Best(int steps) => fight.Fighters.Where(a => a.IsAlive && a.Team == me.Team && a.Cell.DistanceTo(f.Cell) <= steps + range)
+            .Select(a => BestBlow(f, a)).DefaultIfEmpty(0).Max();
+        return Math.Max(0, Best(mp) - Best(Math.Max(0, mp - removed)));
+    }
+
+    /// <summary>Whether an enemy can strike one of the hero's side from where it stands (sprint 211, D99): a glyph under it will strike.</summary>
+    private static bool Stays(Fight fight, Fighter me, Fighter f) =>
+        f.Spells.Any(s => s.DamageMax > 0 && fight.Fighters.Any(a => a.IsAlive && a.Team == me.Team && a.Cell.DistanceTo(f.Cell) is int d && d >= s.MinRange && d <= f.MaxRangeOf(s)));
+
+    /// <summary>A round of <paramref name="f"/>'s blows on the nearest enemy (sprint 211, D99): its strongest spell, as often as its action points allow.</summary>
+    private static double RoundOf(Fight fight, Fighter f)
+    {
+        Fighter? enemy = fight.Fighters.Where(e => e.IsAlive && e.Team != f.Team).OrderBy(e => e.Cell.DistanceTo(f.Cell)).ThenBy(e => e.Id).FirstOrDefault();
+        return enemy is null ? 0 : f.Spells.Where(s => s.DamageMax > 0)
+            .Select(s => Fight.Expected(s.AverageDamage, f, enemy, s.Element) * Math.Min(s.PerTurn, f.Spec.Ap / Math.Max(1, s.ApCost))).DefaultIfEmpty(0).Max();
+    }
+
+    /// <summary>
+    /// A hero's pull of an enemy (sprint 211, D99), from <paramref name="from"/>: where it lands, a glyph of the hero's strikes it at once; and the hero's best
+    /// other blow that reaches it there and did not reach it before, which the pull brings within reach this turn.
+    /// </summary>
+    private static double PullWorth(Fight fight, Fighter me, Spell spell, Cell from, Fighter f, PullEffect pull)
+    {
+        if (f.StatusList.Any(s => s.Stat == Stat.Anchored))
+            return 0;
+        Cell direction = Cell.Direction(f.Cell, from);
+        Cell at = f.Cell;
+        for (int i = 0; i < Math.Min(pull.Cells, f.Cell.DistanceTo(from) - 1) && (fight.IsFree(at + direction) || at + direction == me.Cell && me.Cell != from); i++)
+            at += direction;
+        if (at == f.Cell)
+            return 0;
+        double glyphs = fight.Glyphs.Where(g => g.Caster == me.Id && g.Cells.Contains(at) && fight.Strikes(g, f)).Sum(g => GlyphWorth(fight, g, f));
+        bool Reaches(Spell s, Cell c) => from.DistanceTo(c) >= s.MinRange && from.DistanceTo(c) <= me.MaxRangeOf(s);
+        double blow = me.Spells.Where(s => s != spell && s.DamageMax > 0 && s.ApCost <= me.Ap - spell.ApCost && Reaches(s, at) && !Reaches(s, f.Cell))
+            .Select(s => Math.Min(Fight.Expected(s.AverageDamage, me, f, s.Element), f.Hp + f.Shield)).DefaultIfEmpty(0).Max();
+        return glyphs + blow;
+    }
+
+    /// <summary>
+    /// The Summoner's order (sprint 211, docs/classes-invocateur.md §3): the share it adds to a round of the caster's creatures that could reach the
+    /// bearer, over the turns it lasts; 0 without a creature in reach.
+    /// </summary>
+    private static double OrderWorth(Fight fight, Fighter me, Fighter f, StatusEffect st) => f.Team == me.Team ? 0 : fight.Fighters
+        .Where(c => c.IsAlive && c.Summoner == me.Id && c.Spells.Any(s => s.DamageMax > 0 && c.Cell.DistanceTo(f.Cell) <= c.Mp + c.MaxRangeOf(s)))
+        .Sum(c => c.Spells.Where(s => s.DamageMax > 0).Select(s => Fight.Expected(s.AverageDamage, c, f, s.Element) * Math.Min(s.PerTurn, c.Spec.Ap / Math.Max(1, s.ApCost)))
+            .DefaultIfEmpty(0).Max()) * st.Value / 100.0 * st.Turns;
 
     /// <summary>What a fighter back on our side is worth besides its hit points (sprint 202): more than any single blow of the early levels.</summary>
     internal const double RaisedWorth = 40;
@@ -627,12 +719,14 @@ public static class Ai
     private static IEnumerable<(Cell Cell, int Steps)> Ordered(IReadOnlyDictionary<Cell, int> reachable) =>
         reachable.Select(kv => (kv.Key, kv.Value)).OrderBy(c => c.Value).ThenBy(c => c.Key.Y).ThenBy(c => c.Key.X);
 
-    /// <summary>Steps from each free cell to the nearest enemy (a breadth-first search from all enemies).</summary>
+    /// <summary>Steps from each free cell to the nearest enemy (a breadth-first search from all enemies), or to the one ordered (sprint 211).</summary>
     private static Dictionary<Cell, int> WalkingDistanceToEnemies(Fight fight, Fighter me)
     {
         var distance = new Dictionary<Cell, int>();
         var queue = new Queue<Cell>();
-        foreach (Fighter enemy in fight.Fighters.Where(f => f.IsAlive && f.Team != me.Team))
+        // A creature walks to the enemy its summoner ordered (sprint 211), the nearest otherwise.
+        Fighter[] ordered = [.. fight.Fighters.Where(f => f.IsAlive && f.Team != me.Team && Fight.OrderOn(me, f) > 0)];
+        foreach (Fighter enemy in ordered.Length > 0 ? ordered : fight.Fighters.Where(f => f.IsAlive && f.Team != me.Team))
         {
             distance[enemy.Cell] = 0;
             queue.Enqueue(enemy.Cell);

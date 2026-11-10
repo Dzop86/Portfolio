@@ -354,7 +354,8 @@ public sealed class Fight
             Passives = Specs.PassivesOf(hero, data) is { Count: > 0 } passives ? [.. f.Passives ?? [], .. passives] : f.Passives,
             // The class's own rules (sprint 204, the Rogue's engine) come before its path's, read the same way.
             SpecRules = [.. data.Class(hero.Class)?.Rules ?? [], .. Specs.RulesOf(hero, data)],
-            SpecElement = Specs.Of(hero, data) is null ? Element.Neutral : Specs.AdaptiveElement(n.Stats, Talents.GrimoireOf(hero, data).Spells.Select(id => data.Spells[id]), linearReturns ? 0 : Characteristics.Threshold(hero.Level)),
+            // A class whose own rules feed its creatures (the Summoner, sprint 211): they strike in its strongest element, path or not.
+            SpecElement = Specs.Of(hero, data) is null && !(data.Class(hero.Class)?.Rules ?? []).OfType<SummonRule>().Any() ? Element.Neutral : Specs.AdaptiveElement(n.Stats, Talents.GrimoireOf(hero, data).Spells.Select(id => data.Spells[id]), linearReturns ? 0 : Characteristics.Threshold(hero.Level)),
         };
     }
 
@@ -595,6 +596,9 @@ public sealed class Fight
             if (At(target) is not null && At(target) != caster)
                 return ActionError.Occupied;
             if (Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id && f.SummonKind == summon.Summon) >= summon.Max)
+                return ActionError.TooManySummons;
+            // Three creatures a hero at most, of all kinds (sprint 211, docs/classes-invocateur.md §0): the length of a turn.
+            if (HeroFighters.Contains(caster) && Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id) >= MaxCreatures)
                 return ActionError.TooManySummons;
         }
         // A leap lands on a free cell; a swap trades places with a fighter of the side it affects (sprint 90).
@@ -856,7 +860,7 @@ public sealed class Fight
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
         long raw = roll + (bonus ? Characteristics.Bonus(Strength(caster, element)) : 0);
-        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) : 0);
+        long talents = 100 + (direct ? Talents.Percent(caster.Talents, caster.Cell, target.Cell, element, context) + OrderOn(caster, target) : 0);
         int resistance = element == Element.Neutral ? 0 : Math.Min(90, target.Resistance(element) + guard);
         long scaled = raw * caster.Spec.Power * (100 + caster.DamageBonusFor(element)) * (100 - resistance) * talents * (100 + caster.Spec.TreeDamage);
         return (int)Math.Max(0, scaled / 10_000_000_000);
@@ -918,8 +922,19 @@ public sealed class Fight
     {
         ArgumentNullException.ThrowIfNull(caster);
         ArgumentNullException.ThrowIfNull(target);
-        return average * (100 + Strength(caster, element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents) / 100
+        return average * (100 + Strength(caster, element) + caster.DamageBonusFor(element)) * (100 - target.Resistance(element)) / 10_000 * (100 + talents + OrderOn(caster, target)) / 100
             * (100 + caster.Spec.TreeDamage) / 100;
+    }
+
+    /// <summary>
+    /// The Summoner's order (sprint 211, docs/classes-invocateur.md §3): the percent more <paramref name="caster"/>, a creature, strikes <paramref name="target"/>
+    /// for, its summoner having ordered it; 0 otherwise.
+    /// </summary>
+    public static int OrderOn(Fighter caster, Fighter target)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        ArgumentNullException.ThrowIfNull(target);
+        return caster.Summoner is int summoner ? target.StatusList.Where(st => st.Stat == Stat.Ordered && st.Source == summoner).Sum(st => st.Value) : 0;
     }
 
     /// <summary>
@@ -1406,6 +1421,9 @@ public sealed class Fight
     /// <summary>The cells from which an enemy may still aim at a hidden fighter (the Rogue's Stealth, sprint 204).</summary>
     public const int HiddenCells = 2;
 
+    /// <summary>The creatures a hero may have in play at once, of all kinds (sprint 211, docs/classes-invocateur.md §0).</summary>
+    public const int MaxCreatures = 3;
+
     private void Unhide(Fighter f)
     {
         f.StatusList.RemoveAll(st => st.Stat == Stat.Hidden);
@@ -1415,7 +1433,7 @@ public sealed class Fight
     /// <summary>What a purge takes (sprint 201): from an ally its ailments, from an enemy its boons and its shields.</summary>
     internal static bool Ailment(Status st) => st.Stat switch
     {
-        Stat.Poison or Stat.Parched or Stat.Electrified => true,
+        Stat.Poison or Stat.Parched or Stat.Electrified or Stat.Ordered => true,
         Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden or Stat.Rage => false,
         _ => st.Value < 0,
     };
@@ -1445,10 +1463,11 @@ public sealed class Fight
             status = status with { Value = Math.Min(before.Value + status.Value, max * status.Value), Turns = Math.Max(before.TurnsLeft, status.Turns) };
         // The same status from the same caster is renewed, not stacked; one fighter electrified by each caster (sprint 140).
         f.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Element == status.Element && st.Source == me.Id && st.Reaction == reaction);
-        if (status.Stat == Stat.Electrified)
+        // The Summoner's order (sprint 211): one fighter ordered by each summoner too.
+        if (status.Stat is Stat.Electrified or Stat.Ordered)
         {
             foreach (Fighter other in Fighters.Where(o => o != f))
-                other.StatusList.RemoveAll(st => st.Stat == Stat.Electrified && st.Source == me.Id);
+                other.StatusList.RemoveAll(st => st.Stat == status.Stat && st.Source == me.Id);
         }
         f.StatusList.Add(new Status(status.Stat, status.Value, status.Turns, status.Element, me.Id, reaction));
         _events.Add(new StatusAdded(f.Id, status.Stat, status.Value, status.Turns, status.Element, reaction));
