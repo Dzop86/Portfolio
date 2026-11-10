@@ -182,6 +182,12 @@ public enum Stat
     /// and go for it first. One fighter ordered by each summoner at a time.
     /// </summary>
     Ordered,
+
+    /// <summary>
+    /// A creature grown (the Familiarist's, sprint 212, docs/classes-invocateur-2.md §1): this percent more damage, as long as the fight lasts, set anew at each
+    /// of its turns by its summoner's growth (<see cref="GrowthRule"/>). Nothing takes it away, not even a purge.
+    /// </summary>
+    Grown,
 }
 
 /// <summary>
@@ -204,6 +210,7 @@ public enum Stat
 [JsonDerivedType(typeof(PurgeEffect), "purge")]
 [JsonDerivedType(typeof(ReviveEffect), "revive")]
 [JsonDerivedType(typeof(DrainEffect), "drain")]
+[JsonDerivedType(typeof(FuseEffect), "fuse")]
 public abstract record SpellEffect(Affects Affects);
 
 // The Chronomancer's time (sprint 199, docs/classes-mage.md §3).
@@ -238,6 +245,12 @@ public sealed record PurgeEffect(Affects Affects) : SpellEffect(Affects);
 /// hit points, its statuses and shields gone; once a fight for each caster and spell.
 /// </summary>
 public sealed record ReviveEffect(Affects Affects, int Percent) : SpellEffect(Affects);
+
+/// <summary>
+/// The fusion (the Fusionist's, sprint 212, docs/classes-invocateur-2.md §2): the caster's creature aimed at (<see cref="Spell.Aims"/>) dies, and the caster takes,
+/// for <see cref="Turns"/> of its turns, the hit points it had left as a shield and <see cref="Percent"/> % more damage, its growth on top.
+/// </summary>
+public sealed record FuseEffect(Affects Affects, int Turns, int Percent) : SpellEffect(Affects);
 
 /// <summary>Life drawn (the Berserker's, sprint 206): the caster heals this percent of the damage the spell did to its enemies.</summary>
 public sealed record DrainEffect(Affects Affects, int Percent) : SpellEffect(Affects);

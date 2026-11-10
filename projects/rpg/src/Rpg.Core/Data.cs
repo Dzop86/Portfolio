@@ -380,6 +380,9 @@ public sealed class GameData
                 if (!Summons.ContainsKey(summon.Summon))
                     throw new InvalidDataException($"Spell '{s.Id}': unknown summon '{summon.Summon}'.");
             }
+            // The fusion (sprint 212) aims at one of the caster's creatures.
+            if (s.AllEffects.Any(e => e is FuseEffect) && s.Aims is null)
+                throw new InvalidDataException($"Spell '{s.Id}': a fusion aims at a creature.");
         }
         foreach (SummonSpec m in Summons.Values)
         {
@@ -763,7 +766,9 @@ public sealed class GameData
         PushEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
         PullEffect p => p.Cells is >= 1 and <= 5 && p.Affects != Affects.Caster,
         // A form lasts the fight (the Berserker's Rage, sprint 206): 99 turns; any other status 10 at most.
-        StatusEffect st => st.Value != 0 && st.Turns >= 1 && st.Turns <= (st.Stat == Stat.Rage ? 99 : 10) && (st.Stat is not (Stat.Poison or Stat.Regen) || st.Value > 0),
+        StatusEffect st => st.Value != 0 && st.Turns >= 1 && st.Turns <= (st.Stat is Stat.Rage or Stat.Grown ? 99 : 10) && (st.Stat is not (Stat.Poison or Stat.Regen) || st.Value > 0),
+        // The Fusionist's (sprint 212): on the caster, a few turns.
+        FuseEffect fu => fu.Affects == Affects.Caster && fu.Turns is >= 1 and <= 10 && fu.Percent is >= 0 and <= 100,
         SummonEffect sm => sm.Max is >= 1 and <= 4 && sm.Count is >= 1 and <= 4 && Summons.ContainsKey(sm.Summon),
         // The Chronomancer's (sprint 199): a loan of the caster's own points, a shift in the order of anyone but the caster, cooldowns shortened.
         BorrowEffect b => b.Ap is >= 1 and <= 4 && b.Affects == Affects.Caster,
@@ -812,6 +817,8 @@ public sealed class GameData
                     throw new InvalidDataException($"Path '{s.Id}': a patch of a known spell.");
                 if ((t.Rules ?? []).OfType<SummonRule>().Any(r => !Summons.ContainsKey(r.Summon) || r.HpPercent is < 1 or > 100 || r.StatsPercent is < 0 or > 100))
                     throw new InvalidDataException($"Path '{s.Id}': a summon's share of a known summon, in percent.");
+                if ((t.Rules ?? []).OfType<GrowthRule>().Any(r => r.Summon is string g && !Summons.ContainsKey(g) || r.Percent is < 1 or > 50 || r.Max < r.Percent || r.Max > 200))
+                    throw new InvalidDataException($"Path '{s.Id}': a growth of a known summon, in percent.");
             }
             if ((s.Keeps ?? []).Any(id => !c.Spells.Contains(id)))
                 throw new InvalidDataException($"Path '{s.Id}': kept spells of its class.");

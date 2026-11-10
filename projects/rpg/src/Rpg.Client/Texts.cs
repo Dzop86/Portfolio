@@ -572,6 +572,7 @@ public sealed class Texts
         ["stat.Hidden"] = "invisible au-delà de 2 cases",
         ["stat.Rage"] = "Rage : {0} % de dégâts",
         ["stat.Ordered"] = "cible des créatures, {0} % à leurs coups",
+        ["stat.Grown"] = "grandi : {0} % de dégâts",
         ["stat.Mp.all"] = "plus de déplacement",
         ["sd.spends-shield"] = "Consomme ton bouclier, jusqu'à {0} de dégâts en plus.",
         ["stat.Electrified"] = "électrisé, {0} % de chaque coup saute",
@@ -618,6 +619,7 @@ public sealed class Texts
         ["error.NoForm"] = "Ce sort demande ta Rage.",
         ["log.paid"] = "{0} paie {1} PV",
         ["effect.drain"] = "rend {0} % des dégâts en PV",
+        ["effect.fuse"] = "absorbe ta créature : ses PV en bouclier, +{0} % de dégâts et sa croissance, {1} tours",
         ["effect.purge-Caster"] = "retire tes malus",
         ["sd.hp-cost"] = "Coûte {0} PV.",
         ["sd.form"] = "Demande ta Rage.",
@@ -1850,6 +1852,7 @@ public sealed class Texts
         ["stat.Hidden"] = "unseen beyond 2 cells",
         ["stat.Rage"] = "Rage: {0}% damage",
         ["stat.Ordered"] = "the creatures' target, {0}% to their blows",
+        ["stat.Grown"] = "grown: {0}% damage",
         ["stat.Mp.all"] = "no more moving",
         ["sd.spends-shield"] = "Uses up your shield, for up to {0} more damage.",
         ["stat.Electrified"] = "electrified, {0}% of every hit jumps",
@@ -1896,6 +1899,7 @@ public sealed class Texts
         ["error.NoForm"] = "This spell needs your Rage.",
         ["log.paid"] = "{0} pays {1} HP",
         ["effect.drain"] = "gives back {0}% of the damage as HP",
+        ["effect.fuse"] = "absorbs your creature: its HP as a shield, +{0}% damage and its growth, {1} turns",
         ["effect.purge-Caster"] = "removes your ailments",
         ["sd.hp-cost"] = "Costs {0} HP.",
         ["sd.form"] = "Needs your Rage.",
@@ -2706,6 +2710,8 @@ public sealed class Texts
                 ReviveEffect r => this["effect.revive", r.Percent],
                 PurgeEffect p => this["effect.purge-" + (p.Affects is Affects.Allies or Affects.Enemies or Affects.Caster ? p.Affects : Affects.All)],
                 DrainEffect d => this["effect.drain", d.Percent],
+                // The Fusionist's (sprint 212).
+                FuseEffect fu => this["effect.fuse", fu.Percent, fu.Turns],
                 ShieldEffect sh => this["effect.shield", sh.Amount, sh.Turns],
                 PushEffect p => this["effect.push", p.Cells],
                 PullEffect p => this["effect.pull", p.Cells],
@@ -2721,7 +2727,7 @@ public sealed class Texts
                 GlyphEffect g => this["effect.glyph", g.Turns, GlyphDoes(g)],
                 _ => "",
             };
-            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect or ReviveEffect or DrainEffect ? "" : this["affects." + e.Affects]));
+            parts.Add(text + (e is SummonEffect or LeapEffect or BorrowEffect or PurgeEffect or ReviveEffect or DrainEffect or FuseEffect ? "" : this["affects." + e.Affects]));
         }
         return parts;
     }
@@ -3171,7 +3177,7 @@ public sealed class Texts
     /// <summary>A status as the log shows it: "-2 PA", "+50 % de dégâts", "poison 6 (Eau)".</summary>
     public string Status(Stat stat, int value, Element element)
     {
-        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint or Stat.Regen or Stat.Rage ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
+        string signed = stat is Stat.Poison or Stat.Electrified or Stat.Feint or Stat.Regen or Stat.Rage or Stat.Grown ? value.ToString(CultureInfo.InvariantCulture) : value.ToString("+0;-0", CultureInfo.InvariantCulture);
         string elem = element == Element.Neutral ? "" : $" ({this["element." + element]})";
         // The Lock (sprint 192): all of its movement, whatever the number.
         if (stat == Stat.Mp && value <= -9)

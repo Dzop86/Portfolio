@@ -1398,5 +1398,54 @@
     "light": "#e1ccb9",
     "dark": "#6f5946",
     "outline": "#1e1813"
+  },
+  "spec-familiarist": {
+    "shape": "lorc/paw-print",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-tamer": {
+    "shape": "lorc/whip",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-fusionist": {
+    "shape": "lorc/interlaced-tentacles",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-familiar-master": {
+    "shape": "lorc/wolf-howl",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-creature-king": {
+    "shape": "lorc/crown",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-chimerist": {
+    "shape": "lorc/dragon-head",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-fusion-avatar": {
+    "shape": "lorc/werewolf",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
   }
 }

@@ -4561,5 +4561,233 @@
       "en": "Strike all the harder as one's own have suffered."
     },
     "icon": "spec-avenger"
+  },
+  {
+    "id": "familiarist",
+    "class": "summoner",
+    "name": {
+      "fr": "Familieriste",
+      "en": "Familiarist"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Familieriste",
+        "en": "Familiarist"
+      },
+      "description": {
+        "fr": "Un Familier, nourri de 20 % de tes PV et de 30 % de tes caractéristiques, grandit de 8 % de dégâts à chacun de ses tours, 40 % au plus. Sorts : Familier et Becquée.",
+        "en": "A Familiar, fed by 20% of your HP and 30% of your characteristics, grows 8% damage at each of its turns, 40% at most. Spells: Familiar and Titbit."
+      },
+      "spells": [
+        "path-familiar",
+        "path-titbit"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "familiar",
+          "hpPercent": 20,
+          "statsPercent": 30
+        },
+        {
+          "kind": "growth",
+          "summon": "familiar",
+          "percent": 8,
+          "max": 40
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "tamer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Dompteur",
+              "en": "Tamer"
+            },
+            "description": {
+              "fr": "Ton Familier grandit de 4 % de plus par tour, 20 % de plus au plus. Sort : Rappel, tu échanges ta place avec lui.",
+              "en": "Your Familiar grows 4% more a turn, 20% more at most. Spell: Recall, you trade places with it."
+            },
+            "spells": [
+              "path-recall"
+            ],
+            "rules": [
+              {
+                "kind": "growth",
+                "summon": "familiar",
+                "percent": 4,
+                "max": 20
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne l'ai pas appelé. Je l'ai élevé.",
+          "en": "I did not call it. I raised it."
+        },
+        "icon": "spec-tamer",
+        "finals": [
+          {
+            "id": "familiar-master",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des familiers",
+                "en": "Master of Familiars"
+              },
+              "description": {
+                "fr": "Familier se relance en 2 tours au lieu de 4 : un Familier tombé revient vite.",
+                "en": "Familiar comes back in 2 turns rather than 4: a fallen Familiar returns soon."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-familiar",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il en vient toujours un. Ils me connaissent tous.",
+              "en": "One always comes. They all know me."
+            },
+            "icon": "spec-familiar-master"
+          },
+          {
+            "id": "creature-king",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Roi des créatures",
+                "en": "King of Creatures"
+              },
+              "description": {
+                "fr": "Toutes tes créatures grandissent de 5 % de dégâts par tour, 25 % au plus.",
+                "en": "All your creatures grow 5% damage a turn, 25% at most."
+              },
+              "rules": [
+                {
+                  "kind": "growth",
+                  "percent": 5,
+                  "max": 25
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ainsi l'appellent ses créatures.",
+              "en": "So his creatures call him."
+            },
+            "icon": "spec-creature-king"
+          }
+        ]
+      },
+      {
+        "id": "fusionist",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Fusionniste",
+              "en": "Fusionist"
+            },
+            "description": {
+              "fr": "Sort : Fusion, ton Familier meurt en toi : ses PV en bouclier et 35 % de dégâts, sa croissance en plus, pour 3 tours.",
+              "en": "Spell: Fusion, your Familiar dies into you: its HP as a shield and 35% damage, its growth on top, for 3 turns."
+            },
+            "spells": [
+              "path-fusion"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Elle me connaît. Ça tient.",
+          "en": "It knows me. It holds."
+        },
+        "icon": "spec-fusionist",
+        "finals": [
+          {
+            "id": "chimerist",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Chimériste",
+                "en": "Chimerist"
+              },
+              "description": {
+                "fr": "La Fusion te donne aussi 2 PM pour 3 tours.",
+                "en": "Fusion also gives you 2 MP for 3 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-fusion",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Mp",
+                      "value": 2,
+                      "turns": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ses pattes, maintenant. Puis le reste.",
+              "en": "Its paws, now. Then the rest."
+            },
+            "icon": "spec-chimerist"
+          },
+          {
+            "id": "fusion-avatar",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Avatar fusionnel",
+                "en": "Fusion Avatar"
+              },
+              "description": {
+                "fr": "La Fusion te laisse une forme pour le reste du combat : 15 % de dégâts.",
+                "en": "Fusion leaves you a form for the rest of the fight: 15% damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-fusion",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Rage",
+                      "value": 15,
+                      "turns": 99
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Avatar veut dire forme prise. Rien de plus.",
+              "en": "Avatar means a form taken. Nothing more."
+            },
+            "icon": "spec-fusion-avatar"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Des bêtes élevées avec le temps, qui finissent par te ressembler.",
+      "en": "Beasts raised with time, that end up looking like you."
+    },
+    "icon": "spec-familiarist"
   }
 ]

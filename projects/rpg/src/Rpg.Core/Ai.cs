@@ -522,6 +522,12 @@ public static class Ai
                 value += Math.Min(drawnHit * drain.Percent / 100, me.MaxHp - me.Hp + spell.HpCost);
                 continue;
             }
+            // The fusion (sprint 212): what the shield and the bonus give, less what the creature would have struck.
+            if (effect is FuseEffect fuse)
+            {
+                value += fight.At(target) is Fighter fused && fused.Summoner == me.Id ? FuseWorth(fight, me, fused, fuse) : 0;
+                continue;
+            }
             // A friend raised (sprint 202): its hit points back, and a fighter more on our side.
             if (effect is ReviveEffect revive)
             {
@@ -613,6 +619,20 @@ public static class Ai
     /// <summary>Whether an enemy can strike one of the hero's side from where it stands (sprint 211, D99): a glyph under it will strike.</summary>
     private static bool Stays(Fight fight, Fighter me, Fighter f) =>
         f.Spells.Any(s => s.DamageMax > 0 && fight.Fighters.Any(a => a.IsAlive && a.Team == me.Team && a.Cell.DistanceTo(f.Cell) is int d && d >= s.MinRange && d <= f.MaxRangeOf(s)));
+
+    /// <summary>
+    /// The fusion (the Fusionist's, sprint 212, docs/classes-invocateur-2.md §2): its shield, at most what the blows within reach would take of the caster over its
+    /// turns; its damage bonus, the creature's growth on top, a share of the caster's blows (<see cref="BoostShare"/>); less what the creature would strike for in
+    /// <see cref="SummonTurns"/>, as far as it would live: a creature the blows within reach would fell costs little to take in.
+    /// </summary>
+    private static double FuseWorth(Fight fight, Fighter me, Fighter fused, FuseEffect fuse)
+    {
+        double shield = me.Parched ? 0 : Math.Min(fused.Hp, Math.Max(0, Incoming(fight, me) * fuse.Turns - me.Shield));
+        int bonus = fuse.Percent + fused.StatusList.Where(st => st.Stat == Stat.Grown).Sum(st => st.Value);
+        double incoming = Incoming(fight, fused);
+        double lives = incoming <= 0 ? 1 : Math.Min(1, (fused.Hp + fused.Shield) / incoming);
+        return shield + (BoostShare * bonus / 100.0 * RoundOf(fight, me) * fuse.Turns) - (SummonTurns * RoundOf(fight, fused) * lives);
+    }
 
     /// <summary>A round of <paramref name="f"/>'s blows on the nearest enemy (sprint 211, D99): its strongest spell, as often as its action points allow.</summary>
     private static double RoundOf(Fight fight, Fighter f)

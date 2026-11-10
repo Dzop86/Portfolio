@@ -79,6 +79,22 @@
     "lure": true
   },
   {
+    "id": "familiar",
+    "name": {
+      "fr": "Familier",
+      "en": "Familiar"
+    },
+    "look": "wolf-melee",
+    "hp": 40,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 65,
+    "spells": [
+      "familiar-claw"
+    ],
+    "scale": 90
+  },
+  {
     "id": "hound",
     "name": {
       "fr": "Molosse",

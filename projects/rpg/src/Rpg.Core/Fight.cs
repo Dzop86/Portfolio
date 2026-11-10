@@ -132,7 +132,7 @@ public sealed class Fighter
     /// <summary>Extra damage the fighter deals now, in percent (statuses), at least -100.</summary>
     /// <summary>The damage bonus in percent of the statuses on the fighter: a neutral one for every element, an element's (an oil, sprint 111) for its own.</summary>
     public int DamageBonusFor(Element element) =>
-        Math.Max(-100, StatusList.Where(s => (s.Stat is Stat.Damage or Stat.Rage) && (s.Element == Element.Neutral || s.Element == element)).Sum(s => s.Value));
+        Math.Max(-100, StatusList.Where(s => (s.Stat is Stat.Damage or Stat.Rage or Stat.Grown) && (s.Element == Element.Neutral || s.Element == element)).Sum(s => s.Value));
 
     /// <summary>In its form (the Berserker's Rage, sprint 206).</summary>
     public bool Raging => StatusList.Any(s => s.Stat == Stat.Rage);
@@ -1269,6 +1269,22 @@ public sealed class Fight
                     if (zone is not null && spell is not null && !IsOver)
                         Lay(me, glyph, zone, spell);
                     continue;
+                // The fusion (sprint 212): the caster's creature there dies; its hit points left shield the caster, its growth adds to the bonus.
+                case FuseEffect fuse:
+                    if (At(target) is Fighter fused && fused.Summoner == me.Id)
+                    {
+                        int left = fused.Hp;
+                        int bonus = fuse.Percent + fused.StatusList.Where(st => st.Stat == Stat.Grown).Sum(st => st.Value);
+                        fused.Hp = 0;
+                        _events.Add(new Died(fused.Id));
+                        if (!me.Parched && left > 0)
+                        {
+                            me.Shields.Add((left, fuse.Turns));
+                            _events.Add(new Shielded(me.Id, left, fuse.Turns));
+                        }
+                        SetStatus(me, me, new StatusEffect(Affects.Caster, Stat.Damage, bonus, fuse.Turns));
+                    }
+                    continue;
                 // The resurrection (sprint 202): the fallen ally on the target cell rises.
                 case ReviveEffect revive:
                     if (spell is not null && Revivable(me, spell, target) is Fighter fallen)
@@ -1434,14 +1450,14 @@ public sealed class Fight
     internal static bool Ailment(Status st) => st.Stat switch
     {
         Stat.Poison or Stat.Parched or Stat.Electrified or Stat.Ordered => true,
-        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden or Stat.Rage => false,
+        Stat.Incorporeal or Stat.Anchored or Stat.Feint or Stat.Regen or Stat.Hidden or Stat.Rage or Stat.Grown => false,
         _ => st.Value < 0,
     };
 
     private void Purge(Fighter f, bool ally)
     {
         // A form is never taken (sprint 206).
-        foreach (Status st in f.StatusList.Where(st => Ailment(st) == ally && st.Stat != Stat.Rage).ToList())
+        foreach (Status st in f.StatusList.Where(st => Ailment(st) == ally && st.Stat is not (Stat.Rage or Stat.Grown)).ToList())
         {
             f.StatusList.Remove(st);
             if (!f.StatusList.Any(o => o.Stat == st.Stat))
@@ -1487,6 +1503,23 @@ public sealed class Fight
         if (!striker.IsAlive || IsOver)
             return;
         SetStatus(bearer, striker, new StatusEffect(Affects.Enemies, Stat.Mp, -feint.Value, 1));
+    }
+
+    /// <summary>
+    /// The Familiarist's growth (sprint 212): a creature whose living summoner has growth for its kind is set, at the start of each of its turns, the percent it
+    /// has grown: the rules' percent per turn it has played, up to their maximum.
+    /// </summary>
+    private void Grow(Fighter creature)
+    {
+        if (creature.Summoner is not int s || !_fighters[s].IsAlive)
+            return;
+        Fighter summoner = _fighters[s];
+        GrowthRule[] rules = [.. summoner.Talents.SelectMany(t => t.Rules).OfType<GrowthRule>().Where(r => r.Summon is null || r.Summon == creature.SummonKind)];
+        if (rules.Length == 0)
+            return;
+        int grown = Math.Min(rules.Sum(r => r.Max), creature.Turn * rules.Sum(r => r.Percent));
+        if (grown > creature.StatusList.Where(st => st.Stat == Stat.Grown).Sum(st => st.Value))
+            SetStatus(summoner, creature, new StatusEffect(Affects.Allies, Stat.Grown, grown, 99));
     }
 
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
@@ -1764,6 +1797,7 @@ public sealed class Fight
                 next.Cooldowns.Remove(id);
         }
         _events.Add(new TurnStarted(next.Id, Round));
+        Grow(next);
         // A new turn of play: the fighter's glyphs count one turn less, and every glyph may strike again (sprint 130).
         foreach (Glyph g in _glyphs.Where(g => g.Caster == next.Id).ToList())
         {

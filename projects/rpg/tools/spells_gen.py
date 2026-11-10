@@ -52,6 +52,8 @@ def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0, marks=False):
 def borrow(n): return O([("kind", "borrow"), ("affects", "Caster"), ("ap", n)])
 def delay(a, n): return O([("kind", "delay"), ("affects", a), ("places", n)])
 def haste(a, n): return O([("kind", "haste"), ("affects", a), ("turns", n)])
+# The Fusionist's (sprint 212, docs/classes-invocateur-2.md §2): the caster's creature aimed at dies into it.
+def fuse(turns, percent): return O([("kind", "fuse"), ("affects", "Caster"), ("turns", turns), ("percent", percent)])
 def summon(id, mx=1, count=1):
     d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
     if count != 1: d["count"] = count
@@ -311,6 +313,8 @@ creatures = [
  S("hound-fang","Croc","Fang",3,1,1,6,9,2,"Earth",1,ranks=False,adaptive=True),
  S("wisp-glow","Lueur","Glow",3,1,4,5,8,2,"Fire",1,ranks=False,adaptive=True),
  S("colossus-fist","Poing du colosse","Colossus Fist",4,1,1,10,14,1,"Earth",1,effects=[push(1)],ranks=False,adaptive=True),
+ # The Familiarist's Familiar (sprint 212).
+ S("familiar-claw","Griffe du familier","Familiar's Claw",3,1,1,7,10,2,"Earth",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -736,6 +740,11 @@ paths = [
  path("vow","Vœu de vengeance","Vow of Vengeance",2,0,0,30,"lorc/bleeding-heart",los=False,effects=[status("Caster","Damage",20,2)],cd=3),
  path("verdict-blow","Coup du verdict","Verdict Blow",5,1,1,50,"lorc/cross-flare",damage=True,cd=2),
  path("holy-fury","Fureur sacrée","Holy Fury",1,0,0,50,"lorc/flame-spin",los=False,effects=[status("Caster","Ap",2,1),status("Caster","Resistance",-10,2)],cd=3),
+ # The Summoner's Familiarist (sprint 212, docs/classes-invocateur-2.md §1-2): one beast raised, that grows; the Tamer keeps it, the Fusionist takes it in.
+ path("familiar","Familier","Familiar",3,1,2,30,"lorc/fox-head",los=False,effects=[summon("familiar")],cd=4),
+ path("titbit","Becquée","Titbit",2,1,6,30,"lorc/meat",los=False,effects=[heal("Allies",15,20),status("Allies","Damage",20,2)],cd=2,aims="familiar"),
+ path("recall","Rappel","Recall",2,1,6,50,"lorc/return-arrow",los=False,effects=[swap()],cd=2,aims="familiar"),
+ path("fusion","Fusion","Fusion",3,1,6,50,"lorc/interlaced-tentacles",los=False,effects=[fuse(3,35)],cd=3,aims="familiar"),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
@@ -775,6 +784,8 @@ summons.append(O([("id","decoy"),("name",O([("fr","Leurre"),("en","Decoy")])),("
 # The Illusionist's (sprint 200, docs/classes-mage-2.md §2-3): its summoner's look, lures both; the Image does not act, the Double strikes.
 summons.append(O([("id","mirror-image"),("name",O([("fr","Image"),("en","Image")])),("look","female-d"),("hp",1),("ap",0),("mp",0),("initiative",0),("spells",[]),("hpOfSummoner",30),("mirror",True),("lure",True)]))
 summons.append(O([("id","mirror-double"),("name",O([("fr","Double"),("en","Double")])),("look","female-d"),("hp",1),("ap",3),("mp",3),("initiative",80),("spells",["mirror-strike"]),("hpOfSummoner",15),("mirror",True),("lure",True)]))
+# The Familiarist's (sprint 212, docs/classes-invocateur-2.md §1): fed by its branch, it grows.
+summons.append(young("familiar","Familier","Familiar","wolf-melee",90,40,6,4,65,["familiar-claw"]))
 # The Summoner's (sprint 211, docs/classes-invocateur.md §2): their hit points and characteristics a share of its own (its class's rules).
 summons += [
  young("hound","Molosse","Hound","wolf-melee",80,30,6,4,60,["hound-fang"]),

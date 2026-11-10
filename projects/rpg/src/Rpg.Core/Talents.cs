@@ -83,6 +83,7 @@ public enum Tier
 [JsonDerivedType(typeof(FlankRule), "flank")]
 [JsonDerivedType(typeof(WardRule), "ward")]
 [JsonDerivedType(typeof(VengeanceRule), "vengeance")]
+[JsonDerivedType(typeof(GrowthRule), "growth")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -234,6 +235,12 @@ public sealed record PatchRule(string Spell, int? Cooldown = null, int? ApCost =
 /// <see cref="StatsPercent"/> % of its element characteristics, and strikes in its element. The highest of these rules wins; without one, the creature's own numbers.
 /// </summary>
 public sealed record SummonRule(string Summon, int HpPercent, int StatsPercent) : TalentRule;
+
+/// <summary>
+/// The Familiarist's (sprint 212, docs/classes-invocateur-2.md §1): at each of its turns, the bearer's creature of kind <see cref="Summon"/> (any, when null) has
+/// grown <see cref="Percent"/> % more damage per turn it has played, up to <see cref="Max"/> (<see cref="Stat.Grown"/>); the rules of a kind add up.
+/// </summary>
+public sealed record GrowthRule(int Percent, int Max, string? Summon = null) : TalentRule;
 
 /// <summary>Living, a path's (sprint 192, D95, brick J): the bearer's shields on its allies, not on itself, are worth <see cref="Percent"/> % more.</summary>
 public sealed record ShieldRule(int Percent) : TalentRule;
