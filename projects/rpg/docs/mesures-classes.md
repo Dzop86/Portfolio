@@ -354,3 +354,7 @@ L'Invocateur sans voie (la matrice saute une classe sans voie ; `--class summone
 ## 10 novembre 2026 : le Familieriste (S212, T177)
 
 Voir `docs/classes-invocateur-2.md` §4. `--class summoner --simulate 30` : Familieriste +19,0 au niveau 35 ; Dompteur +24,6 et Fusionniste +4,6 au 50 (±10,0 de leur moyenne) ; au 100, de +11,9 (Chimériste) à +27,1 (Maître des familiers), toutes à ±10 de leur moyenne.
+
+## 11 novembre 2026 : le Démoniste et le Conjurateur (S213, T178)
+
+Voir `docs/classes-invocateur-3.md` §4. `--class summoner --simulate 30` : Démoniste +24,6 et Conjurateur +17,9 au niveau 35 (Familieriste +19,0) ; à 50, Invocateur démoniaque +21,9, Pactisant +17,5, Invocateur élémentaire +16,3, Invocateur astral +10,0, de −5,8 à +6,1 de la moyenne ; au 100, de +23,5 (Maître cosmique) à +39,0 (Pactisant). B5 tenue ; B6 tenue pour les deux branches neuves, pas pour le Fusionniste (−11,2).

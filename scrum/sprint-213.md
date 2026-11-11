@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant qu'Invocateur, je deviens aussi Démoniste ou Conjurateur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | À faire |
+| En tant qu'Invocateur, je deviens aussi Démoniste ou Conjurateur, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | Fait : la dîme (`tithe`) et le Démon, le Pacte de sang, l'Invocateur démoniaque et le Pactisant ; les Piliers sans PM, l'Ancrage, l'Invocateur élémentaire et l'Invocateur astral (Constellation) ; 8 finales, réglées au banc ; B5 tenue, B6 tenue pour les deux branches neuves, pas pour le Fusionniste du S212 ; Q1-Q4 de `docs/classes-invocateur-3.md` (T178) |
 
 ## Rétro (Charles)
 - Ce qui a marché :
