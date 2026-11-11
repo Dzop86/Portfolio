@@ -37,8 +37,8 @@ public class SpellArtTests
         string[] drawn = [.. spells.Where(s => Text(s.Value, "icon") is not null).Select(s => s.Key)];
         // Sprint 198: the Archer's quarry and heavy bolt; sprint 199, the Mage's eight; sprint 200, the Illusionist's four.
         // Sprint 204: the Rogue's 24, their 96 twins and its 6 new path spells; sprint 205, the Shadowmage's 4; sprint 206, the Berserker's 24, 96 and 4; sprint 207, its 8 more; sprint 208, the Paladin's 24 (the Aegis came from the
-        // Warrior, its Mass Taunt is new), 96 and 4; sprint 209, its 8 more; sprint 211, the Summoner's 24 and 96; sprint 212, the Familiarist's 4.
-        Assert.Equal(1054, drawn.Length);
+        // Warrior, its Mass Taunt is new), 96 and 4; sprint 209, its 8 more; sprint 211, the Summoner's 24 and 96; sprint 212, the Familiarist's 4; sprint 213, the Demonist's and the Conjurer's 8.
+        Assert.Equal(1062, drawn.Length);
         Assert.Equal(drawn.Order(), credits.RootElement.EnumerateObject().Select(p => p.Name).Order());
         // The classes' spells and the tree's are all drawn (the monsters' show a letter).
         using JsonDocument classes = JsonDocument.Parse(File.ReadAllText(Path.Combine(Rpg(), "data", "classes.json")));

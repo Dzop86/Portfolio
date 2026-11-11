@@ -177,6 +177,9 @@ public class CiLevelsTests
         // Sprint 211 (D99): with movement taken, traps and pulls weighed by what they bring, the General changes a fight now; the Blade Master and the Destroyer
         // (its Breakthrough driving 2 cells) none of the few a hero of 100 plays.
         "blade-master", "destroyer",
+        // Sprint 213 (docs/classes-invocateur-3.md §4): at 100 the Demon Caller calls its Demon 0.3 times a fight, its three creatures taken by the Hounds and the
+        // Wisp: the Archdemonist's Demon sooner changes none of its fights; the Astral Architect's second Constellation, seldom laid, neither.
+        "archdemonist", "astral-architect",
     };
 
     /// <summary>
