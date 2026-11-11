@@ -278,8 +278,15 @@ public static class Ai
         }
         double round = spec.Spells.Select(id => fight.Data.Spells[id]).Where(s => s.DamageMax > 0)
             .Select(s => s.AverageDamage * (100 + Strength(s)) / 100 * Math.Min(s.PerTurn, spec.Ap / Math.Max(1, s.ApCost))).DefaultIfEmpty(0).Max();
-        return SummonTurns * round;
+        return SummonTurns * round - TitheCost(me, spec.Id);
     }
+
+    /// <summary>
+    /// The Demonist's tithe (sprint 213, docs/classes-invocateur-3.md §1): the hit points a creature of kind <paramref name="kind"/> would take of
+    /// <paramref name="me"/> over <see cref="SummonTurns"/>, at half their worth, as a spell's cost in hit points.
+    /// </summary>
+    internal static double TitheCost(Fighter me, string kind) =>
+        SummonTurns * 0.5 * me.Talents.SelectMany(t => t.Rules).OfType<TitheRule>().Where(r => r.Summon == kind).Sum(r => r.Percent) * me.MaxHp / 100.0;
 
     /// <summary>
     /// What the glyphs would cost <paramref name="me"/> going to <paramref name="to"/> (sprint 130): each glyph that

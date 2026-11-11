@@ -1399,6 +1399,104 @@
     "dark": "#6f5946",
     "outline": "#1e1813"
   },
+  "spec-demonist": {
+    "shape": "lorc/imp-laugh",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-demon-caller": {
+    "shape": "lorc/daemon-skull",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-pactbearer": {
+    "shape": "delapouite/contract",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-infernal-lord": {
+    "shape": "lorc/batwing-emblem",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-archdemonist": {
+    "shape": "lorc/fanged-skull",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-pact-master": {
+    "shape": "lorc/pentagram-rose",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-abyss-chosen": {
+    "shape": "lorc/black-hole-bolas",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-conjurer": {
+    "shape": "lorc/crystal-cluster",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-elemental-caller": {
+    "shape": "lorc/rock",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-astral-caller": {
+    "shape": "delapouite/telescope",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-elemental-lord": {
+    "shape": "lorc/volcano",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-primordial": {
+    "shape": "lorc/spiral-bloom",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-cosmic-master": {
+    "shape": "lorc/orbital",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
+  "spec-astral-architect": {
+    "shape": "delapouite/sextant",
+    "main": "#9f86c9",
+    "light": "#cbbde3",
+    "dark": "#5a4a78",
+    "outline": "#1b1624"
+  },
   "spec-familiarist": {
     "shape": "lorc/paw-print",
     "main": "#9f86c9",

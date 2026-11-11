@@ -84,6 +84,7 @@ public enum Tier
 [JsonDerivedType(typeof(WardRule), "ward")]
 [JsonDerivedType(typeof(VengeanceRule), "vengeance")]
 [JsonDerivedType(typeof(GrowthRule), "growth")]
+[JsonDerivedType(typeof(TitheRule), "tithe")]
 public abstract record TalentRule;
 
 // The second floor and the keys of Reactions (sprint 144, D80, docs/talents-arbre.md §4.3).
@@ -241,6 +242,12 @@ public sealed record SummonRule(string Summon, int HpPercent, int StatsPercent) 
 /// grown <see cref="Percent"/> % more damage per turn it has played, up to <see cref="Max"/> (<see cref="Stat.Grown"/>); the rules of a kind add up.
 /// </summary>
 public sealed record GrowthRule(int Percent, int Max, string? Summon = null) : TalentRule;
+
+/// <summary>
+/// The Demonist's pact (sprint 213, docs/classes-invocateur-3.md §1): at the start of each turn of the bearer's creature of kind <see cref="Summon"/>, the bearer
+/// pays <see cref="Percent"/> % of its maximum hit points, never its last one; the rules of a kind add up.
+/// </summary>
+public sealed record TitheRule(string Summon, int Percent) : TalentRule;
 
 /// <summary>Living, a path's (sprint 192, D95, brick J): the bearer's shields on its allies, not on itself, are worth <see cref="Percent"/> % more.</summary>
 public sealed record ShieldRule(int Percent) : TalentRule;

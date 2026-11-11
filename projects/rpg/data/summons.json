@@ -95,6 +95,38 @@
     "scale": 90
   },
   {
+    "id": "demon",
+    "name": {
+      "fr": "Démon",
+      "en": "Demon"
+    },
+    "look": "stag-melee",
+    "hp": 50,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 55,
+    "spells": [
+      "demon-rend"
+    ],
+    "scale": 85
+  },
+  {
+    "id": "pillar",
+    "name": {
+      "fr": "Pilier",
+      "en": "Pillar"
+    },
+    "look": "golem-ranged",
+    "hp": 40,
+    "ap": 6,
+    "mp": 0,
+    "initiative": 30,
+    "spells": [
+      "pillar-shard"
+    ],
+    "scale": 75
+  },
+  {
     "id": "hound",
     "name": {
       "fr": "Molosse",

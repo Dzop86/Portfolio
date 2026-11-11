@@ -1522,6 +1522,23 @@ public sealed class Fight
             SetStatus(summoner, creature, new StatusEffect(Affects.Allies, Stat.Grown, grown, 99));
     }
 
+    /// <summary>
+    /// The Demonist's tithe (sprint 213, docs/classes-invocateur-3.md §1): at the start of each turn of a creature whose living summoner has a tithe for its kind,
+    /// the summoner pays its percent of its maximum hit points, never its last one.
+    /// </summary>
+    private void Tithe(Fighter creature)
+    {
+        if (creature.Summoner is not int s || !_fighters[s].IsAlive)
+            return;
+        Fighter summoner = _fighters[s];
+        int percent = summoner.Talents.SelectMany(t => t.Rules).OfType<TitheRule>().Where(r => r.Summon == creature.SummonKind).Sum(r => r.Percent);
+        int paid = Math.Min(summoner.MaxHp * percent / 100, summoner.Hp - 1);
+        if (paid <= 0)
+            return;
+        summoner.Hp -= paid;
+        _events.Add(new HpPaid(summoner.Id, paid, summoner.Hp));
+    }
+
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
     private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null)
     {
@@ -1798,6 +1815,7 @@ public sealed class Fight
         }
         _events.Add(new TurnStarted(next.Id, Round));
         Grow(next);
+        Tithe(next);
         // A new turn of play: the fighter's glyphs count one turn less, and every glyph may strike again (sprint 130).
         foreach (Glyph g in _glyphs.Where(g => g.Caster == next.Id).ToList())
         {

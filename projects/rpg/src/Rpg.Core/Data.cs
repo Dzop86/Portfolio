@@ -819,6 +819,8 @@ public sealed class GameData
                     throw new InvalidDataException($"Path '{s.Id}': a summon's share of a known summon, in percent.");
                 if ((t.Rules ?? []).OfType<GrowthRule>().Any(r => r.Summon is string g && !Summons.ContainsKey(g) || r.Percent is < 1 or > 50 || r.Max < r.Percent || r.Max > 200))
                     throw new InvalidDataException($"Path '{s.Id}': a growth of a known summon, in percent.");
+                if ((t.Rules ?? []).OfType<TitheRule>().Any(r => !Summons.ContainsKey(r.Summon) || r.Percent is < 1 or > 20))
+                    throw new InvalidDataException($"Path '{s.Id}': a tithe for a known summon, in percent.");
             }
             if ((s.Keeps ?? []).Any(id => !c.Spells.Contains(id)))
                 throw new InvalidDataException($"Path '{s.Id}': kept spells of its class.");

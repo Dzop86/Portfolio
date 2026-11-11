@@ -4563,6 +4563,460 @@
     "icon": "spec-avenger"
   },
   {
+    "id": "demonist",
+    "class": "summoner",
+    "name": {
+      "fr": "Démoniste",
+      "en": "Demonist"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Démoniste",
+        "en": "Demonist"
+      },
+      "description": {
+        "fr": "Un Démon, nourri de 25 % de tes PV et de 40 % de tes caractéristiques ; à chacun de ses tours, il te prend 3 % de tes PV maximum. Sorts : Démon, et Pacte de sang, tes PV contre des dégâts pour toi et tes alliés proches.",
+        "en": "A Demon, fed by 25% of your HP and 40% of your characteristics; at each of its turns, it takes 3% of your maximum HP. Spells: Demon, and Blood Pact, your HP for damage to you and your nearby allies."
+      },
+      "spells": [
+        "path-demon",
+        "path-blood-pact"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "demon",
+          "hpPercent": 25,
+          "statsPercent": 40
+        },
+        {
+          "kind": "tithe",
+          "summon": "demon",
+          "percent": 3
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "demon-caller",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Invocateur démoniaque",
+              "en": "Demon Caller"
+            },
+            "description": {
+              "fr": "Ton Démon prend 35 % de tes PV et 50 % de tes caractéristiques, et 1 % de tes PV de plus à chacun de ses tours. Sort : Déchaînement.",
+              "en": "Your Demon takes 35% of your HP and 50% of your characteristics, and 1% more of your HP at each of its turns. Spell: Unleash."
+            },
+            "spells": [
+              "path-unleash"
+            ],
+            "rules": [
+              {
+                "kind": "summon-share",
+                "summon": "demon",
+                "hpPercent": 35,
+                "statsPercent": 50
+              },
+              {
+                "kind": "tithe",
+                "summon": "demon",
+                "percent": 1
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Il mange mieux que moi. C'est le pacte.",
+          "en": "It eats better than I do. That is the pact."
+        },
+        "icon": "spec-demon-caller",
+        "finals": [
+          {
+            "id": "infernal-lord",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur infernal",
+                "en": "Infernal Lord"
+              },
+              "description": {
+                "fr": "Déchaînement donne aussi 2 PA à ton Démon pour son tour.",
+                "en": "Unleash also gives your Demon 2 AP for its turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-unleash",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Allies",
+                      "stat": "Ap",
+                      "value": 2,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Seigneur, disent-ils. Le mot vient d'eux.",
+              "en": "Lord, they say. The word is theirs."
+            },
+            "icon": "spec-infernal-lord"
+          },
+          {
+            "id": "archdemonist",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Archidémoniste",
+                "en": "Archdemonist"
+              },
+              "description": {
+                "fr": "Démon se relance en 2 tours au lieu de 4.",
+                "en": "Demon comes back in 2 turns rather than 4."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-demon",
+                  "cooldown": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il en vient toujours un autre. Il faut que je paie, voilà tout.",
+              "en": "Another always comes. I must pay, that is all."
+            },
+            "icon": "spec-archdemonist"
+          }
+        ]
+      },
+      {
+        "id": "pactbearer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Pactisant",
+              "en": "Pactbearer"
+            },
+            "description": {
+              "fr": "Sort : Prix du sang, un coup de 1 à 5 cases que tu paies de 10 PV.",
+              "en": "Spell: Blood Price, a blow from 1 to 5 cells you pay 10 HP for."
+            },
+            "spells": [
+              "path-blood-price"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Le pacte, c'est moi qui le porte. Pas lui.",
+          "en": "The pact, I am the one who bears it. Not it."
+        },
+        "icon": "spec-pactbearer",
+        "finals": [
+          {
+            "id": "pact-master",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des pactes",
+                "en": "Master of Pacts"
+              },
+              "description": {
+                "fr": "Pacte de sang te donne aussi 1 PA pour ce tour.",
+                "en": "Blood Pact also gives you 1 AP for this turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-blood-pact",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Ap",
+                      "value": 1,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque clause tient dans une goutte.",
+              "en": "Each clause fits in a drop."
+            },
+            "icon": "spec-pact-master"
+          },
+          {
+            "id": "abyss-chosen",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Élu des abysses",
+                "en": "Chosen of the Abyss"
+              },
+              "description": {
+                "fr": "Pacte de sang te laisse une forme pour le reste du combat : 15 % de dégâts.",
+                "en": "Blood Pact leaves you a form for the rest of the fight: 15% damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-blood-pact",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Rage",
+                      "value": 15,
+                      "turns": 99
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Personne ne m'a choisi. J'ai signé.",
+              "en": "No one chose me. I signed."
+            },
+            "icon": "spec-abyss-chosen"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Un pacte avec ce qui sort des cicatrices : il te tient autant que tu le tiens.",
+      "en": "A pact with what comes out of the scars: it holds you as much as you hold it."
+    },
+    "icon": "spec-demonist"
+  },
+  {
+    "id": "conjurer",
+    "class": "summoner",
+    "name": {
+      "fr": "Conjurateur",
+      "en": "Conjurer"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Conjurateur",
+        "en": "Conjurer"
+      },
+      "description": {
+        "fr": "Deux Piliers au plus, posés là où tu les appelles : ils ne bougent pas, prennent 25 % de tes PV et 40 % de tes caractéristiques. Sorts : Pilier et Ancrage.",
+        "en": "Two Pillars at most, laid where you call them: they do not move, and take 25% of your HP and 40% of your characteristics. Spells: Pillar and Anchoring."
+      },
+      "spells": [
+        "path-pillar",
+        "path-anchor"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "pillar",
+          "hpPercent": 25,
+          "statsPercent": 40
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "elemental-caller",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Invocateur élémentaire",
+              "en": "Elemental Caller"
+            },
+            "description": {
+              "fr": "Un troisième Pilier. Sort : Surcharge, ton Pilier et ce qui l'entoure frappent de 35 % de plus, 2 tours.",
+              "en": "A third Pillar. Spell: Overload, your Pillar and what stands around it strike 35% harder, 2 turns."
+            },
+            "spells": [
+              "path-overload"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-pillar",
+                "maxSummons": 3
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Un seul élément par pierre. Elles ne se mélangent pas.",
+          "en": "One element to a stone. They do not mix."
+        },
+        "icon": "spec-elemental-caller",
+        "finals": [
+          {
+            "id": "elemental-lord",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur élémentaire",
+                "en": "Elemental Lord"
+              },
+              "description": {
+                "fr": "Pilier se relance en 1 tour au lieu de 2.",
+                "en": "Pillar comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-pillar",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Là où je pose la main, une pierre se lève.",
+              "en": "Where I lay my hand, a stone rises."
+            },
+            "icon": "spec-elemental-lord"
+          },
+          {
+            "id": "primordial",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Primordial",
+                "en": "Primordial"
+              },
+              "description": {
+                "fr": "Tes Piliers grandissent de 5 % de dégâts par tour, 25 % au plus.",
+                "en": "Your Pillars grow 5% damage a turn, 25% at most."
+              },
+              "rules": [
+                {
+                  "kind": "growth",
+                  "summon": "pillar",
+                  "percent": 5,
+                  "max": 25
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Primordial veut dire d'avant. Les pierres, elles, s'en souviennent.",
+              "en": "Primordial means from before. The stones remember it."
+            },
+            "icon": "spec-primordial"
+          }
+        ]
+      },
+      {
+        "id": "astral-caller",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Invocateur astral",
+              "en": "Astral Caller"
+            },
+            "description": {
+              "fr": "Sort : Constellation, une figure du ciel tracée au sol : 2 tours, elle frappe et retire 1 PM aux ennemis qui y passent.",
+              "en": "Spell: Constellation, a figure of the sky drawn on the ground: 2 turns, it strikes and takes 1 MP from the enemies who cross it."
+            },
+            "spells": [
+              "path-constellation"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Les observatoires les ont dessinées. Moi, je les pose.",
+          "en": "The observatories drew them. I lay them down."
+        },
+        "icon": "spec-astral-caller",
+        "finals": [
+          {
+            "id": "cosmic-master",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître cosmique",
+                "en": "Cosmic Master"
+              },
+              "description": {
+                "fr": "Constellation retire aussi 10 % de résistance aux ennemis touchés, 2 tours.",
+                "en": "Constellation also takes 10% resistance from the enemies it touches, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-constellation",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Enemies",
+                      "stat": "Resistance",
+                      "value": -10,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le ciel ne commande rien. Il indique.",
+              "en": "The sky commands nothing. It points."
+            },
+            "icon": "spec-cosmic-master"
+          },
+          {
+            "id": "astral-architect",
+            "template": "Second",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Architecte astral",
+                "en": "Astral Architect"
+              },
+              "description": {
+                "fr": "Deux Constellations au sol à la fois.",
+                "en": "Two Constellations on the ground at once."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-constellation",
+                  "maxGlyphs": 2
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Une figure, c'est un signe. Deux, c'est une carte.",
+              "en": "One figure is a sign. Two make a map."
+            },
+            "icon": "spec-astral-architect"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Des créatures d'un seul élément, ou les figures du ciel : posées, elles tiennent le terrain.",
+      "en": "Creatures of a single element, or the figures of the sky: laid down, they hold the ground."
+    },
+    "icon": "spec-conjurer"
+  },
+  {
     "id": "familiarist",
     "class": "summoner",
     "name": {

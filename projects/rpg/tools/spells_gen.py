@@ -315,6 +315,9 @@ creatures = [
  S("colossus-fist","Poing du colosse","Colossus Fist",4,1,1,10,14,1,"Earth",1,effects=[push(1)],ranks=False,adaptive=True),
  # The Familiarist's Familiar (sprint 212).
  S("familiar-claw","Griffe du familier","Familiar's Claw",3,1,1,7,10,2,"Earth",1,ranks=False,adaptive=True),
+ # The Demonist's Demon and the Conjurer's Pillar (sprint 213, docs/classes-invocateur-3.md §1-2): the one up close, the other where it was laid.
+ S("demon-rend","Lacération","Rend",3,1,1,8,12,2,"Fire",1,ranks=False,adaptive=True),
+ S("pillar-shard","Éclat du pilier","Pillar Shard",3,1,4,5,8,2,"Earth",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -745,6 +748,16 @@ paths = [
  path("titbit","Becquée","Titbit",2,1,6,30,"lorc/meat",los=False,effects=[heal("Allies",15,20),status("Allies","Damage",20,2)],cd=2,aims="familiar"),
  path("recall","Rappel","Recall",2,1,6,50,"lorc/return-arrow",los=False,effects=[swap()],cd=2,aims="familiar"),
  path("fusion","Fusion","Fusion",3,1,6,50,"lorc/interlaced-tentacles",los=False,effects=[fuse(3,35)],cd=3,aims="familiar"),
+ # The Summoner's Demonist (sprint 213, docs/classes-invocateur-3.md §1): its hit points for power; the Demon Caller feeds its Demon, the Pactbearer pays for its own blows.
+ path("demon","Démon","Demon",4,1,2,30,"lorc/horned-skull",los=False,effects=[summon("demon")],cd=4),
+ path("blood-pact","Pacte de sang","Blood Pact",1,0,0,30,"lorc/evil-moon",los=False,area=("Circle",2),effects=[status("Allies","Damage",25,2)],cd=3,hp=8),
+ path("unleash","Déchaînement","Unleash",2,1,6,50,"lorc/burning-eye",los=False,effects=[status("Allies","Damage",30,2),status("Allies","Mp",2,1)],cd=2,aims="demon",hp=6),
+ path("blood-price","Prix du sang","Blood Price",4,1,5,50,"lorc/heart-drop",damage=True,cd=1,hp=10),
+ # The Conjurer (sprint 213, §2): creatures laid, that do not move; the Elemental Caller makes them strike, the Astral Caller draws its figures on the ground.
+ path("pillar","Pilier","Pillar",3,1,3,30,"lorc/crystal-growth",los=False,effects=[summon("pillar",mx=2)],cd=2),
+ path("anchor","Ancrage","Anchoring",2,1,6,30,"lorc/guarded-tower",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,aims="pillar"),
+ path("overload","Surcharge","Overload",2,1,6,50,"lorc/lightning-storm",los=False,area=("Circle",1),effects=[status("Allies","Damage",35,2)],cd=2,aims="pillar"),
+ path("constellation","Constellation","Constellation",3,2,6,50,"lorc/star-prominences",los=False,area=("Circle",1),effects=[glyph("Enemies",2,9,12,stat="Mp",v=-1,st=1)],cd=2),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
@@ -786,6 +799,9 @@ summons.append(O([("id","mirror-image"),("name",O([("fr","Image"),("en","Image")
 summons.append(O([("id","mirror-double"),("name",O([("fr","Double"),("en","Double")])),("look","female-d"),("hp",1),("ap",3),("mp",3),("initiative",80),("spells",["mirror-strike"]),("hpOfSummoner",15),("mirror",True),("lure",True)]))
 # The Familiarist's (sprint 212, docs/classes-invocateur-2.md §1): fed by its branch, it grows.
 summons.append(young("familiar","Familier","Familiar","wolf-melee",90,40,6,4,65,["familiar-claw"]))
+# The Demonist's and the Conjurer's (sprint 213, docs/classes-invocateur-3.md): fed by their branch; the Pillar never moves.
+summons.append(young("demon","Démon","Demon","stag-melee",85,50,6,4,55,["demon-rend"]))
+summons.append(young("pillar","Pilier","Pillar","golem-ranged",75,40,6,0,30,["pillar-shard"]))
 # The Summoner's (sprint 211, docs/classes-invocateur.md §2): their hit points and characteristics a share of its own (its class's rules).
 summons += [
  young("hound","Molosse","Hound","wolf-melee",80,30,6,4,60,["hound-fang"]),
