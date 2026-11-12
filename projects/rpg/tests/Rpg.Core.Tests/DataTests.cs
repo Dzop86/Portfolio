@@ -10,7 +10,7 @@ public class DataTests
     {
         // The nine spells of the first sprints, still there for the monsters and the recorded fights.
         Assert.Subset(Real.Spells.Keys.ToHashSet(), new HashSet<string>(["arrow", "axe", "club", "fireball", "sling", "spark", "spear", "staff", "strike"]));
-        Assert.Equal(["archer", "warrior", "mage", "priest", "rogue", "berserker", "paladin", "summoner"], Real.Classes.Select(c => c.Id));
+        Assert.Equal(["archer", "warrior", "mage", "priest", "rogue", "berserker", "paladin", "summoner", "necromancer"], Real.Classes.Select(c => c.Id));
         foreach (HeroClass c in Real.Classes)
             Assert.False(string.IsNullOrWhiteSpace(c.Description.Fr) || string.IsNullOrWhiteSpace(c.Description.En), c.Id);
         Assert.Equal(["duel", "loft-rats", "the-disjoint", "training"], Real.Scenarios.Keys.Order(StringComparer.Ordinal));
@@ -64,7 +64,9 @@ public class DataTests
             // D62: 24 spells, four per element, eight neutral ones that do no damage.
             Assert.Equal(24, spells.Length);
             Assert.All(elements, e => Assert.Equal(4, spells.Count(s => s.Element == e && s.DamageMax > 0)));
-            Assert.Equal(8, spells.Count(s => s.Element == Element.Neutral && s.DamageMax == 0));
+            // The one exception (sprint 214, docs/classes-necromancien.md Q2): the Necromancer's Detonation, a corpse that blows up, strikes in its caster's element.
+            Assert.Equal(8, spells.Count(s => s.Element == Element.Neutral && (s.DamageMax == 0 || (s.Corpse && s.Adaptive))));
+            Assert.Equal(c.Id == "necromancer" ? ["corpse-blast"] : [], spells.Where(s => s.Element == Element.Neutral && s.DamageMax > 0).Select(s => s.Id));
             // Five at level 1, one per element and one neutral, then one every five levels up to 95; each with
             // its critical chance and its icon.
             Assert.Equal([1, 1, 1, 1, 1, .. Enumerable.Range(1, 19).Select(k => 5 * k)], spells.Select(s => s.Level));

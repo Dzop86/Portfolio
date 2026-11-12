@@ -177,6 +177,8 @@ public class CiLevelsTests
         // Sprint 211 (D99): with movement taken, traps and pulls weighed by what they bring, the General changes a fight now; the Blade Master and the Destroyer
         // (its Breakthrough driving 2 cells) none of the few a hero of 100 plays.
         "blade-master", "destroyer",
+        // Sprint 214 (docs/classes-necromancien.md §6): the Undead Colossus's Marrow every turn rather than every other; the AI casts it seldom enough that no fight changes.
+        "undead-colossus",
         // Sprint 213 (docs/classes-invocateur-3.md §4): at 100 the Demon Caller calls its Demon 0.3 times a fight, its three creatures taken by the Hounds and the
         // Wisp: the Archdemonist's Demon sooner changes none of its fights; the Astral Architect's second Constellation, seldom laid, neither.
         "archdemonist", "astral-architect",
@@ -234,6 +236,9 @@ public class CiLevelsTests
         // The Summoner's (sprint 211, measured the same way, 27 fights a party).
         (["warrior", "summoner"], 70), (["priest", "summoner"], 70), (["berserker", "summoner"], 66),
         (["archer", "rogue", "summoner"], 100), (["paladin", "mage", "summoner"], 100), (["warrior", "priest", "archer", "summoner"], 100),
+        // The Necromancer's (sprint 214, measured the same way, 18 fights a party).
+        (["warrior", "necromancer"], 55), (["archer", "necromancer"], 61), (["paladin", "necromancer"], 61),
+        (["priest", "rogue", "necromancer"], 100), (["mage", "berserker", "necromancer"], 100), (["warrior", "priest", "summoner", "necromancer"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>

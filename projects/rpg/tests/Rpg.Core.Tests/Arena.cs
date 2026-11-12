@@ -25,10 +25,10 @@ internal static class Arena
 
     /// <summary>
     /// The branches written so far of a class written over two sprints (D96): the Berserker had its Ravager alone in sprint 206, the Paladin its
-    /// Protector in sprint 208. Every class had its three in sprint 209; the Summoner none in sprint 211, its Familiarist in 212, the other two in 213:
-    /// every class has its three again.
+    /// Protector in sprint 208. Every class had its three in sprint 209; the Summoner none in sprint 211, its Familiarist in 212, the other two in 213.
+    /// The Necromancer has its Master of the Dead in sprint 214, its other two in 215.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal);
+    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal) { ["necromancer"] = 1 };
 
     /// <summary>The branches a class has in the data: three, or those written so far.</summary>
     public static int BranchesOf(string id) => Writing.GetValueOrDefault(id, 3);
