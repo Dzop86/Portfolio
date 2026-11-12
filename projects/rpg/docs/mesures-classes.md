@@ -358,3 +358,7 @@ Voir `docs/classes-invocateur-2.md` §4. `--class summoner --simulate 30` : Fami
 ## 11 novembre 2026 : le Démoniste et le Conjurateur (S213, T178)
 
 Voir `docs/classes-invocateur-3.md` §4. `--class summoner --simulate 30` : Démoniste +24,6 et Conjurateur +17,9 au niveau 35 (Familieriste +19,0) ; à 50, Invocateur démoniaque +21,9, Pactisant +17,5, Invocateur élémentaire +16,3, Invocateur astral +10,0, de −5,8 à +6,1 de la moyenne ; au 100, de +23,5 (Maître cosmique) à +39,0 (Pactisant). B5 tenue ; B6 tenue pour les deux branches neuves, pas pour le Fusionniste (−11,2).
+
+## 12 novembre 2026 : le Nécromancien et le Maître des morts (S214, T179)
+
+Voir `docs/classes-necromancien.md` §6. `--class necromancer --simulate 30` : sans voie 24,6 au niveau 30, 37,9 au 35, 44,4 au 50, 21,7 au 60, 12,9 au 100 ; Maître des morts +25,6 au 35 ; Liche +24,2 et Seigneur des os +17,5 au 50 (6,6 points d'écart, B6 tenue) ; au 100, de +23,5 à +25,8. Groupes : Guerrier 55 %, Archer 61 %, Paladin 61 % avec le Nécromancien, trios et groupe de quatre 100 %. Empreintes des autres classes inchangées.
