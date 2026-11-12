@@ -127,6 +127,23 @@
     "scale": 75
   },
   {
+    "id": "risen",
+    "name": {
+      "fr": "Mort levé",
+      "en": "Risen"
+    },
+    "look": "zombie-tank",
+    "hp": 40,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 45,
+    "spells": [
+      "risen-claw"
+    ],
+    "scale": 85,
+    "wearsCorpse": true
+  },
+  {
     "id": "hound",
     "name": {
       "fr": "Molosse",

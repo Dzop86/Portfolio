@@ -512,6 +512,7 @@ public sealed class Texts
         ["effect.heal-grows"] = ", plus le bonus de ton meilleur élément",
         ["effect.revive"] = "relève un allié tombé avec {0} % de ses PV, une fois par combat",
         ["log.revived"] = "{0} se relève ({1} PV).",
+        ["log.corpse-taken"] = "Le cadavre de {0} disparaît.",
         ["effect.purge-Allies"] = "retire les malus des alliés",
         ["effect.purge-Enemies"] = "retire les bonus et les boucliers des ennemis",
         ["effect.purge-All"] = "retire les malus des alliés, les bonus et les boucliers des ennemis",
@@ -614,6 +615,7 @@ public sealed class Texts
         ["error.NoValidTarget"] = "Ce sort vise un autre combattant, du bon camp.",
         ["error.SupportSpent"] = "Plus de soutien ce tour : un sort sur un allié attendra le prochain.",
         ["error.NoSummon"] = "Ce sort demande ta créature en jeu.",
+        ["error.NoCorpse"] = "Ce sort demande le cadavre d'un ennemi sur cette case.",
         ["error.Hidden"] = "Cette cible est cachée : approche-toi à 2 cases.",
         ["error.NotEnoughHp"] = "Pas assez de PV pour payer ce sort.",
         ["error.NoForm"] = "Ce sort demande ta Rage.",
@@ -623,6 +625,7 @@ public sealed class Texts
         ["effect.purge-Caster"] = "retire tes malus",
         ["sd.hp-cost"] = "Coûte {0} PV.",
         ["sd.form"] = "Demande ta Rage.",
+        ["sd.corpse"] = "Se lance sur le cadavre d'un ennemi, qui disparaît.",
         ["sd.needs"] = "Demande : {0} en jeu.",
         ["sd.aims"] = "Se lance sur : {0}.",
         ["lobby.title"] = "Osmose",
@@ -1792,6 +1795,7 @@ public sealed class Texts
         ["effect.heal-grows"] = ", plus your best element's bonus",
         ["effect.revive"] = "raises a fallen ally with {0}% of its HP, once a fight",
         ["log.revived"] = "{0} gets back up ({1} HP).",
+        ["log.corpse-taken"] = "{0}'s corpse is used up.",
         ["effect.purge-Allies"] = "removes the allies' ailments",
         ["effect.purge-Enemies"] = "removes the enemies' boons and shields",
         ["effect.purge-All"] = "removes the allies' ailments, the enemies' boons and shields",
@@ -1894,6 +1898,7 @@ public sealed class Texts
         ["error.NoValidTarget"] = "This spell aims at another fighter, of the right side.",
         ["error.SupportSpent"] = "No more support this turn: a spell on an ally will wait for the next.",
         ["error.NoSummon"] = "This spell needs your creature in play.",
+        ["error.NoCorpse"] = "This spell needs an enemy's corpse on that cell.",
         ["error.Hidden"] = "This target is hidden: come within 2 cells.",
         ["error.NotEnoughHp"] = "Not enough HP to pay for this spell.",
         ["error.NoForm"] = "This spell needs your Rage.",
@@ -1903,6 +1908,7 @@ public sealed class Texts
         ["effect.purge-Caster"] = "removes your ailments",
         ["sd.hp-cost"] = "Costs {0} HP.",
         ["sd.form"] = "Needs your Rage.",
+        ["sd.corpse"] = "Cast on an enemy's corpse, which is used up.",
         ["sd.needs"] = "Needs: {0} in play.",
         ["sd.aims"] = "Cast on: {0}.",
         ["lobby.title"] = "Osmose",
@@ -2768,6 +2774,9 @@ public sealed class Texts
             lines.Add(this["sd.hp-cost", s.HpCost]);
         if (s.Form)
             lines.Add(this["sd.form"]);
+        // The Necromancer's (sprint 214).
+        if (s.Corpse)
+            lines.Add(this["sd.corpse"]);
         if (!b.Unlocked)
             lines.Add(this["sd.unlock", b.Spell.Level]);
         else if (b.NextCost == 0)
@@ -3196,6 +3205,7 @@ public sealed class Texts
             Damaged d => this["log.damage", Name(fight.Fighters[d.Fighter]), d.Amount],
             Died d => this["log.died", Name(fight.Fighters[d.Fighter])],
             Revived r => this["log.revived", Name(fight.Fighters[r.Fighter]), r.Hp],
+            CorpseTaken c => this["log.corpse-taken", Name(fight.Fighters[c.Fighter])],
             Healed h => this["log.heal", Name(fight.Fighters[h.Fighter]), h.Amount],
             HpPaid p => this["log.paid", Name(fight.Fighters[p.Fighter]), p.Amount],
             Summoned m => this["log.summon", Name(fight.Fighters[m.Summoner]), Name(fight.Fighters[m.Fighter])],

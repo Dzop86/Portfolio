@@ -114,6 +114,37 @@ public partial class BoardView : Node3D
     /// <summary>The glyphs drawn, by id, with their cells: what the self-test checks against the fight.</summary>
     public IReadOnlyDictionary<int, int> GlyphsShown() => _glyphs.ToDictionary(g => g.Key, g => g.Value.Count);
 
+    // The corpses drawn (sprint 214, the Necromancer's), by the fallen fighter's id: a pale bone disc on its cell.
+    private readonly Dictionary<int, MeshInstance3D> _corpses = [];
+
+    /// <summary>Draws a corpse (sprint 214, docs/classes-necromancien.md §1): a flat disc the colour of old bone, under the preview's marks.</summary>
+    public void AddCorpse(int id, Cell cell)
+    {
+        RemoveCorpse(id);
+        var disc = new MeshInstance3D
+        {
+            Mesh = new CylinderMesh { TopRadius = 0.28f, BottomRadius = 0.28f, Height = 0.01f },
+            MaterialOverride = new StandardMaterial3D
+            {
+                AlbedoColor = new Color("d8cfb8") with { A = 0.7f },
+                Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+            },
+            Position = ToWorld(cell) + new Vector3(0, 0.012f, 0),
+        };
+        AddChild(disc);
+        _corpses[id] = disc;
+    }
+
+    public void RemoveCorpse(int id)
+    {
+        if (_corpses.Remove(id, out MeshInstance3D? disc))
+            disc.QueueFree();
+    }
+
+    /// <summary>The corpses drawn, by the fallen fighter's id: what the self-test checks against the fight.</summary>
+    public IReadOnlyCollection<int> CorpsesShown() => _corpses.Keys;
+
     /// <summary>The cell under a point of the screen, found where the camera's ray meets the ground.</summary>
     public static Cell? Pick(Camera3D camera, Vector2 screen)
     {

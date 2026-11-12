@@ -230,6 +230,29 @@ public sealed class Fight
     }
     private int _glyphsLaid;
 
+    /// <summary>The corpses taken by a spell (the Necromancer's, sprint 214), by the fallen fighter's id.</summary>
+    private readonly HashSet<int> _taken = [];
+
+    /// <summary>
+    /// Who leaves a corpse when it falls (sprint 214, docs/classes-necromancien.md §1): a monster, never a creature nor a hero. A fallen hero is not dead
+    /// (docs/classes-canon.md: the Cleric raises it, the Necromancer raises enemies only); heroes and their creatures are those who lay marks.
+    /// </summary>
+    public static bool LeavesCorpse(Fighter f)
+    {
+        ArgumentNullException.ThrowIfNull(f);
+        return !f.IsSummon && !f.LaysMarks;
+    }
+
+    /// <summary>The corpses on the board (sprint 214): the fallen who leave one, not yet taken, in the order they fell in the scenario.</summary>
+    public IReadOnlyList<Fighter> Corpses => [.. _fighters.Where(f => !f.IsAlive && LeavesCorpse(f) && !_taken.Contains(f.Id))];
+
+    /// <summary>The corpse <paramref name="caster"/> may take on <paramref name="cell"/> (sprint 214): an enemy's, the last one there; null if none.</summary>
+    public Fighter? CorpseAt(Fighter caster, Cell cell)
+    {
+        ArgumentNullException.ThrowIfNull(caster);
+        return Corpses.LastOrDefault(f => f.Cell == cell && f.Team != caster.Team);
+    }
+
     /// <summary>The passives set off during the action being played, with their bearer and, for a hit, the attacker (sprint 90).</summary>
     private readonly Queue<(Fighter Bearer, PassiveSpec Passive, Fighter? Attacker)> _pending = new();
 
@@ -591,6 +614,9 @@ public sealed class Fight
             return ActionError.NoSummon;
         if (spell.Aims is string aimed && (At(target) is not Fighter creature || creature.SummonKind != aimed || creature.Summoner != caster.Id))
             return ActionError.NoValidTarget;
+        // The Necromancer's (sprint 214): a fallen enemy's corpse on the target cell.
+        if (spell.Corpse && CorpseAt(caster, target) is null)
+            return ActionError.NoCorpse;
         foreach (SummonEffect summon in spell.AllEffects.OfType<SummonEffect>())
         {
             if (At(target) is not null && At(target) != caster)
@@ -1130,6 +1156,13 @@ public sealed class Fight
         bool critical = _rng.Next(1, 100) <= spell.Crit;
         _events.Add(new SpellCast(me.Id, spell.Id, target, critical));
         int roll = _rng.Next(spell.DamageMin, spell.DamageMax) + (critical ? Spell.CritBonus(spell.DamageMax) : 0);
+        // The Necromancer's (sprint 214): the corpse is taken before the blow, which may leave another on the same cell.
+        Fighter? corpse = spell.Corpse ? CorpseAt(me, target) : null;
+        if (corpse is not null)
+        {
+            _taken.Add(corpse.Id);
+            _events.Add(new CorpseTaken(corpse.Id, corpse.Cell));
+        }
         IReadOnlyList<Fighter> area = InArea(spell, me.Cell, target);
         // The Retaliation (sprint 192, brick M): its shield goes into the blow, all of it used up, if it strikes anyone.
         if (spell.SpendsShield > 0 && me.Shield > 0 && area.Any(f => f.Team != me.Team))
@@ -1196,7 +1229,7 @@ public sealed class Fight
         // Stealth ends as its bearer hurts an enemy (sprint 204), after the blow, before the spell's effects (one that hides again keeps it).
         if (me.Hidden && area.Any(f => f.Team != me.Team) && (spell.DamageMax > 0 || spell.AllEffects.Any(e => e is StatusEffect { Stat: Stat.Poison, Affects: Affects.Enemies })))
             Unhide(me);
-        Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id);
+        Apply(me, spell.AllEffects, area, target, critical, attacker: null, zone: [.. spell.Zone.Cells(me.Cell, target)], spell: spell.Id, corpse: corpse);
         if (me.IsAlive && spell.AllEffects.OfType<DrainEffect>().Sum(d => d.Percent) is int percent and > 0 && drawn > 0 && me.HealFor(drawn * percent / 100) is int life and > 0)
             _events.Add(new Healed(me.Id, life, me.Hp));
         // The Paladin's ward (sprint 208): a blow from next to its target shields the most wounded of its side around it.
@@ -1229,8 +1262,9 @@ public sealed class Fight
     /// fighters of <paramref name="area"/>; <paramref name="attacker"/>, for a passive set off by a hit.
     /// </summary>
     /// <param name="zone">A spell's area, every cell of it, for a glyph (sprint 130); <paramref name="spell"/>, its id.</param>
+    /// <param name="corpse">The corpse the spell took (sprint 214), whose look a creature that wears it rises in.</param>
     private void Apply(Fighter me, IReadOnlyList<SpellEffect> effects, IReadOnlyList<Fighter> area, Cell target, bool critical, Fighter? attacker,
-        bool passive = false, IReadOnlyList<Cell>? zone = null, string? spell = null)
+        bool passive = false, IReadOnlyList<Cell>? zone = null, string? spell = null, Fighter? corpse = null)
     {
         foreach (SpellEffect effect in effects)
         {
@@ -1245,7 +1279,7 @@ public sealed class Fight
                     SummonAround(me, _data.Summons[summon.Summon], summon.Count);
                     continue;
                 case SummonEffect summon:
-                    Summon(me, _data.Summons[summon.Summon], target);
+                    Summon(me, _data.Summons[summon.Summon], target, corpse: corpse);
                     continue;
                 case LeapEffect:
                     if (IsFree(target))
@@ -1540,7 +1574,8 @@ public sealed class Fight
     }
 
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
-    private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null)
+    /// <param name="corpse">The corpse it rises from (sprint 214): a creature that wears it takes its look, drawn at the creature's size.</param>
+    private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null, Fighter? corpse = null)
     {
         if (!IsFree(cell))
             return null;
@@ -1548,7 +1583,9 @@ public sealed class Fight
         SummonRule? fed = me.Talents.SelectMany(t => t.Rules).OfType<SummonRule>().Where(r => r.Summon == m.Id).OrderByDescending(r => r.HpPercent).FirstOrDefault();
         int hp = fed is not null ? Math.Max(1, me.MaxHp * fed.HpPercent / 100) : m.HpOfSummoner > 0 ? Math.Max(1, me.MaxHp * m.HpOfSummoner / 100) : m.Hp;
         // An Image wears its summoner's look (sprint 200).
-        var spec = new FighterSpec(m.Name, m.Mirror ? me.Spec.Look : m.Look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
+        // A risen dead wears the corpse it rose from (sprint 214, docs/classes-necromancien.md §2).
+        string look = m.Mirror ? me.Spec.Look : m.WearsCorpse && corpse is not null ? corpse.Spec.Look : m.Look;
+        var spec = new FighterSpec(m.Name, look, me.Team, hp, m.Ap, m.Mp, m.Initiative, 0, m.Spells, Passives: m.Passives);
         if (fed is not null)
         {
             Characteristics c = me.Spec.Characteristics;

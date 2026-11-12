@@ -5243,5 +5243,234 @@
       "en": "Beasts raised with time, that end up looking like you."
     },
     "icon": "spec-familiarist"
+  },
+  {
+    "id": "dead-master",
+    "class": "necromancer",
+    "name": {
+      "fr": "Maître des morts",
+      "en": "Master of the Dead"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Maître des morts",
+        "en": "Master of the Dead"
+      },
+      "description": {
+        "fr": "Ton mort prend 45 % de tes PV et 55 % de tes caractéristiques, et grandit de 5 % de dégâts à chacun de ses tours, 25 % au plus. Sorts : Ravaudage, qui soigne ton mort, et Rempart d'os, un cadavre en boucliers pour tes alliés autour de lui.",
+        "en": "Your dead takes 45% of your HP and 55% of your characteristics, and grows 5% damage at each of its turns, 25% at most. Spells: Stitching, which heals your dead, and Bone Rampart, a corpse made into shields for your allies around it."
+      },
+      "spells": [
+        "path-stitch",
+        "path-bone-rampart"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "risen",
+          "hpPercent": 45,
+          "statsPercent": 55
+        },
+        {
+          "kind": "growth",
+          "summon": "risen",
+          "percent": 5,
+          "max": 25
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "lich",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Liche",
+              "en": "Lich"
+            },
+            "description": {
+              "fr": "Sort : Non-vie, ton mort meurt en toi : ses PV en bouclier et 30 % de dégâts, sa croissance en plus, pour 3 tours.",
+              "en": "Spell: Unlife, your dead dies into you: its HP as a shield and 30% damage, its growth on top, for 3 turns."
+            },
+            "spells": [
+              "path-unlife"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je l'ai tenu si longtemps qu'il me tient aussi.",
+          "en": "I held it so long that it holds me too."
+        },
+        "icon": "spec-lich",
+        "finals": [
+          {
+            "id": "archlich",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Archiliche",
+                "en": "Archlich"
+              },
+              "description": {
+                "fr": "Non-vie te laisse une forme pour le reste du combat : 15 % de dégâts.",
+                "en": "Unlife leaves you a form for the rest of the fight: 15% damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-unlife",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Rage",
+                      "value": 15,
+                      "turns": 99
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ce qui reste de moi ne pourrit plus.",
+              "en": "What is left of me rots no more."
+            },
+            "icon": "spec-archlich"
+          },
+          {
+            "id": "damned-king",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Roi des damnés",
+                "en": "King of the Damned"
+              },
+              "description": {
+                "fr": "Non-vie te donne aussi 2 PA pour ce tour.",
+                "en": "Unlife also gives you 2 AP for this turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-unlife",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Ap",
+                      "value": 2,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Ils ne m'obéissent pas. Ils me ressemblent.",
+              "en": "They do not obey me. They look like me."
+            },
+            "icon": "spec-damned-king"
+          }
+        ]
+      },
+      {
+        "id": "bone-lord",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Seigneur des os",
+              "en": "Bone Lord"
+            },
+            "description": {
+              "fr": "Ton mort grandit de 10 % de plus par tour, 25 % de plus au plus. Sort : Moelle, ton mort frappe de 30 % de plus 2 tours et prend 2 PM pour son tour.",
+              "en": "Your dead grows 10% more a turn, 25% more at most. Spell: Marrow, your dead strikes 30% harder for 2 turns and takes 2 MP for its turn."
+            },
+            "spells": [
+              "path-marrow"
+            ],
+            "rules": [
+              {
+                "kind": "growth",
+                "summon": "risen",
+                "percent": 10,
+                "max": 25
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Un seul, mais bien bâti.",
+          "en": "Only one, but well built."
+        },
+        "icon": "spec-bone-lord",
+        "finals": [
+          {
+            "id": "bone-titan",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Titan osseux",
+                "en": "Bone Titan"
+              },
+              "description": {
+                "fr": "Ton mort grandit de 5 % de plus par tour, 25 % de plus au plus.",
+                "en": "Your dead grows 5% more a turn, 25% more at most."
+              },
+              "rules": [
+                {
+                  "kind": "growth",
+                  "summon": "risen",
+                  "percent": 5,
+                  "max": 25
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque os a sa place, et la place grandit.",
+              "en": "Every bone has its place, and the place grows."
+            },
+            "icon": "spec-bone-titan"
+          },
+          {
+            "id": "undead-colossus",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Colosse mort-vivant",
+                "en": "Undead Colossus"
+              },
+              "description": {
+                "fr": "Moelle se relance en 1 tour au lieu de 2.",
+                "en": "Marrow comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-marrow",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il ne se fatigue pas. Moi, si.",
+              "en": "It does not tire. I do."
+            },
+            "icon": "spec-undead-colossus"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Un mort à la fois, d'un seul élément : la Crypte n'en tenait pas autant.",
+      "en": "One dead at a time, of one element: the Crypt never held so many."
+    },
+    "icon": "spec-dead-master"
   }
 ]

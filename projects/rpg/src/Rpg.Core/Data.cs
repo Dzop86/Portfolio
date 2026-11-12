@@ -43,7 +43,8 @@ public sealed record Spell(
     string? Aims = null,
     int SpendsShield = 0,
     int HpCost = 0,
-    bool Form = false)
+    bool Form = false,
+    bool Corpse = false)
 {
     /// <summary>The class spell a compound's spell is transposed from (sprint 138), or the spell itself: whose rank it has.</summary>
     public string RankKey => Twin ?? Id;
@@ -192,7 +193,7 @@ public sealed record QuestObjective(QuestGoal Goal, string Target, int Count = 1
 /// <param name="Mirror">The Illusionist's Image and Double (sprint 200): drawn with its summoner's look, not <paramref name="Look"/>.</param>
 /// <param name="Lure">It draws the blows of the monsters near it (the Decoy's since sprint 142, data since sprint 200).</param>
 public sealed record SummonSpec(string Id, LocalizedText Name, string Look, int Hp, int Ap, int Mp, int Initiative, IReadOnlyList<string> Spells,
-    IReadOnlyList<string>? Passives = null, int Scale = 100, int HpOfSummoner = 0, bool Mirror = false, bool Lure = false);
+    IReadOnlyList<string>? Passives = null, int Scale = 100, int HpOfSummoner = 0, bool Mirror = false, bool Lure = false, bool WearsCorpse = false);
 
 /// <summary>
 /// A fighter of a scenario: its look (the 3D model the client shows; the rules ignore it), its team

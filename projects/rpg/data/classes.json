@@ -379,5 +379,55 @@
         "statsPercent": 30
       }
     ]
+  },
+  {
+    "id": "necromancer",
+    "name": {
+      "fr": "Nécromancien",
+      "en": "Necromancer"
+    },
+    "description": {
+      "fr": "Ce qui tombe le nourrit : un cadavre lève son mort, explose ou se mange ; un mort à la fois, et des poisons.",
+      "en": "What falls feeds it: a corpse raises its dead, blows up or is eaten; one dead at a time, and poisons."
+    },
+    "hp": 60,
+    "ap": 8,
+    "mp": 4,
+    "initiative": 10,
+    "spells": [
+      "grave-dust",
+      "pale-flame",
+      "black-bile",
+      "death-rattle",
+      "raise-dead",
+      "corpse-blast",
+      "bone-shard",
+      "fever",
+      "drowned-hand",
+      "wail",
+      "feast",
+      "ossuary",
+      "funeral-blaze",
+      "black-tide",
+      "soul-wind",
+      "bone-armor",
+      "tombstone",
+      "tomb-flames",
+      "dead-waters",
+      "last-breath",
+      "funeral-march",
+      "dread",
+      "grave-chill",
+      "grave-step"
+    ],
+    "hpPerLevel": 3,
+    "rules": [
+      {
+        "kind": "summon-share",
+        "summon": "risen",
+        "hpPercent": 35,
+        "statsPercent": 45
+      }
+    ]
   }
 ]

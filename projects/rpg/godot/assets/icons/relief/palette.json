@@ -1545,5 +1545,54 @@
     "light": "#cbbde3",
     "dark": "#5a4a78",
     "outline": "#1b1624"
+  },
+  "spec-dead-master": {
+    "shape": "delapouite/skull-staff",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-lich": {
+    "shape": "lorc/skull-mask",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-bone-lord": {
+    "shape": "delapouite/bone-mace",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-archlich": {
+    "shape": "lorc/crowned-skull",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-damned-king": {
+    "shape": "lorc/skull-crossed-bones",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-bone-titan": {
+    "shape": "delapouite/skeletal-hand",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-undead-colossus": {
+    "shape": "lorc/frankenstein-creature",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
   }
 }

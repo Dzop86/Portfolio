@@ -175,6 +175,10 @@ public static class Progression
         ["summoner-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["summoner-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["summoner-pure"] = ["side-step", "remanence", "scorched-earth"],
+        // The Necromancer's (sprint 214): the Mage's, a caster of range.
+        ["necromancer-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["necromancer-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["necromancer-pure"] = ["side-step", "remanence", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -189,6 +193,7 @@ public static class Progression
         ["berserker-matter"] = [Element.Lightning],
         ["paladin-matter"] = [Element.Lightning],
         ["summoner-matter"] = [Element.Lightning],
+        ["necromancer-matter"] = [Element.Lightning],
     };
 
     /// <summary>

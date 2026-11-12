@@ -61,6 +61,9 @@ public enum ActionError
 
     /// <summary>The spell asks for the caster's form (the Berserker's Rage, sprint 206).</summary>
     NoForm,
+
+    /// <summary>The spell asks for a corpse on its target cell, a fallen enemy not yet taken (the Necromancer's, sprint 214).</summary>
+    NoCorpse,
 }
 
 /// <summary>What happened, in order: the client animates these, the tests read them.</summary>
@@ -99,6 +102,9 @@ public sealed record Forecast(Fighter Fighter, int DamageMin, int DamageMax, int
 public sealed record Damaged(int Fighter, int Amount, int HpLeft, Element Element = Element.Neutral) : FightEvent;
 
 public sealed record Died(int Fighter) : FightEvent;
+
+/// <summary>A corpse taken by a spell (the Necromancer's, sprint 214): the fallen <see cref="Fighter"/> leaves no corpse on its cell any more.</summary>
+public sealed record CorpseTaken(int Fighter, Cell Cell) : FightEvent;
 
 public sealed record Healed(int Fighter, int Amount, int HpLeft) : FightEvent;
 

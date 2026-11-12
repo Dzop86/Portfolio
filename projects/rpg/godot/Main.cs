@@ -627,6 +627,9 @@ public partial class Main : Node3D
     /// <summary>What the server gave for the last fight reported.</summary>
     private static FightResult? _lastResult;
 
+    /// <summary>Whether a fighter not of <paramref name="team"/> has a spell that takes a corpse (sprint 214): the corpses are drawn only then.</summary>
+    private static bool TakesCorpses(Fight fight, int team) => fight.Fighters.Any(f => f.Team != team && f.Spells.Any(s => s.Corpse));
+
     private Task Animate(FightEvent e, bool instant)
     {
         switch (e)
@@ -644,6 +647,12 @@ public partial class Main : Node3D
                 return Task.CompletedTask;
             case Died d:
                 _views[d.Fighter].Die(animate: !instant);
+                // A corpse a Necromancer of the other side may take (sprint 214): drawn only when one fights.
+                if (Fight.LeavesCorpse(_controller.Fight.Fighters[d.Fighter]) && TakesCorpses(_controller.Fight, _controller.Fight.Fighters[d.Fighter].Team))
+                    _board.AddCorpse(d.Fighter, _controller.Fight.Fighters[d.Fighter].Cell);
+                return Task.CompletedTask;
+            case CorpseTaken t:
+                _board.RemoveCorpse(t.Fighter);
                 return Task.CompletedTask;
             // The resurrection (sprint 202): back on its cell.
             case Revived r:
@@ -806,6 +815,10 @@ public partial class Main : Node3D
             _glyphChecks += _controller.Fight.Glyphs.Count;
             if (!_board.GlyphsShown().OrderBy(g => g.Key).SequenceEqual(_controller.Fight.Glyphs.Select(g => KeyValuePair.Create(g.Id, g.Cells.Count))))
                 problems.Add($"the board draws glyphs {string.Join(",", _board.GlyphsShown().Keys)}, the fight has {string.Join(",", _controller.Fight.Glyphs.Select(g => g.Id))}");
+            // The corpses (sprint 214): those a Necromancer of the other side may take, and no other.
+            int[] corpses = [.. _controller.Fight.Corpses.Where(c => TakesCorpses(_controller.Fight, c.Team)).Select(c => c.Id)];
+            if (!_board.CorpsesShown().Order().SequenceEqual(corpses))
+                problems.Add($"the board draws corpses {string.Join(",", _board.CorpsesShown())}, the fight has {string.Join(",", corpses)}");
             CheckReadability(problems, ref seenNumbers);
             if (_controller.IsPlayerTurn)
             {

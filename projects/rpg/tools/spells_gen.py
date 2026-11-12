@@ -4,7 +4,7 @@
 import json, collections, sys
 root = sys.argv[1]
 O = collections.OrderedDict
-def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None, spends=0, hp=0, form=False):
+def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, area=None, effects=None, ranks=True, cd=0, adaptive=False, needs=None, aims=None, spends=0, hp=0, form=False, corpse=False):
     d = O([("id", id), ("name", O([("fr", fr), ("en", en)])), ("apCost", ap), ("minRange", mn), ("maxRange", mx),
            ("lineOfSight", los), ("inLine", line), ("damageMin", dmin), ("damageMax", dmax), ("perTurn", per), ("element", el)])
     if area: d["area"] = O([("shape", area[0]), ("radius", area[1])])
@@ -19,6 +19,8 @@ def S(id, fr, en, ap, mn, mx, dmin, dmax, per, el, level, los=True, line=False, 
     # The Berserker's (sprint 206, docs/classes-berserker.md §1): paid in hit points; asking for its Rage.
     if hp: d["hpCost"] = hp
     if form: d["form"] = True
+    # The Necromancer's (sprint 214, docs/classes-necromancien.md §1): a fallen enemy's corpse on the target cell, taken.
+    if corpse: d["corpse"] = True
     if ranks and dmax > 0:
         d["ranks"] = [O([("damageMin", round(dmin * f)), ("damageMax", round(dmax * f))]) for f in (1.2, 1.4, 1.6, 1.8)]
     return d
@@ -303,6 +305,34 @@ summoner = C(
  R("veil","Voile","Veil",3,0,0,0,0,1,"Neutral","lorc/magic-shield",los=False,effects=[shield("Caster",30,2)],cd=4),
  R("calling-step","Pas d'appel","Calling Step",1,0,0,0,0,1,"Neutral","lorc/footprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
+# The Necromancer (Nécromancien) (sprint 214, docs/classes-necromancien.md §3): what falls feeds it; a corpse raises its dead, blows up or
+# is eaten; one dead at a time (docs/classes-canon.md). Blows of 1 to 6 cells, poisons, at 0.85 of the budget. Working names.
+necromancer = C(
+ R("grave-dust","Poussière de tombe","Grave Dust",3,1,5,1,1,2,"Earth","lorc/broken-skull"),
+ R("pale-flame","Flamme blême","Pale Flame",3,1,5,1,1,2,"Fire","lorc/spectre"),
+ R("black-bile","Bile noire","Black Bile",3,1,5,1,1,2,"Water","lorc/vomiting",effects=[status("Enemies","Poison",4,3,"Water")]),
+ R("death-rattle","Râle","Death Rattle",3,1,5,1,1,2,"Air","lorc/despair"),
+ R("raise-dead","Lever un mort","Raise the Dead",3,1,4,0,0,1,"Neutral","delapouite/shambling-zombie",los=False,effects=[summon("risen")],cd=1,corpse=True),
+ R("corpse-blast","Détonation","Detonation",3,1,6,1,1,1,"Neutral","lorc/internal-organ",los=False,area=("Circle",1),cd=1,corpse=True,adaptive=True),
+ R("bone-shard","Écharde d'os","Bone Sliver",4,1,5,1,1,2,"Earth","lorc/bone-knife",effects=[status("Enemies","Mp",-1,1)]),
+ R("fever","Fièvre","Fever",4,1,5,1,1,2,"Fire","lorc/dripping-goo",effects=[status("Enemies","Poison",4,3,"Fire")]),
+ R("drowned-hand","Main du noyé","Drowned Hand",4,1,4,1,1,2,"Water","lorc/drowning",line=True,effects=[pull(1)]),
+ R("wail","Lamentation","Wail",4,1,5,1,1,2,"Air","lorc/screaming",effects=[status("Enemies","Ap",-1,1)]),
+ R("feast","Festin","Feast",2,1,3,0,0,1,"Neutral","lorc/carrion",los=False,effects=[heal("Caster",18,24)],cd=1,corpse=True),
+ R("ossuary","Ossuaire","Ossuary",5,2,5,1,1,1,"Earth","lorc/crossed-bones",area=("Circle",1)),
+ R("funeral-blaze","Brasier funèbre","Funeral Blaze",5,2,5,1,1,1,"Fire","lorc/coffin",area=("Cross",1)),
+ R("black-tide","Marée noire","Black Tide",5,2,5,1,1,1,"Water","lorc/skull-in-jar",area=("Circle",1),effects=[status("Enemies","Poison",4,3,"Water")]),
+ R("soul-wind","Vent des âmes","Soul Wind",5,2,6,1,1,1,"Air","lorc/ghost-ally",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=1),
+ R("bone-armor","Armure d'os","Bone Armour",2,1,4,0,0,1,"Neutral","lorc/skull-shield",los=False,effects=[shield("Caster",30,2)],cd=2,corpse=True),
+ R("tombstone","Pierre tombale","Tombstone",6,2,5,1,1,1,"Earth","lorc/tombstone",cd=1),
+ R("tomb-flames","Flammes du tombeau","Tomb Flames",6,2,5,1,1,1,"Fire","lorc/dread-skull",area=("Circle",1),cd=1),
+ R("dead-waters","Eaux mortes","Dead Waters",6,2,5,1,1,1,"Water","lorc/dead-wood",area=("Cross",1),cd=1),
+ R("last-breath","Dernier souffle","Last Breath",6,2,6,1,1,1,"Air","lorc/grim-reaper",cd=2),
+ R("funeral-march","Marche funèbre","Funeral March",3,0,5,0,0,1,"Neutral","lorc/raven",los=False,area=("Circle",1),effects=[status("Allies","Mp",2,1),status("Allies","Damage",15,2)],cd=3),
+ R("dread","Effroi","Dread",3,1,5,0,0,1,"Neutral","lorc/terror",effects=[status("Enemies","Ap",-2,1)],cd=2),
+ R("grave-chill","Froid du tombeau","Grave Chill",3,1,5,0,0,1,"Neutral","lorc/frozen-orb",effects=[status("Enemies","Resistance",-15,2)],cd=2),
+ R("grave-step","Pas funèbre","Grave Step",1,0,0,0,0,1,"Neutral","delapouite/bat",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+)
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
@@ -318,6 +348,8 @@ creatures = [
  # The Demonist's Demon and the Conjurer's Pillar (sprint 213, docs/classes-invocateur-3.md §1-2): the one up close, the other where it was laid.
  S("demon-rend","Lacération","Rend",3,1,1,8,12,2,"Fire",1,ranks=False,adaptive=True),
  S("pillar-shard","Éclat du pilier","Pillar Shard",3,1,4,5,8,2,"Earth",1,ranks=False,adaptive=True),
+ # The Necromancer's dead (sprint 214, docs/classes-necromancien.md §2): up close, in its raiser's strongest element.
+ S("risen-claw","Griffe du mort","Dead Claw",3,1,1,7,10,2,"Earth",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -445,6 +477,8 @@ def budget(sp, scale=1):
     f *= 1 + sp.get("hpCost", 0) / (10 * sp["apCost"])
     if sp.get("form"): f *= 1.15
     if any(k == "drain" for k, _ in kinds): f *= 0.85
+    # A corpse taken (sprint 214, the Necromancer's): a resource the fight gives, worth half the blow more.
+    if sp.get("corpse"): f *= 1.5
     avg = f * sp["apCost"]
     sp["damageMin"], sp["damageMax"] = max(1, round(avg * 0.85)), max(1, round(avg * 1.15))
     sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
@@ -478,6 +512,11 @@ SUMMONER_BUDGET = 0.75
 for sp in summoner:
     if sp["damageMax"] > 0:
         budget(sp, SUMMONER_BUDGET)
+# The Necromancer at 0.85 (docs/classes-conception.md §1.2): its worth is in what falls.
+NECROMANCER_BUDGET = 0.85
+for sp in necromancer:
+    if sp["damageMax"] > 0:
+        budget(sp, NECROMANCER_BUDGET)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -534,11 +573,20 @@ GESTURES = {
  "binding-stone": ("Lien", "Bond"), "searing-brand": ("Marque", "Brand"), "mire": ("Enlisement", "Sinking"), "breath": ("Exhalaison", "Exhalation"),
  "rumble": ("Grondement", "Rumble"), "pyre": ("Fournaise", "Furnace"), "far-undertow": ("Reflux lointain", "Far Ebb"), "squall": ("Grain", "Squall"),
  "obelisk": ("Obélisque", "Obelisk"), "firestorm": ("Embrasement", "Blaze Storm"), "deep-call": ("Abîme", "Abyss"), "vortex": ("Vortex", "Vortex"),
+ # The Necromancer's (sprint 214).
+ "grave-dust": ("Poudre des tombes", "Grave Powder"), "pale-flame": ("Blêmissure", "Pallor"), "black-bile": ("Bile", "Bile"), "death-rattle": ("Râle", "Rattle"),
+ "bone-shard": ("Écharde", "Sliver"), "fever": ("Fièvre", "Fever"), "drowned-hand": ("Main noyée", "Drowned Grip"), "wail": ("Plainte", "Lament"),
+ "ossuary": ("Ossuaire", "Ossuary"), "funeral-blaze": ("Bûcher funèbre", "Funeral Pyre"), "black-tide": ("Reflux noir", "Black Ebb"), "soul-wind": ("Souffle des âmes", "Soul Breath"),
+ "tombstone": ("Stèle", "Stele"), "tomb-flames": ("Feu tombal", "Tomb Fire"), "dead-waters": ("Eaux mortes", "Dead Waters"), "last-breath": ("Dernier soupir", "Last Sigh"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
 NAMES = {
  "Lightning": {
+  # The Necromancer's (sprint 214).
+  "pale-flame": ("Blême d'orage", "Storm Pallor"), "death-rattle": ("Râle d'orage", "Storm Rattle"), "fever": ("Fièvre électrique", "Electric Fever"),
+  "wail": ("Plainte d'orage", "Storm Lament"), "funeral-blaze": ("Brasier foudroyant", "Thunder Blaze"), "soul-wind": ("Vent foudroyé", "Thunderstruck Wind"),
+  "tomb-flames": ("Foudre tombale", "Tomb Lightning"), "last-breath": ("Dernier éclair", "Last Bolt"),
   # The Summoner's (sprint 211).
   "cinder": ("Grésil d'orage", "Storm Sleet"), "murmur": ("Grondement sourd", "Low Thunder"), "searing-brand": ("Marque d'orage", "Storm Brand"),
   "breath": ("Bise d'orage", "Thunder Breeze"), "pyre": ("Bûcher d'éclairs", "Lightning Pyre"), "squall": ("Grain d'orage", "Thundersquall"),
@@ -590,7 +638,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin + summoner:
+    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -599,7 +647,7 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else SUMMONER_BUDGET if sp in summoner else 1))
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else SUMMONER_BUDGET if sp in summoner else NECROMANCER_BUDGET if sp in necromancer else 1))
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -758,26 +806,31 @@ paths = [
  path("anchor","Ancrage","Anchoring",2,1,6,30,"lorc/guarded-tower",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,aims="pillar"),
  path("overload","Surcharge","Overload",2,1,6,50,"lorc/lightning-storm",los=False,area=("Circle",1),effects=[status("Allies","Damage",35,2)],cd=2,aims="pillar"),
  path("constellation","Constellation","Constellation",3,2,6,50,"lorc/star-prominences",los=False,area=("Circle",1),effects=[glyph("Enemies",2,9,12,stat="Mp",v=-1,st=1)],cd=2),
+ # The Necromancer's Master of the Dead (sprint 214, docs/classes-necromancien.md §4): one great dead, kept and grown; the Lich takes it in, the Bone Lord drives it.
+ path("stitch","Ravaudage","Stitching",2,1,6,30,"lorc/sewing-needle",los=False,effects=[heal("Allies",20,26),status("Allies","Resistance",15,2)],cd=2,aims="risen"),
+ path("bone-rampart","Rempart d'os","Bone Rampart",2,1,5,30,"lorc/bone-gnawer",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,corpse=True),
+ path("unlife","Non-vie","Unlife",3,1,6,50,"lorc/skull-ring",los=False,effects=[fuse(3,30)],cd=3,aims="risen"),
+ path("marrow","Moelle","Marrow",2,1,6,50,"lorc/broken-bone",los=False,effects=[status("Allies","Damage",30,2),status("Allies","Mp",2,1)],cd=2,aims="risen"),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins + paths
 # One id a spell (sprint 206: the Berserker's Howl took a monster's id, and its class listed the monster's spell).
 _ids = [sp["id"] for sp in spells]
 assert len(_ids) == len(set(_ids)), [i for i in set(_ids) if _ids.count(i) > 1]
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin], "summoner": [s["id"] for s in summoner]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin], "summoner": [s["id"] for s in summoner], "necromancer": [s["id"] for s in necromancer]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")
@@ -802,6 +855,8 @@ summons.append(young("familiar","Familier","Familiar","wolf-melee",90,40,6,4,65,
 # The Demonist's and the Conjurer's (sprint 213, docs/classes-invocateur-3.md): fed by their branch; the Pillar never moves.
 summons.append(young("demon","Démon","Demon","stag-melee",85,50,6,4,55,["demon-rend"]))
 summons.append(young("pillar","Pilier","Pillar","golem-ranged",75,40,6,0,30,["pillar-shard"]))
+# The Necromancer's (sprint 214, docs/classes-necromancien.md §2): it rises from a corpse and wears it, fed by its raiser's class.
+summons.append(O(list(young("risen","Mort levé","Risen","zombie-tank",85,40,6,3,45,["risen-claw"]).items()) + [("wearsCorpse", True)]))
 # The Summoner's (sprint 211, docs/classes-invocateur.md §2): their hit points and characteristics a share of its own (its class's rules).
 summons += [
  young("hound","Molosse","Hound","wolf-melee",80,30,6,4,60,["hound-fang"]),

@@ -454,8 +454,23 @@ public static class Ai
                 }
             }
         }
+        // The Necromancer's (sprint 214): a spell that takes a corpse aims at the cells of the fallen enemies, empty or not.
+        foreach (Spell spell in me.Spells.Where(sp => (only is null || sp == only) && sp.Corpse))
+        {
+            foreach (Cell cell in fight.Corpses.Where(c => c.Team != me.Team).Select(c => c.Cell).Distinct())
+            {
+                if (fight.CheckCast(me, spell, from, cell) != ActionError.None)
+                    continue;
+                double value = Value(fight, me, spell, from, cell);
+                if (value > bestKey.Value)
+                {
+                    best = (spell, cell, value);
+                    bestKey = (value, int.MaxValue, int.MaxValue);
+                }
+            }
+        }
         // Summons need a free cell: the free cells next to the caster, in a fixed order.
-        foreach (Spell spell in me.Spells.Where(sp => (only is null || sp == only) && sp.AllEffects.Any(e => e is SummonEffect)))
+        foreach (Spell spell in me.Spells.Where(sp => (only is null || sp == only) && sp.AllEffects.Any(e => e is SummonEffect) && !sp.Corpse))
         {
             foreach (Cell cell in from.Neighbours())
             {
