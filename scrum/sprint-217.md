@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Druide, je deviens Métamorphe ou Gardien de la nature, avec les formes (rpg) ; xUnit. | 4 | À faire |
+| En tant que Druide, je deviens Métamorphe ou Gardien de la nature, avec les formes (rpg) ; xUnit. | 4 | Fait : le Gardien de la nature (glyphes qui durent un tour de plus ; Sylvain, Protecteur), le Métamorphe (forme de 3 tours sans PV, réversible ; Changeforme, Druide sauvage), 8 finales ; l'IA pèse une forme passagère ; B5 et B6 tenues ; Q1-Q3 de `docs/classes-druide-2.md` (T182) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

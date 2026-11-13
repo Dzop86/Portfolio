@@ -88,7 +88,7 @@ Le compte de test reçoit un Druide de niveau 100 par la commande admin (`admin 
 
 ## 6. Ce qui vient ensuite
 
-- **Sprint 217** : le Gardien de la nature (terrain qui protège : Sylvain, Protecteur) et le Métamorphe (formes au contact, réversibles, sans coût en PV : Changeforme, Druide sauvage), leurs lignées et leurs finales.
+- **Sprint 217** (fait, `classes-druide-2.md`) : le Gardien de la nature (terrain qui protège : Sylvain, Protecteur) et le Métamorphe (formes au contact, réversibles, sans coût en PV : Changeforme, Druide sauvage), leurs lignées et leurs finales.
 - **Sprint 218** : le Chaman (esprits sans corps, terrain qui frappe : Invocateur spirituel, Élémentaliste naturel), ses finales, les bornes du banc.
 
 ## 7. Questions à Charles

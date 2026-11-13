@@ -370,3 +370,7 @@ Voir `docs/classes-necromancien-2.md` §5. Banc à 40 combats par groupe (35 à 
 ## 13 novembre 2026 : le Druide sans voie (S216, T181)
 
 Voir `docs/classes-druide.md` §4. `--class druid --simulate 30`, sans voie : au barème de la conception (0,85), 20,6 au niveau 35, 6,9 au 60, 0,2 au 100 ; **au barème 1 (gardé)**, 36,5 au 35, 17,1 au 60, 15,6 au 100 (Nécromancien 37,9, 21,7 et 12,9 ; Prêtre 23,8, 9,2 et 8,3). Groupes de référence à 45 : Guerrier + Druide 55 %, Voleur + Druide 55 %, Berserker + Druide 66 %, Paladin + Nécromancien + Druide 88 %, les deux autres 100 %.
+
+## 13 novembre 2026 : le Gardien de la nature et le Métamorphe (S217, T182)
+
+Voir `docs/classes-druide-2.md` §4. `--matrix --class druid --simulate 30`, sorts de voie rangés : B5 tenue (±1,7 à 35, ±1,3 à 45) ; à 50, Sylvain +6,8, Protecteur +1,8, Changeforme −7,5, Druide sauvage −1,1 ; à 60, de −2,7 à +3,3 ; à 100, de −7,9 à +6,2, les finales à 7,5 points au plus de leur lignée. Forme sauvage et Griffes jouées au-dessus de 0,5 après la correction de l'IA ; Haie 0,0, Bond du fauve et Piétinement 0,3 à 0,4.
