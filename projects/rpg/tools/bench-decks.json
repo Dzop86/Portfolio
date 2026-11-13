@@ -7,5 +7,6 @@
   "berserker": ["inferno-axe", "earthshaker", "storm-axe", "ember-cleave", "rend", "war-whirl", "blood-fury", "bone-breaker", "rage", "rush", "breaker", "cleaver", "blood-axe", "tide-blow", "whirl"],
   "paladin": ["blazing-oath", "judgement-hammer", "heavens-spear", "dawn-blade", "crushing-faith", "judgement-lance", "sun-strike", "rampart-strike", "aegis", "steadfast", "oath", "holy-hammer", "radiant-blade", "purifying-strike", "light-lance"],
   "summoner": ["firestorm", "obelisk", "deep-call", "vortex", "call-colossus", "pyre", "rumble", "squall", "call-wisp", "command", "call-hound", "binding-stone", "searing-brand", "clod", "cinder"],
-  "necromancer": ["tomb-flames", "tombstone", "dead-waters", "last-breath", "raise-dead", "funeral-blaze", "ossuary", "black-tide", "soul-wind", "corpse-blast", "feast", "bone-shard", "fever", "grave-dust", "pale-flame"]
+  "necromancer": ["tomb-flames", "tombstone", "dead-waters", "last-breath", "raise-dead", "funeral-blaze", "ossuary", "black-tide", "soul-wind", "corpse-blast", "feast", "bone-shard", "fever", "grave-dust", "pale-flame"],
+  "druid": ["wildfire", "felled-oak", "thaw-flood", "leaf-storm", "bramble-ring", "slash-and-burn", "mound", "marsh", "canopy-wind", "grove", "mending-sap", "bramble-lash", "brushfire", "thorn", "stump-ember"]
 }

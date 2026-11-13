@@ -429,5 +429,47 @@
         "statsPercent": 45
       }
     ]
+  },
+  {
+    "id": "druid",
+    "name": {
+      "fr": "Druide",
+      "en": "Druid"
+    },
+    "description": {
+      "fr": "Il façonne un lieu pour tous ceux qui s'y trouvent : ses glyphes frappent ou entravent les ennemis et, sur les mêmes cases, protègent ses alliés.",
+      "en": "It shapes a place for all who stand there: its glyphs strike or hinder the enemies and, on the same cells, shelter its allies."
+    },
+    "hp": 78,
+    "ap": 8,
+    "mp": 4,
+    "initiative": 10,
+    "spells": [
+      "thorn",
+      "stump-ember",
+      "drizzle",
+      "rustle",
+      "bramble-ring",
+      "grove",
+      "bramble-lash",
+      "brushfire",
+      "spring",
+      "pollen",
+      "mending-sap",
+      "mound",
+      "slash-and-burn",
+      "marsh",
+      "canopy-wind",
+      "fertile-ground",
+      "felled-oak",
+      "wildfire",
+      "thaw-flood",
+      "leaf-storm",
+      "tangle",
+      "forest-call",
+      "moss-step",
+      "sacred-grove"
+    ],
+    "hpPerLevel": 3
   }
 ]

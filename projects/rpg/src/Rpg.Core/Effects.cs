@@ -294,8 +294,9 @@ public sealed record SwapEffect(Affects Affects) : SpellEffect(Affects);
 /// <param name="Marks">A Seal's (sprint 142): it leaves its element's mark on whom it strikes, if its caster lays marks.</param>
 /// <param name="Decays">A Remanence's (sprint 142): its damage falls away from its centre, 100, 70, 45 then 25 %.</param>
 /// <param name="Max">How many of this spell's glyphs its caster keeps at once (sprint 191, brick G): a new one past that replaces the oldest.</param>
+/// <param name="Welcomes">The Druid's (sprint 216, docs/classes-druide.md §1): an allies' glyph that gives its status at once to those already on it.</param>
 public sealed record GlyphEffect(Affects Affects, int Turns, int DamageMin = 0, int DamageMax = 0, Element Element = Element.Neutral,
-    Stat? Status = null, int Value = 0, int StatusTurns = 0, bool Marks = false, bool Decays = false, int Max = 1) : SpellEffect(Affects)
+    Stat? Status = null, int Value = 0, int StatusTurns = 0, bool Marks = false, bool Decays = false, int Max = 1, bool Welcomes = false) : SpellEffect(Affects)
 {
     /// <summary>The status the glyph sets, as a spell's status effect, or null.</summary>
     public StatusEffect? AsStatus => Status is Stat stat ? new StatusEffect(Affects, stat, Value, StatusTurns, Element) : null;

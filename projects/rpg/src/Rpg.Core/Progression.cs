@@ -179,6 +179,10 @@ public static class Progression
         ["necromancer-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
         ["necromancer-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
         ["necromancer-pure"] = ["side-step", "remanence", "scorched-earth"],
+        // The Druid's (sprint 216): the Mage's, a caster of range.
+        ["druid-matter"] = ["first-gesture", "heavy-blows", "short-cooldown"],
+        ["druid-manner"] = ["first-gesture", "heavy-blows", "tight-deck", "thrift"],
+        ["druid-pure"] = ["side-step", "remanence", "scorched-earth"],
         ["support"] = ["helping-hand", "banner", "double-hand", "long-hand", "devotion"],
     };
 
@@ -194,6 +198,7 @@ public static class Progression
         ["paladin-matter"] = [Element.Lightning],
         ["summoner-matter"] = [Element.Lightning],
         ["necromancer-matter"] = [Element.Lightning],
+        ["druid-matter"] = [Element.Lightning],
     };
 
     /// <summary>

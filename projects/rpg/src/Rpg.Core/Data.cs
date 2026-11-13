@@ -754,6 +754,7 @@ public sealed class GameData
     /// </summary>
     private bool ValidGlyph(GlyphEffect g) =>
         g.Affects is Affects.Enemies or Affects.Allies or Affects.All && g.Turns is >= 1 and <= 10 && g.Max is >= 1 and <= 4
+        && (!g.Welcomes || g.Affects == Affects.Allies && g.Status is not null)
         && g.DamageMin >= 0 && g.DamageMax >= g.DamageMin && (g.DamageMax > 0 || g.Status is not null || g.Marks)
         && (g.AsStatus is not StatusEffect st ? g.Value == 0 && g.StatusTurns == 0 : ValidEffect(st));
 

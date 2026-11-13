@@ -615,7 +615,8 @@ public static class Ai
                     // A hero's trap under an enemy that will not walk off (sprint 211, D99), and the movement it takes.
                     GlyphEffect g when f.Team != me.Team && IsHero(fight, me) => (Stays(fight, me, f) ? StayOdds : GlyphOdds) * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect { Stat: Stat.Mp, Value: < 0 } gm ? Math.Max(StatusWorth(gm, f), Denied(fight, me, f, -gm.Value) * gm.Turns) : g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
-                    GlyphEffect g => -sign * GlyphOdds * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
+                    // An allies' glyph that welcomes (sprint 216, the Druid's): those already on it are helped for sure.
+                    GlyphEffect g => -sign * (g.Welcomes && f.Team == me.Team ? 1 : GlyphOdds) * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
                     _ => 0,
                 };

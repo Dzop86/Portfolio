@@ -852,7 +852,8 @@ public sealed class Fight
     private void Lay(Fighter me, GlyphEffect effect, IReadOnlyList<Cell> zone, string spell, bool buried = false)
     {
         // A spell's glyph replaces that spell's; the reaction Buried's (sprint 185), its own; past its Max (sprint 191, brick G), the oldest.
-        Glyph[] laid = [.. _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell && g.Buried == buried)];
+        // One of each side (sprint 216, the Druid's shared glyphs): an enemies' glyph and an allies' glyph of one spell keep each other.
+        Glyph[] laid = [.. _glyphs.Where(g => g.Caster == me.Id && g.Spell == spell && g.Buried == buried && g.Effect.Affects == effect.Affects)];
         foreach (Glyph old in laid.Take(Math.Max(0, laid.Length - effect.Max + 1)))
             EndGlyph(old);
         Cell[] cells = [.. zone.Where(Board.IsFloor).Distinct()];
@@ -862,6 +863,16 @@ public sealed class Fight
         glyph.Spared.UnionWith(_fighters.Where(f => f.IsAlive && cells.Contains(f.Cell)).Select(f => f.Id));
         _glyphs.Add(glyph);
         _events.Add(new GlyphPlaced(glyph.Id, me.Id, spell, cells, effect.Turns, effect.Element));
+        // A glyph that welcomes (sprint 216): those it helps, already on it, are helped now, and again at their next turn.
+        if (effect.Welcomes && effect.AsStatus is StatusEffect welcome)
+            foreach (Fighter f in _fighters.Where(f => f.IsAlive && cells.Contains(f.Cell) && Strikes(glyph, f)).ToList())
+            {
+                glyph.Spared.Remove(f.Id);
+                if (!glyph.Struck.Add(f.Id))
+                    continue;
+                _events.Add(new GlyphTriggered(glyph.Id, f.Id));
+                SetStatus(me, f, welcome);
+            }
     }
 
     private void EndGlyph(Glyph glyph)

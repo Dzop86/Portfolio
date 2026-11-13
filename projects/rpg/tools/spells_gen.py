@@ -42,14 +42,20 @@ def status(a, stat, v, t, el=None):
     if el: d["element"] = el
     return d
 # A glyph (sprint 130, T98): the floor cells of the spell's area marked for some of the caster's turns; damage, a status, or both.
-def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0, marks=False):
+def glyph(a, turns, dmin=0, dmax=0, el=None, stat=None, v=0, st=0, marks=False, welcomes=False):
     d = O([("kind", "glyph"), ("affects", a), ("turns", turns)])
     if dmax: d["damageMin"], d["damageMax"] = dmin, dmax
     if el: d["element"] = el
     if stat: d["status"], d["value"], d["statusTurns"] = stat, v, st
     # A Seal's glyph (sprint 142) leaves its element's mark.
     if marks: d["marks"] = True
+    # The Druid's (sprint 216, docs/classes-druide.md §1): an allies' glyph that helps at once those already on it.
+    if welcomes: d["welcomes"] = True
     return d
+# The Druid's shared glyph (sprint 216): on the same cells, one for the enemies and one, welcoming, for the allies.
+def shared(turns, ally, foe=None):
+    out = [glyph("Enemies", turns, **foe)] if foe else []
+    return out + [glyph("Allies", turns, stat=ally[0], v=ally[1], st=ally[2], welcomes=True)]
 # The Chronomancer's time (sprint 199, docs/classes-mage.md §3): points borrowed from the next turn, a place in the order, cooldowns shortened.
 def borrow(n): return O([("kind", "borrow"), ("affects", "Caster"), ("ap", n)])
 def delay(a, n): return O([("kind", "delay"), ("affects", a), ("places", n)])
@@ -333,6 +339,34 @@ necromancer = C(
  R("grave-chill","Froid du tombeau","Grave Chill",3,1,5,0,0,1,"Neutral","lorc/frozen-orb",effects=[status("Enemies","Resistance",-15,2)],cd=2),
  R("grave-step","Pas funèbre","Grave Step",1,0,0,0,0,1,"Neutral","delapouite/bat",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
 )
+# The Druid (Druide) (sprint 216, docs/classes-druide.md §2): it shapes a place for all who stand there; its shared glyphs strike or hinder the
+# enemies and, on the same cells, help the allies. Blows of 1 to 4 cells at 1 of the budget (0.85 in the design, docs/classes-druide.md §4), 0.8 of that with a glyph. Working names.
+druid = C(
+ R("thorn","Épine","Thorn",3,1,4,1,1,2,"Earth","lorc/thorny-vine"),
+ R("stump-ember","Tison","Firebrand",3,1,4,1,1,2,"Fire","lorc/burning-embers"),
+ R("drizzle","Bruine","Drizzle",3,1,4,1,1,2,"Water","lorc/raining"),
+ R("rustle","Bruissement","Rustle",3,1,4,1,1,2,"Air","lorc/falling-leaf"),
+ R("bramble-ring","Cercle de ronces","Bramble Ring",3,1,4,0,0,1,"Neutral","lorc/vine-whip",los=False,area=("Circle",1),effects=shared(2,("Resistance",15,1),dict(stat="Mp",v=-1,st=1)),cd=2),
+ R("grove","Bosquet","Grove",3,0,3,0,0,1,"Neutral","lorc/pine-tree",los=False,area=("Circle",1),effects=shared(2,("Regen",5,1),dict(stat="Damage",v=-10,st=1)),cd=2),
+ R("bramble-lash","Fouet de ronces","Bramble Lash",4,1,4,1,1,2,"Earth","lorc/thorn-helix",effects=[status("Enemies","Mp",-1,1)]),
+ R("brushfire","Feu de brousse","Brushfire",4,1,4,1,1,2,"Fire","lorc/burning-tree",effects=shared(2,("Damage",10,1),dict(dmin=1,dmax=1,el="Fire"))),
+ R("spring","Source","Spring",4,1,4,1,1,2,"Water","delapouite/water-fountain",effects=shared(2,("Regen",5,1))),
+ R("pollen","Pollen","Pollen",4,1,4,1,1,2,"Air","delapouite/flower-emblem",effects=[status("Enemies","Ap",-1,1)]),
+ R("mending-sap","Sève","Mending Sap",3,0,4,0,0,1,"Neutral","lorc/sprout",los=False,effects=[heal("Allies",14,18)],cd=2),
+ R("mound","Tertre","Mound",5,2,4,1,1,1,"Earth","lorc/mountaintop",area=("Circle",1)),
+ R("slash-and-burn","Brûlis","Slash and Burn",5,2,4,1,1,1,"Fire","delapouite/burning-forest",area=("Cross",1),effects=shared(2,("Damage",10,1),dict(dmin=1,dmax=1,el="Fire"))),
+ R("marsh","Marécage","Marsh",5,2,4,1,1,1,"Water","delapouite/swamp",area=("Circle",1),effects=shared(2,("Regen",5,1),dict(stat="Mp",v=-1,st=1))),
+ R("canopy-wind","Vent des cimes","Canopy Wind",5,2,4,1,1,1,"Air","lorc/wind-hole",area=("Circle",1),effects=[push(1)],cd=1),
+ R("fertile-ground","Terre nourricière","Fertile Ground",3,0,4,0,0,1,"Neutral","delapouite/tree-roots",los=False,area=("Circle",1),effects=shared(3,("Resistance",15,1),dict(stat="Resistance",v=-15,st=1)),cd=3),
+ R("felled-oak","Chêne abattu","Felled Oak",6,2,4,1,1,1,"Earth","lorc/oak",cd=1),
+ R("wildfire","Feu de forêt","Wildfire",6,2,4,1,1,1,"Fire","lorc/fire-zone",area=("Circle",1),effects=shared(2,("Damage",10,1),dict(dmin=1,dmax=1,el="Fire")),cd=1),
+ R("thaw-flood","Débâcle","Thaw Flood",6,2,4,1,1,1,"Water","delapouite/wave-surfer",area=("Cross",1),cd=1),
+ R("leaf-storm","Tourbillon de feuilles","Leaf Storm",6,2,4,1,1,1,"Air","lorc/beech",area=("Circle",1),effects=[status("Enemies","Ap",-1,1)],cd=2),
+ R("tangle","Enchevêtrement","Tangle",3,1,4,0,0,1,"Neutral","lorc/root-tip",los=False,area=("Cross",1),effects=shared(2,("Mp",1,1),dict(stat="Mp",v=-2,st=1)),cd=2),
+ R("forest-call","Appel de la forêt","Call of the Forest",3,0,4,0,0,1,"Neutral","delapouite/forest",los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2)],cd=3),
+ R("moss-step","Pas de mousse","Moss Step",1,0,0,0,0,1,"Neutral","lorc/footprint",los=False,effects=[status("Caster","Mp",2,1)],cd=2),
+ R("sacred-grove","Cercle sacré","Sacred Grove",4,0,3,0,0,1,"Neutral","delapouite/circle-forest",los=False,area=("Circle",2),effects=shared(3,("Resistance",20,1),dict(stat="Ap",v=-1,st=1)),cd=4),
+)
 creatures = [
  # Adaptive for a Hawk its summoner's path feeds (sprint 191, brick E): the class's has no element to follow, so strikes in Air as before.
  S("peck","Coup de bec","Peck",3,1,1,5,8,2,"Air",1,ranks=False,adaptive=True),
@@ -481,6 +515,8 @@ def budget(sp, scale=1):
     if any(k == "drain" for k, _ in kinds): f *= 0.85
     # A corpse taken (sprint 214, the Necromancer's): a resource the fight gives, worth half the blow more.
     if sp.get("corpse"): f *= 1.5
+    # A glyph laid with the blow (sprint 216, the Druid's shared ground): it pays a fifth of the blow.
+    if any(k == "glyph" for k, _ in kinds): f *= 0.8
     avg = f * sp["apCost"]
     sp["damageMin"], sp["damageMax"] = max(1, round(avg * 0.85)), max(1, round(avg * 1.15))
     sp["ranks"] = [O([("damageMin", round(sp["damageMin"] * g)), ("damageMax", round(sp["damageMax"] * g))]) for g in (1.2, 1.4, 1.6, 1.8)]
@@ -519,6 +555,16 @@ NECROMANCER_BUDGET = 0.85
 for sp in necromancer:
     if sp["damageMax"] > 0:
         budget(sp, NECROMANCER_BUDGET)
+# The Druid at 1, measured (docs/classes-druide.md §4; 0.85 in the design): alone at 0.85 it won 18 % of the bench. Its worth is in the ground it shares. A glyph that burns the enemies does a third of the blow.
+DRUID_BUDGET = 1.0
+def burns(sp):
+    for e in sp.get("effects", []):
+        if e["kind"] == "glyph" and e["affects"] == "Enemies" and e.get("damageMax"):
+            e["damageMin"], e["damageMax"] = max(1, sp["damageMin"] // 3), max(1, sp["damageMax"] // 3)
+for sp in druid:
+    if sp["damageMax"] > 0:
+        budget(sp, DRUID_BUDGET)
+        burns(sp)
 # One exception (sprint 162, D85, T129): Rockfall at 6 AP a step above the budget, 13-17, so that the Sentinel of 41 keeps
 # its 7 in 10 in the Combe's great hall; +1 helps the mixed hero (+12 of bonus) more than the one of one element (+34).
 for sp in sentinel:
@@ -580,11 +626,20 @@ GESTURES = {
  "bone-shard": ("Écharde", "Sliver"), "fever": ("Fièvre", "Fever"), "drowned-hand": ("Main noyée", "Drowned Grip"), "wail": ("Plainte", "Lament"),
  "ossuary": ("Ossuaire", "Ossuary"), "funeral-blaze": ("Bûcher funèbre", "Funeral Pyre"), "black-tide": ("Reflux noir", "Black Ebb"), "soul-wind": ("Souffle des âmes", "Soul Breath"),
  "tombstone": ("Stèle", "Stele"), "tomb-flames": ("Feu tombal", "Tomb Fire"), "dead-waters": ("Eaux mortes", "Dead Waters"), "last-breath": ("Dernier soupir", "Last Sigh"),
+ # The Druid's (sprint 216).
+ "thorn": ("Aiguille", "Needle"), "stump-ember": ("Tisonnier", "Poker"), "drizzle": ("Ondée", "Shower"), "rustle": ("Frisson", "Shiver"),
+ "bramble-lash": ("Fouet", "Lash"), "brushfire": ("Brousse", "Bush"), "spring": ("Résurgence", "Resurgence"), "pollen": ("Poussière", "Dust"),
+ "mound": ("Butte", "Knoll"), "slash-and-burn": ("Écobuage", "Burn-off"), "marsh": ("Fondrière", "Quagmire"), "canopy-wind": ("Ramée", "Boughs"),
+ "felled-oak": ("Tronc", "Trunk"), "wildfire": ("Incendie", "Wildfire"), "thaw-flood": ("Dégel", "Thaw"), "leaf-storm": ("Feuillée", "Foliage"),
 }
 # Where a gesture and a matter would give the name of a spell of the game.
 NAME_CLASHES = {("Ice", "ice-shard"): ("Esquille de glace", "Ice Splinter"), ("Ice", "burning-blade"): ("Lame de givre", "Rime Blade")}
 NAMES = {
  "Lightning": {
+  # The Druid's (sprint 216).
+  "stump-ember": ("Tison d'orage", "Storm Firebrand"), "rustle": ("Bruissement d'orage", "Storm Rustle"), "brushfire": ("Brousse foudroyée", "Thunderstruck Bush"),
+  "pollen": ("Pollen électrique", "Electric Pollen"), "slash-and-burn": ("Brûlis d'orage", "Storm Burn-off"), "canopy-wind": ("Cimes d'orage", "Storm Canopy"),
+  "wildfire": ("Feu du ciel", "Sky Fire"), "leaf-storm": ("Feuilles d'orage", "Storm Leaves"),
   # The Necromancer's (sprint 214).
   "pale-flame": ("Blême d'orage", "Storm Pallor"), "death-rattle": ("Râle d'orage", "Storm Rattle"), "fever": ("Fièvre électrique", "Electric Fever"),
   "wail": ("Plainte d'orage", "Storm Lament"), "funeral-blaze": ("Brasier foudroyant", "Thunder Blaze"), "soul-wind": ("Vent foudroyé", "Thunderstruck Wind"),
@@ -640,7 +695,7 @@ TWIN_ICONS = {
 }
 twins = []
 for el, parents in COMPOUNDS.items():
-    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer:
+    for sp in sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid:
         if sp["element"] in parents and (el == "Lightning" and sp["id"] in NAMES[el] or el in MATTER):
             t = json.loads(json.dumps(sp), object_pairs_hook=O)
             named = NAMES[el][sp["id"]] if el == "Lightning" else NAME_CLASHES.get((el, sp["id"])) or (f"{GESTURES[sp['id']][0]} {MATTER[el][0]}", f"{MATTER[el][1]} {GESTURES[sp['id']][1]}")
@@ -649,7 +704,11 @@ for el, parents in COMPOUNDS.items():
             for e in t.get("effects", []):
                 if e.get("stat") == "Poison":
                     e["element"] = el
-            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else SUMMONER_BUDGET if sp in summoner else NECROMANCER_BUDGET if sp in necromancer else 1))
+                # The Druid's burning ground (sprint 216) burns in the compound's element.
+                if e["kind"] == "glyph" and e.get("element"):
+                    e["element"] = el
+            budget(t, SCALE[el] * (PRIEST_BUDGET if sp in priest else ROGUE_BUDGET if sp in rogue else BERSERKER_BUDGET if sp in berserker else PALADIN_BUDGET if sp in paladin else SUMMONER_BUDGET if sp in summoner else NECROMANCER_BUDGET if sp in necromancer else DRUID_BUDGET if sp in druid else 1))
+            burns(t)
             # The signature is paid for by the 80 %, after the budget; a spell that takes this already keeps its own, the
             # stronger (one caster's statuses of a kind do not add up).
             if el in SIGNATURES:
@@ -659,7 +718,12 @@ for el, parents in COMPOUNDS.items():
             # The trios' signatures (sprint 185): Sap's Bud is in the fight, the others in the spell.
             if el == "Ether":
                 t["lineOfSight"] = False
-            if el == "Ash":
+            # Ash's glyph; a spell that already lays one for the enemies (the Druid's) has it burn in Ash, one glyph a side.
+            if el == "Ash" and any(e["kind"] == "glyph" and e["affects"] == "Enemies" for e in t.get("effects", [])):
+                for e in t["effects"]:
+                    if e["kind"] == "glyph" and e["affects"] == "Enemies":
+                        e["damageMin"], e["damageMax"], e["element"] = max(1, t["damageMin"] // 3), max(1, t["damageMax"] // 3), "Ash"
+            elif el == "Ash":
                 t.setdefault("effects", []).append(glyph("Enemies", 2, max(1, t["damageMin"] // 3), max(1, t["damageMax"] // 3), el="Ash"))
             if el == "Salt":
                 t.setdefault("effects", []).append(status("Enemies", "Healing", -50, 2))
@@ -829,21 +893,21 @@ paths = [
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp)
-_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins]
+_names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
-_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins]
+_names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1], [t["name"]["en"] for t in twins if t.get("twin") and _names.count(t["name"]["en"]) > 1]
 # Every spell of the game may land a critical hit, one time in ten (D61); "crit" left out means never.
-for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + [t for t in twins if t not in tree] + paths:
+for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + [t for t in twins if t not in tree] + paths:
     sp["crit"] = 10
-spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + creatures + beasts + twins + paths
+spells = base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins + paths
 # One id a spell (sprint 206: the Berserker's Howl took a monster's id, and its class listed the monster's spell).
 _ids = [sp["id"] for sp in spells]
 assert len(_ids) == len(set(_ids)), [i for i in set(_ids) if _ids.count(i) > 1]
 lines = ",\n".join("  " + json.dumps(s, ensure_ascii=False, separators=(", ", ": ")).replace('{"', '{ "').replace('}', ' }').replace('[ {', '[{').replace('} ]', '}]') for s in spells)
 open(f"{root}/spells.json", "w").write("[\n" + lines + "\n]\n")
 classes = json.load(open(f"{root}/classes.json"), object_pairs_hook=O)
-lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin], "summoner": [s["id"] for s in summoner], "necromancer": [s["id"] for s in necromancer]}
+lists = {"archer": [s["id"] for s in sentinel], "warrior": [s["id"] for s in guard], "mage": [s["id"] for s in mage], "priest": [s["id"] for s in priest], "rogue": [s["id"] for s in rogue], "berserker": [s["id"] for s in berserker], "paladin": [s["id"] for s in paladin], "summoner": [s["id"] for s in summoner], "necromancer": [s["id"] for s in necromancer], "druid": [s["id"] for s in druid]}
 for c in classes:
     c["spells"] = lists[c["id"]]
 open(f"{root}/classes.json", "w").write(json.dumps(classes, ensure_ascii=False, indent=2) + "\n")
