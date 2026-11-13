@@ -182,6 +182,9 @@ public class CiLevelsTests
         // Sprint 213 (docs/classes-invocateur-3.md §4): at 100 the Demon Caller calls its Demon 0.3 times a fight, its three creatures taken by the Hounds and the
         // Wisp: the Archdemonist's Demon sooner changes none of its fights; the Astral Architect's second Constellation, seldom laid, neither.
         "archdemonist", "astral-architect",
+        // Sprint 215 (docs/classes-necromancien-2.md §5): a Ghoul asks for a corpse and the Offering is cast 0.1 to 0.2 times a fight; the Ghoul Lord's Ghoul sooner,
+        // the General of the Dead's movement taken and the Doom Emperor's Offering sooner change none of a hero's 5 fights.
+        "ghoul-lord", "dead-general", "doom-emperor",
     };
 
     /// <summary>
