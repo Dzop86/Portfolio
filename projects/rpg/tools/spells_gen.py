@@ -350,6 +350,8 @@ creatures = [
  S("pillar-shard","Éclat du pilier","Pillar Shard",3,1,4,5,8,2,"Earth",1,ranks=False,adaptive=True),
  # The Necromancer's dead (sprint 214, docs/classes-necromancien.md §2): up close, in its raiser's strongest element.
  S("risen-claw","Griffe du mort","Dead Claw",3,1,1,7,10,2,"Earth",1,ranks=False,adaptive=True),
+ # The Macabre Caller's ghouls (sprint 215, docs/classes-necromancien-2.md §1): many, frail, thrown away.
+ S("ghoul-bite","Morsure de goule","Ghoul Bite",3,1,1,5,8,2,"Earth",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -811,6 +813,17 @@ paths = [
  path("bone-rampart","Rempart d'os","Bone Rampart",2,1,5,30,"lorc/bone-gnawer",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,corpse=True),
  path("unlife","Non-vie","Unlife",3,1,6,50,"lorc/skull-ring",los=False,effects=[fuse(3,30)],cd=3,aims="risen"),
  path("marrow","Moelle","Marrow",2,1,6,50,"lorc/broken-bone",los=False,effects=[status("Allies","Damage",30,2),status("Allies","Mp",2,1)],cd=2,aims="risen"),
+ # The Macabre Caller (sprint 215, docs/classes-necromancien-2.md §1): many dead, thrown away; the Ghoul Master feeds them, the Commander of the Dead spends them.
+ path("ghoul","Goule","Ghoul",2,1,4,30,"lorc/carnivore-mouth",los=False,effects=[summon("ghoul",mx=3)],cd=2,corpse=True),
+ path("quarry","Curée","Quarry",2,1,6,30,"lorc/grasping-claws",los=False,effects=[status("Enemies","Ordered",25,2)],cd=1),
+ path("gorging","Ripaille","Gorging",2,1,5,50,"lorc/cauldron",los=False,area=("Circle",1),effects=[heal("Allies",15,20),status("Allies","Damage",20,2)],cd=2,corpse=True),
+ path("offering","Sacrifice","Offering",3,1,6,50,"lorc/sacrificial-dagger",damage=True,los=False,area=("Circle",1),cd=2,aims="ghoul"),
+ # The Occultist (sprint 215, §2): no creature at all, blood and souls; its poisons stack. The Sanguimancer pays in blood, the Thanaturge finishes off.
+ path("hex","Malédiction","Hex",3,1,6,30,"lorc/cursed-star",effects=[status("Enemies","Resistance",-15,2),status("Enemies","Damage",-15,2)],cd=2),
+ path("blight","Flétrissure","Blight",3,1,6,30,"lorc/dripping-goo",damage=True,effects=[status("Enemies","Poison",6,3)],cd=1),
+ # Boiling Blood as heavy as Reaping (sprint 215, measured): 4 AP from 1 to 5 cells and cooldown 1 put the Sanguimancer 15 points over its class at 60.
+ path("boiling-blood","Sang bouillant","Boiling Blood",4,1,4,50,"lorc/heartburn",damage=True,effects=[drain(20)],cd=2,hp=10),
+ path("reaping","Moisson","Reaping",5,1,4,50,"lorc/scythe",damage=True,cd=2),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
@@ -857,6 +870,7 @@ summons.append(young("demon","Démon","Demon","stag-melee",85,50,6,4,55,["demon-
 summons.append(young("pillar","Pilier","Pillar","golem-ranged",75,40,6,0,30,["pillar-shard"]))
 # The Necromancer's (sprint 214, docs/classes-necromancien.md §2): it rises from a corpse and wears it, fed by its raiser's class.
 summons.append(O(list(young("risen","Mort levé","Risen","zombie-tank",85,40,6,3,45,["risen-claw"]).items()) + [("wearsCorpse", True)]))
+summons.append(O(list(young("ghoul","Goule","Ghoul","zombie-tank",70,20,6,4,70,["ghoul-bite"]).items()) + [("wearsCorpse", True)]))
 # The Summoner's (sprint 211, docs/classes-invocateur.md §2): their hit points and characteristics a share of its own (its class's rules).
 summons += [
  young("hound","Molosse","Hound","wolf-melee",80,30,6,4,60,["hound-fang"]),

@@ -144,6 +144,23 @@
     "wearsCorpse": true
   },
   {
+    "id": "ghoul",
+    "name": {
+      "fr": "Goule",
+      "en": "Ghoul"
+    },
+    "look": "zombie-tank",
+    "hp": 20,
+    "ap": 6,
+    "mp": 4,
+    "initiative": 70,
+    "spells": [
+      "ghoul-bite"
+    ],
+    "scale": 70,
+    "wearsCorpse": true
+  },
+  {
     "id": "hound",
     "name": {
       "fr": "Molosse",

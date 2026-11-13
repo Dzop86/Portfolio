@@ -508,7 +508,9 @@ public static class Ai
         double drawnHit = 0;
         if (spell.DamageMax > 0)
         {
-            foreach (Fighter f in area.Where(f => !(f == me && from == target && spell.MaxRange == 0 && spell.Zone.Radius > 0)))
+            // What the blow spares (Fight.Spares): its caster at the heart of its own area; the creature it is cast on (the Offering, sprint 215).
+            foreach (Fighter f in area.Where(f => !(f == me && from == target && spell.MaxRange == 0 && spell.Zone.Radius > 0)
+                && !(spell.Aims is not null && f.Cell == target && f.Summoner == me.Id)))
             {
                 // The one estimate (sprint 141): the rule of a hit, the living talents read from where it would be cast.
                 double hit = Math.Min(Fight.Expected(spell.AverageDamage, me, f, spell.Element, Talents.Percent(me.Talents, from, f.Cell, spell.Element, fight.ContextOf(me, spell, from, f))), f.Hp + f.Shield);

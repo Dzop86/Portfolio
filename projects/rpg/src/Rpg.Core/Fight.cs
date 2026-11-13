@@ -1465,8 +1465,10 @@ public sealed class Fight
     /// A blow all around its caster spares it (sprint 206, the Berserker's Whirl and Ravage): an area of range 0, cast on the caster's own cell, does it no
     /// damage. No spell was such before; an area that may reach further still hurts its caster on its cell, a spell without an area (a sacrifice) too.
     /// </summary>
+    /// <remarks>Sprint 215 (docs/classes-necromancien-2.md §1): a blow cast on one of the caster's creatures (the Offering, on a Ghoul) spares it too: it is the blow's hearth.</remarks>
     public static bool Spares(Spell spell, Fighter caster, Cell target, Fighter hit) =>
-        hit == caster && target == caster.Cell && (spell ?? throw new ArgumentNullException(nameof(spell))).MaxRange == 0 && spell.Zone.Radius > 0;
+        (hit == caster && target == caster.Cell && (spell ?? throw new ArgumentNullException(nameof(spell))).MaxRange == 0 && spell.Zone.Radius > 0)
+        || (spell.Aims is not null && hit.Cell == target && hit.Summoner == caster.Id);
 
     /// <summary>The cells from which an enemy may still aim at a hidden fighter (the Rogue's Stealth, sprint 204).</summary>
     public const int HiddenCells = 2;

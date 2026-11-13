@@ -5472,5 +5472,452 @@
       "en": "One dead at a time, of one element: the Crypt never held so many."
     },
     "icon": "spec-dead-master"
+  },
+  {
+    "id": "macabre-caller",
+    "class": "necromancer",
+    "name": {
+      "fr": "Invocateur macabre",
+      "en": "Macabre Caller"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Invocateur macabre",
+        "en": "Macabre Caller"
+      },
+      "description": {
+        "fr": "Des Goules, trois au plus, chacune levée sur un cadavre et nourrie de 12 % de tes PV et de 30 % de tes caractéristiques. Sorts : Goule, et Curée, l'ennemi que tes morts frappent de 25 % de plus.",
+        "en": "Ghouls, three at most, each raised on a corpse and fed by 12% of your HP and 30% of your characteristics. Spells: Ghoul, and Quarry, the enemy your dead strike 25% harder."
+      },
+      "spells": [
+        "path-ghoul",
+        "path-quarry"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "ghoul",
+          "hpPercent": 12,
+          "statsPercent": 30
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "ghoul-master",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Maître des goules",
+              "en": "Ghoul Master"
+            },
+            "description": {
+              "fr": "Tes Goules prennent 18 % de tes PV et 40 % de tes caractéristiques. Sort : Ripaille, un cadavre mangé par les tiens autour de lui : soin et 20 % de dégâts, 2 tours.",
+              "en": "Your Ghouls take 18% of your HP and 40% of your characteristics. Spell: Gorging, a corpse eaten by your side around it: a heal and 20% damage, 2 turns."
+            },
+            "spells": [
+              "path-gorging"
+            ],
+            "rules": [
+              {
+                "kind": "summon-share",
+                "summon": "ghoul",
+                "hpPercent": 18,
+                "statsPercent": 40
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Elles ont toujours faim. Moi aussi, à force.",
+          "en": "They are always hungry. So am I, by now."
+        },
+        "icon": "spec-ghoul-master",
+        "finals": [
+          {
+            "id": "ghoul-lord",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des goules",
+                "en": "Ghoul Lord"
+              },
+              "description": {
+                "fr": "Goule se relance en 1 tour au lieu de 2.",
+                "en": "Ghoul comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-ghoul",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Il en sort de partout. Je n'ai qu'à ouvrir.",
+              "en": "They come out of everywhere. I only open the way."
+            },
+            "icon": "spec-ghoul-lord"
+          },
+          {
+            "id": "soul-devourer",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Dévoreur d'âmes",
+                "en": "Soul Devourer"
+              },
+              "description": {
+                "fr": "Ripaille soigne aussi de 8 PV par tour, 2 tours.",
+                "en": "Gorging also heals 8 HP a turn, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-gorging",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Allies",
+                      "stat": "Regen",
+                      "value": 8,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "La chair nourrit. Ce qui l'habitait, davantage.",
+              "en": "Flesh feeds. What dwelt in it, more."
+            },
+            "icon": "spec-soul-devourer"
+          }
+        ]
+      },
+      {
+        "id": "dead-commander",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Commandant des morts",
+              "en": "Commander of the Dead"
+            },
+            "description": {
+              "fr": "Sort : Sacrifice, ta Goule sert de foyer : un coup autour d'elle, qui l'épargne.",
+              "en": "Spell: Offering, your Ghoul is the hearth: a blow all around it, which spares it."
+            },
+            "spells": [
+              "path-offering"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ils ne reculent pas. Ils ne savent plus.",
+          "en": "They do not fall back. They no longer know how."
+        },
+        "icon": "spec-dead-commander",
+        "finals": [
+          {
+            "id": "dead-general",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Général des morts",
+                "en": "General of the Dead"
+              },
+              "description": {
+                "fr": "Sacrifice retire aussi 1 PM aux ennemis touchés.",
+                "en": "Offering also takes 1 MP from the enemies it strikes."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-offering",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Enemies",
+                      "stat": "Mp",
+                      "value": -1,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Une ligne de morts tient mieux qu'un mur.",
+              "en": "A line of the dead holds better than a wall."
+            },
+            "icon": "spec-dead-general"
+          },
+          {
+            "id": "doom-emperor",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Empereur funeste",
+                "en": "Doom Emperor"
+              },
+              "description": {
+                "fr": "Sacrifice se relance en 1 tour au lieu de 2.",
+                "en": "Offering comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-offering",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Tout ce qui tombe finit par me servir.",
+              "en": "All that falls ends up serving me."
+            },
+            "icon": "spec-doom-emperor"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Beaucoup de morts, aucun ne compte : la Crypte, en petit.",
+      "en": "Many dead, none that matters: the Crypt, in small."
+    },
+    "icon": "spec-macabre-caller"
+  },
+  {
+    "id": "occultist",
+    "class": "necromancer",
+    "name": {
+      "fr": "Occultiste",
+      "en": "Occultist"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Occultiste",
+        "en": "Occultist"
+      },
+      "description": {
+        "fr": "Aucune créature : tes poisons d'un même élément se cumulent, jusqu'à 3 fois. Sorts : Malédiction, −15 % de résistance et de dégâts à un ennemi, 2 tours ; Flétrissure, un coup et un poison.",
+        "en": "No creature: your poisons of one element stack, up to 3 times. Spells: Hex, −15% resistance and damage to an enemy, 2 turns; Blight, a blow and a poison."
+      },
+      "spells": [
+        "path-hex",
+        "path-blight"
+      ],
+      "rules": [
+        {
+          "kind": "stack",
+          "max": 3
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "sanguimancer",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Sanguinomancien",
+              "en": "Sanguimancer"
+            },
+            "description": {
+              "fr": "Sort : Sang bouillant, un coup de 1 à 4 cases que tu paies de 10 PV, et qui te rend 20 % de ses dégâts.",
+              "en": "Spell: Boiling Blood, a blow from 1 to 4 cells you pay 10 HP for, which gives you back 20% of its damage."
+            },
+            "spells": [
+              "path-boiling-blood"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Le sang se prête. Il se rend toujours.",
+          "en": "Blood is lent. It always comes back."
+        },
+        "icon": "spec-sanguimancer",
+        "finals": [
+          {
+            "id": "blood-lord",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur du sang",
+                "en": "Blood Lord"
+              },
+              "description": {
+                "fr": "Sang bouillant te donne aussi 8 % de dégâts, 2 tours.",
+                "en": "Boiling Blood also gives you 8% damage, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-boiling-blood",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Damage",
+                      "value": 8,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque goutte connaît son chemin.",
+              "en": "Every drop knows its way."
+            },
+            "icon": "spec-blood-lord"
+          },
+          {
+            "id": "hemarch",
+            "template": "Form",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Hémarque",
+                "en": "Hemarch"
+              },
+              "description": {
+                "fr": "Sang bouillant te laisse une forme pour le reste du combat : 8 % de dégâts.",
+                "en": "Boiling Blood leaves you a form for the rest of the fight: 8% damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-boiling-blood",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Rage",
+                      "value": 8,
+                      "turns": 99
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne saigne plus. Je dépense.",
+              "en": "I bleed no more. I spend."
+            },
+            "icon": "spec-hemarch"
+          }
+        ]
+      },
+      {
+        "id": "thanaturge",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Thanaturge",
+              "en": "Thanaturge"
+            },
+            "description": {
+              "fr": "Tu frappes de 25 % de plus un ennemi sous 30 % de ses PV. Sort : Moisson, un coup lourd de 1 à 4 cases.",
+              "en": "You strike an enemy under 30% of its HP 25% harder. Spell: Reaping, a heavy blow from 1 to 4 cells."
+            },
+            "spells": [
+              "path-reaping"
+            ],
+            "rules": [
+              {
+                "kind": "execute",
+                "below": 30,
+                "percent": 25
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Je ne tue pas. J'arrive à l'heure.",
+          "en": "I do not kill. I come on time."
+        },
+        "icon": "spec-thanaturge",
+        "finals": [
+          {
+            "id": "soul-master",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des âmes",
+                "en": "Master of Souls"
+              },
+              "description": {
+                "fr": "Moisson te rend aussi 30 % de ses dégâts.",
+                "en": "Reaping also gives you back 30% of its damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-reaping",
+                  "addEffects": [
+                    {
+                      "kind": "drain",
+                      "affects": "Caster",
+                      "percent": 30
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Elles passent par moi. J'en garde un peu.",
+              "en": "They pass through me. I keep a little."
+            },
+            "icon": "spec-soul-master"
+          },
+          {
+            "id": "eternal-reaper",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Faucheur éternel",
+                "en": "Eternal Reaper"
+              },
+              "description": {
+                "fr": "Moisson se relance en 1 tour au lieu de 2.",
+                "en": "Reaping comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-reaping",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le champ ne finit jamais.",
+              "en": "The field never ends."
+            },
+            "icon": "spec-eternal-reaper"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Rien ne se lève : tout se retient, le sang et ce qui s'en va.",
+      "en": "Nothing rises: everything is held, the blood and what leaves."
+    },
+    "icon": "spec-occultist"
   }
 ]
