@@ -114,11 +114,13 @@ public class DruidTests
     public void WhatSetsTheDruidApart_ItsGlyphsHelpTheAlliesToo()
     {
         // docs/classes-conception.md §1.4: the Ranger's glyphs strike enemies only, the Druid's help the allies too.
-        string[] druid = [.. Real.Class("druid")!.Spells];
+        // Its paths' spells too since sprint 217 (the Hedge, the Trample).
+        string[] druid = [.. Real.Class("druid")!.Spells, .. Real.Specs.Values.Where(s => s.Class == "druid")
+            .SelectMany(s => (s.Base.Spells ?? []).Concat(s.Forks.SelectMany(f => f.Tiers.SelectMany(t => t.Spells ?? []))))];
         string[] others = [.. Real.Classes.Where(c => c.Id != "druid").SelectMany(c => c.Spells), .. Real.Specs.Values.Where(s => s.Class != "druid")
             .SelectMany(s => (s.Base.Spells ?? []).Concat(s.Forks.SelectMany(f => f.Tiers.SelectMany(t => t.Spells ?? []))))];
         Assert.All(others.Select(id => Real.Spells[id]), s => Assert.DoesNotContain(GlyphsOf(s), g => g.Welcomes));
-        // No spell of the game but the Druid's and its twins welcomes.
+        // No spell of the game but the Druid's, its paths' and its twins welcomes.
         Assert.All(Real.Spells.Values.Where(s => GlyphsOf(s).Any(g => g.Welcomes)), s => Assert.Contains(s.Twin ?? s.Id, druid));
     }
 

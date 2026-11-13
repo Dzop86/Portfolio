@@ -185,6 +185,9 @@ public class CiLevelsTests
         // Sprint 215 (docs/classes-necromancien-2.md §5): a Ghoul asks for a corpse and the Offering is cast 0.1 to 0.2 times a fight; the Ghoul Lord's Ghoul sooner,
         // the General of the Dead's movement taken and the Doom Emperor's Offering sooner change none of a hero's 5 fights.
         "ghoul-lord", "dead-general", "doom-emperor",
+        // Sprint 217 (docs/classes-druide-2.md §4): the Changeform's Pounce and the Wild Druid's Trample, cast 0.3 to 0.4 times a fight: the Primal Predator's
+        // Pounce sooner and the Lord of Shapes' Trample sooner change none of a hero's fights.
+        "primal-predator", "shape-lord",
     };
 
     /// <summary>
@@ -210,6 +213,8 @@ public class CiLevelsTests
         "path-plague",
         // Sprint 212 (docs/classes-invocateur-2.md §4): the Tamer's Recall, a swap the AI makes only to rescue; the Titbit, a heal of a creature seldom hurt alone.
         "path-recall", "path-titbit",
+        // Sprint 217 (docs/classes-druide-2.md §4): the Nature Warden's Hedge, a shared glyph whose worth is the party's, as the kit's Bramble Ring alone.
+        "path-hedge",
         // Played since sprint 210, their path spells ranked and the leaps worth their blow (D98): the Jaws and the Crescendo, rarely, the Assault, the Low Blow, the
         // Shadow Step, the Ravager's blows paid in hit points, the Barbarian's and the Gladiator's spells and the Feral Leap.
     };
