@@ -1692,5 +1692,103 @@
     "light": "#e1ccb9",
     "dark": "#6f5946",
     "outline": "#1e1813"
+  },
+  "spec-nature-warden": {
+    "shape": "lorc/oak",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-sylvan": {
+    "shape": "delapouite/forest",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-woods-lord": {
+    "shape": "lorc/vine-flower",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-sylvan-elder": {
+    "shape": "lorc/beech",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-grove-keeper": {
+    "shape": "lorc/root-tip",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-ancestral-warden": {
+    "shape": "delapouite/circle-forest",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-forest-spirit": {
+    "shape": "lorc/leaf-swirl",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-shapeshifter": {
+    "shape": "delapouite/tiger-head",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-changeform": {
+    "shape": "lorc/snake",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-beasts-king": {
+    "shape": "delapouite/mammoth",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-primal-predator": {
+    "shape": "lorc/saber-tooth",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-wild-druid": {
+    "shape": "lorc/sprout",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-animal-avatar": {
+    "shape": "lorc/wyvern",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
+  },
+  "spec-shape-lord": {
+    "shape": "lorc/animal-skull",
+    "main": "#c9a27f",
+    "light": "#e1ccb9",
+    "dark": "#6f5946",
+    "outline": "#1e1813"
   }
 }

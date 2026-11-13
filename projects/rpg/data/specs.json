@@ -5919,5 +5919,446 @@
       "en": "Nothing rises: everything is held, the blood and what leaves."
     },
     "icon": "spec-occultist"
+  },
+  {
+    "id": "nature-warden",
+    "class": "druid",
+    "name": {
+      "fr": "Gardien de la nature",
+      "en": "Nature Warden"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Gardien de la nature",
+        "en": "Nature Warden"
+      },
+      "description": {
+        "fr": "Les glyphes que tu poses durent un tour de plus. Sorts : Haie, une croix de terrain partagé (ennemis −1 PM, alliés +20 % de résistance) ; Écorce, un bouclier de 20 sur un allié.",
+        "en": "The glyphs you lay last one turn more. Spells: Hedge, a cross of shared ground (enemies −1 MP, allies +20% resistance); Barkskin, a shield of 20 on an ally."
+      },
+      "spells": [
+        "path-hedge",
+        "path-barkskin"
+      ],
+      "rules": [
+        {
+          "kind": "glyph-turns",
+          "extra": 1
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "sylvan",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Sylvain",
+              "en": "Sylvan"
+            },
+            "description": {
+              "fr": "Tes coups frappent de 20 % de plus un ennemi debout sur l'une de tes glyphes. Sort : Colère des bois, un coup en cercle de 2 à 4 cases.",
+              "en": "Your blows strike an enemy standing on one of your glyphs 20% harder. Spell: Wrath of the Woods, a blow in a circle from 2 to 4 cells."
+            },
+            "spells": [
+              "path-woods-wrath"
+            ],
+            "rules": [
+              {
+                "kind": "glyph-target",
+                "inside": 20,
+                "outside": 0
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La forêt ne pardonne pas à qui s'y tient mal.",
+          "en": "The forest does not forgive those who stand badly in it."
+        },
+        "icon": "spec-sylvan",
+        "finals": [
+          {
+            "id": "woods-lord",
+            "template": "Trace",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des bois",
+                "en": "Lord of the Woods"
+              },
+              "description": {
+                "fr": "Colère des bois laisse un terrain partagé, 2 tours : ennemis −1 PM, alliés +10 % de dégâts.",
+                "en": "Wrath of the Woods leaves shared ground, 2 turns: enemies −1 MP, allies +10% damage."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-woods-wrath",
+                  "addEffects": [
+                    {
+                      "kind": "glyph",
+                      "affects": "Enemies",
+                      "turns": 2,
+                      "status": "Mp",
+                      "value": -1,
+                      "statusTurns": 1
+                    },
+                    {
+                      "kind": "glyph",
+                      "affects": "Allies",
+                      "turns": 2,
+                      "status": "Damage",
+                      "value": 10,
+                      "statusTurns": 1,
+                      "welcomes": true
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque arbre est à moi. Chaque racine aussi.",
+              "en": "Every tree is mine. Every root too."
+            },
+            "icon": "spec-woods-lord"
+          },
+          {
+            "id": "sylvan-elder",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Ancien sylvestre",
+                "en": "Sylvan Elder"
+              },
+              "description": {
+                "fr": "Colère des bois se relance en 1 tour au lieu de 2.",
+                "en": "Wrath of the Woods comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-woods-wrath",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "J'ai vu pousser ces chênes. Je les ai vus tomber.",
+              "en": "I saw these oaks grow. I saw them fall."
+            },
+            "icon": "spec-sylvan-elder"
+          }
+        ]
+      },
+      {
+        "id": "grove-keeper",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Protecteur",
+              "en": "Grove Keeper"
+            },
+            "description": {
+              "fr": "Tes boucliers sur tes alliés valent 25 % de plus. Sort : Branche gardienne, un coup de 1 à 4 cases qui te donne un bouclier de 12, 2 tours.",
+              "en": "Your shields on your allies are worth 25% more. Spell: Guarding Bough, a blow from 1 to 4 cells that gives you a shield of 12, 2 turns."
+            },
+            "spells": [
+              "path-guarding-bough"
+            ],
+            "rules": [
+              {
+                "kind": "ally-shield",
+                "percent": 25
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Derrière moi, il y a toujours un bosquet.",
+          "en": "Behind me there is always a grove."
+        },
+        "icon": "spec-grove-keeper",
+        "finals": [
+          {
+            "id": "ancestral-warden",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Gardien ancestral",
+                "en": "Ancestral Warden"
+              },
+              "description": {
+                "fr": "Branche gardienne te donne aussi +8 % de résistance, 2 tours.",
+                "en": "Guarding Bough also gives you +8% resistance, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-guarding-bough",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Resistance",
+                      "value": 8,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Les anciens tenaient ce bois. Je le tiens encore.",
+              "en": "The elders held this wood. I hold it still."
+            },
+            "icon": "spec-ancestral-warden"
+          },
+          {
+            "id": "forest-spirit",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Esprit de la forêt",
+                "en": "Spirit of the Forest"
+              },
+              "description": {
+                "fr": "Branche gardienne se relance en 1 tour au lieu de 2.",
+                "en": "Guarding Bough comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-guarding-bough",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne suis plus tout à fait là. La forêt, si.",
+              "en": "I am not quite here any more. The forest is."
+            },
+            "icon": "spec-forest-spirit"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Le terrain d'abord : ceux qui s'y tiennent durent plus longtemps.",
+      "en": "The ground first: those who stand on it last longer."
+    },
+    "icon": "spec-nature-warden"
+  },
+  {
+    "id": "shapeshifter",
+    "class": "druid",
+    "name": {
+      "fr": "Métamorphe",
+      "en": "Shapeshifter"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Métamorphe",
+        "en": "Shapeshifter"
+      },
+      "description": {
+        "fr": "Forme sauvage : 20 % de dégâts pendant 3 tours, sans payer de PV ; elle passe, et revient. Sorts : Forme sauvage ; Griffes, un coup au contact, en forme seulement.",
+        "en": "Wild Shape: 20% damage for 3 turns, without paying HP; it passes, and comes back. Spells: Wild Shape; Claws, a blow up close, in form only."
+      },
+      "spells": [
+        "path-wild-shape",
+        "path-claws"
+      ]
+    },
+    "forks": [
+      {
+        "id": "changeform",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Changeforme",
+              "en": "Changeform"
+            },
+            "description": {
+              "fr": "Sort : Bond du fauve, en forme, un bond en ligne de 2 à 4 cases qui frappe en croix là où tu retombes.",
+              "en": "Spell: Pounce, in form, a leap in a line from 2 to 4 cells that strikes in a cross where you land."
+            },
+            "spells": [
+              "path-pounce"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Une forme pour chaque proie.",
+          "en": "A shape for every prey."
+        },
+        "icon": "spec-changeform",
+        "finals": [
+          {
+            "id": "beasts-king",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Roi des bêtes",
+                "en": "King of Beasts"
+              },
+              "description": {
+                "fr": "Bond du fauve retire aussi 1 PM aux ennemis touchés, 1 tour.",
+                "en": "Pounce also takes 1 MP from the enemies it strikes, 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-pounce",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Enemies",
+                      "stat": "Mp",
+                      "value": -1,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Les bêtes ne me suivent pas. Elles m'attendent.",
+              "en": "The beasts do not follow me. They wait for me."
+            },
+            "icon": "spec-beasts-king"
+          },
+          {
+            "id": "primal-predator",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Prédateur primordial",
+                "en": "Primal Predator"
+              },
+              "description": {
+                "fr": "Bond du fauve se relance en 1 tour au lieu de 2.",
+                "en": "Pounce comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-pounce",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Avant les noms, il y avait la faim.",
+              "en": "Before names, there was hunger."
+            },
+            "icon": "spec-primal-predator"
+          }
+        ]
+      },
+      {
+        "id": "wild-druid",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Druide sauvage",
+              "en": "Wild Druid"
+            },
+            "description": {
+              "fr": "Sort : Piétinement, en forme, un coup tout autour de toi qui laisse un terrain partagé, 2 tours : ennemis −1 PM, alliés +15 % de résistance.",
+              "en": "Spell: Trample, in form, a blow all around you that leaves shared ground, 2 turns: enemies −1 MP, allies +15% resistance."
+            },
+            "spells": [
+              "path-trample"
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La bête garde le bois. Le bois garde la bête.",
+          "en": "The beast keeps the wood. The wood keeps the beast."
+        },
+        "icon": "spec-wild-druid",
+        "finals": [
+          {
+            "id": "animal-avatar",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Avatar animal",
+                "en": "Animal Avatar"
+              },
+              "description": {
+                "fr": "Piétinement te donne aussi 10 % de dégâts, 2 tours.",
+                "en": "Trample also gives you 10% damage, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-trample",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Caster",
+                      "stat": "Damage",
+                      "value": 10,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Je ne prends plus forme. Je suis la forme.",
+              "en": "I no longer take a shape. I am the shape."
+            },
+            "icon": "spec-animal-avatar"
+          },
+          {
+            "id": "shape-lord",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des métamorphoses",
+                "en": "Lord of Shapes"
+              },
+              "description": {
+                "fr": "Piétinement se relance en 1 tour au lieu de 2.",
+                "en": "Trample comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-trample",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Homme, loup, ours : je choisis à chaque souffle.",
+              "en": "Man, wolf, bear: I choose at every breath."
+            },
+            "icon": "spec-shape-lord"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Une forme qui se prend et se quitte, sans rien payer.",
+      "en": "A shape taken and left, without paying anything."
+    },
+    "icon": "spec-shapeshifter"
   }
 ]

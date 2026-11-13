@@ -59,6 +59,9 @@ public static class Ai
     /// <summary>The share of an ally's round of blows a damage bonus given to it is worth a turn (sprint 211, D99): not every blow lands.</summary>
     internal const double BoostShare = 0.5;
 
+    /// <summary>The turns of a form that lasts the fight (the Berserker's Rage, sprint 206); a shorter one passes (the Shapeshifter's, sprint 217).</summary>
+    internal const int FormTurns = 99;
+
     // The monsters each fight's other heroes hit this round, with the number of events read (sprint 122).
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Fight, Tuple<int, int, HashSet<int>>> HitThisRound = [];
 
@@ -598,6 +601,9 @@ public static class Ai
                         Stat.Ap or Stat.Mp => sign * 2.0 * st.Value * st.Turns,
                         // Stealth (sprint 204): the blows of the enemies too far to come within reach of it, at least 1 a turn.
                         Stat.Hidden => sign * Math.Max(1, Unreached(fight, f)) * st.Turns,
+                        // A passing form (the Shapeshifter's Wild Shape, sprint 217, docs/classes-druide-2.md §2): the bonus on the bearer's rounds while it lasts,
+                        // the form's blows among them. Counted as the lasting form below, 3 turns were worth 12, under a blow: the Druid never took it.
+                        Stat.Rage when st.Turns < FormTurns => sign * st.Value / 100.0 * RoundOf(fight, f) * st.Turns,
                         // A form (sprint 206): a damage bonus for the rest of the fight, counted over 8 turns.
                         Stat.Rage => sign * 0.05 * st.Value * Math.Min(st.Turns, 8) * 4,
                         // The Summoner's order (sprint 211): what its creatures would strike the bearer for more.

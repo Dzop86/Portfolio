@@ -888,6 +888,19 @@ paths = [
  # Boiling Blood as heavy as Reaping (sprint 215, measured): 4 AP from 1 to 5 cells and cooldown 1 put the Sanguimancer 15 points over its class at 60.
  path("boiling-blood","Sang bouillant","Boiling Blood",4,1,4,50,"lorc/heartburn",damage=True,effects=[drain(20)],cd=2,hp=10),
  path("reaping","Moisson","Reaping",5,1,4,50,"lorc/scythe",damage=True,cd=2),
+ # The Druid's Nature Warden (sprint 217, docs/classes-druide-2.md §1): ground that shelters, its glyphs lasting a turn more; the Sylvan strikes from it,
+ # the Grove Keeper shields those in it and itself.
+ path("hedge","Haie","Hedge",3,1,4,30,"delapouite/vines",area=("Cross",1),effects=shared(2,("Resistance",20,1),dict(stat="Mp",v=-1,st=1)),cd=2),
+ path("barkskin","Écorce","Barkskin",2,0,4,30,"delapouite/log",los=False,effects=[shield("Allies",20,2)],cd=2),
+ path("woods-wrath","Colère des bois","Wrath of the Woods",5,2,4,50,"lorc/tree-branch",damage=True,area=("Circle",1),cd=2),
+ # The Grove Keeper's blow shields its caster (sprint 217, measured): a shield of 18 in a circle, for allies the bench has not, was never cast (−10 from the class at 60).
+ path("guarding-bough","Branche gardienne","Guarding Bough",4,1,4,50,"delapouite/barricade",damage=True,effects=[shield("Caster",12,2)],cd=2),
+ # The Shapeshifter (§2): a form of 3 turns, no hit point paid, that ends and comes back (the Berserker's lasts the fight and is paid for, D96 §1.4);
+ # its blows up close ask for it. The Changeform leaps in, the Wild Druid tramples the ground it keeps.
+ path("wild-shape","Forme sauvage","Wild Shape",2,0,0,30,"lorc/sharp-smile",los=False,effects=[status("Caster","Rage",20,3)],cd=4),
+ path("claws","Griffes","Claws",3,1,1,30,"lorc/wolverine-claws",damage=True,form=True,per=2),
+ path("pounce","Bond du fauve","Pounce",4,2,4,50,"lorc/saber-tooth",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2,form=True),
+ path("trample","Piétinement","Trample",4,0,0,50,"lorc/hoof",damage=True,los=False,area=("Circle",1),effects=shared(2,("Resistance",15,1),dict(stat="Mp",v=-1,st=1)),cd=2,form=True),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 for sp in paths:
