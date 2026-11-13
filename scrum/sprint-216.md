@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Druide, mon kit partage ses glyphes avec le groupe (rpg) ; xUnit. PloufDruide créé. | 4 | À faire |
+| En tant que Druide, mon kit partage ses glyphes avec le groupe (rpg) ; xUnit. PloufDruide créé. | 4 | Fait : 24 sorts dont dix à glyphe partagée (une glyphe d'ennemis et une glyphe d'alliés qui accueille, sur les mêmes cases), barème relevé à 1 au banc, six groupes de référence, PloufDruide créé ; Q1-Q3 de `docs/classes-druide.md` (T181) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

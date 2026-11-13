@@ -366,3 +366,7 @@ Voir `docs/classes-necromancien.md` §6. `--class necromancer --simulate 30` : s
 ## 12 novembre 2026 : l'Invocateur macabre et l'Occultiste (S215, T180)
 
 Voir `docs/classes-necromancien-2.md` §5. Banc à 40 combats par groupe (35 à 60), 30 au niveau 100 : B5 tenue (−1,7 à +2,1) ; à 50, Liche +5,9, Commandant des morts −6,3, Sanguinomancien +6,6, Thanaturge −4,2 (10,9 points entre les lignées de l'Occultiste) ; à 60, Sanguinomancien +8,4, Thanaturge +8,0, Commandant des morts −8,1 ; au 100, les finales à 2,3 points de leur lignée au plus, sauf celles de l'Occultiste (+3,5 à +5,8). Ripaille 0,15, Sacrifice 0,14, Malédiction 0,05 à 0,2 par combat.
+
+## 13 novembre 2026 : le Druide sans voie (S216, T181)
+
+Voir `docs/classes-druide.md` §4. `--class druid --simulate 30`, sans voie : au barème de la conception (0,85), 20,6 au niveau 35, 6,9 au 60, 0,2 au 100 ; **au barème 1 (gardé)**, 36,5 au 35, 17,1 au 60, 15,6 au 100 (Nécromancien 37,9, 21,7 et 12,9 ; Prêtre 23,8, 9,2 et 8,3). Groupes de référence à 45 : Guerrier + Druide 55 %, Voleur + Druide 55 %, Berserker + Druide 66 %, Paladin + Nécromancien + Druide 88 %, les deux autres 100 %.
