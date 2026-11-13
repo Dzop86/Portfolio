@@ -100,12 +100,13 @@ public class TeamAiTests
             return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(all.ToString())))[..16];
         }
         // Sprint 204: the Rogue's fights apart, the other classes' unchanged by its bricks; sprint 206, the Berserker's too.
-        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker" or "paladin" or "summoner" or "necromancer"))));
+        Assert.Equal(SoloFingerprint, Of(Real.Classes.Where(c => c.Id is not ("rogue" or "berserker" or "paladin" or "summoner" or "necromancer" or "druid"))));
         Assert.Equal(PaladinFingerprint, Of(Real.Classes.Where(c => c.Id == "paladin")));
         Assert.Equal(RogueFingerprint, Of(Real.Classes.Where(c => c.Id == "rogue")));
         Assert.Equal(BerserkerFingerprint, Of(Real.Classes.Where(c => c.Id == "berserker")));
         Assert.Equal(SummonerFingerprint, Of(Real.Classes.Where(c => c.Id == "summoner")));
         Assert.Equal(NecromancerFingerprint, Of(Real.Classes.Where(c => c.Id == "necromancer")));
+        Assert.Equal(DruidFingerprint, Of(Real.Classes.Where(c => c.Id == "druid")));
     }
 
     // Sprint 137: the same fights, told with the marks of the hero's hits (Marked, MarkEnded) and a status's reaction (none).
@@ -131,4 +132,7 @@ public class TeamAiTests
 
     // Sprint 214 (docs/classes-necromancien.md): the Necromancer of level 10, its corpses and its dead.
     private const string NecromancerFingerprint = "067A57C2C38B75C3";
+
+    // Sprint 216: the Druid alone, its shared glyphs.
+    private const string DruidFingerprint = "8DD6D6C8D12EE44B";
 }

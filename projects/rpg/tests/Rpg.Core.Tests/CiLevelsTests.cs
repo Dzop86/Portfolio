@@ -242,6 +242,9 @@ public class CiLevelsTests
         // The Necromancer's (sprint 214, measured the same way, 18 fights a party).
         (["warrior", "necromancer"], 55), (["archer", "necromancer"], 61), (["paladin", "necromancer"], 61),
         (["priest", "rogue", "necromancer"], 100), (["mage", "berserker", "necromancer"], 100), (["warrior", "priest", "summoner", "necromancer"], 100),
+        // The Druid's (sprint 216, measured the same way, 15 fights a party).
+        (["warrior", "druid"], 55), (["rogue", "druid"], 55), (["berserker", "druid"], 66),
+        (["archer", "mage", "druid"], 100), (["paladin", "necromancer", "druid"], 88), (["rogue", "berserker", "summoner", "druid"], 100),
     ];
 
     /// <summary>How far from its measure a party may stray, in points (§7.2).</summary>
