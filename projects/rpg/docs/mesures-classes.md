@@ -362,3 +362,7 @@ Voir `docs/classes-invocateur-3.md` §4. `--class summoner --simulate 30` : Dém
 ## 12 novembre 2026 : le Nécromancien et le Maître des morts (S214, T179)
 
 Voir `docs/classes-necromancien.md` §6. `--class necromancer --simulate 30` : sans voie 24,6 au niveau 30, 37,9 au 35, 44,4 au 50, 21,7 au 60, 12,9 au 100 ; Maître des morts +25,6 au 35 ; Liche +24,2 et Seigneur des os +17,5 au 50 (6,6 points d'écart, B6 tenue) ; au 100, de +23,5 à +25,8. Groupes : Guerrier 55 %, Archer 61 %, Paladin 61 % avec le Nécromancien, trios et groupe de quatre 100 %. Empreintes des autres classes inchangées.
+
+## 12 novembre 2026 : l'Invocateur macabre et l'Occultiste (S215, T180)
+
+Voir `docs/classes-necromancien-2.md` §5. Banc à 40 combats par groupe (35 à 60), 30 au niveau 100 : B5 tenue (−1,7 à +2,1) ; à 50, Liche +5,9, Commandant des morts −6,3, Sanguinomancien +6,6, Thanaturge −4,2 (10,9 points entre les lignées de l'Occultiste) ; à 60, Sanguinomancien +8,4, Thanaturge +8,0, Commandant des morts −8,1 ; au 100, les finales à 2,3 points de leur lignée au plus, sauf celles de l'Occultiste (+3,5 à +5,8). Ripaille 0,15, Sacrifice 0,14, Malédiction 0,05 à 0,2 par combat.

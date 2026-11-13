@@ -1,4 +1,4 @@
-# Le Nécromancien, première partie : les cadavres et le Maître des morts *(12 novembre 2026, sprint 214, à valider par Charles)*
+# Le Nécromancien, première partie : les cadavres et le Maître des morts *(12 novembre 2026, sprint 214, validé par Charles : recommandations)*
 
 Ce document prépare la story du sprint 214 : « En tant que Nécromancien, mon kit relève les morts à partir des cadavres, et je deviens Maître des morts ; xUnit. PloufNécromancien créé. » L'Invocateur macabre et l'Occultiste viennent au sprint 215. Il part de `classes-conception.md` (§1.2 la fiche et le moteur, §1.3 « Maître des morts : un seul grand mort, ou se faire mort soi-même », §1.4 ce qui le sépare de l'Invocateur, §4 la brique des cadavres), de `classes-canon.md` (« le Nécromancien tient un mort à la fois, d'un seul élément » ; « un héros tombé n'est pas mort ») et de `classes-liste.md` §8.
 
@@ -129,7 +129,7 @@ La Liche et le Seigneur des os se séparent en une phrase : l'une **prend** son 
 - **Les groupes de référence** (hordes au niveau 45, 18 combats par groupe) : Guerrier + Nécromancien 55 %, Archer + Nécromancien 61 %, Paladin + Nécromancien 61 %, Prêtre + Voleur + Nécromancien, Mage + Berserker + Nécromancien et Guerrier + Prêtre + Invocateur + Nécromancien 100 %.
 - **Les autres classes** jouent les mêmes combats qu'avant (empreintes en solo inchangées) : les cadavres ne touchent que les sorts qui les prennent.
 
-## 7. À trancher par Charles
+## 7. Tranché par Charles (« go reco », 12 novembre)
 
 - **Q1. Les noms** des 24 sorts, du Mort levé, de la Griffe du mort et des 4 sorts de voie : noms de travail, au scénariste. Les titres viennent de ta liste.
 - **Q2. Un sort neutre qui fait des dégâts.** D62 veut 8 sorts neutres sans dégâts par classe ; la Détonation, un cadavre qui explose, frappe dans l'élément de son lanceur. a) **l'exception, pour ce seul sort, écrite dans le test (Reco, fait)** ; b) la Détonation devient un sort d'un élément, et le Nécromancien perd l'un de ses sorts de Terre.
