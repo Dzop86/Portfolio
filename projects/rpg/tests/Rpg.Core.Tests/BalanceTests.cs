@@ -182,7 +182,6 @@ public class BalanceTests
             Hero hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 30), Real, Progression.Kit("craft", "fields", 30, Real));
             return 100 * Results("the-disjoint", fights, hero)[0] / fights;
         })];
-        Assert.All(wins, w => Assert.InRange(w, 30, 100));
         // 80 since sprint 183 (T143): the reactions every hero has at 30 move only the mage, on 1000 fights sentinel 100/100, guard
         // 41/44, mage 52/90 (without, with), an average of 78: Blinded in its range, which no written lever touches. Charles to judge.
         // 90 since the first milestone (sprint 203, docs/jalon-1.md Q3): the Warrior's hit points swept to 74 + 5 make it beat the Disjoint
@@ -190,7 +189,9 @@ public class BalanceTests
         // No ceiling since sprint 211 (D99, docs/classes-invocateur.md Q4): a hero now weighs the movement it takes by the blow it keeps away, and the Archer
         // (76 to 100) and the Priest (62 to 98) hold the lone boss off while it wears itself out, as a player would; the Summoner's creatures take its
         // blows (100). The eight classes average 98.75: the Disjoint is too easy for good play; made harder at the third milestone, the ceiling back (D100).
-        Assert.True(wins.Average() >= 50, $"{string.Join(", ", Classes.Zip(wins, (c, w) => $"{c} {w}"))}: {wins.Average()}");
+        // Back at 90 since sprint 219 (D100, docs/jalon-3.md §4): its Snatching Tongue, from 2 to 5 cells in a line, drags the hero who keeps it away back to its
+        // claws, and it has 480 hit points (450): archer 75, warrior 100, mage 32, priest 95, rogue 65, the five others 100, an average of 86.7. At 520 the Rogue fell to 0.
+        Assert.True(wins.All(w => w >= 30) && wins.Average() >= 50 && wins.Average() <= 90, $"{string.Join(", ", Classes.Zip(wins, (c, w) => $"{c} {w}"))}: {wins.Average()}");
     }
 
     [Theory]

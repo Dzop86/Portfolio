@@ -31,7 +31,7 @@
       },
       "look": "mole-boss",
       "team": 1,
-      "hp": 450,
+      "hp": 480,
       "ap": 8,
       "mp": 3,
       "initiative": 70,
@@ -40,7 +40,8 @@
         "crushing-claws",
         "tongue-crush",
         "fire-sting",
-        "queen-sting"
+        "queen-sting",
+        "snatching-tongue"
       ],
       "resistances": {
         "Earth": 15,

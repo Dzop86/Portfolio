@@ -440,6 +440,8 @@ beasts = [
  S("venom-spit","Crachat venimeux","Venom Spit",3,2,5,7,10,2,"Water",1,effects=[status("Enemies","Poison",4,2,"Water")],ranks=False),
  S("dew-mend","Rosée","Dew Mend",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",11,15)],ranks=False,cd=1),
  S("tongue-crush","Langue écrasante","Tongue Crush",4,1,2,22,28,1,"Water",1,effects=[pull(2)],ranks=False),
+ # The Disjoint's own (sprint 219, D100, docs/jalon-3.md): from 2 to 5 cells in a line, it drags back to its claws the hero who keeps it away.
+ S("snatching-tongue","Langue happante","Snatching Tongue",4,2,5,14,18,1,"Water",1,line=True,effects=[pull(3)],ranks=False,cd=2),
  S("royal-croak","Coassement royal","Royal Croak",4,1,3,15,20,1,"Air",1,area=("Circle",1),ranks=False,cd=1),
  S("pinch","Pince","Pinch",3,1,1,12,17,2,"Earth",1,ranks=False),
  S("bubble-shot","Tir de bulles","Bubble Shot",3,2,5,9,13,2,"Water",1,effects=[push(1)],ranks=False),
