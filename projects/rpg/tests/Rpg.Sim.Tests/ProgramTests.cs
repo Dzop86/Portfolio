@@ -309,4 +309,27 @@ public class ProgramTests
         Assert.Equal(2, Run("--matrix").Code);
         Assert.Equal(2, Run("--simulate", "1", "--decks", "x.json").Code);
     }
+    [Fact]
+    public void TheMatrix_CountsEveryPathSpellsCasts_WhenAsked()
+    {
+        // Sprint 218 (docs/classes-chaman.md §4): every path spell's casts a fight, not only those under the bench's least.
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "warrior", "--level", "35", "--casts");
+        Assert.Equal(0, code);
+        Assert.DoesNotContain("onclusive", output, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("path-", output, StringComparison.Ordinal);
+        Assert.Equal(2, Run("--simulate", "1", "--casts").Code);
+    }
+
+    [Fact]
+    public void TheDurations_TellEachClasssRounds_AloneAndThreeTogether()
+    {
+        // Sprint 219 (docs/jalon-3.md §3): the bounds B15 and B16, how long a fight lasts and what a round costs the rules and the AI.
+        (int code, string output, _) = Run("--durations", "--simulate", "1", "--level", "35");
+        Assert.Equal(0, code);
+        Assert.Equal(GameData.Embedded.Classes.Count, output.Split('\n').Count(l => l.StartsWith("| 3 × ", StringComparison.Ordinal)));
+        Assert.Contains("| priest + paladin |", output, StringComparison.Ordinal);
+        Assert.Contains("| summoner | 4 and 5 |", output, StringComparison.Ordinal);
+        Assert.Equal(2, Run("--durations", "--simulate", "1", "--matrix").Code);
+        Assert.Equal(2, Run("--durations").Code);
+    }
 }

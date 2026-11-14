@@ -61,6 +61,11 @@ public static class Program
                 error.WriteLine($"Unknown scenario '{options.Scenario}'.");
                 return 2;
             }
+            if (options.Durations)
+            {
+                SimulateDurations(data, options, output);
+                return 0;
+            }
             if (options.Matrix)
             {
                 if (options.Class is string only && data.Class(only) is null)
@@ -358,6 +363,52 @@ public static class Program
         }
     }
 
+    /// <summary>
+    /// How long the fights last (sprint 219, the third milestone, bounds B15 and B16 of docs/classes-conception.md §7.3), at the level asked (45 by default):
+    /// each class alone against the bench's groups of 4 and 5, three heroes of each class and the Priest with the Paladin against the hordes of 6 and more;
+    /// the rounds (median, most, at the limit) and the time the rules and the AI take to play a round, here, without the client.
+    /// </summary>
+    private static void SimulateDurations(GameData data, Options options, TextWriter output)
+    {
+        var family = new SyntheticFamily(options.LevelSet ? options.Level : 45);
+        string[] middle = [.. Bench.MiddleGroups(family)];
+        string[] hordes = [.. family.Groups.Where(g => g.Size >= 6).Select(g => g.Scenario)];
+        string[] classes = [.. data.Classes.Select(c => c.Id)];
+        output.WriteLine(FormattableString.Invariant($"Level {family.Level}, {options.Simulate} fights a line, the same seeds; bare heroes, as the bench's."));
+        output.WriteLine();
+        output.WriteLine("| Who | Against | Won | Median rounds | Most | At the limit | Fighters at most | ms a round |");
+        output.WriteLine("|---|---|---|---|---|---|---|---|");
+        IEnumerable<(string Name, string[] Party, string[] Groups)> lines = [
+            .. classes.Select(c => (c, new[] { c }, middle)),
+            .. classes.Select(c => ($"3 × {c}", new[] { c, c, c }, hordes)),
+            ("priest + paladin", ["priest", "paladin"], hordes),
+        ];
+        foreach ((string name, string[] party, string[] groups) in lines)
+        {
+            Hero[] heroes = [.. party.Select((c, k) => family.Hero(c, "none") with { Name = DurationNames[k] })];
+            var rounds = new int[options.Simulate];
+            var fighters = new int[options.Simulate];
+            var ticks = new long[options.Simulate];
+            var won = new bool[options.Simulate];
+            Parallel.For(0, options.Simulate, i =>
+            {
+                var fight = new Fight(family.Data, groups[i % groups.Length], options.Seed + (ulong)i, heroes[0], null, null, heroes[1..]);
+                long start = System.Diagnostics.Stopwatch.GetTimestamp();
+                Ai.PlayOut(fight);
+                ticks[i] = System.Diagnostics.Stopwatch.GetTimestamp() - start;
+                rounds[i] = fight.Round;
+                fighters[i] = fight.Fighters.Count;
+                won[i] = fight.WinningTeam == 0;
+            });
+            int[] sorted = [.. rounds.Order()];
+            double msRound = 1000.0 * ticks.Sum() / System.Diagnostics.Stopwatch.Frequency / Math.Max(1, rounds.Sum());
+            output.WriteLine(FormattableString.Invariant(
+                $"| {name} | {(groups == middle ? "4 and 5" : "6 and more")} | {100.0 * won.Count(w => w) / won.Length:0} % | {sorted[sorted.Length / 2]} | {sorted[^1]} | {rounds.Count(r => r >= Fight.RoundLimit)} | {fighters.Max()} | {msRound:0.0} |"));
+        }
+    }
+
+    private static readonly string[] DurationNames = ["Aube", "Brume", "Cendre", "Dune"];
+
     private static string Row(string name, int wins, int n)
     {
         (double low, double high) = Wilson(wins, n);
@@ -390,7 +441,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false, bool Casts = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false, bool Casts = false, bool Durations = false)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -422,6 +473,7 @@ public static class Program
                     "--decks" => o with { Decks = Value() },
                     "--unranked-paths" => o with { UnrankedPaths = true },
                     "--casts" => o with { Casts = true },
+                    "--durations" => o with { Durations = true },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
@@ -436,6 +488,8 @@ public static class Program
                 throw new ArgumentException("--decks goes with --matrix.");
             if (o.UnrankedPaths && !o.Matrix)
                 throw new ArgumentException("--unranked-paths goes with --matrix.");
+            if (o.Durations && (o.Simulate == 0 || o.Matrix || o.Parties || o.Tree || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
+                throw new ArgumentException("--durations goes with --simulate N, without another mode, --class, --rival or --party.");
             if (o.Casts && !o.Matrix)
                 throw new ArgumentException("--casts goes with --matrix.");
             if (o.Trio && !o.Tree)
