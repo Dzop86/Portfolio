@@ -378,3 +378,189 @@ Voir `docs/classes-druide-2.md` §4. `--matrix --class druid --simulate 30`, sor
 ## 14 novembre 2026 : le Chaman (S218, T183)
 
 Voir `docs/classes-chaman.md` §4. `--matrix --class druid --simulate 30 --casts`, sorts de voie rangés : B5 tenue (Chaman +1,3 à 35, +2,6 à 45) ; à 50, Invocateur spirituel +5,7, Élémentaliste naturel +0,7 ; à 60, −0,6 et +4,8 ; au 100, de −7,8 à +0,1, les finales à 3,9 points de leur lignée au plus. Le Changeforme passe à −9,1 au 50 (la moyenne de la classe relevée par le Chaman). Esprit 1,0 à 1,3 par combat jusqu'au 60, Communion 1,2 dès le 60, Tempête vivante 0,3 à 0,8, Sol grondant 0,0 à 0,1.
+
+## 14 novembre 2026 : jalon 3, dix classes (S219)
+
+Voir `docs/jalon-3.md`. Le banc complet, puis les durées.
+
+```
+dotnet run -c Release --project src/Rpg.Sim -- --matrix --simulate 30 --casts
+dotnet run -c Release --project src/Rpg.Sim -- --durations --simulate 60
+```
+
+| Class | Level | Path | Points | Over no path | From the mean | Reads |
+|---|---|---|---|---|---|---|
+| archer | 35 | (none) | 51.9 | | | |
+| archer | 35 | sightline | 55.8 | +4.0 | +0.7 | path-aimed-shot 0.9, path-weak-spot 0.4 |
+| archer | 35 | ambush | 57.3 | +5.4 | +2.2 | path-jaws 0.8, path-dive 1.5 |
+| archer | 35 | trail | 52.3 | +0.4 | -2.8 | path-barrage 1.0, path-heel-kick 0.9 |
+| warrior | 35 | (none) | 45.6 | | | |
+| warrior | 35 | palisade | 71.0 | +25.4 | +11.3 | path-stand-fast 0.6 |
+| warrior | 35 | grip | 51.3 | +5.6 | -8.5 | path-hold 2.6, path-lock 1.0 |
+| warrior | 35 | breach | 57.1 | +11.5 | -2.7 | path-assault 0.5, path-wrench 0.1 |
+| mage | 35 | (none) | 39.8 | | | |
+| mage | 35 | arcanist | 66.3 | +26.5 | +1.5 | path-comet 1.3, path-composure 1.0 |
+| mage | 35 | illusionist | 61.7 | +21.9 | -3.1 | path-image 0.9, path-dazzle 2.4 |
+| mage | 35 | chronomancer | 66.3 | +26.5 | +1.5 | path-borrowed-time 0.8, path-offbeat 2.4 |
+| priest | 35 | (none) | 20.8 | | | |
+| priest | 35 | cleric | 49.4 | +28.5 | +2.3 | path-resurrect 0.0, path-laying-hands 2.3 |
+| priest | 35 | inquisitor | 40.8 | +20.0 | -6.3 | path-censure 2.1, path-brand 1.9 |
+| priest | 35 | oracle | 51.0 | +30.2 | +4.0 | path-omen 2.3, path-foresight 0.9 |
+| rogue | 35 | (none) | 39.4 | | | |
+| rogue | 35 | assassin | 47.5 | +8.1 | +4.9 | path-backstab 0.9, path-envenom 0.1 |
+| rogue | 35 | scoundrel | 44.0 | +4.6 | +1.4 | path-vault 0.0, path-hamstring 0.7 |
+| rogue | 35 | shadowmage | 36.3 | -3.1 | -6.3 | path-shadow-step 0.3, path-shadow-blade 1.3 |
+| berserker | 35 | (none) | 66.9 | | | |
+| berserker | 35 | ravager | 90.0 | +23.1 | +5.5 | path-ravage 0.4, path-gore-charge 0.6 |
+| berserker | 35 | barbarian | 80.8 | +14.0 | -3.7 | path-clan-cry 0.1, path-savage-blow 0.6 |
+| berserker | 35 | berserker-gladiator | 82.7 | +15.8 | -1.8 | path-challenge 0.4, path-arena-strike 0.6 |
+| paladin | 35 | (none) | 49.0 | | | |
+| paladin | 35 | protector | 78.3 | +29.4 | +0.8 | path-hallowed-ground 0.3, path-guardian-strike 2.6 |
+| paladin | 35 | templar | 73.5 | +24.6 | -4.0 | path-seal-of-light 1.9, path-sacred-return 2.1 |
+| paladin | 35 | avenger | 80.8 | +31.9 | +3.3 | path-retribution 1.5, path-vow 0.4 |
+| summoner | 35 | (none) | 56.7 | | | |
+| summoner | 35 | demonist | 81.3 | +24.6 | +4.1 | path-demon 1.1, path-blood-pact 1.4 |
+| summoner | 35 | conjurer | 74.6 | +17.9 | -2.6 | path-pillar 1.5, path-anchor 1.6 |
+| summoner | 35 | familiarist | 75.6 | +19.0 | -1.5 | path-familiar 1.2, path-titbit 0.6 |
+| necromancer | 35 | (none) | 37.9 | | | |
+| necromancer | 35 | dead-master | 63.5 | +25.6 | -1.0 | path-stitch 0.6, path-bone-rampart 0.2 |
+| necromancer | 35 | macabre-caller | 65.2 | +27.3 | +0.7 | path-ghoul 0.7, path-quarry 0.7 |
+| necromancer | 35 | occultist | 64.8 | +26.9 | +0.3 | path-hex 0.2, path-blight 1.8 |
+| druid | 35 | (none) | 36.5 | | | |
+| druid | 35 | nature-warden | 63.8 | +27.3 | +1.0 | path-hedge 0.0, path-barkskin 0.7 |
+| druid | 35 | shapeshifter | 60.4 | +24.0 | -2.3 | path-wild-shape 1.1, path-claws 1.4 |
+| druid | 35 | shaman | 64.0 | +27.5 | +1.3 | path-spirit 1.3, path-rumbling-ground 0.0 |
+| archer | 45 | (none) | 52.9 | | | |
+| archer | 45 | sightline | 66.9 | +14.0 | +7.3 | path-aimed-shot 1.1, path-weak-spot 0.6 |
+| archer | 45 | ambush | 62.9 | +10.0 | +3.3 | path-jaws 0.7, path-dive 1.5 |
+| archer | 45 | trail | 49.0 | -4.0 | -10.6 | path-barrage 1.1, path-heel-kick 0.9 |
+| warrior | 45 | (none) | 39.8 | | | |
+| warrior | 45 | palisade | 77.5 | +37.7 | +7.3 | path-stand-fast 0.7 |
+| warrior | 45 | grip | 66.3 | +26.5 | -4.0 | path-hold 3.4, path-lock 0.9 |
+| warrior | 45 | breach | 66.9 | +27.1 | -3.3 | path-assault 0.5, path-wrench 0.1 |
+| mage | 45 | (none) | 54.8 | | | |
+| mage | 45 | arcanist | 66.5 | +11.7 | -1.9 | path-comet 1.2, path-composure 1.0 |
+| mage | 45 | illusionist | 65.6 | +10.8 | -2.7 | path-image 1.0, path-dazzle 2.1 |
+| mage | 45 | chronomancer | 72.9 | +18.1 | +4.6 | path-borrowed-time 0.9, path-offbeat 2.3 |
+| priest | 45 | (none) | 29.8 | | | |
+| priest | 45 | cleric | 41.5 | +11.7 | -4.4 | path-resurrect 0.0, path-laying-hands 2.5 |
+| priest | 45 | inquisitor | 53.5 | +23.8 | +7.7 | path-censure 1.9, path-brand 2.0 |
+| priest | 45 | oracle | 42.5 | +12.7 | -3.3 | path-omen 2.5, path-foresight 0.6 |
+| rogue | 45 | (none) | 46.0 | | | |
+| rogue | 45 | assassin | 48.1 | +2.1 | +4.7 | path-backstab 0.9, path-envenom 0.0 |
+| rogue | 45 | scoundrel | 41.0 | -5.0 | -2.4 | path-vault 0.0, path-hamstring 0.8 |
+| rogue | 45 | shadowmage | 41.3 | -4.8 | -2.2 | path-shadow-step 0.3, path-shadow-blade 1.1 |
+| berserker | 45 | (none) | 72.7 | | | |
+| berserker | 45 | ravager | 84.2 | +11.5 | +10.8 | path-ravage 0.6, path-gore-charge 0.3 |
+| berserker | 45 | barbarian | 66.7 | -6.0 | -6.7 | path-clan-cry 0.1, path-savage-blow 0.5 |
+| berserker | 45 | berserker-gladiator | 69.2 | -3.5 | -4.2 | path-challenge 0.4, path-arena-strike 0.5 |
+| paladin | 45 | (none) | 54.0 | | | |
+| paladin | 45 | protector | 76.5 | +22.5 | +7.3 | path-hallowed-ground 0.3, path-guardian-strike 2.4 |
+| paladin | 45 | templar | 76.9 | +22.9 | +7.7 | path-seal-of-light 2.1, path-sacred-return 1.9 |
+| paladin | 45 | avenger | 54.2 | +0.2 | -15.0 | path-retribution 1.2, path-vow 0.5 |
+| summoner | 45 | (none) | 62.1 | | | |
+| summoner | 45 | demonist | 89.2 | +27.1 | +5.3 | path-demon 1.2, path-blood-pact 1.5 |
+| summoner | 45 | conjurer | 79.0 | +16.9 | -4.9 | path-pillar 1.3, path-anchor 1.5 |
+| summoner | 45 | familiarist | 83.3 | +21.3 | -0.5 | path-familiar 1.3, path-titbit 0.6 |
+| necromancer | 45 | (none) | 44.8 | | | |
+| necromancer | 45 | dead-master | 65.8 | +21.0 | -0.3 | path-stitch 0.6, path-bone-rampart 0.2 |
+| necromancer | 45 | macabre-caller | 64.0 | +19.2 | -2.2 | path-ghoul 0.7, path-quarry 0.8 |
+| necromancer | 45 | occultist | 68.8 | +24.0 | +2.6 | path-hex 0.2, path-blight 1.9 |
+| druid | 45 | (none) | 32.7 | | | |
+| druid | 45 | nature-warden | 65.0 | +32.3 | -0.1 | path-hedge 0.0, path-barkskin 0.9 |
+| druid | 45 | shapeshifter | 62.5 | +29.8 | -2.6 | path-wild-shape 1.1, path-claws 1.3 |
+| druid | 45 | shaman | 67.7 | +35.0 | +2.6 | path-spirit 1.2, path-rumbling-ground 0.0 |
+| archer | 50 | (none) | 46.9 | | | |
+| archer | 50 | marksman | 60.2 | +13.3 | -7.6 | path-aimed-shot 0.8, path-weak-spot 0.6, path-bullseye 0.6 |
+| archer | 50 | bounty-hunter | 68.8 | +21.9 | +0.9 | path-aimed-shot 1.1, path-weak-spot 0.2, path-prey 1.3 |
+| archer | 50 | trapper | 66.5 | +19.6 | -1.4 | path-jaws 0.7, path-dive 1.2, path-bait 0.8 |
+| archer | 50 | falconer | 75.6 | +28.8 | +7.8 | path-jaws 0.6, path-dive 1.4, path-changeover 0.2 |
+| archer | 50 | barrage | 77.3 | +30.4 | +9.5 | path-barrage 0.8, path-heel-kick 1.3, path-heavy-bolt 1.5 |
+| archer | 50 | runner | 58.5 | +11.7 | -9.3 | path-barrage 1.0, path-heel-kick 1.6, path-running-shot 1.5 |
+| warrior | 50 | (none) | 55.4 | | | |
+| warrior | 50 | rampart | 63.5 | +8.1 | -1.7 | path-stand-fast 0.8, path-shield-wall 0.3 |
+| warrior | 50 | bastion | 80.2 | +24.8 | +15.0 | path-stand-fast 1.5, path-retaliation 2.1 |
+| warrior | 50 | jailer | 69.0 | +13.5 | +3.8 | path-hold 3.0, path-lock 0.8, path-crush 1.5 |
+| warrior | 50 | pincer | 50.8 | -4.6 | -14.4 | path-hold 3.5, path-lock 1.1, path-iron-ring 0.0 |
+| warrior | 50 | ram | 52.3 | -3.1 | -12.9 | path-assault 0.4, path-wrench 0.4, path-breakthrough 1.9 |
+| warrior | 50 | harpooner | 75.4 | +20.0 | +10.2 | path-assault 0.3, path-wrench 0.0, path-harpoon 1.9 |
+| mage | 50 | (none) | 54.0 | | | |
+| mage | 50 | rune-weaver | 68.5 | +14.6 | -4.5 | path-comet 1.2, path-composure 0.9, path-rune 0.1 |
+| mage | 50 | scholar | 76.0 | +22.1 | +3.0 | path-comet 1.1, path-composure 0.9, path-ray 1.1 |
+| mage | 50 | mirage-master | 76.5 | +22.5 | +3.4 | path-image 0.9, path-dazzle 2.4, path-double 1.1 |
+| mage | 50 | mentalist | 77.1 | +23.1 | +4.0 | path-image 1.1, path-dazzle 1.9, path-grip 1.9 |
+| mage | 50 | time-weaver | 68.5 | +14.6 | -4.5 | path-borrowed-time 0.9, path-offbeat 2.1, path-quicken 0.1 |
+| mage | 50 | distorter | 71.7 | +17.7 | -1.4 | path-borrowed-time 1.0, path-offbeat 2.1, path-crescendo 0.2 |
+| priest | 50 | (none) | 29.6 | | | |
+| priest | 50 | healer | 43.5 | +14.0 | -6.6 | path-resurrect 0.0, path-laying-hands 2.8, path-healing-wave 1.5 |
+| priest | 50 | sacred-medic | 43.8 | +14.2 | -6.4 | path-resurrect 0.0, path-laying-hands 2.6, path-remedy 0.9 |
+| priest | 50 | exorcist | 60.8 | +31.3 | +10.7 | path-censure 1.6, path-brand 2.0, path-exorcism 1.4 |
+| priest | 50 | fanatic | 53.8 | +24.2 | +3.6 | path-censure 1.8, path-brand 1.9, path-zeal 0.4 |
+| priest | 50 | prophet | 52.9 | +23.3 | +2.8 | path-omen 1.7, path-foresight 0.8, path-prophecy 1.6 |
+| priest | 50 | mystic | 46.0 | +16.5 | -4.1 | path-omen 2.0, path-foresight 0.7, path-vision 0.9 |
+| rogue | 50 | (none) | 43.8 | | | |
+| rogue | 50 | black-blade | 52.5 | +8.8 | +0.5 | path-backstab 0.9, path-envenom 0.1, path-execute 1.3 |
+| rogue | 50 | poisoner | 59.0 | +15.2 | +7.0 | path-backstab 0.9, path-envenom 0.2, path-plague 0.0 |
+| rogue | 50 | swashbuckler | 54.0 | +10.2 | +2.0 | path-vault 0.0, path-hamstring 0.7, path-feint 0.0 |
+| rogue | 50 | saboteur | 41.5 | -2.3 | -10.5 | path-vault 0.0, path-hamstring 0.4, path-caltrops 1.0 |
+| rogue | 50 | night-stalker | 45.4 | +1.7 | -6.6 | path-shadow-step 0.6, path-shadow-blade 1.3, path-waylay 1.1 |
+| rogue | 50 | shadow-illusionist | 59.6 | +15.8 | +7.6 | path-shadow-step 0.4, path-shadow-blade 1.5, path-false-front 1.2 |
+| berserker | 50 | (none) | 73.3 | | | |
+| berserker | 50 | skullcracker | 77.9 | +4.6 | +6.6 | path-ravage 0.5, path-gore-charge 0.3, path-crushing-blow 0.6 |
+| berserker | 50 | carnivore | 82.9 | +9.6 | +11.6 | path-ravage 0.4, path-gore-charge 0.4, path-devour 1.4 |
+| berserker | 50 | tribal-warrior | 63.1 | -10.2 | -8.2 | path-clan-cry 0.3, path-savage-blow 0.3, path-war-standard 0.4 |
+| berserker | 50 | savage | 62.1 | -11.3 | -9.2 | path-clan-cry 0.2, path-savage-blow 0.4, path-feral-leap 0.1 |
+| berserker | 50 | blood-champion | 70.6 | -2.7 | -0.7 | path-challenge 0.1, path-arena-strike 0.0, path-blood-duel 1.1 |
+| berserker | 50 | executor | 71.3 | -2.1 | -0.1 | path-challenge 0.2, path-arena-strike 0.0, path-behead 0.7 |
+| paladin | 50 | (none) | 51.3 | | | |
+| paladin | 50 | paladin-rampart | 72.3 | +21.0 | +6.0 | path-hallowed-ground 0.1, path-guardian-strike 2.6, path-wall-of-faith 0.3 |
+| paladin | 50 | defender | 68.5 | +17.3 | +2.3 | path-hallowed-ground 0.2, path-guardian-strike 2.5, path-shield-of-faith 0.0 |
+| paladin | 50 | paladin-inquisitor | 57.7 | +6.5 | -8.5 | path-seal-of-light 2.1, path-sacred-return 1.5, path-sentence 2.0 |
+| paladin | 50 | paladin-crusader | 58.8 | +7.5 | -7.5 | path-seal-of-light 2.4, path-sacred-return 1.9, path-crusade 0.4 |
+| paladin | 50 | justiciar | 74.6 | +23.3 | +8.3 | path-retribution 0.8, path-vow 0.5, path-verdict-blow 1.1 |
+| paladin | 50 | paladin-fanatic | 65.6 | +14.4 | -0.6 | path-retribution 1.5, path-vow 0.6, path-holy-fury 0.6 |
+| summoner | 50 | (none) | 62.1 | | | |
+| summoner | 50 | demon-caller | 84.0 | +21.9 | +6.1 | path-demon 1.2, path-blood-pact 1.5, path-unleash 0.4 |
+| summoner | 50 | pactbearer | 79.6 | +17.5 | +1.7 | path-demon 1.1, path-blood-pact 1.4, path-blood-price 2.1 |
+| summoner | 50 | elemental-caller | 78.3 | +16.3 | +0.5 | path-pillar 1.2, path-anchor 1.5, path-overload 1.5 |
+| summoner | 50 | astral-caller | 72.1 | +10.0 | -5.8 | path-pillar 1.2, path-anchor 1.3, path-constellation 1.2 |
+| summoner | 50 | tamer | 86.7 | +24.6 | +8.8 | path-familiar 1.3, path-titbit 0.5, path-recall 0.0 |
+| summoner | 50 | fusionist | 66.7 | +4.6 | -11.2 | path-familiar 1.3, path-titbit 0.2, path-fusion 1.1 |
+| necromancer | 50 | (none) | 44.4 | | | |
+| necromancer | 50 | lich | 68.5 | +24.2 | +6.3 | path-stitch 0.4, path-bone-rampart 0.0, path-unlife 1.0 |
+| necromancer | 50 | bone-lord | 61.9 | +17.5 | -0.4 | path-stitch 0.8, path-bone-rampart 0.3, path-marrow 0.5 |
+| necromancer | 50 | ghoul-master | 61.0 | +16.7 | -1.3 | path-ghoul 0.7, path-quarry 0.8, path-gorging 0.2 |
+| necromancer | 50 | dead-commander | 55.6 | +11.3 | -6.7 | path-ghoul 0.8, path-quarry 0.8, path-offering 0.2 |
+| necromancer | 50 | sanguimancer | 68.5 | +24.2 | +6.3 | path-hex 0.2, path-blight 1.2, path-boiling-blood 1.7 |
+| necromancer | 50 | thanaturge | 58.1 | +13.8 | -4.2 | path-hex 0.1, path-blight 1.4, path-reaping 1.5 |
+| druid | 50 | (none) | 42.1 | | | |
+| druid | 50 | sylvan | 73.1 | +31.0 | +5.2 | path-hedge 0.0, path-barkskin 0.5, path-woods-wrath 1.2 |
+| druid | 50 | grove-keeper | 68.1 | +26.0 | +0.2 | path-hedge 0.0, path-barkskin 0.5, path-guarding-bough 1.7 |
+| druid | 50 | changeform | 58.8 | +16.7 | -9.1 | path-wild-shape 1.0, path-claws 0.9, path-pounce 0.4 |
+| druid | 50 | wild-druid | 65.2 | +23.1 | -2.7 | path-wild-shape 1.0, path-claws 0.7, path-trample 0.3 |
+| druid | 50 | spirit-caller | 73.5 | +31.5 | +5.7 | path-spirit 1.0, path-rumbling-ground 0.0, path-communion 0.4 |
+| druid | 50 | nature-elementalist | 68.5 | +26.5 | +0.7 | path-spirit 1.0, path-rumbling-ground 0.0, path-living-storm 0.3 |
+
+| Who | Against | Won | Median rounds | Most | At the limit | Fighters at most | ms a round |
+|---|---|---|---|---|---|---|---|
+| archer | 4 and 5 | 58 % | 6 | 8 | 0 | 7 | 94.8 |
+| warrior | 4 and 5 | 42 % | 5 | 7 | 0 | 6 | 46.7 |
+| mage | 4 and 5 | 58 % | 5 | 7 | 0 | 6 | 73.1 |
+| priest | 4 and 5 | 35 % | 6 | 8 | 0 | 6 | 55.4 |
+| rogue | 4 and 5 | 50 % | 4 | 6 | 0 | 6 | 97.9 |
+| berserker | 4 and 5 | 73 % | 5 | 6 | 0 | 6 | 32.9 |
+| paladin | 4 and 5 | 58 % | 6 | 8 | 0 | 6 | 47.4 |
+| summoner | 4 and 5 | 65 % | 5 | 7 | 0 | 12 | 140.3 |
+| necromancer | 4 and 5 | 43 % | 5 | 7 | 0 | 8 | 75.2 |
+| druid | 4 and 5 | 30 % | 5 | 6 | 0 | 6 | 52.2 |
+| 3 × archer | 6 and more | 100 % | 4 | 9 | 0 | 18 | 172.2 |
+| 3 × warrior | 6 and more | 100 % | 4 | 9 | 0 | 13 | 32.7 |
+| 3 × mage | 6 and more | 100 % | 3 | 9 | 0 | 13 | 123.3 |
+| 3 × priest | 6 and more | 98 % | 5 | 17 | 0 | 13 | 84.4 |
+| 3 × rogue | 6 and more | 90 % | 4 | 10 | 0 | 13 | 194.6 |
+| 3 × berserker | 6 and more | 100 % | 3 | 6 | 0 | 13 | 111.9 |
+| 3 × paladin | 6 and more | 83 % | 5 | 11 | 0 | 13 | 107.0 |
+| 3 × summoner | 6 and more | 100 % | 4 | 10 | 0 | 27 | 810.0 |
+| 3 × necromancer | 6 and more | 100 % | 4 | 9 | 0 | 17 | 522.5 |
+| 3 × druid | 6 and more | 87 % | 4 | 9 | 0 | 13 | 235.4 |
+| priest + paladin | 6 and more | 52 % | 6 | 11 | 0 | 11 | 122.1 |
