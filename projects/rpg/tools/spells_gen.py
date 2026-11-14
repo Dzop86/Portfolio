@@ -386,6 +386,8 @@ creatures = [
  S("risen-claw","Griffe du mort","Dead Claw",3,1,1,7,10,2,"Earth",1,ranks=False,adaptive=True),
  # The Macabre Caller's ghouls (sprint 215, docs/classes-necromancien-2.md §1): many, frail, thrown away.
  S("ghoul-bite","Morsure de goule","Ghoul Bite",3,1,1,5,8,2,"Earth",1,ranks=False,adaptive=True),
+ # The Shaman's spirits (sprint 218, docs/classes-chaman.md §1): from 1 to 3 cells, in their caller's strongest element.
+ S("spirit-touch","Toucher de l'esprit","Spirit Touch",3,1,3,5,8,2,"Earth",1,ranks=False,adaptive=True),
 ]
 # The monsters' spells (sprint 72, D63): fixed numbers, set by simulation (T39).
 beasts = [
@@ -901,11 +903,19 @@ paths = [
  path("claws","Griffes","Claws",3,1,1,30,"lorc/wolverine-claws",damage=True,form=True,per=2),
  path("pounce","Bond du fauve","Pounce",4,2,4,50,"lorc/saber-tooth",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2,form=True),
  path("trample","Piétinement","Trample",4,0,0,50,"lorc/hoof",damage=True,los=False,area=("Circle",1),effects=shared(2,("Resistance",15,1),dict(stat="Mp",v=-1,st=1)),cd=2,form=True),
+ # The Druid's Shaman (sprint 218, docs/classes-chaman.md §1-2): spirits without a body, that last two turns, and ground that strikes the enemies and
+ # spurs the allies. The Spirit Caller calls more of them and spurs them; the Nature Elementalist strikes from the ground.
+ path("spirit","Esprit","Spirit",3,1,3,30,"lorc/totem-head",los=False,effects=[summon("spirit",mx=2)],cd=3),
+ path("rumbling-ground","Sol grondant","Rumbling Ground",3,1,4,30,"lorc/volcano",area=("Cross",1),effects=shared(2,("Damage",10,1),dict(dmin=6,dmax=9)),cd=2),
+ path("communion","Communion","Communion",2,0,0,50,"lorc/third-eye",los=False,area=("Circle",2),effects=[status("Allies","Damage",20,2),status("Allies","Mp",1,1)],cd=3),
+ path("living-storm","Tempête vivante","Living Storm",4,2,5,50,"lorc/lightning-tree",damage=True,area=("Circle",1),effects=[glyph("Enemies",2,3,4)],cd=2),
 ]
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
+# The Living Storm at 0.45 of it (sprint 218, measured, docs/classes-chaman.md §4): at the full budget, a blow of the Shaman whose spirits already
+# bring it to the class's mean, it put the Nature Elementalist 14 to 17 points over it at 60 and 100.
 for sp in paths:
     if sp["damageMax"] > 0:
-        budget(sp)
+        budget(sp, 0.45 if sp["id"] == "path-living-storm" else 1)
 _names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
 _names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
@@ -961,6 +971,9 @@ summons += [
  young("hermit-spawn","Jeune bernard","Young Hermit","crab-support",70,30,6,3,55,["shell-guard","pinch"]),
  young("worker-spawn","Jeune ouvrière","Young Worker","bee-melee",70,30,6,4,95,["sting"],["alarm"]),
  young("digger-spawn","Jeune fouisseuse","Young Digger","mole-melee",70,35,6,3,60,["dig-claw","surface"]),
+ # The Shaman's spirit (sprint 218, docs/classes-chaman.md §1): no body (it holds no cell, hides no line of sight) and two turns of play, then it fades.
+ # A wolf's model, drawn small, until the artistic overhaul (no spirit model exists).
+ O(list(young("spirit","Esprit","Spirit","wolf-melee",65,20,6,3,75,["spirit-touch"]).items()) + [("lasts", 2), ("spirit", True)]),
  # The menhir keeper's risen stones (sprint 133, docs/familles-foret.md §4.4).
  young("pebbling","Caillou éveillé","Pebbling","golem-melee",70,40,6,3,100,["cobble-punch"]),
 ]

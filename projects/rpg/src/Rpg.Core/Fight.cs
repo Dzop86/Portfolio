@@ -1586,6 +1586,20 @@ public sealed class Fight
         _events.Add(new HpPaid(summoner.Id, paid, summoner.Hp));
     }
 
+    /// <summary>A spirit's incorporeal status lasts longer than any spirit (sprint 218).</summary>
+    private const int SpiritTurns = 99;
+
+    /// <summary>A creature whose turns are spent leaves the fight (sprint 218): no death passive, no corpse; its glyphs go with it.</summary>
+    private void Fade(Fighter creature)
+    {
+        creature.Hp = 0;
+        creature.StatusList.Clear();
+        creature.Shields.Clear();
+        _events.Add(new Died(creature.Id));
+        foreach (Glyph g in _glyphs.Where(g => g.Caster == creature.Id).ToList())
+            EndGlyph(g);
+    }
+
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
     /// <param name="corpse">The corpse it rises from (sprint 214): a creature that wears it takes its look, drawn at the creature's size.</param>
     private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null, Fighter? corpse = null)
@@ -1613,6 +1627,9 @@ public sealed class Fight
         if (at <= _current)
             _current++;
         _events.Add(new Summoned(summoned.Id, me.Id, cell));
+        // A spirit (sprint 218, docs/classes-chaman.md §1): no body, it holds no cell and hides no line of sight for its whole life.
+        if (m.Spirit)
+            SetStatus(me, summoned, new StatusEffect(Affects.Allies, Stat.Incorporeal, 1, SpiritTurns));
         return summoned;
     }
 
@@ -1842,6 +1859,14 @@ public sealed class Fight
             return;
         }
         Fighter next = Current;
+        // A creature that lasts (sprint 218, docs/classes-chaman.md §1): its turns of play spent, it fades before the next, and the turn passes.
+        if (next.SummonKind is string kind && _data.Summons.TryGetValue(kind, out SummonSpec? lasting) && lasting.Lasts > 0 && next.Turn >= lasting.Lasts)
+        {
+            Fade(next);
+            if (!IsOver)
+                NextTurn();
+            return;
+        }
         // With the talents' points of this turn and the points kept (sprint 141).
         next.Turn++;
         (int talentAp, int talentMp) = Talents.TurnPoints(next.Talents, next.Turn);

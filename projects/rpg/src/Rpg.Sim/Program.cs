@@ -189,7 +189,8 @@ public static class Program
                 output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | (none) | {report.Plain.Points:0.0} | | | |"));
                 foreach (BenchRow row in report.Paths)
                 {
-                    string reads = Reads(row);
+                    // Every path spell's casts a fight (sprint 218), not only those under the bench's least.
+                    string reads = options.Casts ? string.Join(", ", row.Casts.Select(c => FormattableString.Invariant($"{c.Key} {c.Value:0.0}"))) : Reads(row);
                     output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | {row.Path} | {row.Points:0.0} | {row.Points - report.Plain.Points:+0.0;-0.0;0.0} | {row.Points - report.Mean:+0.0;-0.0;0.0} | {reads} |"));
                 }
             }
@@ -389,7 +390,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false, bool Casts = false)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -420,6 +421,7 @@ public static class Program
                     "--matrix" => o with { Matrix = true },
                     "--decks" => o with { Decks = Value() },
                     "--unranked-paths" => o with { UnrankedPaths = true },
+                    "--casts" => o with { Casts = true },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
@@ -434,6 +436,8 @@ public static class Program
                 throw new ArgumentException("--decks goes with --matrix.");
             if (o.UnrankedPaths && !o.Matrix)
                 throw new ArgumentException("--unranked-paths goes with --matrix.");
+            if (o.Casts && !o.Matrix)
+                throw new ArgumentException("--casts goes with --matrix.");
             if (o.Trio && !o.Tree)
                 throw new ArgumentException("--trio goes with --talents.");
             return modes == 1 ? o : throw new ArgumentException("Choose one of --simulate N, --record FILE or --replay FILE.");

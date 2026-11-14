@@ -6360,5 +6360,239 @@
       "en": "A shape taken and left, without paying anything."
     },
     "icon": "spec-shapeshifter"
+  },
+  {
+    "id": "shaman",
+    "class": "druid",
+    "name": {
+      "fr": "Chaman",
+      "en": "Shaman"
+    },
+    "base": {
+      "level": 30,
+      "title": {
+        "fr": "Chaman",
+        "en": "Shaman"
+      },
+      "description": {
+        "fr": "Deux Esprits au plus, sans corps : ils ne tiennent aucune case, ne cachent rien, jouent 2 tours puis s'effacent ; ils prennent 20 % de tes PV et 40 % de tes caractéristiques. Sorts : Esprit ; Sol grondant, un terrain partagé, 2 tours : il frappe les ennemis, alliés +10 % de dégâts.",
+        "en": "Two Spirits at most, without a body: they hold no cell, hide nothing, play 2 turns then fade; they take 20% of your HP and 40% of your characteristics. Spells: Spirit; Rumbling Ground, shared ground, 2 turns: it strikes the enemies, allies +10% damage."
+      },
+      "spells": [
+        "path-spirit",
+        "path-rumbling-ground"
+      ],
+      "rules": [
+        {
+          "kind": "summon-share",
+          "summon": "spirit",
+          "hpPercent": 15,
+          "statsPercent": 35
+        }
+      ]
+    },
+    "forks": [
+      {
+        "id": "spirit-caller",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Invocateur spirituel",
+              "en": "Spirit Caller"
+            },
+            "description": {
+              "fr": "Trois Esprits au plus. Sort : Communion, sur l'un de tes Esprits : +30 % de dégâts, 2 tours, et +2 PM, 1 tour.",
+              "en": "Three Spirits at most. Spell: Communion, on one of your Spirits: +30% damage, 2 turns, and +2 MP, 1 turn."
+            },
+            "spells": [
+              "path-communion"
+            ],
+            "rules": [
+              {
+                "kind": "patch",
+                "spell": "path-spirit",
+                "maxSummons": 3
+              },
+              {
+                "kind": "summon-share",
+                "summon": "spirit",
+                "hpPercent": 20,
+                "statsPercent": 40
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "Ils ne viennent pas de loin : ils n'étaient jamais partis.",
+          "en": "They do not come from afar: they never left."
+        },
+        "icon": "spec-spirit-caller",
+        "finals": [
+          {
+            "id": "spirit-master",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Maître des esprits",
+                "en": "Master of Spirits"
+              },
+              "description": {
+                "fr": "Communion donne aussi +2 PA à ton Esprit, 1 tour.",
+                "en": "Communion also gives your Spirit +2 AP, 1 turn."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-communion",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Allies",
+                      "stat": "Ap",
+                      "value": 2,
+                      "turns": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Chaque pierre garde un nom. Je les appelle tous.",
+              "en": "Every stone keeps a name. I call them all."
+            },
+            "icon": "spec-spirit-master"
+          },
+          {
+            "id": "living-ancestor",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Ancêtre vivant",
+                "en": "Living Ancestor"
+              },
+              "description": {
+                "fr": "Communion se relance en 1 tour au lieu de 2.",
+                "en": "Communion comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-communion",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "On me consulte déjà comme on consulte les morts.",
+              "en": "They already ask me as one asks the dead."
+            },
+            "icon": "spec-living-ancestor"
+          }
+        ]
+      },
+      {
+        "id": "nature-elementalist",
+        "tiers": [
+          {
+            "level": 50,
+            "title": {
+              "fr": "Élémentaliste naturel",
+              "en": "Nature Elementalist"
+            },
+            "description": {
+              "fr": "+15 % sur un ennemi debout sur l'une de tes glyphes. Sort : Tempête vivante, de 2 à 5 cases, un cercle de 1 qui laisse une glyphe qui frappe les ennemis, 2 tours.",
+              "en": "+15% on an enemy standing on one of your glyphs. Spell: Living Storm, from 2 to 5 cells, a circle of 1 that leaves a glyph striking the enemies, 2 turns."
+            },
+            "spells": [
+              "path-living-storm"
+            ],
+            "rules": [
+              {
+                "kind": "glyph-target",
+                "inside": 15,
+                "outside": 0
+              }
+            ]
+          }
+        ],
+        "lore": {
+          "fr": "La terre ne prie pas. Elle répond.",
+          "en": "The earth does not pray. It answers."
+        },
+        "icon": "spec-nature-elementalist",
+        "finals": [
+          {
+            "id": "elements-lord",
+            "template": "Extends",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Seigneur des éléments",
+                "en": "Lord of the Elements"
+              },
+              "description": {
+                "fr": "Tempête vivante retire aussi 10 % de résistance aux ennemis touchés, 2 tours.",
+                "en": "Living Storm also takes 10% resistance from the enemies it strikes, 2 turns."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-living-storm",
+                  "addEffects": [
+                    {
+                      "kind": "status",
+                      "affects": "Enemies",
+                      "stat": "Resistance",
+                      "value": -10,
+                      "turns": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Le vent, la pierre, la sève : un seul souffle.",
+              "en": "Wind, stone, sap: a single breath."
+            },
+            "icon": "spec-elements-lord"
+          },
+          {
+            "id": "druid-primal-avatar",
+            "template": "Faster",
+            "tier": {
+              "level": 100,
+              "title": {
+                "fr": "Avatar primordial",
+                "en": "Primal Avatar"
+              },
+              "description": {
+                "fr": "Tempête vivante se relance en 1 tour au lieu de 2.",
+                "en": "Living Storm comes back in 1 turn rather than 2."
+              },
+              "rules": [
+                {
+                  "kind": "patch",
+                  "spell": "path-living-storm",
+                  "cooldown": 1
+                }
+              ]
+            },
+            "lore": {
+              "fr": "Avant les chapelles, il y avait l'orage.",
+              "en": "Before the chapels, there was the storm."
+            },
+            "icon": "spec-druid-primal-avatar"
+          }
+        ]
+      }
+    ],
+    "lore": {
+      "fr": "Le lieu se souvient. Je lui demande de le dire.",
+      "en": "The place remembers. I ask it to speak."
+    },
+    "icon": "spec-shaman"
   }
 ]

@@ -316,6 +316,24 @@
     "scale": 70
   },
   {
+    "id": "spirit",
+    "name": {
+      "fr": "Esprit",
+      "en": "Spirit"
+    },
+    "look": "wolf-melee",
+    "hp": 20,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 75,
+    "spells": [
+      "spirit-touch"
+    ],
+    "scale": 65,
+    "lasts": 2,
+    "spirit": true
+  },
+  {
     "id": "pebbling",
     "name": {
       "fr": "Caillou éveillé",
