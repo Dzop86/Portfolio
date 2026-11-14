@@ -374,3 +374,7 @@ Voir `docs/classes-druide.md` §4. `--class druid --simulate 30`, sans voie : au
 ## 13 novembre 2026 : le Gardien de la nature et le Métamorphe (S217, T182)
 
 Voir `docs/classes-druide-2.md` §4. `--matrix --class druid --simulate 30`, sorts de voie rangés : B5 tenue (±1,7 à 35, ±1,3 à 45) ; à 50, Sylvain +6,8, Protecteur +1,8, Changeforme −7,5, Druide sauvage −1,1 ; à 60, de −2,7 à +3,3 ; à 100, de −7,9 à +6,2, les finales à 7,5 points au plus de leur lignée. Forme sauvage et Griffes jouées au-dessus de 0,5 après la correction de l'IA ; Haie 0,0, Bond du fauve et Piétinement 0,3 à 0,4.
+
+## 14 novembre 2026 : le Chaman (S218, T183)
+
+Voir `docs/classes-chaman.md` §4. `--matrix --class druid --simulate 30 --casts`, sorts de voie rangés : B5 tenue (Chaman +1,3 à 35, +2,6 à 45) ; à 50, Invocateur spirituel +5,7, Élémentaliste naturel +0,7 ; à 60, −0,6 et +4,8 ; au 100, de −7,8 à +0,1, les finales à 3,9 points de leur lignée au plus. Le Changeforme passe à −9,1 au 50 (la moyenne de la classe relevée par le Chaman). Esprit 1,0 à 1,3 par combat jusqu'au 60, Communion 1,2 dès le 60, Tempête vivante 0,3 à 0,8, Sol grondant 0,0 à 0,1.

@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Druide, je deviens aussi Chaman, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | À faire |
+| En tant que Druide, je deviens aussi Chaman, et mes finales sont écrites (rpg) ; xUnit, bornes du banc. | 4 | Fait : le Chaman (Esprits sans corps, 2 tours puis ils s'effacent ; Sol grondant, un terrain partagé qui frappe), l'Invocateur spirituel (3 Esprits, Communion), l'Élémentaliste naturel (Tempête vivante), 4 finales ; une brique du moteur (`lasts`, `spirit`) ; B5 et B6 tenues pour le Chaman, le Changeforme à −9,1 au 50 (Q5) ; Q1-Q5 de `docs/classes-chaman.md` (T183) |
 
 ## Rétro (Charles)
 - Ce qui a marché :
