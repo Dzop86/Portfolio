@@ -79,3 +79,5 @@ Banc (`Rpg.Sim --matrix --class druid --simulate 30 --casts`, sorts de voie rang
 - **Q3. Le corps de l'Esprit** : a) **le loup réduit, en attendant la refonte artistique (Reco, fait)** ; b) un modèle humain teinté, comme l'Élémentaire (`male-e`) ; c) un rendu translucide côté client (un chantier de rendu, non chiffré).
 - **Q4. La Communion** : a) **une aura autour du Chaman, lui et ses Esprits (Reco, fait)** ; b) un sort sur un seul Esprit (`aims`), comme la Surcharge du Conjurateur : ainsi, elle n'était lancée que 0,2 fois par combat au niveau 60, et l'Invocateur spirituel finissait 3 points sous le Chaman de base.
 - **Q5. Le Changeforme au niveau 50** (−9,1 de la moyenne, hors de la borne B6) : a) **l'accepter et le remesurer au jalon 3, à 40 combats par groupe (Reco)** ; b) rendre le Bond du fauve plus souvent joué (0,4 par combat), au sprint 219.
+
+**Réponses de Charles (14 novembre 2026) :** Q1 à Q5, les recommandations. Les noms restent des noms de travail, à faire relire par le scénariste ; un esprit dure 2 tours et porte le loup réduit ; la Communion reste une aura ; le Changeforme sera remesuré au jalon 3.
