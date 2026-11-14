@@ -26,9 +26,9 @@ internal static class Arena
     /// <summary>
     /// The branches written so far of a class written over two sprints (D96): the Berserker had its Ravager alone in sprint 206, the Paladin its
     /// Protector in sprint 208. Every class had its three in sprint 209; the Summoner none in sprint 211, its Familiarist in 212, the other two in 213.
-    /// The Necromancer had its Master of the Dead in sprint 214, its other two in 215. The Druid had none in sprint 216, has two in 217 (the Nature Warden and the Shapeshifter), its third in 218.
+    /// The Necromancer had its Master of the Dead in sprint 214, its other two in 215. The Druid had none in sprint 216, two in 217 (the Nature Warden and the Shapeshifter), its Shaman in 218: every class has its three.
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal) { ["druid"] = 2 };
+    public static readonly IReadOnlyDictionary<string, int> Writing = new Dictionary<string, int>(StringComparer.Ordinal);
 
     /// <summary>The branches a class has in the data: three, or those written so far.</summary>
     public static int BranchesOf(string id) => Writing.GetValueOrDefault(id, 3);
