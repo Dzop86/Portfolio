@@ -329,6 +329,7 @@ public partial class PointsPanel
         };
         tile.Button.SetPressedNoSignal(_specPicked == node.Key);
         tile.Title.Text = node.Fork is null ? Editor.Data.Specs[node.Spec].Name.In(Texts.Lang) : node.Tier.Title.In(Texts.Lang);
+        FitTileTitle(tile.Title);
         tile.Title.AddThemeColorOverride("font_color", new Color(node.State switch
         {
             SpecState.Open => UiStyle.TextStrong,
@@ -628,6 +629,17 @@ public partial class PointsPanel
     {
         _cardTitle.Text = text;
         FitCardTitle();
+    }
+
+    /// <summary>A tile's title holds two lines: a long word on a narrow final tile (Seigneur des métamorphoses) steps the font down to 12 rather than breaking into a third line.</summary>
+    private static void FitTileTitle(Label title)
+    {
+        Font font = title.GetThemeFont("font");
+        const TextServer.LineBreakFlag wrap = TextServer.LineBreakFlag.Mandatory | TextServer.LineBreakFlag.WordBound | TextServer.LineBreakFlag.Adaptive;
+        int size = 14;
+        while (size > 12 && font.GetMultilineStringSize(title.Text, HorizontalAlignment.Left, title.Size.X, size, -1, wrap).Y > (2 * font.GetHeight(size)) + 0.5f)
+            size--;
+        title.AddThemeFontSizeOverride("font_size", size);
     }
 
     private void FitCardTitle()
