@@ -564,3 +564,58 @@ dotnet run -c Release --project src/Rpg.Sim -- --durations --simulate 60
 | 3 × necromancer | 6 and more | 100 % | 4 | 9 | 0 | 17 | 522.5 |
 | 3 × druid | 6 and more | 87 % | 4 | 9 | 0 | 13 | 235.4 |
 | priest + paladin | 6 and more | 52 % | 6 | 11 | 0 | 11 | 122.1 |
+
+## 15 novembre 2026 : le Guerrier et l'Archer rééquilibrés (S220, T185)
+
+Voir T185 et Q1 de `docs/jalon-3.md`. B5 et B6 tenues aux quatre niveaux : chaque voie dans ±8 de la moyenne de sa classe ; les deux lignées d'une branche à 7,9 points au plus (Chasseur sauvage et Trappeur au 50). Avant : le Chevalier à +11,3 au 35, l'Artilleur à −10,6 au 45, 23,1 points entre le Briseur et le Combattant au 50, 28,4 entre l'Arbalétrier et le Tireur mobile au 60. Le banc hors CI : `dotnet test tests/Rpg.Core.Tests -c Release -- --explicit only --filter-class Rpg.Core.Tests.PathBoundsBenchTests`.
+
+```
+dotnet run -c Release --project src/Rpg.Sim -- --matrix --class warrior --simulate 30 --casts --level 35
+```
+
+| Class | Level | Path | Points | Over no path | From the mean | Reads |
+|---|---|---|---|---|---|---|
+| warrior | 35 | (none) | 45.6 | | | |
+| warrior | 35 | palisade | 62.9 | +17.3 | +6.1 | path-stand-fast 0.6 |
+| warrior | 35 | grip | 50.4 | +4.8 | -6.4 | path-hold 2.7, path-lock 1.2 |
+| warrior | 35 | breach | 57.1 | +11.5 | +0.3 | path-assault 0.5, path-wrench 0.1 |
+| archer | 35 | (none) | 51.9 | | | |
+| archer | 35 | sightline | 55.8 | +4.0 | +1.7 | path-aimed-shot 0.9, path-weak-spot 0.4 |
+| archer | 35 | ambush | 57.3 | +5.4 | +3.1 | path-jaws 0.8, path-dive 1.5 |
+| archer | 35 | trail | 49.4 | -2.5 | -4.8 | path-barrage 1.3, path-heel-kick 1.8 |
+| warrior | 45 | (none) | 39.8 | | | |
+| warrior | 45 | palisade | 75.4 | +35.6 | +6.6 | path-stand-fast 0.7 |
+| warrior | 45 | grip | 64.2 | +24.4 | -4.7 | path-hold 3.3, path-lock 1.0 |
+| warrior | 45 | breach | 66.9 | +27.1 | -1.9 | path-assault 0.5, path-wrench 0.1 |
+| archer | 45 | (none) | 52.9 | | | |
+| archer | 45 | sightline | 66.9 | +14.0 | +4.9 | path-aimed-shot 1.1, path-weak-spot 0.6 |
+| archer | 45 | ambush | 62.9 | +10.0 | +0.9 | path-jaws 0.7, path-dive 1.5 |
+| archer | 45 | trail | 56.3 | +3.3 | -5.8 | path-barrage 1.5, path-heel-kick 2.1 |
+| warrior | 50 | (none) | 55.4 | | | |
+| warrior | 50 | rampart | 63.5 | +8.1 | -2.6 | path-stand-fast 0.8, path-shield-wall 0.3 |
+| warrior | 50 | bastion | 67.7 | +12.3 | +1.6 | path-stand-fast 1.2, path-retaliation 2.0 |
+| warrior | 50 | jailer | 72.3 | +16.9 | +6.1 | path-hold 3.2, path-lock 0.9, path-crush 1.3 |
+| warrior | 50 | pincer | 66.3 | +10.8 | +0.1 | path-hold 5.7, path-lock 0.8, path-iron-ring 0.0 |
+| warrior | 50 | ram | 64.2 | +8.8 | -2.0 | path-assault 0.4, path-wrench 0.6, path-breakthrough 2.2 |
+| warrior | 50 | harpooner | 62.9 | +7.5 | -3.2 | path-assault 0.3, path-wrench 0.1, path-harpoon 2.0 |
+| archer | 50 | (none) | 46.9 | | | |
+| archer | 50 | marksman | 62.7 | +15.8 | -6.6 | path-aimed-shot 0.8, path-weak-spot 0.6, path-bullseye 0.7 |
+| archer | 50 | bounty-hunter | 68.8 | +21.9 | -0.6 | path-aimed-shot 1.1, path-weak-spot 0.2, path-prey 1.3 |
+| archer | 50 | trapper | 66.7 | +19.8 | -2.7 | path-jaws 0.7, path-dive 1.2, path-bait 0.9 |
+| archer | 50 | falconer | 74.6 | +27.7 | +5.2 | path-jaws 0.5, path-dive 1.3, path-changeover 0.1 |
+| archer | 50 | barrage | 68.3 | +21.5 | -1.0 | path-barrage 1.0, path-heel-kick 1.9, path-heavy-bolt 1.2 |
+| archer | 50 | runner | 75.0 | +28.1 | +5.7 | path-barrage 1.1, path-heel-kick 1.9, path-running-shot 2.2 |
+| warrior | 60 | (none) | 47.5 | | | |
+| warrior | 60 | rampart | 81.3 | +33.8 | +3.9 | path-stand-fast 1.1, path-shield-wall 0.3 |
+| warrior | 60 | bastion | 75.2 | +27.7 | -2.2 | path-stand-fast 1.1, path-retaliation 1.4 |
+| warrior | 60 | jailer | 81.7 | +34.2 | +4.3 | path-hold 2.2, path-lock 0.6, path-crush 1.5 |
+| warrior | 60 | pincer | 82.3 | +34.8 | +4.9 | path-hold 3.9, path-lock 0.5, path-iron-ring 0.0 |
+| warrior | 60 | ram | 72.1 | +24.6 | -5.3 | path-assault 0.5, path-wrench 0.6, path-breakthrough 1.4 |
+| warrior | 60 | harpooner | 71.9 | +24.4 | -5.5 | path-assault 0.2, path-wrench 0.1, path-harpoon 1.7 |
+| archer | 60 | (none) | 41.3 | | | |
+| archer | 60 | marksman | 60.6 | +19.4 | +1.8 | path-aimed-shot 1.1, path-weak-spot 0.7, path-bullseye 0.5 |
+| archer | 60 | bounty-hunter | 58.1 | +16.9 | -0.7 | path-aimed-shot 1.0, path-weak-spot 0.2, path-prey 1.4 |
+| archer | 60 | trapper | 52.5 | +11.3 | -6.4 | path-jaws 0.6, path-dive 0.9, path-bait 0.8 |
+| archer | 60 | falconer | 59.6 | +18.3 | +0.7 | path-jaws 0.6, path-dive 1.0, path-changeover 0.1 |
+| archer | 60 | barrage | 59.6 | +18.3 | +0.7 | path-barrage 0.9, path-heel-kick 1.8, path-heavy-bolt 1.4 |
+| archer | 60 | runner | 62.7 | +21.5 | +3.9 | path-barrage 1.1, path-heel-kick 1.8, path-running-shot 2.3 |

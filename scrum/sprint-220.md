@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, les voies du Guerrier et de l'Archer se valent : B5 et B6 tenues au banc (±8 de la moyenne de la classe, 8 points au plus entre lignées), sans plafond sur le héros sans voie (rpg) ; xUnit, banc hors CI. | 4 | À faire |
+| En tant que joueur, les voies du Guerrier et de l'Archer se valent : B5 et B6 tenues au banc (±8 de la moyenne de la classe, 8 points au plus entre lignées), sans plafond sur le héros sans voie (rpg) ; xUnit, banc hors CI. | 4 | Fait : chaque voie dans ±8 de la moyenne de sa classe aux niveaux 35, 45, 50 et 60, deux lignées à 7,9 points au plus ; la part du barème des sorts de voie, quelques relances et passifs (T185) ; banc hors CI `PathBoundsBenchTests` ; les finales à 100 restent hors bornes, comme avant le sprint (S222) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

@@ -4,6 +4,8 @@ Ce document prépare la story du sprint 198 : « En tant qu'Archer, je deviens T
 
 **Légende.** **[V]** : vérifié dans le code ou les données. **[S]** : supposé, à confirmer par le banc ou le jeu. Aucun chiffre d'équilibre n'est mesuré ici.
 
+> **Note du 15 novembre 2026 (sprint 220, T185).** Les chiffres de ce document sont ceux de la conception. Le réglage au banc en a changé plusieurs : le Chasseur sauvage à 14 % des PV, l'Arbalétrier sans son bonus à l'arrêt, le Tir de barrage en relance 1 (aucune pour la Baliste vivante), le Tireur mobile à +5 % par case (25 % au plus) et le Voltigeur à +8 % (35 %, le plafond des talents), l'Appât en relance 2, et les dégâts des sorts de voie. Les valeurs à jour sont dans `data/specs.json` et `tools/spells_gen.py`, la mesure dans `mesures-classes.md`.
+
 ---
 
 ## 0. En bref

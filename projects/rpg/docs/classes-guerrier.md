@@ -4,6 +4,8 @@ Ce document prépare la story du sprint 197 : « En tant que Guerrier, je devien
 
 **Légende.** **[V]** : vérifié dans le code ou les données, ligne citée. **[S]** : supposé, à confirmer par le banc ou le jeu. Aucun chiffre d'équilibre de ce document n'a été mesuré : je n'ai lancé ni le jeu, ni les tests, ni `Rpg.Sim`.
 
+> **Note du 15 novembre 2026 (sprint 220, T185).** Les chiffres de ce document sont ceux de la conception. Le réglage au banc en a changé plusieurs : Serrez les rangs du Chevalier à 5 (au lieu de 9), le bouclier du Champion à 6, le Tacticien avec Prise à 2 PA lancée deux fois par tour, le Combattant à +3 % et le Pugiliste à +22 %, Verrou en relance 2 (1 pour le Maître des lames), Percée à 3 PA, et les dégâts des sorts de voie. Les valeurs à jour sont dans `data/specs.json` et `tools/spells_gen.py`, la mesure dans `mesures-classes.md`.
+
 ---
 
 ## 0. En bref
