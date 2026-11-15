@@ -460,7 +460,7 @@ Le cœur met déjà 25 à 38 minutes en local. Par simple effet de boucle sur `R
 |---|---|---|
 | **B5** | Rang 2 à 35 et 45 | ±8 de la moyenne de la classe (seuil actuel) |
 | **B6** | Rang 3 à 50 et 60 | 8 points au plus entre les 2 lignées d'une branche, ±8 de la moyenne de la classe |
-| **B7** | Gain sur le héros sans voie | **+15 au plus** (fixé, testé) ; **−3 au moins**, et non +3 : T152 montre que +3 n'est pas tenu, et un plancher qu'on ne tient jamais n'est pas un plancher. Un gain négatif se lit « l'IA ou le sort » |
+| **B7** | *Retirée au jalon 3 (D101) : les voies se comparent entre elles, le héros sans voie étant une référence fragile.* Gain sur le héros sans voie | **+15 au plus** (fixé, testé) ; **−3 au moins**, et non +3 : T152 montre que +3 n'est pas tenu, et un plancher qu'on ne tient jamais n'est pas un plancher. Un gain négatif se lit « l'IA ou le sort » |
 | **B8** | Rang 4 | **Indicatif, hors CI**, sur familles de synthèse : +10 au plus sur le rang 3. Pas de zone pour vérifier mieux |
 | **B9** | Composés × lignée | 3 cas par classe (aucun, meilleur, pire) : pas de grille complète. Couple à +20 au plus |
 
@@ -474,7 +474,7 @@ Le cœur met déjà 25 à 38 minutes en local. Par simple effet de boucle sur `R
 | **B13** | Tout le monde apporte quelque chose | aucune classe sous −3 victoires sur 30 en duo avec la référence |
 | **B14** | Verrouillage (M6) | l'ennemi perd tous ses PM moins d'un tour sur deux, à 2 Guerriers ; pareil pour les retards du Chronomancien sur un chef |
 | **B15** | **Le combat finit** | aucun combat ne touche `RoundLimit` (50), médiane sous 12 tours, y compris Prêtre + Paladin. `Erosion` (10 %) est le garde-fou existant [V], à revérifier car la résurrection et les soins cumulés le mettent à l'épreuve |
-| **B16** | Durée réelle | groupe de 3 Invocateurs : tour complet sous un seuil à fixer au jalon 3, joué, pas simulé |
+| **B16** | Durée réelle | groupe de 3 Invocateurs : tour complet sous un seuil à fixer au jalon 3, joué, pas simulé. **Fixé au jalon 3 (D101) : 1 seconde de calcul des règles et de l'IA par tour, mesurée par `Rpg.Sim --durations` à chaque jalon (0,8 au jalon 3)** |
 
 **Ce que la mesure ne dira pas.** Tout cela mesure l'IA et ses paquets. Elle sous-estimera toujours les classes à décision différée : Mage, Chronomancien, Invocateur, Nécromancien, pièges. La règle de T152 reste valable : **non concluant veut dire non concluant**, et le playtest tranche. Pour la même raison, je ne descends aucun seuil de plancher pour faire passer une classe, et j'en réfère à Charles.
 
