@@ -176,7 +176,8 @@ public class FinalsTests
         Assert.Equal([new PatchRule("path-interpose", Cooldown: 1)], crusader.Rules!);
         Assert.Equal(["spec-thorns"], duelist.Passives);
         Assert.Equal([new PatchRule("path-retaliation", Area: new Area(AreaShape.Line, 1), DamagePercent: 80)], duelist.Rules!, new RuleText());
-        Assert.Equal([new TargetStateRule(20, Spell: "path-crush"), new PatchRule("path-lock", Cooldown: 2)], master.Rules!, new RuleText());
+        // Lock comes back in 2 turns since sprint 220 (D101): the Blade Master keeps its turn less, in 1.
+        Assert.Equal([new TargetStateRule(20, Spell: "path-crush"), new PatchRule("path-lock", Cooldown: 1)], master.Rules!, new RuleText());
         Assert.Null(master.Passives);
         Assert.Equal(["spec-no-way-out"], strategist.Passives);
         Assert.Equal([new PatchRule("path-iron-ring", Cooldown: 1)], strategist.Rules!, new RuleText());

@@ -86,7 +86,7 @@ public class ArcherPathsTests
         Assert.Equal(new Area(AreaShape.Line, 1), Compiled(Sentinel("sightline", "marksman", 100), "path-aimed-shot").Zone);
         Assert.Equal(AreaShape.Point, Compiled(Sentinel("sightline", "marksman", 100) with { Final = null }, "path-aimed-shot").Zone.Shape);
         Spell barrage = Compiled(Sentinel("trail", "barrage", 100), "path-barrage");
-        Assert.Equal(1, barrage.Cooldown);
+        Assert.Equal(0, barrage.Cooldown); // The Living Ballista, since sprint 220 (D101).
         GlyphEffect glyph = barrage.AllEffects.OfType<GlyphEffect>().Single();
         Assert.Equal((1, Stat.Mp, -1), (glyph.Turns, glyph.Status, glyph.Value));
         Assert.Empty(Compiled(Sentinel("trail", "barrage", 50), "path-barrage").AllEffects.OfType<GlyphEffect>());
@@ -122,7 +122,7 @@ public class ArcherPathsTests
         Assert.Equal(0, fed.Spec.Characteristics.Vitality);
         Assert.Equal(Element.Earth, fed.Spells.Single().Element);
 
-        Assert.Equal(fight.HeroFighter.MaxHp * 20 / 100, Called(Sentinel("ambush", "falconer", 50, "hawk", "stone-arrow")).MaxHp);
+        Assert.Equal(fight.HeroFighter.MaxHp * 14 / 100, Called(Sentinel("ambush", "falconer", 50, "hawk", "stone-arrow")).MaxHp);
     }
 
     [Fact]
@@ -273,12 +273,13 @@ public class ArcherPathsTests
     }
 
     [Theory]
-    [InlineData(50, 1, 3)]
-    [InlineData(50, 5, 15)]
-    [InlineData(50, 9, 15)]
-    [InlineData(100, 1, 5)]
-    [InlineData(100, 5, 25)]
-    [InlineData(100, 9, 25)]
+    // Sprint 220 (D101): 5 a cell, 25 at most; the Vaulter 8 and 35, the talents' ceiling.
+    [InlineData(50, 1, 5)]
+    [InlineData(50, 5, 25)]
+    [InlineData(50, 9, 25)]
+    [InlineData(100, 1, 8)]
+    [InlineData(100, 2, 16)]
+    [InlineData(100, 9, 35)]
     public void TheRunner_HitsHarder_ByTheCellsWalked(int level, int cells, int percent)
     {
         TalentSpec path = Specs.AsTalent(Specs.RulesOf(Sentinel("trail", "runner", level), Real));

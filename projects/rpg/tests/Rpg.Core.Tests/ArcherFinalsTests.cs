@@ -36,7 +36,8 @@ public class ArcherFinalsTests
         Assert.Equal(new Area(AreaShape.Line, 1), Compiled(Archer("sightline", "marksman", "dragon-eye"), "path-aimed-shot").Zone);
         Assert.Equal(2, Compiled(Archer("ambush", "trapper", "forest-master"), "path-jaws").AllEffects.OfType<GlyphEffect>().Single().Max);
         Assert.Equal(2, Compiled(Archer("ambush", "falconer", "beast-lord"), "hawk").AllEffects.OfType<SummonEffect>().Single().Max);
-        Assert.Equal(1, Compiled(Archer("trail", "barrage", "living-ballista"), "path-barrage").Cooldown);
+        // The Barrage comes back in 1 turn since sprint 220 (D101): the Living Ballista keeps its turn less, none.
+        Assert.Equal(0, Compiled(Archer("trail", "barrage", "living-ballista"), "path-barrage").Cooldown);
         Assert.Equal(new EchoRule(50, 3), Specs.RulesOf(Archer("trail", "runner", "vaulter"), Real).OfType<EchoRule>().Single());
         Assert.Equal("Exécuteur", Specs.TitleOf(Archer("sightline", "bounty-hunter", "bounty-killer"), Real)!.Fr);
     }
@@ -130,10 +131,11 @@ public class ArcherFinalsTests
     }
 
     [Fact]
-    public void TheArbalist_HitsHarderWithoutWalking_AndItsMasterReachesTenAndPushesTwo()
+    public void TheArbalist_HasTheHeavyBolt_AndItsMasterReachesTenAndPushesTwo()
     {
+        // Sprint 220 (D101): the Arbalist's +5 % standing still is gone, paid back on the Heavy Bolt; walking or not, the same.
         Hero arbalist = Archer("trail", "barrage", null, 60);
-        Assert.Equal(5, Percent(arbalist, new HitContext(Walked: false)));
+        Assert.Equal(0, Percent(arbalist, new HitContext(Walked: false)));
         Assert.Equal(0, Percent(arbalist, new HitContext(Walked: true)));
         Assert.Equal(["path-barrage", "path-heel-kick", "path-heavy-bolt"], Real.Specs["trail"].SpellsWith("barrage"));
         Spell bolt = Compiled(Archer("trail", "barrage", "crossbow-master"), "path-heavy-bolt");

@@ -426,7 +426,8 @@ public class SpecPageTests
         var book = new SpellBook(new PointsEditor(hero, Data));
         BookSpell barrage = book.Spells.Single(b => b.Spell.Id == "path-barrage");
         Assert.Equal(Element.Earth, barrage.Element);
-        Assert.Equal(1, barrage.Spell.Cooldown);
+        // The Living Ballista's: no cooldown since sprint 220 (D101), Barrage already coming back in 1 turn for its whole branch.
+        Assert.Equal(0, barrage.Spell.Cooldown);
         Assert.Equal(27, book.Spells.Count);
         Assert.DoesNotContain(new SpellBook(new PointsEditor(Hero("archer", 100), Data)).Spells, b => b.Spell.Id.StartsWith("path-", StringComparison.Ordinal));
     }

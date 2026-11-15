@@ -35,6 +35,7 @@ public class FightBudgetTests
             "FinalsBenchTests.AtHundred_TheMagesFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "FinalsBenchTests.AtHundred_ThePriestsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
             "FinalsBenchTests.AtHundred_TheWarriorsFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",
+            "PathBoundsBenchTests.TheBranchesAndTheLineages_StayWithinEightOfTheirClass_AndOfTheirSisters",
             "TemplateTests.AFamilyMadeFromTheTemplates_KeepsT41_SmallGroupsForOnePlayer_HordesForSeveral",
             "TemplateTests.AHeroOfOneElement_AtTheMonstersLevel_BeatsNoMoreHordesThanT41Allows",
             "TemplateTests.AtFortyFive_ThePairs_AreWorthAlike",

@@ -47,11 +47,12 @@ public class GuardPathsTests
     public void TheClosedRanks_ShieldItsBearer_AndItsAllies_WorthMoreOnThem()
     {
         Fight f = On(["AA.......B"], Guard("palisade", null, 40), [Foe()], Guard(null, null, 40) with { Name = "Brume" });
-        Assert.Equal(9, f.HeroFighter!.Shield);
-        Assert.Equal(11, f.HeroFighters[1].Shield);
+        // 5 since sprint 220 (D101): at 9, the Knight stood 11 points over its class at 35.
+        Assert.Equal(5, f.HeroFighter!.Shield);
+        Assert.Equal(6, f.HeroFighters[1].Shield);
         // Lasting through the enemies' turns.
         f.Apply(new EndTurnAction());
-        Assert.Equal(9, f.HeroFighter.Shield);
+        Assert.Equal(5, f.HeroFighter.Shield);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class GuardPathsTests
     {
         Assert.Equal(["spec-close-ranks-12"], Specs.PassivesOf(Guard("palisade", "rampart", 60), Real));
         Assert.Equal(["spec-close-ranks-17", "spec-not-today"], Specs.PassivesOf(Guard("palisade", "rampart", 100), Real));
-        Assert.Equal(["spec-close-ranks-9"], Specs.PassivesOf(Guard("palisade", "bastion", 100), Real).Where(p => p != "spec-thorns"));
+        Assert.Equal(["spec-close-ranks-5"], Specs.PassivesOf(Guard("palisade", "bastion", 100), Real).Where(p => p != "spec-thorns"));
         Assert.Equal(new Area(AreaShape.Circle, 2), Real.Passives["spec-close-ranks-12"].Area);
     }
 
@@ -171,7 +172,7 @@ public class GuardPathsTests
     [Fact]
     public void TheBastion_ShieldsItsStand_ThenStrikesBehind_AndPoisons()
     {
-        Assert.Contains(Compiled(Guard("palisade", "bastion", 50), "path-stand-fast").AllEffects, e => e is ShieldEffect { Amount: 15 });
+        Assert.Contains(Compiled(Guard("palisade", "bastion", 50), "path-stand-fast").AllEffects, e => e is ShieldEffect { Amount: 6 }); // 15 before sprint 220 (D101).
         Assert.DoesNotContain(Compiled(Guard("palisade", null, 40), "path-stand-fast").AllEffects, e => e is ShieldEffect);
         Spell at100 = Compiled(Guard("palisade", "bastion", 100), "path-retaliation");
         Assert.Equal(new Area(AreaShape.Line, 1), at100.Zone);
@@ -220,7 +221,7 @@ public class GuardPathsTests
     public void TheHarpooner_HitsHarderUpClose_AndItsCollisionsHurt()
     {
         TalentSpec at50 = Specs.AsTalent(Specs.RulesOf(Guard("breach", "harpooner", 50), Real));
-        Assert.Equal(15, Talents.Percent([at50], new Cell(0, 0), new Cell(1, 0)));
+        Assert.Equal(3, Talents.Percent([at50], new Cell(0, 0), new Cell(1, 0))); // 15 before sprint 220 (D101).
         Assert.Equal(0, Talents.Percent([at50], new Cell(0, 0), new Cell(2, 0)));
         Assert.Equal(Fight.CollisionDamage, Talents.Collision([at50]));
         TalentSpec at100 = Specs.AsTalent(Specs.RulesOf(Guard("breach", "harpooner", 100), Real));
@@ -251,7 +252,7 @@ public class GuardPathsTests
         Assert.True(foe.HeldStill);
         f.Apply(new EndTurnAction());
         Assert.Equal(0, foe.Mp);
-        Assert.Equal(2, Compiled(Guard("grip", "jailer", 100), "path-lock").Cooldown);
+        Assert.Equal(1, Compiled(Guard("grip", "jailer", 100), "path-lock").Cooldown); // 2 for the class since sprint 220 (D101), 1 for the Blade Master.
     }
 
     [Fact]

@@ -764,9 +764,9 @@ paths = [
  path("jaws","Mâchoires","Jaw Trap",3,1,5,30,"lorc/mantrap",effects=[glyph("Enemies",2,11,15,stat="Mp",v=-3,st=1)],cd=2),
  path("dive","Piqué","Dive",3,1,7,30,"lorc/feather",damage=True,los=False,cd=1,needs="hawk"),
  path("changeover","Chassé-croisé","Changeover",2,1,6,50,"lorc/magic-portal",los=False,effects=[swap()],cd=2,aims="hawk"),
- path("bait","Appât","Bait",2,1,4,50,"delapouite/bread",effects=[glyph("Enemies",2,stat="Ap",v=-1,st=1)],cd=3),
+ path("bait","Appât","Bait",2,1,4,50,"delapouite/bread",effects=[glyph("Enemies",2,stat="Ap",v=-1,st=1)],cd=2),
  # The Artillerist (sprint 198, docs/classes-archer.md §3.3): Barrage comes down from 50 to 30, its budget redone; the Crossbowman's heavy bolt.
- path("barrage","Tir de barrage","Barrage",4,3,8,30,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=2),
+ path("barrage","Tir de barrage","Barrage",4,3,8,30,"delapouite/stone-wall",damage=True,area=("Line",2),effects=[status("Enemies","Mp",-1,1)],cd=1),
  path("heavy-bolt","Carreau lourd","Heavy Bolt",5,3,8,50,"lorc/arrowhead",damage=True,cd=1),
  # The Trail's of before: Vault and Feint have no path since sprint 198, kept for the Rogue's Malandrin (Voleur, sprint 205).
  path("vault","Cabriole","Vault",2,2,4,30,"delapouite/quick-man",effects=[leap()],cd=1),
@@ -781,11 +781,11 @@ paths = [
  # The Breach.
  path("assault","Assaut","Assault",3,2,4,30,"lorc/quick-slash",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
  path("wrench","Arrachement","Wrench",3,1,4,30,"delapouite/push",effects=[pull(2),status("Enemies","Mp",-1,1)]),
- path("breakthrough","Trouée","Breakthrough",4,1,1,50,"lorc/anvil-impact",damage=True,area=("Line",2),effects=[push(2)],cd=1),
+ path("breakthrough","Trouée","Breakthrough",3,1,1,50,"lorc/anvil-impact",damage=True,area=("Line",2),effects=[push(2)],cd=1),
  path("harpoon","Harpon","Harpoon",3,2,6,50,"lorc/barbed-spear",damage=True,line=True,effects=[pull(3)],cd=1),
  # The Grip: the Lock takes all the movement any monster has.
  path("hold","Prise","Hold",3,1,1,30,"lorc/fist",damage=True,effects=[status("Enemies","Mp",-2,2)]),
- path("lock","Verrou","Lock",2,1,1,30,"lorc/skeleton-key",effects=[status("Enemies","Mp",-9,1)],cd=3),
+ path("lock","Verrou","Lock",2,1,1,30,"lorc/skeleton-key",effects=[status("Enemies","Mp",-9,1)],cd=2),
  path("crush","Écrasement","Crush",5,1,1,50,"lorc/hammer-drop",damage=True),
  path("iron-ring","Cercle de fer","Iron Ring",3,0,0,50,"lorc/linked-rings",los=False,area=("Circle",1),effects=[status("Enemies","Mp",-2,1)],cd=2),
  # The Mage's (sprint 199, docs/classes-mage.md §2, designed in docs/textes-specialisations.md): the Arcanist prepares, its rune marks the ground.
@@ -915,9 +915,13 @@ paths = [
 # The Inquisitor is the Priest's striker (docs/classes-pretre-2.md §2): its blows at the full budget, as every path's.
 # The Living Storm at 0.45 of it (sprint 218, measured, docs/classes-chaman.md §4): at the full budget, a blow of the Shaman whose spirits already
 # bring it to the class's mean, it put the Nature Elementalist 14 to 17 points over it at 60 and 100.
+# The first two waves balanced on the bench (sprint 220, D101, Q1 of docs/jalon-3.md; docs/mesures-classes.md): a path spell's share of the budget,
+# so that a class's paths stay within 8 points of each other (B5, B6). Barrage and Breakthrough, quicker since, are paid back for it.
+PATH_TUNING = {"path-breakthrough": 1.65, "path-heel-kick": 1.3, "path-barrage": 1.2, "path-heavy-bolt": 0.87, "path-running-shot": 1.33,
+               "path-retaliation": 0.9, "path-crush": 0.93, "path-bullseye": 1.08}
 for sp in paths:
     if sp["damageMax"] > 0:
-        budget(sp, 0.45 if sp["id"] == "path-living-storm" else 1)
+        budget(sp, 0.45 if sp["id"] == "path-living-storm" else PATH_TUNING.get(sp["id"], 1))
 _names = [sp["name"]["fr"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
 assert not [t for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1], [t["name"]["fr"] for t in twins if t.get("twin") and _names.count(t["name"]["fr"]) > 1]
 _names = [sp["name"]["en"] for sp in base + sentinel + guard + mage + priest + rogue + berserker + paladin + summoner + necromancer + druid + creatures + beasts + twins]
@@ -1058,7 +1062,7 @@ passives = [
  P("spec-calm-eye-long","Œil calme","Calm Eye","Aucun ennemi à 3 cases au début de ton tour : +25 % de dégâts pendant 2 tours.","No enemy within 3 cells at the start of your turn: +25% damage for 2 turns.",
    "TurnStart",[status("Caster","Damage",25,2)],clear=3),
  # The Guard's (sprint 192).
- P("spec-close-ranks-9","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case.","At the start of your turn, a shield of 9 on you and allies 1 cell away.","TurnStart",[shield("Allies",9,2)],area=("Circle",1)),
+ P("spec-close-ranks-5","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 5 sur toi et tes alliés à 1 case.","At the start of your turn, a shield of 5 on you and allies 1 cell away.","TurnStart",[shield("Allies",5,2)],area=("Circle",1)),
  P("spec-close-ranks-12","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 12 sur toi et tes alliés à 2 cases.","At the start of your turn, a shield of 12 on you and allies within 2 cells.","TurnStart",[shield("Allies",12,2)],area=("Circle",2)),
  P("spec-close-ranks-17","Serrez les rangs","Close Ranks","Au début de ton tour, bouclier de 17 sur toi et tes alliés à 2 cases.","At the start of your turn, a shield of 17 on you and allies within 2 cells.","TurnStart",[shield("Allies",17,2)],area=("Circle",2)),
  P("spec-not-today","Pas aujourd'hui","Not Today","Une fois par combat, un allié à 2 cases qui tomberait reste à 1 PV.","Once per fight, an ally within 2 cells who would fall stays at 1 HP.","AllyFalls",range=2,perFight=1),

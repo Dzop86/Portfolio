@@ -13,15 +13,15 @@
         "en": "Knight"
       },
       "description": {
-        "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Tenir bon.",
-        "en": "At the start of your turn, a shield of 9 on you and allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Stand Fast."
+        "fr": "Au début de ton tour, bouclier de 5 sur toi et tes alliés à 1 case. Tes boucliers sur les alliés valent +25 %. Sorts : Interposition et Tenir bon.",
+        "en": "At the start of your turn, a shield of 5 on you and allies 1 cell away. Your shields on allies are worth +25%. Spells: Interpose and Stand Fast."
       },
       "spells": [
         "path-interpose",
         "path-stand-fast"
       ],
       "passives": [
-        "spec-close-ranks-9"
+        "spec-close-ranks-5"
       ],
       "rules": [
         {
@@ -51,7 +51,7 @@
               "spec-close-ranks-12"
             ],
             "replaces": [
-              "spec-close-ranks-9"
+              "spec-close-ranks-5"
             ]
           }
         ],
@@ -137,8 +137,8 @@
               "en": "Champion"
             },
             "description": {
-              "fr": "Tenir bon te donne aussi un bouclier de 15. Sort : Rétorsion.",
-              "en": "Stand Fast also gives you a shield of 15. Spell: Retaliation."
+              "fr": "Tenir bon te donne aussi un bouclier de 6. Sort : Rétorsion.",
+              "en": "Stand Fast also gives you a shield of 6. Spell: Retaliation."
             },
             "spells": [
               "path-retaliation"
@@ -151,7 +151,7 @@
                   {
                     "kind": "shield",
                     "affects": "Caster",
-                    "amount": 15,
+                    "amount": 6,
                     "turns": 2
                   }
                 ]
@@ -319,8 +319,8 @@
                 "en": "Blade Master"
               },
               "description": {
-                "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 2 tours.",
-                "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 2 turns."
+                "fr": "Écrasement fait +50 % sur un ennemi à 0 PM, au lieu de +30 %. Verrou se relance en 1 tour.",
+                "en": "Crush does +50% on an enemy at 0 MP, instead of +30%. Lock comes back in 1 turn."
               },
               "rules": [
                 {
@@ -331,7 +331,7 @@
                 {
                   "kind": "patch",
                   "spell": "path-lock",
-                  "cooldown": 2
+                  "cooldown": 1
                 }
               ]
             },
@@ -385,8 +385,8 @@
               "en": "Tactician"
             },
             "description": {
-              "fr": "Provocation porte à +2 PO. Sort : Cercle de fer.",
-              "en": "Taunt reaches +2 range. Spell: Iron Ring."
+              "fr": "Provocation porte à +2 PO. Prise coûte 2 PA et se lance deux fois par tour. Sort : Cercle de fer.",
+              "en": "Taunt reaches +2 range. Hold costs 2 AP and can be cast twice a turn. Spell: Iron Ring."
             },
             "spells": [
               "path-iron-ring"
@@ -396,6 +396,12 @@
                 "kind": "patch",
                 "spell": "taunt",
                 "maxRange": 7
+              },
+              {
+                "kind": "patch",
+                "spell": "path-hold",
+                "apCost": 2,
+                "perTurn": 2
               }
             ]
           }
@@ -628,8 +634,8 @@
               "en": "Fighter"
             },
             "description": {
-              "fr": "+15 % de dégâts sur une cible à ton contact. Sort : Harpon.",
-              "en": "+15% damage on a target next to you. Spell: Harpoon."
+              "fr": "+3 % de dégâts sur une cible à ton contact. Sort : Harpon.",
+              "en": "+3% damage on a target next to you. Spell: Harpoon."
             },
             "spells": [
               "path-harpoon"
@@ -639,7 +645,7 @@
                 "kind": "distance",
                 "minCells": 1,
                 "maxCells": 1,
-                "percent": 15
+                "percent": 3
               }
             ]
           }
@@ -694,8 +700,8 @@
                 "en": "Pugilist"
               },
               "description": {
-                "fr": "Au contact, +25 % au lieu de +15 %. Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.",
-                "en": "In melee, +25% instead of +15%. Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn."
+                "fr": "Au contact, +25 % au lieu de +3 %. Une fois par combat, sous la moitié de tes PV : les ennemis à ton contact reculent de 2 cases, et +2 PA pendant 1 tour.",
+                "en": "In melee, +25% instead of +3%. Once per fight, below half your HP: enemies next to you are pushed back 2 cells, and +2 AP for 1 turn."
               },
               "passives": [
                 "spec-on-the-ropes"
@@ -705,7 +711,7 @@
                   "kind": "distance",
                   "minCells": 1,
                   "maxCells": 1,
-                  "percent": 10
+                  "percent": 22
                 }
               ]
             },
@@ -1102,8 +1108,8 @@
               "en": "Wild Hunter"
             },
             "description": {
-              "fr": "Ton Faucon a 20 % de tes PV. Sort : Chassé-croisé.",
-              "en": "Your Hawk has 20% of your HP. Spell: Changeover."
+              "fr": "Ton Faucon a 14 % de tes PV. Sort : Chassé-croisé.",
+              "en": "Your Hawk has 14% of your HP. Spell: Changeover."
             },
             "spells": [
               "path-changeover"
@@ -1112,7 +1118,7 @@
               {
                 "kind": "summon-share",
                 "summon": "hawk",
-                "hpPercent": 20,
+                "hpPercent": 14,
                 "statsPercent": 50
               }
             ]
@@ -1247,18 +1253,11 @@
               "en": "Arbalist"
             },
             "description": {
-              "fr": "+5 % de dégâts si tu n'as pas marché ce tour. Sort : Carreau lourd.",
-              "en": "+5% damage if you have not walked this turn. Spell: Heavy Bolt."
+              "fr": "Sort : Carreau lourd.",
+              "en": "Spell: Heavy Bolt."
             },
             "spells": [
               "path-heavy-bolt"
-            ],
-            "rules": [
-              {
-                "kind": "still",
-                "still": 5,
-                "moved": 0
-              }
             ]
           }
         ],
@@ -1278,14 +1277,14 @@
                 "en": "Living Ballista"
               },
               "description": {
-                "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et se relance en 1 tour.",
-                "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and comes back in 1 turn."
+                "fr": "Tir de barrage laisse sur sa ligne une glyphe de −1 PM pendant 1 tour, et n'a plus de relance, une fois par tour.",
+                "en": "Barrage leaves a glyph of −1 MP along its line for 1 turn, and has no cooldown, once per turn."
               },
               "rules": [
                 {
                   "kind": "patch",
                   "spell": "path-barrage",
-                  "cooldown": 1,
+                  "cooldown": 0,
                   "addEffects": [
                     {
                       "kind": "glyph",
@@ -1351,8 +1350,8 @@
               "en": "Skirmisher"
             },
             "description": {
-              "fr": "+3 % de dégâts par case marchée depuis ton dernier sort, 15 % au plus. Sort : Tir en course.",
-              "en": "+3% damage per cell walked since your last spell, 15% at most. Spell: Running Shot."
+              "fr": "+5 % de dégâts par case marchée depuis ton dernier sort, 25 % au plus. Sort : Tir en course.",
+              "en": "+5% damage per cell walked since your last spell, 25% at most. Spell: Running Shot."
             },
             "spells": [
               "path-running-shot"
@@ -1360,8 +1359,8 @@
             "rules": [
               {
                 "kind": "dance",
-                "perCell": 3,
-                "max": 15
+                "perCell": 5,
+                "max": 25
               }
             ]
           }
@@ -1382,13 +1381,13 @@
                 "en": "Vaulter"
               },
               "description": {
-                "fr": "+5 % par case, 25 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
-                "en": "+5% per cell, 25% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
+                "fr": "+8 % par case, 35 % au plus. Si tu as marché 3 cases, ton dernier sort laisse un écho, à 50 % au tour suivant.",
+                "en": "+8% per cell, 35% at most. If you walked 3 cells, your last spell leaves an echo, at 50% on the next turn."
               },
               "rules": [
                 {
                   "kind": "dance",
-                  "perCell": 2,
+                  "perCell": 3,
                   "max": 10
                 },
                 {

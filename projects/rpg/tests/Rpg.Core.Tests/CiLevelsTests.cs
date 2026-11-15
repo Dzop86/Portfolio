@@ -150,9 +150,9 @@ public class CiLevelsTests
     /// </summary>
     public static readonly IReadOnlySet<string> Unchanged = new HashSet<string>(StringComparer.Ordinal)
     {
-        // The Archer (sprint 198, docs/classes-archer.md §5): the AI does not cast Running Shot at 100. Its Beast Lord's second Hawk is called since sprint 211,
-        // a fed creature worth its share of the Archer's characteristics.
-        "war-hawk",
+        // The Archer (sprint 198, docs/classes-archer.md §5): the War Hawk's second Running Shot changes none of a hero's fights. Sprint 220 (D101): the Beast Lord's
+        // second Hawk, at 14 % of the Archer's hit points (20 before), neither.
+        "war-hawk", "beast-lord",
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
@@ -176,7 +176,8 @@ public class CiLevelsTests
         "forest-master", "magic-architect", "warchief",
         // Sprint 211 (D99): with movement taken, traps and pulls weighed by what they bring, the General changes a fight now; the Blade Master and the Destroyer
         // (its Breakthrough driving 2 cells) none of the few a hero of 100 plays.
-        "blade-master", "destroyer",
+        // Sprint 220 (D101): Breakthrough at 3 AP, the Destroyer changes a fight again.
+        "blade-master",
         // Sprint 214 (docs/classes-necromancien.md §6): the Undead Colossus's Marrow every turn rather than every other; the AI casts it seldom enough that no fight changes.
         "undead-colossus",
         // Sprint 213 (docs/classes-invocateur-3.md §4): at 100 the Demon Caller calls its Demon 0.3 times a fight, its three creatures taken by the Hounds and the

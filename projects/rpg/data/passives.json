@@ -819,21 +819,21 @@
     "clear": 3
   },
   {
-    "id": "spec-close-ranks-9",
+    "id": "spec-close-ranks-5",
     "name": {
       "fr": "Serrez les rangs",
       "en": "Close Ranks"
     },
     "description": {
-      "fr": "Au début de ton tour, bouclier de 9 sur toi et tes alliés à 1 case.",
-      "en": "At the start of your turn, a shield of 9 on you and allies 1 cell away."
+      "fr": "Au début de ton tour, bouclier de 5 sur toi et tes alliés à 1 case.",
+      "en": "At the start of your turn, a shield of 5 on you and allies 1 cell away."
     },
     "trigger": "TurnStart",
     "effects": [
       {
         "kind": "shield",
         "affects": "Allies",
-        "amount": 9,
+        "amount": 5,
         "turns": 2
       }
     ],
