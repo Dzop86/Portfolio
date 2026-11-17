@@ -619,3 +619,15 @@ dotnet run -c Release --project src/Rpg.Sim -- --matrix --class warrior --simula
 | archer | 60 | falconer | 59.6 | +18.3 | +0.7 | path-jaws 0.6, path-dive 1.0, path-changeover 0.1 |
 | archer | 60 | barrage | 59.6 | +18.3 | +0.7 | path-barrage 0.9, path-heel-kick 1.8, path-heavy-bolt 1.4 |
 | archer | 60 | runner | 62.7 | +21.5 | +3.9 | path-barrage 1.1, path-heel-kick 1.8, path-running-shot 2.3 |
+
+## 17 novembre 2026 : le Paladin, le Voleur et l'Invocateur rééquilibrés ; le Familier revient de la Fusion (S221, T186)
+
+Voir T186. B5 et B6 tenues aux quatre niveaux pour les cinq classes du banc (`PathBoundsBenchTests`, 16 groupes, 30 combats par groupe et par voie, 25 min) :
+
+| Classe | 35 | 45 | 50 | 60 |
+|---|---|---|---|---|
+| Paladin | moyenne 78,1 : Protecteur 78,3, Templier 75,0, Vengeur 80,8 | 76,9 : 76,5, 80,2, 74,2 | 66,3 : Rempart 72,3, Défenseur 68,5, Inquisiteur 62,7, Croisé 63,8, Justicier 64,4, Fanatique 66,0 | 57,8 : 63,3, 61,9, 57,3, 52,3, 59,0, 53,3 |
+| Voleur | 42,6 : Assassin 47,5, Malandrin 44,0, Ombremage 36,3 | 43,5 : 48,1, 41,0, 41,3 | 55,8 : Lame noire 58,1, Empoisonneur 59,0, Bretteur 54,0, Saboteur 52,3, Traqueur nocturne 51,9, Illusionniste 59,6 | 52,2 : 53,5, 56,9, 46,3, 46,5, 56,0, 53,8 |
+| Invocateur | 77,2 : Démoniste 81,3, Conjurateur 74,6, Familieriste 75,6 | 83,8 : 89,2, 79,0, 83,3 | 79,1 : Invocateur démoniaque 76,0, Pactisant 75,8, élémentaire 78,3, astral 72,9, Dompteur 85,4, Fusionniste 85,8 | 69,1 : 70,4, 76,5, 70,6, 64,4, 67,7, 64,8 |
+
+Le Guerrier et l'Archer, réglés au sprint 220, tiennent toujours. **La Fusion mesurée avec et sans le sort** (sonde jetable, 16 groupes, 30 combats) : quand le Familier mourait, 53,3 avec contre 68,3 sans au 60 ; revenant à 35 % pendant 3 tours, 61,5 contre 66,5 ; à 80 % pendant 2 tours, 69,6 au 60 et 91,3 au 50 (sans : 84,8), trop fort ; retenu 60 % pendant 2 tours.

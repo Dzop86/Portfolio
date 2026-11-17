@@ -25,7 +25,7 @@ Le Familier (`familiar`) : modèle de loup un peu plus grand, 6 PA, 4 PM, initia
 | Lignée | Règle et sort | Finales (gabarit) |
 |---|---|---|
 | **Dompteur** (`tamer`) | croissance +4 % par tour, +20 % au plus (12 et 60 en tout) ; **Rappel** (`path-recall`) : échange sa place avec le Familier | **Maître des familiers** (`familiar-master`, Faster : Familier relancé en 2 tours au lieu de 4) ; **Roi des créatures** (`creature-king`, Extends : toutes ses créatures grandissent de 5 % par tour, 25 % au plus) |
-| **Fusionniste** (`fusionist`) | **Fusion** (`path-fusion`, 3 PA, 1-6, relance 3) : le Familier meurt en lui | **Chimériste** (`chimerist`, Extends : la Fusion donne aussi 2 PM pour 3 tours) ; **Avatar fusionnel** (`fusion-avatar`, Form : la Fusion laisse une forme de 15 % de dégâts pour tout le combat) |
+| **Fusionniste** (`fusionist`) | **Fusion** (`path-fusion`, 3 PA, 1-6, relance 3) : le Familier se fond en lui (ses PV en bouclier, +60 % de dégâts et sa croissance, 2 tours ; avant : 35 %, 3 tours), puis ressort à côté de lui avec ses PV et sa croissance (sprint 221, D101 ; il mourait avant) | **Chimériste** (`chimerist`, Extends : la Fusion donne aussi 2 PM pour 3 tours) ; **Avatar fusionnel** (`fusion-avatar`, Form : la Fusion laisse une forme de 15 % de dégâts pour tout le combat) |
 
 **Le Maître des familiers changé en route.** La liste prévoyait deux Familiers (gabarit Second). Mais avec deux Molosses, un Feu follet et le Familier, l'Invocateur est à ses 3 créatures : le second ne venait jamais, et la finale valait le Dompteur au point près (44,6). Relancé en 2 tours, un Familier tombé revient vite : 52,1.
 

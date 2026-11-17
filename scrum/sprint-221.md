@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que joueur, les voies du Paladin et du Voleur, le Dompteur et le Fusionniste de l'Invocateur se valent : B5 et B6 tenues au banc (rpg) ; xUnit, banc hors CI. | 4 | À faire |
+| En tant que joueur, les voies du Paladin et du Voleur, le Dompteur et le Fusionniste de l'Invocateur se valent : B5 et B6 tenues au banc (rpg) ; xUnit, banc hors CI. | 4 | Fait : chaque voie dans ±8 de la moyenne de sa classe aux niveaux 35, 45, 50 et 60, deux lignées à 8 points au plus (T186) ; décision de Charles : le Familier ne meurt plus dans la Fusion, il ressort à côté du héros avec ses PV et sa croissance (Fusion 2 tours, 60 %) ; le Pactisant relevé (Prix du sang 4 PV), le Démon de l'Invocateur démoniaque nourri à 46 % |
 
 ## Rétro (Charles)
 - Ce qui a marché :

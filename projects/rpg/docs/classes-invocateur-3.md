@@ -24,8 +24,8 @@ Le Démon (`demon`) : modèle de cerf, 6 PA, 4 PM, initiative 55, **Lacération*
 
 | Lignée | Règle et sort | Finales (gabarit) |
 |---|---|---|
-| **Invocateur démoniaque** (`demon-caller`) | Démon nourri à 35 % et 50 % ; dîme +1 % (4 % en tout) ; **Déchaînement** (`path-unleash`, 2 PA, 6 PV, sur le Démon : +30 % de dégâts 2 tours, +2 PM 1 tour) | **Seigneur infernal** (`infernal-lord`, Extends : Déchaînement donne aussi 2 PA) ; **Archidémoniste** (`archdemonist`, Faster : Démon relancé en 2 tours) |
-| **Pactisant** (`pactbearer`) | **Prix du sang** (`path-blood-price`, 4 PA, 1-5, 10 PV, relance 1, au budget plein) | **Maître des pactes** (`pact-master`, Extends : Pacte de sang donne aussi 1 PA) ; **Élu des abysses** (`abyss-chosen`, Form : Pacte de sang laisse 15 % de dégâts pour tout le combat) |
+| **Invocateur démoniaque** (`demon-caller`) | Démon nourri à 35 % et 46 % (50 % avant le sprint 221) ; dîme +1 % (4 % en tout) ; **Déchaînement** (`path-unleash`, 2 PA, 6 PV, sur le Démon : +30 % de dégâts 2 tours, +2 PM 1 tour) | **Seigneur infernal** (`infernal-lord`, Extends : Déchaînement donne aussi 2 PA) ; **Archidémoniste** (`archdemonist`, Faster : Démon relancé en 2 tours) |
+| **Pactisant** (`pactbearer`) | **Prix du sang** (`path-blood-price`, 4 PA, 1-5, 4 PV (10 avant le sprint 221), relance 1, 0,8 du barème) | **Maître des pactes** (`pact-master`, Extends : Pacte de sang donne aussi 1 PA) ; **Élu des abysses** (`abyss-chosen`, Form : Pacte de sang laisse 15 % de dégâts pour tout le combat) |
 
 ## 2. Le Conjurateur (niveau 30)
 
