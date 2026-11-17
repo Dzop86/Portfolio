@@ -109,7 +109,7 @@ public class DemonistConjurerTests
         Assert.Contains(new TitheRule("demon", 3), bare);
         // The Demon Caller feeds its Demon more, and pays more for it: 4 % in all.
         TalentRule[] caller = [.. Specs.RulesOf(Summoner("demonist", "demon-caller", 60), Real)];
-        Assert.Contains(new SummonRule("demon", 35, 50), caller);
+        Assert.Contains(new SummonRule("demon", 35, 46), caller);
         Assert.Equal(4, caller.OfType<TitheRule>().Sum(r => r.Percent));
         Assert.Contains(Compiled(Summoner("demonist", "demon-caller", 100, "infernal-lord"), "path-unleash").AllEffects, e => e is StatusEffect { Stat: Stat.Ap, Value: 2 });
         Assert.Equal(2, Compiled(Summoner("demonist", "demon-caller", 100, "archdemonist"), "path-demon").Cooldown);

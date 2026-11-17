@@ -653,8 +653,9 @@ public static class Ai
 
     /// <summary>
     /// The fusion (the Fusionist's, sprint 212, docs/classes-invocateur-2.md §2): its shield, at most what the blows within reach would take of the caster over its
-    /// turns; its damage bonus, the creature's growth on top, a share of the caster's blows (<see cref="BoostShare"/>); less what the creature would strike for in
-    /// <see cref="SummonTurns"/>, as far as it would live: a creature the blows within reach would fell costs little to take in.
+    /// turns; its damage bonus, the creature's growth on top, a share of the caster's blows (<see cref="BoostShare"/>); less what the creature would strike for
+    /// in <see cref="SummonTurns"/>, as far as it would live: a creature the blows within reach would fell costs little to take in. One that comes back
+    /// (the Fusionist's, sprint 221, D101) costs only the turns it is away.
     /// </summary>
     private static double FuseWorth(Fight fight, Fighter me, Fighter fused, FuseEffect fuse)
     {
@@ -662,7 +663,7 @@ public static class Ai
         int bonus = fuse.Percent + fused.StatusList.Where(st => st.Stat == Stat.Grown).Sum(st => st.Value);
         double incoming = Incoming(fight, fused);
         double lives = incoming <= 0 ? 1 : Math.Min(1, (fused.Hp + fused.Shield) / incoming);
-        return shield + (BoostShare * bonus / 100.0 * RoundOf(fight, me) * fuse.Turns) - (SummonTurns * RoundOf(fight, fused) * lives);
+        return shield + (BoostShare * bonus / 100.0 * RoundOf(fight, me) * fuse.Turns) - ((fuse.Returns ? fuse.Turns : SummonTurns) * RoundOf(fight, fused) * lives);
     }
 
     /// <summary>A round of <paramref name="f"/>'s blows on the nearest enemy (sprint 211, D99): its strongest spell, as often as its action points allow.</summary>

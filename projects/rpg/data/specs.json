@@ -4500,14 +4500,14 @@
                 "en": "Zealot"
               },
               "description": {
-                "fr": "Fureur sacrée se relance en 2 tours.",
-                "en": "Holy Fury comes back in 2 turns."
+                "fr": "Fureur sacrée se relance en 1 tour.",
+                "en": "Holy Fury comes back in 1 turn."
               },
               "rules": [
                 {
                   "kind": "patch",
                   "spell": "path-holy-fury",
-                  "cooldown": 2
+                  "cooldown": 1
                 }
               ]
             },
@@ -4607,8 +4607,8 @@
               "en": "Demon Caller"
             },
             "description": {
-              "fr": "Ton Démon prend 35 % de tes PV et 50 % de tes caractéristiques, et 1 % de tes PV de plus à chacun de ses tours. Sort : Déchaînement.",
-              "en": "Your Demon takes 35% of your HP and 50% of your characteristics, and 1% more of your HP at each of its turns. Spell: Unleash."
+              "fr": "Ton Démon prend 35 % de tes PV et 46 % de tes caractéristiques, et 1 % de tes PV de plus à chacun de ses tours. Sort : Déchaînement.",
+              "en": "Your Demon takes 35% of your HP and 46% of your characteristics, and 1% more of your HP at each of its turns. Spell: Unleash."
             },
             "spells": [
               "path-unleash"
@@ -4618,7 +4618,7 @@
                 "kind": "summon-share",
                 "summon": "demon",
                 "hpPercent": 35,
-                "statsPercent": 50
+                "statsPercent": 46
               },
               {
                 "kind": "tithe",
@@ -4708,8 +4708,8 @@
               "en": "Pactbearer"
             },
             "description": {
-              "fr": "Sort : Prix du sang, un coup de 1 à 5 cases que tu paies de 10 PV.",
-              "en": "Spell: Blood Price, a blow from 1 to 5 cells you pay 10 HP for."
+              "fr": "Sort : Prix du sang, un coup de 1 à 5 cases que tu paies de 4 PV.",
+              "en": "Spell: Blood Price, a blow from 1 to 5 cells you pay 4 HP for."
             },
             "spells": [
               "path-blood-price"
@@ -5062,8 +5062,8 @@
               "en": "Tamer"
             },
             "description": {
-              "fr": "Ton Familier grandit de 4 % de plus par tour, 20 % de plus au plus. Sort : Rappel, tu échanges ta place avec lui.",
-              "en": "Your Familiar grows 4% more a turn, 20% more at most. Spell: Recall, you trade places with it."
+              "fr": "Ton Familier grandit de 3 % de plus par tour, 15 % de plus au plus. Sort : Rappel, tu échanges ta place avec lui.",
+              "en": "Your Familiar grows 3% more a turn, 15% more at most. Spell: Recall, you trade places with it."
             },
             "spells": [
               "path-recall"
@@ -5072,8 +5072,8 @@
               {
                 "kind": "growth",
                 "summon": "familiar",
-                "percent": 4,
-                "max": 20
+                "percent": 3,
+                "max": 15
               }
             ]
           }
@@ -5150,8 +5150,8 @@
               "en": "Fusionist"
             },
             "description": {
-              "fr": "Sort : Fusion, ton Familier meurt en toi : ses PV en bouclier et 35 % de dégâts, sa croissance en plus, pour 3 tours.",
-              "en": "Spell: Fusion, your Familiar dies into you: its HP as a shield and 35% damage, its growth on top, for 3 turns."
+              "fr": "Sort : Fusion, ton Familier se fond en toi : ses PV en bouclier et 60 % de dégâts, sa croissance en plus, pour 2 tours ; puis il ressort à côté de toi.",
+              "en": "Spell: Fusion, your Familiar melts into you: its HP as a shield and 60% damage, its growth on top, for 2 turns; then it steps out next to you."
             },
             "spells": [
               "path-fusion"

@@ -56,7 +56,7 @@ public class PaladinPathsTests
         Assert.Contains(Compiled(Paladin("templar", "paladin-crusader", 100, "lightbearer"), "aegis").AllEffects, e => e is ReviveEffect { Percent: 30 });
         Assert.Contains("spec-bounty", Specs.PassivesOf(Paladin("avenger", "justiciar", 100, "divine-executioner"), Real));
         Assert.Equal(1, Compiled(Paladin("avenger", "justiciar", 100, "hand-of-judgement"), "path-verdict-blow").Cooldown);
-        Assert.Equal(2, Compiled(Paladin("avenger", "paladin-fanatic", 100, "paladin-zealot"), "path-holy-fury").Cooldown);
+        Assert.Equal(1, Compiled(Paladin("avenger", "paladin-fanatic", 100, "paladin-zealot"), "path-holy-fury").Cooldown); // Holy Fury back in 2 (sprint 221), the Zealot a turn less
         Assert.Contains(Compiled(Paladin("avenger", "paladin-fanatic", 100, "holy-avatar"), "path-holy-fury").AllEffects, e => e is StatusEffect { Stat: Stat.Damage, Value: 20 });
     }
 

@@ -11,11 +11,13 @@ public class FamiliaristTests
     private static readonly Spell Fang = new("fang", Text, 3, 1, 1, true, false, 10, 10, 9);
     private static readonly Spell Call = new("call", Text, 1, 1, 1, false, false, 0, 0, 9, Effects: [new SummonEffect(Affects.All, "pet", Max: 2)]);
     private static readonly Spell Fuse = new("fuse", Text, 1, 1, 9, false, false, 0, 0, 9, Effects: [new FuseEffect(Affects.Caster, 3, 20)], Aims: "pet");
+    private static readonly Spell Merge = new("merge", Text, 1, 1, 9, false, false, 0, 0, 9, Effects: [new FuseEffect(Affects.Caster, 2, 20, Returns: true)], Aims: "pet");
+    private static readonly Spell CallOne = new("call-one", Text, 1, 1, 1, false, false, 0, 0, 9, Effects: [new SummonEffect(Affects.All, "pet")]);
     private static readonly Spell Wash = new("wash", Text, 1, 1, 9, false, false, 0, 0, 9, Effects: [new PurgeEffect(Affects.Enemies)]);
     private static readonly SummonSpec Pet = new("pet", Text, "male-d", 50, 6, 0, 50, ["fang"]);
 
     private static Fight Play(string[] rows, params FighterSpec[] fighters) =>
-        new(new GameData([.. Spells, Fang, Call, Fuse, Wash], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], summons: [Pet]), "s", 1);
+        new(new GameData([.. Spells, Fang, Call, Fuse, Merge, CallOne, Wash], [new MapSpec("m", Text, rows)], [new Scenario("s", Text, "m", fighters)], summons: [Pet]), "s", 1);
 
     private static FighterSpec Caller(params TalentRule[] rules) =>
         Spec(0, ap: 99, mp: 0, hp: 500, initiative: 999, spells: ["call", "fuse"]) with { SpecRules = rules };
@@ -90,6 +92,56 @@ public class FamiliaristTests
     }
 
     [Fact]
+    public void TheFusionistsFusion_TakesTheCreatureOffTheBoard_ItComesBackNextToItsCaster_WithItsHitPointsAndItsGrowth()
+    {
+        Fight f = Play(["A.B"], Caller(new GrowthRule(10, 50, "pet")) with { Spells = ["call-one", "merge"] }, Foe());
+        Fighter me = f.Fighters[0];
+        f.Apply(new CastAction("call-one", new Cell(1, 0)));
+        Fighter pet = f.Fighters[^1];
+        PassUntil(f, me, 3);
+        Assert.Equal(20, Grown(pet));
+        pet.Hp = 30;
+        Assert.Equal(ActionError.None, f.Apply(new CastAction("merge", pet.Cell)));
+        // Off the board, alive in its caster: not dead, its cell free, and no second one while it is away.
+        Assert.False(pet.IsAlive);
+        Assert.Equal(me.Id, pet.FusedInto);
+        Assert.Contains(f.Events.OfType<Fused>(), e => e.Fighter == pet.Id && e.Into == me.Id);
+        Assert.DoesNotContain(f.Events.OfType<Died>(), e => e.Fighter == pet.Id);
+        Assert.Null(f.At(new Cell(1, 0)));
+        Assert.Equal(ActionError.TooManySummons, f.Apply(new CastAction("call-one", new Cell(1, 0))));
+        Assert.Equal(30, me.Shield);
+        Assert.Contains(me.Statuses, s => s is { Stat: Stat.Damage, Value: 40, TurnsLeft: 2 });
+        // Still in it on the caster's next turn; out when that turn ends, next to it, with its hit points, and it plays and grows on.
+        PassUntil(f, me, 4);
+        Assert.False(pet.IsAlive);
+        f.Apply(new EndTurnAction());
+        Assert.True(pet.IsAlive);
+        Assert.Null(pet.FusedInto);
+        Assert.Equal((new Cell(1, 0), 30), (pet.Cell, pet.Hp));
+        Assert.Contains(f.Events.OfType<Unfused>(), e => e.Fighter == pet.Id && e.Summoner == me.Id && e.Hp == 30);
+        Assert.Same(pet, f.Current);
+        Assert.Equal(30, Grown(pet));
+    }
+
+    [Fact]
+    public void ACreatureFusedIntoACasterWhoFalls_NeverComesBack()
+    {
+        Fight f = Play(["A.", "B."], Caller() with { Spells = ["call-one", "merge"] }, Foe() with { Spells = ["fang"] });
+        Fighter me = f.Fighters[0];
+        f.Apply(new CastAction("call-one", new Cell(1, 0)));
+        Fighter pet = f.Fighters[^1];
+        pet.Hp = 1;
+        me.Hp = 5;
+        f.Apply(new CastAction("merge", pet.Cell));
+        PassUntil(f, f.Fighters[1], 1);
+        f.Apply(new CastAction("fang", me.Cell));
+        Assert.False(me.IsAlive);
+        Assert.Null(pet.FusedInto);
+        Assert.Equal(1, f.WinningTeam);
+        Assert.Empty(f.Events.OfType<Unfused>());
+    }
+
+    [Fact]
     public void TheAI_TakesInACreatureAboutToFall_RatherThanOneSafe()
     {
         // The enemy next to the pet strikes it for 10 (Ai.Incoming, its best blow); the caster, out of its reach, strikes for 20 a round.
@@ -115,14 +167,17 @@ public class FamiliaristTests
         Assert.Equal(["path-familiar", "path-titbit"], spec.Base.Spells);
         Assert.Equal(["tamer", "fusionist"], spec.Forks.Select(x => x.Id));
         Assert.Contains(new SummonRule("familiar", 20, 30), Specs.RulesOf(Familiarist(null, 40), Real));
-        // The Tamer's growth adds to the branch's: 12 a turn, 60 at most.
+        // The Tamer's growth adds to the branch's: 11 a turn, 55 at most (sprint 221: 3 and 15 of its own).
         GrowthRule[] tamer = [.. Specs.RulesOf(Familiarist("tamer", 60), Real).OfType<GrowthRule>()];
-        Assert.Equal((12, 60), (tamer.Sum(r => r.Percent), tamer.Sum(r => r.Max)));
+        Assert.Equal((11, 55), (tamer.Sum(r => r.Percent), tamer.Sum(r => r.Max)));
         Assert.Equal(2, Compiled(Familiarist("tamer", 100, "familiar-master"), "path-familiar").Cooldown);
         Assert.Contains(Specs.RulesOf(Familiarist("tamer", 100, "creature-king"), Real).OfType<GrowthRule>(), r => r.Summon is null);
         Assert.Contains(Compiled(Familiarist("fusionist", 100, "chimerist"), "path-fusion").AllEffects, e => e is StatusEffect { Stat: Stat.Mp, Value: 2 });
         Assert.Contains(Compiled(Familiarist("fusionist", 100, "fusion-avatar"), "path-fusion").AllEffects, e => e is StatusEffect { Stat: Stat.Rage, Turns: 99 });
         Assert.All(spec.Forks, x => Assert.NotEqual(x.Finals![0].Template, x.Finals[1].Template));
+        // The Fusionist's Familiar comes back (sprint 221, D101); the Lich's dead does not.
+        Assert.True(Real.Spells["path-fusion"].AllEffects.OfType<FuseEffect>().Single().Returns);
+        Assert.False(Real.Spells["path-unlife"].AllEffects.OfType<FuseEffect>().Single().Returns);
         // The Fusion and the Titbit aim at the Familiar.
         Assert.Equal(("familiar", "familiar", "familiar"), (Real.Spells["path-fusion"].Aims, Real.Spells["path-titbit"].Aims, Real.Spells["path-recall"].Aims));
     }
@@ -139,6 +194,6 @@ public class FamiliaristTests
         Assert.Equal(me.MaxHp * 20 / 100, familiar.MaxHp);
         fight.Apply(new EndTurnAction());
         Assert.Same(familiar, fight.Current);
-        Assert.Equal(12, Grown(familiar));
+        Assert.Equal(11, Grown(familiar));
     }
 }

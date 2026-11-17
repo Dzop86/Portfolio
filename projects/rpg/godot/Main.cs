@@ -658,6 +658,13 @@ public partial class Main : Node3D
             case Revived r:
                 _views[r.Fighter].Revive();
                 return Task.CompletedTask;
+            // The Fusionist's (sprint 221, D101): the Familiar sinks into its summoner, then steps out on a cell next to it.
+            case Fused u:
+                _views[u.Fighter].Die(animate: !instant);
+                return Task.CompletedTask;
+            case Unfused u:
+                _views[u.Fighter].Revive();
+                return _views[u.Fighter].Leap(u.Cell, instant ? 0 : 0.35);
             case Summoned m:
                 Fighter summoned = _controller.Fight.Fighters[m.Fighter];
                 var view = new FighterView();

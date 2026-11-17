@@ -102,6 +102,18 @@ public sealed class Fighter
 
     public bool IsAlive => Hp > 0;
 
+    /// <summary>
+    /// The fighter a creature is fused into (the Fusionist's, sprint 221, D101), while the fusion lasts: off the board, it keeps its hit points
+    /// (<see cref="FusedHp"/>) and its growth, and comes back next to its summoner when <see cref="FusedTurns"/> of its summoner's turns are spent.
+    /// </summary>
+    public int? FusedInto { get; internal set; }
+
+    /// <summary>The hit points a fused creature comes back with (sprint 221).</summary>
+    internal int FusedHp { get; set; }
+
+    /// <summary>The turns of its summoner's a fused creature stays in it (sprint 221).</summary>
+    internal int FusedTurns { get; set; }
+
     /// <summary>Hit points at most: the description's, plus Vitality, minus the erosion.</summary>
     public int MaxHp => Spec.Hp + Spec.Characteristics.Vitality - Eroded;
 
@@ -621,10 +633,11 @@ public sealed class Fight
         {
             if (At(target) is not null && At(target) != caster)
                 return ActionError.Occupied;
-            if (Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id && f.SummonKind == summon.Summon) >= summon.Max)
+            // A creature fused into its summoner (sprint 221) still counts: it comes back.
+            if (Fighters.Count(f => (f.IsAlive || f.FusedInto is not null) && f.Summoner == caster.Id && f.SummonKind == summon.Summon) >= summon.Max)
                 return ActionError.TooManySummons;
             // Three creatures a hero at most, of all kinds (sprint 211, docs/classes-invocateur.md §0): the length of a turn.
-            if (HeroFighters.Contains(caster) && Fighters.Count(f => f.IsAlive && f.Summoner == caster.Id) >= MaxCreatures)
+            if (HeroFighters.Contains(caster) && Fighters.Count(f => (f.IsAlive || f.FusedInto is not null) && f.Summoner == caster.Id) >= MaxCreatures)
                 return ActionError.TooManySummons;
         }
         // A leap lands on a free cell; a swap trades places with a fighter of the side it affects (sprint 90).
@@ -1315,13 +1328,24 @@ public sealed class Fight
                         Lay(me, glyph, zone, spell);
                     continue;
                 // The fusion (sprint 212): the caster's creature there dies; its hit points left shield the caster, its growth adds to the bonus.
+                // The Fusionist's returns (sprint 221, D101): off the board for the fusion's turns, it comes back with its hit points and its growth.
                 case FuseEffect fuse:
                     if (At(target) is Fighter fused && fused.Summoner == me.Id)
                     {
                         int left = fused.Hp;
                         int bonus = fuse.Percent + fused.StatusList.Where(st => st.Stat == Stat.Grown).Sum(st => st.Value);
                         fused.Hp = 0;
-                        _events.Add(new Died(fused.Id));
+                        if (fuse.Returns)
+                        {
+                            fused.FusedHp = left;
+                            fused.FusedTurns = fuse.Turns;
+                            fused.FusedInto = me.Id;
+                            fused.StatusList.RemoveAll(st => st.Stat != Stat.Grown);
+                            fused.Shields.Clear();
+                            _events.Add(new Fused(fused.Id, me.Id));
+                        }
+                        else
+                            _events.Add(new Died(fused.Id));
                         if (!me.Parched && left > 0)
                         {
                             me.Shields.Add((left, fuse.Turns));
@@ -1600,6 +1624,26 @@ public sealed class Fight
             EndGlyph(g);
     }
 
+    /// <summary>
+    /// A fused creature comes back (sprint 221, D101): on the first free cell next to its summoner, then two steps away, with the hit points it went in
+    /// with; its turns and so its growth go on. With no room, it waits one more of its summoner's turns.
+    /// </summary>
+    private void Unfuse(Fighter summoner, Fighter creature)
+    {
+        Cell[] near = [.. Cell.Steps.Select(d => summoner.Cell + d)];
+        Cell[] farther = [.. Cell.Steps.Select(d => summoner.Cell + d + d), .. Cell.Steps.SelectMany(d => Cell.Steps.Where(e => e != d && e != new Cell(-d.X, -d.Y)).Select(e => summoner.Cell + d + e)).Distinct()];
+        Cell? cell = near.Concat(farther.Where(c => !near.Contains(c))).Cast<Cell?>().FirstOrDefault(c => IsFree(c!.Value));
+        if (cell is not Cell free)
+        {
+            creature.FusedTurns = 1;
+            return;
+        }
+        creature.Cell = free;
+        creature.Hp = Math.Min(creature.MaxHp, Math.Max(1, creature.FusedHp));
+        creature.FusedInto = null;
+        _events.Add(new Unfused(creature.Id, summoner.Id, free, creature.Hp));
+    }
+
     /// <summary>A creature on a free cell, in the caster's team, playing right after it (after <paramref name="after"/>, if given).</summary>
     /// <param name="corpse">The corpse it rises from (sprint 214): a creature that wears it takes its look, drawn at the creature's size.</param>
     private Fighter? Summon(Fighter me, SummonSpec m, Cell cell, Fighter? after = null, Fighter? corpse = null)
@@ -1737,7 +1781,9 @@ public sealed class Fight
             _events.Add(new MarkEnded(hit.Id));
         }
         List<Fighter> dead = [hit];
-        // Summons die with their summoner.
+        // Summons die with their summoner; one fused into it (sprint 221) does not come back.
+        foreach (Fighter fused in Fighters.Where(f => f.FusedInto == hit.Id))
+            fused.FusedInto = null;
         foreach (Fighter summon in Fighters.Where(f => f.Summoner == hit.Id && f.IsAlive).ToList())
         {
             summon.Hp = 0;
@@ -1828,6 +1874,11 @@ public sealed class Fight
         for (int i = 0; i < ending.Shields.Count; i++)
             ending.Shields[i] = (ending.Shields[i].Amount, ending.Shields[i].TurnsLeft - 1);
         ending.Shields.RemoveAll(sh => sh.TurnsLeft <= 0);
+        // A creature fused into it (sprint 221) comes back when the fusion's turns are spent.
+        if (ending.IsAlive)
+            foreach (Fighter fused in _fighters.Where(f => f.FusedInto == ending.Id).ToList())
+                if (--fused.FusedTurns <= 0)
+                    Unfuse(ending, fused);
         // An Echo (sprint 142): having walked far enough, the last damage spell is left on the cell the turn started from.
         ending.Echo = null;
         if (ending.IsAlive && ending.LastHit is (string echoed, int echoTarget)

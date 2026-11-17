@@ -61,7 +61,11 @@ def borrow(n): return O([("kind", "borrow"), ("affects", "Caster"), ("ap", n)])
 def delay(a, n): return O([("kind", "delay"), ("affects", a), ("places", n)])
 def haste(a, n): return O([("kind", "haste"), ("affects", a), ("turns", n)])
 # The Fusionist's (sprint 212, docs/classes-invocateur-2.md §2): the caster's creature aimed at dies into it.
-def fuse(turns, percent): return O([("kind", "fuse"), ("affects", "Caster"), ("turns", turns), ("percent", percent)])
+# The Fusionist's creature comes back when the fusion ends (sprint 221, D101); the Lich's dead stays dead.
+def fuse(turns, percent, returns=False):
+    d = O([("kind", "fuse"), ("affects", "Caster"), ("turns", turns), ("percent", percent)])
+    if returns: d["returns"] = True
+    return d
 def summon(id, mx=1, count=1):
     d = O([("kind", "summon"), ("affects", "All"), ("summon", id), ("max", mx)])
     if count != 1: d["count"] = count
@@ -825,7 +829,7 @@ paths = [
  path("plague","Fiole de peste","Plague Vial",3,1,3,50,"lorc/bottled-bolt",effects=[status("Enemies","Poison",12,3)],cd=2),
  # The Malandrin leaps, feints and lays traps where it stands: the Vault and the Feint of before, the Hamstring, the Caltrops (their glyph by hand, as the Jaws').
  path("hamstring","Coup de jarret","Hamstring",3,1,1,30,"delapouite/achilles-heel",damage=True,effects=[status("Enemies","Mp",-1,1)]),
- path("caltrops","Chausse-trappes","Caltrops",3,0,1,50,"delapouite/caltrops",area=("Cross",1),effects=[glyph("Enemies",2,10,13,stat="Mp",v=-2,st=1)],cd=2),
+ path("caltrops","Chausse-trappes","Caltrops",3,0,1,50,"delapouite/caltrops",area=("Cross",1),effects=[glyph("Enemies",2,16,21,stat="Mp",v=-2,st=1)],cd=2),
  # The Shadowmage (sprint 205, docs/classes-voleur-2.md §2) vanishes and strikes from the shadow; one target, close by, no wide area.
  path("shadow-step","Pas de l'ombre","Shadow Step",2,1,4,30,"delapouite/invisible",effects=[leap(),status("Caster","Hidden",1,1)],cd=2),
  path("shadow-blade","Lame d'ombre","Shadow Blade",3,1,2,30,"lorc/shadow-grasp",damage=True,cd=1),
@@ -857,25 +861,25 @@ paths = [
  path("sentence","Sentence","Sentence",4,1,2,50,"lorc/gavel",damage=True,effects=[purge("Enemies")],cd=1),
  path("crusade","Croisade","Crusade",3,2,3,50,"delapouite/knight-banner",damage=True,line=True,area=("Cross",1),effects=[leap()],cd=2),
  # The Avenger: the more its own have suffered, the harder.
- path("retribution","Rétribution","Retribution",4,1,1,30,"lorc/flaming-claw",damage=True,cd=1),
+ path("retribution","Rétribution","Retribution",4,1,2,30,"lorc/flaming-claw",damage=True,cd=1),
  path("vow","Vœu de vengeance","Vow of Vengeance",2,0,0,30,"lorc/bleeding-heart",los=False,effects=[status("Caster","Damage",20,2)],cd=3),
  path("verdict-blow","Coup du verdict","Verdict Blow",5,1,1,50,"lorc/cross-flare",damage=True,cd=2),
- path("holy-fury","Fureur sacrée","Holy Fury",1,0,0,50,"lorc/flame-spin",los=False,effects=[status("Caster","Ap",2,1),status("Caster","Resistance",-10,2)],cd=3),
+ path("holy-fury","Fureur sacrée","Holy Fury",1,0,0,50,"lorc/flame-spin",los=False,effects=[status("Caster","Ap",2,1),status("Caster","Resistance",-10,2)],cd=2),
  # The Summoner's Familiarist (sprint 212, docs/classes-invocateur-2.md §1-2): one beast raised, that grows; the Tamer keeps it, the Fusionist takes it in.
  path("familiar","Familier","Familiar",3,1,2,30,"lorc/fox-head",los=False,effects=[summon("familiar")],cd=4),
  path("titbit","Becquée","Titbit",2,1,6,30,"lorc/meat",los=False,effects=[heal("Allies",15,20),status("Allies","Damage",20,2)],cd=2,aims="familiar"),
  path("recall","Rappel","Recall",2,1,6,50,"lorc/return-arrow",los=False,effects=[swap()],cd=2,aims="familiar"),
- path("fusion","Fusion","Fusion",3,1,6,50,"lorc/interlaced-tentacles",los=False,effects=[fuse(3,35)],cd=3,aims="familiar"),
+ path("fusion","Fusion","Fusion",3,1,6,50,"lorc/interlaced-tentacles",los=False,effects=[fuse(2,60,returns=True)],cd=3,aims="familiar"),
  # The Summoner's Demonist (sprint 213, docs/classes-invocateur-3.md §1): its hit points for power; the Demon Caller feeds its Demon, the Pactbearer pays for its own blows.
  path("demon","Démon","Demon",4,1,2,30,"lorc/horned-skull",los=False,effects=[summon("demon")],cd=4),
  path("blood-pact","Pacte de sang","Blood Pact",1,0,0,30,"lorc/evil-moon",los=False,area=("Circle",2),effects=[status("Allies","Damage",25,2)],cd=3,hp=8),
  path("unleash","Déchaînement","Unleash",2,1,6,50,"lorc/burning-eye",los=False,effects=[status("Allies","Damage",30,2),status("Allies","Mp",2,1)],cd=2,aims="demon",hp=6),
- path("blood-price","Prix du sang","Blood Price",4,1,5,50,"lorc/heart-drop",damage=True,cd=1,hp=10),
+ path("blood-price","Prix du sang","Blood Price",4,1,5,50,"lorc/heart-drop",damage=True,cd=1,hp=4),
  # The Conjurer (sprint 213, §2): creatures laid, that do not move; the Elemental Caller makes them strike, the Astral Caller draws its figures on the ground.
  path("pillar","Pilier","Pillar",3,1,3,30,"lorc/crystal-growth",los=False,effects=[summon("pillar",mx=2)],cd=2),
  path("anchor","Ancrage","Anchoring",2,1,6,30,"lorc/guarded-tower",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,aims="pillar"),
  path("overload","Surcharge","Overload",2,1,6,50,"lorc/lightning-storm",los=False,area=("Circle",1),effects=[status("Allies","Damage",35,2)],cd=2,aims="pillar"),
- path("constellation","Constellation","Constellation",3,2,6,50,"lorc/star-prominences",los=False,area=("Circle",1),effects=[glyph("Enemies",2,9,12,stat="Mp",v=-1,st=1)],cd=2),
+ path("constellation","Constellation","Constellation",3,2,6,50,"lorc/star-prominences",los=False,area=("Circle",1),effects=[glyph("Enemies",2,11,14,stat="Mp",v=-1,st=1)],cd=2),
  # The Necromancer's Master of the Dead (sprint 214, docs/classes-necromancien.md §4): one great dead, kept and grown; the Lich takes it in, the Bone Lord drives it.
  path("stitch","Ravaudage","Stitching",2,1,6,30,"lorc/sewing-needle",los=False,effects=[heal("Allies",20,26),status("Allies","Resistance",15,2)],cd=2,aims="risen"),
  path("bone-rampart","Rempart d'os","Bone Rampart",2,1,5,30,"lorc/bone-gnawer",los=False,area=("Circle",1),effects=[shield("Allies",20,2)],cd=2,corpse=True),
@@ -918,7 +922,8 @@ paths = [
 # The first two waves balanced on the bench (sprint 220, D101, Q1 of docs/jalon-3.md; docs/mesures-classes.md): a path spell's share of the budget,
 # so that a class's paths stay within 8 points of each other (B5, B6). Barrage and Breakthrough, quicker since, are paid back for it.
 PATH_TUNING = {"path-breakthrough": 1.65, "path-heel-kick": 1.3, "path-barrage": 1.2, "path-heavy-bolt": 0.87, "path-running-shot": 1.33,
-               "path-retaliation": 0.9, "path-crush": 0.93, "path-bullseye": 1.08}
+               "path-retaliation": 0.9, "path-crush": 0.93, "path-bullseye": 1.08,
+               "path-retribution": 1.15, "path-verdict-blow": 0.55, "path-sentence": 1.15, "path-crusade": 1.5, "path-sacred-return": 1.2, "path-execute": 1.2, "path-waylay": 1.35, "path-blood-price": 0.8}
 for sp in paths:
     if sp["damageMax"] > 0:
         budget(sp, 0.45 if sp["id"] == "path-living-storm" else PATH_TUNING.get(sp["id"], 1))

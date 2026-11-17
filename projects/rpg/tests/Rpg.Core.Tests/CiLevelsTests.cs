@@ -189,6 +189,9 @@ public class CiLevelsTests
         // Sprint 217 (docs/classes-druide-2.md §4): the Changeform's Pounce and the Wild Druid's Trample, cast 0.3 to 0.4 times a fight: the Primal Predator's
         // Pounce sooner and the Lord of Shapes' Trample sooner change none of a hero's fights.
         "primal-predator", "shape-lord",
+        // Sprint 221 (D101): Holy Fury, back in 2 turns and in 1 for the Zealot, is cast once or so in a hero's few fights at 100; the Holy Avatar's +20 % on it
+        // changes none of them.
+        "holy-avatar",
     };
 
     /// <summary>

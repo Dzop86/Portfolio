@@ -16,6 +16,9 @@ public class PathBoundsBenchTests
     [Theory(Explicit = true)] // The bench (N2, D101): off the CI, run with -- --explicit only
     [InlineData("warrior")]
     [InlineData("archer")]
+    [InlineData("paladin")]
+    [InlineData("rogue")]
+    [InlineData("summoner")]
     public void TheBranchesAndTheLineages_StayWithinEightOfTheirClass_AndOfTheirSisters(string cls)
     {
         var problems = new List<string>();

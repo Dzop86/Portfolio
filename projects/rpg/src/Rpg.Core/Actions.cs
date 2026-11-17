@@ -124,6 +124,12 @@ public sealed record StatusAdded(int Fighter, Stat Stat, int Value, int Turns, E
 
 public sealed record StatusEnded(int Fighter, Stat Stat) : FightEvent;
 
+/// <summary>A creature goes into its summoner (the Fusionist's Fusion, sprint 221, D101): off the board, alive, until <see cref="Unfused"/>.</summary>
+public sealed record Fused(int Fighter, int Into) : FightEvent;
+
+/// <summary>A fused creature comes back next to its summoner (sprint 221), on <see cref="Cell"/>, with these hit points.</summary>
+public sealed record Unfused(int Fighter, int Summoner, Cell Cell, int Hp) : FightEvent;
+
 /// <summary>A creature summoned by <see cref="Summoner"/> appears; it is <c>Fighters[Fighter]</c>.</summary>
 public sealed record Summoned(int Fighter, int Summoner, Cell Cell) : FightEvent;
 

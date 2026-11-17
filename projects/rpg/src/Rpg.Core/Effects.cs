@@ -248,9 +248,10 @@ public sealed record ReviveEffect(Affects Affects, int Percent) : SpellEffect(Af
 
 /// <summary>
 /// The fusion (the Fusionist's, sprint 212, docs/classes-invocateur-2.md §2): the caster's creature aimed at (<see cref="Spell.Aims"/>) dies, and the caster takes,
-/// for <see cref="Turns"/> of its turns, the hit points it had left as a shield and <see cref="Percent"/> % more damage, its growth on top.
+/// for <see cref="Turns"/> of its turns, the hit points it had left as a shield and <see cref="Percent"/> % more damage, its growth on top. With
+/// <see cref="Returns"/> (the Fusionist's, sprint 221, D101), the creature does not die: it goes into the caster and comes back when the turns are spent.
 /// </summary>
-public sealed record FuseEffect(Affects Affects, int Turns, int Percent) : SpellEffect(Affects);
+public sealed record FuseEffect(Affects Affects, int Turns, int Percent, bool Returns = false) : SpellEffect(Affects);
 
 /// <summary>Life drawn (the Berserker's, sprint 206): the caster heals this percent of the damage the spell did to its enemies.</summary>
 public sealed record DrainEffect(Affects Affects, int Percent) : SpellEffect(Affects);
