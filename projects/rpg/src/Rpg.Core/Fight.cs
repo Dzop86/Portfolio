@@ -1403,7 +1403,7 @@ public sealed class Fight
                         if (f.Parched)
                             break;
                         // Worth more on an ally (sprint 192, brick J).
-                        int worth = f == me || f.Team != me.Team ? shield.Amount : shield.Amount * (100 + me.Talents.SelectMany(t => t.Rules).OfType<ShieldRule>().Sum(r => r.Percent)) / 100;
+                        int worth = ShieldOn(me, f, shield.Amount);
                         f.Shields.Add((worth, shield.Turns));
                         _events.Add(new Shielded(f.Id, worth, shield.Turns));
                         break;
@@ -1491,6 +1491,11 @@ public sealed class Fight
         WardRule[] rules = [.. (f ?? throw new ArgumentNullException(nameof(f))).Talents.SelectMany(t => t.Rules).OfType<WardRule>()];
         return rules.Length == 0 ? null : new WardRule(rules.Sum(r => r.Percent), rules.Max(r => r.Cells));
     }
+
+    /// <summary>A shield of <paramref name="amount"/> cast by <paramref name="caster"/> on <paramref name="f"/>: worth more on an ally (sprint 192, brick J); what the AI counts too (sprint 223).</summary>
+    public static int ShieldOn(Fighter caster, Fighter f, int amount) =>
+        f == (caster ?? throw new ArgumentNullException(nameof(caster))) || (f ?? throw new ArgumentNullException(nameof(f))).Team != caster.Team
+            ? amount : amount * (100 + caster.Talents.SelectMany(t => t.Rules).OfType<ShieldRule>().Sum(r => r.Percent)) / 100;
 
     /// <summary>How many doses a fighter's poisons stack to (sprint 205), or null: they are renewed.</summary>
     public static int? StackOf(Fighter f) =>

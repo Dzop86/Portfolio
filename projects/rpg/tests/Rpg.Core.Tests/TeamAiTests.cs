@@ -116,13 +116,15 @@ public class TeamAiTests
     // Sprint 203 (docs/jalon-1.md): the Warrior's hit points swept to 74 + 5, the Priest's heals growing with its level.
     // Sprint 211 (D99): a hero weighs the movement it takes, its traps, its pulls and the bonuses it gives its side by what they bring; the Rogue's, the
     // Berserker's and the Paladin's fights of level 10 unchanged.
-    private const string SoloFingerprint = "848CF1CDC45CEC99";
+    // Sprint 223 (docs/sorts-de-groupe.md): a hero who can pay no blow leaps out of the blows with the action points left: the Mage's Blink.
+    private const string SoloFingerprint = "71571915882C3BAF";
 
     // Sprint 204 (docs/classes-voleur.md): the Rogue of level 10, its engine and its Stealth.
     private const string RogueFingerprint = "A15F1685850AA85E";
 
     // Sprint 206 (docs/classes-berserker.md): the Berserker of level 10, its Rage and its blood.
-    private const string BerserkerFingerprint = "DF16BE2880C09200";
+    // Sprint 223: the Rush taken out of the blows, with the action points left.
+    private const string BerserkerFingerprint = "FF9E765E1F0555CD";
 
     // Sprint 208 (docs/classes-paladin.md): the Paladin of level 10, its ward.
     private const string PaladinFingerprint = "034A32D1C6AE01F2";
@@ -133,6 +135,6 @@ public class TeamAiTests
     // Sprint 214 (docs/classes-necromancien.md): the Necromancer of level 10, its corpses and its dead.
     private const string NecromancerFingerprint = "067A57C2C38B75C3";
 
-    // Sprint 216: the Druid alone, its shared glyphs.
-    private const string DruidFingerprint = "8DD6D6C8D12EE44B";
+    // Sprint 216: the Druid alone, its shared glyphs. Sprint 223: the glyph it stands on worth what its resistance holds off.
+    private const string DruidFingerprint = "9D7B666FEF2A5FBD";
 }

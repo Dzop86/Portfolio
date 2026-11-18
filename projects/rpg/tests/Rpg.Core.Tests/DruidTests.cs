@@ -72,7 +72,9 @@ public class DruidTests
     [Fact]
     public void TheAI_CountsAWelcomingGlyph_InFullForTheAlliesOnIt()
     {
-        Fight f = Grove();
+        // Sprint 223 (docs/sorts-de-groupe.md): a hero's welcoming glyph is worth what its status holds off, as the same status cast on the ally: an enemy that strikes.
+        Fight f = Play(["A.AB.."], Spec(0, 0, ap: 99, mp: 0, hp: 500, initiative: 999, spells: ["ring", "moss"]), Spec(0, 1, mp: 0, initiative: 2),
+            Spec(1, 0, hp: 500, mp: 0, initiative: 1, spells: "strike"));
         Fighter me = f.Fighters[0];
         Fighter ally = f.Fighters[1];
         double welcoming = Ai.Value(f, me, Ring with { Effects = [Shelter] }, me.Cell, ally.Cell);

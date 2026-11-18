@@ -76,7 +76,7 @@ public static class Ai
         if (here is var (spell, target, _, _) && (me.Mp == 0 || kills))
             return new CastAction(spell.Id, target);
         if (me.Mp == 0)
-            return BestLeap(fight, me, 0) is var (jump, onto) ? new CastAction(jump.Id, onto) : new EndTurnAction();
+            return BestLeap(fight, me, 0) is var (jump, onto) ? new CastAction(jump.Id, onto) : CannotStrike(fight, me, here) && EscapeLeap(fight, me) is var (off, offCell) ? new CastAction(off.Id, offCell) : new EndTurnAction();
         IReadOnlyDictionary<Cell, int> reachable = fight.ReachableCells();
 
         // Walk where the turn is worth the most, then the shortest walk; with a cast possible here,
@@ -100,6 +100,11 @@ public static class Ai
             return new MoveAction(attackFrom);
         if (here is var (castSpell, castTarget, _, _))
             return new CastAction(castSpell.Id, castTarget);
+
+        // A hero who can strike no more this turn leaps out of the blows within reach with the action points left (sprint 223, the Rogue's Vault):
+        // they would be lost otherwise. Until then a leap was taken only to strike from where it lands, and the Vault never was.
+        if (CannotStrike(fight, me, here) && EscapeLeap(fight, me) is var (vault, away))
+            return new CastAction(vault.Id, away);
 
         // Nothing left to cast this turn: stay, so that a ranged fighter keeps its distance; off a glyph
         // that would strike it at its next turn, to the nearest cell that costs less (sprint 130).
@@ -230,6 +235,37 @@ public static class Ai
         }
         return best;
     }
+
+    /// <summary>
+    /// The leap that takes a hero furthest out of the blows within reach (sprint 223): the landing where <see cref="IncomingAt"/> falls the most, glyphs counted;
+    /// the nearest, then in reading order, on a tie. Null when none spares anything.
+    /// </summary>
+    private static (Spell Spell, Cell Landing)? EscapeLeap(Fight fight, Fighter me)
+    {
+        double now = Incoming(fight, me);
+        if (now <= 0)
+            return null;
+        (Spell, Cell)? best = null;
+        double bestGain = 0;
+        foreach (Spell leap in me.Spells.Where(sp => sp.DamageMax == 0 && sp.AllEffects.All(e => e is LeapEffect)))
+        {
+            Cell[] cells = [.. Enumerable.Range(-leap.MaxRange, 2 * leap.MaxRange + 1)
+                .SelectMany(dy => Enumerable.Range(-leap.MaxRange, 2 * leap.MaxRange + 1).Select(dx => me.Cell + new Cell(dx, dy)))
+                .Where(c => fight.CheckCast(me, leap, me.Cell, c) == ActionError.None)
+                .OrderBy(c => c.DistanceTo(me.Cell)).ThenBy(c => c.Y).ThenBy(c => c.X)];
+            foreach (Cell landing in cells)
+            {
+                double gain = now - IncomingAt(fight, me, landing) - GlyphRisk(fight, me, landing, [landing]);
+                if (gain > bestGain)
+                    (best, bestGain) = ((leap, landing), gain);
+            }
+        }
+        return best;
+    }
+
+    /// <summary>A hero with nothing worth casting and no blow its action points can pay for this turn (sprint 223): what is left of them is free to leap away.</summary>
+    private static bool CannotStrike(Fight fight, Fighter me, (Spell, Cell, double, double)? here) => IsHero(fight, me) && here is null
+        && !me.Spells.Any(sp => sp.DamageMax > 0 && sp.ApCost <= me.Ap && me.CastsLeft(sp) > 0 && me.CooldownLeft(sp) == 0);
 
     private static bool IsHero(Fight fight, Fighter me) => fight.HeroFighters.Contains(me);
 
@@ -445,7 +481,7 @@ public static class Ai
                 if (fallen != spell.AllEffects.Any(e => e is ReviveEffect))
                     continue;
                 if ((only is not null && spell != only) || fight.CheckCast(me, spell, from, aim.Cell) != ActionError.None
-                    || (MovesAnAlly(spell) && !NeedsRescue(fight, me, spell, aim)))
+                    || (MovesAnAlly(spell) && !NeedsRescue(fight, me, spell, aim) && !(spell.Aims is not null && IsHero(fight, me) && Escape(fight, me, aim) > 0)))
                     continue;
                 double value = Value(fight, me, spell, from, aim.Cell);
                 bool better = value > bestKey.Value
@@ -561,6 +597,12 @@ public static class Ai
                 value += fight.Revivable(me, spell.Id, target) is Fighter risen ? RaisedWorth + (risen.MaxHp * revive.Percent / 100.0) : 0;
                 continue;
             }
+            // The Recall (sprint 223): a hero trading places with its own creature, the blows it escapes.
+            if (effect is SwapEffect && spell.Aims is not null && IsHero(fight, me) && fight.At(target) is Fighter swapped && swapped.Summoner == me.Id)
+            {
+                value += Escape(fight, me, swapped);
+                continue;
+            }
             if (effect is SummonEffect || effect is SwapEffect || (effect is PullEffect && effect.Affects != Affects.Enemies && area.Any(f => f.Team == me.Team)))
             {
                 value += effect is SummonEffect summon && IsHero(fight, me) ? Math.Max(8, SummonValue(fight, me, summon) + LureValue(fight, me, summon)) : 8;
@@ -585,13 +627,16 @@ public static class Ai
                         + (f.Team == me.Team ? 0 : 0.5 * f.Shield),
                     // Shields and statuses pay off later: worth a part of what they hold.
                     // A hero's on its own side (sprint 194, T154): what the blows within reach would really take of it.
-                    ShieldEffect sh when f.Team == me.Team && IsHero(fight, me) => Math.Min(sh.Amount, Math.Max(0, Incoming(fight, f) * sh.Turns - f.Shield)),
+                    // Sprint 223: the amount the rules really give it, an ally's grown by the caster's shield rules (Fight.ShieldOn).
+                    ShieldEffect sh when f.Team == me.Team && IsHero(fight, me) => Math.Min(Fight.ShieldOn(me, f, sh.Amount), Math.Max(0, Incoming(fight, f) * sh.Turns - f.Shield)),
                     ShieldEffect sh => sign * 0.3 * sh.Amount,
-                    StatusEffect { Stat: Stat.Resistance } st when f.Team == me.Team && IsHero(fight, me) => Renewed(me, f, st) * st.Value / 100.0 * Incoming(fight, f) * st.Turns,
+                    StatusEffect { Stat: Stat.Resistance } st when f.Team == me.Team && IsHero(fight, me) => Renewed(me, f, st) * AllyBoon(fight, me, f, st)!.Value,
                     // A hero's (sprint 211, D99): movement taken is worth the blow it keeps from the hero's side; a damage bonus to its side, a share of their blows.
                     StatusEffect { Stat: Stat.Mp } st when st.Value < 0 && f.Team != me.Team && IsHero(fight, me) => Renewed(me, f, st) * Math.Max(-2.0 * st.Value, Denied(fight, me, f, -st.Value)) * st.Turns,
                     StatusEffect { Stat: Stat.Damage } st when st.Value > 0 && effect.Affects == Affects.Allies && f.Team == me.Team && IsHero(fight, me)
-                        => Renewed(me, f, st) * Math.Max(0.05 * st.Value, BoostShare * st.Value / 100.0 * RoundOf(fight, f)) * st.Turns,
+                        => Renewed(me, f, st) * AllyBoon(fight, me, f, st)!.Value,
+                    // A Feint on a hero (sprint 223): the movement it would take from the enemies who can strike the hero from next to it.
+                    StatusEffect { Stat: Stat.Feint } st when f == me && IsHero(fight, me) => Renewed(me, f, st) * FeintWorth(fight, me, st.Value),
                     StatusEffect st => Renewed(me, f, st) * st.Stat switch
                     {
                         // A poison of one turn (the Oracle's Omen, sprint 202) strikes for sure at the target's next turn: nearly a blow.
@@ -621,6 +666,10 @@ public static class Ai
                     // A hero's trap under an enemy that will not walk off (sprint 211, D99), and the movement it takes.
                     GlyphEffect g when f.Team != me.Team && IsHero(fight, me) => (Stays(fight, me, f) ? StayOdds : GlyphOdds) * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect { Stat: Stat.Mp, Value: < 0 } gm ? Math.Max(StatusWorth(gm, f), Denied(fight, me, f, -gm.Value) * gm.Turns) : g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
+                    // A hero's glyph that welcomes its allies (sprint 223): its status valued as the same status cast on them, a resistance against the blows
+                    // within reach, a damage bonus as a share of their round; until then 0.05 a point a turn, and the Hedge and the Rumbling Ground were never laid.
+                    GlyphEffect { Welcomes: true, AsStatus: StatusEffect gs } g when f.Team == me.Team && IsHero(fight, me) && AllyBoon(fight, me, f, gs) is double boon
+                        => boon - Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp),
                     // An allies' glyph that welcomes (sprint 216, the Druid's): those already on it are helped for sure.
                     GlyphEffect g => -sign * (g.Welcomes && f.Team == me.Team ? 1 : GlyphOdds) * (Math.Min(Fight.Expected(g.AverageDamage, me, f, g.Element), f.Hp)
                         + (g.AsStatus is StatusEffect gs ? StatusWorth(gs, f) : 0)),
@@ -646,6 +695,31 @@ public static class Ai
             .Select(a => BestBlow(f, a)).DefaultIfEmpty(0).Max();
         return Math.Max(0, Best(mp) - Best(Math.Max(0, mp - removed)));
     }
+
+    /// <summary>
+    /// What a boon on <paramref name="f"/> of the hero's side is worth (sprints 194, 211 and 223): a resistance, its share of the blows within reach; a damage
+    /// bonus, a share of the bearer's round (<see cref="BoostShare"/>); over the turns it lasts. Null for another status.
+    /// </summary>
+    internal static double? AllyBoon(Fight fight, Fighter me, Fighter f, StatusEffect st) => st.Stat switch
+    {
+        Stat.Resistance => st.Value / 100.0 * Incoming(fight, f) * st.Turns,
+        Stat.Damage when st.Value > 0 => Math.Max(0.05 * st.Value, BoostShare * st.Value / 100.0 * RoundOf(fight, f)) * st.Turns,
+        _ => null,
+    };
+
+    /// <summary>
+    /// A Feint (sprint 223): the next enemy to strike its bearer from next to it loses <paramref name="mp"/> movement points for a turn; worth the most
+    /// <see cref="Denied"/> among the enemies who can come strike it in melee, at least what <see cref="StatusWorth"/> gives movement taken. 0 with none.
+    /// </summary>
+    internal static double FeintWorth(Fight fight, Fighter me, int mp) => fight.Fighters
+        .Where(e => e.IsAlive && e.Team != me.Team && e.Spells.Any(s => s.DamageMax > 0 && s.MinRange <= 1 && e.Cell.DistanceTo(me.Cell) <= e.Mp + 1))
+        .Select(e => Math.Max(2.0 * mp, Denied(fight, me, e, mp))).DefaultIfEmpty(0).Max();
+
+    /// <summary>
+    /// The Tamer's Recall (sprint 223): what trading places with one of its creatures spares the caster, the blows within reach where it stands over
+    /// those where the creature stands. Until then a swap was cast only to rescue a hurt ally, and the creature seldom is.
+    /// </summary>
+    internal static double Escape(Fight fight, Fighter me, Fighter creature) => Math.Max(0, Incoming(fight, me) - IncomingAt(fight, me, creature.Cell));
 
     /// <summary>Whether an enemy can strike one of the hero's side from where it stands (sprint 211, D99): a glyph under it will strike.</summary>
     private static bool Stays(Fight fight, Fighter me, Fighter f) =>
