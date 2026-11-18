@@ -17,7 +17,7 @@ namespace Rpg.Sim;
 /// hero, at the same level with the same kit, all played by the AI), --parties (since sprint 122, with --simulate N:
 /// every party of two, three and four heroes of the classes, N fights each, at the level of the scenario's monsters
 /// unless --level says otherwise; each rate with its 95 % interval), --matrix (since sprint 193, D96, with --simulate N, optionally --class,
-/// --level, --decks FILE and, since sprint 210, --unranked-paths: the bench of each class's paths, their path spells ranked as a player would (D98) or, with --unranked-paths, at rank 1 as before; a Markdown table), --talents (since sprint 151, D82, with --simulate N: the
+/// --level, --decks FILE and, since sprint 210, --unranked-paths: the bench of each class's paths, their path spells ranked as a player would (D98) or, with --unranked-paths, at rank 1 as before; a Markdown table; since sprint 222, --party-size 2|3: the hero with bare allies, Bench.AlliesOf), --talents (since sprint 151, D82, with --simulate N: the
 /// talent tree out of CI, each class with no compound or one created, N fights a combination, each with a build drawn at
 /// random at --level, 45 by default; then the talents fewer than 5 % of the builds take; since sprint 152, D83: the bare
 /// heroes, mixed and of each element, on the same fights, the rare talents counted among the builds aiming at their branch
@@ -181,7 +181,11 @@ public static class Program
         Dictionary<string, string[]> decks = options.Decks is string file
             ? JsonSerializer.Deserialize<Dictionary<string, string[]>>(File.ReadAllText(file)) ?? []
             : [];
-        output.WriteLine($"{options.Simulate} fights per group, {Bench.MiddleGroups(new SyntheticFamily(levels[0])).Count} groups of 4 and 5 monsters, bare heroes, the same seeds{(options.UnrankedPaths ? ", path spells at rank 1" : ", path spells ranked")}.");
+        var first = new SyntheticFamily(levels[0]);
+        string against = options.PartySize < 2 ? $"{Bench.MiddleGroups(first).Count} groups of 4 and 5 monsters" : $"{Bench.Hordes(first).Count} hordes of 6 monsters and more";
+        // The party bench (sprint 222, D101): the hero with a bare Warrior (a Paladin to a Warrior), and an Archer (a Mage to an Archer) in a party of three.
+        string party = options.PartySize switch { 2 => ", each hero with a Warrior (a Paladin to a Warrior)", 3 => ", each hero with a Warrior and an Archer (a Paladin to a Warrior, a Mage to an Archer)", _ => "" };
+        output.WriteLine($"{options.Simulate} fights per group, {against}, bare heroes, the same seeds{(options.UnrankedPaths ? ", path spells at rank 1" : ", path spells ranked")}{party}.");
         output.WriteLine();
         output.WriteLine("| Class | Level | Path | Points | Over no path | From the mean | Reads |");
         output.WriteLine("|---|---|---|---|---|---|---|");
@@ -190,7 +194,7 @@ public static class Program
             var family = new SyntheticFamily(level);
             foreach (string cls in classes)
             {
-                BenchReport report = Bench.Run(family, cls, options.Simulate, deck: decks.GetValueOrDefault(cls), rankedPaths: !options.UnrankedPaths);
+                BenchReport report = Bench.Run(family, cls, options.Simulate, deck: decks.GetValueOrDefault(cls), rankedPaths: !options.UnrankedPaths, partySize: options.PartySize);
                 output.WriteLine(FormattableString.Invariant($"| {cls} | {level} | (none) | {report.Plain.Points:0.0} | | | |"));
                 foreach (BenchRow row in report.Paths)
                 {
@@ -383,6 +387,7 @@ public static class Program
             .. classes.Select(c => ($"3 × {c}", new[] { c, c, c }, hordes)),
             ("priest + paladin", ["priest", "paladin"], hordes),
         ];
+        var costs = new List<(string Name, double Ms)>();
         foreach ((string name, string[] party, string[] groups) in lines)
         {
             Hero[] heroes = [.. party.Select((c, k) => family.Hero(c, "none") with { Name = DurationNames[k] })];
@@ -402,12 +407,28 @@ public static class Program
             });
             int[] sorted = [.. rounds.Order()];
             double msRound = 1000.0 * ticks.Sum() / System.Diagnostics.Stopwatch.Frequency / Math.Max(1, rounds.Sum());
+            costs.Add((name, msRound));
             output.WriteLine(FormattableString.Invariant(
                 $"| {name} | {(groups == middle ? "4 and 5" : "6 and more")} | {100.0 * won.Count(w => w) / won.Length:0} % | {sorted[sorted.Length / 2]} | {sorted[^1]} | {rounds.Count(r => r >= Fight.RoundLimit)} | {fighters.Max()} | {msRound:0.0} |"));
         }
+        output.WriteLine();
+        output.WriteLine(RoundBudget(costs));
     }
 
     private static readonly string[] DurationNames = ["Aube", "Brume", "Cendre", "Dune"];
+
+    /// <summary>The bound B16 (sprint 222, D101): the rules and the AI play a round in 1 second at most, here, three Summoners being the heaviest.</summary>
+    internal const double RoundBudgetMs = 1000;
+
+    /// <summary>B16's verdict on the durations' lines: held, with the costliest line, or the lines over it.</summary>
+    internal static string RoundBudget(IReadOnlyList<(string Name, double Ms)> costs)
+    {
+        (string Name, double Ms)[] over = [.. costs.Where(c => c.Ms > RoundBudgetMs)];
+        (string name, double ms) = costs.MaxBy(c => c.Ms);
+        return over.Length == 0
+            ? FormattableString.Invariant($"B16, {RoundBudgetMs:0} ms a round at most: held, the costliest {name} at {ms:0} ms.")
+            : FormattableString.Invariant($"B16, {RoundBudgetMs:0} ms a round at most: NOT HELD by {string.Join(", ", over.Select(o => $"{o.Name} ({o.Ms:0} ms)"))}.");
+    }
 
     private static string Row(string name, int wins, int n)
     {
@@ -441,7 +462,7 @@ public static class Program
         : Dungeons.Parse(scenario) is (string d, _) && data.Dungeons.TryGetValue(d, out Dungeon? dungeon) ? data.Families[dungeon.Family].Zone
         : null;
 
-    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false, bool Casts = false, bool Durations = false)
+    private sealed record Options(string? Data, string Lang, string Scenario, ulong Seed, int Simulate, string? Record, string? Replay, bool Show, string? Class = null, string? Rival = null, int Level = 1, string Kit = "none", IReadOnlyList<string>? Allies = null, bool Parties = false, bool LevelSet = false, bool Tree = false, bool Trio = false, bool Matrix = false, string? Decks = null, bool UnrankedPaths = false, bool Casts = false, bool Durations = false, int PartySize = 1)
     {
         public IReadOnlyList<string> Party => Allies ?? [];
 
@@ -474,6 +495,7 @@ public static class Program
                     "--unranked-paths" => o with { UnrankedPaths = true },
                     "--casts" => o with { Casts = true },
                     "--durations" => o with { Durations = true },
+                    "--party-size" => o with { PartySize = int.TryParse(Value(), CultureInfo.InvariantCulture, out int p) && p is >= 1 and <= 3 ? p : throw new ArgumentException("--party-size is 1 to 3.") },
                     _ => throw new ArgumentException($"Unknown option {args[i]}."),
                 };
             }
@@ -490,6 +512,8 @@ public static class Program
                 throw new ArgumentException("--unranked-paths goes with --matrix.");
             if (o.Durations && (o.Simulate == 0 || o.Matrix || o.Parties || o.Tree || o.Class is not null || o.Rival is not null || o.Party.Count > 0))
                 throw new ArgumentException("--durations goes with --simulate N, without another mode, --class, --rival or --party.");
+            if (o.PartySize > 1 && !o.Matrix)
+                throw new ArgumentException("--party-size goes with --matrix.");
             if (o.Casts && !o.Matrix)
                 throw new ArgumentException("--casts goes with --matrix.");
             if (o.Trio && !o.Tree)

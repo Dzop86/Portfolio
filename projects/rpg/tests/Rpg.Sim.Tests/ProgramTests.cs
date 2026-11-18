@@ -329,7 +329,30 @@ public class ProgramTests
         Assert.Equal(GameData.Embedded.Classes.Count, output.Split('\n').Count(l => l.StartsWith("| 3 × ", StringComparison.Ordinal)));
         Assert.Contains("| priest + paladin |", output, StringComparison.Ordinal);
         Assert.Contains("| summoner | 4 and 5 |", output, StringComparison.Ordinal);
+        // Sprint 222 (D101): the bound B16, 1 second of rules and AI a round, told after the table.
+        Assert.Contains("B16, 1000 ms a round at most: held", output, StringComparison.Ordinal);
         Assert.Equal(2, Run("--durations", "--simulate", "1", "--matrix").Code);
         Assert.Equal(2, Run("--durations").Code);
+    }
+
+    [Fact]
+    public void TheMatrix_PlaysEachPathInAParty_WhenAsked()
+    {
+        // Sprint 222 (the third milestone's Q4, D101): the party bench counts the path spells played with allies.
+        (int code, string output, _) = Run("--matrix", "--simulate", "1", "--class", "paladin", "--level", "35", "--casts", "--party-size", "2");
+        Assert.Equal(0, code);
+        Assert.Contains("with a Warrior", output, StringComparison.Ordinal);
+        Assert.Contains("hordes of 6", output, StringComparison.Ordinal);
+        Assert.Contains("| paladin | 35 |", output, StringComparison.Ordinal);
+        Assert.Contains("and an Archer", Run("--matrix", "--simulate", "1", "--class", "paladin", "--level", "35", "--party-size", "3").Out, StringComparison.Ordinal);
+        Assert.Equal(2, Run("--simulate", "1", "--party-size", "2").Code);
+        Assert.Equal(2, Run("--matrix", "--simulate", "1", "--party-size", "4").Code);
+    }
+
+    [Fact]
+    public void TheRoundBudget_IsHeld_OrNamesTheLinesOverIt()
+    {
+        Assert.Equal("B16, 1000 ms a round at most: held, the costliest b at 810 ms.", Program.RoundBudget([("a", 120), ("b", 810)]));
+        Assert.Equal("B16, 1000 ms a round at most: NOT HELD by b (1200 ms).", Program.RoundBudget([("a", 120), ("b", 1200)]));
     }
 }

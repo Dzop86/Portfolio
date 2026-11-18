@@ -52,6 +52,37 @@ public class BenchTests
     }
 
     [Fact]
+    public void AParty_PutsAWarriorInFront_AndAnArcherBehind_ButNeverTheHerosOwnClass()
+    {
+        // Sprint 222 (the third milestone's Q4, D101): the party bench's allies, fixed so that a class's paths are weighed alike.
+        Assert.Empty(Bench.AlliesOf("mage", 1));
+        Assert.Equal(["warrior"], Bench.AlliesOf("mage", 2));
+        Assert.Equal(["warrior", "archer"], Bench.AlliesOf("summoner", 3));
+        Assert.Equal(["paladin", "archer"], Bench.AlliesOf("warrior", 3));
+        Assert.Equal(["warrior", "mage"], Bench.AlliesOf("archer", 3));
+        Assert.Throws<ArgumentOutOfRangeException>(() => Bench.AlliesOf("mage", 4));
+        Assert.All(Bench.Hordes(At35), g => Assert.Contains(At35.Groups, f => f.Scenario == g && f.Size >= 6));
+    }
+
+    [Fact]
+    public void AParty_PlaysTheHeroWithItsAllies_TheSameFromOneRunToTheNext_AndCountsTheSpellsForAnAlly()
+    {
+        // One group, one fight (D96): the suite's budget of fights is all but spent, 16 fights here.
+        BenchReport alone = Bench.Run(At35, "priest", 1, sample: 1), duo = Bench.Run(At35, "priest", 1, sample: 1, partySize: 2);
+        Assert.Empty(alone.Allies);
+        Assert.Equal(["warrior"], duo.Allies);
+        Assert.Equal(alone.Paths.Select(p => p.Path), duo.Paths.Select(p => p.Path));
+        Assert.Equal(duo.Paths.Select(p => p.Points), Bench.Run(At35, "priest", 1, sample: 1, partySize: 2).Paths.Select(p => p.Points));
+        // The allies change the fights: the hero no longer plays them alone.
+        Assert.NotEqual(alone.Paths.Select(p => p.Casts.Values.Sum()), duo.Paths.Select(p => p.Casts.Values.Sum()));
+        Assert.Equal(1, duo.Groups);
+        Assert.All(duo.Paths, p => Assert.InRange(p.Points, 0, 100));
+        BenchReport trio = Bench.Run(At35, "priest", 1, sample: 1, partySize: 3);
+        Assert.Equal(["warrior", "archer"], trio.Allies);
+        Assert.Equal(1, trio.Groups);
+    }
+
+    [Fact]
     public void AGroupSample_IsEven_AndNeverMoreThanTheGroups()
     {
         IReadOnlyList<string> all = Bench.MiddleGroups(At50);
@@ -77,7 +108,7 @@ public class BenchTests
     {
         var empty = new Dictionary<string, double>();
         BenchRow Row(double points) => new("p", points, empty);
-        var report = new BenchReport("warrior", 35, 1, 1, Row(20), [Row(10), Row(20), Row(60)]);
+        var report = new BenchReport("warrior", 35, 1, 1, Row(20), [Row(10), Row(20), Row(60)], []);
         Assert.Equal(30, report.Mean);
         Assert.Equal(30, report.Spread);
     }

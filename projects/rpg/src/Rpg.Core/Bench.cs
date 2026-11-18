@@ -19,7 +19,8 @@ public sealed record BenchRow(string? Path, double Points, IReadOnlyDictionary<s
 }
 
 /// <summary>The bench of a class at a level: the hero without a path, then each path.</summary>
-public sealed record BenchReport(string Class, int Level, int Groups, int FightsPerGroup, BenchRow Plain, IReadOnlyList<BenchRow> Paths)
+/// <param name="Allies">The party bench's allies (sprint 222), bare, by class; empty for the hero alone.</param>
+public sealed record BenchReport(string Class, int Level, int Groups, int FightsPerGroup, BenchRow Plain, IReadOnlyList<BenchRow> Paths, IReadOnlyList<string> Allies)
 {
     public double Mean => Paths.Count == 0 ? 0 : Paths.Average(p => p.Points);
 
@@ -38,7 +39,31 @@ public static class Bench
     public static IReadOnlyList<string> MiddleGroups(SyntheticFamily family, int? sample = null)
     {
         ArgumentNullException.ThrowIfNull(family);
-        string[] groups = [.. family.Groups.Where(g => g.Size is 4 or 5).Select(g => g.Scenario)];
+        return Sample([.. family.Groups.Where(g => g.Size is 4 or 5).Select(g => g.Scenario)], sample);
+    }
+
+    /// <summary>The hordes of 6 monsters and more, or an even sample of them: what a party plays (sprint 222, as `Rpg.Sim --durations`).</summary>
+    public static IReadOnlyList<string> Hordes(SyntheticFamily family, int? sample = null)
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        return Sample([.. family.Groups.Where(g => g.Size >= 6).Select(g => g.Scenario)], sample);
+    }
+
+    /// <summary>
+    /// The party bench's allies (sprint 222, the third milestone's Q4, D101): the 13 path spells never played alone are, but for two, party spells,
+    /// an ally's shield, a resurrection, a shared glyph. A party of two adds a Warrior in front (a Paladin to a Warrior), a party of three an Archer
+    /// behind too (a Mage to an Archer): one who takes the blows, one who keeps away. Fixed, so that the paths of a class are weighed alike.
+    /// </summary>
+    public static IReadOnlyList<string> AlliesOf(string cls, int partySize)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(partySize, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(partySize, 3);
+        string front = cls == "warrior" ? "paladin" : "warrior", back = cls == "archer" ? "mage" : "archer";
+        return partySize switch { 1 => [], 2 => [front], _ => [front, back] };
+    }
+
+    private static string[] Sample(string[] groups, int? sample)
+    {
         if (sample is not int n || n >= groups.Length)
             return groups;
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(n);
@@ -63,16 +88,21 @@ public static class Bench
     /// One class at the family's level. <paramref name="deck"/>, a reference deck in order of preference, replaces the automatic deck: the path's spells, then its spells the level has unlocked, up to the bar's size.
     /// <paramref name="rankedPaths"/> (sprint 210, the second milestone, D98): each path's hero spends its spell points knowing its path, its path spells ranked as the kit's,
     /// as a player would; false keeps the bare hero's ranks, its path spells at rank 1 under the kit's, the bench of sprints 193 to 209.
+    /// <paramref name="partySize"/> (sprint 222): 2 or 3, the hero plays with <see cref="AlliesOf"/>, bare, against the <see cref="Hordes"/>: against
+    /// the groups of 4 and 5, two heroes won every fight and no ally ever needed raising; only the hero's path spells are counted, the allies being
+    /// of other classes and without a path.
     /// </summary>
-    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null, bool rankedPaths = true)
+    public static BenchReport Run(SyntheticFamily family, string cls, int fights, int? sample = null, IReadOnlyList<string>? deck = null, bool rankedPaths = true, int partySize = 1)
     {
         ArgumentNullException.ThrowIfNull(family);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fights);
-        IReadOnlyList<string> groups = MiddleGroups(family, sample);
+        IReadOnlyList<string> allyClasses = AlliesOf(cls, partySize);
+        IReadOnlyList<string> groups = partySize < 2 ? MiddleGroups(family, sample) : Hordes(family, sample);
+        Hero[] allies = [.. allyClasses.Select((c, k) => family.Hero(c, "none") with { Name = AllyNames[k] })];
         Hero bare = family.Hero(cls, "none");
         BenchRow Row(string? path, Hero hero, IReadOnlyCollection<string> spells)
         {
-            (int Wins, Dictionary<string, int> Casts)[] results = [.. groups.AsParallel().AsOrdered().Select(g => Play(family, g, hero, fights, spells))];
+            (int Wins, Dictionary<string, int> Casts)[] results = [.. groups.AsParallel().AsOrdered().Select(g => Play(family, g, hero, allies, fights, spells))];
             double played = groups.Count * fights;
             return new BenchRow(path, results.Sum(r => r.Wins) * 100 / played,
                 spells.ToDictionary(s => s, s => results.Sum(r => r.Casts.GetValueOrDefault(s)) / played, StringComparer.Ordinal));
@@ -90,20 +120,22 @@ public static class Bench
             Hero hero = With(bare with { Spec = spec, Fork = fork, Final = final });
             if (rankedPaths)
                 hero = Progression.Built(hero, family.Data);
-            // A swap with an ally cannot be played alone: its absence says nothing here; the party measures judge it.
+            // A swap with an ally cannot be played alone: its absence says nothing here; the party bench judges it.
             rows.Add(Row(final ?? fork ?? spec, hero, [.. Specs.SpellsOf(hero, family.Data).Intersect(hero.DeckOf(family.Data), StringComparer.Ordinal)
-                .Where(s => family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect))]));
+                .Where(s => allies.Length > 0 || family.Data.Spells[s].Aims is not null || !family.Data.Spells[s].AllEffects.Any(e => e is SwapEffect))]));
         }
-        return new BenchReport(cls, family.Level, groups.Count, fights, Row(null, With(bare), []), rows);
+        return new BenchReport(cls, family.Level, groups.Count, fights, Row(null, With(bare), []), rows, allyClasses);
     }
 
-    private static (int Wins, Dictionary<string, int> Casts) Play(SyntheticFamily family, string group, Hero hero, int fights, IReadOnlyCollection<string> spells)
+    private static readonly string[] AllyNames = ["Brume", "Cendre"];
+
+    private static (int Wins, Dictionary<string, int> Casts) Play(SyntheticFamily family, string group, Hero hero, Hero[] allies, int fights, IReadOnlyCollection<string> spells)
     {
         int wins = 0;
         var casts = new Dictionary<string, int>(StringComparer.Ordinal);
         for (ulong seed = 0; seed < (ulong)fights; seed++)
         {
-            var fight = new Fight(family.Data, group, seed, hero);
+            var fight = new Fight(family.Data, group, seed, hero, allies: allies.Length == 0 ? null : allies);
             Ai.PlayOut(fight);
             wins += fight.WinningTeam == 0 ? 1 : 0;
             foreach (CastAction cast in fight.History.OfType<CastAction>().Where(c => spells.Contains(c.Spell)))
