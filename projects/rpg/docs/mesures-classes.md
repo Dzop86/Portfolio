@@ -638,3 +638,7 @@ Voir T187 et `docs/banc-groupes.md`. `Rpg.Sim --matrix --casts --party-size 2|3`
 
 `Rpg.Sim --durations --simulate 60` au 45, deux fois, la machine au repos : 3 Invocateurs 313 puis 286 ms par tour (810 au jalon 3), 3 Nécromanciens 311 puis 192 ms (523) ; victoires et tours identiques au jalon 3. B16 (1 000 ms) tenue.
 
+
+## 18 novembre 2026 : l'IA des sorts de groupe (S223, T188)
+
+Voir T188 et `docs/sorts-de-groupe.md`. `Rpg.Sim --matrix --casts --party-size 2`, 20 combats par groupe, 9 hordes, niveaux 35 et 50, pour le Paladin, le Voleur, l'Invocateur, le Druide et le Guerrier, avant et après. Lancers par combat : Haie 0,0 → 0,3 ; Sol grondant 0,1 → 0,2 ; Rappel 0,1 → 0,2 ; Cabriole 0,0 → 0,1 (35) ; Bouclier de la foi 0,3, Fiole de peste 0,2, Feinte 0,1 et Cercle de fer 0,0 inchangés. Moyenne des voies : 66,3 → 66,1 (35), 70,9 → 70,7 (50) ; le Gardien de la nature 70,0 → 63,3 à 35, toutes les autres lignes à 2,3 points au plus. Par PA au niveau 50, quand ils servent : Bouclier 12,5 (le Guerrier à portée 12 % des tours), Fiole 8,0, Sol grondant 4,2 et Haie 3,5 (à 35), Rappel 3,8, Feinte 2,0, Cercle de fer 1,8, contre 8,6 à 14,6 pour le meilleur coup du tour.
