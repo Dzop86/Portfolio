@@ -6,7 +6,7 @@
 
 | Story | Points | État |
 |---|---|---|
-| En tant que Charles, je sais quels sorts de groupe l'IA joue en groupe : un banc de 2 et 3 héros qui compte leurs lancers ; B7 retirée des bornes, le seuil de 1 seconde par tour de 3 Invocateurs vérifié par `--durations` ; les zones de 60 à 100 chiffrées (rpg) ; xUnit. | 3 | À faire |
+| En tant que Charles, je sais quels sorts de groupe l'IA joue en groupe : un banc de 2 et 3 héros qui compte leurs lancers ; B7 retirée des bornes, le seuil de 1 seconde par tour de 3 Invocateurs vérifié par `--durations` ; les zones de 60 à 100 chiffrées (rpg) ; xUnit. | 3 | Fait : `--party-size 2|3` ; en duo contre les hordes, 5 des 13 sorts muets joués, 8 restent muets (dont 4 sorts de groupe : c'est l'IA) ; B7 n'avait plus rien dans le code ; B16 tenue à 0,3 s ; les zones s'arrêtent à 45, chiffrées de 46 à 100 (une zone 22 points) ; Q1-Q3 à Charles (T187, `projects/rpg/docs/banc-groupes.md`) |
 
 ## Rétro (Charles)
 - Ce qui a marché :

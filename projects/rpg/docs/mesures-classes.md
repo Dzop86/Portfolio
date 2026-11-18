@@ -631,3 +631,10 @@ Voir T186. B5 et B6 tenues aux quatre niveaux pour les cinq classes du banc (`Pa
 | Invocateur | 77,2 : Démoniste 81,3, Conjurateur 74,6, Familieriste 75,6 | 83,8 : 89,2, 79,0, 83,3 | 79,1 : Invocateur démoniaque 76,0, Pactisant 75,8, élémentaire 78,3, astral 72,9, Dompteur 85,4, Fusionniste 85,8 | 69,1 : 70,4, 76,5, 70,6, 64,4, 67,7, 64,8 |
 
 Le Guerrier et l'Archer, réglés au sprint 220, tiennent toujours. **La Fusion mesurée avec et sans le sort** (sonde jetable, 16 groupes, 30 combats) : quand le Familier mourait, 53,3 avec contre 68,3 sans au 60 ; revenant à 35 % pendant 3 tours, 61,5 contre 66,5 ; à 80 % pendant 2 tours, 69,6 au 60 et 91,3 au 50 (sans : 84,8), trop fort ; retenu 60 % pendant 2 tours.
+
+## 17 novembre 2026 : le banc de groupes (S222, T187)
+
+Voir T187 et `docs/banc-groupes.md`. `Rpg.Sim --matrix --casts --party-size 2|3`, 20 combats par groupe, 9 hordes de 6 monstres et plus, niveaux 35, 45 et 50 ; le héros de voie rangé, un Guerrier nu devant (un Paladin au Guerrier), en trio un Archer nu derrière (un Mage à l'Archer). Moyenne des voies : seul 63,3 / 65,1 / 66,0 ; duo 68,3 / 70,1 / 72,7 ; trio 96,3 / 98,0 / 98,8. Sorts de voie sous 0,5 lancer par combat à leur meilleur : 33 seul, 26 en duo, 28 en trio ; voies concluantes : 53, 59 et 54 sur 120. Des 13 sorts jamais joués au jalon 3, le duo fait jouer l'Arrachement (1,4), le Coup d'arène (0,9), le Rempart d'os (0,7), la Résurrection (0,5) et la Lame enduite (0,5) ; restent sous 0,5 le Bouclier de la foi (0,3), la Fiole de peste (0,2), le Sol grondant, le Rappel et la Feinte (0,1), le Cercle de fer, la Cabriole et la Haie (0,0). Un premier duo contre les groupes de 4 et 5 gagnait 100 % : jeté.
+
+`Rpg.Sim --durations --simulate 60` au 45, deux fois, la machine au repos : 3 Invocateurs 313 puis 286 ms par tour (810 au jalon 3), 3 Nécromanciens 311 puis 192 ms (523) ; victoires et tours identiques au jalon 3. B16 (1 000 ms) tenue.
+
