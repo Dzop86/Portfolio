@@ -7,7 +7,7 @@ Montrer qu'un ingénieur docteur en informatique graphique sait piloter la gén�
 - Un site vitrine multi-pages, bilingue, responsive, installable (PWA), hébergé gratuitement sur GitHub Pages.
 - Un fil rouge : les maillages 3D. Les projets forment une chaîne cohérente.
 - Chaque projet : tests unitaires + intégration, CI (multi-OS si compilé), Docker si serveur, démo en ligne (statique ou pré-calculée), README, `REVIEW.md`, `DECISIONS.md`.
-- Roadmap par sprints de deux semaines (S1 à S222), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
+- Roadmap par sprints de deux semaines (S1 à S229), affichée sur la page Gestion de projet : l'état de chaque phase (fait, en cours, prévu) est calculé depuis `scrum/sprint-NN.md`. Les dates réelles sont celles des commits.
 
 ## Les 23 projets
 Source de vérité : `data/projects.json`. Résumé :
@@ -35,10 +35,10 @@ Source de vérité : `data/projects.json`. Résumé :
 | 19 | Jeu : bataille (cartes) | Ada | S21 | 3 |
 | 20 | Jeu : morpion | Python | S22 | 3 |
 | 21 | Jeu : roguelike 2D | Godot 4, C#, ASP.NET Core, EF Core, PostgreSQL, JWT | S23-S25 | 13 |
-| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S222 | 748 |
+| 22 | Jeu : Osmose, RPG tactique (en pause après S60, D58) | Godot 4, C#, ASP.NET Core, PostgreSQL, Rust, Tauri | S45-S60+S64-S229 | 777 |
 | 23 | Assistant documentaire (RAG) | Python, FastAPI, Qdrant, embeddings, API Claude, Docker | S61-S62 | 10 |
 
-Total : 969 points sur 222 sprints de deux semaines.
+Total : 998 points sur 229 sprints de deux semaines.
 
 ## CI/CD
 - GitHub Actions : CI principale, déploiement Pages, matrice multi-OS.
@@ -232,3 +232,5 @@ Charles remplace la Mage, la Garde et la Sentinelle par dix classes : Guerrier, 
 **D100 (10 novembre 2026) :** Charles valide les recommandations de `projects/rpg/docs/classes-invocateur.md` : noms de travail gardés pour le scénariste, 3 créatures au plus par héros de toute classe, créatures aux modèles de monstres réduits d'ici la refonte artistique, et le Disjoint rendu plus dur au jalon 3 (Tenir bon ou un coup à distance), le plafond de sa mesure rétabli. S219 reçoit 1 point pris sur la marge : 958 points, et 3 points de marge.
 
 **D101 (14 novembre 2026) :** au jalon 3 (`projects/rpg/docs/jalon-3.md`), Charles valide les cinq recommandations : le Guerrier et l'Archer rééquilibrés au banc (S220, 4 points), le Paladin, le Voleur, le Dompteur et le Fusionniste (S221, 4 points), un banc de groupes qui compte les sorts de groupe, B7 retirée et le seuil de 1 seconde par tour de 3 Invocateurs (S222, 3 points), puis les zones de 60 à 100, chiffrées à la fin de S222 : 969 points sur 222 sprints.
+
+**D102 (17 novembre 2026) :** au banc de groupes (`projects/rpg/docs/banc-groupes.md`), Charles valide les trois recommandations : un sprint d'IA pour les 8 sorts de voie muets même en groupe (S223, 5 points), le trio du banc gardé en complément du duo, puis une première zone de 46 à 60, les zones s'arrêtant à 45 : ses cartes (S224, 5), ses deux familles (S225 et S226, 4 chacune), ses donjons (S227, 6), l'artisanat de 50 à 60 (S228, 3) et le jalon 4 (S229, 2), où Charles décidera de la suite : 998 points sur 229 sprints.
