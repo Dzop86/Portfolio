@@ -87,6 +87,10 @@ ICONS = {
     "hornbeam-log": "delapouite/wood-beam", "elm-log": "delapouite/tree-roots", "granite": "lorc/stone-block", "malachite": "lorc/emerald",
     "trout": "delapouite/fish-escape", "catfish": "delapouite/fish-bucket", "spelt": "delapouite/sesame", "sorghum": "delapouite/corn",
     "sage": "lorc/three-leaves", "mandrake": "delapouite/plant-roots",
+    # The Underroot Mines' (sprint 224): levels 50 and 55, drawings already there.
+    "larch-log": "delapouite/axe-in-log", "rootwood-log": "delapouite/tree-roots", "cobalt-ore": "faithtoken/minerals", "gold-ore": "delapouite/gold-nuggets",
+    "grayling": "various-artists/salmon", "cavefish": "delapouite/circling-fish", "barley": "delapouite/grain-bundle", "millet": "delapouite/grain",
+    "arnica": "delapouite/dandelion-flower", "gentian": "delapouite/herbs-bundle",
     # The dungeons' keys, and the quest items.
     "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",

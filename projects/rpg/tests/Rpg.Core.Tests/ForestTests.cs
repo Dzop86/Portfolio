@@ -37,9 +37,13 @@ public class ForestTests
         Assert.All(up, l => Assert.Equal((0, house.Rows.Count - 2), (l.At.Y, l.Arrival.Y)));
         Assert.All(down, l => Assert.Equal("Forêt des Aïeux", l.Name!.Fr));
         Assert.All(up, l => Assert.Equal("Four Ways", l.Name!.En));
-        // The only ways between the forest and the rest of the world (a dungeon's halls, from sprint 134, are not of it).
-        Assert.Equal(6, Real.Towns.Values.Where(t => t.Dungeon is null).SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
-            .Count(w => (w.From.Zone == "ancestors") != (Real.Towns[w.To].Zone == "ancestors") && Real.Towns[w.To].Dungeon is null));
+        // The only ways between the forest and the rest of the world (a dungeon's halls, from sprint 134, are not of it):
+        // Quatre-Chemins's, and since sprint 224 the Underroot Mines', three cells each, both ways.
+        (string From, string To)[] ways = [.. Real.Towns.Values.Where(t => t.Dungeon is null).SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
+            .Where(w => (w.From.Zone == "ancestors") != (Real.Towns[w.To].Zone == "ancestors") && Real.Towns[w.To].Dungeon is null)
+            .Select(w => (w.From.Id, w.To))];
+        Assert.Equal(12, ways.Length);
+        Assert.Equal(["ancestors-1-0", "ancestors-2-4", "four-ways-1-1", "underroot-2-0"], ways.Select(w => w.From).Distinct().Order());
     }
 
     [Fact]
@@ -77,7 +81,7 @@ public class ForestTests
         Assert.Equal(0, MonsterGroups.Depth(Real.Towns["ancestors-1-0"], World));
         Assert.Equal(2, MonsterGroups.Depth(Real.Towns["ancestors-4-4"], World));
         // Every one of the ten resources of the five gathering trades grows there.
-        string[] ten = [.. Real.Jobs.Values.Where(j => j.Gathers).SelectMany(j => j.Harvests!).Where(h => h.Level >= 40).Select(h => h.Item)];
+        string[] ten = [.. Real.Jobs.Values.Where(j => j.Gathers).SelectMany(j => j.Harvests!).Where(h => Levels.Contains(h.Level)).Select(h => h.Item)];
         Assert.Equal(10, ten.Length);
         Assert.Equal(ten.Order(), spots.Select(n => n.Item).Distinct().Order());
     }

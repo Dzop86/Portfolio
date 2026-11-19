@@ -87,14 +87,16 @@ public class JobBookTests
         var fr = new Texts("fr");
         IReadOnlyList<ResourceLine> lines = new JobBook(Data, With(0, 0, new ItemCount("oak-log", 4)), fr).Resources(Woodcutter);
         Assert.Equal(20, lines.Count);
-        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50], lines.Take(11).Select(l => l.Level));
+        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60], lines.Take(13).Select(l => l.Level));
         Assert.Equal(("oak-log", "Bois de Clairval, près de l'entrée", 4), (lines[0].Item!.Id, lines[0].Where, lines[0].Owned));
         Assert.Equal("Bois de Clairval, au fond", lines[1].Where);
-        // The Forest of the Ancestors' two since sprint 131, then nothing yet.
+        // The Forest of the Ancestors' two since sprint 131, the Underroot Mines' two since sprint 224, then nothing yet.
         Assert.Equal(("hornbeam-log", "Forêt des Aïeux, près de l'entrée"), (lines[8].Item!.Id, lines[8].Where));
         Assert.Equal(("elm-log", "Forêt des Aïeux, au fond"), (lines[9].Item!.Id, lines[9].Where));
-        Assert.Null(lines[10].Item);
-        Assert.Equal("bientôt", lines[10].Where);
+        Assert.Equal(("larch-log", "Mines de Sous-Racine, près de l'entrée"), (lines[10].Item!.Id, lines[10].Where));
+        Assert.Equal(("rootwood-log", "Mines de Sous-Racine, au fond"), (lines[11].Item!.Id, lines[11].Where));
+        Assert.Null(lines[12].Item);
+        Assert.Equal("bientôt", lines[12].Where);
         // The deep fish: in the lake, the fields having no water.
         Assert.Equal("Lac des Joncs, en eau profonde", new JobBook(Data, null, fr).Resources(Data.Jobs["fisher"])[6].Where);
         // A making trade: its ingredients and where they come from.

@@ -4,9 +4,12 @@
 # (sprint 74), the lake north of them (sprint 75), the fields south of them (sprint 76), each zone
 # opening on the woods by two maps (data/towns/<zone>-<col>-<row>.json); Clairval's west way is written
 # by hand in clairval.json. The Forest of the Ancestors (sprint 131), south of Quatre-Chemins, opens on its road
-# house by one map (tools/hamlet.py writes the other side). Deterministic: the same seed gives the same
-# maps; every opening and exit is checked reachable from the map's arrival. Run from projects/rpg:
-#   python3 tools/world_gen.py data [mouldy] [lake] [fields] [ancestors]   (the woods always)
+# house by one map (tools/hamlet.py writes the other side). The Underroot Mines (sprint 224, D102), south of the
+# forest, open on its map at [6, 5] by one map; their way is cut into that map as it is (open_way, below), the forest
+# not written again. Deterministic: the same seed gives the same maps; every opening and exit is checked reachable
+# from the map's arrival. Run from projects/rpg, naming the zones to write (the woods when none is named; since
+# sprint 224 the others are left as they are, a way to one of them kept when its maps exist):
+#   python3 tools/world_gen.py data [woods] [mouldy] [lake] [fields] [ancestors] [underroot]
 # The maps written are then hand-placed upon (people, props, dungeon doors: other tools) and their borders
 # softened by tools/border_soften.py (sprint 180): running this again loses both.
 import collections, glob, json, os, random, sys
@@ -160,6 +163,9 @@ STYLES = {
     # The Forest of the Ancestors (sprint 131): few trees but in tight stands (the game draws them as giant trunks),
     # mossy boulders in heaps, ferns, now and then a spring; not the woods' scattered clumps.
     "ancestors": ('T', lambda rnd: [('T', 3, 12), ('R', 3, 4), ('B', 3, 3)] + ([('~', 1, 6)] if rnd.random() < 0.6 else [])),
+    # The Underroot Mines (sprint 224): a stony ground of crags and spoil heaps, a few trees grown from the Mother
+    # Tree's roots, the miners' carts and lanterns, now and then a pool seeping from below; a border of rock.
+    "underroot": ('R', lambda rnd: [('R', 5, 7), ('T', 2, 3), ('C', 1, 1), ('L', 1, 1)] + ([('~', 1, 5)] if rnd.random() < 0.5 else [])),
 }
 
 
@@ -222,6 +228,7 @@ NAMES = {
     "lake": text("Lac des Joncs", "Reed Lake"),
     "fields": text("Champs de Clairval", "Clairval Fields"),
     "ancestors": text("Forêt des Aïeux", "Forest of the Ancestors"),
+    "underroot": text("Mines de Sous-Racine", "Underroot Mines"),
 }
 
 
@@ -242,6 +249,10 @@ for (col, start) in ((1, 22), (3, 22)):
 # The forest opens on Quatre-Chemins's road house (world [5, 0]) by its map at [5, 1]: the road's three cells
 # (x 23 to 25, tools/hamlet.py's ROAD_SOUTH).
 outsides.setdefault("ancestors", {})[(1, 0, "north")] = ("four-ways-1-1", [((x, 0), (x, H - 2)) for x in (23, 24, 25)], text("Quatre-Chemins", "Four Ways"))
+# The mines open on the forest's map at [6, 5] (ancestors-2-4, the middle of its far end) by their map at [6, 6]: three
+# cells in the middle of the side (sprint 224).
+UNDERROOT_WAY = (23, 24, 25)
+outsides.setdefault("underroot", {})[(2, 0, "north")] = ("ancestors-2-4", [((x, 0), (x, H - 2)) for x in UNDERROOT_WAY], NAMES["ancestors"])
 
 
 def lake_water(gx, gy):
@@ -256,23 +267,57 @@ def lake_water(gx, gy):
     return dx * dx + dy * dy < 1 + wobble
 
 
-# Only the zones written now: a way to one not written yet is left out, with its opening.
-built = {"woods", *sys.argv[2:]}
+def open_way(path, side, xs, to, arrival_y, name):
+    """
+    A way out cut into a map already written and placed upon (sprint 224): its cells on the side opened, a trail
+    from them to the nearest cell the arrival reaches, the links added (once: run again, nothing changes).
+    """
+    m = json.load(open(path), object_pairs_hook=O)
+    g = [list(r) for r in m["rows"]]
+    edge, inner = (H - 1, H - 2) if side == "south" else (0, 1)
+    start = (m["spawn"]["x"], m["spawn"]["y"])
+    reach = reachable([''.join(r) for r in g], start)
+    for x in xs:
+        trail = [(x, edge), (x, inner)]
+        if (x, inner) not in reach:
+            goal = min(reach, key=lambda c: (abs(c[0] - x) + abs(c[1] - inner), c))
+            trail += lpath((x, inner), goal)
+        for (cx, cy) in trail:
+            if g[cy][cx] not in WALK:
+                g[cy][cx] = '=' if g[cy][cx] == '~' else '.'
+    m["rows"] = [''.join(r) for r in g]
+    m["links"] = [l for l in m["links"] if l["to"] != to] + [
+        O([("at", cell(x, edge)), ("to", to), ("arrival", cell(x, arrival_y)), ("name", name)]) for x in xs]
+    assert all(m["rows"][edge][x] in WALK for x in xs) and all((x, edge) in reachable(m["rows"], start) for x in xs), path
+    open(path, "w").write(json.dumps(m, ensure_ascii=False, indent=2) + "\n")
+
+
+# The zones written now (the woods when none is named); a way to a zone is kept when that zone is written now or its
+# maps are already there, otherwise it is left out, with its opening.
+written = sys.argv[2:] or ["woods"]
+on_disk = {os.path.basename(f).rsplit("-", 2)[0] for f in glob.glob(f"{root}/towns/*-*-*.json")}
+built = set(written) | on_disk
 outsides = {z: {k: v for k, v in ways.items() if v[0].startswith(("clairval", "four-ways")) or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
 
-zones = [
-    # The woods, west of the village (x 0 to 3): their east maps open on its three gates (rows 15 to 17).
-    zone("woods", NAMES["woods"], 3, (-5, -2), 70,
-         exits={(2, 2): ((19, 16), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]),
-]
-# The forest at [4, 1] to [8, 5], south of Quatre-Chemins ([4, -1] to [5, 0]) and east of Clairval ([0, -1] to [3, 1]).
-ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76), "ancestors": (31, (4, 1), 131)}
-for zid in sys.argv[2:]:
+# The forest at [4, 1] to [8, 5], south of Quatre-Chemins ([4, -1] to [5, 0]) and east of Clairval ([0, -1] to [3, 1]);
+# the mines at [4, 6] to [8, 10], south of the forest.
+ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76), "ancestors": (31, (4, 1), 131),
+         "underroot": (46, (4, 6), 224)}
+zones = []
+for zid in written:
+    if zid == "woods":
+        # The woods, west of the village (x 0 to 3): their east maps open on its three gates (rows 15 to 17).
+        zones.append(zone("woods", NAMES["woods"], 3, (-5, -2), 70,
+                          exits={(2, 2): ((19, 16), "training", text("Clairière : entraînement", "Glade: training"))}, outside=outsides["woods"]))
+        continue
     level, origin, seed = ZONES[zid]
     zones.append(zone(zid, NAMES[zid], level, origin, seed, style=zid, outside=outsides.get(zid), water=lake_water if zid == "lake" else None))
-for old in [f for z in built for f in glob.glob(f"{root}/towns/{z}-*.json")]:
+for old in [f for z in written for f in glob.glob(f"{root}/towns/{z}-*-*.json")]:
     os.remove(old)
 for maps in zones:
     for mid, m in maps.items():
         open(f"{root}/towns/{mid}.json", "w").write(json.dumps(m, ensure_ascii=False, indent=2) + "\n")
-print(f"{sum(len(m) for m in zones)} maps written: {', '.join(sorted(built))}")
+# The forest's side of the mines' way, cut into its map as it is.
+if "underroot" in written:
+    open_way(f"{root}/towns/ancestors-2-4.json", "south", UNDERROOT_WAY, "underroot-2-0", 1, NAMES["underroot"])
+print(f"{sum(len(m) for m in zones)} maps written: {', '.join(written)}")

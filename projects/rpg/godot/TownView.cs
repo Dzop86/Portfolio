@@ -440,6 +440,8 @@ public partial class TownView : Node3D
             // A giant of the Forest of the Ancestors stands higher (sprint 131).
             NodeKind.Tree when town.Zone == "ancestors" => Giant(node.At) ? 4.2f : 3f,
             NodeKind.Tree => 2.2f,
+            // A crag of the Underroot Mines stands higher than a boulder (sprint 224).
+            NodeKind.Rock when decor == 'R' && town.Zone == "underroot" => 1.5f,
             NodeKind.Rock when decor == 'R' => 1.1f,
             _ when decor == 'M' => 2.4f,
             NodeKind.Plot => 1.0f,
@@ -580,6 +582,10 @@ public partial class TownView : Node3D
             case 'R' when Ancestral:
                 _decor[c] = MossyRock(c, at);
                 break;
+            case 'R' when Underroot:
+                _decor[c] = Scattered(c, k, at, Crags);
+                CragCount++;
+                break;
             case 'R':
                 _decor[c] = Scattered(c, k, at, Rocks);
                 break;
@@ -618,6 +624,18 @@ public partial class TownView : Node3D
 
     // The Forest of the Ancestors (sprint 131, D76: no new model): its own trees and rocks.
     private bool Ancestral => Controller.Town.Zone == "ancestors";
+
+    // The Underroot Mines (sprint 224, D76: no new model): crags of the nature kit's cliff blocks, broken rock.
+    private bool Underroot => Controller.Town.Zone == "underroot";
+
+    /// <summary>How many crags the map shows (for the self-test).</summary>
+    public int CragCount { get; private set; }
+
+    private static readonly (string Path, float Scale)[] Crags =
+    [
+        (Nature + "cliff_blockHalf_rock.glb", 0.85f), (Nature + "cliff_half_rock.glb", 0.8f), (Nature + "rock_tallA.glb", 0.75f),
+        (Nature + "cliff_block_rock.glb", 0.7f), (Nature + "rock_largeC.glb", 0.8f),
+    ];
 
     /// <summary>How many giant trunks the map shows (for the self-test).</summary>
     public int Giants { get; private set; }
@@ -672,6 +690,8 @@ public partial class TownView : Node3D
         "lake" => [TownTrees[1], Tree("tree_oak", 1.23f), Tree("tree_tall", 1.69f), Tree("tree_simple", 1.52f), Tree("tree_pineRoundA", 1.37f)],
         "mouldy" => [TownTrees[0], Tree("tree_fat", 1.15f), Tree("tree_oak", 1.23f), Tree("tree_pineRoundA", 1.37f), Tree("tree_cone", 1.43f)],
         "woods" => WoodsTrees,
+        // The Underroot Mines (sprint 224): tall pines and fat old trees fed by the Mother Tree's roots.
+        "underroot" => [Tree("tree_pineTallA", 1.53f), Tree("tree_fat", 1.15f), Tree("tree_pineRoundA", 1.37f)],
         _ => [.. TownTrees, Tree("tree_oak", 1.23f), Tree("tree_fat", 1.15f), Tree("tree_default", 1.71f)],
     };
 
@@ -1007,6 +1027,7 @@ public partial class TownView : Node3D
         {
             'T' when s.From?.StartsWith("ancestors", StringComparison.Ordinal) == true => [(Nature + "tree_pineDefaultA.glb", 1.5f)],
             'T' => TreesOf(s.From is null ? Controller.Town.ZoneId : Controller.Data.Towns[s.From].ZoneId),
+            'R' when s.From?.StartsWith("underroot", StringComparison.Ordinal) == true => Crags,
             'R' => Rocks,
             'B' => Hedges,
             'M' => Mushrooms,

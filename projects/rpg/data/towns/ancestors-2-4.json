@@ -41,8 +41,8 @@
     "...B.B.....~~..........TT.TT.........RRRT.......",
     "....B...RR...R.RB..B..BTTT......................",
     "....BB.RR..T.TRBBBTBBB..TT............TTTT......",
-    "T..TRBTTRTTTRTTRTRTBTTRT.........RRRBTTTRBTT.B.B",
-    "TRBTTBTRTBTBTBTRTRRBRBRTTRTRTRBRRTRBTRBTTTBRTBTT"
+    "T..TRBTTRTTTRTTRTRTBTTR..........RRRBTTTRBTT.B.B",
+    "TRBTTBTRTBTBTBTRTRRBRBR...TTTRTRTRRTRBTTTTTBBTRT"
   ],
   "spawn": {
     "x": 24,
@@ -1094,6 +1094,51 @@
       "arrival": {
         "x": 1,
         "y": 29
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "underroot-2-0",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      },
+      "name": {
+        "fr": "Mines de Sous-Racine",
+        "en": "Underroot Mines"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "underroot-2-0",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      },
+      "name": {
+        "fr": "Mines de Sous-Racine",
+        "en": "Underroot Mines"
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 31
+      },
+      "to": "underroot-2-0",
+      "arrival": {
+        "x": 25,
+        "y": 1
+      },
+      "name": {
+        "fr": "Mines de Sous-Racine",
+        "en": "Underroot Mines"
       }
     }
   ]

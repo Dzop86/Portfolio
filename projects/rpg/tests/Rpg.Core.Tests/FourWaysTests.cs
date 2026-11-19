@@ -27,8 +27,8 @@ public class FourWaysTests
     public void BeingOnAMapOfQuatreChemins_NeedsFourTrails_TheRestOfTheWorldNothing()
     {
         Assert.All(Maps, m => Assert.Equal("four-trails", Real.QuestToReach(m)));
-        // The Forest of the Ancestors lies past Quatre-Chemins (sprint 131): its maps too.
-        Assert.All(Real.Towns.Values.Where(t => !Maps.Contains(t.Id) && t.Zone != "ancestors"), t => Assert.Null(Real.QuestToReach(t.Id)));
+        // The Forest of the Ancestors lies past Quatre-Chemins (sprint 131), the Underroot Mines below it (sprint 224): their maps too.
+        Assert.All(Real.Towns.Values.Where(t => !Maps.Contains(t.Id) && t.Zone is not ("ancestors" or "underroot")), t => Assert.Null(Real.QuestToReach(t.Id)));
     }
 
     [Fact]

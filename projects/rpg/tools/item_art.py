@@ -34,18 +34,23 @@ MATTER = {
     # Wood.
     "oak-log": "#c08a50", "hazel-log": "#d9b07a", "blackwood-log": "#6e5846", "yew-log": "#8a5a36", "willow-log": "#c9b48a",
     "alder-log": "#d4a46a", "ash-log": "#e0c9a0", "linden-log": "#e6cf96", "elm-log": "#9c6b43", "hornbeam-log": "#b8a07a",
+    "larch-log": "#c98f5a", "rootwood-log": "#6a4a32",
     # Ore and stone.
     "copper-ore": "#d0804a", "tin-ore": "#b9c2c9", "iron-ore": "#8f9aa6", "sulphur": "#e8d84a", "blue-clay": "#6f9fc8",
     "zinc-ore": "#9fb3b0", "silver-ore": "#d8dde3", "quartz": "#e8e4f4", "granite": "#a39a94", "malachite": "#3fae7f",
+    "cobalt-ore": "#4a68b0", "gold-ore": "#e2b43c",
     # Fish.
     "gudgeon": "#a8b8a0", "crayfish": "#c25a3a", "pool-eel": "#7d8a56", "tench": "#9aa860", "perch": "#b0c070",
     "carp": "#d0a050", "pike": "#7f9a7a", "zander": "#a0a8b0", "trout": "#c7d3dc", "catfish": "#8a8070",
+    "grayling": "#8f9cb4", "cavefish": "#eadfd4",
     # Crops.
     "wild-flax": "#9fb4d8", "wild-oats": "#e3c27a", "pool-hemp": "#8fae6a", "rye": "#c9a860", "shore-sedge": "#a8b870",
     "reed-rice": "#efe2b8", "clairval-wheat": "#ecc35c", "buckwheat": "#b88f5c", "spelt": "#d8b070", "sorghum": "#c0703c",
+    "barley": "#dcc480", "millet": "#e8cf6a",
     # Herbs.
     "nettle": "#4f9a4a", "glowmoss": "#7fd0a0", "water-lily": "#f0a8c8", "hive-flower": "#ffcf5a", "sage": "#9fb8a0",
     "mandrake": "#b08a6a", "lavender": "#a08ad8", "clubmoss": "#5f8f4f", "horsetail": "#7fa86a", "wood-mint": "#6fcf9f",
+    "arnica": "#f2a33a", "gentian": "#5a6fd0",
     # What the monsters leave, and what is bought.
     "feather": "#f0e6cc", "leather": "#a0522d", "orc-fang": "#e8dcc0", "bee-wing": "#d8eef8", "boar-bristle": "#7a5c48",
     "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "frog-leg": "#7fae5a",

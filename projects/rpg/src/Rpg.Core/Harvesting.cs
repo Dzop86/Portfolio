@@ -25,6 +25,8 @@ public static class Harvesting
         ["fields"] = (30, 35),
         // The Forest of the Ancestors (sprint 131), past Quatre-Chemins.
         ["ancestors"] = (40, 45),
+        // The Underroot Mines (sprint 224), below the forest.
+        ["underroot"] = (50, 55),
         // The village's few spots, of the first level only (sprint 102).
         ["clairval"] = (1, 1),
     };
@@ -38,6 +40,8 @@ public static class Harvesting
         ["fields"] = [2, 2, 0, 4, 2],
         // Water only where a spring wells up (most maps): a map without one has a spot fewer.
         ["ancestors"] = [2, 2, 1, 2, 2],
+        // Rock above all; water only where a pool seeps up (half the maps).
+        ["underroot"] = [1, 3, 1, 2, 2],
         ["clairval"] = [1, 1, 1, 2, 1],
     };
 

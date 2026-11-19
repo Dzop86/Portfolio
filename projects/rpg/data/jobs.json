@@ -219,6 +219,16 @@
         "item": "elm-log",
         "level": 45,
         "node": "Tree"
+      },
+      {
+        "item": "larch-log",
+        "level": 50,
+        "node": "Tree"
+      },
+      {
+        "item": "rootwood-log",
+        "level": 55,
+        "node": "Tree"
       }
     ]
   },
@@ -278,6 +288,16 @@
       {
         "item": "malachite",
         "level": 45,
+        "node": "Rock"
+      },
+      {
+        "item": "cobalt-ore",
+        "level": 50,
+        "node": "Rock"
+      },
+      {
+        "item": "gold-ore",
+        "level": 55,
         "node": "Rock"
       }
     ]
@@ -339,6 +359,16 @@
         "item": "catfish",
         "level": 45,
         "node": "Water"
+      },
+      {
+        "item": "grayling",
+        "level": 50,
+        "node": "Water"
+      },
+      {
+        "item": "cavefish",
+        "level": 55,
+        "node": "Water"
       }
     ]
   },
@@ -399,6 +429,16 @@
         "item": "sorghum",
         "level": 45,
         "node": "Plot"
+      },
+      {
+        "item": "barley",
+        "level": 50,
+        "node": "Plot"
+      },
+      {
+        "item": "millet",
+        "level": 55,
+        "node": "Plot"
       }
     ]
   },
@@ -458,6 +498,16 @@
       {
         "item": "mandrake",
         "level": 45,
+        "node": "Herb"
+      },
+      {
+        "item": "arnica",
+        "level": 50,
+        "node": "Herb"
+      },
+      {
+        "item": "gentian",
+        "level": 55,
         "node": "Herb"
       }
     ]

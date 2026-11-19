@@ -3514,6 +3514,9 @@ public partial class Main
             // The Forest of the Ancestors' own trees (sprint 131): giant trunks among its pines.
             if (t.Zone == "ancestors" && view.Giants == 0)
                 problems.Add($"{id} draws no giant trunk");
+            // The Underroot Mines' own rocks (sprint 224): crags of cliff blocks.
+            if (t.Zone == "underroot" && view.CragCount == 0)
+                problems.Add($"{id} draws no crag");
             // The decor scattered (sprint 178, D87): several tree models, none at the exact middle of its cell, tufts on the grass.
             if (t.Zone == "woods" && view.TreeModels.Count < 3)
                 problems.Add($"{id} draws its trees with {view.TreeModels.Count} models");

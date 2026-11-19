@@ -10,18 +10,20 @@
 import collections, glob, hashlib, json, random, sys
 
 O = collections.OrderedDict
-ZONES = ("woods", "mouldy", "lake", "fields", "ancestors")
+ZONES = ("woods", "mouldy", "lake", "fields", "ancestors", "underroot")
 WALK = '.=,'
 DEPTH = 3          # the band's deepest cells
 CLOSED_RUN = 8     # the most closed cells in a row on a side between two maps of a zone
 # The obstacles of the band, by style (weights): trees and rocks in the woods, mushrooms in the mouldy woods,
-# reeds by the lake, hedges in the fields, trunks, boulders and ferns in the Forest of the Ancestors.
+# reeds by the lake, hedges in the fields, trunks, boulders and ferns in the Forest of the Ancestors, crags and a few
+# trees in the Underroot Mines (sprint 224).
 MIX = {
     "woods": "TTTTTTTTTTTTTTBBBRRR",
     "mouldy": "TTTTTTTTTTTTMMMMMRRR",
     "lake": "BBBBBBBBBBBBTTTTTRRR",
     "fields": "BBBBBBBBBBBBBBBTTTRR",
     "ancestors": "TTTTTTTTTTTRRRRRBBBB",
+    "underroot": "RRRRRRRRRRRRRRRTTTTB",
 }
 SIDES = {"east": (1, 0), "west": (-1, 0), "south": (0, 1), "north": (0, -1)}
 OPPOSITE = {"east": "west", "west": "east", "south": "north", "north": "south"}

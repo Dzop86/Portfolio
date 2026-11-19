@@ -1,7 +1,7 @@
 # The gathering trades (sprint 99, D71 and D72, docs/suite-apres-d69.md §5.2 to §5.4): woodcutter, miner,
 # fisher, farmer and herbalist, each with a new resource every 5 levels; Clairval's zones carry the levels
 # 1 to 35, two a zone (the first near the way in, the second at the far end), the Forest of the Ancestors 40
-# and 45 (sprint 131). The resources go in
+# and 45 (sprint 131), the Underroot Mines 50 and 55 (sprint 224). The resources go in
 # data/items.json (before the dungeons' keys), the trades in data/jobs.json with what they gather and on
 # which kind of spot. Deterministic and idempotent. Run from projects/rpg after tools/sets_gen.py, before
 # tools/icons_gen.py:  python3 tools/trades_gen.py data
@@ -14,34 +14,39 @@ O = collections.OrderedDict
 def text(fr, en): return O([("fr", fr), ("en", en)])
 
 
-LEVELS = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45]
+LEVELS = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]
 # trade: (names, kind of spot, [(id, fr, en)] for the levels above)
 TRADES = O([
     ("woodcutter", (text("Bûcheron", "Woodcutter"), "Tree", [
         ("oak-log", "Chêne", "Oak"), ("hazel-log", "Noisetier", "Hazel"), ("blackwood-log", "Bois noir", "Blackwood"),
         ("yew-log", "If", "Yew"), ("willow-log", "Saule", "Willow"), ("alder-log", "Aulne", "Alder"),
         ("ash-log", "Frêne", "Ash"), ("linden-log", "Tilleul", "Linden"),
-        ("hornbeam-log", "Charme", "Hornbeam"), ("elm-log", "Orme", "Elm")])),
+        ("hornbeam-log", "Charme", "Hornbeam"), ("elm-log", "Orme", "Elm"),
+        ("larch-log", "Mélèze", "Larch"), ("rootwood-log", "Bois-racine", "Rootwood")])),
     ("miner", (text("Mineur", "Miner"), "Rock", [
         ("copper-ore", "Cuivre", "Copper"), ("tin-ore", "Étain", "Tin"), ("iron-ore", "Fer", "Iron"),
         ("sulphur", "Soufre", "Sulphur"), ("blue-clay", "Argile bleue", "Blue Clay"), ("zinc-ore", "Zinc", "Zinc"),
         ("silver-ore", "Argent", "Silver"), ("quartz", "Quartz", "Quartz"),
-        ("granite", "Granit", "Granite"), ("malachite", "Malachite", "Malachite")])),
+        ("granite", "Granit", "Granite"), ("malachite", "Malachite", "Malachite"),
+        ("cobalt-ore", "Cobalt", "Cobalt"), ("gold-ore", "Or", "Gold")])),
     ("fisher", (text("Pêcheur", "Fisher"), "Water", [
         ("gudgeon", "Goujon", "Gudgeon"), ("crayfish", "Écrevisse", "Crayfish"), ("pool-eel", "Anguille des mares", "Pool Eel"),
         ("tench", "Tanche", "Tench"), ("perch", "Perche", "Perch"), ("carp", "Carpe", "Carp"),
         ("pike", "Brochet", "Pike"), ("zander", "Sandre", "Zander"),
-        ("trout", "Truite", "Trout"), ("catfish", "Silure", "Catfish")])),
+        ("trout", "Truite", "Trout"), ("catfish", "Silure", "Catfish"),
+        ("grayling", "Ombre", "Grayling"), ("cavefish", "Poisson des grottes", "Cavefish")])),
     ("farmer", (text("Paysan", "Farmer"), "Plot", [
         ("wild-flax", "Lin sauvage", "Wild Flax"), ("wild-oats", "Avoine folle", "Wild Oats"), ("pool-hemp", "Chanvre des mares", "Pool Hemp"),
         ("rye", "Seigle", "Rye"), ("shore-sedge", "Laîche des rives", "Shore Sedge"), ("reed-rice", "Riz des joncs", "Reed Rice"),
         ("clairval-wheat", "Blé de Clairval", "Clairval Wheat"), ("buckwheat", "Sarrasin", "Buckwheat"),
-        ("spelt", "Épeautre", "Spelt"), ("sorghum", "Sorgho", "Sorghum")])),
+        ("spelt", "Épeautre", "Spelt"), ("sorghum", "Sorgho", "Sorghum"),
+        ("barley", "Orge", "Barley"), ("millet", "Millet", "Millet")])),
     ("herbalist", (text("Herboriste", "Herbalist"), "Herb", [
         ("nettle", "Ortie", "Nettle"), ("wood-mint", "Menthe des bois", "Wood Mint"), ("glowmoss", "Mousse-lumière", "Glowmoss"),
         ("clubmoss", "Pied-de-loup", "Clubmoss"), ("water-lily", "Nénuphar", "Water Lily"), ("horsetail", "Prêle", "Horsetail"),
         ("hive-flower", "Fleur de ruche", "Hive Flower"), ("lavender", "Lavande", "Lavender"),
-        ("sage", "Sauge", "Sage"), ("mandrake", "Mandragore", "Mandrake")])),
+        ("sage", "Sauge", "Sage"), ("mandrake", "Mandragore", "Mandrake"),
+        ("arnica", "Arnica", "Arnica"), ("gentian", "Gentiane", "Gentian")])),
 ])
 
 

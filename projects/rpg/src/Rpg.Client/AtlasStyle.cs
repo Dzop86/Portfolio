@@ -12,18 +12,20 @@ public static class AtlasStyle
     /// <summary>The zones' names (sprint 168): parchment, edged in the ground's black (--osmose-ground).</summary>
     public const string Parchment = "#f0e6cc", Ink = "#1b1b1b";
 
-    /// <summary>A zone's biome: the woods', the mouldy woods', the lake's, the fields', the ancestors' forest, or a town's paving.</summary>
+    /// <summary>A zone's biome: the woods', the mouldy woods', the lake's, the fields', the ancestors' forest, the mines' stone dust, or a town's paving.</summary>
     public static string Biome(string zone) => zone switch
     {
         "mouldy" => "#8f9862",
         "lake" => "#72bd7c",
         "fields" => "#c4c76a",
         "ancestors" => "#4f7f48",
+        // The Underroot Mines (sprint 224): stone dust.
+        "underroot" => "#8c8068",
         "clairval" or "four-ways" => "#d9c39a",
         _ => "#6fae5a",
     };
 
     /// <summary>Every colour of the atlas, for the test that finds each one in <c>tokens.css</c>.</summary>
     public static IReadOnlyList<string> All { get; } =
-        [Sea, SeaDeep, Shore, Coast, Tree, Road, Parchment, Ink, .. new[] { "woods", "mouldy", "lake", "fields", "ancestors", "clairval" }.Select(Biome)];
+        [Sea, SeaDeep, Shore, Coast, Tree, Road, Parchment, Ink, .. new[] { "woods", "mouldy", "lake", "fields", "ancestors", "underroot", "clairval" }.Select(Biome)];
 }

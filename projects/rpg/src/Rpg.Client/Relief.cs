@@ -76,6 +76,8 @@ public sealed class Relief
         "woods" => 1.7f,
         "mouldy" => 1.3f,
         "ancestors" => 2.2f,
+        // The Underroot Mines (sprint 224): the steepest ground, spoil heaps and crags.
+        "underroot" => 2.6f,
         _ => 0,
     };
 

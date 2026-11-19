@@ -1,0 +1,1009 @@
+{
+  "id": "underroot-2-0",
+  "zone": "underroot",
+  "name": {
+    "fr": "Mines de Sous-Racine",
+    "en": "Underroot Mines"
+  },
+  "level": 46,
+  "mapAt": {
+    "x": 6,
+    "y": 6
+  },
+  "rows": [
+    "RRRRRRTRRBRRRRRRRTTRTBR...TRRRRRRRRRRRRRRRBRTRRR",
+    "RRRTTRTRBTRRRR...RTRRR.....RTRRRRRBRRTRRRRRRRR.T",
+    "T.R.....RRTR.......RRRR.....TRRRRRRRRR......T...",
+    ".....R....C........R..............R.T.L.........",
+    "....RRR.........................................",
+    "....RR..........................................",
+    "............RR...RRR............................",
+    "...L.......R.....RR........................RR...",
+    "...........L....L...R.................R.........",
+    "...................RR.....T.....L....RRR........",
+    "..........R.......RR......T...........RRRR......",
+    "......R.R.R.......RR....................RR......",
+    "...RR..R.C...RRR.................C.......R......",
+    "................................................",
+    "..........................TT....C...............",
+    "..........................T.R....T...C..........",
+    "...RR.....R...T...R..C.....RR.....T......L..T...",
+    "....R.....R....T.R........R.....................",
+    "..........RR....RR..............................",
+    "...........R.........RR.........................",
+    "................................................",
+    "...R.T..........................................",
+    ".....RT....L...............C..RRRR....R.R.......",
+    "......R.............R.......R..R.R..R.RRRR......",
+    "R.T..RRRR......T...RRRR...RR..RR.R.R..RR....RR..",
+    "RTB..RR.......T...R.......RR.R..RRR.RRT...RRR...",
+    "R.R.RR........T.RRR........TT.RR..R..T...T......",
+    ".....R.T.........R........RT.RRR.RRR....T.......",
+    "......T........................R.......T........",
+    ".........TTRR................................L..",
+    "R.........RR................R..........RRRR....T",
+    "RT.......RRRR............RTRRT........RBRTRT..RR"
+  ],
+  "spawn": {
+    "x": 24,
+    "y": 16
+  },
+  "npcs": [],
+  "exits": [],
+  "links": [
+    {
+      "at": {
+        "x": 47,
+        "y": 2
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 2
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 3
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 3
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 4
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 4
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 5
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 5
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 6
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 6
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 7
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 7
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 8
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 8
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 16
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 17
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 17
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 18
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 19
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 20
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 20
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 21
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 21
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 22
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 22
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 23
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 23
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 5
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 5
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 6
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 6
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 7
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 7
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 8
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 8
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 9
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 9
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 10
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 10
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 11
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 11
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 12
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 12
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 13
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 14
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 15
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 16
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 16
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 17
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 17
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 18
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 18
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 19
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 19
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 20
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 20
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 21
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 21
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 22
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 22
+      }
+    },
+    {
+      "at": {
+        "x": 3,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 3,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 4,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 4,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 5,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 5,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 6,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 7,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 7,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 8,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 8,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 16,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 16,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 17,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 17,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 18,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 19,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 19,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 20,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 20,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 21,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 21,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 22,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 22,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 30,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 30,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 31,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 31,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 32,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 32,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 33,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 33,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 34,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 34,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 35,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 35,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 36,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 36,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 37,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 37,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 0
+      },
+      "to": "ancestors-2-4",
+      "arrival": {
+        "x": 23,
+        "y": 30
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 0
+      },
+      "to": "ancestors-2-4",
+      "arrival": {
+        "x": 24,
+        "y": 30
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 0
+      },
+      "to": "ancestors-2-4",
+      "arrival": {
+        "x": 25,
+        "y": 30
+      },
+      "name": {
+        "fr": "Forêt des Aïeux",
+        "en": "Forest of the Ancestors"
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 3
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 3
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 4
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 4
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 23
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 23
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 27
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 27
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 28
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 28
+      }
+    },
+    {
+      "at": {
+        "x": 0,
+        "y": 29
+      },
+      "to": "underroot-1-0",
+      "arrival": {
+        "x": 46,
+        "y": 29
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 9
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 9
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 10
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 10
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 11
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 11
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 12
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 12
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 13
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 13
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 14
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 14
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 15
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 15
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 24
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 24
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 25
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 25
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 26
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 26
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 27
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 27
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 28
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 28
+      }
+    },
+    {
+      "at": {
+        "x": 47,
+        "y": 29
+      },
+      "to": "underroot-3-0",
+      "arrival": {
+        "x": 1,
+        "y": 29
+      }
+    },
+    {
+      "at": {
+        "x": 2,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 2,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 13,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 13,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 14,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 14,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 15,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 15,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 44,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 44,
+        "y": 1
+      }
+    },
+    {
+      "at": {
+        "x": 45,
+        "y": 31
+      },
+      "to": "underroot-2-1",
+      "arrival": {
+        "x": 45,
+        "y": 1
+      }
+    }
+  ],
+  "props": [
+    {
+      "id": "waystone-underroot",
+      "at": {
+        "x": 23,
+        "y": 15
+      },
+      "look": "waystone",
+      "name": {
+        "fr": "Pierre de passage",
+        "en": "Waystone"
+      },
+      "text": {
+        "fr": "Une pierre polie par les mains des voyageurs. Qui l'a touchée une fois peut y revenir d'une autre pierre, contre quelques Éclats.",
+        "en": "A stone worn smooth by travellers' hands. Whoever has touched it once can come back to it from another stone, for a few Éclats."
+      }
+    }
+  ]
+}
