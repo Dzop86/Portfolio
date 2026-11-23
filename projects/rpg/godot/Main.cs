@@ -434,7 +434,9 @@ public partial class Main : Node3D
             (_sharedSync, _sharedOver) = (null, null);
             GetTree().ReloadCurrentScene();
         };
-        _seen = fight.Events.Count;
+        // A fight joined under way (an ally's) starts from where it is; a new one shows its opening (sprint 225): the first
+        // fighter's passives of the start of its turn (a rockdelver's Dogged) fired in the fight's constructor, before any view.
+        _seen = fight.Events.Count(e => e is TurnStarted) <= 1 ? 0 : fight.Events.Count;
         RefreshViews();
     }
 
@@ -1036,6 +1038,13 @@ public partial class Main : Node3D
                 // A passive's name floats in the neutral colour (sprint 90).
                 case PassiveTriggered p:
                     last[p.Fighter] = new Color(ElementStyle.Colour(Element.Neutral));
+                    break;
+                // A reaction's name in pistachio (sprint 137), blood paid as a neutral hit (sprint 206), as Animate shows them (sprint 225).
+                case ReactionTriggered r:
+                    last[r.Fighter] = new Color("bef374");
+                    break;
+                case HpPaid h:
+                    last[h.Fighter] = new Color(ElementStyle.Colour(Element.Neutral));
                     break;
             }
         }
