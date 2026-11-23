@@ -35,6 +35,8 @@ ICONS = {
     "antler-circlet": "lorc/crown-of-thorns", "hind-cape": "delapouite/cape", "stonehoof-boots": "delapouite/metal-boot", "elder-antler-staff": "lorc/wizard-staff",
     # The mossy keepers' set (sprint 133).
     "moss-ring": "delapouite/ring", "cobble-belt": "delapouite/belt-armor", "slab-shield": "delapouite/viking-shield", "menhir-mace": "delapouite/wood-club",
+    # The rockdelvers' set (sprint 225).
+    "gallery-boots": "lorc/leather-boot", "lantern-helmet": "delapouite/mining-helmet", "prop-pauldrons": "skoll/pauldrons", "listener-pick": "delapouite/war-pick",
     # The craftsmen's pieces (sprint 109): the smith's and the tailor's, a drawing already there for each slot.
     "copper-billhook": "lorc/plain-dagger", "hazel-roundshield": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
     "yew-targe": "delapouite/viking-shield", "clay-quenched-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
@@ -72,6 +74,8 @@ ICONS = {
     "stone-antler": "lorc/stag-head", "stag-velvet": "delapouite/animal-hide",
     # The mossy keepers' (sprint 133).
     "mossy-cobble": "lorc/stone-block", "keeper-moss": "lorc/ground-sprout",
+    # The rockdelvers' (sprint 225).
+    "fuse-cord": "delapouite/rope-coil", "lode-chip": "lorc/stone-crafting",
     # The gathered resources (sprint 99): wood, ore, fish, crops, herbs.
     "oak-log": "delapouite/log", "hazel-log": "delapouite/half-log", "blackwood-log": "delapouite/wood-pile", "yew-log": "delapouite/log",
     "willow-log": "delapouite/half-log", "alder-log": "delapouite/wood-pile", "ash-log": "delapouite/axe-in-log", "linden-log": "delapouite/log",

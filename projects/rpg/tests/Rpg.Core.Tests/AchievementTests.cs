@@ -122,9 +122,10 @@ public class AchievementTests
         Assert.Equal(new AchievementReward(225, 112), Achievements.Reward(Of("dungeon-mother-tree-roots")));
         Assert.Equal(new AchievementReward(562, 281), Achievements.Reward(Of("ancestors-all")));
         Assert.Equal(new AchievementReward(675, 337), Achievements.Reward(Of("contracts-200")));
-        Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 45 && Achievements.Reward(a).Xp <= 675, a.Id));
-        // Sprint 175: ten hunters of 20 points; sprint 186: the paths' quest, 5.
-        Assert.Equal(1315, Achievements.All.Sum(a => a.Points));
+        // Up to the forest (level 45), never above the largest; since sprint 225 the Mines' up to 60, the same formula at their level.
+        Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 60 && (a.Level > 45 || Achievements.Reward(a).Xp <= 675), a.Id));
+        // Sprint 175: ten hunters of 20 points; sprint 186: the paths' quest, 5; sprint 225: the rockdelvers' two, 35.
+        Assert.Equal(1350, Achievements.All.Sum(a => a.Points));
     }
 
     [Fact]

@@ -71,7 +71,7 @@ public class BestiaryQueryTests
     {
         IReadOnlyList<BestiaryFamily> page = BestiaryPage.Families(Data, Bestiary.Full(Data), new Texts("fr"));
         Assert.Equal(page.SelectMany(f => f.Monsters).Select(m => m.Id), Ids(Find(new BestiaryFilter())));
-        Assert.Equal(["woods", "mouldy", "lake", "fields", "ancestors"], BestiaryQuery.Zones(Data, new Texts("fr")).Select(z => z.Id));
+        Assert.Equal(["woods", "mouldy", "lake", "fields", "ancestors", "underroot"], BestiaryQuery.Zones(Data, new Texts("fr")).Select(z => z.Id));
         Assert.Equal("Lac des Joncs", BestiaryQuery.Zones(Data, new Texts("fr"))[2].Name);
     }
 

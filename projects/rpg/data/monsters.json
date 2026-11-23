@@ -2752,5 +2752,254 @@
       "fr": "Les Gardiens moussus sont de petites pierres que la mousse tient ensemble. Ils tracent des cercles et s'y tiennent, et ils chassent les mineurs depuis que le passage a été ouvert. Sous la mousse du plus vieux bat un cœur gravé que Bérold seul sait lire.",
       "en": "The Mossy Keepers are small stones held together by moss. They trace rings and stand in them, and they have driven off the miners ever since the passage was opened. Beneath the oldest one's moss beats a carved heart only Bérold can read."
     }
+  },
+  {
+    "id": "delver",
+    "name": {
+      "fr": "Fouille-rocs",
+      "en": "Rockdelvers"
+    },
+    "zone": "underroot",
+    "battle": "underroot-gallery",
+    "bossMap": "underroot-0-4",
+    "monsters": [
+      {
+        "id": "shotfirer",
+        "role": "Melee",
+        "name": {
+          "fr": "Boutefeu",
+          "en": "Shotfirer"
+        },
+        "look": "delver-melee",
+        "level": 47,
+        "hp": 116,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 152,
+        "spells": [
+          "pick-blow",
+          "powder-charge"
+        ],
+        "resistances": {
+          "Fire": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "dogged"
+        ],
+        "loot": [
+          {
+            "item": "fuse-cord",
+            "percent": 40
+          },
+          {
+            "item": "lode-chip",
+            "percent": 40
+          },
+          {
+            "item": "cobalt-ore",
+            "percent": 10
+          },
+          {
+            "item": "lantern-helmet",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il ne regarde jamais la mèche : il écoute la roche.",
+          "en": "It never watches the fuse: it listens to the rock."
+        }
+      },
+      {
+        "id": "cinder-flinger",
+        "role": "Ranged",
+        "name": {
+          "fr": "Jeteur d'escarbilles",
+          "en": "Cinder Flinger"
+        },
+        "look": "delver-ranged",
+        "level": 46,
+        "hp": 99,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 182,
+        "spells": [
+          "cinder-toss",
+          "cinder-spray"
+        ],
+        "resistances": {
+          "Fire": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "dogged"
+        ],
+        "loot": [
+          {
+            "item": "lode-chip",
+            "percent": 60
+          },
+          {
+            "item": "gallery-boots",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il garde dans un sac les braises de sa lanterne, et vous les lance encore chaudes.",
+          "en": "It keeps its lantern's embers in a sack and throws them at you still hot."
+        }
+      },
+      {
+        "id": "timberman",
+        "role": "Tank",
+        "name": {
+          "fr": "Étançonneur",
+          "en": "Timberman"
+        },
+        "look": "delver-tank",
+        "level": 49,
+        "hp": 144,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 100,
+        "spells": [
+          "prop-ram",
+          "wedging"
+        ],
+        "resistances": {
+          "Fire": 25,
+          "Water": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "dogged"
+        ],
+        "loot": [
+          {
+            "item": "fuse-cord",
+            "percent": 60
+          },
+          {
+            "item": "cobalt-ore",
+            "percent": 10
+          },
+          {
+            "item": "prop-pauldrons",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il cale tout ce qui bouge, la roche comme vous.",
+          "en": "It wedges anything that moves, the rock and you alike."
+        }
+      },
+      {
+        "id": "lamp-bearer",
+        "role": "Support",
+        "name": {
+          "fr": "Porte-lanterne",
+          "en": "Lantern Bearer"
+        },
+        "look": "delver-support",
+        "level": 48,
+        "hp": 120,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 132,
+        "spells": [
+          "swig",
+          "lamp-swing"
+        ],
+        "resistances": {
+          "Fire": 10,
+          "Earth": -15
+        },
+        "passives": [
+          "dogged"
+        ],
+        "loot": [
+          {
+            "item": "fuse-cord",
+            "percent": 50
+          },
+          {
+            "item": "lode-chip",
+            "percent": 50
+          }
+        ],
+        "lore": {
+          "fr": "Autour de sa lanterne, les autres creusent plus fort.",
+          "en": "Around its lantern, the others dig harder."
+        }
+      },
+      {
+        "id": "stonelistener",
+        "role": "Boss",
+        "name": {
+          "fr": "Écoute-roche",
+          "en": "Stonelistener"
+        },
+        "look": "delver-boss",
+        "level": 60,
+        "hp": 765,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 150,
+        "spells": [
+          "great-pick",
+          "powder-barrel",
+          "lamp-hurl"
+        ],
+        "resistances": {
+          "Fire": 30,
+          "Water": 15,
+          "Air": 15,
+          "Earth": -5
+        },
+        "passives": [
+          "dogged",
+          "ringing-stone"
+        ],
+        "loot": [
+          {
+            "item": "lode-chip",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "fuse-cord",
+            "percent": 100
+          },
+          {
+            "item": "gold-ore",
+            "percent": 100
+          },
+          {
+            "item": "listener-pick",
+            "percent": 30
+          },
+          {
+            "item": "gallery-boots",
+            "percent": 8
+          },
+          {
+            "item": "lantern-helmet",
+            "percent": 8
+          },
+          {
+            "item": "prop-pauldrons",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il colle l'oreille à la paroi et sourit : là-dessous, quelque chose sonne.",
+          "en": "He presses his ear to the wall and smiles: something down there is ringing."
+        }
+      }
+    ],
+    "lore": {
+      "fr": "Les Fouille-rocs creusaient sous l'Arbre bien avant les mineurs d'Ormeval, et ils ne remontent jamais. Petits, trapus, une lanterne au front, ils suivent un son qu'ils étaient seuls à entendre : la roche qui sonne. Quand une paroi leur résiste, ils la font sauter, et tant pis pour qui se trouve à côté, même l'un des leurs.",
+      "en": "The Rockdelvers were digging beneath the Tree long before Ormeval's miners, and they never come back up. Small and stocky, a lantern on the brow, they follow a sound only they used to hear: the ringing of the rock. When a wall won't give, they blow it up, and too bad for whoever is standing by, even one of their own."
+    }
   }
 ]

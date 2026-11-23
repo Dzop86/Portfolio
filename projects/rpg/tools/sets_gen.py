@@ -102,9 +102,16 @@ SETS = O([
                 piece("cobble-belt", "Ceinture de moellons", "Cobble Belt", "Belt", 35, "cobble-keeper", {"earth": 22, "vitality": 22}),
                 piece("slab-shield", "Bouclier de dalle", "Slab Shield", "Shield", 37, "slab-keeper", {"vitality": 26, "earth": 20}),
                 piece("menhir-mace", "Masse du menhir", "Menhir Mace", "OneHanded", 45, "menhir-keeper", {"earth": 34, "vitality": 20})])),
+    # Sprint 225: the Underroot Mines' rockdelvers, four pieces (docs/familles-mines.md §3.6); twice the values worn, the two-handed weapon once.
+    ("delver", (text("Panoplie du fouille-roc", "Rockdelver set"),
+                [({"fire": 20}, 0, 0, 0), ({"fire": 20, "vitality": 20}, 0, 0, 0), ({"fire": 30, "vitality": 30}, 0, 1, 0)],
+                [piece("gallery-boots", "Bottes cloutées", "Hobnailed Boots", "Boots", 46, "cinder-flinger", {"fire": 20, "vitality": 16}, 30),
+                 piece("lantern-helmet", "Casque à lanterne", "Lantern Helmet", "Hat", 47, "shotfirer", {"fire": 30, "vitality": 26}),
+                 piece("prop-pauldrons", "Épaulières d'étai", "Prop Pauldrons", "Shoulders", 49, "timberman", {"vitality": 32, "fire": 26}),
+                 piece("listener-pick", "Pic de l'Écoute-roche", "Stonelistener's Pick", "TwoHanded", 60, "stonelistener", {"fire": 40, "vitality": 28})])),
 ])
-# Clairval's families have five pieces, the forest's four.
-PIECES = {"stag": 4, "golem": 4}
+# Clairval's families have five pieces, the forest's and the Mines' four.
+PIECES = {"stag": 4, "golem": 4, "delver": 4}
 
 
 def inline(v):

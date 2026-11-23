@@ -21,6 +21,8 @@ public class FamilyTests
     // The forest's stags (sprint 132) and keepers (sprint 133), sharing its two maps.
     [InlineData("stag", "skittish", Element.Fire, "ancestors-stones")]
     [InlineData("golem", "cairn", Element.Air, "ancestors-trunks")]
+    // The Mines' rockdelvers (sprint 225), on one map until the rock worms bring the second (sprint 226).
+    [InlineData("delver", "dogged", Element.Earth, null)]
     public void AFamily_SharesItsPassive_IsWeakToOneElement_AndFightsOnTwoMaps(string id, string passive, Element weakness, string? second,
         string? ownPassive = null, string? strongInIt = null, int weak = -15)
     {

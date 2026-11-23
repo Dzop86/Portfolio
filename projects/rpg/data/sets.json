@@ -316,5 +316,35 @@
         }
       }
     ]
+  },
+  {
+    "id": "delver",
+    "name": {
+      "fr": "Panoplie du fouille-roc",
+      "en": "Rockdelver set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "fire": 10
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "fire": 10,
+          "vitality": 10
+        }
+      },
+      {
+        "pieces": 4,
+        "stats": {
+          "fire": 15,
+          "vitality": 15
+        },
+        "mp": 1
+      }
+    ]
   }
 ]

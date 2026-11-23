@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
 /// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
 /// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76); a sylvan stag's tall legs, raised neck
-/// and antlers of mossy stone (sprint 132); a mossy keeper's body of stacked blocks, thick arms and tufts of moss (sprint 133). Each has an "idle" and a "walk"
+/// and antlers of mossy stone (sprint 132); a mossy keeper's body of stacked blocks, thick arms and tufts of moss (sprint 133); a rockdelver's stocky body and lantern helmet, its powder kegs (sprint 225). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z. Since sprint 104, the village's beasts too: a hen,
 /// a horse and a sheep (<see cref="Beast"/>).
 /// </summary>
@@ -21,7 +21,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "golem", "rat"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "golem", "delver", "rat"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -79,6 +79,16 @@ public static class Creatures
         "golem-tank" => Golem(1.3f, new Color("5e5d58"), slab: true),
         "golem-support" => Golem(0.95f, new Color("7f8a72"), mossy: true),
         "golem-boss" => Golem(1.6f, new Color("4a4945"), menhir: true),
+        // The rockdelvers (sprint 225, docs/familles-mines.md §3.7): small and stocky, a helmet with a yellow lantern on the brow;
+        // a pick for the shotfirer, a sack of cinders for the flinger, a prop on the timberman's shoulder, a big lantern held by the bearer.
+        "delver-melee" => Delver(1.0f, new Color("9a6a38"), Tool.Pick),
+        "delver-ranged" => Delver(0.9f, new Color("8a8580"), Tool.Sack),
+        "delver-tank" => Delver(1.3f, new Color("5a4030"), Tool.Prop),
+        "delver-support" => Delver(0.95f, new Color("c49a62"), Tool.Lantern),
+        "delver-boss" => Delver(1.6f, new Color("2e2a26"), Tool.GreatPick, crown: true),
+        // Their powder keg and barrel: a hooped cask with a red fuse, no legs.
+        "delver-keg" => Keg(big: false),
+        "delver-barrel" => Keg(big: true),
         "rat-loft" => Rat(),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
@@ -652,6 +662,67 @@ public static class Creatures
             Block(leg, new Vector3(0.16f, 0.28f, 0.16f), new Vector3(0, -0.14f, 0), dark);
         }
         root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private enum Tool { Pick, Sack, Prop, Lantern, GreatPick }
+
+    private static Node3D Delver(float size, Color coat, Tool tool, bool crown = false)
+    {
+        var root = new Node3D { Name = "Delver" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color skin = new("c8a080"), helmet = new("6a6258"), lamp = new("f2d04a"), haft = new("3d2b1f"), iron = new("8f949a");
+        // A wide trunk, a big head under a helmet, a lantern on the brow, dark eyes.
+        Block(body, new Vector3(0.40f, 0.30f, 0.28f), new Vector3(0, 0.44f, 0), coat);
+        Block(body, new Vector3(0.30f, 0.26f, 0.26f), new Vector3(0, 0.72f, 0.02f), skin);
+        Block(body, new Vector3(0.34f, 0.10f, 0.30f), new Vector3(0, 0.88f, 0.02f), helmet);
+        Block(body, new Vector3(0.08f, 0.08f, 0.04f), new Vector3(0, 0.88f, 0.18f), lamp);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.07f, 0.74f, 0.155f), Colors.Black);
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.07f, 0.74f, 0.155f), Colors.Black);
+        foreach (float x in new[] { -0.25f, 0.25f })
+            Block(body, new Vector3(0.10f, 0.26f, 0.10f), new Vector3(x, 0.42f, 0.04f), coat.Darkened(0.2f));
+        switch (tool)
+        {
+            case Tool.Pick or Tool.GreatPick:
+                float l = tool == Tool.GreatPick ? 0.62f : 0.46f;
+                Block(body, new Vector3(0.04f, l, 0.04f), new Vector3(0.25f, 0.30f + l / 2, 0.12f), haft);
+                Block(body, new Vector3(0.05f, 0.05f, l * 0.6f), new Vector3(0.25f, 0.30f + l, 0.12f), iron);
+                break;
+            case Tool.Sack:
+                Block(body, new Vector3(0.20f, 0.22f, 0.14f), new Vector3(0.28f, 0.28f, -0.04f), new Color("6e2a22"));
+                break;
+            case Tool.Prop:
+                Block(body, new Vector3(0.10f, 0.10f, 0.70f), new Vector3(-0.18f, 0.64f, 0), new Color("7a5a3a"));
+                break;
+            case Tool.Lantern:
+                Block(body, new Vector3(0.14f, 0.18f, 0.14f), new Vector3(0, 0.40f, 0.24f), haft);
+                Block(body, new Vector3(0.10f, 0.12f, 0.10f), new Vector3(0, 0.40f, 0.30f), lamp);
+                break;
+        }
+        if (crown)
+            Crown(body, 0.98f);
+        Legs(model, TwoLegs, 0.11f, 0.29f, coat.Darkened(0.35f));
+        root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static Node3D Keg(bool big)
+    {
+        var root = new Node3D { Name = big ? "Barrel" : "Keg" };
+        float h = big ? 0.6f : 0.4f;
+        var model = new Node3D { Name = "Model" };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color wood = new("8a5a32"), hoop = new("3a2a20");
+        Block(body, new Vector3(h * 0.8f, h, h * 0.8f), new Vector3(0, h / 2, 0), wood);
+        foreach (float y in new[] { h * 0.25f, h * 0.75f })
+            Block(body, new Vector3(h * 0.84f, 0.04f, h * 0.84f), new Vector3(0, y, 0), hoop);
+        Block(body, new Vector3(0.03f, 0.12f, 0.03f), new Vector3(0, h + 0.06f, 0), new Color("d63a2f"));
+        root.AddChild(Animations([]));
         return root;
     }
 

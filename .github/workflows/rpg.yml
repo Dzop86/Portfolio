@@ -183,6 +183,14 @@ jobs:
             grep -q "SELFTEST OK seed 9: .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/$group.txt"
             grep -q "Glyphs checked [1-9][0-9]* times." "$RUNNER_TEMP/$group.txt"
           done
+      # The Underroot Mines' chief (sprint 225): the stonelistener lays its powder barrel and, below half, two kegs; models without legs.
+      - name: The Mines' kegs
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --selftest --scenario "group:underroot-0-4.0" --seed 9 --report "$RUNNER_TEMP/underroot.txt"
+          cat "$RUNNER_TEMP/underroot.txt"
+          grep -q "SELFTEST OK seed 9: .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/underroot.txt"
       # A dungeon's first room (sprint 80): weakened monsters, then "Next room" and "Leave the dungeon".
       - name: A dungeon's room
         shell: bash

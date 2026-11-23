@@ -15,7 +15,7 @@
 import json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ui_art import layers, mix  # noqa: E402
+from ui_art import layers, mix, write_missing_imports  # noqa: E402
 
 here = os.path.dirname(os.path.abspath(__file__))
 root = os.path.join(here, "..")
@@ -53,8 +53,8 @@ MATTER = {
     "arnica": "#f2a33a", "gentian": "#5a6fd0",
     # What the monsters leave, and what is bought.
     "feather": "#f0e6cc", "leather": "#a0522d", "orc-fang": "#e8dcc0", "bee-wing": "#d8eef8", "boar-bristle": "#7a5c48",
-    "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "frog-leg": "#7fae5a",
-    "honeycomb": "#f2b84a", "keeper-moss": "#6f9a50", "mole-fur": "#6a5a58", "mossy-cobble": "#8a9a7a", "mushroom-cap": "#c86a4a",
+    "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "frog-leg": "#7fae5a", "fuse-cord": "#7a5236",
+    "honeycomb": "#f2b84a", "keeper-moss": "#6f9a50", "lode-chip": "#a8a070", "mole-fur": "#6a5a58", "mossy-cobble": "#8a9a7a", "mushroom-cap": "#c86a4a",
     "old-bone": "#e0d6c0", "rotten-cloth": "#8a8a6a", "slime": "#7fd0b0", "spore-dust": "#c8b8a8", "stag-velvet": "#a07850",
     "stone-antler": "#b0a898", "wolf-fang": "#f0e8d8", "wolf-pelt": "#8f8f98",
     # The pieces made by no one, nor of a set.
@@ -64,7 +64,8 @@ MATTER = {
 }
 # A set's pieces: its family's colour.
 SET = {"poacher": "#6f8f5a", "wolf": "#9aa3ad", "boar": "#8a6a52", "frog": "#5fa88a", "bee": "#f2c24a", "crab": "#d0603a",
-       "mole": "#7a6a60", "mushroom": "#c8705a", "zombie": "#8fa08a", "stag": "#a8743f", "golem": "#8a9a8a"}
+       "mole": "#7a6a60", "mushroom": "#c8705a", "zombie": "#8fa08a", "stag": "#a8743f", "golem": "#8a9a8a",
+       "delver": "#c8963a"}
 BREAD, HEAL, PARCHMENT = "#f2cc94", "#ff7eb6", "#f0e6cc"
 
 # An empty slot: its kind's drawing.
@@ -211,7 +212,9 @@ def main():
         open(os.path.join(out, f"slot-{slot.lower()}.svg"), "w").write(empty(drawing(name)))
     json.dump(colours, open(os.path.join(drawings, "palette.json"), "w"), indent=1, ensure_ascii=False, sort_keys=True)
     open(os.path.join(drawings, "palette.json"), "a").write("\n")
-    print(f"{len(items)} items, {2 * len(items) + len(SLOTS)} files")
+    # A new tile's .import, from a neighbour's (sprint 225: the 20 of sprint 224 were set by hand), so that no Godot is needed.
+    written = write_missing_imports(out, "res://assets/icons/items/tiles")
+    print(f"{len(items)} items, {2 * len(items) + len(SLOTS)} files, {written} imports written")
 
 
 if __name__ == "__main__":

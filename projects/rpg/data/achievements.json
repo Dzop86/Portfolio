@@ -452,6 +452,24 @@
     "target": "golem"
   },
   {
+    "id": "family-delver-100",
+    "category": "Hunt",
+    "group": "families",
+    "name": {
+      "fr": "La roche qui saute",
+      "en": "Blasting Rock"
+    },
+    "text": {
+      "fr": "Vainquez 100 Fouille-rocs.",
+      "en": "Defeat 100 Rockdelvers."
+    },
+    "points": 15,
+    "level": 48,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "delver"
+  },
+  {
     "id": "hunter-boar",
     "category": "Hunt",
     "group": "hunters",
@@ -630,6 +648,24 @@
     "goal": "FamilyMastered",
     "count": 5,
     "target": "golem"
+  },
+  {
+    "id": "hunter-delver",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de fouille-rocs",
+      "en": "Rockdelver Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 fouille-rocs dans votre bestiaire.",
+      "en": "Master all 5 rockdelvers in your bestiary."
+    },
+    "points": 20,
+    "level": 48,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "delver"
   },
   {
     "id": "dungeon-boar-wallow",

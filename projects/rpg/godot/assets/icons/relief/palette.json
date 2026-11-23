@@ -265,6 +265,13 @@
     "dark": "#656158",
     "outline": "#242320"
   },
+  "family-delver": {
+    "shape": "lorc/mining",
+    "main": "#c8963a",
+    "light": "#e1c593",
+    "dark": "#6e5220",
+    "outline": "#281e0c"
+  },
   "element-earth": {
     "shape": "lorc/stone-sphere",
     "main": "#b07a45",

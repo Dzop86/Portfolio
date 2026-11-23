@@ -502,6 +502,19 @@ beasts = [
  S("menhir-crush","Écrasement du menhir","Menhir Crush",4,1,1,38,50,1,"Earth",1,ranks=False),
  S("oath-ring","Cercle du serment","Oath Ring",3,0,0,0,0,1,"Neutral",1,area=("Circle",2),effects=[glyph("Allies",2,stat="Resistance",v=20,st=2)],ranks=False,cd=2),
  S("seismic-step","Pas sismique","Seismic Step",4,1,2,24,30,1,"Earth",1,area=("Cross",1),effects=[push(1)],ranks=False,cd=1),
+ # The Underroot Mines' rockdelvers (sprint 225, docs/familles-mines.md §3): backing off in time, a powder charge that blows a turn later.
+ # The shotfirer's pick costs 4 AP, once a turn: with 6 AP the AI strikes and lays its charge (§0.1, point 2).
+ S("pick-blow","Coup de pic","Pick Strike",4,1,1,32,42,1,"Earth",1,ranks=False),
+ S("powder-charge","Tonnelet de poudre","Powder Keg",2,1,1,0,0,1,"Neutral",1,effects=[summon("powder-keg")],ranks=False,cd=1),
+ S("cinder-toss","Escarbilles","Cinders",3,2,6,21,27,2,"Fire",1,ranks=False),
+ S("cinder-spray","Gerbe d'escarbilles","Cinder Spray",3,2,5,12,16,1,"Fire",1,area=("Circle",1),ranks=False,cd=2),
+ S("prop-ram","Coup d'étai","Prop Ram",3,1,1,24,32,1,"Earth",1,ranks=False),
+ S("wedging","Calage","Wedging",3,1,2,14,18,1,"Earth",1,effects=[status("Enemies","Mp",-1,1)],ranks=False),
+ S("swig","Lampée","Swig",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",21,27),status("Allies","Damage",15,1)],ranks=False,cd=1),
+ S("lamp-swing","Coup de lanterne","Lantern Swing",3,1,2,24,32,1,"Fire",1,ranks=False),
+ S("great-pick","Grand pic","Great Pick",4,1,1,48,62,1,"Earth",1,ranks=False),
+ S("powder-barrel","Baril de poudre","Powder Barrel",3,1,1,0,0,1,"Neutral",1,effects=[summon("powder-barrel")],ranks=False,cd=1),
+ S("lamp-hurl","Lanterne lancée","Hurled Lantern",3,2,5,26,32,1,"Fire",1,ranks=False,cd=2),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
@@ -987,6 +1000,9 @@ summons += [
  O(list(young("spirit","Esprit","Spirit","wolf-melee",65,20,6,3,75,["spirit-touch"]).items()) + [("lasts", 2), ("spirit", True)]),
  # The menhir keeper's risen stones (sprint 133, docs/familles-foret.md §4.4).
  young("pebbling","Caillou éveillé","Pebbling","golem-melee",70,40,6,3,100,["cobble-punch"]),
+ # The rockdelvers' charges (sprint 225, docs/familles-mines.md §3.4): no spell, no point; the fuse burns a hit point a turn, they blow as they fall.
+ young("powder-keg","Tonnelet de poudre","Powder Keg","delver-keg",100,2,0,0,0,[],["short-fuse","keg-blast"]),
+ young("powder-barrel","Baril de poudre","Powder Barrel","delver-barrel",100,2,0,0,0,[],["short-fuse","barrel-blast"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -1052,6 +1068,18 @@ passives = [
  P("carved-heart","Cœur gravé","Carved Heart","Sous la moitié de ses PV, sa mousse tombe et laisse voir un cœur gravé ; deux pierres se lèvent à ses pieds. +20 % de dégâts et −15 % de résistances jusqu'à la fin du combat.",
    "Below half its HP, its moss falls away to show a carved heart, and two stones rise at its feet. +20% damage and −15% resistances until the end of the fight.","LowHp",
    [status("Caster","Damage",20,10),status("Caster","Resistance",-15,10),summon("pebbling",count=2)],percent=50),
+ # The rockdelvers (docs/familles-mines.md §3.3-3.4): dogged when they stood still, the stonelistener's ringing rock, the charges' fuse and blast.
+ P("dogged","Acharné","Dogged","S'il n'a pas marché à son tour précédent, ou s'il n'a pas encore joué : +20 % de dégâts ce tour-ci.","If it did not walk on its last turn, or has not played yet: +20% damage this turn.",
+   "TurnStart",[status("Caster","Damage",20,1)],still=True),
+ P("ringing-stone","La roche qui sonne","The Ringing Rock","Sous la moitié de ses PV, il colle l'oreille à la paroi, et la roche sonne. Il allume toutes ses mèches : deux tonnelets à ses pieds, +2 PA et −10 % de résistances jusqu'à la fin du combat.",
+   "Below half its HP, it presses its ear to the wall, and the rock rings. It lights every fuse it carries: two kegs at its feet, +2 AP and −10% resistances until the end of the fight.",
+   "LowHp",[status("Caster","Ap",2,10),status("Caster","Resistance",-10,10),summon("powder-keg",count=2)],percent=50),
+ P("short-fuse","Mèche courte","Short Fuse","La mèche brûle : perd 1 PV au début de chacun de ses tours (il en a 2).","The fuse is burning: loses 1 HP at the start of each of its turns (it has 2).",
+   "TurnStart",damageMin=1,damageMax=1,element="Neutral"),
+ P("keg-blast","Coup de mine","Blast","À sa mort, saute : 20 à 26 dégâts Feu à 2 cases, sur tout le monde, Fouille-rocs compris.","At its death, it blows up: 20 to 26 Fire damage 2 cells around, to everyone, Rockdelvers included.",
+   "Death",area=("Circle",2),damageMin=20,damageMax=26,element="Fire"),
+ P("barrel-blast","Grand coup de mine","Great Blast","À sa mort, saute : 34 à 42 dégâts Feu à 2 cases, sur tout le monde, Fouille-rocs compris.","At its death, it blows up: 34 to 42 Fire damage 2 cells around, to everyone, Rockdelvers included.",
+   "Death",area=("Circle",2),damageMin=34,damageMax=42,element="Fire"),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
  # The Disjoint (design-familles.md §4.9, sprint 114): four beasts forced into one, wearing itself out, bursting as it falls.
  P("unstable","Instable","Unstable","Il s'use tout seul : perd 15 PV au début de chacun de ses tours.","It wears itself out: loses 15 HP at the start of each of its turns.",

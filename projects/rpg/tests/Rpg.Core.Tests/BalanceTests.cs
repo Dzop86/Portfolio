@@ -93,6 +93,9 @@ public class BalanceTests
     /// <summary>The battle maps where the hordes come in single file round the water (T59, T60).</summary>
     private static readonly string[] SingleFile = ["mouldy-pools", "lakeshore-pontoon"];
 
+    /// <summary>Bare, two quick pieces of the zone, the craftsmen's pieces (sprints 96 and 109).</summary>
+    private static readonly string[] Kits = ["none", "zone", "craft"];
+
     /// <summary>
     /// The hordes of clod moles on the Meadow (three or more): frail against any full equipment, accepted as they are by
     /// Charles (T64), left out of the "craft" kit's ceiling (T77).
@@ -140,6 +143,36 @@ public class BalanceTests
                 Assert.True(equipped.Average() <= 2, $"{id}: {equipped.Average():0.0} of 10 against the hordes of {zone}, kit {kit}");
             }
         }
+    }
+
+    /// <summary>
+    /// The Mines' families (sprint 225, docs/familles-mines.md §3.9), the first measured for the ten classes rather than three: at level 46,
+    /// bare, each class wins the groups of one to three 27 times in 30 on average, at most two of them under 18; the hordes of six and more,
+    /// at most 3 in 10 bare, 2 with the "zone" and "craft" kits. The chief, alone, at most 1 in 10. Before sprint 226, the rockdelvers only.
+    /// </summary>
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
+    [InlineData("archer")]
+    [InlineData("warrior")]
+    [InlineData("mage")]
+    [InlineData("priest")]
+    [InlineData("rogue")]
+    [InlineData("berserker")]
+    [InlineData("paladin")]
+    [InlineData("summoner")]
+    [InlineData("necromancer")]
+    [InlineData("druid")]
+    public void TheMines_SmallGroups_AreWonByEachOfTheTenClasses_TheHordesAreNot(string id)
+    {
+        const int level = 46;
+        MonsterGroup[] here = [.. Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == "underroot" && g.Fight is null)];
+        bool Chief(MonsterGroup g) => g.Monsters.Any(m => Real.Monsters[m].Role == MonsterRole.Boss);
+        int[] small = [.. here.Where(g => g.Monsters.Count <= 3 && !Chief(g)).AsParallel().Select(g => Wins(g.Id, id, level, 30))];
+        double[] large = [.. Kits.Select(kit => here.Where(g => g.Monsters.Count >= 6).AsParallel().Select(g => Wins(g.Id, id, level, 10, kit)).Average())];
+        int chief = here.Where(Chief).Select(g => Wins(g.Id, id, level, 10)).Max();
+        // Every number in the message, to read the ten classes in one run.
+        string seen = string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"{id}: small {small.Average():0.0} of 30 ({small.Count(w => w < 18)} under 18, {small.Length} groups), hordes {string.Join(" / ", large.Select(l => l.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10 (none, zone, craft), chief {chief} of 10");
+        Assert.True(small.Average() >= 27 && small.Count(w => w < 18) <= 2 && large[0] <= 3 && large[1] <= 2 && large[2] <= 2 && chief <= 1, seen);
     }
 
     [Fact]

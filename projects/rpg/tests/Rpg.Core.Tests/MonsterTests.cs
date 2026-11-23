@@ -123,7 +123,8 @@ public class MonsterTests
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(string.Join('\n', lines))))[..16];
         // The first chapter's groups (the Forest of the Ancestors' came with sprint 132): the same as at sprint 123, then
         // drawn again on the maps of sprint 180 (natural borders: other cells reachable, T140).
-        MonsterGroup[] first = [.. roaming.Where(g => Real.Towns[g.Map].Zone != "ancestors")];
+        // The Mines' (sprint 225) neither.
+        MonsterGroup[] first = [.. roaming.Where(g => Real.Towns[g.Map].Zone is not ("ancestors" or "underroot"))];
         Assert.Equal(OthersFingerprint, Hash(first.Where(g => !Chief(g)).Select(g => $"{g.Id} {g.Home} {string.Join(",", g.Monsters)}")));
         Assert.Equal(ChiefsFingerprint, Hash(first.Where(Chief).Select(g => $"{g.Id} {g.Home} {g.Monsters.Count}")));
     }

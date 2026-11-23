@@ -90,11 +90,13 @@ public class InitiativeTests
     [Fact]
     public void EveryFamily_HasItsSet_TenPiecesOfFortyCarryingInitiative()
     {
-        // The first chapter's eight families; the forest's sets have four pieces (sprint 132), the stags' cape and boots with initiative.
-        Item[] pieces = [.. Real.Items.Values.Where(i => i.Set is string s && Real.Families.TryGetValue(s, out MonsterFamily? f) && f.Zone != "ancestors")];
+        // The first chapter's eight families; the forest's sets have four pieces (sprint 132), the stags' cape and boots with initiative,
+        // and so do the Mines' (sprint 225), the rockdelvers' boots with initiative.
+        Item[] pieces = [.. Real.Items.Values.Where(i => i.Set is string s && Real.Families.TryGetValue(s, out MonsterFamily? f) && f.Zone is not ("ancestors" or "underroot"))];
         Assert.Equal(40, pieces.Length);
         Assert.Equal(10, pieces.Count(p => p.Initiative > 0));
         Assert.Equal(["hind-cape", "stonehoof-boots"], Real.Items.Values.Where(i => i.Set == "stag" && i.Initiative > 0).Select(i => i.Id).Order());
+        Assert.Equal(["gallery-boots"], Real.Items.Values.Where(i => i.Set == "delver" && i.Initiative > 0).Select(i => i.Id));
     }
 
     [Fact]

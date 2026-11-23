@@ -697,6 +697,117 @@
     "percent": 50
   },
   {
+    "id": "dogged",
+    "name": {
+      "fr": "Acharné",
+      "en": "Dogged"
+    },
+    "description": {
+      "fr": "S'il n'a pas marché à son tour précédent, ou s'il n'a pas encore joué : +20 % de dégâts ce tour-ci.",
+      "en": "If it did not walk on its last turn, or has not played yet: +20% damage this turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 20,
+        "turns": 1
+      }
+    ],
+    "still": true
+  },
+  {
+    "id": "ringing-stone",
+    "name": {
+      "fr": "La roche qui sonne",
+      "en": "The Ringing Rock"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, il colle l'oreille à la paroi, et la roche sonne. Il allume toutes ses mèches : deux tonnelets à ses pieds, +2 PA et −10 % de résistances jusqu'à la fin du combat.",
+      "en": "Below half its HP, it presses its ear to the wall, and the rock rings. It lights every fuse it carries: two kegs at its feet, +2 AP and −10% resistances until the end of the fight."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Ap",
+        "value": 2,
+        "turns": 10
+      },
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": -10,
+        "turns": 10
+      },
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "powder-keg",
+        "max": 1,
+        "count": 2
+      }
+    ],
+    "percent": 50
+  },
+  {
+    "id": "short-fuse",
+    "name": {
+      "fr": "Mèche courte",
+      "en": "Short Fuse"
+    },
+    "description": {
+      "fr": "La mèche brûle : perd 1 PV au début de chacun de ses tours (il en a 2).",
+      "en": "The fuse is burning: loses 1 HP at the start of each of its turns (it has 2)."
+    },
+    "trigger": "TurnStart",
+    "damageMin": 1,
+    "damageMax": 1,
+    "element": "Neutral"
+  },
+  {
+    "id": "keg-blast",
+    "name": {
+      "fr": "Coup de mine",
+      "en": "Blast"
+    },
+    "description": {
+      "fr": "À sa mort, saute : 20 à 26 dégâts Feu à 2 cases, sur tout le monde, Fouille-rocs compris.",
+      "en": "At its death, it blows up: 20 to 26 Fire damage 2 cells around, to everyone, Rockdelvers included."
+    },
+    "trigger": "Death",
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "damageMin": 20,
+    "damageMax": 26,
+    "element": "Fire"
+  },
+  {
+    "id": "barrel-blast",
+    "name": {
+      "fr": "Grand coup de mine",
+      "en": "Great Blast"
+    },
+    "description": {
+      "fr": "À sa mort, saute : 34 à 42 dégâts Feu à 2 cases, sur tout le monde, Fouille-rocs compris.",
+      "en": "At its death, it blows up: 34 to 42 Fire damage 2 cells around, to everyone, Rockdelvers included."
+    },
+    "trigger": "Death",
+    "area": {
+      "shape": "Circle",
+      "radius": 2
+    },
+    "damageMin": 34,
+    "damageMax": 42,
+    "element": "Fire"
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

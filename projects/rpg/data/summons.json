@@ -348,5 +348,41 @@
       "cobble-punch"
     ],
     "scale": 70
+  },
+  {
+    "id": "powder-keg",
+    "name": {
+      "fr": "Tonnelet de poudre",
+      "en": "Powder Keg"
+    },
+    "look": "delver-keg",
+    "hp": 2,
+    "ap": 0,
+    "mp": 0,
+    "initiative": 0,
+    "spells": [],
+    "passives": [
+      "short-fuse",
+      "keg-blast"
+    ],
+    "scale": 100
+  },
+  {
+    "id": "powder-barrel",
+    "name": {
+      "fr": "Baril de poudre",
+      "en": "Powder Barrel"
+    },
+    "look": "delver-barrel",
+    "hp": 2,
+    "ap": 0,
+    "mp": 0,
+    "initiative": 0,
+    "spells": [],
+    "passives": [
+      "short-fuse",
+      "barrel-blast"
+    ],
+    "scale": 100
   }
 ]
