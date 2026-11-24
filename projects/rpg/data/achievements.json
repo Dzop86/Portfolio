@@ -470,6 +470,24 @@
     "target": "delver"
   },
   {
+    "id": "family-borer-100",
+    "category": "Hunt",
+    "group": "families",
+    "name": {
+      "fr": "Cuir ouvert",
+      "en": "Open Hide"
+    },
+    "text": {
+      "fr": "Vainquez 100 Vers de roche.",
+      "en": "Defeat 100 Rock Worms."
+    },
+    "points": 15,
+    "level": 50,
+    "goal": "FamilyVictories",
+    "count": 100,
+    "target": "borer"
+  },
+  {
     "id": "hunter-boar",
     "category": "Hunt",
     "group": "hunters",
@@ -666,6 +684,24 @@
     "goal": "FamilyMastered",
     "count": 5,
     "target": "delver"
+  },
+  {
+    "id": "hunter-borer",
+    "category": "Hunt",
+    "group": "hunters",
+    "name": {
+      "fr": "Chasseur de vers de roche",
+      "en": "Rock Worm Hunter"
+    },
+    "text": {
+      "fr": "Maîtrisez les 5 vers de roche dans votre bestiaire.",
+      "en": "Master all 5 rock worms in your bestiary."
+    },
+    "points": 20,
+    "level": 50,
+    "goal": "FamilyMastered",
+    "count": 5,
+    "target": "borer"
   },
   {
     "id": "dungeon-boar-wallow",

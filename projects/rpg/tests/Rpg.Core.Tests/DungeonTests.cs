@@ -11,7 +11,7 @@ public class DungeonTests
     public void EveryFamily_HasItsDungeon_ItsDoorOnTheChiefsMap_ItsKeyAndThreeRoomsOfItsOwn()
     {
         // The Mines' two families have their dungeons at sprint 227 (docs/familles-mines.md §3.5).
-        string[] waiting = ["delver"];
+        string[] waiting = ["delver", "borer"];
         Assert.Equal(Real.Families.Values.Select(f => f.Id).Except(waiting).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
         Assert.Equal(Real.Dungeons.Count * Dungeons.RoomCount, Real.Dungeons.Values.SelectMany(d => d.Rooms).Distinct().Count());
         foreach (Dungeon d in Real.Dungeons.Values)

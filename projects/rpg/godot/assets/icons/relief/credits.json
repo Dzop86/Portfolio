@@ -38,6 +38,8 @@
   "family-mole": "caro-asercion/mole",
   "family-stag": "lorc/stag-head",
   "family-golem": "delapouite/rock-golem",
+  "family-delver": "lorc/mining",
+  "family-borer": "lorc/worm-mouth",
   "element-earth": "lorc/stone-sphere",
   "element-fire": "lorc/fire-ring",
   "element-water": "lorc/drop",

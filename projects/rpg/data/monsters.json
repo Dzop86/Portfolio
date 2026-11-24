@@ -2761,6 +2761,10 @@
     },
     "zone": "underroot",
     "battle": "underroot-gallery",
+    "battles": [
+      "underroot-gallery",
+      "underroot-pillars"
+    ],
     "bossMap": "underroot-0-4",
     "monsters": [
       {
@@ -3000,6 +3004,250 @@
     "lore": {
       "fr": "Les Fouille-rocs creusaient sous l'Arbre bien avant les mineurs d'Ormeval, et ils ne remontent jamais. Petits, trapus, une lanterne au front, ils suivent un son qu'ils étaient seuls à entendre : la roche qui sonne. Quand une paroi leur résiste, ils la font sauter, et tant pis pour qui se trouve à côté, même l'un des leurs.",
       "en": "The Rockdelvers were digging beneath the Tree long before Ormeval's miners, and they never come back up. Small and stocky, a lantern on the brow, they follow a sound only they used to hear: the ringing of the rock. When a wall won't give, they blow it up, and too bad for whoever is standing by, even one of their own."
+    }
+  },
+  {
+    "id": "borer",
+    "name": {
+      "fr": "Vers de roche",
+      "en": "Rock Worms"
+    },
+    "zone": "underroot",
+    "battle": "underroot-pillars",
+    "battles": [
+      "underroot-pillars",
+      "underroot-gallery"
+    ],
+    "bossMap": "underroot-4-4",
+    "monsters": [
+      {
+        "id": "stonegnawer",
+        "role": "Melee",
+        "name": {
+          "fr": "Ronge-pierre",
+          "en": "Stonegnawer"
+        },
+        "look": "borer-melee",
+        "level": 50,
+        "hp": 68,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 157,
+        "spells": [
+          "stone-bite",
+          "burrow-dive"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Water": -15
+        },
+        "passives": [
+          "rock-hide"
+        ],
+        "loot": [
+          {
+            "item": "borer-tooth",
+            "percent": 40
+          },
+          {
+            "item": "rock-slough",
+            "percent": 40
+          },
+          {
+            "item": "ringed-amulet",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il ne mord que ce qui bouge ; le reste, il le mange.",
+          "en": "It bites only what moves; the rest it eats."
+        }
+      },
+      {
+        "id": "grit-spitter",
+        "role": "Ranged",
+        "name": {
+          "fr": "Cracheur de gravier",
+          "en": "Grit Spitter"
+        },
+        "look": "borer-ranged",
+        "level": 49,
+        "hp": 59,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 189,
+        "spells": [
+          "grit-spit",
+          "burrow-dive"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Water": -15
+        },
+        "passives": [
+          "rock-hide"
+        ],
+        "loot": [
+          {
+            "item": "rock-slough",
+            "percent": 60
+          },
+          {
+            "item": "slough-cape",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Il crache ce qu'il n'a pas digéré, assez fort pour fendre un casque.",
+          "en": "It spits out what it couldn't digest, hard enough to crack a helmet."
+        }
+      },
+      {
+        "id": "millstone-worm",
+        "role": "Tank",
+        "name": {
+          "fr": "Ver-meule",
+          "en": "Millstone Worm"
+        },
+        "look": "borer-tank",
+        "level": 52,
+        "hp": 85,
+        "ap": 6,
+        "mp": 2,
+        "initiative": 103,
+        "spells": [
+          "millstone-crush",
+          "snatch"
+        ],
+        "resistances": {
+          "Earth": 25,
+          "Fire": 10,
+          "Water": -15
+        },
+        "passives": [
+          "rock-hide",
+          "coils"
+        ],
+        "loot": [
+          {
+            "item": "borer-tooth",
+            "percent": 60
+          },
+          {
+            "item": "millstone-shield",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "Ses anneaux sont si épais qu'un ver blessé vient s'y abriter.",
+          "en": "Its coils are so thick that a wounded worm comes to shelter in them."
+        }
+      },
+      {
+        "id": "tunnel-worm",
+        "role": "Support",
+        "name": {
+          "fr": "Ver tunnelier",
+          "en": "Tunnel Worm"
+        },
+        "look": "borer-support",
+        "level": 51,
+        "hp": 71,
+        "ap": 6,
+        "mp": 3,
+        "initiative": 136,
+        "spells": [
+          "rock-slime",
+          "tunnel-swap",
+          "tunnel-nip"
+        ],
+        "resistances": {
+          "Earth": 10,
+          "Water": -15
+        },
+        "passives": [
+          "rock-hide"
+        ],
+        "loot": [
+          {
+            "item": "borer-tooth",
+            "percent": 50
+          },
+          {
+            "item": "rock-slough",
+            "percent": 50
+          }
+        ],
+        "lore": {
+          "fr": "Il connaît tous les tunnels, et y fait passer ceux qui saignent.",
+          "en": "It knows every tunnel, and slips the bleeding ones through them."
+        }
+      },
+      {
+        "id": "mountain-gnawer",
+        "role": "Boss",
+        "name": {
+          "fr": "Ronge-montagne",
+          "en": "Mountain Gnawer"
+        },
+        "look": "borer-boss",
+        "level": 60,
+        "hp": 765,
+        "ap": 8,
+        "mp": 3,
+        "initiative": 150,
+        "spells": [
+          "mountain-maw",
+          "engulf",
+          "deep-dive"
+        ],
+        "resistances": {
+          "Earth": 30,
+          "Fire": 15,
+          "Air": 15,
+          "Water": -5
+        },
+        "passives": [
+          "rock-hide",
+          "coils",
+          "strata"
+        ],
+        "loot": [
+          {
+            "item": "borer-tooth",
+            "percent": 100,
+            "count": 2
+          },
+          {
+            "item": "rock-slough",
+            "percent": 100
+          },
+          {
+            "item": "gnawer-mandible",
+            "percent": 30
+          },
+          {
+            "item": "slough-cape",
+            "percent": 8
+          },
+          {
+            "item": "ringed-amulet",
+            "percent": 8
+          },
+          {
+            "item": "millstone-shield",
+            "percent": 8
+          }
+        ],
+        "lore": {
+          "fr": "On dit qu'il a mangé le dessous d'une montagne : sa peau en porte les couches, à l'envers.",
+          "en": "They say he ate the underside of a mountain: his hide bears its layers, upside down."
+        }
+      }
+    ],
+    "lore": {
+      "fr": "Les vers de roche mangent la pierre et rendent du gravier. Leurs tunnels traversent les Mines dans tous les sens, et les mineurs s'en servent sans le dire. Leur cuir est de roche, et ne s'ouvre que lorsqu'ils attaquent.",
+      "en": "Rock worms eat stone and leave gravel behind. Their tunnels cross the Mines every which way, and the miners use them without saying so. Their hide is rock, and it opens only when they attack."
     }
   }
 ]

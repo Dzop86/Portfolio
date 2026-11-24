@@ -12,7 +12,7 @@ namespace Rpg.Desktop;
 /// green body in rags, arms held out (sprint 74); a frog's squat body and bulging eyes, a crab's wide
 /// shell, eye stalks and two claws (sprint 75); a bee's striped body, wings and sting, hovering on
 /// thin legs, a mole's velvet body, pink snout and digging claws (sprint 76); a sylvan stag's tall legs, raised neck
-/// and antlers of mossy stone (sprint 132); a mossy keeper's body of stacked blocks, thick arms and tufts of moss (sprint 133); a rockdelver's stocky body and lantern helmet, its powder kegs (sprint 225). Each has an "idle" and a "walk"
+/// and antlers of mossy stone (sprint 132); a mossy keeper's body of stacked blocks, thick arms and tufts of moss (sprint 133); a rockdelver's stocky body and lantern helmet, its powder kegs (sprint 225); a rock worm's five rings and dark maw (sprint 226). Each has an "idle" and a "walk"
 /// animation, as Kenney's models do, and looks along +z. Since sprint 104, the village's beasts too: a hen,
 /// a horse and a sheep (<see cref="Beast"/>).
 /// </summary>
@@ -21,7 +21,7 @@ public static class Creatures
     /// <summary>Whether a look is one of these models ("boar-melee", "wolf-boss"...).</summary>
     public static bool Knows(string look) => Kinds.Any(k => look.StartsWith(k + "-", StringComparison.Ordinal));
 
-    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "golem", "delver", "rat"];
+    private static readonly string[] Kinds = ["boar", "wolf", "mushroom", "zombie", "frog", "crab", "bee", "mole", "stag", "golem", "delver", "borer", "rat"];
     private static readonly string[] FourLegs = ["LegFL", "LegFR", "LegBL", "LegBR"], TwoLegs = ["LegL", "LegR"];
 
     public static Node3D Build(string look) => look switch
@@ -89,6 +89,13 @@ public static class Creatures
         // Their powder keg and barrel: a hooped cask with a red fuse, no legs.
         "delver-keg" => Keg(big: false),
         "delver-barrel" => Keg(big: true),
+        // The rock worms (sprint 226, docs/familles-mines.md §4.8): five rings from the head to the tail, a dark maw in front;
+        // the spitter's head raised, the millstone worm's rings wide and flat, a pale band on the tunnel worm, strata on the chief.
+        "borer-melee" => Borer(1.0f, new Color("7a6a5a")),
+        "borer-ranged" => Borer(0.9f, new Color("a8a49c"), raised: true),
+        "borer-tank" => Borer(1.3f, new Color("4a4642"), flat: true),
+        "borer-support" => Borer(0.95f, new Color("cfc2a6"), band: true),
+        "borer-boss" => Borer(1.6f, new Color("26241f"), strata: true, crown: true),
         "rat-loft" => Rat(),
         _ => throw new KeyNotFoundException($"No creature for the look '{look}'."),
     };
@@ -706,6 +713,38 @@ public static class Creatures
             Crown(body, 0.98f);
         Legs(model, TwoLegs, 0.11f, 0.29f, coat.Darkened(0.35f));
         root.AddChild(Animations(TwoLegs));
+        return root;
+    }
+
+    private static Node3D Borer(float size, Color rock, bool raised = false, bool flat = false, bool band = false, bool strata = false, bool crown = false)
+    {
+        var root = new Node3D { Name = "Borer" };
+        var model = new Node3D { Name = "Model", Scale = new Vector3(size, size, size) };
+        root.AddChild(model);
+        var body = new Node3D { Name = "Body" };
+        model.AddChild(body);
+        Color[] layers = [new("8a4a2a"), new("b08a4a"), new("5a6a7a")];
+        // Five rings along +z, the head first, each smaller and a little lighter; no legs.
+        for (int i = 0; i < 5; i++)
+        {
+            float w = 0.34f - 0.04f * i, h = flat ? w * 0.7f : w;
+            float y = h / 2 + (raised && i == 0 ? 0.16f : 0);
+            float z = 0.30f - 0.15f * i;
+            Color ring = rock.Lightened(0.06f * i);
+            Block(body, new Vector3(flat ? w * 1.3f : w, h, 0.14f), new Vector3(0, y, z), ring);
+            if (band)
+                Block(body, new Vector3(w * 0.4f, 0.02f, 0.14f), new Vector3(0, h + 0.01f, z), ring.Lightened(0.35f));
+            if (strata)
+                Block(body, new Vector3(w + 0.01f, h * 0.18f, 0.145f), new Vector3(0, y + h * (0.25f - 0.15f * (i % 3)), z), layers[i % 3]);
+        }
+        // The maw, dark, at the head's front; two pale eyes over it.
+        float head = 0.34f, hy = (flat ? head * 0.7f : head) / 2 + (raised ? 0.16f : 0);
+        Block(body, new Vector3(0.18f, 0.12f, 0.02f), new Vector3(0, hy - 0.04f, 0.375f), new Color("1a1210"));
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(-0.09f, hy + 0.07f, 0.375f), new Color("e8e0c8"));
+        Block(body, new Vector3(0.04f, 0.04f, 0.02f), new Vector3(0.09f, hy + 0.07f, 0.375f), new Color("e8e0c8"));
+        if (crown)
+            Crown(body, (flat ? head * 0.7f : head) + (raised ? 0.16f : 0) + 0.03f);
+        root.AddChild(Animations([]));
         return root;
     }
 

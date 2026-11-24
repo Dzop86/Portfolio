@@ -191,6 +191,14 @@ jobs:
           godot --headless --path godot -- --selftest --scenario "group:underroot-0-4.0" --seed 9 --report "$RUNNER_TEMP/underroot.txt"
           cat "$RUNNER_TEMP/underroot.txt"
           grep -q "SELFTEST OK seed 9: .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/underroot.txt"
+      # The rock worms' chief (sprint 226): its hide opens and closes, two wormlings below half; ringed bodies without legs.
+      - name: The Mines' worms
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          godot --headless --path godot -- --selftest --scenario "group:underroot-4-4.0" --seed 9 --report "$RUNNER_TEMP/worms.txt"
+          cat "$RUNNER_TEMP/worms.txt"
+          grep -q "SELFTEST OK seed 9: .* End window: [0-9]* lines, statistics checked." "$RUNNER_TEMP/worms.txt"
       # A dungeon's first room (sprint 80): weakened monsters, then "Next room" and "Leave the dungeon".
       - name: A dungeon's room
         shell: bash

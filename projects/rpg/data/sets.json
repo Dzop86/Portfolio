@@ -346,5 +346,34 @@
         "mp": 1
       }
     ]
+  },
+  {
+    "id": "borer",
+    "name": {
+      "fr": "Panoplie du ver de roche",
+      "en": "Rock Worm set"
+    },
+    "bonuses": [
+      {
+        "pieces": 2,
+        "stats": {
+          "vitality": 10
+        }
+      },
+      {
+        "pieces": 3,
+        "stats": {
+          "vitality": 10,
+          "earth": 10
+        }
+      },
+      {
+        "pieces": 4,
+        "stats": {
+          "vitality": 30,
+          "earth": 15
+        }
+      }
+    ]
   }
 ]

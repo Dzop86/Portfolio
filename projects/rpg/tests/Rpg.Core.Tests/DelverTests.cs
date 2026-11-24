@@ -39,12 +39,12 @@ public class DelverTests
     }
 
     [Fact]
-    public void TheDelvers_LiveInTheMines_TheCommonOnesOf46To49_TheirChiefOf60_OnOneMapUntilTheWorms()
+    public void TheDelvers_LiveInTheMines_TheCommonOnesOf46To49_TheirChiefOf60_SharingTheMinesTwoMapsWithTheWorms()
     {
         Assert.Equal(("underroot", "underroot-0-4"), (Delvers.Zone, Delvers.BossMap));
         Assert.Equal([46, 47, 48, 49], Delvers.Monsters.Where(m => m.Role != MonsterRole.Boss).Select(m => m.Level).Order());
         Assert.Equal(60, Delvers[MonsterRole.Boss].Level);
-        Assert.Equal(["underroot-gallery"], Delvers.AllBattles);
+        Assert.Equal(["underroot-gallery", "underroot-pillars"], Delvers.AllBattles);
         Assert.Contains(Real.Groups.Values, g => g.Family == "delver" && g.Map == Delvers.BossMap && g.Monsters.Contains("stonelistener"));
         // No slow tank here: a timberman of 2 movement points would let the hero walk out of a keg without trying (§3.1).
         Assert.All(Delvers.Monsters, m => Assert.Equal(3, m.Mp));

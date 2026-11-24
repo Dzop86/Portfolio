@@ -96,6 +96,7 @@
  "stone-sphere": "lorc/stone-sphere",
  "sunflower": "delapouite/sunflower",
  "three-leaves": "lorc/three-leaves",
+ "tooth": "lorc/tooth",
  "tree-roots": "delapouite/tree-roots",
  "tribal-pendant": "delapouite/tribal-pendant",
  "tropical-fish": "delapouite/tropical-fish",
@@ -108,5 +109,6 @@
  "wizard-staff": "lorc/wizard-staff",
  "wood-beam": "delapouite/wood-beam",
  "wood-club": "delapouite/wood-club",
- "wood-pile": "delapouite/wood-pile"
+ "wood-pile": "delapouite/wood-pile",
+ "worm-mouth": "lorc/worm-mouth"
 }

@@ -53,9 +53,9 @@ MATTER = {
     "arnica": "#f2a33a", "gentian": "#5a6fd0",
     # What the monsters leave, and what is bought.
     "feather": "#f0e6cc", "leather": "#a0522d", "orc-fang": "#e8dcc0", "bee-wing": "#d8eef8", "boar-bristle": "#7a5c48",
-    "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "frog-leg": "#7fae5a", "fuse-cord": "#7a5236",
+    "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "borer-tooth": "#e0d8c8", "frog-leg": "#7fae5a", "fuse-cord": "#7a5236",
     "honeycomb": "#f2b84a", "keeper-moss": "#6f9a50", "lode-chip": "#a8a070", "mole-fur": "#6a5a58", "mossy-cobble": "#8a9a7a", "mushroom-cap": "#c86a4a",
-    "old-bone": "#e0d6c0", "rotten-cloth": "#8a8a6a", "slime": "#7fd0b0", "spore-dust": "#c8b8a8", "stag-velvet": "#a07850",
+    "old-bone": "#e0d6c0", "rock-slough": "#8c8478", "rotten-cloth": "#8a8a6a", "slime": "#7fd0b0", "spore-dust": "#c8b8a8", "stag-velvet": "#a07850",
     "stone-antler": "#b0a898", "wolf-fang": "#f0e8d8", "wolf-pelt": "#8f8f98",
     # The pieces made by no one, nor of a set.
     "copper-ring": "#d0804a", "ember-ring": "#e8803d", "pebble-amulet": "#a39a94", "leather-belt": "#a0522d",
@@ -65,7 +65,7 @@ MATTER = {
 # A set's pieces: its family's colour.
 SET = {"poacher": "#6f8f5a", "wolf": "#9aa3ad", "boar": "#8a6a52", "frog": "#5fa88a", "bee": "#f2c24a", "crab": "#d0603a",
        "mole": "#7a6a60", "mushroom": "#c8705a", "zombie": "#8fa08a", "stag": "#a8743f", "golem": "#8a9a8a",
-       "delver": "#c8963a"}
+       "delver": "#c8963a", "borer": "#7d7a72"}
 BREAD, HEAL, PARCHMENT = "#f2cc94", "#ff7eb6", "#f0e6cc"
 
 # An empty slot: its kind's drawing.

@@ -515,6 +515,19 @@ beasts = [
  S("great-pick","Grand pic","Great Pick",4,1,1,48,62,1,"Earth",1,ranks=False),
  S("powder-barrel","Baril de poudre","Powder Barrel",3,1,1,0,0,1,"Neutral",1,effects=[summon("powder-barrel")],ranks=False,cd=1),
  S("lamp-hurl","Lanterne lancée","Hurled Lantern",3,2,5,26,32,1,"Fire",1,ranks=False,cd=2),
+ # The rock worms (sprint 226, docs/familles-mines.md §4): choosing one's target. Each of their blows opens their hide, −20% resistances
+ # for 2 turns, which takes the place of their Rock Hide's +20% (the same status from the same source, Fight.SetStatus).
+ S("stone-bite","Morsure de pierre","Stone Bite",3,1,1,26,34,2,"Earth",1,effects=[status("Caster","Resistance",-20,2)],ranks=False),
+ S("burrow-dive","Plongée","Plunge",2,2,4,0,0,1,"Neutral",1,los=False,effects=[leap()],ranks=False,cd=2),
+ S("grit-spit","Crachat de gravier","Grit Spit",3,2,6,22,28,2,"Earth",1,effects=[status("Caster","Resistance",-20,2)],ranks=False),
+ S("millstone-crush","Écrasement de meule","Millstone Crush",3,1,1,25,33,2,"Earth",1,effects=[status("Caster","Resistance",-20,2)],ranks=False),
+ S("snatch","Happer","Snatch",3,2,4,14,18,1,"Earth",1,line=True,effects=[pull(2),status("Caster","Resistance",-20,2)],ranks=False,cd=1),
+ S("rock-slime","Bave de roche","Rock Slime",3,0,4,0,0,1,"Neutral",1,effects=[heal("Allies",22,28)],ranks=False,cd=1),
+ S("tunnel-swap","Tunnel","Tunnel",2,1,5,0,0,1,"Neutral",1,los=False,effects=[swap()],ranks=False,cd=2),
+ S("tunnel-nip","Coup de dent","Snap",3,1,2,25,33,1,"Earth",1,effects=[status("Caster","Resistance",-20,2)],ranks=False),
+ S("mountain-maw","Gueule de montagne","Mountain Maw",4,1,1,48,62,1,"Earth",1,effects=[status("Caster","Resistance",-20,2)],ranks=False),
+ S("engulf","Engloutir","Engulf",3,2,5,18,23,1,"Earth",1,line=True,effects=[pull(2),status("Caster","Resistance",-20,2)],ranks=False,cd=1),
+ S("deep-dive","Plongée profonde","Deep Plunge",2,2,5,0,0,1,"Neutral",1,los=False,effects=[leap()],ranks=False,cd=2),
 ]
 # Damage budget: average damage per action point grows with the unlocking level; areas, effects,
 # long range and poison cost some of it, melee and cooldowns give some back.
@@ -1003,6 +1016,8 @@ summons += [
  # The rockdelvers' charges (sprint 225, docs/familles-mines.md §3.4): no spell, no point; the fuse burns a hit point a turn, they blow as they fall.
  young("powder-keg","Tonnelet de poudre","Powder Keg","delver-keg",100,2,0,0,0,[],["short-fuse","keg-blast"]),
  young("powder-barrel","Baril de poudre","Powder Barrel","delver-barrel",100,2,0,0,0,[],["short-fuse","barrel-blast"]),
+ # The mountain gnawer's wormlings (sprint 226, §4.4): they bite and open, with no hide to close again.
+ young("wormling","Vermisseau","Wormling","borer-melee",60,50,6,3,100,["stone-bite"]),
 ]
 open(f"{root}/summons.json", "w").write(json.dumps(summons, ensure_ascii=False, indent=2) + "\n")
 
@@ -1080,6 +1095,14 @@ passives = [
    "Death",area=("Circle",2),damageMin=20,damageMax=26,element="Fire"),
  P("barrel-blast","Grand coup de mine","Great Blast","À sa mort, saute : 34 à 42 dégâts Feu à 2 cases, sur tout le monde, Fouille-rocs compris.","At its death, it blows up: 34 to 42 Fire damage 2 cells around, to everyone, Rockdelvers included.",
    "Death",area=("Circle",2),damageMin=34,damageMax=42,element="Fire"),
+ # The rock worms (docs/familles-mines.md §4.3): the hide that closes at the start of their turn, the millstone worm's coils, the gnawer's strata.
+ P("rock-hide","Cuir de roche","Rock Hide","Au début de son tour, son cuir se referme : +20 % de résistances. Quand il frappe, il s'ouvre : −20 % jusqu'à son tour suivant.",
+   "At the start of its turn, its hide closes: +20% resistances. When it strikes, it opens: −20% until its next turn.","TurnStart",[status("Caster","Resistance",20,2)]),
+ P("coils","Anneaux","Coils","Une fois par tour, un allié à 2 cases qui tomberait reste à 1 PV (jamais une invocation) : le ver l'abrite dans ses anneaux.",
+   "Once per turn, an ally within 2 cells who would fall stays at 1 HP (never a summon): the worm shelters it in its coils.","AllyFalls",range=2,oncePerTurn=True),
+ P("strata","Couches à l'envers","Overturned Strata","Sous la moitié de ses PV, son cuir se fend : dessous, des couches de roche à l'envers. Deux vermisseaux en sortent. +20 % de dégâts jusqu'à la fin du combat.",
+   "Below half its HP, its hide splits: beneath it, layers of rock upside down. Two wormlings crawl out. +20% damage until the end of the fight.","LowHp",
+   [status("Caster","Damage",20,10),summon("wormling",count=2)],percent=50),
  P("four-wings","Les quatre ailes","The Four Wings","Sous la moitié de ses PV, un bouffi se détache de lui.","Below half its HP, a bloater comes away from it.","LowHp",[summon("bloated-spawn")],percent=50),
  # The Disjoint (design-familles.md §4.9, sprint 114): four beasts forced into one, wearing itself out, bursting as it falls.
  P("unstable","Instable","Unstable","Il s'use tout seul : perd 15 PV au début de chacun de ses tours.","It wears itself out: loses 15 HP at the start of each of its turns.",

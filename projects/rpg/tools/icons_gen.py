@@ -37,6 +37,8 @@ ICONS = {
     "moss-ring": "delapouite/ring", "cobble-belt": "delapouite/belt-armor", "slab-shield": "delapouite/viking-shield", "menhir-mace": "delapouite/wood-club",
     # The rockdelvers' set (sprint 225).
     "gallery-boots": "lorc/leather-boot", "lantern-helmet": "delapouite/mining-helmet", "prop-pauldrons": "skoll/pauldrons", "listener-pick": "delapouite/war-pick",
+    # The rock worms' set (sprint 226).
+    "slough-cape": "delapouite/cape", "ringed-amulet": "delapouite/primitive-necklace", "millstone-shield": "delapouite/viking-shield", "gnawer-mandible": "lorc/worm-mouth",
     # The craftsmen's pieces (sprint 109): the smith's and the tailor's, a drawing already there for each slot.
     "copper-billhook": "lorc/plain-dagger", "hazel-roundshield": "delapouite/viking-shield", "blackwood-maul": "delapouite/wood-club",
     "yew-targe": "delapouite/viking-shield", "clay-quenched-cutlass": "lorc/meat-cleaver", "alder-greataxe": "lorc/battle-axe",
@@ -76,6 +78,8 @@ ICONS = {
     "mossy-cobble": "lorc/stone-block", "keeper-moss": "lorc/ground-sprout",
     # The rockdelvers' (sprint 225).
     "fuse-cord": "delapouite/rope-coil", "lode-chip": "lorc/stone-crafting",
+    # The rock worms' (sprint 226).
+    "rock-slough": "delapouite/animal-hide", "borer-tooth": "lorc/tooth",
     # The gathered resources (sprint 99): wood, ore, fish, crops, herbs.
     "oak-log": "delapouite/log", "hazel-log": "delapouite/half-log", "blackwood-log": "delapouite/wood-pile", "yew-log": "delapouite/log",
     "willow-log": "delapouite/half-log", "alder-log": "delapouite/wood-pile", "ash-log": "delapouite/axe-in-log", "linden-log": "delapouite/log",

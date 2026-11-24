@@ -272,6 +272,13 @@
     "dark": "#6e5220",
     "outline": "#281e0c"
   },
+  "family-borer": {
+    "shape": "lorc/worm-mouth",
+    "main": "#7d7a72",
+    "light": "#bebcb8",
+    "dark": "#3e3d39",
+    "outline": "#1a1917"
+  },
   "element-earth": {
     "shape": "lorc/stone-sphere",
     "main": "#b07a45",

@@ -808,6 +808,70 @@
     "element": "Fire"
   },
   {
+    "id": "rock-hide",
+    "name": {
+      "fr": "Cuir de roche",
+      "en": "Rock Hide"
+    },
+    "description": {
+      "fr": "Au début de son tour, son cuir se referme : +20 % de résistances. Quand il frappe, il s'ouvre : −20 % jusqu'à son tour suivant.",
+      "en": "At the start of its turn, its hide closes: +20% resistances. When it strikes, it opens: −20% until its next turn."
+    },
+    "trigger": "TurnStart",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Resistance",
+        "value": 20,
+        "turns": 2
+      }
+    ]
+  },
+  {
+    "id": "coils",
+    "name": {
+      "fr": "Anneaux",
+      "en": "Coils"
+    },
+    "description": {
+      "fr": "Une fois par tour, un allié à 2 cases qui tomberait reste à 1 PV (jamais une invocation) : le ver l'abrite dans ses anneaux.",
+      "en": "Once per turn, an ally within 2 cells who would fall stays at 1 HP (never a summon): the worm shelters it in its coils."
+    },
+    "trigger": "AllyFalls",
+    "range": 2,
+    "oncePerTurn": true
+  },
+  {
+    "id": "strata",
+    "name": {
+      "fr": "Couches à l'envers",
+      "en": "Overturned Strata"
+    },
+    "description": {
+      "fr": "Sous la moitié de ses PV, son cuir se fend : dessous, des couches de roche à l'envers. Deux vermisseaux en sortent. +20 % de dégâts jusqu'à la fin du combat.",
+      "en": "Below half its HP, its hide splits: beneath it, layers of rock upside down. Two wormlings crawl out. +20% damage until the end of the fight."
+    },
+    "trigger": "LowHp",
+    "effects": [
+      {
+        "kind": "status",
+        "affects": "Caster",
+        "stat": "Damage",
+        "value": 20,
+        "turns": 10
+      },
+      {
+        "kind": "summon",
+        "affects": "All",
+        "summon": "wormling",
+        "max": 1,
+        "count": 2
+      }
+    ],
+    "percent": 50
+  },
+  {
     "id": "four-wings",
     "name": {
       "fr": "Les quatre ailes",

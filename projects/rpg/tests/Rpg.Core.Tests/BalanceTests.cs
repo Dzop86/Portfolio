@@ -148,7 +148,7 @@ public class BalanceTests
     /// <summary>
     /// The Mines' families (sprint 225, docs/familles-mines.md §3.9), the first measured for the ten classes rather than three: at level 46,
     /// bare, each class wins the groups of one to three 27 times in 30 on average, at most two of them under 18; the hordes of six and more,
-    /// at most 3 in 10 bare, 2 with the "zone" and "craft" kits. The chief, alone, at most 1 in 10. Before sprint 226, the rockdelvers only.
+    /// at most 3 in 10 bare, 2 with the "zone" and "craft" kits. The chiefs, alone, at most 1 in 10. Since sprint 226, the rock worms too, both families on both maps.
     /// </summary>
     [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
     [InlineData("archer")]

@@ -109,9 +109,16 @@ SETS = O([
                  piece("lantern-helmet", "Casque à lanterne", "Lantern Helmet", "Hat", 47, "shotfirer", {"fire": 30, "vitality": 26}),
                  piece("prop-pauldrons", "Épaulières d'étai", "Prop Pauldrons", "Shoulders", 49, "timberman", {"vitality": 32, "fire": 26}),
                  piece("listener-pick", "Pic de l'Écoute-roche", "Stonelistener's Pick", "TwoHanded", 60, "stonelistener", {"fire": 40, "vitality": 28})])),
+    # Sprint 226: the rock worms (docs/familles-mines.md §4.6), twice the values worn.
+    ("borer", (text("Panoplie du ver de roche", "Rock Worm set"),
+               [({"vitality": 20}, 0, 0, 0), ({"vitality": 20, "earth": 20}, 0, 0, 0), ({"vitality": 60, "earth": 30}, 0, 0, 0)],
+               [piece("slough-cape", "Cape de mue", "Slough Cape", "Cape", 49, "grit-spitter", {"earth": 22, "vitality": 18}, 30),
+                piece("ringed-amulet", "Amulette annelée", "Ringed Amulet", "Amulet", 50, "stonegnawer", {"earth": 32, "vitality": 26}),
+                piece("millstone-shield", "Bouclier-meule", "Millstone Shield", "Shield", 52, "millstone-worm", {"vitality": 34, "earth": 26}),
+                piece("gnawer-mandible", "Mandibule du Ronge-montagne", "Mountain Gnawer's Mandible", "OneHanded", 60, "mountain-gnawer", {"earth": 42, "vitality": 26})])),
 ])
 # Clairval's families have five pieces, the forest's and the Mines' four.
-PIECES = {"stag": 4, "golem": 4, "delver": 4}
+PIECES = {"stag": 4, "golem": 4, "delver": 4, "borer": 4}
 
 
 def inline(v):

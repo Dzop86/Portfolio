@@ -384,5 +384,21 @@
       "barrel-blast"
     ],
     "scale": 100
+  },
+  {
+    "id": "wormling",
+    "name": {
+      "fr": "Vermisseau",
+      "en": "Wormling"
+    },
+    "look": "borer-melee",
+    "hp": 50,
+    "ap": 6,
+    "mp": 3,
+    "initiative": 100,
+    "spells": [
+      "stone-bite"
+    ],
+    "scale": 60
   }
 ]
