@@ -31,6 +31,7 @@ public class FightBudgetTests
             "BalanceTests.AtLevel1_EveryClassDuel_IsWonByEitherSide",
             "BalanceTests.Duel_NeitherSideAlwaysWins",
             "BalanceTests.TheMinesGreatHalls_AreWonAloneAndBare_ByEachOfTheTenClasses_AtTheirQuestsLevels",
+            "BalanceTests.TheMinesHordes_AtLevelSixty_AreNotWonFarMore_WithTheCraftsmensPiecesOfFiftyToSixty",
             "BalanceTests.TheMines_SmallGroups_AreWonByEachOfTheTenClasses_TheHordesAreNot",
             "CiLevelsTests.TheBench_PlaysEachPathSpell_ButTheUnplayedOnes",
             "FinalsBenchTests.AtHundred_TheArchersFinals_KeepTheirBounds_WhereTheBenchCanJudgeThem",

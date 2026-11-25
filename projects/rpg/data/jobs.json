@@ -756,6 +756,67 @@
           }
         ],
         "shards": 38
+      },
+      {
+        "item": "cobalt-pick",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "larch-log",
+            "count": 16
+          },
+          {
+            "item": "cobalt-ore",
+            "count": 7
+          },
+          {
+            "item": "fuse-cord",
+            "count": 5
+          }
+        ],
+        "shards": 47
+      },
+      {
+        "item": "rootwood-greatmaul",
+        "level": 55,
+        "ingredients": [
+          {
+            "item": "rootwood-log",
+            "count": 24
+          },
+          {
+            "item": "gold-ore",
+            "count": 12
+          },
+          {
+            "item": "borer-tooth",
+            "count": 6
+          }
+        ],
+        "shards": 100
+      },
+      {
+        "item": "gilded-rootwood-shield",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "rootwood-log",
+            "count": 18
+          },
+          {
+            "item": "gold-ore",
+            "count": 8
+          },
+          {
+            "item": "lode-chip",
+            "count": 6
+          },
+          {
+            "item": "rock-slough",
+            "count": 4
+          }
+        ],
+        "shards": 53
       }
     ]
   },
@@ -959,6 +1020,67 @@
           }
         ],
         "shards": 38
+      },
+      {
+        "item": "barley-spaulders",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "barley",
+            "count": 16
+          },
+          {
+            "item": "arnica",
+            "count": 7
+          },
+          {
+            "item": "fuse-cord",
+            "count": 5
+          }
+        ],
+        "shards": 47
+      },
+      {
+        "item": "millet-cape",
+        "level": 55,
+        "ingredients": [
+          {
+            "item": "millet",
+            "count": 16
+          },
+          {
+            "item": "gentian",
+            "count": 8
+          },
+          {
+            "item": "rock-slough",
+            "count": 5
+          }
+        ],
+        "shards": 50
+      },
+      {
+        "item": "millet-smock",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "millet",
+            "count": 18
+          },
+          {
+            "item": "gentian",
+            "count": 8
+          },
+          {
+            "item": "rock-slough",
+            "count": 6
+          },
+          {
+            "item": "fuse-cord",
+            "count": 4
+          }
+        ],
+        "shards": 53
       }
     ]
   },
@@ -1162,6 +1284,67 @@
           }
         ],
         "shards": 38
+      },
+      {
+        "item": "cobalt-ring",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "cobalt-ore",
+            "count": 16
+          },
+          {
+            "item": "grayling",
+            "count": 7
+          },
+          {
+            "item": "lode-chip",
+            "count": 5
+          }
+        ],
+        "shards": 47
+      },
+      {
+        "item": "gold-locket",
+        "level": 55,
+        "ingredients": [
+          {
+            "item": "gold-ore",
+            "count": 16
+          },
+          {
+            "item": "cavefish",
+            "count": 8
+          },
+          {
+            "item": "borer-tooth",
+            "count": 5
+          }
+        ],
+        "shards": 50
+      },
+      {
+        "item": "lode-ring",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "gold-ore",
+            "count": 18
+          },
+          {
+            "item": "cavefish",
+            "count": 8
+          },
+          {
+            "item": "lode-chip",
+            "count": 6
+          },
+          {
+            "item": "borer-tooth",
+            "count": 4
+          }
+        ],
+        "shards": 53
       }
     ]
   },
@@ -1365,6 +1548,67 @@
           }
         ],
         "shards": 38
+      },
+      {
+        "item": "grayling-belt",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "grayling",
+            "count": 16
+          },
+          {
+            "item": "larch-log",
+            "count": 7
+          },
+          {
+            "item": "fuse-cord",
+            "count": 5
+          }
+        ],
+        "shards": 47
+      },
+      {
+        "item": "cavefish-boots",
+        "level": 55,
+        "ingredients": [
+          {
+            "item": "cavefish",
+            "count": 16
+          },
+          {
+            "item": "rootwood-log",
+            "count": 8
+          },
+          {
+            "item": "rock-slough",
+            "count": 5
+          }
+        ],
+        "shards": 50
+      },
+      {
+        "item": "slough-swordbelt",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "cavefish",
+            "count": 18
+          },
+          {
+            "item": "rootwood-log",
+            "count": 8
+          },
+          {
+            "item": "rock-slough",
+            "count": 6
+          },
+          {
+            "item": "lode-chip",
+            "count": 4
+          }
+        ],
+        "shards": 53
       }
     ]
   },
@@ -1453,6 +1697,36 @@
           }
         ],
         "shards": 17
+      },
+      {
+        "item": "superior-healing-elixir",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "arnica",
+            "count": 9
+          },
+          {
+            "item": "grayling",
+            "count": 4
+          }
+        ],
+        "shards": 23
+      },
+      {
+        "item": "supreme-healing-elixir",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "gentian",
+            "count": 10
+          },
+          {
+            "item": "cavefish",
+            "count": 5
+          }
+        ],
+        "shards": 26
       }
     ]
   },
@@ -1603,6 +1877,52 @@
           },
           {
             "item": "mandrake",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "barley-bread",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "barley",
+            "count": 3
+          },
+          {
+            "item": "arnica",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "millet-flatbread",
+        "level": 55,
+        "ingredients": [
+          {
+            "item": "millet",
+            "count": 3
+          },
+          {
+            "item": "gentian",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "item": "miners-loaf",
+        "level": 60,
+        "ingredients": [
+          {
+            "item": "millet",
+            "count": 3
+          },
+          {
+            "item": "barley",
+            "count": 2
+          },
+          {
+            "item": "gentian",
             "count": 1
           }
         ]

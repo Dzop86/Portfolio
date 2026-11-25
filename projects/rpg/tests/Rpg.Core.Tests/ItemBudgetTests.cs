@@ -29,7 +29,8 @@ public class ItemBudgetTests
 
     /// <summary>The levels of the pieces made in each of the four zones, from the woods to the fields.</summary>
     // Since sprint 135 (D79), the Forest of the Ancestors' pieces, of levels 34 and 38.
-    private static readonly int[][] Zones = [[3, 6], [10, 14], [18, 22], [26, 30], [34, 38]];
+    // Since sprint 228, the Mines' three levels of pieces (recipes 50, 55 and 60).
+    private static readonly int[][] Zones = [[3, 6], [10, 14], [18, 22], [26, 30], [34, 38], [47, 50, 53]];
 
     private static int Budget(Item i) => Templates.Budget(i.Level, i.Slot!.Value);
 
@@ -72,7 +73,8 @@ public class ItemBudgetTests
     public void ACraftsmansPiece_IsTheLootsBudget_InVitalityAndOneElement_WithoutInitiative()
     {
         Item[] made = [.. Real.MadePieces];
-        Assert.Equal(40, made.Length);
+        // Since sprint 228, the Mines' twelve.
+        Assert.Equal(52, made.Length);
         foreach (Item i in made)
         {
             Assert.InRange(Sum(i.Stats), Budget(i) - 1, Budget(i) + 1);
@@ -91,18 +93,25 @@ public class ItemBudgetTests
     {
         Job job = Real.Jobs[trade];
         Recipe[] pieces = [.. job.Recipes.Where(r => Real.Items[r.Item].Kind == ItemKind.Equipment)];
-        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45], pieces.Select(r => r.Level));
+        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60], pieces.Select(r => r.Level));
         Assert.NotNull(job.Workshop);
         foreach (Recipe r in pieces)
         {
             Item item = Real.Items[r.Item];
             Assert.Contains(item.Slot!.Value, SlotsOf[trade]);
-            Assert.Equal(3, r.Ingredients.Count);
-            Assert.Equal(r.Level, Real.Jobs[main].Harvests!.Single(h => h.Item == r.Ingredients[0].Item).Level);
-            Assert.Equal(r.Level, Real.Jobs[second].Harvests!.Single(h => h.Item == r.Ingredients[1].Item).Level);
-            int monster = Shop.Level(Real.Items[r.Ingredients[2].Item], Real);
-            Assert.True(Real.Monsters.Values.Any(m => (m.Loot ?? []).Any(l => l.Item == r.Ingredients[2].Item)), r.Item);
-            Assert.InRange(monster, item.Level - 10, item.Level);
+            // Sprint 228: nothing is gathered at 60; the recipes of 60 take the 55 resources and one of each Mines family.
+            int gathered = Math.Min(r.Level, 55);
+            Assert.Equal(r.Level == 60 ? 4 : 3, r.Ingredients.Count);
+            Assert.Equal(gathered, Real.Jobs[main].Harvests!.Single(h => h.Item == r.Ingredients[0].Item).Level);
+            Assert.Equal(gathered, Real.Jobs[second].Harvests!.Single(h => h.Item == r.Ingredients[1].Item).Level);
+            foreach (ItemCount m in r.Ingredients.Skip(2))
+            {
+                int monster = Shop.Level(Real.Items[m.Item], Real);
+                Assert.True(Real.Monsters.Values.Any(x => (x.Loot ?? []).Any(l => l.Item == m.Item)), r.Item);
+                Assert.InRange(monster, item.Level - 10, item.Level);
+            }
+            if (r.Level == 60)
+                Assert.Equal(["borer", "delver"], r.Ingredients.Skip(2).Select(m => Real.Families.Values.Single(f => f.Monsters.Any(x => (x.Loot ?? []).Any(l => l.Item == m.Item))).Id).Order());
             // The Éclats: the item's level, twice for two hands.
             Assert.Equal(item.Level * (item.Slot == ItemSlot.TwoHanded ? 2 : 1), r.Shards);
         }

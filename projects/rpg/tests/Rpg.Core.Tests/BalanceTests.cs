@@ -202,6 +202,33 @@ public class BalanceTests
         Assert.True(gain.All(g => g <= 3) && gain.Average() <= 1.7, $"gains of {string.Join(", ", gain.Select(g => g.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)))} of 10");
     }
 
+    /// <summary>
+    /// Sprint 228 (D102): the forest's rule above for the Mines, the craftsmen's pieces of 50, 55 and 60 (items of levels 47,
+    /// 50 and 53) against the pieces of 45 and under, on the Mines' hordes at the zone's highest level. Off the CI, the bench's
+    /// way: the run's budget of fights is full (T190); 10 fights a horde and a class.
+    /// </summary>
+    [Fact(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
+    public void TheMinesHordes_AtLevelSixty_AreNotWonFarMore_WithTheCraftsmensPiecesOfFiftyToSixty()
+    {
+        MonsterGroup[] hordes = [.. Real.Groups.Values.Where(g => Real.Towns[g.Map].Zone == "underroot" && g.Monsters.Count >= 6)];
+        Assert.NotEmpty(hordes);
+        IReadOnlyDictionary<Slot, string> before = Progression.Kit("craft", "underroot", 46, Real), now = Progression.Kit("craft", "underroot", 60, Real);
+        Assert.Contains(now.Values, id => Real.Items[id].Level == 53);
+        Assert.DoesNotContain(before.Values, id => Real.Items[id].Level >= 47);
+        const int fights = 10;
+        double Wins(string id, IReadOnlyDictionary<Slot, string> worn)
+        {
+            Hero hero = Progression.Built(new Hero("Essai", "female-d", id, Level: 60), Real, worn);
+            return hordes.AsParallel().Select(g => 10.0 * Results(MonsterGroup.Prefix + g.Id, fights, hero)[0] / fights).Average();
+        }
+        (string Id, double Before, double Now)[] seen = [.. Classes.Select(id => (id, Wins(id, before), Wins(id, now)))];
+        string line = string.Join(", ", seen.Select(x => string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{x.Id} {x.Before:0.0} -> {x.Now:0.0}")));
+        if (Environment.GetEnvironmentVariable("RPG_HALL_OUT") is string path)
+            File.AppendAllText(path, line + Environment.NewLine);
+        double[] gain = [.. seen.Select(x => x.Now - x.Before)];
+        Assert.True(gain.All(g => g <= 3) && gain.Average() <= 1.7, $"of 10: {line}");
+    }
+
     [Fact]
     public void TheDisjoint_IsBeatenAlone_AtLevelThirty_WithTheCraftsmensPieces()
     {

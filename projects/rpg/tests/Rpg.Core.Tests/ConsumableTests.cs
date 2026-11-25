@@ -11,14 +11,15 @@ public class ConsumableTests
     private static readonly Hero Guard = new("Essai", "female-d", "warrior", Level: 10);
 
     [Fact]
-    public void TheAlchemist_MakesFiveHealingPotions_DrunkOutOfAFight()
+    public void TheAlchemist_MakesSevenHealingPotions_DrunkOutOfAFight()
     {
         Job alchemist = Real.Jobs["alchemist"];
         Item[] potions = [.. alchemist.Recipes.Select(r => Real.Items[r.Item])];
-        Assert.Equal([3, 10, 18, 26, 34], potions.Select(p => p.Level));
+        // Since sprint 228, the Mines' elixirs of 50 and 60.
+        Assert.Equal([3, 10, 18, 26, 34, 47, 53], potions.Select(p => p.Level));
         Assert.All(potions, p => Assert.Equal((ItemKind.Consumable, 50 + 20 * p.Level), (p.Kind, p.Heal)));
-        // The herbalist's plant of the recipe's level in each.
-        Assert.All(alchemist.Recipes, r => Assert.Contains(Real.Jobs["herbalist"].Harvests!, h => h.Item == r.Ingredients[0].Item && h.Level == r.Level));
+        // The herbalist's plant of the recipe's level in each; at 60, the 55's (nothing is gathered at 60, sprint 228).
+        Assert.All(alchemist.Recipes, r => Assert.Contains(Real.Jobs["herbalist"].Harvests!, h => h.Item == r.Ingredients[0].Item && h.Level == Math.Min(r.Level, 55)));
         // The oils of sprint 111 are gone.
         Assert.DoesNotContain(Real.Items.Keys, id => id.EndsWith("-oil", StringComparison.Ordinal) || id.EndsWith("essence", StringComparison.Ordinal));
     }
@@ -37,11 +38,14 @@ public class ConsumableTests
     public void TheBaker_BakesEightBreads_TheFirstTheVillagesLoaf_EatenOutOfAFight()
     {
         Job baker = Real.Jobs["baker"];
-        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45], baker.Recipes.Select(r => r.Level));
+        // Since sprint 228, the Mines' 50, 55 and 60.
+        Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60], baker.Recipes.Select(r => r.Level));
         Assert.Equal(Shop.Loaf, baker.Recipes[0].Item);
         Assert.All(baker.Recipes, r => Assert.Equal(30 + 10 * r.Level, Real.Items[r.Item].Heal));
         // Three of the farmer's grain of its level.
-        Assert.All(baker.Recipes, r => Assert.Contains(Real.Jobs["farmer"].Harvests!, h => h.Item == r.Ingredients[0].Item && h.Level == r.Level && r.Ingredients[0].Count == 3));
+        // At 60, the 55's millet and two of the 50's barley: the Mines' two grains.
+        Assert.All(baker.Recipes, r => Assert.Contains(Real.Jobs["farmer"].Harvests!, h => h.Item == r.Ingredients[0].Item && h.Level == Math.Min(r.Level, 55) && r.Ingredients[0].Count == 3));
+        Assert.Equal([new ItemCount("millet", 3), new ItemCount("barley", 2), new ItemCount("gentian", 1)], baker.RecipeFor("miners-loaf")!.Ingredients);
         // The still and the oven by Sidonie's and Basile's doors.
         Town row = Real.Towns["clairval-3-1"];
         foreach ((string trade, string who) in new[] { ("alchemist", "sidonie"), ("baker", "basile") })

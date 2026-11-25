@@ -57,13 +57,18 @@ ICONS = {
     "granite-warhammer": "delapouite/wood-club", "elm-pavise": "delapouite/viking-shield", "spelt-doublet": "lorc/breastplate",
     "sorghum-hood": "delapouite/robin-hood-hat", "granite-ring": "delapouite/power-ring", "malachite-amulet": "lorc/gem-pendant",
     "trout-skin-boots": "delapouite/rubber-boot", "catfish-belt": "lucasms/belt",
+    # The levels 50, 55 and 60 of the four trades (sprint 228), drawings already there.
+    "cobalt-pick": "delapouite/war-pick", "rootwood-greatmaul": "delapouite/wood-club", "gilded-rootwood-shield": "delapouite/viking-shield",
+    "barley-spaulders": "skoll/pauldrons", "millet-cape": "delapouite/cape", "millet-smock": "lorc/breastplate",
+    "cobalt-ring": "delapouite/power-ring", "gold-locket": "delapouite/tribal-pendant", "lode-ring": "delapouite/globe-ring",
+    "grayling-belt": "lucasms/belt", "cavefish-boots": "delapouite/rubber-boot", "slough-swordbelt": "delapouite/belt-armor",
     "poacher-boots": "lorc/leather-boot", "digger-boots": "delapouite/fur-boot", "boar-boots": "delapouite/metal-boot",
     "wolf-boots": "delapouite/fur-boot", "frog-boots": "delapouite/rubber-boot", "bee-boots": "delapouite/sticky-boot",
     # Consumables; since sprint 111 the alchemist's potions and the baker's breads.
     "bread": "delapouite/bread", "healing-potion": "delapouite/health-potion",
     "strong-healing-potion": "delapouite/health-potion", "greater-healing-potion": "delapouite/health-potion", "healing-elixir": "delapouite/health-potion",
-    "greater-healing-elixir": "delapouite/health-potion",
-    **{b: "delapouite/bread" for b in ("oat-bread", "hemp-bread", "rye-bread", "sedge-flatbread", "reed-rice-bread", "clairval-loaf", "buckwheat-galette", "spelt-bread", "sorghum-flatbread")},
+    "greater-healing-elixir": "delapouite/health-potion", "superior-healing-elixir": "delapouite/health-potion", "supreme-healing-elixir": "delapouite/health-potion",
+    **{b: "delapouite/bread" for b in ("oat-bread", "hemp-bread", "rye-bread", "sedge-flatbread", "reed-rice-bread", "clairval-loaf", "buckwheat-galette", "spelt-bread", "sorghum-flatbread", "barley-bread", "millet-flatbread", "miners-loaf")},
     # Resources the monsters leave.
     "leather": "delapouite/animal-hide", "orc-fang": "lorc/fangs-circle", "feather": "lorc/feather",
     "boar-tusk": "lorc/boar-tusks", "boar-bristle": "delapouite/hair-strands", "wolf-fang": "skoll/fangs",
