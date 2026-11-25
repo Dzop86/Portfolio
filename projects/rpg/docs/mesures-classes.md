@@ -642,3 +642,7 @@ Voir T187 et `docs/banc-groupes.md`. `Rpg.Sim --matrix --casts --party-size 2|3`
 ## 18 novembre 2026 : l'IA des sorts de groupe (S223, T188)
 
 Voir T188 et `docs/sorts-de-groupe.md`. `Rpg.Sim --matrix --casts --party-size 2`, 20 combats par groupe, 9 hordes, niveaux 35 et 50, pour le Paladin, le Voleur, l'Invocateur, le Druide et le Guerrier, avant et après. Lancers par combat : Haie 0,0 → 0,3 ; Sol grondant 0,1 → 0,2 ; Rappel 0,1 → 0,2 ; Cabriole 0,0 → 0,1 (35) ; Bouclier de la foi 0,3, Fiole de peste 0,2, Feinte 0,1 et Cercle de fer 0,0 inchangés. Moyenne des voies : 66,3 → 66,1 (35), 70,9 → 70,7 (50) ; le Gardien de la nature 70,0 → 63,3 à 35, toutes les autres lignes à 2,3 points au plus. Par PA au niveau 50, quand ils servent : Bouclier 12,5 (le Guerrier à portée 12 % des tours), Fiole 8,0, Sol grondant 4,2 et Haie 3,5 (à 35), Rappel 3,8, Feinte 2,0, Cercle de fer 1,8, contre 8,6 à 14,6 pour le meilleur coup du tour.
+
+## 25 novembre 2026 : jalon 4, le banc à 60 (S229, T194)
+
+Voir T194 et `docs/jalon-4.md`. `Rpg.Sim --matrix --simulate 30 --casts --level 50|60` (13 minutes chacun), puis `--class priest|necromancer|druid|paladin` à 55 et 59. Moyenne de toutes les voies : 65,9 à 50, 56,8 à 60. Sans voie à 60 : Archer 41,3, Guerrier 47,5, Mage 51,3, Prêtre 10,2, Voleur 38,3, Berserker 72,3, Paladin 32,7, Invocateur 47,5, Nécromancien 21,7, Druide 17,1. Moyenne des voies à 59 puis à 60 : Prêtre 44,9 → 28,7, Nécromancien 60,7 → 39,8, Druide 65,3 → 56,1, Paladin 60,4 → 57,8. Duo et trio à 60 (`--party-size 2|3`, 20 combats, 9 hordes) : 70,2 et 99,4.
