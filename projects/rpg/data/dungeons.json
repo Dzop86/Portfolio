@@ -418,5 +418,89 @@
         }
       }
     ]
+  },
+  {
+    "id": "ringing-seam",
+    "name": {
+      "fr": "Filon qui sonne",
+      "en": "The Ringing Seam"
+    },
+    "family": "delver",
+    "map": "underroot-0-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "ringing-seam-key",
+    "rooms": [
+      "dungeon-delver-1",
+      "dungeon-delver-2",
+      "dungeon-delver-3"
+    ],
+    "halls": [
+      {
+        "map": "ringing-seam-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "ringing-seam-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "ringing-seam-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "mountains-belly",
+    "name": {
+      "fr": "Ventre de la montagne",
+      "en": "The Mountain's Belly"
+    },
+    "family": "borer",
+    "map": "underroot-4-4",
+    "door": {
+      "x": 24,
+      "y": 9
+    },
+    "key": "mountains-belly-key",
+    "rooms": [
+      "dungeon-borer-1",
+      "dungeon-borer-2",
+      "dungeon-borer-3"
+    ],
+    "halls": [
+      {
+        "map": "mountains-belly-1",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mountains-belly-2",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      {
+        "map": "mountains-belly-3",
+        "group": {
+          "x": 10,
+          "y": 5
+        }
+      }
+    ]
   }
 ]

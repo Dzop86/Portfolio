@@ -211,8 +211,8 @@ public class BorerTests
             int drops = (m.Loot ?? []).Count(l => Real.Items[l.Item].Set == "borer");
             Assert.Equal(m.Role switch { MonsterRole.Boss => 4, MonsterRole.Support => 0, _ => 1 }, drops);
         }
-        // The worms keep nothing of what they eat: no ore of the zone (§4.5).
-        Assert.All(Worms.Monsters.SelectMany(m => m.Loot ?? []), l => Assert.Contains(l.Item, (string[])["borer-tooth", "rock-slough", .. Real.Items.Values.Where(i => i.Set == "borer").Select(i => i.Id)]));
+        // The worms keep nothing of what they eat: no ore of the zone (§4.5); since sprint 227, their dungeon's key.
+        Assert.All(Worms.Monsters.SelectMany(m => m.Loot ?? []), l => Assert.Contains(l.Item, (string[])["borer-tooth", "rock-slough", "mountains-belly-key", .. Real.Items.Values.Where(i => i.Set == "borer").Select(i => i.Id)]));
     }
 
     [Fact]

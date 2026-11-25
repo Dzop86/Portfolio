@@ -285,4 +285,38 @@ public class BalanceTests
         int wins = Results(dungeon.Scenario(2), 300, hero)[0];
         Assert.True(wins >= 210, $"{id}: {wins} of 300 in {dungeon.Id}'s great hall at level 41");
     }
+
+    /// <summary>
+    /// Sprint 227 (D102): the Mines' great halls, the rule of sprint 134 (at least 7 times in 10 alone, with nothing worn) for each of
+    /// the ten classes, each hall at the level of the quest that sends there (59 and 60, the forest's way: the quest follows the
+    /// hall). Off the CI, the bench's way: the run's budget of fights is full (T190).
+    /// </summary>
+    [Theory(Explicit = true)] // The bench (N2, D97): off the CI, run with -- --explicit only
+    [InlineData("archer")]
+    [InlineData("warrior")]
+    [InlineData("mage")]
+    [InlineData("priest")]
+    [InlineData("rogue")]
+    [InlineData("berserker")]
+    [InlineData("paladin")]
+    [InlineData("summoner")]
+    [InlineData("necromancer")]
+    [InlineData("druid")]
+    public void TheMinesGreatHalls_AreWonAloneAndBare_ByEachOfTheTenClasses_AtTheirQuestsLevels(string id)
+    {
+        const int fights = 100;
+        (string Dungeon, int Level, int Wins)[] seen = [.. MinesDungeons.AsParallel().AsOrdered().Select(d =>
+        {
+            int level = Real.Quests[d + "-cleared"].Level;
+            var hero = Progression.Built(new Hero("Essai", "female-d", id, Level: level), Real);
+            return (d, level, Results(Real.Dungeons[d].Scenario(2), fights, hero)[0]);
+        })];
+        string line = $"{id}: " + string.Join(", ", seen.Select(s => $"{s.Dungeon} at {s.Level} {s.Wins}")) + $" of {fights}";
+        // The measure's every number, when asked for (RPG_HALL_OUT names a file).
+        if (Environment.GetEnvironmentVariable("RPG_HALL_OUT") is string path)
+            File.AppendAllText(path, line + Environment.NewLine);
+        Assert.True(seen.All(s => s.Wins >= 70), line);
+    }
+
+    private static readonly string[] MinesDungeons = ["ringing-seam", "mountains-belly"];
 }

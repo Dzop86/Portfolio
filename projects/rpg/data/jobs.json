@@ -159,6 +159,36 @@
           }
         ],
         "shards": 225
+      },
+      {
+        "item": "ringing-seam-key",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "fuse-cord",
+            "count": 6
+          },
+          {
+            "item": "lode-chip",
+            "count": 4
+          }
+        ],
+        "shards": 300
+      },
+      {
+        "item": "mountains-belly-key",
+        "level": 50,
+        "ingredients": [
+          {
+            "item": "borer-tooth",
+            "count": 6
+          },
+          {
+            "item": "rock-slough",
+            "count": 4
+          }
+        ],
+        "shards": 300
       }
     ]
   },

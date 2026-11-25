@@ -80,7 +80,8 @@ public class QuestBookTests
         var active = new List<QuestProgress>();
         string[] givers = [.. Data.Quests.Values.Select(q => q.Giver).OfType<string>().Distinct()];
         // Up to level 45: one quest handed back by each giver at each level, the zones' longer chains (sprint 113) take longer.
-        for (int level = 1; level <= 45; level++)
+        // Since sprint 227, up to 60: the Mines' dungeons, Berthe's quests of levels 59 and 60.
+        for (int level = 1; level <= 60; level++)
         {
             foreach (string giver in givers)
             {

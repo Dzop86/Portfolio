@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-borer-3",
+  "name": {
+    "fr": "Ventre de la montagne : salle du chef",
+    "en": "The Mountain's Belly: Chief's Hall"
+  },
+  "rows": [
+    "...........",
+    ".....###.B.",
+    ".A.........",
+    ".......#..B",
+    "...#.#.....",
+    "A.A.....B.B",
+    "...#.#.....",
+    ".......#..B",
+    ".A.........",
+    ".....###.B.",
+    "..........."
+  ]
+}

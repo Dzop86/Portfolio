@@ -464,7 +464,7 @@
       "en": "Defeat 100 Rockdelvers."
     },
     "points": 15,
-    "level": 48,
+    "level": 59,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "delver"
@@ -482,7 +482,7 @@
       "en": "Defeat 100 Rock Worms."
     },
     "points": 15,
-    "level": 50,
+    "level": 60,
     "goal": "FamilyVictories",
     "count": 100,
     "target": "borer"
@@ -884,21 +884,57 @@
     "target": "mother-tree-roots"
   },
   {
+    "id": "dungeon-ringing-seam",
+    "category": "Dungeons",
+    "group": "levels-46-60",
+    "name": {
+      "fr": "Le filon s'est tu",
+      "en": "The Seam Falls Silent"
+    },
+    "text": {
+      "fr": "Finissez le Filon qui sonne.",
+      "en": "Finish the Ringing Seam."
+    },
+    "points": 10,
+    "level": 59,
+    "goal": "Dungeon",
+    "count": 1,
+    "target": "ringing-seam"
+  },
+  {
+    "id": "dungeon-mountains-belly",
+    "category": "Dungeons",
+    "group": "levels-46-60",
+    "name": {
+      "fr": "Plus un craquement",
+      "en": "Not a Creak"
+    },
+    "text": {
+      "fr": "Finissez le Ventre de la montagne.",
+      "en": "Finish the Mountain's Belly."
+    },
+    "points": 10,
+    "level": 60,
+    "goal": "Dungeon",
+    "count": 1,
+    "target": "mountains-belly"
+  },
+  {
     "id": "dungeons-all",
     "category": "Dungeons",
     "group": "general",
     "name": {
-      "fr": "Dix chefs tombés",
-      "en": "Ten Chiefs Fallen"
+      "fr": "Douze chefs tombés",
+      "en": "Twelve Chiefs Fallen"
     },
     "text": {
-      "fr": "Finissez les 10 donjons.",
-      "en": "Finish all 10 dungeons."
+      "fr": "Finissez les 12 donjons.",
+      "en": "Finish all 12 dungeons."
     },
     "points": 30,
-    "level": 45,
+    "level": 60,
     "goal": "Chiefs",
-    "count": 10,
+    "count": 12,
     "title": {
       "fr": "Fléau des donjons",
       "en": "Dungeon Bane"

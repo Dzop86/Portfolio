@@ -10,9 +10,8 @@ public class DungeonTests
     [Fact]
     public void EveryFamily_HasItsDungeon_ItsDoorOnTheChiefsMap_ItsKeyAndThreeRoomsOfItsOwn()
     {
-        // The Mines' two families have their dungeons at sprint 227 (docs/familles-mines.md §3.5).
-        string[] waiting = ["delver", "borer"];
-        Assert.Equal(Real.Families.Values.Select(f => f.Id).Except(waiting).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
+        // Since sprint 227, the Mines' two families too (docs/familles-mines.md §3.5): twelve.
+        Assert.Equal(Real.Families.Values.Select(f => f.Id).Order(), Real.Dungeons.Values.Select(d => d.Family).Order());
         Assert.Equal(Real.Dungeons.Count * Dungeons.RoomCount, Real.Dungeons.Values.SelectMany(d => d.Rooms).Distinct().Count());
         foreach (Dungeon d in Real.Dungeons.Values)
         {
@@ -42,6 +41,26 @@ public class DungeonTests
         Assert.Equal((40, 225L), (key.Level, key.Shards));
         Assert.Equal([new ItemCount(first, 6), new ItemCount(second, 4)], key.Ingredients);
         Assert.All(Real.Families[family].Monsters, m => Assert.Equal(m.Role == MonsterRole.Boss ? 10 : 2, m.Loot!.Single(l => l.Item == d.Key).Percent));
+    }
+
+    [Theory]
+    [InlineData("ringing-seam", "delver", "underroot-0-4", "Filon qui sonne", "fuse-cord", "lode-chip")]
+    [InlineData("mountains-belly", "borer", "underroot-4-4", "Ventre de la montagne", "borer-tooth", "rock-slough")]
+    public void TheMinesDungeons_OnTheirChiefsMaps_TheirKeysAtTheLocksmithAt50(string id, string family, string map, string name, string first, string second)
+    {
+        // Sprint 227 (D102): the doors on the chiefs' maps, Berthe's quests to finish them; the key from the family's two
+        // resources at level 50, 5 Éclats a level of the chief (60), left by the commons one time in fifty, the chief one in ten.
+        Dungeon d = Real.Dungeons[id];
+        Assert.Equal((family, map, name, $"{id}-key"), (d.Family, d.Map, d.Name.Fr, d.Key));
+        Assert.Equal(Real.Families[family].BossMap, d.Map);
+        Recipe key = Real.Jobs["locksmith"].RecipeFor(d.Key)!;
+        Assert.Equal((50, 300L), (key.Level, key.Shards));
+        Assert.Equal([new ItemCount(first, 6), new ItemCount(second, 4)], key.Ingredients);
+        Assert.All(Real.Families[family].Monsters, m => Assert.Equal(m.Role == MonsterRole.Boss ? 10 : 2, m.Loot!.Single(l => l.Item == d.Key).Percent));
+        Quest cleared = Real.Quests[id + "-cleared"];
+        Assert.Equal(("ancestors/berthe", "underroot", QuestKind.Dungeon), (cleared.Giver, cleared.Zone, cleared.Kind));
+        Assert.Equal((100 * cleared.Level, 15 * cleared.Level), (cleared.Xp, cleared.Shards));
+        Assert.All(d.Halls!, h => Assert.True(Real.Towns[h.Map].IsHall, h.Map));
     }
 
     [Fact]

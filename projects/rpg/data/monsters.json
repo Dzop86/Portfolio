@@ -2807,6 +2807,10 @@
           {
             "item": "lantern-helmet",
             "percent": 8
+          },
+          {
+            "item": "ringing-seam-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -2846,6 +2850,10 @@
           {
             "item": "gallery-boots",
             "percent": 8
+          },
+          {
+            "item": "ringing-seam-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -2890,6 +2898,10 @@
           {
             "item": "prop-pauldrons",
             "percent": 8
+          },
+          {
+            "item": "ringing-seam-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -2929,6 +2941,10 @@
           {
             "item": "lode-chip",
             "percent": 50
+          },
+          {
+            "item": "ringing-seam-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -2993,6 +3009,10 @@
           {
             "item": "prop-pauldrons",
             "percent": 8
+          },
+          {
+            "item": "ringing-seam-key",
+            "percent": 10
           }
         ],
         "lore": {
@@ -3056,6 +3076,10 @@
           {
             "item": "ringed-amulet",
             "percent": 8
+          },
+          {
+            "item": "mountains-belly-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -3095,6 +3119,10 @@
           {
             "item": "slough-cape",
             "percent": 8
+          },
+          {
+            "item": "mountains-belly-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -3136,6 +3164,10 @@
           {
             "item": "millstone-shield",
             "percent": 8
+          },
+          {
+            "item": "mountains-belly-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -3176,6 +3208,10 @@
           {
             "item": "rock-slough",
             "percent": 50
+          },
+          {
+            "item": "mountains-belly-key",
+            "percent": 2
           }
         ],
         "lore": {
@@ -3237,6 +3273,10 @@
           {
             "item": "millstone-shield",
             "percent": 8
+          },
+          {
+            "item": "mountains-belly-key",
+            "percent": 10
           }
         ],
         "lore": {

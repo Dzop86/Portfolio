@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-borer-2",
+  "name": {
+    "fr": "Ventre de la montagne : grande salle",
+    "en": "The Mountain's Belly: Great Hall"
+  },
+  "rows": [
+    "...........",
+    ".A..#.#..B.",
+    "....#.#...B",
+    ".........B.",
+    ".A..#~#...B",
+    "....#~#..B.",
+    ".A........B",
+    "....#.#..B.",
+    "....#.#...B",
+    ".A.......B.",
+    ".........B."
+  ]
+}

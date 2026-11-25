@@ -113,7 +113,8 @@ public class FirstQuestsTests
             // A zone's quests between its level and the next zone's (sprint 112: the Woods 5 to 10 for maps of level 3).
             if (q.Zone is string zone)
                 // Since sprint 136, the Forest of the Ancestors, maps of level 31 for a slice of levels 30 to 45 (D79).
-                Assert.InRange(q.Level, 1, zone == "ancestors" ? 45 : ZoneLevel(zone) + 7);
+                // Since sprint 227, the Mines, maps of level 46 for a slice up to 60 (D102): their dungeons at 59 and 60.
+                Assert.InRange(q.Level, 1, zone == "ancestors" ? 45 : zone == "underroot" ? 60 : ZoneLevel(zone) + 7);
             foreach (QuestObjective o in q.Objectives!)
             {
                 switch (o.Goal)

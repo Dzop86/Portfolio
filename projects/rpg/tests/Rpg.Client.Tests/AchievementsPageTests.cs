@@ -33,7 +33,7 @@ public class AchievementsPageTests
         Assert.Equal(["Général", "Les pierres"], exploration.Groups.Select(g => g.Name));
         AchievementBranch dungeons = o.Categories.Single(c => c.Id == "Dungeons");
         Assert.Equal("dungeons", dungeons.Icon);
-        Assert.Equal(["general", "levels-1-15", "levels-16-30", "levels-31-45"], dungeons.Groups.Select(g => g.Id).Order(StringComparer.Ordinal));
+        Assert.Equal(["general", "levels-1-15", "levels-16-30", "levels-31-45", "levels-46-60"], dungeons.Groups.Select(g => g.Id).Order(StringComparer.Ordinal));
         Assert.Equal((1, 4, 25), (dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Earned, dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Count, dungeons.Groups.Single(g => g.Id == "levels-1-15").Share.Percent));
         // The tree and the trust have no groups; 99 % until the last one.
         Assert.Empty(o.Categories.Single(c => c.Id == "Tree").Groups);
@@ -57,7 +57,8 @@ public class AchievementsPageTests
     {
         var texts = new Texts("fr");
         AchievementView view = View(("dungeon-boar-wallow", 1));
-        Assert.Equal(11, AchievementsPage.Lines(view, texts, "Dungeons").Count);
+        // Since sprint 227, the Mines' two dungeons: thirteen.
+        Assert.Equal(13, AchievementsPage.Lines(view, texts, "Dungeons").Count);
         IReadOnlyList<AchievementLine> low = AchievementsPage.Lines(view, texts, "Dungeons", "levels-1-15");
         Assert.Equal(4, low.Count);
         Assert.All(low, l => Assert.Equal(("Dungeons", "levels-1-15", "dungeons"), (l.Category, l.Group, l.Icon)));

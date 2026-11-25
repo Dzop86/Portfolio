@@ -33,6 +33,9 @@ DUNGEONS = O([
     # The Forest of the Ancestors (sprint 134): the scriptwriter's names, the keepers under the Mother Tree.
     ("stag", ("bellowing-combe", text("Combe du brame", "The Bellowing Combe"), text("Clef de la combe", "Combe Key"))),
     ("golem", ("mother-tree-roots", text("Racines de l'Arbre-Mère", "The Mother Tree's Roots"), text("Clef des racines", "Root Key"))),
+    # The Underroot Mines (sprint 227, D102): the seam the stonelistener hears ringing, the belly of the mountain the gnawer ate.
+    ("delver", ("ringing-seam", text("Filon qui sonne", "The Ringing Seam"), text("Clef du filon", "Seam Key"))),
+    ("borer", ("mountains-belly", text("Ventre de la montagne", "The Mountain's Belly"), text("Clef du ventre", "Belly Key"))),
 ])
 ROOMS = (text("Antichambre", "Antechamber"), text("Grande salle", "Great Hall"), text("Salle du chef", "Chief's Hall"))
 
@@ -180,7 +183,7 @@ items.append(O([("id", "admin-keyring"), ("name", text("Trousseau d'administrate
 # The key, rarely left by the family's monsters (sprint 81): one in fifty, one in ten for the chief.
 KEY_PERCENT, CHIEF_KEY_PERCENT = 2, 10
 # The locksmith's recipes: the key of each dungeon, from the family's two resources.
-RECIPE_LEVEL = {"woods": 1, "mouldy": 10, "lake": 20, "fields": 30, "ancestors": 40}
+RECIPE_LEVEL = {"woods": 1, "mouldy": 10, "lake": 20, "fields": 30, "ancestors": 40, "underroot": 50}
 kinds = {i["id"]: i["kind"] for i in items}
 recipes = []
 for f, d in zip(families, dungeons):

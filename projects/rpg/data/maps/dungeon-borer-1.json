@@ -1,0 +1,20 @@
+{
+  "id": "dungeon-borer-1",
+  "name": {
+    "fr": "Ventre de la montagne : antichambre",
+    "en": "The Mountain's Belly: Antechamber"
+  },
+  "rows": [
+    "...........",
+    ".........B.",
+    ".A.##......",
+    "....#.....B",
+    "...........",
+    "A.A.....B.B",
+    "...........",
+    "....#.....B",
+    ".A.##......",
+    ".........B.",
+    "..........."
+  ]
+}

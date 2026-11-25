@@ -2300,5 +2300,65 @@
     ],
     "xp": 4500,
     "shards": 675
+  },
+  {
+    "id": "ringing-seam-cleared",
+    "name": {
+      "fr": "Au fond : Filon qui sonne",
+      "en": "At the bottom: The Ringing Seam"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "underroot",
+    "level": 59,
+    "kind": "Dungeon",
+    "text": {
+      "fr": "Sous les Mines, il y a un filon que la roche fait sonner comme une cloche. Leur Écoute-roche l'a trouvé avant nous, et ses fouilleurs le gardent à la poudre. Va jusqu'au fond, avec du monde : je veux savoir ce qui sonne, avant que Bérold ne décide que c'est sacré.",
+      "en": "Under the Mines there's a seam the rock makes ring like a bell. Their Stonelistener found it before we did, and his delvers guard it with powder. Go all the way down, with company: I want to know what's ringing before Bérold decides it's sacred."
+    },
+    "thanks": {
+      "fr": "L'Écoute-roche s'est tu ? Alors le filon sonne pour nous, maintenant. Bérold dit qu'il a entendu des mots dedans. Moi, j'entends du minerai.",
+      "en": "The Stonelistener's gone quiet? Then the seam rings for us now. Bérold says he heard words in it. Me, I hear ore."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "ringing-seam"
+      }
+    ],
+    "after": [
+      "roots-of-the-mother-tree"
+    ],
+    "xp": 5900,
+    "shards": 885
+  },
+  {
+    "id": "mountains-belly-cleared",
+    "name": {
+      "fr": "Au fond : Ventre de la montagne",
+      "en": "At the bottom: The Mountain's Belly"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "underroot",
+    "level": 60,
+    "kind": "Dungeon",
+    "text": {
+      "fr": "Le Ronge-montagne a mangé le dessous de la montagne, et on creuse au-dessus de son ventre. Chaque fois qu'il se retourne, mes étais craquent. Descends jusqu'à lui, à plusieurs, et fais en sorte qu'il ne se retourne plus.",
+      "en": "The Mountain Gnawer ate the underside of the mountain, and we're digging right over its belly. Every time it turns over, my props creak. Go down to it, with others, and make sure it never turns over again."
+    },
+    "thanks": {
+      "fr": "Plus un craquement depuis ce matin. Mes gars dorment au fond pour la première fois. Je te dois mes étais, et sans doute quelques têtes.",
+      "en": "Not a creak since this morning. My lads are sleeping down the shaft for the first time. I owe you my props, and likely a few heads."
+    },
+    "objectives": [
+      {
+        "goal": "Dungeon",
+        "target": "mountains-belly"
+      }
+    ],
+    "after": [
+      "roots-of-the-mother-tree"
+    ],
+    "xp": 6000,
+    "shards": 900
   }
 ]
