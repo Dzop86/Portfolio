@@ -2710,7 +2710,9 @@ public partial class Main
         if (panel.Shown != AchievementsPanel.Overall || panel.Tiles != categories || panel.TreeRows != 1 + categories)
             problems.Add($"the achievements' overview shows {panel.Tiles} tiles and {panel.TreeRows} rows");
         panel.ShowCategory("Dungeons", "levels-1-15");
-        if (panel.TreeRows != 1 + categories + 4 || panel.Names.Count != 4 || panel.Chosen != "dungeon-wolf-den")
+        // The category's groups unfold under it: their number from the data (sprint 227 added the Mines' "Levels 46 to 60").
+        int dungeonGroups = AchievementsPage.Overview(view, texts).Categories.Single(c => c.Id == "Dungeons").Groups.Count;
+        if (panel.TreeRows != 1 + categories + dungeonGroups || panel.Names.Count != 4 || panel.Chosen != "dungeon-wolf-den")
             problems.Add($"the dungeons' first group shows {string.Join(", ", panel.Names)}, {panel.Chosen} chosen, in {panel.TreeRows} rows");
         panel.HideEarned(true);
         if (panel.Names.Count != 3)
