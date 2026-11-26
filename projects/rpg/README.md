@@ -402,3 +402,5 @@ Sprint 227 : 2 tests de plus (`Rpg.Core` : `DungeonTests`, les deux donjons des 
 Sprint 228 : 1 test de plus, hors CI (`Rpg.Core` : `BalanceTests`, les hordes des Mines au niveau 60 avec les pièces d'artisan de 50 à 60, pas gagnées beaucoup plus qu'avec celles de 45) ; `ItemBudgetTests` (les douze pièces des Mines, leurs recettes de 60 à quatre ingrédients, une ressource de chaque famille), `ConsumableTests` (deux élixirs, trois pains), `ShopTests` (T193).
 
 Sprint 229 : aucun test de plus. Jalon 4 : la zone de 46 à 60 mesurée (banc seul à 50, 55, 59 et 60, banc de groupes à 60, durées à 45 et 60) ; une marche au niveau 60, le sort de ce niveau entrant dans le deck automatique ; la mesure de B16 trop bruitée pour trancher (T194, `docs/jalon-4.md`).
+
+Sprint 230 : 9 cas de test de plus (`Rpg.Core` : `ProgressionTests`, un sort nouveau garde la place que l'ancien laissait dans un tour de 8 PA au sort le moins cher du deck, et le deck automatique du Nécromancien, du Prêtre et du Druide à 60 ; la fumée mise à jour). Le deck automatique garde le tour, la marche du niveau 60 disparaît (T195, `docs/deck-automatique.md`).
