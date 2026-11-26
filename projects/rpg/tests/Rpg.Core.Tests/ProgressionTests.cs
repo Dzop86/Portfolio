@@ -152,9 +152,14 @@ public class ProgressionTests
     [InlineData("archer", 60, "ember-volley>searing-shot tide-arrow>venom-arrow")]
     [InlineData("warrior", 41, "")]
     [InlineData("warrior", 55, "")]
-    [InlineData("warrior", 60, "cleave>titan-blow")]
+    // Sprint 230 (D103): Titan Blow (7 AP) no longer takes Cleave's cell (4 AP), which left room for a spell of 3; Fault Line (5 AP) takes Roots' (4 AP).
+    [InlineData("warrior", 60, "")]
     [InlineData("mage", 55, "")]
     [InlineData("mage", 60, "roots>fault-line")]
+    // The step of the fourth milestone: Tombstone, Judgement and Felled Oak (6 AP) wait for the player.
+    [InlineData("necromancer", 60, "")]
+    [InlineData("priest", 60, "blessed-tide>baptism")]
+    [InlineData("druid", 60, "")]
     public void TheAutomaticDeck_GivesANewSpellTheCellOfTheOldestOfItsElement_ThatItBeatsOnATurn(string id, int level, string swaps)
     {
         // Sprint 161 (the game designer's decision, docs/suite-apres-d69.md §12): nothing changes before 40; a spell that
@@ -189,6 +194,24 @@ public class ProgressionTests
         // The average times the casts 8 points allow, the poison over its turns, over 1 + the cooldown; areas left out.
         Assert.Equal(was, Hero.TurnValue(Real.Spells[old]), 3);
         Assert.Equal(worth, Hero.TurnValue(Real.Spells[next]), 3);
+    }
+
+    [Theory]
+    // The Ossuary (5) and Grave Dust (3) fill a turn of 8: Tombstone (6) would leave 2 points unspent.
+    [InlineData("tombstone", "ossuary", "grave-dust", false)]
+    [InlineData("judgement", "stone-verdict", "blessed-stone", false)]
+    [InlineData("felled-oak", "mound", "thorn", false)]
+    // Fault Line (5) still leaves a spell of 3 its room.
+    [InlineData("fault-line", "roots", "pebble", true)]
+    // Searing Shot (3) leaves more room than Ember Volley (5), the swap of level 40.
+    [InlineData("searing-shot", "ember-volley", "stone-arrow", true)]
+    // Two spells of 5 never shared a turn: the room the old one left is no room, the new one may be dearer.
+    [InlineData("tombstone", "ossuary", "mound", true)]
+    public void ANewSpell_KeepsTheRoomTheOldOneLeftInATurn_ForTheCheapestSpellThatHurts(string next, string old, string other, bool keeps)
+    {
+        // Sprint 230 (D103, docs/jalon-4.md §4): from 59 to 60, the Necromancer lost 21 points of 100, the Priest 16, the Druid 9.
+        Assert.Equal(keeps, Hero.Keeps(Real.Spells[next], Real.Spells[old], [Real.Spells[other], Real.Spells["mend"] with { DamageMax = 0, ApCost = 1 }]));
+        Assert.True(Hero.Keeps(Real.Spells[next], Real.Spells[old], []));
     }
 
     [Fact]

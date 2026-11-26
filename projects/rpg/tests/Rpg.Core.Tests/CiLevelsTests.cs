@@ -152,7 +152,7 @@ public class CiLevelsTests
     {
         // The Archer (sprint 198, docs/classes-archer.md §5): the War Hawk's second Running Shot changes none of a hero's fights. Sprint 220 (D101): the Beast Lord's
         // second Hawk, at 14 % of the Archer's hit points (20 before), neither.
-        "war-hawk", "beast-lord",
+        "war-hawk",
         // The Mage (sprint 200, docs/classes-mage-2.md §5): the Rune and the Crescendo unplayed; the Time Keeper and the Lord of Moments serve allies the smoke has not.
         "rune-master", "distortion-master", "time-keeper", "instant-lord",
         // Sprint 202: the Priest's 19 heroes of 100 leave each hero 5 fights (6 before). The Vaulter's echo and the Priest's finals that act through a spell played
@@ -160,7 +160,7 @@ public class CiLevelsTests
         "saint", "life-warden", "zealot", "divine-sage",
         // The Rogue (sprint 204, docs/classes-voleur.md §6): the Dancing Blade's Vault and the Trap Master's second Caltrops unplayed; the Demolisher's
         // target without movement points hardly met alone; the Silent Reaper's Execution a turn sooner changes none of a hero's 5 fights.
-        "dancing-blade", "demolisher", "trap-master", "silent-reaper",
+        "dancing-blade", "demolisher", "trap-master",
         // Sprint 205: the Spectre's Shadow Step and the Master of Illusions' second Image, unplayed.
         "spectre", "illusion-master",
         // Sprint 207: the King of the Clans' Clan Cry unplayed; the Beheader's Beheading a turn sooner changes none of a hero's fights.
@@ -185,13 +185,16 @@ public class CiLevelsTests
         "archdemonist", "astral-architect",
         // Sprint 215 (docs/classes-necromancien-2.md §5): a Ghoul asks for a corpse and the Offering is cast 0.1 to 0.2 times a fight; the Ghoul Lord's Ghoul sooner,
         // the General of the Dead's movement taken and the Doom Emperor's Offering sooner change none of a hero's 5 fights.
-        "ghoul-lord", "dead-general", "doom-emperor",
+        "dead-general", "doom-emperor",
         // Sprint 217 (docs/classes-druide-2.md §4): the Changeform's Pounce and the Wild Druid's Trample, cast 0.3 to 0.4 times a fight: the Primal Predator's
         // Pounce sooner and the Lord of Shapes' Trample sooner change none of a hero's fights.
         "primal-predator", "shape-lord",
         // Sprint 221 (D101): Holy Fury, back in 2 turns and in 1 for the Zealot, is cast once or so in a hero's few fights at 100; the Holy Avatar's +20 % on it
         // changes none of them.
         "holy-avatar",
+        // Sprint 230 (D103): the automatic deck keeps the turn of two spells at 100 (Hero.Keeps). The Beast Lord, the Silent Reaper and the Ghoul Lord change
+        // a fight now; the Living Ancestor's fights, its deck changed, none.
+        "living-ancestor",
     };
 
     /// <summary>

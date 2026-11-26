@@ -37,7 +37,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
     /// grimoire's first spells, up to <see cref="DeckLimit"/>; then each later spell that hurts takes, in place, the cell of
     /// the first spell that hurts of the same element, the oldest first (the lowest level, then the first in the grimoire),
     /// that it beats on a turn (<see cref="TurnValue"/>): neither a spell of level 1 nor one raised above rank 1, nor, for a
-    /// spell that only touches, one that reaches farther. Without one, it waits for the player's choice. A spell that does
+    /// spell that only touches, one that reaches farther; nor, from sprint 230 (D103), one whose turn it breaks (<see cref="Keeps"/>). Without one, it waits for the player's choice. A spell that does
     /// not hurt never comes in alone, and none is taken out. Nothing changes before level 40. A path's spells and those it keeps
     /// close the bar (sprint 186), in the places of the spells worth least (sprint 193, D95, T152: <see cref="LeastWorth"/>).
     /// </summary>
@@ -54,7 +54,7 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
             int cell = deck.Select((id, i) => (Spell: data.Spells[id], Cell: i))
                 .Where(x => x.Spell.DamageMax > 0 && x.Spell.Element == next.Element && x.Spell.Level > 1 && (Ranks?.GetValueOrDefault(x.Spell.RankKey, 1) ?? 1) <= 1)
                 .OrderBy(x => x.Spell.Level).ThenBy(x => grimoire.IndexOf(x.Spell.Id))
-                .Where(x => TurnValue(next) > TurnValue(x.Spell) && !(next.MaxRange == 1 && x.Spell.MaxRange >= 2))
+                .Where(x => TurnValue(next) > TurnValue(x.Spell) && !(next.MaxRange == 1 && x.Spell.MaxRange >= 2) && Keeps(next, x.Spell, deck.Where((_, i) => i != x.Cell).Select(id => data.Spells[id])))
                 .Select(x => x.Cell).DefaultIfEmpty(-1).First();
             if (cell >= 0)
                 deck[cell] = next.Id;
@@ -63,6 +63,25 @@ public sealed partial record Hero(string Name, string Look, string? Class = null
         while (deck.Count > Math.Max(0, limit - reserved.Count))
             deck.Remove(LeastWorth(deck, data));
         return [.. deck, .. reserved];
+    }
+
+    /// <summary>The action points of the turn the automatic deck plans for, as <see cref="TurnValue"/> does.</summary>
+    public const int TurnAp = 8;
+
+    /// <summary>
+    /// Whether <paramref name="next"/> can take the place of <paramref name="old"/> without breaking the turn the class plays with it
+    /// (sprint 230, D103, docs/jalon-4.md §4): when the old one left a turn of <see cref="TurnAp"/> room for another spell that hurts of the
+    /// deck (<paramref name="others"/>), the cheapest, the new one leaves that room too. Without it, at level 60, the Necromancer's Tombstone
+    /// (6 AP) took the place of the Ossuary (5 AP, played with Grave Dust's 3, the area that leaves the corpses he raises), the Priest's
+    /// Judgement of the Stone Verdict (4 AP), the Druid's Felled Oak of the Mound (5 AP): 21, 16 and 9 points of 100 lost from 59 to 60.
+    /// </summary>
+    public static bool Keeps(Spell next, Spell old, IEnumerable<Spell> others)
+    {
+        ArgumentNullException.ThrowIfNull(next);
+        ArgumentNullException.ThrowIfNull(old);
+        ArgumentNullException.ThrowIfNull(others);
+        int cheapest = others.Where(s => s.DamageMax > 0).Select(s => s.ApCost).DefaultIfEmpty(TurnAp + 1).Min();
+        return old.ApCost + cheapest > TurnAp || next.ApCost + cheapest <= TurnAp;
     }
 
     /// <summary>
