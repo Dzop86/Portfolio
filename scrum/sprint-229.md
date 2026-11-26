@@ -14,6 +14,8 @@
 - **La marche du niveau 60** : de 59 à 60, −21 sur les voies du Nécromancien, −16 du Prêtre, −9 du Druide ; le sort de 60 entre dans le deck automatique (Q1).
 - Banc de groupes à 60 : duo 70,2, trio 99,4 ; les sorts du S223 toujours sous 0,5.
 - B15 tenue ; B16 : le même code donne de 520 à 1 336 ms par tour selon la charge de la machine, le simulateur du S222 autant (Q3).
+- Build 1.0.249 (CI rpg 45682843983) livrée le 26 novembre, l'API locale reconstruite.
+- Charles répond « go » aux recommandations (D103) : sprints 230 à 238.
 - Limites : playtest pour Charles ; textes de S224, S227, S228 non relus par le scénariste ; aucune quête annexe dans les Mines.
 
 ## Rétro (Charles)

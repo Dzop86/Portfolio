@@ -1,4 +1,4 @@
-# Jalon 4 : la première zone de 46 à 60 *(25 novembre 2026, sprint 229, à valider par Charles)*
+# Jalon 4 : la première zone de 46 à 60 *(25 novembre 2026, sprint 229, validé par Charles : D103)*
 
 La story : « En tant que Charles, je joue la zone de 46 à 60 avec les dix classes, la mesure (banc à 60, banc de groupes, durées) est dans `REVIEW.md`, et je décide de la suite : zones de 61 à 100 ou autre chose ; banc hors CI, build livrée. » Elle vient de D102 (`docs/banc-groupes.md` §5, option a).
 
@@ -120,6 +120,8 @@ Ce n'est pas une affaire de zone : la même marche peut revenir à 65, 70, 75 et
 - **Q4. Ce qui manque à la zone** (§7) : a) **une passe du scénariste sur les textes de S224, S227 et S228, et le fil « Garder ou creuser » en quêtes annexes (environ 4 points ; Reco)** ; b) les textes seulement (1 point) ; c) plus tard, avec la refonte artistique.
 - **Q5. La suite** : a) **Q1, Q3 et Q4, puis la zone de 61 à 75 au même gabarit (22 points) et un jalon 5 (Reco)** : environ 32 points, 9 sprints ; b) les trois zones jusqu'à 100 d'affilée (66 points) et deux jalons, Q1 d'abord ; c) autre chose, après ton playtest de la zone.
 
+**Réponses de Charles (26 novembre 2026, « go », D103) :** Q1 à Q5, les recommandations. Au 230, le deck automatique qui ne casse plus un enchaînement ni une invocation, vérifié de 45 à 80, puis B4 et B6 remesurées à 60 sans régler les classes ; au 231, B16 mesurée en série, en temps de calcul ; au 232, la relecture du scénariste et le fil « Garder ou creuser » en quêtes annexes ; du 233 au 237, la zone de 61 à 75 au même gabarit (cartes, deux familles, donjons, artisanat) ; le jalon 5 au 238.
+
 ## 9. La build
 
-Version du manifeste et numéro du run de la CI dans `scrum/sprint-229.md`. L'API locale (port 8002) est reconstruite avec elle ; le compte Plouf garde ses trois personnages de niveau 100.
+Version 1.0.249, run de la CI 45682843983 (`scrum/sprint-229.md`). L'API locale (port 8002) est reconstruite avec elle ; le compte Plouf garde ses trois personnages de niveau 100.
