@@ -15,6 +15,7 @@
 - À 60, banc du jalon : 58,7 (56,8) ; B4 non tenue pour le Prêtre seul (17,1) ; 9 lignées hors de ±8 (15).
 - Tests : 9 cas de plus dans `ProgressionTests`, la fumée mise à jour ; Cœur, Client 469, Sim et format verts.
 - Q1 (Coup de titan) et Q2 (bornes restantes, Reco : au jalon 5) à Charles.
+- Build 1.0.251 (CI rpg 45831922620, toute verte) livrée, l'API locale reconstruite.
 
 ## Rétro (Charles)
 - Ce qui a marché :
