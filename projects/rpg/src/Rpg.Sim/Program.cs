@@ -378,7 +378,7 @@ public static class Program
         string[] middle = [.. Bench.MiddleGroups(family)];
         string[] hordes = [.. family.Groups.Where(g => g.Size >= 6).Select(g => g.Scenario)];
         string[] classes = [.. data.Classes.Select(c => c.Id)];
-        output.WriteLine(FormattableString.Invariant($"Level {family.Level}, {options.Simulate} fights a line, the same seeds; bare heroes, as the bench's."));
+        output.WriteLine(FormattableString.Invariant($"Level {family.Level}, {options.Simulate} fights a line, the same seeds, one after the other; bare heroes, as the bench's; ms of CPU time a round, {Tiers(Environment.GetEnvironmentVariable("DOTNET_TieredCompilation"))}."));
         output.WriteLine();
         output.WriteLine("| Who | Against | Won | Median rounds | Most | At the limit | Fighters at most | ms a round |");
         output.WriteLine("|---|---|---|---|---|---|---|---|");
@@ -393,20 +393,23 @@ public static class Program
             Hero[] heroes = [.. party.Select((c, k) => family.Hero(c, "none") with { Name = DurationNames[k] })];
             var rounds = new int[options.Simulate];
             var fighters = new int[options.Simulate];
-            var ticks = new long[options.Simulate];
             var won = new bool[options.Simulate];
-            Parallel.For(0, options.Simulate, i =>
+            // Sprint 231 (D103, Q3 of docs/jalon-4.md): one fight at a time, the process's CPU time and not the clock, so the machine's load no longer
+            // stretches the measure; the line's first fight is played once before, out of the count, so that compiling the code is not counted.
+            Ai.PlayOut(new Fight(family.Data, groups[0], options.Seed, heroes[0], null, null, heroes[1..]));
+            TimeSpan cpu = CpuTime(() =>
             {
-                var fight = new Fight(family.Data, groups[i % groups.Length], options.Seed + (ulong)i, heroes[0], null, null, heroes[1..]);
-                long start = System.Diagnostics.Stopwatch.GetTimestamp();
-                Ai.PlayOut(fight);
-                ticks[i] = System.Diagnostics.Stopwatch.GetTimestamp() - start;
-                rounds[i] = fight.Round;
-                fighters[i] = fight.Fighters.Count;
-                won[i] = fight.WinningTeam == 0;
+                for (int i = 0; i < options.Simulate; i++)
+                {
+                    var fight = new Fight(family.Data, groups[i % groups.Length], options.Seed + (ulong)i, heroes[0], null, null, heroes[1..]);
+                    Ai.PlayOut(fight);
+                    rounds[i] = fight.Round;
+                    fighters[i] = fight.Fighters.Count;
+                    won[i] = fight.WinningTeam == 0;
+                }
             });
             int[] sorted = [.. rounds.Order()];
-            double msRound = 1000.0 * ticks.Sum() / System.Diagnostics.Stopwatch.Frequency / Math.Max(1, rounds.Sum());
+            double msRound = cpu.TotalMilliseconds / Math.Max(1, rounds.Sum());
             costs.Add((name, msRound));
             output.WriteLine(FormattableString.Invariant(
                 $"| {name} | {(groups == middle ? "4 and 5" : "6 and more")} | {100.0 * won.Count(w => w) / won.Length:0} % | {sorted[sorted.Length / 2]} | {sorted[^1]} | {rounds.Count(r => r >= Fight.RoundLimit)} | {fighters.Max()} | {msRound:0.0} |"));
@@ -414,6 +417,23 @@ public static class Program
         output.WriteLine();
         output.WriteLine(RoundBudget(costs));
     }
+
+    /// <summary>The CPU time the process spends doing the work (sprint 231): every thread counted, the time waiting for the processor not.</summary>
+    internal static TimeSpan CpuTime(Action work)
+    {
+        using var process = System.Diagnostics.Process.GetCurrentProcess();
+        TimeSpan before = process.TotalProcessorTime;
+        work();
+        process.Refresh();
+        return process.TotalProcessorTime - before;
+    }
+
+    /// <summary>
+    /// Whether the JIT compiles in tiers (sprint 231): with its tiers, the code is compiled again while it runs, on a thread of the process whose CPU time
+    /// counts, and the lighter lines spread (3 Necromancers at 60: 60 to 116 ms); with DOTNET_TieredCompilation=0 they spread less, twice as slow.
+    /// </summary>
+    internal static string Tiers(string? tieredCompilation) =>
+        tieredCompilation == "0" ? "the JIT's tiers off (a steady measure)" : "the JIT's tiers on (DOTNET_TieredCompilation=0 for a steady measure)";
 
     private static readonly string[] DurationNames = ["Aube", "Brume", "Cendre", "Dune"];
 

@@ -329,8 +329,10 @@ public class ProgramTests
         Assert.Equal(GameData.Embedded.Classes.Count, output.Split('\n').Count(l => l.StartsWith("| 3 × ", StringComparison.Ordinal)));
         Assert.Contains("| priest + paladin |", output, StringComparison.Ordinal);
         Assert.Contains("| summoner | 4 and 5 |", output, StringComparison.Ordinal);
-        // Sprint 222 (D101): the bound B16, 1 second of rules and AI a round, told after the table.
-        Assert.Contains("B16, 1000 ms a round at most: held", output, StringComparison.Ordinal);
+        // Sprint 222 (D101): the bound B16, 1 second of rules and AI a round, told after the table; sprint 231 (D103): one fight after the other,
+        // in CPU time. The verdict is not asserted: the other tests run in the same process and their CPU time counts too.
+        Assert.Contains("one after the other", output, StringComparison.Ordinal);
+        Assert.Contains("B16, 1000 ms a round at most: ", output, StringComparison.Ordinal);
         Assert.Equal(2, Run("--durations", "--simulate", "1", "--matrix").Code);
         Assert.Equal(2, Run("--durations").Code);
     }
@@ -347,6 +349,25 @@ public class ProgramTests
         Assert.Contains("and an Archer", Run("--matrix", "--simulate", "1", "--class", "paladin", "--level", "35", "--party-size", "3").Out, StringComparison.Ordinal);
         Assert.Equal(2, Run("--simulate", "1", "--party-size", "2").Code);
         Assert.Equal(2, Run("--matrix", "--simulate", "1", "--party-size", "4").Code);
+    }
+
+    [Theory]
+    [InlineData("0", "tiers off")]
+    [InlineData(null, "tiers on")]
+    [InlineData("1", "tiers on")]
+    public void TheDurations_TellWhetherTheJitCompilesInTiers(string? setting, string told)
+    {
+        // Sprint 231 (D103): with its tiers, the JIT compiles again during the measure and spreads the lighter lines; the header says which.
+        Assert.Contains(told, Program.Tiers(setting), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TheCpuTime_CountsTheWorkDone()
+    {
+        // Sprint 231 (D103): B16 is measured in the process's CPU time, which a busy loop makes grow.
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        TimeSpan cpu = Program.CpuTime(() => { while (clock.ElapsedMilliseconds < 200) { } });
+        Assert.True(cpu > TimeSpan.Zero, $"{cpu}");
     }
 
     [Fact]
