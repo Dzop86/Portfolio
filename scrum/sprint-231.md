@@ -13,6 +13,7 @@
 - Mesures à 60, la machine au repos : 3 Invocateurs 97, 95, 95 ms par tour (2 %) ; 182 à 192 ms avec `DOTNET_TieredCompilation=0`. À 45, sous la charge d'une autre suite : 108 à 138 ms (243 à 255 sans les tiers). B16 (1 000 ms) tenue partout ; l'ancienne mesure (520 à 1 336) comptait l'attente du parallèle.
 - Limite : sous charge, le temps de calcul gonfle encore de 20 à 33 % ; les lignes légères bougent avec la recompilation du JIT. L'en-tête dit si les tiers sont coupés ; tiers non coupés dans le projet (le banc doublerait).
 - Tests : 4 cas de plus dans `ProgramTests` ; le verdict de B16 n'est plus asserté (le temps des autres tests compte). Sim 36/36 verte en Release.
+- Build 1.0.252 (CI rpg 45997106032, toute verte) livrée, l'API locale reconstruite.
 
 ## Rétro (Charles)
 - Ce qui a marché :
