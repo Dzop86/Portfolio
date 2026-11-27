@@ -109,6 +109,7 @@ Ce n'est pas une affaire de zone : la même marche peut revenir à 65, 70, 75 et
 - **Le playtest** : la story dit « je joue la zone ». Godot ne tourne chez moi que sans écran ; l'auto-test du village passe (`--town-selftest`, sprint 227) et la CI joue le combat des deux chefs dans le client. Le reste est pour toi, avec la build de ce sprint (§9).
 - **Les textes** : les noms des 10 ressources (S224), des donjons, des clefs, des quêtes de Berthe et des succès (S227), des 12 pièces, des élixirs et des pains (S228) sont de moi, pas du scénariste. Seuls les textes des deux familles sont les siens.
 - **Aucune quête annexe dans les Mines** ; le fil « Garder ou creuser » (niveau 46, annoncé par Anatole) n'est pas écrit.
+- **Sprint 232 (Q4 a, T197) : fait.** Le scénariste a relu les textes (`docs/textes-mines-2.md`) ; 14 changements appliqués. « Garder ou creuser » se joue en six quêtes annexes de 46 à 51, trois de Bérold, trois de Berthe, le côté pris fermant l'autre ; les salutations des deux suivent le parti.
 - **L'IA ne voit pas les tonnelets** (`KegRisk`, T190) : la mêlée s'y fait sauter.
 - **Pas d'échantillon des Mines en CI** ni de ligne dans `PartyBalanceTests` : le budget de combats est plein (19 997 sur 20 000).
 - **Les dessins et les portraits** des deux familles n'ont été vus ni par toi ni par le graphiste (pas de captures pour l'instant).

@@ -406,3 +406,5 @@ Sprint 229 : aucun test de plus. Jalon 4 : la zone de 46 à 60 mesurée (banc se
 Sprint 230 : 9 cas de test de plus (`Rpg.Core` : `ProgressionTests`, un sort nouveau garde la place que l'ancien laissait dans un tour de 8 PA au sort le moins cher du deck, et le deck automatique du Nécromancien, du Prêtre et du Druide à 60 ; la fumée mise à jour). Le deck automatique garde le tour, la marche du niveau 60 disparaît (T195, `docs/deck-automatique.md`).
 
 Sprint 231 : 4 cas de test de plus (`Rpg.Sim` : `--durations` dit qu'il mesure un combat après l'autre et si les tiers du JIT sont coupés ; le temps de calcul compte le travail fait). B16 mesurée en temps de calcul, tenue à 45 et à 60 (T196).
+
+Sprint 232 : 8 cas de test de plus (`Rpg.Core` : `KeepOrDigTests` et les quêtes rivales de `QuestTests` ; `Rpg.Client` : `KeepOrDigTests` ; `Rpg.Api` : `KeepOrDigTests`, intégration). Les textes des Mines relus par le scénariste et le fil « Garder ou creuser » en six quêtes annexes rivales (T197, `docs/textes-mines-2.md`).
