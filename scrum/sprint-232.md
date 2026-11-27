@@ -17,6 +17,7 @@
 - Les photos des quatre cartes des Mines où sont posés les objets refaites (`--render-maps` dans godot-env, Xvfb) ; les autres photos et l'index gardés.
 - Tests : `KeepOrDigTests` dans `Rpg.Core` (4), `Rpg.Client` (2) et `Rpg.Api` (1, intégration), les quêtes rivales dans `QuestTests` ; le parcours de toutes les quêtes (`QuestBookTests`) laisse un côté entier de côté.
 - Réponses prises par défaut aux questions du scénariste (à revoir par Charles) : Lotte ; le choix annoncé dans l'offre ; il n'y a pas d'abandon de quête, la question ne se pose pas ; salutations faites maintenant ; `moved-mountains` suivra `roots-of-the-mother-tree` seule.
+- Build 1.0.253 (CI rpg 46051562260, toute verte) livrée, l'API locale reconstruite.
 
 ## Rétro (Charles)
 - Ce qui a marché :
