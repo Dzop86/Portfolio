@@ -1382,5 +1382,23 @@
         "y": 1
       }
     }
+  ],
+  "props": [
+    {
+      "id": "worm-tunnel-1",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "stone",
+      "name": {
+        "fr": "Un tunnel de ver",
+        "en": "A worm tunnel"
+      },
+      "text": {
+        "fr": "Un tunnel parfaitement rond, lisse comme l'intérieur d'une flûte. Les marques de craie des mineurs s'arrêtent au premier coude ; le tunnel, lui, continue de descendre.",
+        "en": "A perfectly round tunnel, smooth as the inside of a flute. The miners' chalk marks stop at the first bend; the tunnel keeps going down."
+      }
+    }
   ]
 }

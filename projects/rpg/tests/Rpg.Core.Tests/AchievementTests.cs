@@ -43,7 +43,9 @@ public class AchievementTests
                 AchievementGoal.FamilyMastered => Real.Families.TryGetValue(a.Target!, out MonsterFamily? f) && a.Count == f.Monsters.Count,
                 AchievementGoal.FamilyVictories or AchievementGoal.Chief => Real.Families.ContainsKey(a.Target!) && Real.Dungeons.Values.Any(d => d.Family == a.Target || a.Goal == AchievementGoal.FamilyVictories),
                 AchievementGoal.Dungeon => Real.Dungeons.ContainsKey(a.Target!) && Real.Quests.ContainsKey(a.Target + "-cleared"),
-                AchievementGoal.Quests => a.Targets is { Count: > 0 } t && t.All(Real.Quests.ContainsKey) && a.Count == t.Count,
+                AchievementGoal.Quests => a.Targets is { Count: > 0 } t && t.All(Real.Quests.ContainsKey)
+                    // Sprint 232: a line of two rival sides is earned by either, half its quests.
+                    && (a.Count == t.Count || (t.Any(id => Real.Quests[id].Rivals is { Count: > 0 }) && a.Count * 2 == t.Count)),
                 AchievementGoal.Achievements => a.Targets is { Count: > 0 } t && a.Count == t.Count
                     && t.All(id => Achievements.All.FirstOrDefault(o => o.Id == id) is { Goal: not AchievementGoal.Achievements }),
                 AchievementGoal.Chiefs => a.Count <= Real.Dungeons.Count,
@@ -124,8 +126,8 @@ public class AchievementTests
         Assert.Equal(new AchievementReward(675, 337), Achievements.Reward(Of("contracts-200")));
         // Up to the forest (level 45), never above the largest; since sprint 225 the Mines' up to 60, the same formula at their level.
         Assert.All(Achievements.All, a => Assert.True(a.Level is >= 1 and <= 60 && (a.Level > 45 || Achievements.Reward(a).Xp <= 675), a.Id));
-        // Sprint 175: ten hunters of 20 points; sprint 186: the paths' quest, 5; sprint 225: the rockdelvers' two, 35; sprint 226: the rock worms' two, 35; sprint 227: the Mines' two dungeons, 20.
-        Assert.Equal(1405, Achievements.All.Sum(a => a.Points));
+        // Sprint 175: ten hunters of 20 points; sprint 186: the paths' quest, 5; sprint 225: the rockdelvers' two, 35; sprint 226: the rock worms' two, 35; sprint 227: the Mines' two dungeons, 20; sprint 232: "Keep or dig", 10.
+        Assert.Equal(1415, Achievements.All.Sum(a => a.Points));
     }
 
     [Fact]

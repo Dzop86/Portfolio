@@ -35,7 +35,7 @@ DUNGEONS = O([
     ("golem", ("mother-tree-roots", text("Racines de l'Arbre-Mère", "The Mother Tree's Roots"), text("Clef des racines", "Root Key"))),
     # The Underroot Mines (sprint 227, D102): the seam the stonelistener hears ringing, the belly of the mountain the gnawer ate.
     ("delver", ("ringing-seam", text("Filon qui sonne", "The Ringing Seam"), text("Clef du filon", "Seam Key"))),
-    ("borer", ("mountains-belly", text("Ventre de la montagne", "The Mountain's Belly"), text("Clef du ventre", "Belly Key"))),
+    ("borer", ("mountains-belly", text("Ventre de la montagne", "The Mountain's Belly"), text("Clef de la montagne", "Mountain Key"))),
 ])
 ROOMS = (text("Antichambre", "Antechamber"), text("Grande salle", "Great Hall"), text("Salle du chef", "Chief's Hall"))
 

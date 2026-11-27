@@ -19,7 +19,7 @@ public static class Quests
     /// <summary>At most this many quests under way at once.</summary>
     public const int MaxActive = 20;
 
-    /// <summary>Why the quest cannot be taken now, or null: not done, not under way, from its level, after the quests it follows.</summary>
+    /// <summary>Why the quest cannot be taken now, or null: not done, not under way, no rival of it taken (sprint 232), from its level, after the quests it follows.</summary>
     public static string? WhyNot(Quest quest, int level, IReadOnlyCollection<string> done, IReadOnlyList<QuestProgress> active)
     {
         ArgumentNullException.ThrowIfNull(quest);
@@ -28,6 +28,7 @@ public static class Quests
         return !quest.IsGiven ? "Not a quest an inhabitant gives."
             : done.Contains(quest.Id) ? "Already done."
             : active.Any(p => p.Quest == quest.Id) ? "Already under way."
+            : (quest.Rivals ?? []).FirstOrDefault(r => done.Contains(r) || active.Any(p => p.Quest == r)) is string rival ? $"The quest '{rival}' was taken instead."
             : active.Count >= MaxActive ? $"At most {MaxActive} quests under way."
             : level < quest.Level ? $"From level {quest.Level}."
             : (quest.After ?? []).FirstOrDefault(a => !done.Contains(a)) is string before ? $"After the quest '{before}'."

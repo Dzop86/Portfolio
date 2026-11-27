@@ -1525,5 +1525,23 @@
         "y": 1
       }
     }
+  ],
+  "props": [
+    {
+      "id": "worm-tunnel-2",
+      "at": {
+        "x": 22,
+        "y": 16
+      },
+      "look": "stone",
+      "name": {
+        "fr": "Un croisement de tunnels",
+        "en": "A crossing of tunnels"
+      },
+      "text": {
+        "fr": "Trois tunnels se croisent ici, chacun dans sa direction. Du gravier frais au sol : un ver est passé ce matin.",
+        "en": "Three tunnels cross here, each going its own way. Fresh gravel on the ground: a worm came through this morning."
+      }
+    }
   ]
 }

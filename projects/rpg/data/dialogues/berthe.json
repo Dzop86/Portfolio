@@ -1,6 +1,22 @@
 {
   "id": "berthe",
   "start": "hello",
+  "greetings": [
+    {
+      "after": "the-first-cart",
+      "text": {
+        "fr": "Ah, toi. Le wagonnet roule, fais vite quand même. Tu veux quoi ?",
+        "en": "Ah, you. The cart's rolling; make it quick all the same. What do you want?"
+      }
+    },
+    {
+      "after": "wall-the-passage",
+      "text": {
+        "fr": "Fais vite : mes gars creusent ailleurs, à cause d'un mur que tu connais. Tu veux quoi ?",
+        "en": "Make it quick: my lads are digging somewhere else, thanks to a wall you know all about. What do you want?"
+      }
+    }
+  ],
   "lines": {
     "hello": {
       "text": {

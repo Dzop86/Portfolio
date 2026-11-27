@@ -134,11 +134,12 @@ public sealed record Characteristics(int Vitality = 0, int Earth = 0, int Fire =
 /// sprint 88, given by an inhabitant (<see cref="Giver"/>, "town/npc") from a level and after other
 /// quests (<see cref="After"/>), its <see cref="Objectives"/> followed all at once, then handed back to
 /// the giver. <see cref="Zone"/> sorts it in the journal, <see cref="Kind"/> gives it its icon there (sprint 116, D77).
+/// <see cref="Rivals"/> (sprint 232, D103): the quests it shuts, and that shut it, once one is taken: a side chosen for good.
 /// </summary>
 public sealed record Quest(string Id, LocalizedText Name, long Xp, string? Scenario = null, IReadOnlyList<ItemCount>? Items = null,
     string? Giver = null, string? Zone = null, LocalizedText? Text = null, LocalizedText? Thanks = null, IReadOnlyList<QuestObjective>? Objectives = null,
     long Shards = 0, IReadOnlyList<string>? After = null, int Level = 1, IReadOnlyList<ItemCount>? Grants = null, string? HandIn = null,
-    QuestKind Kind = QuestKind.Side)
+    QuestKind Kind = QuestKind.Side, IReadOnlyList<string>? Rivals = null)
 {
     /// <summary>Who takes the quest back ("town/npc"): <see cref="HandIn"/> when set (sprint 107: Aubin's welcome ends with Garance), else its giver.</summary>
     public string? Taker => HandIn ?? Giver;
@@ -474,6 +475,9 @@ public sealed class GameData
             if (FindNpc(q.Giver!) is null || (q.HandIn is not null && FindNpc(q.HandIn) is null) || q.Text is null || q.Thanks is null || q.Objectives is not { Count: > 0 } goals || q.Level is < 1 or > Hero.MaxLevel
                 || (q.Zone is not null && !Towns.Values.Any(t => t.Zone == q.Zone)) || (q.After ?? []).Any(a => a == q.Id || !(quests ?? []).Any(o => o.Id == a)))
                 throw new InvalidDataException($"Quest '{q.Id}': a known giver, its words, objectives, a level, a known zone and known quests before it.");
+            // Rivals (sprint 232): known given quests, never itself, each naming it back.
+            if ((q.Rivals ?? []).Any(r => r == q.Id || (quests ?? []).FirstOrDefault(o => o.Id == r) is not Quest rival || !rival.IsGiven || !(rival.Rivals ?? []).Contains(q.Id)))
+                throw new InvalidDataException($"Quest '{q.Id}': its rivals known quests given by someone, each naming it as a rival.");
             foreach (QuestObjective o in goals)
             {
                 bool known = o.Goal switch

@@ -8,8 +8,11 @@ namespace Rpg.Client;
 /// words, "I accept" or "Later") and takes back those done (<paramref name="handIns"/>: its thanks).
 /// </summary>
 public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest>? offers = null, IReadOnlyList<Quest>? handIns = null,
-    IReadOnlyList<LocalizedText>? asked = null)
+    IReadOnlyList<LocalizedText>? asked = null, IReadOnlyCollection<string>? done = null)
 {
+    // The quests done, for the greeting (sprint 232).
+    private readonly IReadOnlyCollection<string> _done = done ?? [];
+
     // What the inhabitant says for the quests that ask to see them (sprint 107), instead of their greeting.
     private readonly IReadOnlyList<LocalizedText> _asked = asked ?? [];
 
@@ -27,7 +30,7 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
         get
         {
             if (LineId.StartsWith(OfferLine, StringComparison.Ordinal) && _offers.FirstOrDefault(q => q.Id == LineId[OfferLine.Length..]) is Quest offer)
-                return new DialogueLine(offer.Text!, [new DialogueAnswer(Texts.Both("quest.accept"), Take: offer.Id), new DialogueAnswer(Texts.Both("quest.later"))]);
+                return new DialogueLine(offer.Text!, [new DialogueAnswer(Accept(offer), Take: offer.Id), new DialogueAnswer(Texts.Both("quest.later"))]);
             if (LineId.StartsWith(HandInLine, StringComparison.Ordinal) && _handIns.FirstOrDefault(q => q.Id == LineId[HandInLine.Length..]) is Quest done)
                 return new DialogueLine(done.Thanks!, [new DialogueAnswer(Texts.Both("quest.give"), HandIn: done.Id)]);
             DialogueLine line = Dialogue.Lines[LineId];
@@ -36,12 +39,21 @@ public sealed class Conversation(Npc npc, Dialogue dialogue, IReadOnlyList<Quest
             // The quests to hand back first, then those to take.
             return line with
             {
-                Text = _asked.Count == 0 ? line.Text : new LocalizedText(string.Join(" ", _asked.Select(a => a.Fr)), string.Join(" ", _asked.Select(a => a.En))),
+                Text = _asked.Count == 0 ? Dialogue.Greet(_done) : new LocalizedText(string.Join(" ", _asked.Select(a => a.Fr)), string.Join(" ", _asked.Select(a => a.En))),
                 Answers = [.. _handIns.Select(q => new DialogueAnswer(Texts.Both("quest.handin", q.Name), HandInLine + q.Id)),
                     .. _offers.Select(q => new DialogueAnswer(Texts.Both("quest.offer", q.Name), OfferLine + q.Id)),
                     .. line.Answers],
             };
         }
+    }
+
+    // A quest with rivals (sprint 232) says, as it is accepted, which of them it shuts for good.
+    private static LocalizedText Accept(Quest offer)
+    {
+        if (offer.Rivals is not { Count: > 0 } rivals)
+            return Texts.Both("quest.accept");
+        IReadOnlyList<LocalizedText> names = [.. rivals.Select(r => GameData.Embedded.Quests.TryGetValue(r, out Quest? q) ? q.Name : new LocalizedText(r, r))];
+        return Texts.Both("quest.accept.rival", new LocalizedText(string.Join(", ", names.Select(n => n.Fr)), string.Join(", ", names.Select(n => n.En))));
     }
 
     /// <summary>The scenario the last answer started, if it started a fight.</summary>
@@ -356,7 +368,7 @@ public sealed class TownController
         {
             // The character's quests (sprint 88): this inhabitant's to take and to hand back, and those asking to see them.
             string who = _data.RefOf(Town, npc);
-            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who), Book?.TalkLines(who));
+            Talk = new Conversation(npc, _data.Dialogues[npc.Dialogue], Book?.Offers(who), Book?.HandIns(who), Book?.TalkLines(who), Book?.DoneQuests);
             QuestTalks = Book?.Talks(who) ?? [];
         }
         else if (group is not null)

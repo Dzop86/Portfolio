@@ -55,9 +55,9 @@ TRADES = O([
         (35, "harvest-mantle", "Manteau de moisson", "Harvest Mantle", "Cape", "Te", ["buckwheat", "lavender", "mole-fur"]),
         (40, "spelt-doublet", "Pourpoint d'épeautre", "Spelt Doublet", "Chest", "Ai", ["spelt", "sage", "stag-velvet"]),
         (45, "sorghum-hood", "Capuche de sorgho", "Sorghum Hood", "Hat", "Fe", ["sorghum", "mandrake", "keeper-moss"]),
-        (50, "barley-spaulders", "Épaulières d'orge", "Barley Spaulders", "Shoulders", "Ai", ["barley", "arnica", "fuse-cord"]),
-        (55, "millet-cape", "Cape de millet", "Millet Cape", "Cape", "Fe", ["millet", "gentian", "rock-slough"]),
-        (60, "millet-smock", "Bourgeron de millet", "Millet Smock", "Chest", "Te", ["millet", "gentian", "rock-slough", "fuse-cord"])])),
+        (50, "barley-spaulders", "Épaulières de paille d'orge", "Barley-Straw Spaulders", "Shoulders", "Ai", ["barley", "arnica", "fuse-cord"]),
+        (55, "millet-cape", "Cape de millet tressé", "Plaited Millet Cape", "Cape", "Fe", ["millet", "gentian", "rock-slough"]),
+        (60, "millet-smock", "Bourgeron matelassé", "Quilted Smock", "Chest", "Te", ["millet", "gentian", "rock-slough", "fuse-cord"])])),
     ("jeweller", (text("Bijoutier", "Jeweller"), text("Établi de bijouterie", "Jeweller's bench"), [
         (1, "copper-band", "Jonc de cuivre", "Copper Band", "Ring", "Te", ["copper-ore", "gudgeon", "boar-tusk"]),
         (5, "tin-pendant", "Pendentif d'étain", "Tin Pendant", "Amulet", "Ea", ["tin-ore", "crayfish", "wolf-fang"]),
@@ -83,9 +83,9 @@ TRADES = O([
         (35, "zander-baldric", "Baudrier de sandre", "Zander Baldric", "Belt", "Te", ["zander", "linden-log", "honeycomb"]),
         (40, "trout-skin-boots", "Bottes en peau de truite", "Trout-Skin Boots", "Boots", "Ea", ["trout", "hornbeam-log", "stag-velvet"]),
         (45, "catfish-belt", "Ceinture en cuir de silure", "Catfish-Leather Belt", "Belt", "Te", ["catfish", "elm-log", "keeper-moss"]),
-        (50, "grayling-belt", "Ceinture en peau d'ombre", "Grayling-Skin Belt", "Belt", "Te", ["grayling", "larch-log", "fuse-cord"]),
-        (55, "cavefish-boots", "Bottes en peau de poisson des grottes", "Cavefish-Skin Boots", "Boots", "Ea", ["cavefish", "rootwood-log", "rock-slough"]),
-        (60, "slough-swordbelt", "Ceinturon en mue de ver", "Worm-Slough Swordbelt", "Belt", "Ai", ["cavefish", "rootwood-log", "rock-slough", "lode-chip"])])),
+        (50, "grayling-belt", "Ceinture en peau de lotte", "Burbot-Skin Belt", "Belt", "Te", ["grayling", "larch-log", "fuse-cord"]),
+        (55, "cavefish-boots", "Bottes en peau de loche", "Loach-Skin Boots", "Boots", "Ea", ["cavefish", "rootwood-log", "rock-slough"]),
+        (60, "slough-swordbelt", "Ceinturon en mue de roche", "Rock-Slough Swordbelt", "Belt", "Ai", ["cavefish", "rootwood-log", "rock-slough", "lode-chip"])])),
 ])
 # The consumables' trades (sprint 111, D71, §5.5 and §5 bis.5; out of a fight only since sprint 115, D77): the alchemist's
 # healing potions (50 + 20 × the item's level hit points at once, recipes 1, 10, 20, 30), the baker's breads (30 + 10 × the

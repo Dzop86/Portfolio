@@ -1371,5 +1371,23 @@
         "y": 1
       }
     }
+  ],
+  "props": [
+    {
+      "id": "boundary-stone",
+      "at": {
+        "x": 23,
+        "y": 15
+      },
+      "look": "stone",
+      "name": {
+        "fr": "Une borne gravée",
+        "en": "A carved boundary stone"
+      },
+      "text": {
+        "fr": "Une borne de granit, haute comme un genou, pareille à celles qu'on voit au bord des champs. Deux mots dessus : « Nous tiendrons. » Les traces de pic des mineurs passent à côté sans s'arrêter.",
+        "en": "A granite marker, knee-high, like the ones you see at the edge of a field. Two words on it: 'We shall hold.' The miners' pick marks go straight past it without stopping."
+      }
+    }
   ]
 }

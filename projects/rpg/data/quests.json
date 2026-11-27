@@ -2312,12 +2312,12 @@
     "level": 59,
     "kind": "Dungeon",
     "text": {
-      "fr": "Sous les Mines, il y a un filon que la roche fait sonner comme une cloche. Leur Écoute-roche l'a trouvé avant nous, et ses fouilleurs le gardent à la poudre. Va jusqu'au fond, avec du monde : je veux savoir ce qui sonne, avant que Bérold ne décide que c'est sacré.",
-      "en": "Under the Mines there's a seam the rock makes ring like a bell. Their Stonelistener found it before we did, and his delvers guard it with powder. Go all the way down, with company: I want to know what's ringing before Bérold decides it's sacred."
+      "fr": "Sous les Mines, il y a un filon que la roche fait sonner comme une cloche. Leur Écoute-roche l'a trouvé avant nous, et ses Fouille-rocs le gardent à la poudre. Va jusqu'au fond, avec du monde : je veux savoir ce qui sonne, avant que Bérold ne décide que c'est sacré.",
+      "en": "Under the Mines there's a seam the rock makes ring like a bell. Their Stonelistener found it before we did, and his Rockdelvers guard it with powder. Go all the way down, with company: I want to know what's ringing before Bérold decides it's sacred."
     },
     "thanks": {
-      "fr": "L'Écoute-roche s'est tu ? Alors le filon sonne pour nous, maintenant. Bérold dit qu'il a entendu des mots dedans. Moi, j'entends du minerai.",
-      "en": "The Stonelistener's gone quiet? Then the seam rings for us now. Bérold says he heard words in it. Me, I hear ore."
+      "fr": "L'Écoute-roche s'est tu ? Alors le filon sonne pour nous, maintenant. Bérold dit que quand la roche parle, on se tait. Moi, j'entends du minerai.",
+      "en": "The Stonelistener's gone quiet? Then the seam rings for us now. Bérold says that when the rock speaks, you hold your tongue. Me, I hear ore."
     },
     "objectives": [
       {
@@ -2342,12 +2342,12 @@
     "level": 60,
     "kind": "Dungeon",
     "text": {
-      "fr": "Le Ronge-montagne a mangé le dessous de la montagne, et on creuse au-dessus de son ventre. Chaque fois qu'il se retourne, mes étais craquent. Descends jusqu'à lui, à plusieurs, et fais en sorte qu'il ne se retourne plus.",
-      "en": "The Mountain Gnawer ate the underside of the mountain, and we're digging right over its belly. Every time it turns over, my props creak. Go down to it, with others, and make sure it never turns over again."
+      "fr": "On dit que le Ronge-montagne a mangé le dessous de la montagne, et on creuse au-dessus de son ventre. Chaque fois qu'il se retourne, mes étais craquent. Descends jusqu'à lui, à plusieurs, et fais en sorte qu'il ne se retourne plus.",
+      "en": "They say the Mountain Gnawer ate the underside of the mountain, and we're digging right over its belly. Every time it turns over, my props creak. Go down to it, with others, and make sure it never turns over again."
     },
     "thanks": {
       "fr": "Plus un craquement depuis ce matin. Mes gars dorment au fond pour la première fois. Je te dois mes étais, et sans doute quelques têtes.",
-      "en": "Not a creak since this morning. My lads are sleeping down the shaft for the first time. I owe you my props, and likely a few heads."
+      "en": "Not a creak since this morning. My lads are sleeping down the shaft for the first time. I owe you my props, and a few heads besides."
     },
     "objectives": [
       {
@@ -2360,5 +2360,289 @@
     ],
     "xp": 6000,
     "shards": 900
+  },
+  {
+    "id": "wall-the-passage",
+    "name": {
+      "fr": "Murer le passage",
+      "en": "Wall Up the Passage"
+    },
+    "giver": "ancestors/berold",
+    "zone": "underroot",
+    "level": 46,
+    "kind": "Side",
+    "text": {
+      "fr": "Le serment dit : « Nous tiendrons. » Il ne dit pas quoi, alors nous tiendrons tout. Le boyau des mineurs sera muré, mais les petits à lanterne font sauter tout ce qui est fermé. Allez voir ce boyau, et ôtez-leur leurs mèches. Si vous acceptez, Berthe ne vous proposera plus d'élargir le boyau. Ce choix est définitif.",
+      "en": "The oath says: 'We shall hold.' It does not say what, so we shall hold everything. The miners' passage will be walled up, but the little ones with lanterns blow up whatever is shut. Go and look at that passage, and take their fuses from them. If you accept, Berthe won't ask you to widen the passage. This choice is final."
+    },
+    "thanks": {
+      "fr": "Six de moins, et leurs mèches dans ce sac. Les maçons descendront dès que nous saurons où poser le mur. Un serment tenu ne fait pas de bruit, voyageur : n'attendez aucun merci d'Ormeval. Recevez le mien.",
+      "en": "Six fewer, and their fuses in this sack. The masons will go down as soon as we know where the wall must stand. A kept oath makes no noise, traveller: expect no thanks from Ormeval. Take mine."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "miners-passage"
+      },
+      {
+        "goal": "Defeat",
+        "target": "delver",
+        "count": 6
+      },
+      {
+        "goal": "Bring",
+        "target": "fuse-cord",
+        "count": 5
+      }
+    ],
+    "after": [
+      "roots-of-the-mother-tree"
+    ],
+    "rivals": [
+      "widen-the-passage"
+    ],
+    "items": [
+      {
+        "item": "superior-healing-elixir",
+        "count": 2
+      }
+    ],
+    "xp": 1840,
+    "shards": 460
+  },
+  {
+    "id": "the-boundary-stone",
+    "name": {
+      "fr": "La borne",
+      "en": "The Boundary Stone"
+    },
+    "giver": "ancestors/berold",
+    "zone": "underroot",
+    "level": 48,
+    "kind": "Side",
+    "text": {
+      "fr": "Nos registres parlent d'une borne, sous l'Arbre, au-delà de laquelle on ne creuse pas. Personne ne l'a vue depuis trois générations. Trouvez-la : le mur sera posé là, et pas un pas plus loin. Les vers de roche mangent la pierre, même gravée ; écartez-les de la borne.",
+      "en": "Our registers speak of a boundary stone beneath the Tree, past which no one digs. No one has seen it for three generations. Find it: the wall will stand there, and not one step further. The rock worms eat stone, even carved stone; keep them away from it."
+    },
+    "thanks": {
+      "fr": "Cent pas au-delà. Je tiens les registres depuis quarante ans, et personne n'y a écrit ces cent pas. Le mur sera posé à la borne. Ce qu'ils ont creusé derrière, la roche le reprendra.",
+      "en": "A hundred paces beyond it. I have kept the registers for forty years, and no one ever wrote those hundred paces down. The wall will stand at the stone. What they dug beyond it, the rock will take back."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "boundary-stone"
+      },
+      {
+        "goal": "Defeat",
+        "target": "borer",
+        "count": 6
+      }
+    ],
+    "after": [
+      "wall-the-passage"
+    ],
+    "items": [
+      {
+        "item": "superior-healing-elixir",
+        "count": 3
+      }
+    ],
+    "xp": 1920,
+    "shards": 480
+  },
+  {
+    "id": "stone-for-stone",
+    "name": {
+      "fr": "Pierre pour pierre",
+      "en": "Stone for Stone"
+    },
+    "giver": "ancestors/berold",
+    "zone": "underroot",
+    "level": 51,
+    "kind": "Side",
+    "text": {
+      "fr": "Le mur ne sera pas fait de pierre neuve. Ce qu'on a arraché à la roche lui sera rendu, morceau par morceau : c'est la seule façon juste de refermer. Les petits à lanterne rôdent autour des maçons ; tenez-les loin. Ensuite, dites à Berthe ce qui a été fait : c'est à vous de le lui dire, puisque c'est vous qui l'avez fait.",
+      "en": "The wall will not be built of new stone. What was torn from the rock will be given back to it, piece by piece: that is the only just way to close it. The little ones with lanterns are prowling round the masons; keep them off. Then tell Berthe what has been done: it is yours to tell her, since you are the one who did it."
+    },
+    "thanks": {
+      "fr": "Le mur tient. Il ne porte qu'une pierre gravée, avec les deux mots que je connais. Je ne sais pas ce qu'il garde, voyageur. Je sais qu'il le garde.",
+      "en": "The wall holds. It bears a single carved stone, with the two words I know. I do not know what it keeps, traveller. I know that it keeps it."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "lode-chip",
+        "count": 8
+      },
+      {
+        "goal": "Defeat",
+        "target": "delver",
+        "count": 8
+      },
+      {
+        "goal": "Talk",
+        "target": "ancestors/berthe",
+        "line": {
+          "fr": "Alors c'est toi qui as porté les pierres du juge. Je ne t'en veux pas : il fallait bien que quelqu'un choisisse. Mais ce soir, c'est toi qui expliques à mes trente gars pourquoi il n'y a pas de paye.",
+          "en": "So you're the one who carried the judge's stones. I don't hold it against you: somebody had to choose. But tonight, you're the one telling my thirty lads why there's no pay."
+        }
+      }
+    ],
+    "after": [
+      "the-boundary-stone"
+    ],
+    "items": [
+      {
+        "item": "supreme-healing-elixir",
+        "count": 2
+      }
+    ],
+    "xp": 2040,
+    "shards": 510
+  },
+  {
+    "id": "widen-the-passage",
+    "name": {
+      "fr": "Élargir le passage",
+      "en": "Widen the Passage"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "underroot",
+    "level": 46,
+    "kind": "Side",
+    "text": {
+      "fr": "Le juge veut murer ? Moi, je veux y faire passer un wagonnet. Va voir mon boyau : trop étroit, et les petits à lanterne font sauter mes étais à mesure que je les pose. Calme-les, et rapporte-moi leurs mèches : de la poudre gratuite, je ne crache pas dessus. Si tu acceptes, Bérold ne te demandera plus de murer le boyau. Ce choix est définitif.",
+      "en": "The judge wants to wall it up? I want to run a cart through it. Go and look at my passage: too narrow, and the little ones with lanterns blow up my props as fast as I put them in. Settle them down, and bring me their fuses: free powder, I'm not turning that down. If you accept, Bérold won't ask you to wall up the passage. This choice is final."
+    },
+    "thanks": {
+      "fr": "Cinq mèches, et pas un étai par terre. Demain, on fait sauter le goulet, proprement, pas à leur façon. Tiens, mange : la poussière, ça creuse.",
+      "en": "Five fuses, and not a prop down. Tomorrow we blast the narrow bit, properly, not their way. Here, eat: dust works up an appetite."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "miners-passage"
+      },
+      {
+        "goal": "Defeat",
+        "target": "delver",
+        "count": 6
+      },
+      {
+        "goal": "Bring",
+        "target": "fuse-cord",
+        "count": 5
+      }
+    ],
+    "after": [
+      "roots-of-the-mother-tree"
+    ],
+    "rivals": [
+      "wall-the-passage"
+    ],
+    "items": [
+      {
+        "item": "sorghum-flatbread",
+        "count": 4
+      }
+    ],
+    "xp": 1840,
+    "shards": 460
+  },
+  {
+    "id": "follow-the-worms",
+    "name": {
+      "fr": "Suivre les vers",
+      "en": "Follow the Worms"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "underroot",
+    "level": 48,
+    "kind": "Side",
+    "text": {
+      "fr": "Je vais te dire un secret, garde-le pour le juge : le passage, on ne l'a pas creusé, on l'a élargi. Les vers de roche avaient fait le plus gros. Va voir jusqu'où vont leurs tunnels, et chasse ceux qui mordent mes gars en chemin.",
+      "en": "I'll tell you a secret, and you keep it from the judge: we didn't dig that passage, we widened it. The rock worms had done most of the work. Go and see how far their tunnels run, and see off the ones biting my lads along the way."
+    },
+    "thanks": {
+      "fr": "Plus loin que ma carte, et dans tous les sens ? Si on suit les vers, j'économise trois ans de pic. Le juge dirait qu'on marche dans les pas de quelqu'un d'autre ; moi, je dis qu'un tunnel vide, ça se prend.",
+      "en": "Further than my map, and every which way? If we follow the worms, I save three years of pick work. The judge would say we're walking in someone else's footsteps; I say an empty tunnel is there for the taking."
+    },
+    "objectives": [
+      {
+        "goal": "Interact",
+        "target": "worm-tunnel-1"
+      },
+      {
+        "goal": "Interact",
+        "target": "worm-tunnel-2"
+      },
+      {
+        "goal": "Defeat",
+        "target": "borer",
+        "count": 6
+      }
+    ],
+    "after": [
+      "widen-the-passage"
+    ],
+    "items": [
+      {
+        "item": "barley-bread",
+        "count": 3
+      }
+    ],
+    "xp": 1920,
+    "shards": 480
+  },
+  {
+    "id": "the-first-cart",
+    "name": {
+      "fr": "Le premier wagonnet",
+      "en": "The First Cart"
+    },
+    "giver": "ancestors/berthe",
+    "zone": "underroot",
+    "level": 51,
+    "kind": "Side",
+    "text": {
+      "fr": "Le passage est large, les étais tiennent, et j'ai un wagonnet tout neuf. Il ne manque que de quoi le remplir : six morceaux de cobalt, et que les vers arrêtent de ronger mes rails. Puis va dire au juge que le premier wagonnet est sorti. Je préfère que ce soit toi : moi, il me ferait un discours.",
+      "en": "The passage is wide, the props are holding, and I've got a brand-new cart. All it needs is something to fill it: six pieces of cobalt, and the worms to stop gnawing my rails. Then go and tell the judge the first cart is out. I'd rather it was you: he'd give me a speech."
+    },
+    "thanks": {
+      "fr": "Six morceaux de cobalt, un wagonnet plein, et un juge qui n'a pas crié. Je prends les trois. Ormeval mangera cet hiver, et c'est un peu grâce à toi.",
+      "en": "Six pieces of cobalt, a full cart, and a judge who didn't shout. I'll take all three. Ormeval will eat this winter, and that's partly down to you."
+    },
+    "objectives": [
+      {
+        "goal": "Bring",
+        "target": "cobalt-ore",
+        "count": 6
+      },
+      {
+        "goal": "Defeat",
+        "target": "borer",
+        "count": 8
+      },
+      {
+        "goal": "Talk",
+        "target": "ancestors/berold",
+        "line": {
+          "fr": "Vous avez ouvert ce que nos serments gardaient fermé. Je ne dirai pas que vous avez eu tort : je ne sais pas ce qu'il y a derrière. Je dirai que c'était à Ormeval de choisir, et pas à un voyageur.",
+          "en": "You have opened what our oaths kept shut. I will not say you were wrong: I do not know what lies beyond. I will say it was for Ormeval to choose, and not for a traveller."
+        }
+      }
+    ],
+    "after": [
+      "follow-the-worms"
+    ],
+    "items": [
+      {
+        "item": "millet-flatbread",
+        "count": 3
+      }
+    ],
+    "xp": 2040,
+    "shards": 510
   }
 ]

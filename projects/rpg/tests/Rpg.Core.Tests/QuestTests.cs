@@ -44,6 +44,24 @@ public class QuestTests
     }
 
     [Fact]
+    public void RivalQuests_NameEachOther_AndTakingOne_ShutsTheOther_ForGood()
+    {
+        // Sprint 232 (D103): a side chosen, like Bérold's wall or Berthe's widening.
+        Quest wall = Edge with { Id = "wall", Rivals = ["widen"] }, widen = Edge with { Id = "widen", Rivals = ["wall"] };
+        GameData data = WithQuests(wall, widen);
+        Assert.Equal(["widen"], data.Quests["wall"].Rivals);
+        Assert.Throws<InvalidDataException>(() => WithQuests(wall, widen with { Rivals = null }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(wall with { Rivals = ["no-such-quest"] }));
+        Assert.Throws<InvalidDataException>(() => WithQuests(wall with { Rivals = ["wall"] }));
+        Assert.Null(Quests.WhyNot(wall, 1, [], []));
+        Assert.Null(Quests.WhyNot(widen, 1, [], []));
+        // Taken, then handed back: the other stays shut.
+        Assert.Equal("The quest 'wall' was taken instead.", Quests.WhyNot(widen, 1, [], [Quests.Start(wall)]));
+        Assert.Equal("The quest 'wall' was taken instead.", Quests.WhyNot(widen, 1, ["wall"], []));
+        Assert.Equal("Already done.", Quests.WhyNot(wall, 1, ["wall"], []));
+    }
+
+    [Fact]
     public void AQuest_IsTakenOnce_FromItsLevel_AfterTheQuestsItFollows()
     {
         Quest later = Edge with { Id = "later", Level = 5, After = ["edge-of-the-woods"] };

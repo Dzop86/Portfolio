@@ -1,6 +1,22 @@
 {
   "id": "berold",
   "start": "hello",
+  "greetings": [
+    {
+      "after": "wall-the-passage",
+      "text": {
+        "fr": "Voyageur. Vous êtes entré dans la forêt d'Ormeval, où l'on tient parole. Vous avez tenu la vôtre.",
+        "en": "Traveller. You came into the forest of Ormeval, where people keep their word. You have kept yours."
+      }
+    },
+    {
+      "after": "widen-the-passage",
+      "text": {
+        "fr": "Voyageur. Le boyau est ouvert, et je tiens toujours parole. Ce sont deux choses vraies.",
+        "en": "Traveller. The passage is open, and I still keep my word. Both things are true."
+      }
+    }
+  ],
   "lines": {
     "hello": {
       "text": {

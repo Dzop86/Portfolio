@@ -990,6 +990,22 @@
   ],
   "props": [
     {
+      "id": "miners-passage",
+      "at": {
+        "x": 24,
+        "y": 8
+      },
+      "look": "stone",
+      "name": {
+        "fr": "Le boyau des mineurs",
+        "en": "The miners' passage"
+      },
+      "text": {
+        "fr": "Un boyau taillé au pic, à peine assez large pour un homme et sa lanterne. Les étais sont neufs, les coups de pic aussi. Mais à hauteur d'épaule, la paroi est ronde et lisse, comme si autre chose était passé là avant eux.",
+        "en": "A passage hacked out with picks, barely wide enough for a man and his lantern. The props are new, and so are the pick marks. But at shoulder height the wall is round and smooth, as if something else had come through before them."
+      }
+    },
+    {
       "id": "waystone-underroot",
       "at": {
         "x": 23,

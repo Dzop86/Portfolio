@@ -97,8 +97,11 @@ public class QuestBookTests
                 }
             }
         }
-        // Every quest given by someone is offered on the way.
-        Assert.Equal(Data.Quests.Values.Where(q => q.Giver is not null).Select(q => q.Id).Order(StringComparer.Ordinal), done.Where(d => Data.Quests[d].IsGiven).Concat(active.Select(p => p.Quest)).Order(StringComparer.Ordinal));
+        // Every quest given by someone is offered on the way, but for the side not taken in "Keep or dig" (sprint 232): one whole side of three.
+        string[] taken = [.. done.Where(d => Data.Quests[d].IsGiven).Concat(active.Select(p => p.Quest))];
+        string[][] sides = [["wall-the-passage", "the-boundary-stone", "stone-for-stone"], ["widen-the-passage", "follow-the-worms", "the-first-cart"]];
+        string[] shut = Assert.Single(sides, side => !side.Any(taken.Contains));
+        Assert.Equal(Data.Quests.Values.Where(q => q.Giver is not null).Select(q => q.Id).Except(shut).Order(StringComparer.Ordinal), taken.Order(StringComparer.Ordinal));
     }
 
     [Fact]

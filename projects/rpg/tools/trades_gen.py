@@ -34,7 +34,7 @@ TRADES = O([
         ("tench", "Tanche", "Tench"), ("perch", "Perche", "Perch"), ("carp", "Carpe", "Carp"),
         ("pike", "Brochet", "Pike"), ("zander", "Sandre", "Zander"),
         ("trout", "Truite", "Trout"), ("catfish", "Silure", "Catfish"),
-        ("grayling", "Ombre", "Grayling"), ("cavefish", "Poisson des grottes", "Cavefish")])),
+        ("grayling", "Lotte", "Burbot"), ("cavefish", "Loche des grottes", "Cave Loach")])),
     ("farmer", (text("Paysan", "Farmer"), "Plot", [
         ("wild-flax", "Lin sauvage", "Wild Flax"), ("wild-oats", "Avoine folle", "Wild Oats"), ("pool-hemp", "Chanvre des mares", "Pool Hemp"),
         ("rye", "Seigle", "Rye"), ("shore-sedge", "Laîche des rives", "Shore Sedge"), ("reed-rice", "Riz des joncs", "Reed Rice"),

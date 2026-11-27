@@ -136,5 +136,19 @@ public sealed record DialogueAnswer(LocalizedText Text, string? Next = null, str
 /// <summary>A line an NPC says, and the answers the player may give (1 to 4).</summary>
 public sealed record DialogueLine(LocalizedText Text, IReadOnlyList<DialogueAnswer> Answers);
 
-/// <summary>A dialogue, as described in <c>data/dialogues/*.json</c>: lines by id, starting with <see cref="Start"/>.</summary>
-public sealed record Dialogue(string Id, string Start, IReadOnlyDictionary<string, DialogueLine> Lines);
+/// <summary>
+/// A dialogue, as described in <c>data/dialogues/*.json</c>: lines by id, starting with <see cref="Start"/>.
+/// Since sprint 232, its <see cref="Greetings"/> say the first line otherwise once a quest is done: the last one whose quest is done wins.
+/// </summary>
+public sealed record Dialogue(string Id, string Start, IReadOnlyDictionary<string, DialogueLine> Lines, IReadOnlyList<Greeting>? Greetings = null)
+{
+    /// <summary>What the first line says to a character who has done <paramref name="done"/>: the last greeting of a quest done, else the line itself.</summary>
+    public LocalizedText Greet(IReadOnlyCollection<string> done)
+    {
+        ArgumentNullException.ThrowIfNull(done);
+        return (Greetings ?? []).LastOrDefault(g => done.Contains(g.After))?.Text ?? Lines[Start].Text;
+    }
+}
+
+/// <summary>The first line of a dialogue said otherwise once the quest <see cref="After"/> is done (sprint 232: Bérold and Berthe after the side taken).</summary>
+public sealed record Greeting(string After, LocalizedText Text);
