@@ -15,6 +15,7 @@
 - Photos des 25 cartes et de `underroot-2-4` refaites (`--render-maps` dans godot-env), les autres gardées.
 - Tests : `WellspringTests` dans `Rpg.Core` (8) et `Rpg.Api` (1, intégration) ; cinq tests de comptes mis à jour (70 ressources, 191 cartes). Vérifié en local : Cœur, Client, API, Sim, `dotnet format`, auto-test du village, `npm test`.
 - Réponses prises par défaut aux questions du scénariste (à revoir par Charles) : zone annexe de Dhoram, sans étape du fil principal ; Calcite plutôt que Nickel ; Odon le fontainier pour le relais, à écrire plus tard ; la question des quatre zones par tranche reste ouverte.
+- Build 1.0.254 (CI rpg 46142804208, toute verte) livrée, l'API locale reconstruite.
 - Limite : ni monstres (S234, S235), ni donjons (S236), ni recettes (S237).
 
 ## Rétro (Charles)
