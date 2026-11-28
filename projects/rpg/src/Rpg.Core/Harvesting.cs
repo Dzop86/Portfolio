@@ -27,6 +27,8 @@ public static class Harvesting
         ["ancestors"] = (40, 45),
         // The Underroot Mines (sprint 224), below the forest.
         ["underroot"] = (50, 55),
+        // Wellspring Vale (sprint 233), past the mines; no resource of 60 yet.
+        ["wellspring"] = (65, 70),
         // The village's few spots, of the first level only (sprint 102).
         ["clairval"] = (1, 1),
     };
@@ -42,6 +44,8 @@ public static class Harvesting
         ["ancestors"] = [2, 2, 1, 2, 2],
         // Rock above all; water only where a pool seeps up (half the maps).
         ["underroot"] = [1, 3, 1, 2, 2],
+        // Springs on every map, terraces of plots and herbs by the water.
+        ["wellspring"] = [2, 1, 2, 2, 2],
         ["clairval"] = [1, 1, 1, 2, 1],
     };
 

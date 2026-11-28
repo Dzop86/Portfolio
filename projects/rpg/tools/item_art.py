@@ -51,6 +51,11 @@ MATTER = {
     "nettle": "#4f9a4a", "glowmoss": "#7fd0a0", "water-lily": "#f0a8c8", "hive-flower": "#ffcf5a", "sage": "#9fb8a0",
     "mandrake": "#b08a6a", "lavender": "#a08ad8", "clubmoss": "#5f8f4f", "horsetail": "#7fa86a", "wood-mint": "#6fcf9f",
     "arnica": "#f2a33a", "gentian": "#5a6fd0",
+    "birch-log": "#e8e2d0", "walnut-log": "#5c3b24",
+    "calcite": "#f0ede2", "platinum-ore": "#c9ccd4",
+    "barbel": "#a89060", "arctic-char": "#e07a54",
+    "maize": "#f2c230", "emmer": "#c89a58",
+    "watercress": "#4fa84a", "valerian": "#e6b0c8",
     # What the monsters leave, and what is bought.
     "feather": "#f0e6cc", "leather": "#a0522d", "orc-fang": "#e8dcc0", "bee-wing": "#d8eef8", "boar-bristle": "#7a5c48",
     "boar-tusk": "#e8dcc0", "crab-claw": "#c25a3a", "crab-shell": "#d0704a", "earthworm": "#e08a8a", "borer-tooth": "#e0d8c8", "frog-leg": "#7fae5a", "fuse-cord": "#7a5236",

@@ -10,7 +10,7 @@
 import collections, glob, hashlib, json, random, sys
 
 O = collections.OrderedDict
-ZONES = ("woods", "mouldy", "lake", "fields", "ancestors", "underroot")
+ZONES = ("woods", "mouldy", "lake", "fields", "ancestors", "underroot", "wellspring")
 WALK = '.=,'
 DEPTH = 3          # the band's deepest cells
 CLOSED_RUN = 8     # the most closed cells in a row on a side between two maps of a zone
@@ -24,6 +24,8 @@ MIX = {
     "fields": "BBBBBBBBBBBBBBBTTTRR",
     "ancestors": "TTTTTTTTTTTRRRRRBBBB",
     "underroot": "RRRRRRRRRRRRRRRTTTTB",
+    # Wellspring Vale (sprint 233): birches and walnuts, dry-stone walls, bushes.
+    "wellspring": "TTTTTTTTTTTTRRRRBBBB",
 }
 SIDES = {"east": (1, 0), "west": (-1, 0), "south": (0, 1), "north": (0, -1)}
 OPPOSITE = {"east": "west", "west": "east", "south": "north", "north": "south"}

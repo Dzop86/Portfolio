@@ -9,7 +9,7 @@
 # not written again. Deterministic: the same seed gives the same maps; every opening and exit is checked reachable
 # from the map's arrival. Run from projects/rpg, naming the zones to write (the woods when none is named; since
 # sprint 224 the others are left as they are, a way to one of them kept when its maps exist):
-#   python3 tools/world_gen.py data [woods] [mouldy] [lake] [fields] [ancestors] [underroot]
+#   python3 tools/world_gen.py data [woods] [mouldy] [lake] [fields] [ancestors] [underroot] [wellspring]
 # The maps written are then hand-placed upon (people, props, dungeon doors: other tools) and their borders
 # softened by tools/border_soften.py (sprint 180): running this again loses both.
 import collections, glob, json, os, random, sys
@@ -166,6 +166,9 @@ STYLES = {
     # The Underroot Mines (sprint 224): a stony ground of crags and spoil heaps, a few trees grown from the Mother
     # Tree's roots, the miners' carts and lanterns, now and then a pool seeping from below; a border of rock.
     "underroot": ('R', lambda rnd: [('R', 5, 7), ('T', 2, 3), ('C', 1, 1), ('L', 1, 1)] + ([('~', 1, 5)] if rnd.random() < 0.5 else [])),
+    # Wellspring Vale (sprint 233, docs/zone-61-75.md): the far side of the mountain, a limestone vale of springs and
+    # terraces; water on every map in strings of pools, dry-stone walls of rock, birches and walnuts, flowers; a border of trees.
+    "wellspring": ('T', lambda rnd: [('~', 3, 6), ('R', 4, 4), ('T', 3, 5), (',', 6, 6), ('B', 1, 2)]),
 }
 
 
@@ -228,6 +231,7 @@ NAMES = {
     "lake": text("Lac des Joncs", "Reed Lake"),
     "fields": text("Champs de Clairval", "Clairval Fields"),
     "ancestors": text("Forêt des Aïeux", "Forest of the Ancestors"),
+    "wellspring": text("Val des Sources", "Wellspring Vale"),
     "underroot": text("Mines de Sous-Racine", "Underroot Mines"),
 }
 
@@ -253,6 +257,10 @@ outsides.setdefault("ancestors", {})[(1, 0, "north")] = ("four-ways-1-1", [((x, 
 # cells in the middle of the side (sprint 224).
 UNDERROOT_WAY = (23, 24, 25)
 outsides.setdefault("underroot", {})[(2, 0, "north")] = ("ancestors-2-4", [((x, 0), (x, H - 2)) for x in UNDERROOT_WAY], NAMES["ancestors"])
+# Wellspring Vale opens on the mines' map at [6, 10] (underroot-2-4, the middle of their far end) by its map at [6, 11],
+# the same way (sprint 233).
+WELLSPRING_WAY = (23, 24, 25)
+outsides.setdefault("wellspring", {})[(2, 0, "north")] = ("underroot-2-4", [((x, 0), (x, H - 2)) for x in WELLSPRING_WAY], NAMES["underroot"])
 
 
 def lake_water(gx, gy):
@@ -300,9 +308,9 @@ built = set(written) | on_disk
 outsides = {z: {k: v for k, v in ways.items() if v[0].startswith(("clairval", "four-ways")) or v[0].rsplit("-", 2)[0] in built} for z, ways in outsides.items()}
 
 # The forest at [4, 1] to [8, 5], south of Quatre-Chemins ([4, -1] to [5, 0]) and east of Clairval ([0, -1] to [3, 1]);
-# the mines at [4, 6] to [8, 10], south of the forest.
+# the mines at [4, 6] to [8, 10], south of the forest; Wellspring Vale at [4, 11] to [8, 15], south of the mines (sprint 233).
 ZONES = {"mouldy": (10, (-10, -2), 74), "lake": (18, (-5, -7), 75), "fields": (26, (-5, 3), 76), "ancestors": (31, (4, 1), 131),
-         "underroot": (46, (4, 6), 224)}
+         "underroot": (46, (4, 6), 224), "wellspring": (61, (4, 11), 233)}
 zones = []
 for zid in written:
     if zid == "woods":
@@ -320,4 +328,7 @@ for maps in zones:
 # The forest's side of the mines' way, cut into its map as it is.
 if "underroot" in written:
     open_way(f"{root}/towns/ancestors-2-4.json", "south", UNDERROOT_WAY, "underroot-2-0", 1, NAMES["underroot"])
+# The mines' side of the vale's way (sprint 233).
+if "wellspring" in written:
+    open_way(f"{root}/towns/underroot-2-4.json", "south", WELLSPRING_WAY, "wellspring-2-0", 1, NAMES["wellspring"])
 print(f"{sum(len(m) for m in zones)} maps written: {', '.join(written)}")

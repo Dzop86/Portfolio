@@ -11,7 +11,7 @@
     "y": 10
   },
   "rows": [
-    "RRB...........RRRR........................RR..RR",
+    "RRT...........TRBR........................BT..TR",
     "R..............TR..............................T",
     ".....................................RR.........",
     ".........RRR~R............R.....................",
@@ -40,9 +40,9 @@
     ".......RR..TR.R.RR...........RR.......T...R.....",
     ".......RRRTTRR.RRR............R..R.......RRR....",
     ".......RR......R..................R.......R.....",
-    "....~....TRRR..........TTTRRRRRRRRRRRR..........",
-    "R.R.~..RRRRRRRRRRRRRTRRRRRRRRRRRRRRRBTRRRRT....R",
-    "RRRR~RRTRTRRRRRRRRRRRRTTRRTTRRRRRTRTRRTRRRTRRTBR"
+    "....~....TRRR..........T..RRRRRRRRRRRR..........",
+    "R.R.~..RRRRRRRRRRRRRTR....RRRRRRRRRRBTRRRRT....R",
+    "RRRR~RRTRTRRRRRRRRRRRRT...TRRTTRRRRRTRTRBRRRRRRR"
   ],
   "spawn": {
     "x": 24,
@@ -1072,6 +1072,51 @@
       "arrival": {
         "x": 1,
         "y": 29
+      }
+    },
+    {
+      "at": {
+        "x": 23,
+        "y": 31
+      },
+      "to": "wellspring-2-0",
+      "arrival": {
+        "x": 23,
+        "y": 1
+      },
+      "name": {
+        "fr": "Val des Sources",
+        "en": "Wellspring Vale"
+      }
+    },
+    {
+      "at": {
+        "x": 24,
+        "y": 31
+      },
+      "to": "wellspring-2-0",
+      "arrival": {
+        "x": 24,
+        "y": 1
+      },
+      "name": {
+        "fr": "Val des Sources",
+        "en": "Wellspring Vale"
+      }
+    },
+    {
+      "at": {
+        "x": 25,
+        "y": 31
+      },
+      "to": "wellspring-2-0",
+      "arrival": {
+        "x": 25,
+        "y": 1
+      },
+      "name": {
+        "fr": "Val des Sources",
+        "en": "Wellspring Vale"
       }
     }
   ]

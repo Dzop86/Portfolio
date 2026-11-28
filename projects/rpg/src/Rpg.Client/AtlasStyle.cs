@@ -21,11 +21,13 @@ public static class AtlasStyle
         "ancestors" => "#4f7f48",
         // The Underroot Mines (sprint 224): stone dust.
         "underroot" => "#8c8068",
+        // Wellspring Vale (sprint 233): water green over limestone.
+        "wellspring" => "#7ca88c",
         "clairval" or "four-ways" => "#d9c39a",
         _ => "#6fae5a",
     };
 
     /// <summary>Every colour of the atlas, for the test that finds each one in <c>tokens.css</c>.</summary>
     public static IReadOnlyList<string> All { get; } =
-        [Sea, SeaDeep, Shore, Coast, Tree, Road, Parchment, Ink, .. new[] { "woods", "mouldy", "lake", "fields", "ancestors", "underroot", "clairval" }.Select(Biome)];
+        [Sea, SeaDeep, Shore, Coast, Tree, Road, Parchment, Ink, .. new[] { "woods", "mouldy", "lake", "fields", "ancestors", "underroot", "wellspring", "clairval" }.Select(Biome)];
 }

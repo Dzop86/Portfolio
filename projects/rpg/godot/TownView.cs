@@ -692,6 +692,8 @@ public partial class TownView : Node3D
         "woods" => WoodsTrees,
         // The Underroot Mines (sprint 224): tall pines and fat old trees fed by the Mother Tree's roots.
         "underroot" => [Tree("tree_pineTallA", 1.53f), Tree("tree_fat", 1.15f), Tree("tree_pineRoundA", 1.37f)],
+        // Wellspring Vale (sprint 233): slim birches by the water, broad walnuts on the terraces.
+        "wellspring" => [Tree("tree_tall", 1.69f), Tree("tree_simple", 1.52f), Tree("tree_oak", 1.23f), Tree("tree_default", 1.71f)],
         _ => [.. TownTrees, Tree("tree_oak", 1.23f), Tree("tree_fat", 1.15f), Tree("tree_default", 1.71f)],
     };
 

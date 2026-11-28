@@ -78,6 +78,8 @@ public sealed class Relief
         "ancestors" => 2.2f,
         // The Underroot Mines (sprint 224): the steepest ground, spoil heaps and crags.
         "underroot" => 2.6f,
+        // Wellspring Vale (sprint 233): terraces down to the springs, gentler than the mines.
+        "wellspring" => 1.8f,
         _ => 0,
     };
 

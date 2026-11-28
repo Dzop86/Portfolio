@@ -6,14 +6,15 @@ namespace Rpg.Core.Tests;
 public class HarvestTests
 {
     [Fact]
-    public void FiveGatheringTrades_EachANewResourceEveryFiveLevels_UpTo55()
+    public void FiveGatheringTrades_EachANewResourceEveryFiveLevels_UpTo70_ButSixty()
     {
         Job[] gathering = [.. Real.Jobs.Values.Where(j => j.Gathers)];
         Assert.Equal(["woodcutter", "miner", "fisher", "farmer", "herbalist"], gathering.Select(j => j.Id));
-        // 40 and 45 since sprint 131, in the Forest of the Ancestors; 50 and 55 since sprint 224, in the Underroot Mines.
-        Assert.All(gathering, j => Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], j.Harvests!.Select(h => h.Level)));
+        // 40 and 45 since sprint 131, in the Forest of the Ancestors; 50 and 55 since sprint 224, in the Underroot Mines;
+        // 65 and 70 since sprint 233, in Wellspring Vale, none of 60 (T198).
+        Assert.All(gathering, j => Assert.Equal([1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 65, 70], j.Harvests!.Select(h => h.Level)));
         Assert.All(gathering, j => Assert.Single(j.Harvests!.Select(h => h.Node).Distinct()));
-        Assert.Equal(60, gathering.SelectMany(j => j.Harvests!).Select(h => h.Item).Distinct().Count());
+        Assert.Equal(70, gathering.SelectMany(j => j.Harvests!).Select(h => h.Item).Distinct().Count());
         Assert.All(gathering.SelectMany(j => j.Harvests!), h => Assert.Equal(h.Level, Real.Items[h.Item].Level));
     }
 
@@ -40,8 +41,8 @@ public class HarvestTests
             (int near, int far) = Harvesting.Tiers[map.Zone!];
             Assert.All(here.Where(n => !(map.Zone == "lake" && n.Kind == NodeKind.Water && n.Level >= 30)), n => Assert.Contains(n.Level, new[] { near, far }));
         }
-        // Every one of the 60 resources grows somewhere.
-        Assert.Equal(60, Real.Nodes.Values.Select(n => n.Item).Distinct().Count());
+        // Every one of the 70 resources grows somewhere.
+        Assert.Equal(70, Real.Nodes.Values.Select(n => n.Item).Distinct().Count());
     }
 
     [Fact]

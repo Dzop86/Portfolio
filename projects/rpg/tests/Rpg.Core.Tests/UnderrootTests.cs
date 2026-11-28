@@ -43,8 +43,8 @@ public class UnderrootTests
         Assert.All(up, l => Assert.True(entry.CanStand(l.At), $"{l.At} is not walkable on the mines' side"));
         Assert.All(down.Select(l => l.Arrival), a => Assert.True(entry.CanStand(a)));
         Assert.All(up.Select(l => l.Arrival), a => Assert.True(forest.CanStand(a)));
-        // The only ways between the mines and the rest of the world.
-        Assert.Equal(6, World.Where(t => t.Dungeon is null).SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
+        // The only ways between the mines and the rest of the world: the forest's, and since sprint 233 Wellspring Vale's.
+        Assert.Equal(12, World.Where(t => t.Dungeon is null).SelectMany(t => (t.Links ?? []).Select(l => (From: t, l.To)))
             .Count(w => (w.From.Zone == "underroot") != (Real.Towns[w.To].Zone == "underroot") && Real.Towns[w.To].Dungeon is null));
     }
 
@@ -104,11 +104,13 @@ public class UnderrootTests
         Assert.Equal(0, MonsterGroups.Depth(Real.Towns["underroot-2-0"], World));
         Assert.Equal(2, MonsterGroups.Depth(Real.Towns["underroot-0-4"], World));
         Assert.Equal(2, MonsterGroups.Depth(Real.Towns["underroot-4-4"], World));
+        // The mines' own depths unchanged by Wellspring Vale (sprint 233), which lies higher.
+        Assert.Equal(2, MonsterGroups.Depth(Real.Towns["underroot-2-4"], World));
         // The forest's own depths unchanged: its way in is still Quatre-Chemins, the mines lying higher.
         Assert.Equal(0, MonsterGroups.Depth(Real.Towns["ancestors-1-0"], World));
         Assert.Equal(2, MonsterGroups.Depth(Real.Towns["ancestors-2-4"], World));
         // Every one of the ten resources of the five gathering trades grows there, and only there.
-        string[] ten = [.. Real.Jobs.Values.Where(j => j.Gathers).SelectMany(j => j.Harvests!).Where(h => h.Level >= 50).Select(h => h.Item)];
+        string[] ten = [.. Real.Jobs.Values.Where(j => j.Gathers).SelectMany(j => j.Harvests!).Where(h => Levels.Contains(h.Level)).Select(h => h.Item)];
         Assert.Equal(10, ten.Length);
         Assert.Equal(ten.Order(), spots.Select(n => n.Item).Distinct().Order());
         Assert.All(Real.Nodes.Values.Where(n => ten.Contains(n.Item)), n => Assert.Equal("underroot", Real.Towns[n.Map].Zone));

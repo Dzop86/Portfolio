@@ -104,6 +104,10 @@ ICONS = {
     "larch-log": "delapouite/axe-in-log", "rootwood-log": "delapouite/tree-roots", "cobalt-ore": "faithtoken/minerals", "gold-ore": "delapouite/gold-nuggets",
     "grayling": "various-artists/salmon", "cavefish": "delapouite/circling-fish", "barley": "delapouite/grain-bundle", "millet": "delapouite/grain",
     "arnica": "delapouite/dandelion-flower", "gentian": "delapouite/herbs-bundle",
+    # Wellspring Vale's (sprint 233): levels 65 and 70, drawings already there (the maize shares the sorghum's, in its own colour).
+    "birch-log": "delapouite/wood-pile", "walnut-log": "delapouite/half-log", "calcite": "lorc/crystal-growth", "platinum-ore": "faithtoken/ore",
+    "barbel": "delapouite/double-fish", "arctic-char": "delapouite/fish-escape", "maize": "delapouite/corn", "emmer": "delapouite/sesame",
+    "watercress": "lorc/sprout", "valerian": "lorc/three-leaves",
     # The dungeons' keys, and the quest items.
     "boar-wallow-key": "delapouite/boss-key", "wolf-den-key": "delapouite/boss-key", "mushroom-cellar-key": "delapouite/boss-key",
     "zombie-crypt-key": "delapouite/boss-key", "frog-grotto-key": "delapouite/boss-key", "crab-reef-key": "delapouite/boss-key",

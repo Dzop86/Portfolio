@@ -18,9 +18,9 @@ public class WorldPictureTests
     public void ThePicture_LaysEveryMapInItsPlace_EdgeToEdge()
     {
         // From the mouldy woods' west column (-10) to the Forest of the Ancestors' east one (8, sprint 131), from the lake's north
-        // row (-7) to the Underroot Mines' south one (10, sprint 224; the fields' 7 before).
-        Assert.Equal((19, 18, 48, 32), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
-        Assert.Equal((19 * 48 * P, 18 * 32 * P), (Picture.Width, Picture.Height));
+        // row (-7) to the Wellspring Vale's south one (15, sprint 233; the Mines' 10 before).
+        Assert.Equal((19, 23, 48, 32), (Picture.Columns, Picture.RowsOfMaps, Picture.MapWidth, Picture.MapHeight));
+        Assert.Equal((19 * 48 * P, 23 * 32 * P), (Picture.Width, Picture.Height));
         Assert.Equal(Picture.Width * Picture.Height * 4, Picture.Pixels.Length);
         Assert.Equal(Picture.Pixels, new WorldPicture(GameData.Embedded).Pixels);
         foreach (Town t in GameData.Embedded.Towns.Values.Where(t => !t.IsHall))

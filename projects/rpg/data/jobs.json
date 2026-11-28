@@ -259,6 +259,16 @@
         "item": "rootwood-log",
         "level": 55,
         "node": "Tree"
+      },
+      {
+        "item": "birch-log",
+        "level": 65,
+        "node": "Tree"
+      },
+      {
+        "item": "walnut-log",
+        "level": 70,
+        "node": "Tree"
       }
     ]
   },
@@ -328,6 +338,16 @@
       {
         "item": "gold-ore",
         "level": 55,
+        "node": "Rock"
+      },
+      {
+        "item": "calcite",
+        "level": 65,
+        "node": "Rock"
+      },
+      {
+        "item": "platinum-ore",
+        "level": 70,
         "node": "Rock"
       }
     ]
@@ -399,6 +419,16 @@
         "item": "cavefish",
         "level": 55,
         "node": "Water"
+      },
+      {
+        "item": "barbel",
+        "level": 65,
+        "node": "Water"
+      },
+      {
+        "item": "arctic-char",
+        "level": 70,
+        "node": "Water"
       }
     ]
   },
@@ -469,6 +499,16 @@
         "item": "millet",
         "level": 55,
         "node": "Plot"
+      },
+      {
+        "item": "maize",
+        "level": 65,
+        "node": "Plot"
+      },
+      {
+        "item": "emmer",
+        "level": 70,
+        "node": "Plot"
       }
     ]
   },
@@ -538,6 +578,16 @@
       {
         "item": "gentian",
         "level": 55,
+        "node": "Herb"
+      },
+      {
+        "item": "watercress",
+        "level": 65,
+        "node": "Herb"
+      },
+      {
+        "item": "valerian",
+        "level": 70,
         "node": "Herb"
       }
     ]
